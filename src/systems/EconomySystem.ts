@@ -1,13 +1,9 @@
-import {
-  BASE_POPULATION_CAPACITY,
-  FOOD_UPKEEP_PER_WORKER,
-  RESOURCE_ORDER,
-  TICKS_PER_SECOND,
-} from '@/config/Constants';
+import { FOOD_UPKEEP_PER_CITIZEN, RESOURCE_ORDER, TICKS_PER_SECOND } from '@/config/Constants';
 import { getBuilding } from '@/config/BuildingCatalog';
 import { resolveBuilding } from './BuildingResolver';
 import type { EventBus } from '@/core/EventBus';
 import type { GameState } from '@/core/GameState';
+import type { PopulationSystem } from './PopulationSystem';
 import type { ResourceSystem } from './ResourceSystem';
 import type { EconomySnapshot, ResourcePool } from '@/types';
 
@@ -15,31 +11,40 @@ import type { EconomySnapshot, ResourcePool } from '@/types';
 const TICKS_PER_MINUTE = 60 * TICKS_PER_SECOND;
 
 /**
- * Ekonomi simulasyonu: isci dagilimi, uretim ve yiyecek gideri.
+ * Ekonomi simulasyonu: uretim ve yiyecek gideri.
  *
  * SORUMLULUK SINIRI
- * Bu sistem YALNIZCA ekonomik uretimden sorumludur. Insaat ve yukseltme
- * gorevlerinin ilerlemesi ve tamamlanmasi ConstructionSystem'in isidir;
- * tik sayacini ilerletmek ise Simulation orkestratorunun.
+ * Bu sistem YALNIZCA ekonomik uretimden sorumludur. Kimin nerede calistigi
+ * PopulationSystem'in, gorevlerin ilerlemesi ConstructionSystem'in, tik
+ * sayacini ilerletmek Simulation orkestratorunun isidir.
  *
  * Bu sistem kendisine verilen tik sayisini isler, zamani kendisi ilerletmez.
  *
- * DENGE KURALLARI (prototipten degismedi)
- * - Uretim binalari isci ister; toplam isci ihtiyaci nufus kapasitesini asarsa
- *   tum uretim ayni oranda dusurulur (verim carpani).
- * - Her isci dakikada sabit miktarda yiyecek tuketir.
- * - Yiyecek bittiginde verim yarilanir.
+ * DENGE KURALLARI (Sprint 3'te nufusa baglandi)
+ * - Uretim BINA BAZINDA kadroyla olceklenir; resolver'in effectiveProduction
+ *   degeri okunur, burada yeniden hesaplanmaz.
+ * - Her VATANDAS dakikada sabit yiyecek tuketir; issiz vatandas da yer.
+ * - Aclik cezasi artik uretim carpani degil: yiyecek bitince nufus azalir
+ *   (PopulationSystem), isci sayisi duser, uretim kendiliginden geriler.
+ *   Iki cezayi ust uste bindirmek ayni olayin bedelini iki kez odetirdi.
  */
 export class EconomySystem {
   private readonly state: GameState;
   private readonly resources: ResourceSystem;
+  private readonly population: PopulationSystem;
   private readonly bus: EventBus;
 
   private lastSnapshot: EconomySnapshot = emptySnapshot();
 
-  constructor(state: GameState, resources: ResourceSystem, bus: EventBus) {
+  constructor(
+    state: GameState,
+    resources: ResourceSystem,
+    population: PopulationSystem,
+    bus: EventBus,
+  ) {
     this.state = state;
     this.resources = resources;
+    this.population = population;
     this.bus = bus;
   }
 
@@ -91,44 +96,31 @@ export class EconomySystem {
    * kapasite mantigi tekrarlanmaz.
    */
   private computeSnapshot(): EconomySnapshot {
-    let populationCapacity = BASE_POPULATION_CAPACITY;
-    let workersNeeded = 0;
-    const gross: ResourcePool = { food: 0, wood: 0, stone: 0, gold: 0 };
+    const people = this.population.snapshot;
+    const netPerMinute: ResourcePool = { food: 0, wood: 0, stone: 0, gold: 0 };
 
     for (const building of this.state.buildings.values()) {
       const resolved = resolveBuilding(building, getBuilding(building.type), this.state.tick);
       if (!resolved.operational) continue;
 
-      populationCapacity += resolved.populationCapacity;
-      workersNeeded += resolved.workerRequirement;
-
+      // Kadro carpani resolver'da uygulanmistir; burada tekrar carpilmaz.
       for (const key of RESOURCE_ORDER) {
-        gross[key] += resolved.production[key] ?? 0;
+        netPerMinute[key] += resolved.effectiveProduction[key] ?? 0;
       }
     }
 
-    // Isci yetersizse tum uretim ayni oranda dusurulur.
-    let efficiency = workersNeeded > 0 ? Math.min(1, populationCapacity / workersNeeded) : 1;
-
-    // Aclik cezasi: depoda yiyecek yoksa uretim yarilanir.
-    const starving = this.resources.amountOf('food') <= 0 && workersNeeded > 0;
-    if (starving) efficiency *= 0.5;
-
-    const populationUsed = Math.min(workersNeeded, populationCapacity);
-    const upkeep = populationUsed * FOOD_UPKEEP_PER_WORKER;
-
-    const netPerMinute: ResourcePool = { food: 0, wood: 0, stone: 0, gold: 0 };
-    for (const key of RESOURCE_ORDER) {
-      netPerMinute[key] = gross[key] * efficiency;
-    }
-    netPerMinute.food -= upkeep;
+    // Sehirde yasayan herkes yer - calissin veya calismasin.
+    netPerMinute.food -= this.state.population * FOOD_UPKEEP_PER_CITIZEN;
 
     return {
       netPerMinute,
-      populationUsed,
-      populationCapacity,
+      population: this.state.population,
+      populationUsed: people.employed,
+      populationCapacity: people.capacity,
+      workersNeeded: people.workersNeeded,
       storageCapacity: this.resources.capacity,
-      efficiency,
+      efficiency: people.workersNeeded > 0 ? people.employed / people.workersNeeded : 1,
+      growth: people.trend,
     };
   }
 }
@@ -136,9 +128,12 @@ export class EconomySystem {
 function emptySnapshot(): EconomySnapshot {
   return {
     netPerMinute: { food: 0, wood: 0, stone: 0, gold: 0 },
+    population: 0,
     populationUsed: 0,
     populationCapacity: 0,
+    workersNeeded: 0,
     storageCapacity: 0,
     efficiency: 1,
+    growth: 'stable',
   };
 }

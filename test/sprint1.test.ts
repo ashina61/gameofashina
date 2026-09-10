@@ -333,7 +333,12 @@ describe('tik tabanli zaman', () => {
       const c = w.state.grid.center();
       w.buildings.place('farm', c.gx, c.gy);
       w.buildings.place('house', c.gx + 1, c.gy);
-      w.simulation.advance(50); // once tum insaatlari bitir
+      // Once tum insaatlari bitir VE nufusu kapasiteye oturt.
+      // Sprint 3'ten beri nufus da bir durum gecisidir: buyume suren bir
+      // pencerede toplu ilerletme, tek tek ilerletmeyle ortusmez. Bu testin
+      // konusu "durum degismeyen pencere" oldugu icin sehir once dengeye
+      // getirilir; buyume asamasindaki fark sprint3 testinde belgelendi.
+      w.simulation.advance(400);
     }
 
     bulk.simulation.advance(100);

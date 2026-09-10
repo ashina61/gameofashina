@@ -2,6 +2,7 @@ import type {
   BuildingInstance,
   ConstructionTask,
   EconomySnapshot,
+  PopulationSnapshot,
   ResourcePool,
   TileData,
 } from '@/types';
@@ -13,6 +14,7 @@ import type {
 export interface GameEvents {
   'resources:changed': [resources: ResourcePool, capacity: number];
   'economy:updated': [snapshot: EconomySnapshot];
+  'population:updated': [snapshot: PopulationSnapshot];
   'building:placed': [building: BuildingInstance];
   'building:completed': [building: BuildingInstance];
   'building:removed': [building: BuildingInstance];

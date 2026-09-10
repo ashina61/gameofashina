@@ -57,6 +57,33 @@ export class GameState {
   /** Son yuklemede atilan kayitlar; tani amaclidir. */
   private issues: LoadIssue[] = [];
 
+  /**
+   * Sehirde yasayan vatandas sayisi (tam sayi).
+   * Isci dagitiminin kaynagi budur; kapasite yalnizca ust siniri belirler.
+   */
+  private citizens = 0;
+
+  /**
+   * Bekleyen nufus degisimi, TAM SAYI birimlerde.
+   *
+   * Buyume ve azalma dakikalik oranlarla tanimli oldugu icin tek bir tik cogu
+   * zaman tam bir vatandas etmez. Artan kisim burada biriktirilir; bir
+   * vatandas TICKS_PER_MINUTE birim eder.
+   *
+   * NEDEN KESIR DEGIL DE BIRIM: kesirli birikim (her tikte +2/60 gibi) kayan
+   * noktada asiniyordu - 90 tik sonra 5 yerine 4.99999999999999 cikiyor ve
+   * asagi yuvarlanirken bir vatandas yok oluyordu. Birim alaninda toplama
+   * tam sayilarla yapilir, boyle bir kayip olamaz ve parcali ilerletme tek
+   * seferlik ilerletmeyle birebir ortusur.
+   *
+   * Isaretlidir: pozitif buyume, negatif azalma yolundadir. Yon degisince
+   * kalan birim dogal olarak sadelesir.
+   *
+   * Kasten KAYDEDILMEZ: yarim vatandas gorunur bir durum degildir ve kayitta
+   * tasimak, kaydi kurcalamaya acik bir alan daha eklerdi.
+   */
+  private growthUnits = 0;
+
   constructor(terrainSeed: number, resources?: ResourcePool) {
     this.grid = new GridMap(terrainSeed);
     this.resourcePool = resources ? { ...resources } : { ...STARTING_RESOURCES };
@@ -88,6 +115,16 @@ export class GameState {
     return this.issues;
   }
 
+  /** Sehirdeki vatandas sayisi. */
+  get population(): number {
+    return this.citizens;
+  }
+
+  /** Bekleyen nufus degisimi (birim); yalnizca PopulationSystem kullanir. */
+  get populationProgress(): number {
+    return this.growthUnits;
+  }
+
   /** Verilen turden kac adet bina oldugunu dondurur (insaattakiler dahil). */
   countOf(type: BuildingId): number {
     return this.countsByType.get(type) ?? 0;
@@ -100,6 +137,16 @@ export class GameState {
     if (!Number.isFinite(ticks) || ticks <= 0) return this.currentTick;
     this.currentTick += Math.floor(ticks);
     return this.currentTick;
+  }
+
+  /**
+   * Nufusu belirler; negatife dusmez ve tam sayiya yuvarlanir.
+   * Bekleyen degisim birimi ayri tutulur ki dakikalik oranlar tik tik
+   * biriktirilebilsin.
+   */
+  setPopulation(value: number, progress = 0): void {
+    this.citizens = Number.isFinite(value) ? Math.max(0, Math.trunc(value)) : 0;
+    this.growthUnits = Number.isFinite(progress) ? progress : 0;
   }
 
   /** Tek bir kaynagin miktarini belirler; negatife dusmez. */
@@ -139,6 +186,13 @@ export class GameState {
     const building = this.buildingMap.get(uid);
     if (!building) return;
     building.level = Number.isFinite(level) ? Math.max(1, Math.trunc(level)) : 1;
+  }
+
+  /** Binaya atanan isci sayisini belirler; negatif olamaz. */
+  setAssignedWorkers(uid: string, workers: number): void {
+    const building = this.buildingMap.get(uid);
+    if (!building) return;
+    building.assignedWorkers = Number.isFinite(workers) ? Math.max(0, Math.trunc(workers)) : 0;
   }
 
   /** Devam eden insaat gorevini atar veya (undefined ile) kaldirir. */
@@ -202,6 +256,7 @@ export class GameState {
     }
 
     state.rebuildIndexes();
+    state.setPopulation(save.population);
 
     // Sira sayaci, yuklenen gorevlerin en yukseginin uzerinden devam etmeli;
     // aksi halde yeni gorevler kuyrukta eski gorevlerin onune gecerdi.
@@ -223,6 +278,7 @@ export class GameState {
       resources: { ...this.resourcePool },
       buildings: [...this.buildingMap.values()].map((b) => ({ ...b })),
       terrainSeed: this.grid.seed,
+      population: this.citizens,
     };
   }
 

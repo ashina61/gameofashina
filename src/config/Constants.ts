@@ -41,8 +41,33 @@ export const BASE_STORAGE_CAPACITY = 500;
 /** Sehir merkezi olmadan bile var olan taban nufus kapasitesi. */
 export const BASE_POPULATION_CAPACITY = 0;
 
-/** Her isci icin dakikada tuketilen yiyecek. */
-export const FOOD_UPKEEP_PER_WORKER = 0.4;
+/**
+ * Her VATANDAS icin dakikada tuketilen yiyecek.
+ *
+ * Sprint 3'e kadar bu gider calisan isci basinaydi. Nufus gercek bir kaynak
+ * oldugundan beri issiz vatandas da yer: sehri buyutmek bedava degildir.
+ */
+export const FOOD_UPKEEP_PER_CITIZEN = 0.4;
+
+/**
+ * Yiyecek fazlasi varken dakikada gelen yeni vatandas sayisi.
+ * Bos kapasite bundan azsa yalnizca bos kapasite kadar buyume olur.
+ */
+export const POPULATION_GROWTH_PER_MINUTE = 2;
+
+/**
+ * Yiyecek bittiginde dakikada kaybedilen vatandas sayisi.
+ * Buyumeden yavastir: bir aclik kazasi sehri anda silmez, ama uzun aclik
+ * nufusu eritir. Bina veya seviye KAYBI asla olmaz.
+ */
+export const POPULATION_DECLINE_PER_MINUTE = 1;
+
+/**
+ * Buyumenin baslamasi icin depoda bulunmasi gereken en az yiyecek.
+ * Sifir esigi, deponun sifirda titredigi anda buyume/azalma salinimina yol
+ * acardi; kucuk bir tampon bunu engeller.
+ */
+export const POPULATION_GROWTH_FOOD_THRESHOLD = 1;
 
 /**
  * Ayni anda islenebilecek azami insaat/yukseltme gorevi.
@@ -87,9 +112,11 @@ export const TAP_MAX_DURATION_MS = 400;
  * v2: type + state + level + assignedWorkers + construction (tik) + tick
  * v3: construction.kind ('build' | 'upgrade'); accumulatedProduction kaldirildi
  *
- * NOT: Kuyruk alanlari (status, durationTicks, sequence) v3 icine geriye donuk
- * uyumlu eklendi - eksik olduklarinda kayittan turetilebildikleri icin surum
- * artirmaya gerek yoktur.
+ * NOT: Kuyruk alanlari (status, durationTicks, sequence) ve nufus alani
+ * (population) v3 icine geriye donuk uyumlu eklendi - eksik olduklarinda
+ * kayittan turetilebildikleri icin surum artirmaya gerek yoktur. Nufusu
+ * olmayan bir kayit, o kayittaki isci ihtiyaci ve kapasiteden turetilir;
+ * boylece eski sehir yuklendiginde is gucunu kaybetmez.
  */
 export const SAVE_VERSION = 3;
 

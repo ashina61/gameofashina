@@ -7,6 +7,7 @@ import { SimulationClock } from './SimulationClock';
 import { BuildingSystem } from '@/systems/BuildingSystem';
 import { ConstructionSystem } from '@/systems/ConstructionSystem';
 import { EconomySystem } from '@/systems/EconomySystem';
+import { PopulationSystem } from '@/systems/PopulationSystem';
 import { ResourceSystem } from '@/systems/ResourceSystem';
 import { UpgradeSystem } from '@/systems/UpgradeSystem';
 
@@ -26,6 +27,7 @@ export class GameWorld {
   readonly construction: ConstructionSystem;
   readonly buildings: BuildingSystem;
   readonly upgrades: UpgradeSystem;
+  readonly population: PopulationSystem;
   readonly economy: EconomySystem;
   readonly simulation: Simulation;
 
@@ -47,8 +49,14 @@ export class GameWorld {
     this.construction = new ConstructionSystem(state, this.resources, this.bus);
     this.buildings = new BuildingSystem(state, this.resources, this.construction, this.bus);
     this.upgrades = new UpgradeSystem(state, this.resources, this.construction);
-    this.economy = new EconomySystem(state, this.resources, this.bus);
-    this.simulation = new Simulation(state, this.construction, this.economy);
+    this.population = new PopulationSystem(state, this.resources, this.bus);
+    this.economy = new EconomySystem(state, this.resources, this.population, this.bus);
+    this.simulation = new Simulation(state, this.construction, this.population, this.economy);
+
+    // assignedWorkers turetilmis durumdur: kayittan gelen degere guvenilmez,
+    // nufustan bastan kurulur. Bu, ilk tikten once yapilmalidir ki cevrimdisi
+    // telafinin ilk penceresi de dogru kadroyla uretsin.
+    this.population.rebuildFromState();
 
     this.offlineSeconds =
       offlineSeconds > 0 ? this.simulation.applyOfflineProgress(offlineSeconds) : 0;

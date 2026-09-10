@@ -107,6 +107,12 @@ describe('yerlestirme kurallari', () => {
 });
 
 describe('ekonomi matematigi', () => {
+  /**
+   * DENGEDEKI sehir. Sprint 3'te nufus gercek bir kaynak oldugu icin bu
+   * denge artik ANINDA olusmuyor: binalar bitse bile vatandaslarin gelmesi
+   * gerekiyor. Bu yuzden olcum, nufus kapasiteye oturduktan sonra alinir.
+   * Buyume asamasindaki davranis sprint3 testlerinde.
+   */
   it('sehir merkezi + ev + ciftlik: bilinen denge', () => {
     const { state, buildings, economy, simulation } = makeWorld();
     const c = startArea(state);
@@ -114,14 +120,17 @@ describe('ekonomi matematigi', () => {
     buildings.place('house', c.gx, c.gy);
     buildings.place('farm', c.gx + 1, c.gy);
 
-    simulation.advanceSeconds(40); // tum insaatlari bitir
+    simulation.advanceSeconds(400); // insaatlar bitsin ve nufus dolsun
     const snap = economy.snapshot;
 
     expect(snap.populationCapacity).toBe(9); // 4 (merkez) + 5 (ev)
-    expect(snap.populationUsed).toBe(2); // ciftlik 2 isci
+    expect(snap.population).toBe(9); // kapasite dolmus
+    expect(snap.populationUsed).toBe(2); // ciftlik 2 isci; kalan 7 issiz
     expect(snap.efficiency).toBe(1);
     expect(snap.storageCapacity).toBe(750); // 500 taban + 250 merkez
-    expect(snap.netPerMinute.food).toBeCloseTo(5.2, 5); // 6 uretim - 2*0.4 gider
+    // 6 uretim - 9 vatandas * 0.4 gider. Gider artik CALISANA degil,
+    // sehirde YASAYAN herkese uygulanir.
+    expect(snap.netPerMinute.food).toBeCloseTo(2.4, 5);
     expect(snap.netPerMinute.gold).toBeCloseTo(2, 5);
   });
 

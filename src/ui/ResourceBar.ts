@@ -18,7 +18,13 @@ export class ResourceBar extends Phaser.GameObjects.Container {
 
   private static readonly HEIGHT = 60;
   /** Nufus gostergesine ayrilan sabit genislik. */
-  private static readonly POPULATION_WIDTH = 92;
+  /**
+   * Nufus sutununun genisligi. Sprint 3'te metin "5/9" yerine "10/10 +"
+   * gibi daha uzun bir hale geldi (gidisat isareti eklendi), bu yuzden
+   * sutun buyutuldu; aksi halde dar telefonda son kaynagin orani ile
+   * ust uste binerdi.
+   */
+  private static readonly POPULATION_WIDTH = 104;
 
   constructor(scene: Phaser.Scene, width: number) {
     super(scene, 0, 0);
@@ -106,10 +112,26 @@ export class ResourceBar extends Phaser.GameObjects.Container {
       text.setColor(rate < 0 ? UIText.danger : UIText.muted);
     }
 
-    // Verim 1'in altindaysa isci acigi var demektir.
-    const short = snapshot.efficiency < 1;
+    // Nufus artik gercek bir sayidir: YASAYAN / KAPASITE gosterilir.
+    // Isaret nufusun yonunu, renk aciliyeti anlatir:
+    //   kirmizi  - nufus eriyor (aclik); en acil durum
+    //   sari     - isci acigi var, binalar tam kapasite calismiyor
+    //   yesil    - sehir buyuyor
+    const marker =
+      snapshot.growth === 'growing' ? ' +' : snapshot.growth === 'declining' ? ' -' : '';
+    const understaffed = snapshot.efficiency < 1;
+
+    const color =
+      snapshot.growth === 'declining'
+        ? UIText.danger
+        : understaffed
+          ? UIText.accent
+          : snapshot.growth === 'growing'
+            ? UIText.success
+            : UIText.muted;
+
     this.populationText
-      .setText(`Nufus ${Math.round(snapshot.populationUsed)}/${snapshot.populationCapacity}`)
-      .setColor(short ? UIText.danger : UIText.muted);
+      .setText(`Nufus ${snapshot.population}/${snapshot.populationCapacity}${marker}`)
+      .setColor(color);
   }
 }

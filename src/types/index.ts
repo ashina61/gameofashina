@@ -194,8 +194,16 @@ export interface ResolvedBuilding {
   state: BuildingState;
   /** Insaati bitmis ve calisir durumda mi? */
   operational: boolean;
-  /** Dakikada uretim; calismiyorsa bostur. */
+  /**
+   * Bu seviyedeki TAM uretim (kadro dolu varsayimiyla); calismiyorsa bostur.
+   * Arayuzde binanin potansiyelini gostermek icin kullanilir.
+   */
   production: ResourceAmounts;
+  /**
+   * Kadro doluluguyla olceklenmis GERCEK uretim.
+   * Ekonomi bunu toplar; production degil.
+   */
+  effectiveProduction: ResourceAmounts;
   /** Sagladigi depo kapasitesi; calismiyorsa 0. */
   storageCapacity: number;
   /** Sagladigi nufus kapasitesi; calismiyorsa 0. */
@@ -204,10 +212,12 @@ export interface ResolvedBuilding {
   workerRequirement: number;
   assignedWorkers: number;
   /**
-   * Isci ihtiyaci karsilaniyor mu?
-   * Bilgilendirme amaclidir; bu sprintte uretimi etkilemez (isci dagitimi
-   * hala kuresel havuz uzerinden yapiliyor).
+   * Kadro doluluk orani (0..1): assignedWorkers / workerRequirement.
+   * Isci istemeyen bina icin her zaman 1.
+   * Sprint 3'ten beri uretim DOGRUDAN bununla carpilir.
    */
+  staffing: number;
+  /** Isci ihtiyaci tam karsilaniyor mu? (staffing >= 1) */
   staffed: boolean;
   /** Yikildiginda geri verilecek kaynaklar. */
   refund: ResourceAmounts;
@@ -270,15 +280,42 @@ export interface SaveData {
   resources: ResourcePool;
   buildings: BuildingInstance[];
   terrainSeed: number;
+  /**
+   * Sehirdeki vatandas sayisi.
+   * v3 icine geriye donuk uyumlu eklendi: eksikse eski kaydin isci ihtiyaci
+   * ve nufus kapasitesinden turetilir, bu yuzden surum artirilmadi.
+   */
+  population: number;
 }
 
 /** Uretim sisteminin her tick sonunda yayinladigi ozet. */
 export interface EconomySnapshot {
   /** Dakika basina net uretim. */
   netPerMinute: ResourcePool;
+  /** Sehirde yasayan toplam vatandas sayisi (calisan + issiz). */
+  population: number;
+  /** Bir binada gorevlendirilmis vatandas sayisi. */
   populationUsed: number;
+  /** Binalarin sagladigi toplam nufus kapasitesi. */
   populationCapacity: number;
+  /** Tum binalarin toplam isci ihtiyaci. */
+  workersNeeded: number;
   storageCapacity: number;
-  /** Isci yetersizliginden dogan verim carpani (0..1). */
+  /** Isci yetersizliginden dogan ortalama kadro doluluğu (0..1). */
   efficiency: number;
+  /** Nufusun bu tikteki yonu; arayuz bunu gosterir. */
+  growth: PopulationTrend;
+}
+
+/** Nufusun gidisati. */
+export type PopulationTrend = 'growing' | 'stable' | 'declining';
+
+/** PopulationSystem'in her ilerlemede urettigi ozet. */
+export interface PopulationSnapshot {
+  population: number;
+  capacity: number;
+  workersNeeded: number;
+  /** Bir binaya atanmis vatandas sayisi. */
+  employed: number;
+  trend: PopulationTrend;
 }

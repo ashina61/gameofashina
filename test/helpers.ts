@@ -12,6 +12,7 @@ import { ConstructionSystem } from '@/systems/ConstructionSystem';
 import { BuildingSystem } from '@/systems/BuildingSystem';
 import { UpgradeSystem } from '@/systems/UpgradeSystem';
 import { EconomySystem } from '@/systems/EconomySystem';
+import { PopulationSystem } from '@/systems/PopulationSystem';
 
 export interface TestWorld {
   state: GameState;
@@ -20,6 +21,7 @@ export interface TestWorld {
   construction: ConstructionSystem;
   buildings: BuildingSystem;
   upgrades: UpgradeSystem;
+  population: PopulationSystem;
   economy: EconomySystem;
   simulation: Simulation;
 }
@@ -37,9 +39,25 @@ export function wrap(state: GameState): TestWorld {
   const construction = new ConstructionSystem(state, resources, bus);
   const buildings = new BuildingSystem(state, resources, construction, bus);
   const upgrades = new UpgradeSystem(state, resources, construction);
-  const economy = new EconomySystem(state, resources, bus);
-  const simulation = new Simulation(state, construction, economy);
-  return { state, bus, resources, construction, buildings, upgrades, economy, simulation };
+  const population = new PopulationSystem(state, resources, bus);
+  const economy = new EconomySystem(state, resources, population, bus);
+  const simulation = new Simulation(state, construction, population, economy);
+
+  // GameWorld ile ayni sira: assignedWorkers turetilmis durumdur, ilk tikten
+  // once nufustan kurulur.
+  population.rebuildFromState();
+
+  return {
+    state,
+    bus,
+    resources,
+    construction,
+    buildings,
+    upgrades,
+    population,
+    economy,
+    simulation,
+  };
 }
 
 /** Kaynaklari testin ihtiyaci kadar doldurur. */

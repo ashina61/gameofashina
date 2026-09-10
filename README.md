@@ -47,9 +47,15 @@ ederse jest kaydirma sayilir ve bina yerlestirilmez.
 2. **Bekle.** Her binanin bir insa suresi vardir; bu sirada bina soluk gorunur
    ve altinda ilerleme cubugu bulunur.
 3. **Uret.** Tamamlanan binalar dakikada kaynak uretir.
-4. **Dengele.** Uretim binalari isci ister, isciler nufus kapasitesinden gelir
-   (evler saglar) ve her isci yiyecek tuketir. Isci yetersizse tum uretim ayni
-   oranda duser; depoda yiyecek bitmisse verim ayrica yarilanir.
+4. **Buyu.** Evler nufus KAPASITESI acar; vatandaslar depoda yiyecek varken
+   dakikada birkac kisi olarak gelir ve kapasite dolunca durur. Kapasite
+   vatandas demek degildir - ev dikmek is gucunu aninda vermez.
+5. **Dengele.** Vatandaslar uretim binalarina KURULUS SIRASIYLA dagitilir:
+   erken kurulan bina once dolar. Kadrosu eksik bina orantili olarak az
+   uretir (3/4 isci = 3/4 uretim), tum sehir birden yavaslamaz.
+6. **Doyur.** Sehirde yasayan HERKES yiyecek tuketir - calissin veya
+   calismasin. Yiyecek bitince vatandaslar sehri terk etmeye baslar; bina
+   veya seviye kaybi olmaz ve yiyecek gelince nufus yeniden buyur.
 
 Oyun kapaliyken gecen sure acilista telafi edilir (en fazla 8 saat).
 
@@ -69,14 +75,20 @@ src/
 │   └── GameConfig.ts        Phaser yapilandirmasi, baslangic kaynaklari
 ├── core/                    Phaser'dan bagimsiz oyun cekirdegi
 │   ├── GameWorld.ts         Durum + sistemleri bir arada tutan kok nesne
-│   ├── GameState.ts         Kaynaklar, binalar, izgara
+│   ├── GameState.ts         Kaynaklar, binalar, nufus, izgara
 │   ├── GridMap.ts           Prosedurel zemin uretimi ve isgal takibi
+│   ├── Simulation.ts        Tik sayacini ilerleten TEK yer (orkestrator)
+│   ├── SimulationClock.ts   Gercek zamani tam tiklere ceviren biriktirici
 │   ├── SaveManager.ts       localStorage okuma/yazma ve dogrulama
 │   └── EventBus.ts          Tip guvenli olay yayinlayici
 ├── systems/                 Oyun kurallari
+│   ├── BuildingResolver.ts  Uretim/kapasite/maliyet hesabinin TEK kaynagi
 │   ├── ResourceSystem.ts    Harcama, ekleme, depo siniri
 │   ├── BuildingSystem.ts    Yerlestirme kurallari, yikma
-│   └── EconomySystem.ts     Insaat sayaclari, isci dagilimi, uretim
+│   ├── ConstructionSystem.ts Insa/yukseltme gorevleri, kuyruk, iptal
+│   ├── UpgradeSystem.ts     Yukseltme kurallari ve maliyeti
+│   ├── PopulationSystem.ts  Nufus buyumesi/azalmasi ve isci dagitimi
+│   └── EconomySystem.ts     Uretim ve yiyecek gideri
 ├── scenes/                  Phaser sahneleri
 │   ├── BootScene.ts         GameWorld'u kurar ve registry'e koyar
 │   ├── PreloadScene.ts      Dokulari uretir
@@ -134,8 +146,10 @@ girer.
 ## Kayit
 
 Durum 15 saniyede bir, ayrica her insa/yikma isleminde ve sekme arka plana
-alindiginda `ancient-city:save:v1` anahtarina yazilir. Kayit surumu
-degistiginde (`SAVE_VERSION`) eski kayitlar reddedilir. Sifirdan baslamak icin
+alindiginda `ancient-city:save:v1` anahtarina yazilir. Eski surumler
+(`MIN_SUPPORTED_SAVE_VERSION`'a kadar) goc ettirilerek yuklenir; yalnizca
+taninmayan bir surum reddedilir. Kayittan turetilebilen alanlar surum
+artirmadan eklenir - nufus da boyle eklendi. Sifirdan baslamak icin
 tarayici konsolunda:
 
 ```js
@@ -186,8 +200,34 @@ hale getirilmesini gerektirir. Yapilandirilabilir bir "kanca" eklemek, guvenle
 acilamayacagi icin olu yapilandirma olurdu; bu nedenle EKLENMEDI. Kendi
 sprintinde, arayuz olcek calismasiyla birlikte ele alinmalidir.
 
+## Nufus modeli
+
+Nufus gercek bir kaynaktir; kapasitenin turevi degildir.
+
+| Kavram | Anlami |
+| --- | --- |
+| Kapasite | Evlerin actigi ust sinir. Vatandas DEMEK DEGILDIR. |
+| Nufus | Sehirde yasayan vatandas sayisi. Zamanla kapasiteye dogru buyur. |
+| Calisan | Bir binaya atanmis vatandas. Geri kalani issizdir ama yine yer. |
+| Kadro | `atanan / gereken`. Uretim dogrudan bununla carpilir. |
+
+**Buyume** dakikada `POPULATION_GROWTH_PER_MINUTE` kisidir ve yalnizca depoda
+yiyecek varken isler. **Azalma** dakikada `POPULATION_DECLINE_PER_MINUTE`
+kisidir; buyumeden yavastir, boylece bir aclik kazasi sehri silmez.
+
+Buyume kesirli oranlarla tanimli oldugu icin biriktirici **tam sayi
+birimlerinde** calisir (bir vatandas = bir dakikalik tik sayisi). Kesirli
+birikim denendi ve kayan noktada asindigi gorundu: 90 tik sonra 5 yerine
+4.99999999999999 cikip asagi yuvarlanirken bir vatandas yok oluyordu. Birim
+alaninda toplama tam sayilarla yapilir, bu yuzden **parcali ilerletme tek
+seferlik ilerletmeyle birebir ortusur** - cevrimdisi telafi icin gerekli.
+
+`BuildingInstance.assignedWorkers` **turetilmis durumdur**: kayittan gelen
+degere guvenilmez, her ilerlemede ve her yuklemede nufustan yeniden
+hesaplanir. Kurcalanmis bir kayit is gucu uyduramaz.
+
 ## Yol haritasi
 
-Bu asamanin disinda birakilanlar: bina seviyeleri, arastirma agaci, birimler ve
-savas, gorevler, ses. Multiplayer/backend ise ayri bir asama olarak
-degerlendirilecek.
+Bu asamanin disinda birakilanlar: arastirma agaci, birimler ve savas,
+gorevler, ses. Cozunurluk (DPR) ve arayuz olcekleme kendi sprintini bekliyor.
+Multiplayer/backend ise ayri bir asama olarak degerlendirilecek.

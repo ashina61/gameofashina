@@ -1,11 +1,12 @@
 import {
+  BASE_POPULATION_CAPACITY,
   MIN_SUPPORTED_SAVE_VERSION,
   RESOURCE_ORDER,
   SAVE_KEY,
   SAVE_VERSION,
   TICKS_PER_SECOND,
 } from '@/config/Constants';
-import { clampLevel, getBuilding, isKnownBuildingId } from '@/config/BuildingCatalog';
+import { clampLevel, getBuilding, isKnownBuildingId, levelOf } from '@/config/BuildingCatalog';
 import { buildCostOf, resolveUpgradeOption } from '@/systems/BuildingResolver';
 import type {
   BuildingConstruction,
@@ -115,7 +116,36 @@ export function migrateAndSanitize(input: unknown): SaveData | null {
     resources,
     buildings,
     terrainSeed: data.terrainSeed,
+    population: sanitizePopulation(data.population, buildings),
   };
+}
+
+/**
+ * Nufusu dogrular; alan yoksa eski kayittan turetir.
+ *
+ * Sprint 3 oncesi kayitlarda nufus diye bir sey yoktu: isci, kapasite
+ * varsa ANINDA var sayiliyordu. O kaydi nufussuz yuklemek, oyuncunun
+ * sehrini bir anda issiz birakirdi. Bu yuzden eski kayit icin o zamanki
+ * ortuk deger yeniden kurulur: min(isci ihtiyaci, nufus kapasitesi).
+ *
+ * Kapasite ustundeki bir deger, kayit kurcalanmis olabilecegi icin
+ * kapasiteye kirpilir - PopulationSystem de her ilerlemede ayni siniri
+ * uygular, burasi yalnizca girisi temiz tutar.
+ */
+function sanitizePopulation(input: unknown, buildings: BuildingInstance[]): number {
+  let capacity = BASE_POPULATION_CAPACITY;
+  let workersNeeded = 0;
+  for (const building of buildings) {
+    if (building.state !== 'active') continue;
+    const entry = levelOf(getBuilding(building.type), building.level);
+    capacity += entry?.populationCapacity ?? 0;
+    workersNeeded += entry?.workerRequirement ?? 0;
+  }
+
+  if (typeof input !== 'number' || !Number.isFinite(input)) {
+    return Math.min(workersNeeded, capacity);
+  }
+  return Math.min(Math.max(0, Math.trunc(input)), capacity);
 }
 
 function sanitizeResources(input: unknown): ResourcePool {

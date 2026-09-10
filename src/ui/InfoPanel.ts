@@ -237,16 +237,30 @@ export class InfoPanel extends Phaser.GameObjects.Container {
     }
 
     // Insaat sirasinda uretim degerleri sifirdir; o seviyenin tanimini gosteririz.
-    const production = resolved.construction
-      ? (def.levels.find((l) => l.level === resolved.level)?.production ?? {})
-      : resolved.production;
+    // Calisir binada ise GERCEK uretim gosterilir: kadro eksikse "+4/dk"
+    // yazip 3 uretmek oyuncuyu yaniltirdi. Potansiyel, eksik kadro
+    // durumunda parantez icinde ayrica belirtilir.
+    const potential = def.levels.find((l) => l.level === resolved.level)?.production ?? {};
+    const production = resolved.construction ? potential : resolved.effectiveProduction;
 
-    const parts = RESOURCE_ORDER.filter((key) => production[key]).map(
-      (key) => `${RESOURCE_META[key].label} +${production[key]}/dk`,
-    );
+    const parts = RESOURCE_ORDER.filter((key) => production[key]).map((key) => {
+      const rate = `${RESOURCE_META[key].label} +${formatRate(production[key] ?? 0)}/dk`;
+      const full = potential[key] ?? 0;
+      const short = !resolved.construction && !resolved.staffed && full > (production[key] ?? 0);
+      return short ? `${rate} (tam kadro: ${formatRate(full)})` : rate;
+    });
     if (parts.length) lines.push(parts.join('  '));
 
-    if (resolved.workerRequirement) lines.push(`${resolved.workerRequirement} isci calistirir`);
+    // Kadro artik gercek: kac isci ISTEDIGI degil, kac isci ALDIGI gosterilir.
+    // Insaati suren binada henuz kadro olmaz, o yuzden yalnizca ihtiyac yazilir.
+    if (resolved.workerRequirement) {
+      if (resolved.construction?.kind === 'build') {
+        lines.push(`${resolved.workerRequirement} isci ister`);
+      } else {
+        const shortage = resolved.staffed ? '' : '  (isci yetersiz)';
+        lines.push(`Isci ${resolved.assignedWorkers}/${resolved.workerRequirement}${shortage}`);
+      }
+    }
 
     const populationCapacity =
       resolved.populationCapacity ||
@@ -290,4 +304,9 @@ export class InfoPanel extends Phaser.GameObjects.Container {
       `Konum ${tile.gx}, ${tile.gy}\nBu alan bos. Insa etmek icin alttaki menuyu kullan.`,
     );
   }
+}
+
+/** Kesirli uretim oranini kisa gosterir: 3 -> "3", 4.5 -> "4.5". */
+function formatRate(value: number): string {
+  return Number.isInteger(value) ? String(value) : value.toFixed(1);
 }

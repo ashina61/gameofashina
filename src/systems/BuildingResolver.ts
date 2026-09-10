@@ -53,6 +53,14 @@ export function resolveBuilding(
     : null;
   const workerRequirement = entry?.workerRequirement ?? 0;
 
+  // Kadro doluluğu: isci istemeyen bina her zaman tam kadroludur.
+  const staffing =
+    workerRequirement === 0
+      ? 1
+      : Math.min(1, Math.max(0, instance.assignedWorkers) / workerRequirement);
+
+  const production = operational ? copyAmounts(entry?.production) : {};
+
   return {
     uid: instance.uid,
     type: instance.type,
@@ -63,14 +71,15 @@ export function resolveBuilding(
     state: instance.state,
     operational,
     // Calismayan bina hicbir sey uretmez ve kapasite saglamaz.
-    production: operational ? copyAmounts(entry?.production) : {},
+    production,
+    // Gercek uretim kadroyla olceklenir: yarim kadro yarim uretir.
+    effectiveProduction: staffing === 1 ? copyAmounts(entry?.production) : scale(production, staffing),
     storageCapacity: operational ? (entry?.storageCapacity ?? 0) : 0,
     populationCapacity: operational ? (entry?.populationCapacity ?? 0) : 0,
     workerRequirement,
     assignedWorkers: instance.assignedWorkers,
-    // Bilgilendirme amaclidir; isci dagitimi hala kuresel havuzdan yapiliyor,
-    // bu yuzden uretimi etkilemez. PopulationSystem geldiginde baglanacak.
-    staffed: workerRequirement === 0 || instance.assignedWorkers >= workerRequirement,
+    staffing,
+    staffed: staffing >= 1,
     refund: resolveRefund(def, level),
     construction,
     // Devam eden bir gorev varken yeni bir yukseltme baslatilamaz.
@@ -209,6 +218,15 @@ function resolveUpgrade(def: BuildingDefinition, level: number): UpgradeOption |
 /** Kaynak haritasinin savunmaci kopyasi; cagiran taraf katalogu degistiremez. */
 function copyAmounts(amounts: ResourceAmounts | undefined): ResourceAmounts {
   return amounts ? { ...amounts } : {};
+}
+
+/** Yeni bir harita dondurur; girdiyi degistirmez (resolver saf kalir). */
+function scale(amounts: ResourceAmounts, factor: number): ResourceAmounts {
+  const out: ResourceAmounts = {};
+  for (const [key, value] of Object.entries(amounts)) {
+    out[key as keyof ResourceAmounts] = (value ?? 0) * factor;
+  }
+  return out;
 }
 
 /** hedef += kaynak */

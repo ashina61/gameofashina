@@ -2,6 +2,7 @@ import { MAX_OFFLINE_SECONDS, OFFLINE_CHUNK_TICKS, TICKS_PER_SECOND } from '@/co
 import type { GameState } from './GameState';
 import type { ConstructionSystem } from '@/systems/ConstructionSystem';
 import type { EconomySystem } from '@/systems/EconomySystem';
+import type { PopulationSystem } from '@/systems/PopulationSystem';
 
 /**
  * Simulasyon orkestratoru: tik sayacini ilerleten TEK yer.
@@ -14,21 +15,31 @@ import type { EconomySystem } from '@/systems/EconomySystem';
  * ADIM SIRASI (prototipteki davranisi korur)
  *   1. Tik sayaci ilerler.
  *   2. Tamamlanma tikine ulasan insaat/yukseltme gorevleri uygulanir.
- *   3. Uretim, adim 2'den SONRAKI duruma gore hesaplanip uygulanir.
+ *   3. Nufus buyur/azalir ve isciler binalara dagitilir.
+ *   4. Uretim, adim 3'ten SONRAKI kadroya gore hesaplanip uygulanir.
  *
  * Bu sira sayesinde pencerede tamamlanan bir bina o pencerenin uretimine
- * dahil olur - Sprint 1 ve prototip ile ayni sonuc.
+ * dahil olur - Sprint 1 ve prototip ile ayni sonuc. Nufus uretimden ONCE
+ * islenir: yeni gelen vatandas ayni pencerede ise baslar, ayni pencerede
+ * yemegini de yer.
  *
  * Gercek zaman burada yoktur; yalnizca tik sayisi islenir.
  */
 export class Simulation {
   private readonly state: GameState;
   private readonly construction: ConstructionSystem;
+  private readonly population: PopulationSystem;
   private readonly economy: EconomySystem;
 
-  constructor(state: GameState, construction: ConstructionSystem, economy: EconomySystem) {
+  constructor(
+    state: GameState,
+    construction: ConstructionSystem,
+    population: PopulationSystem,
+    economy: EconomySystem,
+  ) {
     this.state = state;
     this.construction = construction;
+    this.population = population;
     this.economy = economy;
   }
 
@@ -40,6 +51,7 @@ export class Simulation {
 
     this.state.advanceTick(whole);
     this.construction.advance(options);
+    this.population.advance(whole, options);
     this.economy.advance(whole, options);
   }
 
@@ -68,6 +80,7 @@ export class Simulation {
       remaining -= step;
     }
 
+    this.population.publish();
     this.economy.publish();
     return totalTicks;
   }
