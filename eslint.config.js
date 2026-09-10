@@ -3,6 +3,21 @@ import tseslint from 'typescript-eslint';
 
 export default tseslint.config(
   { ignores: ['dist/**', 'node_modules/**'] },
+  {
+    // Kiyaslama betikleri Node ve tarayici baglaminda birlikte calisir;
+    // ikisinin de global'lerini kullanirlar.
+    files: ['bench/**/*.mjs'],
+    languageOptions: {
+      globals: {
+        process: 'readonly',
+        console: 'readonly',
+        window: 'readonly',
+        localStorage: 'readonly',
+        performance: 'readonly',
+        requestAnimationFrame: 'readonly',
+      },
+    },
+  },
   js.configs.recommended,
   ...tseslint.configs.recommended,
   {

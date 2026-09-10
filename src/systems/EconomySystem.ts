@@ -1,8 +1,6 @@
 import {
   BASE_POPULATION_CAPACITY,
   FOOD_UPKEEP_PER_WORKER,
-  MAX_OFFLINE_SECONDS,
-  OFFLINE_CHUNK_TICKS,
   RESOURCE_ORDER,
   TICKS_PER_SECOND,
 } from '@/config/Constants';
@@ -10,7 +8,6 @@ import { getBuilding } from '@/config/BuildingCatalog';
 import { resolveBuilding } from './BuildingResolver';
 import type { EventBus } from '@/core/EventBus';
 import type { GameState } from '@/core/GameState';
-import type { BuildingSystem } from './BuildingSystem';
 import type { ResourceSystem } from './ResourceSystem';
 import type { EconomySnapshot, ResourcePool } from '@/types';
 
@@ -18,16 +15,14 @@ import type { EconomySnapshot, ResourcePool } from '@/types';
 const TICKS_PER_MINUTE = 60 * TICKS_PER_SECOND;
 
 /**
- * Ekonomi simulasyonu: insaat esikleri, isci dagilimi, uretim ve yiyecek gideri.
+ * Ekonomi simulasyonu: isci dagilimi, uretim ve yiyecek gideri.
  *
- * ZAMAN MODELI
- * Simulasyon tiklerle ilerler. Gercek zamanin tek isi, kac tam tik islenecegini
- * belirlemektir (SimulationClock); oyun durumu gercek saatten turetilmez.
- * Ayni sayida tik, ayni baslangic durumundan her zaman ayni sonucu verir.
+ * SORUMLULUK SINIRI
+ * Bu sistem YALNIZCA ekonomik uretimden sorumludur. Insaat ve yukseltme
+ * gorevlerinin ilerlemesi ve tamamlanmasi ConstructionSystem'in isidir;
+ * tik sayacini ilerletmek ise Simulation orkestratorunun.
  *
- * Bu sprintte tik sayacini ilerleten tek yer burasidir. ConstructionSystem
- * geldiginde ilerletme sorumlulugu ortak bir simulasyon orkestratorune tasinacak
- * ve bu sistem yalnizca kendisine verilen tik sayisini isleyecek.
+ * Bu sistem kendisine verilen tik sayisini isler, zamani kendisi ilerletmez.
  *
  * DENGE KURALLARI (prototipten degismedi)
  * - Uretim binalari isci ister; toplam isci ihtiyaci nufus kapasitesini asarsa
@@ -38,20 +33,13 @@ const TICKS_PER_MINUTE = 60 * TICKS_PER_SECOND;
 export class EconomySystem {
   private readonly state: GameState;
   private readonly resources: ResourceSystem;
-  private readonly buildings: BuildingSystem;
   private readonly bus: EventBus;
 
   private lastSnapshot: EconomySnapshot = emptySnapshot();
 
-  constructor(
-    state: GameState,
-    resources: ResourceSystem,
-    buildings: BuildingSystem,
-    bus: EventBus,
-  ) {
+  constructor(state: GameState, resources: ResourceSystem, bus: EventBus) {
     this.state = state;
     this.resources = resources;
-    this.buildings = buildings;
     this.bus = bus;
   }
 
@@ -61,19 +49,16 @@ export class EconomySystem {
   }
 
   /**
-   * Simulasyonu verilen tik kadar ilerletir.
+   * Verilen tik sayisi kadar uretimi uygular.
    *
-   * Sira onemlidir: once tik sayaci ilerler, sonra biten insaatlar devreye
-   * girer, en son uretim uygulanir. Boylece bu pencerede tamamlanan bir bina
-   * pencerenin uretimine dahil olur - prototipteki davranisin aynisi.
+   * Cagrildiginda tik sayaci ZATEN ilerletilmis ve biten gorevler ZATEN
+   * uygulanmis olur (bkz. Simulation). Boylece bu pencerede tamamlanan bir
+   * bina pencerenin uretimine dahil olur - prototipteki davranisin aynisi.
    */
   advance(ticks: number, options: { silent?: boolean } = {}): EconomySnapshot {
     if (!Number.isFinite(ticks) || ticks <= 0) return this.lastSnapshot;
     const whole = Math.floor(ticks);
     if (whole <= 0) return this.lastSnapshot;
-
-    this.state.advanceTick(whole);
-    this.completeFinishedConstruction(options.silent === true);
 
     const snapshot = this.computeSnapshot();
     this.lastSnapshot = snapshot;
@@ -92,58 +77,11 @@ export class EconomySystem {
     return snapshot;
   }
 
-  /**
-   * Saniye cinsinden ilerletme kolayligi.
-   * Cagiran taraflarin tik cevrimini tekrarlamamasi icindir.
-   */
-  advanceSeconds(seconds: number, options: { silent?: boolean } = {}): EconomySnapshot {
-    return this.advance(Math.floor(seconds * TICKS_PER_SECOND), options);
-  }
-
-  /**
-   * Oyun kapaliyken gecen sureyi telafi eder.
-   *
-   * Gercek dunya suresi burada YALNIZCA kac tik islenecegini belirlemek icin
-   * kullanilir; sonuc tamamen tik sayisindan turer. Ust sinir
-   * MAX_OFFLINE_SECONDS'tir. Islenen tik sayisini dondurur.
-   */
-  applyOfflineProgress(elapsedSeconds: number): number {
-    const cappedSeconds = Math.min(Math.max(0, elapsedSeconds), MAX_OFFLINE_SECONDS);
-    const totalTicks = Math.floor(cappedSeconds * TICKS_PER_SECOND);
-    if (totalTicks <= 0) return 0;
-
-    // Uzun sureyi tek adimda uygulamak insaat esiklerini atlar; parcalara bolunur.
-    let remaining = totalTicks;
-    while (remaining > 0) {
-      const step = Math.min(OFFLINE_CHUNK_TICKS, remaining);
-      this.advance(step, { silent: true });
-      remaining -= step;
-    }
-
+  /** Cevrimdisi telafi sonrasi arayuze son durumu bildirir. */
+  publish(): void {
     this.resources.recalculateCapacity();
     this.resources.emitChange();
     this.bus.emit('economy:updated', this.lastSnapshot);
-    return totalTicks;
-  }
-
-  /** Tamamlanma tikine ulasan insaatlari devreye alir. */
-  private completeFinishedConstruction(silent: boolean): void {
-    const now = this.state.tick;
-
-    for (const building of this.state.buildings.values()) {
-      if (building.state !== 'constructing') continue;
-
-      const completesAt = building.construction?.completesAtTick;
-      if (completesAt === undefined || completesAt <= now) {
-        this.buildings.completeBuilding(building);
-        continue;
-      }
-
-      if (!silent) {
-        const resolved = resolveBuilding(building, getBuilding(building.type), now);
-        this.bus.emit('building:progress', building, resolved.construction?.ratio ?? 0);
-      }
-    }
   }
 
   /**

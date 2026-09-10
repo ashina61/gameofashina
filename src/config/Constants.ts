@@ -68,8 +68,9 @@ export const TAP_MAX_DURATION_MS = 400;
  * Kayit dosyasi surumu.
  * v1: defId + complete + remainingBuildTime (saniye)
  * v2: type + state + level + assignedWorkers + construction (tik) + tick
+ * v3: construction.kind ('build' | 'upgrade'); accumulatedProduction kaldirildi
  */
-export const SAVE_VERSION = 2;
+export const SAVE_VERSION = 3;
 
 /** Yuklenebilen en eski kayit surumu; arasi goc ile yukseltilir. */
 export const MIN_SUPPORTED_SAVE_VERSION = 1;
@@ -95,6 +96,7 @@ export const TextureKeys = {
   TileValid: 'tile-valid',
   TileInvalid: 'tile-invalid',
   Panel: 'ui-panel',
+  Pixel: 'ui-pixel',
   ButtonUp: 'ui-button-up',
   ButtonDown: 'ui-button-down',
 } as const;

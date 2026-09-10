@@ -4,25 +4,16 @@
  */
 import { describe, expect, it } from 'vitest';
 import { GameState } from '@/core/GameState';
-import { EventBus } from '@/core/EventBus';
 import { SimulationClock } from '@/core/SimulationClock';
 import { migrateAndSanitize } from '@/core/SaveManager';
-import { ResourceSystem } from '@/systems/ResourceSystem';
-import { BuildingSystem } from '@/systems/BuildingSystem';
-import { EconomySystem } from '@/systems/EconomySystem';
 import { resolveBuilding, resolveRefund } from '@/systems/BuildingResolver';
 import { getBuilding } from '@/config/BuildingCatalog';
 import { SAVE_VERSION } from '@/config/Constants';
 import type { BuildingInstance, SaveData } from '@/types';
 
-function makeWorld(seed = 4242) {
-  const state = new GameState(seed);
-  const bus = new EventBus();
-  const resources = new ResourceSystem(state, bus);
-  const buildings = new BuildingSystem(state, resources, bus);
-  const economy = new EconomySystem(state, resources, buildings, bus);
-  return { state, bus, resources, buildings, economy };
-}
+import { makeWorld as makeWorldWithSeed } from './helpers';
+
+const makeWorld = (seed = 4242) => makeWorldWithSeed(seed);
 
 /** Kayit iskeleti uretir. */
 function saveWith(buildings: Partial<BuildingInstance>[], tick = 0): SaveData {
@@ -301,24 +292,24 @@ describe('v1 kayit goc yolu', () => {
 // --- 10 ---
 describe('tik tabanli zaman', () => {
   it('simulasyon tiki ilerler', () => {
-    const { state, economy } = makeWorld();
+    const { state, simulation } = makeWorld();
     expect(state.tick).toBe(0);
-    economy.advance(5);
+    simulation.advance(5);
     expect(state.tick).toBe(5);
-    economy.advance(10);
+    simulation.advance(10);
     expect(state.tick).toBe(15);
   });
 
   it('insaat tik esiginde tamamlanir', () => {
-    const { state, buildings, economy } = makeWorld();
+    const { state, buildings, simulation } = makeWorld();
     const c = state.grid.center();
     const placed = buildings.place('house', c.gx, c.gy); // 12 saniye = 12 tik
     if (!placed.ok) throw new Error('kurulum basarisiz');
 
-    economy.advance(11);
+    simulation.advance(11);
     expect(placed.building.state).toBe('constructing');
 
-    economy.advance(1);
+    simulation.advance(1);
     expect(placed.building.state).toBe('active');
     expect(placed.building.construction).toBeUndefined();
   });
@@ -329,7 +320,7 @@ describe('tik tabanli zaman', () => {
       const c = w.state.grid.center();
       w.buildings.place('farm', c.gx, c.gy);
       w.buildings.place('house', c.gx + 1, c.gy);
-      w.economy.advance(300);
+      w.simulation.advance(300);
       return { tick: w.state.tick, resources: { ...w.state.resources } };
     }
     expect(run()).toEqual(run());
@@ -342,11 +333,11 @@ describe('tik tabanli zaman', () => {
       const c = w.state.grid.center();
       w.buildings.place('farm', c.gx, c.gy);
       w.buildings.place('house', c.gx + 1, c.gy);
-      w.economy.advance(50); // once tum insaatlari bitir
+      w.simulation.advance(50); // once tum insaatlari bitir
     }
 
-    bulk.economy.advance(100);
-    for (let i = 0; i < 100; i += 1) step.economy.advance(1);
+    bulk.simulation.advance(100);
+    for (let i = 0; i < 100; i += 1) step.simulation.advance(1);
 
     expect(bulk.state.tick).toBe(step.state.tick);
     // Kayan nokta birikimi nedeniyle ~1e-13 mertebesinde fark olusur;
@@ -377,8 +368,8 @@ describe('tik tabanli zaman', () => {
       w.buildings.place('house', c.gx + 1, c.gy); // 12 tik
     }
 
-    bulk.economy.advance(100);
-    for (let i = 0; i < 100; i += 1) step.economy.advance(1);
+    bulk.simulation.advance(100);
+    for (let i = 0; i < 100; i += 1) step.simulation.advance(1);
 
     expect(bulk.state.tick).toBe(step.state.tick);
     // Toplu ilerletme daha comert: biten binanin uretimi tum pencereye yayilir.
@@ -395,21 +386,21 @@ describe('tik tabanli zaman', () => {
   });
 
   it('cevrimdisi telafi tik cinsinden uygulanir', () => {
-    const { state, buildings, economy } = makeWorld();
+    const { state, buildings, simulation } = makeWorld();
     const c = state.grid.center();
     buildings.place('farm', c.gx, c.gy);
     buildings.place('house', c.gx + 1, c.gy);
-    economy.advance(30);
+    simulation.advance(30);
 
     const before = state.tick;
-    const ticks = economy.applyOfflineProgress(600); // 10 dakika
+    const ticks = simulation.applyOfflineProgress(600); // 10 dakika
     expect(ticks).toBe(600);
     expect(state.tick).toBe(before + 600);
   });
 
   it('kaydedilen tik yuklemede geri gelir', () => {
-    const { state, economy } = makeWorld();
-    economy.advance(123);
+    const { state, simulation } = makeWorld();
+    simulation.advance(123);
     const restored = GameState.fromSave(state.toSave(SAVE_VERSION));
     expect(restored.tick).toBe(123);
   });

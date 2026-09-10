@@ -7,9 +7,10 @@ import {
 } from '@/config/Constants';
 import { clampLevel, getBuilding, isKnownBuildingId } from '@/config/BuildingCatalog';
 import type {
+  BuildingConstruction,
   BuildingInstance,
   BuildingState,
-  ResourceAmounts,
+  ConstructionKind,
   ResourcePool,
   SaveData,
 } from '@/types';
@@ -157,9 +158,6 @@ function sanitizeBuilding(entry: unknown, version: number, saveTick: number): Bu
     assignedWorkers: sanitizeWorkers(raw.assignedWorkers),
   };
 
-  const accumulated = sanitizeAmounts(raw.accumulatedProduction);
-  if (accumulated) building.accumulatedProduction = accumulated;
-
   if (version >= 2) {
     applyV2Construction(building, raw, saveTick);
   } else {
@@ -169,7 +167,19 @@ function sanitizeBuilding(entry: unknown, version: number, saveTick: number): Bu
   return building;
 }
 
-/** v2: state ve construction dogrudan okunur. */
+/**
+ * v2 ve v3: state ve construction dogrudan okunur.
+ *
+ * v2'de gorev turu yoktu; o surumde yalnizca insa gorevi vardi, bu yuzden
+ * eksik kind alani 'build' kabul edilir.
+ *
+ * Bozuk gorevler sessizce tasinmaz - kurtarilamayan bir gorev atilir ve bina
+ * gorevsiz, tutarli bir duruma getirilir:
+ *   - bilinmeyen kind
+ *   - negatif tik
+ *   - completesAtTick < startedAtTick
+ *   - suresi coktan gecmis gorev
+ */
 function applyV2Construction(
   building: BuildingInstance,
   raw: Record<string, unknown>,
@@ -180,25 +190,41 @@ function applyV2Construction(
     building.state = state;
   }
 
-  if (building.state !== 'constructing') return;
+  const task = sanitizeConstruction(raw.construction, saveTick);
 
-  const construction = raw.construction;
-  if (typeof construction === 'object' && construction !== null) {
-    const c = construction as Record<string, unknown>;
-    const started = typeof c.startedAtTick === 'number' ? Math.trunc(c.startedAtTick) : saveTick;
-    const completes = typeof c.completesAtTick === 'number' ? Math.trunc(c.completesAtTick) : saveTick;
-
-    if (Number.isFinite(started) && Number.isFinite(completes) && completes > saveTick) {
-      building.construction = {
-        startedAtTick: Math.min(started, completes),
-        completesAtTick: completes,
-      };
-      return;
-    }
+  if (!task) {
+    // Gorev yok veya reddedildi: bina calisir duruma getirilir.
+    if (building.state === 'constructing') building.state = 'active';
+    return;
   }
 
-  // Insaat bilgisi eksik veya suresi gecmis: binayi tamamlanmis say.
-  building.state = 'active';
+  building.construction = task;
+  // Gorev turu ile bina durumu tutarli olmali.
+  building.state = task.kind === 'build' ? 'constructing' : 'active';
+}
+
+/** Kayittan gelen gorevi dogrular; kurtarilamazsa null doner. */
+function sanitizeConstruction(value: unknown, saveTick: number): BuildingConstruction | null {
+  if (typeof value !== 'object' || value === null) return null;
+  const raw = value as Record<string, unknown>;
+
+  // v2'de tur alani yoktu; o surumde yalnizca insa gorevi olabilirdi.
+  const kind: ConstructionKind = isConstructionKind(raw.kind) ? raw.kind : 'build';
+
+  const started = raw.startedAtTick;
+  const completes = raw.completesAtTick;
+  if (typeof started !== 'number' || !Number.isFinite(started)) return null;
+  if (typeof completes !== 'number' || !Number.isFinite(completes)) return null;
+
+  const startedAtTick = Math.trunc(started);
+  const completesAtTick = Math.trunc(completes);
+
+  // Negatif tik, ters siralama veya suresi gecmis gorev kabul edilmez.
+  if (startedAtTick < 0 || completesAtTick < 0) return null;
+  if (completesAtTick < startedAtTick) return null;
+  if (completesAtTick <= saveTick) return null;
+
+  return { kind, startedAtTick, completesAtTick };
 }
 
 /** v1: complete + remainingBuildTime (saniye) alanlarindan tureti. */
@@ -225,6 +251,7 @@ function applyV1Construction(
   const remainingTicks = Math.max(1, Math.round(remainingSeconds * TICKS_PER_SECOND));
   building.state = 'constructing';
   building.construction = {
+    kind: 'build',
     startedAtTick: saveTick,
     completesAtTick: saveTick + remainingTicks,
   };
@@ -236,23 +263,10 @@ function sanitizeWorkers(value: unknown): number {
   return Math.max(0, Math.trunc(value));
 }
 
-/** Kaynak haritasini dogrular; hicbir gecerli deger yoksa undefined doner. */
-function sanitizeAmounts(value: unknown): ResourceAmounts | undefined {
-  if (typeof value !== 'object' || value === null) return undefined;
-  const source = value as Record<string, unknown>;
-
-  const amounts: ResourceAmounts = {};
-  let found = false;
-  for (const key of RESOURCE_ORDER) {
-    const amount = source[key];
-    if (typeof amount === 'number' && Number.isFinite(amount) && amount > 0) {
-      amounts[key] = amount;
-      found = true;
-    }
-  }
-  return found ? amounts : undefined;
-}
-
 function isBuildingState(value: unknown): value is BuildingState {
   return value === 'constructing' || value === 'active' || value === 'disabled' || value === 'damaged';
+}
+
+function isConstructionKind(value: unknown): value is ConstructionKind {
+  return value === 'build' || value === 'upgrade';
 }

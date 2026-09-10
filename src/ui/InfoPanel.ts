@@ -26,6 +26,7 @@ export class InfoPanel extends Phaser.GameObjects.Container {
   private readonly titleText: Phaser.GameObjects.Text;
   private readonly bodyText: Phaser.GameObjects.Text;
   private readonly demolishButton: TouchButton;
+  private readonly upgradeButton: TouchButton;
 
   private screenWidth: number;
   private screenHeight: number;
@@ -41,6 +42,7 @@ export class InfoPanel extends Phaser.GameObjects.Container {
     width: number,
     height: number,
     private readonly onDemolish: (uid: string) => void,
+    private readonly onUpgrade: (uid: string) => void,
   ) {
     super(scene, 0, height);
     this.screenWidth = width;
@@ -75,7 +77,23 @@ export class InfoPanel extends Phaser.GameObjects.Container {
       },
     });
 
-    this.add([this.background, this.titleText, this.bodyText, this.demolishButton]);
+    this.upgradeButton = new TouchButton(scene, 0, 0, 'Yukselt', {
+      width: 96,
+      height: 42,
+      fontSize: 14,
+      color: UIText.accent,
+      onPress: () => {
+        if (this.currentUid) this.onUpgrade(this.currentUid);
+      },
+    });
+
+    this.add([
+      this.background,
+      this.titleText,
+      this.bodyText,
+      this.upgradeButton,
+      this.demolishButton,
+    ]);
     this.layout(width, height);
     this.setVisible(false);
     scene.add.existing(this);
@@ -101,6 +119,7 @@ export class InfoPanel extends Phaser.GameObjects.Container {
     this.screenHeight = height;
     this.background.setSize(width, InfoPanel.HEIGHT);
     this.bodyText.setWordWrapWidth(width - UISpacing.panelPadding * 2 - 110);
+    this.upgradeButton.setPosition(width - UISpacing.panelPadding - 48, InfoPanel.HEIGHT - 82);
     this.demolishButton.setPosition(width - UISpacing.panelPadding - 48, InfoPanel.HEIGHT - 34);
     this.setY(this.visibleState ? height - InfoPanel.HEIGHT : height);
   }
@@ -129,7 +148,8 @@ export class InfoPanel extends Phaser.GameObjects.Container {
   tick(currentTick: number): void {
     if (!this.visibleState) return;
     const building = this.currentBuilding;
-    if (!building || building.state !== 'constructing') return;
+    // Yalnizca devam eden bir gorev varken tazelenir.
+    if (!building?.construction) return;
     this.currentTick = currentTick;
     this.showBuilding(building);
   }
@@ -178,7 +198,8 @@ export class InfoPanel extends Phaser.GameObjects.Container {
 
     if (resolved.construction) {
       const remaining = ticksToSeconds(resolved.construction.remainingTicks);
-      lines.push(`Insa ediliyor - ${formatDuration(remaining)} kaldi`);
+      const label = resolved.construction.kind === 'upgrade' ? 'Yukseltiliyor' : 'Insa ediliyor';
+      lines.push(`${label} - ${formatDuration(remaining)} kaldi`);
     }
 
     // Insaat sirasinda uretim degerleri sifirdir; o seviyenin tanimini gosteririz.
@@ -203,12 +224,24 @@ export class InfoPanel extends Phaser.GameObjects.Container {
       (def.levels.find((l) => l.level === resolved.level)?.storageCapacity ?? 0);
     if (storageCapacity) lines.push(`+${storageCapacity} depo`);
 
+    // Yukseltme secenegi: resolver devam eden gorev varken null dondurur,
+    // dolayisiyla insaat/yukseltme sirasinda buton kendiliginden gizlenir.
+    const upgrade = resolved.upgrade;
+    if (upgrade) {
+      const cost = RESOURCE_ORDER.filter((key) => upgrade.cost[key])
+        .map((key) => `${RESOURCE_META[key].label} ${upgrade.cost[key]}`)
+        .join('  ');
+      lines.push(`Sv. ${upgrade.toLevel} icin: ${cost}`);
+    }
+
     if (!lines.length) lines.push(def.description);
 
     this.bodyText.setText(lines.join('\n'));
+    this.upgradeButton.setVisible(upgrade !== null);
   }
 
   private showTerrain(tile: TileData): void {
+    this.upgradeButton.setVisible(false);
     this.titleText.setText(TERRAIN_LABELS[tile.terrain] ?? tile.terrain);
     this.bodyText.setText(
       `Konum ${tile.gx}, ${tile.gy}\nBu alan bos. Insa etmek icin alttaki menuyu kullan.`,

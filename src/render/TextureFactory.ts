@@ -56,6 +56,7 @@ export function generateTextures(scene: Phaser.Scene): void {
     createBuildingTexture(scene, def);
   }
 
+  createPixelTexture(scene, TextureKeys.Pixel);
   createPanelTexture(scene, TextureKeys.Panel, 0x1d1a13, 0x5a4c33);
   createPanelTexture(scene, TextureKeys.ButtonUp, 0x2e2819, 0x7a6540);
   createPanelTexture(scene, TextureKeys.ButtonDown, 0x4a3f27, 0xe8c86a);
@@ -219,6 +220,21 @@ function createBuildingTexture(scene: Phaser.Scene, def: BuildingDefinition): vo
   g.fillRect(cx + 4, midY + footH * 0.3, doorW, doorH * 0.6);
 
   g.generateTexture(key, w, h);
+  g.destroy();
+}
+
+/**
+ * Tek renkli kucuk doku.
+ * Ilerleme cubugu gibi ogeler bunu tint + olcekleyerek kullanir; boylece her
+ * karede Graphics geometrisi yeniden kurulmaz.
+ */
+function createPixelTexture(scene: Phaser.Scene, key: string): void {
+  if (scene.textures.exists(key)) return;
+
+  const g = scene.make.graphics({ x: 0, y: 0 }, false);
+  g.fillStyle(0xffffff, 1);
+  g.fillRect(0, 0, 4, 4);
+  g.generateTexture(key, 4, 4);
   g.destroy();
 }
 

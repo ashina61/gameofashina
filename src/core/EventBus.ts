@@ -1,4 +1,10 @@
-import type { BuildingInstance, EconomySnapshot, ResourcePool, TileData } from '@/types';
+import type {
+  BuildingInstance,
+  ConstructionTask,
+  EconomySnapshot,
+  ResourcePool,
+  TileData,
+} from '@/types';
 
 /**
  * Sahneler arasi iletisim icin tip guvenli olay sozlesmesi.
@@ -10,7 +16,15 @@ export interface GameEvents {
   'building:placed': [building: BuildingInstance];
   'building:completed': [building: BuildingInstance];
   'building:removed': [building: BuildingInstance];
-  'building:progress': [building: BuildingInstance, ratio: number];
+  /**
+   * Insaat veya yukseltme gorevi basladi.
+   * Her tikte YAYINLANMAZ - yalnizca gorev baslarken ve biterken. Ilerleme,
+   * render katmaninda aktif gorevler uzerinden okunur; bu sayede olay
+   * yagmuru olusmaz.
+   */
+  'construction:started': [task: ConstructionTask];
+  /** Insaat veya yukseltme gorevi tamamlandi. */
+  'construction:completed': [task: ConstructionTask];
   'tile:selected': [tile: TileData | null];
   'placement:start': [defId: string];
   'placement:cancel': [];
@@ -18,6 +32,7 @@ export interface GameEvents {
   'notify': [message: string, tone: 'info' | 'success' | 'error'];
   'game:saved': [savedAt: number];
   'ui:request-demolish': [uid: string];
+  'ui:request-upgrade': [uid: string];
 }
 
 type EventName = keyof GameEvents;

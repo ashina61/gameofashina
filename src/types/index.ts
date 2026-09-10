@@ -102,12 +102,32 @@ export interface BuildingDefinition {
  */
 export type BuildingState = 'constructing' | 'active' | 'disabled' | 'damaged';
 
-/** Devam eden bir insaatin tik cinsinden zamanlamasi. */
+/** Bir insaat gorevinin turu. */
+export type ConstructionKind = 'build' | 'upgrade';
+
+/**
+ * Devam eden bir insaat gorevinin tik cinsinden zamanlamasi.
+ *
+ * Gorev, hedef binanin kendi icinde saklanir: bir bina ayni anda en fazla bir
+ * gorev tasiyabilir, dolayisiyla ayri bir gorev kimligine gerek yoktur ve
+ * "sahipsiz gorev" ya da "ayni hedefe iki gorev" durumlari yapisal olarak
+ * imkansizdir.
+ */
 export interface BuildingConstruction {
-  /** Insaatin basladigi simulasyon tiki. */
+  kind: ConstructionKind;
+  /** Gorevin basladigi simulasyon tiki. */
   startedAtTick: number;
-  /** Insaatin bitecegi simulasyon tiki. */
+  /** Gorevin bitecegi simulasyon tiki. */
   completesAtTick: number;
+}
+
+/**
+ * Aktif bir insaat gorevinin, hedefiyle birlikte okunabilir hali.
+ * ConstructionSystem bunu olaylarda ve sorgularda dondurur.
+ */
+export interface ConstructionTask extends BuildingConstruction {
+  /** Gorevin uygulandigi bina. Gorevin kimligi de budur. */
+  targetUid: string;
 }
 
 /** Yerlestirilmis bir binanin calisma zamani durumu. */
@@ -124,12 +144,11 @@ export interface BuildingInstance {
   /** Bu binaya atanmis isci sayisi. Negatif olamaz. */
   assignedWorkers: number;
   /**
-   * Henuz kaynak havuzuna aktarilmamis uretim.
-   * Bu sprintte uretim hala kuresel olarak hesaplaniyor; alan, bina basina
-   * birikim yapacak ConstructionSystem/ProductionSystem icin ayrildi.
+   * Devam eden insaat veya yukseltme gorevi.
+   * kind === 'build'   -> state 'constructing', bina henuz calismiyor.
+   * kind === 'upgrade'  -> state 'active', bina mevcut seviyesinde calismaya
+   *                        devam eder; seviye ancak gorev bitince artar.
    */
-  accumulatedProduction?: ResourceAmounts;
-  /** Yalnizca state === 'constructing' iken doludur. */
   construction?: BuildingConstruction;
 }
 
@@ -166,14 +185,18 @@ export interface ResolvedBuilding {
   staffed: boolean;
   /** Yikildiginda geri verilecek kaynaklar. */
   refund: ResourceAmounts;
-  /** Insaat suruyorsa ilerleme bilgisi, degilse null. */
+  /** Devam eden gorev varsa ilerleme bilgisi, yoksa null. */
   construction: ConstructionProgress | null;
-  /** Sonraki seviye tanimliysa maliyeti ve suresi, degilse null. */
+  /**
+   * Bir sonraki seviyeye gecis secenegi.
+   * Son seviyede veya devam eden bir gorev varken null olur.
+   */
   upgrade: UpgradeOption | null;
 }
 
-/** Devam eden insaatin ilerlemesi. */
+/** Devam eden gorevin ilerlemesi. */
 export interface ConstructionProgress {
+  kind: ConstructionKind;
   remainingTicks: number;
   totalTicks: number;
   /** 0..1 arasi tamamlanma orani. */

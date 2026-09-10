@@ -2,6 +2,7 @@ import { getBuilding } from '@/config/BuildingCatalog';
 import { buildCostOf, buildTimeTicksOf, resolveBuilding, resolveRefund } from './BuildingResolver';
 import type { EventBus } from '@/core/EventBus';
 import type { GameState } from '@/core/GameState';
+import type { ConstructionSystem } from './ConstructionSystem';
 import type { ResourceSystem } from './ResourceSystem';
 import type {
   BuildingDefinition,
@@ -32,16 +33,26 @@ export const PLACEMENT_MESSAGES: Record<PlacementError, string> = {
 
 /**
  * Bina yerlestirme ve yikma islemlerini yoneten sistem.
- * Izgara isgali, maliyet ve kural kontrolleri tek noktada toplanir.
+ *
+ * Izgara isgali, maliyet ve kural kontrolleri burada toplanir. Insaatin
+ * ZAMANLA ilerlemesi bu sistemin isi degildir; yerlestirme tamamlanir
+ * tamamlanmaz is ConstructionSystem'e devredilir.
  */
 export class BuildingSystem {
   private readonly state: GameState;
   private readonly resources: ResourceSystem;
+  private readonly construction: ConstructionSystem;
   private readonly bus: EventBus;
 
-  constructor(state: GameState, resources: ResourceSystem, bus: EventBus) {
+  constructor(
+    state: GameState,
+    resources: ResourceSystem,
+    construction: ConstructionSystem,
+    bus: EventBus,
+  ) {
     this.state = state;
     this.resources = resources;
+    this.construction = construction;
     this.bus = bus;
   }
 
@@ -78,34 +89,24 @@ export class BuildingSystem {
       return { ok: false, reason: 'cost' };
     }
 
-    const buildTicks = buildTimeTicksOf(def);
-    const startedAtTick = this.state.tick;
-
     const building: BuildingInstance = {
       uid: this.state.nextUid(type),
       type,
       gx,
       gy,
       level: 1,
-      state: buildTicks > 0 ? 'constructing' : 'active',
+      // Gorev baslatilana kadar gecici durum; ConstructionSystem hemen ayarlar.
+      state: 'active',
       assignedWorkers: 0,
     };
-
-    if (buildTicks > 0) {
-      building.construction = {
-        startedAtTick,
-        completesAtTick: startedAtTick + buildTicks,
-      };
-    }
 
     this.state.addBuilding(building);
     this.state.grid.occupy(gx, gy, def.size, building.uid);
     this.bus.emit('building:placed', building);
 
-    // Insa suresi olmayan bina aninda devreye girer.
-    if (building.state === 'active') {
-      this.onBuildingActivated(building);
-    }
+    // Insaatin zamanlamasi ConstructionSystem'in isi; sure 0 ise aninda devreye alir.
+    this.construction.startBuild(building, buildTimeTicksOf(def));
+
     return { ok: true, building };
   }
 
@@ -121,21 +122,13 @@ export class BuildingSystem {
     // Iade, seviyeye gore yatirilan toplamdan hesaplanir - tek kaynak resolver.
     const refund = resolveRefund(def, building.level);
 
+    // Devam eden gorev varsa birlikte iptal edilir; sahipsiz gorev kalmaz.
+    this.construction.cancel(uid);
     this.state.removeBuilding(uid);
     this.resources.recalculateCapacity();
     this.resources.add(refund);
     this.bus.emit('building:removed', building);
     return true;
-  }
-
-  /**
-   * Insaati biten binayi aktif hale getirir.
-   * EconomySystem, tik esigi gectiginde burayi cagirir.
-   */
-  completeBuilding(building: BuildingInstance): void {
-    building.state = 'active';
-    delete building.construction;
-    this.onBuildingActivated(building);
   }
 
   /** Bir bina ornegine ait statik tanimi dondurur. */
@@ -146,13 +139,6 @@ export class BuildingSystem {
   /** Bir bina ornegini hesaplanmis degerleriyle birlikte dondurur. */
   resolve(building: BuildingInstance): ResolvedBuilding {
     return resolveBuilding(building, getBuilding(building.type), this.state.tick);
-  }
-
-  /** Bina devreye girdiginde kapasiteyi tazeler ve haber verir. */
-  private onBuildingActivated(building: BuildingInstance): void {
-    this.resources.recalculateCapacity();
-    this.resources.emitChange();
-    this.bus.emit('building:completed', building);
   }
 
   /** Verilen hucreyi kaplayan binayi dondurur; bossa null. */

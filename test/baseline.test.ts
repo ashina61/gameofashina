@@ -6,20 +6,8 @@
  */
 import { describe, expect, it } from 'vitest';
 import { GameState } from '@/core/GameState';
-import { EventBus } from '@/core/EventBus';
-import { ResourceSystem } from '@/systems/ResourceSystem';
-import { BuildingSystem } from '@/systems/BuildingSystem';
-import { EconomySystem } from '@/systems/EconomySystem';
-
-/** Deterministik seed ile bos bir dunya kurar. */
-function makeWorld(seed = 12345) {
-  const state = new GameState(seed);
-  const bus = new EventBus();
-  const resources = new ResourceSystem(state, bus);
-  const buildings = new BuildingSystem(state, resources, bus);
-  const economy = new EconomySystem(state, resources, buildings, bus);
-  return { state, bus, resources, buildings, economy };
-}
+import { SAVE_VERSION } from '@/config/Constants';
+import { makeWorld } from './helpers';
 
 /** Merkezdeki temizlenmis alan her zaman insa edilebilir. */
 function startArea(state: GameState) {
@@ -120,13 +108,13 @@ describe('yerlestirme kurallari', () => {
 
 describe('ekonomi matematigi', () => {
   it('sehir merkezi + ev + ciftlik: bilinen denge', () => {
-    const { state, buildings, economy } = makeWorld();
+    const { state, buildings, economy, simulation } = makeWorld();
     const c = startArea(state);
     buildings.place('town_hall', c.gx - 2, c.gy - 2);
     buildings.place('house', c.gx, c.gy);
     buildings.place('farm', c.gx + 1, c.gy);
 
-    economy.advanceSeconds(40); // tum insaatlari bitir
+    simulation.advanceSeconds(40); // tum insaatlari bitir
     const snap = economy.snapshot;
 
     expect(snap.populationCapacity).toBe(9); // 4 (merkez) + 5 (ev)
@@ -138,22 +126,23 @@ describe('ekonomi matematigi', () => {
   });
 
   it('bir dakikalik ilerleme snapshot ile birebir ortusur', () => {
-    const { state, buildings, economy } = makeWorld();
+    const { state, buildings, economy, simulation } = makeWorld();
     const c = startArea(state);
     buildings.place('farm', c.gx, c.gy);
-    economy.advanceSeconds(20);
+    simulation.advanceSeconds(20);
 
     const before = { ...state.resources };
-    const snap = economy.advanceSeconds(60);
+    simulation.advanceSeconds(60);
+    const snap = economy.snapshot;
     expect(state.resources.food - before.food).toBeCloseTo(snap.netPerMinute.food, 5);
   });
 
   it('isci acigi verimi orantili dusurur', () => {
-    const { state, buildings, economy } = makeWorld();
+    const { state, buildings, economy, simulation } = makeWorld();
     const c = startArea(state);
     // Ev yok: nufus kapasitesi 0, ciftlik 2 isci istiyor
     buildings.place('farm', c.gx, c.gy);
-    economy.advanceSeconds(20);
+    simulation.advanceSeconds(20);
     expect(economy.snapshot.efficiency).toBe(0);
   });
 
@@ -166,13 +155,13 @@ describe('ekonomi matematigi', () => {
 
 describe('kayit gidis-donusu', () => {
   it('bina ve kaynaklar korunur', () => {
-    const { state, buildings, economy } = makeWorld(31337);
+    const { state, buildings, simulation } = makeWorld(31337);
     const c = startArea(state);
     buildings.place('house', c.gx, c.gy);
     buildings.place('farm', c.gx + 1, c.gy);
-    economy.advanceSeconds(30);
+    simulation.advanceSeconds(30);
 
-    const save = state.toSave(2);
+    const save = state.toSave(SAVE_VERSION);
     const restored = GameState.fromSave(save);
 
     expect(restored.buildings.size).toBe(2);
@@ -190,7 +179,7 @@ describe('kayit gidis-donusu', () => {
     const placed = buildings.place('house', c.gx, c.gy);
     if (!placed.ok) throw new Error('kurulum basarisiz');
 
-    const restored = GameState.fromSave(state.toSave(2));
+    const restored = GameState.fromSave(state.toSave(SAVE_VERSION));
     expect(restored.grid.getTile(c.gx, c.gy)?.occupantUid).toBe(placed.building.uid);
   });
 });

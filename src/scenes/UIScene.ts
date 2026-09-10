@@ -13,6 +13,7 @@ import type { GameWorld } from '@/core/GameWorld';
 import type {
   BuildingId,
   BuildingInstance,
+  ConstructionTask,
   EconomySnapshot,
   ResourcePool,
   TileData,
@@ -49,8 +50,12 @@ export class UIScene extends Phaser.Scene {
 
     this.resourceBar = new ResourceBar(this, width);
     this.buildMenu = new BuildMenu(this, width, height, (defId) => this.startPlacement(defId));
-    this.infoPanel = new InfoPanel(this, width, height, (uid) =>
-      this.world.bus.emit('ui:request-demolish', uid),
+    this.infoPanel = new InfoPanel(
+      this,
+      width,
+      height,
+      (uid) => this.world.bus.emit('ui:request-demolish', uid),
+      (uid) => this.world.bus.emit('ui:request-upgrade', uid),
     );
     this.toast = new Toast(this, width / 2, ResourceBar.height + 34);
 
@@ -109,6 +114,7 @@ export class UIScene extends Phaser.Scene {
     bus.on('tile:selected', this.onTileSelected, this);
     bus.on('notify', this.onNotify, this);
     bus.on('building:completed', this.onBuildingCompleted, this);
+    bus.on('construction:completed', this.onConstructionCompleted, this);
   }
 
   /** Acilista mevcut durumu arayuze yansitir ve cevrimdisi kazanci bildirir. */
@@ -162,6 +168,22 @@ export class UIScene extends Phaser.Scene {
 
   private onBuildingCompleted(building: BuildingInstance): void {
     this.toast.show(`${getBuilding(building.type).name} tamamlandi.`, 'success', 1800);
+  }
+
+  /**
+   * Yukseltme tamamlandiginda bildirir.
+   * Insa tamamlanmasi zaten building:completed ile duyuruluyor; burada yalnizca
+   * yukseltme ele alinir, boylece ayni olay icin iki bildirim cikmaz.
+   */
+  private onConstructionCompleted(task: ConstructionTask): void {
+    if (task.kind !== 'upgrade') return;
+    const building = this.world.state.buildings.get(task.targetUid);
+    if (!building) return;
+    this.toast.show(
+      `${getBuilding(building.type).name} seviye ${building.level} oldu.`,
+      'success',
+      1800,
+    );
   }
 
   // --- Insa modu -----------------------------------------------------------
@@ -248,6 +270,7 @@ export class UIScene extends Phaser.Scene {
     bus.off('tile:selected', this.onTileSelected, this);
     bus.off('notify', this.onNotify, this);
     bus.off('building:completed', this.onBuildingCompleted, this);
+    bus.off('construction:completed', this.onConstructionCompleted, this);
     this.scale.off(Phaser.Scale.Events.RESIZE, this.onResize, this);
   }
 }

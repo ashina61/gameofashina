@@ -2,8 +2,10 @@ import { GridMap } from './GridMap';
 import { STARTING_RESOURCES } from '@/config/Constants';
 import { clampLevel, getBuilding, isKnownBuildingId } from '@/config/BuildingCatalog';
 import type {
+  BuildingConstruction,
   BuildingId,
   BuildingInstance,
+  BuildingState,
   ResourceKey,
   ResourcePool,
   SaveData,
@@ -114,6 +116,34 @@ export class GameState {
     this.countsByType.set(building.type, Math.max(0, this.countOf(building.type) - 1));
     this.grid.release(uid);
     return building;
+  }
+
+  /**
+   * Binanin yasam dongusu durumunu degistirir.
+   * Sistemler bina alanlarina dogrudan yazmaz; mutasyon buradan gecer.
+   */
+  setBuildingState(uid: string, next: BuildingState): void {
+    const building = this.buildingMap.get(uid);
+    if (building) building.state = next;
+  }
+
+  /** Binanin seviyesini belirler; 1'in altina inmez. */
+  setBuildingLevel(uid: string, level: number): void {
+    const building = this.buildingMap.get(uid);
+    if (!building) return;
+    building.level = Number.isFinite(level) ? Math.max(1, Math.trunc(level)) : 1;
+  }
+
+  /** Devam eden insaat gorevini atar veya (undefined ile) kaldirir. */
+  setBuildingConstruction(uid: string, construction: BuildingConstruction | undefined): void {
+    const building = this.buildingMap.get(uid);
+    if (!building) return;
+
+    if (construction) {
+      building.construction = construction;
+    } else {
+      delete building.construction;
+    }
   }
 
   /** Yeni bir bina ornegi icin benzersiz kimlik uretir. */

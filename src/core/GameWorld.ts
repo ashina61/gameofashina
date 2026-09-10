@@ -2,10 +2,13 @@ import { AUTOSAVE_INTERVAL_MS } from '@/config/Constants';
 import { EventBus } from './EventBus';
 import { GameState } from './GameState';
 import { SaveManager } from './SaveManager';
+import { Simulation } from './Simulation';
 import { SimulationClock } from './SimulationClock';
 import { BuildingSystem } from '@/systems/BuildingSystem';
+import { ConstructionSystem } from '@/systems/ConstructionSystem';
 import { EconomySystem } from '@/systems/EconomySystem';
 import { ResourceSystem } from '@/systems/ResourceSystem';
+import { UpgradeSystem } from '@/systems/UpgradeSystem';
 
 /**
  * Oyunun modeli ile sistemlerini bir arada tutan kok nesne.
@@ -20,8 +23,11 @@ export class GameWorld {
 
   readonly state: GameState;
   readonly resources: ResourceSystem;
+  readonly construction: ConstructionSystem;
   readonly buildings: BuildingSystem;
+  readonly upgrades: UpgradeSystem;
   readonly economy: EconomySystem;
+  readonly simulation: Simulation;
 
   /** Ilk acilista telafi edilen cevrimdisi sure (saniye); yoksa 0. */
   readonly offlineSeconds: number;
@@ -38,9 +44,14 @@ export class GameWorld {
     this.state = state;
     this.loadedFromSave = loadedFromSave;
     this.resources = new ResourceSystem(state, this.bus);
-    this.buildings = new BuildingSystem(state, this.resources, this.bus);
-    this.economy = new EconomySystem(state, this.resources, this.buildings, this.bus);
-    this.offlineSeconds = offlineSeconds > 0 ? this.economy.applyOfflineProgress(offlineSeconds) : 0;
+    this.construction = new ConstructionSystem(state, this.resources, this.bus);
+    this.buildings = new BuildingSystem(state, this.resources, this.construction, this.bus);
+    this.upgrades = new UpgradeSystem(state, this.resources, this.construction);
+    this.economy = new EconomySystem(state, this.resources, this.bus);
+    this.simulation = new Simulation(state, this.construction, this.economy);
+
+    this.offlineSeconds =
+      offlineSeconds > 0 ? this.simulation.applyOfflineProgress(offlineSeconds) : 0;
   }
 
   /**
@@ -79,7 +90,7 @@ export class GameWorld {
   update(deltaMs: number): void {
     const ticks = this.clock.absorb(deltaMs);
     if (ticks > 0) {
-      this.economy.advance(ticks);
+      this.simulation.advance(ticks);
     }
 
     this.autosaveAccumulator += deltaMs;

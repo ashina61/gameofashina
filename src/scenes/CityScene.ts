@@ -14,11 +14,13 @@ import { BuildingView } from '@/render/BuildingView';
 import { PlacementPreview } from '@/render/PlacementPreview';
 import { TERRAIN_TEXTURE, TILE_ORIGIN_Y } from '@/render/TextureFactory';
 import { PLACEMENT_MESSAGES } from '@/systems/BuildingSystem';
+import { UPGRADE_MESSAGES } from '@/systems/UpgradeSystem';
+import { constructionProgress } from '@/systems/BuildingResolver';
 import { depthFor, gridToWorld, worldToGrid } from '@/utils/IsoUtils';
 import { getWorld } from './BootScene';
 import type { UIScene } from './UIScene';
 import type { GameWorld } from '@/core/GameWorld';
-import type { BuildingId, BuildingInstance, TileData } from '@/types';
+import type { BuildingId, BuildingInstance, ConstructionTask, TileData } from '@/types';
 
 /**
  * Sehir sahnesi: izgarayi ve binalari cizer, dokunmatik girdiyi yorumlar.
@@ -33,6 +35,15 @@ export class CityScene extends Phaser.Scene {
 
   /** Bina uid -> gorsel eslemesi. */
   private readonly views = new Map<string, BuildingView>();
+
+  /**
+   * Yalnizca insaat/yukseltme SUREN binalarin gorselleri.
+   *
+   * Her karede tum sehir taranmaz; bu kume genellikle bostur ve doluyken bile
+   * yalnizca devam eden is sayisi kadar elemani vardir. Kume, construction
+   * olaylariyla dolar ve bosalir.
+   */
+  private readonly activeConstructionViews = new Map<string, BuildingView>();
 
   private selectionMarker!: Phaser.GameObjects.Image;
   private selectedTile: TileData | null = null;
@@ -61,7 +72,7 @@ export class CityScene extends Phaser.Scene {
   override update(_time: number, delta: number): void {
     this.world.update(delta);
     this.camControl.update(delta);
-    this.refreshConstructionViews();
+    this.updateActiveConstructionBars();
   }
 
   // --- Kurulum -------------------------------------------------------------
@@ -134,9 +145,12 @@ export class CityScene extends Phaser.Scene {
     bus.on('building:placed', this.createView, this);
     bus.on('building:completed', this.onBuildingChanged, this);
     bus.on('building:removed', this.destroyView, this);
+    bus.on('construction:started', this.onConstructionStarted, this);
+    bus.on('construction:completed', this.onConstructionCompleted, this);
     bus.on('placement:start', this.beginPlacement, this);
     bus.on('placement:cancel', this.cancelPlacement, this);
     bus.on('ui:request-demolish', this.demolish, this);
+    bus.on('ui:request-upgrade', this.upgrade, this);
   }
 
   // --- Girdi ---------------------------------------------------------------
@@ -239,6 +253,22 @@ export class CityScene extends Phaser.Scene {
     this.handleHover(world.x, world.y);
   }
 
+  /** Arayuzden gelen yukseltme istegini UpgradeSystem'e iletir. */
+  private upgrade(uid: string): void {
+    const building = this.world.state.buildings.get(uid);
+    if (!building) return;
+    const name = getBuilding(building.type).name;
+
+    const result = this.world.upgrades.requestUpgrade(uid);
+    if (!result.ok) {
+      this.world.bus.emit('notify', UPGRADE_MESSAGES[result.reason], 'error');
+      return;
+    }
+
+    this.world.bus.emit('notify', `${name} yukseltiliyor.`, 'success');
+    this.world.save();
+  }
+
   private demolish(uid: string): void {
     const building = this.world.state.buildings.get(uid);
     if (!building) return;
@@ -257,12 +287,16 @@ export class CityScene extends Phaser.Scene {
     if (this.views.has(building.uid)) return;
     const def = getBuilding(building.type);
     const resolved = this.world.buildings.resolve(building);
-    this.views.set(building.uid, new BuildingView(this, building, def, resolved));
+    const view = new BuildingView(this, building, def, resolved);
+    this.views.set(building.uid, view);
+
+    // Kayittan gelen, insaati suren binalar da aktif kumeye girer.
+    if (view.hasTask) {
+      this.activeConstructionViews.set(building.uid, view);
+    }
   }
 
   private onBuildingChanged(building: BuildingInstance): void {
-    this.views.get(building.uid)?.refresh(this.world.buildings.resolve(building));
-
     // Secili bina tamamlandiysa bilgi paneli guncel degerleri gostersin.
     if (this.selectedTile?.occupantUid === building.uid) {
       this.world.bus.emit('tile:selected', this.selectedTile);
@@ -272,25 +306,48 @@ export class CityScene extends Phaser.Scene {
   private destroyView(building: BuildingInstance): void {
     this.views.get(building.uid)?.destroy();
     this.views.delete(building.uid);
+    this.activeConstructionViews.delete(building.uid);
+  }
+
+  /** Gorev basladi: ilgili gorsel insaat gorunumune gecer ve kumeye girer. */
+  private onConstructionStarted(task: ConstructionTask): void {
+    const view = this.views.get(task.targetUid);
+    if (!view) return;
+
+    view.beginTask(task.kind, 0);
+    this.activeConstructionViews.set(task.targetUid, view);
+  }
+
+  /** Gorev bitti: gorsel normale doner ve kumeden cikar. */
+  private onConstructionCompleted(task: ConstructionTask): void {
+    this.activeConstructionViews.delete(task.targetUid);
+    this.views.get(task.targetUid)?.endTask();
+
+    if (this.selectedTile?.occupantUid === task.targetUid) {
+      this.world.bus.emit('tile:selected', this.selectedTile);
+    }
   }
 
   /**
-   * Insaat halindeki binalarin ilerleme cubugunu her karede tazeler.
+   * Devam eden gorevlerin ilerleme cubuklarini tazeler.
    *
-   * TODO(sprint-2): Bu dongu her karede TUM bina koleksiyonunu tariyor ve
-   * insaattaki her bina icin Graphics geometrisini yeniden kuruyor. Olculen
-   * maliyet: 120 insaat halinde bina ile 46 -> 9 FPS.
-   * Cozum, ConstructionSystem ile birlikte:
-   *   1. Tarama kalkacak; ilerleme yalnizca 'building:progress' olayinda
-   *      guncellenecek (olay guden render).
-   *   2. Insaattaki binalar ayri bir kumede tutulacak, koleksiyon taranmayacak.
-   *   3. Ilerleme cubugu Graphics yerine scaleX ile olceklenen sprite olacak.
-   * Bu sprintte davranis bilerek degistirilmedi.
+   * Sprint 1'de burasi her karede TUM bina koleksiyonunu tarayip her insaat
+   * icin Graphics geometrisini yeniden kuruyordu (olculen: 120 insaat ->
+   * 46'dan 9 FPS'e dusus). Artik yalnizca devam eden gorevler uzerinde
+   * geziliyor ve tek islem yapiliyor: dolgu cubugunun scaleX degeri.
+   * Gorev yoksa dongu hic calismaz.
    */
-  private refreshConstructionViews(): void {
-    for (const building of this.world.state.buildings.values()) {
-      if (building.state !== 'constructing') continue;
-      this.views.get(building.uid)?.refresh(this.world.buildings.resolve(building));
+  private updateActiveConstructionBars(): void {
+    if (this.activeConstructionViews.size === 0) return;
+
+    const tick = this.world.tick;
+    for (const [uid, view] of this.activeConstructionViews) {
+      const task = this.world.construction.taskFor(uid);
+      if (!task) {
+        this.activeConstructionViews.delete(uid);
+        continue;
+      }
+      view.setProgress(constructionProgress(task, tick).ratio);
     }
   }
 
@@ -300,9 +357,12 @@ export class CityScene extends Phaser.Scene {
     bus.off('building:placed', this.createView, this);
     bus.off('building:completed', this.onBuildingChanged, this);
     bus.off('building:removed', this.destroyView, this);
+    bus.off('construction:started', this.onConstructionStarted, this);
+    bus.off('construction:completed', this.onConstructionCompleted, this);
     bus.off('placement:start', this.beginPlacement, this);
     bus.off('placement:cancel', this.cancelPlacement, this);
     bus.off('ui:request-demolish', this.demolish, this);
+    bus.off('ui:request-upgrade', this.upgrade, this);
     this.preview.destroy();
   }
 }

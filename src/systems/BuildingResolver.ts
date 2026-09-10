@@ -2,6 +2,7 @@ import { TICKS_PER_SECOND } from '@/config/Constants';
 import { clampLevel, levelOf, maxLevelOf } from '@/config/BuildingCatalog';
 import type {
   BuildPreview,
+  BuildingConstruction,
   BuildingDefinition,
   BuildingInstance,
   BuildingLevel,
@@ -46,7 +47,9 @@ export function resolveBuilding(
   const entry = levelOf(def, level);
   const operational = instance.state === 'active';
 
-  const construction = resolveConstruction(instance, def, currentTick);
+  const construction = instance.construction
+    ? constructionProgress(instance.construction, currentTick)
+    : null;
   const workerRequirement = entry?.workerRequirement ?? 0;
 
   return {
@@ -69,8 +72,39 @@ export function resolveBuilding(
     staffed: workerRequirement === 0 || instance.assignedWorkers >= workerRequirement,
     refund: resolveRefund(def, level),
     construction,
-    upgrade: resolveUpgrade(def, level),
+    // Devam eden bir gorev varken yeni bir yukseltme baslatilamaz.
+    upgrade: construction ? null : resolveUpgrade(def, level),
   };
+}
+
+/**
+ * Devam eden gorevin ilerlemesini hesaplar.
+ *
+ * Bilerek cok ucuz tutuldu: nesne kopyalamaz, katalog okumaz, seviye
+ * tablosunu taramaz. Render katmani her karede yalnizca AKTIF gorevler icin
+ * bunu cagirir; tam resolveBuilding() cagirmak o dongude cok pahali olur.
+ */
+export function constructionProgress(
+  construction: BuildingConstruction,
+  currentTick: number,
+): ConstructionProgress {
+  const { kind, startedAtTick, completesAtTick } = construction;
+  const totalTicks = Math.max(0, completesAtTick - startedAtTick);
+  const remainingTicks = Math.max(0, completesAtTick - currentTick);
+  const ratio = totalTicks > 0 ? clamp01(1 - remainingTicks / totalTicks) : 1;
+
+  return { kind, remainingTicks, totalTicks, ratio };
+}
+
+/**
+ * Bir sonraki seviyeye gecis maliyeti ve suresi.
+ * UpgradeSystem maliyeti buradan okur; katalogdan kendi hesabini yapmaz.
+ */
+export function resolveUpgradeOption(
+  def: BuildingDefinition,
+  level: number,
+): UpgradeOption | null {
+  return resolveUpgrade(def, clampLevel(def, level));
 }
 
 /**
@@ -134,28 +168,6 @@ function resolveUpgrade(def: BuildingDefinition, level: number): UpgradeOption |
     cost: copyAmounts(next.upgradeCost),
     timeTicks: secondsToTicks(next.upgradeTime ?? 0),
   };
-}
-
-/** Devam eden insaatin ilerlemesi; insaat yoksa null. */
-function resolveConstruction(
-  instance: BuildingInstance,
-  def: BuildingDefinition,
-  currentTick: number,
-): ConstructionProgress | null {
-  if (instance.state !== 'constructing' || !instance.construction) return null;
-
-  const { startedAtTick, completesAtTick } = instance.construction;
-  const totalTicks = Math.max(0, completesAtTick - startedAtTick);
-  const remainingTicks = Math.max(0, completesAtTick - currentTick);
-
-  // Sure sifirsa (aninda biten bina) ilerleme tamamdir.
-  const ratio = totalTicks > 0 ? clamp01(1 - remainingTicks / totalTicks) : 1;
-
-  // def yalnizca ileride seviyeye ozel insaat suresi gerekirse kullanilacak;
-  // su an toplam sure ornegin kendi zamanlamasindan geliyor.
-  void def;
-
-  return { remainingTicks, totalTicks, ratio };
 }
 
 /** Kaynak haritasinin savunmaci kopyasi; cagiran taraf katalogu degistiremez. */
