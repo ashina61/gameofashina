@@ -242,7 +242,7 @@ export class CityScene extends Phaser.Scene {
   private demolish(uid: string): void {
     const building = this.world.state.buildings.get(uid);
     if (!building) return;
-    const name = getBuilding(building.defId).name;
+    const name = getBuilding(building.type).name;
 
     if (this.world.buildings.demolish(uid)) {
       this.world.bus.emit('notify', `${name} yikildi, kaynaklarin yarisi geri alindi.`, 'info');
@@ -255,12 +255,13 @@ export class CityScene extends Phaser.Scene {
 
   private createView(building: BuildingInstance): void {
     if (this.views.has(building.uid)) return;
-    const def = getBuilding(building.defId);
-    this.views.set(building.uid, new BuildingView(this, building, def));
+    const def = getBuilding(building.type);
+    const resolved = this.world.buildings.resolve(building);
+    this.views.set(building.uid, new BuildingView(this, building, def, resolved));
   }
 
   private onBuildingChanged(building: BuildingInstance): void {
-    this.views.get(building.uid)?.refresh(building);
+    this.views.get(building.uid)?.refresh(this.world.buildings.resolve(building));
 
     // Secili bina tamamlandiysa bilgi paneli guncel degerleri gostersin.
     if (this.selectedTile?.occupantUid === building.uid) {
@@ -275,12 +276,21 @@ export class CityScene extends Phaser.Scene {
 
   /**
    * Insaat halindeki binalarin ilerleme cubugunu her karede tazeler.
-   * Tamamlanmis binalar dokunulmaz; bu dongu genellikle bostur.
+   *
+   * TODO(sprint-2): Bu dongu her karede TUM bina koleksiyonunu tariyor ve
+   * insaattaki her bina icin Graphics geometrisini yeniden kuruyor. Olculen
+   * maliyet: 120 insaat halinde bina ile 46 -> 9 FPS.
+   * Cozum, ConstructionSystem ile birlikte:
+   *   1. Tarama kalkacak; ilerleme yalnizca 'building:progress' olayinda
+   *      guncellenecek (olay guden render).
+   *   2. Insaattaki binalar ayri bir kumede tutulacak, koleksiyon taranmayacak.
+   *   3. Ilerleme cubugu Graphics yerine scaleX ile olceklenen sprite olacak.
+   * Bu sprintte davranis bilerek degistirilmedi.
    */
   private refreshConstructionViews(): void {
     for (const building of this.world.state.buildings.values()) {
-      if (building.complete) continue;
-      this.views.get(building.uid)?.refresh(building);
+      if (building.state !== 'constructing') continue;
+      this.views.get(building.uid)?.refresh(this.world.buildings.resolve(building));
     }
   }
 

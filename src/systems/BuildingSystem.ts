@@ -1,8 +1,14 @@
 import { getBuilding } from '@/config/BuildingCatalog';
+import { buildCostOf, buildTimeTicksOf, resolveBuilding, resolveRefund } from './BuildingResolver';
 import type { EventBus } from '@/core/EventBus';
 import type { GameState } from '@/core/GameState';
 import type { ResourceSystem } from './ResourceSystem';
-import type { BuildingDefinition, BuildingId, BuildingInstance } from '@/types';
+import type {
+  BuildingDefinition,
+  BuildingId,
+  BuildingInstance,
+  ResolvedBuilding,
+} from '@/types';
 
 /** Yerlestirmenin neden reddedildigini anlatan hata kodlari. */
 export type PlacementError = 'out_of_bounds' | 'occupied' | 'terrain' | 'cost' | 'max_count';
@@ -43,10 +49,11 @@ export class BuildingSystem {
    * Yerlestirmenin gecerli olup olmadigini, kaynak kontrolu dahil dogrular.
    * Yerlestirme onizlemesi de bu fonksiyonu kullanir; kural tek yerde durur.
    */
-  validate(defId: BuildingId, gx: number, gy: number): ValidationResult {
-    const def = getBuilding(defId);
+  validate(type: BuildingId, gx: number, gy: number): ValidationResult {
+    const def = getBuilding(type);
 
-    if (def.maxCount !== undefined && this.state.countOf(defId) >= def.maxCount) {
+    // countOf artik tur indeksinden O(1) okur; koleksiyonu taramaz.
+    if (def.maxCount !== undefined && this.state.countOf(type) >= def.maxCount) {
       return { ok: false, reason: 'max_count' };
     }
 
@@ -56,80 +63,96 @@ export class BuildingSystem {
     if (cells.some((tile) => !def.allowedTerrain.includes(tile.terrain))) {
       return { ok: false, reason: 'terrain' };
     }
-    if (!this.resources.canAfford(def.cost)) return { ok: false, reason: 'cost' };
+    if (!this.resources.canAfford(buildCostOf(def))) return { ok: false, reason: 'cost' };
 
     return { ok: true };
   }
 
-  /** Kaynak kontrolu haric, sadece zemin uygunlugunu dondurur (onizleme icin). */
-  isTerrainValid(defId: BuildingId, gx: number, gy: number): boolean {
-    const def = getBuilding(defId);
-    return this.state.grid.canPlace(gx, gy, def.size, def.allowedTerrain);
-  }
-
   /** Binayi kurar: maliyeti duser, izgarayi isgal eder ve insaati baslatir. */
-  place(defId: BuildingId, gx: number, gy: number): PlacementResult {
-    const check = this.validate(defId, gx, gy);
+  place(type: BuildingId, gx: number, gy: number): PlacementResult {
+    const check = this.validate(type, gx, gy);
     if (!check.ok) return check;
 
-    const def = getBuilding(defId);
-    if (!this.resources.spend(def.cost)) {
+    const def = getBuilding(type);
+    if (!this.resources.spend(buildCostOf(def))) {
       return { ok: false, reason: 'cost' };
     }
 
+    const buildTicks = buildTimeTicksOf(def);
+    const startedAtTick = this.state.tick;
+
     const building: BuildingInstance = {
-      uid: this.state.nextUid(defId),
-      defId,
+      uid: this.state.nextUid(type),
+      type,
       gx,
       gy,
       level: 1,
-      complete: def.buildTime <= 0,
-      remainingBuildTime: def.buildTime,
+      state: buildTicks > 0 ? 'constructing' : 'active',
+      assignedWorkers: 0,
     };
 
-    this.state.buildings.set(building.uid, building);
+    if (buildTicks > 0) {
+      building.construction = {
+        startedAtTick,
+        completesAtTick: startedAtTick + buildTicks,
+      };
+    }
+
+    this.state.addBuilding(building);
     this.state.grid.occupy(gx, gy, def.size, building.uid);
     this.bus.emit('building:placed', building);
 
-    if (building.complete) {
-      this.completeBuilding(building);
+    // Insa suresi olmayan bina aninda devreye girer.
+    if (building.state === 'active') {
+      this.onBuildingActivated(building);
     }
     return { ok: true, building };
   }
 
   /**
-   * Binayi yikar ve maliyetin yarisini geri verir.
+   * Binayi yikar ve o ana kadar yatirilan kaynagin yarisini geri verir.
    * Insaat halindeki binalar da yikilabilir.
    */
   demolish(uid: string): boolean {
     const building = this.state.buildings.get(uid);
     if (!building) return false;
 
-    const def = getBuilding(building.defId);
-    this.state.buildings.delete(uid);
-    this.state.grid.release(uid);
+    const def = getBuilding(building.type);
+    // Iade, seviyeye gore yatirilan toplamdan hesaplanir - tek kaynak resolver.
+    const refund = resolveRefund(def, building.level);
 
-    const refund = Object.fromEntries(
-      Object.entries(def.cost).map(([key, value]) => [key, Math.floor((value ?? 0) * 0.5)]),
-    );
+    this.state.removeBuilding(uid);
     this.resources.recalculateCapacity();
     this.resources.add(refund);
     this.bus.emit('building:removed', building);
     return true;
   }
 
-  /** Insaati biten binayi aktif hale getirir. */
+  /**
+   * Insaati biten binayi aktif hale getirir.
+   * EconomySystem, tik esigi gectiginde burayi cagirir.
+   */
   completeBuilding(building: BuildingInstance): void {
-    building.complete = true;
-    building.remainingBuildTime = 0;
-    this.resources.recalculateCapacity();
-    this.resources.emitChange();
-    this.bus.emit('building:completed', building);
+    building.state = 'active';
+    delete building.construction;
+    this.onBuildingActivated(building);
   }
 
   /** Bir bina ornegine ait statik tanimi dondurur. */
   definitionOf(building: BuildingInstance): BuildingDefinition {
-    return getBuilding(building.defId);
+    return getBuilding(building.type);
+  }
+
+  /** Bir bina ornegini hesaplanmis degerleriyle birlikte dondurur. */
+  resolve(building: BuildingInstance): ResolvedBuilding {
+    return resolveBuilding(building, getBuilding(building.type), this.state.tick);
+  }
+
+  /** Bina devreye girdiginde kapasiteyi tazeler ve haber verir. */
+  private onBuildingActivated(building: BuildingInstance): void {
+    this.resources.recalculateCapacity();
+    this.resources.emitChange();
+    this.bus.emit('building:completed', building);
   }
 
   /** Verilen hucreyi kaplayan binayi dondurur; bossa null. */

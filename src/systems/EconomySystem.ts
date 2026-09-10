@@ -2,23 +2,38 @@ import {
   BASE_POPULATION_CAPACITY,
   FOOD_UPKEEP_PER_WORKER,
   MAX_OFFLINE_SECONDS,
+  OFFLINE_CHUNK_TICKS,
   RESOURCE_ORDER,
+  TICKS_PER_SECOND,
 } from '@/config/Constants';
 import { getBuilding } from '@/config/BuildingCatalog';
+import { resolveBuilding } from './BuildingResolver';
 import type { EventBus } from '@/core/EventBus';
 import type { GameState } from '@/core/GameState';
 import type { BuildingSystem } from './BuildingSystem';
 import type { ResourceSystem } from './ResourceSystem';
 import type { EconomySnapshot, ResourcePool } from '@/types';
 
+/** Bir dakikadaki tik sayisi; uretim oranlari dakika cinsinden tanimlidir. */
+const TICKS_PER_MINUTE = 60 * TICKS_PER_SECOND;
+
 /**
- * Ekonomi simulasyonu: insaat sayaclari, isci dagilimi, uretim ve yiyecek gideri.
+ * Ekonomi simulasyonu: insaat esikleri, isci dagilimi, uretim ve yiyecek gideri.
  *
- * Denge kurallari:
+ * ZAMAN MODELI
+ * Simulasyon tiklerle ilerler. Gercek zamanin tek isi, kac tam tik islenecegini
+ * belirlemektir (SimulationClock); oyun durumu gercek saatten turetilmez.
+ * Ayni sayida tik, ayni baslangic durumundan her zaman ayni sonucu verir.
+ *
+ * Bu sprintte tik sayacini ilerleten tek yer burasidir. ConstructionSystem
+ * geldiginde ilerletme sorumlulugu ortak bir simulasyon orkestratorune tasinacak
+ * ve bu sistem yalnizca kendisine verilen tik sayisini isleyecek.
+ *
+ * DENGE KURALLARI (prototipten degismedi)
  * - Uretim binalari isci ister; toplam isci ihtiyaci nufus kapasitesini asarsa
  *   tum uretim ayni oranda dusurulur (verim carpani).
  * - Her isci dakikada sabit miktarda yiyecek tuketir.
- * - Yiyecek bittiginde verim yarilanir; oyuncu aclik krizini gormezden gelemez.
+ * - Yiyecek bittiginde verim yarilanir.
  */
 export class EconomySystem {
   private readonly state: GameState;
@@ -46,18 +61,24 @@ export class EconomySystem {
   }
 
   /**
-   * Simulasyonu deltaSeconds kadar ilerletir.
-   * Hem gercek zamanli tick hem de cevrimdisi telafi bu fonksiyonu kullanir.
+   * Simulasyonu verilen tik kadar ilerletir.
+   *
+   * Sira onemlidir: once tik sayaci ilerler, sonra biten insaatlar devreye
+   * girer, en son uretim uygulanir. Boylece bu pencerede tamamlanan bir bina
+   * pencerenin uretimine dahil olur - prototipteki davranisin aynisi.
    */
-  tick(deltaSeconds: number, options: { silent?: boolean } = {}): EconomySnapshot {
-    if (deltaSeconds <= 0) return this.lastSnapshot;
+  advance(ticks: number, options: { silent?: boolean } = {}): EconomySnapshot {
+    if (!Number.isFinite(ticks) || ticks <= 0) return this.lastSnapshot;
+    const whole = Math.floor(ticks);
+    if (whole <= 0) return this.lastSnapshot;
 
-    this.advanceConstruction(deltaSeconds, options.silent === true);
+    this.state.advanceTick(whole);
+    this.completeFinishedConstruction(options.silent === true);
 
     const snapshot = this.computeSnapshot();
     this.lastSnapshot = snapshot;
 
-    const minutes = deltaSeconds / 60;
+    const minutes = whole / TICKS_PER_MINUTE;
     const delta: ResourcePool = { food: 0, wood: 0, stone: 0, gold: 0 };
     for (const key of RESOURCE_ORDER) {
       delta[key] = snapshot.netPerMinute[key] * minutes;
@@ -72,60 +93,79 @@ export class EconomySystem {
   }
 
   /**
+   * Saniye cinsinden ilerletme kolayligi.
+   * Cagiran taraflarin tik cevrimini tekrarlamamasi icindir.
+   */
+  advanceSeconds(seconds: number, options: { silent?: boolean } = {}): EconomySnapshot {
+    return this.advance(Math.floor(seconds * TICKS_PER_SECOND), options);
+  }
+
+  /**
    * Oyun kapaliyken gecen sureyi telafi eder.
-   * Ust sinir MAX_OFFLINE_SECONDS; tek seferde uygulanir ve kazanci dondurur.
+   *
+   * Gercek dunya suresi burada YALNIZCA kac tik islenecegini belirlemek icin
+   * kullanilir; sonuc tamamen tik sayisindan turer. Ust sinir
+   * MAX_OFFLINE_SECONDS'tir. Islenen tik sayisini dondurur.
    */
   applyOfflineProgress(elapsedSeconds: number): number {
-    const capped = Math.min(Math.max(0, elapsedSeconds), MAX_OFFLINE_SECONDS);
-    if (capped < 1) return 0;
+    const cappedSeconds = Math.min(Math.max(0, elapsedSeconds), MAX_OFFLINE_SECONDS);
+    const totalTicks = Math.floor(cappedSeconds * TICKS_PER_SECOND);
+    if (totalTicks <= 0) return 0;
 
-    // Uzun sureyi tek adimda uygulamak insaat sayaclarinda hataya yol acar;
-    // bu yuzden en fazla 60 saniyelik dilimler halinde ilerletilir.
-    let remaining = capped;
+    // Uzun sureyi tek adimda uygulamak insaat esiklerini atlar; parcalara bolunur.
+    let remaining = totalTicks;
     while (remaining > 0) {
-      const step = Math.min(60, remaining);
-      this.tick(step, { silent: true });
+      const step = Math.min(OFFLINE_CHUNK_TICKS, remaining);
+      this.advance(step, { silent: true });
       remaining -= step;
     }
 
     this.resources.recalculateCapacity();
     this.resources.emitChange();
     this.bus.emit('economy:updated', this.lastSnapshot);
-    return capped;
+    return totalTicks;
   }
 
-  /** Insaat halindeki binalarin sayaclarini isletir. */
-  private advanceConstruction(deltaSeconds: number, silent: boolean): void {
-    for (const building of this.state.buildings.values()) {
-      if (building.complete) continue;
+  /** Tamamlanma tikine ulasan insaatlari devreye alir. */
+  private completeFinishedConstruction(silent: boolean): void {
+    const now = this.state.tick;
 
-      building.remainingBuildTime -= deltaSeconds;
-      if (building.remainingBuildTime <= 0) {
+    for (const building of this.state.buildings.values()) {
+      if (building.state !== 'constructing') continue;
+
+      const completesAt = building.construction?.completesAtTick;
+      if (completesAt === undefined || completesAt <= now) {
         this.buildings.completeBuilding(building);
-      } else if (!silent) {
-        const total = getBuilding(building.defId).buildTime;
-        const ratio = total > 0 ? 1 - building.remainingBuildTime / total : 1;
-        this.bus.emit('building:progress', building, ratio);
+        continue;
+      }
+
+      if (!silent) {
+        const resolved = resolveBuilding(building, getBuilding(building.type), now);
+        this.bus.emit('building:progress', building, resolved.construction?.ratio ?? 0);
       }
     }
   }
 
-  /** Nufus, isci ve uretim dengesini bastan hesaplar. */
+  /**
+   * Nufus, isci ve uretim dengesini bastan hesaplar.
+   *
+   * Bina basina degerler resolver'dan gelir; burada seviye, durum veya
+   * kapasite mantigi tekrarlanmaz.
+   */
   private computeSnapshot(): EconomySnapshot {
     let populationCapacity = BASE_POPULATION_CAPACITY;
     let workersNeeded = 0;
     const gross: ResourcePool = { food: 0, wood: 0, stone: 0, gold: 0 };
 
     for (const building of this.state.buildings.values()) {
-      if (!building.complete) continue;
-      const def = getBuilding(building.defId);
-      populationCapacity += def.populationCapacity ?? 0;
-      workersNeeded += def.workers ?? 0;
+      const resolved = resolveBuilding(building, getBuilding(building.type), this.state.tick);
+      if (!resolved.operational) continue;
 
-      if (def.production) {
-        for (const key of RESOURCE_ORDER) {
-          gross[key] += def.production[key] ?? 0;
-        }
+      populationCapacity += resolved.populationCapacity;
+      workersNeeded += resolved.workerRequirement;
+
+      for (const key of RESOURCE_ORDER) {
+        gross[key] += resolved.production[key] ?? 0;
       }
     }
 

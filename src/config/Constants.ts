@@ -1,4 +1,14 @@
+import type { ResourcePool } from '@/types';
+
 /** Oyunun ayarlanabilir sabitleri. Denge degisiklikleri once burada yapilir. */
+
+/** Yeni bir oyunun baslangic kaynaklari. */
+export const STARTING_RESOURCES: ResourcePool = {
+  food: 150,
+  wood: 220,
+  stone: 140,
+  gold: 60,
+};
 
 /** Izometrik karo genisligi (piksel). */
 export const TILE_WIDTH = 128;
@@ -9,8 +19,18 @@ export const TILE_HEIGHT = 64;
 /** Sehir izgarasinin boyutu (GRID_SIZE x GRID_SIZE). */
 export const GRID_SIZE = 14;
 
-/** Ekonomi simulasyonunun tick araligi (ms). */
-export const ECONOMY_TICK_MS = 1000;
+/**
+ * Simulasyonun saniyedeki tik sayisi.
+ * Oyun durumu tiklerle ilerler; gercek zaman yalnizca kac tik islenecegini
+ * belirler. Bu degeri degistirmek dengeyi degistirir.
+ */
+export const TICKS_PER_SECOND = 1;
+
+/** Bir tikin gercek zamanda karsiligi (ms). */
+export const MS_PER_TICK = 1000 / TICKS_PER_SECOND;
+
+/** Cevrimdisi telafi tek seferde en fazla bu kadar tik islenerek uygulanir. */
+export const OFFLINE_CHUNK_TICKS = 60 * TICKS_PER_SECOND;
 
 /** Otomatik kayit araligi (ms). */
 export const AUTOSAVE_INTERVAL_MS = 15_000;
@@ -44,8 +64,15 @@ export const DRAG_THRESHOLD_PX = 12;
 /** Dokunmanin "tap" sayilmasi icin azami basili tutma suresi (ms). */
 export const TAP_MAX_DURATION_MS = 400;
 
-/** Kayit dosyasi surumu; uyumsuz kayitlari elemek icin. */
-export const SAVE_VERSION = 1;
+/**
+ * Kayit dosyasi surumu.
+ * v1: defId + complete + remainingBuildTime (saniye)
+ * v2: type + state + level + assignedWorkers + construction (tik) + tick
+ */
+export const SAVE_VERSION = 2;
+
+/** Yuklenebilen en eski kayit surumu; arasi goc ile yukseltilir. */
+export const MIN_SUPPORTED_SAVE_VERSION = 1;
 
 /** localStorage anahtari. */
 export const SAVE_KEY = 'ancient-city:save:v1';

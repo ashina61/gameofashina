@@ -1,10 +1,11 @@
 import Phaser from 'phaser';
 import { RESOURCE_META, RESOURCE_ORDER, TextureKeys } from '@/config/Constants';
+import { resolveBuilding, ticksToSeconds } from '@/systems/BuildingResolver';
 import { getBuilding } from '@/config/BuildingCatalog';
 import { formatDuration } from '@/utils/Format';
 import { TouchButton } from './TouchButton';
 import { UISpacing, UIText, labelStyle } from './UIStyle';
-import type { BuildingInstance, TileData } from '@/types';
+import type { BuildingInstance, ResolvedBuilding, TileData } from '@/types';
 
 /** Zemin turlerinin kullaniciya gosterilen adlari. */
 const TERRAIN_LABELS: Record<string, string> = {
@@ -32,6 +33,8 @@ export class InfoPanel extends Phaser.GameObjects.Container {
   private currentUid: string | null = null;
   /** Panelde gosterilen bina; bos karo seciliyse null. */
   private currentBuilding: BuildingInstance | null = null;
+  /** Geri sayimi hesaplamak icin son bilinen simulasyon tiki. */
+  private currentTick = 0;
 
   constructor(
     scene: Phaser.Scene,
@@ -103,9 +106,10 @@ export class InfoPanel extends Phaser.GameObjects.Container {
   }
 
   /** Secilen hucreyi gosterir; hucre bossa zemin bilgisi verilir. */
-  show(tile: TileData, building: BuildingInstance | null): void {
+  show(tile: TileData, building: BuildingInstance | null, tick: number): void {
     this.currentUid = building?.uid ?? null;
     this.currentBuilding = building;
+    this.currentTick = tick;
 
     if (building) {
       this.showBuilding(building);
@@ -122,10 +126,11 @@ export class InfoPanel extends Phaser.GameObjects.Container {
    * UIScene tarafindan duzenli araliklarla cagrilir; panel kapaliysa veya
    * bina tamamlanmissa hicbir sey yapmaz.
    */
-  tick(): void {
+  tick(currentTick: number): void {
     if (!this.visibleState) return;
     const building = this.currentBuilding;
-    if (!building || building.complete) return;
+    if (!building || building.state !== 'constructing') return;
+    this.currentTick = currentTick;
     this.showBuilding(building);
   }
 
@@ -156,23 +161,48 @@ export class InfoPanel extends Phaser.GameObjects.Container {
     });
   }
 
+  /**
+   * Bina bilgisini gosterir.
+   * Tum sayilar BuildingResolver'dan gelir; panel kendi hesabini yapmaz.
+   */
   private showBuilding(building: BuildingInstance): void {
-    const def = getBuilding(building.defId);
-    this.titleText.setText(def.name);
+    const def = getBuilding(building.type);
+    const resolved: ResolvedBuilding = resolveBuilding(building, def, this.currentTick);
+
+    // Seviye 1'i gostermeye gerek yok; ustu bilgi tasir.
+    this.titleText.setText(
+      resolved.level > 1 ? `${def.name} (Sv. ${resolved.level})` : def.name,
+    );
 
     const lines: string[] = [];
-    if (!building.complete) {
-      lines.push(`Insa ediliyor - ${formatDuration(building.remainingBuildTime)} kaldi`);
+
+    if (resolved.construction) {
+      const remaining = ticksToSeconds(resolved.construction.remainingTicks);
+      lines.push(`Insa ediliyor - ${formatDuration(remaining)} kaldi`);
     }
-    if (def.production) {
-      const parts = RESOURCE_ORDER.filter((key) => def.production?.[key]).map(
-        (key) => `${RESOURCE_META[key].label} +${def.production?.[key]}/dk`,
-      );
-      if (parts.length) lines.push(parts.join('  '));
-    }
-    if (def.workers) lines.push(`${def.workers} isci calistirir`);
-    if (def.populationCapacity) lines.push(`+${def.populationCapacity} nufus kapasitesi`);
-    if (def.storageCapacity) lines.push(`+${def.storageCapacity} depo`);
+
+    // Insaat sirasinda uretim degerleri sifirdir; o seviyenin tanimini gosteririz.
+    const production = resolved.construction
+      ? (def.levels.find((l) => l.level === resolved.level)?.production ?? {})
+      : resolved.production;
+
+    const parts = RESOURCE_ORDER.filter((key) => production[key]).map(
+      (key) => `${RESOURCE_META[key].label} +${production[key]}/dk`,
+    );
+    if (parts.length) lines.push(parts.join('  '));
+
+    if (resolved.workerRequirement) lines.push(`${resolved.workerRequirement} isci calistirir`);
+
+    const populationCapacity =
+      resolved.populationCapacity ||
+      (def.levels.find((l) => l.level === resolved.level)?.populationCapacity ?? 0);
+    if (populationCapacity) lines.push(`+${populationCapacity} nufus kapasitesi`);
+
+    const storageCapacity =
+      resolved.storageCapacity ||
+      (def.levels.find((l) => l.level === resolved.level)?.storageCapacity ?? 0);
+    if (storageCapacity) lines.push(`+${storageCapacity} depo`);
+
     if (!lines.length) lines.push(def.description);
 
     this.bodyText.setText(lines.join('\n'));

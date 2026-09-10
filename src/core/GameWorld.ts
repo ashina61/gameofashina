@@ -1,7 +1,8 @@
-import { AUTOSAVE_INTERVAL_MS, ECONOMY_TICK_MS } from '@/config/Constants';
+import { AUTOSAVE_INTERVAL_MS } from '@/config/Constants';
 import { EventBus } from './EventBus';
 import { GameState } from './GameState';
 import { SaveManager } from './SaveManager';
+import { SimulationClock } from './SimulationClock';
 import { BuildingSystem } from '@/systems/BuildingSystem';
 import { EconomySystem } from '@/systems/EconomySystem';
 import { ResourceSystem } from '@/systems/ResourceSystem';
@@ -28,7 +29,9 @@ export class GameWorld {
   /** Kayittan mi yuklendi, yoksa yeni oyun mu? */
   readonly loadedFromSave: boolean;
 
-  private tickAccumulator = 0;
+  /** Gercek zamani simulasyon tikine ceviren biriktirici. */
+  private readonly clock = new SimulationClock();
+
   private autosaveAccumulator = 0;
 
   private constructor(state: GameState, loadedFromSave: boolean, offlineSeconds: number) {
@@ -40,7 +43,16 @@ export class GameWorld {
     this.offlineSeconds = offlineSeconds > 0 ? this.economy.applyOfflineProgress(offlineSeconds) : 0;
   }
 
-  /** Kayit varsa onu yukler, yoksa yeni bir oyun baslatir. */
+  /**
+   * Kayit varsa onu yukler, yoksa yeni bir oyun baslatir.
+   *
+   * Date.now() burada YALNIZCA gercek dunyada ne kadar sure gectigini olcmek
+   * icin kullanilir. Oyun durumunun kendisi bu farktan turemez: gecen sure
+   * tike cevrilir ve simulasyon o kadar tik ilerletilir.
+   *
+   * NOT: Bu olcum hala cihaz saatine guvenir. Saat dogrulamasi ve tik
+   * tabanli cevrimdisi kaniti, sunucu otoritesiyle birlikte ele alinacak.
+   */
   static bootstrap(): GameWorld {
     const saves = new SaveManager();
     const save = saves.load();
@@ -52,15 +64,22 @@ export class GameWorld {
     return new GameWorld(GameState.createNew(), false, 0);
   }
 
+  /** Gecerli simulasyon tiki. */
+  get tick(): number {
+    return this.state.tick;
+  }
+
   /**
    * Phaser'in her karesinde cagrilir.
-   * Ekonomi sabit araliklarla islenir; kare hizi degisse de denge bozulmaz.
+   *
+   * Gercek zaman burada yalnizca kac tam tik islenecegini belirler; artan
+   * kesir bir sonraki kareye devreder. Kare hizi ne olursa olsun ayni gercek
+   * sure ayni sayida tik uretir, dolayisiyla denge kare hizindan etkilenmez.
    */
   update(deltaMs: number): void {
-    this.tickAccumulator += deltaMs;
-    while (this.tickAccumulator >= ECONOMY_TICK_MS) {
-      this.tickAccumulator -= ECONOMY_TICK_MS;
-      this.economy.tick(ECONOMY_TICK_MS / 1000);
+    const ticks = this.clock.absorb(deltaMs);
+    if (ticks > 0) {
+      this.economy.advance(ticks);
     }
 
     this.autosaveAccumulator += deltaMs;

@@ -1,13 +1,10 @@
 import Phaser from 'phaser';
-import type { ResourcePool } from '@/types';
 
-/** Yeni bir oyunun baslangic kaynaklari. */
-export const STARTING_RESOURCES: ResourcePool = {
-  food: 150,
-  wood: 220,
-  stone: 140,
-  gold: 60,
-};
+/**
+ * Bu dosya yalnizca Phaser baglantisini kurar.
+ * Denge verisi (baslangic kaynaklari vb.) config/Constants.ts icindedir;
+ * boylece core/ ve systems/ katmanlari Phaser'i import etmeden o veriye erisir.
+ */
 
 /** Sahne disindaki arka plan (letterbox) rengi. */
 export const BACKGROUND_COLOR = '#12100b';

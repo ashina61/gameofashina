@@ -1,4 +1,3 @@
-import Phaser from 'phaser';
 import type { BuildingInstance, EconomySnapshot, ResourcePool, TileData } from '@/types';
 
 /**
@@ -23,40 +22,105 @@ export interface GameEvents {
 
 type EventName = keyof GameEvents;
 
+/** Kayitli tek bir dinleyici. */
+interface Listener {
+  /** Tip guvenligi genel API'de saglanir; depoda gevsek imza tutulur. */
+  fn: AnyListener;
+  context: unknown;
+  once: boolean;
+}
+
+type AnyListener = (...args: never[]) => void;
+
 /**
  * Uygulama capinda tek bir olay yayinlayicisi.
- * Phaser.Events.EventEmitter uzerine ince bir tip katmani ekler; boylece
- * yanlis olay adi veya yanlis argumani derleme aninda yakalanir.
+ *
+ * Kucuk bir yayinlayici bilerek yerel olarak yazildi: core/ ve systems/
+ * katmanlarinin Phaser'a bagimli olmamasi bu projenin temel mimari kurali.
+ * Daha once burada Phaser.Events.EventEmitter kullaniliyordu ve bu, tum oyun
+ * cekirdegini bir tarayici ortamina bagliyordu.
+ *
+ * Sozlesme (on/once/off/emit + context baglama) eskisiyle ayni tutuldu.
  */
 export class EventBus {
-  private readonly emitter = new Phaser.Events.EventEmitter();
+  private readonly listeners = new Map<string, Listener[]>();
 
   on<K extends EventName>(event: K, fn: (...args: GameEvents[K]) => void, context?: unknown): this {
-    this.emitter.on(event, fn as (...args: unknown[]) => void, context);
-    return this;
+    return this.addListener(event, fn as AnyListener, context, false);
   }
 
   once<K extends EventName>(event: K, fn: (...args: GameEvents[K]) => void, context?: unknown): this {
-    this.emitter.once(event, fn as (...args: unknown[]) => void, context);
-    return this;
+    return this.addListener(event, fn as AnyListener, context, true);
   }
 
+  /**
+   * Dinleyiciyi kaldirir.
+   * fn verilmezse olayin tum dinleyicileri, context verilirse yalnizca o
+   * baglamdaki esleşmeler kaldirilir.
+   */
   off<K extends EventName>(event: K, fn?: (...args: GameEvents[K]) => void, context?: unknown): this {
-    this.emitter.off(event, fn as ((...args: unknown[]) => void) | undefined, context);
+    if (!fn) {
+      this.listeners.delete(event);
+      return this;
+    }
+
+    const list = this.listeners.get(event);
+    if (!list) return this;
+
+    const remaining = list.filter(
+      (entry) => entry.fn !== fn || (context !== undefined && entry.context !== context),
+    );
+
+    if (remaining.length > 0) {
+      this.listeners.set(event, remaining);
+    } else {
+      this.listeners.delete(event);
+    }
     return this;
   }
 
   emit<K extends EventName>(event: K, ...args: GameEvents[K]): boolean {
-    return this.emitter.emit(event, ...args);
+    const list = this.listeners.get(event);
+    if (!list || list.length === 0) return false;
+
+    // Dinleyici icinde on/off cagrilabilecegi icin kopya uzerinde geziyoruz.
+    for (const entry of [...list]) {
+      if (entry.once) {
+        this.off(event, entry.fn as (...args: GameEvents[K]) => void, entry.context);
+      }
+      (entry.fn as (...args: unknown[]) => void).apply(entry.context, args);
+    }
+    return true;
   }
 
   /** Belirli bir olayin tum dinleyicilerini kaldirir. */
   removeAll<K extends EventName>(event: K): this {
-    this.emitter.removeAllListeners(event);
+    this.listeners.delete(event);
     return this;
   }
 
+  /** Test ve tani amacli: bir olayin dinleyici sayisi. */
+  listenerCount<K extends EventName>(event: K): number {
+    return this.listeners.get(event)?.length ?? 0;
+  }
+
   destroy(): void {
-    this.emitter.removeAllListeners();
+    this.listeners.clear();
+  }
+
+  private addListener(
+    event: string,
+    fn: AnyListener,
+    context: unknown,
+    once: boolean,
+  ): this {
+    const list = this.listeners.get(event);
+    const entry: Listener = { fn, context, once };
+    if (list) {
+      list.push(entry);
+    } else {
+      this.listeners.set(event, [entry]);
+    }
+    return this;
   }
 }

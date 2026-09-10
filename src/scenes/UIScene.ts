@@ -10,7 +10,13 @@ import { UISpacing, UIText } from '@/ui/UIStyle';
 import { formatElapsed } from '@/utils/Format';
 import { getWorld } from './BootScene';
 import type { GameWorld } from '@/core/GameWorld';
-import type { BuildingId, EconomySnapshot, ResourcePool, TileData } from '@/types';
+import type {
+  BuildingId,
+  BuildingInstance,
+  EconomySnapshot,
+  ResourcePool,
+  TileData,
+} from '@/types';
 
 /**
  * Arayuz sahnesi: CityScene'in uzerinde ayri bir kamera ile calisir.
@@ -70,7 +76,7 @@ export class UIScene extends Phaser.Scene {
     this.time.addEvent({
       delay: 500,
       loop: true,
-      callback: () => this.infoPanel.tick(),
+      callback: () => this.infoPanel.tick(this.world.tick),
     });
 
     this.scale.on(Phaser.Scale.Events.RESIZE, this.onResize, this);
@@ -146,7 +152,7 @@ export class UIScene extends Phaser.Scene {
     const building = tile.occupantUid
       ? this.world.state.buildings.get(tile.occupantUid) ?? null
       : null;
-    this.infoPanel.show(tile, building);
+    this.infoPanel.show(tile, building, this.world.tick);
     this.relayout();
   }
 
@@ -154,8 +160,8 @@ export class UIScene extends Phaser.Scene {
     this.toast.show(message, tone);
   }
 
-  private onBuildingCompleted(building: { defId: BuildingId }): void {
-    this.toast.show(`${getBuilding(building.defId).name} tamamlandi.`, 'success', 1800);
+  private onBuildingCompleted(building: BuildingInstance): void {
+    this.toast.show(`${getBuilding(building.type).name} tamamlandi.`, 'success', 1800);
   }
 
   // --- Insa modu -----------------------------------------------------------

@@ -1,5 +1,6 @@
 import { BASE_STORAGE_CAPACITY, RESOURCE_ORDER } from '@/config/Constants';
 import { getBuilding } from '@/config/BuildingCatalog';
+import { resolveBuilding } from './BuildingResolver';
 import type { EventBus } from '@/core/EventBus';
 import type { GameState } from '@/core/GameState';
 import type { ResourceAmounts, ResourceKey, ResourcePool } from '@/types';
@@ -30,12 +31,15 @@ export class ResourceSystem {
     return { ...this.state.resources };
   }
 
-  /** Tamamlanmis depo binalarina gore kapasiteyi yeniden hesaplar. */
+  /**
+   * Calisir durumdaki depo binalarina gore kapasiteyi yeniden hesaplar.
+   * Kapasite degeri resolver'dan gelir; burada seviye/durum mantigi tekrarlanmaz.
+   */
   recalculateCapacity(): number {
     let capacity = BASE_STORAGE_CAPACITY;
     for (const building of this.state.buildings.values()) {
-      if (!building.complete) continue;
-      capacity += getBuilding(building.defId).storageCapacity ?? 0;
+      const resolved = resolveBuilding(building, getBuilding(building.type), this.state.tick);
+      capacity += resolved.storageCapacity;
     }
     this.cachedCapacity = capacity;
     return capacity;
@@ -53,7 +57,9 @@ export class ResourceSystem {
   spend(cost: ResourceAmounts): boolean {
     if (!this.canAfford(cost)) return false;
     for (const key of RESOURCE_ORDER) {
-      this.state.resources[key] -= cost[key] ?? 0;
+      const amount = cost[key] ?? 0;
+      if (amount === 0) continue;
+      this.state.setResource(key, this.state.resources[key] - amount);
     }
     this.emitChange();
     return true;
@@ -79,7 +85,7 @@ export class ResourceSystem {
     for (const key of RESOURCE_ORDER) {
       const delta = (amounts[key] ?? 0) * sign;
       if (delta === 0) continue;
-      this.state.resources[key] = clamp(this.state.resources[key] + delta, 0, this.cachedCapacity);
+      this.state.setResource(key, clamp(this.state.resources[key] + delta, 0, this.cachedCapacity));
     }
   }
 

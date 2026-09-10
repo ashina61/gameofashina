@@ -1,9 +1,10 @@
 import Phaser from 'phaser';
 import { RESOURCE_META, RESOURCE_ORDER, TextureKeys } from '@/config/Constants';
 import { allBuildings } from '@/config/BuildingCatalog';
+import { resolveBuildPreview, ticksToSeconds } from '@/systems/BuildingResolver';
 import { formatDuration } from '@/utils/Format';
 import { TOUCH_TARGET, UISpacing, UIText, labelStyle } from './UIStyle';
-import type { BuildingDefinition, BuildingId, ResourcePool } from '@/types';
+import type { BuildPreview, BuildingDefinition, BuildingId, ResourcePool } from '@/types';
 
 /**
  * Alttan acilan insa menusu.
@@ -190,7 +191,8 @@ export class BuildMenu extends Phaser.GameObjects.Container {
 
 /** Insa menusundeki tek bir bina karti. */
 class BuildCard extends Phaser.GameObjects.Container {
-  private readonly def: BuildingDefinition;
+  /** Maliyet ve sure tek kaynaktan (BuildingResolver) gelir. */
+  private readonly preview: BuildPreview;
   private readonly frame: Phaser.GameObjects.NineSlice;
   private readonly costTexts: { key: string; text: Phaser.GameObjects.Text }[] = [];
   private affordable = true;
@@ -204,7 +206,7 @@ class BuildCard extends Phaser.GameObjects.Container {
     onPress: () => void,
   ) {
     super(scene, x, y);
-    this.def = def;
+    this.preview = resolveBuildPreview(def);
 
     const height = 112;
     this.frame = scene.add
@@ -220,7 +222,7 @@ class BuildCard extends Phaser.GameObjects.Container {
     const time = scene.add.text(
       10,
       42,
-      `${formatDuration(def.buildTime)} insa`,
+      `${formatDuration(ticksToSeconds(this.preview.buildTimeTicks))} insa`,
       labelStyle(11, UIText.muted),
     );
 
@@ -228,7 +230,7 @@ class BuildCard extends Phaser.GameObjects.Container {
 
     let costY = 60;
     for (const key of RESOURCE_ORDER) {
-      const amount = def.cost[key];
+      const amount = this.preview.cost[key];
       if (!amount) continue;
       const text = scene.add.text(
         10,
@@ -262,12 +264,12 @@ class BuildCard extends Phaser.GameObjects.Container {
   /** Kaynaklara gore kart rengini ve secilebilirligini gunceller. */
   updateAffordability(resources: ResourcePool): void {
     this.affordable = RESOURCE_ORDER.every(
-      (key) => resources[key] >= (this.def.cost[key] ?? 0),
+      (key) => resources[key] >= (this.preview.cost[key] ?? 0),
     );
 
     for (const entry of this.costTexts) {
       const key = entry.key as keyof ResourcePool;
-      const enough = resources[key] >= (this.def.cost[key] ?? 0);
+      const enough = resources[key] >= (this.preview.cost[key] ?? 0);
       entry.text.setColor(enough ? UIText.muted : UIText.danger);
     }
     this.setAlpha(this.affordable ? 1 : 0.55);

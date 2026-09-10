@@ -1,47 +1,214 @@
 import { GridMap } from './GridMap';
-import { STARTING_RESOURCES } from '@/config/GameConfig';
-import { getBuilding } from '@/config/BuildingCatalog';
-import type { BuildingId, BuildingInstance, ResourcePool, SaveData } from '@/types';
+import { STARTING_RESOURCES } from '@/config/Constants';
+import { clampLevel, getBuilding, isKnownBuildingId } from '@/config/BuildingCatalog';
+import type {
+  BuildingId,
+  BuildingInstance,
+  ResourceKey,
+  ResourcePool,
+  SaveData,
+} from '@/types';
+
+/** Kayit yuklenirken atilan bir kaydin nedeni. */
+export interface LoadIssue {
+  uid: string;
+  reason: 'unknown_type' | 'out_of_bounds' | 'overlap' | 'duplicate_uid';
+}
 
 /**
  * Oyunun tum degisken verisi.
- * Sistemler bu nesneyi okur/yazar; render ve arayuz katmani asla dogrudan
- * yazmaz, yalnizca sistemler uzerinden degistirir.
+ *
+ * Mutasyon yuzeyi bilerek daraltildi: kaynaklar ve bina koleksiyonu disariya
+ * salt okunur tiplerle acilir, degisiklikler yalnizca buradaki kontrollu
+ * metotlar uzerinden yapilir. Boylece `state.resources.wood = 1000000` gibi
+ * kazara (veya kasitli) mudahaleler derleme aninda yakalanir ve bina indeksi
+ * her zaman koleksiyonla tutarli kalir.
+ *
+ * Not: Bu derleme zamani bir korumadir. Calisma zamaninda nesneler hala
+ * degistirilebilir; tam koruma (komut katmani) sonraki sprintlerin isi.
  */
 export class GameState {
-  resources: ResourcePool;
   readonly grid: GridMap;
-  readonly buildings = new Map<string, BuildingInstance>();
+
+  /**
+   * Simulasyon zamani. Oyun durumu bu sayacla ilerler; gercek dunya saati
+   * yalnizca kac tik islenecegini belirler, durumun kendisini belirlemez.
+   */
+  private currentTick = 0;
+
+  private readonly resourcePool: ResourcePool;
+  private readonly buildingMap = new Map<string, BuildingInstance>();
+
+  /** Bina turu basina adet; countOf() icin O(1) arama saglar. */
+  private readonly countsByType = new Map<BuildingId, number>();
 
   /** Benzersiz bina kimligi uretmek icin artan sayac. */
   private uidCounter = 0;
 
+  /** Son yuklemede atilan kayitlar; tani amaclidir. */
+  private issues: LoadIssue[] = [];
+
   constructor(terrainSeed: number, resources?: ResourcePool) {
     this.grid = new GridMap(terrainSeed);
-    this.resources = resources ? { ...resources } : { ...STARTING_RESOURCES };
+    this.resourcePool = resources ? { ...resources } : { ...STARTING_RESOURCES };
   }
+
+  // --- Okuma yuzeyi --------------------------------------------------------
+
+  /** Gecerli simulasyon tiki. */
+  get tick(): number {
+    return this.currentTick;
+  }
+
+  /**
+   * Kaynak havuzu - salt okunur.
+   * Degisiklik icin ResourceSystem kullanilir; bu tip dogrudan atamayi
+   * derleme aninda engeller.
+   */
+  get resources(): Readonly<ResourcePool> {
+    return this.resourcePool;
+  }
+
+  /** Bina koleksiyonu - ekleme/silme disaridan yapilamaz. */
+  get buildings(): ReadonlyMap<string, BuildingInstance> {
+    return this.buildingMap;
+  }
+
+  /** Son yuklemede atilan kayitlar. */
+  get loadIssues(): readonly LoadIssue[] {
+    return this.issues;
+  }
+
+  /** Verilen turden kac adet bina oldugunu dondurur (insaattakiler dahil). */
+  countOf(type: BuildingId): number {
+    return this.countsByType.get(type) ?? 0;
+  }
+
+  // --- Kontrollu mutasyon --------------------------------------------------
+
+  /** Simulasyonu verilen tik kadar ilerletir. */
+  advanceTick(ticks: number): number {
+    if (!Number.isFinite(ticks) || ticks <= 0) return this.currentTick;
+    this.currentTick += Math.floor(ticks);
+    return this.currentTick;
+  }
+
+  /** Tek bir kaynagin miktarini belirler; negatife dusmez. */
+  setResource(key: ResourceKey, value: number): void {
+    this.resourcePool[key] = Number.isFinite(value) ? Math.max(0, value) : 0;
+  }
+
+  /** Bina ekler ve tur sayacini gunceller. */
+  addBuilding(building: BuildingInstance): void {
+    if (this.buildingMap.has(building.uid)) return;
+    this.buildingMap.set(building.uid, building);
+    this.countsByType.set(building.type, this.countOf(building.type) + 1);
+  }
+
+  /** Binayi kaldirir, izgarayi bosaltir ve tur sayacini gunceller. */
+  removeBuilding(uid: string): BuildingInstance | null {
+    const building = this.buildingMap.get(uid);
+    if (!building) return null;
+
+    this.buildingMap.delete(uid);
+    this.countsByType.set(building.type, Math.max(0, this.countOf(building.type) - 1));
+    this.grid.release(uid);
+    return building;
+  }
+
+  /** Yeni bir bina ornegi icin benzersiz kimlik uretir. */
+  nextUid(type: BuildingId): string {
+    this.uidCounter += 1;
+    return `${type}#${this.uidCounter}`;
+  }
+
+  /**
+   * Tur sayacini koleksiyondan bastan kurar.
+   * Indeksin herhangi bir nedenle tutarsiz kalmasi durumunda oyun durumunu
+   * bozmadan duzeltmenin yoludur; yukleme sonrasi da bu cagrilir.
+   */
+  rebuildIndexes(): void {
+    this.countsByType.clear();
+    for (const building of this.buildingMap.values()) {
+      this.countsByType.set(building.type, this.countOf(building.type) + 1);
+    }
+  }
+
+  // --- Olusturma ve kayit --------------------------------------------------
 
   /** Sifirdan yeni bir oyun durumu olusturur. */
   static createNew(): GameState {
     return new GameState(Math.floor(Math.random() * 0xffffffff));
   }
 
-  /** Kayit verisinden oyun durumunu geri yukler. */
+  /**
+   * Kayit verisinden oyun durumunu geri yukler.
+   *
+   * Sema dogrulamasi SaveManager'da yapilir; burada BUTUNLUK dogrulanir:
+   * izgara disi koordinat, ayni ayak izini paylasan binalar ve tekrar eden
+   * kimlikler reddedilir. Reddedilen kayitlar loadIssues altinda raporlanir -
+   * sessizce yok sayilmazlar.
+   */
   static fromSave(save: SaveData): GameState {
     const state = new GameState(save.terrainSeed, save.resources);
-    for (const building of save.buildings) {
-      state.buildings.set(building.uid, { ...building });
-      const def = getBuilding(building.defId);
-      state.grid.occupy(building.gx, building.gy, def.size, building.uid);
-      state.rememberUid(building.uid);
+    state.currentTick = Number.isFinite(save.tick) ? Math.max(0, Math.trunc(save.tick)) : 0;
+
+    for (const incoming of save.buildings) {
+      const issue = state.acceptSavedBuilding(incoming);
+      if (issue) state.issues.push(issue);
     }
+
+    state.rebuildIndexes();
     return state;
   }
 
-  /** Yeni bir bina ornegi icin benzersiz kimlik uretir. */
-  nextUid(defId: BuildingId): string {
-    this.uidCounter += 1;
-    return `${defId}#${this.uidCounter}`;
+  /** Kayit icin serilestirilebilir anlik goruntu uretir. */
+  toSave(version: number): SaveData {
+    return {
+      version,
+      savedAt: Date.now(),
+      tick: this.currentTick,
+      resources: { ...this.resourcePool },
+      buildings: [...this.buildingMap.values()].map((b) => ({ ...b })),
+      terrainSeed: this.grid.seed,
+    };
+  }
+
+  /**
+   * Kayittan gelen tek bir binayi butunluk kontrolunden gecirip kabul eder.
+   * Kabul edilmezse nedeni doner.
+   */
+  private acceptSavedBuilding(incoming: BuildingInstance): LoadIssue | null {
+    if (!isKnownBuildingId(incoming.type)) {
+      return { uid: incoming.uid, reason: 'unknown_type' };
+    }
+    if (this.buildingMap.has(incoming.uid)) {
+      return { uid: incoming.uid, reason: 'duplicate_uid' };
+    }
+
+    const def = getBuilding(incoming.type);
+
+    // Ayak izi tamamen izgara icinde olmali.
+    const cells = this.grid.footprint(incoming.gx, incoming.gy, def.size);
+    if (!cells) {
+      return { uid: incoming.uid, reason: 'out_of_bounds' };
+    }
+
+    // Hicbir hucre baska bir binaya ait olmamali.
+    if (cells.some((tile) => tile.occupantUid !== null)) {
+      return { uid: incoming.uid, reason: 'overlap' };
+    }
+
+    const building: BuildingInstance = {
+      ...incoming,
+      level: clampLevel(def, incoming.level),
+      assignedWorkers: Math.max(0, Math.trunc(incoming.assignedWorkers)),
+    };
+
+    this.buildingMap.set(building.uid, building);
+    this.grid.occupy(building.gx, building.gy, def.size, building.uid);
+    this.rememberUid(building.uid);
+    return null;
   }
 
   /** Kayittan gelen kimlikler sayaci gecmesin diye sayaci ilerletir. */
@@ -50,25 +217,5 @@ export class GameState {
     if (Number.isFinite(suffix) && suffix > this.uidCounter) {
       this.uidCounter = suffix;
     }
-  }
-
-  /** Verilen turden kac adet bina oldugunu sayar (insaat halindekiler dahil). */
-  countOf(defId: BuildingId): number {
-    let count = 0;
-    for (const building of this.buildings.values()) {
-      if (building.defId === defId) count += 1;
-    }
-    return count;
-  }
-
-  /** Kayit icin serilestirilebilir anlik goruntu uretir. */
-  toSave(version: number): SaveData {
-    return {
-      version,
-      savedAt: Date.now(),
-      resources: { ...this.resources },
-      buildings: [...this.buildings.values()].map((b) => ({ ...b })),
-      terrainSeed: this.grid.seed,
-    };
   }
 }

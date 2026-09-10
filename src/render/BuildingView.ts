@@ -1,8 +1,8 @@
-import Phaser from 'phaser';
+import type Phaser from 'phaser';
 import { TILE_HEIGHT } from '@/config/Constants';
 import { depthFor, gridToWorld } from '@/utils/IsoUtils';
 import { buildingTextureKey } from './TextureFactory';
-import type { BuildingDefinition, BuildingInstance } from '@/types';
+import type { BuildingDefinition, BuildingInstance, ResolvedBuilding } from '@/types';
 
 /**
  * Tek bir binanin gorsel temsili.
@@ -19,7 +19,12 @@ export class BuildingView {
   private readonly def: BuildingDefinition;
   private selected = false;
 
-  constructor(scene: Phaser.Scene, building: BuildingInstance, def: BuildingDefinition) {
+  constructor(
+    scene: Phaser.Scene,
+    building: BuildingInstance,
+    def: BuildingDefinition,
+    resolved: ResolvedBuilding,
+  ) {
     this.uid = building.uid;
     this.def = def;
 
@@ -36,12 +41,15 @@ export class BuildingView {
       .graphics()
       .setDepth(depthFor(building.gx, building.gy, def.size) + 1);
 
-    this.refresh(building);
+    this.refresh(resolved);
   }
 
-  /** Modeldeki degisikligi gorsele yansitir. */
-  refresh(building: BuildingInstance): void {
-    if (building.complete) {
+  /**
+   * Hesaplanmis durumu gorsele yansitir.
+   * Ilerleme orani BuildingResolver'dan gelir; burada yeniden hesaplanmaz.
+   */
+  refresh(resolved: ResolvedBuilding): void {
+    if (!resolved.construction) {
       this.sprite.setAlpha(1).clearTint();
       this.progressBar.clear();
       return;
@@ -49,10 +57,7 @@ export class BuildingView {
 
     // Insaat halindeki bina: soluk ve mavimsi
     this.sprite.setAlpha(0.55).setTint(0x9fc4e8);
-
-    const total = this.def.buildTime;
-    const ratio = total > 0 ? Phaser.Math.Clamp(1 - building.remainingBuildTime / total, 0, 1) : 1;
-    this.drawProgress(ratio);
+    this.drawProgress(resolved.construction.ratio);
   }
 
   /** Secili binanin cevresine vurgu uygular. */
@@ -73,6 +78,12 @@ export class BuildingView {
     this.progressBar.destroy();
   }
 
+  /**
+   * TODO(sprint-2): Bu cizim her karede yeniden yapiliyor ve olculen FPS
+   * dususunun ana kaynagi (120 insaat: 46 -> 9 FPS). Graphics yerine bir kez
+   * olusturulan sprite'in scaleX'i guncellenmeli ve yalnizca insaat olayi
+   * geldiginde dokunulmali. ConstructionSystem ile birlikte ele alinacak.
+   */
   private drawProgress(ratio: number): void {
     const width = Math.max(36, this.def.size * 46);
     const height = 6;

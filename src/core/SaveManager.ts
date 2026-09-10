@@ -1,10 +1,28 @@
-import { RESOURCE_ORDER, SAVE_KEY, SAVE_VERSION } from '@/config/Constants';
-import { isKnownBuildingId } from '@/config/BuildingCatalog';
-import type { BuildingInstance, ResourcePool, SaveData } from '@/types';
+import {
+  MIN_SUPPORTED_SAVE_VERSION,
+  RESOURCE_ORDER,
+  SAVE_KEY,
+  SAVE_VERSION,
+  TICKS_PER_SECOND,
+} from '@/config/Constants';
+import { clampLevel, getBuilding, isKnownBuildingId } from '@/config/BuildingCatalog';
+import type {
+  BuildingInstance,
+  BuildingState,
+  ResourceAmounts,
+  ResourcePool,
+  SaveData,
+} from '@/types';
 import type { GameState } from './GameState';
 
 /**
  * Kaydi localStorage uzerinde yonetir.
+ *
+ * Iki katmanli dogrulamanin BIRINCI katmani buradadir: sema dogrulamasi.
+ * Her alanin tipi tek tek kontrol edilir, eski surumler goc ettirilir.
+ * IKINCI katman (izgara sinirlari, ayak izi cakismasi) GameState.fromSave
+ * icindedir; cunku butunluk kontrolu izgarayi bilmeyi gerektirir.
+ *
  * Depolama erisimi gizli sekmelerde veya kota dolulugunda hata firlatabilir,
  * bu yuzden tum erisimler try/catch ile korunur ve oyun kayitsiz da calisir.
  */
@@ -27,7 +45,7 @@ export class SaveManager {
     }
   }
 
-  /** Kaydi okur ve dogrular. Kayit yok/bozuk/eski ise null doner. */
+  /** Kaydi okur, goc ettirir ve dogrular. Kayit yok/bozuk ise null doner. */
   load(): SaveData | null {
     let raw: string | null = null;
     try {
@@ -39,7 +57,7 @@ export class SaveManager {
     if (!raw) return null;
 
     try {
-      return sanitize(JSON.parse(raw) as unknown);
+      return migrateAndSanitize(JSON.parse(raw) as unknown);
     } catch (error) {
       console.warn('[SaveManager] Kayit cozumlenemedi, sifirlaniyor:', error);
       this.clear();
@@ -58,49 +76,183 @@ export class SaveManager {
 }
 
 /**
- * Diskten gelen veriyi dogrular.
+ * Diskten gelen veriyi guncel semaya tasir ve dogrular.
+ *
  * Kullanici tarafindan duzenlenmis olabilecegi icin her alan tek tek kontrol
- * edilir; beklenmeyen bir sey gorulurse kayit reddedilir.
+ * edilir. Taninmayan bina turu, gecersiz seviye veya negatif isci gibi
+ * degerler ya duzeltilir ya da kayit disi birakilir.
  */
-function sanitize(input: unknown): SaveData | null {
+export function migrateAndSanitize(input: unknown): SaveData | null {
   if (typeof input !== 'object' || input === null) return null;
-  const data = input as Partial<SaveData>;
+  const data = input as Record<string, unknown>;
 
-  if (data.version !== SAVE_VERSION) return null;
+  const version = typeof data.version === 'number' ? data.version : 0;
+  if (version < MIN_SUPPORTED_SAVE_VERSION || version > SAVE_VERSION) return null;
   if (typeof data.terrainSeed !== 'number' || !Number.isFinite(data.terrainSeed)) return null;
   if (!Array.isArray(data.buildings)) return null;
 
-  const resources = {} as ResourcePool;
-  for (const key of RESOURCE_ORDER) {
-    const value = (data.resources as ResourcePool | undefined)?.[key];
-    resources[key] = typeof value === 'number' && Number.isFinite(value) ? Math.max(0, value) : 0;
-  }
+  const resources = sanitizeResources(data.resources);
+  const tick =
+    typeof data.tick === 'number' && Number.isFinite(data.tick) ? Math.max(0, Math.trunc(data.tick)) : 0;
 
   const buildings: BuildingInstance[] = [];
   for (const entry of data.buildings) {
-    const b = entry as Partial<BuildingInstance>;
-    if (typeof b.uid !== 'string' || typeof b.defId !== 'string') continue;
-    if (!isKnownBuildingId(b.defId)) continue;
-    if (typeof b.gx !== 'number' || typeof b.gy !== 'number') continue;
-    buildings.push({
-      uid: b.uid,
-      defId: b.defId,
-      gx: Math.trunc(b.gx),
-      gy: Math.trunc(b.gy),
-      level: typeof b.level === 'number' ? Math.max(1, Math.trunc(b.level)) : 1,
-      complete: b.complete === true,
-      remainingBuildTime:
-        typeof b.remainingBuildTime === 'number' && Number.isFinite(b.remainingBuildTime)
-          ? Math.max(0, b.remainingBuildTime)
-          : 0,
-    });
+    const building = sanitizeBuilding(entry, version, tick);
+    if (building) buildings.push(building);
   }
 
   return {
     version: SAVE_VERSION,
     savedAt: typeof data.savedAt === 'number' ? data.savedAt : Date.now(),
+    tick,
     resources,
     buildings,
     terrainSeed: data.terrainSeed,
   };
+}
+
+function sanitizeResources(input: unknown): ResourcePool {
+  const source = (typeof input === 'object' && input !== null ? input : {}) as Record<string, unknown>;
+  const resources = {} as ResourcePool;
+  for (const key of RESOURCE_ORDER) {
+    const value = source[key];
+    resources[key] = typeof value === 'number' && Number.isFinite(value) ? Math.max(0, value) : 0;
+  }
+  return resources;
+}
+
+/**
+ * Tek bir bina kaydini dogrular ve gerekiyorsa v1'den v2'ye goc ettirir.
+ * Kurtarilamayacak bir kayitsa null doner.
+ *
+ * v1 -> v2 goc kurallari:
+ *   defId              -> type
+ *   complete: true     -> state: 'active'
+ *   complete: false    -> state: 'constructing'
+ *   remainingBuildTime -> construction.completesAtTick (kaydin tikine gore)
+ */
+function sanitizeBuilding(entry: unknown, version: number, saveTick: number): BuildingInstance | null {
+  if (typeof entry !== 'object' || entry === null) return null;
+  const raw = entry as Record<string, unknown>;
+
+  if (typeof raw.uid !== 'string' || raw.uid.length === 0) return null;
+
+  // v1 'defId' kullaniyordu; v2 'type'.
+  const typeValue = typeof raw.type === 'string' ? raw.type : raw.defId;
+  if (typeof typeValue !== 'string' || !isKnownBuildingId(typeValue)) return null;
+
+  if (typeof raw.gx !== 'number' || !Number.isFinite(raw.gx)) return null;
+  if (typeof raw.gy !== 'number' || !Number.isFinite(raw.gy)) return null;
+
+  const def = getBuilding(typeValue);
+  const level = clampLevel(def, typeof raw.level === 'number' ? raw.level : 1);
+
+  const building: BuildingInstance = {
+    uid: raw.uid,
+    type: typeValue,
+    gx: Math.trunc(raw.gx),
+    gy: Math.trunc(raw.gy),
+    level,
+    state: 'active',
+    assignedWorkers: sanitizeWorkers(raw.assignedWorkers),
+  };
+
+  const accumulated = sanitizeAmounts(raw.accumulatedProduction);
+  if (accumulated) building.accumulatedProduction = accumulated;
+
+  if (version >= 2) {
+    applyV2Construction(building, raw, saveTick);
+  } else {
+    applyV1Construction(building, raw, saveTick);
+  }
+
+  return building;
+}
+
+/** v2: state ve construction dogrudan okunur. */
+function applyV2Construction(
+  building: BuildingInstance,
+  raw: Record<string, unknown>,
+  saveTick: number,
+): void {
+  const state = raw.state;
+  if (isBuildingState(state)) {
+    building.state = state;
+  }
+
+  if (building.state !== 'constructing') return;
+
+  const construction = raw.construction;
+  if (typeof construction === 'object' && construction !== null) {
+    const c = construction as Record<string, unknown>;
+    const started = typeof c.startedAtTick === 'number' ? Math.trunc(c.startedAtTick) : saveTick;
+    const completes = typeof c.completesAtTick === 'number' ? Math.trunc(c.completesAtTick) : saveTick;
+
+    if (Number.isFinite(started) && Number.isFinite(completes) && completes > saveTick) {
+      building.construction = {
+        startedAtTick: Math.min(started, completes),
+        completesAtTick: completes,
+      };
+      return;
+    }
+  }
+
+  // Insaat bilgisi eksik veya suresi gecmis: binayi tamamlanmis say.
+  building.state = 'active';
+}
+
+/** v1: complete + remainingBuildTime (saniye) alanlarindan tureti. */
+function applyV1Construction(
+  building: BuildingInstance,
+  raw: Record<string, unknown>,
+  saveTick: number,
+): void {
+  if (raw.complete === true) {
+    building.state = 'active';
+    return;
+  }
+
+  const remainingSeconds =
+    typeof raw.remainingBuildTime === 'number' && Number.isFinite(raw.remainingBuildTime)
+      ? Math.max(0, raw.remainingBuildTime)
+      : 0;
+
+  if (remainingSeconds <= 0) {
+    building.state = 'active';
+    return;
+  }
+
+  const remainingTicks = Math.max(1, Math.round(remainingSeconds * TICKS_PER_SECOND));
+  building.state = 'constructing';
+  building.construction = {
+    startedAtTick: saveTick,
+    completesAtTick: saveTick + remainingTicks,
+  };
+}
+
+function sanitizeWorkers(value: unknown): number {
+  if (typeof value !== 'number' || !Number.isFinite(value)) return 0;
+  // Negatif isci anlamsizdir; kayit kurcalanmis olabilir.
+  return Math.max(0, Math.trunc(value));
+}
+
+/** Kaynak haritasini dogrular; hicbir gecerli deger yoksa undefined doner. */
+function sanitizeAmounts(value: unknown): ResourceAmounts | undefined {
+  if (typeof value !== 'object' || value === null) return undefined;
+  const source = value as Record<string, unknown>;
+
+  const amounts: ResourceAmounts = {};
+  let found = false;
+  for (const key of RESOURCE_ORDER) {
+    const amount = source[key];
+    if (typeof amount === 'number' && Number.isFinite(amount) && amount > 0) {
+      amounts[key] = amount;
+      found = true;
+    }
+  }
+  return found ? amounts : undefined;
+}
+
+function isBuildingState(value: unknown): value is BuildingState {
+  return value === 'constructing' || value === 'active' || value === 'disabled' || value === 'damaged';
 }
