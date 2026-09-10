@@ -57,30 +57,42 @@ for (const count of COUNTS) {
       world.state.setResource('stone', 1e6);
       if (world.buildings.place('house', tile.gx, tile.gy).ok) made += 1;
     }
-    return { made, activeTasks: world.construction.activeCount };
+    return {
+      made,
+      activeTasks: world.construction.activeCount,
+      queuedTasks: world.construction.queuedCount,
+    };
   }, count);
 
   await page.waitForTimeout(250);
   const building = await measureFps(page, SAMPLE_MS);
 
-  // Tum gorevleri bitir, bosta olc.
-  await page.evaluate(() =>
-    window.game.scene.getScene('CityScene').registry.get('world').simulation.advance(200),
-  );
+  // Tum gorevleri bitir. Kuyruk sinirinin varliginda tek bir advance yetmez:
+  // hicbir gorev kalmayana kadar ilerletilir, aksi halde "bosta" olcumu
+  // hala calisan gorevlerle alinir ve karsilastirma yaniltici olur.
+  await page.evaluate(() => {
+    const world = window.game.scene.getScene('CityScene').registry.get('world');
+    for (let i = 0; i < 200; i += 1) {
+      if (world.construction.activeCount === 0 && world.construction.queuedCount === 0) break;
+      world.simulation.advance(60);
+    }
+  });
   await page.waitForTimeout(250);
   const idle = await measureFps(page, SAMPLE_MS);
 
-  const after = await page.evaluate(
-    () => window.game.scene.getScene('CityScene').registry.get('world').construction.activeCount,
-  );
+  const after = await page.evaluate(() => {
+    const world = window.game.scene.getScene('CityScene').registry.get('world');
+    return { aktif: world.construction.activeCount, kuyruk: world.construction.queuedCount };
+  });
 
   rows.push({
     bina: count,
     kurulan: placed.made,
     aktifGorev: placed.activeTasks,
+    kuyruk: placed.queuedTasks,
     fpsInsaatta: building,
     fpsBosta: idle,
-    kalanGorev: after,
+    kalan: `${after.aktif}+${after.kuyruk}`,
   });
   await ctx.close();
 }

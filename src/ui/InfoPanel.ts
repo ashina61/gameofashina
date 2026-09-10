@@ -36,6 +36,8 @@ export class InfoPanel extends Phaser.GameObjects.Container {
   private currentBuilding: BuildingInstance | null = null;
   /** Geri sayimi hesaplamak icin son bilinen simulasyon tiki. */
   private currentTick = 0;
+  /** Yukseltme yuvasindaki butonun o anki islevi. */
+  private upgradeButtonMode: 'upgrade' | 'cancel' = 'upgrade';
 
   constructor(
     scene: Phaser.Scene,
@@ -43,6 +45,7 @@ export class InfoPanel extends Phaser.GameObjects.Container {
     height: number,
     private readonly onDemolish: (uid: string) => void,
     private readonly onUpgrade: (uid: string) => void,
+    private readonly onCancelUpgrade: (uid: string) => void,
   ) {
     super(scene, 0, height);
     this.screenWidth = width;
@@ -83,7 +86,14 @@ export class InfoPanel extends Phaser.GameObjects.Container {
       fontSize: 14,
       color: UIText.accent,
       onPress: () => {
-        if (this.currentUid) this.onUpgrade(this.currentUid);
+        if (!this.currentUid) return;
+        // Ayni yuva iki isi gorur: gorev yokken yukseltir, yukseltme
+        // surerken iptal eder. Yerlesim degismez.
+        if (this.upgradeButtonMode === 'cancel') {
+          this.onCancelUpgrade(this.currentUid);
+        } else {
+          this.onUpgrade(this.currentUid);
+        }
       },
     });
 
@@ -196,10 +206,14 @@ export class InfoPanel extends Phaser.GameObjects.Container {
 
     const lines: string[] = [];
 
-    if (resolved.construction) {
-      const remaining = ticksToSeconds(resolved.construction.remainingTicks);
-      const label = resolved.construction.kind === 'upgrade' ? 'Yukseltiliyor' : 'Insa ediliyor';
-      lines.push(`${label} - ${formatDuration(remaining)} kaldi`);
+    const task = resolved.construction;
+    if (task) {
+      const verb = task.kind === 'upgrade' ? 'Yukseltiliyor' : 'Insa ediliyor';
+      if (task.status === 'queued') {
+        lines.push(`${verb} - sirada bekliyor`);
+      } else {
+        lines.push(`${verb} - ${formatDuration(ticksToSeconds(task.remainingTicks))} kaldi`);
+      }
     }
 
     // Insaat sirasinda uretim degerleri sifirdir; o seviyenin tanimini gosteririz.
@@ -224,8 +238,7 @@ export class InfoPanel extends Phaser.GameObjects.Container {
       (def.levels.find((l) => l.level === resolved.level)?.storageCapacity ?? 0);
     if (storageCapacity) lines.push(`+${storageCapacity} depo`);
 
-    // Yukseltme secenegi: resolver devam eden gorev varken null dondurur,
-    // dolayisiyla insaat/yukseltme sirasinda buton kendiliginden gizlenir.
+    // Yukseltme secenegi: resolver devam eden gorev varken null dondurur.
     const upgrade = resolved.upgrade;
     if (upgrade) {
       const cost = RESOURCE_ORDER.filter((key) => upgrade.cost[key])
@@ -235,9 +248,16 @@ export class InfoPanel extends Phaser.GameObjects.Container {
     }
 
     if (!lines.length) lines.push(def.description);
-
     this.bodyText.setText(lines.join('\n'));
-    this.upgradeButton.setVisible(upgrade !== null);
+
+    // Buton yuvasi: yukseltme surerken iptal, aksi halde yukseltme.
+    if (task?.kind === 'upgrade') {
+      this.upgradeButtonMode = 'cancel';
+      this.upgradeButton.setText('Iptal').setVisible(true);
+    } else {
+      this.upgradeButtonMode = 'upgrade';
+      this.upgradeButton.setText('Yukselt').setVisible(upgrade !== null);
+    }
   }
 
   private showTerrain(tile: TileData): void {

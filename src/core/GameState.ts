@@ -47,6 +47,13 @@ export class GameState {
   /** Benzersiz bina kimligi uretmek icin artan sayac. */
   private uidCounter = 0;
 
+  /**
+   * Insaat gorevlerine kesin bir sira vermek icin artan sayac.
+   * Kuyrugun FIFO davranisi buna dayanir; kayitla birlikte tasinir ki
+   * yeniden yuklemede sira degismesin.
+   */
+  private sequenceCounter = 0;
+
   /** Son yuklemede atilan kayitlar; tani amaclidir. */
   private issues: LoadIssue[] = [];
 
@@ -146,6 +153,12 @@ export class GameState {
     }
   }
 
+  /** Bir sonraki gorev sira numarasini uretir. */
+  nextConstructionSequence(): number {
+    this.sequenceCounter += 1;
+    return this.sequenceCounter;
+  }
+
   /** Yeni bir bina ornegi icin benzersiz kimlik uretir. */
   nextUid(type: BuildingId): string {
     this.uidCounter += 1;
@@ -189,6 +202,15 @@ export class GameState {
     }
 
     state.rebuildIndexes();
+
+    // Sira sayaci, yuklenen gorevlerin en yukseginin uzerinden devam etmeli;
+    // aksi halde yeni gorevler kuyrukta eski gorevlerin onune gecerdi.
+    for (const building of state.buildingMap.values()) {
+      const sequence = building.construction?.sequence;
+      if (typeof sequence === 'number' && sequence > state.sequenceCounter) {
+        state.sequenceCounter = sequence;
+      }
+    }
     return state;
   }
 

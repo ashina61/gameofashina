@@ -8,6 +8,11 @@ import type { ConstructionTask, ResourceAmounts, UpgradeOption } from '@/types';
 /** Yukseltmenin neden reddedildigini anlatan hata kodlari. */
 export type UpgradeError = 'unknown_building' | 'max_level' | 'busy' | 'cost';
 
+/** Yukseltme iptalinin sonucu. */
+export type CancelUpgradeResult =
+  | { ok: true }
+  | { ok: false; reason: 'unknown_building' | 'no_task' | 'not_upgrade' };
+
 /** Yukseltme kontrolunun sonucu. */
 export type UpgradeCheck =
   | { ok: true; option: UpgradeOption }
@@ -67,19 +72,49 @@ export class UpgradeSystem {
   }
 
   /**
-   * Yukseltmeyi baslatir: maliyeti duser ve gorevi kuyruga koyar.
+   * Yukseltmeyi baslatir: maliyeti duser ve gorevi baslatir veya kuyruga koyar.
    * Seviye burada DEGISMEZ; gorev tamamlaninca artar.
+   *
+   * ATOMIKLIK: once gorev talep edilir, maliyet ancak gorev kesinlestikten
+   * sonra dusulur. Harcama basarisiz olursa gorev geri alinir; hicbir yolda
+   * "kaynak gitti ama gorev yok" durumu olusamaz.
    */
   requestUpgrade(uid: string): UpgradeResult {
     const check = this.canUpgrade(uid);
     if (!check.ok) return check;
 
+    const request = this.construction.requestUpgrade(uid, check.option.timeTicks);
+    if (!request.ok) {
+      // canUpgrade gecmisken buraya dusmek beklenmez; yine de kaynak harcanmaz.
+      return { ok: false, reason: request.reason === 'unknown_building' ? 'unknown_building' : 'busy' };
+    }
+
     if (!this.resources.spend(check.option.cost)) {
+      // Suresiz yukseltme aninda uygulandigi icin geri alinamaz; bu yol yalnizca
+      // canAfford ile spend arasinda kaynak degisirse mumkundur ve gorev iptal edilir.
+      if (request.task) {
+        this.construction.cancel(uid, { refundResources: false });
+      }
       return { ok: false, reason: 'cost' };
     }
 
-    const task = this.construction.startUpgrade(uid, check.option.timeTicks);
-    return { ok: true, task, cost: check.option.cost };
+    return { ok: true, task: request.task, cost: check.option.cost };
+  }
+
+  /**
+   * Devam eden yukseltmeyi iptal eder ve politikaya gore kaynak iade eder.
+   * Bina seviyesi degismez.
+   */
+  cancelUpgrade(uid: string): CancelUpgradeResult {
+    const building = this.state.buildings.get(uid);
+    if (!building) return { ok: false, reason: 'unknown_building' };
+
+    const task = this.construction.taskFor(uid);
+    if (!task) return { ok: false, reason: 'no_task' };
+    if (task.kind !== 'upgrade') return { ok: false, reason: 'not_upgrade' };
+
+    this.construction.cancel(uid);
+    return { ok: true };
   }
 
   /** Bir binanin sonraki seviye secenegi; yoksa null. */

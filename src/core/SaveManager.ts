@@ -11,6 +11,7 @@ import type {
   BuildingInstance,
   BuildingState,
   ConstructionKind,
+  ConstructionStatus,
   ResourcePool,
   SaveData,
 } from '@/types';
@@ -97,8 +98,10 @@ export function migrateAndSanitize(input: unknown): SaveData | null {
     typeof data.tick === 'number' && Number.isFinite(data.tick) ? Math.max(0, Math.trunc(data.tick)) : 0;
 
   const buildings: BuildingInstance[] = [];
+  let fallbackSequence = 0;
   for (const entry of data.buildings) {
-    const building = sanitizeBuilding(entry, version, tick);
+    fallbackSequence += 1;
+    const building = sanitizeBuilding(entry, version, tick, fallbackSequence);
     if (building) buildings.push(building);
   }
 
@@ -132,7 +135,12 @@ function sanitizeResources(input: unknown): ResourcePool {
  *   complete: false    -> state: 'constructing'
  *   remainingBuildTime -> construction.completesAtTick (kaydin tikine gore)
  */
-function sanitizeBuilding(entry: unknown, version: number, saveTick: number): BuildingInstance | null {
+function sanitizeBuilding(
+  entry: unknown,
+  version: number,
+  saveTick: number,
+  fallbackSequence: number,
+): BuildingInstance | null {
   if (typeof entry !== 'object' || entry === null) return null;
   const raw = entry as Record<string, unknown>;
 
@@ -159,9 +167,9 @@ function sanitizeBuilding(entry: unknown, version: number, saveTick: number): Bu
   };
 
   if (version >= 2) {
-    applyV2Construction(building, raw, saveTick);
+    applyV2Construction(building, raw, saveTick, fallbackSequence);
   } else {
-    applyV1Construction(building, raw, saveTick);
+    applyV1Construction(building, raw, saveTick, fallbackSequence);
   }
 
   return building;
@@ -184,13 +192,14 @@ function applyV2Construction(
   building: BuildingInstance,
   raw: Record<string, unknown>,
   saveTick: number,
+  fallbackSequence: number,
 ): void {
   const state = raw.state;
   if (isBuildingState(state)) {
     building.state = state;
   }
 
-  const task = sanitizeConstruction(raw.construction, saveTick);
+  const task = sanitizeConstruction(raw.construction, saveTick, fallbackSequence);
 
   if (!task) {
     // Gorev yok veya reddedildi: bina calisir duruma getirilir.
@@ -200,16 +209,51 @@ function applyV2Construction(
 
   building.construction = task;
   // Gorev turu ile bina durumu tutarli olmali.
+  // Kuyruktaki insa gorevi de bina calismadigi icin 'constructing' sayilir.
   building.state = task.kind === 'build' ? 'constructing' : 'active';
 }
 
-/** Kayittan gelen gorevi dogrular; kurtarilamazsa null doner. */
-function sanitizeConstruction(value: unknown, saveTick: number): BuildingConstruction | null {
+/**
+ * Kayittan gelen gorevi dogrular; kurtarilamazsa null doner.
+ *
+ * Kuyruk alanlari (status, durationTicks, sequence) v3 icine geriye donuk
+ * uyumlu eklendi: eksik olduklarinda eski kayittan turetilirler, bu yuzden
+ * surum artirmaya gerek yoktur.
+ *   status       -> 'active'  (kuyruk kavrami yoktu)
+ *   durationTicks-> completesAtTick - startedAtTick
+ *   sequence     -> fallbackSequence (yukleme sirasina gore kararli)
+ */
+function sanitizeConstruction(
+  value: unknown,
+  saveTick: number,
+  fallbackSequence: number,
+): BuildingConstruction | null {
   if (typeof value !== 'object' || value === null) return null;
   const raw = value as Record<string, unknown>;
 
   // v2'de tur alani yoktu; o surumde yalnizca insa gorevi olabilirdi.
   const kind: ConstructionKind = isConstructionKind(raw.kind) ? raw.kind : 'build';
+  const status: ConstructionStatus = isConstructionStatus(raw.status) ? raw.status : 'active';
+
+  const sequence =
+    typeof raw.sequence === 'number' && Number.isFinite(raw.sequence) && raw.sequence >= 0
+      ? Math.trunc(raw.sequence)
+      : fallbackSequence;
+
+  if (status === 'queued') {
+    // Kuyruktaki gorevin suresi bilinmek zorunda; yoksa kurtarilamaz.
+    const duration = raw.durationTicks;
+    if (typeof duration !== 'number' || !Number.isFinite(duration) || duration <= 0) return null;
+
+    return {
+      kind,
+      status: 'queued',
+      durationTicks: Math.trunc(duration),
+      sequence,
+      startedAtTick: null,
+      completesAtTick: null,
+    };
+  }
 
   const started = raw.startedAtTick;
   const completes = raw.completesAtTick;
@@ -224,7 +268,12 @@ function sanitizeConstruction(value: unknown, saveTick: number): BuildingConstru
   if (completesAtTick < startedAtTick) return null;
   if (completesAtTick <= saveTick) return null;
 
-  return { kind, startedAtTick, completesAtTick };
+  const duration =
+    typeof raw.durationTicks === 'number' && Number.isFinite(raw.durationTicks) && raw.durationTicks > 0
+      ? Math.trunc(raw.durationTicks)
+      : completesAtTick - startedAtTick;
+
+  return { kind, status: 'active', durationTicks: duration, sequence, startedAtTick, completesAtTick };
 }
 
 /** v1: complete + remainingBuildTime (saniye) alanlarindan tureti. */
@@ -232,6 +281,7 @@ function applyV1Construction(
   building: BuildingInstance,
   raw: Record<string, unknown>,
   saveTick: number,
+  fallbackSequence: number,
 ): void {
   if (raw.complete === true) {
     building.state = 'active';
@@ -252,6 +302,9 @@ function applyV1Construction(
   building.state = 'constructing';
   building.construction = {
     kind: 'build',
+    status: 'active',
+    durationTicks: remainingTicks,
+    sequence: fallbackSequence,
     startedAtTick: saveTick,
     completesAtTick: saveTick + remainingTicks,
   };
@@ -269,4 +322,8 @@ function isBuildingState(value: unknown): value is BuildingState {
 
 function isConstructionKind(value: unknown): value is ConstructionKind {
   return value === 'build' || value === 'upgrade';
+}
+
+function isConstructionStatus(value: unknown): value is ConstructionStatus {
+  return value === 'queued' || value === 'active';
 }

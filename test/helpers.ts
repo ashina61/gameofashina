@@ -49,3 +49,6 @@ export function grant(world: TestWorld, amounts: Record<string, number>): void {
   }
   world.resources.emitChange();
 }
+
+/** sprint2_1 testinin tip yeniden disa aktarimi icin takma ad. */
+export type TestWorldLike = TestWorld;

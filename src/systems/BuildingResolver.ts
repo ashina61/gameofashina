@@ -1,8 +1,10 @@
-import { TICKS_PER_SECOND } from '@/config/Constants';
+import { CANCEL_REFUND_RATE, TICKS_PER_SECOND } from '@/config/Constants';
 import { clampLevel, levelOf, maxLevelOf } from '@/config/BuildingCatalog';
 import type {
   BuildPreview,
   BuildingConstruction,
+  ConstructionKind,
+  ConstructionStatus,
   BuildingDefinition,
   BuildingInstance,
   BuildingLevel,
@@ -88,12 +90,46 @@ export function constructionProgress(
   construction: BuildingConstruction,
   currentTick: number,
 ): ConstructionProgress {
-  const { kind, startedAtTick, completesAtTick } = construction;
+  const { kind, status, durationTicks, startedAtTick, completesAtTick } = construction;
+
+  // Kuyruktaki gorevde zaman islemez: ilerleme sifir, kalan sure tam sure.
+  if (status === 'queued' || startedAtTick === null || completesAtTick === null) {
+    return {
+      kind,
+      status: 'queued',
+      remainingTicks: durationTicks,
+      totalTicks: durationTicks,
+      ratio: 0,
+    };
+  }
+
   const totalTicks = Math.max(0, completesAtTick - startedAtTick);
   const remainingTicks = Math.max(0, completesAtTick - currentTick);
   const ratio = totalTicks > 0 ? clamp01(1 - remainingTicks / totalTicks) : 1;
 
-  return { kind, remainingTicks, totalTicks, ratio };
+  return { kind, status: 'active', remainingTicks, totalTicks, ratio };
+}
+
+/**
+ * Gorev iptalinde geri verilecek kaynaklar.
+ *
+ * Kuyruktaki gorev hic baslamadigi icin tam, aktif gorev yikimdaki oranla
+ * (yarisi) iade edilir. Temel maliyet katalogdan degil buradan okunur.
+ */
+export function resolveTaskRefund(
+  def: BuildingDefinition,
+  level: number,
+  kind: ConstructionKind,
+  status: ConstructionStatus,
+): ResourceAmounts {
+  const base = kind === 'build' ? buildCostOf(def) : (resolveUpgradeOption(def, level)?.cost ?? {});
+  const rate = CANCEL_REFUND_RATE[status];
+
+  const refund: ResourceAmounts = {};
+  for (const [key, value] of Object.entries(base)) {
+    refund[key as keyof ResourceAmounts] = Math.floor((value ?? 0) * rate);
+  }
+  return refund;
 }
 
 /**

@@ -56,6 +56,7 @@ export class UIScene extends Phaser.Scene {
       height,
       (uid) => this.world.bus.emit('ui:request-demolish', uid),
       (uid) => this.world.bus.emit('ui:request-upgrade', uid),
+      (uid) => this.world.bus.emit('ui:cancel-upgrade', uid),
     );
     this.toast = new Toast(this, width / 2, ResourceBar.height + 34);
 

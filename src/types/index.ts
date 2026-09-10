@@ -106,6 +106,13 @@ export type BuildingState = 'constructing' | 'active' | 'disabled' | 'damaged';
 export type ConstructionKind = 'build' | 'upgrade';
 
 /**
+ * Gorevin kuyruktaki durumu.
+ * queued - slot bekliyor; zaman islemez, uretim etkilemez, olay yayinlamaz.
+ * active - suresi isliyor; completesAtTick geldiginde tamamlanir.
+ */
+export type ConstructionStatus = 'queued' | 'active';
+
+/**
  * Devam eden bir insaat gorevinin tik cinsinden zamanlamasi.
  *
  * Gorev, hedef binanin kendi icinde saklanir: bir bina ayni anda en fazla bir
@@ -115,10 +122,21 @@ export type ConstructionKind = 'build' | 'upgrade';
  */
 export interface BuildingConstruction {
   kind: ConstructionKind;
-  /** Gorevin basladigi simulasyon tiki. */
-  startedAtTick: number;
-  /** Gorevin bitecegi simulasyon tiki. */
-  completesAtTick: number;
+  status: ConstructionStatus;
+  /** Gorevin toplam suresi (tik). Kuyruktayken de bilinir. */
+  durationTicks: number;
+  /**
+   * Kuyruk sirasi. Ayni tikte kuyruga giren gorevleri de kesin olarak
+   * siralar; FIFO davranisinin deterministik olmasini bu saglar.
+   */
+  sequence: number;
+  /**
+   * Gorevin basladigi simulasyon tiki.
+   * Kuyruktayken null - baslangic ancak aktiflesirken hesaplanir.
+   */
+  startedAtTick: number | null;
+  /** Gorevin bitecegi simulasyon tiki. Kuyruktayken null. */
+  completesAtTick: number | null;
 }
 
 /**
@@ -197,9 +215,10 @@ export interface ResolvedBuilding {
 /** Devam eden gorevin ilerlemesi. */
 export interface ConstructionProgress {
   kind: ConstructionKind;
+  status: ConstructionStatus;
   remainingTicks: number;
   totalTicks: number;
-  /** 0..1 arasi tamamlanma orani. */
+  /** 0..1 arasi tamamlanma orani. Kuyruktaki gorev icin 0. */
   ratio: number;
 }
 

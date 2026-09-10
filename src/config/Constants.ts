@@ -44,6 +44,23 @@ export const BASE_POPULATION_CAPACITY = 0;
 /** Her isci icin dakikada tuketilen yiyecek. */
 export const FOOD_UPKEEP_PER_WORKER = 0.4;
 
+/**
+ * Ayni anda islenebilecek azami insaat/yukseltme gorevi.
+ * Slotlar doluyken gelen gorevler kuyruga alinir ve slot bosaldikca
+ * FIFO sirasiyla devreye girer.
+ */
+export const MAX_CONCURRENT_CONSTRUCTIONS = 3;
+
+/**
+ * Gorev iptalinde geri verilen maliyet orani.
+ * Kuyruktaki gorev hic baslamadigi icin tam iade edilir; aktif gorev,
+ * yikimdaki (%50) orani izler.
+ */
+export const CANCEL_REFUND_RATE: Record<'queued' | 'active', number> = {
+  queued: 1,
+  active: 0.5,
+};
+
 /** Cevrimdisi ilerlemenin ust siniri (saniye) - 8 saat. */
 export const MAX_OFFLINE_SECONDS = 8 * 60 * 60;
 
@@ -69,6 +86,10 @@ export const TAP_MAX_DURATION_MS = 400;
  * v1: defId + complete + remainingBuildTime (saniye)
  * v2: type + state + level + assignedWorkers + construction (tik) + tick
  * v3: construction.kind ('build' | 'upgrade'); accumulatedProduction kaldirildi
+ *
+ * NOT: Kuyruk alanlari (status, durationTicks, sequence) v3 icine geriye donuk
+ * uyumlu eklendi - eksik olduklarinda kayittan turetilebildikleri icin surum
+ * artirmaya gerek yoktur.
  */
 export const SAVE_VERSION = 3;
 

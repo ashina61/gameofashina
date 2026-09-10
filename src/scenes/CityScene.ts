@@ -147,10 +147,12 @@ export class CityScene extends Phaser.Scene {
     bus.on('building:removed', this.destroyView, this);
     bus.on('construction:started', this.onConstructionStarted, this);
     bus.on('construction:completed', this.onConstructionCompleted, this);
+    bus.on('construction:cancelled', this.onConstructionCancelled, this);
     bus.on('placement:start', this.beginPlacement, this);
     bus.on('placement:cancel', this.cancelPlacement, this);
     bus.on('ui:request-demolish', this.demolish, this);
     bus.on('ui:request-upgrade', this.upgrade, this);
+    bus.on('ui:cancel-upgrade', this.cancelUpgrade, this);
   }
 
   // --- Girdi ---------------------------------------------------------------
@@ -269,6 +271,18 @@ export class CityScene extends Phaser.Scene {
     this.world.save();
   }
 
+  /** Arayuzden gelen yukseltme iptalini UpgradeSystem'e iletir. */
+  private cancelUpgrade(uid: string): void {
+    const building = this.world.state.buildings.get(uid);
+    if (!building) return;
+    const name = getBuilding(building.type).name;
+
+    if (this.world.upgrades.cancelUpgrade(uid).ok) {
+      this.world.bus.emit('notify', `${name} yukseltmesi iptal edildi.`, 'info');
+      this.world.save();
+    }
+  }
+
   private demolish(uid: string): void {
     const building = this.world.state.buildings.get(uid);
     if (!building) return;
@@ -290,8 +304,9 @@ export class CityScene extends Phaser.Scene {
     const view = new BuildingView(this, building, def, resolved);
     this.views.set(building.uid, view);
 
-    // Kayittan gelen, insaati suren binalar da aktif kumeye girer.
-    if (view.hasTask) {
+    // Yalnizca ilerlemesi olan (aktif) gorevler animasyon kumesine girer;
+    // kuyruktaki gorevin ilerlemesi degismedigi icin her karede tazelenmez.
+    if (resolved.construction?.status === 'active') {
       this.activeConstructionViews.set(building.uid, view);
     }
   }
@@ -315,7 +330,18 @@ export class CityScene extends Phaser.Scene {
     if (!view) return;
 
     view.beginTask(task.kind, 0);
+    // construction:started yalnizca gorev AKTIF oldugunda yayinlanir.
     this.activeConstructionViews.set(task.targetUid, view);
+  }
+
+  /** Gorev iptal edildi: gorsel normale doner ve kumeden cikar. */
+  private onConstructionCancelled(task: ConstructionTask): void {
+    this.activeConstructionViews.delete(task.targetUid);
+    this.views.get(task.targetUid)?.endTask();
+
+    if (this.selectedTile?.occupantUid === task.targetUid) {
+      this.world.bus.emit('tile:selected', this.selectedTile);
+    }
   }
 
   /** Gorev bitti: gorsel normale doner ve kumeden cikar. */
@@ -359,10 +385,12 @@ export class CityScene extends Phaser.Scene {
     bus.off('building:removed', this.destroyView, this);
     bus.off('construction:started', this.onConstructionStarted, this);
     bus.off('construction:completed', this.onConstructionCompleted, this);
+    bus.off('construction:cancelled', this.onConstructionCancelled, this);
     bus.off('placement:start', this.beginPlacement, this);
     bus.off('placement:cancel', this.cancelPlacement, this);
     bus.off('ui:request-demolish', this.demolish, this);
     bus.off('ui:request-upgrade', this.upgrade, this);
+    bus.off('ui:cancel-upgrade', this.cancelUpgrade, this);
     this.preview.destroy();
   }
 }

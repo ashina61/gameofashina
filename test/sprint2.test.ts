@@ -75,8 +75,10 @@ describe('ConstructionSystem - insa gorevi', () => {
     const placed = w.buildings.place('house', p.gx, p.gy);
     if (!placed.ok) throw new Error('kurulum basarisiz');
 
-    const second = w.construction.startUpgrade(placed.building.uid, 10);
-    expect(second).toBeNull();
+    // API adi degisti (startUpgrade -> requestUpgrade); dogrulanan davranis ayni:
+    // ayni binada ikinci bir gorev baslatilamaz.
+    const second = w.construction.requestUpgrade(placed.building.uid, 10);
+    expect(second).toEqual({ ok: false, reason: 'busy' });
     expect(w.construction.activeCount).toBe(1);
   });
 

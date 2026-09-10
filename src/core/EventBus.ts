@@ -25,6 +25,8 @@ export interface GameEvents {
   'construction:started': [task: ConstructionTask];
   /** Insaat veya yukseltme gorevi tamamlandi. */
   'construction:completed': [task: ConstructionTask];
+  /** Insaat veya yukseltme gorevi iptal edildi. */
+  'construction:cancelled': [task: ConstructionTask];
   'tile:selected': [tile: TileData | null];
   'placement:start': [defId: string];
   'placement:cancel': [];
@@ -33,6 +35,7 @@ export interface GameEvents {
   'game:saved': [savedAt: number];
   'ui:request-demolish': [uid: string];
   'ui:request-upgrade': [uid: string];
+  'ui:cancel-upgrade': [uid: string];
 }
 
 type EventName = keyof GameEvents;
