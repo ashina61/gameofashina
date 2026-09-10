@@ -16,6 +16,15 @@
     <style>
       :root {
         color-scheme: dark;
+        /*
+         * Sistem cubuklarinin kapladigi kenar paylari.
+         * Bunlar ozel ozellige alinir ki hem CSS'ten okunabilsinler hem de
+         * test sirasinda cihaz taklidi icin gecersiz kilinabilsinler.
+         */
+        --safe-area-top: env(safe-area-inset-top, 0px);
+        --safe-area-right: env(safe-area-inset-right, 0px);
+        --safe-area-bottom: env(safe-area-inset-bottom, 0px);
+        --safe-area-left: env(safe-area-inset-left, 0px);
       }
       * {
         margin: 0;
@@ -47,6 +56,25 @@
         display: block;
         touch-action: none;
       }
+      /*
+       * Kenar paylarini JavaScript'e tasiyan olcum ogesi.
+       * env() degerleri dogrudan okunamadigi icin padding'e yazilip
+       * getComputedStyle ile piksel olarak geri okunur. Gorunmez ve
+       * dokunusa kapalidir.
+       */
+      #safe-area-probe {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 0;
+        height: 0;
+        visibility: hidden;
+        pointer-events: none;
+        padding-top: var(--safe-area-top);
+        padding-right: var(--safe-area-right);
+        padding-bottom: var(--safe-area-bottom);
+        padding-left: var(--safe-area-left);
+      }
       #boot-splash {
         position: fixed;
         inset: 0;
@@ -76,6 +104,7 @@
   </head>
   <body>
     <div id="game-root"></div>
+    <div id="safe-area-probe" aria-hidden="true"></div>
     <div id="boot-splash">
       <div class="mark">ANCIENT CITY</div>
       <div>yukleniyor</div>

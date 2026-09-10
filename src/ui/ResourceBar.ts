@@ -60,24 +60,28 @@ export class ResourceBar extends Phaser.GameObjects.Container {
     return ResourceBar.HEIGHT;
   }
 
-  /** Ekran genisligi degistiginde ogeleri yeniden dizer. */
-  layout(width: number): void {
+  /**
+   * Ekran genisligi degistiginde ogeleri yeniden dizer.
+   * sideInset, sistem cubuklarinin sol/sag payi kadar ek bosluk birakir;
+   * 0 verildiginde yerlesim degismez.
+   */
+  layout(width: number, sideInset = 0): void {
     this.background.setSize(width, ResourceBar.HEIGHT);
 
     // Sag tarafta nufus gostergesine sabit bir sutun ayrilir; aksi halde dar
     // ekranlarda son kaynagin orani ile ust uste biner.
-    const usable = width - UISpacing.panelPadding * 2 - ResourceBar.POPULATION_WIDTH;
+    const usable = width - UISpacing.panelPadding * 2 - sideInset * 2 - ResourceBar.POPULATION_WIDTH;
     const columnWidth = usable / RESOURCE_ORDER.length;
     const centerY = ResourceBar.HEIGHT / 2;
 
     RESOURCE_ORDER.forEach((key, index) => {
-      const x = UISpacing.panelPadding + columnWidth * index;
+      const x = UISpacing.panelPadding + sideInset + columnWidth * index;
       this.icons[index].setPosition(x + 8, centerY);
       this.amountTexts.get(key)?.setPosition(x + 20, centerY - 6);
       this.rateTexts.get(key)?.setPosition(x + 20, centerY + 10);
     });
 
-    this.populationText.setPosition(width - UISpacing.panelPadding, centerY);
+    this.populationText.setPosition(width - UISpacing.panelPadding - sideInset, centerY);
   }
 
   /** Kaynak miktarlarini gunceller; depo dolduysa rengi degistirir. */

@@ -10,8 +10,10 @@ import { Toast } from '@/ui/Toast';
 import { TouchButton } from '@/ui/TouchButton';
 import { UISpacing, UIText } from '@/ui/UIStyle';
 import { formatElapsed } from '@/utils/Format';
+import { insetsEqual, onSafeAreaChange, readSafeAreaInsets, zeroInsets } from '@/utils/SafeArea';
 import { getWorld } from './BootScene';
 import type { GameWorld } from '@/core/GameWorld';
+import type { SafeAreaInsets } from '@/utils/SafeArea';
 import type {
   BuildingId,
   BuildingInstance,
@@ -40,6 +42,16 @@ export class UIScene extends Phaser.Scene {
 
   /** Insa modunda secili bina turu; mod kapaliysa null. */
   private placingId: BuildingId | null = null;
+
+  /**
+   * Sistem cubuklarinin kapladigi kenar paylari.
+   * Yalnizca yerlesim degistiginde okunur (acilis + resize); kare basina
+   * DOM olcumu yapilmaz.
+   */
+  private insets: SafeAreaInsets = zeroInsets();
+
+  /** Kenar payi aboneligini birakan fonksiyon. */
+  private stopSafeAreaWatch: (() => void) | null = null;
 
   constructor() {
     super({ key: SceneKeys.UI, active: false });
@@ -77,6 +89,7 @@ export class UIScene extends Phaser.Scene {
     });
     this.cancelButton.setVisible(false);
 
+    this.insets = readSafeAreaInsets();
     this.layout(width, height);
     this.bindEvents();
     this.pushInitialState();
@@ -86,6 +99,12 @@ export class UIScene extends Phaser.Scene {
       delay: 500,
       loop: true,
       callback: () => this.infoPanel.tick(this.world.tick),
+    });
+
+    // Kenar paylari ekran boyutu degismeden de degisebilir; ayrica dinlenir.
+    this.stopSafeAreaWatch = onSafeAreaChange((insets) => {
+      this.insets = insets;
+      this.relayout();
     });
 
     this.scale.on(Phaser.Scale.Events.RESIZE, this.onResize, this);
@@ -98,7 +117,7 @@ export class UIScene extends Phaser.Scene {
    * iletmez; boylece menuye basarken yanlislikla bina kurulmaz.
    */
   blocksPointer(screenX: number, screenY: number): boolean {
-    if (screenY <= ResourceBar.height) return true;
+    if (screenY <= this.insets.top + ResourceBar.height) return true;
     if (this.buildMenu.isOpen && Phaser.Geom.Rectangle.Contains(this.buildMenu.bounds(), screenX, screenY)) {
       return true;
     }
@@ -239,6 +258,9 @@ export class UIScene extends Phaser.Scene {
   // --- Yerlesim ------------------------------------------------------------
 
   private onResize(gameSize: Phaser.Structs.Size): void {
+    // Kenar paylari yon degisiminde degisebilir; yalnizca burada okunur.
+    const next = readSafeAreaInsets();
+    if (!insetsEqual(next, this.insets)) this.insets = next;
     this.layout(gameSize.width, gameSize.height);
   }
 
@@ -247,17 +269,26 @@ export class UIScene extends Phaser.Scene {
     this.layout(this.scale.width, this.scale.height);
   }
 
-  /** Tum arayuz ogelerini gecerli ekran olculerine gore yerlestirir. */
+  /**
+   * Tum arayuz ogelerini gecerli ekran olculerine ve sistem cubuklarina gore
+   * yerlestirir. Tum kenar paylari 0 iken yerlesim onceki haliyle birebir aynidir.
+   */
   private layout(width: number, height: number): void {
-    this.resourceBar.layout(width);
-    this.buildMenu.layout(width, height);
-    this.infoPanel.layout(width, height);
-    this.toast.layout(width / 2, ResourceBar.height + 34);
+    const { top, right, bottom: bottomInset, left } = this.insets;
+    const sideInset = Math.max(left, right);
 
-    // Butonlar acik olan panelin ustunde durur; aksi halde kartlarin uzerine biner.
-    const bottom = height - this.openPanelHeight() - UISpacing.edge - 26;
-    this.buildButton.setPosition(width - UISpacing.edge - 66, bottom);
-    this.cancelButton.setPosition(UISpacing.edge + 55, bottom);
+    // Kaynak cubugu ust cubugun altina kaymaz.
+    this.resourceBar.setPosition(0, top);
+    this.resourceBar.layout(width, sideInset);
+
+    this.buildMenu.layout(width, height, bottomInset);
+    this.infoPanel.layout(width, height, bottomInset);
+    this.toast.layout(width / 2, top + ResourceBar.height + 34);
+
+    // Butonlar acik olan panelin ustunde ve alt cubugun uzerinde durur.
+    const bottom = height - bottomInset - this.openPanelHeight() - UISpacing.edge - 26;
+    this.buildButton.setPosition(width - right - UISpacing.edge - 66, bottom);
+    this.cancelButton.setPosition(left + UISpacing.edge + 55, bottom);
   }
 
   /** Acik olan alt panelin yuksekligi; hicbiri acik degilse 0. */
@@ -287,5 +318,7 @@ export class UIScene extends Phaser.Scene {
     bus.off('building:completed', this.onBuildingCompleted, this);
     bus.off('construction:completed', this.onConstructionCompleted, this);
     this.scale.off(Phaser.Scale.Events.RESIZE, this.onResize, this);
+    this.stopSafeAreaWatch?.();
+    this.stopSafeAreaWatch = null;
   }
 }

@@ -30,6 +30,7 @@ export class InfoPanel extends Phaser.GameObjects.Container {
 
   private screenWidth: number;
   private screenHeight: number;
+  private bottomInset = 0;
   private visibleState = false;
   private currentUid: string | null = null;
   /** Panelde gosterilen bina; bos karo seciliyse null. */
@@ -126,14 +127,20 @@ export class InfoPanel extends Phaser.GameObjects.Container {
     return new Phaser.Geom.Rectangle(0, this.y, this.screenWidth, InfoPanel.HEIGHT);
   }
 
-  layout(width: number, height: number): void {
+  layout(width: number, height: number, bottomInset = 0): void {
     this.screenWidth = width;
     this.screenHeight = height;
+    this.bottomInset = bottomInset;
     this.background.setSize(width, InfoPanel.HEIGHT);
     this.bodyText.setWordWrapWidth(width - UISpacing.panelPadding * 2 - 110);
     this.upgradeButton.setPosition(width - UISpacing.panelPadding - 48, InfoPanel.HEIGHT - 82);
     this.demolishButton.setPosition(width - UISpacing.panelPadding - 48, InfoPanel.HEIGHT - 34);
-    this.setY(this.visibleState ? height - InfoPanel.HEIGHT : height);
+    this.setY(this.visibleState ? this.openY() : height);
+  }
+
+  /** Panelin acik konumu; alt kenar payi kadar yukarida durur. */
+  private openY(): number {
+    return this.screenHeight - this.bottomInset - InfoPanel.HEIGHT;
   }
 
   /** Secilen hucreyi gosterir; hucre bossa zemin bilgisi verilir. */
@@ -198,7 +205,7 @@ export class InfoPanel extends Phaser.GameObjects.Container {
     this.visibleState = true;
     this.scene.tweens.add({
       targets: this,
-      y: this.screenHeight - InfoPanel.HEIGHT,
+      y: this.openY(),
       duration: 200,
       ease: 'Cubic.easeOut',
     });

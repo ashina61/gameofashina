@@ -142,6 +142,50 @@ tarayici konsolunda:
 localStorage.removeItem('ancient-city:save:v1'); location.reload();
 ```
 
+## Android paketlemesi (karar kaydi)
+
+Oyun su an saf bir web uygulamasidir; depoda Android projesi **yoktur**.
+Android paketlemesi arastirildi ve asagidaki kararlar/olcumler kayda gecirildi
+ki paketleme sprintinde bastan arastirilmasin.
+
+**Karar:** `applicationId` = `com.ashina.ancientcity`
+(Play Store'a yuklendikten sonra degistirilemez.)
+
+**Onerilen yigin:** Capacitor 8.x (`engines: node >= 22`), JDK 21, Gradle 8.14+.
+Mevcut Node 22.22 / JDK 21 / Gradle 8.14.3 ile uyumludur; eski surume inmeye
+gerek yoktur.
+
+**Uyumluluk avantaji:** `vite.config.ts` icinde `base: './'` oldugu icin uretilen
+`dist/index.html` goreli yol kullanir - Capacitor WebView icin dogrudan uygundur.
+Ayrica `public/` dizini ve Phaser yukleyicisiyle gelen varlik yoktur (tum dokular
+prosedureldir), bu yuzden paketlemede en sik goruleni olan varlik yolu sorunu
+olusamaz.
+
+**Eksikler:** launcher ikonu, splash gorseli ve uygulama adi kaynaklari henuz yok.
+
+### Cihaz pikseli (DPR) olcumu
+
+Tuval su an CSS pikselinde acilir; 1080x2400 bir telefonda oyun 360x800
+cizilip 3x buyutulur. Arka tampon cozunurlugunu artirmanin maliyeti olculdu
+(ayni piksel sayisi CSS goruntu alani buyutulerek simule edildi):
+
+| Arka tampon | Piksel | FPS (120 bina) |
+| --- | --- | --- |
+| 360x800 (bugunku) | 288 K | 31 / 32 |
+| 720x1600 (DPR 2) | 1.15 M | 11 / 11 |
+| 1080x2400 (DPR 3) | 2.59 M | 8 / 8 |
+
+Maliyet doldurma hizina baglidir. **Ancak bu olcum GPU'suz bir ortamda
+alindi** (yazilim rasterizasyonu), dolayisiyla gercek bir mobil GPU'daki
+maliyeti abartir ve buradan guvenli bir ust sinir turetilemez.
+
+Ayrica Phaser'in `RESIZE` kipinde arka tampon cozunurlugunu artirmanin tek
+yolu `zoom` ile oyun boyutunu buyutmektir; bu da tum arayuz olculerinin
+(yazi boyutlari, panel yukseklikleri, buton olculeri) cozunurlukten bagimsiz
+hale getirilmesini gerektirir. Yapilandirilabilir bir "kanca" eklemek, guvenle
+acilamayacagi icin olu yapilandirma olurdu; bu nedenle EKLENMEDI. Kendi
+sprintinde, arayuz olcek calismasiyla birlikte ele alinmalidir.
+
 ## Yol haritasi
 
 Bu asamanin disinda birakilanlar: bina seviyeleri, arastirma agaci, birimler ve

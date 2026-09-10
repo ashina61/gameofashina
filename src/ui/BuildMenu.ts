@@ -26,6 +26,7 @@ export class BuildMenu extends Phaser.GameObjects.Container {
   private open = false;
   private screenWidth: number;
   private screenHeight: number;
+  private bottomInset = 0;
   private scrollX = 0;
   private dragStartX = 0;
   private dragStartScroll = 0;
@@ -88,7 +89,7 @@ export class BuildMenu extends Phaser.GameObjects.Container {
     this.setVisible(true);
     this.scene.tweens.add({
       targets: this,
-      y: this.screenHeight - BuildMenu.HEIGHT,
+      y: this.openY(),
       duration: 220,
       ease: 'Cubic.easeOut',
     });
@@ -107,13 +108,22 @@ export class BuildMenu extends Phaser.GameObjects.Container {
     });
   }
 
-  /** Ekran olculeri degistiginde konumu ve maskeyi tazeler. */
-  layout(width: number, height: number): void {
+  /**
+   * Ekran olculeri degistiginde konumu ve maskeyi tazeler.
+   * bottomInset, alt sistem cubugunun kapladigi payi panelin altinda birakir.
+   */
+  layout(width: number, height: number, bottomInset = 0): void {
     this.screenWidth = width;
     this.screenHeight = height;
+    this.bottomInset = bottomInset;
     this.background.setSize(width, BuildMenu.HEIGHT);
-    this.setY(this.open ? height - BuildMenu.HEIGHT : height);
+    this.setY(this.open ? this.openY() : height);
     this.applyMask();
+  }
+
+  /** Panelin acik konumu; alt kenar payi kadar yukarida durur. */
+  private openY(): number {
+    return this.screenHeight - this.bottomInset - BuildMenu.HEIGHT;
   }
 
   /** Kaynak durumuna gore kartlarin satin alinabilirligini gunceller. */
@@ -141,7 +151,7 @@ export class BuildMenu extends Phaser.GameObjects.Container {
     this.maskShape.fillStyle(0xffffff, 1);
     this.maskShape.fillRect(0, 0, this.screenWidth, BuildMenu.HEIGHT - 44);
     // Maske dunya koordinatinda calisir; scroller'in ekrandaki yerine tasinir.
-    this.maskShape.setPosition(0, this.screenHeight - BuildMenu.HEIGHT + 44);
+    this.maskShape.setPosition(0, this.openY() + 44);
     this.scroller.setMask(this.maskShape.createGeometryMask());
   }
 
