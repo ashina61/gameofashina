@@ -5,7 +5,7 @@ import { getBuilding } from '@/config/BuildingCatalog';
 import { formatDuration } from '@/utils/Format';
 import { TouchButton } from './TouchButton';
 import { UISpacing, UIText, labelStyle } from './UIStyle';
-import type { BuildingInstance, ResolvedBuilding, TileData } from '@/types';
+import type { BuildingInstance, ResolvedBuilding, ResourceAmounts, TileData } from '@/types';
 
 /** Zemin turlerinin kullaniciya gosterilen adlari. */
 const TERRAIN_LABELS: Record<string, string> = {
@@ -46,6 +46,8 @@ export class InfoPanel extends Phaser.GameObjects.Container {
     private readonly onDemolish: (uid: string) => void,
     private readonly onUpgrade: (uid: string) => void,
     private readonly onCancelUpgrade: (uid: string) => void,
+    /** Maliyetin karsilanip karsilanamadigini soran yordam (ResourceSystem). */
+    private readonly canAfford: (cost: ResourceAmounts) => boolean,
   ) {
     super(scene, 0, height);
     this.screenWidth = width;
@@ -164,6 +166,17 @@ export class InfoPanel extends Phaser.GameObjects.Container {
     this.showBuilding(building);
   }
 
+  /**
+   * Paneli mevcut secim icin yeniden cizer.
+   * Kaynak degistiginde cagrilir; aksi halde yukseltme butonunun etkin/devre
+   * disi durumu bayat kalir.
+   */
+  refresh(currentTick: number): void {
+    if (!this.visibleState) return;
+    this.currentTick = currentTick;
+    if (this.currentBuilding) this.showBuilding(this.currentBuilding);
+  }
+
   /** Paneli kapatir. */
   hide(): void {
     if (!this.visibleState) return;
@@ -253,10 +266,13 @@ export class InfoPanel extends Phaser.GameObjects.Container {
     // Buton yuvasi: yukseltme surerken iptal, aksi halde yukseltme.
     if (task?.kind === 'upgrade') {
       this.upgradeButtonMode = 'cancel';
-      this.upgradeButton.setText('Iptal').setVisible(true);
+      this.upgradeButton.setText('Iptal').setVisible(true).setEnabled(true);
     } else {
       this.upgradeButtonMode = 'upgrade';
       this.upgradeButton.setText('Yukselt').setVisible(upgrade !== null);
+      // Karsilanamayan yukseltme butonu devre disi gorunur; oyuncu tikladiktan
+      // sonra degil, tiklamadan once anlar.
+      this.upgradeButton.setEnabled(upgrade !== null && this.canAfford(upgrade.cost));
     }
   }
 

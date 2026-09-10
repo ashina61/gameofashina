@@ -8,7 +8,7 @@ import {
   TILE_WIDTH,
   TextureKeys,
 } from '@/config/Constants';
-import { getBuilding } from '@/config/BuildingCatalog';
+import { allBuildings, getBuilding } from '@/config/BuildingCatalog';
 import { CameraController } from '@/input/CameraController';
 import { BuildingView } from '@/render/BuildingView';
 import { PlacementPreview } from '@/render/PlacementPreview';
@@ -45,7 +45,12 @@ export class CityScene extends Phaser.Scene {
    */
   private readonly activeConstructionViews = new Map<string, BuildingView>();
 
-  private selectionMarker!: Phaser.GameObjects.Image;
+  /**
+   * Secim isaretleri. Tek karo yerine secilen binanin tum ayak izini kaplar;
+   * 2x2 bir binada yalnizca dokunulan karonun isaretlenmesi kafa karistiriyordu.
+   * Havuzlanir: en buyuk bina boyutu kadar isaret bir kez olusturulur.
+   */
+  private readonly selectionMarkers: Phaser.GameObjects.Image[] = [];
   private selectedTile: TileData | null = null;
 
   /** Insa modunda secili bina turu; mod kapaliysa null. */
@@ -89,10 +94,46 @@ export class CityScene extends Phaser.Scene {
   }
 
   private createSelectionMarker(): void {
-    this.selectionMarker = this.add
-      .image(0, 0, TextureKeys.TileHighlight)
-      .setOrigin(0.5, 0.5)
-      .setVisible(false);
+    const maxSize = Math.max(...allBuildings().map((def) => def.size));
+    for (let i = 0; i < maxSize * maxSize; i += 1) {
+      this.selectionMarkers.push(
+        this.add.image(0, 0, TextureKeys.TileHighlight).setOrigin(0.5, 0.5).setVisible(false),
+      );
+    }
+  }
+
+  /**
+   * Secim isaretlerini verilen alana yerlestirir.
+   *
+   * Isaretler bina sprite'inin USTUNE cizilir: zemin seviyesinde birakildiginda
+   * cok karolu bir binanin isaretlerinin cogu binanin kendisi tarafindan
+   * ortuluyor ve secim okunmuyordu. Dusuk alfa ile bina yine gorunur kalir.
+   */
+  private showSelection(gx: number, gy: number, size: number): void {
+    // Ayak izinin en on karosunun uzerinde kalacak bir derinlik.
+    const depth = depthFor(gx, gy, size) + 5;
+    let index = 0;
+    for (let dy = 0; dy < size; dy += 1) {
+      for (let dx = 0; dx < size; dx += 1) {
+        const marker = this.selectionMarkers[index];
+        index += 1;
+        if (!marker) continue;
+        const world = gridToWorld(gx + dx, gy + dy);
+        marker
+          .setPosition(world.x, world.y)
+          .setDepth(depth)
+          .setAlpha(0.55)
+          .setVisible(true);
+      }
+    }
+    for (let i = index; i < this.selectionMarkers.length; i += 1) {
+      this.selectionMarkers[i].setVisible(false);
+    }
+  }
+
+  /** Tum secim isaretlerini gizler. */
+  private hideSelection(): void {
+    for (const marker of this.selectionMarkers) marker.setVisible(false);
   }
 
   /** Kamerayi sinirlandirir, sehir merkezine odaklar ve dokunma olaylarini baglar. */
@@ -113,7 +154,7 @@ export class CityScene extends Phaser.Scene {
     this.camControl = new CameraController(this, this.cameras.main, {
       onTap: (x, y) => this.handleTap(x, y),
       onHover: (x, y) => this.handleHover(x, y),
-      onDragStart: () => this.selectionMarker.setVisible(false),
+      onDragStart: () => this.hideSelection(),
       // Arayuz sahnesi henuz hazir degilse tum dokunuslar haritaya gider.
       isBlocked: (x, y) => ui?.blocksPointer?.(x, y) ?? false,
     });
@@ -191,11 +232,15 @@ export class CityScene extends Phaser.Scene {
   /** Secili hucreyi ve uzerindeki binayi arayuze bildirir. */
   private selectTile(tile: TileData): void {
     this.selectedTile = tile;
-    const world = gridToWorld(tile.gx, tile.gy);
-    this.selectionMarker
-      .setPosition(world.x, world.y)
-      .setDepth(depthFor(tile.gx, tile.gy) + 1)
-      .setVisible(true);
+
+    // Bina seciliyse tum ayak izi, bos karo seciliyse yalnizca o karo isaretlenir.
+    const building = tile.occupantUid ? this.world.state.buildings.get(tile.occupantUid) : null;
+    if (building) {
+      const def = getBuilding(building.type);
+      this.showSelection(building.gx, building.gy, def.size);
+    } else {
+      this.showSelection(tile.gx, tile.gy, 1);
+    }
 
     for (const view of this.views.values()) {
       view.setSelected(view.uid === tile.occupantUid);
@@ -206,7 +251,7 @@ export class CityScene extends Phaser.Scene {
 
   private clearSelection(): void {
     this.selectedTile = null;
-    this.selectionMarker.setVisible(false);
+    this.hideSelection();
     for (const view of this.views.values()) view.setSelected(false);
     this.world.bus.emit('tile:selected', null);
   }
@@ -329,8 +374,8 @@ export class CityScene extends Phaser.Scene {
     const view = this.views.get(task.targetUid);
     if (!view) return;
 
-    view.beginTask(task.kind, 0);
     // construction:started yalnizca gorev AKTIF oldugunda yayinlanir.
+    view.beginTask(task.kind, 0, false);
     this.activeConstructionViews.set(task.targetUid, view);
   }
 
@@ -347,7 +392,7 @@ export class CityScene extends Phaser.Scene {
   /** Gorev bitti: gorsel normale doner ve kumeden cikar. */
   private onConstructionCompleted(task: ConstructionTask): void {
     this.activeConstructionViews.delete(task.targetUid);
-    this.views.get(task.targetUid)?.endTask();
+    this.views.get(task.targetUid)?.endTask(true);
 
     if (this.selectedTile?.occupantUid === task.targetUid) {
       this.world.bus.emit('tile:selected', this.selectedTile);

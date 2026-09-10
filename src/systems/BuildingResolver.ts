@@ -3,7 +3,6 @@ import { clampLevel, levelOf, maxLevelOf } from '@/config/BuildingCatalog';
 import type {
   BuildPreview,
   BuildingConstruction,
-  ConstructionKind,
   ConstructionStatus,
   BuildingDefinition,
   BuildingInstance,
@@ -113,20 +112,21 @@ export function constructionProgress(
 /**
  * Gorev iptalinde geri verilecek kaynaklar.
  *
+ * Hesap, gorev olusturulurken ODENEN maliyet uzerinden yapilir - guncel
+ * katalog fiyati uzerinden DEGIL. Boylece denge sonradan degistiginde ya da
+ * bina seviyesi bu arada arttiginda oyuncu odedigi kadarini geri alir.
+ *
  * Kuyruktaki gorev hic baslamadigi icin tam, aktif gorev yikimdaki oranla
- * (yarisi) iade edilir. Temel maliyet katalogdan degil buradan okunur.
+ * (yarisi) iade edilir.
  */
 export function resolveTaskRefund(
-  def: BuildingDefinition,
-  level: number,
-  kind: ConstructionKind,
+  paidCost: ResourceAmounts,
   status: ConstructionStatus,
 ): ResourceAmounts {
-  const base = kind === 'build' ? buildCostOf(def) : (resolveUpgradeOption(def, level)?.cost ?? {});
   const rate = CANCEL_REFUND_RATE[status];
 
   const refund: ResourceAmounts = {};
-  for (const [key, value] of Object.entries(base)) {
+  for (const [key, value] of Object.entries(paidCost)) {
     refund[key as keyof ResourceAmounts] = Math.floor((value ?? 0) * rate);
   }
   return refund;

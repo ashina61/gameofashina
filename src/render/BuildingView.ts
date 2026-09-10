@@ -12,8 +12,19 @@ import type {
 /** Insaat halindeki binanin solgun rengi. */
 const CONSTRUCTION_TINT = 0x9fc4e8;
 
+/** Sirada bekleyen gorevin daha soluk, renksiz tonu. */
+const QUEUED_TINT = 0x8f9298;
+
 /** Secili binanin vurgu rengi. */
 const SELECTED_TINT = 0xffe9a8;
+
+/** Ilerleme cubugu dolgusunun gorev turune gore rengi. */
+const BAR_TINT = {
+  buildActive: 0x6ee27a,
+  buildQueued: 0x6b7178,
+  upgradeActive: 0xe8c86a,
+  upgradeQueued: 0x7a7059,
+} as const;
 
 /**
  * Tek bir binanin gorsel temsili.
@@ -40,6 +51,8 @@ export class BuildingView {
   private selected = false;
   /** Devam eden gorevin turu; gorev yoksa null. */
   private taskKind: ConstructionKind | null = null;
+  /** Devam eden gorev sirada mi bekliyor? */
+  private taskQueued = false;
 
   constructor(
     scene: Phaser.Scene,
@@ -65,9 +78,9 @@ export class BuildingView {
     this.barBackground = scene.add
       .image(anchor.x, barY, TextureKeys.Pixel)
       .setOrigin(0.5, 0.5)
-      .setDisplaySize(this.barWidth + 2, 8)
+      .setDisplaySize(this.barWidth + 4, 11)
       .setTint(0x14110c)
-      .setAlpha(0.85)
+      .setAlpha(0.9)
       .setDepth(depth + 1)
       .setVisible(false);
 
@@ -75,8 +88,8 @@ export class BuildingView {
     this.barFill = scene.add
       .image(anchor.x - this.barWidth / 2, barY, TextureKeys.Pixel)
       .setOrigin(0, 0.5)
-      .setDisplaySize(this.barWidth, 6)
-      .setTint(0x6ee27a)
+      .setDisplaySize(this.barWidth, 7)
+      .setTint(BAR_TINT.buildActive)
       .setDepth(depth + 2)
       .setVisible(false);
 
@@ -95,7 +108,11 @@ export class BuildingView {
   /** Hesaplanmis duruma gore gorunumu ayarlar (olusturma aninda). */
   applyResolved(resolved: ResolvedBuilding): void {
     if (resolved.construction) {
-      this.beginTask(resolved.construction.kind, resolved.construction.ratio);
+      this.beginTask(
+        resolved.construction.kind,
+        resolved.construction.ratio,
+        resolved.construction.status === 'queued',
+      );
     } else {
       this.endTask();
     }
@@ -108,23 +125,62 @@ export class BuildingView {
    * upgrade - bina mevcut seviyesinde calismaya devam ediyor: normal cizilir,
    *           yalnizca ilerleme cubugu gosterilir.
    */
-  beginTask(kind: ConstructionKind, ratio = 0): void {
+  beginTask(kind: ConstructionKind, ratio = 0, queued = false): void {
     this.taskKind = kind;
-    this.sprite.setAlpha(kind === 'build' ? 0.55 : 1);
+    this.taskQueued = queued;
+
+    // Sirada bekleyen insaat, aktif insaattan daha soluk cizilir; oyuncu
+    // hangi santiyenin gercekten calistigini bakar bakmaz ayirt eder.
+    if (kind === 'build') {
+      this.sprite.setAlpha(queued ? 0.35 : 0.55);
+    } else {
+      this.sprite.setAlpha(queued ? 0.8 : 1);
+    }
     this.applyTint();
-    this.barFill.setTint(kind === 'build' ? 0x6ee27a : 0xe8c86a);
-    this.barBackground.setVisible(true);
+
+    this.barFill.setTint(
+      kind === 'build'
+        ? queued
+          ? BAR_TINT.buildQueued
+          : BAR_TINT.buildActive
+        : queued
+          ? BAR_TINT.upgradeQueued
+          : BAR_TINT.upgradeActive,
+    );
+    this.barBackground.setVisible(true).setAlpha(queued ? 0.6 : 0.9);
     this.barFill.setVisible(true);
     this.setProgress(ratio);
   }
 
-  /** Gorev bitti: normal gorunume doner. */
-  endTask(): void {
+  /**
+   * Gorev bitti: normal gorunume doner.
+   * celebrate=true ise kisa bir olcek geri bildirimi oynatilir; bu tek seferlik
+   * bir tween'dir, kare basina maliyet eklemez.
+   */
+  endTask(celebrate = false): void {
+    const hadTask = this.taskKind !== null;
     this.taskKind = null;
+    this.taskQueued = false;
     this.sprite.setAlpha(1);
     this.barBackground.setVisible(false);
     this.barFill.setVisible(false);
     this.applyTint();
+
+    if (celebrate && hadTask) this.playCompletionPulse();
+  }
+
+  /** Tamamlanmada kisa bir "oturma" hareketi. */
+  private playCompletionPulse(): void {
+    const scene = this.sprite.scene;
+    scene.tweens.killTweensOf(this.sprite);
+    this.sprite.setScale(1.12, 0.88);
+    scene.tweens.add({
+      targets: this.sprite,
+      scaleX: 1,
+      scaleY: 1,
+      duration: 260,
+      ease: 'Back.easeOut',
+    });
   }
 
   /**
@@ -152,7 +208,7 @@ export class BuildingView {
   /** Secim ve insaat vurgularini tek yerden uygular. */
   private applyTint(): void {
     if (this.taskKind === 'build') {
-      this.sprite.setTint(CONSTRUCTION_TINT);
+      this.sprite.setTint(this.taskQueued ? QUEUED_TINT : CONSTRUCTION_TINT);
     } else if (this.selected) {
       this.sprite.setTint(SELECTED_TINT);
     } else {

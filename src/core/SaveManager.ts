@@ -6,12 +6,15 @@ import {
   TICKS_PER_SECOND,
 } from '@/config/Constants';
 import { clampLevel, getBuilding, isKnownBuildingId } from '@/config/BuildingCatalog';
+import { buildCostOf, resolveUpgradeOption } from '@/systems/BuildingResolver';
 import type {
   BuildingConstruction,
+  BuildingDefinition,
   BuildingInstance,
   BuildingState,
   ConstructionKind,
   ConstructionStatus,
+  ResourceAmounts,
   ResourcePool,
   SaveData,
 } from '@/types';
@@ -167,9 +170,9 @@ function sanitizeBuilding(
   };
 
   if (version >= 2) {
-    applyV2Construction(building, raw, saveTick, fallbackSequence);
+    applyV2Construction(building, raw, saveTick, fallbackSequence, def);
   } else {
-    applyV1Construction(building, raw, saveTick, fallbackSequence);
+    applyV1Construction(building, raw, saveTick, fallbackSequence, def);
   }
 
   return building;
@@ -193,13 +196,14 @@ function applyV2Construction(
   raw: Record<string, unknown>,
   saveTick: number,
   fallbackSequence: number,
+  def: BuildingDefinition,
 ): void {
   const state = raw.state;
   if (isBuildingState(state)) {
     building.state = state;
   }
 
-  const task = sanitizeConstruction(raw.construction, saveTick, fallbackSequence);
+  const task = sanitizeConstruction(raw.construction, saveTick, fallbackSequence, def, building.level);
 
   if (!task) {
     // Gorev yok veya reddedildi: bina calisir duruma getirilir.
@@ -227,6 +231,8 @@ function sanitizeConstruction(
   value: unknown,
   saveTick: number,
   fallbackSequence: number,
+  def: BuildingDefinition,
+  level: number,
 ): BuildingConstruction | null {
   if (typeof value !== 'object' || value === null) return null;
   const raw = value as Record<string, unknown>;
@@ -240,6 +246,8 @@ function sanitizeConstruction(
       ? Math.trunc(raw.sequence)
       : fallbackSequence;
 
+  const paidCost = sanitizePaidCost(raw.paidCost) ?? recoverPaidCost(def, level, kind);
+
   if (status === 'queued') {
     // Kuyruktaki gorevin suresi bilinmek zorunda; yoksa kurtarilamaz.
     const duration = raw.durationTicks;
@@ -250,6 +258,7 @@ function sanitizeConstruction(
       status: 'queued',
       durationTicks: Math.trunc(duration),
       sequence,
+      paidCost,
       startedAtTick: null,
       completesAtTick: null,
     };
@@ -273,7 +282,49 @@ function sanitizeConstruction(
       ? Math.trunc(raw.durationTicks)
       : completesAtTick - startedAtTick;
 
-  return { kind, status: 'active', durationTicks: duration, sequence, startedAtTick, completesAtTick };
+  return {
+    kind,
+    status: 'active',
+    durationTicks: duration,
+    sequence,
+    paidCost,
+    startedAtTick,
+    completesAtTick,
+  };
+}
+
+/** Kayittaki odenen maliyeti dogrular; yoksa/gecersizse null. */
+function sanitizePaidCost(value: unknown): ResourceAmounts | null {
+  if (typeof value !== 'object' || value === null) return null;
+  const source = value as Record<string, unknown>;
+
+  const cost: ResourceAmounts = {};
+  let found = false;
+  for (const key of RESOURCE_ORDER) {
+    const amount = source[key];
+    if (typeof amount === 'number' && Number.isFinite(amount) && amount > 0) {
+      cost[key] = Math.floor(amount);
+      found = true;
+    }
+  }
+  return found ? cost : null;
+}
+
+/**
+ * paidCost alani olmayan eski kayitlar icin maliyeti katalogdan kurtarir.
+ *
+ * Uydurma bir deger URETILMEZ: bu, alan eklenmeden onceki kodun iadeyi zaten
+ * hesapladigi degerin BIREBIR aynisidir. Dolayisiyla eski kayitlarda iptal
+ * iadesi degismez. Yalnizca bu kayitlar, katalog dengesi sonradan degisirse
+ * yeni fiyattan etkilenmeye devam eder; yeni gorevler etkilenmez.
+ */
+function recoverPaidCost(
+  def: BuildingDefinition,
+  level: number,
+  kind: ConstructionKind,
+): ResourceAmounts {
+  if (kind === 'build') return buildCostOf(def);
+  return resolveUpgradeOption(def, level)?.cost ?? {};
 }
 
 /** v1: complete + remainingBuildTime (saniye) alanlarindan tureti. */
@@ -282,6 +333,7 @@ function applyV1Construction(
   raw: Record<string, unknown>,
   saveTick: number,
   fallbackSequence: number,
+  def: BuildingDefinition,
 ): void {
   if (raw.complete === true) {
     building.state = 'active';
@@ -305,6 +357,8 @@ function applyV1Construction(
     status: 'active',
     durationTicks: remainingTicks,
     sequence: fallbackSequence,
+    // v1'de odenen maliyet saklanmiyordu; katalogdan kurtariliyor.
+    paidCost: buildCostOf(def),
     startedAtTick: saveTick,
     completesAtTick: saveTick + remainingTicks,
   };

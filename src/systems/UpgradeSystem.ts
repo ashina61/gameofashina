@@ -83,7 +83,7 @@ export class UpgradeSystem {
     const check = this.canUpgrade(uid);
     if (!check.ok) return check;
 
-    const request = this.construction.requestUpgrade(uid, check.option.timeTicks);
+    const request = this.construction.requestUpgrade(uid, check.option.timeTicks, check.option.cost);
     if (!request.ok) {
       // canUpgrade gecmisken buraya dusmek beklenmez; yine de kaynak harcanmaz.
       return { ok: false, reason: request.reason === 'unknown_building' ? 'unknown_building' : 'busy' };

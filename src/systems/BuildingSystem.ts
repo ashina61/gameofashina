@@ -118,15 +118,17 @@ export class BuildingSystem {
     this.state.addBuilding(building);
     this.state.grid.occupy(gx, gy, def.size, building.uid);
 
-    const request = this.construction.requestBuild(building, buildTimeTicksOf(def));
+    const cost = buildCostOf(def);
+    const request = this.construction.requestBuild(building, buildTimeTicksOf(def), cost);
     if (!request.ok) {
       // Yarim durum birakma: binayi geri al.
       this.state.removeBuilding(building.uid);
       return { ok: false, reason: 'cost' };
     }
 
-    // Maliyet ancak gorev kesinlestikten sonra dusulur.
-    if (!this.resources.spend(buildCostOf(def))) {
+    // Maliyet ancak gorev kesinlestikten sonra dusulur; goreve yazilan
+    // paidCost ile burada dusulen tutar ayni degerdir.
+    if (!this.resources.spend(cost)) {
       this.construction.cancel(building.uid, { refundResources: false });
       this.state.removeBuilding(building.uid);
       return { ok: false, reason: 'cost' };
@@ -157,14 +159,15 @@ export class BuildingSystem {
     if (task?.kind === 'build') {
       // Bina hic tamamlanmadi. Kuyrukta bekliyorduysa hicbir is yapilmadigi
       // icin tam iade; aktif insaatta yikim orani (yarisi) gecerli.
-      const buildRefund = resolveTaskRefund(def, building.level, 'build', task.status);
+      // Iade, odenen maliyetten hesaplanir.
+      const buildRefund = resolveTaskRefund(task.paidCost, task.status);
       this.state.removeBuilding(uid);
       this.resources.recalculateCapacity();
       this.resources.add(buildRefund);
     } else {
       // Tamamlanmis bina; ayrica devam eden bir yukseltme varsa onun da iadesi.
       if (task?.kind === 'upgrade') {
-        addInto(refund, resolveTaskRefund(def, building.level, 'upgrade', task.status));
+        addInto(refund, resolveTaskRefund(task.paidCost, task.status));
       }
       this.state.removeBuilding(uid);
       this.resources.recalculateCapacity();

@@ -1,6 +1,8 @@
 import Phaser from 'phaser';
 import { SceneKeys } from '@/config/Constants';
 import { getBuilding } from '@/config/BuildingCatalog';
+import { resolveBuildPreview } from '@/systems/BuildingResolver';
+import { PLACEMENT_MESSAGES } from '@/systems/BuildingSystem';
 import { BuildMenu } from '@/ui/BuildMenu';
 import { InfoPanel } from '@/ui/InfoPanel';
 import { ResourceBar } from '@/ui/ResourceBar';
@@ -57,6 +59,7 @@ export class UIScene extends Phaser.Scene {
       (uid) => this.world.bus.emit('ui:request-demolish', uid),
       (uid) => this.world.bus.emit('ui:request-upgrade', uid),
       (uid) => this.world.bus.emit('ui:cancel-upgrade', uid),
+      (cost) => this.world.resources.canAfford(cost),
     );
     this.toast = new Toast(this, width / 2, ResourceBar.height + 34);
 
@@ -137,6 +140,8 @@ export class UIScene extends Phaser.Scene {
   private onResources(resources: ResourcePool, capacity: number): void {
     this.resourceBar.updateResources(resources, capacity);
     this.buildMenu.refreshAffordability(resources);
+    // Bilgi paneli acikken yukseltme butonunun durumu bayat kalmasin.
+    this.infoPanel.refresh(this.world.tick);
   }
 
   private onEconomy(snapshot: EconomySnapshot): void {
@@ -206,6 +211,15 @@ export class UIScene extends Phaser.Scene {
   }
 
   private startPlacement(defId: BuildingId): void {
+    // Karsilanabilirlik karari kaynak sisteminindir; kart yalnizca gorsel.
+    // Karsilanamiyorsa yerlestirme moduna hic girilmez ve nedeni soylenir.
+    if (!this.world.resources.canAfford(resolveBuildPreview(getBuilding(defId)).cost)) {
+      // Diger tum hata bildirimleri gibi olay yolundan gecer; boylece tek bir
+      // bildirim kanali kalir ve test edilebilir olur.
+      this.world.bus.emit('notify', PLACEMENT_MESSAGES.cost, 'error');
+      return;
+    }
+
     this.placingId = defId;
     this.buildMenu.hide();
     this.buildButton.setText('INSA ET');

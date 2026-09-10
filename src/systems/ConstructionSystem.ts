@@ -1,5 +1,4 @@
 import { MAX_CONCURRENT_CONSTRUCTIONS } from '@/config/Constants';
-import { getBuilding } from '@/config/BuildingCatalog';
 import { constructionProgress, resolveTaskRefund } from './BuildingResolver';
 import type { EventBus } from '@/core/EventBus';
 import type { GameState } from '@/core/GameState';
@@ -10,6 +9,7 @@ import type {
   ConstructionKind,
   ConstructionProgress,
   ConstructionTask,
+  ResourceAmounts,
 } from '@/types';
 
 /** Gorev baslatma denemesinin sonucu. */
@@ -175,20 +175,29 @@ export class ConstructionSystem {
    * Yeni kurulan bina icin insa gorevi talep eder.
    * Sure 0 ise gorev olusturulmaz; bina aninda devreye girer.
    */
-  requestBuild(building: BuildingInstance, durationTicks: number): RequestResult {
-    return this.request(building.uid, 'build', durationTicks);
+  requestBuild(
+    building: BuildingInstance,
+    durationTicks: number,
+    paidCost: ResourceAmounts,
+  ): RequestResult {
+    return this.request(building.uid, 'build', durationTicks, paidCost);
   }
 
   /** Yukseltme gorevi talep eder. */
-  requestUpgrade(targetUid: string, durationTicks: number): RequestResult {
-    return this.request(targetUid, 'upgrade', durationTicks);
+  requestUpgrade(targetUid: string, durationTicks: number, paidCost: ResourceAmounts): RequestResult {
+    return this.request(targetUid, 'upgrade', durationTicks, paidCost);
   }
 
   /**
    * Gorev talebi: slot varsa aktif, yoksa kuyruga alinir.
    * Sure 0 ise gorev hic olusturulmaz, sonuc aninda uygulanir.
    */
-  request(targetUid: string, kind: ConstructionKind, durationTicks: number): RequestResult {
+  request(
+    targetUid: string,
+    kind: ConstructionKind,
+    durationTicks: number,
+    paidCost: ResourceAmounts = {},
+  ): RequestResult {
     const building = this.state.buildings.get(targetUid);
     if (!building) return { ok: false, reason: 'unknown_building' };
     if (this.isBusy(targetUid)) return { ok: false, reason: 'busy' };
@@ -197,12 +206,14 @@ export class ConstructionSystem {
 
     // Suresiz gorev: kuyruga girmez, aninda sonuclanir.
     if (duration === 0) {
-      this.applyInstant(targetUid, kind);
+      this.applyInstant(targetUid, kind, paidCost);
       return { ok: true, task: null, instant: true };
     }
 
     const sequence = this.state.nextConstructionSequence();
     const canStart = this.active.size < MAX_CONCURRENT_CONSTRUCTIONS;
+    // Odenen maliyetin anlik goruntusu; sonradan degistirilmez.
+    const snapshot: ResourceAmounts = { ...paidCost };
 
     const construction: BuildingConstruction = canStart
       ? {
@@ -210,6 +221,7 @@ export class ConstructionSystem {
           status: 'active',
           durationTicks: duration,
           sequence,
+          paidCost: snapshot,
           startedAtTick: this.state.tick,
           completesAtTick: this.state.tick + duration,
         }
@@ -218,6 +230,7 @@ export class ConstructionSystem {
           status: 'queued',
           durationTicks: duration,
           sequence,
+          paidCost: snapshot,
           startedAtTick: null,
           completesAtTick: null,
         };
@@ -293,12 +306,8 @@ export class ConstructionSystem {
     let refunded = false;
 
     if (building && refundResources) {
-      const refund = resolveTaskRefund(
-        getBuilding(building.type),
-        building.level,
-        task.kind,
-        task.status,
-      );
+      // Iade, katalog fiyatindan degil gorevde saklanan odenen maliyetten.
+      const refund = resolveTaskRefund(task.paidCost, task.status);
       this.resources.recalculateCapacity();
       this.resources.add(refund);
       refunded = true;
@@ -343,6 +352,8 @@ export class ConstructionSystem {
         status: 'active',
         durationTicks: next.durationTicks,
         sequence: next.sequence,
+        // Odenen maliyet aktiflesirken degismez.
+        paidCost: next.paidCost,
         startedAtTick,
         completesAtTick: startedAtTick + next.durationTicks,
       };
@@ -380,7 +391,7 @@ export class ConstructionSystem {
    * Olay yasam dongusu normal gorevle ayni kalsin diye tamamlanma olayi
    * burada da yayinlanir; boylece arayuz iki yolu ayirt etmek zorunda kalmaz.
    */
-  private applyInstant(targetUid: string, kind: ConstructionKind): void {
+  private applyInstant(targetUid: string, kind: ConstructionKind, paidCost: ResourceAmounts): void {
     const sequence = this.state.nextConstructionSequence();
     const tick = this.state.tick;
 
@@ -390,6 +401,7 @@ export class ConstructionSystem {
       status: 'active',
       durationTicks: 0,
       sequence,
+      paidCost: { ...paidCost },
       startedAtTick: tick,
       completesAtTick: tick,
     };
@@ -453,6 +465,7 @@ function isStructurallyValid(construction: BuildingConstruction): boolean {
   if (status !== 'queued' && status !== 'active') return false;
   if (!Number.isFinite(durationTicks) || durationTicks < 0) return false;
   if (!Number.isFinite(sequence) || sequence < 0) return false;
+  if (typeof construction.paidCost !== 'object' || construction.paidCost === null) return false;
 
   if (status === 'queued') {
     // Kuyruktaki gorevin zaman alanlari bos olmalidir.

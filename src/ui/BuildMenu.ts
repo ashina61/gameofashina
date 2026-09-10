@@ -257,7 +257,9 @@ class BuildCard extends Phaser.GameObjects.Container {
     });
     this.frame.on(Phaser.Input.Events.GAMEOBJECT_POINTER_UP, () => {
       this.frame.setTexture(TextureKeys.ButtonUp);
-      if (this.affordable) onPress();
+      // Kart karsilanabilirligi yalnizca GOSTERIR; karari UIScene/ResourceSystem
+      // verir. Boylece karsilanamayan karta dokunmak sessiz kalmaz.
+      onPress();
     });
   }
 

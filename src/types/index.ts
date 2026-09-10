@@ -131,6 +131,14 @@ export interface BuildingConstruction {
    */
   sequence: number;
   /**
+   * Gorev olusturulurken GERCEKTEN odenen maliyet.
+   *
+   * Iade bu degerden hesaplanir, guncel katalog fiyatindan degil. Katalog
+   * dengesi sonradan degisse bile oyuncu odedigi kadarini geri alir.
+   * Degistirilmemesi gereken bir anlik goruntudur.
+   */
+  paidCost: ResourceAmounts;
+  /**
    * Gorevin basladigi simulasyon tiki.
    * Kuyruktayken null - baslangic ancak aktiflesirken hesaplanir.
    */
