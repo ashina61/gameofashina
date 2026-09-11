@@ -10,7 +10,8 @@ import {
   variantCountFor,
   visualKeyFor,
 } from './BuildingVisuals';
-import type { TerrainType } from '@/types';
+import { WORKER_HEIGHT, WORKER_WIDTH, drawWorker } from './WorkerArt';
+import type { TerrainType, WorkerState } from '@/types';
 
 /**
  * Tum gorseller calisma zamaninda uretilir; projede ikili varlik dosyasi yoktur.
@@ -92,10 +93,38 @@ export function generateTextures(scene: Phaser.Scene, artScale = 1): void {
     createScaffoldTexture(scene, size, artScale);
   }
 
+  // Isci figurleri; her durum icin bir doku, kare basina cizim yok.
+  for (const state of WORKER_TEXTURE_KEYS.keys()) {
+    createWorkerTexture(scene, state, artScale);
+  }
+
   createPixelTexture(scene, TextureKeys.Pixel);
   createPanelTexture(scene, TextureKeys.Panel, 0x1d1a13, 0x5a4c33);
   createPanelTexture(scene, TextureKeys.ButtonUp, 0x2e2819, 0x7a6540);
   createPanelTexture(scene, TextureKeys.ButtonDown, 0x4a3f27, 0xe8c86a);
+}
+
+/** Isci durumu -> doku anahtari. Render katmani bu esleme uzerinden okur. */
+export const WORKER_TEXTURE_KEYS = new Map<WorkerState, string>([
+  ['idle', TextureKeys.WorkerIdle],
+  ['moving', TextureKeys.WorkerMoving],
+  ['working', TextureKeys.WorkerWorking],
+]);
+
+/** Tek bir isci durumunun dokusunu pisirir. */
+function createWorkerTexture(scene: Phaser.Scene, state: WorkerState, artScale: number): void {
+  const key = WORKER_TEXTURE_KEYS.get(state);
+  if (!key || scene.textures.exists(key)) return;
+
+  const g = scene.make.graphics({ x: 0, y: 0 }, false);
+  g.scale = artScale;
+  drawWorker(g, state);
+  g.generateTexture(
+    key,
+    Math.ceil(WORKER_WIDTH * artScale),
+    Math.ceil(WORKER_HEIGHT * artScale),
+  );
+  g.destroy();
 }
 
 /** Katalogda gecen benzersiz ayak izi olculeri. */

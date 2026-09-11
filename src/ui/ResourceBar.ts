@@ -2,7 +2,7 @@ import Phaser from 'phaser';
 import { RESOURCE_META, RESOURCE_ORDER, TextureKeys } from '@/config/Constants';
 import { formatAmount, formatRate } from '@/utils/Format';
 import { UISpacing, labelStyle, UIText } from './UIStyle';
-import type { EconomySnapshot, ResourcePool } from '@/types';
+import type { EconomySnapshot, ResourcePool, WorkforceSnapshot } from '@/types';
 
 /**
  * Ekranin ustunde duran kaynak gostergesi.
@@ -15,6 +15,8 @@ export class ResourceBar extends Phaser.GameObjects.Container {
   private readonly rateTexts = new Map<string, Phaser.GameObjects.Text>();
   private readonly icons: Phaser.GameObjects.Graphics[] = [];
   private readonly populationText: Phaser.GameObjects.Text;
+  /** Bosta bekleyen isci sayisi; atama yapilabilecegini oyuncuya hatirlatir. */
+  private readonly idleText: Phaser.GameObjects.Text;
 
   private static readonly HEIGHT = 60;
   /** Nufus gostergesine ayrilan sabit genislik. */
@@ -22,9 +24,11 @@ export class ResourceBar extends Phaser.GameObjects.Container {
    * Nufus sutununun genisligi. Sprint 3'te metin "5/9" yerine "10/10 +"
    * gibi daha uzun bir hale geldi (gidisat isareti eklendi), bu yuzden
    * sutun buyutuldu; aksi halde dar telefonda son kaynagin orani ile
-   * ust uste binerdi.
+   * ust uste binerdi. Sprint 8'de alt satira "Bosta N (M yolda)" eklendi ve
+   * sutun yeniden buyutuldu; 104 pikselde bu satir son kaynagin oranini
+   * ortuyordu (ekran goruntusuyle dogrulandi).
    */
-  private static readonly POPULATION_WIDTH = 104;
+  private static readonly POPULATION_WIDTH = 124;
 
   constructor(scene: Phaser.Scene, width: number) {
     super(scene, 0, 0);
@@ -55,7 +59,10 @@ export class ResourceBar extends Phaser.GameObjects.Container {
     this.populationText = scene.add
       .text(0, 0, 'Nufus 0/0', labelStyle(12, UIText.muted))
       .setOrigin(1, 0.5);
-    this.add(this.populationText);
+    this.idleText = scene.add
+      .text(0, 0, 'Bosta 0 isci', labelStyle(11, UIText.muted))
+      .setOrigin(1, 0.5);
+    this.add([this.populationText, this.idleText]);
 
     this.layout(width);
     scene.add.existing(this);
@@ -87,7 +94,9 @@ export class ResourceBar extends Phaser.GameObjects.Container {
       this.rateTexts.get(key)?.setPosition(x + 20, centerY + 10);
     });
 
-    this.populationText.setPosition(width - UISpacing.panelPadding - sideInset, centerY);
+    const right = width - UISpacing.panelPadding - sideInset;
+    this.populationText.setPosition(right, centerY - 9);
+    this.idleText.setPosition(right, centerY + 9);
   }
 
   /** Kaynak miktarlarini gunceller; depo dolduysa rengi degistirir. */
@@ -133,5 +142,19 @@ export class ResourceBar extends Phaser.GameObjects.Container {
     this.populationText
       .setText(`Nufus ${snapshot.population}/${snapshot.populationCapacity}${marker}`)
       .setColor(color);
+  }
+
+  /**
+   * Bostaki isci sayisini gunceller.
+   *
+   * Atama artik oyuncunun isi oldugu icin bu sayi surekli gorunur durmali:
+   * aksi halde oyuncu elinde bekleyen isci oldugunu ancak bir bina secip
+   * paneli acinca fark ederdi. Bosta isci VARSA vurgulanir.
+   */
+  updateWorkforce(snapshot: WorkforceSnapshot): void {
+    const suffix = snapshot.moving > 0 ? ` (${snapshot.moving} yolda)` : '';
+    this.idleText
+      .setText(`Bosta ${snapshot.idle}${suffix}`)
+      .setColor(snapshot.idle > 0 ? UIText.accent : UIText.muted);
   }
 }

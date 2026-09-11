@@ -7,6 +7,24 @@ import { TouchButton } from './TouchButton';
 import { UISpacing, UIText, labelStyle } from './UIStyle';
 import type { BuildingInstance, ResolvedBuilding, ResourceAmounts, TileData } from '@/types';
 
+/**
+ * Panelin isci satirini cizmek icin ihtiyac duydugu sayilar.
+ *
+ * Hepsi WorkforceSystem'den okunur; panel kendi hesabini yapmaz.
+ * `claimed` YOLDAKILERI de sayar - yer kontrolu bu sayiya gore yapilir,
+ * aksi halde ayni bos yere iki isci yollanabilir gibi gorunurdu.
+ */
+export interface WorkerPanelInfo {
+  /** Binada fiilen calisan isci. */
+  working: number;
+  /** Binaya bagli isci; yoldakiler dahil. */
+  claimed: number;
+  /** Binanin alabilecegi azami isci. */
+  capacity: number;
+  /** Sehirde bosta bekleyen isci. */
+  idle: number;
+}
+
 /** Zemin turlerinin kullaniciya gosterilen adlari. */
 const TERRAIN_LABELS: Record<string, string> = {
   grass: 'Cimen',
@@ -20,13 +38,24 @@ const TERRAIN_LABELS: Record<string, string> = {
  * Bina seciliyse uretim/isci ozeti ve yikma butonu gosterilir.
  */
 export class InfoPanel extends Phaser.GameObjects.Container {
-  private static readonly HEIGHT = 132;
+  /**
+   * Panel yuksekligi.
+   *
+   * Sprint 8'de 132'den buyutuldu: alta isci atama satiri eklendi. Eski
+   * yukseklikte Sehir Merkezi gibi cok satirli binalarin son satiri zaten
+   * panelin disina tasiyordu.
+   */
+  private static readonly HEIGHT = 178;
 
   private readonly background: Phaser.GameObjects.NineSlice;
   private readonly titleText: Phaser.GameObjects.Text;
   private readonly bodyText: Phaser.GameObjects.Text;
   private readonly demolishButton: TouchButton;
   private readonly upgradeButton: TouchButton;
+  /** Isci satiri: geri al, sayac, ata. */
+  private readonly releaseButton: TouchButton;
+  private readonly assignButton: TouchButton;
+  private readonly workerText: Phaser.GameObjects.Text;
 
   private screenWidth: number;
   private screenHeight: number;
@@ -49,6 +78,12 @@ export class InfoPanel extends Phaser.GameObjects.Container {
     private readonly onCancelUpgrade: (uid: string) => void,
     /** Maliyetin karsilanip karsilanamadigini soran yordam (ResourceSystem). */
     private readonly canAfford: (cost: ResourceAmounts) => boolean,
+    /** Bu binaya bosta bir isci yolla. */
+    private readonly onAssignWorker: (uid: string) => void,
+    /** Bu binadan bir isciyi geri cek. */
+    private readonly onReleaseWorker: (uid: string) => void,
+    /** Binanin kadro durumu (WorkforceSystem). */
+    private readonly workerInfo: (uid: string) => WorkerPanelInfo,
   ) {
     super(scene, 0, height);
     this.screenWidth = width;
@@ -100,12 +135,39 @@ export class InfoPanel extends Phaser.GameObjects.Container {
       },
     });
 
+    this.releaseButton = new TouchButton(scene, 0, 0, '-', {
+      width: 46,
+      height: 40,
+      fontSize: 20,
+      color: UIText.danger,
+      onPress: () => {
+        if (this.currentUid) this.onReleaseWorker(this.currentUid);
+      },
+    });
+
+    this.assignButton = new TouchButton(scene, 0, 0, '+', {
+      width: 46,
+      height: 40,
+      fontSize: 20,
+      color: UIText.success,
+      onPress: () => {
+        if (this.currentUid) this.onAssignWorker(this.currentUid);
+      },
+    });
+
+    this.workerText = scene.add
+      .text(0, 0, '', labelStyle(12, UIText.primary, true))
+      .setOrigin(0, 0.5);
+
     this.add([
       this.background,
       this.titleText,
       this.bodyText,
       this.upgradeButton,
       this.demolishButton,
+      this.releaseButton,
+      this.assignButton,
+      this.workerText,
     ]);
     this.layout(width, height);
     this.setVisible(false);
@@ -135,6 +197,20 @@ export class InfoPanel extends Phaser.GameObjects.Container {
     this.bodyText.setWordWrapWidth(width - UISpacing.panelPadding * 2 - 110);
     this.upgradeButton.setPosition(width - UISpacing.panelPadding - 48, InfoPanel.HEIGHT - 82);
     this.demolishButton.setPosition(width - UISpacing.panelPadding - 48, InfoPanel.HEIGHT - 34);
+
+    /*
+     * Isci satiri panelin sol altinda.
+     *
+     * Iki buton YAN YANA durur, sayac sagda. Ilk denemede sayac iki butonun
+     * ARASINDAYDI ve "Isci 2/3  Bosta 13" metni "+" butonunun uzerine
+     * biniyordu (olculdu: 390px genislikte metin 193px'e kadar uzuyor, buton
+     * 175'te). Butonlari bitisik tutmak metne sabit ve genis bir alan birakir.
+     */
+    const workerY = InfoPanel.HEIGHT - 30;
+    const left = UISpacing.panelPadding;
+    this.releaseButton.setPosition(left + 23, workerY);
+    this.assignButton.setPosition(left + 74, workerY);
+    this.workerText.setPosition(left + 106, workerY);
     this.setY(this.visibleState ? this.openY() : height);
   }
 
@@ -251,16 +327,14 @@ export class InfoPanel extends Phaser.GameObjects.Container {
     });
     if (parts.length) lines.push(parts.join('  '));
 
-    // Kadro artik gercek: kac isci ISTEDIGI degil, kac isci ALDIGI gosterilir.
-    // Insaati suren binada henuz kadro olmaz, o yuzden yalnizca ihtiyac yazilir.
-    if (resolved.workerRequirement) {
-      if (resolved.construction?.kind === 'build') {
-        lines.push(`${resolved.workerRequirement} isci ister`);
-      } else {
-        const shortage = resolved.staffed ? '' : '  (isci yetersiz)';
-        lines.push(`Isci ${resolved.assignedWorkers}/${resolved.workerRequirement}${shortage}`);
-      }
+    // Kadro artik oyuncunun kararidir; sayilar metin yerine ALT SATIRDAKI
+    // atama denetimlerinde gosterilir. Insaati suren binaya isci
+    // yollanamadigi icin orada yalnizca ihtiyac yazilir.
+    const underBuild = resolved.construction?.kind === 'build';
+    if (resolved.workerRequirement && underBuild) {
+      lines.push(`${resolved.workerRequirement} isci ister`);
     }
+    this.showWorkerRow(building, resolved, underBuild);
 
     const populationCapacity =
       resolved.populationCapacity ||
@@ -297,8 +371,48 @@ export class InfoPanel extends Phaser.GameObjects.Container {
     }
   }
 
+  /**
+   * Isci atama satirini gosterir.
+   *
+   * Sayilar tek kaynaktan gelir: binanin aldigi isci ile ihtiyaci
+   * BuildingResolver'dan, bostaki isci WorkforceSystem'den. Panel kendi
+   * hesabini yapmaz. Butonlar mumkun olmayan islem icin SONUK gorunur -
+   * oyuncu basmadan once anlar.
+   */
+  private showWorkerRow(
+    building: BuildingInstance,
+    resolved: ResolvedBuilding,
+    underBuild: boolean,
+  ): void {
+    const need = resolved.workerRequirement;
+    // Isci istemeyen bina (ev, depo) ve insaati suren bina icin satir yok.
+    const visible = need > 0 && !underBuild && building.state === 'active';
+
+    this.releaseButton.setVisible(visible);
+    this.assignButton.setVisible(visible);
+    this.workerText.setVisible(visible);
+    if (!visible) return;
+
+    const info = this.workerInfo(building.uid);
+    const enRoute = info.claimed - info.working;
+
+    // Yoldaki isci AYRI gosterilir: "2/3" yazip uretimin neden hala eksik
+    // oldugunu soylememek oyuncuyu yanlis yonlendirirdi.
+    const route = enRoute > 0 ? ` (+${enRoute} yolda)` : '';
+    this.workerText.setText(`Isci ${info.working}/${need}${route}   Bosta ${info.idle}`);
+    // Kadro eksikse dikkat cek; tamsa sakin dursun.
+    this.workerText.setColor(info.claimed >= need ? UIText.primary : UIText.accent);
+
+    // Yer kontrolu BAGLI isci sayisina gore; sistemin kendi kurali da budur.
+    this.assignButton.setEnabled(info.claimed < info.capacity && info.idle > 0);
+    this.releaseButton.setEnabled(info.claimed > 0);
+  }
+
   private showTerrain(tile: TileData): void {
     this.upgradeButton.setVisible(false);
+    this.releaseButton.setVisible(false);
+    this.assignButton.setVisible(false);
+    this.workerText.setVisible(false);
     this.titleText.setText(TERRAIN_LABELS[tile.terrain] ?? tile.terrain);
     this.bodyText.setText(
       `Konum ${tile.gx}, ${tile.gy}\nBu alan bos. Insa etmek icin alttaki menuyu kullan.`,

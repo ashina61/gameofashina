@@ -31,11 +31,12 @@ const TICKS_PER_MINUTE = 60 * TICKS_PER_SECOND;
  *   once dolar. Bu sira GameState'in bina koleksiyonunun sirasidir ve kayitla
  *   birlikte tasinir, dolayisiyla yeniden yuklemede dagitim degismez.
  *
- * TURETILMIS DURUM
- * BuildingInstance.assignedWorkers bu sistemin ciktisidir; hicbir zaman
- * kayittan oldugu gibi guvenilmez, her ilerlemede ve her yuklemede nufustan
- * yeniden hesaplanir. Boylece "kayittaki isci sayisi ile nufus tutmuyor"
- * diye bir tutarsizlik olusamaz.
+ * ISCI DAGITIMI BU SISTEMDE DEGIL
+ * Sprint 8'e kadar isciler burada her tik OTOMATIK dagitiliyordu ve bu,
+ * oyuncunun bir isciyi belirli bir binaya yonlendirmesini imkansiz
+ * kiliyordu: elle yapilan atama bir sonraki tikte eziliyordu. Atama artik
+ * WorkforceSystem'in ve OYUNCUNUN isidir. Bu sistem yalnizca kac vatandas
+ * oldugunu belirler.
  *
  * Bu sistemde gercek zaman yoktur; yalnizca kendisine verilen tik sayisi
  * islenir.
@@ -99,13 +100,11 @@ export class PopulationSystem {
 
     if (rate !== 0) this.applyChange(rate * whole, capacity);
 
-    const employed = this.assignWorkers();
-
     this.lastSnapshot = {
       population: this.state.population,
       capacity,
       workersNeeded,
-      employed,
+      employed: this.employedCount(),
       // Rapor edilen yon, pencere SONRASI durumdur: kapasiteye oturmus bir
       // sehir "buyuyor" diye gosterilmemeli.
       trend: this.trendFor(capacity),
@@ -116,20 +115,28 @@ export class PopulationSystem {
   }
 
   /**
-   * Isci dagitimini nufustan yeniden kurar; nufusu DEGISTIRMEZ.
+   * Ozeti gecerli durumdan yeniden kurar; nufusu DEGISTIRMEZ.
    * Yukleme sonrasi ve bina eklendiginde/silindiginde cagrilir.
    */
   rebuildFromState(): PopulationSnapshot {
     const { capacity, workersNeeded } = this.survey();
-    const employed = this.assignWorkers();
     this.lastSnapshot = {
       population: this.state.population,
       capacity,
       workersNeeded,
-      employed,
+      employed: this.employedCount(),
       trend: 'stable',
     };
     return this.lastSnapshot;
+  }
+
+  /** Bir binada CALISAN isci sayisi; atama WorkforceSystem'in isidir. */
+  private employedCount(): number {
+    let employed = 0;
+    for (const building of this.state.buildings.values()) {
+      employed += building.assignedWorkers;
+    }
+    return employed;
   }
 
   /** Arayuze son durumu bildirir. */
@@ -177,35 +184,6 @@ export class PopulationSystem {
     const clamped = Math.min(Math.max(0, next), ceiling);
 
     this.state.setPopulation(clamped, clamped === next ? remainder : 0);
-  }
-
-  /**
-   * Vatandaslari binalara kurulus sirasiyla dagitir ve calisan sayisini
-   * dondurur.
-   *
-   * Kismi kadro kabul edilir: 4 isci isteyen bir ciftlige 2 vatandas
-   * dusuyorsa bina yarim verimle calisir. Boylece isci acigi tum sehri
-   * ayni anda felce ugratmaz, once en gec kurulan binalar zayiflar.
-   */
-  private assignWorkers(): number {
-    let remaining = this.state.population;
-    let employed = 0;
-
-    for (const building of this.state.buildings.values()) {
-      if (building.state !== 'active') {
-        if (building.assignedWorkers !== 0) this.state.setAssignedWorkers(building.uid, 0);
-        continue;
-      }
-
-      const need = levelOf(getBuilding(building.type), building.level)?.workerRequirement ?? 0;
-      const given = need > 0 ? Math.min(need, remaining) : 0;
-
-      if (building.assignedWorkers !== given) this.state.setAssignedWorkers(building.uid, given);
-      remaining -= given;
-      employed += given;
-    }
-
-    return employed;
   }
 }
 

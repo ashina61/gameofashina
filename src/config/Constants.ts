@@ -70,6 +70,15 @@ export const POPULATION_DECLINE_PER_MINUTE = 1;
 export const POPULATION_GROWTH_FOOD_THRESHOLD = 1;
 
 /**
+ * Bir iscinin atandigi binaya varmasi icin gereken tik sayisi.
+ *
+ * Sabittir: bu surumde mesafe hesabi, yol veya rota bulma yoktur. Amac
+ * atamanin ANINDA gerceklesmemesi - oyuncu isciyi yola cikardigini gorur.
+ * Isci varmadan uretime katkida bulunmaz.
+ */
+export const WORKER_TRAVEL_TICKS = 4;
+
+/**
  * Ayni anda islenebilecek azami insaat/yukseltme gorevi.
  * Slotlar doluyken gelen gorevler kuyruga alinir ve slot bosaldikca
  * FIFO sirasiyla devreye girer.
@@ -151,6 +160,9 @@ export const TextureKeys = {
   Pixel: 'ui-pixel',
   ButtonUp: 'ui-button-up',
   ButtonDown: 'ui-button-down',
+  WorkerIdle: 'worker-idle',
+  WorkerMoving: 'worker-moving',
+  WorkerWorking: 'worker-working',
 } as const;
 
 /** Kaynak turlerinin sabit sirasi - arayuzde tutarli siralama saglar. */

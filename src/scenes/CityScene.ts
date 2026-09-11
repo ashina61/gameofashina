@@ -12,9 +12,11 @@ import { allBuildings, getBuilding } from '@/config/BuildingCatalog';
 import { CameraController } from '@/input/CameraController';
 import { BuildingView } from '@/render/BuildingView';
 import { PlacementPreview } from '@/render/PlacementPreview';
+import { WorkerLayer } from '@/render/WorkerLayer';
 import { TERRAIN_TEXTURE, TILE_ORIGIN_Y } from '@/render/TextureFactory';
 import { PLACEMENT_MESSAGES } from '@/systems/BuildingSystem';
 import { UPGRADE_MESSAGES } from '@/systems/UpgradeSystem';
+import { WORKFORCE_MESSAGES } from '@/systems/WorkforceSystem';
 import { constructionProgress } from '@/systems/BuildingResolver';
 import { depthFor, gridToWorld, worldToGrid } from '@/utils/IsoUtils';
 import { getResolution, getWorld } from './BootScene';
@@ -33,6 +35,7 @@ export class CityScene extends Phaser.Scene {
   private world!: GameWorld;
   private camControl!: CameraController;
   private preview!: PlacementPreview;
+  private workers!: WorkerLayer;
 
   /** Bina uid -> gorsel eslemesi. */
   private readonly views = new Map<string, BuildingView>();
@@ -72,6 +75,7 @@ export class CityScene extends Phaser.Scene {
     this.drawTerrain();
     this.createSelectionMarker();
     this.preview = new PlacementPreview(this, this.artScale());
+    this.workers = new WorkerLayer(this, this.world.state, this.artScale());
     this.setupCamera();
     this.spawnExistingBuildings();
     this.bindWorldEvents();
@@ -79,10 +83,11 @@ export class CityScene extends Phaser.Scene {
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, this.teardown, this);
   }
 
-  override update(_time: number, delta: number): void {
+  override update(time: number, delta: number): void {
     this.world.update(delta);
     this.camControl.update(delta);
     this.updateActiveConstructionBars();
+    this.workers.update(time, delta);
   }
 
   // --- Kurulum -------------------------------------------------------------
@@ -213,6 +218,8 @@ export class CityScene extends Phaser.Scene {
     bus.on('ui:request-demolish', this.demolish, this);
     bus.on('ui:request-upgrade', this.upgrade, this);
     bus.on('ui:cancel-upgrade', this.cancelUpgrade, this);
+    bus.on('ui:assign-worker', this.assignWorker, this);
+    bus.on('ui:release-worker', this.releaseWorker, this);
   }
 
   // --- Girdi ---------------------------------------------------------------
@@ -349,6 +356,40 @@ export class CityScene extends Phaser.Scene {
     }
   }
 
+  /**
+   * Oyuncunun atama istegini WorkforceSystem'e iletir.
+   *
+   * Karar sistemindir; sahne yalnizca sonucu bildirir ve paneli tazeler.
+   * Basarili atamada isci HEMEN uretime katilmaz - once yola cikar.
+   */
+  private assignWorker(uid: string): void {
+    const result = this.world.workforce.assign(uid);
+    if (!result.ok) {
+      this.world.bus.emit('notify', WORKFORCE_MESSAGES[result.reason], 'error');
+      return;
+    }
+    this.refreshSelection(uid);
+    this.world.save();
+  }
+
+  /** Oyuncunun isciyi geri cekme istegini iletir. */
+  private releaseWorker(uid: string): void {
+    const result = this.world.workforce.release(uid);
+    if (!result.ok) {
+      this.world.bus.emit('notify', WORKFORCE_MESSAGES[result.reason], 'error');
+      return;
+    }
+    this.refreshSelection(uid);
+    this.world.save();
+  }
+
+  /** Secili bina buysa bilgi panelini yeniden cizdirir. */
+  private refreshSelection(uid: string): void {
+    if (this.selectedTile?.occupantUid === uid) {
+      this.world.bus.emit('tile:selected', this.selectedTile);
+    }
+  }
+
   private demolish(uid: string): void {
     const building = this.world.state.buildings.get(uid);
     if (!building) return;
@@ -464,6 +505,9 @@ export class CityScene extends Phaser.Scene {
     bus.off('ui:request-demolish', this.demolish, this);
     bus.off('ui:request-upgrade', this.upgrade, this);
     bus.off('ui:cancel-upgrade', this.cancelUpgrade, this);
+    bus.off('ui:assign-worker', this.assignWorker, this);
+    bus.off('ui:release-worker', this.releaseWorker, this);
     this.preview.destroy();
+    this.workers.destroy();
   }
 }

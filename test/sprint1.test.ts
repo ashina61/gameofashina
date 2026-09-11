@@ -353,18 +353,25 @@ describe('tik tabanli zaman', () => {
   });
 
   /**
-   * BILINEN SINIRLAMA (prototipten devralindi, bu sprintte degistirilmedi).
+   * BILINEN SINIRLAMA (prototipten devralindi) ve Sprint 8'de DARALDI.
    *
-   * Uretim, pencerenin SONUNDAKI orana gore toplu uygulanir. Pencere icinde
-   * bir bina tamamlanirsa, o binanin uretimi pencerenin tamamina uygulanmis
-   * olur. Bu yuzden ayni gercek sure farkli parca boyutlariyla islenirse
-   * sonuc birebir ayni olmaz.
+   * Toplu ilerletme, pencerenin sonundaki orani pencerenin tamamina uygular.
+   * Pencere icinde bir durum gecisi olursa toplu ve adim adim sonuclar
+   * ayrisir.
    *
-   * Pratik etkisi cevrimdisi telafiyle sinirlidir (60 tiklik parcalar).
-   * Sunucu otoritesi/lockstep hedefi icin bu davranisin duzeltilmesi gerekir:
-   * uretim, durum gecislerinde pencereyi bolerek uygulanmalidir.
+   * Sprint 8 oncesinde bu, INSAAT tamamlanmasi uzerinden de gorunuyordu:
+   * pencere icinde biten bir bina otomatik isci aldigi icin uretimi tum
+   * pencereye yayiliyordu. Artik uretim ACIK bir isci atamasi gerektiriyor
+   * ve atama pencere ortasinda kendiliginden olusamiyor; dolayisiyla biten
+   * bina hicbir yolda uretim yapmiyor. Geriye kalan tek gecis NUFUS
+   * buyumesidir.
+   *
+   * Olculdu (seed 555, 100 tik): toplu 3 vatandas / 148 yiyecek,
+   * adim adim 2 vatandas / 149.4 yiyecek. Fark yonu de degisti - toplu
+   * ilerletme artik daha COMERT degil, daha KALABALIK; fazla vatandas
+   * daha cok yiyor.
    */
-  it('pencere icinde bina tamamlanirsa parca boyutu sonucu etkiler', () => {
+  it('gecis iceren pencerede toplu ilerletme adim adim ile ortusmez', () => {
     const bulk = makeWorld(555);
     const step = makeWorld(555);
     for (const w of [bulk, step]) {
@@ -377,8 +384,10 @@ describe('tik tabanli zaman', () => {
     for (let i = 0; i < 100; i += 1) step.simulation.advance(1);
 
     expect(bulk.state.tick).toBe(step.state.tick);
-    // Toplu ilerletme daha comert: biten binanin uretimi tum pencereye yayilir.
-    expect(bulk.state.resources.food).toBeGreaterThan(step.state.resources.food);
+    // Kalan gecis nufus buyumesidir; toplu ilerletme daha cok vatandas uretir.
+    expect(bulk.state.population).toBeGreaterThan(step.state.population);
+    // Ve bu vatandaslar yedigi icin yiyecek daha dusuk kalir.
+    expect(bulk.state.resources.food).toBeLessThan(step.state.resources.food);
   });
 
   it('SimulationClock artan kesri devreder, zaman kaybolmaz', () => {

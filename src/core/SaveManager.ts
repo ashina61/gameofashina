@@ -19,6 +19,8 @@ import type {
   ResourceAmounts,
   ResourcePool,
   SaveData,
+  WorkerRecord,
+  WorkerState,
 } from '@/types';
 import type { GameState } from './GameState';
 
@@ -118,7 +120,67 @@ export function migrateAndSanitize(input: unknown): SaveData | null {
     buildings,
     terrainSeed: data.terrainSeed,
     population: sanitizePopulation(data.population, buildings),
+    workers: sanitizeWorkerRecords(data.workers, buildings),
   };
+}
+
+/**
+ * Iscileri dogrular; alan yoksa eski kayittan turetir.
+ *
+ * Sprint 8 oncesi kayitlarda isci KAYDI yoktu - yalnizca bina basina bir
+ * sayi vardi ve dagitim her tik otomatik yapiliyordu. O kaydi iscisiz
+ * yuklemek, oyuncunun sehrini bir anda issiz birakirdi. Bu yuzden eski
+ * kayit icin isciler assignedWorkers'tan URETILIR: her bina kendi
+ * calisanlarini geri alir, kalan nufus bosta baslar.
+ *
+ * Bozuk kayitlar sessizce tasinmaz: bilinmeyen durum, taninmayan bina
+ * referansi veya gecersiz ilerleme degeri duzeltilir.
+ */
+function sanitizeWorkerRecords(input: unknown, buildings: BuildingInstance[]): WorkerRecord[] {
+  const known = new Set(buildings.map((b) => b.uid));
+
+  if (!Array.isArray(input)) {
+    const derived: WorkerRecord[] = [];
+    let counter = 0;
+    for (const building of buildings) {
+      const count = Math.max(0, Math.trunc(building.assignedWorkers));
+      for (let i = 0; i < count; i += 1) {
+        counter += 1;
+        derived.push({ id: `w#${counter}`, buildingUid: building.uid, state: 'working', travel: 1 });
+      }
+    }
+    return derived;
+  }
+
+  const workers: WorkerRecord[] = [];
+  const seen = new Set<string>();
+  let fallback = 0;
+
+  for (const entry of input) {
+    if (typeof entry !== 'object' || entry === null) continue;
+    const raw = entry as Record<string, unknown>;
+
+    fallback += 1;
+    const id = typeof raw.id === 'string' && raw.id.length > 0 ? raw.id : `w#${fallback}`;
+    if (seen.has(id)) continue;
+    seen.add(id);
+
+    // Taninmayan binaya atanmis isci bosa cikar; sahipsiz referans kalmaz.
+    const uid = typeof raw.buildingUid === 'string' && known.has(raw.buildingUid) ? raw.buildingUid : null;
+    const state = isWorkerState(raw.state) && uid ? raw.state : 'idle';
+    const travel =
+      state === 'moving' && typeof raw.travel === 'number' && Number.isFinite(raw.travel)
+        ? Math.min(1, Math.max(0, raw.travel))
+        : 1;
+
+    workers.push({ id, buildingUid: state === 'idle' ? null : uid, state, travel });
+  }
+
+  return workers;
+}
+
+function isWorkerState(value: unknown): value is WorkerState {
+  return value === 'idle' || value === 'moving' || value === 'working';
 }
 
 /**

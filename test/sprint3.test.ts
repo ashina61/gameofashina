@@ -15,7 +15,7 @@ import {
   SAVE_VERSION,
 } from '@/config/Constants';
 import { GRID_SIZE } from '@/config/Constants';
-import { grant, makeWorld, wrap } from './helpers';
+import { grant, makeWorld, staff, staffAll, wrap } from './helpers';
 import type { TestWorld } from './helpers';
 import type { BuildingId, BuildingInstance } from '@/types';
 
@@ -198,6 +198,8 @@ describe('aclik', () => {
     world.buildings.place('farm', c.gx + 1, c.gy);
     settlePopulation(world);
 
+    staffAll(world);
+    world.simulation.advance(1);
     const fedRate = world.economy.snapshot.netPerMinute.wood;
     grant(world, { food: 0 });
     world.simulation.advance(1);
@@ -222,8 +224,10 @@ describe('isci dagitimi', () => {
     if (!farm.ok) throw new Error('kurulum basarisiz');
     settlePopulation(world);
 
+    // Sprint 8: atama artik OTOMATIK degil, oyuncunun komutu.
+    expect(farm.building.assignedWorkers).toBe(0);
+    staff(world, farm.building.uid);
     expect(farm.building.assignedWorkers).toBe(2); // ciftlik seviye 1: 2 isci
-    expect(world.population.snapshot.employed).toBe(2);
   });
 
   it('isci istemeyen bina isci almaz', () => {
@@ -245,8 +249,13 @@ describe('isci dagitimi', () => {
     const third = placeAnywhere(world, 'farm'); // 2 isci
     settlePopulation(world);
 
-    // Toplam ihtiyac 7, kapasite 5: erken kurulanlar once dolar.
+    // Toplam ihtiyac 7, kapasite 5. Sprint 8'den beri sira OTOMATIK degil;
+    // oyuncu hangi binayi doldurdugunu kendi secer. Once ilk ikisi doldurulur,
+    // ucuncuye isci kalmaz.
     expect(world.state.population).toBe(5);
+    staff(world, first.uid);
+    staff(world, second.uid);
+    staff(world, third.uid);
     expect(first.assignedWorkers).toBe(2);
     expect(second.assignedWorkers).toBe(3);
     expect(third.assignedWorkers).toBe(0);
@@ -256,9 +265,12 @@ describe('isci dagitimi', () => {
     const world = makeWorld();
     const c = area(world.state);
     world.buildings.place('house', c.gx, c.gy);
-    placeAnywhere(world, 'farm'); // 2 isci
+    const farm = placeAnywhere(world, 'farm'); // 2 isci
     const second = placeAnywhere(world, 'quarry'); // 4 isci
     settlePopulation(world);
+    // Once ciftlik doldurulur, kalan 3 isci tasocagina gider: kismi kadro.
+    staff(world, farm.uid);
+    staff(world, second.uid);
 
     // 5 vatandas: ciftlik 2, tasocagi 3/4 -> kismi kadro.
     const resolved = resolveBuilding(second, getBuilding('quarry'), world.state.tick);
@@ -293,14 +305,18 @@ describe('isci dagitimi', () => {
     const first = placeAnywhere(world, 'farm');
     const second = placeAnywhere(world, 'quarry');
     settlePopulation(world);
+    staff(world, first.uid);
+    staff(world, second.uid);
     expect(second.assignedWorkers).toBe(3);
 
     world.buildings.demolish(first.uid);
     world.simulation.advance(1);
 
-    // Ciftligin 2 iscisi tasocagina gecti: 5 vatandasin tamami orada.
+    // Ciftligin iscileri BOSA cikar - Sprint 8'den beri otomatik olarak
+    // baska binaya gecmezler; oyuncu yeniden atar.
+    expect(world.workforce.idleCount).toBeGreaterThanOrEqual(2);
+    staff(world, second.uid);
     expect(second.assignedWorkers).toBe(4);
-    expect(world.population.snapshot.employed).toBe(4);
   });
 
   /**
@@ -399,11 +415,12 @@ describe('kadro uretime baglandi', () => {
 
   it('efficiency artik kadro dolulugunu bildirir', () => {
     const world = makeWorld();
-    const c = area(world.state);
-    world.buildings.place('house', c.gx, c.gy);
+    placeAnywhere(world, 'house');
     placeAnywhere(world, 'quarry'); // 4 isci
     placeAnywhere(world, 'farm'); // 2 isci
     settlePopulation(world);
+    staffAll(world);
+    world.simulation.advance(1);
 
     const snap = world.economy.snapshot;
     expect(snap.workersNeeded).toBe(6);
@@ -440,13 +457,14 @@ describe('nufus kaydi', () => {
     expect(after).toEqual(before);
   });
 
-  it('assignedWorkers kayittan degil nufustan turetilir', () => {
+  it('assignedWorkers kayittan gelen kurcalanmis degere guvenmez', () => {
     const world = makeWorld();
     const c = area(world.state);
     world.buildings.place('house', c.gx, c.gy);
     const farm = world.buildings.place('farm', c.gx + 1, c.gy);
     if (!farm.ok) throw new Error('kurulum basarisiz');
     settlePopulation(world);
+    staff(world, farm.building.uid);
 
     const save = world.state.toSave(SAVE_VERSION);
     // Kurcalanmis kayit: nufusun tasiyamayacagi kadar isci yazilmis.
@@ -454,6 +472,7 @@ describe('nufus kaydi', () => {
 
     const reloaded = wrap(GameState.fromSave(save));
     const reloadedFarm = [...reloaded.state.buildings.values()].find((b) => b.type === 'farm');
+    // Sayac gercek isci KAYITLARINDAN yeniden kurulur, kayittaki sayidan degil.
     expect(reloadedFarm?.assignedWorkers).toBe(2);
   });
 

@@ -102,6 +102,36 @@ export interface BuildingDefinition {
  */
 export type BuildingState = 'constructing' | 'active' | 'disabled' | 'damaged';
 
+/**
+ * Bir iscinin durumu.
+ *
+ *   idle    bosta, herhangi bir binaya atanmamis
+ *   moving  atandi, hedef binaya yolda
+ *   working binada calisiyor - URETIME ancak bu durumda katkida bulunur
+ */
+export type WorkerState = 'idle' | 'moving' | 'working';
+
+/**
+ * Tek bir isci.
+ *
+ * Isciler Sprint 8'e kadar yalnizca SAYIydi; bina basina bir tam sayi
+ * tutuluyordu ve dagitim her tik otomatik yapiliyordu. Artik her isci
+ * kendi kimligi, isi ve yolculuk durumu olan bir kayittir - boylece
+ * oyuncu kimin nerede calistigini yonetebilir.
+ */
+export interface WorkerRecord {
+  id: string;
+  /** Atandigi binanin uid'i; bosta ise null. */
+  buildingUid: string | null;
+  state: WorkerState;
+  /**
+   * Hedefe yolculuk ilerlemesi (0..1).
+   * moving disindaki durumlarda 1'dir. Gorsel konum bundan turetilir;
+   * konumun kendisi oyun durumunda TUTULMAZ.
+   */
+  travel: number;
+}
+
 /** Bir insaat gorevinin turu. */
 export type ConstructionKind = 'build' | 'upgrade';
 
@@ -279,6 +309,7 @@ export interface SaveData {
   tick: number;
   resources: ResourcePool;
   buildings: BuildingInstance[];
+  workers: WorkerRecord[];
   terrainSeed: number;
   /**
    * Sehirdeki vatandas sayisi.
@@ -305,6 +336,18 @@ export interface EconomySnapshot {
   efficiency: number;
   /** Nufusun bu tikteki yonu; arayuz bunu gosterir. */
   growth: PopulationTrend;
+}
+
+/** Is gucunun anlik ozeti; arayuz bunu gosterir. */
+export interface WorkforceSnapshot {
+  /** Toplam isci sayisi (nufusa esittir). */
+  total: number;
+  /** Hicbir binaya atanmamis isci sayisi. */
+  idle: number;
+  /** Yolda olan isci sayisi. */
+  moving: number;
+  /** Binasinda calisan isci sayisi - uretime katkida bulunanlar. */
+  working: number;
 }
 
 /** Nufusun gidisati. */

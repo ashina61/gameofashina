@@ -5,6 +5,7 @@ import type {
   PopulationSnapshot,
   ResourcePool,
   TileData,
+  WorkforceSnapshot,
 } from '@/types';
 
 /**
@@ -15,6 +16,8 @@ export interface GameEvents {
   'resources:changed': [resources: ResourcePool, capacity: number];
   'economy:updated': [snapshot: EconomySnapshot];
   'population:updated': [snapshot: PopulationSnapshot];
+  /** Isci atamasi degisti (atama, geri alma, varis). */
+  'workforce:changed': [snapshot: WorkforceSnapshot];
   'building:placed': [building: BuildingInstance];
   'building:completed': [building: BuildingInstance];
   'building:removed': [building: BuildingInstance];
@@ -38,6 +41,10 @@ export interface GameEvents {
   'ui:request-demolish': [uid: string];
   'ui:request-upgrade': [uid: string];
   'ui:cancel-upgrade': [uid: string];
+  /** Oyuncu bu binaya bosta bir isci yollamak istiyor. */
+  'ui:assign-worker': [uid: string];
+  /** Oyuncu bu binadan bir isciyi geri cekmek istiyor. */
+  'ui:release-worker': [uid: string];
 }
 
 type EventName = keyof GameEvents;

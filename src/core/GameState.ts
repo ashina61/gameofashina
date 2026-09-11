@@ -9,6 +9,8 @@ import type {
   ResourceKey,
   ResourcePool,
   SaveData,
+  WorkerRecord,
+  WorkerState,
 } from '@/types';
 
 /** Kayit yuklenirken atilan bir kaydin nedeni. */
@@ -84,6 +86,19 @@ export class GameState {
    */
   private growthUnits = 0;
 
+  /**
+   * Sehrin iscileri.
+   *
+   * Sayi degil KAYIT tutulur: her iscinin kendi kimligi, isi ve yolculuk
+   * durumu vardir, boylece oyuncu kimin nerede calistigini yonetebilir.
+   * Koleksiyon disaridan degistirilemez; WorkforceSystem'in kontrollu
+   * metotlari uzerinden degisir.
+   */
+  private readonly workerList: WorkerRecord[] = [];
+
+  /** Benzersiz isci kimligi uretmek icin artan sayac. */
+  private workerCounter = 0;
+
   constructor(terrainSeed: number, resources?: ResourcePool) {
     this.grid = new GridMap(terrainSeed);
     this.resourcePool = resources ? { ...resources } : { ...STARTING_RESOURCES };
@@ -123,6 +138,11 @@ export class GameState {
   /** Bekleyen nufus degisimi (birim); yalnizca PopulationSystem kullanir. */
   get populationProgress(): number {
     return this.growthUnits;
+  }
+
+  /** Isci koleksiyonu - ekleme/silme disaridan yapilamaz. */
+  get workers(): readonly WorkerRecord[] {
+    return this.workerList;
   }
 
   /** Verilen turden kac adet bina oldugunu dondurur (insaattakiler dahil). */
@@ -186,6 +206,42 @@ export class GameState {
     const building = this.buildingMap.get(uid);
     if (!building) return;
     building.level = Number.isFinite(level) ? Math.max(1, Math.trunc(level)) : 1;
+  }
+
+  /** Yeni bir isci ekler ve kaydini dondurur. */
+  addWorker(): WorkerRecord {
+    this.workerCounter += 1;
+    const worker: WorkerRecord = {
+      id: `w#${this.workerCounter}`,
+      buildingUid: null,
+      state: 'idle',
+      travel: 1,
+    };
+    this.workerList.push(worker);
+    return worker;
+  }
+
+  /** Kayittan gelen bir isciyi oldugu gibi ekler. */
+  acceptSavedWorker(worker: WorkerRecord): void {
+    this.workerList.push(worker);
+    const numeric = Number.parseInt(worker.id.replace(/^\D+/, ''), 10);
+    if (Number.isFinite(numeric) && numeric > this.workerCounter) this.workerCounter = numeric;
+  }
+
+  /** Son isciyi kaldirir ve dondurur; koleksiyon bossa null. */
+  removeWorker(id: string): WorkerRecord | null {
+    const index = this.workerList.findIndex((w) => w.id === id);
+    if (index < 0) return null;
+    return this.workerList.splice(index, 1)[0] ?? null;
+  }
+
+  /** Bir iscinin isini ve durumunu belirler. */
+  setWorkerJob(id: string, buildingUid: string | null, state: WorkerState, travel: number): void {
+    const worker = this.workerList.find((w) => w.id === id);
+    if (!worker) return;
+    worker.buildingUid = buildingUid;
+    worker.state = state;
+    worker.travel = Number.isFinite(travel) ? Math.min(1, Math.max(0, travel)) : 0;
   }
 
   /** Binaya atanan isci sayisini belirler; negatif olamaz. */
@@ -258,6 +314,11 @@ export class GameState {
     state.rebuildIndexes();
     state.setPopulation(save.population);
 
+    // Isciler oldugu gibi geri yuklenir; is atamasi oyuncunun karari oldugu
+    // icin turetilmez. Gecersiz bina referanslari WorkforceSystem tarafindan
+    // yukleme sonrasi temizlenir.
+    for (const worker of save.workers) state.acceptSavedWorker(worker);
+
     // Sira sayaci, yuklenen gorevlerin en yukseginin uzerinden devam etmeli;
     // aksi halde yeni gorevler kuyrukta eski gorevlerin onune gecerdi.
     for (const building of state.buildingMap.values()) {
@@ -277,6 +338,7 @@ export class GameState {
       tick: this.currentTick,
       resources: { ...this.resourcePool },
       buildings: [...this.buildingMap.values()].map((b) => ({ ...b })),
+      workers: this.workerList.map((w) => ({ ...w })),
       terrainSeed: this.grid.seed,
       population: this.citizens,
     };

@@ -3,6 +3,7 @@ import type { GameState } from './GameState';
 import type { ConstructionSystem } from '@/systems/ConstructionSystem';
 import type { EconomySystem } from '@/systems/EconomySystem';
 import type { PopulationSystem } from '@/systems/PopulationSystem';
+import type { WorkforceSystem } from '@/systems/WorkforceSystem';
 
 /**
  * Simulasyon orkestratoru: tik sayacini ilerleten TEK yer.
@@ -15,8 +16,9 @@ import type { PopulationSystem } from '@/systems/PopulationSystem';
  * ADIM SIRASI (prototipteki davranisi korur)
  *   1. Tik sayaci ilerler.
  *   2. Tamamlanma tikine ulasan insaat/yukseltme gorevleri uygulanir.
- *   3. Nufus buyur/azalir ve isciler binalara dagitilir.
- *   4. Uretim, adim 3'ten SONRAKI kadroya gore hesaplanip uygulanir.
+ *   3. Nufus buyur veya azalir.
+ *   4. Is gucu hizalanir ve yoldaki isciler ilerler.
+ *   5. Uretim, adim 4'ten SONRAKI kadroya gore hesaplanip uygulanir.
  *
  * Bu sira sayesinde pencerede tamamlanan bir bina o pencerenin uretimine
  * dahil olur - Sprint 1 ve prototip ile ayni sonuc. Nufus uretimden ONCE
@@ -29,17 +31,20 @@ export class Simulation {
   private readonly state: GameState;
   private readonly construction: ConstructionSystem;
   private readonly population: PopulationSystem;
+  private readonly workforce: WorkforceSystem;
   private readonly economy: EconomySystem;
 
   constructor(
     state: GameState,
     construction: ConstructionSystem,
     population: PopulationSystem,
+    workforce: WorkforceSystem,
     economy: EconomySystem,
   ) {
     this.state = state;
     this.construction = construction;
     this.population = population;
+    this.workforce = workforce;
     this.economy = economy;
   }
 
@@ -52,6 +57,10 @@ export class Simulation {
     this.state.advanceTick(whole);
     this.construction.advance(options);
     this.population.advance(whole, options);
+    // Once yeni/giden isciler hizalanir, sonra yoldakiler ilerler; boylece
+    // ayni pencerede varan isci o pencerenin uretimine katilir.
+    this.workforce.reconcile();
+    this.workforce.advance(whole, options);
     this.economy.advance(whole, options);
   }
 
@@ -81,6 +90,7 @@ export class Simulation {
     }
 
     this.population.publish();
+    this.workforce.publishChange();
     this.economy.publish();
     return totalTicks;
   }

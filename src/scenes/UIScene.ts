@@ -5,6 +5,7 @@ import { resolveBuildPreview } from '@/systems/BuildingResolver';
 import { PLACEMENT_MESSAGES } from '@/systems/BuildingSystem';
 import { BuildMenu } from '@/ui/BuildMenu';
 import { InfoPanel } from '@/ui/InfoPanel';
+import type { WorkerPanelInfo } from '@/ui/InfoPanel';
 import { ResourceBar } from '@/ui/ResourceBar';
 import { Toast } from '@/ui/Toast';
 import { TouchButton } from '@/ui/TouchButton';
@@ -23,6 +24,7 @@ import type {
   EconomySnapshot,
   ResourcePool,
   TileData,
+  WorkforceSnapshot,
 } from '@/types';
 
 /**
@@ -86,6 +88,9 @@ export class UIScene extends Phaser.Scene {
       (uid) => this.world.bus.emit('ui:request-upgrade', uid),
       (uid) => this.world.bus.emit('ui:cancel-upgrade', uid),
       (cost) => this.world.resources.canAfford(cost),
+      (uid) => this.world.bus.emit('ui:assign-worker', uid),
+      (uid) => this.world.bus.emit('ui:release-worker', uid),
+      (uid) => this.workerInfoFor(uid),
     );
     this.toast = new Toast(this, width / 2, ResourceBar.height + 34);
 
@@ -173,12 +178,33 @@ export class UIScene extends Phaser.Scene {
     bus.on('notify', this.onNotify, this);
     bus.on('building:completed', this.onBuildingCompleted, this);
     bus.on('construction:completed', this.onConstructionCompleted, this);
+    bus.on('workforce:changed', this.onWorkforce, this);
+  }
+
+  /**
+   * Bilgi panelinin isci satiri icin gerekli sayilari toplar.
+   * Hepsi WorkforceSystem'den gelir; arayuz kendi hesabini yapmaz.
+   */
+  private workerInfoFor(uid: string): WorkerPanelInfo {
+    return {
+      working: this.world.state.buildings.get(uid)?.assignedWorkers ?? 0,
+      claimed: this.world.workforce.claimedBy(uid),
+      capacity: this.world.workforce.capacityOf(uid),
+      idle: this.world.workforce.idleCount,
+    };
+  }
+
+  /** Isci durumu degisti: ust cubuk ve acik panel tazelenir. */
+  private onWorkforce(snapshot: WorkforceSnapshot): void {
+    this.resourceBar.updateWorkforce(snapshot);
+    this.infoPanel.refresh(this.world.tick);
   }
 
   /** Acilista mevcut durumu arayuze yansitir ve cevrimdisi kazanci bildirir. */
   private pushInitialState(): void {
     this.world.resources.emitChange();
     this.onEconomy(this.world.economy.snapshot);
+    this.resourceBar.updateWorkforce(this.world.workforce.snapshot);
 
     if (this.world.offlineSeconds > 60) {
       this.toast.show(
@@ -200,6 +226,14 @@ export class UIScene extends Phaser.Scene {
 
   private onEconomy(snapshot: EconomySnapshot): void {
     this.resourceBar.updateEconomy(snapshot);
+    /*
+     * Isci sayaci her tikte de tazelenir.
+     *
+     * workforce:changed yalnizca ATAMA degistiginde yayinlanir; nufus buyuyup
+     * yeni bir isci bosta dogdugunda degil. O olay olmadan ust cubuktaki
+     * "Bosta N isci" bir sonraki atamaya kadar bayat kalirdi.
+     */
+    this.resourceBar.updateWorkforce(this.world.workforce.snapshot);
   }
 
   private onTileSelected(tile: TileData | null): void {
@@ -368,6 +402,7 @@ export class UIScene extends Phaser.Scene {
     bus.off('notify', this.onNotify, this);
     bus.off('building:completed', this.onBuildingCompleted, this);
     bus.off('construction:completed', this.onConstructionCompleted, this);
+    bus.off('workforce:changed', this.onWorkforce, this);
     this.stopResolutionWatch?.();
     this.stopResolutionWatch = null;
     this.scale.off(Phaser.Scale.Events.RESIZE, this.onResize, this);

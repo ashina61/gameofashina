@@ -7,7 +7,7 @@
 import { describe, expect, it } from 'vitest';
 import { GameState } from '@/core/GameState';
 import { SAVE_VERSION } from '@/config/Constants';
-import { makeWorld } from './helpers';
+import { makeWorld, staffAll } from './helpers';
 
 /** Merkezdeki temizlenmis alan her zaman insa edilebilir. */
 function startArea(state: GameState) {
@@ -114,13 +114,17 @@ describe('ekonomi matematigi', () => {
    * Buyume asamasindaki davranis sprint3 testlerinde.
    */
   it('sehir merkezi + ev + ciftlik: bilinen denge', () => {
-    const { state, buildings, economy, simulation } = makeWorld();
+    const world = makeWorld();
+    const { state, buildings, economy, simulation } = world;
     const c = startArea(state);
     buildings.place('town_hall', c.gx - 2, c.gy - 2);
     buildings.place('house', c.gx, c.gy);
     buildings.place('farm', c.gx + 1, c.gy);
 
     simulation.advanceSeconds(400); // insaatlar bitsin ve nufus dolsun
+    // Sprint 8: uretim icin isci ATANMALI; atama artik otomatik degil.
+    staffAll(world);
+    simulation.advance(1);
     const snap = economy.snapshot;
 
     expect(snap.populationCapacity).toBe(9); // 4 (merkez) + 5 (ev)

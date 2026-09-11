@@ -9,6 +9,7 @@ import { ConstructionSystem } from '@/systems/ConstructionSystem';
 import { EconomySystem } from '@/systems/EconomySystem';
 import { PopulationSystem } from '@/systems/PopulationSystem';
 import { ResourceSystem } from '@/systems/ResourceSystem';
+import { WorkforceSystem } from '@/systems/WorkforceSystem';
 import { UpgradeSystem } from '@/systems/UpgradeSystem';
 
 /**
@@ -28,6 +29,7 @@ export class GameWorld {
   readonly buildings: BuildingSystem;
   readonly upgrades: UpgradeSystem;
   readonly population: PopulationSystem;
+  readonly workforce: WorkforceSystem;
   readonly economy: EconomySystem;
   readonly simulation: Simulation;
 
@@ -50,13 +52,33 @@ export class GameWorld {
     this.buildings = new BuildingSystem(state, this.resources, this.construction, this.bus);
     this.upgrades = new UpgradeSystem(state, this.resources, this.construction);
     this.population = new PopulationSystem(state, this.resources, this.bus);
+    this.workforce = new WorkforceSystem(state, this.bus);
     this.economy = new EconomySystem(state, this.resources, this.population, this.bus);
-    this.simulation = new Simulation(state, this.construction, this.population, this.economy);
+    this.simulation = new Simulation(
+      state,
+      this.construction,
+      this.population,
+      this.workforce,
+      this.economy,
+    );
 
-    // assignedWorkers turetilmis durumdur: kayittan gelen degere guvenilmez,
-    // nufustan bastan kurulur. Bu, ilk tikten once yapilmalidir ki cevrimdisi
-    // telafinin ilk penceresi de dogru kadroyla uretsin.
+    // Isci kayitlari nufusla hizalanir ve gecersiz atamalar temizlenir.
+    // Ilk tikten once yapilmalidir ki cevrimdisi telafinin ilk penceresi de
+    // dogru kadroyla uretsin.
+    this.workforce.reconcile();
     this.population.rebuildFromState();
+
+    /*
+     * Bina yikilinca iscileri ANINDA bosa cikar.
+     *
+     * reconcile() zaten bir sonraki tikte ayni temizligi yapar (kapasitesi
+     * olmayan binadaki isciler birakilir), ama oyuncu yikim dugmesine
+     * bastiginda sonucu beklemeden gormeli. Olay uzerinden baglamak,
+     * BuildingSystem'e yeni bir bagimlilik eklemeden bunu saglar.
+     */
+    this.bus.on('building:removed', (building) => {
+      this.workforce.releaseAll(building.uid);
+    });
 
     this.offlineSeconds =
       offlineSeconds > 0 ? this.simulation.applyOfflineProgress(offlineSeconds) : 0;
