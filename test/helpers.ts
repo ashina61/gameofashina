@@ -13,6 +13,7 @@ import { BuildingSystem } from '@/systems/BuildingSystem';
 import { UpgradeSystem } from '@/systems/UpgradeSystem';
 import { EconomySystem } from '@/systems/EconomySystem';
 import { PopulationSystem } from '@/systems/PopulationSystem';
+import { NavigationSystem } from '@/systems/NavigationSystem';
 import { WorkforceSystem } from '@/systems/WorkforceSystem';
 
 export interface TestWorld {
@@ -23,6 +24,7 @@ export interface TestWorld {
   buildings: BuildingSystem;
   upgrades: UpgradeSystem;
   population: PopulationSystem;
+  navigation: NavigationSystem;
   workforce: WorkforceSystem;
   economy: EconomySystem;
   simulation: Simulation;
@@ -42,7 +44,8 @@ export function wrap(state: GameState): TestWorld {
   const buildings = new BuildingSystem(state, resources, construction, bus);
   const upgrades = new UpgradeSystem(state, resources, construction);
   const population = new PopulationSystem(state, resources, bus);
-  const workforce = new WorkforceSystem(state, bus);
+  const navigation = new NavigationSystem(state.grid);
+  const workforce = new WorkforceSystem(state, bus, navigation);
   const economy = new EconomySystem(state, resources, population, bus);
   const simulation = new Simulation(state, construction, population, workforce, economy);
 
@@ -51,6 +54,7 @@ export function wrap(state: GameState): TestWorld {
   workforce.reconcile();
   population.rebuildFromState();
   bus.on('building:removed', (building) => workforce.releaseAll(building.uid));
+  bus.on('building:placed', () => workforce.reroute());
 
   return {
     state,
@@ -60,6 +64,7 @@ export function wrap(state: GameState): TestWorld {
     buildings,
     upgrades,
     population,
+    navigation,
     workforce,
     economy,
     simulation,

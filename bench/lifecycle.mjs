@@ -13,6 +13,26 @@ import { chromium } from '/opt/node22/lib/node_modules/playwright/index.mjs';
 
 const URL = process.argv[2] ?? 'http://127.0.0.1:5191/';
 const DPR = Number(process.argv[3] ?? 1);
+/** src/config/Constants.ts ile ayni deger; tik basina azami adim. */
+const WORKER_SPEED = 60;
+
+/**
+ * Iki ornek arasindaki yer degistirmeyi GECEN TIKE boler.
+ *
+ * Betik elle advance(1) cagirirken oyunun kendi saati de arka planda
+ * calisiyor: ornekler arasinda gercek zaman gectigi icin bazen iki tik
+ * birden isleniyor. Ham yer degistirmeyi hiz sinirina vurmak bu yuzden
+ * yanlis alarm veriyordu (olculdu: DPR 2'de 58, 58, 117, 58 - yani
+ * 2x58). Tik farkina bolmek olcumu gercek hiza cevirir.
+ */
+function perTickSteps(track) {
+  const out = [];
+  for (let i = 1; i < track.length; i += 1) {
+    const ticks = Math.max(1, (track[i].tick ?? 0) - (track[i - 1].tick ?? 0));
+    out.push(Math.hypot(track[i].x - track[i - 1].x, track[i].y - track[i - 1].y) / ticks);
+  }
+  return out;
+}
 
 const b = await chromium.launch();
 const ctx = await b.newContext({
@@ -64,6 +84,7 @@ const readWorker = (id) => W((wid) => {
   const total = x.travelTicks;
   const done = x.state === 'moving' && total > 0 ? (total - x.travelLeft) / total : 1;
   return {
+    tick: w.state.tick,
     state: x.state,
     uid: x.buildingUid,
     slot: x.slot,
@@ -110,12 +131,19 @@ for (let i = 0; i < 3 && step && step.state === 'moving'; i += 1) {
 }
 const moved = track.length > 1 && track.some((p, i) =>
   i > 0 && (Math.abs(p.x - track[i - 1].x) > 0.5 || Math.abs(p.y - track[i - 1].y) > 0.5));
-// Her adim hedefe YAKLASMALI - geri sicrama olmamali.
-const distances = track.map((p) => Math.hypot(p.toX - p.x, p.toY - p.y));
-const monotonic = distances.every((d, i) => i === 0 || d <= distances[i - 1] + 1e-6);
-check('2', 'isci gozle gorulur sekilde YURUYOR (geri sicrama yok)',
-  moved && monotonic && track[0].total > 1,
-  `sure=${track[0].total} tik, hedefe uzaklik ${distances.map((d) => d.toFixed(0)).join(' -> ')}`);
+/*
+ * ISINLANMA OLCUTU: tek bir tikte atilan adim WORKER_SPEED'i asmamali.
+ *
+ * Once "mevcut hedefe uzaklik hep azalmali" diye olcuyordum. Sprint 10'da
+ * rota COK BACAKLI oldu: bacak degisince "mevcut hedef" bir sonraki ara
+ * noktaya kayiyor ve uzaklik dogal olarak artiyor. O olcut artik dogru
+ * olani (surekli hareket) degil, eski tek bacakli varsayimi sinardi.
+ */
+const steps = perTickSteps(track);
+const bounded = steps.every((d) => d <= WORKER_SPEED + 1e-6);
+check('2', 'isci gozle gorulur sekilde YURUYOR (tik basina adim sinirli)',
+  moved && bounded && track[0].total >= 1,
+  `ilk bacak=${track[0].total} tik, tik basina adim ${steps.map((d) => d.toFixed(0)).join(' -> ')} (sinir ${WORKER_SPEED})`);
 
 // --- 3. Isci binanin DISINDA duruyor -----------------------------------------
 await settle();
@@ -192,12 +220,13 @@ for (let i = 0; i < 4 && hs && hs.state === 'moving'; i += 1) {
 }
 await settle();
 const finalHome = await readWorker(released.id);
-const homeDist = homeTrack.map((p) => Math.hypot(p.toX - p.x, p.toY - p.y));
+const homeSteps = perTickSteps(homeTrack);
 check('8', 'geri alinan isci meydana YURUYEREK donuyor',
   released.left > 0 &&
-  homeDist.every((d, i) => i === 0 || d <= homeDist[i - 1] + 1e-6) &&
+  homeSteps.every((d) => d <= WORKER_SPEED + 1e-6) &&
   finalHome.state === 'idle',
-  `uzaklik ${homeDist.map((d) => d.toFixed(0)).join(' -> ')}, son durum=${finalHome.state}`);
+  `tik basina adim ${homeSteps.map((d) => d.toFixed(0)).join(' -> ')} ` +
+  `(sinir ${WORKER_SPEED}), son durum=${finalHome.state}`);
 
 // --- 9. YOLDAKI isciyi geri al: bulundugu yerden geri doner ------------------
 const uturn = await W((u) => {

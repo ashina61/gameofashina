@@ -72,11 +72,25 @@ for (const count of COUNTS) {
     for (const u of [...w.state.buildings.keys()]) {
       while (w.workforce.assign(u).ok) { /* kapasite dolana kadar */ }
     }
-    return { workers: w.state.workers.length, snap: w.workforce.snapshot };
+    return {
+      workers: w.state.workers.length,
+      snap: w.workforce.snapshot,
+      paths: w.workforce.pathQueryCount,
+    };
   }, count);
 
   await page.waitForTimeout(300);
+  const pathsBefore = await page.evaluate(() => {
+    const w = window.game.scene.getScene('CityScene').registry.get('world');
+    return w.workforce.pathQueryCount;
+  });
   const fps = await measureFps(page, SAMPLE_MS);
+  // Olcum penceresinde KAC rota hesaplandi? Kare basina hesap yapilmadigi
+  // iddiasinin olculebilir karsiligi budur.
+  const pathsDuring = await page.evaluate((before) => {
+    const w = window.game.scene.getScene('CityScene').registry.get('world');
+    return w.workforce.pathQueryCount - before;
+  }, pathsBefore);
 
   rows.push({
     isci: setup.workers,
@@ -84,6 +98,7 @@ for (const count of COUNTS) {
     calisan: setup.snap.working,
     bosta: setup.snap.idle,
     fps,
+    'rota/olcum': pathsDuring,
   });
   await ctx.close();
 }

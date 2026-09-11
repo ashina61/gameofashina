@@ -8,6 +8,7 @@ import { BuildingSystem } from '@/systems/BuildingSystem';
 import { ConstructionSystem } from '@/systems/ConstructionSystem';
 import { EconomySystem } from '@/systems/EconomySystem';
 import { PopulationSystem } from '@/systems/PopulationSystem';
+import { NavigationSystem } from '@/systems/NavigationSystem';
 import { ResourceSystem } from '@/systems/ResourceSystem';
 import { WorkforceSystem } from '@/systems/WorkforceSystem';
 import { UpgradeSystem } from '@/systems/UpgradeSystem';
@@ -29,6 +30,7 @@ export class GameWorld {
   readonly buildings: BuildingSystem;
   readonly upgrades: UpgradeSystem;
   readonly population: PopulationSystem;
+  readonly navigation: NavigationSystem;
   readonly workforce: WorkforceSystem;
   readonly economy: EconomySystem;
   readonly simulation: Simulation;
@@ -52,7 +54,9 @@ export class GameWorld {
     this.buildings = new BuildingSystem(state, this.resources, this.construction, this.bus);
     this.upgrades = new UpgradeSystem(state, this.resources, this.construction);
     this.population = new PopulationSystem(state, this.resources, this.bus);
-    this.workforce = new WorkforceSystem(state, this.bus);
+    // Gezilebilirlik GridMap'ten canli okunur; ayri bir engel kopyasi yok.
+    this.navigation = new NavigationSystem(state.grid);
+    this.workforce = new WorkforceSystem(state, this.bus, this.navigation);
     this.economy = new EconomySystem(state, this.resources, this.population, this.bus);
     this.simulation = new Simulation(
       state,
@@ -85,6 +89,18 @@ export class GameWorld {
      */
     this.bus.on('building:removed', (building) => {
       this.workforce.releaseAll(building.uid);
+    });
+
+    /*
+     * Yeni bina kurulunca yoldaki iscileri yeniden yonlendir.
+     *
+     * Gezilebilirlik GridMap'ten canli okundugu icin karo ayni anda
+     * kapanir, ama O AN yolda olan bir iscinin rotasi o karodan geciyor
+     * olabilirdi - yani isci yeni binanin icinden yururdu. Rota
+     * turetilmis veri oldugundan yeniden hesaplamak yeterli.
+     */
+    this.bus.on('building:placed', () => {
+      this.workforce.reroute();
     });
 
     this.offlineSeconds =
