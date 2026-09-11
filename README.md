@@ -114,6 +114,9 @@ src/
 │   ├── CityScene.ts         Harita ve binalarin cizimi, dokunmatik girdi
 │   └── UIScene.ts           Ayri kamerada calisan arayuz katmani
 ├── render/                  Cizim yardimcilari
+│   ├── ArtStyle.ts          Ortak sanat spesifikasyonu (palet, isik, golge)
+│   ├── BuildingArt.ts       Bina cizimleri (izometrik, tur basina siluet)
+│   ├── BuildingVisuals.ts   type/level/state -> gorsel eslemesi
 │   ├── ResolutionManager.ts DPR'ye duyarli tuval olcusu ve kamera telafisi
 │   ├── TextureFactory.ts    Tum dokulari calisma zamaninda uretir
 │   ├── BuildingView.ts      Bir binanin gorsel temsili

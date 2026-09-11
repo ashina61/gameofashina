@@ -1,7 +1,7 @@
 import type Phaser from 'phaser';
 import { TILE_HEIGHT, TextureKeys } from '@/config/Constants';
 import { depthFor, gridToWorld } from '@/utils/IsoUtils';
-import { buildingTextureKey } from './TextureFactory';
+import { getBuildingVisual } from './BuildingVisuals';
 import type {
   BuildingDefinition,
   BuildingInstance,
@@ -9,11 +9,8 @@ import type {
   ResolvedBuilding,
 } from '@/types';
 
-/** Insaat halindeki binanin solgun rengi. */
-const CONSTRUCTION_TINT = 0x9fc4e8;
-
-/** Sirada bekleyen gorevin daha soluk, renksiz tonu. */
-const QUEUED_TINT = 0x8f9298;
+/** Sirada bekleyen gorevin soluk tonu - is henuz baslamadi. */
+const QUEUED_TINT = 0x9aa0a6;
 
 /** Secili binanin vurgu rengi. */
 const SELECTED_TINT = 0xffe9a8;
@@ -45,32 +42,55 @@ export class BuildingView {
   private readonly barBackground: Phaser.GameObjects.Image;
   private readonly barFill: Phaser.GameObjects.Image;
   private readonly barWidth: number;
+  private readonly def: BuildingDefinition;
   /** Dolgunun tam genislikteki olcegi; ilerleme bunun kesridir. */
   private readonly fullScaleX: number;
 
   private selected = false;
+  /** Durum gorselinden gelen opaklik (devre disi bina soluktur). */
+  private stateAlpha = 1;
+  /** Durum gorselinden gelen renk carpani. */
+  private stateTint = 0xffffff;
   /** Devam eden gorevin turu; gorev yoksa null. */
   private taskKind: ConstructionKind | null = null;
   /** Devam eden gorev sirada mi bekliyor? */
   private taskQueued = false;
+
+  /**
+   * Dokular DPR olceginde uretilir; sprite bunun tersiyle olceklenir ki
+   * dunyadaki boyut degismesin. Tum olcek islemleri bu degeri taban alir.
+   */
+  private readonly baseScale: number;
 
   constructor(
     scene: Phaser.Scene,
     building: BuildingInstance,
     def: BuildingDefinition,
     resolved: ResolvedBuilding,
+    artScale = 1,
   ) {
     this.uid = building.uid;
+    this.baseScale = 1 / (artScale > 0 ? artScale : 1);
 
     // Binanin taban eskenar dortgeninin en on kosesi
     const anchor = gridToWorld(building.gx + def.size - 1, building.gy + def.size - 1);
     const y = anchor.y + TILE_HEIGHT / 2;
     const depth = depthFor(building.gx, building.gy, def.size);
 
+    const visual = getBuildingVisual({
+      type: building.type,
+      level: building.level,
+      state: building.state,
+      size: def.size,
+    });
+
     this.sprite = scene.add
-      .image(anchor.x, y, buildingTextureKey(def.id))
+      .image(anchor.x, y, visual.textureKey)
       .setOrigin(0.5, 1)
-      .setDepth(depth);
+      .setDepth(depth)
+      .setScale(this.baseScale);
+
+    this.def = def;
 
     this.barWidth = Math.max(36, def.size * 46);
     const barY = y - 6;
@@ -105,6 +125,29 @@ export class BuildingView {
     return this.taskKind !== null;
   }
 
+  /**
+   * Bina orneginin GORSELINI type/level/state'e gore tazeler.
+   *
+   * View burada "bu bina soyle cizilir" bilgisi tutmaz; kimligi
+   * BuildingVisuals'a sorar. Yukseltme bitince veya durum degisince
+   * cagrilir; doku bir kez degistirilir, her karede degil.
+   */
+  syncVisual(building: BuildingInstance): void {
+    const visual = getBuildingVisual({
+      type: building.type,
+      level: building.level,
+      state: building.state,
+      size: this.def.size,
+    });
+    if (this.sprite.texture.key !== visual.textureKey) {
+      this.sprite.setTexture(visual.textureKey);
+    }
+    this.stateAlpha = visual.alpha;
+    this.stateTint = visual.tint;
+    this.applyTint();
+    if (this.taskKind === null) this.sprite.setAlpha(this.stateAlpha);
+  }
+
   /** Hesaplanmis duruma gore gorunumu ayarlar (olusturma aninda). */
   applyResolved(resolved: ResolvedBuilding): void {
     if (resolved.construction) {
@@ -129,12 +172,18 @@ export class BuildingView {
     this.taskKind = kind;
     this.taskQueued = queued;
 
-    // Sirada bekleyen insaat, aktif insaattan daha soluk cizilir; oyuncu
-    // hangi santiyenin gercekten calistigini bakar bakmaz ayirt eder.
+    /*
+     * Insaat halindeki bina artik AYRI bir iskele gorseliyle cizilir.
+     * Eskiden bitmis bina solgunlastirilarak "yapim asamasinda" hissi
+     * veriliyordu; o solgunlastirma simdi iskelenin uzerine binince santiye
+     * hayalet gibi gorunuyordu. Aktif santiye tam opak cizilir, yalnizca
+     * KUYRUKTA bekleyen is soluk kalir - oyuncu hangi santiyenin gercekten
+     * calistigini bakar bakmaz ayirt eder.
+     */
     if (kind === 'build') {
-      this.sprite.setAlpha(queued ? 0.35 : 0.55);
+      this.sprite.setAlpha(queued ? 0.5 : 1);
     } else {
-      this.sprite.setAlpha(queued ? 0.8 : 1);
+      this.sprite.setAlpha((queued ? 0.8 : 1) * this.stateAlpha);
     }
     this.applyTint();
 
@@ -161,7 +210,7 @@ export class BuildingView {
     const hadTask = this.taskKind !== null;
     this.taskKind = null;
     this.taskQueued = false;
-    this.sprite.setAlpha(1);
+    this.sprite.setAlpha(this.stateAlpha);
     this.barBackground.setVisible(false);
     this.barFill.setVisible(false);
     this.applyTint();
@@ -173,11 +222,11 @@ export class BuildingView {
   private playCompletionPulse(): void {
     const scene = this.sprite.scene;
     scene.tweens.killTweensOf(this.sprite);
-    this.sprite.setScale(1.12, 0.88);
+    this.sprite.setScale(this.baseScale * 1.12, this.baseScale * 0.88);
     scene.tweens.add({
       targets: this.sprite,
-      scaleX: 1,
-      scaleY: 1,
+      scaleX: this.baseScale,
+      scaleY: this.baseScale,
       duration: 260,
       ease: 'Back.easeOut',
     });
@@ -205,12 +254,20 @@ export class BuildingView {
     this.barFill.destroy();
   }
 
-  /** Secim ve insaat vurgularini tek yerden uygular. */
+  /**
+   * Secim, insaat ve durum vurgularini tek yerden uygular.
+   *
+   * Oncelik: kuyrukta bekleyen is > secim > durum (devre disi) > normal.
+   * Insaat halindeki bina artik solgun bir BINA degil, ayri bir ISKELE
+   * gorseliyle cizildigi icin ayrica renklendirilmesine gerek yok.
+   */
   private applyTint(): void {
-    if (this.taskKind === 'build') {
-      this.sprite.setTint(this.taskQueued ? QUEUED_TINT : CONSTRUCTION_TINT);
+    if (this.taskKind === 'build' && this.taskQueued) {
+      this.sprite.setTint(QUEUED_TINT);
     } else if (this.selected) {
       this.sprite.setTint(SELECTED_TINT);
+    } else if (this.stateTint !== 0xffffff) {
+      this.sprite.setTint(this.stateTint);
     } else {
       this.sprite.clearTint();
     }

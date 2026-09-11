@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import { SceneKeys } from '@/config/Constants';
 import { generateTextures } from '@/render/TextureFactory';
+import { getResolution } from './BootScene';
 
 /**
  * Varliklarin hazirlandigi sahne.
@@ -13,7 +14,14 @@ export class PreloadScene extends Phaser.Scene {
   }
 
   create(): void {
-    generateTextures(this);
+    /*
+     * Dokular CIZIM olceginde uretilir. Sprint 5 arka tamponu DPR kadar
+     * buyuttu; dokular eski olcude kalsaydi tuvalden dusuk cozunurlukte
+     * olup o kazanci yutardi. Sahne tarafinda sprite 1/artScale ile
+     * olceklenir, yani dunyadaki boyut degismez.
+     */
+    const artScale = getResolution(this)?.dpr ?? 1;
+    generateTextures(this, artScale);
     hideBootSplash();
 
     this.scene.start(SceneKeys.City);

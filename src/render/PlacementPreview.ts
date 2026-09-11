@@ -1,7 +1,7 @@
 import type Phaser from 'phaser';
 import { TILE_HEIGHT, TextureKeys } from '@/config/Constants';
 import { depthFor, gridToWorld } from '@/utils/IsoUtils';
-import { buildingTextureKey } from './TextureFactory';
+import { visualKeyFor } from './BuildingVisuals';
 import type { BuildingDefinition } from '@/types';
 
 /**
@@ -10,19 +10,27 @@ import type { BuildingDefinition } from '@/types';
  */
 export class PlacementPreview {
   private readonly scene: Phaser.Scene;
+  /** Dokular DPR olceginde uretildigi icin hayalet de ayni oranda kucultulur. */
+  private readonly baseScale: number;
   private readonly ghost: Phaser.GameObjects.Image;
   private readonly cells: Phaser.GameObjects.Image[] = [];
   private def: BuildingDefinition | null = null;
 
-  constructor(scene: Phaser.Scene) {
+  constructor(scene: Phaser.Scene, artScale = 1) {
     this.scene = scene;
+    this.baseScale = 1 / (artScale > 0 ? artScale : 1);
     this.ghost = scene.add.image(0, 0, TextureKeys.TileHighlight).setOrigin(0.5, 1).setVisible(false);
   }
 
   /** Onizlemeyi belirli bir bina turu icin baslatir. */
   start(def: BuildingDefinition): void {
     this.def = def;
-    this.ghost.setTexture(buildingTextureKey(def.id)).setAlpha(0.65).setVisible(true);
+    // Hayalet, kurulacak binanin SEVIYE 1 gorselini gosterir.
+    this.ghost
+      .setTexture(visualKeyFor(def.id, 1))
+      .setScale(this.baseScale)
+      .setAlpha(0.65)
+      .setVisible(true);
     this.rebuildCells(def.size);
   }
 

@@ -71,7 +71,7 @@ export class CityScene extends Phaser.Scene {
 
     this.drawTerrain();
     this.createSelectionMarker();
-    this.preview = new PlacementPreview(this);
+    this.preview = new PlacementPreview(this, this.artScale());
     this.setupCamera();
     this.spawnExistingBuildings();
     this.bindWorldEvents();
@@ -180,6 +180,11 @@ export class CityScene extends Phaser.Scene {
   private fitZoom(): number {
     const target = this.logicalWidth() / (INITIAL_VISIBLE_TILES * TILE_WIDTH);
     return Phaser.Math.Clamp(target, MIN_ZOOM, 1);
+  }
+
+  /** Dokularin uretildigi cizim olcegi; sprite'lar bunun tersiyle olceklenir. */
+  private artScale(): number {
+    return this.resolution?.dpr ?? 1;
   }
 
   /** Kadraj hesaplarinda kullanilan mantiksal genislik (CSS pikseli). */
@@ -362,7 +367,7 @@ export class CityScene extends Phaser.Scene {
     if (this.views.has(building.uid)) return;
     const def = getBuilding(building.type);
     const resolved = this.world.buildings.resolve(building);
-    const view = new BuildingView(this, building, def, resolved);
+    const view = new BuildingView(this, building, def, resolved, this.artScale());
     this.views.set(building.uid, view);
 
     // Yalnizca ilerlemesi olan (aktif) gorevler animasyon kumesine girer;
@@ -408,7 +413,14 @@ export class CityScene extends Phaser.Scene {
   /** Gorev bitti: gorsel normale doner ve kumeden cikar. */
   private onConstructionCompleted(task: ConstructionTask): void {
     this.activeConstructionViews.delete(task.targetUid);
-    this.views.get(task.targetUid)?.endTask(true);
+    const view = this.views.get(task.targetUid);
+    view?.endTask(true);
+
+    // Gorsel burada tazelenir: insaat bitince iskele yerini binaya birakir,
+    // yukseltme bitince seviye 2 gorseline gecilir. Tek seferlik bir doku
+    // degisimidir, kare basina maliyet eklemez.
+    const building = this.world.state.buildings.get(task.targetUid);
+    if (building && view) view.syncVisual(building);
 
     if (this.selectedTile?.occupantUid === task.targetUid) {
       this.world.bus.emit('tile:selected', this.selectedTile);
