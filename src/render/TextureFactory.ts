@@ -7,6 +7,7 @@ import {
   MAX_VISUAL_LEVEL,
   isDrawnType,
   scaffoldKeyFor,
+  variantCountFor,
   visualKeyFor,
 } from './BuildingVisuals';
 import type { TerrainType } from '@/types';
@@ -78,12 +79,15 @@ export function generateTextures(scene: Phaser.Scene, artScale = 1): void {
 
   // Her bina turu icin seviye 1 ve 2 gorselleri ayri ayri pisirilir.
   for (const def of allBuildings()) {
+    const variants = variantCountFor(def.id);
     for (let level = 1; level <= MAX_VISUAL_LEVEL; level += 1) {
-      createArtTexture(scene, def.id, def.size, level, artScale);
+      for (let variant = 0; variant < variants; variant += 1) {
+        createArtTexture(scene, def.id, def.size, level, artScale, variant);
+      }
     }
   }
   // Taninmayan tur icin yedek gorsel ve her ayak izi olcusu icin iskele.
-  createArtTexture(scene, GENERIC_VISUAL, 1, 1, artScale);
+  createArtTexture(scene, GENERIC_VISUAL, 1, 1, artScale, 0);
   for (const size of collectFootprints()) {
     createScaffoldTexture(scene, size, artScale);
   }
@@ -116,8 +120,9 @@ function createArtTexture(
   size: number,
   level: number,
   artScale: number,
+  variant: number,
 ): void {
-  const key = visualKeyFor(type, level);
+  const key = visualKeyFor(type, level, variant);
   if (scene.textures.exists(key)) return;
 
   const canvas = artCanvasFor(type, size, level);
@@ -125,7 +130,7 @@ function createArtTexture(
 
   const g = scene.make.graphics({ x: 0, y: 0 }, false);
   g.scale = artScale;
-  drawer(g, canvas, level);
+  drawer(g, canvas, level, variant);
   g.generateTexture(key, Math.ceil(canvas.width * artScale), Math.ceil(canvas.height * artScale));
   g.destroy();
 }

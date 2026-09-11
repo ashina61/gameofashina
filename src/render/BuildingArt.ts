@@ -32,16 +32,24 @@ export interface ArtCanvas {
 }
 
 /** Bir binanin belirli seviyedeki cizimi. */
-export type ArtDrawer = (g: Phaser.GameObjects.Graphics, c: ArtCanvas, level: number) => void;
+export type ArtDrawer = (
+  g: Phaser.GameObjects.Graphics,
+  c: ArtCanvas,
+  level: number,
+  variant?: number,
+) => void;
 
 /** Binanin govde yuksekligi; doku boyutunu bu belirler. */
 const BODY_HEIGHT: Record<DrawnBuildingType | typeof GENERIC_VISUAL, [number, number]> = {
   town_hall: [96, 124],
   house: [50, 74],
   farm: [30, 42],
-  lumber_camp: [44, 58],
+  // Oduncu ve pazar bilerek evden ALCAK tutulur; %32 zoom'da kutleyi
+  // ayiran sey yukseklik farkidir, detay degil (olculdu: ucu de 41x44 px
+  // ciktiginda birbirinden ayirt edilemiyordu).
+  lumber_camp: [34, 44],
   quarry: [34, 46],
-  market: [46, 60],
+  market: [30, 40],
   warehouse: [52, 68],
   generic: [52, 64],
 };
@@ -235,6 +243,55 @@ function gableRoof(
   g.fillPath();
 }
 
+/**
+ * Tek egimli sundurma catisi (shed roof).
+ *
+ * Besik cati (gableRoof) ust profilde SIVRI bir tepe verir ve bu, evin
+ * imzasidir. Tek egimli cati ise EGIK bir cizgi verir; kucuk olcekte
+ * ikisi karismaz. Oduncu kampi bu yuzden besik cati kullanmaz.
+ */
+function shedRoof(
+  g: Phaser.GameObjects.Graphics,
+  x: number,
+  y: number,
+  w: number,
+  d: number,
+  lowRise: number,
+  highRise: number,
+  color: number,
+): void {
+  const hw = w / 2;
+  const hd = d / 2;
+
+  // Egik ust yuzey: arka kose yuksek, on kose alcak
+  g.fillStyle(shade(color, 0.16), 1);
+  g.beginPath();
+  g.moveTo(x - hw, y - lowRise);
+  g.lineTo(x, y - hd - highRise);
+  g.lineTo(x + hw, y - highRise);
+  g.lineTo(x, y + hd - lowRise);
+  g.closePath();
+  g.fillPath();
+
+  // On saçak kalinligi
+  g.fillStyle(shade(color, -0.2), 1);
+  g.beginPath();
+  g.moveTo(x - hw, y - lowRise);
+  g.lineTo(x, y + hd - lowRise);
+  g.lineTo(x, y + hd - lowRise + 4);
+  g.lineTo(x - hw, y - lowRise + 4);
+  g.closePath();
+  g.fillPath();
+  g.fillStyle(shade(color, -0.32), 1);
+  g.beginPath();
+  g.moveTo(x + hw, y - highRise);
+  g.lineTo(x, y + hd - lowRise);
+  g.lineTo(x, y + hd - lowRise + 4);
+  g.lineTo(x + hw, y - highRise + 4);
+  g.closePath();
+  g.fillPath();
+}
+
 /** Duz kiremit teras (depo, pazar gibi yapilar icin). */
 function flatRoof(
   g: Phaser.GameObjects.Graphics,
@@ -368,29 +425,62 @@ const drawTownHall: ArtDrawer = (g, c, level) => {
   }
 };
 
-/** Ev: kerpic govde, kiremit besik cati, kucuk kapi. */
-const drawHouse: ArtDrawer = (g, c, level) => {
+/**
+ * Ev: kerpic govde, kiremit besik cati.
+ *
+ * UC SILUET VARYANTI vardir ve uid'den deterministik secilir. Renk
+ * varyasyonu tek basina yeterli degildi: 80 ozdes kutle yan yana
+ * gelince sehir duvar kagidina donuyordu. Varyantlar AYNI medeniyetin
+ * evleri gibi durmali - fark oran ve cati profilinde, mimaride degil.
+ *
+ *   0  standart: kare kutle, orta egimli cati
+ *   1  dar ve yuksek kutle, dik cati
+ *   2  genis ve alcak kutle, yayvan cati + yan sundurma
+ */
+const drawHouse: ArtDrawer = (g, c, level, variant = 0) => {
   contactShadow(g, c, 0.8);
   const tall = level >= 2;
-  const w = c.footW * 0.62;
-  const d = c.footH * 0.62;
-  const bodyH = tall ? 40 : 28;
+
+  // Varyanta gore kutle orani ve cati dikligi
+  const shape = [
+    { w: 0.62, d: 0.62, h: 1.0, rise: 1.0 },
+    { w: 0.52, d: 0.52, h: 1.18, rise: 1.3 },
+    { w: 0.72, d: 0.72, h: 0.82, rise: 0.78 },
+  ][Math.min(Math.max(0, variant), 2)];
+
+  const w = c.footW * shape.w;
+  const d = c.footH * shape.d;
+  const bodyH = Math.round((tall ? 40 : 28) * shape.h);
 
   box(g, c.cx, c.baseY - 2, w, d, bodyH, PALETTE.adobe);
 
   if (tall) {
-    // Ikinci kat biraz iceride - siluete kademe katar
     box(g, c.cx, c.baseY - 2 - bodyH, w * 0.82, d * 0.82, 16, PALETTE.adobeLight);
-    gableRoof(g, c.cx, c.baseY - 2 - bodyH - 16, w * 0.92, d * 0.92, 20);
-    // Balkon cikintisi
+    gableRoof(g, c.cx, c.baseY - 2 - bodyH - 16, w * 0.92, d * 0.92, Math.round(20 * shape.rise));
     g.fillStyle(PALETTE.woodLight, 1);
     g.fillRect(c.cx - w * 0.34, c.baseY - 2 - bodyH - 4, w * 0.3, 4);
   } else {
-    gableRoof(g, c.cx, c.baseY - 2 - bodyH, w * 1.04, d * 1.04, 16);
+    gableRoof(g, c.cx, c.baseY - 2 - bodyH, w * 1.04, d * 1.04, Math.round(16 * shape.rise));
+  }
+
+  if (variant === 2) {
+    // Yan sundurma - alcak varyanta yatay bir uzanti verir
+    const ax = c.cx + w * 0.42;
+    const ay = c.baseY + d * 0.12;
+    box(g, ax, ay, w * 0.34, d * 0.34, Math.round(bodyH * 0.52), PALETTE.adobeDark);
+    shedRoof(
+      g,
+      ax,
+      ay,
+      w * 0.4,
+      d * 0.4,
+      Math.round(bodyH * 0.52),
+      Math.round(bodyH * 0.52) + 7,
+      PALETTE.roof,
+    );
   }
 
   doorway(g, c.cx - w * 0.14, c.baseY + d * 0.16, 8, 13);
-  // Pencere
   g.fillStyle(PALETTE.doorway, 0.6);
   g.fillRect(c.cx + w * 0.1, c.baseY - bodyH * 0.55, 7, 7);
 };
@@ -438,60 +528,88 @@ const drawFarm: ArtDrawer = (g, c, level) => {
   }
 };
 
-/** Oduncu kampi: acik cepheli ahsap saya, buyuk kutuk yigini. */
+/**
+ * Oduncu kampi: alcak ve TEK EGIMLI sundurma + yuksek kutuk yigini.
+ *
+ * Ilk surumde kapali duvarli, besik catili bir yapiydi ve %32 zoom'da
+ * evden ayirt edilemiyordu (olculdu: ev 41x45, kamp 41x44 piksel). Siluet
+ * artik IKI KUTLEDEN olusur: alcak egik catili acik sundurma ve yaninda
+ * ondan daha yuksek, yuvarlak hatli kutuk yigini. Ev tek ve sivri bir
+ * kutledir; ikisi karismaz.
+ */
 const drawLumberCamp: ArtDrawer = (g, c, level) => {
-  contactShadow(g, c, 0.92);
+  contactShadow(g, c, 0.94);
   const big = level >= 2;
 
-  // Toprak zemin - talas ve cali
+  // Talasli toprak zemin
   g.fillStyle(PALETTE.adobeDark, 1);
-  diamond(g, c.cx, c.baseY, c.footW * 0.9, c.footH * 0.9);
+  diamond(g, c.cx, c.baseY, c.footW * 0.92, c.footH * 0.92);
+  g.fillPath();
+  g.fillStyle(shade(PALETTE.woodLight, 0.2), 0.35);
+  diamond(g, c.cx + c.footW * 0.04, c.baseY + c.footH * 0.06, c.footW * 0.5, c.footH * 0.5);
   g.fillPath();
 
-  // Saya (acik cepheli ahsap yapi)
-  const hx = c.cx - c.footW * 0.2;
-  const hy = c.baseY - c.footH * 0.08;
-  const hw = c.footW * 0.44;
-  const hd = c.footH * 0.44;
-  const hh = big ? 30 : 24;
-  box(g, hx, hy, hw, hd, hh, PALETTE.wood);
+  // ACIK sundurma: duvar yok, yalnizca direkler ve egik cati
+  const hx = c.cx - c.footW * 0.22;
+  const hy = c.baseY - c.footH * 0.04;
+  const hw = c.footW * 0.46;
+  const hd = c.footH * 0.46;
+  const postH = big ? 24 : 19;
 
-  // Dikey ahsap kaplama - yapiyi tastan ayiran sey
-  for (let i = 0; i < 4; i += 1) {
-    const t = (i + 0.5) / 4;
-    g.fillStyle(shade(PALETTE.woodLight, -0.08), 1);
-    g.fillRect(hx - hw / 2 + (t * hw) / 2 - 1.5, hy + (t * hd) / 2 - hh, 3, hh);
+  g.fillStyle(PALETTE.woodDark, 1);
+  for (const [dx, dy] of [
+    [-0.5, 0],
+    [0.5, 0],
+    [0, 0.5],
+    [0, -0.5],
+  ]) {
+    g.fillRect(hx + hw * dx - 2.5, hy + hd * dy - postH, 5, postH);
   }
-
-  // Ahsap catili ust - kiremit degil, tahta
-  gableRoof(g, hx, hy - hh, hw * 1.08, hd * 1.08, 13);
-  g.fillStyle(PALETTE.woodDark, 0.35);
-  diamond(g, hx, hy - hh, hw * 1.08, hd * 1.08);
+  // Arka duvar yalnizca yarim yukseklikte - "acik cephe" hissi
+  g.fillStyle(shade(PALETTE.wood, -0.1), 1);
+  g.beginPath();
+  g.moveTo(hx - hw / 2, hy - postH * 0.55);
+  g.lineTo(hx, hy - hd / 2 - postH * 0.55);
+  g.lineTo(hx, hy - hd / 2 - postH);
+  g.lineTo(hx - hw / 2, hy - postH);
+  g.closePath();
   g.fillPath();
 
-  // Kutuk yigini - kampin imzasi, uc uc bakan silindirler
-  const stackX = c.cx + c.footW * 0.24;
-  const stackY = c.baseY + c.footH * 0.1;
-  const rows = big ? 3 : 2;
+  shedRoof(g, hx, hy, hw * 1.16, hd * 1.16, postH, postH + (big ? 15 : 12), PALETTE.wood);
+
+  // Bicilmis kalas istifi - sundurmanin altinda
+  g.fillStyle(PALETTE.woodLight, 1);
+  g.fillRect(hx - hw * 0.3, hy + hd * 0.1 - 7, hw * 0.6, 4);
+  g.fillStyle(shade(PALETTE.woodLight, -0.16), 1);
+  g.fillRect(hx - hw * 0.3, hy + hd * 0.1 - 3, hw * 0.6, 4);
+
+  /*
+   * KUTUK YIGINI - kampin ikinci kutlesi ve asil imzasi.
+   * Sundurmadan YUKSEK tutulur; boylece siluet "alcak cati + yaninda
+   * yuvarlak tepe" olur. Ev siluetinde boyle bir ikinci kutle yoktur.
+   */
+  const stackX = c.cx + c.footW * 0.26;
+  const stackY = c.baseY + c.footH * 0.14;
+  const rows = big ? 4 : 3;
   for (let row = 0; row < rows; row += 1) {
     const perRow = rows - row;
     for (let i = 0; i < perRow; i += 1) {
-      const px = stackX + (i - (perRow - 1) / 2) * 15;
-      const py = stackY - row * 11;
-      g.fillStyle(PALETTE.woodLight, 1);
-      g.fillEllipse(px, py, 15, 10);
-      g.fillStyle(shade(PALETTE.woodDark, 0.3), 1);
-      g.fillEllipse(px, py, 7, 4.5);
+      const px = stackX + (i - (perRow - 1) / 2) * 16;
+      const py = stackY - row * 12;
+      g.fillStyle(row % 2 === 0 ? PALETTE.woodLight : PALETTE.wood, 1);
+      g.fillEllipse(px, py, 16, 11);
+      g.fillStyle(shade(PALETTE.woodDark, 0.34), 1);
+      g.fillEllipse(px, py, 7.5, 5);
       g.fillStyle(PALETTE.woodDark, 1);
       g.fillEllipse(px, py, 3, 2);
     }
   }
 
-  // Kutuk govdesi - yerde duran tek bir kütük
+  // Yerdeki tek kutuk ve balta kutugu
   g.fillStyle(PALETTE.wood, 1);
-  g.fillEllipse(c.cx - c.footW * 0.02, c.baseY + c.footH * 0.3, 26, 9);
+  g.fillEllipse(c.cx - c.footW * 0.04, c.baseY + c.footH * 0.34, 24, 8);
   g.fillStyle(PALETTE.woodLight, 1);
-  g.fillEllipse(c.cx + c.footW * 0.08, c.baseY + c.footH * 0.3, 9, 8);
+  g.fillEllipse(c.cx + c.footW * 0.06, c.baseY + c.footH * 0.34, 8, 7);
 };
 
 /**
@@ -610,50 +728,85 @@ const drawQuarry: ArtDrawer = (g, c, level) => {
   }
 };
 
-/** Pazar: cizgili tente, tezgah, amforalar. */
+/**
+ * Pazar: alcak tezgah kutlesi uzerinde GENIS ve duz tente.
+ *
+ * Ilk surumde pazar evle ayni yukseklikteydi ve %32 zoom'da ondan
+ * ayirt edilemiyordu (olculdu: ikisi de 41x44 piksel). Siluet artik
+ * bilerek farklidir: govde alcak, tente ayak izinden GENIS ve DUZ.
+ * Evin tepe noktasi sivri, pazarin ust profili yatay bir levhadir -
+ * birkac piksellik boyutta bile ikisi karismaz.
+ */
 const drawMarket: ArtDrawer = (g, c, level) => {
-  contactShadow(g, c, 0.88);
+  contactShadow(g, c, 0.92);
   const big = level >= 2;
 
-  // Tas platform
-  box(g, c.cx, c.baseY, c.footW * 0.86, c.footH * 0.86, 7, PALETTE.stone);
-  const deck = c.baseY - 7;
+  // Alcak tas platform
+  box(g, c.cx, c.baseY, c.footW * 0.84, c.footH * 0.84, 6, PALETTE.stone);
+  const deck = c.baseY - 6;
 
-  // Tezgahlar
-  box(g, c.cx - c.footW * 0.18, deck, c.footW * 0.3, c.footH * 0.3, 12, PALETTE.wood);
-  if (big) box(g, c.cx + c.footW * 0.2, deck + c.footH * 0.1, c.footW * 0.26, c.footH * 0.26, 12, PALETTE.wood);
+  // Tezgahlar - alcak kutleler
+  box(g, c.cx - c.footW * 0.2, deck, c.footW * 0.32, c.footH * 0.32, 11, PALETTE.wood);
+  box(g, c.cx + c.footW * 0.22, deck + c.footH * 0.08, c.footW * 0.28, c.footH * 0.28, 11, PALETTE.wood);
 
-  // Tente direkleri
-  const poleH = big ? 34 : 28;
+  // Amforalar - yakin zoom detayi
+  g.fillStyle(PALETTE.roofDark, 1);
+  g.fillEllipse(c.cx + c.footW * 0.02, deck + c.footH * 0.3, 9, 12);
+  g.fillStyle(PALETTE.roof, 1);
+  g.fillEllipse(c.cx - c.footW * 0.1, deck + c.footH * 0.32, 8, 11);
+
+  // Direkler - tenteyi belirgin sekilde yukari kaldirir
+  const poleH = big ? 30 : 25;
   g.fillStyle(PALETTE.woodDark, 1);
-  g.fillRect(c.cx - c.footW * 0.32, deck - poleH, 3, poleH);
-  g.fillRect(c.cx + c.footW * 0.3, deck - poleH, 3, poleH);
+  for (const [dx, dy] of [
+    [-0.4, 0.0],
+    [0.4, 0.0],
+    [0.0, 0.34],
+    [0.0, -0.34],
+  ]) {
+    g.fillRect(c.cx + c.footW * dx - 2, deck + c.footH * dy - poleH, 4, poleH);
+  }
 
-  // Cizgili tente - pazarin imzasi. Duz bir ortu, uzerinde izometrik seritler.
+  /*
+   * TENTE - pazarin siluetidir.
+   * Ayak izinden GENIS cizilir ve ust yuzeyi DUZ birakilir; boylece
+   * uzaktan "sivri catili ev" degil "yayvan golgelik" olarak okunur.
+   */
   const awnY = deck - poleH;
-  const aw = c.footW * 0.78;
-  const ah = c.footH * 0.78;
+  const aw = c.footW * 1.04;
+  const ah = c.footH * 1.04;
+
+  // Tentenin altindaki golge - levhaya kalinlik ve ayrisma verir
+  g.fillStyle(0x1a1206, 0.22);
+  diamond(g, c.cx, awnY + 5, aw * 0.94, ah * 0.94);
+  g.fillPath();
+
   const stripes = big ? 6 : 5;
   for (let i = 0; i < stripes; i += 1) {
     g.fillStyle(i % 2 === 0 ? PALETTE.clothWarm : PALETTE.clothCool, 1);
     isoStrip(g, c.cx, awnY, aw, ah, i / stripes, (i + 1) / stripes);
     g.fillPath();
   }
-  // Tentenin on kenari - kumasa kalinlik hissi
-  g.fillStyle(shade(PALETTE.clothWarm, -0.3), 1);
+
+  // On kenar bandi - levhanin kalinligi
+  g.fillStyle(shade(PALETTE.clothWarm, -0.34), 1);
   g.beginPath();
   g.moveTo(c.cx - aw / 2, awnY);
   g.lineTo(c.cx, awnY + ah / 2);
-  g.lineTo(c.cx, awnY + ah / 2 + 4);
-  g.lineTo(c.cx - aw / 2, awnY + 4);
+  g.lineTo(c.cx + aw / 2, awnY);
+  g.lineTo(c.cx + aw / 2, awnY + 5);
+  g.lineTo(c.cx, awnY + ah / 2 + 5);
+  g.lineTo(c.cx - aw / 2, awnY + 5);
   g.closePath();
   g.fillPath();
 
-  // Amforalar
-  g.fillStyle(PALETTE.roofDark, 1);
-  g.fillEllipse(c.cx + c.footW * 0.06, deck + c.footH * 0.26, 9, 12);
-  g.fillStyle(PALETTE.roof, 1);
-  g.fillEllipse(c.cx - c.footW * 0.04, deck + c.footH * 0.3, 8, 11);
+  if (big) {
+    // Ikinci seviyede tentenin ustunde kucuk bir flama
+    g.fillStyle(PALETTE.clothWarm, 1);
+    g.fillTriangle(c.cx, awnY - 16, c.cx + 13, awnY - 11, c.cx, awnY - 6);
+    g.fillStyle(PALETTE.woodDark, 1);
+    g.fillRect(c.cx - 1.5, awnY - 18, 3, 14);
+  }
 };
 
 /** Ambar: uzun depo yapisi, buyuk kapi, istiflenmis kuplar. */

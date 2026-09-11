@@ -15,6 +15,23 @@ import type { BuildingState } from '@/types';
 export const MAX_VISUAL_LEVEL = 2;
 
 /**
+ * Tur basina SILUET varyant sayisi.
+ *
+ * Yalnizca ev icin birden fazladir. 80 ozdes ev yan yana geldiginde renk
+ * varyasyonu tekrar hissini azaltiyor ama yok etmiyordu; ayni kutle ayni
+ * kaliyordu. Uc farkli kutle/cati profili sehri mekanik olmaktan cikarir.
+ *
+ * Varyantlar doku URETIM asamasinda pisirilir; calisma zamaninda doku
+ * uretilmez.
+ */
+export const VARIANT_COUNT: Record<string, number> = { house: 3 };
+
+/** Verilen turun kac siluet varyanti var? */
+export function variantCountFor(type: string): number {
+  return VARIANT_COUNT[type] ?? 1;
+}
+
+/**
  * Kendi cizimi olan bina turleri.
  *
  * Katalogdaki yedi binanin tamami buradadir. Listede olmayan bir tur
@@ -52,13 +69,33 @@ export const SCAFFOLD_VISUAL = 'scaffold';
  */
 const VARIATION_TINTS = [0xffffff, 0xe8d4be, 0xffe9cf, 0xd9cdbe, 0xfff0d2, 0xe0cdb4] as const;
 
-/** uid'den kararli bir varyasyon tonu secer. */
-export function variationTintFor(uid: string): number {
+/** uid'den kararli bir tam sayi uretir. Ayni uid her zaman ayni degeri verir. */
+function hashOf(uid: string): number {
   let hash = 0;
   for (let i = 0; i < uid.length; i += 1) {
     hash = (hash * 31 + uid.charCodeAt(i)) >>> 0;
   }
-  return VARIATION_TINTS[hash % VARIATION_TINTS.length];
+  return hash;
+}
+
+/** uid'den kararli bir varyasyon tonu secer. */
+export function variationTintFor(uid: string): number {
+  return VARIATION_TINTS[hashOf(uid) % VARIATION_TINTS.length];
+}
+
+/**
+ * uid'den kararli bir siluet varyanti secer.
+ *
+ * Rastgelelik YOKTUR: ayni uid her zaman ayni varyanti verir, yani kayit
+ * yuklendiginde sehir birebir ayni gorunur. Varyanti olmayan turler icin
+ * her zaman 0 doner.
+ */
+export function variantFor(uid: string, type: string): number {
+  const count = variantCountFor(type);
+  if (count <= 1) return 0;
+  // Ton ve varyant ayni hash'ten turemesin; aksi halde belirli bir varyant
+  // hep belirli bir tonla eslesir ve cesitlilik yapay gorunur.
+  return Math.floor(hashOf(`${uid}#shape`) / 7) % count;
 }
 
 /** Bir binanin gorsel kimligi. */
@@ -88,11 +125,18 @@ export function isDrawnType(type: string): type is DrawnBuildingType {
  * Seviye MAX_VISUAL_LEVEL'a kirpilir: katalog ileride seviye 3 tanimlarsa
  * oyun calismaya devam eder, yalnizca gorsel seviye 2'de kalir.
  */
-export function visualKeyFor(type: string, level: number): string {
+export function visualKeyFor(type: string, level: number, variant = 0): string {
   const base = isDrawnType(type) ? type : GENERIC_VISUAL;
   const safeLevel = Number.isFinite(level) ? Math.trunc(level) : 1;
   const clamped = Math.min(Math.max(1, safeLevel), MAX_VISUAL_LEVEL);
-  return `bld:${base}:${clamped}`;
+
+  const count = variantCountFor(base);
+  const safeVariant =
+    count > 1 && Number.isFinite(variant) ? Math.min(Math.max(0, Math.trunc(variant)), count - 1) : 0;
+
+  // Varyant 0 eski anahtar bicimini korur; tek varyantli turlerin anahtari
+  // degismez, yani onceki testler ve dokular gecerli kalir.
+  return safeVariant === 0 ? `bld:${base}:${clamped}` : `bld:${base}:${clamped}v${safeVariant}`;
 }
 
 /** Insaat gorselinin doku anahtari; bina buyuklugune gore degisir. */
@@ -120,7 +164,11 @@ export function getBuildingVisual(input: {
     return { textureKey: scaffoldKeyFor(input.size), tint: NEUTRAL_TINT, alpha: 1 };
   }
 
-  const textureKey = visualKeyFor(input.type, input.level);
+  const textureKey = visualKeyFor(
+    input.type,
+    input.level,
+    input.uid ? variantFor(input.uid, input.type) : 0,
+  );
 
   if (input.state === 'disabled') {
     return { textureKey, tint: DISABLED_TINT, alpha: 0.75 };
