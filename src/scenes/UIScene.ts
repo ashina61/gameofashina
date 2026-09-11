@@ -11,8 +11,10 @@ import { TouchButton } from '@/ui/TouchButton';
 import { UISpacing, UIText } from '@/ui/UIStyle';
 import { formatElapsed } from '@/utils/Format';
 import { insetsEqual, onSafeAreaChange, readSafeAreaInsets, zeroInsets } from '@/utils/SafeArea';
-import { getWorld } from './BootScene';
+import { toLogical } from '@/utils/RenderScale';
+import { getResolution, getWorld } from './BootScene';
 import type { GameWorld } from '@/core/GameWorld';
+import type { ResolutionManager } from '@/render/ResolutionManager';
 import type { SafeAreaInsets } from '@/utils/SafeArea';
 import type {
   BuildingId,
@@ -31,6 +33,10 @@ import type {
  * alanlarinin arayuz tarafindan kapatildigini CityScene'e bildirir.
  */
 export class UIScene extends Phaser.Scene {
+  /** Cozunurluk yoneticisi; yoksa mantiksal olcu Phaser'dan okunur (dpr 1). */
+  private resolution: ResolutionManager | null = null;
+  private stopResolutionWatch: (() => void) | null = null;
+
   private world!: GameWorld;
 
   private resourceBar!: ResourceBar;
@@ -59,8 +65,16 @@ export class UIScene extends Phaser.Scene {
 
   create(): void {
     this.world = getWorld(this);
+    this.resolution = getResolution(this);
 
-    const { width, height } = this.scale;
+    /*
+     * Arayuz MANTIKSAL (CSS) pikselde yazilir; oyun boyutu ise cihaz
+     * pikselindedir. Buradaki olcuyu this.scale'den almak, yuksek DPR'de
+     * tum arayuzu cihaz pikseline gore dizerdi - buton ekranin disina
+     * kacardi (olculdu: DPR 2'de x=246 yerine x=636).
+     */
+    const width = this.logicalWidth();
+    const height = this.logicalHeight();
 
     this.resourceBar = new ResourceBar(this, width);
     this.buildMenu = new BuildMenu(this, width, height, (defId) => this.startPlacement(defId));
@@ -107,6 +121,21 @@ export class UIScene extends Phaser.Scene {
       this.relayout();
     });
 
+    /*
+     * Arayuz MANTIKSAL pikselde yazilmistir; oyun boyutu ise cihaz
+     * pikselindedir. Kamerayi dpr kadar yakinlastirmak ikisini esitler:
+     * 132 mantiksal piksel genisligindeki bir buton DPR 2'de 264 cihaz
+     * pikseli cizilir, yani ekranda ayni fiziksel boyutta ama iki kat
+     * keskin gorunur.
+     */
+    if (this.resolution) {
+      this.resolution.attachUiCamera(this.cameras.main);
+      this.stopResolutionWatch = this.resolution.onChange(() => {
+        this.resolution?.attachUiCamera(this.cameras.main);
+        this.relayout();
+      });
+    }
+
     this.scale.on(Phaser.Scale.Events.RESIZE, this.onResize, this);
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, this.teardown, this);
   }
@@ -117,6 +146,12 @@ export class UIScene extends Phaser.Scene {
    * iletmez; boylece menuye basarken yanlislikla bina kurulmaz.
    */
   blocksPointer(screenX: number, screenY: number): boolean {
+    // Isaretci koordinatlari CIHAZ pikselinde gelir; arayuz olculeri
+    // mantiksal pikseldedir. Karsilastirmadan once ayni birime cekilir.
+    const dpr = this.resolution?.dpr ?? 1;
+    screenX = toLogical(screenX, dpr);
+    screenY = toLogical(screenY, dpr);
+
     if (screenY <= this.insets.top + ResourceBar.height) return true;
     if (this.buildMenu.isOpen && Phaser.Geom.Rectangle.Contains(this.buildMenu.bounds(), screenX, screenY)) {
       return true;
@@ -257,16 +292,32 @@ export class UIScene extends Phaser.Scene {
 
   // --- Yerlesim ------------------------------------------------------------
 
-  private onResize(gameSize: Phaser.Structs.Size): void {
+  private onResize(): void {
     // Kenar paylari yon degisiminde degisebilir; yalnizca burada okunur.
     const next = readSafeAreaInsets();
     if (!insetsEqual(next, this.insets)) this.insets = next;
-    this.layout(gameSize.width, gameSize.height);
+    // gameSize CIHAZ pikselindedir; yerlesim mantiksal olcuyle yapilir.
+    this.layout(this.logicalWidth(), this.logicalHeight());
   }
 
-  /** Panel acilip kapandiginda gecerli ekran olculeriyle yeniden dizer. */
+  /**
+   * Panel acilip kapandiginda gecerli ekran olculeriyle yeniden dizer.
+   *
+   * MANTIKSAL olcu kullanilir: oyun boyutu cihaz pikselindedir, arayuz ise
+   * CSS pikselinde yazilmistir. Farki kamera yakinlastirmasi kapatir.
+   */
   private relayout(): void {
-    this.layout(this.scale.width, this.scale.height);
+    this.layout(this.logicalWidth(), this.logicalHeight());
+  }
+
+  /** Arayuzun yerlesimde kullandigi mantiksal genislik (CSS pikseli). */
+  private logicalWidth(): number {
+    return this.resolution?.logicalWidth ?? this.scale.width;
+  }
+
+  /** Arayuzun yerlesimde kullandigi mantiksal yukseklik (CSS pikseli). */
+  private logicalHeight(): number {
+    return this.resolution?.logicalHeight ?? this.scale.height;
   }
 
   /**
@@ -317,6 +368,8 @@ export class UIScene extends Phaser.Scene {
     bus.off('notify', this.onNotify, this);
     bus.off('building:completed', this.onBuildingCompleted, this);
     bus.off('construction:completed', this.onConstructionCompleted, this);
+    this.stopResolutionWatch?.();
+    this.stopResolutionWatch = null;
     this.scale.off(Phaser.Scale.Events.RESIZE, this.onResize, this);
     this.stopSafeAreaWatch?.();
     this.stopSafeAreaWatch = null;

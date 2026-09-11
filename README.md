@@ -114,6 +114,7 @@ src/
 │   ├── CityScene.ts         Harita ve binalarin cizimi, dokunmatik girdi
 │   └── UIScene.ts           Ayri kamerada calisan arayuz katmani
 ├── render/                  Cizim yardimcilari
+│   ├── ResolutionManager.ts DPR'ye duyarli tuval olcusu ve kamera telafisi
 │   ├── TextureFactory.ts    Tum dokulari calisma zamaninda uretir
 │   ├── BuildingView.ts      Bir binanin gorsel temsili
 │   └── PlacementPreview.ts  Insa modundaki hayalet bina
@@ -196,54 +197,61 @@ olusamaz.
 
 **Eksikler:** launcher ikonu, splash gorseli ve uygulama adi kaynaklari henuz yok.
 
-### Cihaz pikseli (DPR) olcumu
+### Cihaz pikseli (DPR) ve cizim cozunurlugu
 
-Tuval su an CSS pikselinde acilir; 1080x2400 bir telefonda oyun 360x800
-cizilip 3x buyutulur. Arka tampon cozunurlugunu artirmanin maliyeti olculdu
-(ayni piksel sayisi CSS goruntu alani buyutulerek simule edildi):
+Tuval CIHAZ pikselinde cizilir, CSS'te ise mantiksal (CSS) olcuyu kaplar.
+Ornek: DPR 2 bir telefonda 390x844 CSS goruntu alani icin arka tampon
+780x1688 olur. Oyun mantigi, arayuz olculeri ve kamera kadraji MANTIKSAL
+pikselde kalir; farki kameralarin yakinlastirmasi kapatir.
 
-| Arka tampon | Piksel | FPS (120 bina) |
-| --- | --- | --- |
-| 360x800 (bugunku) | 288 K | 31 / 32 |
-| 720x1600 (DPR 2) | 1.15 M | 11 / 11 |
-| 1080x2400 (DPR 3) | 2.59 M | 8 / 8 |
+```
+CSS viewport  ->  mantiksal oyun olcusu  ->  kamera/dunya
+                                         ->  DPR'ye duyarli arka tampon
+```
 
-Maliyet doldurma hizina baglidir. **Ancak bu olcum GPU'suz bir ortamda
-alindi** (yazilim rasterizasyonu), dolayisiyla gercek bir mobil GPU'daki
-maliyeti abartir ve buradan guvenli bir ust sinir turetilemez.
+| DPR | CSS viewport | Arka tampon | Arayuz olculeri |
+| --- | --- | --- | --- |
+| 1 | 390x844 | 390x844 | degismez |
+| 2 | 390x844 | 780x1688 | degismez |
+| 3 | 390x844 | 780x1688 (tavana kirpilir) | degismez |
 
-Ayrica Phaser'in `RESIZE` kipinde arka tampon cozunurlugunu artirmanin tek
-yolu `zoom` ile oyun boyutunu buyutmektir; bu da tum arayuz olculerinin
-(yazi boyutlari, panel yukseklikleri, buton olculeri) cozunurlukten bagimsiz
-hale getirilmesini gerektirir. Yapilandirilabilir bir "kanca" eklemek, guvenle
-acilamayacagi icin olu yapilandirma olurdu; bu nedenle EKLENMEDI. Kendi
-sprintinde, arayuz olcek calismasiyla birlikte ele alinmalidir.
+**Neden RESIZE degil NONE kipi:** Phaser 3.90'da tuvalin arka tamponu her
+zaman oyun boyutuna esittir; bagimsiz bir `resolution` ayari yoktur (eski
+surumlerde vardi, kaldirildi) ve `ScaleManager.baseSize`'i elle degistirmek
+tuvali degistirmez - olculdu. RESIZE kipinde ScaleManager oyun boyutunu
+surekli parent'in CSS olcusune geri ceker, `resize()` ve `setZoom()` etkisiz
+kalir. Bu yuzden olculeri `render/ResolutionManager.ts` yonetir.
 
-## Nufus modeli
+**Arayuz kamerasi sol usttten capalanir** (`setOrigin(0, 0)`). Phaser
+kamerayi merkezden yakinlastirir; arayuz ise mutlak olarak (0,0)'dan dizilir.
+Merkezden yakinlastirmak DPR 2'de gorunen alani 0..390 yerine 195..585
+yapiyordu ve butonlar ekranda kayiyordu.
 
-Nufus gercek bir kaynaktir; kapasitenin turevi degildir.
+#### MAX_RENDER_DPR neden 2, ve neden dogrulanmasi gerekiyor
 
-| Kavram | Anlami |
-| --- | --- |
-| Kapasite | Evlerin actigi ust sinir. Vatandas DEMEK DEGILDIR. |
-| Nufus | Sehirde yasayan vatandas sayisi. Zamanla kapasiteye dogru buyur. |
-| Calisan | Bir binaya atanmis vatandas. Geri kalani issizdir ama yine yer. |
-| Kadro | `atanan / gereken`. Uretim dogrudan bununla carpilir. |
+`MAX_RENDER_DPR = 2` (bkz. `utils/RenderScale.ts`). DPR 3'e cikmak piksel
+sayisini 2'ye gore 2.25 kat artirir; kazanci ise cok daha kucuktur.
 
-**Buyume** dakikada `POPULATION_GROWTH_PER_MINUTE` kisidir ve yalnizca depoda
-yiyecek varken isler. **Azalma** dakikada `POPULATION_DECLINE_PER_MINUTE`
-kisidir; buyumeden yavastir, boylece bir aclik kazasi sehri silmez.
+**Bu deger OLCUMLE secilmedi, yaygin pratikten secildi.** Bu depo GPU'suz bir
+ortamda olculuyor (`SwiftShader`, yazilim rasterizasyonu). Orada alinan dolgu
+maliyeti gercek bir mobil GPU'yu TEMSIL ETMEZ:
 
-Buyume kesirli oranlarla tanimli oldugu icin biriktirici **tam sayi
-birimlerinde** calisir (bir vatandas = bir dakikalik tik sayisi). Kesirli
-birikim denendi ve kayan noktada asindigi gorundu: 90 tik sonra 5 yerine
-4.99999999999999 cikip asagi yuvarlanirken bir vatandas yok oluyordu. Birim
-alaninda toplama tam sayilarla yapilir, bu yuzden **parcali ilerletme tek
-seferlik ilerletmeyle birebir ortusur** - cevrimdisi telafi icin gerekli.
+| | 0 bina | 30 bina | 120 bina |
+| --- | --- | --- | --- |
+| DPR 1 | 50 | 42 | 28 |
+| DPR 2 | 15 | 14 | 8 |
 
-`BuildingInstance.assignedWorkers` **turetilmis durumdur**: kayittan gelen
-degere guvenilmez, her ilerlemede ve her yuklemede nufustan yeniden
-hesaplanir. Kurcalanmis bir kayit is gucu uyduramaz.
+Gorunen dusus neredeyse tamamen yazilim rasterizasyonunun dolgu maliyetidir;
+gercek bir telefon GPU'su icin 780x1688 sira disi bir yuk degildir. Yine de
+**gercek cihazda dogrulanmadi**. Dusuk donanimda sorun cikarsa tek yapilacak
+`MAX_RENDER_DPR` degerini 1 yapmaktir; altyapinin geri kalani degismez.
+
+Girdi ve yerlesim davranisi DPR 1/2/3'te ayri ayri olculur:
+
+```
+npm run bench:input -- http://127.0.0.1:5173/ 2
+npm run bench:smoke -- http://127.0.0.1:5173/ 2
+```
 
 ## Yol haritasi
 

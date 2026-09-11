@@ -16,8 +16,13 @@
 import { chromium } from '/opt/node22/lib/node_modules/playwright/index.mjs';
 
 const URL = process.argv[2] ?? 'http://127.0.0.1:5173/';
+/**
+ * Cizim piksel yogunlugu. Girdi ve yerlesim davranisi DPR'den ETKILENMEMELI;
+ * ayni betigi farkli yogunluklarda kosturmak bunu dogrular.
+ */
+const DPR = Number(process.argv[3] ?? 1);
 const b = await chromium.launch();
-const ctx = await b.newContext({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true });
+const ctx = await b.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: DPR, isMobile: true, hasTouch: true });
 const page = await ctx.newPage();
 const cdp = await ctx.newCDPSession(page);
 const errors = [];

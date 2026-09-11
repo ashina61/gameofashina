@@ -1,4 +1,5 @@
 import Phaser from 'phaser';
+import { renderTargets } from '@/utils/RenderScale';
 
 /**
  * Bu dosya yalnizca Phaser baglantisini kurar.
@@ -18,16 +19,29 @@ export function createGameConfig(
   parent: HTMLElement,
   scenes: Phaser.Types.Scenes.SceneType[],
 ): Phaser.Types.Core.GameConfig {
+  // Ilk kare dogru cozunurlukte cizilsin; sonrasini ResolutionManager surdurur.
+  const initial = renderTargets(window.innerWidth, window.innerHeight, window.devicePixelRatio);
+
   return {
     type: Phaser.AUTO,
     parent,
     backgroundColor: BACKGROUND_COLOR,
     scale: {
-      // Mobil cihazlarda ekrani doldurur, yon degisiminde otomatik uyum saglar.
-      mode: Phaser.Scale.RESIZE,
+      /*
+       * NONE kipi, RESIZE degil.
+       *
+       * RESIZE kipinde ScaleManager oyun boyutunu surekli parent'in CSS
+       * olcusune geri ceker; resize() ve setZoom() etkisiz kalir (olculdu).
+       * Tuvalin arka tamponu da oyun boyutuna esit oldugu icin cizim her
+       * zaman CSS pikseli kadar olur ve yuksek DPR ekranlarda gerilir.
+       *
+       * NONE kipinde olculeri ResolutionManager yonetir: oyun boyutu cihaz
+       * pikselinde, tuvalin CSS olcusu mantiksal pikselde tutulur.
+       */
+      mode: Phaser.Scale.NONE,
       autoCenter: Phaser.Scale.CENTER_BOTH,
-      width: '100%',
-      height: '100%',
+      width: initial.deviceWidth,
+      height: initial.deviceHeight,
     },
     render: {
       antialias: true,

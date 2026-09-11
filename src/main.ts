@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import { createGameConfig } from '@/config/GameConfig';
+import { ResolutionManager } from '@/render/ResolutionManager';
 import { BootScene } from '@/scenes/BootScene';
 import { PreloadScene } from '@/scenes/PreloadScene';
 import { CityScene } from '@/scenes/CityScene';
@@ -19,10 +20,14 @@ const game = new Phaser.Game(
   createGameConfig(parent, [BootScene, PreloadScene, CityScene, UIScene]),
 );
 
-// Mobil tarayicilarda adres cubugu gizlenince veya ekran donunce yeniden olcekle.
-window.addEventListener('orientationchange', () => {
-  window.setTimeout(() => game.scale.refresh(), 120);
-});
+/*
+ * Cozunurluk yonetimi sahnelerden ONCE kurulur ve registry'e konur:
+ * sahneler acilirken mantiksal olculeri ve piksel yogunlugunu oradan alir.
+ * Pencere ve yon degisimlerini de bu nesne dinler, bu yuzden ayri bir
+ * orientationchange dinleyicisine gerek kalmaz.
+ */
+const resolution = new ResolutionManager(game);
+game.registry.set('resolution', resolution);
 
 // Sayfa icindeki varsayilan zoom/kaydirma jestlerini engelle.
 document.addEventListener(

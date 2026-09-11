@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import { SceneKeys } from '@/config/Constants';
 import { GameWorld } from '@/core/GameWorld';
+import type { ResolutionManager } from '@/render/ResolutionManager';
 
 /**
  * Ilk sahne: oyun durumunu hazirlar ve registry'e koyar.
@@ -31,4 +32,15 @@ export function getWorld(scene: Phaser.Scene): GameWorld {
     throw new Error('GameWorld hazir degil - BootScene calistirilmadan sahne acildi.');
   }
   return world;
+}
+
+/**
+ * Registry'den ResolutionManager'i alir.
+ *
+ * main.ts bunu sahneler baslamadan once koyar. Bulunamazsa sahne, olculeri
+ * dogrudan Phaser'dan okuyan guvenli bir davranisa duser (dpr 1); oyun
+ * calismaya devam eder, yalnizca keskinlik kazanci olmaz.
+ */
+export function getResolution(scene: Phaser.Scene): ResolutionManager | null {
+  return (scene.registry.get('resolution') as ResolutionManager | undefined) ?? null;
 }

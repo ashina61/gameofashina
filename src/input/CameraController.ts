@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import { DRAG_THRESHOLD_PX, MAX_ZOOM, MIN_ZOOM } from '@/config/Constants';
+import { toLogical } from '@/utils/RenderScale';
 
 /** Dokunma etkilesiminin sonucunu disariya bildiren geri cagirimlar. */
 export interface CameraControllerCallbacks {
@@ -15,6 +16,12 @@ export interface CameraControllerCallbacks {
    * kaydirilmaz ve bina kurulmaz.
    */
   isBlocked?: (screenX: number, screenY: number) => boolean;
+  /**
+   * Cizim piksel yogunlugu. Isaretci koordinatlari CIHAZ pikselinde gelir;
+   * dokunma esikleri ve zoom sinirlari MANTIKSAL pikselde tanimlidir.
+   * Verilmezse 1 kabul edilir ve davranis eskisiyle birebir aynidir.
+   */
+  pixelRatio?: () => number;
 }
 
 /**
@@ -62,6 +69,28 @@ export class CameraController {
 
     this.cursors = scene.input.keyboard?.createCursorKeys();
     scene.events.once(Phaser.Scenes.Events.SHUTDOWN, this.destroy, this);
+  }
+
+  /** Gecerli piksel yogunlugu; verilmediyse 1. */
+  private get dpr(): number {
+    const value = this.callbacks.pixelRatio?.() ?? 1;
+    return Number.isFinite(value) && value > 0 ? value : 1;
+  }
+
+  /**
+   * Kamerayi MANTIKSAL yakinlastirmaya ayarlar.
+   * Kameranin gercek zoom degeri cihaz olcusunu de icerir; sinirlar
+   * (MIN_ZOOM / MAX_ZOOM) mantiksal degere uygulanir ki yuksek DPR'de
+   * yakinlastirma araligi degismesin.
+   */
+  setLogicalZoom(value: number): void {
+    const clamped = Phaser.Math.Clamp(value, MIN_ZOOM, MAX_ZOOM);
+    this.camera.setZoom(clamped * this.dpr);
+  }
+
+  /** Kameranin mantiksal yakinlastirmasi (cihaz olcusu cikarilmis). */
+  get logicalZoom(): number {
+    return this.camera.zoom / this.dpr;
   }
 
   /** Arayuz paneli aciklken kamerayi kilitlemek icin kullanilir. */
@@ -112,7 +141,7 @@ export class CameraController {
       this.pinching = true;
       this.dragging = false;
       this.pinchStartDistance = this.pointerDistance();
-      this.pinchStartZoom = this.camera.zoom;
+        this.pinchStartZoom = this.logicalZoom;
     }
   }
 
@@ -142,7 +171,8 @@ export class CameraController {
       pointer.y,
     );
 
-    if (!this.dragging && travelled > DRAG_THRESHOLD_PX) {
+    // travelled CIHAZ pikselindedir; esik mantiksal pikselde tanimli.
+    if (!this.dragging && toLogical(travelled, this.dpr) > DRAG_THRESHOLD_PX) {
       this.dragging = true;
       this.callbacks.onDragStart?.();
     }
@@ -194,7 +224,7 @@ export class CameraController {
     dy: number,
   ): void {
     if (!this.enabled) return;
-    this.setZoom(this.camera.zoom - dy * 0.0012);
+    this.setZoom(this.logicalZoom - dy * 0.0012);
   }
 
   /** Iki parmak arasindaki mesafe oranina gore zoom uygular. */
@@ -210,8 +240,8 @@ export class CameraController {
     return Phaser.Math.Distance.BetweenPoints(points[0], points[1]);
   }
 
-  private setZoom(value: number): void {
-    this.camera.setZoom(Phaser.Math.Clamp(value, MIN_ZOOM, MAX_ZOOM));
+  private setZoom(logicalValue: number): void {
+    this.setLogicalZoom(logicalValue);
   }
 
   private reportHover(pointer: Phaser.Input.Pointer): void {

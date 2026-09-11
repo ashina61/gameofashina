@@ -17,8 +17,9 @@ import { PLACEMENT_MESSAGES } from '@/systems/BuildingSystem';
 import { UPGRADE_MESSAGES } from '@/systems/UpgradeSystem';
 import { constructionProgress } from '@/systems/BuildingResolver';
 import { depthFor, gridToWorld, worldToGrid } from '@/utils/IsoUtils';
-import { getWorld } from './BootScene';
+import { getResolution, getWorld } from './BootScene';
 import type { UIScene } from './UIScene';
+import type { ResolutionManager } from '@/render/ResolutionManager';
 import type { GameWorld } from '@/core/GameWorld';
 import type { BuildingId, BuildingInstance, ConstructionTask, TileData } from '@/types';
 
@@ -45,6 +46,9 @@ export class CityScene extends Phaser.Scene {
    */
   private readonly activeConstructionViews = new Map<string, BuildingView>();
 
+  /** Cozunurluk yoneticisi; yoksa mantiksal olcu Phaser'dan okunur (dpr 1). */
+  private resolution: ResolutionManager | null = null;
+
   /**
    * Secim isaretleri. Tek karo yerine secilen binanin tum ayak izini kaplar;
    * 2x2 bir binada yalnizca dokunulan karonun isaretlenmesi kafa karistiriyordu.
@@ -63,6 +67,7 @@ export class CityScene extends Phaser.Scene {
 
   create(): void {
     this.world = getWorld(this);
+    this.resolution = getResolution(this);
 
     this.drawTerrain();
     this.createSelectionMarker();
@@ -157,11 +162,14 @@ export class CityScene extends Phaser.Scene {
       onDragStart: () => this.hideSelection(),
       // Arayuz sahnesi henuz hazir degilse tum dokunuslar haritaya gider.
       isBlocked: (x, y) => ui?.blocksPointer?.(x, y) ?? false,
+      // Dokunma esikleri ve zoom sinirlari mantiksal pikselde tanimli.
+      pixelRatio: () => this.resolution?.dpr ?? 1,
     });
 
     const center = this.world.state.grid.center();
     const focus = gridToWorld(center.gx, center.gy);
-    this.cameras.main.setZoom(this.fitZoom());
+    // Mantiksal zoom, cihaz olcusune ResolutionManager tarafindan tasinir.
+    this.camControl.setLogicalZoom(this.fitZoom());
     this.camControl.centerOn(focus.x, focus.y);
   }
 
@@ -170,9 +178,15 @@ export class CityScene extends Phaser.Scene {
    * Ust sinir 1'dir; genis ekranlarda gereksiz yere buyutmez.
    */
   private fitZoom(): number {
-    const target = this.scale.width / (INITIAL_VISIBLE_TILES * TILE_WIDTH);
+    const target = this.logicalWidth() / (INITIAL_VISIBLE_TILES * TILE_WIDTH);
     return Phaser.Math.Clamp(target, MIN_ZOOM, 1);
   }
+
+  /** Kadraj hesaplarinda kullanilan mantiksal genislik (CSS pikseli). */
+  private logicalWidth(): number {
+    return this.resolution?.logicalWidth ?? this.scale.width;
+  }
+
 
   /** Kayittan gelen binalar icin gorselleri olusturur. */
   private spawnExistingBuildings(): void {
@@ -266,6 +280,8 @@ export class CityScene extends Phaser.Scene {
 
     // Hayaleti hemen ekranin ortasinda goster; kullanici parmagini oynatmadan
     // once de bir geri bildirim gorur.
+    // getWorldPoint EKRAN (cihaz pikseli) koordinati bekler; mantiksal
+    // olcu degil. Oyun boyutu zaten cihaz pikselindedir.
     const center = this.cameras.main.getWorldPoint(
       this.scale.width / 2,
       this.scale.height / 2,

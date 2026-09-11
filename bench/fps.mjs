@@ -11,6 +11,8 @@
 import { chromium } from '/opt/node22/lib/node_modules/playwright/index.mjs';
 
 const URL = process.argv[2] ?? 'http://127.0.0.1:5173/';
+/** Cizim piksel yogunlugu; arka tampon maliyetini bununla karsilastiririz. */
+const DPR = Number(process.argv[3] ?? 1);
 const COUNTS = [0, 30, 120];
 const SAMPLE_MS = 1800;
 
@@ -38,6 +40,7 @@ const rows = [];
 for (const count of COUNTS) {
   const ctx = await browser.newContext({
     viewport: { width: 390, height: 844 },
+    deviceScaleFactor: DPR,
     isMobile: true,
     hasTouch: true,
   });

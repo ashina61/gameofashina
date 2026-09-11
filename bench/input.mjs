@@ -26,6 +26,11 @@
 import { chromium } from '/opt/node22/lib/node_modules/playwright/index.mjs';
 
 const URL = process.argv[2] ?? 'http://127.0.0.1:5173/';
+/**
+ * Cizim piksel yogunlugu. Girdi ve yerlesim davranisi DPR'den ETKILENMEMELI;
+ * ayni betigi farkli yogunluklarda kosturmak bunu dogrular.
+ */
+const DPR = Number(process.argv[3] ?? 1);
 const VIEWPORT = { width: 390, height: 844 };
 
 const browser = await chromium.launch();
@@ -33,7 +38,7 @@ const results = [];
 
 /** Her olcum temiz bir baglamda yapilir; onceki dokunus durumu tasinmaz. */
 async function fresh() {
-  const ctx = await browser.newContext({ viewport: VIEWPORT, isMobile: true, hasTouch: true });
+  const ctx = await browser.newContext({ viewport: VIEWPORT, deviceScaleFactor: DPR, isMobile: true, hasTouch: true });
   const page = await ctx.newPage();
   await page.goto(URL, { waitUntil: 'load' });
   await page.evaluate(() => localStorage.clear());
@@ -148,40 +153,51 @@ for (const [jitter, expected] of [
 for (const index of [0, 1, 2, 3, 4]) {
   const { ctx, page } = await fresh();
 
+  /*
+   * Hedef karo hem KURULABILIR hem de EKRANDA olmali.
+   *
+   * Izgara gorunen alandan cok daha genistir (14 karo x 128 piksel).
+   * Yalnizca kurulabilirlige bakmak, kameranin disinda kalan bir karoyu
+   * secebiliyordu; oraya dokunmak hicbir sey yapmaz ve olcum var olmayan
+   * bir hatayi bildirirdi. Ekran suzgeci ayrica arayuzun kapladigi ust ve
+   * alt seritleri de disarida birakir.
+   */
   const target = await page.evaluate((index) => {
-    const world = window.game.scene.getScene('CityScene').registry.get('world');
+    const scene = window.game.scene.getScene('CityScene');
+    const world = scene.registry.get('world');
+    const cam = scene.cameras.main;
+    const dpr = window.game.registry.get('resolution')?.dpr ?? 1;
+    const viewW = window.innerWidth;
+    const viewH = window.innerHeight;
+
     world.state.setResource('wood', 9999);
     world.state.setResource('stone', 9999);
+
+    const origin = cam.getWorldPoint(0, 0);
+    const alongX = cam.getWorldPoint(100, 0);
+    const alongY = cam.getWorldPoint(0, 100);
+    const scaleX = (alongX.x - origin.x) / 100;
+    const scaleY = (alongY.y - origin.y) / 100;
+
     const cells = [];
     for (const tile of world.state.grid.allTiles()) {
-      if (tile.gx < 1 || tile.gy < 1) continue;
-      if (world.buildings.validate('house', tile.gx, tile.gy).ok) cells.push([tile.gx, tile.gy]);
+      if (!world.buildings.validate('house', tile.gx, tile.gy).ok) continue;
+      const w = { x: (tile.gx - tile.gy) * 64, y: (tile.gx + tile.gy) * 32 };
+      const sx = (w.x - origin.x) / scaleX / dpr;
+      const sy = (w.y - origin.y) / scaleY / dpr;
+      // Arayuz seritlerinden uzak, ekran icinde kalan karolar.
+      if (sx < 40 || sx > viewW - 40) continue;
+      if (sy < 90 || sy > viewH - 130) continue;
+      cells.push({ gx: tile.gx, gy: tile.gy, sx, sy });
     }
-    // Gecerli karolar arasinda esit araliklarla dagilmis bir ornek sec.
-    const pick = cells[Math.floor((cells.length - 1) * (index / 4))];
-    return pick ? { gx: pick[0], gy: pick[1] } : null;
+    if (cells.length === 0) return null;
+    return cells[Math.floor((cells.length - 1) * (index / 4))];
   }, index);
 
   if (!target) {
     await ctx.close();
     continue;
   }
-
-  // Ekran->dunya esleme Phaser'in kendi getWorldPoint'inden turetilir;
-  // formulu elle yazmak sabit bir kayma uretir.
-  const screen = await page.evaluate(
-    ({ gx, gy }) => {
-      const cam = window.game.scene.getScene('CityScene').cameras.main;
-      const origin = cam.getWorldPoint(0, 0);
-      const alongX = cam.getWorldPoint(100, 0);
-      const alongY = cam.getWorldPoint(0, 100);
-      const scaleX = (alongX.x - origin.x) / 100;
-      const scaleY = (alongY.y - origin.y) / 100;
-      const world = { x: (gx - gy) * 64, y: (gx + gy) * 32 };
-      return { x: (world.x - origin.x) / scaleX, y: (world.y - origin.y) / scaleY };
-    },
-    target,
-  );
 
   await page.evaluate(() => {
     const world = window.game.scene.getScene('CityScene').registry.get('world');
@@ -190,7 +206,7 @@ for (const index of [0, 1, 2, 3, 4]) {
   await page.waitForTimeout(300);
 
   // Merkezin biraz YUKARISI: asagi yuvarlama hatasinin en belirgin oldugu yer.
-  await page.mouse.move(screen.x, screen.y - 6);
+  await page.mouse.move(target.sx, target.sy - 6);
   await page.mouse.down();
   await page.waitForTimeout(150);
   await page.mouse.up();
