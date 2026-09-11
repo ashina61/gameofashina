@@ -11,6 +11,7 @@ import type {
   SaveData,
   WorkerRecord,
   WorkerState,
+  WorldPoint,
 } from '@/types';
 
 /** Kayit yuklenirken atilan bir kaydin nedeni. */
@@ -208,14 +209,25 @@ export class GameState {
     building.level = Number.isFinite(level) ? Math.max(1, Math.trunc(level)) : 1;
   }
 
-  /** Yeni bir isci ekler ve kaydini dondurur. */
-  addWorker(): WorkerRecord {
+  /**
+   * Yeni bir isci ekler ve kaydini dondurur.
+   *
+   * Konum cagiranin isidir: nerede dogacagini bilen taraf is gucu
+   * sistemidir (meydan), veri modeli degil.
+   */
+  addWorker(x: number, y: number): WorkerRecord {
     this.workerCounter += 1;
     const worker: WorkerRecord = {
       id: `w#${this.workerCounter}`,
       buildingUid: null,
       state: 'idle',
-      travel: 1,
+      slot: -1,
+      fromX: x,
+      fromY: y,
+      toX: x,
+      toY: y,
+      travelTicks: 0,
+      travelLeft: 0,
     };
     this.workerList.push(worker);
     return worker;
@@ -235,13 +247,72 @@ export class GameState {
     return this.workerList.splice(index, 1)[0] ?? null;
   }
 
-  /** Bir iscinin isini ve durumunu belirler. */
-  setWorkerJob(id: string, buildingUid: string | null, state: WorkerState, travel: number): void {
+  /**
+   * Bir isciyi verilen noktaya YURUMEYE baslatir.
+   *
+   * Bacagin baslangici iscinin SU ANKI konumudur; yoldayken yeniden
+   * yonlendirilen isci bulundugu yerden devam eder, basa donmez.
+   */
+  sendWorkerTo(
+    id: string,
+    buildingUid: string | null,
+    slot: number,
+    to: WorldPoint,
+    ticks: number,
+    from: WorldPoint,
+  ): void {
     const worker = this.workerList.find((w) => w.id === id);
     if (!worker) return;
     worker.buildingUid = buildingUid;
+    worker.slot = Number.isFinite(slot) ? Math.trunc(slot) : -1;
+    worker.state = 'moving';
+    worker.fromX = from.x;
+    worker.fromY = from.y;
+    worker.toX = to.x;
+    worker.toY = to.y;
+    worker.travelTicks = Math.max(1, Math.trunc(ticks));
+    worker.travelLeft = worker.travelTicks;
+  }
+
+  /** Yuruyusu bitirir: isci hedefine oturur ve verilen duruma gecer. */
+  settleWorker(id: string, state: Exclude<WorkerState, 'moving'>): void {
+    const worker = this.workerList.find((w) => w.id === id);
+    if (!worker) return;
     worker.state = state;
-    worker.travel = Number.isFinite(travel) ? Math.min(1, Math.max(0, travel)) : 0;
+    worker.fromX = worker.toX;
+    worker.fromY = worker.toY;
+    worker.travelTicks = 0;
+    worker.travelLeft = 0;
+    if (state === 'idle') {
+      worker.buildingUid = null;
+      worker.slot = -1;
+    }
+  }
+
+  /** Yuruyusun kalan suresini gunceller; varis kararini cagiran verir. */
+  setWorkerTravelLeft(id: string, left: number): void {
+    const worker = this.workerList.find((w) => w.id === id);
+    if (!worker) return;
+    worker.travelLeft = Math.max(0, Math.trunc(left));
+  }
+
+  /** Bir iscinin binadaki duruş yerini degistirir; isini degistirmez. */
+  assignWorkerSlot(id: string, slot: number): void {
+    const worker = this.workerList.find((w) => w.id === id);
+    if (!worker) return;
+    worker.slot = Number.isFinite(slot) ? Math.trunc(slot) : -1;
+  }
+
+  /** Isciyi yurutmeden dogrudan verilen noktaya oturtur (yukleme ve tamir icin). */
+  placeWorker(id: string, at: WorldPoint): void {
+    const worker = this.workerList.find((w) => w.id === id);
+    if (!worker) return;
+    worker.fromX = at.x;
+    worker.fromY = at.y;
+    worker.toX = at.x;
+    worker.toY = at.y;
+    worker.travelTicks = 0;
+    worker.travelLeft = 0;
   }
 
   /** Binaya atanan isci sayisini belirler; negatif olamaz. */

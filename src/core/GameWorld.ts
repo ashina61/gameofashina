@@ -62,9 +62,16 @@ export class GameWorld {
       this.economy,
     );
 
-    // Isci kayitlari nufusla hizalanir ve gecersiz atamalar temizlenir.
-    // Ilk tikten once yapilmalidir ki cevrimdisi telafinin ilk penceresi de
-    // dogru kadroyla uretsin.
+    /*
+     * Isciler once KONUMLANDIRILIR, sonra nufusla hizalanir.
+     *
+     * Sira onemli: uzlastirma sirasinda fazla isci meydana yollanir ve o
+     * yuruyusun suresi iscinin BULUNDUGU yerden hesaplanir. Konum
+     * yerlesmeden uzlastirmak, herkesi haritanin kosesinden yurutmek
+     * olurdu. Ikisi de ilk tikten once yapilmalidir ki cevrimdisi
+     * telafinin ilk penceresi de dogru kadroyla uretsin.
+     */
+    this.workforce.restorePositions();
     this.workforce.reconcile();
     this.population.rebuildFromState();
 

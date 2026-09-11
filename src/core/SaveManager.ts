@@ -133,8 +133,13 @@ export function migrateAndSanitize(input: unknown): SaveData | null {
  * kayit icin isciler assignedWorkers'tan URETILIR: her bina kendi
  * calisanlarini geri alir, kalan nufus bosta baslar.
  *
+ * Sprint 9 kaydi ayrica KONUM tasir. Konum eksikse (Sprint 8 sehri) veya
+ * bozuksa sifirlanir; WorkforceSystem.restorePositions() yuklemeden hemen
+ * sonra herkesi bulunmasi gereken yere oturtur. Bu yuzden konum eksikligi
+ * kaydi gecersiz kilmaz - surum artirmaya da gerek yoktur.
+ *
  * Bozuk kayitlar sessizce tasinmaz: bilinmeyen durum, taninmayan bina
- * referansi veya gecersiz ilerleme degeri duzeltilir.
+ * referansi veya gecersiz sure duzeltilir.
  */
 function sanitizeWorkerRecords(input: unknown, buildings: BuildingInstance[]): WorkerRecord[] {
   const known = new Set(buildings.map((b) => b.uid));
@@ -146,7 +151,7 @@ function sanitizeWorkerRecords(input: unknown, buildings: BuildingInstance[]): W
       const count = Math.max(0, Math.trunc(building.assignedWorkers));
       for (let i = 0; i < count; i += 1) {
         counter += 1;
-        derived.push({ id: `w#${counter}`, buildingUid: building.uid, state: 'working', travel: 1 });
+        derived.push(blankWorker(`w#${counter}`, building.uid, 'working', i));
       }
     }
     return derived;
@@ -167,16 +172,87 @@ function sanitizeWorkerRecords(input: unknown, buildings: BuildingInstance[]): W
 
     // Taninmayan binaya atanmis isci bosa cikar; sahipsiz referans kalmaz.
     const uid = typeof raw.buildingUid === 'string' && known.has(raw.buildingUid) ? raw.buildingUid : null;
-    const state = isWorkerState(raw.state) && uid ? raw.state : 'idle';
-    const travel =
-      state === 'moving' && typeof raw.travel === 'number' && Number.isFinite(raw.travel)
-        ? Math.min(1, Math.max(0, raw.travel))
-        : 1;
+    /*
+     * Yoldaki isci binasiz da olabilir: meydana DONUYOR demektir. Bu yuzden
+     * 'moving' durumu bina referansi olmadan da korunur; yalnizca 'working'
+     * bir bina ister.
+     */
+    const claimed = isWorkerState(raw.state) ? raw.state : 'idle';
+    const state = claimed === 'working' && !uid ? 'idle' : claimed;
+    const slot = state === 'working' || (state === 'moving' && uid) ? readSlot(raw.slot) : -1;
 
-    workers.push({ id, buildingUid: state === 'idle' ? null : uid, state, travel });
+    const worker = blankWorker(id, state === 'idle' ? null : uid, state, slot);
+    applySavedRoute(worker, raw);
+    workers.push(worker);
   }
 
   return workers;
+}
+
+/** Konumu henuz belirlenmemis bir isci kaydi. */
+function blankWorker(
+  id: string,
+  buildingUid: string | null,
+  state: WorkerState,
+  slot: number,
+): WorkerRecord {
+  return {
+    id,
+    buildingUid,
+    state,
+    slot,
+    fromX: 0,
+    fromY: 0,
+    toX: 0,
+    toY: 0,
+    travelTicks: 0,
+    travelLeft: 0,
+  };
+}
+
+/**
+ * Kayitli yuruyusu geri yukler.
+ *
+ * Sayilardan biri bile bozuksa hicbiri alinmaz: yarim bir rota, iscinin
+ * haritanin disinda bir noktaya yurumesi demek olurdu. O durumda konum
+ * sifir kalir ve restorePositions() dogru yeri hesaplar.
+ */
+function applySavedRoute(worker: WorkerRecord, raw: Record<string, unknown>): void {
+  const from = readPoint(raw.fromX, raw.fromY);
+  const to = readPoint(raw.toX, raw.toY);
+  if (!from || !to) return;
+
+  worker.fromX = from.x;
+  worker.fromY = from.y;
+  worker.toX = to.x;
+  worker.toY = to.y;
+
+  if (worker.state !== 'moving') return;
+
+  const total = readCount(raw.travelTicks);
+  const left = readCount(raw.travelLeft);
+  if (total <= 0 || left <= 0 || left > total) return;
+  worker.travelTicks = total;
+  worker.travelLeft = left;
+}
+
+/** Iki sonlu sayidan bir nokta; degilse null. */
+function readPoint(x: unknown, y: unknown): { x: number; y: number } | null {
+  if (typeof x !== 'number' || !Number.isFinite(x)) return null;
+  if (typeof y !== 'number' || !Number.isFinite(y)) return null;
+  return { x, y };
+}
+
+/** Pozitif tam sayi okur; degilse 0. */
+function readCount(value: unknown): number {
+  if (typeof value !== 'number' || !Number.isFinite(value)) return 0;
+  return Math.max(0, Math.trunc(value));
+}
+
+/** Duruş yeri okur; gecersizse 0 (reconcile zaten cakismalari duzeltir). */
+function readSlot(value: unknown): number {
+  if (typeof value !== 'number' || !Number.isFinite(value) || value < 0) return 0;
+  return Math.trunc(value);
 }
 
 function isWorkerState(value: unknown): value is WorkerState {

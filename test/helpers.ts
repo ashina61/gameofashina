@@ -4,7 +4,6 @@
  * GameWorld.bootstrap() localStorage gerektirdigi icin testler sistemleri
  * dogrudan kurar. Kurulum sirasi GameWorld ile ayni tutulmalidir.
  */
-import { WORKER_TRAVEL_TICKS } from '@/config/Constants';
 import { GameState } from '@/core/GameState';
 import { EventBus } from '@/core/EventBus';
 import { Simulation } from '@/core/Simulation';
@@ -48,6 +47,7 @@ export function wrap(state: GameState): TestWorld {
   const simulation = new Simulation(state, construction, population, workforce, economy);
 
   // GameWorld ile ayni sira.
+  workforce.restorePositions();
   workforce.reconcile();
   population.rebuildFromState();
   bus.on('building:removed', (building) => workforce.releaseAll(building.uid));
@@ -88,8 +88,23 @@ export function staff(world: TestWorld, uid: string): number {
     if (!world.workforce.assign(uid).ok) break;
     assigned += 1;
   }
-  world.workforce.advance(WORKER_TRAVEL_TICKS);
+  settleWalks(world);
   return assigned;
+}
+
+/**
+ * Yoldaki herkes varana kadar is gucunu ilerletir.
+ *
+ * Sprint 9'dan beri yuruyus suresi MESAFEDEN turer, yani sabit bir tik
+ * sayisi ilerletmek yetmez: uzaktaki bir binaya giden isci hala yolda
+ * olabilir. Ust sinir sonsuz donguye karsi; haritanin bir ucundan digerine
+ * yuruyus bile 20 tikin altinda.
+ */
+export function settleWalks(world: TestWorld, limit = 60): void {
+  for (let i = 0; i < limit; i += 1) {
+    if (world.workforce.snapshot.moving === 0) return;
+    world.workforce.advance(1);
+  }
 }
 
 /** Sehirdeki TUM uretim binalarini kadrolu hale getirir. */

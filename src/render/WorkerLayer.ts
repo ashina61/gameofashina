@@ -1,9 +1,8 @@
-import Phaser from 'phaser';
 import { TILE_HEIGHT } from '@/config/Constants';
-import { getBuilding } from '@/config/BuildingCatalog';
-import { gridToWorld } from '@/utils/IsoUtils';
+import { workerPosition } from '@/systems/WorkerAnchor';
 import { IDLE_ALPHA, WORKER_ORIGIN_Y } from './WorkerArt';
 import { WORKER_TEXTURE_KEYS } from './TextureFactory';
+import type Phaser from 'phaser';
 import type { GameState } from '@/core/GameState';
 import type { WorkerRecord, WorkerState } from '@/types';
 
@@ -12,10 +11,10 @@ import type { WorkerRecord, WorkerState } from '@/types';
  *
  * SORUMLULUK SINIRI
  * Burada hicbir oyun karari verilmez. Isci nerede duruyor sorusunun cevabi
- * tamamen state'ten TURETILIR: bosta olan meydanda bekler, yolda olan
- * meydan ile binasi arasinda `travel` oranina gore ilerler, calisan
- * binasinin ayak izinde durur. Core katmaninda piksel yoktur - orasi
- * Phaser'i hic bilmez.
+ * SIMULASYONUNDUR: kaydinda bacagin iki ucu ve kalan sure yazilidir, konum
+ * bunlardan turer (WorkerAnchor.workerPosition). Sprint 8'de bu hesap
+ * buradaydi - meydan, bina onu ve dagilim render katmaninda karar
+ * veriliyordu; artik yalnizca CIZIM burada.
  *
  * NEDEN HER KARE TARANIR
  * Isci kayitlari her tikte degisebilir (nufus artar, isci varir). Olay
@@ -25,8 +24,8 @@ import type { WorkerRecord, WorkerState } from '@/types';
  * kayitlarin uzerine yazilir.
  *
  * YUMUSAK HAREKET
- * Simulasyon saniyede bir tik isler, yani `travel` dort kademede artar.
- * Ham degeri dogrudan cizmek isciyi ziplatirdi; burada gorunen konum hedefe
+ * Simulasyon saniyede bir tik isler, yani konum saniyede bir siciar. Ham
+ * degeri dogrudan cizmek isciyi ziplatirdi; burada gorunen konum hedefe
  * dogru kare basina yumusatilir. Bu yalnizca GORUNTUdur, state'e yazilmaz.
  */
 export class WorkerLayer {
@@ -40,9 +39,6 @@ export class WorkerLayer {
   /** Isci id -> ekrandaki karsiligi. */
   private readonly entries = new Map<string, WorkerEntry>();
 
-  /** Sehir meydani: bosta iscilerin bekledigi ve yola ciktigi nokta. */
-  private readonly plaza: { x: number; y: number };
-
   /** Mark-and-sweep sayaci; artik var olmayan isciler bu sayede temizlenir. */
   private generation = 0;
 
@@ -50,11 +46,6 @@ export class WorkerLayer {
     this.scene = scene;
     this.state = state;
     this.artScale = artScale;
-    const center = state.grid.center();
-    // Meydan, merkez karonun bir tik ONUNDE. Tam merkezde birakilinca bosta
-    // isciler oraya kurulan binanin USTUNDE duruyordu (ekran goruntusuyle
-    // gorulduu); yarim karo one almak onlari binanin onune indiriyor.
-    this.plaza = gridToWorld(center.gx + 0.6, center.gy + 0.6);
   }
 
   /** Ekrandaki isci sayisi; olcum ve test icin. */
@@ -108,21 +99,20 @@ export class WorkerLayer {
       x: 0,
       y: 0,
       state: worker.state,
-      // Ayni noktada duran isciler ust uste binmesin diye her isciye sabit
-      // bir sapma ve sallanma fazi verilir; id'den turedigi icin yeniden
-      // yuklemede ayni kalir.
+      // Calisma sallanmasinin fazi; hepsi ayni anda ziplamasin diye isciye
+      // ozel ve id'den turedigi icin yeniden yuklemede ayni kalir.
       phase: hashOf(worker.id),
     };
 
-    const target = this.targetFor(worker, entry.phase);
-    entry.x = target.x;
-    entry.y = target.y;
+    const at = workerPosition(worker);
+    entry.x = at.x;
+    entry.y = at.y;
     return entry;
   }
 
   /** Sprite'i hedefine dogru bir kare yaklastirir ve durumunu yansitir. */
   private follow(entry: WorkerEntry, worker: WorkerRecord, blend: number, time: number): void {
-    const target = this.targetFor(worker, entry.phase);
+    const target = workerPosition(worker);
     entry.x += (target.x - entry.x) * blend;
     entry.y += (target.y - entry.y) * blend;
 
@@ -143,41 +133,6 @@ export class WorkerLayer {
     entry.sprite.setDepth((entry.y * 2) / TILE_HEIGHT * 10 + 1);
   }
 
-  /**
-   * Iscinin durmasi gereken dunya noktasi.
-   *
-   * Bosta   : meydanda, id'sine gore sabit bir yerde
-   * Yolda   : meydan ile is yeri arasinda `travel` oraninda
-   * Calisan : binanin ayak izinde, id'sine gore sabit bir yerde
-   */
-  private targetFor(worker: WorkerRecord, phase: number): { x: number; y: number } {
-    const idleX = this.plaza.x + spreadX(phase, 150);
-    const idleY = this.plaza.y + spreadY(phase, 58);
-
-    const uid = worker.buildingUid;
-    if (!uid) return { x: idleX, y: idleY };
-
-    const building = this.state.buildings.get(uid);
-    if (!building) return { x: idleX, y: idleY };
-
-    const size = getBuilding(building.type).size;
-    const center = gridToWorld(
-      building.gx + (size - 1) / 2,
-      building.gy + (size - 1) / 2,
-    );
-    // Isciler binanin ONUNDE durur; ustune binmeleri siluetini bozardi.
-    const workX = center.x + spreadX(phase, 30 * size);
-    const workY = center.y + TILE_HEIGHT * 0.42 * size + spreadY(phase, 10);
-
-    if (worker.state !== 'moving') return { x: workX, y: workY };
-
-    const t = Phaser.Math.Clamp(worker.travel, 0, 1);
-    return {
-      x: idleX + (workX - idleX) * t,
-      y: idleY + (workY - idleY) * t,
-    };
-  }
-
   /** Artik var olmayan iscilerin sprite'larini birakir. */
   private sweep(): void {
     for (const [id, entry] of this.entries) {
@@ -196,21 +151,11 @@ interface WorkerEntry {
   x: number;
   y: number;
   state: WorkerState;
-  /** id'den turetilmis 0..1 sabiti: dagilim ve sallanma fazi. */
+  /** id'den turetilmis 0..1 sabiti; yalnizca sallanma fazi icin. */
   phase: number;
 }
 
-/** Faza gore yatay sapma. */
-function spreadX(phase: number, span: number): number {
-  return (phase - 0.5) * span;
-}
-
-/** Faza gore dikey sapma; izometrik oranda yatayin yarisi kadar. */
-function spreadY(phase: number, span: number): number {
-  return (((phase * 7.3) % 1) - 0.5) * span;
-}
-
-/** id -> 0..1 arasi kararli sayi. Ayni isci her acilista ayni yerde durur. */
+/** id -> 0..1 arasi kararli sayi. */
 function hashOf(id: string): number {
   let hash = 2166136261;
   for (let i = 0; i < id.length; i += 1) {

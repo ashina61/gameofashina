@@ -71,10 +71,12 @@ const assignVia = (uid) => W((u) => {
   return { assigned: b.assignedWorkers, claimed, moving, idle: w.workforce.idleCount };
 }, uid);
 
-const advance = (ticks) => W((n) => {
+/** Yoldaki herkes varana kadar ilerletir; sure artik MESAFEDEN turer. */
+const settle = () => W(() => {
   const w = window.game.scene.getScene('CityScene').registry.get('world');
-  for (let i = 0; i < n; i += 1) w.simulation.advance(1);
-}, ticks);
+  for (let i = 0; i < 60 && w.workforce.snapshot.moving > 0; i += 1) w.simulation.advance(1);
+  return w.workforce.snapshot;
+});
 
 const snap = (uid) => W((u) => {
   const w = window.game.scene.getScene('CityScene').registry.get('world');
@@ -97,7 +99,7 @@ check('A', 'atama kabul edildi, isci yola cikti',
   `yolda=${a.moving} bagli=${a.claimed} calisan=${a.assigned}`);
 
 // --- B: yolculuk bitince isci gercekten calisiyor ---------------------------
-await advance(4);
+await settle();
 const bSnap = await snap(setup.lumber);
 check('B', 'isci vardi ve uretime katildi',
   bSnap.assigned === 1 && (bSnap.effective.wood ?? 0) > 0,
@@ -105,7 +107,7 @@ check('B', 'isci vardi ve uretime katildi',
 
 // --- C: ayni akis Quarry icin -----------------------------------------------
 const c1 = await assignVia(setup.quarry);
-await advance(4);
+await settle();
 const cSnap = await snap(setup.quarry);
 check('C', 'Quarry de isci alabiliyor',
   c1.moving === 1 && cSnap.assigned === 1 && (cSnap.effective.stone ?? 0) > 0,
@@ -117,20 +119,26 @@ const d = await W((u) => {
   const before = w.state.buildings.get(u).assignedWorkers;
   const idleBefore = w.workforce.idleCount;
   w.bus.emit('ui:release-worker', u);
-  return {
-    before,
-    after: w.state.buildings.get(u).assignedWorkers,
-    idleBefore,
-    idleAfter: w.workforce.idleCount,
+  // Sprint 9: yer ANINDA bosalir, isci meydana YURUYEREK doner.
+  const straightAfter = {
+    assigned: w.state.buildings.get(u).assignedWorkers,
+    idle: w.workforce.idleCount,
+    moving: w.workforce.snapshot.moving,
   };
+  for (let i = 0; i < 60 && w.workforce.snapshot.moving > 0; i += 1) w.simulation.advance(1);
+  return { before, idleBefore, straightAfter, idleArrived: w.workforce.idleCount };
 }, setup.quarry);
-check('D', 'isci binadan geri alinabiliyor',
-  d.after === d.before - 1 && d.idleAfter === d.idleBefore + 1,
-  `calisan ${d.before}->${d.after}, bosta ${d.idleBefore}->${d.idleAfter}`);
+check('D', 'isci geri alinir: uretim aninda biter, meydana YURUR',
+  d.straightAfter.assigned === d.before - 1 &&
+  d.straightAfter.idle === d.idleBefore &&
+  d.straightAfter.moving > 0 &&
+  d.idleArrived === d.idleBefore + 1,
+  `calisan ${d.before}->${d.straightAfter.assigned}, yolda=${d.straightAfter.moving}, ` +
+  `bosta ${d.idleBefore}->${d.straightAfter.idle}->${d.idleArrived}`);
 
 // --- E: ayni binaya ikinci isci ---------------------------------------------
 await assignVia(setup.lumber);
-await advance(4);
+await settle();
 const eSnap = await snap(setup.lumber);
 check('E', 'ayni binaya ikinci isci atanabiliyor',
   eSnap.assigned === 2,
@@ -157,16 +165,13 @@ const g = await W((u) => {
   const claimed = w.workforce.claimedBy(u);
   const idleBefore = w.workforce.idleCount;
   w.bus.emit('ui:request-demolish', u);
-  return {
-    claimed,
-    idleBefore,
-    idleAfter: w.workforce.idleCount,
-    orphan: w.state.workers.filter((x) => x.buildingUid === u).length,
-  };
+  const orphan = w.state.workers.filter((x) => x.buildingUid === u).length;
+  for (let i = 0; i < 60 && w.workforce.snapshot.moving > 0; i += 1) w.simulation.advance(1);
+  return { claimed, idleBefore, orphan, idleArrived: w.workforce.idleCount };
 }, setup.lumber);
-check('G', 'yikilan binanin iscileri bosa cikiyor',
-  g.orphan === 0 && g.idleAfter === g.idleBefore + g.claimed,
-  `serbest=${g.claimed} bosta ${g.idleBefore}->${g.idleAfter} sahipsiz=${g.orphan}`);
+check('G', 'yikilan binanin iscileri meydana donuyor',
+  g.orphan === 0 && g.idleArrived === g.idleBefore + g.claimed,
+  `serbest=${g.claimed} bosta ${g.idleBefore}->${g.idleArrived} sahipsiz=${g.orphan}`);
 
 // --- H: kayit / yeniden yukleme ------------------------------------------------
 const beforeReload = await W(() => {
@@ -176,7 +181,7 @@ const beforeReload = await W(() => {
   for (const b of w.state.buildings.values()) {
     if (b.type === 'quarry') { w.workforce.assign(b.uid); w.workforce.assign(b.uid); }
   }
-  for (let i = 0; i < 6; i += 1) w.simulation.advance(1);
+  for (let i = 0; i < 60 && w.workforce.snapshot.moving > 0; i += 1) w.simulation.advance(1);
   w.save();
   const rows = [...w.state.workers].map((x) => `${x.buildingUid ?? '-'}:${x.state}`).sort();
   return { rows, quarry: [...w.state.buildings.values()].find((b) => b.type === 'quarry')?.uid };

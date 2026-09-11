@@ -105,9 +105,15 @@ export type BuildingState = 'constructing' | 'active' | 'disabled' | 'damaged';
 /**
  * Bir iscinin durumu.
  *
- *   idle    bosta, herhangi bir binaya atanmamis
- *   moving  atandi, hedef binaya yolda
+ *   idle    bosta, meydanda bekliyor
+ *   moving  yurüyor - hedefi ya bir bina ya da meydandir
  *   working binada calisiyor - URETIME ancak bu durumda katkida bulunur
+ *
+ * YURUYUSUN YONU DURUMDA DEGIL, HEDEFTE SAKLI
+ * `moving` iki sey anlatir: ise gidiyor (buildingUid dolu) veya eve
+ * donuyor (buildingUid null). Ayri bir 'returning' durumu eklemek gorsel
+ * katmana dorduncu bir doku ve kayda yeni bir deger sokardi; oysa donen
+ * isci de yalnizca yuruyen bir iscidir.
  */
 export type WorkerState = 'idle' | 'moving' | 'working';
 
@@ -121,15 +127,33 @@ export type WorkerState = 'idle' | 'moving' | 'working';
  */
 export interface WorkerRecord {
   id: string;
-  /** Atandigi binanin uid'i; bosta ise null. */
+  /** Atandigi binanin uid'i; bosta veya donerken null. */
   buildingUid: string | null;
   state: WorkerState;
   /**
-   * Hedefe yolculuk ilerlemesi (0..1).
-   * moving disindaki durumlarda 1'dir. Gorsel konum bundan turetilir;
-   * konumun kendisi oyun durumunda TUTULMAZ.
+   * Binadaki durus yeri (0..kapasite-1); atanmamissa -1.
+   *
+   * Ayni binada calisan isciler ayni pikselde ust uste binmesin diye her
+   * birine sabit bir yer verilir. Yer, iscinin KIMLIGINDEN degil
+   * ATAMASINDAN gelir: bir arkadasi ayrilinca kalanlar yerinde durur.
    */
-  travel: number;
+  slot: number;
+  /** Icinde bulundugu yuruyus bacaginin baslangici (dunya koordinati). */
+  fromX: number;
+  fromY: number;
+  /** Bacagin hedefi. Yurumuyorsa iscinin bulundugu nokta. */
+  toX: number;
+  toY: number;
+  /**
+   * Bacagin toplam suresi (tik) ve kalan suresi.
+   *
+   * Sure MESAFEDEN turer: iki kat uzaga giden isci kabaca iki kat uzun
+   * yurur. Ikisi de TAM SAYI oldugu icin 10 tiki tek seferde islemekle 10
+   * kez tek tik islemek birebir ayni varis anini verir - kesirli bir
+   * ilerleme orani bu garantiyi veremezdi.
+   */
+  travelTicks: number;
+  travelLeft: number;
 }
 
 /** Bir insaat gorevinin turu. */

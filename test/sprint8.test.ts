@@ -8,8 +8,8 @@
 import { describe, expect, it } from 'vitest';
 import { GameState } from '@/core/GameState';
 import { migrateAndSanitize } from '@/core/SaveManager';
-import { SAVE_VERSION, WORKER_TRAVEL_TICKS } from '@/config/Constants';
-import { makeWorld, staff, wrap } from './helpers';
+import { SAVE_VERSION } from '@/config/Constants';
+import { makeWorld, settleWalks, staff, wrap } from './helpers';
 import type { TestWorld } from './helpers';
 import type { BuildingId, BuildingInstance } from '@/types';
 
@@ -73,9 +73,10 @@ describe('isci atama', () => {
     if (!result.ok) throw new Error('atama reddedildi');
 
     expect(result.worker.state).toBe('moving');
+    expect(result.worker.travelLeft).toBeGreaterThan(0);
     expect(target.assignedWorkers).toBe(0); // henuz uretime katkisi yok
 
-    world.workforce.advance(WORKER_TRAVEL_TICKS);
+    settleWalks(world);
 
     expect(result.worker.state).toBe('working');
     expect(target.assignedWorkers).toBe(1);
@@ -181,16 +182,21 @@ describe('isci geri alma', () => {
 
     expect(result.ok).toBe(true);
     if (result.ok) {
-      expect(result.worker.state).toBe('idle');
+      // Sprint 9: isci ANINDA bosa gecmez, meydana YURUR. Binayla bagi ve
+      // uretim katkisi yine de ayni tikte kopar.
+      expect(result.worker.state).toBe('moving');
       expect(result.worker.buildingUid).toBeNull();
     }
     expect(target.assignedWorkers).toBe(working - 1);
+
+    settleWalks(world);
+    if (result.ok) expect(result.worker.state).toBe('idle');
   });
 
   it('once YOLDAKI isci geri cagrilir - calisan uretimi kesilmez', () => {
     const { world, target } = cityWith('lumber_camp');
     world.workforce.assign(target.uid);
-    world.workforce.advance(WORKER_TRAVEL_TICKS); // ilki vardi
+    settleWalks(world); // ilki vardi
     world.workforce.assign(target.uid); // ikincisi yolda
 
     const result = world.workforce.release(target.uid);
@@ -215,12 +221,15 @@ describe('bina yikimi ve durum degisimi', () => {
 
     world.buildings.demolish(target.uid);
 
+    // Yer ANINDA bosalir ve sahipsiz referans kalmaz; isciler meydana
+    // yuruyerek doner, bu yuzden 'idle' sayisi varisla birlikte dolar.
     expect(world.workforce.claimedBy(target.uid)).toBe(0);
-    expect(world.workforce.idleCount).toBe(world.state.workers.length);
-    // Sahipsiz referans kalmamali.
     for (const worker of world.state.workers) {
       expect(worker.buildingUid).toBeNull();
     }
+
+    settleWalks(world);
+    expect(world.workforce.idleCount).toBe(world.state.workers.length);
   });
 
   it('yukseltme sirasinda atama KORUNUR', () => {
@@ -275,7 +284,7 @@ describe('uretim entegrasyonu', () => {
     const { world, target } = cityWith('quarry'); // 4 isci ister
     world.workforce.assign(target.uid);
     world.workforce.assign(target.uid);
-    world.workforce.advance(WORKER_TRAVEL_TICKS);
+    settleWalks(world);
     world.simulation.advance(1);
 
     const capacity = world.workforce.capacityOf(target.uid);
@@ -403,7 +412,7 @@ describe('determinizm', () => {
     const realNow = Date.now();
 
     world.workforce.assign(target.uid);
-    world.workforce.advance(WORKER_TRAVEL_TICKS);
+    settleWalks(world);
 
     expect(Date.now() - realNow).toBeLessThan(5000);
     expect(target.assignedWorkers).toBe(1);

@@ -70,13 +70,18 @@ export const POPULATION_DECLINE_PER_MINUTE = 1;
 export const POPULATION_GROWTH_FOOD_THRESHOLD = 1;
 
 /**
- * Bir iscinin atandigi binaya varmasi icin gereken tik sayisi.
+ * Iscinin bir tikte yurudugu dunya birimi.
  *
- * Sabittir: bu surumde mesafe hesabi, yol veya rota bulma yoktur. Amac
- * atamanin ANINDA gerceklesmemesi - oyuncu isciyi yola cikardigini gorur.
- * Isci varmadan uretime katkida bulunmaz.
+ * Sprint 8'de yolculuk SABIT dort tikti: haritanin obur ucundaki ocak da,
+ * bitisikteki ciftlik de ayni suruyordu. Artik sure gercek mesafeden
+ * turuyor (bkz. WorkerAnchor.travelTicksFor), yani iki kat uzaga giden
+ * isci kabaca iki kat uzun yuruyor.
+ *
+ * Olcek: komsu iki karo merkezi arasi ~71 birim, haritanin bir ucundan
+ * digerine ~900 birim. 60 birim/tik ile yakin bir bina 1-2 tik, en uzak
+ * kose 15 tik sürer.
  */
-export const WORKER_TRAVEL_TICKS = 4;
+export const WORKER_SPEED = 60;
 
 /**
  * Ayni anda islenebilecek azami insaat/yukseltme gorevi.

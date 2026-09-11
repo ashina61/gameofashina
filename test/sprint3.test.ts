@@ -15,7 +15,7 @@ import {
   SAVE_VERSION,
 } from '@/config/Constants';
 import { GRID_SIZE } from '@/config/Constants';
-import { grant, makeWorld, staff, staffAll, wrap } from './helpers';
+import { grant, makeWorld, settleWalks, staff, staffAll, wrap } from './helpers';
 import type { TestWorld } from './helpers';
 import type { BuildingId, BuildingInstance } from '@/types';
 
@@ -311,9 +311,11 @@ describe('isci dagitimi', () => {
 
     world.buildings.demolish(first.uid);
     world.simulation.advance(1);
+    settleWalks(world);
 
     // Ciftligin iscileri BOSA cikar - Sprint 8'den beri otomatik olarak
-    // baska binaya gecmezler; oyuncu yeniden atar.
+    // baska binaya gecmezler; oyuncu yeniden atar. Sprint 9'dan beri de
+    // once meydana YURURLER, bu yuzden varmalari beklenir.
     expect(world.workforce.idleCount).toBeGreaterThanOrEqual(2);
     staff(world, second.uid);
     expect(second.assignedWorkers).toBe(4);
