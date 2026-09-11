@@ -39,8 +39,17 @@ export class TouchButton extends Phaser.GameObjects.Container {
 
     this.add([this.background, this.label]);
     this.setSize(width, height);
+
+    // Hit alani (0,0)'dan baslar, -width/2'den DEGIL.
+    //
+    // Phaser, isabet testinden once yerel noktaya nesnenin display origin'ini
+    // ekler. Merkezlenmis bir dikdortgen vermek kaydirmayi IKI KEZ uygular:
+    // gercek dokunma alani butonun sol ustune kayar ve sag-alt kosesi tam
+    // butonun MERKEZINDE biter. Olculdu: 132x52 butonun merkezinin 46px
+    // sagina basmak hicbir sey yapmiyordu, cunku orasi hit alaninin disiydi.
+    // BuildMenu karti bastan beri dogru formu kullaniyordu.
     this.setInteractive(
-      new Phaser.Geom.Rectangle(-width / 2, -height / 2, width, height),
+      new Phaser.Geom.Rectangle(0, 0, width, height),
       Phaser.Geom.Rectangle.Contains,
     );
 

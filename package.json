@@ -12,7 +12,8 @@
     "lint": "eslint .",
     "test": "vitest run",
     "test:watch": "vitest",
-    "bench": "node bench/fps.mjs"
+    "bench": "node bench/fps.mjs",
+    "bench:input": "node bench/input.mjs"
   },
   "dependencies": {
     "phaser": "^3.90.0"

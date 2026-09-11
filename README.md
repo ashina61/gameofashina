@@ -40,6 +40,19 @@ Oyun mobil oncelikli tasarlandi; masaustunde fare ve klavye ile de oynanir.
 Kaydirma ile dokunus birbirinden ayrilir: parmak 12 pikselden fazla hareket
 ederse jest kaydirma sayilir ve bina yerlestirilmez.
 
+### Dokunma toleransi
+
+Dokunmayi SURE degil HAREKET belirler: parmagini ne kadar basili tutarsan tut,
+`DRAG_THRESHOLD_PX` kadar kaymadigi surece dokunus sayilir. Daha once 400ms'lik
+bir ust sinir vardi ve nisan alirken gecen sureyi "dokunma degil" sayip girdiyi
+sessizce atiyordu.
+
+Kaydirma esigi Android'in kendi dokunma toleransi (8dp) hizasindadir; 12px
+degeri bunun altindaydi ve parmagin dogal titremesiyle asiliyordu.
+
+Girdi davranisi `npm run bench:input` ile olculur - bu uc davranis bir kez
+bozuldugunda oyun elle oynanmaz hale gelmisti, betik onlari kilitler.
+
 ## Oyun dongusu
 
 1. **Insa et.** Alt menuden bir bina sec, haritada uygun bir karoya dokun.

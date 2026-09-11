@@ -100,11 +100,15 @@ export const MAX_ZOOM = 1.6;
  */
 export const INITIAL_VISIBLE_TILES = 5;
 
-/** Suruklemenin dokunma degil kaydirma sayilmasi icin gereken piksel esigi. */
-export const DRAG_THRESHOLD_PX = 12;
-
-/** Dokunmanin "tap" sayilmasi icin azami basili tutma suresi (ms). */
-export const TAP_MAX_DURATION_MS = 400;
+/**
+ * Suruklemenin dokunma degil kaydirma sayilmasi icin gereken piksel esigi.
+ *
+ * 12px Android'in kendi dokunma toleransinin (8dp) altindaydi ve parmak
+ * dogal titremesiyle asiliyordu: olculdu, 13px kayma binayi kurmuyordu.
+ * Platform normuna cekildi; harita kaydirma bu farkla gozle gorulur sekilde
+ * gecikmez, ama dokunmalar cok daha bagislayici olur.
+ */
+export const DRAG_THRESHOLD_PX = 20;
 
 /**
  * Kayit dosyasi surumu.

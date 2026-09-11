@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { DRAG_THRESHOLD_PX, MAX_ZOOM, MIN_ZOOM, TAP_MAX_DURATION_MS } from '@/config/Constants';
+import { DRAG_THRESHOLD_PX, MAX_ZOOM, MIN_ZOOM } from '@/config/Constants';
 
 /** Dokunma etkilesiminin sonucunu disariya bildiren geri cagirimlar. */
 export interface CameraControllerCallbacks {
@@ -37,7 +37,6 @@ export class CameraController {
 
   private dragging = false;
   private pinching = false;
-  private pointerDownAt = 0;
   private downScreen = new Phaser.Math.Vector2();
   private lastScreen = new Phaser.Math.Vector2();
   private pinchStartDistance = 0;
@@ -106,7 +105,6 @@ export class CameraController {
     if (this.activePointers.size === 1) {
       this.dragging = false;
       this.pinching = false;
-      this.pointerDownAt = this.scene.time.now;
       this.downScreen.set(pointer.x, pointer.y);
       this.lastScreen.set(pointer.x, pointer.y);
     } else if (this.activePointers.size === 2) {
@@ -170,8 +168,14 @@ export class CameraController {
 
     if (!this.enabled) return;
 
-    const duration = this.scene.time.now - this.pointerDownAt;
-    const isTap = wasSingle && !this.dragging && duration <= TAP_MAX_DURATION_MS;
+    // Dokunmayi SURE degil, HAREKET belirler.
+    //
+    // Onceden 400ms'lik bir ust sinir vardi: parmagini daha uzun tutan
+    // oyuncunun dokunusu sessizce atiliyordu. Olculdu - 450ms basili tutmak
+    // binayi KURMUYORDU. Karo secerken nisan almak cogu zaman bundan uzun
+    // surer, dolayisiyla sinir gecerli girdiyi yok ediyordu. Oyunda basili
+    // tutmaya bagli baska bir jest olmadigi icin sinirin bir islevi de yoktu.
+    const isTap = wasSingle && !this.dragging;
 
     if (isTap) {
       const world = this.camera.getWorldPoint(pointer.x, pointer.y);
