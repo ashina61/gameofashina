@@ -39,6 +39,28 @@ export const GENERIC_VISUAL = 'generic';
 /** Insaat halindeki binanin gorseli - temel ve iskele. */
 export const SCAFFOLD_VISUAL = 'scaffold';
 
+/**
+ * Ayni turden binalarin birbirinin kopyasi gorunmemesi icin uygulanan
+ * cok hafif renk varyasyonu.
+ *
+ * 80 ozdes ev yan yana geldiginde sehir duvar kagidina donuyordu (olculdu,
+ * 120 binalik sahnede tek tek evler secilemiyordu). Varyasyon TINT ile
+ * yapilir: ek doku uretmez, bellek maliyeti sifirdir.
+ *
+ * Deterministiktir - ayni uid her zaman ayni tonu verir, yani kayit
+ * yuklendiginde sehir ayni gorunur.
+ */
+const VARIATION_TINTS = [0xffffff, 0xe8d4be, 0xffe9cf, 0xd9cdbe, 0xfff0d2, 0xe0cdb4] as const;
+
+/** uid'den kararli bir varyasyon tonu secer. */
+export function variationTintFor(uid: string): number {
+  let hash = 0;
+  for (let i = 0; i < uid.length; i += 1) {
+    hash = (hash * 31 + uid.charCodeAt(i)) >>> 0;
+  }
+  return VARIATION_TINTS[hash % VARIATION_TINTS.length];
+}
+
 /** Bir binanin gorsel kimligi. */
 export interface BuildingVisual {
   /** Doku anahtari; TextureFactory bu ada dokuyu uretir. */
@@ -91,6 +113,8 @@ export function getBuildingVisual(input: {
   level: number;
   state: BuildingState;
   size: number;
+  /** Varyasyon tonu bundan turer; verilmezse varyasyon uygulanmaz. */
+  uid?: string;
 }): BuildingVisual {
   if (input.state === 'constructing') {
     return { textureKey: scaffoldKeyFor(input.size), tint: NEUTRAL_TINT, alpha: 1 };
@@ -102,5 +126,9 @@ export function getBuildingVisual(input: {
     return { textureKey, tint: DISABLED_TINT, alpha: 0.75 };
   }
 
-  return { textureKey, tint: NEUTRAL_TINT, alpha: 1 };
+  // Anitsal yapiya varyasyon uygulanmaz: sehir merkezi her sehirde ayni
+  // ve tanidik gorunmelidir.
+  const tint =
+    input.uid && input.type !== 'town_hall' ? variationTintFor(input.uid) : NEUTRAL_TINT;
+  return { textureKey, tint, alpha: 1 };
 }

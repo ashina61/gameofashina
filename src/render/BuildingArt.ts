@@ -36,7 +36,7 @@ export type ArtDrawer = (g: Phaser.GameObjects.Graphics, c: ArtCanvas, level: nu
 
 /** Binanin govde yuksekligi; doku boyutunu bu belirler. */
 const BODY_HEIGHT: Record<DrawnBuildingType | typeof GENERIC_VISUAL, [number, number]> = {
-  town_hall: [78, 104],
+  town_hall: [96, 124],
   house: [50, 74],
   farm: [30, 42],
   lumber_camp: [44, 58],
@@ -170,7 +170,14 @@ function box(
   g.fillPath();
 }
 
-/** Iki egimli kiremit cati (sirt ekseni sol-alt <-> sag-ust). */
+/**
+ * Iki egimli cati (sirt ekseni sol-alt <-> sag-ust).
+ *
+ * Varsayilan kiremit rengidir; anitsal yapilar acik mermer tonu kullanir.
+ * Bunun sebebi gorsel hiyerarsi: 80 evin kiremit denizinde ayni renkte bir
+ * cati, sehir merkezini gorunmez kiliyordu (olculdu, 120 binalik sahnede
+ * Town Hall bulunamiyordu). Acik cati onu bir anda ayirir.
+ */
 function gableRoof(
   g: Phaser.GameObjects.Graphics,
   x: number,
@@ -178,13 +185,18 @@ function gableRoof(
   w: number,
   d: number,
   rise: number,
+  palette: { light: number; mid: number; dark: number } = {
+    light: PALETTE.roofLight,
+    mid: PALETTE.roof,
+    dark: PALETTE.roofDark,
+  },
 ): void {
   const hw = w / 2;
   const hd = d / 2;
   const ridgeY = y - rise;
 
   // Sag egim (golgeli)
-  g.fillStyle(PALETTE.roofDark, 1);
+  g.fillStyle(palette.dark, 1);
   g.beginPath();
   g.moveTo(x + hw, y);
   g.lineTo(x, y + hd);
@@ -194,7 +206,7 @@ function gableRoof(
   g.fillPath();
 
   // Sol egim (aydinlik)
-  g.fillStyle(PALETTE.roofLight, 1);
+  g.fillStyle(palette.light, 1);
   g.beginPath();
   g.moveTo(x - hw, y);
   g.lineTo(x, y + hd);
@@ -204,7 +216,7 @@ function gableRoof(
   g.fillPath();
 
   // Arka egimler - siluete hacim verir
-  g.fillStyle(PALETTE.roof, 1);
+  g.fillStyle(palette.mid, 1);
   g.beginPath();
   g.moveTo(x - hw, y);
   g.lineTo(x, y - hd);
@@ -213,7 +225,7 @@ function gableRoof(
   g.closePath();
   g.fillPath();
 
-  g.fillStyle(shade(PALETTE.roof, -0.12), 1);
+  g.fillStyle(shade(palette.mid, -0.12), 1);
   g.beginPath();
   g.moveTo(x + hw, y);
   g.lineTo(x, y - hd);
@@ -318,8 +330,26 @@ const drawTownHall: ArtDrawer = (g, c, level) => {
   const archY = platformY - bodyH;
   box(g, c.cx, archY + 7, bodyW * 1.08, bodyD * 1.08, 7, PALETTE.stone);
 
-  // Kiremit alinlik: iki egimli cati, anit hissini tamamlar
-  gableRoof(g, c.cx, archY, bodyW * 1.1, bodyD * 1.1, grand ? 30 : 24);
+  /*
+   * MERMER cati - sehir merkezini kiremit denizinden ayiran sey.
+   * Saçak bandi kiremit kalir, boylece yapi sehrin paletinden kopmaz.
+   */
+  gableRoof(g, c.cx, archY, bodyW * 1.1, bodyD * 1.1, grand ? 34 : 27, {
+    light: PALETTE.stoneLight,
+    mid: PALETTE.stone,
+    dark: PALETTE.stoneDark,
+  });
+  // Kiremit saçak - catinin alt kenarinda ince bir band
+  g.fillStyle(PALETTE.roof, 1);
+  g.beginPath();
+  g.moveTo(c.cx - (bodyW * 1.1) / 2, archY);
+  g.lineTo(c.cx, archY + (bodyD * 1.1) / 2);
+  g.lineTo(c.cx + (bodyW * 1.1) / 2, archY);
+  g.lineTo(c.cx + (bodyW * 1.1) / 2, archY + 5);
+  g.lineTo(c.cx, archY + (bodyD * 1.1) / 2 + 5);
+  g.lineTo(c.cx - (bodyW * 1.1) / 2, archY + 5);
+  g.closePath();
+  g.fillPath();
 
   // Merkez kapi - girisi isaretler
   doorway(g, c.cx, platformY + bodyD * 0.22, 14, Math.round(bodyH * 0.5));
@@ -464,62 +494,119 @@ const drawLumberCamp: ArtDrawer = (g, c, level) => {
   g.fillEllipse(c.cx + c.footW * 0.08, c.baseY + c.footH * 0.3, 9, 8);
 };
 
-/** Tas ocagi: arkada kaya duvari, onde kazi cukuru ve kesilmis bloklar. */
+/**
+ * Tas ocagi: zemine oyulmus acik ocak.
+ *
+ * Ilk surumde arka kutle duz bir KUTU idi ve bina "gri bir kutu" gibi
+ * gorunuyordu. Kaya, kutu degil KIRIK bir kutledir: acili fasetlerle
+ * cizilir. Cukur de zeminin icine oyulmus gibi durmali, uzerine konmus
+ * gri bir tabak gibi degil.
+ */
 const drawQuarry: ArtDrawer = (g, c, level) => {
   contactShadow(g, c, 0.98);
   const deep = level >= 2;
 
-  // Kazi alani
-  g.fillStyle(PALETTE.blockDark, 1);
-  diamond(g, c.cx, c.baseY, c.footW * 0.94, c.footH * 0.94);
+  // Toprak cevre - ocak zemine oyulmus gibi dursun, uzerine konmus gibi degil
+  g.fillStyle(PALETTE.adobeDark, 1);
+  diamond(g, c.cx, c.baseY, c.footW * 0.96, c.footH * 0.96);
   g.fillPath();
 
-  // Basamakli cukur - derinlik hissi
+  // Cukur agzi ve kademeli inis
+  const pitCx = c.cx + c.footW * 0.08;
+  const pitCy = c.baseY + c.footH * 0.08;
+  g.fillStyle(shade(PALETTE.blockDark, -0.05), 1);
+  diamond(g, pitCx, pitCy, c.footW * 0.72, c.footH * 0.72);
+  g.fillPath();
   const rings = deep ? 3 : 2;
   for (let i = 1; i <= rings; i += 1) {
-    const t = 1 - i * 0.18;
-    g.fillStyle(shade(PALETTE.blockDark, -0.14 * i), 1);
-    diamond(g, c.cx + c.footW * 0.06, c.baseY + i * 3, c.footW * 0.94 * t, c.footH * 0.94 * t);
+    g.fillStyle(shade(PALETTE.blockDark, -0.16 * i), 1);
+    diamond(g, pitCx, pitCy + i * 4, c.footW * 0.72 * (1 - i * 0.19), c.footH * 0.72 * (1 - i * 0.19));
     g.fillPath();
   }
 
   /*
-   * ARKA KAYA DUVARI - ocaga siluet veren ana kutle.
-   * Ilk cizimde yalnizca duz bir cukur vardi ve bina uzaktan gri bir leke
-   * gibi gorunuyordu; dikey bir kutle olmadan "tas ocagi" okunmuyor.
+   * ARKA KAYA YUZU - ocaga siluet veren kutle.
+   * Kutu degil: farkli yukseklikte uc acili kaya dilimi. Isik yine sol
+   * usttten geldigi icin sol fasetler acik, sag fasetler koyudur.
    */
-  const wallH = deep ? 46 : 34;
-  const wx = c.cx - c.footW * 0.2;
-  const wy = c.baseY - c.footH * 0.24;
-  box(g, wx, wy, c.footW * 0.56, c.footH * 0.4, wallH, PALETTE.block);
-  // Duvarda kirik kaya yuzeyi - duz kutuyu kayaya cevirir
-  g.fillStyle(shade(PALETTE.block, 0.14), 1);
-  g.fillTriangle(wx - c.footW * 0.2, wy - wallH + 6, wx - c.footW * 0.04, wy - wallH - 5, wx + c.footW * 0.04, wy - wallH + 8);
-  g.fillStyle(shade(PALETTE.block, -0.18), 1);
-  g.fillTriangle(wx + c.footW * 0.05, wy - wallH + 7, wx + c.footW * 0.2, wy - wallH - 2, wx + c.footW * 0.26, wy - wallH + 12);
+  const crags: Array<[number, number, number, number]> = [
+    [-0.34, -0.2, 0.3, deep ? 52 : 40],
+    [-0.08, -0.3, 0.26, deep ? 40 : 30],
+    [0.2, -0.22, 0.24, deep ? 32 : 24],
+  ];
+  for (const [dx, dy, wFrac, h] of crags) {
+    const x = c.cx + c.footW * dx;
+    const y = c.baseY + c.footH * dy;
+    const w = c.footW * wFrac;
 
-  // Kesilmis bloklar - onde, istiflenmis
-  const blocks: Array<[number, number, number]> = deep
-    ? [
-        [0.1, 0.1, 17],
-        [0.3, 0.02, 15],
-        [0.18, 0.26, 15],
-        [-0.06, 0.24, 14],
-      ]
-    : [
-        [0.14, 0.12, 16],
-        [-0.02, 0.26, 14],
-      ];
-  for (const [dx, dy, size] of blocks) {
-    box(g, c.cx + c.footW * dx, c.baseY + c.footH * dy, size, size * 0.58, size * 0.72, PALETTE.blockLight);
+    // Sag faset (golgeli)
+    g.fillStyle(shade(PALETTE.block, -0.26), 1);
+    g.beginPath();
+    g.moveTo(x + w * 0.5, y);
+    g.lineTo(x + w * 0.1, y + c.footH * 0.12);
+    g.lineTo(x + w * 0.16, y + c.footH * 0.12 - h);
+    g.lineTo(x + w * 0.44, y - h * 0.82);
+    g.closePath();
+    g.fillPath();
+
+    // Sol faset (aydinlik)
+    g.fillStyle(shade(PALETTE.blockLight, 0.06), 1);
+    g.beginPath();
+    g.moveTo(x - w * 0.5, y);
+    g.lineTo(x + w * 0.1, y + c.footH * 0.12);
+    g.lineTo(x + w * 0.16, y + c.footH * 0.12 - h);
+    g.lineTo(x - w * 0.4, y - h * 0.76);
+    g.closePath();
+    g.fillPath();
+
+    // Tepe fasetleri - kayaya kirik bir ust cizgi verir
+    g.fillStyle(PALETTE.block, 1);
+    g.fillTriangle(x - w * 0.4, y - h * 0.76, x + w * 0.16, y + c.footH * 0.12 - h, x - w * 0.06, y - h * 0.95);
+    g.fillStyle(shade(PALETTE.block, 0.16), 1);
+    g.fillTriangle(x - w * 0.06, y - h * 0.95, x + w * 0.16, y + c.footH * 0.12 - h, x + w * 0.44, y - h * 0.82);
   }
 
+  // Kesilmis bloklar - cukurun koyu zemininde parlak ve okunakli
+  const blocks: Array<[number, number, number]> = deep
+    ? [
+        [0.06, 0.14, 18],
+        [0.28, 0.06, 16],
+        [0.2, 0.3, 16],
+        [-0.1, 0.3, 14],
+      ]
+    : [
+        [0.12, 0.16, 17],
+        [-0.04, 0.32, 15],
+      ];
+  for (const [dx, dy, size] of blocks) {
+    box(g, c.cx + c.footW * dx, c.baseY + c.footH * dy, size, size * 0.58, size * 0.74, PALETTE.blockLight);
+  }
+
+  // Ahsap destek iskelesi - ocagin calisildigini gosterir
+  const fx = c.cx - c.footW * 0.3;
+  const fy = c.baseY + c.footH * 0.2;
+  g.fillStyle(PALETTE.woodDark, 1);
+  g.fillRect(fx - 2, fy - 26, 4, 26);
+  g.fillRect(fx + 16, fy - 20, 4, 20);
+  g.fillStyle(PALETTE.wood, 1);
+  g.beginPath();
+  g.moveTo(fx - 3, fy - 26);
+  g.lineTo(fx + 21, fy - 20);
+  g.lineTo(fx + 21, fy - 16);
+  g.lineTo(fx - 3, fy - 22);
+  g.closePath();
+  g.fillPath();
+
   if (deep) {
-    // Vinc - ikinci seviyenin isareti
+    // Kucuk vinc - ikinci seviyenin isareti
+    const kx = c.cx + c.footW * 0.34;
     g.fillStyle(PALETTE.woodDark, 1);
-    g.fillRect(c.cx + c.footW * 0.32, c.baseY - 40, 5, 40);
-    g.fillRect(c.cx + c.footW * 0.32 - 18, c.baseY - 42, 30, 5);
-    g.fillRect(c.cx + c.footW * 0.32 - 16, c.baseY - 37, 2, 14);
+    g.fillRect(kx, c.baseY - 46, 5, 46);
+    g.fillRect(kx - 22, c.baseY - 48, 32, 5);
+    g.fillStyle(PALETTE.wood, 1);
+    g.fillRect(kx - 20, c.baseY - 43, 2, 16);
+    g.fillStyle(PALETTE.blockLight, 1);
+    g.fillRect(kx - 25, c.baseY - 27, 12, 9);
   }
 };
 

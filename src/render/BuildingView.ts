@@ -82,7 +82,10 @@ export class BuildingView {
       level: building.level,
       state: building.state,
       size: def.size,
+      uid: building.uid,
     });
+    this.stateTint = visual.tint;
+    this.stateAlpha = visual.alpha;
 
     this.sprite = scene.add
       .image(anchor.x, y, visual.textureKey)
@@ -138,6 +141,7 @@ export class BuildingView {
       level: building.level,
       state: building.state,
       size: this.def.size,
+      uid: building.uid,
     });
     if (this.sprite.texture.key !== visual.textureKey) {
       this.sprite.setTexture(visual.textureKey);
