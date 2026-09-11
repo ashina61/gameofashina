@@ -1,12 +1,13 @@
 import {
   BASE_POPULATION_CAPACITY,
+  GRID_SIZE,
   MIN_SUPPORTED_SAVE_VERSION,
   RESOURCE_ORDER,
   SAVE_KEY,
   SAVE_VERSION,
   TICKS_PER_SECOND,
 } from '@/config/Constants';
-import { clampLevel, getBuilding, isKnownBuildingId, levelOf } from '@/config/BuildingCatalog';
+import { allBuildings, clampLevel, getBuilding, isKnownBuildingId, levelOf } from '@/config/BuildingCatalog';
 import { buildCostOf, resolveUpgradeOption } from '@/systems/BuildingResolver';
 import type {
   BuildingConstruction,
@@ -121,6 +122,23 @@ export function migrateAndSanitize(input: unknown): SaveData | null {
 }
 
 /**
+ * Sehirde teorik olarak yasayabilecek en yuksek vatandas sayisi.
+ *
+ * Her karo, katalogdaki en cok barindiran binayla dolu olsa bile bu sayiyi
+ * asamaz. Kurcalanmis kayitlari elemek icin MUTLAK bir ust sinir gerekir;
+ * "guncel kapasite" bu is icin kullanilamaz (asagiya bakiniz).
+ */
+const MAX_CONCEIVABLE_POPULATION = (() => {
+  let best = 0;
+  for (const def of allBuildings()) {
+    for (const entry of def.levels) {
+      best = Math.max(best, entry.populationCapacity ?? 0);
+    }
+  }
+  return BASE_POPULATION_CAPACITY + GRID_SIZE * GRID_SIZE * best;
+})();
+
+/**
  * Nufusu dogrular; alan yoksa eski kayittan turetir.
  *
  * Sprint 3 oncesi kayitlarda nufus diye bir sey yoktu: isci, kapasite
@@ -128,24 +146,28 @@ export function migrateAndSanitize(input: unknown): SaveData | null {
  * sehrini bir anda issiz birakirdi. Bu yuzden eski kayit icin o zamanki
  * ortuk deger yeniden kurulur: min(isci ihtiyaci, nufus kapasitesi).
  *
- * Kapasite ustundeki bir deger, kayit kurcalanmis olabilecegi icin
- * kapasiteye kirpilir - PopulationSystem de her ilerlemede ayni siniri
- * uygular, burasi yalnizca girisi temiz tutar.
+ * GUNCEL KAPASITEYE KIRPILMAZ. Nufusun kapasitenin ustunde olmasi gecerli
+ * bir oyun durumudur: bir ev yikildiginda veya yukseltme icin insaata
+ * girdiginde kapasite duser, vatandaslar ise yerinde kalir. Kapasiteye
+ * kirpmak, kaydi her acisinda o fazlaligi sessizce silerdi.
+ *
+ * Kurcalamaya karsi MUTLAK sinir kullanilir. Zaten kapasitenin ustundeki
+ * nufus oyuncuya avantaj degil YUK getirir (barinmaz ama yemek yer), bu
+ * yuzden buradaki dogrulamanin isi absurt degerleri elemekten ibarettir.
  */
 function sanitizePopulation(input: unknown, buildings: BuildingInstance[]): number {
-  let capacity = BASE_POPULATION_CAPACITY;
-  let workersNeeded = 0;
-  for (const building of buildings) {
-    if (building.state !== 'active') continue;
-    const entry = levelOf(getBuilding(building.type), building.level);
-    capacity += entry?.populationCapacity ?? 0;
-    workersNeeded += entry?.workerRequirement ?? 0;
-  }
-
   if (typeof input !== 'number' || !Number.isFinite(input)) {
+    let capacity = BASE_POPULATION_CAPACITY;
+    let workersNeeded = 0;
+    for (const building of buildings) {
+      if (building.state !== 'active') continue;
+      const entry = levelOf(getBuilding(building.type), building.level);
+      capacity += entry?.populationCapacity ?? 0;
+      workersNeeded += entry?.workerRequirement ?? 0;
+    }
     return Math.min(workersNeeded, capacity);
   }
-  return Math.min(Math.max(0, Math.trunc(input)), capacity);
+  return Math.min(Math.max(0, Math.trunc(input)), MAX_CONCEIVABLE_POPULATION);
 }
 
 function sanitizeResources(input: unknown): ResourcePool {

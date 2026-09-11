@@ -97,13 +97,7 @@ export class PopulationSystem {
     // insaat/uretim tarafindaki toplu ilerletme davranisiyla ayni.
     const rate = rateFor(this.trendFor(capacity));
 
-    if (rate !== 0) {
-      this.applyChange(rate * whole, capacity);
-    } else if (this.state.population > capacity) {
-      // Kapasite dustuyse (ev yikildi veya insaata girdi) fazla vatandas
-      // barinaksiz kalir ve sehri terk eder - bu aclik degil, yer yoklugudur.
-      this.state.setPopulation(capacity);
-    }
+    if (rate !== 0) this.applyChange(rate * whole, capacity);
 
     const employed = this.assignWorkers();
 
@@ -127,8 +121,6 @@ export class PopulationSystem {
    */
   rebuildFromState(): PopulationSnapshot {
     const { capacity, workersNeeded } = this.survey();
-    if (this.state.population > capacity) this.state.setPopulation(capacity);
-
     const employed = this.assignWorkers();
     this.lastSnapshot = {
       population: this.state.population,
@@ -167,14 +159,22 @@ export class PopulationSystem {
    * Sinira dayandiginda (0 veya kapasite) bekleyen birim SIFIRLANIR; aksi
    * halde kapasite dolu bir sehirde birim birikir ve yeni bir ev kurulur
    * kurulmaz bir anda vatandas yagardi.
+   *
+   * UST SINIR, kapasite ile MEVCUT nufusun buyugudur. Nufus kapasitenin
+   * ustundeyse (ev yikildi ya da yukseltme icin insaata girdi) bu fazlalik
+   * SILINMEZ: bir evi yikinca yarim sehrin bir tikte yok olmasi, oyuncunun
+   * geri alamayacagi sessiz bir kayipti. Fazlalik yerinde kalir, buyume
+   * durur ve vatandaslar yemeye devam eder; sehir ya yeni konut kurarak ya
+   * da aclikla dogal olarak dengelenir.
    */
   private applyChange(units: number, capacity: number): void {
     const pending = this.state.populationProgress + units;
     const change = Math.trunc(pending / TICKS_PER_MINUTE);
     const remainder = pending - change * TICKS_PER_MINUTE;
 
+    const ceiling = Math.max(capacity, this.state.population);
     const next = this.state.population + change;
-    const clamped = Math.min(Math.max(0, next), capacity);
+    const clamped = Math.min(Math.max(0, next), ceiling);
 
     this.state.setPopulation(clamped, clamped === next ? remainder : 0);
   }

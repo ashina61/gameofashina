@@ -303,7 +303,16 @@ describe('isci dagitimi', () => {
     expect(world.population.snapshot.employed).toBe(4);
   });
 
-  it('ev yikilinca kapasite dusen nufus barinaksiz kalmaz', () => {
+  /**
+   * Sprint 4'te bilerek degistirildi.
+   *
+   * Once kapasite dusunce fazla nufus ANINDA siliniyordu: bir evi yikmak
+   * yarim sehri bir tikte yok ediyordu ve oyuncunun bunu geri almasi
+   * mumkun degildi. Artik fazlalik yerinde kalir, yalnizca BUYUME durur.
+   * Vatandaslar yemeye devam eder, yani sehir ya yeni konut kurarak ya da
+   * aclikla dogal olarak dengelenir.
+   */
+  it('ev yikilinca mevcut nufus silinmez, yalnizca buyume durur', () => {
     const world = makeWorld();
     placeAnywhere(world, 'house');
     const houseB = placeAnywhere(world, 'house');
@@ -314,7 +323,39 @@ describe('isci dagitimi', () => {
     world.simulation.advance(1);
 
     expect(world.population.snapshot.capacity).toBe(5);
-    expect(world.state.population).toBe(5);
+    expect(world.state.population).toBe(10); // silinmedi
+
+    // Kapasite ustundeyken buyume olmaz.
+    world.simulation.advance(600);
+    expect(world.state.population).toBe(10);
+    expect(world.population.snapshot.trend).toBe('stable');
+  });
+
+  it('kapasite ustundeki nufus yemeye devam eder', () => {
+    const world = makeWorld();
+    placeAnywhere(world, 'house');
+    const houseB = placeAnywhere(world, 'house');
+    settlePopulation(world);
+    world.buildings.demolish(houseB.uid);
+    world.simulation.advance(1);
+
+    // 10 vatandas barinmiyor ama yiyor.
+    expect(world.economy.snapshot.netPerMinute.food).toBeCloseTo(-10 * 0.4, 9);
+  });
+
+  it('kapasite ustundeyken aclik nufusu KADEMELI dusurur, bir anda degil', () => {
+    const world = makeWorld();
+    placeAnywhere(world, 'house');
+    const houseB = placeAnywhere(world, 'house');
+    settlePopulation(world);
+    world.buildings.demolish(houseB.uid);
+    world.simulation.advance(1);
+    expect(world.state.population).toBe(10);
+
+    grant(world, { food: 0 });
+    world.simulation.advance(60); // bir dakika aclik
+    // Kapasiteye (5) snap ETMEZ; dakikada bir kisi kaybeder.
+    expect(world.state.population).toBe(9);
   });
 });
 
@@ -432,7 +473,29 @@ describe('nufus kaydi', () => {
     expect(migrated.population).toBe(2);
   });
 
-  it('kapasitenin ustundeki kurcalanmis nufus kirpilir', () => {
+  /**
+   * Sprint 4'te bilerek degistirildi: kayit GUNCEL kapasiteye kirpilmaz.
+   *
+   * Kapasitenin ustundeki nufus gecerli bir oyun durumudur (ev yikildi ya da
+   * yukseltme icin insaata girdi). Kapasiteye kirpmak, kaydi her acisinda o
+   * fazlaligi sessizce silerdi. Kurcalamaya karsi MUTLAK bir sinir kullanilir;
+   * zaten fazla nufus oyuncuya avantaj degil yuk getirir.
+   */
+  it('kapasite ustundeki gecerli nufus kayitta korunur', () => {
+    const world = makeWorld();
+    placeAnywhere(world, 'house');
+    const houseB = placeAnywhere(world, 'house');
+    settlePopulation(world);
+    world.buildings.demolish(houseB.uid);
+    world.simulation.advance(1);
+    expect(world.state.population).toBe(10);
+
+    const migrated = migrateAndSanitize(world.state.toSave(SAVE_VERSION));
+    if (!migrated) throw new Error('kayit reddedildi');
+    expect(migrated.population).toBe(10); // kapasite 5 olmasina ragmen
+  });
+
+  it('absurt kurcalanmis nufus mutlak sinira kirpilir', () => {
     const world = makeWorld();
     const c = area(world.state);
     world.buildings.place('house', c.gx, c.gy);
@@ -443,7 +506,9 @@ describe('nufus kaydi', () => {
 
     const migrated = migrateAndSanitize(save);
     if (!migrated) throw new Error('kayit reddedildi');
-    expect(migrated.population).toBe(5);
+    // Izgaranin tamami en cok barindiran binayla dolsa bile ulasilamaz.
+    expect(migrated.population).toBeLessThan(999_999);
+    expect(migrated.population).toBe(GRID_SIZE * GRID_SIZE * 9);
   });
 
   it('negatif nufus sifira cekilir', () => {

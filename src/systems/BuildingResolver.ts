@@ -73,7 +73,15 @@ export function resolveBuilding(
     // Calismayan bina hicbir sey uretmez ve kapasite saglamaz.
     production,
     // Gercek uretim kadroyla olceklenir: yarim kadro yarim uretir.
-    effectiveProduction: staffing === 1 ? copyAmounts(entry?.production) : scale(production, staffing),
+    //
+    // HER IKI yol da `production` uzerinden turer, katalogdan DEGIL.
+    // Tam kadro kestirmesi once entry.production'i dogrudan okuyordu ve
+    // boylece `operational` kontrolunu atliyordu: calismayan (devre disi)
+    // ama tam kadrolu bir bina TAM uretim bildiriyordu. Ekonomi ayrica
+    // operational kontrol ettigi icin kaynak uretmiyordu, ama resolver
+    // "tek hesap kaynagi" oldugundan bu degeri okuyan arayuz yanlis
+    // gosteriyordu.
+    effectiveProduction: staffing === 1 ? { ...production } : scale(production, staffing),
     storageCapacity: operational ? (entry?.storageCapacity ?? 0) : 0,
     populationCapacity: operational ? (entry?.populationCapacity ?? 0) : 0,
     workerRequirement,
