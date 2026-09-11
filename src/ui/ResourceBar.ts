@@ -91,7 +91,11 @@ export class ResourceBar extends Phaser.GameObjects.Container {
       const x = UISpacing.panelPadding + sideInset + columnWidth * index;
       this.icons[index].setPosition(x + 8, centerY);
       this.amountTexts.get(key)?.setPosition(x + 20, centerY - 6);
-      this.rateTexts.get(key)?.setPosition(x + 20, centerY + 10);
+      // +12, +10 degil: miktar 15px (20 piksel yuksek), oran 11px (13 piksel).
+      // 16 piksellik arayla iki kutu yarim piksel ust uste biniyordu
+      // (olculdu: miktar 14..34, oran 33.5..46.5). Iki piksel asagi almak
+      // cubugun 60 piksellik yuksekligini asmadan araligi acar.
+      this.rateTexts.get(key)?.setPosition(x + 20, centerY + 12);
     });
 
     const right = width - UISpacing.panelPadding - sideInset;

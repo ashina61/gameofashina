@@ -8,6 +8,7 @@ import { BuildingSystem } from '@/systems/BuildingSystem';
 import { ConstructionSystem } from '@/systems/ConstructionSystem';
 import { EconomySystem } from '@/systems/EconomySystem';
 import { PopulationSystem } from '@/systems/PopulationSystem';
+import { BuildingPlotSystem } from '@/systems/BuildingPlotSystem';
 import { NavigationSystem } from '@/systems/NavigationSystem';
 import { ResourceSystem } from '@/systems/ResourceSystem';
 import { WorkforceSystem } from '@/systems/WorkforceSystem';
@@ -27,6 +28,7 @@ export class GameWorld {
   readonly state: GameState;
   readonly resources: ResourceSystem;
   readonly construction: ConstructionSystem;
+  readonly plots: BuildingPlotSystem;
   readonly buildings: BuildingSystem;
   readonly upgrades: UpgradeSystem;
   readonly population: PopulationSystem;
@@ -51,7 +53,15 @@ export class GameWorld {
     this.loadedFromSave = loadedFromSave;
     this.resources = new ResourceSystem(state, this.bus);
     this.construction = new ConstructionSystem(state, this.resources, this.bus);
-    this.buildings = new BuildingSystem(state, this.resources, this.construction, this.bus);
+    // Yapi alanlari zeminden turer; zemin seed'den. Kayda yazilmaz.
+    this.plots = new BuildingPlotSystem(state.grid);
+    this.buildings = new BuildingSystem(
+      state,
+      this.resources,
+      this.construction,
+      this.bus,
+      this.plots,
+    );
     this.upgrades = new UpgradeSystem(state, this.resources, this.construction);
     this.population = new PopulationSystem(state, this.resources, this.bus);
     // Gezilebilirlik GridMap'ten canli okunur; ayri bir engel kopyasi yok.

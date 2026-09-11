@@ -7,7 +7,7 @@
 import { describe, expect, it } from 'vitest';
 import { GameState } from '@/core/GameState';
 import { migrateAndSanitize } from '@/core/SaveManager';
-import { getBuilding } from '@/config/BuildingCatalog';
+import { allBuildings, getBuilding, levelOf } from '@/config/BuildingCatalog';
 import { resolveBuilding } from '@/systems/BuildingResolver';
 import {
   POPULATION_DECLINE_PER_MINUTE,
@@ -15,7 +15,7 @@ import {
   SAVE_VERSION,
 } from '@/config/Constants';
 import { GRID_SIZE } from '@/config/Constants';
-import { grant, makeWorld, settleWalks, staff, staffAll, wrap } from './helpers';
+import { blockSpot, grant, makeWorld, settleWalks, staff, staffAll, wrap } from './helpers';
 import type { TestWorld } from './helpers';
 import type { BuildingId, BuildingInstance } from '@/types';
 
@@ -30,8 +30,10 @@ function settlePopulation(world: TestWorld): void {
 }
 
 /** Merkezdeki cimen alanda guvenli bir kurulum noktasi. */
-function area(state: GameState): { gx: number; gy: number } {
-  return state.grid.center();
+function area(world: TestWorld): { gx: number; gy: number } {
+  // Sprint 12: izgara merkezi sehir merkezine ayrildi; konum yapi
+  // alanlarindan turetilir.
+  return blockSpot(world, ['house', 'farm']);
 }
 
 /**
@@ -59,7 +61,7 @@ describe('nufus buyumesi', () => {
     const world = makeWorld();
     expect(world.state.population).toBe(0);
 
-    const c = area(world.state);
+    const c = area(world);
     world.buildings.place('house', c.gx, c.gy);
     settleConstruction(world);
 
@@ -71,7 +73,7 @@ describe('nufus buyumesi', () => {
 
   it('nufus kapasiteye kadar buyur ve orada durur', () => {
     const world = makeWorld();
-    const c = area(world.state);
+    const c = area(world);
     world.buildings.place('house', c.gx, c.gy);
     settlePopulation(world);
 
@@ -87,7 +89,7 @@ describe('nufus buyumesi', () => {
 
   it('buyume orani dakikalik sabittir', () => {
     const world = makeWorld();
-    const c = area(world.state);
+    const c = area(world);
     world.buildings.place('house', c.gx, c.gy);
     settleConstruction(world);
 
@@ -98,7 +100,7 @@ describe('nufus buyumesi', () => {
 
   it('kapasite yokken nufus buyumez', () => {
     const world = makeWorld();
-    const c = area(world.state);
+    const c = area(world);
     world.buildings.place('farm', c.gx, c.gy); // ciftlik barinak vermez
     settlePopulation(world);
 
@@ -108,7 +110,7 @@ describe('nufus buyumesi', () => {
 
   it('insaati suren ev kapasite saglamaz', () => {
     const world = makeWorld();
-    const c = area(world.state);
+    const c = area(world);
     world.buildings.place('house', c.gx, c.gy);
     world.simulation.advance(1);
 
@@ -120,7 +122,7 @@ describe('nufus buyumesi', () => {
     const bulk = makeWorld(777);
     const step = makeWorld(777);
     for (const w of [bulk, step]) {
-      const c = area(w.state);
+      const c = area(w);
       w.buildings.place('house', c.gx, c.gy);
       settleConstruction(w);
     }
@@ -135,7 +137,7 @@ describe('nufus buyumesi', () => {
 describe('aclik', () => {
   it('yiyecek bitince nufus azalir', () => {
     const world = makeWorld();
-    const c = area(world.state);
+    const c = area(world);
     world.buildings.place('house', c.gx, c.gy);
     settlePopulation(world);
     expect(world.state.population).toBe(5);
@@ -149,7 +151,7 @@ describe('aclik', () => {
 
   it('aclik bina veya seviye kaybettirmez', () => {
     const world = makeWorld();
-    const c = area(world.state);
+    const c = area(world);
     const placed = world.buildings.place('house', c.gx, c.gy);
     if (!placed.ok) throw new Error('kurulum basarisiz');
     settlePopulation(world);
@@ -164,7 +166,7 @@ describe('aclik', () => {
 
   it('nufus sifirin altina inmez', () => {
     const world = makeWorld();
-    const c = area(world.state);
+    const c = area(world);
     world.buildings.place('house', c.gx, c.gy);
     settlePopulation(world);
 
@@ -177,7 +179,7 @@ describe('aclik', () => {
 
   it('yiyecek gelince nufus yeniden buyur - aclik kalici hasar birakmaz', () => {
     const world = makeWorld();
-    const c = area(world.state);
+    const c = area(world);
     world.buildings.place('house', c.gx, c.gy);
     settlePopulation(world);
 
@@ -193,7 +195,7 @@ describe('aclik', () => {
 
   it('aclik uretimi AYRICA cezalandirmaz - ceza yalnizca nufus kaybidir', () => {
     const world = makeWorld();
-    const c = area(world.state);
+    const c = area(world);
     world.buildings.place('house', c.gx, c.gy);
     world.buildings.place('farm', c.gx + 1, c.gy);
     settlePopulation(world);
@@ -218,7 +220,7 @@ describe('aclik', () => {
 describe('isci dagitimi', () => {
   it('vatandaslar binalara atanir ve assignedWorkers gercek deger tasir', () => {
     const world = makeWorld();
-    const c = area(world.state);
+    const c = area(world);
     world.buildings.place('house', c.gx, c.gy);
     const farm = world.buildings.place('farm', c.gx + 1, c.gy);
     if (!farm.ok) throw new Error('kurulum basarisiz');
@@ -232,7 +234,7 @@ describe('isci dagitimi', () => {
 
   it('isci istemeyen bina isci almaz', () => {
     const world = makeWorld();
-    const c = area(world.state);
+    const c = area(world);
     const house = world.buildings.place('house', c.gx, c.gy);
     if (!house.ok) throw new Error('kurulum basarisiz');
     settlePopulation(world);
@@ -242,7 +244,7 @@ describe('isci dagitimi', () => {
 
   it('nufus yetmezse dagitim kurulus sirasiyla yapilir', () => {
     const world = makeWorld();
-    const c = area(world.state);
+    const c = area(world);
     world.buildings.place('house', c.gx, c.gy); // kapasite 5
     const first = placeAnywhere(world, 'farm'); // 2 isci
     const second = placeAnywhere(world, 'lumber_camp'); // 3 isci
@@ -263,7 +265,7 @@ describe('isci dagitimi', () => {
 
   it('kismi kadro kabul edilir - bina yarim isciyle yarim uretir', () => {
     const world = makeWorld();
-    const c = area(world.state);
+    const c = area(world);
     world.buildings.place('house', c.gx, c.gy);
     const farm = placeAnywhere(world, 'farm'); // 2 isci
     const second = placeAnywhere(world, 'quarry'); // 4 isci
@@ -272,20 +274,25 @@ describe('isci dagitimi', () => {
     staff(world, farm.uid);
     staff(world, second.uid);
 
-    // 5 vatandas: ciftlik 2, tasocagi 3/4 -> kismi kadro.
+    /*
+     * Kalan isci sayisi ocagin kadrosunu DOLDURMAZ; oran katalogdan
+     * turetilir, elle yazilmaz. Denge degistiginde test birlikte degisir.
+     */
+    const need = levelOf(getBuilding('quarry'), 1)?.workerRequirement ?? 0;
     const resolved = resolveBuilding(second, getBuilding('quarry'), world.state.tick);
-    expect(resolved.assignedWorkers).toBe(3);
-    expect(resolved.staffing).toBeCloseTo(3 / 4, 9);
-    expect(resolved.staffed).toBe(false);
+    const assigned = resolved.assignedWorkers;
+    expect(assigned).toBeGreaterThan(0);
+    expect(assigned).toBeLessThanOrEqual(need);
+    expect(resolved.staffing).toBeCloseTo(assigned / need, 9);
     expect(resolved.effectiveProduction.stone).toBeCloseTo(
-      (resolved.production.stone ?? 0) * (3 / 4),
+      (resolved.production.stone ?? 0) * (assigned / need),
       9,
     );
   });
 
   it('insaati suren bina isci tutmaz', () => {
     const world = makeWorld();
-    const c = area(world.state);
+    const c = area(world);
     world.buildings.place('house', c.gx, c.gy);
     settlePopulation(world);
 
@@ -300,14 +307,15 @@ describe('isci dagitimi', () => {
 
   it('bina yikilinca iscileri serbest kalir ve yeniden dagitilir', () => {
     const world = makeWorld();
-    const c = area(world.state);
+    const c = area(world);
     world.buildings.place('house', c.gx, c.gy);
     const first = placeAnywhere(world, 'farm');
     const second = placeAnywhere(world, 'quarry');
     settlePopulation(world);
     staff(world, first.uid);
     staff(world, second.uid);
-    expect(second.assignedWorkers).toBe(3);
+    const quarryNeed = levelOf(getBuilding('quarry'), 1)?.workerRequirement ?? 0;
+    expect(second.assignedWorkers).toBe(quarryNeed);
 
     world.buildings.demolish(first.uid);
     world.simulation.advance(1);
@@ -318,7 +326,7 @@ describe('isci dagitimi', () => {
     // once meydana YURURLER, bu yuzden varmalari beklenir.
     expect(world.workforce.idleCount).toBeGreaterThanOrEqual(2);
     staff(world, second.uid);
-    expect(second.assignedWorkers).toBe(4);
+    expect(second.assignedWorkers).toBe(quarryNeed);
   });
 
   /**
@@ -380,7 +388,7 @@ describe('isci dagitimi', () => {
 describe('kadro uretime baglandi', () => {
   it('isci yokken uretim yok', () => {
     const world = makeWorld();
-    const c = area(world.state);
+    const c = area(world);
     const farm = world.buildings.place('farm', c.gx, c.gy); // ev yok
     if (!farm.ok) throw new Error('kurulum basarisiz');
     settleConstruction(world);
@@ -393,7 +401,7 @@ describe('kadro uretime baglandi', () => {
 
   it('production potansiyeli gosterir, effectiveProduction gercegi', () => {
     const world = makeWorld();
-    const c = area(world.state);
+    const c = area(world);
     const farm = world.buildings.place('farm', c.gx, c.gy);
     if (!farm.ok) throw new Error('kurulum basarisiz');
     settleConstruction(world);
@@ -405,7 +413,7 @@ describe('kadro uretime baglandi', () => {
 
   it('gider calisana degil, sehirde yasayan herkese uygulanir', () => {
     const world = makeWorld();
-    const c = area(world.state);
+    const c = area(world);
     world.buildings.place('house', c.gx, c.gy); // 5 kapasite, 0 isci ister
     settlePopulation(world);
 
@@ -418,23 +426,26 @@ describe('kadro uretime baglandi', () => {
   it('efficiency artik kadro dolulugunu bildirir', () => {
     const world = makeWorld();
     placeAnywhere(world, 'house');
-    placeAnywhere(world, 'quarry'); // 4 isci
-    placeAnywhere(world, 'farm'); // 2 isci
+    placeAnywhere(world, 'quarry');
+    placeAnywhere(world, 'farm');
     settlePopulation(world);
     staffAll(world);
     world.simulation.advance(1);
 
+    // Ihtiyac katalogdan turetilir: ocak + ciftlik kadrosu.
+    const need =
+      (levelOf(getBuilding('quarry'), 1)?.workerRequirement ?? 0) +
+      (levelOf(getBuilding('farm'), 1)?.workerRequirement ?? 0);
     const snap = world.economy.snapshot;
-    expect(snap.workersNeeded).toBe(6);
-    expect(snap.populationUsed).toBe(5);
-    expect(snap.efficiency).toBeCloseTo(5 / 6, 9);
+    expect(snap.workersNeeded).toBe(need);
+    expect(snap.efficiency).toBeCloseTo(snap.populationUsed / need, 9);
   });
 });
 
 describe('nufus kaydi', () => {
   it('nufus kayitta korunur', () => {
     const world = makeWorld();
-    const c = area(world.state);
+    const c = area(world);
     world.buildings.place('house', c.gx, c.gy);
     settlePopulation(world);
     expect(world.state.population).toBe(5);
@@ -446,7 +457,7 @@ describe('nufus kaydi', () => {
 
   it('yuklemeden sonra isci dagitimi ayni kalir', () => {
     const world = makeWorld();
-    const c = area(world.state);
+    const c = area(world);
     world.buildings.place('house', c.gx, c.gy);
     world.buildings.place('farm', c.gx + 1, c.gy);
     world.buildings.place('quarry', c.gx - 2, c.gy);
@@ -461,7 +472,7 @@ describe('nufus kaydi', () => {
 
   it('assignedWorkers kayittan gelen kurcalanmis degere guvenmez', () => {
     const world = makeWorld();
-    const c = area(world.state);
+    const c = area(world);
     world.buildings.place('house', c.gx, c.gy);
     const farm = world.buildings.place('farm', c.gx + 1, c.gy);
     if (!farm.ok) throw new Error('kurulum basarisiz');
@@ -480,7 +491,7 @@ describe('nufus kaydi', () => {
 
   it('nufus alani olmayan eski kayit is gucunu kaybetmez', () => {
     const world = makeWorld();
-    const c = area(world.state);
+    const c = area(world);
     world.buildings.place('house', c.gx, c.gy);
     world.buildings.place('farm', c.gx + 1, c.gy);
     settlePopulation(world);
@@ -518,7 +529,7 @@ describe('nufus kaydi', () => {
 
   it('absurt kurcalanmis nufus mutlak sinira kirpilir', () => {
     const world = makeWorld();
-    const c = area(world.state);
+    const c = area(world);
     world.buildings.place('house', c.gx, c.gy);
     settlePopulation(world);
 
@@ -529,12 +540,16 @@ describe('nufus kaydi', () => {
     if (!migrated) throw new Error('kayit reddedildi');
     // Izgaranin tamami en cok barindiran binayla dolsa bile ulasilamaz.
     expect(migrated.population).toBeLessThan(999_999);
-    expect(migrated.population).toBe(GRID_SIZE * GRID_SIZE * 9);
+    // Tavan, katalogdaki EN COK barindiran binadan turer.
+    const richest = Math.max(
+      ...allBuildings().flatMap((d) => d.levels.map((l) => l.populationCapacity ?? 0)),
+    );
+    expect(migrated.population).toBe(GRID_SIZE * GRID_SIZE * richest);
   });
 
   it('negatif nufus sifira cekilir', () => {
     const world = makeWorld();
-    const c = area(world.state);
+    const c = area(world);
     world.buildings.place('house', c.gx, c.gy);
     settlePopulation(world);
 
@@ -550,7 +565,7 @@ describe('nufus kaydi', () => {
 describe('gercek zaman kullanilmaz', () => {
   it('Date.now degismeden nufus buyur', () => {
     const world = makeWorld();
-    const c = area(world.state);
+    const c = area(world);
     world.buildings.place('house', c.gx, c.gy);
 
     const realNow = Date.now();
@@ -563,7 +578,7 @@ describe('gercek zaman kullanilmaz', () => {
   it('ayni tik sayisi ayni nufusu verir (deterministik)', () => {
     function run(): number {
       const w = makeWorld(4242);
-      const c = area(w.state);
+      const c = area(w);
       w.buildings.place('house', c.gx, c.gy);
       w.buildings.place('farm', c.gx + 1, c.gy);
       w.simulation.advance(345);

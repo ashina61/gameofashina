@@ -5,13 +5,15 @@ import { describe, expect, it } from 'vitest';
 import { GameState } from '@/core/GameState';
 import { migrateAndSanitize } from '@/core/SaveManager';
 import { MAX_CONCURRENT_CONSTRUCTIONS, SAVE_VERSION } from '@/config/Constants';
-import { getBuilding } from '@/config/BuildingCatalog';
+import { getBuilding, levelOf } from '@/config/BuildingCatalog';
 import { resolveTaskRefund } from '@/systems/BuildingResolver';
-import { makeWorld, wrap } from './helpers';
+import { blockSpot, makeWorld, wrap } from './helpers';
+import type { TestWorld } from './helpers';
 import type { BuildingDefinition, BuildingLevel } from '@/types';
 
-function spot(state: GameState, dx = 0, dy = 0) {
-  const c = state.grid.center();
+function spot(world: TestWorld, dx = 0, dy = 0) {
+  // Konum yerlesimden turetilir; sabit koordinat sokaga denk gelebilir.
+  const c = blockSpot(world, ['house', 'farm']);
   return { gx: c.gx + dx, gy: c.gy + dy };
 }
 
@@ -47,7 +49,7 @@ describe('odenen maliyet anlik goruntusu', () => {
   it('insa gorevi odenen maliyeti saklar', () => {
     const w = makeWorld();
     fill(w);
-    const p = spot(w.state);
+    const p = spot(w);
     const placed = w.buildings.place('house', p.gx, p.gy);
     if (!placed.ok) throw new Error('x');
 
@@ -58,7 +60,7 @@ describe('odenen maliyet anlik goruntusu', () => {
   it('yukseltme gorevi odenen maliyeti saklar', () => {
     const w = makeWorld();
     fill(w);
-    const p = spot(w.state);
+    const p = spot(w);
     const placed = w.buildings.place('farm', p.gx, p.gy);
     if (!placed.ok) throw new Error('x');
     w.simulation.advance(60);
@@ -66,13 +68,15 @@ describe('odenen maliyet anlik goruntusu', () => {
 
     w.upgrades.requestUpgrade(placed.building.uid);
     // Ciftlik sv2: 70 odun, 30 tas
-    expect(placed.building.construction?.paidCost).toEqual({ wood: 70, stone: 30 });
+    expect(placed.building.construction?.paidCost).toEqual(
+      levelOf(getBuilding('farm'), 2)?.upgradeCost,
+    );
   });
 
   it('katalog fiyati sonradan degisse bile iade odenen uzerinden hesaplanir', () => {
     const w = makeWorld();
     fill(w);
-    const p = spot(w.state);
+    const p = spot(w);
     const placed = w.buildings.place('house', p.gx, p.gy); // 40 odun odendi
     if (!placed.ok) throw new Error('x');
     expect(placed.building.construction?.paidCost.wood).toBe(40);
@@ -119,20 +123,22 @@ describe('odenen maliyet anlik goruntusu', () => {
   it('yukseltme iptalinde iade odenen uzerinden, guncel fiyattan degil', () => {
     const w = makeWorld();
     fill(w);
-    const p = spot(w.state);
+    const p = spot(w);
     const placed = w.buildings.place('farm', p.gx, p.gy);
     if (!placed.ok) throw new Error('x');
     w.simulation.advance(60);
     fill(w);
 
-    w.upgrades.requestUpgrade(placed.building.uid); // 70 odun, 30 tas
+    const paidWood = levelOf(getBuilding('farm'), 2)?.upgradeCost?.wood ?? 0;
+    w.upgrades.requestUpgrade(placed.building.uid);
     const woodAfterPay = w.state.resources.wood;
 
     withPatchedLevel(getBuilding('farm'), 2, { upgradeCost: { wood: 500, stone: 500 } }, () => {
       w.upgrades.cancelUpgrade(placed.building.uid);
     });
 
-    expect(w.state.resources.wood).toBe(woodAfterPay + 35); // 70'in yarisi
+    // Iade ODENEN uzerinden hesaplanir: odenenin yarisi.
+    expect(w.state.resources.wood).toBe(woodAfterPay + Math.floor(paidWood * 0.5));
   });
 });
 
@@ -140,7 +146,7 @@ describe('kayit: odenen maliyet', () => {
   it('paidCost kayitta korunur ve iade ayni kalir', () => {
     const w = makeWorld();
     fill(w);
-    const p = spot(w.state);
+    const p = spot(w);
     const placed = w.buildings.place('house', p.gx, p.gy);
     if (!placed.ok) throw new Error('x');
 
@@ -193,7 +199,7 @@ describe('kayit: odenen maliyet', () => {
   it('kayit -> yukle -> iptal ayni iadeyi verir', () => {
     const w = makeWorld();
     fill(w);
-    const p = spot(w.state);
+    const p = spot(w);
     const placed = w.buildings.place('farm', p.gx, p.gy);
     if (!placed.ok) throw new Error('x');
     w.simulation.advance(60);
@@ -205,9 +211,10 @@ describe('kayit: odenen maliyet', () => {
     const uid = [...directWorld.state.buildings.values()][0].uid;
     for (const k of ['wood', 'stone'] as const) directWorld.state.setResource(k, 100);
 
+    const paidWood = levelOf(getBuilding('farm'), 2)?.upgradeCost?.wood ?? 0;
     const before = directWorld.state.resources.wood;
     directWorld.upgrades.cancelUpgrade(uid);
-    expect(directWorld.state.resources.wood).toBe(before + 35);
+    expect(directWorld.state.resources.wood).toBe(before + Math.floor(paidWood * 0.5));
   });
 });
 
@@ -217,7 +224,7 @@ describe('etkilesim kurallari', () => {
     w.state.setResource('wood', 0);
     w.state.setResource('stone', 0);
     const before = { ...w.state.resources };
-    const p = spot(w.state);
+    const p = spot(w);
 
     expect(w.buildings.place('house', p.gx, p.gy)).toEqual({ ok: false, reason: 'cost' });
     expect(w.state.resources).toEqual(before);
@@ -227,7 +234,7 @@ describe('etkilesim kurallari', () => {
   it('karsilanamayan yukseltme reddedilir ve gorev olusmaz', () => {
     const w = makeWorld();
     fill(w);
-    const p = spot(w.state);
+    const p = spot(w);
     const placed = w.buildings.place('farm', p.gx, p.gy);
     if (!placed.ok) throw new Error('x');
     w.simulation.advance(60);
@@ -242,7 +249,7 @@ describe('etkilesim kurallari', () => {
   it('canUpgrade, butonun etkinligi icin gerekli tum durumlari ayirir', () => {
     const w = makeWorld();
     fill(w);
-    const p = spot(w.state);
+    const p = spot(w);
     const placed = w.buildings.place('farm', p.gx, p.gy);
     if (!placed.ok) throw new Error('x');
 

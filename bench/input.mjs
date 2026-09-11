@@ -87,6 +87,40 @@ for (const [fx, fy, label] of [
   await ctx.close();
 }
 
+
+/**
+ * Bos bir KONUT ALANININ ekran (CSS piksel) noktasi.
+ *
+ * Sprint 12'de sehir yapi alanlarina bolundu ve izgara merkezi sehir
+ * merkezine ayrildi. Ekranin ortasina dokunup "ev kuruldu mu?" diye
+ * olcmek artik yerlestirme KURALINI sinar, dokunma tepkiselligini degil.
+ *
+ * Kamerayi alana ODAKLAMAK ise ise yaramiyor: harita kamera goruntusunden
+ * kucuk oldugu icin kaydirma sinirlara kilitli (olculdu: centerOn sonrasi
+ * ekran merkezi hala 8,8 karosunu gosteriyordu). Bu yuzden alanin ekrandaki
+ * yeri dogrudan hesaplanir.
+ */
+async function housePlotPoint(page) {
+  return page.evaluate(() => {
+    const cs = window.game.scene.getScene('CityScene');
+    const w = cs.registry.get('world');
+    const plot = w.buildings.availablePlots('house')[0];
+    if (!plot) return null;
+    const cam = cs.cameras.main;
+    const view = cam.worldView;
+    const worldX = (plot.gx - plot.gy) * 64;
+    const worldY = (plot.gx + plot.gy) * 32;
+    // Cihaz pikseli -> CSS pikseli (fare CSS pikseliyle calisir).
+    const dpr = window.devicePixelRatio || 1;
+    return {
+      x: ((worldX - view.x) / view.width) * (cam.width / dpr),
+      y: ((worldY - view.y) / view.height) * (cam.height / dpr),
+      gx: plot.gx,
+      gy: plot.gy,
+    };
+  });
+}
+
 // 2. Basili tutma suresi dokunmayi iptal ETMEMELI.
 for (const hold of [80, 300, 450, 800, 1500]) {
   const { ctx, page } = await fresh();
@@ -96,13 +130,14 @@ for (const hold of [80, 300, 450, 800, 1500]) {
     world.state.setResource('stone', 9999);
     world.bus.emit('placement:start', 'house');
   });
+  const target = await housePlotPoint(page);
   await page.waitForTimeout(300);
   const count = () =>
     page.evaluate(
       () => window.game.scene.getScene('CityScene').registry.get('world').state.buildings.size,
     );
   const before = await count();
-  await page.mouse.move(195, 420);
+  await page.mouse.move(target.x, target.y);
   await page.mouse.down();
   await page.waitForTimeout(hold);
   await page.mouse.up();
@@ -125,16 +160,17 @@ for (const [jitter, expected] of [
     world.state.setResource('stone', 9999);
     world.bus.emit('placement:start', 'house');
   });
+  const target = await housePlotPoint(page);
   await page.waitForTimeout(300);
   const count = () =>
     page.evaluate(
       () => window.game.scene.getScene('CityScene').registry.get('world').state.buildings.size,
     );
   const before = await count();
-  await page.mouse.move(195, 420);
+  await page.mouse.move(target.x, target.y);
   await page.mouse.down();
   await page.waitForTimeout(60);
-  await page.mouse.move(195 + jitter, 420);
+  await page.mouse.move(target.x + jitter, target.y);
   await page.waitForTimeout(60);
   await page.mouse.up();
   await page.waitForTimeout(400);

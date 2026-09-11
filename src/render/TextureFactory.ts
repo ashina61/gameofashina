@@ -2,6 +2,7 @@ import type Phaser from 'phaser';
 import { TILE_HEIGHT, TILE_WIDTH, TextureKeys } from '@/config/Constants';
 import { allBuildings } from '@/config/BuildingCatalog';
 import { BUILDING_ART, artCanvasFor, drawScaffold, shade } from './BuildingArt';
+import { PALETTE } from './ArtStyle';
 import {
   GENERIC_VISUAL,
   MAX_VISUAL_LEVEL,
@@ -74,6 +75,7 @@ export function generateTextures(scene: Phaser.Scene, artScale = 1): void {
     );
   }
 
+  createPlotTexture(scene, TextureKeys.PlotMarker);
   createOverlayTexture(scene, TextureKeys.TileHighlight, 0xffffff, 0.28);
   createOverlayTexture(scene, TextureKeys.TileValid, 0x6ee27a, 0.42);
   createOverlayTexture(scene, TextureKeys.TileInvalid, 0xe2565a, 0.42);
@@ -231,6 +233,44 @@ function createTileTexture(
   g.strokePath();
 
   g.generateTexture(key, w, h + TILE_DEPTH);
+  g.destroy();
+}
+
+/**
+ * Bos yapi alaninin sakin isareti.
+ *
+ * Normal oyunda plotlar parlak kareler gibi durmamali; burada yalnizca
+ * kirectasi renginde ince bir bordur ve kose taslari var. Insa modunda
+ * uzerine ayrica TileValid/TileInvalid kaplamasi biner - ayri bir "secili"
+ * dokusuna gerek kalmaz.
+ */
+function createPlotTexture(scene: Phaser.Scene, key: string): void {
+  if (scene.textures.exists(key)) return;
+
+  const w = TILE_WIDTH;
+  const h = TILE_HEIGHT;
+  const g = scene.make.graphics({ x: 0, y: 0 }, false);
+  const inset = 0.72;
+
+  // Ince kirectasi bordur.
+  g.lineStyle(2, PALETTE.stoneLight, 0.32);
+  g.beginPath();
+  g.moveTo(w / 2, h / 2 - (h / 2) * inset);
+  g.lineTo(w / 2 + (w / 2) * inset, h / 2);
+  g.lineTo(w / 2, h / 2 + (h / 2) * inset);
+  g.lineTo(w / 2 - (w / 2) * inset, h / 2);
+  g.closePath();
+  g.strokePath();
+
+  // Dort kosede kucuk sinir tasi.
+  g.fillStyle(PALETTE.stone, 0.4);
+  const corner = 3;
+  g.fillCircle(w / 2, h / 2 - (h / 2) * inset, corner);
+  g.fillCircle(w / 2 + (w / 2) * inset, h / 2, corner);
+  g.fillCircle(w / 2, h / 2 + (h / 2) * inset, corner);
+  g.fillCircle(w / 2 - (w / 2) * inset, h / 2, corner);
+
+  g.generateTexture(key, w, h);
   g.destroy();
 }
 

@@ -12,6 +12,7 @@ import { allBuildings, getBuilding } from '@/config/BuildingCatalog';
 import { CameraController } from '@/input/CameraController';
 import { BuildingView } from '@/render/BuildingView';
 import { PlacementPreview } from '@/render/PlacementPreview';
+import { PlotLayer } from '@/render/PlotLayer';
 import { WorkerLayer } from '@/render/WorkerLayer';
 import { TERRAIN_TEXTURE, TILE_ORIGIN_Y } from '@/render/TextureFactory';
 import { PLACEMENT_MESSAGES } from '@/systems/BuildingSystem';
@@ -36,6 +37,7 @@ export class CityScene extends Phaser.Scene {
   private camControl!: CameraController;
   private preview!: PlacementPreview;
   private workers!: WorkerLayer;
+  private plotLayer!: PlotLayer;
 
   /** Bina uid -> gorsel eslemesi. */
   private readonly views = new Map<string, BuildingView>();
@@ -76,6 +78,7 @@ export class CityScene extends Phaser.Scene {
     this.createSelectionMarker();
     this.preview = new PlacementPreview(this, this.artScale());
     this.workers = new WorkerLayer(this, this.world.state, this.artScale());
+    this.plotLayer = new PlotLayer(this, this.world.plots);
     this.setupCamera();
     this.spawnExistingBuildings();
     this.bindWorldEvents();
@@ -230,7 +233,16 @@ export class CityScene extends Phaser.Scene {
     const tile = this.world.state.grid.getTile(gx, gy);
 
     if (this.placingId) {
-      this.tryPlace(gx, gy);
+      /*
+       * Dokunus plotun BASLANGIC karosuna cekilir.
+       *
+       * 2x2 sehir merkezi alaninin sag alt karosuna dokunmak, binayi bir
+       * karo kaydirip yerlesimi bozardi. Alanin neresine dokunulursa
+       * dokunulsun bina alanin koseline oturur.
+       */
+      const plot = this.world.buildings.plotAt(gx, gy);
+      if (plot) this.tryPlace(plot.gx, plot.gy);
+      else this.tryPlace(gx, gy);
       return;
     }
 
@@ -246,7 +258,12 @@ export class CityScene extends Phaser.Scene {
   private handleHover(worldX: number, worldY: number): void {
     if (!this.placingId) return;
 
-    const { gx, gy } = worldToGrid(worldX, worldY);
+    const touched = worldToGrid(worldX, worldY);
+    // Onizleme de plotun baslangicina oturur ki oyuncu binanin GERCEKTEN
+    // nereye kurulacagini gorsun.
+    const plot = this.world.buildings.plotAt(touched.gx, touched.gy);
+    const gx = plot ? plot.gx : touched.gx;
+    const gy = plot ? plot.gy : touched.gy;
     if (gx === this.lastPreviewCell.gx && gy === this.lastPreviewCell.gy) return;
     this.lastPreviewCell = { gx, gy };
 
@@ -286,6 +303,8 @@ export class CityScene extends Phaser.Scene {
 
   private beginPlacement(defId: string): void {
     this.placingId = defId as BuildingId;
+    // Uygun yapi alanlari vurgulanir; hesap PlotLayer'da degil sistemde.
+    this.plotLayer.setPlacing(this.placingId);
     this.clearSelection();
     this.lastPreviewCell = { gx: -1, gy: -1 };
     this.preview.start(getBuilding(this.placingId));
@@ -304,6 +323,7 @@ export class CityScene extends Phaser.Scene {
   private cancelPlacement(): void {
     this.placingId = null;
     this.preview.stop();
+    this.plotLayer.setPlacing(null);
   }
 
   /** Dokunulan hucreye binayi kurmayi dener ve sonucu bildirir. */
@@ -405,6 +425,8 @@ export class CityScene extends Phaser.Scene {
   // --- Gorsel senkronizasyon -----------------------------------------------
 
   private createView(building: BuildingInstance): void {
+    // Alan doldu: bos alan isareti gizlenmeli.
+    this.plotLayer?.refresh();
     if (this.views.has(building.uid)) return;
     const def = getBuilding(building.type);
     const resolved = this.world.buildings.resolve(building);
@@ -426,6 +448,8 @@ export class CityScene extends Phaser.Scene {
   }
 
   private destroyView(building: BuildingInstance): void {
+    // Alan bosaldi: isaret yeniden gorunur.
+    this.plotLayer?.refresh();
     this.views.get(building.uid)?.destroy();
     this.views.delete(building.uid);
     this.activeConstructionViews.delete(building.uid);
@@ -509,5 +533,6 @@ export class CityScene extends Phaser.Scene {
     bus.off('ui:release-worker', this.releaseWorker, this);
     this.preview.destroy();
     this.workers.destroy();
+    this.plotLayer.destroy();
   }
 }

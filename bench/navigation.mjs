@@ -148,29 +148,41 @@ check(1, 'acik arazi: isci yuruyor, variyor, calisiyor',
 // --- Senaryo 2: bina engeli ---------------------------------------------------
 const s2 = await W(`(() => { ${HELPERS} ${TRACE}
   const w = window.game.scene.getScene('CityScene').registry.get('world');
-  for (const k of ['wood','stone','food','gold']) w.state.setResource(k, 99999);
+  for (const k of ['wood','stone','food','gold']) w.state.setResource(k, 1e7);
   const c = w.state.grid.center();
 
-  // Meydanin onune TUM SATIR boyunca bina duvari or.
-  // Duvarda TEK bir gecit birakilir: amac iscinin gecitten DOLASMASINI
-  // gormek. Gecitsiz duvar hedefi gercekten ulasilamaz yapar ve atama
-  // dogru sekilde reddedilir - o baska bir senaryonun konusu.
-  const gate = c.gx + 4;
+  /*
+   * ENGEL: yogun bir sehir.
+   *
+   * Once tek sira bina duvari denedim; Sprint 12'nin yerlesiminde bir
+   * satirda en fazla 8 alan var ve 14 karolik haritada duz cizgi duvari
+   * hic kesmeden yanindan siyirabiliyordu (olculdu: 8 binalik duvar, 0
+   * kesisim). Ciftlige uygun alanlar HARIC tum konut alanlarini doldurmak
+   * gercek bir engel dokusu yaratir ve olcumu kesin kilar.
+   */
   let walled = 0;
-  for (let gx = 0; gx < w.state.grid.size; gx += 1) {
-    if (gx === gate) continue;
-    if (w.buildings.place('house', gx, c.gy + 2).ok) walled += 1;
+  for (const plot of w.buildings.availablePlots('house')) {
+    if (plot.allowedTypes.includes('farm')) continue;
+    if (w.buildings.place('house', plot.gx, plot.gy).ok) walled += 1;
   }
-  // Ciftligi duvarin TAM ARKASINA koy ki duz cizgi duvardan gecsin.
-  let farm = null;
-  for (let dx = 0; dx <= 4 && !farm; dx += 1) {
-    for (const gx of dx === 0 ? [c.gx] : [c.gx - dx, c.gx + dx]) {
-      const r = w.buildings.place('farm', gx, c.gy + 4);
-      if (r.ok) { farm = r.building; break; }
-    }
+
+  // Duz cizgisi en cok binadan gecen ciftlik alani secilir.
+  const HW = 64, HH = 32;
+  const plaza = { x: (c.gx - c.gy) * HW, y: (c.gx + c.gy) * HH };
+  let bestPlot = null;
+  let best = 0;
+  for (const plot of w.buildings.availablePlots('farm')) {
+    const at = { x: (plot.gx - plot.gy) * HW, y: (plot.gx + plot.gy) * HH };
+    const hits = straightLineBlocked(w, plaza, at);
+    if (hits > best) { best = hits; bestPlot = plot; }
   }
-  if (!farm) return { error: 'ciftlik kurulamadi', walled };
-  for (let i = 0; i < 900; i += 1) w.simulation.advance(1);
+  if (!bestPlot) return { error: 'olculebilir ciftlik yeri yok', walled };
+
+  const placed = w.buildings.place('farm', bestPlot.gx, bestPlot.gy);
+  if (!placed.ok) return { error: 'ciftlik kurulamadi', walled };
+  const farm = placed.building;
+
+  for (let i = 0; i < 1200; i += 1) w.simulation.advance(1);
   if (farm.state !== 'active') return { error: 'ciftlik tamamlanmadi', walled };
 
   const res = w.workforce.assign(farm.uid);
@@ -178,27 +190,18 @@ const s2 = await W(`(() => { ${HELPERS} ${TRACE}
 
   const k0 = w.state.workers.find((x) => x.id === res.worker.id);
   const origin = { x: k0.fromX, y: k0.fromY };
-
-  const t = trace(w, res.worker.id, 300);
-
-  /*
-   * Duz cizgi YOLA CIKIS ile VARIS noktasi arasinda olculur.
-   *
-   * Ilk denemede iscinin "to" alanini kullanmistim; rota artik cok bacakli
-   * oldugu icin o alan ILK ARA NOKTAYI gosteriyor ve olcum "duz cizgi hic
-   * engelden gecmiyor" diyordu - oysa isci acikca gecitten dolasiyordu.
-   */
+  const t = trace(w, res.worker.id, 400);
   const crossings = t.finish ? straightLineBlocked(w, origin, t.finish) : 0;
-  return { walled, gate, crossings, steps: t.cells.length, bad: t.bad, exiting: t.exiting,
-           ended: t.ended, uniq: new Set(t.cells).size,
-           usedGate: t.cells.includes(gate + ',' + (c.gy + 2)) };
+
+  return { walled, crossings, steps: t.cells.length, bad: t.bad, exiting: t.exiting,
+           ended: t.ended, uniq: new Set(t.cells).size };
 })()`);
 check(2, 'bina engeli: duz cizgi binadan gecerdi, isci gecmiyor',
   !s2.error && s2.bad.length === 0 && s2.ended === 'working' && s2.crossings > 0,
   s2.error
     ? `kurulum basarisiz: ${s2.error}`
-    : `${s2.walled} binalik duvar + 1 gecit, duz cizgi ${s2.crossings} kapali ornek noktasindan ` +
-      `gecerdi; isci gecitten dolasti=${s2.usedGate}, yurunen ${s2.uniq} karonun hepsi acik, son=${s2.ended}`);
+    : `${s2.walled} bina engel, duz cizgi ${s2.crossings} kapali ornek noktasindan gecerdi; ` +
+      `yurunen ${s2.uniq} karonun hepsi acik, son=${s2.ended}`);
 
 // --- Senaryo 3: su ------------------------------------------------------------
 const s3 = await W(`(() => { ${HELPERS} ${TRACE}
@@ -206,33 +209,41 @@ const s3 = await W(`(() => { ${HELPERS} ${TRACE}
   for (const k of ['wood','stone','food','gold']) w.state.setResource(k, 99999);
   const c = w.state.grid.center();
 
-  // Meydanin bir yaninda su seridi ac, ardina bina kur.
+  /*
+   * Meydan ile hedef arasina su seridi acilir.
+   *
+   * Su, YAPI ALANI OLMAYAN karolara konur: alani suya cevirmek o alani
+   * yok etmez ama hedefi ulasilamaz kilabilirdi. Sonra seridin ardindaki
+   * bir alana ciftlik kurulur.
+   */
   let made = 0;
-  for (let dy = -1; dy <= 1; dy += 1) {
-    const tile = w.state.grid.getTile(c.gx - 3, c.gy + dy);
-    if (tile && tile.occupantUid === null) { tile.terrain = 'water'; made += 1; }
+  const band = c.gx - 3;
+  for (let gy = 0; gy < w.state.grid.size; gy += 1) {
+    const tile = w.state.grid.getTile(band, gy);
+    if (!tile || tile.occupantUid !== null) continue;
+    if (w.buildings.plotAt(band, gy)) continue;
+    tile.terrain = 'water';
+    made += 1;
   }
-  let target = null;
-  for (let dy = -1; dy <= 1 && !target; dy += 1) {
-    const r = w.buildings.place('house', c.gx - 4, c.gy + dy);
-    if (r.ok) target = r.building;
-  }
+
   let farm = null;
-  for (let dy = -1; dy <= 1 && !farm; dy += 1) {
-    const r = w.buildings.place('farm', c.gx - 5, c.gy + dy);
-    if (r.ok) farm = r.building;
+  for (const plot of w.buildings.availablePlots('farm')) {
+    if (plot.gx >= band) continue;
+    const r = w.buildings.place('farm', plot.gx, plot.gy);
+    if (r.ok) { farm = r.building; break; }
   }
-  if (!farm) return { error: 'ciftlik kurulamadi', made };
-  for (let i = 0; i < 700; i += 1) w.simulation.advance(1);
+  if (!farm) return { error: 'su ardinda ciftlik yeri yok', made };
+  for (let i = 0; i < 900; i += 1) w.simulation.advance(1);
+  if (farm.state !== 'active') return { error: 'ciftlik tamamlanmadi', made };
 
   const res = w.workforce.assign(farm.uid);
   if (!res.ok) return { error: res.reason, made };
-  const t = trace(w, res.worker.id, 200);
+  const t = trace(w, res.worker.id, 300);
   const water = t.bad.filter((x) => x.terrain === 'water').length;
   return { made, steps: t.cells.length, bad: t.bad, water, ended: t.ended };
 })()`);
 check(3, 'su: isci suyun uzerinden gecmiyor',
-  !s3.error && s3.bad.length === 0 && s3.water === 0,
+  !s3.error && s3.made > 0 && s3.bad.length === 0 && s3.water === 0,
   `${s3.made} su karosu, gecersiz=${(s3.bad || []).length} (su=${s3.water}), son=${s3.ended}`);
 
 // --- Senaryo 4: coklu isci ----------------------------------------------------
@@ -383,9 +394,15 @@ const s9 = await W(`(() => { ${HELPERS} ${TRACE}
    * oldugu icin raporda da belirtiliyor.
    */
   let built = 0;
-  for (const t of w.state.grid.allTiles()) {
-    if (t.gx % 3 === 0 || t.gy % 3 === 0) continue;
-    if (w.buildings.place('house', t.gx, t.gy).ok) built += 1;
+  // Sprint 12: sehir zaten sokaklara bolunmus yapi adalarindan olusuyor;
+  // "her ucuncu sutun koridor" deseni artik yerlesimin kendisinde var.
+  /*
+   * Ciftlige uygun alanlar BOS birakilir; aksi halde yogun sehirde
+   * hedef bina kurulacak yer kalmiyor (olculdu: 47 bina, ciftlik yeri 0).
+   */
+  for (const plot of w.buildings.availablePlots('house')) {
+    if (plot.allowedTypes.includes('farm')) continue;
+    if (w.buildings.place('house', plot.gx, plot.gy).ok) built += 1;
   }
   for (let i = 0; i < 1500; i += 1) w.simulation.advance(1);
 
@@ -471,20 +488,28 @@ const panel = await P(() => {
   const w = cs.registry.get('world');
   for (const k of ['wood','stone','food','gold']) w.state.setResource(k, 99999);
   const c = w.state.grid.center();
-  const near = (type, r) => {
-    for (let radius = 0; radius <= r; radius += 1) {
-      for (let dy = -radius; dy <= radius; dy += 1) {
-        for (let dx = -radius; dx <= radius; dx += 1) {
-          if (Math.max(Math.abs(dx), Math.abs(dy)) !== radius) continue;
-          const res = w.buildings.place(type, c.gx + dx, c.gy + dy);
-          if (res.ok) return res.building;
-        }
-      }
+  /*
+   * Merkeze en yakin uygun YAPI ALANI.
+   *
+   * Yaricap siniri kaldirildi: Sprint 12'de oduncu kampinin alanlari
+   * uretim kusaginda, yani merkezden uzakta. Sabit yaricap hicbir kamp
+   * yeri bulamiyordu.
+   */
+  const near = (type) => {
+    const options = w.buildings.availablePlots(type);
+    options.sort(
+      (a, b) =>
+        Math.max(Math.abs(a.gx - c.gx), Math.abs(a.gy - c.gy)) -
+        Math.max(Math.abs(b.gx - c.gx), Math.abs(b.gy - c.gy)),
+    );
+    for (const plot of options) {
+      const res = w.buildings.place(type, plot.gx, plot.gy);
+      if (res.ok) return res.building;
     }
     return null;
   };
-  near('house', 4); near('house', 4);
-  const camp = near('lumber_camp', 4);
+  near('house'); near('house');
+  const camp = near('lumber_camp');
   for (let i = 0; i < 700; i += 1) w.simulation.advance(1);
   cs.selectTile(w.state.grid.getTile(camp.gx, camp.gy));
   return { uid: camp.uid, claimed: w.workforce.claimedBy(camp.uid), idle: w.workforce.idleCount };

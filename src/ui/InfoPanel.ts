@@ -302,6 +302,13 @@ export class InfoPanel extends Phaser.GameObjects.Container {
 
     const lines: string[] = [];
 
+    /*
+     * DURUM SATIRI
+     *
+     * Oyuncunun ilk gormesi gereken sey binanin calisip calismadigidir.
+     * Uc hal var ve ucu de mevcut state'ten TURETILIR; yeni bir durum
+     * alani eklenmedi.
+     */
     const task = resolved.construction;
     if (task) {
       const verb = task.kind === 'upgrade' ? 'Yukseltiliyor' : 'Insa ediliyor';
@@ -310,6 +317,12 @@ export class InfoPanel extends Phaser.GameObjects.Container {
       } else {
         lines.push(`${verb} - ${formatDuration(ticksToSeconds(task.remainingTicks))} kaldi`);
       }
+    } else if (!resolved.operational) {
+      lines.push('DURDURULDU');
+    } else if (resolved.workerRequirement > 0 && !resolved.staffed) {
+      lines.push(resolved.assignedWorkers === 0 ? 'ISCI YOK' : 'ISCI YETERSIZ');
+    } else {
+      lines.push('CALISIYOR');
     }
 
     // Insaat sirasinda uretim degerleri sifirdir; o seviyenin tanimini gosteririz.
@@ -353,6 +366,30 @@ export class InfoPanel extends Phaser.GameObjects.Container {
         .map((key) => `${RESOURCE_META[key].label} ${upgrade.cost[key]}`)
         .join('  ');
       lines.push(`Sv. ${upgrade.toLevel} icin: ${cost}`);
+
+      /*
+       * Yukseltmenin NE KAZANDIRDIGI da yazilir.
+       *
+       * Maliyeti gosterip getirisini gostermemek, oyuncuyu katalogdan
+       * hesap yapmaya zorluyordu. Fark katalogdan okunur; panel kendi
+       * hesabini yapmaz.
+       */
+      const next = def.levels.find((l) => l.level === upgrade.toLevel);
+      const current = def.levels.find((l) => l.level === resolved.level);
+      if (next && current) {
+        const gains: string[] = [];
+        for (const key of RESOURCE_ORDER) {
+          const delta = (next.production?.[key] ?? 0) - (current.production?.[key] ?? 0);
+          if (delta) gains.push(`${RESOURCE_META[key].label} +${formatRate(delta)}/dk`);
+        }
+        const popDelta = (next.populationCapacity ?? 0) - (current.populationCapacity ?? 0);
+        if (popDelta) gains.push(`+${popDelta} nufus`);
+        const storeDelta = (next.storageCapacity ?? 0) - (current.storageCapacity ?? 0);
+        if (storeDelta) gains.push(`+${storeDelta} depo`);
+        const workerDelta = (next.workerRequirement ?? 0) - (current.workerRequirement ?? 0);
+        if (workerDelta) gains.push(`${workerDelta > 0 ? '+' : ''}${workerDelta} isci`);
+        if (gains.length) lines.push(`Kazanc: ${gains.join('  ')}`);
+      }
     }
 
     if (!lines.length) lines.push(def.description);

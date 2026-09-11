@@ -5,22 +5,28 @@
 import { describe, expect, it, vi } from 'vitest';
 import { GameState } from '@/core/GameState';
 import { migrateAndSanitize } from '@/core/SaveManager';
-import { getBuilding } from '@/config/BuildingCatalog';
-import { SAVE_VERSION } from '@/config/Constants';
+import { getBuilding, levelOf } from '@/config/BuildingCatalog';
+import { BASE_STORAGE_CAPACITY, SAVE_VERSION } from '@/config/Constants';
 import { resolveUpgradeOption } from '@/systems/BuildingResolver';
-import { makeWorld, wrap } from './helpers';
+import { blockSpot, hallSpot, makeWorld, wrap } from './helpers';
 import type { ConstructionTask, SaveData } from '@/types';
 
-/** Merkezdeki temizlenmis alanda gecerli bir konum. */
-function spot(state: GameState, dx = 0, dy = 0) {
-  const c = state.grid.center();
+/**
+ * Sehirde gecerli bir YAPI ALANI konumu.
+ *
+ * Sprint 12'de bina artik uygun herhangi bir karoya degil yapi alanina
+ * kurulur; izgara merkezi de sehir merkezine ayrilmistir. Konum bu yuzden
+ * yerlesimden turetilir, elle yazilmaz.
+ */
+function spot(world: TestWorld, dx = 0, dy = 0) {
+  const c = blockSpot(world, ['house', 'farm']);
   return { gx: c.gx + dx, gy: c.gy + dy };
 }
 
 describe('ConstructionSystem - insa gorevi', () => {
   it('bina kurulunca gorev olusturulur', () => {
     const w = makeWorld();
-    const p = spot(w.state);
+    const p = spot(w);
     const placed = w.buildings.place('house', p.gx, p.gy);
     if (!placed.ok) throw new Error('kurulum basarisiz');
 
@@ -34,7 +40,7 @@ describe('ConstructionSystem - insa gorevi', () => {
   it('startedAtTick ve completesAtTick dogru', () => {
     const w = makeWorld();
     w.simulation.advance(7); // tik sifirdan farkli olsun
-    const p = spot(w.state);
+    const p = spot(w);
     const placed = w.buildings.place('house', p.gx, p.gy); // ev: 12 saniye
     if (!placed.ok) throw new Error('kurulum basarisiz');
 
@@ -45,7 +51,7 @@ describe('ConstructionSystem - insa gorevi', () => {
 
   it('tamamlanmadan bina active olmuyor', () => {
     const w = makeWorld();
-    const p = spot(w.state);
+    const p = spot(w);
     const placed = w.buildings.place('house', p.gx, p.gy);
     if (!placed.ok) throw new Error('kurulum basarisiz');
 
@@ -58,7 +64,7 @@ describe('ConstructionSystem - insa gorevi', () => {
 
   it('tamamlaninca active oluyor ve gorev kapaniyor', () => {
     const w = makeWorld();
-    const p = spot(w.state);
+    const p = spot(w);
     const placed = w.buildings.place('house', p.gx, p.gy);
     if (!placed.ok) throw new Error('kurulum basarisiz');
 
@@ -71,7 +77,7 @@ describe('ConstructionSystem - insa gorevi', () => {
 
   it('ayni bina icin ikinci gorev baslatilamaz', () => {
     const w = makeWorld();
-    const p = spot(w.state);
+    const p = spot(w);
     const placed = w.buildings.place('house', p.gx, p.gy);
     if (!placed.ok) throw new Error('kurulum basarisiz');
 
@@ -84,7 +90,7 @@ describe('ConstructionSystem - insa gorevi', () => {
 
   it('bina yikilinca gorev de iptal olur - sahipsiz gorev kalmaz', () => {
     const w = makeWorld();
-    const p = spot(w.state);
+    const p = spot(w);
     const placed = w.buildings.place('house', p.gx, p.gy);
     if (!placed.ok) throw new Error('kurulum basarisiz');
 
@@ -95,7 +101,7 @@ describe('ConstructionSystem - insa gorevi', () => {
 
   it('gercek zaman kullanilmaz: Date.now degismeden gorev ilerler', () => {
     const w = makeWorld();
-    const p = spot(w.state);
+    const p = spot(w);
     const placed = w.buildings.place('house', p.gx, p.gy);
     if (!placed.ok) throw new Error('kurulum basarisiz');
 
@@ -110,7 +116,8 @@ describe('ConstructionSystem - insa gorevi', () => {
 describe('UpgradeSystem', () => {
   /** Tamamlanmis bir bina kurar. */
   function completedBuilding(w = makeWorld(), type: 'farm' | 'town_hall' = 'farm') {
-    const p = spot(w.state);
+    // Sehir merkezi kendi ozel alanina, digerleri normal yapi alanina.
+    const p = type === 'town_hall' ? hallSpot(w) : spot(w);
     const placed = w.buildings.place(type, p.gx, p.gy);
     if (!placed.ok) throw new Error('kurulum basarisiz');
     w.simulation.advance(60);
@@ -173,7 +180,7 @@ describe('UpgradeSystem', () => {
 
   it('insaat sirasinda yukseltme baslatilamaz', () => {
     const w = makeWorld();
-    const p = spot(w.state);
+    const p = spot(w);
     const placed = w.buildings.place('farm', p.gx, p.gy);
     if (!placed.ok) throw new Error('kurulum basarisiz');
     w.state.setResource('wood', 5000);
@@ -198,19 +205,22 @@ describe('UpgradeSystem', () => {
     w.state.setResource('gold', 5000);
 
     const depoOnce = w.resources.capacity;
-    expect(depoOnce).toBe(750); // 500 taban + 250 sv1
+    const hall1 = levelOf(getBuilding('town_hall'), 1)?.storageCapacity ?? 0;
+    const hall2 = levelOf(getBuilding('town_hall'), 2)?.storageCapacity ?? 0;
+    expect(depoOnce).toBe(BASE_STORAGE_CAPACITY + hall1);
 
     w.upgrades.requestUpgrade(building.uid);
     w.simulation.advance(10); // yukseltme 90 sn, henuz bitmedi
 
     expect(building.level).toBe(1);
-    expect(w.resources.capacity).toBe(750);
+    expect(w.resources.capacity).toBe(BASE_STORAGE_CAPACITY + hall1);
     expect(w.economy.snapshot.netPerMinute.gold).toBeCloseTo(2, 5); // sv1 uretimi
 
     w.simulation.advance(90);
     expect(building.level).toBe(2);
-    expect(w.resources.capacity).toBe(1000); // 500 + 500 sv2
-    expect(w.economy.snapshot.netPerMinute.gold).toBeCloseTo(5, 5);
+    expect(w.resources.capacity).toBe(BASE_STORAGE_CAPACITY + hall2);
+    const hallGold = levelOf(getBuilding('town_hall'), 2)?.production?.gold ?? 0;
+    expect(w.economy.snapshot.netPerMinute.gold).toBeCloseTo(hallGold, 5);
   });
 
   it('yukseltme sirasinda bina calismaya devam eder', () => {
@@ -237,7 +247,7 @@ describe('gorev olaylari', () => {
     const started: ConstructionTask[] = [];
     w.bus.on('construction:started', (t) => started.push(t));
 
-    const p = spot(w.state);
+    const p = spot(w);
     const placed = w.buildings.place('house', p.gx, p.gy);
     if (!placed.ok) throw new Error('kurulum basarisiz');
     expect(started).toHaveLength(1);
@@ -253,7 +263,7 @@ describe('gorev olaylari', () => {
     const completed: ConstructionTask[] = [];
     w.bus.on('construction:completed', (t) => completed.push(t));
 
-    const p = spot(w.state);
+    const p = spot(w);
     w.buildings.place('house', p.gx, p.gy);
 
     w.simulation.advance(11);
@@ -273,7 +283,7 @@ describe('gorev olaylari', () => {
     w.bus.on('construction:started', () => (emissions += 1));
     w.bus.on('construction:completed', () => (emissions += 1));
 
-    const p = spot(w.state);
+    const p = spot(w);
     w.buildings.place('house', p.gx, p.gy);
     w.simulation.advance(30);
 
@@ -283,7 +293,7 @@ describe('gorev olaylari', () => {
 
   it('yukseltme de ayni olaylari kullanir', () => {
     const w = makeWorld();
-    const p = spot(w.state);
+    const p = spot(w);
     const placed = w.buildings.place('farm', p.gx, p.gy);
     if (!placed.ok) throw new Error('kurulum basarisiz');
     w.simulation.advance(60);
@@ -304,7 +314,7 @@ describe('gorev olaylari', () => {
 describe('kayit: devam eden gorevler', () => {
   it('insaat sururken alinan kayit gorevi korur ve dogru tikte bitirir', () => {
     const w = makeWorld();
-    const p = spot(w.state);
+    const p = spot(w);
     const placed = w.buildings.place('house', p.gx, p.gy); // 12 tik
     if (!placed.ok) throw new Error('kurulum basarisiz');
     w.simulation.advance(5);
@@ -330,7 +340,7 @@ describe('kayit: devam eden gorevler', () => {
 
   it('yukseltme gorevi de kayitta korunur', () => {
     const w = makeWorld();
-    const p = spot(w.state);
+    const p = spot(w);
     const placed = w.buildings.place('farm', p.gx, p.gy);
     if (!placed.ok) throw new Error('kurulum basarisiz');
     w.simulation.advance(60);
@@ -463,8 +473,8 @@ describe('kayit: devam eden gorevler', () => {
 describe('gorev indeksi', () => {
   it('yuklemede aktif gorev indeksi durumdan yeniden kurulur', () => {
     const w = makeWorld();
-    const a = spot(w.state);
-    const b = spot(w.state, 1, 0);
+    const a = spot(w);
+    const b = spot(w, 1, 0);
     w.buildings.place('house', a.gx, a.gy);
     w.buildings.place('house', b.gx, b.gy);
     expect(w.construction.activeCount).toBe(2);
@@ -475,7 +485,7 @@ describe('gorev indeksi', () => {
 
   it('rebuildFromState indeksi durumla hizalar', () => {
     const w = makeWorld();
-    const p = spot(w.state);
+    const p = spot(w);
     w.buildings.place('house', p.gx, p.gy);
     w.construction.rebuildFromState();
     expect(w.construction.activeCount).toBe(1);

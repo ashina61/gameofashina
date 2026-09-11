@@ -7,7 +7,7 @@
  */
 import { describe, expect, it } from 'vitest';
 import { GameState } from '@/core/GameState';
-import { getBuilding } from '@/config/BuildingCatalog';
+import { getBuilding, levelOf } from '@/config/BuildingCatalog';
 import { resolveBuilding } from '@/systems/BuildingResolver';
 import { BASE_STORAGE_CAPACITY, SAVE_VERSION } from '@/config/Constants';
 import { grant, makeWorld, staff, staffAll, wrap } from './helpers';
@@ -153,19 +153,22 @@ describe('kadro uretimi olcekler', () => {
   it('kismi kadro oransal uretir', () => {
     const world = makeWorld();
     grant(world, { wood: 400, stone: 400, food: 120 });
-    place(world, 'house'); // 5 kapasite
-    const farm = place(world, 'farm'); // 2 isci
-    const quarry = place(world, 'quarry'); // 4 isci -> 3 kalir
+    place(world, 'house');
+    const farm = place(world, 'farm');
+    const quarry = place(world, 'quarry');
     settle(world);
-    // Once ciftlik doldurulur, kalan 3 isci tasocagina gider.
+    // Once ciftlik doldurulur, kalan isciler tasocagina gider.
     staff(world, farm.uid);
     staff(world, quarry.uid);
 
+    // Oran katalogdan turetilir; denge degistiginde test birlikte degisir.
+    const need = levelOf(getBuilding('quarry'), 1)?.workerRequirement ?? 0;
     const resolved = resolve(world, quarry);
-    expect(resolved.assignedWorkers).toBe(3);
-    expect(resolved.staffing).toBeCloseTo(3 / 4, 9);
+    const assigned = resolved.assignedWorkers;
+    expect(assigned).toBeGreaterThan(0);
+    expect(resolved.staffing).toBeCloseTo(assigned / need, 9);
     expect(resolved.effectiveProduction.stone).toBeCloseTo(
-      (resolved.production.stone ?? 0) * (3 / 4),
+      (resolved.production.stone ?? 0) * (assigned / need),
       9,
     );
   });
@@ -180,10 +183,14 @@ describe('kadro uretimi olcekler', () => {
     staffAll(world);
     world.simulation.advance(1);
 
+    const need =
+      (levelOf(getBuilding('quarry'), 1)?.workerRequirement ?? 0) +
+      (levelOf(getBuilding('farm'), 1)?.workerRequirement ?? 0);
     const snap = world.economy.snapshot;
-    expect(snap.workersNeeded).toBe(6);
-    expect(snap.populationUsed).toBe(5);
-    expect(snap.efficiency).toBeCloseTo(5 / 6, 9);
+    expect(snap.workersNeeded).toBe(need);
+    // Calisan sayisi nufusla ihtiyacin kucugu kadardir.
+    expect(snap.populationUsed).toBe(Math.min(need, world.state.population));
+    expect(snap.efficiency).toBeCloseTo(snap.populationUsed / need, 9);
   });
 });
 

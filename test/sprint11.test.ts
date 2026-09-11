@@ -306,22 +306,45 @@ describe('nufus ve is gucu ekonomisi', () => {
  * Sprint 12'de bir sey degistiginde sessizce kaymasin.
  */
 describe('ekonominin olculen yapisi', () => {
-  it('HER binanin insa maliyetinde odun var - odun evrensel kapi', () => {
-    for (const def of allBuildings()) {
-      const cost = levelOf(def, 1)?.buildCost ?? {};
-      expect(cost.wood ?? 0).toBeGreaterThan(0);
-    }
+  it('ODUN KAPISI KIRILDI: oduncu kampi odunsuz kurulabilir', () => {
+    /*
+     * Sprint 11'de yedi binanin YEDISI de odun istiyordu ve bu, odun biten
+     * oyuncu icin geri donusu olmayan bir kilit yaratiyordu. Sprint 12'de
+     * oduncu kampinin odun maliyeti kaldirildi: kapi artik kirik.
+     */
+    const camp = levelOf(getBuilding('lumber_camp'), 1)?.buildCost ?? {};
+    expect(camp.wood ?? 0).toBe(0);
+    expect(camp.stone ?? 0).toBeGreaterThan(0); // yine de bedava degil
+
+    // Odun ureten tek bina hala oduncu kampi.
+    const woodProducers = allBuildings().filter((d) =>
+      d.levels.some((l) => (l.production?.wood ?? 0) > 0),
+    );
+    expect(woodProducers.map((d) => d.id)).toEqual(['lumber_camp']);
   });
 
-  it('altinin TEK gideri sehir merkezi Sv.2; baska hicbir yerde harcanmaz', () => {
-    const sinks: string[] = [];
+  it('ALTIN GIDERI GERCEK: her yukseltme altin ister', () => {
+    /*
+     * Sprint 11'de altinin tum oyunda tek gideri vardi (sehir merkezi Sv.2)
+     * ve Pazar'in urettigi altinin alicisi yoktu. Sprint 12'de her
+     * yukseltmeye altin bileseni eklendi: Pazar -> altin -> yukseltme
+     * zinciri artik kapali bir devre.
+     */
+    const upgradesWithoutGold: string[] = [];
     for (const def of allBuildings()) {
       for (const entry of def.levels) {
-        if ((entry.buildCost?.gold ?? 0) > 0) sinks.push(`${def.id}:insa`);
-        if ((entry.upgradeCost?.gold ?? 0) > 0) sinks.push(`${def.id}:Sv${entry.level}`);
+        if (entry.level === 1) continue;
+        if ((entry.upgradeCost?.gold ?? 0) <= 0) upgradesWithoutGold.push(`${def.id}:Sv${entry.level}`);
       }
     }
-    expect(sinks).toEqual(['town_hall:Sv2']);
+    expect(upgradesWithoutGold).toEqual([]);
+
+    // Altin uretimi hala Pazar ve Sehir Merkezi'nden gelir.
+    const goldProducers = allBuildings()
+      .filter((d) => d.levels.some((l) => (l.production?.gold ?? 0) > 0))
+      .map((d) => d.id)
+      .sort();
+    expect(goldProducers).toEqual(['market', 'town_hall']);
   });
 
   it('tas yalnizca TAS OCAGINDAN gelir ve ocak KAYA ister', () => {
@@ -342,34 +365,45 @@ describe('ekonominin olculen yapisi', () => {
     expect(FOOD_UPKEEP_PER_CITIZEN).toBeGreaterThan(0);
   });
 
-  it('ODUN KILIDI: odun bitip oduncu kampi yoksa HICBIR bina kurulamaz', () => {
+  it('ODUN SIFIRKEN bile oduncu kampi kurulabilir - kilit yok', () => {
     const world = makeWorld();
     world.state.setResource('wood', 0);
-    world.state.setResource('stone', 500);
-    world.state.setResource('gold', 500);
-    world.state.setResource('food', 500);
+    world.state.setResource('stone', 200);
+    world.state.setResource('gold', 0);
+    world.state.setResource('food', 200);
 
-    for (const def of allBuildings()) {
-      expect(world.resources.canAfford(levelOf(def, 1)?.buildCost ?? {})).toBe(false);
+    // Odun isteyen binalar hala karsilanamaz...
+    expect(world.resources.canAfford(levelOf(getBuilding('house'), 1)?.buildCost ?? {})).toBe(false);
+    // ...ama uretimi geri getiren bina KARSILANABILIR.
+    expect(world.resources.canAfford(levelOf(getBuilding('lumber_camp'), 1)?.buildCost ?? {})).toBe(true);
+
+    // Ve gercekten kurulabiliyor: oyuncu odun uretimine her zaman donebilir.
+    let built = false;
+    for (const tile of world.state.grid.allTiles()) {
+      if (world.buildings.place('lumber_camp', tile.gx, tile.gy).ok) { built = true; break; }
     }
-    // Odun ureten tek bina oduncu kampidir ve kendisi de odun ister.
-    expect(levelOf(getBuilding('lumber_camp'), 1)?.buildCost?.wood ?? 0).toBeGreaterThan(0);
+    expect(built).toBe(true);
   });
 
-  it('ODUN KILIDINDEN CIKIS: var olan binayi yikmak odunun yarisini geri verir', () => {
+  it('yikim yine de %50 iade verir - ikinci bir cikis yolu', () => {
     const world = makeWorld();
     for (const key of RESOURCE_ORDER) world.state.setResource(key, 99_999);
     const hall = place(world, 'town_hall');
     runTicks(world, 400);
 
+    /*
+     * Odun ISTEYEN bir bina uzerinden olculur. Oduncu kampi artik odunsuz
+     * kurulabildigi icin kilidi olcmeye uygun degil.
+     */
     world.state.setResource('wood', 0);
-    expect(world.resources.canAfford(levelOf(getBuilding('lumber_camp'), 1)?.buildCost ?? {})).toBe(false);
+    const houseCost = levelOf(getBuilding('house'), 1)?.buildCost ?? {};
+    expect(world.resources.canAfford(houseCost)).toBe(false);
 
     world.buildings.demolish(hall.uid);
 
     // Yikim %50 iade eder; oyuncu yeniden baslayabilir.
     expect(world.resources.amountOf('wood')).toBeGreaterThan(0);
-    expect(world.resources.canAfford(levelOf(getBuilding('lumber_camp'), 1)?.buildCost ?? {})).toBe(true);
+    expect(world.resources.canAfford(houseCost)).toBe(true);
   });
 });
 

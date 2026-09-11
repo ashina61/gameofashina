@@ -9,18 +9,21 @@ import { EventBus } from '@/core/EventBus';
 import { Simulation } from '@/core/Simulation';
 import { ResourceSystem } from '@/systems/ResourceSystem';
 import { ConstructionSystem } from '@/systems/ConstructionSystem';
+import { BuildingPlotSystem } from '@/systems/BuildingPlotSystem';
 import { BuildingSystem } from '@/systems/BuildingSystem';
 import { UpgradeSystem } from '@/systems/UpgradeSystem';
 import { EconomySystem } from '@/systems/EconomySystem';
 import { PopulationSystem } from '@/systems/PopulationSystem';
 import { NavigationSystem } from '@/systems/NavigationSystem';
 import { WorkforceSystem } from '@/systems/WorkforceSystem';
+import type { BuildingId, GridPoint } from '@/types';
 
 export interface TestWorld {
   state: GameState;
   bus: EventBus;
   resources: ResourceSystem;
   construction: ConstructionSystem;
+  plots: BuildingPlotSystem;
   buildings: BuildingSystem;
   upgrades: UpgradeSystem;
   population: PopulationSystem;
@@ -41,7 +44,8 @@ export function wrap(state: GameState): TestWorld {
   const bus = new EventBus();
   const resources = new ResourceSystem(state, bus);
   const construction = new ConstructionSystem(state, resources, bus);
-  const buildings = new BuildingSystem(state, resources, construction, bus);
+  const plots = new BuildingPlotSystem(state.grid);
+  const buildings = new BuildingSystem(state, resources, construction, bus, plots);
   const upgrades = new UpgradeSystem(state, resources, construction);
   const population = new PopulationSystem(state, resources, bus);
   const navigation = new NavigationSystem(state.grid);
@@ -61,6 +65,7 @@ export function wrap(state: GameState): TestWorld {
     bus,
     resources,
     construction,
+    plots,
     buildings,
     upgrades,
     population,
@@ -69,6 +74,50 @@ export function wrap(state: GameState): TestWorld {
     economy,
     simulation,
   };
+}
+
+/**
+ * Bir bina turu icin bos yapi alaninin baslangic karosu.
+ *
+ * Sprint 12'den beri bina "uygun herhangi bir karoya" degil YAPI ALANINA
+ * kurulur. Testlerin sabit koordinat yazmasi artik calismaz: o koordinat
+ * sokak olabilir. Bu yardimci, koordinati yerlesimden TURETIR.
+ *
+ * Donen karo ADA BASINA hizalidir (gx ve gy'nin 3'e kalani 1), yani
+ * (gx, gy) ve (gx + 1, gy) ikisi de gecerli birer plottur. Testlerin
+ * yaygin "yan yana iki bina" kalibi boylece bozulmadan calisir.
+ */
+export function blockSpot(
+  world: TestWorld,
+  types: BuildingId | BuildingId[] = 'house',
+): GridPoint {
+  const wanted = Array.isArray(types) ? types : [types];
+  const usable = (gx: number, gy: number): boolean => {
+    const plot = world.plots.plotAt(gx, gy);
+    if (!plot || !world.plots.isFree(plot)) return false;
+    return wanted.every((type) => world.plots.accepts(plot, type));
+  };
+
+  for (const plot of world.plots.plots) {
+    if (plot.gx % 3 !== 1 || plot.gy % 3 !== 1) continue;
+    /*
+     * Yalnizca karonun kendisi ve SAGINDAKI istenir. Adanin dordunu birden
+     * sart kosmak cok katiydi: zemin ada icinde degisebiliyor ve hicbir ada
+     * "hem ev hem ciftlik" kabul etmiyordu. Testlerin yaygin kalibi
+     * (c) ve (c + 1) ikilisidir.
+     */
+    if (!usable(plot.gx, plot.gy)) continue;
+    if (!usable(plot.gx + 1, plot.gy)) continue;
+    return { gx: plot.gx, gy: plot.gy };
+  }
+  throw new Error(`${wanted.join('+')} icin ada basi bos plot yok`);
+}
+
+/** Sehir merkezinin ozel 2x2 alaninin koordinati. */
+export function hallSpot(world: TestWorld): GridPoint {
+  const plot = world.plots.plots.find((p) => p.zone === 'civic');
+  if (!plot) throw new Error('sehir merkezi alani yok');
+  return { gx: plot.gx, gy: plot.gy };
 }
 
 /** Kaynaklari testin ihtiyaci kadar doldurur. */

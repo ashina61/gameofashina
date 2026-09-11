@@ -7,11 +7,11 @@ import { GameState } from '@/core/GameState';
 import { SimulationClock } from '@/core/SimulationClock';
 import { migrateAndSanitize } from '@/core/SaveManager';
 import { resolveBuilding, resolveRefund } from '@/systems/BuildingResolver';
-import { getBuilding } from '@/config/BuildingCatalog';
+import { getBuilding, levelOf } from '@/config/BuildingCatalog';
 import { SAVE_VERSION } from '@/config/Constants';
 import type { BuildingInstance, SaveData } from '@/types';
 
-import { makeWorld as makeWorldWithSeed } from './helpers';
+import { blockSpot, hallSpot, makeWorld as makeWorldWithSeed } from './helpers';
 
 const makeWorld = (seed = 4242) => makeWorldWithSeed(seed);
 
@@ -30,8 +30,9 @@ function saveWith(buildings: Partial<BuildingInstance>[], tick = 0): SaveData {
 // --- 1, 2 ---
 describe('bina olusturma ve seviye', () => {
   it('yeni bina olusturulabiliyor ve dogru ornek durumu tasiyor', () => {
-    const { state, buildings } = makeWorld();
-    const c = state.grid.center();
+    const world = makeWorld();
+    const { state, buildings } = world;
+    const c = blockSpot(world, ['house', 'farm']);
     const result = buildings.place('house', c.gx, c.gy);
 
     expect(result.ok).toBe(true);
@@ -47,8 +48,9 @@ describe('bina olusturma ve seviye', () => {
   });
 
   it('seviye bilgisi bina ornegi uzerinde tutuluyor ve kayitta korunuyor', () => {
-    const { state, buildings } = makeWorld();
-    const c = state.grid.center();
+    const world = makeWorld();
+    const { state, buildings } = world;
+    const c = blockSpot(world, ['house', 'farm']);
     const placed = buildings.place('house', c.gx, c.gy);
     if (!placed.ok) throw new Error('kurulum basarisiz');
 
@@ -82,7 +84,8 @@ describe('BuildingResolver', () => {
     const lvl2 = resolveBuilding(instance(2), def, 0);
 
     expect(lvl1.production.food).toBe(6);
-    expect(lvl2.production.food).toBe(11);
+    // Deger katalogdan okunur; denge degistiginde test de birlikte degisir.
+    expect(lvl2.production.food).toBe(levelOf(getBuilding('farm'), 2)?.production?.food);
     expect(lvl1.workerRequirement).toBe(2);
     expect(lvl2.workerRequirement).toBe(3);
     expect(lvl1.production.food).not.toBe(lvl2.production.food);
@@ -128,15 +131,26 @@ describe('BuildingResolver', () => {
     // Ciftlik sv1: odun 30 -> iade 15
     expect(resolveRefund(def, 1)).toEqual({ wood: 15 });
     // Sv2: 30 odun + (70 odun, 30 tas) = 100 odun, 30 tas -> iade 50 / 15
-    expect(resolveRefund(def, 2)).toEqual({ wood: 50, stone: 15 });
+    // Iade = o seviyeye kadar yatirilanin yarisi; katalogdan turetilir.
+    const invested: Record<string, number> = {};
+    for (const entry of def.levels.filter((l) => l.level <= 2)) {
+      for (const [k, v] of Object.entries({ ...entry.buildCost, ...entry.upgradeCost })) {
+        invested[k] = (invested[k] ?? 0) + (v ?? 0);
+      }
+    }
+    const halved = Object.fromEntries(
+      Object.entries(invested).map(([k, v]) => [k, Math.floor(v * 0.5)]),
+    );
+    expect(resolveRefund(def, 2)).toEqual(halved);
   });
 });
 
 // --- 5, 6 ---
 describe('bina turu indeksi', () => {
   it('ekleme ve silmede sayac dogru degisir', () => {
-    const { state, buildings } = makeWorld();
-    const c = state.grid.center();
+    const world = makeWorld();
+    const { state, buildings } = world;
+    const c = blockSpot(world, ['house', 'farm']);
 
     expect(state.countOf('house')).toBe(0);
     const a = buildings.place('house', c.gx, c.gy);
@@ -152,11 +166,12 @@ describe('bina turu indeksi', () => {
   });
 
   it('kayittan yukleme sonrasi indeks yeniden kurulur', () => {
-    const { state, buildings } = makeWorld();
-    const c = state.grid.center();
+    const world = makeWorld();
+    const { state, buildings } = world;
+    const c = blockSpot(world, ['house', 'farm']);
     buildings.place('house', c.gx, c.gy);
     buildings.place('house', c.gx + 1, c.gy);
-    buildings.place('town_hall', c.gx - 2, c.gy - 2);
+    buildings.place('town_hall', hallSpot(world).gx, hallSpot(world).gy);
 
     const restored = GameState.fromSave(state.toSave(SAVE_VERSION));
     expect(restored.countOf('house')).toBe(2);
@@ -165,8 +180,9 @@ describe('bina turu indeksi', () => {
   });
 
   it('rebuildIndexes bozulmus sayaci duzeltir', () => {
-    const { state, buildings } = makeWorld();
-    const c = state.grid.center();
+    const world = makeWorld();
+    const { state, buildings } = world;
+    const c = blockSpot(world, ['house', 'farm']);
     buildings.place('house', c.gx, c.gy);
 
     state.rebuildIndexes();
@@ -174,11 +190,11 @@ describe('bina turu indeksi', () => {
   });
 
   it('maxCount kontrolu indeks uzerinden calisir', () => {
-    const { state, buildings } = makeWorld();
-    const c = state.grid.center();
-    expect(buildings.place('town_hall', c.gx - 2, c.gy - 2).ok).toBe(true);
+    const world = makeWorld();
+    const { state, buildings } = world;
+    expect(buildings.place('town_hall', hallSpot(world).gx, hallSpot(world).gy).ok).toBe(true);
     expect(state.countOf('town_hall')).toBe(1);
-    expect(buildings.place('town_hall', c.gx, c.gy)).toEqual({ ok: false, reason: 'max_count' });
+    expect(buildings.place('town_hall', hallSpot(world).gx, hallSpot(world).gy)).toEqual({ ok: false, reason: 'max_count' });
   });
 });
 
@@ -292,7 +308,8 @@ describe('v1 kayit goc yolu', () => {
 // --- 10 ---
 describe('tik tabanli zaman', () => {
   it('simulasyon tiki ilerler', () => {
-    const { state, simulation } = makeWorld();
+    const world = makeWorld();
+    const { state, simulation } = world;
     expect(state.tick).toBe(0);
     simulation.advance(5);
     expect(state.tick).toBe(5);
@@ -301,8 +318,9 @@ describe('tik tabanli zaman', () => {
   });
 
   it('insaat tik esiginde tamamlanir', () => {
-    const { state, buildings, simulation } = makeWorld();
-    const c = state.grid.center();
+    const world = makeWorld();
+    const { buildings, simulation } = world;
+    const c = blockSpot(world, ['house', 'farm']);
     const placed = buildings.place('house', c.gx, c.gy); // 12 saniye = 12 tik
     if (!placed.ok) throw new Error('kurulum basarisiz');
 
@@ -375,7 +393,7 @@ describe('tik tabanli zaman', () => {
     const bulk = makeWorld(555);
     const step = makeWorld(555);
     for (const w of [bulk, step]) {
-      const c = w.state.grid.center();
+      const c = blockSpot(w, ['house', 'farm']);
       w.buildings.place('farm', c.gx, c.gy); // 15 tik
       w.buildings.place('house', c.gx + 1, c.gy); // 12 tik
     }
@@ -400,8 +418,9 @@ describe('tik tabanli zaman', () => {
   });
 
   it('cevrimdisi telafi tik cinsinden uygulanir', () => {
-    const { state, buildings, simulation } = makeWorld();
-    const c = state.grid.center();
+    const world = makeWorld();
+    const { state, buildings, simulation } = world;
+    const c = blockSpot(world, ['house', 'farm']);
     buildings.place('farm', c.gx, c.gy);
     buildings.place('house', c.gx + 1, c.gy);
     simulation.advance(30);
@@ -413,7 +432,8 @@ describe('tik tabanli zaman', () => {
   });
 
   it('kaydedilen tik yuklemede geri gelir', () => {
-    const { state, simulation } = makeWorld();
+    const world = makeWorld();
+    const { state, simulation } = world;
     simulation.advance(123);
     const restored = GameState.fromSave(state.toSave(SAVE_VERSION));
     expect(restored.tick).toBe(123);
@@ -422,13 +442,15 @@ describe('tik tabanli zaman', () => {
 
 describe('mutasyon yuzeyi', () => {
   it('kaynak havuzu kontrollu metotla degisir ve negatife dusmez', () => {
-    const { state } = makeWorld();
+    const world = makeWorld();
+    const { state } = world;
     state.setResource('wood', -50);
     expect(state.resources.wood).toBe(0);
   });
 
   it('bina koleksiyonu disaridan eklenemez', () => {
-    const { state } = makeWorld();
+    const world = makeWorld();
+    const { state } = world;
     // ReadonlyMap: set/delete derleme aninda yok. Calisma zamaninda da
     // koleksiyona yalnizca addBuilding/removeBuilding uzerinden girilir.
     expect('set' in state.buildings).toBe(true); // altta yatan Map

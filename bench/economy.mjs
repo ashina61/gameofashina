@@ -30,20 +30,20 @@ const HARNESS = `
 
   const costOf = (type) => w.buildings.definitionOf({ type }).levels[0].buildCost;
 
-  /** Once merkeze yakin, bulamazsa TUM haritada yer arar (ocak kayaya kurulur). */
+  /**
+   * Sprint 12: bina artik YAPI ALANINA kurulur.
+   * Merkeze en yakin bos ve uygun alan secilir - sehir disari dogru buyur.
+   */
   function place(type) {
     const c = w.state.grid.center();
-    for (let r = 0; r <= 7; r += 1) {
-      for (let dy = -r; dy <= r; dy += 1) {
-        for (let dx = -r; dx <= r; dx += 1) {
-          if (Math.max(Math.abs(dx), Math.abs(dy)) !== r) continue;
-          const res = w.buildings.place(type, c.gx + dx, c.gy + dy);
-          if (res.ok) return res.building;
-        }
-      }
-    }
-    for (const t of w.state.grid.allTiles()) {
-      const res = w.buildings.place(type, t.gx, t.gy);
+    const options = w.buildings.availablePlots(type);
+    options.sort(
+      (a, b) =>
+        Math.max(Math.abs(a.gx - c.gx), Math.abs(a.gy - c.gy)) -
+        Math.max(Math.abs(b.gx - c.gx), Math.abs(b.gy - c.gy)),
+    );
+    for (const plot of options) {
+      const res = w.buildings.place(type, plot.gx, plot.gy);
       if (res.ok) return res.building;
     }
     return null;
@@ -134,7 +134,15 @@ const ACTIVE = `
      * nufus 4'te takilmisti. Bu oyunun degil politikanin hatasiydi, ama
      * gercek tuzagi gosterdi: isci olmadan uretim binasi kurmak bos.
      */
-    if (!w.state.countOf('town_hall')) tryBuild('town_hall', 'sehir merkezi');
+    /*
+     * Odun akisi YOKSA her seyden once oduncu kampi.
+     *
+     * Sprint 12'de kampin odun maliyeti kaldirildi; bu kural o cikis
+     * yolunu kullanan gercekci oyuncuyu temsil eder. Sprint 11'de boyle
+     * bir kural YAZILAMAZDI cunku kamp da odun istiyordu.
+     */
+    if (eco.netPerMinute.wood <= 0 && res.wood < 60) tryBuild('lumber_camp', 'odun akisi yok');
+    else if (!w.state.countOf('town_hall')) tryBuild('town_hall', 'sehir merkezi');
     else if (eco.population >= eco.populationCapacity) tryBuild('house', 'nufus kapasitesi doldu');
     else if (eco.netPerMinute.food <= 1) tryBuild('farm', 'yiyecek acigi');
     else if (w.workforce.idleCount >= 3 && res.wood < 120) tryBuild('lumber_camp', 'odun acigi + bosta isci');

@@ -6,23 +6,34 @@
  */
 import { describe, expect, it } from 'vitest';
 import { GameState } from '@/core/GameState';
-import { SAVE_VERSION } from '@/config/Constants';
-import { makeWorld, staffAll } from './helpers';
+import { BASE_STORAGE_CAPACITY, SAVE_VERSION } from '@/config/Constants';
+import { getBuilding, levelOf } from '@/config/BuildingCatalog';
+import { blockSpot, hallSpot, makeWorld, staffAll } from './helpers';
+import type { TestWorld } from './helpers';
 
 /** Merkezdeki temizlenmis alan her zaman insa edilebilir. */
-function startArea(state: GameState) {
-  return state.grid.center();
+/**
+ * Testlerin bina kurdugu cikis noktasi.
+ *
+ * Sprint 12'de sehir YAPI ALANLARINA bolundu; izgara merkezi artik sehir
+ * merkezine ayrilmis ozel bir alandir ve baska bina kabul etmez. Bu yuzden
+ * capa, yerlesimden turetilen bos bir konut adasidir.
+ */
+function startArea(world: TestWorld) {
+  return blockSpot(world, ['house', 'farm']);
 }
 
 describe('baslangic durumu', () => {
   it('varsayilan kaynaklarla baslar', () => {
-    const { state } = makeWorld();
+    const world = makeWorld();
+    const { state } = world;
     expect(state.resources).toEqual({ food: 150, wood: 220, stone: 140, gold: 60 });
   });
 
-  it('taban depo kapasitesi 500', () => {
-    const { resources } = makeWorld();
-    expect(resources.capacity).toBe(500);
+  it('taban depo kapasitesi sabitten okunur', () => {
+    const world = makeWorld();
+    const { resources } = world;
+    expect(resources.capacity).toBe(BASE_STORAGE_CAPACITY);
   });
 });
 
@@ -50,8 +61,9 @@ describe('zemin uretimi deterministik', () => {
 
 describe('yerlestirme kurallari', () => {
   it('gecerli yere bina kurar ve maliyeti duser', () => {
-    const { state, buildings } = makeWorld();
-    const c = startArea(state);
+    const world = makeWorld();
+    const { state, buildings } = world;
+    const c = startArea(world);
     const before = { ...state.resources };
     const result = buildings.place('house', c.gx, c.gy);
 
@@ -61,34 +73,38 @@ describe('yerlestirme kurallari', () => {
   });
 
   it('dolu karoyu reddeder', () => {
-    const { state, buildings } = makeWorld();
-    const c = startArea(state);
+    const world = makeWorld();
+    const { buildings } = world;
+    const c = startArea(world);
     buildings.place('house', c.gx, c.gy);
     const second = buildings.place('house', c.gx, c.gy);
     expect(second).toEqual({ ok: false, reason: 'occupied' });
   });
 
   it('izgara disini reddeder', () => {
-    const { buildings } = makeWorld();
+    const world = makeWorld();
+    const { buildings } = world;
     expect(buildings.place('house', 999, 999)).toEqual({ ok: false, reason: 'out_of_bounds' });
   });
 
   it('maxCount sinirini uygular', () => {
-    const { state, buildings } = makeWorld();
-    const c = startArea(state);
-    expect(buildings.place('town_hall', c.gx - 2, c.gy - 2).ok).toBe(true);
-    expect(buildings.place('town_hall', c.gx, c.gy)).toEqual({ ok: false, reason: 'max_count' });
+    const world = makeWorld();
+    const { buildings } = world;
+    const hall = hallSpot(world);
+    expect(buildings.place('town_hall', hall.gx, hall.gy).ok).toBe(true);
+    expect(buildings.place('town_hall', hall.gx, hall.gy)).toEqual({ ok: false, reason: 'max_count' });
   });
 
   it('yetersiz kaynagi reddeder ve hicbir sey harcamaz', () => {
-    const { state, buildings } = makeWorld();
-    const c = startArea(state);
+    const world = makeWorld();
+    const { buildings } = world;
+    const c = startArea(world);
     const drained = new GameState(1);
     void drained;
     // Kaynaklari tuket
     while (buildings.place('house', c.gx + 1, c.gy + 1).ok) break;
     const poor = makeWorld();
-    const pc = startArea(poor.state);
+    const pc = startArea(poor);
     poor.resources.spend({ wood: 220, stone: 140 });
     const before = { ...poor.state.resources };
     expect(poor.buildings.place('house', pc.gx, pc.gy)).toEqual({ ok: false, reason: 'cost' });
@@ -96,8 +112,9 @@ describe('yerlestirme kurallari', () => {
   });
 
   it('yikim maliyetin yarisini iade eder', () => {
-    const { state, buildings } = makeWorld();
-    const c = startArea(state);
+    const world = makeWorld();
+    const { state, buildings } = world;
+    const c = startArea(world);
     const placed = buildings.place('house', c.gx, c.gy);
     if (!placed.ok) throw new Error('kurulum basarisiz');
     const before = state.resources.wood;
@@ -115,9 +132,10 @@ describe('ekonomi matematigi', () => {
    */
   it('sehir merkezi + ev + ciftlik: bilinen denge', () => {
     const world = makeWorld();
-    const { state, buildings, economy, simulation } = world;
-    const c = startArea(state);
-    buildings.place('town_hall', c.gx - 2, c.gy - 2);
+    const { buildings, economy, simulation } = world;
+    const c = startArea(world);
+    const hall = hallSpot(world);
+    buildings.place('town_hall', hall.gx, hall.gy);
     buildings.place('house', c.gx, c.gy);
     buildings.place('farm', c.gx + 1, c.gy);
 
@@ -131,7 +149,9 @@ describe('ekonomi matematigi', () => {
     expect(snap.population).toBe(9); // kapasite dolmus
     expect(snap.populationUsed).toBe(2); // ciftlik 2 isci; kalan 7 issiz
     expect(snap.efficiency).toBe(1);
-    expect(snap.storageCapacity).toBe(750); // 500 taban + 250 merkez
+    // Taban + sehir merkezinin katkisi; ikisi de katalogdan/sabitten turer.
+    const hallStorage = levelOf(getBuilding('town_hall'), 1)?.storageCapacity ?? 0;
+    expect(snap.storageCapacity).toBe(BASE_STORAGE_CAPACITY + hallStorage);
     // 6 uretim - 9 vatandas * 0.4 gider. Gider artik CALISANA degil,
     // sehirde YASAYAN herkese uygulanir.
     expect(snap.netPerMinute.food).toBeCloseTo(2.4, 5);
@@ -139,8 +159,9 @@ describe('ekonomi matematigi', () => {
   });
 
   it('bir dakikalik ilerleme snapshot ile birebir ortusur', () => {
-    const { state, buildings, economy, simulation } = makeWorld();
-    const c = startArea(state);
+    const world = makeWorld();
+    const { state, buildings, economy, simulation } = world;
+    const c = startArea(world);
     buildings.place('farm', c.gx, c.gy);
     simulation.advanceSeconds(20);
 
@@ -151,8 +172,9 @@ describe('ekonomi matematigi', () => {
   });
 
   it('isci acigi verimi orantili dusurur', () => {
-    const { state, buildings, economy, simulation } = makeWorld();
-    const c = startArea(state);
+    const world = makeWorld();
+    const { buildings, economy, simulation } = world;
+    const c = startArea(world);
     // Ev yok: nufus kapasitesi 0, ciftlik 2 isci istiyor
     buildings.place('farm', c.gx, c.gy);
     simulation.advanceSeconds(20);
@@ -160,7 +182,8 @@ describe('ekonomi matematigi', () => {
   });
 
   it('depo tavani asilmaz', () => {
-    const { state, resources } = makeWorld();
+    const world = makeWorld();
+    const { state, resources } = world;
     resources.add({ wood: 10_000 });
     expect(state.resources.wood).toBe(resources.capacity);
   });
@@ -168,8 +191,9 @@ describe('ekonomi matematigi', () => {
 
 describe('kayit gidis-donusu', () => {
   it('bina ve kaynaklar korunur', () => {
-    const { state, buildings, simulation } = makeWorld(31337);
-    const c = startArea(state);
+    const world = makeWorld(31337);
+    const { state, buildings, simulation } = world;
+    const c = startArea(world);
     buildings.place('house', c.gx, c.gy);
     buildings.place('farm', c.gx + 1, c.gy);
     simulation.advanceSeconds(30);
@@ -187,8 +211,9 @@ describe('kayit gidis-donusu', () => {
   });
 
   it('yuklenen binalar izgarayi tekrar isgal eder', () => {
-    const { state, buildings } = makeWorld();
-    const c = startArea(state);
+    const world = makeWorld();
+    const { state, buildings } = world;
+    const c = startArea(world);
     const placed = buildings.place('house', c.gx, c.gy);
     if (!placed.ok) throw new Error('kurulum basarisiz');
 

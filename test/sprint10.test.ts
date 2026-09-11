@@ -343,10 +343,16 @@ describe('mesafe', () => {
     place(world, 'house');
     world.simulation.advance(900);
 
-    // Duvarin arkasina bir ciftlik kur.
+    /*
+     * Duvarin ARKASINDA, yapi alani olan bir ciftlik yeri bulunur.
+     * Sprint 12'den beri bina sabit koordinata degil yapi alanina kurulur.
+     */
     let farm: BuildingInstance | null = null;
-    for (let dx = -3; dx <= 3 && !farm; dx += 1) {
-      const r = world.buildings.place('farm', center.gx + dx, center.gy + 3);
+    for (const plot of world.plots.plots) {
+      if (farm) break;
+      if (plot.gy <= center.gy + 2) continue; // duvarin onunde kalmasin
+      if (!world.plots.accepts(plot, 'farm') || !world.plots.isFree(plot)) continue;
+      const r = world.buildings.place('farm', plot.gx, plot.gy);
       if (r.ok) farm = r.building;
     }
     if (!farm) throw new Error('ciftlik kurulamadi');

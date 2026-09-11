@@ -35,8 +35,16 @@ export const OFFLINE_CHUNK_TICKS = 60 * TICKS_PER_SECOND;
 /** Otomatik kayit araligi (ms). */
 export const AUTOSAVE_INTERVAL_MS = 15_000;
 
-/** Kaynak turu basina baslangic depo kapasitesi. */
-export const BASE_STORAGE_CAPACITY = 500;
+/**
+ * Kaynak turu basina baslangic depo kapasitesi.
+ *
+ * Sprint 11'de 500'du ve 20 dakikalik oyunda hicbir kaynak ona
+ * yaklasmadi bile (olculen en yuksek deger 307) - yani Ambar hicbir
+ * problemi cozmuyordu. 300, baslangic kaynaklarinin en buyugunun
+ * (220 odun) hala uzerinde, yani acilista hicbir sey kirpilmaz; ama
+ * uretim kurulunca depo gercek bir kisit haline gelir.
+ */
+export const BASE_STORAGE_CAPACITY = 300;
 
 /** Sehir merkezi olmadan bile var olan taban nufus kapasitesi. */
 export const BASE_POPULATION_CAPACITY = 0;
@@ -165,6 +173,7 @@ export const TextureKeys = {
   Pixel: 'ui-pixel',
   ButtonUp: 'ui-button-up',
   ButtonDown: 'ui-button-down',
+  PlotMarker: 'plot-marker',
   WorkerIdle: 'worker-idle',
   WorkerMoving: 'worker-moving',
   WorkerWorking: 'worker-working',

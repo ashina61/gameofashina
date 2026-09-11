@@ -3,23 +3,28 @@
  * Indeks butunlugu, kuyruk, iptal, instant gorev, atomiklik, olay garantileri.
  */
 import { describe, expect, it } from 'vitest';
+import { getBuilding, levelOf } from '@/config/BuildingCatalog';
 import { GameState } from '@/core/GameState';
 import { migrateAndSanitize } from '@/core/SaveManager';
 import { MAX_CONCURRENT_CONSTRUCTIONS, SAVE_VERSION } from '@/config/Constants';
 import { makeWorld, wrap } from './helpers';
 import type { ConstructionTask, TestWorldLike } from './helpers';
 
-/** Merkezdeki temiz alanda ardisik bos konumlar. */
-function spots(state: GameState, n: number) {
-  const c = state.grid.center();
+/**
+ * Ardisik bos YAPI ALANI konumlari.
+ *
+ * Sprint 12'den beri bina yalnizca yapi alanina kurulur; "merkeze yakin
+ * bos cimen" artik gecerli bir konum degil, sokak olabilir. Konumlar bu
+ * yuzden yerlesimden turetilir.
+ */
+function spots(world: TestWorld, n: number) {
   const out: { gx: number; gy: number }[] = [];
-  for (const tile of state.grid.allTiles()) {
+  for (const plot of world.plots.plots) {
     if (out.length >= n) break;
-    if (tile.occupantUid !== null) continue;
-    if (tile.terrain !== 'grass' && tile.terrain !== 'soil') continue;
-    if (Math.abs(tile.gx - c.gx) > 4 || Math.abs(tile.gy - c.gy) > 4) continue;
-    out.push({ gx: tile.gx, gy: tile.gy });
+    if (!world.plots.accepts(plot, 'farm') || !world.plots.isFree(plot)) continue;
+    out.push({ gx: plot.gx, gy: plot.gy });
   }
+  if (out.length < n) throw new Error('yeterli bos yapi alani yok');
   return out;
 }
 
@@ -42,7 +47,7 @@ function rich(w: ReturnType<typeof makeWorld>) {
 function placeHouses(w: ReturnType<typeof makeWorld>, n: number) {
   rich(w);
   const placed = [];
-  for (const p of spots(w.state, n + 4)) {
+  for (const p of spots(w, n + 4)) {
     if (placed.length >= n) break;
     const r = w.buildings.place('house', p.gx, p.gy);
     if (r.ok) placed.push(r.building);
@@ -264,7 +269,7 @@ describe('iptal', () => {
   it('aktif insaat iptalinde (yikim) maliyetin yarisi iade edilir', () => {
     const w = makeWorld();
     rich(w);
-    const p = spots(w.state, 1)[0];
+    const p = spots(w, 1)[0];
     const before = w.state.resources.wood;
     const placed = w.buildings.place('house', p.gx, p.gy); // 40 odun
     if (!placed.ok) throw new Error('x');
@@ -288,14 +293,15 @@ describe('iptal', () => {
   it('yukseltme iptalinde seviye degismez ve gorev temizlenir', () => {
     const w = makeWorld();
     rich(w);
-    const p = spots(w.state, 1)[0];
+    const p = spots(w, 1)[0];
     const placed = w.buildings.place('farm', p.gx, p.gy);
     if (!placed.ok) throw new Error('x');
     w.simulation.advance(60);
 
+    const upgradeCost = levelOf(getBuilding('farm'), 2)?.upgradeCost ?? {};
     const woodBefore = w.state.resources.wood;
-    w.upgrades.requestUpgrade(placed.building.uid); // ciftlik sv2: 70 odun 30 tas
-    expect(w.state.resources.wood).toBe(woodBefore - 70);
+    w.upgrades.requestUpgrade(placed.building.uid);
+    expect(w.state.resources.wood).toBe(woodBefore - (upgradeCost.wood ?? 0));
 
     const result = w.upgrades.cancelUpgrade(placed.building.uid);
     expect(result).toEqual({ ok: true });
@@ -303,13 +309,14 @@ describe('iptal', () => {
     expect(placed.building.construction).toBeUndefined();
     expect(w.construction.activeCount).toBe(0);
     // Aktif gorev -> %50 iade
-    expect(w.state.resources.wood).toBe(woodBefore - 70 + 35);
+    const paidWood = upgradeCost.wood ?? 0;
+    expect(w.state.resources.wood).toBe(woodBefore - paidWood + Math.floor(paidWood * 0.5));
   });
 
   it('gorevi olmayan binada iptal reddedilir', () => {
     const w = makeWorld();
     rich(w);
-    const p = spots(w.state, 1)[0];
+    const p = spots(w, 1)[0];
     const placed = w.buildings.place('farm', p.gx, p.gy);
     if (!placed.ok) throw new Error('x');
     w.simulation.advance(60);
@@ -331,7 +338,7 @@ describe('suresiz (instant) gorev', () => {
   it('instant build: started + completed tam birer kez yayinlanir', () => {
     const w = makeWorld();
     rich(w);
-    const p = spots(w.state, 1)[0];
+    const p = spots(w, 1)[0];
     const r = w.buildings.place('house', p.gx, p.gy);
     if (!r.ok) throw new Error('x');
     w.buildings.demolish(r.building.uid);
@@ -357,7 +364,7 @@ describe('suresiz (instant) gorev', () => {
   it('instant upgrade: seviye artar ve olaylar tam birer kez yayinlanir', () => {
     const w = makeWorld();
     rich(w);
-    const p = spots(w.state, 1)[0];
+    const p = spots(w, 1)[0];
     const placed = w.buildings.place('farm', p.gx, p.gy);
     if (!placed.ok) throw new Error('x');
     w.simulation.advance(60);
@@ -383,7 +390,7 @@ describe('kaynak atomikligi', () => {
   it('yetersiz kaynakta yukseltme: kaynak, gorev ve seviye degismez', () => {
     const w = makeWorld();
     rich(w);
-    const p = spots(w.state, 1)[0];
+    const p = spots(w, 1)[0];
     const placed = w.buildings.place('farm', p.gx, p.gy);
     if (!placed.ok) throw new Error('x');
     w.simulation.advance(60);
@@ -404,7 +411,7 @@ describe('kaynak atomikligi', () => {
     w.state.setResource('wood', 0);
     w.state.setResource('stone', 0);
     const before = { ...w.state.resources };
-    const p = spots(w.state, 1)[0];
+    const p = spots(w, 1)[0];
 
     expect(w.buildings.place('house', p.gx, p.gy)).toEqual({ ok: false, reason: 'cost' });
     expect(w.state.resources).toEqual(before);
@@ -417,7 +424,7 @@ describe('kaynak atomikligi', () => {
     const w = makeWorld();
     rich(w);
     const before = w.state.resources.wood;
-    const p = spots(w.state, 1)[0];
+    const p = spots(w, 1)[0];
     w.buildings.place('house', p.gx, p.gy);
     expect(w.state.resources.wood).toBe(before - 40);
   });
@@ -434,7 +441,7 @@ describe('olay garantileri', () => {
     w.bus.on('construction:started', (t) => starts.push(t));
     w.bus.on('construction:completed', (t) => dones.push(t));
 
-    const p = spots(w.state, 1)[0];
+    const p = spots(w, 1)[0];
     const placed = w.buildings.place('house', p.gx, p.gy);
     if (!placed.ok) throw new Error('x');
 
@@ -538,7 +545,7 @@ describe('kayit: aktif + kuyruk', () => {
 
     const existingQueued = restored.construction.queuedTasks()[0];
     rich(restored);
-    const p = spots(restored.state, 20).find(
+    const p = spots(restored, 20).find(
       (s) => restored.state.grid.getTile(s.gx, s.gy)?.occupantUid === null,
     )!;
     restored.buildings.place('house', p.gx, p.gy);

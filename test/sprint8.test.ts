@@ -6,6 +6,7 @@
  * oldugunu ve kalici kaldigini kilitler.
  */
 import { describe, expect, it } from 'vitest';
+import { getBuilding, levelOf } from '@/config/BuildingCatalog';
 import { GameState } from '@/core/GameState';
 import { migrateAndSanitize } from '@/core/SaveManager';
 import { SAVE_VERSION } from '@/config/Constants';
@@ -257,7 +258,8 @@ describe('bina yikimi ve durum degisimi', () => {
     world.simulation.advance(900);
 
     expect(target.level).toBe(2);
-    expect(world.workforce.capacityOf(target.uid)).toBeGreaterThan(4);
+    const lv1Need = levelOf(getBuilding('quarry'), 1)?.workerRequirement ?? 0;
+    expect(world.workforce.capacityOf(target.uid)).toBeGreaterThan(lv1Need);
     expect(world.workforce.claimedBy(target.uid)).toBe(before);
   });
 });

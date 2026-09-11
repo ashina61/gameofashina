@@ -7,9 +7,18 @@ import type { BuildingDefinition, BuildingId, BuildingLevel } from '@/types';
  * maliyetini ve suresini tasir; sonraki seviyeler yukseltme maliyetini ve
  * suresini tasir.
  *
- * ONEMLI: Seviye 1 degerleri prototipteki degerlerle birebir aynidir; bu
- * sprintte oyun dengesi degismedi. Seviye 2 tanimlari ileride devreye girecek
- * UpgradeSystem icin hazirdir - su an hicbir bina yukseltilemez.
+ * SPRINT 12 DENGE TEMELI
+ * Sprint 11 denetimi dort yapisal sorun olctu ve burasi hepsinin cozuldugu
+ * yerdir:
+ *   1. Oduncu kampi odun istiyordu, yani odun bitince odun uretimi geri
+ *      getirilemiyordu. Artik odun maliyeti YOK.
+ *   2. Altinin tek gideri sehir merkezi Sv.2'ydi. Artik her yukseltmede
+ *      altin var: Pazar -> altin -> yukseltme zinciri kuruldu.
+ *   3. Tas ocagi en pahali kadroyu (4 isci) en dusuk uretim icin istiyordu
+ *      ve hic kurulmuyordu. Kadro yariya indi.
+ *   4. Yukseltme hicbir zaman yeni kopya kurmaktan iyi degildi. Maliyetler
+ *      dusuruldu, Sv.2 uretimi artirildi; asil fark ise PLOT sistemiyle
+ *      geldi - arsa artik sinirli.
  */
 const DEFINITIONS: BuildingDefinition[] = [
   {
@@ -28,15 +37,15 @@ const DEFINITIONS: BuildingDefinition[] = [
         buildTime: 30,
         production: { gold: 2 },
         populationCapacity: 4,
-        storageCapacity: 250,
+        storageCapacity: 150,
       },
       {
         level: 2,
-        upgradeCost: { wood: 240, stone: 200, gold: 60 },
+        upgradeCost: { wood: 180, stone: 140, gold: 60 },
         upgradeTime: 90,
-        production: { gold: 5 },
+        production: { gold: 6 },
         populationCapacity: 8,
-        storageCapacity: 500,
+        storageCapacity: 300,
       },
     ],
   },
@@ -57,9 +66,9 @@ const DEFINITIONS: BuildingDefinition[] = [
       },
       {
         level: 2,
-        upgradeCost: { wood: 90, stone: 40 },
+        upgradeCost: { wood: 55, stone: 25, gold: 10 },
         upgradeTime: 40,
-        populationCapacity: 9,
+        populationCapacity: 11,
       },
     ],
   },
@@ -81,9 +90,9 @@ const DEFINITIONS: BuildingDefinition[] = [
       },
       {
         level: 2,
-        upgradeCost: { wood: 70, stone: 30 },
+        upgradeCost: { wood: 45, stone: 20, gold: 10 },
         upgradeTime: 45,
-        production: { food: 11 },
+        production: { food: 13 },
         workerRequirement: 3,
       },
     ],
@@ -99,16 +108,24 @@ const DEFINITIONS: BuildingDefinition[] = [
     levels: [
       {
         level: 1,
-        buildCost: { wood: 20, stone: 10 },
+        /*
+         * ODUN MALIYETI YOK - bilincli.
+         *
+         * Sprint 11'de olculdu: odun yedi binanin yedisinde de gerekliydi
+         * ve odun ureten TEK bina da odun istiyordu. Oyuncu odununu
+         * bitirince uretimi geri getiremiyordu; tek cikis bina yikmakti.
+         * Tas maliyeti duruyor, yani kamp hala bedava degil.
+         */
+        buildCost: { stone: 15 },
         buildTime: 15,
         production: { wood: 5 },
         workerRequirement: 3,
       },
       {
         level: 2,
-        upgradeCost: { wood: 60, stone: 45 },
+        upgradeCost: { wood: 40, stone: 30, gold: 10 },
         upgradeTime: 45,
-        production: { wood: 9 },
+        production: { wood: 11 },
         workerRequirement: 4,
       },
     ],
@@ -126,15 +143,22 @@ const DEFINITIONS: BuildingDefinition[] = [
         level: 1,
         buildCost: { wood: 50 },
         buildTime: 20,
+        /*
+         * KADRO 4'TEN 2'YE INDI.
+         *
+         * Sprint 11'de ocak uc senaryonun ucunde de hic kurulmadi: en
+         * pahali kadroyu en dusuk uretim icin istiyordu. Uretim degeri
+         * korundu, bedeli dusuruldu - tas artik erisilebilir bir kaynak.
+         */
         production: { stone: 4 },
-        workerRequirement: 4,
+        workerRequirement: 2,
       },
       {
         level: 2,
-        upgradeCost: { wood: 110, stone: 50 },
+        upgradeCost: { wood: 60, stone: 35, gold: 15 },
         upgradeTime: 60,
-        production: { stone: 7 },
-        workerRequirement: 6,
+        production: { stone: 9 },
+        workerRequirement: 3,
       },
     ],
   },
@@ -156,10 +180,10 @@ const DEFINITIONS: BuildingDefinition[] = [
       },
       {
         level: 2,
-        upgradeCost: { wood: 160, stone: 100 },
+        upgradeCost: { wood: 90, stone: 60, gold: 20 },
         upgradeTime: 70,
-        production: { gold: 7 },
-        workerRequirement: 5,
+        production: { gold: 9 },
+        workerRequirement: 4,
       },
     ],
   },
@@ -176,13 +200,13 @@ const DEFINITIONS: BuildingDefinition[] = [
         level: 1,
         buildCost: { wood: 60, stone: 60 },
         buildTime: 20,
-        storageCapacity: 400,
+        storageCapacity: 350,
       },
       {
         level: 2,
-        upgradeCost: { wood: 140, stone: 140 },
+        upgradeCost: { wood: 80, stone: 80, gold: 15 },
         upgradeTime: 55,
-        storageCapacity: 900,
+        storageCapacity: 800,
       },
     ],
   },

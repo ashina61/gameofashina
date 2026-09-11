@@ -40,9 +40,11 @@ const setup = await W(() => {
   const w = window.game.scene.getScene('CityScene').registry.get('world');
   for (const k of ['wood', 'stone', 'food', 'gold']) w.state.setResource(k, 9999);
 
+  // Sprint 12: bina YAPI ALANINA kurulur; rastgele karo taramasi artik
+  // gecerli degil.
   const place = (type) => {
-    for (const t of w.state.grid.allTiles()) {
-      const r = w.buildings.place(type, t.gx, t.gy);
+    for (const plot of w.buildings.availablePlots(type)) {
+      const r = w.buildings.place(type, plot.gx, plot.gy);
       if (r.ok) return r.building.uid;
     }
     return null;
@@ -216,30 +218,41 @@ const panel = await W(() => {
 });
 await page.waitForTimeout(400);
 
-/** Panelin "+" butonunun ekran (CSS piksel) konumu. */
-const plus = await W(() => {
-  const ui = window.game.scene.getScene('UIScene');
-  const p = ui.infoPanel;
-  const btn = p.assignButton;
-  return { x: p.x + btn.x, y: p.y + btn.y, visible: btn.visible, enabled: btn.input?.enabled !== false };
-});
-if (plus.visible) {
-  await cdp.send('Input.dispatchTouchEvent', {
-    type: 'touchStart',
-    touchPoints: [{ x: plus.x, y: plus.y, id: 1 }],
-  });
+/*
+ * Once "-" sonra "+".
+ *
+ * Sprint 12'de tas ocaginin kadrosu 4'ten 2'ye indi; kadro dolu bir
+ * binada "+" dogru olarak hicbir sey yapmaz ve olcum basarisiz GORUNUR.
+ * Iki yonu de sinamak hem dogru hem daha kapsamli.
+ */
+const tapAt = async (which) => {
+  const at = await W((k) => {
+    const ui = window.game.scene.getScene('UIScene');
+    const p = ui.infoPanel;
+    const btn = k === 'plus' ? p.assignButton : p.releaseButton;
+    return { x: p.x + btn.x, y: p.y + btn.y, visible: btn.visible };
+  }, which);
+  if (!at.visible) return at;
+  await cdp.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [{ x: at.x, y: at.y, id: 1 }] });
   await page.waitForTimeout(60);
   await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
-  await page.waitForTimeout(200);
-}
-const iRes = await W((u) => {
+  await page.waitForTimeout(220);
+  return at;
+};
+const claimedBy = () => W((u) => {
   const w = window.game.scene.getScene('CityScene').registry.get('world');
-  return { claimed: w.workforce.claimedBy(u), idle: w.workforce.idleCount };
+  return w.workforce.claimedBy(u);
 }, panel.uid);
-check('I', 'panel "+" butonu gercek dokunusla isci atiyor',
-  plus.visible && iRes.claimed === panel.claimed + 1 && iRes.idle === panel.idle - 1,
-  `buton gorunur=${plus.visible} konum=${Math.round(plus.x)},${Math.round(plus.y)} ` +
-  `bagli ${panel.claimed}->${iRes.claimed} bosta ${panel.idle}->${iRes.idle}`);
+
+const minusAt = await tapAt('minus');
+const afterMinus = await claimedBy();
+const plus = await tapAt('plus');
+const iRes = { claimed: await claimedBy(), idle: 0 };
+
+check('I', 'panel "+" ve "-" butonlari gercek dokunusla calisiyor',
+  plus.visible && minusAt.visible &&
+  afterMinus === panel.claimed - 1 && iRes.claimed === afterMinus + 1,
+  `bagli ${panel.claimed} -> ${afterMinus} -> ${iRes.claimed}`);
 
 check('hata', 'konsol/sayfa hatasi yok', errors.length === 0, errors.slice(0, 3).join(' | '));
 

@@ -315,6 +315,35 @@ export interface BuildPreview {
   storageCapacity: number;
 }
 
+/**
+ * Sehir yerlesimindeki bolgeler.
+ *
+ * Merkezden disari dogru: sivil cekirdek, ticaret, konut, uretim. Bolge
+ * yalnizca plotun HANGI binalari kabul ettigini belirler; oyun kurali
+ * tasimaz.
+ */
+export type PlotZone = 'civic' | 'commerce' | 'residential' | 'production';
+
+/**
+ * Sehirdeki bir yapi alani.
+ *
+ * DOLULUK BURADA TUTULMAZ. Plotun dolu olup olmadigi GridMap'teki
+ * occupantUid'den okunur; ikinci bir doluluk kaydi iki gercek yaratirdi.
+ * Bu yuzden kayda da yazilmaz: yerlesim zeminden, zemin seed'den turer.
+ */
+export interface BuildingPlot {
+  id: string;
+  gx: number;
+  gy: number;
+  width: number;
+  height: number;
+  zone: PlotZone;
+  /** Bu alanin kabul ettigi bina turleri; zemine gore suzulmustur. */
+  allowedTypes: BuildingId[];
+  /** Su an tum plotlar aciktir; kilit mekanigi ileriki bir sprintin isi. */
+  unlocked: boolean;
+}
+
 /** Tek bir izgara hucresinin durumu. */
 export interface TileData {
   gx: number;

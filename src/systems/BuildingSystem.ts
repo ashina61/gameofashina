@@ -6,6 +6,7 @@ import {
   resolveRefund,
   resolveTaskRefund,
 } from './BuildingResolver';
+import type { BuildingPlotSystem } from './BuildingPlotSystem';
 import type { EventBus } from '@/core/EventBus';
 import type { GameState } from '@/core/GameState';
 import type { ConstructionSystem } from './ConstructionSystem';
@@ -16,6 +17,7 @@ import type {
   BuildingInstance,
   ResolvedBuilding,
   ResourceAmounts,
+  BuildingPlot,
 } from '@/types';
 
 /** hedef += kaynak */
@@ -27,7 +29,13 @@ function addInto(target: ResourceAmounts, source: ResourceAmounts): void {
 }
 
 /** Yerlestirmenin neden reddedildigini anlatan hata kodlari. */
-export type PlacementError = 'out_of_bounds' | 'occupied' | 'terrain' | 'cost' | 'max_count';
+export type PlacementError =
+  | 'out_of_bounds'
+  | 'occupied'
+  | 'terrain'
+  | 'cost'
+  | 'max_count'
+  | 'no_plot';
 
 /** Kural kontrolunun sonucu. */
 export type ValidationResult = { ok: true } | { ok: false; reason: PlacementError };
@@ -44,6 +52,7 @@ export const PLACEMENT_MESSAGES: Record<PlacementError, string> = {
   terrain: 'Bu zemine kurulamaz.',
   cost: 'Yeterli kaynagin yok.',
   max_count: 'Bu binadan daha fazla kuramazsin.',
+  no_plot: 'Bu bina buraya kurulamaz - uygun yapi alani sec.',
 };
 
 /**
@@ -59,16 +68,30 @@ export class BuildingSystem {
   private readonly construction: ConstructionSystem;
   private readonly bus: EventBus;
 
+  private readonly plots: BuildingPlotSystem;
+
   constructor(
     state: GameState,
     resources: ResourceSystem,
     construction: ConstructionSystem,
     bus: EventBus,
+    plots: BuildingPlotSystem,
   ) {
     this.state = state;
     this.resources = resources;
     this.construction = construction;
     this.bus = bus;
+    this.plots = plots;
+  }
+
+  /** Verilen tur icin insa edilebilir yapi alanlari. */
+  availablePlots(type: BuildingId): BuildingPlot[] {
+    return this.plots.availableFor(type);
+  }
+
+  /** Verilen karoyu iceren yapi alani; sokak ya da bos alansa null. */
+  plotAt(gx: number, gy: number): BuildingPlot | null {
+    return this.plots.plotAt(gx, gy);
   }
 
   /**
@@ -89,6 +112,23 @@ export class BuildingSystem {
     if (cells.some((tile) => !def.allowedTerrain.includes(tile.terrain))) {
       return { ok: false, reason: 'terrain' };
     }
+
+    /*
+     * YAPI ALANI KURALI
+     *
+     * Bina artik uygun herhangi bir karoya degil, sehrin belirlenmis yapi
+     * alanlarina kurulur. Alan kontrolu zemin ve doluluk kontrollerinden
+     * SONRA gelir ki oyuncu daha acik bir hata gorsun ("bu zemine
+     * kurulamaz" > "uygun alan sec").
+     *
+     * Plotun kendi basladigi karo istenir: 2x2 sehir merkezi plotunun
+     * ortasina dokunup binayi kaydirmak yerlesimi bozardi.
+     */
+    const plot = this.plots.plotAt(gx, gy);
+    if (!plot) return { ok: false, reason: 'no_plot' };
+    if (!this.plots.accepts(plot, type)) return { ok: false, reason: 'no_plot' };
+    if (plot.gx !== gx || plot.gy !== gy) return { ok: false, reason: 'no_plot' };
+
     if (!this.resources.canAfford(buildCostOf(def))) return { ok: false, reason: 'cost' };
 
     return { ok: true };
