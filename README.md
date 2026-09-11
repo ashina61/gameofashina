@@ -50,7 +50,13 @@ sessizce atiyordu.
 Kaydirma esigi Android'in kendi dokunma toleransi (8dp) hizasindadir; 12px
 degeri bunun altindaydi ve parmagin dogal titremesiyle asiliyordu.
 
-Girdi davranisi `npm run bench:input` ile olculur - bu uc davranis bir kez
+Dokunulan karo ile kurulan karo ayni olmali: `worldToGrid` EN YAKINA yuvarlar,
+asagi degil. `gridToWorld` karonun MERKEZINI dondurdugu icin tam sayi izgara
+koordinati merkeze oturur; asagi yuvarlamak tam sayinin kosede oldugunu
+varsaymakti ve secim bolgesini yarim karo kaydiriyordu - bina dokunulan
+karonun caprazina kuruluyordu.
+
+Girdi davranisi `npm run bench:input` ile olculur - bu davranislar bir kez
 bozuldugunda oyun elle oynanmaz hale gelmisti, betik onlari kilitler.
 
 ## Oyun dongusu

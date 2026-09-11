@@ -19,12 +19,26 @@ export function gridToWorld(gx: number, gy: number): WorldPoint {
 
 /**
  * Dunya koordinatini izgara koordinatina cevirir.
- * Sonuc yuvarlanir; ekrandaki dokunusu hucreye eslemek icin kullanilir.
+ * Ekrandaki dokunusu hucreye eslemek icin kullanilir.
+ *
+ * EN YAKINA yuvarlanir, asagi DEGIL. gridToWorld() karonun MERKEZINI
+ * dondurur, yani tam sayi izgara koordinati karonun merkezine oturur -
+ * kosesine degil. Math.floor kullanmak, tam sayinin kosede oldugunu
+ * varsaymak demekti ve secim bolgesini yarim karo kaydiriyordu: karo
+ * merkezinin 4px yukarisina dokunmak CAPRAZ iki karo otesini seciyordu,
+ * her karonun kabaca dortte ucu komsusunu veriyordu. Bina "kafasina gore"
+ * yerlesiyor gibi gorunmesinin sebebi buydu.
+ *
+ * En yakina yuvarlamak, secim bolgesini karonun kendi elmas alaniyla
+ * ortustuyor: hangi karo merkezine daha yakinsan o karo secilir.
  */
 export function worldToGrid(x: number, y: number): GridPoint {
   const gx = (x / HALF_W + y / HALF_H) / 2;
   const gy = (y / HALF_H - x / HALF_W) / 2;
-  return { gx: Math.floor(gx), gy: Math.floor(gy) };
+  // "+ 0" negatif sifiri normale cevirir: Math.round(-0.06) === -0 doner ve
+  // bu deger bina koordinatina yazilirsa kayitta sessizce degisir
+  // (JSON.stringify(-0) === "0"), yani kayit gidis-donusu asimetrik olur.
+  return { gx: Math.round(gx) + 0, gy: Math.round(gy) + 0 };
 }
 
 /**

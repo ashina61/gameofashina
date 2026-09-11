@@ -15,6 +15,10 @@
  *     tutan oyuncunun dokunusu sessizce atiliyordu.
  *  3. PARMAK KAYMASI - kaydirma esigi 12px ile Android'in kendi toleransinin
  *     altindaydi; dogal titreme dokunmayi iptal ediyordu.
+ *  4. KARO ISABETI - worldToGrid en yakina degil ASAGI yuvarliyordu.
+ *     gridToWorld karonun MERKEZINI dondurdugu icin tam sayi izgara
+ *     koordinati merkeze oturur; asagi yuvarlamak secim bolgesini yarim
+ *     karo kaydiriyordu ve bina dokunulan karonun caprazina kuruluyordu.
  *
  * Bu dosya bir birim testi degil cunku ucu de Phaser'in girdi katmanina
  * baglidir ve yalnizca gercek bir tarayicida gozlemlenebilir.
@@ -130,6 +134,74 @@ for (const [jitter, expected] of [
   await page.mouse.up();
   await page.waitForTimeout(400);
   record('parmak kaymasi', `${jitter}px`, (await count()) > before, expected);
+  await ctx.close();
+}
+
+// 4. Bina, DOKUNULAN karoya kurulmali.
+//
+// Hedef karo, dokunulacak sayfanin KENDI izgarasindan secilir. Zemin her
+// yeni oyunda prosedurel uretildigi icin bir sayfada dogrulayip digerinde
+// dokunmak kararsiz olcum verir: karo orada su veya kaya cikinca
+// yerlestirme hakli olarak reddedilir ve olcum var olmayan bir hatayi
+// bildirir. Izgara kenarindaki karolar da atlanir; merkezin biraz
+// yukarisina dokunmak orada izgaranin disina dusebilir.
+for (const index of [0, 1, 2, 3, 4]) {
+  const { ctx, page } = await fresh();
+
+  const target = await page.evaluate((index) => {
+    const world = window.game.scene.getScene('CityScene').registry.get('world');
+    world.state.setResource('wood', 9999);
+    world.state.setResource('stone', 9999);
+    const cells = [];
+    for (const tile of world.state.grid.allTiles()) {
+      if (tile.gx < 1 || tile.gy < 1) continue;
+      if (world.buildings.validate('house', tile.gx, tile.gy).ok) cells.push([tile.gx, tile.gy]);
+    }
+    // Gecerli karolar arasinda esit araliklarla dagilmis bir ornek sec.
+    const pick = cells[Math.floor((cells.length - 1) * (index / 4))];
+    return pick ? { gx: pick[0], gy: pick[1] } : null;
+  }, index);
+
+  if (!target) {
+    await ctx.close();
+    continue;
+  }
+
+  // Ekran->dunya esleme Phaser'in kendi getWorldPoint'inden turetilir;
+  // formulu elle yazmak sabit bir kayma uretir.
+  const screen = await page.evaluate(
+    ({ gx, gy }) => {
+      const cam = window.game.scene.getScene('CityScene').cameras.main;
+      const origin = cam.getWorldPoint(0, 0);
+      const alongX = cam.getWorldPoint(100, 0);
+      const alongY = cam.getWorldPoint(0, 100);
+      const scaleX = (alongX.x - origin.x) / 100;
+      const scaleY = (alongY.y - origin.y) / 100;
+      const world = { x: (gx - gy) * 64, y: (gx + gy) * 32 };
+      return { x: (world.x - origin.x) / scaleX, y: (world.y - origin.y) / scaleY };
+    },
+    target,
+  );
+
+  await page.evaluate(() => {
+    const world = window.game.scene.getScene('CityScene').registry.get('world');
+    world.bus.emit('placement:start', 'house');
+  });
+  await page.waitForTimeout(300);
+
+  // Merkezin biraz YUKARISI: asagi yuvarlama hatasinin en belirgin oldugu yer.
+  await page.mouse.move(screen.x, screen.y - 6);
+  await page.mouse.down();
+  await page.waitForTimeout(150);
+  await page.mouse.up();
+  await page.waitForTimeout(500);
+
+  const placed = await page.evaluate(() => {
+    const world = window.game.scene.getScene('CityScene').registry.get('world');
+    const building = [...world.state.buildings.values()][0];
+    return building ? `${building.gx},${building.gy}` : 'kurulmadi';
+  });
+  record('karo isabeti', `${target.gx},${target.gy}`, placed, `${target.gx},${target.gy}`);
   await ctx.close();
 }
 
