@@ -267,7 +267,17 @@ function sanitizeConstruction(
   if (typeof value !== 'object' || value === null) return null;
   const raw = value as Record<string, unknown>;
 
-  // v2'de tur alani yoktu; o surumde yalnizca insa gorevi olabilirdi.
+  // YOKLUK ile BOZUKLUK ayrilir.
+  //
+  // v2 kayitlarinda 'kind' alani hic yoktu ve o surumde yalnizca insa gorevi
+  // olabilirdi; alan EKSIKSE 'build' varsaymak dogru bir goc adimidir.
+  // Ama alan VARSA ve taninmayan bir degerse bu bozuk kayittir: sessizce
+  // 'build' kabul etmek, oyuncunun parasini odedigi bir yukseltmeyi seviye
+  // artirmayan bir insaata cevirirdi. Bozuk gorev atilir, bina tutarli
+  // duruma getirilir.
+  if (raw.kind !== undefined && !isConstructionKind(raw.kind)) return null;
+  if (raw.status !== undefined && !isConstructionStatus(raw.status)) return null;
+
   const kind: ConstructionKind = isConstructionKind(raw.kind) ? raw.kind : 'build';
   const status: ConstructionStatus = isConstructionStatus(raw.status) ? raw.status : 'active';
 

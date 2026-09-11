@@ -381,8 +381,22 @@ describe('kayit: devam eden gorevler', () => {
     save = saveWithTask({ kind: 'build', startedAtTick: -5, completesAtTick: 40 });
     expect(save!.buildings[0].construction).toBeUndefined();
 
-    // bilinmeyen tur -> 'build' kabul edilir (v2 geriye donuk uyum)
+    // Bilinmeyen tur BOZUK kayittir ve atilir.
+    //
+    // Bu beklenti Sprint 3'te bilerek sikilastirildi. Once 'build' kabul
+    // ediliyordu; bu, odenmis bir yukseltmeyi seviye artirmayan bir insaata
+    // cevirdigi icin sessiz veri kaybiydi. YOKLUK (v2 goc yolu) hala
+    // 'build' sayilir - asagidaki ayri beklenti bunu koruyor.
     save = saveWithTask({ kind: 'teleport', startedAtTick: 0, completesAtTick: 40 });
+    expect(save!.buildings[0].construction).toBeUndefined();
+    expect(save!.buildings[0].state).toBe('active');
+
+    // Bilinmeyen durum da bozuk sayilir.
+    save = saveWithTask({ kind: 'build', status: 'melting', startedAtTick: 0, completesAtTick: 40 });
+    expect(save!.buildings[0].construction).toBeUndefined();
+
+    // ALANIN YOKLUGU bozukluk degildir: v2 kaydi hala 'build' olarak yuklenir.
+    save = saveWithTask({ startedAtTick: 0, completesAtTick: 40 });
     expect(save!.buildings[0].construction?.kind).toBe('build');
 
     // suresi coktan gecmis gorev
