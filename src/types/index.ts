@@ -16,11 +16,21 @@ export type ResourcePool = Record<ResourceKey, number>;
 export type TerrainType = 'grass' | 'soil' | 'water' | 'rock';
 
 /** Bina kategorileri; insa menusunde gruplama icin kullanilir. */
-export type BuildingCategory = 'civic' | 'production' | 'storage';
+/**
+ * Insa menusundeki sekmeler.
+ *
+ * Sprint 14'te 'civic' | 'production' | 'storage' yerine geldi: eski
+ * ayrim menude bir sekme olarak ise yaramiyordu (Sehir Merkezi ile Ev ayni
+ * sekmedeydi). Yeni ayrim oyuncunun sordugu soruyu izler: nerede
+ * yasayacaklar, ne uretecekler, neyi satacaklar, sehrin ANITI ne.
+ */
+export type BuildingCategory = 'housing' | 'production' | 'commerce' | 'special';
 
 /** Katalogdaki bina kimlikleri. */
 export type BuildingId =
   | 'town_hall'
+  | 'temple'
+  | 'harbor'
   | 'house'
   | 'farm'
   | 'lumber_camp'
@@ -86,6 +96,14 @@ export interface BuildingDefinition {
   maxCount?: number;
   /** Uzerine kurulabilecegi zemin turleri. */
   allowedTerrain: TerrainType[];
+  /**
+   * Yalnizca SUYA KOMSU bir karoya kurulabilir mi?
+   *
+   * Liman icin gerekli: gemi baglanacak bir kiyi olmadan liman olmaz.
+   * Kural zemin turunden ayridir - liman karanin uzerinde durur, ama
+   * dort komsusundan biri su olmalidir.
+   */
+  requiresWaterAdjacent?: boolean;
   /** Prosedurel doku uretimi icin ana renk. */
   tint: number;
   /** Seviye tablosu; en az bir kayit icerir ve seviyeye gore siralidir. */
@@ -383,6 +401,14 @@ export interface SaveData {
   buildings: BuildingInstance[];
   workers: WorkerRecord[];
   terrainSeed: number;
+  /**
+   * Sehrin izgara boyutu.
+   *
+   * Sprint 14'te eklendi ve geriye donuk UYUMLUDUR: alan yoksa kayit
+   * Sprint 13 doneminden gelmistir ve LEGACY_GRID_SIZE kullanilir. Bu
+   * yuzden kayit surumu artirilmadi.
+   */
+  gridSize?: number;
   /**
    * Sehirdeki vatandas sayisi.
    * v3 icine geriye donuk uyumlu eklendi: eksikse eski kaydin isci ihtiyaci

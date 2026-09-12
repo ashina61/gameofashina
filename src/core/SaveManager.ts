@@ -1,6 +1,7 @@
 import {
   BASE_POPULATION_CAPACITY,
   GRID_SIZE,
+  LEGACY_GRID_SIZE,
   MIN_SUPPORTED_SAVE_VERSION,
   RESOURCE_ORDER,
   SAVE_KEY,
@@ -119,6 +120,11 @@ export function migrateAndSanitize(input: unknown): SaveData | null {
     resources,
     buildings,
     terrainSeed: data.terrainSeed,
+    // Alan yoksa kayit Sprint 13 doneminden gelmistir (bkz. LEGACY_GRID_SIZE).
+    gridSize:
+      typeof data.gridSize === 'number' && Number.isFinite(data.gridSize) && data.gridSize > 0
+        ? Math.trunc(data.gridSize)
+        : LEGACY_GRID_SIZE,
     population: sanitizePopulation(data.population, buildings),
     workers: sanitizeWorkerRecords(data.workers, buildings),
   };

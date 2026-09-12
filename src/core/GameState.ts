@@ -1,5 +1,5 @@
 import { GridMap } from './GridMap';
-import { STARTING_RESOURCES } from '@/config/Constants';
+import { LEGACY_GRID_SIZE, STARTING_RESOURCES } from '@/config/Constants';
 import { clampLevel, getBuilding, isKnownBuildingId } from '@/config/BuildingCatalog';
 import type {
   BuildingConstruction,
@@ -100,8 +100,8 @@ export class GameState {
   /** Benzersiz isci kimligi uretmek icin artan sayac. */
   private workerCounter = 0;
 
-  constructor(terrainSeed: number, resources?: ResourcePool) {
-    this.grid = new GridMap(terrainSeed);
+  constructor(terrainSeed: number, resources?: ResourcePool, gridSize?: number) {
+    this.grid = new GridMap(terrainSeed, gridSize);
     this.resourcePool = resources ? { ...resources } : { ...STARTING_RESOURCES };
   }
 
@@ -374,7 +374,19 @@ export class GameState {
    * sessizce yok sayilmazlar.
    */
   static fromSave(save: SaveData): GameState {
-    const state = new GameState(save.terrainSeed, save.resources);
+    /*
+     * Izgara boyutu KAYITTAN okunur.
+     *
+     * Sprint 14 haritayi 14x14'ten 18x18'e buyuttu. Eski bir sehri yeni
+     * olcude yeniden uretmek zemini degistirir (zemin seed + boyuttan
+     * turer), yani oyuncunun evi suyun ustunde kalabilir ve sehir merkezi
+     * artik merkezde olmaz. Bu yuzden her sehir KENDI olcusunde yasar.
+     */
+    const state = new GameState(
+      save.terrainSeed,
+      save.resources,
+      typeof save.gridSize === 'number' && save.gridSize > 0 ? save.gridSize : LEGACY_GRID_SIZE,
+    );
     state.currentTick = Number.isFinite(save.tick) ? Math.max(0, Math.trunc(save.tick)) : 0;
 
     for (const incoming of save.buildings) {
@@ -411,6 +423,7 @@ export class GameState {
       buildings: [...this.buildingMap.values()].map((b) => ({ ...b })),
       workers: this.workerList.map((w) => ({ ...w })),
       terrainSeed: this.grid.seed,
+      gridSize: this.grid.size,
       population: this.citizens,
     };
   }

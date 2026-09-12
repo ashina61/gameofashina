@@ -52,6 +52,9 @@ export const PALETTE = {
   clothWarm: 0xd8694f,
   clothCool: 0xe8dcc0,
 
+  /** Arayuz panelinin ic rengi - ikonlarda "delik" icin. */
+  panelHole: 0x1d1a13,
+
   /** Vurgular */
   gold: 0xd9b25a,
   doorway: 0x3b2c1d,

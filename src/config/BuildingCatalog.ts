@@ -25,7 +25,7 @@ const DEFINITIONS: BuildingDefinition[] = [
     id: 'town_hall',
     name: 'Sehir Merkezi',
     description: 'Sehrin kalbi. Az miktarda altin ve depo alani saglar.',
-    category: 'civic',
+    category: 'special',
     size: 2,
     maxCount: 1,
     allowedTerrain: ['grass', 'soil'],
@@ -53,7 +53,7 @@ const DEFINITIONS: BuildingDefinition[] = [
     id: 'house',
     name: 'Ev',
     description: 'Isci barindirir. Uretim binalari icin nufus saglar.',
-    category: 'civic',
+    category: 'housing',
     size: 1,
     allowedTerrain: ['grass', 'soil'],
     tint: 0xc98f5a,
@@ -166,7 +166,7 @@ const DEFINITIONS: BuildingDefinition[] = [
     id: 'market',
     name: 'Pazar',
     description: 'Ticaretten altin kazandirir.',
-    category: 'production',
+    category: 'commerce',
     size: 1,
     allowedTerrain: ['grass', 'soil'],
     tint: 0xc06a5a,
@@ -191,7 +191,7 @@ const DEFINITIONS: BuildingDefinition[] = [
     id: 'warehouse',
     name: 'Ambar',
     description: 'Tum kaynaklarin depo kapasitesini artirir.',
-    category: 'storage',
+    category: 'commerce',
     size: 1,
     allowedTerrain: ['grass', 'soil', 'rock'],
     tint: 0x7d6b52,
@@ -207,6 +207,73 @@ const DEFINITIONS: BuildingDefinition[] = [
         upgradeCost: { wood: 80, stone: 80, gold: 15 },
         upgradeTime: 55,
         storageCapacity: 800,
+      },
+    ],
+  },
+  {
+    id: 'temple',
+    name: 'Tapinak',
+    description: 'Sehrin aniti. Altin getirir ve sehre vatandas ceker.',
+    category: 'special',
+    size: 2,
+    maxCount: 1,
+    allowedTerrain: ['grass', 'soil'],
+    tint: 0xe4d8bd,
+    levels: [
+      {
+        level: 1,
+        /*
+         * Tapinak SEHRIN ANITIDIR: pahali, tek ve gec oyunda kurulur.
+         *
+         * Maliyeti bilerek sehir merkezinin uzerinde tutuldu; oyuncunun
+         * onu kurabilmesi icin once uretimi ayakta olmali. Altin da ister,
+         * yani Pazar zincirini tamamlamadan erisilemez.
+         */
+        buildCost: { wood: 90, stone: 170, gold: 50 },
+        buildTime: 60,
+        production: { gold: 5 },
+        populationCapacity: 6,
+        workerRequirement: 2,
+      },
+      {
+        level: 2,
+        upgradeCost: { wood: 120, stone: 240, gold: 140 },
+        upgradeTime: 120,
+        production: { gold: 9 },
+        populationCapacity: 12,
+        workerRequirement: 3,
+      },
+    ],
+  },
+  {
+    id: 'harbor',
+    name: 'Liman',
+    description: 'Kiyiya kurulur. Balikcilik ve deniz ticareti getirir.',
+    category: 'special',
+    size: 1,
+    maxCount: 2,
+    allowedTerrain: ['grass', 'soil'],
+    /*
+     * Limanin yeri ZEMINLE degil, KOMSULUKLA belirlenir: kara karosunda
+     * durur ama dort komsusundan biri su olmalidir. Bu, haritanin kiyi
+     * seridine gercek bir deger kazandirir - eskiden su yalnizca dekordu.
+     */
+    requiresWaterAdjacent: true,
+    tint: 0x9c7046,
+    levels: [
+      {
+        level: 1,
+        buildCost: { wood: 110, stone: 60 },
+        buildTime: 35,
+        production: { food: 6, gold: 2 },
+        workerRequirement: 2,
+      },
+      {
+        level: 2,
+        upgradeCost: { wood: 150, stone: 90, gold: 45 },
+        upgradeTime: 80,
+        production: { food: 10, gold: 4 },
+        workerRequirement: 3,
       },
     ],
   },

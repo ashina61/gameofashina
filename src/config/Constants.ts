@@ -16,8 +16,37 @@ export const TILE_WIDTH = 128;
 /** Izometrik karo yuksekligi (piksel). */
 export const TILE_HEIGHT = 64;
 
-/** Sehir izgarasinin boyutu (GRID_SIZE x GRID_SIZE). */
-export const GRID_SIZE = 14;
+/**
+ * Sehir izgarasinin boyutu (GRID_SIZE x GRID_SIZE).
+ *
+ * Sprint 14'te 14'ten 18'e cikti: 14x14'te 75 yapi alani vardi ve sehir
+ * "yogun bir sehir" hissi verecek kadar buyuyemiyordu. 18x18 ayni sokak
+ * deseniyle 144 yapi karosu verir.
+ */
+export const GRID_SIZE = 18;
+
+/**
+ * Sprint 13 ve oncesinde uretilmis kayitlarin izgara boyutu.
+ *
+ * Kayitta izgara boyutu YOKSA bu deger kullanilir. Eski bir sehri 18x18'e
+ * tasimak, zemin seed'den turedigi icin binalarin altindaki araziyi
+ * degistirir (ev suyun uzerinde kalabilir) ve sehir merkezi artik merkezde
+ * olmaz. Bu yuzden eski sehirler kendi olcusunde yasamaya devam eder;
+ * yalnizca YENI oyunlar buyuk haritada baslar.
+ */
+export const LEGACY_GRID_SIZE = 14;
+
+/**
+ * Sokak araligi: satir/sutun numarasi bunun kati olan karolar yapiya kapalidir.
+ *
+ * Hem yerlesim (BuildingPlotSystem) hem de zemin uretimi (GridMap) bunu
+ * bilmek zorunda: zemin, sehir merkezinin oturacagi ADANIN tamamini duz
+ * cimene cevirmeli. Sprint 14'te harita 18x18 olunca merkez adasi
+ * temizlenen alanin bir karo disina tasti ve sehir merkezine hic alan
+ * ayrilamadi (olculdu: civic plot sayisi 0). Sabit tek yerde durunca ikisi
+ * birbirinden kayamaz.
+ */
+export const STREET_EVERY = 3;
 
 /**
  * Simulasyonun saniyedeki tik sayisi.
@@ -123,8 +152,8 @@ export const MAX_ZOOM = 1.6;
  * boylece "kamera nereye ortaliyor" ile "arayuz nereyi kapatiyor" tek
  * kaynaktan gelir ve birbirinden kayamaz.
  */
-export const TOP_UI_BAND = 84;
-export const BOTTOM_UI_BAND = 150;
+export const TOP_UI_BAND = 112;
+export const BOTTOM_UI_BAND = 168;
 
 /**
  * Acilista ekrana sigmasi hedeflenen karo sayisi (yatay).
@@ -186,6 +215,8 @@ export const TextureKeys = {
   Panel: 'ui-panel',
   Pixel: 'ui-pixel',
   ButtonUp: 'ui-button-up',
+  RoundUp: 'ui-round-up',
+  RoundDown: 'ui-round-down',
   ButtonDown: 'ui-button-down',
   PlotMarker: 'plot-marker',
   WorkerIdle: 'worker-idle',

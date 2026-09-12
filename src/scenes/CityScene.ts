@@ -1,7 +1,6 @@
 import Phaser from 'phaser';
 import {
   BOTTOM_UI_BAND,
-  GRID_SIZE,
   INITIAL_VISIBLE_TILES,
   MIN_ZOOM,
   TOP_UI_BAND,
@@ -81,7 +80,7 @@ export class CityScene extends Phaser.Scene {
     this.world = getWorld(this);
     this.resolution = getResolution(this);
 
-    this.backdrop = new IslandBackdrop(this);
+    this.backdrop = new IslandBackdrop(this, this.world.state.grid.size);
     this.drawTerrain();
     this.createSelectionMarker();
     this.preview = new PlacementPreview(this, this.artScale());
@@ -199,8 +198,11 @@ export class CityScene extends Phaser.Scene {
 
   /** Kamerayi sinirlandirir, sehir merkezine odaklar ve dokunma olaylarini baglar. */
   private setupCamera(): void {
-    const halfWidth = (GRID_SIZE * TILE_WIDTH) / 2;
-    const height = GRID_SIZE * TILE_HEIGHT;
+    // Olcu SABITTEN degil, sehrin KENDI izgarasindan okunur: eski kayitlar
+    // 14x14 olcusunde yasamaya devam ediyor (bkz. LEGACY_GRID_SIZE).
+    const size = this.world.state.grid.size;
+    const halfWidth = (size * TILE_WIDTH) / 2;
+    const height = size * TILE_HEIGHT;
     /*
      * Kaydirma payi adadan GENIS tutulur.
      *
@@ -216,7 +218,7 @@ export class CityScene extends Phaser.Scene {
     this.cameras.main.setBounds(
       -halfWidth - padX,
       -TILE_HEIGHT - padY,
-      GRID_SIZE * TILE_WIDTH + padX * 2,
+      size * TILE_WIDTH + padX * 2,
       height + padY * 2,
     );
 
@@ -264,12 +266,31 @@ export class CityScene extends Phaser.Scene {
   }
 
   /**
-   * Ekran genisligine gore acilis zoom'unu hesaplar.
-   * Ust sinir 1'dir; genis ekranlarda gereksiz yere buyutmez.
+   * Acilis zoom'u: ADA, arayuzun artakalan bandina dikeyde sigsin.
+   *
+   * Sprint 13'e kadar zoom sabit bir KARO SAYISINDAN turuyordu (yatayda 5
+   * karo). Sprint 14 haritayi 18x18'e buyutunce ayni kural sehrin
+   * yalnizca kucuk bir kosesini gosterdi - oyuncu sehrini goremiyordu.
+   * Dikey sigdirma harita boyutuna kendiliginden uyar: 14x14'te eski
+   * kadrajin aynisini (~0.61), 18x18'de sehrin tamamini verir.
+   *
+   * Alt sinir INITIAL_VISIBLE_TILES'tan gelir: ne kadar buyuk olursa olsun
+   * karo bu sayidan daha fazla kuculmez, aksi halde binalar okunmaz olur.
    */
   private fitZoom(): number {
-    const target = this.logicalWidth() / (INITIAL_VISIBLE_TILES * TILE_WIDTH);
-    return Phaser.Math.Clamp(target, MIN_ZOOM, 1);
+    const band = Math.max(120, this.logicalHeight() - TOP_UI_BAND - BOTTOM_UI_BAND);
+    // Binalarin tepesi kirpilmasin diye adanin yuksekligine pay eklenir.
+    const islandHeight = this.world.state.grid.size * TILE_HEIGHT + TILE_HEIGHT * 2;
+    const fit = band / islandHeight;
+
+    // Okunabilirlik tabani: ekrana en fazla bu kadar karo sigar.
+    const readable = this.logicalWidth() / (INITIAL_VISIBLE_TILES * 2 * TILE_WIDTH);
+    return Phaser.Math.Clamp(Math.max(fit, readable), MIN_ZOOM, 1);
+  }
+
+  /** Kadraj hesaplarinda kullanilan mantiksal yukseklik (CSS pikseli). */
+  private logicalHeight(): number {
+    return this.resolution?.logicalHeight ?? this.scale.height;
   }
 
   /** Dokularin uretildigi cizim olcegi; sprite'lar bunun tersiyle olceklenir. */

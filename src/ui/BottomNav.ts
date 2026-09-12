@@ -1,6 +1,8 @@
 import Phaser from 'phaser';
 import { TextureKeys } from '@/config/Constants';
+import { iconKeyFor } from '@/render/IconArt';
 import { TOUCH_TARGET, labelStyle, UIColors, UIText } from './UIStyle';
+import type { IconKind } from '@/render/IconArt';
 
 /** Alt gezinme cubugundaki sekmeler. */
 export type NavTab = 'city' | 'buildings' | 'population' | 'workers' | 'more';
@@ -8,14 +10,15 @@ export type NavTab = 'city' | 'buildings' | 'population' | 'workers' | 'more';
 interface TabSpec {
   id: NavTab;
   label: string;
+  icon: IconKind;
 }
 
 const TABS: TabSpec[] = [
-  { id: 'city', label: 'SEHIR' },
-  { id: 'buildings', label: 'BINALAR' },
-  { id: 'population', label: 'NUFUS' },
-  { id: 'workers', label: 'ISCILER' },
-  { id: 'more', label: 'DAHA' },
+  { id: 'city', label: 'SEHIR', icon: 'cityNav' },
+  { id: 'buildings', label: 'BINALAR', icon: 'buildingsNav' },
+  { id: 'population', label: 'NUFUS', icon: 'people' },
+  { id: 'workers', label: 'ISCILER', icon: 'worker' },
+  { id: 'more', label: 'DAHA', icon: 'more' },
 ];
 
 /**
@@ -31,10 +34,11 @@ const TABS: TabSpec[] = [
  * sekmelerin uzerine binmez.
  */
 export class BottomNav extends Phaser.GameObjects.Container {
-  private static readonly HEIGHT = 62;
+  private static readonly HEIGHT = 66;
 
   private readonly background: Phaser.GameObjects.NineSlice;
   private readonly labels = new Map<NavTab, Phaser.GameObjects.Text>();
+  private readonly icons = new Map<NavTab, Phaser.GameObjects.Image>();
   private readonly markers = new Map<NavTab, Phaser.GameObjects.Image>();
   private readonly zones = new Map<NavTab, Phaser.GameObjects.Zone>();
 
@@ -66,8 +70,22 @@ export class BottomNav extends Phaser.GameObjects.Container {
         .setVisible(false);
       this.markers.set(tab.id, marker);
 
+      /*
+       * Ikon YAZININ USTUNDE.
+       *
+       * Yalnizca yazi olan bir cubuk, mobil oyunlarda alisilmis olanin
+       * disinda kaliyor ve 10 piksellik metin tek basina hedefi
+       * tanimlamiyordu. Ikon + yazi ciftinde oyuncu ikona bakarak bile
+       * sekmeyi buluyor.
+       */
+      const icon = scene.add
+        .image(0, 0, iconKeyFor(tab.icon))
+        .setOrigin(0.5, 0.5)
+        .setDisplaySize(22, 22);
+      this.icons.set(tab.id, icon);
+
       const label = scene.add
-        .text(0, 0, tab.label, labelStyle(10, UIText.muted, true))
+        .text(0, 0, tab.label, labelStyle(9, UIText.muted, true))
         .setOrigin(0.5, 0.5);
       this.labels.set(tab.id, label);
 
@@ -79,7 +97,7 @@ export class BottomNav extends Phaser.GameObjects.Container {
       zone.on(Phaser.Input.Events.GAMEOBJECT_POINTER_UP, () => this.onSelect(tab.id));
       this.zones.set(tab.id, zone);
 
-      this.add([marker, label, zone]);
+      this.add([marker, icon, label, zone]);
     }
 
     this.layout(width);
@@ -102,6 +120,7 @@ export class BottomNav extends Phaser.GameObjects.Container {
     for (const spec of TABS) {
       const on = spec.id === tab;
       this.labels.get(spec.id)?.setColor(on ? UIText.accent : UIText.muted);
+      this.icons.get(spec.id)?.setAlpha(on ? 1 : 0.62);
       this.markers.get(spec.id)?.setVisible(on);
     }
   }
@@ -114,8 +133,9 @@ export class BottomNav extends Phaser.GameObjects.Container {
     const step = usable / TABS.length;
     TABS.forEach((tab, index) => {
       const cx = sideInset + step * (index + 0.5);
-      this.labels.get(tab.id)?.setPosition(cx, BottomNav.HEIGHT / 2 + 4);
-      this.markers.get(tab.id)?.setPosition(cx, 7);
+      this.icons.get(tab.id)?.setPosition(cx, 26);
+      this.labels.get(tab.id)?.setPosition(cx, 48);
+      this.markers.get(tab.id)?.setPosition(cx, 6);
       const zone = this.zones.get(tab.id);
       // Zone'un dokunma alani da yeniden boyutlanmali; aksi halde ekran
       // genisleyince sekmelerin arasinda olu bosluk kalir.

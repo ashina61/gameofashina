@@ -1,4 +1,4 @@
-import { GRID_SIZE, TILE_HEIGHT, TILE_WIDTH } from '@/config/Constants';
+import { TILE_HEIGHT, TILE_WIDTH } from '@/config/Constants';
 import { PALETTE } from './ArtStyle';
 import { shade } from './BuildingArt';
 import type Phaser from 'phaser';
@@ -22,8 +22,8 @@ import type Phaser from 'phaser';
 export class IslandBackdrop {
   private readonly land: Phaser.GameObjects.Graphics;
 
-  constructor(scene: Phaser.Scene) {
-    const half = { w: (GRID_SIZE * TILE_WIDTH) / 2, h: (GRID_SIZE * TILE_HEIGHT) / 2 };
+  constructor(scene: Phaser.Scene, gridSize: number) {
+    const half = { w: (gridSize * TILE_WIDTH) / 2, h: (gridSize * TILE_HEIGHT) / 2 };
     const cy = half.h;
 
     /*

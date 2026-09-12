@@ -3,9 +3,10 @@ import { RESOURCE_META, RESOURCE_ORDER, TextureKeys } from '@/config/Constants';
 import { resolveBuilding, ticksToSeconds } from '@/systems/BuildingResolver';
 import { getBuilding } from '@/config/BuildingCatalog';
 import { iconKeyFor } from '@/render/IconArt';
+import { visualKeyFor } from '@/render/BuildingVisuals';
 import { formatDuration } from '@/utils/Format';
 import { TouchButton } from './TouchButton';
-import { UIColors, UISpacing, UIText, labelStyle } from './UIStyle';
+import { UIColors, UISpacing, UIText, labelStyle, titleStyle } from './UIStyle';
 import type {
   BuildingInstance,
   BuildingPlot,
@@ -46,6 +47,8 @@ export interface InfoPanelHooks {
   /** Karodaki yapi alani (BuildingPlotSystem); yoksa null. */
   plotAt: (gx: number, gy: number) => BuildingPlot | null;
   onClose: () => void;
+  /** Sehrin isci ozetini acar. */
+  onShowWorkers: () => void;
 }
 
 /** Zemin turlerinin kullaniciya gosterilen adlari. */
@@ -78,9 +81,18 @@ const ZONE_LABELS: Record<string, string> = {
  * "Kapat" dugmesiyle hem de haritanin bos bir yerine dokunarak kapanir.
  */
 export class InfoPanel extends Phaser.GameObjects.Container {
-  private static readonly HEIGHT = 200;
+  private static readonly HEIGHT = 212;
 
   private readonly background: Phaser.GameObjects.NineSlice;
+  /**
+   * Binanin kendi gorseli.
+   *
+   * Referans duzeninde panelin solunda binanin resmi var. Ayri bir ikon
+   * cizmek yerine BINANIN KENDI dokusu kucultuluyor: oyuncunun panelde
+   * gordugu sey haritada durani birebir ayni.
+   */
+  private readonly thumb: Phaser.GameObjects.Image;
+  private readonly thumbFrame: Phaser.GameObjects.NineSlice;
   private readonly titleText: Phaser.GameObjects.Text;
   private readonly levelText: Phaser.GameObjects.Text;
   private readonly statusText: Phaser.GameObjects.Text;
@@ -97,6 +109,8 @@ export class InfoPanel extends Phaser.GameObjects.Container {
   private readonly demolishButton: TouchButton;
   private readonly upgradeButton: TouchButton;
   private readonly closeButton: TouchButton;
+  /** Ikincil aksiyon: isci satirina dikkat ceker. */
+  private readonly workersButton: TouchButton;
   /** Isci satiri: geri al, sayac, ata. */
   private readonly releaseButton: TouchButton;
   private readonly assignButton: TouchButton;
@@ -128,8 +142,13 @@ export class InfoPanel extends Phaser.GameObjects.Container {
       .nineslice(0, 0, TextureKeys.Panel, undefined, width, InfoPanel.HEIGHT, 18, 18, 18, 18)
       .setOrigin(0, 0);
 
+    this.thumbFrame = scene.add
+      .nineslice(0, 0, TextureKeys.ButtonUp, undefined, 62, 62, 14, 14, 14, 14)
+      .setOrigin(0, 0);
+    this.thumb = scene.add.image(0, 0, visualKeyFor('house', 1)).setOrigin(0.5, 1);
+
     this.titleText = scene.add
-      .text(UISpacing.panelPadding, 20, '', labelStyle(18, UIText.accent, true))
+      .text(UISpacing.panelPadding, 20, '', titleStyle(18, UIText.accent))
       .setOrigin(0, 0.5);
     this.levelText = scene.add
       .text(0, 21, '', labelStyle(12, UIText.muted))
@@ -198,6 +217,13 @@ export class InfoPanel extends Phaser.GameObjects.Container {
       },
     });
 
+    this.workersButton = new TouchButton(scene, 0, 0, 'ISCILER', {
+      width: 116,
+      height: 44,
+      fontSize: 13,
+      onPress: () => this.hooks.onShowWorkers(),
+    });
+
     this.closeButton = new TouchButton(scene, 0, 0, 'Kapat', {
       width: 72,
       height: 36,
@@ -227,6 +253,8 @@ export class InfoPanel extends Phaser.GameObjects.Container {
 
     this.add([
       this.background,
+      this.thumbFrame,
+      this.thumb,
       this.titleText,
       this.levelText,
       this.statusText,
@@ -236,6 +264,7 @@ export class InfoPanel extends Phaser.GameObjects.Container {
       this.progressFill,
       this.bodyText,
       this.upgradeButton,
+      this.workersButton,
       this.demolishButton,
       this.closeButton,
       this.releaseButton,
@@ -270,20 +299,25 @@ export class InfoPanel extends Phaser.GameObjects.Container {
 
     const left = UISpacing.panelPadding;
     const right = width - UISpacing.panelPadding;
+    // Metin sutunu kucuk resmin sagindan baslar.
+    const textLeft = left + 74;
 
+    this.thumbFrame.setPosition(left, 14);
     this.closeButton.setPosition(right - 36, 22);
-    this.bodyText.setWordWrapWidth(width - UISpacing.panelPadding * 2);
+    this.bodyText.setPosition(left, 118).setWordWrapWidth(width - left * 2);
+    this.titleText.setX(textLeft);
+    this.statusText.setX(textLeft);
 
-    // Uretim satiri
+    // Uretim satiri - kucuk resmin sagindaki sutunda
     for (let i = 0; i < this.outputIcons.length; i += 1) {
-      const x = left + i * 118;
+      const x = textLeft + i * 104;
       this.outputIcons[i].setPosition(x + 10, 70);
       this.outputTexts[i].setPosition(x + 24, 70);
     }
 
     // Ilerleme cubugu - uretim satiriyla ayni yuvada durur.
-    this.progressTrack.setPosition(left, 70).setDisplaySize(width - left * 2, 10);
-    this.progressFill.setPosition(left, 70).setDisplaySize(1, 10);
+    this.progressTrack.setPosition(textLeft, 70).setDisplaySize(right - textLeft, 10);
+    this.progressFill.setPosition(textLeft, 70).setDisplaySize(1, 10);
 
     /*
      * Isci satiri panelin ortasinda: sayac solda, iki dugme sagda.
@@ -294,14 +328,19 @@ export class InfoPanel extends Phaser.GameObjects.Container {
      * uzasa bile cakisma olmaz.
      */
     const workerY = 96;
-    this.workerText.setPosition(left, workerY);
+    this.workerText.setPosition(textLeft, workerY);
     this.assignButton.setPosition(right - 24, workerY);
     this.releaseButton.setPosition(right - 74, workerY);
 
-    // Aksiyon satiri en altta: ana dugme genis ve solda, yikim kucuk ve sagda.
+    /*
+     * Aksiyon satiri en altta: ana dugme (YUKSELT) genis ve solda, ikincil
+     * ISCILER ortada, yikim en sagda ve kucuk. Referans duzenindeki iki
+     * ana dugme burada YUKSELT ve ISCILER.
+     */
     const actionY = InfoPanel.HEIGHT - 32;
     this.demolishButton.setPosition(right - 38, actionY);
-    this.upgradeButton.setPosition(left + 75, actionY);
+    this.workersButton.setPosition(right - 118, actionY);
+    this.upgradeButton.setPosition(left + 72, actionY);
 
     this.setY(this.visibleState ? this.openY() : height);
   }
@@ -387,10 +426,14 @@ export class InfoPanel extends Phaser.GameObjects.Container {
     const def = getBuilding(building.type);
     const resolved: ResolvedBuilding = resolveBuilding(building, def, this.currentTick);
 
+    this.showThumb(def.id, resolved.level);
     this.titleText.setText(def.name);
     this.levelText
       .setText(`Seviye ${resolved.level}`)
-      .setPosition(UISpacing.panelPadding + this.titleText.width + 10, 21)
+      // Konum basligin GERCEK yerinden turer; baslik artik kucuk resmin
+      // sagindan basliyor ve sabit kenar payi kullanmak ikisini ust uste
+      // bindiriyordu (ekran goruntusuyle dogrulandi).
+      .setPosition(this.titleText.x + this.titleText.width + 10, 21)
       .setVisible(true);
 
     const task = resolved.construction;
@@ -415,6 +458,7 @@ export class InfoPanel extends Phaser.GameObjects.Container {
 
     const underBuild = task?.kind === 'build';
     this.showWorkerRow(building, resolved, underBuild === true);
+    this.workersButton.setVisible(resolved.workerRequirement > 0);
     this.showDetails(def, resolved);
 
     // Buton yuvasi: yukseltme surerken iptal, aksi halde yukseltme.
@@ -429,6 +473,21 @@ export class InfoPanel extends Phaser.GameObjects.Container {
       // sonra degil, tiklamadan once anlar.
       this.upgradeButton.setEnabled(upgrade !== null && this.hooks.canAfford(upgrade.cost));
     }
+  }
+
+  /** Panelin sol ustundeki kucuk resmi binanin gorseliyle doldurur. */
+  private showThumb(type: string, level: number): void {
+    const key = visualKeyFor(type, level);
+    this.thumb.setTexture(key).setVisible(true);
+    this.thumbFrame.setVisible(true);
+
+    // Resim cercevenin icine sigacak sekilde olceklenir.
+    const source = this.scene.textures.get(key).getSourceImage();
+    const scale = Math.min(54 / source.width, 54 / source.height);
+    this.thumb.setScale(scale).setPosition(
+      this.thumbFrame.x + 31,
+      this.thumbFrame.y + 58,
+    );
   }
 
   /** Durum satiri: oyuncunun ilk gormesi gereken sey binanin calisip calismadigidir. */
@@ -587,10 +646,15 @@ export class InfoPanel extends Phaser.GameObjects.Container {
    */
   private showPlot(tile: TileData): void {
     this.upgradeButton.setVisible(false);
+    this.workersButton.setVisible(false);
     this.releaseButton.setVisible(false);
     this.assignButton.setVisible(false);
     this.workerText.setVisible(false);
     this.levelText.setVisible(false);
+    this.thumb.setVisible(false);
+    this.thumbFrame.setVisible(false);
+    this.titleText.setX(UISpacing.panelPadding);
+    this.statusText.setX(UISpacing.panelPadding);
     this.showOutputs({}, false);
     this.showProgress(null, false);
 

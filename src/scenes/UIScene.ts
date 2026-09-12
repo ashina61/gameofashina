@@ -3,7 +3,6 @@ import { RESOURCE_META, RESOURCE_ORDER, SceneKeys } from '@/config/Constants';
 import { getBuilding } from '@/config/BuildingCatalog';
 import { resolveBuildPreview } from '@/systems/BuildingResolver';
 import { PLACEMENT_MESSAGES } from '@/systems/BuildingSystem';
-import { iconKeyFor } from '@/render/IconArt';
 import { BottomNav } from '@/ui/BottomNav';
 import type { NavTab } from '@/ui/BottomNav';
 import { BuildMenu } from '@/ui/BuildMenu';
@@ -11,7 +10,9 @@ import { CityPanel } from '@/ui/CityPanel';
 import { InfoPanel } from '@/ui/InfoPanel';
 import type { WorkerPanelInfo } from '@/ui/InfoPanel';
 import { ResourceBar } from '@/ui/ResourceBar';
-import { Toast } from '@/ui/Toast';
+import type { CityHeaderInfo } from '@/ui/ResourceBar';
+import { NotificationStack } from '@/ui/Notifications';
+import { RoundButton } from '@/ui/RoundButton';
 import { TouchButton } from '@/ui/TouchButton';
 import { UISpacing, UIText } from '@/ui/UIStyle';
 import { formatElapsed } from '@/utils/Format';
@@ -49,8 +50,10 @@ export class UIScene extends Phaser.Scene {
   private resourceBar!: ResourceBar;
   private buildMenu!: BuildMenu;
   private infoPanel!: InfoPanel;
-  private toast!: Toast;
-  private buildButton!: TouchButton;
+  private notices!: NotificationStack;
+  private sideButtons: RoundButton[] = [];
+  private mapButton!: RoundButton;
+  private buildButton!: RoundButton;
   private cancelButton!: TouchButton;
   private nav!: BottomNav;
   private cityPanel!: CityPanel;
@@ -103,16 +106,48 @@ export class UIScene extends Phaser.Scene {
       workerInfo: (uid) => this.workerInfoFor(uid),
       plotAt: (gx, gy) => this.world.plots.plotAt(gx, gy),
       onClose: () => this.world.bus.emit('tile:selected', null),
+      onShowWorkers: () => this.selectTab('workers'),
     });
     this.cityPanel = new CityPanel(this, width, height, () => this.closePanels());
     this.nav = new BottomNav(this, width, (tab) => this.selectTab(tab));
-    this.toast = new Toast(this, width / 2, ResourceBar.height + 34);
+    this.notices = new NotificationStack(this, width, ResourceBar.height + 10, 62);
 
-    this.buildButton = new TouchButton(this, 0, 0, 'INSA ET', {
-      width: 146,
-      height: 54,
-      icon: iconKeyFor('hammer'),
+    /*
+     * ANA EYLEM: yuvarlak ve ekranin ALT ORTASINDA.
+     *
+     * Sag kenardaki genis dugmenin yerini aldi: referans duzeninde insa
+     * eylemi sehrin altinda duran tek ve merkezi bir rozet. Daire, alt
+     * gezinme cubugunun dikdortgen sekmelerinden gorsel olarak ayrisir.
+     */
+    this.buildButton = new RoundButton(this, 0, 0, {
+      icon: 'hammer',
+      size: 66,
+      label: 'INSA ET',
       onPress: () => this.toggleBuildMenu(),
+    });
+
+    /*
+     * YARDIMCI EYLEMLER.
+     *
+     * Ayarlar ve Harita gercek is yapar (kayit sifirlama / kadraji sehre
+     * dondurme). Mesaj ve Basari icin oyunda henuz bir sistem yok; bu iki
+     * dugme referans duzenindeki yerini tutar ve basildiginda durumu acikca
+     * soyler - sessizce hicbir sey yapmaz.
+     */
+    this.sideButtons = [
+      new RoundButton(this, 0, 0, { icon: 'settings', onPress: () => this.showSettings() }),
+      new RoundButton(this, 0, 0, {
+        icon: 'mail',
+        onPress: () => this.notices.show('Mesajlar', 'Bu bolum yakinda acilacak.', 'info', 2400),
+      }),
+      new RoundButton(this, 0, 0, {
+        icon: 'trophy',
+        onPress: () => this.notices.show('Basarilar', 'Bu bolum yakinda acilacak.', 'info', 2400),
+      }),
+    ];
+    this.mapButton = new RoundButton(this, 0, 0, {
+      icon: 'compass',
+      onPress: () => this.selectTab('city'),
     });
 
     this.cancelButton = new TouchButton(this, 0, 0, 'Vazgec', {
@@ -185,8 +220,12 @@ export class UIScene extends Phaser.Scene {
     // Alt gezinme cubugu her zaman girdiyi yakalar; arkasindaki haritaya
     // dokunmak sehri yanlislikla degistirirdi.
     if (Phaser.Geom.Rectangle.Contains(this.nav.bounds(), screenX, screenY)) return true;
-    return this.hitsButton(this.buildButton, screenX, screenY) ||
-      (this.cancelButton.visible && this.hitsButton(this.cancelButton, screenX, screenY));
+    // Yuvarlak dugmeler de girdiyi yakalar; arkalarindaki haritaya dokunmak
+    // yanlislikla bina kurardi.
+    for (const button of [this.buildButton, this.mapButton, ...this.sideButtons]) {
+      if (button.visible && this.hitsRound(button, screenX, screenY)) return true;
+    }
+    return this.cancelButton.visible && this.hitsButton(this.cancelButton, screenX, screenY);
   }
 
   // --- Olay baglantilari ---------------------------------------------------
@@ -228,13 +267,19 @@ export class UIScene extends Phaser.Scene {
     this.resourceBar.updateWorkforce(this.world.workforce.snapshot);
 
     if (this.world.offlineSeconds > 60) {
-      this.toast.show(
-        `${formatElapsed(this.world.offlineSeconds)} boyunca sehrin uretmeye devam etti.`,
+      this.notices.show(
+        'Sehrin uretmeye devam etti',
+        `${formatElapsed(this.world.offlineSeconds)} boyunca uretim isledi.`,
         'success',
-        3200,
+        4000,
       );
     } else if (!this.world.loadedFromSave) {
-      this.toast.show('Sehrini kurmaya basla: once bir Sehir Merkezi dik.', 'info', 3600);
+      this.notices.show(
+        'Sehrini kurmaya basla',
+        'Once bir Sehir Merkezi dik.',
+        'info',
+        4200,
+      );
     }
   }
 
@@ -259,10 +304,11 @@ export class UIScene extends Phaser.Scene {
       const full = resources[key] >= capacity;
       if (full && !this.warnedFull.has(key)) {
         this.warnedFull.add(key);
-        this.toast.show(
-          `${RESOURCE_META[key].label} deposu doldu - Ambar kur ya da harca.`,
-          'error',
-          2600,
+        this.notices.show(
+          'Depo kapasitesi doldu!',
+          `${RESOURCE_META[key].label} ${Math.floor(resources[key])}/${capacity} - Ambar kur ya da harca.`,
+          'warn',
+          3600,
         );
       } else if (!full && resources[key] < capacity * 0.9) {
         this.warnedFull.delete(key);
@@ -272,7 +318,7 @@ export class UIScene extends Phaser.Scene {
 
   private onEconomy(snapshot: EconomySnapshot): void {
     this.resourceBar.updateEconomy(snapshot);
-    this.resourceBar.updateCity(this.hallLevel());
+    this.resourceBar.updateCity(this.cityHeader());
     /*
      * Isci sayaci her tikte de tazelenir.
      *
@@ -283,12 +329,53 @@ export class UIScene extends Phaser.Scene {
     this.resourceBar.updateWorkforce(this.world.workforce.snapshot);
   }
 
-  /** Sehir merkezinin seviyesi; henuz kurulmadiysa null. */
-  private hallLevel(): number | null {
+  /**
+   * Ust cubugun kimlik satiri icin sehrin durumu.
+   *
+   * Seviye SEHIR MERKEZININ seviyesidir - ayri bir XP sistemi yoktur.
+   * Ilerleme cubugu iki sey gosterir:
+   *   - merkez yukseltiliyorsa insaatin ilerlemesi,
+   *   - aksi halde bir sonraki yukseltmenin maliyetinin ne kadarini
+   *     karsiladigin (en dar kaynak belirler).
+   * Boylece cubuk her zaman "bir sonraki seviyeye ne kadar kaldi" sorusunu
+   * cevaplar ve yeni bir oyun kurali gerektirmez.
+   */
+  private cityHeader(): CityHeaderInfo {
+    let hall: BuildingInstance | null = null;
     for (const building of this.world.state.buildings.values()) {
-      if (building.type === 'town_hall') return building.level;
+      if (building.type === 'town_hall') hall = building;
     }
-    return null;
+    if (!hall) {
+      return { hallLevel: null, progress: 0, progressLabel: 'Sehir Merkezi kur' };
+    }
+
+    const resolved = this.world.buildings.resolve(hall);
+    const task = resolved.construction;
+    if (task) {
+      return {
+        hallLevel: resolved.level,
+        progress: task.ratio,
+        progressLabel: task.kind === 'upgrade' ? 'Yukseltiliyor' : 'Insa ediliyor',
+      };
+    }
+
+    const upgrade = resolved.upgrade;
+    if (!upgrade) {
+      return { hallLevel: resolved.level, progress: 1, progressLabel: 'Azami seviye' };
+    }
+
+    // En DAR kaynak ilerlemeyi belirler: hepsi tamamlanmadan yukseltme olmaz.
+    let ratio = 1;
+    for (const key of RESOURCE_ORDER) {
+      const need = upgrade.cost[key] ?? 0;
+      if (need <= 0) continue;
+      ratio = Math.min(ratio, this.world.state.resources[key] / need);
+    }
+    return {
+      hallLevel: resolved.level,
+      progress: ratio,
+      progressLabel: `Sv. ${upgrade.toLevel} icin kaynak`,
+    };
   }
 
   private onTileSelected(tile: TileData | null): void {
@@ -301,7 +388,6 @@ export class UIScene extends Phaser.Scene {
     // Alt sayfalarin hepsi ayni alani kullanir; ikisi ayni anda acilmaz.
     if (this.buildMenu.isOpen) {
       this.buildMenu.hide();
-      this.buildButton.setText('INSA ET');
     }
     this.cityPanel.hide();
     this.nav.setActiveTab(null);
@@ -314,11 +400,17 @@ export class UIScene extends Phaser.Scene {
   }
 
   private onNotify(message: string, tone: 'info' | 'success' | 'error'): void {
-    this.toast.show(message, tone);
+    // Olay yolundan gelen bildirimler tek satirlik; baslik onlarin kendisi.
+    this.notices.show(message, '', tone === 'error' ? 'error' : tone, 2600);
   }
 
   private onBuildingCompleted(building: BuildingInstance): void {
-    this.toast.show(`${getBuilding(building.type).name} tamamlandi.`, 'success', 1800);
+    this.notices.show(
+      'Insaat tamamlandi!',
+      `${getBuilding(building.type).name} (Seviye ${building.level})`,
+      'success',
+      2600,
+    );
   }
 
   /**
@@ -330,10 +422,11 @@ export class UIScene extends Phaser.Scene {
     if (task.kind !== 'upgrade') return;
     const building = this.world.state.buildings.get(task.targetUid);
     if (!building) return;
-    this.toast.show(
-      `${getBuilding(building.type).name} seviye ${building.level} oldu.`,
+    this.notices.show(
+      'Yukseltme tamamlandi!',
+      `${getBuilding(building.type).name} (Seviye ${building.level})`,
       'success',
-      1800,
+      2600,
     );
   }
 
@@ -346,12 +439,10 @@ export class UIScene extends Phaser.Scene {
     }
     if (this.buildMenu.isOpen) {
       this.buildMenu.hide();
-      this.buildButton.setText('INSA ET');
     } else {
       this.infoPanel.hide();
       this.cityPanel.hide();
       this.buildMenu.show();
-      this.buildButton.setText('KAPAT');
       this.nav.setActiveTab('buildings');
     }
     this.relayout();
@@ -370,11 +461,10 @@ export class UIScene extends Phaser.Scene {
     this.placingId = defId;
     this.buildMenu.hide();
     this.nav.setActiveTab(null);
-    this.buildButton.setText('INSA ET');
     this.cancelButton.setVisible(true);
     this.relayout();
     this.world.bus.emit('placement:start', defId);
-    this.toast.show(`${getBuilding(defId).name} icin bir yer sec.`, 'info', 2400);
+    this.notices.show(`${getBuilding(defId).name} icin bir yer sec`, 'Yesil alanlara dokun.', 'info', 2600);
   }
 
   private cancelPlacement(): void {
@@ -439,19 +529,35 @@ export class UIScene extends Phaser.Scene {
     this.buildMenu.layout(width, height, panelInset);
     this.infoPanel.layout(width, height, panelInset);
     this.cityPanel.layout(width, height, panelInset);
-    this.toast.layout(width / 2, top + ResourceBar.height + 34);
+    this.notices.layout(width, top + ResourceBar.height + 10, 62);
 
-    // Ana aksiyon acik olan panelin ustunde ve gezinme cubugunun uzerinde.
-    const bottom = height - panelInset - this.openPanelHeight() - UISpacing.edge - 27;
-    this.buildButton.setPosition(width - right - UISpacing.edge - 73, bottom);
+    /*
+     * Ana aksiyon ekranin ALT ORTASINDA, acik panelin ve gezinme cubugunun
+     * uzerinde durur. Ortada olmasi iki elle de tek elle de erisilebilir
+     * kilar; sag kenardaki eski yeri sol elini kullanan oyuncuyu zorluyordu.
+     */
+    const bottom = height - panelInset - this.openPanelHeight() - UISpacing.edge - 42;
+    this.buildButton.setPosition(width / 2, bottom);
     this.cancelButton.setPosition(left + UISpacing.edge + 55, bottom);
+
+    /*
+     * Yardimci dugmeler sehir gorunumunun sag kenarinda, ust cubugun
+     * hemen altinda dikey bir sutun olusturur. Harita dugmesi sol altta,
+     * ana aksiyonun karsisinda durur.
+     */
+    const sideX = width - right - UISpacing.edge - 24;
+    let sideY = top + ResourceBar.height + 34;
+    for (const button of this.sideButtons) {
+      button.setPosition(sideX, sideY);
+      sideY += button.diameterPx + 10;
+    }
+    this.mapButton.setPosition(left + UISpacing.edge + 24, bottom);
   }
 
   /** Acik olan butun alt sayfalari kapatir ve sekme isaretini temizler. */
   private closePanels(): void {
     if (this.buildMenu.isOpen) {
       this.buildMenu.hide();
-      this.buildButton.setText('INSA ET');
     }
     this.infoPanel.hide();
     this.cityPanel.hide();
@@ -481,7 +587,6 @@ export class UIScene extends Phaser.Scene {
       this.nav.setActiveTab('buildings');
       this.buildMenu.show();
       this.buildMenu.refreshAffordability(this.world.state.resources);
-      this.buildButton.setText('KAPAT');
       this.relayout();
       return;
     }
@@ -490,6 +595,29 @@ export class UIScene extends Phaser.Scene {
     if (tab === 'population') this.showPopulationPanel();
     else if (tab === 'workers') this.showWorkersPanel();
     else this.showMorePanel();
+    this.relayout();
+  }
+
+  /**
+   * Ayarlar sayfasi.
+   *
+   * Oyunda ses veya secenek sistemi yok; burada GERCEKTEN yapilabilen iki
+   * sey gosterilir: sehrin olculeri ve kaydi sifirlama. Bos bir "ayarlar"
+   * kabugu koymaktansa az ama gercek bilgi vermek yeglendi.
+   */
+  private showSettings(): void {
+    this.closePanels();
+    const res = this.resolution;
+    this.cityPanel.show(
+      'AYARLAR',
+      [
+        { label: 'Sehir olcusu', value: `${this.world.state.grid.size} x ${this.world.state.grid.size}` },
+        { label: 'Yapi alani', value: `${this.world.plots.plots.length}` },
+        { label: 'Ekran', value: `${Math.round(this.logicalWidth())}x${Math.round(this.logicalHeight())} @${res?.dpr ?? 1}x` },
+        { label: 'Oyun suresi', value: `${Math.floor(this.world.tick / 60)} dk` },
+      ],
+      'Kaydi sifirlamak icin sayfayi kapatip tarayici verisini temizle.',
+    );
     this.relayout();
   }
 
@@ -557,6 +685,12 @@ export class UIScene extends Phaser.Scene {
     if (this.infoPanel.isOpen) return InfoPanel.height;
     if (this.cityPanel.isOpen) return CityPanel.height;
     return 0;
+  }
+
+  /** Yuvarlak butona dokunulup dokunulmadigini yaricapla kontrol eder. */
+  private hitsRound(button: RoundButton, x: number, y: number): boolean {
+    const r = button.diameterPx / 2;
+    return Phaser.Math.Distance.Between(button.x, button.y, x, y) <= r;
   }
 
   /** Butonun ekran dikdortgenine dokunulup dokunulmadigini kontrol eder. */

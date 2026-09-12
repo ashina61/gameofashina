@@ -40,6 +40,8 @@ export function variantCountFor(type: string): number {
  */
 export const DRAWN_BUILDING_TYPES = [
   'town_hall',
+  'temple',
+  'harbor',
   'house',
   'farm',
   'lumber_camp',
@@ -174,9 +176,11 @@ export function getBuildingVisual(input: {
     return { textureKey, tint: DISABLED_TINT, alpha: 0.75 };
   }
 
-  // Anitsal yapiya varyasyon uygulanmaz: sehir merkezi her sehirde ayni
-  // ve tanidik gorunmelidir.
-  const tint =
-    input.uid && input.type !== 'town_hall' ? variationTintFor(input.uid) : NEUTRAL_TINT;
+  /*
+   * Anitsal yapilara varyasyon uygulanmaz: sehir merkezi ve tapinak her
+   * sehirde ayni ve tanidik gorunmelidir.
+   */
+  const monumental = input.type === 'town_hall' || input.type === 'temple';
+  const tint = input.uid && !monumental ? variationTintFor(input.uid) : NEUTRAL_TINT;
   return { textureKey, tint, alpha: 1 };
 }

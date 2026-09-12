@@ -108,8 +108,8 @@ for (const viewport of VIEWPORTS) {
     const navCheck = collide(nav);
     const panelCheck = collide(panel);
 
-    const navRect = { left: 0, right: logical.w, top: nav.y, bottom: nav.y + 62 };
-    const panelRect = { left: 0, right: logical.w, top: panel.y, bottom: panel.y + 200 };
+    const navRect = { left: 0, right: logical.w, top: nav.y, bottom: nav.y + 66 };
+    const panelRect = { left: 0, right: logical.w, top: panel.y, bottom: panel.y + 212 };
 
     // Sehir gercekten gorunuyor mu? Sehir merkezinin ekran noktasi.
     const cam = cs.cameras.main;
@@ -139,15 +139,28 @@ for (const viewport of VIEWPORTS) {
       buildInside: build.left >= 0 && build.right <= logical.w && build.bottom <= logical.h,
       buildOverNav: overlaps(build, navRect),
       buildOverPanel: overlaps(build, panelRect),
-      buildOverBar: build.top < bar.y + 84,
+      buildOverBar: build.top < bar.y + 112,
       // 4. Bilgi paneli
       panelInside: panelRect.bottom <= navRect.top + 1,
       panelHits: panelCheck.hits,
       panelTextInside: panelCheck.items.every((t) => t.right <= logical.w + 1),
-      // 5. Sehir gorunurlugu
+      // 5. Yardimci yuvarlak dugmeler - birbirine ve panellere binmesin
+      sideOverlap: (() => {
+        const all = [ui.mapButton, ...ui.sideButtons].map((b) => rect(b));
+        let hits = 0;
+        for (let i = 0; i < all.length; i += 1) {
+          for (let j = i + 1; j < all.length; j += 1) {
+            if (overlaps(all[i], all[j])) hits += 1;
+          }
+          if (all[i].top < bar.y + 112) hits += 1;
+          if (overlaps(all[i], navRect)) hits += 1;
+        }
+        return hits;
+      })(),
+      // 6. Sehir gorunurlugu
       hallOnScreen:
         hallScreen.x > 0 && hallScreen.x < logical.w && hallScreen.y > 84 && hallScreen.y < panelRect.top,
-      // 6. Yatay tasma
+      // 7. Yatay tasma
       overflow: document.documentElement.scrollWidth > window.innerWidth,
     };
   });
@@ -177,6 +190,7 @@ for (const viewport of VIEWPORTS) {
       probe.panelInside && probe.panelTextInside && probe.panelHits.length === 0
         ? 'OK'
         : `SORUN ${probe.panelHits[0] ?? 'tasti'}`,
+    'yan dugmeler': probe.sideOverlap === 0 ? 'OK' : `CAKISMA ${probe.sideOverlap}`,
     'merkez gorunur': probe.hallOnScreen ? 'OK' : 'GORUNMUYOR',
     'insa alanlari': plotProbe,
     'yatay tasma': probe.overflow ? 'VAR' : 'yok',
@@ -194,6 +208,7 @@ const ok = rows.every(
     r['gezinme alani'] === 'OK' &&
     r['insa butonu'] === 'OK' &&
     r['bilgi paneli'] === 'OK' &&
+    r['yan dugmeler'] === 'OK' &&
     r['merkez gorunur'] === 'OK' &&
     r['insa alanlari'] > 0 &&
     r['yatay tasma'] === 'yok',

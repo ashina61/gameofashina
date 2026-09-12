@@ -76,11 +76,14 @@ describe('yapi alanlari', () => {
     }
   });
 
-  it('YEDI bina turunun de yapi alani var', () => {
+  it('katalogdaki her bina turunun yapi alani var', () => {
     for (const seed of [12345, 777, 2024]) {
       const plots = new BuildingPlotSystem(new GridMap(seed));
       for (const def of allBuildings()) {
-        expect(plots.availableFor(def.id).length).toBeGreaterThan(0);
+        expect(
+          plots.availableFor(def.id).length,
+          `${def.id} icin alan yok (seed ${seed})`,
+        ).toBeGreaterThan(0);
       }
     }
   });
@@ -95,9 +98,18 @@ describe('yapi alanlari', () => {
     expect(civic[0].height).toBe(2);
     expect(civic[0].allowedTypes).toEqual(['town_hall']);
 
-    // Merkez karo bu alanin icinde.
+    /*
+     * Alan, merkez karonun ADASIDIR.
+     *
+     * "Merkez karo alanin icinde" demek 14x14'te dogruydu ama izgara
+     * boyutuna baglidir: 18x18'de merkez karo (9,9) bir SOKAK karosudur,
+     * cunku 9, sokak araliginin katidir. Degismeyen kural, alanin merkezi
+     * iceren adada olmasidir.
+     */
     const center = grid.center();
-    expect(plots.plotAt(center.gx, center.gy)?.id).toBe(civic[0].id);
+    const block = (v: number) => Math.floor(v / 3);
+    expect(block(civic[0].gx)).toBe(block(center.gx));
+    expect(block(civic[0].gy)).toBe(block(center.gy));
 
     // Sehir merkezi baska hicbir alana kurulamaz.
     expect(plots.availableFor('town_hall').map((p) => p.id)).toEqual([civic[0].id]);
@@ -120,11 +132,20 @@ describe('yapi alanlari', () => {
     const distance = (p: { gx: number; gy: number }) =>
       Math.max(Math.abs(p.gx - center.gx), Math.abs(p.gy - center.gy));
 
-    for (const plot of plots.plots) {
-      if (plot.zone === 'civic') expect(distance(plot)).toBeLessThanOrEqual(1);
-      if (plot.zone === 'commerce') expect(distance(plot)).toBeLessThanOrEqual(3);
-      if (plot.zone === 'production') expect(distance(plot)).toBeGreaterThan(5);
-    }
+    /*
+     * Yaricaplar izgara boyutundan turer (Sprint 14); test sabit sayi
+     * yazmaz, yalnizca SIRALAMAYI kilitler: ticaret en icte, uretim en
+     * disarida ve aralarinda konut.
+     */
+    const maxOf = (zone: string) =>
+      Math.max(...plots.plots.filter((p) => p.zone === zone).map(distance));
+    const minOf = (zone: string) =>
+      Math.min(...plots.plots.filter((p) => p.zone === zone).map(distance));
+
+    expect(maxOf('civic')).toBeLessThanOrEqual(1);
+    expect(maxOf('commerce')).toBeLessThan(minOf('production'));
+    expect(maxOf('residential')).toBeLessThan(minOf('production'));
+    expect(minOf('residential')).toBeGreaterThan(maxOf('civic'));
     // Pazar merkeze yakin, oduncu kampi disarida.
     const marketPlots = plots.plots.filter((p) => p.allowedTypes.includes('market'));
     const campPlots = plots.plots.filter((p) => p.allowedTypes.includes('lumber_camp'));

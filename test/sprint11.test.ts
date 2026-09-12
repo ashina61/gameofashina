@@ -339,12 +339,18 @@ describe('ekonominin olculen yapisi', () => {
     }
     expect(upgradesWithoutGold).toEqual([]);
 
-    // Altin uretimi hala Pazar ve Sehir Merkezi'nden gelir.
+    /*
+     * Altin uretenler: Pazar ve Sehir Merkezi (Sprint 12), Tapinak ve
+     * Liman (Sprint 14). Dordu de altinin ALICISI olan yukseltme zincirini
+     * besler; liste buyuyebilir ama altin ureten hicbir bina, altin
+     * harcamayan bir yukseltmeye sahip olmamali - ustteki kontrol bunu
+     * zaten kilitliyor.
+     */
     const goldProducers = allBuildings()
       .filter((d) => d.levels.some((l) => (l.production?.gold ?? 0) > 0))
       .map((d) => d.id)
       .sort();
-    expect(goldProducers).toEqual(['market', 'town_hall']);
+    expect(goldProducers).toEqual(['harbor', 'market', 'temple', 'town_hall']);
   });
 
   it('tas yalnizca TAS OCAGINDAN gelir ve ocak KAYA ister', () => {

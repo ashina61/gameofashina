@@ -167,14 +167,16 @@ await page.waitForTimeout(300);
 const z2 = await W(() => window.game.scene.getScene('CityScene').cameras.main.zoom);
 check(11, 'pinch zoom calisiyor', z2 > z0 + 0.05, `zoom ${z0.toFixed(3)} -> ${z2.toFixed(3)}`);
 
-// 12. UI calisiyor (buton -> menu)
+/*
+ * 12. UI calisiyor (buton -> menu)
+ *
+ * Ana insa eylemi Sprint 14'te YUVARLAK bir dugme oldu (RoundButton);
+ * eskiden yazisindan bulunuyordu, artik sahnedeki alanindan okunur.
+ */
 const btn = await W(() => {
   const ui = window.game.scene.getScene('UIScene');
-  let found = null;
-  const walk = (o) => { const l = o.list?.find((c) => c.type === 'Text')?.text;
-    if (o.constructor?.name === 'TouchButton' && l?.includes('INSA')) { const r = o.getBounds(); found = { x: r.x + r.width / 2, y: r.y + r.height / 2 }; }
-    if (o.list) o.list.forEach(walk); };
-  ui.children.each(walk); return found;
+  const b = ui.buildButton;
+  return { x: b.x, y: b.y };
 });
 await page.mouse.click(btn.x, btn.y); await page.waitForTimeout(500);
 const menuOpen = await W(() => window.game.scene.getScene('UIScene').buildMenu?.isOpen === true);

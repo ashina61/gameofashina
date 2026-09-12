@@ -47,18 +47,17 @@ async function fresh() {
   return { ctx, page };
 }
 
-/** INSA ET butonunun EKRANDAKI gercek sinirlari. */
+/**
+ * INSA ET butonunun EKRANDAKI gercek sinirlari.
+ *
+ * Sprint 14'te ana eylem YUVARLAK bir dugme oldu; yazisindan aramak yerine
+ * sahnedeki alanindan okunur. Daire oldugu icin kose noktalari hit alaninin
+ * disinda kalir - olcum bu yuzden kare degil, YARICAP icinde noktalar dener.
+ */
 const buildButtonBounds = () => {
-  const ui = window.game.scene.getScene('UIScene');
-  let btn = null;
-  const walk = (o) => {
-    const label = o.list?.find((c) => c.type === 'Text')?.text;
-    if (o.constructor?.name === 'TouchButton' && label?.includes('INSA')) btn = o;
-    if (o.list) o.list.forEach(walk);
-  };
-  ui.children.each(walk);
-  const r = btn.getBounds();
-  return { x: r.x, y: r.y, w: r.width, h: r.height };
+  const b = window.game.scene.getScene('UIScene').buildButton;
+  const d = b.diameterPx;
+  return { x: b.x - d / 2, y: b.y - d / 2, w: d, h: d };
 };
 
 const menuOpen = (page) =>
@@ -69,12 +68,16 @@ function record(group, label, actual, expected) {
 }
 
 // 1. Butonun HER noktasi basilabilir olmali.
+/*
+ * Dairenin KOSELERI hit alaninin disindadir; olcum daire icinde kalan
+ * noktalari dener (merkez ve dort yon, yaricapin %70'inde).
+ */
 for (const [fx, fy, label] of [
   [0.5, 0.5, 'merkez'],
-  [0.1, 0.1, 'sol ust'],
-  [0.9, 0.1, 'sag ust'],
-  [0.9, 0.9, 'sag alt'],
-  [0.1, 0.9, 'sol alt'],
+  [0.5, 0.15, 'ust'],
+  [0.85, 0.5, 'sag'],
+  [0.5, 0.85, 'alt'],
+  [0.15, 0.5, 'sol'],
 ]) {
   const { ctx, page } = await fresh();
   const r = await page.evaluate(buildButtonBounds);

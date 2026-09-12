@@ -35,6 +35,7 @@ export type PlacementError =
   | 'terrain'
   | 'cost'
   | 'max_count'
+  | 'needs_water'
   | 'no_plot';
 
 /** Kural kontrolunun sonucu. */
@@ -52,6 +53,7 @@ export const PLACEMENT_MESSAGES: Record<PlacementError, string> = {
   terrain: 'Bu zemine kurulamaz.',
   cost: 'Yeterli kaynagin yok.',
   max_count: 'Bu binadan daha fazla kuramazsin.',
+  needs_water: 'Liman kiyiya kurulur - suya komsu bir alan sec.',
   no_plot: 'Bu bina buraya kurulamaz - uygun yapi alani sec.',
 };
 
@@ -98,6 +100,19 @@ export class BuildingSystem {
    * Yerlestirmenin gecerli olup olmadigini, kaynak kontrolu dahil dogrular.
    * Yerlestirme onizlemesi de bu fonksiyonu kullanir; kural tek yerde durur.
    */
+  /** Karonun dort komsusundan biri su mu? (kiyi kurali) */
+  private touchesWater(gx: number, gy: number): boolean {
+    for (const [dx, dy] of [
+      [0, -1],
+      [1, 0],
+      [0, 1],
+      [-1, 0],
+    ]) {
+      if (this.state.grid.getTile(gx + dx, gy + dy)?.terrain === 'water') return true;
+    }
+    return false;
+  }
+
   validate(type: BuildingId, gx: number, gy: number): ValidationResult {
     const def = getBuilding(type);
 
@@ -111,6 +126,18 @@ export class BuildingSystem {
     if (cells.some((tile) => tile.occupantUid !== null)) return { ok: false, reason: 'occupied' };
     if (cells.some((tile) => !def.allowedTerrain.includes(tile.terrain))) {
       return { ok: false, reason: 'terrain' };
+    }
+
+    /*
+     * KIYI KURALI
+     *
+     * Liman kara karosunda durur ama dort komsusundan biri su olmalidir.
+     * Kontrol ayak izinin TAMAMI icin degil, HERHANGI bir karosu icin
+     * yapilir: 1x1'den buyuk bir kiyi yapisinda da tek bir kiyi temasi
+     * yeterlidir.
+     */
+    if (def.requiresWaterAdjacent && !cells.some((tile) => this.touchesWater(tile.gx, tile.gy))) {
+      return { ok: false, reason: 'needs_water' };
     }
 
     /*

@@ -1,4 +1,4 @@
-import { GRID_SIZE } from '@/config/Constants';
+import { GRID_SIZE, STREET_EVERY } from '@/config/Constants';
 import type { GridPoint, TerrainType, TileData } from '@/types';
 
 /**
@@ -115,12 +115,23 @@ export class GridMap {
     this.carveStartingArea();
   }
 
-  /** Merkezdeki 4x4 alani duz cimene cevirir; oyuncu her zaman insaya baslayabilir. */
+  /**
+   * Merkezdeki yapi adasini ve cevresini duz cimene cevirir.
+   *
+   * Alan, sokak deseninden TURETILIR: sehir merkezinin oturacagi ada
+   * (STREET_EVERY x STREET_EVERY) ve cevresinde bir karo pay. Sabit bir
+   * pencere kullanmak izgara boyutu degisince kayiyordu - 18x18'de merkez
+   * adasinin bir karosu temizlenmeden kaliyor ve sehir merkezine hic yapi
+   * alani ayrilamiyordu.
+   */
   private carveStartingArea(): void {
     const { gx, gy } = this.center();
-    for (let dy = -2; dy <= 1; dy += 1) {
-      for (let dx = -2; dx <= 1; dx += 1) {
-        const tile = this.getTile(gx + dx, gy + dy);
+    const blockX = Math.floor(gx / STREET_EVERY) * STREET_EVERY;
+    const blockY = Math.floor(gy / STREET_EVERY) * STREET_EVERY;
+
+    for (let y = blockY - 1; y <= blockY + STREET_EVERY; y += 1) {
+      for (let x = blockX - 1; x <= blockX + STREET_EVERY; x += 1) {
+        const tile = this.getTile(x, y);
         if (tile) tile.terrain = 'grass';
       }
     }

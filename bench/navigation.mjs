@@ -216,9 +216,20 @@ const s3 = await W(`(() => { ${HELPERS} ${TRACE}
    * yok etmez ama hedefi ulasilamaz kilabilirdi. Sonra seridin ardindaki
    * bir alana ciftlik kurulur.
    */
+  /*
+   * Serit haritanin TAMAMINI kesmemeli.
+   *
+   * Sprint 14'te izgara 18x18 oldu ve c.gx-3 tam bir SOKAK sutununa denk
+   * geliyor; o sutunun tamamini suya cevirmek sehri ikiye boluyor ve
+   * hicbir rota kalmiyordu (olculdu: bu senaryodan sonraki butun
+   * senaryolar da coktu, cunku dunya senaryolar arasinda sifirlanmiyor).
+   * Alt uctan uc karo acik birakilir: isci suyun etrafindan DOLASMAK
+   * zorunda kalir, ki olculmek istenen de budur.
+   */
   let made = 0;
   const band = c.gx - 3;
-  for (let gy = 0; gy < w.state.grid.size; gy += 1) {
+  const passage = w.state.grid.size - 3;
+  for (let gy = 0; gy < passage; gy += 1) {
     const tile = w.state.grid.getTile(band, gy);
     if (!tile || tile.occupantUid !== null) continue;
     if (w.buildings.plotAt(band, gy)) continue;

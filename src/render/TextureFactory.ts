@@ -141,9 +141,19 @@ export function generateTextures(scene: Phaser.Scene, artScale = 1): void {
   }
 
   createPixelTexture(scene, TextureKeys.Pixel);
-  createPanelTexture(scene, TextureKeys.Panel, 0x1d1a13, 0x5a4c33);
+  /*
+   * Paneller TAM OPAK.
+   *
+   * %94 opaklik koyu bir panelin altindaki PARLAK denizi gecirip paneli
+   * "yari saydam" gosteriyordu (ekran goruntusuyle dogrulandi: insa
+   * menusunun icinden ada kenarlari okunuyordu). Butonlar hafif saydam
+   * kalabilir; onlar kucuk ve zeminleri koyu.
+   */
+  createPanelTexture(scene, TextureKeys.Panel, 0x1d1a13, 0x5a4c33, 1);
   createPanelTexture(scene, TextureKeys.ButtonUp, 0x2e2819, 0x7a6540);
   createPanelTexture(scene, TextureKeys.ButtonDown, 0x4a3f27, 0xe8c86a);
+  createRoundTexture(scene, TextureKeys.RoundUp, 0x2e2819, 0x7a6540, artScale);
+  createRoundTexture(scene, TextureKeys.RoundDown, 0x4a3f27, 0xe8c86a, artScale);
 }
 
 /** Isci durumu -> doku anahtari. Render katmani bu esleme uzerinden okur. */
@@ -580,12 +590,43 @@ function createPixelTexture(scene: Phaser.Scene, key: string): void {
   g.destroy();
 }
 
+/**
+ * Yuvarlak buton zemini.
+ *
+ * 9-slice ile daire yapilamaz (koseler gerilir), bu yuzden ayri bir doku
+ * uretilir ve butonda setDisplaySize ile olceklenir. artScale, yuksek
+ * DPR'de kenarin keskin kalmasini saglar.
+ */
+function createRoundTexture(
+  scene: Phaser.Scene,
+  key: string,
+  fill: number,
+  border: number,
+  artScale: number,
+): void {
+  if (scene.textures.exists(key)) return;
+
+  const size = 72;
+  const g = scene.make.graphics({ x: 0, y: 0 }, false);
+  g.scale = artScale;
+  g.fillStyle(0x000000, 0.35);
+  g.fillCircle(size / 2, size / 2 + 2, size / 2 - 2);
+  g.fillStyle(fill, 0.96);
+  g.fillCircle(size / 2, size / 2, size / 2 - 3);
+  g.lineStyle(2, border, 0.95);
+  g.strokeCircle(size / 2, size / 2, size / 2 - 3);
+
+  g.generateTexture(key, Math.ceil(size * artScale), Math.ceil(size * artScale));
+  g.destroy();
+}
+
 /** Arayuz panelleri icin 9-slice uyumlu yuvarlatilmis dikdortgen. */
 function createPanelTexture(
   scene: Phaser.Scene,
   key: string,
   fill: number,
   border: number,
+  alpha = 0.94,
 ): void {
   if (scene.textures.exists(key)) return;
 
@@ -593,7 +634,7 @@ function createPanelTexture(
   const radius = 14;
   const g = scene.make.graphics({ x: 0, y: 0 }, false);
 
-  g.fillStyle(fill, 0.94);
+  g.fillStyle(fill, alpha);
   g.fillRoundedRect(0, 0, size, size, radius);
   g.lineStyle(2, border, 0.9);
   g.strokeRoundedRect(1, 1, size - 2, size - 2, radius - 1);

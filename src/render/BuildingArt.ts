@@ -42,6 +42,8 @@ export type ArtDrawer = (
 /** Binanin govde yuksekligi; doku boyutunu bu belirler. */
 const BODY_HEIGHT: Record<DrawnBuildingType | typeof GENERIC_VISUAL, [number, number]> = {
   town_hall: [96, 124],
+  temple: [104, 136],
+  harbor: [38, 50],
   house: [50, 74],
   farm: [30, 42],
   // Oduncu ve pazar bilerek evden ALCAK tutulur; %32 zoom'da kutleyi
@@ -913,6 +915,176 @@ const drawWarehouse: ArtDrawer = (g, c, level) => {
   }
 };
 
+/**
+ * Tapinak: sehrin ANITI.
+ *
+ * Sehir merkeziyle ayni malzemeyi (mermer) kullanir ama silueti bilerek
+ * farklidir: merkez YAYVAN ve basamakli, tapinak DAR ve YUKSEK, ustunde
+ * ucgen alinlikli bir cati. Ikisi yan yana geldiginde karismasin diye
+ * tapinagin catisi kiremit degil mermerdir ve tepesinde altin bir akroter
+ * durur.
+ */
+const drawTemple: ArtDrawer = (g, c, level) => {
+  contactShadow(g, c, 1.0);
+  const grand = level >= 2;
+
+  // Basamakli kaide - uc basamak, anitsal taban
+  const steps = grand ? 4 : 3;
+  let platformY = c.baseY;
+  for (let i = 0; i < steps; i += 1) {
+    const t = i / steps;
+    box(
+      g,
+      c.cx,
+      platformY,
+      c.footW * (0.9 - t * 0.07),
+      c.footH * (0.9 - t * 0.07),
+      7,
+      i % 2 === 0 ? PALETTE.stoneLight : PALETTE.stone,
+    );
+    platformY -= 7;
+  }
+
+  // Govde: dar ve yuksek sutunlu kutle
+  const bodyW = c.footW * 0.58;
+  const bodyD = c.footH * 0.58;
+  const bodyH = grand ? 62 : 50;
+  box(g, c.cx, platformY, bodyW, bodyD, bodyH, PALETTE.stoneLight);
+  columnsOnFaces(g, c.cx, platformY, bodyW, bodyD, bodyH, grand ? 5 : 4);
+
+  // Arsitrav
+  const archY = platformY - bodyH;
+  box(g, c.cx, archY + 6, bodyW * 1.16, bodyD * 1.16, 6, PALETTE.stone);
+
+  // Mermer besik cati - dik egimli, tapinak alinligi
+  gableRoof(g, c.cx, archY, bodyW * 1.2, bodyD * 1.2, grand ? 40 : 32, {
+    light: PALETTE.stoneLight,
+    mid: PALETTE.stone,
+    dark: PALETTE.stoneDark,
+  });
+
+  // Altin akroter - tapinagin imzasi, her seviyede var
+  g.fillStyle(PALETTE.gold, 1);
+  g.fillTriangle(
+    c.cx - 8,
+    archY - (grand ? 36 : 28),
+    c.cx + 8,
+    archY - (grand ? 36 : 28),
+    c.cx,
+    archY - (grand ? 54 : 44),
+  );
+
+  doorway(g, c.cx, platformY + bodyD * 0.2, 13, Math.round(bodyH * 0.45));
+
+  if (grand) {
+    // Seviye 2: onde iki serbest sutun ve sunak
+    for (const dx of [-0.34, 0.34]) {
+      const x = c.cx + c.footW * dx;
+      const y = c.baseY + c.footH * 0.16;
+      g.fillStyle(PALETTE.stone, 1);
+      g.fillEllipse(x, y, 16, 7);
+      g.fillStyle(PALETTE.stoneLight, 1);
+      g.fillRect(x - 5, y - 40, 10, 40);
+      g.fillStyle(shade(PALETTE.stoneLight, -0.2), 1);
+      g.fillRect(x + 1, y - 40, 4, 40);
+      g.fillStyle(PALETTE.stone, 1);
+      g.fillEllipse(x, y - 40, 15, 6);
+    }
+    // Sunak atesi
+    g.fillStyle(PALETTE.roof, 1);
+    g.fillEllipse(c.cx, c.baseY + c.footH * 0.3, 14, 7);
+    g.fillStyle(PALETTE.gold, 0.9);
+    g.fillTriangle(c.cx - 5, c.baseY + c.footH * 0.3, c.cx + 5, c.baseY + c.footH * 0.3, c.cx, c.baseY + c.footH * 0.3 - 14);
+  }
+};
+
+/**
+ * Liman: kiyiya uzanan ahsap iskele, yuk vinci ve tekne.
+ *
+ * Siluetin imzasi YATAY bir iskele ve onun ucundaki tekne. Sehirdeki hicbir
+ * bina yatay bir platform + direk silueti tasimaz, bu yuzden liman uzaktan
+ * da taninir. Yapinin kendisi alcaktir: kiyi cizgisini kapatmamalidir.
+ */
+const drawHarbor: ArtDrawer = (g, c, level) => {
+  contactShadow(g, c, 0.9);
+  const big = level >= 2;
+
+  // Tas rihtim
+  box(g, c.cx - c.footW * 0.1, c.baseY - c.footH * 0.06, c.footW * 0.6, c.footH * 0.6, 8, PALETTE.block);
+  const deck = c.baseY - c.footH * 0.06 - 8;
+
+  // Ahsap iskele - kiyidan ileri uzanan platform
+  const px = c.cx + c.footW * 0.22;
+  const py = c.baseY + c.footH * 0.18;
+  g.fillStyle(PALETTE.woodDark, 1);
+  for (const [dx, dy] of [
+    [-0.16, -0.1],
+    [0.16, 0.1],
+    [0.16, -0.1],
+    [-0.16, 0.1],
+  ]) {
+    g.fillRect(px + c.footW * dx - 2, py + c.footH * dy - 12, 4, 14);
+  }
+  g.fillStyle(PALETTE.woodLight, 1);
+  diamond(g, px, py - 12, c.footW * 0.46, c.footH * 0.46);
+  g.fillPath();
+  g.fillStyle(shade(PALETTE.wood, -0.1), 1);
+  for (let i = 0; i < 3; i += 1) {
+    isoStrip(g, px, py - 12, c.footW * 0.46, c.footH * 0.46, i / 3 + 0.28 / 3, (i + 1) / 3);
+    g.fillPath();
+  }
+
+  // Depo kulubesi - rihtimin uzerinde
+  const hx = c.cx - c.footW * 0.18;
+  box(g, hx, deck, c.footW * 0.3, c.footH * 0.3, big ? 24 : 18, PALETTE.adobeLight);
+  shedRoof(g, hx, deck, c.footW * 0.36, c.footH * 0.36, big ? 24 : 18, (big ? 24 : 18) + 10, PALETTE.roof);
+
+  // Yuk vinci - direk ve bom
+  const kx = c.cx + c.footW * 0.02;
+  const ky = c.baseY - c.footH * 0.02;
+  g.fillStyle(PALETTE.woodDark, 1);
+  g.fillRect(kx - 2.5, ky - (big ? 46 : 36), 5, big ? 46 : 36);
+  g.fillStyle(PALETTE.wood, 1);
+  g.fillRect(kx - 2.5, ky - (big ? 48 : 38), big ? 30 : 24, 4);
+  g.fillStyle(PALETTE.woodDark, 1);
+  g.fillRect(kx + (big ? 26 : 20), ky - (big ? 44 : 34), 2, 12);
+  g.fillStyle(PALETTE.woodLight, 1);
+  g.fillRect(kx + (big ? 22 : 16), ky - (big ? 32 : 22), 10, 8);
+
+  // Tekne - iskelenin ucunda
+  const bx = px + c.footW * 0.22;
+  const by = py + c.footH * 0.04;
+  g.fillStyle(PALETTE.woodDark, 1);
+  g.fillEllipse(bx, by, big ? 40 : 32, big ? 15 : 12);
+  g.fillStyle(PALETTE.woodLight, 1);
+  g.fillEllipse(bx, by - 3, big ? 34 : 27, big ? 11 : 9);
+  g.fillStyle(PALETTE.woodDark, 1);
+  g.fillRect(bx - 1.5, by - (big ? 34 : 27), 3, big ? 32 : 25);
+  // Yelken
+  g.fillStyle(PALETTE.clothCool, 1);
+  g.beginPath();
+  g.moveTo(bx + 1, by - (big ? 34 : 27));
+  g.lineTo(bx + (big ? 20 : 15), by - (big ? 14 : 11));
+  g.lineTo(bx + 1, by - (big ? 10 : 8));
+  g.closePath();
+  g.fillPath();
+  if (big) {
+    g.fillStyle(PALETTE.clothWarm, 1);
+    g.beginPath();
+    g.moveTo(bx - 1, by - 34);
+    g.lineTo(bx - 14, by - 16);
+    g.lineTo(bx - 1, by - 12);
+    g.closePath();
+    g.fillPath();
+  }
+
+  // Ag ve fici - kiyi detayi
+  g.fillStyle(PALETTE.woodDark, 1);
+  g.fillEllipse(c.cx - c.footW * 0.3, c.baseY + c.footH * 0.26, 12, 7);
+  g.fillStyle(PALETTE.cropGold, 0.8);
+  g.fillEllipse(c.cx - c.footW * 0.36, c.baseY + c.footH * 0.3, 14, 6);
+};
+
 /** Taninmayan tur icin yedek: sade kerpic kutu. */
 const drawGeneric: ArtDrawer = (g, c) => {
   contactShadow(g, c, 0.85);
@@ -960,6 +1132,8 @@ export const drawScaffold: ArtDrawer = (g, c) => {
 /** Tur -> cizim eslemesi. */
 export const BUILDING_ART: Record<DrawnBuildingType | typeof GENERIC_VISUAL, ArtDrawer> = {
   town_hall: drawTownHall,
+  temple: drawTemple,
+  harbor: drawHarbor,
   house: drawHouse,
   farm: drawFarm,
   lumber_camp: drawLumberCamp,

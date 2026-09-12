@@ -8,6 +8,8 @@ export const UIColors = {
   accent: 0xe8c86a,
   danger: 0xd05a52,
   success: 0x6ee27a,
+  info: 0x6fa8d6,
+  warn: 0xe8c86a,
 } as const;
 
 export const UIText = {
@@ -27,6 +29,27 @@ export const UISpacing = {
   gap: 8,
   panelPadding: 14,
 } as const;
+
+/**
+ * Basliklar icin SERIF yazi.
+ *
+ * Referans tasarim basliklarda Cinzel istiyor; yazi tipi oyunun HTML
+ * kabugunda zaten yukleniyor (Google Fonts). Yuklenmemis olma ihtimaline
+ * karsi yedek zinciri klasik serif yuzlerle devam eder, yani en kotu
+ * durumda bile baslik govde yazisindan AYRISIR - tek bir yazi tipine
+ * bagimli kalmaz.
+ */
+export function titleStyle(
+  size: number,
+  color: string = UIText.primary,
+): Phaser.Types.GameObjects.Text.TextStyle {
+  return {
+    fontFamily: '"Cinzel", "Palatino Linotype", Palatino, Georgia, serif',
+    fontSize: `${size}px`,
+    color,
+    fontStyle: 'bold',
+  };
+}
 
 /** Ortak yazi stili uretici. */
 export function labelStyle(

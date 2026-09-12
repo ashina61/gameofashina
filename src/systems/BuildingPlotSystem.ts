@@ -1,3 +1,4 @@
+import { STREET_EVERY } from '@/config/Constants';
 import { getBuilding } from '@/config/BuildingCatalog';
 import type { GridMap } from '@/core/GridMap';
 import type { BuildingId, BuildingPlot, GridPoint, PlotZone } from '@/types';
@@ -28,9 +29,6 @@ import type { BuildingId, BuildingPlot, GridPoint, PlotZone } from '@/types';
  * her zaman baglantili bir gezinti agi garanti eder.
  */
 
-/** Sokak araligi: bu katin katlari olan satir/sutunlar yapiya kapalidir. */
-const STREET_EVERY = 3;
-
 /**
  * Bolgelerin kabul ettigi bina turleri (zemin suzgecinden ONCE).
  *
@@ -40,10 +38,10 @@ const STREET_EVERY = 3;
  */
 const ZONE_TYPES: Record<PlotZone, BuildingId[]> = {
   civic: ['town_hall'],
-  // Merkezin cevresi: ticaret ve ona hizmet eden depo, arada birkac konut.
-  commerce: ['market', 'warehouse', 'house'],
-  // Konut kusagi: sehrin govdesi, kenarinda gida uretimi.
-  residential: ['house', 'farm', 'quarry'],
+  // Merkezin cevresi: ticaret, depo, sehrin aniti ve arada birkac konut.
+  commerce: ['market', 'warehouse', 'house', 'temple'],
+  // Konut kusagi: sehrin govdesi, kenarinda gida uretimi ve kiyi varsa liman.
+  residential: ['house', 'farm', 'quarry', 'harbor'],
   /*
    * Disarisi: tarla, orman, depolama - ve isci konutu.
    *
@@ -51,7 +49,7 @@ const ZONE_TYPES: Record<PlotZone, BuildingId[]> = {
    * kenarinda ev olmasi hem gercekci hem de oyuncuya uretim bolgesini
    * buyutme secenegi verir.
    */
-  production: ['farm', 'lumber_camp', 'house', 'warehouse', 'quarry'],
+  production: ['farm', 'lumber_camp', 'house', 'warehouse', 'quarry', 'harbor'],
 };
 
 /**
@@ -62,8 +60,21 @@ const ZONE_TYPES: Record<PlotZone, BuildingId[]> = {
  * olusmadi ve oduncu kampina tek bir plot bile dusmedi (olculdu: 75
  * plotun 0'i). Karo uzakligi halkalari gercekten ayirir.
  */
-const COMMERCE_RADIUS = 3;
-const RESIDENTIAL_RADIUS = 5;
+/*
+ * Yaricaplar izgara BOYUTUNDAN turer.
+ *
+ * Sprint 12'de sabit 3 ve 5'ti; Sprint 14 haritayi 18x18'e buyutunce sabit
+ * degerler butun disariyi tek bir dev uretim kusagina cevirdi. Oran, eski
+ * 14x14 haritada ayni sayilari verir (3 ve 5), yani eski sehirlerin
+ * yerlesimi degismez.
+ */
+function commerceRadius(size: number): number {
+  return Math.round(size * 0.22);
+}
+
+function residentialRadius(size: number): number {
+  return Math.round(size * 0.36);
+}
 
 export class BuildingPlotSystem {
   private readonly grid: GridMap;
@@ -124,7 +135,22 @@ export class BuildingPlotSystem {
    * Kaynak kontrolu burada YAPILMAZ - o BuildingSystem'in isidir.
    */
   availableFor(type: BuildingId): BuildingPlot[] {
-    return this.plotList.filter((plot) => this.accepts(plot, type) && this.isFree(plot));
+    const center = this.grid.center();
+    const distance = (plot: BuildingPlot) =>
+      Math.max(Math.abs(plot.gx - center.gx), Math.abs(plot.gy - center.gy));
+
+    /*
+     * MERKEZDEN DISARI siralanir.
+     *
+     * Once yerlesim sirasiyla (satir satir) donuyordu ve listeden otomatik
+     * secen her sey (olcum betikleri, onerilen alan) sehri haritanin bir
+     * kosesine yigiyordu. Merkezden disari siralamak sehrin merkez etrafinda
+     * buyumesini saglar. Siralama DETERMINISTIK: esitlikte kurulus sirasi
+     * korunur.
+     */
+    return this.plotList
+      .filter((plot) => this.accepts(plot, type) && this.isFree(plot))
+      .sort((a, b) => distance(a) - distance(b));
   }
 
   /**
@@ -153,15 +179,59 @@ export class BuildingPlotSystem {
       });
     }
 
-    // 2. Kalan butun yapi karolari 1x1 plot olur.
+    /*
+     * 2. ANIT ALANI: merkez adasinin komsu adalarindan biri tapinaga
+     *    ayrilir.
+     *
+     * Tapinak 2x2'dir ve sehirdeki diger butun alanlar 1x1 oldugu icin
+     * hicbir yere sigmiyordu (olculdu: dort ayri seed'de tapinak icin 0
+     * alan). Merkezin hemen yanindaki bir adayi tek parca birakmak hem
+     * sorunu cozer hem de anitin sehrin kalbinde durmasini saglar.
+     *
+     * Secim DETERMINISTIK: komsu adalar sabit bir sirada denenir ve
+     * zemini uygun olan ilki secilir.
+     */
+    const monumentOrder: Array<[number, number]> = [
+      [0, -1],
+      [-1, 0],
+      [1, 0],
+      [0, 1],
+      [-1, -1],
+      [1, -1],
+      [-1, 1],
+      [1, 1],
+    ];
+    for (const [bx, by] of monumentOrder) {
+      const gx = (centerBlock.bx + bx) * STREET_EVERY + 1;
+      const gy = (centerBlock.by + by) * STREET_EVERY + 1;
+      if (this.byTile.has(key(gx, gy))) continue;
+      if (!this.fits(gx, gy, 2, 2, 'temple')) continue;
+      this.add({
+        id: `plot#${gx},${gy}`,
+        gx,
+        gy,
+        width: 2,
+        height: 2,
+        zone: 'commerce',
+        allowedTypes: ['temple'],
+        unlocked: true,
+      });
+      break;
+    }
+
+    // 3. Kalan butun yapi karolari 1x1 plot olur.
     for (const tile of this.grid.allTiles()) {
       if (!isBuildable(tile.gx, tile.gy)) continue;
       if (this.byTile.has(key(tile.gx, tile.gy))) continue; // merkez adasi
 
-      const zone = zoneFor(tile.gx, tile.gy, center);
-      const allowed = ZONE_TYPES[zone].filter((type) =>
-        getBuilding(type).allowedTerrain.includes(tile.terrain),
-      );
+      const zone = zoneFor(tile.gx, tile.gy, center, this.grid.size);
+      const allowed = ZONE_TYPES[zone].filter((type) => {
+        const def = getBuilding(type);
+        if (!def.allowedTerrain.includes(tile.terrain)) return false;
+        // Kiyi yapisi yalnizca suya komsu alanlarda aday olur.
+        if (def.requiresWaterAdjacent && !this.touchesWater(tile.gx, tile.gy)) return false;
+        return true;
+      });
       if (allowed.length === 0) continue; // su, ya da bu bolgeye uymayan zemin
 
       this.add({
@@ -175,6 +245,19 @@ export class BuildingPlotSystem {
         unlocked: true,
       });
     }
+  }
+
+  /** Karonun dort komsusundan biri su mu? (kiyi kurali) */
+  private touchesWater(gx: number, gy: number): boolean {
+    for (const [dx, dy] of [
+      [0, -1],
+      [1, 0],
+      [0, 1],
+      [-1, 0],
+    ]) {
+      if (this.grid.getTile(gx + dx, gy + dy)?.terrain === 'water') return true;
+    }
+    return false;
   }
 
   /** Alanin tamami haritada ve verilen tur icin uygun zeminde mi? */
@@ -214,10 +297,10 @@ function blockOf(g: number): number {
  * Karonun merkeze uzakligina gore bolgesi.
  * Halka halka disari: ticaret -> konut -> uretim.
  */
-function zoneFor(gx: number, gy: number, center: GridPoint): PlotZone {
+function zoneFor(gx: number, gy: number, center: GridPoint, size: number): PlotZone {
   const distance = Math.max(Math.abs(gx - center.gx), Math.abs(gy - center.gy));
-  if (distance <= COMMERCE_RADIUS) return 'commerce';
-  if (distance <= RESIDENTIAL_RADIUS) return 'residential';
+  if (distance <= commerceRadius(size)) return 'commerce';
+  if (distance <= residentialRadius(size)) return 'residential';
   return 'production';
 }
 
