@@ -1,9 +1,9 @@
 import { BASE_STORAGE_CAPACITY, RESOURCE_ORDER } from '@/config/Constants';
 import { getBuilding } from '@/config/BuildingCatalog';
-import { resolveBuilding } from './BuildingResolver';
+import { NO_MODIFIERS, resolveBuilding } from './BuildingResolver';
 import type { EventBus } from '@/core/EventBus';
 import type { GameState } from '@/core/GameState';
-import type { ResourceAmounts, ResourceKey, ResourcePool } from '@/types';
+import type { CityModifiers, ResourceAmounts, ResourceKey, ResourcePool } from '@/types';
 
 /**
  * Kaynak havuzunu yoneten sistem: harcama, ekleme ve depo siniri.
@@ -19,6 +19,21 @@ export class ResourceSystem {
     this.state = state;
     this.bus = bus;
     this.recalculateCapacity();
+  }
+
+  /**
+   * Sehir capindaki arastirma carpanlarini okuyan yordam.
+   *
+   * GEC BAGLANIR: ResearchSystem bu sistemden SONRA kuruluyor (arastirma
+   * kaynak sistemine bagimli), bu yuzden kurucuya veremiyoruz. Baglanana
+   * kadar notr carpanlar gecerlidir, yani sistem kendi basina da dogru
+   * calisir - eksik bag sessiz bir hataya donusmez.
+   */
+  private modifiers: () => CityModifiers = () => NO_MODIFIERS;
+
+  /** Arastirma sistemini baglar; GameWorld kurulum sirasinda cagirir. */
+  bindModifiers(source: () => CityModifiers): void {
+    this.modifiers = source;
   }
 
   /** Kaynak turu basina gecerli depo kapasitesi. */
@@ -38,7 +53,12 @@ export class ResourceSystem {
   recalculateCapacity(): number {
     let capacity = BASE_STORAGE_CAPACITY;
     for (const building of this.state.buildings.values()) {
-      const resolved = resolveBuilding(building, getBuilding(building.type), this.state.tick);
+      const resolved = resolveBuilding(
+        building,
+        getBuilding(building.type),
+        this.state.tick,
+        this.modifiers(),
+      );
       capacity += resolved.storageCapacity;
     }
     this.cachedCapacity = capacity;

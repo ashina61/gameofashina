@@ -21,6 +21,7 @@ export type IconKind =
   | 'wood'
   | 'stone'
   | 'gold'
+  | 'knowledge'
   // Eylem ve durum
   | 'hammer'
   | 'worker'
@@ -447,11 +448,36 @@ function drawAvatar(g: Phaser.GameObjects.Graphics, s: number): void {
   }
 }
 
+/**
+ * Papirus tomari - Bilgi.
+ *
+ * Altin sikkeyle karismamasi icin bilerek DIKDORTGEN ve acik renk: dort
+ * kaynak ikonunun hicbiri dikey bir levha silueti tasimiyor.
+ */
+function drawKnowledge(g: Phaser.GameObjects.Graphics, s: number): void {
+  const cx = s / 2;
+  // Sayfa
+  g.fillStyle(shade(PALETTE.clothCool, -0.12), 1);
+  g.fillRoundedRect(cx - s * 0.24, s * 0.2, s * 0.48, s * 0.58, 2);
+  g.fillStyle(PALETTE.clothCool, 1);
+  g.fillRoundedRect(cx - s * 0.27, s * 0.17, s * 0.48, s * 0.58, 2);
+  // Satirlar
+  g.fillStyle(shade(PALETTE.clothCool, -0.45), 0.75);
+  for (const t of [0.3, 0.42, 0.54, 0.66]) {
+    g.fillRect(cx - s * 0.19, s * t, s * 0.32, s * 0.045);
+  }
+  // Rulo cubuklari
+  g.fillStyle(PALETTE.wood, 1);
+  g.fillRect(cx - s * 0.33, s * 0.13, s * 0.66, s * 0.07);
+  g.fillRect(cx - s * 0.33, s * 0.74, s * 0.66, s * 0.07);
+}
+
 export const ICON_ART: Record<IconKind, (g: Phaser.GameObjects.Graphics, size: number) => void> = {
   food: drawFood,
   wood: drawWood,
   stone: drawStone,
   gold: drawGold,
+  knowledge: drawKnowledge,
   hammer: drawHammer,
   worker: drawWorkerIcon,
   lock: drawLock,

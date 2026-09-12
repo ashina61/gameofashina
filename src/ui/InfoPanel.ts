@@ -49,6 +49,8 @@ export interface InfoPanelHooks {
   onClose: () => void;
   /** Sehrin isci ozetini acar. */
   onShowWorkers: () => void;
+  /** Arastirma sayfasini acar (yalnizca Akademi panelinde kullanilir). */
+  onShowResearch: () => void;
 }
 
 /** Zemin turlerinin kullaniciya gosterilen adlari. */
@@ -127,6 +129,8 @@ export class InfoPanel extends Phaser.GameObjects.Container {
   private currentTick = 0;
   /** Yukseltme yuvasindaki butonun o anki islevi. */
   private upgradeButtonMode: 'upgrade' | 'cancel' = 'upgrade';
+  /** Ikincil dugmenin o anki islevi. */
+  private secondaryMode: 'workers' | 'research' = 'workers';
 
   constructor(
     scene: Phaser.Scene,
@@ -217,11 +221,21 @@ export class InfoPanel extends Phaser.GameObjects.Container {
       },
     });
 
+    /*
+     * Ikincil aksiyon BAGLAMA gore degisir.
+     *
+     * Akademi secildiginde oyuncunun asil isi arastirma baslatmaktir;
+     * isci sayaci zaten hemen ustteki satirda duruyor. Diger binalarda
+     * ayni yuva sehrin isci ozetini acar.
+     */
     this.workersButton = new TouchButton(scene, 0, 0, 'ISCILER', {
       width: 116,
       height: 44,
       fontSize: 13,
-      onPress: () => this.hooks.onShowWorkers(),
+      onPress: () => {
+        if (this.secondaryMode === 'research') this.hooks.onShowResearch();
+        else this.hooks.onShowWorkers();
+      },
     });
 
     this.closeButton = new TouchButton(scene, 0, 0, 'Kapat', {
@@ -458,7 +472,12 @@ export class InfoPanel extends Phaser.GameObjects.Container {
 
     const underBuild = task?.kind === 'build';
     this.showWorkerRow(building, resolved, underBuild === true);
-    this.workersButton.setVisible(resolved.workerRequirement > 0);
+
+    // Akademi: ikincil dugme ARASTIRMA sayfasini acar.
+    const isAcademy = building.type === 'academy' && building.state === 'active';
+    this.secondaryMode = isAcademy ? 'research' : 'workers';
+    this.workersButton.setText(isAcademy ? 'ARASTIRMA' : 'ISCILER');
+    this.workersButton.setVisible(isAcademy || resolved.workerRequirement > 0);
     this.showDetails(def, resolved);
 
     // Buton yuvasi: yukseltme surerken iptal, aksi halde yukseltme.

@@ -2,6 +2,7 @@ import { CANCEL_REFUND_RATE, TICKS_PER_SECOND } from '@/config/Constants';
 import { clampLevel, levelOf, maxLevelOf } from '@/config/BuildingCatalog';
 import type {
   BuildPreview,
+  CityModifiers,
   BuildingConstruction,
   ConstructionStatus,
   BuildingDefinition,
@@ -39,10 +40,14 @@ export function ticksToSeconds(ticks: number): number {
  * Bir bina ornegini, tanimi ve gecerli simulasyon tiki ile birlestirip
  * kullanima hazir degerler uretir.
  */
+/** Hicbir arastirma yokken gecerli olan carpanlar. */
+export const NO_MODIFIERS: CityModifiers = { production: {}, workerSlotBonus: 0 };
+
 export function resolveBuilding(
   instance: BuildingInstance,
   def: BuildingDefinition,
   currentTick: number,
+  modifiers: CityModifiers = NO_MODIFIERS,
 ): ResolvedBuilding {
   const level = clampLevel(def, instance.level);
   const entry = levelOf(def, level);
@@ -51,7 +56,20 @@ export function resolveBuilding(
   const construction = instance.construction
     ? constructionProgress(instance.construction, currentTick)
     : null;
-  const workerRequirement = entry?.workerRequirement ?? 0;
+
+  /*
+   * ARASTIRMA CARPANLARI burada uygulanir.
+   *
+   * Tek yerde olmasi onemli: ekonomi, depo hesabi ve arayuz hepsi bu
+   * fonksiyondan okuyor. Carpanlari ekonomi dongusune koymak, arayuzun
+   * arastirmasiz sayilar gostermesine yol acardi.
+   *
+   * Kadro slotu YALNIZCA isci isteyen binaya eklenir: eve ya da ambara
+   * slot vermek anlamsiz olurdu.
+   */
+  const baseRequirement = entry?.workerRequirement ?? 0;
+  const workerRequirement =
+    baseRequirement > 0 ? baseRequirement + Math.max(0, modifiers.workerSlotBonus) : 0;
 
   // Kadro doluluğu: isci istemeyen bina her zaman tam kadroludur.
   const staffing =
@@ -59,7 +77,9 @@ export function resolveBuilding(
       ? 1
       : Math.min(1, Math.max(0, instance.assignedWorkers) / workerRequirement);
 
-  const production = operational ? copyAmounts(entry?.production) : {};
+  const production = operational
+    ? applyMultipliers(copyAmounts(entry?.production), modifiers.production)
+    : {};
 
   return {
     uid: instance.uid,
@@ -93,6 +113,26 @@ export function resolveBuilding(
     // Devam eden bir gorev varken yeni bir yukseltme baslatilamaz.
     upgrade: construction ? null : resolveUpgrade(def, level),
   };
+}
+
+/**
+ * Uretim degerlerine arastirma carpanlarini uygular.
+ *
+ * Sonuc bir ONDALIGA yuvarlanir: carpanlar 1.3 gibi degerler oldugu icin
+ * ham sonuc 7.8000000000000007 gibi kuyruklar uretiyor ve arayuzde
+ * okunmaz hale geliyordu. Yuvarlama tek yerde yapilir ki ekonomi ile
+ * arayuz ayni sayiyi gorsun.
+ */
+function applyMultipliers(
+  production: ResourceAmounts,
+  multipliers: Partial<Record<string, number>>,
+): ResourceAmounts {
+  const result: ResourceAmounts = {};
+  for (const [key, value] of Object.entries(production)) {
+    const factor = multipliers[key] ?? 1;
+    result[key as keyof ResourceAmounts] = Math.round(((value ?? 0) * factor) * 10) / 10;
+  }
+  return result;
 }
 
 /**

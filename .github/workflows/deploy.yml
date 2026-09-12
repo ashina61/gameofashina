@@ -1,0 +1,60 @@
+# Oyunu GitHub Pages'e yayinlar.
+#
+# NEDEN VAR: oyun linki artik gecici bir onizlemeye degil, kalici bir
+# adrese bagli. main'e her giren degisiklik otomatik yayina cikar.
+#
+# KAPI ONCE, YAYIN SONRA: test/typecheck/lint gecmeden derleme yapilmaz.
+# Bozuk bir surumun yayina cikmasindansa yayinin hic yenilenmemesi yeglenir.
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+  # Elle tetiklenebilir: yayini kod degismeden yenilemek gerekirse.
+  workflow_dispatch:
+
+# Pages yayini icin gereken en dar izin kumesi.
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Ayni anda tek yayin. Arka arkaya gelen pushlarda sonuncusu gecerlidir;
+# devam eden yayin iptal EDILMEZ, yarim kalmis bir yayin birakmamak icin.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+
+      - run: npm ci
+
+      # Kapilar: biri bile kirmiziysa yayin yapilmaz.
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm test
+
+      - run: npm run build
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

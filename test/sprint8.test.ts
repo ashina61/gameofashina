@@ -119,8 +119,10 @@ describe('isci atama', () => {
 describe('kapasite', () => {
   it('kapasite katalogdaki seviye degeridir', () => {
     const { world, target } = cityWith('lumber_camp');
-    // Oduncu kampi seviye 1: 3 isci
-    expect(world.workforce.capacityOf(target.uid)).toBe(3);
+    // Deger KATALOGDAN gelir: test kapasitenin katalogla ayni oldugunu
+    // dogrular, belirli bir rakami degil.
+    const need = levelOf(getBuilding('lumber_camp'), 1)?.workerRequirement ?? 0;
+    expect(world.workforce.capacityOf(target.uid)).toBe(need);
   });
 
   it('kapasite dolunca atama reddedilir', () => {

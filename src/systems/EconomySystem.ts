@@ -1,14 +1,27 @@
 import { FOOD_UPKEEP_PER_CITIZEN, RESOURCE_ORDER, TICKS_PER_SECOND } from '@/config/Constants';
 import { getBuilding } from '@/config/BuildingCatalog';
-import { resolveBuilding } from './BuildingResolver';
+import { NO_MODIFIERS, resolveBuilding } from './BuildingResolver';
 import type { EventBus } from '@/core/EventBus';
 import type { GameState } from '@/core/GameState';
 import type { PopulationSystem } from './PopulationSystem';
 import type { ResourceSystem } from './ResourceSystem';
-import type { EconomySnapshot, ResourcePool } from '@/types';
+import type { CityModifiers, EconomySnapshot, ResourcePool } from '@/types';
 
 /** Bir dakikadaki tik sayisi; uretim oranlari dakika cinsinden tanimlidir. */
 const TICKS_PER_MINUTE = 60 * TICKS_PER_SECOND;
+
+/**
+ * Butun kaynaklari sifir olan bir havuz.
+ *
+ * Elle yazilan nesne kalibi ({food:0, wood:0, ...}) yeni bir kaynak
+ * eklendiginde SESSIZCE eksik kaliyordu; havuz artik kaynak listesinden
+ * turer, yani liste buyudugunde burasi kendiliginden buyur.
+ */
+function emptyPool(): ResourcePool {
+  const pool = {} as ResourcePool;
+  for (const key of RESOURCE_ORDER) pool[key] = 0;
+  return pool;
+}
 
 /**
  * Ekonomi simulasyonu: uretim ve yiyecek gideri.
@@ -36,6 +49,15 @@ export class EconomySystem {
 
   private lastSnapshot: EconomySnapshot = emptySnapshot();
 
+  /**
+   * Sehir capindaki arastirma carpanlarini okuyan yordam.
+   *
+   * GEC BAGLANIR: ResearchSystem ekonomi sisteminden once kurulabilir ama
+   * kaynak sistemine bagimli oldugu icin sira sabit degildir. Baglanana
+   * kadar notr carpanlar gecerli, yani ekonomi tek basina da dogru calisir.
+   */
+  private modifiers: () => CityModifiers = () => NO_MODIFIERS;
+
   constructor(
     state: GameState,
     resources: ResourceSystem,
@@ -46,6 +68,11 @@ export class EconomySystem {
     this.resources = resources;
     this.population = population;
     this.bus = bus;
+  }
+
+  /** Arastirma sistemini baglar; GameWorld kurulum sirasinda cagirir. */
+  bindModifiers(source: () => CityModifiers): void {
+    this.modifiers = source;
   }
 
   /** En son hesaplanan ekonomi ozeti. */
@@ -69,7 +96,7 @@ export class EconomySystem {
     this.lastSnapshot = snapshot;
 
     const minutes = whole / TICKS_PER_MINUTE;
-    const delta: ResourcePool = { food: 0, wood: 0, stone: 0, gold: 0 };
+    const delta = emptyPool();
     for (const key of RESOURCE_ORDER) {
       delta[key] = snapshot.netPerMinute[key] * minutes;
     }
@@ -97,10 +124,15 @@ export class EconomySystem {
    */
   private computeSnapshot(): EconomySnapshot {
     const people = this.population.snapshot;
-    const netPerMinute: ResourcePool = { food: 0, wood: 0, stone: 0, gold: 0 };
+    const netPerMinute = emptyPool();
 
     for (const building of this.state.buildings.values()) {
-      const resolved = resolveBuilding(building, getBuilding(building.type), this.state.tick);
+      const resolved = resolveBuilding(
+        building,
+        getBuilding(building.type),
+        this.state.tick,
+        this.modifiers(),
+      );
       if (!resolved.operational) continue;
 
       // Kadro carpani resolver'da uygulanmistir; burada tekrar carpilmaz.
@@ -127,7 +159,7 @@ export class EconomySystem {
 
 function emptySnapshot(): EconomySnapshot {
   return {
-    netPerMinute: { food: 0, wood: 0, stone: 0, gold: 0 },
+    netPerMinute: emptyPool(),
     population: 0,
     populationUsed: 0,
     populationCapacity: 0,

@@ -57,6 +57,40 @@ export class GameState {
    */
   private sequenceCounter = 0;
 
+  /**
+   * Kayittan gelen arastirma durumu.
+   *
+   * GameState arastirmanin KURALLARINI bilmez; yalnizca kayittaki ham
+   * veriyi tasir ve ResearchSystem kurulurken ona verir. Sonrasinda tek
+   * gercek ResearchSystem'dir.
+   */
+  private savedResearch: SaveData['research'] = undefined;
+
+  /**
+   * Kaydedilecek arastirma durumu.
+   *
+   * ResearchSystem kurulunca buraya kendi anlik goruntusunu veren bir
+   * yordam baglar; GameState kuralin kendisini bilmez. Baglanmadan once
+   * kayittan geleni aynen geri yazar, yani kayit gidis-donusu arastirma
+   * sistemi olmadan da kayipsizdir.
+   */
+  private researchReader: (() => SaveData['research']) | null = null;
+
+  /** Kayittan gelen arastirma durumu; ResearchSystem kurulurken okunur. */
+  get researchState(): SaveData['research'] {
+    return this.savedResearch;
+  }
+
+  /** Kayit sirasinda arastirma durumunu verecek yordami baglar. */
+  bindResearchReader(reader: () => SaveData['research']): void {
+    this.researchReader = reader;
+  }
+
+  /** Kayda yazilacak arastirma durumu. */
+  private get researchSnapshot(): SaveData['research'] {
+    return this.researchReader ? this.researchReader() : this.savedResearch;
+  }
+
   /** Son yuklemede atilan kayitlar; tani amaclidir. */
   private issues: LoadIssue[] = [];
 
@@ -396,6 +430,7 @@ export class GameState {
 
     state.rebuildIndexes();
     state.setPopulation(save.population);
+    state.savedResearch = save.research;
 
     // Isciler oldugu gibi geri yuklenir; is atamasi oyuncunun karari oldugu
     // icin turetilmez. Gecersiz bina referanslari WorkforceSystem tarafindan
@@ -425,6 +460,7 @@ export class GameState {
       terrainSeed: this.grid.seed,
       gridSize: this.grid.size,
       population: this.citizens,
+      research: this.researchSnapshot,
     };
   }
 

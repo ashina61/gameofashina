@@ -22,6 +22,8 @@ import { isBuildable } from '@/systems/BuildingPlotSystem';
 import { PLACEMENT_MESSAGES } from '@/systems/BuildingSystem';
 import { UPGRADE_MESSAGES } from '@/systems/UpgradeSystem';
 import { WORKFORCE_MESSAGES } from '@/systems/WorkforceSystem';
+import { RESEARCH_MESSAGES } from '@/systems/ResearchSystem';
+import { getResearch } from '@/config/ResearchCatalog';
 import { constructionProgress } from '@/systems/BuildingResolver';
 import { depthFor, gridToWorld, worldToGrid } from '@/utils/IsoUtils';
 import { getResolution, getWorld } from './BootScene';
@@ -326,6 +328,7 @@ export class CityScene extends Phaser.Scene {
     bus.on('ui:cancel-upgrade', this.cancelUpgrade, this);
     bus.on('ui:assign-worker', this.assignWorker, this);
     bus.on('ui:release-worker', this.releaseWorker, this);
+    bus.on('ui:start-research', this.startResearch, this);
   }
 
   // --- Girdi ---------------------------------------------------------------
@@ -506,6 +509,23 @@ export class CityScene extends Phaser.Scene {
     this.world.save();
   }
 
+  /**
+   * Oyuncunun arastirma istegini ResearchSystem'e iletir.
+   *
+   * Karar sistemindir; sahne yalnizca sonucu bildirir ve kaydeder. Diger
+   * butun oyuncu eylemleriyle ayni yol: olay -> sistem -> bildirim.
+   */
+  private startResearch(id: string): void {
+    const result = this.world.research.start(id);
+    if (!result.ok) {
+      this.world.bus.emit('notify', RESEARCH_MESSAGES[result.reason], 'error');
+      return;
+    }
+    const def = getResearch(id);
+    this.world.bus.emit('notify', `${def?.name ?? id} arastirmasi basladi.`, 'success');
+    this.world.save();
+  }
+
   /** Secili bina buysa bilgi panelini yeniden cizdirir. */
   private refreshSelection(uid: string): void {
     if (this.selectedTile?.occupantUid === uid) {
@@ -634,6 +654,7 @@ export class CityScene extends Phaser.Scene {
     bus.off('ui:cancel-upgrade', this.cancelUpgrade, this);
     bus.off('ui:assign-worker', this.assignWorker, this);
     bus.off('ui:release-worker', this.releaseWorker, this);
+    bus.off('ui:start-research', this.startResearch, this);
     this.preview.destroy();
     this.workers.destroy();
     this.plotLayer.destroy();

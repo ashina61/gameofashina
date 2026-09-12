@@ -184,15 +184,20 @@ describe('gorsel varliklar', () => {
     expect(new Set(keys).size).toBe(keys.length);
   });
 
-  it('her binanin seviye 1 ve seviye 2 silueti FARKLI', () => {
+  it('her binanin HER seviyesi ayri bir siluet uretir', () => {
     for (const def of allBuildings()) {
-      expect(visualKeyFor(def.id, 1)).not.toBe(visualKeyFor(def.id, 2));
-      // Siluet zarfi da degisir: seviye 2 daha yuksek bir tuval ister.
-      const low = artCanvasFor(def.id, def.size, 1);
-      const high = artCanvasFor(def.id, def.size, 2);
-      expect(high.height).toBeGreaterThan(low.height);
+      const keys = new Set<string>();
+      let previousHeight = 0;
+      for (let level = 1; level <= MAX_VISUAL_LEVEL; level += 1) {
+        keys.add(visualKeyFor(def.id, level));
+        // Siluet zarfi her basamakta buyur.
+        const canvas = artCanvasFor(def.id, def.size, level);
+        expect(canvas.height, `${def.id} Sv${level}`).toBeGreaterThan(previousHeight);
+        previousHeight = canvas.height;
+      }
+      expect(keys.size).toBe(MAX_VISUAL_LEVEL);
     }
-    expect(MAX_VISUAL_LEVEL).toBe(2);
+    expect(MAX_VISUAL_LEVEL).toBe(3);
   });
 });
 

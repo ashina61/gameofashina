@@ -27,7 +27,7 @@ describe('baslangic durumu', () => {
   it('varsayilan kaynaklarla baslar', () => {
     const world = makeWorld();
     const { state } = world;
-    expect(state.resources).toEqual({ food: 150, wood: 220, stone: 140, gold: 60 });
+    expect(state.resources).toEqual({ food: 150, wood: 220, stone: 140, gold: 60, knowledge: 0 });
   });
 
   it('taban depo kapasitesi sabitten okunur', () => {
@@ -67,9 +67,12 @@ describe('yerlestirme kurallari', () => {
     const before = { ...state.resources };
     const result = buildings.place('house', c.gx, c.gy);
 
+    // Maliyet KATALOGDAN okunur: bu test kurulumun maliyeti dogru dustugunu
+    // dogrular, katalogdaki rakami degil. Denge ayari testi bozmasin.
+    const cost = levelOf(getBuilding('house'), 1)!.buildCost!;
     expect(result.ok).toBe(true);
-    expect(state.resources.wood).toBe(before.wood - 40);
-    expect(state.resources.stone).toBe(before.stone - 10);
+    expect(state.resources.wood).toBe(before.wood - (cost.wood ?? 0));
+    expect(state.resources.stone).toBe(before.stone - (cost.stone ?? 0));
   });
 
   it('dolu karoyu reddeder', () => {
@@ -119,7 +122,8 @@ describe('yerlestirme kurallari', () => {
     if (!placed.ok) throw new Error('kurulum basarisiz');
     const before = state.resources.wood;
     buildings.demolish(placed.building.uid);
-    expect(state.resources.wood).toBe(before + 20);
+    const paidWood = levelOf(getBuilding('house'), 1)!.buildCost!.wood ?? 0;
+    expect(state.resources.wood).toBe(before + paidWood / 2);
   });
 });
 

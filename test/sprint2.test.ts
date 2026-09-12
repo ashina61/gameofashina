@@ -5,7 +5,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import { GameState } from '@/core/GameState';
 import { migrateAndSanitize } from '@/core/SaveManager';
-import { getBuilding, levelOf } from '@/config/BuildingCatalog';
+import { getBuilding, levelOf, maxLevelOf } from '@/config/BuildingCatalog';
 import { BASE_STORAGE_CAPACITY, SAVE_VERSION } from '@/config/Constants';
 import { resolveUpgradeOption } from '@/systems/BuildingResolver';
 import { blockSpot, hallSpot, makeWorld, wrap } from './helpers';
@@ -171,9 +171,18 @@ describe('UpgradeSystem', () => {
     w.state.setResource('wood', 5000);
     w.state.setResource('stone', 5000);
 
-    expect(w.upgrades.requestUpgrade(building.uid).ok).toBe(true);
-    w.simulation.advance(45);
-    expect(building.level).toBe(2); // katalogdaki en yuksek seviye
+    /*
+     * KATALOGDAKI EN YUKSEK seviyeye kadar cikilir.
+     *
+     * Sabit "2" yazmak, katalog Sprint 15'te seviye 3 kazaninca testi
+     * kirdi. Sinir katalogdan okunursa yeni seviyeler testi bozmaz.
+     */
+    const top = maxLevelOf(getBuilding(building.type));
+    for (let level = building.level; level < top; level += 1) {
+      expect(w.upgrades.requestUpgrade(building.uid).ok).toBe(true);
+      w.simulation.advance(400);
+    }
+    expect(building.level).toBe(top);
 
     expect(w.upgrades.requestUpgrade(building.uid)).toEqual({ ok: false, reason: 'max_level' });
   });

@@ -323,21 +323,40 @@ describe('ekonominin olculen yapisi', () => {
     expect(woodProducers.map((d) => d.id)).toEqual(['lumber_camp']);
   });
 
-  it('ALTIN GIDERI GERCEK: her yukseltme altin ister', () => {
+  it('ALTIN GIDERI GERCEK: altin uretmeyen her yukseltme altin ister', () => {
     /*
      * Sprint 11'de altinin tum oyunda tek gideri vardi (sehir merkezi Sv.2)
      * ve Pazar'in urettigi altinin alicisi yoktu. Sprint 12'de her
      * yukseltmeye altin bileseni eklendi: Pazar -> altin -> yukseltme
      * zinciri artik kapali bir devre.
+     *
+     * SPRINT 15 ISTISNASI: SEHIR MERKEZI
+     * 60 dakikalik olcum kuralin tek bir yerde ters teptigini gosterdi.
+     * Sehir merkezi sehrin ana altin kaynagidir; yukseltmesi de altin
+     * isteyince oyuncu kendi gelirini artirmak icin dakikada 2 altinla
+     * yarim saat biriktirmek zorunda kaliyordu ve 39 binalik sehirler
+     * 60. dakikada 1 altinla kaliyordu.
+     *
+     * Kural artik sudur: bir kaynagi ureten bina, o kaynakla kilitlenemez.
+     * Sprint 12'nin oduncu kampindan odun maliyetini kaldirmasiyla ayni
+     * ilke - burada altin uzerinde. Istisna DAR tutulur: yalnizca altin
+     * ureten binalar muaf, o da sadece kendi Sv.2+ yukseltmelerinde.
      */
     const upgradesWithoutGold: string[] = [];
     for (const def of allBuildings()) {
+      if (def.id === 'town_hall') continue;
       for (const entry of def.levels) {
         if (entry.level === 1) continue;
         if ((entry.upgradeCost?.gold ?? 0) <= 0) upgradesWithoutGold.push(`${def.id}:Sv${entry.level}`);
       }
     }
     expect(upgradesWithoutGold).toEqual([]);
+
+    // Istisnanin kendisi de kilitli: sehir merkezi yukseltmesi altin ISTEMEZ.
+    for (const entry of allBuildings().find((d) => d.id === 'town_hall')!.levels) {
+      if (entry.level === 1) continue;
+      expect(entry.upgradeCost?.gold ?? 0, `town_hall Sv${entry.level}`).toBe(0);
+    }
 
     /*
      * Altin uretenler: Pazar ve Sehir Merkezi (Sprint 12), Tapinak ve

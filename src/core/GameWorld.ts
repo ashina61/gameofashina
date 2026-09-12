@@ -1,4 +1,5 @@
 import { AUTOSAVE_INTERVAL_MS } from '@/config/Constants';
+import type { CityModifiers } from '@/types';
 import { EventBus } from './EventBus';
 import { GameState } from './GameState';
 import { SaveManager } from './SaveManager';
@@ -10,6 +11,7 @@ import { EconomySystem } from '@/systems/EconomySystem';
 import { PopulationSystem } from '@/systems/PopulationSystem';
 import { BuildingPlotSystem } from '@/systems/BuildingPlotSystem';
 import { CityDecorSystem } from '@/systems/CityDecorSystem';
+import { ResearchSystem } from '@/systems/ResearchSystem';
 import { NavigationSystem } from '@/systems/NavigationSystem';
 import { ResourceSystem } from '@/systems/ResourceSystem';
 import { WorkforceSystem } from '@/systems/WorkforceSystem';
@@ -29,6 +31,7 @@ export class GameWorld {
   readonly state: GameState;
   readonly resources: ResourceSystem;
   readonly construction: ConstructionSystem;
+  readonly research: ResearchSystem;
   readonly plots: BuildingPlotSystem;
   /** Sehir cevresi dekoru - yalnizca gorsel, kayda yazilmaz. */
   readonly decor: CityDecorSystem;
@@ -56,6 +59,14 @@ export class GameWorld {
     this.loadedFromSave = loadedFromSave;
     this.resources = new ResourceSystem(state, this.bus);
     this.construction = new ConstructionSystem(state, this.resources, this.bus);
+    /*
+     * Arastirma, KAYNAK sisteminden sonra kurulur (maliyeti o dusuyor) ama
+     * carpanlarini ondan once kurulan sistemler de okumak zorunda. Bu
+     * yuzden carpan kaynagi GEC BAGLANIR; asagida bindModifiers ile.
+     */
+    this.research = new ResearchSystem(state, this.resources, this.bus);
+    const modifiers = (): CityModifiers => this.research.modifiers;
+    this.resources.bindModifiers(modifiers);
     // Yapi alanlari zeminden turer; zemin seed'den. Kayda yazilmaz.
     this.plots = new BuildingPlotSystem(state.grid);
     this.buildings = new BuildingSystem(
@@ -73,12 +84,17 @@ export class GameWorld {
     this.navigation = new NavigationSystem(state.grid);
     this.workforce = new WorkforceSystem(state, this.bus, this.navigation);
     this.economy = new EconomySystem(state, this.resources, this.population, this.bus);
+    this.economy.bindModifiers(modifiers);
+    this.buildings.bindModifiers(modifiers);
+    // Kayit, arastirma durumunu ResearchSystem'den okur; GameState kurali bilmez.
+    state.bindResearchReader(() => this.research.toSave());
     this.simulation = new Simulation(
       state,
       this.construction,
       this.population,
       this.workforce,
       this.economy,
+      this.research,
     );
 
     /*

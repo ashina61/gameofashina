@@ -7,7 +7,7 @@ import { GameState } from '@/core/GameState';
 import { SimulationClock } from '@/core/SimulationClock';
 import { migrateAndSanitize } from '@/core/SaveManager';
 import { resolveBuilding, resolveRefund } from '@/systems/BuildingResolver';
-import { getBuilding, levelOf } from '@/config/BuildingCatalog';
+import { getBuilding, levelOf, maxLevelOf } from '@/config/BuildingCatalog';
 import { SAVE_VERSION } from '@/config/Constants';
 import type { BuildingInstance, SaveData } from '@/types';
 
@@ -67,7 +67,10 @@ describe('bina olusturma ve seviye', () => {
     ]);
     const restored = GameState.fromSave(migrateAndSanitize(save)!);
     const levels = [...restored.buildings.values()].map((b) => b.level).sort();
-    expect(levels).toEqual([1, 2]); // 99 -> maxLevel(2), -3 -> 1
+    // 99 -> katalogdaki en yuksek seviye, -3 -> 1. Sinir SABIT yazilmaz;
+    // katalog yeni bir seviye kazandiginda test kendiliginde uyar.
+    const top = maxLevelOf(getBuilding('house'));
+    expect(levels).toEqual([1, top]);
   });
 });
 
@@ -123,8 +126,9 @@ describe('BuildingResolver', () => {
   });
 
   it('yukseltme secenegi son seviyede null olur', () => {
+    const top = maxLevelOf(def);
     expect(resolveBuilding(instance(1), def, 0).upgrade?.toLevel).toBe(2);
-    expect(resolveBuilding(instance(2), def, 0).upgrade).toBeNull();
+    expect(resolveBuilding(instance(top), def, 0).upgrade).toBeNull();
   });
 
   it('iade, o seviyeye kadar yatirilan toplamin yarisidir', () => {
@@ -297,7 +301,14 @@ describe('v1 kayit goc yolu', () => {
       resources: { food: 11, wood: 22, stone: 33, gold: 44 },
       buildings: [],
     };
-    expect(migrateAndSanitize(legacy)!.resources).toEqual({ food: 11, wood: 22, stone: 33, gold: 44 });
+    // Bilgi Sprint 15'te eklendi; eski kayitta yok ve sifirdan baslar.
+    expect(migrateAndSanitize(legacy)!.resources).toEqual({
+      food: 11,
+      wood: 22,
+      stone: 33,
+      gold: 44,
+      knowledge: 0,
+    });
   });
 
   it('gelecekteki bilinmeyen surum reddedilir', () => {

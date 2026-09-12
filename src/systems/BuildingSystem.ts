@@ -1,5 +1,6 @@
 import { getBuilding } from '@/config/BuildingCatalog';
 import {
+  NO_MODIFIERS,
   buildCostOf,
   buildTimeTicksOf,
   resolveBuilding,
@@ -14,6 +15,7 @@ import type { ResourceSystem } from './ResourceSystem';
 import type {
   BuildingDefinition,
   BuildingId,
+  CityModifiers,
   BuildingInstance,
   ResolvedBuilding,
   ResourceAmounts,
@@ -84,6 +86,21 @@ export class BuildingSystem {
     this.construction = construction;
     this.bus = bus;
     this.plots = plots;
+  }
+
+  /**
+   * Sehir capindaki arastirma carpanlarini okuyan yordam.
+   *
+   * GEC BAGLANIR: ResearchSystem bu sistemden SONRA kuruluyor (arastirma
+   * kaynak sistemine bagimli), bu yuzden kurucuya veremiyoruz. Baglanana
+   * kadar notr carpanlar gecerlidir, yani sistem kendi basina da dogru
+   * calisir - eksik bag sessiz bir hataya donusmez.
+   */
+  private modifiers: () => CityModifiers = () => NO_MODIFIERS;
+
+  /** Arastirma sistemini baglar; GameWorld kurulum sirasinda cagirir. */
+  bindModifiers(source: () => CityModifiers): void {
+    this.modifiers = source;
   }
 
   /** Verilen tur icin insa edilebilir yapi alanlari. */
@@ -252,7 +269,12 @@ export class BuildingSystem {
 
   /** Bir bina ornegini hesaplanmis degerleriyle birlikte dondurur. */
   resolve(building: BuildingInstance): ResolvedBuilding {
-    return resolveBuilding(building, getBuilding(building.type), this.state.tick);
+    return resolveBuilding(
+      building,
+      getBuilding(building.type),
+      this.state.tick,
+      this.modifiers(),
+    );
   }
 
   /** Verilen hucreyi kaplayan binayi dondurur; bossa null. */

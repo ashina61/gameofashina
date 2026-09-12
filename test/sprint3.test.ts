@@ -246,20 +246,46 @@ describe('isci dagitimi', () => {
     const world = makeWorld();
     const c = area(world);
     world.buildings.place('house', c.gx, c.gy); // kapasite 5
-    const first = placeAnywhere(world, 'farm'); // 2 isci
-    const second = placeAnywhere(world, 'lumber_camp'); // 3 isci
-    const third = placeAnywhere(world, 'farm'); // 2 isci
+    const first = placeAnywhere(world, 'farm');
+    const second = placeAnywhere(world, 'lumber_camp');
+    const third = placeAnywhere(world, 'farm');
     settlePopulation(world);
 
-    // Toplam ihtiyac 7, kapasite 5. Sprint 8'den beri sira OTOMATIK degil;
-    // oyuncu hangi binayi doldurdugunu kendi secer. Once ilk ikisi doldurulur,
-    // ucuncuye isci kalmaz.
+    /*
+     * Kapasite 5 isci; toplam ihtiyac bundan fazla. Sprint 8'den beri sira
+     * OTOMATIK degil; oyuncu hangi binayi doldurdugunu kendi secer. Ilk iki
+     * bina sirayla doyurulur, kalan ucuncuye gider.
+     *
+     * Beklenen rakamlar KATALOGDAN turetilir: Sprint 15'te oduncu kampinin
+     * kadrosu 3'ten 2'ye indi ve sabit "3" yazdigi icin bu test kirilmisti.
+     */
+    const needOf = (type: 'farm' | 'lumber_camp'): number =>
+      levelOf(getBuilding(type), 1)?.workerRequirement ?? 0;
+    const firstNeed = needOf('farm');
+    const secondNeed = needOf('lumber_camp');
+
     expect(world.state.population).toBe(5);
     staff(world, first.uid);
     staff(world, second.uid);
     staff(world, third.uid);
-    expect(first.assignedWorkers).toBe(2);
-    expect(second.assignedWorkers).toBe(3);
+    expect(first.assignedWorkers).toBe(firstNeed);
+    expect(second.assignedWorkers).toBe(secondNeed);
+
+    /*
+     * Ucuncu bina bos kalir. Iki ayri sebep birden gecerli ve ikisi de
+     * onemli: kalan isci sayisi ihtiyacinin altinda, ve bina hala insaat
+     * kuyrugunda oldugu icin zaten kadro alamaz.
+     *
+     * Bu ayrimi Sprint 15 denge ayari ortaya cikardi: oduncu kampinin
+     * kadrosu 3'ten 2'ye inince bir isci bosta kaldi ve "kalan isci
+     * ucuncuye gider" varsayimi yanlislandi - bina operasyonel degildi.
+     * Eski testin dogru sonucu, yanlis gerekceyle dogruluyordu.
+     */
+    expect(world.workforce.snapshot.idle).toBeLessThan(
+      levelOf(getBuilding('farm'), 1)?.workerRequirement ?? 0,
+    );
+    expect(third.state).toBe('constructing');
+    expect(world.workforce.assign(third.uid)).toEqual({ ok: false, reason: 'not_operational' });
     expect(third.assignedWorkers).toBe(0);
   });
 

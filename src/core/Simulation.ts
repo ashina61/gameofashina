@@ -2,6 +2,7 @@ import { MAX_OFFLINE_SECONDS, OFFLINE_CHUNK_TICKS, TICKS_PER_SECOND } from '@/co
 import type { GameState } from './GameState';
 import type { ConstructionSystem } from '@/systems/ConstructionSystem';
 import type { EconomySystem } from '@/systems/EconomySystem';
+import type { ResearchSystem } from '@/systems/ResearchSystem';
 import type { PopulationSystem } from '@/systems/PopulationSystem';
 import type { WorkforceSystem } from '@/systems/WorkforceSystem';
 
@@ -33,6 +34,7 @@ export class Simulation {
   private readonly population: PopulationSystem;
   private readonly workforce: WorkforceSystem;
   private readonly economy: EconomySystem;
+  private readonly research: ResearchSystem;
 
   constructor(
     state: GameState,
@@ -40,12 +42,14 @@ export class Simulation {
     population: PopulationSystem,
     workforce: WorkforceSystem,
     economy: EconomySystem,
+    research: ResearchSystem,
   ) {
     this.state = state;
     this.construction = construction;
     this.population = population;
     this.workforce = workforce;
     this.economy = economy;
+    this.research = research;
   }
 
   /** Simulasyonu verilen tik kadar ilerletir. */
@@ -56,6 +60,14 @@ export class Simulation {
 
     this.state.advanceTick(whole);
     this.construction.advance(options);
+    /*
+     * Arastirma insaattan SONRA, ekonomiden ONCE ilerletilir.
+     *
+     * Sira onemli: tamamlanan bir arastirmanin carpani AYNI pencerenin
+     * uretimine girsin. Ekonomiden sonra ilerletmek, teknolojinin bir
+     * pencere gec devreye girmesine yol acardi.
+     */
+    this.research.advance();
     this.population.advance(whole, options);
     // Once yeni/giden isciler hizalanir, sonra yoldakiler ilerler; boylece
     // ayni pencerede varan isci o pencerenin uretimine katilir.

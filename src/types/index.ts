@@ -4,7 +4,14 @@
  */
 
 /** Depolanabilir kaynak turleri. */
-export type ResourceKey = 'food' | 'wood' | 'stone' | 'gold';
+/**
+ * Kaynak turleri.
+ *
+ * Sprint 15'te 'knowledge' (Bilgi) eklendi: Akademi uretir, arastirma
+ * harcar. Depo tavanina digerleriyle ayni kurallarla tabidir; ayri bir
+ * kaynak sinifi yaratmak ekonominin tek gecerli kuralini ikiye bolerdi.
+ */
+export type ResourceKey = 'food' | 'wood' | 'stone' | 'gold' | 'knowledge';
 
 /** Kaynak miktarlarinin kismi haritasi (uretim, maliyet vb. icin). */
 export type ResourceAmounts = Partial<Record<ResourceKey, number>>;
@@ -31,6 +38,7 @@ export type BuildingId =
   | 'town_hall'
   | 'temple'
   | 'harbor'
+  | 'academy'
   | 'house'
   | 'farm'
   | 'lumber_camp'
@@ -381,6 +389,60 @@ export interface DecorItem {
   offsetV: number;
 }
 
+/** Arastirma kimlikleri. */
+export type ResearchId =
+  | 'advanced_farming'
+  | 'stonecutting'
+  | 'forestry'
+  | 'trade_routes'
+  | 'guild_order';
+
+/**
+ * Bir arastirmanin sehre etkisi.
+ *
+ * TEK MEKANIK: carpanlar. Arastirma yeni bir kural getirmez, var olan
+ * uretim ve kadro sayilarini olcekler. Boylece etki her yerde ayni yoldan
+ * (BuildingResolver) uygulanir ve arayuz de dogru sayiyi gosterir.
+ */
+export interface ResearchEffect {
+  /** Kaynak basina uretim carpani (1.3 = +%30). */
+  productionMultiplier?: Partial<Record<ResourceKey, number>>;
+  /** Isci isteyen her binanin kadro kapasitesine eklenen slot. */
+  workerSlotBonus?: number;
+}
+
+/** Arastirma tanimi (statik veri). */
+export interface ResearchDefinition {
+  id: ResearchId;
+  name: string;
+  description: string;
+  /** Baslatma maliyeti; altin ve bilgi ister. */
+  cost: ResourceAmounts;
+  /** Tamamlanma suresi, saniye. */
+  duration: number;
+  /** Baslayabilmek icin gereken Akademi seviyesi. */
+  requiredAcademyLevel: number;
+  effect: ResearchEffect;
+}
+
+/** Devam eden arastirma. */
+export interface ActiveResearch {
+  id: ResearchId;
+  startedAtTick: number;
+  completesAtTick: number;
+}
+
+/**
+ * Sehir capinda gecerli carpanlar.
+ *
+ * Arastirmalardan TURETILIR; kendi basina bir durum degildir. Tamamlanan
+ * arastirma listesi tek gercektir, carpanlar ondan hesaplanir.
+ */
+export interface CityModifiers {
+  production: Partial<Record<ResourceKey, number>>;
+  workerSlotBonus: number;
+}
+
 /** Tek bir izgara hucresinin durumu. */
 export interface TileData {
   gx: number;
@@ -409,6 +471,16 @@ export interface SaveData {
    * yuzden kayit surumu artirilmadi.
    */
   gridSize?: number;
+  /**
+   * Arastirma durumu.
+   *
+   * Sprint 15'te eklendi ve geriye donuk UYUMLUDUR: alan yoksa hicbir
+   * arastirma yapilmamistir. Bu yuzden kayit surumu artirilmadi.
+   */
+  research?: {
+    completed: string[];
+    active: { id: string; startedAtTick: number; completesAtTick: number } | null;
+  };
   /**
    * Sehirdeki vatandas sayisi.
    * v3 icine geriye donuk uyumlu eklendi: eksikse eski kaydin isci ihtiyaci

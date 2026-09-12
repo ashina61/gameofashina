@@ -1,12 +1,16 @@
 import Phaser from 'phaser';
 import { RESOURCE_META, RESOURCE_ORDER, SceneKeys } from '@/config/Constants';
 import { getBuilding } from '@/config/BuildingCatalog';
-import { resolveBuildPreview } from '@/systems/BuildingResolver';
+import { allResearch, getResearch } from '@/config/ResearchCatalog';
+import { RESEARCH_BADGES } from '@/systems/ResearchSystem';
+import type { ResearchError } from '@/systems/ResearchSystem';
+import { resolveBuildPreview, ticksToSeconds } from '@/systems/BuildingResolver';
 import { PLACEMENT_MESSAGES } from '@/systems/BuildingSystem';
 import { BottomNav } from '@/ui/BottomNav';
 import type { NavTab } from '@/ui/BottomNav';
 import { BuildMenu } from '@/ui/BuildMenu';
 import { CityPanel } from '@/ui/CityPanel';
+import { ResearchPanel } from '@/ui/ResearchPanel';
 import { InfoPanel } from '@/ui/InfoPanel';
 import type { WorkerPanelInfo } from '@/ui/InfoPanel';
 import { ResourceBar } from '@/ui/ResourceBar';
@@ -15,7 +19,7 @@ import { NotificationStack } from '@/ui/Notifications';
 import { RoundButton } from '@/ui/RoundButton';
 import { TouchButton } from '@/ui/TouchButton';
 import { UISpacing, UIText } from '@/ui/UIStyle';
-import { formatElapsed } from '@/utils/Format';
+import { formatDuration, formatElapsed } from '@/utils/Format';
 import { insetsEqual, onSafeAreaChange, readSafeAreaInsets, zeroInsets } from '@/utils/SafeArea';
 import { toLogical } from '@/utils/RenderScale';
 import { getResolution, getWorld } from './BootScene';
@@ -57,6 +61,7 @@ export class UIScene extends Phaser.Scene {
   private cancelButton!: TouchButton;
   private nav!: BottomNav;
   private cityPanel!: CityPanel;
+  private researchPanel!: ResearchPanel;
 
   /**
    * Depo uyarisinin en son verildigi kaynak kumesi.
@@ -107,8 +112,15 @@ export class UIScene extends Phaser.Scene {
       plotAt: (gx, gy) => this.world.plots.plotAt(gx, gy),
       onClose: () => this.world.bus.emit('tile:selected', null),
       onShowWorkers: () => this.selectTab('workers'),
+      onShowResearch: () => this.openResearch(),
     });
     this.cityPanel = new CityPanel(this, width, height, () => this.closePanels());
+    this.researchPanel = new ResearchPanel(this, width, height, {
+      stateOf: (id) => this.researchRowState(id),
+      activeInfo: () => this.activeResearchInfo(),
+      onStart: (id) => this.world.bus.emit('ui:start-research', id),
+      onClose: () => this.closePanels(),
+    });
     this.nav = new BottomNav(this, width, (tab) => this.selectTab(tab));
     this.notices = new NotificationStack(this, width, ResourceBar.height + 10, 62);
 
@@ -167,7 +179,11 @@ export class UIScene extends Phaser.Scene {
     this.time.addEvent({
       delay: 500,
       loop: true,
-      callback: () => this.infoPanel.tick(this.world.tick),
+      callback: () => {
+        this.infoPanel.tick(this.world.tick);
+        // Arastirma arka planda ilerliyor; panel acikken kalan sure canli kalmali.
+        if (this.researchPanel.isOpen) this.researchPanel.refresh();
+      },
     });
 
     // Kenar paylari ekran boyutu degismeden de degisebilir; ayrica dinlenir.
@@ -217,6 +233,12 @@ export class UIScene extends Phaser.Scene {
     if (this.cityPanel.isOpen && Phaser.Geom.Rectangle.Contains(this.cityPanel.bounds(), screenX, screenY)) {
       return true;
     }
+    if (
+      this.researchPanel.isOpen &&
+      Phaser.Geom.Rectangle.Contains(this.researchPanel.bounds(), screenX, screenY)
+    ) {
+      return true;
+    }
     // Alt gezinme cubugu her zaman girdiyi yakalar; arkasindaki haritaya
     // dokunmak sehri yanlislikla degistirirdi.
     if (Phaser.Geom.Rectangle.Contains(this.nav.bounds(), screenX, screenY)) return true;
@@ -239,6 +261,7 @@ export class UIScene extends Phaser.Scene {
     bus.on('building:completed', this.onBuildingCompleted, this);
     bus.on('construction:completed', this.onConstructionCompleted, this);
     bus.on('workforce:changed', this.onWorkforce, this);
+    bus.on('research:completed', this.onResearchCompleted, this);
   }
 
   /**
@@ -390,6 +413,7 @@ export class UIScene extends Phaser.Scene {
       this.buildMenu.hide();
     }
     this.cityPanel.hide();
+    this.researchPanel.hide();
     this.nav.setActiveTab(null);
 
     const building = tile.occupantUid
@@ -402,6 +426,18 @@ export class UIScene extends Phaser.Scene {
   private onNotify(message: string, tone: 'info' | 'success' | 'error'): void {
     // Olay yolundan gelen bildirimler tek satirlik; baslik onlarin kendisi.
     this.notices.show(message, '', tone === 'error' ? 'error' : tone, 2600);
+  }
+
+  /** Arastirma bitti: bildir ve acik paneli tazele. */
+  private onResearchCompleted(active: { id: string }): void {
+    const def = getResearch(active.id);
+    this.notices.show(
+      'Arastirma tamamlandi!',
+      def?.description ?? def?.name ?? active.id,
+      'success',
+      3600,
+    );
+    if (this.researchPanel.isOpen) this.researchPanel.refresh();
   }
 
   private onBuildingCompleted(building: BuildingInstance): void {
@@ -442,6 +478,7 @@ export class UIScene extends Phaser.Scene {
     } else {
       this.infoPanel.hide();
       this.cityPanel.hide();
+      this.researchPanel.hide();
       this.buildMenu.show();
       this.nav.setActiveTab('buildings');
     }
@@ -529,6 +566,7 @@ export class UIScene extends Phaser.Scene {
     this.buildMenu.layout(width, height, panelInset);
     this.infoPanel.layout(width, height, panelInset);
     this.cityPanel.layout(width, height, panelInset);
+    this.researchPanel.layout(width, height, panelInset);
     this.notices.layout(width, top + ResourceBar.height + 10, 62);
 
     /*
@@ -561,6 +599,7 @@ export class UIScene extends Phaser.Scene {
     }
     this.infoPanel.hide();
     this.cityPanel.hide();
+    this.researchPanel.hide();
     this.nav.setActiveTab(null);
     this.relayout();
   }
@@ -621,6 +660,55 @@ export class UIScene extends Phaser.Scene {
     this.relayout();
   }
 
+  /** Akademi panelinden gelen istek: arastirma sayfasini acar. */
+  private openResearch(): void {
+    this.closePanels();
+    this.researchPanel.show();
+    this.relayout();
+  }
+
+  /** Bir arastirmanin oyuncuya gorunen durumu. */
+  private researchRowState(id: string): {
+    done: boolean;
+    active: boolean;
+    startable: boolean;
+    blocked: string;
+  } {
+    const research = this.world.research;
+    const done = research.completed.has(id as never);
+    const active = research.active?.id === id;
+    if (done || active) return { done, active, startable: false, blocked: '' };
+
+    const check = research.canStart(id);
+    if (check.ok) return { done: false, active: false, startable: true, blocked: '' };
+
+    /*
+     * Satirda ROZET metni kullanilir, bildirim cumlesi degil: satir dar ve
+     * uzun metin teknoloji adinin uzerine biniyordu. Akademi seviyesi
+     * sarti tanimdan okunur, boylece rozet gercek gereksinimi soyler.
+     */
+    const reason = (check as { reason: ResearchError }).reason;
+    const needed = getResearch(id)?.requiredAcademyLevel ?? 2;
+    return {
+      done: false,
+      active: false,
+      startable: false,
+      blocked: reason === 'academy_level' ? `AKADEMI Sv.${needed}` : RESEARCH_BADGES[reason],
+    };
+  }
+
+  /** Devam eden arastirmanin adi, kalan suresi ve ilerlemesi. */
+  private activeResearchInfo(): { name: string; remaining: string; progress: number } | null {
+    const active = this.world.research.active;
+    if (!active) return null;
+    const def = getResearch(active.id);
+    return {
+      name: def?.name ?? active.id,
+      remaining: `${formatDuration(ticksToSeconds(this.world.research.remainingTicks))} kaldi`,
+      progress: this.world.research.progress,
+    };
+  }
+
   private showPopulationPanel(): void {
     const eco = this.world.economy.snapshot;
     const food = eco.netPerMinute.food ?? 0;
@@ -674,6 +762,13 @@ export class UIScene extends Phaser.Scene {
         { label: 'Depo kapasitesi', value: `${capacity}` },
         { label: 'Dolan kaynak', value: `${full}`, highlight: full > 0 },
         { label: 'Verim', value: `%${Math.round(eco.efficiency * 100)}`, highlight: eco.efficiency < 1 },
+        {
+          label: 'Arastirma',
+          value: this.world.research.active
+            ? 'suruyor'
+            : `${this.world.research.completed.size}/${allResearch().length}`,
+          highlight: this.world.research.active !== null,
+        },
       ],
       full > 0 ? 'Depo doldu: Ambar kur ya da harca.' : 'Uretim depoya sigiyor.',
     );
@@ -684,6 +779,7 @@ export class UIScene extends Phaser.Scene {
     if (this.buildMenu.isOpen) return BuildMenu.height;
     if (this.infoPanel.isOpen) return InfoPanel.height;
     if (this.cityPanel.isOpen) return CityPanel.height;
+    if (this.researchPanel.isOpen) return ResearchPanel.height;
     return 0;
   }
 
@@ -713,6 +809,7 @@ export class UIScene extends Phaser.Scene {
     bus.off('building:completed', this.onBuildingCompleted, this);
     bus.off('construction:completed', this.onConstructionCompleted, this);
     bus.off('workforce:changed', this.onWorkforce, this);
+    bus.off('research:completed', this.onResearchCompleted, this);
     this.stopResolutionWatch?.();
     this.stopResolutionWatch = null;
     this.scale.off(Phaser.Scale.Events.RESIZE, this.onResize, this);

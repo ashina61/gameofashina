@@ -12,7 +12,7 @@
 import type { BuildingState } from '@/types';
 
 /** Gorsel olarak ayri cizilen en yuksek seviye. Ustu bu seviyeyi kullanir. */
-export const MAX_VISUAL_LEVEL = 2;
+export const MAX_VISUAL_LEVEL = 3;
 
 /**
  * Tur basina SILUET varyant sayisi.
@@ -42,6 +42,7 @@ export const DRAWN_BUILDING_TYPES = [
   'town_hall',
   'temple',
   'harbor',
+  'academy',
   'house',
   'farm',
   'lumber_camp',

@@ -180,15 +180,22 @@ check('4', 'uretim yalnizca VARISTAN sonra basliyor',
 // --- 5-6. Ayni binaya birden cok isci; AYRI noktalarda -----------------------
 const crew = await W((u) => {
   const w = window.game.scene.getScene('CityScene').registry.get('world');
-  w.bus.emit('ui:assign-worker', u);
-  w.bus.emit('ui:assign-worker', u);
+  // Binayi KAPASITESINE kadar doldur. Kapasite katalogdan gelir; sabit bir
+  // sayi beklemek denge ayarinda kirilir (Sprint 15'te kamp 3'ten 2'ye indi).
+  const capacity = w.workforce.capacityOf(u);
+  for (let i = 0; i < capacity + 2; i += 1) w.bus.emit('ui:assign-worker', u);
   for (let i = 0; i < 60 && w.workforce.snapshot.moving > 0; i += 1) w.simulation.advance(1);
   const list = w.state.workers.filter((k) => k.buildingUid === u);
   const spots = new Set(list.map((k) => `${k.toX.toFixed(2)},${k.toY.toFixed(2)}`));
   const slots = new Set(list.map((k) => k.slot));
-  return { count: list.length, unique: spots.size, slots: [...slots].sort(), spots: [...spots] };
+  return {
+    count: list.length, capacity,
+    unique: spots.size, slots: [...slots].sort(), spots: [...spots],
+  };
 }, setup.lumber);
-check('5', 'ayni binaya birden cok isci atanabiliyor', crew.count >= 3, `kadro=${crew.count}`);
+check('5', 'ayni binaya birden cok isci atanabiliyor - kadro kapasiteye kadar doluyor',
+  crew.count === crew.capacity && crew.count >= 2,
+  `kadro=${crew.count}/${crew.capacity}`);
 check('6', 'isciler AYRI noktalarda duruyor - ust uste binmiyor',
   crew.unique === crew.count && crew.slots.length === crew.count,
   `${crew.count} isci, ${crew.unique} farkli nokta, yerler=${crew.slots}`);

@@ -8,6 +8,8 @@ export const STARTING_RESOURCES: ResourcePool = {
   wood: 220,
   stone: 140,
   gold: 60,
+  // Bilgi sifirdan baslar: Akademi kurulmadan arastirma yapilamaz.
+  knowledge: 0,
 };
 
 /** Izometrik karo genisligi (piksel). */
@@ -225,7 +227,7 @@ export const TextureKeys = {
 } as const;
 
 /** Kaynak turlerinin sabit sirasi - arayuzde tutarli siralama saglar. */
-export const RESOURCE_ORDER = ['food', 'wood', 'stone', 'gold'] as const;
+export const RESOURCE_ORDER = ['food', 'wood', 'stone', 'gold', 'knowledge'] as const;
 
 /** Kaynaklarin kullaniciya gosterilen adlari ve renkleri. */
 export const RESOURCE_META = {
@@ -233,4 +235,5 @@ export const RESOURCE_META = {
   wood: { label: 'Odun', color: 0xa9743f, icon: 'O' },
   stone: { label: 'Tas', color: 0x9aa3ab, icon: 'T' },
   gold: { label: 'Altin', color: 0xe8c86a, icon: 'A' },
+  knowledge: { label: 'Bilgi', color: 0x7fb0d8, icon: 'B' },
 } as const;

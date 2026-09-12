@@ -291,8 +291,23 @@ describe('ekonomi temeli - Sprint 11 bulgulari', () => {
         .filter((l) => l.level > 1 && (l.upgradeCost?.gold ?? 0) > 0)
         .map((l) => `${def.id}:Sv${l.level}`),
     );
-    // Her binanin Sv.2'si altin ister - hicbiri disarida degil.
-    expect(goldSinks.length).toBe(allBuildings().length);
+    /*
+     * Her binanin SEVIYE 1'IN USTUNDEKI her yukseltmesi altin ister.
+     *
+     * Once "her bina bir altin gideri" diye sayiliyordu; Sprint 15 ucuncu
+     * seviyeyi ekleyince bina basina iki gider oldu. Dogru degismez kural,
+     * altin istemeyen bir yukseltmenin HIC OLMAMASIDIR.
+     *
+     * TEK ISTISNA SEHIR MERKEZI (Sprint 15): sehrin altin kaynagi kendi
+     * buyumesi icin altin isteyemez - yoksa oyuncu gelirini artirmak icin
+     * gelirini biriktirmek zorunda kalir. Gerekcesi sprint11 testindeki
+     * "ALTIN GIDERI GERCEK" maddesinde ayrintili.
+     */
+    const upgradeCount = allBuildings().reduce(
+      (sum, def) => sum + (def.id === 'town_hall' ? 0 : def.levels.filter((l) => l.level > 1).length),
+      0,
+    );
+    expect(goldSinks.length).toBe(upgradeCount);
     expect((levelOf(getBuilding('market'), 1)?.production?.gold ?? 0)).toBeGreaterThan(0);
   });
 

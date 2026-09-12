@@ -9,6 +9,7 @@ import {
   TICKS_PER_SECOND,
 } from '@/config/Constants';
 import { allBuildings, clampLevel, getBuilding, isKnownBuildingId, levelOf } from '@/config/BuildingCatalog';
+import { isKnownResearchId } from '@/config/ResearchCatalog';
 import { buildCostOf, resolveUpgradeOption } from '@/systems/BuildingResolver';
 import type {
   BuildingConstruction,
@@ -127,7 +128,56 @@ export function migrateAndSanitize(input: unknown): SaveData | null {
         : LEGACY_GRID_SIZE,
     population: sanitizePopulation(data.population, buildings),
     workers: sanitizeWorkerRecords(data.workers, buildings),
+    research: sanitizeResearch(data.research),
   };
+}
+
+/**
+ * Arastirma durumunu dogrular.
+ *
+ * Alan yoksa (Sprint 14 ve oncesi kayitlar) BOS bir durum doner: sehir
+ * hicbir arastirma yapmamis sayilir. Undefined yerine normalize edilmis
+ * bos durum donmek, okuyan tarafta "alan var mi?" kontrolunu ortadan
+ * kaldirir - tek bicim, tek yol.
+ *
+ * Taninmayan kimlikler SESSIZCE atilir: katalogdan cikarilmis bir
+ * teknoloji kaydi bozmamali.
+ */
+function sanitizeResearch(input: unknown): SaveData['research'] {
+  const empty = { completed: [] as string[], active: null };
+  if (typeof input !== 'object' || input === null) return empty;
+  const data = input as Record<string, unknown>;
+
+  const completed = Array.isArray(data.completed)
+    ? data.completed.filter((id): id is string => typeof id === 'string' && isKnownResearchId(id))
+    : [];
+
+  let active: SaveData['research'] extends infer T
+    ? T extends { active: infer A }
+      ? A
+      : never
+    : never = null;
+
+  const raw = data.active;
+  if (typeof raw === 'object' && raw !== null) {
+    const entry = raw as Record<string, unknown>;
+    const id = entry.id;
+    const started = entry.startedAtTick;
+    const completes = entry.completesAtTick;
+    if (
+      typeof id === 'string' &&
+      isKnownResearchId(id) &&
+      typeof started === 'number' &&
+      Number.isFinite(started) &&
+      typeof completes === 'number' &&
+      Number.isFinite(completes) &&
+      completes > started
+    ) {
+      active = { id, startedAtTick: Math.trunc(started), completesAtTick: Math.trunc(completes) };
+    }
+  }
+
+  return { completed, active };
 }
 
 /**

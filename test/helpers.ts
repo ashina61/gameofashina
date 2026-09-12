@@ -11,6 +11,7 @@ import { ResourceSystem } from '@/systems/ResourceSystem';
 import { ConstructionSystem } from '@/systems/ConstructionSystem';
 import { BuildingPlotSystem } from '@/systems/BuildingPlotSystem';
 import { CityDecorSystem } from '@/systems/CityDecorSystem';
+import { ResearchSystem } from '@/systems/ResearchSystem';
 import { BuildingSystem } from '@/systems/BuildingSystem';
 import { UpgradeSystem } from '@/systems/UpgradeSystem';
 import { EconomySystem } from '@/systems/EconomySystem';
@@ -26,6 +27,7 @@ export interface TestWorld {
   construction: ConstructionSystem;
   plots: BuildingPlotSystem;
   decor: CityDecorSystem;
+  research: ResearchSystem;
   buildings: BuildingSystem;
   upgrades: UpgradeSystem;
   population: PopulationSystem;
@@ -46,6 +48,9 @@ export function wrap(state: GameState): TestWorld {
   const bus = new EventBus();
   const resources = new ResourceSystem(state, bus);
   const construction = new ConstructionSystem(state, resources, bus);
+  const research = new ResearchSystem(state, resources, bus);
+  const modifiers = () => research.modifiers;
+  resources.bindModifiers(modifiers);
   const plots = new BuildingPlotSystem(state.grid);
   const decor = new CityDecorSystem(state.grid, plots);
   const buildings = new BuildingSystem(state, resources, construction, bus, plots);
@@ -54,7 +59,10 @@ export function wrap(state: GameState): TestWorld {
   const navigation = new NavigationSystem(state.grid);
   const workforce = new WorkforceSystem(state, bus, navigation);
   const economy = new EconomySystem(state, resources, population, bus);
-  const simulation = new Simulation(state, construction, population, workforce, economy);
+  economy.bindModifiers(modifiers);
+  buildings.bindModifiers(modifiers);
+  state.bindResearchReader(() => research.toSave());
+  const simulation = new Simulation(state, construction, population, workforce, economy, research);
 
   // GameWorld ile ayni sira.
   workforce.restorePositions();
@@ -70,6 +78,7 @@ export function wrap(state: GameState): TestWorld {
     construction,
     plots,
     decor,
+    research,
     buildings,
     upgrades,
     population,

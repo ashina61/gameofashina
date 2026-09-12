@@ -39,7 +39,7 @@ import type { BuildingId, BuildingPlot, GridPoint, PlotZone } from '@/types';
 const ZONE_TYPES: Record<PlotZone, BuildingId[]> = {
   civic: ['town_hall'],
   // Merkezin cevresi: ticaret, depo, sehrin aniti ve arada birkac konut.
-  commerce: ['market', 'warehouse', 'house', 'temple'],
+  commerce: ['market', 'warehouse', 'house', 'temple', 'academy'],
   // Konut kusagi: sehrin govdesi, kenarinda gida uretimi ve kiyi varsa liman.
   residential: ['house', 'farm', 'quarry', 'harbor'],
   /*

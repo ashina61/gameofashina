@@ -1,4 +1,5 @@
 import type {
+  ActiveResearch,
   BuildingInstance,
   ConstructionTask,
   EconomySnapshot,
@@ -32,6 +33,10 @@ export interface GameEvents {
   'construction:completed': [task: ConstructionTask];
   /** Insaat veya yukseltme gorevi iptal edildi. */
   'construction:cancelled': [task: ConstructionTask];
+  /** Arastirma basladi. */
+  'research:started': [active: ActiveResearch];
+  /** Arastirma tamamlandi; sehir carpanlari degisti. */
+  'research:completed': [active: ActiveResearch];
   'tile:selected': [tile: TileData | null];
   'placement:start': [defId: string];
   'placement:cancel': [];
@@ -45,6 +50,8 @@ export interface GameEvents {
   'ui:assign-worker': [uid: string];
   /** Oyuncu bu binadan bir isciyi geri cekmek istiyor. */
   'ui:release-worker': [uid: string];
+  /** Oyuncu bu arastirmayi baslatmak istiyor. */
+  'ui:start-research': [id: string];
 }
 
 type EventName = keyof GameEvents;

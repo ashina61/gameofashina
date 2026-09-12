@@ -263,6 +263,9 @@ describe('kuyruk', () => {
   });
 });
 
+/** Ev Sv.1'in odun maliyeti; denge ayarindan bagimsiz kalmak icin turetilir. */
+const HOUSE_WOOD = levelOf(getBuilding('house'), 1)!.buildCost!.wood ?? 0;
+
 // ---------------------------------------------------------------- IPTAL
 
 describe('iptal', () => {
@@ -271,12 +274,12 @@ describe('iptal', () => {
     rich(w);
     const p = spots(w, 1)[0];
     const before = w.state.resources.wood;
-    const placed = w.buildings.place('house', p.gx, p.gy); // 40 odun
+    const placed = w.buildings.place('house', p.gx, p.gy);
     if (!placed.ok) throw new Error('x');
-    expect(w.state.resources.wood).toBe(before - 40);
+    expect(w.state.resources.wood).toBe(before - HOUSE_WOOD);
 
     w.buildings.demolish(placed.building.uid);
-    expect(w.state.resources.wood).toBe(before - 20); // %50 iade
+    expect(w.state.resources.wood).toBe(before - HOUSE_WOOD / 2); // %50 iade
   });
 
   it('kuyruktaki insaat iptalinde maliyetin TAMAMI iade edilir', () => {
@@ -287,7 +290,7 @@ describe('iptal', () => {
 
     const before = w.state.resources.wood;
     w.buildings.demolish(queued.uid);
-    expect(w.state.resources.wood).toBe(before + 40); // tam iade
+    expect(w.state.resources.wood).toBe(before + HOUSE_WOOD); // tam iade
   });
 
   it('yukseltme iptalinde seviye degismez ve gorev temizlenir', () => {
@@ -426,7 +429,7 @@ describe('kaynak atomikligi', () => {
     const before = w.state.resources.wood;
     const p = spots(w, 1)[0];
     w.buildings.place('house', p.gx, p.gy);
-    expect(w.state.resources.wood).toBe(before - 40);
+    expect(w.state.resources.wood).toBe(before - HOUSE_WOOD);
   });
 });
 

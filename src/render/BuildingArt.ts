@@ -39,21 +39,28 @@ export type ArtDrawer = (
   variant?: number,
 ) => void;
 
-/** Binanin govde yuksekligi; doku boyutunu bu belirler. */
-const BODY_HEIGHT: Record<DrawnBuildingType | typeof GENERIC_VISUAL, [number, number]> = {
-  town_hall: [96, 124],
-  temple: [104, 136],
-  harbor: [38, 50],
-  house: [50, 74],
-  farm: [30, 42],
+/**
+ * Binanin govde yuksekligi; doku boyutunu bu belirler.
+ *
+ * Uc deger = uc seviye. Her basamak bir oncekinin ~1.25 kati: siluet
+ * seviyeyle birlikte GORUNUR sekilde buyur ama oran korunur, yani sehir
+ * merkezi hicbir seviyede bir evin altinda kalmaz.
+ */
+const BODY_HEIGHT: Record<DrawnBuildingType | typeof GENERIC_VISUAL, [number, number, number]> = {
+  town_hall: [96, 124, 152],
+  temple: [104, 136, 168],
+  harbor: [38, 50, 74],
+  academy: [56, 76, 98],
+  house: [50, 74, 96],
+  farm: [30, 42, 54],
   // Oduncu ve pazar bilerek evden ALCAK tutulur; %32 zoom'da kutleyi
   // ayiran sey yukseklik farkidir, detay degil (olculdu: ucu de 41x44 px
   // ciktiginda birbirinden ayirt edilemiyordu).
-  lumber_camp: [34, 44],
-  quarry: [34, 46],
-  market: [30, 40],
-  warehouse: [52, 68],
-  generic: [52, 64],
+  lumber_camp: [34, 44, 56],
+  quarry: [34, 46, 58],
+  market: [30, 40, 52],
+  warehouse: [52, 68, 86],
+  generic: [52, 64, 76],
 };
 
 /** Verilen tur ve seviye icin doku olculerini hesaplar. */
@@ -62,7 +69,7 @@ export function artCanvasFor(type: string, size: number, level: number): ArtCanv
     ? (type as DrawnBuildingType)
     : GENERIC_VISUAL;
   const heights = BODY_HEIGHT[key];
-  const bodyH = heights[Math.min(Math.max(1, level), 2) - 1];
+  const bodyH = heights[Math.min(Math.max(1, level), 3) - 1];
 
   const footW = TILE_WIDTH * size;
   const footH = TILE_HEIGHT * size;
@@ -425,6 +432,33 @@ const drawTownHall: ArtDrawer = (g, c, level) => {
       archY - 44,
     );
   }
+
+  if (level >= 3) {
+    /*
+     * Seviye 3: catinin uzerinde FENER KULESI ve kose flamalari.
+     *
+     * Ayni kutleyi buyutmek seviye 2 ile 3'u ayirt edilemez kiliyordu.
+     * Kule siluete ikinci bir kat ekler; flamalar da uzaktan okunur.
+     */
+    const lanternY = archY - 46;
+    box(g, c.cx, lanternY, bodyW * 0.42, bodyD * 0.42, 22, PALETTE.stoneLight);
+    gableRoof(g, c.cx, lanternY - 22, bodyW * 0.5, bodyD * 0.5, 16, {
+      light: PALETTE.stoneLight,
+      mid: PALETTE.stone,
+      dark: PALETTE.stoneDark,
+    });
+    g.fillStyle(PALETTE.gold, 1);
+    g.fillCircle(c.cx, lanternY - 42, 5);
+
+    for (const dx of [-0.42, 0.42]) {
+      const px = c.cx + c.footW * dx;
+      const py = c.baseY + c.footH * 0.08;
+      g.fillStyle(PALETTE.woodDark, 1);
+      g.fillRect(px - 1.5, py - 46, 3, 46);
+      g.fillStyle(PALETTE.clothWarm, 1);
+      g.fillTriangle(px + 1, py - 46, px + 16, py - 38, px + 1, py - 30);
+    }
+  }
 };
 
 /**
@@ -480,6 +514,32 @@ const drawHouse: ArtDrawer = (g, c, level, variant = 0) => {
       Math.round(bodyH * 0.52) + 7,
       PALETTE.roof,
     );
+  }
+
+  if (level >= 3) {
+    /*
+     * Seviye 3: catinin uzerinde bir TERAS ve pergola.
+     *
+     * Ev zaten seviye 2'de ikinci kat kazaniyor; ucuncu kat ayni sivri
+     * catiyi tekrarlamak yerine YATAY bir hat ekler, boylece iki seviye
+     * uzaktan ayrilir.
+     */
+    const topY = c.baseY - 2 - bodyH - 16 - Math.round(20 * shape.rise);
+    box(g, c.cx, topY + 6, w * 0.78, d * 0.78, 6, PALETTE.adobeLight);
+    g.fillStyle(PALETTE.woodDark, 1);
+    for (const [dx, dy] of [
+      [-0.3, 0],
+      [0.3, 0],
+      [0, 0.3],
+      [0, -0.3],
+    ]) {
+      g.fillRect(c.cx + w * dx - 2, topY - 14 + d * dy * 0.5, 4, 14);
+    }
+    g.fillStyle(PALETTE.leaf, 1);
+    diamond(g, c.cx, topY - 14, w * 0.66, d * 0.66);
+    g.fillPath();
+    g.fillStyle(shade(PALETTE.leaf, 0.2), 1);
+    g.fillEllipse(c.cx - w * 0.14, topY - 16, 12, 6);
   }
 
   doorway(g, c.cx - w * 0.14, c.baseY + d * 0.16, 8, 13);
@@ -546,6 +606,24 @@ const drawFarm: ArtDrawer = (g, c, level) => {
     g.fillEllipse(c.cx - c.footW * 0.3, c.baseY + c.footH * 0.2, 16, 9);
     g.fillStyle(shade(PALETTE.cropGold, -0.18), 1);
     g.fillEllipse(c.cx - c.footW * 0.24, c.baseY + c.footH * 0.26, 13, 7);
+  }
+
+  if (level >= 3) {
+    /*
+     * Seviye 3: TAHIL SILOSU.
+     *
+     * Ciftlik alcak ve yatay bir yapidir; dikey bir silo siluetine tek
+     * hamlede yeni bir hat katar ve uzaktan seviye 2'den ayrilir.
+     */
+    const sx = c.cx + c.footW * 0.3;
+    const sy = c.baseY - c.footH * 0.18;
+    box(g, sx, sy, c.footW * 0.22, c.footH * 0.22, 44, PALETTE.adobeLight);
+    g.fillStyle(PALETTE.roof, 1);
+    g.fillEllipse(sx, sy - 44, c.footW * 0.26, c.footH * 0.2);
+    g.fillStyle(PALETTE.roofDark, 1);
+    g.fillTriangle(sx - c.footW * 0.12, sy - 46, sx + c.footW * 0.12, sy - 46, sx, sy - 60);
+    g.fillStyle(PALETTE.woodDark, 1);
+    g.fillRect(sx - c.footW * 0.1, sy - 24, c.footW * 0.2, 3);
   }
 };
 
@@ -631,6 +709,28 @@ const drawLumberCamp: ArtDrawer = (g, c, level) => {
   g.fillEllipse(c.cx - c.footW * 0.04, c.baseY + c.footH * 0.34, 24, 8);
   g.fillStyle(PALETTE.woodLight, 1);
   g.fillEllipse(c.cx + c.footW * 0.06, c.baseY + c.footH * 0.34, 8, 7);
+
+  if (level >= 3) {
+    /*
+     * Seviye 3: BICKI CARKI.
+     *
+     * Kampin iki kutlesine (sundurma + kutuk yigini) ucuncu bir hat
+     * ekler: dikey bir carkin yuvarlak silueti.
+     */
+    const wx = c.cx - c.footW * 0.3;
+    const wy = c.baseY - c.footH * 0.24;
+    box(g, wx, wy, c.footW * 0.24, c.footH * 0.24, 26, PALETTE.woodDark);
+    g.fillStyle(PALETTE.woodLight, 1);
+    g.fillCircle(wx - c.footW * 0.1, wy - 26, 15);
+    g.fillStyle(PALETTE.woodDark, 1);
+    g.fillCircle(wx - c.footW * 0.1, wy - 26, 10);
+    g.fillStyle(PALETTE.woodLight, 1);
+    g.fillCircle(wx - c.footW * 0.1, wy - 26, 3.5);
+    for (let i = 0; i < 4; i += 1) {
+      const a = (Math.PI / 4) * i;
+      g.fillRect(wx - c.footW * 0.1 - 13 * Math.cos(a), wy - 26 - 13 * Math.sin(a), 3, 3);
+    }
+  }
 };
 
 /**
@@ -747,6 +847,33 @@ const drawQuarry: ArtDrawer = (g, c, level) => {
     g.fillStyle(PALETTE.blockLight, 1);
     g.fillRect(kx - 25, c.baseY - 27, 12, 9);
   }
+
+  if (level >= 3) {
+    /*
+     * Seviye 3: ISLENMIS BLOK DUVARI ve tas yontma tezgahi.
+     *
+     * Ocak seviye 2'de derinlesiyor; ucuncu basamakta yukari cikar -
+     * istiflenmis bloklardan bir duvar, siluete duz ve yatay bir kutle
+     * ekler.
+     */
+    for (let row = 0; row < 3; row += 1) {
+      for (let i = 0; i < 3 - row; i += 1) {
+        box(
+          g,
+          c.cx - c.footW * 0.34 + i * 20 + row * 10,
+          c.baseY - c.footH * 0.3 - row * 11,
+          19,
+          11,
+          12,
+          row % 2 === 0 ? PALETTE.blockLight : PALETTE.block,
+        );
+      }
+    }
+    g.fillStyle(PALETTE.woodDark, 1);
+    g.fillRect(c.cx + c.footW * 0.04, c.baseY + c.footH * 0.3, 22, 4);
+    g.fillStyle(PALETTE.blockLight, 1);
+    g.fillRect(c.cx + c.footW * 0.08, c.baseY + c.footH * 0.3 - 8, 14, 8);
+  }
 };
 
 /**
@@ -848,6 +975,26 @@ const drawMarket: ArtDrawer = (g, c, level) => {
     g.fillStyle(PALETTE.woodDark, 1);
     g.fillRect(c.cx - 1.5, awnY - 18, 3, 14);
   }
+
+  if (level >= 3) {
+    /*
+     * Seviye 3: arkada TAS KOLONAD.
+     *
+     * Pazar iki seviyedir de kumas ve ahsaptan; ucuncu basamakta tas bir
+     * revak kazanir. Malzeme degisimi seviyeyi renkten bile okutur.
+     */
+    const cx0 = c.cx - c.footW * 0.06;
+    const cy0 = c.baseY - c.footH * 0.3;
+    box(g, cx0, cy0, c.footW * 0.7, c.footH * 0.24, 6, PALETTE.stone);
+    for (const t of [-0.3, -0.1, 0.1, 0.3]) {
+      const px = cx0 + c.footW * t;
+      g.fillStyle(PALETTE.stoneLight, 1);
+      g.fillRect(px - 4, cy0 - 38, 8, 32);
+      g.fillStyle(shade(PALETTE.stoneLight, -0.2), 1);
+      g.fillRect(px + 1, cy0 - 38, 3, 32);
+    }
+    box(g, cx0, cy0 - 38, c.footW * 0.76, c.footH * 0.26, 7, PALETTE.stoneLight);
+  }
 };
 
 /** Ambar: uzun depo yapisi, buyuk kapi, istiflenmis kuplar. */
@@ -912,6 +1059,29 @@ const drawWarehouse: ArtDrawer = (g, c, level) => {
     // Ust kat penceresi
     g.fillStyle(PALETTE.doorway, 0.55);
     g.fillRect(c.cx + w * 0.08, c.baseY - bodyH * 0.7, 8, 8);
+  }
+
+  if (level >= 3) {
+    /*
+     * Seviye 3: CATI VINCI.
+     *
+     * Depo yatay bir kutledir; catidan cikan egik bir bom siluete tek
+     * hamlede taninir bir hat ekler.
+     */
+    const roofTop = c.baseY - bodyH;
+    g.fillStyle(PALETTE.woodDark, 1);
+    g.fillRect(c.cx - w * 0.2, roofTop - 34, 5, 34);
+    g.beginPath();
+    g.moveTo(c.cx - w * 0.2, roofTop - 34);
+    g.lineTo(c.cx + w * 0.16, roofTop - 48);
+    g.lineTo(c.cx + w * 0.16, roofTop - 43);
+    g.lineTo(c.cx - w * 0.2, roofTop - 29);
+    g.closePath();
+    g.fillPath();
+    g.fillStyle(PALETTE.wood, 1);
+    g.fillRect(c.cx + w * 0.14, roofTop - 45, 2, 14);
+    g.fillStyle(PALETTE.woodLight, 1);
+    g.fillRect(c.cx + w * 0.1, roofTop - 31, 11, 9);
   }
 };
 
@@ -995,6 +1165,34 @@ const drawTemple: ArtDrawer = (g, c, level) => {
     g.fillEllipse(c.cx, c.baseY + c.footH * 0.3, 14, 7);
     g.fillStyle(PALETTE.gold, 0.9);
     g.fillTriangle(c.cx - 5, c.baseY + c.footH * 0.3, c.cx + 5, c.baseY + c.footH * 0.3, c.cx, c.baseY + c.footH * 0.3 - 14);
+  }
+
+  if (level >= 3) {
+    /*
+     * Seviye 3: CEPECEVRE SUTUN DIZISI (peristil).
+     *
+     * Seviye 2 one iki sutun koyuyor; ucuncu basamak tapinagi dort
+     * yaninda sutunla cevirir - antik tapinagin nihai hali.
+     */
+    for (const [dx, dy] of [
+      [-0.42, -0.12],
+      [0.42, 0.12],
+      [-0.12, 0.42],
+      [0.12, -0.42],
+      [-0.42, 0.12],
+      [0.42, -0.12],
+    ] as Array<[number, number]>) {
+      const x = c.cx + c.footW * dx;
+      const y = c.baseY + c.footH * dy;
+      g.fillStyle(PALETTE.stone, 1);
+      g.fillEllipse(x, y, 15, 7);
+      g.fillStyle(PALETTE.stoneLight, 1);
+      g.fillRect(x - 4.5, y - 46, 9, 46);
+      g.fillStyle(shade(PALETTE.stoneLight, -0.22), 1);
+      g.fillRect(x + 1, y - 46, 3.5, 46);
+      g.fillStyle(PALETTE.stone, 1);
+      g.fillEllipse(x, y - 46, 14, 6);
+    }
   }
 };
 
@@ -1083,6 +1281,113 @@ const drawHarbor: ArtDrawer = (g, c, level) => {
   g.fillEllipse(c.cx - c.footW * 0.3, c.baseY + c.footH * 0.26, 12, 7);
   g.fillStyle(PALETTE.cropGold, 0.8);
   g.fillEllipse(c.cx - c.footW * 0.36, c.baseY + c.footH * 0.3, 14, 6);
+
+  if (level >= 3) {
+    /*
+     * Seviye 3: DENIZ FENERI.
+     *
+     * Limanin ilk iki seviyesi alcak ve yatay; fener tek basina sehrin en
+     * ince ve en yuksek silueti olur. Kiyi cizgisi boyunca uzaktan
+     * taninir bir isaret.
+     */
+    const fx = c.cx - c.footW * 0.3;
+    const fy = c.baseY - c.footH * 0.24;
+    box(g, fx, fy, c.footW * 0.24, c.footH * 0.24, 14, PALETTE.block);
+    box(g, fx, fy - 14, c.footW * 0.18, c.footH * 0.18, 46, PALETTE.stoneLight);
+    // Kirmizi kusaklar
+    g.fillStyle(PALETTE.roof, 1);
+    for (const h of [22, 42]) {
+      g.fillRect(fx - c.footW * 0.09, fy - 14 - h, c.footW * 0.18, 6);
+    }
+    // Fener odasi ve isik
+    box(g, fx, fy - 60, c.footW * 0.22, c.footH * 0.22, 12, PALETTE.stone);
+    g.fillStyle(PALETTE.gold, 1);
+    g.fillCircle(fx, fy - 68, 6);
+    g.fillStyle(PALETTE.gold, 0.35);
+    g.fillCircle(fx, fy - 68, 11);
+    g.fillStyle(PALETTE.roofDark, 1);
+    g.fillTriangle(fx - c.footW * 0.12, fy - 72, fx + c.footW * 0.12, fy - 72, fx, fy - 86);
+  }
+};
+
+/**
+ * Akademi: bilginin uretildigi yer.
+ *
+ * Siluetin imzasi KUBBE. Sehirde baska hicbir yapi yuvarlak bir tepe
+ * tasimiyor; tapinak sivri, sehir merkezi yayvan, ev besik catili. Kubbe
+ * uzaktan bile "burasi farkli bir sey" der.
+ *
+ * Sv2 kubbenin yanina gozlem terasi, Sv3 arkasina bir KULE ekler - her
+ * basamak siluete yeni bir hat katar, ayni kutleyi buyutmez.
+ */
+const drawAcademy: ArtDrawer = (g, c, level) => {
+  contactShadow(g, c, 0.94);
+  const grand = level >= 2;
+  const supreme = level >= 3;
+
+  // Kaide
+  box(g, c.cx, c.baseY, c.footW * 0.84, c.footH * 0.84, 7, PALETTE.stone);
+  const deck = c.baseY - 7;
+
+  // Govde - acik kirectasi, sutun izli
+  const bodyW = c.footW * 0.66;
+  const bodyD = c.footH * 0.66;
+  const bodyH = supreme ? 40 : grand ? 32 : 26;
+  box(g, c.cx, deck, bodyW, bodyD, bodyH, PALETTE.stoneLight);
+  columnsOnFaces(g, c.cx, deck, bodyW, bodyD, bodyH, 3);
+  const roofY = deck - bodyH;
+
+  // Arsitrav
+  box(g, c.cx, roofY + 5, bodyW * 1.1, bodyD * 1.1, 5, PALETTE.stone);
+
+  // KUBBE - akademinin imzasi
+  const domeR = bodyW * (supreme ? 0.42 : 0.38);
+  g.fillStyle(shade(PALETTE.clothCool, -0.22), 1);
+  g.fillEllipse(c.cx, roofY, domeR * 2, domeR * 1.1);
+  g.fillStyle(PALETTE.clothCool, 1);
+  g.fillEllipse(c.cx - domeR * 0.12, roofY - domeR * 0.34, domeR * 1.7, domeR * 1.25);
+  g.fillStyle(shade(PALETTE.clothCool, 0.22), 1);
+  g.fillEllipse(c.cx - domeR * 0.28, roofY - domeR * 0.5, domeR * 0.8, domeR * 0.6);
+  // Kubbenin tepesindeki altin toplu mil
+  g.fillStyle(PALETTE.woodDark, 1);
+  g.fillRect(c.cx - 1.5, roofY - domeR * 1.05 - 10, 3, 10);
+  g.fillStyle(PALETTE.gold, 1);
+  g.fillCircle(c.cx, roofY - domeR * 1.05 - 12, 4);
+
+  // Kapi ve papirus rafi
+  doorway(g, c.cx, deck + bodyD * 0.24, 11, Math.round(bodyH * 0.52));
+  g.fillStyle(PALETTE.wood, 1);
+  g.fillRect(c.cx + c.footW * 0.22, c.baseY - 16, 4, 16);
+  g.fillStyle(PALETTE.clothCool, 1);
+  for (let i = 0; i < 3; i += 1) {
+    g.fillRect(c.cx + c.footW * 0.24, c.baseY - 15 + i * 5, 12, 3);
+  }
+
+  if (grand) {
+    // Gozlem terasi - yan tarafta alcak bir platform ve gunes saati
+    const tx = c.cx - c.footW * 0.28;
+    const ty = c.baseY + c.footH * 0.16;
+    box(g, tx, ty, c.footW * 0.3, c.footH * 0.3, 12, PALETTE.stoneLight);
+    g.fillStyle(PALETTE.gold, 1);
+    g.fillTriangle(tx - 5, ty - 12, tx + 5, ty - 12, tx, ty - 26);
+  }
+
+  if (supreme) {
+    /*
+     * Seviye 3: arkada bir GOZLEM KULESI.
+     *
+     * Ayni kutlenin buyugu, seviye 2'den ayirt edilmiyordu. Ince ve yuksek
+     * bir kule siluete ikinci bir dikey hat verir.
+     */
+    const kx = c.cx + c.footW * 0.26;
+    const ky = c.baseY - c.footH * 0.18;
+    box(g, kx, ky, c.footW * 0.26, c.footH * 0.26, 56, PALETTE.stoneLight);
+    box(g, kx, ky - 56, c.footW * 0.32, c.footH * 0.32, 8, PALETTE.stone);
+    g.fillStyle(shade(PALETTE.clothCool, -0.1), 1);
+    g.fillEllipse(kx, ky - 64, c.footW * 0.26, c.footH * 0.2);
+    g.fillStyle(PALETTE.gold, 1);
+    g.fillCircle(kx, ky - 72, 3.5);
+  }
 };
 
 /** Taninmayan tur icin yedek: sade kerpic kutu. */
@@ -1134,6 +1439,7 @@ export const BUILDING_ART: Record<DrawnBuildingType | typeof GENERIC_VISUAL, Art
   town_hall: drawTownHall,
   temple: drawTemple,
   harbor: drawHarbor,
+  academy: drawAcademy,
   house: drawHouse,
   farm: drawFarm,
   lumber_camp: drawLumberCamp,

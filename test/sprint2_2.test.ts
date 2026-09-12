@@ -5,7 +5,7 @@ import { describe, expect, it } from 'vitest';
 import { GameState } from '@/core/GameState';
 import { migrateAndSanitize } from '@/core/SaveManager';
 import { MAX_CONCURRENT_CONSTRUCTIONS, SAVE_VERSION } from '@/config/Constants';
-import { getBuilding, levelOf } from '@/config/BuildingCatalog';
+import { getBuilding, levelOf, maxLevelOf } from '@/config/BuildingCatalog';
 import { resolveTaskRefund } from '@/systems/BuildingResolver';
 import { blockSpot, makeWorld, wrap } from './helpers';
 import type { TestWorld } from './helpers';
@@ -45,6 +45,17 @@ function withPatchedLevel<T>(
   }
 }
 
+/**
+ * Ev Sv.1 maliyeti KATALOGDAN okunur.
+ *
+ * Bu dosya "odenen maliyet dogru saklanip iade ediliyor mu" sorusunu test
+ * eder, katalogdaki rakami degil. Sprint 15 denge ayarinda ev odun agirlikli
+ * olmaktan cikip tas agirlikli olunca bes test birden rakam yuzunden kirildi;
+ * turetilmis sabit bunu bir daha yasatmaz.
+ */
+const HOUSE_COST = levelOf(getBuilding('house'), 1)!.buildCost!;
+const HOUSE_WOOD = HOUSE_COST.wood ?? 0;
+
 describe('odenen maliyet anlik goruntusu', () => {
   it('insa gorevi odenen maliyeti saklar', () => {
     const w = makeWorld();
@@ -53,8 +64,7 @@ describe('odenen maliyet anlik goruntusu', () => {
     const placed = w.buildings.place('house', p.gx, p.gy);
     if (!placed.ok) throw new Error('x');
 
-    // Ev sv1: 40 odun, 10 tas
-    expect(placed.building.construction?.paidCost).toEqual({ wood: 40, stone: 10 });
+    expect(placed.building.construction?.paidCost).toEqual(HOUSE_COST);
   });
 
   it('yukseltme gorevi odenen maliyeti saklar', () => {
@@ -77,9 +87,9 @@ describe('odenen maliyet anlik goruntusu', () => {
     const w = makeWorld();
     fill(w);
     const p = spot(w);
-    const placed = w.buildings.place('house', p.gx, p.gy); // 40 odun odendi
+    const placed = w.buildings.place('house', p.gx, p.gy);
     if (!placed.ok) throw new Error('x');
-    expect(placed.building.construction?.paidCost.wood).toBe(40);
+    expect(placed.building.construction?.paidCost.wood).toBe(HOUSE_WOOD);
 
     const woodBefore = w.state.resources.wood;
 
@@ -88,8 +98,8 @@ describe('odenen maliyet anlik goruntusu', () => {
       w.buildings.demolish(placed.building.uid);
     });
 
-    // Aktif gorev -> odenenin yarisi = 20 (yeni fiyatin yarisi 100 DEGIL)
-    expect(w.state.resources.wood).toBe(woodBefore + 20);
+    // Aktif gorev -> ODENENIN yarisi (yeni katalog fiyatinin yarisi DEGIL).
+    expect(w.state.resources.wood).toBe(woodBefore + HOUSE_WOOD / 2);
   });
 
   it('kuyruktaki gorevde katalog degisikligi iadeyi etkilemez', () => {
@@ -110,8 +120,8 @@ describe('odenen maliyet anlik goruntusu', () => {
       w.buildings.demolish(queued.uid);
     });
 
-    // Kuyrukta -> odenenin TAMAMI = 40
-    expect(w.state.resources.wood).toBe(woodBefore + 40);
+    // Kuyrukta -> odenenin TAMAMI iade edilir.
+    expect(w.state.resources.wood).toBe(woodBefore + HOUSE_WOOD);
   });
 
   it('resolveTaskRefund artik yalnizca odenen maliyete bakar', () => {
@@ -151,7 +161,7 @@ describe('kayit: odenen maliyet', () => {
     if (!placed.ok) throw new Error('x');
 
     const save = migrateAndSanitize(w.state.toSave(SAVE_VERSION))!;
-    expect(save.buildings[0].construction?.paidCost).toEqual({ wood: 40, stone: 10 });
+    expect(save.buildings[0].construction?.paidCost).toEqual(HOUSE_COST);
 
     const restored = wrap(GameState.fromSave(save));
     const uid = [...restored.state.buildings.values()][0].uid;
@@ -159,7 +169,7 @@ describe('kayit: odenen maliyet', () => {
 
     const before = restored.state.resources.wood;
     restored.buildings.demolish(uid);
-    expect(restored.state.resources.wood).toBe(before + 20);
+    expect(restored.state.resources.wood).toBe(before + HOUSE_WOOD / 2);
   });
 
   it('paidCost alani olmayan eski kayit katalogdan kurtarilir', () => {
@@ -193,7 +203,7 @@ describe('kayit: odenen maliyet', () => {
 
     const save = migrateAndSanitize(legacy)!;
     // Katalogdaki ev maliyeti ile birebir kurtarilir; uydurma deger uretilmez.
-    expect(save.buildings[0].construction?.paidCost).toEqual({ wood: 40, stone: 10 });
+    expect(save.buildings[0].construction?.paidCost).toEqual(HOUSE_COST);
   });
 
   it('kayit -> yukle -> iptal ayni iadeyi verir', () => {
@@ -265,8 +275,15 @@ describe('etkilesim kurallari', () => {
     w.upgrades.requestUpgrade(placed.building.uid);
     expect(w.upgrades.canUpgrade(placed.building.uid)).toEqual({ ok: false, reason: 'busy' });
 
-    // max seviyede
-    w.simulation.advance(60);
+    // Katalogdaki en yuksek seviyeye kadar cik; sinir SABIT yazilmaz.
+    const top = maxLevelOf(getBuilding('farm'));
+    w.simulation.advance(400);
+    for (let level = placed.building.level; level < top; level += 1) {
+      fill(w);
+      w.upgrades.requestUpgrade(placed.building.uid);
+      w.simulation.advance(400);
+    }
+    expect(placed.building.level).toBe(top);
     expect(w.upgrades.canUpgrade(placed.building.uid)).toEqual({ ok: false, reason: 'max_level' });
   });
 });
