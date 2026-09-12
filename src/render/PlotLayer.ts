@@ -1,17 +1,23 @@
 import { TextureKeys } from '@/config/Constants';
+import { iconKeyFor } from './IconArt';
 import { depthFor, gridToWorld } from '@/utils/IsoUtils';
 import type Phaser from 'phaser';
 import type { BuildingPlotSystem } from '@/systems/BuildingPlotSystem';
 import type { BuildingId, BuildingPlot } from '@/types';
 
+/** Insa modunda bir alanin gosterilme bicimi. */
+type PlotPaint = 'valid' | 'invalid' | 'locked';
+
 /**
  * Sehrin yapi alanlarini gosteren katman.
  *
- * IKI DURUM
- *   Normal    - bos alanlar yalnizca ince bir kirectasi bordurle belli olur;
+ * IKI MOD
+ *   Normal    - bos alanlar yalnizca duzlenmis bir toprak pedle belli olur;
  *               sehir "isaretli kareler tarlasi" gibi gorunmez.
- *   Insa modu - secilen bina turune UYGUN alanlar vurgulanir, uygun
- *               olmayanlar sonuk kalir.
+ *   Insa modu - her alan uc durumdan biriyle boyanir:
+ *                 yesil   kurabilirsin
+ *                 kirmizi bu bina buraya olmaz
+ *                 altin   alan henuz acilmadi (uzerinde kilit isareti)
  *
  * SORUMLULUK SINIRI
  * Burada hicbir kural yoktur. Hangi alanin uygun oldugunu
@@ -30,6 +36,8 @@ export class PlotLayer {
   private readonly markers = new Map<string, Phaser.GameObjects.Image[]>();
   /** Insa modunda uygunlugu gosteren kaplamalar. */
   private readonly overlays: Phaser.GameObjects.Image[] = [];
+  /** Kilitli alanlarin uzerindeki kilit isareti. */
+  private readonly locks: Phaser.GameObjects.Image[] = [];
 
   private placing: BuildingId | null = null;
 
@@ -67,14 +75,43 @@ export class PlotLayer {
 
     // 2. Insa modu kaplamalari.
     for (const overlay of this.overlays) overlay.setVisible(false);
+    for (const lock of this.locks) lock.setVisible(false);
     if (!this.placing) return;
 
     let index = 0;
+    let lockIndex = 0;
     for (const plot of this.plots.plots) {
       if (!this.plots.isFree(plot)) continue;
-      const usable = this.plots.accepts(plot, this.placing);
-      index = this.paint(plot, usable, index);
+      const state: PlotPaint = !plot.unlocked
+        ? 'locked'
+        : this.plots.accepts(plot, this.placing)
+          ? 'valid'
+          : 'invalid';
+      index = this.paint(plot, state, index);
+      if (state === 'locked') lockIndex = this.markLocked(plot, lockIndex);
     }
+  }
+
+  /** Kilitli alanin ortasina kilit isareti koyar. */
+  private markLocked(plot: BuildingPlot, from: number): number {
+    const at = gridToWorld(plot.gx + (plot.width - 1) / 2, plot.gy + (plot.height - 1) / 2);
+    const lock = this.lockAt(from);
+    lock
+      .setPosition(at.x, at.y - 10)
+      .setDepth(depthFor(plot.gx, plot.gy) + 1)
+      .setVisible(true);
+    return from + 1;
+  }
+
+  private lockAt(index: number): Phaser.GameObjects.Image {
+    const existing = this.locks[index];
+    if (existing) return existing;
+    const created = this.scene.add
+      .image(0, 0, iconKeyFor('lock'))
+      .setOrigin(0.5, 0.5)
+      .setVisible(false);
+    this.locks.push(created);
+    return created;
   }
 
   destroy(): void {
@@ -82,6 +119,8 @@ export class PlotLayer {
     this.markers.clear();
     for (const overlay of this.overlays) overlay.destroy();
     this.overlays.length = 0;
+    for (const lock of this.locks) lock.destroy();
+    this.locks.length = 0;
   }
 
   /** Bos alanlarin sakin bordurlerini bir kez olusturur. */
@@ -105,9 +144,21 @@ export class PlotLayer {
     }
   }
 
-  /** Bir plotu uygun/uygunsuz olarak boyar; kullanilan kaplama sayisini doner. */
-  private paint(plot: BuildingPlot, usable: boolean, from: number): number {
-    const key = usable ? TextureKeys.TileValid : TextureKeys.TileInvalid;
+  /**
+   * Bir plotu durumuna gore boyar; kullanilan kaplama sayisini doner.
+   *
+   * Uc durum uc AYRI renk kullanir (Sprint 13 §4): yesil "kurabilirsin",
+   * kirmizi "bu bina buraya olmaz", altin "bu alan henuz acilmadi". Sprint
+   * 12'de uygunsuz alan yalnizca soluyordu ve oyuncu farki goremiyordu.
+   */
+  private paint(plot: BuildingPlot, state: PlotPaint, from: number): number {
+    const key =
+      state === 'valid'
+        ? TextureKeys.TileValid
+        : state === 'locked'
+          ? TextureKeys.TileLocked
+          : TextureKeys.TileInvalid;
+    const alpha = state === 'valid' ? 0.5 : state === 'locked' ? 0.6 : 0.3;
     let index = from;
     for (let dy = 0; dy < plot.height; dy += 1) {
       for (let dx = 0; dx < plot.width; dx += 1) {
@@ -118,9 +169,7 @@ export class PlotLayer {
           .setTexture(key)
           .setPosition(at.x, at.y)
           .setDepth(depthFor(plot.gx + dx, plot.gy + dy) - 2)
-          // Uygunsuz alan yalnizca SONUK durur; kirmizi bir uyari degil,
-          // "burasi bu bina icin degil" bilgisidir.
-          .setAlpha(usable ? 0.55 : 0.18)
+          .setAlpha(alpha)
           .setVisible(true);
       }
     }

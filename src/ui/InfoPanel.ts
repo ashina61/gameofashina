@@ -2,10 +2,17 @@ import Phaser from 'phaser';
 import { RESOURCE_META, RESOURCE_ORDER, TextureKeys } from '@/config/Constants';
 import { resolveBuilding, ticksToSeconds } from '@/systems/BuildingResolver';
 import { getBuilding } from '@/config/BuildingCatalog';
+import { iconKeyFor } from '@/render/IconArt';
 import { formatDuration } from '@/utils/Format';
 import { TouchButton } from './TouchButton';
-import { UISpacing, UIText, labelStyle } from './UIStyle';
-import type { BuildingInstance, ResolvedBuilding, ResourceAmounts, TileData } from '@/types';
+import { UIColors, UISpacing, UIText, labelStyle } from './UIStyle';
+import type {
+  BuildingInstance,
+  BuildingPlot,
+  ResolvedBuilding,
+  ResourceAmounts,
+  TileData,
+} from '@/types';
 
 /**
  * Panelin isci satirini cizmek icin ihtiyac duydugu sayilar.
@@ -25,6 +32,22 @@ export interface WorkerPanelInfo {
   idle: number;
 }
 
+/** Panelin disaridan aldigi tum baglantilar. */
+export interface InfoPanelHooks {
+  onDemolish: (uid: string) => void;
+  onUpgrade: (uid: string) => void;
+  onCancelUpgrade: (uid: string) => void;
+  /** Maliyetin karsilanip karsilanamadigini soran yordam (ResourceSystem). */
+  canAfford: (cost: ResourceAmounts) => boolean;
+  onAssignWorker: (uid: string) => void;
+  onReleaseWorker: (uid: string) => void;
+  /** Binanin kadro durumu (WorkforceSystem). */
+  workerInfo: (uid: string) => WorkerPanelInfo;
+  /** Karodaki yapi alani (BuildingPlotSystem); yoksa null. */
+  plotAt: (gx: number, gy: number) => BuildingPlot | null;
+  onClose: () => void;
+}
+
 /** Zemin turlerinin kullaniciya gosterilen adlari. */
 const TERRAIN_LABELS: Record<string, string> = {
   grass: 'Cimen',
@@ -33,25 +56,47 @@ const TERRAIN_LABELS: Record<string, string> = {
   rock: 'Kayalik',
 };
 
+/** Bolgelerin kullaniciya gosterilen adlari. */
+const ZONE_LABELS: Record<string, string> = {
+  civic: 'Kamusal alan',
+  commerce: 'Ticaret bolgesi',
+  residential: 'Konut bolgesi',
+  production: 'Uretim bolgesi',
+};
+
 /**
- * Secilen hucre veya bina hakkinda bilgi veren alt panel.
- * Bina seciliyse uretim/isci ozeti ve yikma butonu gosterilir.
+ * Secilen alan veya bina hakkinda bilgi veren alt sayfa.
+ *
+ * BILGI HIYERARSISI (Sprint 13 §7)
+ *   1. Bu ne?            - ad ve seviye
+ *   2. Calisiyor mu?     - durum satiri, insaatta ilerleme cubugu
+ *   3. Ne uretiyor?      - ikonlu uretim satiri
+ *   4. Kadro             - isci sayaci ve +/- dugmeleri
+ *   5. Sonraki adim      - yukseltme maliyeti, kazanci ve ana dugme
+ *
+ * Panel sehri TAMAMEN kapatmaz: ekranin alt ucte birinde durur ve hem
+ * "Kapat" dugmesiyle hem de haritanin bos bir yerine dokunarak kapanir.
  */
 export class InfoPanel extends Phaser.GameObjects.Container {
-  /**
-   * Panel yuksekligi.
-   *
-   * Sprint 8'de 132'den buyutuldu: alta isci atama satiri eklendi. Eski
-   * yukseklikte Sehir Merkezi gibi cok satirli binalarin son satiri zaten
-   * panelin disina tasiyordu.
-   */
-  private static readonly HEIGHT = 178;
+  private static readonly HEIGHT = 200;
 
   private readonly background: Phaser.GameObjects.NineSlice;
   private readonly titleText: Phaser.GameObjects.Text;
+  private readonly levelText: Phaser.GameObjects.Text;
+  private readonly statusText: Phaser.GameObjects.Text;
   private readonly bodyText: Phaser.GameObjects.Text;
+
+  /** Uretim satiri: en fazla iki kaynak ikonu ve degeri. */
+  private readonly outputIcons: Phaser.GameObjects.Image[] = [];
+  private readonly outputTexts: Phaser.GameObjects.Text[] = [];
+
+  /** Insaat/yukseltme ilerleme cubugu. */
+  private readonly progressTrack: Phaser.GameObjects.Image;
+  private readonly progressFill: Phaser.GameObjects.Image;
+
   private readonly demolishButton: TouchButton;
   private readonly upgradeButton: TouchButton;
+  private readonly closeButton: TouchButton;
   /** Isci satiri: geri al, sayac, ata. */
   private readonly releaseButton: TouchButton;
   private readonly assignButton: TouchButton;
@@ -73,17 +118,7 @@ export class InfoPanel extends Phaser.GameObjects.Container {
     scene: Phaser.Scene,
     width: number,
     height: number,
-    private readonly onDemolish: (uid: string) => void,
-    private readonly onUpgrade: (uid: string) => void,
-    private readonly onCancelUpgrade: (uid: string) => void,
-    /** Maliyetin karsilanip karsilanamadigini soran yordam (ResourceSystem). */
-    private readonly canAfford: (cost: ResourceAmounts) => boolean,
-    /** Bu binaya bosta bir isci yolla. */
-    private readonly onAssignWorker: (uid: string) => void,
-    /** Bu binadan bir isciyi geri cek. */
-    private readonly onReleaseWorker: (uid: string) => void,
-    /** Binanin kadro durumu (WorkforceSystem). */
-    private readonly workerInfo: (uid: string) => WorkerPanelInfo,
+    private readonly hooks: InfoPanelHooks,
   ) {
     super(scene, 0, height);
     this.screenWidth = width;
@@ -93,78 +128,116 @@ export class InfoPanel extends Phaser.GameObjects.Container {
       .nineslice(0, 0, TextureKeys.Panel, undefined, width, InfoPanel.HEIGHT, 18, 18, 18, 18)
       .setOrigin(0, 0);
 
-    this.titleText = scene.add.text(
-      UISpacing.panelPadding,
-      14,
-      '',
-      labelStyle(17, UIText.accent, true),
-    );
+    this.titleText = scene.add
+      .text(UISpacing.panelPadding, 20, '', labelStyle(18, UIText.accent, true))
+      .setOrigin(0, 0.5);
+    this.levelText = scene.add
+      .text(0, 21, '', labelStyle(12, UIText.muted))
+      .setOrigin(0, 0.5);
+    this.statusText = scene.add
+      .text(UISpacing.panelPadding, 44, '', labelStyle(12, UIText.primary, true))
+      .setOrigin(0, 0.5);
+
+    for (let i = 0; i < 2; i += 1) {
+      this.outputIcons.push(
+        scene.add.image(0, 0, iconKeyFor('food')).setOrigin(0.5, 0.5).setScale(0.72).setVisible(false),
+      );
+      this.outputTexts.push(
+        scene.add.text(0, 0, '', labelStyle(14, UIText.primary, true)).setOrigin(0, 0.5).setVisible(false),
+      );
+    }
+
+    this.progressTrack = scene.add
+      .image(0, 0, TextureKeys.Pixel)
+      .setOrigin(0, 0.5)
+      .setTint(0x000000)
+      .setAlpha(0.45)
+      .setVisible(false);
+    this.progressFill = scene.add
+      .image(0, 0, TextureKeys.Pixel)
+      .setOrigin(0, 0.5)
+      .setTint(UIColors.accent)
+      .setVisible(false);
 
     this.bodyText = scene.add.text(
       UISpacing.panelPadding,
-      42,
+      112,
       '',
-      labelStyle(13, UIText.primary),
+      labelStyle(12, UIText.muted),
     );
-    this.bodyText.setLineSpacing(4);
+    this.bodyText.setLineSpacing(3);
+
+    this.workerText = scene.add
+      .text(0, 0, '', labelStyle(13, UIText.primary, true))
+      .setOrigin(0, 0.5);
 
     this.demolishButton = new TouchButton(scene, 0, 0, 'Yik', {
-      width: 96,
-      height: 42,
-      fontSize: 14,
+      width: 76,
+      height: 44,
+      fontSize: 13,
       color: UIText.danger,
       onPress: () => {
-        if (this.currentUid) this.onDemolish(this.currentUid);
+        if (this.currentUid) this.hooks.onDemolish(this.currentUid);
       },
     });
 
-    this.upgradeButton = new TouchButton(scene, 0, 0, 'Yukselt', {
-      width: 96,
-      height: 42,
-      fontSize: 14,
+    this.upgradeButton = new TouchButton(scene, 0, 0, 'YUKSELT', {
+      width: 150,
+      height: 44,
+      fontSize: 15,
       color: UIText.accent,
       onPress: () => {
         if (!this.currentUid) return;
         // Ayni yuva iki isi gorur: gorev yokken yukseltir, yukseltme
         // surerken iptal eder. Yerlesim degismez.
         if (this.upgradeButtonMode === 'cancel') {
-          this.onCancelUpgrade(this.currentUid);
+          this.hooks.onCancelUpgrade(this.currentUid);
         } else {
-          this.onUpgrade(this.currentUid);
+          this.hooks.onUpgrade(this.currentUid);
         }
       },
     });
 
+    this.closeButton = new TouchButton(scene, 0, 0, 'Kapat', {
+      width: 72,
+      height: 36,
+      fontSize: 12,
+      onPress: () => this.hooks.onClose(),
+    });
+
     this.releaseButton = new TouchButton(scene, 0, 0, '-', {
-      width: 46,
+      width: 44,
       height: 40,
       fontSize: 20,
       color: UIText.danger,
       onPress: () => {
-        if (this.currentUid) this.onReleaseWorker(this.currentUid);
+        if (this.currentUid) this.hooks.onReleaseWorker(this.currentUid);
       },
     });
 
     this.assignButton = new TouchButton(scene, 0, 0, '+', {
-      width: 46,
+      width: 44,
       height: 40,
       fontSize: 20,
       color: UIText.success,
       onPress: () => {
-        if (this.currentUid) this.onAssignWorker(this.currentUid);
+        if (this.currentUid) this.hooks.onAssignWorker(this.currentUid);
       },
     });
-
-    this.workerText = scene.add
-      .text(0, 0, '', labelStyle(12, UIText.primary, true))
-      .setOrigin(0, 0.5);
 
     this.add([
       this.background,
       this.titleText,
+      this.levelText,
+      this.statusText,
+      ...this.outputIcons,
+      ...this.outputTexts,
+      this.progressTrack,
+      this.progressFill,
       this.bodyText,
       this.upgradeButton,
       this.demolishButton,
+      this.closeButton,
       this.releaseButton,
       this.assignButton,
       this.workerText,
@@ -194,23 +267,42 @@ export class InfoPanel extends Phaser.GameObjects.Container {
     this.screenHeight = height;
     this.bottomInset = bottomInset;
     this.background.setSize(width, InfoPanel.HEIGHT);
-    this.bodyText.setWordWrapWidth(width - UISpacing.panelPadding * 2 - 110);
-    this.upgradeButton.setPosition(width - UISpacing.panelPadding - 48, InfoPanel.HEIGHT - 82);
-    this.demolishButton.setPosition(width - UISpacing.panelPadding - 48, InfoPanel.HEIGHT - 34);
+
+    const left = UISpacing.panelPadding;
+    const right = width - UISpacing.panelPadding;
+
+    this.closeButton.setPosition(right - 36, 22);
+    this.bodyText.setWordWrapWidth(width - UISpacing.panelPadding * 2);
+
+    // Uretim satiri
+    for (let i = 0; i < this.outputIcons.length; i += 1) {
+      const x = left + i * 118;
+      this.outputIcons[i].setPosition(x + 10, 70);
+      this.outputTexts[i].setPosition(x + 24, 70);
+    }
+
+    // Ilerleme cubugu - uretim satiriyla ayni yuvada durur.
+    this.progressTrack.setPosition(left, 70).setDisplaySize(width - left * 2, 10);
+    this.progressFill.setPosition(left, 70).setDisplaySize(1, 10);
 
     /*
-     * Isci satiri panelin sol altinda.
+     * Isci satiri panelin ortasinda: sayac solda, iki dugme sagda.
      *
-     * Iki buton YAN YANA durur, sayac sagda. Ilk denemede sayac iki butonun
-     * ARASINDAYDI ve "Isci 2/3  Bosta 13" metni "+" butonunun uzerine
-     * biniyordu (olculdu: 390px genislikte metin 193px'e kadar uzuyor, buton
-     * 175'te). Butonlari bitisik tutmak metne sabit ve genis bir alan birakir.
+     * Dugmeleri sayacin iki yanina koymak Sprint 8'de metnin "+" uzerine
+     * binmesine yol acmisti (olculdu: 390 pikselde metin 193'e uzuyor,
+     * buton 175'te). Sayac sabit solda, dugmeler sabit sagda durunca metin
+     * uzasa bile cakisma olmaz.
      */
-    const workerY = InfoPanel.HEIGHT - 30;
-    const left = UISpacing.panelPadding;
-    this.releaseButton.setPosition(left + 23, workerY);
-    this.assignButton.setPosition(left + 74, workerY);
-    this.workerText.setPosition(left + 106, workerY);
+    const workerY = 96;
+    this.workerText.setPosition(left, workerY);
+    this.assignButton.setPosition(right - 24, workerY);
+    this.releaseButton.setPosition(right - 74, workerY);
+
+    // Aksiyon satiri en altta: ana dugme genis ve solda, yikim kucuk ve sagda.
+    const actionY = InfoPanel.HEIGHT - 32;
+    this.demolishButton.setPosition(right - 38, actionY);
+    this.upgradeButton.setPosition(left + 75, actionY);
+
     this.setY(this.visibleState ? this.openY() : height);
   }
 
@@ -219,7 +311,7 @@ export class InfoPanel extends Phaser.GameObjects.Container {
     return this.screenHeight - this.bottomInset - InfoPanel.HEIGHT;
   }
 
-  /** Secilen hucreyi gosterir; hucre bossa zemin bilgisi verilir. */
+  /** Secilen hucreyi gosterir; hucre bossa alan bilgisi verilir. */
   show(tile: TileData, building: BuildingInstance | null, tick: number): void {
     this.currentUid = building?.uid ?? null;
     this.currentBuilding = building;
@@ -228,7 +320,7 @@ export class InfoPanel extends Phaser.GameObjects.Container {
     if (building) {
       this.showBuilding(building);
     } else {
-      this.showTerrain(tile);
+      this.showPlot(tile);
     }
 
     this.demolishButton.setVisible(building !== null);
@@ -295,71 +387,123 @@ export class InfoPanel extends Phaser.GameObjects.Container {
     const def = getBuilding(building.type);
     const resolved: ResolvedBuilding = resolveBuilding(building, def, this.currentTick);
 
-    // Seviye 1'i gostermeye gerek yok; ustu bilgi tasir.
-    this.titleText.setText(
-      resolved.level > 1 ? `${def.name} (Sv. ${resolved.level})` : def.name,
-    );
+    this.titleText.setText(def.name);
+    this.levelText
+      .setText(`Seviye ${resolved.level}`)
+      .setPosition(UISpacing.panelPadding + this.titleText.width + 10, 21)
+      .setVisible(true);
 
-    const lines: string[] = [];
+    const task = resolved.construction;
+    this.showStatus(resolved);
+    // resolveBuilding ilerlemeyi zaten hesapladi; burada tekrar hesaplanmaz.
+    this.showProgress(task?.ratio ?? null, task !== null);
 
     /*
-     * DURUM SATIRI
-     *
-     * Oyuncunun ilk gormesi gereken sey binanin calisip calismadigidir.
-     * Uc hal var ve ucu de mevcut state'ten TURETILIR; yeni bir durum
-     * alani eklenmedi.
+     * Insaat sirasinda uretim degerleri sifirdir; o seviyenin tanimini
+     * gosteririz. Calisir binada ise GERCEK uretim gosterilir: kadro
+     * eksikse "+4/dk" yazip 3 uretmek oyuncuyu yaniltirdi.
      */
+    const potential = def.levels.find((l) => l.level === resolved.level)?.production ?? {};
+    /*
+     * Kadro eksikken GERCEK uretim sifirdir ve satir bombos kalirdi.
+     * O durumda binanin NE URETEBILECEGI sonuk renkte gosterilir: oyuncu
+     * hem gercegi (sifir) hem de potansiyeli gorur, satir da bos kalmaz.
+     */
+    const effective = resolved.effectiveProduction;
+    const muted = !task && !this.hasOutput(effective) && this.hasOutput(potential);
+    this.showOutputs(task || muted ? potential : effective, Boolean(task) || muted);
+
+    const underBuild = task?.kind === 'build';
+    this.showWorkerRow(building, resolved, underBuild === true);
+    this.showDetails(def, resolved);
+
+    // Buton yuvasi: yukseltme surerken iptal, aksi halde yukseltme.
+    const upgrade = resolved.upgrade;
+    if (task?.kind === 'upgrade') {
+      this.upgradeButtonMode = 'cancel';
+      this.upgradeButton.setText('IPTAL').setVisible(true).setEnabled(true);
+    } else {
+      this.upgradeButtonMode = 'upgrade';
+      this.upgradeButton.setText('YUKSELT').setVisible(upgrade !== null);
+      // Karsilanamayan yukseltme butonu devre disi gorunur; oyuncu tikladiktan
+      // sonra degil, tiklamadan once anlar.
+      this.upgradeButton.setEnabled(upgrade !== null && this.hooks.canAfford(upgrade.cost));
+    }
+  }
+
+  /** Durum satiri: oyuncunun ilk gormesi gereken sey binanin calisip calismadigidir. */
+  private showStatus(resolved: ResolvedBuilding): void {
     const task = resolved.construction;
     if (task) {
-      const verb = task.kind === 'upgrade' ? 'Yukseltiliyor' : 'Insa ediliyor';
-      if (task.status === 'queued') {
-        lines.push(`${verb} - sirada bekliyor`);
-      } else {
-        lines.push(`${verb} - ${formatDuration(ticksToSeconds(task.remainingTicks))} kaldi`);
+      const verb = task.kind === 'upgrade' ? 'YUKSELTILIYOR' : 'INSA EDILIYOR';
+      const detail =
+        task.status === 'queued'
+          ? 'sirada bekliyor'
+          : `${formatDuration(ticksToSeconds(task.remainingTicks))} kaldi`;
+      this.statusText.setText(`${verb} - ${detail}`).setColor(UIText.accent);
+      return;
+    }
+    if (!resolved.operational) {
+      this.statusText.setText('DURDURULDU').setColor(UIText.danger);
+      return;
+    }
+    if (resolved.workerRequirement > 0 && !resolved.staffed) {
+      this.statusText
+        .setText(resolved.assignedWorkers === 0 ? 'ISCI YOK' : 'ISCI YETERSIZ')
+        .setColor(UIText.danger);
+      return;
+    }
+    this.statusText.setText('CALISIYOR').setColor(UIText.success);
+  }
+
+  /** Ilerleme cubugunu gosterir veya gizler. */
+  private showProgress(ratio: number | null, visible: boolean): void {
+    this.progressTrack.setVisible(visible);
+    this.progressFill.setVisible(visible);
+    if (!visible) return;
+    const full = this.screenWidth - UISpacing.panelPadding * 2;
+    this.progressFill.setDisplaySize(Math.max(2, full * Math.min(1, Math.max(0, ratio ?? 0))), 10);
+  }
+
+  /** Uretim satiri: ikon + dakikalik deger. */
+  private showOutputs(production: Record<string, number | undefined>, muted = false): void {
+    const keys = RESOURCE_ORDER.filter((key) => production[key]);
+    for (let i = 0; i < this.outputIcons.length; i += 1) {
+      const key = keys[i];
+      if (!key) {
+        this.outputIcons[i].setVisible(false);
+        this.outputTexts[i].setVisible(false);
+        continue;
       }
-    } else if (!resolved.operational) {
-      lines.push('DURDURULDU');
-    } else if (resolved.workerRequirement > 0 && !resolved.staffed) {
-      lines.push(resolved.assignedWorkers === 0 ? 'ISCI YOK' : 'ISCI YETERSIZ');
-    } else {
-      lines.push('CALISIYOR');
+      this.outputIcons[i].setTexture(iconKeyFor(key)).setVisible(true).setAlpha(muted ? 0.5 : 1);
+      this.outputTexts[i]
+        .setText(`+${formatRate(production[key] ?? 0)}/dk`)
+        .setColor(muted ? UIText.muted : UIText.primary)
+        .setVisible(true);
     }
+  }
 
-    // Insaat sirasinda uretim degerleri sifirdir; o seviyenin tanimini gosteririz.
-    // Calisir binada ise GERCEK uretim gosterilir: kadro eksikse "+4/dk"
-    // yazip 3 uretmek oyuncuyu yaniltirdi. Potansiyel, eksik kadro
-    // durumunda parantez icinde ayrica belirtilir.
-    const potential = def.levels.find((l) => l.level === resolved.level)?.production ?? {};
-    const production = resolved.construction ? potential : resolved.effectiveProduction;
+  private hasOutput(production: Record<string, number | undefined>): boolean {
+    return RESOURCE_ORDER.some((key) => production[key]);
+  }
 
-    const parts = RESOURCE_ORDER.filter((key) => production[key]).map((key) => {
-      const rate = `${RESOURCE_META[key].label} +${formatRate(production[key] ?? 0)}/dk`;
-      const full = potential[key] ?? 0;
-      const short = !resolved.construction && !resolved.staffed && full > (production[key] ?? 0);
-      return short ? `${rate} (tam kadro: ${formatRate(full)})` : rate;
-    });
-    if (parts.length) lines.push(parts.join('  '));
-
-    // Kadro artik oyuncunun kararidir; sayilar metin yerine ALT SATIRDAKI
-    // atama denetimlerinde gosterilir. Insaati suren binaya isci
-    // yollanamadigi icin orada yalnizca ihtiyac yazilir.
-    const underBuild = resolved.construction?.kind === 'build';
-    if (resolved.workerRequirement && underBuild) {
-      lines.push(`${resolved.workerRequirement} isci ister`);
-    }
-    this.showWorkerRow(building, resolved, underBuild);
+  /** Maliyet, kazanc ve kapasite bilgileri - panelin en alt katmani. */
+  private showDetails(def: ReturnType<typeof getBuilding>, resolved: ResolvedBuilding): void {
+    const lines: string[] = [];
 
     const populationCapacity =
       resolved.populationCapacity ||
       (def.levels.find((l) => l.level === resolved.level)?.populationCapacity ?? 0);
-    if (populationCapacity) lines.push(`+${populationCapacity} nufus kapasitesi`);
-
     const storageCapacity =
       resolved.storageCapacity ||
       (def.levels.find((l) => l.level === resolved.level)?.storageCapacity ?? 0);
-    if (storageCapacity) lines.push(`+${storageCapacity} depo`);
+    const capacity: string[] = [];
+    if (populationCapacity) capacity.push(`+${populationCapacity} nufus`);
+    if (storageCapacity) capacity.push(`+${storageCapacity} depo`);
+    // Uretim satiri kadro eksikken zaten SONUK potansiyeli gosteriyor;
+    // ayni bilgiyi burada tekrarlamak paneli kalabaliklastiriyordu.
+    if (capacity.length) lines.push(capacity.join('   '));
 
-    // Yukseltme secenegi: resolver devam eden gorev varken null dondurur.
     const upgrade = resolved.upgrade;
     if (upgrade) {
       const cost = RESOURCE_ORDER.filter((key) => upgrade.cost[key])
@@ -394,18 +538,6 @@ export class InfoPanel extends Phaser.GameObjects.Container {
 
     if (!lines.length) lines.push(def.description);
     this.bodyText.setText(lines.join('\n'));
-
-    // Buton yuvasi: yukseltme surerken iptal, aksi halde yukseltme.
-    if (task?.kind === 'upgrade') {
-      this.upgradeButtonMode = 'cancel';
-      this.upgradeButton.setText('Iptal').setVisible(true).setEnabled(true);
-    } else {
-      this.upgradeButtonMode = 'upgrade';
-      this.upgradeButton.setText('Yukselt').setVisible(upgrade !== null);
-      // Karsilanamayan yukseltme butonu devre disi gorunur; oyuncu tikladiktan
-      // sonra degil, tiklamadan once anlar.
-      this.upgradeButton.setEnabled(upgrade !== null && this.canAfford(upgrade.cost));
-    }
   }
 
   /**
@@ -430,13 +562,13 @@ export class InfoPanel extends Phaser.GameObjects.Container {
     this.workerText.setVisible(visible);
     if (!visible) return;
 
-    const info = this.workerInfo(building.uid);
+    const info = this.hooks.workerInfo(building.uid);
     const enRoute = info.claimed - info.working;
 
     // Yoldaki isci AYRI gosterilir: "2/3" yazip uretimin neden hala eksik
     // oldugunu soylememek oyuncuyu yanlis yonlendirirdi.
-    const route = enRoute > 0 ? ` (+${enRoute} yolda)` : '';
-    this.workerText.setText(`Isci ${info.working}/${need}${route}   Bosta ${info.idle}`);
+    const route = enRoute > 0 ? `  (+${enRoute} yolda)` : '';
+    this.workerText.setText(`Isciler ${info.working} / ${need}${route}   Bosta ${info.idle}`);
     // Kadro eksikse dikkat cek; tamsa sakin dursun.
     this.workerText.setColor(info.claimed >= need ? UIText.primary : UIText.accent);
 
@@ -445,14 +577,46 @@ export class InfoPanel extends Phaser.GameObjects.Container {
     this.releaseButton.setEnabled(info.claimed > 0);
   }
 
-  private showTerrain(tile: TileData): void {
+  /**
+   * Bos karo secildiginde YAPI ALANI bilgisi gosterir.
+   *
+   * Sprint 12'de burada yalnizca zemin adi ve "bu alan bos" yaziyordu;
+   * oyuncu bir alana dokundugunda "buraya ne yapabilirim?" sorusunun
+   * cevabini alamiyordu. Artik bolge, kabul edilen bina turleri ve - alan
+   * kilitliyse - kilidin sebebi yazilir.
+   */
+  private showPlot(tile: TileData): void {
     this.upgradeButton.setVisible(false);
     this.releaseButton.setVisible(false);
     this.assignButton.setVisible(false);
     this.workerText.setVisible(false);
-    this.titleText.setText(TERRAIN_LABELS[tile.terrain] ?? tile.terrain);
+    this.levelText.setVisible(false);
+    this.showOutputs({}, false);
+    this.showProgress(null, false);
+
+    const plot = this.hooks.plotAt(tile.gx, tile.gy);
+    if (!plot) {
+      this.titleText.setText(TERRAIN_LABELS[tile.terrain] ?? tile.terrain);
+      this.statusText.setText('YAPIYA KAPALI').setColor(UIText.muted);
+      this.bodyText.setText(
+        `Konum ${tile.gx}, ${tile.gy}\nBurasi sokak veya dogal alan; bina kurulamaz.`,
+      );
+      return;
+    }
+
+    this.titleText.setText(ZONE_LABELS[plot.zone] ?? plot.zone);
+    if (!plot.unlocked) {
+      this.statusText.setText('KILITLI').setColor(UIText.accent);
+      this.bodyText.setText(
+        'Bu alan henuz acilmadi.\nSehir merkezini yukselterek yeni alanlar acilir.',
+      );
+      return;
+    }
+
+    this.statusText.setText('BOS YAPI ALANI').setColor(UIText.success);
+    const names = plot.allowedTypes.map((type) => getBuilding(type).name).join(', ');
     this.bodyText.setText(
-      `Konum ${tile.gx}, ${tile.gy}\nBu alan bos. Insa etmek icin alttaki menuyu kullan.`,
+      `Kabul edilen binalar: ${names}\nInsa etmek icin alttaki INSA ET dugmesini kullan.`,
     );
   }
 }

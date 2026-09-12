@@ -344,6 +344,25 @@ export interface BuildingPlot {
   unlocked: boolean;
 }
 
+/** Sehir cevresine konan dekor cesitleri. Hepsi yalnizca gorseldir. */
+export type DecorKind = 'tree' | 'bush' | 'rock' | 'amphora' | 'logs' | 'column' | 'reed';
+
+/**
+ * Tek bir dekor ogesi.
+ *
+ * OYUN DURUMU DEGILDIR: kayda yazilmaz, izgara dolulugunu degistirmez ve
+ * navigasyonu etkilemez. Yerlesim seed'den turedigi icin her acilista ayni
+ * uretilir.
+ */
+export interface DecorItem {
+  gx: number;
+  gy: number;
+  kind: DecorKind;
+  /** Karonun kendi eksenlerinde kaydirma (-1..1); karo merkezi bos kalir. */
+  offsetU: number;
+  offsetV: number;
+}
+
 /** Tek bir izgara hucresinin durumu. */
 export interface TileData {
   gx: number;

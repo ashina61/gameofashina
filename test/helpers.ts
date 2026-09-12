@@ -10,6 +10,7 @@ import { Simulation } from '@/core/Simulation';
 import { ResourceSystem } from '@/systems/ResourceSystem';
 import { ConstructionSystem } from '@/systems/ConstructionSystem';
 import { BuildingPlotSystem } from '@/systems/BuildingPlotSystem';
+import { CityDecorSystem } from '@/systems/CityDecorSystem';
 import { BuildingSystem } from '@/systems/BuildingSystem';
 import { UpgradeSystem } from '@/systems/UpgradeSystem';
 import { EconomySystem } from '@/systems/EconomySystem';
@@ -24,6 +25,7 @@ export interface TestWorld {
   resources: ResourceSystem;
   construction: ConstructionSystem;
   plots: BuildingPlotSystem;
+  decor: CityDecorSystem;
   buildings: BuildingSystem;
   upgrades: UpgradeSystem;
   population: PopulationSystem;
@@ -45,6 +47,7 @@ export function wrap(state: GameState): TestWorld {
   const resources = new ResourceSystem(state, bus);
   const construction = new ConstructionSystem(state, resources, bus);
   const plots = new BuildingPlotSystem(state.grid);
+  const decor = new CityDecorSystem(state.grid, plots);
   const buildings = new BuildingSystem(state, resources, construction, bus, plots);
   const upgrades = new UpgradeSystem(state, resources, construction);
   const population = new PopulationSystem(state, resources, bus);
@@ -66,6 +69,7 @@ export function wrap(state: GameState): TestWorld {
     resources,
     construction,
     plots,
+    decor,
     buildings,
     upgrades,
     population,

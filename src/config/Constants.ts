@@ -116,6 +116,17 @@ export const MIN_ZOOM = 0.3;
 export const MAX_ZOOM = 1.6;
 
 /**
+ * Arayuzun ekranin UST ve ALT kenarindan kapladigi mantiksal yukseklik.
+ *
+ * Sehir kamerasi kadraji bu iki degerden turer: harita, arayuzun ARTAKALAN
+ * bandinda ortalanir. Ikisi de arayuzun kendi yerlesiminde de kullanilir,
+ * boylece "kamera nereye ortaliyor" ile "arayuz nereyi kapatiyor" tek
+ * kaynaktan gelir ve birbirinden kayamaz.
+ */
+export const TOP_UI_BAND = 84;
+export const BOTTOM_UI_BAND = 150;
+
+/**
  * Acilista ekrana sigmasi hedeflenen karo sayisi (yatay).
  * Baslangic zoom'u ekran genisligine gore bundan hesaplanir; boylece dar bir
  * telefonda da genis bir tablette de benzer bir kadraj olusur.
@@ -166,9 +177,12 @@ export const TextureKeys = {
   TileSoil: 'tile-soil',
   TileWater: 'tile-water',
   TileRock: 'tile-rock',
+  TileStreet: 'tile-street',
+  TilePlaza: 'tile-plaza',
   TileHighlight: 'tile-highlight',
   TileValid: 'tile-valid',
   TileInvalid: 'tile-invalid',
+  TileLocked: 'tile-locked',
   Panel: 'ui-panel',
   Pixel: 'ui-pixel',
   ButtonUp: 'ui-button-up',

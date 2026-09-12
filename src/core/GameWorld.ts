@@ -9,6 +9,7 @@ import { ConstructionSystem } from '@/systems/ConstructionSystem';
 import { EconomySystem } from '@/systems/EconomySystem';
 import { PopulationSystem } from '@/systems/PopulationSystem';
 import { BuildingPlotSystem } from '@/systems/BuildingPlotSystem';
+import { CityDecorSystem } from '@/systems/CityDecorSystem';
 import { NavigationSystem } from '@/systems/NavigationSystem';
 import { ResourceSystem } from '@/systems/ResourceSystem';
 import { WorkforceSystem } from '@/systems/WorkforceSystem';
@@ -29,6 +30,8 @@ export class GameWorld {
   readonly resources: ResourceSystem;
   readonly construction: ConstructionSystem;
   readonly plots: BuildingPlotSystem;
+  /** Sehir cevresi dekoru - yalnizca gorsel, kayda yazilmaz. */
+  readonly decor: CityDecorSystem;
   readonly buildings: BuildingSystem;
   readonly upgrades: UpgradeSystem;
   readonly population: PopulationSystem;
@@ -62,6 +65,8 @@ export class GameWorld {
       this.bus,
       this.plots,
     );
+    // Dekor plotlardan SONRA kurulur: plot olan karo dekor almaz.
+    this.decor = new CityDecorSystem(state.grid, this.plots);
     this.upgrades = new UpgradeSystem(state, this.resources, this.construction);
     this.population = new PopulationSystem(state, this.resources, this.bus);
     // Gezilebilirlik GridMap'ten canli okunur; ayri bir engel kopyasi yok.

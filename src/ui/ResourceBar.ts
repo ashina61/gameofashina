@@ -1,34 +1,44 @@
 import Phaser from 'phaser';
-import { RESOURCE_META, RESOURCE_ORDER, TextureKeys } from '@/config/Constants';
+import { RESOURCE_ORDER, TOP_UI_BAND, TextureKeys } from '@/config/Constants';
+import { iconKeyFor } from '@/render/IconArt';
 import { formatAmount, formatRate } from '@/utils/Format';
 import { UISpacing, labelStyle, UIText } from './UIStyle';
 import type { EconomySnapshot, ResourcePool, WorkforceSnapshot } from '@/types';
 
 /**
- * Ekranin ustunde duran kaynak gostergesi.
- * Kaynak miktari, dakikalik net uretim ve nufus doluluğunu gosterir.
+ * Ekranin ustundeki SEHIR CUBUGU.
+ *
+ * Iki satir tasir ve ikisinin isi farklidir (bilgi hiyerarsisi, Sprint 13 §13):
+ *
+ *   1. KIMLIK satiri  - sehrin adi, sehir merkezinin seviyesi, nufus ve
+ *                       bostaki isci. "Sehrim ne durumda?" sorusu.
+ *   2. KAYNAK satiri  - dort kaynagin ikonu, miktari ve dakikalik akisi.
+ *                       "Neyi karsilayabilirim?" sorusu.
+ *
+ * Depo tavani yaklasirken miktarin yanina kapasite yazilir (312/500) ve
+ * renk degisir; cubuk sessizce kirmizilasmak yerine SAYIYI gosterir, cunku
+ * "neden birikmiyor?" sorusunun cevabi kapasitenin kendisidir.
+ *
  * Genislik degistiginde layout() cagrilarak yeniden dizilir.
  */
 export class ResourceBar extends Phaser.GameObjects.Container {
+  private static readonly HEIGHT = TOP_UI_BAND;
+
+  /** Kapasitenin bu oranindan sonra "x/y" gosterimi acilir. */
+  private static readonly SHOW_CAPACITY_AT = 0.85;
+  /** Bu orandan sonra sayi uyari rengine gecer. */
+  private static readonly WARN_AT = 0.85;
+
   private readonly background: Phaser.GameObjects.NineSlice;
   private readonly amountTexts = new Map<string, Phaser.GameObjects.Text>();
   private readonly rateTexts = new Map<string, Phaser.GameObjects.Text>();
-  private readonly icons: Phaser.GameObjects.Graphics[] = [];
-  private readonly populationText: Phaser.GameObjects.Text;
-  /** Bosta bekleyen isci sayisi; atama yapilabilecegini oyuncuya hatirlatir. */
-  private readonly idleText: Phaser.GameObjects.Text;
+  private readonly icons: Phaser.GameObjects.Image[] = [];
 
-  private static readonly HEIGHT = 60;
-  /** Nufus gostergesine ayrilan sabit genislik. */
-  /**
-   * Nufus sutununun genisligi. Sprint 3'te metin "5/9" yerine "10/10 +"
-   * gibi daha uzun bir hale geldi (gidisat isareti eklendi), bu yuzden
-   * sutun buyutuldu; aksi halde dar telefonda son kaynagin orani ile
-   * ust uste binerdi. Sprint 8'de alt satira "Bosta N (M yolda)" eklendi ve
-   * sutun yeniden buyutuldu; 104 pikselde bu satir son kaynagin oranini
-   * ortuyordu (ekran goruntusuyle dogrulandi).
-   */
-  private static readonly POPULATION_WIDTH = 124;
+  /** Kimlik satiri. */
+  private readonly cityText: Phaser.GameObjects.Text;
+  private readonly hallText: Phaser.GameObjects.Text;
+  private readonly populationText: Phaser.GameObjects.Text;
+  private readonly idleText: Phaser.GameObjects.Text;
 
   constructor(scene: Phaser.Scene, width: number) {
     super(scene, 0, 0);
@@ -38,31 +48,37 @@ export class ResourceBar extends Phaser.GameObjects.Container {
       .setOrigin(0, 0);
     this.add(this.background);
 
-    for (const key of RESOURCE_ORDER) {
-      const meta = RESOURCE_META[key];
+    this.cityText = scene.add
+      .text(0, 0, 'ANCIENT CITY', labelStyle(13, UIText.accent, true))
+      .setOrigin(0, 0.5);
+    this.hallText = scene.add
+      .text(0, 0, 'Merkez yok', labelStyle(10, UIText.muted))
+      .setOrigin(0, 0.5);
+    this.populationText = scene.add
+      .text(0, 0, 'Nufus 0/0', labelStyle(12, UIText.primary, true))
+      .setOrigin(1, 0.5);
+    this.idleText = scene.add
+      .text(0, 0, '0 bosta', labelStyle(10, UIText.muted))
+      .setOrigin(1, 0.5);
+    this.add([this.cityText, this.hallText, this.populationText, this.idleText]);
 
-      const icon = scene.add.graphics();
-      icon.fillStyle(meta.color, 1);
-      icon.fillCircle(0, 0, 7);
-      icon.lineStyle(2, 0x000000, 0.25);
-      icon.strokeCircle(0, 0, 7);
+    for (const key of RESOURCE_ORDER) {
+      const icon = scene.add
+        .image(0, 0, iconKeyFor(key))
+        .setOrigin(0.5, 0.5)
+        // Ikon sutunu daraltmasin: 26 piksellik tuval 22'ye kucultulur.
+        .setDisplaySize(22, 22);
       this.icons.push(icon);
       this.add(icon);
 
-      const amount = scene.add.text(0, 0, '0', labelStyle(15, UIText.primary, true)).setOrigin(0, 0.5);
+      const amount = scene.add
+        .text(0, 0, '0', labelStyle(14, UIText.primary, true))
+        .setOrigin(0, 0.5);
       const rate = scene.add.text(0, 0, '0', labelStyle(11, UIText.muted)).setOrigin(0, 0.5);
       this.amountTexts.set(key, amount);
       this.rateTexts.set(key, rate);
       this.add([amount, rate]);
     }
-
-    this.populationText = scene.add
-      .text(0, 0, 'Nufus 0/0', labelStyle(12, UIText.muted))
-      .setOrigin(1, 0.5);
-    this.idleText = scene.add
-      .text(0, 0, 'Bosta 0 isci', labelStyle(11, UIText.muted))
-      .setOrigin(1, 0.5);
-    this.add([this.populationText, this.idleText]);
 
     this.layout(width);
     scene.add.existing(this);
@@ -75,90 +91,96 @@ export class ResourceBar extends Phaser.GameObjects.Container {
 
   /**
    * Ekran genisligi degistiginde ogeleri yeniden dizer.
-   * sideInset, sistem cubuklarinin sol/sag payi kadar ek bosluk birakir;
-   * 0 verildiginde yerlesim degismez.
+   * sideInset, sistem cubuklarinin sol/sag payi kadar ek bosluk birakir.
    */
   layout(width: number, sideInset = 0): void {
     this.background.setSize(width, ResourceBar.HEIGHT);
 
-    // Sag tarafta nufus gostergesine sabit bir sutun ayrilir; aksi halde dar
-    // ekranlarda son kaynagin orani ile ust uste biner.
-    const usable = width - UISpacing.panelPadding * 2 - sideInset * 2 - ResourceBar.POPULATION_WIDTH;
-    const columnWidth = usable / RESOURCE_ORDER.length;
-    const centerY = ResourceBar.HEIGHT / 2;
+    const left = UISpacing.panelPadding + sideInset;
+    const right = width - UISpacing.panelPadding - sideInset;
+
+    // 1. Kimlik satiri
+    const idY = 17;
+    this.cityText.setPosition(left, idY);
+    this.hallText.setPosition(left + this.cityText.width + 8, idY + 1);
+    this.populationText.setPosition(right, idY - 1);
+    this.idleText.setPosition(right, idY + 13);
+
+    /*
+     * 2. Kaynak satiri
+     *
+     * Miktar ve oran ALT ALTA durur; ikisi de ikonun sagindan baslar.
+     * Dikey aralik 18 piksel: 15px ve 11px yazilarin kutulari 16 pikselde
+     * yarim piksel ust uste biniyordu (Sprint 12'de 360x800'de olculdu).
+     */
+    const columnWidth = (width - left - (width - right)) / RESOURCE_ORDER.length;
+    const iconY = ResourceBar.HEIGHT - 30;
 
     RESOURCE_ORDER.forEach((key, index) => {
-      const x = UISpacing.panelPadding + sideInset + columnWidth * index;
-      this.icons[index].setPosition(x + 8, centerY);
-      this.amountTexts.get(key)?.setPosition(x + 20, centerY - 6);
-      // +12, +10 degil: miktar 15px (20 piksel yuksek), oran 11px (13 piksel).
-      // 16 piksellik arayla iki kutu yarim piksel ust uste biniyordu
-      // (olculdu: miktar 14..34, oran 33.5..46.5). Iki piksel asagi almak
-      // cubugun 60 piksellik yuksekligini asmadan araligi acar.
-      this.rateTexts.get(key)?.setPosition(x + 20, centerY + 12);
+      const x = left + columnWidth * index;
+      this.icons[index].setPosition(x + 11, iconY);
+      const textX = x + 24;
+      this.amountTexts.get(key)?.setPosition(textX, iconY - 8);
+      this.rateTexts.get(key)?.setPosition(textX, iconY + 10);
     });
-
-    const right = width - UISpacing.panelPadding - sideInset;
-    this.populationText.setPosition(right, centerY - 9);
-    this.idleText.setPosition(right, centerY + 9);
   }
 
-  /** Kaynak miktarlarini gunceller; depo dolduysa rengi degistirir. */
+  /** Sehir merkezinin seviyesini gosterir; yoksa kurulmasi gerektigini soyler. */
+  updateCity(hallLevel: number | null): void {
+    this.hallText.setText(hallLevel === null ? 'Merkez yok' : `Merkez Sv. ${hallLevel}`);
+    this.hallText.setColor(hallLevel === null ? UIText.accent : UIText.muted);
+  }
+
+  /** Kaynak miktarlarini gunceller; depo dolmaya yaklastiysa kapasiteyi de yazar. */
   updateResources(resources: ResourcePool, capacity: number): void {
     for (const key of RESOURCE_ORDER) {
       const text = this.amountTexts.get(key);
       if (!text) continue;
       const value = resources[key];
-      text.setText(formatAmount(value));
-      // Depo doluysa oyuncunun dikkatini cek.
-      text.setColor(value >= capacity ? UIText.danger : UIText.primary);
+      const ratio = capacity > 0 ? value / capacity : 0;
+
+      /*
+       * Kapasite YALNIZCA yaklasinca yazilir.
+       *
+       * Hepsini her zaman "12/300" diye yazmak dar telefonda dort sutunu
+       * tasiriyordu ve oyunun ilk on dakikasinda hicbir ise yaramiyordu.
+       * Tavan bir sorun HALINE GELDIGINDE gorunur olmasi yeterli.
+       */
+      /*
+       * Kapasite gorunurken yazi KUCULUR.
+       *
+       * "220/300" 14 piksellik kalin yazida 90 piksellik sutunu tasiyor ve
+       * yandaki ikonun uzerine biniyordu (360x800'de olculdu). Iki kat
+       * bilgi, bir kat yer.
+       */
+      const showCapacity = ratio >= ResourceBar.SHOW_CAPACITY_AT;
+      text.setText(
+        showCapacity ? `${formatAmount(value)}/${formatAmount(capacity)}` : formatAmount(value),
+      );
+      text.setFontSize(showCapacity ? 12 : 14);
+      if (value >= capacity) text.setColor(UIText.danger);
+      else if (ratio >= ResourceBar.WARN_AT) text.setColor(UIText.accent);
+      else text.setColor(UIText.primary);
     }
   }
 
   /** Dakikalik uretim oranlarini ve nufusu gunceller. */
   updateEconomy(snapshot: EconomySnapshot): void {
     for (const key of RESOURCE_ORDER) {
+      const rate = snapshot.netPerMinute[key] ?? 0;
       const text = this.rateTexts.get(key);
       if (!text) continue;
-      const rate = snapshot.netPerMinute[key];
       text.setText(`${formatRate(rate)}/dk`);
-      text.setColor(rate < 0 ? UIText.danger : UIText.muted);
+      text.setColor(rate > 0 ? UIText.success : rate < 0 ? UIText.danger : UIText.muted);
     }
 
-    // Nufus artik gercek bir sayidir: YASAYAN / KAPASITE gosterilir.
-    // Isaret nufusun yonunu, renk aciliyeti anlatir:
-    //   kirmizi  - nufus eriyor (aclik); en acil durum
-    //   sari     - isci acigi var, binalar tam kapasite calismiyor
-    //   yesil    - sehir buyuyor
-    const marker =
-      snapshot.growth === 'growing' ? ' +' : snapshot.growth === 'declining' ? ' -' : '';
-    const understaffed = snapshot.efficiency < 1;
-
-    const color =
-      snapshot.growth === 'declining'
-        ? UIText.danger
-        : understaffed
-          ? UIText.accent
-          : snapshot.growth === 'growing'
-            ? UIText.success
-            : UIText.muted;
-
-    this.populationText
-      .setText(`Nufus ${snapshot.population}/${snapshot.populationCapacity}${marker}`)
-      .setColor(color);
+    this.populationText.setText(`Nufus ${snapshot.population}/${snapshot.populationCapacity}`);
   }
 
-  /**
-   * Bostaki isci sayisini gunceller.
-   *
-   * Atama artik oyuncunun isi oldugu icin bu sayi surekli gorunur durmali:
-   * aksi halde oyuncu elinde bekleyen isci oldugunu ancak bir bina secip
-   * paneli acinca fark ederdi. Bosta isci VARSA vurgulanir.
-   */
+  /** Bostaki isci sayisini gosterir; atama yapilabilecegini hatirlatir. */
   updateWorkforce(snapshot: WorkforceSnapshot): void {
-    const suffix = snapshot.moving > 0 ? ` (${snapshot.moving} yolda)` : '';
-    this.idleText
-      .setText(`Bosta ${snapshot.idle}${suffix}`)
-      .setColor(snapshot.idle > 0 ? UIText.accent : UIText.muted);
+    const moving = snapshot.moving > 0 ? ` · ${snapshot.moving} yolda` : '';
+    this.idleText.setText(`${snapshot.idle} bosta${moving}`);
+    this.idleText.setColor(snapshot.idle > 0 ? UIText.accent : UIText.muted);
   }
 }

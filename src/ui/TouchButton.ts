@@ -7,6 +7,8 @@ export interface TouchButtonConfig {
   height?: number;
   fontSize?: number;
   color?: string;
+  /** Yazinin soluna konan ikon dokusu; verilmezse yalnizca yazi cizilir. */
+  icon?: string;
   onPress: () => void;
 }
 
@@ -20,6 +22,7 @@ export interface TouchButtonConfig {
 export class TouchButton extends Phaser.GameObjects.Container {
   private readonly background: Phaser.GameObjects.NineSlice;
   private readonly label: Phaser.GameObjects.Text;
+  private icon: Phaser.GameObjects.Image | null = null;
   private pressed = false;
   private enabled = true;
 
@@ -38,6 +41,22 @@ export class TouchButton extends Phaser.GameObjects.Container {
       .setOrigin(0.5, 0.5);
 
     this.add([this.background, this.label]);
+
+    /*
+     * Ikon varsa yazi ile birlikte ORTALANIR.
+     *
+     * Ikonu sabit bir yere koymak, yazi degistiginde (INSA ET -> KAPAT)
+     * ikiliyi ekrandan kaydiriyordu. Ikisi tek bir blok gibi hesaplanir.
+     */
+    if (config.icon) {
+      const iconSize = (config.fontSize ?? 15) + 9;
+      this.icon = scene.add
+        .image(0, 0, config.icon)
+        .setOrigin(0.5, 0.5)
+        .setDisplaySize(iconSize, iconSize);
+      this.add(this.icon);
+      this.alignWithIcon();
+    }
     this.setSize(width, height);
 
     // Hit alani (0,0)'dan baslar, -width/2'den DEGIL.
@@ -67,7 +86,18 @@ export class TouchButton extends Phaser.GameObjects.Container {
   /** Buton metnini gunceller. */
   setText(text: string): this {
     this.label.setText(text);
+    this.alignWithIcon();
     return this;
+  }
+
+  /** Ikon + yaziyi butonun icinde tek blok olarak ortalar. */
+  private alignWithIcon(): void {
+    if (!this.icon) return;
+    const gap = 7;
+    const total = this.icon.displayWidth + gap + this.label.width;
+    const start = -total / 2;
+    this.icon.setPosition(start + this.icon.displayWidth / 2, 0);
+    this.label.setPosition(start + this.icon.displayWidth + gap + this.label.width / 2, 0);
   }
 
   /** Butonu etkin/devre disi yapar; devre disi buton soluk gorunur. */

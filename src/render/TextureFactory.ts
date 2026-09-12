@@ -12,7 +12,10 @@ import {
   visualKeyFor,
 } from './BuildingVisuals';
 import { WORKER_HEIGHT, WORKER_WIDTH, drawWorker } from './WorkerArt';
-import type { TerrainType, WorkerState } from '@/types';
+import { DECOR_ART, DECOR_SPEC, decorKeyFor } from './DecorArt';
+import { ICON_ART, ICON_SIZE, iconKeyFor } from './IconArt';
+import type { IconKind } from './IconArt';
+import type { DecorKind, TerrainType, WorkerState } from '@/types';
 
 /**
  * Tum gorseller calisma zamaninda uretilir; projede ikili varlik dosyasi yoktur.
@@ -75,10 +78,42 @@ export function generateTextures(scene: Phaser.Scene, artScale = 1): void {
     );
   }
 
+  /*
+   * Yol ve meydan, zeminin USTUNE ayri bir sprite olarak degil, zeminle
+   * BIRLIKTE tek dokuya pisirilir.
+   *
+   * Ayri kaplama olarak cizildiginde 115 sokak karosu icin 115 fazladan
+   * sprite olusuyordu ve zemin iki kez boyaniyordu: olculdu, kare hizi
+   * 34'ten 26'ya dusuyordu (GPU'suz ortamda, 390x844). Birlesik doku ayni
+   * gorunusu tek cizimde verir.
+   */
+  for (const terrain of PAVED_TERRAIN) {
+    createTileTexture(
+      scene,
+      pavedKey(TextureKeys.TileStreet, terrain),
+      TERRAIN_COLORS[terrain],
+      TERRAIN_PATTERN[terrain],
+      'street',
+    );
+    createTileTexture(
+      scene,
+      pavedKey(TextureKeys.TilePlaza, terrain),
+      TERRAIN_COLORS[terrain],
+      TERRAIN_PATTERN[terrain],
+      'plaza',
+    );
+  }
+
   createPlotTexture(scene, TextureKeys.PlotMarker);
   createOverlayTexture(scene, TextureKeys.TileHighlight, 0xffffff, 0.28);
   createOverlayTexture(scene, TextureKeys.TileValid, 0x6ee27a, 0.42);
   createOverlayTexture(scene, TextureKeys.TileInvalid, 0xe2565a, 0.42);
+  createOverlayTexture(scene, TextureKeys.TileLocked, 0xb9a068, 0.3);
+
+  // Sehir cevresi: agac, cali, kaya, amfora... Hepsi yalnizca gorseldir.
+  for (const kind of Object.keys(DECOR_SPEC) as DecorKind[]) {
+    createDecorTexture(scene, kind, artScale);
+  }
 
   // Her bina turu icin seviye 1 ve 2 gorselleri ayri ayri pisirilir.
   for (const def of allBuildings()) {
@@ -98,6 +133,11 @@ export function generateTextures(scene: Phaser.Scene, artScale = 1): void {
   // Isci figurleri; her durum icin bir doku, kare basina cizim yok.
   for (const state of WORKER_TEXTURE_KEYS.keys()) {
     createWorkerTexture(scene, state, artScale);
+  }
+
+  // Arayuz ikonlari - emoji degil, oyunun kendi paletiyle cizilir.
+  for (const kind of Object.keys(ICON_ART) as IconKind[]) {
+    createIconTexture(scene, kind, artScale);
   }
 
   createPixelTexture(scene, TextureKeys.Pixel);
@@ -179,12 +219,131 @@ function createScaffoldTexture(scene: Phaser.Scene, size: number, artScale: numb
   g.destroy();
 }
 
-/** Hafif kabartmali izometrik zemin karosu. */
+/** Tek bir arayuz ikonunu dokuya pisirir. */
+function createIconTexture(scene: Phaser.Scene, kind: IconKind, artScale: number): void {
+  const key = iconKeyFor(kind);
+  if (scene.textures.exists(key)) return;
+
+  const g = scene.make.graphics({ x: 0, y: 0 }, false);
+  g.scale = artScale;
+  ICON_ART[kind](g, ICON_SIZE);
+  g.generateTexture(key, Math.ceil(ICON_SIZE * artScale), Math.ceil(ICON_SIZE * artScale));
+  g.destroy();
+}
+
+/** Tek bir dekor ogesinin dokusunu pisirir. */
+function createDecorTexture(scene: Phaser.Scene, kind: DecorKind, artScale: number): void {
+  const key = decorKeyFor(kind);
+  if (scene.textures.exists(key)) return;
+
+  const spec = DECOR_SPEC[kind];
+  const g = scene.make.graphics({ x: 0, y: 0 }, false);
+  g.scale = artScale;
+  DECOR_ART[kind](g, spec);
+  g.generateTexture(key, Math.ceil(spec.width * artScale), Math.ceil(spec.height * artScale));
+  g.destroy();
+}
+
+/**
+ * Zemin karosunun uzerine tas doseme isler.
+ *
+ * Sokaklar Sprint 12'de yalnizca "plot OLMAYAN" karolardi ve zeminle ayni
+ * gorunduklerinden sehir duzeni okunmuyordu. Doseme onlari gorunur kilar.
+ *
+ * Karonun TAMAMINI kaplamaz; kenarindan bir serit zemin gorunur. Tamamini
+ * tas yapmak (sokaklar haritanin %59'u) sehri tas bir platoya cevirmisti.
+ * Ince yesil serit yolu YOL yapar.
+ *
+ * Yalnizca GORSELDIR - izgara, plot sistemi ve navigasyon degismedi.
+ * plaza=true daha genis ve daha acik bir doseme verir; sehir merkezinin
+ * cevresinde meydan hissi kurar.
+ */
+function drawPaving(g: Phaser.GameObjects.Graphics, w: number, h: number, plaza: boolean): void {
+  const cx = w / 2;
+  const cy = h / 2;
+  const inset = plaza ? 0.97 : 0.88;
+  /*
+   * Sokak SOGUK gri, yapi alani SICAK toprak.
+   *
+   * Ikisi de kirectasi tonundayken ekranda ayni renk lekesine donusuyordu
+   * ve sokak agi okunmuyordu (ilk ekran goruntusunde ada tek bir bej
+   * yuzeydi). Ton farki sokagi geri getirir.
+   */
+  const top = plaza ? shade(PALETTE.stoneLight, 0.02) : shade(PALETTE.block, 0.24);
+
+  const face = (scale: number): void => {
+    g.beginPath();
+    g.moveTo(cx, cy - (h / 2) * scale);
+    g.lineTo(cx + (w / 2) * scale, cy);
+    g.lineTo(cx, cy + (h / 2) * scale);
+    g.lineTo(cx - (w / 2) * scale, cy);
+    g.closePath();
+  };
+
+  // Kenar golgesi - doseme zemine GOMULU gorunsun, uzerine konmus gibi degil.
+  g.fillStyle(shade(top, -0.4), 0.4);
+  face(inset);
+  g.fillPath();
+
+  g.fillStyle(top, 1);
+  face(inset * 0.94);
+  g.fillPath();
+
+  /*
+   * Derzler karonun KENDI eksenleri boyunca cizilir.
+   *
+   * Ekran eksenine paralel cizgiler doseme vermiyordu; karo eksenlerine
+   * oturan cizgiler tas bloklarini okutur.
+   */
+  const seams = plaza ? 4 : 3;
+  const span = inset * 0.94;
+  g.lineStyle(1, shade(top, -0.24), plaza ? 0.5 : 0.38);
+  for (let i = 1; i < seams; i += 1) {
+    const t = i / seams;
+    g.beginPath();
+    g.moveTo(cx - (w / 2) * span + t * (w / 2) * span, cy - t * (h / 2) * span);
+    g.lineTo(cx + t * (w / 2) * span, cy + (h / 2) * span - t * (h / 2) * span);
+    g.strokePath();
+    g.beginPath();
+    g.moveTo(cx - (w / 2) * span + t * (w / 2) * span, cy + t * (h / 2) * span);
+    g.lineTo(cx + t * (w / 2) * span, cy - (h / 2) * span + t * (h / 2) * span);
+    g.strokePath();
+  }
+
+  if (plaza) {
+    // Meydan: ortada acik renk bir gobek tasi.
+    g.fillStyle(shade(top, 0.14), 0.95);
+    face(0.46);
+    g.fillPath();
+    g.lineStyle(1, shade(top, -0.2), 0.55);
+    g.strokePath();
+  } else {
+    // Sokak: asinmis birkac tas.
+    g.fillStyle(shade(top, -0.14), 0.45);
+    for (const [fx, fy, rw] of [
+      [0.38, 0.42, 10],
+      [0.6, 0.58, 8],
+    ] as Array<[number, number, number]>) {
+      g.fillEllipse(w * fx, h * fy, rw, rw * 0.5);
+    }
+  }
+}
+
+/** Yol dosemesi alabilen zemin turleri; su doseme almaz. */
+export const PAVED_TERRAIN: TerrainType[] = ['grass', 'soil', 'rock'];
+
+/** Zemin turune gore doseli karo anahtari. */
+export function pavedKey(base: string, terrain: TerrainType): string {
+  return `${base}:${terrain}`;
+}
+
+/** Hafif kabartmali izometrik zemin karosu; istenirse uzerine yol doseli. */
 function createTileTexture(
   scene: Phaser.Scene,
   key: string,
   colors: { top: number; side: number; speck: number },
   pattern: TerrainPattern,
+  paving: 'street' | 'plaza' | null = null,
 ): void {
   if (scene.textures.exists(key)) return;
 
@@ -232,43 +391,68 @@ function createTileTexture(
   g.closePath();
   g.strokePath();
 
+  if (paving) drawPaving(g, w, h, paving === 'plaza');
+
   g.generateTexture(key, w, h + TILE_DEPTH);
   g.destroy();
 }
 
 /**
- * Bos yapi alaninin sakin isareti.
+ * Bos yapi alaninin isareti: HAZIRLANMIS ARSA.
  *
- * Normal oyunda plotlar parlak kareler gibi durmamali; burada yalnizca
- * kirectasi renginde ince bir bordur ve kose taslari var. Insa modunda
- * uzerine ayrica TileValid/TileInvalid kaplamasi biner - ayri bir "secili"
- * dokusuna gerek kalmaz.
+ * Sprint 12'de yalnizca ince bir bordurdu ve bos alanlar yabani zeminle
+ * ayni gorunuyordu; 2x2'lik bir ada icinde dort farkli zemin rengi
+ * oldugunda sehir "rastgele renkli karolar" gibi okunuyordu (olculdu:
+ * ekran goruntusunde bir adanin dort karosu uc ayri renkteydi).
+ *
+ * Artik alan, uzeri duzlenmis acik toprak bir PED olarak cizilir: ada
+ * icindeki karolar birbirine benzer, sehir dokusu birlesir ve oyuncu
+ * "buraya bina kurulur" bilgisini bakar bakmaz alir. Yine de sakindir -
+ * dolgu dusuk alfali, bordur ince.
  */
 function createPlotTexture(scene: Phaser.Scene, key: string): void {
   if (scene.textures.exists(key)) return;
 
   const w = TILE_WIDTH;
   const h = TILE_HEIGHT;
+  const cx = w / 2;
+  const cy = h / 2;
   const g = scene.make.graphics({ x: 0, y: 0 }, false);
-  const inset = 0.72;
 
-  // Ince kirectasi bordur.
-  g.lineStyle(2, PALETTE.stoneLight, 0.32);
-  g.beginPath();
-  g.moveTo(w / 2, h / 2 - (h / 2) * inset);
-  g.lineTo(w / 2 + (w / 2) * inset, h / 2);
-  g.lineTo(w / 2, h / 2 + (h / 2) * inset);
-  g.lineTo(w / 2 - (w / 2) * inset, h / 2);
-  g.closePath();
+  const face = (scale: number): void => {
+    g.beginPath();
+    g.moveTo(cx, cy - (h / 2) * scale);
+    g.lineTo(cx + (w / 2) * scale, cy);
+    g.lineTo(cx, cy + (h / 2) * scale);
+    g.lineTo(cx - (w / 2) * scale, cy);
+    g.closePath();
+  };
+
+  /*
+   * Duzlenmis toprak ped - SAKIN.
+   *
+   * Ilk denemede dolgu 0.5 alfaliydi ve butun ada bej bir yuzeye
+   * donusuyordu; zemin cesitliligi de sokak agi da kayboluyordu. Dusuk
+   * alfa alani belli eder ama zemini ortmez.
+   */
+  g.fillStyle(shade(PALETTE.adobeLight, 0.12), 0.26);
+  face(0.86);
+  g.fillPath();
+
+  // Ince kirectasi bordur ve kose sinir taslari.
+  g.lineStyle(2, PALETTE.stoneLight, 0.3);
+  face(0.9);
   g.strokePath();
 
-  // Dort kosede kucuk sinir tasi.
-  g.fillStyle(PALETTE.stone, 0.4);
-  const corner = 3;
-  g.fillCircle(w / 2, h / 2 - (h / 2) * inset, corner);
-  g.fillCircle(w / 2 + (w / 2) * inset, h / 2, corner);
-  g.fillCircle(w / 2, h / 2 + (h / 2) * inset, corner);
-  g.fillCircle(w / 2 - (w / 2) * inset, h / 2, corner);
+  g.fillStyle(PALETTE.stone, 0.42);
+  for (const [dx, dy] of [
+    [0, -1],
+    [1, 0],
+    [0, 1],
+    [-1, 0],
+  ]) {
+    g.fillCircle(cx + dx * (w / 2) * 0.9, cy + dy * (h / 2) * 0.9, 3);
+  }
 
   g.generateTexture(key, w, h);
   g.destroy();

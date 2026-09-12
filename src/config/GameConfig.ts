@@ -7,8 +7,17 @@ import { renderTargets } from '@/utils/RenderScale';
  * boylece core/ ve systems/ katmanlari Phaser'i import etmeden o veriye erisir.
  */
 
-/** Sahne disindaki arka plan (letterbox) rengi. */
-export const BACKGROUND_COLOR = '#12100b';
+/**
+ * Tuvalin temizleme rengi: ACIK DENIZ.
+ *
+ * Sehir bir adadir ve izgara ekrandan kucuktur; cevresi once siyahti,
+ * sonra kamera arka plan rengiyle denize boyandi. Kameranin arka plan
+ * rengi her kare TAM EKRAN bir dikdortgen cizdiriyor ve GPU'suz ortamda
+ * kare hizinin dortte birini yiyordu (olculdu: 33 -> 23 FPS). Oyun
+ * duzeyindeki renk ise dogrudan gl.clearColor'dir: tampon zaten her kare
+ * temizlendigi icin maliyeti yoktur.
+ */
+export const BACKGROUND_COLOR = '#2f6a8c';
 
 /**
  * Phaser oyun yapilandirmasini uretir.

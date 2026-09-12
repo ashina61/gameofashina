@@ -1,11 +1,17 @@
 /**
- * Sprint 12 - mobil yerlesim denetimi.
+ * Sprint 13 - mobil yerlesim ve okunabilirlik denetimi.
  *
  * Kullanim:  node bench/mobile.mjs [url] [dpr]
  *
- * Arayuzun DAR ekranlarda tasmadigini, butonlarin ust uste binmedigini ve
- * metinlerin kirpilmadigini olcer. Olcum ekran goruntusune degil, Phaser
- * nesnelerinin gercek sinir dikdortgenlerine dayanir.
+ * Arayuzun DAR ekranlarda tasmadigini, ogelerin ust uste binmedigini,
+ * metinlerin kirpilmadigini ve sehrin gercekten GORUNUR oldugunu olcer.
+ * Olcum ekran goruntusune degil, Phaser nesnelerinin gercek sinir
+ * dikdortgenlerine dayanir.
+ *
+ * Cakisma testi hem YATAY hem DIKEY ortusmeye bakar: arayuz bilerek alt
+ * alta satirlar diziyor (miktar/oran, nufus/bosta) ve yalnizca yatay
+ * araligi karsilastirmak bunlari cakisma sayiyordu (Sprint 12'de olculdu:
+ * her ekranda 5 sahte cakisma).
  */
 import { chromium } from '/opt/node22/lib/node_modules/playwright/index.mjs';
 
@@ -28,6 +34,8 @@ for (const viewport of VIEWPORTS) {
   page.on('console', (m) => { if (m.type() === 'error') errors.push(`${viewport.width}: ${m.text()}`); });
 
   await page.goto(URL, { waitUntil: 'load' });
+  await page.evaluate(() => localStorage.clear());
+  await page.reload({ waitUntil: 'load' });
   await page.waitForTimeout(2400);
 
   // Sehri kur ki bilgi paneli dolu icerikle olculsun.
@@ -42,18 +50,23 @@ for (const viewport of VIEWPORTS) {
       }
       return null;
     };
-    put('town_hall'); put('house'); put('house');
+    const hall = put('town_hall');
+    put('house'); put('house');
     const camp = put('lumber_camp');
     for (let i = 0; i < 900; i += 1) w.simulation.advance(1);
     while (w.workforce.assign(camp.uid).ok) { /* kadro */ }
     for (let i = 0; i < 60 && w.workforce.snapshot.moving > 0; i += 1) w.simulation.advance(1);
+    window.__hall = [hall.gx, hall.gy];
     cs.selectTile(w.state.grid.getTile(camp.gx, camp.gy));
   });
   await page.waitForTimeout(500);
 
   const probe = await page.evaluate(() => {
     const ui = window.game.scene.getScene('UIScene');
-    const logical = { w: ui.logicalWidth ? ui.logicalWidth() : window.innerWidth, h: window.innerHeight };
+    const cs = window.game.scene.getScene('CityScene');
+    const logical = { w: ui.logicalWidth(), h: ui.logicalHeight() };
+
+    /** Merkezlenmis bir nesnenin mantiksal sinirlari. */
     const rect = (obj) => ({
       left: obj.x - (obj.width ?? 0) / 2,
       right: obj.x + (obj.width ?? 0) / 2,
@@ -63,81 +76,110 @@ for (const viewport of VIEWPORTS) {
     const overlaps = (a, b) =>
       a.left < b.right && b.left < a.right && a.top < b.bottom && b.top < a.bottom;
 
-    const build = rect(ui.buildButton);
-    const panel = ui.infoPanel;
-    const panelRect = { left: 0, right: logical.w, top: panel.y, bottom: panel.y + 178 };
-
-    // Panel icindeki metin ve butonlar
-    const inPanel = (obj) => ({
-      left: panel.x + obj.x - (obj.width ?? 0) * (obj.originX ?? 0.5),
-      right: panel.x + obj.x + (obj.width ?? 0) * (1 - (obj.originX ?? 0.5)),
+    /** Bir kapsayicinin icindeki yazinin MUTLAK sinirlari. */
+    const inside = (parent, obj) => ({
+      left: parent.x + obj.x - (obj.width ?? 0) * (obj.originX ?? 0.5),
+      right: parent.x + obj.x + (obj.width ?? 0) * (1 - (obj.originX ?? 0.5)),
+      top: parent.y + obj.y - (obj.height ?? 0) * (obj.originY ?? 0.5),
+      bottom: parent.y + obj.y + (obj.height ?? 0) * (1 - (obj.originY ?? 0.5)),
+      text: obj.text,
     });
-    const body = inPanel(panel.bodyText);
-    const worker = inPanel(panel.workerText);
-    const assign = rect(panel.assignButton);
-    const upgrade = rect(panel.upgradeButton);
 
-    const bar = window.game.scene.getScene('UIScene').resourceBar;
-    const barTexts = bar.list
-      .filter((o) => o.type === 'Text')
-      .map((o) => ({
-        left: o.x - (o.width ?? 0) * (o.originX ?? 0),
-        right: o.x + (o.width ?? 0) * (1 - (o.originX ?? 0)),
-        top: o.y - (o.height ?? 0) * (o.originY ?? 0),
-        bottom: o.y + (o.height ?? 0) * (1 - (o.originY ?? 0)),
-        text: o.text,
-      }));
-    /*
-     * Ust cubuktaki metinler birbirine biniyor mu?
-     *
-     * Yalnizca YATAY araligi karsilastirmak yaniltici: cubuk her kaynak icin
-     * miktari ve dakikalik akisi, sagda da nufusu ve bostaki isciyi BILEREK
-     * alt alta iki satira koyar. Bu ciftler ayni sutunu paylasir, cakismaz.
-     * Bu yuzden cakisma ancak iki metin hem yatayda hem DIKEYDE ortusuyorsa
-     * sayilir.
-     */
-    let barOverlap = 0;
-    const barPairs = [];
-    for (let i = 0; i < barTexts.length; i += 1) {
-      for (let j = i + 1; j < barTexts.length; j += 1) {
-        const a = barTexts[i];
-        const b = barTexts[j];
-        if (a.left < b.right && b.left < a.right && a.top < b.bottom && b.top < a.bottom) {
-          barOverlap += 1;
-          barPairs.push(`${a.text} | ${b.text}`);
+    /** Ayni kapsayicidaki gorunur yazilar birbirine biniyor mu? */
+    const collide = (parent) => {
+      const items = parent.list
+        .filter((o) => o.type === 'Text' && o.visible && o.text)
+        .map((o) => inside(parent, o));
+      const hits = [];
+      for (let i = 0; i < items.length; i += 1) {
+        for (let j = i + 1; j < items.length; j += 1) {
+          if (overlaps(items[i], items[j])) hits.push(`${items[i].text} | ${items[j].text}`);
         }
       }
-    }
+      return { hits, items };
+    };
+
+    const bar = ui.resourceBar;
+    const nav = ui.nav;
+    const panel = ui.infoPanel;
+    const build = rect(ui.buildButton);
+
+    const barCheck = collide(bar);
+    const navCheck = collide(nav);
+    const panelCheck = collide(panel);
+
+    const navRect = { left: 0, right: logical.w, top: nav.y, bottom: nav.y + 62 };
+    const panelRect = { left: 0, right: logical.w, top: panel.y, bottom: panel.y + 200 };
+
+    // Sehir gercekten gorunuyor mu? Sehir merkezinin ekran noktasi.
+    const cam = cs.cameras.main;
+    const dpr = window.game.registry.get('resolution')?.dpr ?? 1;
+    const hallWorld = {
+      x: (window.__hall[0] - window.__hall[1]) * 64,
+      y: (window.__hall[0] + window.__hall[1]) * 32,
+    };
+    const view = cam.worldView;
+    const hallScreen = {
+      x: ((hallWorld.x - view.x) / view.width) * (cam.width / dpr),
+      y: ((hallWorld.y - view.y) / view.height) * (cam.height / dpr),
+    };
 
     return {
       logical,
-      buildVisible: ui.buildButton.visible,
+      // 1. Ust cubuk
+      barInside: barCheck.items.every((t) => t.left >= -1 && t.right <= logical.w + 1),
+      barHits: barCheck.hits,
+      // 2. Alt gezinme cubugu
+      navTabs: nav.list.filter((o) => o.type === 'Text').length,
+      navInside: navCheck.items.every((t) => t.left >= -1 && t.right <= logical.w + 1),
+      navHits: navCheck.hits,
+      navBottom: navRect.bottom,
+      tabWidth: nav.tabWidth(),
+      // 3. Ana aksiyon
       buildInside: build.left >= 0 && build.right <= logical.w && build.bottom <= logical.h,
-      buildOverPanel: overlaps(build, {
-        left: panelRect.left, right: panelRect.right, top: panelRect.top, bottom: panelRect.bottom,
-      }),
-      panelInside: panelRect.right <= logical.w && panelRect.bottom <= logical.h + 1,
-      bodyInside: body.right <= logical.w,
-      workerInside: worker.right <= logical.w,
-      // Isci satiri sag sutundaki butonlarla cakisiyor mu?
-      workerOverButtons: worker.right > Math.min(assign.left, upgrade.left) &&
-        worker.right > upgrade.left,
-      barOverlap,
-      barPairs,
-      barInside: barTexts.every((t) => t.left >= 0 && t.right <= logical.w),
-      barTexts: barTexts.length,
+      buildOverNav: overlaps(build, navRect),
+      buildOverPanel: overlaps(build, panelRect),
+      buildOverBar: build.top < bar.y + 84,
+      // 4. Bilgi paneli
+      panelInside: panelRect.bottom <= navRect.top + 1,
+      panelHits: panelCheck.hits,
+      panelTextInside: panelCheck.items.every((t) => t.right <= logical.w + 1),
+      // 5. Sehir gorunurlugu
+      hallOnScreen:
+        hallScreen.x > 0 && hallScreen.x < logical.w && hallScreen.y > 84 && hallScreen.y < panelRect.top,
+      // 6. Yatay tasma
+      overflow: document.documentElement.scrollWidth > window.innerWidth,
     };
+  });
+
+  // Insa modunda alanlar gorunuyor mu?
+  const plotProbe = await page.evaluate(() => {
+    const cs = window.game.scene.getScene('CityScene');
+    const w = cs.registry.get('world');
+    w.bus.emit('tile:selected', null);
+    w.bus.emit('placement:start', 'house');
+    const visible = cs.plotLayer.overlays.filter((o) => o.visible).length;
+    w.bus.emit('placement:cancel');
+    return visible;
   });
 
   rows.push({
     ekran: `${viewport.width}x${viewport.height}`,
-    'insa butonu': probe.buildVisible && probe.buildInside ? 'OK' : 'TASTI',
-    'buton/panel cakismasi': probe.buildOverPanel ? 'VAR' : 'yok',
-    'panel ekranda': probe.panelInside ? 'OK' : 'TASTI',
-    'panel metni': probe.bodyInside && probe.workerInside ? 'OK' : 'KIRPIK',
-    'isci satiri': probe.workerOverButtons ? 'CAKISIYOR' : 'OK',
-    'ust cubuk': probe.barInside ? 'OK' : 'TASTI',
-    'ust cubuk cakismasi': probe.barOverlap === 0 ? 'yok' : probe.barPairs.join(' / '),
+    'ust cubuk': probe.barInside && probe.barHits.length === 0 ? 'OK' : `SORUN ${probe.barHits[0] ?? 'tasti'}`,
+    'alt gezinme': probe.navTabs === 5 && probe.navInside && probe.navHits.length === 0 ? 'OK' : 'SORUN',
+    'sekme genisligi': Math.round(probe.tabWidth),
+    'gezinme alani': probe.navBottom <= probe.logical.h ? 'OK' : 'TASTI',
+    'insa butonu':
+      probe.buildInside && !probe.buildOverNav && !probe.buildOverPanel && !probe.buildOverBar
+        ? 'OK'
+        : 'CAKISMA',
+    'bilgi paneli':
+      probe.panelInside && probe.panelTextInside && probe.panelHits.length === 0
+        ? 'OK'
+        : `SORUN ${probe.panelHits[0] ?? 'tasti'}`,
+    'merkez gorunur': probe.hallOnScreen ? 'OK' : 'GORUNMUYOR',
+    'insa alanlari': plotProbe,
+    'yatay tasma': probe.overflow ? 'VAR' : 'yok',
   });
 
   await ctx.close();
@@ -146,13 +188,15 @@ for (const viewport of VIEWPORTS) {
 console.table(rows);
 const ok = rows.every(
   (r) =>
-    r['insa butonu'] === 'OK' &&
-    r['buton/panel cakismasi'] === 'yok' &&
-    r['panel ekranda'] === 'OK' &&
-    r['panel metni'] === 'OK' &&
-    r['isci satiri'] === 'OK' &&
     r['ust cubuk'] === 'OK' &&
-    r['ust cubuk cakismasi'] === 'yok',
+    r['alt gezinme'] === 'OK' &&
+    r['sekme genisligi'] >= 48 &&
+    r['gezinme alani'] === 'OK' &&
+    r['insa butonu'] === 'OK' &&
+    r['bilgi paneli'] === 'OK' &&
+    r['merkez gorunur'] === 'OK' &&
+    r['insa alanlari'] > 0 &&
+    r['yatay tasma'] === 'yok',
 );
 console.log(`DPR=${DPR}  ${ok ? 'PASS' : 'FAIL'}  konsol/sayfa hatasi: ${errors.length === 0 ? 'YOK' : errors.slice(0, 3)}`);
 await browser.close();

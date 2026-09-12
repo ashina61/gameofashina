@@ -520,11 +520,30 @@ const drawFarm: ArtDrawer = (g, c, level) => {
   gableRoof(g, bx, by - (rich ? 24 : 18), c.footW * 0.34, c.footH * 0.34, 12);
 
   if (rich) {
+    /*
+     * Seviye 2 yalnizca "biraz daha buyuk ciftlik" olmamali (Sprint 13 §9).
+     * Ayak izinin ONUNE tasan IKINCI bir tarla parseli, silueti degistirir:
+     * uzaktan bakildiginda tek bir kare yerine genisleyen bir tarim alani
+     * okunur.
+     */
+    const px = c.cx + c.footW * 0.2;
+    const py = c.baseY + c.footH * 0.26;
+    const pw = c.footW * 0.44;
+    const ph = c.footH * 0.44;
+    g.fillStyle(shade(PALETTE.adobeDark, -0.08), 1);
+    diamond(g, px, py, pw * 1.06, ph * 1.06);
+    g.fillPath();
+    for (let i = 0; i < 4; i += 1) {
+      g.fillStyle(i % 2 === 0 ? PALETTE.cropGreen : PALETTE.cropGold, 1);
+      isoStrip(g, px, py, pw, ph, i / 4, (i + 1) / 4 - 0.03);
+      g.fillPath();
+    }
+
     // Saman balyalari
     g.fillStyle(PALETTE.cropGold, 1);
-    g.fillEllipse(c.cx + c.footW * 0.24, c.baseY + c.footH * 0.08, 16, 9);
+    g.fillEllipse(c.cx - c.footW * 0.3, c.baseY + c.footH * 0.2, 16, 9);
     g.fillStyle(shade(PALETTE.cropGold, -0.18), 1);
-    g.fillEllipse(c.cx + c.footW * 0.3, c.baseY + c.footH * 0.14, 13, 7);
+    g.fillEllipse(c.cx - c.footW * 0.24, c.baseY + c.footH * 0.26, 13, 7);
   }
 };
 
@@ -801,7 +820,27 @@ const drawMarket: ArtDrawer = (g, c, level) => {
   g.fillPath();
 
   if (big) {
-    // Ikinci seviyede tentenin ustunde kucuk bir flama
+    /*
+     * Seviye 2'de IKINCI bir tente (Sprint 13 §9): ust profil artik tek
+     * bir levha degil, iki kademeli bir golgelik. Pazarin buyudugu
+     * uzaktan da okunur.
+     */
+    const sx = c.cx - c.footW * 0.3;
+    const sy = deck + c.footH * 0.26;
+    const sh = Math.round(poleH * 0.62);
+    g.fillStyle(PALETTE.woodDark, 1);
+    for (const dx of [-0.16, 0.16]) {
+      g.fillRect(sx + c.footW * dx - 2, sy - sh, 4, sh);
+    }
+    const sw = c.footW * 0.46;
+    const sd = c.footH * 0.46;
+    for (let i = 0; i < 4; i += 1) {
+      g.fillStyle(i % 2 === 0 ? PALETTE.clothCool : PALETTE.clothWarm, 1);
+      isoStrip(g, sx, sy - sh, sw, sd, i / 4, (i + 1) / 4);
+      g.fillPath();
+    }
+
+    // Tentenin ustunde kucuk bir flama
     g.fillStyle(PALETTE.clothWarm, 1);
     g.fillTriangle(c.cx, awnY - 16, c.cx + 13, awnY - 11, c.cx, awnY - 6);
     g.fillStyle(PALETTE.woodDark, 1);
@@ -852,6 +891,22 @@ const drawWarehouse: ArtDrawer = (g, c, level) => {
   }
 
   if (big) {
+    /*
+     * Seviye 2'nin imzasi IKINCI KANAT (Sprint 13 §9).
+     *
+     * Ayni kutlenin buyugu, uzaktan seviye 1'den ayirt edilemiyordu. Yan
+     * kanat siluete basamakli bir ust hat verir: depo artik tek bir kutu
+     * degil, bir depo KOMPLEKSIDIR.
+     */
+    const wx = c.cx + c.footW * 0.26;
+    const wy = c.baseY + c.footH * 0.1;
+    const ww = c.footW * 0.34;
+    const wd = c.footH * 0.34;
+    const wh = Math.round(bodyH * 0.62);
+    box(g, wx, wy, ww, wd, wh, PALETTE.stone);
+    flatRoof(g, wx, wy - wh, ww, wd, PALETTE.roofDark);
+    doorway(g, wx - ww * 0.1, wy + wd * 0.26, 9, 13);
+
     // Ust kat penceresi
     g.fillStyle(PALETTE.doorway, 0.55);
     g.fillRect(c.cx + w * 0.08, c.baseY - bodyH * 0.7, 8, 8);

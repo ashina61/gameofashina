@@ -1,8 +1,10 @@
 import Phaser from 'phaser';
 import {
+  BOTTOM_UI_BAND,
   GRID_SIZE,
   INITIAL_VISIBLE_TILES,
   MIN_ZOOM,
+  TOP_UI_BAND,
   SceneKeys,
   TILE_HEIGHT,
   TILE_WIDTH,
@@ -13,8 +15,11 @@ import { CameraController } from '@/input/CameraController';
 import { BuildingView } from '@/render/BuildingView';
 import { PlacementPreview } from '@/render/PlacementPreview';
 import { PlotLayer } from '@/render/PlotLayer';
+import { CityDecorLayer } from '@/render/CityDecorLayer';
+import { IslandBackdrop } from '@/render/IslandBackdrop';
 import { WorkerLayer } from '@/render/WorkerLayer';
-import { TERRAIN_TEXTURE, TILE_ORIGIN_Y } from '@/render/TextureFactory';
+import { PAVED_TERRAIN, TERRAIN_TEXTURE, TILE_ORIGIN_Y, pavedKey } from '@/render/TextureFactory';
+import { isBuildable } from '@/systems/BuildingPlotSystem';
 import { PLACEMENT_MESSAGES } from '@/systems/BuildingSystem';
 import { UPGRADE_MESSAGES } from '@/systems/UpgradeSystem';
 import { WORKFORCE_MESSAGES } from '@/systems/WorkforceSystem';
@@ -38,6 +43,8 @@ export class CityScene extends Phaser.Scene {
   private preview!: PlacementPreview;
   private workers!: WorkerLayer;
   private plotLayer!: PlotLayer;
+  private decorLayer!: CityDecorLayer;
+  private backdrop!: IslandBackdrop;
 
   /** Bina uid -> gorsel eslemesi. */
   private readonly views = new Map<string, BuildingView>();
@@ -74,11 +81,13 @@ export class CityScene extends Phaser.Scene {
     this.world = getWorld(this);
     this.resolution = getResolution(this);
 
+    this.backdrop = new IslandBackdrop(this);
     this.drawTerrain();
     this.createSelectionMarker();
     this.preview = new PlacementPreview(this, this.artScale());
     this.workers = new WorkerLayer(this, this.world.state, this.artScale());
     this.plotLayer = new PlotLayer(this, this.world.plots);
+    this.decorLayer = new CityDecorLayer(this, this.world.decor, this.artScale());
     this.setupCamera();
     this.spawnExistingBuildings();
     this.bindWorldEvents();
@@ -97,13 +106,52 @@ export class CityScene extends Phaser.Scene {
 
   /** Zemin karolarini tek seferde cizer; karolar statik oldugu icin yeniden cizilmez. */
   private drawTerrain(): void {
+    const plaza = this.plazaTiles();
+
     for (const tile of this.world.state.grid.allTiles()) {
       const world = gridToWorld(tile.gx, tile.gy);
       this.add
-        .image(world.x, world.y, TERRAIN_TEXTURE[tile.terrain])
+        .image(world.x, world.y, this.groundTextureFor(tile, plaza))
         .setOrigin(0.5, TILE_ORIGIN_Y)
         .setDepth(depthFor(tile.gx, tile.gy) - 5);
     }
+  }
+
+  /**
+   * Karonun zemin dokusu - gerekiyorsa yol doseli olani.
+   *
+   * Doseme AYRI bir sprite degil, zeminle birlikte pisirilmis tek dokudur:
+   * 115 sokak karosu icin ikinci bir sprite katmani kare hizini 34'ten
+   * 26'ya dusuruyordu (GPU'suz olcum, 390x844). Su karosuna doseme konmaz;
+   * sehir denize dogru acik kalir.
+   */
+  private groundTextureFor(tile: TileData, plaza: Set<string>): string {
+    if (isBuildable(tile.gx, tile.gy)) return TERRAIN_TEXTURE[tile.terrain];
+    if (!PAVED_TERRAIN.includes(tile.terrain)) return TERRAIN_TEXTURE[tile.terrain];
+    const base = plaza.has(`${tile.gx},${tile.gy}`) ? TextureKeys.TilePlaza : TextureKeys.TileStreet;
+    return pavedKey(base, tile.terrain);
+  }
+
+  /**
+   * Sehir merkezinin cevresindeki MEYDAN karolari.
+   *
+   * Sehir merkezi 2x2 kamusal alanda durur ve cevresi bastan beri sokaktir;
+   * o halkayi meydan dosemesiyle kaplamak sehre bir odak noktasi verir
+   * (Sprint 13 §12). Yeni bir kural degil, var olan yerlesimin okunmasi.
+   */
+  private plazaTiles(): Set<string> {
+    const tiles = new Set<string>();
+    const civic = this.world.plots.plots.find((plot) => plot.zone === 'civic');
+    if (!civic) return tiles;
+
+    for (let dy = -1; dy <= civic.height; dy += 1) {
+      for (let dx = -1; dx <= civic.width; dx += 1) {
+        const inside = dx >= 0 && dy >= 0 && dx < civic.width && dy < civic.height;
+        if (inside) continue;
+        tiles.add(`${civic.gx + dx},${civic.gy + dy}`);
+      }
+    }
+    return tiles;
   }
 
   private createSelectionMarker(): void {
@@ -153,13 +201,23 @@ export class CityScene extends Phaser.Scene {
   private setupCamera(): void {
     const halfWidth = (GRID_SIZE * TILE_WIDTH) / 2;
     const height = GRID_SIZE * TILE_HEIGHT;
-    const padding = TILE_WIDTH;
+    /*
+     * Kaydirma payi adadan GENIS tutulur.
+     *
+     * Sprint 12'ye kadar pay bir karoydu; kamera goruntusu adadan buyuk
+     * oldugu icin Phaser kadraji sinirlarin ortasina KILITLIYORDU ve sehri
+     * dikeyde kaydirmak imkansizdi (olculdu: centerOn sonrasi ekran merkezi
+     * hep ayni karoyu gosteriyordu). Genis pay hem kilidi acar hem de
+     * kenara kaydirildiginda deniz gorunur - eskiden orasi siyahti.
+     */
+    const padX = TILE_WIDTH * 2;
+    const padY = TILE_HEIGHT * 6;
 
     this.cameras.main.setBounds(
-      -halfWidth - padding,
-      -TILE_HEIGHT - padding,
-      GRID_SIZE * TILE_WIDTH + padding * 2,
-      height + padding * 2,
+      -halfWidth - padX,
+      -TILE_HEIGHT - padY,
+      GRID_SIZE * TILE_WIDTH + padX * 2,
+      height + padY * 2,
     );
 
     const ui = this.scene.get(SceneKeys.UI) as UIScene | undefined;
@@ -174,11 +232,35 @@ export class CityScene extends Phaser.Scene {
       pixelRatio: () => this.resolution?.dpr ?? 1,
     });
 
-    const center = this.world.state.grid.center();
-    const focus = gridToWorld(center.gx, center.gy);
     // Mantiksal zoom, cihaz olcusune ResolutionManager tarafindan tasinir.
     this.camControl.setLogicalZoom(this.fitZoom());
-    this.camControl.centerOn(focus.x, focus.y);
+    this.focusCity();
+  }
+
+  /**
+   * Kadraji SEHIR MERKEZINE oturtur.
+   *
+   * Iki duzeltme yapar:
+   *   1. Odak noktasi izgara merkezi degil, sehir merkezinin 2x2 ALANIDIR;
+   *      alanin kosesi degil ortasi hedeflenir.
+   *   2. Kadraj, arayuzun artakalan bandinda ortalanir. Ust cubuk ile alt
+   *      gezinme cubugu esit degildir; ekranin tam ortasina odaklamak sehri
+   *      alt cubugun arkasina itiyordu.
+   *
+   * Alt gezinme cubugundaki SEHIR dugmesi de bunu cagirir; oyuncu nereye
+   * kaydirirsa kaydirsin tek dokunusla merkeze doner.
+   */
+  focusCity(): void {
+    const civic = this.world.plots.plots.find((plot) => plot.zone === 'civic');
+    const center = this.world.state.grid.center();
+    const gx = civic ? civic.gx + (civic.width - 1) / 2 : center.gx;
+    const gy = civic ? civic.gy + (civic.height - 1) / 2 : center.gy;
+    const focus = gridToWorld(gx, gy);
+
+    // Arayuz bandi farki kadar asagi bakarsak sehir yukari kayar.
+    const zoom = this.cameras.main.zoom / (this.resolution?.dpr ?? 1);
+    const shift = ((BOTTOM_UI_BAND - TOP_UI_BAND) / 2) / Math.max(zoom, 0.01);
+    this.camControl.centerOn(focus.x, focus.y + shift);
   }
 
   /**
@@ -534,5 +616,7 @@ export class CityScene extends Phaser.Scene {
     this.preview.destroy();
     this.workers.destroy();
     this.plotLayer.destroy();
+    this.decorLayer.destroy();
+    this.backdrop.destroy();
   }
 }

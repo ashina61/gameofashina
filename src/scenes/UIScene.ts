@@ -1,9 +1,13 @@
 import Phaser from 'phaser';
-import { SceneKeys } from '@/config/Constants';
+import { RESOURCE_META, RESOURCE_ORDER, SceneKeys } from '@/config/Constants';
 import { getBuilding } from '@/config/BuildingCatalog';
 import { resolveBuildPreview } from '@/systems/BuildingResolver';
 import { PLACEMENT_MESSAGES } from '@/systems/BuildingSystem';
+import { iconKeyFor } from '@/render/IconArt';
+import { BottomNav } from '@/ui/BottomNav';
+import type { NavTab } from '@/ui/BottomNav';
 import { BuildMenu } from '@/ui/BuildMenu';
+import { CityPanel } from '@/ui/CityPanel';
 import { InfoPanel } from '@/ui/InfoPanel';
 import type { WorkerPanelInfo } from '@/ui/InfoPanel';
 import { ResourceBar } from '@/ui/ResourceBar';
@@ -17,6 +21,7 @@ import { getResolution, getWorld } from './BootScene';
 import type { GameWorld } from '@/core/GameWorld';
 import type { ResolutionManager } from '@/render/ResolutionManager';
 import type { SafeAreaInsets } from '@/utils/SafeArea';
+import type { CityScene } from './CityScene';
 import type {
   BuildingId,
   BuildingInstance,
@@ -47,6 +52,14 @@ export class UIScene extends Phaser.Scene {
   private toast!: Toast;
   private buildButton!: TouchButton;
   private cancelButton!: TouchButton;
+  private nav!: BottomNav;
+  private cityPanel!: CityPanel;
+
+  /**
+   * Depo uyarisinin en son verildigi kaynak kumesi.
+   * Ayni uyariyi her tikte tekrarlamamak icin tutulur.
+   */
+  private readonly warnedFull = new Set<string>();
 
   /** Insa modunda secili bina turu; mod kapaliysa null. */
   private placingId: BuildingId | null = null;
@@ -80,23 +93,25 @@ export class UIScene extends Phaser.Scene {
 
     this.resourceBar = new ResourceBar(this, width);
     this.buildMenu = new BuildMenu(this, width, height, (defId) => this.startPlacement(defId));
-    this.infoPanel = new InfoPanel(
-      this,
-      width,
-      height,
-      (uid) => this.world.bus.emit('ui:request-demolish', uid),
-      (uid) => this.world.bus.emit('ui:request-upgrade', uid),
-      (uid) => this.world.bus.emit('ui:cancel-upgrade', uid),
-      (cost) => this.world.resources.canAfford(cost),
-      (uid) => this.world.bus.emit('ui:assign-worker', uid),
-      (uid) => this.world.bus.emit('ui:release-worker', uid),
-      (uid) => this.workerInfoFor(uid),
-    );
+    this.infoPanel = new InfoPanel(this, width, height, {
+      onDemolish: (uid) => this.world.bus.emit('ui:request-demolish', uid),
+      onUpgrade: (uid) => this.world.bus.emit('ui:request-upgrade', uid),
+      onCancelUpgrade: (uid) => this.world.bus.emit('ui:cancel-upgrade', uid),
+      canAfford: (cost) => this.world.resources.canAfford(cost),
+      onAssignWorker: (uid) => this.world.bus.emit('ui:assign-worker', uid),
+      onReleaseWorker: (uid) => this.world.bus.emit('ui:release-worker', uid),
+      workerInfo: (uid) => this.workerInfoFor(uid),
+      plotAt: (gx, gy) => this.world.plots.plotAt(gx, gy),
+      onClose: () => this.world.bus.emit('tile:selected', null),
+    });
+    this.cityPanel = new CityPanel(this, width, height, () => this.closePanels());
+    this.nav = new BottomNav(this, width, (tab) => this.selectTab(tab));
     this.toast = new Toast(this, width / 2, ResourceBar.height + 34);
 
     this.buildButton = new TouchButton(this, 0, 0, 'INSA ET', {
-      width: 132,
-      height: 52,
+      width: 146,
+      height: 54,
+      icon: iconKeyFor('hammer'),
       onPress: () => this.toggleBuildMenu(),
     });
 
@@ -164,6 +179,12 @@ export class UIScene extends Phaser.Scene {
     if (this.infoPanel.isOpen && Phaser.Geom.Rectangle.Contains(this.infoPanel.bounds(), screenX, screenY)) {
       return true;
     }
+    if (this.cityPanel.isOpen && Phaser.Geom.Rectangle.Contains(this.cityPanel.bounds(), screenX, screenY)) {
+      return true;
+    }
+    // Alt gezinme cubugu her zaman girdiyi yakalar; arkasindaki haritaya
+    // dokunmak sehri yanlislikla degistirirdi.
+    if (Phaser.Geom.Rectangle.Contains(this.nav.bounds(), screenX, screenY)) return true;
     return this.hitsButton(this.buildButton, screenX, screenY) ||
       (this.cancelButton.visible && this.hitsButton(this.cancelButton, screenX, screenY));
   }
@@ -220,12 +241,38 @@ export class UIScene extends Phaser.Scene {
   private onResources(resources: ResourcePool, capacity: number): void {
     this.resourceBar.updateResources(resources, capacity);
     this.buildMenu.refreshAffordability(resources);
+    this.warnIfStorageFull(resources, capacity);
     // Bilgi paneli acikken yukseltme butonunun durumu bayat kalmasin.
     this.infoPanel.refresh(this.world.tick);
   }
 
+  /**
+   * Depo tavanina ulasan kaynagi bir kez bildirir.
+   *
+   * Cubugu kirmiziya boyamak yeterli degildi: oyuncu uretimin neden
+   * durdugunu anlamiyordu (Sprint 13 §6). Uyari kaynak basina YALNIZCA bir
+   * kez cikar ve depo bosalinca yeniden verilebilir hale gelir; aksi halde
+   * her tikte ayni bildirim tekrarlanirdi.
+   */
+  private warnIfStorageFull(resources: ResourcePool, capacity: number): void {
+    for (const key of RESOURCE_ORDER) {
+      const full = resources[key] >= capacity;
+      if (full && !this.warnedFull.has(key)) {
+        this.warnedFull.add(key);
+        this.toast.show(
+          `${RESOURCE_META[key].label} deposu doldu - Ambar kur ya da harca.`,
+          'error',
+          2600,
+        );
+      } else if (!full && resources[key] < capacity * 0.9) {
+        this.warnedFull.delete(key);
+      }
+    }
+  }
+
   private onEconomy(snapshot: EconomySnapshot): void {
     this.resourceBar.updateEconomy(snapshot);
+    this.resourceBar.updateCity(this.hallLevel());
     /*
      * Isci sayaci her tikte de tazelenir.
      *
@@ -236,6 +283,14 @@ export class UIScene extends Phaser.Scene {
     this.resourceBar.updateWorkforce(this.world.workforce.snapshot);
   }
 
+  /** Sehir merkezinin seviyesi; henuz kurulmadiysa null. */
+  private hallLevel(): number | null {
+    for (const building of this.world.state.buildings.values()) {
+      if (building.type === 'town_hall') return building.level;
+    }
+    return null;
+  }
+
   private onTileSelected(tile: TileData | null): void {
     if (!tile) {
       this.infoPanel.hide();
@@ -243,11 +298,13 @@ export class UIScene extends Phaser.Scene {
       return;
     }
 
-    // Bilgi paneli ile insa menusu ayni alani kullanir; ikisi ayni anda acilmaz.
+    // Alt sayfalarin hepsi ayni alani kullanir; ikisi ayni anda acilmaz.
     if (this.buildMenu.isOpen) {
       this.buildMenu.hide();
       this.buildButton.setText('INSA ET');
     }
+    this.cityPanel.hide();
+    this.nav.setActiveTab(null);
 
     const building = tile.occupantUid
       ? this.world.state.buildings.get(tile.occupantUid) ?? null
@@ -292,8 +349,10 @@ export class UIScene extends Phaser.Scene {
       this.buildButton.setText('INSA ET');
     } else {
       this.infoPanel.hide();
+      this.cityPanel.hide();
       this.buildMenu.show();
       this.buildButton.setText('KAPAT');
+      this.nav.setActiveTab('buildings');
     }
     this.relayout();
   }
@@ -310,6 +369,7 @@ export class UIScene extends Phaser.Scene {
 
     this.placingId = defId;
     this.buildMenu.hide();
+    this.nav.setActiveTab(null);
     this.buildButton.setText('INSA ET');
     this.cancelButton.setVisible(true);
     this.relayout();
@@ -366,20 +426,136 @@ export class UIScene extends Phaser.Scene {
     this.resourceBar.setPosition(0, top);
     this.resourceBar.layout(width, sideInset);
 
-    this.buildMenu.layout(width, height, bottomInset);
-    this.infoPanel.layout(width, height, bottomInset);
+    /*
+     * Alt gezinme cubugu en altta, sistem gezinme alaninin USTUNDE durur.
+     * Butun alt sayfalar (insa menusu, bilgi paneli, sehir ozeti) onun da
+     * ustunde acilir; bu yuzden panellere verilen "alt pay" cubugun
+     * yuksekligini icerir.
+     */
+    this.nav.setPosition(0, height - bottomInset - BottomNav.height);
+    this.nav.layout(width, sideInset);
+
+    const panelInset = bottomInset + BottomNav.height;
+    this.buildMenu.layout(width, height, panelInset);
+    this.infoPanel.layout(width, height, panelInset);
+    this.cityPanel.layout(width, height, panelInset);
     this.toast.layout(width / 2, top + ResourceBar.height + 34);
 
-    // Butonlar acik olan panelin ustunde ve alt cubugun uzerinde durur.
-    const bottom = height - bottomInset - this.openPanelHeight() - UISpacing.edge - 26;
-    this.buildButton.setPosition(width - right - UISpacing.edge - 66, bottom);
+    // Ana aksiyon acik olan panelin ustunde ve gezinme cubugunun uzerinde.
+    const bottom = height - panelInset - this.openPanelHeight() - UISpacing.edge - 27;
+    this.buildButton.setPosition(width - right - UISpacing.edge - 73, bottom);
     this.cancelButton.setPosition(left + UISpacing.edge + 55, bottom);
+  }
+
+  /** Acik olan butun alt sayfalari kapatir ve sekme isaretini temizler. */
+  private closePanels(): void {
+    if (this.buildMenu.isOpen) {
+      this.buildMenu.hide();
+      this.buildButton.setText('INSA ET');
+    }
+    this.infoPanel.hide();
+    this.cityPanel.hide();
+    this.nav.setActiveTab(null);
+    this.relayout();
+  }
+
+  /**
+   * Alt gezinme cubugunun sekmeleri.
+   *
+   * Her sekme SEHRIN gercek durumunu gosterir; sayilarin hepsi sistemlerden
+   * okunur, arayuz kendi hesabini yapmaz.
+   */
+  private selectTab(tab: NavTab): void {
+    this.closePanels();
+
+    if (tab === 'city') {
+      // Kadraji sehir merkezine dondurur; oyuncu nereye kaydirirsa kaydirsin
+      // tek dokunusla merkeze doner.
+      const city = this.scene.get(SceneKeys.City) as CityScene | undefined;
+      city?.focusCity?.();
+      this.nav.setActiveTab(null);
+      return;
+    }
+
+    if (tab === 'buildings') {
+      this.nav.setActiveTab('buildings');
+      this.buildMenu.show();
+      this.buildMenu.refreshAffordability(this.world.state.resources);
+      this.buildButton.setText('KAPAT');
+      this.relayout();
+      return;
+    }
+
+    this.nav.setActiveTab(tab);
+    if (tab === 'population') this.showPopulationPanel();
+    else if (tab === 'workers') this.showWorkersPanel();
+    else this.showMorePanel();
+    this.relayout();
+  }
+
+  private showPopulationPanel(): void {
+    const eco = this.world.economy.snapshot;
+    const food = eco.netPerMinute.food ?? 0;
+    this.cityPanel.show(
+      'NUFUS',
+      [
+        { label: 'Vatandas', value: `${eco.population} / ${eco.populationCapacity}` },
+        { label: 'Calisan', value: `${eco.populationUsed}` },
+        { label: 'Yiyecek akisi', value: `${food > 0 ? '+' : ''}${food.toFixed(1)}/dk`, highlight: food <= 0 },
+        { label: 'Bos kapasite', value: `${Math.max(0, eco.populationCapacity - eco.population)}`, highlight: eco.population >= eco.populationCapacity },
+      ],
+      eco.population >= eco.populationCapacity
+        ? 'Kapasite doldu: yeni vatandas icin ev kur.'
+        : 'Yiyecek fazlasi oldukca sehre yeni vatandas gelir.',
+    );
+  }
+
+  private showWorkersPanel(): void {
+    const snapshot = this.world.workforce.snapshot;
+    // Kadrosu eksik binalar - oyuncunun ilk bakmasi gereken yer.
+    let understaffed = 0;
+    for (const building of this.world.state.buildings.values()) {
+      const resolved = this.world.buildings.resolve(building);
+      if (resolved.workerRequirement > 0 && !resolved.staffed) understaffed += 1;
+    }
+
+    this.cityPanel.show(
+      'ISCILER',
+      [
+        { label: 'Bosta', value: `${snapshot.idle}`, highlight: snapshot.idle > 0 },
+        { label: 'Calisiyor', value: `${snapshot.working}` },
+        { label: 'Yolda', value: `${snapshot.moving}` },
+        { label: 'Kadrosu eksik bina', value: `${understaffed}`, highlight: understaffed > 0 },
+      ],
+      understaffed > 0
+        ? 'Binaya dokunup + ile isci yolla.'
+        : 'Butun binalarin kadrosu tam.',
+    );
+  }
+
+  private showMorePanel(): void {
+    const eco = this.world.economy.snapshot;
+    const resources = this.world.state.resources;
+    const capacity = this.world.resources.capacity;
+    const full = RESOURCE_ORDER.filter((key) => resources[key] >= capacity).length;
+
+    this.cityPanel.show(
+      'SEHIR OZETI',
+      [
+        { label: 'Bina', value: `${this.world.state.buildings.size}` },
+        { label: 'Depo kapasitesi', value: `${capacity}` },
+        { label: 'Dolan kaynak', value: `${full}`, highlight: full > 0 },
+        { label: 'Verim', value: `%${Math.round(eco.efficiency * 100)}`, highlight: eco.efficiency < 1 },
+      ],
+      full > 0 ? 'Depo doldu: Ambar kur ya da harca.' : 'Uretim depoya sigiyor.',
+    );
   }
 
   /** Acik olan alt panelin yuksekligi; hicbiri acik degilse 0. */
   private openPanelHeight(): number {
     if (this.buildMenu.isOpen) return BuildMenu.height;
     if (this.infoPanel.isOpen) return InfoPanel.height;
+    if (this.cityPanel.isOpen) return CityPanel.height;
     return 0;
   }
 
