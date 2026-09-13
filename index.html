@@ -100,14 +100,38 @@
         letter-spacing: 0.3em;
         color: #e8c86a;
       }
+      /* Yukleme cubugu: PreloadScene genisligi ilerlemeyle gunceller. */
+      #boot-splash .bar-track {
+        width: 180px;
+        height: 4px;
+        border-radius: 999px;
+        background: rgba(232, 200, 106, 0.22);
+        overflow: hidden;
+        margin-top: 8px;
+      }
+      #boot-splash .bar {
+        width: 0%;
+        height: 100%;
+        background: #e8c86a;
+        border-radius: 999px;
+        transition: width 0.2s linear;
+      }
     </style>
   </head>
   <body>
     <div id="game-root"></div>
+    <!--
+      Arayuz katmani Phaser tuvalinin UZERINDE durur. Ayri bir kapsayici
+      olmasinin sebebi: Phaser DOM eklentisi yerine duz HTML/CSS
+      kullaniliyor, boylece kaydirma, erisilebilirlik ve mobil dokunma
+      davranisi tarayicinin kendi mekanizmasiyla calisiyor.
+    -->
+    <div id="ui-root"></div>
     <div id="safe-area-probe" aria-hidden="true"></div>
     <div id="boot-splash">
       <div class="mark">ANCIENT CITY</div>
-      <div>yukleniyor</div>
+      <div>yükleniyor</div>
+      <div class="bar-track"><div class="bar"></div></div>
     </div>
     <script type="module" src="/src/main.ts"></script>
   </body>

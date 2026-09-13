@@ -1,249 +1,243 @@
-import { TICKS_PER_SECOND } from '@/config/Constants';
-import { allResearch, getResearch } from '@/config/ResearchCatalog';
-import { getBuilding } from '@/config/BuildingCatalog';
+import { getResearch, requireResearch, RESEARCHES } from '@/config/ResearchCatalog';
 import type { EventBus } from '@/core/EventBus';
 import type { GameState } from '@/core/GameState';
-import type { ResourceSystem } from './ResourceSystem';
-import type {
-  ActiveResearch,
-  CityModifiers,
-  ResearchDefinition,
-  ResearchId,
-} from '@/types';
-
-/** Arastirma baslatilamama nedenleri. */
-export type ResearchError =
-  | 'unknown'
-  | 'already_done'
-  | 'busy'
-  | 'no_academy'
-  | 'academy_level'
-  | 'cost';
-
-export const RESEARCH_MESSAGES: Record<ResearchError, string> = {
-  unknown: 'Bu arastirma tanimli degil.',
-  already_done: 'Bu arastirma zaten tamamlandi.',
-  busy: 'Baska bir arastirma suruyor.',
-  no_academy: 'Once bir Akademi kur.',
-  academy_level: 'Akademiyi yukselt: bu arastirma daha ileri seviye ister.',
-  cost: 'Yeterli altin ya da bilgi yok.',
-};
+import { academyLevel } from '@/core/CityQuery';
+import { aggregateEffects } from './ResearchEffects';
+import type { AggregatedEffects } from './ResearchEffects';
+import type { ActiveResearch, CityState, ResearchDefinition } from '@/types';
 
 /**
- * Ayni sebeplerin ROZET karsiliklari.
+ * Arastirma agaci.
  *
- * Ustteki uzun cumleler bildirim icin yazildi; arastirma satirinda ise
- * teknoloji adiyla ayni satiri paylasan dar bir alan var. Uzun metin orada
- * adin uzerine biniyordu (olculdu: "Ticaret Yollari" ve "Lonca Nizami"
- * satirlari okunamaz haldeydi). Iki ayri metin, iki ayri yer icin.
+ * Ikariam'da arastirma ALTINLA degil ARASTIRMA PUANIYLA (AP) yapilir. AP'yi
+ * yalnizca Akademi'de calisan bilim adamlari uretir ve her bilim adami
+ * saatte 1 AP verir. Ayni anda TEK arastirma yurur.
+ *
+ * HARCANMAYAN AP KAYBOLUR
+ * Aktif bir arastirma yokken uretilen AP hicbir yere birikmez. Bu,
+ * Ikariam'in gercek kuralidir ve oyuncuyu "her zaman bir arastirma secili
+ * tutmaya" zorlar. Bir havuzda biriktirmek bu baskiyi kaldirirdi ve
+ * oyunun ilerleme temposunu degistirirdi.
+ *
+ * KESIRLI BIRIKIM
+ * `state.researchPoints` bir HAVUZ degil, kesir tasima alanidir. Saatlik
+ * AP cogu tikte tam sayi degildir (ornegin 13 bilim adami x carpan); kesir
+ * burada birikir ki uzun vadede AP kaybi olmasin.
  */
-export const RESEARCH_BADGES: Record<ResearchError, string> = {
-  unknown: 'TANIMSIZ',
-  already_done: 'TAMAM',
-  busy: 'MESGUL',
-  no_academy: 'AKADEMI GEREK',
-  academy_level: 'AKADEMI Sv.2',
-  cost: 'KAYNAK YOK',
-};
 
-export type ResearchResult = { ok: true; active: ActiveResearch } | { ok: false; reason: ResearchError };
-
-/** Hicbir arastirma yokken gecerli olan carpanlar. */
-const NEUTRAL: CityModifiers = { production: {}, workerSlotBonus: 0 };
-
-/**
- * Arastirma sistemi.
- *
- * NE YAPAR
- * Oyuncunun secimiyle bir teknolojiyi baslatir, tik tik ilerletir ve
- * tamamlandiginda sehir capinda gecerli CARPANLARI buyutur.
- *
- * TEK GERCEK: TAMAMLANANLAR LISTESI
- * Carpanlar saklanmaz, her seferinde tamamlanan listesinden TURETILIR.
- * Saklamak ikinci bir gercek yaratir ve kayit ile canli durum birbirinden
- * kayabilirdi. Liste kucuk (bes eleman), turetme maliyeti yok denecek
- * kadar az - ama yine de her tikte degil, yalnizca liste DEGISTIGINDE
- * hesaplanip onbellege alinir.
- *
- * AYNI ANDA TEK ARASTIRMA
- * Insaat kuyrugundan farkli olarak burada kuyruk yok: arastirma sehrin
- * dikkatini isteyen tekil bir yatirimdir. Maliyet baslangicta odenir;
- * iptal yoktur (bilgi geri alinamaz).
- *
- * PHASER'DAN BAGIMSIZ: yalnizca GameState, kaynak sistemi ve olay yolu.
- */
 export class ResearchSystem {
-  private readonly state: GameState;
-  private readonly resources: ResourceSystem;
-  private readonly bus: EventBus;
+  constructor(
+    private readonly state: GameState,
+    private readonly bus: EventBus,
+  ) {}
 
-  private readonly done = new Set<ResearchId>();
-  private current: ActiveResearch | null = null;
-
-  /** Tamamlananlardan turetilen carpanlar; liste degisince tazelenir. */
-  private cachedModifiers: CityModifiers = NEUTRAL;
-
-  constructor(state: GameState, resources: ResourceSystem, bus: EventBus) {
-    this.state = state;
-    this.resources = resources;
-    this.bus = bus;
-    this.restore();
+  /** Tamamlanmis arastirmalarin toplam etkisi. */
+  get effects(): AggregatedEffects {
+    return aggregateEffects(this.state.completedResearch);
   }
 
-  /** Tamamlanan arastirmalar (salt okunur). */
-  get completed(): ReadonlySet<ResearchId> {
-    return this.done;
+  /** Oyuncunun en yuksek Akademi seviyesi (tum sehirler arasinda). */
+  get academyLevel(): number {
+    return this.state.cities.reduce((max, city) => Math.max(max, academyLevel(city)), 0);
   }
 
-  /** Devam eden arastirma; yoksa null. */
-  get active(): ActiveResearch | null {
-    return this.current;
+  /** Arastirmanin tamamlanmis seviyesi. */
+  levelOf(id: string): number {
+    return this.state.researchLevel(id);
   }
 
-  /** Sehir capinda gecerli carpanlar. */
-  get modifiers(): CityModifiers {
-    return this.cachedModifiers;
+  /** Arastirma tamamlanmis mi? (seviyeli arastirmalarda en az 1) */
+  isDone(id: string): boolean {
+    return this.levelOf(id) > 0;
   }
 
-  /** Devam eden arastirmanin kalan tiki; yoksa 0. */
-  get remainingTicks(): number {
-    if (!this.current) return 0;
-    return Math.max(0, this.current.completesAtTick - this.state.tick);
-  }
-
-  /** Devam eden arastirmanin 0..1 ilerlemesi; yoksa 0. */
-  get progress(): number {
-    if (!this.current) return 0;
-    const total = this.current.completesAtTick - this.current.startedAtTick;
-    if (total <= 0) return 1;
-    return Math.min(1, Math.max(0, 1 - this.remainingTicks / total));
-  }
-
-  /** Bir arastirma baslatilabilir mi? */
-  canStart(id: string): ResearchResult | { ok: true } {
+  /** Bir sonraki seviyenin AP maliyeti. */
+  costOf(id: string): number {
     const def = getResearch(id);
-    if (!def) return { ok: false, reason: 'unknown' };
-    if (this.done.has(def.id)) return { ok: false, reason: 'already_done' };
-    if (this.current) return { ok: false, reason: 'busy' };
+    if (!def) return Number.POSITIVE_INFINITY;
+    const nextLevel = this.levelOf(id) + 1;
+    // Ikariam: seviyeli arastirmalarda maliyet "taban x seviye".
+    return def.maxLevel > 1 ? Math.round(def.cost * nextLevel) : def.cost;
+  }
 
-    const academyLevel = this.academyLevel();
-    if (academyLevel === 0) return { ok: false, reason: 'no_academy' };
-    if (academyLevel < def.requiredAcademyLevel) return { ok: false, reason: 'academy_level' };
-    if (!this.resources.canAfford(def.cost)) return { ok: false, reason: 'cost' };
-    return { ok: true };
+  /** Arastirmanin bir sonraki seviyesi; son seviyede null. */
+  nextLevelOf(id: string): number | null {
+    const def = getResearch(id);
+    if (!def) return null;
+    const next = this.levelOf(id) + 1;
+    return next > def.maxLevel ? null : next;
   }
 
   /**
-   * Arastirmayi baslatir ve maliyeti duser.
+   * Arastirma su an baslatilabilir mi?
    *
-   * ATOMIK: maliyet ancak butun kurallar gectikten SONRA dusulur, yani
-   * reddedilen bir istek hicbir sey harcamaz.
+   * Uc kosul: on kosullar tamamlanmis olmali, Akademi seviyesi yetmeli ve
+   * arastirma son seviyesine ulasmamis olmali. Basarisizsa nedeni doner;
+   * arayuz bu nedeni oyuncuya gosterir.
    */
-  start(id: string): ResearchResult {
-    const check = this.canStart(id);
-    if (!check.ok) return check as ResearchResult;
+  canStart(id: string): string | null {
+    const def = getResearch(id);
+    if (!def) return 'Bilinmeyen araştırma.';
+    if (this.nextLevelOf(id) === null) return 'Bu araştırma zaten son seviyesinde.';
 
-    const def = getResearch(id)!;
-    if (!this.resources.spend(def.cost)) return { ok: false, reason: 'cost' };
-
-    const startedAtTick = this.state.tick;
-    this.current = {
-      id: def.id,
-      startedAtTick,
-      completesAtTick: startedAtTick + Math.max(1, Math.round(def.duration * TICKS_PER_SECOND)),
-    };
-    this.bus.emit('research:started', this.current);
-    return { ok: true, active: this.current };
-  }
-
-  /**
-   * Zamani ilerletir ve suresi dolan arastirmayi tamamlar.
-   *
-   * Simulation her tikte cagirir. Toplu ilerletmede (cevrimdisi telafi)
-   * de dogru calisir: bitis TIKI mutlaktir, gecen tik sayisi degil.
-   */
-  advance(): void {
-    if (!this.current) return;
-    if (this.state.tick < this.current.completesAtTick) return;
-
-    const finished = this.current;
-    this.current = null;
-    this.done.add(finished.id);
-    this.recalculate();
-    this.bus.emit('research:completed', finished);
-  }
-
-  /** Sehirdeki en yuksek AKTIF akademi seviyesi; yoksa 0. */
-  academyLevel(): number {
-    let best = 0;
-    for (const building of this.state.buildings.values()) {
-      if (building.type !== 'academy') continue;
-      if (building.state !== 'active') continue;
-      const def = getBuilding(building.type);
-      best = Math.max(best, Math.min(building.level, def.levels.length));
+    if (this.state.activeResearch) {
+      return 'Zaten yürüyen bir araştırma var; önce onu bitirin veya iptal edin.';
     }
-    return best;
-  }
 
-  /** Katalogdaki arastirmalar, tamamlanma durumuyla birlikte. */
-  list(): Array<{ def: ResearchDefinition; done: boolean; active: boolean }> {
-    return allResearch().map((def) => ({
-      def,
-      done: this.done.has(def.id),
-      active: this.current?.id === def.id,
-    }));
-  }
-
-  /** Kayit icin durum anlik goruntusu. */
-  toSave(): { completed: string[]; active: ActiveResearch | null } {
-    return { completed: [...this.done], active: this.current ? { ...this.current } : null };
-  }
-
-  /** Kayittan gelen durumu yukler; gecersiz kimlikler sessizce atilir. */
-  private restore(): void {
-    const saved = this.state.researchState;
-    if (!saved) return;
-
-    for (const id of saved.completed) {
-      const def = getResearch(id);
-      if (def) this.done.add(def.id);
-    }
-    if (saved.active && getResearch(saved.active.id)) {
-      this.current = {
-        id: saved.active.id as ResearchId,
-        startedAtTick: saved.active.startedAtTick,
-        completesAtTick: saved.active.completesAtTick,
-      };
-      // Tamamlanmisken kaydedilmis bir gorev, yuklenince hemen biter.
-      if (this.done.has(this.current.id)) this.current = null;
-    }
-    this.recalculate();
-  }
-
-  /**
-   * Carpanlari tamamlanan listesinden yeniden turetir.
-   *
-   * Carpanlar BIRBIRIYLE CARPILIR, toplanmaz: iki ayri %15 arti arka
-   * arkaya gelince %30 degil %32.25 eder. Carpma, art arda gelen
-   * gelistirmelerin birbirini beslemesini saglar ve hicbir siraya bagli
-   * degildir.
-   */
-  private recalculate(): void {
-    const production: Partial<Record<string, number>> = {};
-    let workerSlotBonus = 0;
-
-    for (const id of this.done) {
-      const def = getResearch(id);
-      if (!def) continue;
-      workerSlotBonus += def.effect.workerSlotBonus ?? 0;
-      for (const [key, value] of Object.entries(def.effect.productionMultiplier ?? {})) {
-        production[key] = (production[key] ?? 1) * value;
+    for (const requirement of def.requires) {
+      if (!this.isDone(requirement)) {
+        const req = getResearch(requirement);
+        return `Önce "${req?.name ?? requirement}" araştırması tamamlanmalı.`;
       }
     }
 
-    this.cachedModifiers = {
-      production: production as CityModifiers['production'],
-      workerSlotBonus,
+    if (this.academyLevel < def.requiredAcademyLevel) {
+      return `Akademi seviyesi en az ${def.requiredAcademyLevel} olmalı (şu an ${this.academyLevel}).`;
+    }
+
+    return null;
+  }
+
+  /** Arastirmayi baslatir. */
+  start(id: string): boolean {
+    if (this.canStart(id)) return false;
+    const def = requireResearch(id);
+    const level = this.nextLevelOf(id) ?? 1;
+    const total = this.costOf(id);
+
+    const active: ActiveResearch = {
+      id: def.id,
+      level,
+      totalPoints: total,
+      progress: 0,
+      startedAtTick: this.state.tick,
     };
+    this.state.activeResearch = active;
+    this.bus.emit('research:started', active);
+    return true;
+  }
+
+  /** Yuruyen arastirmayi iptal eder. Biriken AP GERI VERILMEZ. */
+  cancel(): boolean {
+    const active = this.state.activeResearch;
+    if (!active) return false;
+    this.state.activeResearch = null;
+    this.state.setResearchPoints(0);
+    this.bus.emit('research:cancelled', active.id);
+    return true;
+  }
+
+  /**
+   * Uretilen arastirma puanini alir.
+   *
+   * Aktif arastirma yoksa puan KAYBOLUR ve oyuncuya bir kez bildirilir.
+   * Bildirimi her tikte tekrarlamak mesaj kutusunu doldururdu; bu yuzden
+   * yalnizca "kayip durumu yeni basladi" gecisinde yayinlanir.
+   */
+  receive(points: number): void {
+    if (!Number.isFinite(points) || points <= 0) return;
+
+    const active = this.state.activeResearch;
+    if (!active) {
+      this.warnWasted(points);
+      return;
+    }
+
+    active.progress += points;
+    this.state.setResearchPoints(active.progress);
+    this.bus.emit('research:points-changed', active.progress);
+  }
+
+  /** Kayip AP icin bildirim; ayni uyarı ust uste tekrarlanmaz. */
+  private wastedWarnedAtTick = -1;
+
+  private warnWasted(points: number): void {
+    if (points <= 0) return;
+    if (this.wastedWarnedAtTick === this.state.tick) return;
+    this.wastedWarnedAtTick = this.state.tick;
+
+    this.state.pushNotice({
+      atTick: this.state.tick,
+      title: 'Araştırma puanı boşa gidiyor',
+      body: 'Bilim adamları çalışıyor ama yürüyen bir araştırma yok. Üretilen puanlar birikmiyor.',
+      tone: 'warn',
+      read: false,
+    });
+    this.bus.emit('notice:added', 'Araştırma puanı boşa gidiyor', 'Bir araştırma seçin.', 'warn');
+  }
+
+  /** Tamamlanan arastirmayi uygular. */
+  advance(): void {
+    const active = this.state.activeResearch;
+    if (!active) return;
+    if (active.progress < active.totalPoints) return;
+
+    this.state.completeResearch(active.id, active.level);
+    this.state.activeResearch = null;
+    this.state.setResearchPoints(0);
+    this.bus.emit('research:completed', active.id, active.level);
+
+    const def = getResearch(active.id);
+    this.state.pushNotice({
+      atTick: this.state.tick,
+      title: 'Araştırma tamamlandı',
+      body: `${def?.name ?? active.id}${active.level > 1 ? ` (seviye ${active.level})` : ''} tamamlandı.`,
+      tone: 'success',
+      read: false,
+    });
+    this.bus.emit('notice:added', 'Araştırma tamamlandı', def?.name ?? active.id, 'success');
+  }
+
+  /** Su an acilabilir durumdaki arastirmalar (on kosulu saglanmis). */
+  available(): ResearchDefinition[] {
+    return RESEARCHES.filter((def) => {
+      if (this.nextLevelOf(def.id) === null) return false;
+      return def.requires.every((r) => this.isDone(r));
+    });
+  }
+
+  /** Bina kilidini acan arastirma tamamlandi mi? */
+  buildingUnlocked(buildingId: string): boolean {
+    // Kilidi olan binalar icin: kilidi acan arastirma tamamlanmis olmali.
+    for (const def of RESEARCHES) {
+      const unlocks = def.effect.unlocksBuildings;
+      if (unlocks?.includes(buildingId)) return this.isDone(def.id);
+    }
+    return true;
+  }
+
+  /** Birlik/gemi kilidini acan arastirma tamamlandi mi? */
+  unitUnlocked(unitId: string): boolean {
+    for (const def of RESEARCHES) {
+      const unlocks = def.effect.unlocksUnits;
+      if (unlocks?.includes(unitId)) return this.isDone(def.id);
+    }
+    return true;
+  }
+
+  /**
+   * Deneyler (Experiments): kristali arastirma puanina cevirir.
+   *
+   * Ikariam'da bu arastirma kristali AP'ye cevirmeyi acar. Oran bilerek
+   * kotudur: 100 kristal 1 AP. Kristal zaten bina maliyetlerinde en dar
+   * kaynaktir; iyi bir oran verilse oyuncu hic arastirma yapmaz, sadece
+   * kristal basardi.
+   */
+  static readonly CRYSTAL_PER_POINT = 100;
+
+  convertCrystal(city: CityState, crystal: number): number {
+    if (!this.state.hasResearch('experiments')) return 0;
+    const amount = Number.isFinite(crystal) ? Math.max(0, Math.floor(crystal)) : 0;
+    if (amount <= 0) return 0;
+
+    const have = Math.floor(city.resources.crystal);
+    const used = Math.min(amount, have);
+    if (used <= 0) return 0;
+
+    const points = Math.floor(used / ResearchSystem.CRYSTAL_PER_POINT);
+    city.resources.crystal -= used;
+    if (points > 0) this.receive(points);
+    this.bus.emit('resources:changed', city.id);
+    return points;
   }
 }

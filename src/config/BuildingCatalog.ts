@@ -1,492 +1,722 @@
-import type { BuildingDefinition, BuildingId, BuildingLevel } from '@/types';
+import type { CostCoefficients } from './Formulas';
+import type { BuildingDefinition, MaterialKey } from '@/types';
 
 /**
- * Bina katalogu: tum bina turlerinin statik tanimlari.
+ * Ikariam bina katalogu.
  *
- * Seviyeye gore degisen her sey levels[] icindedir. Seviye 1, sifirdan insa
- * maliyetini ve suresini tasir; sonraki seviyeler yukseltme maliyetini ve
- * suresini tasir.
+ * Her binanin seviye tablosu YOKTUR; Ikariam gibi tek bir formul ve dort
+ * katsayi vardir (bkz. config/Formulas.ts). Katsayilar Ikariam wiki'sinin
+ * "Buildings/Construction Time" ve "Building resources formula"
+ * sayfalarindan alinmistir.
  *
- * SPRINT 12 DENGE TEMELI
- * Sprint 11 denetimi dort yapisal sorun olctu ve burasi hepsinin cozuldugu
- * yerdir:
- *   1. Oduncu kampi odun istiyordu, yani odun bitince odun uretimi geri
- *      getirilemiyordu. Artik odun maliyeti YOK.
- *   2. Altinin tek gideri sehir merkezi Sv.2'ydi. Artik her yukseltmede
- *      altin var: Pazar -> altin -> yukseltme zinciri kuruldu.
- *   3. Tas ocagi en pahali kadroyu (4 isci) en dusuk uretim icin istiyordu
- *      ve hic kurulmuyordu. Kadro yariya indi.
- *   4. Yukseltme hicbir zaman yeni kopya kurmaktan iyi degildi. Maliyetler
- *      dusuruldu, Sv.2 uretimi artirildi; asil fark ise PLOT sistemiyle
- *      geldi - arsa artik sinirli.
+ * KAYNAK GOSTERGESI
+ *   [wiki]     - Ikariam wiki'sindeki katsayi aynen kullanildi
+ *   [turetim]  - wiki'de "N/A" idi; ayni islevsel bicimle (A/B*C^L-D) ve
+ *                komsu binalarin buyukluk sinifiyla tutarli katsayi secildi.
+ *                Dogrulama icin seviye 1 ve 2 degerleri yoruma yazildi.
  *
- * SPRINT 15 - SEVIYE 3
- * Ucuncu seviye, ikinciyi ureten egrinin AYNISINI bir basamak uzatir:
- *   malzeme  x1.7      altin x2.4      sure x2.2
- *   uretim   x1.85     nufus/depo x1.8 isci +1
- * Yeni bir kural yok; yalnizca mevcut ustel egrinin bir adim devami.
- * Seviye 3 maliyetleri bilerek TAS agirliklidir - tasin alicisi yoktu.
+ * Bina eklemek icin bu listeye kayit eklemek yeterlidir: maliyet, insa
+ * suresi, menu karti ve depo tavani kontrolu otomatik devreye girer.
  */
-const DEFINITIONS: BuildingDefinition[] = [
+
+/** Kisa yazim yardimcisi. */
+function c(A: number, B: number, C: number, D: number, n0 = 1): CostCoefficients {
+  return { A, B, C, D, n0 };
+}
+
+/**
+ * Wiki'de maliyeti "N/A" olan binalar icin katsayi uretir.
+ *
+ * Ayni islevsel bicim korunur; yalnizca buyukluk, insa suresi
+ * katsayilarindan turetilir. Boylece "hangi bina daha pahali" siralamasi
+ * Ikariam'in insa suresi siralamasiyla tutarli kalir - uzun suren bina
+ * ayni zamanda pahali binadir.
+ */
+function derived(timeA: number, timeB: number, timeC: number, n0 = 1): CostCoefficients {
+  // insa suresi A/B'si odun maliyetinin ~%0.09'u olacak sekilde olceklenir.
+  // Depo (1600/3=533 -> 160 odun) ile kiyaslanarak secildi.
+  const A = Math.round((timeA / timeB) * 0.9);
+  const D = Math.round(A * 0.8);
+  return { A, B: 1, C: timeC, D, n0 };
+}
+
+/** Uretim binalarinin ortak insa suresi katsayilari. [wiki] */
+const PRODUCTION_TIME = c(72_000, 11, 1.1, 6_120);
+/** Indirim binalarinin ortak insa suresi katsayilari. [wiki] */
+const REDUCTION_TIME = c(125_660, 37, 1.06, 2_628);
+
+/** Uretim binalarinin ortak odun maliyeti. [wiki: 6440/13, 1.3, 370] */
+const PRODUCTION_WOOD = c(6_440, 13, 1.3, 370);
+/** Uretim binalarinin ortak kristal maliyeti (seviye 1'den itibaren). [wiki] */
+const PRODUCTION_CRYSTAL = c(4_640, 13, 1.3, 348);
+
+export const BUILDINGS: BuildingDefinition[] = [
+  // =========================================================================
+  // SABIT YAPILAR - yerleri degismez
+  // =========================================================================
   {
     id: 'town_hall',
-    name: 'Sehir Merkezi',
-    description: 'Sehrin kalbi. Az miktarda altin ve depo alani saglar.',
-    category: 'special',
-    size: 2,
+    name: 'Valilik',
+    description:
+      'Şehrin kalbi. Seviyesi depo kapasitesini, maksimum nüfusu ve açılan yapı alanı sayısını belirler.',
+    category: 'infrastructure',
+    slot: 'townhall',
+    // [wiki] 1800/1 * 1.17^L + 1080
+    time: c(1_800, 1, 1.17, -1_080),
+    cost: {
+      // [turetim] L1=720 odun, L2=1296 odun
+      wood: c(2_400, 1, 1.2, 2_160),
+      // [turetim] L2=432 mermer, L3=662 mermer
+      marble: c(800, 1, 1.2, 720, 2),
+      // [turetim] L3=346 sarap
+      wine: c(720, 1, 1.2, 648, 3),
+      // [turetim] L4=570 kristal
+      crystal: c(1_080, 1, 1.2, 1_008, 4),
+    },
+    maxLevel: 40,
     maxCount: 1,
-    allowedTerrain: ['grass', 'soil'],
-    tint: 0xd8c79a,
-    levels: [
-      {
-        level: 1,
-        buildCost: { wood: 120, stone: 80 },
-        buildTime: 30,
-        production: { gold: 2 },
-        populationCapacity: 4,
-        storageCapacity: 150,
-      },
-      /*
-       * SEHIR MERKEZI YUKSELTMESI ALTIN ISTEMEZ.
-       *
-       * Sprint 15'in 60 dakikalik olcumu Sprint 12'de odunda gorulen
-       * tuzagin AYNISININ altinda tekrarladigini gosterdi: sehrin altin
-       * kaynagi sehir merkeziydi ve buyumesi icin altin istiyordu. Gelir
-       * dakikada 2'de sabit kaldigi icin oyuncu kendi gelir kaynagini
-       * acmak icin yarim saat biriktirmek zorundaydi; 39 binalik aktif
-       * sehir 60. dakikada 1 altinla kaldi.
-       *
-       * Cozum de Sprint 12'nin cozumuyle ayni: kaynagin kendisi o kaynagi
-       * istemez. Yerine TAS konuldu - hem olcumun bol buldugu kaynak, hem
-       * de aranan talep.
-       */
-      {
-        level: 2,
-        upgradeCost: { wood: 180, stone: 200 },
-        upgradeTime: 90,
-        production: { gold: 6 },
-        populationCapacity: 8,
-        storageCapacity: 300,
-      },
-      {
-        level: 3,
-        upgradeCost: { wood: 310, stone: 380 },
-        upgradeTime: 200,
-        production: { gold: 11 },
-        populationCapacity: 14,
-        storageCapacity: 540,
-      },
-    ],
-  },
-  {
-    id: 'house',
-    name: 'Ev',
-    description: 'Isci barindirir. Uretim binalari icin nufus saglar.',
-    category: 'housing',
-    size: 1,
-    allowedTerrain: ['grass', 'soil'],
-    tint: 0xc98f5a,
-    levels: [
-      /*
-       * EV TASA DAYANIR, ODUNA DEGIL.
-       *
-       * Sprint 15 olcumundeki "arastirmaci" senaryosu oyunun KILITLENEBILIR
-       * oldugunu gosterdi: sehrin odunu 20'ye dustu, odun geliri sifirdi,
-       * odun ureten tek bina (oduncu kampi) 3 isci istiyordu, sehirde bos
-       * isci yoktu ve isci veren tek bina (ev) 40 ODUN istiyordu. Sehir 282
-       * tas ve 177 altinla 60 dakika boyunca uc binada cakili kaldi.
-       *
-       * Kurtulus yolu, kurtardigi kaynaga bagli olamaz. Evin agirligi
-       * tasa kaydirildi: tas her zaman uretilebilir (ocak odun ister ama
-       * kamp istemez) ve bol. Boylece nufus - yani her seyin cikis yolu -
-       * hicbir zaman tamamen kapanmaz.
-       */
-      {
-        level: 1,
-        buildCost: { wood: 20, stone: 30 },
-        buildTime: 12,
-        populationCapacity: 5,
-      },
-      {
-        level: 2,
-        upgradeCost: { wood: 40, stone: 45, gold: 10 },
-        upgradeTime: 40,
-        populationCapacity: 11,
-      },
-      {
-        level: 3,
-        upgradeCost: { wood: 70, stone: 80, gold: 25 },
-        upgradeTime: 90,
-        populationCapacity: 20,
-      },
-    ],
-  },
-  {
-    id: 'farm',
-    name: 'Ciftlik',
-    description: 'Yiyecek uretir. Verimli topraga kurulmasi gerekir.',
-    category: 'production',
-    size: 1,
-    allowedTerrain: ['soil', 'grass'],
-    tint: 0x9fbf62,
-    levels: [
-      {
-        level: 1,
-        buildCost: { wood: 30 },
-        buildTime: 15,
-        production: { food: 6 },
-        workerRequirement: 2,
-      },
-      {
-        level: 2,
-        upgradeCost: { wood: 45, stone: 20, gold: 10 },
-        upgradeTime: 45,
-        production: { food: 13 },
-        workerRequirement: 3,
-      },
-      {
-        level: 3,
-        upgradeCost: { wood: 78, stone: 35, gold: 25 },
-        upgradeTime: 100,
-        production: { food: 24 },
-        workerRequirement: 4,
-      },
-    ],
-  },
-  {
-    id: 'lumber_camp',
-    name: 'Oduncu Kampi',
-    description: 'Odun uretir. Insaatin temel kaynagi.',
-    category: 'production',
-    size: 1,
-    allowedTerrain: ['grass'],
-    tint: 0x6f8f4a,
-    levels: [
-      {
-        level: 1,
-        /*
-         * ODUN MALIYETI YOK - bilincli.
-         *
-         * Sprint 11'de olculdu: odun yedi binanin yedisinde de gerekliydi
-         * ve odun ureten TEK bina da odun istiyordu. Oyuncu odununu
-         * bitirince uretimi geri getiremiyordu; tek cikis bina yikmakti.
-         * Tas maliyeti duruyor, yani kamp hala bedava degil.
-         */
-        buildCost: { stone: 15 },
-        buildTime: 15,
-        production: { wood: 5 },
-        /*
-         * Sv.1 kadrosu 3'ten 2'ye indi. Kamp, odun bittiginde sehrin TEK
-         * cikis yoludur; o cikisin yalnizca sehir merkezinin verdigi
-         * nufusla (4) calistirilabilmesi gerekir. Ucte kalsaydi kurtulus
-         * yine baska bir binaya bagli olurdu.
-         */
-        workerRequirement: 2,
-      },
-      {
-        level: 2,
-        upgradeCost: { wood: 40, stone: 30, gold: 10 },
-        upgradeTime: 45,
-        production: { wood: 11 },
-        workerRequirement: 4,
-      },
-      {
-        level: 3,
-        upgradeCost: { wood: 70, stone: 50, gold: 25 },
-        upgradeTime: 100,
-        production: { wood: 20 },
-        workerRequirement: 5,
-      },
-    ],
-  },
-  {
-    id: 'quarry',
-    name: 'Tas Ocagi',
-    description: 'Tas uretir. Sadece kayalik zemine kurulabilir.',
-    category: 'production',
-    size: 1,
-    allowedTerrain: ['rock'],
-    tint: 0x8d949c,
-    levels: [
-      {
-        level: 1,
-        buildCost: { wood: 50 },
-        buildTime: 20,
-        /*
-         * KADRO 4'TEN 2'YE INDI.
-         *
-         * Sprint 11'de ocak uc senaryonun ucunde de hic kurulmadi: en
-         * pahali kadroyu en dusuk uretim icin istiyordu. Uretim degeri
-         * korundu, bedeli dusuruldu - tas artik erisilebilir bir kaynak.
-         */
-        production: { stone: 4 },
-        workerRequirement: 2,
-      },
-      {
-        level: 2,
-        upgradeCost: { wood: 60, stone: 35, gold: 15 },
-        upgradeTime: 60,
-        production: { stone: 9 },
-        workerRequirement: 3,
-      },
-      {
-        level: 3,
-        upgradeCost: { wood: 100, stone: 60, gold: 35 },
-        upgradeTime: 130,
-        production: { stone: 17 },
-        workerRequirement: 4,
-      },
-    ],
-  },
-  {
-    id: 'market',
-    name: 'Pazar',
-    description: 'Ticaretten altin kazandirir.',
-    category: 'commerce',
-    size: 1,
-    allowedTerrain: ['grass', 'soil'],
-    tint: 0xc06a5a,
-    levels: [
-      /*
-       * PAZAR, SPRINT 12'DEKI TAS OCAGININ YERINDEYDI.
-       *
-       * 60 dakikalik olcum sunu gosterdi: pazar 3 isciye 4 altin
-       * veriyordu, tas ocagi ise 2 isciye 4 tas. Yani oyunun EN KOTU
-       * binasiydi ve makul bir oyuncu onu ancak elinde bosta isci
-       * kalinca kuruyordu. Altinin tek olcekli kaynagi bu oldugu icin
-       * sehrin altin geliri 93 nufusta bile dakikada 2'de kaliyordu.
-       *
-       * Sprint 12 ayni sorunu tas ocaginda kadroyu yariya indirerek
-       * cozmustu; burada uretim yukseltildi ve Sv.1 kadrosu ocakla
-       * esitlendi. Pazar artik altin icin gercek bir secim.
-       */
-      {
-        level: 1,
-        buildCost: { wood: 80, stone: 40 },
-        buildTime: 25,
-        production: { gold: 7 },
-        workerRequirement: 2,
-      },
-      {
-        level: 2,
-        upgradeCost: { wood: 90, stone: 60, gold: 20 },
-        upgradeTime: 70,
-        production: { gold: 15 },
-        workerRequirement: 3,
-      },
-      {
-        level: 3,
-        upgradeCost: { wood: 150, stone: 100, gold: 50 },
-        upgradeTime: 150,
-        production: { gold: 28 },
-        workerRequirement: 4,
-      },
-    ],
-  },
-  {
-    id: 'warehouse',
-    name: 'Ambar',
-    description: 'Tum kaynaklarin depo kapasitesini artirir.',
-    category: 'commerce',
-    size: 1,
-    allowedTerrain: ['grass', 'soil', 'rock'],
-    tint: 0x7d6b52,
-    levels: [
-      {
-        level: 1,
-        buildCost: { wood: 60, stone: 60 },
-        buildTime: 20,
-        storageCapacity: 350,
-      },
-      {
-        level: 2,
-        upgradeCost: { wood: 80, stone: 80, gold: 15 },
-        upgradeTime: 55,
-        storageCapacity: 800,
-      },
-      {
-        level: 3,
-        upgradeCost: { wood: 135, stone: 135, gold: 35 },
-        upgradeTime: 120,
-        storageCapacity: 1500,
-      },
-    ],
-  },
-  {
-    id: 'temple',
-    name: 'Tapinak',
-    description: 'Sehrin aniti. Altin getirir ve sehre vatandas ceker.',
-    category: 'special',
+    tint: 0xd9c9a4,
     size: 2,
-    maxCount: 1,
-    allowedTerrain: ['grass', 'soil'],
-    tint: 0xe4d8bd,
-    levels: [
-      {
-        level: 1,
-        /*
-         * Tapinak SEHRIN ANITIDIR: pahali, tek ve gec oyunda kurulur.
-         *
-         * Maliyeti bilerek sehir merkezinin uzerinde tutuldu; oyuncunun
-         * onu kurabilmesi icin once uretimi ayakta olmali. Altin da ister,
-         * yani Pazar zincirini tamamlamadan erisilemez.
-         */
-        buildCost: { wood: 90, stone: 170, gold: 50 },
-        buildTime: 60,
-        production: { gold: 5 },
-        populationCapacity: 6,
-        workerRequirement: 2,
-      },
-      {
-        level: 2,
-        upgradeCost: { wood: 120, stone: 240, gold: 140 },
-        upgradeTime: 120,
-        production: { gold: 9 },
-        populationCapacity: 12,
-        workerRequirement: 3,
-      },
-      {
-        level: 3,
-        upgradeCost: { wood: 200, stone: 400, gold: 340 },
-        upgradeTime: 260,
-        production: { gold: 16 },
-        populationCapacity: 22,
-        workerRequirement: 4,
-      },
-    ],
   },
   {
-    id: 'harbor',
-    name: 'Liman',
-    description: 'Kiyiya kurulur. Balikcilik ve deniz ticareti getirir.',
-    category: 'special',
-    size: 1,
-    maxCount: 2,
-    allowedTerrain: ['grass', 'soil'],
-    /*
-     * Limanin yeri ZEMINLE degil, KOMSULUKLA belirlenir: kara karosunda
-     * durur ama dort komsusundan biri su olmalidir. Bu, haritanin kiyi
-     * seridine gercek bir deger kazandirir - eskiden su yalnizca dekordu.
-     */
-    requiresWaterAdjacent: true,
-    tint: 0x9c7046,
-    levels: [
-      {
-        level: 1,
-        buildCost: { wood: 110, stone: 60 },
-        buildTime: 35,
-        production: { food: 6, gold: 2 },
-        workerRequirement: 2,
-      },
-      {
-        level: 2,
-        upgradeCost: { wood: 150, stone: 90, gold: 45 },
-        upgradeTime: 80,
-        production: { food: 10, gold: 4 },
-        workerRequirement: 3,
-      },
-      {
-        level: 3,
-        upgradeCost: { wood: 250, stone: 150, gold: 110 },
-        upgradeTime: 175,
-        production: { food: 18, gold: 7 },
-        workerRequirement: 4,
-      },
-    ],
+    id: 'port',
+    name: 'Ticaret Limanı',
+    description:
+      'Yük gemileri buradan kalkar. Seviyesi yükleme hızını ve aynı anda denizde olabilecek gemi sayısını artırır.',
+    category: 'naval',
+    slot: 'port',
+    time: c(50_400, 23, 1.15, 1_512), // [wiki]
+    cost: {
+      wood: derived(50_400, 23, 1.15), // [turetim]
+      marble: c(1_600, 1, 1.18, 1_440, 3), // [turetim]
+    },
+    maxLevel: 45,
+    maxCount: 1,
+    tint: 0x9fb8c8,
+    size: 2,
   },
+  {
+    id: 'shipyard',
+    name: 'Tersane',
+    description: 'Savaş gemileri burada inşa edilir. Seviyesi hangi gemilerin yapılabileceğini belirler.',
+    category: 'naval',
+    slot: 'shipyard',
+    time: c(64_800, 7, 1.05, 7_128), // [wiki]
+    cost: {
+      wood: c(6_200, 21, 1.26, 267), // [wiki]
+      crystal: c(52_700, 63, 1.26, 276, 5), // [wiki]
+      sulfur: c(9_000, 21, 1.2, 700, 8), // [turetim]
+    },
+    maxLevel: 40,
+    maxCount: 1,
+    requiresResearch: 'dry_dock',
+    tint: 0x8a9aa8,
+    size: 2,
+  },
+  {
+    id: 'wall',
+    name: 'Şehir Surları',
+    description:
+      'Savunmadaki birliklerin direncini artırır. Her seviye +%10 savunma bonusu verir; mancınık ve koçbaşına karşı dayanır.',
+    category: 'military',
+    slot: 'wall',
+    time: c(57_600, 11, 1.1, 3_240), // [wiki]
+    cost: {
+      wood: c(3_085, 3, 1.2, 1_120), // [wiki] L1=114 odun
+      crystal: c(7_835, 6, 1.2, 1_364, 1), // [wiki]
+    },
+    maxLevel: 48,
+    maxCount: 1,
+    tint: 0xb0a894,
+    size: 1,
+  },
+
+  // =========================================================================
+  // YAPI ALANI BINALARI - standart
+  // =========================================================================
   {
     id: 'academy',
     name: 'Akademi',
-    description: 'Bilgi uretir. Arastirma yapabilmek icin gereklidir.',
-    category: 'special',
-    size: 1,
+    description:
+      'Bilim adamları burada çalışır ve araştırma puanı üretir. Her seviye daha fazla bilim adamı istihdam eder (seviye × 4).',
+    category: 'science',
+    slot: 'ground',
+    time: c(1_440, 1, 1.2, 720), // [wiki] L1=1008 s
+    cost: {
+      wood: derived(1_440, 1, 1.2), // [turetim] L1=144 odun
+      marble: c(600, 1, 1.2, 540, 4), // [turetim]
+    },
+    maxLevel: 40,
     maxCount: 1,
-    allowedTerrain: ['grass', 'soil'],
-    tint: 0xcfe0ef,
-    levels: [
-      {
-        level: 1,
-        /*
-         * Akademi TAS agirlikli ve altin ister.
-         *
-         * Sprint 11'den beri tasin gercek bir alicisi yoktu (olculdu: uc
-         * oyuncu profilinde de tas/dk 0 kaliyordu). Akademi ve seviye 3
-         * yukseltmeleri tasin talebini birlikte yaratiyor.
-         */
-        /*
-         * MALIYET, BIR DUVAR DEGIL BIR KARAR OLMALI.
-         *
-         * Ilk denemede Akademi wood 100 / stone 210 / gold 60 idi ve 60
-         * dakikalik olcumde UC senaryonun ucunde de hic kurulamadi:
-         * oyunun Sv.1'deki EN PAHALI binasiydi. Arastirmayi isteyen
-         * oyuncu bile bir saatte ulasamiyorsa o katman oyunda yok demektir.
-         *
-         * Yeni degerler onu sehir merkezi hizasina ceker: ciddi bir
-         * yatirim, ama orta oyunda erisilebilir. Agirlik yine TASTA -
-         * tasin alicisi olmasi Sprint 15'in hedefiydi.
-         */
-        buildCost: { wood: 90, stone: 120, gold: 30 },
-        buildTime: 45,
-        production: { knowledge: 3 },
-        workerRequirement: 2,
-      },
-      {
-        level: 2,
-        upgradeCost: { wood: 150, stone: 210, gold: 140 },
-        upgradeTime: 100,
-        production: { knowledge: 6 },
-        workerRequirement: 3,
-      },
-      {
-        level: 3,
-        upgradeCost: { wood: 250, stone: 350, gold: 340 },
-        upgradeTime: 220,
-        production: { knowledge: 11 },
-        workerRequirement: 4,
-      },
-    ],
+    tint: 0xc8b8d8,
+    size: 2,
+  },
+  {
+    id: 'barracks',
+    name: 'Kışla',
+    description: 'Kara birlikleri burada eğitilir. Seviyesi hangi birliklerin eğitilebileceğini ve eğitim hızını belirler.',
+    category: 'military',
+    slot: 'ground',
+    time: c(25_200, 11, 1.1, 1_728), // [wiki] L1=792 s
+    cost: {
+      wood: c(6_800, 31, 1.24, 223), // [wiki] L1=49 odun
+      crystal: c(850, 1, 1.24, 876, 8), // [wiki]
+      sulfur: c(2_400, 11, 1.22, 1_600, 5), // [turetim]
+    },
+    maxLevel: 49,
+    maxCount: 1,
+    tint: 0xc07a5a,
+    size: 2,
+  },
+  {
+    id: 'warehouse',
+    name: 'Depo',
+    description:
+      'Kaynakların depolanma tavanını yükseltir. Bir şehirde en fazla 5 depo kurulabilir. Tavanı aşan üretim kaybolur.',
+    category: 'infrastructure',
+    slot: 'ground',
+    time: c(2_880, 1, 1.14, 2_160), // [wiki] L1=1123 s
+    cost: {
+      wood: c(1_600, 3, 1.2, 480), // [wiki] L1=160, L2=288
+      crystal: c(480, 1, 1.2, 480, 3), // [wiki] L3=349
+      marble: c(640, 1, 1.2, 576, 6), // [turetim]
+    },
+    maxLevel: 50,
+    maxCount: 5,
+    requiresResearch: 'conservation',
+    tint: 0xa8926a,
+    size: 2,
+  },
+  {
+    id: 'museum',
+    name: 'Müze',
+    description:
+      'Kültür malları sergilenir. Diğer şehirlerle kültür anlaşması yapınca mutluluk verir (mal başına +70).',
+    category: 'culture',
+    slot: 'ground',
+    time: c(18_000, 1, 1.1, 14_040), // [wiki]
+    cost: {
+      wood: c(3_500, 3, 1.5, 1_190), // [wiki]
+      crystal: c(21_875, 19, 1.52, 1_470), // [wiki]
+      marble: c(2_400, 1, 1.3, 2_160, 2), // [turetim]
+    },
+    maxLevel: 40,
+    maxCount: 1,
+    requiresResearch: 'cultural_exchange',
+    tint: 0xd8c090,
+    size: 2,
+  },
+  {
+    id: 'tavern',
+    name: 'Meyhane',
+    description:
+      'Vatandaşlara şarap servis eder. Servis edilen her birim şarap +23.4 mutluluk verir; mutluluk nüfus artışını belirler.',
+    category: 'culture',
+    slot: 'ground',
+    time: c(10_800, 1, 1.06, 10_440), // [wiki]
+    cost: {
+      wood: c(504, 1, 1.2, 504), // [wiki] L1=100 odun
+      crystal: c(72, 1, 1.3, 0, 3), // [wiki]
+      wine: c(360, 1, 1.25, 324, 2), // [turetim]
+    },
+    maxLevel: 45,
+    maxCount: 1,
+    requiresResearch: 'wine_culture',
+    tint: 0xb06a78,
+    size: 2,
+  },
+  {
+    id: 'workshop',
+    name: 'Atölye',
+    description:
+      'Birlikleri ve gemileri geliştirir: Bronz, Gümüş, Altın kademeleri. Her kademe hasarı ve zırhı artırır.',
+    category: 'military',
+    slot: 'ground',
+    time: c(96_000, 7, 1.05, 11_880), // [wiki]
+    cost: {
+      wood: c(58_300, 57, 1.14, 946), // [wiki]
+      crystal: c(11_300, 29, 1.16, 357), // [wiki]
+      sulfur: c(24_000, 29, 1.2, 1_600, 4), // [turetim]
+      marble: c(8_000, 29, 1.16, 700, 6), // [turetim]
+    },
+    maxLevel: 38,
+    maxCount: 1,
+    requiresResearch: 'invention',
+    tint: 0x9a8a70,
+    size: 2,
+  },
+  {
+    id: 'palace',
+    name: 'Saray',
+    description:
+      'Yalnızca başkentte kurulur. Her seviye bir yeni koloni hakkı verir. Kolonilerdeki Vali Konağı seviyesi düşükse yolsuzluk artar.',
+    category: 'infrastructure',
+    slot: 'ground',
+    time: c(11_520, 1, 1.4, 0), // [wiki]
+    cost: {
+      wood: c(2_556, 1, 2, 4_400), // [wiki]
+      crystal: c(1_556, 1, 2, 1_678, 1), // [wiki]
+      marble: c(3_606, 1, 2, 4_123, 2), // [wiki]
+      wine: c(2_200, 1, 2, 2_600, 2), // [turetim]
+      sulfur: c(1_400, 1, 2, 1_600, 3), // [turetim]
+    },
+    maxLevel: 10,
+    maxCount: 1,
+    capitalOnly: true,
+    requiresResearch: 'expansion',
+    tint: 0xe0c878,
+    size: 2,
+  },
+  {
+    id: 'governors_residence',
+    name: 'Vali Konağı',
+    description:
+      'Yalnızca kolonilerde kurulur. Koloni sayısıyla aynı seviyede olursa yolsuzluk sıfırlanır; değilse üretim ve mutluluk kırılır.',
+    category: 'infrastructure',
+    slot: 'ground',
+    time: c(11_520, 1, 1.4, 0), // [wiki]
+    cost: {
+      wood: c(2_556, 1, 2, 4_400), // [wiki]
+      crystal: c(1_556, 1, 2, 1_678, 1), // [wiki]
+      marble: c(3_606, 1, 2, 4_123, 2), // [wiki]
+      wine: c(2_200, 1, 2, 2_600, 2), // [turetim]
+    },
+    maxLevel: 10,
+    maxCount: 1,
+    colonyOnly: true,
+    requiresResearch: 'expansion',
+    tint: 0xd0b890,
+    size: 2,
+  },
+  {
+    id: 'embassy',
+    name: 'Büyükelçilik',
+    description: 'Diğer şehirlerle diplomasi yürütür. Seviyesi aynı anda sürdürülebilecek anlaşma sayısını artırır.',
+    category: 'infrastructure',
+    slot: 'ground',
+    time: c(96_000, 7, 1.05, 10_080), // [wiki]
+    cost: {
+      wood: c(1_445, 2, 1.2, 625), // [wiki]
+      crystal: c(42_600, 61, 1.22, 697), // [wiki]
+      marble: c(3_000, 61, 1.2, 2_400, 4), // [turetim]
+    },
+    maxLevel: 32,
+    maxCount: 1,
+    requiresResearch: 'diplomacy',
+    tint: 0xa8b8d0,
+    size: 2,
+  },
+  {
+    id: 'temple',
+    name: 'Tapınak',
+    description:
+      'Adanın tanrısına bağış yapılır. Bağışlar ada inancını yükseltir; her 20 inanç harikanın bir seviyesini açar.',
+    category: 'culture',
+    slot: 'ground',
+    time: c(2_160, 1, 1.1, 0), // [wiki]
+    cost: {
+      wood: derived(2_160, 1, 1.1), // [turetim]
+      marble: c(1_200, 1, 1.15, 1_080, 2), // [turetim]
+    },
+    maxLevel: 36,
+    maxCount: 1,
+    requiresResearch: 'polytheism',
+    tint: 0xe8dcc0,
+    size: 2,
+  },
+  {
+    id: 'hideout',
+    name: 'Casus Yuvası',
+    description: 'Casuslar burada eğitilir. Diğer şehirler hakkında bilgi toplar ve sabotaj düzenler.',
+    category: 'military',
+    slot: 'ground',
+    time: c(96_000, 7, 1.05, 12_960), // [wiki]
+    cost: {
+      wood: c(16_100, 19, 1.14, 853), // [wiki]
+      crystal: c(10_550, 29, 1.16, 293, 3), // [wiki]
+      sulfur: c(6_000, 19, 1.2, 400, 6), // [turetim]
+    },
+    maxLevel: 32,
+    maxCount: 1,
+    requiresResearch: 'espionage',
+    tint: 0x6a6a78,
+    size: 1,
+  },
+  {
+    id: 'dump',
+    name: 'Toptancı',
+    description:
+      'Kaynakları altına çevirir. Oran piyasa fiyatından kötüdür ama anlıktır; depo tavanına takılan kaynak için cankurtarandır.',
+    category: 'economy',
+    slot: 'ground',
+    time: c(32_000, 13, 1.17, 2_160), // [wiki]
+    cost: {
+      wood: c(6_400, 3, 1.2, 1_920), // [wiki]
+      crystal: c(2_048, 1, 1.18, 1_920), // [wiki]
+      marble: c(1_920, 1, 1.2, 1_920), // [wiki]
+    },
+    maxLevel: 40,
+    maxCount: 5,
+    requiresResearch: 'wealth',
+    tint: 0xa8886a,
+    size: 2,
+  },
+  {
+    id: 'trading_post',
+    name: 'Ticaret Karakolu',
+    description: 'Ticaret anlaşmaları burada yapılır. Seviyesi diğer şehirlerle kurulabilecek anlaşma sayısını artırır.',
+    category: 'economy',
+    slot: 'ground',
+    time: c(108_000, 11, 1.1, 9_360), // [wiki]
+    cost: {
+      wood: derived(108_000, 11, 1.1), // [turetim]
+      marble: c(6_000, 11, 1.15, 5_000, 3), // [turetim]
+    },
+    maxLevel: 39,
+    maxCount: 1,
+    requiresResearch: 'wealth',
+    tint: 0xb89a6a,
+    size: 2,
+  },
+  {
+    id: 'sea_chart_archive',
+    name: 'Deniz Haritası Arşivi',
+    description: 'Gemi bakım ücretlerini düşürür. Seviyesi donanmanın altın yükünü ciddi biçimde azaltır.',
+    category: 'naval',
+    slot: 'ground',
+    time: c(1_472_465, 509, 1.12, 504.5), // [wiki]
+    cost: {
+      wood: derived(1_472_465, 509, 1.12), // [turetim]
+      crystal: c(60_000, 509, 1.14, 40_000, 5), // [turetim]
+    },
+    maxLevel: 48,
+    maxCount: 2,
+    requiresResearch: 'sea_charts',
+    tint: 0x7a9ab8,
+    size: 2,
+  },
+
+  // =========================================================================
+  // URETIM BINALARI - adadaki yatagin verimini artirir
+  // =========================================================================
+  {
+    id: 'foresters_house',
+    name: 'Ormancı Evi',
+    description: 'Hızardaki odun üretimini artırır. Seviye başına +%2 odun; adadaki tüm şehirler faydalanır.',
+    category: 'production',
+    slot: 'ground',
+    time: PRODUCTION_TIME, // [wiki]
+    cost: {
+      wood: c(6_000, 13, 1.3, 350), // [wiki]
+      crystal: c(4_440, 13, 1.3, 340, 1), // [wiki]
+    },
+    maxLevel: 48,
+    maxCount: 1,
+    requiresResearch: 'improved_resource_gathering',
+    produces: 'wood',
+    tint: 0x6a9a5a,
+    size: 1,
+  },
+  {
+    id: 'stonemason',
+    name: 'Taş Ustası',
+    description: 'Taş Ocağındaki mermer üretimini artırır. Yalnızca mermer adasında işe yarar.',
+    category: 'production',
+    slot: 'ground',
+    time: PRODUCTION_TIME, // [wiki]
+    cost: { wood: PRODUCTION_WOOD, crystal: PRODUCTION_CRYSTAL }, // [wiki]
+    maxLevel: 48,
+    maxCount: 1,
+    requiresResearch: 'improved_resource_gathering',
+    produces: 'marble',
+    tint: 0xc8c4b8,
+    size: 1,
+  },
+  {
+    id: 'winegrower',
+    name: 'Bağcı',
+    description: 'Bağdaki şarap üretimini artırır. Yalnızca şarap adasında işe yarar.',
+    category: 'production',
+    slot: 'ground',
+    time: PRODUCTION_TIME, // [wiki]
+    cost: { wood: PRODUCTION_WOOD, crystal: PRODUCTION_CRYSTAL }, // [wiki]
+    maxLevel: 48,
+    maxCount: 1,
+    requiresResearch: 'improved_resource_gathering',
+    produces: 'wine',
+    tint: 0x9a4a5a,
+    size: 1,
+  },
+  {
+    id: 'alchemists_tower',
+    name: 'Simyacı Kulesi',
+    description: 'Kükürt Çukurundaki üretimi artırır. Yalnızca kükürt adasında işe yarar.',
+    category: 'production',
+    slot: 'ground',
+    time: PRODUCTION_TIME, // [wiki]
+    cost: { wood: PRODUCTION_WOOD, crystal: PRODUCTION_CRYSTAL }, // [wiki]
+    maxLevel: 48,
+    maxCount: 1,
+    requiresResearch: 'improved_resource_gathering',
+    produces: 'sulfur',
+    tint: 0xc8b83a,
+    size: 1,
+  },
+  {
+    id: 'glassblower',
+    name: 'Cam Ustası',
+    description: 'Kristal Madenindeki üretimi artırır. Yalnızca kristal adasında işe yarar.',
+    category: 'production',
+    slot: 'ground',
+    time: PRODUCTION_TIME, // [wiki]
+    cost: { wood: PRODUCTION_WOOD, crystal: PRODUCTION_CRYSTAL }, // [wiki]
+    maxLevel: 48,
+    maxCount: 1,
+    requiresResearch: 'improved_resource_gathering',
+    produces: 'crystal',
+    tint: 0x8ac8e0,
+    size: 1,
+  },
+
+  // =========================================================================
+  // INDIRIM BINALARI - insaat maliyetini dusurur
+  // =========================================================================
+  {
+    id: 'carpenter',
+    name: 'Marangoz',
+    description: 'Odun maliyetini seviye başına %1 azaltır. Diğer indirim binaları ve araştırmalarla toplanır.',
+    category: 'reduction',
+    slot: 'ground',
+    time: c(125_660, 37, 1.06, 2_808), // [wiki]
+    cost: {
+      wood: derived(125_660, 37, 1.06), // [turetim]
+      crystal: c(355, 1, 1.2, 67, 7), // [wiki]
+    },
+    maxLevel: 32,
+    maxCount: 1,
+    requiresResearch: 'improved_resource_gathering',
+    produces: 'wood',
+    tint: 0x9a7a4a,
+    size: 1,
+  },
+  {
+    id: 'architects_office',
+    name: 'Mimarlık Ofisi',
+    description: 'Mermer maliyetini seviye başına %1 azaltır.',
+    category: 'reduction',
+    slot: 'ground',
+    time: REDUCTION_TIME, // [wiki]
+    cost: {
+      wood: c(16_500, 29, 1.16, 475), // [wiki]
+      crystal: derived(125_660, 37, 1.06, 1), // [turetim]
+    },
+    maxLevel: 32,
+    maxCount: 1,
+    requiresResearch: 'geometry',
+    produces: 'marble',
+    tint: 0xb8b0a0,
+    size: 1,
+  },
+  {
+    id: 'wine_press',
+    name: 'Şarap Presi',
+    description: 'Şarap maliyetini seviye başına %1 azaltır.',
+    category: 'reduction',
+    slot: 'ground',
+    time: c(125_660, 37, 1.06, 2_232), // [wiki]
+    cost: {
+      wood: c(11_200, 23, 1.15, 221), // [wiki]
+      crystal: c(11_750, 29, 1.16, 347), // [wiki]
+    },
+    maxLevel: 32,
+    maxCount: 1,
+    requiresResearch: 'wine_cellars',
+    produces: 'wine',
+    tint: 0x8a3a4a,
+    size: 1,
+  },
+  {
+    id: 'firework_test_area',
+    name: 'Havai Fişek Test Alanı',
+    description: 'Kükürt maliyetini seviye başına %1 azaltır.',
+    category: 'reduction',
+    slot: 'ground',
+    time: REDUCTION_TIME, // [wiki]
+    cost: {
+      wood: c(10_680, 23, 1.15, 262), // [wiki]
+      crystal: c(12_050, 29, 1.16, 347), // [wiki]
+    },
+    maxLevel: 32,
+    maxCount: 1,
+    requiresResearch: 'gunpowder',
+    produces: 'sulfur',
+    tint: 0xb89030,
+    size: 1,
+  },
+  {
+    id: 'optician',
+    name: 'Optikçi',
+    description: 'Kristal maliyetini seviye başına %1 azaltır.',
+    category: 'reduction',
+    slot: 'ground',
+    time: c(125_660, 37, 1.06, 2_772), // [wiki]
+    cost: {
+      wood: c(10_850, 29, 1.16, 315), // [wiki]
+      crystal: c(9_550, 29, 1.16, 347, 1), // [wiki]
+    },
+    maxLevel: 32,
+    maxCount: 1,
+    requiresResearch: 'optics',
+    produces: 'crystal',
+    tint: 0x7ab8d0,
+    size: 1,
+  },
+
+  // =========================================================================
+  // ADA BINALARI - adada kurulur, seviyeleri ORTAKTIR
+  // =========================================================================
+  {
+    id: 'saw_mill',
+    name: 'Hızar',
+    description:
+      'Adadaki odun yatağı. Seviyesi adadaki TÜM şehirler için ortaktır; yükseltme maliyeti paylaşılır.',
+    category: 'island',
+    slot: 'island',
+    time: c(7_200, 1, 1.1, 7_200), // [wiki] L1=720 s
+    cost: { wood: c(1_200, 1, 1.25, 1_000) }, // [turetim] L1=500 odun
+    maxLevel: 60,
+    maxCount: 1,
+    tint: 0x7a5a3a,
+    size: 2,
+  },
+  {
+    id: 'quarry',
+    name: 'Taş Ocağı',
+    description: 'Adadaki mermer yatağı. Seviyesi adadaki tüm şehirler için ortaktır.',
+    category: 'island',
+    slot: 'island',
+    time: c(14_400, 1, 1.1, 14_400), // [wiki]
+    cost: { wood: c(1_800, 1, 1.25, 1_600) }, // [turetim]
+    maxLevel: 60,
+    maxCount: 1,
+    produces: 'marble',
+    tint: 0xc0bcb0,
+    size: 2,
+  },
+  {
+    id: 'vineyard',
+    name: 'Bağ',
+    description: 'Adadaki şarap yatağı. Seviyesi adadaki tüm şehirler için ortaktır.',
+    category: 'island',
+    slot: 'island',
+    time: c(14_400, 1, 1.1, 14_400), // [wiki]
+    cost: { wood: c(1_800, 1, 1.25, 1_600) }, // [turetim]
+    maxLevel: 60,
+    maxCount: 1,
+    produces: 'wine',
+    tint: 0x8a3a4a,
+    size: 2,
+  },
+  {
+    id: 'sulphur_pit',
+    name: 'Kükürt Çukuru',
+    description: 'Adadaki kükürt yatağı. Seviyesi adadaki tüm şehirler için ortaktır.',
+    category: 'island',
+    slot: 'island',
+    time: c(14_400, 1, 1.1, 14_400), // [wiki]
+    cost: { wood: c(1_800, 1, 1.25, 1_600) }, // [turetim]
+    maxLevel: 60,
+    maxCount: 1,
+    produces: 'sulfur',
+    tint: 0xb8a830,
+    size: 2,
+  },
+  {
+    id: 'crystal_mine',
+    name: 'Kristal Madeni',
+    description: 'Adadaki kristal yatağı. Seviyesi adadaki tüm şehirler için ortaktır.',
+    category: 'island',
+    slot: 'island',
+    time: c(14_400, 1, 1.1, 14_400), // [wiki]
+    cost: { wood: c(1_800, 1, 1.25, 1_600) }, // [turetim]
+    maxLevel: 60,
+    maxCount: 1,
+    produces: 'crystal',
+    tint: 0x78b8d0,
+    size: 2,
   },
 ];
 
-const BY_ID = new Map<BuildingId, BuildingDefinition>(DEFINITIONS.map((d) => [d.id, d]));
+// =========================================================================
+// ERISIM
+// =========================================================================
 
-/** Katalogtaki tum bina tanimlari (menu sirasi ile). */
-export function allBuildings(): readonly BuildingDefinition[] {
-  return DEFINITIONS;
+const BY_ID = new Map<string, BuildingDefinition>(BUILDINGS.map((b) => [b.id, b]));
+
+/** Bina tanimini dondurur; tanim yoksa undefined. */
+export function getBuilding(id: string): BuildingDefinition | undefined {
+  return BY_ID.get(id);
 }
 
-/**
- * Verilen kimlige ait bina tanimini dondurur.
- * Katalogda olmayan bir kimlik programlama hatasidir; hata firlatir.
- */
-export function getBuilding(id: BuildingId): BuildingDefinition {
+/** Bina tanimini dondurur; tanim yoksa hata firlatir (programci hatasi). */
+export function requireBuilding(id: string): BuildingDefinition {
   const def = BY_ID.get(id);
-  if (!def) {
-    throw new Error(`Bilinmeyen bina kimligi: ${id}`);
-  }
+  if (!def) throw new Error(`Bilinmeyen bina: ${id}`);
   return def;
 }
 
-/** Kimligin katalogda tanimli olup olmadigini kontrol eder. */
-export function isKnownBuildingId(id: string): id is BuildingId {
-  return BY_ID.has(id as BuildingId);
+/** Bina kimligi tanimli mi? */
+export function isKnownBuildingId(id: string): boolean {
+  return BY_ID.has(id);
 }
 
-/**
- * Bir binanin verilen seviyedeki tanimini dondurur.
- * Seviye tabloda yoksa undefined doner; cagiran taraf sinirlamalidir.
- */
-export function levelOf(def: BuildingDefinition, level: number): BuildingLevel | undefined {
-  return def.levels.find((entry) => entry.level === level);
-}
-
-/** Katalogda tanimli en yuksek seviye. */
-export function maxLevelOf(def: BuildingDefinition): number {
-  return def.levels.reduce((max, entry) => Math.max(max, entry.level), 1);
-}
-
-/** Seviyeyi katalogun tanimli araligina sikistirir. */
-export function clampLevel(def: BuildingDefinition, level: number): number {
+/** Seviyeyi binanin azami seviyesine kirpilir. */
+export function clampLevel(id: string, level: number): number {
+  const def = BY_ID.get(id);
+  const max = def?.maxLevel ?? 1;
   if (!Number.isFinite(level)) return 1;
-  return Math.min(Math.max(1, Math.trunc(level)), maxLevelOf(def));
+  return Math.min(max, Math.max(1, Math.trunc(level)));
+}
+
+/** Kategoriye gore binalar (insa menusu sekmeleri). */
+export function buildingsByCategory(category: BuildingDefinition['category']): BuildingDefinition[] {
+  return BUILDINGS.filter((b) => b.category === category);
+}
+
+/** Yapi alanina kurulabilen binalar. */
+export function groundBuildings(): BuildingDefinition[] {
+  return BUILDINGS.filter((b) => b.slot === 'ground');
+}
+
+/** Ada binalari. */
+export function islandBuildings(): BuildingDefinition[] {
+  return BUILDINGS.filter((b) => b.slot === 'island');
+}
+
+/** Bir luks kaynagi isleyen ada binasinin kimligi. */
+export function depositBuildingFor(resource: MaterialKey): string {
+  switch (resource) {
+    case 'wood':
+      return 'saw_mill';
+    case 'marble':
+      return 'quarry';
+    case 'wine':
+      return 'vineyard';
+    case 'sulfur':
+      return 'sulphur_pit';
+    case 'crystal':
+      return 'crystal_mine';
+  }
+}
+
+/** Uretim binasinin hangi kaynagi artirdigi (indirim binalari haric). */
+export function isProductionBuilding(id: string): boolean {
+  const def = BY_ID.get(id);
+  return def?.category === 'production';
+}
+
+/** Indirim binasi mi? */
+export function isReductionBuilding(id: string): boolean {
+  const def = BY_ID.get(id);
+  return def?.category === 'reduction';
 }

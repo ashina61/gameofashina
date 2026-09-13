@@ -1,57 +1,115 @@
 import type {
   ActiveResearch,
-  BuildingInstance,
-  ConstructionTask,
-  EconomySnapshot,
-  PopulationSnapshot,
-  ResourcePool,
-  TileData,
-  WorkforceSnapshot,
+  BattleReport,
+  CitySlotSelection,
+  CitySnapshot,
+  CityState,
+  Fleet,
+  IslandSlotSelection,
+  MaterialKey,
+  NoticeTone,
+  WorldSlotSelection,
 } from '@/types';
 
 /**
  * Sahneler arasi iletisim icin tip guvenli olay sozlesmesi.
- * Anahtar = olay adi, deger = dinleyicinin alacagi argumanlar.
+ *
+ * KURAL: sistemler birbirini DOGRUDAN cagirmaz, olay yayinlar; sahneler
+ * yalnizca dinler. Boylece sunum katmani tamamen yeniden yazilsa bile oyun
+ * kurallari degismez.
+ *
+ * YAYIN SIKLIGI: ilerleme bilgisi (insaatin yuzde kaci bitti, filonun ne
+ * kadar yolu kaldi) OLAY OLARAK YAYINLANMAZ. O bilgi her tikte degisir ve
+ * olay yagmuru yaratirdi; render katmani onu dogrudan durumdan okur.
+ * Olaylar yalnizca ANLIK gecislerde (basladi/bitti/iptal) atilir.
  */
 export interface GameEvents {
-  'resources:changed': [resources: ResourcePool, capacity: number];
-  'economy:updated': [snapshot: EconomySnapshot];
-  'population:updated': [snapshot: PopulationSnapshot];
-  /** Isci atamasi degisti (atama, geri alma, varis). */
-  'workforce:changed': [snapshot: WorkforceSnapshot];
-  'building:placed': [building: BuildingInstance];
-  'building:completed': [building: BuildingInstance];
-  'building:removed': [building: BuildingInstance];
-  /**
-   * Insaat veya yukseltme gorevi basladi.
-   * Her tikte YAYINLANMAZ - yalnizca gorev baslarken ve biterken. Ilerleme,
-   * render katmaninda aktif gorevler uzerinden okunur; bu sayede olay
-   * yagmuru olusmaz.
-   */
-  'construction:started': [task: ConstructionTask];
-  /** Insaat veya yukseltme gorevi tamamlandi. */
-  'construction:completed': [task: ConstructionTask];
-  /** Insaat veya yukseltme gorevi iptal edildi. */
-  'construction:cancelled': [task: ConstructionTask];
-  /** Arastirma basladi. */
+  // --- Zaman ---
+  /** Simulasyon tiki ilerledi (gercek saniye sayaci). */
+  'tick': [tick: number];
+
+  // --- Ekonomi ve nufus ---
+  /** Sehrin kaynak depolari degisti. */
+  'resources:changed': [cityId: string];
+  /** Altin havuzu degisti. */
+  'gold:changed': [gold: number];
+  /** Sehir ozeti yeniden hesaplandi (nufus, mutluluk, akis). */
+  'city:updated': [snapshot: CitySnapshot];
+  /** Nufus bir vatandas kazandi veya kaybetti. */
+  'population:changed': [cityId: string, citizens: number];
+  /** Vatandas atamasi degisti. */
+  'assignment:changed': [cityId: string];
+  /** Depo tavani doldugu icin uretim kirpildi. */
+  'storage:overflow': [cityId: string, resource: MaterialKey];
+
+  // --- Insaat ---
+  'construction:started': [cityId: string, buildingId: string, toLevel: number];
+  'construction:completed': [cityId: string, buildingId: string, level: number];
+  'construction:cancelled': [cityId: string, buildingId: string];
+  /** Adadaki ortak yatagin (Hizar/luks) seviyesi yukseldi. */
+  'island:deposit-upgraded': [islandId: string, resource: MaterialKey, level: number];
+
+  // --- Arastirma ---
   'research:started': [active: ActiveResearch];
-  /** Arastirma tamamlandi; sehir carpanlari degisti. */
-  'research:completed': [active: ActiveResearch];
-  'tile:selected': [tile: TileData | null];
-  'placement:start': [defId: string];
-  'placement:cancel': [];
-  'placement:changed': [valid: boolean];
-  'notify': [message: string, tone: 'info' | 'success' | 'error'];
+  'research:completed': [id: string, level: number];
+  'research:cancelled': [id: string];
+  'research:points-changed': [points: number];
+
+  // --- Ordu ve donanma ---
+  'training:started': [cityId: string, id: string, count: number];
+  'training:completed': [cityId: string, id: string, count: number];
+  'training:cancelled': [cityId: string, id: string];
+  /** Atolyede bir birlik/gemi kademesi yukseltildi. */
+  'tier:upgraded': [kind: 'unit' | 'ship', id: string, tier: string];
+
+  // --- Filo ve savas ---
+  'fleet:dispatched': [fleet: Fleet];
+  'fleet:returned': [fleet: Fleet];
+  'battle:resolved': [report: BattleReport];
+  /** Haritada bir filoya dokunuldu (dunya veya ada gorunumu). */
+  'select:fleet': [fleetId: string];
+  /** Ticaret rotasi kuruldu/kaldirildi/devir tamamladi. */
+  'trade-route:changed': [cityId: string];
+  'trade:completed': [cityId: string, cargo: Record<string, number>];
+  'colony:founded': [city: CityState];
+
+  // --- Ada ve harika ---
+  'island:faith-changed': [islandId: string, faith: number];
+  'wonder:activated': [islandId: string, godId: string, level: number];
+
+  // --- Arayuz ---
+  /** Gorunum degisti: ada / sehir / dunya. */
+  'view:changed': [view: 'island' | 'city' | 'world'];
+  /** Oyuncunun baktigi sehir degisti. */
+  'active-city:changed': [cityId: string];
+  /** Zaman olcegi degisti. */
+  'time:scale-changed': [scale: number];
+  'notice:added': [title: string, body: string, tone: NoticeTone];
   'game:saved': [savedAt: number];
-  'ui:request-demolish': [uid: string];
-  'ui:request-upgrade': [uid: string];
-  'ui:cancel-upgrade': [uid: string];
-  /** Oyuncu bu binaya bosta bir isci yollamak istiyor. */
-  'ui:assign-worker': [uid: string];
-  /** Oyuncu bu binadan bir isciyi geri cekmek istiyor. */
-  'ui:release-worker': [uid: string];
-  /** Oyuncu bu arastirmayi baslatmak istiyor. */
+  /** Simulasyon duraklatildi veya yeniden baslatildi. */
+  'game:paused': [];
+  'game:resumed': [];
+
+  // --- Sahne -> arayuz secimleri ---
+  /** Sehir gorunumunde bir karoya dokunuldu. */
+  'select:city-slot': [selection: CitySlotSelection];
+  /** Ada gorunumunde bir karoya dokunuldu. */
+  'select:island-slot': [selection: IslandSlotSelection];
+  /** Dunya haritasinda bir adaya dokunuldu. */
+  'select:world-island': [selection: WorldSlotSelection];
+
+  // --- Arayuzden gelen istekler (komut katmani) ---
+  'ui:build': [cityId: string, buildingId: string, ground: number];
+  'ui:upgrade': [cityId: string, buildingId: string];
+  'ui:cancel': [cityId: string, buildingId: string];
+  'ui:assign': [cityId: string, role: string, delta: number];
+  'ui:serve-wine': [cityId: string, wine: number];
   'ui:start-research': [id: string];
+  'ui:train-unit': [cityId: string, id: string, count: number];
+  'ui:build-ship': [cityId: string, id: string, count: number];
+  'ui:upgrade-tier': [kind: 'unit' | 'ship', id: string];
+  'ui:donate': [islandId: string, amount: number];
+  'ui:sell': [cityId: string, resource: MaterialKey, amount: number];
 }
 
 type EventName = keyof GameEvents;
@@ -71,26 +129,24 @@ type AnyListener = (...args: never[]) => void;
  *
  * Kucuk bir yayinlayici bilerek yerel olarak yazildi: core/ ve systems/
  * katmanlarinin Phaser'a bagimli olmamasi bu projenin temel mimari kurali.
- * Daha once burada Phaser.Events.EventEmitter kullaniliyordu ve bu, tum oyun
- * cekirdegini bir tarayici ortamina bagliyordu.
- *
- * Sozlesme (on/once/off/emit + context baglama) eskisiyle ayni tutuldu.
+ * Phaser.Events.EventEmitter kullanmak tum oyun cekirdegini bir tarayici
+ * ortamina baglardi ve testler icin DOM taklidi gerekirdi.
  */
 export class EventBus {
   private readonly listeners = new Map<string, Listener[]>();
 
   on<K extends EventName>(event: K, fn: (...args: GameEvents[K]) => void, context?: unknown): this {
-    return this.addListener(event, fn as AnyListener, context, false);
+    return this.addListener(event, fn as unknown as AnyListener, context, false);
   }
 
   once<K extends EventName>(event: K, fn: (...args: GameEvents[K]) => void, context?: unknown): this {
-    return this.addListener(event, fn as AnyListener, context, true);
+    return this.addListener(event, fn as unknown as AnyListener, context, true);
   }
 
   /**
    * Dinleyiciyi kaldirir.
    * fn verilmezse olayin tum dinleyicileri, context verilirse yalnizca o
-   * baglamdaki esleşmeler kaldirilir.
+   * baglamdaki eslesmeler kaldirilir.
    */
   off<K extends EventName>(event: K, fn?: (...args: GameEvents[K]) => void, context?: unknown): this {
     if (!fn) {
@@ -101,15 +157,13 @@ export class EventBus {
     const list = this.listeners.get(event);
     if (!list) return this;
 
+    const target = fn as unknown as AnyListener;
     const remaining = list.filter(
-      (entry) => entry.fn !== fn || (context !== undefined && entry.context !== context),
+      (entry) => entry.fn !== target || (context !== undefined && entry.context !== context),
     );
 
-    if (remaining.length > 0) {
-      this.listeners.set(event, remaining);
-    } else {
-      this.listeners.delete(event);
-    }
+    if (remaining.length > 0) this.listeners.set(event, remaining);
+    else this.listeners.delete(event);
     return this;
   }
 
@@ -120,9 +174,9 @@ export class EventBus {
     // Dinleyici icinde on/off cagrilabilecegi icin kopya uzerinde geziyoruz.
     for (const entry of [...list]) {
       if (entry.once) {
-        this.off(event, entry.fn as (...args: GameEvents[K]) => void, entry.context);
+        this.off(event, entry.fn as unknown as (...args: GameEvents[K]) => void, entry.context);
       }
-      (entry.fn as (...args: unknown[]) => void).apply(entry.context, args);
+      (entry.fn as unknown as (...args: unknown[]) => void).apply(entry.context, args);
     }
     return true;
   }
@@ -150,11 +204,8 @@ export class EventBus {
   ): this {
     const list = this.listeners.get(event);
     const entry: Listener = { fn, context, once };
-    if (list) {
-      list.push(entry);
-    } else {
-      this.listeners.set(event, [entry]);
-    }
+    if (list) list.push(entry);
+    else this.listeners.set(event, [entry]);
     return this;
   }
 }
