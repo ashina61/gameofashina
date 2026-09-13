@@ -1,183 +1,171 @@
 /**
  * Testler icin dunya kurulumu.
  *
- * GameWorld.bootstrap() localStorage gerektirdigi icin testler sistemleri
- * dogrudan kurar. Kurulum sirasi GameWorld ile ayni tutulmalidir.
+ * Testler GameWorld uzerinden kurulur; sistemleri elle kurmak GameWorld'deki
+ * bagimlilik sirasindan kopyalamayi gerektirirdi ve o sira degistiginde
+ * testler GERCEK OYUNDAN FARKLI bir dunya kurmus olurdu. Bu, testlerin
+ * gecen ama oyunun bozuk kalmasi demekti.
+ *
+ * localStorage test ortaminda yoktur; `loadSave: false` bunu zaten atlar,
+ * SaveManager da `typeof window` kontrolu yapar.
  */
-import { GameState } from '@/core/GameState';
-import { EventBus } from '@/core/EventBus';
-import { Simulation } from '@/core/Simulation';
-import { ResourceSystem } from '@/systems/ResourceSystem';
-import { ConstructionSystem } from '@/systems/ConstructionSystem';
-import { BuildingPlotSystem } from '@/systems/BuildingPlotSystem';
-import { CityDecorSystem } from '@/systems/CityDecorSystem';
-import { ResearchSystem } from '@/systems/ResearchSystem';
-import { BuildingSystem } from '@/systems/BuildingSystem';
-import { UpgradeSystem } from '@/systems/UpgradeSystem';
-import { EconomySystem } from '@/systems/EconomySystem';
-import { PopulationSystem } from '@/systems/PopulationSystem';
-import { NavigationSystem } from '@/systems/NavigationSystem';
-import { WorkforceSystem } from '@/systems/WorkforceSystem';
-import type { BuildingId, GridPoint } from '@/types';
+import { GameWorld } from '@/core/GameWorld';
+import { createPlayerCity } from '@/core/WorldFactory';
+import type { CityState, MaterialKey, UpgradeTier } from '@/types';
 
-export interface TestWorld {
-  state: GameState;
-  bus: EventBus;
-  resources: ResourceSystem;
-  construction: ConstructionSystem;
-  plots: BuildingPlotSystem;
-  decor: CityDecorSystem;
-  research: ResearchSystem;
-  buildings: BuildingSystem;
-  upgrades: UpgradeSystem;
-  population: PopulationSystem;
-  navigation: NavigationSystem;
-  workforce: WorkforceSystem;
-  economy: EconomySystem;
-  simulation: Simulation;
+/** Deterministik test tohumu. */
+export const TEST_SEED = 20260912;
+
+/** Test dunyasi. */
+export function createWorld(seed: number = TEST_SEED): GameWorld {
+  return new GameWorld({ seed, cityName: 'Test Şehri', loadSave: false });
 }
 
-/** Deterministik seed ile bos bir dunya kurar. */
-export function makeWorld(seed = 12345): TestWorld {
-  const state = new GameState(seed);
-  return wrap(state);
-}
-
-/** Var olan bir durumun uzerine sistemleri kurar (kayit yukleme testleri icin). */
-export function wrap(state: GameState): TestWorld {
-  const bus = new EventBus();
-  const resources = new ResourceSystem(state, bus);
-  const construction = new ConstructionSystem(state, resources, bus);
-  const research = new ResearchSystem(state, resources, bus);
-  const modifiers = () => research.modifiers;
-  resources.bindModifiers(modifiers);
-  const plots = new BuildingPlotSystem(state.grid);
-  const decor = new CityDecorSystem(state.grid, plots);
-  const buildings = new BuildingSystem(state, resources, construction, bus, plots);
-  const upgrades = new UpgradeSystem(state, resources, construction);
-  const population = new PopulationSystem(state, resources, bus);
-  const navigation = new NavigationSystem(state.grid);
-  const workforce = new WorkforceSystem(state, bus, navigation);
-  const economy = new EconomySystem(state, resources, population, bus);
-  economy.bindModifiers(modifiers);
-  buildings.bindModifiers(modifiers);
-  state.bindResearchReader(() => research.toSave());
-  const simulation = new Simulation(state, construction, population, workforce, economy, research);
-
-  // GameWorld ile ayni sira.
-  workforce.restorePositions();
-  workforce.reconcile();
-  population.rebuildFromState();
-  bus.on('building:removed', (building) => workforce.releaseAll(building.uid));
-  bus.on('building:placed', () => workforce.reroute());
-
-  return {
-    state,
-    bus,
-    resources,
-    construction,
-    plots,
-    decor,
-    research,
-    buildings,
-    upgrades,
-    population,
-    navigation,
-    workforce,
-    economy,
-    simulation,
-  };
+/** Oyuncunun baslangic sehri (her zaman vardir). */
+export function startingCity(world: GameWorld): CityState {
+  const city = world.activeCity;
+  if (!city) throw new Error('Test dunyasinda aktif sehir yok.');
+  return city;
 }
 
 /**
- * Bir bina turu icin bos yapi alaninin baslangic karosu.
+ * Sehrin kaynaklarini dogrudan ayarlar.
  *
- * Sprint 12'den beri bina "uygun herhangi bir karoya" degil YAPI ALANINA
- * kurulur. Testlerin sabit koordinat yazmasi artik calismaz: o koordinat
- * sokak olabilir. Bu yardimci, koordinati yerlesimden TURETIR.
- *
- * Donen karo ADA BASINA hizalidir (gx ve gy'nin 3'e kalani 1), yani
- * (gx, gy) ve (gx + 1, gy) ikisi de gecerli birer plottur. Testlerin
- * yaygin "yan yana iki bina" kalibi boylece bozulmadan calisir.
+ * Testlerin "kaynak biriktir" beklemek yerine istenen duruma atlamasi
+ * gerekir; aksi halde her test yuzlerce saat simulasyon calistirir ve
+ * test paketi dakikalar surer.
  */
-export function blockSpot(
-  world: TestWorld,
-  types: BuildingId | BuildingId[] = 'house',
-): GridPoint {
-  const wanted = Array.isArray(types) ? types : [types];
-  const usable = (gx: number, gy: number): boolean => {
-    const plot = world.plots.plotAt(gx, gy);
-    if (!plot || !world.plots.isFree(plot)) return false;
-    return wanted.every((type) => world.plots.accepts(plot, type));
-  };
-
-  for (const plot of world.plots.plots) {
-    if (plot.gx % 3 !== 1 || plot.gy % 3 !== 1) continue;
-    /*
-     * Yalnizca karonun kendisi ve SAGINDAKI istenir. Adanin dordunu birden
-     * sart kosmak cok katiydi: zemin ada icinde degisebiliyor ve hicbir ada
-     * "hem ev hem ciftlik" kabul etmiyordu. Testlerin yaygin kalibi
-     * (c) ve (c + 1) ikilisidir.
-     */
-    if (!usable(plot.gx, plot.gy)) continue;
-    if (!usable(plot.gx + 1, plot.gy)) continue;
-    return { gx: plot.gx, gy: plot.gy };
+export function setResources(
+  world: GameWorld,
+  city: CityState,
+  values: Partial<Record<MaterialKey | 'gold', number>>,
+): void {
+  for (const key of Object.keys(values) as Array<MaterialKey | 'gold'>) {
+    const value = values[key] ?? 0;
+    if (key === 'gold') world.state.setGold(value);
+    else world.state.setMaterial(city, key, value);
   }
-  throw new Error(`${wanted.join('+')} icin ada basi bos plot yok`);
 }
 
-/** Sehir merkezinin ozel 2x2 alaninin koordinati. */
-export function hallSpot(world: TestWorld): GridPoint {
-  const plot = world.plots.plots.find((p) => p.zone === 'civic');
-  if (!plot) throw new Error('sehir merkezi alani yok');
-  return { gx: plot.gx, gy: plot.gy };
+/** Kaynaklari bolca doldurur (maliyet testleri haric). */
+export function fillResources(world: GameWorld, city: CityState, amount = 500_000): void {
+  setResources(world, city, {
+    wood: amount,
+    marble: amount,
+    wine: amount,
+    sulfur: amount,
+    crystal: amount,
+    gold: amount,
+  });
 }
 
-/** Kaynaklari testin ihtiyaci kadar doldurur. */
-export function grant(world: TestWorld, amounts: Record<string, number>): void {
-  for (const [key, value] of Object.entries(amounts)) {
-    world.state.setResource(key as 'food' | 'wood' | 'stone' | 'gold', value);
+/** Bir binayi ANINDA istenen seviyeye getirir (insaat beklemeden). */
+export function forceBuildingLevel(
+  world: GameWorld,
+  city: CityState,
+  buildingId: string,
+  level: number,
+): void {
+  const { construction } = world.systems;
+  // Insaat gorevleri varsa once temizlenir; aksi halde gorev bittiginde
+  // seviye tekrar yazilir ve testin kurdugu deger ezilir.
+  for (const entry of construction.activeTasks(city)) {
+    if (entry.building.type === buildingId) entry.building.construction = undefined;
   }
-  world.resources.emitChange();
+
+  if (buildingId === 'town_hall') {
+    city.townHall.level = level;
+    city.townHall.construction = undefined;
+    return;
+  }
+  if (buildingId === 'wall') {
+    city.wall.level = level;
+    city.wall.construction = undefined;
+    return;
+  }
+  if (buildingId === 'port') {
+    city.harbor.port.level = level;
+    city.harbor.port.construction = undefined;
+    return;
+  }
+  if (buildingId === 'shipyard') {
+    city.harbor.shipyard.level = level;
+    city.harbor.shipyard.construction = undefined;
+    return;
+  }
+
+  const existing = city.grounds.find((b) => b.type === buildingId);
+  if (existing) {
+    existing.level = level;
+    existing.construction = undefined;
+    return;
+  }
+  const ground = city.grounds.length;
+  city.grounds.push({ type: buildingId, level, ground, construction: undefined });
+}
+
+/** Bir arastirmayi ANINDA tamamlar. */
+export function forceResearch(world: GameWorld, id: string, level = 1): void {
+  world.state.completeResearch(id, level);
+}
+
+/** Sehire birlik ekler. */
+export function addUnits(
+  world: GameWorld,
+  city: CityState,
+  id: string,
+  count: number,
+  tier: UpgradeTier = 'base',
+): void {
+  const existing = city.garrison.find((s) => s.id === id && s.tier === tier);
+  if (existing) existing.count += count;
+  else city.garrison.push({ id, count, tier });
+  void world;
+}
+
+/** Sehire gemi ekler. */
+export function addShips(
+  world: GameWorld,
+  city: CityState,
+  id: string,
+  count: number,
+  tier: UpgradeTier = 'base',
+): void {
+  const existing = city.warfleet.find((s) => s.id === id && s.tier === tier);
+  if (existing) existing.count += count;
+  else city.warfleet.push({ id, count, tier });
+  void world;
 }
 
 /**
- * Binayi kapasitesine kadar isciyle doldurur ve iscilerin VARMASINI saglar.
+ * Simulasyonu verilen OYUN saati kadar ilerletir.
  *
- * Sprint 8'den once isciler her tik otomatik dagitiliyordu; artik atama
- * oyuncunun komutudur. Uretimi olcen testler bu yuzden once kadroyu kurmali.
- * Yalnizca is gucu ilerletilir - ekonomi ve nufus tiki islenmez, boylece
- * testin olctugu miktarlar kaymaz.
+ * Gercek kare dongusu yerine dogrudan oyun saniyesi verilir; boylece
+ * testler hiz carpanina ve `world.start()` durumuna bagimli olmaz.
  */
-export function staff(world: TestWorld, uid: string): number {
-  let assigned = 0;
-  for (;;) {
-    if (!world.workforce.assign(uid).ok) break;
-    assigned += 1;
-  }
-  settleWalks(world);
-  return assigned;
-}
-
 /**
- * Yoldaki herkes varana kadar is gucunu ilerletir.
+ * Baslangic adasindaki bos bir alana ikinci oyuncu sehri kurar.
  *
- * Sprint 9'dan beri yuruyus suresi MESAFEDEN turer, yani sabit bir tik
- * sayisi ilerletmek yetmez: uzaktaki bir binaya giden isci hala yolda
- * olabilir. Ust sinir sonsuz donguye karsi; haritanin bir ucundan digerine
- * yuruyus bile 20 tikin altinda.
+ * Ticaret rotasi testleri iki sehir gerektirir; normal oyunda bu alan
+ * koloni kurma akisiyla dolar, testte dogrudan kurulur.
  */
-export function settleWalks(world: TestWorld, limit = 60): void {
-  for (let i = 0; i < limit; i += 1) {
-    if (world.workforce.snapshot.moving === 0) return;
-    world.workforce.advance(1);
-  }
+export function secondCity(world: GameWorld): CityState {
+  const island = world.activeIsland();
+  if (!island) throw new Error('aktif ada yok');
+  const plot = island.plots.findIndex((p) => p.ownerId === null);
+  if (plot < 0) throw new Error('bos alan yok');
+  const city = createPlayerCity(island.id, plot, 'İkinci Şehir');
+  city.isCapital = false;
+  world.state.addCity(city);
+  world.state.linkPlot(city);
+  return city;
 }
 
-/** Sehirdeki TUM uretim binalarini kadrolu hale getirir. */
-export function staffAll(world: TestWorld): void {
-  for (const building of [...world.state.buildings.values()]) staff(world, building.uid);
+export function advanceHours(world: GameWorld, hours: number): void {
+  world.advanceHours(hours);
 }
 
-/** sprint2_1 testinin tip yeniden disa aktarimi icin takma ad. */
-export type TestWorldLike = TestWorld;
+/** Simulasyonu oyun saniyesi kadar ilerletir. */
+export function stepGameSeconds(world: GameWorld, gameSeconds: number): void {
+  world.advanceGameSeconds(gameSeconds);
+}

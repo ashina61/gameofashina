@@ -1,263 +1,174 @@
-# Ancient City
+# Ancient City — Ikariam tarzı strateji
 
-Antik cag temali, **Phaser 3 + TypeScript + Vite** ile gelistirilen 2D mobil strateji
-oyunu. Bu ilk asamada oyun tek bir sahneden olusur: **sehir sahnesi**. Oyuncu
-izometrik bir harita uzerinde bina kurar, kaynak uretir ve nufusunu yonetir.
+Antik çağ temalı, **Phaser 3 + TypeScript + Vite** ile geliştirilen, Ikariam'ın
+oynanış modelini birebir izleyen tek oyunculu bir mobil/masaüstü strateji oyunu.
+Oyuncu bir adada şehir kurar, kaynak üretir, araştırma yapar, ordu ve donanma
+kurar, NPC şehirleriyle savaşır veya ticaret eder ve adanın harikasını uyandırır.
 
-> Multiplayer, backend ve hesap sistemi bilincli olarak kapsam disidir. Tum durum
-> tarayicidaki `localStorage` uzerinde tutulur.
+> Multiplayer, backend ve hesap sistemi bilinçli olarak kapsam dışıdır. Rakip
+> şehirler AI/NPC'dir ve tüm durum tarayıcıdaki `localStorage` üzerinde tutulur.
+> Tasarım kararlarının gerekçeleri `docs/IKARIAM.md` dosyasındadır.
 
-## Hizli baslangic
+## Hızlı başlangıç
 
 ```bash
 npm install
-npm run dev        # http://localhost:5173 (ag uzerinden telefondan da acilir)
+npm run dev        # http://localhost:5173 (ağ üzerinden telefondan da açılır)
 ```
 
-| Komut | Aciklama |
+| Komut | Açıklama |
 | --- | --- |
-| `npm run dev` | Gelistirme sunucusu (hot reload, LAN uzerinden erisilebilir) |
-| `npm run build` | Tip kontrolu + uretim derlemesi (`dist/`) |
-| `npm run preview` | Uretim derlemesini yerelde sunar |
-| `npm run typecheck` | Yalnizca TypeScript tip kontrolu |
+| `npm run dev` | Geliştirme sunucusu (hot reload, LAN üzerinden erişilebilir) |
+| `npm run build` | Tip kontrolü + üretim derlemesi (`dist/`) |
+| `npm run preview` | Üretim derlemesini yerelde sunar |
+| `npm run typecheck` | Yalnızca TypeScript tip kontrolü |
 | `npm run lint` | ESLint |
+| `npm test` | Birim testleri (simülasyon + arayüz, 54 test) |
 
-Telefonda denemek icin `npm run dev` ciktisindaki `Network:` adresini ayni
-Wi-Fi agindaki cihazin tarayicisinda ac.
+Telefonda denemek için `npm run dev` çıktısındaki `Network:` adresini aynı
+Wi-Fi ağındaki cihazın tarayıcısında aç.
+
+## Oynanış (Ikariam modeli)
+
+- **Kaynaklar şehre aittir:** odun, mermer ve adanın lüks kaynağı (şarap /
+  kükürt / kristal) her şehrin kendi deposunda tutulur. **Altın ve araştırma
+  puanı ise imparatorluk geneldir.**
+- **Depo tavanı** valilik ve depo seviyesiyle büyür; taşan üretim kırılır ve
+  arayüzde kırmızı gösterilir.
+- **Vatandaşlar** boştayken altın, işçiyken kaynak, bilim insanıyken araştırma
+  puanı üretir (ve altın tüketir). Nüfus, mutluluk tavanına doğru büyür.
+- **Araştırma** akademide yapılır; puan birikmez, aktif araştırmanın
+  ilerlemesidir. Ağaç dört dala ayrılır: Ekonomi, Denizcilik, Bilim, Askeriye.
+- **Savaş** kara ve deniz birlikleriyle yapılır; birliklerin can/hasar/zırh/
+  isabet/cephane/hiz/yer istatistikleri ve çarpışma sırası Ikariam'ınkiyle
+  aynıdır. Yağma en fazla karşı tarafın deposunun %50'sidir.
+- **Ticaret** NPC şehirleriyle yapılır; fiyatlar NPC'nin stok ve gücüne göre
+  değişir. Kendi şehirlerin arasında tek seferlik nakliye veya **kalıcı
+  ticaret rotaları** kurarsın: rota, ayrıldığı yük gemileriyle her devirde
+  otomatik mal taşır (giden ve dönen mal ayrı seçilir).
+- **Harika:** her adada bir tanrının harikası vardır. Odun bağışı inancı
+  yükseltir; inanç eşiklerinde harika seviye atlar ve kalıcı ada bonusu açar.
+- **Zaman** gerçek zamanlıdır ve 1x–300x hızlandırılabilir veya duraklatılabilir.
+  Oyun kapalıyken geçen süre açılışta telafi edilir.
 
 ## Kontroller
 
-Oyun mobil oncelikli tasarlandi; masaustunde fare ve klavye ile de oynanir.
+Oyun mobil öncelikli tasarlandı; masaüstünde fare ve klavye ile de oynanır.
 
-| Jest | Sonuc |
+| Jest | Sonuç |
 | --- | --- |
-| Tek dokunus | Karo/bina secer, insa modunda binayi yerlestirir |
-| Tek parmak surukleme | Haritayi kaydirir |
-| Iki parmak sikistirma | Yakinlastirir / uzaklastirir |
-| Fare tekerlegi | Yakinlastirir (masaustu) |
-| Ok tuslari | Haritayi kaydirir (masaustu) |
+| Tek dokunuş | Karo/bina seçer, açık sayfada eylemi uygular |
+| Tek parmak sürükleme | Haritayı kaydırır |
+| İki parmak sıkıştırma | Yakınlaştırır / uzaklaştırır |
+| Fare tekerleği | Yakınlaştırır (masaüstü) |
+| Ok tuşları | Haritayı kaydırır (masaüstü) |
 
-Kaydirma ile dokunus birbirinden ayrilir: parmak 12 pikselden fazla hareket
-ederse jest kaydirma sayilir ve bina yerlestirilmez.
+Kaydırma ile dokunuş birbirinden ayrılır: parmak 12 pikselden fazla hareket
+ederse jest kaydırma sayılır ve seçim yapılmaz.
 
-### Dokunma toleransi
+### Dokunma toleransı
 
-Dokunmayi SURE degil HAREKET belirler: parmagini ne kadar basili tutarsan tut,
-`DRAG_THRESHOLD_PX` kadar kaymadigi surece dokunus sayilir. Daha once 400ms'lik
-bir ust sinir vardi ve nisan alirken gecen sureyi "dokunma degil" sayip girdiyi
-sessizce atiyordu.
+Dokunmayı SÜRE değil HAREKET belirler: parmağını ne kadar basılı tutarsan tut,
+`DRAG_THRESHOLD_PX` kadar kaymadığı sürece dokunuş sayılır. Daha önce 400ms'lik
+bir üst sınır vardı ve nişan alırken geçen süreyi "dokunma değil" sayıp girdiyi
+sessizce atıyordu.
 
-Kaydirma esigi Android'in kendi dokunma toleransi (8dp) hizasindadir; 12px
-degeri bunun altindaydi ve parmagin dogal titremesiyle asiliyordu.
+Kaydırma eşiği Android'in kendi dokunma toleransı (8dp) hizasındadır; 12px
+değeri bunun altındaydı ve parmağın doğal titremesiyle aşılıyordu.
 
-Dokunulan karo ile kurulan karo ayni olmali: `worldToGrid` EN YAKINA yuvarlar,
-asagi degil. `gridToWorld` karonun MERKEZINI dondurdugu icin tam sayi izgara
-koordinati merkeze oturur; asagi yuvarlamak tam sayinin kosede oldugunu
-varsaymakti ve secim bolgesini yarim karo kaydiriyordu - bina dokunulan
-karonun caprazina kuruluyordu.
+Dokunulan karo ile kurulan karo aynı olmalı: `worldToGrid` EN YAKINA yuvarlar,
+aşağı değil. `gridToWorld` karonun MERKEZİNİ döndürdüğü için tam sayı ızgara
+koordinatı merkeze oturur; aşağı yuvarlamak tam sayının köşede olduğunu
+varsaymaktı ve seçim bölgesini yarım karo kaydırıyordu.
 
-Girdi davranisi `npm run bench:input` ile olculur - bu davranislar bir kez
-bozuldugunda oyun elle oynanmaz hale gelmisti, betik onlari kilitler.
-
-## Oyun dongusu
-
-1. **Insa et.** Alt menuden bir bina sec, haritada uygun bir karoya dokun.
-   Karsilanamayan maliyetler kartta kirmizi gosterilir.
-2. **Bekle.** Her binanin bir insa suresi vardir; bu sirada bina soluk gorunur
-   ve altinda ilerleme cubugu bulunur.
-3. **Uret.** Tamamlanan binalar dakikada kaynak uretir.
-4. **Buyu.** Evler nufus KAPASITESI acar; vatandaslar depoda yiyecek varken
-   dakikada birkac kisi olarak gelir ve kapasite dolunca durur. Kapasite
-   vatandas demek degildir - ev dikmek is gucunu aninda vermez.
-5. **Dengele.** Vatandaslar uretim binalarina KURULUS SIRASIYLA dagitilir:
-   erken kurulan bina once dolar. Kadrosu eksik bina orantili olarak az
-   uretir (3/4 isci = 3/4 uretim), tum sehir birden yavaslamaz.
-6. **Doyur.** Sehirde yasayan HERKES yiyecek tuketir - calissin veya
-   calismasin. Yiyecek bitince vatandaslar sehri terk etmeye baslar; bina
-   veya seviye kaybi olmaz ve yiyecek gelince nufus yeniden buyur.
-
-Oyun kapaliyken gecen sure acilista telafi edilir (en fazla 8 saat).
+Girdi davranışı `npm run bench:input` ile ölçülür — bu davranışlar bir kez
+bozulduğunda oyun elle oynanmaz hale gelmişti, betik onları kilitler.
 
 ## Mimari
 
-Kod, **oyun mantigi** ile **sunum** katmanlarini ayiracak sekilde bolundu.
-Sistemler Phaser'a bagimli degildir; sahneler ise kural bilmez, yalnizca
-sistemleri cagirir ve sonucu cizer. Aralarindaki tek bag tip guvenli bir
-olay veri yoludur (`EventBus`).
+Kod üç katmandan oluşur ve hepsi **tek bir `GameWorld`** örneğini paylaşır:
+
+1. **Simülasyon** (`core/`, `systems/`) — Phaser'dan tamamen bağımsız. Birim
+   testler burada çalışır; tarayıcı gerekmez.
+2. **Çizim** (`scenes/`, `render/`, `input/`) — Phaser sahneleri. Yalnızca
+   durumu okur ve EventBus olayları yayar; kendi durum kopyası tutmaz.
+3. **Arayüz** (`ui/`) — HTML/CSS. Phaser tuvalinin üzerinde ayrı bir katman.
+   Ikariam'ın arayüzü yoğun metin ve kaydırılabilir listelerden oluştuğu için
+   HTML seçildi: kaydırma, erişilebilirlik ve dokunma hedefleri tarayıcının
+   kendi mekanizmasıyla bedavaya gelir.
+
+İki katman arasındaki tek bağ tip güvenli bir olay veri yoludur (`EventBus`) ve
+Phaser `registry`'sidir. Sahneler `world` nesnesini registry'den okur; arayüz
+ise onu doğrudan constructor'da alır.
 
 ```
 src/
-├── main.ts                  Giris noktasi: Phaser ornegini kurar
-├── config/                  Denge ve yapilandirma verisi (kod degil, veri)
-│   ├── Constants.ts         Karo olculeri, tick araliklari, zoom sinirlari
-│   ├── BuildingCatalog.ts   Bina tanimlari tablosu
-│   └── GameConfig.ts        Phaser yapilandirmasi, baslangic kaynaklari
-├── core/                    Phaser'dan bagimsiz oyun cekirdegi
-│   ├── GameWorld.ts         Durum + sistemleri bir arada tutan kok nesne
-│   ├── GameState.ts         Kaynaklar, binalar, nufus, izgara
-│   ├── GridMap.ts           Prosedurel zemin uretimi ve isgal takibi
-│   ├── Simulation.ts        Tik sayacini ilerleten TEK yer (orkestrator)
-│   ├── SimulationClock.ts   Gercek zamani tam tiklere ceviren biriktirici
-│   ├── SaveManager.ts       localStorage okuma/yazma ve dogrulama
-│   └── EventBus.ts          Tip guvenli olay yayinlayici
-├── systems/                 Oyun kurallari
-│   ├── BuildingResolver.ts  Uretim/kapasite/maliyet hesabinin TEK kaynagi
-│   ├── ResourceSystem.ts    Harcama, ekleme, depo siniri
-│   ├── BuildingSystem.ts    Yerlestirme kurallari, yikma
-│   ├── ConstructionSystem.ts Insa/yukseltme gorevleri, kuyruk, iptal
-│   ├── UpgradeSystem.ts     Yukseltme kurallari ve maliyeti
-│   ├── PopulationSystem.ts  Nufus buyumesi/azalmasi ve isci dagitimi
-│   └── EconomySystem.ts     Uretim ve yiyecek gideri
-├── scenes/                  Phaser sahneleri
-│   ├── BootScene.ts         GameWorld'u kurar ve registry'e koyar
-│   ├── PreloadScene.ts      Dokulari uretir
-│   ├── CityScene.ts         Harita ve binalarin cizimi, dokunmatik girdi
-│   └── UIScene.ts           Ayri kamerada calisan arayuz katmani
-├── render/                  Cizim yardimcilari
-│   ├── ArtStyle.ts          Ortak sanat spesifikasyonu (palet, isik, golge)
-│   ├── BuildingArt.ts       Bina cizimleri (izometrik, tur basina siluet)
-│   ├── BuildingVisuals.ts   type/level/state -> gorsel eslemesi
-│   ├── ResolutionManager.ts DPR'ye duyarli tuval olcusu ve kamera telafisi
-│   ├── TextureFactory.ts    Tum dokulari calisma zamaninda uretir
-│   ├── BuildingView.ts      Bir binanin gorsel temsili
-│   └── PlacementPreview.ts  Insa modundaki hayalet bina
-├── input/
-│   └── CameraController.ts  Kaydirma, pinch-zoom, tap ayrimi
-├── ui/                      Arayuz bilesenleri (ResourceBar, BuildMenu, ...)
-├── utils/                   Izometrik donusumler ve bicimlendiriciler
-└── types/                   Paylasilan tip tanimlari
+├── main.ts                  Giriş: GameWorld + Phaser + Arayüzü kurar
+├── config/                  Denge ve yapılandırma verisi (kod değil, veri)
+│   ├── Constants.ts         Karo ölçüleri, tick aralıkları, zoom sınırları
+│   ├── BuildingCatalog.ts   Bina tanımları tablosu
+│   ├── UnitCatalog.ts       Kara birlikleri istatistikleri
+│   ├── ShipCatalog.ts       Gemi sınıfları istatistikleri
+│   ├── ResearchCatalog.ts   Araştırma ağacı (4 dal)
+│   ├── IslandCatalog.ts     Lüks kaynak türleri ve 8 tanrı/harika
+│   ├── Tiers.ts             Birlik/gemi teknoloji kademeleri
+│   └── GameConfig.ts        Phaser yapılandırması
+├── core/                    Phaser'dan bağımsız oyun çekirdeği
+│   ├── GameWorld.ts         Durum + sistemleri bir arada tutan kök nesne
+│   ├── GameState.ts         Kaynaklar, şehirler, filolar, bildirimler
+│   ├── Simulation.ts        Tik orkestratörü (sistem sırası burada)
+│   ├── SimulationClock.ts   Gerçek zamanı tam tiklere çeviren biriktirici
+│   ├── CityLayout.ts        Şehir ızgarası sabit yerleşimi
+│   ├── IslandLayout.ts      Tohumdan deterministik ada üretimi
+│   ├── WorldFactory.ts      Başlangıç dünyası + NPC şehirleri
+│   ├── SaveManager.ts       localStorage okuma/yazma ve doğrulama
+│   └── EventBus.ts          Tip güvenli olay yayıncısı
+├── systems/                 Oyun kuralları
+│   ├── ResourceSystem.ts    Harcama, ekleme, depo sınırı
+│   ├── EconomySystem.ts     Üretim, altın, bakım gideri
+│   ├── CitizenSystem.ts     Nüfus büyümesi (analitik) ve işçi dağıtımı
+│   ├── HappinessSystem.ts   Mutluluk dökümü ve tavanı
+│   ├── ConstructionSystem.ts İnşa/yükseltme görevleri, iptal iadesi
+│   ├── ResearchSystem.ts    Araştırma ilerlemesi ve ağaç kapıları
+│   ├── IslandSystem.ts      Ortak yataklar, koloni kurma
+│   ├── MilitarySystem.ts    Eğitim kuyrukları, teknoloji kademeleri
+│   ├── FleetSystem.ts       Filo hareketi, taşıma, ticaret
+│   ├── CombatSystem.ts      Kara/deniz çarpışma çözümleyici
+│   ├── NpcSystem.ts         NPC ekonomisi, büyümesi, yağma kuralları
+│   └── WonderSystem.ts      Harika seviyeleri ve ada bonusları
+├── scenes/                  Phaser sahneleri (ortak IsoScene tabanı)
+│   ├── BootScene.ts         Dokuları üretir
+│   ├── PreloadScene.ts      AI dokularını yükler
+│   ├── CityScene.ts         İzometrik şehir görünümü
+│   ├── IslandScene.ts       Ada görünümü (NPC şehirleri, harika, yataklar)
+│   └── WorldScene.ts        Dünya haritası (adalar arası geçiş)
+├── render/                  Çizim yardımcıları
+│   ├── SpriteFactory.ts     Katalog tint'inden izometrik obje üretimi
+│   ├── ResolutionManager.ts DPR'ye duyarlı tuval ölçüsü ve kamera telafisi
+│   └── ArtStyle.ts          Ortak sanat spesifikasyonu (palet, ışık, gölge)
+├── input/CameraController.ts Dokunma/sürükleme/zoom jestleri
+└── ui/                      HTML arayüz katmanı
+    ├── Ui.ts                Üst çubuk, alt gezinme, sayfalar, toast'lar
+    └── styles.css           Parşömen teması ve güvenli alan telafileri
 ```
 
-### Neden bu ayrim?
+## Görseller
 
-- **Sistemler test edilebilir.** `EconomySystem.tick(60)` cagrisi tarayici
-  olmadan da anlamlidir; ekrana bagli degildir.
-- **Arayuz degistirilebilir.** `UIScene` tamamen yeniden yazilsa oyun kurallari
-  degismez, cunku iletisim yalnizca `EventBus` uzerinden yurur.
-- **Denge veriden gelir.** Bina eklemek/degistirmek icin `BuildingCatalog.ts`
-  yeterlidir; menu, uretim ve gorsel bu tablodan uretilir.
+Zemin, parşümen ve açılış görseli gibi büyük yüzeyler AI üretimi dokulardır
+(`public/assets/`). Binalar, birlikler ve harikalar `SpriteFactory` tarafından
+katalog `tint` değerinden prosedürel izometrik objeler olarak üretilir; böylece
+her bina türü ve seviyesi için ayrı doku dosyası taşımak gerekmez.
 
-### Varliklar
+## Testler
 
-Projede ikili gorsel dosya yoktur. Karolar, binalar ve arayuz panelleri
-`TextureFactory` icinde `Phaser.Graphics` ile cizilip dokuya cevrilir. Bir
-binanin rengi katalogdaki `tint` alanindan gelir.
-
-## Yeni bina eklemek
-
-`src/config/BuildingCatalog.ts` icindeki listeye bir kayit eklemek yeterli:
-
-```ts
-{
-  id: 'temple',                       // types/index.ts icindeki BuildingId'e de ekle
-  name: 'Tapinak',
-  description: 'Sehre saygınlık katar.',
-  category: 'civic',
-  size: 2,
-  cost: { stone: 200, gold: 50 },
-  buildTime: 45,
-  production: { gold: 6 },
-  workers: 4,
-  allowedTerrain: ['grass', 'soil'],
-  tint: 0xd9c7a0,
-}
+```bash
+npm test
 ```
 
-Doku, insa menusu karti, maliyet kontrolu ve uretim otomatik olarak devreye
-girer.
+- `test/simulation.test.ts` — 39 test: ekonomi, nüfus, araştırma, inşa,
+  savaş, filo, NPC, harika, kayıt/yükleme.
+- `test/ui.test.ts` — 15 test: arayüzü gerçek `GameWorld` üzerinde jsdom ile
+  kurar ve tüm panelleri/eylemleri sürer; şablon hatalarını yakalar.
 
-## Kayit
-
-Durum 15 saniyede bir, ayrica her insa/yikma isleminde ve sekme arka plana
-alindiginda `ancient-city:save:v1` anahtarina yazilir. Eski surumler
-(`MIN_SUPPORTED_SAVE_VERSION`'a kadar) goc ettirilerek yuklenir; yalnizca
-taninmayan bir surum reddedilir. Kayittan turetilebilen alanlar surum
-artirmadan eklenir - nufus da boyle eklendi. Sifirdan baslamak icin
-tarayici konsolunda:
-
-```js
-localStorage.removeItem('ancient-city:save:v1'); location.reload();
-```
-
-## Android paketlemesi (karar kaydi)
-
-Oyun su an saf bir web uygulamasidir; depoda Android projesi **yoktur**.
-Android paketlemesi arastirildi ve asagidaki kararlar/olcumler kayda gecirildi
-ki paketleme sprintinde bastan arastirilmasin.
-
-**Karar:** `applicationId` = `com.ashina.ancientcity`
-(Play Store'a yuklendikten sonra degistirilemez.)
-
-**Onerilen yigin:** Capacitor 8.x (`engines: node >= 22`), JDK 21, Gradle 8.14+.
-Mevcut Node 22.22 / JDK 21 / Gradle 8.14.3 ile uyumludur; eski surume inmeye
-gerek yoktur.
-
-**Uyumluluk avantaji:** `vite.config.ts` icinde `base: './'` oldugu icin uretilen
-`dist/index.html` goreli yol kullanir - Capacitor WebView icin dogrudan uygundur.
-Ayrica `public/` dizini ve Phaser yukleyicisiyle gelen varlik yoktur (tum dokular
-prosedureldir), bu yuzden paketlemede en sik goruleni olan varlik yolu sorunu
-olusamaz.
-
-**Eksikler:** launcher ikonu, splash gorseli ve uygulama adi kaynaklari henuz yok.
-
-### Cihaz pikseli (DPR) ve cizim cozunurlugu
-
-Tuval CIHAZ pikselinde cizilir, CSS'te ise mantiksal (CSS) olcuyu kaplar.
-Ornek: DPR 2 bir telefonda 390x844 CSS goruntu alani icin arka tampon
-780x1688 olur. Oyun mantigi, arayuz olculeri ve kamera kadraji MANTIKSAL
-pikselde kalir; farki kameralarin yakinlastirmasi kapatir.
-
-```
-CSS viewport  ->  mantiksal oyun olcusu  ->  kamera/dunya
-                                         ->  DPR'ye duyarli arka tampon
-```
-
-| DPR | CSS viewport | Arka tampon | Arayuz olculeri |
-| --- | --- | --- | --- |
-| 1 | 390x844 | 390x844 | degismez |
-| 2 | 390x844 | 780x1688 | degismez |
-| 3 | 390x844 | 780x1688 (tavana kirpilir) | degismez |
-
-**Neden RESIZE degil NONE kipi:** Phaser 3.90'da tuvalin arka tamponu her
-zaman oyun boyutuna esittir; bagimsiz bir `resolution` ayari yoktur (eski
-surumlerde vardi, kaldirildi) ve `ScaleManager.baseSize`'i elle degistirmek
-tuvali degistirmez - olculdu. RESIZE kipinde ScaleManager oyun boyutunu
-surekli parent'in CSS olcusune geri ceker, `resize()` ve `setZoom()` etkisiz
-kalir. Bu yuzden olculeri `render/ResolutionManager.ts` yonetir.
-
-**Arayuz kamerasi sol usttten capalanir** (`setOrigin(0, 0)`). Phaser
-kamerayi merkezden yakinlastirir; arayuz ise mutlak olarak (0,0)'dan dizilir.
-Merkezden yakinlastirmak DPR 2'de gorunen alani 0..390 yerine 195..585
-yapiyordu ve butonlar ekranda kayiyordu.
-
-#### MAX_RENDER_DPR neden 2, ve neden dogrulanmasi gerekiyor
-
-`MAX_RENDER_DPR = 2` (bkz. `utils/RenderScale.ts`). DPR 3'e cikmak piksel
-sayisini 2'ye gore 2.25 kat artirir; kazanci ise cok daha kucuktur.
-
-**Bu deger OLCUMLE secilmedi, yaygin pratikten secildi.** Bu depo GPU'suz bir
-ortamda olculuyor (`SwiftShader`, yazilim rasterizasyonu). Orada alinan dolgu
-maliyeti gercek bir mobil GPU'yu TEMSIL ETMEZ:
-
-| | 0 bina | 30 bina | 120 bina |
-| --- | --- | --- | --- |
-| DPR 1 | 50 | 42 | 28 |
-| DPR 2 | 15 | 14 | 8 |
-
-Gorunen dusus neredeyse tamamen yazilim rasterizasyonunun dolgu maliyetidir;
-gercek bir telefon GPU'su icin 780x1688 sira disi bir yuk degildir. Yine de
-**gercek cihazda dogrulanmadi**. Dusuk donanimda sorun cikarsa tek yapilacak
-`MAX_RENDER_DPR` degerini 1 yapmaktir; altyapinin geri kalani degismez.
-
-Girdi ve yerlesim davranisi DPR 1/2/3'te ayri ayri olculur:
-
-```
-npm run bench:input -- http://127.0.0.1:5173/ 2
-npm run bench:smoke -- http://127.0.0.1:5173/ 2
-```
-
-## Yol haritasi
-
-Bu asamanin disinda birakilanlar: arastirma agaci, birimler ve savas,
-gorevler, ses. Cozunurluk (DPR) ve arayuz olcekleme kendi sprintini bekliyor.
-Multiplayer/backend ise ayri bir asama olarak degerlendirilecek.
+Simülasyon testleri Phaser'a dokunmaz; bu sayede oyun mantığı tarayıcısız ve
+hızlı doğrulanır.

@@ -1,38 +1,51 @@
 import Phaser from 'phaser';
-import { SceneKeys } from '@/config/Constants';
-import { generateTextures } from '@/render/TextureFactory';
-import { getResolution } from './BootScene';
 
 /**
- * Varliklarin hazirlandigi sahne.
- * Proje prosedurel doku kullandigi icin ag uzerinden yukleme yoktur;
- * dokular burada uretilir ve HTML acilis ekrani kapatilir.
+ * AI ile uretilmis dokulari yukler.
+ *
+ * DORT GORSEL, DORT IS
+ *   tex-water      - deniz; ada ve dunya haritasinin arka plani
+ *   tex-island     - kara; ada zeminini ve dunya dugumlerini boyar
+ *   tex-parchment  - arayuz panellerinin zemini
+ *   tex-hero       - yukleme ekrani ve baslangic karti
+ *
+ * NEDEN BU KADAR AZ
+ * Binalar, birlikler ve gemiler prosedural cizilir (bkz. SpriteFactory):
+ * katalogdaki `tint` ve seviye verisinden turedikleri icin her bina
+ * seviyesi ayri bir dosya gerektirmez ve her DPR'de keskin kalir. AI
+ * dokulari yalnizca GENIS YUZETLERE (su, kara, parcomen) uygulanir;
+ * orada tek gorsel cok alan kaplar ve olcekleme sorunu yaratmaz.
+ *
+ * YUKLEME HATASI
+ * Bir doku yuklenemezse oyun COKMEZ: sahneler `textures.exists()` ile
+ * kontrol eder ve prosedural yedeklere duser. Ag erisimi olmayan bir
+ * cihazda da oyun calisir.
  */
 export class PreloadScene extends Phaser.Scene {
   constructor() {
-    super(SceneKeys.Preload);
+    super('PreloadScene');
+  }
+
+  preload(): void {
+    this.load.image('tex-water', 'assets/textures/water.png');
+    this.load.image('tex-island', 'assets/textures/island.png');
+    this.load.image('tex-parchment', 'assets/ui/parchment.png');
+    this.load.image('tex-hero', 'assets/ui/hero.png');
+
+    // Yukleme ilerlemesini HTML acilis ekrani gosterir.
+    const bar = document.querySelector<HTMLDivElement>('#boot-splash .bar');
+    this.load.on(Phaser.Loader.Events.PROGRESS, (value: number) => {
+      if (bar) bar.style.width = `${Math.round(value * 100)}%`;
+    });
   }
 
   create(): void {
-    /*
-     * Dokular CIZIM olceginde uretilir. Sprint 5 arka tamponu DPR kadar
-     * buyuttu; dokular eski olcude kalsaydi tuvalden dusuk cozunurlukte
-     * olup o kazanci yutardi. Sahne tarafinda sprite 1/artScale ile
-     * olceklenir, yani dunyadaki boyut degismez.
-     */
-    const artScale = getResolution(this)?.dpr ?? 1;
-    generateTextures(this, artScale);
-    hideBootSplash();
+    // Acilis ekrani artik gereksiz; soluklastirilip kaldirilir.
+    const splash = document.getElementById('boot-splash');
+    splash?.classList.add('hidden');
+    window.setTimeout(() => splash?.remove(), 400);
 
-    this.scene.start(SceneKeys.City);
-    this.scene.launch(SceneKeys.UI);
+    // Varsayilan gorunum: sehir. Arayuzdeki alt gezinme diger sahneleri acar.
+    this.scene.start('CityScene');
   }
-}
-
-/** index.html icindeki acilis ekranini kapatir. */
-function hideBootSplash(): void {
-  const splash = document.getElementById('boot-splash');
-  if (!splash) return;
-  splash.classList.add('hidden');
-  window.setTimeout(() => splash.remove(), 400);
 }

@@ -1,481 +1,438 @@
-import { MAX_CONCURRENT_CONSTRUCTIONS } from '@/config/Constants';
-import { constructionProgress, resolveTaskRefund } from './BuildingResolver';
+import {
+  CANCEL_REFUND_RATE,
+  MAX_COST_REDUCTION,
+  REDUCTION_BUILDING_BONUS_PER_LEVEL,
+} from '@/config/Constants';
+import { getBuilding, requireBuilding } from '@/config/BuildingCatalog';
+import { ikariamCost } from '@/config/Formulas';
+import { buildingLevel, canBuildMore, freeGrounds } from '@/core/CityQuery';
 import type { EventBus } from '@/core/EventBus';
 import type { GameState } from '@/core/GameState';
+import type { ResearchSystem } from './ResearchSystem';
 import type { ResourceSystem } from './ResourceSystem';
+import type { CitizenSystem } from './CitizenSystem';
 import type {
-  BuildingConstruction,
-  BuildingInstance,
-  ConstructionKind,
-  ConstructionProgress,
+  CityState,
   ConstructionTask,
+  MaterialKey,
+  PlacedBuilding,
   ResourceAmounts,
 } from '@/types';
 
-/** Gorev baslatma denemesinin sonucu. */
-export type RequestResult =
-  | { ok: true; task: ConstructionTask; instant: false }
-  | { ok: true; task: null; instant: true }
-  | { ok: false; reason: 'unknown_building' | 'busy' };
-
-/** Iptal isteginin sonucu. */
-export interface CancelResult {
-  task: ConstructionTask;
-  /** Iptal sonucu iade edilen kaynaklar (cagiran taraf iade etmek zorunda degil). */
-  refunded: boolean;
-}
-
 /**
- * Insaat ve yukseltme gorevlerini yoneten sistem.
+ * Insaat ve yukseltme.
  *
- * SORUMLULUK
- * Bir binanin uzerinde suren zamanli isin baslatilmasi, kuyruklanmasi,
- * ilerlemesi, iptali ve tamamlanmasi. Insa ile yukseltme ayni mekanizmayi
- * paylasir; fark, gorevin turu ve tamamlaninca uygulanan sonuctur.
+ * MALIYET VE SURE
+ * Ikariam'da seviye tablosu yoktur; tek bir formul vardir:
  *
- * ZAMAN
- * Gercek zaman kullanilmaz - Date.now, setTimeout, setInterval ve
- * performance.now burada yoktur. Tamamlanma kosulu completesAtTick <= tick.
+ *     deger(seviye) = A / B * C^seviye - D
  *
- * KAYNAK GERCEGI (source of truth)
- * Gorev, hedef binanin icinde (BuildingInstance.construction) saklanir ve
- * kayitla birlikte gider. Buradaki active/queued koleksiyonlari yalnizca
- * TURETILMIS indekstir; hicbir zaman tek basina otorite degildir ve her
- * mutasyonda GameState ile birlikte guncellenir. rebuildFromState() bu
- * indeksi durumdan bastan kurabilir.
+ * Katsayilar Ikariam wiki'sinden alindi (bkz. config/BuildingCatalog.ts).
+ * Depo seviye 1 icin 1600/3 * 1.2 - 480 = 160 odun cikar ve Ikariam'daki
+ * deger de 160'tir.
  *
- * KUYRUK
- * Ayni anda en fazla MAX_CONCURRENT_CONSTRUCTIONS gorev islenir. Slotlar
- * doluyken gelen gorev 'queued' olur: zamani islemez, uretimi etkilemez ve
- * construction:started yayinlamaz. Slot bosalinca sequence sirasina gore
- * (FIFO) aktiflesir ve o anda baslangic tiki hesaplanir.
+ * INDIRIMLER
+ * Maliyet iki kaynaktan indirilir ve TOPLANARAK uygulanir:
+ *   - Arastirmalar: Kasnak %2, Geometri %4, Su Terazisi %8
+ *   - Indirim binalari: Marangoz (odun), Mimarlik Ofisi (mermer),
+ *     Sarap Presi (sarap), Havai Fisik Test Alani (kukurt), Optikci (kristal)
+ *     her seviyede %1
+ * Toplam indirim MAX_COST_REDUCTION ile sinirlanir; sinirsiz indirim
+ * bir noktadan sonra binayi bedavaya getirir ve ekonomi anlamini yitirir.
+ *
+ * ES ZAMANLI INSAAT
+ * Ikariam ayni anda birden fazla insaata izin verir; burada da oyle.
+ * Gorevler `sequence` ile FIFO siralanir, boylece ayni tikte baslayan iki
+ * gorevin tamamlanma sirasi deterministik kalir.
  */
+
+/** Indirim binalarinin hangi kaynagi indirdigi. */
+const REDUCTION_BUILDING_FOR: Record<MaterialKey, string> = {
+  wood: 'carpenter',
+  marble: 'architects_office',
+  wine: 'wine_press',
+  sulfur: 'firework_test_area',
+  crystal: 'optician',
+};
+
 export class ConstructionSystem {
-  private readonly state: GameState;
-  private readonly resources: ResourceSystem;
-  private readonly bus: EventBus;
+  constructor(
+    private readonly state: GameState,
+    private readonly resources: ResourceSystem,
+    private readonly research: ResearchSystem,
+    private readonly citizens: CitizenSystem,
+    private readonly bus: EventBus,
+  ) {}
 
-  /** Islenen gorevler: hedef uid -> gorev. */
-  private readonly active = new Map<string, ConstructionTask>();
+  // --- Maliyet ve sure -----------------------------------------------------
 
-  /** Slot bekleyen gorevler; sequence'e gore artan sirada tutulur. */
-  private queued: ConstructionTask[] = [];
-
-  constructor(state: GameState, resources: ResourceSystem, bus: EventBus) {
-    this.state = state;
-    this.resources = resources;
-    this.bus = bus;
-    this.rebuildFromState();
+  /** Bir kaynak icin toplam indirim orani (0..tavan). */
+  reductionFor(city: CityState, resource: MaterialKey): number {
+    const fromResearch = this.research.effects.buildCostReduction;
+    const buildingId = REDUCTION_BUILDING_FOR[resource];
+    const fromBuilding = buildingLevel(city, buildingId) * REDUCTION_BUILDING_BONUS_PER_LEVEL;
+    return Math.min(MAX_COST_REDUCTION, Math.max(0, fromResearch + fromBuilding));
   }
-
-  // --- Sorgular -------------------------------------------------------------
-
-  get activeCount(): number {
-    return this.active.size;
-  }
-
-  get queuedCount(): number {
-    return this.queued.length;
-  }
-
-  /** Bos slot sayisi. */
-  get freeSlots(): number {
-    return Math.max(0, MAX_CONCURRENT_CONSTRUCTIONS - this.active.size);
-  }
-
-  activeTasks(): readonly ConstructionTask[] {
-    return [...this.active.values()];
-  }
-
-  /** Kuyruktaki gorevler, aktiflesecekleri sirada. */
-  queuedTasks(): readonly ConstructionTask[] {
-    return [...this.queued];
-  }
-
-  /** Binanin gorevi (aktif veya kuyrukta); yoksa null. */
-  taskFor(uid: string): ConstructionTask | null {
-    return this.active.get(uid) ?? this.queued.find((t) => t.targetUid === uid) ?? null;
-  }
-
-  /** Binanin devam eden (aktif veya kuyrukta) bir gorevi var mi? */
-  isBusy(uid: string): boolean {
-    return this.taskFor(uid) !== null;
-  }
-
-  /** Gorevin gecerli tikteki ilerlemesi; gorev yoksa null. */
-  progressFor(uid: string): ConstructionProgress | null {
-    const task = this.taskFor(uid);
-    return task ? constructionProgress(task, this.state.tick) : null;
-  }
-
-  // --- Indeks ---------------------------------------------------------------
 
   /**
-   * Aktif/kuyruk indeksini oyun durumundan bastan kurar.
+   * Bir binanin verilen seviyeye cikma maliyeti (indirimler uygulanmis).
    *
-   * Deterministiktir ve idempotenttir: ayni durum uzerinde kac kez cagrilirsa
-   * cagrilsin ayni sonucu verir. Yapisal olarak gecersiz gorevler (negatif
-   * tik, ters siralama, bilinmeyen tur) duruma geri yazilarak temizlenir -
-   * sessizce indekste tutulmazlar.
-   *
-   * Suresi coktan dolmus bir aktif gorev indekse ALINMAZ; normal tamamlanma
-   * yolundan gecirilerek kapatilir. Boylece hem indeks temiz kalir hem de
-   * bina yarim durumda asili kalmaz.
+   * @param toLevel hedef seviye (1 = sifirdan insaat)
    */
-  rebuildFromState(): void {
-    this.active.clear();
-    this.queued = [];
+  costFor(city: CityState, buildingId: string, toLevel: number): ResourceAmounts {
+    const def = getBuilding(buildingId);
+    if (!def) return {};
 
-    const collected: ConstructionTask[] = [];
-
-    for (const building of this.state.buildings.values()) {
-      const construction = building.construction;
-      if (!construction) continue;
-
-      if (!isStructurallyValid(construction)) {
-        // Kurtarilamayan gorev: durumu tutarli hale getir.
-        this.repairBroken(building);
-        continue;
-      }
-      collected.push({ targetUid: building.uid, ...construction });
+    const cost: ResourceAmounts = {};
+    for (const [resource, coefficients] of Object.entries(def.cost) as Array<
+      [MaterialKey, (typeof def.cost)[MaterialKey]]
+    >) {
+      if (!coefficients) continue;
+      const raw = ikariamCost(coefficients, toLevel);
+      if (raw <= 0) continue;
+      cost[resource] = Math.max(1, Math.floor(raw * (1 - this.reductionFor(city, resource))));
     }
-
-    // Deterministik sira: kuyruk davranisi ve slot dagitimi buna dayanir.
-    collected.sort((a, b) => a.sequence - b.sequence);
-
-    const due: ConstructionTask[] = [];
-    for (const task of collected) {
-      if (task.status === 'active') {
-        if (task.completesAtTick !== null && task.completesAtTick <= this.state.tick) {
-          due.push(task);
-          continue;
-        }
-        if (this.active.size < MAX_CONCURRENT_CONSTRUCTIONS) {
-          this.active.set(task.targetUid, task);
-        } else {
-          // Limit dusurulmusse fazla aktif gorevler kuyruga geri alinir.
-          this.queued.push(this.toQueued(task));
-        }
-      } else {
-        this.queued.push(task);
-      }
-    }
-
-    // Suresi dolmus gorevler normal yoldan kapatilir.
-    for (const task of due) {
-      this.settle(task, true);
-    }
-
-    this.promoteFromQueue(true);
+    return cost;
   }
 
-  // --- Gorev baslatma -------------------------------------------------------
+  /** Bir binanin verilen seviyeye cikma insa suresi (OYUN saniyesi). */
+  timeFor(buildingId: string, toLevel: number): number {
+    const def = getBuilding(buildingId);
+    if (!def) return 0;
+    return Math.max(1, ikariamCost(def.time, toLevel));
+  }
+
+  // --- Dogrulama -----------------------------------------------------------
 
   /**
-   * Yeni kurulan bina icin insa gorevi talep eder.
-   * Sure 0 ise gorev olusturulmaz; bina aninda devreye girer.
+   * Binanin bu sehre kurulup kurulamayacagi.
+   * Basarisizsa oyuncuya gosterilecek nedeni dondurur.
    */
-  requestBuild(
-    building: BuildingInstance,
-    durationTicks: number,
-    paidCost: ResourceAmounts,
-  ): RequestResult {
-    return this.request(building.uid, 'build', durationTicks, paidCost);
-  }
+  canBuild(city: CityState, buildingId: string, ground: number): string | null {
+    const def = getBuilding(buildingId);
+    if (!def) return 'Bilinmeyen bina.';
 
-  /** Yukseltme gorevi talep eder. */
-  requestUpgrade(targetUid: string, durationTicks: number, paidCost: ResourceAmounts): RequestResult {
-    return this.request(targetUid, 'upgrade', durationTicks, paidCost);
-  }
-
-  /**
-   * Gorev talebi: slot varsa aktif, yoksa kuyruga alinir.
-   * Sure 0 ise gorev hic olusturulmaz, sonuc aninda uygulanir.
-   */
-  request(
-    targetUid: string,
-    kind: ConstructionKind,
-    durationTicks: number,
-    paidCost: ResourceAmounts = {},
-  ): RequestResult {
-    const building = this.state.buildings.get(targetUid);
-    if (!building) return { ok: false, reason: 'unknown_building' };
-    if (this.isBusy(targetUid)) return { ok: false, reason: 'busy' };
-
-    const duration = Math.max(0, Math.trunc(durationTicks));
-
-    // Suresiz gorev: kuyruga girmez, aninda sonuclanir.
-    if (duration === 0) {
-      this.applyInstant(targetUid, kind, paidCost);
-      return { ok: true, task: null, instant: true };
+    if (!this.research.buildingUnlocked(buildingId)) {
+      return `"${def.name}" için gereken araştırma tamamlanmamış.`;
     }
 
-    const sequence = this.state.nextConstructionSequence();
-    const canStart = this.active.size < MAX_CONCURRENT_CONSTRUCTIONS;
-    // Odenen maliyetin anlik goruntusu; sonradan degistirilmez.
-    const snapshot: ResourceAmounts = { ...paidCost };
-
-    const construction: BuildingConstruction = canStart
-      ? {
-          kind,
-          status: 'active',
-          durationTicks: duration,
-          sequence,
-          paidCost: snapshot,
-          startedAtTick: this.state.tick,
-          completesAtTick: this.state.tick + duration,
-        }
-      : {
-          kind,
-          status: 'queued',
-          durationTicks: duration,
-          sequence,
-          paidCost: snapshot,
-          startedAtTick: null,
-          completesAtTick: null,
-        };
-
-    this.state.setBuildingConstruction(targetUid, construction);
-
-    // Insa gorevi (aktif ya da kuyrukta) boyunca bina calismaz.
-    if (kind === 'build') {
-      this.state.setBuildingState(targetUid, 'constructing');
+    if (def.requiredTownHallLevel && city.townHall.level < def.requiredTownHallLevel) {
+      return `Valilik seviyesi en az ${def.requiredTownHallLevel} olmalı.`;
     }
 
-    const task: ConstructionTask = { targetUid, ...construction };
+    if (def.capitalOnly && !city.isCapital) {
+      return `${def.name} yalnızca başkentte kurulabilir.`;
+    }
+    if (def.colonyOnly && city.isCapital) {
+      return `${def.name} yalnızca kolonilerde kurulabilir.`;
+    }
 
-    if (canStart) {
-      this.active.set(targetUid, task);
-      this.bus.emit('construction:started', task);
+    if (def.slot === 'island') {
+      return `${def.name} şehirde değil, adada yükseltilir.`;
+    }
+
+    if (!canBuildMore(city, buildingId)) {
+      return `${def.name} için azami sayıya ulaşıldı.`;
+    }
+
+    if (def.slot === 'ground') {
+      const free = freeGrounds(city, this.research.effects.extraGround);
+      if (!free.includes(ground)) {
+        return 'Bu yapı alanı boş değil ya da henüz açılmadı. Valiliği yükseltince yeni alanlar açılır.';
+      }
+      if (city.grounds.some((b) => b.ground === ground)) {
+        return 'Bu yapı alanında zaten bir bina var.';
+      }
     } else {
-      this.queued.push(task);
-    }
-
-    return { ok: true, task, instant: false };
-  }
-
-  // --- Ilerleme -------------------------------------------------------------
-
-  /**
-   * Tamamlanma tikine ulasan gorevleri isler, sonra bosalan slotlari kuyruktan
-   * doldurur. Yalnizca aktif gorevler uzerinde gezer.
-   */
-  advance(options: { silent?: boolean } = {}): void {
-    const silent = options.silent === true;
-
-    if (this.active.size > 0) {
-      const now = this.state.tick;
-      let finished: ConstructionTask[] | null = null;
-
-      for (const task of this.active.values()) {
-        if (task.completesAtTick !== null && task.completesAtTick <= now) {
-          (finished ??= []).push(task);
-        }
-      }
-
-      if (finished) {
-        for (const task of finished) {
-          this.settle(task, silent);
-        }
+      // Sabit yapilar (Valilik/Liman/Tersane/Sur) yalnizca YUKSELTILEBILIR.
+      const current = this.fixedBuilding(city, buildingId);
+      if (!current) return `${def.name} bu şehirde kurulamaz.`;
+      if (current.level > 0 || current.construction) {
+        return `${def.name} zaten kurulu veya inşaatı sürüyor.`;
       }
     }
 
-    this.promoteFromQueue(silent);
+    const cost = this.costFor(city, buildingId, 1);
+    const affordability = this.resources.canAfford(city, cost);
+    if (!affordability.ok) return 'Kaynaklar yetmiyor.';
+
+    return null;
   }
 
-  // --- Iptal ----------------------------------------------------------------
+  /** Yukseltme yapilabilir mi? */
+  canUpgrade(city: CityState, buildingId: string, ground = -1): string | null {
+    const def = getBuilding(buildingId);
+    if (!def) return 'Bilinmeyen bina.';
+
+    const building = this.locate(city, buildingId, ground);
+    if (!building) return 'Bu bina şehirde yok.';
+    if (building.construction) return 'Bu binada zaten bir inşaat sürüyor.';
+    if (building.level <= 0) return 'Bina henüz kurulmadı.';
+
+    const next = building.level + 1;
+    if (next > def.maxLevel) return `${def.name} azami seviyede.`;
+
+    if (def.requiredTownHallLevel && city.townHall.level < def.requiredTownHallLevel) {
+      return `Valilik seviyesi en az ${def.requiredTownHallLevel} olmalı.`;
+    }
+
+    // Ikariam'in gercek tavani: maliyet depo kapasitesini asamaz, cunku
+    // kaynaklar depoda tutulamaz. Bu kontrol olmadan oyuncu "yeterli kaynagim
+    // var ama harcayamiyorum" durumuna duserdi.
+    const cost = this.costFor(city, buildingId, next);
+    const capacity = this.resources.storageCapacity(city);
+    for (const [resource, value] of Object.entries(cost) as Array<[MaterialKey, number]>) {
+      if (value > capacity) {
+        return `Bu yükseltme için gereken ${resource} miktarı depo kapasitesini aşıyor. Önce Depo kurun.`;
+      }
+    }
+
+    if (!this.resources.affordable(city, cost)) return 'Kaynaklar yetmiyor.';
+    return null;
+  }
+
+  // --- Eylemler ------------------------------------------------------------
+
+  /** Binayi kurar veya sabit yapiyi insa eder. */
+  build(city: CityState, buildingId: string, ground: number): boolean {
+    const reason = this.canBuild(city, buildingId, ground);
+    if (reason) return false;
+
+    const def = requireBuilding(buildingId);
+    const cost = this.costFor(city, buildingId, 1);
+    if (!this.resources.spend(city, cost)) return false;
+
+    const task = this.createTask('build', 1, this.timeFor(buildingId, 1), cost);
+
+    if (def.slot === 'ground') {
+      city.grounds.push({ type: buildingId, level: 0, ground, construction: task });
+    } else {
+      const fixed = this.fixedBuilding(city, buildingId);
+      if (!fixed) {
+        // Maliyet geri verilir: gorev olusturulamadi.
+        this.resources.spend(city, negate(cost));
+        return false;
+      }
+      fixed.level = 0;
+      fixed.construction = task;
+    }
+
+    this.bus.emit('construction:started', city.id, buildingId, 1);
+    return true;
+  }
+
+  /** Binayi bir seviye yukseltir. */
+  upgrade(city: CityState, buildingId: string, ground = -1): boolean {
+    const reason = this.canUpgrade(city, buildingId, ground);
+    if (reason) return false;
+
+    const building = this.locate(city, buildingId, ground);
+    if (!building) return false;
+
+    const toLevel = building.level + 1;
+    const cost = this.costFor(city, buildingId, toLevel);
+    if (!this.resources.spend(city, cost)) return false;
+
+    building.construction = this.createTask(
+      'upgrade',
+      toLevel,
+      this.timeFor(buildingId, toLevel),
+      cost,
+    );
+
+    this.bus.emit('construction:started', city.id, buildingId, toLevel);
+    return true;
+  }
 
   /**
-   * Gorevi iptal eder ve politikaya gore kaynak iade eder.
+   * Insaati iptal eder ve maliyeti kismen iade eder.
    *
-   * Iade orani CANCEL_REFUND_RATE'ten gelir: kuyruktaki gorev hic baslamadigi
-   * icin tam, aktif gorev yarisi. Iade hesabi BuildingResolver'dan okunur.
-   *
-   * refundResources=false verilirse yalnizca yasam dongusu temizligi yapilir;
-   * kaynagi cagiran taraf yonetir (yikim boyle kullanir, cift iade olmaz).
+   * Ikariam'da iptal yoktur; bu MOBIL icin bilincli bir kolayliktir.
+   * Iade orani CANCEL_REFUND_RATE'ten gelir: sifirdan insaat tam,
+   * yukseltme yari yariya iade edilir. Yukseltmede tam iade vermek,
+   * insaati bedava bir "kaynak park yeri"ne cevirirdi.
    */
-  cancel(targetUid: string, options: { refundResources?: boolean } = {}): CancelResult | null {
-    const task = this.taskFor(targetUid);
-    if (!task) return null;
+  cancel(city: CityState, buildingId: string, ground = -1): boolean {
+    const building = this.locate(city, buildingId, ground);
+    const task = building?.construction;
+    if (!building || !task) return false;
 
-    this.removeFromIndex(targetUid);
-    this.state.setBuildingConstruction(targetUid, undefined);
-
-    const building = this.state.buildings.get(targetUid);
-    const refundResources = options.refundResources !== false;
-    let refunded = false;
-
-    if (building && refundResources) {
-      // Iade, katalog fiyatindan degil gorevde saklanan odenen maliyetten.
-      const refund = resolveTaskRefund(task.paidCost, task.status);
-      this.resources.recalculateCapacity();
-      this.resources.add(refund);
-      refunded = true;
+    const rate = CANCEL_REFUND_RATE[task.kind === 'build' ? 'queued' : 'active'];
+    const refund: ResourceAmounts = {};
+    for (const [key, value] of Object.entries(task.paidCost) as Array<[MaterialKey, number]>) {
+      const amount = Math.floor(value * rate);
+      if (amount > 0) refund[key] = amount;
     }
 
-    this.bus.emit('construction:cancelled', task);
-
-    // Iptal bir slot bosaltmis olabilir.
-    this.promoteFromQueue(false);
-
-    return { task, refunded };
-  }
-
-  /**
-   * Insaati bitmis veya suresiz kurulmus binayi devreye alir.
-   * Kapasiteyi tazeler ve arayuze haber verir.
-   */
-  activate(uid: string): void {
-    const building = this.state.buildings.get(uid);
-    if (!building) return;
-
-    this.resources.recalculateCapacity();
-    this.resources.emitChange();
-    this.bus.emit('building:completed', building);
-  }
-
-  // --- Ic isleyis -----------------------------------------------------------
-
-  /** Bos slotlari kuyruktan FIFO sirasiyla doldurur. */
-  private promoteFromQueue(silent: boolean): void {
-    while (this.queued.length > 0 && this.active.size < MAX_CONCURRENT_CONSTRUCTIONS) {
-      const next = this.queued.shift();
-      if (!next) break;
-
-      // Hedef bina bu arada yok olduysa gorev de dusurulur.
-      const building = this.state.buildings.get(next.targetUid);
-      if (!building) continue;
-
-      const startedAtTick = this.state.tick;
-      const construction: BuildingConstruction = {
-        kind: next.kind,
-        status: 'active',
-        durationTicks: next.durationTicks,
-        sequence: next.sequence,
-        // Odenen maliyet aktiflesirken degismez.
-        paidCost: next.paidCost,
-        startedAtTick,
-        completesAtTick: startedAtTick + next.durationTicks,
-      };
-
-      this.state.setBuildingConstruction(next.targetUid, construction);
-      const task: ConstructionTask = { targetUid: next.targetUid, ...construction };
-      this.active.set(next.targetUid, task);
-
-      // Kuyruktaki gorev icin baslangic olayi ancak burada yayinlanir.
-      if (!silent) {
-        this.bus.emit('construction:started', task);
-      }
+    /*
+     * Iade depo tavanina takilabilir.
+     *
+     * Tavan ASILMAZ: asmak "kaynaklar hicbir zaman tavani gecmez"
+     * degismezini bozardi ve iptal->doldur->iptal dongusuyle sinirsiz
+     * tavan-ustu stok biriktirmeye izin verirdi. Ancak bu durumda iade
+     * SESSIZCE kaybolmamalidir: oyuncu iptale tiklayip kaynaklarinin
+     * bir kismini hicsesiz yitirirse bunu bir hata olarak gorur. Bu
+     * yuzden kayip miktari bildirim olarak yuzeye cikarilir.
+     */
+    const result = this.resources.add(city, refund);
+    const lost = result.lost;
+    const lostTotal = Object.values(lost).reduce((sum, v) => sum + (v ?? 0), 0);
+    if (lostTotal > 0) {
+      this.bus.emit(
+        'notice:added',
+        'İptal iadesi depoya sığmadı',
+        `${Math.round(lostTotal)} birim kaynak depo dolu olduğu için geri alınamadı.`,
+        'warn',
+      );
     }
-  }
-
-  /** Gorevi kapatir ve turune gore sonucu uygular. */
-  private settle(task: ConstructionTask, silent: boolean): void {
-    this.removeFromIndex(task.targetUid);
-    this.state.setBuildingConstruction(task.targetUid, undefined);
 
     if (task.kind === 'build') {
-      this.state.setBuildingState(task.targetUid, 'active');
-      if (!silent) this.activate(task.targetUid);
+      // Sifirdan insaat iptal edilirse bina tamamen kaldirilir.
+      if (ground >= 0) {
+        const index = city.grounds.indexOf(building);
+        if (index >= 0) city.grounds.splice(index, 1);
+      } else {
+        building.level = 0;
+        building.construction = undefined;
+      }
     } else {
-      this.applyUpgrade(task.targetUid, silent);
+      building.construction = undefined;
     }
 
-    if (!silent) {
-      this.bus.emit('construction:completed', task);
+    this.bus.emit('construction:cancelled', city.id, buildingId);
+    return true;
+  }
+
+  // --- Zaman ---------------------------------------------------------------
+
+  /**
+   * Tum insaatlari verilen oyun saniyesi kadar ilerletir.
+   *
+   * Gorevler `sequence` sirasiyla islenir: ayni pencerede biten iki gorevin
+   * hangisinin once uygulandigi, olusturulma sirasina baglidir. Bu sira
+   * olmadan ayni tikte biten gorevler dizinin o anki siralamasina bagli
+   * kalirdi ve kayit gidis-donusu sonucu degistirebilirdi.
+   */
+  advance(gameSeconds: number): void {
+    if (gameSeconds <= 0) return;
+
+    const tasks: Array<{ city: CityState; building: PlacedBuilding }> = [];
+    for (const city of this.state.cities) {
+      for (const building of [
+        city.townHall,
+        city.wall,
+        city.harbor.port,
+        city.harbor.shipyard,
+        ...city.grounds,
+      ]) {
+        if (building.construction) tasks.push({ city, building });
+      }
+    }
+
+    tasks.sort((a, b) => {
+      const sa = a.building.construction?.sequence ?? 0;
+      const sb = b.building.construction?.sequence ?? 0;
+      return sa - sb;
+    });
+
+    for (const { city, building } of tasks) {
+      const task = building.construction;
+      if (!task) continue;
+
+      task.remainingGameSeconds -= gameSeconds;
+      if (task.remainingGameSeconds > 0) continue;
+
+      building.level = task.toLevel;
+      building.construction = undefined;
+
+      // Yeni bina nufus/kapasite hesaplarini degistirdigi icin dagilim
+      // yeniden dengelenir (ornegin Akademi bilim adami kapasitesi acar).
+      this.citizens.reconcile(city);
+
+      const def = getBuilding(building.type);
+      this.bus.emit('construction:completed', city.id, building.type, building.level);
+      this.state.pushNotice({
+        atTick: this.state.tick,
+        title: 'İnşaat tamamlandı',
+        body: `${city.name}: ${def?.name ?? building.type} seviye ${building.level}.`,
+        tone: 'success',
+        read: false,
+      });
+      this.bus.emit('notice:added', 'İnşaat tamamlandı', def?.name ?? building.type, 'success');
     }
   }
 
-  /**
-   * Suresiz gorevi aninda uygular.
-   * Olay yasam dongusu normal gorevle ayni kalsin diye tamamlanma olayi
-   * burada da yayinlanir; boylece arayuz iki yolu ayirt etmek zorunda kalmaz.
-   */
-  private applyInstant(targetUid: string, kind: ConstructionKind, paidCost: ResourceAmounts): void {
-    const sequence = this.state.nextConstructionSequence();
-    const tick = this.state.tick;
+  /** Sehrin devam eden tum insaatlari (arayuz icin). */
+  activeTasks(city: CityState): Array<{ building: PlacedBuilding; task: ConstructionTask }> {
+    const out: Array<{ building: PlacedBuilding; task: ConstructionTask }> = [];
+    for (const building of [
+      city.townHall,
+      city.wall,
+      city.harbor.port,
+      city.harbor.shipyard,
+      ...city.grounds,
+    ]) {
+      if (building.construction) out.push({ building, task: building.construction });
+    }
+    return out;
+  }
 
-    const task: ConstructionTask = {
-      targetUid,
+  // --- Ic yardimcilar ------------------------------------------------------
+
+  /** Sabit yapinin kaydini bulur (Valilik/Sur/Liman/Tersane). */
+  private fixedBuilding(city: CityState, buildingId: string): PlacedBuilding | null {
+    const def = getBuilding(buildingId);
+    if (!def) return null;
+    switch (def.slot) {
+      case 'townhall':
+        return city.townHall;
+      case 'wall':
+        return city.wall;
+      case 'port':
+        return city.harbor.port;
+      case 'shipyard':
+        return city.harbor.shipyard;
+      default:
+        return null;
+    }
+  }
+
+  /** Binayi slot turune gore bulur. */
+  private locate(city: CityState, buildingId: string, ground: number): PlacedBuilding | null {
+    const def = getBuilding(buildingId);
+    if (!def) return null;
+
+    if (def.slot === 'ground') {
+      if (ground >= 0) return city.grounds.find((b) => b.ground === ground && b.type === buildingId) ?? null;
+      return city.grounds.find((b) => b.type === buildingId) ?? null;
+    }
+    return this.fixedBuilding(city, buildingId);
+  }
+
+  /** Yeni bir insaat gorevi kaydi uretir. */
+  private createTask(
+    kind: ConstructionTask['kind'],
+    toLevel: number,
+    durationGameSeconds: number,
+    paidCost: ResourceAmounts,
+  ): ConstructionTask {
+    return {
       kind,
-      status: 'active',
-      durationTicks: 0,
-      sequence,
+      toLevel,
+      durationGameSeconds: Math.max(1, durationGameSeconds),
+      remainingGameSeconds: Math.max(1, durationGameSeconds),
       paidCost: { ...paidCost },
-      startedAtTick: tick,
-      completesAtTick: tick,
+      sequence: this.state.nextSequence(),
+      startedAtTick: this.state.tick,
     };
-
-    this.bus.emit('construction:started', task);
-
-    if (kind === 'build') {
-      this.state.setBuildingState(targetUid, 'active');
-      this.activate(targetUid);
-    } else {
-      this.applyUpgrade(targetUid, false);
-    }
-
-    this.bus.emit('construction:completed', task);
-  }
-
-  /** Seviyeyi bir artirir ve kapasiteyi tazeler. */
-  private applyUpgrade(targetUid: string, silent: boolean): void {
-    const building = this.state.buildings.get(targetUid);
-    if (!building) return;
-
-    this.state.setBuildingLevel(targetUid, building.level + 1);
-    this.resources.recalculateCapacity();
-    if (!silent) this.resources.emitChange();
-  }
-
-  /** Gorevi her iki indeksten de cikarir. */
-  private removeFromIndex(targetUid: string): void {
-    this.active.delete(targetUid);
-    const index = this.queued.findIndex((t) => t.targetUid === targetUid);
-    if (index >= 0) this.queued.splice(index, 1);
-  }
-
-  /** Aktif gorevi kuyruk formuna cevirir (limit dusurulmesi durumunda). */
-  private toQueued(task: ConstructionTask): ConstructionTask {
-    return { ...task, status: 'queued', startedAtTick: null, completesAtTick: null };
-  }
-
-  /**
-   * Kurtarilamayan gorevi durumdan temizler ve binayi tutarli hale getirir.
-   * Insa gorevi bozuksa bina tamamlanmis sayilir; yukseltme gorevi bozuksa
-   * bina mevcut seviyesinde kalir.
-   */
-  private repairBroken(building: BuildingInstance): void {
-    this.state.setBuildingConstruction(building.uid, undefined);
-    if (building.state === 'constructing') {
-      this.state.setBuildingState(building.uid, 'active');
-    }
   }
 }
 
-/**
- * Gorevin yapisal olarak gecerli olup olmadigi.
- * Zamanla ilgili "suresi dolmus mu" sorusu burada sorulmaz; o, tamamlanma
- * mantiginin isidir.
- */
-function isStructurallyValid(construction: BuildingConstruction): boolean {
-  const { kind, status, durationTicks, sequence, startedAtTick, completesAtTick } = construction;
-
-  if (kind !== 'build' && kind !== 'upgrade') return false;
-  if (status !== 'queued' && status !== 'active') return false;
-  if (!Number.isFinite(durationTicks) || durationTicks < 0) return false;
-  if (!Number.isFinite(sequence) || sequence < 0) return false;
-  if (typeof construction.paidCost !== 'object' || construction.paidCost === null) return false;
-
-  if (status === 'queued') {
-    // Kuyruktaki gorevin zaman alanlari bos olmalidir.
-    return startedAtTick === null && completesAtTick === null;
+/** Maliyet haritasini negatife cevirir (iade/icin). */
+function negate(cost: ResourceAmounts): ResourceAmounts {
+  const out: ResourceAmounts = {};
+  for (const [key, value] of Object.entries(cost) as Array<[MaterialKey, number]>) {
+    out[key] = -Math.max(0, value);
   }
-
-  if (startedAtTick === null || completesAtTick === null) return false;
-  if (!Number.isFinite(startedAtTick) || !Number.isFinite(completesAtTick)) return false;
-  if (startedAtTick < 0 || completesAtTick < 0) return false;
-  if (completesAtTick < startedAtTick) return false;
-
-  return true;
+  return out;
 }
