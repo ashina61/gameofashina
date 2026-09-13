@@ -27,9 +27,16 @@ const SLOT_SPACING_X = 26;
 /** Komsu duruş yerleri arasindaki hafif derinlik kademesi. */
 const SLOT_STAGGER_Y = 7;
 
-/** Meydandaki kalabaligin yayildigi alan. */
-const PLAZA_SPREAD_X = 150;
-const PLAZA_SPREAD_Y = 58;
+/**
+ * Meydandaki kalabaligin yayildigi alan.
+ *
+ * GENISLETILDI. 150x58 bir alanda on kisi bile omuz omuza duruyordu;
+ * meydan bir bekleme yeri degil bir kuyruk gibi gorunuyordu. Iki karo
+ * genisligine yayilinca figurler arasinda zemin gorunur ve kalabalik
+ * "sehirde yasayan insanlar" gibi okunur.
+ */
+const PLAZA_SPREAD_X = 280;
+const PLAZA_SPREAD_Y = 120;
 
 /**
  * Sehir meydani: bosta iscilerin bekledigi nokta.

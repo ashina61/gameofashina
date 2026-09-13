@@ -1,5 +1,5 @@
 import type Phaser from 'phaser';
-import { buildingAssets, uiAssets } from './AssetManifest';
+import { buildingAssets, terrainAssets, uiAssets } from './AssetManifest';
 
 /**
  * Listedeki PNG'leri Phaser yukleyicisine verir.
@@ -21,7 +21,7 @@ const failed = new Set<string>();
 
 /** PreloadScene bunu preload() icinde cagirir. */
 export function queueAssets(scene: Phaser.Scene): void {
-  const entries = [...uiAssets(), ...buildingAssets()];
+  const entries = [...uiAssets(), ...terrainAssets(), ...buildingAssets()];
   if (entries.length === 0) return;
 
   scene.load.on(

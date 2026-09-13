@@ -41,6 +41,25 @@ const UI_FILES = import.meta.glob('/src/assets/ui/*.png', {
   import: 'default',
 }) as Record<string, string>;
 
+/**
+ * Zemin karolari: /src/assets/terrain/{tur}.png
+ *
+ * EN YUKSEK ONCELIKLI VARLIK. Ekranin yaklasik %60'i zemindir; prosedurel
+ * karolarin sert dikisleri ve tur tur renk siçramasi sehri "satranc
+ * tahtasi" gibi gosteriyordu. Boyali zemin, tek basina bina gorsellerinden
+ * daha buyuk fark yaratir.
+ */
+/*
+ * NOT: klasorde su an YER TUTUCU karolar var (kodla uretilmis, duz renk
+ * + benek). Prosedurel karolardan iyiler - sert dikisleri yok - ama
+ * nihai sanat degiller; ayni adla degistirilmek uzere duruyorlar.
+ */
+const TERRAIN_FILES = import.meta.glob('/src/assets/terrain/*.png', {
+  eager: true,
+  query: '?url',
+  import: 'default',
+}) as Record<string, string>;
+
 /** Yol -> URL haritasini "dosya adi (uzantisiz) -> URL" haritasina cevirir. */
 function byName(files: Record<string, string>): ReadonlyMap<string, string> {
   const map = new Map<string, string>();
@@ -53,6 +72,7 @@ function byName(files: Record<string, string>): ReadonlyMap<string, string> {
 
 const BUILDINGS = byName(BUILDING_FILES);
 const UI = byName(UI_FILES);
+const TERRAIN = byName(TERRAIN_FILES);
 
 /** Panel sisteminin bekledigi uc temel doku. */
 export const UI_TEXTURE_NAMES = ['panel_bg', 'panel_border', 'panel_corner'] as const;
@@ -75,6 +95,46 @@ export interface AssetEntry {
   key: string;
   /** Yukleyicinin kullanacagi URL. */
   url: string;
+}
+
+/**
+ * Zemin karosu adlari.
+ *
+ * Ilk dordu zemin turleridir ve oyunun kendi tur listesiyle birebir
+ * ayni adi tasir. Son ikisi DOSELI yuzeylerdir: prosedurel surumde
+ * doseme zemine pisiriliyordu (ayri sprite katmani 34 FPS'i 26'ya
+ * dusurmustu), boyali surumde ise dogrudan kendi karosu olur - sanatci
+ * icin de tek bir resim cizmek, dort zemine ayri ayri doseme cizmekten
+ * kolaydir.
+ */
+export const TERRAIN_TILE_NAMES = [
+  'grass',
+  'soil',
+  'rock',
+  'water',
+  'street',
+  'plaza',
+] as const;
+export type TerrainTileName = (typeof TERRAIN_TILE_NAMES)[number];
+
+/** Zemin karosunun doku anahtari. */
+export function terrainKeyFor(name: TerrainTileName): string {
+  return `terrain:${name}`;
+}
+
+/** Bu zemin karosu dosyadan mi geliyor? */
+export function hasTerrainTile(name: TerrainTileName): boolean {
+  return TERRAIN.has(name);
+}
+
+/** Yuklenecek zemin karolari. */
+export function terrainAssets(): AssetEntry[] {
+  const out: AssetEntry[] = [];
+  for (const name of TERRAIN_TILE_NAMES) {
+    const url = TERRAIN.get(name);
+    if (url) out.push({ key: terrainKeyFor(name), url });
+  }
+  return out;
 }
 
 /** Bina sprite'larinin doku anahtari; prosedurel anahtarlarla karismaz. */
@@ -156,6 +216,10 @@ export function hasUiTexture(name: UiTextureName | OptionalUiName): boolean {
 }
 
 /** Olcum ve rapor icin: bulunan dosya adlari. */
-export function manifestSummary(): { buildings: string[]; ui: string[] } {
-  return { buildings: [...BUILDINGS.keys()].sort(), ui: [...UI.keys()].sort() };
+export function manifestSummary(): { buildings: string[]; ui: string[]; terrain: string[] } {
+  return {
+    buildings: [...BUILDINGS.keys()].sort(),
+    ui: [...UI.keys()].sort(),
+    terrain: [...TERRAIN.keys()].sort(),
+  };
 }

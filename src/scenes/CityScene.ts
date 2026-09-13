@@ -26,6 +26,8 @@ import { RESEARCH_MESSAGES } from '@/systems/ResearchSystem';
 import { getResearch } from '@/config/ResearchCatalog';
 import { constructionProgress } from '@/systems/BuildingResolver';
 import { depthFor, gridToWorld, worldToGrid } from '@/utils/IsoUtils';
+import { hasTerrainTile, terrainKeyFor } from '@/render/AssetManifest';
+import type { TerrainTileName } from '@/render/AssetManifest';
 import { getResolution, getWorld } from './BootScene';
 import type { UIScene } from './UIScene';
 import type { ResolutionManager } from '@/render/ResolutionManager';
@@ -111,10 +113,32 @@ export class CityScene extends Phaser.Scene {
 
     for (const tile of this.world.state.grid.allTiles()) {
       const world = gridToWorld(tile.gx, tile.gy);
-      this.add
-        .image(world.x, world.y, this.groundTextureFor(tile, plaza))
-        .setOrigin(0.5, TILE_ORIGIN_Y)
+      const key = this.groundTextureFor(tile, plaza);
+      const image = this.add
+        .image(world.x, world.y, key)
         .setDepth(depthFor(tile.gx, tile.gy) - 5);
+
+      /*
+       * BOYALI KARO KENDI OLCUSUNU DAYATMAZ.
+       *
+       * Prosedurel karolar tam olarak 128 x (64+10) uretilir, bu yuzden
+       * olceksiz ve sabit orijinle otururlar. Elle cizilmis bir PNG'nin
+       * ise kac piksel oldugu bilinmez; ayni sabitleri uygulamak onu
+       * yanlis boyda gosterirdi.
+       *
+       * Kural: PNG'nin GENISLIGI bir karo genisligine oturtulur, yukseklik
+       * oranla turer. Elmasin dikey merkezi kaynakta hep ust banttaki
+       * TILE_HEIGHT/2 noktasidir; orijin oradan hesaplanir. Boylece
+       * sanatci 128 de 512 de verebilir, ve altta istedigi kadar ucurum
+       * payi birakabilir.
+       */
+      if (key.startsWith('terrain:')) {
+        const scale = TILE_WIDTH / (image.width || TILE_WIDTH);
+        image.setScale(scale);
+        image.setOrigin(0.5, TILE_HEIGHT / 2 / (image.height * scale));
+      } else {
+        image.setOrigin(0.5, TILE_ORIGIN_Y);
+      }
     }
   }
 
@@ -127,10 +151,40 @@ export class CityScene extends Phaser.Scene {
    * sehir denize dogru acik kalir.
    */
   private groundTextureFor(tile: TileData, plaza: Set<string>): string {
-    if (isBuildable(tile.gx, tile.gy)) return TERRAIN_TEXTURE[tile.terrain];
-    if (!PAVED_TERRAIN.includes(tile.terrain)) return TERRAIN_TEXTURE[tile.terrain];
-    const base = plaza.has(`${tile.gx},${tile.gy}`) ? TextureKeys.TilePlaza : TextureKeys.TileStreet;
-    return pavedKey(base, tile.terrain);
+    const paved =
+      !isBuildable(tile.gx, tile.gy) && PAVED_TERRAIN.includes(tile.terrain);
+
+    /*
+     * BOYALI KARO VARSA O KAZANIR.
+     *
+     * Zemin PNG'leri tur tur devreye girer: yalnizca grass.png koyulmus
+     * bir projede cimen boyali, geri kalan prosedurel cizilir. Bu, sanat
+     * yonunu DORT dosyayla (hatta birle) denemeyi mumkun kilar - otuz
+     * dosya uretmeden once yonun tutup tutmadigi gorulur.
+     */
+    if (paved) {
+      const name = plaza.has(`${tile.gx},${tile.gy}`) ? 'plaza' : 'street';
+      const painted = this.paintedTerrain(name);
+      if (painted) return painted;
+      const base = plaza.has(`${tile.gx},${tile.gy}`)
+        ? TextureKeys.TilePlaza
+        : TextureKeys.TileStreet;
+      return pavedKey(base, tile.terrain);
+    }
+
+    return this.paintedTerrain(tile.terrain) ?? TERRAIN_TEXTURE[tile.terrain];
+  }
+
+  /**
+   * Boyali zemin karosunun anahtari; dosya yoksa ya da yuklenemediyse null.
+   *
+   * "Listede var" yetmez, dokunun GERCEKTEN yuklenmis olmasi da gerekir -
+   * bozuk bir dosya yuzunden zeminin gorunmez olmasi kabul edilemez.
+   */
+  private paintedTerrain(name: TerrainTileName): string | null {
+    if (!hasTerrainTile(name)) return null;
+    const key = terrainKeyFor(name);
+    return this.textures.exists(key) ? key : null;
   }
 
   /**

@@ -9,6 +9,53 @@ dosya icin ag istegi **cikmaz** ve konsol kirlenmez.
 
 ---
 
+## ONCELIK SIRASI — hangi dosya ne kadar fark yaratir
+
+Olcum: sehir tamamen doldurulup (130 bina) oyunun gercek zoom'unda
+bakildi.
+
+| Sira | Dosya | Neden |
+|------|-------|-------|
+| **1** | `terrain/` (4 dosya) | Ekranin ~%60'i zemin. Prosedurel karolarin sert dikisleri sehri "satranc tahtasi" gosteriyordu; en buyuk tek kazanc burada. **Yapildi - su an yer tutucu karolar var.** |
+| **2** | `buildings/house_1.png` | Binalar su an duz kutu: pencere yok, doku yok. Doldurulmus bir sehirde en cok tekrar eden gorsel ev. |
+| **3** | `buildings/town_hall_*.png`, `temple_*`, `harbor_*` | Anitsal yapilar sehrin siluetini belirler; oyuncunun gozu once onlara gider. |
+| **4** | `ui/portrait.png` | Ust soldaki tek "insan" ogesi. |
+| **5** | Kalan binalar | Buraya kadar iyi gorunmuyorsa yon yanlistir; otuz dosya uretmeden once ilk dordu degerlendir. |
+
+---
+
+## terrain/ — zemin karolari
+
+    {tur}.png
+
+| Dosya         | Ne                          | Zorunlu |
+|---------------|-----------------------------|---------|
+| `grass.png`   | Cimen                       | evet    |
+| `soil.png`    | Toprak                      | evet    |
+| `rock.png`    | Kayalik                     | evet    |
+| `water.png`   | Su                          | hayir (yoksa prosedurel) |
+| `street.png`  | Doseli sokak                | onerilir |
+| `plaza.png`   | Meydan dosemesi             | hayir (yoksa `street` gibi prosedurel) |
+
+### Cizim kurallari
+
+- **Genislik 128'in kati.** 256 x 148 onerilir (2x); oyun her zaman bir
+  karo genisligine oturtur, yani 512 de verebilirsin - sadece daha net
+  gorunur.
+- **Elmas, goruntunun UST bandindadir** ve tam olarak genisligin yarisi
+  kadar yuksektir: 256 genislikte elmas 256 x 128, ustten baslar.
+- Altta kalan bant **yan yuz / ucurum payidir**; istedigin kadar derin
+  olabilir, oyun orijini kendi hesaplar.
+- Elmasin **disi saydam** olmali.
+- Komsu karolar YAN YANA gelir: kenarda sert bir cerceve cizme, aksi
+  halde satranc tahtasi geri gelir.
+- Isik **sol ustten**.
+
+Her tur bagimsizdir: yalnizca `grass.png` koyarsan cimen boyali, geri
+kalan prosedurel kalir.
+
+---
+
 ## buildings/ — bina gorselleri
 
     {tip}_{seviye}.png

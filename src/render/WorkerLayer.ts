@@ -57,6 +57,14 @@ export class WorkerLayer {
    * Katmani gecerli duruma esitler ve hareketi bir kare ilerletir.
    * CityScene.update icinden cagrilir.
    */
+  /**
+   * Ayni anda cizilen azami BOSTA isci.
+   *
+   * Onu gecince meydan bir kalabalik degil bir yigin olur; alti ise
+   * sehri olu gosterir. Calisan isciler bu sinirin disindadir.
+   */
+  private static readonly MAX_IDLE_DRAWN = 10;
+
   update(time: number, delta: number): void {
     const workers = this.state.workers;
     this.generation += 1;
@@ -65,19 +73,45 @@ export class WorkerLayer {
     // hareketin HIZI degismez.
     const blend = 1 - Math.exp(-delta / WorkerLayer.SMOOTH_MS);
 
+    /*
+     * BOSTA ISCILERIN KALABALIGI SINIRLANIR.
+     *
+     * Gelismis bir sehirde 40'tan fazla isci bosta bekleyebiliyor ve hepsi
+     * meydanda toplaniyordu: ekran goruntusunde sehir meydani asker
+     * dizilimine benzeyen ozdes figurlerle doluydu. Bu bir SIMULASYON
+     * sorunu degil, bir CIZIM sorunu - is gucu sistemi hepsini saymaya
+     * devam eder, yalnizca bir kismi cizilir.
+     *
+     * Kimlik SIRASINA gore kirpilir, rastgele degil: ayni isciler cizilir,
+     * kalabalik kare kare titremez. CALISAN isci asla gizlenmez - onlar
+     * sehrin isledigini gosteren asil isaret.
+     */
+    let idleDrawn = 0;
+    let visible = 0;
     for (let i = 0; i < workers.length; i += 1) {
       const worker = workers[i];
+      if (worker.state === 'idle') {
+        idleDrawn += 1;
+        if (idleDrawn > WorkerLayer.MAX_IDLE_DRAWN) {
+          const spare = this.entries.get(worker.id);
+          if (spare) spare.sprite.setVisible(false);
+          continue;
+        }
+      }
+      visible += 1;
+
       let entry = this.entries.get(worker.id);
       if (!entry) {
         entry = this.spawn(worker);
         this.entries.set(worker.id, entry);
       }
       entry.generation = this.generation;
+      entry.sprite.setVisible(true);
       this.follow(entry, worker, blend, time);
     }
 
-    // Kayit sayisi tutuyorsa sahipsiz sprite yok demektir; tarama atlanir.
-    if (this.entries.size !== workers.length) this.sweep();
+    // Kayit sayisi cizilenle tutuyorsa sahipsiz sprite yok demektir.
+    if (this.entries.size !== visible) this.sweep();
   }
 
   /** Tum sprite'lari birakir. */
