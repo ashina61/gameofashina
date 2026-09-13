@@ -15,6 +15,23 @@ import { shade } from './BuildingArt';
 /** Ikon tuvalinin kenar uzunlugu (mantiksal piksel). */
 export const ICON_SIZE = 26;
 
+/**
+ * PARSOMEN UZERINDEKI ikonlarin ana rengi.
+ *
+ * Ikonlarin coğu once KOYU deri panellerin uzerinde duruyordu ve govdeleri
+ * `stoneLight` (kirec beyazi) ciziliyordu. Paneller acik parsomene
+ * donunce bu renk zeminle neredeyse ayni oldu ve ikonlar KAYBOLDU:
+ * ayar carki yalnizca ortasindaki koyu delikten ibaret bir noktaya,
+ * zarf da yalnizca kapak ucgeninden ibaret bir "v"ye dondu (ekran
+ * goruntusuyle goruldu).
+ *
+ * Parsomen uzerinde duran her ikon artik bu koyu murekkeple cizilir.
+ * Alt gezinme cubugunun KOYU ahsabinda duran ikonlar (sehir, harita,
+ * envanter, profil) bunun disindadir - onlar acik ve renkli kalir.
+ */
+const INK = 0x6b4f2a;
+const INK_DARK = 0x4a3520;
+
 export type IconKind =
   // Kaynaklar
   | 'food'
@@ -47,7 +64,21 @@ export type IconKind =
   | 'ok'
   | 'warn'
   | 'info'
-  | 'error';
+  | 'error'
+  // Referans duzenin istedigi ikonlar (Sprint 18b)
+  | 'plus'
+  | 'cart'
+  | 'questHouse'
+  | 'mapNav'
+  | 'bag'
+  | 'profile'
+  | 'star'
+  | 'chart'
+  | 'calendar'
+  | 'friends'
+  | 'zoomIn'
+  | 'ship'
+  | 'energy';
 
 export function iconKeyFor(kind: IconKind): string {
   return `icon:${kind}`;
@@ -211,7 +242,7 @@ function drawPeople(g: Phaser.GameObjects.Graphics, s: number): void {
 
 /** Dort kare - "tumu" sekmesi. */
 function drawAll(g: Phaser.GameObjects.Graphics, s: number): void {
-  g.fillStyle(PALETTE.stoneLight, 1);
+  g.fillStyle(INK, 1);
   for (const [fx, fy] of [
     [0.24, 0.24],
     [0.58, 0.24],
@@ -305,7 +336,7 @@ function drawBuildingsNav(g: Phaser.GameObjects.Graphics, s: number): void {
 
 /** Uc nokta - "Daha" sekmesi. */
 function drawMore(g: Phaser.GameObjects.Graphics, s: number): void {
-  g.fillStyle(PALETTE.stoneLight, 1);
+  g.fillStyle(INK, 1);
   for (const fx of [0.26, 0.5, 0.74]) g.fillCircle(s * fx, s * 0.5, s * 0.08);
 }
 
@@ -313,7 +344,7 @@ function drawMore(g: Phaser.GameObjects.Graphics, s: number): void {
 function drawSettings(g: Phaser.GameObjects.Graphics, s: number): void {
   const cx = s / 2;
   const cy = s / 2;
-  g.fillStyle(PALETTE.stoneLight, 1);
+  g.fillStyle(INK, 1);
   for (let i = 0; i < 8; i += 1) {
     const a = (Math.PI / 4) * i;
     const x = cx + Math.cos(a) * s * 0.3;
@@ -327,9 +358,9 @@ function drawSettings(g: Phaser.GameObjects.Graphics, s: number): void {
 
 /** Zarf - mesaj. */
 function drawMail(g: Phaser.GameObjects.Graphics, s: number): void {
-  g.fillStyle(PALETTE.stoneLight, 1);
+  g.fillStyle(INK, 1);
   g.fillRoundedRect(s * 0.16, s * 0.28, s * 0.68, s * 0.44, 3);
-  g.fillStyle(shade(PALETTE.stoneLight, -0.3), 1);
+  g.fillStyle(shade(INK, -0.3), 1);
   g.beginPath();
   g.moveTo(s * 0.16, s * 0.3);
   g.lineTo(s * 0.5, s * 0.56);
@@ -362,11 +393,11 @@ function drawTrophy(g: Phaser.GameObjects.Graphics, s: number): void {
 function drawCompass(g: Phaser.GameObjects.Graphics, s: number): void {
   const cx = s / 2;
   const cy = s / 2;
-  g.lineStyle(2, PALETTE.stoneLight, 0.9);
+  g.lineStyle(2, INK, 0.9);
   g.strokeCircle(cx, cy, s * 0.34);
   g.fillStyle(PALETTE.clothWarm, 1);
   g.fillTriangle(cx, cy - s * 0.26, cx + s * 0.11, cy, cx - s * 0.11, cy);
-  g.fillStyle(PALETTE.stoneLight, 1);
+  g.fillStyle(INK, 1);
   g.fillTriangle(cx, cy + s * 0.26, cx + s * 0.11, cy, cx - s * 0.11, cy);
 }
 
@@ -472,6 +503,221 @@ function drawKnowledge(g: Phaser.GameObjects.Graphics, s: number): void {
   g.fillRect(cx - s * 0.33, s * 0.74, s * 0.66, s * 0.07);
 }
 
+
+// --------------------------------------------- REFERANS DUZENIN IKONLARI
+
+/** Kalin arti - kaynak eklemek icin. */
+function drawPlus(g: Phaser.GameObjects.Graphics, s: number): void {
+  const c = s / 2;
+  const arm = s * 0.3;
+  const thick = s * 0.17;
+  g.fillStyle(INK_DARK, 1);
+  g.fillRoundedRect(c - arm, c - thick / 2, arm * 2, thick, thick / 2);
+  g.fillRoundedRect(c - thick / 2, c - arm, thick, arm * 2, thick / 2);
+}
+
+/** El arabasi - market gorevi. */
+function drawCart(g: Phaser.GameObjects.Graphics, s: number): void {
+  // Sepet: one dogru genisleyen yamuk
+  g.fillStyle(PALETTE.wood, 1);
+  g.fillTriangle(s * 0.2, s * 0.3, s * 0.86, s * 0.3, s * 0.74, s * 0.6);
+  g.fillRect(s * 0.2, s * 0.3, s * 0.54, s * 0.3);
+  g.fillStyle(shade(PALETTE.wood, -0.25), 1);
+  g.fillRect(s * 0.2, s * 0.55, s * 0.56, s * 0.06);
+  // Sap
+  g.lineStyle(s * 0.07, PALETTE.woodDark, 1);
+  g.beginPath();
+  g.moveTo(s * 0.12, s * 0.22);
+  g.lineTo(s * 0.24, s * 0.32);
+  g.strokePath();
+  // Tekerlekler
+  g.fillStyle(PALETTE.doorway, 1);
+  g.fillCircle(s * 0.34, s * 0.74, s * 0.11);
+  g.fillCircle(s * 0.68, s * 0.74, s * 0.11);
+}
+
+/** Ev silueti - insa gorevi. */
+function drawQuestHouse(g: Phaser.GameObjects.Graphics, s: number): void {
+  const c = s / 2;
+  g.fillStyle(PALETTE.roof, 1);
+  g.fillTriangle(c, s * 0.16, s * 0.14, s * 0.48, s * 0.86, s * 0.48);
+  g.fillStyle(PALETTE.adobe, 1);
+  g.fillRect(s * 0.24, s * 0.48, s * 0.52, s * 0.34);
+  g.fillStyle(PALETTE.doorway, 1);
+  g.fillRect(c - s * 0.08, s * 0.6, s * 0.16, s * 0.22);
+}
+
+/** Katlanmis harita - gezinme sekmesi. */
+function drawMapNav(g: Phaser.GameObjects.Graphics, s: number): void {
+  /*
+   * Uc dikey panel, ortadaki yukari kaymis: katlanmis haritanin tanidik
+   * silueti. Duz bir dikdortgen "belge" ikonuyla karisiyordu.
+   */
+  const top = s * 0.24;
+  const h = s * 0.5;
+  g.fillStyle(PALETTE.clothCool, 1);
+  g.fillTriangle(s * 0.12, top, s * 0.36, top + s * 0.08, s * 0.36, top + h + s * 0.08);
+  g.fillRect(s * 0.12, top, s * 0.24, h);
+  g.fillStyle(shade(PALETTE.clothCool, -0.18), 1);
+  g.fillRect(s * 0.36, top + s * 0.08, s * 0.26, h);
+  g.fillStyle(PALETTE.clothCool, 1);
+  g.fillRect(s * 0.62, top, s * 0.26, h);
+  // Yol cizgisi
+  g.lineStyle(s * 0.06, PALETTE.clothWarm, 1);
+  g.beginPath();
+  g.moveTo(s * 0.2, top + h * 0.75);
+  g.lineTo(s * 0.42, top + h * 0.4);
+  g.lineTo(s * 0.62, top + h * 0.62);
+  g.lineTo(s * 0.8, top + h * 0.28);
+  g.strokePath();
+}
+
+/** Para kesesi - envanter. */
+function drawBag(g: Phaser.GameObjects.Graphics, s: number): void {
+  const c = s / 2;
+  g.fillStyle(PALETTE.wood, 1);
+  g.fillEllipse(c, s * 0.6, s * 0.62, s * 0.52);
+  g.fillStyle(shade(PALETTE.wood, 0.18), 1);
+  g.fillEllipse(c - s * 0.08, s * 0.55, s * 0.3, s * 0.3);
+  // Boyun ve ip
+  g.fillStyle(PALETTE.woodDark, 1);
+  g.fillRect(c - s * 0.13, s * 0.22, s * 0.26, s * 0.14);
+  g.lineStyle(s * 0.05, PALETTE.gold, 1);
+  g.beginPath();
+  g.moveTo(c - s * 0.16, s * 0.34);
+  g.lineTo(c + s * 0.16, s * 0.34);
+  g.strokePath();
+}
+
+/** Omuz bustu - profil. */
+function drawProfile(g: Phaser.GameObjects.Graphics, s: number): void {
+  const c = s / 2;
+  g.fillStyle(PALETTE.clothWarm, 1);
+  g.fillCircle(c, s * 0.32, s * 0.17);
+  // Omuzlar: yarim elips
+  g.slice(c, s * 0.92, s * 0.34, Math.PI, 0, false);
+  g.fillPath();
+}
+
+/** Bes kollu yildiz - one cikanlar. */
+function drawStarIcon(g: Phaser.GameObjects.Graphics, s: number): void {
+  const c = s / 2;
+  const outer = s * 0.36;
+  const inner = outer * 0.45;
+  const points: number[] = [];
+  for (let i = 0; i < 10; i += 1) {
+    const r = i % 2 === 0 ? outer : inner;
+    const a = -Math.PI / 2 + (Math.PI / 5) * i;
+    points.push(c + Math.cos(a) * r, c + Math.sin(a) * r);
+  }
+  g.fillStyle(PALETTE.gold, 1);
+  g.fillPoints(
+    points.reduce<Phaser.Types.Math.Vector2Like[]>((out, v, i) => {
+      if (i % 2 === 0) out.push({ x: v, y: points[i + 1] });
+      return out;
+    }, []),
+    true,
+  );
+}
+
+/** Yukselen sutunlar - istatistik. */
+function drawChart(g: Phaser.GameObjects.Graphics, s: number): void {
+  const base = s * 0.8;
+  const heights = [0.26, 0.42, 0.58];
+  const colors = [PALETTE.clothWarm, PALETTE.cropGold, PALETTE.leaf];
+  heights.forEach((h, i) => {
+    g.fillStyle(colors[i], 1);
+    g.fillRect(s * (0.2 + i * 0.22), base - s * h, s * 0.16, s * h);
+  });
+  g.fillStyle(PALETTE.woodDark, 1);
+  g.fillRect(s * 0.14, base, s * 0.72, s * 0.06);
+}
+
+/** Takvim yapragi - gunluk. */
+function drawCalendar(g: Phaser.GameObjects.Graphics, s: number): void {
+  g.fillStyle(PALETTE.clothCool, 1);
+  g.fillRoundedRect(s * 0.16, s * 0.24, s * 0.68, s * 0.6, 3);
+  g.fillStyle(PALETTE.clothWarm, 1);
+  g.fillRoundedRect(s * 0.16, s * 0.24, s * 0.68, s * 0.17, 3);
+  // Halkalar
+  g.fillStyle(PALETTE.woodDark, 1);
+  g.fillRect(s * 0.3, s * 0.14, s * 0.07, s * 0.16);
+  g.fillRect(s * 0.63, s * 0.14, s * 0.07, s * 0.16);
+  // Gunler
+  g.fillStyle(shade(PALETTE.clothCool, -0.4), 0.8);
+  for (let r = 0; r < 2; r += 1) {
+    for (let col = 0; col < 3; col += 1) {
+      g.fillRect(s * (0.26 + col * 0.2), s * (0.52 + r * 0.16), s * 0.12, s * 0.09);
+    }
+  }
+}
+
+/** Iki kisi - arkadaslar. */
+function drawFriends(g: Phaser.GameObjects.Graphics, s: number): void {
+  const draw = (cx: number, scale: number, color: number): void => {
+    g.fillStyle(color, 1);
+    g.fillCircle(cx, s * 0.36, s * 0.13 * scale);
+    g.slice(cx, s * 0.88, s * 0.24 * scale, Math.PI, 0, false);
+    g.fillPath();
+  };
+  draw(s * 0.66, 0.88, shade(PALETTE.clothWarm, -0.25));
+  draw(s * 0.36, 1, PALETTE.clothWarm);
+}
+
+/** Buyutec + - yakinlastir. */
+function drawZoomIn(g: Phaser.GameObjects.Graphics, s: number): void {
+  const cx = s * 0.44;
+  const cy = s * 0.42;
+  const r = s * 0.26;
+  g.lineStyle(s * 0.09, INK, 1);
+  g.strokeCircle(cx, cy, r);
+  g.beginPath();
+  g.moveTo(cx + r * 0.72, cy + r * 0.72);
+  g.lineTo(s * 0.86, s * 0.86);
+  g.strokePath();
+  g.lineStyle(s * 0.07, INK, 1);
+  g.beginPath();
+  g.moveTo(cx - r * 0.5, cy);
+  g.lineTo(cx + r * 0.5, cy);
+  g.moveTo(cx, cy - r * 0.5);
+  g.lineTo(cx, cy + r * 0.5);
+  g.strokePath();
+}
+
+/** Yelkenli - insa eylemi. */
+function drawShip(g: Phaser.GameObjects.Graphics, s: number): void {
+  const c = s / 2;
+  // Govde
+  g.fillStyle(PALETTE.wood, 1);
+  g.fillTriangle(s * 0.1, s * 0.68, s * 0.9, s * 0.68, s * 0.72, s * 0.86);
+  g.fillRect(s * 0.1, s * 0.68, s * 0.62, s * 0.18);
+  g.fillStyle(shade(PALETTE.wood, -0.3), 1);
+  g.fillRect(s * 0.1, s * 0.68, s * 0.8, s * 0.05);
+  // Direk ve yelken
+  g.fillStyle(PALETTE.woodDark, 1);
+  g.fillRect(c - s * 0.02, s * 0.14, s * 0.04, s * 0.54);
+  g.fillStyle(PALETTE.clothCool, 1);
+  g.fillTriangle(c + s * 0.03, s * 0.16, c + s * 0.03, s * 0.62, s * 0.82, s * 0.62);
+  g.fillStyle(shade(PALETTE.clothCool, -0.15), 1);
+  g.fillTriangle(c - s * 0.03, s * 0.2, c - s * 0.03, s * 0.62, s * 0.16, s * 0.62);
+}
+
+/** Simsek - enerji. */
+function drawEnergy(g: Phaser.GameObjects.Graphics, s: number): void {
+  g.fillStyle(PALETTE.gold, 1);
+  g.fillPoints(
+    [
+      { x: s * 0.58, y: s * 0.1 },
+      { x: s * 0.26, y: s * 0.56 },
+      { x: s * 0.46, y: s * 0.56 },
+      { x: s * 0.38, y: s * 0.9 },
+      { x: s * 0.74, y: s * 0.42 },
+      { x: s * 0.52, y: s * 0.42 },
+    ],
+    true,
+  );
+}
+
 export const ICON_ART: Record<IconKind, (g: Phaser.GameObjects.Graphics, size: number) => void> = {
   food: drawFood,
   wood: drawWood,
@@ -499,4 +745,17 @@ export const ICON_ART: Record<IconKind, (g: Phaser.GameObjects.Graphics, size: n
   warn: drawWarn,
   info: drawInfo,
   error: drawError,
+  plus: drawPlus,
+  cart: drawCart,
+  questHouse: drawQuestHouse,
+  mapNav: drawMapNav,
+  bag: drawBag,
+  profile: drawProfile,
+  star: drawStarIcon,
+  chart: drawChart,
+  calendar: drawCalendar,
+  friends: drawFriends,
+  zoomIn: drawZoomIn,
+  ship: drawShip,
+  energy: drawEnergy,
 };

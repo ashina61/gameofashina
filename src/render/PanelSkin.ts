@@ -43,21 +43,38 @@ const BORDER_THICKNESS = 5;
 /** Kose susunun kenar uzunlugu. */
 const CORNER_SIZE = 20;
 
-/** Parsomen/altin/kahve paleti - butun arayuz derileri buradan beslenir. */
+/**
+ * Parsomen/altin/kahve paleti - butun arayuz derileri buradan beslenir.
+ *
+ * PANELLER ACIK, GEZINME KOYU.
+ * Ilk surumde butun arayuz koyu deriydi; referans duzende ise paneller
+ * ACIK PARSOMEN, yalnizca alt gezinme cubugu koyu ahsaptir. Bu yalnizca
+ * bir renk tercihi degil bir okunabilirlik karari: acik zemin uzerinde
+ * koyu kahve yazi, gunes altindaki telefonda koyu zemindeki krem yazidan
+ * belirgin sekilde daha okunur.
+ */
 export const SKIN_PALETTE = {
-  /** Deri zeminin acik ve koyu ucu. */
-  leatherLight: '#3b3225',
-  leather: '#2a2419',
-  leatherDark: '#1b1710',
+  /** Parsomen zeminin acik ve koyu ucu (ust kenar aydinlik). */
+  parchmentLight: '#f7ebd2',
+  parchment: '#eddcb8',
+  parchmentDark: '#dcc496',
+
+  /** Panel uzerindeki yazi renkleri. */
+  ink: '#4a3520',
+  inkSoft: '#7d6446',
 
   /** Altin seridin tonlari: kenarlarda koyu, ortada parlak. */
-  goldDark: '#6b5320',
-  gold: '#c8a54e',
+  goldDark: '#8a6a22',
+  gold: '#c9a227',
   goldBright: '#f0d98c',
 
-  /** Koyu gezinme yuzeyi. */
-  navTop: '#221d15',
-  navBottom: '#141109',
+  /** Koyu ahsap gezinme yuzeyi. */
+  navTop: '#4a3520',
+  navBottom: '#2b1d10',
+
+  /** Aktif sekmenin altin plakasi. */
+  navActiveTop: '#c9912f',
+  navActiveBottom: '#8a5f1c',
 } as const;
 
 /** Bir panel derisinin gorunum secenekleri. */
@@ -242,7 +259,7 @@ function createPlaceholder(scene: Phaser.Scene, name: UiTextureName, key: string
   return createCornerOrnament(scene, key);
 }
 
-/** Deri/parsomen zemin: dikey gradyan + yatay damar. */
+/** Parsomen zemin: dikey gradyan + hafif damar. */
 function createParchment(scene: Phaser.Scene, key: string): void {
   const size = 64;
   const canvas = scene.textures.createCanvas(key, size, size);
@@ -250,9 +267,9 @@ function createParchment(scene: Phaser.Scene, key: string): void {
   const ctx = canvas.context;
 
   const gradient = ctx.createLinearGradient(0, 0, 0, size);
-  gradient.addColorStop(0, SKIN_PALETTE.leatherLight);
-  gradient.addColorStop(0.55, SKIN_PALETTE.leather);
-  gradient.addColorStop(1, SKIN_PALETTE.leatherDark);
+  gradient.addColorStop(0, SKIN_PALETTE.parchmentLight);
+  gradient.addColorStop(0.6, SKIN_PALETTE.parchment);
+  gradient.addColorStop(1, SKIN_PALETTE.parchmentDark);
   ctx.fillStyle = gradient;
   ctx.fillRect(0, 0, size, size);
 
@@ -261,12 +278,9 @@ function createParchment(scene: Phaser.Scene, key: string): void {
    * acilista birebir ayni uretilir, yani ekran goruntuleri ve gorsel
    * testler kararlidir.
    */
-  ctx.globalAlpha = 0.06;
-  ctx.fillStyle = '#ffffff';
-  for (let y = 3; y < size; y += 7) ctx.fillRect(0, y, size, 1);
   ctx.globalAlpha = 0.05;
-  ctx.fillStyle = '#000000';
-  for (let y = 6; y < size; y += 7) ctx.fillRect(0, y, size, 1);
+  ctx.fillStyle = '#8a6a3a';
+  for (let y = 5; y < size; y += 9) ctx.fillRect(0, y, size, 1);
 
   canvas.refresh();
 }

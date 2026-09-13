@@ -268,6 +268,23 @@ export class CityScene extends Phaser.Scene {
   }
 
   /**
+   * Kameranin izgara uzerindeki 0..1 konumu - mini haritanin isareti icin.
+   *
+   * Dunya koordinatini izometrik donusumun TERSIYLE izgaraya cevirir.
+   * Mini harita bu orani kendi elmas yerlesimine uygular, yani isaret
+   * gercekten bakilan karonun uzerine duser.
+   */
+  cameraGridRatio(): { x: number; y: number } {
+    const cam = this.cameras.main;
+    const { gx, gy } = worldToGrid(cam.midPoint.x, cam.midPoint.y);
+    const size = Math.max(1, this.world.state.grid.size - 1);
+    return {
+      x: Phaser.Math.Clamp(gx / size, 0, 1),
+      y: Phaser.Math.Clamp(gy / size, 0, 1),
+    };
+  }
+
+  /**
    * Acilis zoom'u: ADA, arayuzun artakalan bandina dikeyde sigsin.
    *
    * Sprint 13'e kadar zoom sabit bir KARO SAYISINDAN turuyordu (yatayda 5

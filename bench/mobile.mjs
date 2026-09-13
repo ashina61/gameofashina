@@ -66,13 +66,6 @@ for (const viewport of VIEWPORTS) {
     const cs = window.game.scene.getScene('CityScene');
     const logical = { w: ui.logicalWidth(), h: ui.logicalHeight() };
 
-    /** Merkezlenmis bir nesnenin mantiksal sinirlari. */
-    const rect = (obj) => ({
-      left: obj.x - (obj.width ?? 0) / 2,
-      right: obj.x + (obj.width ?? 0) / 2,
-      top: obj.y - (obj.height ?? 0) / 2,
-      bottom: obj.y + (obj.height ?? 0) / 2,
-    });
     const overlaps = (a, b) =>
       a.left < b.right && b.left < a.right && a.top < b.bottom && b.top < a.bottom;
 
@@ -99,17 +92,87 @@ for (const viewport of VIEWPORTS) {
       return { hits, items };
     };
 
-    const bar = ui.resourceBar;
+    /*
+     * HUD PARCALARI.
+     *
+     * Sprint 18b'de tam genislikteki ust cubuk kaldirildi ve yerine
+     * referans duzenin dagitilmis parcalari geldi. Olcum de o parcalari
+     * okumali: eski surum `ui.resourceBar` ve `ui.sideButtons` ariyordu ve
+     * artik var olmayan alanlara baktigi icin cokuyordu. Her parca kendi
+     * `bounds()` dikdortgenini bildirir - ekranda blokladigi alanla AYNI
+     * dikdortgen, yani olcum arayuzun kendi gercegini okur.
+     */
+    const parts = [
+      ['oyuncu karti', ui.playerCard],
+      ['gorev karti', ui.questCard],
+      ['muttefikler', ui.allyStrip],
+      ['sol ray', ui.leftRail],
+      ['sag ray', ui.rightRail],
+      ['mini harita', ui.miniMap],
+      ['insa dugmesi', ui.buildButton],
+    ];
+    /*
+     * GORUNMEYEN parca olcume girmez.
+     *
+     * Arayuz bazi parcalari duruma gore gizliyor (alt sayfa acikken
+     * raylar, dar ekranda muttefik seridi). Gizli bir parca ekranda yer
+     * kaplamaz; onu cakisma saymak gercek olmayan bir hata uretir.
+     */
+    const partRects = parts
+      .filter(([, part]) => part.visible)
+      .map(([name, part]) => {
+        const b = part.bounds();
+        return { name, left: b.x, right: b.x + b.width, top: b.y, bottom: b.y + b.height };
+      });
+    for (const [key, pill] of ui.pills) {
+      if (!pill.visible) continue;
+      const b = pill.bounds();
+      partRects.push({
+        name: `kapsul:${key}`,
+        left: b.x,
+        right: b.x + b.width,
+        top: b.y,
+        bottom: b.y + b.height,
+      });
+    }
+
     const nav = ui.nav;
     const panel = ui.infoPanel;
-    const build = rect(ui.buildButton);
-
-    const barCheck = collide(bar);
     const navCheck = collide(nav);
     const panelCheck = collide(panel);
 
     const navRect = { left: 0, right: logical.w, top: nav.y, bottom: nav.y + 66 };
     const panelRect = { left: 0, right: logical.w, top: panel.y, bottom: panel.y + 212 };
+
+    // Her parca ekranin icinde mi?
+    const outside = partRects.filter(
+      (r) => r.left < -1 || r.right > logical.w + 1 || r.top < -1 || r.bottom > logical.h + 1,
+    );
+
+    // Parcalar birbirine ya da alt gezinme cubuguna biniyor mu?
+    const partHits = [];
+    for (let i = 0; i < partRects.length; i += 1) {
+      for (let j = i + 1; j < partRects.length; j += 1) {
+        if (overlaps(partRects[i], partRects[j])) {
+          partHits.push(`${partRects[i].name} | ${partRects[j].name}`);
+        }
+      }
+      if (overlaps(partRects[i], navRect)) partHits.push(`${partRects[i].name} | gezinme`);
+    }
+
+    // Parcalarin ICINDEKI yazilar kendi cercevesini asiyor mu?
+    const textOverflow = [];
+    for (const [name, part] of parts) {
+      if (!part.visible) continue;
+      const b = part.bounds();
+      for (const obj of part.list) {
+        if (obj.type !== 'Text' || !obj.visible || !obj.text) continue;
+        const t = inside(part, obj);
+        if (t.left < b.x - 1 || t.right > b.x + b.width + 1) {
+          textOverflow.push(`${name}: ${obj.text}`);
+        }
+      }
+    }
 
     // Sehir gercekten gorunuyor mu? Sehir merkezinin ekran noktasi.
     const cam = cs.cameras.main;
@@ -126,41 +189,23 @@ for (const viewport of VIEWPORTS) {
 
     return {
       logical,
-      // 1. Ust cubuk
-      barInside: barCheck.items.every((t) => t.left >= -1 && t.right <= logical.w + 1),
-      barHits: barCheck.hits,
-      // 2. Alt gezinme cubugu
+      partsOutside: outside.map((r) => r.name),
+      partHits,
+      textOverflow,
+      // Alt gezinme cubugu
       navTabs: nav.list.filter((o) => o.type === 'Text').length,
       navInside: navCheck.items.every((t) => t.left >= -1 && t.right <= logical.w + 1),
       navHits: navCheck.hits,
       navBottom: navRect.bottom,
       tabWidth: nav.tabWidth(),
-      // 3. Ana aksiyon
-      buildInside: build.left >= 0 && build.right <= logical.w && build.bottom <= logical.h,
-      buildOverNav: overlaps(build, navRect),
-      buildOverPanel: overlaps(build, panelRect),
-      buildOverBar: build.top < bar.y + 112,
-      // 4. Bilgi paneli
+      // Bilgi paneli
       panelInside: panelRect.bottom <= navRect.top + 1,
       panelHits: panelCheck.hits,
       panelTextInside: panelCheck.items.every((t) => t.right <= logical.w + 1),
-      // 5. Yardimci yuvarlak dugmeler - birbirine ve panellere binmesin
-      sideOverlap: (() => {
-        const all = [ui.mapButton, ...ui.sideButtons].map((b) => rect(b));
-        let hits = 0;
-        for (let i = 0; i < all.length; i += 1) {
-          for (let j = i + 1; j < all.length; j += 1) {
-            if (overlaps(all[i], all[j])) hits += 1;
-          }
-          if (all[i].top < bar.y + 112) hits += 1;
-          if (overlaps(all[i], navRect)) hits += 1;
-        }
-        return hits;
-      })(),
-      // 6. Sehir gorunurlugu
+      // Sehir gorunurlugu
       hallOnScreen:
-        hallScreen.x > 0 && hallScreen.x < logical.w && hallScreen.y > 84 && hallScreen.y < panelRect.top,
-      // 7. Yatay tasma
+        hallScreen.x > 0 && hallScreen.x < logical.w && hallScreen.y > 0 && hallScreen.y < panelRect.top,
+      // Yatay tasma
       overflow: document.documentElement.scrollWidth > window.innerWidth,
     };
   });
@@ -178,19 +223,16 @@ for (const viewport of VIEWPORTS) {
 
   rows.push({
     ekran: `${viewport.width}x${viewport.height}`,
-    'ust cubuk': probe.barInside && probe.barHits.length === 0 ? 'OK' : `SORUN ${probe.barHits[0] ?? 'tasti'}`,
+    'hud icerde': probe.partsOutside.length === 0 ? 'OK' : `TASTI ${probe.partsOutside[0]}`,
+    'hud cakisma': probe.partHits.length === 0 ? 'OK' : `CAKISMA ${probe.partHits[0]}`,
+    'hud metin': probe.textOverflow.length === 0 ? 'OK' : `TASTI ${probe.textOverflow[0]}`,
     'alt gezinme': probe.navTabs === 5 && probe.navInside && probe.navHits.length === 0 ? 'OK' : 'SORUN',
     'sekme genisligi': Math.round(probe.tabWidth),
     'gezinme alani': probe.navBottom <= probe.logical.h ? 'OK' : 'TASTI',
-    'insa butonu':
-      probe.buildInside && !probe.buildOverNav && !probe.buildOverPanel && !probe.buildOverBar
-        ? 'OK'
-        : 'CAKISMA',
     'bilgi paneli':
       probe.panelInside && probe.panelTextInside && probe.panelHits.length === 0
         ? 'OK'
         : `SORUN ${probe.panelHits[0] ?? 'tasti'}`,
-    'yan dugmeler': probe.sideOverlap === 0 ? 'OK' : `CAKISMA ${probe.sideOverlap}`,
     'merkez gorunur': probe.hallOnScreen ? 'OK' : 'GORUNMUYOR',
     'insa alanlari': plotProbe,
     'yatay tasma': probe.overflow ? 'VAR' : 'yok',
@@ -202,13 +244,13 @@ for (const viewport of VIEWPORTS) {
 console.table(rows);
 const ok = rows.every(
   (r) =>
-    r['ust cubuk'] === 'OK' &&
+    r['hud icerde'] === 'OK' &&
+    r['hud cakisma'] === 'OK' &&
+    r['hud metin'] === 'OK' &&
     r['alt gezinme'] === 'OK' &&
     r['sekme genisligi'] >= 48 &&
     r['gezinme alani'] === 'OK' &&
-    r['insa butonu'] === 'OK' &&
     r['bilgi paneli'] === 'OK' &&
-    r['yan dugmeler'] === 'OK' &&
     r['merkez gorunur'] === 'OK' &&
     r['insa alanlari'] > 0 &&
     r['yatay tasma'] === 'yok',

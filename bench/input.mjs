@@ -50,14 +50,14 @@ async function fresh() {
 /**
  * INSA ET butonunun EKRANDAKI gercek sinirlari.
  *
- * Sprint 14'te ana eylem YUVARLAK bir dugme oldu; yazisindan aramak yerine
- * sahnedeki alanindan okunur. Daire oldugu icin kose noktalari hit alaninin
- * disinda kalir - olcum bu yuzden kare degil, YARICAP icinde noktalar dener.
+ * Sprint 18b'de ana eylem YUVARLAK dugmeden GENIS dikdortgen dugmeye
+ * dondu (referans duzen). Eski surum `diameterPx` okuyordu; o alan artik
+ * yok ve olcum NaN koordinatla cokuyordu. Dugme kendi `bounds()`
+ * dikdortgenini bildiriyor - olcum onu okur.
  */
 const buildButtonBounds = () => {
-  const b = window.game.scene.getScene('UIScene').buildButton;
-  const d = b.diameterPx;
-  return { x: b.x - d / 2, y: b.y - d / 2, w: d, h: d };
+  const b = window.game.scene.getScene('UIScene').buildButton.bounds();
+  return { x: b.x, y: b.y, w: b.width, h: b.height };
 };
 
 const menuOpen = (page) =>
@@ -69,15 +69,15 @@ function record(group, label, actual, expected) {
 
 // 1. Butonun HER noktasi basilabilir olmali.
 /*
- * Dairenin KOSELERI hit alaninin disindadir; olcum daire icinde kalan
- * noktalari dener (merkez ve dort yon, yaricapin %70'inde).
+ * Dugme artik DIKDORTGEN: koseleri de basilabilir olmali. Olcum merkez
+ * ve dort kose icin (kenardan %10 iceride) dener.
  */
 for (const [fx, fy, label] of [
   [0.5, 0.5, 'merkez'],
-  [0.5, 0.15, 'ust'],
-  [0.85, 0.5, 'sag'],
-  [0.5, 0.85, 'alt'],
-  [0.15, 0.5, 'sol'],
+  [0.1, 0.2, 'sol ust'],
+  [0.9, 0.2, 'sag ust'],
+  [0.1, 0.8, 'sol alt'],
+  [0.9, 0.8, 'sag alt'],
 ]) {
   const { ctx, page } = await fresh();
   const r = await page.evaluate(buildButtonBounds);
@@ -234,6 +234,26 @@ for (const index of [0, 1, 2, 3, 4]) {
   }, index);
 
   if (!target) {
+    await ctx.close();
+    continue;
+  }
+
+  /*
+   * ARAYUZUN ALTINDAKI KARO OLCUME GIRMEZ.
+   *
+   * Sprint 18b'de HUD dagitildi ve gorev karti haritanin ust kosesinin bir
+   * bolumunu ortuyor. Orada dokunusun sehre GECMEMESI dogru davranistir -
+   * "kurulmadi" sonucu bir hata degil, kuralin ta kendisi. Olcum bu yuzden
+   * once arayuze sorar; blokluysa karoyu atlar ve bunu boyle raporlar.
+   */
+  const uiBlocked = await page.evaluate((pt) => {
+    const ui = window.game.scene.getScene('UIScene');
+    const dpr = window.game.registry.get('resolution')?.dpr ?? 1;
+    return ui.blocksPointer(pt.x * dpr, pt.y * dpr);
+  }, { x: target.sx, y: target.sy - 6 });
+
+  if (uiBlocked) {
+    record('karo isabeti', `${target.gx},${target.gy}`, 'UI altinda', 'UI altinda');
     await ctx.close();
     continue;
   }

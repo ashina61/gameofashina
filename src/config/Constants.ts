@@ -154,8 +154,19 @@ export const MAX_ZOOM = 1.6;
  * boylece "kamera nereye ortaliyor" ile "arayuz nereyi kapatiyor" tek
  * kaynaktan gelir ve birbirinden kayamaz.
  */
-export const TOP_UI_BAND = 112;
-export const BOTTOM_UI_BAND = 168;
+/*
+ * SPRINT 18b: bantlar yeni HUD'a gore olculdu.
+ *
+ * Eski degerler tam genislikteki ust cubugu (112) ve alt cubuk + merkezi
+ * yuvarlak dugmeyi (168) tarif ediyordu. HUD dagitilinca ikisi de
+ * yanlislastı: ustte artik yalnizca oyuncu karti ve kapsuller var
+ * (~80), altta gezinme cubugu + insa dugmesi/mini harita (~190).
+ *
+ * Bantlar yalnizca KADRAJI etkiler (kamera sehri bu iki bandin arasinda
+ * ortalar); yanlis birakmak sehri alt HUD'in arkasina itiyordu.
+ */
+export const TOP_UI_BAND = 80;
+export const BOTTOM_UI_BAND = 190;
 
 /**
  * Acilista ekrana sigmasi hedeflenen karo sayisi (yatay).
@@ -225,6 +236,7 @@ export const TextureKeys = {
   Capsule: 'ui-capsule',
   CapsuleActive: 'ui-capsule-active',
   NavSurface: 'ui-nav',
+  NavActive: 'ui-nav-active',
   Glow: 'ui-glow',
   Ring: 'ui-ring',
   Disc: 'ui-disc',

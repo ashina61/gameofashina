@@ -246,8 +246,17 @@ describe('arayuz varliklari', () => {
   });
 
   it('arayuz bantlari ekranin makul bir kismini kaplar', () => {
-    expect(TOP_UI_BAND).toBe(112);
-    expect(BOTTOM_UI_BAND).toBe(168);
+    /*
+     * Rakamlar SABITLENMEZ, sinirlar sabitlenir.
+     *
+     * Bantlar HUD degistikce degisir (Sprint 18b'de tam genislikteki ust
+     * cubuk kalkinca 112 -> 80, alt tarafa mini harita gelince 168 -> 190).
+     * Belirli sayilari beklemek, HUD her elden gecisinde testi kirmaktan
+     * baska bir sey yapmiyordu. Korunmasi gereken sey KURAL: bantlar
+     * gercekci kalmali ve sehri bogmamali.
+     */
+    expect(TOP_UI_BAND).toBeGreaterThan(40);
+    expect(BOTTOM_UI_BAND).toBeGreaterThan(TOP_UI_BAND);
     // En kisa hedef ekranda (800 mantiksal piksel) arayuz %40'i gecmemeli.
     expect(TOP_UI_BAND + BOTTOM_UI_BAND).toBeLessThan(800 * 0.4);
   });

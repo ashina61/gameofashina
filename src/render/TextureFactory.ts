@@ -5,6 +5,7 @@ import {
   createCapsuleTexture,
   createDiscTexture,
   createGlowTexture,
+  createNavActiveTexture,
   createNavTexture,
   createRingTexture,
 } from './UiShapes';
@@ -187,12 +188,20 @@ export function generateTextures(scene: Phaser.Scene, artScale = 1): void {
   });
 
   createNavTexture(scene, TextureKeys.NavSurface);
+  createNavActiveTexture(scene, TextureKeys.NavActive);
   createGlowTexture(scene, TextureKeys.Glow);
   createRingTexture(scene, TextureKeys.Ring);
   createDiscTexture(scene, TextureKeys.Disc);
 
-  createRoundTexture(scene, TextureKeys.RoundUp, 0x2e2819, 0x7a6540, artScale);
-  createRoundTexture(scene, TextureKeys.RoundDown, 0x4a3f27, 0xe8c86a, artScale);
+  /*
+   * Yuvarlak dugme de PARSOMEN.
+   *
+   * Geriye tek bir yuvarlak dugme kaldi (ust sagdaki ayar) ve o da
+   * referansta acik zeminli. Koyu birakmak onu ekrandaki tek koyu
+   * yuzey yapar ve gozu gereksiz yere oraya cekerdi.
+   */
+  createRoundTexture(scene, TextureKeys.RoundUp, 0xeddcb8, 0xc9a227, artScale);
+  createRoundTexture(scene, TextureKeys.RoundDown, 0xd8c08a, 0x8a6a22, artScale);
 }
 
 /** Isci durumu -> doku anahtari. Render katmani bu esleme uzerinden okur. */

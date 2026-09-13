@@ -1,11 +1,11 @@
 import Phaser from 'phaser';
 import { TextureKeys } from '@/config/Constants';
 import { iconKeyFor } from '@/render/IconArt';
-import { TOUCH_TARGET, labelStyle, UIColors, UIText } from './UIStyle';
+import { TOUCH_TARGET, labelStyle, UIColors, UITextOnDark } from './UIStyle';
 import type { IconKind } from '@/render/IconArt';
 
 /** Alt gezinme cubugundaki sekmeler. */
-export type NavTab = 'city' | 'buildings' | 'population' | 'workers' | 'more';
+export type NavTab = 'city' | 'map' | 'quests' | 'inventory' | 'profile';
 
 interface TabSpec {
   id: NavTab;
@@ -14,11 +14,11 @@ interface TabSpec {
 }
 
 const TABS: TabSpec[] = [
-  { id: 'city', label: 'SEHIR', icon: 'cityNav' },
-  { id: 'buildings', label: 'BINALAR', icon: 'buildingsNav' },
-  { id: 'population', label: 'NUFUS', icon: 'people' },
-  { id: 'workers', label: 'ISCILER', icon: 'worker' },
-  { id: 'more', label: 'DAHA', icon: 'more' },
+  { id: 'city', label: 'Sehir', icon: 'cityNav' },
+  { id: 'map', label: 'Harita', icon: 'mapNav' },
+  { id: 'quests', label: 'Gorevler', icon: 'buildingsNav' },
+  { id: 'inventory', label: 'Envanter', icon: 'bag' },
+  { id: 'profile', label: 'Profil', icon: 'profile' },
 ];
 
 /**
@@ -73,13 +73,22 @@ export class BottomNav extends Phaser.GameObjects.Container {
        * Isaret cizgisi bicimi, isima ise agirligi verir - ikisi birlikte
        * aktif sekmeyi gunes altindaki telefonda bile okunur kilar.
        */
-      const glow = scene.add
-        .image(0, 0, TextureKeys.Glow)
+      /*
+       * AKTIF SEKME: ALTIN PLAKA.
+       *
+       * Once yumusak bir isima kullaniyordum; referans duzende aktif
+       * sekme koyu ahsabin uzerine oturmus KATI bir altin plaka. Fark
+       * onemli: isima zemine karisir, plaka zemini keser. Bes sekmelik
+       * bir cubukta hangisinde oldugunu bir bakista anlamak icin kesin
+       * bir sinir gerekiyor.
+       */
+      const plate = scene.add
+        .image(0, 0, TextureKeys.NavActive)
         .setOrigin(0.5, 0.5)
-        .setDisplaySize(74, 58)
+        .setDisplaySize(70, BottomNav.HEIGHT - 10)
         .setVisible(false);
-      this.glows.set(tab.id, glow);
-      this.add(glow);
+      this.glows.set(tab.id, plate);
+      this.add(plate);
 
       /*
        * Etkin sekmenin USTUNDE ince bir vurgu cizgisi.
@@ -111,7 +120,7 @@ export class BottomNav extends Phaser.GameObjects.Container {
       this.icons.set(tab.id, icon);
 
       const label = scene.add
-        .text(0, 0, tab.label, labelStyle(9, UIText.muted, true))
+        .text(0, 0, tab.label, labelStyle(10, UITextOnDark.muted, true))
         .setOrigin(0.5, 0.5);
       this.labels.set(tab.id, label);
 
@@ -145,9 +154,10 @@ export class BottomNav extends Phaser.GameObjects.Container {
     this.activeTab = tab;
     for (const spec of TABS) {
       const on = spec.id === tab;
-      this.labels.get(spec.id)?.setColor(on ? UIText.accent : UIText.muted);
+      this.labels.get(spec.id)?.setColor(on ? '#3a2a12' : UITextOnDark.muted);
       this.icons.get(spec.id)?.setAlpha(on ? 1 : 0.62);
-      this.markers.get(spec.id)?.setVisible(on);
+      // Isaret cizgisi plakayla gereksiz: plaka zaten kesin bir sinir.
+      this.markers.get(spec.id)?.setVisible(false);
       this.glows.get(spec.id)?.setVisible(on);
     }
   }
@@ -160,10 +170,10 @@ export class BottomNav extends Phaser.GameObjects.Container {
     const step = usable / TABS.length;
     TABS.forEach((tab, index) => {
       const cx = sideInset + step * (index + 0.5);
-      this.icons.get(tab.id)?.setPosition(cx, 26);
-      this.labels.get(tab.id)?.setPosition(cx, 48);
+      this.icons.get(tab.id)?.setPosition(cx, 24);
+      this.labels.get(tab.id)?.setPosition(cx, 47);
       this.markers.get(tab.id)?.setPosition(cx, 6);
-      this.glows.get(tab.id)?.setPosition(cx, BottomNav.HEIGHT / 2 - 4);
+      this.glows.get(tab.id)?.setPosition(cx, BottomNav.HEIGHT / 2);
       const zone = this.zones.get(tab.id);
       // Zone'un dokunma alani da yeniden boyutlanmali; aksi halde ekran
       // genisleyince sekmelerin arasinda olu bosluk kalir.

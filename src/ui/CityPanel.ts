@@ -95,14 +95,24 @@ export class CityPanel extends Phaser.GameObjects.Container {
     this.bottomInset = bottomInset;
     this.background.setSize(width, CityPanel.HEIGHT);
 
-    const left = UISpacing.panelPadding;
-    const right = width - UISpacing.panelPadding;
+    /*
+     * Ic bosluk 9-slice KESME PAYINDAN genis olmali.
+     *
+     * Panel derisi artik 22 piksellik bir kose bolgesi ve altin kenarlik
+     * tasiyor; eski 14 piksellik ic bosluk metni o kenarligin altina
+     * sokuyordu (ekran goruntusunde sag taraftaki degerler kesiliyordu).
+     */
+    const pad = Math.max(UISpacing.panelPadding, PANEL_SLICE);
+    const left = pad;
+    const right = width - pad;
     for (let i = 0; i < CityPanel.MAX_ROWS; i += 1) {
       const y = 48 + i * 21;
       this.labels[i].setPosition(left, y);
       this.values[i].setPosition(right, y);
     }
-    this.hintText.setPosition(left, CityPanel.HEIGHT - 24);
+    // Ipucu satiri sigmayinca sarmali; kesilmis cumle bilgi vermez.
+    this.hintText.setPosition(left, CityPanel.HEIGHT - 30);
+    this.hintText.setWordWrapWidth(right - left, true);
     this.closeButton.setPosition(right - 39, 28);
     this.setY(this.visibleState ? this.openY() : height);
   }

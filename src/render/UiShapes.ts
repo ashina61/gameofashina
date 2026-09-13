@@ -82,8 +82,8 @@ export function createCapsuleTexture(
   const {
     size = 48,
     radius = 16,
-    top = SKIN_PALETTE.leatherLight,
-    bottom = SKIN_PALETTE.leatherDark,
+    top = SKIN_PALETTE.parchmentLight,
+    bottom = SKIN_PALETTE.parchmentDark,
     border = SKIN_PALETTE.goldDark,
     borderWidth = 1.5,
     sheen = true,
@@ -148,6 +148,30 @@ export function createNavTexture(scene: Phaser.Scene, key: string): void {
   ctx.fillStyle = SKIN_PALETTE.goldDark;
   ctx.globalAlpha = 0.85;
   ctx.fillRect(0, 0, size, 1);
+
+  canvas.refresh();
+}
+
+/** Aktif sekmenin altin plakasi: koyu ahsabin uzerinde kesin bir yuzey. */
+export function createNavActiveTexture(scene: Phaser.Scene, key: string): void {
+  if (scene.textures.exists(key)) return;
+
+  const size = 48;
+  const canvas = scene.textures.createCanvas(key, size, size);
+  if (!canvas) return;
+  const ctx = canvas.context;
+  ctx.clearRect(0, 0, size, size);
+
+  const gradient = ctx.createLinearGradient(0, 0, 0, size);
+  gradient.addColorStop(0, SKIN_PALETTE.navActiveTop);
+  gradient.addColorStop(1, SKIN_PALETTE.navActiveBottom);
+
+  roundedPath(ctx, 1, 1, size - 2, size - 2, 8);
+  ctx.fillStyle = gradient;
+  ctx.fill();
+  ctx.strokeStyle = SKIN_PALETTE.goldBright;
+  ctx.lineWidth = 1.5;
+  ctx.stroke();
 
   canvas.refresh();
 }

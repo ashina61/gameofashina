@@ -47,6 +47,16 @@ export class NotificationStack {
    */
   private rightGutter = 0;
 
+  /**
+   * Solda ikon rayina birakilan pay.
+   *
+   * Sagdaki payla ayni gerekce, sol kenar icin: referans duzende sol
+   * kenarda dikey bir ikon rayi var ve bildirimler onun uzerine biniyordu
+   * (ekran goruntusunde rayin ilk dugmesi kartin altinda kaliyordu).
+   * Iki payla birlikte kartlar iki rayin arasindaki bos kanala oturur.
+   */
+  private leftGutter = 0;
+
   constructor(scene: Phaser.Scene, width: number, topY: number, rightGutter = 0) {
     this.scene = scene;
     this.screenWidth = width;
@@ -56,7 +66,10 @@ export class NotificationStack {
 
   /** Kartin kullanabilecegi genislik. */
   private cardWidth(): number {
-    return Math.max(180, this.screenWidth - UISpacing.edge * 2 - this.rightGutter);
+    return Math.max(
+      180,
+      this.screenWidth - UISpacing.edge * 2 - this.rightGutter - this.leftGutter,
+    );
   }
 
   /** Yeni bir bildirim gosterir. */
@@ -74,10 +87,16 @@ export class NotificationStack {
   }
 
   /** Ekran olculeri degistiginde yeniden dizer. */
-  layout(width: number, topY: number, rightGutter = this.rightGutter): void {
+  layout(
+    width: number,
+    topY: number,
+    rightGutter = this.rightGutter,
+    leftGutter = this.leftGutter,
+  ): void {
     this.screenWidth = width;
     this.topY = topY;
     this.rightGutter = rightGutter;
+    this.leftGutter = leftGutter;
     for (const card of this.live) card.resize(this.cardWidth());
     this.reflow();
   }
@@ -103,7 +122,7 @@ export class NotificationStack {
   private reflow(): void {
     let y = this.topY;
     for (const card of this.live) {
-      card.placeAt(UISpacing.edge, y);
+      card.placeAt(UISpacing.edge + this.leftGutter, y);
       y += NoticeCard.cardHeight + 8;
     }
   }

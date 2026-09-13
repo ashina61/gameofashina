@@ -3,21 +3,35 @@ import type Phaser from 'phaser';
 /** Arayuzun ortak renk, yazi ve olcu degerleri. Tek kaynaktan tema yonetimi. */
 
 export const UIColors = {
-  panel: 0x1d1a13,
-  panelBorder: 0x5a4c33,
-  accent: 0xe8c86a,
-  danger: 0xd05a52,
-  success: 0x6ee27a,
-  info: 0x6fa8d6,
-  warn: 0xe8c86a,
+  panel: 0xeddcb8,
+  panelBorder: 0xc9a227,
+  accent: 0xc9a227,
+  danger: 0xb03a2e,
+  success: 0x3f7d3a,
+  info: 0x2f6a8c,
+  warn: 0xc9821f,
 } as const;
 
+/**
+ * PANEL UZERINDEKI yazi renkleri.
+ *
+ * Zemin acik parsomen oldugu icin yazi KOYU KAHVE'dir. Onceki koyu deri
+ * arayuzunde krem yaziydi; renkleri cevirmeden zemini cevirmek butun
+ * metni okunmaz birakirdi.
+ */
 export const UIText = {
-  primary: '#e9dcc0',
-  muted: '#a2947a',
-  accent: '#e8c86a',
-  danger: '#f0908a',
-  success: '#8ce69a',
+  primary: '#4a3520',
+  muted: '#7d6446',
+  accent: '#8a5f1c',
+  danger: '#a8342a',
+  success: '#3f7d3a',
+} as const;
+
+/** KOYU zemin (alt gezinme cubugu, ahsap plaka) uzerindeki yazi renkleri. */
+export const UITextOnDark = {
+  primary: '#f2e3c4',
+  muted: '#b9a077',
+  accent: '#f0d98c',
 } as const;
 
 /** Dokunma hedeflerinin asgari boyutu - mobilde parmakla isabet icin. */
