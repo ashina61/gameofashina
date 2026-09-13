@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import { TextureKeys } from '@/config/Constants';
 import { TOUCH_TARGET, labelStyle } from './UIStyle';
+import { BUTTON_SLICE } from '@/render/UiShapes';
 
 export interface TouchButtonConfig {
   width?: number;
@@ -33,7 +34,7 @@ export class TouchButton extends Phaser.GameObjects.Container {
     const height = config.height ?? TOUCH_TARGET;
 
     this.background = scene.add
-      .nineslice(0, 0, TextureKeys.ButtonUp, undefined, width, height, 16, 16, 16, 16)
+      .nineslice(0, 0, TextureKeys.ButtonUp, undefined, width, height, BUTTON_SLICE, BUTTON_SLICE, BUTTON_SLICE, BUTTON_SLICE)
       .setOrigin(0.5, 0.5);
 
     this.label = scene.add

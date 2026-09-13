@@ -10,6 +10,14 @@ export interface RoundButtonConfig {
   size?: number;
   /** Dairenin altinda gosterilen kisa etiket. */
   label?: string;
+  /**
+   * ANA EYLEM VURGUSU: altin halka + arkasinda isima.
+   *
+   * Yalnizca ekrandaki TEK ana eylem icin. Panel derisinin 9-slice
+   * cercevesi buraya uymaz - daireyi dikdortgene cevirirdi; halka ayni
+   * altin dilin yuvarlak karsiligidir.
+   */
+  emphasis?: boolean;
   onPress: () => void;
 }
 
@@ -25,6 +33,8 @@ export interface RoundButtonConfig {
  */
 export class RoundButton extends Phaser.GameObjects.Container {
   private readonly background: Phaser.GameObjects.Image;
+  private readonly glow: Phaser.GameObjects.Image | null;
+  private readonly ring: Phaser.GameObjects.Image | null;
   private readonly icon: Phaser.GameObjects.Image;
   private readonly label: Phaser.GameObjects.Text | null;
   private readonly diameter: number;
@@ -34,10 +44,25 @@ export class RoundButton extends Phaser.GameObjects.Container {
     super(scene, x, y);
     this.diameter = Math.max(TOUCH_TARGET, config.size ?? TOUCH_TARGET);
 
+    // Isima ve halka zeminin ALTINDA/USTUNDE durur; sirayi add() belirler.
+    this.glow = config.emphasis
+      ? scene.add
+          .image(0, 0, TextureKeys.Glow)
+          .setOrigin(0.5, 0.5)
+          .setDisplaySize(this.diameter * 1.9, this.diameter * 1.9)
+      : null;
+
     this.background = scene.add
       .image(0, 0, TextureKeys.RoundUp)
       .setOrigin(0.5, 0.5)
       .setDisplaySize(this.diameter, this.diameter);
+
+    this.ring = config.emphasis
+      ? scene.add
+          .image(0, 0, TextureKeys.Ring)
+          .setOrigin(0.5, 0.5)
+          .setDisplaySize(this.diameter + 6, this.diameter + 6)
+      : null;
     this.icon = scene.add
       .image(0, 0, iconKeyFor(config.icon))
       .setOrigin(0.5, 0.5)
@@ -49,7 +74,9 @@ export class RoundButton extends Phaser.GameObjects.Container {
           .setOrigin(0.5, 0.5)
       : null;
 
+    if (this.glow) this.add(this.glow);
     this.add([this.background, this.icon]);
+    if (this.ring) this.add(this.ring);
     if (this.label) this.add(this.label);
 
     this.setSize(this.diameter, this.diameter);

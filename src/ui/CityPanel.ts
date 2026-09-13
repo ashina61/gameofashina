@@ -2,6 +2,7 @@ import Phaser from 'phaser';
 import { TextureKeys } from '@/config/Constants';
 import { TouchButton } from './TouchButton';
 import { UISpacing, UIText, labelStyle } from './UIStyle';
+import { PANEL_SLICE } from '@/render/PanelSkin';
 
 /** Panelde gosterilecek tek bir satir. */
 export interface CityPanelRow {
@@ -40,7 +41,7 @@ export class CityPanel extends Phaser.GameObjects.Container {
     this.screenHeight = height;
 
     this.background = scene.add
-      .nineslice(0, 0, TextureKeys.Panel, undefined, width, CityPanel.HEIGHT, 18, 18, 18, 18)
+      .nineslice(0, 0, TextureKeys.Panel, undefined, width, CityPanel.HEIGHT, PANEL_SLICE, PANEL_SLICE, PANEL_SLICE, PANEL_SLICE)
       .setOrigin(0, 0);
 
     this.titleText = scene.add.text(

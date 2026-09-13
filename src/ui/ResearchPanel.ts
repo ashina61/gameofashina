@@ -5,6 +5,8 @@ import { iconKeyFor } from '@/render/IconArt';
 import { TouchButton } from './TouchButton';
 import { UIColors, UISpacing, UIText, labelStyle, titleStyle } from './UIStyle';
 import type { ResearchDefinition, ResourceAmounts } from '@/types';
+import { PANEL_SLICE } from '@/render/PanelSkin';
+import { BUTTON_SLICE } from '@/render/UiShapes';
 
 /** Bir arastirmanin oyuncuya gorunen durumu. */
 export interface ResearchRowState {
@@ -71,7 +73,7 @@ export class ResearchPanel extends Phaser.GameObjects.Container {
     this.screenHeight = height;
 
     this.background = scene.add
-      .nineslice(0, 0, TextureKeys.Panel, undefined, width, ResearchPanel.HEIGHT, 18, 18, 18, 18)
+      .nineslice(0, 0, TextureKeys.Panel, undefined, width, ResearchPanel.HEIGHT, PANEL_SLICE, PANEL_SLICE, PANEL_SLICE, PANEL_SLICE)
       .setOrigin(0, 0);
 
     this.titleText = scene.add
@@ -221,7 +223,7 @@ class ResearchRow extends Phaser.GameObjects.Container {
     this.definition = def;
 
     this.frame = scene.add
-      .nineslice(0, 0, TextureKeys.ButtonUp, undefined, 300, 40, 14, 14, 14, 14)
+      .nineslice(0, 0, TextureKeys.ButtonUp, undefined, 300, 40, BUTTON_SLICE, BUTTON_SLICE, BUTTON_SLICE, BUTTON_SLICE)
       .setOrigin(0, 0);
     this.nameText = scene.add
       .text(0, 0, def.name, labelStyle(13, UIText.primary, true))

@@ -4,6 +4,8 @@ import { iconKeyFor } from '@/render/IconArt';
 import { formatAmount, formatRate } from '@/utils/Format';
 import { UIColors, UISpacing, labelStyle, titleStyle, UIText } from './UIStyle';
 import type { EconomySnapshot, ResourcePool, WorkforceSnapshot } from '@/types';
+import { PANEL_SLICE } from '@/render/PanelSkin';
+import { CAPSULE_SLICE } from '@/render/UiShapes';
 
 /** Ust cubugun sehir kimligi satirina koydugu degerler. */
 export interface CityHeaderInfo {
@@ -43,6 +45,9 @@ export class ResourceBar extends Phaser.GameObjects.Container {
 
   /** Kimlik satiri. */
   private readonly avatar: Phaser.GameObjects.Image;
+  private readonly avatarRing: Phaser.GameObjects.Image;
+  private readonly levelBadge: Phaser.GameObjects.Image;
+  private readonly levelBadgeText: Phaser.GameObjects.Text;
   private readonly cityText: Phaser.GameObjects.Text;
   private readonly levelText: Phaser.GameObjects.Text;
   private readonly progressTrack: Phaser.GameObjects.Image;
@@ -62,14 +67,34 @@ export class ResourceBar extends Phaser.GameObjects.Container {
     super(scene, 0, 0);
 
     this.background = scene.add
-      .nineslice(0, 0, TextureKeys.Panel, undefined, width, ResourceBar.HEIGHT, 16, 16, 16, 16)
+      .nineslice(0, 0, TextureKeys.Panel, undefined, width, ResourceBar.HEIGHT, PANEL_SLICE, PANEL_SLICE, PANEL_SLICE, PANEL_SLICE)
       .setOrigin(0, 0);
     this.add(this.background);
 
+    /*
+     * ARMA CERCEVESI: arma + altin halka + seviye rozeti.
+     *
+     * Uc ayri parca cunku ucu de ayri hizda degisir: arma sabittir, halka
+     * sabittir, rozetin SAYISI her yukseltmede degisir. Tek gorsele
+     * pisirilseydi her seviye icin yeni bir doku uretmek gerekirdi.
+     */
     this.avatar = scene.add
       .image(0, 0, iconKeyFor('avatar'))
       .setOrigin(0.5, 0.5)
-      .setDisplaySize(38, 38);
+      .setDisplaySize(34, 34);
+    this.avatarRing = scene.add
+      .image(0, 0, TextureKeys.Ring)
+      .setOrigin(0.5, 0.5)
+      .setDisplaySize(44, 44);
+    this.levelBadge = scene.add
+      .image(0, 0, TextureKeys.Disc)
+      .setOrigin(0.5, 0.5)
+      .setDisplaySize(18, 18)
+      .setVisible(false);
+    this.levelBadgeText = scene.add
+      .text(0, 0, '', labelStyle(10, '#2a2419', true))
+      .setOrigin(0.5, 0.5)
+      .setVisible(false);
     this.cityText = scene.add
       .text(0, 0, 'ANCIENT CITY', titleStyle(15, UIText.accent))
       .setOrigin(0, 0.5);
@@ -104,6 +129,9 @@ export class ResourceBar extends Phaser.GameObjects.Container {
 
     this.add([
       this.avatar,
+      this.avatarRing,
+      this.levelBadge,
+      this.levelBadgeText,
       this.cityText,
       this.levelText,
       this.progressTrack,
@@ -140,8 +168,13 @@ export class ResourceBar extends Phaser.GameObjects.Container {
     const right = width - UISpacing.panelPadding - sideInset;
 
     // 1. Kimlik satiri
-    this.avatar.setPosition(left + 19, 26);
-    const textLeft = left + 46;
+    const avatarX = left + 22;
+    this.avatar.setPosition(avatarX, 26);
+    this.avatarRing.setPosition(avatarX, 26);
+    // Rozet halkanin SAG ALT yayina oturur: armanin yuzunu kapatmaz.
+    this.levelBadge.setPosition(avatarX + 15, 37);
+    this.levelBadgeText.setPosition(avatarX + 15, 37);
+    const textLeft = left + 50;
     this.cityText.setPosition(textLeft, 17);
     this.levelText.setPosition(textLeft + this.cityText.width + 8, 18);
 
@@ -188,6 +221,12 @@ export class ResourceBar extends Phaser.GameObjects.Container {
   updateCity(info: CityHeaderInfo): void {
     this.levelText.setText(info.hallLevel === null ? 'Merkez yok' : `Seviye ${info.hallLevel}`);
     this.levelText.setColor(info.hallLevel === null ? UIText.accent : UIText.muted);
+
+    // Rozet yalnizca gosterecek bir seviye varken gorunur; merkez yokken
+    // bos bir altin daire "bir sey eksik" hissi verirdi.
+    const hasLevel = info.hallLevel !== null;
+    this.levelBadge.setVisible(hasLevel);
+    this.levelBadgeText.setVisible(hasLevel).setText(hasLevel ? `${info.hallLevel}` : '');
     this.levelText.setPosition(
       this.cityText.x + this.cityText.width + 8,
       this.levelText.y,
@@ -249,8 +288,20 @@ class ResourceCard extends Phaser.GameObjects.Container {
   constructor(scene: Phaser.Scene, private readonly resourceKey: string) {
     super(scene, 0, 0);
 
+    /*
+     * KAPSUL BICIM.
+     *
+     * Kart onceden koseli bir dugme derisiydi ve ust cubuktaki bes kart
+     * bir dugme sirasi gibi duruyordu - oysa bunlar basilmaz, yalnizca
+     * OKUNUR. Kapsul bicim "bu bir deger, bir eylem degil" der; ayni
+     * ayrimi mobil oyunlarin kaynak cubuklari da bu sekilde kurar.
+     *
+     * Yukseklik kaynak dokunun yuksekligiyle ayni tutulur (48): boylece
+     * dikey germe olmaz ve yuvarlak uclar bozulmadan kalir, yalnizca
+     * genislik gerilir.
+     */
     this.frame = scene.add
-      .nineslice(0, 0, TextureKeys.ButtonUp, undefined, 80, 48, 14, 14, 14, 14)
+      .nineslice(0, 0, TextureKeys.Capsule, undefined, 80, 48, CAPSULE_SLICE, CAPSULE_SLICE, CAPSULE_SLICE, CAPSULE_SLICE)
       .setOrigin(0, 0);
     this.icon = scene.add
       .image(0, 0, iconKeyFor(resourceKey as 'food'))
@@ -277,11 +328,13 @@ class ResourceCard extends Phaser.GameObjects.Container {
   resize(width: number, height: number): void {
     this.cardWidth = width;
     this.frame.setSize(width, height);
-    this.icon.setPosition(13, 17);
-    this.amountText.setPosition(25, 15);
-    this.rateText.setPosition(25, 29);
-    this.barTrack.setPosition(8, height - 8).setDisplaySize(width - 16, 3);
-    this.barFill.setPosition(8, height - 8).setDisplaySize(1, 3);
+    // Yuvarlak uc, koseli dugmeye gore daha az duz kenar birakir; ikon ve
+    // yazi bu yuzden bir piksel daha ice alinir.
+    this.icon.setPosition(14, 17);
+    this.amountText.setPosition(26, 15);
+    this.rateText.setPosition(26, 29);
+    this.barTrack.setPosition(11, height - 9).setDisplaySize(width - 22, 3);
+    this.barFill.setPosition(11, height - 9).setDisplaySize(1, 3);
   }
 
   updateAmount(value: number, capacity: number, showCapacityAt: number): void {
@@ -295,7 +348,7 @@ class ResourceCard extends Phaser.GameObjects.Container {
     else if (near) this.amountText.setColor(UIText.accent);
     else this.amountText.setColor(UIText.primary);
 
-    const width = Math.max(1, (this.cardWidth - 16) * Phaser.Math.Clamp(ratio, 0, 1));
+    const width = Math.max(1, (this.cardWidth - 22) * Phaser.Math.Clamp(ratio, 0, 1));
     this.barFill.setDisplaySize(width, 3);
     this.barFill.setTint(
       value >= capacity ? UIColors.danger : RESOURCE_META[this.resourceKey as 'food'].color,

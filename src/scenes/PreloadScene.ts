@@ -1,16 +1,28 @@
 import Phaser from 'phaser';
 import { SceneKeys } from '@/config/Constants';
 import { generateTextures } from '@/render/TextureFactory';
+import { queueAssets } from '@/render/SpriteLoader';
 import { getResolution } from './BootScene';
 
 /**
  * Varliklarin hazirlandigi sahne.
- * Proje prosedurel doku kullandigi icin ag uzerinden yukleme yoktur;
- * dokular burada uretilir ve HTML acilis ekrani kapatilir.
+ *
+ * Oyunun grafigi hala AGIRLIKLI OLARAK kodla uretilir; bu sahne o dokulari
+ * cizer. Sprint 18'den beri ayrica elle uretilmis PNG'ler de yuklenebilir:
+ * /src/assets/ altindaki dosyalar varsa yuklenir, yoksa hicbir sey
+ * istenmez ve prosedurel cizim aynen gecerlidir.
+ *
+ * SIRA ONEMLI: once dosyalar yuklenir (preload), sonra dokular uretilir
+ * (create). Boylece uretim asamasi "bu dokuyu oyuncu zaten verdi mi?"
+ * sorusunu cevaplayabilir ve verilmisse uzerine yazmaz.
  */
 export class PreloadScene extends Phaser.Scene {
   constructor() {
     super(SceneKeys.Preload);
+  }
+
+  preload(): void {
+    queueAssets(this);
   }
 
   create(): void {

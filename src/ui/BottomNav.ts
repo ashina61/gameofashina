@@ -36,7 +36,8 @@ const TABS: TabSpec[] = [
 export class BottomNav extends Phaser.GameObjects.Container {
   private static readonly HEIGHT = 66;
 
-  private readonly background: Phaser.GameObjects.NineSlice;
+  private readonly background: Phaser.GameObjects.Image;
+  private readonly glows = new Map<NavTab, Phaser.GameObjects.Image>();
   private readonly labels = new Map<NavTab, Phaser.GameObjects.Text>();
   private readonly icons = new Map<NavTab, Phaser.GameObjects.Image>();
   private readonly markers = new Map<NavTab, Phaser.GameObjects.Image>();
@@ -49,12 +50,37 @@ export class BottomNav extends Phaser.GameObjects.Container {
     super(scene, 0, 0);
     this.screenWidth = width;
 
+    /*
+     * KOYU YUZEY, PANEL DEGIL.
+     *
+     * Cubuk once genel panel derisini kullaniyordu ve ekranin iki alt
+     * kosesinde panelin kose susu beliriyordu: sus, tam genislikteki bir
+     * seritte anlamsiz. Gezinme cubugunun kendi dokusu var - yukaridan
+     * asagi koyulasan deri ve ust kenarda ince altin ayrac.
+     */
     this.background = scene.add
-      .nineslice(0, 0, TextureKeys.Panel, undefined, width, BottomNav.HEIGHT, 16, 16, 16, 16)
-      .setOrigin(0, 0);
+      .image(0, 0, TextureKeys.NavSurface)
+      .setOrigin(0, 0)
+      .setDisplaySize(width, BottomNav.HEIGHT);
     this.add(this.background);
 
     for (const tab of TABS) {
+      /*
+       * AKTIF SEKMENIN ALTIN ISIMASI.
+       *
+       * Isima sekmenin ARKASINDA durur ve merkezden disari tamamen
+       * seffaflasir; bu yuzden kenari yoktur ve koyu deriyle karisir.
+       * Isaret cizgisi bicimi, isima ise agirligi verir - ikisi birlikte
+       * aktif sekmeyi gunes altindaki telefonda bile okunur kilar.
+       */
+      const glow = scene.add
+        .image(0, 0, TextureKeys.Glow)
+        .setOrigin(0.5, 0.5)
+        .setDisplaySize(74, 58)
+        .setVisible(false);
+      this.glows.set(tab.id, glow);
+      this.add(glow);
+
       /*
        * Etkin sekmenin USTUNDE ince bir vurgu cizgisi.
        *
@@ -122,12 +148,13 @@ export class BottomNav extends Phaser.GameObjects.Container {
       this.labels.get(spec.id)?.setColor(on ? UIText.accent : UIText.muted);
       this.icons.get(spec.id)?.setAlpha(on ? 1 : 0.62);
       this.markers.get(spec.id)?.setVisible(on);
+      this.glows.get(spec.id)?.setVisible(on);
     }
   }
 
   layout(width: number, sideInset = 0): void {
     this.screenWidth = width;
-    this.background.setSize(width, BottomNav.HEIGHT);
+    this.background.setDisplaySize(width, BottomNav.HEIGHT);
 
     const usable = width - sideInset * 2;
     const step = usable / TABS.length;
@@ -136,6 +163,7 @@ export class BottomNav extends Phaser.GameObjects.Container {
       this.icons.get(tab.id)?.setPosition(cx, 26);
       this.labels.get(tab.id)?.setPosition(cx, 48);
       this.markers.get(tab.id)?.setPosition(cx, 6);
+      this.glows.get(tab.id)?.setPosition(cx, BottomNav.HEIGHT / 2 - 4);
       const zone = this.zones.get(tab.id);
       // Zone'un dokunma alani da yeniden boyutlanmali; aksi halde ekran
       // genisleyince sekmelerin arasinda olu bosluk kalir.

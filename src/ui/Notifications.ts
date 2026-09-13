@@ -3,6 +3,7 @@ import { TextureKeys } from '@/config/Constants';
 import { iconKeyFor } from '@/render/IconArt';
 import { UIColors, UISpacing, UIText, labelStyle } from './UIStyle';
 import type { IconKind } from '@/render/IconArt';
+import { PANEL_SLICE } from '@/render/PanelSkin';
 
 /** Bildirim turu; ikon ve kenar rengini belirler. */
 export type NoticeTone = 'success' | 'warn' | 'info' | 'error';
@@ -126,8 +127,14 @@ class NoticeCard extends Phaser.GameObjects.Container {
   constructor(scene: Phaser.Scene, onClose: () => void) {
     super(scene, 0, 0);
 
+    /*
+     * SUS YOK: bildirim kartlari gecicidir ve ust uste yiginlanir. Panelin
+     * kose susu burada uc kartta birden tekrar edip gurultu yapiyordu
+     * (ekran goruntusuyle goruldu). Frame derisi ayni deri ve ayni altin
+     * kenari tasir, yalnizca kose susu tasimaz.
+     */
     this.frame = scene.add
-      .nineslice(0, 0, TextureKeys.Panel, undefined, 300, NoticeCard.HEIGHT, 16, 16, 16, 16)
+      .nineslice(0, 0, TextureKeys.Frame, undefined, 300, NoticeCard.HEIGHT, PANEL_SLICE, PANEL_SLICE, PANEL_SLICE, PANEL_SLICE)
       .setOrigin(0, 0);
     /*
      * Sol kenardaki renk seridi.

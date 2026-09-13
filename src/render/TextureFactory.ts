@@ -1,5 +1,13 @@
 import type Phaser from 'phaser';
 import { TILE_HEIGHT, TILE_WIDTH, TextureKeys } from '@/config/Constants';
+import { SKIN_PALETTE, buildPanelSkin } from './PanelSkin';
+import {
+  createCapsuleTexture,
+  createDiscTexture,
+  createGlowTexture,
+  createNavTexture,
+  createRingTexture,
+} from './UiShapes';
 import { allBuildings } from '@/config/BuildingCatalog';
 import { BUILDING_ART, artCanvasFor, drawScaffold, shade } from './BuildingArt';
 import { PALETTE } from './ArtStyle';
@@ -149,9 +157,40 @@ export function generateTextures(scene: Phaser.Scene, artScale = 1): void {
    * menusunun icinden ada kenarlari okunuyordu). Butonlar hafif saydam
    * kalabilir; onlar kucuk ve zeminleri koyu.
    */
-  createPanelTexture(scene, TextureKeys.Panel, 0x1d1a13, 0x5a4c33, 1);
-  createPanelTexture(scene, TextureKeys.ButtonUp, 0x2e2819, 0x7a6540);
-  createPanelTexture(scene, TextureKeys.ButtonDown, 0x4a3f27, 0xe8c86a);
+  /*
+   * SPRINT 18: paneller artik UC DEGISTIRILEBILIR DOKUDAN pisiriliyor.
+   *
+   * Panel  - sehir uzerindeki genis yuzeyler; kose susu tasir.
+   * Frame  - kucuk cerceveler (harita, aksiyon); sus gurultu yapmasin
+   *          diye kosesizdir.
+   * Butonlar kapsul bicimine gecti; basili hali daha parlak bir altin
+   * kenarla ayrisir.
+   */
+  buildPanelSkin(scene, TextureKeys.Panel, { alpha: 1, corners: true });
+  buildPanelSkin(scene, TextureKeys.Frame, { alpha: 1, corners: false });
+
+  createCapsuleTexture(scene, TextureKeys.ButtonUp, { radius: 16 });
+  createCapsuleTexture(scene, TextureKeys.ButtonDown, {
+    radius: 16,
+    top: '#5a4a2b',
+    bottom: '#33291733',
+    border: SKIN_PALETTE.goldBright,
+    borderWidth: 2,
+  });
+  createCapsuleTexture(scene, TextureKeys.Capsule, { radius: 22 });
+  createCapsuleTexture(scene, TextureKeys.CapsuleActive, {
+    radius: 22,
+    top: '#4a3f27',
+    bottom: '#2a2419',
+    border: SKIN_PALETTE.gold,
+    borderWidth: 2,
+  });
+
+  createNavTexture(scene, TextureKeys.NavSurface);
+  createGlowTexture(scene, TextureKeys.Glow);
+  createRingTexture(scene, TextureKeys.Ring);
+  createDiscTexture(scene, TextureKeys.Disc);
+
   createRoundTexture(scene, TextureKeys.RoundUp, 0x2e2819, 0x7a6540, artScale);
   createRoundTexture(scene, TextureKeys.RoundDown, 0x4a3f27, 0xe8c86a, artScale);
 }
@@ -620,27 +659,5 @@ function createRoundTexture(
   g.destroy();
 }
 
-/** Arayuz panelleri icin 9-slice uyumlu yuvarlatilmis dikdortgen. */
-function createPanelTexture(
-  scene: Phaser.Scene,
-  key: string,
-  fill: number,
-  border: number,
-  alpha = 0.94,
-): void {
-  if (scene.textures.exists(key)) return;
-
-  const size = 48;
-  const radius = 14;
-  const g = scene.make.graphics({ x: 0, y: 0 }, false);
-
-  g.fillStyle(fill, alpha);
-  g.fillRoundedRect(0, 0, size, size, radius);
-  g.lineStyle(2, border, 0.9);
-  g.strokeRoundedRect(1, 1, size - 2, size - 2, radius - 1);
-
-  g.generateTexture(key, size, size);
-  g.destroy();
-}
 
 

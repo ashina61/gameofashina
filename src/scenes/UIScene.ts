@@ -17,6 +17,7 @@ import { ResourceBar } from '@/ui/ResourceBar';
 import type { CityHeaderInfo } from '@/ui/ResourceBar';
 import { NotificationStack } from '@/ui/Notifications';
 import { RoundButton } from '@/ui/RoundButton';
+import { FramedSlot } from '@/ui/FramedSlot';
 import { TouchButton } from '@/ui/TouchButton';
 import { UISpacing, UIText } from '@/ui/UIStyle';
 import { formatDuration, formatElapsed } from '@/utils/Format';
@@ -57,6 +58,7 @@ export class UIScene extends Phaser.Scene {
   private notices!: NotificationStack;
   private sideButtons: RoundButton[] = [];
   private mapButton!: RoundButton;
+  private mapFrame!: FramedSlot;
   private buildButton!: RoundButton;
   private cancelButton!: TouchButton;
   private nav!: BottomNav;
@@ -135,6 +137,9 @@ export class UIScene extends Phaser.Scene {
       icon: 'hammer',
       size: 66,
       label: 'INSA ET',
+      // Ekrandaki TEK ana eylem: altin halka ve isima onu yardimci
+      // dugmelerden ilk bakista ayirir.
+      emphasis: true,
       onPress: () => this.toggleBuildMenu(),
     });
 
@@ -157,6 +162,15 @@ export class UIScene extends Phaser.Scene {
         onPress: () => this.notices.show('Basarilar', 'Bu bolum yakinda acilacak.', 'info', 2400),
       }),
     ];
+    /*
+     * HARITA YUVASI.
+     *
+     * Panel derisiyle ayni dili konusan 9-slice bir cerceve; icinde su an
+     * kadraji sehre dondurme kontrolu duruyor. Cerceve icerigini bilmez,
+     * yani buraya ileride cizilmis bir mini harita konuldugunda yerlesim
+     * kodu degismez.
+     */
+    this.mapFrame = new FramedSlot(this, 0, 0, 80, 'HARITA');
     this.mapButton = new RoundButton(this, 0, 0, {
       icon: 'compass',
       onPress: () => this.selectTab('city'),
@@ -242,6 +256,17 @@ export class UIScene extends Phaser.Scene {
     // Alt gezinme cubugu her zaman girdiyi yakalar; arkasindaki haritaya
     // dokunmak sehri yanlislikla degistirirdi.
     if (Phaser.Geom.Rectangle.Contains(this.nav.bounds(), screenX, screenY)) return true;
+    /*
+     * Harita cercevesi dugmesinden GENIS (80 karsi 48). Yalnizca dugmenin
+     * dairesi girdiyi yakalasaydi, cercevenin kenarina dokunmak arkadaki
+     * sehre gecer ve oyuncu farkinda olmadan bina kurardi.
+     */
+    if (
+      this.mapFrame.visible &&
+      Phaser.Geom.Rectangle.Contains(this.mapFrame.bounds(), screenX, screenY)
+    ) {
+      return true;
+    }
     // Yuvarlak dugmeler de girdiyi yakalar; arkalarindaki haritaya dokunmak
     // yanlislikla bina kurardi.
     for (const button of [this.buildButton, this.mapButton, ...this.sideButtons]) {
@@ -589,7 +614,10 @@ export class UIScene extends Phaser.Scene {
       button.setPosition(sideX, sideY);
       sideY += button.diameterPx + 10;
     }
-    this.mapButton.setPosition(left + UISpacing.edge + 24, bottom);
+    // Cerceve once konumlanir; dugme ona hizalanir. Tersi olsaydi iki
+    // ayri yerde ayni koordinat hesaplanirdi.
+    this.mapFrame.setPosition(left + UISpacing.edge + 40, bottom);
+    this.mapFrame.align(this.mapButton);
   }
 
   /** Acik olan butun alt sayfalari kapatir ve sekme isaretini temizler. */

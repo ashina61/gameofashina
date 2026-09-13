@@ -8,6 +8,8 @@ import { TouchButton } from './TouchButton';
 import { UIColors, UISpacing, UIText, labelStyle } from './UIStyle';
 import type { IconKind } from '@/render/IconArt';
 import type { BuildingCategory, BuildingDefinition, BuildingId, ResourcePool } from '@/types';
+import { PANEL_SLICE } from '@/render/PanelSkin';
+import { BUTTON_SLICE } from '@/render/UiShapes';
 
 /** Sekme tanimi: kategori suzgeci ve gosterilen ad. */
 interface CategoryTab {
@@ -96,7 +98,7 @@ export class BuildMenu extends Phaser.GameObjects.Container {
     this.screenHeight = height;
 
     this.background = scene.add
-      .nineslice(0, 0, TextureKeys.Panel, undefined, width, BuildMenu.HEIGHT, 18, 18, 18, 18)
+      .nineslice(0, 0, TextureKeys.Panel, undefined, width, BuildMenu.HEIGHT, PANEL_SLICE, PANEL_SLICE, PANEL_SLICE, PANEL_SLICE)
       .setOrigin(0, 0);
 
     const titleIcon = scene.add
@@ -502,10 +504,10 @@ class BuildCard extends Phaser.GameObjects.Container {
     this.definition = def;
 
     this.frame = scene.add
-      .nineslice(0, 0, TextureKeys.ButtonUp, undefined, 104, 84, 14, 14, 14, 14)
+      .nineslice(0, 0, TextureKeys.ButtonUp, undefined, 104, 84, BUTTON_SLICE, BUTTON_SLICE, BUTTON_SLICE, BUTTON_SLICE)
       .setOrigin(0, 0);
     this.selectedRing = scene.add
-      .nineslice(0, 0, TextureKeys.ButtonDown, undefined, 104, 84, 14, 14, 14, 14)
+      .nineslice(0, 0, TextureKeys.ButtonDown, undefined, 104, 84, BUTTON_SLICE, BUTTON_SLICE, BUTTON_SLICE, BUTTON_SLICE)
       .setOrigin(0, 0)
       .setVisible(false);
 

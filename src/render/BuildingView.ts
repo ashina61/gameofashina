@@ -1,13 +1,30 @@
 import type Phaser from 'phaser';
-import { TILE_HEIGHT, TextureKeys } from '@/config/Constants';
+import { TILE_HEIGHT, TILE_WIDTH, TextureKeys } from '@/config/Constants';
 import { depthFor, gridToWorld } from '@/utils/IsoUtils';
 import { getBuildingVisual } from './BuildingVisuals';
+import { ensureShadowTexture } from './ShadowArt';
+import type { BuildingVisual } from './BuildingVisuals';
 import type {
   BuildingDefinition,
   BuildingInstance,
   ConstructionKind,
   ResolvedBuilding,
 } from '@/types';
+
+/** Golgenin ayak izi disina tastigi pay - ShadowArt ile ayni deger. */
+const SHADOW_OVERHANG = 20;
+
+/**
+ * Bir gorseli ayak izi genisligine oturtur, en-boy oranini korur.
+ *
+ * Cozunurlukten bagimsizlik burada saglanir: dosyanin kac piksel oldugu
+ * degil, kac KARO kapladigi belirleyicidir.
+ */
+function fitToFootprint(image: Phaser.GameObjects.Image, size: number, overhang = 0): void {
+  const target = TILE_WIDTH * size + overhang;
+  const source = image.width || target;
+  image.setScale(target / source);
+}
 
 /** Sirada bekleyen gorevin soluk tonu - is henuz baslamadi. */
 const QUEUED_TINT = 0x9aa0a6;
@@ -39,10 +56,24 @@ export class BuildingView {
   readonly uid: string;
 
   private readonly sprite: Phaser.GameObjects.Image;
+  /**
+   * PNG kullanan binalarin altindaki yumusak golge; prosedurelde null.
+   *
+   * GEC OLUSTURULUR. Ilk surumde kurucuda karar veriliyordu ve hicbir
+   * zaman olusmuyordu: bina kuruldugu anda daima 'constructing'
+   * durumundadir, o durumda ise sprite aranmaz (santiye bitmis bina gibi
+   * gorunmemeli). Insaat bitip gorsel tazelendiginde artik gec kalinmis
+   * oluyordu. Golge artik dokuyla BIRLIKTE, her tazelemede karar edilir.
+   */
+  private shadow: Phaser.GameObjects.Image | null = null;
   private readonly barBackground: Phaser.GameObjects.Image;
   private readonly barFill: Phaser.GameObjects.Image;
   private readonly barWidth: number;
   private readonly def: BuildingDefinition;
+  /** Golgenin ve sprite'in dunya konumu; gec olusturma icin saklanir. */
+  private readonly anchorX: number;
+  private readonly anchorY: number;
+  private readonly depth: number;
   /** Dolgunun tam genislikteki olcegi; ilerleme bunun kesridir. */
   private readonly fullScaleX: number;
 
@@ -87,13 +118,13 @@ export class BuildingView {
     this.stateTint = visual.tint;
     this.stateAlpha = visual.alpha;
 
-    this.sprite = scene.add
-      .image(anchor.x, y, visual.textureKey)
-      .setOrigin(0.5, 1)
-      .setDepth(depth)
-      .setScale(this.baseScale);
-
+    this.anchorX = anchor.x;
+    this.anchorY = y;
+    this.depth = depth;
     this.def = def;
+
+    this.sprite = scene.add.image(anchor.x, y, visual.textureKey).setOrigin(0.5, 1).setDepth(depth);
+    this.applyTexture(visual);
 
     this.barWidth = Math.max(36, def.size * 46);
     const barY = y - 6;
@@ -143,9 +174,7 @@ export class BuildingView {
       size: this.def.size,
       uid: building.uid,
     });
-    if (this.sprite.texture.key !== visual.textureKey) {
-      this.sprite.setTexture(visual.textureKey);
-    }
+    this.applyTexture(visual);
     this.stateAlpha = visual.alpha;
     this.stateTint = visual.tint;
     this.applyTint();
@@ -226,11 +255,20 @@ export class BuildingView {
   private playCompletionPulse(): void {
     const scene = this.sprite.scene;
     scene.tweens.killTweensOf(this.sprite);
-    this.sprite.setScale(this.baseScale * 1.12, this.baseScale * 0.88);
+
+    /*
+     * Hedef olcek, sprite'in O ANKI olcegidir - sabit baseScale DEGIL.
+     * PNG kullanan bina ayak izine gore olceklendigi icin baseScale'e
+     * donmek onu aniden yanlis boyuta oturtur ve "oturma" hareketi
+     * kalici bir bozulmaya donusurdu.
+     */
+    const restX = this.sprite.scaleX;
+    const restY = this.sprite.scaleY;
+    this.sprite.setScale(restX * 1.12, restY * 0.88);
     scene.tweens.add({
       targets: this.sprite,
-      scaleX: this.baseScale,
-      scaleY: this.baseScale,
+      scaleX: restX,
+      scaleY: restY,
       duration: 260,
       ease: 'Back.easeOut',
     });
@@ -253,9 +291,91 @@ export class BuildingView {
   }
 
   destroy(): void {
+    this.shadow?.destroy();
     this.sprite.destroy();
     this.barBackground.destroy();
     this.barFill.destroy();
+  }
+
+  /**
+   * PNG mi prosedurel cizim mi?
+   *
+   * Listede bir dosya BILDIRILMIS olmasi yetmez; dokunun gercekten
+   * yuklenmis olmasi da gerekir. Bozuk ya da yuklenememis bir dosya
+   * yuzunden binanin gorunmez olmasi kabul edilemez - boyle bir durumda
+   * sessizce bilinen dogru cizime donulur.
+   */
+  private chooseTexture(
+    scene: Phaser.Scene,
+    visual: BuildingVisual,
+  ): { key: string; usesSprite: boolean } {
+    if (visual.spriteKey && scene.textures.exists(visual.spriteKey)) {
+      return { key: visual.spriteKey, usesSprite: true };
+    }
+    return { key: visual.textureKey, usesSprite: false };
+  }
+
+  /**
+   * Dokuyu, olcegi ve golgeyi birlikte uygular.
+   *
+   * UCU BIR ARADA cunku ucu de ayni karara baglidir: PNG mi kullaniliyor,
+   * prosedurel cizim mi. Ayri ayri uygulandiklarinda birbirinden kopma
+   * riski var - nitekim ilk surumde tam olarak bu oldu.
+   */
+  private applyTexture(visual: BuildingVisual): void {
+    const scene = this.sprite.scene;
+    const chosen = this.chooseTexture(scene, visual);
+
+    if (this.sprite.texture.key !== chosen.key) this.sprite.setTexture(chosen.key);
+
+    /*
+     * OLCEKLEME: PNG ile prosedurel doku AYNI KURALA TABI DEGILDIR.
+     *
+     * Prosedurel dokular DPR olceginde uretilir, bu yuzden 1/artScale ile
+     * kucultulurler. Elle uretilen bir PNG'nin ise DPR'den haberi yoktur;
+     * ayni kurali uygulamak onu DPR 2 telefonda YARI BOYUTTA gosterirdi -
+     * ve hedef platform tam olarak o telefon.
+     *
+     * Bunun yerine PNG, AYAK IZINE oturtulur: genisligi karo genisligi x
+     * olcu kadardir, yuksekligi orani korunarak turer. Boylece 128 piksel
+     * de 512 piksel de ayni dunya boyutunu verir - yuksek cozunurluklu
+     * dosya yalnizca daha net gorunur.
+     */
+    if (chosen.usesSprite) fitToFootprint(this.sprite, this.def.size);
+    else this.sprite.setScale(this.baseScale);
+
+    this.syncShadow(scene, visual, chosen.usesSprite);
+  }
+
+  /**
+   * Golgeyi duruma gore olusturur, tazeler ya da gizler.
+   *
+   * Prosedurel bina dokularinin golgesi kendi icine pisirilmis durumda
+   * (bkz. ArtStyle.SHADOW_ALPHA); onlarin altina bir golge daha koymak
+   * golgeyi iki kez cizerdi. Elle uretilen PNG ise yalnizca binayi
+   * icerir ve zemine oturmasi icin bu katmani ister.
+   *
+   * Klasorler bosken tek bir golge nesnesi bile olusturulmaz: katmanin
+   * bugunku sahneye maliyeti sifirdir.
+   */
+  private syncShadow(scene: Phaser.Scene, visual: BuildingVisual, usesSprite: boolean): void {
+    if (!usesSprite) {
+      this.shadow?.setVisible(false);
+      return;
+    }
+
+    const key = visual.shadowSpriteKey ?? ensureShadowTexture(scene, this.def.size);
+    if (!this.shadow) {
+      this.shadow = scene.add
+        .image(this.anchorX, this.anchorY - TILE_HEIGHT / 2, key)
+        .setOrigin(0.5, 0.5)
+        .setDepth(this.depth - 1);
+    } else if (this.shadow.texture.key !== key) {
+      this.shadow.setTexture(key);
+    }
+
+    this.shadow.setVisible(true);
+    fitToFootprint(this.shadow, this.def.size, SHADOW_OVERHANG);
   }
 
   /**

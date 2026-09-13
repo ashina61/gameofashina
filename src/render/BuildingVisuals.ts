@@ -9,6 +9,7 @@
  * Bu modul Phaser'dan bagimsizdir: yalnizca isim uretir ve hangi gorsellerin
  * var oldugunu bilir. Cizimin kendisi TextureFactory'dedir.
  */
+import { resolveBuildingSprite, resolveShadowSprite, spriteKeyFor } from './AssetManifest';
 import type { BuildingState } from '@/types';
 
 /** Gorsel olarak ayri cizilen en yuksek seviye. Ustu bu seviyeyi kullanir. */
@@ -105,10 +106,38 @@ export function variantFor(uid: string, type: string): number {
 export interface BuildingVisual {
   /** Doku anahtari; TextureFactory bu ada dokuyu uretir. */
   textureKey: string;
+  /**
+   * Elle uretilmis PNG'nin doku anahtari; boyle bir dosya yoksa null.
+   *
+   * ISI BOLUMU: burasi "boyle bir dosya BILDIRILDI mi" sorusunu cevaplar,
+   * "yuklendi mi" sorusunu degil. Yukleme tarayicida olur ve basarisiz
+   * olabilir; son karari, dokunun gercekten var oldugunu gorebilen
+   * BuildingView verir. Bu modul Phaser'i tanimadigi icin baska turlu
+   * de yapamazdi.
+   */
+  spriteKey: string | null;
+  /** Sanatcinin verdigi ozel golge; yoksa null ve golge uretilir. */
+  shadowSpriteKey: string | null;
   /** Renk carpani; calismayan bina soluklastirilir. */
   tint: number;
   /** Opaklik; devre disi bina biraz saydamdir. */
   alpha: number;
+}
+
+/** Tur/seviye/varyant icin bildirilmis sprite anahtarlari. */
+function spriteKeysFor(
+  type: string,
+  level: number,
+  variant: number,
+): { spriteKey: string | null; shadowSpriteKey: string | null } {
+  const name = resolveBuildingSprite(type, level, variant);
+  if (!name) return { spriteKey: null, shadowSpriteKey: null };
+
+  const shadow = resolveShadowSprite(name);
+  return {
+    spriteKey: spriteKeyFor(name),
+    shadowSpriteKey: shadow ? spriteKeyFor(shadow) : null,
+  };
 }
 
 /** Devre disi binanin soluk tonu. */
@@ -164,17 +193,26 @@ export function getBuildingVisual(input: {
   uid?: string;
 }): BuildingVisual {
   if (input.state === 'constructing') {
-    return { textureKey: scaffoldKeyFor(input.size), tint: NEUTRAL_TINT, alpha: 1 };
+    /*
+     * INSAAT ICIN SPRITE ARANMAZ. Santiye binanin kendisi degil, gecici
+     * bir iskeledir; oyuncunun bina PNG'si bittiginde santiyenin de
+     * aniden "bitmis bina" gibi gorunmesi yanlis bilgi verirdi.
+     */
+    return {
+      textureKey: scaffoldKeyFor(input.size),
+      spriteKey: null,
+      shadowSpriteKey: null,
+      tint: NEUTRAL_TINT,
+      alpha: 1,
+    };
   }
 
-  const textureKey = visualKeyFor(
-    input.type,
-    input.level,
-    input.uid ? variantFor(input.uid, input.type) : 0,
-  );
+  const variant = input.uid ? variantFor(input.uid, input.type) : 0;
+  const textureKey = visualKeyFor(input.type, input.level, variant);
+  const sprites = spriteKeysFor(input.type, input.level, variant);
 
   if (input.state === 'disabled') {
-    return { textureKey, tint: DISABLED_TINT, alpha: 0.75 };
+    return { textureKey, ...sprites, tint: DISABLED_TINT, alpha: 0.75 };
   }
 
   /*
@@ -183,5 +221,5 @@ export function getBuildingVisual(input: {
    */
   const monumental = input.type === 'town_hall' || input.type === 'temple';
   const tint = input.uid && !monumental ? variationTintFor(input.uid) : NEUTRAL_TINT;
-  return { textureKey, tint, alpha: 1 };
+  return { textureKey, ...sprites, tint, alpha: 1 };
 }

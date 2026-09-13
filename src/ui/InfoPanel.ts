@@ -7,6 +7,8 @@ import { visualKeyFor } from '@/render/BuildingVisuals';
 import { formatDuration } from '@/utils/Format';
 import { TouchButton } from './TouchButton';
 import { UIColors, UISpacing, UIText, labelStyle, titleStyle } from './UIStyle';
+import { PANEL_SLICE } from '@/render/PanelSkin';
+import { BUTTON_SLICE } from '@/render/UiShapes';
 import type {
   BuildingInstance,
   BuildingPlot,
@@ -143,11 +145,11 @@ export class InfoPanel extends Phaser.GameObjects.Container {
     this.screenHeight = height;
 
     this.background = scene.add
-      .nineslice(0, 0, TextureKeys.Panel, undefined, width, InfoPanel.HEIGHT, 18, 18, 18, 18)
+      .nineslice(0, 0, TextureKeys.Panel, undefined, width, InfoPanel.HEIGHT, PANEL_SLICE, PANEL_SLICE, PANEL_SLICE, PANEL_SLICE)
       .setOrigin(0, 0);
 
     this.thumbFrame = scene.add
-      .nineslice(0, 0, TextureKeys.ButtonUp, undefined, 62, 62, 14, 14, 14, 14)
+      .nineslice(0, 0, TextureKeys.ButtonUp, undefined, 62, 62, BUTTON_SLICE, BUTTON_SLICE, BUTTON_SLICE, BUTTON_SLICE)
       .setOrigin(0, 0);
     this.thumb = scene.add.image(0, 0, visualKeyFor('house', 1)).setOrigin(0.5, 1);
 
