@@ -170,17 +170,19 @@ export function generateTextures(scene: Phaser.Scene, artScale = 1): void {
   buildPanelSkin(scene, TextureKeys.Panel, { alpha: 1, corners: true });
   buildPanelSkin(scene, TextureKeys.Frame, { alpha: 1, corners: false });
 
-  createCapsuleTexture(scene, TextureKeys.ButtonUp, { radius: 16 });
+  createCapsuleTexture(scene, TextureKeys.ButtonUp, { size: 32, radius: 10 });
   createCapsuleTexture(scene, TextureKeys.ButtonDown, {
-    radius: 16,
+    size: 32,
+    radius: 10,
     top: '#5a4a2b',
     bottom: '#33291733',
     border: SKIN_PALETTE.goldBright,
     borderWidth: 2,
   });
-  createCapsuleTexture(scene, TextureKeys.Capsule, { radius: 22 });
+  createCapsuleTexture(scene, TextureKeys.Capsule, { size: 30, radius: 13 });
   createCapsuleTexture(scene, TextureKeys.CapsuleActive, {
-    radius: 22,
+    size: 30,
+    radius: 13,
     top: '#4a3f27',
     bottom: '#2a2419',
     border: SKIN_PALETTE.gold,

@@ -105,8 +105,17 @@ export class CityPanel extends Phaser.GameObjects.Container {
     const pad = Math.max(UISpacing.panelPadding, PANEL_SLICE);
     const left = pad;
     const right = width - pad;
+    /*
+     * Ilk satir KAPAT DUGMESININ ALTINDAN baslar.
+     *
+     * Dugme dikeyde 11..45 arasinda duruyor; ilk satir 48'de ortalaninca
+     * yazi 41..55'e yayiliyor ve dugmenin alt kenari sagdaki DEGERIN
+     * uzerinden geciyordu (ekran goruntusunde "1/1" ustu cizili
+     * gorunuyordu). Satirlar dugmenin bittigi yerin altina alindi.
+     */
+    const firstRowY = 58;
     for (let i = 0; i < CityPanel.MAX_ROWS; i += 1) {
-      const y = 48 + i * 21;
+      const y = firstRowY + i * 21;
       this.labels[i].setPosition(left, y);
       this.values[i].setPosition(right, y);
     }

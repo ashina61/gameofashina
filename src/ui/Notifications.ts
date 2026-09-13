@@ -1,7 +1,7 @@
 import Phaser from 'phaser';
 import { TextureKeys } from '@/config/Constants';
 import { iconKeyFor } from '@/render/IconArt';
-import { UIColors, UISpacing, UIText, labelStyle } from './UIStyle';
+import { UIColors, UISpacing, UIText, fitText, labelStyle } from './UIStyle';
 import type { IconKind } from '@/render/IconArt';
 import { PANEL_SLICE } from '@/render/PanelSkin';
 
@@ -130,7 +130,7 @@ export class NotificationStack {
 
 /** Tek bir bildirim karti. */
 class NoticeCard extends Phaser.GameObjects.Container {
-  private static readonly HEIGHT = 48;
+  private static readonly HEIGHT = 44;
 
   private readonly frame: Phaser.GameObjects.NineSlice;
   private readonly accent: Phaser.GameObjects.Image;
@@ -142,6 +142,9 @@ class NoticeCard extends Phaser.GameObjects.Container {
 
   private timer?: Phaser.Time.TimerEvent;
   private cardWidth = 300;
+  /** Kisaltmadan onceki tam metinler; genislik degisince yeniden sigdirilir. */
+  private title = '';
+  private detail = '';
 
   constructor(scene: Phaser.Scene, onClose: () => void) {
     super(scene, 0, 0);
@@ -190,10 +193,21 @@ class NoticeCard extends Phaser.GameObjects.Container {
     const spec = TONE[tone];
     this.icon.setTexture(iconKeyFor(spec.icon));
     this.accent.setTint(spec.color);
-    this.titleText.setText(title).setColor(spec.text);
-    this.detailText.setText(detail).setVisible(detail.length > 0);
+    this.titleText.setColor(spec.text);
+    this.detailText.setVisible(detail.length > 0);
     // Tek satirlik bildirimde baslik dikeyde ortalanir.
-    this.titleText.setY(detail ? 19 : NoticeCard.HEIGHT / 2);
+    this.titleText.setY(detail ? 17 : NoticeCard.HEIGHT / 2);
+
+    this.title = title;
+    this.detail = detail;
+    this.applyText();
+  }
+
+  /** Iki satiri da mevcut genislige sigdirir. */
+  private applyText(): void {
+    const budget = this.cardWidth - 50 - 34;
+    fitText(this.titleText, this.title, budget);
+    fitText(this.detailText, this.detail, budget);
   }
 
   resize(width: number): void {
@@ -202,13 +216,18 @@ class NoticeCard extends Phaser.GameObjects.Container {
     this.accent.setPosition(6, 6);
     this.icon.setPosition(30, NoticeCard.HEIGHT / 2);
     this.titleText.setX(50);
-    this.detailText.setPosition(50, 35);
+    this.detailText.setPosition(50, 31);
     this.closeMark.setPosition(width - 20, NoticeCard.HEIGHT / 2);
     this.closeZone.setPosition(width - 20, NoticeCard.HEIGHT / 2);
-    // Metin kapatma dugmesinin altina girmesin.
-    const textWidth = width - 50 - 34;
-    this.titleText.setWordWrapWidth(textWidth);
-    this.detailText.setWordWrapWidth(textWidth);
+    /*
+     * SARMA YOK, KISALTMA VAR.
+     *
+     * Kart SABIT iki satirliktir. Sarma acikken dar bir kartta baslik iki
+     * satira bolunuyor ve alt satirdaki bina adinin uzerine biniyordu
+     * (ekran goruntusuyle goruldu). Sabit yukseklikli bir kutuda dogru
+     * takas, bilgiyi kisaltip duzeni korumaktir.
+     */
+    this.applyText();
   }
 
   /** Kartin ekrandaki yerini yumusak gecisle degistirir. */

@@ -3,7 +3,7 @@ import { RESOURCE_ORDER, TextureKeys } from '@/config/Constants';
 import { allResearch } from '@/config/ResearchCatalog';
 import { iconKeyFor } from '@/render/IconArt';
 import { TouchButton } from './TouchButton';
-import { UIColors, UISpacing, UIText, labelStyle, titleStyle } from './UIStyle';
+import { UIColors, UISpacing, UIText, fitText, labelStyle, titleStyle } from './UIStyle';
 import type { ResearchDefinition, ResourceAmounts } from '@/types';
 import { PANEL_SLICE } from '@/render/PanelSkin';
 import { BUTTON_SLICE } from '@/render/UiShapes';
@@ -314,15 +314,7 @@ class ResearchRow extends Phaser.GameObjects.Container {
    * Burasi o varsayimi bir KURALA cevirir - satir kendi sinirini bilir.
    */
   private clampStatus(): void {
-    const budget = this.rowWidth - this.nameText.width - 28;
-    if (budget <= 0 || this.statusText.width <= budget) return;
-
-    const full = this.statusText.text;
-    for (let cut = full.length - 1; cut > 0; cut -= 1) {
-      this.statusText.setText(`${full.slice(0, cut)}...`);
-      if (this.statusText.width <= budget) return;
-    }
-    this.statusText.setText('');
+    fitText(this.statusText, this.statusText.text, this.rowWidth - this.nameText.width - 28);
   }
 
   /** Satirin genisligi - olcum ve testler icin. */

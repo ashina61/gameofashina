@@ -1,9 +1,10 @@
 import Phaser from 'phaser';
 import { TextureKeys } from '@/config/Constants';
 import { iconKeyFor } from '@/render/IconArt';
+import { portraitKeyOr } from '@/render/AssetManifest';
 import { PANEL_SLICE } from '@/render/PanelSkin';
 import { CAPSULE_SLICE } from '@/render/UiShapes';
-import { TOUCH_TARGET, UIText, labelStyle, titleStyle } from './UIStyle';
+import { TOUCH_TARGET, UIText, fitText, labelStyle, titleStyle } from './UIStyle';
 import type { IconKind } from '@/render/IconArt';
 
 /**
@@ -24,8 +25,15 @@ import type { IconKind } from '@/render/IconArt';
 
 /** Ust soldaki oyuncu karti: portre, seviye rozeti, ad ve deneyim cubugu. */
 export class PlayerCard extends Phaser.GameObjects.Container {
-  static readonly WIDTH = 186;
-  static readonly HEIGHT = 62;
+  /*
+   * OLCULER REFERANSTAN TURETILDI.
+   *
+   * Referans 1024 piksel genisliginde bir mockup; oradaki oyuncu karti
+   * genisligin %36'si. 390 piksellik telefonda bu 140 piksel eder.
+   * Ilk surumde 186 (yani %48) idi ve ustteki her seyi sikistiriyordu.
+   */
+  static readonly WIDTH = 152;
+  static readonly HEIGHT = 54;
 
   private readonly nameText: Phaser.GameObjects.Text;
   private readonly levelText: Phaser.GameObjects.Text;
@@ -59,41 +67,42 @@ export class PlayerCard extends Phaser.GameObjects.Container {
      * ceker - oyuncunun kendi kimligi, yaninda duran sayilardan once
      * okunmali.
      */
-    const cx = 30;
+    const cx = 25;
     const cy = PlayerCard.HEIGHT / 2;
     const portrait = scene.add
-      .image(cx, cy, iconKeyFor('avatar'))
+      // Elle cizilmis portre varsa o, yoksa prosedurel arma.
+      .image(cx, cy, portraitKeyOr(iconKeyFor('avatar')))
       .setOrigin(0.5, 0.5)
-      .setDisplaySize(40, 40);
+      .setDisplaySize(32, 32);
     const ring = scene.add
       .image(cx, cy, TextureKeys.Ring)
       .setOrigin(0.5, 0.5)
-      .setDisplaySize(52, 52);
+      .setDisplaySize(42, 42);
 
     const badge = scene.add
-      .image(cx, cy + 20, TextureKeys.Disc)
+      .image(cx, cy + 17, TextureKeys.Disc)
       .setOrigin(0.5, 0.5)
-      .setDisplaySize(24, 24);
+      .setDisplaySize(19, 19);
     this.levelText = scene.add
-      .text(cx, cy + 20, '1', labelStyle(12, '#3a2a12', true))
+      .text(cx, cy + 17, '1', labelStyle(10, '#3a2a12', true))
       .setOrigin(0.5, 0.5);
 
-    const textLeft = 62;
+    const textLeft = 50;
     this.nameText = scene.add
-      .text(textLeft, 20, 'ANCIENT CITY', titleStyle(15, UIText.primary))
+      .text(textLeft, 18, 'ANCIENT CITY', titleStyle(12, UIText.primary))
       .setOrigin(0, 0.5);
 
-    this.progressWidth = PlayerCard.WIDTH - textLeft - 12;
-    const barY = 42;
+    this.progressWidth = PlayerCard.WIDTH - textLeft - 9;
+    const barY = 36;
     const track = scene.add
       .image(textLeft, barY, TextureKeys.Pixel)
       .setOrigin(0, 0.5)
-      .setDisplaySize(this.progressWidth, 12)
+      .setDisplaySize(this.progressWidth, 10)
       .setTint(0x6b5230);
     this.progressFill = scene.add
       .image(textLeft + 1, barY, TextureKeys.Pixel)
       .setOrigin(0, 0.5)
-      .setDisplaySize(1, 10)
+      .setDisplaySize(1, 8)
       .setTint(0xc9a227);
     /*
      * Altyazi cubugun ICINDE ortalanir ve cubuga SIGMAK ZORUNDADIR.
@@ -102,7 +111,7 @@ export class PlayerCard extends Phaser.GameObjects.Container {
      * metin uzunlugunda bozulmaz.
      */
     this.progressText = scene.add
-      .text(textLeft + this.progressWidth / 2, barY, '', labelStyle(9, '#f7ebd2', true))
+      .text(textLeft + this.progressWidth / 2, barY, '', labelStyle(8, '#f7ebd2', true))
       .setOrigin(0.5, 0.5);
 
     this.add([
@@ -130,17 +139,10 @@ export class PlayerCard extends Phaser.GameObjects.Container {
     this.nameText.setText(name);
     this.levelText.setText(level === null ? '-' : `${level}`);
     const clamped = Phaser.Math.Clamp(ratio, 0, 1);
-    this.progressFill.setDisplaySize(Math.max(1, (this.progressWidth - 2) * clamped), 10);
+    this.progressFill.setDisplaySize(Math.max(1, (this.progressWidth - 2) * clamped), 8);
 
-    this.progressText.setText(caption);
     // Cubuga sigmayan altyaziyi kisalt; uzunluk bir varsayim degil kural.
-    const budget = this.progressWidth - 8;
-    if (this.progressText.width > budget) {
-      for (let cut = caption.length - 1; cut > 0; cut -= 1) {
-        this.progressText.setText(`${caption.slice(0, cut)}...`);
-        if (this.progressText.width <= budget) break;
-      }
-    }
+    fitText(this.progressText, caption, this.progressWidth - 8);
   }
 
   bounds(): Phaser.Geom.Rectangle {
@@ -152,7 +154,8 @@ export class PlayerCard extends Phaser.GameObjects.Container {
 
 /** Ustteki tek bir kaynak kapsulu: ikon, deger ve "+" dugmesi. */
 export class ResourcePill extends Phaser.GameObjects.Container {
-  static readonly HEIGHT = 30;
+  /** Referansta kapsul yuksekligi ekranin %3.3'u; 844'te ~28. */
+  static readonly HEIGHT = 28;
 
   private readonly valueText: Phaser.GameObjects.Text;
   private readonly frame: Phaser.GameObjects.NineSlice;
@@ -187,25 +190,25 @@ export class ResourcePill extends Phaser.GameObjects.Container {
       .setOrigin(0, 0);
 
     const iconImage = scene.add
-      .image(15, ResourcePill.HEIGHT / 2, iconKeyFor(icon))
+      .image(13, ResourcePill.HEIGHT / 2, iconKeyFor(icon))
       .setOrigin(0.5, 0.5)
-      .setDisplaySize(20, 20);
+      .setDisplaySize(17, 17);
 
     this.valueText = scene.add
-      .text(29, ResourcePill.HEIGHT / 2, '0', labelStyle(12, UIText.primary, true))
+      .text(25, ResourcePill.HEIGHT / 2, '0', labelStyle(11, UIText.primary, true))
       .setOrigin(0, 0.5);
 
     // "+" kendi altin diskinde durur: kapsulun geri kalani okunur,
     // yalnizca bu daire basilabilir - ayrimi bicim yapar, renk degil.
-    const plusX = width - 16;
+    const plusX = width - 14;
     const plusDisc = scene.add
       .image(plusX, ResourcePill.HEIGHT / 2, TextureKeys.Disc)
       .setOrigin(0.5, 0.5)
-      .setDisplaySize(22, 22);
+      .setDisplaySize(19, 19);
     this.plus = scene.add
       .image(plusX, ResourcePill.HEIGHT / 2, iconKeyFor('plus'))
       .setOrigin(0.5, 0.5)
-      .setDisplaySize(13, 13);
+      .setDisplaySize(11, 11);
 
     /*
      * Dokunma hedefi GORSELDEN BUYUK: 22 piksellik bir daire parmakla
@@ -229,7 +232,7 @@ export class ResourcePill extends Phaser.GameObjects.Container {
   setWidth(width: number): void {
     this.pillWidth = width;
     this.frame.setSize(width, ResourcePill.HEIGHT);
-    const plusX = width - 16;
+    const plusX = width - 14;
     this.plus.setPosition(plusX, ResourcePill.HEIGHT / 2);
     this.plusZone.setPosition(plusX, ResourcePill.HEIGHT / 2);
     // Disk plus ile ayni yerde duran kardes; listedeki sirasiyla bulunur.
@@ -259,9 +262,10 @@ export interface QuestRow {
 
 /** Sol ustteki "Bugunun Gorevleri" karti. */
 export class QuestCard extends Phaser.GameObjects.Container {
-  static readonly WIDTH = 208;
-  private static readonly HEADER = 38;
-  private static readonly ROW = 30;
+  /** Referansta gorev karti genisligin %37'si; 390'da ~145. */
+  static readonly WIDTH = 168;
+  private static readonly HEADER = 30;
+  private static readonly ROW = 26;
 
   private readonly frame: Phaser.GameObjects.NineSlice;
   private readonly rows: Array<{
@@ -276,7 +280,7 @@ export class QuestCard extends Phaser.GameObjects.Container {
   constructor(scene: Phaser.Scene, x: number, y: number, maxRows: number, onOpen: () => void) {
     super(scene, x, y);
 
-    const height = QuestCard.HEADER + QuestCard.ROW * maxRows + 8;
+    const height = QuestCard.HEADER + QuestCard.ROW * maxRows + 6;
     this.frame = scene.add
       .nineslice(
         0,
@@ -293,14 +297,14 @@ export class QuestCard extends Phaser.GameObjects.Container {
       .setOrigin(0, 0);
 
     const headerIcon = scene.add
-      .image(24, 20, iconKeyFor('buildingsNav'))
+      .image(19, 16, iconKeyFor('buildingsNav'))
       .setOrigin(0.5, 0.5)
-      .setDisplaySize(18, 18);
+      .setDisplaySize(15, 15);
     const headerText = scene.add
-      .text(40, 20, 'Bugunun Gorevleri', titleStyle(13, UIText.primary))
+      .text(32, 16, 'Bugunun Gorevleri', titleStyle(11, UIText.primary))
       .setOrigin(0, 0.5);
     const chevron = scene.add
-      .text(QuestCard.WIDTH - 18, 20, '>', titleStyle(14, UIText.accent))
+      .text(QuestCard.WIDTH - 13, 16, '>', titleStyle(12, UIText.accent))
       .setOrigin(0.5, 0.5);
 
     this.add([this.frame, headerIcon, headerText, chevron]);
@@ -308,20 +312,20 @@ export class QuestCard extends Phaser.GameObjects.Container {
     for (let i = 0; i < maxRows; i += 1) {
       const rowY = QuestCard.HEADER + QuestCard.ROW * i + QuestCard.ROW / 2;
       const rule = scene.add
-        .image(12, QuestCard.HEADER + QuestCard.ROW * i, TextureKeys.Pixel)
+        .image(10, QuestCard.HEADER + QuestCard.ROW * i, TextureKeys.Pixel)
         .setOrigin(0, 0.5)
-        .setDisplaySize(QuestCard.WIDTH - 24, 1)
+        .setDisplaySize(QuestCard.WIDTH - 20, 1)
         .setTint(0xc9a227)
         .setAlpha(0.5);
       const icon = scene.add
-        .image(26, rowY, iconKeyFor('cart'))
+        .image(21, rowY, iconKeyFor('cart'))
         .setOrigin(0.5, 0.5)
-        .setDisplaySize(17, 17);
+        .setDisplaySize(14, 14);
       const label = scene.add
-        .text(42, rowY, '', labelStyle(11, UIText.primary))
+        .text(34, rowY, '', labelStyle(10, UIText.primary))
         .setOrigin(0, 0.5);
       const count = scene.add
-        .text(QuestCard.WIDTH - 16, rowY, '', labelStyle(11, UIText.accent, true))
+        .text(QuestCard.WIDTH - 12, rowY, '', labelStyle(10, UIText.accent, true))
         .setOrigin(1, 0.5);
       this.rows.push({ icon, label, count, rule });
       this.add([rule, icon, label, count]);
@@ -361,7 +365,7 @@ export class QuestCard extends Phaser.GameObjects.Container {
   }
 
   get heightPx(): number {
-    return QuestCard.HEADER + QuestCard.ROW * Math.max(1, this.visibleRows) + 8;
+    return QuestCard.HEADER + QuestCard.ROW * Math.max(1, this.visibleRows) + 6;
   }
 
   bounds(): Phaser.Geom.Rectangle {
@@ -386,9 +390,16 @@ export interface RailButton {
  * sutun; dugmeler onun uzerinde esit aralikli durur.
  */
 export class IconRail extends Phaser.GameObjects.Container {
-  static readonly WIDTH = 44;
-  private static readonly STEP = 42;
-  private static readonly PAD = 8;
+  /*
+   * Referansin rayi genisligin %6'si (65/1024). 390'da bu 25 piksel
+   * ederdi ve PARMAKLA ISABET EDILEMEZDI - referans 1024 piksellik bir
+   * illustrasyon, dokunma asgarisi olcekle kucuLmez. Ray bu yuzden
+   * referanstan orantisal olarak genis kalir; asgari hedefin altina
+   * inmek gorunusu degil KULLANILABILIRLIGI bozardi.
+   */
+  static readonly WIDTH = 38;
+  private static readonly STEP = 38;
+  private static readonly PAD = 5;
 
   private readonly badges: Array<{ disc: Phaser.GameObjects.Image; text: Phaser.GameObjects.Text }> =
     [];
@@ -420,7 +431,7 @@ export class IconRail extends Phaser.GameObjects.Container {
       const icon = scene.add
         .image(IconRail.WIDTH / 2, cy, iconKeyFor(button.icon))
         .setOrigin(0.5, 0.5)
-        .setDisplaySize(22, 22);
+        .setDisplaySize(19, 19);
 
       /*
        * Hedef, 42 piksellik adimdan genis tutulur (asgari dokunma
@@ -435,13 +446,13 @@ export class IconRail extends Phaser.GameObjects.Container {
       zone.on(Phaser.Input.Events.GAMEOBJECT_POINTER_UP, button.onPress);
 
       const disc = scene.add
-        .image(IconRail.WIDTH - 11, cy - 11, TextureKeys.Pixel)
+        .image(IconRail.WIDTH - 9, cy - 10, TextureKeys.Pixel)
         .setOrigin(0.5, 0.5)
-        .setDisplaySize(15, 15)
+        .setDisplaySize(14, 14)
         .setTint(0xb03a2e)
         .setVisible(false);
       const text = scene.add
-        .text(IconRail.WIDTH - 11, cy - 11, '', labelStyle(9, '#ffffff', true))
+        .text(IconRail.WIDTH - 9, cy - 10, '', labelStyle(8, '#ffffff', true))
         .setOrigin(0.5, 0.5)
         .setVisible(false);
       this.badges.push({ disc, text });
@@ -481,7 +492,7 @@ export class IconRail extends Phaser.GameObjects.Container {
  * anlatir (portreler soluk ve kilitli cizilir).
  */
 export class AllyStrip extends Phaser.GameObjects.Container {
-  static readonly HEIGHT = 46;
+  static readonly HEIGHT = 40;
 
   private stripWidth: number;
   private readonly frame: Phaser.GameObjects.NineSlice;
@@ -513,14 +524,14 @@ export class AllyStrip extends Phaser.GameObjects.Container {
     for (let i = 0; i < AllyStrip.SLOTS; i += 1) {
       const cy = AllyStrip.HEIGHT / 2;
       const portrait = scene.add
-        .image(0, cy, iconKeyFor('avatar'))
+        .image(0, cy, portraitKeyOr(iconKeyFor('avatar')))
         .setOrigin(0.5, 0.5)
-        .setDisplaySize(22, 22)
+        .setDisplaySize(18, 18)
         .setAlpha(0.35);
       const ring = scene.add
         .image(0, cy, TextureKeys.Ring)
         .setOrigin(0.5, 0.5)
-        .setDisplaySize(30, 30)
+        .setDisplaySize(26, 26)
         .setAlpha(0.55);
       this.slots.push({ portrait, ring });
       this.add([portrait, ring]);
@@ -542,7 +553,7 @@ export class AllyStrip extends Phaser.GameObjects.Container {
 
   /** Serit icin gereken en dar genislik; altinda gosterilmemeli. */
   static get minWidth(): number {
-    return 104;
+    return 92;
   }
 
   /**
@@ -580,7 +591,8 @@ export class AllyStrip extends Phaser.GameObjects.Container {
 
 /** Alt soldaki genis eylem dugmesi ("Insa Et"). */
 export class WideButton extends Phaser.GameObjects.Container {
-  static readonly HEIGHT = 52;
+  /** Referansta %5.5 yukseklik; 844'te ~46. */
+  static readonly HEIGHT = 46;
 
   private readonly frame: Phaser.GameObjects.NineSlice;
   private readonly zone: Phaser.GameObjects.Zone;
@@ -613,11 +625,11 @@ export class WideButton extends Phaser.GameObjects.Container {
       .setOrigin(0, 0);
 
     const iconImage = scene.add
-      .image(34, WideButton.HEIGHT / 2, iconKeyFor(icon))
+      .image(28, WideButton.HEIGHT / 2, iconKeyFor(icon))
       .setOrigin(0.5, 0.5)
-      .setDisplaySize(26, 26);
+      .setDisplaySize(22, 22);
     const text = scene.add
-      .text(58, WideButton.HEIGHT / 2, label, titleStyle(16, UIText.primary))
+      .text(48, WideButton.HEIGHT / 2, label, titleStyle(14, UIText.primary))
       .setOrigin(0, 0.5);
 
     this.zone = scene.add

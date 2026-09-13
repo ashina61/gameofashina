@@ -78,3 +78,29 @@ export function labelStyle(
     fontStyle: bold ? 'bold' : 'normal',
   };
 }
+
+/**
+ * Bir yaziyi verilen genislige SIGDIRIR; sigmiyorsa kisaltir.
+ *
+ * NEDEN SARMA DEGIL KISALTMA
+ * Arayuzdeki yuzeylerin cogu SABIT yukseklikte: bildirim karti iki
+ * satirlik, oyuncu kartinin cubugu tek satirlik, arastirma satiri tek
+ * satirlik. Boyle bir yuzeyde sarma, metni komsu satirin uzerine
+ * bindirir - bildirim kartinda tam olarak bu oldu: "Insaat tamamlandi!"
+ * iki satira bolununce alt satirdaki bina adinin uzerine bindi.
+ *
+ * Kisaltma ise en kotu durumda BILGI KAYBEDER ama duzeni hic bozmaz.
+ * Sabit yukseklikli bir kutuda dogru takas budur.
+ *
+ * Ayni mantik uc ayri yerde tekrar yazilmisti; kural tek yerde durmali.
+ */
+export function fitText(target: Phaser.GameObjects.Text, full: string, budget: number): void {
+  target.setText(full);
+  if (budget <= 0 || target.width <= budget) return;
+
+  for (let cut = full.length - 1; cut > 0; cut -= 1) {
+    target.setText(`${full.slice(0, cut)}...`);
+    if (target.width <= budget) return;
+  }
+  target.setText('');
+}

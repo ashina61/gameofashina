@@ -58,6 +58,17 @@ const UI = byName(UI_FILES);
 export const UI_TEXTURE_NAMES = ['panel_bg', 'panel_border', 'panel_corner'] as const;
 export type UiTextureName = (typeof UI_TEXTURE_NAMES)[number];
 
+/**
+ * ISTEGE BAGLI arayuz gorselleri.
+ *
+ * Panel dokularindan farki: bunlarin yerine gecen bir gradyan
+ * URETILMEZ. Yoksa mevcut prosedurel ikon kullanilir. Portre boyle:
+ * elle cizilmis bir karakter resmi arayuzun en cok fark yaratan
+ * parcasi, ama olmadiginda da arma ikonu isi goruyor.
+ */
+export const OPTIONAL_UI_NAMES = ['portrait'] as const;
+export type OptionalUiName = (typeof OPTIONAL_UI_NAMES)[number];
+
 /** Bir varligin yukleme kimligi ve adresi. */
 export interface AssetEntry {
   /** Phaser doku anahtari. */
@@ -72,7 +83,7 @@ export function spriteKeyFor(name: string): string {
 }
 
 /** Arayuz kaynak dokusunun anahtari. */
-export function uiSourceKeyFor(name: UiTextureName): string {
+export function uiSourceKeyFor(name: UiTextureName | OptionalUiName): string {
   return `uisrc:${name}`;
 }
 
@@ -120,18 +131,27 @@ export function buildingAssets(): AssetEntry[] {
   return [...BUILDINGS.entries()].map(([name, url]) => ({ key: spriteKeyFor(name), url }));
 }
 
-/** Yuklenecek arayuz dokulari - yalnizca tanimli uc ad dikkate alinir. */
+/** Yuklenecek arayuz dokulari - yalnizca tanimli adlar dikkate alinir. */
 export function uiAssets(): AssetEntry[] {
   const out: AssetEntry[] = [];
-  for (const name of UI_TEXTURE_NAMES) {
+  for (const name of [...UI_TEXTURE_NAMES, ...OPTIONAL_UI_NAMES]) {
     const url = UI.get(name);
     if (url) out.push({ key: uiSourceKeyFor(name), url });
   }
   return out;
 }
 
+/**
+ * Portre doku anahtari; dosya yoksa prosedurel arma ikonuna duser.
+ *
+ * Cagiran taraf "hangisi var" diye dusunmez, tek bir anahtar alir.
+ */
+export function portraitKeyOr(fallbackKey: string): string {
+  return UI.has('portrait') ? uiSourceKeyFor('portrait') : fallbackKey;
+}
+
 /** Bu arayuz dokusu dosyadan mi geliyor? Hayirsa placeholder uretilir. */
-export function hasUiTexture(name: UiTextureName): boolean {
+export function hasUiTexture(name: UiTextureName | OptionalUiName): boolean {
   return UI.has(name);
 }
 

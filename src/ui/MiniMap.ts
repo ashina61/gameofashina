@@ -44,10 +44,13 @@ export interface MiniMapSnapshot {
 }
 
 export class MiniMap extends Phaser.GameObjects.Container {
-  static readonly SIZE = 112;
+  /** Referansta mini harita genisligin %19.5'i; 390'da ~76 ama kare
+   *  degil yatay dikdortgen. Kare tutuldu ve 98'e cekildi: adanin elmasi
+   *  daha dar bir kutuda okunmuyordu. */
+  static readonly SIZE = 98;
 
   /** Icerideki cizim alani (cerceve payindan sonra). */
-  private static readonly INNER = MiniMap.SIZE - 18;
+  private static readonly INNER = MiniMap.SIZE - 14;
 
   private readonly canvasKey: string;
   private readonly canvas: Phaser.Textures.CanvasTexture | null;
@@ -90,21 +93,21 @@ export class MiniMap extends Phaser.GameObjects.Container {
      * beyaz bir ok; burada da ayni isi gorur - "su an buraya bakiyorsun".
      */
     this.marker = scene.add
-      .triangle(MiniMap.SIZE / 2, MiniMap.SIZE / 2, 0, -7, 7, 6, -7, 6, 0xffffff, 0.95)
+      .triangle(MiniMap.SIZE / 2, MiniMap.SIZE / 2, 0, -6, 6, 5, -6, 5, 0xffffff, 0.95)
       .setOrigin(0.5, 0.5);
 
     const compass = scene.add
-      .image(MiniMap.SIZE - 16, 16, iconKeyFor('compass'))
+      .image(MiniMap.SIZE - 14, 14, iconKeyFor('compass'))
       .setOrigin(0.5, 0.5)
-      .setDisplaySize(18, 18);
+      .setDisplaySize(15, 15);
     const north = scene.add
-      .text(MiniMap.SIZE - 16, 3, 'N', labelStyle(8, UIText.accent, true))
+      .text(MiniMap.SIZE - 14, 3, 'N', labelStyle(7, UIText.accent, true))
       .setOrigin(0.5, 0.5);
 
     const zoomIcon = scene.add
-      .image(MiniMap.SIZE - 15, MiniMap.SIZE - 15, iconKeyFor('zoomIn'))
+      .image(MiniMap.SIZE - 13, MiniMap.SIZE - 13, iconKeyFor('zoomIn'))
       .setOrigin(0.5, 0.5)
-      .setDisplaySize(17, 17);
+      .setDisplaySize(15, 15);
 
     const zone = scene.add
       .zone(0, 0, MiniMap.SIZE, MiniMap.SIZE)

@@ -23,8 +23,8 @@ import { SKIN_PALETTE } from './PanelSkin';
  * banda tasar ve germe onu yayarak bozar. Yaricap + 2 guvenli en dar
  * degerdir ve kaynagin duz orta seridini olabildigince genis birakir.
  */
-export const BUTTON_SLICE = 18;
-export const CAPSULE_SLICE = 24;
+export const BUTTON_SLICE = 12;
+export const CAPSULE_SLICE = 15;
 
 /** Yuvarlatilmis dikdortgen yolu. */
 function roundedPath(

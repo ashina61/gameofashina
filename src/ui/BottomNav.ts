@@ -34,7 +34,13 @@ const TABS: TabSpec[] = [
  * sekmelerin uzerine binmez.
  */
 export class BottomNav extends Phaser.GameObjects.Container {
-  private static readonly HEIGHT = 66;
+  /*
+   * Referansta gezinme cubugu ekran yuksekliginin %9.5'i - HUD'in en
+   * agir parcasi ve bilerek oyle: bes sekmenin ikonu ve yazisi rahat
+   * sigsin diye. 844 piksellik ekranda bu ~78 eder. Onceki 66, ikon ve
+   * yaziyi birbirine yapistiriyordu.
+   */
+  private static readonly HEIGHT = 78;
 
   private readonly background: Phaser.GameObjects.Image;
   private readonly glows = new Map<NavTab, Phaser.GameObjects.Image>();
@@ -85,7 +91,7 @@ export class BottomNav extends Phaser.GameObjects.Container {
       const plate = scene.add
         .image(0, 0, TextureKeys.NavActive)
         .setOrigin(0.5, 0.5)
-        .setDisplaySize(70, BottomNav.HEIGHT - 10)
+        .setDisplaySize(66, BottomNav.HEIGHT - 12)
         .setVisible(false);
       this.glows.set(tab.id, plate);
       this.add(plate);
@@ -116,7 +122,7 @@ export class BottomNav extends Phaser.GameObjects.Container {
       const icon = scene.add
         .image(0, 0, iconKeyFor(tab.icon))
         .setOrigin(0.5, 0.5)
-        .setDisplaySize(22, 22);
+        .setDisplaySize(24, 24);
       this.icons.set(tab.id, icon);
 
       const label = scene.add
@@ -170,8 +176,8 @@ export class BottomNav extends Phaser.GameObjects.Container {
     const step = usable / TABS.length;
     TABS.forEach((tab, index) => {
       const cx = sideInset + step * (index + 0.5);
-      this.icons.get(tab.id)?.setPosition(cx, 24);
-      this.labels.get(tab.id)?.setPosition(cx, 47);
+      this.icons.get(tab.id)?.setPosition(cx, 27);
+      this.labels.get(tab.id)?.setPosition(cx, 54);
       this.markers.get(tab.id)?.setPosition(cx, 6);
       this.glows.get(tab.id)?.setPosition(cx, BottomNav.HEIGHT / 2);
       const zone = this.zones.get(tab.id);

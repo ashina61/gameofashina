@@ -742,20 +742,27 @@ export class UIScene extends Phaser.Scene {
 
     this.playerCard.setPosition(contentLeft, top + edge);
 
-    const gearSize = 38;
+    const gearSize = 34;
     this.gearButton.setPosition(contentRight - gearSize / 2, top + edge + gearSize / 2);
 
-    const pillGap = 6;
-    const pillsRight = contentRight - gearSize - 10;
-    const inlineLeft = contentLeft + PlayerCard.WIDTH + 8;
+    const pillGap = 5;
+    const pillsRight = contentRight - gearSize - 8;
+    const inlineLeft = contentLeft + PlayerCard.WIDTH + 6;
     const inlineSpace = pillsRight - inlineLeft;
-    const stacked = inlineSpace < PILL_ORDER.length * 92;
+    /*
+     * Kapsuller kartin YANINA sigiyorsa oraya, sigmiyorsa altina.
+     *
+     * Esik 92'den 74'e indi: kapsuller kucululdu ve "12.450 +" artik 74
+     * piksele sigiyor. Fark buyuk - yan yana dizilince ust blok bir satir
+     * kisaliyor ve o satir dogrudan SEHRE kaliyor.
+     */
+    const stacked = inlineSpace < PILL_ORDER.length * 74;
 
     const pillLeft = stacked ? contentLeft : inlineLeft;
     const pillSpace = (stacked ? contentRight - contentLeft : inlineSpace);
     const pillWidth = (pillSpace - pillGap * (PILL_ORDER.length - 1)) / PILL_ORDER.length;
     const pillY = stacked
-      ? top + edge + PlayerCard.HEIGHT + 6
+      ? top + edge + PlayerCard.HEIGHT + 5
       : top + edge + (PlayerCard.HEIGHT - ResourcePill.HEIGHT) / 2;
 
     PILL_ORDER.forEach((key, i) => {
@@ -800,6 +807,8 @@ export class UIScene extends Phaser.Scene {
     this.nav.layout(width, sideInset);
 
     const panelInset = bottomInset + BottomNav.height;
+    /** Alt siranin oturdugu taban; acik panel varsa yukari cikar. */
+    const bottomBase = height - panelInset - this.openPanelHeight() - edge;
     this.buildMenu.layout(width, height, panelInset);
     this.infoPanel.layout(width, height, panelInset);
     this.cityPanel.layout(width, height, panelInset);
@@ -812,16 +821,32 @@ export class UIScene extends Phaser.Scene {
      * yalnizca tek bir satir gorunuyordu). Bildirim gecici, gorev karti
      * kalici - gecici olan kalicinin ustune binemez.
      */
+    /*
+     * BILDIRIMLER ARTIK ALT SIRANIN USTUNDE, SEHRIN ORTASINDA DEGIL.
+     *
+     * Ust bolgede duruyorlardi ve ekranin en degerli yerini - sehrin
+     * gorundugu orta alani - gecici kartlarla dolduruyorlardi. Referansta
+     * o alan tamamen sehre ait. Kartlar alt sira ile gezinme cubugu
+     * arasindaki seride tasindi: gorunurler, ama sehri ortmuyorlar.
+     */
+    /*
+     * Kartlar alt siranin TAMAMEN USTUNDE durur.
+     *
+     * Once insa dugmesinin ustune hizalanmislardi; ama alt siranin en
+     * YUKSEK ogesi mini harita (98'e karsi 46) ve alttaki kart onun
+     * uzerine biniyordu. Yan paylarla daraltmak da cozum degildi: kart
+     * o kadar daraldi ki "Insaat tamamlandi!" basligi "Insaat tama..."
+     * diye kisaldi - cakismayi cozerken mesaji kaybettik.
+     *
+     * Dogru cozum yukari tasimak: en yuksek komsunun ustunde hicbir pay
+     * gerekmiyor ve kart tam genisligini koruyor.
+     */
+    const noticeHeight = 44 * 2 + 8;
     this.notices.layout(
       width,
-      topBlockBottom + 8 + this.questCard.heightPx + 10,
-      /*
-       * Bildirimler IKI RAYIN ARASINDAKI kanala oturur. Paylar olmadan
-       * kartlar raylarin uzerine biniyor ve ilk dugmelerini goze
-       * gorunmez kiliyordu.
-       */
-      IconRail.WIDTH + 8,
-      IconRail.WIDTH + 8,
+      Math.max(topBlockBottom + 8, bottomBase - MiniMap.SIZE - 8 - noticeHeight),
+      0,
+      0,
     );
 
     /*
@@ -831,7 +856,6 @@ export class UIScene extends Phaser.Scene {
      * aralarindaki bosluktan sehir gorunur. Acik bir panel varsa ikisi de
      * onun ustune cikar.
      */
-    const bottomBase = height - panelInset - this.openPanelHeight() - edge;
     this.miniMap.setPosition(contentRight - MiniMap.SIZE, bottomBase - MiniMap.SIZE);
     this.buildButton.setPosition(contentLeft, bottomBase - WideButton.HEIGHT);
     this.cancelButton.setPosition(

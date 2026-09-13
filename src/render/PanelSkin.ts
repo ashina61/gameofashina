@@ -34,14 +34,24 @@ import {
 /** 9-slice kaynak dokusunun kenar uzunlugu. */
 const SKIN_SIZE = 64;
 
-/** 9-slice kesme payi: bu kadarlik kose bolgesi gerilmeden kalir. */
-export const PANEL_SLICE = 22;
+/**
+ * 9-slice kesme payi: bu kadarlik kose bolgesi gerilmeden kalir.
+ *
+ * INCE TUTULUR. Ilk surumde 22'ydi ve arayuz "basik" gorunuyordu:
+ * 62 piksel yuksekligindeki bir kartta ust ve alt pay 44 pikseli yiyor,
+ * icerige 18 piksel kaliyordu. Referansin panelleri ise ince kenarli ve
+ * icleri ferah.
+ *
+ * Kural: pay, en KUCUK panelin yuksekliginin ucte birini gecmemeli.
+ * En kucuk yuzey ~30 piksellik kaynak kapsulu; 14 o siniri tutuyor.
+ */
+export const PANEL_SLICE = 14;
 
 /** Kenarlik seridinin kalinligi (kaynak doku pikseli). */
-const BORDER_THICKNESS = 5;
+const BORDER_THICKNESS = 3;
 
-/** Kose susunun kenar uzunlugu. */
-const CORNER_SIZE = 20;
+/** Kose susunun kenar uzunlugu; kesme payina SIGMALI. */
+const CORNER_SIZE = 11;
 
 /**
  * Parsomen/altin/kahve paleti - butun arayuz derileri buradan beslenir.
@@ -288,7 +298,7 @@ function createParchment(scene: Phaser.Scene, key: string): void {
 /** Altin serit: kisa eksende koyu-parlak-koyu metalik gecis. */
 function createGoldStrip(scene: Phaser.Scene, key: string): void {
   const width = 64;
-  const height = 8;
+  const height = 6;
   const canvas = scene.textures.createCanvas(key, width, height);
   if (!canvas) return;
   const ctx = canvas.context;
@@ -312,30 +322,24 @@ function createCornerOrnament(scene: Phaser.Scene, key: string): void {
   const ctx = canvas.context;
   ctx.clearRect(0, 0, size, size);
 
+  /*
+   * Sus KUCULDU, bu yuzden SADELESTI.
+   *
+   * Ic ice iki ayrac ve bir elmas, 20 pikselde okunuyordu; 11 pikselde
+   * birbirine giren bir leke oluyor. Kose artik tek bir ayrac ve ucunda
+   * kucuk bir nokta - ayni "islenmis kose" hissini verir, bulanmaz.
+   */
   ctx.strokeStyle = SKIN_PALETTE.goldBright;
-  ctx.lineWidth = 2;
+  ctx.lineWidth = 1.5;
   ctx.beginPath();
-  ctx.moveTo(2, size - 3);
-  ctx.lineTo(2, 2);
-  ctx.lineTo(size - 3, 2);
+  ctx.moveTo(1.5, size - 1);
+  ctx.lineTo(1.5, 1.5);
+  ctx.lineTo(size - 1, 1.5);
   ctx.stroke();
 
-  ctx.strokeStyle = SKIN_PALETTE.gold;
-  ctx.lineWidth = 1;
-  ctx.beginPath();
-  ctx.moveTo(6, size - 2);
-  ctx.lineTo(6, 6);
-  ctx.lineTo(size - 2, 6);
-  ctx.stroke();
-
-  // Kosedeki kucuk elmas - Akdeniz mozaiginin kose tasi.
   ctx.fillStyle = SKIN_PALETTE.goldBright;
   ctx.beginPath();
-  ctx.moveTo(9, 2);
-  ctx.lineTo(12, 5);
-  ctx.lineTo(9, 8);
-  ctx.lineTo(6, 5);
-  ctx.closePath();
+  ctx.arc(4.5, 4.5, 1.8, 0, Math.PI * 2);
   ctx.fill();
 
   canvas.refresh();

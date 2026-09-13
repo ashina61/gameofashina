@@ -70,3 +70,12 @@ istege baglidir; verilmeyeni kod gradyanla uretir.
 
 Bu uc dosya degistiginde butun paneller, bildirimler ve cerceveler
 birlikte degisir - tek tek elden gecirmek gerekmez.
+
+### Istege bagli
+
+| Dosya           | Ne                | Onerilen boyut | Notlar                                  |
+|-----------------|-------------------|----------------|-----------------------------------------|
+| `portrait.png`  | Oyuncu portresi   | 128 x 128      | Kare; oyuncu kartinda ve muttefik seridinde kullanilir |
+
+Panel dokularindan farki: bunun yerine gecen bir gradyan URETILMEZ.
+Dosya yoksa mevcut prosedurel arma ikonu kullanilmaya devam eder.
