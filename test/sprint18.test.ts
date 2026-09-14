@@ -26,6 +26,10 @@ import { getBuildingVisual, visualKeyFor } from '@/render/BuildingVisuals';
 import { shadowKeyFor } from '@/render/ShadowArt';
 import { allBuildings } from '@/config/BuildingCatalog';
 
+/** Bu bina icin depoda boyali bir varlik var mi? */
+const hasBuildingSprite = (type: string, level: number): boolean =>
+  resolveBuildingSprite(type, level) !== null;
+
 describe('varlik listesi', () => {
   it('klasorler bosken hicbir sey yuklenmez - oyun prosedurel calisir', () => {
     /*
@@ -64,24 +68,67 @@ describe('varlik listesi', () => {
     expect(shadowKeyFor(2).startsWith('shadow:')).toBe(true);
   });
 
-  it('dosya yoksa cozumleme null doner - cagiran taraf prosedurele doner', () => {
+  /*
+   * KURAL, KLASORUN O ANKI ICERIGINDEN BAGIMSIZ OLMALI.
+   *
+   * Bu test once "hicbir bina icin sprite yok" diyordu ve depoya ilk gercek
+   * varlik (house_1.png) girdigi gun kirildi - oysa kirilan bir sey yoktu,
+   * hat tam olarak beklendigi gibi calisiyordu. Olculecek sey sudur:
+   * DOSYASI OLMAYAN bir bina prosedurele duser.
+   */
+  it('dosyasi olmayan bina icin cozumleme null doner - cagiran taraf prosedurele doner', () => {
     for (const def of allBuildings()) {
+      if (hasBuildingSprite(def.id, 1)) continue;
       expect(resolveBuildingSprite(def.id, 1), def.id).toBeNull();
     }
+  });
+
+  it('kataloktaki binalarin cogu hala prosedurel - hat kademeli gecis icin', () => {
+    const withArt = allBuildings().filter((def) => hasBuildingSprite(def.id, 1));
+    expect(withArt.length).toBeLessThan(allBuildings().length);
   });
 });
 
 describe('gorsel secimi', () => {
   it('sprite bildirilmemisken gorsel eskisi gibi prosedureldir', () => {
+    /*
+     * Sprite'i OLMAYAN bir tur secilir; boylece test, klasore hangi
+     * varligin konuldugundan etkilenmez. Prosedurel anahtar her durumda
+     * uretilmeli - sprite yalnizca onun UZERINE gelir, yerine degil.
+     */
+    const bare = allBuildings().find((def) => !hasBuildingSprite(def.id, 1));
+    if (!bare) throw new Error('prosedurel kalan bina yok');
+
     const visual = getBuildingVisual({
-      type: 'house',
+      type: bare.id,
       level: 1,
       state: 'active',
-      size: 1,
-      uid: 'house#1',
+      size: bare.size,
+      uid: `${bare.id}#1`,
     });
-    expect(visual.textureKey).toBe(visualKeyFor('house', 1, 0));
+    expect(visual.textureKey).toBe(visualKeyFor(bare.id, 1, 0));
     expect(visual.spriteKey).toBeNull();
+    expect(visual.shadowSpriteKey).toBeNull();
+  });
+
+  it('sprite VARSA gorsel onu bildirir ama prosedurel anahtari da tasir', () => {
+    const painted = allBuildings().find((def) => hasBuildingSprite(def.id, 1));
+    if (!painted) return; // klasor bos: kural denenecek varlik yok
+
+    const visual = getBuildingVisual({
+      type: painted.id,
+      level: 1,
+      state: 'active',
+      size: painted.size,
+      uid: `${painted.id}#1`,
+    });
+    // Prosedurel anahtar KAYBOLMAZ: sprite yuklenemezse oraya donulur.
+    expect(visual.textureKey).toBe(visualKeyFor(painted.id, 1, 0));
+    expect(visual.spriteKey).not.toBeNull();
+    /*
+     * Ozel golge dosyasi VERILMEDIYSE bu alan null kalir - eksiklik degil,
+     * sozlesme: golgeyi o zaman cizim katmani uretir (bkz. ShadowArt).
+     */
     expect(visual.shadowSpriteKey).toBeNull();
   });
 

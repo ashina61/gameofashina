@@ -15,6 +15,7 @@ import {
 } from '@/systems/BuildingPlotSystem';
 import { NavigationSystem, isWalkableTile } from '@/systems/NavigationSystem';
 import { terrainAssets } from '@/render/AssetManifest';
+import { needsRebake } from '@/render/SpriteScale';
 import { SKIN_PALETTE } from '@/render/PanelSkin';
 import { TERRAIN_COLORS } from '@/render/TextureFactory';
 
@@ -341,5 +342,44 @@ describe('zemin ve arayuz paleti ayrisir', () => {
    */
   it('depoda prosedurel zemini golgeleyen placeholder karo yok', () => {
     expect(terrainAssets()).toEqual([]);
+  });
+});
+
+/**
+ * Sprint 19 / varlik hatti: DOKU, CIZILDIGI OLCUDE PISIRILIR.
+ *
+ * Olculdu (120 bina, bos sehir, ayni oturum, DPR 1):
+ *   512 px kaynak ->  7 FPS
+ *   256 px kaynak -> 16 FPS
+ *   128 px kaynak -> 21 FPS   (prosedurel taban cizgisi ~25)
+ *
+ * Maliyet varligin kendisi degil, her karede yeniden ORNEKLENMESIYDI.
+ * Doku bir kez hedef olcude pisirilince 120 binada 24 FPS'e cikti - yani
+ * boyali varliklar prosedurel cizim kadar ucuz.
+ */
+describe('doku yeniden olceklendirme kurali', () => {
+  it('buyuk kaynak pisirilir, yeterince kucuk olan dokunulmaz', () => {
+    expect(needsRebake(512, 128)).toBe(true);
+    expect(needsRebake(256, 128)).toBe(true);
+    // Hedefle ayni ya da ondan kucuk kaynak yeniden uretilmez.
+    expect(needsRebake(128, 128)).toBe(false);
+    expect(needsRebake(64, 128)).toBe(false);
+  });
+
+  it('dar bir tolerans birakilir: kucuk fazlalik pisirmeye degmez', () => {
+    expect(needsRebake(150, 128)).toBe(false); // %17 fazla
+    expect(needsRebake(170, 128)).toBe(true); // %33 fazla
+  });
+
+  /** DPR 2'de hedef iki katina cikar; 256'lik varlik oldugu gibi kullanilir. */
+  it('yuksek yogunluklu ekranda ayni dosya yeniden uretilmez', () => {
+    expect(needsRebake(256, 128 * 2)).toBe(false);
+    expect(needsRebake(512, 128 * 2)).toBe(true);
+  });
+
+  it('bozuk olculer sessizce gecilir - gorsel bir ayrinti oyunu durdurmaz', () => {
+    expect(needsRebake(Number.NaN, 128)).toBe(false);
+    expect(needsRebake(512, 0)).toBe(false);
+    expect(needsRebake(0, 128)).toBe(false);
   });
 });

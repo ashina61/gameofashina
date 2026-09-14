@@ -17,7 +17,8 @@ bakildi.
 | Sira | Dosya | Neden |
 |------|-------|-------|
 | **1** | `terrain/` (4 dosya) | Ekranin ~%60'i zemin. Prosedurel karolarin sert dikisleri sehri "satranc tahtasi" gosteriyordu; en buyuk tek kazanc burada. Klasor BOS: yer tutucu karolar kaldirildi, cunku prosedurel zemini tamamen golgeliyor ve palet duzeltmelerinin ekrana ulasmasini engelliyorlardi. |
-| **2** | `buildings/house_1.png` | Binalar su an duz kutu: pencere yok, doku yok. Doldurulmus bir sehirde en cok tekrar eden gorsel ev. |
+| **2** | `buildings/house_1.png` | **Yapildi.** Tek bir boyali ev, sehrin gorunusunu tamamen degistirdi - ve geri kalan prosedurel binalari yaninda yer tutucu gibi gosterdi. |
+| **2b** | `buildings/house_1_v1.png`, `house_1_v2.png` | Her ev ayni resim oldugu icin sehir tekrar ediyor. Iki varyant bunu kirar; hat varyantlari kendiliginden secer. |
 | **3** | `buildings/town_hall_*.png`, `temple_*`, `harbor_*` | Anitsal yapilar sehrin siluetini belirler; oyuncunun gozu once onlara gider. |
 | **4** | `ui/portrait.png` | Ust soldaki tek "insan" ogesi. |
 | **5** | Kalan binalar | Buraya kadar iyi gorunmuyorsa yon yanlistir; otuz dosya uretmeden once ilk dordu degerlendir. |
@@ -73,7 +74,12 @@ kalan prosedurel kalir.
 
 ### Cizim kurallari
 
-- **Genislik = 128 x ayak izi.** 1x1 bina 128 px, 2x2 bina 256 px genis.
+- **Genislik = 256 x ayak izi (onerilen).** 1x1 bina 256 px, 2x2 bina 512 px.
+  Oyun binayi ayak izine gore olcekler; 256, yuksek yogunluklu telefonda
+  (DPR 2) TAM karsiligidir. Daha buyuk dosya da calisir - oyun onu bir kez
+  cizildigi olcude yeniden pisirir - ama gereksiz yere indirilir.
+  OLCULDU: 512 piksellik kaynak her karede yeniden orneklendiginde 120
+  binada kare hizi 7'ye dusuyordu; bir kez pisirilince 24'e cikti.
   Yukseklik serbesttir; bina ne kadar yuksekse o kadar uzun olur.
   Daha buyuk dosya (256, 512...) da olur - oyun onu ayni dunya boyutuna
   oturtur, yalnizca daha net gorunur.

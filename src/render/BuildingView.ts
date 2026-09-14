@@ -3,6 +3,7 @@ import { TILE_HEIGHT, TILE_WIDTH, TextureKeys } from '@/config/Constants';
 import { depthFor, gridToWorld } from '@/utils/IsoUtils';
 import { getBuildingVisual } from './BuildingVisuals';
 import { ensureShadowTexture } from './ShadowArt';
+import { rightSizedKey } from './SpriteScale';
 import type { BuildingVisual } from './BuildingVisuals';
 import type {
   BuildingDefinition,
@@ -91,6 +92,8 @@ export class BuildingView {
    * Dokular DPR olceginde uretilir; sprite bunun tersiyle olceklenir ki
    * dunyadaki boyut degismesin. Tum olcek islemleri bu degeri taban alir.
    */
+  /** Cihaz piksel yogunlugu; dokular bu olcekte uretilir. */
+  private readonly artScale: number;
   private readonly baseScale: number;
 
   constructor(
@@ -101,7 +104,8 @@ export class BuildingView {
     artScale = 1,
   ) {
     this.uid = building.uid;
-    this.baseScale = 1 / (artScale > 0 ? artScale : 1);
+    this.artScale = artScale > 0 ? artScale : 1;
+    this.baseScale = 1 / this.artScale;
 
     // Binanin taban eskenar dortgeninin en on kosesi
     const anchor = gridToWorld(building.gx + def.size - 1, building.gy + def.size - 1);
@@ -310,7 +314,16 @@ export class BuildingView {
     visual: BuildingVisual,
   ): { key: string; usesSprite: boolean } {
     if (visual.spriteKey && scene.textures.exists(visual.spriteKey)) {
-      return { key: visual.spriteKey, usesSprite: true };
+      /*
+       * Doku, EKRANDA CIZILDIGI olcude yeniden pisirilir.
+       *
+       * Ayak izi genisligi x cihaz yogunlugu, sprite'in gercek piksel
+       * olcusudur. Buyuk bir kaynagi her karede kucultmek olculdu ve
+       * pahali cikti (120 binada 7 FPS'e kadar); bir kez pisirmek ayni
+       * gorunusu prosedurel taban cizgisinin hizinda verir.
+       */
+      const target = TILE_WIDTH * this.def.size * this.artScale;
+      return { key: rightSizedKey(scene, visual.spriteKey, target), usesSprite: true };
     }
     return { key: visual.textureKey, usesSprite: false };
   }
