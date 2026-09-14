@@ -16,7 +16,7 @@ bakildi.
 
 | Sira | Dosya | Neden |
 |------|-------|-------|
-| **1** | `terrain/` (4 dosya) | Ekranin ~%60'i zemin. Prosedurel karolarin sert dikisleri sehri "satranc tahtasi" gosteriyordu; en buyuk tek kazanc burada. **Yapildi - su an yer tutucu karolar var.** |
+| **1** | `terrain/` (4 dosya) | Ekranin ~%60'i zemin. Prosedurel karolarin sert dikisleri sehri "satranc tahtasi" gosteriyordu; en buyuk tek kazanc burada. Klasor BOS: yer tutucu karolar kaldirildi, cunku prosedurel zemini tamamen golgeliyor ve palet duzeltmelerinin ekrana ulasmasini engelliyorlardi. |
 | **2** | `buildings/house_1.png` | Binalar su an duz kutu: pencere yok, doku yok. Doldurulmus bir sehirde en cok tekrar eden gorsel ev. |
 | **3** | `buildings/town_hall_*.png`, `temple_*`, `harbor_*` | Anitsal yapilar sehrin siluetini belirler; oyuncunun gozu once onlara gider. |
 | **4** | `ui/portrait.png` | Ust soldaki tek "insan" ogesi. |

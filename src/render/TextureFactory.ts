@@ -38,11 +38,25 @@ import type { DecorKind, TerrainType, WorkerState } from '@/types';
  * Cim daha kuru ve zeytin yesili, toprak daha killi, kaya daha bej,
  * su daha turkuaz. Amac bloke renklerden cikip ayni sanat diline oturmak.
  */
-const TERRAIN_COLORS: Record<TerrainType, { top: number; side: number; speck: number }> = {
-  grass: { top: 0x86a257, side: 0x5f7a3c, speck: 0x9cb468 },
-  soil: { top: 0xb08a5c, side: 0x8a6842, speck: 0xc6a273 },
-  water: { top: 0x4a86ab, side: 0x33607f, speck: 0x7fb6d4 },
-  rock: { top: 0x9a948a, side: 0x726d65, speck: 0xb3ada2 },
+/*
+ * ZEMIN, ARAYUZDEN AYRI BIR DUNYADIR.
+ *
+ * Olculdu (390x844, gercek ekran goruntusu): piksellerin %88'i tek bir ton
+ * yayinda (0-90 derece, kirmizidan sari-yesile) topluyordu ve en acik ile
+ * en koyu parlaklik dilimlerinde HIC piksel yoktu. Panel parsomeni ile
+ * meydan dosemesi ayni kremdi, dolayisiyla arayuz sehirden ayrismiyor, goz
+ * tek bir bej kutle goruyordu.
+ *
+ * Cozum arayuzu degistirmek DEGIL - parsomen bilincli bir tercih - zemini
+ * geri kazanmaktir: cimen doygunlasir, su derinlesir, yan yuzler koyulasir.
+ * Boylece dunya yesil ve mavi, arayuz krem kalir; ikisi birbirinden ton ve
+ * parlaklikla ayrisir.
+ */
+export const TERRAIN_COLORS: Record<TerrainType, { top: number; side: number; speck: number }> = {
+  grass: { top: 0x6f9b3a, side: 0x466627, speck: 0x8cb84e },
+  soil: { top: 0xa87c4a, side: 0x74512c, speck: 0xc2955c },
+  water: { top: 0x357ba6, side: 0x1e5273, speck: 0x74b8dc },
+  rock: { top: 0x8f8a80, side: 0x5e5b55, speck: 0xaaa49a },
 };
 
 /** Zemin turune gore yuzey deseni; her karo ayni sanat dilinde kalir. */
@@ -329,7 +343,19 @@ function drawPaving(g: Phaser.GameObjects.Graphics, w: number, h: number, plaza:
    * ve sokak agi okunmuyordu (ilk ekran goruntusunde ada tek bir bej
    * yuzeydi). Ton farki sokagi geri getirir.
    */
-  const top = plaza ? shade(PALETTE.stoneLight, 0.02) : shade(PALETTE.block, 0.24);
+  /*
+   * Meydan artik PARSOMEN DEGIL, sicak kum tasi.
+   *
+   * stoneLight (+%2) panel parsomeniyle (#eddcb8) neredeyse ayni renkti;
+   * meydan karolari ekranda panellerin devami gibi okunuyordu. Bir ton
+   * koyu ve daha sicak bir tas, paneli meydanin UZERINDE birakir.
+   *
+   * Sokak da KOYULDU. Acik gri doseme, haritanin neredeyse yarisini
+   * kaplayan en PARLAK kutleydi; cimen doygunlastiginda bile goz once
+   * sokagi goruyordu. Orta tonlu tas, yolu okunur birakir ama ekranin
+   * agirlik merkezini yesile birakir.
+   */
+  const top = plaza ? shade(PALETTE.stone, 0.04) : shade(PALETTE.block, -0.06);
 
   const face = (scale: number): void => {
     g.beginPath();

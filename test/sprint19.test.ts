@@ -14,6 +14,9 @@ import {
   isCourtyard,
 } from '@/systems/BuildingPlotSystem';
 import { NavigationSystem, isWalkableTile } from '@/systems/NavigationSystem';
+import { terrainAssets } from '@/render/AssetManifest';
+import { SKIN_PALETTE } from '@/render/PanelSkin';
+import { TERRAIN_COLORS } from '@/render/TextureFactory';
 
 const SEEDS = [1, 4242, 31337, 8888];
 
@@ -263,5 +266,80 @@ describe('yerlesim kaydi', () => {
 
   it('kayit surumu ARTMADI - alan geriye donuk uyumlu', () => {
     expect(SAVE_VERSION).toBe(3);
+  });
+});
+
+/**
+ * Sprint 19 / adim 2: DUNYA ILE ARAYUZUN RENK AYRIMI.
+ *
+ * Olculen sorun: gercek ekran goruntusunde piksellerin %64,7'si tek bir ton
+ * diliminde (bej-sari) topluyordu. Panel parsomeni, meydan dosemesi ve bina
+ * duvarlari ayni krem ailesindendi; goz arayuzu sehirden ayiramiyordu.
+ *
+ * Arayuz parsomen KALIR - bilincli bir tercih. Ayrisma zeminden gelir:
+ * cimen doygunlasir, su derinlesir, doseme koyulasir.
+ */
+describe('zemin ve arayuz paleti ayrisir', () => {
+  /** Iki rengin RGB uzayindaki uzakligi (0..441). */
+  const distance = (a: number, b: number): number => {
+    const dr = ((a >> 16) & 0xff) - ((b >> 16) & 0xff);
+    const dg = ((a >> 8) & 0xff) - ((b >> 8) & 0xff);
+    const db = (a & 0xff) - (b & 0xff);
+    return Math.sqrt(dr * dr + dg * dg + db * db);
+  };
+  const parseHex = (css: string): number => Number.parseInt(css.replace('#', ''), 16);
+
+  it('hicbir zemin rengi panel parsomenine yakin degil', () => {
+    const parchments = [
+      SKIN_PALETTE.parchmentLight,
+      SKIN_PALETTE.parchment,
+      SKIN_PALETTE.parchmentDark,
+    ].map(parseHex);
+
+    for (const [name, colors] of Object.entries(TERRAIN_COLORS)) {
+      for (const parchment of parchments) {
+        expect(
+          distance(colors.top, parchment),
+          `${name} zemini panel parsomenine cok yakin`,
+        ).toBeGreaterThan(60);
+      }
+    }
+  });
+
+  it('cimen GERCEKTEN yesil: yesil kanal baskin ve doygunluk yeterli', () => {
+    const { top } = TERRAIN_COLORS.grass;
+    const r = (top >> 16) & 0xff;
+    const g = (top >> 8) & 0xff;
+    const b = top & 0xff;
+    expect(g, 'yesil kanal kirmizidan baskin olmali').toBeGreaterThan(r + 30);
+    expect(g, 'yesil kanal maviden baskin olmali').toBeGreaterThan(b + 60);
+    // Doygunluk: en yuksek ve en dusuk kanal arasindaki fark.
+    expect(g - b).toBeGreaterThan(80);
+  });
+
+  it('su GERCEKTEN mavi ve zeminlerin en koyusu', () => {
+    const { top } = TERRAIN_COLORS.water;
+    const b = top & 0xff;
+    expect(b).toBeGreaterThan((top >> 16) & 0xff);
+    const luma = (c: number) =>
+      0.299 * ((c >> 16) & 0xff) + 0.587 * ((c >> 8) & 0xff) + 0.114 * (c & 0xff);
+    for (const [name, colors] of Object.entries(TERRAIN_COLORS)) {
+      if (name === 'water') continue;
+      expect(luma(TERRAIN_COLORS.water.top), `su ${name}'dan acik`).toBeLessThan(luma(colors.top));
+    }
+  });
+
+  /**
+   * PLACEHOLDER ZEMIN PNG'LERI GERI GELMEMELI.
+   *
+   * Sprint 18'de boru hattini gostermek icin dort duz karo islenmisti.
+   * Bunlar prosedurel zemini TAMAMEN golgeliyordu: palet duzeltmesi
+   * ekrana hic ulasmadi ve sorun ancak doku pikseli okunarak bulundu
+   * (olculdu: doku rgb(134,162,87) - yani eski renk - yeni kod calisirken).
+   *
+   * Hat calismaya devam ediyor; yalnizca DEPODA hazir dosya durmuyor.
+   */
+  it('depoda prosedurel zemini golgeleyen placeholder karo yok', () => {
+    expect(terrainAssets()).toEqual([]);
   });
 });
