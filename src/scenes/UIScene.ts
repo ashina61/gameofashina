@@ -164,7 +164,12 @@ export class UIScene extends Phaser.Scene {
       onPress: () => this.showSettings(),
     });
 
-    this.questCard = new QuestCard(this, 0, 0, 2, () => this.selectTab('quests'));
+    /*
+     * Kart acilip kapandiginda yuksekligi degisir; altindaki ray ve
+     * bildirimler yeniden yerlesmeli. Gorev LISTESINE erisim bu karttan
+     * degil alt gezinme cubugundaki GOREVLER sekmesinden saglanir.
+     */
+    this.questCard = new QuestCard(this, 0, 0, 2, () => this.relayout());
 
     this.leftRail = new IconRail(this, 0, 0, [
       { icon: 'mail', onPress: () => this.comingSoon('Mesajlar') },
@@ -892,6 +897,15 @@ export class UIScene extends Phaser.Scene {
      * dikkatini acik sayfada tutar.
      */
     const panelOpen = this.openPanelHeight() > 0;
+    /*
+     * Alt sayfa acilinca gorev karti kapanir: acik kart, sayfanin ustunde
+     * kalan dar seridi de yiyordu. Kapanma gercekten olduysa yerlesim bir
+     * kez daha kosar, cunku kartin yuksekligi degisti.
+     */
+    if (panelOpen && this.questCard.collapse()) {
+      this.relayout();
+      return;
+    }
     this.leftRail.setVisible(!panelOpen);
     this.rightRail.setVisible(!panelOpen);
 

@@ -202,12 +202,70 @@ for (const viewport of VIEWPORTS) {
       panelInside: panelRect.bottom <= navRect.top + 1,
       panelHits: panelCheck.hits,
       panelTextInside: panelCheck.items.every((t) => t.right <= logical.w + 1),
-      // Sehir gorunurlugu
+        // Sehir gorunurlugu
       hallOnScreen:
         hallScreen.x > 0 && hallScreen.x < logical.w && hallScreen.y > 0 && hallScreen.y < panelRect.top,
       // Yatay tasma
       overflow: document.documentElement.scrollWidth > window.innerWidth,
     };
+  });
+
+  /*
+   * SEHIR PENCERESI: hicbir HUD parcasinin dokunmadigi EN BUYUK dikdortgen.
+   *
+   * "Arayuz ekranin yuzde kacini kapliyor" yanilticiydi: kenara yaslanmis
+   * 30 piksellik bir serit ile sehrin ORTASINDA duran 30 piksellik bir kart
+   * ayni yuzdeyi verir ama oyuncunun gordugu sehir cok farklidir.
+   * Belirleyici olan KESINTISIZ alandir.
+   *
+   * Olcum PANEL KAPALIYKEN yapilir: oyuncunun zamaninin cogunu gecirdigi
+   * durum budur. Acik bir alt sayfa sehri bilerek ortar ve o durumu
+   * kapiya koymak, panelin kendisini hata gibi gosterirdi.
+   */
+  const cityWindow = await page.evaluate(() => {
+    const ui = window.game.scene.getScene('UIScene');
+    // Secimi olay veriyolundan kaldir: alt sayfa kapanir.
+    window.game.scene.getScene('CityScene').registry.get('world').bus.emit('tile:selected', null);
+    const W = Math.round(ui.logicalWidth());
+    const H = Math.round(ui.logicalHeight());
+    const mask = new Uint8Array(W * H);
+
+    const block = (r) => {
+      if (!r) return;
+      for (let y = Math.max(0, Math.round(r.y)); y < Math.min(H, Math.round(r.y + r.height)); y += 1) {
+        for (let x = Math.max(0, Math.round(r.x)); x < Math.min(W, Math.round(r.x + r.width)); x += 1) {
+          mask[y * W + x] = 1;
+        }
+      }
+    };
+    for (const key of Object.keys(ui)) {
+      const part = ui[key];
+      if (!part || typeof part !== 'object' || part.visible === false) continue;
+      if (typeof part.bounds === 'function') block(part.bounds());
+    }
+    for (const pill of ui.pills.values()) block(pill.bounds());
+    block({ x: 0, y: ui.nav.y, width: W, height: H - ui.nav.y });
+
+    const heights = new Int32Array(W);
+    let best = 0;
+    let bestW = 0;
+    let bestH = 0;
+    for (let y = 0; y < H; y += 1) {
+      for (let x = 0; x < W; x += 1) heights[x] = mask[y * W + x] ? 0 : heights[x] + 1;
+      const stack = [];
+      for (let x = 0; x <= W; x += 1) {
+        const cur = x === W ? 0 : heights[x];
+        while (stack.length > 0 && heights[stack[stack.length - 1]] >= cur) {
+          const top = stack.pop();
+          const h = heights[top];
+          const left = stack.length > 0 ? stack[stack.length - 1] + 1 : 0;
+          const w = x - left;
+          if (h * w > best) { best = h * w; bestW = w; bestH = h; }
+        }
+        stack.push(x);
+      }
+    }
+    return { w: bestW, h: bestH, pct: Math.round((best / (W * H)) * 100) };
   });
 
   // Insa modunda alanlar gorunuyor mu?
@@ -234,6 +292,8 @@ for (const viewport of VIEWPORTS) {
         ? 'OK'
         : `SORUN ${probe.panelHits[0] ?? 'tasti'}`,
     'merkez gorunur': probe.hallOnScreen ? 'OK' : 'GORUNMUYOR',
+    'sehir penceresi': `${cityWindow.w}x${cityWindow.h}`,
+    'pencere %': cityWindow.pct,
     'insa alanlari': plotProbe,
     'yatay tasma': probe.overflow ? 'VAR' : 'yok',
   });
@@ -252,6 +312,14 @@ const ok = rows.every(
     r['gezinme alani'] === 'OK' &&
     r['bilgi paneli'] === 'OK' &&
     r['merkez gorunur'] === 'OK' &&
+    /*
+     * Kesintisiz sehir alani ekranin en az %40'i olmali.
+     *
+     * Olculdu: gorev karti acikken bant %40,6, kart kapaliyken %44,8.
+     * Esik, kazanimi korur ama nefes payi birakir - amac sayiyi
+     * kovalamak degil, ortaya YENI bir panel konmasini engellemektir.
+     */
+    r['pencere %'] >= 40 &&
     r['insa alanlari'] > 0 &&
     r['yatay tasma'] === 'yok',
 );

@@ -275,9 +275,24 @@ export class QuestCard extends Phaser.GameObjects.Container {
     rule: Phaser.GameObjects.Image;
   }> = [];
 
+  private readonly summary: Phaser.GameObjects.Text;
+  private readonly chevron: Phaser.GameObjects.Text;
+
   private visibleRows = 0;
 
-  constructor(scene: Phaser.Scene, x: number, y: number, maxRows: number, onOpen: () => void) {
+  /**
+   * Kart KAPALI baslar.
+   *
+   * Olculdu: acik kart 88 piksel yuksekligindeydi ve sehrin gorundugu
+   * bandin en ustunu kesiyordu - HUD'suz en buyuk dikdortgen 290x461'de
+   * kaliyordu. Kapali kart 36 piksel; gorev bilgisi kaybolmaz, ozet
+   * basliga taşinir ve dokununca acilir. Gorev listesine alt gezinme
+   * cubugundaki GOREVLER sekmesinden de ulasilir, yani tek erisim yolu
+   * bu kart degildir.
+   */
+  private collapsed = true;
+
+  constructor(scene: Phaser.Scene, x: number, y: number, maxRows: number, onToggle: () => void) {
     super(scene, x, y);
 
     const height = QuestCard.HEADER + QuestCard.ROW * maxRows + 6;
@@ -301,13 +316,17 @@ export class QuestCard extends Phaser.GameObjects.Container {
       .setOrigin(0.5, 0.5)
       .setDisplaySize(15, 15);
     const headerText = scene.add
-      .text(32, 16, 'Bugunun Gorevleri', titleStyle(11, UIText.primary))
+      .text(32, 16, 'Gorevler', titleStyle(11, UIText.primary))
       .setOrigin(0, 0.5);
-    const chevron = scene.add
-      .text(QuestCard.WIDTH - 13, 16, '>', titleStyle(12, UIText.accent))
+    /** Kapaliyken toplam ilerleme basligin sagina yazilir. */
+    this.summary = scene.add
+      .text(QuestCard.WIDTH - 26, 16, '', labelStyle(10, UIText.accent, true))
+      .setOrigin(1, 0.5);
+    this.chevron = scene.add
+      .text(QuestCard.WIDTH - 13, 16, 'v', titleStyle(12, UIText.accent))
       .setOrigin(0.5, 0.5);
 
-    this.add([this.frame, headerIcon, headerText, chevron]);
+    this.add([this.frame, headerIcon, headerText, this.summary, this.chevron]);
 
     for (let i = 0; i < maxRows; i += 1) {
       const rowY = QuestCard.HEADER + QuestCard.ROW * i + QuestCard.ROW / 2;
@@ -331,16 +350,56 @@ export class QuestCard extends Phaser.GameObjects.Container {
       this.add([rule, icon, label, count]);
     }
 
-    // Kartin tamami basilabilir: referansta baslik satirindaki ">" tek
-    // basina cok kucuk bir hedef.
+    /*
+     * Dokunma hedefi yalnizca BASLIK SATIRIDIR.
+     *
+     * Kartin tamami hedef olsaydi kart acikken altindaki sehre dokunmak
+     * imkansiz olurdu; basligin yuksekligi (30) zaten asgari dokunma
+     * hedefinin uzerinde.
+     */
     const zone = scene.add
-      .zone(0, 0, QuestCard.WIDTH, height)
+      .zone(0, 0, QuestCard.WIDTH, QuestCard.HEADER)
       .setOrigin(0, 0)
       .setInteractive({ useHandCursor: true });
-    zone.on(Phaser.Input.Events.GAMEOBJECT_POINTER_UP, onOpen);
+    zone.on(Phaser.Input.Events.GAMEOBJECT_POINTER_UP, () => {
+      this.collapsed = !this.collapsed;
+      this.applyState();
+      onToggle();
+    });
     this.add(zone);
 
+    this.applyState();
     scene.add.existing(this);
+  }
+
+  /** Kart acik mi? */
+  get isExpanded(): boolean {
+    return !this.collapsed;
+  }
+
+  /**
+   * Karti kapatir - alt sayfa acildiginda cagrilir.
+   * Zaten kapaliysa hicbir sey yapmaz ve false doner.
+   */
+  collapse(): boolean {
+    if (this.collapsed) return false;
+    this.collapsed = true;
+    this.applyState();
+    return true;
+  }
+
+  /** Satirlarin gorunurlugunu, ozeti ve cerceve olcusunu duruma gore ayarlar. */
+  private applyState(): void {
+    this.rows.forEach((row, i) => {
+      const on = !this.collapsed && i < this.visibleRows;
+      row.icon.setVisible(on);
+      row.label.setVisible(on);
+      row.count.setVisible(on);
+      row.rule.setVisible(on);
+    });
+    this.chevron.setText(this.collapsed ? 'v' : '^');
+    this.summary.setVisible(this.collapsed);
+    this.frame.setSize(QuestCard.WIDTH, this.heightPx);
   }
 
   /** Gorev satirlarini yazar; fazlalik satirlar gizlenir. */
@@ -348,11 +407,6 @@ export class QuestCard extends Phaser.GameObjects.Container {
     this.visibleRows = Math.min(rows.length, this.rows.length);
     this.rows.forEach((row, i) => {
       const data = rows[i];
-      const on = data !== undefined;
-      row.icon.setVisible(on);
-      row.label.setVisible(on);
-      row.count.setVisible(on);
-      row.rule.setVisible(on);
       if (!data) return;
       row.icon.setTexture(iconKeyFor(data.icon));
       row.label.setText(data.label);
@@ -361,10 +415,19 @@ export class QuestCard extends Phaser.GameObjects.Container {
       // bittigini okumadan gorur.
       row.count.setColor(data.done >= data.total ? UIText.success : UIText.accent);
     });
-    this.frame.setSize(QuestCard.WIDTH, this.heightPx);
+
+    // Kapaliyken baslikta duran ozet: kac gorev tamamlandi.
+    const done = rows.filter((r) => r.done >= r.total).length;
+    this.summary.setText(rows.length > 0 ? `${done}/${rows.length}` : '');
+    this.summary.setColor(
+      rows.length > 0 && done >= rows.length ? UIText.success : UIText.accent,
+    );
+
+    this.applyState();
   }
 
   get heightPx(): number {
+    if (this.collapsed) return QuestCard.HEADER + 6;
     return QuestCard.HEADER + QuestCard.ROW * Math.max(1, this.visibleRows) + 6;
   }
 
