@@ -48,7 +48,22 @@ export const LEGACY_GRID_SIZE = 14;
  * ayrilamadi (olculdu: civic plot sayisi 0). Sabit tek yerde durunca ikisi
  * birbirinden kayamaz.
  */
-export const STREET_EVERY = 3;
+export const STREET_EVERY = 4;
+
+/**
+ * Sokak araligi ALANI YOKSA kullanilan eski deger.
+ *
+ * Sprint 19'a kadar aralik 3'tu: 3x3 bloklarin yalnizca 2x2 ici yapiya
+ * aciliyor, yani haritanin %55,6'si kalici olarak sokak kaliyordu
+ * (olculdu: 324 karoya en fazla 103 bina, doluluk %31,8). Sehir "sehir"
+ * degil kareli defter gibi okunuyordu.
+ *
+ * Yeni sehirler 4 kullanir; ESKI KAYITLAR kendi araliginda yasamaya devam
+ * eder. Kayitli bir sehrin araligini degistirmek, binalarinin bir kismini
+ * artik sokak olan karolara dusururdu - izgara boyutunda oldugu gibi
+ * (bkz. LEGACY_GRID_SIZE) her sehir kendi yerlesimini tasir.
+ */
+export const LEGACY_STREET_EVERY = 3;
 
 /**
  * Simulasyonun saniyedeki tik sayisi.

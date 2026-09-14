@@ -9,11 +9,21 @@ export class GridMap {
   readonly size: number;
   readonly seed: number;
 
+  /**
+   * Bu sehrin sokak araligi.
+   *
+   * Izgara BOYUTU gibi sehir basina tasinir, kuresel bir sabit degildir:
+   * aralik degisince eski bir sehrin binalari artik sokak olan karolara
+   * duserdi. Kayitta alan yoksa LEGACY_STREET_EVERY kullanilir.
+   */
+  readonly streetEvery: number;
+
   private readonly tiles: TileData[];
 
-  constructor(seed: number, size: number = GRID_SIZE) {
+  constructor(seed: number, size: number = GRID_SIZE, streetEvery: number = STREET_EVERY) {
     this.size = size;
     this.seed = seed;
+    this.streetEvery = streetEvery;
     this.tiles = new Array<TileData>(size * size);
     this.generate();
   }
@@ -126,11 +136,12 @@ export class GridMap {
    */
   private carveStartingArea(): void {
     const { gx, gy } = this.center();
-    const blockX = Math.floor(gx / STREET_EVERY) * STREET_EVERY;
-    const blockY = Math.floor(gy / STREET_EVERY) * STREET_EVERY;
+    const period = this.streetEvery;
+    const blockX = Math.floor(gx / period) * period;
+    const blockY = Math.floor(gy / period) * period;
 
-    for (let y = blockY - 1; y <= blockY + STREET_EVERY; y += 1) {
-      for (let x = blockX - 1; x <= blockX + STREET_EVERY; x += 1) {
+    for (let y = blockY - 1; y <= blockY + period; y += 1) {
+      for (let x = blockX - 1; x <= blockX + period; x += 1) {
         const tile = this.getTile(x, y);
         if (tile) tile.terrain = 'grass';
       }

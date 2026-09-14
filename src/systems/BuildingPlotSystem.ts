@@ -1,7 +1,8 @@
 import { STREET_EVERY } from '@/config/Constants';
 import { getBuilding } from '@/config/BuildingCatalog';
+import { WALKABLE_TERRAIN } from './NavigationSystem';
 import type { GridMap } from '@/core/GridMap';
-import type { BuildingId, BuildingPlot, GridPoint, PlotZone } from '@/types';
+import type { BuildingId, BuildingPlot, GridPoint, PlotZone, TerrainType } from '@/types';
 
 /**
  * Sehrin yapi alanlari (plot) sistemi.
@@ -22,11 +23,21 @@ import type { BuildingId, BuildingPlot, GridPoint, PlotZone } from '@/types';
  * seed her zaman ayni sehri verir, dolayisiyla plotlari kaydetmeye gerek
  * yoktur ve eski kayitlar bozulmaz.
  *
- * SOKAKLAR
- * gx veya gy'si 3'un kati olan karolar ASLA plot olmaz. Geriye 2x2'lik
- * yapi adalari ve aralarinda dik acili sokaklar kalir. Bu hem Ikariam'in
- * duzenli sehir hissini verir hem de Sprint 10'un dort yonlu BFS'i icin
- * her zaman baglantili bir gezinti agi garanti eder.
+ * SOKAKLAR VE AVLULAR
+ * gx veya gy'si sokak araliginin kati olan karolar ASLA plot olmaz; geriye
+ * yapi adalari ve aralarinda dik acili sokaklar kalir. Bu hem duzenli sehir
+ * hissini verir hem de dort yonlu BFS icin her zaman baglantili bir gezinti
+ * agi garanti eder.
+ *
+ * Aralik 4'e cikinca ada ici 3x3 oldu ve ADANIN ORTA KAROSU sorun cikardi:
+ * dort komsusu da yapi olabildigi icin ada tamamen dolunca o karo gezinti
+ * agindan kopuyordu (isWalkableTile dolu karoyu gecilmez sayar). Orta karo
+ * bu yuzden plot DEGIL, AVLUDUR - hem erisim garantisi geri gelir hem de
+ * her adanin icinde kucuk bir bosluk olusur, sehir tek parca bir blok
+ * yiginina donmez.
+ *
+ * Avlu yalnizca aralik 4 ve uzerinde vardir: eski 3'luk sehirlerde ada ici
+ * zaten 2x2'dir ve her karosu sokaga deger.
  */
 
 /**
@@ -51,6 +62,22 @@ const ZONE_TYPES: Record<PlotZone, BuildingId[]> = {
    */
   production: ['farm', 'lumber_camp', 'house', 'warehouse', 'quarry', 'harbor'],
 };
+
+/**
+ * Bolge listesi bos kaldiginda denenen genel liste.
+ *
+ * Bolgeye degil ZEMINE bakar: amaci, yapiya acik bir karonun bolge tercihi
+ * yuzunden kalici bosluga donusmesini engellemektir. Sira onemli - listenin
+ * basindaki tur, o karo icin varsayilan oneri olur.
+ */
+const FALLBACK_TYPES: readonly BuildingId[] = [
+  'house',
+  'farm',
+  'quarry',
+  'lumber_camp',
+  'warehouse',
+  'market',
+];
 
 /**
  * Bolge halkalarinin merkeze KARO cinsinden uzakligi.
@@ -82,9 +109,12 @@ export class BuildingPlotSystem {
   /** Karo -> plot indeksi; cok karolu plotun her karosu ayni plota bakar. */
   private readonly byTile = new Map<string, BuildingPlot>();
   private readonly byId = new Map<string, BuildingPlot>();
+  /** Ana sokak agindaki karolar; yapi alani buna komsu olmak zorunda. */
+  private readonly mainStreets = new Set<string>();
 
   constructor(grid: GridMap) {
     this.grid = grid;
+    this.findMainStreetNetwork();
     this.layout();
   }
 
@@ -100,6 +130,18 @@ export class BuildingPlotSystem {
 
   plotById(id: string): BuildingPlot | null {
     return this.byId.get(id) ?? null;
+  }
+
+  /**
+   * Karo, sehrin ANA SOKAK AGINDAN hizmet aliyor mu?
+   *
+   * Yapi alani acilmasinin on sartidir: isci ancak sokaktan gelir. Sokak
+   * deseni modulo ile tanimli olsa da sokak karosunun kendisi su olabilir,
+   * bu yuzden soru "sokaga komsu mu" degil "SEHRE BAGLI bir sokaga komsu
+   * mu" seklinde sorulur.
+   */
+  isStreetServed(gx: number, gy: number): boolean {
+    return this.touchesOpenStreet(gx, gy, 1, 1);
   }
 
   /**
@@ -161,12 +203,16 @@ export class BuildingPlotSystem {
    */
   private layout(): void {
     const center = this.grid.center();
-    const centerBlock = { bx: blockOf(center.gx), by: blockOf(center.gy) };
+    const period = this.grid.streetEvery;
+    const centerBlock = { bx: blockOf(center.gx, period), by: blockOf(center.gy, period) };
 
     // 1. Sehir merkezi: merkez adasinin tamami tek bir 2x2 ozel plot.
-    const hallGx = centerBlock.bx * STREET_EVERY + 1;
-    const hallGy = centerBlock.by * STREET_EVERY + 1;
-    if (this.fits(hallGx, hallGy, 2, 2, 'town_hall')) {
+    const hallGx = centerBlock.bx * period + 1;
+    const hallGy = centerBlock.by * period + 1;
+    if (
+      this.fits(hallGx, hallGy, 2, 2, 'town_hall') &&
+      this.touchesOpenStreet(hallGx, hallGy, 2, 2)
+    ) {
       this.add({
         id: `plot#${hallGx},${hallGy}`,
         gx: hallGx,
@@ -202,10 +248,11 @@ export class BuildingPlotSystem {
       [1, 1],
     ];
     for (const [bx, by] of monumentOrder) {
-      const gx = (centerBlock.bx + bx) * STREET_EVERY + 1;
-      const gy = (centerBlock.by + by) * STREET_EVERY + 1;
+      const gx = (centerBlock.bx + bx) * period + 1;
+      const gy = (centerBlock.by + by) * period + 1;
       if (this.byTile.has(key(gx, gy))) continue;
       if (!this.fits(gx, gy, 2, 2, 'temple')) continue;
+      if (!this.touchesOpenStreet(gx, gy, 2, 2)) continue;
       this.add({
         id: `plot#${gx},${gy}`,
         gx,
@@ -221,18 +268,26 @@ export class BuildingPlotSystem {
 
     // 3. Kalan butun yapi karolari 1x1 plot olur.
     for (const tile of this.grid.allTiles()) {
-      if (!isBuildable(tile.gx, tile.gy)) continue;
+      if (!isBuildable(tile.gx, tile.gy, period)) continue;
+      if (isCourtyard(tile.gx, tile.gy, period)) continue; // ada ici avlu
       if (this.byTile.has(key(tile.gx, tile.gy))) continue; // merkez adasi
 
       const zone = zoneFor(tile.gx, tile.gy, center, this.grid.size);
-      const allowed = ZONE_TYPES[zone].filter((type) => {
-        const def = getBuilding(type);
-        if (!def.allowedTerrain.includes(tile.terrain)) return false;
-        // Kiyi yapisi yalnizca suya komsu alanlarda aday olur.
-        if (def.requiresWaterAdjacent && !this.touchesWater(tile.gx, tile.gy)) return false;
-        return true;
-      });
-      if (allowed.length === 0) continue; // su, ya da bu bolgeye uymayan zemin
+      let allowed = this.typesFor(ZONE_TYPES[zone], tile);
+      /*
+       * BOLGE UYMUYORSA KARO COPE ATILMAZ.
+       *
+       * Eskiden bolge listesi bu zemini kabul etmiyorsa karo plotsuz
+       * kaliyordu ve kalici bos alan olarak duruyordu (olculdu: 144 yapi
+       * karosunun 41'i hicbir plot uretmiyordu - ornegin ticaret
+       * kusagindaki KAYA karolari, cunku tas ocagi o bolgenin listesinde
+       * yok). Yapiya acik ve yurunebilir her karo bir sey kabul etmeli;
+       * bolge tercihi bir ONCELIKTIR, veto degil.
+       */
+      if (allowed.length === 0) allowed = this.typesFor(FALLBACK_TYPES, tile);
+      if (allowed.length === 0) continue; // gercekten uygun olmayan zemin (su)
+      // Isci ulasamayacaksa burasi yapi alani olmamali.
+      if (!this.touchesOpenStreet(tile.gx, tile.gy, 1, 1)) continue;
 
       this.add({
         id: `plot#${tile.gx},${tile.gy}`,
@@ -245,6 +300,96 @@ export class BuildingPlotSystem {
         unlocked: true,
       });
     }
+  }
+
+  /**
+   * Sehrin ANA SOKAK AGINI bulur: yurunebilir sokak karolarinin en buyuk
+   * bagli bileseni.
+   *
+   * NEDEN GEREKLI
+   * Sokak deseni modulo ile tanimli ama sokak karosunun kendisi SU
+   * olabilir. Haritanin kenarinda bu, birkac sokak karosunu geri kalandan
+   * kopuk kucuk bir CEBE cevirir. Boyle bir cebe komsu olan yapi alanina
+   * isci asla ulasamaz.
+   *
+   * Bu sorun aralik 3'te de vardi ama fark edilmemisti (olculdu: dort
+   * seed'in ikisinde plot#1,17 sehirden kopuktu). Ada ici 2x2'den 3x3'e
+   * cikinca gorunur hale geldi, cunku artik bir karonun TEK sokak komsusu
+   * olabiliyor.
+   *
+   * Sokak agi binalardan BAGIMSIZDIR - desen ve zemin sabittir - bu yuzden
+   * bir kez, yerlesimden once hesaplanir.
+   */
+  private findMainStreetNetwork(): void {
+    const period = this.grid.streetEvery;
+    const isStreet = (gx: number, gy: number): boolean => {
+      if (isBuildable(gx, gy, period)) return false;
+      const tile = this.grid.getTile(gx, gy);
+      return tile !== null && WALKABLE_TERRAIN.includes(tile.terrain);
+    };
+
+    const seen = new Set<string>();
+    let best: string[] = [];
+
+    // Satir satir taranir: esit buyuklukteki bilesenlerde secim deterministik.
+    for (const tile of this.grid.allTiles()) {
+      if (!isStreet(tile.gx, tile.gy)) continue;
+      const start = key(tile.gx, tile.gy);
+      if (seen.has(start)) continue;
+
+      const component: string[] = [];
+      const queue: GridPoint[] = [{ gx: tile.gx, gy: tile.gy }];
+      seen.add(start);
+      while (queue.length > 0) {
+        const point = queue.shift() as GridPoint;
+        component.push(key(point.gx, point.gy));
+        for (const [dx, dy] of [
+          [0, -1],
+          [1, 0],
+          [0, 1],
+          [-1, 0],
+        ]) {
+          const nx = point.gx + dx;
+          const ny = point.gy + dy;
+          const id = key(nx, ny);
+          if (seen.has(id) || !isStreet(nx, ny)) continue;
+          seen.add(id);
+          queue.push({ gx: nx, gy: ny });
+        }
+      }
+      if (component.length > best.length) best = component;
+    }
+
+    for (const id of best) this.mainStreets.add(id);
+  }
+
+  /**
+   * Alan ANA SOKAK AGINA komsu mu?
+   *
+   * Yalnizca "bos bir komsusu var" demek yetmez: o komsu, ada dolunca
+   * kapanan bir AVLU ya da sudan kopmus bir sokak cebi olabilir. Isci
+   * ulasamayacaksa orasi bastan yapi alani olmamalidir.
+   */
+  private touchesOpenStreet(gx: number, gy: number, width: number, height: number): boolean {
+    for (let dy = -1; dy <= height; dy += 1) {
+      for (let dx = -1; dx <= width; dx += 1) {
+        const inside = dx >= 0 && dy >= 0 && dx < width && dy < height;
+        if (inside) continue;
+        if (this.mainStreets.has(key(gx + dx, gy + dy))) return true;
+      }
+    }
+    return false;
+  }
+
+  /** Verilen aday listesinden bu karoya GERCEKTEN kurulabilenler. */
+  private typesFor(candidates: readonly BuildingId[], tile: { gx: number; gy: number; terrain: TerrainType }): BuildingId[] {
+    return candidates.filter((type) => {
+      const def = getBuilding(type);
+      if (!def.allowedTerrain.includes(tile.terrain)) return false;
+      // Kiyi yapisi yalnizca suya komsu alanlarda aday olur.
+      if (def.requiresWaterAdjacent && !this.touchesWater(tile.gx, tile.gy)) return false;
+      return true;
+    });
   }
 
   /** Karonun dort komsusundan biri su mu? (kiyi kurali) */
@@ -283,14 +428,26 @@ export class BuildingPlotSystem {
   }
 }
 
-/** Karo yapiya acik mi? Sokaklar (3'un katlari) kapalidir. */
-export function isBuildable(gx: number, gy: number): boolean {
-  return gx % STREET_EVERY !== 0 && gy % STREET_EVERY !== 0;
+/** Karo yapiya acik mi? Sokaklar (araligin katlari) kapalidir. */
+export function isBuildable(gx: number, gy: number, period: number = STREET_EVERY): boolean {
+  return gx % period !== 0 && gy % period !== 0;
+}
+
+/**
+ * Karo, yapi adasinin ORTASINDAKI avlu mu?
+ *
+ * Yalnizca aralik 4 ve uzerinde vardir; 3'luk eski yerlesimde ada ici 2x2
+ * oldugu icin orta karo diye bir sey yoktur ve bu her zaman false doner.
+ */
+export function isCourtyard(gx: number, gy: number, period: number = STREET_EVERY): boolean {
+  if (period < 4) return false;
+  const middle = Math.floor(period / 2);
+  return gx % period === middle && gy % period === middle;
 }
 
 /** Karonun ait oldugu yapi adasinin indeksi. */
-function blockOf(g: number): number {
-  return Math.floor(g / STREET_EVERY);
+function blockOf(g: number, period: number): number {
+  return Math.floor(g / period);
 }
 
 /**

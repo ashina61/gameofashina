@@ -152,7 +152,8 @@ export class CityScene extends Phaser.Scene {
    */
   private groundTextureFor(tile: TileData, plaza: Set<string>): string {
     const paved =
-      !isBuildable(tile.gx, tile.gy) && PAVED_TERRAIN.includes(tile.terrain);
+      !isBuildable(tile.gx, tile.gy, this.world.state.grid.streetEvery) &&
+      PAVED_TERRAIN.includes(tile.terrain);
 
     /*
      * BOYALI KARO VARSA O KAZANIR.

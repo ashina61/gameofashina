@@ -472,6 +472,15 @@ export interface SaveData {
    */
   gridSize?: number;
   /**
+   * Sehrin sokak araligi.
+   *
+   * Sprint 19'da eklendi ve geriye donuk UYUMLUDUR: alan yoksa kayit eski
+   * yerlesimden gelmistir ve LEGACY_STREET_EVERY kullanilir. Aralik sehir
+   * basina tasinir cunku degistirmek, kayitli binalarin bir kismini artik
+   * sokak olan karolara dusururdu. Bu yuzden kayit surumu artirilmadi.
+   */
+  streetEvery?: number;
+  /**
    * Arastirma durumu.
    *
    * Sprint 15'te eklendi ve geriye donuk UYUMLUDUR: alan yoksa hicbir

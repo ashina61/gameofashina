@@ -1,5 +1,5 @@
 import { GridMap } from './GridMap';
-import { LEGACY_GRID_SIZE, STARTING_RESOURCES } from '@/config/Constants';
+import { LEGACY_GRID_SIZE, LEGACY_STREET_EVERY, STARTING_RESOURCES } from '@/config/Constants';
 import { clampLevel, getBuilding, isKnownBuildingId } from '@/config/BuildingCatalog';
 import type {
   BuildingConstruction,
@@ -134,8 +134,13 @@ export class GameState {
   /** Benzersiz isci kimligi uretmek icin artan sayac. */
   private workerCounter = 0;
 
-  constructor(terrainSeed: number, resources?: ResourcePool, gridSize?: number) {
-    this.grid = new GridMap(terrainSeed, gridSize);
+  constructor(
+    terrainSeed: number,
+    resources?: ResourcePool,
+    gridSize?: number,
+    streetEvery?: number,
+  ) {
+    this.grid = new GridMap(terrainSeed, gridSize, streetEvery);
     this.resourcePool = resources ? { ...resources } : { ...STARTING_RESOURCES };
   }
 
@@ -420,6 +425,14 @@ export class GameState {
       save.terrainSeed,
       save.resources,
       typeof save.gridSize === 'number' && save.gridSize > 0 ? save.gridSize : LEGACY_GRID_SIZE,
+      /*
+       * Sokak araligi da izgara boyutu gibi KAYITTAN okunur. Alan yoksa
+       * sehir eski yerlesimden gelmistir; yeni araligi dayatmak binalarinin
+       * bir kismini sokak karolarina dusururdu.
+       */
+      typeof save.streetEvery === 'number' && save.streetEvery > 0
+        ? save.streetEvery
+        : LEGACY_STREET_EVERY,
     );
     state.currentTick = Number.isFinite(save.tick) ? Math.max(0, Math.trunc(save.tick)) : 0;
 
@@ -459,6 +472,7 @@ export class GameState {
       workers: this.workerList.map((w) => ({ ...w })),
       terrainSeed: this.grid.seed,
       gridSize: this.grid.size,
+      streetEvery: this.grid.streetEvery,
       population: this.citizens,
       research: this.researchSnapshot,
     };

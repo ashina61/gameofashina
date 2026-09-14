@@ -1,7 +1,7 @@
 import {
   BASE_POPULATION_CAPACITY,
   GRID_SIZE,
-  LEGACY_GRID_SIZE,
+  LEGACY_GRID_SIZE, LEGACY_STREET_EVERY,
   MIN_SUPPORTED_SAVE_VERSION,
   RESOURCE_ORDER,
   SAVE_KEY,
@@ -126,6 +126,13 @@ export function migrateAndSanitize(input: unknown): SaveData | null {
       typeof data.gridSize === 'number' && Number.isFinite(data.gridSize) && data.gridSize > 0
         ? Math.trunc(data.gridSize)
         : LEGACY_GRID_SIZE,
+    // Alan yoksa kayit eski yerlesimden gelmistir (bkz. LEGACY_STREET_EVERY).
+    streetEvery:
+      typeof data.streetEvery === 'number' &&
+      Number.isFinite(data.streetEvery) &&
+      data.streetEvery > 0
+        ? Math.trunc(data.streetEvery)
+        : LEGACY_STREET_EVERY,
     population: sanitizePopulation(data.population, buildings),
     workers: sanitizeWorkerRecords(data.workers, buildings),
     research: sanitizeResearch(data.research),

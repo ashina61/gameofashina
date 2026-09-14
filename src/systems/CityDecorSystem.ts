@@ -1,4 +1,3 @@
-import { isBuildable } from './BuildingPlotSystem';
 import type { BuildingPlotSystem } from './BuildingPlotSystem';
 import type { GridMap } from '@/core/GridMap';
 import type { DecorItem, DecorKind, TerrainType } from '@/types';
@@ -103,11 +102,6 @@ export class CityDecorSystem {
       });
     }
   }
-}
-
-/** Bu karo yapi alanina kapali mi? (sokaklar ve zeminin elediği karolar) */
-export function isDecorTile(gx: number, gy: number): boolean {
-  return !isBuildable(gx, gy);
 }
 
 /** Dort komsudan biri su mu? */

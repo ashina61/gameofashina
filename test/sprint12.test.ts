@@ -102,12 +102,15 @@ describe('yapi alanlari', () => {
      * Alan, merkez karonun ADASIDIR.
      *
      * "Merkez karo alanin icinde" demek 14x14'te dogruydu ama izgara
-     * boyutuna baglidir: 18x18'de merkez karo (9,9) bir SOKAK karosudur,
-     * cunku 9, sokak araliginin katidir. Degismeyen kural, alanin merkezi
-     * iceren adada olmasidir.
+     * boyutuna baglidir: merkez karo bir SOKAK karosu olabilir. Degismeyen
+     * kural, alanin merkezi iceren ADADA olmasidir.
+     *
+     * Ada indeksi sokak araligindan TURETILIR; sabit bir 3 yazmak, aralik
+     * 4'e ciktiginda tesaduf eseri gecmeye devam ediyor ve testi anlamsiz
+     * kiliyordu.
      */
     const center = grid.center();
-    const block = (v: number) => Math.floor(v / 3);
+    const block = (v: number) => Math.floor(v / grid.streetEvery);
     expect(block(civic[0].gx)).toBe(block(center.gx));
     expect(block(civic[0].gy)).toBe(block(center.gy));
 
