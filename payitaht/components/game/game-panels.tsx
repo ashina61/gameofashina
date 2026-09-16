@@ -1,9 +1,10 @@
 'use client'
 
-import { ArrowUp, Hammer, Clock3, LockKeyhole, Check, BookOpen, ChevronRight, TreePine, Warehouse, Ruler, Users, UserRound, Minus, Plus as PlusIcon, House, HeartHandshake, TriangleAlert } from 'lucide-react'
+import { useState } from 'react'
+import { ArrowUp, Hammer, Clock3, LockKeyhole, Check, BookOpen, ChevronRight, TreePine, Warehouse, Ruler, Users, UserRound, Minus, Plus as PlusIcon, House, HeartHandshake, TriangleAlert, Landmark, Swords, Ship, ShieldCheck, Handshake } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { CostDisplay, JobProgress } from './game-widgets'
-import { BUILDINGS, BUILDING_IDS, RESEARCH, RESEARCH_IDS, WORKER_IDS, WORKERS_PER_LEVEL, activeJob, cost, duration, buildReason, researchReason, idleWorkers, population, housing, contentment, unhousedByUnrest, workerCapacity, type BuildingId, type ResearchId, type WorkerId, type Game } from '@/lib/game/engine'
+import { BUILDINGS, BUILDING_IDS, RESEARCH, RESEARCH_IDS, RESOURCE_IDS, RESOURCE_NAMES, UNITS, UNIT_IDS, WORKER_IDS, WORKERS_PER_LEVEL, activeJob, cargoCapacity, cityDefense, cost, duration, buildReason, power, rates, recruitReason, researchReason, idleWorkers, population, housing, contentment, soldiers, tradeCapacity, unhousedByUnrest, unitCost, unitDuration, wallDefense, workerCapacity, type BuildingId, type ResearchId, type UnitId, type WorkerId, type Game } from '@/lib/game/engine'
 import { buildingImage } from '@/lib/asset'
 
 export function BuildingDetails({ game, id, onBuild }: { game: Game; id: BuildingId; onBuild: (id: BuildingId) => void }) {
@@ -104,5 +105,126 @@ export function PeoplePanel({ game, onAssign }: { game: Game; onAssign: (id: Wor
       </article>
     })}
     <p className="fine-print">Her yapı seviyesi {WORKERS_PER_LEVEL} işçi alır. Nüfus, barınma ve huzurdan hangisi küçükse ona eşittir. Boşta kalan halk üretim yapmaz; akçe ise halkın kendisinden gelir ve işçi istemez.</p>
+  </div>
+}
+
+/**
+ * ŞEHİRLER danismani.
+ *
+ * Ikariam'da bu ekran butun sehirlerin listesidir. Bizde sehir henuz tek, ama
+ * ekrani simdiden acmak iki ise yariyor: sehrin ozetini tek yerde toplar ve
+ * Saray'in NE ISE YARADIGINI - ikinci sehir - bos bir kart olarak gosterir.
+ * Kilidi acilmamis bir ozelligi gizlemek yerine gostermek, oyuncuya hedef verir.
+ */
+export function CitiesPanel({ game, onBuilding }: { game: Game; onBuilding: (id: BuildingId) => void }) {
+  const built = BUILDING_IDS.filter(id => game.buildings[id] > 0)
+  const production = rates(game)
+  return <div className="advisor-panel">
+    <article className="city-card">
+      <div className="city-card-top">
+        <span className="city-emblem"><Landmark aria-hidden="true" /></span>
+        <span><span className="eyebrow">BAŞKENT</span><strong>Sahilhisar</strong><span>Seviye {game.buildings.divan} yerleşim · {built.length} yapı</span></span>
+      </div>
+      <div className="city-stats">
+        <div><span>Nüfus</span><strong>{population(game)}</strong></div>
+        <div><span>Boşta</span><strong>{idleWorkers(game)}</strong></div>
+        <div><span>Asker</span><strong>{soldiers(game)}</strong></div>
+        <div><span>Savunma</span><strong>{cityDefense(game)}</strong></div>
+      </div>
+      <div className="city-rates">{RESOURCE_IDS.filter(id => production[id] > 0).map(id => <span key={id}>{RESOURCE_NAMES[id]} <strong>+{Math.round(production[id])}/dk</strong></span>)}</div>
+      <Button size="sm" variant="outline" onClick={() => onBuilding('divan')}>Divanhaneye git<ChevronRight data-icon="inline-end" /></Button>
+    </article>
+    <article className="city-card city-card-locked">
+      <div className="city-card-top">
+        <span className="city-emblem"><LockKeyhole aria-hidden="true" /></span>
+        <span><span className="eyebrow">İKİNCİ ŞEHİR</span><strong>Henüz kurulmadı</strong><span>{game.buildings.saray > 0 ? 'Saray hazır. Yeni şehir kurma bu prototipte açılmadı.' : 'Saray gerekli.'}</span></span>
+      </div>
+      <p className="fine-print">Saray, hükmünü uzak adalara taşır. Yeni şehirler bu prototipte henüz kurulamıyor; Saray kurulduğunda bu ekran onları listeleyecek.</p>
+    </article>
+  </div>
+}
+
+/** Bir emirde eğitilebilecek parti büyüklükleri. */
+const BATCHES = [1, 5, 10]
+
+/**
+ * ORDU danismani.
+ *
+ * Ekranin en ustunde nufus muhasebesi durur - cunku bu oyunda asker almanin
+ * bedeli akce degil, VATANDAS. Oyuncu bir birligi egitmeden once kac kisinin
+ * bosta oldugunu gormezse, uretiminin nicin dustugunu anlamaz.
+ */
+export function ArmyPanel({ game, onRecruit, onBuild }: { game: Game; onRecruit: (id: UnitId, count: number) => void; onBuild: (id: BuildingId) => void }) {
+  const [batch, setBatch] = useState(1)
+  const land = power(game, 'kara')
+  const sea = power(game, 'deniz')
+  const branches: { key: 'kara' | 'deniz'; title: string; home: BuildingId }[] = [
+    { key: 'kara', title: 'Kara ordusu', home: 'kisla' },
+    { key: 'deniz', title: 'Donanma', home: 'tersane' },
+  ]
+  return <div className="advisor-panel">
+    <div className="army-summary">
+      <span className="eyebrow">SANCAĞIN ALTINDA</span>
+      <div><Users className="size-5" /><span>Asker</span><strong>{soldiers(game)}</strong></div>
+      <div><UserRound className="size-5" /><span>Boşta halk</span><strong className={idleWorkers(game) === 0 ? 'people-none' : undefined}>{idleWorkers(game)}</strong></div>
+      <div><ShieldCheck className="size-5" /><span>Savunma</span><strong>{cityDefense(game)}</strong></div>
+      <div><Swords className="size-5" /><span>Saldırı</span><strong>{land.attack}</strong></div>
+    </div>
+    <p className="army-note"><TriangleAlert className="size-4" />Asker halktan çıkar. Eğitilen her vatandaş üretimden düşer; surlar ise asker istemez, taş ister ({wallDefense(game)} savunma).</p>
+    {game.drill && <JobProgress job={game.drill} now={game.updatedAt} />}
+    <div className="batch-row"><span>Parti</span>{BATCHES.map(n => <Button key={n} size="sm" variant={batch === n ? 'default' : 'outline'} onClick={() => setBatch(n)}>{n}</Button>)}</div>
+    {branches.map(branch => {
+      const units = UNIT_IDS.filter(id => UNITS[id].branch === branch.key)
+      const ready = units.some(id => game.buildings[UNITS[id].home] > 0)
+      return <section className="army-branch" key={branch.key}>
+        <div className="army-branch-top"><h3>{branch.title}</h3><span>{branch.key === 'deniz' ? `Deniz gücü ${sea.attack} / ${sea.defense}` : `Savunma ${land.defense}`}</span></div>
+        {!ready && <button className="army-locked" onClick={() => onBuild(branch.home)}><LockKeyhole className="size-4" /><span><strong>{BUILDINGS[branch.home].name} gerekli</strong><small>{BUILDINGS[branch.home].description}</small></span><ChevronRight className="size-4" /></button>}
+        {units.map(id => {
+          const unit = UNITS[id]
+          const reason = recruitReason(game, id, batch)
+          return <article className="unit-card" key={id}>
+            <div className="unit-top">
+              <span className="unit-icon">{unit.branch === 'kara' ? <Swords aria-hidden="true" /> : <Ship aria-hidden="true" />}</span>
+              <span><strong>{unit.name}</strong><small>{unit.description}</small></span>
+              <span className="unit-have">{game.army[id]}<small>elde</small></span>
+            </div>
+            <div className="unit-stats">
+              <span title="Saldırı"><Swords className="size-3" />{unit.attack}</span>
+              <span title="Savunma"><ShieldCheck className="size-3" />{unit.defense}</span>
+              <span title="Aldığı vatandaş"><Users className="size-3" />{unit.pop}</span>
+              {unit.cargo > 0 && <span title="Taşıma"><Warehouse className="size-3" />{unit.cargo}</span>}
+            </div>
+            <div className="unit-bottom">
+              <CostDisplay value={unitCost(id, batch)} />
+              <span><Clock3 className="size-3" /> {unitDuration(game, id, batch)} sn</span>
+              <Button size="sm" disabled={!!reason} onClick={() => onRecruit(id, batch)}>{batch} eğit</Button>
+            </div>
+            {reason && <p className="fine-print">{reason}</p>}
+          </article>
+        })}
+      </section>
+    })}
+    <p className="fine-print">Taşıma kapasitesi {cargoCapacity(game)} mal · Ticaret limanı {tradeCapacity(game)} mal. Sefer ve savaş bu prototipte henüz yok; ordu şimdilik şehrin savunmasıdır.</p>
+  </div>
+}
+
+/**
+ * DIPLOMASI danismani.
+ *
+ * Tek oyunculu bir prototipte muttefik yok - o yuzden burada UYDURMA bir
+ * oyuncu listesi gostermiyorum. Ekran, Elcilik'in ne actigini anlatir ve
+ * neyin heniz olmadigini acikca soyler.
+ */
+export function DiplomacyPanel({ game, onBuild }: { game: Game; onBuild: (id: BuildingId) => void }) {
+  const level = game.buildings.elcilik
+  return <div className="advisor-panel">
+    {level === 0
+      ? <button className="army-locked" onClick={() => onBuild('elcilik')}><LockKeyhole className="size-4" /><span><strong>Elçilik gerekli</strong><small>{BUILDINGS.elcilik.description}</small></span><ChevronRight className="size-4" /></button>
+      : <article className="city-card"><div className="city-card-top"><span className="city-emblem"><Handshake aria-hidden="true" /></span><span><span className="eyebrow">ELÇİLİK · SEVİYE {level}</span><strong>Kapın açık</strong><span>İttifak defteri hazır</span></span></div><p className="fine-print">Elçiliğin kuruldu. İttifak ve anlaşmalar, oyun çok oyunculuya açıldığında buraya gelecek.</p></article>}
+    <article className="city-card">
+      <div className="city-card-top"><span className="city-emblem"><Ship aria-hidden="true" /></span><span><span className="eyebrow">TİCARET</span><strong>{tradeCapacity(game)} mal kapasite</strong><span>{game.army.nakliye} nakliye gemisi · {cargoCapacity(game)} taşıma</span></span></div>
+      <p className="fine-print">Ticaret Limanı kapasiteyi, nakliye gemileri taşımayı verir. Karşı taraf — başka oyuncular — bu prototipte yok; sayılar hazır, ticaret yolu açıldığında bağlanacak.</p>
+    </article>
+    <p className="fine-print">Burada gerçek oyuncu, ittifak ya da mesaj gösterilmez. Uydurma bir liste koymaktansa boş bırakmak dürüst olanı.</p>
   </div>
 }

@@ -412,3 +412,82 @@
 /* Halk ozeti dort kutucuga cikti: nufus, bosta, barinma, huzur. */
 .people-summary > div { min-width: 0; }
 .people-summary strong { font-size: 18px; }
+
+/* --- DANISMANLAR ---------------------------------------------------------
+ * Ikariam'in dort danisman basi. Kaynak cubugunun altinda, haritanin ustunde
+ * duran ince bir serit: kilitli sekme gizlenmez, sonuk gorunur.
+ */
+.advisor-bar { flex-shrink: 0; display: flex; gap: 6px; height: 50px; align-items: stretch; background: #143029; border-bottom: 1px solid var(--border); padding: 0 max(24px, calc((100vw - 1000px) / 2)); position: relative; z-index: 1; }
+.advisor { flex: 1; min-width: 0; display: flex; align-items: center; justify-content: center; gap: 9px; position: relative; background: none; border: 0; border-top: 2px solid transparent; color: #a3b2a7; font-size: 12px; }
+.advisor-head { width: 26px; height: 26px; flex-shrink: 0; display: grid; place-items: center; border-radius: 50%; color: var(--gold); background: #d6b77b12; border: 1px solid #d6b77b24; }
+.advisor-head svg { width: 15px; height: 15px; stroke-width: 1.5; }
+.advisor-label { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.advisor-active { color: var(--gold); border-top-color: var(--gold); background: linear-gradient(180deg, #c0a1631a, transparent); }
+.advisor-active .advisor-head { background: #d6b77b22; border-color: #d6b77b66; }
+/* Kilitli danisman: sonuk ama tiklanabilir - dokununca ne gerektigini soyler. */
+.advisor-locked { opacity: .5; }
+.advisor-locked .advisor-head { color: #a3b2a7; background: #ffffff0a; border-color: #ffffff1a; }
+.advisor-badge { position: absolute; top: 6px; right: max(4px, 14%); padding: 1px 6px; border-radius: 9px; background: var(--gold); color: #10211d; font-size: 9px; font-weight: 700; font-variant-numeric: tabular-nums; }
+
+/* --- DANISMAN EKRANLARI --------------------------------------------------- */
+.advisor-panel { display: flex; flex-direction: column; gap: 14px; }
+.city-card { display: flex; flex-direction: column; gap: 12px; padding: 15px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--card); align-items: flex-start; }
+.city-card-locked { opacity: .72; }
+.city-card-top { display: flex; align-items: center; gap: 12px; width: 100%; }
+.city-emblem { width: 44px; height: 44px; flex-shrink: 0; display: grid; place-items: center; border-radius: 50%; color: var(--gold); background: #d6b77b12; border: 1px solid #d6b77b30; }
+.city-emblem svg { width: 22px; height: 22px; stroke-width: 1.4; }
+.city-card-top > span:last-child { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.city-card-top strong { font-family: var(--font-heading), Georgia, serif; font-size: 18px; font-weight: 600; }
+.city-card-top > span:last-child > span:last-child { font-size: 11px; color: var(--muted-foreground); }
+.city-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; width: 100%; }
+.city-stats > div { display: flex; flex-direction: column; gap: 3px; padding: 9px 6px; border-radius: 8px; background: #ffffff08; text-align: center; }
+.city-stats span { font-size: 9px; letter-spacing: .6px; text-transform: uppercase; color: var(--muted-foreground); }
+.city-stats strong { font-family: var(--font-heading), Georgia, serif; font-size: 17px; font-variant-numeric: tabular-nums; }
+.city-rates { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 11px; color: var(--muted-foreground); }
+.city-rates strong { color: var(--green); font-variant-numeric: tabular-nums; }
+
+/* --- ORDU ----------------------------------------------------------------- */
+.army-summary { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 14px; align-items: center; padding: 14px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--card); }
+.army-summary .eyebrow { grid-column: 1 / -1; }
+.army-summary > div { display: flex; align-items: center; gap: 9px; color: var(--muted-foreground); font-size: 12px; }
+.army-summary svg { color: var(--gold); flex-shrink: 0; }
+.army-summary strong { margin-left: auto; font-family: var(--font-heading), Georgia, serif; font-size: 20px; color: var(--foreground); font-variant-numeric: tabular-nums; }
+/* Ordunun bedeli nufustur; oyuncu bunu her acisinda okumali. */
+.army-note { display: flex; gap: 9px; align-items: flex-start; padding: 11px 13px; border-radius: var(--radius); border: 1px solid #d6b77b3d; background: #d6b77b12; color: #e7dcc4; font-size: 11.5px; line-height: 1.45; }
+.army-note svg { flex-shrink: 0; color: var(--gold); margin-top: 1px; }
+.batch-row { display: flex; align-items: center; gap: 8px; font-size: 11px; color: var(--muted-foreground); }
+.batch-row button { min-width: 44px; }
+.army-branch { display: flex; flex-direction: column; gap: 10px; }
+.army-branch-top { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
+.army-branch-top h3 { font-family: var(--font-heading), Georgia, serif; font-size: 16px; font-weight: 600; }
+.army-branch-top span { font-size: 10.5px; color: var(--muted-foreground); font-variant-numeric: tabular-nums; }
+.army-locked { display: flex; align-items: center; gap: 11px; width: 100%; text-align: left; padding: 13px; border: 1px dashed #d6b77b4d; border-radius: var(--radius); background: #ffffff06; color: var(--muted-foreground); }
+.army-locked > svg { color: var(--gold); flex-shrink: 0; }
+.army-locked span { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.army-locked strong { font-size: 13px; color: var(--foreground); }
+.army-locked small { font-size: 10.5px; line-height: 1.4; }
+.unit-card { display: flex; flex-direction: column; gap: 10px; padding: 13px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--card); }
+.unit-top { display: flex; align-items: center; gap: 11px; }
+.unit-icon { width: 36px; height: 36px; flex-shrink: 0; display: grid; place-items: center; border-radius: 8px; color: var(--gold); background: #d6b77b12; border: 1px solid #d6b77b2b; }
+.unit-icon svg { width: 18px; height: 18px; stroke-width: 1.4; }
+.unit-top > span:nth-child(2) { display: flex; flex-direction: column; gap: 2px; min-width: 0; flex: 1; }
+.unit-top strong { font-family: var(--font-heading), Georgia, serif; font-size: 16px; font-weight: 600; }
+.unit-top small { font-size: 10.5px; color: var(--muted-foreground); line-height: 1.35; }
+.unit-have { flex-shrink: 0; min-width: 38px; display: flex; flex-direction: column; align-items: flex-end; font-family: var(--font-heading), Georgia, serif; font-size: 19px; color: var(--gold); font-variant-numeric: tabular-nums; }
+/* Yalniz bir sayi "0" mi yoksa harf mi belli olmuyordu; etiket onu baglar. */
+.unit-have small { font-family: var(--font-body), sans-serif; font-size: 8px; letter-spacing: .6px; text-transform: uppercase; color: var(--muted-foreground); }
+.unit-stats { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 11px; color: var(--muted-foreground); font-variant-numeric: tabular-nums; }
+.unit-stats span { display: inline-flex; align-items: center; gap: 5px; }
+.unit-stats svg { color: var(--gold); }
+.unit-bottom { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.unit-bottom > span { display: inline-flex; align-items: center; gap: 5px; font-size: 11px; color: var(--muted-foreground); }
+.unit-bottom button { margin-left: auto; }
+@media (max-width: 767px) {
+  .advisor-bar { height: 44px; padding: 0 6px; gap: 2px; }
+  .advisor { flex-direction: column; gap: 2px; font-size: 8.5px; }
+  .advisor-head { width: 18px; height: 18px; background: none; border: none; }
+  .advisor-head svg { width: 15px; height: 15px; }
+  .advisor-badge { top: 2px; right: max(2px, 8%); font-size: 8px; padding: 0 4px; }
+  .city-stats { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-height: 700px) { .advisor-bar { height: 40px; } }

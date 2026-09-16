@@ -1,6 +1,6 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { advance, assignedWorkers, capacity, cost, execute, freePlots, idleWorkers, initialGame, parseSave, population, PLOTS, rates, researchReason, duration, workerCapacity, WORKERS_PER_LEVEL, fullResources, nearlyFullResources, activeJob, QUEUE_LIMIT, housing, contentment, unhousedByUnrest } from './engine'
+import { advance, assignedWorkers, capacity, cost, execute, freePlots, idleWorkers, initialGame, parseSave, population, PLOTS, rates, researchReason, duration, workerCapacity, WORKERS_PER_LEVEL, fullResources, nearlyFullResources, activeJob, QUEUE_LIMIT, housing, contentment, unhousedByUnrest, soldiers, recruitReason, buildReason, unitCost, wallDefense, cityDefense, power, UNITS } from './engine'
 
 const now = 1_000_000
 
@@ -385,4 +385,119 @@ test('arsasi olan ama ne kurulu ne sirada olan yapi reddedilir', () => {
   const g = initialGame(now)
   const ghost = { ...g, placement: { ...g.placement, medrese: 6 } }
   assert.throws(() => parseSave(JSON.stringify(ghost)))
+})
+
+/*
+ * ORDU.
+ *
+ * Tasarimin tek onemli kurali burada sinanir: asker halktan cikar. Testler
+ * once bedelin GERCEKTEN odendigini (bosta halk azalir), sonra bedelin iki
+ * kez odenmedigini (egitim bitince nufus yeniden dusmez) gosterir.
+ */
+function withBarracks(base = initialGame(now)) {
+  const g = structuredClone(base)
+  g.buildings.divan = 3
+  g.buildings.kisla = 3
+  // Kurulu her yapinin bir arsasi olmali; kayit dogrulamasi bunu arar.
+  g.placement.kisla = 5
+  g.resources = { gold: 20_000, wood: 20_000, stone: 20_000, knowledge: 0 }
+  return g
+}
+
+test('asker egitimi kisla ve bosta halk ister', () => {
+  const fresh = initialGame(now)
+  assert.match(execute(fresh, { type: 'recruit', id: 'yeniceri', count: 1 }, now).error!, /Kışla/)
+  const g = withBarracks()
+  // Butun halk uretimde: once isci cekilmeden asker alinamaz.
+  g.workers = { kereste: 20, tas: 20, medrese: 0, carsi: 0 }
+  const full = structuredClone(g)
+  full.buildings.konut = 1
+  full.workers = { kereste: 20, tas: 20, medrese: 0, carsi: 0 }
+  const need = population(full) - assignedWorkers(full) + 1
+  assert.match(execute(full, { type: 'recruit', id: 'yeniceri', count: need }, now).error!, /boşta vatandaş/)
+})
+
+test('egitim emri vatandasi ANINDA ayirir, bitince ikinci kez ayirmaz', () => {
+  const g = withBarracks()
+  const idleBefore = idleWorkers(g)
+  const ordered = execute(g, { type: 'recruit', id: 'sipahi', count: 5 }, now).game
+  // Sipahi 2 vatandas: 5 sipahi = 10 kisi, emir verilir verilmez dusmeli.
+  assert.equal(soldiers(ordered), 10)
+  assert.equal(idleWorkers(ordered), idleBefore - 10)
+  assert.equal(ordered.army.sipahi, 0)
+  // Ayni bos halkla ikinci emir verilemez.
+  assert.ok(execute(ordered, { type: 'recruit', id: 'sipahi', count: 1 }, now).error)
+  const done = advance(ordered, ordered.drill!.end)
+  assert.equal(done.army.sipahi, 5)
+  assert.equal(done.drill, null)
+  assert.equal(soldiers(done), 10)
+  assert.equal(idleWorkers(done), idleBefore - 10)
+})
+
+test('asker isci kapasitesini daraltir', () => {
+  const g = withBarracks()
+  const before = execute(g, { type: 'workers', id: 'kereste', value: 20 }, now).game
+  assert.equal(before.workers.kereste, 20)
+  // Halkin tamami askere gidince uretime kimse kalmaz.
+  const drafted = structuredClone(g)
+  drafted.army.yeniceri = population(g)
+  assert.equal(idleWorkers(drafted), 0)
+  assert.equal(execute(drafted, { type: 'workers', id: 'kereste', value: 20 }, now).game.workers.kereste, 0)
+  assert.equal(rates(drafted).wood, 0)
+})
+
+test('egitim maliyeti bir kez alinir ve ayni anda tek emir yurur', () => {
+  const g = withBarracks()
+  const price = unitCost('yeniceri', 4)
+  const first = execute(g, { type: 'recruit', id: 'yeniceri', count: 4 }, now)
+  assert.equal(first.game.resources.gold, g.resources.gold - price.gold)
+  const second = execute(first.game, { type: 'recruit', id: 'okcu', count: 1 }, now)
+  assert.match(second.error!, /Eğitim sürüyor/)
+  assert.equal(second.game.resources.gold, first.game.resources.gold)
+})
+
+test('birlik ve bina on kosullari', () => {
+  const g = withBarracks()
+  g.buildings.kisla = 1
+  assert.match(recruitReason(g, 'sipahi', 1)!, /Kışla 2/)
+  assert.match(recruitReason(g, 'kadirga', 1)!, /Tersane/)
+  assert.match(recruitReason(g, 'nakliye', 1)!, /Ticaret Limanı/)
+  assert.equal(recruitReason(g, 'yeniceri', 1), null)
+  const city = initialGame(now)
+  city.resources = { gold: 99_000, wood: 99_000, stone: 99_000, knowledge: 0 }
+  assert.match(buildReason(city, 'saray')!, /Divanhane 3/)
+  assert.match(buildReason(city, 'tersane')!, /Ticaret Limanı 1/)
+  assert.match(buildReason(city, 'surlar')!, /Kışla 1/)
+})
+
+test('savunma surlardan ve kara birliklerinden gelir', () => {
+  const g = withBarracks()
+  g.buildings.surlar = 2
+  g.army.yeniceri = 10
+  g.army.kadirga = 3
+  assert.equal(wallDefense(g), 300)
+  // Gemiler sehrin kara savunmasina sayilmaz.
+  assert.equal(cityDefense(g), 300 + 10 * UNITS.yeniceri.defense)
+  assert.equal(power(g, 'deniz').attack, 3 * UNITS.kadirga.attack)
+})
+
+test('ordu kaydedilir; ordusuz eski kayit da okunur', () => {
+  const g = withBarracks()
+  const ordered = execute(g, { type: 'recruit', id: 'okcu', count: 3 }, now).game
+  const parsed = parseSave(JSON.stringify(ordered))
+  assert.equal(parsed.drill!.count, 3)
+  assert.deepEqual(parsed.army, ordered.army)
+  // Askerler eklenmeden once kaydedilmis bir sehir alanlarsiz gelir.
+  const legacy = JSON.parse(JSON.stringify(initialGame(now))) as Record<string, unknown>
+  delete legacy.army
+  delete legacy.drill
+  const migrated = parseSave(JSON.stringify(legacy))
+  assert.equal(migrated.drill, null)
+  assert.equal(soldiers(migrated), 0)
+})
+
+test('nufusun besleyemedigi ordu kaydi reddedilir', () => {
+  const g = withBarracks()
+  g.army.kalyon = 99
+  assert.throws(() => parseSave(JSON.stringify(g)), /Ordu kaydı geçersiz/)
 })

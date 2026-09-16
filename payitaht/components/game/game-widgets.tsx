@@ -1,10 +1,10 @@
 'use client'
 
-import { Coins, Trees, Mountain, BookOpen, Hammer, Check, ArrowUpRight, Sparkles, TriangleAlert } from 'lucide-react'
+import { Coins, Trees, Mountain, BookOpen, Hammer, Check, ArrowUpRight, Sparkles, TriangleAlert, Landmark, Swords, Handshake, LockKeyhole } from 'lucide-react'
 import { Progress } from '@/components/ui/progress'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
-import { BUILDINGS, RESEARCH, RESOURCE_IDS, RESOURCE_NAMES, OBJECTIVES, activeJob, rates, capacity, fullResources, nearlyFullResources, formatNumber, timeLeft, objectiveDone, type Game, type Resource, type Job, type BuildingId, type ResearchId } from '@/lib/game/engine'
+import { BUILDINGS, RESEARCH, RESOURCE_IDS, RESOURCE_NAMES, OBJECTIVES, activeJob, rates, capacity, fullResources, nearlyFullResources, formatNumber, soldiers, timeLeft, objectiveDone, type Game, type Resource, type Job, type BuildingId, type ResearchId } from '@/lib/game/engine'
 
 export const resourceIcons = { gold: Coins, wood: Trees, stone: Mountain, knowledge: BookOpen }
 export function ResourceBar({ game, onSelect }: { game: Game; onSelect: () => void }) {
@@ -31,7 +31,7 @@ export function CostDisplay({ value }: { value: Partial<Record<Resource, number>
   return <div className="cost-display">{RESOURCE_IDS.filter(id => (value[id] ?? 0) > 0).map(id => { const Icon = resourceIcons[id]; return <span key={id} title={RESOURCE_NAMES[id]}><Icon aria-hidden="true" /><span className="sr-only">{RESOURCE_NAMES[id]}: </span>{formatNumber(value[id] ?? 0)}</span> })}</div>
 }
 export function JobProgress({ job, now }: { job: Job; now: number }) {
-  return <div className="job-progress"><div><span>{job.kind === 'build' ? 'Ustalar çalışıyor' : 'Âlimler çalışıyor'}</span><time>{timeLeft(job, now)}</time></div><Progress aria-label="Tamamlanma" value={Math.max(0, Math.min(100, (now - job.start) / (job.end - job.start) * 100))} /></div>
+  return <div className="job-progress"><div><span>{job.kind === 'build' ? 'Ustalar çalışıyor' : job.kind === 'research' ? 'Âlimler çalışıyor' : 'Talim meydanı dolu'}</span><time>{timeLeft(job, now)}</time></div><Progress aria-label="Tamamlanma" value={Math.max(0, Math.min(100, (now - job.start) / (job.end - job.start) * 100))} /></div>
 }
 export function QueueCard({ game, kind, onClick }: { game: Game; kind: 'build' | 'research'; onClick: () => void }) {
   const job = kind === 'build' ? activeJob(game) : game.study
@@ -67,4 +67,35 @@ export function EconomyDetails({ game }: { game: Game }) {
     })}
     <p className="fine-print">Prototipte süreler kısaltılmıştır. Oyun kapalıyken en fazla 8 saat üretim hesaplanır. Dolan ambarlarda üretim durur.</p>
   </div>
+}
+
+/**
+ * DANISMAN CUBUGU.
+ *
+ * Ikariam'da ekranin sag ustunde dort danisman basi durur ve her biri bir
+ * yonetim ekrani acar. Burada ayni dort sekme, kaynak cubugunun hemen altinda.
+ *
+ * Kilitli bir sekme GIZLENMEZ, sonuk gorunur ve dokununca gereken yapiyi
+ * soyler: oyuncunun hedefi gormesi, ozelligin yoklugundan daha iyidir.
+ * Rozet, o danismanin ilgilendigi bir isin SURDUGUNU gosterir - sayfanin
+ * derinlerine bakmadan.
+ */
+export function AdvisorBar({ game, active, onSelect }: { game: Game; active: string | null; onSelect: (id: 'cities' | 'army' | 'research' | 'diplomacy') => void }) {
+  const advisors = [
+    { id: 'cities' as const, label: 'Şehirler', icon: Landmark, open: true, badge: activeJob(game) ? timeLeft(activeJob(game) as Job, game.updatedAt) : null },
+    { id: 'army' as const, label: 'Ordu', icon: Swords, open: game.buildings.kisla > 0, badge: game.drill ? timeLeft(game.drill, game.updatedAt) : soldiers(game) > 0 ? String(soldiers(game)) : null },
+    { id: 'research' as const, label: 'Araştırma', icon: BookOpen, open: game.buildings.medrese > 0, badge: game.study ? timeLeft(game.study, game.updatedAt) : null },
+    { id: 'diplomacy' as const, label: 'Diplomasi', icon: Handshake, open: game.buildings.elcilik > 0, badge: null },
+  ]
+  return <nav className="advisor-bar" aria-label="Danışmanlar">{advisors.map(advisor => {
+    const Icon = advisor.icon
+    return <button key={advisor.id} className={cn('advisor', !advisor.open && 'advisor-locked', active === advisor.id && 'advisor-active')}
+      aria-current={active === advisor.id ? 'page' : undefined}
+      aria-label={`${advisor.label} danışmanı${advisor.open ? '' : ', henüz açılmadı'}`}
+      onClick={() => onSelect(advisor.id)}>
+      <span className="advisor-head">{advisor.open ? <Icon aria-hidden="true" /> : <LockKeyhole aria-hidden="true" />}</span>
+      <span className="advisor-label">{advisor.label}</span>
+      {advisor.badge && <span className="advisor-badge">{advisor.badge}</span>}
+    </button>
+  })}</nav>
 }

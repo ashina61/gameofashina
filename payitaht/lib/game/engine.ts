@@ -1,11 +1,18 @@
 export const RESOURCE_IDS = ['gold', 'wood', 'stone', 'knowledge'] as const
 export type Resource = typeof RESOURCE_IDS[number]
 export type Resources = Record<Resource, number>
-export const BUILDING_IDS = ['divan', 'konut', 'kereste', 'tas', 'ambar', 'medrese', 'carsi', 'hamam'] as const
+export const BUILDING_IDS = ['divan', 'saray', 'elcilik', 'konut', 'hamam', 'carsi', 'ambar', 'kereste', 'tas', 'medrese', 'kisla', 'surlar', 'liman', 'tersane'] as const
 export type BuildingId = typeof BUILDING_IDS[number]
 export const RESEARCH_IDS = ['tools', 'storage', 'architecture'] as const
 export type ResearchId = typeof RESEARCH_IDS[number]
-export type Job = { id: BuildingId | ResearchId; kind: 'build' | 'research'; start: number; end: number }
+/**
+ * Suren bir is.
+ *
+ * `count` YALNIZCA egitimde kullanilir: bir kisla emri tek tek degil, parti
+ * halinde verilir (5 yeniceri tek istir). Insaat ve arastirmada adet kavrami
+ * yoktur, bu yuzden alan istege bagli birakildi.
+ */
+export type Job = { id: BuildingId | ResearchId | UnitId; kind: 'build' | 'research' | 'drill'; start: number; end: number; count?: number }
 
 /**
  * Adadaki YAPI ARSALARI.
@@ -57,6 +64,10 @@ export type Game = {
    */
   queue: Job[]
   study: Job | null
+  /** Kisla/tersanede suren TEK egitim emri; bos ise null. */
+  drill: Job | null
+  /** Sehrin elindeki birlikler. */
+  army: Army
   claimed: string[]; log: { text: string; time: number }[]
 }
 
@@ -80,6 +91,53 @@ export const BUILDINGS: Record<BuildingId, { name: string; category: string; des
   medrese: { name: 'Medrese', category: 'BİLİM', description: 'Gelecek, bilgiyle kurulur. İlim üretir ve kalıcı bonuslar veren araştırmaları açar.', base: 120, art: true },
   carsi: { name: 'Çarşı', category: 'TİCARET', description: 'Esnafın sesi, şehrin bereketi. Çalışan her esnaf hazineye akçe taşır.', base: 110, art: false },
   hamam: { name: 'Hamam', category: 'HALKIN HUZURU', description: 'Halkın huzuru, şehrin gücüdür. Her seviye şehrin geçindirebileceği nüfusu artırır.', base: 130, art: false },
+  saray: { name: 'Saray', category: 'YÖNETİM', description: 'Hükmünü uzağa taşır. Yeni şehirler kurmanın yolunu açar ve Şehirler danışmanını çalıştırır.', base: 320, art: false },
+  elcilik: { name: 'Elçilik', category: 'YÖNETİM', description: 'Komşularınla konuşmanın kapısı. Diplomasi danışmanını ve ittifak defterini açar.', base: 200, art: false },
+  kisla: { name: 'Kışla', category: 'ASKERÎ', description: 'Halkından asker yetiştirir. Her eğitilen vatandaş üretimden düşer — ordunun bedeli budur.', base: 180, art: false },
+  surlar: { name: 'Surlar', category: 'ASKERÎ', description: 'Şehrin taş kalkanı. Her seviye savunmaya asker gerektirmeyen güç ekler.', base: 150, art: false },
+  liman: { name: 'Ticaret Limanı', category: 'LİMAN', description: 'Denizin kapısı. Ticaret kapasitesi verir ve nakliye gemisi inşa ettirir.', base: 160, art: false },
+  tersane: { name: 'Tersane', category: 'LİMAN', description: 'Savaş gemilerinin doğduğu yer. Kadırga ve kalyon buradan denize iner.', base: 240, art: false },
+}
+
+/*
+ * ASKERLER VE GEMILER.
+ *
+ * Tasarimin tek onemli karari: ASKER HALKTAN CIKAR. Bir birligin `pop`
+ * degeri, o birlik var oldugu surece SEHIRDEN eksilen vatandas sayisidir -
+ * yani ordu kurmak dogrudan uretimi dusurur ve Hamam (huzur) birden
+ * degerlenir. Ayri bir "asker sayaci" tutmak bu bagi koparirdi.
+ *
+ * Egitim BOSTAKI halktan alinir; calisan isci asla sessizce askere gitmez.
+ * Oyuncu once Halk panelinden adam bosaltir, sonra Kisla'ya gelir. Bu, bir
+ * ekranin baska bir ekrani nicin etkiledigini gorunur kilar.
+ */
+export const UNIT_IDS = ['yeniceri', 'okcu', 'sipahi', 'topcu', 'kadirga', 'kalyon', 'nakliye'] as const
+export type UnitId = typeof UNIT_IDS[number]
+export type Army = Record<UnitId, number>
+export type Unit = {
+  name: string; branch: 'kara' | 'deniz'
+  /** Bu birligi yetistiren yapi. */
+  home: BuildingId
+  /** O yapinin gerekli en dusuk seviyesi. */
+  level: number
+  description: string
+  /** Birlik basina sehirden dusen vatandas. */
+  pop: number
+  cost: Resources
+  attack: number; defense: number
+  /** Tek bir birligin egitim suresi, saniye. */
+  seconds: number
+  /** Nakliyenin tasidigi mal; digerlerinde 0. */
+  cargo: number
+}
+export const UNITS: Record<UnitId, Unit> = {
+  yeniceri: { name: 'Yeniçeri', branch: 'kara', home: 'kisla', level: 1, description: 'Ordunun belkemiği. Hem vurur hem dayanır.', pop: 1, cost: { gold: 80, wood: 20, stone: 0, knowledge: 0 }, attack: 12, defense: 10, seconds: 12, cargo: 0 },
+  okcu: { name: 'Okçu', branch: 'kara', home: 'kisla', level: 1, description: 'Uzaktan vurur, yakında erir. Yeniçerinin arkasında durur.', pop: 1, cost: { gold: 60, wood: 45, stone: 0, knowledge: 0 }, attack: 16, defense: 4, seconds: 12, cargo: 0 },
+  sipahi: { name: 'Sipahi', branch: 'kara', home: 'kisla', level: 2, description: 'Atlı akıncı. Hızlıdır, ilk darbeyi o indirir.', pop: 2, cost: { gold: 180, wood: 40, stone: 0, knowledge: 0 }, attack: 28, defense: 14, seconds: 20, cargo: 0 },
+  topcu: { name: 'Topçu', branch: 'kara', home: 'kisla', level: 3, description: 'Sur yıkar. Yavaştır ve korunmaya muhtaçtır.', pop: 3, cost: { gold: 320, wood: 140, stone: 90, knowledge: 0 }, attack: 65, defense: 6, seconds: 34, cargo: 0 },
+  kadirga: { name: 'Kadırga', branch: 'deniz', home: 'tersane', level: 1, description: 'Hafif savaş gemisi. Kürekle döner, dar sularda üstündür.', pop: 12, cost: { gold: 600, wood: 420, stone: 0, knowledge: 0 }, attack: 45, defense: 35, seconds: 45, cargo: 0 },
+  kalyon: { name: 'Kalyon', branch: 'deniz', home: 'tersane', level: 2, description: 'Ağır kalyon. Yavaş ama denizde son sözü söyler.', pop: 25, cost: { gold: 1400, wood: 950, stone: 120, knowledge: 0 }, attack: 120, defense: 95, seconds: 75, cargo: 0 },
+  nakliye: { name: 'Nakliye', branch: 'deniz', home: 'liman', level: 1, description: 'Asker ve mal taşır. Ticaretin ve seferin ayağıdır.', pop: 8, cost: { gold: 450, wood: 340, stone: 0, knowledge: 0 }, attack: 0, defense: 18, seconds: 40, cargo: 500 },
 }
 export const RESEARCH: Record<ResearchId, { name: string; description: string; cost: number; duration: number; required: number }> = {
   tools: { name: 'Usta Elleri', description: 'Akçe, kereste, taş ve ilim üretimi kalıcı olarak %20 artar.', cost: 30, duration: 30, required: 1 },
@@ -95,11 +153,12 @@ export function initialGame(now: number): Game {
   return {
     version: 3, updatedAt: now,
     resources: { gold: 1240, wood: 860, stone: 540, knowledge: 40 },
-    buildings: { divan: 1, konut: 1, kereste: 1, tas: 1, ambar: 1, medrese: 0, carsi: 0, hamam: 0 },
+    buildings: { divan: 1, konut: 1, kereste: 1, tas: 1, ambar: 1, medrese: 0, carsi: 0, hamam: 0, saray: 0, elcilik: 0, kisla: 0, surlar: 0, liman: 0, tersane: 0 },
     // Medrese daha kurulmadi: oyuncu onu bos arsalardan birine yerlestirir.
-    placement: { divan: 0, konut: 1, kereste: 2, tas: 3, ambar: 4, medrese: null, carsi: null, hamam: null },
+    placement: { divan: 0, konut: 1, kereste: 2, tas: 3, ambar: 4, medrese: null, carsi: null, hamam: null, saray: null, elcilik: null, kisla: null, surlar: null, liman: null, tersane: null },
     workers: { kereste: WORKERS_PER_LEVEL, tas: WORKERS_PER_LEVEL, medrese: 0, carsi: 0 },
-    research: [], queue: [], study: null, claimed: [],
+    army: { yeniceri: 0, okcu: 0, sipahi: 0, topcu: 0, kadirga: 0, kalyon: 0, nakliye: 0 },
+    research: [], queue: [], study: null, drill: null, claimed: [],
     log: [{ text: 'Sahilhisar kuruldu. Hikâyen burada başlıyor.', time: now }],
   }
 }
@@ -108,19 +167,61 @@ export function initialGame(now: number): Game {
 export function workerCapacity(g: Game, id: WorkerId) { return g.buildings[id] * WORKERS_PER_LEVEL }
 /** Dagitilmis toplam isci. */
 export function assignedWorkers(g: Game) { return WORKER_IDS.reduce((sum, id) => sum + g.workers[id], 0) }
-/** Isi olmayan halk. */
-export function idleWorkers(g: Game) { return Math.max(0, population(g) - assignedWorkers(g)) }
+/**
+ * Isi olmayan halk.
+ *
+ * Askerler nufusun icindedir ama ISCI DEGILDIR: uretim yapmazlar ve baska bir
+ * ise verilemezler. Bu yuzden bosta kalan halk hesabindan once onlar dusulur.
+ */
+export function idleWorkers(g: Game) { return Math.max(0, population(g) - assignedWorkers(g) - soldiers(g)) }
+
+/** Egitimi SUREN birligin simdiden ayirdigi vatandas. */
+export function trainingPop(g: Game): number {
+  const job = g.drill
+  return job ? UNITS[job.id as UnitId].pop * (job.count ?? 0) : 0
+}
+
+/**
+ * Askere gitmis vatandas sayisi.
+ *
+ * Egitimi suren birlik de sayilir: emir verildigi anda o vatandaslar sehirden
+ * ayrilir. Aksi halde oyuncu ayni bos halkla arka arkaya iki emir verebilir ve
+ * egitimler bitince nufus borca duserdi.
+ */
+export function soldiers(g: Game): number {
+  return UNIT_IDS.reduce((sum, id) => sum + UNITS[id].pop * (g.army?.[id] ?? 0), 0) + trainingPop(g)
+}
+
+/** Elindeki birliklerin toplam saldiri ve savunma gucu. */
+export function power(g: Game, branch: 'kara' | 'deniz') {
+  return UNIT_IDS.filter(id => UNITS[id].branch === branch).reduce(
+    (sum, id) => ({ attack: sum.attack + UNITS[id].attack * g.army[id], defense: sum.defense + UNITS[id].defense * g.army[id] }),
+    { attack: 0, defense: 0 })
+}
+
+/** Surlarin asker gerektirmeyen savunmasi. */
+export function wallDefense(g: Game) { return g.buildings.surlar * 150 }
+
+/** Sehrin toplam savunmasi: surlar + kara birlikleri. */
+export function cityDefense(g: Game) { return wallDefense(g) + power(g, 'kara').defense }
+
+/** Nakliye gemilerinin tasidigi mal. */
+export function cargoCapacity(g: Game) { return g.army.nakliye * UNITS.nakliye.cargo }
+
+/** Ticaret limaninin ayni anda tasinmasina izin verdigi mal. */
+export function tradeCapacity(g: Game) { return g.buildings.liman * 1200 }
 
 /**
  * Isci dagitimini GECERLI hale getirir.
  *
- * Iki sinir vardir: yapinin kapasitesi ve sehrin nufusu. Bina yikilmaz ama
+ * Uc sinir vardir: yapinin kapasitesi, sehrin nufusu ve askere gitmis halk.
+ * Bina yikilmaz ama
  * SEVIYE DUSMESI ya da eski bir kayittan gelen bozuk sayi kapasiteyi asabilir;
  * nufus da konut seviyesinden turedigi icin degisir. Dagitim bu yuzden tek bir
  * yerden budanir - uretim hesabinin asla kapasitenin ustunde calismamasi icin.
  */
 export function clampWorkers(g: Game): Workers {
-  const limit = population(g)
+  const limit = Math.max(0, population(g) - soldiers(g))
   const out: Workers = { kereste: 0, tas: 0, medrese: 0, carsi: 0 }
   let left = limit
   for (const id of WORKER_IDS) {
@@ -232,6 +333,7 @@ export function advance(source: Game, now: number): Game {
   const jobs: Job[] = []
   while (g.queue.length > 0 && g.queue[0].end <= now) jobs.push(g.queue.shift() as Job)
   if (g.study && g.study.end <= now) jobs.push(g.study)
+  if (g.drill && g.drill.end <= now) jobs.push(g.drill)
   jobs.sort((a, b) => a.end - b.end)
   for (const job of jobs) {
     produce(Math.max(cursor, job.end))
@@ -249,11 +351,22 @@ export function advance(source: Game, now: number): Game {
       }
       g.workers = clampWorkers(g)
       logEvent(g, `${BUILDINGS[id].name} ${g.buildings[id]}. seviyeye ulaştı.`, job.end)
-    } else {
+    } else if (job.kind === 'research') {
       const id = job.id as ResearchId
       if (!g.research.includes(id)) g.research.push(id)
       g.study = null
       logEvent(g, `${RESEARCH[id].name} araştırması tamamlandı.`, job.end)
+    } else {
+      /*
+       * Egitim bitti. Vatandaslar emir verildigi anda ayrilmisti (trainingPop),
+       * simdi orduya gecerler - yani sehrin nufus dengesi DEGISMEZ, yalnizca
+       * ayni kisiler artik `army` icinde sayilir.
+       */
+      const id = job.id as UnitId
+      const count = job.count ?? 0
+      g.drill = null
+      g.army[id] += count
+      logEvent(g, `${count} ${UNITS[id].name} sancağın altına girdi.`, job.end)
     }
   }
   produce(now)
@@ -265,6 +378,23 @@ export function advance(source: Game, now: number): Game {
 export function freePlots(g: Game): number[] {
   const taken = new Set(Object.values(g.placement).filter((p): p is number => p !== null))
   return PLOTS.map((_, index) => index).filter(index => !taken.has(index))
+}
+
+/**
+ * Yapi ON KOSULLARI.
+ *
+ * Her satir "su yapi su seviyede olmali" der. Ikariam'da da bina agaci
+ * boyledir: saray gec gelir, tersane limandan sonra acilir. Tek tek `if`
+ * yazmak yerine tablo tutulur - yeni bina eklemek bir satir olsun diye.
+ */
+const BUILD_GATE: Partial<Record<BuildingId, { id: BuildingId; level: number }>> = {
+  medrese: { id: 'divan', level: 2 },
+  elcilik: { id: 'divan', level: 2 },
+  kisla: { id: 'divan', level: 2 },
+  liman: { id: 'divan', level: 2 },
+  surlar: { id: 'kisla', level: 1 },
+  saray: { id: 'divan', level: 3 },
+  tersane: { id: 'liman', level: 1 },
 }
 
 export function buildReason(g: Game, id: BuildingId): string | null {
@@ -281,12 +411,44 @@ export function buildReason(g: Game, id: BuildingId): string | null {
   // Hic kurulmamis yapi once bir arsaya yerlestirilmeli.
   if (g.placement[id] === null && freePlots(g).length === 0) return 'Boş arsa kalmadı.'
   if (g.buildings[id] >= 5) return 'En yüksek seviyeye ulaşıldı.'
-  if (id === 'medrese' && g.buildings.divan < 2) return 'Divanhane 2. seviye gerekli.'
+  const gate = BUILD_GATE[id]
+  if (gate && g.buildings[gate.id] < gate.level) return `${BUILDINGS[gate.id].name} ${gate.level}. seviye gerekli.`
   if (id !== 'divan' && g.buildings[id] >= g.buildings.divan + 1) return `Divanhane ${g.buildings.divan + 1}. seviye gerekli.`
   const c = cost(g, id)
   if (RESOURCE_IDS.some(r => g.resources[r] < c[r])) return 'Yeterli kaynak yok. Üretimin devam ediyor.'
   return null
 }
+/** Bir egitim emrinin toplam maliyeti. */
+export function unitCost(id: UnitId, count: number): Resources {
+  const c = UNITS[id].cost
+  return { gold: c.gold * count, wood: c.wood * count, stone: c.stone * count, knowledge: 0 }
+}
+
+/** Bir egitim emrinin suresi, saniye. */
+export function unitDuration(g: Game, id: UnitId, count: number) {
+  return Math.round(UNITS[id].seconds * count * (g.research.includes('architecture') ? .75 : 1))
+}
+
+/**
+ * Egitim emri verilebilir mi?
+ *
+ * Nufus kosulu BOSTAKI halka bakar, toplam nufusa degil: calisan bir isci
+ * asla sessizce askere alinmaz. Oyuncu once Halk panelinden adam bosaltir.
+ * Boylece "ordumu kurdum ama uretimim nicin dustu" sorusu hic dogmaz -
+ * dusuren hareketi kendisi yapmis olur.
+ */
+export function recruitReason(g: Game, id: UnitId, count: number): string | null {
+  const unit = UNITS[id]
+  if (!Number.isInteger(count) || count <= 0) return 'Geçersiz sayı.'
+  if (g.buildings[unit.home] < unit.level) return `${BUILDINGS[unit.home].name} ${unit.level}. seviye gerekli.`
+  if (g.drill) return 'Eğitim sürüyor. Önce onun bitmesini bekle.'
+  const need = unit.pop * count
+  if (idleWorkers(g) < need) return `${need} boşta vatandaş gerekli. Halk panelinden işçi çek.`
+  const c = unitCost(id, count)
+  if (RESOURCE_IDS.some(r => g.resources[r] < c[r])) return 'Yeterli kaynak yok.'
+  return null
+}
+
 export function researchReason(g: Game, id: ResearchId): string | null {
   if (g.research.includes(id)) return 'Araştırma tamamlandı.'
   if (g.study) return 'Önce devam eden araştırmayı tamamla.'
@@ -300,6 +462,7 @@ export type Command =
   | { type: 'research'; id: ResearchId }
   | { type: 'claim'; id: string }
   | { type: 'workers'; id: WorkerId; value: number }
+  | { type: 'recruit'; id: UnitId; count: number }
 export function execute(source: Game, command: Command, now: number): { game: Game; error?: string } {
   const g = advance(source, now)
   if (command.type === 'build') {
@@ -337,7 +500,14 @@ export function execute(source: Game, command: Command, now: number): { game: Ga
      */
     const others = WORKER_IDS.filter(w => w !== command.id).reduce((sum, w) => sum + g.workers[w], 0)
     const want = Number.isFinite(command.value) ? Math.max(0, Math.floor(command.value)) : 0
-    g.workers[command.id] = Math.min(want, workerCapacity(g, command.id), Math.max(0, population(g) - others))
+    g.workers[command.id] = Math.min(want, workerCapacity(g, command.id), Math.max(0, population(g) - soldiers(g) - others))
+  } else if (command.type === 'recruit') {
+    const reason = recruitReason(g, command.id, command.count)
+    if (reason) return { game: g, error: reason }
+    const c = unitCost(command.id, command.count)
+    for (const r of RESOURCE_IDS) g.resources[r] -= c[r]
+    g.drill = { id: command.id, kind: 'drill', start: now, end: now + unitDuration(g, command.id, command.count) * 1000, count: command.count }
+    logEvent(g, `${command.count} ${UNITS[command.id].name} için eğitim başladı.`, now)
   } else if (command.type === 'research') {
     const reason = researchReason(g, command.id)
     if (reason) return { game: g, error: reason }
@@ -364,7 +534,11 @@ export function execute(source: Game, command: Command, now: number): { game: Ga
  *   - Isciler: uretim yapilari KAPASITELERINE kadar doldurulur; eski denge
  *     tam kapasiteyle hesaplanmisti, dolayisiyla uretim ayni kalir.
  */
-const LEGACY_PLOT: Record<BuildingId, number> = { divan: 0, konut: 1, kereste: 2, tas: 3, ambar: 4, medrese: 5, carsi: 6, hamam: 6 }
+const LEGACY_PLOT: Record<BuildingId, number> = {
+  divan: 0, konut: 1, kereste: 2, tas: 3, ambar: 4, medrese: 5, carsi: 6, hamam: 6,
+  // v1'de bunlar yoktu; hicbir eski kayitta seviyeleri sifirdan buyuk olamaz.
+  saray: 6, elcilik: 6, kisla: 6, surlar: 6, liman: 6, tersane: 6,
+}
 
 /**
  * KATALOGA YENI YAPI EKLENDIGINDE eski kayitlari tasir.
@@ -377,6 +551,11 @@ const LEGACY_PLOT: Record<BuildingId, number> = { divan: 0, konut: 1, kereste: 2
  *
  * Taninmayan anahtarlar da ayiklanir: katalogdan CIKARILMIS bir yapi kayitta
  * kalirsa dogrulama onu reddederdi.
+ *
+ * Ayni gerekce ORDU icin de gecerli: askerler eklendiginde eski kayitlarda
+ * `army` ve `drill` alanlari yoktu. Dogru baslangic degeri bellidir - ordu
+ * yok, egitim yok - yani yine bir surum yukseltmesi degil, eksik alanin
+ * doldurulmasidir.
  */
 function fillMissing(g: Record<string, unknown>): Record<string, unknown> {
   const buildings = { ...(g.buildings as Record<string, number> | undefined) }
@@ -389,7 +568,10 @@ function fillMissing(g: Record<string, unknown>): Record<string, unknown> {
     out.placement[id] = placement[id] === undefined ? null : placement[id]
   }
   for (const id of WORKER_IDS) out.workers[id] = Number.isInteger(workers[id]) ? workers[id] : 0
-  return { ...g, ...out }
+  const army = { ...(g.army as Record<string, number> | undefined) }
+  const filled: Record<string, number> = {}
+  for (const id of UNIT_IDS) filled[id] = Number.isInteger(army[id]) ? army[id] : 0
+  return { ...g, ...out, army: filled, drill: g.drill === undefined ? null : g.drill }
 }
 
 /**
@@ -418,7 +600,10 @@ function migrate(g: Record<string, unknown>): Record<string, unknown> {
 export function parseSave(raw: string): Game {
   const g = fillMissing(migrateQueue(migrate(JSON.parse(raw))))
   const finite = (n: unknown) => typeof n === 'number' && Number.isFinite(n) && n >= 0
-  const validJob = (j: Job | null, kind: Job['kind']) => j === null || (j && j.kind === kind && (kind === 'build' ? BUILDING_IDS : RESEARCH_IDS).includes(j.id as never) && finite(j.start) && finite(j.end) && j.end > j.start)
+  const jobIds = { build: BUILDING_IDS, research: RESEARCH_IDS, drill: UNIT_IDS } as const
+  const validJob = (j: Job | null, kind: Job['kind']) => j === null || (j && j.kind === kind && jobIds[kind].includes(j.id as never) && finite(j.start) && finite(j.end) && j.end > j.start
+    // Egitim emri kac birlik oldugunu tasir; digerlerinde adet kavrami yoktur.
+    && (kind === 'drill' ? Number.isInteger(j.count) && (j.count as number) > 0 && (j.count as number) <= 500 : j.count === undefined))
   const placement = g.placement as Record<BuildingId, number | null> | undefined
   const workers = g.workers as Record<WorkerId, number> | undefined
   /*
@@ -448,6 +633,8 @@ export function parseSave(raw: string): Game {
     && BUILDING_IDS.every(id => placement[id] === null || levels[id] > 0 || queued.has(id))
     && new Set(placed).size === placed.length
   const workersValid = !!workers && WORKER_IDS.every(id => Number.isInteger(workers[id]) && workers[id] >= 0)
+  const army = g.army as Army | undefined
+  const armyValid = !!army && UNIT_IDS.every(id => Number.isInteger(army[id]) && army[id] >= 0 && army[id] <= 100_000)
   const queue = g.queue as Job[] | undefined
   /*
    * Sira gecerli olmali: uzunlugu sinirin altinda, her ogesi gecerli bir is,
@@ -457,10 +644,16 @@ export function parseSave(raw: string): Game {
     && queue.every(job => validJob(job, 'build'))
     && new Set(queue.map(job => job.id)).size === queue.length
     && queue.every((job, i) => i === 0 || job.start >= queue[i - 1].end - 1)
-  if (!g || g.version !== 3 || !queueValid || !finite(g.updatedAt) || !g.resources || !g.buildings || !placementValid || !workersValid || !RESOURCE_IDS.every(r => finite((g.resources as Resources)[r])) || !BUILDING_IDS.every(b => Number.isInteger((g.buildings as Record<BuildingId, number>)[b]) && (g.buildings as Record<BuildingId, number>)[b] >= 0 && (g.buildings as Record<BuildingId, number>)[b] <= 5) || (g.buildings as Record<BuildingId, number>).divan < 1 || !Array.isArray(g.research) || !(g.research as ResearchId[]).every((id: ResearchId) => RESEARCH_IDS.includes(id)) || new Set(g.research as ResearchId[]).size !== (g.research as ResearchId[]).length || !Array.isArray(g.claimed) || !(g.claimed as string[]).every((id: string) => OBJECTIVES.some(o => o.id === id)) || !validJob(g.study as Job | null, 'research') || !Array.isArray(g.log) || (g.log as unknown[]).length > 60 || !(g.log as { text: unknown; time: unknown }[]).every((l) => typeof l.text === 'string' && l.text.length < 500 && finite(l.time))) throw new Error('Kayıt dosyası okunamadı. Eski kaydın korunuyor; yeni oyun başlatabilirsin.')
+  if (!g || g.version !== 3 || !queueValid || !finite(g.updatedAt) || !g.resources || !g.buildings || !placementValid || !workersValid || !armyValid || !validJob(g.drill as Job | null, 'drill') || !RESOURCE_IDS.every(r => finite((g.resources as Resources)[r])) || !BUILDING_IDS.every(b => Number.isInteger((g.buildings as Record<BuildingId, number>)[b]) && (g.buildings as Record<BuildingId, number>)[b] >= 0 && (g.buildings as Record<BuildingId, number>)[b] <= 5) || (g.buildings as Record<BuildingId, number>).divan < 1 || !Array.isArray(g.research) || !(g.research as ResearchId[]).every((id: ResearchId) => RESEARCH_IDS.includes(id)) || new Set(g.research as ResearchId[]).size !== (g.research as ResearchId[]).length || !Array.isArray(g.claimed) || !(g.claimed as string[]).every((id: string) => OBJECTIVES.some(o => o.id === id)) || !validJob(g.study as Job | null, 'research') || !Array.isArray(g.log) || (g.log as unknown[]).length > 60 || !(g.log as { text: unknown; time: unknown }[]).every((l) => typeof l.text === 'string' && l.text.length < 500 && finite(l.time))) throw new Error('Kayıt dosyası okunamadı. Eski kaydın korunuyor; yeni oyun başlatabilirsin.')
   const game = g as unknown as Game
   if (game.queue.some(job => game.buildings[job.id as BuildingId] >= 5)) throw new Error('İnşaat kaydı geçersiz.')
   if (game.study && game.research.includes(game.study.id as ResearchId)) throw new Error('Araştırma kaydı geçersiz.')
+  /*
+   * Ordunun BEDELI nufustur: bir kayit, sehrin besleyebileceginden fazla asker
+   * tasiyamaz. Elle duzenlenmis ya da bozulmus bir dosya bu sinirin ustune
+   * cikarsa isci hesabi eksiye duser ve uretim anlamsizlasir.
+   */
+  if (soldiers(game) > population(game)) throw new Error('Ordu kaydı geçersiz.')
   // Nufus konut seviyesinden turer; kayittaki dagitim onu asiyorsa budanir.
   game.workers = clampWorkers(game)
   return game
