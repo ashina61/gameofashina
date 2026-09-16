@@ -2,8 +2,9 @@
 
 import { useEffect, useRef, useState } from 'react'
 import { Plus, Minus, LocateFixed, Hammer, Compass, ChevronDown, Users, Sun, Flag, Move } from 'lucide-react'
-import { BUILDINGS, BUILDING_IDS, PLOTS, freePlots, population, type Game, type BuildingId } from '@/lib/game/engine'
+import { BUILDINGS, BUILDING_IDS, PLOTS, activeJob, freePlots, population, type Game, type BuildingId } from '@/lib/game/engine'
 import { cn } from '@/lib/utils'
+import { asset, buildingImage } from '@/lib/asset'
 
 /** Binanin harita uzerindeki genisligi (tuval genisliginin yuzdesi). */
 const widthPercent = (id: BuildingId) => (id === 'divan' ? 21 : 18)
@@ -72,7 +73,7 @@ export function CityScene({ game, onBuilding, onPlot }: { game: Game; onBuilding
     <div className="city-title"><div><span className="eyebrow"><span className="live-dot" /> EGE KIYILARI · BAŞKENTİN</span><h1>Sahilhisar <ChevronDown aria-hidden="true" /></h1><p><Users aria-hidden="true" /> {population(game)} nüfus <span>·</span> Seviye {game.buildings.divan} yerleşim</p></div><span className="weather" title="Şehirde güneşli bir gün"><Sun aria-hidden="true" /><span>Huzurlu bir gün</span></span></div>
     <div ref={viewport} className="map-viewport" onPointerDown={event => { if ((event.target as HTMLElement).closest('button')) return; drag.current = { x: event.clientX, y: event.clientY, left: event.currentTarget.scrollLeft, top: event.currentTarget.scrollTop }; event.currentTarget.setPointerCapture(event.pointerId) }} onPointerMove={event => { if (!drag.current) return; event.currentTarget.scrollLeft = drag.current.left - event.clientX + drag.current.x; event.currentTarget.scrollTop = drag.current.top - event.clientY + drag.current.y }} onPointerUp={() => { drag.current = null }} onPointerCancel={() => { drag.current = null }}>
       <div className="map-canvas" style={{ width: size, height: size }}>
-        <img src="/images/game/island.webp" className="island-image" alt="Ormanları, taş yolları ve yelkenlilerin yanaştığı limanıyla Osmanlı esintili Sahilhisar adası" width={1024} height={1024} fetchPriority="high" draggable={false} />
+        <img src={asset('/images/game/island.webp')} className="island-image" alt="Ormanları, taş yolları ve yelkenlilerin yanaştığı limanıyla Osmanlı esintili Sahilhisar adası" width={1024} height={1024} fetchPriority="high" draggable={false} />
         {/*
           * Sahne ARSALAR uzerinden cizilir.
           *
@@ -88,7 +89,7 @@ export function CityScene({ game, onBuilding, onPlot }: { game: Game; onBuilding
           .sort((a, b) => a.plot.y - b.plot.y)
           .map(({ plot, index, id }) => {
             const level = id ? game.buildings[id] : 0
-            const active = id !== null && game.construction?.id === id
+            const active = id !== null && activeJob(game)?.id === id
             const width = id ? widthPercent(id) : 18
             return <button
               key={index}
@@ -105,7 +106,16 @@ export function CityScene({ game, onBuilding, onPlot }: { game: Game; onBuilding
               }}
               aria-label={id ? `${BUILDINGS[id].name}, seviye ${level}${active ? ', inşaat sürüyor' : ''}` : 'Boş inşaat arsası, buraya yeni bir yapı kur'}
             >
-              {id ? <img src={`/images/game/${id}.webp`} alt="" width={360} height={360} draggable={false} /> : <span className="plot-sign">{active ? <Hammer /> : <Plus />}</span>}
+              {/*
+                * Gorseli HENUZ OLMAYAN yapi kirik resim olarak degil, tas bir
+                * kaide uzerinde adiyla cizilir. Boylece yeni bir yapi kurallariyla
+                * eklenip oynanabilir olur, boyali gorseli sonra gelir.
+                */}
+              {id
+                ? BUILDINGS[id].art
+                  ? <img src={buildingImage(id)} alt="" width={360} height={360} draggable={false} />
+                  : <span className="building-pending"><Hammer aria-hidden="true" /></span>
+                : <span className="plot-sign">{active ? <Hammer /> : <Plus />}</span>}
               {(labels || !id || active) && <span className="building-label">{active && <Hammer aria-hidden="true" />}{id ? BUILDINGS[id].name : 'Boş arsa'}{id && <span className="level-label">{level}</span>}</span>}
             </button>
           })}

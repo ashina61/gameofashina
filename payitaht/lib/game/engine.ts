@@ -1,7 +1,7 @@
 export const RESOURCE_IDS = ['gold', 'wood', 'stone', 'knowledge'] as const
 export type Resource = typeof RESOURCE_IDS[number]
 export type Resources = Record<Resource, number>
-export const BUILDING_IDS = ['divan', 'konut', 'kereste', 'tas', 'ambar', 'medrese'] as const
+export const BUILDING_IDS = ['divan', 'konut', 'kereste', 'tas', 'ambar', 'medrese', 'carsi', 'hamam'] as const
 export type BuildingId = typeof BUILDING_IDS[number]
 export const RESEARCH_IDS = ['tools', 'storage', 'architecture'] as const
 export type ResearchId = typeof RESEARCH_IDS[number]
@@ -30,30 +30,56 @@ export const PLOTS: { x: number; y: number }[] = [
 ]
 
 /** Halkin calisabilecegi uretim yapilari. */
-export const WORKER_IDS = ['kereste', 'tas', 'medrese'] as const
+export const WORKER_IDS = ['kereste', 'tas', 'medrese', 'carsi'] as const
 export type WorkerId = typeof WORKER_IDS[number]
 export type Workers = Record<WorkerId, number>
 
 /** Bir yapinin her SEVIYESININ aldigi isci sayisi. */
 export const WORKERS_PER_LEVEL = 20
 
+/** Ayni anda siraya alinabilecek inşaat sayisi. */
+export const QUEUE_LIMIT = 3
+
 export type Game = {
-  version: 2; updatedAt: number; resources: Resources; buildings: Record<BuildingId, number>
+  version: 3; updatedAt: number; resources: Resources; buildings: Record<BuildingId, number>
   /** Hangi yapi hangi arsada; hic kurulmamis yapi icin null. */
   placement: Record<BuildingId, number | null>
   /** Uretim yapilarina dagitilmis isciler. */
   workers: Workers
-  research: ResearchId[]; construction: Job | null; study: Job | null
+  research: ResearchId[]
+  /**
+   * INSAAT SIRASI, en ondeki calisiyor.
+   *
+   * Tek bir `construction` alani vardi ve oyuncu her isin bitmesini ekrana
+   * bakarak beklemek zorundaydi. Sirada bekleyen isin sayaci, KENDINDEN
+   * ONCEKI bittiginde baslar - bu yuzden is bitimleri advance() icinde
+   * yeniden zamanlanir.
+   */
+  queue: Job[]
+  study: Job | null
   claimed: string[]; log: { text: string; time: number }[]
 }
+
+/** Su an calisan insaat; sira bossa null. */
+export function activeJob(g: Game): Job | null { return g.queue[0] ?? null }
 export const RESOURCE_NAMES: Record<Resource, string> = { gold: 'Akçe', wood: 'Kereste', stone: 'Taş', knowledge: 'İlim' }
-export const BUILDINGS: Record<BuildingId, { name: string; category: string; description: string; base: number }> = {
-  divan: { name: 'Divanhane', category: 'YÖNETİM', description: 'Şehrinin kalbi. Yeni yapıları ve daha yüksek bina seviyelerini açar.', base: 100 },
-  konut: { name: 'Konaklar', category: 'HALK VE EKONOMİ', description: 'Yeni ailelere yuva, şehrine gelir. Her seviyede nüfus ve akçe üretimi artar.', base: 70 },
-  kereste: { name: 'Kereste Ocağı', category: 'ÜRETİM', description: 'Ormanların bereketini şehrine taşır. Her seviyede dakikada 120 kereste üretir.', base: 60 },
-  tas: { name: 'Taş Ocağı', category: 'ÜRETİM', description: 'Ustalarının ihtiyacı olan sağlam taş. Her seviyede dakikada 90 taş üretir.', base: 70 },
-  ambar: { name: 'Ambar', category: 'DEPOLAMA', description: 'Emeğini güvenle sakla. Her seviye tüm kaynakların kapasitesine 1.500 ekler.', base: 90 },
-  medrese: { name: 'Medrese', category: 'BİLİM', description: 'Gelecek, bilgiyle kurulur. İlim üretir ve kalıcı bonuslar veren araştırmaları açar.', base: 120 },
+/**
+ * Yapi katalogu.
+ *
+ * `art` alani, o yapinin BOYALI GORSELI olup olmadigini soyler. Yeni bir yapi
+ * once kurallariyla eklenir, gorseli sonra gelir; bu alan olmasaydi eksik
+ * dosya haritada kirik resim olarak gorunurdu. Gorsel gelince tek yapilacak
+ * sey bu bayragi cevirmektir.
+ */
+export const BUILDINGS: Record<BuildingId, { name: string; category: string; description: string; base: number; art: boolean }> = {
+  divan: { name: 'Divanhane', category: 'YÖNETİM', description: 'Şehrinin kalbi. Yeni yapıları ve daha yüksek bina seviyelerini açar.', base: 100, art: true },
+  konut: { name: 'Konaklar', category: 'HALK VE EKONOMİ', description: 'Yeni ailelere yuva, şehrine gelir. Her seviyede nüfus ve akçe üretimi artar.', base: 70, art: true },
+  kereste: { name: 'Kereste Ocağı', category: 'ÜRETİM', description: 'Ormanların bereketini şehrine taşır. Her seviyede dakikada 120 kereste üretir.', base: 60, art: true },
+  tas: { name: 'Taş Ocağı', category: 'ÜRETİM', description: 'Ustalarının ihtiyacı olan sağlam taş. Her seviyede dakikada 90 taş üretir.', base: 70, art: true },
+  ambar: { name: 'Ambar', category: 'DEPOLAMA', description: 'Emeğini güvenle sakla. Her seviye tüm kaynakların kapasitesine 1.500 ekler.', base: 90, art: true },
+  medrese: { name: 'Medrese', category: 'BİLİM', description: 'Gelecek, bilgiyle kurulur. İlim üretir ve kalıcı bonuslar veren araştırmaları açar.', base: 120, art: true },
+  carsi: { name: 'Çarşı', category: 'TİCARET', description: 'Esnafın sesi, şehrin bereketi. Çalışan her esnaf hazineye akçe taşır.', base: 110, art: false },
+  hamam: { name: 'Hamam', category: 'HALKIN HUZURU', description: 'Halkın huzuru, şehrin gücüdür. Her seviye şehrin geçindirebileceği nüfusu artırır.', base: 130, art: false },
 }
 export const RESEARCH: Record<ResearchId, { name: string; description: string; cost: number; duration: number; required: number }> = {
   tools: { name: 'Usta Elleri', description: 'Akçe, kereste, taş ve ilim üretimi kalıcı olarak %20 artar.', cost: 30, duration: 30, required: 1 },
@@ -67,13 +93,13 @@ export const OBJECTIVES = [
 ]
 export function initialGame(now: number): Game {
   return {
-    version: 2, updatedAt: now,
+    version: 3, updatedAt: now,
     resources: { gold: 1240, wood: 860, stone: 540, knowledge: 40 },
-    buildings: { divan: 1, konut: 1, kereste: 1, tas: 1, ambar: 1, medrese: 0 },
+    buildings: { divan: 1, konut: 1, kereste: 1, tas: 1, ambar: 1, medrese: 0, carsi: 0, hamam: 0 },
     // Medrese daha kurulmadi: oyuncu onu bos arsalardan birine yerlestirir.
-    placement: { divan: 0, konut: 1, kereste: 2, tas: 3, ambar: 4, medrese: null },
-    workers: { kereste: WORKERS_PER_LEVEL, tas: WORKERS_PER_LEVEL, medrese: 0 },
-    research: [], construction: null, study: null, claimed: [],
+    placement: { divan: 0, konut: 1, kereste: 2, tas: 3, ambar: 4, medrese: null, carsi: null, hamam: null },
+    workers: { kereste: WORKERS_PER_LEVEL, tas: WORKERS_PER_LEVEL, medrese: 0, carsi: 0 },
+    research: [], queue: [], study: null, claimed: [],
     log: [{ text: 'Sahilhisar kuruldu. Hikâyen burada başlıyor.', time: now }],
   }
 }
@@ -95,7 +121,7 @@ export function idleWorkers(g: Game) { return Math.max(0, population(g) - assign
  */
 export function clampWorkers(g: Game): Workers {
   const limit = population(g)
-  const out: Workers = { kereste: 0, tas: 0, medrese: 0 }
+  const out: Workers = { kereste: 0, tas: 0, medrese: 0, carsi: 0 }
   let left = limit
   for (const id of WORKER_IDS) {
     const want = Number.isFinite(g.workers?.[id]) ? Math.max(0, Math.floor(g.workers[id])) : 0
@@ -124,13 +150,58 @@ export function rates(g: Game): Resources {
     return cap > 0 ? workers[id] / cap : 0
   }
   return {
-    gold: (60 + g.buildings.konut * 120) * multiplier,
+    // Akce iki kaynaktan gelir: halkin vergisi (isci istemez) ve carsi esnafi.
+    gold: (60 + g.buildings.konut * 120 + g.buildings.carsi * 100 * share('carsi')) * multiplier,
     wood: g.buildings.kereste * 120 * share('kereste') * multiplier,
     stone: g.buildings.tas * 90 * share('tas') * multiplier,
     knowledge: g.buildings.medrese * 8 * share('medrese') * multiplier,
   }
 }
-export function population(g: Game) { return 80 + g.buildings.konut * 40 }
+/** Konaklarin barindirabilecegi en fazla nufus. */
+export function housing(g: Game) { return 80 + g.buildings.konut * 40 }
+
+/**
+ * Sehrin HUZURLA tutabilecegi nufus.
+ *
+ * Ikariam'in ana kisiti budur: dam altina almak yetmez, halki memnun da
+ * etmek gerekir. Taban 120 secildi cunku oyunun basindaki konut seviyesi 1
+ * ile barinma da 120'dir - yani kisit ilk andan itibaren canimizi yakmaz,
+ * ancak oyuncu Konaklar'i YUKSELTTIGINDE devreye girer ve Hamam'i anlamli
+ * kilar.
+ */
+export function contentment(g: Game) { return 120 + g.buildings.hamam * 60 }
+
+/**
+ * Sehirde GERCEKTEN yasayan nufus.
+ *
+ * Iki kisidan hangisi kucukse o. Barinma huzurdan buyukse fazla konutlar bos
+ * kalir; oyuncu bunu "Halk" panelinde dogrudan gorur.
+ */
+export function population(g: Game) { return Math.min(housing(g), contentment(g)) }
+
+/** Huzursuzluk yuzunden bos kalan barinma. */
+export function unhousedByUnrest(g: Game) { return Math.max(0, housing(g) - contentment(g)) }
+
+/**
+ * Ambari DOLMUS kaynaklar.
+ *
+ * Dolu bir ambarda uretim bosa gider: advance() kaynagi kapasiteye kirpar ve
+ * aradaki fark sessizce kaybolur. Oyuncu bunu ancak sayilarin ilerlemedigini
+ * fark ederek anliyordu - yani oyunun ona soylemesi gereken bir seyi kendi
+ * kesfetmek zorundaydi.
+ *
+ * Esik %99,5: kayan noktali birikimde tam esitlik neredeyse hic yakalanmaz.
+ */
+export function fullResources(g: Game): Resource[] {
+  const limit = capacity(g)
+  return RESOURCE_IDS.filter(id => g.resources[id] >= limit * 0.995)
+}
+
+/** Ambari dolmaya YAKIN kaynaklar - uyari icin, kayip icin degil. */
+export function nearlyFullResources(g: Game): Resource[] {
+  const limit = capacity(g)
+  return RESOURCE_IDS.filter(id => g.resources[id] >= limit * 0.9 && g.resources[id] < limit * 0.995)
+}
 export function cost(g: Game, id: BuildingId): Resources {
   const base = Math.round(BUILDINGS[id].base * 1.65 ** g.buildings[id])
   return { gold: base, wood: Math.round(base * 1.2), stone: Math.round(base * .75), knowledge: 0 }
@@ -149,7 +220,19 @@ export function advance(source: Game, now: number): Game {
     for (const r of RESOURCE_IDS) g.resources[r] = Math.min(capacity(g), g.resources[r] + speed[r] * minutes)
     cursor = until
   }
-  const jobs = [g.construction, g.study].filter((j): j is Job => j !== null && j.end <= now).sort((a, b) => a.end - b.end)
+  /*
+   * Biten isler ZAMAN SIRASIYLA islenir.
+   *
+   * Kuyruktan yalnizca BASTAN itibaren bitmis olanlar alinir: sirada bekleyen
+   * bir isin sayaci kendinden oncekiler bitmeden baslamaz, dolayisiyla arada
+   * bitmis bir is olamaz. Arastirma ayri yurur ve araya girebilir; bu yuzden
+   * hepsi bitis zamanina gore siralanir - uretim hesabi (produce) is bitislerini
+   * dogru anlarda bolmek zorunda.
+   */
+  const jobs: Job[] = []
+  while (g.queue.length > 0 && g.queue[0].end <= now) jobs.push(g.queue.shift() as Job)
+  if (g.study && g.study.end <= now) jobs.push(g.study)
+  jobs.sort((a, b) => a.end - b.end)
   for (const job of jobs) {
     produce(Math.max(cursor, job.end))
     if (job.kind === 'build') {
@@ -165,7 +248,6 @@ export function advance(source: Game, now: number): Game {
         g.workers[slot] = Math.min(workerCapacity(g, slot), g.workers[slot] + WORKERS_PER_LEVEL)
       }
       g.workers = clampWorkers(g)
-      g.construction = null
       logEvent(g, `${BUILDINGS[id].name} ${g.buildings[id]}. seviyeye ulaştı.`, job.end)
     } else {
       const id = job.id as ResearchId
@@ -186,7 +268,16 @@ export function freePlots(g: Game): number[] {
 }
 
 export function buildReason(g: Game, id: BuildingId): string | null {
-  if (g.construction) return 'Önce devam eden inşaatı tamamla.'
+  if (g.queue.length >= QUEUE_LIMIT) return `İnşaat sırası dolu (en fazla ${QUEUE_LIMIT}).`
+  /*
+   * Ayni yapi siraya IKI KEZ girmez.
+   *
+   * Maliyet ve sure O ANKI seviyeden hesaplanir; ayni yapiyi iki kez siraya
+   * almak iki seviyeyi tek seviyenin fiyatina almak olurdu. Ikariam'da sira
+   * ayni binayi kabul eder ama orada her sira ogesi kendi seviyesinden
+   * fiyatlanir - o hesabi kurmadan bu kapiyi acmak dengeyi bozar.
+   */
+  if (g.queue.some(job => job.id === id)) return 'Bu yapı zaten inşaat sırasında.'
   // Hic kurulmamis yapi once bir arsaya yerlestirilmeli.
   if (g.placement[id] === null && freePlots(g).length === 0) return 'Boş arsa kalmadı.'
   if (g.buildings[id] >= 5) return 'En yüksek seviyeye ulaşıldı.'
@@ -228,8 +319,16 @@ export function execute(source: Game, command: Command, now: number): { game: Ga
     }
     const c = cost(g, command.id)
     for (const r of RESOURCE_IDS) g.resources[r] -= c[r]
-    g.construction = { id: command.id, kind: 'build', start: now, end: now + duration(g, command.id) * 1000 }
-    logEvent(g, `${BUILDINGS[command.id].name} için ustalar çalışmaya başladı.`, now)
+    /*
+     * Sirada bekleyen isin sayaci, KENDINDEN ONCEKI bittiginde baslar.
+     * Baslangici "now" yapmak, sirayla eklenen uc isin ayni anda bitmesi
+     * demek olurdu.
+     */
+    const start = Math.max(now, g.queue[g.queue.length - 1]?.end ?? now)
+    g.queue.push({ id: command.id, kind: 'build', start, end: start + duration(g, command.id) * 1000 })
+    logEvent(g, g.queue.length > 1
+      ? `${BUILDINGS[command.id].name} inşaat sırasına alındı.`
+      : `${BUILDINGS[command.id].name} için ustalar çalışmaya başladı.`, now)
   } else if (command.type === 'workers') {
     /*
      * Isci dagitimi: istenen sayi once kapasiteye, sonra BOSTAKI halka gore
@@ -265,7 +364,46 @@ export function execute(source: Game, command: Command, now: number): { game: Ga
  *   - Isciler: uretim yapilari KAPASITELERINE kadar doldurulur; eski denge
  *     tam kapasiteyle hesaplanmisti, dolayisiyla uretim ayni kalir.
  */
-const LEGACY_PLOT: Record<BuildingId, number> = { divan: 0, konut: 1, kereste: 2, tas: 3, ambar: 4, medrese: 5 }
+const LEGACY_PLOT: Record<BuildingId, number> = { divan: 0, konut: 1, kereste: 2, tas: 3, ambar: 4, medrese: 5, carsi: 6, hamam: 6 }
+
+/**
+ * KATALOGA YENI YAPI EKLENDIGINDE eski kayitlari tasir.
+ *
+ * Yeni bir yapi, eski kayitlarda hic bulunmayan uc alan demektir: seviye,
+ * arsa ve isci. Bunlarin dogru baslangic degeri bellidir - kurulmamis, arsasiz,
+ * iscisiz - yani bu bir SURUM YUKSELTMESI degil, eksik alanin doldurulmasidir.
+ * Surumu artirmak her yeni bina icin ayri bir goc yolu acardi ve kazanci
+ * olmazdi.
+ *
+ * Taninmayan anahtarlar da ayiklanir: katalogdan CIKARILMIS bir yapi kayitta
+ * kalirsa dogrulama onu reddederdi.
+ */
+function fillMissing(g: Record<string, unknown>): Record<string, unknown> {
+  const buildings = { ...(g.buildings as Record<string, number> | undefined) }
+  const placement = { ...(g.placement as Record<string, number | null> | undefined) }
+  const workers = { ...(g.workers as Record<string, number> | undefined) }
+  const out: { buildings: Record<string, number>; placement: Record<string, number | null>; workers: Record<string, number> } =
+    { buildings: {}, placement: {}, workers: {} }
+  for (const id of BUILDING_IDS) {
+    out.buildings[id] = Number.isInteger(buildings[id]) ? buildings[id] : 0
+    out.placement[id] = placement[id] === undefined ? null : placement[id]
+  }
+  for (const id of WORKER_IDS) out.workers[id] = Number.isInteger(workers[id]) ? workers[id] : 0
+  return { ...g, ...out }
+}
+
+/**
+ * v2 -> v3: tek insaat alani SIRAYA donusur.
+ *
+ * Devam eden bir is varsa sira tek elemanli baslar; yoksa bos. Sure ve fiyat
+ * zaten ise yazilmis oldugu icin oyuncunun beklemesi degismez.
+ */
+function migrateQueue(g: Record<string, unknown>): Record<string, unknown> {
+  if (g.version !== 2) return g
+  const construction = g.construction as Job | null | undefined
+  const { construction: _drop, ...rest } = g
+  return { ...rest, version: 3, queue: construction ? [construction] : [] }
+}
 
 function migrate(g: Record<string, unknown>): Record<string, unknown> {
   if (g.version !== 1) return g
@@ -278,7 +416,7 @@ function migrate(g: Record<string, unknown>): Record<string, unknown> {
 }
 
 export function parseSave(raw: string): Game {
-  const g = migrate(JSON.parse(raw))
+  const g = fillMissing(migrateQueue(migrate(JSON.parse(raw))))
   const finite = (n: unknown) => typeof n === 'number' && Number.isFinite(n) && n >= 0
   const validJob = (j: Job | null, kind: Job['kind']) => j === null || (j && j.kind === kind && (kind === 'build' ? BUILDING_IDS : RESEARCH_IDS).includes(j.id as never) && finite(j.start) && finite(j.end) && j.end > j.start)
   const placement = g.placement as Record<BuildingId, number | null> | undefined
@@ -289,14 +427,39 @@ export function parseSave(raw: string): Game {
    * ekranda ust uste cizilirlerdi.
    */
   const placed = placement ? BUILDING_IDS.map(id => placement[id]).filter((p): p is number => p !== null) : []
-  const placementValid = !!placement
+  const levels = g.buildings as Record<BuildingId, number> | undefined
+  const queued = new Set((Array.isArray(g.queue) ? (g.queue as Job[]) : []).map(job => job.id))
+  /*
+   * Yerlesim kurali, INSAAT HALINDEKI yapiyi da kapsamak zorunda.
+   *
+   * Yeni bir yapinin arsasi is SIRAYA GIRDIGI anda ayrilir - haritada
+   * "inşaat sürüyor" olarak gorunmesi icin - ama seviyesi is bitene kadar
+   * 0'dir. "seviye > 0 ise arsa vardir, yoksa yoktur" seklindeki ilk kural
+   * bu araligi gecersiz sayiyordu ve oyuncunun sehri, ilk yeni yapisini
+   * kurar kurmaz sayfa yenilendiginde SILINIYORDU.
+   *
+   * Dogru kural iki yonlu degil, tek yonludur:
+   *   - kurulmus yapinin arsasi OLMALI,
+   *   - arsasi olan yapi ya kurulmus ya da sirada OLMALI.
+   */
+  const placementValid = !!placement && !!levels
     && BUILDING_IDS.every(id => placement[id] === null || (Number.isInteger(placement[id]) && (placement[id] as number) >= 0 && (placement[id] as number) < PLOTS.length))
-    && BUILDING_IDS.every(id => ((g.buildings as Record<BuildingId, number>)?.[id] > 0) === (placement[id] !== null))
+    && BUILDING_IDS.every(id => !(levels[id] > 0) || placement[id] !== null)
+    && BUILDING_IDS.every(id => placement[id] === null || levels[id] > 0 || queued.has(id))
     && new Set(placed).size === placed.length
   const workersValid = !!workers && WORKER_IDS.every(id => Number.isInteger(workers[id]) && workers[id] >= 0)
-  if (!g || g.version !== 2 || !finite(g.updatedAt) || !g.resources || !g.buildings || !placementValid || !workersValid || !RESOURCE_IDS.every(r => finite((g.resources as Resources)[r])) || !BUILDING_IDS.every(b => Number.isInteger((g.buildings as Record<BuildingId, number>)[b]) && (g.buildings as Record<BuildingId, number>)[b] >= 0 && (g.buildings as Record<BuildingId, number>)[b] <= 5) || (g.buildings as Record<BuildingId, number>).divan < 1 || !Array.isArray(g.research) || !(g.research as ResearchId[]).every((id: ResearchId) => RESEARCH_IDS.includes(id)) || new Set(g.research as ResearchId[]).size !== (g.research as ResearchId[]).length || !Array.isArray(g.claimed) || !(g.claimed as string[]).every((id: string) => OBJECTIVES.some(o => o.id === id)) || !validJob(g.construction as Job | null, 'build') || !validJob(g.study as Job | null, 'research') || !Array.isArray(g.log) || (g.log as unknown[]).length > 60 || !(g.log as { text: unknown; time: unknown }[]).every((l) => typeof l.text === 'string' && l.text.length < 500 && finite(l.time))) throw new Error('Kayıt dosyası okunamadı. Eski kaydın korunuyor; yeni oyun başlatabilirsin.')
+  const queue = g.queue as Job[] | undefined
+  /*
+   * Sira gecerli olmali: uzunlugu sinirin altinda, her ogesi gecerli bir is,
+   * ayni yapi birden fazla kez YOK ve isler zaman sirasinda.
+   */
+  const queueValid = Array.isArray(queue) && queue.length <= QUEUE_LIMIT
+    && queue.every(job => validJob(job, 'build'))
+    && new Set(queue.map(job => job.id)).size === queue.length
+    && queue.every((job, i) => i === 0 || job.start >= queue[i - 1].end - 1)
+  if (!g || g.version !== 3 || !queueValid || !finite(g.updatedAt) || !g.resources || !g.buildings || !placementValid || !workersValid || !RESOURCE_IDS.every(r => finite((g.resources as Resources)[r])) || !BUILDING_IDS.every(b => Number.isInteger((g.buildings as Record<BuildingId, number>)[b]) && (g.buildings as Record<BuildingId, number>)[b] >= 0 && (g.buildings as Record<BuildingId, number>)[b] <= 5) || (g.buildings as Record<BuildingId, number>).divan < 1 || !Array.isArray(g.research) || !(g.research as ResearchId[]).every((id: ResearchId) => RESEARCH_IDS.includes(id)) || new Set(g.research as ResearchId[]).size !== (g.research as ResearchId[]).length || !Array.isArray(g.claimed) || !(g.claimed as string[]).every((id: string) => OBJECTIVES.some(o => o.id === id)) || !validJob(g.study as Job | null, 'research') || !Array.isArray(g.log) || (g.log as unknown[]).length > 60 || !(g.log as { text: unknown; time: unknown }[]).every((l) => typeof l.text === 'string' && l.text.length < 500 && finite(l.time))) throw new Error('Kayıt dosyası okunamadı. Eski kaydın korunuyor; yeni oyun başlatabilirsin.')
   const game = g as unknown as Game
-  if (game.construction && game.buildings[game.construction.id as BuildingId] >= 5) throw new Error('İnşaat kaydı geçersiz.')
+  if (game.queue.some(job => game.buildings[job.id as BuildingId] >= 5)) throw new Error('İnşaat kaydı geçersiz.')
   if (game.study && game.research.includes(game.study.id as ResearchId)) throw new Error('Araştırma kaydı geçersiz.')
   // Nufus konut seviyesinden turer; kayittaki dagitim onu asiyorsa budanir.
   game.workers = clampWorkers(game)

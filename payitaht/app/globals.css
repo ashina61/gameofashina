@@ -380,3 +380,35 @@
 .people-controls button { flex-shrink: 0; width: 40px; height: 40px; padding: 0; }
 .people-controls svg { width: 16px; height: 16px; }
 .people-controls input[type='range'] { flex: 1; min-width: 0; height: 40px; accent-color: var(--gold); background: transparent; }
+
+/* --- Gorseli henuz gelmemis yapi ------------------------------------------
+ * Eksik dosya haritada kirik resim olarak gorunmesin diye: tas bir kaide
+ * uzerinde cekic. Yapi kurallariyla oynanabilir, gorseli sonra gelir.
+ */
+.building-pending { display: grid; place-items: center; width: 74%; aspect-ratio: 1 / .78; color: #f0e2c0; background: linear-gradient(160deg, #6f6350, #4a4234); border: 1px solid #d9c18580; border-radius: 6px; box-shadow: 0 6px 14px #1a2a2055, inset 0 1px 0 #ffffff26; }
+.building-pending svg { width: 42%; height: 42%; stroke-width: 1.3; opacity: .85; }
+.preview-pending { display: grid; place-items: center; gap: 8px; width: 150px; height: 150px; color: #e9d7a6; border: 1px dashed #d9c18566; border-radius: 10px; }
+.preview-pending svg { width: 38px; height: 38px; stroke-width: 1.2; }
+.preview-pending small { font-size: 10px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted-foreground); }
+.list-pending { display: grid; place-items: center; width: 88px; height: 88px; flex-shrink: 0; color: #e9d7a6; background: #ffffff0d; border: 1px dashed #d9c18555; border-radius: 8px; }
+.list-pending svg { width: 26px; height: 26px; stroke-width: 1.3; }
+
+/* --- Ambar doluluk uyarisi ------------------------------------------------
+ * Dolu ambar, uretimin bosa gittigi TEK durumdur. Renk tek basina yeterli
+ * degildir (renk korlugu): sayinin yerinde "Ambar dolu" yazisi ve simgede
+ * uyari ucgeni de vardir.
+ */
+.resource-nearly .resource-rate { color: var(--gold); }
+.resource-full { background: #4a2a221f; }
+.resource-full .resource-symbol { color: var(--destructive); }
+.resource-full .resource-rate { color: var(--destructive); font-weight: 600; }
+
+.storage-alert { display: flex; align-items: center; gap: 9px; padding: 11px 13px; border: 1px solid #bd5e5066; border-radius: var(--radius); background: #45211c4d; color: #f0c9c0; font-size: 13px; line-height: 1.4; }
+.storage-alert svg { flex-shrink: 0; color: var(--destructive); }
+.storage-meter { display: block; height: 4px; margin-top: 6px; border-radius: 2px; background: #ffffff14; overflow: hidden; }
+.storage-meter > span { display: block; height: 100%; background: linear-gradient(90deg, #7f9a72, var(--green)); transition: width .2s ease; }
+.economy-item-full .storage-meter > span { background: linear-gradient(90deg, #a05043, var(--destructive)); }
+
+/* Halk ozeti dort kutucuga cikti: nufus, bosta, barinma, huzur. */
+.people-summary > div { min-width: 0; }
+.people-summary strong { font-size: 18px; }
