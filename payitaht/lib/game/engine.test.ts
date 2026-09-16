@@ -1,6 +1,7 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { advance, assignedWorkers, capacity, cost, execute, freePlots, idleWorkers, initialGame, parseSave, population, PLOTS, rates, researchReason, duration, workerCapacity, WORKERS_PER_LEVEL, fullResources, nearlyFullResources, activeJob, QUEUE_LIMIT, housing, contentment, unhousedByUnrest, soldiers, recruitReason, buildReason, unitCost, wallDefense, cityDefense, power, UNITS } from './engine'
+import { advance, assignedWorkers, capacity, cost, execute, freePlots, idleWorkers, initialGame, parseSave, population, PLOTS, rates, researchReason, duration, workerCapacity, WORKERS_PER_LEVEL, fullResources, nearlyFullResources, activeJob, QUEUE_LIMIT, housing, contentment, unhousedByUnrest, soldiers, recruitReason, buildReason, unitCost, wallDefense, cityDefense, power, UNITS, BUILDINGS, BUILDING_IDS, zoneOf } from './engine'
+import { COLS, ROWS, TILE_W } from './layout'
 
 const now = 1_000_000
 
@@ -159,11 +160,51 @@ test('yeni yapi BOS bir arsaya oturur, ayni arsaya iki yapi girmez', () => {
   assert.match(clash.error ?? '', /arsa/i)
 })
 
-test('adadaki yedinci arsa gercekten oynanabilir', () => {
-  // Olcum adada yedi arsa buldu; motor eskiden altisini taniyordu.
-  assert.equal(PLOTS.length, 7)
+/*
+ * Arsalar artik RESIMDEN OLCULMUYOR, izgaradan hesaplaniyor. Bu testler o
+ * sozu tutuyor: koordinat yok, bolge var, ve yeni bina eklemek yerlesim
+ * dosyalarina dokunmayi gerektirmiyor.
+ */
+test('arsalar izgaradan turer ve bolgelere ayrilir', () => {
+  assert.equal(PLOTS.length, COLS * ROWS + 4)
+  assert.equal(PLOTS.filter(s => s.zone === 'liman').length, 4)
+  // Her arsanin indeksi kendi sirasidir: kayitlardaki yerlesim buna dayanir.
+  assert.ok(PLOTS.every((slot, i) => slot.index === i))
+  // Hicbir arsa tuvalin disina tasmaz.
+  assert.ok(PLOTS.every(s => s.x > TILE_W / 2 && s.x < 100 - TILE_W / 2 && s.y > 0 && s.y < 100))
   const g = initialGame(now)
-  assert.equal(freePlots(g).length, 2)
+  assert.equal(freePlots(g).length, PLOTS.length - 5)
+  assert.equal(freePlots(g, 'liman').length, 4)
+})
+
+test('yapi kendi bolgesine kurulur, surlar arsa kaplamaz', () => {
+  const g = initialGame(now)
+  g.buildings.divan = 3; g.buildings.kisla = 1; g.buildings.liman = 1
+  g.placement.kisla = 5; g.placement.liman = freePlots(g, 'liman')[0]
+  g.resources = { gold: 99_000, wood: 99_000, stone: 99_000, knowledge: 0 }
+  // Tersane bir yamac arsasina degil, iskeleye oturur.
+  const yamac = freePlots(g, 'sehir')[0]
+  assert.match(execute(g, { type: 'build', id: 'tersane', plot: yamac }, now).error!, /iskele/)
+  const built = execute(g, { type: 'build', id: 'tersane' }, now).game
+  assert.equal(PLOTS[built.placement.tersane!].zone, 'liman')
+  // Surlar hicbir arsayi tutmaz.
+  const walls = execute(g, { type: 'build', id: 'surlar' }, now).game
+  assert.equal(walls.placement.surlar, null)
+  assert.equal(freePlots(walls).length, freePlots(g).length)
+  assert.equal(parseSave(JSON.stringify(advance(walls, walls.queue[0].end))).buildings.surlar, 1)
+})
+
+test('yeni bina eklemek yalnizca katalog satiri ister', () => {
+  const g = initialGame(now)
+  // Her katalog satiri kendi kendine yeter: seviye, arsa ve isci turetilir.
+  for (const id of BUILDING_IDS) {
+    assert.equal(typeof BUILDINGS[id].name, 'string')
+    assert.equal(g.buildings[id], BUILDINGS[id].name && ['divan', 'konut', 'kereste', 'tas', 'ambar'].includes(id) ? 1 : 0)
+    assert.ok(g.placement[id] === null || PLOTS[g.placement[id]!].zone === zoneOf(id))
+  }
+  // Yerlesimi olan her yapinin seviyesi de vardir ve tersi.
+  const placed = BUILDING_IDS.filter(id => g.placement[id] !== null)
+  assert.deepEqual(placed.sort(), ['ambar', 'divan', 'kereste', 'konut', 'tas'])
 })
 
 test('v1 kaydi guncel surume tasinir: yerlesim, isciler ve sira turetilir', () => {
@@ -186,10 +227,40 @@ test('v1 kaydi guncel surume tasinir: yerlesim, isciler ve sira turetilir', () =
   assert.equal(rates(g).stone, 90)
 })
 
-test('bozuk yerlesim reddedilir: iki yapi ayni arsada olamaz', () => {
+/*
+ * Yerlesim artik REDDEDILMIYOR, ONARILIYOR.
+ *
+ * Iki yapinin ayni arsada olmasi ya da izgara degistigi icin indeksin
+ * bosluga dusmesi, sehri silmeyi gerektiren bir sey degil: bilgi kayipsiz
+ * tasinabilir. Onarim ayni zamanda kurali UYGULAR - reddetmek yalnizca
+ * kontrol ederdi.
+ */
+test('cakisan yerlesim onarilir, sehir silinmez', () => {
   const g = initialGame(now)
   const broken = { ...g, placement: { ...g.placement, konut: g.placement.divan } }
-  assert.throws(() => parseSave(JSON.stringify(broken)))
+  const fixed = parseSave(JSON.stringify(broken))
+  assert.notEqual(fixed.placement.konut, fixed.placement.divan)
+  assert.equal(fixed.buildings.konut, g.buildings.konut)
+  const spots = BUILDING_IDS.map(id => fixed.placement[id]).filter(p => p !== null)
+  assert.equal(new Set(spots).size, spots.length)
+})
+
+test('izgara disina dusen arsa kendi bolgesine tasinir', () => {
+  const g = initialGame(now)
+  g.buildings.divan = 2; g.buildings.liman = 1
+  g.placement.liman = freePlots(g, 'liman')[0]
+  // Izgara kuculmus gibi: indeks artik hicbir arsayi gostermiyor.
+  const stale = { ...g, placement: { ...g.placement, liman: PLOTS.length + 5 } }
+  const fixed = parseSave(JSON.stringify(stale))
+  assert.equal(PLOTS[fixed.placement.liman!].zone, 'liman')
+  assert.equal(fixed.buildings.liman, 1)
+})
+
+test('gercekten okunamayan kayit yine reddedilir', () => {
+  const g = initialGame(now)
+  assert.throws(() => parseSave(JSON.stringify({ ...g, buildings: { ...g.buildings, divan: 99 } })))
+  assert.throws(() => parseSave(JSON.stringify({ ...g, resources: { ...g.resources, gold: -5 } })))
+  assert.throws(() => parseSave(JSON.stringify({ ...g, version: 1, buildings: null })))
 })
 
 test('kayittaki asiri isci sayisi budanir', () => {

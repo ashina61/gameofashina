@@ -108,6 +108,12 @@
 .map-canvas { position: relative; margin: 0 auto; flex-shrink: 0; }
 .island-image { display: block; width: 100%; height: 100%; object-fit: cover; user-select: none; pointer-events: none; }
 /*
+ * Zemin katmani arkaplanin TAM USTUNDE ve binalarin ALTINDA durur; ayni
+ * yuzde koordinatlarini kullandigi icin olcek ne olursa olsun hizali kalir.
+ */
+.city-ground { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; overflow: visible; filter: drop-shadow(0 3px 6px #12251c4d); }
+.city-walls { filter: drop-shadow(0 2px 3px #1b2c2340); }
+/*
  * Bina dugmesi YIGIN BAGLAMI OLUSTURMAZ.
  *
  * Boylece butun sprite'lar tek bir katmanda (z-index 1), butun etiketler
@@ -128,11 +134,13 @@
 .building-label > svg { width: 11px; height: 11px; color: var(--gold); }
 .level-label { color: #e9ce93; display: grid; place-items: center; background: #bba16325; min-width: 18px; min-height: 17px; font-size: 10px; border-radius: 2px; margin-left: 3px; }
 .building-active .building-label { background: #594728; border-color: var(--gold); }
-.map-building.empty-building { height: 68px; }
-.empty-building .building-label { border-style: dashed; bottom: -12px; background: #264231d9; padding: 7px 12px; }
-.plot-sign { position: relative; z-index: 1; display: grid; place-items: center; width: 42px; height: 42px; background: #27492dd1; border: 1px solid #e9d7a6; color: #f6eacb; border-radius: 50%; box-shadow: 0 0 0 5px #344f3444, 0 3px 8px #25372344; }
-.plot-sign svg { width: 22px; height: 22px; stroke-width: 1.5; }
-.harbor-label { position: absolute; top: 82%; left: 45%; transform: rotate(-27deg); font-family: var(--font-heading), serif; font-size: 11px; letter-spacing: 2px; color: #e8e8c8bf; pointer-events: none; text-shadow: 0 1px 3px #063b3c; }
+/* Bos arsa dugmesi artik kendi KAROSU kadar yer kaplar; yukseklik satir ici stilden gelir. */
+.empty-building { justify-content: center; }
+.empty-building .building-label { border-style: dashed; bottom: -9px; background: #264231d9; padding: 6px 10px; }
+.plot-sign { position: relative; z-index: 1; display: grid; place-items: center; width: 26px; height: 26px; background: #1f3a2aa8; border: 1px solid #e9d7a699; color: #f2e6c8; border-radius: 50%; box-shadow: 0 2px 5px #2537234d; transition: background .15s, transform .15s, opacity .15s; opacity: .82; }
+.empty-building:hover .plot-sign, .empty-building:focus-visible .plot-sign { background: #3a6a42; transform: scale(1.15); opacity: 1; }
+.plot-sign svg { width: 15px; height: 15px; stroke-width: 1.8; }
+.harbor-label { position: absolute; left: 50%; transform: translateX(-50%); font-family: var(--font-heading), serif; font-size: 11px; letter-spacing: 2px; color: #e8e8c8bf; pointer-events: none; text-shadow: 0 1px 3px #063b3c; }
 .map-top-tools { position: absolute; right: 22px; top: 112px; z-index: 2; }
 .map-top-tools button, .zoom-tools button { display: grid; place-items: center; width: 40px; height: 40px; background: #173b34e6; color: #e5d6ad; border: 1px solid #d9c1854d; border-radius: 6px; backdrop-filter: blur(6px); }
 .map-top-tools svg, .zoom-tools svg { width: 17px; height: 17px; stroke-width: 1.6; }
@@ -290,9 +298,13 @@
   .resource-rate > span { font-size: 7px; }
   .resource + .resource::before { height: 33px; }
   .city-sidebar { display: none; }
-  .city-title { padding: 18px 20px 42px; align-items: flex-start; }
+  /*
+   * Sehir basligi HARITANIN USTUNDE durur; buyuk oldugunda ilk arsa
+   * satirini ortuyordu. Dekoratif bir baslik icin odenecek bedel degil.
+   */
+  .city-title { padding: 12px 20px 24px; align-items: flex-start; }
   .city-title .eyebrow { font-size: 7px; letter-spacing: 1.5px; }
-  .city-title h1 { font-size: 34px; margin-top: 4px; }
+  .city-title h1 { font-size: 26px; margin-top: 2px; }
   .city-title p { font-size: 9px; margin-top: 1px; }
   .weather { margin-top: 16px; }
   .weather > span { display: none; }

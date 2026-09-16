@@ -1,3 +1,5 @@
+import { SLOTS, type Zone } from './layout'
+
 export const RESOURCE_IDS = ['gold', 'wood', 'stone', 'knowledge'] as const
 export type Resource = typeof RESOURCE_IDS[number]
 export type Resources = Record<Resource, number>
@@ -15,26 +17,13 @@ export type ResearchId = typeof RESEARCH_IDS[number]
 export type Job = { id: BuildingId | ResearchId | UnitId; kind: 'build' | 'research' | 'drill'; start: number; end: number; count?: number }
 
 /**
- * Adadaki YAPI ARSALARI.
+ * YAPI ARSALARI.
  *
- * Konumlar island.png uzerinden olculdu: acik kum rengi lekelerin bagli
- * bilesenleri cikarildi ve merkezleri alindi. Olcum yedi arsa buldu; motor
- * altisini kullaniyordu, yani adada BOYALI AMA HIC KULLANILMAYAN bir arsa
- * duruyordu (%52,7 / %56,4). Artik o da oynanabilir.
- *
- * Ilk alti konum gozle ayarlanmis haliyle korundu - olculen merkezlerden
- * bir iki yuzde farklari var ama sehrin bilinen gorunusunu degistirmemek
- * daha degerli.
+ * Konumlar artik RESIMDEN OLCULMUYOR, izometrik izgaradan hesaplaniyor
+ * (bkz. layout.ts). Bu dosya yalnizca "kac arsa var ve hangisi hangi
+ * bolgede" bilgisini kullanir; piksel isi cizim katmaninda kalir.
  */
-export const PLOTS: { x: number; y: number }[] = [
-  { x: 49, y: 32 },
-  { x: 38, y: 38 },
-  { x: 28, y: 46 },
-  { x: 71, y: 46 },
-  { x: 61, y: 52 },
-  { x: 40, y: 54 },
-  { x: 53, y: 56 },
-]
+export const PLOTS = SLOTS
 
 /** Halkin calisabilecegi uretim yapilari. */
 export const WORKER_IDS = ['kereste', 'tas', 'medrese', 'carsi'] as const
@@ -71,6 +60,11 @@ export type Game = {
   claimed: string[]; log: { text: string; time: number }[]
 }
 
+/** Bu yapi bir arsa kaplar mi? (Surlar kaplamaz.) */
+export function takesPlot(id: BuildingId) { return BUILDINGS[id].zone !== 'sur' }
+/** Bu yapinin kurulabilecegi bolge. */
+export function zoneOf(id: BuildingId): Zone { return BUILDINGS[id].zone === 'liman' ? 'liman' : 'sehir' }
+
 /** Su an calisan insaat; sira bossa null. */
 export function activeJob(g: Game): Job | null { return g.queue[0] ?? null }
 export const RESOURCE_NAMES: Record<Resource, string> = { gold: 'Akçe', wood: 'Kereste', stone: 'Taş', knowledge: 'İlim' }
@@ -82,21 +76,46 @@ export const RESOURCE_NAMES: Record<Resource, string> = { gold: 'Akçe', wood: '
  * dosya haritada kirik resim olarak gorunurdu. Gorsel gelince tek yapilacak
  * sey bu bayragi cevirmektir.
  */
-export const BUILDINGS: Record<BuildingId, { name: string; category: string; description: string; base: number; art: boolean }> = {
+export type BuildingDef = {
+  name: string; category: string; description: string
+  /** 1. seviyenin temel maliyeti; ustu 1,65 katlanarak artar. */
+  base: number
+  /** Boyali gorseli var mi? Yoksa harita onu tas kaide olarak cizer. */
+  art: boolean
+  /**
+   * Hangi bolgeye kurulur. Verilmezse sehir izgarasi.
+   *
+   * 'sur' ozeldir: ARSA KAPLAMAZ, sehrin cevresine orulur. Surlari bir
+   * arsaya oturtmak hem gorsel olarak yanlis olurdu hem de oyuncuya
+   * "savunma mi yoksa uretim mi" diye sahte bir secim dayatirdi.
+   */
+  zone?: Zone | 'sur'
+  /** Kurulmadan once gereken yapi ve seviyesi. */
+  needs?: { id: BuildingId; level: number }
+}
+
+/**
+ * YAPI KATALOGU - yeni bina eklemenin TEK yeri.
+ *
+ * Bir satir yeterlidir: isim, maliyet, varsa on kosul ve bolge. Arsa
+ * koordinati, baslangic seviyesi, kayit gocu ve haritadaki cizim bu
+ * satirdan turer; hicbirini elle yazmak gerekmez.
+ */
+export const BUILDINGS: Record<BuildingId, BuildingDef> = {
   divan: { name: 'Divanhane', category: 'YÖNETİM', description: 'Şehrinin kalbi. Yeni yapıları ve daha yüksek bina seviyelerini açar.', base: 100, art: true },
   konut: { name: 'Konaklar', category: 'HALK VE EKONOMİ', description: 'Yeni ailelere yuva, şehrine gelir. Her seviyede nüfus ve akçe üretimi artar.', base: 70, art: true },
   kereste: { name: 'Kereste Ocağı', category: 'ÜRETİM', description: 'Ormanların bereketini şehrine taşır. Her seviyede dakikada 120 kereste üretir.', base: 60, art: true },
   tas: { name: 'Taş Ocağı', category: 'ÜRETİM', description: 'Ustalarının ihtiyacı olan sağlam taş. Her seviyede dakikada 90 taş üretir.', base: 70, art: true },
   ambar: { name: 'Ambar', category: 'DEPOLAMA', description: 'Emeğini güvenle sakla. Her seviye tüm kaynakların kapasitesine 1.500 ekler.', base: 90, art: true },
-  medrese: { name: 'Medrese', category: 'BİLİM', description: 'Gelecek, bilgiyle kurulur. İlim üretir ve kalıcı bonuslar veren araştırmaları açar.', base: 120, art: true },
+  medrese: { name: 'Medrese', category: 'BİLİM', description: 'Gelecek, bilgiyle kurulur. İlim üretir ve kalıcı bonuslar veren araştırmaları açar.', base: 120, art: true, needs: { id: 'divan', level: 2 } },
   carsi: { name: 'Çarşı', category: 'TİCARET', description: 'Esnafın sesi, şehrin bereketi. Çalışan her esnaf hazineye akçe taşır.', base: 110, art: false },
   hamam: { name: 'Hamam', category: 'HALKIN HUZURU', description: 'Halkın huzuru, şehrin gücüdür. Her seviye şehrin geçindirebileceği nüfusu artırır.', base: 130, art: false },
-  saray: { name: 'Saray', category: 'YÖNETİM', description: 'Hükmünü uzağa taşır. Yeni şehirler kurmanın yolunu açar ve Şehirler danışmanını çalıştırır.', base: 320, art: false },
-  elcilik: { name: 'Elçilik', category: 'YÖNETİM', description: 'Komşularınla konuşmanın kapısı. Diplomasi danışmanını ve ittifak defterini açar.', base: 200, art: false },
-  kisla: { name: 'Kışla', category: 'ASKERÎ', description: 'Halkından asker yetiştirir. Her eğitilen vatandaş üretimden düşer — ordunun bedeli budur.', base: 180, art: false },
-  surlar: { name: 'Surlar', category: 'ASKERÎ', description: 'Şehrin taş kalkanı. Her seviye savunmaya asker gerektirmeyen güç ekler.', base: 150, art: false },
-  liman: { name: 'Ticaret Limanı', category: 'LİMAN', description: 'Denizin kapısı. Ticaret kapasitesi verir ve nakliye gemisi inşa ettirir.', base: 160, art: false },
-  tersane: { name: 'Tersane', category: 'LİMAN', description: 'Savaş gemilerinin doğduğu yer. Kadırga ve kalyon buradan denize iner.', base: 240, art: false },
+  saray: { name: 'Saray', category: 'YÖNETİM', description: 'Hükmünü uzağa taşır. Yeni şehirler kurmanın yolunu açar ve Şehirler danışmanını çalıştırır.', base: 320, art: false, needs: { id: 'divan', level: 3 } },
+  elcilik: { name: 'Elçilik', category: 'YÖNETİM', description: 'Komşularınla konuşmanın kapısı. Diplomasi danışmanını ve ittifak defterini açar.', base: 200, art: false, needs: { id: 'divan', level: 2 } },
+  kisla: { name: 'Kışla', category: 'ASKERÎ', description: 'Halkından asker yetiştirir. Her eğitilen vatandaş üretimden düşer — ordunun bedeli budur.', base: 180, art: false, needs: { id: 'divan', level: 2 } },
+  surlar: { name: 'Surlar', category: 'ASKERÎ', description: 'Şehrin taş kalkanı. Her seviye savunmaya asker gerektirmeyen güç ekler. Arsa kaplamaz — şehrin çevresine örülür.', base: 150, art: false, zone: 'sur', needs: { id: 'kisla', level: 1 } },
+  liman: { name: 'Ticaret Limanı', category: 'LİMAN', description: 'Denizin kapısı. Ticaret kapasitesi verir ve nakliye gemisi inşa ettirir.', base: 160, art: false, zone: 'liman', needs: { id: 'divan', level: 2 } },
+  tersane: { name: 'Tersane', category: 'LİMAN', description: 'Savaş gemilerinin doğduğu yer. Kadırga ve kalyon buradan denize iner.', base: 240, art: false, zone: 'liman', needs: { id: 'liman', level: 1 } },
 }
 
 /*
@@ -149,15 +168,31 @@ export const OBJECTIVES = [
   { id: 'first-academy', title: 'Bilginin kapılarını aç', description: 'Boş arsaya bir Medrese inşa et.', reward: 200 },
   { id: 'first-research', title: 'Yeni bir çağın başlangıcı', description: 'İlk araştırmanı tamamla.', reward: 300 },
 ]
+/** Her anahtari sifir olan bir kayit - yeni bir bina eklendiginde kendiliginden buyur. */
+function blank<T extends string>(ids: readonly T[]): Record<T, number> {
+  return Object.fromEntries(ids.map(id => [id, 0])) as Record<T, number>
+}
+function blankNull<T extends string>(ids: readonly T[]): Record<T, number | null> {
+  return Object.fromEntries(ids.map(id => [id, null])) as Record<T, number | null>
+}
+
+/** Oyunun basladigi sehir: bes yapi, izgaranin ilk sirasinda. */
+const START_LEVELS: Partial<Record<BuildingId, number>> = { divan: 1, konut: 1, kereste: 1, tas: 1, ambar: 1 }
+const START_PLOTS: Partial<Record<BuildingId, number>> = { divan: 1, konut: 2, kereste: 0, tas: 3, ambar: 4 }
+
 export function initialGame(now: number): Game {
   return {
     version: 3, updatedAt: now,
     resources: { gold: 1240, wood: 860, stone: 540, knowledge: 40 },
-    buildings: { divan: 1, konut: 1, kereste: 1, tas: 1, ambar: 1, medrese: 0, carsi: 0, hamam: 0, saray: 0, elcilik: 0, kisla: 0, surlar: 0, liman: 0, tersane: 0 },
-    // Medrese daha kurulmadi: oyuncu onu bos arsalardan birine yerlestirir.
-    placement: { divan: 0, konut: 1, kereste: 2, tas: 3, ambar: 4, medrese: null, carsi: null, hamam: null, saray: null, elcilik: null, kisla: null, surlar: null, liman: null, tersane: null },
-    workers: { kereste: WORKERS_PER_LEVEL, tas: WORKERS_PER_LEVEL, medrese: 0, carsi: 0 },
-    army: { yeniceri: 0, okcu: 0, sipahi: 0, topcu: 0, kadirga: 0, kalyon: 0, nakliye: 0 },
+    buildings: { ...blank(BUILDING_IDS), ...START_LEVELS },
+    /*
+     * Baslangic sehri. Yalnizca KURULU yapilarin arsasi vardir; gerisini
+     * oyuncu yerlestirir. Liste katalogdan turedigi icin yeni bir bina
+     * eklemek burayi degistirmeyi GEREKTIRMEZ.
+     */
+    placement: { ...blankNull(BUILDING_IDS), ...START_PLOTS },
+    workers: { ...blank(WORKER_IDS), kereste: WORKERS_PER_LEVEL, tas: WORKERS_PER_LEVEL },
+    army: blank(UNIT_IDS),
     research: [], queue: [], study: null, drill: null, claimed: [],
     log: [{ text: 'Sahilhisar kuruldu. Hikâyen burada başlıyor.', time: now }],
   }
@@ -374,27 +409,15 @@ export function advance(source: Game, now: number): Game {
   g.updatedAt = now
   return g
 }
-/** Uzerinde yapi olmayan arsalarin indeksleri. */
-export function freePlots(g: Game): number[] {
-  const taken = new Set(Object.values(g.placement).filter((p): p is number => p !== null))
-  return PLOTS.map((_, index) => index).filter(index => !taken.has(index))
-}
-
 /**
- * Yapi ON KOSULLARI.
+ * Uzerinde yapi olmayan arsalarin indeksleri.
  *
- * Her satir "su yapi su seviyede olmali" der. Ikariam'da da bina agaci
- * boyledir: saray gec gelir, tersane limandan sonra acilir. Tek tek `if`
- * yazmak yerine tablo tutulur - yeni bina eklemek bir satir olsun diye.
+ * `zone` verilirse yalnizca o bolgedekiler doner: Tersane bir yamac
+ * arsasina, Konaklar bir iskeleye kurulamaz.
  */
-const BUILD_GATE: Partial<Record<BuildingId, { id: BuildingId; level: number }>> = {
-  medrese: { id: 'divan', level: 2 },
-  elcilik: { id: 'divan', level: 2 },
-  kisla: { id: 'divan', level: 2 },
-  liman: { id: 'divan', level: 2 },
-  surlar: { id: 'kisla', level: 1 },
-  saray: { id: 'divan', level: 3 },
-  tersane: { id: 'liman', level: 1 },
+export function freePlots(g: Game, zone?: Zone): number[] {
+  const taken = new Set(Object.values(g.placement).filter((p): p is number => p !== null))
+  return PLOTS.filter(slot => !taken.has(slot.index) && (zone === undefined || slot.zone === zone)).map(slot => slot.index)
 }
 
 export function buildReason(g: Game, id: BuildingId): string | null {
@@ -408,11 +431,13 @@ export function buildReason(g: Game, id: BuildingId): string | null {
    * fiyatlanir - o hesabi kurmadan bu kapiyi acmak dengeyi bozar.
    */
   if (g.queue.some(job => job.id === id)) return 'Bu yapı zaten inşaat sırasında.'
-  // Hic kurulmamis yapi once bir arsaya yerlestirilmeli.
-  if (g.placement[id] === null && freePlots(g).length === 0) return 'Boş arsa kalmadı.'
+  // Hic kurulmamis yapi once KENDI BOLGESINDE bir arsaya yerlestirilmeli.
+  if (takesPlot(id) && g.placement[id] === null && freePlots(g, zoneOf(id)).length === 0) {
+    return zoneOf(id) === 'liman' ? 'Limanda boş iskele kalmadı.' : 'Boş arsa kalmadı.'
+  }
   if (g.buildings[id] >= 5) return 'En yüksek seviyeye ulaşıldı.'
-  const gate = BUILD_GATE[id]
-  if (gate && g.buildings[gate.id] < gate.level) return `${BUILDINGS[gate.id].name} ${gate.level}. seviye gerekli.`
+  const needs = BUILDINGS[id].needs
+  if (needs && g.buildings[needs.id] < needs.level) return `${BUILDINGS[needs.id].name} ${needs.level}. seviye gerekli.`
   if (id !== 'divan' && g.buildings[id] >= g.buildings.divan + 1) return `Divanhane ${g.buildings.divan + 1}. seviye gerekli.`
   const c = cost(g, id)
   if (RESOURCE_IDS.some(r => g.resources[r] < c[r])) return 'Yeterli kaynak yok. Üretimin devam ediyor.'
@@ -474,10 +499,12 @@ export function execute(source: Game, command: Command, now: number): { game: Ga
      * Oyuncu arsayi secebilir; secmediyse ilk bos arsa kullanilir. Secilen
      * arsa doluysa komut reddedilir - aksi halde iki yapi ust uste cizilirdi.
      */
-    if (g.placement[command.id] === null) {
-      const free = freePlots(g)
+    if (takesPlot(command.id) && g.placement[command.id] === null) {
+      const free = freePlots(g, zoneOf(command.id))
       const plot = command.plot ?? free[0]
-      if (plot === undefined || !free.includes(plot)) return { game: g, error: 'Bu arsa dolu. Başka bir arsa seç.' }
+      if (plot === undefined || !free.includes(plot)) {
+        return { game: g, error: zoneOf(command.id) === 'liman' ? 'Bu yapı limana kurulur. Boş bir iskele seç.' : 'Bu arsa dolu. Başka bir arsa seç.' }
+      }
       g.placement[command.id] = plot
     }
     const c = cost(g, command.id)
@@ -568,6 +595,27 @@ function fillMissing(g: Record<string, unknown>): Record<string, unknown> {
     out.placement[id] = placement[id] === undefined ? null : placement[id]
   }
   for (const id of WORKER_IDS) out.workers[id] = Number.isInteger(workers[id]) ? workers[id] : 0
+  /*
+   * IZGARA DEGISTIGINDE sehri yikmamak icin yeniden yerlestirme.
+   *
+   * Arsa sayisi ya da bolgeler degisirse eski bir kayittaki indeks artik
+   * baska bir yere - ya da hicbir yere - isaret edebilir. Boyle bir kaydi
+   * reddetmek oyuncunun sehrini silmek olurdu; oysa bilgi kayipsiz
+   * tasinabilir: yapiyi KENDI BOLGESINDE bos bir arsaya tasi.
+   *
+   * Bu, izgarayi degistirmeyi ucuz kilan sey. Satir eklemek ya da cikarmak
+   * artik bir goc yolu yazmayi gerektirmiyor.
+   */
+  const used = new Set<number>()
+  for (const id of BUILDING_IDS) {
+    const at = out.placement[id]
+    if (at === null) continue
+    const fits = Number.isInteger(at) && at >= 0 && at < SLOTS.length && SLOTS[at].zone === zoneOf(id as BuildingId)
+    if (fits && !used.has(at as number)) { used.add(at as number); continue }
+    const free = SLOTS.find(slot => slot.zone === zoneOf(id as BuildingId) && !used.has(slot.index))
+    out.placement[id] = free ? free.index : null
+    if (free) used.add(free.index)
+  }
   const army = { ...(g.army as Record<string, number> | undefined) }
   const filled: Record<string, number> = {}
   for (const id of UNIT_IDS) filled[id] = Number.isInteger(army[id]) ? army[id] : 0
@@ -629,7 +677,10 @@ export function parseSave(raw: string): Game {
    */
   const placementValid = !!placement && !!levels
     && BUILDING_IDS.every(id => placement[id] === null || (Number.isInteger(placement[id]) && (placement[id] as number) >= 0 && (placement[id] as number) < PLOTS.length))
-    && BUILDING_IDS.every(id => !(levels[id] > 0) || placement[id] !== null)
+    // Arsa kaplamayan yapinin (Surlar) arsasi OLMAMALI; kaplayanin olmali.
+    && BUILDING_IDS.every(id => (takesPlot(id) ? !(levels[id] > 0) || placement[id] !== null : placement[id] === null))
+    // Yapi kendi bolgesinde durmali: Tersane iskelede, Konaklar yamacta.
+    && BUILDING_IDS.every(id => placement[id] === null || PLOTS[placement[id] as number].zone === zoneOf(id))
     && BUILDING_IDS.every(id => placement[id] === null || levels[id] > 0 || queued.has(id))
     && new Set(placed).size === placed.length
   const workersValid = !!workers && WORKER_IDS.every(id => Number.isInteger(workers[id]) && workers[id] >= 0)
