@@ -1,7 +1,7 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { advance, assignedWorkers, capacity, cost, execute, freePlots, idleWorkers, initialGame, parseSave, population, PLOTS, rates, researchReason, duration, workerCapacity, WORKERS_PER_LEVEL, fullResources, nearlyFullResources, activeJob, QUEUE_LIMIT, housing, contentment, unhousedByUnrest, soldiers, recruitReason, buildReason, unitCost, wallDefense, cityDefense, power, UNITS, BUILDINGS, BUILDING_IDS, zoneOf } from './engine'
-import { COLS, ROWS, TILE_W, TILE_H } from './layout'
+import { COLS, ROWS, TILE_W, TILE_H, USES_MEASURED } from './layout'
 import { WORLD, CITY, CITY_SPAN, TILE_WORLD, toWorldX, toWorldY, px, groundShapes, buildingPlacement, visualSignature } from './city-render'
 
 const now = 1_000_000
@@ -601,25 +601,32 @@ test('yuzde -> dunya cevrimi tek yerden ve tutarli', () => {
   assert.equal(TILE_WORLD, px(TILE_W))
 })
 
-test('zemin geometrisi sur seviyesiyle buyur, arsalar dolulugu bilir', () => {
+test('zemin geometrisi: arsalar dolulugu bilir, sur yalnizca izgarada cizilir', () => {
   const g = initialGame(now)
   const bare = groundShapes(g)
-  assert.equal(bare.walls, null)
   assert.equal(bare.pads.length, PLOTS.length)
   assert.equal(bare.pads.filter(p => p.occupied).length, 5)
+  assert.equal(bare.walls, null)
 
-  const walled = { ...g, buildings: { ...g.buildings, surlar: 1 } }
-  const thin = groundShapes(walled)
   const thick = groundShapes({ ...g, buildings: { ...g.buildings, surlar: 5 } })
-  assert.ok(thin.walls && thick.walls)
-  const width = (s: typeof thin) => {
-    const xs = s.walls!.outer.map(p => p.x)
-    return Math.max(...xs) - Math.min(...xs)
+  if (USES_MEASURED) {
+    /*
+     * Olculmus arsalarda sur CIZILMEZ: boyali ada kendi surlarini tasiyor ve
+     * arsalarin sinirlarindan turetilmis bir sekizgen manzaranin uzerine
+     * bant gibi otururdu.
+     */
+    assert.equal(thick.walls, null)
+    assert.deepEqual(thick.streets, [])
+  } else {
+    const thin = groundShapes({ ...g, buildings: { ...g.buildings, surlar: 1 } })
+    const width = (s: typeof thin) => {
+      const xs = s.walls!.outer.map(p => p.x)
+      return Math.max(...xs) - Math.min(...xs)
+    }
+    // Seviye arttikca sur DISARI acilir: oyuncu savunmasini siluetten gorur.
+    assert.ok(width(thick) > width(thin))
+    assert.ok(Math.min(...thick.walls!.outer.map(p => p.x)) > 0)
   }
-  // Seviye arttikca sur DISARI acilir: oyuncu savunmasini siluetten gorur.
-  assert.ok(width(thick) > width(thin))
-  // Ve hicbir seviyede dunyanin disina tasmaz.
-  assert.ok(Math.min(...thick.walls!.outer.map(p => p.x)) > 0)
 })
 
 test('bina karonun uzerine oturur', () => {

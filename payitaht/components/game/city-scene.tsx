@@ -1,8 +1,8 @@
 'use client'
 
 import { useRef, useState } from 'react'
-import { Plus, Minus, LocateFixed, Compass, ChevronDown, Users, Sun, Flag, Move, Hammer, X } from 'lucide-react'
-import { population, type Game, type BuildingId } from '@/lib/game/engine'
+import { Plus, Minus, LocateFixed, Compass, Sun, Flag, Move, Hammer, X } from 'lucide-react'
+import type { Game, BuildingId } from '@/lib/game/engine'
 import { CityCanvas, type CityControls } from './city-canvas'
 
 /*
@@ -43,15 +43,6 @@ export function CityScene({ game, placing, onBuilding, onPlot, onExitBuild, onOp
       <button className="build-exit" onClick={onExitBuild} aria-label="İnşa kipinden çık"><X /></button>
     </div>}
 
-    {/*
-      * Sehir kimligi artik kocaman bir baslik degil, kucuk bir rozet.
-      * Haritanin ustunde duran her piksel dunyadan calinmis demektir.
-      */}
-    <div className="city-badge">
-      <span className="eyebrow"><span className="live-dot" /> EGE KIYILARI</span>
-      <h1>Sahilhisar <ChevronDown aria-hidden="true" /></h1>
-      <p><Users aria-hidden="true" /> {population(game)} <span>·</span> Sv. {game.buildings.divan}</p>
-    </div>
     <span className="weather" title="Şehirde güneşli bir gün"><Sun aria-hidden="true" /></span>
 
     <div className="map-top-tools">

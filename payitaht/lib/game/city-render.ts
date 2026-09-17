@@ -110,7 +110,16 @@ export function groundShapes(game: Game): GroundShapes {
     // Olculmus arsalarda yollar RESMIN icinde zaten var; uzerine ikinci bir
     // yol agi cizmek manzarayi bozar.
     streets: USES_MEASURED ? [] : streetsFor(occupied),
-    walls: level > 0 ? {
+    /*
+     * OLCULMUS arsalarda sur CIZILMEZ.
+     *
+     * Sur, arsalarin sinirlarindan turetilmis bir sekizgendi; resimden
+     * olculen arsalar duzensiz dagildigi icin o sekizgen manzaranin
+     * uzerinde koca bir bant olarak duruyor. Ustelik boyali ada zaten kendi
+     * surlarini tasiyor. Surlar yine kurulur ve savunmaya sayilir -
+     * yalnizca uzerine ikinci bir duvar cizilmez.
+     */
+    walls: !USES_MEASURED && level > 0 ? {
       outer: poly(wallOuter),
       inner: poly(wallInner),
       towers: towerAt.map(t => poly(diamondPoints(t.x, t.y - 1.4, 6.2, 3.1))),
