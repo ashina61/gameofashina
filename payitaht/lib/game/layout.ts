@@ -21,6 +21,8 @@
  * izometriyi gorur ama olcu telefona uyar.
  */
 
+import { MEASURED } from './plots.generated'
+
 /** Izometrik karo 2:1'dir: genislik tuvalin yuzdesi, yukseklik yarisi. */
 export const TILE_W = 17
 export const TILE_H = TILE_W / 2
@@ -53,6 +55,24 @@ const ORIGIN_Y = 22
 
 export type Zone = 'sehir' | 'liman'
 
+/*
+ * ARSALAR NEREDEN GELIYOR?
+ *
+ * Iki yol var ve aralarindaki fark, sehrin bir YER gibi mi yoksa bir
+ * MATRIS gibi mi gorundugunu belirliyor:
+ *
+ *   OLCULMUS (tercih edilen) - arsalar arkaplan resmine RESSAM tarafindan,
+ *   yolun kenarina, duzensiz serpilerek konur; kod onlari olcup okur
+ *   (scripts/measure-plots.mjs). Ikariam ve Travian boyle calisir; sehirleri
+ *   bir yere ait gorunuyorsa sebebi budur - bina, agaclarin ve duvarlarin
+ *   ARASINA yerlestirilmis bir seydir.
+ *
+ *   IZGARA (yedek) - arsalar esit araliklarla hesaplanir. Daha duzenli
+ *   gorunur ama sonuc sehir degil matristir; hicbir sehir kurma oyununun
+ *   sehir ekraninda gorunur, duzenli bir izgara yoktur.
+ */
+export const USES_MEASURED = MEASURED.length > 0
+
 export type Slot = {
   index: number
   zone: Zone
@@ -77,7 +97,7 @@ export const QUAYS = 4
  * Sira onemlidir: kayitlardaki yerlesim bu INDEKSLERI tutar, yani var olan
  * arsalarin sirasi degismedigi surece eski sehirler ayni yerde durur.
  */
-export const SLOTS: Slot[] = [
+const GRID_SLOTS = [
   ...Array.from({ length: ROWS }, (_, row) =>
     Array.from({ length: COLS }, (_, col) => ({ zone: 'sehir' as const, ...cellCenter(col, row) }))).flat(),
   ...Array.from({ length: QUAYS }, (_, i) => ({
@@ -85,7 +105,10 @@ export const SLOTS: Slot[] = [
     x: 50 + (i - (QUAYS - 1) / 2) * PITCH_X,
     y: QUAY_Y,
   })),
-].map((slot, index) => ({ index, ...slot }))
+]
+
+export const SLOTS: Slot[] = (USES_MEASURED ? MEASURED : GRID_SLOTS)
+  .map((slot, index) => ({ index, zone: slot.zone, x: slot.x, y: slot.y }))
 
 /** Sehir izgarasinin dis sinirlari (tuval yuzdesi). */
 export function cityBounds() {

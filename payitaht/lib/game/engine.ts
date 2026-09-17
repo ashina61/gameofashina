@@ -431,13 +431,20 @@ export function buildReason(g: Game, id: BuildingId): string | null {
    * fiyatlanir - o hesabi kurmadan bu kapiyi acmak dengeyi bozar.
    */
   if (g.queue.some(job => job.id === id)) return 'Bu yapı zaten inşaat sırasında.'
+  if (g.buildings[id] >= 5) return 'En yüksek seviyeye ulaşıldı.'
+  /*
+   * ON KOSUL, ARSADAN ONCE sorulur.
+   *
+   * Henuz Ticaret Limani kurmamis bir oyuncuya "limanda bos iskele yok"
+   * demek yanlis cevaptir: eksik olan iskele degil, limanin kendisi. Once
+   * neyin eksik oldugunu soyle, sonra nereye sigmayacagini.
+   */
+  const needs = BUILDINGS[id].needs
+  if (needs && g.buildings[needs.id] < needs.level) return `${BUILDINGS[needs.id].name} ${needs.level}. seviye gerekli.`
   // Hic kurulmamis yapi once KENDI BOLGESINDE bir arsaya yerlestirilmeli.
   if (takesPlot(id) && g.placement[id] === null && freePlots(g, zoneOf(id)).length === 0) {
     return zoneOf(id) === 'liman' ? 'Limanda boş iskele kalmadı.' : 'Boş arsa kalmadı.'
   }
-  if (g.buildings[id] >= 5) return 'En yüksek seviyeye ulaşıldı.'
-  const needs = BUILDINGS[id].needs
-  if (needs && g.buildings[needs.id] < needs.level) return `${BUILDINGS[needs.id].name} ${needs.level}. seviye gerekli.`
   if (id !== 'divan' && g.buildings[id] >= g.buildings.divan + 1) return `Divanhane ${g.buildings.divan + 1}. seviye gerekli.`
   const c = cost(g, id)
   if (RESOURCE_IDS.some(r => g.resources[r] < c[r])) return 'Yeterli kaynak yok. Üretimin devam ediyor.'
@@ -612,7 +619,16 @@ function fillMissing(g: Record<string, unknown>): Record<string, unknown> {
     if (at === null) continue
     const fits = Number.isInteger(at) && at >= 0 && at < SLOTS.length && SLOTS[at].zone === zoneOf(id as BuildingId)
     if (fits && !used.has(at as number)) { used.add(at as number); continue }
+    /*
+     * Once KENDI BOLGESINDE bos arsa aranir; yoksa herhangi bir bos arsa.
+     *
+     * Ikinci adim bir odun: arsalar artik arkaplan resminden olculdugu icin
+     * sayilari ve bolgeleri resimle birlikte degisir. Yeni resimde iskele
+     * yoksa, kurulu bir Tersane'yi yok saymak oyuncunun sehrini silmek
+     * olurdu - yanlis bolgede durmasi, hic durmamasindan iyidir.
+     */
     const free = SLOTS.find(slot => slot.zone === zoneOf(id as BuildingId) && !used.has(slot.index))
+      ?? SLOTS.find(slot => !used.has(slot.index))
     out.placement[id] = free ? free.index : null
     if (free) used.add(free.index)
   }
@@ -679,8 +695,12 @@ export function parseSave(raw: string): Game {
     && BUILDING_IDS.every(id => placement[id] === null || (Number.isInteger(placement[id]) && (placement[id] as number) >= 0 && (placement[id] as number) < PLOTS.length))
     // Arsa kaplamayan yapinin (Surlar) arsasi OLMAMALI; kaplayanin olmali.
     && BUILDING_IDS.every(id => (takesPlot(id) ? !(levels[id] > 0) || placement[id] !== null : placement[id] === null))
-    // Yapi kendi bolgesinde durmali: Tersane iskelede, Konaklar yamacta.
-    && BUILDING_IDS.every(id => placement[id] === null || PLOTS[placement[id] as number].zone === zoneOf(id))
+    /*
+     * Bolge kurali INSA SIRASINDA uygulanir (bkz. buildReason), kayitta
+     * degil: arsalar arkaplan resminden olculdugu icin resim degistiginde
+     * eski bir yapi kendi bolgesi disinda kalabilir. Onarim onu tasir;
+     * reddetmek sehri silmek olurdu.
+     */
     && BUILDING_IDS.every(id => placement[id] === null || levels[id] > 0 || queued.has(id))
     && new Set(placed).size === placed.length
   const workersValid = !!workers && WORKER_IDS.every(id => Number.isInteger(workers[id]) && workers[id] >= 0)

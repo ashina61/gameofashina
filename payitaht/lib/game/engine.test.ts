@@ -166,33 +166,41 @@ test('yeni yapi BOS bir arsaya oturur, ayni arsaya iki yapi girmez', () => {
  * sozu tutuyor: koordinat yok, bolge var, ve yeni bina eklemek yerlesim
  * dosyalarina dokunmayi gerektirmiyor.
  */
-test('arsalar izgaradan turer ve bolgelere ayrilir', () => {
-  assert.equal(PLOTS.length, COLS * ROWS + 4)
-  assert.equal(PLOTS.filter(s => s.zone === 'liman').length, 4)
-  // Her arsanin indeksi kendi sirasidir: kayitlardaki yerlesim buna dayanir.
+test('arsalar gecerli ve tekil; bolgeler tanimli', () => {
+  // Arsalar ya resimden OLCULUR ya da izgaradan turer; bu testler iki kipte
+  // de gecerli olan kurallari sinar - sayilari resimle birlikte degisir.
+  assert.ok(PLOTS.length >= 5)
   assert.ok(PLOTS.every((slot, i) => slot.index === i))
-  // Hicbir arsa tuvalin disina tasmaz.
-  assert.ok(PLOTS.every(s => s.x > TILE_W / 2 && s.x < 100 - TILE_W / 2 && s.y > 0 && s.y < 100))
+  assert.ok(PLOTS.every(s => s.x > 0 && s.x < 100 && s.y > 0 && s.y < 100))
+  assert.ok(PLOTS.every(s => s.zone === 'sehir' || s.zone === 'liman'))
   const g = initialGame(now)
   assert.equal(freePlots(g).length, PLOTS.length - 5)
-  assert.equal(freePlots(g, 'liman').length, 4)
+  assert.equal(freePlots(g, 'sehir').length + freePlots(g, 'liman').length, freePlots(g).length)
 })
 
-test('yapi kendi bolgesine kurulur, surlar arsa kaplamaz', () => {
+test('surlar arsa kaplamaz', () => {
   const g = initialGame(now)
-  g.buildings.divan = 3; g.buildings.kisla = 1; g.buildings.liman = 1
-  g.placement.kisla = 5; g.placement.liman = freePlots(g, 'liman')[0]
+  g.buildings.divan = 3; g.buildings.kisla = 1
+  g.placement.kisla = freePlots(g)[0]
   g.resources = { gold: 99_000, wood: 99_000, stone: 99_000, knowledge: 0 }
-  // Tersane bir yamac arsasina degil, iskeleye oturur.
+  const before = freePlots(g).length
+  const walls = execute(g, { type: 'build', id: 'surlar' }, now).game
+  assert.equal(walls.placement.surlar, null)
+  assert.equal(freePlots(walls).length, before)
+  assert.equal(parseSave(JSON.stringify(advance(walls, walls.queue[0].end))).buildings.surlar, 1)
+})
+
+test('yapi kendi bolgesine kurulur', () => {
+  const quay = PLOTS.find(s => s.zone === 'liman')
+  if (!quay) return   // Bu arkaplanda iskele yok; kural zaten uygulanamaz.
+  const g = initialGame(now)
+  g.buildings.divan = 3; g.buildings.liman = 1
+  g.placement.liman = quay.index
+  g.resources = { gold: 99_000, wood: 99_000, stone: 99_000, knowledge: 0 }
   const yamac = freePlots(g, 'sehir')[0]
   assert.match(execute(g, { type: 'build', id: 'tersane', plot: yamac }, now).error!, /iskele/)
   const built = execute(g, { type: 'build', id: 'tersane' }, now).game
   assert.equal(PLOTS[built.placement.tersane!].zone, 'liman')
-  // Surlar hicbir arsayi tutmaz.
-  const walls = execute(g, { type: 'build', id: 'surlar' }, now).game
-  assert.equal(walls.placement.surlar, null)
-  assert.equal(freePlots(walls).length, freePlots(g).length)
-  assert.equal(parseSave(JSON.stringify(advance(walls, walls.queue[0].end))).buildings.surlar, 1)
 })
 
 test('yeni bina eklemek yalnizca katalog satiri ister', () => {
@@ -246,15 +254,15 @@ test('cakisan yerlesim onarilir, sehir silinmez', () => {
   assert.equal(new Set(spots).size, spots.length)
 })
 
-test('izgara disina dusen arsa kendi bolgesine tasinir', () => {
+test('arsa listesi disina dusen yapi bos bir arsaya tasinir', () => {
   const g = initialGame(now)
-  g.buildings.divan = 2; g.buildings.liman = 1
-  g.placement.liman = freePlots(g, 'liman')[0]
-  // Izgara kuculmus gibi: indeks artik hicbir arsayi gostermiyor.
-  const stale = { ...g, placement: { ...g.placement, liman: PLOTS.length + 5 } }
+  g.buildings.divan = 2; g.buildings.medrese = 1
+  g.placement.medrese = freePlots(g)[0]
+  // Arsa sayisi arkaplanla birlikte kuculmus gibi: indeks bosluga dusuyor.
+  const stale = { ...g, placement: { ...g.placement, medrese: PLOTS.length + 5 } }
   const fixed = parseSave(JSON.stringify(stale))
-  assert.equal(PLOTS[fixed.placement.liman!].zone, 'liman')
-  assert.equal(fixed.buildings.liman, 1)
+  assert.ok(fixed.placement.medrese !== null && fixed.placement.medrese < PLOTS.length)
+  assert.equal(fixed.buildings.medrese, 1)
 })
 
 test('gercekten okunamayan kayit yine reddedilir', () => {
@@ -580,18 +588,14 @@ test('nufusun besleyemedigi ordu kaydi reddedilir', () => {
  * Render motoru degisebilir - SVG'den Phaser'a gectik - ama geometri
  * degismemeli. Bu testler tarayici acmadan o sozu tutuyor.
  */
-test('dunya sehirden buyuktur; cevrim tek yerden yapilir', () => {
-  // Dunya ekrandan buyuk olmazsa kaydirilacak tasma kalmaz ve parmak
-  // hicbir sey yapmaz; "olu sehir" sikayetinin kokeni tam olarak buydu.
-  assert.ok(WORLD > CITY_SPAN)
+test('yuzde -> dunya cevrimi tek yerden ve tutarli', () => {
   assert.equal(CITY_SPAN, 100 * CITY.scale)
-  // Sehir, arkaplanin acikligina OTURTULMUS: ortalanmis degil.
   assert.equal(toWorldX(0), CITY.x)
   assert.equal(toWorldY(0), CITY.y)
   assert.equal(toWorldX(100), CITY.x + CITY_SPAN)
-  // Butun sehir dunyanin icinde kalmali, yoksa kamera siniri disina tasar.
-  assert.ok(CITY.x > 0 && toWorldX(100) < WORLD)
-  assert.ok(CITY.y > 0 && toWorldY(100) < WORLD)
+  // Butun arsalar dunyanin icinde kalmali, yoksa kamera siniri disina tasar.
+  assert.ok(PLOTS.every(s => toWorldX(s.x) > 0 && toWorldX(s.x) < WORLD))
+  assert.ok(PLOTS.every(s => toWorldY(s.y) > 0 && toWorldY(s.y) < WORLD))
   // Olcu ile konum ayri: olcuye kaydirma eklenmez.
   assert.equal(px(100), CITY_SPAN)
   assert.equal(TILE_WORLD, px(TILE_W))

@@ -10,7 +10,7 @@
  * yeniden yazmak oldu. Ayrica test edilebilir: bir cokgenin dogru yerde olup
  * olmadigini tarayici acmadan sinayabiliyoruz.
  */
-import { SLOTS, COLS, ROWS, TILE_W, TILE_H, DRAWN_PAD, cellCenter, cityBounds, cityOutline, type Slot } from './layout'
+import { SLOTS, COLS, ROWS, TILE_W, TILE_H, DRAWN_PAD, USES_MEASURED, cellCenter, cityBounds, cityOutline, type Slot } from './layout'
 import { BUILDING_IDS, type BuildingId, type Game } from './engine'
 
 /**
@@ -41,7 +41,13 @@ export const WORLD = 2304
  * Degerler f6769236 numarali arkaplandan olculdu: acikligin genis kusagi
  * resmin x %27-73 / y %34,5-68,3 araliginda.
  */
-export const CITY = { x: 424, y: 536, scale: 14.56 }
+export const CITY = USES_MEASURED
+  /*
+   * Olculmus arsalarda yuzdeler RESMIN kendi yuzdeleridir; cevrim birebir
+   * olur ve dunya resmin tamamidir. Ressam nereye koyduysa orasi.
+   */
+  ? { x: 0, y: 0, scale: WORLD / 100 }
+  : { x: 424, y: 536, scale: 14.56 }
 
 /** Sehir karesinin kapladigi dunya genisligi (100 yuzde birimi). */
 export const CITY_SPAN = 100 * CITY.scale
@@ -101,7 +107,9 @@ export function groundShapes(game: Game): GroundShapes {
   const gateY = wallOuter[4].y
 
   return {
-    streets: streetsFor(occupied),
+    // Olculmus arsalarda yollar RESMIN icinde zaten var; uzerine ikinci bir
+    // yol agi cizmek manzarayi bozar.
+    streets: USES_MEASURED ? [] : streetsFor(occupied),
     walls: level > 0 ? {
       outer: poly(wallOuter),
       inner: poly(wallInner),
