@@ -37,15 +37,15 @@ const PALETTES: Record<string, ArtPalette> = {
   halk: { ...PLASTER, ...TILE, ...FOOT },
 }
 
-const BY_ID: Partial<Record<BuildingId, keyof typeof PALETTES>> = {
-  saray: 'yonetim', elcilik: 'yonetim', hamam: 'yonetim',
-  kisla: 'askeri', surlar: 'askeri',
-  liman: 'liman', tersane: 'liman',
-  carsi: 'halk',
+const BY_ID: Record<BuildingId, keyof typeof PALETTES> = {
+  divan: 'yonetim', saray: 'yonetim', elcilik: 'yonetim', medrese: 'yonetim', hamam: 'yonetim',
+  kisla: 'askeri', surlar: 'askeri', tas: 'askeri',
+  liman: 'liman', tersane: 'liman', kereste: 'liman',
+  carsi: 'halk', konut: 'halk', ambar: 'halk',
 }
 
 export function paletteFor(id: BuildingId): ArtPalette {
-  return PALETTES[BY_ID[id] ?? 'halk']
+  return PALETTES[BY_ID[id]]
 }
 
 /**

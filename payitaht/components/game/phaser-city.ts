@@ -6,10 +6,10 @@
  */
 import * as Phaser from 'phaser'
 import {
-  WORLD, TILE_WORLD, toWorldX, toWorldY, px, diamondPoints, groundShapes, buildingPlacement, cityCenter,
+  WORLD, TILE_WORLD, toWorldX, toWorldY, px, diamondPoints, groundShapes, buildingPlacement, islandExtent,
   visualSignature, type Poly,
 } from '@/lib/game/city-render'
-import { SLOTS } from '@/lib/game/layout'
+import { SLOTS, USES_MEASURED } from '@/lib/game/layout'
 import { paletteFor, shapeFor } from '@/lib/game/building-art'
 import { BUILDINGS, BUILDING_IDS, activeJob, type BuildingId, type Game } from '@/lib/game/engine'
 import { asset, buildingImage } from '@/lib/asset'
@@ -31,17 +31,51 @@ import { asset, buildingImage } from '@/lib/asset'
  * sehir oyunlari da boyle yapar: dunya tuvalde, menuler ustunde.
  */
 
+/*
+ * PALET - duz, stilize, tek elden.
+ *
+ * Boyali gercekcilikten vazgectik: dunyanin tamamini kod ciziyor, dolayisiyla
+ * butun renkler burada, tek bir yerde. Uyum, asset sayisindan degil tek bir
+ * paletten gelir. Sicak Akdeniz: turkuaz deniz, kum kiyi, zeytin yesili cim.
+ */
 const COLOR = {
-  platform: 0x8f8760, platformEdge: 0x5f5940, rim: 0x6d6549,
-  street: 0xb5ab85, road: 0x9a9070,
-  padFull: 0xcbb98f, padFullEdge: 0x6f5f44,
-  padFree: 0xaea583, padFreeEdge: 0x6f6a4e,
-  wall: 0xc0b18c, wallEdge: 0x6b6049, wallTop: 0xe6dabb, gate: 0x9c8f6f, gateDark: 0x3f3828,
-  quay: 0xa79b7d,
-  pending: 0x6f6350, pendingEdge: 0xd9c185,
-  label: 0x162b22, labelEdge: 0xc5aa72, labelActive: 0x594728,
-  plot: 0x1f3a2a, plotEdge: 0xe9d7a6,
-  sea: 0x123c46,
+  sea: 0x1c6b78, seaDeep: 0x114a54,
+  beach: 0xe6d3a2, beachEdge: 0xcdb478,
+  grass: 0x74a44a, grassAlt: 0x689740, grassEdge: 0x527f34,
+  street: 0xd6c28c, streetEdge: 0xb09a5f,
+  padFull: 0xd9c58b, padFullEdge: 0xa8925c,
+  padFree: 0xe5d29a, padFreeEdge: 0xbaa46c,
+  wall: 0xcabf9c, wallEdge: 0x8a7d5e, wallTop: 0xe9dcb8, gate: 0xa1936d, gateDark: 0x40382a,
+  pending: 0x9c8f74, pendingEdge: 0xd9c185,
+  label: 0x14281f, labelEdge: 0xc5aa72, labelActive: 0x5a4728,
+  plot: 0x27492d, plotEdge: 0xf0e2b4,
+  tree: 0x4a8a44, treeDark: 0x356a34, trunk: 0x6b4a2e,
+  rock: 0x9a9488, rockDark: 0x6f6a5e,
+}
+
+/*
+ * Sabit tohumlu rastgele.
+ *
+ * Dekor (agac, kaya) her cizimde AYNI yerde durmali; Math.random her karede
+ * ormani zipzip oynatirdi. Bu uretec tohumdan deterministiktir.
+ */
+function seeded(seed: number) {
+  return () => {
+    seed = (seed + 0x6d2b79f5) | 0
+    let t = Math.imul(seed ^ (seed >>> 15), 1 | seed)
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296
+  }
+}
+
+/** Nokta bir cokgenin icinde mi? (dekoru adanin disina tasirmamak icin) */
+function inPoly(px: number, py: number, poly: { x: number; y: number }[]) {
+  let inside = false
+  for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) {
+    const a = poly[i], b = poly[j]
+    if ((a.y > py) !== (b.y > py) && px < ((b.x - a.x) * (py - a.y)) / (b.y - a.y) + a.x) inside = !inside
+  }
+  return inside
 }
 
 /** Suruklemeyi dokunustan ayiran esik (ekran pikseli). */
@@ -62,7 +96,8 @@ function isTap(pointer: Phaser.Input.Pointer) {
 const MIN_ZOOM = 0.3
 const MAX_ZOOM = 1.6
 /** Binanin ekranin ne kadarini kaplamasi hedefleniyor. */
-const TARGET_BUILDING_FRACTION = 0.3
+/** Ust ve alt arayuz seritleri icin acilis fitinden dusulen CSS piksel. */
+const OVERLAY = 260
 
 export type CityEvents = {
   onBuilding: (id: BuildingId) => void
@@ -92,20 +127,27 @@ export class CityScene extends Phaser.Scene {
   }
 
   preload() {
-    this.load.image('island', asset('/images/game/island.webp'))
+    // Boyali arkaplan modunda ada resmini yukle; stilize modda dunyayi
+    // tamamen kod ciziyor, resme gerek yok.
+    if (USES_MEASURED) this.load.image('island', asset('/images/game/island.webp'))
     for (const id of BUILDING_IDS) if (BUILDINGS[id].art) this.load.image(id, buildingImage(id))
   }
 
   create() {
     this.cameras.main.setBackgroundColor(COLOR.sea)
-    this.add.image(0, 0, 'island').setOrigin(0, 0).setDisplaySize(WORLD, WORLD).setDepth(-1000)
+    if (USES_MEASURED) {
+      this.add.image(0, 0, 'island').setOrigin(0, 0).setDisplaySize(WORLD, WORLD).setDepth(-1000)
+    } else {
+      // Stilize deniz: duz turkuaz uzerine tohumlu, yari saydam dalga elmaslari.
+      this.drawSea()
+    }
     this.ground = this.add.graphics().setDepth(-500)
 
     const cam = this.cameras.main
     cam.setBounds(0, 0, WORLD, WORLD)
     cam.setZoom(this.defaultZoom())
-    const center = cityCenter()
-    cam.centerOn(center.x, center.y)
+    const island = islandExtent()
+    cam.centerOn(island.cx, island.cy)
 
     this.installCamera()
     this.redraw(true)
@@ -113,12 +155,23 @@ export class CityScene extends Phaser.Scene {
       Phaser.Math.Clamp(this.cameras.main.zoom, this.minZoom(), MAX_ZOOM)))
   }
 
-  /** Binayi ekranin hedeflenen oranina getiren yakinlastirma. */
+  /**
+   * ADAYI EKRANA SIGDIRAN yakinlastirma.
+   *
+   * Eskiden yalnizca bina boyutuna bakiyordu ve ada ekrana sigmadigi icin
+   * altta koca bir bos cim kaliyordu. Artik ada govdesini hem genislige hem
+   * yukseklige (arayuz seritlerini dustukten sonra) sigdirir; iki oranin
+   * kucugu secilir ki ada tam gorunsun.
+   */
   private defaultZoom() {
-    return Phaser.Math.Clamp(
-      (this.scale.width * TARGET_BUILDING_FRACTION) / TILE_WORLD,
-      this.minZoom(), 1.2)
+    const island = islandExtent()
+    const fitW = (this.scale.width * 0.96) / island.w
+    const fitH = (this.scale.height - OVERLAY * this.dpr()) / island.h
+    return Phaser.Math.Clamp(Math.min(fitW, fitH), this.minZoom(), 1.2)
   }
+
+  /** Ust (kaynak/oyuncu) ve alt (menu) seritlerinin ekranda kapladigi CSS px. */
+  private dpr() { return Math.min(2, (typeof window !== 'undefined' ? window.devicePixelRatio : 1) || 1) }
 
   /** Dunyanin ekrandan kucuk kalmasini onleyen alt sinir. */
   private minZoom() {
@@ -177,6 +230,18 @@ export class CityScene extends Phaser.Scene {
     })
   }
 
+  /** Stilize deniz dokusu: sabit, kamerayla birlikte kayan dalga lekeleri. */
+  private drawSea() {
+    const g = this.add.graphics().setDepth(-1000)
+    g.fillStyle(COLOR.sea, 1); g.fillRect(0, 0, WORLD, WORLD)
+    const rnd = seeded(7)
+    for (let i = 0; i < 420; i++) {
+      const x = rnd() * WORLD, y = rnd() * WORLD, w = px(2 + rnd() * 4)
+      g.fillStyle(rnd() > 0.5 ? COLOR.seaDeep : 0x2a7d88, 0.16)
+      g.fillEllipse(x, y, w, w * 0.32)
+    }
+  }
+
   private pointerGap() {
     const a = this.input.pointer1, b = this.input.pointer2
     return a && b ? Phaser.Math.Distance.Between(a.x, a.y, b.x, b.y) : 0
@@ -217,8 +282,8 @@ export class CityScene extends Phaser.Scene {
     if (!this.ground) return
     const cam = this.cameras.main
     cam.setZoom(this.defaultZoom())
-    const center = cityCenter()
-    cam.centerOn(center.x, center.y)
+    const island = islandExtent()
+    cam.centerOn(island.cx, island.cy)
     this.velocity = { x: 0, y: 0 }
   }
 
@@ -230,6 +295,91 @@ export class CityScene extends Phaser.Scene {
   private stroke(poly: Poly, color: number, width: number, alpha = 1) {
     this.ground.lineStyle(width, color, alpha)
     this.ground.strokePoints(poly, true)
+  }
+
+  /** Bir cokgenin bounding box'i. */
+  private bounds(poly: Poly) {
+    const xs = poly.map(p => p.x), ys = poly.map(p => p.y)
+    return { minX: Math.min(...xs), maxX: Math.max(...xs), minY: Math.min(...ys), maxY: Math.max(...ys) }
+  }
+
+  /**
+   * Cim uzerine hafif ton lekeleri.
+   *
+   * Tek duz yesil karton gibi duruyor; tohumlu, yari saydam koyu/acik elmaslar
+   * ona el ciziminin dagi­nikligini verir - doku degil, HISSI.
+   */
+  private drawGrassTexture(body: Poly) {
+    const b = this.bounds(body)
+    const rnd = seeded(1337)
+    const step = px(9)
+    for (let y = b.minY; y < b.maxY; y += step) {
+      for (let x = b.minX; x < b.maxX; x += step) {
+        const cx = x + (rnd() - 0.5) * step, cy = y + (rnd() - 0.5) * step
+        if (!inPoly(cx, cy, body)) continue
+        const r = rnd()
+        this.ground.fillStyle(r > 0.5 ? COLOR.grassAlt : COLOR.grass, 0.5)
+        this.ground.fillPoints(diamondPoints(cx, cy, px(6) * (0.6 + r * 0.6), px(3) * (0.6 + r * 0.6)), true)
+      }
+    }
+  }
+
+  /**
+   * Dekor: agac ve kayalar.
+   *
+   * Referans oyunlarin "dolu" hissi, arsalarin ARASINDAKI hayatan gelir. Bunlar
+   * adanin bos yerlerine tohumlu serpilir: her arsadan yeterince uzak olan
+   * noktalara, deterministik olarak, boylece kaydirinca yerinden oynamazlar.
+   */
+  private drawDecor(body: Poly, pads: { shape: Poly }[]) {
+    const b = this.bounds(body)
+    const rnd = seeded(90210)
+    const centres = pads.map(p => {
+      const xs = p.shape.map(q => q.x), ys = p.shape.map(q => q.y)
+      return { x: (Math.min(...xs) + Math.max(...xs)) / 2, y: (Math.min(...ys) + Math.max(...ys)) / 2 }
+    })
+    const clear = TILE_WORLD * 0.62
+    let placed = 0
+    for (let i = 0; i < 900 && placed < 120; i++) {
+      const x = b.minX + rnd() * (b.maxX - b.minX)
+      const y = b.minY + rnd() * (b.maxY - b.minY)
+      // Kenardan biraz iceride ve her arsadan uzak.
+      if (!inPoly(x, y - px(1), body) || !inPoly(x, y + px(2), body)) continue
+      if (centres.some(c => Math.hypot(c.x - x, c.y - y) < clear)) continue
+      placed++
+      const g = this.add.graphics().setDepth(y - px(2))
+      // Kenara yakin: agac ve kaya (orman); ice: seyrek. Cim govdesinin kenar
+      // kusagi dogal olarak daha yogun bitki orter.
+      const r = rnd()
+      if (r > 0.55) this.drawTree(g, x, y, 0.6 + rnd() * 0.7)
+      else if (r > 0.2) this.drawRock(g, x, y, 0.6 + rnd() * 0.7)
+      else this.drawBush(g, x, y, 0.7 + rnd() * 0.5)
+      this.pieces.push(g)
+    }
+  }
+
+  private drawTree(g: Phaser.GameObjects.Graphics, x: number, y: number, scale: number) {
+    const h = px(4.2) * scale, r = px(1.9) * scale
+    g.fillStyle(0x0d1c16, 0.28); g.fillEllipse(x + px(0.5), y, r * 1.5, r * 0.6)
+    g.fillStyle(COLOR.trunk, 1); g.fillRect(x - px(0.28) * scale, y - h * 0.5, px(0.56) * scale, h * 0.5)
+    g.fillStyle(COLOR.treeDark, 1); g.fillCircle(x, y - h * 0.62, r)
+    g.fillStyle(COLOR.tree, 1); g.fillCircle(x - r * 0.25, y - h * 0.72, r * 0.8)
+  }
+
+  private drawBush(g: Phaser.GameObjects.Graphics, x: number, y: number, scale: number) {
+    const r = px(1.3) * scale
+    g.fillStyle(0x0d1c16, 0.22); g.fillEllipse(x, y + px(0.2), r * 1.8, r * 0.6)
+    g.fillStyle(COLOR.treeDark, 1); g.fillCircle(x - r * 0.5, y - r * 0.3, r * 0.7)
+    g.fillStyle(COLOR.tree, 1); g.fillCircle(x + r * 0.4, y - r * 0.4, r * 0.75)
+  }
+
+  private drawRock(g: Phaser.GameObjects.Graphics, x: number, y: number, scale: number) {
+    const r = px(1.7) * scale
+    g.fillStyle(0x0d1c16, 0.25); g.fillEllipse(x + px(0.4), y + px(0.3), r * 1.8, r * 0.7)
+    g.fillStyle(COLOR.rockDark, 1)
+    g.fillPoints(diamondPoints(x, y - r * 0.4, r * 2, r * 1.4), true)
+    g.fillStyle(COLOR.rock, 1)
+    g.fillPoints([{ x: x - r, y: y - r * 0.4 }, { x, y: y - r * 1.1 }, { x: x + r * 0.3, y: y - r * 0.5 }, { x: x - r * 0.4, y: y - r * 0.1 }], true)
   }
 
   /**
@@ -255,13 +405,27 @@ export class CityScene extends Phaser.Scene {
     this.ground.clear()
 
     /*
-     * Yollar. Zemin boyali oldugu icin yol da yari saydam cizilir: altindaki
-     * toprak dokusu okunur, yol onun uzerine serilmis tas gibi durur.
+     * STILIZE ADA, distan ice: deniz golgesi, kum kiyi, cim govde, cim doku.
+     * Boyali arkaplan modunda bu katmanlar cizilmez (shapes.body null).
+     */
+    if (shapes.beach && shapes.body) {
+      // Adanin suya dusen golgesi: kum elmasinin biraz asagi kaydirilmis kopyasi.
+      this.fill(shapes.beach.map(p => ({ x: p.x, y: p.y + px(1.6) })), COLOR.seaDeep, 0.5)
+      this.fill(shapes.beach, COLOR.beach)
+      this.stroke(shapes.beach, COLOR.beachEdge, 4)
+      this.fill(shapes.body, COLOR.grass)
+      this.stroke(shapes.body, COLOR.grassEdge, 3)
+      this.drawGrassTexture(shapes.body)
+    }
+
+    /*
+     * Yollar. Stilize zeminde OPAK cizilir: yol, cimin uzerine dosenmis
+     * acik tas bir serittir.
      */
     for (const street of shapes.streets) {
-      this.ground.fillStyle(COLOR.street, 0.34)
+      this.ground.fillStyle(COLOR.street, 0.92)
       this.ground.fillRect(street.x, street.y, street.w, street.h)
-      this.ground.lineStyle(2, COLOR.padFullEdge, 0.22)
+      this.ground.lineStyle(2, COLOR.streetEdge, 0.5)
       this.ground.strokeRect(street.x, street.y, street.w, street.h)
     }
     if (shapes.walls) {
@@ -291,22 +455,29 @@ export class CityScene extends Phaser.Scene {
     }
 
     /*
-     * BOS arsa yalnizca insa kipinde gorunur.
-     *
-     * Yirmi kesik cizgili elmasi surekli cizmek, dunyayi bir dunya degil bir
-     * EDITOR gibi gosteriyordu - referans oyunlarin hicbirinde bos arsa
-     * isareti durmaz, yalnizca yerlestirme aninda belirir.
+     * Arsalar. DOLU arsanin altina her zaman bir tas taban cizilir - bina
+     * zemine oturmus gorunsun diye. BOS arsa stilize modda cimde acik bir
+     * leke olarak durur ve insa kipinde vurgulanir; boyali modda yalnizca
+     * insa kipinde gorunur.
      */
-    if (this.placing) {
-      for (const pad of shapes.pads) {
-        if (pad.occupied) continue
-        this.fill(pad.shape, COLOR.padFree, 0.34)
+    for (const pad of shapes.pads) {
+      if (pad.occupied) {
+        this.fill(pad.shape, COLOR.padFull, 0.9)
+        this.stroke(pad.shape, COLOR.padFullEdge, 3)
+      } else if (this.placing) {
+        this.fill(pad.shape, COLOR.padFree, 0.85)
         this.stroke(pad.shape, COLOR.padFreeEdge, 5)
+      } else if (!USES_MEASURED) {
+        // Normalde arsa yalnizca cimde hafif bir duzluk izi: grid baskin olmasin.
+        this.fill(pad.shape, COLOR.padFree, 0.16)
       }
     }
 
     for (const piece of this.pieces) piece.destroy()
     this.pieces = []
+    // Dekor: adanin bos yerlerine serpilmis agac ve kayalar. Pieces temizlendikten
+    // SONRA eklenir, yoksa ayni karede silinir.
+    if (shapes.body) this.drawDecor(shapes.body, shapes.pads)
     const running = activeJob(this.state)?.id
     for (const slot of SLOTS) {
       const id = BUILDING_IDS.find(b => this.state.placement[b] === slot.index) ?? null

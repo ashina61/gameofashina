@@ -47,7 +47,11 @@ export const CITY = USES_MEASURED
    * olur ve dunya resmin tamamidir. Ressam nereye koyduysa orasi.
    */
   ? { x: 0, y: 0, scale: WORLD / 100 }
-  : { x: 424, y: 536, scale: 14.56 }
+  /*
+   * STILIZE mod: dunya tamamen kod tarafindan cizilir. Sehri ortalayip her
+   * yanina bol su payi birakiriz - ada bir denizin ortasinda durmali.
+   */
+  : { x: 452, y: 392, scale: 14 }
 
 /** Sehir karesinin kapladigi dunya genisligi (100 yuzde birimi). */
 export const CITY_SPAN = 100 * CITY.scale
@@ -80,6 +84,15 @@ export const wallThickness = (level: number) => 1.1 + level * 0.38
 export type Street = { x: number; y: number; w: number; h: number }
 
 export type GroundShapes = {
+  /*
+   * STILIZE ADA katmanlari, distan ice:
+   *   beach - adanin kum kenari (suyla cim arasi gecis)
+   *   body  - cim ada govdesi
+   * Ikisi de ayni sekizgenden farkli paylarla turer, yani izgara buyudugunde
+   * ada da buyur.
+   */
+  beach: Poly | null
+  body: Poly | null
   /** Yalnizca YAPI OLAN satir ve sutunlarin sokaklari. */
   streets: Street[]
   walls: { outer: Poly; inner: Poly; towers: Poly[]; gate: Poly; gateArch: Point } | null
@@ -107,9 +120,14 @@ export function groundShapes(game: Game): GroundShapes {
   const gateY = wallOuter[4].y
 
   return {
+    // Boyali arkaplan modunda ada resmin icinde; kod cizmez.
+    beach: USES_MEASURED ? null : poly(cityOutline(14)),
+    body: USES_MEASURED ? null : poly(cityOutline(8.5)),
     // Olculmus arsalarda yollar RESMIN icinde zaten var; uzerine ikinci bir
     // yol agi cizmek manzarayi bozar.
-    streets: USES_MEASURED ? [] : streetsFor(occupied),
+    // Yollar simdilik kapali: tum ada boyu serit stilize zemini bogyordu.
+    // Dolu arsalari baglayan bir yol agi sonra gelir.
+    streets: [],
     /*
      * OLCULMUS arsalarda sur CIZILMEZ.
      *
@@ -191,6 +209,20 @@ export function buildingPlacement(id: BuildingId, slot: Slot) {
     /** Ressam sirasi: asagidaki once cizilir ki ustunu ortsun. */
     depth: slot.y,
   }
+}
+
+/**
+ * Adanin dunya uzerindeki boyutu (kum kenari dahil).
+ *
+ * Kamera acilista adayi ekrana sigdirmak icin bunu kullanir. Boyali modda
+ * ada resmin tamami kadardir.
+ */
+export function islandExtent() {
+  if (USES_MEASURED) return { w: WORLD, h: WORLD, cx: WORLD / 2, cy: WORLD / 2 }
+  const o = cityOutline(14)
+  const xs = o.map(p => toWorldX(p.x)), ys = o.map(p => toWorldY(p.y))
+  const minX = Math.min(...xs), maxX = Math.max(...xs), minY = Math.min(...ys), maxY = Math.max(...ys)
+  return { w: maxX - minX, h: maxY - minY, cx: (minX + maxX) / 2, cy: (minY + maxY) / 2 }
 }
 
 /** Kameranin acilista bakacagi nokta: sehir izgarasinin merkezi. */

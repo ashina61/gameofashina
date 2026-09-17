@@ -93,8 +93,8 @@ export function cellCenter(col: number, row: number) {
 }
 
 /** Limandaki iskele satirinin y'si - yamacin son satirindan ayri durur. */
-export const QUAY_Y = ORIGIN_Y + ROWS * ROW_PITCH + 3
-export const QUAYS = 4
+export const QUAY_Y = ORIGIN_Y + (ROWS - 1) * ROW_PITCH + TILE_H
+export const QUAYS = 2
 
 /*
  * ARSALAR.
@@ -118,7 +118,9 @@ export const SLOTS: Slot[] = (USES_MEASURED ? MEASURED : GRID_SLOTS)
 
 /** Sehir izgarasinin dis sinirlari (tuval yuzdesi). */
 export function cityBounds() {
-  const cells = SLOTS.filter(s => s.zone === 'sehir')
+  // Iskeleler de dahil: ada govdesi limani kapsamali, yoksa iskele suda
+  // havada durur.
+  const cells = SLOTS
   return {
     left: Math.min(...cells.map(c => c.x)) - TILE_W / 2,
     right: Math.max(...cells.map(c => c.x)) + TILE_W / 2,
