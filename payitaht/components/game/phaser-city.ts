@@ -101,6 +101,9 @@ const MAX_ZOOM = 1.6
 /** Ust ve alt arayuz seritleri icin acilis fitinden dusulen CSS piksel. */
 const OVERLAY = 260
 
+/** Yuklenecek zemin karolari (public/images/game/terrain/*.png). */
+const TERRAIN_TILES = ['grass', 'water'] as const
+
 export type CityEvents = {
   onBuilding: (id: BuildingId) => void
   onPlot: (index: number) => void
@@ -112,6 +115,8 @@ export class CityScene extends Phaser.Scene {
   private events$!: CityEvents
   private ground!: Phaser.GameObjects.Graphics
   private pieces: Phaser.GameObjects.GameObject[] = []
+  /** Statik zemin karolari - bir kez kurulur, redraw'da temizlenmez. */
+  private terrain: Phaser.GameObjects.Image[] = []
   private signature = ''
   private showLabels = false
   /** Insa kipi: bos arsalar yalnizca bu acikken gorunur. */
@@ -133,6 +138,8 @@ export class CityScene extends Phaser.Scene {
     // tamamen kod ciziyor, resme gerek yok.
     if (USES_MEASURED) this.load.image('island', asset('/images/game/island.webp'))
     for (const id of BUILDING_IDS) if (BUILDINGS[id].art) this.load.image(id, buildingImage(id))
+    // Zemin tile'lari: kara ve deniz artik gercek boyali izometrik karolar.
+    for (const t of TERRAIN_TILES) this.load.image(`t_${t}`, asset(`/images/game/terrain/${t}.png`))
   }
 
   create() {
@@ -140,8 +147,8 @@ export class CityScene extends Phaser.Scene {
     if (USES_MEASURED) {
       this.add.image(0, 0, 'island').setOrigin(0, 0).setDisplaySize(WORLD, WORLD).setDepth(-1000)
     } else {
-      // Stilize deniz: duz turkuaz uzerine tohumlu, yari saydam dalga elmaslari.
-      this.drawSea()
+      // Kara ve deniz artik gercek izometrik zemin karolariyla dosenir.
+      this.drawTerrain()
     }
     this.ground = this.add.graphics().setDepth(-500)
 
@@ -239,16 +246,55 @@ export class CityScene extends Phaser.Scene {
     })
   }
 
-  /** Stilize deniz dokusu: sabit, kamerayla birlikte kayan dalga lekeleri. */
-  private drawSea() {
-    const g = this.add.graphics().setDepth(-1000)
-    g.fillStyle(COLOR.sea, 1); g.fillRect(0, 0, WORLD, WORLD)
-    const rnd = seeded(7)
-    for (let i = 0; i < 420; i++) {
-      const x = rnd() * WORLD, y = rnd() * WORLD, w = px(2 + rnd() * 4)
-      g.fillStyle(rnd() > 0.5 ? COLOR.seaDeep : 0x2a7d88, 0.16)
-      g.fillEllipse(x, y, w, w * 0.32)
+  /**
+   * ZEMİN KAROLARI.
+   *
+   * Kara ve deniz artik kod-cizimi degil, gercek boyali izometrik karolar
+   * (public/images/game/terrain). Karolar bir IZOMETRIK IZGARADA arka-on
+   * siralamayla dizilir: onualardaki karonun govdesi arkatakinin toprak
+   * yamacini orter, boylece yalnizca adanin ON kenarinda kesit gorunur -
+   * geri kalan her yer duz cim yuzeyidir.
+   *
+   * Karonun UST YUZU 2:1 bir elmastir; govde (toprak) altta kalir. Karo,
+   * ust-yuz elmasinin merkezi hucreye denk gelecek sekilde yerlestirilir.
+   */
+  private drawTerrain() {
+    const shapes = groundShapes(this.state)
+    const coast = shapes.beach ?? [] // adanin kiyi cizgisi (dunya cokgeni)
+    /*
+     * Karo GENISLIGI izgara adiminin biraz USTUNDE: komsu karolar hafifce
+     * bindirir ve elmas dikisleri (koyu kenar cizgileri) kapanir - "yamali
+     * bohca" hissi kalkar, tek bir cim yuzeyi gibi okunur.
+     */
+    const STEP = TILE_WORLD * 1.02        // hucre merkezleri arasi yatay yari-adim
+    const TW = STEP * 2.16                // karo cizim genisligi (adimdan buyuk = bindirme)
+    const island = islandExtent()
+    const R = 9
+    const rnd = seeded(4242)
+    const cells: { cx: number; cy: number; land: boolean; d: number; flip: boolean }[] = []
+    for (let gx = -R; gx <= R; gx++) {
+      for (let gy = -R; gy <= R; gy++) {
+        const cx = island.cx + (gx - gy) * STEP
+        const cy = island.cy + (gx + gy) * (STEP / 2)
+        cells.push({ cx, cy, land: inPoly(cx, cy, coast), d: gx + gy, flip: rnd() > 0.5 })
+      }
     }
+    // Arkadan ona: onualardaki karo, arkatakinin toprak yamacini ortsun.
+    cells.sort((a, b) => a.d - b.d)
+    for (const c of cells) {
+      this.terrain.push(this.placeTerrainTile(c.land ? 't_grass' : 't_water', c.cx, c.cy, TW, -1200 + c.d, c.flip))
+    }
+  }
+
+  /** Bir zemin karosunu ust-yuz elmasinin merkezi (cx,cy)'ye gelecek sekilde koyar. */
+  private placeTerrainTile(key: string, cx: number, cy: number, tw: number, depth: number, flip: boolean) {
+    const src = this.textures.get(key).getSourceImage() as HTMLImageElement | HTMLCanvasElement
+    const iw = src.width, ih = src.height
+    // Ust yuz tam genislikte; elmas yuksekligi genisligin yarisi, merkezi
+    // resmin tepesinden iw/4 asagida. Origin bu noktaya sabitlenir.
+    const img = this.add.image(cx, cy, key).setOrigin(0.5, (iw / 4) / ih)
+    img.setDisplaySize(tw, tw * ih / iw).setDepth(depth).setFlipX(flip)
+    return img
   }
 
   private pointerGap() {
@@ -461,15 +507,11 @@ export class CityScene extends Phaser.Scene {
      * STILIZE ADA, distan ice: deniz golgesi, kum kiyi, cim govde, cim doku.
      * Boyali arkaplan modunda bu katmanlar cizilmez (shapes.body null).
      */
-    if (shapes.beach && shapes.body) {
-      // Adanin suya dusen golgesi: kum elmasinin biraz asagi kaydirilmis kopyasi.
-      this.fill(shapes.beach.map(p => ({ x: p.x, y: p.y + px(1.6) })), COLOR.seaDeep, 0.5)
-      this.fill(shapes.beach, COLOR.beach)
-      this.stroke(shapes.beach, COLOR.beachEdge, 4)
-      this.fill(shapes.body, COLOR.grass)
-      this.stroke(shapes.body, COLOR.grassEdge, 3)
-      this.drawGrassTexture(shapes.body)
-    }
+    /*
+     * Kod-cizimi ada (kum+cim+doku) ARTIK CIZILMIYOR: zemin gercek karolarla
+     * (drawTerrain) doseniyor. shapes.beach/body yalnizca dekor ve arsa
+     * siniri icin hesap olarak duruyor.
+     */
 
     /*
      * Yollar: belediyeden her arsaya KAVISLI tas hatlar. Duz spok yerine
