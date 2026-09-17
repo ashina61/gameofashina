@@ -58,8 +58,8 @@
   button { touch-action: manipulation; }
   h1, h2, h3, p { margin: 0; }
 }
-.game-shell { height: 100dvh; min-height: 500px; display: flex; flex-direction: column; overflow: hidden; background: var(--background); }
-.game-header { height: 76px; flex-shrink: 0; display: flex; align-items: center; justify-content: space-between; padding: env(safe-area-inset-top, 0px) 32px 0; border-bottom: 1px solid var(--border); position: relative; z-index: 2; background: var(--background); }
+.game-shell { height: 100dvh; min-height: 500px; display: flex; flex-direction: column; overflow: hidden; background: #123c46; }
+.game-header { height: 76px; flex-shrink: 0; display: flex; align-items: center; justify-content: space-between; padding: env(safe-area-inset-top, 0px) 32px 0; position: relative; z-index: 3; background: linear-gradient(180deg, #0c211ef2 30%, #0c211e00); }
 .brand { display: flex; align-items: center; gap: 12px; text-decoration: none; color: var(--gold); }
 .brand-mark { display: grid; place-items: center; width: 42px; height: 44px; border: 1px solid #c0a26b66; border-radius: 22px 22px 5px 5px; }
 .brand-mark svg { width: 29px; height: 29px; }
@@ -76,7 +76,7 @@
 .player-avatar { position: relative; width: 40px; height: 40px; display: grid; place-items: center; background: #314a3b; border: 1px solid #bb9a5e; color: var(--gold); border-radius: 50%; margin-left: 6px; }
 .player-avatar > svg { width: 21px; }
 .player-avatar > span { position: absolute; right: -4px; bottom: -5px; display: grid; place-items: center; font-size: 9px; width: 17px; height: 17px; border: 1px solid #8f7b53; border-radius: 3px; background: var(--background); }
-.resource-bar { height: 82px; flex-shrink: 0; display: flex; background: #19342e; border-bottom: 1px solid var(--border); padding: 0 max(24px, calc((100vw - 1000px) / 2)); position: relative; z-index: 1; }
+.resource-bar { height: 82px; flex-shrink: 0; display: flex; background: #142f29d9; border-bottom: 1px solid #d9c18526; padding: 0 max(24px, calc((100vw - 1000px) / 2)); position: relative; z-index: 3; backdrop-filter: blur(9px); }
 .resource { flex: 1; display: flex; justify-content: center; align-items: center; gap: 12px; text-align: left; background: none; border: none; position: relative; min-width: 0; }
 .resource + .resource::before { content: ''; position: absolute; left: 0; height: 32px; width: 1px; background: var(--border); }
 .resource-symbol { width: 39px; height: 39px; display: grid; place-items: center; color: var(--gold); background: #d6b77b0b; border: 1px solid #d6b77b1f; border-radius: 50%; }
@@ -92,56 +92,30 @@
 .game-body { display: flex; flex: 1; min-height: 0; }
 .city-column { flex: 1; display: flex; flex-direction: column; min-width: 0; position: relative; }
 .city-scene { flex: 1; min-height: 0; position: relative; isolation: isolate; background: #527270; overflow: hidden; }
-.city-title { position: absolute; top: 0; left: 0; right: 0; z-index: 2; display: flex; align-items: center; justify-content: space-between; padding: 25px 30px 60px; background: linear-gradient(180deg, #132f2bed, #16352b9c 58%, transparent); pointer-events: none; }
-.eyebrow { display: flex; align-items: center; gap: 6px; color: var(--gold); font-size: 9px; letter-spacing: 1.8px; font-weight: 600; }
-.live-dot { width: 5px; height: 5px; display: inline-block; border-radius: 50%; background: var(--green); box-shadow: 0 0 7px #a5c59c30; }
-.city-title h1 { display: flex; align-items: center; gap: 10px; font-family: var(--font-heading), Georgia, serif; font-size: 40px; line-height: 1.2; font-weight: 500; margin-top: 5px; color: #fff4da; text-shadow: 0 2px 12px #132d29; }
-.city-title h1 svg { width: 15px; height: 15px; color: var(--gold); }
-.city-title p { display: flex; align-items: center; gap: 7px; font-size: 10px; color: #d8ddcb; margin-top: 5px; }
-.city-title p svg { width: 13px; height: 13px; }
-.city-title p > span { color: var(--gold); margin: 0 2px; }
-.weather { display: flex; align-items: center; gap: 8px; color: #e7d9b1; font-size: 10px; margin-top: -26px; }
+.weather { position: absolute; top: 18px; right: 22px; z-index: 2; display: grid; place-items: center; width: 38px; height: 38px; border-radius: 50%; color: #f0e2bb; background: #0f2a26a6; border: 1px solid #d9c18533; }
 .weather svg { width: 19px; height: 19px; stroke-width: 1.3; }
-.map-viewport { position: absolute; inset: 0; overflow: auto; scrollbar-width: none; cursor: grab; touch-action: none; }
-.map-viewport:active { cursor: grabbing; }
-.map-viewport::-webkit-scrollbar { display: none; }
-.map-canvas { position: relative; margin: 0 auto; flex-shrink: 0; }
-.island-image { display: block; width: 100%; height: 100%; object-fit: cover; user-select: none; pointer-events: none; }
-/*
- * Zemin katmani arkaplanin TAM USTUNDE ve binalarin ALTINDA durur; ayni
- * yuzde koordinatlarini kullandigi icin olcek ne olursa olsun hizali kalir.
+/* --- TAM EKRAN DÜNYA -----------------------------------------------------
+ * Dunya artik arayuz seritlerinin arasina sikismis bir kutu degil; ekranin
+ * TAMAMINI kaplayan sabit bir tuval. Seritler onun ustunde yuzer, aradaki
+ * bosluktan dokunuslar tuvale gecer. Sehrin "olu" gorunmesinin sebebi
+ * render hizi degildi: tuval tam ekran kadar olceklendigi icin
+ * kaydirilacak tasma yoktu ve parmak hicbir sey yapmiyordu.
  */
-.city-ground { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; overflow: visible; filter: drop-shadow(0 3px 6px #12251c4d); }
-.city-walls { filter: drop-shadow(0 2px 3px #1b2c2340); }
-/*
- * Bina dugmesi YIGIN BAGLAMI OLUSTURMAZ.
- *
- * Boylece butun sprite'lar tek bir katmanda (z-index 1), butun etiketler
- * onun ustunde (z-index 2) toplanir ve hicbir bina komsusunun ETIKETINI
- * ortmez - ekranda "Divanhane" yerine "anhane", "Konaklar" yerine
- * "onaklar" gorunuyordu.
- *
- * Ortalama transform ILE YAPILAMAZ: transform, z-index'ten bagimsiz olarak
- * kendi yigin baglamini kurar ve etiketi o kutunun icine hapseder. Bunun
- * yerine YUZDESEL kenar bosluklari kullanilir; yuzde hem yatayda hem
- * dikeyde kapsayicinin GENISLIGINE gore cozulur, tuval de kare oldugu icin
- * sonuc transform ile birebir aynidir.
- */
-.map-building { position: absolute; aspect-ratio: 1; padding: 0; border: none; background: none; display: flex; justify-content: center; align-items: center; flex-direction: column; }
-.map-building > img { position: relative; z-index: 1; width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(4px 8px 4px #23312355); transition: filter .2s, transform .2s; user-select: none; pointer-events: none; }
-.map-building:hover > img, .map-building:focus-visible > img { transform: translateY(-4px); filter: drop-shadow(0 0 6px #eed3a3); }
-.building-label { position: absolute; z-index: 2; bottom: -3px; display: flex; align-items: center; gap: 5px; white-space: nowrap; color: #fff2d8; background: #162b22eb; box-shadow: 0 2px 7px #10221c40; border: 1px solid #c5aa7280; border-radius: 4px; font-size: 10px; font-weight: 500; line-height: 1; padding: 5px 6px 5px 8px; transition: background .15s; }
-.building-label > svg { width: 11px; height: 11px; color: var(--gold); }
-.level-label { color: #e9ce93; display: grid; place-items: center; background: #bba16325; min-width: 18px; min-height: 17px; font-size: 10px; border-radius: 2px; margin-left: 3px; }
-.building-active .building-label { background: #594728; border-color: var(--gold); }
-/* Bos arsa dugmesi artik kendi KAROSU kadar yer kaplar; yukseklik satir ici stilden gelir. */
-.empty-building { justify-content: center; }
-.empty-building .building-label { border-style: dashed; bottom: -9px; background: #264231d9; padding: 6px 10px; }
-.plot-sign { position: relative; z-index: 1; display: grid; place-items: center; width: 26px; height: 26px; background: #1f3a2aa8; border: 1px solid #e9d7a699; color: #f2e6c8; border-radius: 50%; box-shadow: 0 2px 5px #2537234d; transition: background .15s, transform .15s, opacity .15s; opacity: .82; }
-.empty-building:hover .plot-sign, .empty-building:focus-visible .plot-sign { background: #3a6a42; transform: scale(1.15); opacity: 1; }
-.plot-sign svg { width: 15px; height: 15px; stroke-width: 1.8; }
-.harbor-label { position: absolute; left: 50%; transform: translateX(-50%); font-family: var(--font-heading), serif; font-size: 11px; letter-spacing: 2px; color: #e8e8c8bf; pointer-events: none; text-shadow: 0 1px 3px #063b3c; }
-.map-top-tools { position: absolute; right: 22px; top: 112px; z-index: 2; }
+.city-canvas { position: fixed; inset: 0; z-index: 0; background: #123c46; pointer-events: auto; }
+.city-canvas canvas { display: block; touch-action: none; }
+
+/* Kabuk katmanlari dokunusu YUTMAZ; yalnizca kendi ic ogeleri yakalar. */
+.game-body, .city-column, .city-scene { pointer-events: none; background: transparent; }
+.city-scene > *:not(.city-canvas) { pointer-events: auto; }
+
+/* Sehir kimligi: kocaman baslik yerine kucuk bir rozet. */
+.city-badge { position: absolute; top: 12px; left: 16px; z-index: 2; padding: 9px 14px 10px; border-radius: 12px; background: #0f2a26b8; border: 1px solid #d9c1853d; backdrop-filter: blur(7px); }
+.city-badge h1 { display: flex; align-items: center; gap: 8px; font-family: var(--font-heading), Georgia, serif; font-size: 24px; line-height: 1.1; font-weight: 500; margin-top: 3px; color: #fff4da; }
+.city-badge h1 svg { width: 13px; height: 13px; color: var(--gold); }
+.city-badge p { display: flex; align-items: center; gap: 6px; font-size: 10px; color: #d8ddcb; margin-top: 3px; }
+.city-badge p svg { width: 12px; height: 12px; }
+.city-badge p > span { color: var(--gold); }
+.map-top-tools { position: absolute; right: 22px; top: 66px; z-index: 2; }
 .map-top-tools button, .zoom-tools button { display: grid; place-items: center; width: 40px; height: 40px; background: #173b34e6; color: #e5d6ad; border: 1px solid #d9c1854d; border-radius: 6px; backdrop-filter: blur(6px); }
 .map-top-tools svg, .zoom-tools svg { width: 17px; height: 17px; stroke-width: 1.6; }
 .map-bottom-tools { position: absolute; bottom: 20px; left: 22px; right: 22px; display: flex; align-items: center; justify-content: space-between; pointer-events: none; z-index: 2; }
@@ -152,7 +126,7 @@
 .compass > span { position: absolute; top: -10px; left: 19px; font-size: 8px; }
 .map-tip { display: flex; align-items: center; gap: 6px; font-size: 9px; color: #f6f0de; background: #17443566; padding: 7px 11px; border-radius: 20px; text-shadow: 0 1px 3px #162e2c; }
 .mobile-objective { display: none; }
-.queue-bar { height: 96px; flex-shrink: 0; display: flex; gap: 16px; padding: 14px 24px; border-top: 1px solid #b49b6533; background: #152f2b; }
+.queue-bar { height: 96px; flex-shrink: 0; display: flex; gap: 16px; padding: 14px 24px; background: linear-gradient(0deg, #0c211ee6, #0c211e00); position: relative; z-index: 3; }
 .queue-card { display: flex; align-items: center; flex: 1; min-width: 0; padding: 10px 14px; gap: 12px; border: 1px solid var(--border); border-radius: 6px; background: #1c3830; text-align: left; transition: border-color .2s; }
 .queue-card:hover { border-color: #c7ac6d8c; }
 .queue-icon { display: grid; place-items: center; width: 34px; height: 36px; flex-shrink: 0; color: var(--gold); border: 1px solid #b39a5f44; border-radius: 5px; background: #c9b67c08; }
@@ -165,7 +139,7 @@
 .queue-card > time { font-size: 11px; color: var(--gold); font-variant-numeric: tabular-nums; }
 .queue-meter { height: 3px; border-radius: 2px; width: 100%; background: #40533b; overflow: hidden; margin-top: 3px; }
 .queue-meter > span { display: block; height: 100%; background: var(--gold); transition: width 1s linear; }
-.city-sidebar { width: 300px; flex-shrink: 0; border-left: 1px solid var(--border); padding: 24px; display: flex; flex-direction: column; gap: 24px; background: radial-gradient(ellipse at top, #28423655, transparent 70%), var(--background); overflow-y: auto; scrollbar-width: thin; }
+.city-sidebar { width: 300px; flex-shrink: 0; pointer-events: auto; position: relative; z-index: 3; border-left: 1px solid #d9c18526; padding: 24px; display: flex; flex-direction: column; gap: 24px; background: #0e2523e0; backdrop-filter: blur(9px); overflow-y: auto; scrollbar-width: thin; }
 .sidebar-heading { display: flex; align-items: center; justify-content: space-between; }
 .ornament { color: var(--gold); font-size: 19px; }
 .welcome-block { text-align: center; padding: 4px 0 0; }
@@ -189,7 +163,7 @@
 .sidebar-bottom { margin-top: auto; display: flex; gap: 10px; padding-top: 20px; border-top: 1px solid var(--border); font-size: 9px; color: var(--muted-foreground); }
 .sidebar-bottom > svg { width: 16px; height: 16px; color: var(--gold); flex-shrink: 0; }
 .sidebar-bottom small { display: block; font-size: 8px; margin-top: 5px; opacity: .8; }
-.bottom-navigation { height: 76px; padding-bottom: env(safe-area-inset-bottom, 0px); flex-shrink: 0; border-top: 1px solid var(--border); background: #102b29; display: flex; align-items: stretch; justify-content: space-between; padding-left: 24px; padding-right: 32px; z-index: 2; }
+.bottom-navigation { height: 76px; padding-bottom: env(safe-area-inset-bottom, 0px); flex-shrink: 0; border-top: 1px solid #d9c1851f; background: #0d2624e8; backdrop-filter: blur(9px); display: flex; align-items: stretch; justify-content: space-between; padding-left: 24px; padding-right: 32px; z-index: 3; }
 .nav-items { display: flex; width: min(100%, 560px); justify-content: space-between; }
 .nav-item { display: flex; flex: 1; position: relative; align-items: center; justify-content: center; gap: 10px; color: #a3b2a7; background: none; border: 0; font-size: 12px; }
 .nav-item > svg { width: 21px; height: 21px; }
@@ -302,10 +276,10 @@
    * Sehir basligi HARITANIN USTUNDE durur; buyuk oldugunda ilk arsa
    * satirini ortuyordu. Dekoratif bir baslik icin odenecek bedel degil.
    */
-  .city-title { padding: 12px 20px 24px; align-items: flex-start; }
-  .city-title .eyebrow { font-size: 7px; letter-spacing: 1.5px; }
-  .city-title h1 { font-size: 26px; margin-top: 2px; }
-  .city-title p { font-size: 9px; margin-top: 1px; }
+  .city-badge { top: 8px; left: 10px; padding: 7px 11px 8px; }
+  .city-badge .eyebrow { font-size: 7px; letter-spacing: 1.5px; }
+  .city-badge h1 { font-size: 19px; }
+  .city-badge p { font-size: 9px; }
   .weather { margin-top: 16px; }
   .weather > span { display: none; }
   .weather svg { width: 22px; height: 22px; }
@@ -429,17 +403,23 @@
  * Ikariam'in dort danisman basi. Kaynak cubugunun altinda, haritanin ustunde
  * duran ince bir serit: kilitli sekme gizlenmez, sonuk gorunur.
  */
-.advisor-bar { flex-shrink: 0; display: flex; gap: 6px; height: 50px; align-items: stretch; background: #143029; border-bottom: 1px solid var(--border); padding: 0 max(24px, calc((100vw - 1000px) / 2)); position: relative; z-index: 1; }
-.advisor { flex: 1; min-width: 0; display: flex; align-items: center; justify-content: center; gap: 9px; position: relative; background: none; border: 0; border-top: 2px solid transparent; color: #a3b2a7; font-size: 12px; }
-.advisor-head { width: 26px; height: 26px; flex-shrink: 0; display: grid; place-items: center; border-radius: 50%; color: var(--gold); background: #d6b77b12; border: 1px solid #d6b77b24; }
-.advisor-head svg { width: 15px; height: 15px; stroke-width: 1.5; }
+/*
+ * Danismanlar tam genislikte bir SERIT degil, solda yuzen bir RAY.
+ * Serit 44 pikseli dunyadan calip hicbir sey gostermiyordu; ray ayni dort
+ * sekmeyi verir ve arkasindan sehir gorunur.
+ */
+/* Rozetin ALTINDA baslar: ikisi ust uste binerse ikisi de okunmaz olur. */
+.advisor-bar { position: fixed; left: 12px; top: 232px; z-index: 3; display: flex; flex-direction: column; gap: 4px; padding: 6px 5px; border-radius: 12px; background: #0f2a26a6; border: 1px solid #d9c18526; backdrop-filter: blur(8px); pointer-events: auto; }
+.advisor { position: relative; display: flex; flex-direction: column; align-items: center; gap: 1px; width: 40px; padding: 5px 2px; border-radius: 8px; background: none; border: 0; color: #b6c4b8; font-size: 7px; letter-spacing: .1px; }
+.advisor-head { width: 20px; height: 20px; flex-shrink: 0; display: grid; place-items: center; color: var(--gold); background: transparent; border: none; }
+.advisor-head svg { width: 17px; height: 17px; stroke-width: 1.5; }
 .advisor-label { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.advisor-active { color: var(--gold); border-top-color: var(--gold); background: linear-gradient(180deg, #c0a1631a, transparent); }
+.advisor-active { color: var(--gold); background: #d6b77b26; }
 .advisor-active .advisor-head { background: #d6b77b22; border-color: #d6b77b66; }
 /* Kilitli danisman: sonuk ama tiklanabilir - dokununca ne gerektigini soyler. */
 .advisor-locked { opacity: .5; }
 .advisor-locked .advisor-head { color: #a3b2a7; background: #ffffff0a; border-color: #ffffff1a; }
-.advisor-badge { position: absolute; top: 6px; right: max(4px, 14%); padding: 1px 6px; border-radius: 9px; background: var(--gold); color: #10211d; font-size: 9px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.advisor-badge { position: absolute; top: -2px; right: -4px; padding: 1px 5px; border-radius: 9px; background: var(--gold); color: #10211d; font-size: 8px; font-weight: 700; font-variant-numeric: tabular-nums; }
 
 /* --- DANISMAN EKRANLARI --------------------------------------------------- */
 .advisor-panel { display: flex; flex-direction: column; gap: 14px; }
@@ -495,11 +475,9 @@
 .unit-bottom > span { display: inline-flex; align-items: center; gap: 5px; font-size: 11px; color: var(--muted-foreground); }
 .unit-bottom button { margin-left: auto; }
 @media (max-width: 767px) {
-  .advisor-bar { height: 44px; padding: 0 6px; gap: 2px; }
-  .advisor { flex-direction: column; gap: 2px; font-size: 8.5px; }
-  .advisor-head { width: 18px; height: 18px; background: none; border: none; }
-  .advisor-head svg { width: 15px; height: 15px; }
-  .advisor-badge { top: 2px; right: max(2px, 8%); font-size: 8px; padding: 0 4px; }
+  .advisor-bar { left: 8px; top: 232px; gap: 3px; padding: 5px 4px; }
+  .advisor { width: 38px; font-size: 7px; }
+  .advisor-head svg { width: 16px; height: 16px; }
   .city-stats { grid-template-columns: repeat(2, 1fr); }
 }
-@media (max-height: 700px) { .advisor-bar { height: 40px; } }
+
