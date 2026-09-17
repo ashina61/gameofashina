@@ -167,9 +167,16 @@ export class CityScene extends Phaser.Scene {
    */
   private defaultZoom() {
     const island = islandExtent()
-    const fitW = (this.scale.width * 0.96) / island.w
-    const fitH = (this.scale.height - OVERLAY * this.dpr()) / island.h
-    return Phaser.Math.Clamp(Math.min(fitW, fitH), this.minZoom(), 1.2)
+    /*
+     * Binalar arsalarindan TASAR (yuksek catilar, genis tabanlar); kamera
+     * yalnizca arsa sinirlarina sigdirirsa kenardaki binalar kirpilir. Bu
+     * yuzden hem yatayda hem dikeyde ekstra pay birakilir - island.w/h zaten
+     * arsa kutusu, binalarin tasmasi icin ustune %30 marj.
+     */
+    const overflow = 1.32
+    const fitW = (this.scale.width * 0.94) / (island.w * overflow)
+    const fitH = (this.scale.height - OVERLAY * this.dpr()) / (island.h * overflow)
+    return Phaser.Math.Clamp(Math.min(fitW, fitH), this.minZoom(), 1.1)
   }
 
   /** Ust (kaynak/oyuncu) ve alt (menu) seritlerinin ekranda kapladigi CSS px. */

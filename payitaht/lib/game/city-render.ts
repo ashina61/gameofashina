@@ -25,7 +25,7 @@ import { BUILDING_IDS, type BuildingId, type Game } from './engine'
  * telefonda 2304 birim, 1152 CSS pikseline denk gelir - yani ekranin yaklasik
  * uc kati genislik, bir buçuk kati yukseklik.
  */
-export const WORLD = 2600
+export const WORLD = 3600
 
 /**
  * ŞEHRİN ARKAPLANDAKİ AÇIKLIĞA OTURTULMASI.
