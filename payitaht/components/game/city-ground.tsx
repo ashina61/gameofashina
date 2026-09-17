@@ -1,6 +1,6 @@
 'use client'
 
-import { SLOTS, COLS, ROWS, TILE_W, TILE_H, QUAY_Y, cellCenter, cityBounds, cityOutline, diamond, polygon } from '@/lib/game/layout'
+import { SLOTS, COLS, ROWS, TILE_W, TILE_H, QUAY_Y, DRAWN_PAD, cellCenter, cityBounds, cityOutline, diamond, polygon } from '@/lib/game/layout'
 import type { Game } from '@/lib/game/engine'
 
 /*
@@ -17,7 +17,7 @@ import type { Game } from '@/lib/game/engine'
  */
 
 /** Surun seviyeye gore kalinligi (tuval yuzdesi). */
-const wallThickness = (level: number) => 1.4 + level * 0.5
+const wallThickness = (level: number) => 1.1 + level * 0.38
 
 /*
  * SOKAKLAR.
@@ -36,10 +36,10 @@ const streets = (() => {
 })()
 
 export function CityGround({ game }: { game: Game }) {
-  const platform = cityOutline(3.5)
+  const platform = cityOutline(DRAWN_PAD.platform)
   const walls = game.buildings.surlar
-  const wallInner = cityOutline(5.5)
-  const wallOuter = cityOutline(5.5 + wallThickness(walls))
+  const wallInner = cityOutline(DRAWN_PAD.wallInner)
+  const wallOuter = cityOutline(DRAWN_PAD.wallInner + wallThickness(walls))
   const cityPlots = SLOTS.filter(slot => slot.zone === 'sehir')
   const quays = SLOTS.filter(slot => slot.zone === 'liman')
   const occupied = new Set(Object.values(game.placement).filter((p): p is number => p !== null))
@@ -68,7 +68,7 @@ export function CityGround({ game }: { game: Game }) {
 
     {/* Sehrin uzerinde durdugu duzluk. */}
     <polygon points={polygon(platform)} fill="url(#cg-platform)" stroke="#5f5940" strokeWidth=".4" />
-    <polygon points={polygon(cityOutline(1.6))} fill="none" stroke="#6d6549" strokeWidth=".3" opacity=".55" />
+    <polygon points={polygon(cityOutline(2))} fill="none" stroke="#6d6549" strokeWidth=".3" opacity=".55" />
 
     {/* Sokak agi. Ortadaki dusey sokak kapiya ve limana baglanir. */}
     <g className="city-streets">

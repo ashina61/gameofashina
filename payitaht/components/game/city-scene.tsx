@@ -28,8 +28,15 @@ const FOCUS = (() => {
   }
 })()
 
-/** Etiketlerin kenara yapismamasi icin birakilan pay. */
-const EDGE_MARGIN = 28
+/**
+ * Sehrin acilista ekranin NE KADARINI kapladigi.
+ *
+ * Tam genislige sigdirmak sehri kenardan kenara dayiyordu; arkasindaki
+ * boyali mahalle hic gorunmuyor, sehir de bir yere ait gorunmuyordu. Kalan
+ * pay yalnizca bir kenar boslugu degil, MANZARA - oyuncu sehrinin bir
+ * kasabanin icinde durdugunu ancak boyle gorur.
+ */
+const FIT_FILL = 0.86
 /** Haritanin ustunu ve altini ortan arayuz seritlerinin toplam yuksekligi. */
 const OVERLAY_INSET = 150
 /** Ustteki serit alttakinden kalin; gorunur pencere bu kadar yukarida. */
@@ -56,7 +63,7 @@ export function CityScene({ game, onBuilding, onPlot }: { game: Game; onBuilding
    */
   const fitZoom = viewportWidth > 0
     ? Math.min(1, Math.max(0.5, Math.min(
-        (viewportWidth - EDGE_MARGIN) / (baseSize * FOCUS.width),
+        (viewportWidth * FIT_FILL) / (baseSize * FOCUS.width),
         // Ust ve alt seritler (sehir basligi, hedef karti) haritayi ortuyor;
         // sigdirma bu payi dusmezse sehir ekranin disina tasiyor.
         (viewportHeight - OVERLAY_INSET) / (baseSize * FOCUS.height))))

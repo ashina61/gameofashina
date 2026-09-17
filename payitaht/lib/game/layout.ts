@@ -42,7 +42,14 @@ export const COLS = 4
 export const ROWS = 4
 
 const PITCH_X = TILE_W + GAP_X
-const ORIGIN_Y = 14
+/*
+ * Izgaranin ust kenari.
+ *
+ * Tuvalin en ustunden baslamaz: ustte BOYALI CEVREYE yer birakir. Sehir
+ * ekranin kenarina dayandiginda hicbir yere ait gorunmuyordu; ustteki serit
+ * uzaktaki mahalleyi gosterir ve sehri bir yere oturtur.
+ */
+const ORIGIN_Y = 22
 
 export type Zone = 'sehir' | 'liman'
 
@@ -90,6 +97,17 @@ export function cityBounds() {
     bottom: Math.max(...cells.map(c => c.y)) + TILE_H / 2,
   }
 }
+
+/**
+/**
+ * CIZILEN her seyin disina tasmadigi pay.
+ *
+ * Arkaplanin boyali kismi ancak bu kutunun DISINDA gorunur; brief'teki
+ * "guvenli alan" tam olarak budur. Sur kalinligi seviyeyle buyudugu icin
+ * en genis hali baz alinir - yoksa 5. seviyede sur, resmin kenar seridini
+ * yutar.
+ */
+export const DRAWN_PAD = { platform: 5, wallInner: 3.4, wallMax: 3.4 + 1.1 + 5 * 0.38 }
 
 /**
  * Sehri ceviren SEKIZGEN.
