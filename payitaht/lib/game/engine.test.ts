@@ -1,7 +1,7 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { advance, assignedWorkers, capacity, cost, execute, freePlots, idleWorkers, initialGame, parseSave, population, PLOTS, rates, researchReason, duration, workerCapacity, WORKERS_PER_LEVEL, fullResources, nearlyFullResources, activeJob, QUEUE_LIMIT, housing, contentment, unhousedByUnrest, soldiers, recruitReason, buildReason, unitCost, wallDefense, cityDefense, power, UNITS, BUILDINGS, BUILDING_IDS, zoneOf } from './engine'
-import { COLS, ROWS, TILE_W, TILE_H, USES_MEASURED, CENTER_PLOT } from './layout'
+import { TILE_W, TILE_H, USES_MEASURED, CENTER_PLOT } from './layout'
 import { WORLD, CITY, CITY_SPAN, TILE_WORLD, toWorldX, toWorldY, px, groundShapes, buildingPlacement, visualSignature } from './city-render'
 
 const now = 1_000_000
@@ -677,12 +677,23 @@ test('belediye merkez arsada baslar ve yol agi seviyeyle buyur', () => {
   assert.ok(grown.roads.every(r => r.a.x === c.x && r.a.y === c.y))
 })
 
-test('liman ve tersane normal arsaya kurulur (liman bolgesi kalkti)', () => {
+test('liman ve tersane denizin kenarindaki iskeleye kurulur', () => {
   const g = initialGame(now)
   g.buildings.divan = 3
   g.resources = { gold: 9e4, wood: 9e4, stone: 9e4, knowledge: 0 }
+  // Denizin kenarinda tam iki iskele var (iki koy).
+  const quays = PLOTS.filter(s => s.zone === 'liman')
+  assert.equal(quays.length, 2)
+  // Ticaret Limani bir iskeleye oturur, sehir arsasina degil.
   const withHarbour = execute(g, { type: 'build', id: 'liman' }, now).game
   assert.notEqual(withHarbour.placement.liman, null)
-  // Hicbir arsa artik liman bolgesinde degil.
-  assert.ok(PLOTS.every(s => s.zone === 'sehir'))
+  assert.equal(PLOTS[withHarbour.placement.liman!].zone, 'liman')
+  // Tersane de digerine; ikisi de denizde.
+  withHarbour.buildings.liman = 1
+  const withYard = execute(withHarbour, { type: 'build', id: 'tersane' }, now).game
+  assert.notEqual(withYard.placement.tersane, null)
+  assert.equal(PLOTS[withYard.placement.tersane!].zone, 'liman')
+  // Iskeleler sehrin ALTINDA, denize dogru: kara arsalarindan daha asagida.
+  const cityBottom = Math.max(...PLOTS.filter(s => s.zone === 'sehir').map(s => s.y))
+  assert.ok(quays.every(q => q.y > cityBottom))
 })

@@ -51,6 +51,8 @@ const COLOR = {
   plot: 0x27492d, plotEdge: 0xf0e2b4,
   tree: 0x4a8a44, treeDark: 0x356a34, trunk: 0x6b4a2e,
   rock: 0x9a9488, rockDark: 0x6f6a5e,
+  // Liman iskelesi: denize uzanan ahsap platform.
+  deck: 0xb8895a, deckDark: 0x8a6238, deckEdge: 0x5f4223, post: 0x4a331d,
 }
 
 /*
@@ -297,6 +299,19 @@ export class CityScene extends Phaser.Scene {
     this.ground.strokePoints(poly, true)
   }
 
+  /** Kuadratik bezier'i (a, kontrol, b) cizilebilir noktalara orneklier. */
+  private curvePoints(a: Poly[number], c: Poly[number], b: Poly[number], steps = 14): Poly {
+    const pts: Poly = []
+    for (let i = 0; i <= steps; i++) {
+      const t = i / steps, u = 1 - t
+      pts.push({
+        x: u * u * a.x + 2 * u * t * c.x + t * t * b.x,
+        y: u * u * a.y + 2 * u * t * c.y + t * t * b.y,
+      })
+    }
+    return pts
+  }
+
   /** Bir cokgenin bounding box'i. */
   private bounds(poly: Poly) {
     const xs = poly.map(p => p.x), ys = poly.map(p => p.y)
@@ -398,6 +413,37 @@ export class CityScene extends Phaser.Scene {
     }
   }
 
+  /**
+   * LIMAN İSKELESİ: denizin ustunde duran ahsap platform.
+   *
+   * Sehir arsalari cime gomulu tas tabandir; iskele ise SUYUN uzerinde durur.
+   * Once suya dusen golge, sonra destek kaziklari, sonra ahsap gude ve tahta
+   * cizgileri. Uzerine tersane/liman binasi oturur.
+   */
+  private drawQuay(shape: Poly, occupied: boolean) {
+    const b = this.bounds(shape)
+    const cx = (b.minX + b.maxX) / 2
+    // Suya dusen golge: gudenin biraz asagi kaydirilmis koyu kopyasi.
+    this.fill(shape.map(p => ({ x: p.x, y: p.y + px(1.4) })), COLOR.seaDeep, 0.55)
+    // Destek kaziklari: iskelenin dort kosesinden suya inen kisa direkler.
+    this.ground.fillStyle(COLOR.post, 1)
+    for (const c of [{ x: b.minX + px(1), y: b.maxY }, { x: b.maxX - px(1), y: b.maxY }, { x: cx, y: b.maxY + px(0.6) }]) {
+      this.ground.fillRect(c.x - px(0.5), c.y, px(1), px(2.4))
+    }
+    // Ahsap gude.
+    this.fill(shape, occupied ? COLOR.deck : COLOR.deckDark, 1)
+    this.stroke(shape, COLOR.deckEdge, 3)
+    // Tahta cizgileri: gudenin uzerinde birkac paralel oluk, ahsap hissi.
+    this.ground.lineStyle(2, COLOR.deckEdge, 0.4)
+    for (let i = 1; i <= 3; i++) {
+      const t = i / 4
+      const y = b.minY + (b.maxY - b.minY) * t
+      this.ground.lineBetween(b.minX + px(1), y, b.maxX - px(1), y)
+    }
+    // Insa kipinde bos iskele vurgulanir.
+    if (!occupied && this.placing) this.stroke(shape, COLOR.padFreeEdge, 5)
+  }
+
   private redraw(first: boolean) {
     this.signature = `${visualSignature(this.state)}|${this.showLabels}|${this.placing}`
     const shapes = groundShapes(this.state)
@@ -419,16 +465,19 @@ export class CityScene extends Phaser.Scene {
     }
 
     /*
-     * Yollar: belediyeden her arsaya kalin tas hatlar. Once koyu bir alt
-     * cizgi (yol kenari), ustune acik tas - yol cime gomulu gorunsun.
+     * Yollar: belediyeden her arsaya KAVISLI tas hatlar. Duz spok yerine
+     * kontrol noktali bir bezier ornekleniyor - referans sehirdeki gibi yol
+     * hic duz gitmez. Once koyu alt cizgi (kenar), ustune acik tas: yol cime
+     * gomulu dursun.
      */
-    for (const road of shapes.roads) {
+    const roadPaths = shapes.roads.map(r => this.curvePoints(r.a, r.c, r.b))
+    for (const pts of roadPaths) {
       this.ground.lineStyle(px(2.6), COLOR.streetEdge, 0.9)
-      this.ground.lineBetween(road.a.x, road.a.y, road.b.x, road.b.y)
+      this.ground.strokePoints(pts, false)
     }
-    for (const road of shapes.roads) {
+    for (const pts of roadPaths) {
       this.ground.lineStyle(px(1.7), COLOR.street, 1)
-      this.ground.lineBetween(road.a.x, road.a.y, road.b.x, road.b.y)
+      this.ground.strokePoints(pts, false)
     }
     // Merkezdeki bulusma noktasi: belediye meydani.
     const c = shapes.roads[0]?.a
@@ -468,9 +517,16 @@ export class CityScene extends Phaser.Scene {
      * insa kipinde gorunur.
      */
     for (const pad of shapes.pads) {
-      if (pad.occupied) {
-        this.fill(pad.shape, COLOR.padFull, 0.9)
-        this.stroke(pad.shape, COLOR.padFullEdge, 3)
+      /*
+       * DOLU arsaya taban CIZILMEZ: bina sprite'i kendi zemin elmasini
+       * (tas/cim/su) icinde tasir, altina ikinci bir taban koymak sprite'in
+       * kenarindan tasar. Yalnizca BOS arsalar isaretlenir.
+       */
+      if (pad.occupied) continue
+      if (pad.slot.zone === 'liman') {
+        // Bos iskele: denize uzanan ahsap platform her zaman gorunur ki
+        // limanin nereye kurulacagi belli olsun.
+        this.drawQuay(pad.shape, false)
       } else if (this.placing) {
         this.fill(pad.shape, COLOR.padFree, 0.85)
         this.stroke(pad.shape, COLOR.padFreeEdge, 5)
@@ -494,10 +550,26 @@ export class CityScene extends Phaser.Scene {
     if (first) this.ground.setAlpha(0).setAlpha(1)
   }
 
+  /*
+   * Bina sprite'inin karo genisligine gore OLCEGI.
+   *
+   * Sprite kendi zemin elmasini icinde tasir; taban genisligi ~ sprite
+   * genisligi. Divanhane ve Saray sehrin baskin yapilaridir, digerlerinden
+   * buyuk cizilir. Liman/tersane iskele sprite'lari kendi rihtimini tasir.
+   */
+  private artScale(id: BuildingId) {
+    if (id === 'divan') return 1.6
+    if (id === 'saray') return 1.45
+    if (id === 'konut' || id === 'kisla' || id === 'medrese') return 1.25
+    return 1.12
+  }
+
   private addBuilding(id: BuildingId, slot: typeof SLOTS[number], building: boolean) {
     const p = buildingPlacement(id, slot)
     const level = this.state.buildings[id]
     let object: Phaser.GameObjects.GameObject
+    // Sprite'in ekranda kaplayacagi taban genisligi.
+    const w = TILE_WORLD * this.artScale(id)
 
     /*
      * Binanin YERE BASMASI icin altina yumusak bir golge.
@@ -507,13 +579,19 @@ export class CityScene extends Phaser.Scene {
      * isik yonune (sol ust) gore hafif saga kaydirilmistir.
      */
     const shadow = this.add.graphics().setDepth(p.depth - 0.3)
-    shadow.fillStyle(0x0d1c16, 0.3)
-    shadow.fillEllipse(p.x + px(0.8), p.y + px(0.5), p.size * 0.66, p.size * 0.3)
+    shadow.fillStyle(0x0d1c16, 0.28)
+    shadow.fillEllipse(p.x + px(0.8), p.y + px(0.6), w * 0.6, w * 0.26)
     this.pieces.push(shadow)
 
-    if (BUILDINGS[id].art) {
-      const image = this.add.image(p.x, p.y, id).setOrigin(0.5, p.originY)
-      image.setDisplaySize(p.size, p.size)
+    if (BUILDINGS[id].art && this.textures.exists(id)) {
+      /*
+       * Sprite EN-BOY ORANI KORUNARAK olceklenir - kareye sikistirilirsa
+       * kuleler ezilir. Taban genisligi karoya oturtulur, yukseklik dogal
+       * olarak takip eder. Baglanma noktasi zemin elmasinin merkezine yakin
+       * (0.5, 0.80): bina karonun uzerine basar, tepesi yukari tasar.
+       */
+      const image = this.add.image(p.x, p.y, id).setOrigin(0.5, 0.8)
+      image.setScale(w / image.width)
       image.setDepth(p.depth)
       object = image
     } else {
@@ -525,7 +603,7 @@ export class CityScene extends Phaser.Scene {
     }
     this.pieces.push(object)
 
-    const hit = this.add.rectangle(p.x, p.y - p.size * 0.3, p.size * 0.86, p.size * 0.7)
+    const hit = this.add.rectangle(p.x, p.y - w * 0.25, w * 0.8, w * 0.6)
       .setInteractive({ useHandCursor: true })
       .setFillStyle(0xffffff, 0)
       .setDepth(p.depth + 0.2)
@@ -539,7 +617,7 @@ export class CityScene extends Phaser.Scene {
      * yapiyordu; referans oyunlarda bina adi haritada hic yazmaz, dokununca
      * panelde cikar. Ad levhasi bayrak dugmesiyle acilir.
      */
-    this.pieces.push(this.makeBadge(p.x + p.size * 0.30, p.y + px(1.1), level, p.depth + 0.4, building))
+    this.pieces.push(this.makeBadge(p.x + w * 0.28, p.y + px(1.1), level, p.depth + 0.4, building))
     if (this.showLabels) {
       this.pieces.push(this.makeLabel(p.x, p.y + px(2.4), BUILDINGS[id].name, p.depth + 0.5, building))
     }

@@ -33,32 +33,6 @@ import { MEASURED, MEASURED_TILE_W } from './plots.generated'
 export const TILE_W = MEASURED.length > 0 ? MEASURED_TILE_W : 17
 export const TILE_H = TILE_W / 2
 
-/** Karolar arasindaki bosluk - sehirde sokak olarak okunur. */
-const GAP_X = 1.6
-
-/**
- * Iki satir arasindaki dikey adim.
- *
- * Binanin boyu karo genisligi kadardir (%17) ve bina karonun UZERINE oturur.
- * Adim bundan kucuk olursa on satirin binasi arka satirin etiketini orter -
- * 12,5 ile tam olarak bu oluyordu. 15, bir satirin binasini bir sonrakinin
- * karosunun hemen ustunde bitirir: derinlik var, ortusme yok.
- */
-const ROW_PITCH = 15
-
-export const COLS = 4
-export const ROWS = 4
-
-const PITCH_X = TILE_W + GAP_X
-/*
- * Izgaranin ust kenari.
- *
- * Tuvalin en ustunden baslamaz: ustte BOYALI CEVREYE yer birakir. Sehir
- * ekranin kenarina dayandiginda hicbir yere ait gorunmuyordu; ustteki serit
- * uzaktaki mahalleyi gosterir ve sehri bir yere oturtur.
- */
-const ORIGIN_Y = 22
-
 export type Zone = 'sehir' | 'liman'
 
 /*
@@ -87,19 +61,22 @@ export type Slot = {
   y: number
 }
 
-/** Merkez arsanin (belediye) izometrik ekran konumu. */
-export const CENTER = { x: 50, y: 50 }
+/**
+ * Belediye (belediye) merkezinin ekran konumu.
+ *
+ * Yukari kaydirilmis: ALTTA denize inen bir LIMAN mahallesine yer birakir.
+ * Referans sehirde de kara yukarida, iskeleler asagida denizin kenarindadir.
+ */
+export const CENTER = { x: 50, y: 40 }
 
 /*
- * Izometrik adimlar: komsu hucreler yarim karo kayar. Boyle bir dizilim
- * gercek bir izometrik ELMAS sehir uretir - kolon-satir dikdortgeni degil.
+ * Izometrik adimlar. Bilerek GENIS: referans sehirde binalar arasinda bol
+ * cim, kavisli yollar ve nefes vardir - iç içe gecmis bir yigin degil.
+ * Dikey adim yataya yakin tutuldu ki sehir hem saga hem ASAGI acilsin,
+ * dar bir dikdortgen gibi sikismasin.
  */
-/*
- * Adimlar bilerek genis: komsu arsalar arasinda YOL ve nefes payi kalsin.
- * Cok dar oldugunda binalar birbirine giriyor ve aradaki yol gorunmuyordu.
- */
-const STEP_X = TILE_W * 0.78
-const STEP_Y = TILE_H * 0.86
+const STEP_X = TILE_W * 1.5
+const STEP_Y = TILE_W * 0.86
 
 /** Bir izgara hucresinin (col,row) ekran konumu; merkez (0,0) belediyedir. */
 export function cellCenter(col: number, row: number) {
@@ -107,59 +84,90 @@ export function cellCenter(col: number, row: number) {
 }
 
 /*
- * ARSALAR: belediye MERKEZDE, cevresinde halkalar.
+ * ŞEHİR ARSALARI: belediye MERKEZDE, cevresinde OturttuGumuz bir kume.
  *
- * Referans oyunlarin (RoK, Kaissava) hepsi boyle: ana bina tam ortada, sabit;
- * digerleri onun cevresine halka halka dizilir ve her biri merkeze bir yolla
- * baglanir. Arsalar Chebyshev mesafesine gore halkalara ayrilir:
- *   halka 0 -> belediye (1 arsa, index 0, CAKILI)
- *   halka 1 -> 8 arsa
- *   halka 2 -> 16 arsa
- * Ic halkalar once doldurulur, boylece sehir merkezden disari BUYUR.
+ * Hucreler merkeze OKLID mesafesine gore siralanir ve en yakin N tanesi
+ * alinir - bu, Chebyshev karesinden daha yuvarlak, daha organik bir sehir
+ * verir (referanstaki gibi). Ilk hucre (0,0) belediyedir, CAKILI.
  */
-export const RING_MAX = 2
-function ringCells(): { col: number; row: number }[] {
-  const cells: { col: number; row: number }[] = []
-  for (let r = 0; r <= RING_MAX; r++) {
-    const ring: { col: number; row: number }[] = []
-    for (let col = -r; col <= r; col++) {
-      for (let row = -r; row <= r; row++) {
-        if (Math.max(Math.abs(col), Math.abs(row)) !== r) continue
-        ring.push({ col, row })
-      }
+const RANGE = 2
+const CITY_PLOTS = 16
+function cityCells(): { col: number; row: number; d: number }[] {
+  const cells: { col: number; row: number; d: number }[] = []
+  for (let col = -RANGE; col <= RANGE; col++) {
+    for (let row = -RANGE; row <= RANGE; row++) {
+      cells.push({ col, row, d: col * col + row * row })
     }
-    // Halka icinde ekranda ustten alta, soldan saga: cizim sirasi tutarli olsun.
-    ring.sort((a, b) => (a.col + a.row) - (b.col + b.row) || (a.col - a.row) - (b.col - b.row))
-    cells.push(...ring)
   }
-  return cells
+  // Merkeze yakinlik, sonra ekran yuksekligi: ic halkalar once dolar,
+  // cizim/indeks sirasi ustten alta tutarli kalir.
+  cells.sort((a, b) => a.d - b.d || (a.col + a.row) - (b.col + b.row) || (a.col - a.row) - (b.col - b.row))
+  return cells.slice(0, CITY_PLOTS)
 }
 
-/** Toplam arsa sayisi: belediye + iki halka = 25, ama 18'de kesilir. */
-const PLOT_COUNT = 18
+const CITY_CELLS = cityCells()
+const CITY_SLOTS = CITY_CELLS.map(({ col, row }) => ({ zone: 'sehir' as const, ...cellCenter(col, row) }))
 
-const RING_SLOTS = ringCells().slice(0, PLOT_COUNT).map(({ col, row }) => ({
-  zone: 'sehir' as const, ...cellCenter(col, row),
+/*
+ * Bir sehir arsasinin merkezden kacinci HALKADA oldugu.
+ *
+ * Halka = merkeze OKLID uzakligina gore siralanmis farkli uzakliklarin sirasi
+ * (0=belediye, 1, 2, ...). Yol buyumesi buna bagli: belediye seviye atladikca
+ * yol bir sonraki halkaya kadar uzar. Indeks tabanli eski hesap yeni dizilimle
+ * tutmuyordu; artik gercek uzakliktan turer.
+ */
+const RING_DISTS = [...new Set(CITY_CELLS.map(c => c.d))].sort((a, b) => a - b)
+export function ringOf(index: number): number {
+  if (index < 0 || index >= CITY_CELLS.length) return Infinity // iskeleler sehir halkasi degil
+  return RING_DISTS.indexOf(CITY_CELLS[index].d)
+}
+
+/*
+ * LIMAN İSKELELERİ: denizin kenarinda, sehrin ALTINDA, ikisi yan yana.
+ *
+ * Tersane ve Ticaret Limani KARAYA degil buraya kurulur. Sehir kumesinin
+ * altina, bir bosluk birakilarak konur; aradaki bosluk kiyi/su olur ve
+ * iskeleler denize uzanan ahsap platformlar gibi cizilir.
+ */
+export const QUAY_COUNT = 2
+const quayY = CENTER.y + (RANGE + 2.4) * STEP_Y
+const QUAY_SLOTS = Array.from({ length: QUAY_COUNT }, (_, i) => ({
+  zone: 'liman' as const,
+  x: CENTER.x + (i - (QUAY_COUNT - 1) / 2) * STEP_X * 1.5,
+  y: quayY,
 }))
 
 export const SLOTS: Slot[] = (USES_MEASURED
   ? MEASURED.map(m => ({ zone: m.zone, x: m.x, y: m.y }))
-  : RING_SLOTS
+  : [...CITY_SLOTS, ...QUAY_SLOTS]
 ).map((slot, index) => ({ index, zone: slot.zone, x: slot.x, y: slot.y }))
 
 /** Belediye arsasinin indeksi: her zaman merkez, CAKILI. */
 export const CENTER_PLOT = 0
 
-/** Sehir izgarasinin dis sinirlari (tuval yuzdesi). */
+/**
+ * KARA sehrin dis sinirlari (yalnizca 'sehir' arsalari).
+ *
+ * Iskeleler DAHIL EDILMEZ: ada govdesi ve sur yalnizca karayi sarmali,
+ * denizdeki iskelelere kadar uzanmamali.
+ */
 export function cityBounds() {
-  // Iskeleler de dahil: ada govdesi limani kapsamali, yoksa iskele suda
-  // havada durur.
-  const cells = SLOTS
+  const cells = SLOTS.filter(c => c.zone === 'sehir')
   return {
     left: Math.min(...cells.map(c => c.x)) - TILE_W / 2,
     right: Math.max(...cells.map(c => c.x)) + TILE_W / 2,
     top: Math.min(...cells.map(c => c.y)) - TILE_H / 2,
     bottom: Math.max(...cells.map(c => c.y)) + TILE_H / 2,
+  }
+}
+
+/** Butun arsalari (iskeleler dahil) kapsayan sinir - kamera fiti icin. */
+export function fullBounds() {
+  return {
+    left: Math.min(...SLOTS.map(c => c.x)) - TILE_W,
+    right: Math.max(...SLOTS.map(c => c.x)) + TILE_W,
+    top: Math.min(...SLOTS.map(c => c.y)) - TILE_W,
+    bottom: Math.max(...SLOTS.map(c => c.y)) + TILE_W,
   }
 }
 
@@ -195,23 +203,6 @@ export function cityOutline(pad = 0) {
     { x: r - cut, y: d }, { x: l + cut, y: d },
     { x: l, y: d - cutY }, { x: l, y: t + cutY },
   ]
-}
-
-/**
- * ACILIS GORUNUMU: sehir mahallesi.
- *
- * Tuvalin TAMAMINI sigdirmak yanlis hedef. Liman ayri bir mahalledir ve
- * ekranin alt seridi zaten hedef karti tarafindan ortuluyor; her seyi birden
- * sigdirmaya calismak binalari 46 piksele dusuruyordu (olculdu). Acilista
- * sehir izgarasi sigar, liman bir kaydirma uzakta kalir - sehir kurma
- * oyunlarinda beklenen davranis budur.
- *
- * Ustteki pay binanin karodan YUKARI tasan boyudur: bina karonun uzerine
- * oturur, yani tepesi karonun merkezinden bir karo genisligi yukaridadir.
- */
-export function cityFocus() {
-  const b = cityBounds()
-  return { left: b.left, right: b.right, top: b.top - TILE_W + TILE_H, bottom: b.bottom }
 }
 
 /** Bir noktayi izometrik elmas koseye cevirir (karo cizimi icin). */

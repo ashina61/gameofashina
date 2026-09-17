@@ -10,7 +10,7 @@
  * yeniden yazmak oldu. Ayrica test edilebilir: bir cokgenin dogru yerde olup
  * olmadigini tarayici acmadan sinayabiliyoruz.
  */
-import { SLOTS, TILE_W, TILE_H, DRAWN_PAD, USES_MEASURED, CENTER, CENTER_PLOT, cityBounds, cityOutline, type Slot } from './layout'
+import { SLOTS, TILE_W, TILE_H, DRAWN_PAD, USES_MEASURED, CENTER, CENTER_PLOT, cityBounds, cityOutline, fullBounds, ringOf, type Slot } from './layout'
 import { BUILDING_IDS, type BuildingId, type Game } from './engine'
 
 /**
@@ -25,7 +25,7 @@ import { BUILDING_IDS, type BuildingId, type Game } from './engine'
  * telefonda 2304 birim, 1152 CSS pikseline denk gelir - yani ekranin yaklasik
  * uc kati genislik, bir buçuk kati yukseklik.
  */
-export const WORLD = 2304
+export const WORLD = 2600
 
 /**
  * ŞEHRİN ARKAPLANDAKİ AÇIKLIĞA OTURTULMASI.
@@ -41,17 +41,35 @@ export const WORLD = 2304
  * Degerler f6769236 numarali arkaplandan olculdu: acikligin genis kusagi
  * resmin x %27-73 / y %34,5-68,3 araliginda.
  */
+/*
+ * STILIZE mod olcegi: bir yerlesim yuzdesi kac dunya pikseli.
+ */
+const STYLIZED_SCALE = 14
+/*
+ * STILIZE modda sehir DUNYANIN ORTASINA oturtulur.
+ *
+ * Offset elle sabitlenmisti (452/392); izgara genisleyince sehir dunyanin sol
+ * kenarindan tasti (sur x<0'a gidiyordu). Artik butun yerlesimi (iskeleler
+ * dahil) kapsayan kutunun merkezi hesaplanip dunyanin merkezine denk getirilir
+ * - izgara nasil degisirse degissin sehir her zaman ortada ve tamamen iceride
+ * kalir, cevresinde her yandan su payi olur.
+ */
+function stylizedOffset() {
+  const b = fullBounds()
+  return {
+    x: WORLD / 2 - ((b.left + b.right) / 2) * STYLIZED_SCALE,
+    y: WORLD / 2 - ((b.top + b.bottom) / 2) * STYLIZED_SCALE,
+    scale: STYLIZED_SCALE,
+  }
+}
+
 export const CITY = USES_MEASURED
   /*
    * Olculmus arsalarda yuzdeler RESMIN kendi yuzdeleridir; cevrim birebir
    * olur ve dunya resmin tamamidir. Ressam nereye koyduysa orasi.
    */
   ? { x: 0, y: 0, scale: WORLD / 100 }
-  /*
-   * STILIZE mod: dunya tamamen kod tarafindan cizilir. Sehri ortalayip her
-   * yanina bol su payi birakiriz - ada bir denizin ortasinda durmali.
-   */
-  : { x: 452, y: 392, scale: 14 }
+  : stylizedOffset()
 
 /** Sehir karesinin kapladigi dunya genisligi (100 yuzde birimi). */
 export const CITY_SPAN = 100 * CITY.scale
@@ -81,8 +99,14 @@ export function diamondPoints(x: number, y: number, w: number, h: number): Poly 
 /** Surun seviyeye gore kalinligi (yerlesim yuzdesi). */
 export const wallThickness = (level: number) => 1.1 + level * 0.38
 
-/** Belediyeye giden bir yol: iki nokta arasi kalin bir hat. */
-export type Road = { a: Point; b: Point }
+/**
+ * Belediyeye giden bir yol.
+ *
+ * Duz bir spok DEGIL: `c` bir kontrol noktasidir ve yol merkezden arsaya
+ * KAVISLI bir bezier olarak cizilir. Referans sehirde yollar hic duz gitmez;
+ * kavis, izgarayi bir sehir gibi gosteren seydir.
+ */
+export type Road = { a: Point; b: Point; c: Point }
 
 export type GroundShapes = {
   /*
@@ -106,8 +130,6 @@ export type GroundShapes = {
   pads: { slot: Slot; shape: Poly; occupied: boolean }[]
 }
 
-/** Bir arsanin merkezden kacinci halkada oldugu (0=belediye,1,2). */
-function ringOf(index: number) { return index === 0 ? 0 : index <= 8 ? 1 : 2 }
 
 /*
  * ZEMİNİ ARTIK ÇİZMİYORUZ.
@@ -140,8 +162,22 @@ export function groundShapes(game: Game): GroundShapes {
   const centre = { x: toWorldX(CENTER.x), y: toWorldY(CENTER.y) }
   const divanLevel = game.buildings.divan
   const roads: Road[] = USES_MEASURED ? [] : SLOTS
-    .filter(s => s.index !== CENTER_PLOT && (occupied.has(s.index) || ringOf(s.index) <= divanLevel))
-    .map(s => ({ a: centre, b: { x: toWorldX(s.x), y: toWorldY(s.y) } }))
+    // Belediyeye yol: uzerinde bina olan HER arsa, ya da belediye seviyesine
+    // ulasmis bos halkalar - yol boylece merkezden buyur. Iskeleler ise HER
+    // ZAMAN baglidir: liman mahallesine inen bir yol/rihtim gorunur dursun.
+    .filter(s => s.index !== CENTER_PLOT &&
+      (s.zone === 'liman' || occupied.has(s.index) || ringOf(s.index) <= divanLevel))
+    .map(s => {
+      const b = { x: toWorldX(s.x), y: toWorldY(s.y) }
+      const mid = { x: (centre.x + b.x) / 2, y: (centre.y + b.y) / 2 }
+      // Orta noktayi hatta DIK yonde kaydir: yol duz gitmez, kavislenir. Yon
+      // arsanin indeksine gore degisir ki komsu yollar ayni tarafa bukulmesin.
+      const dx = b.x - centre.x, dy = b.y - centre.y
+      const len = Math.hypot(dx, dy) || 1
+      const bend = (s.index % 2 === 0 ? 1 : -1) * len * 0.16
+      const c = { x: mid.x + (-dy / len) * bend, y: mid.y + (dx / len) * bend }
+      return { a: centre, b, c }
+    })
 
   return {
     // Boyali arkaplan modunda ada resmin icinde; kod cizmez.
@@ -205,9 +241,11 @@ export function buildingPlacement(id: BuildingId, slot: Slot) {
  */
 export function islandExtent() {
   if (USES_MEASURED) return { w: WORLD, h: WORLD, cx: WORLD / 2, cy: WORLD / 2 }
-  const o = cityOutline(14)
-  const xs = o.map(p => toWorldX(p.x)), ys = o.map(p => toWorldY(p.y))
-  const minX = Math.min(...xs), maxX = Math.max(...xs), minY = Math.min(...ys), maxY = Math.max(...ys)
+  // Kara (cityOutline) + denizdeki iskeleler: kamera ikisini birden gormeli,
+  // yoksa acilista tersane/liman ekranin altinda kalir.
+  const b = fullBounds()
+  const minX = toWorldX(b.left), maxX = toWorldX(b.right)
+  const minY = toWorldY(b.top), maxY = toWorldY(b.bottom)
   return { w: maxX - minX, h: maxY - minY, cx: (minX + maxX) / 2, cy: (minY + maxY) / 2 }
 }
 
