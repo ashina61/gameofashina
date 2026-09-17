@@ -1,7 +1,7 @@
 'use client'
 
 import { useRef, useState } from 'react'
-import { Plus, Minus, LocateFixed, Compass, Sun, Flag, Move, Hammer, X } from 'lucide-react'
+import { Compass, Sun, Flag, Move, Hammer, X } from 'lucide-react'
 import type { Game, BuildingId } from '@/lib/game/engine'
 import { CityCanvas, type CityControls } from './city-canvas'
 
@@ -50,14 +50,14 @@ export function CityScene({ game, placing, onBuilding, onPlot, onExitBuild, onOp
         onClick={() => setLabels(v => !v)} aria-pressed={labels}><Flag /></button>
     </div>
 
+    {/*
+      * Yakinlastir/uzaklastir ve ortala dugmeleri KALDIRILDI: iki parmakla
+      * yakinlastirma ve surukleme jesti zaten var, dugmeler ekrani mesgul
+      * ediyordu. Pusula ve ipucu kaliyor.
+      */}
     <div className="map-bottom-tools">
       <span className="compass"><Compass aria-hidden="true" /><span>K</span></span>
       <span className="map-tip"><Move className="size-3" /> Sürükle · iki parmakla yakınlaş</span>
-      <div className="zoom-tools">
-        <button aria-label="Uzaklaştır" onClick={() => controls.current?.zoomBy(1 / 1.25)}><Minus /></button>
-        <button aria-label="Şehri ortala" onClick={() => controls.current?.recenter()}><LocateFixed /></button>
-        <button aria-label="Yakınlaştır" onClick={() => controls.current?.zoomBy(1.25)}><Plus /></button>
-      </div>
     </div>
   </section>
 }

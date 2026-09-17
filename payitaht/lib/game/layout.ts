@@ -87,34 +87,68 @@ export type Slot = {
   y: number
 }
 
-/** Bir izgara hucresinin ekrandaki merkezi. */
-export function cellCenter(col: number, row: number) {
-  return { x: 50 + (col - (COLS - 1) / 2) * PITCH_X, y: ORIGIN_Y + row * ROW_PITCH }
-}
-
-/** Limandaki iskele satirinin y'si - yamacin son satirindan ayri durur. */
-export const QUAY_Y = ORIGIN_Y + (ROWS - 1) * ROW_PITCH + TILE_H
-export const QUAYS = 2
+/** Merkez arsanin (belediye) izometrik ekran konumu. */
+export const CENTER = { x: 50, y: 50 }
 
 /*
- * ARSALAR.
- *
- * Once sehir izgarasi (satir satir, soldan saga), sonra limandaki iskeleler.
- * Sira onemlidir: kayitlardaki yerlesim bu INDEKSLERI tutar, yani var olan
- * arsalarin sirasi degismedigi surece eski sehirler ayni yerde durur.
+ * Izometrik adimlar: komsu hucreler yarim karo kayar. Boyle bir dizilim
+ * gercek bir izometrik ELMAS sehir uretir - kolon-satir dikdortgeni degil.
  */
-const GRID_SLOTS = [
-  ...Array.from({ length: ROWS }, (_, row) =>
-    Array.from({ length: COLS }, (_, col) => ({ zone: 'sehir' as const, ...cellCenter(col, row) }))).flat(),
-  ...Array.from({ length: QUAYS }, (_, i) => ({
-    zone: 'liman' as const,
-    x: 50 + (i - (QUAYS - 1) / 2) * PITCH_X,
-    y: QUAY_Y,
-  })),
-]
+/*
+ * Adimlar bilerek genis: komsu arsalar arasinda YOL ve nefes payi kalsin.
+ * Cok dar oldugunda binalar birbirine giriyor ve aradaki yol gorunmuyordu.
+ */
+const STEP_X = TILE_W * 0.78
+const STEP_Y = TILE_H * 0.86
 
-export const SLOTS: Slot[] = (USES_MEASURED ? MEASURED : GRID_SLOTS)
-  .map((slot, index) => ({ index, zone: slot.zone, x: slot.x, y: slot.y }))
+/** Bir izgara hucresinin (col,row) ekran konumu; merkez (0,0) belediyedir. */
+export function cellCenter(col: number, row: number) {
+  return { x: CENTER.x + (col - row) * STEP_X, y: CENTER.y + (col + row) * STEP_Y }
+}
+
+/*
+ * ARSALAR: belediye MERKEZDE, cevresinde halkalar.
+ *
+ * Referans oyunlarin (RoK, Kaissava) hepsi boyle: ana bina tam ortada, sabit;
+ * digerleri onun cevresine halka halka dizilir ve her biri merkeze bir yolla
+ * baglanir. Arsalar Chebyshev mesafesine gore halkalara ayrilir:
+ *   halka 0 -> belediye (1 arsa, index 0, CAKILI)
+ *   halka 1 -> 8 arsa
+ *   halka 2 -> 16 arsa
+ * Ic halkalar once doldurulur, boylece sehir merkezden disari BUYUR.
+ */
+export const RING_MAX = 2
+function ringCells(): { col: number; row: number }[] {
+  const cells: { col: number; row: number }[] = []
+  for (let r = 0; r <= RING_MAX; r++) {
+    const ring: { col: number; row: number }[] = []
+    for (let col = -r; col <= r; col++) {
+      for (let row = -r; row <= r; row++) {
+        if (Math.max(Math.abs(col), Math.abs(row)) !== r) continue
+        ring.push({ col, row })
+      }
+    }
+    // Halka icinde ekranda ustten alta, soldan saga: cizim sirasi tutarli olsun.
+    ring.sort((a, b) => (a.col + a.row) - (b.col + b.row) || (a.col - a.row) - (b.col - b.row))
+    cells.push(...ring)
+  }
+  return cells
+}
+
+/** Toplam arsa sayisi: belediye + iki halka = 25, ama 18'de kesilir. */
+const PLOT_COUNT = 18
+
+const RING_SLOTS = ringCells().slice(0, PLOT_COUNT).map(({ col, row }) => ({
+  zone: 'sehir' as const, ...cellCenter(col, row),
+}))
+
+export const SLOTS: Slot[] = (USES_MEASURED
+  ? MEASURED.map(m => ({ zone: m.zone, x: m.x, y: m.y }))
+  : RING_SLOTS
+).map((slot, index) => ({ index, zone: slot.zone, x: slot.x, y: slot.y }))
+
+/** Belediye arsasinin indeksi: her zaman merkez, CAKILI. */
+export const CENTER_PLOT = 0
 
 /** Sehir izgarasinin dis sinirlari (tuval yuzdesi). */
 export function cityBounds() {
@@ -138,7 +172,7 @@ export function cityBounds() {
  * en genis hali baz alinir - yoksa 5. seviyede sur, resmin kenar seridini
  * yutar.
  */
-export const DRAWN_PAD = { platform: 5, wallInner: 3.4, wallMax: 3.4 + 1.1 + 5 * 0.38 }
+export const DRAWN_PAD = { platform: 5, wallInner: 5.5, wallMax: 5.5 + 1.1 + 5 * 0.38 }
 
 /**
  * Sehri ceviren SEKIZGEN.

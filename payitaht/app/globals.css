@@ -94,8 +94,8 @@
 .resource-knowledge .resource-symbol { color: #a4c8c5; }
 .resource-copy { display: flex; flex-direction: column; gap: 0; min-width: 0; flex: 1; overflow: hidden; }
 .resource-name { display: none; }
-.resource strong { font-family: var(--font-body), sans-serif; font-size: 12.5px; font-weight: 600; font-variant-numeric: tabular-nums; line-height: 1.15; overflow: hidden; text-overflow: ellipsis; }
-.resource-rate { color: var(--green); font-size: 8px; white-space: nowrap; line-height: 1.2; overflow: hidden; text-overflow: ellipsis; }
+.resource strong { font-family: var(--font-body), sans-serif; font-size: 12.5px; font-weight: 700; font-variant-numeric: tabular-nums; line-height: 1.15; overflow: hidden; text-overflow: ellipsis; color: #ffffff; }
+.resource-rate { color: #cbe6bd; font-size: 8px; white-space: nowrap; line-height: 1.2; overflow: hidden; text-overflow: ellipsis; }
 .resource-rate > span { opacity: .65; font-size: 9px; }
 .game-body { display: flex; flex: 1; min-height: 0; }
 .city-column { flex: 1; display: flex; flex-direction: column; min-width: 0; position: relative; }

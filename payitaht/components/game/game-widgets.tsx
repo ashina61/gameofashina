@@ -21,9 +21,10 @@ export function ResourceBar({ game, onSelect }: { game: Game; onSelect: () => vo
      * Dolmaya yakin olan yalnizca renkle uyarilir - erken panik yaratmadan.
      */
     return <button key={id} className={cn(`resource resource-${id}`, isFull && 'resource-full', isNearly && 'resource-nearly')} onClick={onSelect}
-      aria-label={`${RESOURCE_NAMES[id]}: ${formatNumber(game.resources[id])}, dakikada ${production[id]}${isFull ? '. Ambar dolu, üretim boşa gidiyor' : isNearly ? '. Ambar dolmak üzere' : ''}`}>
+      aria-label={`${RESOURCE_NAMES[id]}: ${formatNumber(game.resources[id])}, dakikada ${formatNumber(production[id])}${isFull ? '. Ambar dolu, üretim boşa gidiyor' : isNearly ? '. Ambar dolmak üzere' : ''}`}>
       <span className="resource-symbol">{isFull ? <TriangleAlert aria-hidden="true" /> : <Icon aria-hidden="true" />}</span>
-      <span className="resource-copy"><span className="resource-name">{RESOURCE_NAMES[id]}</span><strong>{formatNumber(game.resources[id])}</strong><span className="resource-rate">{isFull ? 'Ambar dolu' : <>+{production[id]}<span>/dk</span></>}</span></span>
+      {/* Uretim TAM SAYIYA yuvarlanir: yuvarlanmamis ondalik "+16.3637484..." gibi tasiyordu. */}
+      <span className="resource-copy"><span className="resource-name">{RESOURCE_NAMES[id]}</span><strong>{formatNumber(game.resources[id])}</strong><span className="resource-rate">{isFull ? 'Ambar dolu' : <>+{formatNumber(production[id])}<span>/dk</span></>}</span></span>
     </button>
   })}</section>
 }

@@ -114,8 +114,8 @@ export const BUILDINGS: Record<BuildingId, BuildingDef> = {
   elcilik: { name: 'Elçilik', category: 'YÖNETİM', description: 'Komşularınla konuşmanın kapısı. Diplomasi danışmanını ve ittifak defterini açar.', base: 200, art: false, needs: { id: 'divan', level: 2 } },
   kisla: { name: 'Kışla', category: 'ASKERÎ', description: 'Halkından asker yetiştirir. Her eğitilen vatandaş üretimden düşer — ordunun bedeli budur.', base: 180, art: false, needs: { id: 'divan', level: 2 } },
   surlar: { name: 'Surlar', category: 'ASKERÎ', description: 'Şehrin taş kalkanı. Her seviye savunmaya asker gerektirmeyen güç ekler. Arsa kaplamaz — şehrin çevresine örülür.', base: 150, art: false, zone: 'sur', needs: { id: 'kisla', level: 1 } },
-  liman: { name: 'Ticaret Limanı', category: 'LİMAN', description: 'Denizin kapısı. Ticaret kapasitesi verir ve nakliye gemisi inşa ettirir.', base: 160, art: false, zone: 'liman', needs: { id: 'divan', level: 2 } },
-  tersane: { name: 'Tersane', category: 'LİMAN', description: 'Savaş gemilerinin doğduğu yer. Kadırga ve kalyon buradan denize iner.', base: 240, art: false, zone: 'liman', needs: { id: 'liman', level: 1 } },
+  liman: { name: 'Ticaret Limanı', category: 'LİMAN', description: 'Denizin kapısı. Ticaret kapasitesi verir ve nakliye gemisi inşa ettirir.', base: 160, art: false, needs: { id: 'divan', level: 2 } },
+  tersane: { name: 'Tersane', category: 'LİMAN', description: 'Savaş gemilerinin doğduğu yer. Kadırga ve kalyon buradan denize iner.', base: 240, art: false, needs: { id: 'liman', level: 1 } },
 }
 
 /*
@@ -178,7 +178,8 @@ function blankNull<T extends string>(ids: readonly T[]): Record<T, number | null
 
 /** Oyunun basladigi sehir: bes yapi, izgaranin ilk sirasinda. */
 const START_LEVELS: Partial<Record<BuildingId, number>> = { divan: 1, konut: 1, kereste: 1, tas: 1, ambar: 1 }
-const START_PLOTS: Partial<Record<BuildingId, number>> = { divan: 5, konut: 6, kereste: 1, tas: 8, ambar: 10 }
+// Belediye (divan) MERKEZDE, index 0, cakili. Digerleri ilk halkaya dagilir.
+const START_PLOTS: Partial<Record<BuildingId, number>> = { divan: 0, konut: 2, kereste: 4, tas: 6, ambar: 8 }
 
 export function initialGame(now: number): Game {
   return {

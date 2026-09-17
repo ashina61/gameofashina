@@ -10,7 +10,7 @@
  * yeniden yazmak oldu. Ayrica test edilebilir: bir cokgenin dogru yerde olup
  * olmadigini tarayici acmadan sinayabiliyoruz.
  */
-import { SLOTS, COLS, ROWS, TILE_W, TILE_H, DRAWN_PAD, USES_MEASURED, cellCenter, cityBounds, cityOutline, type Slot } from './layout'
+import { SLOTS, TILE_W, TILE_H, DRAWN_PAD, USES_MEASURED, CENTER, CENTER_PLOT, cityBounds, cityOutline, type Slot } from './layout'
 import { BUILDING_IDS, type BuildingId, type Game } from './engine'
 
 /**
@@ -81,7 +81,8 @@ export function diamondPoints(x: number, y: number, w: number, h: number): Poly 
 /** Surun seviyeye gore kalinligi (yerlesim yuzdesi). */
 export const wallThickness = (level: number) => 1.1 + level * 0.38
 
-export type Street = { x: number; y: number; w: number; h: number }
+/** Belediyeye giden bir yol: iki nokta arasi kalin bir hat. */
+export type Road = { a: Point; b: Point }
 
 export type GroundShapes = {
   /*
@@ -93,11 +94,20 @@ export type GroundShapes = {
    */
   beach: Poly | null
   body: Poly | null
-  /** Yalnizca YAPI OLAN satir ve sutunlarin sokaklari. */
-  streets: Street[]
+  /**
+   * Belediyeye giden yollar.
+   *
+   * Her BINA merkezdeki belediyeye bir yolla baglanir, ve belediye seviye
+   * atladikca yollar bir sonraki halkaya kadar UZAR - sehir merkezden disari
+   * buyur. Bos ver: yol yalnizca stilize modda cizilir.
+   */
+  roads: Road[]
   walls: { outer: Poly; inner: Poly; towers: Poly[]; gate: Poly; gateArch: Point } | null
   pads: { slot: Slot; shape: Poly; occupied: boolean }[]
 }
+
+/** Bir arsanin merkezden kacinci halkada oldugu (0=belediye,1,2). */
+function ringOf(index: number) { return index === 0 ? 0 : index <= 8 ? 1 : 2 }
 
 /*
  * ZEMİNİ ARTIK ÇİZMİYORUZ.
@@ -119,15 +129,25 @@ export function groundShapes(game: Game): GroundShapes {
   const towerAt = [wallOuter[2], wallOuter[3], wallOuter[6], wallOuter[7]]
   const gateY = wallOuter[4].y
 
+  /*
+   * YOLLAR: belediyeden (merkez) her arsaya bir yol.
+   *
+   * Bir arsa iki halde yola baglanir: uzerinde BINA varsa (her bina belediyeye
+   * baglidir), ya da halkasi belediye SEVIYESINE ulasmissa (belediye buyudukce
+   * yol bir sonraki halkaya uzar). Boylece hem "her binadan belediyeye yol"
+   * hem "her level atlayinca yol cikar" ayni kuraldan turer.
+   */
+  const centre = { x: toWorldX(CENTER.x), y: toWorldY(CENTER.y) }
+  const divanLevel = game.buildings.divan
+  const roads: Road[] = USES_MEASURED ? [] : SLOTS
+    .filter(s => s.index !== CENTER_PLOT && (occupied.has(s.index) || ringOf(s.index) <= divanLevel))
+    .map(s => ({ a: centre, b: { x: toWorldX(s.x), y: toWorldY(s.y) } }))
+
   return {
     // Boyali arkaplan modunda ada resmin icinde; kod cizmez.
     beach: USES_MEASURED ? null : poly(cityOutline(14)),
     body: USES_MEASURED ? null : poly(cityOutline(8.5)),
-    // Olculmus arsalarda yollar RESMIN icinde zaten var; uzerine ikinci bir
-    // yol agi cizmek manzarayi bozar.
-    // Yollar simdilik kapali: tum ada boyu serit stilize zemini bogyordu.
-    // Dolu arsalari baglayan bir yol agi sonra gelir.
-    streets: [],
+    roads,
     /*
      * OLCULMUS arsalarda sur CIZILMEZ.
      *
@@ -155,40 +175,6 @@ export function groundShapes(game: Game): GroundShapes {
 }
 
 /** Sokagin genisligi, yerlesim yuzdesi. */
-const STREET_W = 1.7
-
-/**
- * ŞEHİR BÜYÜDÜKÇE ÇIKAN YOLLAR.
- *
- * Ikariam'da sehir yukseldikce yollar adim adim beliriyor; sehrin buyudugunu
- * sayilardan once ZEMINDEN anliyorsun. Burada ayni sey izgaradan turuyor:
- * icinde yapi olan her satirin altina ve her sutunun yanina bir sokak
- * cizilir. Bos bir izgarada hic yol yoktur; sehir doldukca ag kendiliginden
- * orulur.
- */
-function streetsFor(occupied: Set<number>): Street[] {
-  const cityCells = SLOTS.filter(s => s.zone === 'sehir')
-  const usedRow = new Set<number>()
-  const usedCol = new Set<number>()
-  for (const slot of cityCells) {
-    if (!occupied.has(slot.index)) continue
-    const i = cityCells.indexOf(slot)
-    usedRow.add(Math.floor(i / COLS))
-    usedCol.add(i % COLS)
-  }
-  const b = cityBounds()
-  const out: Street[] = []
-  for (const row of usedRow) {
-    const y = cellCenter(0, row).y + TILE_H / 2 + 1.6
-    out.push({ x: toWorldX(b.left - 2), y: toWorldY(y - STREET_W / 2), w: px(b.right - b.left + 4), h: px(STREET_W) })
-  }
-  for (const col of usedCol) {
-    const x = cellCenter(col, 0).x + TILE_W / 2 + 0.8
-    if (col === COLS - 1) continue
-    out.push({ x: toWorldX(x - STREET_W / 2), y: toWorldY(b.top - 2), w: px(STREET_W), h: px(b.bottom - b.top + 4) })
-  }
-  return out
-}
 
 /**
  * Bir binanin dunya uzerindeki yeri ve boyu.
@@ -198,7 +184,7 @@ function streetsFor(occupied: Set<number>): Street[] {
  * `originY`. Divanhane biraz daha buyuktur; zemini degil, silueti baskin olur.
  */
 export function buildingPlacement(id: BuildingId, slot: Slot) {
-  const scale = id === 'divan' ? 1.18 : 1
+  const scale = id === 'divan' ? 1.5 : 1
   const size = TILE_WORLD * scale
   return {
     x: toWorldX(slot.x),

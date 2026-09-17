@@ -1,7 +1,7 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { advance, assignedWorkers, capacity, cost, execute, freePlots, idleWorkers, initialGame, parseSave, population, PLOTS, rates, researchReason, duration, workerCapacity, WORKERS_PER_LEVEL, fullResources, nearlyFullResources, activeJob, QUEUE_LIMIT, housing, contentment, unhousedByUnrest, soldiers, recruitReason, buildReason, unitCost, wallDefense, cityDefense, power, UNITS, BUILDINGS, BUILDING_IDS, zoneOf } from './engine'
-import { COLS, ROWS, TILE_W, TILE_H, USES_MEASURED } from './layout'
+import { COLS, ROWS, TILE_W, TILE_H, USES_MEASURED, CENTER_PLOT } from './layout'
 import { WORLD, CITY, CITY_SPAN, TILE_WORLD, toWorldX, toWorldY, px, groundShapes, buildingPlacement, visualSignature } from './city-render'
 
 const now = 1_000_000
@@ -171,8 +171,13 @@ test('arsalar gecerli ve tekil; bolgeler tanimli', () => {
   // de gecerli olan kurallari sinar - sayilari resimle birlikte degisir.
   assert.ok(PLOTS.length >= 5)
   assert.ok(PLOTS.every((slot, i) => slot.index === i))
-  assert.ok(PLOTS.every(s => s.x > 0 && s.x < 100 && s.y > 0 && s.y < 100))
-  assert.ok(PLOTS.every(s => s.zone === 'sehir' || s.zone === 'liman'))
+  // Konumlar bir KOORDINAT UZAYI (0-100 degil): halka dizilimde dis arsalar
+  // 100'u asabilir, dunyaya CITY olcegiyle tasinir. Sonlu ve tekil olmalari yeter.
+  assert.ok(PLOTS.every(s => Number.isFinite(s.x) && Number.isFinite(s.y)))
+  const keys = PLOTS.map(s => `${s.x.toFixed(2)},${s.y.toFixed(2)}`)
+  assert.equal(new Set(keys).size, keys.length)
+  // Hepsi dunya sinirlari icinde: kamera sinirindan tasan arsa erisilemez olurdu.
+  assert.ok(PLOTS.every(s => toWorldX(s.x) > 0 && toWorldX(s.x) < WORLD && toWorldY(s.y) > 0 && toWorldY(s.y) < WORLD))
   const g = initialGame(now)
   assert.equal(freePlots(g).length, PLOTS.length - 5)
   assert.equal(freePlots(g, 'sehir').length + freePlots(g, 'liman').length, freePlots(g).length)
@@ -616,7 +621,7 @@ test('zemin geometrisi: arsalar dolulugu bilir, sur yalnizca izgarada cizilir', 
      * bant gibi otururdu.
      */
     assert.equal(thick.walls, null)
-    assert.deepEqual(thick.streets, [])
+    assert.deepEqual(thick.roads, [])
   } else {
     const thin = groundShapes({ ...g, buildings: { ...g.buildings, surlar: 1 } })
     const width = (s: typeof thin) => {
@@ -650,4 +655,34 @@ test('gorsel imza yalnizca GORUNEN degisiklikte degisir', () => {
   const built = execute({ ...g, resources: { gold: 9e4, wood: 9e4, stone: 9e4, knowledge: 0 } },
     { type: 'build', id: 'divan' }, now).game
   assert.notEqual(visualSignature(built), visualSignature(g))
+})
+
+/*
+ * BELEDIYE MERKEZDE + YOLLAR.
+ *
+ * Belediye (divan) her zaman merkez arsada, cakili durur; her bina ona bir
+ * yolla baglanir ve belediye seviye atladikca yol agi bir sonraki halkaya uzar.
+ */
+test('belediye merkez arsada baslar ve yol agi seviyeyle buyur', () => {
+  const g = initialGame(now)
+  assert.equal(g.placement.divan, CENTER_PLOT)
+  // Baslangicta 5 bina var: her biri belediyeye bir yol.
+  const base = groundShapes(g).roads.length
+  assert.ok(base >= 4)
+  // Belediye seviye atlayinca yol agi uzar (bos arsalara da yol iner).
+  const grown = groundShapes({ ...g, buildings: { ...g.buildings, divan: 3 } })
+  assert.ok(grown.roads.length > base)
+  // Yollarin hepsi merkezden cikar.
+  const c = grown.roads[0].a
+  assert.ok(grown.roads.every(r => r.a.x === c.x && r.a.y === c.y))
+})
+
+test('liman ve tersane normal arsaya kurulur (liman bolgesi kalkti)', () => {
+  const g = initialGame(now)
+  g.buildings.divan = 3
+  g.resources = { gold: 9e4, wood: 9e4, stone: 9e4, knowledge: 0 }
+  const withHarbour = execute(g, { type: 'build', id: 'liman' }, now).game
+  assert.notEqual(withHarbour.placement.liman, null)
+  // Hicbir arsa artik liman bolgesinde degil.
+  assert.ok(PLOTS.every(s => s.zone === 'sehir'))
 })

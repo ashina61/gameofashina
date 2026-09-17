@@ -59,7 +59,7 @@ export function shapeFor(size: number, level: number) {
   const grow = 1 + Math.min(level, 5) * 0.045
   // Boyali gorsellerle ayni agirlikta dursun: onlar karonun neredeyse
   // tamamini kapliyor, kucuk bir kutu yanlarinda maket gibi kaliyordu.
-  const width = size * 0.72 * grow
+  const width = size * 0.6 * grow
   return {
     width,
     /** Karonun yarim yuksekligi: 2:1 izometri. */

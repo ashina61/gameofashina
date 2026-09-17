@@ -45,7 +45,7 @@ const COLOR = {
   street: 0xd6c28c, streetEdge: 0xb09a5f,
   padFull: 0xd9c58b, padFullEdge: 0xa8925c,
   padFree: 0xe5d29a, padFreeEdge: 0xbaa46c,
-  wall: 0xcabf9c, wallEdge: 0x8a7d5e, wallTop: 0xe9dcb8, gate: 0xa1936d, gateDark: 0x40382a,
+  wall: 0xbcb4a4, wallEdge: 0x6b6354, wallTop: 0xdcd4c2, gate: 0x9c8f6f, gateDark: 0x37301f, wallShadow: 0x2a3b2e,
   pending: 0x9c8f74, pendingEdge: 0xd9c185,
   label: 0x14281f, labelEdge: 0xc5aa72, labelActive: 0x5a4728,
   plot: 0x27492d, plotEdge: 0xf0e2b4,
@@ -419,14 +419,22 @@ export class CityScene extends Phaser.Scene {
     }
 
     /*
-     * Yollar. Stilize zeminde OPAK cizilir: yol, cimin uzerine dosenmis
-     * acik tas bir serittir.
+     * Yollar: belediyeden her arsaya kalin tas hatlar. Once koyu bir alt
+     * cizgi (yol kenari), ustune acik tas - yol cime gomulu gorunsun.
      */
-    for (const street of shapes.streets) {
-      this.ground.fillStyle(COLOR.street, 0.92)
-      this.ground.fillRect(street.x, street.y, street.w, street.h)
-      this.ground.lineStyle(2, COLOR.streetEdge, 0.5)
-      this.ground.strokeRect(street.x, street.y, street.w, street.h)
+    for (const road of shapes.roads) {
+      this.ground.lineStyle(px(2.6), COLOR.streetEdge, 0.9)
+      this.ground.lineBetween(road.a.x, road.a.y, road.b.x, road.b.y)
+    }
+    for (const road of shapes.roads) {
+      this.ground.lineStyle(px(1.7), COLOR.street, 1)
+      this.ground.lineBetween(road.a.x, road.a.y, road.b.x, road.b.y)
+    }
+    // Merkezdeki bulusma noktasi: belediye meydani.
+    const c = shapes.roads[0]?.a
+    if (c) {
+      this.ground.fillStyle(COLOR.street, 1)
+      this.ground.fillPoints(diamondPoints(c.x, c.y, TILE_WORLD * 0.5, TILE_WORLD * 0.25), true)
     }
     if (shapes.walls) {
       const w = shapes.walls
@@ -435,18 +443,17 @@ export class CityScene extends Phaser.Scene {
        * geri kaziniyor. Phaser'in Graphics'i evenodd kurali sunmadigi icin
        * yol bu - sonuc ayni, ici bos bir kale duvari.
        */
+      // Once yere dusen golge: sur yukselmis bir tas duvar gibi dursun.
+      this.drawRing(w.outer.map(p => ({ x: p.x, y: p.y + px(0.9) })), w.inner, COLOR.wallShadow)
       this.drawRing(w.outer, w.inner, COLOR.wall)
-      this.stroke(w.outer, COLOR.wallEdge, 5)
-      /*
-       * Halkanin ICI, arkaplanin boyali topragiyla ayni renge boyanmaz -
-       * oyuk, arkaplani gosterecek sekilde "kesilir". Phaser Graphics
-       * evenodd sunmadigi icin ic cokgen yalnizca cizgiyle isaretlenir;
-       * dolgu olsaydi boyali zemini ortecekti.
-       */
-      this.stroke(w.inner, COLOR.wallEdge, 4)
+      this.stroke(w.outer, COLOR.wallEdge, 4)
+      this.stroke(w.inner, COLOR.wallEdge, 3)
+      // Dis hat boyunca acik tepe cizgisi (mazgal hissi).
+      this.stroke(w.outer.map(p => ({ x: p.x, y: p.y - px(0.5) })), COLOR.wallTop, 3)
       for (const tower of w.towers) {
+        this.fill(tower.map(p => ({ x: p.x, y: p.y + px(0.9) })), COLOR.wallShadow)
         this.fill(tower, COLOR.wallTop)
-        this.stroke(tower, COLOR.wallEdge, 4)
+        this.stroke(tower, COLOR.wallEdge, 3)
       }
       this.fill(w.gate, COLOR.gate)
       this.stroke(w.gate, COLOR.wallEdge, 4)
