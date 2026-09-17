@@ -1,182 +1,403 @@
-# ASSET ÜRETİM PROMPT PAKETİ — Isometric Ottoman/Mediterranean City
+# HAZIR PROMPTLAR — kopyala/yapıştır
 
-Tüm asset'ler **TEK bir sanat yönünden** üretilir ki birbirine otursun.
-Aşağıdaki `MASTER STYLE` bloğunu **her prompt'un sonuna** ekle. Her asset'in
-kendi cümlesi + MASTER STYLE = tam prompt.
+Toplam **76** asset promptu.
 
-> Hedef: painterly stylized 3D izometrik (Rise of Kingdoms / Ikariam ciddiyeti),
-> Akdeniz/Osmanlı/Ege atmosferi. Çocuk oyunu / cartoon / toy YOK.
+Her başlık altındaki kutuyu olduğu gibi kopyala, üreticine yapıştır. Stil zaten içinde. Tutarlılık için: ilk ürettiğin binanın **style reference**'ını (Midjourney `--sref <id>`) al, sonraki her prompt'un sonuna ekle.
 
----
 
-## 0. ÜRETİM KURALLARI (çok önemli — tutarlılık bundan gelir)
+## BINALAR (buildings/)
 
-1. **Aynı stil referansı:** Hepsini AYNI ayarla üret. Midjourney'de bir bina
-   beğen, onun `--sref <id>`'sini AL ve diğer TÜM asset'lerde kullan. (Ya da
-   üreticinde "style reference / consistent style" neyse onu sabitle.)
-2. **Işık yönü SABİT: sol-üst.** Gölge sağ-alta. Hepsinde aynı.
-3. **Kamera SABİT:** true isometric, 2:1 dimetric, ~30° tepeden, ortografik
-   (perspektif bozulması yok). Hepsinde aynı açı.
-4. **Şeffaf arka plan:** Native alfa destekleyen üretici en iyisi (Recraft,
-   Ideogram, Adobe Firefly, Flux "transparent"). Desteklemiyorsa **düz #00FF00
-   (chroma green)** veya düz beyaz zeminde üret, sonra arka planı sil
-   (remove.bg / rembg). Gölge dahil obje kalsın, zemin gitsin.
-5. **Tek obje, izole, ortalanmış.** Kadrajda başka bina/karakter/yazı/UI yok.
-6. **Kare kadraj**, yüksek çözünürlük (1024²+). Ben oyunda ölçekliyorum.
-7. **Aynı seed ailesi:** mümkünse aynı seed veya aynı sref ile üret.
-
-### MASTER STYLE (her prompt'un sonuna yapıştır)
-
+**divan.png**
 ```
-:: true isometric 2:1 dimetric projection, 30-degree top-down orthographic
-angle, no perspective distortion, single object centered and isolated on a
-transparent background, soft warm afternoon sunlight from the upper-left with
-gentle ambient-occlusion shadow to the lower-right, painterly stylized 3D game
-art in the spirit of Rise of Kingdoms and Ikariam, warm Mediterranean palette
-(sun-bleached limestone, terracotta clay tile, olive and muted green, natural
-timber, plaster, muted gold, deep Aegean blue), clean readable silhouette,
-subtle realistic material texture, NO black outline, NO text, NO UI, NO
-characters, NO cartoon or toy look, serious premium mobile city-builder asset,
-crisp edges, high detail --style raw --ar 1:1
+An Ottoman town council hall (divanhane) as a 3x3-tile isometric game building, two storeys of warm limestone, a wide terracotta clay-tiled hipped roof, arched windows, a small central lead dome with a flag, stone entrance steps, clearly the grandest and tallest civic landmark of the city, true isometric 2:1 dimetric view, 30-degree top-down orthographic angle, no perspective distortion, single object centered and isolated on a transparent background, soft warm sunlight from the upper-left with a soft ambient-occlusion shadow to the lower-right, painterly stylized 3D game art like Rise of Kingdoms and Ikariam, warm Mediterranean palette of sun-bleached limestone, terracotta clay tile, olive green, natural timber and muted gold, clean readable silhouette, subtle realistic material texture, no black outline, no text, no UI, no characters, no cartoon or toy look, premium mobile city-builder asset, high detail, crisp edges --style raw --ar 1:1
 ```
 
-(Midjourney kullanıyorsan `--sref <id>` de ekle. Başka üreticide `--style raw`
-ve `--ar 1:1`'i kendi karşılığıyla değiştir.)
+**saray.png**
+```
+A grand Ottoman palace as a 3x3-tile isometric game building, white limestone with an arcaded colonnade, several lead domes and a slender ornamented tower, a hint of an inner courtyard, muted gold accents, a majestic royal landmark taller than the houses, true isometric 2:1 dimetric view, 30-degree top-down orthographic angle, no perspective distortion, single object centered and isolated on a transparent background, soft warm sunlight from the upper-left with a soft ambient-occlusion shadow to the lower-right, painterly stylized 3D game art like Rise of Kingdoms and Ikariam, warm Mediterranean palette of sun-bleached limestone, terracotta clay tile, olive green, natural timber and muted gold, clean readable silhouette, subtle realistic material texture, no black outline, no text, no UI, no characters, no cartoon or toy look, premium mobile city-builder asset, high detail, crisp edges --style raw --ar 1:1
+```
 
----
+**medrese.png**
+```
+An Ottoman medrese theology college as a 2x2-tile isometric game building, a square structure wrapped around an arcaded courtyard of small domed cells, a modest central dome, limestone and plaster walls, true isometric 2:1 dimetric view, 30-degree top-down orthographic angle, no perspective distortion, single object centered and isolated on a transparent background, soft warm sunlight from the upper-left with a soft ambient-occlusion shadow to the lower-right, painterly stylized 3D game art like Rise of Kingdoms and Ikariam, warm Mediterranean palette of sun-bleached limestone, terracotta clay tile, olive green, natural timber and muted gold, clean readable silhouette, subtle realistic material texture, no black outline, no text, no UI, no characters, no cartoon or toy look, premium mobile city-builder asset, high detail, crisp edges --style raw --ar 1:1
+```
 
-## 1. TERRAIN TILE'LARI (96×48 diamond taban, seamless)
+**hamam.png**
+```
+An Ottoman hamam bathhouse as a 2x2-tile isometric game building, a low massive stone block topped by several small lead domes pierced with star-shaped glass vents, a slender smoking chimney, true isometric 2:1 dimetric view, 30-degree top-down orthographic angle, no perspective distortion, single object centered and isolated on a transparent background, soft warm sunlight from the upper-left with a soft ambient-occlusion shadow to the lower-right, painterly stylized 3D game art like Rise of Kingdoms and Ikariam, warm Mediterranean palette of sun-bleached limestone, terracotta clay tile, olive green, natural timber and muted gold, clean readable silhouette, subtle realistic material texture, no black outline, no text, no UI, no characters, no cartoon or toy look, premium mobile city-builder asset, high detail, crisp edges --style raw --ar 1:1
+```
 
-Her biri için başa şunu ekle:
-`a single isometric ground tile, 2:1 diamond top face, seamlessly tileable, a
-thin soil cross-section lip on the two front edges, matte natural surface —`
+**elcilik.png**
+```
+A dignified Mediterranean embassy residence as a 2x2-tile isometric game building, two storeys of stone with a small columned portico, a terracotta tiled roof and a pair of flags, true isometric 2:1 dimetric view, 30-degree top-down orthographic angle, no perspective distortion, single object centered and isolated on a transparent background, soft warm sunlight from the upper-left with a soft ambient-occlusion shadow to the lower-right, painterly stylized 3D game art like Rise of Kingdoms and Ikariam, warm Mediterranean palette of sun-bleached limestone, terracotta clay tile, olive green, natural timber and muted gold, clean readable silhouette, subtle realistic material texture, no black outline, no text, no UI, no characters, no cartoon or toy look, premium mobile city-builder asset, high detail, crisp edges --style raw --ar 1:1
+```
 
-| Dosya | Prompt cümlesi |
-|---|---|
-| `terrain/grass.png` | lush but muted Mediterranean grass with faint dry patches and tiny pebbles |
-| `terrain/dirt.png` | packed earthen dirt, warm brown, faint footpaths |
-| `terrain/stone.png` | fitted limestone paving slabs, weathered, light grey-beige |
-| `terrain/water.png` | calm shallow Aegean sea water, deep turquoise-blue, soft ripples, subtle foam (üret: `water-0.png`..`water-3.png` hafif dalga farkıyla animasyon) |
-| `terrain/rock.png` | rough grey rocky ground with cracks and small boulders |
-| `terrain/farm.png` | ploughed farm soil in neat parallel furrows, rich brown, a few green sprouts |
+**konut.png**
+```
+A cluster of Ottoman-Mediterranean townhouses as a 2x2-tile isometric game building, whitewashed limestone walls, terracotta tiled roofs, wooden shutters and small balconies, a chimney, cozy residential, true isometric 2:1 dimetric view, 30-degree top-down orthographic angle, no perspective distortion, single object centered and isolated on a transparent background, soft warm sunlight from the upper-left with a soft ambient-occlusion shadow to the lower-right, painterly stylized 3D game art like Rise of Kingdoms and Ikariam, warm Mediterranean palette of sun-bleached limestone, terracotta clay tile, olive green, natural timber and muted gold, clean readable silhouette, subtle realistic material texture, no black outline, no text, no UI, no characters, no cartoon or toy look, premium mobile city-builder asset, high detail, crisp edges --style raw --ar 1:1
+```
 
-**Kıyı geçişleri** (çim→su): aynı taban, ama bir/iki kenar suya dönüşsün.
-Başa: `an isometric shoreline transition tile, grass meeting shallow water with
-a sandy foam edge —` ve yön belirt: `water on the SOUTH edge` → `shore-s.png`,
-benzer şekilde `n/e/w`, köşeler `ne/nw/se/sw`.
+**carsi.png**
+```
+An Ottoman covered bazaar as a 2x2-tile isometric game building, a stone arcade with pointed arches and striped cloth awnings, market stalls piled with goods and amphorae, lively commerce, true isometric 2:1 dimetric view, 30-degree top-down orthographic angle, no perspective distortion, single object centered and isolated on a transparent background, soft warm sunlight from the upper-left with a soft ambient-occlusion shadow to the lower-right, painterly stylized 3D game art like Rise of Kingdoms and Ikariam, warm Mediterranean palette of sun-bleached limestone, terracotta clay tile, olive green, natural timber and muted gold, clean readable silhouette, subtle realistic material texture, no black outline, no text, no UI, no characters, no cartoon or toy look, premium mobile city-builder asset, high detail, crisp edges --style raw --ar 1:1
+```
 
----
+**ambar.png**
+```
+A stone-and-timber granary and warehouse as a 2x2-tile isometric game building, a big terracotta roof, large wooden loading doors, stacked sacks and barrels outside, true isometric 2:1 dimetric view, 30-degree top-down orthographic angle, no perspective distortion, single object centered and isolated on a transparent background, soft warm sunlight from the upper-left with a soft ambient-occlusion shadow to the lower-right, painterly stylized 3D game art like Rise of Kingdoms and Ikariam, warm Mediterranean palette of sun-bleached limestone, terracotta clay tile, olive green, natural timber and muted gold, clean readable silhouette, subtle realistic material texture, no black outline, no text, no UI, no characters, no cartoon or toy look, premium mobile city-builder asset, high detail, crisp edges --style raw --ar 1:1
+```
 
-## 2. YOL TILE'LARI (taş döşeli, otomatik döşeme seti)
+**kereste.png**
+```
+A timber lumber yard as a 2x2-tile isometric game building, an open wooden workshop under a shingle roof, stacked logs and sawn planks and a sawhorse, true isometric 2:1 dimetric view, 30-degree top-down orthographic angle, no perspective distortion, single object centered and isolated on a transparent background, soft warm sunlight from the upper-left with a soft ambient-occlusion shadow to the lower-right, painterly stylized 3D game art like Rise of Kingdoms and Ikariam, warm Mediterranean palette of sun-bleached limestone, terracotta clay tile, olive green, natural timber and muted gold, clean readable silhouette, subtle realistic material texture, no black outline, no text, no UI, no characters, no cartoon or toy look, premium mobile city-builder asset, high detail, crisp edges --style raw --ar 1:1
+```
 
-Başa: `an isometric stone-paved road tile on a 2:1 diamond base, worn
-cobblestone with sandy limestone edges, blending into bare earth at the sides —`
-ve şekli belirt:
+**tas.png**
+```
+A limestone quarry works as a 2x2-tile isometric game building, cut stone blocks, a wooden derrick crane and a loaded cart, an exposed rock face, true isometric 2:1 dimetric view, 30-degree top-down orthographic angle, no perspective distortion, single object centered and isolated on a transparent background, soft warm sunlight from the upper-left with a soft ambient-occlusion shadow to the lower-right, painterly stylized 3D game art like Rise of Kingdoms and Ikariam, warm Mediterranean palette of sun-bleached limestone, terracotta clay tile, olive green, natural timber and muted gold, clean readable silhouette, subtle realistic material texture, no black outline, no text, no UI, no characters, no cartoon or toy look, premium mobile city-builder asset, high detail, crisp edges --style raw --ar 1:1
+```
 
-| Dosya | Şekil cümlesi |
-|---|---|
-| `roads/straight-ns.png` | a straight road running north-south (top-left to bottom-right) |
-| `roads/straight-ew.png` | a straight road running east-west (top-right to bottom-left) |
-| `roads/corner-ne.png` / `-nw` / `-se` / `-sw` | an L-shaped road corner turning toward the {NE/NW/SE/SW} |
-| `roads/t-n.png` / `-e` / `-s` / `-w` | a T-junction road opening toward {N/E/S/W} |
-| `roads/cross.png` | a four-way crossroads intersection |
-| `roads/end-n.png` / `-e`/`-s`/`-w` | a dead-end road stub facing {N/E/S/W} |
-| `roads/plaza.png` | a paved open plaza / public square, decorative stone pattern |
-| `roads/bridge-ns.png` / `-ew.png` | a short stone bridge over water, low arches, running {N-S / E-W} |
+**kisla.png**
+```
+An Ottoman military barracks as a 3x3-tile isometric game building, stone walls with crenellations around a central drill yard, watch corners and banners, solid and martial, true isometric 2:1 dimetric view, 30-degree top-down orthographic angle, no perspective distortion, single object centered and isolated on a transparent background, soft warm sunlight from the upper-left with a soft ambient-occlusion shadow to the lower-right, painterly stylized 3D game art like Rise of Kingdoms and Ikariam, warm Mediterranean palette of sun-bleached limestone, terracotta clay tile, olive green, natural timber and muted gold, clean readable silhouette, subtle realistic material texture, no black outline, no text, no UI, no characters, no cartoon or toy look, premium mobile city-builder asset, high detail, crisp edges --style raw --ar 1:1
+```
 
----
+**liman.png**
+```
+A Mediterranean trade-harbor building as a 2x2-tile isometric game building at the shoreline, a stone customs warehouse with a timber dock and pier reaching onto turquoise water, crates and a moored wooden trade boat, true isometric 2:1 dimetric view, 30-degree top-down orthographic angle, no perspective distortion, single object centered and isolated on a transparent background, soft warm sunlight from the upper-left with a soft ambient-occlusion shadow to the lower-right, painterly stylized 3D game art like Rise of Kingdoms and Ikariam, warm Mediterranean palette of sun-bleached limestone, terracotta clay tile, olive green, natural timber and muted gold, clean readable silhouette, subtle realistic material texture, no black outline, no text, no UI, no characters, no cartoon or toy look, premium mobile city-builder asset, high detail, crisp edges --style raw --ar 1:1
+```
 
-## 3. BİNALAR (14 oyun yapısı — Osmanlı/Akdeniz)
+**tersane.png**
+```
+An Ottoman shipyard as a 3x2-tile isometric game building on the water, a large timber slipway with a wooden ship hull under construction, scaffolding, ropes and tar barrels, true isometric 2:1 dimetric view, 30-degree top-down orthographic angle, no perspective distortion, single object centered and isolated on a transparent background, soft warm sunlight from the upper-left with a soft ambient-occlusion shadow to the lower-right, painterly stylized 3D game art like Rise of Kingdoms and Ikariam, warm Mediterranean palette of sun-bleached limestone, terracotta clay tile, olive green, natural timber and muted gold, clean readable silhouette, subtle realistic material texture, no black outline, no text, no UI, no characters, no cartoon or toy look, premium mobile city-builder asset, high detail, crisp edges --style raw --ar 1:1
+```
 
-Her bina: **footprint tabanına oturur, taban alt-orta, çatı yukarı taşar.**
-Başa: `a single isometric {FOOTPRINT}-tile building for a Mediterranean-Ottoman
-strategy city, base sitting flat on the ground tiles —`
 
-| Dosya | Footprint | Prompt cümlesi |
-|---|---|---|
-| `buildings/divan.png` | 3×3 | an Ottoman town council hall (divanhane), two storeys of warm limestone, wide terracotta clay-tiled hipped roof, arched windows, a small central lead dome and a flag, stone entrance steps — the grandest civic LANDMARK, clearly larger and taller than houses |
-| `buildings/saray.png` | 3×3 | a grand Ottoman palace, white limestone with an arcaded colonnade, several lead domes and a slender ornamented tower, hint of an inner courtyard, muted gold accents — a majestic royal LANDMARK |
-| `buildings/medrese.png` | 2×2 | an Ottoman medrese (theology college), square building wrapped around an arcaded courtyard of small domed cells, a modest central dome, limestone and plaster |
-| `buildings/hamam.png` | 2×2 | an Ottoman hamam bathhouse, low massive stone block topped by several small lead domes pierced with star-shaped glass vents, a smoking chimney |
-| `buildings/elcilik.png` | 2×2 | a dignified Mediterranean embassy residence, two storeys of stone, a small columned portico, tiled roof, a pair of flags |
-| `buildings/konut.png` | 2×2 | a cluster of Ottoman-Mediterranean townhouses, whitewashed limestone walls, terracotta tiled roofs, wooden shutters and small balconies, a chimney — cozy residential (istersen `konut-a/b/c.png` varyant) |
-| `buildings/carsi.png` | 2×2 | an Ottoman covered bazaar, a stone arcade with pointed arches and striped cloth awnings, market stalls piled with goods and amphorae — lively commerce |
-| `buildings/ambar.png` | 2×2 | a stone-and-timber granary and warehouse, big terracotta roof, large wooden loading doors, stacked sacks and barrels outside |
-| `buildings/kereste.png` | 2×2 | a timber lumber yard, an open wooden workshop under a shingle roof, stacked logs and sawn planks, a sawhorse |
-| `buildings/tas.png` | 2×2 | a limestone quarry works, cut stone blocks, a wooden derrick crane and a loaded cart, an exposed rock face |
-| `buildings/kisla.png` | 3×3 | an Ottoman military barracks, stone walls with crenellations around a central drill yard, watch corners and banners — solid and martial |
-| `buildings/liman.png` | 2×2 | a Mediterranean trade-harbor building at the shoreline, a stone customs warehouse with a timber dock/pier reaching onto turquoise water, crates and a moored wooden trade boat |
-| `buildings/tersane.png` | 3×2 | an Ottoman shipyard on the water, a large timber slipway with a wooden ship hull under construction and scaffolding, ropes and tar barrels |
+## TERRAIN (terrain/)
 
-**Seviye varyantı (opsiyonel, güzel olur):** her bina için biraz daha
-büyük/görkemli `-l2` ve `-l3` versiyonu (ek kat, daha çok kubbe/süs). Vermezsen
-tek görsel + seviye rozeti kullanılır.
+**grass.png**
+```
+a single isometric ground tile with a 2:1 diamond top face and a thin soil cross-section lip on the two front edges, seamlessly tileable, matte natural surface, lush but muted Mediterranean grass with faint dry patches and tiny pebbles, true isometric 2:1 dimetric view, 30-degree top-down orthographic angle, no perspective distortion, single object centered and isolated on a transparent background, soft warm sunlight from the upper-left with a soft ambient-occlusion shadow to the lower-right, painterly stylized 3D game art like Rise of Kingdoms and Ikariam, warm Mediterranean palette of sun-bleached limestone, terracotta clay tile, olive green, natural timber and muted gold, clean readable silhouette, subtle realistic material texture, no black outline, no text, no UI, no characters, no cartoon or toy look, premium mobile city-builder asset, high detail, crisp edges --style raw --ar 1:1
+```
 
----
+**dirt.png**
+```
+a single isometric ground tile with a 2:1 diamond top face and a thin soil cross-section lip on the two front edges, seamlessly tileable, matte natural surface, packed warm-brown earthen dirt with faint footpaths, true isometric 2:1 dimetric view, 30-degree top-down orthographic angle, no perspective distortion, single object centered and isolated on a transparent background, soft warm sunlight from the upper-left with a soft ambient-occlusion shadow to the lower-right, painterly stylized 3D game art like Rise of Kingdoms and Ikariam, warm Mediterranean palette of sun-bleached limestone, terracotta clay tile, olive green, natural timber and muted gold, clean readable silhouette, subtle realistic material texture, no black outline, no text, no UI, no characters, no cartoon or toy look, premium mobile city-builder asset, high detail, crisp edges --style raw --ar 1:1
+```
 
-## 4. SURLAR (şehir duvarı — otomatik döşeme)
+**stone.png**
+```
+a single isometric ground tile with a 2:1 diamond top face and a thin soil cross-section lip on the two front edges, seamlessly tileable, matte natural surface, fitted weathered limestone paving slabs in light grey-beige, true isometric 2:1 dimetric view, 30-degree top-down orthographic angle, no perspective distortion, single object centered and isolated on a transparent background, soft warm sunlight from the upper-left with a soft ambient-occlusion shadow to the lower-right, painterly stylized 3D game art like Rise of Kingdoms and Ikariam, warm Mediterranean palette of sun-bleached limestone, terracotta clay tile, olive green, natural timber and muted gold, clean readable silhouette, subtle realistic material texture, no black outline, no text, no UI, no characters, no cartoon or toy look, premium mobile city-builder asset, high detail, crisp edges --style raw --ar 1:1
+```
 
-Başa: `an isometric segment of Ottoman city wall on a 2:1 diamond base, warm
-limestone ashlar blocks with crenellations (merlons), a walkway on top —`
+**rock.png**
+```
+a single isometric ground tile with a 2:1 diamond top face and a thin soil cross-section lip on the two front edges, seamlessly tileable, matte natural surface, rough grey rocky ground with cracks and small boulders, true isometric 2:1 dimetric view, 30-degree top-down orthographic angle, no perspective distortion, single object centered and isolated on a transparent background, soft warm sunlight from the upper-left with a soft ambient-occlusion shadow to the lower-right, painterly stylized 3D game art like Rise of Kingdoms and Ikariam, warm Mediterranean palette of sun-bleached limestone, terracotta clay tile, olive green, natural timber and muted gold, clean readable silhouette, subtle realistic material texture, no black outline, no text, no UI, no characters, no cartoon or toy look, premium mobile city-builder asset, high detail, crisp edges --style raw --ar 1:1
+```
 
-| Dosya | Şekil |
-|---|---|
-| `buildings/wall-ns.png` / `wall-ew.png` | straight wall running {N-S / E-W} |
-| `buildings/wall-corner-ne.png` … `-sw.png` | a corner wall turning {NE…SW} |
-| `buildings/wall-gate.png` | a fortified gatehouse with a pointed stone arch and wooden doors |
-| `buildings/wall-tower.png` | a round crenellated stone watchtower, slightly taller |
+**farm.png**
+```
+a single isometric ground tile with a 2:1 diamond top face and a thin soil cross-section lip on the two front edges, seamlessly tileable, matte natural surface, ploughed farm soil in neat parallel furrows, rich brown, a few green sprouts, true isometric 2:1 dimetric view, 30-degree top-down orthographic angle, no perspective distortion, single object centered and isolated on a transparent background, soft warm sunlight from the upper-left with a soft ambient-occlusion shadow to the lower-right, painterly stylized 3D game art like Rise of Kingdoms and Ikariam, warm Mediterranean palette of sun-bleached limestone, terracotta clay tile, olive green, natural timber and muted gold, clean readable silhouette, subtle realistic material texture, no black outline, no text, no UI, no characters, no cartoon or toy look, premium mobile city-builder asset, high detail, crisp edges --style raw --ar 1:1
+```
 
----
+**water-0.png**
+```
+a single isometric water tile with a 2:1 diamond top face, seamlessly tileable, calm shallow Aegean sea in deep turquoise-blue with soft gentle ripples and a touch of foam, true isometric 2:1 dimetric view, 30-degree top-down orthographic angle, no perspective distortion, single object centered and isolated on a transparent background, soft warm sunlight from the upper-left with a soft ambient-occlusion shadow to the lower-right, painterly stylized 3D game art like Rise of Kingdoms and Ikariam, warm Mediterranean palette of sun-bleached limestone, terracotta clay tile, olive green, natural timber and muted gold, clean readable silhouette, subtle realistic material texture, no black outline, no text, no UI, no characters, no cartoon or toy look, premium mobile city-builder asset, high detail, crisp edges --style raw --ar 1:1
+```
 
-## 5. SU / LİMAN EK PARÇALARI
+**water-1.png**
+```
+a single isometric water tile with a 2:1 diamond top face, seamlessly tileable, calm shallow Aegean sea in deep turquoise-blue with slightly different soft ripples for animation frame two, true isometric 2:1 dimetric view, 30-degree top-down orthographic angle, no perspective distortion, single object centered and isolated on a transparent background, soft warm sunlight from the upper-left with a soft ambient-occlusion shadow to the lower-right, painterly stylized 3D game art like Rise of Kingdoms and Ikariam, warm Mediterranean palette of sun-bleached limestone, terracotta clay tile, olive green, natural timber and muted gold, clean readable silhouette, subtle realistic material texture, no black outline, no text, no UI, no characters, no cartoon or toy look, premium mobile city-builder asset, high detail, crisp edges --style raw --ar 1:1
+```
 
-Başa: `an isometric harbor prop, isolated, sitting on shallow turquoise water —`
+**water-2.png**
+```
+a single isometric water tile with a 2:1 diamond top face, seamlessly tileable, calm shallow Aegean sea in deep turquoise-blue with soft ripples shifted for animation frame three, true isometric 2:1 dimetric view, 30-degree top-down orthographic angle, no perspective distortion, single object centered and isolated on a transparent background, soft warm sunlight from the upper-left with a soft ambient-occlusion shadow to the lower-right, painterly stylized 3D game art like Rise of Kingdoms and Ikariam, warm Mediterranean palette of sun-bleached limestone, terracotta clay tile, olive green, natural timber and muted gold, clean readable silhouette, subtle realistic material texture, no black outline, no text, no UI, no characters, no cartoon or toy look, premium mobile city-builder asset, high detail, crisp edges --style raw --ar 1:1
+```
 
-| Dosya | Prompt |
-|---|---|
-| `water/dock.png` | a wooden dock platform on stilts extending over water |
-| `water/pier.png` | a long narrow wooden pier walkway |
-| `water/boat.png` | a small Ottoman-Mediterranean wooden trade boat, furled sail |
-| `water/fishing.png` | a fishing spot: nets on poles and a rowboat |
+**water-3.png**
+```
+a single isometric water tile with a 2:1 diamond top face, seamlessly tileable, calm shallow Aegean sea in deep turquoise-blue with soft ripples shifted for animation frame four, true isometric 2:1 dimetric view, 30-degree top-down orthographic angle, no perspective distortion, single object centered and isolated on a transparent background, soft warm sunlight from the upper-left with a soft ambient-occlusion shadow to the lower-right, painterly stylized 3D game art like Rise of Kingdoms and Ikariam, warm Mediterranean palette of sun-bleached limestone, terracotta clay tile, olive green, natural timber and muted gold, clean readable silhouette, subtle realistic material texture, no black outline, no text, no UI, no characters, no cartoon or toy look, premium mobile city-builder asset, high detail, crisp edges --style raw --ar 1:1
+```
 
----
+**shore-n.png**
+```
+an isometric shoreline transition tile, grass meeting shallow turquoise water with a soft sandy foam edge, water along the north (top) edge, true isometric 2:1 dimetric view, 30-degree top-down orthographic angle, no perspective distortion, single object centered and isolated on a transparent background, soft warm sunlight from the upper-left with a soft ambient-occlusion shadow to the lower-right, painterly stylized 3D game art like Rise of Kingdoms and Ikariam, warm Mediterranean palette of sun-bleached limestone, terracotta clay tile, olive green, natural timber and muted gold, clean readable silhouette, subtle realistic material texture, no black outline, no text, no UI, no characters, no cartoon or toy look, premium mobile city-builder asset, high detail, crisp edges --style raw --ar 1:1
+```
 
-## 6. DEKORASYON (küçük, taban alt-orta anchor)
+**shore-e.png**
+```
+an isometric shoreline transition tile, grass meeting shallow turquoise water with a soft sandy foam edge, water along the east (right) edge, true isometric 2:1 dimetric view, 30-degree top-down orthographic angle, no perspective distortion, single object centered and isolated on a transparent background, soft warm sunlight from the upper-left with a soft ambient-occlusion shadow to the lower-right, painterly stylized 3D game art like Rise of Kingdoms and Ikariam, warm Mediterranean palette of sun-bleached limestone, terracotta clay tile, olive green, natural timber and muted gold, clean readable silhouette, subtle realistic material texture, no black outline, no text, no UI, no characters, no cartoon or toy look, premium mobile city-builder asset, high detail, crisp edges --style raw --ar 1:1
+```
 
-Başa: `a single small isometric decoration prop, isolated —`
+**shore-s.png**
+```
+an isometric shoreline transition tile, grass meeting shallow turquoise water with a soft sandy foam edge, water along the south (bottom) edge, true isometric 2:1 dimetric view, 30-degree top-down orthographic angle, no perspective distortion, single object centered and isolated on a transparent background, soft warm sunlight from the upper-left with a soft ambient-occlusion shadow to the lower-right, painterly stylized 3D game art like Rise of Kingdoms and Ikariam, warm Mediterranean palette of sun-bleached limestone, terracotta clay tile, olive green, natural timber and muted gold, clean readable silhouette, subtle realistic material texture, no black outline, no text, no UI, no characters, no cartoon or toy look, premium mobile city-builder asset, high detail, crisp edges --style raw --ar 1:1
+```
 
-| Dosya | Prompt |
-|---|---|
-| `decor/cypress.png` | a tall slender Mediterranean cypress tree, dark green |
-| `decor/olive-tree.png` | a gnarled olive tree, silvery-green canopy |
-| `decor/broadleaf-tree.png` | a rounded broadleaf shade tree, warm green |
-| `decor/bush.png` | a low round shrub |
-| `decor/flower.png` | a small patch of wildflowers |
-| `decor/rock.png` | a cluster of weathered grey boulders |
-| `decor/barrel.png` | a wooden barrel |
-| `decor/crate.png` | a wooden cargo crate |
-| `decor/amphora.png` | a terracotta amphora / clay jar |
-| `decor/bench.png` | a stone or wooden bench |
-| `decor/lamp.png` | an ornate iron street lamp |
-| `decor/fountain.png` | an Ottoman stone fountain (çeşme) with flowing water |
-| `decor/market-stall.png` | a small market stall with striped awning and goods |
-| `decor/cart.png` | a wooden hand cart with sacks |
-| `decor/sign.png` | a wooden signpost |
-| `decor/statue.png` | a carved stone statue on a pedestal |
+**shore-w.png**
+```
+an isometric shoreline transition tile, grass meeting shallow turquoise water with a soft sandy foam edge, water along the west (left) edge, true isometric 2:1 dimetric view, 30-degree top-down orthographic angle, no perspective distortion, single object centered and isolated on a transparent background, soft warm sunlight from the upper-left with a soft ambient-occlusion shadow to the lower-right, painterly stylized 3D game art like Rise of Kingdoms and Ikariam, warm Mediterranean palette of sun-bleached limestone, terracotta clay tile, olive green, natural timber and muted gold, clean readable silhouette, subtle realistic material texture, no black outline, no text, no UI, no characters, no cartoon or toy look, premium mobile city-builder asset, high detail, crisp edges --style raw --ar 1:1
+```
 
----
+**shore-ne.png**
+```
+an isometric shoreline outer-corner tile, grass with shallow turquoise water wrapping the north-east corner, soft sandy foam edge, true isometric 2:1 dimetric view, 30-degree top-down orthographic angle, no perspective distortion, single object centered and isolated on a transparent background, soft warm sunlight from the upper-left with a soft ambient-occlusion shadow to the lower-right, painterly stylized 3D game art like Rise of Kingdoms and Ikariam, warm Mediterranean palette of sun-bleached limestone, terracotta clay tile, olive green, natural timber and muted gold, clean readable silhouette, subtle realistic material texture, no black outline, no text, no UI, no characters, no cartoon or toy look, premium mobile city-builder asset, high detail, crisp edges --style raw --ar 1:1
+```
 
-## 7. ÜRETİM AKIŞI (öneri)
+**shore-nw.png**
+```
+an isometric shoreline outer-corner tile, grass with shallow turquoise water wrapping the north-west corner, soft sandy foam edge, true isometric 2:1 dimetric view, 30-degree top-down orthographic angle, no perspective distortion, single object centered and isolated on a transparent background, soft warm sunlight from the upper-left with a soft ambient-occlusion shadow to the lower-right, painterly stylized 3D game art like Rise of Kingdoms and Ikariam, warm Mediterranean palette of sun-bleached limestone, terracotta clay tile, olive green, natural timber and muted gold, clean readable silhouette, subtle realistic material texture, no black outline, no text, no UI, no characters, no cartoon or toy look, premium mobile city-builder asset, high detail, crisp edges --style raw --ar 1:1
+```
 
-1. Önce **1 bina** (mesela `divan`) üret, stilini beğen.
-2. Onun **stil referansını** (Midjourney `--sref`, ya da üreticinin "use as
-   style") sabitle.
-3. Diğer TÜM asset'leri o referansla üret → hepsi kardeş görünür.
-4. Alfa yoksa arka planı toplu sil (remove.bg / `rembg` batch).
-5. `ASSET_SPEC.md`'deki klasör/isim düzeniyle zip'le, bana gönder.
-6. Eksikler olursa sorun değil — gelenleri kurarım, eksiği `TODO_ASSET`
-   işaretlerim.
+**shore-se.png**
+```
+an isometric shoreline outer-corner tile, grass with shallow turquoise water wrapping the south-east corner, soft sandy foam edge, true isometric 2:1 dimetric view, 30-degree top-down orthographic angle, no perspective distortion, single object centered and isolated on a transparent background, soft warm sunlight from the upper-left with a soft ambient-occlusion shadow to the lower-right, painterly stylized 3D game art like Rise of Kingdoms and Ikariam, warm Mediterranean palette of sun-bleached limestone, terracotta clay tile, olive green, natural timber and muted gold, clean readable silhouette, subtle realistic material texture, no black outline, no text, no UI, no characters, no cartoon or toy look, premium mobile city-builder asset, high detail, crisp edges --style raw --ar 1:1
+```
 
-> Not: Renk/ışık kaçarsa (bir bina diğerlerinden parlak/farklı açıda), onu
-> tek başına yeniden üret — karışık ışık/açı, "farklı yerlerden gelmiş" hissi
-> verir ve premium görüntüyü bozar.
+**shore-sw.png**
+```
+an isometric shoreline outer-corner tile, grass with shallow turquoise water wrapping the south-west corner, soft sandy foam edge, true isometric 2:1 dimetric view, 30-degree top-down orthographic angle, no perspective distortion, single object centered and isolated on a transparent background, soft warm sunlight from the upper-left with a soft ambient-occlusion shadow to the lower-right, painterly stylized 3D game art like Rise of Kingdoms and Ikariam, warm Mediterranean palette of sun-bleached limestone, terracotta clay tile, olive green, natural timber and muted gold, clean readable silhouette, subtle realistic material texture, no black outline, no text, no UI, no characters, no cartoon or toy look, premium mobile city-builder asset, high detail, crisp edges --style raw --ar 1:1
+```
+
+
+## YOLLAR (roads/)
+
+**straight-ns.png**
+```
+a single isometric stone-paved road tile on a 2:1 diamond base, worn cobblestone with sandy limestone edges blending into bare earth, a straight road running north-south from top-left to bottom-right, true isometric 2:1 dimetric view, 30-degree top-down orthographic angle, no perspective distortion, single object centered and isolated on a transparent background, soft warm sunlight from the upper-left with a soft ambient-occlusion shadow to the lower-right, painterly stylized 3D game art like Rise of Kingdoms and Ikariam, warm Mediterranean palette of sun-bleached limestone, terracotta clay tile, olive green, natural timber and muted gold, clean readable silhouette, subtle realistic material texture, no black outline, no text, no UI, no characters, no cartoon or toy look, premium mobile city-builder asset, high detail, crisp edges --style raw --ar 1:1
+```
+
+**straight-ew.png**
+```
+a single isometric stone-paved road tile on a 2:1 diamond base, worn cobblestone with sandy limestone edges blending into bare earth, a straight road running east-west from top-right to bottom-left, true isometric 2:1 dimetric view, 30-degree top-down orthographic angle, no perspective distortion, single object centered and isolated on a transparent background, soft warm sunlight from the upper-left with a soft ambient-occlusion shadow to the lower-right, painterly stylized 3D game art like Rise of Kingdoms and Ikariam, warm Mediterranean palette of sun-bleached limestone, terracotta clay tile, olive green, natural timber and muted gold, clean readable silhouette, subtle realistic material texture, no black outline, no text, no UI, no characters, no cartoon or toy look, premium mobile city-builder asset, high detail, crisp edges --style raw --ar 1:1
+```
+
+**corner-ne.png**
+```
+a single isometric stone-paved road tile on a 2:1 diamond base, worn cobblestone with sandy limestone edges blending into bare earth, an L-shaped road corner turning toward the north-east, true isometric 2:1 dimetric view, 30-degree top-down orthographic angle, no perspective distortion, single object centered and isolated on a transparent background, soft warm sunlight from the upper-left with a soft ambient-occlusion shadow to the lower-right, painterly stylized 3D game art like Rise of Kingdoms and Ikariam, warm Mediterranean palette of sun-bleached limestone, terracotta clay tile, olive green, natural timber and muted gold, clean readable silhouette, subtle realistic material texture, no black outline, no text, no UI, no characters, no cartoon or toy look, premium mobile city-builder asset, high detail, crisp edges --style raw --ar 1:1
+```
+
+**corner-nw.png**
+```
+a single isometric stone-paved road tile on a 2:1 diamond base, worn cobblestone with sandy limestone edges blending into bare earth, an L-shaped road corner turning toward the north-west, true isometric 2:1 dimetric view, 30-degree top-down orthographic angle, no perspective distortion, single object centered and isolated on a transparent background, soft warm sunlight from the upper-left with a soft ambient-occlusion shadow to the lower-right, painterly stylized 3D game art like Rise of Kingdoms and Ikariam, warm Mediterranean palette of sun-bleached limestone, terracotta clay tile, olive green, natural timber and muted gold, clean readable silhouette, subtle realistic material texture, no black outline, no text, no UI, no characters, no cartoon or toy look, premium mobile city-builder asset, high detail, crisp edges --style raw --ar 1:1
+```
+
+**corner-se.png**
+```
+a single isometric stone-paved road tile on a 2:1 diamond base, worn cobblestone with sandy limestone edges blending into bare earth, an L-shaped road corner turning toward the south-east, true isometric 2:1 dimetric view, 30-degree top-down orthographic angle, no perspective distortion, single object centered and isolated on a transparent background, soft warm sunlight from the upper-left with a soft ambient-occlusion shadow to the lower-right, painterly stylized 3D game art like Rise of Kingdoms and Ikariam, warm Mediterranean palette of sun-bleached limestone, terracotta clay tile, olive green, natural timber and muted gold, clean readable silhouette, subtle realistic material texture, no black outline, no text, no UI, no characters, no cartoon or toy look, premium mobile city-builder asset, high detail, crisp edges --style raw --ar 1:1
+```
+
+**corner-sw.png**
+```
+a single isometric stone-paved road tile on a 2:1 diamond base, worn cobblestone with sandy limestone edges blending into bare earth, an L-shaped road corner turning toward the south-west, true isometric 2:1 dimetric view, 30-degree top-down orthographic angle, no perspective distortion, single object centered and isolated on a transparent background, soft warm sunlight from the upper-left with a soft ambient-occlusion shadow to the lower-right, painterly stylized 3D game art like Rise of Kingdoms and Ikariam, warm Mediterranean palette of sun-bleached limestone, terracotta clay tile, olive green, natural timber and muted gold, clean readable silhouette, subtle realistic material texture, no black outline, no text, no UI, no characters, no cartoon or toy look, premium mobile city-builder asset, high detail, crisp edges --style raw --ar 1:1
+```
+
+**t-n.png**
+```
+a single isometric stone-paved road tile on a 2:1 diamond base, worn cobblestone with sandy limestone edges blending into bare earth, a T-junction road opening toward the north, true isometric 2:1 dimetric view, 30-degree top-down orthographic angle, no perspective distortion, single object centered and isolated on a transparent background, soft warm sunlight from the upper-left with a soft ambient-occlusion shadow to the lower-right, painterly stylized 3D game art like Rise of Kingdoms and Ikariam, warm Mediterranean palette of sun-bleached limestone, terracotta clay tile, olive green, natural timber and muted gold, clean readable silhouette, subtle realistic material texture, no black outline, no text, no UI, no characters, no cartoon or toy look, premium mobile city-builder asset, high detail, crisp edges --style raw --ar 1:1
+```
+
+**t-e.png**
+```
+a single isometric stone-paved road tile on a 2:1 diamond base, worn cobblestone with sandy limestone edges blending into bare earth, a T-junction road opening toward the east, true isometric 2:1 dimetric view, 30-degree top-down orthographic angle, no perspective distortion, single object centered and isolated on a transparent background, soft warm sunlight from the upper-left with a soft ambient-occlusion shadow to the lower-right, painterly stylized 3D game art like Rise of Kingdoms and Ikariam, warm Mediterranean palette of sun-bleached limestone, terracotta clay tile, olive green, natural timber and muted gold, clean readable silhouette, subtle realistic material texture, no black outline, no text, no UI, no characters, no cartoon or toy look, premium mobile city-builder asset, high detail, crisp edges --style raw --ar 1:1
+```
+
+**t-s.png**
+```
+a single isometric stone-paved road tile on a 2:1 diamond base, worn cobblestone with sandy limestone edges blending into bare earth, a T-junction road opening toward the south, true isometric 2:1 dimetric view, 30-degree top-down orthographic angle, no perspective distortion, single object centered and isolated on a transparent background, soft warm sunlight from the upper-left with a soft ambient-occlusion shadow to the lower-right, painterly stylized 3D game art like Rise of Kingdoms and Ikariam, warm Mediterranean palette of sun-bleached limestone, terracotta clay tile, olive green, natural timber and muted gold, clean readable silhouette, subtle realistic material texture, no black outline, no text, no UI, no characters, no cartoon or toy look, premium mobile city-builder asset, high detail, crisp edges --style raw --ar 1:1
+```
+
+**t-w.png**
+```
+a single isometric stone-paved road tile on a 2:1 diamond base, worn cobblestone with sandy limestone edges blending into bare earth, a T-junction road opening toward the west, true isometric 2:1 dimetric view, 30-degree top-down orthographic angle, no perspective distortion, single object centered and isolated on a transparent background, soft warm sunlight from the upper-left with a soft ambient-occlusion shadow to the lower-right, painterly stylized 3D game art like Rise of Kingdoms and Ikariam, warm Mediterranean palette of sun-bleached limestone, terracotta clay tile, olive green, natural timber and muted gold, clean readable silhouette, subtle realistic material texture, no black outline, no text, no UI, no characters, no cartoon or toy look, premium mobile city-builder asset, high detail, crisp edges --style raw --ar 1:1
+```
+
+**cross.png**
+```
+a single isometric stone-paved road tile on a 2:1 diamond base, worn cobblestone with sandy limestone edges blending into bare earth, a four-way crossroads intersection, true isometric 2:1 dimetric view, 30-degree top-down orthographic angle, no perspective distortion, single object centered and isolated on a transparent background, soft warm sunlight from the upper-left with a soft ambient-occlusion shadow to the lower-right, painterly stylized 3D game art like Rise of Kingdoms and Ikariam, warm Mediterranean palette of sun-bleached limestone, terracotta clay tile, olive green, natural timber and muted gold, clean readable silhouette, subtle realistic material texture, no black outline, no text, no UI, no characters, no cartoon or toy look, premium mobile city-builder asset, high detail, crisp edges --style raw --ar 1:1
+```
+
+**end-n.png**
+```
+a single isometric stone-paved road tile on a 2:1 diamond base, worn cobblestone with sandy limestone edges blending into bare earth, a dead-end road stub facing north, true isometric 2:1 dimetric view, 30-degree top-down orthographic angle, no perspective distortion, single object centered and isolated on a transparent background, soft warm sunlight from the upper-left with a soft ambient-occlusion shadow to the lower-right, painterly stylized 3D game art like Rise of Kingdoms and Ikariam, warm Mediterranean palette of sun-bleached limestone, terracotta clay tile, olive green, natural timber and muted gold, clean readable silhouette, subtle realistic material texture, no black outline, no text, no UI, no characters, no cartoon or toy look, premium mobile city-builder asset, high detail, crisp edges --style raw --ar 1:1
+```
+
+**end-e.png**
+```
+a single isometric stone-paved road tile on a 2:1 diamond base, worn cobblestone with sandy limestone edges blending into bare earth, a dead-end road stub facing east, true isometric 2:1 dimetric view, 30-degree top-down orthographic angle, no perspective distortion, single object centered and isolated on a transparent background, soft warm sunlight from the upper-left with a soft ambient-occlusion shadow to the lower-right, painterly stylized 3D game art like Rise of Kingdoms and Ikariam, warm Mediterranean palette of sun-bleached limestone, terracotta clay tile, olive green, natural timber and muted gold, clean readable silhouette, subtle realistic material texture, no black outline, no text, no UI, no characters, no cartoon or toy look, premium mobile city-builder asset, high detail, crisp edges --style raw --ar 1:1
+```
+
+**end-s.png**
+```
+a single isometric stone-paved road tile on a 2:1 diamond base, worn cobblestone with sandy limestone edges blending into bare earth, a dead-end road stub facing south, true isometric 2:1 dimetric view, 30-degree top-down orthographic angle, no perspective distortion, single object centered and isolated on a transparent background, soft warm sunlight from the upper-left with a soft ambient-occlusion shadow to the lower-right, painterly stylized 3D game art like Rise of Kingdoms and Ikariam, warm Mediterranean palette of sun-bleached limestone, terracotta clay tile, olive green, natural timber and muted gold, clean readable silhouette, subtle realistic material texture, no black outline, no text, no UI, no characters, no cartoon or toy look, premium mobile city-builder asset, high detail, crisp edges --style raw --ar 1:1
+```
+
+**end-w.png**
+```
+a single isometric stone-paved road tile on a 2:1 diamond base, worn cobblestone with sandy limestone edges blending into bare earth, a dead-end road stub facing west, true isometric 2:1 dimetric view, 30-degree top-down orthographic angle, no perspective distortion, single object centered and isolated on a transparent background, soft warm sunlight from the upper-left with a soft ambient-occlusion shadow to the lower-right, painterly stylized 3D game art like Rise of Kingdoms and Ikariam, warm Mediterranean palette of sun-bleached limestone, terracotta clay tile, olive green, natural timber and muted gold, clean readable silhouette, subtle realistic material texture, no black outline, no text, no UI, no characters, no cartoon or toy look, premium mobile city-builder asset, high detail, crisp edges --style raw --ar 1:1
+```
+
+**plaza.png**
+```
+a single isometric stone-paved road tile on a 2:1 diamond base, worn cobblestone with sandy limestone edges blending into bare earth, a paved open plaza and public square with a decorative stone pattern, true isometric 2:1 dimetric view, 30-degree top-down orthographic angle, no perspective distortion, single object centered and isolated on a transparent background, soft warm sunlight from the upper-left with a soft ambient-occlusion shadow to the lower-right, painterly stylized 3D game art like Rise of Kingdoms and Ikariam, warm Mediterranean palette of sun-bleached limestone, terracotta clay tile, olive green, natural timber and muted gold, clean readable silhouette, subtle realistic material texture, no black outline, no text, no UI, no characters, no cartoon or toy look, premium mobile city-builder asset, high detail, crisp edges --style raw --ar 1:1
+```
+
+**bridge-ns.png**
+```
+a single isometric stone-paved road tile on a 2:1 diamond base, worn cobblestone with sandy limestone edges blending into bare earth, a short low-arched stone bridge over water running north-south, true isometric 2:1 dimetric view, 30-degree top-down orthographic angle, no perspective distortion, single object centered and isolated on a transparent background, soft warm sunlight from the upper-left with a soft ambient-occlusion shadow to the lower-right, painterly stylized 3D game art like Rise of Kingdoms and Ikariam, warm Mediterranean palette of sun-bleached limestone, terracotta clay tile, olive green, natural timber and muted gold, clean readable silhouette, subtle realistic material texture, no black outline, no text, no UI, no characters, no cartoon or toy look, premium mobile city-builder asset, high detail, crisp edges --style raw --ar 1:1
+```
+
+**bridge-ew.png**
+```
+a single isometric stone-paved road tile on a 2:1 diamond base, worn cobblestone with sandy limestone edges blending into bare earth, a short low-arched stone bridge over water running east-west, true isometric 2:1 dimetric view, 30-degree top-down orthographic angle, no perspective distortion, single object centered and isolated on a transparent background, soft warm sunlight from the upper-left with a soft ambient-occlusion shadow to the lower-right, painterly stylized 3D game art like Rise of Kingdoms and Ikariam, warm Mediterranean palette of sun-bleached limestone, terracotta clay tile, olive green, natural timber and muted gold, clean readable silhouette, subtle realistic material texture, no black outline, no text, no UI, no characters, no cartoon or toy look, premium mobile city-builder asset, high detail, crisp edges --style raw --ar 1:1
+```
+
+
+## SURLAR (buildings/)
+
+**wall-ns.png**
+```
+a single isometric segment of Ottoman city wall on a 2:1 diamond base, warm limestone ashlar blocks with crenellated merlons and a walkway on top, a straight wall running north-south, true isometric 2:1 dimetric view, 30-degree top-down orthographic angle, no perspective distortion, single object centered and isolated on a transparent background, soft warm sunlight from the upper-left with a soft ambient-occlusion shadow to the lower-right, painterly stylized 3D game art like Rise of Kingdoms and Ikariam, warm Mediterranean palette of sun-bleached limestone, terracotta clay tile, olive green, natural timber and muted gold, clean readable silhouette, subtle realistic material texture, no black outline, no text, no UI, no characters, no cartoon or toy look, premium mobile city-builder asset, high detail, crisp edges --style raw --ar 1:1
+```
+
+**wall-ew.png**
+```
+a single isometric segment of Ottoman city wall on a 2:1 diamond base, warm limestone ashlar blocks with crenellated merlons and a walkway on top, a straight wall running east-west, true isometric 2:1 dimetric view, 30-degree top-down orthographic angle, no perspective distortion, single object centered and isolated on a transparent background, soft warm sunlight from the upper-left with a soft ambient-occlusion shadow to the lower-right, painterly stylized 3D game art like Rise of Kingdoms and Ikariam, warm Mediterranean palette of sun-bleached limestone, terracotta clay tile, olive green, natural timber and muted gold, clean readable silhouette, subtle realistic material texture, no black outline, no text, no UI, no characters, no cartoon or toy look, premium mobile city-builder asset, high detail, crisp edges --style raw --ar 1:1
+```
+
+**wall-corner-ne.png**
+```
+a single isometric segment of Ottoman city wall on a 2:1 diamond base, warm limestone ashlar blocks with crenellated merlons and a walkway on top, a corner turning toward the north-east, true isometric 2:1 dimetric view, 30-degree top-down orthographic angle, no perspective distortion, single object centered and isolated on a transparent background, soft warm sunlight from the upper-left with a soft ambient-occlusion shadow to the lower-right, painterly stylized 3D game art like Rise of Kingdoms and Ikariam, warm Mediterranean palette of sun-bleached limestone, terracotta clay tile, olive green, natural timber and muted gold, clean readable silhouette, subtle realistic material texture, no black outline, no text, no UI, no characters, no cartoon or toy look, premium mobile city-builder asset, high detail, crisp edges --style raw --ar 1:1
+```
+
+**wall-corner-nw.png**
+```
+a single isometric segment of Ottoman city wall on a 2:1 diamond base, warm limestone ashlar blocks with crenellated merlons and a walkway on top, a corner turning toward the north-west, true isometric 2:1 dimetric view, 30-degree top-down orthographic angle, no perspective distortion, single object centered and isolated on a transparent background, soft warm sunlight from the upper-left with a soft ambient-occlusion shadow to the lower-right, painterly stylized 3D game art like Rise of Kingdoms and Ikariam, warm Mediterranean palette of sun-bleached limestone, terracotta clay tile, olive green, natural timber and muted gold, clean readable silhouette, subtle realistic material texture, no black outline, no text, no UI, no characters, no cartoon or toy look, premium mobile city-builder asset, high detail, crisp edges --style raw --ar 1:1
+```
+
+**wall-corner-se.png**
+```
+a single isometric segment of Ottoman city wall on a 2:1 diamond base, warm limestone ashlar blocks with crenellated merlons and a walkway on top, a corner turning toward the south-east, true isometric 2:1 dimetric view, 30-degree top-down orthographic angle, no perspective distortion, single object centered and isolated on a transparent background, soft warm sunlight from the upper-left with a soft ambient-occlusion shadow to the lower-right, painterly stylized 3D game art like Rise of Kingdoms and Ikariam, warm Mediterranean palette of sun-bleached limestone, terracotta clay tile, olive green, natural timber and muted gold, clean readable silhouette, subtle realistic material texture, no black outline, no text, no UI, no characters, no cartoon or toy look, premium mobile city-builder asset, high detail, crisp edges --style raw --ar 1:1
+```
+
+**wall-corner-sw.png**
+```
+a single isometric segment of Ottoman city wall on a 2:1 diamond base, warm limestone ashlar blocks with crenellated merlons and a walkway on top, a corner turning toward the south-west, true isometric 2:1 dimetric view, 30-degree top-down orthographic angle, no perspective distortion, single object centered and isolated on a transparent background, soft warm sunlight from the upper-left with a soft ambient-occlusion shadow to the lower-right, painterly stylized 3D game art like Rise of Kingdoms and Ikariam, warm Mediterranean palette of sun-bleached limestone, terracotta clay tile, olive green, natural timber and muted gold, clean readable silhouette, subtle realistic material texture, no black outline, no text, no UI, no characters, no cartoon or toy look, premium mobile city-builder asset, high detail, crisp edges --style raw --ar 1:1
+```
+
+**wall-gate.png**
+```
+a single isometric segment of Ottoman city wall on a 2:1 diamond base, warm limestone ashlar blocks with crenellated merlons and a walkway on top, a fortified gatehouse with a pointed stone arch and heavy wooden doors, true isometric 2:1 dimetric view, 30-degree top-down orthographic angle, no perspective distortion, single object centered and isolated on a transparent background, soft warm sunlight from the upper-left with a soft ambient-occlusion shadow to the lower-right, painterly stylized 3D game art like Rise of Kingdoms and Ikariam, warm Mediterranean palette of sun-bleached limestone, terracotta clay tile, olive green, natural timber and muted gold, clean readable silhouette, subtle realistic material texture, no black outline, no text, no UI, no characters, no cartoon or toy look, premium mobile city-builder asset, high detail, crisp edges --style raw --ar 1:1
+```
+
+**wall-tower.png**
+```
+a single isometric segment of Ottoman city wall on a 2:1 diamond base, warm limestone ashlar blocks with crenellated merlons and a walkway on top, a round crenellated stone watchtower, slightly taller than the wall, true isometric 2:1 dimetric view, 30-degree top-down orthographic angle, no perspective distortion, single object centered and isolated on a transparent background, soft warm sunlight from the upper-left with a soft ambient-occlusion shadow to the lower-right, painterly stylized 3D game art like Rise of Kingdoms and Ikariam, warm Mediterranean palette of sun-bleached limestone, terracotta clay tile, olive green, natural timber and muted gold, clean readable silhouette, subtle realistic material texture, no black outline, no text, no UI, no characters, no cartoon or toy look, premium mobile city-builder asset, high detail, crisp edges --style raw --ar 1:1
+```
+
+
+## SU / LİMAN (water/)
+
+**dock.png**
+```
+an isometric harbor prop isolated on shallow turquoise water, a wooden dock platform on stilts extending over the water, true isometric 2:1 dimetric view, 30-degree top-down orthographic angle, no perspective distortion, single object centered and isolated on a transparent background, soft warm sunlight from the upper-left with a soft ambient-occlusion shadow to the lower-right, painterly stylized 3D game art like Rise of Kingdoms and Ikariam, warm Mediterranean palette of sun-bleached limestone, terracotta clay tile, olive green, natural timber and muted gold, clean readable silhouette, subtle realistic material texture, no black outline, no text, no UI, no characters, no cartoon or toy look, premium mobile city-builder asset, high detail, crisp edges --style raw --ar 1:1
+```
+
+**pier.png**
+```
+an isometric harbor prop isolated on shallow turquoise water, a long narrow wooden pier walkway on stilts, true isometric 2:1 dimetric view, 30-degree top-down orthographic angle, no perspective distortion, single object centered and isolated on a transparent background, soft warm sunlight from the upper-left with a soft ambient-occlusion shadow to the lower-right, painterly stylized 3D game art like Rise of Kingdoms and Ikariam, warm Mediterranean palette of sun-bleached limestone, terracotta clay tile, olive green, natural timber and muted gold, clean readable silhouette, subtle realistic material texture, no black outline, no text, no UI, no characters, no cartoon or toy look, premium mobile city-builder asset, high detail, crisp edges --style raw --ar 1:1
+```
+
+**boat.png**
+```
+an isometric harbor prop isolated on shallow turquoise water, a small Ottoman-Mediterranean wooden trade boat with a furled sail, true isometric 2:1 dimetric view, 30-degree top-down orthographic angle, no perspective distortion, single object centered and isolated on a transparent background, soft warm sunlight from the upper-left with a soft ambient-occlusion shadow to the lower-right, painterly stylized 3D game art like Rise of Kingdoms and Ikariam, warm Mediterranean palette of sun-bleached limestone, terracotta clay tile, olive green, natural timber and muted gold, clean readable silhouette, subtle realistic material texture, no black outline, no text, no UI, no characters, no cartoon or toy look, premium mobile city-builder asset, high detail, crisp edges --style raw --ar 1:1
+```
+
+**fishing.png**
+```
+an isometric harbor prop isolated on shallow turquoise water, a fishing spot with nets hung on poles and a small rowboat, true isometric 2:1 dimetric view, 30-degree top-down orthographic angle, no perspective distortion, single object centered and isolated on a transparent background, soft warm sunlight from the upper-left with a soft ambient-occlusion shadow to the lower-right, painterly stylized 3D game art like Rise of Kingdoms and Ikariam, warm Mediterranean palette of sun-bleached limestone, terracotta clay tile, olive green, natural timber and muted gold, clean readable silhouette, subtle realistic material texture, no black outline, no text, no UI, no characters, no cartoon or toy look, premium mobile city-builder asset, high detail, crisp edges --style raw --ar 1:1
+```
+
+
+## DEKOR (decor/)
+
+**cypress.png**
+```
+a single small isometric decoration prop isolated, a tall slender Mediterranean cypress tree in dark green, true isometric 2:1 dimetric view, 30-degree top-down orthographic angle, no perspective distortion, single object centered and isolated on a transparent background, soft warm sunlight from the upper-left with a soft ambient-occlusion shadow to the lower-right, painterly stylized 3D game art like Rise of Kingdoms and Ikariam, warm Mediterranean palette of sun-bleached limestone, terracotta clay tile, olive green, natural timber and muted gold, clean readable silhouette, subtle realistic material texture, no black outline, no text, no UI, no characters, no cartoon or toy look, premium mobile city-builder asset, high detail, crisp edges --style raw --ar 1:1
+```
+
+**olive-tree.png**
+```
+a single small isometric decoration prop isolated, a gnarled olive tree with a silvery-green canopy, true isometric 2:1 dimetric view, 30-degree top-down orthographic angle, no perspective distortion, single object centered and isolated on a transparent background, soft warm sunlight from the upper-left with a soft ambient-occlusion shadow to the lower-right, painterly stylized 3D game art like Rise of Kingdoms and Ikariam, warm Mediterranean palette of sun-bleached limestone, terracotta clay tile, olive green, natural timber and muted gold, clean readable silhouette, subtle realistic material texture, no black outline, no text, no UI, no characters, no cartoon or toy look, premium mobile city-builder asset, high detail, crisp edges --style raw --ar 1:1
+```
+
+**broadleaf-tree.png**
+```
+a single small isometric decoration prop isolated, a rounded broadleaf shade tree in warm green, true isometric 2:1 dimetric view, 30-degree top-down orthographic angle, no perspective distortion, single object centered and isolated on a transparent background, soft warm sunlight from the upper-left with a soft ambient-occlusion shadow to the lower-right, painterly stylized 3D game art like Rise of Kingdoms and Ikariam, warm Mediterranean palette of sun-bleached limestone, terracotta clay tile, olive green, natural timber and muted gold, clean readable silhouette, subtle realistic material texture, no black outline, no text, no UI, no characters, no cartoon or toy look, premium mobile city-builder asset, high detail, crisp edges --style raw --ar 1:1
+```
+
+**bush.png**
+```
+a single small isometric decoration prop isolated, a low round shrub, true isometric 2:1 dimetric view, 30-degree top-down orthographic angle, no perspective distortion, single object centered and isolated on a transparent background, soft warm sunlight from the upper-left with a soft ambient-occlusion shadow to the lower-right, painterly stylized 3D game art like Rise of Kingdoms and Ikariam, warm Mediterranean palette of sun-bleached limestone, terracotta clay tile, olive green, natural timber and muted gold, clean readable silhouette, subtle realistic material texture, no black outline, no text, no UI, no characters, no cartoon or toy look, premium mobile city-builder asset, high detail, crisp edges --style raw --ar 1:1
+```
+
+**flower.png**
+```
+a single small isometric decoration prop isolated, a small patch of wildflowers, true isometric 2:1 dimetric view, 30-degree top-down orthographic angle, no perspective distortion, single object centered and isolated on a transparent background, soft warm sunlight from the upper-left with a soft ambient-occlusion shadow to the lower-right, painterly stylized 3D game art like Rise of Kingdoms and Ikariam, warm Mediterranean palette of sun-bleached limestone, terracotta clay tile, olive green, natural timber and muted gold, clean readable silhouette, subtle realistic material texture, no black outline, no text, no UI, no characters, no cartoon or toy look, premium mobile city-builder asset, high detail, crisp edges --style raw --ar 1:1
+```
+
+**rock.png**
+```
+a single small isometric decoration prop isolated, a cluster of weathered grey boulders, true isometric 2:1 dimetric view, 30-degree top-down orthographic angle, no perspective distortion, single object centered and isolated on a transparent background, soft warm sunlight from the upper-left with a soft ambient-occlusion shadow to the lower-right, painterly stylized 3D game art like Rise of Kingdoms and Ikariam, warm Mediterranean palette of sun-bleached limestone, terracotta clay tile, olive green, natural timber and muted gold, clean readable silhouette, subtle realistic material texture, no black outline, no text, no UI, no characters, no cartoon or toy look, premium mobile city-builder asset, high detail, crisp edges --style raw --ar 1:1
+```
+
+**barrel.png**
+```
+a single small isometric decoration prop isolated, a wooden barrel, true isometric 2:1 dimetric view, 30-degree top-down orthographic angle, no perspective distortion, single object centered and isolated on a transparent background, soft warm sunlight from the upper-left with a soft ambient-occlusion shadow to the lower-right, painterly stylized 3D game art like Rise of Kingdoms and Ikariam, warm Mediterranean palette of sun-bleached limestone, terracotta clay tile, olive green, natural timber and muted gold, clean readable silhouette, subtle realistic material texture, no black outline, no text, no UI, no characters, no cartoon or toy look, premium mobile city-builder asset, high detail, crisp edges --style raw --ar 1:1
+```
+
+**crate.png**
+```
+a single small isometric decoration prop isolated, a wooden cargo crate, true isometric 2:1 dimetric view, 30-degree top-down orthographic angle, no perspective distortion, single object centered and isolated on a transparent background, soft warm sunlight from the upper-left with a soft ambient-occlusion shadow to the lower-right, painterly stylized 3D game art like Rise of Kingdoms and Ikariam, warm Mediterranean palette of sun-bleached limestone, terracotta clay tile, olive green, natural timber and muted gold, clean readable silhouette, subtle realistic material texture, no black outline, no text, no UI, no characters, no cartoon or toy look, premium mobile city-builder asset, high detail, crisp edges --style raw --ar 1:1
+```
+
+**amphora.png**
+```
+a single small isometric decoration prop isolated, a terracotta amphora clay jar, true isometric 2:1 dimetric view, 30-degree top-down orthographic angle, no perspective distortion, single object centered and isolated on a transparent background, soft warm sunlight from the upper-left with a soft ambient-occlusion shadow to the lower-right, painterly stylized 3D game art like Rise of Kingdoms and Ikariam, warm Mediterranean palette of sun-bleached limestone, terracotta clay tile, olive green, natural timber and muted gold, clean readable silhouette, subtle realistic material texture, no black outline, no text, no UI, no characters, no cartoon or toy look, premium mobile city-builder asset, high detail, crisp edges --style raw --ar 1:1
+```
+
+**bench.png**
+```
+a single small isometric decoration prop isolated, a stone and wood bench, true isometric 2:1 dimetric view, 30-degree top-down orthographic angle, no perspective distortion, single object centered and isolated on a transparent background, soft warm sunlight from the upper-left with a soft ambient-occlusion shadow to the lower-right, painterly stylized 3D game art like Rise of Kingdoms and Ikariam, warm Mediterranean palette of sun-bleached limestone, terracotta clay tile, olive green, natural timber and muted gold, clean readable silhouette, subtle realistic material texture, no black outline, no text, no UI, no characters, no cartoon or toy look, premium mobile city-builder asset, high detail, crisp edges --style raw --ar 1:1
+```
+
+**lamp.png**
+```
+a single small isometric decoration prop isolated, an ornate iron street lamp, true isometric 2:1 dimetric view, 30-degree top-down orthographic angle, no perspective distortion, single object centered and isolated on a transparent background, soft warm sunlight from the upper-left with a soft ambient-occlusion shadow to the lower-right, painterly stylized 3D game art like Rise of Kingdoms and Ikariam, warm Mediterranean palette of sun-bleached limestone, terracotta clay tile, olive green, natural timber and muted gold, clean readable silhouette, subtle realistic material texture, no black outline, no text, no UI, no characters, no cartoon or toy look, premium mobile city-builder asset, high detail, crisp edges --style raw --ar 1:1
+```
+
+**fountain.png**
+```
+a single small isometric decoration prop isolated, an Ottoman stone fountain (cesme) with flowing water, true isometric 2:1 dimetric view, 30-degree top-down orthographic angle, no perspective distortion, single object centered and isolated on a transparent background, soft warm sunlight from the upper-left with a soft ambient-occlusion shadow to the lower-right, painterly stylized 3D game art like Rise of Kingdoms and Ikariam, warm Mediterranean palette of sun-bleached limestone, terracotta clay tile, olive green, natural timber and muted gold, clean readable silhouette, subtle realistic material texture, no black outline, no text, no UI, no characters, no cartoon or toy look, premium mobile city-builder asset, high detail, crisp edges --style raw --ar 1:1
+```
+
+**market-stall.png**
+```
+a single small isometric decoration prop isolated, a small market stall with a striped awning and goods, true isometric 2:1 dimetric view, 30-degree top-down orthographic angle, no perspective distortion, single object centered and isolated on a transparent background, soft warm sunlight from the upper-left with a soft ambient-occlusion shadow to the lower-right, painterly stylized 3D game art like Rise of Kingdoms and Ikariam, warm Mediterranean palette of sun-bleached limestone, terracotta clay tile, olive green, natural timber and muted gold, clean readable silhouette, subtle realistic material texture, no black outline, no text, no UI, no characters, no cartoon or toy look, premium mobile city-builder asset, high detail, crisp edges --style raw --ar 1:1
+```
+
+**cart.png**
+```
+a single small isometric decoration prop isolated, a wooden hand cart loaded with sacks, true isometric 2:1 dimetric view, 30-degree top-down orthographic angle, no perspective distortion, single object centered and isolated on a transparent background, soft warm sunlight from the upper-left with a soft ambient-occlusion shadow to the lower-right, painterly stylized 3D game art like Rise of Kingdoms and Ikariam, warm Mediterranean palette of sun-bleached limestone, terracotta clay tile, olive green, natural timber and muted gold, clean readable silhouette, subtle realistic material texture, no black outline, no text, no UI, no characters, no cartoon or toy look, premium mobile city-builder asset, high detail, crisp edges --style raw --ar 1:1
+```
+
+**sign.png**
+```
+a single small isometric decoration prop isolated, a wooden signpost, true isometric 2:1 dimetric view, 30-degree top-down orthographic angle, no perspective distortion, single object centered and isolated on a transparent background, soft warm sunlight from the upper-left with a soft ambient-occlusion shadow to the lower-right, painterly stylized 3D game art like Rise of Kingdoms and Ikariam, warm Mediterranean palette of sun-bleached limestone, terracotta clay tile, olive green, natural timber and muted gold, clean readable silhouette, subtle realistic material texture, no black outline, no text, no UI, no characters, no cartoon or toy look, premium mobile city-builder asset, high detail, crisp edges --style raw --ar 1:1
+```
+
+**statue.png**
+```
+a single small isometric decoration prop isolated, a carved stone statue on a pedestal, true isometric 2:1 dimetric view, 30-degree top-down orthographic angle, no perspective distortion, single object centered and isolated on a transparent background, soft warm sunlight from the upper-left with a soft ambient-occlusion shadow to the lower-right, painterly stylized 3D game art like Rise of Kingdoms and Ikariam, warm Mediterranean palette of sun-bleached limestone, terracotta clay tile, olive green, natural timber and muted gold, clean readable silhouette, subtle realistic material texture, no black outline, no text, no UI, no characters, no cartoon or toy look, premium mobile city-builder asset, high detail, crisp edges --style raw --ar 1:1
+```
