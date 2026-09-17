@@ -87,6 +87,16 @@ const QUAY_FROM = Number(process.argv[4] ?? 74)
 const out = process.argv[3]
 if (out) {
   const lines = blobs.map(b => `  { x: ${b.x}, y: ${b.y}, zone: '${b.y >= QUAY_FROM ? 'liman' : 'sehir'}' },`)
+  /*
+   * Bina genisligi de OLCULUR.
+   *
+   * Sabit birakildiginda bina arsasini tasiyor ya da icinde kayboluyordu;
+   * ressamin cizdigi arsa ne kadarsa bina o kadar olmali. Ortanca alinir:
+   * tek bir buyuk ya da kucuk arsa olcegi kaydirmasin. Pay %8 - boyali
+   * arsanin tas kenari gorunsun diye.
+   */
+  const widths = blobs.map(b => b.w).sort((a, b) => a - b)
+  const tile = +(widths[widths.length >> 1] * 1.08).toFixed(1)
   writeFileSync(out, `/**
  * ÖLÇÜLMÜŞ ARSALAR - elle yazilmaz, uretilir.
  *
@@ -96,6 +106,9 @@ if (out) {
  * Bulunan: ${blobs.length} arsa
  */
 import type { Zone } from './layout'
+
+/** Olculen arsa genisliginden turetilen bina genisligi (resim yuzdesi). */
+export const MEASURED_TILE_W = ${tile}
 
 export const MEASURED: { x: number; y: number; zone: Zone }[] = [
 ${lines.join('\n')}

@@ -21,10 +21,16 @@
  * izometriyi gorur ama olcu telefona uyar.
  */
 
-import { MEASURED } from './plots.generated'
+import { MEASURED, MEASURED_TILE_W } from './plots.generated'
 
-/** Izometrik karo 2:1'dir: genislik tuvalin yuzdesi, yukseklik yarisi. */
-export const TILE_W = 17
+/**
+ * Izometrik karo 2:1'dir: genislik tuvalin yuzdesi, yukseklik yarisi.
+ *
+ * Olculmus arsalarda bu sayi da OLCULUR: bina, ressamin cizdigi arsa kadar
+ * olur. Sabit birakildiginda bina ya arsasini tasiyor ya da ortasinda
+ * kayboluyordu - ikisi de "bu bina oraya ait degil" der.
+ */
+export const TILE_W = MEASURED.length > 0 ? MEASURED_TILE_W : 17
 export const TILE_H = TILE_W / 2
 
 /** Karolar arasindaki bosluk - sehirde sokak olarak okunur. */

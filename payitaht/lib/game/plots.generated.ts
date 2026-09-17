@@ -8,6 +8,9 @@
  */
 import type { Zone } from './layout'
 
+/** Olculen arsa genisliginden turetilen bina genisligi (resim yuzdesi). */
+export const MEASURED_TILE_W = 13.3
+
 export const MEASURED: { x: number; y: number; zone: Zone }[] = [
   { x: 48.7, y: 33.2, zone: 'sehir' },
   { x: 38.4, y: 37.7, zone: 'sehir' },
