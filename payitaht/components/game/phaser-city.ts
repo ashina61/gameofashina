@@ -104,6 +104,9 @@ const OVERLAY = 260
 /** Yuklenecek zemin karolari (public/images/game/terrain/*.png). */
 const TERRAIN_TILES = ['grass', 'water'] as const
 
+/** Adanin bos yerlerine serpilen dogal dekor (public/images/game/decor/*.png). */
+const DECOR_SCATTER = ['olive-tree', 'bush', 'flower', 'rock'] as const
+
 export type CityEvents = {
   onBuilding: (id: BuildingId) => void
   onPlot: (index: number) => void
@@ -140,6 +143,8 @@ export class CityScene extends Phaser.Scene {
     for (const id of BUILDING_IDS) if (BUILDINGS[id].art) this.load.image(id, buildingImage(id))
     // Zemin tile'lari: kara ve deniz artik gercek boyali izometrik karolar.
     for (const t of TERRAIN_TILES) this.load.image(`t_${t}`, asset(`/images/game/terrain/${t}.png`))
+    // Dogal dekor sprite'lari.
+    for (const d of DECOR_SCATTER) this.load.image(`d_${d}`, asset(`/images/game/decor/${d}.png`))
   }
 
   create() {
@@ -406,23 +411,31 @@ export class CityScene extends Phaser.Scene {
       const xs = p.shape.map(q => q.x), ys = p.shape.map(q => q.y)
       return { x: (Math.min(...xs) + Math.max(...xs)) / 2, y: (Math.min(...ys) + Math.max(...ys)) / 2 }
     })
-    const clear = TILE_WORLD * 0.62
+    const clear = TILE_WORLD * 1.0
     let placed = 0
-    for (let i = 0; i < 900 && placed < 120; i++) {
+    for (let i = 0; i < 900 && placed < 46; i++) {
       const x = b.minX + rnd() * (b.maxX - b.minX)
       const y = b.minY + rnd() * (b.maxY - b.minY)
       // Kenardan biraz iceride ve her arsadan uzak.
       if (!inPoly(x, y - px(1), body) || !inPoly(x, y + px(2), body)) continue
       if (centres.some(c => Math.hypot(c.x - x, c.y - y) < clear)) continue
       placed++
-      const g = this.add.graphics().setDepth(y - px(2))
-      // Kenara yakin: agac ve kaya (orman); ice: seyrek. Cim govdesinin kenar
-      // kusagi dogal olarak daha yogun bitki orter.
+      /*
+       * Gercek dekor sprite'lari. Agirlik: en cok zeytin agaci, sonra cali,
+       * kaya, en az cicek. Boyut sprite turune gore; hepsi tabani (0.5, 0.9)
+       * noktaya oturur ve y'ye gore derinlik alir - onualardaki dekor binayi
+       * dogru sirada orter.
+       */
       const r = rnd()
-      if (r > 0.55) this.drawTree(g, x, y, 0.6 + rnd() * 0.7)
-      else if (r > 0.2) this.drawRock(g, x, y, 0.6 + rnd() * 0.7)
-      else this.drawBush(g, x, y, 0.7 + rnd() * 0.5)
-      this.pieces.push(g)
+      let key: string, w: number
+      if (r < 0.36) { key = 'd_olive-tree'; w = TILE_WORLD * (0.8 + rnd() * 0.35) }
+      else if (r < 0.62) { key = 'd_bush'; w = TILE_WORLD * (0.5 + rnd() * 0.25) }
+      else if (r < 0.84) { key = 'd_rock'; w = TILE_WORLD * (0.55 + rnd() * 0.3) }
+      else { key = 'd_flower'; w = TILE_WORLD * (0.45 + rnd() * 0.25) }
+      if (!this.textures.exists(key)) continue
+      const img = this.add.image(x, y, key).setOrigin(0.5, 0.92)
+      img.setScale(w / img.width).setDepth(y)
+      this.pieces.push(img)
     }
   }
 
