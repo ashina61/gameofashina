@@ -84,6 +84,17 @@ export function CityCanvas({ game, showLabels, controls, onBuilding, onPlot }: P
           zoom: 1 / dpr,
         },
         render: { antialias: true, roundPixels: false, powerPreference: 'high-performance' },
+        /*
+         * PENCERE OLAYLARI KAPALI.
+         *
+         * Phaser varsayilan olarak `pointerup`'i WINDOW uzerinde de dinler -
+         * tuvalin disinda birakilan surukleme yakalansin diye. Ama bizim
+         * arayuzumuz tuvalin USTUNDE duruyor: "Uzaklaştır" dugmesine basmak
+         * hem dugmeyi calistiriyor hem de altindaki arsayi tikliyordu, yani
+         * her yakinlastirmada bos arsa paneli aciliyordu. Tuval tum ekrani
+         * kapladigi icin disarida birakilan surukleme zaten olmuyor.
+         */
+        input: { windowEvents: false },
         // Fizik yok: sehir duruyor, carpisma diye bir sey yok.
         banner: false,
         audio: { noAudio: true },

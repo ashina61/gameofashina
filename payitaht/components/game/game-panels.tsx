@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { ArrowUp, Hammer, Clock3, LockKeyhole, Check, BookOpen, ChevronRight, TreePine, Warehouse, Ruler, Users, UserRound, Minus, Plus as PlusIcon, House, HeartHandshake, TriangleAlert, Landmark, Swords, Ship, ShieldCheck, Handshake } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { CostDisplay, JobProgress } from './game-widgets'
-import { BUILDINGS, BUILDING_IDS, RESEARCH, RESEARCH_IDS, RESOURCE_IDS, RESOURCE_NAMES, UNITS, UNIT_IDS, WORKER_IDS, WORKERS_PER_LEVEL, activeJob, cargoCapacity, cityDefense, cost, duration, buildReason, power, rates, recruitReason, researchReason, idleWorkers, population, housing, contentment, soldiers, tradeCapacity, unhousedByUnrest, unitCost, unitDuration, wallDefense, workerCapacity, type BuildingId, type ResearchId, type UnitId, type WorkerId, type Game } from '@/lib/game/engine'
+import { BUILDINGS, BUILDING_IDS, RESEARCH, RESEARCH_IDS, RESOURCE_IDS, RESOURCE_NAMES, UNITS, UNIT_IDS, WORKER_IDS, WORKERS_PER_LEVEL, activeJob, cargoCapacity, cityDefense, cost, duration, buildReason, power, rates, recruitReason, researchReason, idleWorkers, population, housing, contentment, soldiers, takesPlot, tradeCapacity, unhousedByUnrest, unitCost, unitDuration, wallDefense, workerCapacity, type BuildingId, type ResearchId, type UnitId, type WorkerId, type Game } from '@/lib/game/engine'
 import { buildingImage } from '@/lib/asset'
 
 export function BuildingDetails({ game, id, onBuild }: { game: Game; id: BuildingId; onBuild: (id: BuildingId) => void }) {
@@ -34,7 +34,14 @@ export function JournalPanel({ game }: { game: Game }) {
  * bos bir arsaya dokunur ve o arsaya ne kuracagini buradan secer.
  */
 export function PlotPicker({ game, plot, onBuild }: { game: Game; plot: number; onBuild: (id: BuildingId, plot: number) => void }) {
-  const candidates = BUILDING_IDS.filter(id => game.placement[id] === null)
+  /*
+   * Arsa kaplamayan yapi (Surlar) burada GORUNMEZ.
+   *
+   * Yerlesimi hep null oldugu icin listeye giriyordu ve oyuncuya "bu arsaya
+   * sur kurabilirsin" diyordu - oysa surlar sehrin cevresine orulur, arsa
+   * tutmaz. Kurmak isteyen Inşa listesinden kurar.
+   */
+  const candidates = BUILDING_IDS.filter(id => takesPlot(id) && game.placement[id] === null)
   return <div className="building-list">
     <p className="fine-print">Bu arsaya kurabileceğin yapılar. Kurulduktan sonra buradan yükseltirsin.</p>
     {candidates.length === 0 && <p className="requirement"><LockKeyhole className="size-4" />Kurulabilecek yeni yapı kalmadı. Mevcut yapılarını yükselt.</p>}

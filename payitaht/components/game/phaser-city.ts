@@ -6,7 +6,7 @@
  */
 import * as Phaser from 'phaser'
 import {
-  WORLD, TILE_WORLD, toWorld, px, diamondPoints, groundShapes, buildingPlacement, cityCenter,
+  WORLD, TILE_WORLD, toWorldX, toWorldY, px, diamondPoints, groundShapes, buildingPlacement, cityCenter,
   visualSignature, type Poly,
 } from '@/lib/game/city-render'
 import { SLOTS } from '@/lib/game/layout'
@@ -45,6 +45,19 @@ const COLOR = {
 
 /** Suruklemeyi dokunustan ayiran esik (ekran pikseli). */
 const TAP_SLOP = 12
+
+/**
+ * Bu birakma gercek bir DOKUNUS mu?
+ *
+ * Phaser, nesnenin uzerinde bir `pointerup` gorurse - basma baska yerde olsa
+ * bile - olayi tetikler. Iki kosul aranir: parmak gercekten BASMIS olmali
+ * (downTime) ve kalktigi yer bastigi yere yakin olmali. Ikincisi, haritayi
+ * kaydirirken parmagin ustunden gectigi binanin panelinin acilmasini onler.
+ */
+function isTap(pointer: Phaser.Input.Pointer) {
+  return pointer.downTime > 0
+    && Phaser.Math.Distance.Between(pointer.downX, pointer.downY, pointer.upX, pointer.upY) < TAP_SLOP
+}
 const MIN_ZOOM = 0.3
 const MAX_ZOOM = 1.6
 /** Binanin ekranin ne kadarini kaplamasi hedefleniyor. */
@@ -215,29 +228,27 @@ export class CityScene extends Phaser.Scene {
     this.ground.strokePoints(poly, true)
   }
 
+  /**
+   * Icı bos bir HALKA cizer.
+   *
+   * Phaser'in Graphics'i evenodd dolgu kurali sunmaz; ici dolu bir cokgenden
+   * digerini "kesmek" mumkun degil. Cozum, halkayi kose kose dort kenarli
+   * seritlere bolmek: her serit dis ve ic cokgenin ayni iki kosesinden olusur.
+   * Boylece sur, arkasindaki boyali sehri ortmeden orulur.
+   */
+  private drawRing(outer: Poly, inner: Poly, color: number) {
+    this.ground.fillStyle(color, 1)
+    for (let i = 0; i < outer.length; i++) {
+      const j = (i + 1) % outer.length
+      this.ground.fillPoints([outer[i], outer[j], inner[j], inner[i]], true)
+    }
+  }
+
   private redraw(first: boolean) {
     this.signature = `${visualSignature(this.state)}|${this.showLabels}`
     const shapes = groundShapes(this.state)
 
     this.ground.clear()
-    /*
-     * Zemin YARI SAYDAM.
-     *
-     * Duz renkle doldurulunca sehir, boyali binalarin altinda duran bir
-     * karton gibi goruruyordu. Alti aciklikta arkaplanin boyali toprak
-     * dokusu okunur ve iki sanat dili arasindaki dikis kapanir. Bu, boyali
-     * zemin karolari gelene kadarki ara cozum.
-     */
-    this.fill(shapes.platform, COLOR.platform, 0.74)
-    this.stroke(shapes.platform, COLOR.platformEdge, 6)
-    this.stroke(shapes.rim, COLOR.rim, 4, 0.55)
-    this.ground.fillStyle(COLOR.street, 0.55)
-    for (const s of shapes.streets) this.ground.fillRect(s.x, s.y, s.w, s.h)
-    this.fill(shapes.road, COLOR.road)
-    this.stroke(shapes.road, COLOR.platformEdge, 4)
-    this.fill(shapes.quayDeck, COLOR.quay, 0.88)
-    this.stroke(shapes.quayDeck, COLOR.platformEdge, 6)
-
     if (shapes.walls) {
       const w = shapes.walls
       /*
@@ -245,9 +256,14 @@ export class CityScene extends Phaser.Scene {
        * geri kaziniyor. Phaser'in Graphics'i evenodd kurali sunmadigi icin
        * yol bu - sonuc ayni, ici bos bir kale duvari.
        */
-      this.fill(w.outer, COLOR.wall)
+      this.drawRing(w.outer, w.inner, COLOR.wall)
       this.stroke(w.outer, COLOR.wallEdge, 5)
-      this.fill(w.inner, COLOR.platform, 0.74)
+      /*
+       * Halkanin ICI, arkaplanin boyali topragiyla ayni renge boyanmaz -
+       * oyuk, arkaplani gosterecek sekilde "kesilir". Phaser Graphics
+       * evenodd sunmadigi icin ic cokgen yalnizca cizgiyle isaretlenir;
+       * dolgu olsaydi boyali zemini ortecekti.
+       */
       this.stroke(w.inner, COLOR.wallEdge, 4)
       for (const tower of w.towers) {
         this.fill(tower, COLOR.wallTop)
@@ -260,7 +276,7 @@ export class CityScene extends Phaser.Scene {
     }
 
     for (const pad of shapes.pads) {
-      this.fill(pad.shape, pad.occupied ? COLOR.padFull : COLOR.padFree, 0.85)
+      this.fill(pad.shape, pad.occupied ? COLOR.padFull : COLOR.padFree, pad.occupied ? 0.5 : 0.34)
       this.stroke(pad.shape, pad.occupied ? COLOR.padFullEdge : COLOR.padFreeEdge, 5)
     }
 
@@ -328,7 +344,7 @@ export class CityScene extends Phaser.Scene {
       .setInteractive({ useHandCursor: true })
       .setFillStyle(0xffffff, 0)
       .setDepth(p.depth + 0.2)
-    hit.on('pointerup', () => { if (this.dragDistance < TAP_SLOP) this.events$.onBuilding(id) })
+    hit.on('pointerup', (pointer: Phaser.Input.Pointer) => { if (isTap(pointer)) this.events$.onBuilding(id) })
     this.pieces.push(hit)
 
     if (this.showLabels || building) {
@@ -338,7 +354,7 @@ export class CityScene extends Phaser.Scene {
   }
 
   private addEmptyPlot(slot: typeof SLOTS[number]) {
-    const x = toWorld(slot.x), y = toWorld(slot.y)
+    const x = toWorldX(slot.x), y = toWorldY(slot.y)
     const r = TILE_WORLD * 0.14
     const mark = this.add.graphics().setDepth(slot.y + 0.1)
     mark.fillStyle(COLOR.plot, 0.62)
@@ -354,7 +370,7 @@ export class CityScene extends Phaser.Scene {
       .setInteractive({ useHandCursor: true })
       .setFillStyle(0xffffff, 0)
       .setDepth(slot.y + 0.2)
-    hit.on('pointerup', () => { if (this.dragDistance < TAP_SLOP) this.events$.onPlot(slot.index) })
+    hit.on('pointerup', (pointer: Phaser.Input.Pointer) => { if (isTap(pointer)) this.events$.onPlot(slot.index) })
     this.pieces.push(hit)
   }
 

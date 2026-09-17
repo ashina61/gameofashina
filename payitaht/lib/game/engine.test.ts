@@ -2,7 +2,7 @@ import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { advance, assignedWorkers, capacity, cost, execute, freePlots, idleWorkers, initialGame, parseSave, population, PLOTS, rates, researchReason, duration, workerCapacity, WORKERS_PER_LEVEL, fullResources, nearlyFullResources, activeJob, QUEUE_LIMIT, housing, contentment, unhousedByUnrest, soldiers, recruitReason, buildReason, unitCost, wallDefense, cityDefense, power, UNITS, BUILDINGS, BUILDING_IDS, zoneOf } from './engine'
 import { COLS, ROWS, TILE_W, TILE_H } from './layout'
-import { WORLD, CITY_SPAN, CITY_ORIGIN, TILE_WORLD, toWorld, px, groundShapes, buildingPlacement, visualSignature } from './city-render'
+import { WORLD, CITY, CITY_SPAN, TILE_WORLD, toWorldX, toWorldY, px, groundShapes, buildingPlacement, visualSignature } from './city-render'
 
 const now = 1_000_000
 
@@ -580,14 +580,18 @@ test('nufusun besleyemedigi ordu kaydi reddedilir', () => {
  * Render motoru degisebilir - SVG'den Phaser'a gectik - ama geometri
  * degismemeli. Bu testler tarayici acmadan o sozu tutuyor.
  */
-test('dunya sehir karesinden buyuktur ve sehir ortasinda durur', () => {
+test('dunya sehirden buyuktur; cevrim tek yerden yapilir', () => {
   // Dunya ekrandan buyuk olmazsa kaydirilacak tasma kalmaz ve parmak
   // hicbir sey yapmaz; "olu sehir" sikayetinin kokeni tam olarak buydu.
   assert.ok(WORLD > CITY_SPAN)
-  assert.equal(CITY_ORIGIN, (WORLD - CITY_SPAN) / 2)
-  // %0 ve %100 sehir karesinin kenarlarina denk gelir, dunyanin degil.
-  assert.equal(toWorld(0), CITY_ORIGIN)
-  assert.equal(toWorld(100), CITY_ORIGIN + CITY_SPAN)
+  assert.equal(CITY_SPAN, 100 * CITY.scale)
+  // Sehir, arkaplanin acikligina OTURTULMUS: ortalanmis degil.
+  assert.equal(toWorldX(0), CITY.x)
+  assert.equal(toWorldY(0), CITY.y)
+  assert.equal(toWorldX(100), CITY.x + CITY_SPAN)
+  // Butun sehir dunyanin icinde kalmali, yoksa kamera siniri disina tasar.
+  assert.ok(CITY.x > 0 && toWorldX(100) < WORLD)
+  assert.ok(CITY.y > 0 && toWorldY(100) < WORLD)
   // Olcu ile konum ayri: olcuye kaydirma eklenmez.
   assert.equal(px(100), CITY_SPAN)
   assert.equal(TILE_WORLD, px(TILE_W))
@@ -610,15 +614,15 @@ test('zemin geometrisi sur seviyesiyle buyur, arsalar dolulugu bilir', () => {
   }
   // Seviye arttikca sur DISARI acilir: oyuncu savunmasini siluetten gorur.
   assert.ok(width(thick) > width(thin))
-  // Ve hicbir seviyede sehir karesinin disina tasmaz.
-  assert.ok(Math.min(...thick.walls!.outer.map(p => p.x)) > CITY_ORIGIN)
+  // Ve hicbir seviyede dunyanin disina tasmaz.
+  assert.ok(Math.min(...thick.walls!.outer.map(p => p.x)) > 0)
 })
 
 test('bina karonun uzerine oturur', () => {
   const slot = PLOTS[0]
   const p = buildingPlacement('konut', slot)
-  assert.equal(p.x, toWorld(slot.x))
-  assert.equal(p.y, toWorld(slot.y))
+  assert.equal(p.x, toWorldX(slot.x))
+  assert.equal(p.y, toWorldY(slot.y))
   // Kare gorselin tabani, karo merkezinin yarim karo ALTINDA biter.
   const bottom = p.y + p.size * (1 - p.originY)
   assert.ok(Math.abs(bottom - (p.y + px(TILE_H / 2))) < 0.001)

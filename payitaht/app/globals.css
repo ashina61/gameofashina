@@ -118,7 +118,7 @@
 .map-top-tools { position: absolute; right: 22px; top: 66px; z-index: 2; }
 .map-top-tools button, .zoom-tools button { display: grid; place-items: center; width: 40px; height: 40px; background: #173b34e6; color: #e5d6ad; border: 1px solid #d9c1854d; border-radius: 6px; backdrop-filter: blur(6px); }
 .map-top-tools svg, .zoom-tools svg { width: 17px; height: 17px; stroke-width: 1.6; }
-.map-bottom-tools { position: absolute; bottom: 20px; left: 22px; right: 22px; display: flex; align-items: center; justify-content: space-between; pointer-events: none; z-index: 2; }
+.map-bottom-tools { position: absolute; bottom: 84px; left: 22px; right: 22px; display: flex; align-items: center; justify-content: space-between; pointer-events: none; z-index: 2; }
 .zoom-tools { display: flex; gap: 3px; pointer-events: auto; }
 .zoom-tools button { border-radius: 3px; }
 .compass { position: relative; color: #e5d9b5; text-shadow: 0 1px 3px #12271b; }
@@ -126,17 +126,28 @@
 .compass > span { position: absolute; top: -10px; left: 19px; font-size: 8px; }
 .map-tip { display: flex; align-items: center; gap: 6px; font-size: 9px; color: #f6f0de; background: #17443566; padding: 7px 11px; border-radius: 20px; text-shadow: 0 1px 3px #162e2c; }
 .mobile-objective { display: none; }
-.queue-bar { height: 96px; flex-shrink: 0; display: flex; gap: 16px; padding: 14px 24px; background: linear-gradient(0deg, #0c211ee6, #0c211e00); position: relative; z-index: 3; }
-.queue-card { display: flex; align-items: center; flex: 1; min-width: 0; padding: 10px 14px; gap: 12px; border: 1px solid var(--border); border-radius: 6px; background: #1c3830; text-align: left; transition: border-color .2s; }
+/*
+ * İNŞAAT ve ARAŞTIRMA SAYAÇLARI SOLDA.
+ *
+ * Altta 96 piksellik tam genislikte bir serit tutuyorlardi; sehrin en genis
+ * yerinden bir kusak kesiyordu. Ikisi de tek satirlik bilgi (ne yapiliyor,
+ * ne kadar kaldi), yani genislige degil YERE ihtiyaclari var. Danisman
+ * rayinin altinda, ayni sol sutunda duruyorlar: gozun zaten baktigi yer.
+ */
+.queue-bar { position: fixed; left: 12px; top: 434px; z-index: 3; display: flex; flex-direction: column; gap: 6px; width: 150px; pointer-events: auto; }
+.queue-card { display: flex; align-items: center; width: 100%; min-width: 0; padding: 7px 8px; gap: 8px; border: 1px solid #d9c1852e; border-radius: 10px; background: #0f2a26b8; backdrop-filter: blur(8px); text-align: left; transition: border-color .2s; }
 .queue-card:hover { border-color: #c7ac6d8c; }
-.queue-icon { display: grid; place-items: center; width: 34px; height: 36px; flex-shrink: 0; color: var(--gold); border: 1px solid #b39a5f44; border-radius: 5px; background: #c9b67c08; }
-.queue-icon svg { width: 19px; height: 19px; stroke-width: 1.4; }
+.queue-icon { display: grid; place-items: center; width: 26px; height: 26px; flex-shrink: 0; color: var(--gold); border: 1px solid #b39a5f3d; border-radius: 6px; background: #c9b67c0f; }
+.queue-icon svg { width: 15px; height: 15px; stroke-width: 1.4; }
 .queue-copy { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
-.queue-copy .eyebrow { font-size: 8px; letter-spacing: 1.2px; color: var(--muted-foreground); }
-.queue-copy strong { font-size: 12px; font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.queue-hint { font-size: 9px; color: var(--muted-foreground); }
-.queue-arrow { width: 15px; height: 15px; color: var(--gold); }
-.queue-card > time { font-size: 11px; color: var(--gold); font-variant-numeric: tabular-nums; }
+.queue-copy .eyebrow { font-size: 7px; letter-spacing: 1px; color: var(--muted-foreground); }
+.queue-copy strong { font-size: 10.5px; font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.queue-hint { font-size: 8px; color: var(--muted-foreground); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.queue-arrow { width: 13px; height: 13px; color: var(--gold); }
+.queue-card > time { font-size: 9.5px; color: var(--gold); font-variant-numeric: tabular-nums; }
+.queue-right { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; }
+.queue-waiting { font-size: 8px; color: var(--gold); background: #d6b77b26; border-radius: 3px; padding: 0 3px; }
+.queue-arrow { flex-shrink: 0; }
 .queue-meter { height: 3px; border-radius: 2px; width: 100%; background: #40533b; overflow: hidden; margin-top: 3px; }
 .queue-meter > span { display: block; height: 100%; background: var(--gold); transition: width 1s linear; }
 .city-sidebar { width: 300px; flex-shrink: 0; pointer-events: auto; position: relative; z-index: 3; border-left: 1px solid #d9c18526; padding: 24px; display: flex; flex-direction: column; gap: 24px; background: #0e2523e0; backdrop-filter: blur(9px); overflow-y: auto; scrollbar-width: thin; }
@@ -245,7 +256,7 @@
 .save-warning { position: fixed; top: 6px; left: 50%; transform: translateX(-50%); background: #914c37; color: white; padding: 10px 15px; border: 1px solid #c69778; border-radius: 7px; font-size: 11px; z-index: 40; }
 .storage-warning { color: #eab094 !important; }
 @media (min-width: 1450px) { .city-sidebar { width: 350px; padding: 28px; gap: 28px; } .game-header { height: 86px; } .city-title { padding: 30px 40px 65px; } }
-@media (max-width: 1000px) { .city-sidebar { width: 270px; padding: 20px; gap: 20px; } .desktop-header-caption { display: none; } .queue-hint { display: none; } .queue-bar { gap: 10px; padding: 14px; } .queue-card { gap: 8px; padding: 9px; } .map-tip { display: none; } }
+@media (max-width: 1000px) { .city-sidebar { width: 270px; padding: 20px; gap: 20px; } .desktop-header-caption { display: none; } .map-tip { display: none; } }
 @media (max-width: 767px) {
   .game-shell { min-height: 440px; }
   .game-header { height: calc(65px + env(safe-area-inset-top, 0px)); padding: env(safe-area-inset-top, 0px) 17px 0; }
@@ -285,13 +296,13 @@
   .weather svg { width: 22px; height: 22px; }
   .map-top-tools { top: 77px; right: 17px; }
   .map-top-tools button { width: 36px; height: 36px; }
-  .map-bottom-tools { left: 17px; right: 17px; bottom: 75px; }
+  .map-bottom-tools { left: 17px; right: 17px; bottom: 92px; }
   .zoom-tools button { width: 36px; height: 36px; }
   .compass > svg { width: 34px; height: 34px; }
   .compass > span { left: 15px; top: -8px; }
   .building-label { font-size: 9px; padding: 4px 5px 4px 7px; }
   .level-label { min-width: 16px; min-height: 16px; font-size: 9px; }
-  .mobile-objective { position: absolute; left: 14px; right: 14px; bottom: 95px; display: flex; align-items: center; gap: 10px; border: 1px solid #ceb47755; background: #19392eea; border-radius: 7px; min-height: 53px; padding: 8px 11px; z-index: 2; text-align: left; box-shadow: 0 3px 18px #102b2944; backdrop-filter: blur(10px); }
+  .mobile-objective { position: absolute; left: 14px; right: 14px; bottom: 18px; display: flex; align-items: center; gap: 10px; border: 1px solid #ceb47755; background: #19392eea; border-radius: 7px; min-height: 53px; padding: 8px 11px; z-index: 2; text-align: left; box-shadow: 0 3px 18px #102b2944; backdrop-filter: blur(10px); }
   .objective-emblem { display: grid; place-items: center; width: 31px; height: 34px; flex-shrink: 0; color: var(--gold); border: 1px solid #bba0635c; border-radius: 18px 18px 3px 3px; }
   .objective-emblem > svg { width: 18px; height: 18px; stroke-width: 1.2; }
   .mobile-objective > span:nth-child(2) { display: flex; flex: 1; flex-direction: column; gap: 3px; }
@@ -299,8 +310,9 @@
   .mobile-objective small { font-size: 8px; color: #bdc7ae; }
   .objective-count { color: var(--gold); font-size: 11px; font-variant-numeric: tabular-nums; }
   .mobile-objective > svg { color: var(--gold); }
-  .queue-bar { height: 83px; gap: 8px; padding: 11px 12px; }
-  .queue-card { padding: 8px; gap: 8px; border-radius: 5px; }
+  .queue-bar { left: 8px; top: 428px; width: 146px; }
+  /* Dar sutunda ipucu satiri sigmiyor; sayac ve ad kaliyor. */
+  .queue-hint { display: none; }
   .queue-icon { width: 29px; height: 33px; }
   .queue-icon svg { width: 17px; height: 17px; }
   .queue-copy { gap: 6px; }
@@ -308,6 +320,7 @@
   .queue-copy strong { font-size: 10px; }
   .queue-arrow { width: 12px; height: 12px; }
   .queue-card > time { font-size: 9px; }
+  .queue-copy strong { font-size: 10px; }
   .bottom-navigation { height: calc(68px + env(safe-area-inset-bottom, 0px)); padding-left: 0; padding-right: 0; }
   .nav-items { width: 100%; }
   .nav-item { flex-direction: column; gap: 5px; font-size: 9px; }
@@ -328,7 +341,8 @@
   .resource-symbol svg { width: 18px; }
   .resource strong { font-size: 11px; }
   .mobile-objective small { font-size: 7px; }
-  .queue-card { padding: 7px; gap: 6px; }
+  .advisor-bar { top: 200px; }
+  .queue-bar { top: 396px; }
   .queue-arrow { display: none; }
   .queue-icon { width: 23px; border: none; }
   .upgrade-cost { flex-direction: column; align-items: flex-start; }
@@ -338,10 +352,9 @@
   .resource-bar { height: 61px; }
   .city-title { padding-top: 14px; }
   .city-title h1 { font-size: 30px; }
-  .queue-bar { height: 76px; padding-top: 9px; padding-bottom: 9px; }
-  .mobile-objective { bottom: 86px; min-height: 48px; padding-top: 6px; padding-bottom: 6px; }
+  .mobile-objective { bottom: 14px; min-height: 48px; padding-top: 6px; padding-bottom: 6px; }
   .bottom-navigation { height: calc(62px + env(safe-area-inset-bottom, 0px)); }
-  .map-bottom-tools { bottom: 70px; }
+  .map-bottom-tools { bottom: 88px; }
 }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; scroll-behavior: auto !important; } }
 
