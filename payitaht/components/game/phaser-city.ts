@@ -106,6 +106,15 @@ const TERRAIN_TILES = ['grass', 'water'] as const
 
 /** Adanin bos yerlerine serpilen dogal dekor (public/images/game/decor/*.png). */
 const DECOR_SCATTER = ['olive-tree', 'bush', 'flower', 'rock'] as const
+/** Sehre hayat katan landmark objeleri (cesme, heykel, tezgah...). */
+const DECOR_LANDMARK = ['fountain', 'statue', 'market-stall', 'cart', 'amphora', 'barrel', 'bench', 'lamp'] as const
+
+/**
+ * YOL KAROLARI. AI uretimi tek-parca karolar; baglantiya gore secilip
+ * flipX/flipY ile dondurulur. Temel karolarin yonu ekrandan kalibre edildi.
+ */
+const RD = { straight: 'r_ee461161', curve: 'r_2f35a6f0', cross: 'r_dfb488f8', t: 'r_d3a81f84', plaza: 'r_8c27c20f' } as const
+const ROAD_FILES = ['ee461161', '2f35a6f0', 'dfb488f8', 'd3a81f84', '8c27c20f'] as const
 
 
 export type CityEvents = {
@@ -144,8 +153,11 @@ export class CityScene extends Phaser.Scene {
     for (const id of BUILDING_IDS) if (BUILDINGS[id].art) this.load.image(id, buildingImage(id))
     // Zemin tile'lari: kara ve deniz artik gercek boyali izometrik karolar.
     for (const t of TERRAIN_TILES) this.load.image(`t_${t}`, asset(`/images/game/terrain/${t}.png`))
-    // Dogal dekor sprite'lari.
+    // Dogal dekor + landmark sprite'lari.
     for (const d of DECOR_SCATTER) this.load.image(`d_${d}`, asset(`/images/game/decor/${d}.png`))
+    for (const d of DECOR_LANDMARK) this.load.image(`d_${d}`, asset(`/images/game/decor/${d}.png`))
+    // Yol karolari.
+    for (const r of ROAD_FILES) this.load.image(`r_${r}`, asset(`/images/game/roads/${r}.png`))
   }
 
   create() {
@@ -299,13 +311,13 @@ export class CityScene extends Phaser.Scene {
   }
 
   /** Bir zemin karosunu ust-yuz elmasinin merkezi (cx,cy)'ye gelecek sekilde koyar. */
-  private placeTerrainTile(key: string, cx: number, cy: number, tw: number, depth: number, flip: boolean) {
+  private placeTerrainTile(key: string, cx: number, cy: number, tw: number, depth: number, flip: boolean, flipY = false) {
     const src = this.textures.get(key).getSourceImage() as HTMLImageElement | HTMLCanvasElement
     const iw = src.width, ih = src.height
     // Ust yuz tam genislikte; elmas yuksekligi genisligin yarisi, merkezi
     // resmin tepesinden iw/4 asagida. Origin bu noktaya sabitlenir.
     const img = this.add.image(cx, cy, key).setOrigin(0.5, (iw / 4) / ih)
-    img.setDisplaySize(tw, tw * ih / iw).setDepth(depth).setFlipX(flip)
+    img.setDisplaySize(tw, tw * ih / iw).setDepth(depth).setFlipX(flip).setFlipY(flipY)
     return img
   }
 
@@ -351,33 +363,47 @@ export class CityScene extends Phaser.Scene {
       const sy = Math.sign(bc.gy - y)
       while (y !== bc.gy) { y += sy; add(x, y) }
     }
-    /*
-     * TEMIZ TAS SOKAK. Yol karolari (AI uretimi) kenar payi ve dizilim tutmadigi
-     * icin yamali duruyordu; bunun yerine izgara-hizali dugumleri kalin bir
-     * hatla birlestirip tas sokak ciziyoruz - koyu kenar + acik gobek, dugum
-     * noktalarinda yuvarlak birlesim. Sokaklar duz, birbirine baglanir, temiz.
-     */
-    const S = this.gridStepPx()
-    const segs: [{ x: number; y: number }, { x: number; y: number }][] = []
-    for (const { gx, gy } of road.values()) {
-      for (const [nx, ny] of [[gx + 1, gy], [gx, gy + 1]] as const) {
-        if (road.has(key(nx, ny))) segs.push([this.gridWorld(gx, gy), this.gridWorld(nx, ny)])
-      }
+    // Cizim: her hucre baglantisina gore karo + flip. Arkadan ona sirala.
+    // Terrain'den biraz BUYUK: komsu yol karolari bindirir, toprak dikisler kapanir.
+    const TW = this.gridStepPx() * 2.45
+    const cells = [...road.values()].sort((a, b) => (a.gx + a.gy) - (b.gx + b.gy))
+    for (const c of cells) {
+      const n = road.has(key(c.gx, c.gy - 1)), e = road.has(key(c.gx + 1, c.gy))
+      const s = road.has(key(c.gx, c.gy + 1)), w = road.has(key(c.gx - 1, c.gy))
+      const isC = c.gx === center.gx && c.gy === center.gy
+      const t = this.roadTile(isC, n, e, s, w)
+      const p = this.gridWorld(c.gx, c.gy)
+      this.pieces.push(this.placeTerrainTile(t.key, p.x, p.y, TW, -820 + (c.gx + c.gy), t.fx, t.fy))
     }
-    // Koyu kenar (yol cime gomulu dursun).
-    this.ground.lineStyle(S * 0.62, COLOR.streetEdge, 1)
-    for (const [a, b] of segs) this.ground.lineBetween(a.x, a.y, b.x, b.y)
-    this.ground.fillStyle(COLOR.streetEdge, 1)
-    for (const c of road.values()) { const p = this.gridWorld(c.gx, c.gy); this.ground.fillCircle(p.x, p.y, S * 0.31) }
-    // Acik tas gobek.
-    this.ground.lineStyle(S * 0.44, COLOR.street, 1)
-    for (const [a, b] of segs) this.ground.lineBetween(a.x, a.y, b.x, b.y)
-    this.ground.fillStyle(COLOR.street, 1)
-    for (const c of road.values()) { const p = this.gridWorld(c.gx, c.gy); this.ground.fillCircle(p.x, p.y, S * 0.22) }
-    // Merkez meydan: biraz daha genis tas elmas.
-    const cp = this.gridWorld(center.gx, center.gy)
-    this.ground.fillStyle(COLOR.street, 1)
-    this.ground.fillPoints(diamondPoints(cp.x, cp.y, S * 1.5, S * 0.75), true)
+  }
+
+  /**
+   * Baglanti kombinasyonuna gore yol karosu + ayna secimi.
+   *
+   * n=NE(-gy), e=SE(+gx), s=SW(+gy), w=NW(-gx). Temel karolarin yonu ekrandan
+   * kalibre edildi; diger yonler flipX (fx) / flipY (fy) ile turer.
+   */
+  private roadTile(center: boolean, n: boolean, e: boolean, s: boolean, w: boolean): { key: string; fx: boolean; fy: boolean } {
+    if (center) return { key: RD.plaza, fx: false, fy: false }
+    const count = (n ? 1 : 0) + (e ? 1 : 0) + (s ? 1 : 0) + (w ? 1 : 0)
+    if (count >= 4) return { key: RD.cross, fx: false, fy: false }
+    if (count === 3) {
+      // T: eksik yona gore dondur. Kaba - kalibre edilecek.
+      if (!n) return { key: RD.t, fx: false, fy: false }
+      if (!s) return { key: RD.t, fx: false, fy: true }
+      if (!e) return { key: RD.t, fx: true, fy: false }
+      return { key: RD.t, fx: false, fy: false }
+    }
+    // Duz: iki karsi yon. ee461161 temel ekseni NW-SE (e&w); n&s icin flipX.
+    if (e && w) return { key: RD.straight, fx: false, fy: false }
+    if (n && s) return { key: RD.straight, fx: true, fy: false }
+    // Kose (iki bitisik yon): kavis karosu, dort yon flipX/flipY ile.
+    if (e && s) return { key: RD.curve, fx: false, fy: false } // SE+SW
+    if (s && w) return { key: RD.curve, fx: true, fy: false }  // SW+NW
+    if (w && n) return { key: RD.curve, fx: true, fy: true }   // NW+NE
+    if (n && e) return { key: RD.curve, fx: false, fy: true }  // NE+SE
+    // Tek uc: eksene gore duz.
+    return (n || s) ? { key: RD.straight, fx: true, fy: false } : { key: RD.straight, fx: false, fy: false }
   }
 
   private pointerGap() {
@@ -506,9 +532,18 @@ export class CityScene extends Phaser.Scene {
        */
       const r = rnd()
       let key: string, w: number
-      if (r < 0.36) { key = 'd_olive-tree'; w = TILE_WORLD * (0.8 + rnd() * 0.35) }
-      else if (r < 0.62) { key = 'd_bush'; w = TILE_WORLD * (0.5 + rnd() * 0.25) }
-      else if (r < 0.84) { key = 'd_rock'; w = TILE_WORLD * (0.55 + rnd() * 0.3) }
+      if (r < 0.22) {
+        // LANDMARK: cesme/heykel/tezgah/... - sehre hayat katar, seyrek serpilir.
+        const sizes: Record<string, number> = {
+          fountain: 1.05, statue: 0.95, 'market-stall': 1.05, cart: 0.75,
+          amphora: 0.42, barrel: 0.42, bench: 0.6, lamp: 0.55,
+        }
+        const lm = DECOR_LANDMARK[Math.floor(rnd() * DECOR_LANDMARK.length)]
+        key = `d_${lm}`; w = TILE_WORLD * sizes[lm]
+      }
+      else if (r < 0.48) { key = 'd_olive-tree'; w = TILE_WORLD * (0.8 + rnd() * 0.35) }
+      else if (r < 0.68) { key = 'd_bush'; w = TILE_WORLD * (0.5 + rnd() * 0.25) }
+      else if (r < 0.86) { key = 'd_rock'; w = TILE_WORLD * (0.55 + rnd() * 0.3) }
       else { key = 'd_flower'; w = TILE_WORLD * (0.45 + rnd() * 0.25) }
       if (!this.textures.exists(key)) continue
       const img = this.add.image(x, y, key).setOrigin(0.5, 0.92)
