@@ -9,7 +9,7 @@ import {
   WORLD, TILE_WORLD, toWorldX, toWorldY, px, diamondPoints, groundShapes, buildingPlacement, islandExtent,
   visualSignature, type Poly,
 } from '@/lib/game/city-render'
-import { SLOTS, USES_MEASURED } from '@/lib/game/layout'
+import { SLOTS, USES_MEASURED, CENTER } from '@/lib/game/layout'
 import { paletteFor, shapeFor } from '@/lib/game/building-art'
 import { BUILDINGS, BUILDING_IDS, activeJob, type BuildingId, type Game } from '@/lib/game/engine'
 import { asset, buildingImage } from '@/lib/asset'
@@ -107,6 +107,24 @@ const TERRAIN_TILES = ['grass', 'water'] as const
 /** Adanin bos yerlerine serpilen dogal dekor (public/images/game/decor/*.png). */
 const DECOR_SCATTER = ['olive-tree', 'bush', 'flower', 'rock'] as const
 
+/**
+ * YOL KAROLARI - baglantiya gore otomatik secilir.
+ *
+ * Her yol hucresi 4 izometrik komsusuna gore bir kombinasyon olusturur; buna
+ * gore duz/kose/T/kavsak karosu ve gerektiginde yatay ayna (flipX) secilir.
+ * Anahtarlar public/images/game/roads/<hash>.png dosyalarina isaret eder.
+ */
+const ROAD = {
+  straightNS: 'r_37e960f8', // NE-SW ekseni (ekranda ↗↙)
+  straightEW: 'r_ee461161', // NW-SE ekseni (ekranda ↖↘)
+  corner: 'r_0f8a0da1',     // kavis - 4 yonu flipX/secimle turetiriz
+  corner2: 'r_2f35a6f0',
+  cross: 'r_dfb488f8',      // 4 yollu kavsak
+  t: 'r_d3a81f84',          // T kavsak
+  plaza: 'r_8c27c20f',      // mozaik meydan (merkez)
+} as const
+const ROAD_FILES = ['37e960f8', 'ee461161', '0f8a0da1', '2f35a6f0', 'dfb488f8', 'd3a81f84', '8c27c20f'] as const
+
 export type CityEvents = {
   onBuilding: (id: BuildingId) => void
   onPlot: (index: number) => void
@@ -145,6 +163,8 @@ export class CityScene extends Phaser.Scene {
     for (const t of TERRAIN_TILES) this.load.image(`t_${t}`, asset(`/images/game/terrain/${t}.png`))
     // Dogal dekor sprite'lari.
     for (const d of DECOR_SCATTER) this.load.image(`d_${d}`, asset(`/images/game/decor/${d}.png`))
+    // Yol karolari.
+    for (const r of ROAD_FILES) this.load.image(`r_${r}`, asset(`/images/game/roads/${r}.png`))
   }
 
   create() {
@@ -300,6 +320,74 @@ export class CityScene extends Phaser.Scene {
     const img = this.add.image(cx, cy, key).setOrigin(0.5, (iw / 4) / ih)
     img.setDisplaySize(tw, tw * ih / iw).setDepth(depth).setFlipX(flip)
     return img
+  }
+
+  /** Terrain/yol izgarasinin yatay yari-adimi (dunya pikseli). */
+  private gridStepPx() { return TILE_WORLD * 1.02 }
+
+  /** Izgara hucresi (gx,gy) -> dunya konumu (terrain ile ayni izgara). */
+  private gridWorld(gx: number, gy: number) {
+    const S = this.gridStepPx(), isl = islandExtent()
+    return { x: isl.cx + (gx - gy) * S, y: isl.cy + (gx + gy) * (S / 2) }
+  }
+
+  /** Dunya konumu -> en yakin izgara hucresi. */
+  private worldToCell(wx: number, wy: number) {
+    const S = this.gridStepPx(), isl = islandExtent()
+    const dx = (wx - isl.cx) / S, dy = (wy - isl.cy) / (S / 2)
+    return { gx: Math.round((dx + dy) / 2), gy: Math.round((dy - dx) / 2) }
+  }
+
+  /**
+   * YOL AGI - gercek tas yol karolari.
+   *
+   * Her KARA binasindan merkeze grid-hizali bir L-yol dosenir (once bir eksen,
+   * sonra digeri). Ortak hucreler tek yol olur; her hucre 4 komsusuna gore
+   * duz/kose/T/kavsak karosu alir. Merkez mozaik meydandir. Bezier yollarin
+   * yerini alir; yollar artik binalar gibi karo.
+   */
+  private drawRoads() {
+    if (USES_MEASURED) return
+    const TW = this.gridStepPx() * 2.16
+    const key = (x: number, y: number) => `${x},${y}`
+    const road = new Map<string, { gx: number; gy: number }>()
+    const add = (x: number, y: number) => road.set(key(x, y), { gx: x, gy: y })
+    const center = this.worldToCell(toWorldX(CENTER.x), toWorldY(CENTER.y))
+    add(center.gx, center.gy)
+    for (const slot of SLOTS) {
+      if (slot.zone === 'liman') continue
+      const id = BUILDING_IDS.find(b => this.state.placement[b] === slot.index)
+      if (!id) continue
+      const bc = this.worldToCell(toWorldX(slot.x), toWorldY(slot.y))
+      let x = center.gx, y = center.gy
+      const sx = Math.sign(bc.gx - x)
+      while (x !== bc.gx) { x += sx; add(x, y) }
+      const sy = Math.sign(bc.gy - y)
+      while (y !== bc.gy) { y += sy; add(x, y) }
+    }
+    const cells = [...road.values()].sort((a, b) => (a.gx + a.gy) - (b.gx + b.gy))
+    for (const c of cells) {
+      const n = road.has(key(c.gx, c.gy - 1)), e = road.has(key(c.gx + 1, c.gy))
+      const s = road.has(key(c.gx, c.gy + 1)), w = road.has(key(c.gx - 1, c.gy))
+      const pick = this.roadTile(c.gx === center.gx && c.gy === center.gy, n, e, s, w)
+      const p = this.gridWorld(c.gx, c.gy)
+      this.pieces.push(this.placeTerrainTile(pick.key, p.x, p.y, TW, -800 + (c.gx + c.gy), pick.flip))
+    }
+  }
+
+  /** Baglanti kombinasyonuna gore yol karosu ve ayna. */
+  private roadTile(center: boolean, n: boolean, e: boolean, s: boolean, w: boolean): { key: string; flip: boolean } {
+    if (center) return { key: ROAD.plaza, flip: false }
+    const count = (n ? 1 : 0) + (e ? 1 : 0) + (s ? 1 : 0) + (w ? 1 : 0)
+    if (count >= 4) return { key: ROAD.cross, flip: false }
+    if (count === 3) return { key: ROAD.t, flip: !n }
+    if (n && s) return { key: ROAD.straightNS, flip: false }
+    if (e && w) return { key: ROAD.straightEW, flip: false }
+    if (n && e) return { key: ROAD.corner, flip: false }
+    if (e && s) return { key: ROAD.corner, flip: true }
+    if (s && w) return { key: ROAD.corner2, flip: false }
+    if (w && n) return { key: ROAD.corner2, flip: true }
+    return { key: (n || s) ? ROAD.straightNS : ROAD.straightEW, flip: false }
   }
 
   private pointerGap() {
@@ -526,27 +614,6 @@ export class CityScene extends Phaser.Scene {
      * siniri icin hesap olarak duruyor.
      */
 
-    /*
-     * Yollar: belediyeden her arsaya KAVISLI tas hatlar. Duz spok yerine
-     * kontrol noktali bir bezier ornekleniyor - referans sehirdeki gibi yol
-     * hic duz gitmez. Once koyu alt cizgi (kenar), ustune acik tas: yol cime
-     * gomulu dursun.
-     */
-    const roadPaths = shapes.roads.map(r => this.curvePoints(r.a, r.c, r.b))
-    for (const pts of roadPaths) {
-      this.ground.lineStyle(px(2.6), COLOR.streetEdge, 0.9)
-      this.ground.strokePoints(pts, false)
-    }
-    for (const pts of roadPaths) {
-      this.ground.lineStyle(px(1.7), COLOR.street, 1)
-      this.ground.strokePoints(pts, false)
-    }
-    // Merkezdeki bulusma noktasi: belediye meydani.
-    const c = shapes.roads[0]?.a
-    if (c) {
-      this.ground.fillStyle(COLOR.street, 1)
-      this.ground.fillPoints(diamondPoints(c.x, c.y, TILE_WORLD * 0.5, TILE_WORLD * 0.25), true)
-    }
     if (shapes.walls) {
       const w = shapes.walls
       /*
@@ -600,8 +667,9 @@ export class CityScene extends Phaser.Scene {
 
     for (const piece of this.pieces) piece.destroy()
     this.pieces = []
-    // Dekor: adanin bos yerlerine serpilmis agac ve kayalar. Pieces temizlendikten
-    // SONRA eklenir, yoksa ayni karede silinir.
+    // Yollar ve dekor pieces TEMIZLENDIKTEN sonra eklenir, yoksa ayni karede
+    // silinir. Yollar once (dekor/binalarin altinda).
+    if (!USES_MEASURED) this.drawRoads()
     if (shapes.body) this.drawDecor(shapes.body, shapes.pads)
     const running = activeJob(this.state)?.id
     for (const slot of SLOTS) {
