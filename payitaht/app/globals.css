@@ -494,3 +494,16 @@
   .city-stats { grid-template-columns: repeat(2, 1fr); }
 }
 
+
+/* --- İNŞA KİPİ İPUCU -----------------------------------------------------
+ * Harita insa kipindeyken ekranin altinda duran ince cubuk: ne yapilacagini
+ * soyler ve cikisi bir dokunus uzakta tutar. Kip gorunmez olursa oyuncu
+ * neden arsalarin parladigini anlamaz.
+ */
+.build-hint { position: absolute; left: 50%; transform: translateX(-50%); bottom: 130px; z-index: 4; display: flex; align-items: center; gap: 10px; padding: 8px 8px 8px 14px; border-radius: 24px; background: #12312bf0; border: 1px solid #d9c18566; box-shadow: 0 6px 22px #08181566; backdrop-filter: blur(9px); white-space: nowrap; }
+.build-hint > span { display: flex; align-items: center; gap: 8px; font-size: 12px; color: #f2e6c8; }
+.build-hint svg { width: 15px; height: 15px; color: var(--gold); }
+.build-hint button { font-size: 11px; color: #12312b; background: var(--gold); border: 0; border-radius: 16px; padding: 7px 13px; font-weight: 600; }
+.build-hint .build-exit { display: grid; place-items: center; width: 30px; height: 30px; padding: 0; border-radius: 50%; background: #ffffff1a; color: #e9dcb8; }
+.build-hint .build-exit svg { width: 14px; height: 14px; color: inherit; }
+@media (max-width: 767px) { .build-hint { bottom: 96px; } .build-hint > span { font-size: 11px; } }

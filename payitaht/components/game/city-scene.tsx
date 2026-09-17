@@ -1,7 +1,7 @@
 'use client'
 
 import { useRef, useState } from 'react'
-import { Plus, Minus, LocateFixed, Compass, ChevronDown, Users, Sun, Flag, Move } from 'lucide-react'
+import { Plus, Minus, LocateFixed, Compass, ChevronDown, Users, Sun, Flag, Move, Hammer, X } from 'lucide-react'
 import { population, type Game, type BuildingId } from '@/lib/game/engine'
 import { CityCanvas, type CityControls } from './city-canvas'
 
@@ -15,16 +15,33 @@ import { CityCanvas, type CityControls } from './city-canvas'
  * yapmiyordu. Tuval dunyayi ekrandan buyuk tutar; gezinme bu yuzden gercek.
  */
 
-export function CityScene({ game, onBuilding, onPlot }: {
+export function CityScene({ game, placing, onBuilding, onPlot, onExitBuild, onOpenList }: {
   game: Game
+  placing: boolean
   onBuilding: (id: BuildingId) => void
   onPlot: (plot: number) => void
+  onExitBuild: () => void
+  onOpenList: () => void
 }) {
-  const [labels, setLabels] = useState(true)
+  const [labels, setLabels] = useState(false)
   const controls = useRef<CityControls | null>(null)
 
   return <section className="city-scene" aria-label="Sahilhisar şehir haritası">
-    <CityCanvas game={game} showLabels={labels} controls={controls} onBuilding={onBuilding} onPlot={onPlot} />
+    <CityCanvas game={game} showLabels={labels} placing={placing} controls={controls} onBuilding={onBuilding} onPlot={onPlot} />
+
+    {/*
+      * İNŞA KİPİ.
+      *
+      * Bos arsalar surekli isaretli durmuyor; oyuncu "İnşa"ya bastiginda
+      * harita insa kipine giriyor ve arsalar beliriyor. Referans oyunlarin
+      * hepsi boyle: dunya normalde bir dunya, yalnizca yerlestirirken bir
+      * izgara.
+      */}
+    {placing && <div className="build-hint">
+      <span><Hammer aria-hidden="true" /> Boş bir arsaya dokun</span>
+      <button onClick={onOpenList}>Listeden seç</button>
+      <button className="build-exit" onClick={onExitBuild} aria-label="İnşa kipinden çık"><X /></button>
+    </div>}
 
     {/*
       * Sehir kimligi artik kocaman bir baslik degil, kucuk bir rozet.

@@ -10,7 +10,7 @@
  * yeniden yazmak oldu. Ayrica test edilebilir: bir cokgenin dogru yerde olup
  * olmadigini tarayici acmadan sinayabiliyoruz.
  */
-import { SLOTS, TILE_W, TILE_H, DRAWN_PAD, cityBounds, cityOutline, type Slot } from './layout'
+import { SLOTS, COLS, ROWS, TILE_W, TILE_H, DRAWN_PAD, cellCenter, cityBounds, cityOutline, type Slot } from './layout'
 import { BUILDING_IDS, type BuildingId, type Game } from './engine'
 
 /**
@@ -71,7 +71,11 @@ export function diamondPoints(x: number, y: number, w: number, h: number): Poly 
 /** Surun seviyeye gore kalinligi (yerlesim yuzdesi). */
 export const wallThickness = (level: number) => 1.1 + level * 0.38
 
+export type Street = { x: number; y: number; w: number; h: number }
+
 export type GroundShapes = {
+  /** Yalnizca YAPI OLAN satir ve sutunlarin sokaklari. */
+  streets: Street[]
   walls: { outer: Poly; inner: Poly; towers: Poly[]; gate: Poly; gateArch: Point } | null
   pads: { slot: Slot; shape: Poly; occupied: boolean }[]
 }
@@ -97,6 +101,7 @@ export function groundShapes(game: Game): GroundShapes {
   const gateY = wallOuter[4].y
 
   return {
+    streets: streetsFor(occupied),
     walls: level > 0 ? {
       outer: poly(wallOuter),
       inner: poly(wallInner),
@@ -112,6 +117,42 @@ export function groundShapes(game: Game): GroundShapes {
       occupied: occupied.has(slot.index),
     })),
   }
+}
+
+/** Sokagin genisligi, yerlesim yuzdesi. */
+const STREET_W = 1.7
+
+/**
+ * ŞEHİR BÜYÜDÜKÇE ÇIKAN YOLLAR.
+ *
+ * Ikariam'da sehir yukseldikce yollar adim adim beliriyor; sehrin buyudugunu
+ * sayilardan once ZEMINDEN anliyorsun. Burada ayni sey izgaradan turuyor:
+ * icinde yapi olan her satirin altina ve her sutunun yanina bir sokak
+ * cizilir. Bos bir izgarada hic yol yoktur; sehir doldukca ag kendiliginden
+ * orulur.
+ */
+function streetsFor(occupied: Set<number>): Street[] {
+  const cityCells = SLOTS.filter(s => s.zone === 'sehir')
+  const usedRow = new Set<number>()
+  const usedCol = new Set<number>()
+  for (const slot of cityCells) {
+    if (!occupied.has(slot.index)) continue
+    const i = cityCells.indexOf(slot)
+    usedRow.add(Math.floor(i / COLS))
+    usedCol.add(i % COLS)
+  }
+  const b = cityBounds()
+  const out: Street[] = []
+  for (const row of usedRow) {
+    const y = cellCenter(0, row).y + TILE_H / 2 + 1.6
+    out.push({ x: toWorldX(b.left - 2), y: toWorldY(y - STREET_W / 2), w: px(b.right - b.left + 4), h: px(STREET_W) })
+  }
+  for (const col of usedCol) {
+    const x = cellCenter(col, 0).x + TILE_W / 2 + 0.8
+    if (col === COLS - 1) continue
+    out.push({ x: toWorldX(x - STREET_W / 2), y: toWorldY(b.top - 2), w: px(STREET_W), h: px(b.bottom - b.top + 4) })
+  }
+  return out
 }
 
 /**

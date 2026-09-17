@@ -18,13 +18,15 @@ export type CityControls = { recenter: () => void; zoomBy: (factor: number) => v
 type Props = {
   game: Game
   showLabels: boolean
+  /** İnsa kipi: bos arsalar yalnizca bu acikken haritada isaretlenir. */
+  placing: boolean
   /** Sahne hazir oldugunda doldurulur; arayuz kamerayi buradan surer. */
   controls: { current: CityControls | null }
   onBuilding: (id: BuildingId) => void
   onPlot: (index: number) => void
 }
 
-export function CityCanvas({ game, showLabels, controls, onBuilding, onPlot }: Props) {
+export function CityCanvas({ game, showLabels, placing, controls, onBuilding, onPlot }: Props) {
   const holder = useRef<HTMLDivElement>(null)
   const scene = useRef<CityScene | null>(null)
   /*
@@ -128,7 +130,7 @@ export function CityCanvas({ game, showLabels, controls, onBuilding, onPlot }: P
 
   // Durum degistiginde sahneye haber ver; sahne gorunen bir sey degismediyse
   // hicbir sey cizmez.
-  useEffect(() => { scene.current?.sync(game, showLabels) }, [game, showLabels])
+  useEffect(() => { scene.current?.sync(game, showLabels, placing) }, [game, showLabels, placing])
 
   return <div ref={holder} className="city-canvas" aria-hidden="true" />
 }
