@@ -64,78 +64,75 @@ export type Slot = {
 /**
  * Belediye (belediye) merkezinin ekran konumu.
  *
- * Yukari kaydirilmis: ALTTA denize inen bir LIMAN mahallesine yer birakir.
- * Referans sehirde de kara yukarida, iskeleler asagida denizin kenarindadir.
+ * Ada DUNYANIN ortasina ayrica oturtuluyor (city-render), bu yuzden buradaki
+ * degerler yalnizca izgaranin kendi merkezidir; onemli olan adimlar ve
+ * ada BICIMIDIR.
  */
-export const CENTER = { x: 50, y: 40 }
+export const CENTER = { x: 50, y: 42 }
 
 /*
- * Izometrik adimlar. Bilerek GENIS: referans sehirde binalar arasinda bol
- * cim, kavisli yollar ve nefes vardir - iç içe gecmis bir yigin degil.
- * Dikey adim yataya yakin tutuldu ki sehir hem saga hem ASAGI acilsin,
- * dar bir dikdortgen gibi sikismasin.
+ * İZOMETRİK ADIMLAR — ada PORTRE ekrani DOLDURSUN diye.
+ *
+ * Onceki sorun: klasik izometri karosu 2:1'dir (yataya iki, dikeye bir); bu,
+ * adayi YATIK ve BASIK bir dikdortgen yapiyordu - ekranin ustu ve alti bos
+ * suya gidiyordu. Telefon DIKEY. Dikey adimi yataya yaklastirinca ada dikine
+ * uzar, ekrani doldurur; karolar hala elmas cizilir ama sehir "basik" durmaz.
+ *
+ * u = ekranda YATAY birim, v = ekranda DIKEY birim. Karo koordinati (u,v)
+ * degil de ekran ekseninde dusunulur: boylece adanin bicimini dogrudan
+ * kontrol ederiz.
  */
-const STEP_X = TILE_W * 1.5
-const STEP_Y = TILE_W * 0.86
+const STEP_X = TILE_W * 1.32
+const STEP_Y = TILE_W * 1.18
 
-/** Bir izgara hucresinin (col,row) ekran konumu; merkez (0,0) belediyedir. */
-export function cellCenter(col: number, row: number) {
-  return { x: CENTER.x + (col - row) * STEP_X, y: CENTER.y + (col + row) * STEP_Y }
+/** (u,v) ekran-eksenli izgara noktasi; (0,0) belediyedir. */
+function at(u: number, v: number) {
+  return { x: CENTER.x + u * STEP_X, y: CENTER.y + v * STEP_Y }
 }
 
 /*
- * ŞEHİR ARSALARI: belediye MERKEZDE, cevresinde OturttuGumuz bir kume.
+ * ŞEHİR ARSALARI — dikine bir ELMAS ada, MERKEZDEN DIŞA dizili.
  *
- * Hucreler merkeze OKLID mesafesine gore siralanir ve en yakin N tanesi
- * alinir - bu, Chebyshev karesinden daha yuvarlak, daha organik bir sehir
- * verir (referanstaki gibi). Ilk hucre (0,0) belediyedir, CAKILI.
+ * Arsalar rastgele degil, belediyeden disari duzenli halkalar halinde acilir:
+ * once merkez (belediye, cakili), sonra ic dort kose, sonra eksenler, sonra
+ * dis kanatlar. Bu yuzden ilk kurulan binalar merkezde kumelenir - sehir
+ * "gelisi guzel serpilmis" degil, PLANLI gorunur. Ada yukari (ic kara) daralir,
+ * asagi (kiyi) genisler: altta limana acilan bir sahil olur.
  */
-const RANGE = 2
-const CITY_PLOTS = 16
-function cityCells(): { col: number; row: number; d: number }[] {
-  const cells: { col: number; row: number; d: number }[] = []
-  for (let col = -RANGE; col <= RANGE; col++) {
-    for (let row = -RANGE; row <= RANGE; row++) {
-      cells.push({ col, row, d: col * col + row * row })
-    }
-  }
-  // Merkeze yakinlik, sonra ekran yuksekligi: ic halkalar once dolar,
-  // cizim/indeks sirasi ustten alta tutarli kalir.
-  cells.sort((a, b) => a.d - b.d || (a.col + a.row) - (b.col + b.row) || (a.col - a.row) - (b.col - b.row))
-  return cells.slice(0, CITY_PLOTS)
-}
+const CITY_UV: [number, number][] = [
+  [0, 0],                          // 0  BELEDIYE - merkez, cakili
+  [-1, -1], [1, -1], [-1, 1], [1, 1], // 1-4 ic halka (dort kose)
+  [0, -2], [-2, 0], [2, 0], [0, 2],   // 5-8 eksenler (ust/sol/sag/alt)
+  [-1, -3], [1, -3],               // 9-10 ust kanatlar (ic kara, daralan)
+  [-2, 2], [2, 2],                 // 11-12 alt yanlar (kiyi, genisleyen)
+  [0, 3],                          // 13 sahil ucu (limana bakan burun)
+]
 
-const CITY_CELLS = cityCells()
-const CITY_SLOTS = CITY_CELLS.map(({ col, row }) => ({ zone: 'sehir' as const, ...cellCenter(col, row) }))
+const CITY_SLOTS = CITY_UV.map(([u, v]) => ({ zone: 'sehir' as const, ...at(u, v) }))
 
 /*
- * Bir sehir arsasinin merkezden kacinci HALKADA oldugu.
+ * Bir arsanin merkezden kacinci HALKADA oldugu (0=belediye,1,2,3).
  *
- * Halka = merkeze OKLID uzakligina gore siralanmis farkli uzakliklarin sirasi
- * (0=belediye, 1, 2, ...). Yol buyumesi buna bagli: belediye seviye atladikca
- * yol bir sonraki halkaya kadar uzar. Indeks tabanli eski hesap yeni dizilimle
- * tutmuyordu; artik gercek uzakliktan turer.
+ * Yol agi buna gore buyur: belediye seviye atladikca yollar bir sonraki
+ * halkaya uzar. Halka, ekran-eksenli uzakligin en buyuk bileseninden turer.
  */
-const RING_DISTS = [...new Set(CITY_CELLS.map(c => c.d))].sort((a, b) => a - b)
+const CITY_RINGS = CITY_UV.map(([u, v]) => Math.max(Math.abs(u), Math.abs(v)))
 export function ringOf(index: number): number {
-  if (index < 0 || index >= CITY_CELLS.length) return Infinity // iskeleler sehir halkasi degil
-  return RING_DISTS.indexOf(CITY_CELLS[index].d)
+  if (index < 0 || index >= CITY_RINGS.length) return Infinity // iskeleler sehir halkasi degil
+  return CITY_RINGS[index]
 }
 
 /*
- * LIMAN İSKELELERİ: denizin kenarinda, sehrin ALTINDA, ikisi yan yana.
+ * LIMAN İSKELELERİ — adanin ALT KIYISINDA, ikisi yan yana.
  *
- * Tersane ve Ticaret Limani KARAYA degil buraya kurulur. Sehir kumesinin
- * altina, bir bosluk birakilarak konur; aradaki bosluk kiyi/su olur ve
- * iskeleler denize uzanan ahsap platformlar gibi cizilir.
+ * Tersane ve Ticaret Limani KARAYA degil buraya kurulur. En alt kara sirasinin
+ * (v=3) hemen altina, kiyinin dibine konur; aradaki dar serit kiyi/su olur.
+ * Onceki tasarimda iskeleler kara ile arasinda KOCA bir bos su birakacak kadar
+ * asagidaydi - artik sahile YAPISIK.
  */
 export const QUAY_COUNT = 2
-const quayY = CENTER.y + (RANGE + 2.4) * STEP_Y
-const QUAY_SLOTS = Array.from({ length: QUAY_COUNT }, (_, i) => ({
-  zone: 'liman' as const,
-  x: CENTER.x + (i - (QUAY_COUNT - 1) / 2) * STEP_X * 1.5,
-  y: quayY,
-}))
+const QUAY_UV: [number, number][] = [[-1.5, 3.7], [1.5, 3.7]]
+const QUAY_SLOTS = QUAY_UV.map(([u, v]) => ({ zone: 'liman' as const, ...at(u, v) }))
 
 export const SLOTS: Slot[] = (USES_MEASURED
   ? MEASURED.map(m => ({ zone: m.zone, x: m.x, y: m.y }))
