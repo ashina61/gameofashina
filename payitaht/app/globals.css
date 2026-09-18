@@ -231,6 +231,10 @@
 .building-list-item .eyebrow { font-size: 8px; }
 .building-list-item > svg { color: var(--gold); }
 .research-panel { display: flex; flex-direction: column; gap: 16px; }
+.research-branch { display: flex; flex-direction: column; gap: 10px; }
+.research-branch-top { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; border-bottom: 1px solid var(--border); padding-bottom: 6px; margin-top: 4px; }
+.research-branch-top h3 { font-family: var(--font-heading), Georgia, serif; font-size: 17px; font-weight: 600; color: var(--gold); }
+.research-branch-top span { font-size: 10.5px; color: var(--muted-foreground); font-variant-numeric: tabular-nums; }
 .research-intro { display: flex; align-items: center; gap: 12px; margin-bottom: 5px; }
 .research-intro > svg { color: var(--gold); flex-shrink: 0; }
 .research-intro strong { font-size: 12px; font-weight: 500; }

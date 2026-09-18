@@ -5,8 +5,17 @@ export type Resource = typeof RESOURCE_IDS[number]
 export type Resources = Record<Resource, number>
 export const BUILDING_IDS = ['divan', 'saray', 'elcilik', 'konut', 'hamam', 'carsi', 'ambar', 'kereste', 'tas', 'medrese', 'kisla', 'surlar', 'liman', 'tersane'] as const
 export type BuildingId = typeof BUILDING_IDS[number]
-export const RESEARCH_IDS = ['tools', 'storage', 'architecture'] as const
+export const RESEARCH_IDS = ['tools', 'storage', 'ticaret', 'architecture', 'alimler', 'celik', 'istihkam', 'pusula', 'yelken'] as const
 export type ResearchId = typeof RESEARCH_IDS[number]
+
+/** Ikariam'daki gibi dort araştırma dalı. */
+export type ResearchBranch = 'ekonomi' | 'bilim' | 'askeri' | 'denizcilik'
+export const RESEARCH_BRANCHES: { key: ResearchBranch; title: string }[] = [
+  { key: 'ekonomi', title: 'Ekonomi' },
+  { key: 'bilim', title: 'Bilim' },
+  { key: 'askeri', title: 'Askerî' },
+  { key: 'denizcilik', title: 'Denizcilik' },
+]
 /**
  * Suren bir is.
  *
@@ -158,10 +167,20 @@ export const UNITS: Record<UnitId, Unit> = {
   kalyon: { name: 'Kalyon', branch: 'deniz', home: 'tersane', level: 2, description: 'Ağır kalyon. Yavaş ama denizde son sözü söyler.', pop: 25, cost: { gold: 1400, wood: 950, stone: 120, knowledge: 0 }, attack: 120, defense: 95, seconds: 75, cargo: 0 },
   nakliye: { name: 'Nakliye', branch: 'deniz', home: 'liman', level: 1, description: 'Asker ve mal taşır. Ticaretin ve seferin ayağıdır.', pop: 8, cost: { gold: 450, wood: 340, stone: 0, knowledge: 0 }, attack: 0, defense: 18, seconds: 40, cargo: 500 },
 }
-export const RESEARCH: Record<ResearchId, { name: string; description: string; cost: number; duration: number; required: number }> = {
-  tools: { name: 'Usta Elleri', description: 'Akçe, kereste, taş ve ilim üretimi kalıcı olarak %20 artar.', cost: 30, duration: 30, required: 1 },
-  storage: { name: 'Ambar Nizamı', description: 'Tüm kaynakların depolama kapasitesi kalıcı olarak %25 artar.', cost: 50, duration: 40, required: 1 },
-  architecture: { name: 'Mimarın Sırrı', description: 'Yeni inşaat ve yükseltmeler %25 daha hızlı tamamlanır.', cost: 80, duration: 45, required: 2 },
+export const RESEARCH: Record<ResearchId, { branch: ResearchBranch; name: string; description: string; cost: number; duration: number; required: number; needs?: ResearchId }> = {
+  // EKONOMİ
+  tools: { branch: 'ekonomi', name: 'Usta Elleri', description: 'Akçe, kereste, taş ve ilim üretimi kalıcı olarak %20 artar.', cost: 30, duration: 30, required: 1 },
+  storage: { branch: 'ekonomi', name: 'Ambar Nizamı', description: 'Tüm kaynakların depolama kapasitesi kalıcı olarak %25 artar.', cost: 50, duration: 40, required: 1 },
+  ticaret: { branch: 'ekonomi', name: 'Ticaret Yolları', description: 'Ticaret Limanı kapasitesi kalıcı olarak %30 artar.', cost: 110, duration: 55, required: 3, needs: 'storage' },
+  // BİLİM
+  architecture: { branch: 'bilim', name: 'Mimarın Sırrı', description: 'Yeni inşaat ve eğitim %25 daha hızlı tamamlanır.', cost: 80, duration: 45, required: 2 },
+  alimler: { branch: 'bilim', name: 'Âlimler Meclisi', description: 'İlim üretimi kalıcı olarak %30 artar.', cost: 130, duration: 55, required: 3 },
+  // ASKERÎ
+  celik: { branch: 'askeri', name: 'Çelik Tavı', description: 'Kara birliklerinin saldırısı %15 artar.', cost: 100, duration: 50, required: 2 },
+  istihkam: { branch: 'askeri', name: 'İstihkâm', description: 'Surların savunması %30 artar.', cost: 150, duration: 60, required: 3, needs: 'celik' },
+  // DENİZCİLİK
+  pusula: { branch: 'denizcilik', name: 'Pusula', description: 'Nakliye gemilerinin kargosu %50 artar.', cost: 90, duration: 50, required: 2 },
+  yelken: { branch: 'denizcilik', name: 'Yelken Ustalığı', description: 'Deniz birliklerinin saldırısı %15 artar.', cost: 140, duration: 60, required: 3, needs: 'pusula' },
 }
 export const OBJECTIVES = [
   { id: 'first-upgrade', title: 'Şehrinin temellerini güçlendir', description: 'Divanhaneyi 2. seviyeye yükselt.', reward: 150 },
@@ -230,22 +249,26 @@ export function soldiers(g: Game): number {
 
 /** Elindeki birliklerin toplam saldiri ve savunma gucu. */
 export function power(g: Game, branch: 'kara' | 'deniz') {
-  return UNIT_IDS.filter(id => UNITS[id].branch === branch).reduce(
+  const base = UNIT_IDS.filter(id => UNITS[id].branch === branch).reduce(
     (sum, id) => ({ attack: sum.attack + UNITS[id].attack * g.army[id], defense: sum.defense + UNITS[id].defense * g.army[id] }),
     { attack: 0, defense: 0 })
+  // Araştırma: Çelik Tavı kara, Yelken Ustalığı deniz saldırısını %15 artırır.
+  const atkTech = branch === 'kara' ? 'celik' : 'yelken'
+  const mul = g.research.includes(atkTech) ? 1.15 : 1
+  return { attack: Math.round(base.attack * mul), defense: base.defense }
 }
 
-/** Surlarin asker gerektirmeyen savunmasi. */
-export function wallDefense(g: Game) { return g.buildings.surlar * 150 }
+/** Surlarin asker gerektirmeyen savunmasi. İstihkâm araştırması %30 artırır. */
+export function wallDefense(g: Game) { return Math.round(g.buildings.surlar * 150 * (g.research.includes('istihkam') ? 1.3 : 1)) }
 
 /** Sehrin toplam savunmasi: surlar + kara birlikleri. */
 export function cityDefense(g: Game) { return wallDefense(g) + power(g, 'kara').defense }
 
-/** Nakliye gemilerinin tasidigi mal. */
-export function cargoCapacity(g: Game) { return g.army.nakliye * UNITS.nakliye.cargo }
+/** Nakliye gemilerinin tasidigi mal. Pusula araştırması %50 artırır. */
+export function cargoCapacity(g: Game) { return Math.round(g.army.nakliye * UNITS.nakliye.cargo * (g.research.includes('pusula') ? 1.5 : 1)) }
 
-/** Ticaret limaninin ayni anda tasinmasina izin verdigi mal. */
-export function tradeCapacity(g: Game) { return g.buildings.liman * 1200 }
+/** Ticaret limaninin ayni anda tasinmasina izin verdigi mal. Ticaret Yolları %30 artırır. */
+export function tradeCapacity(g: Game) { return Math.round(g.buildings.liman * 1200 * (g.research.includes('ticaret') ? 1.3 : 1)) }
 
 /**
  * Isci dagitimini GECERLI hale getirir.
@@ -291,7 +314,7 @@ export function rates(g: Game): Resources {
     gold: (60 + g.buildings.konut * 120 + g.buildings.carsi * 100 * share('carsi')) * multiplier,
     wood: g.buildings.kereste * 120 * share('kereste') * multiplier,
     stone: g.buildings.tas * 90 * share('tas') * multiplier,
-    knowledge: g.buildings.medrese * 8 * share('medrese') * multiplier,
+    knowledge: g.buildings.medrese * 8 * share('medrese') * multiplier * (g.research.includes('alimler') ? 1.3 : 1),
   }
 }
 /** Konaklarin barindirabilecegi en fazla nufus. */
@@ -421,6 +444,19 @@ export function freePlots(g: Game, zone?: Zone): number[] {
   return PLOTS.filter(slot => !taken.has(slot.index) && (zone === undefined || slot.zone === zone)).map(slot => slot.index)
 }
 
+/**
+ * BİNA EN YÜKSEK SEVİYELERİ — Ikariam benzeri.
+ *
+ * Ikariam'da binalar yüksek seviyelere çıkar (Belediye 32+, çoğu bina Belediye
+ * seviyesiyle sınırlı). Burada da tavan 32; ayrıca hiçbir bina Divanhane'yi
+ * geçemez (bkz. buildReason) - yani gerçek sınır Divanhane seviyesidir.
+ * Surlar biraz daha yükseğe çıkar (kalıcı savunma).
+ */
+export const MAX_LEVEL: Record<BuildingId, number> = {
+  divan: 32, saray: 32, elcilik: 32, konut: 32, hamam: 32, carsi: 32, ambar: 32,
+  kereste: 32, tas: 32, medrese: 32, kisla: 32, surlar: 40, liman: 32, tersane: 32,
+}
+
 export function buildReason(g: Game, id: BuildingId): string | null {
   if (g.queue.length >= QUEUE_LIMIT) return `İnşaat sırası dolu (en fazla ${QUEUE_LIMIT}).`
   /*
@@ -432,7 +468,7 @@ export function buildReason(g: Game, id: BuildingId): string | null {
    * fiyatlanir - o hesabi kurmadan bu kapiyi acmak dengeyi bozar.
    */
   if (g.queue.some(job => job.id === id)) return 'Bu yapı zaten inşaat sırasında.'
-  if (g.buildings[id] >= 5) return 'En yüksek seviyeye ulaşıldı.'
+  if (g.buildings[id] >= MAX_LEVEL[id]) return 'En yüksek seviyeye ulaşıldı.'
   /*
    * ON KOSUL, ARSADAN ONCE sorulur.
    *
@@ -485,6 +521,8 @@ export function recruitReason(g: Game, id: UnitId, count: number): string | null
 export function researchReason(g: Game, id: ResearchId): string | null {
   if (g.research.includes(id)) return 'Araştırma tamamlandı.'
   if (g.study) return 'Önce devam eden araştırmayı tamamla.'
+  const needs = RESEARCH[id].needs
+  if (needs && !g.research.includes(needs)) return `Önce ${RESEARCH[needs].name} araştırılmalı.`
   if (g.buildings.medrese < RESEARCH[id].required) return `Medrese ${RESEARCH[id].required}. seviye gerekli.`
   if (g.resources.knowledge < RESEARCH[id].cost) return 'Yeterli ilim puanı yok.'
   return null
