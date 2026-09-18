@@ -9,7 +9,7 @@ import {
   WORLD, TILE_WORLD, toWorldX, toWorldY, px, diamondPoints, groundShapes, buildingPlacement, islandExtent,
   visualSignature, type Poly,
 } from '@/lib/game/city-render'
-import { SLOTS, USES_MEASURED, CENTER } from '@/lib/game/layout'
+import { SLOTS, USES_MEASURED, CENTER, ringOf } from '@/lib/game/layout'
 import { paletteFor, shapeFor } from '@/lib/game/building-art'
 import { BUILDINGS, BUILDING_IDS, activeJob, type BuildingId, type Game } from '@/lib/game/engine'
 import { asset, buildingImage } from '@/lib/asset'
@@ -502,53 +502,91 @@ export class CityScene extends Phaser.Scene {
   }
 
   /**
-   * Dekor: agac ve kayalar.
+   * Dekor — SİSTEMLİ, rastgele DEĞİL (Ikariam gibi).
    *
-   * Referans oyunlarin "dolu" hissi, arsalarin ARASINDAKI hayatan gelir. Bunlar
-   * adanin bos yerlerine tohumlu serpilir: her arsadan yeterince uzak olan
-   * noktalara, deterministik olarak, boylece kaydirinca yerinden oynamazlar.
+   * İki katman:
+   *  1) DOĞA adanın KIYI ŞERİDİNE bir yeşil kuşak olarak dizilir: gövde
+   *     poligonunun kenarı boyunca eşit aralıkla örneklenip merkeze doğru
+   *     içeri kaydırılır. İç kısım (arsalar arası) TEMİZ kalır — grid
+   *     baskın olmasın, şehir "yerleşik" görünsün. Alt kıyı (liman) boş
+   *     bırakılır: orada iskeleler var.
+   *  2) LANDMARK'lar SABİT noktalarda: meydanda çeşme, iki yanında simetrik
+   *     heykel. Rastgele serpme yok — her açılışta aynı yerde.
+   *
+   * Tümü deterministik: kaydırınca yerinden oynamaz.
    */
   private drawDecor(body: Poly, pads: { shape: Poly }[]) {
     const b = this.bounds(body)
-    const rnd = seeded(90210)
+    const cx = (b.minX + b.maxX) / 2, cy = (b.minY + b.maxY) / 2
     const centres = pads.map(p => {
       const xs = p.shape.map(q => q.x), ys = p.shape.map(q => q.y)
       return { x: (Math.min(...xs) + Math.max(...xs)) / 2, y: (Math.min(...ys) + Math.max(...ys)) / 2 }
     })
-    const clear = TILE_WORLD * 1.0
-    let placed = 0
-    for (let i = 0; i < 900 && placed < 46; i++) {
-      const x = b.minX + rnd() * (b.maxX - b.minX)
-      const y = b.minY + rnd() * (b.maxY - b.minY)
-      // Kenardan biraz iceride ve her arsadan uzak.
-      if (!inPoly(x, y - px(1), body) || !inPoly(x, y + px(2), body)) continue
-      if (centres.some(c => Math.hypot(c.x - x, c.y - y) < clear)) continue
-      placed++
-      /*
-       * Gercek dekor sprite'lari. Agirlik: en cok zeytin agaci, sonra cali,
-       * kaya, en az cicek. Boyut sprite turune gore; hepsi tabani (0.5, 0.9)
-       * noktaya oturur ve y'ye gore derinlik alir - onualardaki dekor binayi
-       * dogru sirada orter.
-       */
-      const r = rnd()
-      let key: string, w: number
-      if (r < 0.22) {
-        // LANDMARK: cesme/heykel/tezgah/... - sehre hayat katar, seyrek serpilir.
-        const sizes: Record<string, number> = {
-          fountain: 1.05, statue: 0.95, 'market-stall': 1.05, cart: 0.75,
-          amphora: 0.42, barrel: 0.42, bench: 0.6, lamp: 0.55,
-        }
-        const lm = DECOR_LANDMARK[Math.floor(rnd() * DECOR_LANDMARK.length)]
-        key = `d_${lm}`; w = TILE_WORLD * sizes[lm]
-      }
-      else if (r < 0.48) { key = 'd_olive-tree'; w = TILE_WORLD * (0.8 + rnd() * 0.35) }
-      else if (r < 0.68) { key = 'd_bush'; w = TILE_WORLD * (0.5 + rnd() * 0.25) }
-      else if (r < 0.86) { key = 'd_rock'; w = TILE_WORLD * (0.55 + rnd() * 0.3) }
-      else { key = 'd_flower'; w = TILE_WORLD * (0.45 + rnd() * 0.25) }
-      if (!this.textures.exists(key)) continue
+    const clear = TILE_WORLD * 0.9
+    const rnd = seeded(90210)
+
+    const place = (key: string, x: number, y: number, w: number) => {
+      if (!this.textures.exists(key)) return
       const img = this.add.image(x, y, key).setOrigin(0.5, 0.92)
       img.setScale(w / img.width).setDepth(y)
       this.pieces.push(img)
+    }
+
+    // 1) KIYI YEŞİL KUŞAĞI. Gövde kenarını arc-length boyunca eşit örnekle,
+    //    her noktayı merkeze doğru içeri kaydır (kıyının hemen içi). Doğa
+    //    türleri sabit bir desende döner: zeytin, çalı, zeytin, kaya, çiçek.
+    const edge: { x: number; y: number }[] = []
+    let peri = 0
+    for (let i = 0; i < body.length; i++) {
+      const a = body[i], c = body[(i + 1) % body.length]
+      peri += Math.hypot(c.x - a.x, c.y - a.y)
+    }
+    const SAMPLES = 44
+    const gapArc = peri / SAMPLES
+    let acc = 0, next = gapArc * 0.5
+    const cycle = ['olive-tree', 'bush', 'olive-tree', 'rock', 'bush', 'flower']
+    let ci = 0
+    for (let i = 0; i < body.length; i++) {
+      const a = body[i], c = body[(i + 1) % body.length]
+      const segLen = Math.hypot(c.x - a.x, c.y - a.y)
+      while (next < acc + segLen) {
+        const t = (next - acc) / segLen
+        let px0 = a.x + (c.x - a.x) * t, py0 = a.y + (c.y - a.y) * t
+        // İçeri kaydır: kıyıdan land'e doğru, hafif deterministik sapmayla.
+        const inset = TILE_WORLD * (1.15 + rnd() * 0.5)
+        const dx = cx - px0, dy = cy - py0
+        const d = Math.hypot(dx, dy) || 1
+        const x = px0 + (dx / d) * inset, y = py0 + (dy / d) * inset
+        next += gapArc
+        // Alt kıyı (liman/iskele) ve arsalara çok yakın noktaları atla.
+        if (y > cy + (b.maxY - cy) * 0.55) { ci++; continue }
+        if (!inPoly(x, y, body)) { ci++; continue }
+        if (centres.some(cc => Math.hypot(cc.x - x, cc.y - y) < clear)) { ci++; continue }
+        const kind = cycle[ci % cycle.length]; ci++
+        const w = kind === 'olive-tree' ? TILE_WORLD * (0.78 + rnd() * 0.22)
+          : kind === 'rock' ? TILE_WORLD * (0.5 + rnd() * 0.2)
+          : kind === 'bush' ? TILE_WORLD * (0.5 + rnd() * 0.18)
+          : TILE_WORLD * 0.46
+        place(`d_${kind}`, x, y, w)
+      }
+      acc += segLen
+    }
+
+    // 2) SABİT LANDMARK'lar. Meydan (merkez arsa) çevresinde: çeşme merkezin
+    //    hemen önünde, iki heykel simetrik yanlarda. Arsa doluysa üstüne
+    //    binmesin diye merkezden yeterince açıkta dururlar.
+    const uTile = TILE_WORLD
+    const landmarks: { key: string; x: number; y: number; w: number }[] = [
+      { key: 'd_fountain', x: cx, y: cy - uTile * 0.2, w: uTile * 1.0 },
+      { key: 'd_statue', x: cx - uTile * 1.9, y: cy + uTile * 0.5, w: uTile * 0.9 },
+      { key: 'd_statue', x: cx + uTile * 1.9, y: cy + uTile * 0.5, w: uTile * 0.9 },
+      { key: 'd_market-stall', x: cx - uTile * 0.9, y: cy - uTile * 1.5, w: uTile * 0.95 },
+      { key: 'd_cart', x: cx + uTile * 1.0, y: cy - uTile * 1.6, w: uTile * 0.7 },
+    ]
+    for (const lm of landmarks) {
+      if (!inPoly(lm.x, lm.y, body)) continue
+      if (centres.some(cc => Math.hypot(cc.x - lm.x, cc.y - lm.y) < clear)) continue
+      place(lm.key, lm.x, lm.y, lm.w)
     }
   }
 
@@ -684,10 +722,10 @@ export class CityScene extends Phaser.Scene {
       } else if (this.placing) {
         this.fill(pad.shape, COLOR.padFree, 0.85)
         this.stroke(pad.shape, COLOR.padFreeEdge, 5)
-      } else if (!USES_MEASURED) {
-        // Normalde arsa yalnizca cimde hafif bir duzluk izi: grid baskin olmasin.
-        this.fill(pad.shape, COLOR.padFree, 0.16)
       }
+      // İnşa modunda DEĞİLKEN boş arsa işareti YOK: açık arsalar bayrakla
+      // (addEmptyPlot → drawBuildFlag), kilitli arsalar soluk izle gösterilir.
+      // Zemine ayrıca soluk bir düzlük çizmek grid'i baskın yapıyordu.
     }
 
     for (const piece of this.pieces) piece.destroy()
@@ -778,26 +816,46 @@ export class CityScene extends Phaser.Scene {
     }
   }
 
+  /**
+   * BOŞ ARSA — Ikariam gibi.
+   *
+   * Açık boş arsa HER ZAMAN bir BAYRAK gösterir (inşa moduna gerek yok):
+   * oyuncu bayrağa dokunur, ne kurmak istediğini seçer. Arsalar KADEMELİ
+   * açılır: bir arsa ancak Divanhane o halkaya ulaşınca (ringOf ≤ divan
+   * seviyesi) açılır - Ikariam'da yeni arsanın seviye/araştırmayla açılması
+   * gibi. Kilitli arsa yalnızca soluk bir iz gösterir ve tıklanamaz.
+   */
   private addEmptyPlot(slot: typeof SLOTS[number]) {
     const x = toWorldX(slot.x), y = toWorldY(slot.y)
-    const r = TILE_WORLD * 0.14
-    if (!this.placing) {
-      // Isaret yok ama dokunma alani duruyor: bos zemine dokunmak yine de
-      // "buraya ne kurulur" panelini acar.
-      this.addPlotHit(x, y, slot.index)
+    const unlocked = slot.zone === 'liman' || ringOf(slot.index) <= this.state.buildings.divan
+    if (!unlocked) {
+      const g = this.add.graphics().setDepth(slot.y)
+      g.fillStyle(COLOR.plot, 0.12)
+      g.fillPoints(diamondPoints(x, y, TILE_WORLD * 0.82, TILE_WORLD * 0.41), true)
+      this.pieces.push(g)
       return
     }
-    const mark = this.add.graphics().setDepth(slot.y + 0.1)
-    mark.fillStyle(COLOR.plot, 0.62)
-    mark.fillCircle(x, y, r)
-    mark.lineStyle(3, COLOR.plotEdge, 0.6)
-    mark.strokeCircle(x, y, r)
-    mark.lineStyle(5, COLOR.plotEdge, 0.85)
-    mark.lineBetween(x - r * 0.45, y, x + r * 0.45, y)
-    mark.lineBetween(x, y - r * 0.45, x, y + r * 0.45)
-    this.pieces.push(mark)
-
+    this.drawBuildFlag(x, y, slot.y)
     this.addPlotHit(x, y, slot.index)
+  }
+
+  /** İnşa bayrağı: taş taban + ahşap direk + kırmızı flama. "Buraya kur." */
+  private drawBuildFlag(x: number, y: number, depthY: number) {
+    const s = TILE_WORLD
+    const g = this.add.graphics().setDepth(depthY)
+    // Tas taban (arsa izi).
+    g.fillStyle(COLOR.padFree, 0.5); g.fillPoints(diamondPoints(x, y, s * 0.62, s * 0.31), true)
+    g.lineStyle(2.5, COLOR.padFreeEdge, 0.8); g.strokePoints(diamondPoints(x, y, s * 0.62, s * 0.31), true)
+    // Yere dusen golge.
+    g.fillStyle(0x0d1c16, 0.18); g.fillEllipse(x + s * 0.05, y + s * 0.03, s * 0.22, s * 0.1)
+    // Direk.
+    const poleH = s * 0.9
+    g.fillStyle(0x5a3d24, 1); g.fillRect(x - s * 0.035, y - poleH, s * 0.07, poleH)
+    // Flama (ucgen).
+    g.fillStyle(0x9c3b2e, 1)
+    g.fillPoints([{ x: x + s * 0.035, y: y - poleH }, { x: x + s * 0.035, y: y - poleH + s * 0.28 }, { x: x + s * 0.4, y: y - poleH + s * 0.14 }], true)
+    g.fillStyle(0xcaa24a, 1); g.fillCircle(x, y - poleH, s * 0.055)
+    this.pieces.push(g)
   }
 
   private addPlotHit(x: number, y: number, index: number) {
