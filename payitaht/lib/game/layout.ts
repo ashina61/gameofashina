@@ -1,56 +1,26 @@
 /**
- * ŞEHİR YERLEŞİMİ.
+ * ŞEHİR YERLEŞİMİ — Ikariam benzeri ELMAS AĞAÇ.
  *
- * ESKI YOL: arsalar RESMIN ICINE boyanmisti ve konumlari resmin uzerinden
- * elle olculuyordu. Bunun iki bedeli vardi ve ikisi de agirdi:
- *   - Yeni bir arsa istemek YENI BIR ARKAPLAN istemek demekti.
- *   - Goruntu ureticileri izgara tutturamaz; elimizdeki resimde arsalar
- *     farkli boyutta ve dizilimsizdi, binalar hicbir zaman hizalanmadi.
+ * Şehir, belediyeden (Divanhane) büyüyen bir ELMAS ağaçtır: belediye en altta,
+ * ortada ÇAKILI durur; arsalar yukarı doğru genişleyen simetrik sıralar
+ * halinde açılır. Toplam 23 arsa (biri belediye).
  *
- * YENI YOL: arsalar resimden CIKTI, koda gecti. Arkaplan artik yalnizca
- * ZEMIN - uzerinde arsa, sur ya da bina yok - dolayisiyla resmin ne kadar
- * tuttugu yerlesimi hic etkilemez.
- *
- * DIZILIM: sutun-satir, izometrik elmas degil.
- *
- * Once gercek bir izometrik izgara denendi (x = (sutun - satir) * adim).
- * Olcum onu eledi: 4x5 bir elmas tuvalin %85'ine yayiliyor ve 390 piksellik
- * bir telefonda bina 71 piksele dusuyordu. Sutun-satir dizilimde GENISLIK
- * YALNIZCA SUTUN SAYISINA baglidir; satir eklemek sehri asagi uzatir,
- * telefonda dogal olan yon budur. Karolar yine elmas cizilir, yani goz
- * izometriyi gorur ama olcu telefona uyar.
+ * Arsalar ve yollar TEK bir karakter-ızgarasına oturur:
+ *   - 'B' arsa, 'T' belediye (çakılı), '.' yol döşenebilir zemin, ' ' dışarı.
+ * Böylece yollar arsaların ARASINA denk gelir; oyuncu boş zemine dokunup
+ * yolu KENDİ döşer (bkz. ROAD_CELLS). Belediye asla taşınmaz.
  */
 
 import { MEASURED, MEASURED_TILE_W } from './plots.generated'
 
 /**
  * Izometrik karo 2:1'dir: genislik tuvalin yuzdesi, yukseklik yarisi.
- *
- * Olculmus arsalarda bu sayi da OLCULUR: bina, ressamin cizdigi arsa kadar
- * olur. Sabit birakildiginda bina ya arsasini tasiyor ya da ortasinda
- * kayboluyordu - ikisi de "bu bina oraya ait degil" der.
  */
 export const TILE_W = MEASURED.length > 0 ? MEASURED_TILE_W : 17
 export const TILE_H = TILE_W / 2
 
 export type Zone = 'sehir' | 'liman'
 
-/*
- * ARSALAR NEREDEN GELIYOR?
- *
- * Iki yol var ve aralarindaki fark, sehrin bir YER gibi mi yoksa bir
- * MATRIS gibi mi gorundugunu belirliyor:
- *
- *   OLCULMUS (tercih edilen) - arsalar arkaplan resmine RESSAM tarafindan,
- *   yolun kenarina, duzensiz serpilerek konur; kod onlari olcup okur
- *   (scripts/measure-plots.mjs). Ikariam ve Travian boyle calisir; sehirleri
- *   bir yere ait gorunuyorsa sebebi budur - bina, agaclarin ve duvarlarin
- *   ARASINA yerlestirilmis bir seydir.
- *
- *   IZGARA (yedek) - arsalar esit araliklarla hesaplanir. Daha duzenli
- *   gorunur ama sonuc sehir degil matristir; hicbir sehir kurma oyununun
- *   sehir ekraninda gorunur, duzenli bir izgara yoktur.
- */
 export const USES_MEASURED = MEASURED.length > 0
 
 export type Slot = {
@@ -62,77 +32,88 @@ export type Slot = {
 }
 
 /**
- * Belediye (belediye) merkezinin ekran konumu.
- *
- * Ada DUNYANIN ortasina ayrica oturtuluyor (city-render), bu yuzden buradaki
- * degerler yalnizca izgaranin kendi merkezidir; onemli olan adimlar ve
- * ada BICIMIDIR.
+ * Izgaranin kendi merkezi (yuzde). Sehir dunyaya ayrica ortalanir
+ * (city-render), dolayisiyla bu deger yalnizca goreli konumlarin baslangicidir.
  */
 export const CENTER = { x: 50, y: 42 }
 
 /*
- * İZOMETRİK ADIMLAR — ada PORTRE ekrani DOLDURSUN diye.
- *
- * Onceki sorun: klasik izometri karosu 2:1'dir (yataya iki, dikeye bir); bu,
- * adayi YATIK ve BASIK bir dikdortgen yapiyordu - ekranin ustu ve alti bos
- * suya gidiyordu. Telefon DIKEY. Dikey adimi yataya yaklastirinca ada dikine
- * uzar, ekrani doldurur; karolar hala elmas cizilir ama sehir "basik" durmaz.
- *
- * u = ekranda YATAY birim, v = ekranda DIKEY birim. Karo koordinati (u,v)
- * degil de ekran ekseninde dusunulur: boylece adanin bicimini dogrudan
- * kontrol ederiz.
+ * KARAKTER IZGARASI. Her karakter bir hucre; satirlar yukaridan asagiya (v),
+ * sutunlar soldan saga (u). Elmas: ustte ve altta tek arsa, ortada dort.
+ * Belediye ('T') en altta, ortada.
  */
-const STEP_X = TILE_W * 1.32
-const STEP_Y = TILE_W * 1.18
-
-/** (u,v) ekran-eksenli izgara noktasi; (0,0) belediyedir. */
-function at(u: number, v: number) {
-  return { x: CENTER.x + u * STEP_X, y: CENTER.y + v * STEP_Y }
-}
-
-/*
- * ŞEHİR ARSALARI — dikine bir ELMAS ada, MERKEZDEN DIŞA dizili.
- *
- * Arsalar rastgele degil, belediyeden disari duzenli halkalar halinde acilir:
- * once merkez (belediye, cakili), sonra ic dort kose, sonra eksenler, sonra
- * dis kanatlar. Bu yuzden ilk kurulan binalar merkezde kumelenir - sehir
- * "gelisi guzel serpilmis" degil, PLANLI gorunur. Ada yukari (ic kara) daralir,
- * asagi (kiyi) genisler: altta limana acilan bir sahil olur.
- */
-const CITY_UV: [number, number][] = [
-  [0, 0],                          // 0  BELEDIYE - merkez, cakili
-  [-1, -1], [1, -1], [-1, 1], [1, 1], // 1-4 ic halka (dort kose)
-  [0, -2], [-2, 0], [2, 0], [0, 2],   // 5-8 eksenler (ust/sol/sag/alt)
-  [-1, -3], [1, -3],               // 9-10 ust kanatlar (ic kara, daralan)
-  [-2, 2], [2, 2],                 // 11-12 alt yanlar (kiyi, genisleyen)
-  [0, 3],                          // 13 sahil ucu (limana bakan burun)
+const CITY_MAP = [
+  '     B     ', // 0
+  '    B B    ', // 1
+  '   B B B   ', // 2
+  '  B B B B  ', // 3
+  '   B B B   ', // 4
+  '  B B B B  ', // 5
+  '   B B B   ', // 6
+  '    B B    ', // 7
+  '     T     ', // 8
 ]
 
-const CITY_SLOTS = CITY_UV.map(([u, v]) => ({ zone: 'sehir' as const, ...at(u, v) }))
+/*
+ * IZOMETRIK ADIMLAR. Bir hucreden komsusuna yatay ve dikey kayma; elmas ada
+ * PORTRE ekrani doldursun diye dikey adim yataya yakin tutulur.
+ */
+const SX = TILE_W * 0.92
+const SY = TILE_W * 0.72
+
+/** Karakter- izgara hucresi (col,row) -> yerlesim yuzdesi. */
+function gridPos(col: number, row: number) {
+  const centerCol = (CITY_MAP[0].length - 1) / 2
+  const centerRow = (CITY_MAP.length - 1) / 2
+  return { x: CENTER.x + (col - centerCol) * SX, y: CENTER.y + (row - centerRow) * SY }
+}
+
+type Cell = { col: number; row: number; kind: 'plot' | 'hall' }
+const RAW_CELLS: Cell[] = []
+for (let row = 0; row < CITY_MAP.length; row++) {
+  const line = CITY_MAP[row]
+  for (let col = 0; col < line.length; col++) {
+    const ch = line[col]
+    if (ch === 'B') RAW_CELLS.push({ col, row, kind: 'plot' })
+    else if (ch === 'T') RAW_CELLS.push({ col, row, kind: 'hall' })
+  }
+}
+
+const HALL = RAW_CELLS.find(c => c.kind === 'hall')!
 
 /*
- * Bir arsanin merkezden kacinci HALKADA oldugu (0=belediye,1,2,3).
- *
- * Yol agi buna gore buyur: belediye seviye atladikca yollar bir sonraki
- * halkaya uzar. Halka, ekran-eksenli uzakligin en buyuk bileseninden turer.
+ * ARSA SIRALAMASI: belediye (index 0, cakili) once, gerisi belediyeye
+ * UZAKLIGA gore. Boylece dusuk indeksler merkeze yakin kumelenir - baslangic
+ * binalari ve kademeli acilim (ringOf) buna dayanir.
  */
-const CITY_RINGS = CITY_UV.map(([u, v]) => Math.max(Math.abs(u), Math.abs(v)))
+const ORDERED = [
+  HALL,
+  ...RAW_CELLS.filter(c => c.kind === 'plot').sort((a, b) => {
+    const pa = gridPos(a.col, a.row), pb = gridPos(b.col, b.row)
+    const ph = gridPos(HALL.col, HALL.row)
+    return Math.hypot(pa.x - ph.x, pa.y - ph.y) - Math.hypot(pb.x - ph.x, pb.y - ph.y)
+  }),
+]
+
+const CITY_SLOTS = ORDERED.map(c => ({ zone: 'sehir' as const, ...gridPos(c.col, c.row) }))
+
+/**
+ * Bir arsanin kademeli-acilim HALKASI (0 = belediye). Belediye seviye atladikca
+ * bir sonraki halka acilir; her halka ~4 arsa. Boylece sehir merkezden disari
+ * buyur - Ikariam'da yeni arsanin seviye/arastirmayla acilmasi gibi.
+ */
 export function ringOf(index: number): number {
-  if (index < 0 || index >= CITY_RINGS.length) return Infinity // iskeleler sehir halkasi degil
-  return CITY_RINGS[index]
+  if (index <= 0) return 0
+  if (index >= CITY_SLOTS.length) return Infinity // iskeleler sehir halkasi degil
+  return Math.ceil(index / 4)
 }
 
 /*
- * LIMAN İSKELELERİ — adanin ALT KIYISINDA, ikisi yan yana.
- *
- * Tersane ve Ticaret Limani KARAYA degil buraya kurulur. En alt kara sirasinin
- * (v=3) hemen altina, kiyinin dibine konur; aradaki dar serit kiyi/su olur.
- * Onceki tasarimda iskeleler kara ile arasinda KOCA bir bos su birakacak kadar
- * asagidaydi - artik sahile YAPISIK.
+ * LIMAN İSKELELERİ — belediyenin altindaki kiyida, iki tane yan yana.
  */
 export const QUAY_COUNT = 2
-const QUAY_UV: [number, number][] = [[-1.5, 3.7], [1.5, 3.7]]
-const QUAY_SLOTS = QUAY_UV.map(([u, v]) => ({ zone: 'liman' as const, ...at(u, v) }))
+const QUAY_CELLS: [number, number][] = [[HALL.col - 1.4, HALL.row + 1.6], [HALL.col + 1.4, HALL.row + 1.6]]
+const QUAY_SLOTS = QUAY_CELLS.map(([col, row]) => ({ zone: 'liman' as const, ...gridPos(col, row) }))
 
 export const SLOTS: Slot[] = (USES_MEASURED
   ? MEASURED.map(m => ({ zone: m.zone, x: m.x, y: m.y }))
@@ -142,11 +123,24 @@ export const SLOTS: Slot[] = (USES_MEASURED
 /** Belediye arsasinin indeksi: her zaman merkez, CAKILI. */
 export const CENTER_PLOT = 0
 
+/*
+ * YOLLAR — oyuncunun kendi dosedigi.
+ *
+ * Yol hucreleri, render katmanindaki (phaser-city) izometrik zemin izgarasinda
+ * yasar: kimlik "gx,gy" bir izgara hucresidir. Bu dosya (ve motor) izgaranin
+ * dunya konusunu bilmez; yalnizca kimligin BICIMINI dogrular. Boylece kayit
+ * dogrulamasi cizim izgarasina baglanmaz - phaser gecerli hucreler uretir,
+ * bozuk bir kayit da en fazla yersiz bir yol karosu olur.
+ */
+export function isRoadCell(id: string): boolean {
+  return /^-?\d{1,3},-?\d{1,3}$/.test(id)
+}
+
+/** Baslangic yollari yok: sehir sifirdan, yolu oyuncu doser. */
+export const START_ROADS: string[] = []
+
 /**
  * KARA sehrin dis sinirlari (yalnizca 'sehir' arsalari).
- *
- * Iskeleler DAHIL EDILMEZ: ada govdesi ve sur yalnizca karayi sarmali,
- * denizdeki iskelelere kadar uzanmamali.
  */
 export function cityBounds() {
   const cells = SLOTS.filter(c => c.zone === 'sehir')
@@ -169,29 +163,18 @@ export function fullBounds() {
 }
 
 /**
-/**
- * CIZILEN her seyin disina tasmadigi pay.
- *
- * Arkaplanin boyali kismi ancak bu kutunun DISINDA gorunur; brief'teki
- * "guvenli alan" tam olarak budur. Sur kalinligi seviyeyle buyudugu icin
- * en genis hali baz alinir - yoksa 5. seviyede sur, resmin kenar seridini
- * yutar.
+ * CIZILEN her seyin disina tasmadigi pay (sur kalinligi dahil).
  */
 export const DRAWN_PAD = { platform: 5, wallInner: 5.5, wallMax: 5.5 + 1.1 + 5 * 0.38 }
 
 /**
- * Sehri ceviren SEKIZGEN.
- *
- * Duz bir dortgen tepeden bakista duz durur; koseleri kirpmak sur hattina
- * hem izometrik bir derinlik hem de burclar icin dogal dort nokta verir.
- * Sur, zemin ve rihtim ayni sekilden farkli paylarla turer - yani izgara
- * degistiginde hepsi birlikte degisir.
+ * Sehri ceviren SEKIZGEN. Sur, zemin ve rihtim ayni sekilden farkli paylarla
+ * turer - izgara degistiginde hepsi birlikte degisir.
  */
 export function cityOutline(pad = 0) {
   const b = cityBounds()
   const l = b.left - pad, r = b.right + pad
   const t = b.top - pad / 2, d = b.bottom + pad / 2
-  // Kose kirpma payi: dar kenarda orantiyi bozmasin diye sinirlanir.
   const cut = Math.min(9, (r - l) / 5)
   const cutY = cut / 2
   return [

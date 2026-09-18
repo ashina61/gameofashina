@@ -15,11 +15,12 @@ import { CityCanvas, type CityControls } from './city-canvas'
  * yapmiyordu. Tuval dunyayi ekrandan buyuk tutar; gezinme bu yuzden gercek.
  */
 
-export function CityScene({ game, placing, onBuilding, onPlot, onExitBuild, onOpenList }: {
+export function CityScene({ game, placing, onBuilding, onPlot, onRoad, onExitBuild, onOpenList }: {
   game: Game
   placing: boolean
   onBuilding: (id: BuildingId) => void
   onPlot: (plot: number) => void
+  onRoad: (cell: string) => void
   onExitBuild: () => void
   onOpenList: () => void
 }) {
@@ -27,7 +28,7 @@ export function CityScene({ game, placing, onBuilding, onPlot, onExitBuild, onOp
   const controls = useRef<CityControls | null>(null)
 
   return <section className="city-scene" aria-label="Sahilhisar şehir haritası">
-    <CityCanvas game={game} showLabels={labels} placing={placing} controls={controls} onBuilding={onBuilding} onPlot={onPlot} />
+    <CityCanvas game={game} showLabels={labels} placing={placing} controls={controls} onBuilding={onBuilding} onPlot={onPlot} onRoad={onRoad} />
 
     {/*
       * İNŞA KİPİ.
@@ -38,7 +39,7 @@ export function CityScene({ game, placing, onBuilding, onPlot, onExitBuild, onOp
       * izgara.
       */}
     {placing && <div className="build-hint">
-      <span><Hammer aria-hidden="true" /> Boş bir arsaya dokun</span>
+      <span><Hammer aria-hidden="true" /> Arsaya dokun: bina · Zemine dokun: yol</span>
       <button onClick={onOpenList}>Listeden seç</button>
       <button className="build-exit" onClick={onExitBuild} aria-label="İnşa kipinden çık"><X /></button>
     </div>}

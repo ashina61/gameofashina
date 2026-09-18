@@ -24,9 +24,11 @@ type Props = {
   controls: { current: CityControls | null }
   onBuilding: (id: BuildingId) => void
   onPlot: (index: number) => void
+  /** Oyuncu bos zemine dokundu: yol hucresini ac/kapat ("gx,gy"). */
+  onRoad: (cell: string) => void
 }
 
-export function CityCanvas({ game, showLabels, placing, controls, onBuilding, onPlot }: Props) {
+export function CityCanvas({ game, showLabels, placing, controls, onBuilding, onPlot, onRoad }: Props) {
   const holder = useRef<HTMLDivElement>(null)
   const scene = useRef<CityScene | null>(null)
   /*
@@ -34,8 +36,8 @@ export function CityCanvas({ game, showLabels, placing, controls, onBuilding, on
    * yeni React cizimi yuzunden yeniden kurulmasi, oyuncunun kaydirdigi
    * kamerayi saniyede bir sifirlamak olurdu.
    */
-  const handlers = useRef({ onBuilding, onPlot })
-  handlers.current = { onBuilding, onPlot }
+  const handlers = useRef({ onBuilding, onPlot, onRoad })
+  handlers.current = { onBuilding, onPlot, onRoad }
   const firstState = useRef(game)
 
   useEffect(() => {
@@ -107,6 +109,7 @@ export function CityCanvas({ game, showLabels, placing, controls, onBuilding, on
         events: {
           onBuilding: (id: BuildingId) => handlers.current.onBuilding(id),
           onPlot: (index: number) => handlers.current.onPlot(index),
+          onRoad: (cell: string) => handlers.current.onRoad(cell),
         },
       })
 

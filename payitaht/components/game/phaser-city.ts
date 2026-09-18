@@ -9,7 +9,7 @@ import {
   WORLD, TILE_WORLD, toWorldX, toWorldY, px, diamondPoints, groundShapes, buildingPlacement, islandExtent,
   visualSignature, type Poly,
 } from '@/lib/game/city-render'
-import { SLOTS, USES_MEASURED, CENTER, ringOf } from '@/lib/game/layout'
+import { SLOTS, USES_MEASURED } from '@/lib/game/layout'
 import { paletteFor, shapeFor } from '@/lib/game/building-art'
 import { BUILDINGS, BUILDING_IDS, activeJob, type BuildingId, type Game } from '@/lib/game/engine'
 import { asset, buildingImage } from '@/lib/asset'
@@ -120,6 +120,8 @@ const ROAD_FILES = ['ee461161', '2f35a6f0', 'dfb488f8', 'd3a81f84', '8c27c20f'] 
 export type CityEvents = {
   onBuilding: (id: BuildingId) => void
   onPlot: (index: number) => void
+  /** Oyuncu bos zemine dokundu: bir yol hucresini ac/kapat ("gx,gy"). */
+  onRoad: (cell: string) => void
 }
 
 export class CityScene extends Phaser.Scene {
@@ -134,6 +136,8 @@ export class CityScene extends Phaser.Scene {
   private showLabels = false
   /** Insa kipi: bos arsalar yalnizca bu acikken gorunur. */
   private placing = false
+  /** Insa kipinde yol dosanebilir izgara hucreleri ("gx,gy"). */
+  private roadEligible = new Set<string>()
   /** Surukleme mesafesi; dokunus mu kaydirma mi buradan anlasilir. */
   private dragDistance = 0
   private velocity = { x: 0, y: 0 }
@@ -177,6 +181,7 @@ export class CityScene extends Phaser.Scene {
     cam.centerOn(island.cx, island.cy)
 
     this.installCamera()
+    this.installGroundTap()
     this.redraw(true)
     this.scale.on('resize', () => this.cameras.main.setZoom(
       Phaser.Math.Clamp(this.cameras.main.zoom, this.minZoom(), MAX_ZOOM)))
@@ -337,41 +342,98 @@ export class CityScene extends Phaser.Scene {
     return { gx: Math.round((dx + dy) / 2), gy: Math.round((dy - dx) / 2) }
   }
 
+  /** Bir izgara hucresi kimligi. */
+  private cellKey(gx: number, gy: number) { return `${gx},${gy}` }
+
   /**
-   * YOL AGI - gercek tas yol karolari.
-   *
-   * Her KARA binasindan merkeze grid-hizali bir L-yol dosenir (once bir eksen,
-   * sonra digeri). Ortak hucreler tek yol olur; her hucre 4 komsusuna gore
-   * duz/kose/T/kavsak karosu alir. Merkez mozaik meydandir. Bezier yollarin
-   * yerini alir; yollar artik binalar gibi karo.
+   * İnşa kipinde yol dosanebilir BOS hucreler soluk elmaslarla isaretlenir -
+   * oyuncu nereye yol koyabilecegini gorsun. Uzerinde yol/bina olan hucreler
+   * isaretlenmez.
    */
-  private drawRoads() {
-    if (USES_MEASURED) return
-    const key = (x: number, y: number) => `${x},${y}`
-    const road = new Map<string, { gx: number; gy: number }>()
-    const add = (x: number, y: number) => road.set(key(x, y), { gx: x, gy: y })
-    const center = this.worldToCell(toWorldX(CENTER.x), toWorldY(CENTER.y))
-    add(center.gx, center.gy)
+  private drawRoadMarkers() {
+    const roadSet = new Set(this.state.roads)
+    const buildSet = this.buildingCells()
+    const S = this.gridStepPx()
+    const g = this.add.graphics().setDepth(-780)
+    for (const idc of this.roadEligible) {
+      if (roadSet.has(idc) || buildSet.has(idc)) continue
+      const [gx, gy] = idc.split(',').map(Number)
+      const p = this.gridWorld(gx, gy)
+      g.fillStyle(COLOR.street, 0.16)
+      g.fillPoints(diamondPoints(p.x, p.y, S * 0.86, S * 0.43), true)
+      g.lineStyle(1.5, COLOR.streetEdge, 0.32)
+      g.strokePoints(diamondPoints(p.x, p.y, S * 0.86, S * 0.43), true)
+    }
+    this.pieces.push(g)
+  }
+
+  /**
+   * BINALARIN oturdugu izgara hucreleri.
+   *
+   * Yol karosu bir binaya komsuysa, o yone dogru "bagli" secilir - yol binanin
+   * kapisina dayanir. Boylece oyuncunun cizdigi yol binalarla birlesir.
+   */
+  private buildingCells(): Set<string> {
+    const set = new Set<string>()
     for (const slot of SLOTS) {
       if (slot.zone === 'liman') continue
       const id = BUILDING_IDS.find(b => this.state.placement[b] === slot.index)
       if (!id) continue
-      const bc = this.worldToCell(toWorldX(slot.x), toWorldY(slot.y))
-      let x = center.gx, y = center.gy
-      const sx = Math.sign(bc.gx - x)
-      while (x !== bc.gx) { x += sx; add(x, y) }
-      const sy = Math.sign(bc.gy - y)
-      while (y !== bc.gy) { y += sy; add(x, y) }
+      const c = this.worldToCell(toWorldX(slot.x), toWorldY(slot.y))
+      set.add(this.cellKey(c.gx, c.gy))
     }
-    // Cizim: her hucre baglantisina gore karo + flip. Arkadan ona sirala.
-    // Terrain'den biraz BUYUK: komsu yol karolari bindirir, toprak dikisler kapanir.
+    return set
+  }
+
+  /**
+   * ŞEHRİN yol dosanebilir hucre HALESI.
+   *
+   * Her kara arsasinin izgara hucresi ve komsulari (yaricap 2), kara uzerinde
+   * kalanlar. Oyuncu yalnizca bu halenin icine yol doser - uzak cimende yuzen
+   * yol olmaz. Kiyi cizgisinin (coastY) altindaki hucreler (deniz) elenir.
+   */
+  private computeRoadEligible() {
+    const set = new Set<string>()
+    const R = 2
+    const cityBottom = Math.max(...SLOTS.filter(s => s.zone === 'sehir').map(s => toWorldY(s.y)))
+    const coastY = cityBottom + this.gridStepPx() * 0.9
+    for (const slot of SLOTS) {
+      if (slot.zone === 'liman') continue
+      const c = this.worldToCell(toWorldX(slot.x), toWorldY(slot.y))
+      for (let dgx = -R; dgx <= R; dgx++) {
+        for (let dgy = -R; dgy <= R; dgy++) {
+          if (Math.abs(dgx) + Math.abs(dgy) > R) continue
+          const gx = c.gx + dgx, gy = c.gy + dgy
+          if (this.gridWorld(gx, gy).y > coastY) continue
+          set.add(this.cellKey(gx, gy))
+        }
+      }
+    }
+    this.roadEligible = set
+  }
+
+  /**
+   * OYUNCUNUN dosedigi yollar - gercek tas yol karolari.
+   *
+   * Yol agi artik otomatik degil: `game.roads` icindeki her hucre bir yol
+   * karosuyla cizilir; her karo 4 komsusuna (yol VEYA bina) gore
+   * duz/kose/T/kavsak alir ve bina kenarina dayanir. Yollar binalarin
+   * altindan (dusuk derinlik) gecer.
+   */
+  private drawRoads() {
+    if (USES_MEASURED) return
+    const roadSet = new Set(this.state.roads)
+    const buildSet = this.buildingCells()
+    const connected = (gx: number, gy: number) => roadSet.has(this.cellKey(gx, gy)) || buildSet.has(this.cellKey(gx, gy))
     const TW = this.gridStepPx() * 2.45
-    const cells = [...road.values()].sort((a, b) => (a.gx + a.gy) - (b.gx + b.gy))
+    const cells = [...roadSet]
+      .map(id => { const [gx, gy] = id.split(',').map(Number); return { gx, gy } })
+      .filter(c => Number.isFinite(c.gx) && Number.isFinite(c.gy))
+      .sort((a, b) => (a.gx + a.gy) - (b.gx + b.gy))
     for (const c of cells) {
-      const n = road.has(key(c.gx, c.gy - 1)), e = road.has(key(c.gx + 1, c.gy))
-      const s = road.has(key(c.gx, c.gy + 1)), w = road.has(key(c.gx - 1, c.gy))
-      const isC = c.gx === center.gx && c.gy === center.gy
-      const t = this.roadTile(isC, n, e, s, w)
+      const n = connected(c.gx, c.gy - 1), e = connected(c.gx + 1, c.gy)
+      const s = connected(c.gx, c.gy + 1), w = connected(c.gx - 1, c.gy)
+      const t = this.roadTile(false, n, e, s, w)
       const p = this.gridWorld(c.gx, c.gy)
       this.pieces.push(this.placeTerrainTile(t.key, p.x, p.y, TW, -820 + (c.gx + c.gy), t.fx, t.fy))
     }
@@ -404,6 +466,25 @@ export class CityScene extends Phaser.Scene {
     if (n && e) return { key: RD.curve, fx: false, fy: true }  // NE+SE
     // Tek uc: eksene gore duz.
     return (n || s) ? { key: RD.straight, fx: true, fy: false } : { key: RD.straight, fx: false, fy: false }
+  }
+
+  /**
+   * ZEMİN DOKUNUŞU — yol dosemek icin.
+   *
+   * Butun dunyayi kaplayan gorunmez bir katman: insa kipinde bos zemine
+   * dokunmak, o hucreyi yol olarak ac/kapatir. Arsalarin ve binalarin kendi
+   * dokunma alanlari daha USTTE oldugu icin onlarin uzerine dokunmak binayi/
+   * arsayi acar; yalnizca aradaki bos zemin bu katmana duser.
+   */
+  private installGroundTap() {
+    const zone = this.add.zone(WORLD / 2, WORLD / 2, WORLD, WORLD).setDepth(-450)
+    zone.setInteractive()
+    zone.on('pointerup', (pointer: Phaser.Input.Pointer) => {
+      if (!this.placing || !isTap(pointer)) return
+      const c = this.worldToCell(pointer.worldX, pointer.worldY)
+      const key = this.cellKey(c.gx, c.gy)
+      if (this.roadEligible.has(key)) this.events$.onRoad(key)
+    })
   }
 
   private pointerGap() {
@@ -732,7 +813,9 @@ export class CityScene extends Phaser.Scene {
     this.pieces = []
     // Yollar ve dekor pieces TEMIZLENDIKTEN sonra eklenir, yoksa ayni karede
     // silinir. Yollar once (dekor/binalarin altinda).
+    this.computeRoadEligible()
     if (!USES_MEASURED) this.drawRoads()
+    if (this.placing) this.drawRoadMarkers()
     if (shapes.body) this.drawDecor(shapes.body, shapes.pads)
     const running = activeJob(this.state)?.id
     for (const slot of SLOTS) {
@@ -751,10 +834,10 @@ export class CityScene extends Phaser.Scene {
    * buyuk cizilir. Liman/tersane iskele sprite'lari kendi rihtimini tasir.
    */
   private artScale(id: BuildingId) {
-    if (id === 'divan') return 1.6
-    if (id === 'saray') return 1.45
-    if (id === 'konut' || id === 'kisla' || id === 'medrese') return 1.25
-    return 1.12
+    if (id === 'divan') return 1.5
+    if (id === 'saray') return 1.32
+    if (id === 'konut' || id === 'kisla' || id === 'medrese') return 1.14
+    return 1.04
   }
 
   private addBuilding(id: BuildingId, slot: typeof SLOTS[number], building: boolean) {
@@ -786,6 +869,8 @@ export class CityScene extends Phaser.Scene {
       const image = this.add.image(p.x, p.y, id).setOrigin(0.5, 0.8)
       image.setScale(w / image.width)
       image.setDepth(p.depth)
+      // Oyuncu binayi yatayda cevirmisse (flip) aynala: kapisi diger yone bakar.
+      image.setFlipX(this.state.flips.includes(id))
       object = image
     } else {
       // Gorseli olmayan yapi, kutu yerine basit bir izometrik bina olarak
@@ -820,41 +905,32 @@ export class CityScene extends Phaser.Scene {
    * BOŞ ARSA — Ikariam gibi.
    *
    * Açık boş arsa HER ZAMAN bir BAYRAK gösterir (inşa moduna gerek yok):
-   * oyuncu bayrağa dokunur, ne kurmak istediğini seçer. Arsalar KADEMELİ
-   * açılır: bir arsa ancak Divanhane o halkaya ulaşınca (ringOf ≤ divan
-   * seviyesi) açılır - Ikariam'da yeni arsanın seviye/araştırmayla açılması
-   * gibi. Kilitli arsa yalnızca soluk bir iz gösterir ve tıklanamaz.
+   * oyuncu bayrağa dokunur, ne kurmak istediğini seçer. 23 arsanın hepsi
+   * baştan kuruludur (Belediye çakılı, merkez); oyuncu boş arsalara dilediği
+   * yapıyı diker, aralarına da yolu kendi döşer.
    */
   private addEmptyPlot(slot: typeof SLOTS[number]) {
     const x = toWorldX(slot.x), y = toWorldY(slot.y)
-    const unlocked = slot.zone === 'liman' || ringOf(slot.index) <= this.state.buildings.divan
-    if (!unlocked) {
-      const g = this.add.graphics().setDepth(slot.y)
-      g.fillStyle(COLOR.plot, 0.12)
-      g.fillPoints(diamondPoints(x, y, TILE_WORLD * 0.82, TILE_WORLD * 0.41), true)
-      this.pieces.push(g)
-      return
-    }
     this.drawBuildFlag(x, y, slot.y)
     this.addPlotHit(x, y, slot.index)
   }
 
-  /** İnşa bayrağı: taş taban + ahşap direk + kırmızı flama. "Buraya kur." */
+  /** İnşa bayrağı: taş taban + kısa ahşap direk + küçük kırmızı flama. "Buraya kur." */
   private drawBuildFlag(x: number, y: number, depthY: number) {
     const s = TILE_WORLD
     const g = this.add.graphics().setDepth(depthY)
-    // Tas taban (arsa izi).
-    g.fillStyle(COLOR.padFree, 0.5); g.fillPoints(diamondPoints(x, y, s * 0.62, s * 0.31), true)
-    g.lineStyle(2.5, COLOR.padFreeEdge, 0.8); g.strokePoints(diamondPoints(x, y, s * 0.62, s * 0.31), true)
+    // Tas taban (arsa izi) - komsu binalarla yarismasin diye YUMUSAK.
+    g.fillStyle(COLOR.padFree, 0.42); g.fillPoints(diamondPoints(x, y, s * 0.7, s * 0.35), true)
+    g.lineStyle(2, COLOR.padFreeEdge, 0.6); g.strokePoints(diamondPoints(x, y, s * 0.7, s * 0.35), true)
     // Yere dusen golge.
-    g.fillStyle(0x0d1c16, 0.18); g.fillEllipse(x + s * 0.05, y + s * 0.03, s * 0.22, s * 0.1)
-    // Direk.
-    const poleH = s * 0.9
-    g.fillStyle(0x5a3d24, 1); g.fillRect(x - s * 0.035, y - poleH, s * 0.07, poleH)
-    // Flama (ucgen).
+    g.fillStyle(0x0d1c16, 0.16); g.fillEllipse(x + s * 0.04, y + s * 0.02, s * 0.18, s * 0.08)
+    // Kisa direk.
+    const poleH = s * 0.52
+    g.fillStyle(0x5a3d24, 1); g.fillRect(x - s * 0.028, y - poleH, s * 0.056, poleH)
+    // Kucuk flama (ucgen).
     g.fillStyle(0x9c3b2e, 1)
-    g.fillPoints([{ x: x + s * 0.035, y: y - poleH }, { x: x + s * 0.035, y: y - poleH + s * 0.28 }, { x: x + s * 0.4, y: y - poleH + s * 0.14 }], true)
-    g.fillStyle(0xcaa24a, 1); g.fillCircle(x, y - poleH, s * 0.055)
+    g.fillPoints([{ x: x + s * 0.028, y: y - poleH }, { x: x + s * 0.028, y: y - poleH + s * 0.18 }, { x: x + s * 0.26, y: y - poleH + s * 0.09 }], true)
+    g.fillStyle(0xcaa24a, 1); g.fillCircle(x, y - poleH, s * 0.045)
     this.pieces.push(g)
   }
 

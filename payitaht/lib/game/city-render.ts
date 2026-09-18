@@ -152,32 +152,11 @@ export function groundShapes(game: Game): GroundShapes {
   const gateY = wallOuter[4].y
 
   /*
-   * YOLLAR: belediyeden (merkez) her arsaya bir yol.
-   *
-   * Bir arsa iki halde yola baglanir: uzerinde BINA varsa (her bina belediyeye
-   * baglidir), ya da halkasi belediye SEVIYESINE ulasmissa (belediye buyudukce
-   * yol bir sonraki halkaya uzar). Boylece hem "her binadan belediyeye yol"
-   * hem "her level atlayinca yol cikar" ayni kuraldan turer.
+   * YOLLAR ARTIK OYUNCUNUN: otomatik cizilmiyor. Belediye cakili ama yol agini
+   * oyuncu haritada bos zemine dokunarak kendi doser (bkz. game.roads,
+   * phaser-city.drawRoads). Bu yuzden burada yol geometrisi uretilmez.
    */
-  const centre = { x: toWorldX(CENTER.x), y: toWorldY(CENTER.y) }
-  const divanLevel = game.buildings.divan
-  const roads: Road[] = USES_MEASURED ? [] : SLOTS
-    // Belediyeye yol: uzerinde bina olan HER arsa, ya da belediye seviyesine
-    // ulasmis bos halkalar - yol boylece merkezden buyur. Iskeleler ise HER
-    // ZAMAN baglidir: liman mahallesine inen bir yol/rihtim gorunur dursun.
-    .filter(s => s.index !== CENTER_PLOT &&
-      (s.zone === 'liman' || occupied.has(s.index) || ringOf(s.index) <= divanLevel))
-    .map(s => {
-      const b = { x: toWorldX(s.x), y: toWorldY(s.y) }
-      const mid = { x: (centre.x + b.x) / 2, y: (centre.y + b.y) / 2 }
-      // Orta noktayi hatta DIK yonde kaydir: yol duz gitmez, kavislenir. Yon
-      // arsanin indeksine gore degisir ki komsu yollar ayni tarafa bukulmesin.
-      const dx = b.x - centre.x, dy = b.y - centre.y
-      const len = Math.hypot(dx, dy) || 1
-      const bend = (s.index % 2 === 0 ? 1 : -1) * len * 0.16
-      const c = { x: mid.x + (-dy / len) * bend, y: mid.y + (dx / len) * bend }
-      return { a: centre, b, c }
-    })
+  const roads: Road[] = []
 
   return {
     // Boyali arkaplan modunda ada resmin icinde; kod cizmez.
@@ -266,5 +245,8 @@ export function visualSignature(game: Game): string {
   return [
     ...BUILDING_IDS.map(id => `${game.placement[id] ?? '-'}:${game.buildings[id]}`),
     game.queue.map(j => j.id).join(','),
+    // Oyuncunun dosedigi yollar ve aynaladigi binalar da sahneyi degistirir.
+    game.roads.join(','),
+    game.flips.join(','),
   ].join('|')
 }

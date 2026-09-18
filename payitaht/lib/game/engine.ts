@@ -1,4 +1,4 @@
-import { SLOTS, type Zone } from './layout'
+import { SLOTS, START_ROADS, isRoadCell, type Zone } from './layout'
 
 export const RESOURCE_IDS = ['gold', 'wood', 'stone', 'knowledge'] as const
 export type Resource = typeof RESOURCE_IDS[number]
@@ -66,6 +66,16 @@ export type Game = {
   drill: Job | null
   /** Sehrin elindeki birlikler. */
   army: Army
+  /**
+   * Oyuncunun KENDI dosedigi yollar; her oge bir yol hucresi kimligi ("col,row",
+   * bkz. layout.ROAD_CELLS). Belediye cakili, ama yol agini oyuncu kurar.
+   */
+  roads: string[]
+  /**
+   * Aynalanmis (sag-sol cevrilmis) binalar. Tek sprite oldugu icin gercek
+   * donme yok; oyuncu binayi yatayda cevirebilir (flipX).
+   */
+  flips: BuildingId[]
   claimed: string[]; log: { text: string; time: number }[]
 }
 
@@ -213,6 +223,7 @@ export function initialGame(now: number): Game {
     placement: { ...blankNull(BUILDING_IDS), ...START_PLOTS },
     workers: { ...blank(WORKER_IDS), kereste: WORKERS_PER_LEVEL, tas: WORKERS_PER_LEVEL },
     army: blank(UNIT_IDS),
+    roads: [...START_ROADS], flips: [],
     research: [], queue: [], study: null, drill: null, claimed: [],
     log: [{ text: 'Sahilhisar kuruldu. Hikâyen burada başlıyor.', time: now }],
   }
@@ -534,6 +545,10 @@ export type Command =
   | { type: 'claim'; id: string }
   | { type: 'workers'; id: WorkerId; value: number }
   | { type: 'recruit'; id: UnitId; count: number }
+  /** Bir yol hucresini ac/kapat (oyuncu yolu kendi doser). */
+  | { type: 'road'; cell: string }
+  /** Bir binayi yatayda aynala (sag-sol cevir). */
+  | { type: 'flip'; id: BuildingId }
 export function execute(source: Game, command: Command, now: number): { game: Game; error?: string } {
   const g = advance(source, now)
   if (command.type === 'build') {
@@ -587,6 +602,20 @@ export function execute(source: Game, command: Command, now: number): { game: Ga
     g.resources.knowledge -= RESEARCH[command.id].cost
     g.study = { id: command.id, kind: 'research', start: now, end: now + RESEARCH[command.id].duration * 1000 }
     logEvent(g, `${RESEARCH[command.id].name} araştırması başladı.`, now)
+  } else if (command.type === 'road') {
+    /*
+     * Yol dosemek/silmek SESSIZ ve BEDAVA: oyuncu haritada bos zemine dokunup
+     * yol agini serbestce cizer. Gecersiz hucre yok sayilir.
+     */
+    if (!isRoadCell(command.cell)) return { game: g }
+    g.roads = g.roads.includes(command.cell)
+      ? g.roads.filter(c => c !== command.cell)
+      : [...g.roads, command.cell]
+  } else if (command.type === 'flip') {
+    // Binayi yatayda aynala; sessiz.
+    g.flips = g.flips.includes(command.id)
+      ? g.flips.filter(id => id !== command.id)
+      : [...g.flips, command.id]
   } else {
     const objective = OBJECTIVES.find(o => o.id === command.id)
     if (!objective || !objectiveDone(g, objective.id) || g.claimed.includes(objective.id)) return { game: g, error: 'Bu ödül henüz alınamaz veya zaten alındı.' }
@@ -674,7 +703,18 @@ function fillMissing(g: Record<string, unknown>): Record<string, unknown> {
   const army = { ...(g.army as Record<string, number> | undefined) }
   const filled: Record<string, number> = {}
   for (const id of UNIT_IDS) filled[id] = Number.isInteger(army[id]) ? army[id] : 0
-  return { ...g, ...out, army: filled, drill: g.drill === undefined ? null : g.drill }
+  /*
+   * YOLLAR ve AYNALAMA yeni alanlar: eski kayitlarda yok. Dogru baslangic
+   * bellidir - yol yok, aynalama yok - ve gecersiz/yinelenen ogeler ayiklanir
+   * (izgara degisirse eski yol kimlikleri artik gecersiz olabilir).
+   */
+  const roads = Array.isArray(g.roads)
+    ? [...new Set((g.roads as unknown[]).filter((c): c is string => typeof c === 'string' && isRoadCell(c)))]
+    : []
+  const flips = Array.isArray(g.flips)
+    ? [...new Set((g.flips as unknown[]).filter((id): id is BuildingId => BUILDING_IDS.includes(id as BuildingId)))]
+    : []
+  return { ...g, ...out, army: filled, roads, flips, drill: g.drill === undefined ? null : g.drill }
 }
 
 /**
@@ -754,9 +794,9 @@ export function parseSave(raw: string): Game {
     && queue.every(job => validJob(job, 'build'))
     && new Set(queue.map(job => job.id)).size === queue.length
     && queue.every((job, i) => i === 0 || job.start >= queue[i - 1].end - 1)
-  if (!g || g.version !== 3 || !queueValid || !finite(g.updatedAt) || !g.resources || !g.buildings || !placementValid || !workersValid || !armyValid || !validJob(g.drill as Job | null, 'drill') || !RESOURCE_IDS.every(r => finite((g.resources as Resources)[r])) || !BUILDING_IDS.every(b => Number.isInteger((g.buildings as Record<BuildingId, number>)[b]) && (g.buildings as Record<BuildingId, number>)[b] >= 0 && (g.buildings as Record<BuildingId, number>)[b] <= 5) || (g.buildings as Record<BuildingId, number>).divan < 1 || !Array.isArray(g.research) || !(g.research as ResearchId[]).every((id: ResearchId) => RESEARCH_IDS.includes(id)) || new Set(g.research as ResearchId[]).size !== (g.research as ResearchId[]).length || !Array.isArray(g.claimed) || !(g.claimed as string[]).every((id: string) => OBJECTIVES.some(o => o.id === id)) || !validJob(g.study as Job | null, 'research') || !Array.isArray(g.log) || (g.log as unknown[]).length > 60 || !(g.log as { text: unknown; time: unknown }[]).every((l) => typeof l.text === 'string' && l.text.length < 500 && finite(l.time))) throw new Error('Kayıt dosyası okunamadı. Eski kaydın korunuyor; yeni oyun başlatabilirsin.')
+  if (!g || g.version !== 3 || !queueValid || !finite(g.updatedAt) || !g.resources || !g.buildings || !placementValid || !workersValid || !armyValid || !validJob(g.drill as Job | null, 'drill') || !RESOURCE_IDS.every(r => finite((g.resources as Resources)[r])) || !BUILDING_IDS.every(b => Number.isInteger((g.buildings as Record<BuildingId, number>)[b]) && (g.buildings as Record<BuildingId, number>)[b] >= 0 && (g.buildings as Record<BuildingId, number>)[b] <= MAX_LEVEL[b]) || (g.buildings as Record<BuildingId, number>).divan < 1 || !Array.isArray(g.research) || !(g.research as ResearchId[]).every((id: ResearchId) => RESEARCH_IDS.includes(id)) || new Set(g.research as ResearchId[]).size !== (g.research as ResearchId[]).length || !Array.isArray(g.claimed) || !(g.claimed as string[]).every((id: string) => OBJECTIVES.some(o => o.id === id)) || !validJob(g.study as Job | null, 'research') || !Array.isArray(g.log) || (g.log as unknown[]).length > 60 || !(g.log as { text: unknown; time: unknown }[]).every((l) => typeof l.text === 'string' && l.text.length < 500 && finite(l.time))) throw new Error('Kayıt dosyası okunamadı. Eski kaydın korunuyor; yeni oyun başlatabilirsin.')
   const game = g as unknown as Game
-  if (game.queue.some(job => game.buildings[job.id as BuildingId] >= 5)) throw new Error('İnşaat kaydı geçersiz.')
+  if (game.queue.some(job => game.buildings[job.id as BuildingId] >= MAX_LEVEL[job.id as BuildingId])) throw new Error('İnşaat kaydı geçersiz.')
   if (game.study && game.research.includes(game.study.id as ResearchId)) throw new Error('Araştırma kaydı geçersiz.')
   /*
    * Ordunun BEDELI nufustur: bir kayit, sehrin besleyebileceginden fazla asker

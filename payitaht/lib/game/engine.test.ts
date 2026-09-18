@@ -663,18 +663,31 @@ test('gorsel imza yalnizca GORUNEN degisiklikte degisir', () => {
  * Belediye (divan) her zaman merkez arsada, cakili durur; her bina ona bir
  * yolla baglanir ve belediye seviye atladikca yol agi bir sonraki halkaya uzar.
  */
-test('belediye merkez arsada baslar ve yol agi seviyeyle buyur', () => {
+test('belediye merkez arsada cakili baslar; yollari oyuncu doser', () => {
   const g = initialGame(now)
   assert.equal(g.placement.divan, CENTER_PLOT)
-  // Baslangicta 5 bina var: her biri belediyeye bir yol.
-  const base = groundShapes(g).roads.length
-  assert.ok(base >= 4)
-  // Belediye seviye atlayinca yol agi uzar (bos arsalara da yol iner).
-  const grown = groundShapes({ ...g, buildings: { ...g.buildings, divan: 3 } })
-  assert.ok(grown.roads.length > base)
-  // Yollarin hepsi merkezden cikar.
-  const c = grown.roads[0].a
-  assert.ok(grown.roads.every(r => r.a.x === c.x && r.a.y === c.y))
+  // Yollar ARTIK otomatik degil: sehir yolsuz baslar, geometri uretilmez.
+  assert.deepEqual(g.roads, [])
+  assert.equal(groundShapes(g).roads.length, 0)
+  // 'road' komutu bir yol hucresini acar; tekrari kaldirir (ac/kapat).
+  const laid = execute(g, { type: 'road', cell: '2,-1' }, now).game
+  assert.deepEqual(laid.roads, ['2,-1'])
+  const erased = execute(laid, { type: 'road', cell: '2,-1' }, now).game
+  assert.deepEqual(erased.roads, [])
+  // Gecersiz bicimli hucre yok sayilir.
+  assert.deepEqual(execute(g, { type: 'road', cell: 'x' }, now).game.roads, [])
+  // Dosenen yollar kayittan aynen geri okunur.
+  assert.deepEqual(parseSave(JSON.stringify(execute(g, { type: 'road', cell: '0,0' }, now).game)).roads, ['0,0'])
+})
+
+test('bina yatayda aynalanir (flip); kayitta korunur', () => {
+  const g = initialGame(now)
+  assert.deepEqual(g.flips, [])
+  const flipped = execute(g, { type: 'flip', id: 'konut' }, now).game
+  assert.deepEqual(flipped.flips, ['konut'])
+  // Tekrar cagirinca eski haline doner.
+  assert.deepEqual(execute(flipped, { type: 'flip', id: 'konut' }, now).game.flips, [])
+  assert.deepEqual(parseSave(JSON.stringify(flipped)).flips, ['konut'])
 })
 
 test('liman ve tersane denizin kenarindaki iskeleye kurulur', () => {
