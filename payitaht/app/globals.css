@@ -60,7 +60,11 @@
 }
 .game-shell { height: 100dvh; min-height: 500px; display: flex; flex-direction: column; overflow: hidden; background: #123c46; }
 /* --- OYUNCU KARTI: sol ust kose ------------------------------------------ */
-.player-card { position: fixed; top: calc(env(safe-area-inset-top, 0px) + 10px); left: 10px; z-index: 3; display: flex; align-items: center; gap: 9px; padding: 6px 8px 6px 6px; border-radius: 14px; background: #0f2a26c9; border: 1px solid #d9c18540; backdrop-filter: blur(9px); pointer-events: auto; }
+.player-card { position: fixed; top: calc(env(safe-area-inset-top, 0px) + 52px); left: 10px; z-index: 3; display: flex; align-items: center; gap: 9px; padding: 6px 8px 6px 6px; border-radius: 14px; background: #0f2a26d6; border: 1px solid #d9c18540; backdrop-filter: blur(9px); pointer-events: auto; }
+/* GÜÇ ROZETİ — referanstaki çapraz kılıç + büyük sayı. */
+.player-power { display: flex; align-items: center; gap: 5px; padding: 4px 9px 4px 7px; border-radius: 9px; background: linear-gradient(#3a1d1b, #2a1513); border: 1px solid #a5563f66; color: #ffd9ad; }
+.player-power svg { width: 15px; height: 15px; color: #e07a4e; stroke-width: 2; }
+.player-power span { font-family: var(--font-body), sans-serif; font-size: 12.5px; font-weight: 700; font-variant-numeric: tabular-nums; color: #ffe9c9; }
 .player-face { position: relative; width: 38px; height: 38px; flex-shrink: 0; display: grid; place-items: center; border-radius: 11px; background: #2a4436; border: 1px solid #bb9a5e; color: var(--gold); }
 .player-face > svg { width: 20px; height: 20px; }
 .player-face > span { position: absolute; right: -4px; bottom: -4px; display: grid; place-items: center; font-size: 9px; width: 17px; height: 17px; border: 1px solid #8f7b53; border-radius: 5px; background: #12312b; color: #f0e2bb; }
@@ -84,19 +88,32 @@
  * Tam genislikte bir serit ekranin %8'ini yiyip dunyayi ikiye boluyordu.
  * Referans oyunlarin hepsinde kaynaklar sag ust KOSEDE, dar bir yigin.
  */
-.resource-bar { position: fixed; top: calc(env(safe-area-inset-top, 0px) + 10px); right: 10px; z-index: 3; display: flex; flex-direction: column; gap: 5px; width: 142px; pointer-events: auto; }
-.resource { display: flex; align-items: center; gap: 8px; padding: 4px 5px 4px 9px; border-radius: 9px; background: #0d2522ee; border: 1px solid #d9c18540; box-shadow: 0 3px 10px #05141240; text-align: left; position: relative; min-width: 0; }
-
-.resource-symbol { order: 2; margin-left: auto; width: 24px; height: 24px; flex-shrink: 0; display: grid; place-items: center; color: var(--gold); background: #d6b77b14; border: 1px solid #d6b77b2e; border-radius: 50%; }
-.resource-symbol svg { width: 14px; height: 14px; stroke-width: 1.6; }
+/* KAYNAK ŞERİDİ — referanstaki gibi en üstte YATAY bir sıra ikon-hap. */
+.resource-bar { position: fixed; top: calc(env(safe-area-inset-top, 0px) + 8px); left: 8px; right: 8px; z-index: 3; display: flex; flex-direction: row; gap: 5px; pointer-events: auto; }
+.resource { flex: 1 1 0; min-width: 0; display: flex; align-items: center; gap: 6px; padding: 4px 8px 4px 5px; border-radius: 10px; background: #0d2522ee; border: 1px solid #d9c18540; box-shadow: 0 3px 10px #05141240; text-align: left; position: relative; }
+.resource-symbol { order: 0; width: 24px; height: 24px; flex-shrink: 0; display: grid; place-items: center; color: var(--gold); background: #d6b77b1c; border: 1px solid #d6b77b33; border-radius: 8px; }
+.resource-symbol svg { width: 15px; height: 15px; stroke-width: 1.7; }
 .resource-wood .resource-symbol { color: var(--green); }
 .resource-stone .resource-symbol { color: var(--stone); }
 .resource-knowledge .resource-symbol { color: #a4c8c5; }
 .resource-copy { display: flex; flex-direction: column; gap: 0; min-width: 0; flex: 1; overflow: hidden; }
 .resource-name { display: none; }
-.resource strong { font-family: var(--font-body), sans-serif; font-size: 12.5px; font-weight: 700; font-variant-numeric: tabular-nums; line-height: 1.15; overflow: hidden; text-overflow: ellipsis; color: #ffffff; }
+.resource strong { font-family: var(--font-body), sans-serif; font-size: 12.5px; font-weight: 700; font-variant-numeric: tabular-nums; line-height: 1.1; overflow: hidden; text-overflow: ellipsis; color: #ffffff; }
 .resource-rate { color: #cbe6bd; font-size: 8px; white-space: nowrap; line-height: 1.2; overflow: hidden; text-overflow: ellipsis; }
-.resource-rate > span { opacity: .65; font-size: 9px; }
+.resource-rate > span { opacity: .65; font-size: 8px; }
+
+/* YAN AKSIYON DÜĞMELERİ — sağda yüzen büyük yuvarlaklar (referans). */
+.side-actions { position: fixed; right: 10px; bottom: 150px; z-index: 3; display: flex; flex-direction: column; gap: 12px; pointer-events: auto; }
+.side-action { display: grid; place-items: center; width: 52px; height: 52px; border-radius: 50%; color: #fff2d8; border: 2px solid #d9c18566; box-shadow: 0 6px 16px #04121066; }
+.side-action svg { width: 24px; height: 24px; stroke-width: 1.8; }
+.side-threat { background: radial-gradient(circle at 35% 30%, #7a2320, #3c110f); border-color: #c1553f80; }
+.side-build { background: radial-gradient(circle at 35% 30%, #2f5a3f, #163524); }
+.side-build.side-active { background: radial-gradient(circle at 35% 30%, #caa24a, #8a6d24); color: #23180a; border-color: #ffe6a6; }
+
+/* ALT LOG ŞERİDİ — referanstaki sohbet gibi tek satır günlük. */
+.hud-ticker { position: fixed; left: 10px; right: 74px; bottom: calc(env(safe-area-inset-bottom, 0px) + 84px); z-index: 3; display: flex; align-items: center; gap: 8px; padding: 6px 10px; border-radius: 10px; background: #0d2522d0; border: 1px solid #d9c18533; backdrop-filter: blur(6px); text-align: left; pointer-events: auto; overflow: hidden; }
+.hud-ticker-tag { flex-shrink: 0; font-size: 8px; letter-spacing: 1px; font-weight: 700; color: #23180a; background: var(--gold); border-radius: 4px; padding: 2px 5px; }
+.hud-ticker-text { font-size: 11px; color: #e7ecd9; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .game-body { display: flex; flex: 1; min-height: 0; }
 .city-column { flex: 1; display: flex; flex-direction: column; min-width: 0; position: relative; }
 .city-scene { flex: 1; min-height: 0; position: relative; isolation: isolate; background: #527270; overflow: hidden; }
@@ -286,16 +303,13 @@
   .player-avatar > svg { width: 18px; }
   .player-avatar > span { width: 15px; height: 15px; font-size: 8px; }
   .prototype-label { display: none; }
-  .resource-bar { height: 70px; padding: 0 8px; }
-  .resource { gap: 7px; justify-content: center; padding: 0 5px; }
-  .resource-symbol { background: none; border: none; width: 20px; height: 28px; flex-shrink: 0; }
-  .resource-symbol svg { width: 22px; height: 22px; }
-  .resource-copy { display: flex; flex-direction: column; gap: 1px; }
-  .resource-name { font-size: 8px; margin: 0; }
-  .resource strong { font-size: 13px; }
-  .resource-rate { font-size: 8px; align-self: flex-start; }
+  .resource-bar { gap: 4px; }
+  .resource { gap: 5px; padding: 3px 6px 3px 4px; }
+  .resource-symbol { width: 22px; height: 22px; flex-shrink: 0; }
+  .resource-symbol svg { width: 14px; height: 14px; }
+  .resource strong { font-size: 12px; }
+  .resource-rate { font-size: 7.5px; }
   .resource-rate > span { font-size: 7px; }
-  .resource + .resource::before { height: 33px; }
     /*
    * Sehir basligi HARITANIN USTUNDE durur; buyuk oldugunda ilk arsa
    * satirini ortuyordu. Dekoratif bir baslik icin odenecek bedel degil.
@@ -349,7 +363,7 @@
   .resource-symbol svg { width: 18px; }
   .resource strong { font-size: 11px; }
   .mobile-objective small { font-size: 7px; }
-  .advisor-bar { top: 66px; }
+  .advisor-bar { top: calc(env(safe-area-inset-top, 0px) + 104px); }
   .queue-bar { top: 250px; }
   .queue-arrow { display: none; }
   .queue-icon { width: 23px; border: none; }
@@ -357,7 +371,7 @@
 }
 @media (max-height: 660px) and (max-width: 767px) {
   .game-header { height: calc(57px + env(safe-area-inset-top, 0px)); }
-  .resource-bar { height: 61px; }
+  .resource-bar { gap: 3px; }
   .city-title { padding-top: 14px; }
   .city-title h1 { font-size: 30px; }
   .mobile-objective { bottom: 80px; min-height: 48px; padding-top: 6px; padding-bottom: 6px; }
@@ -430,7 +444,7 @@
  * sekmeyi verir ve arkasindan sehir gorunur.
  */
 /* Rozetin ALTINDA baslar: ikisi ust uste binerse ikisi de okunmaz olur. */
-.advisor-bar { position: fixed; left: 12px; top: 92px; z-index: 3; display: flex; flex-direction: column; gap: 4px; padding: 6px 5px; border-radius: 12px; background: #0f2a26a6; border: 1px solid #d9c18526; backdrop-filter: blur(8px); pointer-events: auto; }
+.advisor-bar { position: fixed; left: 12px; top: calc(env(safe-area-inset-top, 0px) + 112px); z-index: 3; display: flex; flex-direction: column; gap: 4px; padding: 6px 5px; border-radius: 12px; background: #0f2a26a6; border: 1px solid #d9c18526; backdrop-filter: blur(8px); pointer-events: auto; }
 .advisor { position: relative; display: flex; flex-direction: column; align-items: center; gap: 1px; width: 40px; padding: 5px 2px; border-radius: 8px; background: none; border: 0; color: #b6c4b8; font-size: 7px; letter-spacing: .1px; }
 .advisor-head { width: 20px; height: 20px; flex-shrink: 0; display: grid; place-items: center; color: var(--gold); background: transparent; border: none; }
 .advisor-head svg { width: 17px; height: 17px; stroke-width: 1.5; }
@@ -496,7 +510,7 @@
 .unit-bottom > span { display: inline-flex; align-items: center; gap: 5px; font-size: 11px; color: var(--muted-foreground); }
 .unit-bottom button { margin-left: auto; }
 @media (max-width: 767px) {
-  .advisor-bar { left: 8px; top: 74px; gap: 3px; padding: 5px 4px; }
+  .advisor-bar { left: 8px; top: calc(env(safe-area-inset-top, 0px) + 108px); gap: 3px; padding: 5px 4px; }
   .advisor { width: 38px; font-size: 7px; }
   .advisor-head svg { width: 16px; height: 16px; }
   .city-stats { grid-template-columns: repeat(2, 1fr); }

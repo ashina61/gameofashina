@@ -275,6 +275,19 @@ export function wallDefense(g: Game) { return Math.round(g.buildings.surlar * 15
 /** Sehrin toplam savunmasi: surlar + kara birlikleri. */
 export function cityDefense(g: Game) { return wallDefense(g) + power(g, 'kara').defense }
 
+/**
+ * ŞEHİR GÜCÜ — tek bir "kudret" sayisi.
+ *
+ * Referans oyunlardaki gibi sehrin genel gucunu tek buyuk sayiyla gosterir:
+ * bina seviyeleri, ordu, arastirma ve sur savunmasi birlesir. Yalnizca gorsel/
+ * ozet amacli; denge hesaplarina girmez.
+ */
+export function might(g: Game): number {
+  const buildingLevels = BUILDING_IDS.reduce((s, id) => s + g.buildings[id], 0)
+  const armyPower = power(g, 'kara').attack + power(g, 'kara').defense + power(g, 'deniz').attack + power(g, 'deniz').defense
+  return buildingLevels * 4200 + armyPower * 30 + g.research.length * 6500 + wallDefense(g) * 4
+}
+
 /** Nakliye gemilerinin tasidigi mal. Pusula araştırması %50 artırır. */
 export function cargoCapacity(g: Game) { return Math.round(g.army.nakliye * UNITS.nakliye.cargo * (g.research.includes('pusula') ? 1.5 : 1)) }
 
