@@ -26,9 +26,13 @@ type Props = {
   onPlot: (index: number) => void
   /** Oyuncu bos zemine dokundu: yol hucresini ac/kapat ("gx,gy"). */
   onRoad: (cell: string) => void
+  /** Tasima kipi: hangi bina tasiniyor ve o an hedeflenen arsa. */
+  moving: BuildingId | null
+  movePlot: number | null
+  onMovePlot: (plot: number) => void
 }
 
-export function CityCanvas({ game, showLabels, placing, controls, onBuilding, onPlot, onRoad }: Props) {
+export function CityCanvas({ game, showLabels, placing, controls, onBuilding, onPlot, onRoad, moving, movePlot, onMovePlot }: Props) {
   const holder = useRef<HTMLDivElement>(null)
   const scene = useRef<CityScene | null>(null)
   /*
@@ -36,8 +40,8 @@ export function CityCanvas({ game, showLabels, placing, controls, onBuilding, on
    * yeni React cizimi yuzunden yeniden kurulmasi, oyuncunun kaydirdigi
    * kamerayi saniyede bir sifirlamak olurdu.
    */
-  const handlers = useRef({ onBuilding, onPlot, onRoad })
-  handlers.current = { onBuilding, onPlot, onRoad }
+  const handlers = useRef({ onBuilding, onPlot, onRoad, onMovePlot })
+  handlers.current = { onBuilding, onPlot, onRoad, onMovePlot }
   const firstState = useRef(game)
 
   useEffect(() => {
@@ -110,6 +114,7 @@ export function CityCanvas({ game, showLabels, placing, controls, onBuilding, on
           onBuilding: (id: BuildingId) => handlers.current.onBuilding(id),
           onPlot: (index: number) => handlers.current.onPlot(index),
           onRoad: (cell: string) => handlers.current.onRoad(cell),
+          onMovePlot: (plot: number) => handlers.current.onMovePlot(plot),
         },
       })
 
@@ -133,7 +138,7 @@ export function CityCanvas({ game, showLabels, placing, controls, onBuilding, on
 
   // Durum degistiginde sahneye haber ver; sahne gorunen bir sey degismediyse
   // hicbir sey cizmez.
-  useEffect(() => { scene.current?.sync(game, showLabels, placing) }, [game, showLabels, placing])
+  useEffect(() => { scene.current?.sync(game, showLabels, placing, moving, movePlot) }, [game, showLabels, placing, moving, movePlot])
 
   return <div ref={holder} className="city-canvas" aria-hidden="true" />
 }

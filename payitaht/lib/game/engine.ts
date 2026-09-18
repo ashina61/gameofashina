@@ -562,6 +562,8 @@ export type Command =
   | { type: 'road'; cell: string }
   /** Bir binayi yatayda aynala (sag-sol cevir). */
   | { type: 'flip'; id: BuildingId }
+  /** Kurulu bir binayi BOS bir arsaya tasi. */
+  | { type: 'move'; id: BuildingId; plot: number }
 export function execute(source: Game, command: Command, now: number): { game: Game; error?: string } {
   const g = advance(source, now)
   if (command.type === 'build') {
@@ -629,6 +631,16 @@ export function execute(source: Game, command: Command, now: number): { game: Ga
     g.flips = g.flips.includes(command.id)
       ? g.flips.filter(id => id !== command.id)
       : [...g.flips, command.id]
+  } else if (command.type === 'move') {
+    /*
+     * Kurulu bir binayi BOS bir arsaya tasi. Hedef arsa bos ve ayni bolgede
+     * olmali; degilse komut reddedilir (ust uste bina cizilmez).
+     */
+    if (g.placement[command.id] === null) return { game: g, error: 'Bu yapı henüz kurulmadı.' }
+    if (g.placement[command.id] === command.plot) return { game: g } // ayni yer: sessiz
+    if (!freePlots(g, zoneOf(command.id)).includes(command.plot)) return { game: g, error: 'Bu arsa dolu. Başka bir arsa seç.' }
+    g.placement[command.id] = command.plot
+    logEvent(g, `${BUILDINGS[command.id].name} yeni arsasına taşındı.`, now)
   } else {
     const objective = OBJECTIVES.find(o => o.id === command.id)
     if (!objective || !objectiveDone(g, objective.id) || g.claimed.includes(objective.id)) return { game: g, error: 'Bu ödül henüz alınamaz veya zaten alındı.' }

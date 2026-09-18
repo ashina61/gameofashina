@@ -110,6 +110,20 @@
 .side-build { background: radial-gradient(circle at 35% 30%, #2f5a3f, #163524); }
 .side-build.side-active { background: radial-gradient(circle at 35% 30%, #caa24a, #8a6d24); color: #23180a; border-color: #ffe6a6; }
 
+/* TAŞIMA ONAY ŞERİDİ — referanstaki büyük yeşil ✓ / kırmızı ✗. */
+.move-confirm { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(env(safe-area-inset-bottom, 0px) + 92px); z-index: 4; display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 10px 14px 12px; border-radius: 16px; background: #0d2522ea; border: 1px solid #d9c18559; backdrop-filter: blur(9px); box-shadow: 0 10px 30px #05141277; pointer-events: auto; }
+.move-confirm-title { font-family: var(--font-heading), Georgia, serif; font-size: 15px; color: #fff4da; }
+.move-confirm-hint { font-size: 10px; color: #cbe6bd; }
+.move-confirm-actions { display: flex; gap: 22px; margin-top: 6px; }
+.move-confirm-actions button { display: grid; place-items: center; width: 60px; height: 60px; border-radius: 50%; border: 3px solid #ffffff2e; box-shadow: 0 6px 16px #04121066; }
+.move-confirm-actions button svg { width: 30px; height: 30px; stroke-width: 3; }
+.move-cancel { background: radial-gradient(circle at 35% 30%, #d0554a, #93251c); color: #fff; }
+.move-ok { background: radial-gradient(circle at 35% 30%, #57c06a, #2c8a3f); color: #fff; }
+
+/* Bina araç düğmeleri (çevir / taşı) yan yana. */
+.building-tools { display: flex; gap: 8px; }
+.building-tools .btn, .building-tools button { flex: 1; }
+
 /* ALT LOG ŞERİDİ — referanstaki sohbet gibi tek satır günlük. */
 .hud-ticker { position: fixed; left: 10px; right: 74px; bottom: calc(env(safe-area-inset-bottom, 0px) + 84px); z-index: 3; display: flex; align-items: center; gap: 8px; padding: 6px 10px; border-radius: 10px; background: #0d2522d0; border: 1px solid #d9c18533; backdrop-filter: blur(6px); text-align: left; pointer-events: auto; overflow: hidden; }
 .hud-ticker-tag { flex-shrink: 0; font-size: 8px; letter-spacing: 1px; font-weight: 700; color: #23180a; background: var(--gold); border-radius: 4px; padding: 2px 5px; }

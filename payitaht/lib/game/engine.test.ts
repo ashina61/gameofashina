@@ -680,6 +680,19 @@ test('belediye merkez arsada cakili baslar; yollari oyuncu doser', () => {
   assert.deepEqual(parseSave(JSON.stringify(execute(g, { type: 'road', cell: '0,0' }, now).game)).roads, ['0,0'])
 })
 
+test('kurulu bina bos arsaya tasinir; dolu arsa reddedilir', () => {
+  const g = initialGame(now)
+  const free = freePlots(g, 'sehir')[0]
+  const moved = execute(g, { type: 'move', id: 'konut', plot: free }, now).game
+  assert.equal(moved.placement.konut, free)
+  // Baska bir binanin arsasina tasinmaz.
+  const clash = execute(moved, { type: 'move', id: 'konut', plot: moved.placement.divan! }, now)
+  assert.equal(clash.game.placement.konut, free)
+  assert.ok(clash.error)
+  // Kurulmamis bina tasinmaz.
+  assert.ok(execute(g, { type: 'move', id: 'saray', plot: free }, now).error)
+})
+
 test('bina yatayda aynalanir (flip); kayitta korunur', () => {
   const g = initialGame(now)
   assert.deepEqual(g.flips, [])

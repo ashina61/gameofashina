@@ -15,12 +15,15 @@ import { CityCanvas, type CityControls } from './city-canvas'
  * yapmiyordu. Tuval dunyayi ekrandan buyuk tutar; gezinme bu yuzden gercek.
  */
 
-export function CityScene({ game, placing, onBuilding, onPlot, onRoad, onExitBuild, onOpenList }: {
+export function CityScene({ game, placing, onBuilding, onPlot, onRoad, moving, movePlot, onMovePlot, onExitBuild, onOpenList }: {
   game: Game
   placing: boolean
   onBuilding: (id: BuildingId) => void
   onPlot: (plot: number) => void
   onRoad: (cell: string) => void
+  moving: BuildingId | null
+  movePlot: number | null
+  onMovePlot: (plot: number) => void
   onExitBuild: () => void
   onOpenList: () => void
 }) {
@@ -28,7 +31,7 @@ export function CityScene({ game, placing, onBuilding, onPlot, onRoad, onExitBui
   const controls = useRef<CityControls | null>(null)
 
   return <section className="city-scene" aria-label="Sahilhisar şehir haritası">
-    <CityCanvas game={game} showLabels={labels} placing={placing} controls={controls} onBuilding={onBuilding} onPlot={onPlot} onRoad={onRoad} />
+    <CityCanvas game={game} showLabels={labels} placing={placing} controls={controls} onBuilding={onBuilding} onPlot={onPlot} onRoad={onRoad} moving={moving} movePlot={movePlot} onMovePlot={onMovePlot} />
 
     {/*
       * İNŞA KİPİ.
@@ -38,7 +41,7 @@ export function CityScene({ game, placing, onBuilding, onPlot, onRoad, onExitBui
       * hepsi boyle: dunya normalde bir dunya, yalnizca yerlestirirken bir
       * izgara.
       */}
-    {placing && <div className="build-hint">
+    {placing && !moving && <div className="build-hint">
       <span><Hammer aria-hidden="true" /> Arsaya dokun: bina · Zemine dokun: yol</span>
       <button onClick={onOpenList}>Listeden seç</button>
       <button className="build-exit" onClick={onExitBuild} aria-label="İnşa kipinden çık"><X /></button>

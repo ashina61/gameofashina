@@ -11,7 +11,7 @@ import {
 } from '@/lib/game/city-render'
 import { SLOTS, USES_MEASURED } from '@/lib/game/layout'
 import { paletteFor, shapeFor } from '@/lib/game/building-art'
-import { BUILDINGS, BUILDING_IDS, activeJob, type BuildingId, type Game } from '@/lib/game/engine'
+import { BUILDINGS, BUILDING_IDS, activeJob, zoneOf, type BuildingId, type Game } from '@/lib/game/engine'
 import { asset, buildingImage } from '@/lib/asset'
 
 /*
@@ -122,6 +122,8 @@ export type CityEvents = {
   onPlot: (index: number) => void
   /** Oyuncu bos zemine dokundu: bir yol hucresini ac/kapat ("gx,gy"). */
   onRoad: (cell: string) => void
+  /** Tasima kipinde hedef arsa degisti (surukleme/dokunus). */
+  onMovePlot: (plot: number) => void
 }
 
 export class CityScene extends Phaser.Scene {
@@ -138,6 +140,9 @@ export class CityScene extends Phaser.Scene {
   private placing = false
   /** Insa kipinde yol dosanebilir izgara hucreleri ("gx,gy"). */
   private roadEligible = new Set<string>()
+  /** Tasinan bina ve o an hedeflenen arsa (yesil cerceve orada). */
+  private moving: BuildingId | null = null
+  private movePlot: number | null = null
   /** Surukleme mesafesi; dokunus mu kaydirma mi buradan anlasilir. */
   private dragDistance = 0
   private velocity = { x: 0, y: 0 }
@@ -234,6 +239,8 @@ export class CityScene extends Phaser.Scene {
         this.pinchStart = { distance: this.pointerGap(), zoom: this.cameras.main.zoom }
         return
       }
+      // Tasima kipinde parmak, binayi surukler; kamera kaymaz.
+      if (this.moving) { this.updateMoveTarget(pointer); return }
       last = { x: pointer.x, y: pointer.y }
       this.dragDistance = 0
       this.velocity = { x: 0, y: 0 }
@@ -241,6 +248,7 @@ export class CityScene extends Phaser.Scene {
 
     this.input.on('pointermove', (pointer: Phaser.Input.Pointer) => {
       const cam = this.cameras.main
+      if (this.moving) { if (pointer.isDown) this.updateMoveTarget(pointer); return }
       if (this.pinchStart && this.input.pointer1?.isDown && this.input.pointer2?.isDown) {
         const gap = this.pointerGap()
         if (gap > 0 && this.pinchStart.distance > 0) {
@@ -480,11 +488,57 @@ export class CityScene extends Phaser.Scene {
     const zone = this.add.zone(WORLD / 2, WORLD / 2, WORLD, WORLD).setDepth(-450)
     zone.setInteractive()
     zone.on('pointerup', (pointer: Phaser.Input.Pointer) => {
-      if (!this.placing || !isTap(pointer)) return
+      if (!this.placing || this.moving || !isTap(pointer)) return
       const c = this.worldToCell(pointer.worldX, pointer.worldY)
       const key = this.cellKey(c.gx, c.gy)
       if (this.roadEligible.has(key)) this.events$.onRoad(key)
     })
+  }
+
+  /** Tasima kipinde bir binanin oturabilecegi arsalar (bos + kendi arsasi). */
+  private eligibleMovePlots(): Set<number> {
+    const set = new Set<number>()
+    if (!this.moving) return set
+    const targetZone = zoneOf(this.moving)
+    const occupiedByOthers = new Set(
+      BUILDING_IDS.filter(b => b !== this.moving).map(b => this.state.placement[b]).filter((p): p is number => p !== null))
+    for (const slot of SLOTS) {
+      if (slot.zone !== targetZone) continue
+      if (!occupiedByOthers.has(slot.index)) set.add(slot.index)
+    }
+    return set
+  }
+
+  /** Parmagin altindaki en yakin uygun arsayi hedef yap; degistiyse ciz + bildir. */
+  private updateMoveTarget(pointer: Phaser.Input.Pointer) {
+    const eligible = this.eligibleMovePlots()
+    let best: number | null = null, bestD = Infinity
+    for (const slot of SLOTS) {
+      if (!eligible.has(slot.index)) continue
+      const d = Math.hypot(toWorldX(slot.x) - pointer.worldX, toWorldY(slot.y) - pointer.worldY)
+      if (d < bestD) { bestD = d; best = slot.index }
+    }
+    if (best !== null && best !== this.movePlot) {
+      this.movePlot = best
+      this.redraw(false)
+      this.events$.onMovePlot(best)
+    }
+  }
+
+  /** TAŞIMA hedefinin YEŞİL çerçevesi (referanstaki gibi). */
+  private drawMoveFrame(index: number) {
+    const slot = SLOTS[index]
+    if (!slot) return
+    const x = toWorldX(slot.x), y = toWorldY(slot.y)
+    const s = TILE_WORLD
+    const g = this.add.graphics().setDepth(9000)
+    g.fillStyle(0x5dff86, 0.16); g.fillPoints(diamondPoints(x, y, s * 1.2, s * 0.6), true)
+    g.lineStyle(3, 0x74ff92, 0.95); g.strokePoints(diamondPoints(x, y, s * 1.2, s * 0.6), true)
+    // Dört köşe parantezi: elmasın uçlarında kısa parlak çizgiler.
+    const corners = diamondPoints(x, y, s * 1.2, s * 0.6)
+    g.lineStyle(4, 0x9dffb4, 1)
+    for (const c of corners) { g.strokeCircle(c.x, c.y, s * 0.06) }
+    this.pieces.push(g)
   }
 
   private pointerGap() {
@@ -504,14 +558,16 @@ export class CityScene extends Phaser.Scene {
   }
 
   /** React tarafindan cagrilir; yalnizca GORUNEN bir sey degistiyse cizer. */
-  sync(game: Game, showLabels: boolean, placing: boolean) {
+  sync(game: Game, showLabels: boolean, placing: boolean, moving: BuildingId | null = null, movePlot: number | null = null) {
     this.state = game
     // Sahne hazir olmadan cagrilabilir: React durumu, Phaser boot'undan hizli.
     if (!this.ground) return
-    const next = `${visualSignature(game)}|${showLabels}|${placing}`
+    const next = `${visualSignature(game)}|${showLabels}|${placing}|${moving ?? '-'}|${movePlot ?? '-'}`
     if (next === this.signature) return
     this.showLabels = showLabels
     this.placing = placing
+    this.moving = moving
+    this.movePlot = movePlot
     this.redraw(false)
   }
 
@@ -743,7 +799,7 @@ export class CityScene extends Phaser.Scene {
   }
 
   private redraw(first: boolean) {
-    this.signature = `${visualSignature(this.state)}|${this.showLabels}|${this.placing}`
+    this.signature = `${visualSignature(this.state)}|${this.showLabels}|${this.placing}|${this.moving ?? '-'}|${this.movePlot ?? '-'}`
     const shapes = groundShapes(this.state)
 
     this.ground.clear()
@@ -818,11 +874,18 @@ export class CityScene extends Phaser.Scene {
     if (this.placing) this.drawRoadMarkers()
     if (shapes.body) this.drawDecor(shapes.body, shapes.pads)
     const running = activeJob(this.state)?.id
+    /*
+     * ETKİN yerleşim: taşınan bina, kaydedilmemiş HEDEF arsasında gösterilir;
+     * eski arsası boş görünür. Böylece oyuncu ✓'lemeden önce sonucu görür.
+     */
+    const plotOf = (id: BuildingId) => (id === this.moving && this.movePlot !== null ? this.movePlot : this.state.placement[id])
     for (const slot of SLOTS) {
-      const id = BUILDING_IDS.find(b => this.state.placement[b] === slot.index) ?? null
+      const id = BUILDING_IDS.find(b => plotOf(b) === slot.index) ?? null
       if (id) this.addBuilding(id, slot, running === id)
       else this.addEmptyPlot(slot)
     }
+    // Taşıma kipinde hedef arsanın YEŞİL çerçevesi en üstte.
+    if (this.moving && this.movePlot !== null) this.drawMoveFrame(this.movePlot)
     if (first) this.ground.setAlpha(0).setAlpha(1)
   }
 
@@ -885,7 +948,7 @@ export class CityScene extends Phaser.Scene {
       .setInteractive({ useHandCursor: true })
       .setFillStyle(0xffffff, 0)
       .setDepth(p.depth + 0.2)
-    hit.on('pointerup', (pointer: Phaser.Input.Pointer) => { if (isTap(pointer)) this.events$.onBuilding(id) })
+    hit.on('pointerup', (pointer: Phaser.Input.Pointer) => { if (isTap(pointer) && !this.moving) this.events$.onBuilding(id) })
     this.pieces.push(hit)
 
     /*
@@ -939,7 +1002,7 @@ export class CityScene extends Phaser.Scene {
       .setInteractive({ useHandCursor: true })
       .setFillStyle(0xffffff, 0)
       .setDepth(y + 0.2)
-    hit.on('pointerup', (pointer: Phaser.Input.Pointer) => { if (isTap(pointer)) this.events$.onPlot(index) })
+    hit.on('pointerup', (pointer: Phaser.Input.Pointer) => { if (isTap(pointer) && !this.moving) this.events$.onPlot(index) })
     this.pieces.push(hit)
   }
 
