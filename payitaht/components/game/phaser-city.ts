@@ -669,6 +669,37 @@ export class CityScene extends Phaser.Scene {
       this.pieces.push(img)
     }
 
+    /*
+     * 0) İÇ YEŞİLLİK — referanstaki gibi arsaların ARASINDAKİ bahçeleri doldurur.
+     *
+     * Gövde içinde deterministik bir ızgara taranır; her noktaya seyrek olarak
+     * küçük ağaç/çalı/çiçek konur. Bina tabanlarından ve VAR OLAN yollardan
+     * uzak durur (ağaç yolu örtmesin); alt kıyı (liman) boş bırakılır.
+     */
+    const roadSet = new Set(this.state.roads)
+    const stepG = TILE_WORLD * 0.66
+    const kinds0 = ['bush', 'olive-tree', 'flower', 'bush', 'olive-tree', 'flower', 'rock', 'bush']
+    let gi = 0
+    for (let gy = b.minY; gy <= b.maxY; gy += stepG) {
+      for (let gx = b.minX; gx <= b.maxX; gx += stepG) {
+        gi++
+        const jx = gx + (rnd() - 0.5) * stepG * 0.8, jy = gy + (rnd() - 0.5) * stepG * 0.8
+        if (rnd() > 0.72) continue // hafif seyreltme
+        if (jy > cy + (b.maxY - cy) * 0.5) continue // alt kıyı boş kalsın
+        if (!inPoly(jx, jy, body)) continue
+        // Bina TABANINA çok yakın olmasın (0.58) ama bahçeleri doldursun.
+        if (centres.some(cc => Math.hypot(cc.x - jx, cc.y - jy) < TILE_WORLD * 0.58)) continue
+        const rc = this.worldToCell(jx, jy)
+        if (roadSet.has(this.cellKey(rc.gx, rc.gy))) continue
+        const kind = kinds0[gi % kinds0.length]
+        const w = kind === 'olive-tree' ? TILE_WORLD * (0.55 + rnd() * 0.18)
+          : kind === 'rock' ? TILE_WORLD * (0.36 + rnd() * 0.12)
+          : kind === 'bush' ? TILE_WORLD * (0.4 + rnd() * 0.14)
+          : TILE_WORLD * (0.34 + rnd() * 0.12)
+        place(`d_${kind}`, jx, jy, w)
+      }
+    }
+
     // 1) KIYI YEŞİL KUŞAĞI. Gövde kenarını arc-length boyunca eşit örnekle,
     //    her noktayı merkeze doğru içeri kaydır (kıyının hemen içi). Doğa
     //    türleri sabit bir desende döner: zeytin, çalı, zeytin, kaya, çiçek.
