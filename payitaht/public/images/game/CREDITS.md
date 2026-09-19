@@ -31,3 +31,6 @@ asset'leri geldiğinde 14×14 tile sistemine geçilecektir (bkz. `ASSET_SPEC.md`
 üretilmiş özgün kıyı zeminidir. Prompt ve kullanım kuralları
 `docs/ART_DIRECTION.md` içindedir. Etkileşimli yollar ve arsalar ayrı kod
 katmanıdır. Uygulama arması `public/icon.svg` içinde özgün vektör çizimdir.
+
+`sahilhisar-town-v2.webp` organik sokaklı güncel şehir ortamıdır; bu proje
+için image_gen ile üretildi. PNG kaynağı kalite 94 WebP'ye çevrildi.

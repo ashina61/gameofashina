@@ -1,16 +1,18 @@
-/** Art-directed coordinates on sahilhisar-coast.png. IDs stay stable for saved cities.
- * Do not run measure-plots over this plan; terrain never defines game geometry.
+/** Courtyard anchors measured from sahilhisar-town-v2.webp (percentage of image).
+ * Roads, terraces and gardens are painted into the environment. Buildings remain
+ * separate interactive sprites. Never place a plot on a street to fill a grid.
+ * fillMissing() relocates former out-of-range plots to a free matching zone.
  */
 import type { Zone } from './layout'
 export const MEASURED_TILE_W = 11
 const city: [number, number][] = [
-  [50, 46], [35, 38], [65, 38], [35, 54], [65, 54],
-  [50, 30], [20, 46], [80, 46], [50, 62],
-  [20, 30], [80, 30], [20, 62], [80, 62],
-  [35, 22], [65, 22], [35, 70], [65, 70],
-  [20, 22], [80, 22], [20, 70], [80, 70], [50, 18], [50, 70],
+  [50, 41], // Municipal plaza
+  [21, 27], [64, 20], [58, 27], [29, 47],
+  [72, 36], [35, 35], [70, 47], [50, 56],
+  [30, 17], [42, 21], [73, 13], [79, 27],
+  [18, 39], [24, 57], [72, 60],
 ]
 export const MEASURED: { x: number; y: number; zone: Zone }[] = [
   ...city.map(([x, y]) => ({ x, y, zone: 'sehir' as const })),
-  { x: 35, y: 79, zone: 'liman' }, { x: 65, y: 79, zone: 'liman' },
+  { x: 33, y: 79, zone: 'liman' }, { x: 66, y: 79, zone: 'liman' },
 ]

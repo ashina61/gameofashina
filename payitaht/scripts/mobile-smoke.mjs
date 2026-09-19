@@ -24,7 +24,7 @@ const browser = await chromium.launch({ headless:true,
 const errors=[]
 await mkdir('review',{recursive:true})
 try {
-  for (const [width,height] of [[320,568],[390,844],[430,932],[768,1024]]) {
+  for (const [width,height] of [[320,568],[390,844],[430,932],[768,1024]].filter(([w])=>!process.env.MOBILE_WIDTH || w===Number(process.env.MOBILE_WIDTH))) {
     const context=await browser.newContext({viewport:{width,height},deviceScaleFactor:2,isMobile:true,hasTouch:true})
     const page=await context.newPage()
     page.on('pageerror',e=>errors.push(`${width}: ${e.message}`))
@@ -41,6 +41,7 @@ try {
     await page.getByRole('button',{name:'Halk',exact:true}).click()
     await page.getByRole('heading',{name:'Şehrin halkı',exact:true}).waitFor()
     await page.getByRole('button',{name:'Kapat',exact:true}).click()
+    await page.locator('[data-slot="sheet-overlay"]').waitFor({state:'hidden'})
     await page.getByRole('button',{name:'Divan',exact:true}).click()
     await page.getByRole('heading',{name:'Şehir divanı',exact:true}).waitFor()
     await page.waitForTimeout(350)
@@ -48,17 +49,19 @@ try {
     await page.getByRole('button',{name:'Ordu ve donanma Birlikler, talim ve savunma'}).click()
     await page.getByRole('heading',{name:'Ordu ve donanma',exact:true}).waitFor()
     await page.getByRole('button',{name:'Kapat',exact:true}).click()
+    await page.locator('[data-slot="sheet-overlay"]').waitFor({state:'hidden'})
     if (width === 390) {
       // Center building tap must open Divanhane, never the empty plot behind it.
       const canvas=await page.locator('canvas').boundingBox()
-      await page.touchscreen.tap(width/2,canvas.y+canvas.height/2-30)
-      await page.getByRole('heading',{name:'Divanhane',exact:true}).waitFor()
+      await page.touchscreen.tap(width/2,canvas.y+canvas.height*0.41-22)
+      await page.getByRole('heading',{name:'Divanhane',exact:true}).waitFor({timeout:4000}).catch(async e=>{await page.screenshot({path:'review/tap-failure.png'});console.log('TAP',canvas,await page.locator('h2').allTextContents());throw e})
       await page.waitForTimeout(300)
       await page.screenshot({path:'review/building-390.png'})
       const saved=await page.evaluate(()=>JSON.parse(localStorage.getItem('payitaht-adalari-v1')))
       await page.getByRole('button',{name:'Binayı yükselt',exact:true}).click()
       await page.getByText('İnşaat devam ediyor',{exact:true}).waitFor()
       await page.getByRole('button',{name:'Kapat',exact:true}).click()
+    await page.locator('[data-slot="sheet-overlay"]').waitFor({state:'hidden'})
       await page.reload(); await page.locator('canvas').waitFor()
       const reloaded=await page.evaluate(()=>JSON.parse(localStorage.getItem('payitaht-adalari-v1')))
       assert.equal(reloaded.queue[0]?.id,'divan','construction must survive reload')

@@ -160,13 +160,13 @@ export class CityScene extends Phaser.Scene {
   preload() {
     // Boyali arkaplan modunda ada resmini yukle; stilize modda dunyayi
     // tamamen kod ciziyor, resme gerek yok.
-    if (USES_MEASURED) this.load.image('island', asset('/images/game/environments/sahilhisar-coast.png'))
+    if (USES_MEASURED) this.load.image('island', asset('/images/game/environments/sahilhisar-town-v2.webp'))
     for (const id of BUILDING_IDS) if (BUILDINGS[id].art) this.load.image(id, buildingImage(id))
     // Zemin tile'lari: kara ve deniz artik gercek boyali izometrik karolar.
     for (const t of (USES_MEASURED ? [] : TERRAIN_TILES)) this.load.image(`t_${t}`, asset(`/images/game/terrain/${t}.png`))
     // Dogal dekor + landmark sprite'lari.
-    for (const d of DECOR_SCATTER) this.load.image(`d_${d}`, asset(`/images/game/decor/${d}.png`))
-    for (const d of DECOR_LANDMARK) this.load.image(`d_${d}`, asset(`/images/game/decor/${d}.png`))
+    for (const d of (USES_MEASURED ? [] : DECOR_SCATTER)) this.load.image(`d_${d}`, asset(`/images/game/decor/${d}.png`))
+    for (const d of (USES_MEASURED ? [] : DECOR_LANDMARK)) this.load.image(`d_${d}`, asset(`/images/game/decor/${d}.png`))
     // Yol karolari.
     for (const r of (USES_MEASURED ? [] : ROAD_FILES)) this.load.image(`r_${r}`, asset(`/images/game/roads/${r}.png`))
   }
@@ -180,7 +180,6 @@ export class CityScene extends Phaser.Scene {
       this.drawTerrain()
     }
     this.ground = this.add.graphics().setDepth(-500)
-    if (USES_MEASURED) { this.drawTownStreets(); this.drawTownGardens() }
 
     const cam = this.cameras.main
     cam.setBounds(0, 0, WORLD, WORLD)
@@ -193,50 +192,6 @@ export class CityScene extends Phaser.Scene {
     this.redraw(true)
     this.scale.on('resize', () => this.cameras.main.setZoom(
       Phaser.Math.Clamp(this.cameras.main.zoom, this.minZoom(), MAX_ZOOM)))
-  }
-
-  /** Planned streets use the same coordinates as buildings, not inferred image pixels. */
-  private drawTownStreets() {
-    const streets = this.add.graphics().setDepth(-900)
-    const rnd = seeded(1792)
-    const paths = [
-      [[20, 26], [80, 58]], [[20, 42], [80, 74]],
-      [[20, 58], [80, 26]], [[20, 74], [80, 42]],
-      [[35, 72], [35, 77]], [[65, 72], [65, 77]],
-    ]
-    for (const path of paths) {
-      const points = path.map(([x, y]) => ({ x: toWorldX(x), y: toWorldY(y) }))
-      streets.lineStyle(px(1.5), 0x786c50, 0.22); streets.strokePoints(points, false)
-      streets.lineStyle(px(1.2), 0xdac8a5, 0.86); streets.strokePoints(points, false)
-      streets.lineStyle(px(0.75), 0xf1dfb9, 0.3); streets.strokePoints(points, false)
-      const [a, b] = points
-      const distance = Math.hypot(b.x - a.x, b.y - a.y)
-      const nx = -(b.y - a.y) / distance, ny = (b.x - a.x) / distance
-      for (let step = 0; step < distance; step += px(0.4)) {
-        const t = step / distance
-        for (let lane = -1; lane <= 1; lane++) {
-          const x = a.x + (b.x-a.x)*t + nx*lane*px(0.34)
-          const y = a.y + (b.y-a.y)*t + ny*lane*px(0.34)
-          streets.fillStyle(rnd() > .5 ? 0xb3a083 : 0xf2dfb5, .35)
-          streets.fillRoundedRect(x, y, px(.25), px(.15), px(.04))
-        }
-      }
-    }
-  }
-
-  private drawTownGardens() {
-    const gardens: [number, number, string, number][] = [
-      [27, 30, 'olive-tree', 6], [73, 30, 'olive-tree', 6],
-      [27, 46, 'bush', 4], [73, 46, 'bush', 4],
-      [27, 62, 'olive-tree', 6], [73, 62, 'olive-tree', 6],
-      [43, 38, 'flower', 3], [57, 54, 'flower', 3],
-      [50, 54, 'fountain', 5], [43, 70, 'cart', 4],
-    ]
-    for (const [x,y,key,width] of gardens) {
-      if (!this.textures.exists(`d_${key}`)) continue
-      const img = this.add.image(toWorldX(x),toWorldY(y),`d_${key}`).setOrigin(.5,.9)
-      img.setScale(px(width)/img.width).setDepth(toWorldY(y))
-    }
   }
 
   /**
@@ -933,10 +888,10 @@ export class CityScene extends Phaser.Scene {
       if (pad.slot.zone === 'liman') {
         // Bos iskele: denize uzanan ahsap platform her zaman gorunur ki
         // limanin nereye kurulacagi belli olsun.
-        if (this.placing) this.drawQuay(pad.shape, false)
+        if (this.placing && !USES_MEASURED) this.drawQuay(pad.shape, false)
       } else if (this.placing) {
-        this.fill(pad.shape, COLOR.padFree, 0.85)
-        this.stroke(pad.shape, COLOR.padFreeEdge, 5)
+        this.fill(pad.shape, COLOR.padFree, 0.12)
+        this.stroke(pad.shape, 0xf4d99b, 4, 0.8)
       }
       // İnşa modunda DEĞİLKEN boş arsa işareti YOK: açık arsalar bayrakla
       // (addEmptyPlot → drawBuildFlag), kilitli arsalar soluk izle gösterilir.
@@ -975,10 +930,10 @@ export class CityScene extends Phaser.Scene {
    * buyuk cizilir. Liman/tersane iskele sprite'lari kendi rihtimini tasir.
    */
   private artScale(id: BuildingId) {
-    if (id === 'divan') return 1.5
-    if (id === 'saray') return 1.32
-    if (id === 'konut' || id === 'kisla' || id === 'medrese') return 1.14
-    return 1.04
+    if (id === 'divan') return 1.42
+    if (id === 'saray') return 1.12
+    if (id === 'konut' || id === 'kisla' || id === 'medrese') return 1.0
+    return 0.94
   }
 
   private addBuilding(id: BuildingId, slot: typeof SLOTS[number], building: boolean) {
@@ -1062,8 +1017,8 @@ export class CityScene extends Phaser.Scene {
     const s = TILE_WORLD
     const g = this.add.graphics().setDepth(depthY)
     // Tas taban (arsa izi) - komsu binalarla yarismasin diye YUMUSAK.
-    g.fillStyle(COLOR.padFree, 0.42); g.fillPoints(diamondPoints(x, y, s * 0.7, s * 0.35), true)
-    g.lineStyle(2, COLOR.padFreeEdge, 0.6); g.strokePoints(diamondPoints(x, y, s * 0.7, s * 0.35), true)
+    g.fillStyle(COLOR.padFree, this.placing ? 0.12 : 0); g.fillPoints(diamondPoints(x, y, s * 0.7, s * 0.35), true)
+    g.lineStyle(2, COLOR.padFreeEdge, this.placing ? 0.5 : 0); g.strokePoints(diamondPoints(x, y, s * 0.7, s * 0.35), true)
     // Yere dusen golge.
     g.fillStyle(0x0d1c16, 0.16); g.fillEllipse(x + s * 0.04, y + s * 0.02, s * 0.18, s * 0.08)
     g.fillStyle(this.placing ? 0xe7cc8d : 0x294b43, 0.95)
