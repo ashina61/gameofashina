@@ -95,8 +95,8 @@ function isTap(pointer: Phaser.Input.Pointer) {
   return pointer.downTime > 0
     && Phaser.Math.Distance.Between(pointer.downX, pointer.downY, pointer.upX, pointer.upY) < TAP_SLOP
 }
-const MIN_ZOOM = 0.3
-const MAX_ZOOM = 1.6
+const MIN_ZOOM = 0.12
+const MAX_ZOOM = 2.4
 /** Binanin ekranin ne kadarini kaplamasi hedefleniyor. */
 /** Ust ve alt arayuz seritleri icin acilis fitinden dusulen CSS piksel. */
 const OVERLAY = 260
@@ -125,6 +125,8 @@ export type CityEvents = {
   /** Tasima kipinde hedef arsa degisti (surukleme/dokunus). */
   onMovePlot: (plot: number) => void
 }
+
+function slotDepth(index: number) { return toWorldY(SLOTS[index].y) - TILE_WORLD * 0.7 }
 
 export class CityScene extends Phaser.Scene {
   /** Oyun durumu. `game` adi Phaser.Scene tarafindan kullaniliyor. */
@@ -158,15 +160,15 @@ export class CityScene extends Phaser.Scene {
   preload() {
     // Boyali arkaplan modunda ada resmini yukle; stilize modda dunyayi
     // tamamen kod ciziyor, resme gerek yok.
-    if (USES_MEASURED) this.load.image('island', asset('/images/game/island.webp'))
+    if (USES_MEASURED) this.load.image('island', asset('/images/game/environments/sahilhisar-coast.png'))
     for (const id of BUILDING_IDS) if (BUILDINGS[id].art) this.load.image(id, buildingImage(id))
     // Zemin tile'lari: kara ve deniz artik gercek boyali izometrik karolar.
-    for (const t of TERRAIN_TILES) this.load.image(`t_${t}`, asset(`/images/game/terrain/${t}.png`))
+    for (const t of (USES_MEASURED ? [] : TERRAIN_TILES)) this.load.image(`t_${t}`, asset(`/images/game/terrain/${t}.png`))
     // Dogal dekor + landmark sprite'lari.
     for (const d of DECOR_SCATTER) this.load.image(`d_${d}`, asset(`/images/game/decor/${d}.png`))
     for (const d of DECOR_LANDMARK) this.load.image(`d_${d}`, asset(`/images/game/decor/${d}.png`))
     // Yol karolari.
-    for (const r of ROAD_FILES) this.load.image(`r_${r}`, asset(`/images/game/roads/${r}.png`))
+    for (const r of (USES_MEASURED ? [] : ROAD_FILES)) this.load.image(`r_${r}`, asset(`/images/game/roads/${r}.png`))
   }
 
   create() {
@@ -178,18 +180,63 @@ export class CityScene extends Phaser.Scene {
       this.drawTerrain()
     }
     this.ground = this.add.graphics().setDepth(-500)
+    if (USES_MEASURED) { this.drawTownStreets(); this.drawTownGardens() }
 
     const cam = this.cameras.main
     cam.setBounds(0, 0, WORLD, WORLD)
     cam.setZoom(this.defaultZoom())
     const island = islandExtent()
-    cam.centerOn(island.cx, island.cy)
+    cam.centerOn(island.cx, island.cy * 0.94)
 
     this.installCamera()
     this.installGroundTap()
     this.redraw(true)
     this.scale.on('resize', () => this.cameras.main.setZoom(
       Phaser.Math.Clamp(this.cameras.main.zoom, this.minZoom(), MAX_ZOOM)))
+  }
+
+  /** Planned streets use the same coordinates as buildings, not inferred image pixels. */
+  private drawTownStreets() {
+    const streets = this.add.graphics().setDepth(-900)
+    const rnd = seeded(1792)
+    const paths = [
+      [[20, 26], [80, 58]], [[20, 42], [80, 74]],
+      [[20, 58], [80, 26]], [[20, 74], [80, 42]],
+      [[35, 72], [35, 77]], [[65, 72], [65, 77]],
+    ]
+    for (const path of paths) {
+      const points = path.map(([x, y]) => ({ x: toWorldX(x), y: toWorldY(y) }))
+      streets.lineStyle(px(1.5), 0x786c50, 0.22); streets.strokePoints(points, false)
+      streets.lineStyle(px(1.2), 0xdac8a5, 0.86); streets.strokePoints(points, false)
+      streets.lineStyle(px(0.75), 0xf1dfb9, 0.3); streets.strokePoints(points, false)
+      const [a, b] = points
+      const distance = Math.hypot(b.x - a.x, b.y - a.y)
+      const nx = -(b.y - a.y) / distance, ny = (b.x - a.x) / distance
+      for (let step = 0; step < distance; step += px(0.4)) {
+        const t = step / distance
+        for (let lane = -1; lane <= 1; lane++) {
+          const x = a.x + (b.x-a.x)*t + nx*lane*px(0.34)
+          const y = a.y + (b.y-a.y)*t + ny*lane*px(0.34)
+          streets.fillStyle(rnd() > .5 ? 0xb3a083 : 0xf2dfb5, .35)
+          streets.fillRoundedRect(x, y, px(.25), px(.15), px(.04))
+        }
+      }
+    }
+  }
+
+  private drawTownGardens() {
+    const gardens: [number, number, string, number][] = [
+      [27, 30, 'olive-tree', 6], [73, 30, 'olive-tree', 6],
+      [27, 46, 'bush', 4], [73, 46, 'bush', 4],
+      [27, 62, 'olive-tree', 6], [73, 62, 'olive-tree', 6],
+      [43, 38, 'flower', 3], [57, 54, 'flower', 3],
+      [50, 54, 'fountain', 5], [43, 70, 'cart', 4],
+    ]
+    for (const [x,y,key,width] of gardens) {
+      if (!this.textures.exists(`d_${key}`)) continue
+      const img = this.add.image(toWorldX(x),toWorldY(y),`d_${key}`).setOrigin(.5,.9)
+      img.setScale(px(width)/img.width).setDepth(toWorldY(y))
+    }
   }
 
   /**
@@ -208,9 +255,9 @@ export class CityScene extends Phaser.Scene {
      * yuzden hem yatayda hem dikeyde ekstra pay birakilir - island.w/h zaten
      * arsa kutusu, binalarin tasmasi icin ustune %30 marj.
      */
-    const overflow = 1.32
+    const overflow = 0.92
     const fitW = (this.scale.width * 0.94) / (island.w * overflow)
-    const fitH = (this.scale.height - OVERLAY * this.dpr()) / (island.h * overflow)
+    const fitH = (this.scale.height - OVERLAY * this.dpr()) / (island.h * 0.7)
     return Phaser.Math.Clamp(Math.min(fitW, fitH), this.minZoom(), 1.1)
   }
 
@@ -488,7 +535,7 @@ export class CityScene extends Phaser.Scene {
     const zone = this.add.zone(WORLD / 2, WORLD / 2, WORLD, WORLD).setDepth(-450)
     zone.setInteractive()
     zone.on('pointerup', (pointer: Phaser.Input.Pointer) => {
-      if (!this.placing || this.moving || !isTap(pointer)) return
+      if (USES_MEASURED || !this.placing || this.moving || !isTap(pointer)) return
       const c = this.worldToCell(pointer.worldX, pointer.worldY)
       const key = this.cellKey(c.gx, c.gy)
       if (this.roadEligible.has(key)) this.events$.onRoad(key)
@@ -584,7 +631,7 @@ export class CityScene extends Phaser.Scene {
     const cam = this.cameras.main
     cam.setZoom(this.defaultZoom())
     const island = islandExtent()
-    cam.centerOn(island.cx, island.cy)
+    cam.centerOn(island.cx, island.cy * 0.94)
     this.velocity = { x: 0, y: 0 }
   }
 
@@ -886,7 +933,7 @@ export class CityScene extends Phaser.Scene {
       if (pad.slot.zone === 'liman') {
         // Bos iskele: denize uzanan ahsap platform her zaman gorunur ki
         // limanin nereye kurulacagi belli olsun.
-        this.drawQuay(pad.shape, false)
+        if (this.placing) this.drawQuay(pad.shape, false)
       } else if (this.placing) {
         this.fill(pad.shape, COLOR.padFree, 0.85)
         this.stroke(pad.shape, COLOR.padFreeEdge, 5)
@@ -902,7 +949,7 @@ export class CityScene extends Phaser.Scene {
     // silinir. Yollar once (dekor/binalarin altinda).
     this.computeRoadEligible()
     if (!USES_MEASURED) this.drawRoads()
-    if (this.placing) this.drawRoadMarkers()
+    if (this.placing && !USES_MEASURED) this.drawRoadMarkers()
     if (shapes.body) this.drawDecor(shapes.body, shapes.pads)
     const running = activeJob(this.state)?.id
     /*
@@ -1004,8 +1051,9 @@ export class CityScene extends Phaser.Scene {
    * yapıyı diker, aralarına da yolu kendi döşer.
    */
   private addEmptyPlot(slot: typeof SLOTS[number]) {
+    if (!this.placing && slot.index > 8 && slot.zone !== 'liman') return
     const x = toWorldX(slot.x), y = toWorldY(slot.y)
-    this.drawBuildFlag(x, y, slot.y)
+    this.drawBuildFlag(x, y, y)
     this.addPlotHit(x, y, slot.index)
   }
 
@@ -1018,21 +1066,20 @@ export class CityScene extends Phaser.Scene {
     g.lineStyle(2, COLOR.padFreeEdge, 0.6); g.strokePoints(diamondPoints(x, y, s * 0.7, s * 0.35), true)
     // Yere dusen golge.
     g.fillStyle(0x0d1c16, 0.16); g.fillEllipse(x + s * 0.04, y + s * 0.02, s * 0.18, s * 0.08)
-    // Kisa direk.
-    const poleH = s * 0.52
-    g.fillStyle(0x5a3d24, 1); g.fillRect(x - s * 0.028, y - poleH, s * 0.056, poleH)
-    // Kucuk flama (ucgen).
-    g.fillStyle(0x9c3b2e, 1)
-    g.fillPoints([{ x: x + s * 0.028, y: y - poleH }, { x: x + s * 0.028, y: y - poleH + s * 0.18 }, { x: x + s * 0.26, y: y - poleH + s * 0.09 }], true)
-    g.fillStyle(0xcaa24a, 1); g.fillCircle(x, y - poleH, s * 0.045)
+    g.fillStyle(this.placing ? 0xe7cc8d : 0x294b43, 0.95)
+    g.fillCircle(x, y, s * 0.105)
+    g.lineStyle(3, 0xd9bc7b, 0.9); g.strokeCircle(x, y, s * 0.105)
+    g.lineStyle(4, this.placing ? 0x294b43 : 0xf4e4ba, 1)
+    g.lineBetween(x - s * 0.045, y, x + s * 0.045, y)
+    g.lineBetween(x, y - s * 0.045, x, y + s * 0.045)
     this.pieces.push(g)
   }
 
   private addPlotHit(x: number, y: number, index: number) {
-    const hit = this.add.rectangle(x, y, TILE_WORLD * 0.8, TILE_WORLD * 0.4)
+    const hit = this.add.rectangle(x, y, TILE_WORLD * 0.85, TILE_WORLD * 0.65)
       .setInteractive({ useHandCursor: true })
       .setFillStyle(0xffffff, 0)
-      .setDepth(y + 0.2)
+      .setDepth(slotDepth(index))
     hit.on('pointerup', (pointer: Phaser.Input.Pointer) => { if (isTap(pointer) && !this.moving) this.events$.onPlot(index) })
     this.pieces.push(hit)
   }
@@ -1083,7 +1130,7 @@ export class CityScene extends Phaser.Scene {
   private makeLabel(x: number, y: number, text: string, depth: number, active: boolean) {
     const label = this.add.text(0, 0, text, {
       fontFamily: 'system-ui, -apple-system, "Segoe UI", Roboto, sans-serif',
-      fontSize: `${Math.round(px(1.35))}px`,
+      fontSize: `${Math.round(px(2.0))}px`,
       color: '#fff2d8',
       fontStyle: '600',
     }).setOrigin(0.5, 0.5).setResolution(2)

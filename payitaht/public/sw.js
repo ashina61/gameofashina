@@ -1,5 +1,5 @@
-const CACHE = 'payitaht-shell-v1'
-const ASSETS = ['/', '/manifest.webmanifest', '/icon-192.png', '/icon-512.png', ...['island', 'divan', 'konut', 'kereste', 'tas', 'ambar', 'medrese'].map(name => `/images/game/${name}.webp`)]
+const CACHE = 'payitaht-shell-v2'
+const ASSETS = ['/', '/manifest.webmanifest', '/icon-192.png', '/icon-512.png', '/images/game/environments/sahilhisar-coast.png', ...['divan', 'konut', 'kereste', 'tas', 'ambar', 'medrese', 'saray', 'elcilik', 'hamam', 'carsi', 'kisla', 'liman', 'tersane'].map(name => `/images/game/${name}.webp`)]
 self.addEventListener('install', event => { event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(ASSETS)).then(() => self.skipWaiting())) })
 self.addEventListener('activate', event => { event.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(key => key.startsWith('payitaht-shell-') && key !== CACHE).map(key => caches.delete(key)))).then(() => self.clients.claim())) })
 self.addEventListener('message', event => {

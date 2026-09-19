@@ -1,7 +1,7 @@
 'use client'
 
 import { useRef, useState } from 'react'
-import { Sun, Flag, Move, Hammer, X } from 'lucide-react'
+import { Flag, LocateFixed, Plus, Minus, Hammer, X } from 'lucide-react'
 import type { Game, BuildingId } from '@/lib/game/engine'
 import { CityCanvas, type CityControls } from './city-canvas'
 
@@ -42,26 +42,19 @@ export function CityScene({ game, placing, onBuilding, onPlot, onRoad, moving, m
       * izgara.
       */}
     {placing && !moving && <div className="build-hint">
-      <span><Hammer aria-hidden="true" /> Arsaya dokun: bina · Zemine dokun: yol</span>
+      <span><Hammer aria-hidden="true" /> Boş arsaya dokun, yapını seç</span>
       <button onClick={onOpenList}>Listeden seç</button>
       <button className="build-exit" onClick={onExitBuild} aria-label="İnşa kipinden çık"><X /></button>
     </div>}
 
-    <span className="weather" title="Şehirde güneşli bir gün"><Sun aria-hidden="true" /></span>
-
     <div className="map-top-tools">
-      <button aria-label={labels ? 'Bina etiketlerini gizle' : 'Bina etiketlerini göster'}
+      <button aria-label="Şehri ortala" onClick={() => controls.current?.recenter()}><LocateFixed /></button>
+      <button aria-label={labels ? 'Bina adlarını gizle' : 'Bina adlarını göster'}
         onClick={() => setLabels(v => !v)} aria-pressed={labels}><Flag /></button>
     </div>
-
-    {/*
-      * Yakinlastir/uzaklastir ve ortala dugmeleri KALDIRILDI: iki parmakla
-      * yakinlastirma ve surukleme jesti zaten var, dugmeler ekrani mesgul
-      * ediyordu. Pusula ve ipucu kaliyor.
-      */}
-    {/* Pusula da kaldirildi; yalnizca kisa bir gezinme ipucu kaliyor. */}
-    <div className="map-bottom-tools">
-      <span className="map-tip"><Move className="size-3" /> Sürükle · iki parmakla yakınlaş</span>
+    <div className="zoom-tools">
+      <button aria-label="Yakınlaştır" onClick={() => controls.current?.zoomBy(1.2)}><Plus /></button>
+      <button aria-label="Uzaklaştır" onClick={() => controls.current?.zoomBy(1 / 1.2)}><Minus /></button>
     </div>
   </section>
 }

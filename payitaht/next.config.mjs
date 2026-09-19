@@ -1,3 +1,4 @@
+import { fileURLToPath } from 'node:url'
 /*
  * STATIK DISA AKTARIM (STATIC_EXPORT=1)
  *
@@ -15,6 +16,7 @@ const staticExport = process.env.STATIC_EXPORT === '1'
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  turbopack: { root: fileURLToPath(new URL('.', import.meta.url)) },
   ...(staticExport
     ? {
         output: 'export',

@@ -43,5 +43,13 @@ export function useGame() {
     save(game)
     void mutate(game, { revalidate: false })
   }
-  return { game: data, command, reset, warning }
+  function restore(raw: string) {
+    const parsed = parseSave(raw)
+    corrupt = false
+    warning = ''
+    const game = advance(parsed, Date.now())
+    save(game)
+    void mutate(game, { revalidate: false })
+  }
+  return { game: data, command, reset, restore, warning }
 }

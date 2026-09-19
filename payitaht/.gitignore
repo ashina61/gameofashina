@@ -16,3 +16,7 @@ node_modules
 
 # Statik disa aktarim ciktisi (STATIC_EXPORT=1); onizleme icin uretilir.
 out/
+
+# Compiler cache and local browser reports
+*.tsbuildinfo
+review/

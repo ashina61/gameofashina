@@ -1,0 +1,37 @@
+name: Payitaht mobile checks
+on:
+  pull_request:
+    paths: ['payitaht/**', '.github/workflows/payitaht.yml']
+  push:
+    branches: ['codex/payitaht-mobile-redesign']
+    paths: ['payitaht/**', '.github/workflows/payitaht.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  mobile:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: payitaht
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: payitaht/package-lock.json
+      - run: npm ci
+      - run: npm test
+      - run: npm run build:mobile
+      - run: npx playwright install --with-deps chromium
+      - run: npm run test:mobile
+      - run: npx cap sync
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: payitaht-mobile-review
+          path: |
+            payitaht/out/
+            payitaht/review/
+          retention-days: 7
