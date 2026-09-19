@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { ArrowUp, Hammer, Clock3, LockKeyhole, Check, BookOpen, ChevronRight, TreePine, Warehouse, Ruler, Users, UserRound, Minus, Plus as PlusIcon, House, HeartHandshake, TriangleAlert, Landmark, Swords, Ship, ShieldCheck, Handshake, Coins, FlaskConical, Compass, FlipHorizontal2, Move } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { CostDisplay, JobProgress } from './game-widgets'
-import { BUILDINGS, BUILDING_IDS, MAX_LEVEL, RESEARCH, RESEARCH_IDS, RESEARCH_BRANCHES, RESOURCE_IDS, RESOURCE_NAMES, UNITS, UNIT_IDS, WORKER_IDS, WORKERS_PER_LEVEL, activeJob, cargoCapacity, cityDefense, cost, duration, buildReason, power, rates, recruitReason, researchReason, idleWorkers, population, housing, contentment, soldiers, takesPlot, tradeCapacity, unhousedByUnrest, unitCost, unitDuration, wallDefense, workerCapacity, type BuildingId, type ResearchId, type UnitId, type WorkerId, type Game } from '@/lib/game/engine'
+import { BUILDINGS, BUILDING_IDS, MAX_LEVEL, RESEARCH, RESEARCH_IDS, RESEARCH_BRANCHES, RESOURCE_IDS, RESOURCE_NAMES, UNITS, UNIT_IDS, WORKER_IDS, WORKERS_PER_LEVEL, activeJob, cargoCapacity, cityDefense, cost, duration, buildReason, power, rates, recruitReason, researchReason, idleWorkers, population, housing, contentment, soldiers, takesPlot, tradeCapacity, unhousedByUnrest, unitCost, unitDuration, wallDefense, workerCapacity, zoneOf, PLOTS, type BuildingId, type ResearchId, type UnitId, type WorkerId, type Game } from '@/lib/game/engine'
 import { buildingImage } from '@/lib/asset'
 
 export function BuildingDetails({ game, id, onBuild, onFlip, onMove }: { game: Game; id: BuildingId; onBuild: (id: BuildingId) => void; onFlip: (id: BuildingId) => void; onMove: (id: BuildingId) => void }) {
@@ -12,7 +12,7 @@ export function BuildingDetails({ game, id, onBuild, onFlip, onMove }: { game: G
   const active = activeJob(game)?.id === id ? activeJob(game) : null
   const queued = game.queue.findIndex(job => job.id === id)
   const max = MAX_LEVEL[id]
-  return <div className="building-details"><div className="building-preview"><div className="preview-halo" />{b.art ? <img src={buildingImage(id)} alt={`${b.name} mimari görünümü`} width={360} height={360} /> : <span className="preview-pending"><Hammer aria-hidden="true" /><small>Görsel hazırlanıyor</small></span>}<span>{level ? `SEVİYE ${level}` : 'YENİ YAPI'}</span></div><span className="eyebrow">{b.category}</span><p>{b.description}</p><div className="building-upgrade"><span>{level ? `Seviye ${level}` : 'Boş arsa'}</span><ArrowUp className="size-4" /><strong>{level >= max ? 'En yüksek seviye' : `Seviye ${level + 1}`}</strong></div>{active ? <JobProgress job={active} now={game.updatedAt} /> : level < max && <><div className="upgrade-cost"><span>Gerekli kaynaklar</span><CostDisplay value={cost(game, id)} /></div><div className="duration-row"><Clock3 className="size-4" /> {duration(game, id)} saniye <span>Prototip süresi</span></div></>}{queued > 0 && <p className="requirement"><Clock3 className="size-4" />İnşaat sırasında {queued + 1}. sırada bekliyor.</p>}{reason && !active && queued < 0 && <p className="requirement"><LockKeyhole className="size-4" />{reason}</p>}{level > 0 && takesPlot(id) && <div className="building-tools">{b.art && <Button variant="outline" size="sm" onClick={() => onFlip(id)}><FlipHorizontal2 data-icon="inline-start" />{game.flips.includes(id) ? 'Yönü geri çevir' : 'Çevir'}</Button>}{id !== 'divan' && <Button variant="outline" size="sm" onClick={() => onMove(id)}><Move data-icon="inline-start" />Taşı</Button>}</div>}<Button size="lg" className="w-full" disabled={!!reason} onClick={() => onBuild(id)}><Hammer data-icon="inline-start" />{active ? 'İnşaat devam ediyor' : level >= max ? 'Tamamen geliştirildi' : level ? 'Binayı yükselt' : 'İnşaata başla'}</Button></div>
+  return <div className="building-details"><div className="building-preview"><div className="preview-halo" />{b.art ? <img src={buildingImage(id)} alt={`${b.name} mimari görünümü`} width={360} height={360} /> : <span className="preview-pending"><Hammer aria-hidden="true" /><small>Görsel hazırlanıyor</small></span>}<span>{level ? `SEVİYE ${level}` : 'YENİ YAPI'}</span></div><span className="eyebrow">{b.category}</span><p>{b.description}</p><div className="building-upgrade"><span>{level ? `Seviye ${level}` : 'Boş arsa'}</span><ArrowUp className="size-4" /><strong>{level >= max ? 'En yüksek seviye' : `Seviye ${level + 1}`}</strong></div>{active ? <JobProgress job={active} now={game.updatedAt} /> : level < max && <><div className="upgrade-cost"><span>Gerekli kaynaklar</span><CostDisplay value={cost(game, id)} /></div><div className="duration-row"><Clock3 className="size-4" /> {duration(game, id)} saniye <span>İnşaat süresi</span></div></>}{queued > 0 && <p className="requirement"><Clock3 className="size-4" />İnşaat sırasında {queued + 1}. sırada bekliyor.</p>}{reason && !active && queued < 0 && <p className="requirement"><LockKeyhole className="size-4" />{reason}</p>}{level > 0 && takesPlot(id) && <div className="building-tools">{b.art && <Button variant="outline" size="sm" onClick={() => onFlip(id)}><FlipHorizontal2 data-icon="inline-start" />{game.flips.includes(id) ? 'Yönü geri çevir' : 'Çevir'}</Button>}{id !== 'divan' && <Button variant="outline" size="sm" onClick={() => onMove(id)}><Move data-icon="inline-start" />Taşı</Button>}</div>}<Button size="lg" className="w-full" disabled={!!reason} onClick={() => onBuild(id)}><Hammer data-icon="inline-start" />{active ? 'İnşaat devam ediyor' : level >= max ? 'Tamamen geliştirildi' : level ? 'Binayı yükselt' : 'İnşaata başla'}</Button></div>
 }
 export function BuildingList({ game, onSelect }: { game: Game; onSelect: (id: BuildingId) => void }) {
   return <div className="building-list">{BUILDING_IDS.map(id => <button key={id} className="building-list-item" onClick={() => onSelect(id)}>{BUILDINGS[id].art ? <img src={buildingImage(id)} alt="" width={88} height={88} /> : <span className="list-pending"><Hammer aria-hidden="true" /></span>}<span><span className="eyebrow">{BUILDINGS[id].category}</span><strong>{BUILDINGS[id].name}</strong><span>{game.buildings[id] ? `Seviye ${game.buildings[id]}${game.buildings[id] >= MAX_LEVEL[id] ? ' · Tamamlandı' : ' · Geliştirilebilir'}` : 'Boş arsa · Yeni yapı'}</span></span><ChevronRight className="size-4" /></button>)}</div>
@@ -35,7 +35,7 @@ export function ResearchPanel({ game, onResearch }: { game: Game; onResearch: (i
   })}</div>
 }
 export function JournalPanel({ game }: { game: Game }) {
-  return <div className="journal-panel"><span className="eyebrow">ŞEHRİNİN HİKÂYESİ</span>{game.log.map((entry, index) => <div className="journal-entry" key={`${entry.time}-${index}`}><span className="journal-dot" /><div><p>{entry.text}</p><time>{new Date(entry.time).toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })} · {new Date(entry.time).toLocaleDateString('tr-TR', { day: 'numeric', month: 'short' })}</time></div></div>)}<p className="fine-print">Tek oyunculu prototip. Buradaki tüm gelişmeler kendi şehrine aittir; gerçek oyuncu etkinliği gösterilmez.</p></div>
+  return <div className="journal-panel"><span className="eyebrow">ŞEHRİNİN HİKÂYESİ</span>{game.log.map((entry, index) => <div className="journal-entry" key={`${entry.time}-${index}`}><span className="journal-dot" /><div><p>{entry.text}</p><time>{new Date(entry.time).toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })} · {new Date(entry.time).toLocaleDateString('tr-TR', { day: 'numeric', month: 'short' })}</time></div></div>)}<p className="fine-print">Şehrindeki son gelişmeler burada saklanır.</p></div>
 }
 
 /**
@@ -45,27 +45,30 @@ export function JournalPanel({ game }: { game: Game }) {
  * bos bir arsaya dokunur ve o arsaya ne kuracagini buradan secer.
  */
 export function PlotPicker({ game, plot, onBuild }: { game: Game; plot: number; onBuild: (id: BuildingId, plot: number) => void }) {
-  /*
-   * Arsa kaplamayan yapi (Surlar) burada GORUNMEZ.
-   *
-   * Yerlesimi hep null oldugu icin listeye giriyordu ve oyuncuya "bu arsaya
-   * sur kurabilirsin" diyordu - oysa surlar sehrin cevresine orulur, arsa
-   * tutmaz. Kurmak isteyen Inşa listesinden kurar.
-   */
-  const candidates = BUILDING_IDS.filter(id => takesPlot(id) && game.placement[id] === null)
+  const [choice, setChoice] = useState<BuildingId | null>(null)
+  const candidates = BUILDING_IDS.filter(id => takesPlot(id) && game.placement[id] === null && zoneOf(id) === PLOTS[plot]?.zone)
+  if (choice && candidates.includes(choice)) {
+    const reason = buildReason(game, choice)
+    return <div className="building-details">
+      <Button variant="outline" onClick={() => setChoice(null)}>← Yapılara dön</Button>
+      <div className="building-preview"><div className="preview-halo" /><img src={buildingImage(choice)} alt={BUILDINGS[choice].name} width={260} height={260} /></div>
+      <h3 className="plot-choice-title">{BUILDINGS[choice].name}</h3>
+      <p>{BUILDINGS[choice].description}</p>
+      <div className="upgrade-cost"><span>İnşa bedeli</span><CostDisplay value={cost(game, choice)} /></div>
+      <div className="duration-row"><Clock3 /> {duration(game, choice)} saniye</div>
+      {reason && <p className="requirement"><LockKeyhole />{reason}</p>}
+      <Button size="lg" disabled={!!reason} onClick={() => onBuild(choice, plot)}><Hammer /> Bu arsaya inşa et</Button>
+    </div>
+  }
   return <div className="building-list">
-    <p className="fine-print">Bu arsaya kurabileceğin yapılar. Kurulduktan sonra buradan yükseltirsin.</p>
-    {candidates.length === 0 && <p className="requirement"><LockKeyhole className="size-4" />Kurulabilecek yeni yapı kalmadı. Mevcut yapılarını yükselt.</p>}
+    <p className="fine-print">{PLOTS[plot]?.zone === 'liman' ? 'Rıhtım arsası · Denizcilik yapıları' : 'Şehir arsası · Yapını seç, maliyetini incele.'}</p>
+    {candidates.length === 0 && <p className="requirement">Bu bölgedeki tüm yapı türlerini kurdun. Mevcut binalarını geliştirebilirsin.</p>}
     {candidates.map(id => {
       const reason = buildReason(game, id)
-      return <button key={id} className="building-list-item" disabled={!!reason} onClick={() => onBuild(id, plot)}>
-        {BUILDINGS[id].art ? <img src={buildingImage(id)} alt="" width={88} height={88} /> : <span className="list-pending"><Hammer aria-hidden="true" /></span>}
-        <span>
-          <span className="eyebrow">{BUILDINGS[id].category}</span>
-          <strong>{BUILDINGS[id].name}</strong>
-          <span>{reason ?? 'Bu arsaya kurulabilir'}</span>
-        </span>
-        <ChevronRight className="size-4" />
+      return <button key={id} className="building-list-item" onClick={() => setChoice(id)}>
+        <img src={buildingImage(id)} alt="" width={88} height={88} />
+        <span><span className="eyebrow">{BUILDINGS[id].category}</span><strong>{BUILDINGS[id].name}</strong><span>{reason ?? 'İnşa edilebilir'}</span><CostDisplay value={cost(game, id)} /></span>
+        {reason ? <LockKeyhole className="size-4" /> : <ChevronRight className="size-4" />}
       </button>
     })}
   </div>

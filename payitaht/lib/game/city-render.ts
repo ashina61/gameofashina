@@ -208,7 +208,7 @@ export function buildingPlacement(id: BuildingId, slot: Slot) {
     /** Kare kutunun tabani, karo merkezinin yarim karo altinda biter. */
     originY: 1 - (TILE_H / 2 / (TILE_W * scale)),
     /** Ressam sirasi: asagidaki once cizilir ki ustunu ortsun. */
-    depth: slot.y,
+    depth: toWorldY(slot.y),
   }
 }
 
