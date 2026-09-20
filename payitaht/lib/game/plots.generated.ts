@@ -4,7 +4,7 @@
 import type { Zone } from './layout'
 export const MEASURED_TILE_W = 12
 const city: [number, number][] = [
-  [50, 36], [33.1, 30.4], [66.7, 30.3], [33.9, 46.7], [66, 46],
+  [50, 36], [31, 30.5], [69, 30.5], [33.9, 46.7], [66, 46],
   [16.5, 44], [84.3, 44], [17.1, 28], [85.6, 29.3],
   [20.6, 16.1], [38.3, 15.2], [62.6, 15.5], [80.9, 17.9], [50, 51.2],
 ]
@@ -15,8 +15,8 @@ export const MEASURED: { x: number; y: number; zone: Zone }[] = [
 /** Interior paving boundaries, excluding steps, roads and planted borders. */
 export const COURTYARDS: [number, number][][] = [
   [[45,32],[55,32],[56,39.5],[44,39.5]],
-  [[29.5,26.5],[39.3,26.8],[38,34.5],[27.8,33.7]],
-  [[62,25],[72.8,29],[72.4,33.7],[62,35]],
+  [[28,26.5],[35.8,26.8],[35.8,34.5],[27,33.7]],
+  [[64.2,26.5],[72.8,29],[73.4,33.7],[64.2,35]],
   [[28.5,41.5],[39.9,43],[38.2,51],[27,49.5]],
   [[59.5,43],[70.3,41.8],[72.3,48],[62,51]],
   [[13.5,38.7],[22.2,40.3],[19,48.4],[10.3,46.4]],
@@ -33,4 +33,19 @@ export const COURTYARDS: [number, number][][] = [
 export const PLOT_FOOTPRINTS: [number, number][] = [
   [10,6.5], [9,6], [9,6], [10.5,7], [10,6.5], [8.5,6], [8.5,6],
   [9,6], [9,6], [10,6], [11,6], [11,6.5], [9,6], [9,7],
+]
+
+/** Art-directed silhouette budgets in map percent. Municipality is painted
+ * into both ground states; its permanent silhouette is 27% wide, 24% tall.
+ * The two inner lots leave breathing room beside this civic landmark.
+ */
+export const COMPOSITION_SITES = [
+  { width: 27, maxHeight: 24 },
+  { width: 10.5, maxHeight: 13 }, { width: 10.5, maxHeight: 13 },
+  { width: 14.5, maxHeight: 16 }, { width: 14.5, maxHeight: 16 },
+  { width: 13.5, maxHeight: 15 }, { width: 13.5, maxHeight: 15 },
+  { width: 13.5, maxHeight: 15 }, { width: 13.5, maxHeight: 15 },
+  { width: 14.5, maxHeight: 16 }, { width: 15, maxHeight: 16 },
+  { width: 15, maxHeight: 16 }, { width: 14.5, maxHeight: 16 },
+  { width: 11.8, maxHeight: 15 },
 ]

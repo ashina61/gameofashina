@@ -1,4 +1,4 @@
-import { COURTYARDS, MEASURED, PLOT_FOOTPRINTS } from './plots.generated'
+import { COMPOSITION_SITES } from './plots.generated'
 
 /** Fractions of the alpha-trimmed image, measured at ground level.
  * Roof height is deliberately excluded from the ground footprint.
@@ -19,27 +19,14 @@ export const LAND_SPRITES = {
 export type LandSpriteId = keyof typeof LAND_SPRITES
 export const isLandSprite = (id: string): id is LandSpriteId => Object.hasOwn(LAND_SPRITES, id)
 
-/** Uniform scale in map-percent units, including a small paving margin.
- * A tall building can extend upward; its physical base must fit both axes.
+/** Roof silhouettes are sized against the whole architectural composition.
+ * A roof may project beyond the ground footprint; shrinking it to an inscribed
+ * paving rectangle makes every building look like a miniature on a terrace.
  */
 export function fitBuildingSprite(id: LandSpriteId, plot: number, imageW: number, imageH: number) {
   const sprite = LAND_SPRITES[id]
-  const [plotW, plotH] = PLOT_FOOTPRINTS[plot]
-  let scale = Math.min(plotW / (imageW * sprite.footW), plotH / (imageH * sprite.footH)) * .92
-  // A rotated or tapered lot can be tighter than its width/depth envelope.
-  // Clip the proposed ground rectangle against every courtyard half-plane.
-  const center = MEASURED[plot]
-  const polygon = COURTYARDS[plot]
-  for (let i = 0; i < polygon.length; i++) {
-    const [ax, ay] = polygon[i], [bx, by] = polygon[(i + 1) % polygon.length]
-    const ex = bx - ax, ey = by - ay
-    const clearance = ex * (center.y - ay) - ey * (center.x - ax)
-    for (const sx of [-1, 1]) for (const sy of [-1, 1]) {
-      const vx = sx * imageW * sprite.footW / 2, vy = sy * imageH * sprite.footH / 2
-      const projection = ex * vy - ey * vx
-      if (projection < 0) scale = Math.min(scale, clearance / -projection * .96)
-    }
-  }
+  const site = COMPOSITION_SITES[plot]
+  const scale = Math.min(site.width / imageW, site.maxHeight / imageH)
   return { ...sprite, scale, width: imageW * scale, height: imageH * scale,
     groundWidth: imageW * scale * sprite.footW, groundHeight: imageH * scale * sprite.footH }
 }

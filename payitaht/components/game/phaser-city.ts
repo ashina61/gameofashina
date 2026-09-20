@@ -165,8 +165,8 @@ export class CityScene extends Phaser.Scene {
     // Boyali arkaplan modunda ada resmini yukle; stilize modda dunyayi
     // tamamen kod ciziyor, resme gerek yok.
     if (USES_MEASURED) {
-      this.load.image('city-empty', asset('/images/game/environments/city-empty-v4.webp'))
-      this.load.image('city-fortified', asset('/images/game/environments/city-fortified-v4.webp'))
+      this.load.image('city-empty', asset('/images/game/environments/city-empty-v6.webp'))
+      this.load.image('city-fortified', asset('/images/game/environments/city-fortified-v6.webp'))
       this.load.image('construction', asset('/images/game/construction-v4.webp'))
     }
     for (const id of BUILDING_IDS) if (BUILDINGS[id].art) this.load.image(id, buildingImage(id))
@@ -952,6 +952,20 @@ export class CityScene extends Phaser.Scene {
     const p = buildingPlacement(id, slot)
     const level = this.state.buildings[id]
     const visual = structureVisual(this.state, id)
+    // The permanent municipal landmark is painted with its forecourt,
+    // landscaping and contact shadow into both background states.
+    if (id === 'divan' && USES_MEASURED) {
+      const outline = new Phaser.Geom.Polygon([[50,14.2],[55,19],[62,19],[64,37.5],[36,37.5],[38,19],[45,19]]
+        .map(([x,y]) => ({ x: toWorldX(x), y: toWorldY(y) })))
+      const hit = this.add.zone(0, 0, 0, 0).setName('building-divan').setDepth(p.depth)
+        .setInteractive(outline, Phaser.Geom.Polygon.Contains)
+      hit.on('pointerup', (pointer: Phaser.Input.Pointer) => {
+        if (isTap(pointer) && this.dragDistance < 12 && !this.moving && !this.pinchStart) this.events$.onBuilding(id)
+      })
+      this.pieces.push(hit, this.makeBadge(toWorldX(61), toWorldY(38), level, p.depth + .4, building))
+      if (this.showLabels) this.pieces.push(this.makeLabel(p.x, toWorldY(40), BUILDINGS[id].name, p.depth + .5, building))
+      return
+    }
     if (visual !== 'built') {
       this.addConstructionSite(id, p.x, p.y, (slot.zone === 'sehir' ? px(PLOT_FOOTPRINTS[slot.index][0]) : TILE_WORLD * this.artScale(id)), visual === 'construction')
       return
