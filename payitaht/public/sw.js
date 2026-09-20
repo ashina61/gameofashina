@@ -1,5 +1,5 @@
-const CACHE = 'payitaht-shell-v4-construction'
-const ASSETS = ['/', '/manifest.webmanifest', '/icon-192.png', '/icon-512.png', '/images/game/environments/city-empty-v4.webp', '/images/game/environments/city-fortified-v4.webp', '/images/game/construction-v4.webp', ...['divan', 'konut', 'kereste', 'tas', 'ambar', 'medrese', 'saray', 'elcilik', 'hamam', 'carsi', 'kisla', 'liman', 'tersane'].map(name => `/images/game/${name}${name === 'liman' || name === 'tersane' ? '-v4' : ''}.webp`)]
+const CACHE = 'payitaht-shell-v5-grounded-buildings'
+const ASSETS = ['/', '/manifest.webmanifest', '/icon-192.png', '/icon-512.png', '/images/game/environments/city-empty-v4.webp', '/images/game/environments/city-fortified-v4.webp', '/images/game/construction-v4.webp', ...['divan', 'konut', 'kereste', 'tas', 'ambar', 'medrese', 'saray', 'elcilik', 'hamam', 'carsi', 'kisla', 'liman', 'tersane'].map(name => name === 'liman' || name === 'tersane' ? `/images/game/${name}-v4.webp` : `/images/game/buildings-v5/${name}.webp`)]
 self.addEventListener('install', event => { event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(ASSETS)).then(() => self.skipWaiting())) })
 self.addEventListener('activate', event => { event.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(key => key.startsWith('payitaht-shell-') && key !== CACHE).map(key => caches.delete(key)))).then(() => self.clients.claim())) })
 self.addEventListener('message', event => {

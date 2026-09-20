@@ -1,3 +1,5 @@
+import { fitBuildingSprite, isLandSprite } from '@/lib/game/building-sprites'
+import { PLOT_FOOTPRINTS } from '@/lib/game/plots.generated'
 /*
  * Phaser'in ESM paketinde VARSAYILAN DISA AKTARIM YOK - yalnizca adlandirilmis
  * disa aktarimlar var. `import Phaser from 'phaser'` tur denetiminden gecer
@@ -6,7 +8,7 @@
  */
 import * as Phaser from 'phaser'
 import {
-  WORLD, TILE_WORLD, toWorldX, toWorldY, px, diamondPoints, groundShapes, buildingPlacement, islandExtent,
+  WORLD, TILE_WORLD, toWorldX, toWorldY, px, diamondPoints, plotPolygon, groundShapes, buildingPlacement, islandExtent,
   visualSignature, type Poly,
 } from '@/lib/game/city-render'
 import { SLOTS, USES_MEASURED } from '@/lib/game/layout'
@@ -541,10 +543,10 @@ export class CityScene extends Phaser.Scene {
     const x = toWorldX(slot.x), y = toWorldY(slot.y)
     const s = TILE_WORLD
     const g = this.add.graphics().setDepth(9000)
-    g.fillStyle(0x5dff86, 0.16); g.fillPoints(diamondPoints(x, y, s * 1.2, s * 0.6), true)
-    g.lineStyle(3, 0x74ff92, 0.95); g.strokePoints(diamondPoints(x, y, s * 1.2, s * 0.6), true)
+    g.fillStyle(0x5dff86, 0.16); g.fillPoints(plotPolygon(slot), true)
+    g.lineStyle(3, 0x74ff92, 0.95); g.strokePoints(plotPolygon(slot), true)
     // Dört köşe parantezi: elmasın uçlarında kısa parlak çizgiler.
-    const corners = diamondPoints(x, y, s * 1.2, s * 0.6)
+    const corners = plotPolygon(slot)
     g.lineStyle(4, 0x9dffb4, 1)
     for (const c of corners) { g.strokeCircle(c.x, c.y, s * 0.06) }
     this.pieces.push(g)
@@ -951,34 +953,26 @@ export class CityScene extends Phaser.Scene {
     const level = this.state.buildings[id]
     const visual = structureVisual(this.state, id)
     if (visual !== 'built') {
-      this.addConstructionSite(id, p.x, p.y, TILE_WORLD * this.artScale(id), visual === 'construction')
+      this.addConstructionSite(id, p.x, p.y, (slot.zone === 'sehir' ? px(PLOT_FOOTPRINTS[slot.index][0]) : TILE_WORLD * this.artScale(id)), visual === 'construction')
       return
     }
     let object: Phaser.GameObjects.GameObject
     // Sprite'in ekranda kaplayacagi taban genisligi.
     const w = TILE_WORLD * this.artScale(id)
 
-    /*
-     * Binanin YERE BASMASI icin altina yumusak bir golge.
-     *
-     * Golgesiz sprite zeminin uzerinde YUZUYOR gibi durur; bu, ucuz gorunmenin
-     * en sik sebeplerinden biri. Golge karonun kendisinden biraz kucuk ve
-     * isik yonune (sol ust) gore hafif saga kaydirilmistir.
-     */
-    const shadow = this.add.graphics().setDepth(p.depth - 0.3)
-    shadow.fillStyle(0x40351f, 0.12)
-    shadow.fillEllipse(p.x + px(0.8), p.y + px(0.6), w * 0.6, w * 0.26)
-    this.pieces.push(shadow)
-
     if (BUILDINGS[id].art && this.textures.exists(id)) {
-      /*
-       * Sprite EN-BOY ORANI KORUNARAK olceklenir - kareye sikistirilirsa
-       * kuleler ezilir. Taban genisligi karoya oturtulur, yukseklik dogal
-       * olarak takip eder. Baglanma noktasi zemin elmasinin merkezine yakin
-       * (0.5, 0.80): bina karonun uzerine basar, tepesi yukari tasar.
-       */
-      const image = this.add.image(p.x, p.y, id).setName(`building-${id}`).setOrigin(0.5, slot.zone === 'liman' ? 0.62 : 0.84)
-      image.setScale(w / image.width)
+      const image = this.add.image(p.x, p.y, id).setName(`building-${id}`)
+      if (isLandSprite(id) && USES_MEASURED) {
+        const fit = fitBuildingSprite(id, slot.index, image.width, image.height)
+        image.setOrigin(fit.originX, fit.originY).setScale(px(fit.scale))
+      } else {
+        image.setOrigin(0.5, slot.zone === 'liman' ? 0.62 : 0.84).setScale(w / image.width)
+      }
+      // Transparent corners must not intercept taps on neighbouring plots.
+      image.setInteractive({ pixelPerfect: true, alphaTolerance: 64, useHandCursor: true })
+      image.on('pointerup', (pointer: Phaser.Input.Pointer) => {
+        if (isTap(pointer) && this.dragDistance < 12 && !this.moving && !this.pinchStart) this.events$.onBuilding(id)
+      })
       image.setDepth(p.depth)
       // Oyuncu binayi yatayda cevirmisse (flip) aynala: kapisi diger yone bakar.
       image.setFlipX(this.state.flips.includes(id))
@@ -992,13 +986,6 @@ export class CityScene extends Phaser.Scene {
     }
     this.pieces.push(object)
 
-    const hit = this.add.rectangle(p.x, p.y - w * 0.25, w * 0.8, w * 0.6)
-      .setInteractive({ useHandCursor: true })
-      .setFillStyle(0xffffff, 0)
-      .setDepth(p.depth + 0.2)
-    hit.on('pointerup', (pointer: Phaser.Input.Pointer) => { if (isTap(pointer) && this.dragDistance < 12 && !this.moving && !this.pinchStart) this.events$.onBuilding(id) })
-    this.pieces.push(hit)
-
     /*
      * Varsayilan olarak yalnizca SEVIYE ROZETI gorunur.
      *
@@ -1006,7 +993,7 @@ export class CityScene extends Phaser.Scene {
      * yapiyordu; referans oyunlarda bina adi haritada hic yazmaz, dokununca
      * panelde cikar. Ad levhasi bayrak dugmesiyle acilir.
      */
-    this.pieces.push(this.makeBadge(p.x + w * 0.28, p.y + px(1.1), level, p.depth + 0.4, building))
+    this.pieces.push(this.makeBadge(p.x + (slot.zone === 'sehir' ? px(PLOT_FOOTPRINTS[slot.index][0] * .4) : w * .28), p.y + (slot.zone === 'sehir' ? px(PLOT_FOOTPRINTS[slot.index][1] * .45) : px(1.1)), level, p.depth + 0.4, building))
     if (this.showLabels) {
       this.pieces.push(this.makeLabel(p.x, p.y + px(2.4), BUILDINGS[id].name, p.depth + 0.5, building))
     }
@@ -1059,6 +1046,11 @@ export class CityScene extends Phaser.Scene {
   private addEmptyPlot(slot: typeof SLOTS[number]) {
     if (!this.placing && slot.index > 8 && slot.zone !== 'liman') return
     const x = toWorldX(slot.x), y = toWorldY(slot.y)
+    if (this.placing) {
+      const outline = this.add.graphics().setDepth(slotDepth(slot.index))
+      outline.lineStyle(2, COLOR.padFreeEdge, .65).strokePoints(plotPolygon(slot), true)
+      this.pieces.push(outline)
+    }
     this.drawBuildFlag(x, y, y)
     this.addPlotHit(x, y, slot.index)
   }
@@ -1068,8 +1060,6 @@ export class CityScene extends Phaser.Scene {
     const s = TILE_WORLD
     const g = this.add.graphics().setDepth(depthY)
     // Tas taban (arsa izi) - komsu binalarla yarismasin diye YUMUSAK.
-    g.fillStyle(COLOR.padFree, this.placing ? 0.12 : 0); g.fillPoints(diamondPoints(x, y, s * 0.7, s * 0.35), true)
-    g.lineStyle(2, COLOR.padFreeEdge, this.placing ? 0.5 : 0); g.strokePoints(diamondPoints(x, y, s * 0.7, s * 0.35), true)
     // Yere dusen golge.
     g.fillStyle(0x0d1c16, 0.16); g.fillEllipse(x + s * 0.04, y + s * 0.02, s * 0.18, s * 0.08)
     g.fillStyle(this.placing ? 0xe7cc8d : 0x294b43, 0.95)
@@ -1082,10 +1072,9 @@ export class CityScene extends Phaser.Scene {
   }
 
   private addPlotHit(x: number, y: number, index: number) {
-    const hit = this.add.rectangle(x, y, TILE_WORLD * 0.85, TILE_WORLD * 0.65)
-      .setInteractive({ useHandCursor: true })
-      .setFillStyle(0xffffff, 0)
-      .setDepth(slotDepth(index))
+    const polygon = new Phaser.Geom.Polygon(plotPolygon(SLOTS[index]).map(p => ({ x: p.x - x, y: p.y - y })))
+    const hit = this.add.zone(x, y, 0, 0).setDepth(slotDepth(index))
+      .setInteractive(polygon, Phaser.Geom.Polygon.Contains)
     hit.on('pointerup', (pointer: Phaser.Input.Pointer) => { if (isTap(pointer) && this.dragDistance < 12 && !this.moving && !this.pinchStart) this.events$.onPlot(index) })
     this.pieces.push(hit)
   }

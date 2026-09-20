@@ -1,3 +1,4 @@
+import { COURTYARDS } from './plots.generated'
 /**
  * ŞEHRİN ÇİZİM VERİSİ.
  *
@@ -96,6 +97,13 @@ export function diamondPoints(x: number, y: number, w: number, h: number): Poly 
   ]
 }
 
+/** The same measured boundary drives highlights and plot hit testing. */
+export function plotPolygon(slot: Slot): Poly {
+  const courtyard = USES_MEASURED && COURTYARDS[slot.index]
+  return poly(courtyard ? courtyard.map(([x, y]) => ({ x, y }))
+    : diamondPoints(slot.x, slot.y, TILE_W, TILE_H))
+}
+
 /** Surun seviyeye gore kalinligi (yerlesim yuzdesi). */
 export const wallThickness = (level: number) => 1.1 + level * 0.38
 
@@ -181,9 +189,7 @@ export function groundShapes(game: Game): GroundShapes {
     } : null,
     pads: SLOTS.map(slot => ({
       slot,
-      shape: poly(slot.zone === 'liman'
-        ? diamondPoints(slot.x, slot.y, TILE_W - 1.5, TILE_H - 0.8)
-        : diamondPoints(slot.x, slot.y, TILE_W, TILE_H)),
+      shape: plotPolygon(slot),
       occupied: occupied.has(slot.index),
     })),
   }
