@@ -5,7 +5,7 @@ import { ArrowUp, Hammer, Clock3, LockKeyhole, Check, BookOpen, ChevronRight, Tr
 import { Button } from '@/components/ui/button'
 import { CostDisplay, JobProgress } from './game-widgets'
 import { BUILDINGS, BUILDING_IDS, MAX_LEVEL, RESEARCH, RESEARCH_IDS, RESEARCH_BRANCHES, RESOURCE_IDS, RESOURCE_NAMES, UNITS, UNIT_IDS, WORKER_IDS, WORKERS_PER_LEVEL, activeJob, cargoCapacity, cityDefense, cost, duration, buildReason, power, rates, recruitReason, researchReason, idleWorkers, population, housing, contentment, soldiers, takesPlot, tradeCapacity, unhousedByUnrest, unitCost, unitDuration, wallDefense, workerCapacity, zoneOf, PLOTS, type BuildingId, type ResearchId, type UnitId, type WorkerId, type Game } from '@/lib/game/engine'
-import { buildingImage } from '@/lib/asset'
+import { asset, buildingImage } from '@/lib/asset'
 
 export function BuildingDetails({ game, id, onBuild, onFlip, onMove }: { game: Game; id: BuildingId; onBuild: (id: BuildingId) => void; onFlip: (id: BuildingId) => void; onMove: (id: BuildingId) => void }) {
   const b = BUILDINGS[id], level = game.buildings[id], reason = buildReason(game, id)
@@ -29,7 +29,7 @@ export function ResearchPanel({ game, onResearch }: { game: Game; onResearch: (i
       <div className="research-branch-top"><h3>{branch.title}</h3><span>{doneCount}/{ids.length}</span></div>
       {ids.map(id => {
         const r = RESEARCH[id], reason = researchReason(game, id), done = game.research.includes(id), Icon = researchIcons[id]
-        return <article className="research-card" key={id}><div className="research-card-top"><span className="research-icon"><Icon /></span><span><h3>{r.name}</h3></span>{done && <Check className="size-5" />}</div><p>{r.description}</p><div className="research-bottom"><CostDisplay value={{ knowledge: r.cost }} /><span><Clock3 className="size-3" /> {r.duration} sn</span><Button size="sm" variant={done ? 'secondary' : 'default'} disabled={!!reason} onClick={() => onResearch(id)}>{done ? 'Keşfedildi' : game.study?.id === id ? 'Sürüyor' : 'Araştır'}</Button></div>{reason && !done && <p className="fine-print">{reason}</p>}</article>
+        return <article className="research-card" key={id}><div className="research-card-top"><span className="research-icon">{id === 'yelken' ? <Icon /> : <img src={asset(`/images/game/research/${id}.webp`)} alt="" width={88} height={88} />}</span><span><h3>{r.name}</h3></span>{done && <Check className="size-5" />}</div><p>{r.description}</p><div className="research-bottom"><CostDisplay value={{ knowledge: r.cost }} /><span><Clock3 className="size-3" /> {r.duration} sn</span><Button size="sm" variant={done ? 'secondary' : 'default'} disabled={!!reason} onClick={() => onResearch(id)}>{done ? 'Keşfedildi' : game.study?.id === id ? 'Sürüyor' : 'Araştır'}</Button></div>{reason && !done && <p className="fine-print">{reason}</p>}</article>
       })}
     </section>
   })}</div>
@@ -205,7 +205,7 @@ export function ArmyPanel({ game, onRecruit, onBuild }: { game: Game; onRecruit:
           const reason = recruitReason(game, id, batch)
           return <article className="unit-card" key={id}>
             <div className="unit-top">
-              <span className="unit-icon">{unit.branch === 'kara' ? <Swords aria-hidden="true" /> : <Ship aria-hidden="true" />}</span>
+              <span className="unit-icon">{unit.branch === 'kara' ? <img src={asset(`/images/game/units/${id}.webp`)} alt="" width={96} height={112} /> : <Ship aria-hidden="true" />}</span>
               <span><strong>{unit.name}</strong><small>{unit.description}</small></span>
               <span className="unit-have">{game.army[id]}<small>elde</small></span>
             </div>

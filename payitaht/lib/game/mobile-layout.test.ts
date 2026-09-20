@@ -5,10 +5,10 @@ import { buildingPlacement, toWorldY } from './city-render'
 import { initialGame, parseSave, execute, BUILDING_IDS, takesPlot, zoneOf } from './engine'
 
 test('town courtyards match the environment and keep harbors on the water', () => {
-  assert.equal(SLOTS.length,18)
-  assert.equal(SLOTS.filter(p=>p.zone==='sehir').length,16)
-  assert.deepEqual(SLOTS.filter(p=>p.zone==='liman').map(p=>p.index),[16,17])
-  for(const slot of SLOTS) assert.ok(slot.zone==='liman' ? slot.y >= 76 : slot.y <= 72)
+  assert.equal(SLOTS.length,16)
+  assert.equal(SLOTS.filter(p=>p.zone==='sehir').length,14)
+  assert.deepEqual(SLOTS.filter(p=>p.zone==='liman').map(p=>p.index),[14,15])
+  for(const slot of SLOTS) assert.ok(slot.zone==='liman' ? slot.y >= 64 : slot.y <= 72)
   const game=initialGame(1000)
   assert.deepEqual(parseSave(JSON.stringify(game)).placement,game.placement)
 })
@@ -21,7 +21,7 @@ test('plot diamonds do not overlap and drawing depths share world coordinates', 
 })
 test('a city building cannot charge resources when targeting a harbor plot', () => {
   const game=initialGame(1000)
-  const result=execute(game,{type:'build',id:'carsi',plot:16},1000)
+  const result=execute(game,{type:'build',id:'carsi',plot:14},1000)
   assert.ok(result.error)
   assert.deepEqual(result.game.resources,game.resources)
   assert.deepEqual(result.game.queue,[])

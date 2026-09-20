@@ -41,7 +41,7 @@ const nextConfig = {
    * doner ve uygulama ACILIS EKRANINDA TAKILI KALIR - konsolda tek ipucu
    * "403 Forbidden" satirlaridir.
    */
-  allowedDevOrigins: ['127.0.0.1', 'localhost', '192.168.0.0/16', '10.0.0.0/8'],
+  allowedDevOrigins: ['terminal.local', '127.0.0.1', 'localhost', '192.168.0.0/16', '10.0.0.0/8'],
   ...(staticExport ? {} : { async headers() {
     return [
       { source: '/:path*', headers: [

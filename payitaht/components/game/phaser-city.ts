@@ -12,6 +12,7 @@ import {
 import { SLOTS, USES_MEASURED } from '@/lib/game/layout'
 import { paletteFor, shapeFor } from '@/lib/game/building-art'
 import { BUILDINGS, BUILDING_IDS, activeJob, zoneOf, type BuildingId, type Game } from '@/lib/game/engine'
+import { cityGround, structureVisual } from '@/lib/game/structure-visual'
 import { asset, buildingImage } from '@/lib/asset'
 
 /*
@@ -133,6 +134,7 @@ export class CityScene extends Phaser.Scene {
   private state!: Game
   private events$!: CityEvents
   private ground!: Phaser.GameObjects.Graphics
+  private backdrop?: Phaser.GameObjects.Image
   private pieces: Phaser.GameObjects.GameObject[] = []
   /** Statik zemin karolari - bir kez kurulur, redraw'da temizlenmez. */
   private terrain: Phaser.GameObjects.Image[] = []
@@ -160,7 +162,11 @@ export class CityScene extends Phaser.Scene {
   preload() {
     // Boyali arkaplan modunda ada resmini yukle; stilize modda dunyayi
     // tamamen kod ciziyor, resme gerek yok.
-    if (USES_MEASURED) this.load.image('island', asset('/images/game/environments/sahilhisar-town-v2.webp'))
+    if (USES_MEASURED) {
+      this.load.image('city-empty', asset('/images/game/environments/city-empty-v4.webp'))
+      this.load.image('city-fortified', asset('/images/game/environments/city-fortified-v4.webp'))
+      this.load.image('construction', asset('/images/game/construction-v4.webp'))
+    }
     for (const id of BUILDING_IDS) if (BUILDINGS[id].art) this.load.image(id, buildingImage(id))
     // Zemin tile'lari: kara ve deniz artik gercek boyali izometrik karolar.
     for (const t of (USES_MEASURED ? [] : TERRAIN_TILES)) this.load.image(`t_${t}`, asset(`/images/game/terrain/${t}.png`))
@@ -174,7 +180,7 @@ export class CityScene extends Phaser.Scene {
   create() {
     this.cameras.main.setBackgroundColor(COLOR.sea)
     if (USES_MEASURED) {
-      this.add.image(0, 0, 'island').setOrigin(0, 0).setDisplaySize(WORLD, WORLD).setDepth(-1000)
+      this.backdrop = this.add.image(0, 0, cityGround(this.state)).setName('city-ground').setOrigin(0, 0).setDisplaySize(WORLD, WORLD).setDepth(-1000)
     } else {
       // Kara ve deniz artik gercek izometrik zemin karolariyla dosenir.
       this.drawTerrain()
@@ -238,6 +244,7 @@ export class CityScene extends Phaser.Scene {
 
     this.input.on('pointerdown', (pointer: Phaser.Input.Pointer) => {
       if (this.input.pointer2?.isDown && this.input.pointer1?.isDown) {
+        this.dragDistance = 100
         this.pinchStart = { distance: this.pointerGap(), zoom: this.cameras.main.zoom }
         return
       }
@@ -836,6 +843,7 @@ export class CityScene extends Phaser.Scene {
     const shapes = groundShapes(this.state)
 
     this.ground.clear()
+    this.backdrop?.setTexture(cityGround(this.state)).setDisplaySize(WORLD, WORLD)
 
     /*
      * STILIZE ADA, distan ice: deniz golgesi, kum kiyi, cim govde, cim doku.
@@ -917,6 +925,7 @@ export class CityScene extends Phaser.Scene {
       if (id) this.addBuilding(id, slot, running === id)
       else this.addEmptyPlot(slot)
     }
+    if (USES_MEASURED) this.addWallSite()
     // Taşıma kipinde hedef arsanın YEŞİL çerçevesi en üstte.
     if (this.moving && this.movePlot !== null) this.drawMoveFrame(this.movePlot)
     if (first) this.ground.setAlpha(0).setAlpha(1)
@@ -930,7 +939,8 @@ export class CityScene extends Phaser.Scene {
    * buyuk cizilir. Liman/tersane iskele sprite'lari kendi rihtimini tasir.
    */
   private artScale(id: BuildingId) {
-    if (id === 'divan') return 1.42
+    if (id === 'liman' || id === 'tersane') return 1.95
+    if (id === 'divan') return 1.22
     if (id === 'saray') return 1.12
     if (id === 'konut' || id === 'kisla' || id === 'medrese') return 1.0
     return 0.94
@@ -939,6 +949,11 @@ export class CityScene extends Phaser.Scene {
   private addBuilding(id: BuildingId, slot: typeof SLOTS[number], building: boolean) {
     const p = buildingPlacement(id, slot)
     const level = this.state.buildings[id]
+    const visual = structureVisual(this.state, id)
+    if (visual !== 'built') {
+      this.addConstructionSite(id, p.x, p.y, TILE_WORLD * this.artScale(id), visual === 'construction')
+      return
+    }
     let object: Phaser.GameObjects.GameObject
     // Sprite'in ekranda kaplayacagi taban genisligi.
     const w = TILE_WORLD * this.artScale(id)
@@ -951,7 +966,7 @@ export class CityScene extends Phaser.Scene {
      * isik yonune (sol ust) gore hafif saga kaydirilmistir.
      */
     const shadow = this.add.graphics().setDepth(p.depth - 0.3)
-    shadow.fillStyle(0x0d1c16, 0.28)
+    shadow.fillStyle(0x40351f, 0.12)
     shadow.fillEllipse(p.x + px(0.8), p.y + px(0.6), w * 0.6, w * 0.26)
     this.pieces.push(shadow)
 
@@ -962,7 +977,7 @@ export class CityScene extends Phaser.Scene {
        * olarak takip eder. Baglanma noktasi zemin elmasinin merkezine yakin
        * (0.5, 0.80): bina karonun uzerine basar, tepesi yukari tasar.
        */
-      const image = this.add.image(p.x, p.y, id).setOrigin(0.5, 0.8)
+      const image = this.add.image(p.x, p.y, id).setName(`building-${id}`).setOrigin(0.5, slot.zone === 'liman' ? 0.62 : 0.84)
       image.setScale(w / image.width)
       image.setDepth(p.depth)
       // Oyuncu binayi yatayda cevirmisse (flip) aynala: kapisi diger yone bakar.
@@ -981,7 +996,7 @@ export class CityScene extends Phaser.Scene {
       .setInteractive({ useHandCursor: true })
       .setFillStyle(0xffffff, 0)
       .setDepth(p.depth + 0.2)
-    hit.on('pointerup', (pointer: Phaser.Input.Pointer) => { if (isTap(pointer) && !this.moving) this.events$.onBuilding(id) })
+    hit.on('pointerup', (pointer: Phaser.Input.Pointer) => { if (isTap(pointer) && this.dragDistance < 12 && !this.moving && !this.pinchStart) this.events$.onBuilding(id) })
     this.pieces.push(hit)
 
     /*
@@ -995,6 +1010,42 @@ export class CityScene extends Phaser.Scene {
     if (this.showLabels) {
       this.pieces.push(this.makeLabel(p.x, p.y + px(2.4), BUILDINGS[id].name, p.depth + 0.5, building))
     }
+  }
+
+  private addConstructionSite(id: BuildingId, x: number, y: number, width: number, active: boolean) {
+    if (active && this.textures.exists('construction')) {
+      const site = this.add.image(x, y, 'construction').setName(`construction-${id}`).setOrigin(0.5, 0.78)
+      site.setScale(width * 0.86 / site.width).setDepth(y)
+      this.pieces.push(site)
+    }
+    const label = (this.placing || this.showLabels) ? this.makeLabel(x, y + px(2.8), active ? 'İnşa ediliyor' : 'Sırada', y + 1, active) : null
+    const hit = this.add.rectangle(x, y - width * 0.12, width * 0.8, width * 0.65)
+      .setName(`site-${id}`).setFillStyle(0xffffff, 0).setDepth(y + 2).setInteractive({ useHandCursor: true })
+    hit.on('pointerup', (pointer: Phaser.Input.Pointer) => {
+      if (isTap(pointer) && this.dragDistance < 12 && !this.moving && !this.pinchStart) this.events$.onBuilding(id)
+    })
+    if (label) this.pieces.push(label)
+    this.pieces.push(hit)
+  }
+
+  /** The gate's reserved foundation belongs to the wall, never a city plot. */
+  private addWallSite() {
+    const x = toWorldX(50), y = toWorldY(8)
+    const visual = structureVisual(this.state, 'surlar')
+    if (visual === 'construction' || visual === 'queued') {
+      this.addConstructionSite('surlar', x, y, TILE_WORLD, visual === 'construction')
+      return
+    }
+    if (visual === 'empty') this.drawBuildFlag(x, y, y)
+    if (this.placing || this.showLabels) {
+      this.pieces.push(this.makeLabel(x, y + px(2.6), visual === 'built' ? `Surlar · ${this.state.buildings.surlar}` : 'Sur temeli', y + 1, false))
+    }
+    const hit = this.add.rectangle(x, y, px(12), px(7)).setName('wall-site')
+      .setFillStyle(0xffffff, 0).setDepth(y + 2).setInteractive({ useHandCursor: true })
+    hit.on('pointerup', (pointer: Phaser.Input.Pointer) => {
+      if (isTap(pointer) && this.dragDistance < 12 && !this.moving && !this.pinchStart) this.events$.onBuilding('surlar')
+    })
+    this.pieces.push(hit)
   }
 
   /**
@@ -1035,7 +1086,7 @@ export class CityScene extends Phaser.Scene {
       .setInteractive({ useHandCursor: true })
       .setFillStyle(0xffffff, 0)
       .setDepth(slotDepth(index))
-    hit.on('pointerup', (pointer: Phaser.Input.Pointer) => { if (isTap(pointer) && !this.moving) this.events$.onPlot(index) })
+    hit.on('pointerup', (pointer: Phaser.Input.Pointer) => { if (isTap(pointer) && this.dragDistance < 12 && !this.moving && !this.pinchStart) this.events$.onPlot(index) })
     this.pieces.push(hit)
   }
 
@@ -1085,7 +1136,7 @@ export class CityScene extends Phaser.Scene {
   private makeLabel(x: number, y: number, text: string, depth: number, active: boolean) {
     const label = this.add.text(0, 0, text, {
       fontFamily: 'system-ui, -apple-system, "Segoe UI", Roboto, sans-serif',
-      fontSize: `${Math.round(px(2.0))}px`,
+      fontSize: `${Math.round(px(1.15))}px`,
       color: '#fff2d8',
       fontStyle: '600',
     }).setOrigin(0.5, 0.5).setResolution(2)

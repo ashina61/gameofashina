@@ -1,7 +1,7 @@
 'use client'
 
 import { useRef, useState } from 'react'
-import { Flag, LocateFixed, Plus, Minus, Hammer, X } from 'lucide-react'
+import { Flag, LocateFixed, Hammer, X } from 'lucide-react'
 import type { Game, BuildingId } from '@/lib/game/engine'
 import { CityCanvas, type CityControls } from './city-canvas'
 
@@ -52,9 +52,6 @@ export function CityScene({ game, placing, onBuilding, onPlot, onRoad, moving, m
       <button aria-label={labels ? 'Bina adlarını gizle' : 'Bina adlarını göster'}
         onClick={() => setLabels(v => !v)} aria-pressed={labels}><Flag /></button>
     </div>
-    <div className="zoom-tools">
-      <button aria-label="Yakınlaştır" onClick={() => controls.current?.zoomBy(1.2)}><Plus /></button>
-      <button aria-label="Uzaklaştır" onClick={() => controls.current?.zoomBy(1 / 1.2)}><Minus /></button>
-    </div>
+
   </section>
 }

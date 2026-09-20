@@ -17,5 +17,5 @@ export function asset(path: string) {
 
 /** Bir bina gorselinin yolu. */
 export function buildingImage(id: string) {
-  return asset(`/images/game/${id}.webp`)
+  return asset(`/images/game/${id}${id === 'liman' || id === 'tersane' ? '-v4' : ''}.webp`)
 }
