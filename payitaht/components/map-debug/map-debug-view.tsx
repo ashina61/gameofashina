@@ -1,21 +1,21 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
-import type { SlotDebugScene } from './slot-debug-scene'
+import type { SlotDebugScene, Toggles, RealAssetRow } from './slot-debug-scene'
+import { BUILDING_ASSETS, HALL_BUILDING_ID } from '@/lib/game/city-map/building-assets'
 
 /**
- * SLOT DEBUG EKRANI (/map-debug).
- *
- * Canlı oyundan bağımsız bir Phaser sahnesi: Tiled slot sistemini gözle
- * doğrulamak için. "Randomize Buildings" ile normal binaları rastgele
- * slotlara dağıtır (scale değişmeden), böylece her binanın her normal slota
- * geometrik oturduğu test edilir.
+ * SLOT DEBUG EKRANI (/map-debug) — GERÇEK bina assetleriyle görsel uygunluk.
+ * Canlı oyunu etkilemez. Bina seç, 24 city slota taşı, katmanları aç/kapat,
+ * "Test Real Assets" ile geometri + görsel uyarı tablosu al.
  */
 export function MapDebugView() {
   const holder = useRef<HTMLDivElement>(null)
   const sceneRef = useRef<SlotDebugScene | null>(null)
-  const [info, setInfo] = useState('Bir slota dokun · sürükle ve tekerlekle gez')
-  const [debug, setDebug] = useState(true)
+  const [info, setInfo] = useState('Bina seç → CITY slota dokun taşı · sürükle/tekerlek gez')
+  const [active, setActive] = useState<string>(HALL_BUILDING_ID)
+  const [toggles, setToggles] = useState<Toggles>({ footprint: true, ground: true, anchor: false, bbox: false })
+  const [rows, setRows] = useState<RealAssetRow[] | null>(null)
 
   useEffect(() => {
     let disposed = false
@@ -41,20 +41,66 @@ export function MapDebugView() {
     return () => { disposed = true; sceneRef.current = null; cleanup(); instance?.destroy(true) }
   }, [])
 
+  const toggle = (k: keyof Toggles) => { const n = { ...toggles, [k]: !toggles[k] }; setToggles(n); sceneRef.current?.setToggle(k, n[k]) }
+
   return (
     <div style={{ position: 'fixed', inset: 0, background: '#22333b', color: '#e7ecd9', fontFamily: 'system-ui, sans-serif' }}>
       <div ref={holder} style={{ position: 'absolute', inset: 0 }} />
-      <div style={{ position: 'absolute', top: 10, left: 10, right: 10, display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap', padding: '8px 12px', borderRadius: 12, background: '#0d2522d9', border: '1px solid #d9c18540', backdropFilter: 'blur(8px)', zIndex: 5 }}>
+
+      {/* Üst araç çubuğu */}
+      <div style={bar}>
         <strong style={{ fontFamily: 'Georgia, serif', color: '#fff4da' }}>Payitaht · Slot Debug</strong>
-        <button onClick={() => sceneRef.current?.randomize()} style={btn('#2f5a3f')}>Randomize Buildings</button>
-        <button onClick={() => sceneRef.current?.runExhaustive()} style={btn('#4a3a6a')}>Exhaustive Test</button>
-        <button onClick={() => { const n = !debug; setDebug(n); sceneRef.current?.setDebug(n) }} style={btn('#274a55')}>{debug ? 'Debug: AÇIK' : 'Debug: KAPALI'}</button>
-        <span style={{ fontSize: 12, color: '#cbe6bd', flex: '1 1 240px', minWidth: 0 }}>{info}</span>
+        <label style={{ fontSize: 12, display: 'flex', gap: 5, alignItems: 'center' }}>Bina:
+          <select value={active} onChange={e => { setActive(e.target.value); sceneRef.current?.setActiveBuilding(e.target.value) }} style={sel}>
+            {BUILDING_ASSETS.map(b => <option key={b.buildingId} value={b.buildingId}>{b.name}{b.fixed ? ' (çakılı)' : ''}</option>)}
+          </select>
+        </label>
+        <button onClick={() => { const r = sceneRef.current?.runRealAssetTest(); if (r) setRows(r) }} style={btn('#4a3a6a')}>Test Real Assets</button>
+        <button onClick={() => sceneRef.current?.randomize()} style={btn('#2f5a3f')}>Randomize</button>
+        <button onClick={() => sceneRef.current?.runExhaustive()} style={btn('#274a55')}>Geometry (mock)</button>
+        {(['footprint', 'ground', 'anchor', 'bbox'] as (keyof Toggles)[]).map(k =>
+          <label key={k} style={chk}><input type="checkbox" checked={toggles[k]} onChange={() => toggle(k)} />{k}</label>)}
+        <span style={{ fontSize: 12, color: '#cbe6bd', flex: '1 1 260px', minWidth: 0 }}>{info}</span>
       </div>
+
+      {/* Sonuç tablosu */}
+      {rows && (
+        <div style={panel}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+            <strong>Test Real Assets · {rows.filter(r => r.geometry.startsWith('24/')).length}/{rows.length} GEOMETRY PASS</strong>
+            <button onClick={() => setRows(null)} style={btn('#3a2b2b')}>Kapat</button>
+          </div>
+          <div style={{ overflow: 'auto', maxHeight: '46vh' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
+              <thead><tr style={{ color: '#cbe6bd', textAlign: 'left' }}>
+                {['Building', '24/24 Geometry', 'Anchor', 'Scale', 'Ground', 'Visual Warnings'].map(h => <th key={h} style={th}>{h}</th>)}
+              </tr></thead>
+              <tbody>
+                {rows.map(r => (
+                  <tr key={r.id} style={{ borderTop: '1px solid #ffffff14' }}>
+                    <td style={td}>{r.name}</td>
+                    <td style={{ ...td, color: r.geometry.startsWith('24/') ? '#6dff92' : '#ff8a6d' }}>{r.geometry}</td>
+                    <td style={td}>{r.anchor ? '✓' : '✗'}</td>
+                    <td style={td}>{r.scale ? '✓' : '✗'}</td>
+                    <td style={td}>{r.groundContact ? '✓' : '✗'}</td>
+                    <td style={{ ...td, color: r.warnings.length ? '#ffcf5a' : '#8fae86' }}>{r.warnings.length ? r.warnings.join(' · ') : '—'}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
 
+const bar: React.CSSProperties = { position: 'absolute', top: 8, left: 8, right: 8, display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap', padding: '8px 12px', borderRadius: 12, background: '#0d2522e8', border: '1px solid #d9c18540', backdropFilter: 'blur(8px)', zIndex: 5 }
+const panel: React.CSSProperties = { position: 'absolute', bottom: 8, left: 8, right: 8, padding: '10px 12px', borderRadius: 12, background: '#0d2522f2', border: '1px solid #d9c18540', backdropFilter: 'blur(8px)', zIndex: 6 }
+const th: React.CSSProperties = { padding: '4px 8px', position: 'sticky', top: 0, background: '#0d2522' }
+const td: React.CSSProperties = { padding: '4px 8px', color: '#e7ecd9', whiteSpace: 'nowrap' }
+const sel: React.CSSProperties = { padding: '5px 8px', borderRadius: 8, background: '#173b34', color: '#fff', border: '1px solid #ffffff2e', fontSize: 13 }
+const chk: React.CSSProperties = { fontSize: 12, display: 'flex', gap: 4, alignItems: 'center', textTransform: 'capitalize', color: '#cbe6bd' }
 function btn(bg: string): React.CSSProperties {
   return { padding: '7px 12px', borderRadius: 9, background: bg, color: '#fff', border: '1px solid #ffffff2e', cursor: 'pointer', fontSize: 13, fontWeight: 600 }
 }

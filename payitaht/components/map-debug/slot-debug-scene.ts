@@ -1,94 +1,94 @@
 /**
- * SLOT DEBUG SAHNESİ — FİNAL organik şehir geometrisi.
+ * SLOT DEBUG SAHNESİ — GERÇEK bina PNG/webp assetleriyle görsel uygunluk.
  *
- * Canlı oyundan bağımsız: city-map'in FİNAL slotlarını (organik dağılmış 24
- * city + çakılı belediye), kıyı slotlarını, savunma yuvalarını, boş savunma
- * temel hattını ve YOL GRAFİĞİNİ izometrik olarak çizer. Binalar
- * BuildingSlotSystem üzerinden yerleşir; "Randomize" ve "Exhaustive Test"
- * düğmeleri buradan sürülür.
+ * Canlı oyundan bağımsız. Final organik şehir slotlarını (24 city + çakılı
+ * belediye), kıyı/savunma yuvalarını, yol grafiğini ve savunma temel hattını
+ * çizer. Binalar GERÇEK asset'lerle (building-assets) yüklenir; ölçek ZEMİN
+ * TEMASINA göre (slottan bağımsız), anchor originX=0.5/originY=1.0.
  *
- * ÖNEMLİ: bütün binalar AYNI sabit taban genişliğiyle (BASE_WIDTH, ORTAK),
- * originX=0.5, originY=1.0 çizilir. Slot değişince SCALE DEĞİŞMEZ.
+ * DEĞİŞMEZ: slot geometrisi, road graph, BuildingSlotSystem, 2x2 footprint.
  */
 import * as Phaser from 'phaser'
 import {
   CITY_SLOTS, COAST_SLOTS, DEFENSE_SLOTS, DEFENSE_FOUNDATION, ROAD_GRAPH, CITY_BOUNDS,
-  HALL_SLOT_ID, footprintDiamond, slotById, SLOTS, TILE, type CitySlot,
+  HALL_SLOT_ID, footprintDiamond, SLOTS, TILE, type CitySlot,
 } from '@/lib/game/city-map'
 import { BuildingSlotSystem } from '@/lib/game/building-slot-system'
-import { slotAnchor, spriteScale, runExhaustivePlacementTest } from '@/lib/game/city-map/placement-test'
-import { buildingImage } from '@/lib/asset'
+import { slotAnchor, runExhaustivePlacementTest } from '@/lib/game/city-map/placement-test'
+import {
+  BUILDING_ASSETS, MOVABLE_BUILDING_IDS, HALL_BUILDING_ID, assetById, groundScale,
+  GROUND_TARGET_W, GROUND_TARGET_D, FOOTPRINT_DIAMOND_W, type BuildingAsset,
+} from '@/lib/game/city-map/building-assets'
 
-const MOVABLE_BUILDINGS = ['saray', 'kisla', 'medrese', 'carsi', 'ambar', 'hamam', 'konut', 'kereste', 'tas', 'elcilik']
-const HALL_BUILDING = 'divan'
+export type Toggles = { footprint: boolean; ground: boolean; anchor: boolean; bbox: boolean }
+export type RealAssetRow = {
+  id: string; name: string; geometry: string; anchor: boolean; scale: boolean; groundContact: boolean; warnings: string[]
+}
+
+type SpriteInfo = { img: Phaser.GameObjects.Image; asset: BuildingAsset; scale: number; dispW: number; dispH: number }
 
 export class SlotDebugScene extends Phaser.Scene {
   private slotSys!: BuildingSlotSystem
   private gfx!: Phaser.GameObjects.Graphics
-  private sprites = new Map<string, Phaser.GameObjects.Image>()
+  private sprites = new Map<string, SpriteInfo>()
   private labels: Phaser.GameObjects.Text[] = []
   private selected: string | null = null
+  private active: string = HALL_BUILDING_ID
+  toggles: Toggles = { footprint: true, ground: true, anchor: false, bbox: false }
   showDebug = true
   onSelect?: (text: string) => void
 
   constructor() { super('slot-debug') }
 
   preload() {
-    for (const b of [...MOVABLE_BUILDINGS, HALL_BUILDING]) {
-      if (!this.textures.exists(b)) this.load.image(b, buildingImage(b))
-    }
+    for (const a of BUILDING_ASSETS) if (!this.textures.exists(a.buildingId)) this.load.image(a.buildingId, a.assetPath)
   }
 
   create() {
     this.cameras.main.setBackgroundColor('#22333b')
     this.gfx = this.add.graphics().setDepth(-10)
-
     this.slotSys = new BuildingSlotSystem()
-    this.slotSys.placeBuilding(HALL_BUILDING, HALL_SLOT_ID)
+    this.slotSys.placeBuilding(HALL_BUILDING_ID, HALL_SLOT_ID)
     const movable = CITY_SLOTS.filter(s => !s.fixed)
-    MOVABLE_BUILDINGS.forEach((b, i) => { if (movable[i]) this.slotSys.placeBuilding(b, movable[i].id) })
-
+    MOVABLE_BUILDING_IDS.forEach((b, i) => { if (movable[i]) this.slotSys.placeBuilding(b, movable[i].id) })
     this.buildSprites()
     this.redraw()
     this.fitCamera()
     this.installCamera()
   }
 
-  /** Kamerayı şehir kutusuna sığdır (dikey şehri tam gör). */
   private fitCamera() {
     const b = CITY_BOUNDS
-    const w = (b.maxX - b.minX) + TILE.w * 4
-    const h = (b.maxY - b.minY) + TILE.h * 8
+    const w = (b.maxX - b.minX) + TILE.w * 4, h = (b.maxY - b.minY) + TILE.h * 8
     const cam = this.cameras.main
-    const zoom = Math.min(this.scale.width / w, this.scale.height / h)
-    cam.setZoom(Phaser.Math.Clamp(zoom, 0.12, 1.2))
+    cam.setZoom(Phaser.Math.Clamp(Math.min(this.scale.width / w, this.scale.height / h), 0.12, 1.2))
     cam.centerOn((b.minX + b.maxX) / 2, (b.minY + b.maxY) / 2)
   }
 
   private buildSprites() {
-    for (const b of [...MOVABLE_BUILDINGS, HALL_BUILDING]) {
-      if (!this.textures.exists(b)) continue
-      const img = this.add.image(0, 0, b).setOrigin(0.5, 1.0)
-      img.setScale(spriteScale(img.width)) // SABİT kural — slottan bağımsız
-      this.sprites.set(b, img)
+    for (const a of BUILDING_ASSETS) {
+      if (!this.textures.exists(a.buildingId)) continue
+      const img = this.add.image(0, 0, a.buildingId).setOrigin(a.originX, a.originY)
+      const scale = groundScale(img.width, a) // SLOTTAN BAĞIMSIZ (zemin temasına göre)
+      img.setScale(scale)
+      this.sprites.set(a.buildingId, { img, asset: a, scale, dispW: img.width * scale, dispH: img.height * scale })
     }
     this.positionSprites()
   }
 
+  /** Sprite'ları slot zemin noktasına oturt; DEPTH = ekran Y (deterministik). */
   private positionSprites() {
-    for (const [buildingId, img] of this.sprites) {
-      const slot = this.slotSys.slotOf(buildingId)
-      if (!slot) { img.setVisible(false); continue }
-      const a = slotAnchor(slot)
-      img.setPosition(a.x, a.baseY).setDepth(a.baseY).setVisible(true)
+    for (const [id, s] of this.sprites) {
+      const slot = this.slotSys.slotOf(id)
+      if (!slot) { s.img.setVisible(false); continue }
+      const anc = slotAnchor(slot)
+      s.img.setPosition(anc.x, anc.baseY).setDepth(anc.baseY).setVisible(true) // önde (büyük Y) üstte
     }
   }
 
-  private diamond(g: Phaser.GameObjects.Graphics, s: CitySlot, line: number, fill: number, lw = 2, fa = 0.1) {
-    const pts = footprintDiamond(s).map(p => new Phaser.Math.Vector2(p.x, p.y))
-    g.fillStyle(fill, fa); g.fillPoints(pts, true)
-    g.lineStyle(lw, line, 0.95); g.strokePoints(pts, true)
-    g.fillStyle(0xffffff, 0.85); g.fillCircle(s.screen.x, s.screen.y, 3)
+  private isoDiamond(cx: number, cy: number, w: number, h: number) {
+    return [new Phaser.Math.Vector2(cx, cy - h / 2), new Phaser.Math.Vector2(cx + w / 2, cy),
+      new Phaser.Math.Vector2(cx, cy + h / 2), new Phaser.Math.Vector2(cx - w / 2, cy)]
   }
 
   private redraw() {
@@ -98,85 +98,145 @@ export class SlotDebugScene extends Phaser.Scene {
     if (!this.showDebug) return
     const g = this.gfx
 
-    // Savunma temel hattı (boş sur/hendek halkası).
-    const ring = DEFENSE_FOUNDATION.map(p => new Phaser.Math.Vector2(p.screen.x, p.screen.y))
-    g.lineStyle(3, 0xe0734f, 0.5); g.strokePoints(ring, true)
-
-    // Yol grafiği: kıvrım ipucu (quadratic bezier, ctrl noktasıyla).
+    // Savunma temel hattı (boş halka) + yol grafiği (kıvrım ipuçlu bezier).
+    g.lineStyle(3, 0xe0734f, 0.45); g.strokePoints(DEFENSE_FOUNDATION.map(p => new Phaser.Math.Vector2(p.screen.x, p.screen.y)), true)
     const nodeById = new Map(ROAD_GRAPH.nodes.map(n => [n.id, n]))
-    g.lineStyle(6, 0xc9b27a, 0.35)
+    g.lineStyle(6, 0xc9b27a, 0.3)
     for (const e of ROAD_GRAPH.edges) {
       const A = nodeById.get(e.from)!, B = nodeById.get(e.to)!
-      const curve = new Phaser.Curves.QuadraticBezier(
-        new Phaser.Math.Vector2(A.screen.x, A.screen.y),
-        new Phaser.Math.Vector2(e.ctrl.x, e.ctrl.y),
-        new Phaser.Math.Vector2(B.screen.x, B.screen.y))
-      curve.draw(g, 24)
+      new Phaser.Curves.QuadraticBezier(new Phaser.Math.Vector2(A.screen.x, A.screen.y), new Phaser.Math.Vector2(e.ctrl.x, e.ctrl.y), new Phaser.Math.Vector2(B.screen.x, B.screen.y)).draw(g, 22)
     }
 
-    // Slotlar: coast (teal), defense (turuncu), city (cyan), belediye (altın), seçili (yeşil).
-    for (const s of COAST_SLOTS) this.diamond(g, s, 0x33c8c0, 0x33c8c0, s.id === this.selected ? 3 : 2, 0.12)
-    for (const s of DEFENSE_SLOTS) this.diamond(g, s, 0xe0894f, 0xe0894f, s.id === this.selected ? 3 : 2, 0.12)
-    for (const s of CITY_SLOTS) {
-      const sel = s.id === this.selected
-      this.diamond(g, s, sel ? 0x6dff92 : s.fixed ? 0xffcf5a : 0x36d3ff, sel ? 0x6dff92 : s.fixed ? 0xffcf5a : 0x36d3ff, sel ? 3 : 2, sel ? 0.28 : 0.1)
+    // 1) CITY FOOTPRINT (elmas).
+    if (this.toggles.footprint) {
+      for (const s of COAST_SLOTS) this.strokeFoot(g, s, 0x33c8c0)
+      for (const s of DEFENSE_SLOTS) this.strokeFoot(g, s, 0xe0894f)
+      for (const s of CITY_SLOTS) this.strokeFoot(g, s, s.id === this.selected ? 0x6dff92 : s.fixed ? 0xffcf5a : 0x36d3ff, s.id === this.selected)
     }
-    // Etiketler
+
+    // Yerleşmiş her bina için: GROUND CONTACT, ANCHOR, BBOX katmanları.
+    for (const [id, s] of this.sprites) {
+      const slot = this.slotSys.slotOf(id); if (!slot) continue
+      const anc = slotAnchor(slot)
+      if (this.toggles.ground) { // zemin temas elması (footprint içinde, sabit hedef)
+        g.fillStyle(0x53ff8a, 0.22); g.fillPoints(this.isoDiamond(anc.x, anc.baseY, GROUND_TARGET_W, GROUND_TARGET_D), true)
+        g.lineStyle(2, 0x53ff8a, 0.9); g.strokePoints(this.isoDiamond(anc.x, anc.baseY, GROUND_TARGET_W, GROUND_TARGET_D), true)
+      }
+      if (this.toggles.bbox) { // sprite tam bounding box
+        g.lineStyle(1.5, 0xffe14d, 0.85); g.strokeRect(anc.x - s.dispW / 2, anc.baseY - s.dispH, s.dispW, s.dispH)
+      }
+      if (this.toggles.anchor) { // anchor artı (slot merkezi)
+        g.lineStyle(2, 0xff5ad0, 1); g.lineBetween(anc.x - 10, anc.baseY, anc.x + 10, anc.baseY); g.lineBetween(anc.x, anc.baseY - 10, anc.x, anc.baseY + 10)
+      }
+    }
+
     for (const s of SLOTS) {
       const txt = s.type === 'city' ? (s.fixed ? 'BLD' : s.id.replace('city_', '')) : s.id.replace('coast_', 'C').replace('defense_', 'D:')
-      this.labels.push(this.add.text(s.screen.x, s.screen.y - 5, txt, {
-        fontFamily: 'monospace', fontSize: '16px', color: s.id === this.selected ? '#052' : '#04222b',
-      }).setOrigin(0.5, 0.5).setDepth(50000))
+      this.labels.push(this.add.text(s.screen.x, s.screen.y - 4, txt, { fontFamily: 'monospace', fontSize: '15px', color: '#04222b' }).setOrigin(0.5).setDepth(50000))
     }
+  }
+
+  private strokeFoot(g: Phaser.GameObjects.Graphics, s: CitySlot, color: number, sel = false) {
+    const pts = footprintDiamond(s).map(p => new Phaser.Math.Vector2(p.x, p.y))
+    g.fillStyle(color, sel ? 0.28 : 0.08); g.fillPoints(pts, true)
+    g.lineStyle(sel ? 3 : 2, color, 0.9); g.strokePoints(pts, true)
+    g.fillStyle(0xffffff, 0.8); g.fillCircle(s.screen.x, s.screen.y, 3)
+  }
+
+  setToggle(name: keyof Toggles, on: boolean) { this.toggles[name] = on; this.redraw() }
+  setDebug(on: boolean) { this.showDebug = on; this.redraw() }
+  setActiveBuilding(id: string) { this.active = id; this.onSelect?.(`Seçili bina: ${assetById(id)?.name ?? id}. Bir CITY slota dokun → oraya taşı.`) }
+
+  /** Aktif binayı bir city slota taşı (dolusa takas). Belediye sabit; taşınmaz. */
+  private moveActiveTo(slot: CitySlot) {
+    const a = assetById(this.active)
+    if (!a || a.fixed) { this.onSelect?.('Belediye çakılıdır, taşınamaz.'); return }
+    const cur = this.slotSys.slotOf(this.active)
+    const occupant = this.slotSys.buildingAt(slot.id)
+    if (occupant === HALL_BUILDING_ID) { this.onSelect?.('Belediye slotuna taşınamaz.'); return }
+    if (occupant && cur) this.slotSys.swapBuildings(cur.id, slot.id)
+    else this.slotSys.moveBuilding(this.active, slot.id)
+    this.positionSprites(); this.redraw()
+    this.onSelect?.(`${a.name} → ${slot.id} (${slot.gx},${slot.gy})`)
   }
 
   randomize() {
-    const buildings = [...this.sprites.keys()].filter(b => b !== HALL_BUILDING)
+    const ids = MOVABLE_BUILDING_IDS.filter(id => this.sprites.has(id))
     const movable = CITY_SLOTS.filter(s => !s.fixed).map(s => s.id)
     for (let i = movable.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1));[movable[i], movable[j]] = [movable[j], movable[i]] }
-    for (const b of buildings) this.slotSys.removeBuilding(b)
-    buildings.forEach((b, i) => this.slotSys.placeBuilding(b, movable[i]))
-    this.positionSprites() // scale DEĞİŞMEZ
-    this.redraw()
-    this.onSelect?.(`Randomize: ${buildings.length} bina yeni slotlara taşındı (scale değişmedi).`)
+    for (const b of ids) this.slotSys.removeBuilding(b)
+    ids.forEach((b, i) => this.slotSys.placeBuilding(b, movable[i]))
+    this.positionSprites(); this.redraw() // belediye taşınmaz; scale değişmez
+    this.onSelect?.(`Randomize: ${ids.length} bina taşındı (belediye sabit, scale değişmedi).`)
   }
 
-  /** Exhaustive Placement Test'i çalıştırıp özet döndürür (React butonu için). */
+  /**
+   * GERÇEK ASSET görsel uygunluk testi. Her bina x 24 slot: geometri (footprint/
+   * anchor/scale/ground-contact) + görsel taşma sezgisi (VISUAL WARNING).
+   */
+  runRealAssetTest(): RealAssetRow[] {
+    const movable = CITY_SLOTS.filter(s => !s.fixed)
+    // En yakın komşu ekran mesafesi (görsel taşma eşiği için layout sabiti).
+    let nnd = Infinity
+    for (let i = 0; i < CITY_SLOTS.length; i++) for (let j = i + 1; j < CITY_SLOTS.length; j++) {
+      const d = Math.hypot(CITY_SLOTS[i].screen.x - CITY_SLOTS[j].screen.x, CITY_SLOTS[i].screen.y - CITY_SLOTS[j].screen.y)
+      if (d < nnd) nnd = d
+    }
+    const rows: RealAssetRow[] = []
+    for (const a of BUILDING_ASSETS) {
+      const s = this.sprites.get(a.buildingId)
+      if (!s) { rows.push({ id: a.buildingId, name: a.name, geometry: 'asset yok', anchor: false, scale: false, groundContact: false, warnings: ['asset yüklenmedi'] }); continue }
+      let geomOk = 0
+      const scale0 = groundScale(s.img.width, a)
+      let anchorOk = true, scaleOk = true, groundOk = true
+      for (const slot of movable) {
+        const anc = slotAnchor(slot)
+        const okAnchor = anc.x === slot.screen.x
+        const okScale = groundScale(s.img.width, a) === scale0
+        const okGround = GROUND_TARGET_W <= FOOTPRINT_DIAMOND_W // zemin teması footprint içinde
+        const okFoot = slot.fw === 2 && slot.fh === 2
+        if (okAnchor && okScale && okGround && okFoot) geomOk++
+        anchorOk = anchorOk && okAnchor; scaleOk = scaleOk && okScale; groundOk = groundOk && okGround
+      }
+      const warnings: string[] = []
+      if (s.dispW > nnd * 1.05) warnings.push(`geniş sprite: komşuyla yatay örtüşebilir (${Math.round(s.dispW)}px > komşu ${Math.round(nnd)}px)`)
+      if (s.dispH > nnd * 1.7) warnings.push(`yüksek sprite${a.tall ? ' (kubbe/minare)' : ''}: arkadaki binaya görsel çıkabilir (h ${Math.round(s.dispH)}px)`)
+      rows.push({ id: a.buildingId, name: a.name, geometry: `${geomOk}/${movable.length}`, anchor: anchorOk, scale: scaleOk, groundContact: groundOk, warnings })
+    }
+    const pass = rows.filter(r => r.geometry === `${movable.length}/${movable.length}`).length
+    const warn = rows.filter(r => r.warnings.length).length
+    this.onSelect?.(`Test Real Assets: ${rows.length} bina · GEOMETRY PASS ${pass}/${rows.length} · VISUAL WARNING ${warn}`)
+    return rows
+  }
+
+  /** Mock GEOMETRİ testi (footprint/anchor/scale/çakışma) — hızlı özet. */
   runExhaustive() {
     const r = runExhaustivePlacementTest()
-    const tick = (b: boolean) => (b ? '✓' : '✗')
-    this.onSelect?.(`Exhaustive: ${r.combos} kombinasyon (${r.buildings}×${r.movableSlots}) · footprint ${tick(r.footprintOk)} · anchor ${tick(r.anchorOk)} · çakışma-yok ${tick(r.overlapFree)} · scale-sabit ${tick(r.scaleStable)} · ${r.passed ? 'GEÇTİ' : 'KALDI: ' + r.failures.join('; ')}`)
+    const t = (b: boolean) => (b ? '✓' : '✗')
+    this.onSelect?.(`Geometry (mock): ${r.combos} kombinasyon · footprint ${t(r.footprintOk)} · anchor ${t(r.anchorOk)} · çakışma-yok ${t(r.overlapFree)} · scale-sabit ${t(r.scaleStable)} · ${r.passed ? 'GEÇTİ' : 'KALDI'}`)
   }
-
-  setDebug(on: boolean) { this.showDebug = on; this.redraw() }
 
   private installCamera() {
     let last: { x: number; y: number } | null = null
     this.input.on('pointerdown', (p: Phaser.Input.Pointer) => { last = { x: p.x, y: p.y } })
     this.input.on('pointermove', (p: Phaser.Input.Pointer) => {
       if (!p.isDown || !last) return
-      const cam = this.cameras.main
-      cam.scrollX -= (p.x - last.x) / cam.zoom
-      cam.scrollY -= (p.y - last.y) / cam.zoom
+      const cam = this.cameras.main; cam.scrollX -= (p.x - last.x) / cam.zoom; cam.scrollY -= (p.y - last.y) / cam.zoom
       last = { x: p.x, y: p.y }
     })
     this.input.on('pointerup', (p: Phaser.Input.Pointer) => {
       const moved = last && Phaser.Math.Distance.Between(p.downX, p.downY, p.upX, p.upY) > 10
       last = null
       if (moved) return
-      const wx = p.worldX, wy = p.worldY
       let best: CitySlot | null = null, bestD = Infinity
-      for (const s of SLOTS) { const dd = Math.hypot(s.screen.x - wx, s.screen.y - wy); if (dd < bestD) { bestD = dd; best = s } }
-      if (best && bestD < TILE.w) {
-        this.selected = best.id
-        const occ = this.slotSys.buildingAt(best.id)
-        this.redraw()
-        this.onSelect?.(`Slot ${best.id} · tip ${best.type} · gx=${best.gx} gy=${best.gy} · footprint ${best.fw}x${best.fh} · ${occ ? 'dolu: ' + occ : 'boş'}`)
-      }
+      for (const s of SLOTS) { const d = Math.hypot(s.screen.x - p.worldX, s.screen.y - p.worldY); if (d < bestD) { bestD = d; best = s } }
+      if (!best || bestD >= TILE.w) return
+      this.selected = best.id
+      if (best.type === 'city' && !best.fixed) this.moveActiveTo(best)
+      else { this.redraw(); const occ = this.slotSys.buildingAt(best.id); this.onSelect?.(`Slot ${best.id} · ${best.type} · gx=${best.gx} gy=${best.gy} · ${occ ? 'dolu: ' + occ : 'boş'}`) }
     })
     this.input.on('wheel', (_p: unknown, _o: unknown, _dx: number, dy: number) => {
-      const cam = this.cameras.main
-      cam.setZoom(Phaser.Math.Clamp(cam.zoom * (dy > 0 ? 0.9 : 1.1), 0.1, 1.5))
+      const cam = this.cameras.main; cam.setZoom(Phaser.Math.Clamp(cam.zoom * (dy > 0 ? 0.9 : 1.1), 0.1, 1.5))
     })
   }
 }
