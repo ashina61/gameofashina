@@ -1,0 +1,82 @@
+# Payitaht ŞEHİR HARİTASI (Tiled) doğrulama CI'si.
+#
+# NEDEN VAR: şehir slot sistemi artık Tiled tabanlı bir haritadan (maps/
+# payitaht/payitaht_city.tmj) türüyor ve oyunun okuduğu city-slots.json ile
+# senkron olmak zorunda. Bu iş akışı haritayı doğrular, üretecin deterministik
+# olduğunu (yeniden üretince fark yok) ve slot verisinin geçerli olduğunu
+# denetler; ayrıca tip kontrolü ve testleri çalıştırır.
+#
+# Oyun payitaht/ alt dizininde; bu yüzden adımlar orada çalışır.
+name: Tiled Map
+
+on:
+  push:
+    paths:
+      - 'payitaht/maps/**'
+      - 'payitaht/tools/tiled/**'
+      - 'payitaht/lib/game/city-map/**'
+      - 'payitaht/lib/game/building-slot-system.ts'
+      - 'payitaht/lib/game/building-slot-system.test.ts'
+      - '.github/workflows/tiled-map.yml'
+  pull_request:
+    paths:
+      - 'payitaht/maps/**'
+      - 'payitaht/tools/tiled/**'
+      - 'payitaht/lib/game/city-map/**'
+      - 'payitaht/lib/game/building-slot-system.ts'
+      - 'payitaht/lib/game/building-slot-system.test.ts'
+      - '.github/workflows/tiled-map.yml'
+  workflow_dispatch:
+
+defaults:
+  run:
+    working-directory: payitaht
+
+jobs:
+  # Harita doğrulama — bağımlılık GEREKMEZ (üreteç/doğrulayıcı yalnızca node
+  # builtin kullanır), böylece pnpm kurulumundan bağımsız her zaman koşar.
+  map-validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Üreteç deterministik mi (yeniden üret + fark yok)
+        run: |
+          node tools/tiled/build-map.mjs
+          git diff --exit-code maps/payitaht/payitaht_city.tmj lib/game/city-map/city-slots.json
+
+      - name: Haritayı doğrula (.tmj yapısı + parity)
+        run: node tools/tiled/validate-map.mjs
+
+      # Tiled CLI varsa haritanın gerçekten açıldığını da doğrula. Tiled her
+      # runner'da kurulamayabilir; bu adım BEST-EFFORT (başarısızsa iş düşmez).
+      - name: Tiled CLI ile aç/dışa aktar (best-effort)
+        continue-on-error: true
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y tiled xvfb || { echo "Tiled kurulamadı, atlanıyor"; exit 0; }
+          xvfb-run -a tiled --export-map maps/payitaht/payitaht_city.tmj /tmp/payitaht_export.json
+          echo "Tiled export tamam"
+
+  # Tip kontrolü + testler (slot sistemi dahil). pnpm 9 (lockfileVersion 9.0).
+  typecheck-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: pnpm kur
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+          run_install: false
+      - name: Bağımlılıklar
+        run: pnpm install --frozen-lockfile
+      - name: Tip kontrolü
+        run: pnpm exec tsc --noEmit
+      - name: Testler
+        run: pnpm exec tsx --test lib/game/engine.test.ts lib/game/render/iso-metrics.test.ts lib/game/building-slot-system.test.ts

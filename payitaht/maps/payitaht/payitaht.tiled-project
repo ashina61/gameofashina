@@ -1,0 +1,26 @@
+{
+    "automappingRulesFile": "",
+    "commands": [
+    ],
+    "compatibilityVersion": 1100,
+    "extensionsPath": "extensions",
+    "folders": [
+        "."
+    ],
+    "properties": [
+    ],
+    "propertyTypes": [
+        {
+            "id": 1,
+            "name": "SlotType",
+            "storageType": "string",
+            "type": "enum",
+            "values": [
+                "city",
+                "coast",
+                "defense"
+            ],
+            "valuesAsFlags": false
+        }
+    ]
+}

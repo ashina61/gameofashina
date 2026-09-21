@@ -1,0 +1,1851 @@
+{
+ "type": "map",
+ "version": "1.10",
+ "tiledversion": "1.10.2",
+ "orientation": "isometric",
+ "renderorder": "right-down",
+ "infinite": false,
+ "width": 100,
+ "height": 140,
+ "tilewidth": 128,
+ "tileheight": 64,
+ "nextlayerid": 10,
+ "nextobjectid": 37,
+ "tilesets": [],
+ "properties": [
+  {
+   "name": "city",
+   "type": "string",
+   "value": "payitaht"
+  },
+  {
+   "name": "footprint",
+   "type": "string",
+   "value": "2x2"
+  }
+ ],
+ "layers": [
+  {
+   "id": 1,
+   "name": "GROUND",
+   "type": "tilelayer",
+   "visible": true,
+   "opacity": 1,
+   "x": 0,
+   "y": 0,
+   "width": 100,
+   "height": 140,
+   "encoding": "base64",
+   "compression": "zlib",
+   "data": "eJztwTEBAAAAwqD1T+1rCKAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAB4A9rAAAE="
+  },
+  {
+   "id": 2,
+   "name": "ROADS",
+   "type": "tilelayer",
+   "visible": true,
+   "opacity": 1,
+   "x": 0,
+   "y": 0,
+   "width": 100,
+   "height": 140,
+   "encoding": "base64",
+   "compression": "zlib",
+   "data": "eJztwTEBAAAAwqD1T+1rCKAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAB4A9rAAAE="
+  },
+  {
+   "id": 3,
+   "name": "BUILDING_SLOTS",
+   "type": "objectgroup",
+   "visible": true,
+   "opacity": 1,
+   "x": 0,
+   "y": 0,
+   "draworder": "topdown",
+   "objects": [
+    {
+     "id": 1,
+     "name": "city_01",
+     "type": "city",
+     "x": 2752,
+     "y": 4032,
+     "width": 128,
+     "height": 128,
+     "visible": true,
+     "rotation": 0,
+     "properties": [
+      {
+       "name": "slotId",
+       "type": "string",
+       "value": "city_01"
+      },
+      {
+       "name": "slotType",
+       "type": "string",
+       "value": "city"
+      },
+      {
+       "name": "gx",
+       "type": "int",
+       "value": 44
+      },
+      {
+       "name": "gy",
+       "type": "int",
+       "value": 64
+      },
+      {
+       "name": "fw",
+       "type": "int",
+       "value": 2
+      },
+      {
+       "name": "fh",
+       "type": "int",
+       "value": 2
+      },
+      {
+       "name": "fixed",
+       "type": "bool",
+       "value": false
+      }
+     ]
+    },
+    {
+     "id": 2,
+     "name": "city_02",
+     "type": "city",
+     "x": 2944,
+     "y": 4032,
+     "width": 128,
+     "height": 128,
+     "visible": true,
+     "rotation": 0,
+     "properties": [
+      {
+       "name": "slotId",
+       "type": "string",
+       "value": "city_02"
+      },
+      {
+       "name": "slotType",
+       "type": "string",
+       "value": "city"
+      },
+      {
+       "name": "gx",
+       "type": "int",
+       "value": 47
+      },
+      {
+       "name": "gy",
+       "type": "int",
+       "value": 64
+      },
+      {
+       "name": "fw",
+       "type": "int",
+       "value": 2
+      },
+      {
+       "name": "fh",
+       "type": "int",
+       "value": 2
+      },
+      {
+       "name": "fixed",
+       "type": "bool",
+       "value": false
+      }
+     ]
+    },
+    {
+     "id": 3,
+     "name": "city_03",
+     "type": "city",
+     "x": 3136,
+     "y": 4032,
+     "width": 128,
+     "height": 128,
+     "visible": true,
+     "rotation": 0,
+     "properties": [
+      {
+       "name": "slotId",
+       "type": "string",
+       "value": "city_03"
+      },
+      {
+       "name": "slotType",
+       "type": "string",
+       "value": "city"
+      },
+      {
+       "name": "gx",
+       "type": "int",
+       "value": 50
+      },
+      {
+       "name": "gy",
+       "type": "int",
+       "value": 64
+      },
+      {
+       "name": "fw",
+       "type": "int",
+       "value": 2
+      },
+      {
+       "name": "fh",
+       "type": "int",
+       "value": 2
+      },
+      {
+       "name": "fixed",
+       "type": "bool",
+       "value": false
+      }
+     ]
+    },
+    {
+     "id": 4,
+     "name": "city_04",
+     "type": "city",
+     "x": 3328,
+     "y": 4032,
+     "width": 128,
+     "height": 128,
+     "visible": true,
+     "rotation": 0,
+     "properties": [
+      {
+       "name": "slotId",
+       "type": "string",
+       "value": "city_04"
+      },
+      {
+       "name": "slotType",
+       "type": "string",
+       "value": "city"
+      },
+      {
+       "name": "gx",
+       "type": "int",
+       "value": 53
+      },
+      {
+       "name": "gy",
+       "type": "int",
+       "value": 64
+      },
+      {
+       "name": "fw",
+       "type": "int",
+       "value": 2
+      },
+      {
+       "name": "fh",
+       "type": "int",
+       "value": 2
+      },
+      {
+       "name": "fixed",
+       "type": "bool",
+       "value": false
+      }
+     ]
+    },
+    {
+     "id": 5,
+     "name": "city_05",
+     "type": "city",
+     "x": 3520,
+     "y": 4032,
+     "width": 128,
+     "height": 128,
+     "visible": true,
+     "rotation": 0,
+     "properties": [
+      {
+       "name": "slotId",
+       "type": "string",
+       "value": "city_05"
+      },
+      {
+       "name": "slotType",
+       "type": "string",
+       "value": "city"
+      },
+      {
+       "name": "gx",
+       "type": "int",
+       "value": 56
+      },
+      {
+       "name": "gy",
+       "type": "int",
+       "value": 64
+      },
+      {
+       "name": "fw",
+       "type": "int",
+       "value": 2
+      },
+      {
+       "name": "fh",
+       "type": "int",
+       "value": 2
+      },
+      {
+       "name": "fixed",
+       "type": "bool",
+       "value": false
+      }
+     ]
+    },
+    {
+     "id": 6,
+     "name": "city_06",
+     "type": "city",
+     "x": 2752,
+     "y": 4224,
+     "width": 128,
+     "height": 128,
+     "visible": true,
+     "rotation": 0,
+     "properties": [
+      {
+       "name": "slotId",
+       "type": "string",
+       "value": "city_06"
+      },
+      {
+       "name": "slotType",
+       "type": "string",
+       "value": "city"
+      },
+      {
+       "name": "gx",
+       "type": "int",
+       "value": 44
+      },
+      {
+       "name": "gy",
+       "type": "int",
+       "value": 67
+      },
+      {
+       "name": "fw",
+       "type": "int",
+       "value": 2
+      },
+      {
+       "name": "fh",
+       "type": "int",
+       "value": 2
+      },
+      {
+       "name": "fixed",
+       "type": "bool",
+       "value": false
+      }
+     ]
+    },
+    {
+     "id": 7,
+     "name": "city_07",
+     "type": "city",
+     "x": 2944,
+     "y": 4224,
+     "width": 128,
+     "height": 128,
+     "visible": true,
+     "rotation": 0,
+     "properties": [
+      {
+       "name": "slotId",
+       "type": "string",
+       "value": "city_07"
+      },
+      {
+       "name": "slotType",
+       "type": "string",
+       "value": "city"
+      },
+      {
+       "name": "gx",
+       "type": "int",
+       "value": 47
+      },
+      {
+       "name": "gy",
+       "type": "int",
+       "value": 67
+      },
+      {
+       "name": "fw",
+       "type": "int",
+       "value": 2
+      },
+      {
+       "name": "fh",
+       "type": "int",
+       "value": 2
+      },
+      {
+       "name": "fixed",
+       "type": "bool",
+       "value": false
+      }
+     ]
+    },
+    {
+     "id": 8,
+     "name": "city_08",
+     "type": "city",
+     "x": 3136,
+     "y": 4224,
+     "width": 128,
+     "height": 128,
+     "visible": true,
+     "rotation": 0,
+     "properties": [
+      {
+       "name": "slotId",
+       "type": "string",
+       "value": "city_08"
+      },
+      {
+       "name": "slotType",
+       "type": "string",
+       "value": "city"
+      },
+      {
+       "name": "gx",
+       "type": "int",
+       "value": 50
+      },
+      {
+       "name": "gy",
+       "type": "int",
+       "value": 67
+      },
+      {
+       "name": "fw",
+       "type": "int",
+       "value": 2
+      },
+      {
+       "name": "fh",
+       "type": "int",
+       "value": 2
+      },
+      {
+       "name": "fixed",
+       "type": "bool",
+       "value": false
+      }
+     ]
+    },
+    {
+     "id": 9,
+     "name": "city_09",
+     "type": "city",
+     "x": 3328,
+     "y": 4224,
+     "width": 128,
+     "height": 128,
+     "visible": true,
+     "rotation": 0,
+     "properties": [
+      {
+       "name": "slotId",
+       "type": "string",
+       "value": "city_09"
+      },
+      {
+       "name": "slotType",
+       "type": "string",
+       "value": "city"
+      },
+      {
+       "name": "gx",
+       "type": "int",
+       "value": 53
+      },
+      {
+       "name": "gy",
+       "type": "int",
+       "value": 67
+      },
+      {
+       "name": "fw",
+       "type": "int",
+       "value": 2
+      },
+      {
+       "name": "fh",
+       "type": "int",
+       "value": 2
+      },
+      {
+       "name": "fixed",
+       "type": "bool",
+       "value": false
+      }
+     ]
+    },
+    {
+     "id": 10,
+     "name": "city_10",
+     "type": "city",
+     "x": 3520,
+     "y": 4224,
+     "width": 128,
+     "height": 128,
+     "visible": true,
+     "rotation": 0,
+     "properties": [
+      {
+       "name": "slotId",
+       "type": "string",
+       "value": "city_10"
+      },
+      {
+       "name": "slotType",
+       "type": "string",
+       "value": "city"
+      },
+      {
+       "name": "gx",
+       "type": "int",
+       "value": 56
+      },
+      {
+       "name": "gy",
+       "type": "int",
+       "value": 67
+      },
+      {
+       "name": "fw",
+       "type": "int",
+       "value": 2
+      },
+      {
+       "name": "fh",
+       "type": "int",
+       "value": 2
+      },
+      {
+       "name": "fixed",
+       "type": "bool",
+       "value": false
+      }
+     ]
+    },
+    {
+     "id": 11,
+     "name": "city_11",
+     "type": "city",
+     "x": 2752,
+     "y": 4416,
+     "width": 128,
+     "height": 128,
+     "visible": true,
+     "rotation": 0,
+     "properties": [
+      {
+       "name": "slotId",
+       "type": "string",
+       "value": "city_11"
+      },
+      {
+       "name": "slotType",
+       "type": "string",
+       "value": "city"
+      },
+      {
+       "name": "gx",
+       "type": "int",
+       "value": 44
+      },
+      {
+       "name": "gy",
+       "type": "int",
+       "value": 70
+      },
+      {
+       "name": "fw",
+       "type": "int",
+       "value": 2
+      },
+      {
+       "name": "fh",
+       "type": "int",
+       "value": 2
+      },
+      {
+       "name": "fixed",
+       "type": "bool",
+       "value": false
+      }
+     ]
+    },
+    {
+     "id": 12,
+     "name": "city_12",
+     "type": "city",
+     "x": 2944,
+     "y": 4416,
+     "width": 128,
+     "height": 128,
+     "visible": true,
+     "rotation": 0,
+     "properties": [
+      {
+       "name": "slotId",
+       "type": "string",
+       "value": "city_12"
+      },
+      {
+       "name": "slotType",
+       "type": "string",
+       "value": "city"
+      },
+      {
+       "name": "gx",
+       "type": "int",
+       "value": 47
+      },
+      {
+       "name": "gy",
+       "type": "int",
+       "value": 70
+      },
+      {
+       "name": "fw",
+       "type": "int",
+       "value": 2
+      },
+      {
+       "name": "fh",
+       "type": "int",
+       "value": 2
+      },
+      {
+       "name": "fixed",
+       "type": "bool",
+       "value": false
+      }
+     ]
+    },
+    {
+     "id": 13,
+     "name": "city_hall",
+     "type": "city",
+     "x": 3136,
+     "y": 4416,
+     "width": 128,
+     "height": 128,
+     "visible": true,
+     "rotation": 0,
+     "properties": [
+      {
+       "name": "slotId",
+       "type": "string",
+       "value": "city_hall"
+      },
+      {
+       "name": "slotType",
+       "type": "string",
+       "value": "city"
+      },
+      {
+       "name": "gx",
+       "type": "int",
+       "value": 50
+      },
+      {
+       "name": "gy",
+       "type": "int",
+       "value": 70
+      },
+      {
+       "name": "fw",
+       "type": "int",
+       "value": 2
+      },
+      {
+       "name": "fh",
+       "type": "int",
+       "value": 2
+      },
+      {
+       "name": "fixed",
+       "type": "bool",
+       "value": true
+      }
+     ]
+    },
+    {
+     "id": 14,
+     "name": "city_13",
+     "type": "city",
+     "x": 3328,
+     "y": 4416,
+     "width": 128,
+     "height": 128,
+     "visible": true,
+     "rotation": 0,
+     "properties": [
+      {
+       "name": "slotId",
+       "type": "string",
+       "value": "city_13"
+      },
+      {
+       "name": "slotType",
+       "type": "string",
+       "value": "city"
+      },
+      {
+       "name": "gx",
+       "type": "int",
+       "value": 53
+      },
+      {
+       "name": "gy",
+       "type": "int",
+       "value": 70
+      },
+      {
+       "name": "fw",
+       "type": "int",
+       "value": 2
+      },
+      {
+       "name": "fh",
+       "type": "int",
+       "value": 2
+      },
+      {
+       "name": "fixed",
+       "type": "bool",
+       "value": false
+      }
+     ]
+    },
+    {
+     "id": 15,
+     "name": "city_14",
+     "type": "city",
+     "x": 3520,
+     "y": 4416,
+     "width": 128,
+     "height": 128,
+     "visible": true,
+     "rotation": 0,
+     "properties": [
+      {
+       "name": "slotId",
+       "type": "string",
+       "value": "city_14"
+      },
+      {
+       "name": "slotType",
+       "type": "string",
+       "value": "city"
+      },
+      {
+       "name": "gx",
+       "type": "int",
+       "value": 56
+      },
+      {
+       "name": "gy",
+       "type": "int",
+       "value": 70
+      },
+      {
+       "name": "fw",
+       "type": "int",
+       "value": 2
+      },
+      {
+       "name": "fh",
+       "type": "int",
+       "value": 2
+      },
+      {
+       "name": "fixed",
+       "type": "bool",
+       "value": false
+      }
+     ]
+    },
+    {
+     "id": 16,
+     "name": "city_15",
+     "type": "city",
+     "x": 2752,
+     "y": 4608,
+     "width": 128,
+     "height": 128,
+     "visible": true,
+     "rotation": 0,
+     "properties": [
+      {
+       "name": "slotId",
+       "type": "string",
+       "value": "city_15"
+      },
+      {
+       "name": "slotType",
+       "type": "string",
+       "value": "city"
+      },
+      {
+       "name": "gx",
+       "type": "int",
+       "value": 44
+      },
+      {
+       "name": "gy",
+       "type": "int",
+       "value": 73
+      },
+      {
+       "name": "fw",
+       "type": "int",
+       "value": 2
+      },
+      {
+       "name": "fh",
+       "type": "int",
+       "value": 2
+      },
+      {
+       "name": "fixed",
+       "type": "bool",
+       "value": false
+      }
+     ]
+    },
+    {
+     "id": 17,
+     "name": "city_16",
+     "type": "city",
+     "x": 2944,
+     "y": 4608,
+     "width": 128,
+     "height": 128,
+     "visible": true,
+     "rotation": 0,
+     "properties": [
+      {
+       "name": "slotId",
+       "type": "string",
+       "value": "city_16"
+      },
+      {
+       "name": "slotType",
+       "type": "string",
+       "value": "city"
+      },
+      {
+       "name": "gx",
+       "type": "int",
+       "value": 47
+      },
+      {
+       "name": "gy",
+       "type": "int",
+       "value": 73
+      },
+      {
+       "name": "fw",
+       "type": "int",
+       "value": 2
+      },
+      {
+       "name": "fh",
+       "type": "int",
+       "value": 2
+      },
+      {
+       "name": "fixed",
+       "type": "bool",
+       "value": false
+      }
+     ]
+    },
+    {
+     "id": 18,
+     "name": "city_17",
+     "type": "city",
+     "x": 3136,
+     "y": 4608,
+     "width": 128,
+     "height": 128,
+     "visible": true,
+     "rotation": 0,
+     "properties": [
+      {
+       "name": "slotId",
+       "type": "string",
+       "value": "city_17"
+      },
+      {
+       "name": "slotType",
+       "type": "string",
+       "value": "city"
+      },
+      {
+       "name": "gx",
+       "type": "int",
+       "value": 50
+      },
+      {
+       "name": "gy",
+       "type": "int",
+       "value": 73
+      },
+      {
+       "name": "fw",
+       "type": "int",
+       "value": 2
+      },
+      {
+       "name": "fh",
+       "type": "int",
+       "value": 2
+      },
+      {
+       "name": "fixed",
+       "type": "bool",
+       "value": false
+      }
+     ]
+    },
+    {
+     "id": 19,
+     "name": "city_18",
+     "type": "city",
+     "x": 3328,
+     "y": 4608,
+     "width": 128,
+     "height": 128,
+     "visible": true,
+     "rotation": 0,
+     "properties": [
+      {
+       "name": "slotId",
+       "type": "string",
+       "value": "city_18"
+      },
+      {
+       "name": "slotType",
+       "type": "string",
+       "value": "city"
+      },
+      {
+       "name": "gx",
+       "type": "int",
+       "value": 53
+      },
+      {
+       "name": "gy",
+       "type": "int",
+       "value": 73
+      },
+      {
+       "name": "fw",
+       "type": "int",
+       "value": 2
+      },
+      {
+       "name": "fh",
+       "type": "int",
+       "value": 2
+      },
+      {
+       "name": "fixed",
+       "type": "bool",
+       "value": false
+      }
+     ]
+    },
+    {
+     "id": 20,
+     "name": "city_19",
+     "type": "city",
+     "x": 3520,
+     "y": 4608,
+     "width": 128,
+     "height": 128,
+     "visible": true,
+     "rotation": 0,
+     "properties": [
+      {
+       "name": "slotId",
+       "type": "string",
+       "value": "city_19"
+      },
+      {
+       "name": "slotType",
+       "type": "string",
+       "value": "city"
+      },
+      {
+       "name": "gx",
+       "type": "int",
+       "value": 56
+      },
+      {
+       "name": "gy",
+       "type": "int",
+       "value": 73
+      },
+      {
+       "name": "fw",
+       "type": "int",
+       "value": 2
+      },
+      {
+       "name": "fh",
+       "type": "int",
+       "value": 2
+      },
+      {
+       "name": "fixed",
+       "type": "bool",
+       "value": false
+      }
+     ]
+    },
+    {
+     "id": 21,
+     "name": "city_20",
+     "type": "city",
+     "x": 2752,
+     "y": 4800,
+     "width": 128,
+     "height": 128,
+     "visible": true,
+     "rotation": 0,
+     "properties": [
+      {
+       "name": "slotId",
+       "type": "string",
+       "value": "city_20"
+      },
+      {
+       "name": "slotType",
+       "type": "string",
+       "value": "city"
+      },
+      {
+       "name": "gx",
+       "type": "int",
+       "value": 44
+      },
+      {
+       "name": "gy",
+       "type": "int",
+       "value": 76
+      },
+      {
+       "name": "fw",
+       "type": "int",
+       "value": 2
+      },
+      {
+       "name": "fh",
+       "type": "int",
+       "value": 2
+      },
+      {
+       "name": "fixed",
+       "type": "bool",
+       "value": false
+      }
+     ]
+    },
+    {
+     "id": 22,
+     "name": "city_21",
+     "type": "city",
+     "x": 2944,
+     "y": 4800,
+     "width": 128,
+     "height": 128,
+     "visible": true,
+     "rotation": 0,
+     "properties": [
+      {
+       "name": "slotId",
+       "type": "string",
+       "value": "city_21"
+      },
+      {
+       "name": "slotType",
+       "type": "string",
+       "value": "city"
+      },
+      {
+       "name": "gx",
+       "type": "int",
+       "value": 47
+      },
+      {
+       "name": "gy",
+       "type": "int",
+       "value": 76
+      },
+      {
+       "name": "fw",
+       "type": "int",
+       "value": 2
+      },
+      {
+       "name": "fh",
+       "type": "int",
+       "value": 2
+      },
+      {
+       "name": "fixed",
+       "type": "bool",
+       "value": false
+      }
+     ]
+    },
+    {
+     "id": 23,
+     "name": "city_22",
+     "type": "city",
+     "x": 3136,
+     "y": 4800,
+     "width": 128,
+     "height": 128,
+     "visible": true,
+     "rotation": 0,
+     "properties": [
+      {
+       "name": "slotId",
+       "type": "string",
+       "value": "city_22"
+      },
+      {
+       "name": "slotType",
+       "type": "string",
+       "value": "city"
+      },
+      {
+       "name": "gx",
+       "type": "int",
+       "value": 50
+      },
+      {
+       "name": "gy",
+       "type": "int",
+       "value": 76
+      },
+      {
+       "name": "fw",
+       "type": "int",
+       "value": 2
+      },
+      {
+       "name": "fh",
+       "type": "int",
+       "value": 2
+      },
+      {
+       "name": "fixed",
+       "type": "bool",
+       "value": false
+      }
+     ]
+    },
+    {
+     "id": 24,
+     "name": "city_23",
+     "type": "city",
+     "x": 3328,
+     "y": 4800,
+     "width": 128,
+     "height": 128,
+     "visible": true,
+     "rotation": 0,
+     "properties": [
+      {
+       "name": "slotId",
+       "type": "string",
+       "value": "city_23"
+      },
+      {
+       "name": "slotType",
+       "type": "string",
+       "value": "city"
+      },
+      {
+       "name": "gx",
+       "type": "int",
+       "value": 53
+      },
+      {
+       "name": "gy",
+       "type": "int",
+       "value": 76
+      },
+      {
+       "name": "fw",
+       "type": "int",
+       "value": 2
+      },
+      {
+       "name": "fh",
+       "type": "int",
+       "value": 2
+      },
+      {
+       "name": "fixed",
+       "type": "bool",
+       "value": false
+      }
+     ]
+    },
+    {
+     "id": 25,
+     "name": "city_24",
+     "type": "city",
+     "x": 3520,
+     "y": 4800,
+     "width": 128,
+     "height": 128,
+     "visible": true,
+     "rotation": 0,
+     "properties": [
+      {
+       "name": "slotId",
+       "type": "string",
+       "value": "city_24"
+      },
+      {
+       "name": "slotType",
+       "type": "string",
+       "value": "city"
+      },
+      {
+       "name": "gx",
+       "type": "int",
+       "value": 56
+      },
+      {
+       "name": "gy",
+       "type": "int",
+       "value": 76
+      },
+      {
+       "name": "fw",
+       "type": "int",
+       "value": 2
+      },
+      {
+       "name": "fh",
+       "type": "int",
+       "value": 2
+      },
+      {
+       "name": "fixed",
+       "type": "bool",
+       "value": false
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": 4,
+   "name": "COAST_SLOTS",
+   "type": "objectgroup",
+   "visible": true,
+   "opacity": 1,
+   "x": 0,
+   "y": 0,
+   "draworder": "topdown",
+   "objects": [
+    {
+     "id": 26,
+     "name": "coast_01",
+     "type": "coast",
+     "x": 2880,
+     "y": 5184,
+     "width": 128,
+     "height": 128,
+     "visible": true,
+     "rotation": 0,
+     "properties": [
+      {
+       "name": "slotId",
+       "type": "string",
+       "value": "coast_01"
+      },
+      {
+       "name": "slotType",
+       "type": "string",
+       "value": "coast"
+      },
+      {
+       "name": "gx",
+       "type": "int",
+       "value": 46
+      },
+      {
+       "name": "gy",
+       "type": "int",
+       "value": 82
+      },
+      {
+       "name": "fw",
+       "type": "int",
+       "value": 2
+      },
+      {
+       "name": "fh",
+       "type": "int",
+       "value": 2
+      },
+      {
+       "name": "fixed",
+       "type": "bool",
+       "value": false
+      }
+     ]
+    },
+    {
+     "id": 27,
+     "name": "coast_02",
+     "type": "coast",
+     "x": 3136,
+     "y": 5184,
+     "width": 128,
+     "height": 128,
+     "visible": true,
+     "rotation": 0,
+     "properties": [
+      {
+       "name": "slotId",
+       "type": "string",
+       "value": "coast_02"
+      },
+      {
+       "name": "slotType",
+       "type": "string",
+       "value": "coast"
+      },
+      {
+       "name": "gx",
+       "type": "int",
+       "value": 50
+      },
+      {
+       "name": "gy",
+       "type": "int",
+       "value": 82
+      },
+      {
+       "name": "fw",
+       "type": "int",
+       "value": 2
+      },
+      {
+       "name": "fh",
+       "type": "int",
+       "value": 2
+      },
+      {
+       "name": "fixed",
+       "type": "bool",
+       "value": false
+      }
+     ]
+    },
+    {
+     "id": 28,
+     "name": "coast_03",
+     "type": "coast",
+     "x": 3392,
+     "y": 5184,
+     "width": 128,
+     "height": 128,
+     "visible": true,
+     "rotation": 0,
+     "properties": [
+      {
+       "name": "slotId",
+       "type": "string",
+       "value": "coast_03"
+      },
+      {
+       "name": "slotType",
+       "type": "string",
+       "value": "coast"
+      },
+      {
+       "name": "gx",
+       "type": "int",
+       "value": 54
+      },
+      {
+       "name": "gy",
+       "type": "int",
+       "value": 82
+      },
+      {
+       "name": "fw",
+       "type": "int",
+       "value": 2
+      },
+      {
+       "name": "fh",
+       "type": "int",
+       "value": 2
+      },
+      {
+       "name": "fixed",
+       "type": "bool",
+       "value": false
+      }
+     ]
+    },
+    {
+     "id": 29,
+     "name": "coast_04",
+     "type": "coast",
+     "x": 3008,
+     "y": 5376,
+     "width": 128,
+     "height": 128,
+     "visible": true,
+     "rotation": 0,
+     "properties": [
+      {
+       "name": "slotId",
+       "type": "string",
+       "value": "coast_04"
+      },
+      {
+       "name": "slotType",
+       "type": "string",
+       "value": "coast"
+      },
+      {
+       "name": "gx",
+       "type": "int",
+       "value": 48
+      },
+      {
+       "name": "gy",
+       "type": "int",
+       "value": 85
+      },
+      {
+       "name": "fw",
+       "type": "int",
+       "value": 2
+      },
+      {
+       "name": "fh",
+       "type": "int",
+       "value": 2
+      },
+      {
+       "name": "fixed",
+       "type": "bool",
+       "value": false
+      }
+     ]
+    },
+    {
+     "id": 30,
+     "name": "coast_05",
+     "type": "coast",
+     "x": 3264,
+     "y": 5376,
+     "width": 128,
+     "height": 128,
+     "visible": true,
+     "rotation": 0,
+     "properties": [
+      {
+       "name": "slotId",
+       "type": "string",
+       "value": "coast_05"
+      },
+      {
+       "name": "slotType",
+       "type": "string",
+       "value": "coast"
+      },
+      {
+       "name": "gx",
+       "type": "int",
+       "value": 52
+      },
+      {
+       "name": "gy",
+       "type": "int",
+       "value": 85
+      },
+      {
+       "name": "fw",
+       "type": "int",
+       "value": 2
+      },
+      {
+       "name": "fh",
+       "type": "int",
+       "value": 2
+      },
+      {
+       "name": "fixed",
+       "type": "bool",
+       "value": false
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": 5,
+   "name": "DEFENSE_FOUNDATION",
+   "type": "objectgroup",
+   "visible": true,
+   "opacity": 1,
+   "x": 0,
+   "y": 0,
+   "draworder": "topdown",
+   "objects": [
+    {
+     "id": 36,
+     "name": "defense_foundation",
+     "type": "foundation",
+     "x": 0,
+     "y": 0,
+     "visible": true,
+     "rotation": 0,
+     "polygon": [
+      {
+       "x": 2624,
+       "y": 3904
+      },
+      {
+       "x": 3776,
+       "y": 3904
+      },
+      {
+       "x": 3776,
+       "y": 5056
+      },
+      {
+       "x": 2624,
+       "y": 5056
+      }
+     ],
+     "properties": [
+      {
+       "name": "note",
+       "type": "string",
+       "value": "Boş savunma temel hattı / hendek. Sur/kule/kapı sonradan defense assetleri olarak yerleşir."
+      }
+     ]
+    },
+    {
+     "id": 31,
+     "name": "defense_tower_n",
+     "type": "defense",
+     "x": 2560,
+     "y": 3840,
+     "width": 128,
+     "height": 128,
+     "visible": true,
+     "rotation": 0,
+     "properties": [
+      {
+       "name": "slotId",
+       "type": "string",
+       "value": "defense_tower_n"
+      },
+      {
+       "name": "slotType",
+       "type": "string",
+       "value": "defense"
+      },
+      {
+       "name": "gx",
+       "type": "int",
+       "value": 41
+      },
+      {
+       "name": "gy",
+       "type": "int",
+       "value": 61
+      },
+      {
+       "name": "fw",
+       "type": "int",
+       "value": 2
+      },
+      {
+       "name": "fh",
+       "type": "int",
+       "value": 2
+      },
+      {
+       "name": "fixed",
+       "type": "bool",
+       "value": true
+      }
+     ]
+    },
+    {
+     "id": 32,
+     "name": "defense_tower_e",
+     "type": "defense",
+     "x": 3712,
+     "y": 3840,
+     "width": 128,
+     "height": 128,
+     "visible": true,
+     "rotation": 0,
+     "properties": [
+      {
+       "name": "slotId",
+       "type": "string",
+       "value": "defense_tower_e"
+      },
+      {
+       "name": "slotType",
+       "type": "string",
+       "value": "defense"
+      },
+      {
+       "name": "gx",
+       "type": "int",
+       "value": 59
+      },
+      {
+       "name": "gy",
+       "type": "int",
+       "value": 61
+      },
+      {
+       "name": "fw",
+       "type": "int",
+       "value": 2
+      },
+      {
+       "name": "fh",
+       "type": "int",
+       "value": 2
+      },
+      {
+       "name": "fixed",
+       "type": "bool",
+       "value": true
+      }
+     ]
+    },
+    {
+     "id": 33,
+     "name": "defense_tower_s",
+     "type": "defense",
+     "x": 3712,
+     "y": 4992,
+     "width": 128,
+     "height": 128,
+     "visible": true,
+     "rotation": 0,
+     "properties": [
+      {
+       "name": "slotId",
+       "type": "string",
+       "value": "defense_tower_s"
+      },
+      {
+       "name": "slotType",
+       "type": "string",
+       "value": "defense"
+      },
+      {
+       "name": "gx",
+       "type": "int",
+       "value": 59
+      },
+      {
+       "name": "gy",
+       "type": "int",
+       "value": 79
+      },
+      {
+       "name": "fw",
+       "type": "int",
+       "value": 2
+      },
+      {
+       "name": "fh",
+       "type": "int",
+       "value": 2
+      },
+      {
+       "name": "fixed",
+       "type": "bool",
+       "value": true
+      }
+     ]
+    },
+    {
+     "id": 34,
+     "name": "defense_tower_w",
+     "type": "defense",
+     "x": 2560,
+     "y": 4992,
+     "width": 128,
+     "height": 128,
+     "visible": true,
+     "rotation": 0,
+     "properties": [
+      {
+       "name": "slotId",
+       "type": "string",
+       "value": "defense_tower_w"
+      },
+      {
+       "name": "slotType",
+       "type": "string",
+       "value": "defense"
+      },
+      {
+       "name": "gx",
+       "type": "int",
+       "value": 41
+      },
+      {
+       "name": "gy",
+       "type": "int",
+       "value": 79
+      },
+      {
+       "name": "fw",
+       "type": "int",
+       "value": 2
+      },
+      {
+       "name": "fh",
+       "type": "int",
+       "value": 2
+      },
+      {
+       "name": "fixed",
+       "type": "bool",
+       "value": true
+      }
+     ]
+    },
+    {
+     "id": 35,
+     "name": "defense_gate",
+     "type": "defense",
+     "x": 3712,
+     "y": 4480,
+     "width": 128,
+     "height": 128,
+     "visible": true,
+     "rotation": 0,
+     "properties": [
+      {
+       "name": "slotId",
+       "type": "string",
+       "value": "defense_gate"
+      },
+      {
+       "name": "slotType",
+       "type": "string",
+       "value": "defense"
+      },
+      {
+       "name": "gx",
+       "type": "int",
+       "value": 59
+      },
+      {
+       "name": "gy",
+       "type": "int",
+       "value": 71
+      },
+      {
+       "name": "fw",
+       "type": "int",
+       "value": 2
+      },
+      {
+       "name": "fh",
+       "type": "int",
+       "value": 2
+      },
+      {
+       "name": "fixed",
+       "type": "bool",
+       "value": true
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": 6,
+   "name": "DECORATION",
+   "type": "objectgroup",
+   "visible": true,
+   "opacity": 1,
+   "x": 0,
+   "y": 0,
+   "draworder": "topdown",
+   "objects": []
+  },
+  {
+   "id": 7,
+   "name": "BUILDINGS",
+   "type": "objectgroup",
+   "visible": true,
+   "opacity": 1,
+   "x": 0,
+   "y": 0,
+   "draworder": "topdown",
+   "objects": []
+  },
+  {
+   "id": 8,
+   "name": "DEFENSE",
+   "type": "objectgroup",
+   "visible": true,
+   "opacity": 1,
+   "x": 0,
+   "y": 0,
+   "draworder": "topdown",
+   "objects": []
+  },
+  {
+   "id": 9,
+   "name": "DEBUG",
+   "type": "objectgroup",
+   "visible": true,
+   "opacity": 1,
+   "x": 0,
+   "y": 0,
+   "draworder": "topdown",
+   "objects": []
+  }
+ ]
+}

@@ -1,0 +1,19 @@
+{
+    "columns": 0,
+    "grid": {
+        "height": 64,
+        "orientation": "isometric",
+        "width": 128
+    },
+    "margin": 0,
+    "name": "markers",
+    "spacing": 0,
+    "tilecount": 0,
+    "tiledversion": "1.10.2",
+    "tileheight": 128,
+    "tiles": [
+    ],
+    "tilewidth": 128,
+    "type": "tileset",
+    "version": "1.10"
+}

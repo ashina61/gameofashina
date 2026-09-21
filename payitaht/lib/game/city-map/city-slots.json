@@ -1,0 +1,516 @@
+{
+  "generatedBy": "tools/tiled/build-map.mjs",
+  "tile": {
+    "w": 128,
+    "h": 64
+  },
+  "map": {
+    "w": 100,
+    "h": 140,
+    "orientation": "isometric"
+  },
+  "footprint": {
+    "w": 2,
+    "h": 2
+  },
+  "center": {
+    "gx": 50,
+    "gy": 70,
+    "screen": {
+      "x": -1280,
+      "y": 3840
+    }
+  },
+  "hallSlotId": "city_hall",
+  "slots": [
+    {
+      "id": "city_01",
+      "type": "city",
+      "gx": 44,
+      "gy": 64,
+      "fw": 2,
+      "fh": 2,
+      "fixed": false,
+      "screen": {
+        "x": -1280,
+        "y": 3456
+      }
+    },
+    {
+      "id": "city_02",
+      "type": "city",
+      "gx": 47,
+      "gy": 64,
+      "fw": 2,
+      "fh": 2,
+      "fixed": false,
+      "screen": {
+        "x": -1088,
+        "y": 3552
+      }
+    },
+    {
+      "id": "city_03",
+      "type": "city",
+      "gx": 50,
+      "gy": 64,
+      "fw": 2,
+      "fh": 2,
+      "fixed": false,
+      "screen": {
+        "x": -896,
+        "y": 3648
+      }
+    },
+    {
+      "id": "city_04",
+      "type": "city",
+      "gx": 53,
+      "gy": 64,
+      "fw": 2,
+      "fh": 2,
+      "fixed": false,
+      "screen": {
+        "x": -704,
+        "y": 3744
+      }
+    },
+    {
+      "id": "city_05",
+      "type": "city",
+      "gx": 56,
+      "gy": 64,
+      "fw": 2,
+      "fh": 2,
+      "fixed": false,
+      "screen": {
+        "x": -512,
+        "y": 3840
+      }
+    },
+    {
+      "id": "city_06",
+      "type": "city",
+      "gx": 44,
+      "gy": 67,
+      "fw": 2,
+      "fh": 2,
+      "fixed": false,
+      "screen": {
+        "x": -1472,
+        "y": 3552
+      }
+    },
+    {
+      "id": "city_07",
+      "type": "city",
+      "gx": 47,
+      "gy": 67,
+      "fw": 2,
+      "fh": 2,
+      "fixed": false,
+      "screen": {
+        "x": -1280,
+        "y": 3648
+      }
+    },
+    {
+      "id": "city_08",
+      "type": "city",
+      "gx": 50,
+      "gy": 67,
+      "fw": 2,
+      "fh": 2,
+      "fixed": false,
+      "screen": {
+        "x": -1088,
+        "y": 3744
+      }
+    },
+    {
+      "id": "city_09",
+      "type": "city",
+      "gx": 53,
+      "gy": 67,
+      "fw": 2,
+      "fh": 2,
+      "fixed": false,
+      "screen": {
+        "x": -896,
+        "y": 3840
+      }
+    },
+    {
+      "id": "city_10",
+      "type": "city",
+      "gx": 56,
+      "gy": 67,
+      "fw": 2,
+      "fh": 2,
+      "fixed": false,
+      "screen": {
+        "x": -704,
+        "y": 3936
+      }
+    },
+    {
+      "id": "city_11",
+      "type": "city",
+      "gx": 44,
+      "gy": 70,
+      "fw": 2,
+      "fh": 2,
+      "fixed": false,
+      "screen": {
+        "x": -1664,
+        "y": 3648
+      }
+    },
+    {
+      "id": "city_12",
+      "type": "city",
+      "gx": 47,
+      "gy": 70,
+      "fw": 2,
+      "fh": 2,
+      "fixed": false,
+      "screen": {
+        "x": -1472,
+        "y": 3744
+      }
+    },
+    {
+      "id": "city_hall",
+      "type": "city",
+      "gx": 50,
+      "gy": 70,
+      "fw": 2,
+      "fh": 2,
+      "fixed": true,
+      "screen": {
+        "x": -1280,
+        "y": 3840
+      }
+    },
+    {
+      "id": "city_13",
+      "type": "city",
+      "gx": 53,
+      "gy": 70,
+      "fw": 2,
+      "fh": 2,
+      "fixed": false,
+      "screen": {
+        "x": -1088,
+        "y": 3936
+      }
+    },
+    {
+      "id": "city_14",
+      "type": "city",
+      "gx": 56,
+      "gy": 70,
+      "fw": 2,
+      "fh": 2,
+      "fixed": false,
+      "screen": {
+        "x": -896,
+        "y": 4032
+      }
+    },
+    {
+      "id": "city_15",
+      "type": "city",
+      "gx": 44,
+      "gy": 73,
+      "fw": 2,
+      "fh": 2,
+      "fixed": false,
+      "screen": {
+        "x": -1856,
+        "y": 3744
+      }
+    },
+    {
+      "id": "city_16",
+      "type": "city",
+      "gx": 47,
+      "gy": 73,
+      "fw": 2,
+      "fh": 2,
+      "fixed": false,
+      "screen": {
+        "x": -1664,
+        "y": 3840
+      }
+    },
+    {
+      "id": "city_17",
+      "type": "city",
+      "gx": 50,
+      "gy": 73,
+      "fw": 2,
+      "fh": 2,
+      "fixed": false,
+      "screen": {
+        "x": -1472,
+        "y": 3936
+      }
+    },
+    {
+      "id": "city_18",
+      "type": "city",
+      "gx": 53,
+      "gy": 73,
+      "fw": 2,
+      "fh": 2,
+      "fixed": false,
+      "screen": {
+        "x": -1280,
+        "y": 4032
+      }
+    },
+    {
+      "id": "city_19",
+      "type": "city",
+      "gx": 56,
+      "gy": 73,
+      "fw": 2,
+      "fh": 2,
+      "fixed": false,
+      "screen": {
+        "x": -1088,
+        "y": 4128
+      }
+    },
+    {
+      "id": "city_20",
+      "type": "city",
+      "gx": 44,
+      "gy": 76,
+      "fw": 2,
+      "fh": 2,
+      "fixed": false,
+      "screen": {
+        "x": -2048,
+        "y": 3840
+      }
+    },
+    {
+      "id": "city_21",
+      "type": "city",
+      "gx": 47,
+      "gy": 76,
+      "fw": 2,
+      "fh": 2,
+      "fixed": false,
+      "screen": {
+        "x": -1856,
+        "y": 3936
+      }
+    },
+    {
+      "id": "city_22",
+      "type": "city",
+      "gx": 50,
+      "gy": 76,
+      "fw": 2,
+      "fh": 2,
+      "fixed": false,
+      "screen": {
+        "x": -1664,
+        "y": 4032
+      }
+    },
+    {
+      "id": "city_23",
+      "type": "city",
+      "gx": 53,
+      "gy": 76,
+      "fw": 2,
+      "fh": 2,
+      "fixed": false,
+      "screen": {
+        "x": -1472,
+        "y": 4128
+      }
+    },
+    {
+      "id": "city_24",
+      "type": "city",
+      "gx": 56,
+      "gy": 76,
+      "fw": 2,
+      "fh": 2,
+      "fixed": false,
+      "screen": {
+        "x": -1280,
+        "y": 4224
+      }
+    },
+    {
+      "id": "coast_01",
+      "type": "coast",
+      "gx": 46,
+      "gy": 82,
+      "fw": 2,
+      "fh": 2,
+      "fixed": false,
+      "screen": {
+        "x": -2304,
+        "y": 4096
+      }
+    },
+    {
+      "id": "coast_02",
+      "type": "coast",
+      "gx": 50,
+      "gy": 82,
+      "fw": 2,
+      "fh": 2,
+      "fixed": false,
+      "screen": {
+        "x": -2048,
+        "y": 4224
+      }
+    },
+    {
+      "id": "coast_03",
+      "type": "coast",
+      "gx": 54,
+      "gy": 82,
+      "fw": 2,
+      "fh": 2,
+      "fixed": false,
+      "screen": {
+        "x": -1792,
+        "y": 4352
+      }
+    },
+    {
+      "id": "coast_04",
+      "type": "coast",
+      "gx": 48,
+      "gy": 85,
+      "fw": 2,
+      "fh": 2,
+      "fixed": false,
+      "screen": {
+        "x": -2368,
+        "y": 4256
+      }
+    },
+    {
+      "id": "coast_05",
+      "type": "coast",
+      "gx": 52,
+      "gy": 85,
+      "fw": 2,
+      "fh": 2,
+      "fixed": false,
+      "screen": {
+        "x": -2112,
+        "y": 4384
+      }
+    },
+    {
+      "id": "defense_tower_n",
+      "gx": 41,
+      "gy": 61,
+      "type": "defense",
+      "fw": 2,
+      "fh": 2,
+      "fixed": true,
+      "screen": {
+        "x": -1280,
+        "y": 3264
+      }
+    },
+    {
+      "id": "defense_tower_e",
+      "gx": 59,
+      "gy": 61,
+      "type": "defense",
+      "fw": 2,
+      "fh": 2,
+      "fixed": true,
+      "screen": {
+        "x": -128,
+        "y": 3840
+      }
+    },
+    {
+      "id": "defense_tower_s",
+      "gx": 59,
+      "gy": 79,
+      "type": "defense",
+      "fw": 2,
+      "fh": 2,
+      "fixed": true,
+      "screen": {
+        "x": -1280,
+        "y": 4416
+      }
+    },
+    {
+      "id": "defense_tower_w",
+      "gx": 41,
+      "gy": 79,
+      "type": "defense",
+      "fw": 2,
+      "fh": 2,
+      "fixed": true,
+      "screen": {
+        "x": -2432,
+        "y": 3840
+      }
+    },
+    {
+      "id": "defense_gate",
+      "gx": 59,
+      "gy": 71,
+      "type": "defense",
+      "fw": 2,
+      "fh": 2,
+      "fixed": true,
+      "screen": {
+        "x": -768,
+        "y": 4160
+      }
+    }
+  ],
+  "defenseFoundation": [
+    {
+      "gx": 41,
+      "gy": 61,
+      "screen": {
+        "x": -1280,
+        "y": 3264
+      }
+    },
+    {
+      "gx": 59,
+      "gy": 61,
+      "screen": {
+        "x": -128,
+        "y": 3840
+      }
+    },
+    {
+      "gx": 59,
+      "gy": 79,
+      "screen": {
+        "x": -1280,
+        "y": 4416
+      }
+    },
+    {
+      "gx": 41,
+      "gy": 79,
+      "screen": {
+        "x": -2432,
+        "y": 3840
+      }
+    }
+  ]
+}
