@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
-import type { SlotDebugScene, Toggles, RealAssetRow } from './slot-debug-scene'
+import type { SlotDebugScene, Toggles, RealAssetRow, FillReport } from './slot-debug-scene'
 import { BUILDING_ASSETS, HALL_BUILDING_ID } from '@/lib/game/city-map/building-assets'
 
 /**
@@ -16,6 +16,7 @@ export function MapDebugView() {
   const [active, setActive] = useState<string>(HALL_BUILDING_ID)
   const [toggles, setToggles] = useState<Toggles>({ footprint: true, ground: true, anchor: false, bbox: false })
   const [rows, setRows] = useState<RealAssetRow[] | null>(null)
+  const [fill, setFill] = useState<FillReport | null>(null)
 
   useEffect(() => {
     let disposed = false
@@ -55,7 +56,10 @@ export function MapDebugView() {
             {BUILDING_ASSETS.map(b => <option key={b.buildingId} value={b.buildingId}>{b.name}{b.fixed ? ' (çakılı)' : ''}</option>)}
           </select>
         </label>
-        <button onClick={() => { const r = sceneRef.current?.runRealAssetTest(); if (r) setRows(r) }} style={btn('#4a3a6a')}>Test Real Assets</button>
+        <button onClick={() => { const r = sceneRef.current?.fillAll('A'); if (r) { setFill(r); setRows(null) } }} style={btn('#7a4a2a')}>Fill All City Slots</button>
+        <button onClick={() => { const r = sceneRef.current?.fillAll('B'); if (r) { setFill(r); setRows(null) } }} style={btn('#7a5a2a')}>Fill Layout B</button>
+        <button onClick={() => { sceneRef.current?.clearFill(); setFill(null) }} style={btn('#3a2b2b')}>Clear Fill</button>
+        <button onClick={() => { const r = sceneRef.current?.runRealAssetTest(); if (r) { setRows(r); setFill(null) } }} style={btn('#4a3a6a')}>Test Real Assets</button>
         <button onClick={() => sceneRef.current?.randomize()} style={btn('#2f5a3f')}>Randomize</button>
         <button onClick={() => sceneRef.current?.runExhaustive()} style={btn('#274a55')}>Geometry (mock)</button>
         {(['footprint', 'ground', 'anchor', 'bbox'] as (keyof Toggles)[]).map(k =>
@@ -63,8 +67,32 @@ export function MapDebugView() {
         <span style={{ fontSize: 12, color: '#cbe6bd', flex: '1 1 260px', minWidth: 0 }}>{info}</span>
       </div>
 
+      {/* Dolu şehir raporu */}
+      {fill && (
+        <div style={panel}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+            <strong>Fill {fill.variant} · {fill.filledSlots}/25 slot dolu (belediye sabit)</strong>
+            <button onClick={() => setFill(null)} style={btn('#3a2b2b')}>Kapat</button>
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(150px,1fr))', gap: 6, fontSize: 12 }}>
+            <Stat label="Zemin temas (footprint içinde)" val={`${fill.groundContactOk}/${fill.filledSlots} ✓`} ok />
+            <Stat label="Taban komşuya taşma" val={`${fill.baseOverflowPairs} çift`} ok={fill.baseOverflowPairs === 0} />
+            <Stat label="Depth ters sıra" val={`${fill.depthInversions}`} ok={fill.depthInversions === 0} />
+            <Stat label="Yol boşluğu (min footprint aralığı)" val={`${fill.roadGapMinPx}px`} ok={fill.roadGapMinPx > 0} />
+            <Stat label="Çatı/üst kat örtüşen komşu" val={`${fill.roofOverlapPairs.length} çift`} ok={fill.roofOverlapPairs.length === 0} warn={fill.roofOverlapPairs.length > 0} />
+            <Stat label="Yüksek yapı (kubbe/minare)" val={`${fill.tall.length}`} />
+          </div>
+          {fill.roofOverlapPairs.length > 0 && (
+            <div style={{ marginTop: 8, fontSize: 11, color: '#ffcf5a', maxHeight: '20vh', overflow: 'auto' }}>
+              <b>Görsel örtüşen komşu çiftleri (footprint hatası değil, çatı/üst kat):</b>
+              <div>{fill.roofOverlapPairs.map((p, i) => <div key={i}>{p.a} ↔ {p.b} · %{p.pct}</div>)}</div>
+            </div>
+          )}
+        </div>
+      )}
+
       {/* Sonuç tablosu */}
-      {rows && (
+      {!fill && rows && (
         <div style={panel}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
             <strong>Test Real Assets · {rows.filter(r => r.geometry.startsWith('24/')).length}/{rows.length} GEOMETRY PASS</strong>
@@ -103,4 +131,14 @@ const sel: React.CSSProperties = { padding: '5px 8px', borderRadius: 8, backgrou
 const chk: React.CSSProperties = { fontSize: 12, display: 'flex', gap: 4, alignItems: 'center', textTransform: 'capitalize', color: '#cbe6bd' }
 function btn(bg: string): React.CSSProperties {
   return { padding: '7px 12px', borderRadius: 9, background: bg, color: '#fff', border: '1px solid #ffffff2e', cursor: 'pointer', fontSize: 13, fontWeight: 600 }
+}
+
+function Stat({ label, val, ok, warn }: { label: string; val: string; ok?: boolean; warn?: boolean }) {
+  const color = warn ? '#ffcf5a' : ok ? '#6dff92' : '#e7ecd9'
+  return (
+    <div style={{ padding: '6px 8px', borderRadius: 8, background: '#ffffff0f', border: '1px solid #ffffff14' }}>
+      <div style={{ color: '#9fb39a', fontSize: 10 }}>{label}</div>
+      <div style={{ color, fontWeight: 700 }}>{val}</div>
+    </div>
+  )
 }

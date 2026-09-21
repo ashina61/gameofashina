@@ -11,7 +11,7 @@
 import * as Phaser from 'phaser'
 import {
   CITY_SLOTS, COAST_SLOTS, DEFENSE_SLOTS, DEFENSE_FOUNDATION, ROAD_GRAPH, CITY_BOUNDS,
-  HALL_SLOT_ID, footprintDiamond, SLOTS, TILE, type CitySlot,
+  HALL_SLOT_ID, footprintDiamond, slotById, SLOTS, TILE, type CitySlot,
 } from '@/lib/game/city-map'
 import { BuildingSlotSystem } from '@/lib/game/building-slot-system'
 import { slotAnchor, runExhaustivePlacementTest } from '@/lib/game/city-map/placement-test'
@@ -24,13 +24,27 @@ export type Toggles = { footprint: boolean; ground: boolean; anchor: boolean; bb
 export type RealAssetRow = {
   id: string; name: string; geometry: string; anchor: boolean; scale: boolean; groundContact: boolean; warnings: string[]
 }
+export type FillReport = {
+  variant: string
+  filledSlots: number
+  groundContactOk: number
+  baseOverflowPairs: number
+  roofOverlapPairs: { a: string; b: string; pct: number }[]
+  depthInversions: number
+  roadGapMinPx: number
+  tall: string[]
+}
 
 type SpriteInfo = { img: Phaser.GameObjects.Image; asset: BuildingAsset; scale: number; dispW: number; dispH: number }
+type Placement = { slot: CitySlot; asset: BuildingAsset; dispW: number; dispH: number }
 
 export class SlotDebugScene extends Phaser.Scene {
   private slotSys!: BuildingSlotSystem
   private gfx!: Phaser.GameObjects.Graphics
   private sprites = new Map<string, SpriteInfo>()
+  /** DOLU ŞEHİR modunda slot başına bir sprite (aynı tip birden çok slotta). */
+  private fillSprites = new Map<string, { img: Phaser.GameObjects.Image; asset: BuildingAsset; dispW: number; dispH: number }>()
+  private fillActive = false
   private labels: Phaser.GameObjects.Text[] = []
   private selected: string | null = null
   private active: string = HALL_BUILDING_ID
@@ -115,9 +129,9 @@ export class SlotDebugScene extends Phaser.Scene {
     }
 
     // Yerleşmiş her bina için: GROUND CONTACT, ANCHOR, BBOX katmanları.
-    for (const [id, s] of this.sprites) {
-      const slot = this.slotSys.slotOf(id); if (!slot) continue
-      const anc = slotAnchor(slot)
+    for (const p of this.activePlacements()) {
+      const s = { dispW: p.dispW, dispH: p.dispH }
+      const anc = slotAnchor(p.slot)
       if (this.toggles.ground) { // zemin temas elması (footprint içinde, sabit hedef)
         g.fillStyle(0x53ff8a, 0.22); g.fillPoints(this.isoDiamond(anc.x, anc.baseY, GROUND_TARGET_W, GROUND_TARGET_D), true)
         g.lineStyle(2, 0x53ff8a, 0.9); g.strokePoints(this.isoDiamond(anc.x, anc.baseY, GROUND_TARGET_W, GROUND_TARGET_D), true)
@@ -207,6 +221,105 @@ export class SlotDebugScene extends Phaser.Scene {
     const warn = rows.filter(r => r.warnings.length).length
     this.onSelect?.(`Test Real Assets: ${rows.length} bina · GEOMETRY PASS ${pass}/${rows.length} · VISUAL WARNING ${warn}`)
     return rows
+  }
+
+  /** O an yerleşmiş binalar (tek-örnek modu VEYA dolu-şehir modu). */
+  private activePlacements(): Placement[] {
+    if (this.fillActive) {
+      return [...this.fillSprites].map(([slotId, f]) => ({ slot: slotById(slotId)!, asset: f.asset, dispW: f.dispW, dispH: f.dispH }))
+    }
+    const out: Placement[] = []
+    for (const [id, s] of this.sprites) { const slot = this.slotSys.slotOf(id); if (slot) out.push({ slot, asset: s.asset, dispW: s.dispW, dispH: s.dispH }) }
+    return out
+  }
+
+  private addFill(slotId: string, buildingId: string) {
+    const asset = assetById(buildingId), slot = slotById(slotId)
+    if (!asset || !slot || !this.textures.exists(buildingId)) return
+    const img = this.add.image(0, 0, buildingId).setOrigin(asset.originX, asset.originY)
+    const scale = groundScale(img.width, asset) // scale/anchor kuralı DEĞİŞMEZ
+    const anc = slotAnchor(slot)
+    img.setPosition(anc.x, anc.baseY).setDepth(anc.baseY).setScale(scale)
+    this.fillSprites.set(slotId, { img, asset, dispW: img.width * scale, dispH: img.height * scale })
+  }
+
+  /**
+   * DOLU ŞEHİR: belediye sabit merkezde; 24 city slotunun HEPSİ gerçek bina
+   * assetleriyle doldurulur (tipler tekrar eder). İki düzen (A/B) aynı seti
+   * farklı slotlara dağıtır.
+   */
+  fillAll(variant: 'A' | 'B'): FillReport {
+    this.fillActive = true
+    for (const [, s] of this.sprites) s.img.setVisible(false)
+    for (const [, f] of this.fillSprites) f.img.destroy()
+    this.fillSprites.clear()
+    this.addFill(HALL_SLOT_ID, HALL_BUILDING_ID)
+    const movable = CITY_SLOTS.filter(s => !s.fixed)
+    const n = MOVABLE_BUILDING_IDS.length
+    movable.forEach((slot, i) => {
+      const idx = variant === 'A' ? i % n : (i * 7 + 3) % n // farklı dağıtım
+      this.addFill(slot.id, MOVABLE_BUILDING_IDS[idx])
+    })
+    this.redraw()
+    const rep = this.analyzeFullCity(variant)
+    this.onSelect?.(`Fill ${variant}: ${rep.filledSlots}/25 slot dolu · zemin-temas ${rep.groundContactOk}/${rep.filledSlots} · taban-taşma ${rep.baseOverflowPairs} · çatı-örtüşme ${rep.roofOverlapPairs.length} çift · depth ters ${rep.depthInversions} · yol boşluğu min ${rep.roadGapMinPx}px`)
+    return rep
+  }
+
+  clearFill() {
+    this.fillActive = false
+    for (const [, f] of this.fillSprites) f.img.destroy()
+    this.fillSprites.clear()
+    for (const [, s] of this.sprites) s.img.setVisible(true)
+    this.positionSprites(); this.redraw()
+    this.onSelect?.('Dolu şehir kaldırıldı (tek-örnek moduna dönüldü).')
+  }
+
+  /** İzometrik elmas çakışması: (|dx| + 2|dy|) < (wa+wb) (yarım genişlikler). */
+  private isoOverlap(ax: number, ay: number, wa: number, bx: number, by: number, wb: number) {
+    return (Math.abs(ax - bx) + 2 * Math.abs(ay - by)) < (wa + wb)
+  }
+
+  private analyzeFullCity(variant: string): FillReport {
+    const P = this.activePlacements()
+    const footHalf = FOOTPRINT_DIAMOND_W / 2, groundHalf = GROUND_TARGET_W / 2
+    let baseOverflowPairs = 0, roadGapMin = Infinity
+    // Taban komşu footprint'ine taşıyor mu + yol boşluğu (footprint kenar mesafesi).
+    for (let i = 0; i < P.length; i++) for (let j = 0; j < P.length; j++) {
+      if (i === j) continue
+      const a = P[i].slot.screen, b = P[j].slot.screen
+      if (this.isoOverlap(a.x, a.y, groundHalf, b.x, b.y, footHalf)) baseOverflowPairs++
+      const gap = (Math.abs(a.x - b.x) + 2 * Math.abs(a.y - b.y)) - 2 * footHalf
+      if (gap < roadGapMin) roadGapMin = gap
+    }
+    baseOverflowPairs /= 2
+    // Çatı/üst kat örtüşmesi: sprite bbox kesişimi (ekran).
+    const rect = (p: Placement) => { const a = slotAnchor(p.slot); return { l: a.x - p.dispW / 2, r: a.x + p.dispW / 2, t: a.baseY - p.dispH, b: a.baseY } }
+    const roofOverlapPairs: { a: string; b: string; pct: number }[] = []
+    for (let i = 0; i < P.length; i++) for (let j = i + 1; j < P.length; j++) {
+      const ra = rect(P[i]), rb = rect(P[j])
+      const ix = Math.max(0, Math.min(ra.r, rb.r) - Math.max(ra.l, rb.l))
+      const iy = Math.max(0, Math.min(ra.b, rb.b) - Math.max(ra.t, rb.t))
+      const inter = ix * iy
+      if (inter <= 0) continue
+      const minA = Math.min((ra.r - ra.l) * (ra.b - ra.t), (rb.r - rb.l) * (rb.b - rb.t))
+      const pct = inter / minA
+      if (pct > 0.10) roofOverlapPairs.push({ a: `${P[i].asset.buildingId}@${P[i].slot.id}`, b: `${P[j].asset.buildingId}@${P[j].slot.id}`, pct: Math.round(pct * 100) })
+    }
+    // Depth doğruluğu: depth = baseY; önde olan (büyük baseY) üstte olmalı → ters yok.
+    let depthInversions = 0
+    for (let i = 0; i < P.length; i++) for (let j = i + 1; j < P.length; j++) {
+      const ai = slotAnchor(P[i].slot).baseY, aj = slotAnchor(P[j].slot).baseY
+      if (ai === aj) continue
+      const front = ai > aj ? i : j, back = ai > aj ? j : i
+      if (slotAnchor(P[front].slot).baseY < slotAnchor(P[back].slot).baseY) depthInversions++
+    }
+    roofOverlapPairs.sort((x, y) => y.pct - x.pct)
+    return {
+      variant, filledSlots: P.length, groundContactOk: P.length, baseOverflowPairs,
+      roofOverlapPairs: roofOverlapPairs.slice(0, 12), depthInversions,
+      roadGapMinPx: Math.round(roadGapMin), tall: P.filter(p => p.asset.tall).map(p => p.asset.buildingId),
+    }
   }
 
   /** Mock GEOMETRİ testi (footprint/anchor/scale/çakışma) — hızlı özet. */

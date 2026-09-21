@@ -50,7 +50,11 @@ const def = (buildingId: string, name: string, groundContactWidthRatio: number, 
 export const BUILDING_ASSETS: BuildingAsset[] = [
   def('divan', 'Belediye (Divanhane)', 0.70, { tall: true, fixed: true }),
   def('saray', 'Saray', 0.70, { tall: true }),
-  def('medrese', 'Medrese (Akademi)', 0.66, { tall: true }),
+  // Medrese görsel taşma düzeltmesi: tabanı gövdesine göre dar olduğu için
+  // 0.66 oranıyla render genişliği komşu mesafesini aşıyordu. YALNIZCA bu
+  // asset'in zemin-temas oranı düzeltildi (slot geometrisi/diğer binalar/scale
+  // kuralı DEĞİŞMEDİ). Render genişliği ~318px -> ~269px'e iner.
+  def('medrese', 'Medrese (Akademi)', 0.78, { tall: true }),
   def('kisla', 'Kışla', 0.80),
   def('carsi', 'Çarşı (Pazar)', 0.82),
   def('ambar', 'Ambar (Depo)', 0.80),
