@@ -17,6 +17,7 @@ export function MapDebugView() {
   const [toggles, setToggles] = useState<Toggles>({ footprint: true, ground: true, anchor: false, bbox: false })
   const [rows, setRows] = useState<RealAssetRow[] | null>(null)
   const [fill, setFill] = useState<FillReport | null>(null)
+  const [open, setOpen] = useState(false) // debug paneli başlangıçta KAPALI
 
   useEffect(() => {
     let disposed = false
@@ -48,24 +49,32 @@ export function MapDebugView() {
     <div style={{ position: 'fixed', inset: 0, background: '#22333b', color: '#e7ecd9', fontFamily: 'system-ui, sans-serif' }}>
       <div ref={holder} style={{ position: 'absolute', inset: 0 }} />
 
-      {/* Üst araç çubuğu */}
-      <div style={bar}>
-        <strong style={{ fontFamily: 'Georgia, serif', color: '#fff4da' }}>Payitaht · Slot Debug</strong>
-        <label style={{ fontSize: 12, display: 'flex', gap: 5, alignItems: 'center' }}>Bina:
-          <select value={active} onChange={e => { setActive(e.target.value); sceneRef.current?.setActiveBuilding(e.target.value) }} style={sel}>
-            {BUILDING_ASSETS.map(b => <option key={b.buildingId} value={b.buildingId}>{b.name}{b.fixed ? ' (çakılı)' : ''}</option>)}
-          </select>
-        </label>
-        <button onClick={() => { const r = sceneRef.current?.fillAll('A'); if (r) { setFill(r); setRows(null) } }} style={btn('#7a4a2a')}>Fill All City Slots</button>
-        <button onClick={() => { const r = sceneRef.current?.fillAll('B'); if (r) { setFill(r); setRows(null) } }} style={btn('#7a5a2a')}>Fill Layout B</button>
-        <button onClick={() => { sceneRef.current?.clearFill(); setFill(null) }} style={btn('#3a2b2b')}>Clear Fill</button>
-        <button onClick={() => { const r = sceneRef.current?.runRealAssetTest(); if (r) { setRows(r); setFill(null) } }} style={btn('#4a3a6a')}>Test Real Assets</button>
-        <button onClick={() => sceneRef.current?.randomize()} style={btn('#2f5a3f')}>Randomize</button>
-        <button onClick={() => sceneRef.current?.runExhaustive()} style={btn('#274a55')}>Geometry (mock)</button>
-        {(['footprint', 'ground', 'anchor', 'bbox'] as (keyof Toggles)[]).map(k =>
-          <label key={k} style={chk}><input type="checkbox" checked={toggles[k]} onChange={() => toggle(k)} />{k}</label>)}
-        <span style={{ fontSize: 12, color: '#cbe6bd', flex: '1 1 260px', minWidth: 0 }}>{info}</span>
+      {/* KOMPAKT ÜST ŞERİT — panel kapalıyken şehir görünümünü kapatmaz. */}
+      <div style={header}>
+        <button onClick={() => setOpen(o => !o)} style={btn(open ? '#4a3a6a' : '#2a3b44')}>{open ? '▴ Debug' : '☰ Debug'}</button>
+        <button onClick={() => sceneRef.current?.setCityView()} style={btn('#2f5a3f')}>CITY VIEW</button>
+        <button onClick={() => sceneRef.current?.setOverview()} style={btn('#3a4a55')}>OVERVIEW</button>
+        <span style={{ fontSize: 11, color: '#cbe6bd', flex: '1 1 120px', minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{info}</span>
       </div>
+
+      {/* AÇILIR kontrol paneli — yalnızca Debug açıkken. */}
+      {open && (
+        <div style={bar}>
+          <label style={{ fontSize: 12, display: 'flex', gap: 5, alignItems: 'center' }}>Bina:
+            <select value={active} onChange={e => { setActive(e.target.value); sceneRef.current?.setActiveBuilding(e.target.value) }} style={sel}>
+              {BUILDING_ASSETS.map(b => <option key={b.buildingId} value={b.buildingId}>{b.name}{b.fixed ? ' (çakılı)' : ''}</option>)}
+            </select>
+          </label>
+          <button onClick={() => { const r = sceneRef.current?.fillAll('A'); if (r) { setFill(r); setRows(null) } }} style={btn('#7a4a2a')}>Fill All City Slots</button>
+          <button onClick={() => { const r = sceneRef.current?.fillAll('B'); if (r) { setFill(r); setRows(null) } }} style={btn('#7a5a2a')}>Fill Layout B</button>
+          <button onClick={() => { sceneRef.current?.clearFill(); setFill(null) }} style={btn('#3a2b2b')}>Clear Fill</button>
+          <button onClick={() => { const r = sceneRef.current?.runRealAssetTest(); if (r) { setRows(r); setFill(null) } }} style={btn('#4a3a6a')}>Test Real Assets</button>
+          <button onClick={() => sceneRef.current?.randomize()} style={btn('#2f5a3f')}>Randomize</button>
+          <button onClick={() => sceneRef.current?.runExhaustive()} style={btn('#274a55')}>Geometry (mock)</button>
+          {(['footprint', 'ground', 'anchor', 'bbox'] as (keyof Toggles)[]).map(k =>
+            <label key={k} style={chk}><input type="checkbox" checked={toggles[k]} onChange={() => toggle(k)} />{k}</label>)}
+        </div>
+      )}
 
       {/* Dolu şehir raporu */}
       {fill && (
@@ -123,7 +132,8 @@ export function MapDebugView() {
   )
 }
 
-const bar: React.CSSProperties = { position: 'absolute', top: 8, left: 8, right: 8, display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap', padding: '8px 12px', borderRadius: 12, background: '#0d2522e8', border: '1px solid #d9c18540', backdropFilter: 'blur(8px)', zIndex: 5 }
+const header: React.CSSProperties = { position: 'absolute', top: 8, left: 8, right: 8, display: 'flex', gap: 8, alignItems: 'center', zIndex: 6 }
+const bar: React.CSSProperties = { position: 'absolute', top: 52, left: 8, right: 8, display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap', padding: '8px 12px', borderRadius: 12, background: '#0d2522f2', border: '1px solid #d9c18540', backdropFilter: 'blur(8px)', zIndex: 5 }
 const panel: React.CSSProperties = { position: 'absolute', bottom: 8, left: 8, right: 8, padding: '10px 12px', borderRadius: 12, background: '#0d2522f2', border: '1px solid #d9c18540', backdropFilter: 'blur(8px)', zIndex: 6 }
 const th: React.CSSProperties = { padding: '4px 8px', position: 'sticky', top: 0, background: '#0d2522' }
 const td: React.CSSProperties = { padding: '4px 8px', color: '#e7ecd9', whiteSpace: 'nowrap' }

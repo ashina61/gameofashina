@@ -67,16 +67,51 @@ export class SlotDebugScene extends Phaser.Scene {
     MOVABLE_BUILDING_IDS.forEach((b, i) => { if (movable[i]) this.slotSys.placeBuilding(b, movable[i].id) })
     this.buildSprites()
     this.redraw()
-    this.fitCamera()
+    this.setupCamera()
     this.installCamera()
   }
 
-  private fitCamera() {
-    const b = CITY_BOUNDS
-    const w = (b.maxX - b.minX) + TILE.w * 4, h = (b.maxY - b.minY) + TILE.h * 8
-    const cam = this.cameras.main
-    cam.setZoom(Phaser.Math.Clamp(Math.min(this.scale.width / w, this.scale.height / h), 0.12, 1.2))
-    cam.centerOn((b.minX + b.maxX) / 2, (b.minY + b.maxY) / 2)
+  /*
+   * MOBİL KAMERA. Dünya sınırları (setBounds) kamerayı şehir dışına çıkarmaz;
+   * varsayılan CITY VIEW belediyeye odaklanır ve binalar OKUNABİLİR boyutta
+   * görünür (tüm dünyayı ekrana sığdırmaya ÇALIŞMAZ). Zoom yalnızca kamerayı
+   * etkiler; sprite scale'leri DEĞİŞMEZ.
+   */
+  private minZoom = 0.15
+  private maxZoom = 1.3
+  /** CITY VIEW yakınlığı: belediye + ~5-8 komşu okunur şekilde görünür. */
+  private cityZoom = 0.62
+
+  /** Bütün şehri (kıyı/savunma dahil) kapsayan dünya dikdörtgeni + pay. */
+  private worldRect() {
+    const pts = [...SLOTS.map(s => s.screen), ...DEFENSE_FOUNDATION.map(p => p.screen)]
+    const xs = pts.map(p => p.x), ys = pts.map(p => p.y)
+    const mx = TILE.w * 3, my = TILE.h * 6
+    const minX = Math.min(...xs) - mx, minY = Math.min(...ys) - my
+    return { x: minX, y: minY, w: Math.max(...xs) + mx - minX, h: Math.max(...ys) + my - minY }
+  }
+
+  private setupCamera() {
+    const wr = this.worldRect()
+    this.cameras.main.setBounds(wr.x, wr.y, wr.w, wr.h)
+    // OVERVIEW zoom'u = bütün şehri sığdıran alt sınır (bundan uzağa çıkılamaz).
+    this.minZoom = Math.min(this.scale.width / wr.w, this.scale.height / wr.h) * 0.92
+    this.cityZoom = Math.max(this.cityZoom, this.minZoom)
+    this.setCityView()
+  }
+
+  /** CITY VIEW: belediyeye odaklı yakın oyun görünümü (varsayılan). */
+  setCityView() {
+    const hall = slotById(HALL_SLOT_ID)!
+    this.cameras.main.setZoom(Phaser.Math.Clamp(this.cityZoom, this.minZoom, this.maxZoom))
+    this.cameras.main.centerOn(hall.screen.x, hall.screen.y - TILE.h)
+  }
+
+  /** OVERVIEW: bütün şehir yerleşimini gören uzak debug görünümü. */
+  setOverview() {
+    const wr = this.worldRect()
+    this.cameras.main.setZoom(this.minZoom)
+    this.cameras.main.centerOn(wr.x + wr.w / 2, wr.y + wr.h / 2)
   }
 
   private buildSprites() {
@@ -330,17 +365,38 @@ export class SlotDebugScene extends Phaser.Scene {
   }
 
   private installCamera() {
+    this.input.addPointer(1) // ikinci parmak (pinch) için
     let last: { x: number; y: number } | null = null
-    this.input.on('pointerdown', (p: Phaser.Input.Pointer) => { last = { x: p.x, y: p.y } })
-    this.input.on('pointermove', (p: Phaser.Input.Pointer) => {
+    let pinch: { dist: number; zoom: number } | null = null
+    const gap = () => {
+      const a = this.input.pointer1, b = this.input.pointer2
+      return a && b ? Phaser.Math.Distance.Between(a.x, a.y, b.x, b.y) : 0
+    }
+    const clampZoom = (z: number) => Phaser.Math.Clamp(z, this.minZoom, this.maxZoom)
+
+    this.input.on('pointerdown', (p: Phaser.Input.Pointer) => {
+      if (this.input.pointer1?.isDown && this.input.pointer2?.isDown) { pinch = { dist: gap(), zoom: this.cameras.main.zoom }; last = null; return }
+      last = { x: p.x, y: p.y }
+    })
+    this.input.on('pointermove', () => {
+      const cam = this.cameras.main
+      // İKİ PARMAK: yakınlaştır/uzaklaştır (yalnızca kamera; sprite scale değişmez).
+      if (pinch && this.input.pointer1?.isDown && this.input.pointer2?.isDown) {
+        const g = gap()
+        if (g > 0 && pinch.dist > 0) cam.setZoom(clampZoom(pinch.zoom * (g / pinch.dist)))
+        return
+      }
+      // TEK PARMAK: sürükleyerek gez (dünya sınırları setBounds ile kısıtlı).
+      const p = this.input.activePointer
       if (!p.isDown || !last) return
-      const cam = this.cameras.main; cam.scrollX -= (p.x - last.x) / cam.zoom; cam.scrollY -= (p.y - last.y) / cam.zoom
+      cam.scrollX -= (p.x - last.x) / cam.zoom; cam.scrollY -= (p.y - last.y) / cam.zoom
       last = { x: p.x, y: p.y }
     })
     this.input.on('pointerup', (p: Phaser.Input.Pointer) => {
+      if (!this.input.pointer1?.isDown && !this.input.pointer2?.isDown) pinch = null
       const moved = last && Phaser.Math.Distance.Between(p.downX, p.downY, p.upX, p.upY) > 10
       last = null
-      if (moved) return
+      if (moved || pinch) return
       let best: CitySlot | null = null, bestD = Infinity
       for (const s of SLOTS) { const d = Math.hypot(s.screen.x - p.worldX, s.screen.y - p.worldY); if (d < bestD) { bestD = d; best = s } }
       if (!best || bestD >= TILE.w) return
@@ -349,7 +405,7 @@ export class SlotDebugScene extends Phaser.Scene {
       else { this.redraw(); const occ = this.slotSys.buildingAt(best.id); this.onSelect?.(`Slot ${best.id} · ${best.type} · gx=${best.gx} gy=${best.gy} · ${occ ? 'dolu: ' + occ : 'boş'}`) }
     })
     this.input.on('wheel', (_p: unknown, _o: unknown, _dx: number, dy: number) => {
-      const cam = this.cameras.main; cam.setZoom(Phaser.Math.Clamp(cam.zoom * (dy > 0 ? 0.9 : 1.1), 0.1, 1.5))
+      const cam = this.cameras.main; cam.setZoom(clampZoom(cam.zoom * (dy > 0 ? 0.9 : 1.1)))
     })
   }
 }
