@@ -47,6 +47,7 @@ export function MapDebugView() {
       <div style={{ position: 'absolute', top: 10, left: 10, right: 10, display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap', padding: '8px 12px', borderRadius: 12, background: '#0d2522d9', border: '1px solid #d9c18540', backdropFilter: 'blur(8px)', zIndex: 5 }}>
         <strong style={{ fontFamily: 'Georgia, serif', color: '#fff4da' }}>Payitaht · Slot Debug</strong>
         <button onClick={() => sceneRef.current?.randomize()} style={btn('#2f5a3f')}>Randomize Buildings</button>
+        <button onClick={() => sceneRef.current?.runExhaustive()} style={btn('#4a3a6a')}>Exhaustive Test</button>
         <button onClick={() => { const n = !debug; setDebug(n); sceneRef.current?.setDebug(n) }} style={btn('#274a55')}>{debug ? 'Debug: AÇIK' : 'Debug: KAPALI'}</button>
         <span style={{ fontSize: 12, color: '#cbe6bd', flex: '1 1 240px', minWidth: 0 }}>{info}</span>
       </div>

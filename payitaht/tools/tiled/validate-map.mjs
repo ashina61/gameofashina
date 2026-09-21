@@ -81,6 +81,46 @@ for (const s of json.slots) {
 }
 if (tmjSlots.size !== json.slots.length) fail(`parity: slot sayısı farklı (.tmj ${tmjSlots.size} vs json ${json.slots.length})`)
 
+// --- FİNAL yerleşim invaryantları (organik şehir) ---
+const jcity = json.slots.filter(s => s.type === 'city')
+const jmovable = jcity.filter(s => !s.fixed)
+const jcoast = json.slots.filter(s => s.type === 'coast')
+if (jmovable.length < 24) fail(`en az 24 taşınabilir city slotu gerekli, bulundu ${jmovable.length}`)
+if (jcoast.length < 4) fail(`en az 4 coast slotu gerekli, bulundu ${jcoast.length}`)
+
+// Belediye haritanın geometrik merkezinde mi
+const hall = json.slots.find(s => s.id === json.hallSlotId)
+if (!hall || hall.gx !== Math.round(json.map.w / 2) || hall.gy !== Math.round(json.map.h / 2)) {
+  fail(`belediye harita merkezinde olmalı (${Math.round(json.map.w / 2)},${Math.round(json.map.h / 2)})`)
+}
+
+// Hiçbir footprint çakışması yok (her iki eksende de <fw/<fh olan çift yasak)
+for (let i = 0; i < json.slots.length; i++) {
+  for (let j = i + 1; j < json.slots.length; j++) {
+    const a = json.slots[i], b = json.slots[j]
+    if (Math.abs(a.gx - b.gx) < a.fw && Math.abs(a.gy - b.gy) < a.fh) fail(`footprint çakışması: ${a.id} ~ ${b.id}`)
+  }
+}
+
+// Şehir gerçekten yayılmış mı (15x15'e sıkışmasın)
+const bx = json.bounds
+if (!bx || (bx.maxGx - bx.minGx) < 30 || (bx.maxGy - bx.minGy) < 30) {
+  fail(`şehir çok küçük bir alana sıkışmış (gx ${bx?.maxGx - bx?.minGx}, gy ${bx?.maxGy - bx?.minGy}); daha geniş yayılmalı`)
+}
+
+// Yol grafiği geçerli + şehir bağlı
+const rg = json.roadGraph
+if (!rg || !Array.isArray(rg.nodes) || !Array.isArray(rg.edges)) fail('roadGraph eksik')
+else {
+  const nid = new Set(rg.nodes.map(n => n.id))
+  for (const e of rg.edges) {
+    if (!nid.has(e.from) || !nid.has(e.to)) fail(`roadGraph kenarı geçersiz düğüme işaret ediyor: ${e.from}->${e.to}`)
+  }
+  const cityIds = new Set(jcity.map(s => s.id))
+  const cityEdges = rg.edges.filter(e => cityIds.has(e.from) && cityIds.has(e.to))
+  if (cityEdges.length < jcity.length - 1) fail('şehir yol ağı bağlı değil (MST kenarı eksik)')
+}
+
 // --- Sonuç ---
 if (errors.length) {
   console.error('HARİTA DOĞRULAMA BAŞARISIZ:')

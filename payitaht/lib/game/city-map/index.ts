@@ -28,14 +28,24 @@ export type CitySlot = {
   screen: { x: number; y: number }
 }
 
+export type ScreenPoint = { x: number; y: number }
+export type RoadNode = { id: string; gx: number; gy: number; screen: ScreenPoint }
+export type RoadEdge = { from: string; to: string; ctrl: ScreenPoint }
+export type CityBounds = {
+  minGx: number; maxGx: number; minGy: number; maxGy: number
+  minX: number; maxX: number; minY: number; maxY: number
+}
+
 export type CityMapData = {
   tile: { w: number; h: number }
   map: { w: number; h: number; orientation: string }
   footprint: { w: number; h: number }
-  center: { gx: number; gy: number; screen: { x: number; y: number } }
+  center: { gx: number; gy: number; screen: ScreenPoint }
   hallSlotId: string
+  bounds: CityBounds
   slots: CitySlot[]
-  defenseFoundation: { gx: number; gy: number; screen: { x: number; y: number } }[]
+  defenseFoundation: { gx: number; gy: number; screen: ScreenPoint }[]
+  roadGraph: { nodes: RoadNode[]; edges: RoadEdge[] }
 }
 
 export const CITY_MAP = raw as CityMapData
@@ -45,6 +55,9 @@ export const CITY_SLOTS = SLOTS.filter(s => s.type === 'city')
 export const COAST_SLOTS = SLOTS.filter(s => s.type === 'coast')
 export const DEFENSE_SLOTS = SLOTS.filter(s => s.type === 'defense')
 export const HALL_SLOT_ID = CITY_MAP.hallSlotId
+export const CITY_BOUNDS = CITY_MAP.bounds
+export const ROAD_GRAPH = CITY_MAP.roadGraph
+export const DEFENSE_FOUNDATION = CITY_MAP.defenseFoundation
 
 export function slotById(id: string): CitySlot | undefined {
   return SLOTS.find(s => s.id === id)

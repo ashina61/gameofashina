@@ -22,163 +22,17 @@
     }
   },
   "hallSlotId": "city_hall",
+  "bounds": {
+    "minGx": 29,
+    "maxGx": 94,
+    "minGy": 47,
+    "maxGy": 110,
+    "minX": -2432,
+    "maxX": 128,
+    "minY": 2624,
+    "maxY": 5952
+  },
   "slots": [
-    {
-      "id": "city_01",
-      "type": "city",
-      "gx": 44,
-      "gy": 64,
-      "fw": 2,
-      "fh": 2,
-      "fixed": false,
-      "screen": {
-        "x": -1280,
-        "y": 3456
-      }
-    },
-    {
-      "id": "city_02",
-      "type": "city",
-      "gx": 47,
-      "gy": 64,
-      "fw": 2,
-      "fh": 2,
-      "fixed": false,
-      "screen": {
-        "x": -1088,
-        "y": 3552
-      }
-    },
-    {
-      "id": "city_03",
-      "type": "city",
-      "gx": 50,
-      "gy": 64,
-      "fw": 2,
-      "fh": 2,
-      "fixed": false,
-      "screen": {
-        "x": -896,
-        "y": 3648
-      }
-    },
-    {
-      "id": "city_04",
-      "type": "city",
-      "gx": 53,
-      "gy": 64,
-      "fw": 2,
-      "fh": 2,
-      "fixed": false,
-      "screen": {
-        "x": -704,
-        "y": 3744
-      }
-    },
-    {
-      "id": "city_05",
-      "type": "city",
-      "gx": 56,
-      "gy": 64,
-      "fw": 2,
-      "fh": 2,
-      "fixed": false,
-      "screen": {
-        "x": -512,
-        "y": 3840
-      }
-    },
-    {
-      "id": "city_06",
-      "type": "city",
-      "gx": 44,
-      "gy": 67,
-      "fw": 2,
-      "fh": 2,
-      "fixed": false,
-      "screen": {
-        "x": -1472,
-        "y": 3552
-      }
-    },
-    {
-      "id": "city_07",
-      "type": "city",
-      "gx": 47,
-      "gy": 67,
-      "fw": 2,
-      "fh": 2,
-      "fixed": false,
-      "screen": {
-        "x": -1280,
-        "y": 3648
-      }
-    },
-    {
-      "id": "city_08",
-      "type": "city",
-      "gx": 50,
-      "gy": 67,
-      "fw": 2,
-      "fh": 2,
-      "fixed": false,
-      "screen": {
-        "x": -1088,
-        "y": 3744
-      }
-    },
-    {
-      "id": "city_09",
-      "type": "city",
-      "gx": 53,
-      "gy": 67,
-      "fw": 2,
-      "fh": 2,
-      "fixed": false,
-      "screen": {
-        "x": -896,
-        "y": 3840
-      }
-    },
-    {
-      "id": "city_10",
-      "type": "city",
-      "gx": 56,
-      "gy": 67,
-      "fw": 2,
-      "fh": 2,
-      "fixed": false,
-      "screen": {
-        "x": -704,
-        "y": 3936
-      }
-    },
-    {
-      "id": "city_11",
-      "type": "city",
-      "gx": 44,
-      "gy": 70,
-      "fw": 2,
-      "fh": 2,
-      "fixed": false,
-      "screen": {
-        "x": -1664,
-        "y": 3648
-      }
-    },
-    {
-      "id": "city_12",
-      "type": "city",
-      "gx": 47,
-      "gy": 70,
-      "fw": 2,
-      "fh": 2,
-      "fixed": false,
-      "screen": {
-        "x": -1472,
-        "y": 3744
-      }
-    },
     {
       "id": "city_hall",
       "type": "city",
@@ -193,324 +47,1050 @@
       }
     },
     {
-      "id": "city_13",
+      "id": "city_01",
       "type": "city",
-      "gx": 53,
-      "gy": 70,
+      "gx": 41,
+      "gy": 67,
       "fw": 2,
       "fh": 2,
       "fixed": false,
       "screen": {
-        "x": -1088,
-        "y": 3936
+        "x": -1664,
+        "y": 3456
       }
     },
     {
-      "id": "city_14",
+      "id": "city_02",
       "type": "city",
-      "gx": 56,
-      "gy": 70,
+      "gx": 46,
+      "gy": 60,
       "fw": 2,
       "fh": 2,
       "fixed": false,
       "screen": {
         "x": -896,
-        "y": 4032
+        "y": 3392
       }
     },
     {
-      "id": "city_15",
+      "id": "city_03",
       "type": "city",
-      "gx": 44,
-      "gy": 73,
-      "fw": 2,
-      "fh": 2,
-      "fixed": false,
-      "screen": {
-        "x": -1856,
-        "y": 3744
-      }
-    },
-    {
-      "id": "city_16",
-      "type": "city",
-      "gx": 47,
-      "gy": 73,
-      "fw": 2,
-      "fh": 2,
-      "fixed": false,
-      "screen": {
-        "x": -1664,
-        "y": 3840
-      }
-    },
-    {
-      "id": "city_17",
-      "type": "city",
-      "gx": 50,
-      "gy": 73,
-      "fw": 2,
-      "fh": 2,
-      "fixed": false,
-      "screen": {
-        "x": -1472,
-        "y": 3936
-      }
-    },
-    {
-      "id": "city_18",
-      "type": "city",
-      "gx": 53,
-      "gy": 73,
-      "fw": 2,
-      "fh": 2,
-      "fixed": false,
-      "screen": {
-        "x": -1280,
-        "y": 4032
-      }
-    },
-    {
-      "id": "city_19",
-      "type": "city",
-      "gx": 56,
-      "gy": 73,
-      "fw": 2,
-      "fh": 2,
-      "fixed": false,
-      "screen": {
-        "x": -1088,
-        "y": 4128
-      }
-    },
-    {
-      "id": "city_20",
-      "type": "city",
-      "gx": 44,
-      "gy": 76,
-      "fw": 2,
-      "fh": 2,
-      "fixed": false,
-      "screen": {
-        "x": -2048,
-        "y": 3840
-      }
-    },
-    {
-      "id": "city_21",
-      "type": "city",
-      "gx": 47,
-      "gy": 76,
-      "fw": 2,
-      "fh": 2,
-      "fixed": false,
-      "screen": {
-        "x": -1856,
-        "y": 3936
-      }
-    },
-    {
-      "id": "city_22",
-      "type": "city",
-      "gx": 50,
-      "gy": 76,
-      "fw": 2,
-      "fh": 2,
-      "fixed": false,
-      "screen": {
-        "x": -1664,
-        "y": 4032
-      }
-    },
-    {
-      "id": "city_23",
-      "type": "city",
-      "gx": 53,
-      "gy": 76,
-      "fw": 2,
-      "fh": 2,
-      "fixed": false,
-      "screen": {
-        "x": -1472,
-        "y": 4128
-      }
-    },
-    {
-      "id": "city_24",
-      "type": "city",
-      "gx": 56,
-      "gy": 76,
-      "fw": 2,
-      "fh": 2,
-      "fixed": false,
-      "screen": {
-        "x": -1280,
-        "y": 4224
-      }
-    },
-    {
-      "id": "coast_01",
-      "type": "coast",
       "gx": 46,
-      "gy": 82,
-      "fw": 2,
-      "fh": 2,
-      "fixed": false,
-      "screen": {
-        "x": -2304,
-        "y": 4096
-      }
-    },
-    {
-      "id": "coast_02",
-      "type": "coast",
-      "gx": 50,
-      "gy": 82,
-      "fw": 2,
-      "fh": 2,
-      "fixed": false,
-      "screen": {
-        "x": -2048,
-        "y": 4224
-      }
-    },
-    {
-      "id": "coast_03",
-      "type": "coast",
-      "gx": 54,
-      "gy": 82,
+      "gy": 74,
       "fw": 2,
       "fh": 2,
       "fixed": false,
       "screen": {
         "x": -1792,
-        "y": 4352
+        "y": 3840
+      }
+    },
+    {
+      "id": "city_04",
+      "type": "city",
+      "gx": 55,
+      "gy": 67,
+      "fw": 2,
+      "fh": 2,
+      "fixed": false,
+      "screen": {
+        "x": -768,
+        "y": 3904
+      }
+    },
+    {
+      "id": "city_05",
+      "type": "city",
+      "gx": 55,
+      "gy": 79,
+      "fw": 2,
+      "fh": 2,
+      "fixed": false,
+      "screen": {
+        "x": -1536,
+        "y": 4288
+      }
+    },
+    {
+      "id": "city_06",
+      "type": "city",
+      "gx": 59,
+      "gy": 73,
+      "fw": 2,
+      "fh": 2,
+      "fixed": false,
+      "screen": {
+        "x": -896,
+        "y": 4224
+      }
+    },
+    {
+      "id": "city_07",
+      "type": "city",
+      "gx": 34,
+      "gy": 64,
+      "fw": 2,
+      "fh": 2,
+      "fixed": false,
+      "screen": {
+        "x": -1920,
+        "y": 3136
+      }
+    },
+    {
+      "id": "city_08",
+      "type": "city",
+      "gx": 37,
+      "gy": 57,
+      "fw": 2,
+      "fh": 2,
+      "fixed": false,
+      "screen": {
+        "x": -1280,
+        "y": 3008
+      }
+    },
+    {
+      "id": "city_09",
+      "type": "city",
+      "gx": 45,
+      "gy": 55,
+      "fw": 2,
+      "fh": 2,
+      "fixed": false,
+      "screen": {
+        "x": -640,
+        "y": 3200
+      }
+    },
+    {
+      "id": "city_10",
+      "type": "city",
+      "gx": 42,
+      "gy": 74,
+      "fw": 2,
+      "fh": 2,
+      "fixed": false,
+      "screen": {
+        "x": -2048,
+        "y": 3712
+      }
+    },
+    {
+      "id": "city_11",
+      "type": "city",
+      "gx": 53,
+      "gy": 61,
+      "fw": 2,
+      "fh": 2,
+      "fixed": false,
+      "screen": {
+        "x": -512,
+        "y": 3648
+      }
+    },
+    {
+      "id": "city_12",
+      "type": "city",
+      "gx": 54,
+      "gy": 84,
+      "fw": 2,
+      "fh": 2,
+      "fixed": false,
+      "screen": {
+        "x": -1920,
+        "y": 4416
+      }
+    },
+    {
+      "id": "city_13",
+      "type": "city",
+      "gx": 63,
+      "gy": 83,
+      "fw": 2,
+      "fh": 2,
+      "fixed": false,
+      "screen": {
+        "x": -1280,
+        "y": 4672
+      }
+    },
+    {
+      "id": "city_14",
+      "type": "city",
+      "gx": 65,
+      "gy": 75,
+      "fw": 2,
+      "fh": 2,
+      "fixed": false,
+      "screen": {
+        "x": -640,
+        "y": 4480
+      }
+    },
+    {
+      "id": "city_15",
+      "type": "city",
+      "gx": 29,
+      "gy": 55,
+      "fw": 2,
+      "fh": 2,
+      "fixed": false,
+      "screen": {
+        "x": -1664,
+        "y": 2688
+      }
+    },
+    {
+      "id": "city_16",
+      "type": "city",
+      "gx": 35,
+      "gy": 47,
+      "fw": 2,
+      "fh": 2,
+      "fixed": false,
+      "screen": {
+        "x": -768,
+        "y": 2624
+      }
+    },
+    {
+      "id": "city_17",
+      "type": "city",
+      "gx": 34,
+      "gy": 68,
+      "fw": 2,
+      "fh": 2,
+      "fixed": false,
+      "screen": {
+        "x": -2176,
+        "y": 3264
+      }
+    },
+    {
+      "id": "city_18",
+      "type": "city",
+      "gx": 49,
+      "gy": 55,
+      "fw": 2,
+      "fh": 2,
+      "fixed": false,
+      "screen": {
+        "x": -384,
+        "y": 3328
+      }
+    },
+    {
+      "id": "city_19",
+      "type": "city",
+      "gx": 45,
+      "gy": 81,
+      "fw": 2,
+      "fh": 2,
+      "fixed": false,
+      "screen": {
+        "x": -2304,
+        "y": 4032
+      }
+    },
+    {
+      "id": "city_20",
+      "type": "city",
+      "gx": 60,
+      "gy": 64,
+      "fw": 2,
+      "fh": 2,
+      "fixed": false,
+      "screen": {
+        "x": -256,
+        "y": 3968
+      }
+    },
+    {
+      "id": "city_21",
+      "type": "city",
+      "gx": 58,
+      "gy": 90,
+      "fw": 2,
+      "fh": 2,
+      "fixed": false,
+      "screen": {
+        "x": -2048,
+        "y": 4736
+      }
+    },
+    {
+      "id": "city_22",
+      "type": "city",
+      "gx": 71,
+      "gy": 79,
+      "fw": 2,
+      "fh": 2,
+      "fixed": false,
+      "screen": {
+        "x": -512,
+        "y": 4800
+      }
+    },
+    {
+      "id": "city_23",
+      "type": "city",
+      "gx": 69,
+      "gy": 93,
+      "fw": 2,
+      "fh": 2,
+      "fixed": false,
+      "screen": {
+        "x": -1536,
+        "y": 5184
+      }
+    },
+    {
+      "id": "city_24",
+      "type": "city",
+      "gx": 75,
+      "gy": 89,
+      "fw": 2,
+      "fh": 2,
+      "fixed": false,
+      "screen": {
+        "x": -896,
+        "y": 5248
+      }
+    },
+    {
+      "id": "coast_01",
+      "type": "coast",
+      "gx": 72,
+      "gy": 110,
+      "fw": 2,
+      "fh": 2,
+      "fixed": false,
+      "screen": {
+        "x": -2432,
+        "y": 5824
+      }
+    },
+    {
+      "id": "coast_02",
+      "type": "coast",
+      "gx": 78,
+      "gy": 108,
+      "fw": 2,
+      "fh": 2,
+      "fixed": false,
+      "screen": {
+        "x": -1920,
+        "y": 5952
+      }
+    },
+    {
+      "id": "coast_03",
+      "type": "coast",
+      "gx": 80,
+      "gy": 102,
+      "fw": 2,
+      "fh": 2,
+      "fixed": false,
+      "screen": {
+        "x": -1408,
+        "y": 5824
       }
     },
     {
       "id": "coast_04",
       "type": "coast",
-      "gx": 48,
-      "gy": 85,
+      "gx": 86,
+      "gy": 100,
       "fw": 2,
       "fh": 2,
       "fixed": false,
       "screen": {
-        "x": -2368,
-        "y": 4256
+        "x": -896,
+        "y": 5952
       }
     },
     {
       "id": "coast_05",
       "type": "coast",
-      "gx": 52,
-      "gy": 85,
+      "gx": 88,
+      "gy": 94,
       "fw": 2,
       "fh": 2,
       "fixed": false,
       "screen": {
-        "x": -2112,
-        "y": 4384
+        "x": -384,
+        "y": 5824
       }
     },
     {
-      "id": "defense_tower_n",
-      "gx": 41,
-      "gy": 61,
+      "id": "coast_06",
+      "type": "coast",
+      "gx": 94,
+      "gy": 92,
+      "fw": 2,
+      "fh": 2,
+      "fixed": false,
+      "screen": {
+        "x": 128,
+        "y": 5952
+      }
+    },
+    {
+      "id": "defense_tower_top",
       "type": "defense",
+      "gx": 23,
+      "gy": 43,
       "fw": 2,
       "fh": 2,
       "fixed": true,
       "screen": {
         "x": -1280,
-        "y": 3264
+        "y": 2112
       }
     },
     {
-      "id": "defense_tower_e",
-      "gx": 59,
-      "gy": 61,
+      "id": "defense_tower_left",
       "type": "defense",
+      "gx": 34,
+      "gy": 82,
       "fw": 2,
       "fh": 2,
       "fixed": true,
       "screen": {
-        "x": -128,
-        "y": 3840
+        "x": -3072,
+        "y": 3712
       }
     },
     {
-      "id": "defense_tower_s",
-      "gx": 59,
-      "gy": 79,
+      "id": "defense_tower_right",
       "type": "defense",
+      "gx": 63,
+      "gy": 55,
+      "fw": 2,
+      "fh": 2,
+      "fixed": true,
+      "screen": {
+        "x": 512,
+        "y": 3776
+      }
+    },
+    {
+      "id": "defense_tower_bottom",
+      "type": "defense",
+      "gx": 77,
+      "gy": 97,
       "fw": 2,
       "fh": 2,
       "fixed": true,
       "screen": {
         "x": -1280,
-        "y": 4416
-      }
-    },
-    {
-      "id": "defense_tower_w",
-      "gx": 41,
-      "gy": 79,
-      "type": "defense",
-      "fw": 2,
-      "fh": 2,
-      "fixed": true,
-      "screen": {
-        "x": -2432,
-        "y": 3840
+        "y": 5568
       }
     },
     {
       "id": "defense_gate",
-      "gx": 59,
-      "gy": 71,
       "type": "defense",
+      "gx": 81,
+      "gy": 99,
       "fw": 2,
       "fh": 2,
       "fixed": true,
       "screen": {
-        "x": -768,
-        "y": 4160
+        "x": -1152,
+        "y": 5760
       }
     }
   ],
   "defenseFoundation": [
     {
-      "gx": 41,
-      "gy": 61,
+      "gx": 20,
+      "gy": 40,
       "screen": {
         "x": -1280,
-        "y": 3264
+        "y": 1920
       }
     },
     {
-      "gx": 59,
-      "gy": 61,
+      "gx": 43,
+      "gy": 41,
       "screen": {
-        "x": -128,
-        "y": 3840
+        "x": 128,
+        "y": 2688
       }
     },
     {
-      "gx": 59,
-      "gy": 79,
+      "gx": 64,
+      "gy": 52,
+      "screen": {
+        "x": 768,
+        "y": 3712
+      }
+    },
+    {
+      "gx": 77,
+      "gy": 75,
+      "screen": {
+        "x": 128,
+        "y": 4864
+      }
+    },
+    {
+      "gx": 80,
+      "gy": 100,
       "screen": {
         "x": -1280,
-        "y": 4416
+        "y": 5760
       }
     },
     {
-      "gx": 41,
-      "gy": 79,
+      "gx": 57,
+      "gy": 99,
       "screen": {
-        "x": -2432,
-        "y": 3840
+        "x": -2688,
+        "y": 4992
+      }
+    },
+    {
+      "gx": 32,
+      "gy": 84,
+      "screen": {
+        "x": -3328,
+        "y": 3712
+      }
+    },
+    {
+      "gx": 21,
+      "gy": 63,
+      "screen": {
+        "x": -2688,
+        "y": 2688
       }
     }
-  ]
+  ],
+  "roadGraph": {
+    "nodes": [
+      {
+        "id": "city_hall",
+        "gx": 50,
+        "gy": 70,
+        "screen": {
+          "x": -1280,
+          "y": 3840
+        }
+      },
+      {
+        "id": "city_01",
+        "gx": 41,
+        "gy": 67,
+        "screen": {
+          "x": -1664,
+          "y": 3456
+        }
+      },
+      {
+        "id": "city_02",
+        "gx": 46,
+        "gy": 60,
+        "screen": {
+          "x": -896,
+          "y": 3392
+        }
+      },
+      {
+        "id": "city_03",
+        "gx": 46,
+        "gy": 74,
+        "screen": {
+          "x": -1792,
+          "y": 3840
+        }
+      },
+      {
+        "id": "city_04",
+        "gx": 55,
+        "gy": 67,
+        "screen": {
+          "x": -768,
+          "y": 3904
+        }
+      },
+      {
+        "id": "city_05",
+        "gx": 55,
+        "gy": 79,
+        "screen": {
+          "x": -1536,
+          "y": 4288
+        }
+      },
+      {
+        "id": "city_06",
+        "gx": 59,
+        "gy": 73,
+        "screen": {
+          "x": -896,
+          "y": 4224
+        }
+      },
+      {
+        "id": "city_07",
+        "gx": 34,
+        "gy": 64,
+        "screen": {
+          "x": -1920,
+          "y": 3136
+        }
+      },
+      {
+        "id": "city_08",
+        "gx": 37,
+        "gy": 57,
+        "screen": {
+          "x": -1280,
+          "y": 3008
+        }
+      },
+      {
+        "id": "city_09",
+        "gx": 45,
+        "gy": 55,
+        "screen": {
+          "x": -640,
+          "y": 3200
+        }
+      },
+      {
+        "id": "city_10",
+        "gx": 42,
+        "gy": 74,
+        "screen": {
+          "x": -2048,
+          "y": 3712
+        }
+      },
+      {
+        "id": "city_11",
+        "gx": 53,
+        "gy": 61,
+        "screen": {
+          "x": -512,
+          "y": 3648
+        }
+      },
+      {
+        "id": "city_12",
+        "gx": 54,
+        "gy": 84,
+        "screen": {
+          "x": -1920,
+          "y": 4416
+        }
+      },
+      {
+        "id": "city_13",
+        "gx": 63,
+        "gy": 83,
+        "screen": {
+          "x": -1280,
+          "y": 4672
+        }
+      },
+      {
+        "id": "city_14",
+        "gx": 65,
+        "gy": 75,
+        "screen": {
+          "x": -640,
+          "y": 4480
+        }
+      },
+      {
+        "id": "city_15",
+        "gx": 29,
+        "gy": 55,
+        "screen": {
+          "x": -1664,
+          "y": 2688
+        }
+      },
+      {
+        "id": "city_16",
+        "gx": 35,
+        "gy": 47,
+        "screen": {
+          "x": -768,
+          "y": 2624
+        }
+      },
+      {
+        "id": "city_17",
+        "gx": 34,
+        "gy": 68,
+        "screen": {
+          "x": -2176,
+          "y": 3264
+        }
+      },
+      {
+        "id": "city_18",
+        "gx": 49,
+        "gy": 55,
+        "screen": {
+          "x": -384,
+          "y": 3328
+        }
+      },
+      {
+        "id": "city_19",
+        "gx": 45,
+        "gy": 81,
+        "screen": {
+          "x": -2304,
+          "y": 4032
+        }
+      },
+      {
+        "id": "city_20",
+        "gx": 60,
+        "gy": 64,
+        "screen": {
+          "x": -256,
+          "y": 3968
+        }
+      },
+      {
+        "id": "city_21",
+        "gx": 58,
+        "gy": 90,
+        "screen": {
+          "x": -2048,
+          "y": 4736
+        }
+      },
+      {
+        "id": "city_22",
+        "gx": 71,
+        "gy": 79,
+        "screen": {
+          "x": -512,
+          "y": 4800
+        }
+      },
+      {
+        "id": "city_23",
+        "gx": 69,
+        "gy": 93,
+        "screen": {
+          "x": -1536,
+          "y": 5184
+        }
+      },
+      {
+        "id": "city_24",
+        "gx": 75,
+        "gy": 89,
+        "screen": {
+          "x": -896,
+          "y": 5248
+        }
+      },
+      {
+        "id": "coast_01",
+        "gx": 72,
+        "gy": 110,
+        "screen": {
+          "x": -2432,
+          "y": 5824
+        }
+      },
+      {
+        "id": "coast_02",
+        "gx": 78,
+        "gy": 108,
+        "screen": {
+          "x": -1920,
+          "y": 5952
+        }
+      },
+      {
+        "id": "coast_03",
+        "gx": 80,
+        "gy": 102,
+        "screen": {
+          "x": -1408,
+          "y": 5824
+        }
+      },
+      {
+        "id": "coast_04",
+        "gx": 86,
+        "gy": 100,
+        "screen": {
+          "x": -896,
+          "y": 5952
+        }
+      },
+      {
+        "id": "coast_05",
+        "gx": 88,
+        "gy": 94,
+        "screen": {
+          "x": -384,
+          "y": 5824
+        }
+      },
+      {
+        "id": "coast_06",
+        "gx": 94,
+        "gy": 92,
+        "screen": {
+          "x": 128,
+          "y": 5952
+        }
+      }
+    ],
+    "edges": [
+      {
+        "from": "city_hall",
+        "to": "city_03",
+        "ctrl": {
+          "x": -1536,
+          "y": 3768
+        }
+      },
+      {
+        "from": "city_03",
+        "to": "city_10",
+        "ctrl": {
+          "x": -1938,
+          "y": 3812
+        }
+      },
+      {
+        "from": "city_hall",
+        "to": "city_04",
+        "ctrl": {
+          "x": -1033,
+          "y": 3944
+        }
+      },
+      {
+        "from": "city_04",
+        "to": "city_20",
+        "ctrl": {
+          "x": -503,
+          "y": 3864
+        }
+      },
+      {
+        "from": "city_04",
+        "to": "city_11",
+        "ctrl": {
+          "x": -604,
+          "y": 3812
+        }
+      },
+      {
+        "from": "city_03",
+        "to": "city_19",
+        "ctrl": {
+          "x": -2021,
+          "y": 4008
+        }
+      },
+      {
+        "from": "city_10",
+        "to": "city_01",
+        "ctrl": {
+          "x": -1820,
+          "y": 3638
+        }
+      },
+      {
+        "from": "city_01",
+        "to": "city_17",
+        "ctrl": {
+          "x": -1947,
+          "y": 3432
+        }
+      },
+      {
+        "from": "city_17",
+        "to": "city_07",
+        "ctrl": {
+          "x": -2030,
+          "y": 3236
+        }
+      },
+      {
+        "from": "city_11",
+        "to": "city_02",
+        "ctrl": {
+          "x": -740,
+          "y": 3574
+        }
+      },
+      {
+        "from": "city_02",
+        "to": "city_09",
+        "ctrl": {
+          "x": -741,
+          "y": 3332
+        }
+      },
+      {
+        "from": "city_09",
+        "to": "city_18",
+        "ctrl": {
+          "x": -494,
+          "y": 3228
+        }
+      },
+      {
+        "from": "city_04",
+        "to": "city_06",
+        "ctrl": {
+          "x": -877,
+          "y": 4046
+        }
+      },
+      {
+        "from": "city_06",
+        "to": "city_14",
+        "ctrl": {
+          "x": -732,
+          "y": 4316
+        }
+      },
+      {
+        "from": "city_06",
+        "to": "city_05",
+        "ctrl": {
+          "x": -1225,
+          "y": 4166
+        }
+      },
+      {
+        "from": "city_05",
+        "to": "city_12",
+        "ctrl": {
+          "x": -1710,
+          "y": 4406
+        }
+      },
+      {
+        "from": "city_12",
+        "to": "city_21",
+        "ctrl": {
+          "x": -2029,
+          "y": 4558
+        }
+      },
+      {
+        "from": "city_14",
+        "to": "city_22",
+        "ctrl": {
+          "x": -531,
+          "y": 4622
+        }
+      },
+      {
+        "from": "city_07",
+        "to": "city_08",
+        "ctrl": {
+          "x": -1582,
+          "y": 3162
+        }
+      },
+      {
+        "from": "city_08",
+        "to": "city_15",
+        "ctrl": {
+          "x": -1517,
+          "y": 2902
+        }
+      },
+      {
+        "from": "city_14",
+        "to": "city_13",
+        "ctrl": {
+          "x": -987,
+          "y": 4486
+        }
+      },
+      {
+        "from": "city_15",
+        "to": "city_16",
+        "ctrl": {
+          "x": -1225,
+          "y": 2531
+        }
+      },
+      {
+        "from": "city_22",
+        "to": "city_24",
+        "ctrl": {
+          "x": -767,
+          "y": 4970
+        }
+      },
+      {
+        "from": "city_24",
+        "to": "city_23",
+        "ctrl": {
+          "x": -1225,
+          "y": 5306
+        }
+      },
+      {
+        "from": "coast_01",
+        "to": "city_23",
+        "ctrl": {
+          "x": -1894,
+          "y": 5629
+        }
+      },
+      {
+        "from": "coast_02",
+        "to": "city_23",
+        "ctrl": {
+          "x": -1836,
+          "y": 5514
+        }
+      },
+      {
+        "from": "coast_03",
+        "to": "city_24",
+        "ctrl": {
+          "x": -1071,
+          "y": 5608
+        }
+      },
+      {
+        "from": "coast_04",
+        "to": "city_24",
+        "ctrl": {
+          "x": -995,
+          "y": 5600
+        }
+      },
+      {
+        "from": "coast_05",
+        "to": "city_24",
+        "ctrl": {
+          "x": -559,
+          "y": 5464
+        }
+      },
+      {
+        "from": "coast_06",
+        "to": "city_24",
+        "ctrl": {
+          "x": -483,
+          "y": 5743
+        }
+      }
+    ]
+  }
 }
