@@ -1,3 +1,4 @@
+import { isLandSprite } from './game/building-sprites'
 /**
  * Genel (public/) varliklarin yolunu uretir.
  *
@@ -17,5 +18,5 @@ export function asset(path: string) {
 
 /** Bir bina gorselinin yolu. */
 export function buildingImage(id: string) {
-  return asset(`/images/game/${id}.webp`)
+  return asset(isLandSprite(id) ? `/images/game/buildings-v5/${id}.webp` : `/images/game/${id}${id === 'liman' || id === 'tersane' ? '-v4' : ''}.webp`)
 }

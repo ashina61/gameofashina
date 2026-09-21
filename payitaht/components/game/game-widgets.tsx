@@ -63,7 +63,7 @@ export function EconomyDetails({ game }: { game: Game }) {
           <span>{formatNumber(game.resources[id])} / {formatNumber(limit)}</span>
           <span className="storage-meter"><span style={{ width: `${ratio * 100}%` }} /></span>
         </div>
-        <span>+{production[id]}/dk</span>
+        <span>+{formatNumber(production[id])}/dk</span>
       </div>
     })}
     <p className="fine-print">Prototipte süreler kısaltılmıştır. Oyun kapalıyken en fazla 8 saat üretim hesaplanır. Dolan ambarlarda üretim durur.</p>

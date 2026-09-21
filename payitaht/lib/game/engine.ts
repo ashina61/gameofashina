@@ -1,4 +1,4 @@
-import { SLOTS, START_ROADS, isRoadCell, type Zone } from './layout'
+import { CENTER_PLOT, SLOTS, START_ROADS, isRoadCell, type Zone } from './layout'
 
 export const RESOURCE_IDS = ['gold', 'wood', 'stone', 'knowledge'] as const
 export type Resource = typeof RESOURCE_IDS[number]
@@ -132,7 +132,7 @@ export const BUILDINGS: Record<BuildingId, BuildingDef> = {
   saray: { name: 'Saray', category: 'YÖNETİM', description: 'Hükmünü uzağa taşır. Yeni şehirler kurmanın yolunu açar ve Şehirler danışmanını çalıştırır.', base: 320, art: true, needs: { id: 'divan', level: 3 } },
   elcilik: { name: 'Elçilik', category: 'YÖNETİM', description: 'Komşularınla konuşmanın kapısı. Diplomasi danışmanını ve ittifak defterini açar.', base: 200, art: true, needs: { id: 'divan', level: 2 } },
   kisla: { name: 'Kışla', category: 'ASKERÎ', description: 'Halkından asker yetiştirir. Her eğitilen vatandaş üretimden düşer — ordunun bedeli budur.', base: 180, art: true, needs: { id: 'divan', level: 2 } },
-  surlar: { name: 'Surlar', category: 'ASKERÎ', description: 'Şehrin taş kalkanı. Her seviye savunmaya asker gerektirmeyen güç ekler. Arsa kaplamaz — şehrin çevresine örülür.', base: 150, art: false, zone: 'sur', needs: { id: 'kisla', level: 1 } },
+  surlar: { name: 'Surlar', category: 'ASKERÎ', description: 'Şehrin taş kalkanı. Her seviye savunmaya asker gerektirmeyen güç ekler. Arsa kaplamaz — şehrin çevresine örülür.', base: 150, art: true, zone: 'sur', needs: { id: 'kisla', level: 1 } },
   liman: { name: 'Ticaret Limanı', category: 'LİMAN', description: 'Denizin kapısı. Ticaret kapasitesi verir ve nakliye gemisi inşa ettirir.', base: 160, art: true, zone: 'liman', needs: { id: 'divan', level: 2 } },
   tersane: { name: 'Tersane', category: 'LİMAN', description: 'Savaş gemilerinin doğduğu yer. Kadırga ve kalyon buradan denize iner. Şehirde değil, denizin kenarındaki iskeleye kurulur.', base: 240, art: true, zone: 'liman', needs: { id: 'liman', level: 1 } },
 }
@@ -632,6 +632,7 @@ export function execute(source: Game, command: Command, now: number): { game: Ga
       ? g.flips.filter(id => id !== command.id)
       : [...g.flips, command.id]
   } else if (command.type === 'move') {
+    if (command.id === 'divan') return { game: g, error: 'Belediye binasının yeri sabittir.' }
     /*
      * Kurulu bir binayi BOS bir arsaya tasi. Hedef arsa bos ve ayni bolgede
      * olmali; degilse komut reddedilir (ust uste bina cizilmez).
@@ -706,6 +707,7 @@ function fillMissing(g: Record<string, unknown>): Record<string, unknown> {
    * Bu, izgarayi degistirmeyi ucuz kilan sey. Satir eklemek ya da cikarmak
    * artik bir goc yolu yazmayi gerektirmiyor.
    */
+  out.placement.divan = CENTER_PLOT
   const used = new Set<number>()
   for (const id of BUILDING_IDS) {
     const at = out.placement[id]
