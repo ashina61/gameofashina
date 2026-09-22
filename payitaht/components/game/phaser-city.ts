@@ -17,7 +17,7 @@ import * as Phaser from 'phaser'
 import { TILE, COAST_SLOTS, HALL_SLOT_ID, slotById } from '@/lib/game/city-map'
 import { LIVE_SLOTS, liveSlotByIndex, type LiveSlot } from '@/lib/game/city-map/live-adapter'
 import { buildCityTerrain, preloadTerrain, cityWorldRect, cityContentRect } from '@/lib/game/city-map/terrain-builder'
-import { assetById, groundScale, GROUND_TARGET_W } from '@/lib/game/city-map/building-assets'
+import { assetById, groundScale, GROUND_TARGET_W, BUILDING_RENDER_SCALE } from '@/lib/game/city-map/building-assets'
 import { visualSignature } from '@/lib/game/city-render'
 import { BUILDINGS, BUILDING_IDS, activeJob, zoneOf, type BuildingId, type Game } from '@/lib/game/engine'
 import { buildingImage } from '@/lib/asset'
@@ -205,8 +205,8 @@ export class CityScene extends Phaser.Scene {
   /** Bir binanın slottan bağımsız ölçeği (zemin temasına göre). */
   private scaleFor(id: BuildingId, imgW: number) {
     const a = assetById(id)
-    // liman/tersane gibi coast binalarının city-map metadatası yok: makul taban.
-    return a ? groundScale(imgW, a) : GROUND_TARGET_W / (imgW * 0.8)
+    // liman/tersane de kara binalarıyla aynı görsel küçültmeyi kullanır.
+    return a ? groundScale(imgW, a) : (GROUND_TARGET_W * BUILDING_RENDER_SCALE) / (imgW * 0.8)
   }
 
   /** React tarafından çağrılır; yalnızca GÖRÜNEN bir şey değiştiyse çizer. */
@@ -283,25 +283,12 @@ export class CityScene extends Phaser.Scene {
     const level = this.state.buildings[id]
     let dispW = TILE.w * 2, dispH = TILE.h * 2
 
-    // Static 24 arsa pad'i artık görünmüyor. Yalnızca GERÇEK bina altında
-    // çok hafif taş/toprak footing çizilir; böylece bina zemine basar ama
-    // şehir boşken 24 bej elmas görünmez.
-    const footing = this.add.graphics().setDepth(anc.baseY - 0.45)
-    const footingFill = slot.zone === 'liman' ? 0x9a8d70 : 0xa99a73
-    const footingEdge = slot.zone === 'liman' ? 0x665b49 : 0x897957
-    footing.fillStyle(footingFill, slot.zone === 'liman' ? 0.20 : 0.13)
-    footing.fillPoints(this.diamond(slot.screen.x, slot.screen.y,
-      GROUND_TARGET_W * 0.94, (GROUND_TARGET_W * 0.94) / 2), true)
-    footing.lineStyle(1.4, footingEdge, 0.18)
-    footing.strokePoints(this.diamond(slot.screen.x, slot.screen.y,
-      GROUND_TARGET_W * 0.94, (GROUND_TARGET_W * 0.94) / 2), true)
-    this.pieces.push(footing)
-
-    // Eski siyah leke değil: parselin içinde yumuşak, dar temas gölgesi.
+    // Normal görünümde hazır platform yok. Sadece çok hafif bir temas gölgesi:
+    // bina araziye basıyor ama altına kare/elmas bir 'asset kaidesi' eklenmiyor.
     const shadow = this.add.graphics().setDepth(anc.baseY - 0.3)
-    shadow.fillStyle(0x283021, 0.072)
-    shadow.fillEllipse(anc.x + 2, anc.baseY - TILE.h * 0.24,
-      GROUND_TARGET_W * 0.40, GROUND_TARGET_W * 0.095)
+    shadow.fillStyle(0x283021, 0.045)
+    shadow.fillEllipse(anc.x + 1, anc.baseY - TILE.h * 0.20,
+      GROUND_TARGET_W * 0.30, GROUND_TARGET_W * 0.065)
     this.pieces.push(shadow)
 
     if (BUILDINGS[id].art && this.textures.exists(id)) {
@@ -326,7 +313,7 @@ export class CityScene extends Phaser.Scene {
     this.pieces.push(hit)
 
     // Seviye rozeti (+ inşaat sürerken vurgulu).
-    this.pieces.push(this.makeBadge(anc.x + dispW * 0.24, anc.baseY - TILE.h * 0.6, level, anc.baseY + 0.4, active))
+    this.pieces.push(this.makeBadge(anc.x + dispW * 0.21, anc.baseY - TILE.h * 0.46, level, anc.baseY + 0.4, active))
     if (this.showLabels) this.pieces.push(this.makeLabel(anc.x, anc.baseY + TILE.h * 1.2, BUILDINGS[id].name, anc.baseY + 0.5, active))
   }
 
@@ -399,15 +386,15 @@ export class CityScene extends Phaser.Scene {
   }
 
   private makeBadge(x: number, y: number, level: number, depth: number, active: boolean) {
-    const r = 18
+    const r = 11
     const plate = this.add.graphics()
-    plate.fillStyle(active ? 0x5a4728 : 0x13281f, 0.94)
+    plate.fillStyle(active ? 0x5a4728 : 0x173127, 0.90)
     plate.fillCircle(0, 0, r)
-    plate.lineStyle(3, 0xc5aa72, active ? 1 : 0.8)
+    plate.lineStyle(1.4, 0xc5aa72, active ? 0.94 : 0.62)
     plate.strokeCircle(0, 0, r)
     const text = this.add.text(0, 0, String(level), {
       fontFamily: 'system-ui, -apple-system, "Segoe UI", Roboto, sans-serif',
-      fontSize: '20px', color: '#f5e2b4', fontStyle: '700',
+      fontSize: '12px', color: '#f5e2b4', fontStyle: '700',
     }).setOrigin(0.5, 0.5).setResolution(2)
     return this.add.container(x, y, [plate, text]).setDepth(depth)
   }
