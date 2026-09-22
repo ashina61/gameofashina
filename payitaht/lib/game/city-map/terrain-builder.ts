@@ -258,8 +258,14 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1) {
   // 1) TABAN — karo dışında hiçbir koyu boşluk kalmasın.
   const g0 = scene.add.graphics().setDepth(-1000)
   g0.fillStyle(0x829a5b, 1); g0.fillRect(wr.x, wr.y, wr.w, wr.h)
-  g0.fillStyle(0x398b8a, 1); g0.fillRect(wr.x, seaLine, wr.w, wr.y + wr.h - seaLine)
-  g0.fillStyle(0x17545a, 1); g0.fillRect(wr.x, seaLine + TILE.h * 3.1, wr.w, wr.y + wr.h - seaLine - TILE.h * 3.1)
+  // Deniz tek keskin iki renk BLOK değil; sığdan derine kademeli ton.
+  const waterBands = [0x5aa9a2, 0x4b9b98, 0x3e8c8d, 0x317c81, 0x276e75, 0x1d6068, 0x17545a]
+  const seaH = Math.max(1, wr.y + wr.h - seaLine)
+  const bandH = seaH / waterBands.length
+  for (let i = 0; i < waterBands.length; i++) {
+    g0.fillStyle(waterBands[i], 1)
+    g0.fillRect(wr.x, seaLine + i * bandH, wr.w, bandH + 2)
+  }
 
   // 2) ORGANİK ARAZİ.
   // Artık grid üstünde grass/water stamp YOK. Büyük ekranda görünen dama
@@ -320,6 +326,17 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1) {
   terrain.fillPoints([...shoreTop, ...shoreBottom.reverse()], true)
   terrain.lineStyle(5, 0xe2d2a1, 0.62)
   terrain.strokePoints(shoreTop, false)
+
+  // Kıyı kenarında her yeri kaplamayan kaya çıkıntıları. Coast build slotlarının
+  // önünü kapatmaz; sadece kıyı çizgisini "cetvelle çizilmiş" olmaktan çıkarır.
+  for (let i = 2; i < shoreTop.length - 2; i += 3) {
+    if (coastRnd() > 0.44) continue
+    const p = shoreTop[i]
+    const width = TILE.w * (0.20 + coastRnd() * 0.18)
+    stamp('d_rock', p.x + (coastRnd() - 0.5) * TILE.w * 0.18,
+      p.y - TILE.h * (0.02 + coastRnd() * 0.15),
+      width, -705, 0.90, 0.72 + coastRnd() * 0.15)
+  }
 
   // Su artık karo değil: iki tonlu taban üstünde yatay/kıvrımlı köpük izleri.
   const water = scene.add.graphics().setDepth(-899)
