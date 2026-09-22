@@ -9,7 +9,7 @@ name: Deploy
 
 on:
   push:
-    branches: [main]
+    branches: [main, claude/ancient-city-phaser-game-r9e0qu]
   # Elle tetiklenebilir: yayini kod degismeden yenilemek gerekirse.
   workflow_dispatch:
 
