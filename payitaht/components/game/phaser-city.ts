@@ -43,7 +43,7 @@ export class CityScene extends Phaser.Scene {
   private events$!: CityEvents
   private built = false
   /** Divan seviyesi değişince yalnızca yol katmanı yenilenir. */
-  private terrainRoads: { updateRoads: (level: number) => void } | null = null
+  private terrainRoads: { updateRoads: (level: number, activeSlotIds?: string[]) => void } | null = null
   /** Bina/arsa/rozet parçaları — her redraw'da temizlenir (zemin dokunulmaz). */
   private pieces: Phaser.GameObjects.GameObject[] = []
   private signature = ''
@@ -73,7 +73,7 @@ export class CityScene extends Phaser.Scene {
 
   create() {
     this.cameras.main.setBackgroundColor('#12333b')
-    this.terrainRoads = buildCityTerrain(this, this.state.buildings.divan) // statik zemin + güncellenebilir yollar
+    this.terrainRoads = buildCityTerrain(this, this.state.buildings.divan, this.occupiedSlotIds(this.state)) // dünya + yaşayan yol ağı
     this.built = true
     this.setupCamera()
     this.installCamera()
@@ -205,15 +205,29 @@ export class CityScene extends Phaser.Scene {
   /** Bir binanın slottan bağımsız ölçeği (zemin temasına göre). */
   private scaleFor(id: BuildingId, imgW: number) {
     const a = assetById(id)
-    // liman/tersane gibi coast binalarının city-map metadatası yok: makul taban.
-    return a ? groundScale(imgW, a) : GROUND_TARGET_W / (imgW * 0.8)
+    const base = a ? groundScale(imgW, a) : GROUND_TARGET_W / (imgW * 0.8)
+    // Referans şehirlerde bina araziyi kaplamaz; doğanın içinde bir obje gibi
+    // okunur. Divanhane biraz daha baskın, liman yapıları orta ölçekte kalır.
+    const presentationScale = id === 'divan' ? 0.92 : (id === 'liman' || id === 'tersane') ? 0.90 : 0.86
+    return base * presentationScale
+  }
+
+  private occupiedSlotIds(game: Game) {
+    const ids: string[] = []
+    for (const id of BUILDING_IDS) {
+      const at = game.placement[id]
+      if (at === null || at === undefined) continue
+      const slot = liveSlotByIndex(at)
+      if (slot) ids.push(slot.slotId)
+    }
+    return ids
   }
 
   /** React tarafından çağrılır; yalnızca GÖRÜNEN bir şey değiştiyse çizer. */
   sync(game: Game, showLabels: boolean, placing: boolean, moving: BuildingId | null = null, movePlot: number | null = null) {
     this.state = game
     if (!this.built) return
-    this.terrainRoads?.updateRoads(game.buildings.divan)
+    this.terrainRoads?.updateRoads(game.buildings.divan, this.occupiedSlotIds(game))
     const next = `${visualSignature(game)}|${showLabels}|${placing}|${moving ?? '-'}|${movePlot ?? '-'}`
     if (next === this.signature) return
     this.showLabels = showLabels
@@ -289,19 +303,19 @@ export class CityScene extends Phaser.Scene {
     const footing = this.add.graphics().setDepth(anc.baseY - 0.45)
     const footingFill = slot.zone === 'liman' ? 0x9a8d70 : 0xa99a73
     const footingEdge = slot.zone === 'liman' ? 0x665b49 : 0x897957
-    footing.fillStyle(footingFill, slot.zone === 'liman' ? 0.20 : 0.13)
+    footing.fillStyle(footingFill, slot.zone === 'liman' ? 0.075 : 0.035)
     footing.fillPoints(this.diamond(slot.screen.x, slot.screen.y,
-      GROUND_TARGET_W * 0.94, (GROUND_TARGET_W * 0.94) / 2), true)
-    footing.lineStyle(1.4, footingEdge, 0.18)
+      GROUND_TARGET_W * 0.82, (GROUND_TARGET_W * 0.82) / 2), true)
+    footing.lineStyle(1.0, footingEdge, slot.zone === 'liman' ? 0.10 : 0.045)
     footing.strokePoints(this.diamond(slot.screen.x, slot.screen.y,
-      GROUND_TARGET_W * 0.94, (GROUND_TARGET_W * 0.94) / 2), true)
+      GROUND_TARGET_W * 0.82, (GROUND_TARGET_W * 0.82) / 2), true)
     this.pieces.push(footing)
 
     // Eski siyah leke değil: parselin içinde yumuşak, dar temas gölgesi.
     const shadow = this.add.graphics().setDepth(anc.baseY - 0.3)
-    shadow.fillStyle(0x283021, 0.072)
-    shadow.fillEllipse(anc.x + 2, anc.baseY - TILE.h * 0.24,
-      GROUND_TARGET_W * 0.40, GROUND_TARGET_W * 0.095)
+    shadow.fillStyle(0x283021, 0.045)
+    shadow.fillEllipse(anc.x + 2, anc.baseY - TILE.h * 0.20,
+      GROUND_TARGET_W * 0.34, GROUND_TARGET_W * 0.072)
     this.pieces.push(shadow)
 
     if (BUILDINGS[id].art && this.textures.exists(id)) {
@@ -399,15 +413,15 @@ export class CityScene extends Phaser.Scene {
   }
 
   private makeBadge(x: number, y: number, level: number, depth: number, active: boolean) {
-    const r = 18
+    const r = 13
     const plate = this.add.graphics()
     plate.fillStyle(active ? 0x5a4728 : 0x13281f, 0.94)
     plate.fillCircle(0, 0, r)
-    plate.lineStyle(3, 0xc5aa72, active ? 1 : 0.8)
+    plate.lineStyle(2, 0xc5aa72, active ? 0.95 : 0.62)
     plate.strokeCircle(0, 0, r)
     const text = this.add.text(0, 0, String(level), {
       fontFamily: 'system-ui, -apple-system, "Segoe UI", Roboto, sans-serif',
-      fontSize: '20px', color: '#f5e2b4', fontStyle: '700',
+      fontSize: '15px', color: '#f5e2b4', fontStyle: '700',
     }).setOrigin(0.5, 0.5).setResolution(2)
     return this.add.container(x, y, [plate, text]).setDepth(depth)
   }
