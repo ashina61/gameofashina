@@ -402,14 +402,18 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1, occupiedSl
       r.kind === 'avenue' || active.has(r.from) || active.has(r.to),
     )
 
-    // Altı ayrı uzun iskele yolunun yerine tek kıyı promenadı + iki besleyici.
-    const quayStyle = roadStyleFor('quay', level)
-    roads.lineStyle(TILE.w * 0.46, 0x5e5548, 0.56)
-    quaySpine.draw(roads, 60)
-    roads.lineStyle(TILE.w * 0.33, quayStyle.border, 0.86)
-    quaySpine.draw(roads, 60)
-    roads.lineStyle(TILE.w * 0.245, quayStyle.fill, 0.95)
-    quaySpine.draw(roads, 60)
+    // Liman semti oyuncuya sistem geometrisi olarak gösterilmez.
+    // İlk liman/tersane kurulunca ortak rıhtım yolu sahneye doğal biçimde gelir.
+    const hasHarbour = COAST_SLOTS.some(s => active.has(s.id))
+    if (hasHarbour) {
+      const quayStyle = roadStyleFor('quay', level)
+      roads.lineStyle(TILE.w * 0.27, 0x5e5548, 0.28)
+      quaySpine.draw(roads, 60)
+      roads.lineStyle(TILE.w * 0.19, quayStyle.border, 0.48)
+      quaySpine.draw(roads, 60)
+      roads.lineStyle(TILE.w * 0.135, quayStyle.fill, 0.66)
+      quaySpine.draw(roads, 60)
+    }
 
     // Çok geçişli çizim, kavşakların düzgün birleşmesini sağlar.
     for (const r of visibleCurves) {
@@ -424,7 +428,8 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1, occupiedSl
     }
     for (const r of visibleCurves) {
       const s = roadStyleFor(r.kind, level)
-      roads.lineStyle(TILE.w * s.fillW, s.fill, 0.94)
+      const fillAlpha = r.kind === 'avenue' ? 0.68 : r.kind === 'quay' ? 0.70 : 0.50
+      roads.lineStyle(TILE.w * s.fillW, s.fill, fillAlpha)
       r.curve.draw(roads, 36)
     }
 
@@ -447,7 +452,7 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1, occupiedSl
         const isDirt = tier === 1 && r.kind !== 'quay'
         const stoneW = isDirt ? 2 + rnd() * 3 : 2.5 + rnd() * (tier >= 3 ? 5 : 4)
         const stoneH = isDirt ? 1.4 + rnd() * 1.6 : 1.4 + rnd() * 2.2
-        roads.fillStyle(isDirt ? 0x675338 : s.stoneColor, isDirt ? 0.20 : 0.24 + rnd() * 0.22)
+        roads.fillStyle(isDirt ? 0x675338 : s.stoneColor, isDirt ? 0.12 : 0.14 + rnd() * 0.14)
         roads.fillEllipse(x, y, stoneW, stoneH)
       }
     }
@@ -482,10 +487,15 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1, occupiedSl
     ...curves.flatMap(r => Array.from({ length: 24 }, (_, i) => r.curve.getPoint(i / 23))),
     ...Array.from({ length: 48 }, (_, i) => quaySpine.getPoint(i / 47)),
   ]
+  const initialOccupied = new Set(occupiedSlotIds)
+  initialOccupied.add(HALL_SLOT_ID)
   const clearForDecor = (wx: number, wy: number, margin = 0.88) =>
     wy < seaLine - TILE.h * 0.55 &&
-    !occ.some(s => nearSlot(wx, wy, s, margin)) &&
-    !roadSamples.some(p => Math.hypot(p.x - wx, p.y - wy) < TILE.w * 0.20)
+    !occ.some(s => nearSlot(
+      wx, wy, s,
+      initialOccupied.has(s.id) ? margin : Math.min(margin, s.fixed ? 0.90 : 0.66),
+    )) &&
+    !roadSamples.some(p => Math.hypot(p.x - wx, p.y - wy) < TILE.w * 0.18)
 
   const groveFloor = scene.add.graphics().setDepth(-706)
   const clusterRnd = mulberry32(9917)
