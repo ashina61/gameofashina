@@ -1,7 +1,7 @@
 'use client'
 
 import { useRef, useState } from 'react'
-import { Sun, Flag, Move, Hammer, X } from 'lucide-react'
+import { Sun, Flag, Move, Hammer, X, Anchor, Landmark } from 'lucide-react'
 import type { Game, BuildingId } from '@/lib/game/engine'
 import { CityCanvas, type CityControls } from './city-canvas'
 
@@ -52,6 +52,10 @@ export function CityScene({ game, placing, onBuilding, onPlot, onRoad, moving, m
     <div className="map-top-tools">
       <button aria-label={labels ? 'Bina etiketlerini gizle' : 'Bina etiketlerini göster'}
         onClick={() => setLabels(v => !v)} aria-pressed={labels}><Flag /></button>
+      <button aria-label="Donanma ve limana git" title="Donanma ve limana git"
+        onClick={() => controls.current?.focusHarbour()}><Anchor /></button>
+      <button aria-label="Belediyeye dön" title="Belediyeye dön"
+        onClick={() => controls.current?.recenter()}><Landmark /></button>
     </div>
 
     {/*
