@@ -27,7 +27,7 @@ export const TERRAIN_TILES = [
   'shore-a', 'shore-b', 'shore-c',
   'water', 'water-deep',
 ] as const
-export const DECOR_TILES = ['olive-tree', 'bush', 'flower', 'rock', 'amphora', 'bench', 'cart', 'crate', 'lamp'] as const
+export const DECOR_TILES = ['olive-tree', 'bush', 'flower', 'rock', 'amphora', 'bench', 'cart', 'crate', 'lamp', 'barrel', 'barrel-water', 'fountain', 'market-stall', 'sign', 'statue'] as const
 
 /** Deterministik tohumlu rastgele (dekor/terrain her açılışta aynı kalsın). */
 export function mulberry32(seed: number) {
