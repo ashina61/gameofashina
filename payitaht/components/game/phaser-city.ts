@@ -14,7 +14,7 @@
  * Phaser'in ESM paketinde varsayılan dışa aktarım yok; ad alanı olarak alınır.
  */
 import * as Phaser from 'phaser'
-import { TILE, HALL_SLOT_ID, slotById } from '@/lib/game/city-map'
+import { TILE, COAST_SLOTS, HALL_SLOT_ID, slotById } from '@/lib/game/city-map'
 import { LIVE_SLOTS, liveSlotByIndex, type LiveSlot } from '@/lib/game/city-map/live-adapter'
 import { buildCityTerrain, preloadTerrain, cityWorldRect, cityContentRect } from '@/lib/game/city-map/terrain-builder'
 import { assetById, groundScale, GROUND_TARGET_W } from '@/lib/game/city-map/building-assets'
@@ -42,6 +42,8 @@ export class CityScene extends Phaser.Scene {
   private state!: Game
   private events$!: CityEvents
   private built = false
+  /** Divan seviyesi değişince yalnızca yol katmanı yenilenir. */
+  private terrainRoads: { updateRoads: (level: number) => void } | null = null
   /** Bina/arsa/rozet parçaları — her redraw'da temizlenir (zemin dokunulmaz). */
   private pieces: Phaser.GameObjects.GameObject[] = []
   private signature = ''
@@ -71,7 +73,7 @@ export class CityScene extends Phaser.Scene {
 
   create() {
     this.cameras.main.setBackgroundColor('#12333b')
-    buildCityTerrain(this) // SABİT katmanlı zemin; sadece bir kez kurulur
+    this.terrainRoads = buildCityTerrain(this, this.state.buildings.divan) // statik zemin + güncellenebilir yollar
     this.built = true
     this.setupCamera()
     this.installCamera()
@@ -113,6 +115,23 @@ export class CityScene extends Phaser.Scene {
 
   /** React kontrolü: kamerayı CITY VIEW'e döndür. */
   recenter() { if (this.built) this.setCityView() }
+
+  /** Donanma/tersane kuruluysa doğrudan onun slotunu, değilse kıyıyı gösterir. */
+  focusHarbour() {
+    if (!this.built) return
+    const shipyardIndex = this.state.placement.tersane
+    const harbourIndex = this.state.placement.liman
+    const shipyard = shipyardIndex === null ? null : liveSlotByIndex(shipyardIndex)
+    const harbour = harbourIndex === null ? null : liveSlotByIndex(harbourIndex)
+    const destination = shipyard?.zone === 'liman'
+      ? shipyard.screen
+      : harbour?.zone === 'liman'
+        ? harbour.screen
+        : COAST_SLOTS[Math.floor(COAST_SLOTS.length / 2)].screen
+    this.cameras.main.setZoom(Phaser.Math.Clamp(this.cityZoom, this.minZoom, this.maxZoom))
+    this.cameras.main.centerOn(destination.x, destination.y - TILE.h * 0.5)
+    this.velocity = { x: 0, y: 0 }
+  }
   /** React kontrolü: yakınlaştırmayı çarpanla değiştir. */
   zoomBy(factor: number) {
     if (!this.built) return
@@ -192,6 +211,7 @@ export class CityScene extends Phaser.Scene {
   sync(game: Game, showLabels: boolean, placing: boolean, moving: BuildingId | null = null, movePlot: number | null = null) {
     this.state = game
     if (!this.built) return
+    this.terrainRoads?.updateRoads(game.buildings.divan)
     const next = `${visualSignature(game)}|${showLabels}|${placing}|${moving ?? '-'}|${movePlot ?? '-'}`
     if (next === this.signature) return
     this.showLabels = showLabels
@@ -261,10 +281,11 @@ export class CityScene extends Phaser.Scene {
     const level = this.state.buildings[id]
     let dispW = TILE.w * 2, dispH = TILE.h * 2
 
-    // Yere basma gölgesi (yüzüyor gibi durmasın).
+    // Eski siyah leke değil: parselin içinde yumuşak, dar temas gölgesi.
     const shadow = this.add.graphics().setDepth(anc.baseY - 0.3)
-    shadow.fillStyle(0x0d1c16, 0.26)
-    shadow.fillEllipse(anc.x + 4, anc.baseY - 2, GROUND_TARGET_W * 0.62, GROUND_TARGET_W * 0.28)
+    shadow.fillStyle(0x283021, 0.105)
+    shadow.fillEllipse(anc.x + 2, anc.baseY - TILE.h * 0.26,
+      GROUND_TARGET_W * 0.45, GROUND_TARGET_W * 0.12)
     this.pieces.push(shadow)
 
     if (BUILDINGS[id].art && this.textures.exists(id)) {
