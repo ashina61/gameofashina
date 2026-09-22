@@ -12,6 +12,7 @@
  */
 
 import { MEASURED, MEASURED_TILE_W } from './plots.generated'
+import { LIVE_SLOTS } from './city-map/live-adapter'
 
 /**
  * Izometrik karo 2:1'dir: genislik tuvalin yuzdesi, yukseklik yarisi.
@@ -115,10 +116,20 @@ export const QUAY_COUNT = 2
 const QUAY_CELLS: [number, number][] = [[HALL.col - 1.4, HALL.row + 1.6], [HALL.col + 1.4, HALL.row + 1.6]]
 const QUAY_SLOTS = QUAY_CELLS.map(([col, row]) => ({ zone: 'liman' as const, ...gridPos(col, row) }))
 
-export const SLOTS: Slot[] = (USES_MEASURED
-  ? MEASURED.map(m => ({ zone: m.zone, x: m.x, y: m.y }))
-  : [...CITY_SLOTS, ...QUAY_SLOTS]
-).map((slot, index) => ({ index, zone: slot.zone, x: slot.x, y: slot.y }))
+/*
+ * ARSALAR ARTIK YENİ CITY-MAP SİSTEMİNDEN GELİR (city-slots.json).
+ *
+ * Motorun gördüğü sıralı indeks uzayı live-adapter'dan türer:
+ *   0 belediye (çakılı, sehir) · 1..24 taşınabilir city (sehir) · 25..30 coast
+ *   (liman). Konumlar city-render'ın % modeline normalize edilir (motor ve
+ *   engine.test bu % dünyasıyla çalışmaya devam eder); RENDER ise doğrudan yeni
+ *   ekran koordinatlarını kullanır (bkz. phaser-city). Yukarıdaki elmas-ağaç
+ *   ızgarası (CITY_MAP/QUAY) ölçülmüş-arsa yolu için ve tarihsel referans olarak
+ *   durur; canlı şehir artık city-map slotlarını kullanır.
+ */
+export const SLOTS: Slot[] = USES_MEASURED
+  ? MEASURED.map((m, index) => ({ index, zone: m.zone, x: m.x, y: m.y }))
+  : LIVE_SLOTS.map(s => ({ index: s.index, zone: s.zone, x: s.pct.x, y: s.pct.y }))
 
 /** Belediye arsasinin indeksi: her zaman merkez, CAKILI. */
 export const CENTER_PLOT = 0

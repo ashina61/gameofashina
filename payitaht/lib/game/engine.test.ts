@@ -707,9 +707,9 @@ test('liman ve tersane denizin kenarindaki iskeleye kurulur', () => {
   const g = initialGame(now)
   g.buildings.divan = 3
   g.resources = { gold: 9e4, wood: 9e4, stone: 9e4, knowledge: 0 }
-  // Denizin kenarinda tam iki iskele var (iki koy).
+  // Denizin kenarinda kiyi (coast) iskeleleri var — yeni city-map'te 6 coast slotu.
   const quays = PLOTS.filter(s => s.zone === 'liman')
-  assert.equal(quays.length, 2)
+  assert.ok(quays.length >= 2, `en az 2 kiyi slotu olmali, bulundu ${quays.length}`)
   // Ticaret Limani bir iskeleye oturur, sehir arsasina degil.
   const withHarbour = execute(g, { type: 'build', id: 'liman' }, now).game
   assert.notEqual(withHarbour.placement.liman, null)

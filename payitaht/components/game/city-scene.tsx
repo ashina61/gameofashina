@@ -42,7 +42,7 @@ export function CityScene({ game, placing, onBuilding, onPlot, onRoad, moving, m
       * izgara.
       */}
     {placing && !moving && <div className="build-hint">
-      <span><Hammer aria-hidden="true" /> Arsaya dokun: bina · Zemine dokun: yol</span>
+      <span><Hammer aria-hidden="true" /> Boş arsaya dokun ve yapını seç</span>
       <button onClick={onOpenList}>Listeden seç</button>
       <button className="build-exit" onClick={onExitBuild} aria-label="İnşa kipinden çık"><X /></button>
     </div>}
