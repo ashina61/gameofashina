@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { asset } from '@/lib/asset'
 
 type InstallEvent = Event & { prompt: () => Promise<void>; userChoice: Promise<{ outcome: string }> }
 export function usePwa() {
@@ -16,8 +17,15 @@ export function usePwa() {
     window.addEventListener('appinstalled', onInstall)
     if ('serviceWorker' in navigator && process.env.NODE_ENV === 'production') {
       navigator.serviceWorker.addEventListener('message', message)
-      navigator.serviceWorker.register('/sw.js').then(() => navigator.serviceWorker.ready).then(registration => {
-        const urls = performance.getEntriesByType('resource').map(entry => entry.name).filter(url => { const parsed = new URL(url); return parsed.origin === location.origin && (parsed.pathname.startsWith('/_next/static/') || parsed.pathname.startsWith('/images/game/')) })
+      const scope = asset('/')
+      const nextStatic = asset('/_next/static/')
+      const gameImages = asset('/images/game/')
+      navigator.serviceWorker.register(asset('/sw.js'), { scope }).then(() => navigator.serviceWorker.ready).then(registration => {
+        const urls = performance.getEntriesByType('resource').map(entry => entry.name).filter(url => {
+          const parsed = new URL(url)
+          return parsed.origin === location.origin &&
+            (parsed.pathname.startsWith(nextStatic) || parsed.pathname.startsWith(gameImages))
+        })
         registration.active?.postMessage({ type: 'CACHE_ASSETS', urls })
       }).catch(() => setOfflineReady(false))
     }

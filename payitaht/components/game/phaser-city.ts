@@ -128,8 +128,10 @@ export class CityScene extends Phaser.Scene {
       : harbour?.zone === 'liman'
         ? harbour.screen
         : COAST_SLOTS[Math.floor(COAST_SLOTS.length / 2)].screen
-    this.cameras.main.setZoom(Phaser.Math.Clamp(this.cityZoom, this.minZoom, this.maxZoom))
-    this.cameras.main.centerOn(destination.x, destination.y - TILE.h * 0.5)
+    // Alt HUD kıyının üstünü kapatmasın: kamera merkezini biraz DENİZE doğru
+    // kaydırınca hedef rıhtım ekranda orta-üst bölgede görünür.
+    this.cameras.main.setZoom(Phaser.Math.Clamp(Math.max(this.cityZoom, 0.70), this.minZoom, this.maxZoom))
+    this.cameras.main.centerOn(destination.x, destination.y + TILE.h * 2.6)
     this.velocity = { x: 0, y: 0 }
   }
   /** React kontrolü: yakınlaştırmayı çarpanla değiştir. */
@@ -281,6 +283,20 @@ export class CityScene extends Phaser.Scene {
     const level = this.state.buildings[id]
     let dispW = TILE.w * 2, dispH = TILE.h * 2
 
+    // Static 24 arsa pad'i artık görünmüyor. Yalnızca GERÇEK bina altında
+    // çok hafif taş/toprak footing çizilir; böylece bina zemine basar ama
+    // şehir boşken 24 bej elmas görünmez.
+    const footing = this.add.graphics().setDepth(anc.baseY - 0.45)
+    const footingFill = slot.zone === 'liman' ? 0x9a8d70 : 0xa99a73
+    const footingEdge = slot.zone === 'liman' ? 0x665b49 : 0x897957
+    footing.fillStyle(footingFill, slot.zone === 'liman' ? 0.20 : 0.13)
+    footing.fillPoints(this.diamond(slot.screen.x, slot.screen.y,
+      GROUND_TARGET_W * 0.94, (GROUND_TARGET_W * 0.94) / 2), true)
+    footing.lineStyle(1.4, footingEdge, 0.18)
+    footing.strokePoints(this.diamond(slot.screen.x, slot.screen.y,
+      GROUND_TARGET_W * 0.94, (GROUND_TARGET_W * 0.94) / 2), true)
+    this.pieces.push(footing)
+
     // Eski siyah leke değil: parselin içinde yumuşak, dar temas gölgesi.
     const shadow = this.add.graphics().setDepth(anc.baseY - 0.3)
     shadow.fillStyle(0x283021, 0.072)
@@ -319,25 +335,41 @@ export class CityScene extends Phaser.Scene {
    */
   private addEmptyPlot(slot: LiveSlot) {
     const anc = this.anchor(slot)
-    if (this.placing) this.drawBuildFlag(anc.x, anc.baseY)
+    if (this.placing) {
+      this.drawBuildPad(slot)
+      this.drawBuildFlag(anc.x, anc.baseY)
+    }
     const hit = this.add.rectangle(anc.x, anc.baseY - TILE.h, TILE.w * 1.4, TILE.h * 1.6)
       .setInteractive({ useHandCursor: true }).setFillStyle(0xffffff, 0).setDepth(anc.baseY + 0.2)
     hit.on('pointerup', (p: Phaser.Input.Pointer) => { if (isTap(p) && !this.moving) this.events$.onPlot(slot.index) })
     this.pieces.push(hit)
   }
 
+  /** İnşa kipinde standard 2x2 alanı göster; normal şehirde tamamen kaybolur. */
+  private drawBuildPad(slot: LiveSlot) {
+    const g = this.add.graphics().setDepth(slot.screen.y + 0.05)
+    const w = TILE.w * 1.86, h = TILE.h * 1.86
+    const fill = slot.zone === 'liman' ? 0x5f9d91 : 0xc5ad72
+    const edge = slot.zone === 'liman' ? 0x9fd0c7 : 0xead197
+    g.fillStyle(fill, 0.13)
+    g.fillPoints(this.diamond(slot.screen.x, slot.screen.y, w, h), true)
+    g.lineStyle(2.2, edge, 0.66)
+    g.strokePoints(this.diamond(slot.screen.x, slot.screen.y, w, h), true)
+    this.pieces.push(g)
+  }
+
   /** Küçük inşa bayrağı: kısa direk + kırmızı flama. "Buraya kur." */
   private drawBuildFlag(x: number, baseY: number) {
     const s = TILE.w
     const g = this.add.graphics().setDepth(baseY)
-    const poleH = s * 0.5
-    g.fillStyle(0x0d1c16, 0.14); g.fillEllipse(x + 2, baseY - 1, s * 0.28, s * 0.12)
-    g.fillStyle(0x5a3d24, 1); g.fillRect(x - s * 0.03, baseY - poleH, s * 0.06, poleH)
-    g.fillStyle(0x9c3b2e, 1)
-    g.fillPoints([new Phaser.Math.Vector2(x + s * 0.03, baseY - poleH),
-      new Phaser.Math.Vector2(x + s * 0.03, baseY - poleH + s * 0.2),
-      new Phaser.Math.Vector2(x + s * 0.3, baseY - poleH + s * 0.1)], true)
-    g.fillStyle(0xcaa24a, 1); g.fillCircle(x, baseY - poleH, s * 0.05)
+    const poleH = s * 0.34
+    g.fillStyle(0x0d1c16, 0.10); g.fillEllipse(x + 1, baseY - 1, s * 0.20, s * 0.075)
+    g.fillStyle(0x5a3d24, 0.92); g.fillRect(x - s * 0.018, baseY - poleH, s * 0.036, poleH)
+    g.fillStyle(0xa64a37, 0.92)
+    g.fillPoints([new Phaser.Math.Vector2(x + s * 0.018, baseY - poleH),
+      new Phaser.Math.Vector2(x + s * 0.018, baseY - poleH + s * 0.12),
+      new Phaser.Math.Vector2(x + s * 0.19, baseY - poleH + s * 0.06)], true)
+    g.fillStyle(0xcaa24a, 0.88); g.fillCircle(x, baseY - poleH, s * 0.025)
     this.pieces.push(g)
   }
 
