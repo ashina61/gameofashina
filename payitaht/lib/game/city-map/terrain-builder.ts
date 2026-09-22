@@ -283,7 +283,7 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1, occupiedSl
 
   // Büyük doğal renk bölgeleri: izometrik hücrelere bağlı değiller.
   const landColors = [0x718b50, 0x93a765, 0xa99a62, 0x7e9559, 0x8c8356, 0x687f4a]
-  for (let i = 0; i < 54; i++) {
+  for (let i = 0; i < 36; i++) {
     const x = wr.x + landRnd() * wr.w
     const y = wr.y + landRnd() * Math.max(TILE.h, seaLine - wr.y - TILE.h)
     organicPatch(
@@ -291,19 +291,19 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1, occupiedSl
       TILE.w * (1.2 + landRnd() * 3.4),
       TILE.h * (1.3 + landRnd() * 3.8),
       landColors[i % landColors.length],
-      0.035 + landRnd() * 0.075,
+      0.028 + landRnd() * 0.055,
       9 + Math.floor(landRnd() * 6),
     )
   }
 
   // Çok az sayıda gerçek doku; rastgele konum, farklı ölçek ve çok düşük alfa.
   // Bu yalnızca yüzeye boya tanesi verir, karo oluşturmaz.
-  for (let i = 0; i < 18; i++) {
+  for (let i = 0; i < 11; i++) {
     const x = wr.x + landRnd() * wr.w
     const y = wr.y + landRnd() * Math.max(TILE.h, seaLine - wr.y - TILE.h)
     const key = i % 5 === 0 ? 't_dirt' : i % 7 === 0 ? 't_stone' : 't_grass'
     const size = TILE.w * (3.8 + landRnd() * 3.2)
-    stamp(key, x, y, size, -895, 0.55, key === 't_grass' ? 0.08 : 0.055)
+    stamp(key, x, y, size, -895, 0.55, key === 't_grass' ? 0.055 : 0.038)
   }
 
   // Kesintisiz, hafif düzensiz sahil şeridi: çim → kuru kum → ıslak kum → su.
@@ -331,15 +331,15 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1, occupiedSl
   // Su artık karo değil: iki tonlu taban üstünde yatay/kıvrımlı köpük izleri.
   const water = scene.add.graphics().setDepth(-899)
   const waterRnd = mulberry32(8145)
-  for (let i = 0; i < 115; i++) {
+  for (let i = 0; i < 68; i++) {
     const x = wr.x + waterRnd() * wr.w
     const y = seaLine + TILE.h * 0.8 + waterRnd() * Math.max(TILE.h, wr.y + wr.h - seaLine - TILE.h)
     const w = TILE.w * (0.35 + waterRnd() * 1.35)
     const h = 1.2 + waterRnd() * 2.2
-    water.fillStyle(waterRnd() > 0.35 ? 0xcce3d5 : 0x85c5c1, 0.08 + waterRnd() * 0.18)
+    water.fillStyle(waterRnd() > 0.35 ? 0xd3e8df : 0x8dc6c3, 0.055 + waterRnd() * 0.11)
     water.fillEllipse(x, y, w, h)
   }
-  for (let i = 0; i < 11; i++) {
+  for (let i = 0; i < 7; i++) {
     const x = wr.x + waterRnd() * wr.w
     const y = seaLine + TILE.h * (1.6 + waterRnd() * 5.4)
     stamp(i % 2 ? 't_water' : 't_water-deep', x, y, TILE.w * (4.5 + waterRnd() * 3), -898, 0.55, 0.09)
@@ -348,11 +348,11 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1, occupiedSl
   // Yakın plan mikro doku: kuru ot, çakıl, renk kırılması.
   const micro = scene.add.graphics().setDepth(-887)
   const microRnd = mulberry32(77123)
-  for (let i = 0; i < 760; i++) {
+  for (let i = 0; i < 320; i++) {
     const x = wr.x + microRnd() * wr.w
     const y = wr.y + microRnd() * Math.max(0, seaLine - wr.y - TILE.h)
     const roll = microRnd()
-    micro.fillStyle(roll > 0.62 ? 0xd8c78c : roll > 0.28 ? 0x546d43 : 0x8d764e, 0.055 + microRnd() * 0.10)
+    micro.fillStyle(roll > 0.62 ? 0xd8c78c : roll > 0.28 ? 0x546d43 : 0x8d764e, 0.035 + microRnd() * 0.065)
     micro.fillEllipse(x, y, 1.5 + microRnd() * 5.5, 0.8 + microRnd() * 2.1)
   }
 
@@ -360,10 +360,10 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1, occupiedSl
   const variation = scene.add.graphics().setDepth(-880)
   const patchRnd = mulberry32(6161)
   const patchColors = [0x5f7b47, 0xb09562, 0x718d50, 0x8b754d]
-  for (let i = 0; i < 38; i++) {
+  for (let i = 0; i < 24; i++) {
     const x = wr.x + wr.w * (0.04 + patchRnd() * 0.92)
     const y = wr.y + (seaLine - wr.y) * (0.03 + patchRnd() * 0.94)
-    variation.fillStyle(patchColors[i % patchColors.length], 0.028 + patchRnd() * 0.048)
+    variation.fillStyle(patchColors[i % patchColors.length], 0.022 + patchRnd() * 0.032)
     variation.fillEllipse(x, y, TILE.w * (4 + patchRnd() * 7), TILE.h * (3 + patchRnd() * 6))
   }
 
