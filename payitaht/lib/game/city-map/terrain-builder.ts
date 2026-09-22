@@ -74,10 +74,98 @@ export function preloadTerrain(scene: Phaser.Scene) {
   }
 }
 
+type RoadKind = 'avenue' | 'street' | 'quay'
+
 type RoadCurve = {
   from: string
   to: string
+  kind: RoadKind
   curve: Phaser.Curves.QuadraticBezier
+}
+
+/**
+ * Yol ağı görsel olarak iki seviyeye ayrılır:
+ * - avenue: belediyeden kıyı slotlarına giden ortak ana omurga
+ * - street: mahalle/arsa bağlantıları
+ * - quay: son coast bağlantısı; rıhtım taşı tonuna geçer
+ *
+ * Ana omurga ELLE seçilmez. ROAD_GRAPH üzerinde belediyeden bütün coast
+ * slotlarına en kısa yolların birleşimi alınır. Böylece slot/graph değişirse
+ * görsel yol hiyerarşisi de otomatik uyum sağlar.
+ */
+function edgeKey(a: string, b: string) {
+  return a < b ? `${a}|${b}` : `${b}|${a}`
+}
+
+function arterialEdgeKeys(): Set<string> {
+  const adj = new Map<string, { to: string; key: string }[]>()
+  const add = (from: string, to: string) => {
+    const arr = adj.get(from) ?? []
+    arr.push({ to, key: edgeKey(from, to) })
+    adj.set(from, arr)
+  }
+
+  for (const e of ROAD_GRAPH.edges) {
+    add(e.from, e.to)
+    add(e.to, e.from)
+  }
+
+  const parent = new Map<string, { node: string; key: string }>()
+  const seen = new Set<string>([HALL_SLOT_ID])
+  const queue = [HALL_SLOT_ID]
+
+  for (let qi = 0; qi < queue.length; qi++) {
+    const node = queue[qi]
+    for (const next of adj.get(node) ?? []) {
+      if (seen.has(next.to)) continue
+      seen.add(next.to)
+      parent.set(next.to, { node, key: next.key })
+      queue.push(next.to)
+    }
+  }
+
+  const arterial = new Set<string>()
+  for (const target of COAST_SLOTS.map(s => s.id)) {
+    let node = target
+    while (node !== HALL_SLOT_ID) {
+      const p = parent.get(node)
+      if (!p) break
+      arterial.add(p.key)
+      node = p.node
+    }
+  }
+  return arterial
+}
+
+const ROAD_STYLE: Record<RoadKind, {
+  shoulderW: number
+  shoulder: number
+  shoulderAlpha: number
+  borderW: number
+  border: number
+  fillW: number
+  fill: number
+  highlightW: number
+  highlight: number
+}> = {
+  avenue: {
+    shoulderW: 0.46, shoulder: 0x665a42, shoulderAlpha: 0.62,
+    borderW: 0.36, border: 0x75684d,
+    fillW: 0.275, fill: 0xc1b284,
+    highlightW: 0.024, highlight: 0xe2d6ae,
+  },
+  street: {
+    shoulderW: 0.34, shoulder: 0x6a6048, shoulderAlpha: 0.48,
+    borderW: 0.285, border: 0x76694d,
+    fillW: 0.205, fill: 0xb7a97b,
+    highlightW: 0.017, highlight: 0xd6c89d,
+  },
+  quay: {
+    shoulderW: 0.42, shoulder: 0x5d594f, shoulderAlpha: 0.66,
+    borderW: 0.335, border: 0x6d685d,
+    fillW: 0.25, fill: 0xaaa48f,
+    highlightW: 0.021, highlight: 0xd8d2bf,
+  },
 }
 
 /** Bir yönde, slot elmasının DIŞ kenarına çıkan nokta. Yol bina altına girmez. */
@@ -96,16 +184,27 @@ function footprintExit(slot: CitySlot, toward: ScreenPoint, scale = 1.08): Scree
 
 function roadCurves(V: (x: number, y: number) => Phaser.Math.Vector2): RoadCurve[] {
   const nodeById = new Map(ROAD_GRAPH.nodes.map(n => [n.id, n]))
+  const arterial = arterialEdgeKeys()
   const out: RoadCurve[] = []
+
   for (const e of ROAD_GRAPH.edges) {
     const A = nodeById.get(e.from), B = nodeById.get(e.to)
     if (!A || !B) continue
+
     const sa = slotById(e.from), sb = slotById(e.to)
     const start = sa ? footprintExit(sa, B.screen) : A.screen
     const end = sb ? footprintExit(sb, A.screen) : B.screen
+    const coastLink = e.from.startsWith('coast_') || e.to.startsWith('coast_')
+    const kind: RoadKind = coastLink
+      ? 'quay'
+      : arterial.has(edgeKey(e.from, e.to))
+        ? 'avenue'
+        : 'street'
+
     out.push({
       from: e.from,
       to: e.to,
+      kind,
       curve: new Phaser.Curves.QuadraticBezier(
         V(start.x, start.y),
         V(e.ctrl.x, e.ctrl.y),
@@ -192,12 +291,29 @@ export function buildCityTerrain(scene: Phaser.Scene) {
   g.lineStyle(TILE.w * 0.18, 0x40382b, 0.26); g.strokePoints(fpts, false)
   g.lineStyle(TILE.w * 0.055, 0xa38f68, 0.58); g.strokePoints(fpts, false)
 
-  // Dar, bordürlü kıvrımlı taş yollar. Slot merkezine değil footprint KENARINA bağlanır.
+  // Yol hiyerarşisi: ana arter > yan sokak > kıyı/rıhtım bağlantısı.
+  // Çok-geçişli çizim kavşaklarda tek tek yol üst üste binme izlerini azaltır.
   const curves = roadCurves(V)
+
   for (const r of curves) {
-    g.lineStyle(TILE.w * 0.34, 0x74694d, 0.92); r.curve.draw(g, 28) // bordür
-    g.lineStyle(TILE.w * 0.235, 0xb9aa7b, 0.98); r.curve.draw(g, 28) // yol
-    g.lineStyle(TILE.w * 0.025, 0xd0c49a, 0.42); r.curve.draw(g, 28) // ince parlak taş izi
+    const s = ROAD_STYLE[r.kind]
+    g.lineStyle(TILE.w * s.shoulderW, s.shoulder, s.shoulderAlpha)
+    r.curve.draw(g, 32)
+  }
+  for (const r of curves) {
+    const s = ROAD_STYLE[r.kind]
+    g.lineStyle(TILE.w * s.borderW, s.border, 0.96)
+    r.curve.draw(g, 32)
+  }
+  for (const r of curves) {
+    const s = ROAD_STYLE[r.kind]
+    g.lineStyle(TILE.w * s.fillW, s.fill, 0.99)
+    r.curve.draw(g, 32)
+  }
+  for (const r of curves) {
+    const s = ROAD_STYLE[r.kind]
+    g.lineStyle(TILE.w * s.highlightW, s.highlight, r.kind === 'avenue' ? 0.46 : 0.38)
+    r.curve.draw(g, 32)
   }
 
   const pad = (
