@@ -236,7 +236,7 @@ function nearSlot(wx: number, wy: number, slot: CitySlot, margin = 1) {
 }
 
 /** Katmanlı şehir zeminini sahneye kurar. Bina sprite'larından ÖNCE bir kez çağrılır. */
-export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1) {
+export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1, occupiedSlotIds: string[] = []) {
   const wr = cityWorldRect()
   const V = (x: number, y: number) => new Phaser.Math.Vector2(x, y)
   const coastMinY = Math.min(...COAST_SLOTS.map(s => s.screen.y))
@@ -257,9 +257,9 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1) {
 
   // 1) TABAN — karo dışında hiçbir koyu boşluk kalmasın.
   const g0 = scene.add.graphics().setDepth(-1000)
-  g0.fillStyle(0x829a5b, 1); g0.fillRect(wr.x, wr.y, wr.w, wr.h)
-  g0.fillStyle(0x398b8a, 1); g0.fillRect(wr.x, seaLine, wr.w, wr.y + wr.h - seaLine)
-  g0.fillStyle(0x17545a, 1); g0.fillRect(wr.x, seaLine + TILE.h * 3.1, wr.w, wr.y + wr.h - seaLine - TILE.h * 3.1)
+  g0.fillStyle(0x9aa46b, 1); g0.fillRect(wr.x, wr.y, wr.w, wr.h)
+  g0.fillStyle(0x58a7aa, 1); g0.fillRect(wr.x, seaLine, wr.w, wr.y + wr.h - seaLine)
+  g0.fillStyle(0x2d777f, 1); g0.fillRect(wr.x, seaLine + TILE.h * 3.1, wr.w, wr.y + wr.h - seaLine - TILE.h * 3.1)
 
   // 2) ORGANİK ARAZİ.
   // Artık grid üstünde grass/water stamp YOK. Büyük ekranda görünen dama
@@ -306,19 +306,26 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1) {
     stamp(key, x, y, size, -895, 0.55, key === 't_grass' ? 0.08 : 0.055)
   }
 
-  // Kesintisiz, hafif düzensiz sahil şeridi.
+  // Kesintisiz, hafif düzensiz sahil şeridi: çim → kuru kum → ıslak kum → su.
   const coastRnd = mulberry32(2209)
   const shoreTop: Phaser.Math.Vector2[] = []
+  const wetLine: Phaser.Math.Vector2[] = []
   const shoreBottom: Phaser.Math.Vector2[] = []
-  const coastStep = TILE.w * 0.55
+  const coastStep = TILE.w * 0.52
   for (let x = wr.x - coastStep; x <= wr.x + wr.w + coastStep; x += coastStep) {
-    const y = seaLine + (coastRnd() - 0.5) * TILE.h * 0.42
+    const y = seaLine + (coastRnd() - 0.5) * TILE.h * 0.36
+    const depth = TILE.h * (0.86 + coastRnd() * 0.34)
     shoreTop.push(V(x, y))
-    shoreBottom.push(V(x, y + TILE.h * (0.82 + coastRnd() * 0.38)))
+    wetLine.push(V(x, y + depth * 0.54))
+    shoreBottom.push(V(x, y + depth))
   }
-  terrain.fillStyle(0xc7af79, 0.94)
-  terrain.fillPoints([...shoreTop, ...shoreBottom.reverse()], true)
-  terrain.lineStyle(5, 0xe2d2a1, 0.62)
+  terrain.fillStyle(0xd0bc86, 0.96)
+  terrain.fillPoints([...shoreTop, ...[...shoreBottom].reverse()], true)
+  terrain.fillStyle(0xa99468, 0.36)
+  terrain.fillPoints([...wetLine, ...[...shoreBottom].reverse()], true)
+  terrain.lineStyle(4, 0xe6d8ad, 0.50)
+  terrain.strokePoints(wetLine, false)
+  terrain.lineStyle(2, 0x66794d, 0.22)
   terrain.strokePoints(shoreTop, false)
 
   // Su artık karo değil: iki tonlu taban üstünde yatay/kıvrımlı köpük izleri.
@@ -365,9 +372,8 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1) {
 
   // Savunma temeli: siyah geometrik çizgi yerine toprak hendek + ince taş iz.
   const fpts = [...DEFENSE_FOUNDATION, DEFENSE_FOUNDATION[0]].map(p => V(p.screen.x, p.screen.y))
-  g.lineStyle(TILE.w * 0.20, 0x725d43, 0.12); g.strokePoints(fpts, false)
-  g.lineStyle(TILE.w * 0.085, 0x584735, 0.17); g.strokePoints(fpts, false)
-  g.lineStyle(TILE.w * 0.022, 0xa99570, 0.24); g.strokePoints(fpts, false)
+  g.lineStyle(TILE.w * 0.11, 0x725d43, 0.035); g.strokePoints(fpts, false)
+  g.lineStyle(TILE.w * 0.035, 0x584735, 0.055); g.strokePoints(fpts, false)
 
   // Yollar zemin/pad altında AYRI Graphics katmanında: Divan yükselince
   // yalnızca bu katman yenilenir; ağaçlar, binalar, kamera ve kayıt değişmez.
@@ -378,13 +384,23 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1) {
     coastSorted.map(s => V(s.screen.x, s.screen.y - TILE.h * 0.12)),
   )
   const roads = scene.add.graphics().setDepth(-801)
-  let lastRoadTier = 0
+  let lastRoadKey = ''
 
-  const updateRoads = (level: number) => {
+  const updateRoads = (level: number, activeSlotIds: string[] = occupiedSlotIds) => {
     const tier = roadTierForHallLevel(level)
-    if (tier === lastRoadTier) return
-    lastRoadTier = tier
+    const active = new Set(activeSlotIds)
+    active.add(HALL_SLOT_ID)
+    const roadKey = tier + ':' + [...active].sort().join(',')
+    if (roadKey === lastRoadKey) return
+    lastRoadKey = roadKey
     roads.clear()
+
+    // Ikariam benzeri sunum: boş arsalara giden sokaklar görünmez.
+    // Ana omurga çok hafif kalır; yan yollar yalnızca kurulu bir yapıya
+    // gerçekten hizmet ediyorsa çizilir.
+    const visibleCurves = curves.filter(r =>
+      r.kind === 'avenue' || active.has(r.from) || active.has(r.to),
+    )
 
     // Altı ayrı uzun iskele yolunun yerine tek kıyı promenadı + iki besleyici.
     const quayStyle = roadStyleFor('quay', level)
@@ -396,17 +412,17 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1) {
     quaySpine.draw(roads, 60)
 
     // Çok geçişli çizim, kavşakların düzgün birleşmesini sağlar.
-    for (const r of curves) {
+    for (const r of visibleCurves) {
       const s = roadStyleFor(r.kind, level)
       roads.lineStyle(TILE.w * s.shoulderW, s.shoulder, s.shoulderAlpha)
       r.curve.draw(roads, 36)
     }
-    for (const r of curves) {
+    for (const r of visibleCurves) {
       const s = roadStyleFor(r.kind, level)
       roads.lineStyle(TILE.w * s.borderW, s.border, s.borderAlpha)
       r.curve.draw(roads, 36)
     }
-    for (const r of curves) {
+    for (const r of visibleCurves) {
       const s = roadStyleFor(r.kind, level)
       roads.lineStyle(TILE.w * s.fillW, s.fill, 0.94)
       r.curve.draw(roads, 36)
@@ -415,7 +431,7 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1) {
     // Boyalı merkez şeridi YOK: küçük düzensiz taşlar ve toprak tonları
     // Osmanlı sokak dokusu verir; desen sabittir ve kamera kayınca oynamaz.
     const rnd = mulberry32(68511)
-    for (const r of curves) {
+    for (const r of visibleCurves) {
       const s = roadStyleFor(r.kind, level)
       const count = Math.max(4, Math.min(260, Math.round(
         r.curve.getLength() / TILE.w * (s.stoneDensity || 3),
@@ -436,7 +452,7 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1) {
       }
     }
   }
-  updateRoads(divanLevel)
+  updateRoads(divanLevel, occupiedSlotIds)
 
   const pad = (
     cx: number, cy: number, w: number, h: number,
@@ -450,98 +466,90 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1) {
   const hall = slotById(HALL_SLOT_ID)!
   // Divanhane altında ekran görüntüsündeki dev gri platform yok:
   // yapının tabanından yalnızca biraz büyük, sıcak taşlı kompakt meydan.
-  pad(hall.screen.x, hall.screen.y + 2, FOOTPRINT_DIAMOND_W * 1.28, FOOTPRINT_DIAMOND_W * 0.64, 0xa89670, 0x817052, 0.46, 0.50)
-  pad(hall.screen.x, hall.screen.y - 1, GROUND_TARGET_W * 0.94, GROUND_TARGET_D * 0.94, 0xc2b38c, 0x9c8964, 0.25, 0.26)
+  pad(hall.screen.x, hall.screen.y + 2, FOOTPRINT_DIAMOND_W * 1.08, FOOTPRINT_DIAMOND_W * 0.54, 0xae9c73, 0x8d7d5d, 0.18, 0.16)
 
-  // Normal şehir görünümünde 24 arsa "bej elmas" olarak bağırmaz.
-  // Yalnızca çok hafif sıkıştırılmış toprak izi vardır; gerçek build highlight
-  // Phaser etkileşim katmanında, yalnızca İnşa/Taşıma kipinde gösterilir.
-  for (const s of CITY_SLOTS) {
-    if (s.id === HALL_SLOT_ID) continue
-    pad(s.screen.x, s.screen.y + 1, GROUND_TARGET_W * 0.98, GROUND_TARGET_D * 0.98, 0x9a8b65, 0x7e704f, 0.055, 0.10)
-    pad(s.screen.x, s.screen.y, GROUND_TARGET_W * 0.80, GROUND_TARGET_D * 0.80, 0xb5a77e, 0xa59670, 0.035, 0.045)
-  }
+  // Normal şehir görünümünde boş arsaların footprint'i tamamen gizlidir.
+  // Etkileşim alanı ve inşa highlight'ı Phaser katmanında korunur.
 
-  // 6 coast slotu tek bir liman semtinin parçaları gibi görünür.
-  // Her slot yine bağımsız ve aynı footprint; aralarında ortak kıyı promenadı var.
-  for (const s of COAST_SLOTS) {
-    const x = s.screen.x, y = s.screen.y
-    pad(x, y + 6, GROUND_TARGET_W * 1.28, GROUND_TARGET_D * 1.18, 0x4d574f, 0x384942, 0.34, 0.20)
-    pad(x, y, GROUND_TARGET_W * 1.20, GROUND_TARGET_D * 1.12, 0x9d8f70, 0x655948, 0.94, 0.92)
-    pad(x, y - 2, GROUND_TARGET_W * 0.96, GROUND_TARGET_D * 0.92, 0xb7aa89, 0xcec09d, 0.54, 0.46)
-    // Çok uzun ince köprü yerine kısa ve geniş bağlama çıkıntısı.
-    g.fillStyle(0x654d35, 0.78)
-    g.fillPoints([V(x - 22, y + GROUND_TARGET_D * 0.42), V(x + 22, y + GROUND_TARGET_D * 0.42),
-      V(x + 22, y + GROUND_TARGET_D * 0.86), V(x - 22, y + GROUND_TARGET_D * 0.86)], true)
-    g.lineStyle(2, 0xc0a77b, 0.55)
-    g.lineBetween(x - 19, y + GROUND_TARGET_D * 0.63, x + 19, y + GROUND_TARGET_D * 0.63)
-  }
+  // Coast slotları da normal görünümde platform/elmas olarak çizilmez.
+  // Rıhtım kimliğini ortak kıyı promenadı ve kurulu liman/tersane verir.
 
-  // Savunma yuvaları da başlangıçta ancak yakından fark edilen kazı izleri.
-  for (const s of DEFENSE_SLOTS) {
-    pad(s.screen.x, s.screen.y, GROUND_TARGET_W * 0.90, GROUND_TARGET_D * 0.90, 0x78664a, 0x544632, 0.12, 0.20)
-    g.fillStyle(0xb2a17a, 0.22)
-    for (const side of [-1, 0, 1]) g.fillEllipse(s.screen.x + side * 18, s.screen.y - 2, 6, 2.5)
-  }
+  // Savunma slotları normal görünümde gizli; sur inşa edilince bina katmanı gösterir.
 
-  // 4) DEKOR. Dama gibi eşit serpme yerine yol kenarı KÜMELERİ + seyrek boş arazi.
+  // 4) DOĞAL KÜMELER. Tek tek serpilmiş objeler yerine büyük yeşil kütleler.
   const occ = [...CITY_SLOTS, ...COAST_SLOTS, ...DEFENSE_SLOTS]
-  // Yol üstüne ağaç/çalı çıkmasın (önceden yalnızca arsalara bakılıyordu).
   const roadSamples = [
     ...curves.flatMap(r => Array.from({ length: 24 }, (_, i) => r.curve.getPoint(i / 23))),
     ...Array.from({ length: 48 }, (_, i) => quaySpine.getPoint(i / 47)),
   ]
-  const clearForDecor = (wx: number, wy: number, margin = 0.9) =>
-    wy < seaLine - TILE.h * 0.9 &&
+  const clearForDecor = (wx: number, wy: number, margin = 0.88) =>
+    wy < seaLine - TILE.h * 0.55 &&
     !occ.some(s => nearSlot(wx, wy, s, margin)) &&
-    !roadSamples.some(p => Math.hypot(p.x - wx, p.y - wy) < TILE.w * 0.26)
-  const kinds = ['d_olive-tree', 'd_bush', 'd_flower', 'd_rock']
-  let di = 0
-  const decorRnd = mulberry32(4242)
-  const decorWidth = (key: string) =>
-    key.includes('olive')
-      ? TILE.w * (0.56 + decorRnd() * 0.12)
-      : key.includes('rock')
-        ? TILE.w * (0.28 + decorRnd() * 0.10)
-        : TILE.w * (0.24 + decorRnd() * 0.10)
-  const placeDecor = (wx: number, wy: number, forced?: string, alpha = 1) => {
-    if (!clearForDecor(wx, wy)) return
-    const key = forced ?? kinds[di++ % kinds.length]
-    stamp(key, wx, wy, decorWidth(key), -700, 0.92, alpha)
-  }
+    !roadSamples.some(p => Math.hypot(p.x - wx, p.y - wy) < TILE.w * 0.20)
 
-  // Yol kenarları bilinçli olarak seyrek. Dekor, şehri doldurmak için değil
-  // doğal boşluğu kırmak için var; aynı aralıkta tekrar eden mobilya YOK.
+  const groveFloor = scene.add.graphics().setDepth(-706)
   const clusterRnd = mulberry32(9917)
-  for (let i = 0; i < curves.length; i++) {
-    const r = curves[i]
-    for (const t of [0.24, 0.72]) {
-      if (clusterRnd() > (r.kind === 'avenue' ? 0.34 : 0.22)) continue
-      const p = r.curve.getPoint(t)
-      const tangent = r.curve.getTangent(t)
-      const side = clusterRnd() > 0.5 ? 1 : -1
-      const offset = TILE.w * (0.44 + clusterRnd() * 0.22) * side
-      const len = Math.hypot(tangent.x, tangent.y) || 1
-      const nx = -tangent.y / len, ny = tangent.x / len
-      const x = p.x + nx * offset, y = p.y + ny * offset
-      placeDecor(x, y, undefined, 0.80 + clusterRnd() * 0.14)
-      if (clusterRnd() < 0.20) {
-        placeDecor(
-          x + nx * TILE.w * 0.14 + (clusterRnd() - 0.5) * 14,
-          y + ny * TILE.h * 0.24,
-          'd_flower',
-          0.72,
-        )
-      }
+  const put = (key: string, x: number, y: number, width: number, alpha = 1) => {
+    if (!clearForDecor(x, y)) return false
+    stamp(key, x, y, width, -700, 0.92, alpha)
+    return true
+  }
+  const cluster = (cx: number, cy: number, radiusX: number, radiusY: number, strength = 1) => {
+    if (!clearForDecor(cx, cy, 0.72)) return
+    groveFloor.fillStyle(0x526f3d, 0.028 * strength)
+    groveFloor.fillEllipse(cx, cy + TILE.h * 0.16, radiusX * 1.45, radiusY * 0.95)
+    const count = 3 + Math.floor(clusterRnd() * 4 * strength)
+    for (let i = 0; i < count; i++) {
+      const a = clusterRnd() * Math.PI * 2
+      const rr = Math.sqrt(clusterRnd())
+      const x = cx + Math.cos(a) * radiusX * rr
+      const y = cy + Math.sin(a) * radiusY * rr
+      const roll = clusterRnd()
+      const key = roll < 0.42 ? 'd_olive-tree' : roll < 0.76 ? 'd_bush' : roll < 0.90 ? 'd_flower' : 'd_rock'
+      const width = key === 'd_olive-tree'
+        ? TILE.w * (0.50 + clusterRnd() * 0.12)
+        : key === 'd_bush'
+          ? TILE.w * (0.24 + clusterRnd() * 0.08)
+          : TILE.w * (0.20 + clusterRnd() * 0.07)
+      put(key, x, y, width, 0.78 + clusterRnd() * 0.16)
     }
   }
 
-  // Büyük boşluklarda yalnızca az sayıda tekil doğal unsur.
-  const sparseRnd = mulberry32(1337)
+  // Yol kenarlarında az ama belirgin bitki kütleleri.
+  for (const r of curves) {
+    for (const t of [0.22, 0.74]) {
+      if (clusterRnd() > (r.kind === 'avenue' ? 0.34 : 0.22)) continue
+      const p = r.curve.getPoint(t)
+      const tangent = r.curve.getTangent(t)
+      const len = Math.hypot(tangent.x, tangent.y) || 1
+      const nx = -tangent.y / len, ny = tangent.x / len
+      const side = clusterRnd() > 0.5 ? 1 : -1
+      const off = TILE.w * (0.52 + clusterRnd() * 0.18) * side
+      cluster(p.x + nx * off, p.y + ny * off, TILE.w * 0.48, TILE.h * 0.72, 0.9)
+    }
+  }
+
+  // Büyük boşlukları 20–24 doğal koruluk doldurur; grid hissi vermez.
   for (let i = 0; i < 34; i++) {
-    const wx = wr.x + wr.w * (0.06 + sparseRnd() * 0.88)
-    const wy = wr.y + (seaLine - wr.y) * (0.07 + sparseRnd() * 0.84)
-    if (sparseRnd() < 0.62) placeDecor(wx, wy, undefined, 0.76 + sparseRnd() * 0.16)
+    const x = wr.x + wr.w * (0.06 + clusterRnd() * 0.88)
+    const y = wr.y + (seaLine - wr.y) * (0.07 + clusterRnd() * 0.84)
+    if (clusterRnd() < 0.68) {
+      cluster(
+        x, y,
+        TILE.w * (0.52 + clusterRnd() * 0.58),
+        TILE.h * (0.62 + clusterRnd() * 0.82),
+        0.82 + clusterRnd() * 0.42,
+      )
+    }
+  }
+
+  // Sahile yakın yerlerde az sayıda kaya/çalı kütlesi.
+  for (let i = 0; i < 16; i++) {
+    const x = wr.x + wr.w * (0.05 + clusterRnd() * 0.90)
+    const y = seaLine - TILE.h * (0.65 + clusterRnd() * 2.3)
+    if (!clearForDecor(x, y, 0.68)) continue
+    put('d_rock', x, y, TILE.w * (0.24 + clusterRnd() * 0.10), 0.76)
+    if (clusterRnd() < 0.46) put('d_bush', x + (clusterRnd() - 0.5) * 42, y - 8, TILE.w * 0.24, 0.74)
   }
   return { updateRoads }
 }
