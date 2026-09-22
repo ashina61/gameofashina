@@ -45,7 +45,7 @@ export function roadStyleFor(kind: RoadKind, level: number): RoadVisualStyle {
   const quay = kind === 'quay'
   // Mobilde yol, bina/parselden rol çalmamalı: ana arter okunur ama dar,
   // mahalle yolu daha ince. Kıyı promenadı ayrı olarak terrain-builder'da çizilir.
-  const scale = avenue ? 0.82 : quay ? 0.78 : 0.60
+  const scale = avenue ? 0.64 : quay ? 0.62 : 0.42
 
   const palette = quay
     ? [
@@ -64,15 +64,15 @@ export function roadStyleFor(kind: RoadKind, level: number): RoadVisualStyle {
   return {
     shoulderW: (quay ? 0.44 : tier === 1 ? 0.36 : 0.40) * scale,
     shoulder: palette[0],
-    shoulderAlpha: quay ? 0.52 : tier === 1 ? 0.16 : 0.22,
+    shoulderAlpha: quay ? 0.34 : tier === 1 ? 0.08 : 0.12,
     borderW: (tier === 1 && !quay ? 0.29 : 0.325) * scale,
     border: palette[1],
-    borderAlpha: tier === 1 && !quay ? 0.24 : 0.68,
+    borderAlpha: tier === 1 && !quay ? 0.10 : 0.36,
     fillW: (quay ? 0.27 : tier === 1 ? 0.22 : 0.245) * scale,
     fill: palette[2],
     highlightW: 0.018 * scale,
     highlight: palette[3],
-    stoneDensity: quay ? 9 : tier === 1 ? 0 : tier === 2 ? 3 : tier === 3 ? 11 : 14,
+    stoneDensity: quay ? 5 : tier === 1 ? 0 : tier === 2 ? 2 : tier === 3 ? 6 : 8,
     stoneColor: palette[3],
   }
 }
