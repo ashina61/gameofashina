@@ -365,9 +365,9 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1) {
 
   // Savunma temeli: siyah geometrik çizgi yerine toprak hendek + ince taş iz.
   const fpts = [...DEFENSE_FOUNDATION, DEFENSE_FOUNDATION[0]].map(p => V(p.screen.x, p.screen.y))
-  g.lineStyle(TILE.w * 0.48, 0x766045, 0.20); g.strokePoints(fpts, false)
-  g.lineStyle(TILE.w * 0.20, 0x5b4636, 0.30); g.strokePoints(fpts, false)
-  g.lineStyle(TILE.w * 0.045, 0xa8926c, 0.34); g.strokePoints(fpts, false)
+  g.lineStyle(TILE.w * 0.20, 0x725d43, 0.12); g.strokePoints(fpts, false)
+  g.lineStyle(TILE.w * 0.085, 0x584735, 0.17); g.strokePoints(fpts, false)
+  g.lineStyle(TILE.w * 0.022, 0xa99570, 0.24); g.strokePoints(fpts, false)
 
   // Yollar zemin/pad altında AYRI Graphics katmanında: Divan yükselince
   // yalnızca bu katman yenilenir; ağaçlar, binalar, kamera ve kayıt değişmez.
@@ -477,12 +477,11 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1) {
     g.lineBetween(x - 19, y + GROUND_TARGET_D * 0.63, x + 19, y + GROUND_TARGET_D * 0.63)
   }
 
-  // Savunma yapılmadan sur KURULMUŞ görünmesin: toprak kazı + seyrek taş izi.
+  // Savunma yuvaları da başlangıçta ancak yakından fark edilen kazı izleri.
   for (const s of DEFENSE_SLOTS) {
-    pad(s.screen.x, s.screen.y, GROUND_TARGET_W * 0.96, GROUND_TARGET_D * 0.96, 0x78664a, 0x544632, 0.38, 0.46)
-    pad(s.screen.x, s.screen.y, GROUND_TARGET_W * 0.65, GROUND_TARGET_D * 0.65, 0x554838, 0x6e5b41, 0.12, 0.20)
-    g.fillStyle(0xb2a17a, 0.42)
-    for (const side of [-1, 0, 1]) g.fillEllipse(s.screen.x + side * 20, s.screen.y - 3, 8, 3)
+    pad(s.screen.x, s.screen.y, GROUND_TARGET_W * 0.90, GROUND_TARGET_D * 0.90, 0x78664a, 0x544632, 0.12, 0.20)
+    g.fillStyle(0xb2a17a, 0.22)
+    for (const side of [-1, 0, 1]) g.fillEllipse(s.screen.x + side * 18, s.screen.y - 2, 6, 2.5)
   }
 
   // 4) DEKOR. Dama gibi eşit serpme yerine yol kenarı KÜMELERİ + seyrek boş arazi.
