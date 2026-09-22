@@ -155,7 +155,7 @@
 .city-badge p svg { width: 12px; height: 12px; }
 .city-badge p > span { color: var(--gold); }
 /* Kaynak yiginin ALTINDA: ust sag kose onun. */
-.map-top-tools { position: absolute; right: 14px; top: 184px; z-index: 2; }
+.map-top-tools { position: absolute; right: 14px; top: 184px; z-index: 2; display: flex; flex-direction: column; gap: 8px; }
 .map-top-tools button, .zoom-tools button { display: grid; place-items: center; width: 40px; height: 40px; background: #173b34e6; color: #e5d6ad; border: 1px solid #d9c1854d; border-radius: 6px; backdrop-filter: blur(6px); }
 .map-top-tools svg, .zoom-tools svg { width: 17px; height: 17px; stroke-width: 1.6; }
 .map-bottom-tools { position: absolute; bottom: 150px; left: 22px; right: 22px; display: flex; align-items: center; justify-content: space-between; pointer-events: none; z-index: 2; }
