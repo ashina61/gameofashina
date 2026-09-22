@@ -283,9 +283,9 @@ export class CityScene extends Phaser.Scene {
 
     // Eski siyah leke değil: parselin içinde yumuşak, dar temas gölgesi.
     const shadow = this.add.graphics().setDepth(anc.baseY - 0.3)
-    shadow.fillStyle(0x283021, 0.105)
-    shadow.fillEllipse(anc.x + 2, anc.baseY - TILE.h * 0.26,
-      GROUND_TARGET_W * 0.45, GROUND_TARGET_W * 0.12)
+    shadow.fillStyle(0x283021, 0.072)
+    shadow.fillEllipse(anc.x + 2, anc.baseY - TILE.h * 0.24,
+      GROUND_TARGET_W * 0.40, GROUND_TARGET_W * 0.095)
     this.pieces.push(shadow)
 
     if (BUILDINGS[id].art && this.textures.exists(id)) {
@@ -314,10 +314,12 @@ export class CityScene extends Phaser.Scene {
     if (this.showLabels) this.pieces.push(this.makeLabel(anc.x, anc.baseY + TILE.h * 1.2, BUILDINGS[id].name, anc.baseY + 0.5, active))
   }
 
-  /** BOŞ ARSA: inşaata-hazır zemin üstünde küçük inşa bayrağı + dokunuş. */
+  /** BOŞ ARSA: normal şehir görünümünde yalnızca zemin görünür.
+   * Bayraklar İnşa/Taşıma kipinde açılır; ekran sürekli kırmızı flamayla dolmaz.
+   */
   private addEmptyPlot(slot: LiveSlot) {
     const anc = this.anchor(slot)
-    this.drawBuildFlag(anc.x, anc.baseY)
+    if (this.placing) this.drawBuildFlag(anc.x, anc.baseY)
     const hit = this.add.rectangle(anc.x, anc.baseY - TILE.h, TILE.w * 1.4, TILE.h * 1.6)
       .setInteractive({ useHandCursor: true }).setFillStyle(0xffffff, 0).setDepth(anc.baseY + 0.2)
     hit.on('pointerup', (p: Phaser.Input.Pointer) => { if (isTap(p) && !this.moving) this.events$.onPlot(slot.index) })

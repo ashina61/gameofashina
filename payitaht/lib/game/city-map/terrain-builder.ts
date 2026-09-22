@@ -183,6 +183,37 @@ function roadCurves(V: (x: number, y: number) => Phaser.Math.Vector2): RoadCurve
   return out
 }
 
+/**
+ * Kıyıda eski görünümde her coast slotuna şehirden ayrı uzun bir yol gidiyordu;
+ * mobilde bu altı kollu bir "örümcek" gibi görünüyordu. RoadGraph değişmeden,
+ * yalnızca GÖRSELDE her kara bağlantı grubunun kıyıya en doğal tek besleyicisi
+ * tutulur. Coast slotlarının birbirine bağlantısı aşağıdaki rıhtım promenadıdır.
+ */
+function displayRoadCurves(curves: RoadCurve[]): RoadCurve[] {
+  const inland = curves.filter(r => r.kind !== 'quay')
+  const grouped = new Map<string, RoadCurve[]>()
+  for (const r of curves.filter(r => r.kind === 'quay')) {
+    const cityId = r.from.startsWith('coast_') ? r.to : r.from
+    const list = grouped.get(cityId) ?? []
+    list.push(r)
+    grouped.set(cityId, list)
+  }
+  const feeders: RoadCurve[] = []
+  for (const [cityId, list] of grouped) {
+    const city = slotById(cityId)
+    if (!city) continue
+    const best = [...list].sort((a, b) => {
+      const aid = a.from.startsWith('coast_') ? a.from : a.to
+      const bid = b.from.startsWith('coast_') ? b.from : b.to
+      const ax = slotById(aid)?.screen.x ?? 0
+      const bx = slotById(bid)?.screen.x ?? 0
+      return Math.abs(ax - city.screen.x) - Math.abs(bx - city.screen.x)
+    })[0]
+    if (best) feeders.push(best)
+  }
+  return [...inland, ...feeders]
+}
+
 /** İzometrik footprint'e yeterince yakın mı? Dekoru arsalardan uzak tutar. */
 function nearSlot(wx: number, wy: number, slot: CitySlot, margin = 1) {
   const dx = Math.abs(slot.screen.x - wx)
@@ -212,29 +243,46 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1) {
 
   // 1) TABAN — karo dışında hiçbir koyu boşluk kalmasın.
   const g0 = scene.add.graphics().setDepth(-1000)
-  g0.fillStyle(0x799b55, 1); g0.fillRect(wr.x, wr.y, wr.w, wr.h)
+  g0.fillStyle(0x829a5b, 1); g0.fillRect(wr.x, wr.y, wr.w, wr.h)
   g0.fillStyle(0x398b8a, 1); g0.fillRect(wr.x, seaLine, wr.w, wr.y + wr.h - seaLine)
   g0.fillStyle(0x17545a, 1); g0.fillRect(wr.x, seaLine + TILE.h * 3.1, wr.w, wr.y + wr.h - seaLine - TILE.h * 3.1)
 
-  // 2) ARAZİ DOKUSU. Aynı grass stamp'inin dama görünümünü tint + leke katmanı kırar.
-  const TW = TILE.w * 2.42
+  // 2) ARAZİ DOKUSU.
+  // Grass PNG artık "ana zemin" değildir; opak damalar ekran görüntüsünde
+  // dev satranç tahtası gibi görünüyordu. Düz tabanın üstüne düşük alfa,
+  // üst üste binen ve hafif kaydırılmış doku lekeleri serilir.
+  const TW = TILE.w * 3.15
   const landRnd = mulberry32(90210)
-  const grassTints = [0xffffff, 0xf5f0d9, 0xeaf1dc, 0xf0ead0, 0xf7f5e8]
-  for (let gx = 22; gx <= 100; gx += 2) for (let gy = 40; gy <= 118; gy += 2) {
-    const wx = (gx - gy) * (TILE.w / 2), wy = (gx + gy) * (TILE.h / 2)
+  const grassTints = [0xffffff, 0xf4efd7, 0xe7eed5, 0xeee4c7, 0xf6f2df]
+  for (let gx = 20; gx <= 102; gx += 3) for (let gy = 38; gy <= 120; gy += 3) {
+    const baseX = (gx - gy) * (TILE.w / 2), baseY = (gx + gy) * (TILE.h / 2)
+    const wx = baseX + (landRnd() - 0.5) * TILE.w * 0.55
+    const wy = baseY + (landRnd() - 0.5) * TILE.h * 0.72
     if (wx < wr.x - TW || wx > wr.x + wr.w + TW || wy < wr.y - TW || wy > wr.y + wr.h + TW) continue
     if (wy < seaLine - TILE.h) {
       const tint = grassTints[(gx * 17 + gy * 31) % grassTints.length]
-      stamp('t_grass', wx, wy, TW, -900, 0.55, 1, tint)
-      // Seyrek, düşük alfa geniş doku: büyük ölçekli renk lekesi oluşturur.
+      stamp('t_grass', wx, wy, TW, -900, 0.55, 0.34, tint)
       const roll = landRnd()
-      if (roll < 0.075) stamp('t_dirt', wx + (landRnd() - 0.5) * TILE.w, wy, TW * 1.35, -885, 0.55, 0.13)
-      else if (roll < 0.115) stamp('t_stone', wx, wy, TW * 1.18, -885, 0.55, 0.09)
+      if (roll < 0.16) stamp('t_dirt', wx + (landRnd() - 0.5) * TILE.w * 1.5, wy, TW * 0.95, -886, 0.55, 0.10)
+      else if (roll < 0.23) stamp('t_stone', wx, wy, TW * 0.80, -886, 0.55, 0.065)
     } else if (wy < seaLine + TILE.h * 1.2) {
-      stamp(['t_shore-a', 't_shore-b', 't_shore-c'][(gx + gy) % 3], wx, wy, TW, -900)
+      stamp(['t_shore-a', 't_shore-b', 't_shore-c'][(gx + gy) % 3], wx, wy, TW, -900, 0.55, 0.72)
     } else {
-      stamp((gx + gy) % 2 ? 't_water' : 't_water-deep', wx, wy, TW, -900)
+      stamp((gx + gy) % 2 ? 't_water' : 't_water-deep', wx, wy, TW * 1.08, -900, 0.55, 0.58)
     }
+  }
+
+  // Yakından bakıldığında zemin boş bir renk alanı olmasın: tek Graphics
+  // üzerinde çok hafif kuru ot/çakıl benekleri. Izgara hizasına bağlı değildir.
+  const micro = scene.add.graphics().setDepth(-887)
+  const microRnd = mulberry32(77123)
+  for (let i = 0; i < 420; i++) {
+    const x = wr.x + microRnd() * wr.w
+    const y = wr.y + microRnd() * Math.max(0, seaLine - wr.y - TILE.h)
+    if (y >= seaLine - TILE.h) continue
+    const pale = microRnd() > 0.48
+    micro.fillStyle(pale ? 0xd0c28b : 0x566f43, 0.08 + microRnd() * 0.08)
+    micro.fillEllipse(x, y, 2 + microRnd() * 5, 1 + microRnd() * 2.4)
   }
 
   // Büyük ve yumuşak doğal ton lekeleri (checkerboard algısını daha da kırar).
@@ -261,7 +309,12 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1) {
 
   // Yollar zemin/pad altında AYRI Graphics katmanında: Divan yükselince
   // yalnızca bu katman yenilenir; ağaçlar, binalar, kamera ve kayıt değişmez.
-  const curves = roadCurves(V)
+  const allCurves = roadCurves(V)
+  const curves = displayRoadCurves(allCurves)
+  const coastSorted = [...COAST_SLOTS].sort((a, b) => a.screen.x - b.screen.x)
+  const quaySpine = new Phaser.Curves.Spline(
+    coastSorted.map(s => V(s.screen.x, s.screen.y - TILE.h * 0.12)),
+  )
   const roads = scene.add.graphics().setDepth(-801)
   let lastRoadTier = 0
 
@@ -270,6 +323,15 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1) {
     if (tier === lastRoadTier) return
     lastRoadTier = tier
     roads.clear()
+
+    // Altı ayrı uzun iskele yolunun yerine tek kıyı promenadı + iki besleyici.
+    const quayStyle = roadStyleFor('quay', level)
+    roads.lineStyle(TILE.w * 0.46, 0x5e5548, 0.56)
+    quaySpine.draw(roads, 60)
+    roads.lineStyle(TILE.w * 0.33, quayStyle.border, 0.86)
+    quaySpine.draw(roads, 60)
+    roads.lineStyle(TILE.w * 0.245, quayStyle.fill, 0.95)
+    quaySpine.draw(roads, 60)
 
     // Çok geçişli çizim, kavşakların düzgün birleşmesini sağlar.
     for (const r of curves) {
@@ -324,9 +386,10 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1) {
   }
 
   const hall = slotById(HALL_SLOT_ID)!
-  // Belediye meydanı: görkemli ama bina tabanını yutmayan, iki tonlu taş plaza.
-  pad(hall.screen.x, hall.screen.y, FOOTPRINT_DIAMOND_W * 1.72, FOOTPRINT_DIAMOND_W * 0.86, 0xbfae82, 0x8e7c59, 0.8, 0.72)
-  pad(hall.screen.x, hall.screen.y, GROUND_TARGET_W * 1.02, GROUND_TARGET_D * 1.02, 0xd4c79f, 0xa7956d, 0.52, 0.42)
+  // Divanhane altında ekran görüntüsündeki dev gri platform yok:
+  // yapının tabanından yalnızca biraz büyük, sıcak taşlı kompakt meydan.
+  pad(hall.screen.x, hall.screen.y + 2, FOOTPRINT_DIAMOND_W * 1.28, FOOTPRINT_DIAMOND_W * 0.64, 0xa89670, 0x817052, 0.46, 0.50)
+  pad(hall.screen.x, hall.screen.y - 1, GROUND_TARGET_W * 0.94, GROUND_TARGET_D * 0.94, 0xc2b38c, 0x9c8964, 0.25, 0.26)
 
   // Her normal parsel AYNI 2x2 footprint: alçak taş bordür ve doğal toprak.
   // Düzenli dolu bej kare değil; kenarlarda ufak, düzensiz taş köşeler.
@@ -341,25 +404,19 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1) {
     }
   }
 
-  // Kıyıda 6 gerçek coast slotu: her biri suyun üstünde duran, kara
-  // yoluna bağlanan boŞ rıhtım tabanı. Liman/tersane binası ARKAPLANA GÖMÜLMEZ.
+  // 6 coast slotu tek bir liman semtinin parçaları gibi görünür.
+  // Her slot yine bağımsız ve aynı footprint; aralarında ortak kıyı promenadı var.
   for (const s of COAST_SLOTS) {
     const x = s.screen.x, y = s.screen.y
-    // İnce, taş basamaklı kara-yol yaklaşımı ile deniz üstü apronu.
-    pad(x, y - TILE.h * 0.60, GROUND_TARGET_W * 0.90, GROUND_TARGET_D * 0.82, 0x88785b, 0x635542, 0.78, 0.67)
-    pad(x, y + 9, GROUND_TARGET_W * 1.42, GROUND_TARGET_D * 1.34, 0x4b564e, 0x334944, 0.50, 0.28)
-    pad(x, y, GROUND_TARGET_W * 1.36, GROUND_TARGET_D * 1.30, 0x998b6c, 0x625746, 0.98, 0.98)
-    pad(x, y - 3, GROUND_TARGET_W * 1.08, GROUND_TARGET_D * 1.03, 0xb7a687, 0xd2c3a2, 0.90, 0.72)
-    // Su tarafı kısa ahşap bağlama iskelesi, ilerideki bina bunu örtebilir.
-    g.fillStyle(0x634b33, 0.83)
-    g.fillPoints([V(x - 16, y + GROUND_TARGET_D * 0.55), V(x + 16, y + GROUND_TARGET_D * 0.55),
-      V(x + 16, y + GROUND_TARGET_D * 1.26), V(x - 16, y + GROUND_TARGET_D * 1.26)], true)
-    g.lineStyle(2, 0xc5aa7c, 0.72)
-    g.lineBetween(x - 16, y + GROUND_TARGET_D * 0.9, x + 16, y + GROUND_TARGET_D * 0.9)
-    for (const side of [-1, 1]) {
-      g.fillStyle(0x49392a, 0.88)
-      g.fillCircle(x + side * GROUND_TARGET_W * 0.59, y - 1, 4)
-    }
+    pad(x, y + 6, GROUND_TARGET_W * 1.28, GROUND_TARGET_D * 1.18, 0x4d574f, 0x384942, 0.34, 0.20)
+    pad(x, y, GROUND_TARGET_W * 1.20, GROUND_TARGET_D * 1.12, 0x9d8f70, 0x655948, 0.94, 0.92)
+    pad(x, y - 2, GROUND_TARGET_W * 0.96, GROUND_TARGET_D * 0.92, 0xb7aa89, 0xcec09d, 0.54, 0.46)
+    // Çok uzun ince köprü yerine kısa ve geniş bağlama çıkıntısı.
+    g.fillStyle(0x654d35, 0.78)
+    g.fillPoints([V(x - 22, y + GROUND_TARGET_D * 0.42), V(x + 22, y + GROUND_TARGET_D * 0.42),
+      V(x + 22, y + GROUND_TARGET_D * 0.86), V(x - 22, y + GROUND_TARGET_D * 0.86)], true)
+    g.lineStyle(2, 0xc0a77b, 0.55)
+    g.lineBetween(x - 19, y + GROUND_TARGET_D * 0.63, x + 19, y + GROUND_TARGET_D * 0.63)
   }
 
   // Savunma yapılmadan sur KURULMUŞ görünmesin: toprak kazı + seyrek taş izi.
@@ -373,9 +430,10 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1) {
   // 4) DEKOR. Dama gibi eşit serpme yerine yol kenarı KÜMELERİ + seyrek boş arazi.
   const occ = [...CITY_SLOTS, ...COAST_SLOTS, ...DEFENSE_SLOTS]
   // Yol üstüne ağaç/çalı çıkmasın (önceden yalnızca arsalara bakılıyordu).
-  const roadSamples = curves.flatMap(r =>
-    Array.from({ length: 24 }, (_, i) => r.curve.getPoint(i / 23)),
-  )
+  const roadSamples = [
+    ...curves.flatMap(r => Array.from({ length: 24 }, (_, i) => r.curve.getPoint(i / 23))),
+    ...Array.from({ length: 48 }, (_, i) => quaySpine.getPoint(i / 47)),
+  ]
   const clearForDecor = (wx: number, wy: number, margin = 0.9) =>
     wy < seaLine - TILE.h * 0.9 &&
     !occ.some(s => nearSlot(wx, wy, s, margin)) &&
