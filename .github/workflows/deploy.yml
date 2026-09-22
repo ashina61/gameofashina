@@ -1,10 +1,10 @@
-# Oyunu GitHub Pages'e yayinlar.
+# Payitaht Adaları oyununu GitHub Pages'e yayinlar (repo'daki TEK oyun).
 #
-# NEDEN VAR: oyun linki artik gecici bir onizlemeye degil, kalici bir
-# adrese bagli. main'e her giren degisiklik otomatik yayina cikar.
+# NEDEN VAR: oyun linki kalici bir adrese bagli. main'e her giren degisiklik
+# otomatik yayina cikar. Oyun payitaht/ alt dizininde gelistirilir ama Pages
+# KOKUNDE (ashina61.github.io/gameofashina/) yayinlanir.
 #
-# KAPI ONCE, YAYIN SONRA: test/typecheck/lint gecmeden derleme yapilmaz.
-# Bozuk bir surumun yayina cikmasindansa yayinin hic yenilenmemesi yeglenir.
+# KAPI ONCE, YAYIN SONRA: tip kontrolu ve testler gecmeden derleme yapilmaz.
 name: Deploy
 
 on:
@@ -19,11 +19,15 @@ permissions:
   pages: write
   id-token: write
 
-# Ayni anda tek yayin. Arka arkaya gelen pushlarda sonuncusu gecerlidir;
-# devam eden yayin iptal EDILMEZ, yarim kalmis bir yayin birakmamak icin.
+# Ayni anda tek yayin; yarim kalmis bir yayin birakmamak icin iptal EDILMEZ.
 concurrency:
   group: pages
   cancel-in-progress: false
+
+# Oyun payitaht/ alt dizininde; adimlar orada calisir.
+defaults:
+  run:
+    working-directory: payitaht
 
 jobs:
   build:
@@ -34,47 +38,35 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-          cache: npm
 
-      - run: npm ci
-
-      # Kapilar: biri bile kirmiziysa yayin yapilmaz.
-      - run: npm run lint
-      - run: npm run typecheck
-      - run: npm test
-
-      - run: npm run build
-
-      # PAYİTAHT oyunu (Next statik export) — kök Ancient City uygulamasıyla
-      # AYNI Pages sitesinde, /payitaht alt yolunda yaşar. Kök '/'da kalır,
-      # oyun '/gameofashina/payitaht/' altında yayınlanır. İkisi çakışmaz.
-      - name: pnpm kur (payitaht)
+      - name: pnpm kur
         uses: pnpm/action-setup@v4
         with:
           version: 9
           run_install: false
 
-      - name: Payitaht bağımlılıkları
-        working-directory: payitaht
+      - name: Bağımlılıklar
         run: pnpm install --frozen-lockfile
 
-      - name: Payitaht'ı /payitaht alt yolunda derle
-        working-directory: payitaht
+      # Kapilar: biri bile kirmiziysa yayin yapilmaz.
+      - name: Tip kontrolü
+        run: pnpm exec tsc --noEmit
+      - name: Testler
+        run: pnpm exec tsx --test $(find lib -name '*.test.ts')
+
+      # Statik disa aktarim, Pages KOKUNDE (/gameofashina) yayinlanacak sekilde.
+      - name: Derle (statik export)
         env:
           STATIC_EXPORT: '1'
-          NEXT_BASE_PATH: /gameofashina/payitaht
-          NEXT_PUBLIC_ASSET_BASE: /gameofashina/payitaht
+          NEXT_BASE_PATH: /gameofashina
+          NEXT_PUBLIC_ASSET_BASE: /gameofashina
         run: pnpm build
-
-      - name: Payitaht'ı dist/payitaht'a yerleştir
-        run: |
-          rm -rf dist/payitaht
-          mkdir -p dist/payitaht
-          cp -r payitaht/out/. dist/payitaht/
 
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: dist
+          # upload-pages-artifact yolu repo kokune goredir (working-directory
+          # yalnizca 'run' adimlarina uygulanir).
+          path: payitaht/out
 
   deploy:
     needs: build
