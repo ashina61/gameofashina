@@ -13,7 +13,7 @@ import type { BuildingId, Game } from '@/lib/game/engine'
  */
 
 /** Arayuzun kameraya verebilecegi komutlar. */
-export type CityControls = { recenter: () => void; zoomBy: (factor: number) => void }
+export type CityControls = { recenter: () => void; zoomBy: (factor: number) => void; focusHarbour: () => void }
 
 type Props = {
   game: Game
@@ -79,6 +79,7 @@ export function CityCanvas({ game, showLabels, placing, controls, onBuilding, on
       controls.current = {
         recenter: () => view.recenter(),
         zoomBy: (factor: number) => view.zoomBy(factor),
+        focusHarbour: () => view.focusHarbour(),
       }
 
       instance = new Phaser.Game({
