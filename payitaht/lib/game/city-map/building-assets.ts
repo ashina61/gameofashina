@@ -24,7 +24,7 @@ export const FOOTPRINT_DIAMOND_W = TILE.w * 2 // 256
 export const GROUND_TARGET_W = Math.round(FOOTPRINT_DIAMOND_W * 0.82) // ~210
 export const GROUND_TARGET_D = GROUND_TARGET_W / 2 // izometrik 2:1
 /** Ikariam-benzeri sunum: footprint değişmez, yalnızca sprite dünyada daha küçük görünür. */
-export const BUILDING_RENDER_SCALE = 0.88
+export const BUILDING_RENDER_SCALE = 0.84
 
 export type BuildingAsset = {
   buildingId: string
