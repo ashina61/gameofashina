@@ -18,6 +18,7 @@ import { TILE, COAST_SLOTS, HALL_SLOT_ID, slotById } from '@/lib/game/city-map'
 import { LIVE_SLOTS, liveSlotByIndex, type LiveSlot } from '@/lib/game/city-map/live-adapter'
 import { buildCityTerrain, preloadTerrain, cityWorldRect, cityContentRect } from '@/lib/game/city-map/terrain-builder'
 import { assetById, groundScale, GROUND_TARGET_W } from '@/lib/game/city-map/building-assets'
+import { districtPropsFor } from '@/lib/game/city-map/district-decor'
 import { visualSignature } from '@/lib/game/city-render'
 import { BUILDINGS, BUILDING_IDS, activeJob, zoneOf, type BuildingId, type Game } from '@/lib/game/engine'
 import { buildingImage } from '@/lib/asset'
@@ -319,6 +320,10 @@ export class CityScene extends Phaser.Scene {
       this.pieces.push(g)
     }
 
+    // Bina türü ve seviyesine göre mahalle dekoru. Sprite'ın kendisine
+    // gömülmediği için bina başka slota taşınınca dekor da onunla taşınır.
+    this.addDistrictDecor(id, slot, level)
+
     // Dokunuş: binaya dokun → panel aç.
     const hit = this.add.rectangle(anc.x, anc.baseY - dispH * 0.4, dispW * 0.7, dispH * 0.6)
       .setInteractive({ useHandCursor: true }).setFillStyle(0xffffff, 0).setDepth(anc.baseY + 0.2)
@@ -328,6 +333,27 @@ export class CityScene extends Phaser.Scene {
     // Seviye rozeti (+ inşaat sürerken vurgulu).
     this.pieces.push(this.makeBadge(anc.x + dispW * 0.24, anc.baseY - TILE.h * 0.6, level, anc.baseY + 0.4, active))
     if (this.showLabels) this.pieces.push(this.makeLabel(anc.x, anc.baseY + TILE.h * 1.2, BUILDINGS[id].name, anc.baseY + 0.5, active))
+  }
+
+  /** Bina çevresine, seviyeye göre kontrollü dekor yerleştirir. */
+  private addDistrictDecor(id: BuildingId, slot: LiveSlot, level: number) {
+    for (const prop of districtPropsFor(id, level)) {
+      const key = 'd_' + prop.asset
+      if (!this.textures.exists(key)) continue
+      const src = this.textures.get(key).getSourceImage() as HTMLImageElement
+      if (!src?.width) continue
+
+      const x = slot.screen.x + prop.dx * TILE.w
+      const y = slot.screen.y + prop.dy * TILE.h
+      const width = TILE.w * prop.width
+      const img = this.add.image(x, y, key)
+        .setOrigin(0.5, 0.92)
+        .setDepth(y + 0.12)
+        .setAlpha(prop.alpha ?? 0.96)
+
+      img.setDisplaySize(width, width * src.height / src.width)
+      this.pieces.push(img)
+    }
   }
 
   /** BOŞ ARSA: normal şehir görünümünde yalnızca zemin görünür.
