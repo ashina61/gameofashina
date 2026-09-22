@@ -307,6 +307,9 @@ export class CityScene extends Phaser.Scene {
       const scale = this.scaleFor(id, img.width)
       img.setScale(scale).setDepth(anc.baseY)
       img.setFlipX(this.state.flips.includes(id))
+      // Farklı kaynaklardan gelen sprite'ları tek sıcak Akdeniz paletine yaklaştır.
+      // Çok hafif multiply tint: kırmızıyı korur, mavi/soğuk tonu sakinleştirir.
+      img.setTint(0xfff1dc)
       img.setAlpha(active ? 0.82 : 1) // inşaat sürerken hafif soluk
       dispW = img.width * scale; dispH = img.height * scale
       this.pieces.push(img)
