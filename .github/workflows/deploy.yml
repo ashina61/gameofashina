@@ -45,6 +45,33 @@ jobs:
 
       - run: npm run build
 
+      # PAYİTAHT oyunu (Next statik export) — kök Ancient City uygulamasıyla
+      # AYNI Pages sitesinde, /payitaht alt yolunda yaşar. Kök '/'da kalır,
+      # oyun '/gameofashina/payitaht/' altında yayınlanır. İkisi çakışmaz.
+      - name: pnpm kur (payitaht)
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+          run_install: false
+
+      - name: Payitaht bağımlılıkları
+        working-directory: payitaht
+        run: pnpm install --frozen-lockfile
+
+      - name: Payitaht'ı /payitaht alt yolunda derle
+        working-directory: payitaht
+        env:
+          STATIC_EXPORT: '1'
+          NEXT_BASE_PATH: /gameofashina/payitaht
+          NEXT_PUBLIC_ASSET_BASE: /gameofashina/payitaht
+        run: pnpm build
+
+      - name: Payitaht'ı dist/payitaht'a yerleştir
+        run: |
+          rm -rf dist/payitaht
+          mkdir -p dist/payitaht
+          cp -r payitaht/out/. dist/payitaht/
+
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist

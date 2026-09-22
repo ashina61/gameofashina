@@ -12,22 +12,30 @@
  * verirdi.
  */
 const staticExport = process.env.STATIC_EXPORT === '1'
+/*
+ * ALT YOL (BASE PATH) — sabit bir alt adreste yayin ( or. GitHub Pages).
+ *
+ * NEXT_BASE_PATH verildiginde uygulama o alt yolda yasar: hem yonlendirme
+ * hem /_next varliklari '<base>/...' olur. Boylece ayni Pages sitesinde kok
+ * uygulama '/' ve oyun '<base>/' birlikte durur. Gorsel varliklar (asset())
+ * ayrica NEXT_PUBLIC_ASSET_BASE ile ayni tabana baglanir.
+ */
+const basePath = process.env.NEXT_BASE_PATH || ''
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   ...(staticExport
     ? {
         output: 'export',
-        /*
-         * Varlik on eki './nx'.
-         *
-         * Yalnizca './' verildiginde URL'ler './_next/...' olur ve alt
-         * cizgiyle baslayan UST DIZIN, bazi statik barindirma servislerinde
-         * ayrilmis kabul edilip reddedilir. 'nx' araya girdiginde ust dizin
-         * sirandan bir isim olur; dosyalar diskte yine _next altinda durur.
-         */
-        assetPrefix: process.env.NEXT_ASSET_PREFIX ?? './',
         trailingSlash: false,
+        /*
+         * basePath verildiyse: /_next otomatik olarak '<base>/_next' olur
+         * (assetPrefix'e gerek yok). Verilmediyse eski goreli davranis: './'
+         * (alt cizgi sorunu olan barindiricilar icin NEXT_ASSET_PREFIX).
+         */
+        ...(basePath
+          ? { basePath }
+          : { assetPrefix: process.env.NEXT_ASSET_PREFIX ?? './' }),
       }
     : {}),
   /*
