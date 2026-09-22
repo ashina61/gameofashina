@@ -23,6 +23,8 @@ export const FOOTPRINT_DIAMOND_W = TILE.w * 2 // 256
 /** Bütün binaların hedef zemin-temas genişliği (footprint içinde pay bırakır). */
 export const GROUND_TARGET_W = Math.round(FOOTPRINT_DIAMOND_W * 0.82) // ~210
 export const GROUND_TARGET_D = GROUND_TARGET_W / 2 // izometrik 2:1
+/** Ikariam-benzeri sunum: footprint değişmez, yalnızca sprite dünyada daha küçük görünür. */
+export const BUILDING_RENDER_SCALE = 0.88
 
 export type BuildingAsset = {
   buildingId: string
@@ -77,5 +79,5 @@ export function assetById(id: string): BuildingAsset | undefined {
  * eşitlenir. imgW = sprite'ın gerçek piksel genişliği (yüklendikten sonra).
  */
 export function groundScale(imgW: number, a: BuildingAsset): number {
-  return GROUND_TARGET_W / (imgW * a.groundContactWidthRatio)
+  return (GROUND_TARGET_W * BUILDING_RENDER_SCALE) / (imgW * a.groundContactWidthRatio)
 }
