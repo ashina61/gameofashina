@@ -43,7 +43,7 @@ export class CityScene extends Phaser.Scene {
   private events$!: CityEvents
   private built = false
   /** Divan seviyesi değişince yalnızca yol katmanı yenilenir. */
-  private terrainRoads: { updateRoads: (level: number) => void } | null = null
+  private terrainRoads: { updateRoads: (level: number, activeSlotIds?: string[]) => void } | null = null
   /** Bina/arsa/rozet parçaları — her redraw'da temizlenir (zemin dokunulmaz). */
   private pieces: Phaser.GameObjects.GameObject[] = []
   private signature = ''
@@ -73,7 +73,7 @@ export class CityScene extends Phaser.Scene {
 
   create() {
     this.cameras.main.setBackgroundColor('#12333b')
-    this.terrainRoads = buildCityTerrain(this, this.state.buildings.divan) // statik zemin + güncellenebilir yollar
+    this.terrainRoads = buildCityTerrain(this, this.state.buildings.divan, this.occupiedSlotIds(this.state)) // dünya + yaşayan yol ağı
     this.built = true
     this.setupCamera()
     this.installCamera()
@@ -209,11 +209,22 @@ export class CityScene extends Phaser.Scene {
     return a ? groundScale(imgW, a) : (GROUND_TARGET_W * BUILDING_RENDER_SCALE) / (imgW * 0.8)
   }
 
+  private occupiedSlotIds(game: Game) {
+    const ids: string[] = []
+    for (const id of BUILDING_IDS) {
+      const at = game.placement[id]
+      if (at === null || at === undefined) continue
+      const slot = liveSlotByIndex(at)
+      if (slot) ids.push(slot.slotId)
+    }
+    return ids
+  }
+
   /** React tarafından çağrılır; yalnızca GÖRÜNEN bir şey değiştiyse çizer. */
   sync(game: Game, showLabels: boolean, placing: boolean, moving: BuildingId | null = null, movePlot: number | null = null) {
     this.state = game
     if (!this.built) return
-    this.terrainRoads?.updateRoads(game.buildings.divan)
+    this.terrainRoads?.updateRoads(game.buildings.divan, this.occupiedSlotIds(game))
     const next = `${visualSignature(game)}|${showLabels}|${placing}|${moving ?? '-'}|${movePlot ?? '-'}`
     if (next === this.signature) return
     this.showLabels = showLabels

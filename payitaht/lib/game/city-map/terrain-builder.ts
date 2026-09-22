@@ -236,7 +236,7 @@ function nearSlot(wx: number, wy: number, slot: CitySlot, margin = 1) {
 }
 
 /** Katmanlı şehir zeminini sahneye kurar. Bina sprite'larından ÖNCE bir kez çağrılır. */
-export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1) {
+export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1, occupiedSlotIds: string[] = []) {
   const wr = cityWorldRect()
   const V = (x: number, y: number) => new Phaser.Math.Vector2(x, y)
   const coastMinY = Math.min(...COAST_SLOTS.map(s => s.screen.y))
@@ -257,7 +257,7 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1) {
 
   // 1) TABAN — karo dışında hiçbir koyu boşluk kalmasın.
   const g0 = scene.add.graphics().setDepth(-1000)
-  g0.fillStyle(0x829a5b, 1); g0.fillRect(wr.x, wr.y, wr.w, wr.h)
+  g0.fillStyle(0x9aa46b, 1); g0.fillRect(wr.x, wr.y, wr.w, wr.h)
   // Deniz tek keskin iki renk BLOK değil; sığdan derine kademeli ton.
   const waterBands = [0x5aa9a2, 0x4b9b98, 0x3e8c8d, 0x317c81, 0x276e75, 0x1d6068, 0x17545a]
   const seaH = Math.max(1, wr.y + wr.h - seaLine)
@@ -289,7 +289,7 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1) {
 
   // Büyük doğal renk bölgeleri: izometrik hücrelere bağlı değiller.
   const landColors = [0x718b50, 0x93a765, 0xa99a62, 0x7e9559, 0x8c8356, 0x687f4a]
-  for (let i = 0; i < 54; i++) {
+  for (let i = 0; i < 36; i++) {
     const x = wr.x + landRnd() * wr.w
     const y = wr.y + landRnd() * Math.max(TILE.h, seaLine - wr.y - TILE.h)
     organicPatch(
@@ -297,34 +297,41 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1) {
       TILE.w * (1.2 + landRnd() * 3.4),
       TILE.h * (1.3 + landRnd() * 3.8),
       landColors[i % landColors.length],
-      0.035 + landRnd() * 0.075,
+      0.028 + landRnd() * 0.055,
       9 + Math.floor(landRnd() * 6),
     )
   }
 
   // Çok az sayıda gerçek doku; rastgele konum, farklı ölçek ve çok düşük alfa.
   // Bu yalnızca yüzeye boya tanesi verir, karo oluşturmaz.
-  for (let i = 0; i < 18; i++) {
+  for (let i = 0; i < 11; i++) {
     const x = wr.x + landRnd() * wr.w
     const y = wr.y + landRnd() * Math.max(TILE.h, seaLine - wr.y - TILE.h)
     const key = i % 5 === 0 ? 't_dirt' : i % 7 === 0 ? 't_stone' : 't_grass'
     const size = TILE.w * (3.8 + landRnd() * 3.2)
-    stamp(key, x, y, size, -895, 0.55, key === 't_grass' ? 0.08 : 0.055)
+    stamp(key, x, y, size, -895, 0.55, key === 't_grass' ? 0.055 : 0.038)
   }
 
-  // Kesintisiz, hafif düzensiz sahil şeridi.
+  // Kesintisiz, hafif düzensiz sahil şeridi: çim → kuru kum → ıslak kum → su.
   const coastRnd = mulberry32(2209)
   const shoreTop: Phaser.Math.Vector2[] = []
+  const wetLine: Phaser.Math.Vector2[] = []
   const shoreBottom: Phaser.Math.Vector2[] = []
-  const coastStep = TILE.w * 0.55
+  const coastStep = TILE.w * 0.52
   for (let x = wr.x - coastStep; x <= wr.x + wr.w + coastStep; x += coastStep) {
-    const y = seaLine + (coastRnd() - 0.5) * TILE.h * 0.42
+    const y = seaLine + (coastRnd() - 0.5) * TILE.h * 0.36
+    const depth = TILE.h * (0.86 + coastRnd() * 0.34)
     shoreTop.push(V(x, y))
-    shoreBottom.push(V(x, y + TILE.h * (0.82 + coastRnd() * 0.38)))
+    wetLine.push(V(x, y + depth * 0.54))
+    shoreBottom.push(V(x, y + depth))
   }
-  terrain.fillStyle(0xc7af79, 0.94)
-  terrain.fillPoints([...shoreTop, ...shoreBottom.reverse()], true)
-  terrain.lineStyle(5, 0xe2d2a1, 0.62)
+  terrain.fillStyle(0xd0bc86, 0.96)
+  terrain.fillPoints([...shoreTop, ...[...shoreBottom].reverse()], true)
+  terrain.fillStyle(0xa99468, 0.36)
+  terrain.fillPoints([...wetLine, ...[...shoreBottom].reverse()], true)
+  terrain.lineStyle(4, 0xe6d8ad, 0.50)
+  terrain.strokePoints(wetLine, false)
+  terrain.lineStyle(2, 0x66794d, 0.22)
   terrain.strokePoints(shoreTop, false)
 
   // Kıyı kenarında her yeri kaplamayan kaya çıkıntıları. Coast build slotlarının
@@ -341,15 +348,15 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1) {
   // Su artık karo değil: iki tonlu taban üstünde yatay/kıvrımlı köpük izleri.
   const water = scene.add.graphics().setDepth(-899)
   const waterRnd = mulberry32(8145)
-  for (let i = 0; i < 115; i++) {
+  for (let i = 0; i < 68; i++) {
     const x = wr.x + waterRnd() * wr.w
     const y = seaLine + TILE.h * 0.8 + waterRnd() * Math.max(TILE.h, wr.y + wr.h - seaLine - TILE.h)
     const w = TILE.w * (0.35 + waterRnd() * 1.35)
     const h = 1.2 + waterRnd() * 2.2
-    water.fillStyle(waterRnd() > 0.35 ? 0xcce3d5 : 0x85c5c1, 0.08 + waterRnd() * 0.18)
+    water.fillStyle(waterRnd() > 0.35 ? 0xd3e8df : 0x8dc6c3, 0.055 + waterRnd() * 0.11)
     water.fillEllipse(x, y, w, h)
   }
-  for (let i = 0; i < 11; i++) {
+  for (let i = 0; i < 7; i++) {
     const x = wr.x + waterRnd() * wr.w
     const y = seaLine + TILE.h * (1.6 + waterRnd() * 5.4)
     stamp(i % 2 ? 't_water' : 't_water-deep', x, y, TILE.w * (4.5 + waterRnd() * 3), -898, 0.55, 0.09)
@@ -358,11 +365,11 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1) {
   // Yakın plan mikro doku: kuru ot, çakıl, renk kırılması.
   const micro = scene.add.graphics().setDepth(-887)
   const microRnd = mulberry32(77123)
-  for (let i = 0; i < 760; i++) {
+  for (let i = 0; i < 320; i++) {
     const x = wr.x + microRnd() * wr.w
     const y = wr.y + microRnd() * Math.max(0, seaLine - wr.y - TILE.h)
     const roll = microRnd()
-    micro.fillStyle(roll > 0.62 ? 0xd8c78c : roll > 0.28 ? 0x546d43 : 0x8d764e, 0.055 + microRnd() * 0.10)
+    micro.fillStyle(roll > 0.62 ? 0xd8c78c : roll > 0.28 ? 0x546d43 : 0x8d764e, 0.035 + microRnd() * 0.065)
     micro.fillEllipse(x, y, 1.5 + microRnd() * 5.5, 0.8 + microRnd() * 2.1)
   }
 
@@ -370,10 +377,10 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1) {
   const variation = scene.add.graphics().setDepth(-880)
   const patchRnd = mulberry32(6161)
   const patchColors = [0x5f7b47, 0xb09562, 0x718d50, 0x8b754d]
-  for (let i = 0; i < 38; i++) {
+  for (let i = 0; i < 24; i++) {
     const x = wr.x + wr.w * (0.04 + patchRnd() * 0.92)
     const y = wr.y + (seaLine - wr.y) * (0.03 + patchRnd() * 0.94)
-    variation.fillStyle(patchColors[i % patchColors.length], 0.028 + patchRnd() * 0.048)
+    variation.fillStyle(patchColors[i % patchColors.length], 0.022 + patchRnd() * 0.032)
     variation.fillEllipse(x, y, TILE.w * (4 + patchRnd() * 7), TILE.h * (3 + patchRnd() * 6))
   }
 
@@ -394,39 +401,52 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1) {
     coastSorted.map(s => V(s.screen.x, s.screen.y - TILE.h * 0.12)),
   )
   const roads = scene.add.graphics().setDepth(-801)
-  let lastRoadTier = 0
+  let lastRoadKey = ''
 
-  const updateRoads = (level: number) => {
+  const updateRoads = (level: number, activeSlotIds: string[] = occupiedSlotIds) => {
     const tier = roadTierForHallLevel(level)
-    if (tier === lastRoadTier) return
-    lastRoadTier = tier
+    const active = new Set(activeSlotIds)
+    active.add(HALL_SLOT_ID)
+    const roadKey = tier + ':' + [...active].sort().join(',')
+    if (roadKey === lastRoadKey) return
+    lastRoadKey = roadKey
     roads.clear()
 
-    // Altı ayrı uzun iskele yolunun yerine tek kıyı promenadı + iki besleyici.
-    const quayStyle = roadStyleFor('quay', level)
-    roads.lineStyle(TILE.w * 0.30, 0x5e5548, 0.24)
-    quaySpine.draw(roads, 60)
-    roads.lineStyle(TILE.w * 0.215, quayStyle.border, 0.46)
-    quaySpine.draw(roads, 60)
-    roads.lineStyle(TILE.w * 0.155, quayStyle.fill, 0.64)
-    quaySpine.draw(roads, 60)
+    // Sistem geometrisi saklı: ana omurga hafifçe kalır, yan sokak yalnızca
+    // kurulu bir binaya gerçekten hizmet ediyorsa görünür.
+    const visibleCurves = curves.filter(r =>
+      r.kind === 'avenue' || active.has(r.from) || active.has(r.to),
+    )
+
+    // Kıyı promenadı bir slot göstergesi değildir; ilk liman/tersane
+    // kurulunca dünyaya doğal biçimde eklenir.
+    const hasHarbour = COAST_SLOTS.some(s => active.has(s.id))
+    if (hasHarbour) {
+      const quayStyle = roadStyleFor('quay', level)
+      roads.lineStyle(TILE.w * 0.25, 0x5e5548, 0.20)
+      quaySpine.draw(roads, 60)
+      roads.lineStyle(TILE.w * 0.18, quayStyle.border, 0.40)
+      quaySpine.draw(roads, 60)
+      roads.lineStyle(TILE.w * 0.125, quayStyle.fill, 0.58)
+      quaySpine.draw(roads, 60)
+    }
 
     // Çok geçişli çizim, kavşakların düzgün birleşmesini sağlar.
-    for (const r of curves) {
+    for (const r of visibleCurves) {
       const s = roadStyleFor(r.kind, level)
-      const alpha = r.kind === 'avenue' ? 0.74 : r.kind === 'street' ? 0.42 : 0.82
+      const alpha = r.kind === 'avenue' ? 0.62 : r.kind === 'street' ? 0.28 : 0.70
       roads.lineStyle(TILE.w * s.shoulderW, s.shoulder, s.shoulderAlpha * alpha)
       r.curve.draw(roads, 36)
     }
-    for (const r of curves) {
+    for (const r of visibleCurves) {
       const s = roadStyleFor(r.kind, level)
-      const alpha = r.kind === 'avenue' ? 0.70 : r.kind === 'street' ? 0.36 : 0.82
+      const alpha = r.kind === 'avenue' ? 0.58 : r.kind === 'street' ? 0.24 : 0.68
       roads.lineStyle(TILE.w * s.borderW, s.border, s.borderAlpha * alpha)
       r.curve.draw(roads, 36)
     }
-    for (const r of curves) {
+    for (const r of visibleCurves) {
       const s = roadStyleFor(r.kind, level)
-      const alpha = r.kind === 'avenue' ? 0.62 : r.kind === 'street' ? 0.30 : 0.76
+      const alpha = r.kind === 'avenue' ? 0.52 : r.kind === 'street' ? 0.20 : 0.62
       roads.lineStyle(TILE.w * s.fillW, s.fill, alpha)
       r.curve.draw(roads, 36)
     }
@@ -434,7 +454,7 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1) {
     // Boyalı merkez şeridi YOK: küçük düzensiz taşlar ve toprak tonları
     // Osmanlı sokak dokusu verir; desen sabittir ve kamera kayınca oynamaz.
     const rnd = mulberry32(68511)
-    for (const r of curves) {
+    for (const r of visibleCurves) {
       const s = roadStyleFor(r.kind, level)
       const count = Math.max(4, Math.min(260, Math.round(
         r.curve.getLength() / TILE.w * (s.stoneDensity || 3),
@@ -450,12 +470,12 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1) {
         const isDirt = tier === 1 && r.kind !== 'quay'
         const stoneW = isDirt ? 2 + rnd() * 3 : 2.5 + rnd() * (tier >= 3 ? 5 : 4)
         const stoneH = isDirt ? 1.4 + rnd() * 1.6 : 1.4 + rnd() * 2.2
-        roads.fillStyle(isDirt ? 0x675338 : s.stoneColor, isDirt ? 0.20 : 0.24 + rnd() * 0.22)
+        roads.fillStyle(isDirt ? 0x675338 : s.stoneColor, isDirt ? 0.11 : 0.13 + rnd() * 0.13)
         roads.fillEllipse(x, y, stoneW, stoneH)
       }
     }
   }
-  updateRoads(divanLevel)
+  updateRoads(divanLevel, occupiedSlotIds)
 
   const pad = (
     cx: number, cy: number, w: number, h: number,
@@ -482,10 +502,15 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1) {
     ...curves.flatMap(r => Array.from({ length: 24 }, (_, i) => r.curve.getPoint(i / 23))),
     ...Array.from({ length: 48 }, (_, i) => quaySpine.getPoint(i / 47)),
   ]
+  const initialOccupied = new Set(occupiedSlotIds)
+  initialOccupied.add(HALL_SLOT_ID)
   const clearForDecor = (wx: number, wy: number, margin = 0.9) =>
-    wy < seaLine - TILE.h * 0.9 &&
-    !occ.some(s => nearSlot(wx, wy, s, margin)) &&
-    !roadSamples.some(p => Math.hypot(p.x - wx, p.y - wy) < TILE.w * 0.26)
+    wy < seaLine - TILE.h * 0.58 &&
+    !occ.some(s => nearSlot(
+      wx, wy, s,
+      initialOccupied.has(s.id) ? margin : Math.min(margin, s.fixed ? 0.90 : 0.66),
+    )) &&
+    !roadSamples.some(p => Math.hypot(p.x - wx, p.y - wy) < TILE.w * 0.18)
   const kinds = ['d_olive-tree', 'd_bush', 'd_flower', 'd_rock']
   let di = 0
   const decorRnd = mulberry32(4242)
@@ -508,9 +533,10 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1) {
   const clusterRnd = mulberry32(9917)
   const clusterCenters: Array<{ x: number; y: number; size: number }> = []
 
-  // Yol dışı geniş alanlarda 18 ana küme.
+  // Yol dışı geniş alanlarda 22 ana küme; boş slotların kenarına yaklaşarak
+  // gizli slot düzenini yeşil kütlelerle örter.
   let guard = 0
-  while (clusterCenters.length < 18 && guard++ < 240) {
+  while (clusterCenters.length < 22 && guard++ < 300) {
     const x = wr.x + wr.w * (0.07 + clusterRnd() * 0.86)
     const y = wr.y + (seaLine - wr.y) * (0.07 + clusterRnd() * 0.82)
     if (!clearForDecor(x, y, 0.82)) continue
