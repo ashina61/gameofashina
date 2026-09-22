@@ -17,6 +17,7 @@ export function MapDebugView() {
   const [toggles, setToggles] = useState<Toggles>({ footprint: true, ground: true, anchor: false, bbox: false })
   const [rows, setRows] = useState<RealAssetRow[] | null>(null)
   const [fill, setFill] = useState<FillReport | null>(null)
+  const [roads, setRoads] = useState<{ edge: string; through: string }[] | null>(null)
   const [open, setOpen] = useState(false) // debug paneli başlangıçta KAPALI
 
   useEffect(() => {
@@ -51,10 +52,12 @@ export function MapDebugView() {
 
       {/* KOMPAKT ÜST ŞERİT — panel kapalıyken şehir görünümünü kapatmaz. */}
       <div style={header}>
-        <button onClick={() => setOpen(o => !o)} style={btn(open ? '#4a3a6a' : '#2a3b44')}>{open ? '▴ Debug' : '☰ Debug'}</button>
-        <button onClick={() => sceneRef.current?.setCityView()} style={btn('#2f5a3f')}>CITY VIEW</button>
+        <button onClick={() => setOpen(o => !o)} style={btn(open ? '#4a3a6a' : '#2a3b44')}>{open ? '▴' : '☰'}</button>
+        <button onClick={() => sceneRef.current?.showEmpty()} style={btn('#2f5a3f')}>EMPTY</button>
+        <button onClick={() => { sceneRef.current?.showFull() }} style={btn('#7a4a2a')}>FULL</button>
+        <button onClick={() => sceneRef.current?.setCityView()} style={btn('#274a55')}>CITY</button>
         <button onClick={() => sceneRef.current?.setOverview()} style={btn('#3a4a55')}>OVERVIEW</button>
-        <span style={{ fontSize: 11, color: '#cbe6bd', flex: '1 1 120px', minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{info}</span>
+        <span style={{ fontSize: 11, color: '#cbe6bd', flex: '1 1 90px', minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{info}</span>
       </div>
 
       {/* AÇILIR kontrol paneli — yalnızca Debug açıkken. */}
@@ -70,6 +73,7 @@ export function MapDebugView() {
           <button onClick={() => { sceneRef.current?.clearFill(); setFill(null) }} style={btn('#3a2b2b')}>Clear Fill</button>
           <button onClick={() => { const r = sceneRef.current?.runRealAssetTest(); if (r) { setRows(r); setFill(null) } }} style={btn('#4a3a6a')}>Test Real Assets</button>
           <button onClick={() => sceneRef.current?.randomize()} style={btn('#2f5a3f')}>Randomize</button>
+          <button onClick={() => { const r = sceneRef.current?.roadCrossings(); if (r) setRoads(r) }} style={btn('#274a55')}>Yol Kontrolü</button>
           <button onClick={() => sceneRef.current?.runExhaustive()} style={btn('#274a55')}>Geometry (mock)</button>
           {(['footprint', 'ground', 'anchor', 'bbox'] as (keyof Toggles)[]).map(k =>
             <label key={k} style={chk}><input type="checkbox" checked={toggles[k]} onChange={() => toggle(k)} />{k}</label>)}
@@ -95,6 +99,23 @@ export function MapDebugView() {
             <div style={{ marginTop: 8, fontSize: 11, color: '#ffcf5a', maxHeight: '20vh', overflow: 'auto' }}>
               <b>Görsel örtüşen komşu çiftleri (footprint hatası değil, çatı/üst kat):</b>
               <div>{fill.roofOverlapPairs.map((p, i) => <div key={i}>{p.a} ↔ {p.b} · %{p.pct}</div>)}</div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Yol kontrolü raporu (#4): uçları dışında footprint'ten geçen kenarlar. */}
+      {roads && (
+        <div style={{ ...panel, bottom: fill || rows ? 'auto' : 8, top: fill || rows ? 100 : 'auto' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <strong style={{ color: roads.length ? '#ffcf5a' : '#6dff92' }}>
+              Yol Kontrolü · {roads.length === 0 ? 'hiçbir kenar footprint içinden geçmiyor ✓' : `${roads.length} reroute gerekli`}
+            </strong>
+            <button onClick={() => setRoads(null)} style={btn('#3a2b2b')}>Kapat</button>
+          </div>
+          {roads.length > 0 && (
+            <div style={{ marginTop: 6, fontSize: 11, color: '#ffcf5a', maxHeight: '20vh', overflow: 'auto' }}>
+              {roads.map((r, i) => <div key={i}>{r.edge} · {r.through} footprint&apos;inden geçiyor (slot değişmez → reroute)</div>)}
             </div>
           )}
         </div>
