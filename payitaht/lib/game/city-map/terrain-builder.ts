@@ -27,7 +27,7 @@ export const TERRAIN_TILES = [
   'shore-a', 'shore-b', 'shore-c',
   'water', 'water-deep',
 ] as const
-export const DECOR_TILES = ['olive-tree', 'bush', 'flower', 'rock', 'amphora', 'bench', 'cart', 'crate', 'lamp', 'barrel', 'barrel-water', 'fountain', 'market-stall', 'sign', 'statue'] as const
+export const DECOR_TILES = ['olive-tree', 'bush', 'flower', 'rock'] as const
 
 /** Deterministik tohumlu rastgele (dekor/terrain her açılışta aynı kalsın). */
 export function mulberry32(seed: number) {
@@ -495,65 +495,53 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1) {
     wy < seaLine - TILE.h * 0.9 &&
     !occ.some(s => nearSlot(wx, wy, s, margin)) &&
     !roadSamples.some(p => Math.hypot(p.x - wx, p.y - wy) < TILE.w * 0.26)
-  const kinds = [
-    'd_olive-tree', 'd_bush', 'd_flower', 'd_bush', 'd_rock',
-    'd_olive-tree', 'd_flower', 'd_amphora', 'd_crate',
-  ]
+  const kinds = ['d_olive-tree', 'd_bush', 'd_flower', 'd_rock']
   let di = 0
   const decorRnd = mulberry32(4242)
   const decorWidth = (key: string) =>
-    key.includes('olive') ? TILE.w * (0.66 + decorRnd() * 0.14)
-      : key.includes('cart') ? TILE.w * 0.52
-        : key.includes('bench') ? TILE.w * 0.38
-          : key.includes('lamp') ? TILE.w * 0.26
-            : key.includes('amphora') || key.includes('crate') ? TILE.w * 0.24
-              : TILE.w * (0.32 + decorRnd() * 0.12)
+    key.includes('olive')
+      ? TILE.w * (0.56 + decorRnd() * 0.12)
+      : key.includes('rock')
+        ? TILE.w * (0.28 + decorRnd() * 0.10)
+        : TILE.w * (0.24 + decorRnd() * 0.10)
   const placeDecor = (wx: number, wy: number, forced?: string, alpha = 1) => {
     if (!clearForDecor(wx, wy)) return
     const key = forced ?? kinds[di++ % kinds.length]
     stamp(key, wx, wy, decorWidth(key), -700, 0.92, alpha)
   }
 
-  // Yol kenarları artık daha yaşanmış: doğal kümeler + seyrek şehir mobilyası.
+  // Yol kenarları bilinçli olarak seyrek. Dekor, şehri doldurmak için değil
+  // doğal boşluğu kırmak için var; aynı aralıkta tekrar eden mobilya YOK.
   const clusterRnd = mulberry32(9917)
   for (let i = 0; i < curves.length; i++) {
     const r = curves[i]
-    for (const t of [0.18, 0.40, 0.68, 0.84]) {
-      if (clusterRnd() > (r.kind === 'avenue' ? 0.66 : 0.50)) continue
+    for (const t of [0.24, 0.72]) {
+      if (clusterRnd() > (r.kind === 'avenue' ? 0.34 : 0.22)) continue
       const p = r.curve.getPoint(t)
       const tangent = r.curve.getTangent(t)
       const side = clusterRnd() > 0.5 ? 1 : -1
-      const offset = TILE.w * (0.36 + clusterRnd() * 0.24) * side
+      const offset = TILE.w * (0.44 + clusterRnd() * 0.22) * side
       const len = Math.hypot(tangent.x, tangent.y) || 1
       const nx = -tangent.y / len, ny = tangent.x / len
       const x = p.x + nx * offset, y = p.y + ny * offset
-      const urban = r.kind === 'avenue' && clusterRnd() < 0.38
-      placeDecor(x, y, urban ? (clusterRnd() < 0.55 ? 'd_lamp' : 'd_bench') : undefined, 0.88)
-      if (!urban && clusterRnd() < 0.52) {
-        placeDecor(x + nx * TILE.w * 0.18 + (clusterRnd() - 0.5) * 18, y + ny * TILE.h * 0.28, 'd_flower', 0.82)
-      }
-      if (r.kind === 'avenue' && clusterRnd() < 0.18) {
-        placeDecor(x - nx * TILE.w * 0.16, y - ny * TILE.h * 0.24, clusterRnd() < 0.5 ? 'd_amphora' : 'd_crate', 0.90)
+      placeDecor(x, y, undefined, 0.80 + clusterRnd() * 0.14)
+      if (clusterRnd() < 0.20) {
+        placeDecor(
+          x + nx * TILE.w * 0.14 + (clusterRnd() - 0.5) * 14,
+          y + ny * TILE.h * 0.24,
+          'd_flower',
+          0.72,
+        )
       }
     }
   }
 
-  // Oynanabilir alanın boş bölgeleri tamamen ölü görünmesin; grid koordinatına
-  // bağlı olmayan deterministik tekil kümeler.
+  // Büyük boşluklarda yalnızca az sayıda tekil doğal unsur.
   const sparseRnd = mulberry32(1337)
-  for (let i = 0; i < 96; i++) {
-    const wx = wr.x + wr.w * (0.05 + sparseRnd() * 0.90)
-    const wy = wr.y + (seaLine - wr.y) * (0.05 + sparseRnd() * 0.88)
-    if (sparseRnd() < 0.72) placeDecor(wx, wy)
+  for (let i = 0; i < 34; i++) {
+    const wx = wr.x + wr.w * (0.06 + sparseRnd() * 0.88)
+    const wy = wr.y + (seaLine - wr.y) * (0.07 + sparseRnd() * 0.84)
+    if (sparseRnd() < 0.62) placeDecor(wx, wy, undefined, 0.76 + sparseRnd() * 0.16)
   }
-
-  // Merkez çevresine birkaç medeniyet izi. clearForDecor çakışanı otomatik atlar.
-  const hallProps: Array<[number, number, string]> = [
-    [-TILE.w * 1.65, -TILE.h * 0.35, 'd_lamp'],
-    [ TILE.w * 1.55, -TILE.h * 0.20, 'd_lamp'],
-    [-TILE.w * 1.35,  TILE.h * 1.15, 'd_bench'],
-    [ TILE.w * 1.42,  TILE.h * 1.05, 'd_amphora'],
-  ]
-  for (const [dx, dy, key] of hallProps) placeDecor(hall.screen.x + dx, hall.screen.y + dy, key, 0.92)
   return { updateRoads }
 }
