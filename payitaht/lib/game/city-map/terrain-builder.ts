@@ -44,9 +44,12 @@ export function mulberry32(seed: number) {
 export function cityWorldRect() {
   const pts = [...SLOTS.map(s => s.screen), ...DEFENSE_FOUNDATION.map(p => p.screen)]
   const xs = pts.map(p => p.x), ys = pts.map(p => p.y)
-  const mx = TILE.w * 3, my = TILE.h * 5
-  const minX = Math.min(...xs) - mx, minY = Math.min(...ys) - my
-  return { x: minX, y: minY, w: Math.max(...xs) + mx - minX, h: Math.max(...ys) + my - minY }
+  const mx = TILE.w * 3, topPad = TILE.h * 5
+  // Kıyı odağında kamera alt sınırına erken çarpıyordu; rıhtım alt HUD'un
+  // arkasında kalıyordu. Deniz yönünde kontrollü kamera payı bırak.
+  const bottomPad = TILE.h * 13
+  const minX = Math.min(...xs) - mx, minY = Math.min(...ys) - topPad
+  return { x: minX, y: minY, w: Math.max(...xs) + mx - minX, h: Math.max(...ys) + bottomPad - minY }
 }
 
 /** OVERVIEW: yalnızca şehir+savunma+kıyı, gereksiz koyu deniz payı olmadan. */
