@@ -562,3 +562,13 @@
 .empire-shipment-form select, .empire-shipment-form input { width:100%; min-width:0; min-height:40px; border:1px solid #9d855666; border-radius:8px; padding:8px; background:var(--background); color:var(--foreground); }
 .empire-shipment-form button { align-self:end; min-height:40px; }
 @media (max-width:340px) { .island-atlas { grid-template-columns:1fr; } }
+
+/* Academy research branches and per-building upgrade preview. */
+.research-branch-tabs { display:flex; gap:7px; overflow-x:auto; padding:4px 0 9px; scrollbar-width:thin; }
+.research-branch-tabs button { white-space:nowrap; padding:9px 12px; border:1px solid #9b805b70; border-radius:999px; font-size:12px; }
+.research-branch-tabs button[aria-pressed="true"] { border-color:#bb9757; background:#be9c6250; font-weight:700; }
+.building-cost-forecast { display:grid; gap:8px; margin-block:12px; border:1px solid #a68e6050; border-radius:12px; padding:12px; }
+.building-cost-forecast > strong { font-size:0.9rem; }
+.building-forecast-row { display:grid; grid-template-columns:52px 1fr auto; gap:8px; align-items:center; padding:7px 0; border-top:1px solid #97836125; font-size:0.73rem; }
+.building-forecast-row span { overflow-wrap:anywhere; }
+.building-forecast-row small { white-space:nowrap; }
