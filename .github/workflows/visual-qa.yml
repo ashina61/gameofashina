@@ -1,0 +1,77 @@
+# Non-blocking visual QA. Captures the REAL rendered game at phone size.
+# Runs only when rendering code / game art changes, not on every economy edit.
+name: Mobile Visual QA
+
+on:
+  push:
+    branches:
+      - claude/ancient-city-phaser-game-r9e0qu
+      - chatgpt/mobile-visual-review
+    paths:
+      - 'payitaht/components/game/**'
+      - 'payitaht/lib/game/city-map/**'
+      - 'payitaht/public/images/game/**'
+      - 'payitaht/tools/visual-qa.cjs'
+      - '.github/workflows/visual-qa.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: mobile-visual-qa-${{ github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    working-directory: payitaht
+
+jobs:
+  screenshot:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+          run_install: false
+      - name: Install game dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Export same site as GitHub Pages
+        env:
+          STATIC_EXPORT: '1'
+          NEXT_BASE_PATH: /gameofashina
+          NEXT_PUBLIC_ASSET_BASE: /gameofashina
+        run: pnpm build
+      - name: Install isolated browser for visual QA
+        run: |
+          npm install --no-audit --no-fund --prefix "${RUNNER_TEMP}/visual" playwright@1.55.0
+          "${RUNNER_TEMP}/visual/node_modules/.bin/playwright" install --with-deps chromium
+      - name: Serve static export under real Pages base path
+        run: |
+          mkdir -p "${RUNNER_TEMP}/visual-site/gameofashina"
+          cp -a out/. "${RUNNER_TEMP}/visual-site/gameofashina/"
+          python3 -m http.server 4173 --directory "${RUNNER_TEMP}/visual-site" >"${RUNNER_TEMP}/visual-site.log" 2>&1 &
+          for i in $(seq 1 30); do
+            if curl -fsS http://127.0.0.1:4173/gameofashina/ -o /dev/null; then break; fi
+            sleep 1
+          done
+          curl -fsS http://127.0.0.1:4173/gameofashina/ -o /dev/null
+      - name: Screenshot center and harbour on mobile
+        env:
+          NODE_PATH: ${{ runner.temp }}/visual/node_modules
+        run: |
+          node --check tools/visual-qa.cjs
+          node tools/visual-qa.cjs
+      - name: Upload mobile screenshots and diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: payitaht-mobile-visuals-${{ github.sha }}
+          path: payitaht/visual-review/
+          retention-days: 14
+          if-no-files-found: warn
