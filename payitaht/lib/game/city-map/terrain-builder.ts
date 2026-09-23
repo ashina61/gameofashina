@@ -423,19 +423,19 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1, occupiedSl
     // Çok geçişli çizim, kavşakların düzgün birleşmesini sağlar.
     for (const r of visibleCurves) {
       const s = roadStyleFor(r.kind, level)
-      const alpha = r.kind === 'avenue' ? 0.62 : r.kind === 'street' ? 0.28 : 0.70
+      const alpha = r.kind === 'avenue' ? 0.54 : r.kind === 'street' ? 0.24 : 0.62
       roads.lineStyle(TILE.w * s.shoulderW, s.shoulder, s.shoulderAlpha * alpha)
       r.curve.draw(roads, 36)
     }
     for (const r of visibleCurves) {
       const s = roadStyleFor(r.kind, level)
-      const alpha = r.kind === 'avenue' ? 0.58 : r.kind === 'street' ? 0.24 : 0.68
+      const alpha = r.kind === 'avenue' ? 0.48 : r.kind === 'street' ? 0.18 : 0.58
       roads.lineStyle(TILE.w * s.borderW, s.border, s.borderAlpha * alpha)
       r.curve.draw(roads, 36)
     }
     for (const r of visibleCurves) {
       const s = roadStyleFor(r.kind, level)
-      const alpha = r.kind === 'avenue' ? 0.52 : r.kind === 'street' ? 0.20 : 0.62
+      const alpha = r.kind === 'avenue' ? 0.46 : r.kind === 'street' ? 0.16 : 0.56
       roads.lineStyle(TILE.w * s.fillW, s.fill, alpha)
       r.curve.draw(roads, 36)
     }
@@ -459,7 +459,7 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1, occupiedSl
         const isDirt = tier === 1 && r.kind !== 'quay'
         const stoneW = isDirt ? 2 + rnd() * 3 : 2.5 + rnd() * (tier >= 3 ? 5 : 4)
         const stoneH = isDirt ? 1.4 + rnd() * 1.6 : 1.4 + rnd() * 2.2
-        roads.fillStyle(isDirt ? 0x675338 : s.stoneColor, isDirt ? 0.11 : 0.13 + rnd() * 0.13)
+        roads.fillStyle(isDirt ? 0x675338 : s.stoneColor, isDirt ? 0.085 : 0.10 + rnd() * 0.11)
         roads.fillEllipse(x, y, stoneW, stoneH)
       }
     }
