@@ -36,6 +36,8 @@ test('ayrı tekne gövdesi ve beyaz yelken suyla birlikte silinmez', () => {
   for (let x = 6; x <= 12; x++) px(data, w, x, 18, [117, 70, 44, 255])
   px(data, w, 9, 15, [235, 229, 212, 255])
   px(data, w, 9, 17, [235, 229, 212, 255])
+  px(data, w, 8, 16, [117, 70, 44, 255])
+  px(data, w, 10, 16, [117, 70, 44, 255])
   px(data, w, 9, 16, [82, 150, 165, 255])
   cleanCoastSpriteRgba(data, w, h)
   assert.equal(alpha(data, w, 8, 18), 255, 'tekne gövdesi')
