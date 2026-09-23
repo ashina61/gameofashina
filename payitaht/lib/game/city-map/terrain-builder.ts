@@ -295,15 +295,29 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1, occupiedSl
   terrain.lineStyle(2, 0x66794d, 0.22)
   terrain.strokePoints(shoreTop, false)
 
-  // Kıyı kenarında her yeri kaplamayan kaya çıkıntıları. Coast build slotlarının
-  // önünü kapatmaz; sadece kıyı çizgisini "cetvelle çizilmiş" olmaktan çıkarır.
-  for (let i = 2; i < shoreTop.length - 2; i += 3) {
-    if (coastRnd() > 0.44) continue
+  // Kıyıda tek tek serpilmiş taş yerine seyrek KAYA KÜMELERİ.
+  // Coast inşa slotlarının önü bilinçli olarak açık kalır.
+  for (let i = 3; i < shoreTop.length - 3; i += 5) {
+    if (coastRnd() > 0.38) continue
     const p = shoreTop[i]
-    const width = TILE.w * (0.20 + coastRnd() * 0.18)
-    stamp('d_rock', p.x + (coastRnd() - 0.5) * TILE.w * 0.18,
-      p.y - TILE.h * (0.02 + coastRnd() * 0.15),
-      width, -705, 0.90, 0.72 + coastRnd() * 0.15)
+    if (COAST_SLOTS.some(s => Math.hypot(s.screen.x - p.x, s.screen.y - p.y) < GROUND_TARGET_W * 1.05)) continue
+
+    const count = 2 + Math.floor(coastRnd() * 2)
+    for (let k = 0; k < count; k++) {
+      const dx = (k - (count - 1) / 2) * TILE.w * (0.12 + coastRnd() * 0.08)
+      const dy = -TILE.h * (0.03 + coastRnd() * 0.18)
+      stamp(
+        'd_rock',
+        p.x + dx + (coastRnd() - 0.5) * TILE.w * 0.08,
+        p.y + dy,
+        TILE.w * (0.18 + coastRnd() * 0.13),
+        -705, 0.90, 0.70 + coastRnd() * 0.14,
+      )
+    }
+    if (coastRnd() < 0.34) {
+      stamp('d_bush', p.x + (coastRnd() - 0.5) * TILE.w * 0.24,
+        p.y - TILE.h * 0.20, TILE.w * 0.22, -704, 0.92, 0.62)
+    }
   }
 
   // Su artık karo değil: iki tonlu taban üstünde yatay/kıvrımlı köpük izleri.
@@ -479,56 +493,82 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1, occupiedSl
     stamp(key, wx, wy, decorWidth(key), -700, 0.92, alpha)
   }
 
-  // Ikariam hissi: tekil objeler yerine küçük DOĞAL KÜMELER.
-  // Kümeler slotları örtmez ama aralarındaki boşluğu resim gibi birleştirir.
+  // Ikariam hissi: dekor "nesne" değil, YEŞİL KÜTLE gibi davranır.
   const clusterRnd = mulberry32(9917)
-  const clusterCenters: Array<{ x: number; y: number; size: number }> = []
+  const clusterCenters: Array<{ x: number; y: number; size: number; spread: number }> = []
 
-  // Yol dışı geniş alanlarda 22 ana küme; boş slotların kenarına yaklaşarak
-  // gizli slot düzenini yeşil kütlelerle örter.
-  let guard = 0
-  while (clusterCenters.length < 22 && guard++ < 300) {
-    const x = wr.x + wr.w * (0.07 + clusterRnd() * 0.86)
-    const y = wr.y + (seaLine - wr.y) * (0.07 + clusterRnd() * 0.82)
-    if (!clearForDecor(x, y, 0.82)) continue
-    if (clusterCenters.some(c => Math.hypot(c.x - x, c.y - y) < TILE.w * 1.6)) continue
-    clusterCenters.push({ x, y, size: 3 + Math.floor(clusterRnd() * 5) })
-  }
-
-  for (const c of clusterCenters) {
-    // 1 ana zeytin + çevresinde çalı/çiçek/kaya: tek PNG damgası hissi vermesin.
-    placeDecor(c.x, c.y, 'd_olive-tree', 0.88 + clusterRnd() * 0.08, 0.74)
-    for (let i = 1; i < c.size; i++) {
-      const a = clusterRnd() * Math.PI * 2
-      const rx = TILE.w * (0.18 + clusterRnd() * 0.52)
-      const ry = TILE.h * (0.20 + clusterRnd() * 0.80)
-      const key = clusterRnd() < 0.50 ? 'd_bush' : clusterRnd() < 0.80 ? 'd_flower' : 'd_rock'
+  const placeCluster = (cx: number, cy: number, size: number, spread: number) => {
+    // 2-3 zeytin ağacı aynı kütlenin omurgasını kurar.
+    const treeCount = Math.min(3, Math.max(2, Math.round(size / 3)))
+    for (let i = 0; i < treeCount; i++) {
+      const a = (i / treeCount) * Math.PI * 2 + clusterRnd() * 0.7
+      const r = TILE.w * spread * (i === 0 ? 0.05 : 0.24 + clusterRnd() * 0.18)
       placeDecor(
-        c.x + Math.cos(a) * rx,
-        c.y + Math.sin(a) * ry,
+        cx + Math.cos(a) * r,
+        cy + Math.sin(a) * r * 0.42,
+        'd_olive-tree',
+        0.82 + clusterRnd() * 0.10,
+        0.68,
+      )
+    }
+
+    for (let i = treeCount; i < size; i++) {
+      const a = clusterRnd() * Math.PI * 2
+      const radius = Math.sqrt(clusterRnd())
+      const rx = TILE.w * spread * radius
+      const ry = TILE.h * spread * 1.15 * radius
+      const roll = clusterRnd()
+      const key = roll < 0.60 ? 'd_bush' : roll < 0.83 ? 'd_flower' : 'd_rock'
+      placeDecor(
+        cx + Math.cos(a) * rx,
+        cy + Math.sin(a) * ry,
         key,
-        0.68 + clusterRnd() * 0.20,
-        0.70,
+        0.62 + clusterRnd() * 0.18,
+        0.66,
       )
     }
   }
 
-  // Ana yol kenarında sadece birkaç küçük doğal küme.
+  // İç alanda az sayıda ama daha büyük koruluk.
+  let guard = 0
+  while (clusterCenters.length < 14 && guard++ < 320) {
+    const x = wr.x + wr.w * (0.08 + clusterRnd() * 0.84)
+    const y = wr.y + (seaLine - wr.y) * (0.08 + clusterRnd() * 0.78)
+    if (!clearForDecor(x, y, 0.78)) continue
+    if (clusterCenters.some(c => Math.hypot(c.x - x, c.y - y) < TILE.w * 2.15)) continue
+    clusterCenters.push({
+      x, y,
+      size: 6 + Math.floor(clusterRnd() * 5),
+      spread: 0.48 + clusterRnd() * 0.25,
+    })
+  }
+  for (const c of clusterCenters) placeCluster(c.x, c.y, c.size, c.spread)
+
+  // Haritanın üst/yan kenarlarını koruluklarla hafifçe çerçevele.
+  // Bu, sonsuz boş zemin hissini keser ama şehir merkezini kapatmaz.
+  const edgeAnchors = [
+    [0.10, 0.16], [0.28, 0.09], [0.50, 0.07], [0.72, 0.10], [0.90, 0.17],
+    [0.07, 0.38], [0.93, 0.40], [0.09, 0.63], [0.91, 0.64],
+  ] as const
+  for (const [px, py] of edgeAnchors) {
+    const x = wr.x + wr.w * px + (clusterRnd() - 0.5) * TILE.w * 0.45
+    const y = wr.y + (seaLine - wr.y) * py + (clusterRnd() - 0.5) * TILE.h * 0.65
+    if (clearForDecor(x, y, 0.72)) placeCluster(x, y, 7 + Math.floor(clusterRnd() * 4), 0.56)
+  }
+
+  // Yol kenarında sadece birkaç küçük doğal parça; ritmik süs dizisi yok.
   for (const r of curves.filter(r => r.kind === 'avenue')) {
-    for (const t of [0.22, 0.52, 0.78]) {
-      if (clusterRnd() > 0.36) continue
+    for (const t of [0.30, 0.72]) {
+      if (clusterRnd() > 0.24) continue
       const p = r.curve.getPoint(t)
       const tangent = r.curve.getTangent(t)
       const len = Math.hypot(tangent.x, tangent.y) || 1
       const side = clusterRnd() > 0.5 ? 1 : -1
       const nx = -tangent.y / len, ny = tangent.x / len
-      const distance = TILE.w * (0.46 + clusterRnd() * 0.16)
+      const distance = TILE.w * (0.50 + clusterRnd() * 0.14)
       const x = p.x + nx * distance * side
       const y = p.y + ny * distance * side
-      placeDecor(x, y, 'd_bush', 0.78, 0.72)
-      if (clusterRnd() < 0.55) {
-        placeDecor(x + nx * 18, y + ny * 10, 'd_flower', 0.70, 0.70)
-      }
+      if (clearForDecor(x, y, 0.68)) placeCluster(x, y, 3 + Math.floor(clusterRnd() * 3), 0.30)
     }
   }
 
