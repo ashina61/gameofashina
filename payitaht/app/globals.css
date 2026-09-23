@@ -543,3 +543,22 @@
 .build-hint .build-exit { display: grid; place-items: center; width: 30px; height: 30px; padding: 0; border-radius: 50%; background: #ffffff1a; color: #e9dcb8; }
 .build-hint .build-exit svg { width: 14px; height: 14px; color: inherit; }
 @media (max-width: 767px) { .build-hint { bottom: 150px; } .build-hint > span { font-size: 11px; } }
+
+
+/* Payitaht adaları: city switcher, island atlas and naval shipment controls. */
+.empire-section { display:grid; gap:12px; margin-top:22px; }
+.empire-section > h3 { font-size:1rem; font-weight:700; color:var(--foreground); }
+.empire-city-list { display:grid; gap:8px; }
+.empire-city-button { display:flex; justify-content:space-between; align-items:center; gap:12px; width:100%; border:1px solid #a6906350; border-radius:12px; padding:12px; text-align:left; }
+.empire-city-button[aria-current="true"] { border-color:#aa8645; background:#cdb37b20; }
+.empire-city-button > span:first-child { display:grid; gap:3px; }
+.empire-city-button small, .island-atlas-card > span, .island-atlas-card small { font-size:0.76rem; opacity:0.78; }
+.island-atlas { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; }
+.island-atlas-card { min-width:0; display:flex; flex-direction:column; align-items:stretch; gap:6px; border:1px solid #9c875a63; border-radius:13px; padding:12px; background:linear-gradient(135deg,#bca57914,#84987016); }
+.island-atlas-card > strong { font-size:0.93rem; }
+.island-atlas-card button { margin-top:auto; }
+.empire-shipment-form { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; }
+.empire-shipment-form label { display:grid; gap:5px; font-size:0.78rem; }
+.empire-shipment-form select, .empire-shipment-form input { width:100%; min-width:0; min-height:40px; border:1px solid #9d855666; border-radius:8px; padding:8px; background:var(--background); color:var(--foreground); }
+.empire-shipment-form button { align-self:end; min-height:40px; }
+@media (max-width:340px) { .island-atlas { grid-template-columns:1fr; } }
