@@ -240,21 +240,28 @@ export class CityScene extends Phaser.Scene {
       }
       if (!source?.width || !source?.height) return id
 
-      const texture = this.textures.createCanvas(worldKey, source.width, source.height)
+      // Kaynak assetler gereğinden fazla mikro detaylı. Aynı ekran boyunu
+      // koruyarak world texture'ı daha düşük raster çözünürlükte üretmek,
+      // mobilde daha painterly ve daha tutarlı bir doku verir.
+      const rasterScale = 0.68
+      const worldW = Math.max(32, Math.round(source.width * rasterScale))
+      const worldH = Math.max(32, Math.round(source.height * rasterScale))
+      const texture = this.textures.createCanvas(worldKey, worldW, worldH)
       if (!texture) return id
       const ctx = texture.getContext()
-      ctx.clearRect(0, 0, source.width, source.height)
-      ctx.drawImage(source, 0, 0)
+      ctx.imageSmoothingEnabled = true
+      ctx.clearRect(0, 0, worldW, worldH)
+      ctx.drawImage(source, 0, 0, worldW, worldH)
 
-      const image = ctx.getImageData(0, 0, source.width, source.height)
+      const image = ctx.getImageData(0, 0, worldW, worldH)
 
       // Coast assetlerinde önce kare su/foam platformu sökülür.
       if (id === 'liman' || id === 'tersane') {
-        cleanCoastSpriteRgba(image.data, source.width, source.height)
+        cleanCoastSpriteRgba(image.data, worldW, worldH)
       }
 
       // Bütün binalar aynı sıcaklık/kontrast dünyasından geçer.
-      normalizeBuildingSpriteRgba(id, image.data, source.width, source.height)
+      normalizeBuildingSpriteRgba(id, image.data, worldW, worldH)
 
       ctx.putImageData(image, 0, 0)
       texture.refresh()
