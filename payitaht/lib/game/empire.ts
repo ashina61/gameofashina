@@ -170,7 +170,7 @@ export function shipResources(source: Empire, to: string, resource: Resource, am
   from.game.resources[resource] -= amount
   empire.shipments.push({
     id: `shipment-${from.id}-${now}`, from: from.id, to, resource, amount,
-    eta: now + minutes * 60_000,
+    eta: now + Math.round(minutes * 60_000 * (from.game.research.includes('haritacilik') ? .85 : 1)),
   })
   return { empire }
 }
