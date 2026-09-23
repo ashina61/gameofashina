@@ -307,7 +307,7 @@ export function ArmyPanel({ game, onRecruit, onBuild }: { game: Game; onRecruit:
               {unit.cargo > 0 && <span title="Taşıma"><Warehouse className="size-3" />{unit.cargo}</span>}
             </div>
             <div className="unit-bottom">
-              <CostDisplay value={unitCost(id, batch)} />
+              <CostDisplay value={unitCost(id, batch, game)} />
               <span><Clock3 className="size-3" /> {unitDuration(game, id, batch)} sn</span>
               <Button size="sm" disabled={!!reason} onClick={() => onRecruit(id, batch)}>{batch} eğit</Button>
             </div>
