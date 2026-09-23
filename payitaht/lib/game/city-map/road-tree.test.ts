@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import { HALL_SLOT_ID, ROAD_GRAPH } from './index'
-import { roadEdgeKeysForTargets } from './terrain-builder'
+import { roadEdgeKeysForTargets } from './road-tree'
 
 const edgeKey = (a: string, b: string) => a < b ? `${a}|${b}` : `${b}|${a}`
 const allKeys = new Set(ROAD_GRAPH.edges.map(e => edgeKey(e.from, e.to)))
