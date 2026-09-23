@@ -64,15 +64,15 @@ export function roadStyleFor(kind: RoadKind, level: number): RoadVisualStyle {
   return {
     shoulderW: (quay ? 0.44 : tier === 1 ? 0.36 : 0.40) * scale,
     shoulder: palette[0],
-    shoulderAlpha: quay ? 0.34 : tier === 1 ? 0.08 : 0.12,
+    shoulderAlpha: quay ? 0.30 : tier === 1 ? 0.10 : 0.11,
     borderW: (tier === 1 && !quay ? 0.29 : 0.325) * scale,
     border: palette[1],
-    borderAlpha: tier === 1 && !quay ? 0.10 : 0.36,
+    borderAlpha: quay ? 0.30 : tier === 1 ? 0 : tier === 2 ? 0.14 : tier === 3 ? 0.22 : 0.28,
     fillW: (quay ? 0.27 : tier === 1 ? 0.22 : 0.245) * scale,
     fill: palette[2],
     highlightW: 0.018 * scale,
     highlight: palette[3],
-    stoneDensity: quay ? 5 : tier === 1 ? 0 : tier === 2 ? 2 : tier === 3 ? 6 : 8,
+    stoneDensity: quay ? 4 : tier === 1 ? 0 : tier === 2 ? 2 : tier === 3 ? 5 : 7,
     stoneColor: palette[3],
   }
 }
