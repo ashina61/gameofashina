@@ -1,14 +1,12 @@
 /**
- * Liman / tersane sprite'larına gömülü eski kare su platformunu runtime'da
- * temizler. Kaynak asset dosyası DEĞİŞMEZ; temizlenmiş RGBA yalnızca Phaser
- * CanvasTexture'a yazılır.
+ * Liman ve tersane sprite'larindaki geniş cyan deniz lekelerini kontrollü temizler.
+ * Kaynak görseli bozmaz; bu fonksiyon CanvasTexture RGBA kopyasında çalışır.
  *
- * Aşamalar:
- * 1) Alt bölgede cyan/foam/diamond-border piksellerini alpha=0 yap.
- * 2) Kalan alpha piksellerinin en büyük bağlı bileşenini koru.
- *
- * İkinci adım, uzun platform çerçevesi / kopuk su parçalarını atarken bina,
- * iskele ve tekne gibi birbirine temas eden ana artwork'ü birlikte tutar.
+ * ÖNEMLİ: Tekne, iskele, yelken ve ayrı duran yapılar da sprite'ın parçasıdır.
+ * Önceki uygulama alt %23'ü koşulsuz silip yalnızca en büyük bağlı bileşeni
+ * bırakıyordu. Bu, suyla birlikte tekne gövdesini de kesebiliyordu.
+ * Burada yalnızca alt taraftaki GENİŞ su renk kümelerini siliyoruz; renk/konum
+ * açısından emin olmadığımız pikselleri koruyoruz.
  */
 export function cleanCoastSpriteRgba(
   data: Uint8ClampedArray,
@@ -17,116 +15,56 @@ export function cleanCoastSpriteRgba(
 ): Uint8ClampedArray {
   if (width <= 0 || height <= 0 || data.length !== width * height * 4) return data
 
-  const pixelCount = width * height
+  const count = width * height
+  const candidate = new Uint8Array(count)
+  const visited = new Uint8Array(count)
+  const queue = new Int32Array(count)
 
-  // Renk + geometri ile yapay su plakasını sök.
-  for (let y = 0; y < height; y++) {
-    const yr = y / height
+  // Kiremit, ahşap, açık taş ve beyaz yelken su diye algılanmamalı.
+  // Su adayını resmin alt bölümünde, belirgin soğuk mavi/cyan tona sınırla.
+  for (let y = Math.floor(height * 0.36); y < height; y++) {
     for (let x = 0; x < width; x++) {
-      const i = (y * width + x) * 4
-      const a = data[i + 3]
-      if (a <= 8) continue
-
-      const r = data[i]
-      const g = data[i + 1]
-      const b = data[i + 2]
-      const max = Math.max(r, g, b)
-      const min = Math.min(r, g, b)
-      const sat = max > 0 ? (max - min) / max : 0
-      const xr = x / width
-
-      const cyan =
-        yr > 0.30 &&
-        g > 90 &&
-        b > 85 &&
-        g >= r &&
-        b >= r * 0.92
-
-      const foam =
-        yr > 0.42 &&
-        max > 165 &&
-        sat < 0.18 &&
-        g >= r * 0.96 &&
-        b >= r * 0.93
-
-      // Eski isometric su karesinin alt köşesi/çerçevesi.
-      const bottom = yr > 0.77
-      const outer =
-        yr > 0.58 &&
-        Math.abs(xr - 0.5) > (0.78 - yr) * 1.25 + 0.12
-      const border =
-        outer &&
-        max > 70 &&
-        sat < 0.35
-
-      if (cyan || foam || bottom || border) data[i + 3] = 0
+      const p = y * width + x
+      const i = p * 4
+      if (data[i + 3] <= 10) continue
+      const r = data[i], g = data[i + 1], b = data[i + 2]
+      const coolWater = g > 82 && b > 88 &&
+        g > r * 1.10 && b > r * 1.10 &&
+        b >= g * 0.75 && b <= g * 1.55
+      if (coolWater) candidate[p] = 1
     }
   }
 
-  // En büyük 4-komşulu alpha bileşenini bul.
-  const labels = new Int32Array(pixelCount)
-  const queue = new Int32Array(pixelCount)
-  let nextLabel = 0
-  let largestLabel = 0
-  let largestSize = 0
-
-  for (let start = 0; start < pixelCount; start++) {
-    const alpha = data[start * 4 + 3]
-    if (alpha <= 10 || labels[start] !== 0) continue
-
-    const label = ++nextLabel
-    let head = 0
-    let tail = 0
-    let size = 0
+  // Tek bir mavi pencere/çatı parçasını kesme: yalnızca geniş, bitişik
+  // cyan kümeleri sil. Bağımsız tekne/iskele bileşenleri tamamen korunur.
+  const minArea = Math.max(8, Math.ceil(count * 0.0025))
+  const minWidth = Math.max(3, Math.ceil(width * 0.11))
+  for (let start = 0; start < count; start++) {
+    if (!candidate[start] || visited[start]) continue
+    let head = 0, tail = 0
+    let minX = width, maxX = -1
     queue[tail++] = start
-    labels[start] = label
-
+    visited[start] = 1
     while (head < tail) {
       const p = queue[head++]
-      size++
       const x = p % width
       const y = Math.floor(p / width)
-
-      if (x > 0) {
-        const n = p - 1
-        if (labels[n] === 0 && data[n * 4 + 3] > 10) {
-          labels[n] = label
-          queue[tail++] = n
-        }
-      }
-      if (x + 1 < width) {
-        const n = p + 1
-        if (labels[n] === 0 && data[n * 4 + 3] > 10) {
-          labels[n] = label
-          queue[tail++] = n
-        }
-      }
-      if (y > 0) {
-        const n = p - width
-        if (labels[n] === 0 && data[n * 4 + 3] > 10) {
-          labels[n] = label
-          queue[tail++] = n
-        }
-      }
-      if (y + 1 < height) {
-        const n = p + width
-        if (labels[n] === 0 && data[n * 4 + 3] > 10) {
-          labels[n] = label
-          queue[tail++] = n
-        }
+      if (x < minX) minX = x
+      if (x > maxX) maxX = x
+      const neighbours = [
+        x > 0 ? p - 1 : -1,
+        x + 1 < width ? p + 1 : -1,
+        y > 0 ? p - width : -1,
+        y + 1 < height ? p + width : -1,
+      ]
+      for (const n of neighbours) {
+        if (n < 0 || visited[n] || !candidate[n]) continue
+        visited[n] = 1
+        queue[tail++] = n
       }
     }
-
-    if (size > largestSize) {
-      largestSize = size
-      largestLabel = label
-    }
-  }
-
-  if (largestLabel === 0) return data
-
-  for (let p = 0; p < pixelCount; p++) {
-    if (labels[p] !== largestLabel) data[p * 4 + 3] = 0
+    if (tail < minArea || maxX - minX + 1 < minWidth) continue
+    for (let k = 0; k < tail; k++) data[queue[k] * 4 + 3] = 0
   }
   return data
 }
