@@ -443,23 +443,8 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1, occupiedSl
   }
   updateRoads(divanLevel, occupiedSlotIds)
 
-  const pad = (
-    cx: number, cy: number, w: number, h: number,
-    fill: number, edge: number, fillAlpha = 0.72, edgeAlpha = 0.7,
-  ) => {
-    const d = diamond(cx, cy, w, h)
-    g.fillStyle(fill, fillAlpha); g.fillPoints(d, true)
-    g.lineStyle(2.2, edge, edgeAlpha); g.strokePoints(d, true)
-  }
-
-  const hall = slotById(HALL_SLOT_ID)!
-  // Normal şehir ekranı SLOT GÖSTERMEZ. Yalnızca Divanhane çevresinde
-  // çok hafif, doğal bir sıkıştırılmış toprak açıklığı kalır.
-  pad(
-    hall.screen.x, hall.screen.y + 1,
-    FOOTPRINT_DIAMOND_W * 1.02, FOOTPRINT_DIAMOND_W * 0.51,
-    0xb3a174, 0x8d7b58, 0.075, 0.08,
-  )
+  // Normal görünümde sabit arsa / Divanhane meydan plakası çizilmez.
+  // Kurulu yapıların doğal açıklığı Phaser bina katmanında dinamik üretilir.
 
   // 4) DEKOR. Dama gibi eşit serpme yerine yol kenarı KÜMELERİ + seyrek boş arazi.
   const occ = [...CITY_SLOTS, ...COAST_SLOTS, ...DEFENSE_SLOTS]
