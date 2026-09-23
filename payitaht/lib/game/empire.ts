@@ -137,7 +137,7 @@ export function foundColony(source: Empire, islandId: IslandId, now: number):
   const city = initialGame(now)
   // A colony is a fully playable, independent city. It starts with a compact
   // settlement and provisions, not with copies of the capital's resources.
-  city.resources = { gold: 250, wood: 250, stone: 120, knowledge: 0 }
+  city.resources = { gold: 250, wood: 250, stone: 160, knowledge: 0 }
   city.research = [] // New city's research and workforce are genuinely local.
   city.army.nakliye = 0
   city.log = [{ text: `${island.name} üzerinde yeni bir yerleşim kuruldu.`, time: now }]
