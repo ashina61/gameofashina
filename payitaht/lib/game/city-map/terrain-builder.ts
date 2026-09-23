@@ -243,9 +243,13 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1, occupiedSl
       // içinde başlayarak alpha'yı sıfıra indir; toprağın kalın yan yüzü yok.
       const diamond = Math.abs((x - w * 0.5) / (w * 0.49))
         + Math.abs((y - h * 0.435) / (h * 0.345))
-      const t = Phaser.Math.Clamp((0.96 - diamond) / 0.34, 0, 1)
-      const feather = t * t * (3 - 2 * t)
-      image.data[index] = Math.round(image.data[index] * feather)
+      // Geniş feather: uzak zoomda elmas sınırı veya ayrı yeşil ada kalmasın.
+      const oval = Math.hypot((x - w * 0.5) / (w * 0.50),
+        (y - h * 0.435) / (h * 0.355))
+      const diamondT = Phaser.Math.Clamp((0.92 - diamond) / 0.58, 0, 1)
+      const ovalT = Phaser.Math.Clamp((1.00 - oval) / 0.55, 0, 1)
+      const soft = (t: number) => t * t * (3 - 2 * t)
+      image.data[index] = Math.round(image.data[index] * soft(diamondT) * soft(ovalT))
     }
     context.putImageData(image, 0, 0)
     texture.refresh()
@@ -259,7 +263,7 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1, occupiedSl
   const shallow = [0x62, 0xae, 0xaa] as const
   const deep = [0x1a, 0x58, 0x66] as const
   const seaH = Math.max(1, wr.y + wr.h - seaLine)
-  const bandCount = 18
+  const bandCount = 96
   const bandH = seaH / bandCount
   for (let i = 0; i < bandCount; i++) {
     const t0 = i / Math.max(1, bandCount - 1)
@@ -313,7 +317,7 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1, occupiedSl
   const grassSurface = softSurfaceTexture('t_grass')
   const dirtSurface = softSurfaceTexture('t_dirt')
   const surfaceRnd = mulberry32(72831)
-  if (grassSurface && dirtSurface) for (let i = 0; i < 118; i++) {
+  if (grassSurface && dirtSurface) for (let i = 0; i < 175; i++) {
     const dirt = i % 9 === 0 || (i % 17 === 0)
     const key = dirt ? dirtSurface : grassSurface
     const size = TILE.w * (5.6 + surfaceRnd() * 4.0)
@@ -321,7 +325,7 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1, occupiedSl
     if (maxY <= wr.y) continue
     const x = wr.x + wr.w * (0.025 + surfaceRnd() * 0.95)
     const y = wr.y + (maxY - wr.y) * surfaceRnd()
-    const img = stamp(key, x, y, size, -895, 0.435, dirt ? 0.32 : 0.52)
+    const img = stamp(key, x, y, size, -895, 0.435, dirt ? 0.25 : 0.43)
     img?.setFlipX(surfaceRnd() > 0.5)
     img?.setAngle((surfaceRnd() - 0.5) * 18)
   }
@@ -339,16 +343,23 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1, occupiedSl
     wetLine.push(V(x, y + depth * 0.54))
     shoreBottom.push(V(x, y + depth))
   }
-  terrain.fillStyle(0xd0bc86, 0.96)
-  terrain.fillPoints([...shoreTop, ...[...shoreBottom].reverse()], true)
-  terrain.fillStyle(0xa99468, 0.36)
-  terrain.fillPoints([...wetLine, ...[...shoreBottom].reverse()], true)
-  terrain.lineStyle(2.4, 0xeee3c2, 0.42)
-  terrain.strokePoints(wetLine, false)
-  terrain.lineStyle(1.2, 0xffffff, 0.16)
-  terrain.strokePoints(shoreBottom, false)
-  terrain.lineStyle(2, 0x66794d, 0.22)
-  terrain.strokePoints(shoreTop, false)
+  // Örneklenen zikzak köşeleri spline ile yumuşat. Kıyı artık düz
+  // poligon dişleri değil, tutarlı ve hafif kıvrımlı tek bant gibi okunur.
+  const smoothShore = (points: Phaser.Math.Vector2[]) =>
+    new Phaser.Curves.Spline(points).getPoints(points.length * 4)
+  const smoothTop = smoothShore(shoreTop)
+  const smoothWet = smoothShore(wetLine)
+  const smoothBottom = smoothShore(shoreBottom)
+  terrain.fillStyle(0xd0bc86, 0.92)
+  terrain.fillPoints([...smoothTop, ...[...smoothBottom].reverse()], true)
+  terrain.fillStyle(0xa99468, 0.28)
+  terrain.fillPoints([...smoothWet, ...[...smoothBottom].reverse()], true)
+  terrain.lineStyle(2.2, 0xeee3c2, 0.38)
+  terrain.strokePoints(smoothWet, false)
+  terrain.lineStyle(1.2, 0xffffff, 0.12)
+  terrain.strokePoints(smoothBottom, false)
+  terrain.lineStyle(1.7, 0x66794d, 0.18)
+  terrain.strokePoints(smoothTop, false)
 
   // Kıyıda tek tek serpilmiş taş yerine seyrek KAYA KÜMELERİ.
   // Coast inşa slotlarının önü bilinçli olarak açık kalır.
@@ -378,19 +389,15 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1, occupiedSl
   // Sakin su yüzeyi: az sayıda geniş, düşük alfa boya izi.
   const water = scene.add.graphics().setDepth(-899)
   const waterRnd = mulberry32(8145)
-  for (let i = 0; i < 34; i++) {
+  for (let i = 0; i < 92; i++) {
     const x = wr.x + waterRnd() * wr.w
     const y = seaLine + TILE.h * 0.9 + waterRnd() * Math.max(TILE.h, wr.y + wr.h - seaLine - TILE.h)
     const w = TILE.w * (0.65 + waterRnd() * 1.65)
     const h = 0.9 + waterRnd() * 1.5
-    water.fillStyle(waterRnd() > 0.40 ? 0xdcebe4 : 0x8fc6c1, 0.035 + waterRnd() * 0.065)
+    water.fillStyle(waterRnd() > 0.40 ? 0xdcebe4 : 0x8fc6c1, 0.045 + waterRnd() * 0.085)
     water.fillEllipse(x, y, w, h)
   }
-  for (let i = 0; i < 4; i++) {
-    const x = wr.x + waterRnd() * wr.w
-    const y = seaLine + TILE.h * (1.9 + waterRnd() * 5.1)
-    stamp(i % 2 ? 't_water' : 't_water-deep', x, y, TILE.w * (5.2 + waterRnd() * 3.6), -898, 0.55, 0.055)
-  }
+  // Kare/su çerçevesi barındıran eski tile PNG'leri burada basılmaz.
 
   // Yakın plan mikro doku: kuru ot, çakıl, renk kırılması.
   const micro = scene.add.graphics().setDepth(-887)
