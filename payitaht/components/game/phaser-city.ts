@@ -352,13 +352,60 @@ export class CityScene extends Phaser.Scene {
       new Phaser.Math.Vector2(cx, cy + h / 2), new Phaser.Math.Vector2(cx - w / 2, cy)]
   }
 
+  /** Yalnızca KURULU kara binasında görünen, kenarı olmayan doğal açıklık. */
+  private addOccupiedClearing(id: BuildingId, slot: LiveSlot, depth: number) {
+    if (slot.zone === 'liman') return
+
+    let seed = (slot.index + 1) * 0x9e3779b1
+    for (let i = 0; i < id.length; i++) seed = Math.imul(seed ^ id.charCodeAt(i), 0x85ebca6b)
+    const rnd = () => {
+      seed |= 0
+      seed = Math.imul(seed ^ (seed >>> 16), 0x7feb352d)
+      seed = Math.imul(seed ^ (seed >>> 15), 0x846ca68b)
+      seed ^= seed >>> 16
+      return (seed >>> 0) / 4294967296
+    }
+
+    const g = this.add.graphics().setDepth(depth - 0.58)
+    const cx = slot.screen.x
+    const cy = slot.screen.y + TILE.h * 0.05
+    const scale = id === 'divan' ? 1.02 : 0.88
+    const rx = GROUND_TARGET_W * 0.46 * scale
+    const ry = GROUND_TARGET_W * 0.18 * scale
+    const points: Phaser.Math.Vector2[] = []
+
+    for (let i = 0; i < 14; i++) {
+      const a = (i / 14) * Math.PI * 2
+      const jitter = 0.82 + rnd() * 0.24
+      points.push(new Phaser.Math.Vector2(
+        cx + Math.cos(a) * rx * jitter,
+        cy + Math.sin(a) * ry * jitter,
+      ))
+    }
+
+    g.fillStyle(0xb59e6e, id === 'divan' ? 0.075 : 0.055)
+    g.fillPoints(points, true)
+
+    // Tek renk yama gibi görünmesin: çok hafif kuru toprak lekeleri.
+    for (let i = 0; i < 3; i++) {
+      const x = cx + (rnd() - 0.5) * rx * 0.85
+      const y = cy + (rnd() - 0.5) * ry * 0.75
+      g.fillStyle(i % 2 ? 0xd0bc8d : 0x8d7853, 0.020 + rnd() * 0.018)
+      g.fillEllipse(x, y, rx * (0.34 + rnd() * 0.22), ry * (0.25 + rnd() * 0.20))
+    }
+
+    this.pieces.push(g)
+  }
+
   private addBuilding(id: BuildingId, slot: LiveSlot, active: boolean) {
     const anc = this.anchor(slot)
     const level = this.state.buildings[id]
     let dispW = TILE.w * 2, dispH = TILE.h * 2
 
-    // Normal görünümde hazır platform yok. Sadece çok hafif bir temas gölgesi:
-    // bina araziye basıyor ama altına kare/elmas bir 'asset kaidesi' eklenmiyor.
+    // Boş slot görünmez; yalnızca kurulu yapının altında doğal açıklık oluşur.
+    this.addOccupiedClearing(id, slot, anc.baseY)
+
+    // Çok hafif temas gölgesi: doğal açıklığın üstünde yapıyı zemine bağlar.
     const shadow = this.add.graphics().setDepth(anc.baseY - 0.3)
     shadow.fillStyle(0x283021, 0.022)
     shadow.fillEllipse(anc.x + 1, anc.baseY - TILE.h * 0.18,
