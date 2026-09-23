@@ -460,7 +460,14 @@ export function cost(g: Game, id: BuildingId): Resources {
   return { gold: base, wood: Math.round(base * 1.2 * materialFactor),
     stone: Math.round(base * .75 * materialFactor), knowledge: 0 }
 }
-export function duration(g: Game, id: BuildingId) { return Math.round((20 + g.buildings[id] * 10) * (g.research.includes('architecture') ? .75 : 1)) }
+export function duration(g: Game, id: BuildingId) {
+  const level = g.buildings[id]
+  // Early-game timers remain unchanged; high levels become progressively
+  // longer, with distinct building curves instead of a linear universal timer.
+  const growth = level < 3 ? 1 : (BUILDING_GROWTH[id] / 1.25) ** (level - 2)
+  return Math.round((20 + level * 10) * growth *
+    (g.research.includes('architecture') ? .75 : 1))
+}
 export function logEvent(g: Game, text: string, time: number) { g.log = [{ text, time }, ...g.log].slice(0, 60) }
 export function advance(source: Game, now: number): Game {
   const g: Game = structuredClone(source)
