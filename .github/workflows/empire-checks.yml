@@ -44,4 +44,4 @@ jobs:
       - name: TypeScript
         run: pnpm exec tsc --noEmit
       - name: Existing city and new empire tests
-        run: pnpm exec tsx --test lib/game/engine.test.ts lib/game/empire.test.ts
+        run: pnpm exec tsx --test lib/game/engine.test.ts lib/game/empire.test.ts lib/game/academy-economy.test.ts

@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { ArrowUp, Hammer, Clock3, LockKeyhole, Check, BookOpen, ChevronRight, TreePine, Warehouse, Ruler, Users, UserRound, Minus, Plus as PlusIcon, House, HeartHandshake, TriangleAlert, Landmark, Swords, Ship, ShieldCheck, Handshake, Coins, FlaskConical, Compass, FlipHorizontal2, Move } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { CostDisplay, JobProgress } from './game-widgets'
-import { BUILDINGS, BUILDING_IDS, MAX_LEVEL, RESEARCH, RESEARCH_IDS, RESEARCH_BRANCHES, RESOURCE_IDS, RESOURCE_NAMES, UNITS, UNIT_IDS, WORKER_IDS, WORKERS_PER_LEVEL, activeJob, cargoCapacity, cityDefense, cost, duration, buildReason, power, rates, recruitReason, researchReason, idleWorkers, population, housing, contentment, soldiers, takesPlot, tradeCapacity, unhousedByUnrest, unitCost, unitDuration, wallDefense, workerCapacity, type BuildingId, type ResearchId, type UnitId, type WorkerId, type Game } from '@/lib/game/engine'
+import { BUILDINGS, BUILDING_IDS, MAX_LEVEL, RESEARCH, RESEARCH_IDS, RESEARCH_BRANCHES, RESOURCE_IDS, RESOURCE_NAMES, UNITS, UNIT_IDS, WORKER_IDS, WORKERS_PER_LEVEL, activeJob, cargoCapacity, cityDefense, cost, duration, buildReason, power, rates, recruitReason, researchReason, scientistCount, scientistUpkeepPerMinute, idleWorkers, population, housing, contentment, soldiers, takesPlot, tradeCapacity, unhousedByUnrest, unitCost, unitDuration, wallDefense, workerCapacity, type BuildingId, type ResearchId, type ResearchBranch, type UnitId, type WorkerId, type Game } from '@/lib/game/engine'
 import { buildingImage } from '@/lib/asset'
 import { activeCity, COLONY_COST, ISLANDS, type Empire, type IslandId } from '@/lib/game/empire'
 import type { Resource } from '@/lib/game/engine'
@@ -14,23 +14,52 @@ export function BuildingDetails({ game, id, onBuild, onFlip, onMove }: { game: G
   const active = activeJob(game)?.id === id ? activeJob(game) : null
   const queued = game.queue.findIndex(job => job.id === id)
   const max = MAX_LEVEL[id]
-  return <div className="building-details"><div className="building-preview"><div className="preview-halo" />{b.art ? <img src={buildingImage(id)} alt={`${b.name} mimari görünümü`} width={360} height={360} /> : <span className="preview-pending"><Hammer aria-hidden="true" /><small>Görsel hazırlanıyor</small></span>}<span>{level ? `SEVİYE ${level}` : 'YENİ YAPI'}</span></div><span className="eyebrow">{b.category}</span><p>{b.description}</p><div className="building-upgrade"><span>{level ? `Seviye ${level}` : 'Boş arsa'}</span><ArrowUp className="size-4" /><strong>{level >= max ? 'En yüksek seviye' : `Seviye ${level + 1}`}</strong></div>{active ? <JobProgress job={active} now={game.updatedAt} /> : level < max && <><div className="upgrade-cost"><span>Gerekli kaynaklar</span><CostDisplay value={cost(game, id)} /></div><div className="duration-row"><Clock3 className="size-4" /> {duration(game, id)} saniye <span>Prototip süresi</span></div></>}{queued > 0 && <p className="requirement"><Clock3 className="size-4" />İnşaat sırasında {queued + 1}. sırada bekliyor.</p>}{reason && !active && queued < 0 && <p className="requirement"><LockKeyhole className="size-4" />{reason}</p>}{level > 0 && takesPlot(id) && <div className="building-tools">{b.art && <Button variant="outline" size="sm" onClick={() => onFlip(id)}><FlipHorizontal2 data-icon="inline-start" />{game.flips.includes(id) ? 'Yönü geri çevir' : 'Çevir'}</Button>}{id !== 'divan' && <Button variant="outline" size="sm" onClick={() => onMove(id)}><Move data-icon="inline-start" />Taşı</Button>}</div>}<Button size="lg" className="w-full" disabled={!!reason} onClick={() => onBuild(id)}><Hammer data-icon="inline-start" />{active ? 'İnşaat devam ediyor' : level >= max ? 'Tamamen geliştirildi' : level ? 'Binayı yükselt' : 'İnşaata başla'}</Button></div>
+  const forecast = Array.from({ length: Math.min(4, max - level) }, (_, step) => {
+    const at = level + step
+    const projected: Game = { ...game, buildings: { ...game.buildings, [id]: at } }
+    return { level: at + 1, price: cost(projected, id), seconds: duration(projected, id) }
+  })
+  return <div className="building-details"><div className="building-preview"><div className="preview-halo" />{b.art ? <img src={buildingImage(id)} alt={`${b.name} mimari görünümü`} width={360} height={360} /> : <span className="preview-pending"><Hammer aria-hidden="true" /><small>Görsel hazırlanıyor</small></span>}<span>{level ? `SEVİYE ${level}` : 'YENİ YAPI'}</span></div><span className="eyebrow">{b.category}</span><p>{b.description}</p><div className="building-upgrade"><span>{level ? `Seviye ${level}` : 'Boş arsa'}</span><ArrowUp className="size-4" /><strong>{level >= max ? 'En yüksek seviye' : `Seviye ${level + 1}`}</strong></div>{active ? <JobProgress job={active} now={game.updatedAt} /> : level < max && <><div className="upgrade-cost"><span>Gerekli kaynaklar</span><CostDisplay value={cost(game, id)} /></div><div className="duration-row"><Clock3 className="size-4" /> {duration(game, id)} saniye <span>Prototip süresi</span></div></>}{forecast.length > 0 && <section className="building-cost-forecast">
+    <strong>Sonraki seviyelerin maliyeti</strong>
+    <p className="fine-print">Fiyatlar mevcut araştırma indirimlerini içerir. Sonraki yükseltmelerin ücreti, o günkü teknolojine göre yeniden hesaplanır.</p>
+    {forecast.map(item => <div key={item.level} className="building-forecast-row">
+      <strong>Sv. {item.level}</strong>
+      <span>{item.price.gold.toLocaleString('tr-TR')} akçe · {item.price.wood.toLocaleString('tr-TR')} kereste · {item.price.stone.toLocaleString('tr-TR')} taş</span>
+      <small>{Math.ceil(item.seconds / 60)} dk</small>
+    </div>)}
+  </section>}{queued > 0 && <p className="requirement"><Clock3 className="size-4" />İnşaat sırasında {queued + 1}. sırada bekliyor.</p>}{reason && !active && queued < 0 && <p className="requirement"><LockKeyhole className="size-4" />{reason}</p>}{level > 0 && takesPlot(id) && <div className="building-tools">{b.art && <Button variant="outline" size="sm" onClick={() => onFlip(id)}><FlipHorizontal2 data-icon="inline-start" />{game.flips.includes(id) ? 'Yönü geri çevir' : 'Çevir'}</Button>}{id !== 'divan' && <Button variant="outline" size="sm" onClick={() => onMove(id)}><Move data-icon="inline-start" />Taşı</Button>}</div>}<Button size="lg" className="w-full" disabled={!!reason} onClick={() => onBuild(id)}><Hammer data-icon="inline-start" />{active ? 'İnşaat devam ediyor' : level >= max ? 'Tamamen geliştirildi' : level ? 'Binayı yükselt' : 'İnşaata başla'}</Button></div>
 }
 export function BuildingList({ game, onSelect }: { game: Game; onSelect: (id: BuildingId) => void }) {
   return <div className="building-list">{BUILDING_IDS.map(id => <button key={id} className="building-list-item" onClick={() => onSelect(id)}>{BUILDINGS[id].art ? <img src={buildingImage(id)} alt="" width={88} height={88} /> : <span className="list-pending"><Hammer aria-hidden="true" /></span>}<span><span className="eyebrow">{BUILDINGS[id].category}</span><strong>{BUILDINGS[id].name}</strong><span>{game.buildings[id] ? `Seviye ${game.buildings[id]}${game.buildings[id] >= MAX_LEVEL[id] ? ' · Tamamlandı' : ' · Geliştirilebilir'}` : 'Boş arsa · Yeni yapı'}</span></span><ChevronRight className="size-4" /></button>)}</div>
 }
-const researchIcons: Record<ResearchId, typeof TreePine> = {
+const researchIcons: Partial<Record<ResearchId, typeof TreePine>> = {
   tools: TreePine, storage: Warehouse, ticaret: Coins, architecture: Ruler,
   alimler: FlaskConical, celik: Swords, istihkam: ShieldCheck, pusula: Compass, yelken: Ship,
 }
 export function ResearchPanel({ game, onResearch }: { game: Game; onResearch: (id: ResearchId) => void }) {
-  return <div className="research-panel"><div className="research-intro"><BookOpen className="size-5" /><span><strong>Geleceğin ilimle şekillenir.</strong><p>Medresede keşfet. Dört dalda şehrine kalıcı güç kazandır.</p></span></div>{game.study && <JobProgress job={game.study} now={game.updatedAt} />}{RESEARCH_BRANCHES.map(branch => {
+  const [focus, setFocus] = useState<ResearchBranch | 'all'>('all')
+  const scientists = scientistCount(game)
+  const production = rates(game).knowledge
+  return <div className="research-panel">
+    <div className="research-intro"><BookOpen className="size-5" /><span>
+      <strong>Medrese / Akademi</strong>
+      <p>{scientists}/{game.buildings.medrese * WORKERS_PER_LEVEL} âlim ·
+        +{production.toFixed(1)} ilim/dk · {(scientistUpkeepPerMinute(game) * 60).toFixed(0)} akçe/saat bakım.</p>
+      <p>Âlim sayısını Halk panelinden ayarlayabilirsin. Dört araştırma kolu yeni yapı, ekonomi ve askerî bonuslar açar.</p>
+    </span></div>
+    {game.study && <JobProgress job={game.study} now={game.updatedAt} />}
+    <div className="research-branch-tabs" role="group" aria-label="Araştırma dalları">
+      <button type="button" aria-pressed={focus === 'all'} onClick={() => setFocus('all')}>Tümü</button>
+      {RESEARCH_BRANCHES.map(branch => <button type="button" key={branch.key}
+        aria-pressed={focus === branch.key} onClick={() => setFocus(branch.key)}>{branch.title}</button>)}
+    </div>
+    {RESEARCH_BRANCHES.filter(branch => focus === 'all' || focus === branch.key).map(branch => {
     const ids = RESEARCH_IDS.filter(id => RESEARCH[id].branch === branch.key)
     const doneCount = ids.filter(id => game.research.includes(id)).length
     return <section className="research-branch" key={branch.key}>
       <div className="research-branch-top"><h3>{branch.title}</h3><span>{doneCount}/{ids.length}</span></div>
       {ids.map(id => {
-        const r = RESEARCH[id], reason = researchReason(game, id), done = game.research.includes(id), Icon = researchIcons[id]
+        const r = RESEARCH[id], reason = researchReason(game, id), done = game.research.includes(id), Icon = researchIcons[id] ?? BookOpen
         return <article className="research-card" key={id}><div className="research-card-top"><span className="research-icon"><Icon /></span><span><h3>{r.name}</h3></span>{done && <Check className="size-5" />}</div><p>{r.description}</p><div className="research-bottom"><CostDisplay value={{ knowledge: r.cost }} /><span><Clock3 className="size-3" /> {r.duration} sn</span><Button size="sm" variant={done ? 'secondary' : 'default'} disabled={!!reason} onClick={() => onResearch(id)}>{done ? 'Keşfedildi' : game.study?.id === id ? 'Sürüyor' : 'Araştır'}</Button></div>{reason && !done && <p className="fine-print">{reason}</p>}</article>
       })}
     </section>
@@ -291,7 +320,7 @@ export function ArmyPanel({ game, onRecruit, onBuild }: { game: Game; onRecruit:
               {unit.cargo > 0 && <span title="Taşıma"><Warehouse className="size-3" />{unit.cargo}</span>}
             </div>
             <div className="unit-bottom">
-              <CostDisplay value={unitCost(id, batch)} />
+              <CostDisplay value={unitCost(id, batch, game)} />
               <span><Clock3 className="size-3" /> {unitDuration(game, id, batch)} sn</span>
               <Button size="sm" disabled={!!reason} onClick={() => onRecruit(id, batch)}>{batch} eğit</Button>
             </div>
