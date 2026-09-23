@@ -96,7 +96,7 @@ function edgeKey(a: string, b: string) {
   return a < b ? `${a}|${b}` : `${b}|${a}`
 }
 
-function arterialEdgeKeys(): Set<string> {
+export function roadEdgeKeysForTargets(targets: Iterable<string>): Set<string> {
   const adj = new Map<string, { to: string; key: string }[]>()
   const add = (from: string, to: string) => {
     const arr = adj.get(from) ?? []
@@ -109,10 +109,10 @@ function arterialEdgeKeys(): Set<string> {
     add(e.to, e.from)
   }
 
+  // Tek bir BFS ağacı: aynı hedeflere her render'da farklı rota üretmez.
   const parent = new Map<string, { node: string; key: string }>()
   const seen = new Set<string>([HALL_SLOT_ID])
   const queue = [HALL_SLOT_ID]
-
   for (let qi = 0; qi < queue.length; qi++) {
     const node = queue[qi]
     for (const next of adj.get(node) ?? []) {
@@ -123,17 +123,26 @@ function arterialEdgeKeys(): Set<string> {
     }
   }
 
-  const arterial = new Set<string>()
-  for (const target of COAST_SLOTS.map(s => s.id)) {
+  // Görsel yol ağı yalnızca Divanhane -> hedef yollarının birleşimidir.
+  // Böylece boş slota giden dangling spur çizilmez.
+  const keys = new Set<string>()
+  for (const target of targets) {
+    if (target === HALL_SLOT_ID) continue
     let node = target
-    while (node !== HALL_SLOT_ID) {
+    const guard = new Set<string>()
+    while (node !== HALL_SLOT_ID && !guard.has(node)) {
+      guard.add(node)
       const p = parent.get(node)
       if (!p) break
-      arterial.add(p.key)
+      keys.add(p.key)
       node = p.node
     }
   }
-  return arterial
+  return keys
+}
+
+function arterialEdgeKeys(): Set<string> {
+  return roadEdgeKeysForTargets(COAST_SLOTS.map(s => s.id))
 }
 
 /** Bir yönde, slot elmasının DIŞ kenarına çıkan nokta. Yol bina altına girmez. */
@@ -412,15 +421,20 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1, occupiedSl
     lastRoadKey = roadKey
     roads.clear()
 
-    // Sistem geometrisi saklı: ana omurga hafifçe kalır, yan sokak yalnızca
-    // kurulu bir binaya gerçekten hizmet ediyorsa görünür.
-    const visibleCurves = curves.filter(r =>
-      r.kind === 'avenue' || active.has(r.from) || active.has(r.to),
-    )
+    // Yalnızca Divanhane'den GERÇEKTEN kurulu slotlara ulaşan yol ağacı.
+    // Boş parsellerin komşu yolları artık sırf yakında bina var diye görünmez.
+    const visibleKeys = roadEdgeKeysForTargets(active)
+    const hasHarbour = COAST_SLOTS.some(s => active.has(s.id))
+    const visibleCurves = curves.filter(r => {
+      const key = edgeKey(r.from, r.to)
+      if (r.kind !== 'quay') return visibleKeys.has(key)
+      if (!hasHarbour) return false
+      const cityId = r.from.startsWith('coast_') ? r.to : r.from
+      return visibleKeys.has(key) || active.has(cityId)
+    })
 
     // Kıyı promenadı bir slot göstergesi değildir; ilk liman/tersane
     // kurulunca dünyaya doğal biçimde eklenir.
-    const hasHarbour = COAST_SLOTS.some(s => active.has(s.id))
     if (hasHarbour) {
       const quayStyle = roadStyleFor('quay', level)
       roads.lineStyle(TILE.w * 0.25, 0x5e5548, 0.20)
