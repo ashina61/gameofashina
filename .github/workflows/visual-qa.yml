@@ -6,7 +6,16 @@ on:
   push:
     branches:
       - claude/ancient-city-phaser-game-r9e0qu
-      - chatgpt/mobile-visual-review
+      - 'chatgpt/painted-*'
+  pull_request:
+    branches:
+      - claude/ancient-city-phaser-game-r9e0qu
+    paths:
+      - 'payitaht/components/game/**'
+      - 'payitaht/lib/game/city-map/**'
+      - 'payitaht/public/images/game/**'
+      - 'payitaht/tools/visual-qa.cjs'
+      - '.github/workflows/visual-qa.yml'
     paths:
       - 'payitaht/components/game/**'
       - 'payitaht/lib/game/city-map/**'
