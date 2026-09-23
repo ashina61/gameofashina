@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { MoonStar, Settings2, Bell, Crown, House, Hammer, BookOpen, ShieldCheck, Download, RotateCcw, HardDrive, WifiOff, Users, Sprout, Swords, Skull, X, Check } from 'lucide-react'
+import { MoonStar, Settings2, Bell, Crown, House, Hammer, BookOpen, Ship, ScrollText, ShieldCheck, Download, RotateCcw, HardDrive, WifiOff, Users, Sprout, Swords, Skull, X, Check } from 'lucide-react'
 import { toast } from 'sonner'
 import { Toaster } from '@/components/ui/sonner'
 import { Button } from '@/components/ui/button'
@@ -25,7 +25,14 @@ type Panel = 'build' | 'research' | 'journal' | 'settings' | 'economy' | 'object
  * Referansta alt menu ekranin yarisi kadar, ORTADA duran kucuk bir hap.
  * Gunluk, zaten bildirim dugmesi olan can kulaginin arkasina tasindi.
  */
-const navigation = [{ id: null, label: 'Şehrim', icon: House }, { id: 'build', label: 'İnşa', icon: Hammer }, { id: 'people', label: 'Halk', icon: Users }, { id: 'research', label: 'İlim', icon: BookOpen }] as const
+const navigation = [
+  { id: null, label: 'Şehir', icon: House },
+  { id: 'build', label: 'İnşa', icon: Hammer },
+  { id: 'army', label: 'Kışla', icon: Swords },
+  { id: 'research', label: 'Araştırma', icon: BookOpen },
+  { id: 'cities', label: 'Ticaret', icon: Ship },
+  { id: 'objectives', label: 'Görevler', icon: ScrollText },
+] as const
 export default function GameShell() {
   const { game, empire, command, selectCity, colonize, sendCargo, warning, reset } = useGame()
   const { install, installAvailable, installed, offlineReady } = usePwa()
@@ -85,6 +92,7 @@ export default function GameShell() {
   function target() { if (!game) return; if (game.buildings.divan < 2) openBuilding('divan'); else if (!game.buildings.medrese) openBuilding('medrese'); else openPanel('research') }
   const titles: Record<Exclude<Panel, null>, string> = { build: 'Şehrini büyüt', research: 'İlim ve keşif', journal: 'Şehir günlüğü', settings: 'Oyun ayarları', economy: 'Hazine ve üretim', objectives: 'Bir şehrin doğuşu', people: 'Şehrin halkı', cities: 'Şehirlerin', army: 'Ordu ve donanma', diplomacy: 'Diplomasi' }
   return <main className="game-shell">
+    <div className="imperial-brand" aria-hidden="true">Payitaht</div>
     {/*
       * OYUNCU KARTI, sol ustte yuzer.
       *
