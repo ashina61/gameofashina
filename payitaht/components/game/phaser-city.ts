@@ -272,10 +272,11 @@ export class CityScene extends Phaser.Scene {
     }
   }
 
-  private occupiedSlotIds(game: Game) {
+  private occupiedSlotIds(game: Game, moving: BuildingId | null = null, movePlot: number | null = null) {
     const ids: string[] = []
     for (const id of BUILDING_IDS) {
-      const at = game.placement[id]
+      // Taşıma önizlemesinde gerçek konum değil seçili hedef görünür.
+      const at = id === moving && movePlot !== null ? movePlot : game.placement[id]
       if (at === null || at === undefined) continue
       const slot = liveSlotByIndex(at)
       if (slot) ids.push(slot.slotId)
@@ -287,7 +288,7 @@ export class CityScene extends Phaser.Scene {
   sync(game: Game, showLabels: boolean, placing: boolean, moving: BuildingId | null = null, movePlot: number | null = null) {
     this.state = game
     if (!this.built) return
-    this.terrainRoads?.updateRoads(game.buildings.divan, this.occupiedSlotIds(game))
+    this.terrainRoads?.updateRoads(game.buildings.divan, this.occupiedSlotIds(game, moving, movePlot))
     const next = `${visualSignature(game)}|${showLabels}|${placing}|${moving ?? '-'}|${movePlot ?? '-'}`
     if (next === this.signature) return
     this.showLabels = showLabels
@@ -317,6 +318,10 @@ export class CityScene extends Phaser.Scene {
     }
     if (best !== null && best !== this.movePlot) {
       this.movePlot = best
+      this.terrainRoads?.updateRoads(
+        this.state.buildings.divan,
+        this.occupiedSlotIds(this.state, this.moving, best),
+      )
       this.redraw()
       this.events$.onMovePlot(best)
     }
