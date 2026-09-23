@@ -4,7 +4,7 @@ import { Coins, Trees, Mountain, BookOpen, Hammer, Check, ArrowUpRight, Sparkles
 import { Progress } from '@/components/ui/progress'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
-import { BUILDINGS, RESEARCH, RESOURCE_IDS, RESOURCE_NAMES, OBJECTIVES, activeJob, rates, capacity, fullResources, nearlyFullResources, formatNumber, soldiers, timeLeft, objectiveDone, type Game, type Resource, type Job, type BuildingId, type ResearchId } from '@/lib/game/engine'
+import { BUILDINGS, RESEARCH, RESOURCE_IDS, RESOURCE_NAMES, OBJECTIVES, activeJob, rates, capacity, fullResources, nearlyFullResources, formatNumber, population, soldiers, timeLeft, objectiveDone, type Game, type Resource, type Job, type BuildingId, type ResearchId } from '@/lib/game/engine'
 
 export const resourceIcons = { gold: Coins, wood: Trees, stone: Mountain, knowledge: BookOpen }
 export function ResourceBar({ game, onSelect }: { game: Game; onSelect: () => void }) {
@@ -22,11 +22,14 @@ export function ResourceBar({ game, onSelect }: { game: Game; onSelect: () => vo
      */
     return <button key={id} className={cn(`resource resource-${id}`, isFull && 'resource-full', isNearly && 'resource-nearly')} onClick={onSelect}
       aria-label={`${RESOURCE_NAMES[id]}: ${formatNumber(game.resources[id])}, dakikada ${formatNumber(production[id])}${isFull ? '. Ambar dolu, üretim boşa gidiyor' : isNearly ? '. Ambar dolmak üzere' : ''}`}>
-      <span className="resource-symbol">{isFull ? <TriangleAlert aria-hidden="true" /> : <Icon aria-hidden="true" />}</span>
+      <span className="resource-symbol">{isFull ? <TriangleAlert aria-hidden="true" /> : <Icon aria-hidden="true" />}{!isFull && <img src={`/images/game/ui/${id}.webp`} alt="" loading="eager" onError={event => { event.currentTarget.style.display = 'none' }} />}</span>
       {/* Uretim TAM SAYIYA yuvarlanir: yuvarlanmamis ondalik "+16.3637484..." gibi tasiyordu. */}
       <span className="resource-copy"><span className="resource-name">{RESOURCE_NAMES[id]}</span><strong>{formatNumber(game.resources[id])}</strong><span className="resource-rate">{isFull ? 'Ambar dolu' : <>+{formatNumber(production[id])}<span>/dk</span></>}</span></span>
     </button>
-  })}</section>
+  })}<button className="resource resource-population" onClick={onSelect} aria-label={`Nüfus: ${formatNumber(population(game))}`}>
+    <span className="resource-symbol"><Landmark aria-hidden="true" /><img src="/images/game/ui/population.webp" alt="" loading="eager" onError={event => { event.currentTarget.style.display = 'none' }} /></span>
+    <span className="resource-copy"><span className="resource-name">Nüfus</span><strong>{formatNumber(population(game))}</strong><span className="resource-rate">Halk</span></span>
+  </button></section>
 }
 export function CostDisplay({ value }: { value: Partial<Record<Resource, number>> }) {
   return <div className="cost-display">{RESOURCE_IDS.filter(id => (value[id] ?? 0) > 0).map(id => { const Icon = resourceIcons[id]; return <span key={id} title={RESOURCE_NAMES[id]}><Icon aria-hidden="true" /><span className="sr-only">{RESOURCE_NAMES[id]}: </span>{formatNumber(value[id] ?? 0)}</span> })}</div>
