@@ -18,6 +18,7 @@ import { TILE, COAST_SLOTS, HALL_SLOT_ID, slotById } from '@/lib/game/city-map'
 import { LIVE_SLOTS, liveSlotByIndex, type LiveSlot } from '@/lib/game/city-map/live-adapter'
 import { buildCityTerrain, preloadTerrain, cityWorldRect, cityContentRect } from '@/lib/game/city-map/terrain-builder'
 import { assetById, groundScale, GROUND_TARGET_W, BUILDING_RENDER_SCALE } from '@/lib/game/city-map/building-assets'
+import { cleanCoastSpriteRgba } from '@/lib/game/city-map/coast-asset-cleaner'
 import { visualSignature } from '@/lib/game/city-render'
 import { BUILDINGS, BUILDING_IDS, activeJob, zoneOf, type BuildingId, type Game } from '@/lib/game/engine'
 import { buildingImage } from '@/lib/asset'
@@ -226,6 +227,36 @@ export class CityScene extends Phaser.Scene {
     return base * (presentation[id] ?? 0.90)
   }
 
+  private textureKeyForBuilding(id: BuildingId) {
+    if (id !== 'liman' && id !== 'tersane') return id
+    const cleanKey = id + '__world'
+    if (this.textures.exists(cleanKey)) return cleanKey
+    if (!this.textures.exists(id)) return id
+
+    try {
+      const source = this.textures.get(id).getSourceImage() as CanvasImageSource & {
+        width: number
+        height: number
+      }
+      if (!source?.width || !source?.height) return id
+
+      const texture = this.textures.createCanvas(cleanKey, source.width, source.height)
+      if (!texture) return id
+      const ctx = texture.getContext()
+      ctx.clearRect(0, 0, source.width, source.height)
+      ctx.drawImage(source, 0, 0)
+
+      const image = ctx.getImageData(0, 0, source.width, source.height)
+      cleanCoastSpriteRgba(image.data, source.width, source.height)
+      ctx.putImageData(image, 0, 0)
+      texture.refresh()
+      return cleanKey
+    } catch {
+      if (this.textures.exists(cleanKey)) this.textures.remove(cleanKey)
+      return id
+    }
+  }
+
   private occupiedSlotIds(game: Game) {
     const ids: string[] = []
     for (const id of BUILDING_IDS) {
@@ -320,7 +351,8 @@ export class CityScene extends Phaser.Scene {
     this.pieces.push(shadow)
 
     if (BUILDINGS[id].art && this.textures.exists(id)) {
-      const img = this.add.image(anc.x, anc.baseY, id).setOrigin(0.5, 1)
+      const textureKey = this.textureKeyForBuilding(id)
+      const img = this.add.image(anc.x, anc.baseY, textureKey).setOrigin(0.5, 1)
       const scale = this.scaleFor(id, img.width)
       img.setScale(scale).setDepth(anc.baseY)
       // Bütün bina PNG'lerine aynı hafif sıcak ton: farklı üretimlerden gelen
