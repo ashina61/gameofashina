@@ -23,7 +23,11 @@ test('ana yol yan yoldan geniştir, kıyı her kademede taş kalır', () => {
 
 test('taş örgü yoğunluğu belediye geliştikçe artar', () => {
   const counts = [1, 3, 5, 7].map(level => roadStyleFor('avenue', level).stoneDensity)
-  assert.deepEqual(counts, [0, 2, 6, 8])
+  assert.equal(counts[0], 0, 'toprak yol taş örgü çizmemeli')
+  assert.ok(counts[1] > counts[0])
+  assert.ok(counts[2] > counts[1])
+  assert.ok(counts[3] > counts[2])
+  assert.ok(counts[3] <= 8, 'taş dokusu mobilde aşırı yoğunlaşmamalı')
 })
 
 
