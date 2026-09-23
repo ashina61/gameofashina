@@ -129,7 +129,10 @@ export function foundColony(source: Empire, islandId: IslandId, now: number):
     return { empire, error: 'Başkent gemileri nakliyede; dönüşlerini bekle.' }
   }
   for (const [resource, amount] of Object.entries(COLONY_COST) as [keyof typeof COLONY_COST, number][]) {
-    if (capital.resources[resource] < amount) return { empire, error: `Koloni için ${amount} ${resource} gerekli.` }
+    if (capital.resources[resource] < amount) {
+      const resourceName = { gold: 'akçe', wood: 'kereste', stone: 'taş' }[resource]
+      return { empire, error: `Koloni için ${amount} ${resourceName} gerekli.` }
+    }
   }
   for (const [resource, amount] of Object.entries(COLONY_COST) as [keyof typeof COLONY_COST, number][]) {
     capital.resources[resource] -= amount
