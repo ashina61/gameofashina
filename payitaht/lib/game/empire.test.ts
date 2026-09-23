@@ -1,6 +1,6 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { execute, initialGame, parseSave } from './engine'
+import { execute, freePlots, initialGame, parseSave } from './engine'
 import {
   activeCity, advanceEmpire, COLONY_COST, foundColony, initialEmpire,
   ISLANDS, parseEmpire, shipResources,
@@ -11,7 +11,9 @@ function preparedEmpire() {
   const e = initialEmpire(now)
   const capital = e.cities[0].game
   capital.buildings.saray = 2
+  capital.placement.saray = freePlots(capital, 'sehir')[0]
   capital.buildings.liman = 1
+  capital.placement.liman = freePlots(capital, 'liman')[0]
   capital.army.nakliye = 4
   capital.resources = { gold: 3000, wood: 3000, stone: 2500, knowledge: 700 }
   return e
