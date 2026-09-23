@@ -219,12 +219,19 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1, occupiedSl
   // 1) TABAN — karo dışında hiçbir koyu boşluk kalmasın.
   const g0 = scene.add.graphics().setDepth(-1000)
   g0.fillStyle(0x9aa46b, 1); g0.fillRect(wr.x, wr.y, wr.w, wr.h)
-  // Deniz tek keskin iki renk BLOK değil; sığdan derine kademeli ton.
-  const waterBands = [0x5aa9a2, 0x4b9b98, 0x3e8c8d, 0x317c81, 0x276e75, 0x1d6068, 0x17545a]
+  // Deniz 7 belirgin şerit yerine çok daha sık, yumuşak sığ->derin geçiş.
+  const shallow = [0x62, 0xae, 0xaa] as const
+  const deep = [0x1a, 0x58, 0x66] as const
   const seaH = Math.max(1, wr.y + wr.h - seaLine)
-  const bandH = seaH / waterBands.length
-  for (let i = 0; i < waterBands.length; i++) {
-    g0.fillStyle(waterBands[i], 1)
+  const bandCount = 18
+  const bandH = seaH / bandCount
+  for (let i = 0; i < bandCount; i++) {
+    const t0 = i / Math.max(1, bandCount - 1)
+    const t = t0 * t0 * (3 - 2 * t0)
+    const r = Math.round(shallow[0] + (deep[0] - shallow[0]) * t)
+    const g = Math.round(shallow[1] + (deep[1] - shallow[1]) * t)
+    const b = Math.round(shallow[2] + (deep[2] - shallow[2]) * t)
+    g0.fillStyle((r << 16) | (g << 8) | b, 1)
     g0.fillRect(wr.x, seaLine + i * bandH, wr.w, bandH + 2)
   }
 
@@ -290,8 +297,10 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1, occupiedSl
   terrain.fillPoints([...shoreTop, ...[...shoreBottom].reverse()], true)
   terrain.fillStyle(0xa99468, 0.36)
   terrain.fillPoints([...wetLine, ...[...shoreBottom].reverse()], true)
-  terrain.lineStyle(4, 0xe6d8ad, 0.50)
+  terrain.lineStyle(2.4, 0xeee3c2, 0.42)
   terrain.strokePoints(wetLine, false)
+  terrain.lineStyle(1.2, 0xffffff, 0.16)
+  terrain.strokePoints(shoreBottom, false)
   terrain.lineStyle(2, 0x66794d, 0.22)
   terrain.strokePoints(shoreTop, false)
 
@@ -320,21 +329,21 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1, occupiedSl
     }
   }
 
-  // Su artık karo değil: iki tonlu taban üstünde yatay/kıvrımlı köpük izleri.
+  // Sakin su yüzeyi: az sayıda geniş, düşük alfa boya izi.
   const water = scene.add.graphics().setDepth(-899)
   const waterRnd = mulberry32(8145)
-  for (let i = 0; i < 68; i++) {
+  for (let i = 0; i < 34; i++) {
     const x = wr.x + waterRnd() * wr.w
-    const y = seaLine + TILE.h * 0.8 + waterRnd() * Math.max(TILE.h, wr.y + wr.h - seaLine - TILE.h)
-    const w = TILE.w * (0.35 + waterRnd() * 1.35)
-    const h = 1.2 + waterRnd() * 2.2
-    water.fillStyle(waterRnd() > 0.35 ? 0xd3e8df : 0x8dc6c3, 0.055 + waterRnd() * 0.11)
+    const y = seaLine + TILE.h * 0.9 + waterRnd() * Math.max(TILE.h, wr.y + wr.h - seaLine - TILE.h)
+    const w = TILE.w * (0.65 + waterRnd() * 1.65)
+    const h = 0.9 + waterRnd() * 1.5
+    water.fillStyle(waterRnd() > 0.40 ? 0xdcebe4 : 0x8fc6c1, 0.035 + waterRnd() * 0.065)
     water.fillEllipse(x, y, w, h)
   }
-  for (let i = 0; i < 7; i++) {
+  for (let i = 0; i < 4; i++) {
     const x = wr.x + waterRnd() * wr.w
-    const y = seaLine + TILE.h * (1.6 + waterRnd() * 5.4)
-    stamp(i % 2 ? 't_water' : 't_water-deep', x, y, TILE.w * (4.5 + waterRnd() * 3), -898, 0.55, 0.09)
+    const y = seaLine + TILE.h * (1.9 + waterRnd() * 5.1)
+    stamp(i % 2 ? 't_water' : 't_water-deep', x, y, TILE.w * (5.2 + waterRnd() * 3.6), -898, 0.55, 0.055)
   }
 
   // Yakın plan mikro doku: kuru ot, çakıl, renk kırılması.
