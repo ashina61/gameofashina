@@ -48,3 +48,24 @@ test('konut gibi platform sorunu olmayan assette alpha değiştirilmez', () => {
   normalizeBuildingSpriteRgba('konut', data, 2, 2)
   assert.deepEqual([data[3], data[7], data[11], data[15]], [255, 255, 255, 255])
 })
+
+
+test('farklı kırmızı çatılar ortak terracotta paletine yaklaşır', () => {
+  const a = new Uint8ClampedArray([230, 100, 50, 255])
+  const b = new Uint8ClampedArray([170, 70, 35, 255])
+
+  normalizeBuildingSpriteRgba('konut', a, 1, 1)
+  normalizeBuildingSpriteRgba('konut', b, 1, 1)
+
+  const distBefore = Math.abs(230 - 170) + Math.abs(100 - 70) + Math.abs(50 - 35)
+  const distAfter = Math.abs(a[0] - b[0]) + Math.abs(a[1] - b[1]) + Math.abs(a[2] - b[2])
+  assert.ok(distAfter < distBefore, 'çatı tonları birbirine yaklaşmalı')
+})
+
+test('çok koyu gölgeler biraz açılır ama alpha korunur', () => {
+  const data = new Uint8ClampedArray([35, 30, 25, 255])
+  normalizeBuildingSpriteRgba('ambar', data, 1, 1)
+  assert.ok(data[0] > 35)
+  assert.ok(data[1] > 30)
+  assert.equal(data[3], 255)
+})
