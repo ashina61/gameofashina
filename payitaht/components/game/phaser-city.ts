@@ -205,8 +205,25 @@ export class CityScene extends Phaser.Scene {
   /** Bir binanın slottan bağımsız ölçeği (zemin temasına göre). */
   private scaleFor(id: BuildingId, imgW: number) {
     const a = assetById(id)
-    // liman/tersane de kara binalarıyla aynı görsel küçültmeyi kullanır.
-    return a ? groundScale(imgW, a) : (GROUND_TARGET_W * BUILDING_RENDER_SCALE) / (imgW * 0.8)
+    const base = a ? groundScale(imgW, a) : (GROUND_TARGET_W * BUILDING_RENDER_SCALE) / (imgW * 0.8)
+    // Assetlerin bbox/kaide oranları aynı değil. Tek tip dünya ölçeğini korurken
+    // görsel olarak taşan yapıları biraz daha geri çekeriz.
+    const presentation: Partial<Record<BuildingId, number>> = {
+      divan: 0.96,
+      saray: 0.88,
+      medrese: 0.88,
+      kisla: 0.82,
+      carsi: 0.92,
+      ambar: 0.92,
+      hamam: 0.88,
+      konut: 0.94,
+      kereste: 0.90,
+      tas: 0.78,
+      elcilik: 0.92,
+      liman: 0.72,
+      tersane: 0.72,
+    }
+    return base * (presentation[id] ?? 0.90)
   }
 
   private occupiedSlotIds(game: Game) {
@@ -297,15 +314,18 @@ export class CityScene extends Phaser.Scene {
     // Normal görünümde hazır platform yok. Sadece çok hafif bir temas gölgesi:
     // bina araziye basıyor ama altına kare/elmas bir 'asset kaidesi' eklenmiyor.
     const shadow = this.add.graphics().setDepth(anc.baseY - 0.3)
-    shadow.fillStyle(0x283021, 0.045)
-    shadow.fillEllipse(anc.x + 1, anc.baseY - TILE.h * 0.20,
-      GROUND_TARGET_W * 0.30, GROUND_TARGET_W * 0.065)
+    shadow.fillStyle(0x283021, 0.022)
+    shadow.fillEllipse(anc.x + 1, anc.baseY - TILE.h * 0.18,
+      GROUND_TARGET_W * 0.24, GROUND_TARGET_W * 0.048)
     this.pieces.push(shadow)
 
     if (BUILDINGS[id].art && this.textures.exists(id)) {
       const img = this.add.image(anc.x, anc.baseY, id).setOrigin(0.5, 1)
       const scale = this.scaleFor(id, img.width)
       img.setScale(scale).setDepth(anc.baseY)
+      // Bütün bina PNG'lerine aynı hafif sıcak ton: farklı üretimlerden gelen
+      // beyaz/soğuk farklarını bastırır, çizimi terrain paletine yaklaştırır.
+      img.setTint(0xfff5e8)
       img.setFlipX(this.state.flips.includes(id))
       img.setAlpha(active ? 0.82 : 1) // inşaat sürerken hafif soluk
       dispW = img.width * scale; dispH = img.height * scale
@@ -323,9 +343,18 @@ export class CityScene extends Phaser.Scene {
     hit.on('pointerup', (p: Phaser.Input.Pointer) => { if (isTap(p) && !this.moving) this.events$.onBuilding(id) })
     this.pieces.push(hit)
 
-    // Seviye rozeti (+ inşaat sürerken vurgulu).
-    this.pieces.push(this.makeBadge(anc.x + dispW * 0.21, anc.baseY - TILE.h * 0.46, level, anc.baseY + 0.4, active))
-    if (this.showLabels) this.pieces.push(this.makeLabel(anc.x, anc.baseY + TILE.h * 1.2, BUILDINGS[id].name, anc.baseY + 0.5, active))
+    // Normal şehir görünümünde UI bina sanatının üstüne binmez.
+    // Seviye rozeti yalnızca etiketler açıldığında veya inşaat aktifken görünür.
+    if (this.showLabels || active) {
+      this.pieces.push(this.makeBadge(
+        anc.x + dispW * 0.18, anc.baseY - TILE.h * 0.38,
+        level, anc.baseY + 0.4, active,
+      ))
+    }
+    if (this.showLabels) this.pieces.push(this.makeLabel(
+      anc.x, anc.baseY + TILE.h * 0.92,
+      BUILDINGS[id].name, anc.baseY + 0.5, active,
+    ))
   }
 
   /** BOŞ ARSA: normal şehir görünümünde yalnızca zemin görünür.
