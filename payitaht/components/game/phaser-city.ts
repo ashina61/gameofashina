@@ -243,7 +243,12 @@ export class CityScene extends Phaser.Scene {
       // Kaynak assetler gereğinden fazla mikro detaylı. Aynı ekran boyunu
       // koruyarak world texture'ı daha düşük raster çözünürlükte üretmek,
       // mobilde daha painterly ve daha tutarlı bir doku verir.
-      const rasterScale = 0.68
+      // V2 ressamlık asset paketi 600px genişliğinde, gerçek alfa ile kırpılmış
+      // WebP dosyalarıdır. Eski 1000px+ seti yumuşatılırken yeni resimlere ikinci
+      // kez renk filtresi ve kıyı-su silme uygulanmaz: bunlar yeni sanatın
+      // taş kaidesini ve rıhtımını yok ediyordu.
+      const newArt = source.width <= 640
+      const rasterScale = newArt ? 1 : 0.68
       const worldW = Math.max(32, Math.round(source.width * rasterScale))
       const worldH = Math.max(32, Math.round(source.height * rasterScale))
       const texture = this.textures.createCanvas(worldKey, worldW, worldH)
@@ -256,12 +261,12 @@ export class CityScene extends Phaser.Scene {
       const image = ctx.getImageData(0, 0, worldW, worldH)
 
       // Coast assetlerinde önce kare su/foam platformu sökülür.
-      if (id === 'liman' || id === 'tersane') {
+      if (!newArt && (id === 'liman' || id === 'tersane')) {
         cleanCoastSpriteRgba(image.data, worldW, worldH)
       }
 
       // Bütün binalar aynı sıcaklık/kontrast dünyasından geçer.
-      normalizeBuildingSpriteRgba(id, image.data, worldW, worldH)
+      if (!newArt) normalizeBuildingSpriteRgba(id, image.data, worldW, worldH)
 
       ctx.putImageData(image, 0, 0)
       texture.refresh()
