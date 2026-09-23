@@ -363,6 +363,14 @@ export function capacity(g: Game) {
  *
  * Akce konuttan gelir ve isci istemez - halkin kendisi vergi verir.
  */
+/** Each staffed Medrese scientist consumes 9 akçe/hour in the accelerated
+ *  Payitaht economy. In Ikariam a scientist likewise has an upkeep cost.
+ *  Production speed here is intentionally accelerated for a mobile prototype. */
+export const SCIENTIST_UPKEEP_PER_HOUR = 9
+export function scientistCount(g: Game): number { return clampWorkers(g).medrese }
+export function scientistUpkeepPerMinute(g: Game): number {
+  return scientistCount(g) * SCIENTIST_UPKEEP_PER_HOUR / 60
+}
 export function rates(g: Game): Resources {
   const multiplier = g.research.includes('tools') ? 1.2 : 1
   const workers = clampWorkers(g)
@@ -372,7 +380,8 @@ export function rates(g: Game): Resources {
   }
   return {
     // Akce iki kaynaktan gelir: halkin vergisi (isci istemez) ve carsi esnafi.
-    gold: (60 + g.buildings.konut * 120 + g.buildings.carsi * 100 * share('carsi')) * multiplier,
+    gold: Math.max(0, (60 + g.buildings.konut * 120 +
+      g.buildings.carsi * 100 * share('carsi')) * multiplier - scientistUpkeepPerMinute(g)),
     wood: g.buildings.kereste * 120 * share('kereste') * multiplier *
       (g.research.includes('ormancilik') ? 1.15 : 1),
     stone: g.buildings.tas * 90 * share('tas') * multiplier *
@@ -448,8 +457,8 @@ export function constructionDiscount(g: Game): number {
 export function cost(g: Game, id: BuildingId): Resources {
   const base = Math.round(BUILDINGS[id].base * BUILDING_GROWTH[id] ** g.buildings[id])
   const materialFactor = 1 - constructionDiscount(g)
-  return { gold: base, wood: Math.floor(base * 1.2 * materialFactor),
-    stone: Math.floor(base * .75 * materialFactor), knowledge: 0 }
+  return { gold: base, wood: Math.round(base * 1.2 * materialFactor),
+    stone: Math.round(base * .75 * materialFactor), knowledge: 0 }
 }
 export function duration(g: Game, id: BuildingId) { return Math.round((20 + g.buildings[id] * 10) * (g.research.includes('architecture') ? .75 : 1)) }
 export function logEvent(g: Game, text: string, time: number) { g.log = [{ text, time }, ...g.log].slice(0, 60) }
