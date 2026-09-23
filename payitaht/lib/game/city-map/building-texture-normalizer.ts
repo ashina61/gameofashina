@@ -23,24 +23,64 @@ export function normalizeBuildingSpriteRgba(
       let g = data[i + 1]
       let b = data[i + 2]
 
-      // Hafif palette birleştirme:
-      // - saturation biraz azalır
-      // - contrast sıkışır
-      // - sıcak taş/kiremit tonuna doğru çok hafif sıcak grade
-      const lum = r * 0.299 + g * 0.587 + b * 0.114
-      const desat = 0.10
+      // Painterly palette birleştirme:
+      // - mikro kontrastı/saturasyonu biraz azalt
+      // - koyu gölgeleri hafif kaldır
+      // - kiremitleri ortak terracotta, taşı ortak sıcak-bej aileye yaklaştır
+      let lum = r * 0.299 + g * 0.587 + b * 0.114
+      const desat = 0.16
       r = r * (1 - desat) + lum * desat
       g = g * (1 - desat) + lum * desat
       b = b * (1 - desat) + lum * desat
 
-      const contrast = 0.93
+      const contrast = 0.88
       r = 128 + (r - 128) * contrast
       g = 128 + (g - 128) * contrast
       b = 128 + (b - 128) * contrast
 
-      r = Math.min(255, r * 1.025 + 2)
+      // Çok koyu AI-gölge ceplerini biraz aç; düz griye çevirmeden.
+      lum = r * 0.299 + g * 0.587 + b * 0.114
+      if (lum < 92) {
+        const lift = (92 - lum) * 0.12
+        r += lift
+        g += lift
+        b += lift * 0.82
+      }
+
+      const max0 = Math.max(r, g, b)
+      const min0 = Math.min(r, g, b)
+      const sat0 = max0 > 0 ? (max0 - min0) / max0 : 0
+
+      const terracotta =
+        r > 105 &&
+        r > g * 1.18 &&
+        g > b * 0.92 &&
+        sat0 > 0.24
+
+      if (terracotta) {
+        const mix = 0.18
+        r = r * (1 - mix) + 190 * mix
+        g = g * (1 - mix) + 112 * mix
+        b = b * (1 - mix) + 70 * mix
+      }
+
+      const warmStone =
+        max0 > 95 &&
+        max0 < 235 &&
+        sat0 < 0.20 &&
+        r >= b * 0.94 &&
+        g >= b * 0.92
+
+      if (warmStone) {
+        const mix = 0.10
+        r = r * (1 - mix) + 194 * mix
+        g = g * (1 - mix) + 178 * mix
+        b = b * (1 - mix) + 148 * mix
+      }
+
+      r = Math.min(255, r * 1.018 + 2)
       g = Math.min(255, g * 1.002 + 1)
-      b = Math.min(255, b * 0.965)
+      b = Math.min(255, b * 0.972)
 
       data[i] = Math.max(0, Math.round(r))
       data[i + 1] = Math.max(0, Math.round(g))
