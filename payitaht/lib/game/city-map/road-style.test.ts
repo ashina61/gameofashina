@@ -25,3 +25,16 @@ test('taş örgü yoğunluğu belediye geliştikçe artar', () => {
   const counts = [1, 3, 5, 7].map(level => roadStyleFor('avenue', level).stoneDensity)
   assert.deepEqual(counts, [0, 2, 6, 8])
 })
+
+
+test('erken dönem toprak yol sert bordür çizmez; taş yol kademeli belirginleşir', () => {
+  const dirt = roadStyleFor('avenue', 1)
+  const stoneEdge = roadStyleFor('avenue', 3)
+  const cobble = roadStyleFor('avenue', 5)
+  const cutStone = roadStyleFor('avenue', 7)
+
+  assert.equal(dirt.borderAlpha, 0)
+  assert.ok(stoneEdge.borderAlpha > dirt.borderAlpha)
+  assert.ok(cobble.borderAlpha >= stoneEdge.borderAlpha)
+  assert.ok(cutStone.borderAlpha >= cobble.borderAlpha)
+})
