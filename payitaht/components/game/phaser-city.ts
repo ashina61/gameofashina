@@ -57,7 +57,7 @@ export class CityScene extends Phaser.Scene {
   // Kamera (map-debug ile aynı davranış): CITY VIEW varsayılan, pinch + drag.
   private minZoom = 0.15
   private maxZoom = 1.3
-  private cityZoom = 0.58
+  private cityZoom = 0.76
   private velocity = { x: 0, y: 0 }
   private pinchStart: { distance: number; zoom: number } | null = null
 
@@ -90,7 +90,7 @@ export class CityScene extends Phaser.Scene {
     const wr = this.worldRect()
     this.cameras.main.setBounds(wr.x, wr.y, wr.w, wr.h)
     this.minZoom = Math.min(this.scale.width / wr.w, this.scale.height / wr.h) * 0.92
-    this.cityZoom = Math.max(0.58, this.minZoom)
+    this.cityZoom = Math.max(0.76, this.minZoom)
     this.setCityView()
     this.scale.on('resize', () => {
       const w = this.worldRect()
@@ -132,8 +132,8 @@ export class CityScene extends Phaser.Scene {
         : COAST_SLOTS[Math.floor(COAST_SLOTS.length / 2)].screen
     // Alt HUD kıyının üstünü kapatmasın: kamera merkezini biraz DENİZE doğru
     // kaydırınca hedef rıhtım ekranda orta-üst bölgede görünür.
-    this.cameras.main.setZoom(Phaser.Math.Clamp(Math.max(this.cityZoom, 0.66), this.minZoom, this.maxZoom))
-    this.cameras.main.centerOn(destination.x, destination.y + TILE.h * 2.6)
+    this.cameras.main.setZoom(Phaser.Math.Clamp(Math.max(this.cityZoom, 0.82), this.minZoom, this.maxZoom))
+    this.cameras.main.centerOn(destination.x, destination.y + TILE.h * 5.2)
     this.velocity = { x: 0, y: 0 }
   }
   /** React kontrolü: yakınlaştırmayı çarpanla değiştir. */
