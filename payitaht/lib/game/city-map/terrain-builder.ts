@@ -210,10 +210,11 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1, occupiedSl
     oy = 0.55, alpha = 1, tint?: number,
   ) => {
     const src = scene.textures.get(key).getSourceImage() as HTMLImageElement
-    if (!src?.width) return
+    if (!src?.width) return null
     const img = scene.add.image(wx, wy, key).setOrigin(0.5, oy).setDepth(depth).setAlpha(alpha)
     img.setDisplaySize(tw, tw * src.height / src.width)
     if (tint !== undefined) img.setTint(tint)
+    return img
   }
 
   // 1) TABAN — karo dışında hiçbir koyu boşluk kalmasın.
@@ -385,6 +386,21 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1, occupiedSl
     coastSorted.map(s => V(s.screen.x, s.screen.y - TILE.h * 0.12)),
   )
   const roads = scene.add.graphics().setDepth(-801)
+  // Ambient ağaç/çalılar boş slotların çevresine kadar yaklaşabilir. Bir slot
+  // sonradan inşa edilince statik terrain'i yeniden üretmek yerine yalnızca
+  // o binayla çakışan ambient sprite'ları gizleriz (save/slot etkilenmez).
+  const ambientDecor: Array<{ image: Phaser.GameObjects.Image; x: number; y: number }> = []
+  const syncAmbientDecor = (activeSlotIds: string[]) => {
+    const active = new Set(activeSlotIds)
+    active.add(HALL_SLOT_ID)
+    const occupiedSlots = [...active].map(id => slotById(id)).filter(
+      (slot): slot is NonNullable<typeof slot> => slot != null,
+    )
+    for (const item of ambientDecor) {
+      item.image.setVisible(!occupiedSlots.some(slot => nearSlot(item.x, item.y, slot, 1.14)))
+    }
+  }
+
   let lastRoadKey = ''
 
   const updateRoads = (level: number, activeSlotIds: string[] = occupiedSlotIds) => {
@@ -394,6 +410,7 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1, occupiedSl
     const roadKey = tier + ':' + [...active].sort().join(',')
     if (roadKey === lastRoadKey) return
     lastRoadKey = roadKey
+    syncAmbientDecor(activeSlotIds)
     roads.clear()
 
     // Yalnızca Divanhane'den GERÇEKTEN kurulu slotlara ulaşan yol ağacı.
@@ -499,7 +516,8 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1, occupiedSl
   ) => {
     if (!clearForDecor(wx, wy, margin)) return
     const key = forced ?? kinds[di++ % kinds.length]
-    stamp(key, wx, wy, decorWidth(key), -700, 0.92, alpha)
+    const image = stamp(key, wx, wy, decorWidth(key), -700, 0.92, alpha)
+    if (image) ambientDecor.push({ image, x: wx, y: wy })
   }
 
   // Ikariam hissi: dekor "nesne" değil, YEŞİL KÜTLE gibi davranır.
@@ -581,5 +599,8 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1, occupiedSl
     }
   }
 
+  // İlk updateRoads çağrısı dekor üretilmeden önce yapılıyor.
+  // İlk bina/arsa doluluğunu tüm koruluklar yaratıldıktan sonra da uygula.
+  syncAmbientDecor(occupiedSlotIds)
   return { updateRoads }
 }
