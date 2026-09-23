@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { ArrowUp, Hammer, Clock3, LockKeyhole, Check, BookOpen, ChevronRight, TreePine, Warehouse, Ruler, Users, UserRound, Minus, Plus as PlusIcon, House, HeartHandshake, TriangleAlert, Landmark, Swords, Ship, ShieldCheck, Handshake, Coins, FlaskConical, Compass, FlipHorizontal2, Move } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { CostDisplay, JobProgress } from './game-widgets'
-import { BUILDINGS, BUILDING_IDS, MAX_LEVEL, RESEARCH, RESEARCH_IDS, RESEARCH_BRANCHES, RESOURCE_IDS, RESOURCE_NAMES, UNITS, UNIT_IDS, WORKER_IDS, WORKERS_PER_LEVEL, activeJob, cargoCapacity, cityDefense, cost, duration, buildReason, power, rates, recruitReason, researchReason, idleWorkers, population, housing, contentment, soldiers, takesPlot, tradeCapacity, unhousedByUnrest, unitCost, unitDuration, wallDefense, workerCapacity, type BuildingId, type ResearchId, type UnitId, type WorkerId, type Game } from '@/lib/game/engine'
+import { BUILDINGS, BUILDING_IDS, MAX_LEVEL, RESEARCH, RESEARCH_IDS, RESEARCH_BRANCHES, RESOURCE_IDS, RESOURCE_NAMES, UNITS, UNIT_IDS, WORKER_IDS, WORKERS_PER_LEVEL, activeJob, cargoCapacity, cityDefense, cost, duration, buildReason, power, rates, recruitReason, researchReason, scientistCount, scientistUpkeepPerMinute, idleWorkers, population, housing, contentment, soldiers, takesPlot, tradeCapacity, unhousedByUnrest, unitCost, unitDuration, wallDefense, workerCapacity, type BuildingId, type ResearchId, type ResearchBranch, type UnitId, type WorkerId, type Game } from '@/lib/game/engine'
 import { buildingImage } from '@/lib/asset'
 import { activeCity, COLONY_COST, ISLANDS, type Empire, type IslandId } from '@/lib/game/empire'
 import type { Resource } from '@/lib/game/engine'
@@ -19,18 +19,34 @@ export function BuildingDetails({ game, id, onBuild, onFlip, onMove }: { game: G
 export function BuildingList({ game, onSelect }: { game: Game; onSelect: (id: BuildingId) => void }) {
   return <div className="building-list">{BUILDING_IDS.map(id => <button key={id} className="building-list-item" onClick={() => onSelect(id)}>{BUILDINGS[id].art ? <img src={buildingImage(id)} alt="" width={88} height={88} /> : <span className="list-pending"><Hammer aria-hidden="true" /></span>}<span><span className="eyebrow">{BUILDINGS[id].category}</span><strong>{BUILDINGS[id].name}</strong><span>{game.buildings[id] ? `Seviye ${game.buildings[id]}${game.buildings[id] >= MAX_LEVEL[id] ? ' · Tamamlandı' : ' · Geliştirilebilir'}` : 'Boş arsa · Yeni yapı'}</span></span><ChevronRight className="size-4" /></button>)}</div>
 }
-const researchIcons: Record<ResearchId, typeof TreePine> = {
+const researchIcons: Partial<Record<ResearchId, typeof TreePine>> = {
   tools: TreePine, storage: Warehouse, ticaret: Coins, architecture: Ruler,
   alimler: FlaskConical, celik: Swords, istihkam: ShieldCheck, pusula: Compass, yelken: Ship,
 }
 export function ResearchPanel({ game, onResearch }: { game: Game; onResearch: (id: ResearchId) => void }) {
-  return <div className="research-panel"><div className="research-intro"><BookOpen className="size-5" /><span><strong>Geleceğin ilimle şekillenir.</strong><p>Medresede keşfet. Dört dalda şehrine kalıcı güç kazandır.</p></span></div>{game.study && <JobProgress job={game.study} now={game.updatedAt} />}{RESEARCH_BRANCHES.map(branch => {
+  const [focus, setFocus] = useState<ResearchBranch | 'all'>('all')
+  const scientists = scientistCount(game)
+  const production = rates(game).knowledge
+  return <div className="research-panel">
+    <div className="research-intro"><BookOpen className="size-5" /><span>
+      <strong>Medrese / Akademi</strong>
+      <p>{scientists}/{game.buildings.medrese * WORKERS_PER_LEVEL} âlim ·
+        +{production.toFixed(1)} ilim/dk · {(scientistUpkeepPerMinute(game) * 60).toFixed(0)} akçe/saat bakım.</p>
+      <p>Âlim sayısını Halk panelinden ayarlayabilirsin. Dört araştırma kolu yeni yapı, ekonomi ve askerî bonuslar açar.</p>
+    </span></div>
+    {game.study && <JobProgress job={game.study} now={game.updatedAt} />}
+    <div className="research-branch-tabs" role="group" aria-label="Araştırma dalları">
+      <button type="button" aria-pressed={focus === 'all'} onClick={() => setFocus('all')}>Tümü</button>
+      {RESEARCH_BRANCHES.map(branch => <button type="button" key={branch.key}
+        aria-pressed={focus === branch.key} onClick={() => setFocus(branch.key)}>{branch.title}</button>)}
+    </div>
+    {RESEARCH_BRANCHES.filter(branch => focus === 'all' || focus === branch.key).map(branch => {
     const ids = RESEARCH_IDS.filter(id => RESEARCH[id].branch === branch.key)
     const doneCount = ids.filter(id => game.research.includes(id)).length
     return <section className="research-branch" key={branch.key}>
       <div className="research-branch-top"><h3>{branch.title}</h3><span>{doneCount}/{ids.length}</span></div>
       {ids.map(id => {
-        const r = RESEARCH[id], reason = researchReason(game, id), done = game.research.includes(id), Icon = researchIcons[id]
+        const r = RESEARCH[id], reason = researchReason(game, id), done = game.research.includes(id), Icon = researchIcons[id] ?? BookOpen
         return <article className="research-card" key={id}><div className="research-card-top"><span className="research-icon"><Icon /></span><span><h3>{r.name}</h3></span>{done && <Check className="size-5" />}</div><p>{r.description}</p><div className="research-bottom"><CostDisplay value={{ knowledge: r.cost }} /><span><Clock3 className="size-3" /> {r.duration} sn</span><Button size="sm" variant={done ? 'secondary' : 'default'} disabled={!!reason} onClick={() => onResearch(id)}>{done ? 'Keşfedildi' : game.study?.id === id ? 'Sürüyor' : 'Araştır'}</Button></div>{reason && !done && <p className="fine-print">{reason}</p>}</article>
       })}
     </section>
