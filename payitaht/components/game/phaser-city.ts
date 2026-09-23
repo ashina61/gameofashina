@@ -19,6 +19,7 @@ import { LIVE_SLOTS, liveSlotByIndex, type LiveSlot } from '@/lib/game/city-map/
 import { buildCityTerrain, preloadTerrain, cityWorldRect, cityContentRect } from '@/lib/game/city-map/terrain-builder'
 import { assetById, groundScale, GROUND_TARGET_W, BUILDING_RENDER_SCALE } from '@/lib/game/city-map/building-assets'
 import { cleanCoastSpriteRgba } from '@/lib/game/city-map/coast-asset-cleaner'
+import { normalizeBuildingSpriteRgba } from '@/lib/game/city-map/building-texture-normalizer'
 import { visualSignature } from '@/lib/game/city-render'
 import { BUILDINGS, BUILDING_IDS, activeJob, zoneOf, type BuildingId, type Game } from '@/lib/game/engine'
 import { buildingImage } from '@/lib/asset'
@@ -228,9 +229,8 @@ export class CityScene extends Phaser.Scene {
   }
 
   private textureKeyForBuilding(id: BuildingId) {
-    if (id !== 'liman' && id !== 'tersane') return id
-    const cleanKey = id + '__world'
-    if (this.textures.exists(cleanKey)) return cleanKey
+    const worldKey = id + '__world'
+    if (this.textures.exists(worldKey)) return worldKey
     if (!this.textures.exists(id)) return id
 
     try {
@@ -240,19 +240,27 @@ export class CityScene extends Phaser.Scene {
       }
       if (!source?.width || !source?.height) return id
 
-      const texture = this.textures.createCanvas(cleanKey, source.width, source.height)
+      const texture = this.textures.createCanvas(worldKey, source.width, source.height)
       if (!texture) return id
       const ctx = texture.getContext()
       ctx.clearRect(0, 0, source.width, source.height)
       ctx.drawImage(source, 0, 0)
 
       const image = ctx.getImageData(0, 0, source.width, source.height)
-      cleanCoastSpriteRgba(image.data, source.width, source.height)
+
+      // Coast assetlerinde önce kare su/foam platformu sökülür.
+      if (id === 'liman' || id === 'tersane') {
+        cleanCoastSpriteRgba(image.data, source.width, source.height)
+      }
+
+      // Bütün binalar aynı sıcaklık/kontrast dünyasından geçer.
+      normalizeBuildingSpriteRgba(id, image.data, source.width, source.height)
+
       ctx.putImageData(image, 0, 0)
       texture.refresh()
-      return cleanKey
+      return worldKey
     } catch {
-      if (this.textures.exists(cleanKey)) this.textures.remove(cleanKey)
+      if (this.textures.exists(worldKey)) this.textures.remove(worldKey)
       return id
     }
   }
@@ -355,9 +363,6 @@ export class CityScene extends Phaser.Scene {
       const img = this.add.image(anc.x, anc.baseY, textureKey).setOrigin(0.5, 1)
       const scale = this.scaleFor(id, img.width)
       img.setScale(scale).setDepth(anc.baseY)
-      // Bütün bina PNG'lerine aynı hafif sıcak ton: farklı üretimlerden gelen
-      // beyaz/soğuk farklarını bastırır, çizimi terrain paletine yaklaştırır.
-      img.setTint(0xfff5e8)
       img.setFlipX(this.state.flips.includes(id))
       img.setAlpha(active ? 0.82 : 1) // inşaat sürerken hafif soluk
       dispW = img.width * scale; dispH = img.height * scale
