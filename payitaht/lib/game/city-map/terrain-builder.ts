@@ -217,9 +217,41 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1, occupiedSl
     return img
   }
 
+  // Ressam işi arazi katmanı: mevcut izometrik çim/toprak karolarının SADECE
+  // üst yüzeyini alır. Kalın yan yüzler ve dikdörtgen PNG sınırları maskelenir;
+  // yüzeyin dış kenarı da yumuşatılır. Böylece zemine karo döşemeden gerçek
+  // asset dokusunu büyük, rastgele kesişen boya lekeleri olarak kullanabiliriz.
+  const softSurfaceTexture = (sourceKey: string) => {
+    const key = sourceKey + '__ground'
+    if (scene.textures.exists(key)) return key
+    const source = scene.textures.get(sourceKey).getSourceImage() as HTMLImageElement
+    if (!source?.width || !source?.height) return null
+    const texture = scene.textures.createCanvas(key, source.width, source.height)
+    if (!texture) return null
+    const context = texture.getContext()
+    context.clearRect(0, 0, source.width, source.height)
+    context.drawImage(source, 0, 0)
+    const image = context.getImageData(0, 0, source.width, source.height)
+    const w = source.width, h = source.height
+    for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
+      const index = (y * w + x) * 4 + 3
+      if (image.data[index] === 0) continue
+      // Texture'ların üst yüzeyi yaklaşık 2:1 elmas şeklinde. Kenarların
+      // içinde başlayarak alpha'yı sıfıra indir; toprağın kalın yan yüzü yok.
+      const diamond = Math.abs((x - w * 0.5) / (w * 0.49))
+        + Math.abs((y - h * 0.435) / (h * 0.345))
+      const t = Phaser.Math.Clamp((0.96 - diamond) / 0.34, 0, 1)
+      const feather = t * t * (3 - 2 * t)
+      image.data[index] = Math.round(image.data[index] * feather)
+    }
+    context.putImageData(image, 0, 0)
+    texture.refresh()
+    return key
+  }
+
   // 1) TABAN — karo dışında hiçbir koyu boşluk kalmasın.
   const g0 = scene.add.graphics().setDepth(-1000)
-  g0.fillStyle(0x9aa46b, 1); g0.fillRect(wr.x, wr.y, wr.w, wr.h)
+  g0.fillStyle(0xa1a875, 1); g0.fillRect(wr.x, wr.y, wr.w, wr.h)
   // Deniz 7 belirgin şerit yerine çok daha sık, yumuşak sığ->derin geçiş.
   const shallow = [0x62, 0xae, 0xaa] as const
   const deep = [0x1a, 0x58, 0x66] as const
@@ -271,14 +303,24 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1, occupiedSl
     )
   }
 
-  // Çok az sayıda gerçek doku; rastgele konum, farklı ölçek ve çok düşük alfa.
-  // Bu yalnızca yüzeye boya tanesi verir, karo oluşturmaz.
-  for (let i = 0; i < 11; i++) {
-    const x = wr.x + landRnd() * wr.w
-    const y = wr.y + landRnd() * Math.max(TILE.h, seaLine - wr.y - TILE.h)
-    const key = i % 5 === 0 ? 't_dirt' : i % 7 === 0 ? 't_stone' : 't_grass'
-    const size = TILE.w * (3.8 + landRnd() * 3.2)
-    stamp(key, x, y, size, -895, 0.55, key === 't_grass' ? 0.055 : 0.038)
+  // Düz renk ekranı kıran, grid'den bağımsız gerçek boyalı arazi dokusu.
+  // Eski uygulamada tam karo alpha=0.055 ile sadece 11 kez basılıyordu;
+  // büyük şehirde hiç görünmüyordu. Artık karonun yan yüzü yok ve sert sınır
+  // yok; geniş yüzeyler farklı boy/konum/açıyla örtüşerek doğal zemini kurar.
+  const grassSurface = softSurfaceTexture('t_grass')
+  const dirtSurface = softSurfaceTexture('t_dirt')
+  const surfaceRnd = mulberry32(72831)
+  if (grassSurface && dirtSurface) for (let i = 0; i < 118; i++) {
+    const dirt = i % 9 === 0 || (i % 17 === 0)
+    const key = dirt ? dirtSurface : grassSurface
+    const size = TILE.w * (5.6 + surfaceRnd() * 4.0)
+    const maxY = seaLine - size * 0.58
+    if (maxY <= wr.y) continue
+    const x = wr.x + wr.w * (0.025 + surfaceRnd() * 0.95)
+    const y = wr.y + (maxY - wr.y) * surfaceRnd()
+    const img = stamp(key, x, y, size, -895, 0.435, dirt ? 0.32 : 0.52)
+    img?.setFlipX(surfaceRnd() > 0.5)
+    img?.setAngle((surfaceRnd() - 0.5) * 18)
   }
 
   // Kesintisiz, hafif düzensiz sahil şeridi: çim → kuru kum → ıslak kum → su.
