@@ -572,3 +572,97 @@
 .building-forecast-row { display:grid; grid-template-columns:52px 1fr auto; gap:8px; align-items:center; padding:7px 0; border-top:1px solid #97836125; font-size:0.73rem; }
 .building-forecast-row span { overflow-wrap:anywhere; }
 .building-forecast-row small { white-space:nowrap; }
+
+/* PAYİTAHT V2: painterly city artwork + legible six-action Ottoman mobile HUD.
+   Pure presentation: no slot, save or economy changes. */
+.imperial-brand {
+  position: fixed; z-index: 4; top: calc(env(safe-area-inset-top, 0px) + 1px);
+  left: 50%; transform: translateX(-50%); padding: 0 32px 3px;
+  color: #ffefc6; font: 700 clamp(20px, 6vw, 29px)/1.35 Georgia, serif;
+  text-shadow: 0 2px 2px #090f12, 0 0 11px #bb862d8c;
+  white-space: nowrap; letter-spacing: .015em;
+  border-bottom: 1px solid #dfbd74a6;
+  pointer-events: none;
+}
+.game-shell { background: #153943; }
+.player-card {
+  top: calc(env(safe-area-inset-top, 0px) + 47px); left: 8px;
+  max-width: calc(100vw - 16px); border-radius: 11px;
+  border-color: #d3a957bd;
+  background: linear-gradient(160deg, #12232bf5, #07141bf0);
+  box-shadow: 0 4px 14px #0007, inset 0 1px #f6dd9e25;
+}
+.player-face, .player-icon { border-color: #cda85b7d; border-radius: 50%; }
+.player-copy strong { color: #fff0c7; }
+.player-power { border-color: #cc9d51a6; }
+.resource-bar { top: calc(env(safe-area-inset-top, 0px) + 103px); gap: 3px; left: 5px; right: 5px; }
+.resource {
+  padding: 4px 3px; gap: 3px; min-height: 45px; border-radius: 7px;
+  border-color: #cba65a85;
+  background: linear-gradient(160deg, #12242de8, #07131dea);
+}
+.resource-symbol {
+  position: relative; width: clamp(18px, 5.5vw, 28px);
+  height: clamp(18px, 5.5vw, 28px); background: transparent; border: none;
+}
+.resource-symbol svg { width: 17px; height: 17px; }
+.resource-symbol > img {
+  position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain;
+  filter: drop-shadow(0 1px 2px #0009);
+}
+.resource-copy { justify-content: center; }
+.resource-name { display: block; color: #e5d5b1; font-size: clamp(7px, 1.8vw, 10px); line-height: 1; white-space: nowrap; }
+.resource strong { font-family: Georgia, serif; font-size: clamp(10px, 2.5vw, 15px); color: #fff1cf; }
+.resource-rate { font-size: 8px; color: #a4d080; }
+.resource-population .resource-rate { color: #e8c78b; }
+.advisor-bar { top: calc(env(safe-area-inset-top, 0px) + 165px); }
+.weather { top: 190px; }
+.map-top-tools { top: 193px; }
+.map-top-tools button, .side-action {
+  background: radial-gradient(circle at 30% 15%, #27333bf5, #08151cea);
+  border: 1.5px solid #cba65ac4; color: #eed3a0;
+  box-shadow: 0 3px 11px #0008, inset 0 1px #fff2c429;
+}
+.side-build.side-active { background: radial-gradient(circle at 30% 15%, #e4c67e, #8c5c24); color: #251507; }
+.hud-ticker {
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 81px);
+  border-radius: 6px; border-color: #caa15c94; background: #0b1721eb;
+}
+.hud-ticker-tag { background: #cfa95d; color: #24170b; }
+.bottom-navigation {
+  left: 0; right: 0; bottom: 0; transform: none; width: 100%;
+  height: calc(71px + env(safe-area-inset-bottom, 0px));
+  border-radius: 12px 12px 0 0; padding: 4px 4px env(safe-area-inset-bottom, 0px);
+  border: 1px solid #d3a354b8; border-bottom: 0;
+  background: linear-gradient(180deg, #14232df9, #06131bfa);
+  box-shadow: 0 -6px 21px #0009, inset 0 1px #efd2933f;
+}
+.nav-items { flex: 1; width: 100%; gap: 2px; }
+.nav-item {
+  flex: 1 1 0; width: auto; min-width: 0; padding: 5px 1px 4px;
+  border-radius: 7px; color: #e8c991; font-family: Georgia, serif;
+  font-size: clamp(8px, 2.2vw, 11px); font-weight: 600; line-height: 1.1;
+}
+.nav-item > svg { width: clamp(18px, 5.6vw, 27px); height: clamp(18px, 5.6vw, 27px); }
+.nav-active {
+  color: #ffefa9; background: linear-gradient(180deg, #8a612d88, #5d3c1980);
+  box-shadow: inset 0 0 0 1px #e2be718f;
+}
+.nav-indicator { background: #f5d488; }
+@media (max-width: 767px) {
+  .player-card { top: calc(env(safe-area-inset-top, 0px) + 43px); }
+  .resource-bar { top: calc(env(safe-area-inset-top, 0px) + 99px); }
+  .advisor-bar { top: calc(env(safe-area-inset-top, 0px) + 160px); }
+  .weather { top: 190px; right: 57px; }
+  .map-top-tools { top: 190px; }
+  .bottom-navigation { height: calc(71px + env(safe-area-inset-bottom, 0px)); }
+  .nav-item { width: auto; font-size: clamp(8px, 2.1vw, 10px); }
+  .hud-ticker { bottom: calc(env(safe-area-inset-bottom, 0px) + 79px); }
+}
+@media (max-width: 359px) {
+  .resource { gap: 1px; padding-inline: 2px; }
+  .resource-symbol { width: 18px; height: 18px; }
+  .player-card { gap: 4px; padding-inline: 4px; }
+  .player-copy strong { font-size: 13px; }
+  .player-copy span { font-size: 8px; }
+}
