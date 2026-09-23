@@ -133,7 +133,7 @@ export class CityScene extends Phaser.Scene {
     // Alt HUD kıyının üstünü kapatmasın: kamera merkezini biraz DENİZE doğru
     // kaydırınca hedef rıhtım ekranda orta-üst bölgede görünür.
     this.cameras.main.setZoom(Phaser.Math.Clamp(Math.max(this.cityZoom, 0.94), this.minZoom, this.maxZoom))
-    this.cameras.main.centerOn(destination.x, destination.y + TILE.h * 6.7)
+    this.cameras.main.centerOn(destination.x, destination.y - TILE.h * 13)
     this.velocity = { x: 0, y: 0 }
   }
   /** React kontrolü: yakınlaştırmayı çarpanla değiştir. */
