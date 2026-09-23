@@ -42,6 +42,19 @@ async function main() {
     await page.screenshot({ path: coast, animations: 'disabled' })
     diagnostics.screenshots.push(path.basename(coast))
 
+    // Regression for the actual multi-city UI: opening the atlas must not
+    // throw and the legacy save must have been wrapped as a valid empire.
+    await page.getByRole('button', { name: 'Şehirler danışmanı' }).click()
+    await page.getByText('Adalar haritası', { exact: true }).waitFor({ timeout: 10_000 })
+    const empire = await page.evaluate(() =>
+      JSON.parse(localStorage.getItem('payitaht-adalari-v1') || 'null'))
+    if (empire?.version !== 1 || !Array.isArray(empire.cities) || empire.cities.length < 1) {
+      throw new Error('Empire save was not initialized or migrated.')
+    }
+    const atlas = path.join(out, 'island-atlas-390x844.png')
+    await page.screenshot({ path: atlas, animations: 'disabled' })
+    diagnostics.screenshots.push(path.basename(atlas))
+
     await fs.writeFile(path.join(out, 'diagnostics.json'), JSON.stringify(diagnostics, null, 2))
     if (diagnostics.pageErrors.length || diagnostics.missingGameAssets.length) {
       throw new Error('Mobile city rendered with JavaScript errors or missing game assets; check visual-review/diagnostics.json')

@@ -6,6 +6,8 @@ import { Button } from '@/components/ui/button'
 import { CostDisplay, JobProgress } from './game-widgets'
 import { BUILDINGS, BUILDING_IDS, MAX_LEVEL, RESEARCH, RESEARCH_IDS, RESEARCH_BRANCHES, RESOURCE_IDS, RESOURCE_NAMES, UNITS, UNIT_IDS, WORKER_IDS, WORKERS_PER_LEVEL, activeJob, cargoCapacity, cityDefense, cost, duration, buildReason, power, rates, recruitReason, researchReason, idleWorkers, population, housing, contentment, soldiers, takesPlot, tradeCapacity, unhousedByUnrest, unitCost, unitDuration, wallDefense, workerCapacity, type BuildingId, type ResearchId, type UnitId, type WorkerId, type Game } from '@/lib/game/engine'
 import { buildingImage } from '@/lib/asset'
+import { activeCity, COLONY_COST, ISLANDS, type Empire, type IslandId } from '@/lib/game/empire'
+import type { Resource } from '@/lib/game/engine'
 
 export function BuildingDetails({ game, id, onBuild, onFlip, onMove }: { game: Game; id: BuildingId; onBuild: (id: BuildingId) => void; onFlip: (id: BuildingId) => void; onMove: (id: BuildingId) => void }) {
   const b = BUILDINGS[id], level = game.buildings[id], reason = buildReason(game, id)
@@ -134,14 +136,30 @@ export function PeoplePanel({ game, onAssign }: { game: Game; onAssign: (id: Wor
  * Saray'in NE ISE YARADIGINI - ikinci sehir - bos bir kart olarak gosterir.
  * Kilidi acilmamis bir ozelligi gizlemek yerine gostermek, oyuncuya hedef verir.
  */
-export function CitiesPanel({ game, onBuilding }: { game: Game; onBuilding: (id: BuildingId) => void }) {
+export function CitiesPanel({
+  game, empire, onBuilding, onSelectCity, onColonize, onCargo,
+}: {
+  game: Game
+  empire: Empire
+  onBuilding: (id: BuildingId) => void
+  onSelectCity: (cityId: string) => void
+  onColonize: (islandId: IslandId) => void
+  onCargo: (cityId: string, resource: Resource, amount: number) => void
+}) {
+  const current = activeCity(empire)
+  const [targetCity, setTargetCity] = useState('')
+  const [cargoResource, setCargoResource] = useState<Resource>('wood')
+  const [cargoAmount, setCargoAmount] = useState('100')
+  const activeShipment = empire.shipments.find(shipment => shipment.from === current.id)
+  const capital = empire.cities[0].game
   const built = BUILDING_IDS.filter(id => game.buildings[id] > 0)
   const production = rates(game)
   return <div className="advisor-panel">
     <article className="city-card">
       <div className="city-card-top">
         <span className="city-emblem"><Landmark aria-hidden="true" /></span>
-        <span><span className="eyebrow">BAŞKENT</span><strong>Sahilhisar</strong><span>Seviye {game.buildings.divan} yerleşim · {built.length} yapı</span></span>
+        <span><span className="eyebrow">{current.id === 'city-1' ? 'BAŞKENT' : 'YENİ ŞEHİR'}</span>
+          <strong>{current.name}</strong><span>Seviye {game.buildings.divan} · {built.length} yapı · {ISLANDS.find(i => i.id === current.islandId)?.name}</span></span>
       </div>
       <div className="city-stats">
         <div><span>Nüfus</span><strong>{population(game)}</strong></div>
@@ -149,16 +167,76 @@ export function CitiesPanel({ game, onBuilding }: { game: Game; onBuilding: (id:
         <div><span>Asker</span><strong>{soldiers(game)}</strong></div>
         <div><span>Savunma</span><strong>{cityDefense(game)}</strong></div>
       </div>
-      <div className="city-rates">{RESOURCE_IDS.filter(id => production[id] > 0).map(id => <span key={id}>{RESOURCE_NAMES[id]} <strong>+{Math.round(production[id])}/dk</strong></span>)}</div>
+      <div className="city-rates">{RESOURCE_IDS.filter(id => production[id] > 0).map(id =>
+        <span key={id}>{RESOURCE_NAMES[id]} <strong>+{Math.round(production[id])}/dk</strong></span>)}</div>
       <Button size="sm" variant="outline" onClick={() => onBuilding('divan')}>Divanhaneye git<ChevronRight data-icon="inline-end" /></Button>
     </article>
-    <article className="city-card city-card-locked">
-      <div className="city-card-top">
-        <span className="city-emblem"><LockKeyhole aria-hidden="true" /></span>
-        <span><span className="eyebrow">İKİNCİ ŞEHİR</span><strong>Henüz kurulmadı</strong><span>{game.buildings.saray > 0 ? 'Saray hazır. Yeni şehir kurma bu prototipte açılmadı.' : 'Saray gerekli.'}</span></span>
+
+    <section className="empire-section">
+      <h3>Şehirlerin · {empire.cities.length}/{ISLANDS.length}</h3>
+      <div className="empire-city-list">
+        {empire.cities.map(city => <button key={city.id} className="empire-city-button"
+          aria-current={city.id === current.id ? 'true' : undefined}
+          onClick={() => onSelectCity(city.id)}>
+          <span><strong>{city.name}</strong><small>{ISLANDS.find(i => i.id === city.islandId)?.name} · Divanhane {city.game.buildings.divan}</small></span>
+          <span>{city.id === current.id ? 'Şu an' : 'Git ›'}</span>
+        </button>)}
       </div>
-      <p className="fine-print">Saray, hükmünü uzak adalara taşır. Yeni şehirler bu prototipte henüz kurulamıyor; Saray kurulduğunda bu ekran onları listeleyecek.</p>
-    </article>
+    </section>
+
+    <section className="empire-section">
+      <h3>Adalar haritası</h3>
+      <p className="fine-print">Her adada bir yerel kaynak yatağı bulunur. Kaynak yatağı üretimi ileride açılacak; bu sürümde mevcut dört şehir kaynağıyla oynarsın.</p>
+      <div className="island-atlas">
+        {ISLANDS.map(island => {
+          const city = empire.cities.find(c => c.islandId === island.id)
+          const missing = capital.buildings.saray < empire.cities.length
+            ? `Saray ${empire.cities.length}. seviye gerekli`
+            : capital.buildings.liman < 1 || capital.army.nakliye < 3
+              ? 'Başkentte liman ve 3 nakliye gemisi gerekli'
+              : null
+          return <article key={island.id} className="island-atlas-card">
+            <span className="eyebrow">{island.specialty} yatağı</span>
+            <strong>{island.name}</strong>
+            <span>{city ? city.name : 'Boş ada'}</span>
+            {city
+              ? <Button size="sm" variant="outline" onClick={() => onSelectCity(city.id)}>
+                {city.id === current.id ? 'Bu şehir' : 'Şehre git'}
+              </Button>
+              : <Button size="sm" disabled={!!missing} onClick={() => onColonize(island.id)}>Koloni kur</Button>}
+            {!city && missing && <small>{missing}</small>}
+          </article>
+        })}
+      </div>
+      <p className="fine-print">Yeni koloni: {COLONY_COST.gold} akçe, {COLONY_COST.wood} kereste, {COLONY_COST.stone} taş. Saray seviyesi toplam koloni sayısını sınırlar; her şehir ayrı bina, üretim ve orduya sahiptir.</p>
+    </section>
+
+    <section className="empire-section">
+      <h3>Şehirler arası nakliye</h3>
+      {activeShipment
+        ? <p className="requirement">Gemiler seferde: {empire.cities.find(c => c.id === activeShipment.to)?.name} yönüne {activeShipment.amount} {RESOURCE_NAMES[activeShipment.resource]}. {Date.now() >= activeShipment.eta ? 'Varış limanında ambarın boşalmasını bekliyor.' : 'Varış bekleniyor.'}</p>
+        : <div className="empire-shipment-form">
+            <label>Hedef şehir
+              <select value={targetCity} onChange={event => setTargetCity(event.target.value)}>
+                <option value="">Şehir seç</option>
+                {empire.cities.filter(city => city.id !== current.id).map(city =>
+                  <option key={city.id} value={city.id}>{city.name}</option>)}
+              </select>
+            </label>
+            <label>Kaynak
+              <select value={cargoResource} onChange={event => setCargoResource(event.target.value as Resource)}>
+                {RESOURCE_IDS.map(id => <option value={id} key={id}>{RESOURCE_NAMES[id]}</option>)}
+              </select>
+            </label>
+            <label>Miktar
+              <input type="number" min={1} step={1} inputMode="numeric" value={cargoAmount}
+                onChange={event => setCargoAmount(event.target.value)} />
+            </label>
+            <Button size="sm" disabled={!targetCity || !Number.isSafeInteger(Number(cargoAmount)) || Number(cargoAmount) <= 0}
+              onClick={() => onCargo(targetCity, cargoResource, Number(cargoAmount))}>Gemileri gönder</Button>
+          </div>}
+      <p className="fine-print">Nakliye için gönderici şehirde Ticaret Limanı ve nakliye gemisi gerekir. Yük yolculuk sırasında çıkar, varışta hedef şehrin ambarına iner; ambar doluysa gemi yükü bekletir.</p>
+    </section>
   </div>
 }
 

@@ -1,0 +1,47 @@
+name: Empire Engine Checks
+
+on:
+  pull_request:
+    branches:
+      - claude/ancient-city-phaser-game-r9e0qu
+    paths:
+      - 'payitaht/lib/game/**'
+      - 'payitaht/hooks/use-game.ts'
+      - 'payitaht/components/game/**'
+      - '.github/workflows/empire-checks.yml'
+  push:
+    branches:
+      - claude/ancient-city-phaser-game-r9e0qu
+    paths:
+      - 'payitaht/lib/game/**'
+      - 'payitaht/hooks/use-game.ts'
+      - 'payitaht/components/game/**'
+      - '.github/workflows/empire-checks.yml'
+
+permissions:
+  contents: read
+
+defaults:
+  run:
+    working-directory: payitaht
+
+jobs:
+  empire-checks:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+          run_install: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: payitaht/pnpm-lock.yaml
+      - run: pnpm install --frozen-lockfile
+      - name: TypeScript
+        run: pnpm exec tsc --noEmit
+      - name: Existing city and new empire tests
+        run: pnpm exec tsx --test lib/game/engine.test.ts lib/game/empire.test.ts
