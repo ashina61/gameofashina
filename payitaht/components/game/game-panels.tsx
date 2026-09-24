@@ -291,7 +291,7 @@ const BATCHES = [1, 5, 10]
  * bedeli akce degil, VATANDAS. Oyuncu bir birligi egitmeden once kac kisinin
  * bosta oldugunu gormezse, uretiminin nicin dustugunu anlamaz.
  */
-export function ArmyPanel({ game, onRecruit, onBuild }: { game: Game; onRecruit: (id: UnitId, count: number) => void; onBuild: (id: BuildingId) => void }) {
+export function ArmyPanel({ game, onRecruit, onBuild, home }: { game: Game; onRecruit: (id: UnitId, count: number) => void; onBuild: (id: BuildingId) => void; home?: BuildingId }) {
   const [batch, setBatch] = useState(1)
   const land = power(game, 'kara')
   const sea = power(game, 'deniz')
@@ -312,7 +312,8 @@ export function ArmyPanel({ game, onRecruit, onBuild }: { game: Game; onRecruit:
     {game.drill && <JobProgress job={game.drill} now={game.updatedAt} />}
     <div className="batch-row"><span>Parti</span>{BATCHES.map(n => <Button key={n} size="sm" variant={batch === n ? 'default' : 'outline'} onClick={() => setBatch(n)}>{n}</Button>)}</div>
     {branches.map(branch => {
-      const units = UNIT_IDS.filter(id => UNITS[id].branch === branch.key).sort((a, b) => ROLE_ORDER.indexOf(UNITS[a].role) - ROLE_ORDER.indexOf(UNITS[b].role))
+      const units = UNIT_IDS.filter(id => UNITS[id].branch === branch.key && (!home || UNITS[id].home === home)).sort((a, b) => ROLE_ORDER.indexOf(UNITS[a].role) - ROLE_ORDER.indexOf(UNITS[b].role))
+      if (!units.length) return null
       const ready = units.some(id => game.buildings[UNITS[id].home] > 0)
       return <section className="army-branch" key={branch.key}>
         <div className="army-branch-top"><h3>{branch.title}</h3><span>{branch.key === 'deniz' ? `Deniz gücü ${sea.attack} / ${sea.defense}` : `Savunma ${land.defense}`}</span></div>
@@ -454,7 +455,7 @@ export function IslandPanel({ game, islandName, onMiners, onDonate, onTrade }: {
 }
 
 /** Seviye etkisi: şu anki seviye ve bir sonraki seviyede ne değişir. */
-function BuildingEffects({ game, id, level, max }: { game: Game; id: BuildingId; level: number; max: number }) {
+export function BuildingEffects({ game, id, level, max }: { game: Game; id: BuildingId; level: number; max: number }) {
   const now = level > 0 ? effectLines(game, id, level) : []
   const next = level < max ? effectLines(game, id, level + 1) : []
   const rows = (next.length ? next : now).map((line, i) => ({ label: line.label, now: now[i]?.value ?? '—', next: next[i]?.value }))
