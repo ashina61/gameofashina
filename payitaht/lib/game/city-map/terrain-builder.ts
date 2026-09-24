@@ -28,7 +28,11 @@ export const TERRAIN_TILES = [
   'shore-a', 'shore-b', 'shore-c',
   'water', 'water-deep',
 ] as const
-export const DECOR_TILES = ['olive-tree', 'bush', 'flower', 'rock'] as const
+export const DECOR_TILES = ['olive-tree', 'bush', 'flower', 'rock', 'cypress', 'cypress-b'] as const
+/** Kara taban rengi (burunlar dahil her yerde aynı). */
+const LAND_BASE = 0x8fa964
+/** Koyda demirli gemiler (tools/art/gen-procedural-assets.py). */
+export const SHIP_TILES = ['ship-a', 'ship-b'] as const
 
 /** Deterministik tohumlu rastgele (dekor/terrain her açılışta aynı kalsın). */
 export function mulberry32(seed: number) {
@@ -80,6 +84,9 @@ export function preloadTerrain(scene: Phaser.Scene) {
   }
   for (const d of DECOR_TILES) {
     if (!scene.textures.exists('d_' + d)) scene.load.image('d_' + d, asset(`/images/game/decor/${d}.png`))
+  }
+  for (const sh of SHIP_TILES) {
+    if (!scene.textures.exists('s_' + sh)) scene.load.image('s_' + sh, asset(`/images/game/ships/${sh}.png`))
   }
 }
 
@@ -209,6 +216,30 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1, occupiedSl
   const V = (x: number, y: number) => new Phaser.Math.Vector2(x, y)
   const coastMinY = Math.min(...COAST_SLOTS.map(s => s.screen.y))
   const seaLine = coastMinY - TILE.h * 0.75
+  /*
+   * ORGANİK KIYI (Ikariam koyu). Liman slotlarının önünde kıyı seaLine'da
+   * kalır (rıhtımlar yerinden oynamaz); iki yanda kara, asimetrik iki BURUN
+   * olarak denize uzanır ve limanı bir koyun içine alır. Burunlarda kıyı
+   * dalgalanır. Bütün kara/deniz sınırları bu eğriyi kullanır.
+   */
+  const bayCx = slotById(HALL_SLOT_ID)!.screen.x
+  const bayHalf = Math.max(...COAST_SLOTS.map(s => Math.abs(s.screen.x - bayCx))) + TILE.w * 1.1
+  const smooth01 = (t: number) => { const c = Math.min(1, Math.max(0, t)); return c * c * (3 - 2 * c) }
+  const shoreY = (x: number) => {
+    const d = x - bayCx
+    const side = d < 0
+    const H = side ? TILE.h * 16 : TILE.h * 11 // sol burun daha derin (asimetri)
+    const ramp = side ? TILE.w * 4.6 : TILE.w * 6.2
+    const out = smooth01((Math.abs(d) - bayHalf) / ramp)
+    // Koylar ve çıkıntılar: düşük frekanslı büyük dalga + küçük kırıntılar.
+    const wave = TILE.h * 1.7 * Math.sin(x / (TILE.w * 4.2) + 0.4)
+      + TILE.h * 0.85 * Math.sin(x / (TILE.w * 2.1) + 2.2)
+      + TILE.h * 0.35 * Math.sin(x / (TILE.w * 0.83) + 1.3)
+    const waveOn = smooth01((Math.abs(d) - bayHalf + TILE.w) / (TILE.w * 2))
+    return seaLine + H * out + wave * waveOn
+  }
+  /** Burun kıyısında mı (limanın dışında)? Kayalık/uçurum yoğunluğu için. */
+  const headland = (x: number) => smooth01((Math.abs(x - bayCx) - bayHalf) / (TILE.w * 2))
   const diamond = (cx: number, cy: number, w: number, h: number) =>
     [V(cx, cy - h / 2), V(cx + w / 2, cy), V(cx, cy + h / 2), V(cx - w / 2, cy)]
 
@@ -262,7 +293,8 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1, occupiedSl
 
   // 1) TABAN — karo dışında hiçbir koyu boşluk kalmasın.
   const g0 = scene.add.graphics().setDepth(-1000)
-  g0.fillStyle(0xa1a875, 1); g0.fillRect(wr.x, wr.y, wr.w, wr.h)
+  // Ikariam paleti: canlı ama yumuşak Akdeniz yeşili (eski kuru haki 0xa1a875).
+  g0.fillStyle(LAND_BASE, 1); g0.fillRect(wr.x, wr.y, wr.w, wr.h)
   // Deniz 7 belirgin şerit yerine çok daha sık, yumuşak sığ->derin geçiş.
   const shallow = [0x62, 0xae, 0xaa] as const
   const deep = [0x1a, 0x58, 0x66] as const
@@ -277,6 +309,19 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1, occupiedSl
     const b = Math.round(shallow[2] + (deep[2] - shallow[2]) * t)
     g0.fillStyle((r << 16) | (g << 8) | b, 1)
     g0.fillRect(wr.x, seaLine + i * bandH, wr.w, bandH + 2)
+  }
+  {
+    // Burunlar: kıyı eğrisinin üstünde kalan kısım karadır.
+    const xs: number[] = []
+    for (let x = wr.x - TILE.w; x <= wr.x + wr.w + TILE.w; x += TILE.w * 0.25) xs.push(x)
+    const curve = xs.map(x => V(x, shoreY(x)))
+    // Sığ su saçağı: burun diplerinde de su kıyıya yakın açık renkli.
+    g0.fillStyle(0x5fa9a4, 0.55)
+    g0.fillPoints([...curve, ...[...curve].reverse().map(p => V(p.x, p.y + TILE.h * 2.6))], true)
+    g0.fillStyle(0x76bab2, 0.45)
+    g0.fillPoints([...curve, ...[...curve].reverse().map(p => V(p.x, p.y + TILE.h * 1.1))], true)
+    g0.fillStyle(LAND_BASE, 1)
+    g0.fillPoints([V(xs[0], seaLine - 4), ...curve, V(xs[xs.length - 1], seaLine - 4)], true)
   }
 
   // 2) ORGANİK ARAZİ.
@@ -300,10 +345,10 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1, occupiedSl
   }
 
   // Büyük doğal renk bölgeleri: izometrik hücrelere bağlı değiller.
-  const landColors = [0x718b50, 0x93a765, 0xa99a62, 0x7e9559, 0x8c8356, 0x687f4a]
+  const landColors = [0x5f8a45, 0x86a85a, 0x9fa565, 0x6f9650, 0x8d9a58, 0x557a3e]
   for (let i = 0; i < 36; i++) {
     const x = wr.x + landRnd() * wr.w
-    const y = wr.y + landRnd() * Math.max(TILE.h, seaLine - wr.y - TILE.h)
+    const y = wr.y + landRnd() * Math.max(TILE.h, shoreY(x) - wr.y - TILE.h)
     organicPatch(
       x, y,
       TILE.w * (1.2 + landRnd() * 3.4),
@@ -325,9 +370,9 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1, occupiedSl
     const dirt = i % 9 === 0 || (i % 17 === 0)
     const key = dirt ? dirtSurface : grassSurface
     const size = TILE.w * (5.6 + surfaceRnd() * 4.0)
-    const maxY = seaLine - size * 0.58
-    if (maxY <= wr.y) continue
     const x = wr.x + wr.w * (0.025 + surfaceRnd() * 0.95)
+    const maxY = shoreY(x) - size * 0.58
+    if (maxY <= wr.y) continue
     const y = wr.y + (maxY - wr.y) * surfaceRnd()
     const img = stamp(key, x, y, size, -895, 0.435, dirt ? 0.25 : 0.43)
     img?.setFlipX(surfaceRnd() > 0.5)
@@ -341,7 +386,7 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1, occupiedSl
   const shoreBottom: Phaser.Math.Vector2[] = []
   const coastStep = TILE.w * 0.52
   for (let x = wr.x - coastStep; x <= wr.x + wr.w + coastStep; x += coastStep) {
-    const y = seaLine + (coastRnd() - 0.5) * TILE.h * 0.36
+    const y = shoreY(x) + (coastRnd() - 0.5) * TILE.h * 0.36
     const depth = TILE.h * (0.86 + coastRnd() * 0.34)
     shoreTop.push(V(x, y))
     wetLine.push(V(x, y + depth * 0.54))
@@ -367,9 +412,10 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1, occupiedSl
 
   // Kıyıda tek tek serpilmiş taş yerine seyrek KAYA KÜMELERİ.
   // Coast inşa slotlarının önü bilinçli olarak açık kalır.
-  for (let i = 3; i < shoreTop.length - 3; i += 5) {
-    if (coastRnd() > 0.38) continue
+  for (let i = 3; i < shoreTop.length - 3; i += 2) {
     const p = shoreTop[i]
+    // Burunlarda sık kayalık (uçurum hissi), koyda seyrek.
+    if (coastRnd() > 0.15 + 0.6 * headland(p.x)) continue
     if (COAST_SLOTS.some(s => Math.hypot(s.screen.x - p.x, s.screen.y - p.y) < GROUND_TARGET_W * 1.05)) continue
 
     const count = 2 + Math.floor(coastRnd() * 2)
@@ -395,7 +441,8 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1, occupiedSl
   const waterRnd = mulberry32(8145)
   for (let i = 0; i < 92; i++) {
     const x = wr.x + waterRnd() * wr.w
-    const y = seaLine + TILE.h * 0.9 + waterRnd() * Math.max(TILE.h, wr.y + wr.h - seaLine - TILE.h)
+    const top = shoreY(x) + TILE.h * 0.9
+    const y = top + waterRnd() * Math.max(TILE.h, wr.y + wr.h - top)
     const w = TILE.w * (0.65 + waterRnd() * 1.65)
     const h = 0.9 + waterRnd() * 1.5
     water.fillStyle(waterRnd() > 0.40 ? 0xdcebe4 : 0x8fc6c1, 0.045 + waterRnd() * 0.085)
@@ -403,12 +450,34 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1, occupiedSl
   }
   // Kare/su çerçevesi barındıran eski tile PNG'leri burada basılmaz.
 
+  // KOYDA DEMİRLİ GEMİLER (Ikariam limanı canlı görünür): rıhtımların önünde
+  // ve açıkta birkaç yelkenli; su üstünde yavaşça sallanır. Deniz katmanının
+  // üstünde, şehrin altında durur; rıhtımlara/liman binalarına değmez.
+  const ships: Array<[string, number, number, number, boolean]> = [
+    // [doku, x ofseti (TILE.w), kıyıdan derinlik (TILE.h), genişlik (TILE.w), ayna]
+    ['s_ship-a', -4.1, 5.4, 1.05, false],
+    ['s_ship-b', 3.6, 7.6, 1.3, true],
+    ['s_ship-a', -0.4, 12.5, 0.95, true],
+  ]
+  ships.forEach(([key, ox, oy, w, flip], i) => {
+    const x = bayCx + ox * TILE.w
+    const y = shoreY(x) + oy * TILE.h
+    if (y > wr.y + wr.h - TILE.h) return
+    const img = stamp(key, x, y, TILE.w * w, -690, 0.86)
+    if (!img) return
+    img.setFlipX(flip)
+    scene.tweens.add({
+      targets: img, y: y + 5, angle: flip ? -1.4 : 1.4,
+      duration: 2300 + i * 450, ease: 'Sine.easeInOut', yoyo: true, repeat: -1, delay: i * 380,
+    })
+  })
+
   // Yakın plan mikro doku: kuru ot, çakıl, renk kırılması.
   const micro = scene.add.graphics().setDepth(-887)
   const microRnd = mulberry32(77123)
   for (let i = 0; i < 320; i++) {
     const x = wr.x + microRnd() * wr.w
-    const y = wr.y + microRnd() * Math.max(0, seaLine - wr.y - TILE.h)
+    const y = wr.y + microRnd() * Math.max(0, shoreY(x) - wr.y - TILE.h)
     const roll = microRnd()
     micro.fillStyle(roll > 0.62 ? 0xd8c78c : roll > 0.28 ? 0x546d43 : 0x8d764e, 0.035 + microRnd() * 0.065)
     micro.fillEllipse(x, y, 1.5 + microRnd() * 5.5, 0.8 + microRnd() * 2.1)
@@ -417,10 +486,10 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1, occupiedSl
   // Büyük yumuşak ton geçişleri.
   const variation = scene.add.graphics().setDepth(-880)
   const patchRnd = mulberry32(6161)
-  const patchColors = [0x5f7b47, 0xb09562, 0x718d50, 0x8b754d]
+  const patchColors = [0x557b3f, 0xa89c60, 0x6b9148, 0x8a7c4f]
   for (let i = 0; i < 24; i++) {
     const x = wr.x + wr.w * (0.04 + patchRnd() * 0.92)
-    const y = wr.y + (seaLine - wr.y) * (0.03 + patchRnd() * 0.94)
+    const y = wr.y + (shoreY(x) - wr.y) * (0.03 + patchRnd() * 0.94)
     variation.fillStyle(patchColors[i % patchColors.length], 0.022 + patchRnd() * 0.032)
     variation.fillEllipse(x, y, TILE.w * (4 + patchRnd() * 7), TILE.h * (3 + patchRnd() * 6))
   }
@@ -552,7 +621,7 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1, occupiedSl
   const initialOccupied = new Set(occupiedSlotIds)
   initialOccupied.add(HALL_SLOT_ID)
   const clearForDecor = (wx: number, wy: number, margin = 0.9) =>
-    wy < seaLine - TILE.h * 0.58 &&
+    wy < shoreY(wx) - TILE.h * 0.58 &&
     !occ.some(s => nearSlot(
       wx, wy, s,
       initialOccupied.has(s.id) ? margin : Math.min(margin, s.fixed ? 0.90 : 0.66),
@@ -589,7 +658,7 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1, occupiedSl
       placeDecor(
         cx + Math.cos(a) * r,
         cy + Math.sin(a) * r * 0.42,
-        'd_olive-tree',
+        clusterRnd() < 0.3 ? 'd_cypress' : 'd_olive-tree',
         0.82 + clusterRnd() * 0.10,
         0.68,
       )
@@ -616,7 +685,7 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1, occupiedSl
   let guard = 0
   while (clusterCenters.length < 14 && guard++ < 320) {
     const x = wr.x + wr.w * (0.08 + clusterRnd() * 0.84)
-    const y = wr.y + (seaLine - wr.y) * (0.08 + clusterRnd() * 0.78)
+    const y = wr.y + (shoreY(x) - wr.y) * (0.08 + clusterRnd() * 0.78)
     if (!clearForDecor(x, y, 0.78)) continue
     if (clusterCenters.some(c => Math.hypot(c.x - x, c.y - y) < TILE.w * 2.15)) continue
     clusterCenters.push({
@@ -635,7 +704,7 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1, occupiedSl
   ] as const
   for (const [px, py] of edgeAnchors) {
     const x = wr.x + wr.w * px + (clusterRnd() - 0.5) * TILE.w * 0.45
-    const y = wr.y + (seaLine - wr.y) * py + (clusterRnd() - 0.5) * TILE.h * 0.65
+    const y = wr.y + (shoreY(x) - wr.y) * py + (clusterRnd() - 0.5) * TILE.h * 0.65
     if (clearForDecor(x, y, 0.72)) placeCluster(x, y, 7 + Math.floor(clusterRnd() * 4), 0.56)
   }
 
@@ -670,7 +739,8 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1, occupiedSl
     const ringYs = DEFENSE_FOUNDATION.map(p => p.screen.y)
     const clearRx = Math.max(...ringXs.map(x => Math.abs(x - hallS.x))) + TILE.w * 0.9
     const clearTop = hallS.y - Math.min(...ringYs) + TILE.h * 2.2
-    const coastTop = seaLine - TILE.h * 3.2
+    // Orman burunlara da iner; kıyıdan kum/kayalık şeridi kadar geride durur.
+    const coastTop = seaLine + TILE.h * 16
     const wildRnd = mulberry32(31337)
     const tints = [0xffffff, 0xeef3e2, 0xe3ebd4, 0xf4eedc, 0xdde6cc]
     const wild: Array<{ x: number; y: number; key: string; w: number; tint: number; flip: boolean; clump: number }> = []
@@ -686,6 +756,7 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1, occupiedSl
       for (let x = wr.x + TILE.w * 0.3; x < wr.x + wr.w; x += stepX) {
         const jx = x + (wildRnd() - 0.5) * stepX * 0.9
         const jy = y + (wildRnd() - 0.5) * stepY * 0.9
+        if (jy > shoreY(jx) - TILE.h * 2.4) { wildRnd(); wildRnd(); wildRnd(); continue }
         const dx = (jx - hallS.x) / clearRx
         const dy = jy < hallS.y ? (hallS.y - jy) / clearTop : 0
         const e = Math.hypot(dx, dy)
@@ -698,10 +769,13 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1, occupiedSl
         if (roll > (0.10 + 0.70 * t) * (0.12 + 1.6 * clump)) continue
         if (!clearForDecor(jx, jy, 0.8)) continue
         const rockBias = 0.08 * t
-        const key = pick < 0.64 - rockBias ? 'd_olive-tree'
+        const key = pick < 0.52 - rockBias ? 'd_olive-tree'
+          : pick < 0.60 - rockBias ? 'd_cypress'
+          : pick < 0.66 - rockBias ? 'd_cypress-b'
           : pick < 0.84 - rockBias ? 'd_bush'
           : pick < 0.96 ? 'd_rock' : 'd_flower'
         const w = key === 'd_olive-tree' ? TILE.w * (0.62 + size * 0.34 + clump * 0.36)
+          : key.startsWith('d_cypress') ? TILE.w * (0.30 + size * 0.12)
           : key === 'd_rock' ? TILE.w * (0.30 + size * 0.18)
           : key === 'd_bush' ? TILE.w * (0.30 + size * 0.14)
           : TILE.w * (0.24 + size * 0.08)

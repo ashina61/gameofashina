@@ -14,7 +14,7 @@
  * Phaser'in ESM paketinde varsayılan dışa aktarım yok; ad alanı olarak alınır.
  */
 import * as Phaser from 'phaser'
-import { TILE, CITY_SLOTS, COAST_SLOTS, HALL_SLOT_ID, slotById } from '@/lib/game/city-map'
+import { TILE, CITY_SLOTS, COAST_SLOTS, DEFENSE_SLOTS, DEFENSE_FOUNDATION, ROAD_GRAPH, HALL_SLOT_ID, slotById } from '@/lib/game/city-map'
 import { LIVE_SLOTS, liveSlotByIndex, type LiveSlot } from '@/lib/game/city-map/live-adapter'
 import { buildCityTerrain, preloadTerrain, cityWorldRect, cityContentRect } from '@/lib/game/city-map/terrain-builder'
 import { assetById, groundScale, GROUND_TARGET_W, BUILDING_RENDER_SCALE, FOOTPRINT_DIAMOND_W } from '@/lib/game/city-map/building-assets'
@@ -22,7 +22,7 @@ import { cleanCoastSpriteRgba } from '@/lib/game/city-map/coast-asset-cleaner'
 import { normalizeBuildingSpriteRgba } from '@/lib/game/city-map/building-texture-normalizer'
 import { visualSignature } from '@/lib/game/city-render'
 import { BUILDINGS, BUILDING_IDS, activeJob, zoneOf, type BuildingId, type Game } from '@/lib/game/engine'
-import { buildingImage } from '@/lib/asset'
+import { asset, buildingImage } from '@/lib/asset'
 
 export type CityEvents = {
   onBuilding: (id: BuildingId) => void
@@ -71,6 +71,7 @@ export class CityScene extends Phaser.Scene {
   preload() {
     for (const id of BUILDING_IDS) if (BUILDINGS[id].art && !this.textures.exists(id)) this.load.image(id, buildingImage(id))
     preloadTerrain(this)
+    if (!this.textures.exists('w_tower')) this.load.image('w_tower', asset('/images/game/walls/tower-round.png'))
   }
 
   create() {
@@ -403,6 +404,153 @@ export class CityScene extends Phaser.Scene {
     if (this.moving && this.movePlot !== null) {
       const s = liveSlotByIndex(this.movePlot)
       if (s) this.drawMoveFrame(s)
+    }
+    // Ikariam: Sur inşa edilince şehrin çevresinde duvar + kuleler belirir.
+    if (this.state.buildings.surlar > 0) this.drawWalls(this.state.buildings.surlar)
+  }
+
+  /*
+   * SURLAR — savunma halkası boyunca kumtaşı duvar (sur kitinin renkleriyle),
+   * savunma yuvalarında boyalı yuvarlak kuleler, yolların surdan geçtiği her
+   * noktada iki kuleli KAPI açıklığı (hiçbir yol duvarın içinden geçmez).
+   * Duvar seviyeyle yükselir. Parçalar kısa tutulur ve derinlikleri zemin
+   * y'sidir: binalar ve ağaçlarla doğru sıralanır.
+   */
+  private drawWalls(level: number) {
+    const ring = DEFENSE_FOUNDATION.map(p => p.screen)
+    const n = ring.length
+    const wallH = TILE.h * (0.55 + Math.min(level, 10) * 0.05)
+    const walk = TILE.h * 0.26
+    const gapHalf = TILE.w * 0.34
+
+    // Yol kenarlarının halka kenarlarını kestiği noktalar = kapılar.
+    const cross = (p: { x: number; y: number }, q: { x: number; y: number }, a: { x: number; y: number }, b: { x: number; y: number }) => {
+      const d = (q.x - p.x) * (b.y - a.y) - (q.y - p.y) * (b.x - a.x)
+      if (Math.abs(d) < 1e-6) return null
+      const t = ((a.x - p.x) * (b.y - a.y) - (a.y - p.y) * (b.x - a.x)) / d
+      const u = ((a.x - p.x) * (q.y - p.y) - (a.y - p.y) * (q.x - p.x)) / d
+      return t >= 0 && t <= 1 && u >= 0 && u <= 1 ? u : null
+    }
+    const nodes = new Map(ROAD_GRAPH.nodes.map(nd => [nd.id, nd.screen]))
+    const hits: Array<{ seg: number; u: number; x: number; y: number }> = []
+    for (const e of ROAD_GRAPH.edges) {
+      const A = nodes.get(e.from), B = nodes.get(e.to)
+      if (!A || !B) continue
+      let prev = A
+      for (let k = 1; k <= 24; k++) {
+        const t = k / 24, w = 1 - t
+        const cur = { x: w * w * A.x + 2 * w * t * e.ctrl.x + t * t * B.x, y: w * w * A.y + 2 * w * t * e.ctrl.y + t * t * B.y }
+        for (let i = 0; i < n; i++) {
+          const u = cross(prev, cur, ring[i], ring[(i + 1) % n])
+          if (u === null) continue
+          const a = ring[i], b = ring[(i + 1) % n]
+          hits.push({ seg: i, u, x: a.x + (b.x - a.x) * u, y: a.y + (b.y - a.y) * u })
+        }
+        prev = cur
+      }
+    }
+    // Yakın geçişler TEK kapıda birleşir (liman yolları gibi demetler tek
+    // geniş açıklık olur; köşe aşan demet iki kenarda da açıklık alır).
+    const clusters: Array<typeof hits> = []
+    for (const h of hits) {
+      const near = clusters.filter(c => c.some(o => Math.hypot(o.x - h.x, o.y - h.y) < TILE.w * 1.3))
+      if (near.length === 0) { clusters.push([h]); continue }
+      const merged = near.flat().concat(h)
+      for (const c of near) clusters.splice(clusters.indexOf(c), 1)
+      clusters.push(merged)
+    }
+    const gates: Array<{ seg: number; t0: number; t1: number }> = []
+    for (const c of clusters) {
+      for (const seg of new Set(c.map(h => h.seg))) {
+        const us = c.filter(h => h.seg === seg).map(h => h.u)
+        const len = Math.hypot(ring[(seg + 1) % n].x - ring[seg].x, ring[(seg + 1) % n].y - ring[seg].y)
+        gates.push({ seg, t0: Math.max(0, Math.min(...us) - gapHalf / len), t1: Math.min(1, Math.max(...us) + gapHalf / len) })
+      }
+    }
+
+    const V = (x: number, y: number) => new Phaser.Math.Vector2(x, y)
+    const piece = (p0: { x: number; y: number }, p1: { x: number; y: number }) => {
+      const g = this.add.graphics().setDepth(Math.max(p0.y, p1.y) + 1)
+      const dx = p1.x - p0.x, dy = p1.y - p0.y
+      // Işık sol-üstten: "\\" yönlü yüzler aydınlık, "/" yönlüler gölgede.
+      const lit = dx * dy > 0 ? 1 : dy === 0 ? 0.6 : 0.25
+      const face = lit > 0.8 ? 0xd9bf92 : lit > 0.5 ? 0xc9ad80 : 0xb3966c
+      const top = 0xe8d6ae
+      g.fillStyle(0x1b2a14, 0.20)
+      g.fillPoints([V(p0.x, p0.y), V(p1.x, p1.y), V(p1.x + TILE.w * 0.14, p1.y + TILE.h * 0.22), V(p0.x + TILE.w * 0.14, p0.y + TILE.h * 0.22)], true)
+      g.fillStyle(face, 1)
+      g.fillPoints([V(p0.x, p0.y), V(p1.x, p1.y), V(p1.x, p1.y - wallH), V(p0.x, p0.y - wallH)], true)
+      // Taş sıraları.
+      g.lineStyle(1.4, 0x8a6c47, 0.30)
+      for (const f of [0.33, 0.66]) g.lineBetween(p0.x, p0.y - wallH * f, p1.x, p1.y - wallH * f)
+      g.fillStyle(top, 1)
+      g.fillPoints([V(p0.x, p0.y - wallH), V(p1.x, p1.y - wallH), V(p1.x, p1.y - wallH - walk), V(p0.x, p0.y - wallH - walk)], true)
+      // Mazgallar (ön kenar boyunca).
+      const len = Math.hypot(dx, dy), step = TILE.w * 0.15, mw = TILE.w * 0.075, mh = TILE.h * 0.17
+      const ux = dx / (len || 1), uy = dy / (len || 1)
+      for (let d = step * 0.3; d + mw <= len; d += step) {
+        const a = { x: p0.x + ux * d, y: p0.y + uy * d - wallH }
+        const b = { x: a.x + ux * mw, y: a.y + uy * mw }
+        g.fillStyle(face, 1)
+        g.fillPoints([V(a.x, a.y), V(b.x, b.y), V(b.x, b.y - mh), V(a.x, a.y - mh)], true)
+        g.fillStyle(top, 1)
+        g.fillPoints([V(a.x, a.y - mh), V(b.x, b.y - mh), V(b.x, b.y - mh - walk * 0.4), V(a.x, a.y - mh - walk * 0.4)], true)
+      }
+      g.lineStyle(1.6, 0x6e5436, 0.55); g.lineBetween(p0.x, p0.y, p1.x, p1.y)
+      this.pieces.push(g)
+    }
+
+    // Duvar parçaları (kapı açıklıkları atlanır).
+    for (let i = 0; i < n; i++) {
+      const A = ring[i], B = ring[(i + 1) % n]
+      const len = Math.hypot(B.x - A.x, B.y - A.y)
+      const holes = gates.filter(g => g.seg === i).map(g => [g.t0, g.t1] as const)
+      const count = Math.max(1, Math.ceil(len / (TILE.w * 0.5)))
+      for (let k = 0; k < count; k++) {
+        let t0 = k / count, t1 = (k + 1) / count
+        for (const [h0, h1] of holes) {
+          if (t1 <= h0 || t0 >= h1) continue
+          if (t0 < h0 && t1 > h1) { // parça açıklığı ortalıyor: iki yana böl
+            piece({ x: A.x + (B.x - A.x) * t0, y: A.y + (B.y - A.y) * t0 }, { x: A.x + (B.x - A.x) * h0, y: A.y + (B.y - A.y) * h0 })
+            t0 = h1
+          } else if (t0 < h0) t1 = h0
+          else t0 = h1
+        }
+        if (t1 - t0 > 0.002) piece({ x: A.x + (B.x - A.x) * t0, y: A.y + (B.y - A.y) * t0 }, { x: A.x + (B.x - A.x) * t1, y: A.y + (B.y - A.y) * t1 })
+      }
+    }
+
+    // Kuleler: savunma yuvalarında büyük, kapı iki yanında küçük.
+    const tower = (x: number, y: number, w: number) => {
+      const base = this.add.graphics().setDepth(y + 1.5)
+      base.fillStyle(0x1b2a14, 0.24); base.fillEllipse(x + w * 0.18, y + w * 0.08, w * 1.3, w * 0.5)
+      base.fillStyle(0xb3966c, 1); base.fillEllipse(x, y, w * 1.02, w * 0.42)
+      this.pieces.push(base)
+      if (this.textures.exists('w_tower')) {
+        const img = this.add.image(x, y - w * 0.04, 'w_tower').setOrigin(0.5, 1).setDepth(y + 2)
+        img.setScale(w / img.width)
+        this.pieces.push(img)
+      }
+    }
+    const placed: Array<{ x: number; y: number }> = []
+    for (const s of DEFENSE_SLOTS) {
+      tower(s.screen.x, s.screen.y + TILE.h * 0.2, TILE.w * 0.62)
+      placed.push(s.screen)
+    }
+    // Kapı kuleleri: açıklığın iki ucunda; köşe kulesine ya da başka kuleye
+    // çok yakınsa atlanır (kule yığını olmasın).
+    for (const g of gates) {
+      const A = ring[g.seg], B = ring[(g.seg + 1) % n]
+      const len = Math.hypot(B.x - A.x, B.y - A.y)
+      const ends: number[] = []
+      if (g.t0 > 0) ends.push(g.t0 - TILE.w * 0.1 / len)
+      if (g.t1 < 1) ends.push(g.t1 + TILE.w * 0.1 / len)
+      for (const u of ends) {
+        const x = A.x + (B.x - A.x) * u, y = A.y + (B.y - A.y) * u
+        if (placed.some(p => Math.hypot(p.x - x, p.y - y) < TILE.w * 0.7)) continue
+        placed.push({ x, y })
+        tower(x, y + TILE.h * 0.1, TILE.w * 0.4)
+      }
     }
   }
 

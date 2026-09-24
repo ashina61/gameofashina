@@ -137,7 +137,7 @@ const ringPt = ([dRel, sRel]) => {
   return withScreen({ gx: (s + d) / 2, gy: (s - d) / 2 })
 }
 const DEFENSE_ANCHORS = [
-  { id: 'defense_tower_top', at: [0, -30] },
+  { id: 'defense_tower_top', at: [0, -32] },
   { id: 'defense_tower_left', at: [-14, -4] },
   { id: 'defense_tower_right', at: [14, -4] },
   // Kapı limana bakar ve iki liman yolu demetinin ARASINDA durur; alt kule sol
@@ -152,7 +152,8 @@ DEFENSE_ANCHORS.forEach(({ id, at }) => {
 
 // Temel hattı: şehrin çevresinde sekizgen (kıyıdan önce kapanır).
 const foundationPts = [
-  [0, -32], [12, -26], [14, -4], [12, 18], [0, 26], [-12, 18], [-14, -4], [-12, -26],
+  // Köşeler kule/kapı yuvalarıyla ÇAKIŞIR: sur duvarı kuleden kuleye uzanır.
+  [0, -32], [12, -26], [14, -4], [12, 18], [0, 24], [-12, 22], [-14, -4], [-12, -26],
 ].map(ringPt)
 
 // --- YOL GRAFİĞİ (ROAD GRAPH) --------------------------------------------
@@ -160,7 +161,7 @@ const foundationPts = [
  * Şimdilik ARTWORK yok; yalnızca gelecekte KIVRIMLI yol çizmek için bir graf.
  * Düğümler = city (belediye dahil) + coast slot merkezleri. Kenarlar:
  *   - city içinde belediyeden dallanan MST (her binaya belediyeye bağlı bir yol)
- *   - her coast slotu en yakın city slotuna (limana inen yol)
+ *   - tek rıhtım şehre iner (deniz kapısı), diğer rıhtımlar rıhtım boyunca zincirlenir
  * Kenarlar merkez-merkez topolojiktir; kıvrım için her kenara dik kaydırılmış
  * bir kontrol noktası (ctrl) verilir — renderer isterse bezier çizer.
  */
@@ -204,12 +205,22 @@ const crossesOther = (a, b) => {
   return false
 }
 const nearestCity = (c) => Math.min(...citySlots.map(v => dist(c, v)))
+// Surdan TEK geçiş (deniz kapısı): yalnızca şehre en yakın rıhtım şehre iner;
+// diğerleri rıhtım boyunca birbirine bağlanır.
 const connected = [...citySlots]
-for (const c of [...coastSlots].sort((p, q) => nearestCity(p) - nearestCity(q))) {
-  const cands = connected.map(v => ({ v, d: dist(c, v) })).sort((p, q) => p.d - q.d)
-  const pick = cands.find(({ v }) => !crossesOther(c, v)) ?? cands[0]
-  edges.push({ from: c.id, to: pick.v.id })
-  connected.push(c)
+const quay = []
+const rest = [...coastSlots].sort((p, q) => nearestCity(p) - nearestCity(q))
+while (rest.length) {
+  // İlk rıhtım şehre; sonrakiler rıhtım zincirine en yakın olandan (Prim).
+  const next = quay.length
+    ? rest.reduce((b, c) => (Math.min(...quay.map(q => dist(c, q))) < Math.min(...quay.map(q => dist(b, q))) ? c : b))
+    : rest[0]
+  rest.splice(rest.indexOf(next), 1)
+  const pool = quay.length ? quay : connected
+  const cands = pool.map(v => ({ v, d: dist(next, v) })).sort((p, q) => p.d - q.d)
+  const pick = cands.find(({ v }) => !crossesOther(next, v)) ?? cands[0]
+  edges.push({ from: next.id, to: pick.v.id })
+  quay.push(next)
 }
 
 const roadNodes = [...citySlots, ...coastSlots].map(s => ({ id: s.id, gx: s.gx, gy: s.gy, screen: s.screen }))

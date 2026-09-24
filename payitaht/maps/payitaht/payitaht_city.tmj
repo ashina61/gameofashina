@@ -1601,12 +1601,12 @@
        "y": 4672
       },
       {
-       "x": 4032,
-       "y": 5312
+       "x": 3968,
+       "y": 5248
       },
       {
-       "x": 3392,
-       "y": 5440
+       "x": 3520,
+       "y": 5568
       },
       {
        "x": 2624,
@@ -1633,8 +1633,8 @@
      "id": 63,
      "name": "defense_tower_top",
      "type": "defense",
-     "x": 2176,
-     "y": 3456,
+     "x": 2112,
+     "y": 3392,
      "width": 128,
      "height": 128,
      "visible": true,
@@ -1653,12 +1653,12 @@
       {
        "name": "gx",
        "type": "int",
-       "value": 35
+       "value": 34
       },
       {
        "name": "gy",
        "type": "int",
-       "value": 55
+       "value": 54
       },
       {
        "name": "fw",
@@ -2691,68 +2691,6 @@
     },
     {
      "id": 27,
-     "name": "road_coast_05_city_18",
-     "type": "road",
-     "x": 0,
-     "y": 0,
-     "visible": true,
-     "rotation": 0,
-     "polyline": [
-      {
-       "x": 4288,
-       "y": 5184
-      },
-      {
-       "x": 3968,
-       "y": 4992
-      }
-     ],
-     "properties": [
-      {
-       "name": "from",
-       "type": "string",
-       "value": "coast_05"
-      },
-      {
-       "name": "to",
-       "type": "string",
-       "value": "city_18"
-      }
-     ]
-    },
-    {
-     "id": 28,
-     "name": "road_coast_01_city_17",
-     "type": "road",
-     "x": 0,
-     "y": 0,
-     "visible": true,
-     "rotation": 0,
-     "polyline": [
-      {
-       "x": 3776,
-       "y": 5696
-      },
-      {
-       "x": 3712,
-       "y": 5248
-      }
-     ],
-     "properties": [
-      {
-       "name": "from",
-       "type": "string",
-       "value": "coast_01"
-      },
-      {
-       "name": "to",
-       "type": "string",
-       "value": "city_17"
-      }
-     ]
-    },
-    {
-     "id": 29,
      "name": "road_coast_02_coast_03",
      "type": "road",
      "x": 0,
@@ -2783,7 +2721,38 @@
      ]
     },
     {
-     "id": 30,
+     "id": 28,
+     "name": "road_coast_01_coast_02",
+     "type": "road",
+     "x": 0,
+     "y": 0,
+     "visible": true,
+     "rotation": 0,
+     "polyline": [
+      {
+       "x": 3776,
+       "y": 5696
+      },
+      {
+       "x": 3968,
+       "y": 5632
+      }
+     ],
+     "properties": [
+      {
+       "name": "from",
+       "type": "string",
+       "value": "coast_01"
+      },
+      {
+       "name": "to",
+       "type": "string",
+       "value": "coast_02"
+      }
+     ]
+    },
+    {
+     "id": 29,
      "name": "road_coast_04_coast_03",
      "type": "road",
      "x": 0,
@@ -2810,6 +2779,37 @@
        "name": "to",
        "type": "string",
        "value": "coast_03"
+      }
+     ]
+    },
+    {
+     "id": 30,
+     "name": "road_coast_05_coast_04",
+     "type": "road",
+     "x": 0,
+     "y": 0,
+     "visible": true,
+     "rotation": 0,
+     "polyline": [
+      {
+       "x": 4288,
+       "y": 5184
+      },
+      {
+       "x": 4224,
+       "y": 5376
+      }
+     ],
+     "properties": [
+      {
+       "name": "from",
+       "type": "string",
+       "value": "coast_05"
+      },
+      {
+       "name": "to",
+       "type": "string",
+       "value": "coast_04"
       }
      ]
     },
