@@ -86,7 +86,7 @@ const jcity = json.slots.filter(s => s.type === 'city')
 const jmovable = jcity.filter(s => !s.fixed)
 const jcoast = json.slots.filter(s => s.type === 'coast')
 if (jmovable.length < 24) fail(`en az 24 taşınabilir city slotu gerekli, bulundu ${jmovable.length}`)
-if (jcoast.length < 4) fail(`en az 4 coast slotu gerekli, bulundu ${jcoast.length}`)
+if (jcoast.length < 3) fail(`en az 3 coast slotu gerekli, bulundu ${jcoast.length}`)
 
 // Belediye haritanın geometrik merkezinde mi
 const hall = json.slots.find(s => s.id === json.hallSlotId)
@@ -117,8 +117,16 @@ else {
     if (!nid.has(e.from) || !nid.has(e.to)) fail(`roadGraph kenarı geçersiz düğüme işaret ediyor: ${e.from}->${e.to}`)
   }
   const cityIds = new Set(jcity.map(s => s.id))
-  const cityEdges = rg.edges.filter(e => cityIds.has(e.from) && cityIds.has(e.to))
-  if (cityEdges.length < jcity.length - 1) fail('şehir yol ağı bağlı değil (MST kenarı eksik)')
+  // Her city ve coast slotu belediyeden yol ağıyla (sokak düğümleri dahil) erişilebilir olmalı.
+  const adj = new Map()
+  for (const e of rg.edges) {
+    adj.set(e.from, [...(adj.get(e.from) ?? []), e.to])
+    adj.set(e.to, [...(adj.get(e.to) ?? []), e.from])
+  }
+  const reach = new Set([json.hallSlotId]), queue = [json.hallSlotId]
+  while (queue.length) for (const n of adj.get(queue.shift()) ?? []) if (!reach.has(n)) { reach.add(n); queue.push(n) }
+  for (const s of json.slots.filter(s => s.type !== 'defense')) if (!reach.has(s.id)) fail(`şehir yol ağı bağlı değil: ${s.id} belediyeye ulaşmıyor`)
+  void cityIds
 }
 
 // Kompakt şehir garantileri (Ikariam yoğunluğu):

@@ -101,7 +101,9 @@ CITY_CELLS.forEach(([u, v], i) => {
   const order = [...JITTERS] // Fisher-Yates (tohumlu, motor-bağımsız deterministik)
   for (let k = order.length - 1; k > 0; k--) { const r = Math.floor(rnd() * (k + 1)); [order[k], order[r]] = [order[r], order[k]] }
   let pos = base
-  if (rnd() < 0.7) { // hücrelerin çoğu sarsılır, bir kısmı kafeste kalır
+  // IKARIAM DÜZENİ: arsalar kafeste tam oturur; aralarındaki sokak ızgarası
+  // (aşağıda) ancak böyle düzgün okunur. Sarsıntı kapalı.
+  if (false) {
     for (const [dx, dy] of order) {
       const cand = { gx: base.gx + dx, gy: base.gy + dy }
       if (slots.every(s => hasStreet(s, cand))) { pos = cand; break }
@@ -118,7 +120,7 @@ CITY_CELLS.forEach(([u, v], i) => {
  * Yatayda 256 px aralıklı, bir aşağı bir yukarı (dalga). Liman/tersane burada.
  *   ekran d = gx-gy = -20 + dRel ,  s = gx+gy = 120 + sRel
  */
-const COAST_REL = [[-10, 28], [-6, 30], [-2, 28], [2, 30], [6, 28], [10, 30]] // [dRel (×64px), sRel (×32px)]
+const COAST_REL = [[-8, 28], [0, 30], [8, 28]] // Ikariam: limanda üç deniz arsası [dRel (×64px), sRel (×32px)]
 COAST_REL.forEach(([dRel, sRel], i) => {
   const d = -20 + dRel, s = 120 + sRel
   slots.push(withScreen({
@@ -138,12 +140,11 @@ const ringPt = ([dRel, sRel]) => {
 }
 const DEFENSE_ANCHORS = [
   { id: 'defense_tower_top', at: [0, -32] },
-  { id: 'defense_tower_left', at: [-14, -4] },
-  { id: 'defense_tower_right', at: [14, -4] },
-  // Kapı limana bakar ve iki liman yolu demetinin ARASINDA durur; alt kule sol
-  // burçta. Hiçbir yol bir savunma footprint'inin altından geçmez.
-  { id: 'defense_tower_bottom', at: [-12, 22] },
-  { id: 'defense_gate', at: [0, 24] },
+  { id: 'defense_tower_left', at: [-13, -4] },
+  { id: 'defense_tower_right', at: [13, -4] },
+  // Alt köşe kuleleri; aradaki uzun kenarı liman kapısı yolu keser.
+  { id: 'defense_tower_bottom', at: [-13, 23] },
+  { id: 'defense_gate', at: [13, 23] },
 ]
 DEFENSE_ANCHORS.forEach(({ id, at }) => {
   const p = ringPt(at)
@@ -152,8 +153,8 @@ DEFENSE_ANCHORS.forEach(({ id, at }) => {
 
 // Temel hattı: şehrin çevresinde sekizgen (kıyıdan önce kapanır).
 const foundationPts = [
-  // Köşeler kule/kapı yuvalarıyla ÇAKIŞIR: sur duvarı kuleden kuleye uzanır.
-  [0, -32], [12, -26], [14, -4], [12, 18], [0, 24], [-12, 22], [-14, -4], [-12, -26],
+  // Köşeler kule yuvalarıyla ÇAKIŞIR: sur duvarı kuleden kuleye uzanır.
+  [0, -32], [12, -26], [13, -4], [13, 23], [0, 24.5], [-13, 23], [-13, -4], [-12, -26],
 ].map(ringPt)
 
 // --- YOL GRAFİĞİ (ROAD GRAPH) --------------------------------------------
@@ -169,68 +170,75 @@ const citySlots = slots.filter(s => s.type === 'city')
 const coastSlots = slots.filter(s => s.type === 'coast')
 const dist = (p, q) => Math.hypot(p.gx - q.gx, p.gy - q.gy)
 
-// Prim MST, belediyeden başla.
-const inTree = new Set(['city_hall'])
-const edges = []
-while (inTree.size < citySlots.length) {
-  let best = null
-  for (const u of citySlots) {
-    if (!inTree.has(u.id)) continue
-    for (const v of citySlots) {
-      if (inTree.has(v.id)) continue
-      const d = dist(u, v)
-      if (!best || d < best.d) best = { from: u.id, to: v.id, d }
-    }
-  }
-  inTree.add(best.to)
-  edges.push({ from: best.from, to: best.to })
-}
 /*
- * Coast bağlantıları — RIHTIM GEZİNTİ YOLU. Rıhtımlar şehre yakınlık sırasıyla
- * bağlanır; her biri en yakın city slotuna YA DA zaten bağlanmış komşu rıhtıma
- * gider. Başka bir footprint'in (city/coast/defense) altından geçecek aday
- * reddedilir — kompakt şehirde yollar yalnızca sokaklardan akar.
+ * SOKAK IZGARASI (Ikariam). Tuğla kafeste arsalar u≡v (mod 2) hücrelerindedir;
+ * u+v TEK olan kafes noktaları ise dört arsanın ARASINDAKİ kavşaklardır. Kavşaklar
+ * çapraz komşularına (u±1, v±1) izometrik düz sokaklarla bağlanır: her arsa dört
+ * yandan sokakla çevrili, düzenli mahalle blokları oluşur. Her arsa ön (aşağı,
+ * yokuş aşağı) kapısından sokağa bağlanır; belediye dört yanındaki kavşağa.
+ * Kavşaktan limana tek bir KAPI yolu iner; rıhtımlar kendi aralarında bağlanır.
  */
-const allFootprints = slots
-const crossesOther = (a, b) => {
-  const A = { x: screenX(a.gx, a.gy), y: screenY(a.gx, a.gy) }, B = { x: screenX(b.gx, b.gy), y: screenY(b.gx, b.gy) }
-  const halfW = (FOOT * TILE_W) / 2 * 1.15 // kıvrım payı
-  for (let t = 0.1; t <= 0.9; t += 0.05) {
-    const x = A.x + (B.x - A.x) * t, y = A.y + (B.y - A.y) * t
-    for (const s of allFootprints) {
-      if (s.id === a.id || s.id === b.id) continue
-      if (Math.abs(s.screen.x - x) + 2 * Math.abs(s.screen.y - y) < halfW) return true
-    }
+const cellKey = (u, v) => `${u},${v}`
+const plotCells = new Map(CITY_CELLS.map(([u, v], i) => [cellKey(u, v), slots[i + 1].id]))
+plotCells.set(cellKey(0, 0), 'city_hall')
+// Meydan hücreleri (belediyenin çaprazları) arsa değil ama sokak çevreler.
+const plazaCells = new Set([[1, 1], [-1, 1], [1, -1], [-1, -1]].map(([u, v]) => cellKey(u, v)))
+const isCityCell = (u, v) => plotCells.has(cellKey(u, v)) || plazaCells.has(cellKey(u, v))
+const street = new Map()
+for (let v = -8; v <= 7; v++) for (let u = -3; u <= 3; u++) {
+  if (((u + v) % 2 + 2) % 2 !== 1) continue
+  const around = [[u + 1, v], [u - 1, v], [u, v + 1], [u, v - 1]].filter(([a, b]) => isCityCell(a, b)).length
+  if (around >= 2) street.set(cellKey(u, v), { id: `st_${u}_${v}`, u, v, ...lattice(u, v) })
+}
+const edges = []
+const seenEdge = new Set()
+const addEdge = (from, to) => {
+  const k = from < to ? `${from}|${to}` : `${to}|${from}`
+  if (seenEdge.has(k)) return
+  seenEdge.add(k); edges.push({ from, to })
+}
+for (const st of street.values()) {
+  for (const [du, dv] of [[1, 1], [1, -1]]) {
+    const nb = street.get(cellKey(st.u + du, st.v + dv))
+    if (nb) addEdge(st.id, nb.id)
   }
-  return false
 }
-const nearestCity = (c) => Math.min(...citySlots.map(v => dist(c, v)))
-// Surdan TEK geçiş (deniz kapısı): yalnızca şehre en yakın rıhtım şehre iner;
-// diğerleri rıhtım boyunca birbirine bağlanır.
-const connected = [...citySlots]
-const quay = []
-const rest = [...coastSlots].sort((p, q) => nearestCity(p) - nearestCity(q))
-while (rest.length) {
-  // İlk rıhtım şehre; sonrakiler rıhtım zincirine en yakın olandan (Prim).
-  const next = quay.length
-    ? rest.reduce((b, c) => (Math.min(...quay.map(q => dist(c, q))) < Math.min(...quay.map(q => dist(b, q))) ? c : b))
-    : rest[0]
-  rest.splice(rest.indexOf(next), 1)
-  const pool = quay.length ? quay : connected
-  const cands = pool.map(v => ({ v, d: dist(next, v) })).sort((p, q) => p.d - q.d)
-  const pick = cands.find(({ v }) => !crossesOther(next, v)) ?? cands[0]
-  edges.push({ from: next.id, to: pick.v.id })
-  quay.push(next)
+// Arsa kapıları: önce yokuş aşağı (v+1), sonra yanlar, en son arka.
+for (const [key, id] of plotCells) {
+  const [u, v] = key.split(',').map(Number)
+  const doors = id === 'city_hall'
+    ? [[0, 1], [0, -1], [1, 0], [-1, 0]]
+    : [[0, 1], [u >= 0 ? 1 : -1, 0], [u >= 0 ? -1 : 1, 0], [0, -1]]
+  let linked = false
+  for (const [du, dv] of doors) {
+    const st = street.get(cellKey(u + du, v + dv))
+    if (!st) continue
+    addEdge(id, st.id)
+    linked = true
+    if (id !== 'city_hall') break
+  }
+  if (!linked) throw new Error(`${id} sokağa bağlanamadı`)
 }
+// Limana iniş: en alt orta kavşaktan kapıya, kapıdan orta rıhtıma.
+const bottom = [...street.values()].filter(st => Math.abs(st.u) <= 1).sort((a, b) => b.v - a.v)[0]
+const coastSorted = [...coastSlots].sort((a, b) => a.screen.x - b.screen.x)
+const mid = coastSorted[Math.floor(coastSorted.length / 2)]
+const gateNode = withScreen({ id: 'st_gate', gx: (bottom.gx + mid.gx) / 2, gy: (bottom.gy + mid.gy) / 2 })
+street.set('gate', gateNode)
+addEdge(bottom.id, gateNode.id)
+addEdge(gateNode.id, mid.id)
+for (let i = 0; i + 1 < coastSorted.length; i++) addEdge(coastSorted[i].id, coastSorted[i + 1].id)
 
-const roadNodes = [...citySlots, ...coastSlots].map(s => ({ id: s.id, gx: s.gx, gy: s.gy, screen: s.screen }))
+const roadNodes = [...citySlots, ...coastSlots, ...[...street.values()].map(withScreen)]
+  .map(s => ({ id: s.id, gx: s.gx, gy: s.gy, screen: s.screen }))
 const nodeById = new Map(roadNodes.map(n => [n.id, n]))
 const roadEdges = edges.map((e, i) => {
   const A = nodeById.get(e.from), B = nodeById.get(e.to)
   const mid = { x: (A.screen.x + B.screen.x) / 2, y: (A.screen.y + B.screen.y) / 2 }
   const dx = B.screen.x - A.screen.x, dy = B.screen.y - A.screen.y
   const len = Math.hypot(dx, dy) || 1
-  const bend = (i % 2 === 0 ? 1 : -1) * len * 0.14 // kıvrım ipucu
+  // Sokaklar düz; yalnızca kapı yolu ve rıhtım hafifçe kıvrılır.
+  const bend = e.from.startsWith('st_') && e.to.startsWith('st_') ? 0 : (i % 2 === 0 ? 1 : -1) * len * 0.08
   return { from: e.from, to: e.to, ctrl: { x: Math.round(mid.x + (-dy / len) * bend), y: Math.round(mid.y + (dx / len) * bend) } }
 })
 

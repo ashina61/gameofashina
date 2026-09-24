@@ -50,6 +50,8 @@ eşlenir. Durum: ✅ var · 🟡 kısmen · ❌ yok. (Güncelleme: 2026-09-24, p
 | Korsan Kalesi | Korsan Kalesi: tüccar gemilerine korsan seferi, korsan şöhreti, +%10 yağma/sv | ✅ |
 | Kara Pazar | Kara Pazar: her malı başka bir mala takas (3,2:1 → 2:1) | ✅ |
 | Binaların seviyeyle görünüm değiştirmesi | 3 aşamalı bina çizimleri | ✅ |
+| Şehir düzeni (sabit arsalar, liman arsaları) | 24 kara arsası + 3 deniz arsası, düzenli sokak ızgarası | ✅ |
+| Şehrin büyümesi | Kara arsaları Divanhane seviyesiyle belediyeden dışa açılır (9 → 24); sokaklar uzanır, yol kaplaması gelişir | ✅ |
 
 ## Ordu
 

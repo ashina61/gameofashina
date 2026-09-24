@@ -499,6 +499,70 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1, occupiedSl
     variation.fillEllipse(x, y, TILE.w * (4 + patchRnd() * 7), TILE.h * (3 + patchRnd() * 6))
   }
 
+  // 2b) DAĞLAR VE YAMAÇLAR (Ikariam): şehir bir tepenin eteğinde, arkasında
+  // katman katman sıradağlar, iki yanında ormanlı yamaçlar. Hepsi vektör;
+  // surların ve madenin üstüne taşmaz (sur halkasının üstünde biter).
+  {
+    const hills = scene.add.graphics().setDepth(-870)
+    const hr = mulberry32(51515)
+    const hall = slotById(HALL_SLOT_ID)!.screen
+    const ringTop = Math.min(...DEFENSE_FOUNDATION.map(p => p.screen.y))
+    const ringXs = DEFENSE_FOUNDATION.map(p => p.screen.x)
+    const ringHalf = Math.max(...ringXs.map(x => Math.abs(x - hall.x)))
+    // Tek bir dağ: sol yüz aydınlık, sağ yüz gölgede, tepede kaya.
+    const peak = (cx: number, baseY: number, h: number, w: number, light: number, dark: number, rock: number, haze: number) => {
+      const top = V(cx + (hr() - 0.5) * w * 0.2, baseY - h)
+      const left = V(cx - w, baseY), right = V(cx + w, baseY)
+      const midL = V(cx - w * 0.5, baseY - h * (0.45 + hr() * 0.15))
+      const midR = V(cx + w * 0.55, baseY - h * (0.4 + hr() * 0.15))
+      const foot = V(top.x + w * 0.08, baseY)
+      hills.fillStyle(light, haze); hills.fillPoints([left, midL, top, foot], true)
+      hills.fillStyle(dark, haze); hills.fillPoints([top, midR, right, foot], true)
+      // Kayalık doruk ve sırt çizgisi.
+      hills.fillStyle(rock, haze * 0.9)
+      hills.fillPoints([V(top.x - w * 0.16, top.y + h * 0.22), top, V(top.x + w * 0.2, top.y + h * 0.26), V(top.x + w * 0.02, top.y + h * 0.3)], true)
+      hills.lineStyle(2, 0x3e4a2c, 0.25 * haze); hills.lineBetween(top.x, top.y, foot.x, foot.y)
+    }
+    // Uzak, orta ve yakın sıra (arkadan öne).
+    const ranges = [
+      { base: ringTop - TILE.h * 9.5, h: [TILE.h * 7, TILE.h * 11], w: [TILE.w * 2.2, TILE.w * 3.4], light: 0x9fae8b, dark: 0x7d8d6c, rock: 0xc4c0b2, haze: 0.85, n: 9 },
+      { base: ringTop - TILE.h * 6.5, h: [TILE.h * 5, TILE.h * 8], w: [TILE.w * 1.8, TILE.w * 2.8], light: 0x8aa062, dark: 0x667d45, rock: 0xb8b09c, haze: 0.95, n: 8 },
+      { base: ringTop - TILE.h * 3.6, h: [TILE.h * 2.6, TILE.h * 4.2], w: [TILE.w * 1.6, TILE.w * 2.4], light: 0x7f9a52, dark: 0x5f7a3e, rock: 0xa89f86, haze: 1, n: 8 },
+    ]
+    for (const r of ranges) {
+      const span = wr.w + TILE.w * 4
+      for (let i = 0; i < r.n; i++) {
+        const cx = wr.x - TILE.w * 2 + span * ((i + 0.5 + (hr() - 0.5) * 0.5) / r.n)
+        // Şehrin tam arkasında yakın sıra alçalır: belediye ve kuzey kulesi görünsün.
+        const behindCity = Math.abs(cx - hall.x) < ringHalf * 0.6 && r === ranges[2]
+        const h = (r.h[0] + hr() * (r.h[1] - r.h[0])) * (behindCity ? 0.55 : 1)
+        const w = r.w[0] + hr() * (r.w[1] - r.w[0])
+        peak(cx, r.base, h, w, r.light, r.dark, r.rock, r.haze)
+      }
+      // Dağ eteği araziye yumuşakça karışır.
+      hills.fillStyle(r.dark, 0.35)
+      hills.fillRect(wr.x, r.base - TILE.h * 0.2, wr.w, TILE.h * 0.8)
+    }
+    // Sıradağların üstü (dünyanın en üstü): puslu uzak sırt, gökyüzü yok.
+    hills.fillStyle(0xa9b594, 1)
+    hills.fillRect(wr.x, wr.y, wr.w, Math.max(0, ranges[0].base - TILE.h * 11 - wr.y))
+    // YAMAÇLAR: surların iki yanında, kıyıya kadar inen ormanlı tepe sırtları.
+    for (const side of [-1, 1]) {
+      const x0 = hall.x + side * (ringHalf + TILE.w * 1.4)
+      for (let k = 0; k < 5; k++) {
+        const y = ringTop + TILE.h * (2 + k * 5.5)
+        const x = x0 + side * TILE.w * (0.6 + hr() * 1.4)
+        if (y > shoreY(x) - TILE.h * 2) continue
+        const rx = TILE.w * (2.4 + hr() * 1.4), ry = TILE.h * (2.2 + hr() * 1.2)
+        hills.fillStyle(0x4f6b36, 0.30); hills.fillEllipse(x + side * TILE.w * 0.3, y + ry * 0.35, rx * 2.1, ry * 1.5)
+        hills.fillStyle(side < 0 ? 0x7f9a52 : 0x6a8546, 0.9); hills.fillEllipse(x, y, rx * 2, ry * 1.6)
+        hills.fillStyle(side < 0 ? 0x94ae62 : 0x7a9550, 0.8); hills.fillEllipse(x - side * rx * 0.25, y - ry * 0.3, rx * 1.2, ry * 0.8)
+        // Kaya çıkıntıları.
+        for (let q = 0; q < 3; q++) stamp('d_rock', x + (hr() - 0.5) * rx, y + (hr() - 0.3) * ry * 0.6, TILE.w * (0.3 + hr() * 0.2), -869, 0.9, 0.9)
+      }
+    }
+  }
+
   // 3) TAŞ / TOPRAK katmanı.
   const g = scene.add.graphics().setDepth(-800)
 
@@ -570,19 +634,19 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1, occupiedSl
     // Çok geçişli çizim, kavşakların düzgün birleşmesini sağlar.
     for (const r of visibleCurves) {
       const s = roadStyleFor(r.kind, level)
-      const alpha = r.kind === 'avenue' ? 0.54 : r.kind === 'street' ? 0.24 : 0.62
+      const alpha = r.kind === 'avenue' ? 1 : r.kind === 'street' ? 0.95 : 1
       roads.lineStyle(TILE.w * s.shoulderW, s.shoulder, s.shoulderAlpha * alpha)
       r.curve.draw(roads, 36)
     }
     for (const r of visibleCurves) {
       const s = roadStyleFor(r.kind, level)
-      const alpha = r.kind === 'avenue' ? 0.48 : r.kind === 'street' ? 0.18 : 0.58
+      const alpha = r.kind === 'avenue' ? 1 : r.kind === 'street' ? 0.95 : 1
       roads.lineStyle(TILE.w * s.borderW, s.border, s.borderAlpha * alpha)
       r.curve.draw(roads, 36)
     }
     for (const r of visibleCurves) {
       const s = roadStyleFor(r.kind, level)
-      const alpha = r.kind === 'avenue' ? 0.46 : r.kind === 'street' ? 0.16 : 0.56
+      const alpha = r.kind === 'avenue' ? 1 : r.kind === 'street' ? 0.95 : 1
       roads.lineStyle(TILE.w * s.fillW, s.fill, alpha)
       r.curve.draw(roads, 36)
     }
@@ -606,7 +670,7 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1, occupiedSl
         const isDirt = tier === 1 && r.kind !== 'quay'
         const stoneW = isDirt ? 2 + rnd() * 3 : 2.5 + rnd() * (tier >= 3 ? 5 : 4)
         const stoneH = isDirt ? 1.4 + rnd() * 1.6 : 1.4 + rnd() * 2.2
-        roads.fillStyle(isDirt ? 0x675338 : s.stoneColor, isDirt ? 0.085 : 0.10 + rnd() * 0.11)
+        roads.fillStyle(isDirt ? 0x675338 : s.stoneColor, isDirt ? 0.25 : 0.35 + rnd() * 0.3)
         roads.fillEllipse(x, y, stoneW, stoneH)
       }
     }

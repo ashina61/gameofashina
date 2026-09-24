@@ -1,6 +1,6 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { advance, assignedWorkers, capacity, cost, execute, freePlots, idleWorkers, initialGame, parseSave, population, PLOTS, rates, researchReason, duration, workerCapacity, WORKERS_PER_LEVEL, fullResources, nearlyFullResources, activeJob, QUEUE_LIMIT, housing, contentment, unhousedByUnrest, soldiers, recruitReason, buildReason, unitCost, wallDefense, cityDefense, power, UNITS, BUILDINGS, BUILDING_IDS, zoneOf } from './engine'
+import { plotOpen, advance, assignedWorkers, capacity, cost, execute, freePlots, idleWorkers, initialGame, parseSave, population, PLOTS, rates, researchReason, duration, workerCapacity, WORKERS_PER_LEVEL, fullResources, nearlyFullResources, activeJob, QUEUE_LIMIT, housing, contentment, unhousedByUnrest, soldiers, recruitReason, buildReason, unitCost, wallDefense, cityDefense, power, UNITS, BUILDINGS, BUILDING_IDS, zoneOf } from './engine'
 import { TILE_W, TILE_H, USES_MEASURED, CENTER_PLOT } from './layout'
 import { WORLD, CITY, CITY_SPAN, TILE_WORLD, toWorldX, toWorldY, px, groundShapes, buildingPlacement, visualSignature } from './city-render'
 
@@ -149,7 +149,7 @@ test('yeni yapi BOS bir arsaya oturur, ayni arsaya iki yapi girmez', () => {
   const g = initialGame(now)
   assert.equal(g.placement.medrese, null)
   const free = freePlots(g)
-  assert.equal(free.length, PLOTS.length - 5)
+  assert.equal(free.length, PLOTS.filter(p => plotOpen(g, p.index)).length - 5)
 
   const rich = { ...g, buildings: { ...g.buildings, divan: 2 }, resources: { gold: 9e4, wood: 9e4, stone: 9e4, knowledge: 9e4 } }
   const built = execute(rich, { type: 'build', id: 'medrese', plot: free[1] }, now)
@@ -179,7 +179,7 @@ test('arsalar gecerli ve tekil; bolgeler tanimli', () => {
   // Hepsi dunya sinirlari icinde: kamera sinirindan tasan arsa erisilemez olurdu.
   assert.ok(PLOTS.every(s => toWorldX(s.x) > 0 && toWorldX(s.x) < WORLD && toWorldY(s.y) > 0 && toWorldY(s.y) < WORLD))
   const g = initialGame(now)
-  assert.equal(freePlots(g).length, PLOTS.length - 5)
+  assert.equal(freePlots(g).length, PLOTS.filter(p => plotOpen(g, p.index)).length - 5)
   assert.equal(freePlots(g, 'sehir').length + freePlots(g, 'liman').length, freePlots(g).length)
 })
 

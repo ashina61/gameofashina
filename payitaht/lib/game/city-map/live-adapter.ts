@@ -9,7 +9,7 @@
  * SIRALI arsa listesi (motorun gördüğü index uzayı):
  *   index 0        → belediye (city_hall) · zone 'sehir' · ÇAKILI
  *   index 1..24    → 24 taşınabilir city slotu · zone 'sehir'
- *   index 25..30   → 6 kıyı (coast) slotu · zone 'liman'
+ *   index 25..27   → 3 kıyı (coast) slotu · zone 'liman'
  * Savunma (defense) slotları MOTOR ARSASI DEĞİLDİR: yalnızca zeminde boş temel
  * olarak görünür (sur/kule/kapı yok). Böylece motor onlara asla bina koymaz.
  *

@@ -36,8 +36,14 @@ test('yol grafiği: bağlı ve geçerli düğümlere işaret ediyor', () => {
     assert.ok(ids.has(e.from), `yol kenarı geçersiz düğüm: ${e.from}`)
     assert.ok(ids.has(e.to), `yol kenarı geçersiz düğüm: ${e.to}`)
   }
-  // Şehir düğümleri (belediye dahil) MST ile bağlı: en az (cityNode-1) kenar city içinde.
-  const cityIds = new Set(CITY_SLOTS.map(s => s.id))
-  const cityEdges = CITY_MAP.roadGraph.edges.filter(e => cityIds.has(e.from) && cityIds.has(e.to))
-  assert.ok(cityEdges.length >= CITY_SLOTS.length - 1, 'şehir yol ağı bağlı olmalı')
+  // Her şehir ve liman slotu belediyeden sokak ağıyla erişilebilir.
+  const adj = new Map<string, string[]>()
+  for (const e of CITY_MAP.roadGraph.edges) {
+    adj.set(e.from, [...(adj.get(e.from) ?? []), e.to])
+    adj.set(e.to, [...(adj.get(e.to) ?? []), e.from])
+  }
+  const reach = new Set([CITY_MAP.hallSlotId]), queue = [CITY_MAP.hallSlotId]
+  while (queue.length) for (const n of adj.get(queue.shift()!) ?? []) if (!reach.has(n)) { reach.add(n); queue.push(n) }
+  for (const s of CITY_MAP.slots.filter(s => s.type !== 'defense')) assert.ok(reach.has(s.id), `${s.id} yol ağına bağlı değil`)
+  void CITY_SLOTS
 })

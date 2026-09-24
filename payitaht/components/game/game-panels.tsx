@@ -12,7 +12,7 @@ import { luxuryIcons } from './game-widgets'
 import { effectLines } from '@/lib/game/building-info'
 import { actionPoints, armyUpkeep, merchantBuyPrice, merchantSellPrice, type UnitRole } from '@/lib/game/engine'
 import { Eye } from 'lucide-react'
-import { spyCapacity, growthRate, maxPopulation } from '@/lib/game/engine'
+import { spyCapacity, growthRate, maxPopulation, PLOTS, zoneOf } from '@/lib/game/engine'
 
 export function BuildingDetails({ game, id, onBuild, onFlip, onMove }: { game: Game; id: BuildingId; onBuild: (id: BuildingId) => void; onFlip: (id: BuildingId) => void; onMove: (id: BuildingId) => void }) {
   const b = BUILDINGS[id], level = game.buildings[id], reason = buildReason(game, id)
@@ -88,9 +88,11 @@ export function PlotPicker({ game, plot, onBuild }: { game: Game; plot: number; 
    * sur kurabilirsin" diyordu - oysa surlar sehrin cevresine orulur, arsa
    * tutmaz. Kurmak isteyen Inşa listesinden kurar.
    */
-  const candidates = BUILDING_IDS.filter(id => takesPlot(id) && game.placement[id] === null)
+  // Deniz arsasında yalnızca liman yapıları, karada yalnızca kara yapıları listelenir.
+  const zone = PLOTS[plot]?.zone ?? 'sehir'
+  const candidates = BUILDING_IDS.filter(id => takesPlot(id) && game.placement[id] === null && zoneOf(id) === zone)
   return <div className="building-list">
-    <p className="fine-print">Bu arsaya kurabileceğin yapılar. Kurulduktan sonra buradan yükseltirsin.</p>
+    <p className="fine-print">{zone === 'liman' ? 'Deniz arsası: liman, tersane ve korsan kalesi buraya kurulur.' : 'Kara arsası. Kurulduktan sonra binaya dokunup yükseltirsin.'}</p>
     {candidates.length === 0 && <p className="requirement"><LockKeyhole className="size-4" />Kurulabilecek yeni yapı kalmadı. Mevcut yapılarını yükselt.</p>}
     {candidates.map(id => {
       const reason = buildReason(game, id)

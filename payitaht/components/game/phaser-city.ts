@@ -20,7 +20,7 @@ import { buildCityTerrain, preloadTerrain, cityWorldRect, cityContentRect, mineS
 import { GROUND_TARGET_W, FOOTPRINT_DIAMOND_W, ART_DIAMOND_PX } from '@/lib/game/city-map/building-assets'
 import { edgeKey, roadEdgeKeysForTargets } from '@/lib/game/city-map/road-tree'
 import { visualSignature } from '@/lib/game/city-render'
-import { BUILDINGS, BUILDING_IDS, activeJob, population, zoneOf, type BuildingId, type Game } from '@/lib/game/engine'
+import { BUILDINGS, BUILDING_IDS, activeJob, plotOpen, population, zoneOf, type BuildingId, type Game } from '@/lib/game/engine'
 import { asset, buildingImage, buildingStage } from '@/lib/asset'
 
 /** Yolda yürüyen vatandaş (Ikariam'ın sokaktaki halkı). */
@@ -96,7 +96,7 @@ export class CityScene extends Phaser.Scene {
 
   create() {
     this.cameras.main.setBackgroundColor('#12333b')
-    this.terrainRoads = buildCityTerrain(this, this.state.buildings.divan, this.occupiedSlotIds(this.state)) // dünya + yaşayan yol ağı
+    this.terrainRoads = buildCityTerrain(this, this.state.buildings.divan, this.openSlotIds(this.state)) // dünya + büyüyen sokak ağı
     this.built = true
     this.syncWalkers()
     this.drawMine()
@@ -115,8 +115,8 @@ export class CityScene extends Phaser.Scene {
    * bu ikisinin arasındaki AÇIK BANTTA ortalanır; aksi halde tam ortalanan
    * şehrin üstü kaynak şeridinin, limanı menünün arkasında kalır.
    */
-  private static readonly HUD_TOP = 0.34
-  private static readonly HUD_BOTTOM = 0.13
+  private static readonly HUD_TOP = 0.13
+  private static readonly HUD_BOTTOM = 0.15
 
   /**
    * KASABA kutusu: city slotları, bina silüetlerinin taşmasıyla. Ikariam'daki
@@ -287,7 +287,7 @@ export class CityScene extends Phaser.Scene {
    * footprint'ten biraz büyük gösterilir; Ikariam'daki gibi binalar sokağa
    * kadar taşar ve şehir dolu görünür. Bina başına ayar yoktur.
    */
-  private artScale() { return (FOOTPRINT_DIAMOND_W / ART_DIAMOND_PX) * 1.38 }
+  private artScale() { return (FOOTPRINT_DIAMOND_W / ART_DIAMOND_PX) * 1.55 }
 
   private occupiedSlotIds(game: Game, moving: BuildingId | null = null, movePlot: number | null = null) {
     const ids: string[] = []
@@ -301,11 +301,21 @@ export class CityScene extends Phaser.Scene {
     return ids
   }
 
+  /**
+   * AÇIK arsalar (Divanhane seviyesiyle büyür) + üzerinde yapı olanlar. Sokaklar
+   * bunlara uzanır, ağaçlar bunlardan temizlenir: şehir dışa doğru büyür.
+   */
+  private openSlotIds(game: Game, moving: BuildingId | null = null, movePlot: number | null = null) {
+    const ids = new Set(this.occupiedSlotIds(game, moving, movePlot))
+    for (const s of LIVE_SLOTS) if (plotOpen(game, s.index)) ids.add(s.slotId)
+    return [...ids]
+  }
+
   /** React tarafından çağrılır; yalnızca GÖRÜNEN bir şey değiştiyse çizer. */
   sync(game: Game, showLabels: boolean, placing: boolean, moving: BuildingId | null = null, movePlot: number | null = null) {
     this.state = game
     if (!this.built) return
-    this.terrainRoads?.updateRoads(game.buildings.divan, this.occupiedSlotIds(game, moving, movePlot))
+    this.terrainRoads?.updateRoads(game.buildings.divan, this.openSlotIds(game, moving, movePlot))
     this.syncWalkers()
     const next = `${visualSignature(game)}|${showLabels}|${placing}|${moving ?? '-'}|${movePlot ?? '-'}`
     if (next === this.signature) return
@@ -322,7 +332,7 @@ export class CityScene extends Phaser.Scene {
     if (!this.moving) return set
     const targetZone = zoneOf(this.moving)
     const others = new Set(BUILDING_IDS.filter(b => b !== this.moving).map(b => this.state.placement[b]).filter((p): p is number => p !== null))
-    for (const s of LIVE_SLOTS) if (s.zone === targetZone && !others.has(s.index)) set.add(s.index)
+    for (const s of LIVE_SLOTS) if (s.zone === targetZone && !others.has(s.index) && plotOpen(this.state, s.index)) set.add(s.index)
     return set
   }
 
@@ -338,7 +348,7 @@ export class CityScene extends Phaser.Scene {
       this.movePlot = best
       this.terrainRoads?.updateRoads(
         this.state.buildings.divan,
-        this.occupiedSlotIds(this.state, this.moving, best),
+        this.openSlotIds(this.state, this.moving, best),
       )
       this.redraw()
       this.events$.onMovePlot(best)
@@ -362,7 +372,7 @@ export class CityScene extends Phaser.Scene {
     for (const slot of LIVE_SLOTS) {
       const id = occupant.get(slot.index)
       if (id) this.addBuilding(id, slot, running === id)
-      else this.addEmptyPlot(slot)
+      else if (plotOpen(this.state, slot.index)) this.addEmptyPlot(slot)
     }
     if (this.moving && this.movePlot !== null) {
       const s = liveSlotByIndex(this.movePlot)
@@ -525,7 +535,7 @@ export class CityScene extends Phaser.Scene {
    * başka bir görünür yola sapar, çıkmaz sokakta geri döner.
    */
   private syncWalkers() {
-    const visible = roadEdgeKeysForTargets(this.occupiedSlotIds(this.state))
+    const visible = roadEdgeKeysForTargets(this.openSlotIds(this.state))
     const count = visible.size ? Math.min(26, 3 + Math.floor(population(this.state) / 22)) : 0
     const key = [...visible].sort().join(',') + '#' + count
     if (key === this.walkerKey) return
@@ -800,8 +810,9 @@ export class CityScene extends Phaser.Scene {
     // Ikariam "inşaat alanı": her boş arsada küçük bir bayrak HER ZAMAN durur
     // (oyuncu nereye kurabileceğini görür). Vurgulu 2x2 zemin yalnızca inşa kipinde.
     if (this.placing) this.drawBuildPad(slot)
-    this.drawBuildFlag(anc.x, anc.baseY)
-    const hit = this.add.rectangle(anc.x, anc.baseY - TILE.h, TILE.w * 1.4, TILE.h * 1.6)
+    // Bayrak arsanın TAM ORTASINA dikilir (footprint merkezi).
+    this.drawBuildFlag(slot.screen.x, slot.screen.y, slot.zone === 'liman')
+    const hit = this.add.rectangle(slot.screen.x, slot.screen.y - TILE.h * 0.3, TILE.w * 1.6, TILE.h * 1.8)
       .setInteractive({ useHandCursor: true }).setFillStyle(0xffffff, 0).setDepth(anc.baseY + 0.2)
     hit.on('pointerup', (p: Phaser.Input.Pointer) => { if (isTap(p) && !this.moving) this.events$.onPlot(slot.index) })
     this.pieces.push(hit)
@@ -820,17 +831,36 @@ export class CityScene extends Phaser.Scene {
     this.pieces.push(g)
   }
 
-  /** Küçük inşa bayrağı: kısa direk + kırmızı flama. "Buraya kur." */
-  private drawBuildFlag(x: number, baseY: number) {
+  /**
+   * İnşa arsası (Ikariam): düzlenmiş toprak elmas, taş kenar ve tam ortada
+   * kırmızı flamalı bayrak. Denizdeki arsa ahşap iskele olarak çizilir.
+   */
+  private drawBuildFlag(x: number, cy: number, sea = false) {
     const s = TILE.w
-    const g = this.add.graphics().setDepth(baseY)
-    const poleH = s * 0.44
-    // Açılmış toprak: boş arsa çimenden hafifçe ayrışır (Ikariam inşaat alanı).
-    const cy = baseY - TILE.h
-    g.fillStyle(0x8f7a4e, 0.20)
-    g.fillPoints(this.diamond(x, cy, TILE.w * 1.5, TILE.h * 1.5), true)
-    g.fillStyle(0xb39a63, 0.16)
-    g.fillPoints(this.diamond(x, cy, TILE.w * 1.05, TILE.h * 1.05), true)
+    // Zemin (arsa/iskele) yolların üstünde ama bütün binaların ALTINDA; bayrak ise kendi y'sinde.
+    const pad = this.add.graphics().setDepth(-790)
+    const g = this.add.graphics().setDepth(cy)
+    const poleH = s * 0.5
+    const baseY = cy
+    {
+    const g = pad
+    if (sea) {
+      g.fillStyle(0x6b4a2b, 0.95); g.fillPoints(this.diamond(x, cy, TILE.w * 1.5, TILE.h * 1.5), true)
+      // Kalas çizgileri: sol-üst kenara paralel.
+      const hw = TILE.w * 0.75, hh = TILE.h * 0.75
+      g.lineStyle(2, 0x3e2a17, 0.7)
+      for (let k = 1; k <= 4; k++) {
+        const t = k / 5
+        g.lineBetween(x - hw + hw * t, cy + hh * t, x + hw * t, cy - hh + hh * t)
+      }
+      g.lineStyle(3, 0x3e2a17, 0.9); g.strokePoints(this.diamond(x, cy, TILE.w * 1.5, TILE.h * 1.5), true)
+    } else {
+      g.fillStyle(0x9c845a, 0.55); g.fillPoints(this.diamond(x, cy, TILE.w * 1.62, TILE.h * 1.62), true)
+      g.fillStyle(0xc2a878, 0.55); g.fillPoints(this.diamond(x, cy, TILE.w * 1.4, TILE.h * 1.4), true)
+      g.lineStyle(2.5, 0x7a6444, 0.55); g.strokePoints(this.diamond(x, cy, TILE.w * 1.62, TILE.h * 1.62), true)
+    }
+    }
+    this.pieces.push(pad)
     g.fillStyle(0x0d1c16, 0.12); g.fillEllipse(x + 1, baseY - 1, s * 0.24, s * 0.09)
     g.fillStyle(0x5a3d24, 0.92); g.fillRect(x - s * 0.018, baseY - poleH, s * 0.036, poleH)
     g.fillStyle(0xa64a37, 0.95)

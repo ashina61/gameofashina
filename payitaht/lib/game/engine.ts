@@ -285,7 +285,7 @@ export const BUILDINGS: Record<BuildingId, BuildingDef> = {
   depo: { name: 'Depo', category: 'DEPOLAMA', description: 'Ambarın yetmediği yerde. Her seviye her kaynağın saklama kapasitesine 2.500 ekler.', base: 150, art: true, tech: 'ambar_teknigi' },
   ticaret_merkezi: { name: 'Ticaret Merkezi', category: 'TİCARET', description: 'Tüccarların buluştuğu han. Her seviye tüccar partisini 200 artırır, alış fiyatını düşürür, satış fiyatını yükseltir.', base: 170, art: true, tech: 'ticaret', needs: { id: 'carsi', level: 3 } },
   harita_arsivi: { name: 'Harita Arşivi', category: 'LİMAN', description: 'Deniz haritaları ve portolanlar. Her seviye nakliye ve sefer yolculuğunu %2 kısaltır.', base: 180, art: true, tech: 'haritacilik' },
-  korsan_kalesi: { name: 'Korsan Kalesi', category: 'LİMAN', description: 'Deniz akıncılarının üssü. Tüccar kervanlarına korsan seferi açar; her seviye yağma ganimetini %10 artırır.', base: 260, art: true, needs: { id: 'tersane', level: 2 } },
+  korsan_kalesi: { name: 'Korsan Kalesi', category: 'LİMAN', description: 'Deniz akıncılarının üssü. Tüccar kervanlarına korsan seferi açar; her seviye yağma ganimetini %10 artırır. Limandaki deniz arsasına kurulur.', base: 260, art: true, zone: 'liman', needs: { id: 'tersane', level: 2 } },
   kara_pazar: { name: 'Kara Pazar', category: 'TİCARET', description: 'Gizli takas: herhangi bir malı başka bir mala çevirir. Seviye yükseldikçe oran iyileşir ve parti büyür.', base: 190, art: true, needs: { id: 'carsi', level: 2 } },
   siginak: { name: 'Gizli Sığınak', category: 'YÖNETİM', description: 'Casusların gizlendiği yer. Her seviye 2 casus yeri ve %3 casusluk başarısı ekler; şehre sızan yabancı casusları yakalar.', base: 170, art: true, tech: 'casusluk', needs: { id: 'elcilik', level: 1 } },
   valilik: { name: 'Valilik', category: 'YÖNETİM', description: 'Kolonide Saray\'ın yerini tutar. Her seviye kolonideki yolsuzluğu azaltır; yalnızca kolonilerde kurulur.', base: 260, art: true, only: 'colony' },
@@ -1044,8 +1044,25 @@ export function advance(source: Game, now: number): Game {
  */
 export function freePlots(g: Game, zone?: Zone): number[] {
   const taken = new Set(Object.values(g.placement).filter((p): p is number => p !== null))
-  return PLOTS.filter(slot => !taken.has(slot.index) && (zone === undefined || slot.zone === zone)).map(slot => slot.index)
+  return PLOTS.filter(slot => !taken.has(slot.index) && plotOpen(g, slot.index) && (zone === undefined || slot.zone === zone)).map(slot => slot.index)
 }
+
+/**
+ * ŞEHRİN BÜYÜMESİ (Ikariam): kara arsaları belediyeden dışa doğru, Divanhane
+ * seviyesiyle açılır — başta 9, her seviyede 2 arsa daha. Arsa sırası
+ * belediyeye uzaklıktır (city-slots.json), yani şehir merkezden kenarlara
+ * yayılır. Liman (deniz) arsaları hep açıktır. Açılmamış arsada daha önce
+ * kurulmuş bir yapı varsa (eski kayıt) yerinde kalır.
+ */
+export const LAND_PLOTS = PLOTS.filter(p => p.zone === 'sehir').length - 1
+export function landPlotsOpen(g: Game) { return Math.min(LAND_PLOTS, 7 + 2 * Math.max(1, g.buildings.divan)) }
+export function plotOpen(g: Game, index: number) {
+  const slot = PLOTS[index]
+  if (!slot) return false
+  return slot.zone === 'liman' || index <= landPlotsOpen(g)
+}
+/** Bir sonraki arsayı açan Divanhane seviyesi (hepsi açıksa null). */
+export function nextPlotDivan(g: Game) { return landPlotsOpen(g) >= LAND_PLOTS ? null : Math.max(1, g.buildings.divan) + 1 }
 
 /**
  * BİNA EN YÜKSEK SEVİYELERİ — Ikariam benzeri.
@@ -1092,7 +1109,8 @@ export function buildReason(g: Game, id: BuildingId): string | null {
   if (only === 'colony' && capital) return 'Valilik yalnızca kolonilerde kurulur; başkentte Saray var.'
   // Hic kurulmamis yapi once KENDI BOLGESINDE bir arsaya yerlestirilmeli.
   if (takesPlot(id) && g.placement[id] === null && freePlots(g, zoneOf(id)).length === 0) {
-    return zoneOf(id) === 'liman' ? 'Limanda boş iskele kalmadı.' : 'Boş arsa kalmadı.'
+    return zoneOf(id) === 'liman' ? 'Limanda boş iskele kalmadı.'
+      : nextPlotDivan(g) ? `Boş arsa kalmadı. Divanhane ${nextPlotDivan(g)}. seviyede şehir büyür, yeni arsalar açılır.` : 'Boş arsa kalmadı.'
   }
   if (id !== 'divan' && g.buildings[id] >= g.buildings.divan + 1) return `Divanhane ${g.buildings.divan + 1}. seviye gerekli.`
   const c = cost(g, id)

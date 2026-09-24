@@ -6,14 +6,14 @@ import { initialGame, parseSave, BUILDING_IDS, PLOTS, zoneOf, type BuildingId } 
 
 const now = 1_700_000_000_000
 
-test('adaptör: sıralı arsa uzayı (belediye + 24 city + 6 coast)', () => {
-  // 1 belediye + 24 taşınabilir city + 6 coast = 31 motor arsası.
-  assert.equal(LIVE_SLOTS.length, 31)
+test('adaptör: sıralı arsa uzayı (belediye + 24 city + 3 coast)', () => {
+
+  assert.equal(LIVE_SLOTS.length, 28) // 1 belediye + 24 taşınabilir city + 3 coast
   assert.ok(LIVE_SLOTS.every((s, i) => s.index === i), 'indeksler ardışık')
   const sehir = LIVE_SLOTS.filter(s => s.zone === 'sehir')
   const liman = LIVE_SLOTS.filter(s => s.zone === 'liman')
   assert.equal(sehir.length, 25, '1 belediye + 24 taşınabilir')
-  assert.equal(liman.length, 6, '6 coast')
+  assert.equal(liman.length, 3, '3 coast (Ikariam limanı)')
 })
 
 test('adaptör: belediye index 0, city_hall, çakılı, merkez (50,70)', () => {
@@ -36,7 +36,7 @@ test('adaptör: index ↔ slotId gidiş-dönüş tutarlı', () => {
 })
 
 test('adaptör: coast slotları liman bölgesi olarak işaretli', () => {
-  assert.ok(LIVE_SLOTS.filter(s => isCoastIndex(s.index)).length === 6)
+  assert.ok(LIVE_SLOTS.filter(s => isCoastIndex(s.index)).length === 3)
   assert.ok(!isCoastIndex(0))
 })
 
