@@ -121,6 +121,35 @@ else {
   if (cityEdges.length < jcity.length - 1) fail('şehir yol ağı bağlı değil (MST kenarı eksik)')
 }
 
+// Kompakt şehir garantileri (Ikariam yoğunluğu):
+//  - her iki slot arasında en az 1 karoluk SOKAK kalır (footprint'ler bitişmez)
+//  - hiçbir yol kenarı, uçları DIŞINDA bir footprint'in altından geçmez
+for (let i = 0; i < json.slots.length; i++) {
+  for (let j = i + 1; j < json.slots.length; j++) {
+    const a = json.slots[i], b = json.slots[j]
+    if (Math.max(Math.abs(a.gx - b.gx), Math.abs(a.gy - b.gy)) < a.fw + 1) fail(`sokak payı yok: ${a.id} ~ ${b.id}`)
+  }
+}
+if (rg && Array.isArray(rg.nodes) && Array.isArray(rg.edges)) {
+  const node = new Map(rg.nodes.map(n => [n.id, n]))
+  const halfW = (json.footprint.w * json.tile.w) / 2 // elmas yarı-genişliği (yarı-yükseklik = halfW/2)
+  for (const e of rg.edges) {
+    const A = node.get(e.from), B = node.get(e.to)
+    if (!A || !B) continue
+    const hit = new Set()
+    for (let t = 0.12; t <= 0.88; t += 0.04) {
+      const u = 1 - t
+      const x = u * u * A.screen.x + 2 * u * t * e.ctrl.x + t * t * B.screen.x
+      const y = u * u * A.screen.y + 2 * u * t * e.ctrl.y + t * t * B.screen.y
+      for (const s of json.slots) {
+        if (s.id === e.from || s.id === e.to) continue
+        if (Math.abs(s.screen.x - x) + 2 * Math.abs(s.screen.y - y) < halfW) hit.add(s.id)
+      }
+    }
+    for (const id of hit) fail(`yol ${e.from}->${e.to}, ${id} footprint'inin altından geçiyor`)
+  }
+}
+
 // --- Sonuç ---
 if (errors.length) {
   console.error('HARİTA DOĞRULAMA BAŞARISIZ:')

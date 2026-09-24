@@ -14,10 +14,10 @@
  * Phaser'in ESM paketinde varsayılan dışa aktarım yok; ad alanı olarak alınır.
  */
 import * as Phaser from 'phaser'
-import { TILE, COAST_SLOTS, HALL_SLOT_ID, slotById } from '@/lib/game/city-map'
+import { TILE, CITY_SLOTS, COAST_SLOTS, HALL_SLOT_ID, slotById } from '@/lib/game/city-map'
 import { LIVE_SLOTS, liveSlotByIndex, type LiveSlot } from '@/lib/game/city-map/live-adapter'
 import { buildCityTerrain, preloadTerrain, cityWorldRect, cityContentRect } from '@/lib/game/city-map/terrain-builder'
-import { assetById, groundScale, GROUND_TARGET_W, BUILDING_RENDER_SCALE } from '@/lib/game/city-map/building-assets'
+import { assetById, groundScale, GROUND_TARGET_W, BUILDING_RENDER_SCALE, FOOTPRINT_DIAMOND_W } from '@/lib/game/city-map/building-assets'
 import { cleanCoastSpriteRgba } from '@/lib/game/city-map/coast-asset-cleaner'
 import { normalizeBuildingSpriteRgba } from '@/lib/game/city-map/building-texture-normalizer'
 import { visualSignature } from '@/lib/game/city-render'
@@ -86,24 +86,73 @@ export class CityScene extends Phaser.Scene {
 
   private worldRect() { return cityWorldRect() }
 
+  /*
+   * HUD PAYLARI (ekran yüksekliğinin oranı). Arayüz tuvalin ÜSTÜNDE yüzer:
+   * üstte başlık + oyuncu kartı + kaynak şeridi, altta günlük + menü. Kasaba
+   * bu ikisinin arasındaki AÇIK BANTTA ortalanır; aksi halde tam ortalanan
+   * şehrin üstü kaynak şeridinin, limanı menünün arkasında kalır.
+   */
+  private static readonly HUD_TOP = 0.34
+  private static readonly HUD_BOTTOM = 0.13
+
+  /**
+   * KASABA kutusu: city slotları, bina silüetlerinin taşmasıyla. Ikariam'daki
+   * gibi varsayılan görünüm bütün şehri tek ekranda gösterir; liman hemen
+   * altta görünür, çapa düğmesi (focusHarbour) ona yakınlaşır.
+   */
+  private townRect() {
+    const pts = CITY_SLOTS.map(s => s.screen)
+    const xs = pts.map(p => p.x), ys = pts.map(p => p.y)
+    const padX = FOOTPRINT_DIAMOND_W * 0.62
+    const padTop = TILE.h * 5 // en üst sıradaki binaların çatı/kubbe payı
+    const padBottom = TILE.h * 1.5
+    const x = Math.min(...xs) - padX, y = Math.min(...ys) - padTop
+    return { x, y, w: Math.max(...xs) + padX - x, h: Math.max(...ys) + padBottom - y }
+  }
+
+  /** Dünyayı KAPLAYAN en uzak zoom: dünyanın dışındaki boşluk hiç görünmez. */
+  private coverZoom() {
+    const wr = this.worldRect()
+    return Math.max(this.scale.width / wr.w, this.scale.height / wr.h)
+  }
+
+  /** Kasabayı HUD'un açık bıraktığı banda sığdıran zoom. */
+  private townZoom() {
+    const t = this.townRect()
+    const bandH = this.scale.height * (1 - CityScene.HUD_TOP - CityScene.HUD_BOTTOM)
+    return Math.min(this.scale.width / (t.w * 1.02), bandH / t.h)
+  }
+
+  /** Bir dünya noktasını açık bandın ortasına getirir (HUD'a göre kaydırılmış). */
+  private centerInBand(x: number, y: number) {
+    const cam = this.cameras.main
+    const bandMid = (CityScene.HUD_TOP + (1 - CityScene.HUD_BOTTOM)) / 2 // 0..1
+    const shift = (bandMid - 0.5) * this.scale.height / cam.zoom
+    cam.centerOn(x, y - shift)
+  }
+
   private setupCamera() {
     const wr = this.worldRect()
     this.cameras.main.setBounds(wr.x, wr.y, wr.w, wr.h)
-    this.minZoom = Math.min(this.scale.width / wr.w, this.scale.height / wr.h) * 0.92
-    this.cityZoom = Math.max(0.92, this.minZoom)
+    this.minZoom = this.coverZoom()
+    this.cityZoom = Math.max(this.townZoom(), this.minZoom)
     this.setCityView()
     this.scale.on('resize', () => {
-      const w = this.worldRect()
-      this.minZoom = Math.min(this.scale.width / w.w, this.scale.height / w.h) * 0.92
+      this.minZoom = this.coverZoom()
+      this.cityZoom = Math.max(this.townZoom(), this.minZoom)
       this.cameras.main.setZoom(Phaser.Math.Clamp(this.cameras.main.zoom, this.minZoom, this.maxZoom))
     })
   }
 
-  /** CITY VIEW: belediye MERKEZDE, okunur yakınlık (varsayılan mobil görünüm). */
+  /**
+   * CITY VIEW (Ikariam): BÜTÜN kasaba ve limanı tek ekranda, belediye ortada.
+   * Yakından bakmak için iki parmakla yakınlaşılır (maxZoom).
+   */
   setCityView() {
+    const t = this.townRect()
     const hall = slotById(HALL_SLOT_ID)!
     this.cameras.main.setZoom(Phaser.Math.Clamp(this.cityZoom, this.minZoom, this.maxZoom))
-    this.cameras.main.centerOn(hall.screen.x, hall.screen.y - TILE.h)
+    this.centerInBand(hall.screen.x, t.y + t.h / 2)
     this.velocity = { x: 0, y: 0 }
   }
 
@@ -130,10 +179,10 @@ export class CityScene extends Phaser.Scene {
       : harbour?.zone === 'liman'
         ? harbour.screen
         : COAST_SLOTS[Math.floor(COAST_SLOTS.length / 2)].screen
-    // Alt HUD kıyının üstünü kapatmasın: kamera merkezini biraz DENİZE doğru
-    // kaydırınca hedef rıhtım ekranda orta-üst bölgede görünür.
-    this.cameras.main.setZoom(Phaser.Math.Clamp(Math.max(this.cityZoom, 0.94), this.minZoom, this.maxZoom))
-    this.cameras.main.centerOn(destination.x, destination.y - TILE.h * 13)
+    // Limana YAKINLAŞ ve rıhtımı HUD'un açık bıraktığı bandın ortasına getir
+    // (alt menünün arkasında kalmasın).
+    this.cameras.main.setZoom(Phaser.Math.Clamp(Math.max(this.cityZoom * 1.9, 0.7), this.minZoom, this.maxZoom))
+    this.centerInBand(destination.x, destination.y - TILE.h)
     this.velocity = { x: 0, y: 0 }
   }
   /** React kontrolü: yakınlaştırmayı çarpanla değiştir. */
@@ -463,10 +512,10 @@ export class CityScene extends Phaser.Scene {
    */
   private addEmptyPlot(slot: LiveSlot) {
     const anc = this.anchor(slot)
-    if (this.placing) {
-      this.drawBuildPad(slot)
-      this.drawBuildFlag(anc.x, anc.baseY)
-    }
+    // Ikariam "inşaat alanı": her boş arsada küçük bir bayrak HER ZAMAN durur
+    // (oyuncu nereye kurabileceğini görür). Vurgulu 2x2 zemin yalnızca inşa kipinde.
+    if (this.placing) this.drawBuildPad(slot)
+    this.drawBuildFlag(anc.x, anc.baseY)
     const hit = this.add.rectangle(anc.x, anc.baseY - TILE.h, TILE.w * 1.4, TILE.h * 1.6)
       .setInteractive({ useHandCursor: true }).setFillStyle(0xffffff, 0).setDepth(anc.baseY + 0.2)
     hit.on('pointerup', (p: Phaser.Input.Pointer) => { if (isTap(p) && !this.moving) this.events$.onPlot(slot.index) })
@@ -490,14 +539,20 @@ export class CityScene extends Phaser.Scene {
   private drawBuildFlag(x: number, baseY: number) {
     const s = TILE.w
     const g = this.add.graphics().setDepth(baseY)
-    const poleH = s * 0.34
-    g.fillStyle(0x0d1c16, 0.10); g.fillEllipse(x + 1, baseY - 1, s * 0.20, s * 0.075)
+    const poleH = s * 0.44
+    // Açılmış toprak: boş arsa çimenden hafifçe ayrışır (Ikariam inşaat alanı).
+    const cy = baseY - TILE.h
+    g.fillStyle(0x8f7a4e, 0.20)
+    g.fillPoints(this.diamond(x, cy, TILE.w * 1.5, TILE.h * 1.5), true)
+    g.fillStyle(0xb39a63, 0.16)
+    g.fillPoints(this.diamond(x, cy, TILE.w * 1.05, TILE.h * 1.05), true)
+    g.fillStyle(0x0d1c16, 0.12); g.fillEllipse(x + 1, baseY - 1, s * 0.24, s * 0.09)
     g.fillStyle(0x5a3d24, 0.92); g.fillRect(x - s * 0.018, baseY - poleH, s * 0.036, poleH)
-    g.fillStyle(0xa64a37, 0.92)
+    g.fillStyle(0xa64a37, 0.95)
     g.fillPoints([new Phaser.Math.Vector2(x + s * 0.018, baseY - poleH),
-      new Phaser.Math.Vector2(x + s * 0.018, baseY - poleH + s * 0.12),
-      new Phaser.Math.Vector2(x + s * 0.19, baseY - poleH + s * 0.06)], true)
-    g.fillStyle(0xcaa24a, 0.88); g.fillCircle(x, baseY - poleH, s * 0.025)
+      new Phaser.Math.Vector2(x + s * 0.018, baseY - poleH + s * 0.16),
+      new Phaser.Math.Vector2(x + s * 0.25, baseY - poleH + s * 0.08)], true)
+    g.fillStyle(0xcaa24a, 0.9); g.fillCircle(x, baseY - poleH, s * 0.03)
     this.pieces.push(g)
   }
 

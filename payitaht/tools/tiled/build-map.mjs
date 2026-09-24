@@ -8,11 +8,12 @@
  *   2) lib/game/city-map/city-slots.json — oyunun okuduğu SADE slot verisi
  *      (gx/gy kare koordinatı + hazır ekran merkezi + yol grafiği).
  *
- * TASARIM: İkariam benzeri ORGANİK, dikey ve büyük şehir. Belediye haritanın
- * geometrik merkezinde çakılı; 24 normal city slotu belediyenin çevresine
- * DÜZ SATRANÇ TAHTASI olmayacak biçimde, kıvrımlı yollara yer bırakan
- * aralıklarla, üst/alt/sağ/sol dengeli dağılır. Alt kıyı boyunca coast
- * slotları; çevrede boş savunma temel hattı.
+ * TASARIM: Ikariam yoğunluğunda KOMPAKT, dikey telefona uygun şehir. Belediye
+ * haritanın geometrik merkezinde çakılı; 24 normal city slotu belediyenin
+ * çevresinde kaydırmalı (tuğla) bir kafeste, aralarında yalnızca dar sokaklar
+ * kalacak şekilde toplanır (hafif organik sarsıntıyla). Hemen altta dalgalı
+ * liman hattı (coast); şehri sıkıca saran boş savunma temel hattı. Boşluğu
+ * şehir değil manzara (orman/deniz) doldurur — bkz. terrain-builder.
  *
  * DEĞİŞMEZLER: bütün normal city slotları BİREBİR 2x2 footprint (küçük/orta/
  * büyük YOK). BuildingSlotSystem ve footprint standardına dokunulmaz.
@@ -40,65 +41,119 @@ const screenY = (gx, gy) => Math.round((gx + gy) * (TILE_H / 2))
 const withScreen = (o) => ({ ...o, screen: { x: screenX(o.gx, o.gy), y: screenY(o.gx, o.gy) } })
 
 /*
- * ORGANİK OFSETLER (a,b) — belediyeye göre.
- *   gx = 50 + a + b ,  gy = 70 - a + b
- * Böylece  a = yatay adım (ekranda ±128px/br),  b = dikey adım (±64px/br).
- * Ekran dikey birim (64) yatayın yarısı olduğundan DİKEY için b-aralığı geniş
- * tutulur → mobil dikey şehir. Ofsetler bilinçli DÜZENSİZ (organik, satranç
- * değil) ve her çift arası tile mesafesi >= ~4 (2x2 footprint'ler çakışmaz,
- * aralarında yol payı kalır). Üç gevşek halka: iç 6, orta 8, dış 10 = 24.
+ * IKARIAM YOĞUNLUĞUNDA KOMPAKT ŞEHİR.
+ *
+ * Eski yerleşim 24 slotu ~2000x2600 px'lik bir alana, kıyıyı ~2000 px aşağıya
+ * yaymıştı: binalar arasında 4-5 bina boyu çayır kalıyordu ve şehir "boş"
+ * görünüyordu. Ikariam'da binalar arasında yalnızca dar sokak vardır; boşluğu
+ * şehir değil MANZARA (orman, kayalık, deniz) doldurur.
+ *
+ * KAFES: ekran-hizalı (u,v) kafesi, u≡v (mod 2) — kaydırmalı "tuğla" dizilim.
+ * Adım P=4 karo: 2x2 footprint'ler arasında her yönde 2 karoluk sokak kalır.
+ *   gx = 50 + P·(u+v)/2 ,  gy = 70 + P·(v-u)/2
+ *   ekran: X = 256·u (yatay), Y = 128·v (dikey)  — belediyeye göre.
+ * DİKEY TELEFON için uzun oval: |u|≤2 (5 sütun), v∈[-6,5]. Belediyenin
+ * çevresindeki 4 çapraz hücre MEYDAN olarak boş; tepe asimetrik (organik).
+ * Dar şehir, HUD'un açık bıraktığı bantta daha BÜYÜK zoom'la tek ekrana sığar.
+ *
+ * ORGANİKLİK: her slota deterministik ±1 karo sarsıntı verilir; ama hiçbir iki
+ * footprint arasında 1 karodan az sokak kalmayacak şekilde (aksi halde sarsıntı
+ * reddedilir). Böylece dizilim satranç tahtası gibi durmaz.
+ *
+ * DEĞİŞMEZLER: belediye (50,70)'te çakılı, bütün slotlar 2x2, slot SAYILARI ve
+ * SIRALARI aynı (24 city + 6 coast + 5 defense) → motor kayıtları (index
+ * tabanlı) bozulmaz; yalnızca konumlar sıkılaşır.
  */
-const CITY_OFFSETS = [
-  // iç halka (6) — meydanın çevresi
-  [-3, -6], [3, -7], [-4, 0], [4, 1], [-2, 7], [3, 6],
-  // orta halka (8)
-  [-5, -11], [0, -13], [5, -10], [-6, -2], [6, -3], [-5, 9], [0, 13], [5, 10],
-  // dış halka (10) — üst şehir yukarı, alt şehir denize doğru uzanır
-  [-3, -18], [4, -19], [-7, -9], [7, -8], [-8, 3], [8, 2], [-6, 14], [6, 15], [-2, 21], [3, 22],
-]
+const P = 4
+const lattice = (u, v) => ({ gx: CENTER.gx + (P * (u + v)) / 2, gy: CENTER.gy + (P * (v - u)) / 2 })
+
+// 24 hücre: yukarıdan aşağıya, soldan sağa (json sırası = motor index sırası).
+const CITY_CELLS = []
+for (let v = -6; v <= 5; v++) {
+  for (let u = -2; u <= 2; u++) {
+    if (((u - v) % 2 + 2) % 2 !== 0) continue // tuğla dizilim
+    if (u === 0 && v === 0) continue // belediye
+    if (Math.abs(u) === 1 && Math.abs(v) === 1) continue // meydan
+    if (v === -6 && u === 2) continue // tepe: asimetrik (organik) zirve
+    CITY_CELLS.push([u, v])
+  }
+}
+if (CITY_CELLS.length !== 24) throw new Error(`24 city hücresi bekleniyordu, bulundu ${CITY_CELLS.length}`)
+/*
+ * SIRA = BELEDİYEYE UZAKLIK. Motor boş arsayı en düşük index'ten doldurur ve
+ * başlangıç binaları sabit index'lerdedir; yakın slotların düşük index alması
+ * şehrin MERKEZDEN DIŞA büyümesini sağlar (Ikariam gibi). Ekran uzaklığı
+ * (X=256u, Y=128v) kullanılır; eşitlikte yukarıdan-aşağı, soldan-sağa.
+ */
+CITY_CELLS.sort(([u1, v1], [u2, v2]) => Math.hypot(2 * u1, v1) - Math.hypot(2 * u2, v2) || v1 - v2 || u1 - u2)
+
+// Deterministik sarsıntı (±1 karo), sokak payı korunarak.
+let seed = 7331
+const rnd = () => { seed = (seed * 1103515245 + 12345) & 0x7fffffff; return seed / 0x7fffffff }
+const JITTERS = [[1, 0], [-1, 0], [0, 1], [0, -1], [1, 1], [-1, -1], [1, -1], [-1, 1]]
+const hasStreet = (a, b) => Math.max(Math.abs(a.gx - b.gx), Math.abs(a.gy - b.gy)) >= FOOT + 1
 
 // --- SLOTLAR --------------------------------------------------------------
 const slots = []
 slots.push(withScreen({ id: 'city_hall', type: 'city', gx: CENTER.gx, gy: CENTER.gy, fw: FOOT, fh: FOOT, fixed: true }))
-CITY_OFFSETS.forEach(([a, b], i) => slots.push(withScreen({
-  id: `city_${String(i + 1).padStart(2, '0')}`, type: 'city',
-  gx: CENTER.gx + a + b, gy: CENTER.gy - a + b, fw: FOOT, fh: FOOT, fixed: false,
-})))
+CITY_CELLS.forEach(([u, v], i) => {
+  const base = lattice(u, v)
+  const order = [...JITTERS] // Fisher-Yates (tohumlu, motor-bağımsız deterministik)
+  for (let k = order.length - 1; k > 0; k--) { const r = Math.floor(rnd() * (k + 1)); [order[k], order[r]] = [order[r], order[k]] }
+  let pos = base
+  if (rnd() < 0.7) { // hücrelerin çoğu sarsılır, bir kısmı kafeste kalır
+    for (const [dx, dy] of order) {
+      const cand = { gx: base.gx + dx, gy: base.gy + dy }
+      if (slots.every(s => hasStreet(s, cand))) { pos = cand; break }
+    }
+  }
+  slots.push(withScreen({
+    id: `city_${String(i + 1).padStart(2, '0')}`, type: 'city',
+    gx: pos.gx, gy: pos.gy, fw: FOOT, fh: FOOT, fixed: false,
+  }))
+})
 
 /*
- * KIYI SLOTLARI: şehrin ALTINDAKİ kıyı boyunca (büyük gx+gy = ekranda alt).
- * Ticaret limanı / tersane / iskele / deniz kışlası bunların ARASINDA
- * taşınabilir. Kıyı hattı hafif dalgalı (organik), 6 slot.
+ * KIYI SLOTLARI: şehrin hemen ALTINDA dalgalı liman hattı (ekranda ~+900 px).
+ * Yatayda 256 px aralıklı, bir aşağı bir yukarı (dalga). Liman/tersane burada.
+ *   ekran d = gx-gy = -20 + dRel ,  s = gx+gy = 120 + sRel
  */
-const COAST_OFFSETS = [[-9, 31], [-5, 33], [-1, 31], [3, 33], [7, 31], [11, 33]]
-COAST_OFFSETS.forEach(([a, b], i) => slots.push(withScreen({
-  id: `coast_${String(i + 1).padStart(2, '0')}`, type: 'coast',
-  gx: CENTER.gx + a + b, gy: CENTER.gy - a + b, fw: FOOT, fh: FOOT, fixed: false,
-})))
+const COAST_REL = [[-10, 28], [-6, 30], [-2, 28], [2, 30], [6, 28], [10, 30]] // [dRel (×64px), sRel (×32px)]
+COAST_REL.forEach(([dRel, sRel], i) => {
+  const d = -20 + dRel, s = 120 + sRel
+  slots.push(withScreen({
+    id: `coast_${String(i + 1).padStart(2, '0')}`, type: 'coast',
+    gx: (s + d) / 2, gy: (s - d) / 2, fw: FOOT, fh: FOOT, fixed: false,
+  }))
+})
 
 /*
- * SAVUNMA SLOTLARI: sur KULE ve KAPI yuvaları — şehri çevreleyen hattın
- * uçlarında. Arkaplanda hazır sur YOK; buraya sonradan defense assetleri
- * (kule/kapı) yerleşir. Kapı denize (alt) bakar.
+ * SAVUNMA: şehri SIKICA saran boş temel hattı + kule/kapı yuvaları. Kapı
+ * limana (alta) bakar. Arkaplanda hazır sur YOK (sonradan defense assetleri).
+ * Noktalar ekran-göreli [X/64, Y/32] olarak verilir.
  */
+const ringPt = ([dRel, sRel]) => {
+  const d = -20 + dRel, s = 120 + sRel
+  return withScreen({ gx: (s + d) / 2, gy: (s - d) / 2 })
+}
 const DEFENSE_ANCHORS = [
-  { id: 'defense_tower_top', a: 0, b: -27 },
-  { id: 'defense_tower_left', a: -14, b: -2 },
-  { id: 'defense_tower_right', a: 14, b: -1 },
-  { id: 'defense_tower_bottom', a: 0, b: 27 },
-  { id: 'defense_gate', a: 1, b: 30 },
+  { id: 'defense_tower_top', at: [0, -30] },
+  { id: 'defense_tower_left', at: [-14, -4] },
+  { id: 'defense_tower_right', at: [14, -4] },
+  // Kapı limana bakar ve iki liman yolu demetinin ARASINDA durur; alt kule sol
+  // burçta. Hiçbir yol bir savunma footprint'inin altından geçmez.
+  { id: 'defense_tower_bottom', at: [-12, 22] },
+  { id: 'defense_gate', at: [0, 24] },
 ]
-DEFENSE_ANCHORS.forEach(({ id, a, b }) => slots.push(withScreen({
-  id, type: 'defense', gx: CENTER.gx + a + b, gy: CENTER.gy - a + b, fw: FOOT, fh: FOOT, fixed: true,
-})))
+DEFENSE_ANCHORS.forEach(({ id, at }) => {
+  const p = ringPt(at)
+  slots.push(withScreen({ id, type: 'defense', gx: p.gx, gy: p.gy, fw: FOOT, fh: FOOT, fixed: true }))
+})
 
-/*
- * SAVUNMA TEMEL HATTI: şehri saran, kule uçlarını birleştiren BOŞ halka
- * (sur/hendek hattı). Sekizgen: 8 açıda, halka yarıçapı dış slotların ötesinde.
- */
+// Temel hattı: şehrin çevresinde sekizgen (kıyıdan önce kapanır).
 const foundationPts = [
-  [0, -30], [11, -18], [16, -2], [11, 16], [0, 30], [-11, 18], [-16, -2], [-11, -18],
-].map(([a, b]) => withScreen({ gx: CENTER.gx + a + b, gy: CENTER.gy - a + b }))
+  [0, -32], [12, -26], [14, -4], [12, 18], [0, 26], [-12, 18], [-14, -4], [-12, -26],
+].map(ringPt)
 
 // --- YOL GRAFİĞİ (ROAD GRAPH) --------------------------------------------
 /*
@@ -129,11 +184,32 @@ while (inTree.size < citySlots.length) {
   inTree.add(best.to)
   edges.push({ from: best.from, to: best.to })
 }
-// Coast bağlantıları: her coast en yakın city'ye.
-for (const c of coastSlots) {
-  let best = null
-  for (const v of citySlots) { const d = dist(c, v); if (!best || d < best.d) best = { to: v.id, d } }
-  edges.push({ from: c.id, to: best.to })
+/*
+ * Coast bağlantıları — RIHTIM GEZİNTİ YOLU. Rıhtımlar şehre yakınlık sırasıyla
+ * bağlanır; her biri en yakın city slotuna YA DA zaten bağlanmış komşu rıhtıma
+ * gider. Başka bir footprint'in (city/coast/defense) altından geçecek aday
+ * reddedilir — kompakt şehirde yollar yalnızca sokaklardan akar.
+ */
+const allFootprints = slots
+const crossesOther = (a, b) => {
+  const A = { x: screenX(a.gx, a.gy), y: screenY(a.gx, a.gy) }, B = { x: screenX(b.gx, b.gy), y: screenY(b.gx, b.gy) }
+  const halfW = (FOOT * TILE_W) / 2 * 1.15 // kıvrım payı
+  for (let t = 0.1; t <= 0.9; t += 0.05) {
+    const x = A.x + (B.x - A.x) * t, y = A.y + (B.y - A.y) * t
+    for (const s of allFootprints) {
+      if (s.id === a.id || s.id === b.id) continue
+      if (Math.abs(s.screen.x - x) + 2 * Math.abs(s.screen.y - y) < halfW) return true
+    }
+  }
+  return false
+}
+const nearestCity = (c) => Math.min(...citySlots.map(v => dist(c, v)))
+const connected = [...citySlots]
+for (const c of [...coastSlots].sort((p, q) => nearestCity(p) - nearestCity(q))) {
+  const cands = connected.map(v => ({ v, d: dist(c, v) })).sort((p, q) => p.d - q.d)
+  const pick = cands.find(({ v }) => !crossesOther(c, v)) ?? cands[0]
+  edges.push({ from: c.id, to: pick.v.id })
+  connected.push(c)
 }
 
 const roadNodes = [...citySlots, ...coastSlots].map(s => ({ id: s.id, gx: s.gx, gy: s.gy, screen: s.screen }))

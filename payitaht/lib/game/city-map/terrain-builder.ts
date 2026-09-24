@@ -44,10 +44,14 @@ export function mulberry32(seed: number) {
 export function cityWorldRect() {
   const pts = [...SLOTS.map(s => s.screen), ...DEFENSE_FOUNDATION.map(p => p.screen)]
   const xs = pts.map(p => p.x), ys = pts.map(p => p.y)
-  const mx = TILE.w * 3, topPad = TILE.h * 5
-  // Kıyı odağında kamera alt sınırına erken çarpıyordu; rıhtım alt HUD'un
-  // arkasında kalıyordu. Deniz yönünde kontrollü kamera payı bırak.
-  const bottomPad = TILE.h * 13
+  /*
+   * IKARIAM KOMPOZİSYONU (dikey telefon): kompakt şehir ekrana sığdırıldığında
+   * görünür alan şehirden çok daha UZUN olur. Dünya bu yüzden şehrin üstünde
+   * tepe/orman, altında açık deniz barındıracak kadar yüksektir; kamera hiçbir
+   * zoom'da dünyanın dışındaki boşluğu göstermez (bkz. phaser-city minZoom).
+   */
+  const mx = TILE.w * 4, topPad = TILE.h * 26
+  const bottomPad = TILE.h * 24
   const minX = Math.min(...xs) - mx, minY = Math.min(...ys) - topPad
   return { x: minX, y: minY, w: Math.max(...xs) + mx - minX, h: Math.max(...ys) + bottomPad - minY }
 }
@@ -648,6 +652,75 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1, occupiedSl
       const x = p.x + nx * distance * side
       const y = p.y + ny * distance * side
       if (clearForDecor(x, y, 0.68)) placeCluster(x, y, 3 + Math.floor(clusterRnd() * 3), 0.30)
+    }
+  }
+
+  /*
+   * IKARIAM ÇERÇEVESİ — kasaba ormanla çevrili bir AÇIKLIKTA durur.
+   *
+   * Savunma halkasının dışında, merkezden uzaklaştıkça SIKLAŞAN bir zeytinlik/
+   * çalılık kuşağı; dış kenarlara doğru kayalık artar. Geniş haritanın boşluğunu
+   * şehir değil MANZARA doldurur. Belediye hizasının altında açıklık yalnızca
+   * yanlara uzanır; kasaba ile liman arasındaki kıyı şeridi açık kalır. Yollar,
+   * slotlar ve deniz clearForDecor ile korunur. Yeni görsel yok: mevcut dekor.
+   */
+  {
+    const hallS = slotById(HALL_SLOT_ID)!.screen
+    const ringXs = DEFENSE_FOUNDATION.map(p => p.screen.x)
+    const ringYs = DEFENSE_FOUNDATION.map(p => p.screen.y)
+    const clearRx = Math.max(...ringXs.map(x => Math.abs(x - hallS.x))) + TILE.w * 0.9
+    const clearTop = hallS.y - Math.min(...ringYs) + TILE.h * 2.2
+    const coastTop = seaLine - TILE.h * 3.2
+    const wildRnd = mulberry32(31337)
+    const tints = [0xffffff, 0xeef3e2, 0xe3ebd4, 0xf4eedc, 0xdde6cc]
+    const wild: Array<{ x: number; y: number; key: string; w: number; tint: number; flip: boolean; clump: number }> = []
+    const stepX = TILE.w * 0.62, stepY = TILE.h * 0.95
+    // Düşük frekanslı YOĞUNLUK ALANI: ağaçlar tek tek serpilmez, koruluk
+    // KÜTLELERİ oluşturur; aralarında çayır boşlukları kalır (≈[-1,1]).
+    const S = TILE.w * 3.2
+    const grove = (x: number, y: number) => (
+      Math.sin(x / S + 1.3) * Math.cos(y / (S * 0.6) - 0.7)
+      + 0.6 * Math.sin((x + y * 1.7) / (S * 1.9) + 2.1)
+      + 0.35 * Math.cos((x * 0.8 - y) / (S * 1.1) + 0.4)) / 1.95
+    for (let y = wr.y + TILE.h * 0.6; y < coastTop; y += stepY) {
+      for (let x = wr.x + TILE.w * 0.3; x < wr.x + wr.w; x += stepX) {
+        const jx = x + (wildRnd() - 0.5) * stepX * 0.9
+        const jy = y + (wildRnd() - 0.5) * stepY * 0.9
+        const dx = (jx - hallS.x) / clearRx
+        const dy = jy < hallS.y ? (hallS.y - jy) / clearTop : 0
+        const e = Math.hypot(dx, dy)
+        const roll = wildRnd(), pick = wildRnd(), size = wildRnd()
+        if (e < 1) continue // kasabanın açıklığı
+        const t = Math.min(1, (e - 1) / 0.45) // açıklık kenarından uzaklık
+        const g = grove(jx, jy)
+        const clump = Math.min(1, Math.max(0, (g + 0.15) / 0.6)) // 0 çayır .. 1 koru
+        // Koru içinde taç taca (sık kütle), çayırda seyrek; açıklık kenarında incelir.
+        if (roll > (0.10 + 0.70 * t) * (0.12 + 1.6 * clump)) continue
+        if (!clearForDecor(jx, jy, 0.8)) continue
+        const rockBias = 0.08 * t
+        const key = pick < 0.64 - rockBias ? 'd_olive-tree'
+          : pick < 0.84 - rockBias ? 'd_bush'
+          : pick < 0.96 ? 'd_rock' : 'd_flower'
+        const w = key === 'd_olive-tree' ? TILE.w * (0.62 + size * 0.34 + clump * 0.36)
+          : key === 'd_rock' ? TILE.w * (0.30 + size * 0.18)
+          : key === 'd_bush' ? TILE.w * (0.30 + size * 0.14)
+          : TILE.w * (0.24 + size * 0.08)
+        wild.push({ x: jx, y: jy, key, w, tint: tints[Math.floor(size * tints.length) % tints.length], flip: pick > 0.5, clump })
+      }
+    }
+    // Orman TABANI: koruların altına yumuşak koyu gölge; taçlar tek tek değil
+    // KÜTLE olarak okunur (tek Graphics, ucuz).
+    const floor = scene.add.graphics().setDepth(-706)
+    for (const p of wild) {
+      if (p.clump < 0.45 || p.key !== 'd_olive-tree') continue
+      floor.fillStyle(0x2f4a24, 0.10 + 0.10 * p.clump)
+      floor.fillEllipse(p.x, p.y - TILE.h * 0.35, p.w * 1.35, p.w * 0.62)
+    }
+    // Arkadan öne: aşağıdaki ağaç yukarıdakinin gövdesini örter.
+    wild.sort((a, b) => a.y - b.y)
+    for (const p of wild) {
+      const image = stamp(p.key, p.x, p.y, p.w, -700, 0.92, 1, p.tint)
+      if (image) { image.setFlipX(p.flip); ambientDecor.push({ image, x: p.x, y: p.y }) }
     }
   }
 
