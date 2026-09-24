@@ -1,7 +1,8 @@
 'use client'
 
 import useSWR from 'swr'
-import { execute, type Command } from '@/lib/game/engine'
+import { execute, type Command, type UnitId } from '@/lib/game/engine'
+import { dispatchRaid, dispatchSpies } from '@/lib/game/expeditions'
 import {
   activeCity, advanceEmpire, foundColony, initialEmpire, parseEmpire,
   shipResources, type Cargo, type Empire, type IslandId,
@@ -66,10 +67,20 @@ export function useGame() {
     if (result.error) return result.error
     commit(result.empire)
   }
+  function spy(npcId: string, count: number): string | undefined {
+    const result = dispatchSpies(load(), npcId, count, Date.now())
+    if (result.error) return result.error
+    commit(result.empire)
+  }
+  function raid(npcId: string, units: Partial<Record<UnitId, number>>): string | undefined {
+    const result = dispatchRaid(load(), npcId, units, Date.now())
+    if (result.error) return result.error
+    commit(result.empire)
+  }
   function reset() {
     corrupt = false
     warning = ''
     commit(initialEmpire(Date.now()))
   }
-  return { game, empire: data, command, selectCity, colonize, sendCargo, reset, warning }
+  return { game, empire: data, command, selectCity, colonize, sendCargo, spy, raid, reset, warning }
 }

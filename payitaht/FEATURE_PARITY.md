@@ -20,6 +20,11 @@ isimleri, kaynak kodu ve birebir dengesi kopyalanmayacak.
   top ve savaş gemileri kükürt ister. Lüks mallar gemiyle taşınır; Çarşı'da
   NPC tüccar alım/satım yapar. Ikariam karşılığı 8 yeni yapı (Kahvehane,
   Cami, Müze, Marangozhane, Mimarbaşı, Ormancı, Taşçı, Tophane).
+- **Ada, casusluk, sefer:** Boyalı ada görünümü (şehir, maden, üç bağımsız
+  yerleşim: Barbar Köyü, Korsan İni, Asi Kalesi — gerçek oyuncu değil).
+  Elçilik'te yetişen casuslar garnizon/sur/hazine raporu getirir (deterministik
+  zar). Kara ordusuyla sefer: deterministik çarpışma, kayıp oranı, ganimet,
+  dönüş ve raporlar. Her bina panelinde seviye etkisi (şu an → sonraki).
 - **Henüz yok:** Ortak adadaki diğer oyuncuların maden bağışları, çevrimiçi pazar, gerçek oyuncu kentleri,
   eşzamanlı PvP/abluka/yağma, ittifak ve anlaşmalar, casusluk, savaş raporları,
   dünya etkinlikleri.

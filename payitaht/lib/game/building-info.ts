@@ -1,0 +1,89 @@
+/**
+ * BİNA ETKİLERİ — her yapının bir seviyede NE verdiği, oyuncunun okuyacağı dille.
+ *
+ * Sayılar elle yazılmaz: yapının seviyesi değiştirilmiş bir oyun kopyası
+ * üzerinde motorun kendi fonksiyonları çağrılır. Böylece panelde görünen
+ * değer ile oyunun gerçekten uyguladığı değer asla ayrışmaz.
+ */
+import {
+  BUILDING_EFFECTS, UNITS, UNIT_IDS, WORKERS_PER_LEVEL, capacity, contentment, drillBonus, housing,
+  merchantLimit, tradeCapacity, wallDefense, type BuildingId, type Game,
+} from './engine'
+
+export type EffectLine = { label: string; value: string }
+
+const pct = (x: number) => `%${Math.round(x * 100)}`
+const num = (x: number) => Math.round(x).toLocaleString('tr-TR')
+
+/** `level` seviyesindeki yapının etkileri. */
+export function effectLines(game: Game, id: BuildingId, level: number): EffectLine[] {
+  const g: Game = { ...game, buildings: { ...game.buildings, [id]: level } }
+  const E = BUILDING_EFFECTS
+  const unlocks = (home: BuildingId) => UNIT_IDS.filter(u => UNITS[u].home === home && UNITS[u].level <= level).map(u => UNITS[u].name).join(', ') || '—'
+  switch (id) {
+    case 'divan': return [
+      { label: 'Diğer yapıların tavanı', value: `Sv. ${level + 1}` },
+      { label: 'İdari barınma', value: `+${num(Math.max(0, level - 1) * E.divanHousing)} kişi` },
+    ]
+    case 'saray': return [
+      { label: 'Koloni hakkı', value: `${level} yeni şehir` },
+      { label: 'Akçe geliri', value: `+${pct(level * E.sarayGold)}` },
+    ]
+    case 'elcilik': return [
+      { label: 'Casus yeri', value: `${level * E.elcilikSpies}` },
+      { label: 'Casusluk başarısı', value: `+${pct(level * E.elcilikSpySuccess)}` },
+      { label: 'Casus eğitimi', value: `${pct(drillBonus(g, 'elcilik'))} hızlı` },
+    ]
+    case 'konut': return [
+      { label: 'Barınma', value: `${num(housing(g))} kişi` },
+      { label: 'Halkın vergisi', value: `+${num(level * 120)} akçe/dk` },
+    ]
+    case 'hamam': return [{ label: 'Huzur', value: `+${num(level * 60)} (toplam ${num(contentment(g))})` }]
+    case 'carsi': return [
+      { label: 'Esnaf yeri', value: `${level * WORKERS_PER_LEVEL} kişi` },
+      { label: 'Tam kadroda akçe', value: `+${num(level * 100)}/dk` },
+      { label: 'Tüccar partisi', value: `${num(merchantLimit(g))} birim` },
+    ]
+    case 'ambar': return [{ label: 'Kaynak başına ambar', value: `${num(capacity(g))}` }]
+    case 'kereste': return [
+      { label: 'Oduncu yeri', value: `${level * WORKERS_PER_LEVEL} kişi` },
+      { label: 'Tam kadroda kereste', value: `+${num(level * 120)}/dk` },
+    ]
+    case 'tas': return [
+      { label: 'Taşçı yeri', value: `${level * WORKERS_PER_LEVEL} kişi` },
+      { label: 'Tam kadroda taş', value: `+${num(level * 90)}/dk` },
+    ]
+    case 'medrese': return [
+      { label: 'Âlim yeri', value: `${level * WORKERS_PER_LEVEL} kişi` },
+      { label: 'Tam kadroda ilim', value: `+${num(level * 8)}/dk` },
+    ]
+    case 'kisla': return [
+      { label: 'Eğitim hızı', value: `${pct(drillBonus(g, 'kisla'))} hızlı` },
+      { label: 'Eğitilebilen', value: unlocks('kisla') },
+    ]
+    case 'surlar': return [{ label: 'Sur savunması', value: `${num(wallDefense(g))}` }]
+    case 'liman': return [
+      { label: 'Ticaret kapasitesi', value: `${num(tradeCapacity(g))} mal` },
+      { label: 'Nakliye eğitimi', value: `${pct(drillBonus(g, 'liman'))} hızlı` },
+    ]
+    case 'tersane': return [
+      { label: 'Gemi yapım hızı', value: `${pct(drillBonus(g, 'tersane'))} hızlı` },
+      { label: 'Yapılabilen', value: unlocks('tersane') },
+    ]
+    case 'kahvehane': return [
+      { label: 'Huzur', value: `+${num(level * E.kahvehaneContentment)}` },
+      { label: 'Üzüm ikramıyla', value: `+${num(level * E.kahvehaneWineBonus)} huzur daha` },
+      { label: 'Üzüm tüketimi', value: `${num(level * E.kahvehaneWine)}/dk` },
+    ]
+    case 'cami': return [
+      { label: 'Huzur', value: `+${num(level * E.camiContentment)}` },
+      { label: 'İlim üretimi', value: `+${pct(level * E.camiKnowledge)}` },
+    ]
+    case 'muze': return [{ label: 'Huzur', value: `+${num(level * E.muzeContentment)}` }]
+    case 'marangoz': return [{ label: 'Kereste maliyeti', value: `-${pct(level * E.marangozWood)}` }]
+    case 'mimar': return [{ label: 'Taş ve mermer maliyeti', value: `-${pct(level * E.mimarStone)}` }]
+    case 'ormanci': return [{ label: 'Kereste üretimi', value: `+${pct(level * E.ormanciWood)}` }]
+    case 'tasci': return [{ label: 'Taş üretimi', value: `+${pct(level * E.tasciStone)}` }]
+    case 'tophane': return [{ label: 'Birlik saldırı ve savunması', value: `+${pct(level * E.tophanePower)}` }]
+  }
+}

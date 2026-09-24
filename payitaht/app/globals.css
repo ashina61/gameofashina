@@ -676,3 +676,52 @@
 .merchant-list { display: flex; flex-direction: column; gap: 6px; }
 .merchant-row { display: grid; grid-template-columns: 1fr auto auto; gap: 8px; align-items: center; font-size: 13px; }
 .cost-display .cost-luxury svg { color: #c9a7e8; }
+
+/* --- BİNA ETKİSİ: şu anki seviye → sonraki seviye ------------------------ */
+.building-effects { display: flex; flex-direction: column; gap: 0; border: 1px solid var(--border); border-radius: var(--radius); background: var(--card); overflow: hidden; }
+.building-effects-head, .building-effects-row { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr) minmax(0, 1fr); gap: 8px; align-items: center; padding: 8px 12px; }
+.building-effects-head { font-size: 10px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted-foreground); border-bottom: 1px solid var(--border); }
+.building-effects-row { font-size: 12.5px; }
+.building-effects-row + .building-effects-row { border-top: 1px solid #ffffff0d; }
+.building-effects-row > span { color: var(--muted-foreground); }
+.building-effects-row strong { font-weight: 600; font-variant-numeric: tabular-nums; }
+.building-effects-row em { font-style: normal; font-weight: 700; color: var(--gold); font-variant-numeric: tabular-nums; }
+
+/* --- ADA GÖRÜNÜMÜ ---------------------------------------------------------- */
+.island-view { position: fixed; inset: 0; z-index: 2; overflow-y: auto; background: #1d5f73; padding: calc(env(safe-area-inset-top, 0px) + 150px) 0 calc(env(safe-area-inset-bottom, 0px) + 96px); pointer-events: auto; }
+.island-toolbar { position: sticky; top: 0; z-index: 2; display: flex; align-items: center; gap: 8px; margin: 0 auto 8px; padding: 6px 10px 6px 64px; max-width: 560px; }
+.island-toolbar .island-title { flex: 1; min-width: 0; display: flex; flex-direction: column; line-height: 1.15; color: #fff6e2; text-shadow: 0 1px 3px #0009; }
+.island-title strong { font-size: 15px; }
+.island-title small { font-size: 11px; color: #d6e6d8; }
+.island-toolbar button { background: #0d2522ee; }
+.island-map { position: relative; width: 100%; max-width: 560px; margin: 0 auto; }
+.island-bg { display: block; width: 100%; height: auto; }
+.island-spot { position: absolute; width: 24%; transform: translate(-50%, -78%); display: flex; flex-direction: column; align-items: center; background: none; border: 0; padding: 0; cursor: pointer; }
+.island-spot > img { width: 100%; height: auto; filter: drop-shadow(0 4px 6px #0005); transition: transform .15s ease; }
+.island-spot:hover > img, .island-spot:focus-visible > img { transform: translateY(-3px); }
+.island-spot:focus-visible { outline: 2px solid var(--gold); outline-offset: 4px; border-radius: 8px; }
+.island-city { width: 30%; }
+.island-label { margin-top: -4px; display: flex; flex-direction: column; align-items: center; padding: 2px 8px; border-radius: 8px; background: #0d2522e6; border: 1px solid #d9c18555; color: #fff3da; line-height: 1.15; white-space: nowrap; }
+.island-label strong { font-size: 11px; }
+.island-label small { font-size: 9px; color: #cfe1cf; }
+.island-mission { position: absolute; top: 4%; left: 50%; transform: translateX(-50%); display: inline-flex; align-items: center; gap: 4px; padding: 2px 7px; border-radius: 10px; background: #b8412f; color: #fff; font-size: 10px; font-weight: 700; font-variant-numeric: tabular-nums; box-shadow: 0 2px 6px #0006; }
+.island-mission svg { width: 12px; height: 12px; }
+.island-return { background: #3f6f9a; }
+.npc-emblem img { width: 44px; height: auto; }
+.report-lines { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 3px; font-size: 12.5px; color: var(--muted-foreground); }
+.report-win { color: #9fd38a; font-weight: 600; }
+.report-loss { color: #f08c78; font-weight: 600; }
+.report-card { display: flex; flex-direction: column; gap: 8px; padding: 12px 14px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--card); }
+.report-head { display: flex; align-items: center; gap: 8px; }
+.report-head strong { flex: 1; font-size: 13px; }
+.report-head time { font-size: 11px; color: var(--muted-foreground); font-variant-numeric: tabular-nums; }
+.raid-units { display: flex; flex-direction: column; gap: 6px; }
+.raid-unit { display: grid; grid-template-columns: 1fr auto auto auto auto; gap: 6px; align-items: center; }
+.raid-unit > span { display: flex; flex-direction: column; min-width: 0; }
+.raid-unit small { font-size: 11px; color: var(--muted-foreground); }
+.stepper-value { min-width: 28px; text-align: center; font-variant-numeric: tabular-nums; }
+.raid-summary { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 12px; font-size: 12.5px; }
+.raid-summary span { display: inline-flex; align-items: center; gap: 6px; color: var(--muted-foreground); }
+.raid-summary svg { color: var(--gold); }
+.game-island .side-actions, .game-island .map-top-tools, .game-island .weather { display: none; }
+.npc-panel h3 { display: flex; align-items: center; gap: 8px; }

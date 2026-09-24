@@ -9,6 +9,9 @@ import { buildingImage } from '@/lib/asset'
 import { activeCity, CARGO_IDS, CARGO_NAMES, COLONY_COST, ISLANDS, type Cargo, type Empire, type IslandId } from '@/lib/game/empire'
 import { LUXURY_IDS, LUXURY_NAMES, MERCHANT_BUY, MERCHANT_SELL, MINE_MAX_LEVEL, luxuryCost, luxuryProduction, merchantLimit, mineCapacity, mineUpgradeCost, unitLuxuryCost, wineServed, type Luxury } from '@/lib/game/engine'
 import { luxuryIcons } from './game-widgets'
+import { effectLines } from '@/lib/game/building-info'
+import { Eye } from 'lucide-react'
+import { spyCapacity } from '@/lib/game/engine'
 
 export function BuildingDetails({ game, id, onBuild, onFlip, onMove }: { game: Game; id: BuildingId; onBuild: (id: BuildingId) => void; onFlip: (id: BuildingId) => void; onMove: (id: BuildingId) => void }) {
   const b = BUILDINGS[id], level = game.buildings[id], reason = buildReason(game, id)
@@ -20,7 +23,7 @@ export function BuildingDetails({ game, id, onBuild, onFlip, onMove }: { game: G
     const projected: Game = { ...game, buildings: { ...game.buildings, [id]: at } }
     return { level: at + 1, price: cost(projected, id), seconds: duration(projected, id) }
   })
-  return <div className="building-details"><div className="building-preview"><div className="preview-halo" />{b.art ? <img src={buildingImage(id, level)} alt={`${b.name} mimari görünümü`} width={360} height={360} /> : <span className="preview-pending"><Hammer aria-hidden="true" /><small>Görsel hazırlanıyor</small></span>}<span>{level ? `SEVİYE ${level}` : 'YENİ YAPI'}</span></div><span className="eyebrow">{b.category}</span><p>{b.description}</p><div className="building-upgrade"><span>{level ? `Seviye ${level}` : 'Boş arsa'}</span><ArrowUp className="size-4" /><strong>{level >= max ? 'En yüksek seviye' : `Seviye ${level + 1}`}</strong></div>{active ? <JobProgress job={active} now={game.updatedAt} /> : level < max && <><div className="upgrade-cost"><span>Gerekli kaynaklar</span><CostDisplay value={cost(game, id)} lux={luxuryCost(game, id)} /></div><div className="duration-row"><Clock3 className="size-4" /> {duration(game, id)} saniye <span>Prototip süresi</span></div></>}{forecast.length > 0 && <section className="building-cost-forecast">
+  return <div className="building-details"><div className="building-preview"><div className="preview-halo" />{b.art ? <img src={buildingImage(id, level)} alt={`${b.name} mimari görünümü`} width={360} height={360} /> : <span className="preview-pending"><Hammer aria-hidden="true" /><small>Görsel hazırlanıyor</small></span>}<span>{level ? `SEVİYE ${level}` : 'YENİ YAPI'}</span></div><span className="eyebrow">{b.category}</span><p>{b.description}</p><BuildingEffects game={game} id={id} level={level} max={max} /><div className="building-upgrade"><span>{level ? `Seviye ${level}` : 'Boş arsa'}</span><ArrowUp className="size-4" /><strong>{level >= max ? 'En yüksek seviye' : `Seviye ${level + 1}`}</strong></div>{active ? <JobProgress job={active} now={game.updatedAt} /> : level < max && <><div className="upgrade-cost"><span>Gerekli kaynaklar</span><CostDisplay value={cost(game, id)} lux={luxuryCost(game, id)} /></div><div className="duration-row"><Clock3 className="size-4" /> {duration(game, id)} saniye <span>Prototip süresi</span></div></>}{forecast.length > 0 && <section className="building-cost-forecast">
     <strong>Sonraki seviyelerin maliyeti</strong>
     <p className="fine-print">Fiyatlar mevcut araştırma indirimlerini içerir. Sonraki yükseltmelerin ücreti, o günkü teknolojine göre yeniden hesaplanır.</p>
     {forecast.map(item => <div key={item.level} className="building-forecast-row">
@@ -330,7 +333,7 @@ export function ArmyPanel({ game, onRecruit, onBuild }: { game: Game; onRecruit:
         })}
       </section>
     })}
-    <p className="fine-print">Taşıma kapasitesi {cargoCapacity(game)} mal · Ticaret limanı {tradeCapacity(game)} mal. Sefer ve savaş bu prototipte henüz yok; ordu şimdilik şehrin savunmasıdır.</p>
+    <p className="fine-print">Taşıma kapasitesi {cargoCapacity(game)} mal · Ticaret limanı {tradeCapacity(game)} mal. Seferler ve casusluk Ada görünümünden (soldaki Ada danışmanı) adadaki bağımsız yerleşimlere düzenlenir.</p>
   </div>
 }
 
@@ -347,6 +350,9 @@ export function DiplomacyPanel({ game, onBuild }: { game: Game; onBuild: (id: Bu
     {level === 0
       ? <button className="army-locked" onClick={() => onBuild('elcilik')}><LockKeyhole className="size-4" /><span><strong>Elçilik gerekli</strong><small>{BUILDINGS.elcilik.description}</small></span><ChevronRight className="size-4" /></button>
       : <article className="city-card"><div className="city-card-top"><span className="city-emblem"><Handshake aria-hidden="true" /></span><span><span className="eyebrow">ELÇİLİK · SEVİYE {level}</span><strong>Kapın açık</strong><span>İttifak defteri hazır</span></span></div><p className="fine-print">Elçiliğin kuruldu. İttifak ve anlaşmalar, oyun çok oyunculuya açıldığında buraya gelecek.</p></article>}
+    {level > 0 && <article className="city-card">
+      <div className="city-card-top"><span className="city-emblem"><Eye aria-hidden="true" /></span><span><span className="eyebrow">CASUSLUK</span><strong>{game.army.casus} / {spyCapacity(game)} casus</strong><span>Casuslar Kışla panelinden (Ordu) yetişir; Ada görünümünde bir yerleşime dokunup gönderilir.</span></span></div>
+    </article>}
     <article className="city-card">
       <div className="city-card-top"><span className="city-emblem"><Ship aria-hidden="true" /></span><span><span className="eyebrow">TİCARET</span><strong>{tradeCapacity(game)} mal kapasite</strong><span>{game.army.nakliye} nakliye gemisi · {cargoCapacity(game)} taşıma</span></span></div>
       <p className="fine-print">Ticaret Limanı kapasiteyi, nakliye gemileri taşımayı verir. Karşı taraf — başka oyuncular — bu prototipte yok; sayılar hazır, ticaret yolu açıldığında bağlanacak.</p>
@@ -434,4 +440,17 @@ export function IslandPanel({ game, islandName, onMiners, onDonate, onTrade }: {
         </>}
     </section>
   </div>
+}
+
+/** Seviye etkisi: şu anki seviye ve bir sonraki seviyede ne değişir. */
+function BuildingEffects({ game, id, level, max }: { game: Game; id: BuildingId; level: number; max: number }) {
+  const now = level > 0 ? effectLines(game, id, level) : []
+  const next = level < max ? effectLines(game, id, level + 1) : []
+  const rows = (next.length ? next : now).map((line, i) => ({ label: line.label, now: now[i]?.value ?? '—', next: next[i]?.value }))
+  return <section className="building-effects" aria-label="Seviye etkisi">
+    <div className="building-effects-head"><span>Etki</span><span>{level > 0 ? `Sv. ${level}` : 'Kurulmadı'}</span>{next.length > 0 && <span>Sv. {level + 1}</span>}</div>
+    {rows.map(row => <div key={row.label} className="building-effects-row">
+      <span>{row.label}</span><strong>{row.now}</strong>{row.next !== undefined && <em>{row.next}</em>}
+    </div>)}
+  </section>
 }

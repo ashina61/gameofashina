@@ -183,6 +183,11 @@ export const BUILDING_EFFECTS = {
   marangozWood: 0.01, mimarStone: 0.01,
   ormanciWood: 0.02, tasciStone: 0.02,
   tophanePower: 0.02,
+  divanHousing: 20, sarayGold: 0.03,
+  /** Kışla/Tersane/Liman/Elçilik: kendi birliklerinin eğitimi seviye başına %3 hızlanır (en fazla %45). */
+  drillSpeed: 0.03, drillSpeedCap: 0.45,
+  /** Elçilik: seviye başına 2 casus yeri ve %5 casusluk başarısı. */
+  elcilikSpies: 2, elcilikSpySuccess: 0.05,
 } as const
 
 /*
@@ -197,7 +202,7 @@ export const BUILDING_EFFECTS = {
  * Oyuncu once Halk panelinden adam bosaltir, sonra Kisla'ya gelir. Bu, bir
  * ekranin baska bir ekrani nicin etkiledigini gorunur kilar.
  */
-export const UNIT_IDS = ['yeniceri', 'okcu', 'sipahi', 'topcu', 'kadirga', 'kalyon', 'nakliye'] as const
+export const UNIT_IDS = ['yeniceri', 'okcu', 'sipahi', 'topcu', 'kadirga', 'kalyon', 'nakliye', 'casus'] as const
 export type UnitId = typeof UNIT_IDS[number]
 export type Army = Record<UnitId, number>
 export type Unit = {
@@ -223,6 +228,7 @@ export const UNITS: Record<UnitId, Unit> = {
   topcu: { name: 'Topçu', branch: 'kara', home: 'kisla', level: 3, description: 'Sur yıkar. Yavaştır ve korunmaya muhtaçtır.', pop: 3, cost: { gold: 320, wood: 140, stone: 90, knowledge: 0 }, attack: 65, defense: 6, seconds: 34, cargo: 0 },
   kadirga: { name: 'Kadırga', branch: 'deniz', home: 'tersane', level: 1, description: 'Hafif savaş gemisi. Kürekle döner, dar sularda üstündür.', pop: 12, cost: { gold: 600, wood: 420, stone: 0, knowledge: 0 }, attack: 45, defense: 35, seconds: 45, cargo: 0 },
   kalyon: { name: 'Kalyon', branch: 'deniz', home: 'tersane', level: 2, description: 'Ağır kalyon. Yavaş ama denizde son sözü söyler.', pop: 25, cost: { gold: 1400, wood: 950, stone: 120, knowledge: 0 }, attack: 120, defense: 95, seconds: 75, cargo: 0 },
+  casus: { name: 'Casus', branch: 'kara', home: 'elcilik', level: 1, description: 'Elçilikte yetişir. Komşu yerleşimlerin askerini, surunu ve hazinesini gözetler; savaşmaz.', pop: 1, cost: { gold: 140, wood: 0, stone: 0, knowledge: 0 }, attack: 0, defense: 0, seconds: 25, cargo: 0 },
   nakliye: { name: 'Nakliye', branch: 'deniz', home: 'liman', level: 1, description: 'Asker ve mal taşır. Ticaretin ve seferin ayağıdır.', pop: 8, cost: { gold: 450, wood: 340, stone: 0, knowledge: 0 }, attack: 0, defense: 18, seconds: 40, cargo: 500 },
 }
 export const RESEARCH: Record<ResearchId, { branch: ResearchBranch; name: string; description: string; cost: number; duration: number; required: number; needs?: ResearchId }> = {
@@ -432,7 +438,8 @@ export function rates(g: Game): Resources {
   return {
     // Akce iki kaynaktan gelir: halkin vergisi (isci istemez) ve carsi esnafi.
     gold: Math.max(0, (60 + g.buildings.konut * 120 +
-      g.buildings.carsi * 100 * share('carsi')) * multiplier - scientistUpkeepPerMinute(g)),
+      g.buildings.carsi * 100 * share('carsi')) * multiplier * (1 + g.buildings.saray * BUILDING_EFFECTS.sarayGold) -
+      scientistUpkeepPerMinute(g)),
     wood: g.buildings.kereste * 120 * share('kereste') * multiplier *
       (g.research.includes('ormancilik') ? 1.15 : 1) * (1 + g.buildings.ormanci * BUILDING_EFFECTS.ormanciWood),
     stone: g.buildings.tas * 90 * share('tas') * multiplier *
@@ -445,7 +452,11 @@ export function rates(g: Game): Resources {
   }
 }
 /** Konaklarin barindirabilecegi en fazla nufus. */
-export function housing(g: Game) { return 80 + g.buildings.konut * 40 + (g.research.includes('kent_planlama') ? 40 : 0) }
+export function housing(g: Game) {
+  // Divanhane her seviyede (1'in üstünde) şehre 20 kişilik idari barınma ekler.
+  return 80 + g.buildings.konut * 40 + Math.max(0, g.buildings.divan - 1) * BUILDING_EFFECTS.divanHousing +
+    (g.research.includes('kent_planlama') ? 40 : 0)
+}
 
 /**
  * Sehrin HUZURLA tutabilecegi nufus.
@@ -740,7 +751,15 @@ export function unitCost(id: UnitId, count: number, game?: Game): Resources {
 export function unitDuration(g: Game, id: UnitId, count: number) {
   return Math.round(UNITS[id].seconds * count *
     (g.research.includes('architecture') ? .75 : 1) *
-    (g.research.includes('talim') ? .90 : 1))
+    (g.research.includes('talim') ? .90 : 1) * (1 - drillBonus(g, UNITS[id].home)))
+}
+
+/** Elçiliğin barındırabileceği casus sayısı. */
+export function spyCapacity(g: Game) { return g.buildings.elcilik * BUILDING_EFFECTS.elcilikSpies }
+
+/** Eğitim yapısının yükseltmesiyle gelen hız: her yükseltme %3, en fazla %45. */
+export function drillBonus(g: Game, home: BuildingId) {
+  return Math.min(BUILDING_EFFECTS.drillSpeedCap, Math.max(0, g.buildings[home] - 1) * BUILDING_EFFECTS.drillSpeed)
 }
 
 /**
@@ -756,6 +775,7 @@ export function recruitReason(g: Game, id: UnitId, count: number): string | null
   if (!Number.isInteger(count) || count <= 0) return 'Geçersiz sayı.'
   if (g.buildings[unit.home] < unit.level) return `${BUILDINGS[unit.home].name} ${unit.level}. seviye gerekli.`
   if (g.drill) return 'Eğitim sürüyor. Önce onun bitmesini bekle.'
+  if (id === 'casus' && g.army.casus + count > spyCapacity(g)) return `Elçilik ${spyCapacity(g)} casus barındırır. Elçiliği yükselt.`
   const need = unit.pop * count
   if (idleWorkers(g) < need) return `${need} boşta vatandaş gerekli. Halk panelinden işçi çek.`
   const c = unitCost(id, count, g)

@@ -16,17 +16,9 @@ function addStock(g: Game, c: Cargo, n: number) { if (isLuxury(c)) g.luxury[c] +
  * Game state; the existing city engine remains the single source of truth for
  * production, buildings, troops, research and plot positions.
  */
-export const ISLANDS = [
-  { id: 'sahil', name: 'Sahil Adası', x: 4, y: 5, specialty: 'Mermer', luxury: 'mermer' },
-  { id: 'zeytin', name: 'Zeytin Adası', x: 8, y: 3, specialty: 'Üzüm', luxury: 'uzum' },
-  { id: 'akcam', name: 'Akçam Adası', x: 2, y: 2, specialty: 'Kristal', luxury: 'kristal' },
-  { id: 'kizil', name: 'Kızılburun', x: 10, y: 7, specialty: 'Kükürt', luxury: 'kukurt' },
-  { id: 'akdeniz', name: 'Akdeniz Adası', x: 6, y: 9, specialty: 'Mermer', luxury: 'mermer' },
-  { id: 'yalcin', name: 'Yalçın Ada', x: 12, y: 2, specialty: 'Kristal', luxury: 'kristal' },
-  { id: 'baglik', name: 'Bağlık Ada', x: 1, y: 8, specialty: 'Üzüm', luxury: 'uzum' },
-  { id: 'atessiz', name: 'Ateşli Ada', x: 11, y: 11, specialty: 'Kükürt', luxury: 'kukurt' },
-] as const
-export type IslandId = typeof ISLANDS[number]['id']
+export { ISLANDS, type IslandId } from './islands'
+import { ISLANDS, type IslandId } from './islands'
+import { advanceMissions, parseMissionState, type Mission, type NpcState, type Report } from './expeditions'
 export const COLONY_COST = { gold: 900, wood: 1200, stone: 450 } as const
 const COLONY_SHIPS = 3
 const MAX_CITIES = 8
@@ -40,13 +32,19 @@ export type Shipment = {
 export type Empire = {
   version: 1; activeCityId: string; cities: CityRecord[]
   shipments: Shipment[]; nextId: number
+  /** Adadaki yerleşimlere giden casus/sefer görevleri. */
+  missions?: Mission[]
+  /** Savaş ve casusluk raporları (en yeni başta, en fazla 30). */
+  reports?: Report[]
+  /** Bağımsız yerleşimlerin seviyesi ve son yağma zamanı. */
+  npcs?: Record<string, NpcState>
 }
 
 export function initialEmpire(now: number): Empire {
   return {
     version: 1, activeCityId: 'city-1',
     cities: [{ id: 'city-1', islandId: 'sahil', name: 'Sahilhisar', game: initialGame(now) }],
-    shipments: [], nextId: 2,
+    shipments: [], nextId: 2, missions: [], reports: [], npcs: {},
   }
 }
 export function activeCity(empire: Empire): CityRecord {
@@ -98,7 +96,8 @@ export function parseEmpire(raw: string): Empire {
   })
   if (new Set(shipments.map(s => s.from)).size !== shipments.length ||
       new Set(shipments.map(s => s.id)).size !== shipments.length) throw new Error('Nakliye kaydı okunamadı.')
-  return { version: 1, activeCityId: obj.activeCityId, cities, shipments, nextId: obj.nextId }
+  const extra = parseMissionState(obj as unknown as Record<string, unknown>, ids)
+  return { version: 1, activeCityId: obj.activeCityId, cities, shipments, nextId: obj.nextId, ...extra }
 }
 
 export function advanceEmpire(source: Empire, now: number): Empire {
@@ -117,6 +116,7 @@ export function advanceEmpire(source: Empire, now: number): Empire {
     // is silently destroyed and ships remain reserved until fully unloaded.
   }
   empire.shipments = pending
+  advanceMissions(empire, now)
   return empire
 }
 

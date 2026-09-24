@@ -754,6 +754,52 @@ def mine_kukurt(s, st):
         s.barrel(0.9 + i * 0.14, 1.5, 0.055)
 
 
+# ---------------------------------------------------------- BAĞIMSIZ YERLEŞİMLER
+def npc_koy(s, st):
+    """Barbar köyü: ahşap çit, sazdan kulübeler, ateş."""
+    ground(s, 0.15, 0.15, 1.9, 1.9, hexc('#b49a6a'))
+    thatch = hexc('#b8904f')
+    for (x, y, r) in ((0.6, 0.6, 0.22), (1.25, 0.55, 0.2), (0.6, 1.25, 0.2), (1.2, 1.2, 0.24)):
+        s.cylinder(x, y, 0, 0.22, r, hexc('#9a7a52'), 'wood', n=14)
+        s.cone(x, y, 0.22, 0.32, r * 1.2, thatch, 'wood', n=14)
+    for i in range(16):  # çit kazıkları (ön iki kenar)
+        t = i / 15
+        s.box(0.25 + t * 1.5, 1.72, 0, 0.29 + t * 1.5, 1.76, 0.2, PAL['wood2'], 'wood')
+        s.box(1.72, 0.25 + t * 1.5, 0, 1.76, 0.29 + t * 1.5, 0.2, PAL['wood2'], 'wood')
+    s.cone(0.95, 0.95, 0, 0.12, 0.08, hexc('#e0762f'), 'flat', n=8)  # ateş
+    s.flag(0.35, 0.35, 0, 0.7, hexc('#6b4a2a'))
+
+
+def npc_korsan(s, st):
+    """Korsan ini: ahşap kule, iskele, kara bayrak, sandıklar."""
+    ground(s, 0.15, 0.15, 1.9, 1.9, hexc('#d9c28e'))
+    s.box(0.4, 0.4, 0, 1.2, 1.1, 0.55, PAL['wood2'], 'wood', deco_y=[('vplanks', 9)], deco_x=[('vplanks', 8)])
+    crenel(s, 0.37, 0.37, 1.23, 1.13, 0.55, PAL['wood2'], step=0.14, size=0.07, h=0.09)
+    s.box(0.5, 0.5, 0.55, 0.8, 0.8, 1.05, PAL['wood'], 'wood', deco_y=[('vplanks', 3)], deco_x=[('vplanks', 3)])
+    s.hip(0.5, 0.5, 0.8, 0.8, 1.05, 0.18, PAL['wooddark'], mat='wood')
+    s.flag(0.65, 0.65, 1.23, 0.5, hexc('#1f1c1a'))
+    s.box(1.25, 0.7, 0.02, 1.9, 0.95, 0.07, PAL['wood'], 'wood', deco_top=[('planks', 3)])  # iskele
+    for i in range(3):
+        s.crate(0.5 + i * 0.2, 1.3, 0.13)
+    s.barrel(1.1, 1.45, 0.06); s.barrel(1.25, 1.5, 0.06)
+
+
+def npc_kale(s, st):
+    """Asi kalesi: taş sur, köşe kuleleri, iç burç."""
+    ground(s, 0.1, 0.1, 1.92, 1.92, hexc('#a99a80'))
+    col = hexc('#b9ad97')
+    for (x0, y0, x1, y1) in ((0.3, 0.3, 1.7, 0.45), (0.3, 0.45, 0.45, 1.7)):
+        s.box(x0, y0, 0, x1, y1, 0.45, col, 'stone', deco_y=[('courses', 0.09)], deco_x=[('courses', 0.09)], key=-3)
+    s.box(0.45, 1.55, 0, 1.7, 1.7, 0.45, col, 'stone', deco_y=[('courses', 0.09), ('archdoor', 0.5, 0, 0.18, 0.3)], deco_x=[('courses', 0.09)])
+    s.box(1.55, 0.45, 0, 1.7, 1.55, 0.45, col, 'stone', deco_y=[('courses', 0.09)], deco_x=[('courses', 0.09)])
+    block(s, 0.75, 0.75, 1.25, 1.25, 0.85, col=col, mat='stone', wins=True, kind='arch', roof='flat', spacing=0.25)
+    crenel(s, 0.72, 0.72, 1.28, 1.28, 0.9, col)
+    for (x, y) in ((0.37, 0.37), (1.63, 0.37), (0.37, 1.63), (1.63, 1.63)):
+        s.cylinder(x, y, 0, 0.7, 0.13, col, 'stone', n=16)
+        s.cone(x, y, 0.7, 0.24, 0.15, hexc('#6f6a62'), 'lead', n=16)
+    s.flag(1.0, 1.0, 0.95, 0.55, hexc('#5a2c6e'))
+
+
 BUILDINGS = {
     'divan': divan, 'saray': saray, 'elcilik': elcilik, 'konut': konut, 'hamam': hamam, 'carsi': carsi,
     'ambar': ambar, 'kereste': kereste, 'tas': tas, 'medrese': medrese, 'kisla': kisla, 'liman': liman,
@@ -763,7 +809,8 @@ BUILDINGS = {
 # Aşamasız yardımcı katmanlar: (fonksiyon, gölge var mı)
 EXTRAS = {'site': (site, True), 'scaffold': (scaffold, False),
           'mine-uzum': (mine_uzum, True), 'mine-mermer': (mine_mermer, True),
-          'mine-kristal': (mine_kristal, True), 'mine-kukurt': (mine_kukurt, True)}
+          'mine-kristal': (mine_kristal, True), 'mine-kukurt': (mine_kukurt, True),
+          'npc-koy': (npc_koy, True), 'npc-korsan': (npc_korsan, True), 'npc-kale': (npc_kale, True)}
 
 
 def main(ids):
