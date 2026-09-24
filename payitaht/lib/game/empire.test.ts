@@ -103,3 +103,24 @@ test('invalid multi-city payload never replaces the stored city with a guessed o
   assert.throws(() => parseEmpire(JSON.stringify({ ...e, activeCityId: 'city-404' })), /Başkent/)
   assert.throws(() => parseEmpire(JSON.stringify({ ...e, cities: [e.cities[0], e.cities[0]] })), /Şehir/)
 })
+
+test('a colony mines its own island luxury and can ship it home', () => {
+  const e = preparedEmpire()
+  const founded = foundColony(e, 'zeytin', now)
+  assert.equal(founded.error, undefined)
+  const colony = activeCity(founded.empire)
+  assert.equal(colony.game.mine.specialty, 'uzum')
+  assert.equal(founded.empire.cities[0].game.mine.specialty, 'mermer')
+  // Koloniye üzüm koy, liman + gemi ver ve başkente gönder.
+  colony.game.luxury.uzum = 300
+  colony.game.buildings.liman = 1
+  colony.game.placement.liman = freePlots(colony.game, 'liman')[0]
+  colony.game.army.nakliye = 2
+  const shipped = shipResources(founded.empire, 'city-1', 'uzum', 200, now)
+  assert.equal(shipped.error, undefined)
+  assert.equal(activeCity(shipped.empire).game.luxury.uzum, 100)
+  const arrived = advanceEmpire(shipped.empire, shipped.empire.shipments[0].eta)
+  assert.equal(arrived.cities[0].game.luxury.uzum, 200)
+  // Kayıt gidiş-dönüşünde maden kaynağı adadan gelir.
+  assert.equal(parseEmpire(JSON.stringify(arrived)).cities[1].game.mine.specialty, 'uzum')
+})

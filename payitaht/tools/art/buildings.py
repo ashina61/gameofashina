@@ -701,6 +701,59 @@ def scaffold(s, st):
         s.crate(1.78, 0.5 + i * 0.25, 0.1)
 
 
+# ---------------------------------------------------------------- ADA MADENLERİ
+def mine_uzum(s, st):
+    """Üzüm bağı: sıra sıra asmalar, şarap evi, fıçılar."""
+    ground(s, 0.1, 0.1, 1.92, 1.92, hexc('#b9a06c'))
+    for r in range(5):
+        y = 0.35 + r * 0.28
+        for c in range(6):
+            x = 0.25 + c * 0.2
+            s.cylinder(x, y, 0, 0.18, 0.012, PAL['wooddark'], 'wood', n=5)
+            s.blob(x, y, 0.2, 0.075, mix(hexc('#5f8c3e'), hexc('#7aa04a'), s.rnd.random() * 0.6), squash=0.8)
+            if (r + c) % 2 == 0:
+                s.sphere(x + 0.04, y + 0.04, 0.14, 0.03, hexc('#6b2f63'), n=8, rings=5)
+    block(s, 1.45, 0.3, 1.85, 0.85, 0.45, col=PAL['plaster'], shutter='s', roof='gx', roofcol=PAL['roof'], door_x=0.5)
+    for i in range(3):
+        s.barrel(1.5 + i * 0.13, 1.05, 0.055)
+
+
+def mine_mermer(s, st):
+    """Mermer ocağı: beyaz kaya yüzü, kesilmiş bloklar, vinç."""
+    ground(s, 0.1, 0.1, 1.92, 1.92, hexc('#cfc6b4'))
+    white = hexc('#eee9df')
+    for (x, y, z, r) in ((0.5, 0.45, 0.25, 0.45), (1.05, 0.35, 0.1, 0.38), (0.35, 1.05, 0.1, 0.32)):
+        s.blob(x, y, z, r, mix(white, hexc('#d6d0c4'), s.rnd.random() * 0.6), 'marble', squash=0.95)
+    s.box(0.65, 0.65, 0, 1.2, 1.1, 0.35, white, 'marble', deco_y=[('courses', 0.12)], deco_x=[('courses', 0.12)])
+    s.box(0.65, 1.1, 0, 1.2, 1.3, 0.18, white, 'marble', deco_y=[('courses', 0.09)], deco_x=[('courses', 0.09)])
+    stone_blocks(s, 1.3, 1.2, 4, 0.13, seed=41)
+    crane(s, 1.45, 0.7, 1.1, 0.45, axis='y')
+
+
+def mine_kristal(s, st):
+    """Kristal mağarası: kaya ağzı ve dışarı taşan mavi kristaller."""
+    ground(s, 0.1, 0.1, 1.92, 1.92, hexc('#b8ad98'))
+    rock = hexc('#9e968a')
+    for (x, y, z, r) in ((0.55, 0.5, 0.2, 0.5), (1.15, 0.4, 0.05, 0.35), (0.4, 1.1, 0.05, 0.3)):
+        s.blob(x, y, z, r, mix(rock, hexc('#857d72'), s.rnd.random() * 0.6), 'stone', squash=0.9)
+    s.box(0.75, 0.95, 0, 1.05, 1.0, 0.32, hexc('#2b2622'), 'flat')  # mağara ağzı
+    for (x, y, h, r) in ((1.2, 1.2, 0.45, 0.07), (1.35, 1.1, 0.32, 0.055), (1.1, 1.4, 0.3, 0.05), (1.45, 1.35, 0.4, 0.06), (0.95, 1.3, 0.22, 0.045)):
+        s.cone(x, y, 0, h, r, hexc('#7fc4e0'), 'flat', n=6)
+    s.crate(1.5, 0.6, 0.14); s.crate(1.55, 0.8, 0.12)
+
+
+def mine_kukurt(s, st):
+    """Kükürt çukuru: sarı yığınlar, dumanlı ocak."""
+    ground(s, 0.1, 0.1, 1.92, 1.92, hexc('#bfae84'))
+    yellow = hexc('#e2c94a')
+    for (x, y, r) in ((0.55, 0.55, 0.3), (0.95, 0.4, 0.22), (0.45, 1.0, 0.22), (1.3, 1.2, 0.18)):
+        s.cone(x, y, 0, r * 1.1, r, mix(yellow, hexc('#c9a93a'), s.rnd.random() * 0.5), 'stone', n=14)
+    block(s, 1.3, 0.35, 1.8, 0.8, 0.4, col=PAL['stone'], mat='stone', wins=False, roof='flat', door_x=0.5)
+    s.box(1.62, 0.45, 0.4, 1.74, 0.57, 0.95, PAL['stonedark'], 'stone')
+    for i in range(3):
+        s.barrel(0.9 + i * 0.14, 1.5, 0.055)
+
+
 BUILDINGS = {
     'divan': divan, 'saray': saray, 'elcilik': elcilik, 'konut': konut, 'hamam': hamam, 'carsi': carsi,
     'ambar': ambar, 'kereste': kereste, 'tas': tas, 'medrese': medrese, 'kisla': kisla, 'liman': liman,
@@ -708,7 +761,9 @@ BUILDINGS = {
     'mimar': mimar, 'ormanci': ormanci, 'tasci': tasci, 'tophane': tophane, 'surlar': surlar,
 }
 # Aşamasız yardımcı katmanlar: (fonksiyon, gölge var mı)
-EXTRAS = {'site': (site, True), 'scaffold': (scaffold, False)}
+EXTRAS = {'site': (site, True), 'scaffold': (scaffold, False),
+          'mine-uzum': (mine_uzum, True), 'mine-mermer': (mine_mermer, True),
+          'mine-kristal': (mine_kristal, True), 'mine-kukurt': (mine_kukurt, True)}
 
 
 def main(ids):

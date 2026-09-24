@@ -666,3 +666,13 @@
   .player-copy strong { font-size: 13px; }
   .player-copy span { font-size: 8px; }
 }
+
+/* --- ADA: lüks kaynak madeni, ambar ve tüccar ------------------------------ */
+.luxury-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+.luxury-cell { display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 10px 4px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--card); font-size: 11px; color: var(--muted-foreground); }
+.luxury-cell svg { width: 20px; height: 20px; color: var(--gold); }
+.luxury-cell strong { color: var(--foreground); font-size: 14px; font-variant-numeric: tabular-nums; }
+.luxury-home { border-color: var(--gold); background: #d6b77b1a; }
+.merchant-list { display: flex; flex-direction: column; gap: 6px; }
+.merchant-row { display: grid; grid-template-columns: 1fr auto auto; gap: 8px; align-items: center; font-size: 13px; }
+.cost-display .cost-luxury svg { color: #c9a7e8; }

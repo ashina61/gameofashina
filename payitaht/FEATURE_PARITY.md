@@ -13,9 +13,14 @@ isimleri, kaynak kodu ve birebir dengesi kopyalanmayacak.
 - **Bu PR:** 8 adalı atlas, göçle korunan çok şehirli save, Saray/Liman/gemi
   şartıyla yeni şehir, bağımsız şehir ekonomisi ve yerleşimleri, şehir değiştirme,
   şehirler arası süreli nakliye ve dolu ambarda bekleyen yük.
-- **Henüz yok:** Ada lüks yatağına işçi atama ve lüks kaynak envanteri;
-  lüks malların bina/ordu/araştırma fiyatlarına gerçek etkisi, ortak adadaki
-  oyuncuların maden bağışları, çevrimiçi pazar, gerçek oyuncu kentleri,
+- **Lüks ekonomi (2026-09-24):** Üzüm/Mermer/Kristal/Kükürt envanteri; her
+  şehir yalnızca kendi adasının yatağını işler (maden işçileri boştaki
+  halktan). Maden seviyesi kereste bağışıyla yükselir. Kahvehane üzüm ikram
+  eder (huzur), gelişmiş binalar mermer, bilim/kültür yapıları kristal,
+  top ve savaş gemileri kükürt ister. Lüks mallar gemiyle taşınır; Çarşı'da
+  NPC tüccar alım/satım yapar. Ikariam karşılığı 8 yeni yapı (Kahvehane,
+  Cami, Müze, Marangozhane, Mimarbaşı, Ormancı, Taşçı, Tophane).
+- **Henüz yok:** Ortak adadaki diğer oyuncuların maden bağışları, çevrimiçi pazar, gerçek oyuncu kentleri,
   eşzamanlı PvP/abluka/yağma, ittifak ve anlaşmalar, casusluk, savaş raporları,
   dünya etkinlikleri.
 

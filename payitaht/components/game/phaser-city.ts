@@ -16,7 +16,7 @@
 import * as Phaser from 'phaser'
 import { TILE, CITY_SLOTS, COAST_SLOTS, DEFENSE_SLOTS, DEFENSE_FOUNDATION, ROAD_GRAPH, HALL_SLOT_ID, slotById } from '@/lib/game/city-map'
 import { LIVE_SLOTS, liveSlotByIndex, type LiveSlot } from '@/lib/game/city-map/live-adapter'
-import { buildCityTerrain, preloadTerrain, cityWorldRect, cityContentRect } from '@/lib/game/city-map/terrain-builder'
+import { buildCityTerrain, preloadTerrain, cityWorldRect, cityContentRect, mineSite } from '@/lib/game/city-map/terrain-builder'
 import { GROUND_TARGET_W, FOOTPRINT_DIAMOND_W, ART_DIAMOND_PX } from '@/lib/game/city-map/building-assets'
 import { edgeKey, roadEdgeKeysForTargets } from '@/lib/game/city-map/road-tree'
 import { visualSignature } from '@/lib/game/city-render'
@@ -34,6 +34,8 @@ export type CityEvents = {
   onRoad: (cell: string) => void
   /** Taşıma kipinde hedef arsa değişti (sürükleme/dokunuş). */
   onMovePlot: (plot: number) => void
+  /** Ada madenine dokunuldu. */
+  onMine: () => void
 }
 
 /** Sürüklemeyi dokunuştan ayıran eşik (ekran pikseli). */
@@ -83,6 +85,9 @@ export class CityScene extends Phaser.Scene {
       }
     }
     if (!this.textures.exists('b_site')) this.load.image('b_site', asset('/images/game/buildings/site.webp'))
+    for (const lux of ['uzum', 'mermer', 'kristal', 'kukurt']) {
+      if (!this.textures.exists('mine-' + lux)) this.load.image('mine-' + lux, asset(`/images/game/buildings/mine-${lux}.webp`))
+    }
     if (!this.textures.exists('b_scaffold')) this.load.image('b_scaffold', asset('/images/game/buildings/scaffold.webp'))
     preloadTerrain(this)
     if (!this.textures.exists('w_tower')) this.load.image('w_tower', asset('/images/game/walls/tower-round.png'))
@@ -93,6 +98,7 @@ export class CityScene extends Phaser.Scene {
     this.terrainRoads = buildCityTerrain(this, this.state.buildings.divan, this.occupiedSlotIds(this.state)) // dünya + yaşayan yol ağı
     this.built = true
     this.syncWalkers()
+    this.drawMine()
     this.setupCamera()
     this.installCamera()
     this.redraw()
@@ -553,6 +559,20 @@ export class CityScene extends Phaser.Scene {
   }
 
   private roadEdges: RoadEdge[] = []
+  private mineSprite: Phaser.GameObjects.Image | null = null
+
+  /** Adanın lüks kaynak madeni (bağ, mermer ocağı, kristal mağarası, kükürt çukuru). */
+  private drawMine() {
+    const key = 'mine-' + this.state.mine.specialty
+    if (this.mineSprite?.texture.key === key) return
+    this.mineSprite?.destroy()
+    if (!this.textures.exists(key)) return
+    const site = mineSite()
+    const img = this.add.image(site.x, site.y, key).setOrigin(0.5, 1).setScale(this.artScale() * 1.1).setDepth(site.y)
+    img.setInteractive({ useHandCursor: true, pixelPerfect: false })
+    img.on('pointerup', (p: Phaser.Input.Pointer) => { if (isTap(p) && !this.moving) this.events$.onMine() })
+    this.mineSprite = img
+  }
 
   private stepWalkers(dt: number) {
     for (const w of this.walkers) {

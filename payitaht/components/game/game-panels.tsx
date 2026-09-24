@@ -6,8 +6,9 @@ import { Button } from '@/components/ui/button'
 import { CostDisplay, JobProgress } from './game-widgets'
 import { BUILDINGS, BUILDING_IDS, MAX_LEVEL, RESEARCH, RESEARCH_IDS, RESEARCH_BRANCHES, RESOURCE_IDS, RESOURCE_NAMES, UNITS, UNIT_IDS, WORKER_IDS, WORKERS_PER_LEVEL, activeJob, cargoCapacity, cityDefense, cost, duration, buildReason, power, rates, recruitReason, researchReason, scientistCount, scientistUpkeepPerMinute, idleWorkers, population, housing, contentment, soldiers, takesPlot, tradeCapacity, unhousedByUnrest, unitCost, unitDuration, wallDefense, workerCapacity, type BuildingId, type ResearchId, type ResearchBranch, type UnitId, type WorkerId, type Game } from '@/lib/game/engine'
 import { buildingImage } from '@/lib/asset'
-import { activeCity, COLONY_COST, ISLANDS, type Empire, type IslandId } from '@/lib/game/empire'
-import type { Resource } from '@/lib/game/engine'
+import { activeCity, CARGO_IDS, CARGO_NAMES, COLONY_COST, ISLANDS, type Cargo, type Empire, type IslandId } from '@/lib/game/empire'
+import { LUXURY_IDS, LUXURY_NAMES, MERCHANT_BUY, MERCHANT_SELL, MINE_MAX_LEVEL, luxuryCost, luxuryProduction, merchantLimit, mineCapacity, mineUpgradeCost, unitLuxuryCost, wineServed, type Luxury } from '@/lib/game/engine'
+import { luxuryIcons } from './game-widgets'
 
 export function BuildingDetails({ game, id, onBuild, onFlip, onMove }: { game: Game; id: BuildingId; onBuild: (id: BuildingId) => void; onFlip: (id: BuildingId) => void; onMove: (id: BuildingId) => void }) {
   const b = BUILDINGS[id], level = game.buildings[id], reason = buildReason(game, id)
@@ -19,7 +20,7 @@ export function BuildingDetails({ game, id, onBuild, onFlip, onMove }: { game: G
     const projected: Game = { ...game, buildings: { ...game.buildings, [id]: at } }
     return { level: at + 1, price: cost(projected, id), seconds: duration(projected, id) }
   })
-  return <div className="building-details"><div className="building-preview"><div className="preview-halo" />{b.art ? <img src={buildingImage(id, level)} alt={`${b.name} mimari görünümü`} width={360} height={360} /> : <span className="preview-pending"><Hammer aria-hidden="true" /><small>Görsel hazırlanıyor</small></span>}<span>{level ? `SEVİYE ${level}` : 'YENİ YAPI'}</span></div><span className="eyebrow">{b.category}</span><p>{b.description}</p><div className="building-upgrade"><span>{level ? `Seviye ${level}` : 'Boş arsa'}</span><ArrowUp className="size-4" /><strong>{level >= max ? 'En yüksek seviye' : `Seviye ${level + 1}`}</strong></div>{active ? <JobProgress job={active} now={game.updatedAt} /> : level < max && <><div className="upgrade-cost"><span>Gerekli kaynaklar</span><CostDisplay value={cost(game, id)} /></div><div className="duration-row"><Clock3 className="size-4" /> {duration(game, id)} saniye <span>Prototip süresi</span></div></>}{forecast.length > 0 && <section className="building-cost-forecast">
+  return <div className="building-details"><div className="building-preview"><div className="preview-halo" />{b.art ? <img src={buildingImage(id, level)} alt={`${b.name} mimari görünümü`} width={360} height={360} /> : <span className="preview-pending"><Hammer aria-hidden="true" /><small>Görsel hazırlanıyor</small></span>}<span>{level ? `SEVİYE ${level}` : 'YENİ YAPI'}</span></div><span className="eyebrow">{b.category}</span><p>{b.description}</p><div className="building-upgrade"><span>{level ? `Seviye ${level}` : 'Boş arsa'}</span><ArrowUp className="size-4" /><strong>{level >= max ? 'En yüksek seviye' : `Seviye ${level + 1}`}</strong></div>{active ? <JobProgress job={active} now={game.updatedAt} /> : level < max && <><div className="upgrade-cost"><span>Gerekli kaynaklar</span><CostDisplay value={cost(game, id)} lux={luxuryCost(game, id)} /></div><div className="duration-row"><Clock3 className="size-4" /> {duration(game, id)} saniye <span>Prototip süresi</span></div></>}{forecast.length > 0 && <section className="building-cost-forecast">
     <strong>Sonraki seviyelerin maliyeti</strong>
     <p className="fine-print">Fiyatlar mevcut araştırma indirimlerini içerir. Sonraki yükseltmelerin ücreti, o günkü teknolojine göre yeniden hesaplanır.</p>
     {forecast.map(item => <div key={item.level} className="building-forecast-row">
@@ -173,11 +174,11 @@ export function CitiesPanel({
   onBuilding: (id: BuildingId) => void
   onSelectCity: (cityId: string) => void
   onColonize: (islandId: IslandId) => void
-  onCargo: (cityId: string, resource: Resource, amount: number) => void
+  onCargo: (cityId: string, resource: Cargo, amount: number) => void
 }) {
   const current = activeCity(empire)
   const [targetCity, setTargetCity] = useState('')
-  const [cargoResource, setCargoResource] = useState<Resource>('wood')
+  const [cargoResource, setCargoResource] = useState<Cargo>('wood')
   const [cargoAmount, setCargoAmount] = useState('100')
   const activeShipment = empire.shipments.find(shipment => shipment.from === current.id)
   const capital = empire.cities[0].game
@@ -215,7 +216,7 @@ export function CitiesPanel({
 
     <section className="empire-section">
       <h3>Adalar haritası</h3>
-      <p className="fine-print">Her adada bir yerel kaynak yatağı bulunur. Kaynak yatağı üretimi ileride açılacak; bu sürümde mevcut dört şehir kaynağıyla oynarsın.</p>
+      <p className="fine-print">Her adada tek bir lüks kaynak yatağı bulunur: şehir yalnızca kendi adasının kaynağını madenden çıkarır. Diğerlerini koloni kurarak, nakliyeyle ya da Çarşı'daki tüccardan edinirsin.</p>
       <div className="island-atlas">
         {ISLANDS.map(island => {
           const city = empire.cities.find(c => c.islandId === island.id)
@@ -243,7 +244,7 @@ export function CitiesPanel({
     <section className="empire-section">
       <h3>Şehirler arası nakliye</h3>
       {activeShipment
-        ? <p className="requirement">Gemiler seferde: {empire.cities.find(c => c.id === activeShipment.to)?.name} yönüne {activeShipment.amount} {RESOURCE_NAMES[activeShipment.resource]}. {Date.now() >= activeShipment.eta ? 'Varış limanında ambarın boşalmasını bekliyor.' : 'Varış bekleniyor.'}</p>
+        ? <p className="requirement">Gemiler seferde: {empire.cities.find(c => c.id === activeShipment.to)?.name} yönüne {activeShipment.amount} {CARGO_NAMES[activeShipment.resource]}. {Date.now() >= activeShipment.eta ? 'Varış limanında ambarın boşalmasını bekliyor.' : 'Varış bekleniyor.'}</p>
         : <div className="empire-shipment-form">
             <label>Hedef şehir
               <select value={targetCity} onChange={event => setTargetCity(event.target.value)}>
@@ -253,8 +254,8 @@ export function CitiesPanel({
               </select>
             </label>
             <label>Kaynak
-              <select value={cargoResource} onChange={event => setCargoResource(event.target.value as Resource)}>
-                {RESOURCE_IDS.map(id => <option value={id} key={id}>{RESOURCE_NAMES[id]}</option>)}
+              <select value={cargoResource} onChange={event => setCargoResource(event.target.value as Cargo)}>
+                {CARGO_IDS.map(id => <option value={id} key={id}>{CARGO_NAMES[id]}</option>)}
               </select>
             </label>
             <label>Miktar
@@ -320,7 +321,7 @@ export function ArmyPanel({ game, onRecruit, onBuild }: { game: Game; onRecruit:
               {unit.cargo > 0 && <span title="Taşıma"><Warehouse className="size-3" />{unit.cargo}</span>}
             </div>
             <div className="unit-bottom">
-              <CostDisplay value={unitCost(id, batch, game)} />
+              <CostDisplay value={unitCost(id, batch, game)} lux={unitLuxuryCost(id, batch)} />
               <span><Clock3 className="size-3" /> {unitDuration(game, id, batch)} sn</span>
               <Button size="sm" disabled={!!reason} onClick={() => onRecruit(id, batch)}>{batch} eğit</Button>
             </div>
@@ -351,5 +352,86 @@ export function DiplomacyPanel({ game, onBuild }: { game: Game; onBuild: (id: Bu
       <p className="fine-print">Ticaret Limanı kapasiteyi, nakliye gemileri taşımayı verir. Karşı taraf — başka oyuncular — bu prototipte yok; sayılar hazır, ticaret yolu açıldığında bağlanacak.</p>
     </article>
     <p className="fine-print">Burada gerçek oyuncu, ittifak ya da mesaj gösterilmez. Uydurma bir liste koymaktansa boş bırakmak dürüst olanı.</p>
+  </div>
+}
+
+/**
+ * ADA danışmanı: adanın lüks kaynak madeni (Ikariam'daki ada görünümü).
+ *
+ * Maden işçileri boştaki halktan gelir; madenin seviyesi kereste bağışıyla
+ * yükselir ve daha çok işçi alır. Adada olmayan kaynaklar Çarşı'daki
+ * tüccardan (bir NPC; gerçek oyuncu pazarı DEĞİL) alınabilir.
+ */
+export function IslandPanel({ game, islandName, onMiners, onDonate, onTrade }: {
+  game: Game; islandName: string
+  onMiners: (value: number) => void
+  onDonate: (amount: number) => void
+  onTrade: (id: Luxury, side: 'buy' | 'sell', amount: number) => void
+}) {
+  const [lot, setLot] = useState(50)
+  const spec = game.mine.specialty
+  const SpecIcon = luxuryIcons[spec]
+  const cap = mineCapacity(game)
+  const perMin = Math.round(luxuryProduction(game)[spec] * 10) / 10
+  const next = mineUpgradeCost(game.mine.level)
+  const free = idleWorkers(game) + game.mine.miners
+  return <div className="advisor-panel island-panel">
+    <article className="city-card">
+      <div className="city-card-top">
+        <span className="city-emblem"><SpecIcon aria-hidden="true" /></span>
+        <span><span className="eyebrow">{islandName.toLocaleUpperCase('tr')}</span>
+          <strong>{LUXURY_NAMES[spec]} madeni · seviye {game.mine.level}</strong>
+          <span>{game.mine.miners}/{cap} işçi · dakikada {perMin} {LUXURY_NAMES[spec].toLocaleLowerCase('tr')}</span></span>
+      </div>
+      <article className="people-row">
+        <div className="people-row-top"><strong>Maden işçileri</strong><span>{game.mine.miners} / {cap}</span></div>
+        <input type="range" min={0} max={cap} step={1} value={game.mine.miners} aria-label="Maden işçileri"
+          onChange={event => onMiners(Number(event.target.value))} />
+        <p className="fine-print">Boştaki halk: {idleWorkers(game)}. İşçi başına dakikada 3 {LUXURY_NAMES[spec].toLocaleLowerCase('tr')}; üretim yapılarındaki işçiler buraya kendiliğinden geçmez.</p>
+        <div className="batch-row">
+          <Button size="sm" variant="outline" onClick={() => onMiners(0)}>Boşalt</Button>
+          <Button size="sm" variant="outline" onClick={() => onMiners(Math.min(cap, free))}>Doldur</Button>
+        </div>
+      </article>
+    </article>
+
+    <section className="empire-section">
+      <h3>Madeni genişlet</h3>
+      {game.mine.level >= MINE_MAX_LEVEL
+        ? <p className="fine-print">Maden en yüksek seviyede.</p>
+        : <>
+          <p className="fine-print">Ada halkı kereste bağışıyla madeni büyütür. Seviye {game.mine.level + 1} için {game.mine.wood} / {next} kereste toplandı; her seviye {`+`}12 işçi yeri açar.</p>
+          <span className="storage-meter"><span style={{ width: `${Math.min(100, (game.mine.wood / next) * 100)}%` }} /></span>
+          <div className="batch-row">{[100, 500, 2000].map(n =>
+            <Button key={n} size="sm" variant="outline" disabled={game.resources.wood < n} onClick={() => onDonate(n)}>{n} kereste</Button>)}</div>
+        </>}
+    </section>
+
+    <section className="empire-section">
+      <h3>Lüks ambarı</h3>
+      <div className="luxury-grid">{LUXURY_IDS.map(id => {
+        const Icon = luxuryIcons[id]
+        return <div key={id} className={id === spec ? 'luxury-cell luxury-home' : 'luxury-cell'}>
+          <Icon aria-hidden="true" /><span>{LUXURY_NAMES[id]}</span><strong>{Math.floor(game.luxury[id])}</strong>
+        </div>
+      })}</div>
+      <p className="fine-print">Üzüm Kahvehane'de ikram edilir (huzur{game.buildings.kahvehane > 0 ? (wineServed(game) ? ' · şu an ikram ediliyor' : ' · üzüm yok, ikram durdu') : ''}); mermer gelişmiş binalarda, kristal ilim ve kültür yapılarında, kükürt top ve gemilerde kullanılır.</p>
+    </section>
+
+    <section className="empire-section">
+      <h3>Çarşı tüccarı</h3>
+      {game.buildings.carsi < 1
+        ? <p className="fine-print">Tüccar Çarşı kurulunca gelir.</p>
+        : <>
+          <p className="fine-print">Alış {MERCHANT_BUY} akçe, satış {MERCHANT_SELL} akçe. Tek seferde en fazla {merchantLimit(game)} birim (Çarşı seviyesiyle artar).</p>
+          <div className="batch-row"><span>Parti</span>{[10, 50, 150].filter(n => n <= merchantLimit(game)).map(n =>
+            <Button key={n} size="sm" variant={lot === n ? 'default' : 'outline'} onClick={() => setLot(n)}>{n}</Button>)}</div>
+          <div className="merchant-list">{LUXURY_IDS.map(id => <div key={id} className="merchant-row">
+            <span>{LUXURY_NAMES[id]}</span>
+            <Button size="sm" variant="outline" disabled={game.resources.gold < lot * MERCHANT_BUY} onClick={() => onTrade(id, 'buy', lot)}>Al · {lot * MERCHANT_BUY}</Button>
+            <Button size="sm" variant="outline" disabled={game.luxury[id] < lot} onClick={() => onTrade(id, 'sell', lot)}>Sat</Button>
+          </div>)}</div>
+        </>}
+    </section>
   </div>
 }

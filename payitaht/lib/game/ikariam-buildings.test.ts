@@ -12,11 +12,14 @@ test('kahvehane, cami and müze raise contentment per level', () => {
     BUILDING_EFFECTS.camiContentment + 3 * BUILDING_EFFECTS.muzeContentment)
 })
 
-test('kahvehane serves coffee from the treasury', () => {
+test('kahvehane pours wine for extra contentment and does not cost akçe', () => {
   const g = initialGame(now)
-  const before = rates(g).gold
+  const gold = rates(g).gold
   g.buildings.kahvehane = 3
-  assert.equal(rates(g).gold, before - 3 * BUILDING_EFFECTS.kahvehaneUpkeep)
+  const dry = contentment(g)
+  g.luxury.uzum = 100
+  assert.equal(contentment(g), dry + 3 * BUILDING_EFFECTS.kahvehaneWineBonus)
+  assert.equal(rates(g).gold, gold)
 })
 
 test('marangoz and mimar cut wood and stone costs by 1% per level', () => {

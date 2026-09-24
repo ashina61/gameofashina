@@ -1,10 +1,10 @@
 'use client'
 
 import useSWR from 'swr'
-import { execute, type Command, type Resource } from '@/lib/game/engine'
+import { execute, type Command } from '@/lib/game/engine'
 import {
   activeCity, advanceEmpire, foundColony, initialEmpire, parseEmpire,
-  shipResources, type Empire, type IslandId,
+  shipResources, type Cargo, type Empire, type IslandId,
 } from '@/lib/game/empire'
 
 // Same key as the legacy single-city save. First load upgrades it in place.
@@ -61,7 +61,7 @@ export function useGame() {
     if (result.error) return result.error
     commit(result.empire)
   }
-  function sendCargo(to: string, resource: Resource, amount: number): string | undefined {
+  function sendCargo(to: string, resource: Cargo, amount: number): string | undefined {
     const result = shipResources(load(), to, resource, amount, Date.now())
     if (result.error) return result.error
     commit(result.empire)

@@ -15,7 +15,7 @@ import { CityCanvas, type CityControls } from './city-canvas'
  * yapmiyordu. Tuval dunyayi ekrandan buyuk tutar; gezinme bu yuzden gercek.
  */
 
-export function CityScene({ game, placing, onBuilding, onPlot, onRoad, moving, movePlot, onMovePlot, onExitBuild, onOpenList }: {
+export function CityScene({ game, placing, onBuilding, onPlot, onRoad, moving, movePlot, onMovePlot, onMine, onExitBuild, onOpenList }: {
   game: Game
   placing: boolean
   onBuilding: (id: BuildingId) => void
@@ -24,6 +24,7 @@ export function CityScene({ game, placing, onBuilding, onPlot, onRoad, moving, m
   moving: BuildingId | null
   movePlot: number | null
   onMovePlot: (plot: number) => void
+  onMine: () => void
   onExitBuild: () => void
   onOpenList: () => void
 }) {
@@ -31,7 +32,7 @@ export function CityScene({ game, placing, onBuilding, onPlot, onRoad, moving, m
   const controls = useRef<CityControls | null>(null)
 
   return <section className="city-scene" aria-label="Sahilhisar şehir haritası">
-    <CityCanvas game={game} showLabels={labels} placing={placing} controls={controls} onBuilding={onBuilding} onPlot={onPlot} onRoad={onRoad} moving={moving} movePlot={movePlot} onMovePlot={onMovePlot} />
+    <CityCanvas game={game} showLabels={labels} placing={placing} controls={controls} onBuilding={onBuilding} onPlot={onPlot} onRoad={onRoad} moving={moving} movePlot={movePlot} onMovePlot={onMovePlot} onMine={onMine} />
 
     {/*
       * İNŞA KİPİ.

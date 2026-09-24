@@ -25,6 +25,15 @@ import { edgeKey, roadEdgeKeysForTargets } from './road-tree'
 /** Arazi dokuları ve dekor (tools/art/decor.py ile çizilir). */
 export const TERRAIN_TILES = ['grass', 'dirt'] as const
 export const DECOR_TILES = ['olive-tree', 'bush', 'flower', 'rock', 'cypress', 'cypress-b'] as const
+/**
+ * ADA MADENİ yeri: kuzey kulesinin batısında, surların hemen dışında.
+ * Orman burayı boş bırakır; sahne adanın kaynağına göre maden çizer.
+ */
+export function mineSite() {
+  const hall = slotById(HALL_SLOT_ID)!.screen
+  const top = Math.min(...DEFENSE_FOUNDATION.map(p => p.screen.y))
+  return { x: hall.x - TILE.w * 3.4, y: top - TILE.h * 2.4 }
+}
 /** Kara taban rengi (burunlar dahil her yerde aynı). */
 const LAND_BASE = 0x8fa964
 /** Koyda demirli gemiler (tools/art/gen-procedural-assets.py). */
@@ -738,6 +747,7 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1, occupiedSl
     // Orman burunlara da iner; kıyıdan kum/kayalık şeridi kadar geride durur.
     const coastTop = seaLine + TILE.h * 16
     const wildRnd = mulberry32(31337)
+    const mine = mineSite()
     const tints = [0xffffff, 0xeef3e2, 0xe3ebd4, 0xf4eedc, 0xdde6cc]
     const wild: Array<{ x: number; y: number; key: string; w: number; tint: number; flip: boolean; clump: number }> = []
     const stepX = TILE.w * 0.62, stepY = TILE.h * 0.95
@@ -758,6 +768,7 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1, occupiedSl
         const e = Math.hypot(dx, dy)
         const roll = wildRnd(), pick = wildRnd(), size = wildRnd()
         if (e < 1) continue // kasabanın açıklığı
+        if (Math.hypot((jx - mine.x) / 2, jy - mine.y) < TILE.h * 3.2) continue // ada madeni
         const t = Math.min(1, (e - 1) / 0.45) // açıklık kenarından uzaklık
         const g = grove(jx, jy)
         const clump = Math.min(1, Math.max(0, (g + 0.15) / 0.6)) // 0 çayır .. 1 koru

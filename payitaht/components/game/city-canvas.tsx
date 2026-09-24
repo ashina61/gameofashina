@@ -30,9 +30,11 @@ type Props = {
   moving: BuildingId | null
   movePlot: number | null
   onMovePlot: (plot: number) => void
+  /** Ada madenine dokunuldu. */
+  onMine: () => void
 }
 
-export function CityCanvas({ game, showLabels, placing, controls, onBuilding, onPlot, onRoad, moving, movePlot, onMovePlot }: Props) {
+export function CityCanvas({ game, showLabels, placing, controls, onBuilding, onPlot, onRoad, moving, movePlot, onMovePlot, onMine }: Props) {
   const holder = useRef<HTMLDivElement>(null)
   const scene = useRef<CityScene | null>(null)
   /*
@@ -40,8 +42,8 @@ export function CityCanvas({ game, showLabels, placing, controls, onBuilding, on
    * yeni React cizimi yuzunden yeniden kurulmasi, oyuncunun kaydirdigi
    * kamerayi saniyede bir sifirlamak olurdu.
    */
-  const handlers = useRef({ onBuilding, onPlot, onRoad, onMovePlot })
-  handlers.current = { onBuilding, onPlot, onRoad, onMovePlot }
+  const handlers = useRef({ onBuilding, onPlot, onRoad, onMovePlot, onMine })
+  handlers.current = { onBuilding, onPlot, onRoad, onMovePlot, onMine }
   const firstState = useRef(game)
 
   useEffect(() => {
@@ -116,6 +118,7 @@ export function CityCanvas({ game, showLabels, placing, controls, onBuilding, on
           onPlot: (index: number) => handlers.current.onPlot(index),
           onRoad: (cell: string) => handlers.current.onRoad(cell),
           onMovePlot: (plot: number) => handlers.current.onMovePlot(plot),
+          onMine: () => handlers.current.onMine(),
         },
       })
 

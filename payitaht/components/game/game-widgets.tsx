@@ -1,12 +1,14 @@
 'use client'
 
-import { Coins, Trees, Mountain, BookOpen, Hammer, Check, ArrowUpRight, Sparkles, TriangleAlert, Landmark, Swords, Handshake, LockKeyhole } from 'lucide-react'
+import { Coins, Trees, Mountain, BookOpen, Hammer, Check, ArrowUpRight, Sparkles, TriangleAlert, Landmark, Swords, Handshake, LockKeyhole, Grape, Columns3, Gem, Flame, Pickaxe } from 'lucide-react'
 import { Progress } from '@/components/ui/progress'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
+import { LUXURY_IDS, LUXURY_NAMES, luxuryRates, type Luxury, type LuxuryStock } from '@/lib/game/engine'
 import { BUILDINGS, RESEARCH, RESOURCE_IDS, RESOURCE_NAMES, OBJECTIVES, activeJob, rates, capacity, fullResources, nearlyFullResources, formatNumber, population, soldiers, timeLeft, objectiveDone, type Game, type Resource, type Job, type BuildingId, type ResearchId } from '@/lib/game/engine'
 
 export const resourceIcons = { gold: Coins, wood: Trees, stone: Mountain, knowledge: BookOpen }
+export const luxuryIcons: Record<Luxury, typeof Grape> = { uzum: Grape, mermer: Columns3, kristal: Gem, kukurt: Flame }
 export function ResourceBar({ game, onSelect }: { game: Game; onSelect: () => void }) {
   const production = rates(game)
   const full = fullResources(game)
@@ -31,8 +33,9 @@ export function ResourceBar({ game, onSelect }: { game: Game; onSelect: () => vo
     <span className="resource-copy"><span className="resource-name">Nüfus</span><strong>{formatNumber(population(game))}</strong><span className="resource-rate">Halk</span></span>
   </button></section>
 }
-export function CostDisplay({ value }: { value: Partial<Record<Resource, number>> }) {
-  return <div className="cost-display">{RESOURCE_IDS.filter(id => (value[id] ?? 0) > 0).map(id => { const Icon = resourceIcons[id]; return <span key={id} title={RESOURCE_NAMES[id]}><Icon aria-hidden="true" /><span className="sr-only">{RESOURCE_NAMES[id]}: </span>{formatNumber(value[id] ?? 0)}</span> })}</div>
+export function CostDisplay({ value, lux }: { value: Partial<Record<Resource, number>>; lux?: Partial<LuxuryStock> }) {
+  return <div className="cost-display">{RESOURCE_IDS.filter(id => (value[id] ?? 0) > 0).map(id => { const Icon = resourceIcons[id]; return <span key={id} title={RESOURCE_NAMES[id]}><Icon aria-hidden="true" /><span className="sr-only">{RESOURCE_NAMES[id]}: </span>{formatNumber(value[id] ?? 0)}</span> })}
+    {lux && LUXURY_IDS.filter(id => (lux[id] ?? 0) > 0).map(id => { const Icon = luxuryIcons[id]; return <span key={id} className="cost-luxury" title={LUXURY_NAMES[id]}><Icon aria-hidden="true" /><span className="sr-only">{LUXURY_NAMES[id]}: </span>{formatNumber(lux[id] ?? 0)}</span> })}</div>
 }
 export function JobProgress({ job, now }: { job: Job; now: number }) {
   return <div className="job-progress"><div><span>{job.kind === 'build' ? 'Ustalar çalışıyor' : job.kind === 'research' ? 'Âlimler çalışıyor' : 'Talim meydanı dolu'}</span><time>{timeLeft(job, now)}</time></div><Progress aria-label="Tamamlanma" value={Math.max(0, Math.min(100, (now - job.start) / (job.end - job.start) * 100))} /></div>
@@ -52,6 +55,7 @@ export function ObjectiveCard({ game, onClaim, onBuild }: { game: Game; onClaim:
 }
 export function EconomyDetails({ game }: { game: Game }) {
   const production = rates(game)
+  const luxRates = luxuryRates(game)
   const limit = capacity(game)
   const full = fullResources(game)
   return <div className="economy-list">
@@ -69,6 +73,20 @@ export function EconomyDetails({ game }: { game: Game }) {
         <span>+{production[id]}/dk</span>
       </div>
     })}
+    {LUXURY_IDS.map(id => {
+      const Icon = luxuryIcons[id]
+      const ratio = Math.min(1, game.luxury[id] / limit)
+      const rate = Math.round(luxRates[id] * 10) / 10
+      return <div className="economy-item economy-luxury" key={id}>
+        <Icon className="size-6" />
+        <div>
+          <strong>{LUXURY_NAMES[id]}{game.mine.specialty === id ? ' · ada yatağı' : ''}</strong>
+          <span>{formatNumber(game.luxury[id])} / {formatNumber(limit)}</span>
+          <span className="storage-meter"><span style={{ width: `${ratio * 100}%` }} /></span>
+        </div>
+        <span>{rate >= 0 ? '+' : ''}{rate}/dk</span>
+      </div>
+    })}
     <p className="fine-print">Prototipte süreler kısaltılmıştır. Oyun kapalıyken en fazla 8 saat üretim hesaplanır. Dolan ambarlarda üretim durur.</p>
   </div>
 }
@@ -84,8 +102,9 @@ export function EconomyDetails({ game }: { game: Game }) {
  * Rozet, o danismanin ilgilendigi bir isin SURDUGUNU gosterir - sayfanin
  * derinlerine bakmadan.
  */
-export function AdvisorBar({ game, active, onSelect }: { game: Game; active: string | null; onSelect: (id: 'cities' | 'army' | 'research' | 'diplomacy') => void }) {
+export function AdvisorBar({ game, active, onSelect }: { game: Game; active: string | null; onSelect: (id: 'cities' | 'army' | 'research' | 'diplomacy' | 'island') => void }) {
   const advisors = [
+    { id: 'island' as const, label: 'Ada', icon: Pickaxe, open: true, badge: game.luxury[game.mine.specialty] >= 1 ? formatNumber(Math.floor(game.luxury[game.mine.specialty])) : null },
     { id: 'cities' as const, label: 'Şehirler', icon: Landmark, open: true, badge: activeJob(game) ? timeLeft(activeJob(game) as Job, game.updatedAt) : null },
     { id: 'army' as const, label: 'Ordu', icon: Swords, open: game.buildings.kisla > 0, badge: game.drill ? timeLeft(game.drill, game.updatedAt) : soldiers(game) > 0 ? String(soldiers(game)) : null },
     { id: 'research' as const, label: 'Araştırma', icon: BookOpen, open: game.buildings.medrese > 0, badge: game.study ? timeLeft(game.study, game.updatedAt) : null },

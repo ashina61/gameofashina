@@ -3,6 +3,20 @@ import { SLOTS, START_ROADS, isRoadCell, type Zone } from './layout'
 export const RESOURCE_IDS = ['gold', 'wood', 'stone', 'knowledge'] as const
 export type Resource = typeof RESOURCE_IDS[number]
 export type Resources = Record<Resource, number>
+/**
+ * LÜKS KAYNAKLAR (Ikariam'ın şarap/mermer/kristal/kükürdü).
+ *
+ * Her ada TEK bir lüks kaynak yatağına sahiptir; şehir yalnızca kendi
+ * adasının kaynağını madenden çıkarır, diğerlerini koloni, nakliye ya da
+ * çarşıdaki tüccar yoluyla edinir. Ana kaynaklardan AYRI tutulur: kaynak
+ * şeridi ve bütün Resources hesapları değişmeden kalır.
+ */
+export const LUXURY_IDS = ['uzum', 'mermer', 'kristal', 'kukurt'] as const
+export type Luxury = typeof LUXURY_IDS[number]
+export type LuxuryStock = Record<Luxury, number>
+export const LUXURY_NAMES: Record<Luxury, string> = { uzum: 'Üzüm', mermer: 'Mermer', kristal: 'Kristal', kukurt: 'Kükürt' }
+/** Adanın ortak madeni: seviye, bağışla biriken kereste ve maden işçileri. */
+export type IslandMine = { specialty: Luxury; level: number; wood: number; miners: number }
 export const BUILDING_IDS = ['divan', 'saray', 'elcilik', 'konut', 'hamam', 'carsi', 'ambar', 'kereste', 'tas', 'medrese', 'kisla', 'surlar', 'liman', 'tersane', 'kahvehane', 'cami', 'muze', 'marangoz', 'mimar', 'ormanci', 'tasci', 'tophane'] as const
 export type BuildingId = typeof BUILDING_IDS[number]
 export const RESEARCH_IDS = [
@@ -83,6 +97,10 @@ export type Game = {
    * donme yok; oyuncu binayi yatayda cevirebilir (flipX).
    */
   flips: BuildingId[]
+  /** Lüks kaynak ambarı (ana kaynaklarla aynı ambar kapasitesini paylaşır). */
+  luxury: LuxuryStock
+  /** Şehrin adasındaki lüks kaynak madeni. */
+  mine: IslandMine
   claimed: string[]; log: { text: string; time: number }[]
 }
 
@@ -147,7 +165,7 @@ export const BUILDINGS: Record<BuildingId, BuildingDef> = {
    * maliyeti, Ormancı/Taşçı üretimi, Atölye ordunun gücünü artırır. Etkiler
    * seviye başına sabittir ve aşağıdaki BUILDING_EFFECTS'ten tek yerden okunur.
    */
-  kahvehane: { name: 'Kahvehane', category: 'HALKIN HUZURU', description: 'Halk kahve ve şerbetle gönül eğlendirir: her seviye huzuru 50 artırır, dakikada 4 akçe ikram gideri vardır.', base: 90, art: true, needs: { id: 'divan', level: 2 } },
+  kahvehane: { name: 'Kahvehane', category: 'HALKIN HUZURU', description: 'Halk şerbet ve üzüm ikramıyla gönül eğlendirir. Her seviye huzuru 20 artırır; ambarda üzüm varsa dakikada 3 üzüm ikram edilir ve seviye başına +35 huzur daha gelir.', base: 90, art: true, needs: { id: 'divan', level: 2 } },
   cami: { name: 'Cami', category: 'HALKIN HUZURU', description: 'Şehrin manevi merkezi. Her seviye huzuru 35 artırır ve ilim üretimine %2 katkı verir.', base: 180, art: true, needs: { id: 'divan', level: 3 } },
   muze: { name: 'Müze', category: 'HALKIN HUZURU', description: 'Eserlerin sergilendiği kültür yapısı. Her seviye huzuru 40 artırır.', base: 210, art: true, needs: { id: 'medrese', level: 2 } },
   marangoz: { name: 'Marangozhane', category: 'MALİYET', description: 'Kerestenin ustaca işlenmesi. Her seviye bina yapımındaki kereste maliyetini %1 azaltır.', base: 110, art: true, needs: { id: 'kereste', level: 2 } },
@@ -159,7 +177,7 @@ export const BUILDINGS: Record<BuildingId, BuildingDef> = {
 
 /** Ikariam binalarının seviye başına etkileri (tek kaynak). */
 export const BUILDING_EFFECTS = {
-  kahvehaneContentment: 50, kahvehaneUpkeep: 4,
+  kahvehaneContentment: 20, kahvehaneWineBonus: 35, kahvehaneWine: 3,
   camiContentment: 35, camiKnowledge: 0.02,
   muzeContentment: 40,
   marangozWood: 0.01, mimarStone: 0.01,
@@ -271,6 +289,9 @@ export function initialGame(now: number): Game {
     workers: { ...blank(WORKER_IDS), kereste: WORKERS_PER_LEVEL, tas: WORKERS_PER_LEVEL },
     army: blank(UNIT_IDS),
     roads: [...START_ROADS], flips: [],
+    luxury: { uzum: 0, mermer: 0, kristal: 0, kukurt: 0 },
+    // Başkent Sahil Adası'nda: mermer yatağı. Koloniler kendi adasınınkini alır.
+    mine: { specialty: 'mermer', level: 1, wood: 0, miners: 0 },
     research: [], queue: [], study: null, drill: null, claimed: [],
     log: [{ text: 'Sahilhisar kuruldu. Hikâyen burada başlıyor.', time: now }],
   }
@@ -286,7 +307,7 @@ export function assignedWorkers(g: Game) { return WORKER_IDS.reduce((sum, id) =>
  * Askerler nufusun icindedir ama ISCI DEGILDIR: uretim yapmazlar ve baska bir
  * ise verilemezler. Bu yuzden bosta kalan halk hesabindan once onlar dusulur.
  */
-export function idleWorkers(g: Game) { return Math.max(0, population(g) - assignedWorkers(g) - soldiers(g)) }
+export function idleWorkers(g: Game) { return Math.max(0, population(g) - assignedWorkers(g) - g.mine.miners - soldiers(g)) }
 
 /** Egitimi SUREN birligin simdiden ayirdigi vatandas. */
 export function trainingPop(g: Game): number {
@@ -367,6 +388,12 @@ export function clampWorkers(g: Game): Workers {
   }
   return out
 }
+/** Maden işçileri: kapasite ve (üretim yapılarından artan) boştaki halkla sınırlı. */
+export function clampMiners(g: Game): number {
+  const free = Math.max(0, population(g) - soldiers(g) - assignedWorkers(g))
+  const want = Number.isFinite(g.mine.miners) ? Math.max(0, Math.floor(g.mine.miners)) : 0
+  return Math.min(want, mineCapacity(g), free)
+}
 export function capacity(g: Game) {
   const level = g.buildings.ambar
   // Level 1 remains exactly 4,500: existing city saves and first-game
@@ -405,8 +432,7 @@ export function rates(g: Game): Resources {
   return {
     // Akce iki kaynaktan gelir: halkin vergisi (isci istemez) ve carsi esnafi.
     gold: Math.max(0, (60 + g.buildings.konut * 120 +
-      g.buildings.carsi * 100 * share('carsi')) * multiplier - scientistUpkeepPerMinute(g) -
-      g.buildings.kahvehane * BUILDING_EFFECTS.kahvehaneUpkeep),
+      g.buildings.carsi * 100 * share('carsi')) * multiplier - scientistUpkeepPerMinute(g)),
     wood: g.buildings.kereste * 120 * share('kereste') * multiplier *
       (g.research.includes('ormancilik') ? 1.15 : 1) * (1 + g.buildings.ormanci * BUILDING_EFFECTS.ormanciWood),
     stone: g.buildings.tas * 90 * share('tas') * multiplier *
@@ -432,6 +458,7 @@ export function housing(g: Game) { return 80 + g.buildings.konut * 40 + (g.resea
  */
 export function contentment(g: Game) {
   return 120 + g.buildings.hamam * 60 + g.buildings.kahvehane * BUILDING_EFFECTS.kahvehaneContentment +
+    (wineServed(g) ? g.buildings.kahvehane * BUILDING_EFFECTS.kahvehaneWineBonus : 0) +
     g.buildings.cami * BUILDING_EFFECTS.camiContentment + g.buildings.muze * BUILDING_EFFECTS.muzeContentment
 }
 
@@ -441,6 +468,79 @@ export function contentment(g: Game) {
  * Iki kisidan hangisi kucukse o. Barinma huzurdan buyukse fazla konutlar bos
  * kalir; oyuncu bunu "Halk" panelinde dogrudan gorur.
  */
+/* ------------------------------------------------------------------ LÜKS */
+
+/** Ada madeninin alabileceği en fazla işçi (Ikariam'da maden seviyesiyle büyür). */
+export const MINERS_PER_LEVEL = 12
+export const MINE_MAX_LEVEL = 20
+export function mineCapacity(g: Game) { return g.mine.level * MINERS_PER_LEVEL }
+/** Bir sonraki maden seviyesi için gereken toplam kereste bağışı. */
+export function mineUpgradeCost(level: number) { return Math.round(600 * 1.55 ** (level - 1)) }
+
+/** Kahvehane üzüm ikram ediyor mu? (Ambarda üzüm var ya da maden üzüm çıkarıyor.) */
+export function wineServed(g: Game) {
+  if (g.buildings.kahvehane <= 0) return false
+  return g.luxury.uzum > 0 || luxuryProduction(g).uzum >= g.buildings.kahvehane * BUILDING_EFFECTS.kahvehaneWine
+}
+
+/** Maden işçilerinin dakikadaki brüt lüks üretimi (yalnızca adanın kaynağı). */
+export function luxuryProduction(g: Game): LuxuryStock {
+  const out: LuxuryStock = { uzum: 0, mermer: 0, kristal: 0, kukurt: 0 }
+  const miners = Math.min(g.mine.miners, mineCapacity(g))
+  out[g.mine.specialty] = miners * 3 * (g.research.includes('tools') ? 1.2 : 1)
+  return out
+}
+
+/** Dakikadaki NET lüks değişimi: üretim eksi Kahvehane'nin üzüm ikramı. */
+export function luxuryRates(g: Game): LuxuryStock {
+  const out = luxuryProduction(g)
+  if (g.buildings.kahvehane > 0 && (g.luxury.uzum > 0 || out.uzum > 0)) {
+    out.uzum -= g.buildings.kahvehane * BUILDING_EFFECTS.kahvehaneWine
+  }
+  return out
+}
+
+/**
+ * Bir bina yükseltmesinin LÜKS maliyeti.
+ *
+ * Ikariam'daki gibi: gelişmiş binalar mermer, bilim/kültür yapıları kristal
+ * ister. Başlangıçta hiçbir şey istenmez (seviye 3'e kadar mermersiz,
+ * seviye 4'e kadar kristalsiz) - yeni oyuncu tıkanmaz, ilerledikçe ada
+ * ticareti gerekli olur. Mimarbaşı mermeri de ucuzlatır.
+ */
+const MARBLE_FREE = new Set<BuildingId>(['konut', 'kereste', 'tas'])
+const CRYSTAL_NEEDS = new Set<BuildingId>(['medrese', 'muze', 'mimar', 'cami', 'saray', 'elcilik'])
+export function luxuryCost(g: Game, id: BuildingId): Partial<LuxuryStock> {
+  const level = g.buildings[id]
+  const base = Math.round(BUILDINGS[id].base * BUILDING_GROWTH[id] ** level)
+  const out: Partial<LuxuryStock> = {}
+  if (level >= 3 && !MARBLE_FREE.has(id)) {
+    const factor = Math.max(0.5, 1 - constructionDiscount(g) - g.buildings.mimar * BUILDING_EFFECTS.mimarStone)
+    out.mermer = Math.round(base * 0.22 * factor)
+  }
+  if (level >= 4 && CRYSTAL_NEEDS.has(id)) out.kristal = Math.round(base * 0.12)
+  return out
+}
+
+/** Ağır birlikler kükürt (barut) ister. */
+export const UNIT_SULFUR: Partial<Record<UnitId, number>> = { topcu: 40, kadirga: 30, kalyon: 90 }
+export function unitLuxuryCost(id: UnitId, count: number): Partial<LuxuryStock> {
+  const s = UNIT_SULFUR[id]
+  return s ? { kukurt: s * count } : {}
+}
+
+function hasLuxury(g: Game, need: Partial<LuxuryStock>) {
+  return LUXURY_IDS.every(id => g.luxury[id] >= (need[id] ?? 0))
+}
+function payLuxury(g: Game, need: Partial<LuxuryStock>) {
+  for (const id of LUXURY_IDS) g.luxury[id] -= need[id] ?? 0
+}
+
+/** Çarşıdaki tüccar: akçe karşılığı lüks alım/satım (NPC; oyuncu pazarı değil). */
+export const MERCHANT_BUY = 6
+export const MERCHANT_SELL = 2
+export function merchantLimit(g: Game) { return g.buildings.carsi * 150 }
+
 export function population(g: Game) { return Math.min(housing(g), contentment(g)) }
 
 /** Huzursuzluk yuzunden bos kalan barinma. */
@@ -511,6 +611,8 @@ export function advance(source: Game, now: number): Game {
     const minutes = Math.max(0, Math.min(until, cutoff) - Math.min(cursor, cutoff)) / 60_000
     const speed = rates(g)
     for (const r of RESOURCE_IDS) g.resources[r] = Math.min(capacity(g), g.resources[r] + speed[r] * minutes)
+    const lux = luxuryRates(g)
+    for (const r of LUXURY_IDS) g.luxury[r] = Math.max(0, Math.min(capacity(g), g.luxury[r] + lux[r] * minutes))
     cursor = until
   }
   /*
@@ -562,6 +664,7 @@ export function advance(source: Game, now: number): Game {
     }
   }
   produce(now)
+  g.mine.miners = clampMiners(g)
   if (now - start > 60_000) logEvent(g, `${Math.floor((now - start) / 60_000)} dakika sonra hoş geldin. Kaynak üretimi hesaplandı (en fazla 8 saat).`, now)
   g.updatedAt = now
   return g
@@ -619,6 +722,9 @@ export function buildReason(g: Game, id: BuildingId): string | null {
   if (id !== 'divan' && g.buildings[id] >= g.buildings.divan + 1) return `Divanhane ${g.buildings.divan + 1}. seviye gerekli.`
   const c = cost(g, id)
   if (RESOURCE_IDS.some(r => g.resources[r] < c[r])) return 'Yeterli kaynak yok. Üretimin devam ediyor.'
+  const lux = luxuryCost(g, id)
+  const missing = LUXURY_IDS.find(r => g.luxury[r] < (lux[r] ?? 0))
+  if (missing) return `${lux[missing]} ${LUXURY_NAMES[missing]} gerekli. Adandan, nakliyeyle ya da Çarşı'daki tüccardan edin.`
   return null
 }
 /** Bir egitim emrinin toplam maliyeti. */
@@ -654,6 +760,7 @@ export function recruitReason(g: Game, id: UnitId, count: number): string | null
   if (idleWorkers(g) < need) return `${need} boşta vatandaş gerekli. Halk panelinden işçi çek.`
   const c = unitCost(id, count, g)
   if (RESOURCE_IDS.some(r => g.resources[r] < c[r])) return 'Yeterli kaynak yok.'
+  if (!hasLuxury(g, unitLuxuryCost(id, count))) return `${unitLuxuryCost(id, count).kukurt} kükürt gerekli (barut).`
   return null
 }
 
@@ -679,6 +786,12 @@ export type Command =
   | { type: 'flip'; id: BuildingId }
   /** Kurulu bir binayi BOS bir arsaya tasi. */
   | { type: 'move'; id: BuildingId; plot: number }
+  /** Ada madenine işçi ata. */
+  | { type: 'miners'; value: number }
+  /** Ada madenine kereste bağışla (maden seviyesi yükselir). */
+  | { type: 'donate'; amount: number }
+  /** Çarşıdaki tüccardan lüks kaynak al ya da sat. */
+  | { type: 'trade'; id: Luxury; side: 'buy' | 'sell'; amount: number }
 export function execute(source: Game, command: Command, now: number): { game: Game; error?: string } {
   const g = advance(source, now)
   if (command.type === 'build') {
@@ -700,6 +813,7 @@ export function execute(source: Game, command: Command, now: number): { game: Ga
     }
     const c = cost(g, command.id)
     for (const r of RESOURCE_IDS) g.resources[r] -= c[r]
+    payLuxury(g, luxuryCost(g, command.id))
     /*
      * Sirada bekleyen isin sayaci, KENDINDEN ONCEKI bittiginde baslar.
      * Baslangici "now" yapmak, sirayla eklenen uc isin ayni anda bitmesi
@@ -724,6 +838,7 @@ export function execute(source: Game, command: Command, now: number): { game: Ga
     if (reason) return { game: g, error: reason }
     const c = unitCost(command.id, command.count, g)
     for (const r of RESOURCE_IDS) g.resources[r] -= c[r]
+    payLuxury(g, unitLuxuryCost(command.id, command.count))
     g.drill = { id: command.id, kind: 'drill', start: now, end: now + unitDuration(g, command.id, command.count) * 1000, count: command.count }
     logEvent(g, `${command.count} ${UNITS[command.id].name} için eğitim başladı.`, now)
   } else if (command.type === 'research') {
@@ -746,6 +861,41 @@ export function execute(source: Game, command: Command, now: number): { game: Ga
     g.flips = g.flips.includes(command.id)
       ? g.flips.filter(id => id !== command.id)
       : [...g.flips, command.id]
+  } else if (command.type === 'miners') {
+    g.mine.miners = Number.isFinite(command.value) ? Math.max(0, Math.floor(command.value)) : 0
+    g.mine.miners = clampMiners(g)
+  } else if (command.type === 'donate') {
+    const amount = Math.floor(command.amount)
+    if (!Number.isSafeInteger(amount) || amount <= 0) return { game: g, error: 'Geçersiz bağış.' }
+    if (g.mine.level >= MINE_MAX_LEVEL) return { game: g, error: 'Maden en yüksek seviyede.' }
+    if (g.resources.wood < amount) return { game: g, error: 'Bu kadar kereste yok.' }
+    g.resources.wood -= amount
+    g.mine.wood += amount
+    // Birikmiş bağış eşiği geçtikçe maden seviye atlar (Ikariam'daki ada bağışı).
+    while (g.mine.level < MINE_MAX_LEVEL && g.mine.wood >= mineUpgradeCost(g.mine.level)) {
+      g.mine.wood -= mineUpgradeCost(g.mine.level)
+      g.mine.level += 1
+      logEvent(g, `${LUXURY_NAMES[g.mine.specialty]} madeni ${g.mine.level}. seviyeye ulaştı.`, now)
+    }
+    if (g.mine.level >= MINE_MAX_LEVEL) { g.resources.wood += g.mine.wood; g.mine.wood = 0 }
+  } else if (command.type === 'trade') {
+    const amount = Math.floor(command.amount)
+    if (!LUXURY_IDS.includes(command.id) || !Number.isSafeInteger(amount) || amount <= 0) return { game: g, error: 'Geçersiz miktar.' }
+    if (g.buildings.carsi < 1) return { game: g, error: 'Tüccar için önce Çarşı kur.' }
+    if (amount > merchantLimit(g)) return { game: g, error: `Tüccar tek seferde en fazla ${merchantLimit(g)} birim işler.` }
+    if (command.side === 'buy') {
+      const price = amount * MERCHANT_BUY
+      if (g.resources.gold < price) return { game: g, error: `${price} akçe gerekli.` }
+      if (g.luxury[command.id] + amount > capacity(g)) return { game: g, error: 'Ambarda yer yok.' }
+      g.resources.gold -= price
+      g.luxury[command.id] += amount
+      logEvent(g, `Tüccardan ${amount} ${LUXURY_NAMES[command.id]} alındı (${price} akçe).`, now)
+    } else {
+      if (g.luxury[command.id] < amount) return { game: g, error: `Bu kadar ${LUXURY_NAMES[command.id]} yok.` }
+      g.luxury[command.id] -= amount
+      g.resources.gold = Math.min(capacity(g), g.resources.gold + amount * MERCHANT_SELL)
+      logEvent(g, `Tüccara ${amount} ${LUXURY_NAMES[command.id]} satıldı.`, now)
+    }
   } else if (command.type === 'move') {
     /*
      * Kurulu bir binayi BOS bir arsaya tasi. Hedef arsa bos ve ayni bolgede
@@ -855,7 +1005,13 @@ function fillMissing(g: Record<string, unknown>): Record<string, unknown> {
   const flips = Array.isArray(g.flips)
     ? [...new Set((g.flips as unknown[]).filter((id): id is BuildingId => BUILDING_IDS.includes(id as BuildingId)))]
     : []
-  return { ...g, ...out, army: filled, roads, flips, drill: g.drill === undefined ? null : g.drill }
+  // Lüks kaynaklar ve ada madeni sonradan eklendi: eski kayıtta boş başlar.
+  const lux = (g.luxury ?? {}) as Record<string, unknown>
+  const luxury: Record<string, unknown> = {}
+  for (const id of LUXURY_IDS) luxury[id] = lux[id] === undefined ? 0 : lux[id]
+  const m = (g.mine ?? {}) as Record<string, unknown>
+  const mine = { specialty: m.specialty ?? 'mermer', level: m.level ?? 1, wood: m.wood ?? 0, miners: m.miners ?? 0 }
+  return { ...g, ...out, army: filled, roads, flips, drill: g.drill === undefined ? null : g.drill, luxury, mine }
 }
 
 /**
@@ -924,6 +1080,13 @@ export function parseSave(raw: string): Game {
     && BUILDING_IDS.every(id => placement[id] === null || levels[id] > 0 || queued.has(id))
     && new Set(placed).size === placed.length
   const workersValid = !!workers && WORKER_IDS.every(id => Number.isInteger(workers[id]) && workers[id] >= 0)
+  const lux = g.luxury as LuxuryStock
+  const mine = g.mine as IslandMine
+  if (!LUXURY_IDS.every(id => finite(lux[id])) || !LUXURY_IDS.includes(mine.specialty) ||
+      !Number.isInteger(mine.level) || mine.level < 1 || mine.level > MINE_MAX_LEVEL ||
+      !finite(mine.wood) || !Number.isInteger(mine.miners) || mine.miners < 0) {
+    throw new Error('Kayıt dosyası okunamadı. Eski kaydın korunuyor; yeni oyun başlatabilirsin.')
+  }
   const army = g.army as Army | undefined
   const armyValid = !!army && UNIT_IDS.every(id => Number.isInteger(army[id]) && army[id] >= 0 && army[id] <= 100_000)
   const queue = g.queue as Job[] | undefined
