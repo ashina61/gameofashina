@@ -931,6 +931,23 @@ def kara_pazar(s, st):
     lantern(s, 1.2, 1.35, 0.45)
 
 
+def siginak(s, st):
+    """Gizli sığınak: sarmaşıklı taş ev, alçak kapı, kuyu ve çardak; seviyeyle gizli kule."""
+    ground(s, 0.15, 0.15, 1.9, 1.9, hexc('#bfae86'))
+    col = hexc('#b3a58c')
+    s.box(0.4, 0.45, 0, 1.25, 1.2, 0.45 + 0.07 * st, col, 'stone', deco_y=[('courses', 0.09), ('archdoor', 0.5, 0, 0.14, 0.24)], deco_x=[('courses', 0.09)])
+    s.hip(0.4, 0.45, 1.25, 1.2, 0.45 + 0.07 * st, 0.2, PAL['wooddark'], mat='wood')
+    s.cylinder(1.5, 1.45, 0, 0.12, 0.12, PAL['stone2'], 'stone', top=PAL['window'])
+    for i in range(1 + st):
+        s.tree(0.3 + i * 0.35, 1.7, 0.7, 'cypress')
+    if st >= 2:
+        s.box(1.35, 0.35, 0, 1.75, 0.75, 0.3, PAL['wood2'], 'wood', deco_y=[('vplanks', 4)], deco_x=[('vplanks', 4)])
+        s.gable(1.35, 0.35, 1.75, 0.75, 0.3, 0.16, PAL['wooddark'], mat='wood')
+    if st >= 3:
+        s.cylinder(0.5, 0.55, 0, 0.95, 0.1, col, 'stone', n=14)
+        s.cone(0.5, 0.55, 0.95, 0.22, 0.14, PAL['wooddark'], 'wood')
+
+
 BUILDINGS = {
     'divan': divan, 'saray': saray, 'elcilik': elcilik, 'konut': konut, 'hamam': hamam, 'carsi': carsi,
     'ambar': ambar, 'kereste': kereste, 'tas': tas, 'medrese': medrese, 'kisla': kisla, 'liman': liman,
@@ -939,6 +956,7 @@ BUILDINGS = {
     'bagci': bagci, 'simyahane': simyahane, 'camci': camci, 'mahzen': mahzen, 'gozlukcu': gozlukcu,
     'barutane': barutane, 'depo': depo, 'ticaret_merkezi': ticaret_merkezi, 'harita_arsivi': harita_arsivi,
     'valilik': valilik, 'korsan_kalesi': korsan_kalesi, 'kara_pazar': kara_pazar,
+    'siginak': siginak,
 }
 # Aşamasız yardımcı katmanlar: (fonksiyon, gölge var mı)
 EXTRAS = {'site': (site, True), 'scaffold': (scaffold, False),

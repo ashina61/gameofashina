@@ -108,7 +108,7 @@ export function AdvisorBar({ game, active, onSelect }: { game: Game; active: str
     { id: 'cities' as const, label: 'Şehirler', icon: Landmark, open: true, badge: activeJob(game) ? timeLeft(activeJob(game) as Job, game.updatedAt) : null },
     { id: 'army' as const, label: 'Ordu', icon: Swords, open: game.buildings.kisla > 0, badge: game.drill ? timeLeft(game.drill, game.updatedAt) : soldiers(game) > 0 ? String(soldiers(game)) : null },
     { id: 'research' as const, label: 'Araştırma', icon: BookOpen, open: game.buildings.medrese > 0, badge: game.study ? timeLeft(game.study, game.updatedAt) : null },
-    { id: 'diplomacy' as const, label: 'Diplomasi', icon: Handshake, open: game.buildings.elcilik > 0, badge: null },
+    { id: 'diplomacy' as const, label: 'Dünya', icon: Handshake, open: true, badge: null },
   ]
   return <nav className="advisor-bar" aria-label="Danışmanlar">{advisors.map(advisor => {
     const Icon = advisor.icon

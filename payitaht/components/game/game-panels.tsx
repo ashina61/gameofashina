@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button'
 import { CostDisplay, JobProgress } from './game-widgets'
 import { BUILDINGS, BUILDING_IDS, MAX_LEVEL, RESEARCH, RESEARCH_IDS, RESEARCH_BRANCHES, RESOURCE_IDS, RESOURCE_NAMES, UNITS, UNIT_IDS, WORKER_IDS, WORKERS_PER_LEVEL, activeJob, cargoCapacity, cityDefense, cost, duration, buildReason, power, rates, recruitReason, researchReason, scientistCount, scientistUpkeepPerMinute, idleWorkers, population, housing, contentment, soldiers, takesPlot, tradeCapacity, unhousedByUnrest, unitCost, unitDuration, wallDefense, workerCapacity, type BuildingId, type ResearchId, type ResearchBranch, type UnitId, type WorkerId, type Game } from '@/lib/game/engine'
 import { buildingImage } from '@/lib/asset'
-import { activeCity, CARGO_IDS, CARGO_NAMES, COLONY_COST, ISLANDS, type Cargo, type Empire, type IslandId } from '@/lib/game/empire'
+import { activeCity, colonyPalaceLevel, CARGO_IDS, CARGO_NAMES, COLONY_COST, ISLANDS, type Cargo, type Empire, type IslandId } from '@/lib/game/empire'
 import { LUXURY_IDS, LUXURY_NAMES, MERCHANT_BUY, MERCHANT_SELL, MINE_MAX_LEVEL, luxuryCost, luxuryProduction, merchantLimit, mineCapacity, mineUpgradeCost, unitLuxuryCost, wineServed, type Luxury } from '@/lib/game/engine'
 import { luxuryIcons } from './game-widgets'
 import { effectLines } from '@/lib/game/building-info'
@@ -226,8 +226,8 @@ export function CitiesPanel({
       <div className="island-atlas">
         {ISLANDS.map(island => {
           const city = empire.cities.find(c => c.islandId === island.id)
-          const missing = capital.buildings.saray < empire.cities.length
-            ? `Saray ${empire.cities.length}. seviye gerekli`
+          const missing = capital.buildings.saray < colonyPalaceLevel(empire)
+            ? `Saray ${colonyPalaceLevel(empire)}. seviye gerekli`
             : capital.buildings.liman < 1 || capital.army.nakliye < 3
               ? 'Başkentte liman ve 3 nakliye gemisi gerekli'
               : null

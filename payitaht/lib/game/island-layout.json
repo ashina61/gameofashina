@@ -1,12 +1,41 @@
 {
   "comment": "Ada görünümündeki yerler (görsel genişliği/yüksekliği oranı). tools/art/islands.py ve IslandView aynı dosyayı okur.",
-  "size": [900, 1200],
+  "size": [
+    900,
+    1200
+  ],
   "spots": {
-    "city": [0.5, 0.56],
-    "mine": [0.3, 0.37],
-    "forest": [0.7, 0.4],
-    "koy": [0.29, 0.69],
-    "korsan": [0.7, 0.73],
-    "kale": [0.55, 0.25]
+    "city": [
+      0.5,
+      0.56
+    ],
+    "mine": [
+      0.3,
+      0.37
+    ],
+    "forest": [
+      0.7,
+      0.4
+    ],
+    "koy": [
+      0.29,
+      0.69
+    ],
+    "korsan": [
+      0.7,
+      0.73
+    ],
+    "kale": [
+      0.55,
+      0.25
+    ],
+    "rakip1": [
+      0.2,
+      0.5
+    ],
+    "rakip2": [
+      0.78,
+      0.57
+    ]
   }
 }

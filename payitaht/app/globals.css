@@ -802,3 +802,42 @@
 .empire-section > h3 svg { flex-shrink: 0; color: var(--gold); }
 .island-toolbar .island-select { width: 100%; text-overflow: ellipsis; }
 .island-toolbar .island-title small { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* --- DÜNYA, YÖNETİM, GÜNLÜK (world-panels.tsx) ------------------------------ */
+.text-input { flex: 1; min-width: 0; height: 32px; padding: 0 10px; border: 1px solid var(--border); border-radius: 8px; background: var(--card); color: var(--foreground); font: inherit; font-size: 13px; }
+.gov-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 8px; }
+.gov-card { display: flex; flex-direction: column; gap: 6px; padding: 10px 12px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--card); }
+.gov-card ul { margin: 0; padding-left: 16px; font-size: 11.5px; color: var(--muted-foreground); display: flex; flex-direction: column; gap: 2px; }
+.gov-card strong { font-size: 13px; }
+.gov-active { border-color: var(--gold); box-shadow: 0 0 0 1px var(--gold) inset; }
+.gov-badge { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; color: var(--gold); font-weight: 700; }
+.demolish-row { margin-top: 10px; }
+.daily-login, .daily-task, .mission-row, .rival-row { display: grid; grid-template-columns: 1fr auto; gap: 6px 10px; align-items: center; padding: 10px 12px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--card); }
+.daily-login { grid-template-columns: auto 1fr auto; }
+.daily-login svg { color: var(--gold); }
+.daily-task .people-meter { grid-column: 1 / -1; grid-row: 2; }
+.daily-task > span:first-child, .daily-login > span, .mission-row > span:first-child, .rival-row > span:first-child { display: flex; flex-direction: column; min-width: 0; gap: 2px; font-size: 13px; }
+.daily-task small, .daily-login small, .mission-row small, .rival-row small { font-size: 11px; color: var(--muted-foreground); }
+.rival-row { grid-template-columns: 1fr auto; text-align: left; color: var(--foreground); cursor: pointer; }
+.rival-row > small { grid-column: 1 / -1; }
+.field-row { display: flex; align-items: center; gap: 8px; font-size: 12.5px; }
+.field-row select { flex: 1; height: 32px; border-radius: 8px; border: 1px solid var(--border); background: var(--card); color: var(--foreground); padding: 0 8px; }
+.relation-meter { position: relative; height: 6px; border-radius: 3px; background: linear-gradient(90deg, #c2553f, #6b6b5a 50%, #6fae5c); }
+.relation-meter span { position: absolute; top: -4px; width: 4px; height: 14px; margin-left: -2px; border-radius: 2px; background: var(--foreground); }
+.rank-table { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px; }
+.rank-table li { display: grid; grid-template-columns: 28px 1fr auto; gap: 8px; align-items: center; padding: 6px 10px; border-radius: 8px; background: var(--card); border: 1px solid var(--border); }
+.rank-table li button { display: flex; flex-direction: column; align-items: flex-start; gap: 1px; min-width: 0; background: none; border: 0; padding: 0; color: var(--foreground); text-align: left; cursor: pointer; }
+.rank-table li button:disabled { cursor: default; }
+.rank-table small { font-size: 10.5px; color: var(--muted-foreground); }
+.rank-no { font-weight: 700; color: var(--gold); font-variant-numeric: tabular-nums; text-align: center; }
+.rank-score { font-variant-numeric: tabular-nums; font-size: 13px; font-weight: 600; }
+.rank-you { border-color: var(--gold) !important; }
+.report-card.unread { border-color: var(--gold); }
+.mail-from { margin: 0; }
+.mail-body { margin: 0; font-size: 13px; line-height: 1.45; }
+.world-panel .research-branch-tabs button { display: inline-flex; align-items: center; gap: 4px; }
+.island-rival { width: 22%; }
+.rival-label.rival-foe { border-color: #e2745f99; }
+.rival-label.rival-friend { border-color: #9fd38a99; }
+.island-forest { width: 20%; transform: translate(-50%, -50%); }
+.island-station { background: #7d5a1e; }

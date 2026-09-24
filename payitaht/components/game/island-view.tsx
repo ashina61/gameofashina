@@ -16,10 +16,13 @@ import { asset, buildingImage } from '@/lib/asset'
 import { LUXURY_NAMES, MIRACLES, UNITS, type UnitId } from '@/lib/game/engine'
 import { activeCity, ISLANDS, type Empire, type IslandId } from '@/lib/game/empire'
 import {
-  NPC_KINDS, NPC_SETTLEMENTS, RAID_UNITS, TROOPS_PER_SHIP, WARSHIPS, availableUnits, lootPool, npcState, spyChance,
+  NPC_KINDS, NPC_SETTLEMENTS, RAID_UNITS, npcById, TROOPS_PER_SHIP, WARSHIPS, availableUnits, lootPool, npcState, spyChance,
   strikeForce, targetTravelMs, transportsNeeded, type Mission,
 } from '@/lib/game/expeditions'
 import { UnitPicker } from './ikariam-panels'
+import { RivalDiplomacy, RivalWar, type Run } from './world-panels'
+import { FACTIONS, RIVALS, STYLE_NAMES, rivalById, rivalLevel } from '@/lib/game/rivals'
+import { targetInfo } from '@/lib/game/expeditions'
 
 const clock = (ms: number) => {
   const s = Math.max(0, Math.ceil(ms / 1000))
@@ -71,20 +74,38 @@ export function IslandView({ empire, islandId, now, onCity, onIsland, onMine, on
           {active.map(m => <span key={m.id}>{missionTag(m)}</span>)}
         </button>
       })}
+      {home && <button className="island-spot island-forest" style={place('forest')} onClick={onMine} aria-label={`Ada ormanı, seviye ${active.game.forest.level}`}>
+        <span className="island-label"><strong>Ada ormanı</strong><small>Sv. {active.game.forest.level} · {active.game.forest.workers} oduncu</small></span>
+      </button>}
+      {RIVALS.filter(r => r.islandId === island.id).map((r, i) => {
+        const level = rivalLevel(empire, r, now)
+        const rel = empire.world?.rivals[r.id]?.relation ?? 0
+        const tags = missions.filter(m => m.npcId === r.id)
+        return <button key={r.id} className="island-spot island-rival" style={place(i === 0 ? 'rakip1' : 'rakip2')} onClick={() => onNpc(r.id)}
+          aria-label={`${r.city}, ${r.ruler}, yapay rakip, seviye ${level}`}>
+          <img src={buildingImage('divan', Math.min(30, level * 2))} alt="" />
+          <span className={`island-label rival-label ${rel >= 0 ? 'rival-friend' : 'rival-foe'}`}><strong>{r.city}</strong><small>{r.ruler} · YZ · Sv. {level}</small></span>
+          {tags.map(m => <span key={m.id}>{m.stationed ? <span className="island-mission island-station"><Anchor aria-hidden="true" />{m.kind === 'occupy' ? 'işgal' : 'abluka'}</span> : missionTag(m)}</span>)}
+        </button>
+      })}
     </div>
   </section>
 }
 
-/** Bir bağımsız yerleşimin paneli: bilgi, casus, sefer. */
-export function NpcPanel({ empire, npcId, now, onSpy, onRaid }: {
+/** Bağımsız yerleşimin ya da yapay rakip şehrinin paneli: bilgi, casus, sefer (ve rakipte diplomasi, işgal, abluka). */
+export function NpcPanel({ empire, npcId, now, onSpy, onRaid, onOccupy, onBlockade, run }: {
   empire: Empire; npcId: string; now: number
   onSpy: (count: number) => void
   onRaid: (units: Partial<Record<UnitId, number>>) => void
+  onOccupy: (units: Partial<Record<UnitId, number>>) => void
+  onBlockade: (units: Partial<Record<UnitId, number>>) => void
+  run: Run
 }) {
-  const npc = NPC_SETTLEMENTS.find(n => n.id === npcId)!
+  const npc = targetInfo(empire, npcId, now)!
+  const rival = rivalById(npcId)
   const city = activeCity(empire)
   const g = city.game
-  const state = npcState(empire, npcId)
+  const state = { level: npc.level }
   const free = availableUnits(empire, city.id)
   const [spies, setSpies] = useState(1)
   const [pick, setPick] = useState<Partial<Record<UnitId, number>>>({})
@@ -94,15 +115,17 @@ export function NpcPanel({ empire, npcId, now, onSpy, onRaid }: {
   const lastRaid = (empire.reports ?? []).find(r => r.npcId === npcId && r.cityId === city.id && r.kind === 'raid')
   const busy = (kind: Mission['kind']) => (empire.missions ?? []).some(m => m.cityId === city.id && m.npcId === npcId && m.kind === kind && !m.resolved)
   const force = Math.round(strikeForce(g, pick))
-  const pool = lootPool(state, now)
+  const pool = npc.loot
   return <div className="advisor-panel npc-panel">
     <article className="city-card">
       <div className="city-card-top">
-        <span className="city-emblem npc-emblem"><img src={asset(`/images/game/buildings/npc-${npc.kind}.webp`)} alt="" /></span>
-        <span><span className="eyebrow">{NPC_KINDS[npc.kind].name.toLocaleUpperCase('tr')} · SEVİYE {state.level}</span>
-          <strong>{npc.name}</strong><span>{NPC_KINDS[npc.kind].description}</span></span>
+        <span className="city-emblem npc-emblem"><img src={rival ? buildingImage('divan', Math.min(30, npc.level * 2)) : asset(`/images/game/buildings/npc-${npcById(npcId)!.kind}.webp`)} alt="" /></span>
+        <span><span className="eyebrow">{npc.kindName.toLocaleUpperCase('tr')} · SEVİYE {state.level}</span>
+          <strong>{npc.name}</strong><span>{rival ? `${rival.ruler} · ${STYLE_NAMES[rival.style]} · ${FACTIONS[rival.faction].name}` : NPC_KINDS[npcById(npcId)!.kind].description}</span></span>
       </div>
-      <p className="fine-print">Bağımsız bir yerleşim (gerçek oyuncu değil). Yağmalanınca toparlanır ve bir seviye güçlenir; hazinesi {Math.round(45)} dakikada dolar{pool.gold > 0 ? '' : ' — şu an boş'}.</p>
+      <p className="fine-print">{rival
+        ? `Yapay rakip hükümdar (gerçek oyuncu değil). Gücü dünya yaşıyla büyür; yağmalanan hazinesi 2 saatte dolar${pool.gold > 0 ? '' : ' — şu an boş'}.`
+        : `Bağımsız bir yerleşim (gerçek oyuncu değil). Yağmalanınca toparlanır ve bir seviye güçlenir; hazinesi 45 dakikada dolar${pool.gold > 0 ? '' : ' — şu an boş'}.`}</p>
     </article>
 
     <section className="empire-section">
@@ -150,6 +173,8 @@ export function NpcPanel({ empire, npcId, now, onSpy, onRaid }: {
       {busy('raid') && <p className="requirement"><Clock3 className="size-4" />Bu hedefe giden bir ordu yolda.</p>}
     </section>
 
+    {rival && <RivalWar empire={empire} rivalId={npcId} onOccupy={onOccupy} onBlockade={onBlockade} />}
+    {rival && <RivalDiplomacy empire={empire} rivalId={npcId} now={now} run={run} />}
     {lastRaid && <section className="empire-section">
       <h3>Son sefer</h3>
       <p className={lastRaid.success ? 'report-win' : 'report-loss'}>{lastRaid.title}</p>

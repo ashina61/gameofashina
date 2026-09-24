@@ -82,10 +82,16 @@ export function useGame() {
     if (result.error) return result.error
     commit(result.empire)
   }
+  /** İmparatorluk düzeyinde herhangi bir işlem (diplomasi, pazar, işgal...). */
+  function run(op: (e: Empire, now: number) => { empire: Empire; error?: string }): string | undefined {
+    const result = op(load(), Date.now())
+    if (result.error) return result.error
+    commit(result.empire)
+  }
   function reset() {
     corrupt = false
     warning = ''
     commit(initialEmpire(Date.now()))
   }
-  return { game, empire: data, command, selectCity, colonize, sendCargo, spy, raid, piracy, reset, warning }
+  return { game, empire: data, command, selectCity, colonize, sendCargo, spy, raid, piracy, run, reset, warning }
 }
