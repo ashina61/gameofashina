@@ -19,6 +19,7 @@ function addStock(g: Game, c: Cargo, n: number) { if (isLuxury(c)) g.luxury[c] +
 export { ISLANDS, type IslandId } from './islands'
 import { ISLANDS, type IslandId } from './islands'
 import { ensureDaily, parseDaily, type Daily } from './daily'
+import { advanceWorld, parseWorld, type World } from './rivals'
 import { advanceMissions, advanceThreats, committedUnits, parseMissionState, type Mission, type NpcState, type Report, type Threat } from './expeditions'
 export const COLONY_COST = { gold: 900, wood: 1200, stone: 450 } as const
 const COLONY_SHIPS = 3
@@ -47,6 +48,8 @@ export type Empire = {
   stats?: { raids: number; spies: number; piracy: number; shipments: number }
   /** Günlük görevler ve giriş serisi. */
   daily?: Daily
+  /** Yapay rakip hükümdarlar, ittifak, mesajlar, pazar. */
+  world?: World
 }
 
 export function initialEmpire(now: number): Empire {
@@ -111,9 +114,10 @@ export function parseEmpire(raw: string): Empire {
   const st = obj.stats
   if (st !== undefined && !(['raids', 'spies', 'piracy', 'shipments'] as const).every(k => finite(st?.[k]))) throw new Error('Sayaç kaydı okunamadı.')
   const daily = parseDaily(obj.daily)
+  const worldState = parseWorld(obj.world, ids)
   return {
     version: 1, activeCityId: obj.activeCityId, cities, shipments, nextId: obj.nextId, ...extra,
-    ...(st ? { stats: { ...st } } : {}), ...(daily ? { daily } : {}),
+    ...(st ? { stats: { ...st } } : {}), ...(daily ? { daily } : {}), ...(worldState ? { world: worldState } : {}),
   }
 }
 
@@ -161,6 +165,7 @@ export function advanceEmpire(source: Empire, now: number): Empire {
   advanceMissions(empire, now)
   advanceThreats(empire, now)
   ensureDaily(empire, now)
+  advanceWorld(empire, now)
   return empire
 }
 
