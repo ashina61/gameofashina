@@ -725,3 +725,51 @@
 .raid-summary svg { color: var(--gold); }
 .game-island .side-actions, .game-island .map-top-tools, .game-island .weather { display: none; }
 .npc-panel h3 { display: flex; align-items: center; gap: 8px; }
+
+/* =========================================================================
+ * BOYALI ARAYÜZ (painted-hud.tsx) — assets/source/painted'dan hazırlanan
+ * çerçevelerin üstüne canlı değerler. Genişlik ekranla ölçeklenir; yazı
+ * boyutları panelin genişliğine (--hud-w) bağlıdır.
+ * ========================================================================= */
+.game-shell .imperial-brand, .game-shell .player-card, .game-shell .resource-bar, .game-shell .weather { display: none; }
+.painted-hud { --hud-w: min(100vw - 8px, 560px); position: fixed; z-index: 4; top: calc(env(safe-area-inset-top, 0px) + 4px); left: 50%; transform: translateX(-50%); width: var(--hud-w); aspect-ratio: 2158 / 524; pointer-events: none; filter: drop-shadow(0 6px 10px #0008); }
+.painted-hud-bg { position: absolute; inset: 0; width: 100%; height: 100%; }
+.painted-hud button, .painted-hud span { font-variant-numeric: lining-nums tabular-nums; position: absolute; pointer-events: auto; color: #fff4dc; font-family: var(--font-heading), Georgia, serif; text-shadow: 0 1px 2px #000c; line-height: 1; background: none; border: 0; padding: 0; white-space: nowrap; }
+.hud-portrait { left: 1%; top: 2%; width: 13%; height: 72%; border-radius: 50%; }
+.hud-level { left: 13.5%; top: 59.9%; transform: translate(-50%, -50%); font-size: calc(var(--hud-w) * .028); font-weight: 700; }
+.hud-might { left: 20.7%; top: 49.2%; transform: translateY(-50%); font-size: calc(var(--hud-w) * .036); font-weight: 700; }
+.hud-city { left: 83.2%; top: 30.3%; width: 11.8%; transform: translateY(-50%); font-size: calc(var(--hud-w) * .024); text-align: center; overflow: hidden; text-overflow: ellipsis; }
+.hud-date { left: 79.8%; top: 50.2%; width: 12%; transform: translateY(-50%); font-size: calc(var(--hud-w) * .027); text-align: center; }
+.hud-res { top: 80.9%; height: 12.2%; display: flex; align-items: baseline; gap: 4px; font-size: calc(var(--hud-w) * .036); font-weight: 700; font-variant-numeric: tabular-nums; }
+.hud-res small { font-size: calc(var(--hud-w) * .02); font-weight: 600; color: #a6e27a; }
+.hud-res-full { color: #ff9a86 !important; }
+
+.painted-nav { --nav-w: min(100vw - 4px, 560px); position: fixed; z-index: 4; left: 50%; bottom: calc(env(safe-area-inset-bottom, 0px) + 2px); transform: translateX(-50%); width: var(--nav-w); aspect-ratio: 2162 / 470; pointer-events: auto; filter: drop-shadow(0 -4px 10px #0007); }
+.painted-nav > img { position: absolute; inset: 0; width: 100%; height: 100%; }
+.painted-nav-cell { position: absolute; top: 16%; height: 80%; background: none; border: 0; border-radius: 10px; }
+.painted-nav-cell:first-of-type { top: 0; height: 100%; }
+.painted-nav-active::after { content: ''; position: absolute; inset: 6% 5%; border-radius: 12px; background: radial-gradient(ellipse at 50% 45%, #f5d27a55, transparent 70%); box-shadow: inset 0 0 0 2px #f1cf7f88; pointer-events: none; }
+.painted-nav-cell:focus-visible { outline: 2px solid var(--gold); outline-offset: -3px; }
+.painted-badge { position: absolute; transform: translate(-50%, -50%); color: #fff; font-weight: 800; font-size: 13px; line-height: 1; font-family: var(--font-heading), Georgia, serif; text-shadow: 0 1px 2px #000a; pointer-events: none; }
+.painted-nav-badge { top: 14%; left: 78%; min-width: 20px; padding: 3px 5px; border-radius: 10px; background: #b8231c; border: 1px solid #f1cf7f; }
+
+.painted-side { position: fixed; z-index: 3; right: 6px; top: calc(env(safe-area-inset-top, 0px) + (min(100vw - 8px, 560px) * .243) + 14px); display: flex; flex-direction: column; gap: 4px; pointer-events: auto; }
+.painted-side button { position: relative; width: 62px; background: none; border: 0; padding: 0; filter: drop-shadow(0 4px 6px #0008); }
+.painted-side img { display: block; width: 100%; height: auto; }
+.painted-side .painted-badge { font-size: 12px; }
+
+.painted-quest { position: fixed; z-index: 3; left: 6px; top: calc(env(safe-area-inset-top, 0px) + (min(100vw - 8px, 560px) * .243) + 14px); width: min(58vw, 300px); aspect-ratio: 520 / 154; background: none; border: 0; padding: 0; text-align: left; pointer-events: auto; filter: drop-shadow(0 4px 8px #0008); }
+.painted-quest img { position: absolute; inset: 0; width: 100%; height: 100%; }
+.painted-quest-text { position: absolute; left: 33%; right: 13%; top: 18%; bottom: 36%; display: flex; align-items: center; color: #fff1d6; font-size: 12px; line-height: 1.2; font-family: var(--font-heading), Georgia, serif; text-shadow: 0 1px 2px #000; overflow: hidden; }
+.painted-quest-count { font-variant-numeric: lining-nums; position: absolute; right: 14%; bottom: 14%; color: #f1d892; font-size: 11px; font-weight: 700; }
+.painted-quest-done .painted-quest-count { color: #9fe07a; }
+
+/* Boyalı panellere göre yeniden yerleşim. */
+.game-shell .advisor-bar { top: calc(env(safe-area-inset-top, 0px) + (min(100vw - 8px, 560px) * .243) + 14px + min(58vw, 300px) * .296 + 8px); }
+.game-shell .map-top-tools { top: calc(env(safe-area-inset-top, 0px) + (min(100vw - 8px, 560px) * .243) + 234px); bottom: auto; right: 16px; }
+.game-shell .map-top-tools button { width: 34px; height: 34px; }
+.game-shell .hud-ticker { bottom: calc(env(safe-area-inset-bottom, 0px) + min(100vw - 4px, 560px) * .217 + 8px); }
+.game-shell .bottom-navigation { display: none; }
+.island-view { padding-top: calc(env(safe-area-inset-top, 0px) + (min(100vw - 8px, 560px) * .243) + 16px); padding-bottom: calc(env(safe-area-inset-bottom, 0px) + min(100vw - 4px, 560px) * .217 + 60px); }
+.game-island .painted-quest { display: none; }
+.island-toolbar { padding-right: 76px; }

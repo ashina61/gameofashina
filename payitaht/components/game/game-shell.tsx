@@ -1,40 +1,26 @@
 'use client'
 
 import { useState } from 'react'
-import { MoonStar, Settings2, Bell, Crown, House, Hammer, BookOpen, Ship, ScrollText, ShieldCheck, Download, RotateCcw, HardDrive, WifiOff, Users, Sprout, Swords, Skull, X, Check } from 'lucide-react'
+import { Hammer, Download, RotateCcw, HardDrive, WifiOff, Skull, X, Check } from 'lucide-react'
 import { toast } from 'sonner'
 import { Toaster } from '@/components/ui/sonner'
 import { Button } from '@/components/ui/button'
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '@/components/ui/sheet'
 import { CityScene } from './city-scene'
 import { BuildingDetails, BuildingList, ResearchPanel, JournalPanel, PlotPicker, PeoplePanel, CitiesPanel, ArmyPanel, DiplomacyPanel, IslandPanel } from './game-panels'
-import { ResourceBar, ObjectiveCard, EconomyDetails, AdvisorBar } from './game-widgets'
+import { ObjectiveCard, EconomyDetails, AdvisorBar } from './game-widgets'
 import { IslandView, NpcPanel, ReportsPanel } from './island-view'
+import { PaintedNav, QuestCard, SideButtons, TopHud, type NavKey } from './painted-hud'
 import { NPC_SETTLEMENTS } from '@/lib/game/expeditions'
 import { useGame } from '@/hooks/use-game'
 import { usePwa } from '@/hooks/use-pwa'
-import { BUILDINGS, cityDefense, contentment, idleWorkers, might, population, soldiers, formatNumber, type BuildingId, type Command } from '@/lib/game/engine'
+import { BUILDINGS, OBJECTIVES, objectiveDone, type BuildingId, type Command } from '@/lib/game/engine'
 import { cn } from '@/lib/utils'
 import { buildingImage } from '@/lib/asset'
 import { activeCity, islandOf, type IslandId } from '@/lib/game/empire'
 import type { Cargo } from '@/lib/game/empire'
 
 type Panel = 'build' | 'research' | 'journal' | 'settings' | 'economy' | 'objectives' | 'people' | 'cities' | 'army' | 'diplomacy' | 'island' | 'reports' | null
-/*
- * ALT MENU DORT OGE.
- *
- * Bes ogeyi tam genislige yaymak, ekranin altindan bir serit kesiyordu.
- * Referansta alt menu ekranin yarisi kadar, ORTADA duran kucuk bir hap.
- * Gunluk, zaten bildirim dugmesi olan can kulaginin arkasina tasindi.
- */
-const navigation = [
-  { id: null, label: 'Şehir', icon: House },
-  { id: 'build', label: 'İnşa', icon: Hammer },
-  { id: 'army', label: 'Kışla', icon: Swords },
-  { id: 'research', label: 'Araştırma', icon: BookOpen },
-  { id: 'cities', label: 'Ticaret', icon: Ship },
-  { id: 'objectives', label: 'Görevler', icon: ScrollText },
-] as const
 export default function GameShell() {
   const { game, empire, command, selectCity, colonize, sendCargo, spy, raid, warning, reset } = useGame()
   /** Şehir sahnesi ya da ada görünümü. */
@@ -98,31 +84,28 @@ export default function GameShell() {
     toast.success('Nakliye gemileri yola çıktı.')
   }
   function target() { if (!game) return; if (game.buildings.divan < 2) openBuilding('divan'); else if (!game.buildings.medrese) openBuilding('medrese'); else openPanel('research') }
+  /** Posta: son bakıştan beri gelen raporlar (cihazda hatırlanır). */
+  const [seenReports, setSeenReports] = useState(() => { try { return Number(localStorage.getItem('payitaht-reports-seen') ?? 0) } catch { return 0 } })
+  const cityReports = empire ? (empire.reports ?? []).filter(r => r.cityId === empire.activeCityId) : []
+  const unseenReports = cityReports.filter(r => r.time > seenReports).length
+  function openReports() {
+    const latest = Math.max(seenReports, ...cityReports.map(r => r.time))
+    setSeenReports(latest)
+    try { localStorage.setItem('payitaht-reports-seen', String(latest)) } catch { /* yalnızca bu oturum */ }
+    openPanel('reports')
+  }
+  const claimable = game ? OBJECTIVES.filter(o => !game.claimed.includes(o.id) && objectiveDone(game, o.id)).length : 0
+  const navActive: NavKey | null = buildMode ? 'build'
+    : panel === 'army' || panel === 'research' || panel === 'cities' || panel === 'objectives' ? panel
+      : !panel && !selected && plot === null && !npc && view === 'city' ? 'city' : null
   const titles: Record<Exclude<Panel, null>, string> = { build: 'Şehrini büyüt', research: 'İlim ve keşif', journal: 'Şehir günlüğü', settings: 'Oyun ayarları', economy: 'Hazine ve üretim', objectives: 'Bir şehrin doğuşu', people: 'Şehrin halkı', cities: 'Şehirlerin', army: 'Ordu ve donanma', diplomacy: 'Diplomasi', island: 'Ada ve maden', reports: 'Savaş ve casus raporları' }
   return <main className={cn('game-shell', view === 'island' && 'game-island')}>
-    <div className="imperial-brand" aria-hidden="true">Payitaht</div>
     {/*
-      * OYUNCU KARTI, sol ustte yuzer.
-      *
-      * Eskiden burada tam genislikte bir baslik seridi vardi ve altinda yine
-      * tam genislikte bir kaynak seridi: ikisi ekranin %16'sini yiyordu ve
-      * dunyayi bir bant gibi kesiyordu. Referans oyunlarin hepsinde arayuz
-      * KOSELERDE yuzen kutulardir; dunya kenardan kenara gorunur.
+      * BOYALI ÜST PANEL (painted-hud.tsx): portre, kudret, şehir, tarih ve
+      * beş kaynak tek çerçevede. Eski oyuncu kartı ve kaynak şeridinin yerini alır.
       */}
-    <div className="player-card">
-      <button className="player-face" onClick={() => openPanel('objectives')} aria-label="Şehir hedefleri">
-        <Crown strokeWidth={1.5} />
-        <span>{game?.buildings.divan ?? 1}</span>
-      </button>
-      <div className="player-copy">
-        <strong>{currentCityName}</strong>
-        <span>{game ? `${population(game)} nüfus · ${game.claimed.length}/3 hedef` : 'Şehrin uyanıyor'}</span>
-      </div>
-      {game && <button className="player-power" onClick={() => openPanel('army')} aria-label={`Şehir gücü ${formatNumber(might(game))}`}><Swords aria-hidden="true" /><span>{formatNumber(might(game))}</span></button>}
-      <button className="player-icon" aria-label="Şehir bildirimleri" onClick={() => openPanel('journal')}><Bell /><i /></button>
-      <button className="player-icon" aria-label="Oyun ayarları" onClick={() => openPanel('settings')}><Settings2 /></button>
-    </div>
-    {game ? <><ResourceBar game={game} onSelect={() => openPanel('economy')} /><AdvisorBar game={game} active={panel} onSelect={openPanel} /><div className="game-body"><div className="city-column"><CityScene key={empire?.activeCityId} game={game} placing={buildMode || plot !== null || moving !== null} onBuilding={openBuilding} onPlot={openPlot} onRoad={cell => act({ type: 'road', cell })} moving={moving} movePlot={movePlot} onMine={() => { setSelected(null); setPlot(null); setPanel('island') }} onMovePlot={setMovePlot} onExitBuild={() => setBuildMode(false)} onOpenList={() => openPanel('build')} />{view === 'island' && empire && <IslandView empire={empire} now={game.updatedAt} onCity={() => setView('city')} onMine={() => { setNpc(null); setPanel('island') }} onNpc={id => { setPanel(null); setSelected(null); setPlot(null); setNpc(id) }} onReports={() => setPanel('reports')} />}</div></div>
+    {game && <TopHud game={game} cityName={currentCityName} onEconomy={() => openPanel('economy')} onArmy={() => openPanel('army')} onProfile={() => openPanel('settings')} onCities={() => openPanel('cities')} />}
+    {game ? <><QuestCard game={game} onOpen={() => openPanel('objectives')} /><SideButtons reports={unseenReports} rewards={claimable} onPosta={openReports} onEvents={() => openPanel('journal')} onRewards={() => openPanel('objectives')} /><AdvisorBar game={game} active={panel} onSelect={openPanel} /><div className="game-body"><div className="city-column"><CityScene key={empire?.activeCityId} game={game} placing={buildMode || plot !== null || moving !== null} onBuilding={openBuilding} onPlot={openPlot} onRoad={cell => act({ type: 'road', cell })} moving={moving} movePlot={movePlot} onMine={() => { setSelected(null); setPlot(null); setPanel('island') }} onMovePlot={setMovePlot} onExitBuild={() => setBuildMode(false)} onOpenList={() => openPanel('build')} />{view === 'island' && empire && <IslandView empire={empire} now={game.updatedAt} onCity={() => setView('city')} onMine={() => { setNpc(null); setPanel('island') }} onNpc={id => { setPanel(null); setSelected(null); setPlot(null); setNpc(id) }} onReports={() => setPanel('reports')} />}</div></div>
       {/* TAŞIMA ONAY ŞERİDİ — referanstaki yeşil ✓/✗. */}
       {moving && <div className="move-confirm">
         <span className="move-confirm-title">{BUILDINGS[moving].name} taşınıyor</span>
@@ -145,7 +128,11 @@ export default function GameShell() {
         <span className="hud-ticker-tag">GÜNLÜK</span>
         <span className="hud-ticker-text">{game.log[0]?.text ?? `${currentCityName} sessiz.`}</span>
       </button></> : <div className="game-loading"><img src={buildingImage('divan', 8)} alt="" width={150} height={150} /><h1>Şehrin uyanıyor…</h1><p>Sahilhisar kapılarını açıyor.</p></div>}
-    <nav className="bottom-navigation" aria-label="Oyun menüsü"><div className="nav-items">{navigation.map(item => { const Icon = item.icon; const active = item.id === 'build' ? buildMode : item.id === panel && !selected; return <button key={item.label} className={cn('nav-item', active && 'nav-active')} aria-current={active ? 'page' : undefined} onClick={() => { if (item.id === 'build') { setPanel(null); setSelected(null); setPlot(null); setBuildMode(v => !v) } else openPanel(item.id) } }><Icon strokeWidth={1.6} /><span>{item.label}</span>{active && <span className="nav-indicator" />}</button> })}</div></nav>
+    <PaintedNav active={navActive} badges={{ objectives: claimable }} onSelect={key => {
+      if (key === 'city') { setPanel(null); setSelected(null); setPlot(null); setNpc(null); setBuildMode(false); setView('city') }
+      else if (key === 'build') { setPanel(null); setSelected(null); setPlot(null); setBuildMode(v => !v) }
+      else openPanel(key)
+    }} />
     <Sheet open={!!panel || !!selected || plot !== null || npc !== null} onOpenChange={open => { if (!open) { setPanel(null); setSelected(null); setPlot(null); setNpc(null) } }}><SheetContent side="bottom" className="game-sheet"><SheetHeader><span className="eyebrow">PAYİTAHT ADALARI</span><SheetTitle>{npc ? NPC_SETTLEMENTS.find(n => n.id === npc)?.name : selected ? BUILDINGS[selected].name : plot !== null ? 'Boş arsa' : panel ? titles[panel] : 'Şehrin'}</SheetTitle><SheetDescription>{npc ? 'Adadaki bağımsız yerleşim: casus gönder ya da sefere çık.' : selected ? 'Şehrine değer katan bir adım daha.' : plot !== null ? 'Bu arsaya hangi yapıyı kuracaksın?' : panel === 'build' ? 'Her yapı, yeni bir başlangıç.' : panel === 'research' ? 'İlim, şehrinin en değerli hazinesidir.' : panel === 'people' ? 'Emeği nereye ayıracağına sen karar ver.' : panel === 'army' ? 'Asker halktan çıkar. Bedelini bilerek öde.' : panel === 'cities' ? 'Hükmünün altındaki her şehir.' : panel === 'diplomacy' ? 'Komşularınla konuşmanın kapısı.' : panel === 'island' ? 'Adanın lüks kaynağı, madeni ve tüccarı.' : `${currentCityName} · Kendi hikâyeni inşa et.`}</SheetDescription></SheetHeader><div className="sheet-body">{game && <>{selected && <BuildingDetails game={game} id={selected} onBuild={id => act({ type: 'build', id })} onFlip={id => act({ type: 'flip', id })} onMove={startMove} />}{plot !== null && <PlotPicker game={game} plot={plot} onBuild={(id, at) => { act({ type: 'build', id, plot: at }); setPlot(null) }} />}{panel === 'people' && <PeoplePanel game={game} onAssign={(id, value) => act({ type: 'workers', id, value })} />}{panel === 'cities' && empire && <CitiesPanel game={game} empire={empire} onBuilding={openBuilding} onSelectCity={visitCity} onColonize={foundIsland} onCargo={dispatchCargo} />}{panel === 'army' && <ArmyPanel game={game} onRecruit={(id, count) => act({ type: 'recruit', id, count })} onBuild={openBuilding} />}{panel === 'diplomacy' && <DiplomacyPanel game={game} onBuild={openBuilding} />}{panel === 'island' && empire && <IslandPanel game={game} islandName={islandOf(activeCity(empire)).name} onMiners={value => act({ type: 'miners', value })} onDonate={amount => act({ type: 'donate', amount })} onTrade={(id, side, amount) => act({ type: 'trade', id, side, amount })} />}{npc && empire && <NpcPanel empire={empire} npcId={npc} now={game.updatedAt} onSpy={count => { const e = spy(npc, count); if (e) toast.error(e); else toast.success('Casuslar yola çıktı.') }} onRaid={units => { const e = raid(npc, units); if (e) toast.error(e); else { toast.success('Ordu sefere çıktı.'); setNpc(null) } }} />}{panel === 'reports' && empire && <ReportsPanel empire={empire} />}{panel === 'build' && <BuildingList game={game} onSelect={openBuilding} />}{panel === 'research' && <ResearchPanel game={game} onResearch={id => act({ type: 'research', id })} />}{panel === 'journal' && <JournalPanel game={game} />}{panel === 'economy' && <EconomyDetails game={game} />}{panel === 'objectives' && <ObjectiveCard game={game} onClaim={id => act({ type: 'claim', id })} onBuild={target} />}{panel === 'settings' && <div className="settings-panel"><section><h3><HardDrive /> Cihazda kayıt</h3><p>İlerlemen otomatik kaydedilir. Tarayıcı verilerini silersen şehrin de silinir. Hesap ve bulut kaydı bu prototipte yoktur.</p>{warning && <p role="alert" className="storage-warning">{warning}</p>}</section><section><h3><Download /> Şehrin hep yanında</h3><p>{installed ? 'Oyun ana ekranından çalışıyor.' : 'Ana ekrana ekle, uygulama gibi oyna. Safari’de Paylaş → Ana Ekrana Ekle; Android’de tarayıcı menüsü → Uygulamayı yükle.'}</p>{installAvailable && <Button onClick={install}><Download data-icon="inline-start" /> Uygulamayı yükle</Button>}<p className="fine-print"><WifiOff className="size-3" />{offlineReady ? 'Çevrimdışı oyun hazır. Bu cihazda internetsiz açabilirsin.' : 'Çevrimdışı açılış, yayınlanan uygulama ilk kez tamamen yüklendiğinde hazırlanır.'}</p></section><section><h3>Yeni bir hikâye</h3><p>Şehrin, kaynakların ve araştırmaların sıfırlanır. Bu işlem geri alınamaz.</p>{confirmReset ? <div className="flex gap-3"><Button variant="destructive" onClick={() => { reset(); setConfirmReset(false); toast.success('Yeni şehrin kuruldu.') }}>Evet, şehrimi sıfırla</Button><Button variant="outline" onClick={() => setConfirmReset(false)}>Vazgeç</Button></div> : <Button variant="outline" onClick={() => setConfirmReset(true)}><RotateCcw data-icon="inline-start" /> Yeni oyun başlat</Button>}</section></div>}</>}</div></SheetContent></Sheet>
     {warning && <button className="save-warning" onClick={() => openPanel('settings')}>Kayıt uyarısı · Ayrıntıları gör</button>}<Toaster theme="dark" position="top-center" richColors closeButton />
   </main>

@@ -28,7 +28,8 @@ export function CityScene({ game, placing, onBuilding, onPlot, onRoad, moving, m
   onExitBuild: () => void
   onOpenList: () => void
 }) {
-  const [labels, setLabels] = useState(false)
+  // Boyalı etiketler (seviye dairesi + isim plakası) varsayılan olarak açık; bayrak kapatır.
+  const [labels, setLabels] = useState(true)
   const controls = useRef<CityControls | null>(null)
 
   return <section className="city-scene" aria-label="Sahilhisar şehir haritası">

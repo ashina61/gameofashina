@@ -88,6 +88,10 @@ export class CityScene extends Phaser.Scene {
     for (const lux of ['uzum', 'mermer', 'kristal', 'kukurt']) {
       if (!this.textures.exists('mine-' + lux)) this.load.image('mine-' + lux, asset(`/images/game/buildings/mine-${lux}.webp`))
     }
+    // Boyalı arayüz parçaları (tools/art/import-ui.py).
+    if (!this.textures.exists('ui_plate')) this.load.image('ui_plate', asset('/images/ui/plate.webp'))
+    if (!this.textures.exists('ui_timer')) this.load.image('ui_timer', asset('/images/ui/timer-frame.webp'))
+    if (!this.textures.exists('ui_up')) this.load.image('ui_up', asset('/images/ui/icon-up.webp'))
     if (!this.textures.exists('b_scaffold')) this.load.image('b_scaffold', asset('/images/game/buildings/scaffold.webp'))
     preloadTerrain(this)
     if (!this.textures.exists('w_tower')) this.load.image('w_tower', asset('/images/game/walls/tower-round.png'))
@@ -262,6 +266,11 @@ export class CityScene extends Phaser.Scene {
 
   update(_time: number, delta: number) {
     this.stepWalkers(Math.min(delta, 100) / 1000)
+    this.timers = this.timers.filter(t => t.bar.active)
+    this.hudItems = this.hudItems.filter(h => h.c.active)
+    const zoom = this.cameras.main.zoom
+    if (zoom !== this.lastHudZoom) { this.lastHudZoom = zoom; for (const h of this.hudItems) this.fitHudItem(h) }
+    for (const t of this.timers) this.paintTimer(t)
     if (Math.abs(this.velocity.x) < 0.08 && Math.abs(this.velocity.y) < 0.08) return
     if (this.input.activePointer.isDown) return
     const cam = this.cameras.main
@@ -688,16 +697,95 @@ export class CityScene extends Phaser.Scene {
 
     // Normal şehir görünümünde UI bina sanatının üstüne binmez.
     // Seviye rozeti yalnızca etiketler açıldığında veya inşaat aktifken görünür.
+    // Boyalı etiket: seviye dairesi + isim plakası (binanın alt yarısında, her şeyin üstünde).
     if (this.showLabels || active) {
-      this.pieces.push(this.makeBadge(
-        anc.x + dispW * 0.18, anc.baseY - TILE.h * 0.38,
-        level, anc.baseY + 0.4, active,
-      ))
+      this.pieces.push(this.makePaintedLabel(anc.x, anc.baseY - dispH * 0.30, level, BUILDINGS[id].name, 1e6 + anc.baseY))
     }
-    if (this.showLabels) this.pieces.push(this.makeLabel(
-      anc.x, anc.baseY + TILE.h * 0.92,
-      BUILDINGS[id].name, anc.baseY + 0.5, active,
-    ))
+    // İnşaat sürüyorsa altında süre çubuğu (çekiç, ilerleme, kalan süre, yeşil ok).
+    const job = activeJob(this.state)
+    if (active && job) this.pieces.push(this.makeTimer(anc.x, anc.baseY + TILE.h * 0.15, job.start, job.end, 1e6 + anc.baseY + 1))
+  }
+
+  /** Canvas yazıları için sayfanın başlık fontu (next/font değişkeninden). */
+  private headingFont() {
+    if (!this.fontCache) {
+      const css = typeof document !== 'undefined' ? getComputedStyle(document.body).getPropertyValue('--font-heading').trim() : ''
+      const body = typeof document !== 'undefined' ? getComputedStyle(document.body).getPropertyValue('--font-body').trim() : ''
+      this.fontCache = { heading: css || 'Georgia, serif', body: body || 'system-ui, sans-serif' }
+    }
+    return this.fontCache
+  }
+  private fontCache: { heading: string; body: string } | null = null
+
+  /** Boyalı plaka: sol daire (seviye) + esneyen gövde (isim) + sağ uç. */
+  private makePaintedLabel(x: number, y: number, level: number, name: string, depth: number) {
+    const f = this.headingFont()
+    const nameText = this.add.text(150, 0, name, { fontFamily: f.heading, fontSize: '50px', color: '#fff4dc', fontStyle: '700' })
+      .setOrigin(0, 0.5).setResolution(2).setShadow(0, 2, '#000000', 3, false, true)
+    const w = Math.round(150 + nameText.width + 46)
+    const parts: Phaser.GameObjects.GameObject[] = []
+    if (this.textures.exists('ui_plate')) {
+      parts.push(this.add.nineslice(0, 0, 'ui_plate', undefined, w, 140, 140, 32, 0, 0).setOrigin(0, 0.5))
+    } else {
+      const g = this.add.graphics(); g.fillStyle(0x14281f, 0.92); g.fillRoundedRect(0, -45, w, 90, 12); parts.push(g)
+    }
+    const lvl = this.add.text(64, 1, String(level), { fontFamily: f.body, fontSize: '52px', color: '#f5dc9a', fontStyle: '800' })
+      .setOrigin(0.5, 0.5).setResolution(2).setShadow(0, 2, '#000000', 3, false, true)
+    parts.push(nameText, lvl)
+    const c = this.add.container(x, y, parts).setDepth(depth)
+    this.hudItems.push({ c, width: w, height: 140, css: 22 })
+    this.fitHudItem(this.hudItems[this.hudItems.length - 1])
+    return c
+  }
+
+  /*
+   * Etiket ve sayaçlar EKRANDA sabit boyda kalır (Ikariam'daki gibi): uzak
+   * görünümde okunur, yakında binayı örtmez. Tuval cihaz pikselindedir
+   * (city-canvas: zoom 1/dpr), yani ekranda 1 CSS pikseli = dpr / kamera zoom'u
+   * dünya birimi.
+   */
+  private hudItems: { c: Phaser.GameObjects.Container; width: number; height: number; css: number }[] = []
+  private fitHudItem(h: { c: Phaser.GameObjects.Container; width: number; height: number; css: number }) {
+    const dpr = Math.min(2, (typeof window !== 'undefined' && window.devicePixelRatio) || 1)
+    const zoom = this.cameras.main.zoom || 1
+    const s = Math.min(0.6, (h.css * dpr) / zoom / h.height)
+    h.c.setScale(s)
+    // Konteyner sol kenardan kurulur; ortalamak için yarı genişlik kadar sola kayar.
+    const baseX = h.c.getData('baseX') ?? h.c.x
+    h.c.setData('baseX', baseX)
+    h.c.x = baseX - (h.width * s) / 2
+  }
+
+  /** Süre çubuğu; update() her karede ilerlemeyi ve kalan süreyi tazeler. */
+  private makeTimer(x: number, y: number, start: number, end: number, depth: number) {
+    const f = this.headingFont()
+    const parts: Phaser.GameObjects.GameObject[] = []
+    if (this.textures.exists('ui_timer')) parts.push(this.add.image(0, 0, 'ui_timer').setOrigin(0, 0.5))
+    const bar = this.add.graphics()
+    const text = this.add.text(285, 0, '', { fontFamily: f.body, fontSize: '40px', color: '#fff4dc', fontStyle: '700' })
+      .setOrigin(0.5, 0.5).setResolution(2).setShadow(0, 2, '#000000', 3, false, true)
+    parts.splice(1, 0, bar)
+    parts.push(text)
+    if (this.textures.exists('ui_up')) parts.push(this.add.image(410, 0, 'ui_up').setScale(0.7))
+    const c = this.add.container(x, y, parts).setDepth(depth)
+    this.hudItems.push({ c, width: 478, height: 100, css: 20 })
+    this.fitHudItem(this.hudItems[this.hudItems.length - 1])
+    this.timers.push({ bar, text, start, end })
+    this.paintTimer(this.timers[this.timers.length - 1])
+    return c
+  }
+  private lastHudZoom = 0
+  private timers: { bar: Phaser.GameObjects.Graphics; text: Phaser.GameObjects.Text; start: number; end: number }[] = []
+  private paintTimer(t: { bar: Phaser.GameObjects.Graphics; text: Phaser.GameObjects.Text; start: number; end: number }) {
+    if (!t.bar.active) return
+    const now = Date.now()
+    const p = Math.max(0, Math.min(1, (now - t.start) / Math.max(1, t.end - t.start)))
+    t.bar.clear()
+    t.bar.fillStyle(0x3f8f1c, 1); t.bar.fillRect(98, -32, 346 * p, 64)
+    t.bar.fillStyle(0x9be04a, 1); t.bar.fillRect(98, -32, 346 * p, 26)
+    const left = Math.max(0, Math.ceil((t.end - now) / 1000))
+    const h = Math.floor(left / 3600), m = Math.floor((left % 3600) / 60), sec = left % 60
+    t.text.setText(h > 0 ? `${h}sa ${m}dk` : m > 0 ? `${m}dk ${sec}sn` : `${sec}sn`)
   }
 
   /** BOŞ ARSA: normal şehir görünümünde yalnızca zemin görünür.
@@ -757,34 +845,5 @@ export class CityScene extends Phaser.Scene {
     g.fillStyle(0x5dff86, 0.16); g.fillPoints(this.diamond(x, y, w, h), true)
     g.lineStyle(3, 0x74ff92, 0.95); g.strokePoints(this.diamond(x, y, w, h), true)
     this.pieces.push(g)
-  }
-
-  private makeLabel(x: number, y: number, text: string, depth: number, active: boolean) {
-    const label = this.add.text(0, 0, text, {
-      fontFamily: 'system-ui, -apple-system, "Segoe UI", Roboto, sans-serif',
-      fontSize: '18px', color: '#fff2d8', fontStyle: '600',
-    }).setOrigin(0.5, 0.5).setResolution(2)
-    const padX = 10, padY = 6
-    const w = label.width + padX * 2, h = label.height + padY * 2
-    const plate = this.add.graphics()
-    plate.fillStyle(active ? 0x5a4728 : 0x14281f, 0.92)
-    plate.fillRoundedRect(-w / 2, -h / 2, w, h, 5)
-    plate.lineStyle(3, 0xc5aa72, active ? 1 : 0.55)
-    plate.strokeRoundedRect(-w / 2, -h / 2, w, h, 5)
-    return this.add.container(x, y, [plate, label]).setDepth(depth)
-  }
-
-  private makeBadge(x: number, y: number, level: number, depth: number, active: boolean) {
-    const r = 11
-    const plate = this.add.graphics()
-    plate.fillStyle(active ? 0x5a4728 : 0x173127, 0.90)
-    plate.fillCircle(0, 0, r)
-    plate.lineStyle(1.4, 0xc5aa72, active ? 0.94 : 0.62)
-    plate.strokeCircle(0, 0, r)
-    const text = this.add.text(0, 0, String(level), {
-      fontFamily: 'system-ui, -apple-system, "Segoe UI", Roboto, sans-serif',
-      fontSize: '12px', color: '#f5e2b4', fontStyle: '700',
-    }).setOrigin(0.5, 0.5).setResolution(2)
-    return this.add.container(x, y, [plate, text]).setDepth(depth)
   }
 }
