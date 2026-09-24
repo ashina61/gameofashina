@@ -6,7 +6,7 @@
  * değer ile oyunun gerçekten uyguladığı değer asla ayrışmaz.
  */
 import {
-  BUILDING_EFFECTS, UNITS, UNIT_IDS, WORKERS_PER_LEVEL, capacity, contentment, corruption, drillBonus, housing,
+  BUILDING_EFFECTS, UNITS, UNIT_IDS, WORKERS_PER_LEVEL, capacity, contentment, corruption, drillBonus, exchangeLimit, exchangeRate, housing,
   merchantBuyPrice, merchantLimit, merchantSellPrice, tradeCapacity, wallDefense, type BuildingId, type Game,
 } from './engine'
 
@@ -101,6 +101,14 @@ export function effectLines(game: Game, id: BuildingId, level: number): EffectLi
       // Yolsuzluk 1 - (Valilik+1)/(koloni+1): Valilik seviyesi kadar koloniye kadar sıfırdır.
       { label: 'Yolsuzluksuz koloni sayısı', value: `${level}` },
       { label: 'Bu şehirde yolsuzluk', value: `%${Math.round(corruption(g) * 100)}` },
+    ]
+    case 'korsan_kalesi': return [
+      { label: 'Yağma ganimeti', value: `+${pct(level * E.korsanLoot)}` },
+      { label: 'Korsan seferi', value: level > 0 ? 'açık' : 'kapalı' },
+    ]
+    case 'kara_pazar': return [
+      { label: 'Takas oranı', value: `${exchangeRate(g)} : 1` },
+      { label: 'Takas partisi', value: `${num(exchangeLimit(g))} birim` },
     ]
   }
 }

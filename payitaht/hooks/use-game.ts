@@ -2,7 +2,7 @@
 
 import useSWR from 'swr'
 import { execute, type Command, type UnitId } from '@/lib/game/engine'
-import { dispatchRaid, dispatchSpies } from '@/lib/game/expeditions'
+import { dispatchPiracy, dispatchRaid, dispatchSpies } from '@/lib/game/expeditions'
 import {
   activeCity, advanceEmpire, foundColony, initialEmpire, parseEmpire,
   shipResources, type Cargo, type Empire, type IslandId,
@@ -77,10 +77,15 @@ export function useGame() {
     if (result.error) return result.error
     commit(result.empire)
   }
+  function piracy(targetId: string, units: Partial<Record<UnitId, number>>): string | undefined {
+    const result = dispatchPiracy(load(), targetId, units, Date.now())
+    if (result.error) return result.error
+    commit(result.empire)
+  }
   function reset() {
     corrupt = false
     warning = ''
     commit(initialEmpire(Date.now()))
   }
-  return { game, empire: data, command, selectCity, colonize, sendCargo, spy, raid, reset, warning }
+  return { game, empire: data, command, selectCity, colonize, sendCargo, spy, raid, piracy, reset, warning }
 }

@@ -12,7 +12,7 @@ import { luxuryIcons } from './game-widgets'
 import { effectLines } from '@/lib/game/building-info'
 import { actionPoints, armyUpkeep, merchantBuyPrice, merchantSellPrice, type UnitRole } from '@/lib/game/engine'
 import { Eye } from 'lucide-react'
-import { spyCapacity } from '@/lib/game/engine'
+import { spyCapacity, growthRate, maxPopulation } from '@/lib/game/engine'
 
 export function BuildingDetails({ game, id, onBuild, onFlip, onMove }: { game: Game; id: BuildingId; onBuild: (id: BuildingId) => void; onFlip: (id: BuildingId) => void; onMove: (id: BuildingId) => void }) {
   const b = BUILDINGS[id], level = game.buildings[id], reason = buildReason(game, id)
@@ -121,7 +121,7 @@ export function PeoplePanel({ game, onAssign }: { game: Game; onAssign: (id: Wor
   return <div className="people-panel">
     <div className="people-summary">
       <span className="eyebrow">ŞEHRİN HALKI</span>
-      <div><Users className="size-5" /><span>Nüfus</span><strong>{population(game)}</strong></div>
+      <div><Users className="size-5" /><span>Nüfus</span><strong>{population(game)}<small className="people-cap"> / {maxPopulation(game)}</small></strong></div>
       <div><UserRound className="size-5" /><span>Boşta</span><strong className={idle === 0 ? 'people-none' : undefined}>{idle}</strong></div>
       <div><House className="size-5" /><span>Barınma</span><strong>{housing(game)}</strong></div>
       <div><HeartHandshake className="size-5" /><span>Huzur</span><strong>{contentment(game)}</strong></div>
@@ -131,6 +131,7 @@ export function PeoplePanel({ game, onAssign }: { game: Game; onAssign: (id: Wor
       * kesfetmesi zor bir tavan: sayilar ayni ekranda dursa bile aradaki
       * ILISKI soylenmezse "neden nufusum artmiyor" sorusu cevapsiz kalir.
       */}
+    {growthRate(game) > 0 && <p className="fine-print" role="status"><Users className="size-3" /> Halk büyüyor: dakikada +{growthRate(game).toFixed(1)} kişi. Huzur fazlası büyümeyi hızlandırır.</p>}
     {unhoused > 0 && <p className="storage-alert" role="status"><TriangleAlert className="size-4" />Huzursuzluk yüzünden {unhoused} kişilik konak boş duruyor. Hamam kur ya da yükselt.</p>}
     {WORKER_IDS.map(id => {
       const capacity = workerCapacity(game, id)
@@ -158,7 +159,7 @@ export function PeoplePanel({ game, onAssign }: { game: Game; onAssign: (id: Wor
         </div>
       </article>
     })}
-    <p className="fine-print">Her yapı seviyesi {WORKERS_PER_LEVEL} işçi alır. Nüfus, barınma ve huzurdan hangisi küçükse ona eşittir. Boşta kalan halk üretim yapmaz; akçe ise halkın kendisinden gelir ve işçi istemez.</p>
+    <p className="fine-print">Her yapı seviyesi {WORKERS_PER_LEVEL} işçi alır. Nüfus, barınma ve huzurdan hangisi küçükse o tavana zamanla büyür. Boşta kalan halk üretim yapmaz; akçe ise halkın kendisinden gelir ve işçi istemez.</p>
   </div>
 }
 
@@ -171,7 +172,7 @@ export function PeoplePanel({ game, onAssign }: { game: Game; onAssign: (id: Wor
  * Kilidi acilmamis bir ozelligi gizlemek yerine gostermek, oyuncuya hedef verir.
  */
 export function CitiesPanel({
-  game, empire, onBuilding, onSelectCity, onColonize, onCargo,
+  game, empire, onBuilding, onSelectCity, onColonize, onCargo, onViewIsland,
 }: {
   game: Game
   empire: Empire
@@ -179,6 +180,7 @@ export function CitiesPanel({
   onSelectCity: (cityId: string) => void
   onColonize: (islandId: IslandId) => void
   onCargo: (cityId: string, resource: Cargo, amount: number) => void
+  onViewIsland: (islandId: IslandId) => void
 }) {
   const current = activeCity(empire)
   const [targetCity, setTargetCity] = useState('')
@@ -238,6 +240,7 @@ export function CitiesPanel({
                 {city.id === current.id ? 'Bu şehir' : 'Şehre git'}
               </Button>
               : <Button size="sm" disabled={!!missing} onClick={() => onColonize(island.id)}>Koloni kur</Button>}
+            <Button size="sm" variant="ghost" onClick={() => onViewIsland(island.id)}>Adayı gör</Button>
             {!city && missing && <small>{missing}</small>}
           </article>
         })}

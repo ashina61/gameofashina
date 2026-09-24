@@ -84,9 +84,9 @@ test('a weak army is repulsed by a fortress and brings nothing back', () => {
   assert.equal(npcState(arrived, kale).level, 6)
 })
 
-test('targets must be on the active city island', () => {
+test('targets on another island need a harbour and transports', () => {
   const e = army()
-  assert.match(dispatchRaid(e, 'zeytin-koy', { yeniceri: 1 }, now).error!, /kendi adandaki/)
+  assert.match(dispatchRaid(e, 'zeytin-koy', { yeniceri: 1 }, now).error!, /Ticaret Limanı/)
 })
 
 test('spies and an army may head to the same target at once, but not two armies', () => {

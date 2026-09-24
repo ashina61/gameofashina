@@ -774,3 +774,31 @@
 .game-island .painted-quest { display: none; }
 .island-toolbar { padding-right: 76px; }
 .unit-role { font-style: normal; font-size: 10px; font-weight: 600; letter-spacing: .04em; color: var(--gold); margin-left: 4px; text-transform: uppercase; }
+
+/* --- DENİZ, KORSAN, CAMİ, TOPHANE (ikariam-panels.tsx) ---------------------- */
+.island-select { max-width: 100%; font: inherit; font-size: 15px; font-weight: 700; color: #fff6e2; background: transparent; border: 0; padding: 0; text-shadow: 0 1px 3px #0009; }
+.island-select option { color: #1d1a14; }
+.island-spot:disabled { cursor: default; }
+.picker-heading { display: flex; align-items: center; gap: 6px; margin: 4px 0 0; font-size: 13px; font-weight: 700; }
+.upgrade-list { display: flex; flex-direction: column; gap: 6px; }
+.upgrade-row { display: grid; grid-template-columns: 1fr auto auto; gap: 6px; align-items: center; font-size: 13px; }
+.upgrade-row button { display: inline-flex; gap: 4px; font-variant-numeric: tabular-nums; }
+.upgrade-cost-hint { font-size: 10px; color: var(--muted-foreground); }
+.piracy-targets { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 8px; }
+.piracy-target { display: flex; flex-direction: column; gap: 3px; padding: 10px 12px; text-align: left; border: 1px solid var(--border); border-radius: var(--radius); background: var(--card); color: var(--foreground); cursor: pointer; }
+.piracy-target small { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 4px; font-size: 11px; color: var(--muted-foreground); }
+.piracy-target[aria-pressed="true"] { border-color: var(--gold); box-shadow: 0 0 0 1px var(--gold) inset; }
+.piracy-target:disabled { opacity: .55; cursor: not-allowed; }
+.people-cap { font-size: .7em; font-weight: 500; color: var(--muted-foreground); }
+.threat-banner { position: fixed; z-index: 4; left: 6px; top: calc(env(safe-area-inset-top, 0px) + (min(100vw - 8px, 560px) * .243) + (min(58vw, 300px) * .3) + 20px); max-width: min(72vw, 320px); display: flex; align-items: center; gap: 8px; padding: 8px 12px; border: 1px solid #f3b3a0; border-radius: 12px; background: #7d2419f0; color: #fff3ea; text-align: left; pointer-events: auto; box-shadow: 0 4px 12px #0008; animation: threat-pulse 1.6s ease-in-out infinite; }
+.threat-banner svg { flex-shrink: 0; width: 20px; height: 20px; color: #ffd27a; }
+.threat-banner span { display: flex; flex-direction: column; min-width: 0; line-height: 1.2; }
+.threat-banner strong { font-size: 13px; font-variant-numeric: tabular-nums; }
+.threat-banner small { font-size: 10.5px; color: #ffd9cc; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+@keyframes threat-pulse { 50% { box-shadow: 0 0 0 4px #e0543d55, 0 4px 12px #0008; } }
+@media (prefers-reduced-motion: reduce) { .threat-banner { animation: none; } }
+.game-island .threat-banner { display: none; }
+.empire-section > h3 { display: flex; align-items: center; gap: 8px; }
+.empire-section > h3 svg { flex-shrink: 0; color: var(--gold); }
+.island-toolbar .island-select { width: 100%; text-overflow: ellipsis; }
+.island-toolbar .island-title small { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }

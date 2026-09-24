@@ -17,8 +17,45 @@ export type LuxuryStock = Record<Luxury, number>
 export const LUXURY_NAMES: Record<Luxury, string> = { uzum: 'Üzüm', mermer: 'Mermer', kristal: 'Kristal', kukurt: 'Kükürt' }
 /** Adanın ortak madeni: seviye, bağışla biriken kereste ve maden işçileri. */
 export type IslandMine = { specialty: Luxury; level: number; wood: number; miners: number }
+/** Ana ya da lüks kaynak (Kara Pazar, nakliye). */
+export type Good = Resource | Luxury
+
+/**
+ * HARİKALAR VE MUCİZELER (Ikariam'ın ada harikaları ve tapınağı).
+ * Her adanın bir harikası vardır; harika bağışla yükselir, Cami'deki
+ * rahiplerin biriktirdiği inançla harikanın mucizesi çağrılır.
+ */
+export const MIRACLE_IDS = ['kalkan', 'bereket', 'ilim', 'savas', 'ruzgar', 'huzur', 'bolluk', 'demirci'] as const
+export type MiracleId = typeof MIRACLE_IDS[number]
+export const MIRACLES: Record<MiracleId, { wonder: string; name: string; effect: (level: number) => string }> = {
+  kalkan: { wonder: 'Kız Kulesi', name: 'Kalkan', effect: l => `Şehir savunması +%${10 * l}` },
+  bereket: { wonder: 'Bereket Bahçeleri', name: 'Bereket', effect: l => `Akçe, kereste ve taş üretimi +%${5 * l}` },
+  ilim: { wonder: 'Bilgelik Kütüphanesi', name: 'İlham', effect: l => `İlim üretimi +%${10 * l}` },
+  savas: { wonder: 'Ateş Ocağı', name: 'Cenk', effect: l => `Birliklerin saldırısı +%${5 * l}` },
+  ruzgar: { wonder: 'Denizciler Mabedi', name: 'Poyraz', effect: l => `Yolculuk süresi -%${8 * l}` },
+  huzur: { wonder: 'Huzur Çeşmesi', name: 'Huzur', effect: l => `Huzur +${40 * l}` },
+  bolluk: { wonder: 'Hasat Sofrası', name: 'Bolluk', effect: l => `Lüks kaynak üretimi +%${10 * l}` },
+  demirci: { wonder: 'Tophane-i Âmire', name: 'Demirci', effect: l => `Birlik eğitimi %${8 * l} hızlı` },
+}
+export type Temple = {
+  priests: number; faith: number
+  wonder: MiracleId; wonderLevel: number; wonderWood: number
+  active: MiracleId | null; until: number; cooldownUntil: number
+}
+export const WONDER_MAX = 5
+export function wonderCost(level: number) { return Math.round(2500 * 2 ** level) }
+export function miracleCost(level: number) { return 500 + 250 * level }
+export function miracleMinutes(level: number) { return 20 + 10 * level }
+export const MIRACLE_COOLDOWN_MS = 3 * 3600_000
+export const FAITH_CAP = 5000
+export function priestCapacity(g: Game) { return g.buildings.cami * 8 }
+/** O an etkin mucizenin gücü (seviye), yoksa 0. */
+export function miracle(g: Game, id: MiracleId) {
+  const t = g.temple
+  return t && t.active === id && g.updatedAt < t.until ? t.wonderLevel : 0
+}
 export const BUILDING_IDS = ['divan', 'saray', 'elcilik', 'konut', 'hamam', 'carsi', 'ambar', 'kereste', 'tas', 'medrese', 'kisla', 'surlar', 'liman', 'tersane', 'kahvehane', 'cami', 'muze', 'marangoz', 'mimar', 'ormanci', 'tasci', 'tophane',
-  'bagci', 'simyahane', 'camci', 'mahzen', 'gozlukcu', 'barutane', 'depo', 'ticaret_merkezi', 'harita_arsivi', 'valilik'] as const
+  'bagci', 'simyahane', 'camci', 'mahzen', 'gozlukcu', 'barutane', 'depo', 'ticaret_merkezi', 'harita_arsivi', 'valilik', 'korsan_kalesi', 'kara_pazar'] as const
 export type BuildingId = typeof BUILDING_IDS[number]
 export const RESEARCH_IDS = [
   'tools', 'storage', 'ticaret', 'architecture', 'alimler', 'celik',
@@ -103,6 +140,16 @@ export type Game = {
   luxury: LuxuryStock
   /** Şehrin adasındaki lüks kaynak madeni. */
   mine: IslandMine
+  /** Yetişkin halk: huzur ve barınma tavanına doğru ZAMANLA büyür (eski kayıtta yok = tavanda). */
+  citizens?: number
+  /** Cami rahipleri, inanç, adanın harikası ve mucize durumu. */
+  temple: Temple
+  /** Tophane'de birlik başına saldırı/zırh yükseltmeleri. */
+  upgrades: Partial<Record<UnitId, { atk: number; def: number }>>
+  /** Tekrarlanan "Gelecek" araştırmalarının seviyeleri. */
+  future: Record<ResearchBranch, number>
+  /** Korsan Kalesi seferlerinden kazanılan korsan şöhreti. */
+  piracy: number
   /**
    * İmparatorluk bilgisi (empire.ts her ilerlemede yazar): toplam şehir
    * sayısı ve bu şehir başkent mi. Tek şehirli oyunda yoktur = başkent.
@@ -192,6 +239,8 @@ export const BUILDINGS: Record<BuildingId, BuildingDef> = {
   depo: { name: 'Depo', category: 'DEPOLAMA', description: 'Ambarın yetmediği yerde. Her seviye her kaynağın saklama kapasitesine 2.500 ekler.', base: 150, art: true, tech: 'ambar_teknigi' },
   ticaret_merkezi: { name: 'Ticaret Merkezi', category: 'TİCARET', description: 'Tüccarların buluştuğu han. Her seviye tüccar partisini 200 artırır, alış fiyatını düşürür, satış fiyatını yükseltir.', base: 170, art: true, tech: 'ticaret', needs: { id: 'carsi', level: 3 } },
   harita_arsivi: { name: 'Harita Arşivi', category: 'LİMAN', description: 'Deniz haritaları ve portolanlar. Her seviye nakliye ve sefer yolculuğunu %2 kısaltır.', base: 180, art: true, tech: 'haritacilik' },
+  korsan_kalesi: { name: 'Korsan Kalesi', category: 'LİMAN', description: 'Deniz akıncılarının üssü. Tüccar kervanlarına korsan seferi açar; her seviye yağma ganimetini %10 artırır.', base: 260, art: true, needs: { id: 'tersane', level: 2 } },
+  kara_pazar: { name: 'Kara Pazar', category: 'TİCARET', description: 'Gizli takas: herhangi bir malı başka bir mala çevirir. Seviye yükseldikçe oran iyileşir ve parti büyür.', base: 190, art: true, needs: { id: 'carsi', level: 2 } },
   valilik: { name: 'Valilik', category: 'YÖNETİM', description: 'Kolonide Saray\'ın yerini tutar. Her seviye kolonideki yolsuzluğu azaltır; yalnızca kolonilerde kurulur.', base: 260, art: true, only: 'colony' },
   tophane: { name: 'Tophane', category: 'ASKERÎ', description: 'Top dökümü ve silah atölyesi. Her seviye bütün birliklerin saldırı ve savunmasını %2 artırır.', base: 220, art: true, needs: { id: 'kisla', level: 2 } },
 }
@@ -204,6 +253,7 @@ export const BUILDING_EFFECTS = {
   marangozWood: 0.01, mimarStone: 0.01,
   ormanciWood: 0.02, tasciStone: 0.02,
   tophanePower: 0.02,
+  korsanLoot: 0.1,
   bagciWine: 0.02, simyaSulfur: 0.02, camciCrystal: 0.02, mahzenWine: 0.01,
   gozlukcuCrystal: 0.01, barutaneSulfur: 0.01, depoStorage: 2500, harita: 0.02,
   merchantLimit: 200, merchantBuyStep: 0.25, merchantSellStep: 0.15,
@@ -362,6 +412,10 @@ export function initialGame(now: number): Game {
     luxury: { uzum: 0, mermer: 0, kristal: 0, kukurt: 0 },
     // Başkent Sahil Adası'nda: mermer yatağı. Koloniler kendi adasınınkini alır.
     mine: { specialty: 'mermer', level: 1, wood: 0, miners: 0 },
+    temple: { priests: 0, faith: 0, wonder: 'kalkan', wonderLevel: 0, wonderWood: 0, active: null, until: 0, cooldownUntil: 0 },
+    upgrades: {},
+    future: { ekonomi: 0, bilim: 0, askeri: 0, denizcilik: 0 },
+    piracy: 0,
     research: [], queue: [], study: null, drill: null, claimed: [],
     log: [{ text: 'Sahilhisar kuruldu. Hikâyen burada başlıyor.', time: now }],
   }
@@ -377,7 +431,7 @@ export function assignedWorkers(g: Game) { return WORKER_IDS.reduce((sum, id) =>
  * Askerler nufusun icindedir ama ISCI DEGILDIR: uretim yapmazlar ve baska bir
  * ise verilemezler. Bu yuzden bosta kalan halk hesabindan once onlar dusulur.
  */
-export function idleWorkers(g: Game) { return Math.max(0, population(g) - assignedWorkers(g) - g.mine.miners - soldiers(g)) }
+export function idleWorkers(g: Game) { return Math.max(0, population(g) - assignedWorkers(g) - g.mine.miners - (g.temple?.priests ?? 0) - soldiers(g)) }
 
 /** Egitimi SUREN birligin simdiden ayirdigi vatandas. */
 export function trainingPop(g: Game): number {
@@ -397,25 +451,31 @@ export function soldiers(g: Game): number {
 }
 
 /** Elindeki birliklerin toplam saldiri ve savunma gucu. */
+/** Tophane yükseltmesi: seviye başına birliğin saldırısı ya da zırhı +%5. */
+export function unitBonus(g: Game, id: UnitId) {
+  const u = g.upgrades?.[id]
+  return { atk: 1 + (u?.atk ?? 0) * 0.05, def: 1 + (u?.def ?? 0) * 0.05 }
+}
 export function power(g: Game, branch: 'kara' | 'deniz') {
   const base = UNIT_IDS.filter(id => UNITS[id].branch === branch).reduce(
-    (sum, id) => ({ attack: sum.attack + UNITS[id].attack * g.army[id] *
+    (sum, id) => ({ attack: sum.attack + UNITS[id].attack * g.army[id] * unitBonus(g, id).atk *
       (id === 'topcu' && g.research.includes('barut') ? 1.15 : 1),
-      defense: sum.defense + UNITS[id].defense * g.army[id] }),
+      defense: sum.defense + UNITS[id].defense * g.army[id] * unitBonus(g, id).def }),
     { attack: 0, defense: 0 })
   const atkTech = branch === 'kara' ? 'celik' : 'yelken'
   const attackBonus = g.research.includes(atkTech) ? 1.15 : 1
   const defenseTech = branch === 'kara' ? 'zirh' : 'gemi_govdesi'
   const defenseBonus = g.research.includes(defenseTech) ? (branch === 'kara' ? 1.10 : 1.12) : 1
-  const workshop = 1 + (g.buildings.tophane ?? 0) * BUILDING_EFFECTS.tophanePower
-  return { attack: Math.round(base.attack * attackBonus * workshop), defense: Math.round(base.defense * defenseBonus * workshop) }
+  const workshop = 1 + (g.buildings.tophane ?? 0) * BUILDING_EFFECTS.tophanePower + (g.future?.askeri ?? 0) * 0.02
+  const war = 1 + miracle(g, 'savas') * 0.05
+  return { attack: Math.round(base.attack * attackBonus * workshop * war), defense: Math.round(base.defense * defenseBonus * workshop) }
 }
 
 /** Surlarin asker gerektirmeyen savunmasi. İstihkâm araştırması %30 artırır. */
 export function wallDefense(g: Game) { return Math.round(g.buildings.surlar * 150 * (g.research.includes('istihkam') ? 1.3 : 1)) }
 
 /** Sehrin toplam savunmasi: surlar + kara birlikleri. */
-export function cityDefense(g: Game) { return wallDefense(g) + power(g, 'kara').defense }
+export function cityDefense(g: Game) { return Math.round((wallDefense(g) + power(g, 'kara').defense) * (1 + miracle(g, 'kalkan') * 0.1)) }
 
 /**
  * ŞEHİR GÜCÜ — tek bir "kudret" sayisi.
@@ -459,6 +519,11 @@ export function clampWorkers(g: Game): Workers {
   return out
 }
 /** Maden işçileri: kapasite ve (üretim yapılarından artan) boştaki halkla sınırlı. */
+export function clampPriests(g: Game): number {
+  const free = Math.max(0, population(g) - soldiers(g) - assignedWorkers(g) - g.mine.miners)
+  const want = Number.isFinite(g.temple.priests) ? Math.max(0, Math.floor(g.temple.priests)) : 0
+  return Math.min(want, priestCapacity(g), free)
+}
 export function clampMiners(g: Game): number {
   const free = Math.max(0, population(g) - soldiers(g) - assignedWorkers(g))
   const want = Number.isFinite(g.mine.miners) ? Math.max(0, Math.floor(g.mine.miners)) : 0
@@ -491,6 +556,12 @@ export function armyUpkeep(g: Game) {
   return UNIT_IDS.reduce((sum, id) => sum + UNITS[id].upkeep * (g.army?.[id] ?? 0), 0)
 }
 
+/** Yolculuk süresi çarpanı: Harita Arşivi, Denizcilik Geleceği, Poyraz mucizesi. */
+export function travelFactor(g: Game) {
+  return (1 - Math.min(0.5, g.buildings.harita_arsivi * BUILDING_EFFECTS.harita)) *
+    (1 - Math.min(0.3, (g.future?.denizcilik ?? 0) * 0.03)) * (1 - miracle(g, 'ruzgar') * 0.08)
+}
+
 /** Aynı anda yürütülebilecek görev (sefer, casusluk, nakliye) sayısı: Divanhane ile artar. */
 export function actionPoints(g: Game) { return 2 + Math.floor(g.buildings.divan / 4) }
 /**
@@ -512,7 +583,8 @@ export function scientistUpkeepPerMinute(g: Game): number {
   return scientistCount(g) * SCIENTIST_UPKEEP_PER_HOUR / 60
 }
 export function rates(g: Game): Resources {
-  const multiplier = (g.research.includes('tools') ? 1.2 : 1) * (1 - corruption(g))
+  const multiplier = (g.research.includes('tools') ? 1.2 : 1) * (1 - corruption(g)) *
+    (1 + (g.future?.ekonomi ?? 0) * 0.02 + miracle(g, 'bereket') * 0.05)
   const workers = clampWorkers(g)
   const share = (id: WorkerId) => {
     const cap = workerCapacity(g, id)
@@ -528,6 +600,7 @@ export function rates(g: Game): Resources {
     stone: g.buildings.tas * 90 * share('tas') * multiplier *
       (g.research.includes('tascilik') ? 1.15 : 1) * (1 + g.buildings.tasci * BUILDING_EFFECTS.tasciStone),
     knowledge: g.buildings.medrese * 8 * share('medrese') * multiplier * (1 + g.buildings.cami * BUILDING_EFFECTS.camiKnowledge) *
+      (1 + (g.future?.bilim ?? 0) * 0.03 + miracle(g, 'ilim') * 0.1) / (1 + miracle(g, 'bereket') * 0.05) *
       (g.research.includes('alimler') ? 1.3 : 1) *
       (1 + (g.research.includes('kagit') ? .02 : 0) +
        (g.research.includes('murekkep') ? .04 : 0) +
@@ -551,7 +624,7 @@ export function housing(g: Game) {
  * kilar.
  */
 export function contentment(g: Game) {
-  return 120 + g.buildings.hamam * 60 + g.buildings.kahvehane * BUILDING_EFFECTS.kahvehaneContentment +
+  return 120 + g.buildings.hamam * 60 + g.buildings.kahvehane * BUILDING_EFFECTS.kahvehaneContentment + miracle(g, 'huzur') * 40 +
     (wineServed(g) ? g.buildings.kahvehane * BUILDING_EFFECTS.kahvehaneWineBonus : 0) +
     g.buildings.cami * BUILDING_EFFECTS.camiContentment + g.buildings.muze * BUILDING_EFFECTS.muzeContentment
 }
@@ -592,7 +665,8 @@ export function luxuryProduction(g: Game): LuxuryStock {
     kristal: g.buildings.camci * BUILDING_EFFECTS.camciCrystal,
     mermer: g.buildings.tasci * BUILDING_EFFECTS.tasciStone,
   }
-  out[g.mine.specialty] = miners * 3 * (g.research.includes('tools') ? 1.2 : 1) * (1 + boost[g.mine.specialty]) * (1 - corruption(g))
+  out[g.mine.specialty] = miners * 3 * (g.research.includes('tools') ? 1.2 : 1) * (1 + boost[g.mine.specialty]) * (1 - corruption(g)) *
+    (1 + miracle(g, 'bolluk') * 0.1)
   return out
 }
 
@@ -642,6 +716,44 @@ function payLuxury(g: Game, need: Partial<LuxuryStock>) {
   for (const id of LUXURY_IDS) g.luxury[id] -= need[id] ?? 0
 }
 
+/* ------------------------------------------------ TOPHANE / GELECEK / KARA PAZAR */
+
+/** Tophane seviyesinin izin verdiği en yüksek yükseltme seviyesi (en fazla 8). */
+export function upgradeCap(g: Game) { return Math.min(8, Math.floor(g.buildings.tophane / 2)) }
+export function upgradeCost(g: Game, id: UnitId, stat: 'atk' | 'def') {
+  const level = g.upgrades?.[id]?.[stat] ?? 0
+  const pop = Math.max(1, UNITS[id].pop)
+  return { gold: Math.round(150 * (level + 1) ** 1.7 * pop), kristal: Math.round(30 * (level + 1) * pop) }
+}
+export function upgradeReason(g: Game, id: UnitId, stat: 'atk' | 'def'): string | null {
+  const role = UNITS[id].role
+  if (role === 'spy' || role === 'transport' || role === 'support') return 'Bu birlik savaşmaz; yükseltilemez.'
+  if (g.buildings.tophane < 2) return 'Tophane 2. seviye gerekli.'
+  const level = g.upgrades?.[id]?.[stat] ?? 0
+  if (level >= upgradeCap(g)) return upgradeCap(g) >= 8 ? 'En yüksek yükseltme.' : `Tophane'yi yükselt (şu an en fazla ${upgradeCap(g)}. seviye).`
+  const c = upgradeCost(g, id, stat)
+  if (g.resources.gold < c.gold || g.luxury.kristal < c.kristal) return `${c.gold} akçe ve ${c.kristal} kristal gerekli.`
+  return null
+}
+export function futureCost(level: number) { return Math.round(1200 * 1.55 ** level) }
+export function futureReason(g: Game, branch: ResearchBranch): string | null {
+  const missing = RESEARCH_IDS.filter(id => RESEARCH[id].branch === branch && !g.research.includes(id))
+  if (missing.length) return `Önce bu dalın bütün araştırmaları bitmeli (${missing.length} kaldı).`
+  if (g.resources.knowledge < futureCost(g.future[branch])) return `${futureCost(g.future[branch])} ilim gerekli.`
+  return null
+}
+export const GOOD_NAMES: Record<Good, string> = {
+  gold: 'Akçe', wood: 'Kereste', stone: 'Taş', knowledge: 'İlim', uzum: 'Üzüm', mermer: 'Mermer', kristal: 'Kristal', kukurt: 'Kükürt',
+}
+export function goodAmount(g: Game, good: Good) { return (LUXURY_IDS as readonly string[]).includes(good) ? g.luxury[good as Luxury] : g.resources[good as Resource] }
+export function addGood(g: Game, good: Good, n: number) {
+  if ((LUXURY_IDS as readonly string[]).includes(good)) g.luxury[good as Luxury] += n
+  else g.resources[good as Resource] += n
+}
+/** Kara Pazar oranı: kaç birim ver, 1 birim al (3.2'den 2'ye iner). */
+export function exchangeRate(g: Game) { return Math.max(2, Math.round((3.2 - 0.1 * g.buildings.kara_pazar) * 10) / 10) }
+export function exchangeLimit(g: Game) { return 400 * g.buildings.kara_pazar }
+
 /** Çarşıdaki tüccar: akçe karşılığı lüks alım/satım (NPC; oyuncu pazarı değil). */
 export const MERCHANT_BUY = 6
 export const MERCHANT_SELL = 2
@@ -650,7 +762,24 @@ export function merchantLimit(g: Game) { return g.buildings.carsi * 150 + g.buil
 export function merchantBuyPrice(g: Game) { return Math.max(3, MERCHANT_BUY - g.buildings.ticaret_merkezi * BUILDING_EFFECTS.merchantBuyStep) }
 export function merchantSellPrice(g: Game) { return Math.min(4, MERCHANT_SELL + g.buildings.ticaret_merkezi * BUILDING_EFFECTS.merchantSellStep) }
 
-export function population(g: Game) { return Math.min(housing(g), contentment(g)) }
+/** Barınma ve huzurun izin verdiği en yüksek nüfus. */
+export function maxPopulation(g: Game) { return Math.min(housing(g), contentment(g)) }
+/**
+ * Şehirde yaşayan nüfus. Ikariam'daki gibi tavana ZAMANLA yaklaşır
+ * (advance içinde büyür); tavan düşerse hemen iner. Eski kayıtta tavandadır.
+ */
+export function population(g: Game) {
+  const max = maxPopulation(g)
+  return g.citizens === undefined ? max : Math.min(max, Math.floor(g.citizens))
+}
+/** Dakikalık nüfus artışı (huzur fazlası büyümeyi hızlandırır). */
+export function growthRate(g: Game) {
+  const max = maxPopulation(g)
+  const now = g.citizens ?? max
+  if (now >= max) return 0
+  const surplus = Math.max(0, contentment(g) - now) / Math.max(1, contentment(g))
+  return Math.max(1, (max - now) * (0.03 + 0.12 * surplus))
+}
 
 /** Huzursuzluk yuzunden bos kalan barinma. */
 export function unhousedByUnrest(g: Game) { return Math.max(0, housing(g) - contentment(g)) }
@@ -687,7 +816,7 @@ export const BUILDING_GROWTH: Record<BuildingId, number> = {
   kisla: 1.37, surlar: 1.43, liman: 1.37, tersane: 1.41,
   kahvehane: 1.34, cami: 1.38, muze: 1.40, marangoz: 1.33, mimar: 1.34, ormanci: 1.32, tasci: 1.32, tophane: 1.39,
   bagci: 1.32, simyahane: 1.33, camci: 1.33, mahzen: 1.33, gozlukcu: 1.34, barutane: 1.35, depo: 1.36,
-  ticaret_merkezi: 1.37, harita_arsivi: 1.36, valilik: 1.45,
+  ticaret_merkezi: 1.37, harita_arsivi: 1.36, valilik: 1.45, korsan_kalesi: 1.40, kara_pazar: 1.37,
 }
 export function constructionDiscount(g: Game): number {
   return (g.research.includes('makara') ? .02 : 0) +
@@ -716,6 +845,7 @@ export function advance(source: Game, now: number): Game {
   const g: Game = structuredClone(source)
   if (now <= g.updatedAt) return g
   const start = g.updatedAt
+  if (g.citizens === undefined) g.citizens = maxPopulation(g)
   const cutoff = Math.min(now, start + 8 * 3600_000)
   let cursor = start
   function produce(until: number) {
@@ -724,6 +854,12 @@ export function advance(source: Game, now: number): Game {
     for (const r of RESOURCE_IDS) g.resources[r] = Math.min(capacity(g), g.resources[r] + speed[r] * minutes)
     const lux = luxuryRates(g)
     for (const r of LUXURY_IDS) g.luxury[r] = Math.max(0, Math.min(capacity(g), g.luxury[r] + lux[r] * minutes))
+    // Nüfus tavana doğru büyür; tavan düştüyse hemen iner.
+    const max = maxPopulation(g)
+    const citizens = g.citizens ?? max
+    g.citizens = citizens >= max ? max : Math.min(max, citizens + growthRate(g) * minutes)
+    // Rahipler inanç biriktirir.
+    g.temple.faith = Math.min(FAITH_CAP, g.temple.faith + Math.min(g.temple.priests, priestCapacity(g)) * 0.5 * minutes)
     cursor = until
   }
   /*
@@ -776,6 +912,7 @@ export function advance(source: Game, now: number): Game {
   }
   produce(now)
   g.mine.miners = clampMiners(g)
+  g.temple.priests = clampPriests(g)
   if (now - start > 60_000) logEvent(g, `${Math.floor((now - start) / 60_000)} dakika sonra hoş geldin. Kaynak üretimi hesaplandı (en fazla 8 saat).`, now)
   g.updatedAt = now
   return g
@@ -804,7 +941,7 @@ export const MAX_LEVEL: Record<BuildingId, number> = {
   kereste: 32, tas: 32, medrese: 32, kisla: 32, surlar: 40, liman: 32, tersane: 32,
   kahvehane: 32, cami: 32, muze: 32, marangoz: 32, mimar: 32, ormanci: 32, tasci: 32, tophane: 32,
   bagci: 32, simyahane: 32, camci: 32, mahzen: 32, gozlukcu: 32, barutane: 32, depo: 32,
-  ticaret_merkezi: 32, harita_arsivi: 32, valilik: 32,
+  ticaret_merkezi: 32, harita_arsivi: 32, valilik: 32, korsan_kalesi: 32, kara_pazar: 32,
 }
 
 export function buildReason(g: Game, id: BuildingId): string | null {
@@ -859,7 +996,7 @@ export function unitCost(id: UnitId, count: number, game?: Game): Resources {
 export function unitDuration(g: Game, id: UnitId, count: number) {
   return Math.round(UNITS[id].seconds * count *
     (g.research.includes('architecture') ? .75 : 1) *
-    (g.research.includes('talim') ? .90 : 1) * (1 - drillBonus(g, UNITS[id].home)))
+    (g.research.includes('talim') ? .90 : 1) * (1 - drillBonus(g, UNITS[id].home)) * (1 - miracle(g, 'demirci') * 0.08))
 }
 
 /** Elçiliğin barındırabileceği casus sayısı. */
@@ -921,6 +1058,18 @@ export type Command =
   | { type: 'donate'; amount: number }
   /** Çarşıdaki tüccardan lüks kaynak al ya da sat. */
   | { type: 'trade'; id: Luxury; side: 'buy' | 'sell'; amount: number }
+  /** Cami'ye rahip ata. */
+  | { type: 'priests'; value: number }
+  /** Adanın harikasına kereste bağışla. */
+  | { type: 'wonder'; amount: number }
+  /** Harikanın mucizesini çağır. */
+  | { type: 'miracle' }
+  /** Tophane'de bir birliğin saldırısını ya da zırhını yükselt. */
+  | { type: 'upgrade'; id: UnitId; stat: 'atk' | 'def' }
+  /** Bir dalın "Gelecek" araştırmasını bir seviye ilerlet. */
+  | { type: 'future'; branch: ResearchBranch }
+  /** Kara Pazar'da bir malı başka bir mala çevir. */
+  | { type: 'exchange'; from: Good; to: Good; amount: number }
 export function execute(source: Game, command: Command, now: number): { game: Game; error?: string } {
   const g = advance(source, now)
   if (command.type === 'build') {
@@ -1025,6 +1174,63 @@ export function execute(source: Game, command: Command, now: number): { game: Ga
       g.resources.gold = Math.min(capacity(g), g.resources.gold + Math.floor(amount * merchantSellPrice(g)))
       logEvent(g, `Tüccara ${amount} ${LUXURY_NAMES[command.id]} satıldı.`, now)
     }
+  } else if (command.type === 'priests') {
+    g.temple.priests = Number.isFinite(command.value) ? Math.max(0, Math.floor(command.value)) : 0
+    g.temple.priests = clampPriests(g)
+  } else if (command.type === 'wonder') {
+    const amount = Math.floor(command.amount)
+    if (!Number.isSafeInteger(amount) || amount <= 0) return { game: g, error: 'Geçersiz bağış.' }
+    if (g.temple.wonderLevel >= WONDER_MAX) return { game: g, error: 'Harika en yüksek seviyede.' }
+    if (g.resources.wood < amount) return { game: g, error: 'Bu kadar kereste yok.' }
+    g.resources.wood -= amount
+    g.temple.wonderWood += amount
+    while (g.temple.wonderLevel < WONDER_MAX && g.temple.wonderWood >= wonderCost(g.temple.wonderLevel)) {
+      g.temple.wonderWood -= wonderCost(g.temple.wonderLevel)
+      g.temple.wonderLevel += 1
+      logEvent(g, `${MIRACLES[g.temple.wonder].wonder} ${g.temple.wonderLevel}. seviyeye yükseldi.`, now)
+    }
+  } else if (command.type === 'miracle') {
+    const t = g.temple
+    if (g.buildings.cami < 1) return { game: g, error: 'Mucize için önce Cami kur.' }
+    if (t.wonderLevel < 1) return { game: g, error: 'Adanın harikası henüz kurulmadı. Kereste bağışla.' }
+    if (t.active && now < t.until) return { game: g, error: 'Mucize zaten etkin.' }
+    if (now < t.cooldownUntil) return { game: g, error: 'Harika dinleniyor; bir süre sonra tekrar dene.' }
+    if (t.faith < miracleCost(t.wonderLevel)) return { game: g, error: `${miracleCost(t.wonderLevel)} inanç gerekli. Rahiplerin biriktiriyor.` }
+    t.faith -= miracleCost(t.wonderLevel)
+    t.active = t.wonder
+    t.until = now + miracleMinutes(t.wonderLevel) * 60_000
+    t.cooldownUntil = t.until + MIRACLE_COOLDOWN_MS
+    logEvent(g, `${MIRACLES[t.wonder].name} mucizesi başladı: ${MIRACLES[t.wonder].effect(t.wonderLevel)}.`, now)
+  } else if (command.type === 'upgrade') {
+    const reason = upgradeReason(g, command.id, command.stat)
+    if (reason) return { game: g, error: reason }
+    const c = upgradeCost(g, command.id, command.stat)
+    g.resources.gold -= c.gold
+    g.luxury.kristal -= c.kristal
+    const u = g.upgrades[command.id] ?? { atk: 0, def: 0 }
+    u[command.stat] += 1
+    g.upgrades = { ...g.upgrades, [command.id]: u }
+    logEvent(g, `${UNITS[command.id].name} ${command.stat === 'atk' ? 'saldırısı' : 'zırhı'} ${u[command.stat]}. seviyeye çıktı.`, now)
+  } else if (command.type === 'future') {
+    const reason = futureReason(g, command.branch)
+    if (reason) return { game: g, error: reason }
+    g.resources.knowledge -= futureCost(g.future[command.branch])
+    g.future = { ...g.future, [command.branch]: g.future[command.branch] + 1 }
+    logEvent(g, `${RESEARCH_BRANCHES.find(b => b.key === command.branch)!.title} Geleceği ${g.future[command.branch]}. seviyeye ulaştı.`, now)
+  } else if (command.type === 'exchange') {
+    const amount = Math.floor(command.amount)
+    const goods = [...RESOURCE_IDS, ...LUXURY_IDS] as Good[]
+    if (!goods.includes(command.from) || !goods.includes(command.to) || command.from === command.to || !Number.isSafeInteger(amount) || amount <= 0) {
+      return { game: g, error: 'Geçersiz takas.' }
+    }
+    if (g.buildings.kara_pazar < 1) return { game: g, error: 'Takas için Kara Pazar kur.' }
+    if (amount > exchangeLimit(g)) return { game: g, error: `Kara Pazar tek seferde en fazla ${exchangeLimit(g)} birim takas eder.` }
+    if (goodAmount(g, command.from) < amount) return { game: g, error: 'Bu kadar mal yok.' }
+    const got = Math.floor(amount / exchangeRate(g))
+    if (goodAmount(g, command.to) + got > capacity(g)) return { game: g, error: 'Ambarda yer yok.' }
+    addGood(g, command.from, -amount)
+    addGood(g, command.to, got)
+    logEvent(g, `Kara Pazar: ${amount} ${GOOD_NAMES[command.from]} → ${got} ${GOOD_NAMES[command.to]}.`, now)
   } else if (command.type === 'move') {
     /*
      * Kurulu bir binayi BOS bir arsaya tasi. Hedef arsa bos ve ayni bolgede
@@ -1061,7 +1267,7 @@ const LEGACY_PLOT: Record<BuildingId, number> = {
   saray: 6, elcilik: 6, kisla: 6, surlar: 6, liman: 6, tersane: 6,
   kahvehane: 6, cami: 6, muze: 6, marangoz: 6, mimar: 6, ormanci: 6, tasci: 6, tophane: 6,
   bagci: 6, simyahane: 6, camci: 6, mahzen: 6, gozlukcu: 6, barutane: 6, depo: 6,
-  ticaret_merkezi: 6, harita_arsivi: 6, valilik: 6,
+  ticaret_merkezi: 6, harita_arsivi: 6, valilik: 6, korsan_kalesi: 6, kara_pazar: 6,
 }
 
 /**
@@ -1142,7 +1348,15 @@ function fillMissing(g: Record<string, unknown>): Record<string, unknown> {
   for (const id of LUXURY_IDS) luxury[id] = lux[id] === undefined ? 0 : lux[id]
   const m = (g.mine ?? {}) as Record<string, unknown>
   const mine = { specialty: m.specialty ?? 'mermer', level: m.level ?? 1, wood: m.wood ?? 0, miners: m.miners ?? 0 }
-  return { ...g, ...out, army: filled, roads, flips, drill: g.drill === undefined ? null : g.drill, luxury, mine }
+  const t = (g.temple ?? {}) as Record<string, unknown>
+  const temple = {
+    priests: t.priests ?? 0, faith: t.faith ?? 0, wonder: t.wonder ?? 'kalkan', wonderLevel: t.wonderLevel ?? 0,
+    wonderWood: t.wonderWood ?? 0, active: t.active ?? null, until: t.until ?? 0, cooldownUntil: t.cooldownUntil ?? 0,
+  }
+  const f = (g.future ?? {}) as Record<string, unknown>
+  const future = { ekonomi: f.ekonomi ?? 0, bilim: f.bilim ?? 0, askeri: f.askeri ?? 0, denizcilik: f.denizcilik ?? 0 }
+  return { ...g, ...out, army: filled, roads, flips, drill: g.drill === undefined ? null : g.drill, luxury, mine, temple,
+    upgrades: g.upgrades && typeof g.upgrades === 'object' ? g.upgrades : {}, future, piracy: g.piracy ?? 0 }
 }
 
 /**
@@ -1218,6 +1432,17 @@ export function parseSave(raw: string): Game {
       !finite(mine.wood) || !Number.isInteger(mine.miners) || mine.miners < 0) {
     throw new Error('Kayıt dosyası okunamadı. Eski kaydın korunuyor; yeni oyun başlatabilirsin.')
   }
+  const temple = g.temple as Temple
+  const future = g.future as Record<ResearchBranch, number>
+  const upgrades = g.upgrades as Partial<Record<UnitId, { atk: number; def: number }>>
+  if (!finite(temple.faith) || !Number.isInteger(temple.priests) || temple.priests < 0 || !MIRACLE_IDS.includes(temple.wonder) ||
+      !Number.isInteger(temple.wonderLevel) || temple.wonderLevel < 0 || temple.wonderLevel > WONDER_MAX || !finite(temple.wonderWood) ||
+      !(temple.active === null || MIRACLE_IDS.includes(temple.active)) || !finite(temple.until) || !finite(temple.cooldownUntil) ||
+      !RESEARCH_BRANCHES.every(b => Number.isInteger(future[b.key]) && future[b.key] >= 0) || !finite(g.piracy) ||
+      (g.citizens !== undefined && !finite(g.citizens)) ||
+      !Object.entries(upgrades).every(([id, u]) => UNIT_IDS.includes(id as UnitId) && !!u && Number.isInteger(u.atk) && Number.isInteger(u.def) && u.atk >= 0 && u.def >= 0 && u.atk <= 8 && u.def <= 8)) {
+    throw new Error('Kayıt dosyası okunamadı. Eski kaydın korunuyor; yeni oyun başlatabilirsin.')
+  }
   const army = g.army as Army | undefined
   const armyValid = !!army && UNIT_IDS.every(id => Number.isInteger(army[id]) && army[id] >= 0 && army[id] <= 100_000)
   const queue = g.queue as Job[] | undefined
@@ -1238,7 +1463,7 @@ export function parseSave(raw: string): Game {
    * tasiyamaz. Elle duzenlenmis ya da bozulmus bir dosya bu sinirin ustune
    * cikarsa isci hesabi eksiye duser ve uretim anlamsizlasir.
    */
-  if (soldiers(game) > population(game)) throw new Error('Ordu kaydı geçersiz.')
+  if (soldiers(game) > maxPopulation(game)) throw new Error('Ordu kaydı geçersiz.')
   // Nufus konut seviyesinden turer; kayittaki dagitim onu asiyorsa budanir.
   game.workers = clampWorkers(game)
   return game

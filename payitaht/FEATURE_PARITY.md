@@ -2,7 +2,7 @@
 
 Ikariam'ın oyun sistemleri Payitaht evrenine (Osmanlı-Akdeniz) uyarlanır. Ikariam'ın
 görselleri, metinleri ve birebir sayıları kopyalanmaz; sistemler ve oyun döngüsü
-eşlenir. Durum: ✅ var · 🟡 kısmen · ❌ yok. (Güncelleme: 2026-09-24)
+eşlenir. Durum: ✅ var · 🟡 kısmen · ❌ yok. (Güncelleme: 2026-09-24, paket 2)
 
 ## Kaynaklar ve ekonomi
 
@@ -14,7 +14,7 @@ eşlenir. Durum: ✅ var · 🟡 kısmen · ❌ yok. (Güncelleme: 2026-09-24)
 | Araştırma puanı, bilim adamı | İlim, Medrese âlimleri (bakım gideri) | ✅ |
 | Vatandaş, işçi atama | Nüfus, Halk paneli, maden işçileri | ✅ |
 | Memnuniyet (meyhane, müze) | Huzur: Hamam, Kahvehane (üzüm), Cami, Müze | ✅ |
-| Nüfusun zamanla büyümesi | Nüfus anında tavana oturur | 🟡 |
+| Nüfusun zamanla büyümesi | Halk huzur/barınma tavanına zamanla büyür (huzur fazlası hızlandırır) | ✅ |
 | Birlik bakım gideri | Her birliğin akçe/dk gideri | ✅ |
 | Yolsuzluk (koloni) | Valilik seviyesiyle azalan yolsuzluk | ✅ |
 | Hamle puanı | Divanhane'yle artan eşzamanlı görev sayısı | ✅ |
@@ -37,13 +37,14 @@ eşlenir. Durum: ✅ var · 🟡 kısmen · ❌ yok. (Güncelleme: 2026-09-24)
 | Sur | Surlar | ✅ |
 | Elçilik | Elçilik (casus yeri) | ✅ |
 | Ticaret Merkezi | Ticaret Merkezi (tüccar fiyatı/partisi) | ✅ |
-| Atölye (birlik yükseltme) | Tophane (+%2 güç/sv) | 🟡 birlik başına yükseltme yok |
+| Atölye (birlik yükseltme) | Tophane: +%2 güç/sv ve birlik başına saldırı/zırh yükseltmesi (akçe + kristal) | ✅ |
 | Saklanma yeri (casuslar) | Elçilik casus yeri | 🟡 ayrı yapı yok |
 | Ormancı / Taş ustası / Bağcı / Simyacı / Camcı | Ormancı Evi / Taşçı Ustası / Bağcı Evi / Simyahane / Camcı | ✅ |
 | Marangoz / Mimar / Şaraphane / Optikçi / Havai fişek alanı | Marangozhane / Mimarbaşı / Şıra Mahzeni / Gözlükçü / Barut Deneme Alanı | ✅ |
-| Tapınak (rahipler, mucizeler) | Cami (huzur + ilim) | 🟡 rahip/mucize yok |
+| Tapınak (rahipler, mucizeler) | Cami: rahipler inanç toplar, adanın harikasının mucizesi çağrılır | ✅ |
 | Deniz Haritası Arşivi | Harita Arşivi | ✅ |
-| Korsan Kalesi, Kara Pazar | — | ❌ |
+| Korsan Kalesi | Korsan Kalesi: tüccar gemilerine korsan seferi, korsan şöhreti, +%10 yağma/sv | ✅ |
+| Kara Pazar | Kara Pazar: her malı başka bir mala takas (3,2:1 → 2:1) | ✅ |
 | Binaların seviyeyle görünüm değiştirmesi | 3 aşamalı bina çizimleri | ✅ |
 
 ## Ordu
@@ -56,14 +57,15 @@ eşlenir. Durum: ✅ var · 🟡 kısmen · ❌ yok. (Güncelleme: 2026-09-24)
 | Koçbaşı, Mancınık, Havan | Koçbaşı, Mancınık, Topçu (kuşatma) | ✅ |
 | Aşçı, Doktor | Aşçı (moral), Hekim (yaralı kurtarma) | ✅ |
 | Buharlı dev, Gyrocopter, Balon | — | ❌ (dönem dışı) |
-| Koç gemisi, Ateş gemisi, Mancınık gemisi | Kadırga, Ateş Gemisi, Mancınık Gemisi, Kalyon | ✅ (deniz savaşı henüz yok) |
+| Koç gemisi, Ateş gemisi, Mancınık gemisi | Kadırga, Ateş Gemisi, Mancınık Gemisi, Kalyon | ✅ |
 | Nakliye gemisi | Nakliye | ✅ |
 | Casus | Casus | ✅ |
 | Savaş alanı (satırlar, turlar, sur, moral) | 6 turlu deterministik savaş motoru | ✅ |
 | Barbar köyü | Barbar Köyü, Korsan İni, Asi Kalesi | ✅ |
 | Başka oyuncuya saldırı, işgal, abluka | — (çok oyunculu sunucu gerekir) | ❌ |
-| Deniz savaşı | — | ❌ |
-| Şehre gelen saldırılar | — | ❌ |
+| Deniz savaşı | Deniz aşırı seferde önce hedefin donanmasıyla savaş; eskortsuz çıkarma yapılamaz | ✅ |
+| Başka adaya sefer | Nakliye gemisiyle (40 asker/gemi) her adadaki yerleşime sefer ve casus | ✅ |
+| Şehre gelen saldırılar | Korsan baskınları: Divanhane 5'ten sonra, 15 dk önceden uyarı; donanma → sur + muhafız + ordu; ambarın %20'si korunur | ✅ |
 
 ## Araştırma
 
@@ -72,7 +74,7 @@ eşlenir. Durum: ✅ var · 🟡 kısmen · ❌ yok. (Güncelleme: 2026-09-24)
 | 4 dal (Denizcilik, Ekonomi, Bilim, Askerî) | 4 dal | ✅ |
 | Binaları/birlikleri açan araştırmalar | Bağcılık, Simya, Cam Ustalığı, Optik, Tıp, Askerî Mühendislik, Kuşatma, Rum Ateşi, Deniz Topçuluğu, Barut, Ticaret, Haritacılık… | ✅ |
 | Makara, Geometri, Su terazisi | Makara Düzeni, Hendese, Su Terazisi | ✅ |
-| Gelecek araştırmaları (tekrarlanan) | — | ❌ |
+| Gelecek araştırmaları (tekrarlanan) | Her dalın Geleceği: ekonomi, ilim, askerî güç, yolculuk | ✅ |
 
 ## Ada ve dünya
 
@@ -80,15 +82,15 @@ eşlenir. Durum: ✅ var · 🟡 kısmen · ❌ yok. (Güncelleme: 2026-09-24)
 |---|---|---|
 | Ada görünümü | Boyalı ada haritası | ✅ |
 | Ada madenine bağış | Kereste bağışıyla maden seviyesi | ✅ |
-| Harikalar | — | ❌ |
+| Harikalar | Her adada bir harika (8 farklı mucize), kereste bağışıyla 5 seviye | ✅ |
 | Dünya haritası, koloni | 8 adalık atlas, koloni | ✅ |
 | Nakliye, ticaret | Şehirler arası nakliye, NPC tüccar | ✅ |
 | Oyuncu pazarı, ittifak, mesaj, sıralama | — (sunucu gerekir) | ❌ |
+| Ada ormanı (ortak kereste ocağı) | Şehir içi Kereste Ocağı | 🟡 |
 
-## Sıradaki paketler
+## Kalanlar
 
-1. Deniz savaşı ve başka adadaki yerleşimlere gemiyle sefer.
-2. Korsan baskınları (şehre gelen saldırılar, savunma raporları).
-3. Nüfusun zamanla büyümesi (memnuniyete bağlı büyüme hızı).
-4. Tophane'de birlik başına yükseltme; Cami'de rahip/mucize.
-5. Harikalar ve tekrarlanan "Gelecek" araştırmaları.
+Tek oyunculu, cihazda çalışan sürümde yapılabilecek bütün sistemler eklendi. Geriye
+kalanlar bir oyun sunucusu ister: başka gerçek oyunculara saldırı, işgal ve abluka,
+oyuncular arası pazar, ittifak, mesajlaşma ve sıralama. Bağımsız yerleşimler ve
+korsanlar yapay rakiplerdir; gerçek oyuncu gibi gösterilmez.

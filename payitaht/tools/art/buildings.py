@@ -896,6 +896,41 @@ def valilik(s, st):
     s.tree(1.75, 1.6, 0.8, 'cypress')
 
 
+def korsan_kalesi(s, st):
+    """Korsan kalesi: taş burç, ahşap çit, iskele, kara bayrak; seviyeyle büyür."""
+    ground(s, 0.1, 0.1, 1.92, 1.92, hexc('#cdb88a'))
+    col = hexc('#a99c86')
+    s.box(0.35, 0.35, 0, 1.15, 1.05, 0.5 + 0.08 * st, col, 'stone', deco_y=[('courses', 0.09), ('archdoor', 0.5, 0, 0.18, 0.28)], deco_x=[('courses', 0.09)])
+    crenel(s, 0.33, 0.33, 1.17, 1.07, 0.5 + 0.08 * st, col, step=0.13, size=0.07, h=0.08)
+    s.cylinder(0.5, 0.5, 0, 0.95 + 0.18 * st, 0.16, col, 'stone', n=16)
+    s.cone(0.5, 0.5, 0.95 + 0.18 * st, 0.3, 0.2, PAL['wooddark'], 'wood')
+    s.flag(0.5, 0.5, 1.25 + 0.18 * st, 0.5, hexc('#1f1c1a'))
+    s.box(1.2, 0.55, 0.02, 1.92, 0.8, 0.07, PAL['wood'], 'wood', deco_top=[('planks', 3)])  # iskele
+    for i in range(1 + st):
+        s.barrel(0.55 + i * 0.16, 1.3, 0.06)
+    s.crate(1.3, 1.2, 0.14)
+    if st >= 2:
+        s.box(1.25, 1.1, 0, 1.75, 1.6, 0.4, PAL['wood2'], 'wood', deco_y=[('vplanks', 6)], deco_x=[('vplanks', 6)])
+        s.gable(1.25, 1.1, 1.75, 1.6, 0.4, 0.2, PAL['wooddark'], mat='wood')
+    if st >= 3:
+        s.cylinder(1.15, 0.35, 0, 0.8, 0.12, col, 'stone', n=14)
+        s.flag(1.15, 0.35, 0.8, 0.4, PAL['red'])
+
+
+def kara_pazar(s, st):
+    """Kara pazar: loş tenteler, sandık yığınları, fener; arka sokakta bir han."""
+    ground(s, 0.1, 0.1, 1.92, 1.92, hexc('#c9b58c'))
+    pave(s, 0.25, 0.25, 1.8, 1.8, hexc('#bfae8a'), n=7)
+    cols = [hexc('#5a2b3a'), hexc('#2f3f4f'), hexc('#4b3a22'), hexc('#3d4a2c')]
+    block(s, 0.25, 0.25, 1.0, 0.7, 0.55 + 0.1 * st, col=PAL['stone2'], mat='stone', roof='hip', roofcol=PAL['wooddark'], door_y=0.5, spacing=0.3)
+    stalls = [(0.3, 0.95), (0.85, 0.95), (1.35, 0.5), (1.35, 1.05), (0.3, 1.45), (0.85, 1.45)][:2 + st]
+    for i, (x, y) in enumerate(stalls):
+        s.box(x, y, 0, x + 0.38, y + 0.3, 0.28, PAL['wooddark'], 'wood', deco_y=[('vplanks', 5)], deco_x=[('vplanks', 4)])
+        awning(s, x - 0.02, x + 0.4, y + 0.3, 0.4, 0.2, cols[i % len(cols)], stripes=False)
+        s.crate(x + 0.05, y + 0.34, 0.1); s.barrel(x + 0.3, y + 0.4, 0.045)
+    lantern(s, 1.2, 1.35, 0.45)
+
+
 BUILDINGS = {
     'divan': divan, 'saray': saray, 'elcilik': elcilik, 'konut': konut, 'hamam': hamam, 'carsi': carsi,
     'ambar': ambar, 'kereste': kereste, 'tas': tas, 'medrese': medrese, 'kisla': kisla, 'liman': liman,
@@ -903,7 +938,7 @@ BUILDINGS = {
     'mimar': mimar, 'ormanci': ormanci, 'tasci': tasci, 'tophane': tophane, 'surlar': surlar,
     'bagci': bagci, 'simyahane': simyahane, 'camci': camci, 'mahzen': mahzen, 'gozlukcu': gozlukcu,
     'barutane': barutane, 'depo': depo, 'ticaret_merkezi': ticaret_merkezi, 'harita_arsivi': harita_arsivi,
-    'valilik': valilik,
+    'valilik': valilik, 'korsan_kalesi': korsan_kalesi, 'kara_pazar': kara_pazar,
 }
 # Aşamasız yardımcı katmanlar: (fonksiyon, gölge var mı)
 EXTRAS = {'site': (site, True), 'scaffold': (scaffold, False),
