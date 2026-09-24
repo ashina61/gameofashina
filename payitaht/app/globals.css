@@ -945,3 +945,27 @@
 .bp .demolish-row { margin: 0; border: 0; box-shadow: none; background: transparent; }
 .bp .demolish-row > :not(h3) { margin-inline: 0; }
 .bp .demolish-row > :last-child { margin-bottom: 0; }
+.bp-hero-small { height: 150px; }
+.bp-hero-small img { width: min(60%, 260px); height: 145px; }
+/* Danışman sayfaları da parşömen: sabit renkli eski öğeler. */
+.bp .army-note { background: #f6e8c3; border-color: #dcc38e; color: var(--ink); }
+.bp .storage-alert { background: #f7d9cf; border-color: #c96a55; color: #6e1f12; }
+.bp .requirement { color: #8a4b12 !important; }
+.bp .report-win { color: #2f6b1a; }
+.bp .report-loss { color: #a3321f; }
+.bp .rank-table li button:disabled { opacity: 1; }
+.bp .research-branch-top, .bp .army-branch-top { align-items: center; margin: 4px 0 0; padding: 7px 12px; border: 1px solid var(--edge); border-radius: 4px 4px 0 0;
+  background: linear-gradient(180deg, #e2bd78, var(--tan) 55%, var(--tan-2)); }
+.bp .research-branch-top h3, .bp .army-branch-top h3 { font-family: inherit; font-size: 12px; font-weight: 800; letter-spacing: .07em; text-transform: uppercase; color: #2e1807; }
+.bp .research-branch-top span, .bp .army-branch-top span { color: #3a210c; font-weight: 700; }
+.bp .research-card, .bp .unit-card, .bp .city-card, .bp .island-atlas-card, .bp .empire-city-button, .bp .report-card, .bp .objective-card, .bp .people-row, .bp .people-summary, .bp .army-summary {
+  background: var(--parch); border-color: #c9a46a; box-shadow: 0 1px 3px #5a351722; }
+.bp .research-card h3, .bp .objective-card h3, .bp .unit-top strong, .bp .city-card strong { color: var(--ink); }
+.bp .eyebrow { color: var(--ink-soft); }
+.bp .building-list-item { border-bottom-color: #d9bf8a; color: var(--ink); }
+.bp .building-list-item > svg { color: var(--ink-soft); }
+.bp .island-atlas-card small, .bp .unit-have small { color: var(--ink-soft); }
+.bp .settings-panel section { background: var(--parch); border: 1px solid var(--edge); border-radius: 4px; padding: 12px; }
+.bp .settings-panel h3 { color: var(--ink); }
+.bp .job-progress time { color: var(--ink); }
+.bp .advisor-panel, .bp .research-panel, .bp .people-panel, .bp .building-list { color: var(--ink); }

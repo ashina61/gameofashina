@@ -10,7 +10,7 @@
  * tablosu...). Mobilde aynı sıra alt alta dizilir; kutular parşömen gövdeli,
  * kahverengi başlık şeritlidir.
  */
-import type { ReactNode } from 'react'
+import { useEffect, type ReactNode } from 'react'
 import { ArrowLeft, Clock3, LockKeyhole, FlipHorizontal2, Move, Hammer, Users, BookOpen, ChevronRight, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { asset, buildingImage } from '@/lib/asset'
@@ -243,6 +243,33 @@ function BuildingView({ game, empire, id, onCommand, onRecruit, onNav, onBuildin
   }
 }
 
+/**
+ * Ikariam sayfa çerçevesi: üst şerit (geri, başlık, rozet), isteğe bağlı sahne
+ * görseli ve parşömen kaydırma alanı. Bina sayfaları ve bütün danışman
+ * panelleri (Kışla, Araştırma, Dünya...) bu çerçeveyi kullanır.
+ */
+export function IkaPage({ title, subtitle, badge, hero, onClose, children, label }: {
+  title: string; subtitle?: string; badge?: ReactNode; hero?: string | null; onClose: () => void; children: ReactNode; label?: string
+}) {
+  useEffect(() => {
+    const key = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose() }
+    window.addEventListener('keydown', key)
+    return () => window.removeEventListener('keydown', key)
+  }, [onClose])
+  return <div className="bp" role="dialog" aria-modal="true" aria-label={label ?? title}>
+    <header className="bp-bar">
+      <button type="button" className="bp-back" onClick={onClose} aria-label="Geri"><ArrowLeft /></button>
+      <div className="bp-title"><h1>{title}</h1>{subtitle && <small>{subtitle}</small>}</div>
+      {badge}
+      <button type="button" className="bp-back bp-close" onClick={onClose} aria-label="Kapat"><X /></button>
+    </header>
+    <div className="bp-scroll">
+      {hero !== undefined && <section className="bp-hero bp-hero-small">{hero ? <img src={hero} alt="" /> : null}</section>}
+      {children}
+    </div>
+  </div>
+}
+
 export function BuildingPage({ game, empire, id, onClose, onBuild, onFlip, onMove, onCommand, onRecruit, onNav, onBuildingNav, children }: {
   game: Game; empire: Empire | undefined; id: BuildingId
   onClose: () => void; onBuild: () => void; onFlip: () => void; onMove: () => void
@@ -256,14 +283,8 @@ export function BuildingPage({ game, empire, id, onClose, onBuild, onFlip, onMov
     return { level: level + step + 1, price: cost(projected, id), seconds: duration(projected, id) }
   })
   const city = empire ? activeCity(empire).name : ''
-  return <div className="bp" role="dialog" aria-modal="true" aria-label={`${b.name} sayfası`}>
-    <header className="bp-bar">
-      <button type="button" className="bp-back" onClick={onClose} aria-label="Şehre dön"><ArrowLeft /></button>
-      <div className="bp-title"><h1>{b.name}</h1><small>{city} · {b.category.toLocaleLowerCase('tr')}</small></div>
-      <span className="bp-level" aria-label={`Seviye ${level}`}><img src={asset('/images/ui/level-circle.webp')} alt="" /><b>{level}</b></span>
-      <button type="button" className="bp-back bp-close" onClick={onClose} aria-label="Kapat"><X /></button>
-    </header>
-    <div className="bp-scroll">
+  return <IkaPage title={b.name} subtitle={`${city} · ${b.category.toLocaleLowerCase('tr')}`} label={`${b.name} sayfası`} onClose={onClose}
+    badge={<span className="bp-level" aria-label={`Seviye ${level}`}><img src={asset('/images/ui/level-circle.webp')} alt="" /><b>{level}</b></span>}>
       <section className="bp-hero">
         {b.art ? <img src={buildingImage(id, Math.max(1, level))} alt={`${b.name} görünümü`} /> : <span className="bp-pending"><Hammer /></span>}
       </section>
@@ -286,6 +307,5 @@ export function BuildingPage({ game, empire, id, onClose, onBuild, onFlip, onMov
         </div>}
         <DemolishRow game={game} id={id} onCommand={onCommand} />
       </Box>}
-    </div>
-  </div>
+  </IkaPage>
 }
