@@ -6,7 +6,7 @@
  * değer ile oyunun gerçekten uyguladığı değer asla ayrışmaz.
  */
 import {
-  BUILDING_EFFECTS, UNITS, UNIT_IDS, WORKERS_PER_LEVEL, capacity, contentment, corruption, drillBonus, exchangeLimit, exchangeRate, housing,
+  BUILDING_EFFECTS, UNITS, UNIT_IDS, WORKERS_PER_LEVEL, capacity, contentment, corruption, counterSpy, drillBonus, exchangeLimit, exchangeRate, housing,
   merchantBuyPrice, merchantLimit, merchantSellPrice, tradeCapacity, wallDefense, type BuildingId, type Game,
 } from './engine'
 
@@ -105,6 +105,11 @@ export function effectLines(game: Game, id: BuildingId, level: number): EffectLi
     case 'korsan_kalesi': return [
       { label: 'Yağma ganimeti', value: `+${pct(level * E.korsanLoot)}` },
       { label: 'Korsan seferi', value: level > 0 ? 'açık' : 'kapalı' },
+    ]
+    case 'siginak': return [
+      { label: 'Casus yeri', value: `+${level * E.siginakSpies}` },
+      { label: 'Casusluk başarısı', value: `+${pct(level * E.siginakSpySuccess)}` },
+      { label: 'Yabancı casus yakalama', value: pct(counterSpy(g)) },
     ]
     case 'kara_pazar': return [
       { label: 'Takas oranı', value: `${exchangeRate(g)} : 1` },

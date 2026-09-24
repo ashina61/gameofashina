@@ -26,6 +26,10 @@ export type BattleSide = {
   defenseMul: number
   /** Sur can puanı (yalnızca savunan). */
   wall?: number
+  /** Moral kaybı çarpanı (Şeref Kanunu 0.8). */
+  moraleMul?: number
+  /** Hekim başına kurtarılan asker (varsayılan 3; Teşrih 6). */
+  healPerDoctor?: number
 }
 export type BattleRound = { round: number; attackerLoss: Troops; defenderLoss: Troops; wall: number; moraleA: number; moraleD: number }
 export type BattleResult = {
@@ -45,13 +49,16 @@ const count = (t: Troops, id: UnitId) => t[id] ?? 0
 function totalHp(t: Troops) { return UNIT_IDS.reduce((s, id) => s + count(t, id) * UNITS[id].hp, 0) }
 function alive(t: Troops) { return UNIT_IDS.some(id => count(t, id) > 0 && COMBAT_ROLES.includes(UNITS[id].role) && UNITS[id].role !== 'support') }
 
+/** Uzak menzil birliklerinin cephanesi: ilk 3 tur tam, sonra yarım güç. */
+export const AMMO_ROUNDS = 3
 /** Bir tarafın bu turdaki hasarı: kuşatma ve diğerleri ayrı. */
-function damage(t: Troops, mul: number) {
+function damage(t: Troops, mul: number, round = 1) {
   let siege = 0, other = 0
   for (const id of UNIT_IDS) {
     const n = count(t, id)
     if (!n) continue
-    const dmg = UNITS[id].attack * n * mul
+    const ammo = UNITS[id].role === 'range' && round > AMMO_ROUNDS ? 0.5 : 1
+    const dmg = UNITS[id].attack * n * mul * ammo
     if (UNITS[id].role === 'artillery') siege += dmg
     else other += dmg
   }
@@ -87,14 +94,15 @@ export function battle(attacker: BattleSide, defender: BattleSide): BattleResult
   const startA = totalHp(A), startD = totalHp(D)
   let wall = defender.wall ?? 0
   let moraleA = 100, moraleD = 100
-  const cooks = (t: Troops) => Math.min(0.6, count(t, 'asci') * 0.04)
+  // Aşçı (ve filoda İkmal Gemisi) moral kaybını azaltır.
+  const cooks = (t: Troops) => Math.min(0.6, count(t, 'asci') * 0.04 + count(t, 'ikmal_gemisi') * 0.08)
   const carryA: Record<string, number> = {}, carryD: Record<string, number> = {}
   const lostA: Troops = {}, lostD: Troops = {}
   const rounds: BattleRound[] = []
   for (let round = 1; round <= MAX_ROUNDS; round++) {
     if (!alive(A) || !alive(D)) break
-    const hitA = damage(A, attacker.attackMul)
-    const hitD = damage(D, defender.attackMul)
+    const hitA = damage(A, attacker.attackMul, round)
+    const hitD = damage(D, defender.attackMul, round)
     // Sur önce: kuşatma 3x, diğerleri yarım etki.
     let toUnits = hitA.siege + hitA.other
     if (wall > 0) {
@@ -111,16 +119,17 @@ export function battle(attacker: BattleSide, defender: BattleSide): BattleResult
     const ld = apply(D, toUnits, defender.defenseMul, carryD)
     add(lostA, la); add(lostD, ld)
     const hpA = totalHp(A), hpD = totalHp(D)
-    moraleA = Math.max(0, 100 - (1 - hpA / Math.max(1, startA)) * 140 * (1 - cooks(A)))
-    moraleD = Math.max(0, 100 - (1 - hpD / Math.max(1, startD)) * 140 * (1 - cooks(D)) - (wall <= 0 && (defender.wall ?? 0) > 0 ? 10 : 0))
+    moraleA = Math.max(0, 100 - (1 - hpA / Math.max(1, startA)) * 140 * (1 - cooks(A)) * (attacker.moraleMul ?? 1))
+    moraleD = Math.max(0, 100 - (1 - hpD / Math.max(1, startD)) * 140 * (1 - cooks(D)) * (defender.moraleMul ?? 1) - (wall <= 0 && (defender.wall ?? 0) > 0 ? 10 : 0))
     rounds.push({ round, attackerLoss: la, defenderLoss: ld, wall: Math.round(wall), moraleA: Math.round(moraleA), moraleD: Math.round(moraleD) })
     if (moraleA < 30 || moraleD < 30) break
   }
   // Kazanan: savunanın savaşçısı kalmadıysa ya da morali çöktüyse saldıran; yoksa savunan.
   const attackerWins = alive(A) && moraleA >= 30 && (!alive(D) || moraleD < 30)
   // Hekimler her iki tarafta ölülerin bir kısmını kurtarır (hekim başına 3 asker, en fazla %40).
-  const heal = (t: Troops, lost: Troops): Troops => {
-    const cap = count(t, 'hekim') * 3
+  const heal = (t: Troops, lost: Troops, per: number): Troops => {
+    // Hekim karada, İkmal Gemisi denizde yaralıları kurtarır.
+    const cap = count(t, 'hekim') * per + count(t, 'ikmal_gemisi') * 4
     const out: Troops = {}
     let left = cap
     for (const id of UNIT_IDS) {
@@ -130,8 +139,8 @@ export function battle(attacker: BattleSide, defender: BattleSide): BattleResult
     }
     return out
   }
-  const healed = heal(A, lostA)
-  heal(D, lostD)
+  const healed = heal(A, lostA, attacker.healPerDoctor ?? 3)
+  heal(D, lostD, defender.healPerDoctor ?? 3)
   return {
     winner: attackerWins ? 'attacker' : 'defender',
     rounds, attackerLeft: A, defenderLeft: D, attackerLost: lostA, defenderLost: lostD, healed, wallLeft: Math.round(wall),
