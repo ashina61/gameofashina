@@ -1,54 +1,94 @@
-# Payitaht — Ada stratejisi oyun sistemleri
+# Payitaht ↔ Ikariam özellik karşılaştırması
 
-Bu proje Ikariam'ın oyuncuya sunduğu şehir, ada, ticaret, deniz ve strateji döngülerini
-özgün Payitaht evrenine uyarlamayı hedefler. Ikariam'ın özel görselleri, metinleri,
-isimleri, kaynak kodu ve birebir dengesi kopyalanmayacak.
+Ikariam'ın oyun sistemleri Payitaht evrenine (Osmanlı-Akdeniz) uyarlanır. Ikariam'ın
+görselleri, metinleri ve birebir sayıları kopyalanmaz; sistemler ve oyun döngüsü
+eşlenir. Durum: ✅ var · 🟡 kısmen · ❌ yok. (Güncelleme: 2026-09-24)
 
-## Gerçek durum (2026-09-23)
+## Kaynaklar ve ekonomi
 
-- **Mevcut:** Ana şehir, modüler bina yerleşimi, bina seviyeleri/ücret/süre, üretim/işçi
-  dağıtımı, halkın memnuniyeti, ambar kapasitesi, dört araştırma kolu, kara/deniz
-  birliklerinin eğitimi, sur savunması, nakliye gemisi/kargo kapasitesi, offline
-  üretim ve yerel save doğrulaması.
-- **Bu PR:** 8 adalı atlas, göçle korunan çok şehirli save, Saray/Liman/gemi
-  şartıyla yeni şehir, bağımsız şehir ekonomisi ve yerleşimleri, şehir değiştirme,
-  şehirler arası süreli nakliye ve dolu ambarda bekleyen yük.
-- **Lüks ekonomi (2026-09-24):** Üzüm/Mermer/Kristal/Kükürt envanteri; her
-  şehir yalnızca kendi adasının yatağını işler (maden işçileri boştaki
-  halktan). Maden seviyesi kereste bağışıyla yükselir. Kahvehane üzüm ikram
-  eder (huzur), gelişmiş binalar mermer, bilim/kültür yapıları kristal,
-  top ve savaş gemileri kükürt ister. Lüks mallar gemiyle taşınır; Çarşı'da
-  NPC tüccar alım/satım yapar. Ikariam karşılığı 8 yeni yapı (Kahvehane,
-  Cami, Müze, Marangozhane, Mimarbaşı, Ormancı, Taşçı, Tophane).
-- **Ada, casusluk, sefer:** Boyalı ada görünümü (şehir, maden, üç bağımsız
-  yerleşim: Barbar Köyü, Korsan İni, Asi Kalesi — gerçek oyuncu değil).
-  Elçilik'te yetişen casuslar garnizon/sur/hazine raporu getirir (deterministik
-  zar). Kara ordusuyla sefer: deterministik çarpışma, kayıp oranı, ganimet,
-  dönüş ve raporlar. Her bina panelinde seviye etkisi (şu an → sonraki).
-- **Henüz yok:** Ortak adadaki diğer oyuncuların maden bağışları, çevrimiçi pazar, gerçek oyuncu kentleri,
-  eşzamanlı PvP/abluka/yağma, ittifak ve anlaşmalar, casusluk, savaş raporları,
-  dünya etkinlikleri.
+| Ikariam | Payitaht | Durum |
+|---|---|---|
+| Altın, vergi | Akçe (Konaklar vergisi, Çarşı esnafı) | ✅ |
+| Odun (ada kereste ocağı) | Kereste Ocağı (şehir içinde) + Taş | 🟡 ada ortak kereste ocağı yok |
+| Şarap / Mermer / Kristal / Kükürt | Üzüm / Mermer / Kristal / Kükürt, ada madeni | ✅ |
+| Araştırma puanı, bilim adamı | İlim, Medrese âlimleri (bakım gideri) | ✅ |
+| Vatandaş, işçi atama | Nüfus, Halk paneli, maden işçileri | ✅ |
+| Memnuniyet (meyhane, müze) | Huzur: Hamam, Kahvehane (üzüm), Cami, Müze | ✅ |
+| Nüfusun zamanla büyümesi | Nüfus anında tavana oturur | 🟡 |
+| Birlik bakım gideri | Her birliğin akçe/dk gideri | ✅ |
+| Yolsuzluk (koloni) | Valilik seviyesiyle azalan yolsuzluk | ✅ |
+| Hamle puanı | Divanhane'yle artan eşzamanlı görev sayısı | ✅ |
+| Depo/Çöplük | Depo (+2.500 saklama/sv) | ✅ |
 
-## İnşa sırası
+## Binalar
 
-1. **Ada kaynak ekonomisi:** Her adanın odun dışında tek uzmanlaşmış kaynak
-   yatağı olması; üzüm/mermer/kristal/kükürt için işçi, üretim ve stok;
-   halk memnuniyeti/araştırma/ordu maliyetlerine kaynakların gerçekten etki etmesi.
-2. **Liman ticareti:** Gemi sayısı, yükleme zamanı, rota, geri dönüş,
-   kargo rezervasyonu, şehirler arası emtia/para transferi ve pazarda NPC emirleri.
-   NPC işlemleri gerçek oyuncu işlemi olarak gösterilmez.
-3. **Koloni yönetimi:** İsimlendirme, Saray/idare dengesi, ada maden kapasitesi,
-   koloniye göre vergi, üretim ve yapı kilitleri, şehir listesi/kamera kolay geçişi.
-4. **Savaş sistemi:** Kara/deniz birimlerinin rolleri, kuşatma/abluka,
-   yola çıkma/dönüş, savunma ve kayıpları açıklayan deterministik savaş motoru.
-5. **Çevrimiçi dünya:** Sunucuda doğrulanan kimlik, ortak ada/şehirler, gerçek
-   oyuncuların pazar teklifleri, PvP seferleri, yağma ve ittifak/diplomasi.
-   Bunun için mevcut localStorage prototipinden sunucu-otoriteli oyun durumuna
-   geçiş ve hile/çift işlem/çatışma çözümü gerekir.
-6. **İlerleme ve içerik:** Daha kapsamlı araştırma ağacı, bina ve birlik
-   sınıfları, ticaret/savaş raporları, görevler, şehir ve donanma görselleri,
-   mobil erişilebilirlik ve performans.
+| Ikariam | Payitaht | Durum |
+|---|---|---|
+| Belediye | Divanhane | ✅ |
+| Akademi | Medrese | ✅ |
+| Depo (Warehouse) | Ambar | ✅ |
+| Meyhane | Kahvehane | ✅ |
+| Saray (yalnız başkent) | Saray (yalnız başkent) | ✅ |
+| Vali Konağı (koloni) | Valilik (yalnız koloni) | ✅ |
+| Müze | Müze | ✅ |
+| Liman | Ticaret Limanı | ✅ |
+| Tersane | Tersane | ✅ |
+| Kışla | Kışla | ✅ |
+| Sur | Surlar | ✅ |
+| Elçilik | Elçilik (casus yeri) | ✅ |
+| Ticaret Merkezi | Ticaret Merkezi (tüccar fiyatı/partisi) | ✅ |
+| Atölye (birlik yükseltme) | Tophane (+%2 güç/sv) | 🟡 birlik başına yükseltme yok |
+| Saklanma yeri (casuslar) | Elçilik casus yeri | 🟡 ayrı yapı yok |
+| Ormancı / Taş ustası / Bağcı / Simyacı / Camcı | Ormancı Evi / Taşçı Ustası / Bağcı Evi / Simyahane / Camcı | ✅ |
+| Marangoz / Mimar / Şaraphane / Optikçi / Havai fişek alanı | Marangozhane / Mimarbaşı / Şıra Mahzeni / Gözlükçü / Barut Deneme Alanı | ✅ |
+| Tapınak (rahipler, mucizeler) | Cami (huzur + ilim) | 🟡 rahip/mucize yok |
+| Deniz Haritası Arşivi | Harita Arşivi | ✅ |
+| Korsan Kalesi, Kara Pazar | — | ❌ |
+| Binaların seviyeyle görünüm değiştirmesi | 3 aşamalı bina çizimleri | ✅ |
 
-**Yayın kuralı:** Her paket eski kayıtları korumalı, oyun motoru ve mobil ekran
-testlerinden geçmeli. Yerel simülasyon gerçek çok oyunculu deneyim diye
-sunulmamalı.
+## Ordu
+
+| Ikariam | Payitaht | Durum |
+|---|---|---|
+| Hoplit, Mızrakçı | Yeniçeri, Mızrakçı (ön cephe) | ✅ |
+| Kılıç ustası | Azap (kanat) | ✅ |
+| Sapancı, Okçu, Kükürtlü tüfekçi | Sapancı, Okçu, Tüfekçi (uzak menzil) | ✅ |
+| Koçbaşı, Mancınık, Havan | Koçbaşı, Mancınık, Topçu (kuşatma) | ✅ |
+| Aşçı, Doktor | Aşçı (moral), Hekim (yaralı kurtarma) | ✅ |
+| Buharlı dev, Gyrocopter, Balon | — | ❌ (dönem dışı) |
+| Koç gemisi, Ateş gemisi, Mancınık gemisi | Kadırga, Ateş Gemisi, Mancınık Gemisi, Kalyon | ✅ (deniz savaşı henüz yok) |
+| Nakliye gemisi | Nakliye | ✅ |
+| Casus | Casus | ✅ |
+| Savaş alanı (satırlar, turlar, sur, moral) | 6 turlu deterministik savaş motoru | ✅ |
+| Barbar köyü | Barbar Köyü, Korsan İni, Asi Kalesi | ✅ |
+| Başka oyuncuya saldırı, işgal, abluka | — (çok oyunculu sunucu gerekir) | ❌ |
+| Deniz savaşı | — | ❌ |
+| Şehre gelen saldırılar | — | ❌ |
+
+## Araştırma
+
+| Ikariam | Payitaht | Durum |
+|---|---|---|
+| 4 dal (Denizcilik, Ekonomi, Bilim, Askerî) | 4 dal | ✅ |
+| Binaları/birlikleri açan araştırmalar | Bağcılık, Simya, Cam Ustalığı, Optik, Tıp, Askerî Mühendislik, Kuşatma, Rum Ateşi, Deniz Topçuluğu, Barut, Ticaret, Haritacılık… | ✅ |
+| Makara, Geometri, Su terazisi | Makara Düzeni, Hendese, Su Terazisi | ✅ |
+| Gelecek araştırmaları (tekrarlanan) | — | ❌ |
+
+## Ada ve dünya
+
+| Ikariam | Payitaht | Durum |
+|---|---|---|
+| Ada görünümü | Boyalı ada haritası | ✅ |
+| Ada madenine bağış | Kereste bağışıyla maden seviyesi | ✅ |
+| Harikalar | — | ❌ |
+| Dünya haritası, koloni | 8 adalık atlas, koloni | ✅ |
+| Nakliye, ticaret | Şehirler arası nakliye, NPC tüccar | ✅ |
+| Oyuncu pazarı, ittifak, mesaj, sıralama | — (sunucu gerekir) | ❌ |
+
+## Sıradaki paketler
+
+1. Deniz savaşı ve başka adadaki yerleşimlere gemiyle sefer.
+2. Korsan baskınları (şehre gelen saldırılar, savunma raporları).
+3. Nüfusun zamanla büyümesi (memnuniyete bağlı büyüme hızı).
+4. Tophane'de birlik başına yükseltme; Cami'de rahip/mucize.
+5. Harikalar ve tekrarlanan "Gelecek" araştırmaları.

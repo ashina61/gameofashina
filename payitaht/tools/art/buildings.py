@@ -800,11 +800,110 @@ def npc_kale(s, st):
     s.flag(1.0, 1.0, 0.95, 0.55, hexc('#5a2c6e'))
 
 
+# ------------------------------------------------ IKARIAM KARŞILIĞI YENİ YAPILAR
+def bagci(s, st):
+    ground(s, 0.15, 0.15, 1.9, 1.9, hexc('#bda271'))
+    block(s, 0.3, 0.3, 0.95, 0.9, 0.5 + 0.1 * st, shutter='s', roof='gx', roofcol=PAL['roof'], door_y=0.5)
+    for r in range(2 + st):
+        for c in range(4):
+            x, y = 1.1 + c * 0.2, 0.35 + r * 0.3
+            if y < 1.8:
+                s.blob(x, y, 0.16, 0.07, mix(hexc('#5f8c3e'), hexc('#7aa04a'), s.rnd.random() * 0.6), squash=0.8)
+                s.sphere(x + 0.03, y + 0.04, 0.1, 0.028, hexc('#6b2f63'), n=8, rings=5)
+    for i in range(2 + st):
+        s.barrel(0.4 + i * 0.14, 1.2, 0.06)
+
+
+def simyahane(s, st):
+    ground(s, 0.15, 0.15, 1.9, 1.9, hexc('#c2b08a'))
+    block(s, 0.4, 0.4, 1.2, 1.1, 0.6, col=PAL['stone'], mat='stone', kind='arch', roof='flat', door_y=0.5)
+    s.cylinder(1.45, 0.7, 0, 0.8 + 0.2 * st, 0.18, PAL['stone'], 'stone', n=18)
+    s.dome(1.45, 0.7, 0.8 + 0.2 * st, 0.18, PAL['lead'], 'lead', hscale=0.9)
+    for i in range(1 + st):
+        s.cone(0.5 + i * 0.3, 1.4, 0, 0.14, 0.1, hexc('#e2c94a'), 'stone', n=10)
+
+
+def camci(s, st):
+    ground(s, 0.15, 0.15, 1.9, 1.9, hexc('#cdb88f'))
+    block(s, 0.35, 0.35, 1.25, 1.05, 0.55, col=PAL['plaster'], kind='arch', roof='gx', roofcol=PAL['roof'], door_y=0.5)
+    s.box(1.35, 0.5, 0, 1.7, 0.85, 0.35, hexc('#b8664a'), 'stone')  # fırın
+    s.dome(1.52, 0.67, 0.35, 0.15, hexc('#b8664a'), 'stone', finial=False)
+    for i in range(2 + st):
+        s.cone(0.5 + i * 0.22, 1.45, 0, 0.18, 0.05, hexc('#7fc4e0'), 'flat', n=6)
+
+
+def mahzen(s, st):
+    ground(s, 0.15, 0.15, 1.9, 1.9, hexc('#c9b084'))
+    block(s, 0.35, 0.35, 1.35, 1.0, 0.45, col=PAL['stone'], mat='stone', wins=False, roof='gx', roofcol=PAL['roof'], door_y=0.3, rh=0.25)
+    s.box(0.55, 1.0, 0, 1.0, 1.25, 0.2, PAL['stonedark'], 'stone', deco_y=[('archdoor', 0.5, 0, 0.2, 0.18)])
+    for i in range(3 + st):
+        s.barrel(1.2 + (i % 3) * 0.16, 1.3 + (i // 3) * 0.18, 0.065)
+
+
+def gozlukcu(s, st):
+    ground(s, 0.15, 0.15, 1.9, 1.9, hexc('#d2bb8c'))
+    block(s, 0.4, 0.4, 1.25, 1.1, 0.7 + 0.1 * st, col=PAL['ochre'], shutter='s', roof='hip', roofcol=PAL['roof'], door_y=0.5, spacing=0.24)
+    awning(s, 0.5, 1.15, 1.1, 0.42, 0.2, PAL['blue'])
+    s.tree(1.6, 1.5, 0.8, 'cypress')
+
+
+def barutane(s, st):
+    ground(s, 0.1, 0.1, 1.92, 1.92, hexc('#b9a680'))
+    s.box(0.3, 0.3, 0, 0.9, 0.8, 0.4, PAL['stone'], 'stone', deco_y=[('courses', 0.1), ('archdoor', 0.5, 0, 0.16, 0.26)], deco_x=[('courses', 0.1)])
+    s.box(0.27, 0.27, 0.4, 0.93, 0.83, 0.45, PAL['stone2'], 'stone')
+    for i in range(1 + st):
+        x = 1.1 + i * 0.25
+        s.cylinder(x, 1.3, 0, 0.35, 0.02, PAL['wooddark'], 'wood', n=6)
+        s.cone(x, 1.3, 0.35, 0.12, 0.04, PAL['red'], 'flat', n=8)
+    for i in range(2 + st):
+        s.barrel(0.4 + i * 0.13, 1.1, 0.055)
+
+
+def depo(s, st):
+    ground(s, 0.15, 0.15, 1.9, 1.9, hexc('#c7ae7c'))
+    for i in range(1 + (st > 1) + (st > 2)):
+        y0 = 0.3 + i * 0.5
+        block(s, 0.3, y0, 1.6, y0 + 0.42, 0.5, col=PAL['wood'], mat='wood', wins=False, roof='gx', roofcol=PAL['roof2'], door_y=0.5, trim=False, rh=0.22)
+    for i in range(4):
+        s.crate(1.65, 0.4 + i * 0.25, 0.12)
+
+
+def ticaret_merkezi(s, st):
+    ground(s, 0.1, 0.1, 1.92, 1.92, hexc('#d6c095'))
+    pave(s, 0.6, 0.6, 1.4, 1.4, PAL['marble'], n=6)
+    for (x0, y0, x1, y1) in ((0.2, 0.2, 1.75, 0.55), (0.2, 0.55, 0.55, 1.7)) + (((1.45, 0.55, 1.8, 1.7),) if st >= 2 else ()):
+        block(s, x0, y0, x1, y1, 0.5, kind='arch', roof='hip', roofcol=PAL['roof'], spacing=0.22)
+    s.cylinder(1.0, 1.0, 0, 0.12, 0.1, PAL['marble'], 'marble', top=PAL['water'])
+    for i in range(2 + st):
+        s.crate(0.75 + (i % 3) * 0.18, 1.5 + (i // 3) * 0.16, 0.12)
+
+
+def harita_arsivi(s, st):
+    ground(s, 0.15, 0.15, 1.9, 1.9, hexc('#d2bb8c'))
+    block(s, 0.35, 0.35, 1.3, 1.1, 0.75, col=PAL['plaster'], shutter='s', roof='hip', roofcol=PAL['lead'], door_y=0.5, spacing=0.26)
+    s.cylinder(1.5, 0.6, 0, 1.0 + 0.15 * st, 0.13, PAL['plaster'], 'plaster', n=16)
+    s.dome(1.5, 0.6, 1.0 + 0.15 * st, 0.13, PAL['lead'], 'lead')
+    s.flag(0.4, 0.4, 0.95, 0.5, PAL['blue'])
+
+
+def valilik(s, st):
+    ground(s, 0.15, 0.15, 1.9, 1.9, hexc('#d2bb8c'))
+    block(s, 0.35, 0.35, 1.45, 1.25, 0.75 + 0.1 * st, door_y=0.5, shutter='s', roof='hip', roofcol=PAL['lead'], spacing=0.25)
+    portico(s, 0.55, 1.25, 1.25, 0.22, 0.45, 4)
+    if st >= 2:
+        domed(s, 0.9, 0.8, 0.85 + 0.1 * st + 0.3, 0.14, drum=0.06)
+    s.flag(0.4, 0.4, 0.95, 0.55)
+    s.tree(1.75, 1.6, 0.8, 'cypress')
+
+
 BUILDINGS = {
     'divan': divan, 'saray': saray, 'elcilik': elcilik, 'konut': konut, 'hamam': hamam, 'carsi': carsi,
     'ambar': ambar, 'kereste': kereste, 'tas': tas, 'medrese': medrese, 'kisla': kisla, 'liman': liman,
     'tersane': tersane, 'kahvehane': kahvehane, 'cami': cami, 'muze': muze, 'marangoz': marangoz,
     'mimar': mimar, 'ormanci': ormanci, 'tasci': tasci, 'tophane': tophane, 'surlar': surlar,
+    'bagci': bagci, 'simyahane': simyahane, 'camci': camci, 'mahzen': mahzen, 'gozlukcu': gozlukcu,
+    'barutane': barutane, 'depo': depo, 'ticaret_merkezi': ticaret_merkezi, 'harita_arsivi': harita_arsivi,
+    'valilik': valilik,
 }
 # Aşamasız yardımcı katmanlar: (fonksiyon, gölge var mı)
 EXTRAS = {'site': (site, True), 'scaffold': (scaffold, False),

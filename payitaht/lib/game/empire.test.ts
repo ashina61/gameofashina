@@ -75,8 +75,9 @@ test('one sender cannot use the same ships twice; cargo debits only sender', () 
   const arrival = result.empire.shipments[0].eta
   const delivered = advanceEmpire(result.empire, arrival)
   assert.equal(delivered.shipments.length, 0)
+  // Kolonide Valilik yokken %25 yolsuzluk: 120 kereste/dk yerine 90.
   assert.equal(delivered.cities[1].game.resources.wood,
-    Math.min(4500, before + 160 + (arrival - now) / 60000 * 120))
+    Math.min(4500, before + 160 + (arrival - now) / 60000 * 90))
   assert.deepEqual(parseEmpire(JSON.stringify(delivered)), delivered)
 })
 

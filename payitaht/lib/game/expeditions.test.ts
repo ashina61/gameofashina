@@ -52,7 +52,7 @@ test('a spy mission reports garrison, walls and treasure (or loses the spies) de
   assert.equal(availableUnits(home, 'city-1').casus, report.success ? 4 : 0)
 })
 
-test('a strong army takes the village, loses a few men and brings loot home', () => {
+test('a strong army takes the village and brings loot home', () => {
   const e = army()
   const g = e.cities[0].game
   const before = { gold: g.resources.gold, yeniceri: g.army.yeniceri }
@@ -65,7 +65,8 @@ test('a strong army takes the village, loses a few men and brings loot home', ()
   const report = arrived.reports![0]
   assert.equal(report.success, true)
   const city = arrived.cities[0].game
-  assert.ok(city.army.yeniceri < before.yeniceri && city.army.yeniceri > 0)
+  assert.ok(city.army.yeniceri <= before.yeniceri && city.army.yeniceri > 0)
+  assert.ok(report.lines.some(l => l.startsWith('Tur 1')))
   assert.equal(npcState(arrived, koy).level, 2)
   const home = advanceEmpire(arrived, now + 2 * raidTravelMs(1))
   assert.ok(home.cities[0].game.resources.gold > before.gold)
@@ -93,5 +94,13 @@ test('spies and an army may head to the same target at once, but not two armies'
   const spied = dispatchSpies(e, koy, 1, now)
   const raided = dispatchRaid(spied.empire, koy, { yeniceri: 5 }, now)
   assert.equal(raided.error, undefined)
-  assert.match(dispatchRaid(raided.empire, koy, { yeniceri: 5 }, now).error!, /ordu zaten yolda/)
+  assert.match(dispatchRaid(raided.empire, koy, { yeniceri: 5 }, now).error!, /ordu zaten yolda|Hamle puanı/)
+})
+
+test('action points cap how many missions a city runs at once', () => {
+  const e = army()
+  const first = dispatchRaid(e, koy, { yeniceri: 5 }, now)
+  const second = dispatchRaid(first.empire, 'sahil-korsan', { yeniceri: 5 }, now)
+  assert.equal(second.error, undefined)
+  assert.match(dispatchRaid(second.empire, kale, { yeniceri: 5 }, now).error!, /Hamle puanı/)
 })

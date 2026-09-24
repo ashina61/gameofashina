@@ -16,9 +16,10 @@
  * Kayıplar çarpışma anında ordudan silinir, ganimet dönüşte ambara iner.
  */
 import {
-  UNITS, UNIT_IDS, capacity, power, BUILDING_EFFECTS, logEvent,
+  UNITS, UNIT_IDS, capacity, power, BUILDING_EFFECTS, logEvent, actionPoints,
   type Army, type Game, type UnitId,
 } from './engine'
+import { battle, troopList } from './battle'
 import { activeCity, advanceEmpire, type Empire } from './empire'
 import { ISLANDS, type IslandId } from './islands'
 
@@ -39,7 +40,8 @@ export const NPC_SETTLEMENTS: NpcSettlement[] = ISLANDS.flatMap((island, i) =>
     id: `${island.id}-${kind}`, islandId: island.id, kind, name: NPC_NAMES[kind][i % NPC_NAMES[kind].length],
   })))
 export const MAX_NPC_LEVEL = 12
-export const RAID_UNITS: UnitId[] = ['yeniceri', 'okcu', 'sipahi', 'topcu']
+/** Sefere çıkabilen kara birlikleri (casus hariç). */
+export const RAID_UNITS: UnitId[] = UNIT_IDS.filter(id => UNITS[id].branch === 'kara' && UNITS[id].role !== 'spy')
 
 export type NpcState = { level: number; raidedAt: number }
 export type Loot = { gold: number; wood: number; stone: number }
@@ -63,14 +65,21 @@ export function npcState(empire: Empire, id: string): NpcState {
 /** Yerleşimin garnizonu ve suru (seviyeden türer). */
 export function garrison(level: number): Army {
   const army = Object.fromEntries(UNIT_IDS.map(id => [id, 0])) as Army
-  army.yeniceri = 4 * level
-  army.okcu = 2 * level
-  army.sipahi = Math.floor(level / 2) * 2
-  army.topcu = Math.max(0, level - 4)
+  // Karışık garnizon: ön cephe, nişancı, kanat, seviye yükseldikçe kuşatma ve hekim.
+  army.mizrakci = 3 * level
+  army.yeniceri = level
+  army.sapanci = 2 * level
+  army.okcu = level
+  army.azap = Math.floor(level / 2)
+  army.sipahi = Math.floor(level / 3) * 2
+  army.topcu = Math.max(0, level - 5)
+  army.hekim = Math.floor(level / 4)
   return army
 }
 export function npcWall(level: number) { return Math.max(0, level - 2) }
 const WALL_PER_LEVEL = 120
+/** Surun can puanı (savaş motoru). */
+export function npcWallHp(level: number) { return npcWall(level) * 400 }
 
 /** Yağmalanabilir hazine: son yağmadan beri 45 dakikada dolar. */
 export const LOOT_REFILL_MS = 45 * 60_000
@@ -107,8 +116,16 @@ export function npcDefense(level: number, withCannons: boolean) {
   const wall = npcWall(level) * WALL_PER_LEVEL * (withCannons ? 0.5 : 1)
   return { troops, wall: Math.round(wall), total: Math.round(troops + wall) }
 }
-export function raidTravelMs(level: number) { return (90 + 30 * level) * 1000 }
-export function spyTravelMs(level: number) { return (60 + 15 * level) * 1000 }
+/** Harita Arşivi yolu kısaltır (seviye başına %2, en fazla %50). */
+function mapBonus(g?: Game) { return g ? 1 - Math.min(0.5, g.buildings.harita_arsivi * BUILDING_EFFECTS.harita) : 1 }
+export function raidTravelMs(level: number, g?: Game) { return Math.round((90 + 30 * level) * 1000 * mapBonus(g)) }
+export function spyTravelMs(level: number, g?: Game) { return Math.round((60 + 15 * level) * 1000 * mapBonus(g)) }
+
+/** Bu şehirde kullanılan hamle puanı: yoldaki görevler + seferdeki nakliye. */
+export function actionsInUse(empire: Empire, cityId: string) {
+  return (empire.missions ?? []).filter(m => m.cityId === cityId).length +
+    empire.shipments.filter(s => s.from === cityId).length
+}
 
 /** Deterministik zar: görev kimliğinden [0,1). */
 function roll(seed: string) {
@@ -126,6 +143,9 @@ function targetCheck(empire: Empire, npcId: string, kind: Mission['kind']) {
   const npc = npcById(npcId)
   if (!npc) return { error: 'Bilinmeyen hedef.' }
   if (npc.islandId !== city.islandId) return { error: 'Yalnızca kendi adandaki yerleşimlere sefer düzenlenebilir.' }
+  if (actionsInUse(empire, city.id) >= actionPoints(city.game)) {
+    return { error: `Hamle puanı yok (${actionPoints(city.game)}). Bir görevin dönmesini bekle ya da Divanhane'yi yükselt.` }
+  }
   if ((empire.missions ?? []).some(m => m.cityId === city.id && m.npcId === npcId && m.kind === kind && !m.resolved)) {
     return { error: kind === 'spy' ? 'Bu hedefe giden casuslar zaten yolda.' : 'Bu hedefe giden bir ordu zaten yolda.' }
   }
@@ -142,7 +162,7 @@ export function dispatchSpies(source: Empire, npcId: string, count: number, now:
   const id = `spy-${t.city.id}-${npcId}-${now}`
   empire.missions = [...(empire.missions ?? []), {
     id, kind: 'spy', cityId: t.city.id, npcId, units: { casus: count },
-    departAt: now, arriveAt: now + spyTravelMs(level), returnAt: now + 2 * spyTravelMs(level),
+    departAt: now, arriveAt: now + spyTravelMs(level, t.city.game), returnAt: now + 2 * spyTravelMs(level, t.city.game),
     resolved: false, loot: { gold: 0, wood: 0, stone: 0 },
   }]
   logEvent(t.city.game, `${count} casus ${t.npc.name} yönüne yola çıktı.`, now)
@@ -164,7 +184,7 @@ export function dispatchRaid(source: Empire, npcId: string, units: Partial<Recor
   const level = npcState(empire, npcId).level
   empire.missions = [...(empire.missions ?? []), {
     id: `raid-${t.city.id}-${npcId}-${now}`, kind: 'raid', cityId: t.city.id, npcId, units: clean,
-    departAt: now, arriveAt: now + raidTravelMs(level), returnAt: now + 2 * raidTravelMs(level),
+    departAt: now, arriveAt: now + raidTravelMs(level, t.city.game), returnAt: now + 2 * raidTravelMs(level, t.city.game),
     resolved: false, loot: { gold: 0, wood: 0, stone: 0 },
   }]
   logEvent(t.city.game, `Ordu ${t.npc.name} üzerine sefere çıktı.`, now)
@@ -212,28 +232,24 @@ export function resolveArrival(empire: Empire, m: Mission) {
     }
     return
   }
-  // SEFER: deterministik çarpışma.
-  const cannons = (m.units.topcu ?? 0) > 0
-  const attack = strikeForce(g, m.units)
-  const def = npcDefense(state.level, cannons)
-  const ratio = attack / Math.max(1, def.total)
-  const win = ratio >= 1
-  const lossRate = win ? Math.min(0.6, Math.max(0.03, 0.3 / ratio)) : Math.min(1, 0.5 + 0.5 * (1 - ratio))
-  const lost: Partial<Record<UnitId, number>> = {}
-  const survivors: Partial<Record<UnitId, number>> = {}
-  for (const [id, n] of Object.entries(m.units) as [UnitId, number][]) {
-    const dead = Math.min(n, Math.round(n * lossRate))
-    lost[id] = dead
-    survivors[id] = n - dead
-    g.army[id] = Math.max(0, g.army[id] - dead)
-  }
-  m.units = Object.fromEntries(Object.entries(survivors).filter(([, n]) => (n ?? 0) > 0))
-  const lines = [
-    `Saldırı gücü ${Math.round(attack)} · savunma ${def.total} (garnizon ${def.troops}, sur ${def.wall}${cannons ? ', topçu suru yarıya indirdi' : ''}).`,
-    `Güç oranı ${ratio.toFixed(2)} → kayıp oranı %${Math.round(lossRate * 100)}.`,
-    `Kayıplar: ${unitList(lost)}.`,
-  ]
-  if (win) {
+  // SEFER: turlu savaş motoru (battle.ts).
+  const raw = (key: 'attack' | 'defense') => (Object.entries(m.units) as [UnitId, number][]).reduce((sum, [id, n]) => sum + UNITS[id][key] * n, 0)
+  const army = Object.fromEntries(UNIT_IDS.map(id => [id, m.units[id] ?? 0])) as Army
+  const p = power({ ...g, army }, 'kara')
+  const attackMul = raw('attack') > 0 ? p.attack / raw('attack') : 1
+  const defenseMul = raw('defense') > 0 ? p.defense / raw('defense') : 1
+  const npcMul = 1 + state.level * 0.03
+  const result = battle(
+    { troops: { ...m.units }, attackMul, defenseMul },
+    { troops: garrison(state.level), attackMul: npcMul, defenseMul: npcMul, wall: npcWallHp(state.level) },
+  )
+  for (const [id, n] of Object.entries(result.attackerLost) as [UnitId, number][]) g.army[id] = Math.max(0, g.army[id] - n)
+  m.units = Object.fromEntries((Object.entries(result.attackerLeft) as [UnitId, number][]).filter(([, n]) => n > 0))
+  const lines = result.rounds.map(r =>
+    `Tur ${r.round}: kaybımız ${troopList(r.attackerLoss)} · düşman kaybı ${troopList(r.defenderLoss)} · sur ${r.wall} · moral ${r.moraleA}/${r.moraleD}.`)
+  lines.push(`Toplam kayıp: ${troopList(result.attackerLost)}${Object.keys(result.healed).length ? ` (hekimler ${troopList(result.healed)} kurtardı)` : ''}.`,
+    `Düşman kaybı: ${troopList(result.defenderLost)}.`)
+  if (result.winner === 'attacker') {
     const carry = (Object.entries(m.units) as [UnitId, number][]).reduce((sum, [id, n]) => sum + UNITS[id].pop * n * 30, 0)
     const pool = lootPool(state, m.arriveAt)
     const total = pool.gold + pool.wood + pool.stone

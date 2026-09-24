@@ -123,7 +123,8 @@ export function NpcPanel({ empire, npcId, now, onSpy, onRaid }: {
 
     <section className="empire-section">
       <h3><Swords className="size-4" /> Sefere çık</h3>
-      <div className="raid-units">{RAID_UNITS.map(id => <div key={id} className="raid-unit">
+      {RAID_UNITS.every(id => free[id] <= 0) && <p className="fine-print">Boşta kara birliği yok. Kışla'da asker yetiştir.</p>}
+      <div className="raid-units">{RAID_UNITS.filter(id => free[id] > 0 || (pick[id] ?? 0) > 0).map(id => <div key={id} className="raid-unit">
         <span><strong>{UNITS[id].name}</strong><small>{free[id]} boşta · saldırı {UNITS[id].attack}</small></span>
         <Button size="sm" variant="outline" disabled={!(pick[id] ?? 0)} onClick={() => step(id, -5)} aria-label={`${UNITS[id].name} azalt`}><Minus /></Button>
         <strong className="stepper-value">{pick[id] ?? 0}</strong>
@@ -136,7 +137,7 @@ export function NpcPanel({ empire, npcId, now, onSpy, onRaid }: {
         <span><Clock3 className="size-4" />Yol {clock(raidTravelMs(state.level))}</span>
         <span><Users className="size-4" />Taşıma {Object.entries(pick).reduce((s, [id, n]) => s + UNITS[id as UnitId].pop * (n ?? 0) * 30, 0)}</span>
       </div>
-      <p className="fine-print">Savaş deterministiktir: saldırı savunmadan büyükse yerleşim düşer, kayıplar güç oranına göre azalır; topçu suru yarıya indirir. Ganimeti hayatta kalanlar taşır.</p>
+      <p className="fine-print">Savaş en fazla 6 tur sürer ve zar yoktur. Ön cephe hasarın çoğunu karşılar, kuşatma birlikleri (koçbaşı, mancınık, topçu) suru hızla yıkar. Morali 30'un altına düşen taraf geri çekilir. Aşçı morali korur, hekim yaralıları kurtarır. Ganimeti hayatta kalanlar taşır.</p>
       <Button size="sm" disabled={busy('raid') || !picked} onClick={() => { onRaid(pick); setPick({}) }}><Swords data-icon="inline-start" />Sefere çık</Button>
       {busy('raid') && <p className="requirement"><Clock3 className="size-4" />Bu hedefe giden bir ordu yolda.</p>}
     </section>

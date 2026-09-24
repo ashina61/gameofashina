@@ -773,3 +773,4 @@
 .island-view { padding-top: calc(env(safe-area-inset-top, 0px) + (min(100vw - 8px, 560px) * .243) + 16px); padding-bottom: calc(env(safe-area-inset-bottom, 0px) + min(100vw - 4px, 560px) * .217 + 60px); }
 .game-island .painted-quest { display: none; }
 .island-toolbar { padding-right: 76px; }
+.unit-role { font-style: normal; font-size: 10px; font-weight: 600; letter-spacing: .04em; color: var(--gold); margin-left: 4px; text-transform: uppercase; }

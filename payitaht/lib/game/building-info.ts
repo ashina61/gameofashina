@@ -6,8 +6,8 @@
  * değer ile oyunun gerçekten uyguladığı değer asla ayrışmaz.
  */
 import {
-  BUILDING_EFFECTS, UNITS, UNIT_IDS, WORKERS_PER_LEVEL, capacity, contentment, drillBonus, housing,
-  merchantLimit, tradeCapacity, wallDefense, type BuildingId, type Game,
+  BUILDING_EFFECTS, UNITS, UNIT_IDS, WORKERS_PER_LEVEL, capacity, contentment, corruption, drillBonus, housing,
+  merchantBuyPrice, merchantLimit, merchantSellPrice, tradeCapacity, wallDefense, type BuildingId, type Game,
 } from './engine'
 
 export type EffectLine = { label: string; value: string }
@@ -83,7 +83,24 @@ export function effectLines(game: Game, id: BuildingId, level: number): EffectLi
     case 'marangoz': return [{ label: 'Kereste maliyeti', value: `-${pct(level * E.marangozWood)}` }]
     case 'mimar': return [{ label: 'Taş ve mermer maliyeti', value: `-${pct(level * E.mimarStone)}` }]
     case 'ormanci': return [{ label: 'Kereste üretimi', value: `+${pct(level * E.ormanciWood)}` }]
-    case 'tasci': return [{ label: 'Taş üretimi', value: `+${pct(level * E.tasciStone)}` }]
+    case 'tasci': return [{ label: 'Taş ve mermer üretimi', value: `+${pct(level * E.tasciStone)}` }]
     case 'tophane': return [{ label: 'Birlik saldırı ve savunması', value: `+${pct(level * E.tophanePower)}` }]
+    case 'bagci': return [{ label: 'Üzüm üretimi', value: `+${pct(level * E.bagciWine)}` }]
+    case 'simyahane': return [{ label: 'Kükürt üretimi', value: `+${pct(level * E.simyaSulfur)}` }]
+    case 'camci': return [{ label: 'Kristal üretimi', value: `+${pct(level * E.camciCrystal)}` }]
+    case 'mahzen': return [{ label: 'Kahvehane üzüm tüketimi', value: `-${pct(Math.min(0.5, level * E.mahzenWine))}` }]
+    case 'gozlukcu': return [{ label: 'Kristal maliyeti', value: `-${pct(Math.min(0.5, level * E.gozlukcuCrystal))}` }]
+    case 'barutane': return [{ label: 'Birliklerin kükürt maliyeti', value: `-${pct(Math.min(0.5, level * E.barutaneSulfur))}` }]
+    case 'depo': return [{ label: 'Ek saklama', value: `+${num(level * E.depoStorage)} (toplam ${num(capacity(g))})` }]
+    case 'ticaret_merkezi': return [
+      { label: 'Tüccar partisi', value: `${num(merchantLimit(g))} birim` },
+      { label: 'Alış / satış fiyatı', value: `${merchantBuyPrice(g)} / ${merchantSellPrice(g)} akçe` },
+    ]
+    case 'harita_arsivi': return [{ label: 'Nakliye ve sefer yolu', value: `-${pct(Math.min(0.5, level * E.harita))}` }]
+    case 'valilik': return [
+      // Yolsuzluk 1 - (Valilik+1)/(koloni+1): Valilik seviyesi kadar koloniye kadar sıfırdır.
+      { label: 'Yolsuzluksuz koloni sayısı', value: `${level}` },
+      { label: 'Bu şehirde yolsuzluk', value: `%${Math.round(corruption(g) * 100)}` },
+    ]
   }
 }

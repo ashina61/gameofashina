@@ -17,7 +17,8 @@ export type LuxuryStock = Record<Luxury, number>
 export const LUXURY_NAMES: Record<Luxury, string> = { uzum: 'Üzüm', mermer: 'Mermer', kristal: 'Kristal', kukurt: 'Kükürt' }
 /** Adanın ortak madeni: seviye, bağışla biriken kereste ve maden işçileri. */
 export type IslandMine = { specialty: Luxury; level: number; wood: number; miners: number }
-export const BUILDING_IDS = ['divan', 'saray', 'elcilik', 'konut', 'hamam', 'carsi', 'ambar', 'kereste', 'tas', 'medrese', 'kisla', 'surlar', 'liman', 'tersane', 'kahvehane', 'cami', 'muze', 'marangoz', 'mimar', 'ormanci', 'tasci', 'tophane'] as const
+export const BUILDING_IDS = ['divan', 'saray', 'elcilik', 'konut', 'hamam', 'carsi', 'ambar', 'kereste', 'tas', 'medrese', 'kisla', 'surlar', 'liman', 'tersane', 'kahvehane', 'cami', 'muze', 'marangoz', 'mimar', 'ormanci', 'tasci', 'tophane',
+  'bagci', 'simyahane', 'camci', 'mahzen', 'gozlukcu', 'barutane', 'depo', 'ticaret_merkezi', 'harita_arsivi', 'valilik'] as const
 export type BuildingId = typeof BUILDING_IDS[number]
 export const RESEARCH_IDS = [
   'tools', 'storage', 'ticaret', 'architecture', 'alimler', 'celik',
@@ -26,6 +27,7 @@ export const RESEARCH_IDS = [
   'kent_planlama', 'ambar_teknigi', 'kagit', 'murekkep',
   'mekanik_kalem', 'talim', 'zirh', 'barut', 'askeri_lojistik',
   'haritacilik', 'yukleme', 'gemi_govdesi',
+  'bagcilik', 'simya', 'camcilik', 'optik', 'tip', 'muhendislik', 'kusatma', 'rum_atesi', 'deniz_topculugu',
 ] as const
 export type ResearchId = typeof RESEARCH_IDS[number]
 
@@ -101,6 +103,11 @@ export type Game = {
   luxury: LuxuryStock
   /** Şehrin adasındaki lüks kaynak madeni. */
   mine: IslandMine
+  /**
+   * İmparatorluk bilgisi (empire.ts her ilerlemede yazar): toplam şehir
+   * sayısı ve bu şehir başkent mi. Tek şehirli oyunda yoktur = başkent.
+   */
+  empire?: { cities: number; capital: boolean }
   claimed: string[]; log: { text: string; time: number }[]
 }
 
@@ -136,6 +143,10 @@ export type BuildingDef = {
   zone?: Zone | 'sur'
   /** Kurulmadan once gereken yapi ve seviyesi. */
   needs?: { id: BuildingId; level: number }
+  /** Kurulmadan once gereken araştırma (Ikariam'daki gibi binalar araştırmayla açılır). */
+  tech?: ResearchId
+  /** Yalnızca başkentte (Saray) ya da yalnızca kolonide (Valilik) kurulur. */
+  only?: 'capital' | 'colony'
 }
 
 /**
@@ -154,7 +165,7 @@ export const BUILDINGS: Record<BuildingId, BuildingDef> = {
   medrese: { name: 'Medrese', category: 'BİLİM', description: 'Gelecek, bilgiyle kurulur. İlim üretir ve kalıcı bonuslar veren araştırmaları açar.', base: 120, art: true, needs: { id: 'divan', level: 2 } },
   carsi: { name: 'Çarşı', category: 'TİCARET', description: 'Esnafın sesi, şehrin bereketi. Çalışan her esnaf hazineye akçe taşır.', base: 110, art: true },
   hamam: { name: 'Hamam', category: 'HALKIN HUZURU', description: 'Halkın huzuru, şehrin gücüdür. Her seviye şehrin geçindirebileceği nüfusu artırır.', base: 130, art: true },
-  saray: { name: 'Saray', category: 'YÖNETİM', description: 'Hükmünü uzağa taşır. Yeni şehirler kurmanın yolunu açar ve Şehirler danışmanını çalıştırır.', base: 320, art: true, needs: { id: 'divan', level: 3 } },
+  saray: { name: 'Saray', category: 'YÖNETİM', description: 'Hükmünü uzağa taşır. Yalnızca başkentte kurulur; seviyesi kaç koloni kurabileceğini belirler ve kolonilerdeki yolsuzluğu azaltır.', base: 320, art: true, needs: { id: 'divan', level: 3 }, only: 'capital' },
   elcilik: { name: 'Elçilik', category: 'YÖNETİM', description: 'Komşularınla konuşmanın kapısı. Diplomasi danışmanını ve ittifak defterini açar.', base: 200, art: true, needs: { id: 'divan', level: 2 } },
   kisla: { name: 'Kışla', category: 'ASKERÎ', description: 'Halkından asker yetiştirir. Her eğitilen vatandaş üretimden düşer — ordunun bedeli budur.', base: 180, art: true, needs: { id: 'divan', level: 2 } },
   surlar: { name: 'Surlar', category: 'ASKERÎ', description: 'Şehrin taş kalkanı. Her seviye savunmaya asker gerektirmeyen güç ekler. Arsa kaplamaz — şehrin çevresine örülür.', base: 150, art: true, zone: 'sur', needs: { id: 'kisla', level: 1 } },
@@ -171,7 +182,17 @@ export const BUILDINGS: Record<BuildingId, BuildingDef> = {
   marangoz: { name: 'Marangozhane', category: 'MALİYET', description: 'Kerestenin ustaca işlenmesi. Her seviye bina yapımındaki kereste maliyetini %1 azaltır.', base: 110, art: true, needs: { id: 'kereste', level: 2 } },
   mimar: { name: 'Mimarbaşı Odası', category: 'MALİYET', description: 'Hassas plan, az taş. Her seviye bina yapımındaki taş maliyetini %1 azaltır.', base: 130, art: true, needs: { id: 'tas', level: 2 } },
   ormanci: { name: 'Ormancı Evi', category: 'ÜRETİM', description: 'Fidanlık ve bakım. Her seviye kereste üretimini %2 artırır.', base: 100, art: true, needs: { id: 'kereste', level: 3 } },
-  tasci: { name: 'Taşçı Ustası', category: 'ÜRETİM', description: 'Usta taşçıların atölyesi. Her seviye taş üretimini %2 artırır.', base: 110, art: true, needs: { id: 'tas', level: 3 } },
+  tasci: { name: 'Taşçı Ustası', category: 'ÜRETİM', description: 'Usta taşçıların atölyesi. Her seviye taş ve (mermer adasında) mermer üretimini %2 artırır.', base: 110, art: true, needs: { id: 'tas', level: 3 } },
+  bagci: { name: 'Bağcı Evi', category: 'ÜRETİM', description: 'Bağların bakımı. Her seviye adadan çıkan üzümü %2 artırır.', base: 100, art: true, tech: 'bagcilik' },
+  simyahane: { name: 'Simyahane', category: 'ÜRETİM', description: 'Kükürdü arıtan simyacılar. Her seviye kükürt üretimini %2 artırır.', base: 120, art: true, tech: 'simya' },
+  camci: { name: 'Camcı Atölyesi', category: 'ÜRETİM', description: 'Kristali işleyen ustalar. Her seviye kristal üretimini %2 artırır.', base: 120, art: true, tech: 'camcilik' },
+  mahzen: { name: 'Şıra Mahzeni', category: 'MALİYET', description: 'Üzüm soğuk mahzende saklanır. Her seviye Kahvehane\'nin üzüm tüketimini %1 azaltır.', base: 110, art: true, tech: 'bagcilik' },
+  gozlukcu: { name: 'Gözlükçü', category: 'MALİYET', description: 'Hassas mercekler, az fire. Her seviye kristal maliyetini %1 azaltır.', base: 130, art: true, tech: 'optik' },
+  barutane: { name: 'Barut Deneme Alanı', category: 'MALİYET', description: 'Barut karışımları denenir. Her seviye birliklerin kükürt maliyetini %1 azaltır.', base: 140, art: true, tech: 'barut' },
+  depo: { name: 'Depo', category: 'DEPOLAMA', description: 'Ambarın yetmediği yerde. Her seviye her kaynağın saklama kapasitesine 2.500 ekler.', base: 150, art: true, tech: 'ambar_teknigi' },
+  ticaret_merkezi: { name: 'Ticaret Merkezi', category: 'TİCARET', description: 'Tüccarların buluştuğu han. Her seviye tüccar partisini 200 artırır, alış fiyatını düşürür, satış fiyatını yükseltir.', base: 170, art: true, tech: 'ticaret', needs: { id: 'carsi', level: 3 } },
+  harita_arsivi: { name: 'Harita Arşivi', category: 'LİMAN', description: 'Deniz haritaları ve portolanlar. Her seviye nakliye ve sefer yolculuğunu %2 kısaltır.', base: 180, art: true, tech: 'haritacilik' },
+  valilik: { name: 'Valilik', category: 'YÖNETİM', description: 'Kolonide Saray\'ın yerini tutar. Her seviye kolonideki yolsuzluğu azaltır; yalnızca kolonilerde kurulur.', base: 260, art: true, only: 'colony' },
   tophane: { name: 'Tophane', category: 'ASKERÎ', description: 'Top dökümü ve silah atölyesi. Her seviye bütün birliklerin saldırı ve savunmasını %2 artırır.', base: 220, art: true, needs: { id: 'kisla', level: 2 } },
 }
 
@@ -183,6 +204,9 @@ export const BUILDING_EFFECTS = {
   marangozWood: 0.01, mimarStone: 0.01,
   ormanciWood: 0.02, tasciStone: 0.02,
   tophanePower: 0.02,
+  bagciWine: 0.02, simyaSulfur: 0.02, camciCrystal: 0.02, mahzenWine: 0.01,
+  gozlukcuCrystal: 0.01, barutaneSulfur: 0.01, depoStorage: 2500, harita: 0.02,
+  merchantLimit: 200, merchantBuyStep: 0.25, merchantSellStep: 0.15,
   divanHousing: 20, sarayGold: 0.03,
   /** Kışla/Tersane/Liman/Elçilik: kendi birliklerinin eğitimi seviye başına %3 hızlanır (en fazla %45). */
   drillSpeed: 0.03, drillSpeedCap: 0.45,
@@ -202,47 +226,78 @@ export const BUILDING_EFFECTS = {
  * Oyuncu once Halk panelinden adam bosaltir, sonra Kisla'ya gelir. Bu, bir
  * ekranin baska bir ekrani nicin etkiledigini gorunur kilar.
  */
-export const UNIT_IDS = ['yeniceri', 'okcu', 'sipahi', 'topcu', 'kadirga', 'kalyon', 'nakliye', 'casus'] as const
+export const UNIT_IDS = ['yeniceri', 'okcu', 'sipahi', 'topcu', 'kadirga', 'kalyon', 'nakliye', 'casus',
+  'mizrakci', 'azap', 'sapanci', 'tufekci', 'kocbasi', 'mancinik', 'asci', 'hekim', 'ates_gemisi', 'mancinik_gemisi'] as const
 export type UnitId = typeof UNIT_IDS[number]
 export type Army = Record<UnitId, number>
+/**
+ * Birliğin savaş alanındaki yeri (Ikariam'daki savaş sırası):
+ * front = ön cephe, flank = kanat, range = uzak menzil, artillery = kuşatma,
+ * support = aşçı/hekim, spy = casus, transport = nakliye.
+ */
+export type UnitRole = 'front' | 'flank' | 'range' | 'artillery' | 'support' | 'spy' | 'transport'
 export type Unit = {
   name: string; branch: 'kara' | 'deniz'
+  role: UnitRole
   /** Bu birligi yetistiren yapi. */
   home: BuildingId
   /** O yapinin gerekli en dusuk seviyesi. */
   level: number
+  /** Gereken araştırma (varsa). */
+  tech?: ResearchId
   description: string
   /** Birlik basina sehirden dusen vatandas. */
   pop: number
   cost: Resources
   attack: number; defense: number
+  /** Tek bir birliğin can puanı (savaşta ölmeden önce emdiği hasar). */
+  hp: number
+  /** Dakikalık akçe bakım gideri (Ikariam'da birlikler maaş alır). */
+  upkeep: number
   /** Tek bir birligin egitim suresi, saniye. */
   seconds: number
   /** Nakliyenin tasidigi mal; digerlerinde 0. */
   cargo: number
 }
+const R = (gold: number, wood: number, stone = 0): Resources => ({ gold, wood, stone, knowledge: 0 })
 export const UNITS: Record<UnitId, Unit> = {
-  yeniceri: { name: 'Yeniçeri', branch: 'kara', home: 'kisla', level: 1, description: 'Ordunun belkemiği. Hem vurur hem dayanır.', pop: 1, cost: { gold: 80, wood: 20, stone: 0, knowledge: 0 }, attack: 12, defense: 10, seconds: 12, cargo: 0 },
-  okcu: { name: 'Okçu', branch: 'kara', home: 'kisla', level: 1, description: 'Uzaktan vurur, yakında erir. Yeniçerinin arkasında durur.', pop: 1, cost: { gold: 60, wood: 45, stone: 0, knowledge: 0 }, attack: 16, defense: 4, seconds: 12, cargo: 0 },
-  sipahi: { name: 'Sipahi', branch: 'kara', home: 'kisla', level: 2, description: 'Atlı akıncı. Hızlıdır, ilk darbeyi o indirir.', pop: 2, cost: { gold: 180, wood: 40, stone: 0, knowledge: 0 }, attack: 28, defense: 14, seconds: 20, cargo: 0 },
-  topcu: { name: 'Topçu', branch: 'kara', home: 'kisla', level: 3, description: 'Sur yıkar. Yavaştır ve korunmaya muhtaçtır.', pop: 3, cost: { gold: 320, wood: 140, stone: 90, knowledge: 0 }, attack: 65, defense: 6, seconds: 34, cargo: 0 },
-  kadirga: { name: 'Kadırga', branch: 'deniz', home: 'tersane', level: 1, description: 'Hafif savaş gemisi. Kürekle döner, dar sularda üstündür.', pop: 12, cost: { gold: 600, wood: 420, stone: 0, knowledge: 0 }, attack: 45, defense: 35, seconds: 45, cargo: 0 },
-  kalyon: { name: 'Kalyon', branch: 'deniz', home: 'tersane', level: 2, description: 'Ağır kalyon. Yavaş ama denizde son sözü söyler.', pop: 25, cost: { gold: 1400, wood: 950, stone: 120, knowledge: 0 }, attack: 120, defense: 95, seconds: 75, cargo: 0 },
-  casus: { name: 'Casus', branch: 'kara', home: 'elcilik', level: 1, description: 'Elçilikte yetişir. Komşu yerleşimlerin askerini, surunu ve hazinesini gözetler; savaşmaz.', pop: 1, cost: { gold: 140, wood: 0, stone: 0, knowledge: 0 }, attack: 0, defense: 0, seconds: 25, cargo: 0 },
-  nakliye: { name: 'Nakliye', branch: 'deniz', home: 'liman', level: 1, description: 'Asker ve mal taşır. Ticaretin ve seferin ayağıdır.', pop: 8, cost: { gold: 450, wood: 340, stone: 0, knowledge: 0 }, attack: 0, defense: 18, seconds: 40, cargo: 500 },
+  // ÖN CEPHE
+  mizrakci: { name: 'Mızrakçı', branch: 'kara', role: 'front', home: 'kisla', level: 1, description: 'Ucuz ve sağlam. Ön safı tutar, saldırısı zayıftır.', pop: 1, cost: R(40, 30), attack: 6, defense: 12, hp: 40, upkeep: 0.5, seconds: 8, cargo: 0 },
+  yeniceri: { name: 'Yeniçeri', branch: 'kara', role: 'front', home: 'kisla', level: 1, description: 'Ordunun belkemiği. Hem vurur hem dayanır.', pop: 1, cost: R(80, 20), attack: 12, defense: 10, hp: 56, upkeep: 1, seconds: 12, cargo: 0 },
+  // KANAT
+  azap: { name: 'Azap', branch: 'kara', role: 'flank', home: 'kisla', level: 2, description: 'Kılıçlı hafif piyade. Kanattan dalar, okçuları biçer.', pop: 1, cost: R(90, 40), attack: 18, defense: 8, hp: 44, upkeep: 1, seconds: 14, cargo: 0 },
+  sipahi: { name: 'Sipahi', branch: 'kara', role: 'flank', home: 'kisla', level: 2, description: 'Atlı akıncı. Hızlıdır, ilk darbeyi o indirir.', pop: 2, cost: R(180, 40), attack: 28, defense: 14, hp: 80, upkeep: 2, seconds: 20, cargo: 0 },
+  // UZAK MENZİL
+  sapanci: { name: 'Sapancı', branch: 'kara', role: 'range', home: 'kisla', level: 1, description: 'Taş atan ucuz nişancı. Kalabalıkla etkilidir.', pop: 1, cost: R(30, 25), attack: 8, defense: 3, hp: 24, upkeep: 0.5, seconds: 8, cargo: 0 },
+  okcu: { name: 'Okçu', branch: 'kara', role: 'range', home: 'kisla', level: 1, description: 'Uzaktan vurur, yakında erir. Yeniçerinin arkasında durur.', pop: 1, cost: R(60, 45), attack: 16, defense: 4, hp: 30, upkeep: 1, seconds: 12, cargo: 0 },
+  tufekci: { name: 'Tüfekçi', branch: 'kara', role: 'range', home: 'kisla', level: 4, tech: 'barut', description: 'Barutlu tüfekle en ağır nişancı. Kükürt ister.', pop: 1, cost: R(160, 60), attack: 36, defense: 6, hp: 36, upkeep: 3, seconds: 26, cargo: 0 },
+  // KUŞATMA
+  kocbasi: { name: 'Koçbaşı', branch: 'kara', role: 'artillery', home: 'kisla', level: 3, tech: 'muhendislik', description: 'Sur kapısını kırar; askere karşı zayıftır.', pop: 3, cost: R(220, 260, 40), attack: 30, defense: 10, hp: 160, upkeep: 3, seconds: 30, cargo: 0 },
+  mancinik: { name: 'Mancınık', branch: 'kara', role: 'artillery', home: 'kisla', level: 5, tech: 'kusatma', description: 'Uzaktan taş fırlatır; suru ve safları dağıtır.', pop: 4, cost: R(300, 400, 120), attack: 55, defense: 8, hp: 140, upkeep: 4, seconds: 40, cargo: 0 },
+  topcu: { name: 'Topçu', branch: 'kara', role: 'artillery', home: 'kisla', level: 3, description: 'Sur yıkar. Yavaştır ve korunmaya muhtaçtır.', pop: 3, cost: R(320, 140, 90), attack: 65, defense: 6, hp: 120, upkeep: 5, seconds: 34, cargo: 0 },
+  // DESTEK
+  asci: { name: 'Aşçı', branch: 'kara', role: 'support', home: 'kisla', level: 2, tech: 'askeri_lojistik', description: 'Ordunun moralini yüksek tutar; kazan kaynarsa asker kaçmaz.', pop: 1, cost: R(120, 60), attack: 0, defense: 2, hp: 30, upkeep: 2, seconds: 20, cargo: 0 },
+  hekim: { name: 'Hekim', branch: 'kara', role: 'support', home: 'kisla', level: 4, tech: 'tip', description: 'Savaştan sonra yaralıların bir kısmını hayata döndürür.', pop: 1, cost: R(240, 40), attack: 0, defense: 2, hp: 30, upkeep: 3, seconds: 30, cargo: 0 },
+  // DENİZ
+  kadirga: { name: 'Kadırga', branch: 'deniz', role: 'front', home: 'tersane', level: 1, description: 'Hafif savaş gemisi. Kürekle döner, dar sularda üstündür.', pop: 12, cost: R(600, 420), attack: 45, defense: 35, hp: 420, upkeep: 4, seconds: 45, cargo: 0 },
+  ates_gemisi: { name: 'Ateş Gemisi', branch: 'deniz', role: 'range', home: 'tersane', level: 2, tech: 'rum_atesi', description: 'Rum ateşi püskürtür; düşman filosunu tutuşturur.', pop: 10, cost: R(700, 480, 60), attack: 70, defense: 20, hp: 300, upkeep: 5, seconds: 55, cargo: 0 },
+  mancinik_gemisi: { name: 'Mancınık Gemisi', branch: 'deniz', role: 'artillery', home: 'tersane', level: 4, tech: 'deniz_topculugu', description: 'Güvertesindeki mancınıkla kıyı surlarını döver.', pop: 14, cost: R(900, 700, 160), attack: 90, defense: 30, hp: 380, upkeep: 6, seconds: 65, cargo: 0 },
+  kalyon: { name: 'Kalyon', branch: 'deniz', role: 'front', home: 'tersane', level: 2, description: 'Ağır kalyon. Yavaş ama denizde son sözü söyler.', pop: 25, cost: R(1400, 950, 120), attack: 120, defense: 95, hp: 900, upkeep: 8, seconds: 75, cargo: 0 },
+  casus: { name: 'Casus', branch: 'kara', role: 'spy', home: 'elcilik', level: 1, description: 'Elçilikte yetişir. Komşu yerleşimlerin askerini, surunu ve hazinesini gözetler; savaşmaz.', pop: 1, cost: R(140, 0), attack: 0, defense: 0, hp: 10, upkeep: 0.5, seconds: 25, cargo: 0 },
+  nakliye: { name: 'Nakliye', branch: 'deniz', role: 'transport', home: 'liman', level: 1, description: 'Asker ve mal taşır. Ticaretin ve seferin ayağıdır.', pop: 8, cost: R(450, 340), attack: 0, defense: 18, hp: 200, upkeep: 1, seconds: 40, cargo: 500 },
 }
 export const RESEARCH: Record<ResearchId, { branch: ResearchBranch; name: string; description: string; cost: number; duration: number; required: number; needs?: ResearchId }> = {
   // EKONOMİ
   tools: { branch: 'ekonomi', name: 'Usta Elleri', description: 'Akçe, kereste, taş ve ilim üretimi kalıcı olarak %20 artar.', cost: 30, duration: 30, required: 1 },
   storage: { branch: 'ekonomi', name: 'Ambar Nizamı', description: 'Tüm kaynakların depolama kapasitesi kalıcı olarak %25 artar.', cost: 50, duration: 40, required: 1 },
-  ticaret: { branch: 'ekonomi', name: 'Ticaret Yolları', description: 'Ticaret Limanı kapasitesi kalıcı olarak %30 artar.', cost: 110, duration: 55, required: 3, needs: 'storage' },
+  ticaret: { branch: 'ekonomi', name: 'Ticaret Yolları', description: 'Ticaret Limanı kapasitesi kalıcı olarak %30 artar; Ticaret Merkezi açılır.', cost: 110, duration: 55, required: 3, needs: 'storage' },
   makara: { branch: 'ekonomi', name: 'Makara Düzeni', description: 'Yeni bina yükseltmelerinin kereste ve taş maliyeti %2 azalır.', cost: 24, duration: 25, required: 1 },
   geometri: { branch: 'ekonomi', name: 'Hendese', description: 'Yeni bina yükseltmelerinin kereste ve taş maliyeti ek %4 azalır.', cost: 180, duration: 55, required: 3, needs: 'makara' },
   su_terazisi: { branch: 'ekonomi', name: 'Su Terazisi', description: 'Yeni bina yükseltmelerinin kereste ve taş maliyeti ek %8 azalır.', cost: 900, duration: 105, required: 5, needs: 'geometri' },
   ormancilik: { branch: 'ekonomi', name: 'Ormancılık', description: 'Kereste Ocağı üretimi %15 artar.', cost: 130, duration: 55, required: 2, needs: 'tools' },
   tascilik: { branch: 'ekonomi', name: 'Taş İşçiliği', description: 'Taş Ocağı üretimi %15 artar.', cost: 200, duration: 65, required: 3, needs: 'ormancilik' },
   kent_planlama: { branch: 'ekonomi', name: 'Şehir Planlaması', description: 'Şehir nüfus barınma kapasitesi 40 artar.', cost: 420, duration: 85, required: 4, needs: 'storage' },
-  ambar_teknigi: { branch: 'ekonomi', name: 'Geniş Ambarlar', description: 'Kaynak saklama kapasitesi ek %15 artar.', cost: 480, duration: 95, required: 4, needs: 'storage' },
+  ambar_teknigi: { branch: 'ekonomi', name: 'Geniş Ambarlar', description: 'Kaynak saklama kapasitesi ek %15 artar; Depo açılır.', cost: 480, duration: 95, required: 4, needs: 'storage' },
   // BİLİM
   architecture: { branch: 'bilim', name: 'Mimarın Sırrı', description: 'Yeni inşaat ve eğitim %25 daha hızlı tamamlanır.', cost: 80, duration: 45, required: 2 },
   alimler: { branch: 'bilim', name: 'Âlimler Meclisi', description: 'İlim üretimi kalıcı olarak %30 artar.', cost: 130, duration: 55, required: 3 },
@@ -254,13 +309,22 @@ export const RESEARCH: Record<ResearchId, { branch: ResearchBranch; name: string
   istihkam: { branch: 'askeri', name: 'İstihkâm', description: 'Surların savunması %30 artar.', cost: 150, duration: 60, required: 3, needs: 'celik' },
   talim: { branch: 'askeri', name: 'Talim Nizamı', description: 'Kara ve deniz birliklerinin eğitim süresi %10 kısalır.', cost: 115, duration: 48, required: 2 },
   zirh: { branch: 'askeri', name: 'Zırh Ustalığı', description: 'Kara birliklerinin savunması %10 artar.', cost: 300, duration: 75, required: 4, needs: 'celik' },
-  barut: { branch: 'askeri', name: 'Barut Ustalığı', description: 'Topçuların saldırısı %15 artar.', cost: 490, duration: 90, required: 5, needs: 'celik' },
-  askeri_lojistik: { branch: 'askeri', name: 'Askerî Lojistik', description: 'Yeni asker eğitiminde akçe ve kereste maliyeti %10 azalır.', cost: 320, duration: 80, required: 4, needs: 'talim' },
+  barut: { branch: 'askeri', name: 'Barut Ustalığı', description: 'Topçuların saldırısı %15 artar; Tüfekçi ve Barut Deneme Alanı açılır.', cost: 490, duration: 90, required: 5, needs: 'celik' },
+  askeri_lojistik: { branch: 'askeri', name: 'Askerî Lojistik', description: 'Yeni asker eğitiminde akçe ve kereste maliyeti %10 azalır; Aşçı yetiştirilebilir.', cost: 320, duration: 80, required: 4, needs: 'talim' },
   // DENİZCİLİK
   pusula: { branch: 'denizcilik', name: 'Pusula', description: 'Nakliye gemilerinin kargosu %50 artar.', cost: 90, duration: 50, required: 2 },
   yelken: { branch: 'denizcilik', name: 'Yelken Ustalığı', description: 'Deniz birliklerinin saldırısı %15 artar.', cost: 140, duration: 60, required: 3, needs: 'pusula' },
-  haritacilik: { branch: 'denizcilik', name: 'Haritacılık', description: 'Şehirler arası nakliye süresi %15 azalır.', cost: 200, duration: 60, required: 3, needs: 'pusula' },
+  haritacilik: { branch: 'denizcilik', name: 'Haritacılık', description: 'Şehirler arası nakliye süresi %15 azalır; Harita Arşivi açılır.', cost: 200, duration: 60, required: 3, needs: 'pusula' },
   yukleme: { branch: 'denizcilik', name: 'Liman Yükleme Usulleri', description: 'Nakliye kapasitesi ek %20 artar.', cost: 380, duration: 75, required: 4, needs: 'ticaret' },
+  bagcilik: { branch: 'ekonomi', name: 'Bağcılık', description: 'Bağcı Evi ve Şıra Mahzeni kurulabilir.', cost: 160, duration: 50, required: 2, needs: 'tools' },
+  simya: { branch: 'bilim', name: 'Simya', description: 'Simyahane kurulabilir.', cost: 260, duration: 60, required: 3, needs: 'alimler' },
+  camcilik: { branch: 'bilim', name: 'Cam Ustalığı', description: 'Camcı Atölyesi kurulabilir.', cost: 220, duration: 55, required: 3, needs: 'kagit' },
+  optik: { branch: 'bilim', name: 'Optik', description: 'Gözlükçü kurulabilir.', cost: 420, duration: 80, required: 4, needs: 'camcilik' },
+  tip: { branch: 'bilim', name: 'Tıp', description: 'Hekim yetiştirilebilir: savaştan sonra yaralıları kurtarır.', cost: 360, duration: 75, required: 4, needs: 'alimler' },
+  muhendislik: { branch: 'askeri', name: 'Askerî Mühendislik', description: 'Koçbaşı yapılabilir.', cost: 180, duration: 55, required: 2, needs: 'celik' },
+  kusatma: { branch: 'askeri', name: 'Kuşatma Sanatı', description: 'Mancınık yapılabilir.', cost: 340, duration: 75, required: 3, needs: 'muhendislik' },
+  rum_atesi: { branch: 'denizcilik', name: 'Rum Ateşi', description: 'Ateş Gemisi yapılabilir.', cost: 300, duration: 70, required: 3, needs: 'yelken' },
+  deniz_topculugu: { branch: 'denizcilik', name: 'Deniz Topçuluğu', description: 'Mancınık Gemisi yapılabilir.', cost: 450, duration: 90, required: 4, needs: 'rum_atesi' },
   gemi_govdesi: { branch: 'denizcilik', name: 'Sağlam Gövdeler', description: 'Deniz birliklerinin savunması %12 artar.', cost: 490, duration: 95, required: 5, needs: 'yelken' },
 }
 export const OBJECTIVES = [
@@ -408,8 +472,27 @@ export function capacity(g: Game) {
   const warehouse = level === 0 ? 0 : 1500 * (1.32 ** level - 1) / 0.32
   const multiplier = (g.research.includes('storage') ? 1.25 : 1) *
     (g.research.includes('ambar_teknigi') ? 1.15 : 1)
-  return Math.floor((3000 + warehouse) * multiplier)
+  return Math.floor((3000 + warehouse) * multiplier) + (g.buildings.depo ?? 0) * BUILDING_EFFECTS.depoStorage
 }
+
+/**
+ * YOLSUZLUK (Ikariam): başkentte yoktur. Kolonide Valilik seviyesi koloni
+ * sayısına yetişmezse üretim düşer: 1 - (Valilik+1)/(koloni+1), yarı şiddetle.
+ */
+export function corruption(g: Game) {
+  const e = g.empire
+  if (!e || e.capital) return 0
+  const colonies = Math.max(1, e.cities - 1)
+  return Math.max(0, 1 - (g.buildings.valilik + 1) / (colonies + 1)) * 0.5
+}
+
+/** Dakikalık birlik bakım gideri (akçe). */
+export function armyUpkeep(g: Game) {
+  return UNIT_IDS.reduce((sum, id) => sum + UNITS[id].upkeep * (g.army?.[id] ?? 0), 0)
+}
+
+/** Aynı anda yürütülebilecek görev (sefer, casusluk, nakliye) sayısı: Divanhane ile artar. */
+export function actionPoints(g: Game) { return 2 + Math.floor(g.buildings.divan / 4) }
 /**
  * Dakikadaki uretim.
  *
@@ -429,7 +512,7 @@ export function scientistUpkeepPerMinute(g: Game): number {
   return scientistCount(g) * SCIENTIST_UPKEEP_PER_HOUR / 60
 }
 export function rates(g: Game): Resources {
-  const multiplier = g.research.includes('tools') ? 1.2 : 1
+  const multiplier = (g.research.includes('tools') ? 1.2 : 1) * (1 - corruption(g))
   const workers = clampWorkers(g)
   const share = (id: WorkerId) => {
     const cap = workerCapacity(g, id)
@@ -439,7 +522,7 @@ export function rates(g: Game): Resources {
     // Akce iki kaynaktan gelir: halkin vergisi (isci istemez) ve carsi esnafi.
     gold: Math.max(0, (60 + g.buildings.konut * 120 +
       g.buildings.carsi * 100 * share('carsi')) * multiplier * (1 + g.buildings.saray * BUILDING_EFFECTS.sarayGold) -
-      scientistUpkeepPerMinute(g)),
+      scientistUpkeepPerMinute(g) - armyUpkeep(g)),
     wood: g.buildings.kereste * 120 * share('kereste') * multiplier *
       (g.research.includes('ormancilik') ? 1.15 : 1) * (1 + g.buildings.ormanci * BUILDING_EFFECTS.ormanciWood),
     stone: g.buildings.tas * 90 * share('tas') * multiplier *
@@ -491,14 +574,25 @@ export function mineUpgradeCost(level: number) { return Math.round(600 * 1.55 **
 /** Kahvehane üzüm ikram ediyor mu? (Ambarda üzüm var ya da maden üzüm çıkarıyor.) */
 export function wineServed(g: Game) {
   if (g.buildings.kahvehane <= 0) return false
-  return g.luxury.uzum > 0 || luxuryProduction(g).uzum >= g.buildings.kahvehane * BUILDING_EFFECTS.kahvehaneWine
+  return g.luxury.uzum > 0 || luxuryProduction(g).uzum >= wineConsumption(g)
+}
+
+/** Kahvehane'nin dakikalık üzüm tüketimi (Şıra Mahzeni azaltır). */
+export function wineConsumption(g: Game) {
+  return g.buildings.kahvehane * BUILDING_EFFECTS.kahvehaneWine * Math.max(0.5, 1 - g.buildings.mahzen * BUILDING_EFFECTS.mahzenWine)
 }
 
 /** Maden işçilerinin dakikadaki brüt lüks üretimi (yalnızca adanın kaynağı). */
 export function luxuryProduction(g: Game): LuxuryStock {
   const out: LuxuryStock = { uzum: 0, mermer: 0, kristal: 0, kukurt: 0 }
   const miners = Math.min(g.mine.miners, mineCapacity(g))
-  out[g.mine.specialty] = miners * 3 * (g.research.includes('tools') ? 1.2 : 1)
+  const boost: Record<Luxury, number> = {
+    uzum: g.buildings.bagci * BUILDING_EFFECTS.bagciWine,
+    kukurt: g.buildings.simyahane * BUILDING_EFFECTS.simyaSulfur,
+    kristal: g.buildings.camci * BUILDING_EFFECTS.camciCrystal,
+    mermer: g.buildings.tasci * BUILDING_EFFECTS.tasciStone,
+  }
+  out[g.mine.specialty] = miners * 3 * (g.research.includes('tools') ? 1.2 : 1) * (1 + boost[g.mine.specialty]) * (1 - corruption(g))
   return out
 }
 
@@ -506,7 +600,7 @@ export function luxuryProduction(g: Game): LuxuryStock {
 export function luxuryRates(g: Game): LuxuryStock {
   const out = luxuryProduction(g)
   if (g.buildings.kahvehane > 0 && (g.luxury.uzum > 0 || out.uzum > 0)) {
-    out.uzum -= g.buildings.kahvehane * BUILDING_EFFECTS.kahvehaneWine
+    out.uzum -= wineConsumption(g)
   }
   return out
 }
@@ -529,15 +623,16 @@ export function luxuryCost(g: Game, id: BuildingId): Partial<LuxuryStock> {
     const factor = Math.max(0.5, 1 - constructionDiscount(g) - g.buildings.mimar * BUILDING_EFFECTS.mimarStone)
     out.mermer = Math.round(base * 0.22 * factor)
   }
-  if (level >= 4 && CRYSTAL_NEEDS.has(id)) out.kristal = Math.round(base * 0.12)
+  if (level >= 4 && CRYSTAL_NEEDS.has(id)) out.kristal = Math.round(base * 0.12 * Math.max(0.5, 1 - g.buildings.gozlukcu * BUILDING_EFFECTS.gozlukcuCrystal))
   return out
 }
 
 /** Ağır birlikler kükürt (barut) ister. */
-export const UNIT_SULFUR: Partial<Record<UnitId, number>> = { topcu: 40, kadirga: 30, kalyon: 90 }
-export function unitLuxuryCost(id: UnitId, count: number): Partial<LuxuryStock> {
+export const UNIT_SULFUR: Partial<Record<UnitId, number>> = { topcu: 40, kadirga: 30, kalyon: 90, tufekci: 25, ates_gemisi: 45, mancinik_gemisi: 60 }
+export function unitLuxuryCost(id: UnitId, count: number, g?: Game): Partial<LuxuryStock> {
   const s = UNIT_SULFUR[id]
-  return s ? { kukurt: s * count } : {}
+  const factor = g ? Math.max(0.5, 1 - g.buildings.barutane * BUILDING_EFFECTS.barutaneSulfur) : 1
+  return s ? { kukurt: Math.round(s * count * factor) } : {}
 }
 
 function hasLuxury(g: Game, need: Partial<LuxuryStock>) {
@@ -550,7 +645,10 @@ function payLuxury(g: Game, need: Partial<LuxuryStock>) {
 /** Çarşıdaki tüccar: akçe karşılığı lüks alım/satım (NPC; oyuncu pazarı değil). */
 export const MERCHANT_BUY = 6
 export const MERCHANT_SELL = 2
-export function merchantLimit(g: Game) { return g.buildings.carsi * 150 }
+export function merchantLimit(g: Game) { return g.buildings.carsi * 150 + g.buildings.ticaret_merkezi * BUILDING_EFFECTS.merchantLimit }
+/** Ticaret Merkezi fiyatları iyileştirir: alış en az 3, satış en çok 4 akçe. */
+export function merchantBuyPrice(g: Game) { return Math.max(3, MERCHANT_BUY - g.buildings.ticaret_merkezi * BUILDING_EFFECTS.merchantBuyStep) }
+export function merchantSellPrice(g: Game) { return Math.min(4, MERCHANT_SELL + g.buildings.ticaret_merkezi * BUILDING_EFFECTS.merchantSellStep) }
 
 export function population(g: Game) { return Math.min(housing(g), contentment(g)) }
 
@@ -588,6 +686,8 @@ export const BUILDING_GROWTH: Record<BuildingId, number> = {
   carsi: 1.35, ambar: 1.39, kereste: 1.31, tas: 1.31, medrese: 1.40,
   kisla: 1.37, surlar: 1.43, liman: 1.37, tersane: 1.41,
   kahvehane: 1.34, cami: 1.38, muze: 1.40, marangoz: 1.33, mimar: 1.34, ormanci: 1.32, tasci: 1.32, tophane: 1.39,
+  bagci: 1.32, simyahane: 1.33, camci: 1.33, mahzen: 1.33, gozlukcu: 1.34, barutane: 1.35, depo: 1.36,
+  ticaret_merkezi: 1.37, harita_arsivi: 1.36, valilik: 1.45,
 }
 export function constructionDiscount(g: Game): number {
   return (g.research.includes('makara') ? .02 : 0) +
@@ -703,6 +803,8 @@ export const MAX_LEVEL: Record<BuildingId, number> = {
   divan: 32, saray: 32, elcilik: 32, konut: 32, hamam: 32, carsi: 32, ambar: 32,
   kereste: 32, tas: 32, medrese: 32, kisla: 32, surlar: 40, liman: 32, tersane: 32,
   kahvehane: 32, cami: 32, muze: 32, marangoz: 32, mimar: 32, ormanci: 32, tasci: 32, tophane: 32,
+  bagci: 32, simyahane: 32, camci: 32, mahzen: 32, gozlukcu: 32, barutane: 32, depo: 32,
+  ticaret_merkezi: 32, harita_arsivi: 32, valilik: 32,
 }
 
 export function buildReason(g: Game, id: BuildingId): string | null {
@@ -726,6 +828,12 @@ export function buildReason(g: Game, id: BuildingId): string | null {
    */
   const needs = BUILDINGS[id].needs
   if (needs && g.buildings[needs.id] < needs.level) return `${BUILDINGS[needs.id].name} ${needs.level}. seviye gerekli.`
+  const tech = BUILDINGS[id].tech
+  if (tech && !g.research.includes(tech)) return `${RESEARCH[tech].name} araştırması gerekli.`
+  const only = BUILDINGS[id].only
+  const capital = g.empire?.capital ?? true
+  if (only === 'capital' && !capital) return 'Saray yalnızca başkentte kurulur; kolonide Valilik kur.'
+  if (only === 'colony' && capital) return 'Valilik yalnızca kolonilerde kurulur; başkentte Saray var.'
   // Hic kurulmamis yapi once KENDI BOLGESINDE bir arsaya yerlestirilmeli.
   if (takesPlot(id) && g.placement[id] === null && freePlots(g, zoneOf(id)).length === 0) {
     return zoneOf(id) === 'liman' ? 'Limanda boş iskele kalmadı.' : 'Boş arsa kalmadı.'
@@ -774,13 +882,14 @@ export function recruitReason(g: Game, id: UnitId, count: number): string | null
   const unit = UNITS[id]
   if (!Number.isInteger(count) || count <= 0) return 'Geçersiz sayı.'
   if (g.buildings[unit.home] < unit.level) return `${BUILDINGS[unit.home].name} ${unit.level}. seviye gerekli.`
+  if (unit.tech && !g.research.includes(unit.tech)) return `${RESEARCH[unit.tech].name} araştırması gerekli.`
   if (g.drill) return 'Eğitim sürüyor. Önce onun bitmesini bekle.'
   if (id === 'casus' && g.army.casus + count > spyCapacity(g)) return `Elçilik ${spyCapacity(g)} casus barındırır. Elçiliği yükselt.`
   const need = unit.pop * count
   if (idleWorkers(g) < need) return `${need} boşta vatandaş gerekli. Halk panelinden işçi çek.`
   const c = unitCost(id, count, g)
   if (RESOURCE_IDS.some(r => g.resources[r] < c[r])) return 'Yeterli kaynak yok.'
-  if (!hasLuxury(g, unitLuxuryCost(id, count))) return `${unitLuxuryCost(id, count).kukurt} kükürt gerekli (barut).`
+  if (!hasLuxury(g, unitLuxuryCost(id, count, g))) return `${unitLuxuryCost(id, count, g).kukurt} kükürt gerekli (barut).`
   return null
 }
 
@@ -858,7 +967,7 @@ export function execute(source: Game, command: Command, now: number): { game: Ga
     if (reason) return { game: g, error: reason }
     const c = unitCost(command.id, command.count, g)
     for (const r of RESOURCE_IDS) g.resources[r] -= c[r]
-    payLuxury(g, unitLuxuryCost(command.id, command.count))
+    payLuxury(g, unitLuxuryCost(command.id, command.count, g))
     g.drill = { id: command.id, kind: 'drill', start: now, end: now + unitDuration(g, command.id, command.count) * 1000, count: command.count }
     logEvent(g, `${command.count} ${UNITS[command.id].name} için eğitim başladı.`, now)
   } else if (command.type === 'research') {
@@ -904,7 +1013,7 @@ export function execute(source: Game, command: Command, now: number): { game: Ga
     if (g.buildings.carsi < 1) return { game: g, error: 'Tüccar için önce Çarşı kur.' }
     if (amount > merchantLimit(g)) return { game: g, error: `Tüccar tek seferde en fazla ${merchantLimit(g)} birim işler.` }
     if (command.side === 'buy') {
-      const price = amount * MERCHANT_BUY
+      const price = Math.ceil(amount * merchantBuyPrice(g))
       if (g.resources.gold < price) return { game: g, error: `${price} akçe gerekli.` }
       if (g.luxury[command.id] + amount > capacity(g)) return { game: g, error: 'Ambarda yer yok.' }
       g.resources.gold -= price
@@ -913,7 +1022,7 @@ export function execute(source: Game, command: Command, now: number): { game: Ga
     } else {
       if (g.luxury[command.id] < amount) return { game: g, error: `Bu kadar ${LUXURY_NAMES[command.id]} yok.` }
       g.luxury[command.id] -= amount
-      g.resources.gold = Math.min(capacity(g), g.resources.gold + amount * MERCHANT_SELL)
+      g.resources.gold = Math.min(capacity(g), g.resources.gold + Math.floor(amount * merchantSellPrice(g)))
       logEvent(g, `Tüccara ${amount} ${LUXURY_NAMES[command.id]} satıldı.`, now)
     }
   } else if (command.type === 'move') {
@@ -951,6 +1060,8 @@ const LEGACY_PLOT: Record<BuildingId, number> = {
   // v1'de bunlar yoktu; hicbir eski kayitta seviyeleri sifirdan buyuk olamaz.
   saray: 6, elcilik: 6, kisla: 6, surlar: 6, liman: 6, tersane: 6,
   kahvehane: 6, cami: 6, muze: 6, marangoz: 6, mimar: 6, ormanci: 6, tasci: 6, tophane: 6,
+  bagci: 6, simyahane: 6, camci: 6, mahzen: 6, gozlukcu: 6, barutane: 6, depo: 6,
+  ticaret_merkezi: 6, harita_arsivi: 6, valilik: 6,
 }
 
 /**

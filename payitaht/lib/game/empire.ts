@@ -1,5 +1,5 @@
 import {
-  advance, capacity, cargoCapacity, initialGame, parseSave, tradeCapacity,
+  advance, actionPoints, capacity, cargoCapacity, initialGame, parseSave, tradeCapacity, BUILDING_EFFECTS,
   LUXURY_IDS, LUXURY_NAMES, RESOURCE_IDS, RESOURCE_NAMES, type Game, type Luxury, type Resource,
 } from './engine'
 
@@ -102,6 +102,8 @@ export function parseEmpire(raw: string): Empire {
 
 export function advanceEmpire(source: Empire, now: number): Empire {
   const empire = structuredClone(source)
+  // Yolsuzluk ve Saray/Valilik kuralı için her şehir imparatorluktaki yerini bilir.
+  for (const city of empire.cities) city.game.empire = { cities: empire.cities.length, capital: city.id === 'city-1' }
   for (const city of empire.cities) city.game = advance(city.game, now)
   const pending: Shipment[] = []
   for (const shipment of empire.shipments) {
@@ -173,6 +175,9 @@ export function shipResources(source: Empire, to: string, resource: Cargo, amoun
       !Number.isSafeInteger(amount) || amount <= 0) return { empire, error: 'Geçersiz kaynak miktarı.' }
   if (from.game.buildings.liman < 1) return { empire, error: 'Önce bu şehirde Ticaret Limanı kur.' }
   if (empire.shipments.some(s => s.from === from.id)) return { empire, error: 'Bu şehrin nakliye gemileri seferde.' }
+  if ((empire.missions ?? []).filter(m => m.cityId === from.id).length + 1 > actionPoints(from.game)) {
+    return { empire, error: `Hamle puanı yok (${actionPoints(from.game)}). Bir görevin dönmesini bekle.` }
+  }
   const limit = Math.min(cargoCapacity(from.game), tradeCapacity(from.game))
   if (limit <= 0) return { empire, error: 'Bu şehirde nakliye gemisi gerekli.' }
   if (amount > limit) return { empire, error: `Tek seferde en fazla ${limit} kaynak taşınabilir.` }
@@ -182,7 +187,8 @@ export function shipResources(source: Empire, to: string, resource: Cargo, amoun
   addStock(from.game, resource, -amount)
   empire.shipments.push({
     id: `shipment-${from.id}-${now}`, from: from.id, to, resource, amount,
-    eta: now + Math.round(minutes * 60_000 * (from.game.research.includes('haritacilik') ? .85 : 1)),
+    eta: now + Math.round(minutes * 60_000 * (from.game.research.includes('haritacilik') ? .85 : 1) *
+      (1 - Math.min(0.5, from.game.buildings.harita_arsivi * BUILDING_EFFECTS.harita))),
   })
   return { empire }
 }

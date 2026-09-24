@@ -10,6 +10,7 @@ import { activeCity, CARGO_IDS, CARGO_NAMES, COLONY_COST, ISLANDS, type Cargo, t
 import { LUXURY_IDS, LUXURY_NAMES, MERCHANT_BUY, MERCHANT_SELL, MINE_MAX_LEVEL, luxuryCost, luxuryProduction, merchantLimit, mineCapacity, mineUpgradeCost, unitLuxuryCost, wineServed, type Luxury } from '@/lib/game/engine'
 import { luxuryIcons } from './game-widgets'
 import { effectLines } from '@/lib/game/building-info'
+import { actionPoints, armyUpkeep, merchantBuyPrice, merchantSellPrice, type UnitRole } from '@/lib/game/engine'
 import { Eye } from 'lucide-react'
 import { spyCapacity } from '@/lib/game/engine'
 
@@ -273,6 +274,10 @@ export function CitiesPanel({
   </div>
 }
 
+/** Savaş alanındaki yerler (Ikariam'ın savaş sırası). */
+const ROLE_ORDER: UnitRole[] = ['front', 'flank', 'range', 'artillery', 'support', 'spy', 'transport']
+const ROLE_NAMES: Record<UnitRole, string> = { front: 'ön cephe', flank: 'kanat', range: 'uzak menzil', artillery: 'kuşatma', support: 'destek', spy: 'casus', transport: 'nakliye' }
+
 /** Bir emirde eğitilebilecek parti büyüklükleri. */
 const BATCHES = [1, 5, 10]
 
@@ -299,11 +304,12 @@ export function ArmyPanel({ game, onRecruit, onBuild }: { game: Game; onRecruit:
       <div><ShieldCheck className="size-5" /><span>Savunma</span><strong>{cityDefense(game)}</strong></div>
       <div><Swords className="size-5" /><span>Saldırı</span><strong>{land.attack}</strong></div>
     </div>
+    <p className="army-note"><Coins className="size-4" />Ordunun bakımı dakikada {Math.round(armyUpkeep(game) * 10) / 10} akçe · aynı anda {actionPoints(game)} görev (hamle puanı).</p>
     <p className="army-note"><TriangleAlert className="size-4" />Asker halktan çıkar. Eğitilen her vatandaş üretimden düşer; surlar ise asker istemez, taş ister ({wallDefense(game)} savunma).</p>
     {game.drill && <JobProgress job={game.drill} now={game.updatedAt} />}
     <div className="batch-row"><span>Parti</span>{BATCHES.map(n => <Button key={n} size="sm" variant={batch === n ? 'default' : 'outline'} onClick={() => setBatch(n)}>{n}</Button>)}</div>
     {branches.map(branch => {
-      const units = UNIT_IDS.filter(id => UNITS[id].branch === branch.key)
+      const units = UNIT_IDS.filter(id => UNITS[id].branch === branch.key).sort((a, b) => ROLE_ORDER.indexOf(UNITS[a].role) - ROLE_ORDER.indexOf(UNITS[b].role))
       const ready = units.some(id => game.buildings[UNITS[id].home] > 0)
       return <section className="army-branch" key={branch.key}>
         <div className="army-branch-top"><h3>{branch.title}</h3><span>{branch.key === 'deniz' ? `Deniz gücü ${sea.attack} / ${sea.defense}` : `Savunma ${land.defense}`}</span></div>
@@ -314,17 +320,19 @@ export function ArmyPanel({ game, onRecruit, onBuild }: { game: Game; onRecruit:
           return <article className="unit-card" key={id}>
             <div className="unit-top">
               <span className="unit-icon">{unit.branch === 'kara' ? <Swords aria-hidden="true" /> : <Ship aria-hidden="true" />}</span>
-              <span><strong>{unit.name}</strong><small>{unit.description}</small></span>
+              <span><strong>{unit.name} <em className="unit-role">{ROLE_NAMES[unit.role]}</em></strong><small>{unit.description}</small></span>
               <span className="unit-have">{game.army[id]}<small>elde</small></span>
             </div>
             <div className="unit-stats">
               <span title="Saldırı"><Swords className="size-3" />{unit.attack}</span>
               <span title="Savunma"><ShieldCheck className="size-3" />{unit.defense}</span>
               <span title="Aldığı vatandaş"><Users className="size-3" />{unit.pop}</span>
+              <span title="Can puanı">❤ {unit.hp}</span>
+              <span title="Bakım gideri (akçe/dk)"><Coins className="size-3" />{unit.upkeep}/dk</span>
               {unit.cargo > 0 && <span title="Taşıma"><Warehouse className="size-3" />{unit.cargo}</span>}
             </div>
             <div className="unit-bottom">
-              <CostDisplay value={unitCost(id, batch, game)} lux={unitLuxuryCost(id, batch)} />
+              <CostDisplay value={unitCost(id, batch, game)} lux={unitLuxuryCost(id, batch, game)} />
               <span><Clock3 className="size-3" /> {unitDuration(game, id, batch)} sn</span>
               <Button size="sm" disabled={!!reason} onClick={() => onRecruit(id, batch)}>{batch} eğit</Button>
             </div>
@@ -429,12 +437,12 @@ export function IslandPanel({ game, islandName, onMiners, onDonate, onTrade }: {
       {game.buildings.carsi < 1
         ? <p className="fine-print">Tüccar Çarşı kurulunca gelir.</p>
         : <>
-          <p className="fine-print">Alış {MERCHANT_BUY} akçe, satış {MERCHANT_SELL} akçe. Tek seferde en fazla {merchantLimit(game)} birim (Çarşı seviyesiyle artar).</p>
+          <p className="fine-print">Alış {merchantBuyPrice(game)} akçe, satış {merchantSellPrice(game)} akçe (Ticaret Merkezi iyileştirir). Tek seferde en fazla {merchantLimit(game)} birim (Çarşı seviyesiyle artar).</p>
           <div className="batch-row"><span>Parti</span>{[10, 50, 150].filter(n => n <= merchantLimit(game)).map(n =>
             <Button key={n} size="sm" variant={lot === n ? 'default' : 'outline'} onClick={() => setLot(n)}>{n}</Button>)}</div>
           <div className="merchant-list">{LUXURY_IDS.map(id => <div key={id} className="merchant-row">
             <span>{LUXURY_NAMES[id]}</span>
-            <Button size="sm" variant="outline" disabled={game.resources.gold < lot * MERCHANT_BUY} onClick={() => onTrade(id, 'buy', lot)}>Al · {lot * MERCHANT_BUY}</Button>
+            <Button size="sm" variant="outline" disabled={game.resources.gold < Math.ceil(lot * merchantBuyPrice(game))} onClick={() => onTrade(id, 'buy', lot)}>Al · {Math.ceil(lot * merchantBuyPrice(game))}</Button>
             <Button size="sm" variant="outline" disabled={game.luxury[id] < lot} onClick={() => onTrade(id, 'sell', lot)}>Sat</Button>
           </div>)}</div>
         </>}
