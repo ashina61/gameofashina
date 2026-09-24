@@ -89,9 +89,6 @@ export class CityScene extends Phaser.Scene {
       if (!this.textures.exists('mine-' + lux)) this.load.image('mine-' + lux, asset(`/images/game/buildings/mine-${lux}.webp`))
     }
     // Boyalı arayüz parçaları (tools/art/import-ui.py).
-    if (!this.textures.exists('ui_plate')) this.load.image('ui_plate', asset('/images/ui/plate.webp'))
-    if (!this.textures.exists('ui_timer')) this.load.image('ui_timer', asset('/images/ui/timer-frame.webp'))
-    if (!this.textures.exists('ui_up')) this.load.image('ui_up', asset('/images/ui/icon-up.webp'))
     if (!this.textures.exists('b_scaffold')) this.load.image('b_scaffold', asset('/images/game/buildings/scaffold.webp'))
     preloadTerrain(this)
     if (!this.textures.exists('w_tower')) this.load.image('w_tower', asset('/images/game/walls/tower-round.png'))
@@ -717,21 +714,24 @@ export class CityScene extends Phaser.Scene {
   }
   private fontCache: { heading: string; body: string } | null = null
 
-  /** Boyalı plaka: sol daire (seviye) + esneyen gövde (isim) + sağ uç. */
+  /** Ikariam etiketi: kahverengi seviye dairesi + parşömen isim şeridi (vektör). */
   private makePaintedLabel(x: number, y: number, level: number, name: string, depth: number) {
     const f = this.headingFont()
-    const nameText = this.add.text(150, 0, name, { fontFamily: f.heading, fontSize: '50px', color: '#fff4dc', fontStyle: '700' })
-      .setOrigin(0, 0.5).setResolution(2).setShadow(0, 2, '#000000', 3, false, true)
-    const w = Math.round(150 + nameText.width + 46)
-    const parts: Phaser.GameObjects.GameObject[] = []
-    if (this.textures.exists('ui_plate')) {
-      parts.push(this.add.nineslice(0, 0, 'ui_plate', undefined, w, 140, 140, 32, 0, 0).setOrigin(0, 0.5))
-    } else {
-      const g = this.add.graphics(); g.fillStyle(0x14281f, 0.92); g.fillRoundedRect(0, -45, w, 90, 12); parts.push(g)
-    }
-    const lvl = this.add.text(64, 1, String(level), { fontFamily: f.body, fontSize: '52px', color: '#f5dc9a', fontStyle: '800' })
-      .setOrigin(0.5, 0.5).setResolution(2).setShadow(0, 2, '#000000', 3, false, true)
-    parts.push(nameText, lvl)
+    const nameText = this.add.text(128, 0, name, { fontFamily: f.heading, fontSize: '48px', color: '#3a2310', fontStyle: '700' })
+      .setOrigin(0, 0.5).setResolution(2)
+    const w = Math.round(128 + nameText.width + 34)
+    const g = this.add.graphics()
+    // Parşömen şerit, kahverengi kenar.
+    g.fillStyle(0x2a170a, 0.35); g.fillRoundedRect(44, -34, w - 40, 76, 16)
+    g.fillStyle(0xfbf2d6, 0.97); g.fillRoundedRect(40, -38, w - 40, 76, 16)
+    g.lineStyle(5, 0x8a5a22, 1); g.strokeRoundedRect(40, -38, w - 40, 76, 16)
+    // Seviye dairesi: koyu kahverengi, altın halka.
+    g.fillStyle(0x2a170a, 0.35); g.fillCircle(66, 6, 62)
+    g.fillStyle(0x5a3517, 1); g.fillCircle(62, 0, 60)
+    g.lineStyle(7, 0xe2bd78, 1); g.strokeCircle(62, 0, 57)
+    const lvl = this.add.text(62, 2, String(level), { fontFamily: f.heading, fontSize: '56px', color: '#fbe9bb', fontStyle: '800' })
+      .setOrigin(0.5, 0.5).setResolution(2)
+    const parts: Phaser.GameObjects.GameObject[] = [g, nameText, lvl]
     const c = this.add.container(x, y, parts).setDepth(depth)
     this.hudItems.push({ c, width: w, height: 140, css: 22 })
     this.fitHudItem(this.hudItems[this.hudItems.length - 1])
@@ -759,14 +759,18 @@ export class CityScene extends Phaser.Scene {
   /** Süre çubuğu; update() her karede ilerlemeyi ve kalan süreyi tazeler. */
   private makeTimer(x: number, y: number, start: number, end: number, depth: number) {
     const f = this.headingFont()
-    const parts: Phaser.GameObjects.GameObject[] = []
-    if (this.textures.exists('ui_timer')) parts.push(this.add.image(0, 0, 'ui_timer').setOrigin(0, 0.5))
+    // Kahverengi çerçeve, parşömen iç, yeşil ilerleme, sağda çekiç dairesi.
+    const frame = this.add.graphics()
+    frame.fillStyle(0x2a170a, 0.35); frame.fillRoundedRect(4, -40, 470, 84, 18)
+    frame.fillStyle(0x5a3517, 1); frame.fillRoundedRect(0, -44, 470, 84, 18)
+    frame.fillStyle(0xf3e3b6, 1); frame.fillRoundedRect(10, -34, 390, 64, 12)
+    frame.fillStyle(0x5a3517, 1); frame.fillCircle(430, -2, 34)
+    frame.lineStyle(5, 0xe2bd78, 1); frame.strokeCircle(430, -2, 32)
+    frame.fillStyle(0xe2bd78, 1); frame.fillTriangle(430, -22, 414, 2, 446, 2); frame.fillRect(424, 0, 12, 16)
     const bar = this.add.graphics()
-    const text = this.add.text(285, 0, '', { fontFamily: f.body, fontSize: '40px', color: '#fff4dc', fontStyle: '700' })
-      .setOrigin(0.5, 0.5).setResolution(2).setShadow(0, 2, '#000000', 3, false, true)
-    parts.splice(1, 0, bar)
-    parts.push(text)
-    if (this.textures.exists('ui_up')) parts.push(this.add.image(410, 0, 'ui_up').setScale(0.7))
+    const text = this.add.text(205, -2, '', { fontFamily: f.body, fontSize: '40px', color: '#2e1807', fontStyle: '800' })
+      .setOrigin(0.5, 0.5).setResolution(2)
+    const parts: Phaser.GameObjects.GameObject[] = [frame, bar, text]
     const c = this.add.container(x, y, parts).setDepth(depth)
     this.hudItems.push({ c, width: 478, height: 100, css: 20 })
     this.fitHudItem(this.hudItems[this.hudItems.length - 1])
@@ -781,8 +785,8 @@ export class CityScene extends Phaser.Scene {
     const now = Date.now()
     const p = Math.max(0, Math.min(1, (now - t.start) / Math.max(1, t.end - t.start)))
     t.bar.clear()
-    t.bar.fillStyle(0x3f8f1c, 1); t.bar.fillRect(98, -32, 346 * p, 64)
-    t.bar.fillStyle(0x9be04a, 1); t.bar.fillRect(98, -32, 346 * p, 26)
+    t.bar.fillStyle(0x5a9b2e, 1); t.bar.fillRoundedRect(10, -34, Math.max(24, 390 * p), 64, 12)
+    t.bar.fillStyle(0x9ad160, 1); t.bar.fillRoundedRect(10, -34, Math.max(24, 390 * p), 24, { tl: 12, tr: 12, bl: 0, br: 0 })
     const left = Math.max(0, Math.ceil((t.end - now) / 1000))
     const h = Math.floor(left / 3600), m = Math.floor((left % 3600) / 60), sec = left % 60
     t.text.setText(h > 0 ? `${h}sa ${m}dk` : m > 0 ? `${m}dk ${sec}sn` : `${sec}sn`)

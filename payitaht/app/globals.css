@@ -969,3 +969,80 @@
 .bp .settings-panel h3 { color: var(--ink); }
 .bp .job-progress time { color: var(--ink); }
 .bp .advisor-panel, .bp .research-panel, .bp .people-panel, .bp .building-list { color: var(--ink); }
+
+/* =========================================================================
+ * OYUN ÇERÇEVESİ (ika-hud.tsx) — tek görünüm dili: kahverengi şerit,
+ * parşömen kaynak şeridi, danışman madalyonları, kahverengi alt menü.
+ * ========================================================================= */
+.game-shell { --ika-top: calc(env(safe-area-inset-top, 0px) + 94px); --ika-nav: calc(env(safe-area-inset-bottom, 0px) + 62px); background: #6f9a5a; }
+.ika-top { position: fixed; z-index: 5; top: 0; left: 0; right: 0; pointer-events: auto; box-shadow: 0 3px 10px #0007; }
+.ika-ribbon { display: flex; align-items: center; gap: 8px; padding: calc(env(safe-area-inset-top, 0px) + 5px) 8px 5px;
+  background: linear-gradient(180deg, #6a3f1b, #3a210c); border-bottom: 2px solid #c9a45a; }
+.ika-city { flex: 1; min-width: 0; display: flex; align-items: center; gap: 8px; background: none; border: 0; padding: 0; color: #fbe9bb; text-align: left; }
+.ika-city > svg { width: 16px; height: 16px; flex-shrink: 0; color: #e2bd78; }
+.ika-city-level { width: 34px; height: 34px; flex-shrink: 0; display: grid; place-items: center; border-radius: 50%; background: #5a3517; border: 3px solid #e2bd78;
+  font-family: var(--font-heading), Georgia, serif; font-weight: 800; font-size: 16px; color: #fbe9bb; box-shadow: 0 2px 4px #0008; }
+.ika-city-name { display: flex; flex-direction: column; min-width: 0; line-height: 1.1; }
+.ika-city-name strong { font-family: var(--font-heading), Georgia, serif; font-size: 18px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-shadow: 0 1px 2px #000a; }
+.ika-city-name small { font-size: 10.5px; color: #d9c08a; }
+.ika-advisors { display: flex; gap: 4px; flex-shrink: 0; }
+.ika-advisor { position: relative; width: 44px; height: 44px; padding: 0; border: 0; background: none; border-radius: 50%; filter: drop-shadow(0 2px 3px #0009); }
+.ika-advisor svg { display: block; }
+.ika-advisor-news svg { animation: advisor-glow 1.6s ease-in-out infinite; }
+@keyframes advisor-glow { 50% { filter: drop-shadow(0 0 6px #ffd66b) brightness(1.15); } }
+@media (prefers-reduced-motion: reduce) { .ika-advisor-news svg { animation: none; filter: drop-shadow(0 0 5px #ffd66b); } }
+.ika-badge { position: absolute; top: -3px; right: -3px; min-width: 18px; height: 18px; padding: 0 4px; display: grid; place-items: center; border-radius: 9px;
+  background: #b3261e; border: 1.5px solid #fbe9bb; color: #fff; font-size: 10.5px; font-weight: 800; line-height: 1; font-style: normal; }
+.ika-res { display: flex; width: 100%; gap: 4px; overflow-x: auto; scrollbar-width: none; padding: 5px 6px; border: 0; border-bottom: 2px solid #9c7440;
+  background: linear-gradient(180deg, #fbf2d6, #ecd8a4); color: #3a2310; text-align: left; }
+.ika-res::-webkit-scrollbar { display: none; }
+.ika-chip { flex: 1 0 auto; display: inline-flex; align-items: baseline; gap: 3px; padding: 2px 6px; border-radius: 4px; background: #f6e8c3; border: 1px solid #d8bf88; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.ika-chip i { align-self: center; display: grid; place-items: center; }
+.ika-chip i svg { width: 14px; height: 14px; color: #6e4d2a; }
+.ika-chip b { font-size: 12.5px; font-weight: 800; }
+.ika-chip small { font-size: 9.5px; color: #3f7d1f; font-weight: 700; }
+.ika-chip-full { background: #f7d9cf; border-color: #c96a55; }
+.ika-chip-full small { color: #a3321f; }
+.ika-nav { position: fixed; z-index: 5; left: 0; right: 0; bottom: 0; display: flex; padding: 4px 4px calc(env(safe-area-inset-bottom, 0px) + 4px);
+  background: linear-gradient(180deg, #5a3517, #2e1a09); border-top: 2px solid #c9a45a; box-shadow: 0 -3px 10px #0007; pointer-events: auto; }
+.ika-nav-item { position: relative; flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 5px 0 3px; border: 0; border-radius: 8px; background: none; color: #e7d3a4; font-size: 11px; font-weight: 700; }
+.ika-nav-item svg { width: 22px; height: 22px; }
+.ika-nav-active { background: linear-gradient(180deg, #e2bd78, #a8783a); color: #2e1807; box-shadow: inset 0 1px 0 #fff5; }
+.ika-nav-item .ika-badge { top: 0; right: calc(50% - 22px); }
+.game-shell .hud-ticker { left: 8px; right: 8px; bottom: calc(var(--ika-nav) + 6px); border-radius: 6px; background: #fbf2d6f0; border: 1px solid #9c7440; box-shadow: 0 2px 6px #0004; }
+.game-shell .hud-ticker-tag { background: #5a3517; color: #fbe9bb; }
+.game-shell .hud-ticker-text { color: #3a2310; }
+.game-shell .threat-banner { left: 8px; right: 8px; max-width: none; top: calc(var(--ika-top) + 8px); }
+.game-shell .map-top-tools { top: calc(var(--ika-top) + 60px); right: 8px; bottom: auto; }
+.game-shell .map-top-tools button { background: #fbf2d6; border: 1px solid #9c7440; color: #5a3517; box-shadow: 0 2px 4px #0005; }
+.game-shell .weather, .game-shell .map-bottom-tools { display: none; }
+.game-shell .build-hint { bottom: calc(var(--ika-nav) + 50px); background: #fbf2d6; border: 1px solid #9c7440; box-shadow: 0 3px 10px #0005; }
+.game-shell .build-hint > span { color: #3a2310; }
+.game-shell .build-hint svg { color: #8a5a22; }
+.game-shell .build-hint button { background: #5a3517; color: #fbe9bb; }
+.game-shell .build-hint .build-exit { background: #e6d3a2; color: #3a2310; }
+.game-shell .move-confirm { bottom: calc(var(--ika-nav) + 50px); background: #fbf2d6; border: 1px solid #9c7440; color: #3a2310; }
+.game-shell .island-view { padding-top: calc(var(--ika-top) + 6px); padding-bottom: calc(var(--ika-nav) + 50px); background: #3f7f95; }
+.game-shell .island-toolbar { padding: 6px 10px; }
+.game-shell .island-toolbar button { background: #fbf2d6; border: 1px solid #9c7440; color: #3a2310; }
+.game-shell .island-toolbar .island-title, .game-shell .island-select { color: #fbe9bb; }
+.game-shell .island-label { background: #fbf2d6f2; border-color: #9c7440; color: #3a2310; }
+.game-shell .island-label small { color: #6e4d2a; }
+.game-loading { background: linear-gradient(180deg, #f5e6bd, #e9d29c); color: #3a2310; }
+/* Danışman konuşması */
+.ika-speech { display: flex; align-items: flex-end; gap: 10px; margin-top: 12px; }
+.ika-speech > svg { flex-shrink: 0; filter: drop-shadow(0 3px 5px #0006); }
+.ika-bubble { position: relative; flex: 1; padding: 10px 12px; border: 1px solid var(--edge, #9c7440); border-radius: 10px; background: #fffaf0; box-shadow: 0 2px 6px #5a351733; }
+.ika-bubble::before { content: ''; position: absolute; left: -8px; bottom: 16px; width: 14px; height: 14px; background: #fffaf0; border-left: 1px solid #9c7440; border-bottom: 1px solid #9c7440; transform: rotate(45deg); }
+.ika-bubble strong { font-family: var(--font-heading), Georgia, serif; font-size: 16px; color: #5a3517; }
+.ika-bubble p { font-size: 13px; line-height: 1.45; color: #3a2310; margin-top: 2px; }
+.ika-events { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
+.ika-events li { display: grid; grid-template-columns: 42px 1fr; gap: 8px; padding: 6px 0; border-bottom: 1px solid #e0c995; font-size: 12.5px; }
+.ika-events time { color: #6e4d2a; font-variant-numeric: tabular-nums; }
+.ika-link { background: none; border: 0; padding: 0; color: #5a3517; font-weight: 700; text-decoration: underline; text-underline-offset: 2px; }
+.ika-warn-text { color: #a3321f; font-weight: 700; }
+/* Bina sayfası: görselsiz rozet ve yükselt oku */
+.bp .bp-level { border-radius: 50%; background: #5a3517; border: 3px solid #e2bd78; box-shadow: 0 2px 4px #0008; width: 40px; height: 40px; }
+.bp-up-arrow { display: grid; place-items: center; width: 30px; height: 30px; border-radius: 50%; background: #2f6b16; border: 2px solid #d4f5a9; }
+.bp-up-arrow svg { width: 18px; height: 18px; }
+.bp-res-icon.bp-res-gold { color: #b8860b; } .bp-res-icon.bp-res-wood { color: #7a4a1e; } .bp-res-icon.bp-res-stone { color: #6b6e72; } .bp-res-icon.bp-res-knowledge { color: #2c4a6e; }

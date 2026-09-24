@@ -11,7 +11,7 @@
  * kahverengi başlık şeritlidir.
  */
 import { useEffect, type ReactNode } from 'react'
-import { ArrowLeft, Clock3, LockKeyhole, FlipHorizontal2, Move, Hammer, Users, BookOpen, ChevronRight, X } from 'lucide-react'
+import { ArrowLeft, ArrowUp, Coins, Trees, Mountain, Clock3, LockKeyhole, FlipHorizontal2, Move, Hammer, Users, BookOpen, ChevronRight, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { asset, buildingImage } from '@/lib/asset'
 import {
@@ -29,7 +29,7 @@ import { ArmyPanel, BuildingEffects } from './game-panels'
 import { DemolishRow } from './world-panels'
 
 const num = (n: number) => Math.floor(n).toLocaleString('tr-TR')
-const RES_ICON: Record<Resource, string> = { gold: 'res-gold', wood: 'res-wood', stone: 'res-stone', knowledge: 'res-knowledge' }
+const RES_ICON: Record<Resource, typeof Coins> = { gold: Coins, wood: Trees, stone: Mountain, knowledge: BookOpen }
 const time = (s: number) => s >= 3600 ? `${Math.floor(s / 3600)} sa ${Math.floor(s / 60) % 60} dk` : s >= 60 ? `${Math.floor(s / 60)} dk ${s % 60} sn` : `${s} sn`
 
 /** Ikariam'ın içerik kutusu: kahverengi başlık şeridi + parşömen gövde. */
@@ -45,7 +45,8 @@ function Table({ head, rows }: { head?: ReactNode[]; rows: ReactNode[][] }) {
 }
 function ResIcon({ id }: { id: Resource | Luxury }) {
   if ((LUXURY_IDS as readonly string[]).includes(id)) { const Icon = luxuryIcons[id as Luxury]; return <Icon className="bp-res-icon bp-lux" aria-hidden="true" /> }
-  return <img className="bp-res-icon" src={asset(`/images/ui/${RES_ICON[id as Resource]}.webp`)} alt="" />
+  const Icon = RES_ICON[id as Resource]
+  return <Icon className={`bp-res-icon bp-res-${id}`} aria-hidden="true" />
 }
 const stock = (g: Game, id: Resource | Luxury) => (LUXURY_IDS as readonly string[]).includes(id) ? g.luxury[id as Luxury] : g.resources[id as Resource]
 const name = (id: Resource | Luxury) => (LUXURY_IDS as readonly string[]).includes(id) ? LUXURY_NAMES[id as Luxury] : RESOURCE_NAMES[id as Resource]
@@ -76,7 +77,7 @@ function UpgradeBox({ game, id, onBuild }: { game: Game; id: BuildingId; onBuild
       {queued > 0 && <p className="bp-note"><Clock3 className="size-4" /> İnşaat sırasında {queued + 1}. sırada.</p>}
       {reason && queued < 0 && <p className="bp-warn"><LockKeyhole className="size-4" /> {reason}</p>}
       <button type="button" className="bp-upgrade-button" disabled={!!reason} onClick={onBuild}>
-        <img src={asset('/images/ui/icon-up.webp')} alt="" />{level ? 'Yükselt' : 'İnşa et'}
+        <span className="bp-up-arrow"><ArrowUp aria-hidden="true" /></span>{level ? 'Yükselt' : 'İnşa et'}
       </button>
     </>}
   </Box>
@@ -284,7 +285,7 @@ export function BuildingPage({ game, empire, id, onClose, onBuild, onFlip, onMov
   })
   const city = empire ? activeCity(empire).name : ''
   return <IkaPage title={b.name} subtitle={`${city} · ${b.category.toLocaleLowerCase('tr')}`} label={`${b.name} sayfası`} onClose={onClose}
-    badge={<span className="bp-level" aria-label={`Seviye ${level}`}><img src={asset('/images/ui/level-circle.webp')} alt="" /><b>{level}</b></span>}>
+    badge={<span className="bp-level" aria-label={`Seviye ${level}`}><b>{level}</b></span>}>
       <section className="bp-hero">
         {b.art ? <img src={buildingImage(id, Math.max(1, level))} alt={`${b.name} görünümü`} /> : <span className="bp-pending"><Hammer /></span>}
       </section>
