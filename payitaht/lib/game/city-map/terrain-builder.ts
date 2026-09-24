@@ -563,6 +563,97 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1, occupiedSl
     }
   }
 
+  // 2c) TERASLAR (Ikariam): şehir basamaklı bir yamaçta durur. Her arsa
+  // sırasının önünde kesme taş istinat duvarı, altında gölge; ana cadde
+  // duvarları basamaklarla geçer. Üst teraslar hafifçe daha aydınlık.
+  {
+    const tg = scene.add.graphics().setDepth(-860)
+    const hall = slotById(HALL_SLOT_ID)!.screen
+    const ringXs = DEFENSE_FOUNDATION.map(p => p.screen.x)
+    const half = Math.max(...ringXs.map(x => Math.abs(x - hall.x))) - TILE.w * 0.45
+    void half
+    const sorted = [...CITY_SLOTS].sort((a, b) => a.screen.y - b.screen.y)
+    const rows: CitySlot[][] = []
+    for (const c of sorted) {
+      const last = rows[rows.length - 1]
+      if (last && c.screen.y - last[last.length - 1].screen.y < TILE.h * 1.6) last.push(c)
+      else rows.push([c])
+    }
+    const H = TILE.h * 1.15 // istinat duvarı yüksekliği
+    const stairHalf = TILE.w * 0.5
+    let prevFront = -Infinity
+    rows.forEach((row, i) => {
+      const fy = row.reduce((a, c) => a + c.screen.y, 0) / row.length + TILE.h * 3.1
+      const x0 = Math.min(...row.map(c => c.screen.x)) - TILE.w * 1.25
+      const x1 = Math.max(...row.map(c => c.screen.x)) + TILE.w * 1.25
+      // Teras düzlüğü: sırayla açık/koyu, üsttekiler daha güneşli.
+      const top = Number.isFinite(prevFront) ? prevFront + H : fy - TILE.h * 6
+      tg.fillStyle(i % 2 ? 0xa9bd6c : 0xc4ce86, 0.20)
+      tg.fillRoundedRect(x0, top, x1 - x0, fy - top, TILE.h * 0.8)
+      prevFront = fy
+      // Duvarın altına düşen gölge.
+      tg.fillStyle(0x2f421c, 0.34); tg.fillRect(x0, fy + H, x1 - x0, TILE.h * 0.4)
+      tg.fillStyle(0x2f421c, 0.16); tg.fillRect(x0, fy + H + TILE.h * 0.4, x1 - x0, TILE.h * 0.5)
+      // Uçlarda toprak yamaç: duvar araziye iner.
+      for (const [ex, dir] of [[x0, -1], [x1, 1]] as const) {
+        tg.fillStyle(0x8c7a4c, 1)
+        tg.fillTriangle(ex, fy, ex, fy + H, ex + dir * TILE.w * 0.9, fy + H)
+        tg.fillStyle(0x6f8a44, 0.9)
+        tg.fillTriangle(ex, fy - 2, ex + dir * TILE.w * 0.9, fy + H - 2, ex + dir * TILE.w * 1.1, fy + H)
+      }
+      for (const [a, b] of [[x0, hall.x - stairHalf], [hall.x + stairHalf, x1]] as const) {
+        if (b - a < 4) continue
+        tg.fillStyle(0x9a8260, 1); tg.fillRect(a, fy, b - a, H)
+        const bw = TILE.w * 0.34, courses = 3
+        for (let r = 0; r < courses; r++) {
+          const y = fy + r * H / courses
+          for (let x = a + (r % 2 ? bw / 2 : 0) - (r % 2 ? bw : 0); x < b; x += bw) {
+            const xa = Math.max(a, x), xb = Math.min(b, x + bw - 3)
+            if (xb - xa <= 2) continue
+            const shade = (Math.floor((x - a) / bw) * 7 + r * 3) % 4
+            tg.fillStyle([0xc9b085, 0xb89e75, 0xa88f68, 0xd3bb90][shade], 1)
+            tg.fillRect(xa + 1.5, y + 1.5, xb - xa, H / courses - 3)
+          }
+        }
+        tg.fillStyle(0xeadbb2, 1); tg.fillRect(a, fy - 4, b - a, 6)
+        tg.lineStyle(2.5, 0x5e4b31, 0.8); tg.lineBetween(a, fy + H, b, fy + H)
+      }
+      // Ana caddenin basamakları.
+      const steps = 5, sh = (H + TILE.h * 0.3) / steps
+      for (let k = 0; k < steps; k++) {
+        tg.fillStyle(k % 2 ? 0xc9b58c : 0xe0cfa6, 1)
+        tg.fillRect(hall.x - stairHalf, fy - TILE.h * 0.15 + k * sh, stairHalf * 2, sh)
+        tg.lineStyle(1.5, 0x8a7550, 0.8)
+        tg.lineBetween(hall.x - stairHalf, fy - TILE.h * 0.15 + (k + 1) * sh, hall.x + stairHalf, fy - TILE.h * 0.15 + (k + 1) * sh)
+      }
+    })
+  }
+
+  // 2d) BOYALI ZEMİN: izometrik yönde binlerce kısa fırça darbesi + güneşin
+  // sol üstten vurduğu sıcak ışık. Düz yeşil yüzey resim gibi görünür.
+  {
+    const brush = scene.add.graphics().setDepth(-885)
+    const br = mulberry32(24680)
+    const greens = [0x5d8a3f, 0x7ea453, 0x98b562, 0x6f9448, 0xa9bd6a, 0x4f7a37, 0xc4c57a]
+    for (let i = 0; i < 2600; i++) {
+      const x = wr.x + br() * wr.w
+      const y = wr.y + br() * Math.max(0, shoreY(x) - wr.y - TILE.h * 0.5)
+      const len = TILE.w * (0.08 + br() * 0.22)
+      const dir = br() < 0.5 ? 1 : -1
+      brush.lineStyle(2 + br() * 5, greens[Math.floor(br() * greens.length)], 0.05 + br() * 0.09)
+      brush.lineBetween(x, y, x + len, y + dir * len * 0.5)
+    }
+    const light = scene.add.graphics().setDepth(-884)
+    const hall = slotById(HALL_SLOT_ID)!.screen
+    for (let k = 0; k < 6; k++) {
+      light.fillStyle(0xffe6a0, 0.035)
+      light.fillEllipse(hall.x - TILE.w * 3, hall.y - TILE.h * 10, TILE.w * (8 + k * 4), TILE.h * (10 + k * 5))
+    }
+    // Kenarlarda hafif karartma: göz şehrin ortasına çekilir.
+    light.fillStyle(0x1e2c14, 0.10); light.fillRect(wr.x, wr.y, TILE.w * 2.5, wr.h)
+    light.fillRect(wr.x + wr.w - TILE.w * 2.5, wr.y, TILE.w * 2.5, wr.h)
+  }
+
   // 3) TAŞ / TOPRAK katmanı.
   const g = scene.add.graphics().setDepth(-800)
 

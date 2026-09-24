@@ -143,7 +143,8 @@ export class CityScene extends Phaser.Scene {
   private townZoom() {
     const t = this.townRect()
     const bandH = this.scale.height * (1 - CityScene.HUD_TOP - CityScene.HUD_BOTTOM)
-    return Math.min(this.scale.width / (t.w * 1.02), bandH / t.h)
+    // Açılışta şehrin ortası yakın: en dış sütunlar kenarda hafifçe kesilir, kaydırarak görülür.
+    return Math.min(this.scale.width / (t.w * 0.8), bandH / (t.h * 0.78))
   }
 
   /** Bir dünya noktasını açık bandın ortasına getirir (HUD'a göre kaydırılmış). */
@@ -287,7 +288,7 @@ export class CityScene extends Phaser.Scene {
    * footprint'ten biraz büyük gösterilir; Ikariam'daki gibi binalar sokağa
    * kadar taşar ve şehir dolu görünür. Bina başına ayar yoktur.
    */
-  private artScale() { return (FOOTPRINT_DIAMOND_W / ART_DIAMOND_PX) * 1.55 }
+  private artScale() { return (FOOTPRINT_DIAMOND_W / ART_DIAMOND_PX) * 1.8 }
 
   private occupiedSlotIds(game: Game, moving: BuildingId | null = null, movePlot: number | null = null) {
     const ids: string[] = []
@@ -669,10 +670,14 @@ export class CityScene extends Phaser.Scene {
     this.addOccupiedClearing(id, slot, anc.baseY)
 
     // Çok hafif temas gölgesi: doğal açıklığın üstünde yapıyı zemine bağlar.
+    // Güneş sol üstten: bina gölgesi sağ-alta düşer.
     const shadow = this.add.graphics().setDepth(anc.baseY - 0.3)
-    shadow.fillStyle(0x283021, 0.022)
-    shadow.fillEllipse(anc.x + 1, anc.baseY - TILE.h * 0.18,
-      GROUND_TARGET_W * 0.24, GROUND_TARGET_W * 0.048)
+    if (slot.zone !== 'liman') {
+      shadow.fillStyle(0x223018, 0.22)
+      shadow.fillEllipse(anc.x + TILE.w * 0.28, anc.baseY - TILE.h * 0.62, GROUND_TARGET_W * 0.62, GROUND_TARGET_W * 0.2)
+      shadow.fillStyle(0x223018, 0.14)
+      shadow.fillEllipse(anc.x + TILE.w * 0.55, anc.baseY - TILE.h * 0.45, GROUND_TARGET_W * 0.5, GROUND_TARGET_W * 0.14)
+    }
     this.pieces.push(shadow)
 
     // Ikariam: seviye 0 iken (ilk inşaat) temel + iskele; sonra seviye aşamasının görseli.
