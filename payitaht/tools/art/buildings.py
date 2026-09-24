@@ -976,12 +976,7 @@ def main(ids):
         sc.render(path, ground_shadow=shadow)
         print('yazıldı', os.path.relpath(path, ROOT))
     ids = [i for i in ids if i in BUILDINGS]
-    # Boyalı görseli olan binalar (tools/art/import-ui.py) kod çizimiyle EZİLMEZ.
-    painted = {'konut', 'surlar'}
-    folder = os.path.join(ROOT, 'assets', 'source', 'painted', 'buildings')
-    if os.path.isdir(folder):
-        painted |= {f.rsplit('-', 1)[0] for f in os.listdir(folder) if f.endswith('.png')}
-    ids = [i for i in ids if i not in painted]
+    # Eski boyalı görseller kullanılmıyor: bütün binalar aynı ölçek ve dille çizilir.
     for bid in ids:
         for st in (1, 2, 3):
             s = Scene(seed=sum(map(ord, bid)) * 10 + st)

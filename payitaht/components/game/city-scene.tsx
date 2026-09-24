@@ -28,8 +28,9 @@ export function CityScene({ game, placing, onBuilding, onPlot, onRoad, moving, m
   onExitBuild: () => void
   onOpenList: () => void
 }) {
-  // Boyalı etiketler (seviye dairesi + isim plakası) varsayılan olarak açık; bayrak kapatır.
-  const [labels, setLabels] = useState(true)
+  // Ikariam gibi: bina adları varsayılan olarak GİZLİ (göz binaya ve caddeye odaklanır);
+  // bayrak düğmesi açar. İnşaat süren binanın sayacı her zaman görünür.
+  const [labels, setLabels] = useState(false)
   const controls = useRef<CityControls | null>(null)
 
   return <section className="city-scene" aria-label="Sahilhisar şehir haritası">

@@ -88,7 +88,7 @@ export class CityScene extends Phaser.Scene {
     for (const lux of ['uzum', 'mermer', 'kristal', 'kukurt']) {
       if (!this.textures.exists('mine-' + lux)) this.load.image('mine-' + lux, asset(`/images/game/buildings/mine-${lux}.webp`))
     }
-    // Boyalı arayüz parçaları (tools/art/import-ui.py).
+    // İnşaat iskelesi (tools/art/buildings.py).
     if (!this.textures.exists('b_scaffold')) this.load.image('b_scaffold', asset('/images/game/buildings/scaffold.webp'))
     preloadTerrain(this)
     if (!this.textures.exists('w_tower')) this.load.image('w_tower', asset('/images/game/walls/tower-round.png'))
@@ -855,9 +855,9 @@ export class CityScene extends Phaser.Scene {
       }
       g.lineStyle(3, 0x3e2a17, 0.9); g.strokePoints(this.diamond(x, cy, TILE.w * 1.5, TILE.h * 1.5), true)
     } else {
-      g.fillStyle(0x9c845a, 0.55); g.fillPoints(this.diamond(x, cy, TILE.w * 1.62, TILE.h * 1.62), true)
-      g.fillStyle(0xc2a878, 0.55); g.fillPoints(this.diamond(x, cy, TILE.w * 1.4, TILE.h * 1.4), true)
-      g.lineStyle(2.5, 0x7a6444, 0.55); g.strokePoints(this.diamond(x, cy, TILE.w * 1.62, TILE.h * 1.62), true)
+      // Sade inşaat izi: çimde küçük, yumuşak toprak lekesi (plaka değil).
+      g.fillStyle(0xa48b5c, 0.28); g.fillEllipse(x, cy, TILE.w * 0.95, TILE.h * 0.95)
+      g.fillStyle(0xc2a878, 0.30); g.fillEllipse(x, cy, TILE.w * 0.6, TILE.h * 0.6)
     }
     }
     this.pieces.push(pad)
