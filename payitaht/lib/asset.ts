@@ -15,7 +15,15 @@ export function asset(path: string) {
   return `${base}${path.startsWith('/') ? path : `/${path}`}`
 }
 
-/** Bir bina gorselinin yolu. */
-export function buildingImage(id: string) {
-  return asset(`/images/game/${id}.webp`)
+/**
+ * Ikariam'daki gibi bina BUYUDUKCE gorunusu degisir: uc asama.
+ * 1 = seviye 0-3 (insaat dahil), 2 = seviye 4-7, 3 = seviye 8+.
+ */
+export function buildingStage(level: number): 1 | 2 | 3 {
+  return level >= 8 ? 3 : level >= 4 ? 2 : 1
+}
+
+/** Bir bina gorselinin yolu (tools/art/buildings.py ile cizilir). */
+export function buildingImage(id: string, level = 1) {
+  return asset(`/images/game/buildings/${id}-${buildingStage(level)}.webp`)
 }

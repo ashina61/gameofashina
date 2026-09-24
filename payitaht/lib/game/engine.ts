@@ -3,7 +3,7 @@ import { SLOTS, START_ROADS, isRoadCell, type Zone } from './layout'
 export const RESOURCE_IDS = ['gold', 'wood', 'stone', 'knowledge'] as const
 export type Resource = typeof RESOURCE_IDS[number]
 export type Resources = Record<Resource, number>
-export const BUILDING_IDS = ['divan', 'saray', 'elcilik', 'konut', 'hamam', 'carsi', 'ambar', 'kereste', 'tas', 'medrese', 'kisla', 'surlar', 'liman', 'tersane'] as const
+export const BUILDING_IDS = ['divan', 'saray', 'elcilik', 'konut', 'hamam', 'carsi', 'ambar', 'kereste', 'tas', 'medrese', 'kisla', 'surlar', 'liman', 'tersane', 'kahvehane', 'cami', 'muze', 'marangoz', 'mimar', 'ormanci', 'tasci', 'tophane'] as const
 export type BuildingId = typeof BUILDING_IDS[number]
 export const RESEARCH_IDS = [
   'tools', 'storage', 'ticaret', 'architecture', 'alimler', 'celik',
@@ -139,10 +139,33 @@ export const BUILDINGS: Record<BuildingId, BuildingDef> = {
   saray: { name: 'Saray', category: 'YÖNETİM', description: 'Hükmünü uzağa taşır. Yeni şehirler kurmanın yolunu açar ve Şehirler danışmanını çalıştırır.', base: 320, art: true, needs: { id: 'divan', level: 3 } },
   elcilik: { name: 'Elçilik', category: 'YÖNETİM', description: 'Komşularınla konuşmanın kapısı. Diplomasi danışmanını ve ittifak defterini açar.', base: 200, art: true, needs: { id: 'divan', level: 2 } },
   kisla: { name: 'Kışla', category: 'ASKERÎ', description: 'Halkından asker yetiştirir. Her eğitilen vatandaş üretimden düşer — ordunun bedeli budur.', base: 180, art: true, needs: { id: 'divan', level: 2 } },
-  surlar: { name: 'Surlar', category: 'ASKERÎ', description: 'Şehrin taş kalkanı. Her seviye savunmaya asker gerektirmeyen güç ekler. Arsa kaplamaz — şehrin çevresine örülür.', base: 150, art: false, zone: 'sur', needs: { id: 'kisla', level: 1 } },
+  surlar: { name: 'Surlar', category: 'ASKERÎ', description: 'Şehrin taş kalkanı. Her seviye savunmaya asker gerektirmeyen güç ekler. Arsa kaplamaz — şehrin çevresine örülür.', base: 150, art: true, zone: 'sur', needs: { id: 'kisla', level: 1 } },
   liman: { name: 'Ticaret Limanı', category: 'LİMAN', description: 'Denizin kapısı. Ticaret kapasitesi verir ve nakliye gemisi inşa ettirir.', base: 160, art: true, zone: 'liman', needs: { id: 'divan', level: 2 } },
   tersane: { name: 'Tersane', category: 'LİMAN', description: 'Savaş gemilerinin doğduğu yer. Kadırga ve kalyon buradan denize iner. Şehirde değil, denizin kenarındaki iskeleye kurulur.', base: 240, art: true, zone: 'liman', needs: { id: 'liman', level: 1 } },
+  /*
+   * IKARIAM KARSILIKLARI. Ikariam'daki Meyhane/Müze huzuru, Marangoz/Mimar
+   * maliyeti, Ormancı/Taşçı üretimi, Atölye ordunun gücünü artırır. Etkiler
+   * seviye başına sabittir ve aşağıdaki BUILDING_EFFECTS'ten tek yerden okunur.
+   */
+  kahvehane: { name: 'Kahvehane', category: 'HALKIN HUZURU', description: 'Halk kahve ve şerbetle gönül eğlendirir: her seviye huzuru 50 artırır, dakikada 4 akçe ikram gideri vardır.', base: 90, art: true, needs: { id: 'divan', level: 2 } },
+  cami: { name: 'Cami', category: 'HALKIN HUZURU', description: 'Şehrin manevi merkezi. Her seviye huzuru 35 artırır ve ilim üretimine %2 katkı verir.', base: 180, art: true, needs: { id: 'divan', level: 3 } },
+  muze: { name: 'Müze', category: 'HALKIN HUZURU', description: 'Eserlerin sergilendiği kültür yapısı. Her seviye huzuru 40 artırır.', base: 210, art: true, needs: { id: 'medrese', level: 2 } },
+  marangoz: { name: 'Marangozhane', category: 'MALİYET', description: 'Kerestenin ustaca işlenmesi. Her seviye bina yapımındaki kereste maliyetini %1 azaltır.', base: 110, art: true, needs: { id: 'kereste', level: 2 } },
+  mimar: { name: 'Mimarbaşı Odası', category: 'MALİYET', description: 'Hassas plan, az taş. Her seviye bina yapımındaki taş maliyetini %1 azaltır.', base: 130, art: true, needs: { id: 'tas', level: 2 } },
+  ormanci: { name: 'Ormancı Evi', category: 'ÜRETİM', description: 'Fidanlık ve bakım. Her seviye kereste üretimini %2 artırır.', base: 100, art: true, needs: { id: 'kereste', level: 3 } },
+  tasci: { name: 'Taşçı Ustası', category: 'ÜRETİM', description: 'Usta taşçıların atölyesi. Her seviye taş üretimini %2 artırır.', base: 110, art: true, needs: { id: 'tas', level: 3 } },
+  tophane: { name: 'Tophane', category: 'ASKERÎ', description: 'Top dökümü ve silah atölyesi. Her seviye bütün birliklerin saldırı ve savunmasını %2 artırır.', base: 220, art: true, needs: { id: 'kisla', level: 2 } },
 }
+
+/** Ikariam binalarının seviye başına etkileri (tek kaynak). */
+export const BUILDING_EFFECTS = {
+  kahvehaneContentment: 50, kahvehaneUpkeep: 4,
+  camiContentment: 35, camiKnowledge: 0.02,
+  muzeContentment: 40,
+  marangozWood: 0.01, mimarStone: 0.01,
+  ormanciWood: 0.02, tasciStone: 0.02,
+  tophanePower: 0.02,
+} as const
 
 /*
  * ASKERLER VE GEMILER.
@@ -293,7 +316,8 @@ export function power(g: Game, branch: 'kara' | 'deniz') {
   const attackBonus = g.research.includes(atkTech) ? 1.15 : 1
   const defenseTech = branch === 'kara' ? 'zirh' : 'gemi_govdesi'
   const defenseBonus = g.research.includes(defenseTech) ? (branch === 'kara' ? 1.10 : 1.12) : 1
-  return { attack: Math.round(base.attack * attackBonus), defense: Math.round(base.defense * defenseBonus) }
+  const workshop = 1 + (g.buildings.tophane ?? 0) * BUILDING_EFFECTS.tophanePower
+  return { attack: Math.round(base.attack * attackBonus * workshop), defense: Math.round(base.defense * defenseBonus * workshop) }
 }
 
 /** Surlarin asker gerektirmeyen savunmasi. İstihkâm araştırması %30 artırır. */
@@ -381,12 +405,13 @@ export function rates(g: Game): Resources {
   return {
     // Akce iki kaynaktan gelir: halkin vergisi (isci istemez) ve carsi esnafi.
     gold: Math.max(0, (60 + g.buildings.konut * 120 +
-      g.buildings.carsi * 100 * share('carsi')) * multiplier - scientistUpkeepPerMinute(g)),
+      g.buildings.carsi * 100 * share('carsi')) * multiplier - scientistUpkeepPerMinute(g) -
+      g.buildings.kahvehane * BUILDING_EFFECTS.kahvehaneUpkeep),
     wood: g.buildings.kereste * 120 * share('kereste') * multiplier *
-      (g.research.includes('ormancilik') ? 1.15 : 1),
+      (g.research.includes('ormancilik') ? 1.15 : 1) * (1 + g.buildings.ormanci * BUILDING_EFFECTS.ormanciWood),
     stone: g.buildings.tas * 90 * share('tas') * multiplier *
-      (g.research.includes('tascilik') ? 1.15 : 1),
-    knowledge: g.buildings.medrese * 8 * share('medrese') * multiplier *
+      (g.research.includes('tascilik') ? 1.15 : 1) * (1 + g.buildings.tasci * BUILDING_EFFECTS.tasciStone),
+    knowledge: g.buildings.medrese * 8 * share('medrese') * multiplier * (1 + g.buildings.cami * BUILDING_EFFECTS.camiKnowledge) *
       (g.research.includes('alimler') ? 1.3 : 1) *
       (1 + (g.research.includes('kagit') ? .02 : 0) +
        (g.research.includes('murekkep') ? .04 : 0) +
@@ -405,7 +430,10 @@ export function housing(g: Game) { return 80 + g.buildings.konut * 40 + (g.resea
  * ancak oyuncu Konaklar'i YUKSELTTIGINDE devreye girer ve Hamam'i anlamli
  * kilar.
  */
-export function contentment(g: Game) { return 120 + g.buildings.hamam * 60 }
+export function contentment(g: Game) {
+  return 120 + g.buildings.hamam * 60 + g.buildings.kahvehane * BUILDING_EFFECTS.kahvehaneContentment +
+    g.buildings.cami * BUILDING_EFFECTS.camiContentment + g.buildings.muze * BUILDING_EFFECTS.muzeContentment
+}
 
 /**
  * Sehirde GERCEKTEN yasayan nufus.
@@ -448,6 +476,7 @@ export const BUILDING_GROWTH: Record<BuildingId, number> = {
   divan: 1.35, saray: 1.49, elcilik: 1.36, konut: 1.31, hamam: 1.38,
   carsi: 1.35, ambar: 1.39, kereste: 1.31, tas: 1.31, medrese: 1.40,
   kisla: 1.37, surlar: 1.43, liman: 1.37, tersane: 1.41,
+  kahvehane: 1.34, cami: 1.38, muze: 1.40, marangoz: 1.33, mimar: 1.34, ormanci: 1.32, tasci: 1.32, tophane: 1.39,
 }
 export function constructionDiscount(g: Game): number {
   return (g.research.includes('makara') ? .02 : 0) +
@@ -457,8 +486,11 @@ export function constructionDiscount(g: Game): number {
 export function cost(g: Game, id: BuildingId): Resources {
   const base = Math.round(BUILDINGS[id].base * BUILDING_GROWTH[id] ** g.buildings[id])
   const materialFactor = 1 - constructionDiscount(g)
-  return { gold: base, wood: Math.round(base * 1.2 * materialFactor),
-    stone: Math.round(base * .75 * materialFactor), knowledge: 0 }
+  // Ikariam: Marangoz keresteyi, Mimar taşı seviye başına %1 ucuzlatır.
+  const woodFactor = materialFactor - g.buildings.marangoz * BUILDING_EFFECTS.marangozWood
+  const stoneFactor = materialFactor - g.buildings.mimar * BUILDING_EFFECTS.mimarStone
+  return { gold: base, wood: Math.round(base * 1.2 * Math.max(0.5, woodFactor)),
+    stone: Math.round(base * .75 * Math.max(0.5, stoneFactor)), knowledge: 0 }
 }
 export function duration(g: Game, id: BuildingId) {
   const level = g.buildings[id]
@@ -556,6 +588,7 @@ export function freePlots(g: Game, zone?: Zone): number[] {
 export const MAX_LEVEL: Record<BuildingId, number> = {
   divan: 32, saray: 32, elcilik: 32, konut: 32, hamam: 32, carsi: 32, ambar: 32,
   kereste: 32, tas: 32, medrese: 32, kisla: 32, surlar: 40, liman: 32, tersane: 32,
+  kahvehane: 32, cami: 32, muze: 32, marangoz: 32, mimar: 32, ormanci: 32, tasci: 32, tophane: 32,
 }
 
 export function buildReason(g: Game, id: BuildingId): string | null {
@@ -747,6 +780,7 @@ const LEGACY_PLOT: Record<BuildingId, number> = {
   divan: 0, konut: 1, kereste: 2, tas: 3, ambar: 4, medrese: 5, carsi: 6, hamam: 6,
   // v1'de bunlar yoktu; hicbir eski kayitta seviyeleri sifirdan buyuk olamaz.
   saray: 6, elcilik: 6, kisla: 6, surlar: 6, liman: 6, tersane: 6,
+  kahvehane: 6, cami: 6, muze: 6, marangoz: 6, mimar: 6, ormanci: 6, tasci: 6, tophane: 6,
 }
 
 /**

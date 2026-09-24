@@ -1,8 +1,8 @@
 /**
  * GERÇEK BİNA ASSET METADATASI (normal kara binaları).
  *
- * Asıl bina görselleri şu an public/images/game/<id>.webp altında; assets/
- * city/buildings ileride ayrı şehir artwork'ü için ayrılmıştır. Burada her
+ * Bina görselleri public/images/game/buildings/<id>-<aşama>.webp altında;
+ * tools/art/buildings.py ile tek ölçek ve ışıkla çizilir. Burada her
  * bina için GÖRSEL UYGUNLUK metadatası var: origin, ve en önemlisi ZEMİN
  * TEMAS ORANI — çünkü sprite'ın tam bounding box'ı footprint DEĞİLDİR; önemli
  * olan binanın yere BASTIĞI taban.
@@ -25,6 +25,13 @@ export const GROUND_TARGET_W = Math.round(FOOTPRINT_DIAMOND_W * 0.82) // ~210
 export const GROUND_TARGET_D = GROUND_TARGET_W / 2 // izometrik 2:1
 /** Ikariam-benzeri sunum: footprint değişmez, yalnızca sprite dünyada daha küçük görünür. */
 export const BUILDING_RENDER_SCALE = 0.82
+/**
+ * Bina sanatında (tools/art/buildings.py) 2x2 footprint elmasının piksel
+ * genişliği. Tuval 600 px, elmas 480 px; tuvalin alt kenarı elmasın alt köşesi.
+ */
+export const ART_DIAMOND_PX = 480
+/** Elmas / tuval oranı: yeni sanatta zemin-temas oranı her binada aynı. */
+const ART_CONTACT = (ART_DIAMOND_PX / 600) * (GROUND_TARGET_W * BUILDING_RENDER_SCALE) / FOOTPRINT_DIAMOND_W
 
 export type BuildingAsset = {
   buildingId: string
@@ -50,21 +57,21 @@ const def = (buildingId: string, name: string, groundContactWidthRatio: number, 
 
 /** Normal KARA binaları (liman/tersane kıyıya, surlar savunmaya aittir; burada değil). */
 export const BUILDING_ASSETS: BuildingAsset[] = [
-  def('divan', 'Belediye (Divanhane)', 0.70, { tall: true, fixed: true }),
-  def('saray', 'Saray', 0.70, { tall: true }),
+  def('divan', 'Belediye (Divanhane)', ART_CONTACT, { tall: true, fixed: true }),
+  def('saray', 'Saray', ART_CONTACT, { tall: true }),
   // Medrese görsel taşma düzeltmesi: tabanı gövdesine göre dar olduğu için
   // 0.66 oranıyla render genişliği komşu mesafesini aşıyordu. YALNIZCA bu
   // asset'in zemin-temas oranı düzeltildi (slot geometrisi/diğer binalar/scale
   // kuralı DEĞİŞMEDİ). Render genişliği ~318px -> ~269px'e iner.
-  def('medrese', 'Medrese (Akademi)', 0.78, { tall: true }),
-  def('kisla', 'Kışla', 0.80),
-  def('carsi', 'Çarşı (Pazar)', 0.82),
-  def('ambar', 'Ambar (Depo)', 0.80),
-  def('hamam', 'Hamam', 0.78),
-  def('konut', 'Konut', 0.74),
-  def('kereste', 'Kereste', 0.82),
-  def('tas', 'Taş Ocağı', 0.84),
-  def('elcilik', 'Elçilik', 0.74),
+  def('medrese', 'Medrese (Akademi)', ART_CONTACT, { tall: true }),
+  def('kisla', 'Kışla', ART_CONTACT),
+  def('carsi', 'Çarşı (Pazar)', ART_CONTACT),
+  def('ambar', 'Ambar (Depo)', ART_CONTACT),
+  def('hamam', 'Hamam', ART_CONTACT),
+  def('konut', 'Konut', ART_CONTACT),
+  def('kereste', 'Kereste', ART_CONTACT),
+  def('tas', 'Taş Ocağı', ART_CONTACT),
+  def('elcilik', 'Elçilik', ART_CONTACT),
 ]
 
 export const HALL_BUILDING_ID = 'divan'

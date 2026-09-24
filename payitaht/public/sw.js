@@ -1,4 +1,4 @@
-const CACHE = 'payitaht-shell-v3'
+const CACHE = 'payitaht-shell-v4'
 const BASE = new URL(self.registration.scope).pathname.replace(/\/$/, '')
 const p = path => `${BASE}${path.startsWith('/') ? path : `/${path}`}`
 const ASSETS = [
@@ -6,7 +6,7 @@ const ASSETS = [
   p('/manifest.webmanifest'),
   p('/icon-192.png'),
   p('/icon-512.png'),
-  ...['divan', 'konut', 'kereste', 'tas', 'ambar', 'medrese'].map(name => p(`/images/game/${name}.webp`)),
+  ...['divan', 'konut', 'kereste', 'tas', 'ambar', 'medrese'].map(name => p(`/images/game/buildings/${name}-1.webp`)),
 ]
 
 self.addEventListener('install', event => {

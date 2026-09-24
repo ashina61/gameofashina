@@ -22,12 +22,8 @@ import { asset } from '@/lib/asset'
 import { roadStyleFor, roadTierForHallLevel, type RoadKind } from './road-style'
 import { edgeKey, roadEdgeKeysForTargets } from './road-tree'
 
-/** Gerçek arazi/dekor tile'ları. */
-export const TERRAIN_TILES = [
-  'grass', 'dirt', 'stone',
-  'shore-a', 'shore-b', 'shore-c',
-  'water', 'water-deep',
-] as const
+/** Arazi dokuları ve dekor (tools/art/decor.py ile çizilir). */
+export const TERRAIN_TILES = ['grass', 'dirt'] as const
 export const DECOR_TILES = ['olive-tree', 'bush', 'flower', 'rock', 'cypress', 'cypress-b'] as const
 /** Kara taban rengi (burunlar dahil her yerde aynı). */
 const LAND_BASE = 0x8fa964

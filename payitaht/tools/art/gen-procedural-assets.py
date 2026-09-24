@@ -1,11 +1,11 @@
 """
-PROSEDÜREL ASSET ÜRETECİ — boyalı sprite'larla aynı ışık dilinde (sol-üst ışık).
+PROSEDÜREL GEMİ ÜRETECİ — bina sanatıyla aynı ışık dilinde (sol-üst ışık).
 
     python3 tools/art/gen-procedural-assets.py
 
+(Ağaç/kaya/kule: tools/art/decor.py, binalar: tools/art/buildings.py.)
+
 Üretir (şeffaf PNG):
-  public/images/game/decor/cypress.png   servi ağacı (Akdeniz/Osmanlı manzara imzası)
-  public/images/game/decor/cypress-b.png daha kısa/dolgun servi varyantı
   public/images/game/ships/ship-a.png    tek direkli yelkenli (koyda demirli)
   public/images/game/ships/ship-b.png    iki direkli kalyon
 
@@ -53,67 +53,6 @@ def finish(img, size, path):
 
 
 # ------------------------------------------------------------------ SERVİ
-def cypress(path, seed, w_out=150, h_out=460, fat=1.0):
-    rnd = random.Random(seed)
-    W, H = w_out * SS, h_out * SS
-    img = Image.new('RGBA', (W, H), (0, 0, 0, 0))
-    d = ImageDraw.Draw(img)
-    cx = W / 2
-    base = H - 26 * SS           # gövde dibi
-    top = 10 * SS                # tepe ucu
-    fol_bottom = base - 22 * SS  # yaprak kütlesinin altı
-    max_w = W * 0.40 * fat
-
-    # Yere düşen yumuşak gölge (sağ-alt; ışık sol-üstten).
-    sh = Image.new('RGBA', (W, H), (0, 0, 0, 0))
-    ImageDraw.Draw(sh).ellipse([cx - W * 0.30, base - 9 * SS, cx + W * 0.46, base + 9 * SS], fill=(20, 30, 16, 105))
-    img.alpha_composite(sh.filter(ImageFilter.GaussianBlur(5 * SS)))
-
-    # Gövde.
-    d.rectangle([cx - 5 * SS, fol_bottom - 10 * SS, cx + 5 * SS, base], fill=(92, 64, 40, 255))
-    d.rectangle([cx + 1 * SS, fol_bottom - 10 * SS, cx + 5 * SS, base], fill=(66, 45, 29, 255))
-
-    # Yaprak silueti: altta dolgun, tepeye sivrilen iğ.
-    def half_w(y):
-        t = (fol_bottom - y) / (fol_bottom - top)  # 0 alt .. 1 tepe
-        if t < 0 or t > 1:
-            return 0
-        return max_w * (t ** 0.30) * ((1 - t) ** 0.95) * 1.55
-
-    dark, mid, light, hi = (30, 52, 30), (46, 76, 40), (78, 110, 58), (122, 150, 86)
-    # Katman katman leke: önce koyu çekirdek, sonra ışıklı yüzey.
-    for layer, count in ((0, 900), (1, 1500), (2, 700)):
-        for _ in range(count):
-            y = rnd.uniform(top, fol_bottom)
-            hw = half_w(y)
-            if hw <= 0:
-                continue
-            u = rnd.uniform(-1, 1)
-            x = cx + u * hw
-            r = rnd.uniform(3.2, 6.5) * SS * (0.7 + 0.3 * (hw / max_w))
-            # Işık: sol taraf (u<0) ve üst kısım daha açık.
-            lit = (0.5 - u * 0.5) * 0.8 + 0.2 * (1 - (y - top) / (fol_bottom - top))
-            if layer == 0:
-                col = lerp(dark, mid, lit * 0.4)
-            elif layer == 1:
-                col = lerp(mid, light, max(0, min(1, lit)))
-            else:
-                if lit < 0.55:
-                    continue
-                col = lerp(light, hi, (lit - 0.55) / 0.45)
-            d.ellipse([x - r, y - r * 0.8, x + r, y + r * 0.8], fill=col + (255,))
-    # Sağ kenarda gölge kuşağı (hacim).
-    shade = Image.new('RGBA', (W, H), (0, 0, 0, 0))
-    sd = ImageDraw.Draw(shade)
-    for y in range(int(top), int(fol_bottom), 2 * SS):
-        hw = half_w(y)
-        if hw > 0:
-            sd.ellipse([cx + hw * 0.15, y - 4 * SS, cx + hw * 1.05, y + 4 * SS], fill=(10, 24, 12, 60))
-    img.alpha_composite(shade.filter(ImageFilter.GaussianBlur(3 * SS)))
-    finish(img, (w_out, h_out), path)
-
-
-# ------------------------------------------------------------------ GEMİ
 def ship(path, seed, masts=1, w_out=360, h_out=330):
     rnd = random.Random(seed)
     W, H = w_out * SS, h_out * SS
@@ -193,25 +132,7 @@ def ship(path, seed, masts=1, w_out=360, h_out=330):
 
 
 # ------------------------------------------------------------------ SUR KULESİ
-def extract_tower(src, path):
-    """Modüler sur kitindeki boyalı yuvarlak kuleyi duvardan ayırır (iki bölgeli maske:
-    geniş çatı+köşk, dar gövde). Kaide oyunda prosedürel çizilir."""
-    im = Image.open(src).convert('RGBA')
-    mask = Image.new('L', im.size, 0)
-    md = ImageDraw.Draw(mask)
-    md.rectangle([656, 0, 882, 338], fill=255)   # çatı + ahşap köşk
-    md.rectangle([734, 338, 862, 626], fill=255)  # taş gövde
-    out = Image.new('RGBA', im.size, (0, 0, 0, 0))
-    out.paste(im, (0, 0), mask)
-    out = out.crop(out.getbbox())
-    out.save(path, optimize=True)
-    print('yazıldı', os.path.relpath(path, ROOT), out.size)
-
-
 if __name__ == '__main__':
     out = os.path.join(ROOT, 'public', 'images', 'game')
-    extract_tower(os.path.join(out, 'walls', 'wall-tower.png'), os.path.join(out, 'walls', 'tower-round.png'))
-    cypress(os.path.join(out, 'decor', 'cypress.png'), seed=11, w_out=150, h_out=460, fat=1.0)
-    cypress(os.path.join(out, 'decor', 'cypress-b.png'), seed=23, w_out=160, h_out=380, fat=1.18)
     ship(os.path.join(out, 'ships', 'ship-a.png'), seed=5, masts=1)
     ship(os.path.join(out, 'ships', 'ship-b.png'), seed=9, masts=2, w_out=420, h_out=360)

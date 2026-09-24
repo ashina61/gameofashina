@@ -17,12 +17,15 @@ import * as Phaser from 'phaser'
 import { TILE, CITY_SLOTS, COAST_SLOTS, DEFENSE_SLOTS, DEFENSE_FOUNDATION, ROAD_GRAPH, HALL_SLOT_ID, slotById } from '@/lib/game/city-map'
 import { LIVE_SLOTS, liveSlotByIndex, type LiveSlot } from '@/lib/game/city-map/live-adapter'
 import { buildCityTerrain, preloadTerrain, cityWorldRect, cityContentRect } from '@/lib/game/city-map/terrain-builder'
-import { assetById, groundScale, GROUND_TARGET_W, BUILDING_RENDER_SCALE, FOOTPRINT_DIAMOND_W } from '@/lib/game/city-map/building-assets'
-import { cleanCoastSpriteRgba } from '@/lib/game/city-map/coast-asset-cleaner'
-import { normalizeBuildingSpriteRgba } from '@/lib/game/city-map/building-texture-normalizer'
+import { GROUND_TARGET_W, FOOTPRINT_DIAMOND_W, ART_DIAMOND_PX } from '@/lib/game/city-map/building-assets'
+import { edgeKey, roadEdgeKeysForTargets } from '@/lib/game/city-map/road-tree'
 import { visualSignature } from '@/lib/game/city-render'
-import { BUILDINGS, BUILDING_IDS, activeJob, zoneOf, type BuildingId, type Game } from '@/lib/game/engine'
-import { asset, buildingImage } from '@/lib/asset'
+import { BUILDINGS, BUILDING_IDS, activeJob, population, zoneOf, type BuildingId, type Game } from '@/lib/game/engine'
+import { asset, buildingImage, buildingStage } from '@/lib/asset'
+
+/** Yolda yürüyen vatandaş (Ikariam'ın sokaktaki halkı). */
+type Walker = { body: Phaser.GameObjects.Graphics; edge: RoadEdge; forward: boolean; t: number; speed: number; side: number }
+type RoadEdge = { key: string; from: string; to: string; curve: Phaser.Curves.QuadraticBezier; length: number }
 
 export type CityEvents = {
   onBuilding: (id: BuildingId) => void
@@ -48,6 +51,8 @@ export class CityScene extends Phaser.Scene {
   private terrainRoads: { updateRoads: (level: number, activeSlotIds?: string[]) => void } | null = null
   /** Bina/arsa/rozet parçaları — her redraw'da temizlenir (zemin dokunulmaz). */
   private pieces: Phaser.GameObjects.GameObject[] = []
+  private walkers: Walker[] = []
+  private walkerKey = ''
   private signature = ''
   private showLabels = false
   private placing = false
@@ -69,7 +74,16 @@ export class CityScene extends Phaser.Scene {
   }
 
   preload() {
-    for (const id of BUILDING_IDS) if (BUILDINGS[id].art && !this.textures.exists(id)) this.load.image(id, buildingImage(id))
+    // Her bina üç aşamada çizildi (tools/art/buildings.py); seviye yükseldikçe görünüm değişir.
+    for (const id of BUILDING_IDS) {
+      if (!BUILDINGS[id].art) continue
+      for (const [stage, level] of [[1, 1], [2, 4], [3, 8]] as const) {
+        const key = `${id}-${stage}`
+        if (!this.textures.exists(key)) this.load.image(key, buildingImage(id, level))
+      }
+    }
+    if (!this.textures.exists('b_site')) this.load.image('b_site', asset('/images/game/buildings/site.webp'))
+    if (!this.textures.exists('b_scaffold')) this.load.image('b_scaffold', asset('/images/game/buildings/scaffold.webp'))
     preloadTerrain(this)
     if (!this.textures.exists('w_tower')) this.load.image('w_tower', asset('/images/game/walls/tower-round.png'))
   }
@@ -78,6 +92,7 @@ export class CityScene extends Phaser.Scene {
     this.cameras.main.setBackgroundColor('#12333b')
     this.terrainRoads = buildCityTerrain(this, this.state.buildings.divan, this.occupiedSlotIds(this.state)) // dünya + yaşayan yol ağı
     this.built = true
+    this.syncWalkers()
     this.setupCamera()
     this.installCamera()
     this.redraw()
@@ -239,7 +254,8 @@ export class CityScene extends Phaser.Scene {
     })
   }
 
-  update() {
+  update(_time: number, delta: number) {
+    this.stepWalkers(Math.min(delta, 100) / 1000)
     if (Math.abs(this.velocity.x) < 0.08 && Math.abs(this.velocity.y) < 0.08) return
     if (this.input.activePointer.isDown) return
     const cam = this.cameras.main
@@ -254,78 +270,12 @@ export class CityScene extends Phaser.Scene {
     return { x: slot.screen.x, baseY: slot.screen.y + (slot.fh / 2) * TILE.h }
   }
 
-  /** Bir binanın slottan bağımsız ölçeği (zemin temasına göre). */
-  private scaleFor(id: BuildingId, imgW: number) {
-    const a = assetById(id)
-    const base = a ? groundScale(imgW, a) : (GROUND_TARGET_W * BUILDING_RENDER_SCALE) / (imgW * 0.8)
-    // Assetlerin bbox/kaide oranları aynı değil. Tek tip dünya ölçeğini korurken
-    // görsel olarak taşan yapıları biraz daha geri çekeriz.
-    const presentation: Partial<Record<BuildingId, number>> = {
-      divan: 0.96,
-      saray: 0.88,
-      medrese: 0.88,
-      kisla: 0.82,
-      carsi: 0.92,
-      ambar: 0.92,
-      hamam: 0.88,
-      konut: 0.94,
-      kereste: 0.90,
-      tas: 0.78,
-      elcilik: 0.92,
-      liman: 0.72,
-      tersane: 0.72,
-    }
-    return base * (presentation[id] ?? 0.90)
-  }
-
-  private textureKeyForBuilding(id: BuildingId) {
-    const worldKey = id + '__world'
-    if (this.textures.exists(worldKey)) return worldKey
-    if (!this.textures.exists(id)) return id
-
-    try {
-      const source = this.textures.get(id).getSourceImage() as CanvasImageSource & {
-        width: number
-        height: number
-      }
-      if (!source?.width || !source?.height) return id
-
-      // Kaynak assetler gereğinden fazla mikro detaylı. Aynı ekran boyunu
-      // koruyarak world texture'ı daha düşük raster çözünürlükte üretmek,
-      // mobilde daha painterly ve daha tutarlı bir doku verir.
-      // V2 ressamlık asset paketi 600px genişliğinde, gerçek alfa ile kırpılmış
-      // WebP dosyalarıdır. Eski 1000px+ seti yumuşatılırken yeni resimlere ikinci
-      // kez renk filtresi ve kıyı-su silme uygulanmaz: bunlar yeni sanatın
-      // taş kaidesini ve rıhtımını yok ediyordu.
-      const newArt = source.width <= 640
-      const rasterScale = newArt ? 1 : 0.68
-      const worldW = Math.max(32, Math.round(source.width * rasterScale))
-      const worldH = Math.max(32, Math.round(source.height * rasterScale))
-      const texture = this.textures.createCanvas(worldKey, worldW, worldH)
-      if (!texture) return id
-      const ctx = texture.getContext()
-      ctx.imageSmoothingEnabled = true
-      ctx.clearRect(0, 0, worldW, worldH)
-      ctx.drawImage(source, 0, 0, worldW, worldH)
-
-      const image = ctx.getImageData(0, 0, worldW, worldH)
-
-      // Coast assetlerinde önce kare su/foam platformu sökülür.
-      if (!newArt && (id === 'liman' || id === 'tersane')) {
-        cleanCoastSpriteRgba(image.data, worldW, worldH)
-      }
-
-      // Bütün binalar aynı sıcaklık/kontrast dünyasından geçer.
-      if (!newArt) normalizeBuildingSpriteRgba(id, image.data, worldW, worldH)
-
-      ctx.putImageData(image, 0, 0)
-      texture.refresh()
-      return worldKey
-    } catch {
-      if (this.textures.exists(worldKey)) this.textures.remove(worldKey)
-      return id
-    }
-  }
+  /**
+   * Bina sanatı tek ölçekle çizildi: görseldeki 2x2 elması (ART_DIAMOND_PX)
+   * footprint'ten biraz büyük gösterilir; Ikariam'daki gibi binalar sokağa
+   * kadar taşar ve şehir dolu görünür. Bina başına ayar yoktur.
+   */
+  private artScale() { return (FOOTPRINT_DIAMOND_W / ART_DIAMOND_PX) * 1.38 }
 
   private occupiedSlotIds(game: Game, moving: BuildingId | null = null, movePlot: number | null = null) {
     const ids: string[] = []
@@ -344,6 +294,7 @@ export class CityScene extends Phaser.Scene {
     this.state = game
     if (!this.built) return
     this.terrainRoads?.updateRoads(game.buildings.divan, this.occupiedSlotIds(game, moving, movePlot))
+    this.syncWalkers()
     const next = `${visualSignature(game)}|${showLabels}|${placing}|${moving ?? '-'}|${movePlot ?? '-'}`
     if (next === this.signature) return
     this.showLabels = showLabels
@@ -554,6 +505,75 @@ export class CityScene extends Phaser.Scene {
     }
   }
 
+  /*
+   * HALK — Ikariam'daki gibi sokaklarda yürüyen küçük vatandaşlar.
+   *
+   * Yalnızca GÖRÜNÜR yollarda (Divanhane'den kurulu binalara giden ağaç)
+   * yürürler; sayı nüfusla artar. Bir düğüme varan vatandaş oradan çıkan
+   * başka bir görünür yola sapar, çıkmaz sokakta geri döner.
+   */
+  private syncWalkers() {
+    const visible = roadEdgeKeysForTargets(this.occupiedSlotIds(this.state))
+    const count = visible.size ? Math.min(26, 3 + Math.floor(population(this.state) / 22)) : 0
+    const key = [...visible].sort().join(',') + '#' + count
+    if (key === this.walkerKey) return
+    this.walkerKey = key
+    for (const w of this.walkers) w.body.destroy()
+    this.walkers = []
+    const edges: RoadEdge[] = []
+    const nodes = new Map(ROAD_GRAPH.nodes.map(n => [n.id, n.screen]))
+    for (const e of ROAD_GRAPH.edges) {
+      const k = edgeKey(e.from, e.to)
+      const A = nodes.get(e.from), B = nodes.get(e.to)
+      if (!visible.has(k) || !A || !B) continue
+      const curve = new Phaser.Curves.QuadraticBezier(new Phaser.Math.Vector2(A.x, A.y), new Phaser.Math.Vector2(e.ctrl.x, e.ctrl.y), new Phaser.Math.Vector2(B.x, B.y))
+      edges.push({ key: k, from: e.from, to: e.to, curve, length: curve.getLength() })
+    }
+    this.roadEdges = edges
+    if (!edges.length) return
+    // Deterministik tohum: aynı şehir her açılışta aynı kalabalıkla başlar.
+    let seed = 0x5eed ^ count
+    const rnd = () => { seed = (Math.imul(seed, 1664525) + 1013904223) | 0; return (seed >>> 0) / 4294967296 }
+    const robes = [0xb8412f, 0x3f6f9a, 0x4f7d4a, 0xd6a93a, 0x7a4f8a, 0xe9dcc0, 0x8a5a35]
+    for (let i = 0; i < count; i++) {
+      const g = this.add.graphics()
+      const robe = robes[Math.floor(rnd() * robes.length)]
+      const s = 1.3
+      g.fillStyle(0x1b2a14, 0.22); g.fillEllipse(1.5 * s, 0, 9 * s, 3.4 * s)
+      g.fillStyle(robe, 1); g.fillTriangle(-3.6 * s, 0, 3.6 * s, 0, 0, -12 * s)
+      g.fillRoundedRect(-2.6 * s, -12 * s, 5.2 * s, 6 * s, 1.6 * s)
+      g.fillStyle(0xd9a77a, 1); g.fillCircle(0, -14.6 * s, 2.5 * s)
+      // fes ya da sarık
+      if (rnd() < 0.5) { g.fillStyle(0xa8322a, 1); g.fillRect(-2 * s, -18.6 * s, 4 * s, 2.6 * s) }
+      else { g.fillStyle(0xf2ead8, 1); g.fillEllipse(0, -17 * s, 5.8 * s, 3.2 * s) }
+      const edge = edges[Math.floor(rnd() * edges.length)]
+      this.walkers.push({ body: g, edge, forward: rnd() < 0.5, t: rnd(), speed: 16 + rnd() * 12, side: (rnd() - 0.5) * 14 })
+    }
+    this.stepWalkers(0)
+  }
+
+  private roadEdges: RoadEdge[] = []
+
+  private stepWalkers(dt: number) {
+    for (const w of this.walkers) {
+      w.t += (w.speed * dt) / Math.max(1, w.edge.length)
+      if (w.t >= 1) {
+        const at = w.forward ? w.edge.to : w.edge.from
+        const options = this.roadEdges.filter(e => e !== w.edge && (e.from === at || e.to === at))
+        const next = options.length ? options[Math.floor(Math.random() * options.length)] : w.edge
+        w.forward = next === w.edge ? !w.forward : next.from === at
+        w.edge = next
+        w.t = 0
+      }
+      const t = w.forward ? w.t : 1 - w.t
+      const p = w.edge.curve.getPoint(t)
+      const tan = w.edge.curve.getTangent(t)
+      w.body.setPosition(p.x - tan.y * w.side, p.y + tan.x * w.side * 0.5)
+      w.body.setScale(w.forward === tan.x > 0 ? 1 : -1, 1)
+      w.body.setDepth(w.body.y)
+    }
+  }
+
   private diamond(cx: number, cy: number, w: number, h: number) {
     return [new Phaser.Math.Vector2(cx, cy - h / 2), new Phaser.Math.Vector2(cx + w / 2, cy),
       new Phaser.Math.Vector2(cx, cy + h / 2), new Phaser.Math.Vector2(cx - w / 2, cy)]
@@ -619,15 +639,20 @@ export class CityScene extends Phaser.Scene {
       GROUND_TARGET_W * 0.24, GROUND_TARGET_W * 0.048)
     this.pieces.push(shadow)
 
-    if (BUILDINGS[id].art && this.textures.exists(id)) {
-      const textureKey = this.textureKeyForBuilding(id)
+    // Ikariam: seviye 0 iken (ilk inşaat) temel + iskele; sonra seviye aşamasının görseli.
+    const textureKey = level === 0 && this.textures.exists('b_site') ? 'b_site' : `${id}-${buildingStage(level)}`
+    if (BUILDINGS[id].art && this.textures.exists(textureKey)) {
       const img = this.add.image(anc.x, anc.baseY, textureKey).setOrigin(0.5, 1)
-      const scale = this.scaleFor(id, img.width)
+      const scale = this.artScale()
       img.setScale(scale).setDepth(anc.baseY)
       img.setFlipX(this.state.flips.includes(id))
-      img.setAlpha(active ? 0.82 : 1) // inşaat sürerken hafif soluk
       dispW = img.width * scale; dispH = img.height * scale
       this.pieces.push(img)
+      // Yükseltme sürerken binanın önünde ahşap iskele durur.
+      if (active && level > 0 && this.textures.exists('b_scaffold')) {
+        const sc = this.add.image(anc.x, anc.baseY, 'b_scaffold').setOrigin(0.5, 1).setScale(scale).setDepth(anc.baseY + 0.05)
+        this.pieces.push(sc)
+      }
     } else {
       // Görseli olmayan yapı: basit taş kaide (yalnızca yedek).
       const g = this.add.graphics().setDepth(anc.baseY)

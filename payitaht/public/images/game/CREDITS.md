@@ -1,26 +1,17 @@
-# Bina görselleri — kaynak
+# Görseller — kaynak
 
-Şehir haritasındaki izometrik bina görselleri **projeye özel üretilmiş**
-(AI ile, tek bir sanat yönünden — bkz. `ASSET_PROMPTS.md`) Osmanlı/Akdeniz
-temalı izometrik sprite'lardır. Tümü aynı kamera açısı, ışık yönü (sol-üst) ve
-renk diliyle üretilip arka planları temizlenmiş, kırpılmış ve webp'e
-çevrilmiştir.
+Oyundaki bütün şehir görselleri bu depodaki araçlarla **kod ile çizilir**;
+dışarıdan alınmış ya da eski boyalı paketten kalan görsel yoktur.
 
-| Oyun yapısı | Görsel |
-|---|---|
-| Divanhane (divan) | kubbeli, bayraklı, merdivenli yönetim binası |
-| Saray (saray) | büyük külliye/saray, merkez kubbe + avlu |
-| Medrese (medrese) | revaklı avlu, çok kubbeli |
-| Hamam (hamam) | kurşun kubbeli, yıldız delikli |
-| Elçilik (elcilik) | revaklı/bayraklı taş konak |
-| Konaklar (konut) | Akdeniz evi, balkon/saksı |
-| Çarşı (carsi) | kapalı çarşı, tenteli, amforalı |
-| Ambar (ambar) | ahşap-taş depo, fıçı/çuval |
-| Kereste Ocağı (kereste) | ahşap atölye, kütük/kereste |
-| Taş Ocağı (tas) | vinçli taş ocağı, kesme bloklar |
-| Kışla (kisla) | bayraklı taş kale, talim avlusu |
-| Ticaret Limanı (liman) | iskele + tekne, kıyı |
-| Tersane (tersane) | su üstü tersane, gemi iskeleti |
+| Klasör | Üreten araç | İçerik |
+|---|---|---|
+| `buildings/` | `tools/art/buildings.py` | 22 yapı × 3 seviye aşaması (1: sv. 1-3, 2: sv. 4-7, 3: sv. 8+), inşaat alanı (`site`), yükseltme iskelesi (`scaffold`) |
+| `decor/` | `tools/art/decor.py` | zeytin, servi, çalı, çiçek, kaya |
+| `terrain/` | `tools/art/decor.py` | çim ve toprak dokuları |
+| `walls/` | `tools/art/decor.py` | yuvarlak sur kulesi |
+| `ships/` | `tools/art/gen-procedural-assets.py` | koydaki gemiler |
 
-Sur (surlar) hâlâ kod ile çizilir. Zemin/su/yol şu an kod-çizimi; tile
-asset'leri geldiğinde 14×14 tile sistemine geçilecektir (bkz. `ASSET_SPEC.md`).
+Hepsi `tools/art/isokit.py` motorunu kullanır: oyunla aynı 2:1 izometri,
+sol-üst ışık, sağa düşen gölge, malzeme dokuları (sıva, kesme taş, kiremit,
+kurşun, ahşap). Görseller deterministiktir; aracı yeniden çalıştırmak aynı
+dosyaları üretir.
