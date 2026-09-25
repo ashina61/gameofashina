@@ -15,6 +15,7 @@
  */
 import * as Phaser from 'phaser'
 import { cityFields, cityFountains, cityStream } from '@/lib/game/city-map/city-extras'
+import { BakeAtlas } from '@/lib/game/city-map/bake'
 import { TILE, CITY_SLOTS, COAST_SLOTS, DEFENSE_SLOTS, DEFENSE_FOUNDATION, ROAD_GRAPH, HALL_SLOT_ID, ROAD_EXITS, WALL_GATES, PLAZA, slotById } from '@/lib/game/city-map'
 import { LIVE_SLOTS, liveSlotByIndex, type LiveSlot } from '@/lib/game/city-map/live-adapter'
 import { buildCityTerrain, preloadTerrain, cityWorldRect, cityContentRect, mineSite } from '@/lib/game/city-map/terrain-builder'
@@ -56,6 +57,7 @@ export class CityScene extends Phaser.Scene {
   private terrainRoads: { updateRoads: (level: number, activeSlotIds?: string[]) => void } | null = null
   /** Bina/arsa/rozet parçaları — her redraw'da temizlenir (zemin dokunulmaz). */
   private pieces: Phaser.GameObjects.GameObject[] = []
+  private pieceAtlas: BakeAtlas | null = null
   private walkers: Walker[] = []
   private walkerKey = ''
   private signature = ''
@@ -382,6 +384,8 @@ export class CityScene extends Phaser.Scene {
     this.signature = `${visualSignature(this.state)}|${this.showLabels}|${this.placing}|${this.moving ?? '-'}|${this.movePlot ?? '-'}`
     for (const piece of this.pieces) piece.destroy()
     this.pieces = []
+    this.pieceAtlas?.destroy()
+    this.pieceAtlas = null
 
     const running = activeJob(this.state)?.id
     /*
@@ -403,6 +407,12 @@ export class CityScene extends Phaser.Scene {
     }
     // Ikariam: Sur inşa edilince şehrin çevresinde duvar + kuleler belirir.
     if (this.state.buildings.surlar > 0) this.drawWalls(this.state.buildings.surlar)
+    // Ağır sabit parçalar (sur, avlu, kule sancakları) dokuya pişirilir: her
+    // karede yeniden üçgenlenmezler.
+    const atlas = new BakeAtlas(this, 'pieces-atlas')
+    this.pieces = this.pieces.flatMap(p => (p instanceof Phaser.GameObjects.Graphics && !this.tweens.isTweening(p) ? atlas.bake(p) : [p]))
+    atlas.finish()
+    this.pieceAtlas = atlas
   }
 
   /*
@@ -830,9 +840,11 @@ export class CityScene extends Phaser.Scene {
     const stream = cityStream()
     this.streamPath = null
     if (stream.pts.length > 3) {
-      this.streamPath = new Phaser.Curves.Path(stream.pts[0].x, stream.pts[0].y)
-      for (const p of stream.pts.slice(1)) this.streamPath.lineTo(p.x, p.y)
-      this.streamLen = this.streamPath.getLength()
+      const path = new Phaser.Curves.Path(stream.pts[0].x, stream.pts[0].y)
+      for (const p of stream.pts.slice(1)) path.lineTo(p.x, p.y)
+      this.streamLen = path.getLength()
+      // Her karede yol üzerinde arama yapmamak için eşit aralıklı örnekler.
+      this.streamPath = path.getSpacedPoints(600).map(v => ({ x: v.x, y: v.y }))
       for (let i = 0; i < 26; i++) {
         const g = this.add.graphics().setDepth(-802)
         g.lineStyle(2, 0xeaf8fc, 0.8); g.lineBetween(-5, 0, 5, 0)
@@ -884,7 +896,7 @@ export class CityScene extends Phaser.Scene {
     }
     this.stepBirds(0)
   }
-  private streamPath: Phaser.Curves.Path | null = null
+  private streamPath: Array<{ x: number; y: number }> | null = null
   private streamLen = 1
   private caravan: Phaser.GameObjects.Graphics[] = []
   private caravanPath: Phaser.Curves.Path | null = null
@@ -918,7 +930,8 @@ export class CityScene extends Phaser.Scene {
       if ((b.kind === 'ripple' || b.kind === 'duck') && this.streamPath) {
         if (b.kind === 'ripple') b.ph = (b.ph + dt * 40 / this.streamLen) % 1
         const t = b.kind === 'duck' ? 0.35 + 0.25 * (0.5 + 0.5 * Math.sin(b.ph * 0.25 + b.sp * 9)) + (b.sp - 0.35) * 0.1 : b.ph
-        const p = this.streamPath.getPoint(Math.min(0.999, t)), q = this.streamPath.getPoint(Math.min(1, t + 0.002))
+        const sp = this.streamPath, k = Math.min(sp.length - 2, Math.max(0, Math.floor(t * (sp.length - 1))))
+        const p = sp[k], q = sp[k + 1]
         const l = Math.hypot(q.x - p.x, q.y - p.y) || 1
         if (b.kind === 'ripple') {
           b.g.setPosition(p.x - (q.y - p.y) / l * b.r, p.y + (q.x - p.x) / l * b.r).setRotation(Math.atan2(q.y - p.y, q.x - p.x))

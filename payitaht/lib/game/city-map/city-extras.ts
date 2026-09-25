@@ -5,6 +5,26 @@
 import { COAST_SLOTS, DEFENSE_FOUNDATION, PLAZA, RING_ROAD, ROAD_GRAPH, SLOTS, TILE, WALL_GATES, type ScreenPoint } from './index'
 import { FOOTPRINT_DIAMOND_W } from './building-assets'
 
+
+/** Nokta kümesi için uzamsal ızgara: "(x,y) çevresinde nokta var mı?" hızlı sorgusu. */
+function pointGrid(pts: ScreenPoint[], cell = 64) {
+  const map = new Map<string, ScreenPoint[]>()
+  for (const p of pts) {
+    const k = `${Math.floor(p.x / cell)},${Math.floor(p.y / cell)}`
+    const arr = map.get(k); if (arr) arr.push(p); else map.set(k, [p])
+  }
+  /** (x,y) merkezli, yarı eksenleri rx/ry olan kutuda test fonksiyonunu sağlayan nokta var mı? */
+  return (x: number, y: number, rx: number, ry: number, test: (p: ScreenPoint) => boolean) => {
+    for (let i = Math.floor((x - rx) / cell); i <= Math.floor((x + rx) / cell); i++) {
+      for (let j = Math.floor((y - ry) / cell); j <= Math.floor((y + ry) / cell); j++) {
+        const arr = map.get(`${i},${j}`)
+        if (arr && arr.some(test)) return true
+      }
+    }
+    return false
+  }
+}
+
 /*
  * ŞEHİR İÇİ TARLALAR: sur içinde arsalardan, yollardan ve meydandan arta
  * kalan boş alanlara bağ, meyve bahçesi, bostan ve koyun merası serpilir.
@@ -34,6 +54,7 @@ export function cityFields(): CityField[] {
       roadPts.push({ x: u * u * A.x + 2 * u * t * e.ctrl.x + t * t * B.x, y: u * u * A.y + 2 * u * t * e.ctrl.y + t * t * B.y })
     }
   }
+  const nearRoad = pointGrid(roadPts), nearStream = pointGrid(cityStream().pts)
   const P = PLAZA.screen
   const coastTop = Math.min(...COAST_SLOTS.map(s => s.screen.y)) - TILE.h * 5
   const yardHW = FOOTPRINT_DIAMOND_W * 1.1, yardHH = yardHW / 2
@@ -46,9 +67,9 @@ export function cityFields(): CityField[] {
       if (![[x - hw, y], [x + hw, y], [x, y - hh], [x, y + hh]].every(([cx, cy]) => inWall(cx, cy))) continue
       if (Math.hypot((x - P.x) / RING_ROAD.rx, (y - P.y) / RING_ROAD.ry) < 1.12) continue
       if (SLOTS.some(s => Math.abs(s.screen.x - x) / (hw + yardHW) + Math.abs(s.screen.y - y) / (hh + yardHH) < 1)) continue
-      if (roadPts.some(p => Math.abs(p.x - x) / (hw + 46) + Math.abs(p.y - y) / (hh + 23) < 1)) continue
+      if (nearRoad(x, y, hw + 46, hh + 23, p => Math.abs(p.x - x) / (hw + 46) + Math.abs(p.y - y) / (hh + 23) < 1)) continue
       if (wall.some(p => Math.abs(p.x - x) / (hw + 70) + Math.abs(p.y - y) / (hh + 35) < 1)) continue
-      if (cityStream().pts.some(p => Math.abs(p.x - x) / (hw + 40) + Math.abs(p.y - y) / (hh + 20) < 1)) continue
+      if (nearStream(x, y, hw + 40, hh + 20, p => Math.abs(p.x - x) / (hw + 40) + Math.abs(p.y - y) / (hh + 20) < 1)) continue
       cands.push({ x, y, d: Math.hypot((x - P.x) / RING_ROAD.rx, (y - P.y) / RING_ROAD.ry) })
     }
   }
@@ -68,11 +89,14 @@ export function cityFields(): CityField[] {
  * ÇEŞMELER: çevre yolunun dört caddeyle kesiştiği köşelerde ve kara
  * kapılarının iç yanında, yol kenarında birer Osmanlı çeşmesi.
  */
+let fountainsCache: ScreenPoint[] | null = null
 export function cityFountains(): ScreenPoint[] {
+  if (fountainsCache) return fountainsCache
   const P = PLAZA.screen
   const out: ScreenPoint[] = []
   // Dereye düşen çeşme yolun öbür yakasına alınır.
-  const wet = (p: ScreenPoint) => cityStream().pts.some(q => Math.hypot(q.x - p.x, (q.y - p.y) * 1.4) < TILE.w * 0.8)
+  const nearStream = pointGrid(cityStream().pts)
+  const wet = (p: ScreenPoint) => nearStream(p.x, p.y, TILE.w * 0.8, TILE.w * 0.6, q => Math.hypot(q.x - p.x, (q.y - p.y) * 1.4) < TILE.w * 0.8)
   for (const deg of [0, 90, 180, 270]) {
     const t = deg * Math.PI / 180
     const x = P.x + Math.cos(t) * RING_ROAD.rx, y = P.y + Math.sin(t) * RING_ROAD.ry
@@ -91,6 +115,7 @@ export function cityFountains(): ScreenPoint[] {
     const p = { x: g.screen.x + ux * TILE.w * 1.9 - uy * TILE.w * 0.62, y: g.screen.y + uy * TILE.w * 1.9 + ux * TILE.h * 0.9 }
     if (!wet(p)) out.push(p)
   }
+  fountainsCache = out
   return out
 }
 
@@ -99,11 +124,18 @@ export function cityFountains(): ScreenPoint[] {
  * burunlar denize uzanır. Arazi çizimi ve dere aynı eğriyi kullanır.
  */
 const smooth01 = (t: number) => { const c = Math.min(1, Math.max(0, t)); return c * c * (3 - 2 * c) }
+let shoreK: { hx: number; seaLine: number; bayHalf: number } | null = null
 export function shoreYAt(x: number) {
-  const hall = SLOTS.find(s => s.fixed && s.type === 'city')!.screen
-  const seaLine = Math.min(...COAST_SLOTS.map(s => s.screen.y)) - TILE.h * 0.75
-  const bayHalf = Math.max(...COAST_SLOTS.map(s => Math.abs(s.screen.x - hall.x))) + TILE.w * 1.1
-  const d = x - hall.x
+  if (!shoreK) {
+    const hall = SLOTS.find(s => s.fixed && s.type === 'city')!.screen
+    shoreK = {
+      hx: hall.x,
+      seaLine: Math.min(...COAST_SLOTS.map(s => s.screen.y)) - TILE.h * 0.75,
+      bayHalf: Math.max(...COAST_SLOTS.map(s => Math.abs(s.screen.x - hall.x))) + TILE.w * 1.1,
+    }
+  }
+  const { hx, seaLine, bayHalf } = shoreK
+  const d = x - hx
   const side = d < 0
   const H = side ? TILE.h * 16 : TILE.h * 11 // sol burun daha derin (asimetri)
   const ramp = side ? TILE.w * 4.6 : TILE.w * 6.2
@@ -153,6 +185,7 @@ export function cityStream(): CityStream {
     }
     return inside
   }
+  const nearRoad = pointGrid(roadPts)
   const segDist = (p: ScreenPoint, a: ScreenPoint, b: ScreenPoint) => {
     const dx = b.x - a.x, dy = b.y - a.y
     const t = Math.max(0, Math.min(1, ((p.x - a.x) * dx + (p.y - a.y) * dy) / (dx * dx + dy * dy || 1)))
@@ -174,7 +207,8 @@ export function cityStream(): CityStream {
       if (y > shoreYAt(x) - TILE.h * 0.4 && Math.hypot(x - goal.x, y - goal.y) > C * 4.5) c = Infinity // deniz (ağız hariç)
       // Sur dışı yalnızca kaynakta (tepe) ve ağızda (burun) serbest: dere şehrin içinden akar.
       if (!inWall(x, y) && Math.hypot(x - start.x, y - start.y) > 760 && Math.hypot(x - goal.x, y - goal.y) > 1500) c = Infinity
-      for (const s of SLOTS) {
+      if (c !== Infinity) for (const s of SLOTS) {
+        if (Math.abs(s.screen.x - x) > yardHW * 1.3 || Math.abs(s.screen.y - y) > yardHH * 1.3) continue
         const k = s.type === 'city' ? 1 : 0.45 // kule ve rıhtım: yalnızca kendi tabanı
         const m = Math.abs(s.screen.x - x) / (yardHW * k) + Math.abs(s.screen.y - y) / (yardHH * k)
         if (m < 1) { c = Infinity; break }
@@ -187,7 +221,7 @@ export function cityStream(): CityStream {
         for (let k = 0; k < wall.length; k++) wd = Math.min(wd, segDist({ x, y }, wall[k], wall[(k + 1) % wall.length]))
         if (wd < 40) c += 70
         else if (wd < 200) c += 6 // surun dibinden değil, şehrin içinden aksın
-        if (roadPts.some(p => Math.abs(p.x - x) < 30 && Math.abs(p.y - y) < 22)) c += 45
+        if (nearRoad(x, y, 30, 22, p => Math.abs(p.x - x) < 30 && Math.abs(p.y - y) < 22)) c += 45
       }
       cost[j * W + i] = c
     }
@@ -240,7 +274,7 @@ export function cityStream(): CityStream {
     run = []
   }
   pts.forEach((p, i) => {
-    const near = roadPts.some(q => Math.hypot(q.x - p.x, q.y - p.y) < 16)
+    const near = nearRoad(p.x, p.y, 16, 16, q => Math.hypot(q.x - p.x, q.y - p.y) < 16)
     if (near) run.push(i); else flush()
   })
   flush()
@@ -279,4 +313,11 @@ export function cityStream(): CityStream {
   if (best < 70) mill = null
   streamCache = { pts, widths, bridges, wallArches, mill }
   return streamCache
+}
+
+let streamNear: ReturnType<typeof pointGrid> | null = null
+/** (x,y) dereye (kıyılar dahil) yakın mı? Dekor/ağaç yerleşimi için hızlı sorgu. */
+export function nearStreamAt(x: number, y: number, rx: number, ry: number) {
+  streamNear ??= pointGrid(cityStream().pts)
+  return streamNear(x, y, rx, ry, p => Math.abs(p.x - x) < rx && Math.abs(p.y - y) < ry)
 }

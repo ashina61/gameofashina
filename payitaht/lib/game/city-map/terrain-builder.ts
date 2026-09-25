@@ -21,7 +21,8 @@ import { GROUND_TARGET_W, GROUND_TARGET_D, FOOTPRINT_DIAMOND_W, ART_DIAMOND_PX }
 import { asset } from '@/lib/asset'
 import { roadStyleFor, roadTierForHallLevel, type RoadKind } from './road-style'
 import { edgeKey, roadEdgeKeysForTargets } from './road-tree'
-import { cityFields, cityFountains, cityStream } from './city-extras'
+import { cityFields, cityFountains, cityStream, nearStreamAt, shoreYAt } from './city-extras'
+import { bakeGraphics, BakeAtlas } from './bake'
 
 /** Arazi dokuları ve dekor (tools/art/decor.py ile çizilir). */
 export const TERRAIN_TILES = ['grass', 'dirt'] as const
@@ -227,6 +228,7 @@ function nearSlot(wx: number, wy: number, slot: CitySlot, margin = 1) {
 
 /** Katmanlı şehir zeminini sahneye kurar. Bina sprite'larından ÖNCE bir kez çağrılır. */
 export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1, occupiedSlotIds: string[] = []) {
+  const existing = new Set(scene.children.list)
   const wr = cityWorldRect()
   const V = (x: number, y: number) => new Phaser.Math.Vector2(x, y)
   const coastMinY = Math.min(...COAST_SLOTS.map(s => s.screen.y))
@@ -240,19 +242,7 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1, occupiedSl
   const bayCx = slotById(HALL_SLOT_ID)!.screen.x
   const bayHalf = Math.max(...COAST_SLOTS.map(s => Math.abs(s.screen.x - bayCx))) + TILE.w * 1.1
   const smooth01 = (t: number) => { const c = Math.min(1, Math.max(0, t)); return c * c * (3 - 2 * c) }
-  const shoreY = (x: number) => {
-    const d = x - bayCx
-    const side = d < 0
-    const H = side ? TILE.h * 16 : TILE.h * 11 // sol burun daha derin (asimetri)
-    const ramp = side ? TILE.w * 4.6 : TILE.w * 6.2
-    const out = smooth01((Math.abs(d) - bayHalf) / ramp)
-    // Koylar ve çıkıntılar: düşük frekanslı büyük dalga + küçük kırıntılar.
-    const wave = TILE.h * 1.7 * Math.sin(x / (TILE.w * 4.2) + 0.4)
-      + TILE.h * 0.85 * Math.sin(x / (TILE.w * 2.1) + 2.2)
-      + TILE.h * 0.35 * Math.sin(x / (TILE.w * 0.83) + 1.3)
-    const waveOn = smooth01((Math.abs(d) - bayHalf + TILE.w) / (TILE.w * 2))
-    return seaLine + H * out + wave * waveOn
-  }
+  const shoreY = shoreYAt // kıyı eğrisi city-extras'ta: dere ve arazi aynı çizgiyi kullanır
   /** Burun kıyısında mı (limanın dışında)? Kayalık/uçurum yoğunluğu için. */
   const headland = (x: number) => smooth01((Math.abs(x - bayCx) - bayHalf) / (TILE.w * 2))
   const diamond = (cx: number, cy: number, w: number, h: number) =>
@@ -793,7 +783,7 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1, occupiedSl
           if (Math.abs(rr - 1) < 0.1) continue // çevre yolu kavşağı
           if (!insideWall(x, y) || y > shoreY(x) - TILE.h * 1.2) continue
           if (cityFountains().some(c => Math.hypot(x - c.x, (y - c.y) * 1.6) < TILE.w * 0.75)) continue // çeşme başı açık
-          if (cityStream().pts.some(p => Math.hypot(p.x - x, p.y - y) < 40)) continue // dere
+          if (nearStreamAt(x, y, 40, 40)) continue // dere
           if ([...CITY_SLOTS, ...COAST_SLOTS, ...DEFENSE_SLOTS].some(s => s.id !== HALL_SLOT_ID && nearSlot(x, y, s, 0.95))) continue
           const img = stamp(tr() < 0.5 ? 'd_cypress' : 'd_cypress-b', x, y, TILE.w * (0.24 + tr() * 0.05), y, 0.92)
           if (img) plazaDecor.push(img)
@@ -1111,6 +1101,7 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1, occupiedSl
   }
 
   let lastRoadKey = ''
+  let roadTextures: Phaser.GameObjects.GameObject[] = []
 
   const updateRoads = (level: number, activeSlotIds: string[] = occupiedSlotIds) => {
     const tier = roadTierForHallLevel(level)
@@ -1120,7 +1111,9 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1, occupiedSl
     if (roadKey === lastRoadKey) return
     lastRoadKey = roadKey
     syncAmbientDecor(activeSlotIds)
-    roads.clear()
+    roads.clear().setVisible(true)
+    for (const o of roadTextures) o.destroy()
+    roadTextures = []
 
     // Yalnızca Divanhane'den GERÇEKTEN kurulu slotlara ulaşan yol ağacı.
     // Boş parsellerin komşu yolları artık sırf yakında bina var diye görünmez.
@@ -1201,6 +1194,8 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1, occupiedSl
         roads.fillEllipse(x, y, stoneW, stoneH)
       }
     }
+    // Yol ağı (binlerce taş) dokuya pişirilir; yollar ana görsel olduğundan bütçesi yüksek.
+    roadTextures = bakeGraphics(scene, roads, { keep: true, maxPixels: 4_000_000 }).filter(o => o !== roads)
   }
   updateRoads(divanLevel, occupiedSlotIds)
 
@@ -1221,7 +1216,7 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1, occupiedSl
     ((wx - PLAZA.screen.x) / PLAZA.rx) ** 2 + ((wy - PLAZA.screen.y) / PLAZA.ry) ** 2 > 1.5 &&
     !cityFields().some(f => Math.abs(wx - f.x) / (f.hw + 30) + Math.abs(wy - f.y) / (f.hh + 15) < 1) &&
     !cityFountains().some(c => Math.hypot(wx - c.x, (wy - c.y) * 2) < TILE.w * 0.8) &&
-    !cityStream().pts.some(p => Math.abs(p.x - wx) < 46 && Math.abs(p.y - wy) < 30) &&
+    !nearStreamAt(wx, wy, 46, 30) &&
     !occ.some(s => nearSlot(
       wx, wy, s,
       initialOccupied.has(s.id) ? margin : Math.min(margin, s.fixed ? 0.90 : 0.66),
@@ -1405,5 +1400,11 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1, occupiedSl
   // İlk updateRoads çağrısı dekor üretilmeden önce yapılıyor.
   // İlk bina/arsa doluluğunu tüm koruluklar yaratıldıktan sonra da uygula.
   syncAmbientDecor(occupiedSlotIds)
+  // Sabit arazi katmanlarını dokuya pişir (yollar ayrı: her güncellemede).
+  const atlas = new BakeAtlas(scene, 'terrain-atlas')
+  for (const o of scene.children.list.filter(o => !existing.has(o))) {
+    if (o instanceof Phaser.GameObjects.Graphics && o !== roads) atlas.bake(o)
+  }
+  atlas.finish()
   return { updateRoads }
 }
