@@ -14,7 +14,7 @@
  * Phaser'in ESM paketinde varsayılan dışa aktarım yok; ad alanı olarak alınır.
  */
 import * as Phaser from 'phaser'
-import { TILE, CITY_SLOTS, COAST_SLOTS, DEFENSE_SLOTS, DEFENSE_FOUNDATION, ROAD_GRAPH, HALL_SLOT_ID, ROAD_EXITS, WALL_GATES, slotById } from '@/lib/game/city-map'
+import { TILE, CITY_SLOTS, COAST_SLOTS, DEFENSE_SLOTS, DEFENSE_FOUNDATION, ROAD_GRAPH, HALL_SLOT_ID, ROAD_EXITS, WALL_GATES, PLAZA, slotById } from '@/lib/game/city-map'
 import { LIVE_SLOTS, liveSlotByIndex, type LiveSlot } from '@/lib/game/city-map/live-adapter'
 import { buildCityTerrain, preloadTerrain, cityWorldRect, cityContentRect, mineSite } from '@/lib/game/city-map/terrain-builder'
 import { GROUND_TARGET_W, FOOTPRINT_DIAMOND_W, ART_DIAMOND_PX } from '@/lib/game/city-map/building-assets'
@@ -40,6 +40,8 @@ export type CityEvents = {
 
 /** Sürüklemeyi dokunuştan ayıran eşik (ekran pikseli). */
 const TAP_SLOP = 12
+/** Bina görsellerinde zemin elmasının merkezi, resmin altından bu kadar yukarıda (sanat pikseli, 600px tuval). */
+const ART_GROUND_PX = 118
 function isTap(p: Phaser.Input.Pointer) {
   return p.downTime > 0 && Phaser.Math.Distance.Between(p.downX, p.downY, p.upX, p.upY) < TAP_SLOP
 }
@@ -99,6 +101,7 @@ export class CityScene extends Phaser.Scene {
     this.terrainRoads = buildCityTerrain(this, this.state.buildings.divan, this.openSlotIds(this.state)) // dünya + büyüyen sokak ağı
     this.built = true
     this.syncWalkers()
+    this.addBirds()
     this.drawMine()
     this.setupCamera()
     this.installCamera()
@@ -275,6 +278,7 @@ export class CityScene extends Phaser.Scene {
 
   update(_time: number, delta: number) {
     this.stepWalkers(Math.min(delta, 100) / 1000)
+    this.stepBirds(Math.min(delta, 100) / 1000)
     this.timers = this.timers.filter(t => t.bar.active)
     this.hudItems = this.hudItems.filter(h => h.c.active)
     const zoom = this.cameras.main.zoom
@@ -541,6 +545,19 @@ export class CityScene extends Phaser.Scene {
         const img = this.add.image(x, y - w * 0.04, 'w_tower').setOrigin(0.5, 1).setDepth(y + 2)
         img.setScale(w / img.width)
         this.pieces.push(img)
+        // Her kulede al sancak (ay-yıldız), rüzgârda dalgalı.
+        const top = y - w * 0.04 - img.height * (w / img.width) + w * 0.06
+        const f = this.add.graphics().setDepth(y + 2.1)
+        const fw = w * 0.5, fh = w * 0.3
+        f.lineStyle(2.5, 0x4a3a28, 1); f.lineBetween(x, top, x, top - w * 0.62)
+        f.fillStyle(0xe2bd78, 1); f.fillCircle(x, top - w * 0.64, 2.6)
+        f.fillStyle(0xb3261e, 1)
+        f.fillPoints([new Phaser.Math.Vector2(x + 1, top - w * 0.6), new Phaser.Math.Vector2(x + fw * 0.5, top - w * 0.6 - 3), new Phaser.Math.Vector2(x + fw, top - w * 0.6 + 2),
+          new Phaser.Math.Vector2(x + fw, top - w * 0.6 + fh + 2), new Phaser.Math.Vector2(x + fw * 0.5, top - w * 0.6 + fh - 3), new Phaser.Math.Vector2(x + 1, top - w * 0.6 + fh)], true)
+        f.fillStyle(0xf6efe0, 1); f.fillCircle(x + fw * 0.42, top - w * 0.6 + fh * 0.5, fh * 0.26)
+        f.fillStyle(0xb3261e, 1); f.fillCircle(x + fw * 0.47, top - w * 0.6 + fh * 0.5, fh * 0.21)
+        f.fillStyle(0xf6efe0, 1); f.fillCircle(x + fw * 0.66, top - w * 0.6 + fh * 0.5, fh * 0.08)
+        this.pieces.push(f)
       }
     }
     const placed: Array<{ x: number; y: number }> = []
@@ -653,18 +670,9 @@ export class CityScene extends Phaser.Scene {
     // Deterministik tohum: aynı şehir her açılışta aynı kalabalıkla başlar.
     let seed = 0x5eed ^ count
     const rnd = () => { seed = (Math.imul(seed, 1664525) + 1013904223) | 0; return (seed >>> 0) / 4294967296 }
-    const robes = [0xb8412f, 0x3f6f9a, 0x4f7d4a, 0xd6a93a, 0x7a4f8a, 0xe9dcc0, 0x8a5a35]
     for (let i = 0; i < count; i++) {
       const g = this.add.graphics()
-      const robe = robes[Math.floor(rnd() * robes.length)]
-      const s = 1.3
-      g.fillStyle(0x1b2a14, 0.22); g.fillEllipse(1.5 * s, 0, 9 * s, 3.4 * s)
-      g.fillStyle(robe, 1); g.fillTriangle(-3.6 * s, 0, 3.6 * s, 0, 0, -12 * s)
-      g.fillRoundedRect(-2.6 * s, -12 * s, 5.2 * s, 6 * s, 1.6 * s)
-      g.fillStyle(0xd9a77a, 1); g.fillCircle(0, -14.6 * s, 2.5 * s)
-      // fes ya da sarık
-      if (rnd() < 0.5) { g.fillStyle(0xa8322a, 1); g.fillRect(-2 * s, -18.6 * s, 4 * s, 2.6 * s) }
-      else { g.fillStyle(0xf2ead8, 1); g.fillEllipse(0, -17 * s, 5.8 * s, 3.2 * s) }
+      this.drawCitizen(g, rnd)
       const edge = edges[Math.floor(rnd() * edges.length)]
       this.walkers.push({ body: g, edge, forward: rnd() < 0.5, t: rnd(), speed: 16 + rnd() * 12, side: (rnd() - 0.5) * 14 })
     }
@@ -685,6 +693,111 @@ export class CityScene extends Phaser.Scene {
     img.setInteractive({ useHandCursor: true, pixelPerfect: false })
     img.on('pointerup', (p: Phaser.Input.Pointer) => { if (isTap(p) && !this.moving) this.events$.onMine() })
     this.mineSprite = img
+  }
+
+  /*
+   * OSMANLI HALKI: sarıklı/fesli esnaf, beyaz börklü yeniçeri, feraceli ve
+   * yaşmaklı kadın, sırtında yükle hamal. Hepsi birkaç piksellik vektör.
+   */
+  private drawCitizen(g: Phaser.GameObjects.Graphics, rnd: () => number) {
+    const s = 1.3, roll = rnd()
+    const skin = 0xd9a77a
+    g.fillStyle(0x1b2a14, 0.22); g.fillEllipse(1.5 * s, 0, 9 * s, 3.4 * s)
+    const body = (robe: number, sash?: number) => {
+      g.fillStyle(robe, 1); g.fillTriangle(-3.6 * s, 0, 3.6 * s, 0, 0, -12 * s)
+      g.fillRoundedRect(-2.6 * s, -12 * s, 5.2 * s, 6 * s, 1.6 * s)
+      if (sash !== undefined) { g.fillStyle(sash, 1); g.fillRect(-2.7 * s, -7.4 * s, 5.4 * s, 1.4 * s) }
+    }
+    if (roll < 0.14) {
+      // Yeniçeri: lacivert dolama, kırmızı kuşak, uzun beyaz börk.
+      body(0x2d4a78, 0xb3261e)
+      g.fillStyle(skin, 1); g.fillCircle(0, -14.6 * s, 2.5 * s)
+      g.fillStyle(0xf4efe2, 1); g.fillPoints([
+        new Phaser.Math.Vector2(-2.4 * s, -16.4 * s), new Phaser.Math.Vector2(2.4 * s, -16.4 * s),
+        new Phaser.Math.Vector2(1.2 * s, -23 * s), new Phaser.Math.Vector2(-3.8 * s, -21.5 * s)], true)
+      g.fillStyle(0xe2bd78, 1); g.fillRect(-2.4 * s, -17.2 * s, 4.8 * s, 1 * s)
+    } else if (roll < 0.40) {
+      // Kadın: ferace (koyu renk), beyaz yaşmak.
+      const ferace = [0x3b2a5a, 0x5a2a3a, 0x2a4a4a, 0x6a4a2a][Math.floor(rnd() * 4)]
+      body(ferace)
+      g.fillStyle(0xf6f1e6, 1); g.fillCircle(0, -14.8 * s, 2.9 * s)
+      g.fillStyle(skin, 1); g.fillEllipse(0.6 * s, -14.4 * s, 2.4 * s, 1.6 * s)
+    } else if (roll < 0.52) {
+      // Hamal: kahverengi yelek, sırtında denk.
+      body(0x7a5230)
+      g.fillStyle(skin, 1); g.fillCircle(0, -14.6 * s, 2.5 * s)
+      g.fillStyle(0x6a3a22, 1); g.fillRect(-2 * s, -18.4 * s, 4 * s, 2.2 * s)
+      g.fillStyle(0xc9a46a, 1); g.fillRoundedRect(-7.4 * s, -16 * s, 5.4 * s, 8 * s, 1.2 * s)
+      g.lineStyle(1, 0x7a5a30, 1); g.lineBetween(-7.4 * s, -12 * s, -2 * s, -12 * s)
+    } else {
+      // Esnaf: renkli entari, fes ya da sarık.
+      const robes = [0xb8412f, 0x3f6f9a, 0x4f7d4a, 0xd6a93a, 0x7a4f8a, 0xe9dcc0, 0x8a5a35]
+      body(robes[Math.floor(rnd() * robes.length)], rnd() < 0.5 ? 0xe9dcc0 : undefined)
+      g.fillStyle(skin, 1); g.fillCircle(0, -14.6 * s, 2.5 * s)
+      if (rnd() < 0.5) { g.fillStyle(0xa8322a, 1); g.fillRect(-2 * s, -18.6 * s, 4 * s, 2.6 * s); g.fillStyle(0x1b1b1b, 1); g.fillRect(-0.3 * s, -19 * s, 0.6 * s, 0.6 * s) }
+      else { g.fillStyle(0xf2ead8, 1); g.fillEllipse(0, -17 * s, 6.2 * s, 3.6 * s); g.fillStyle(0xb3261e, 1); g.fillCircle(0, -18.2 * s, 1 * s) }
+    }
+  }
+
+  /*
+   * KUŞLAR: meydanda şadırvan çevresinde yem toplayan güvercinler (arada bir
+   * sürü halinde havalanıp döner, yeniden konar) ve limanın üstünde süzülen
+   * martılar.
+   */
+  private birds: Array<{ g: Phaser.GameObjects.Graphics; kind: 'pigeon' | 'gull'; hx: number; hy: number; x: number; y: number; ph: number; r: number; sp: number }> = []
+  private flockClock = 0
+  private addBirds() {
+    for (const b of this.birds) b.g.destroy()
+    this.birds = []
+    let seed = 0xb12d
+    const rnd = () => { seed = (Math.imul(seed, 1664525) + 1013904223) | 0; return (seed >>> 0) / 4294967296 }
+    const P = PLAZA.screen
+    for (let i = 0; i < 16; i++) {
+      const a = rnd() * Math.PI * 2, r = 0.45 + rnd() * 0.5
+      let hx = P.x + Math.cos(a) * PLAZA.rx * r * 0.7, hy = P.y + PLAZA.ry * 0.74 + Math.sin(a) * PLAZA.ry * r * 0.3
+      if (Math.abs(hx - P.x) < 60 && Math.abs(hy - (P.y + PLAZA.ry * 0.74)) < 30) hx += 90
+      const g = this.add.graphics()
+      const tone = [0x8e9296, 0xa7abae, 0x6f7377, 0xd9d6cf][i % 4]
+      g.fillStyle(0x1b2a14, 0.2); g.fillEllipse(0.5, 0.4, 7, 2.2)
+      g.fillStyle(tone, 1); g.fillEllipse(0, -2.4, 7.4, 4.2)
+      g.fillStyle(0x5b6a6e, 1); g.fillCircle(3.2, -4.6, 1.9)
+      g.fillStyle(0x3a3a3a, 1); g.fillRect(-4.6, -3.2, 2.2, 1.2)
+      g.fillStyle(0xe0a060, 1); g.fillRect(4.8, -4.8, 1.4, 0.8)
+      this.birds.push({ g, kind: 'pigeon', hx, hy, x: hx, y: hy, ph: rnd() * 10, r: 60 + rnd() * 90, sp: 0.8 + rnd() * 0.5 })
+    }
+    const sea = COAST_SLOTS.reduce((m, c) => ({ x: m.x + c.screen.x / COAST_SLOTS.length, y: Math.max(m.y, c.screen.y) }), { x: 0, y: -Infinity })
+    for (let i = 0; i < 6; i++) {
+      const g = this.add.graphics()
+      g.lineStyle(2.6, 0xf7f7f2, 1)
+      g.beginPath(); g.moveTo(-9, -2); g.lineTo(-3, 1); g.lineTo(0, 0); g.lineTo(3, 1); g.lineTo(9, -2); g.strokePath()
+      g.fillStyle(0x3a3a3a, 1); g.fillCircle(-9, -2, 1); g.fillCircle(9, -2, 1)
+      this.birds.push({ g, kind: 'gull', hx: sea.x + (rnd() - 0.5) * 900, hy: sea.y + 260 + rnd() * 320, x: 0, y: 0, ph: rnd() * 10, r: 90 + rnd() * 160, sp: 0.25 + rnd() * 0.2 })
+    }
+    this.stepBirds(0)
+  }
+  private stepBirds(dt: number) {
+    this.flockClock += dt
+    // 18 sn döngü: ~14 sn yerde, ~4 sn havada.
+    const cycle = this.flockClock % 18, flying = cycle > 14
+    const lift = flying ? Math.sin((cycle - 14) / 4 * Math.PI) : 0
+    for (const b of this.birds) {
+      b.ph += dt * b.sp
+      if (b.kind === 'gull') {
+        b.x = b.hx + Math.cos(b.ph) * b.r
+        b.y = b.hy + Math.sin(b.ph) * b.r * 0.4 - 140
+        b.g.setPosition(b.x, b.y).setDepth(1e5).setScale(1, 0.6 + 0.4 * Math.abs(Math.sin(b.ph * 9)))
+        continue
+      }
+      if (flying) {
+        const a = b.ph * 2.6
+        b.g.setPosition(b.hx + Math.cos(a) * b.r * lift, b.hy - lift * (110 + b.r * 0.4) + Math.sin(a) * b.r * 0.3 * lift)
+        b.g.setScale(Math.cos(a) > 0 ? 1 : -1, 0.5 + 0.5 * Math.abs(Math.sin(b.ph * 30))).setDepth(1e5)
+      } else {
+        // Gagalama: küçük sıçrama ve dönüş.
+        const peck = Math.max(0, Math.sin(b.ph * 5)) * 1.6
+        b.g.setPosition(b.hx + Math.sin(b.ph * 0.7) * 6, b.hy - peck).setScale(Math.sin(b.ph * 0.35) > 0 ? 1 : -1, 1).setDepth(b.hy)
+      }
+    }
   }
 
   private stepWalkers(dt: number) {
@@ -760,6 +873,12 @@ export class CityScene extends Phaser.Scene {
   private addBuilding(id: BuildingId, slot: LiveSlot, active: boolean) {
     const anc = this.anchor(slot)
     const level = this.state.buildings[id]
+    // Divanhane meydanın gösterişli merkezi: diğer binalardan büyük.
+    const artS = this.artScale() * (slot.slotId === HALL_SLOT_ID ? 1.5 : 1)
+    // Görselin zemin elması resmin altından ART_GROUND_PX yukarıda: elmas
+    // arsanın (belediyede meydanın) tam ortasına düz oturur. Liman görselleri
+    // rıhtıma göre çizildiği için eski temas noktasını kullanır.
+    const imgY = slot.zone === 'liman' ? anc.baseY : slot.screen.y + ART_GROUND_PX * artS
     let dispW = TILE.w * 2, dispH = TILE.h * 2
 
     // Boş slot görünmez; yalnızca kurulu yapının altında doğal açıklık oluşur.
@@ -779,16 +898,15 @@ export class CityScene extends Phaser.Scene {
     // Ikariam: seviye 0 iken (ilk inşaat) temel + iskele; sonra seviye aşamasının görseli.
     const textureKey = level === 0 && this.textures.exists('b_site') ? 'b_site' : `${id}-${buildingStage(level)}`
     if (BUILDINGS[id].art && this.textures.exists(textureKey)) {
-      const img = this.add.image(anc.x, anc.baseY, textureKey).setOrigin(0.5, 1)
-      // Divanhane meydanın gösterişli merkezi: diğer binalardan büyük.
-      const scale = this.artScale() * (slot.slotId === HALL_SLOT_ID ? 1.5 : 1)
-      img.setScale(scale).setDepth(anc.baseY)
+      const img = this.add.image(anc.x, imgY, textureKey).setOrigin(0.5, 1)
+      const scale = artS
+      img.setScale(scale).setDepth(imgY)
       img.setFlipX(this.state.flips.includes(id))
       dispW = img.width * scale; dispH = img.height * scale
       this.pieces.push(img)
       // Yükseltme sürerken binanın önünde ahşap iskele durur.
       if (active && level > 0 && this.textures.exists('b_scaffold')) {
-        const sc = this.add.image(anc.x, anc.baseY, 'b_scaffold').setOrigin(0.5, 1).setScale(scale).setDepth(anc.baseY + 0.05)
+        const sc = this.add.image(anc.x, imgY, 'b_scaffold').setOrigin(0.5, 1).setScale(scale).setDepth(imgY + 0.05)
         this.pieces.push(sc)
       }
     } else {
@@ -799,8 +917,8 @@ export class CityScene extends Phaser.Scene {
     }
 
     // Dokunuş: binaya dokun → panel aç.
-    const hit = this.add.rectangle(anc.x, anc.baseY - dispH * 0.4, dispW * 0.7, dispH * 0.6)
-      .setInteractive({ useHandCursor: true }).setFillStyle(0xffffff, 0).setDepth(anc.baseY + 0.2)
+    const hit = this.add.rectangle(anc.x, imgY - dispH * 0.4, dispW * 0.7, dispH * 0.6)
+      .setInteractive({ useHandCursor: true }).setFillStyle(0xffffff, 0).setDepth(imgY + 0.2)
     hit.on('pointerup', (p: Phaser.Input.Pointer) => { if (isTap(p) && !this.moving) this.events$.onBuilding(id) })
     this.pieces.push(hit)
 
@@ -808,7 +926,7 @@ export class CityScene extends Phaser.Scene {
     // Seviye rozeti yalnızca etiketler açıldığında veya inşaat aktifken görünür.
     // Boyalı etiket: seviye dairesi + isim plakası (binanın alt yarısında, her şeyin üstünde).
     if (this.showLabels || active) {
-      this.pieces.push(this.makePaintedLabel(anc.x, anc.baseY - dispH * 0.30, level, BUILDINGS[id].name, 1e6 + anc.baseY))
+      this.pieces.push(this.makePaintedLabel(anc.x, imgY - dispH * 0.30, level, BUILDINGS[id].name, 1e6 + imgY))
     }
     // İnşaat sürüyorsa altında süre çubuğu (çekiç, ilerleme, kalan süre, yeşil ok).
     const job = activeJob(this.state)
