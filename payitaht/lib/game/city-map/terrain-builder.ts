@@ -98,6 +98,7 @@ export function preloadTerrain(scene: Phaser.Scene) {
   for (const d of DECOR_TILES) {
     if (!scene.textures.exists('d_' + d)) scene.load.image('d_' + d, asset(`/images/game/decor/${d}.png`))
   }
+  if (!scene.textures.exists('b_pazar')) scene.load.image('b_pazar', asset('/images/game/buildings/pazar.webp'))
   for (const sh of SHIP_TILES) {
     if (!scene.textures.exists('s_' + sh)) scene.load.image('s_' + sh, asset(`/images/game/ships/${sh}.png`))
   }
@@ -834,40 +835,21 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1, occupiedSl
       plazaDecor.push(g)
     }
 
-    // İSKELE ÇARŞISI: limana yakın, hiçbir binanın (en yüksek aşamadaki)
-    // görsel alanına binmeyen yerde dört tenteli tezgâh (bkz. cityBazaar).
-    {
-      const awnings: Array<[number, number]> = [[0xb3261e, 0xf6efe0], [0x2f6b4c, 0xf6efe0], [0x2d4a78, 0xf2c94c], [0xd6a93a, 0xb3261e]]
-      const goods = [0xc8453a, 0xe29b2f, 0x7a4f2a, 0x9c3d6a, 0xf2c94c, 0x5b7d3a]
-      let k = 0
-      for (const spot of cityBazaar()) {
-        {
-          const x = spot.x, y = spot.y
-          const g = scene.add.graphics().setDepth(y)
-          const w = TILE.w * 0.95, d = TILE.h * 0.42, hgt = TILE.h * 0.9
-          const [c1, c2] = awnings[k++ % awnings.length]
-          g.fillStyle(0x2f421c, 0.25); g.fillEllipse(x + 8, y + 3, w * 1.2, d * 1.2)
-          // Tezgâh (ahşap) ve mallar.
-          g.fillStyle(0x8a5a35, 1); g.fillRect(x - w / 2, y - hgt * 0.45, w, hgt * 0.45)
-          g.fillStyle(0xa8764a, 1); g.fillRect(x - w / 2, y - hgt * 0.5, w, 5)
-          for (let j = 0; j < 5; j++) {
-            g.fillStyle(goods[(j + k) % goods.length], 1)
-            g.fillEllipse(x - w / 2 + 8 + j * (w - 16) / 4, y - hgt * 0.52, 12, 7)
-          }
-          // Direkler ve çizgili tente.
-          g.lineStyle(2.5, 0x5a4630, 1)
-          g.lineBetween(x - w / 2 + 2, y, x - w / 2 + 2, y - hgt * 1.3); g.lineBetween(x + w / 2 - 2, y, x + w / 2 - 2, y - hgt * 1.3)
-          const stripes = 6
-          for (let j = 0; j < stripes; j++) {
-            const x0 = x - w / 2 - 4 + j * (w + 8) / stripes, x1 = x0 + (w + 8) / stripes
-            g.fillStyle(j % 2 ? c2 : c1, 1)
-            g.fillPoints([V(x0, y - hgt * 1.3 - d), V(x1, y - hgt * 1.3 - d), V(x1, y - hgt * 1.12), V(x0, y - hgt * 1.12)], true)
-          }
-          g.fillStyle(c1, 1)
-          for (let j = 0; j < stripes; j++) g.fillTriangle(x - w / 2 - 4 + j * (w + 8) / stripes, y - hgt * 1.12, x - w / 2 - 4 + (j + 1) * (w + 8) / stripes, y - hgt * 1.12, x - w / 2 - 4 + (j + 0.5) * (w + 8) / stripes, y - hgt * 1.02)
-          plazaDecor.push(g)
-        }
-      }
+    // İSKELE PAZARI: binalarla aynı çizim aracından arasta + çadırlı pazar
+    // yeri; en yakın yola toprak bir patikayla bağlanır (bkz. cityBazaar).
+    const bz = cityBazaar()
+    if (bz && scene.textures.exists('b_pazar')) {
+      const k = (FOOTPRINT_DIAMOND_W / ART_DIAMOND_PX) * 1.8 * 0.8
+      // Patika: pazarın ön köşesinden yola, yol katmanının altında.
+      const path = scene.add.graphics().setDepth(-802)
+      const front = V(bz.x, bz.y + 211 * k * 0.5 * 0.8)
+      const mid = V((front.x + bz.road.x) / 2 + (bz.road.y - front.y) * 0.15, (front.y + bz.road.y) / 2)
+      const curve = new Phaser.Curves.QuadraticBezier(front, mid, V(bz.road.x, bz.road.y))
+      path.lineStyle(TILE.w * 0.22, 0x9c8458, 0.5); curve.draw(path, 24)
+      path.lineStyle(TILE.w * 0.16, 0xc2aa7a, 1); curve.draw(path, 24)
+      plazaDecor.push(path)
+      const img = scene.add.image(bz.x, bz.y + 118 * k, 'b_pazar').setOrigin(0.5, 1).setScale(k).setDepth(bz.y + 118 * k)
+      plazaDecor.push(img)
     }
   }
 
@@ -1317,7 +1299,7 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1, occupiedSl
     !cityFountains().some(c => Math.hypot(wx - c.x, (wy - c.y) * 2) < TILE.w * 0.8) &&
     !nearStreamAt(wx, wy, 46, 30) &&
     !aqueductHits(wx, wy, 40, 26) &&
-    !cityBazaar().some(b => Math.abs(b.x - wx) < TILE.w * 0.7 && wy < b.y + 20 && wy > b.y - TILE.h * 2.2) &&
+    !(cityBazaar() && Math.abs(cityBazaar()!.x - wx) < 200 && wy > cityBazaar()!.y - 120 && wy < cityBazaar()!.y + 100) &&
     !occ.some(s => nearSlot(
       wx, wy, s,
       initialOccupied.has(s.id) ? margin : Math.min(margin, s.fixed ? 0.90 : 0.66),

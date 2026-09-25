@@ -402,12 +402,16 @@ export function aqueductHits(x: number, y: number, rx: number, ry: number) {
 }
 
 /*
- * İSKELE ÇARŞISI: dört tenteli tezgâh; liman yoluna yakın, hiçbir binanın
- * (en yüksek aşamadaki) görsel alanına, tarlaya, dereye, yola binmeyen yer.
+ * İSKELE PAZARI: limana yakın, hiçbir binanın (en yüksek aşamadaki) görsel
+ * alanına, tarlaya, dereye, su kemerine, yola binmeyen tek bir alan; pazar
+ * görselinin elması bu noktaya oturur. En yakın yol noktası da döner (patika).
  */
-let bazaarCache: ScreenPoint[] | null = null
-export function cityBazaar(): ScreenPoint[] {
-  if (bazaarCache) return bazaarCache
+export type CityBazaar = { x: number; y: number; road: ScreenPoint } | null
+/** Pazar alanının ekrandaki yarı genişliği / üst-alt payı (görsel ~0.8 bina ölçeği). */
+export const BAZAAR_BOX = { hw: 190, up: 250, down: 90 }
+let bazaarCache: CityBazaar | undefined
+export function cityBazaar(): CityBazaar {
+  if (bazaarCache !== undefined) return bazaarCache
   const nodeAt = new Map(ROAD_GRAPH.nodes.map(n => [n.id, n.screen]))
   const roadPts: ScreenPoint[] = []
   for (const e of ROAD_GRAPH.edges) {
@@ -416,17 +420,18 @@ export function cityBazaar(): ScreenPoint[] {
     for (let k = 0; k <= 24; k++) { const t = k / 24, u = 1 - t; roadPts.push({ x: u * u * A.x + 2 * u * t * e.ctrl.x + t * t * B.x, y: u * u * A.y + 2 * u * t * e.ctrl.y + t * t * B.y }) }
   }
   const nearRoad = pointGrid(roadPts), nearStream = pointGrid(cityStream().pts)
+  // Ana caddeler (meydan–kapılar–liman): oyun başından beri görünür.
+  const main = (id: string) => /^(city_hall|st_(ave|gate|out|stairs|r0$|r6$|r12$|r18$))/.test(id) || id.startsWith('coast_')
+  const mainPts: ScreenPoint[] = []
+  for (const e of ROAD_GRAPH.edges) {
+    if (!main(e.from) || !main(e.to)) continue
+    const A = nodeAt.get(e.from), B = nodeAt.get(e.to)
+    if (!A || !B) continue
+    for (let k = 0; k <= 24; k++) { const t = k / 24, u = 1 - t; mainPts.push({ x: u * u * A.x + 2 * u * t * e.ctrl.x + t * t * B.x, y: u * u * A.y + 2 * u * t * e.ctrl.y + t * t * B.y }) }
+  }
   const boxes = SLOTS.map(artBox)
   const fields = cityFields()
-  const W = TILE.w * 0.95, H = TILE.h * 1.9 // tezgâh + tente (ekranda)
-  const free = (x: number, y: number) =>
-    !boxes.some(b => x + W / 2 > b.x0 && x - W / 2 < b.x1 && y > b.y0 && y - H < b.y1) &&
-    !fields.some(f => Math.abs(f.x - x) / (f.hw + W * 0.7) + Math.abs(f.y - y) / (f.hh + H * 0.6) < 1) &&
-    !nearRoad(x, y, W * 0.6, 26, p => Math.abs(p.x - x) < W * 0.6 && Math.abs(p.y - y) < 26) &&
-    !nearStream(x, y, W, 40, p => Math.abs(p.x - x) < W && Math.abs(p.y - y) < 40) &&
-    !aqueductHits(x, y, W, 50) &&
-    y < shoreYAt(x) - TILE.h * 2
-  const stairs = nodeAt.get('st_stairs') ?? nodeAt.get(ROAD_GRAPH.nodes[0].id)!
+  const fountains = cityFountains()
   const wall = DEFENSE_FOUNDATION.map(p => p.screen)
   const inWall = (x: number, y: number) => {
     let inside = false
@@ -437,22 +442,33 @@ export function cityBazaar(): ScreenPoint[] {
     return inside
   }
   const P = PLAZA.screen
-  const fountains = cityFountains()
-  const cands: Array<{ x: number; y: number; d: number }> = []
-  for (let y = Math.min(...wall.map(p => p.y)) + 200; y < stairs.y + 200; y += 20) {
-    for (let x = Math.min(...wall.map(p => p.x)) + 150; x <= Math.max(...wall.map(p => p.x)) - 150; x += 20) {
-      if (!inWall(x, y) || ((x - P.x) / (PLAZA.rx * 1.3)) ** 2 + ((y - P.y) / (PLAZA.ry * 1.3)) ** 2 < 1) continue
-      if (fountains.some(f => Math.hypot(f.x - x, (f.y - y) * 1.5) < TILE.w * 1.6)) continue
-      // 2x2 tezgâh bloğu: sol-sağ sütun, üst-alt sıra.
-      const spots = [[-W * 0.62, 0], [W * 0.62, 0], [-W * 0.62, H * 0.95], [W * 0.62, H * 0.95]].map(([dx, dy]) => ({ x: x + dx, y: y + dy }))
-      if (!spots.every(p => free(p.x, p.y))) continue
-      // Limana yakın olsun; yola bitişikse ayrıca tercih edilir (müşteri gelsin).
-      const roadNear = nearRoad(x, y + H * 0.5, W * 2, H * 1.2, () => true)
-      cands.push({ x, y, d: Math.hypot(x - stairs.x, (y - stairs.y) * 1.3) + (roadNear ? 0 : 150) })
+  const { hw, up, down } = BAZAAR_BOX
+  const pointFree = (x: number, y: number) =>
+    !nearRoad(x, y, 30, 22, p => Math.abs(p.x - x) < 30 && Math.abs(p.y - y) < 22) &&
+    !nearStream(x, y, 50, 36, p => Math.abs(p.x - x) < 50 && Math.abs(p.y - y) < 36) &&
+    !aqueductHits(x, y, 40, 26) &&
+    !fields.some(f => Math.abs(f.x - x) / (f.hw + 20) + Math.abs(f.y - y) / (f.hh + 10) < 1) &&
+    !fountains.some(f => Math.hypot(f.x - x, (f.y - y) * 1.5) < 70) &&
+    y < shoreYAt(x) - TILE.h * 1.5 && inWall(x, y)
+  const stairs = nodeAt.get('st_stairs') ?? roadPts[0]
+  let best: CityBazaar = null, bestD = Infinity
+  for (let y = Math.min(...wall.map(p => p.y)) + up; y < stairs.y + 300; y += 20) {
+    for (let x = Math.min(...wall.map(p => p.x)) + hw; x <= Math.max(...wall.map(p => p.x)) - hw; x += 20) {
+      if (y - up < P.y + RING_ROAD.ry) continue // çevre yolunun güneyinde: liman mahallesi
+      if (boxes.some(b => x + hw > b.x0 && x - hw < b.x1 && y + down > b.y0 && y - up < b.y1)) continue
+      let ok = true
+      for (let i = 0; i <= 4 && ok; i++) for (let j = 0; j <= 3 && ok; j++) {
+        ok = pointFree(x - hw * 0.8 + (hw * 1.6) * i / 4, y - up * 0.3 + (up * 0.3 + down * 0.8) * j / 3)
+      }
+      if (!ok) continue
+      // En yakın ANA cadde noktası (patika; hep görünen yollar) ve limana uzaklık.
+      let road = mainPts[0], rd = Infinity
+      for (const p of mainPts) { const d = Math.hypot(p.x - x, (p.y - y) * 1.4); if (d < rd) { rd = d; road = p } }
+      if (rd < hw + 60) continue // caddenin servi sırasına binmesin
+      const d = Math.hypot(x - stairs.x, (y - stairs.y) * 1.3) + rd * 0.4
+      if (d < bestD) { bestD = d; best = { x, y, road } }
     }
   }
-  cands.sort((a, b) => a.d - b.d)
-  const c = cands[0]
-  bazaarCache = c ? [[-W * 0.62, 0], [W * 0.62, 0], [-W * 0.62, H * 0.95], [W * 0.62, H * 0.95]].map(([dx, dy]) => ({ x: c.x + dx, y: c.y + dy })) : []
-  return bazaarCache
+  bazaarCache = best
+  return best
 }

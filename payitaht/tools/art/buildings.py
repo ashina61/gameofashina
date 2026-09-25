@@ -1162,6 +1162,48 @@ def kara_pazar(s, st):
     lantern(s, 1.2, 1.35, 0.45)
 
 
+def pazar(s, st):
+    """İSKELE PAZARI (süs): kiremit çatılı taş-ahşap arasta, önünde tenteli
+    dükkânlar; avluda kanvas çadırlar, sandık, fıçı, çuval, meyve sepetleri,
+    balık kurutma sehpası ve gölgelik çınar."""
+    ground(s, 0.12, 0.12, 1.9, 1.9, hexc('#d3bf94'))
+    pave(s, 0.3, 0.95, 1.75, 1.85, hexc('#d9c7a1'), n=7)
+    # Arasta: dükkân sırası, tek kiremit çatı altında.
+    x0, x1, y0, y1 = 0.2, 1.75, 0.3, 0.8
+    doors = [('archdoor', (i + 0.5) / 5, 0, 0.16, 0.26) for i in range(5)]
+    s.box(x0, y0, 0, x1, y1, 0.42, OTTO['stone'], 'stone', deco_y=[('courses', 0.1)] + doors, deco_x=[('courses', 0.1), ('archdoor', 0.5, 0, 0.16, 0.26)])
+    s.hip(x0, y0, x1, y1, 0.42, 0.16, PAL['roof'], over=0.1, ridge=1.0)
+    cols = [PAL['red'], PAL['blue'], hexc('#d6a93a'), PAL['teal'], PAL['green']]
+    for i in range(5):
+        a = x0 + (x1 - x0) * i / 5
+        awning(s, a + 0.02, a + (x1 - x0) / 5 - 0.02, y1, 0.36, 0.2, cols[i % len(cols)])
+    # Dükkân önü malları.
+    for i in range(5):
+        a = x0 + (x1 - x0) * (i + 0.5) / 5
+        s.crate(a - 0.08, y1 + 0.05, 0.1)
+        for k in range(3):
+            s.sphere(a - 0.05 + k * 0.03, y1 + 0.1, 0.12, 0.02, [hexc('#c8453a'), hexc('#e29b2f'), hexc('#6f9a48')][(i + k) % 3])
+    # Kanvas çadırlar (gable), çizgili.
+    for (tx, ty, col) in ((0.45, 1.15, PAL['red']), (1.2, 1.2, hexc('#2f6b4c'))):
+        for (px, py) in ((tx, ty), (tx + 0.42, ty), (tx, ty + 0.34), (tx + 0.42, ty + 0.34)):
+            s.cylinder(px, py, 0, 0.3, 0.012, PAL['wooddark'], 'flat', n=6)
+        s.gable(tx, ty, tx + 0.42, ty + 0.34, 0.3, 0.14, col, axis='x', mat='canvas', wall=PAL['canvas'], wallmat='canvas', over=0.03)
+        s.box(tx + 0.05, ty + 0.06, 0, tx + 0.37, ty + 0.28, 0.12, PAL['wood'], 'wood', deco_y=[('planks', 2)])
+        for k in range(4):
+            s.sphere(tx + 0.1 + k * 0.07, ty + 0.17, 0.14, 0.025, [hexc('#e6c34a'), hexc('#c8453a'), hexc('#9c3d6a'), hexc('#e29b2f')][k])
+    # Çuvallar, fıçılar, sandık yığını.
+    for (x, y) in ((1.72, 1.1), (1.8, 1.22), (1.7, 1.3)):
+        s.sphere(x, y, 0.06, 0.06, hexc('#e2d3a6'))
+    s.barrel(0.3, 1.7, 0.06); s.barrel(0.44, 1.76, 0.06)
+    s.crate(1.35, 1.65, 0.13); s.crate(1.5, 1.7, 0.11); s.crate(1.4, 1.62, 0.1, z=0.13)
+    # Balık kurutma sehpası.
+    s.box(0.95, 1.7, 0, 0.97, 1.72, 0.3, PAL['wood2'], 'wood'); s.box(1.25, 1.7, 0, 1.27, 1.72, 0.3, PAL['wood2'], 'wood')
+    s.box(0.95, 1.7, 0.28, 1.27, 1.72, 0.3, PAL['wood2'], 'wood')
+    for k in range(4):
+        s.box(1.0 + k * 0.07, 1.705, 0.14, 1.03 + k * 0.07, 1.715, 0.28, hexc('#b8c2c6'), 'flat', outline=False)
+    s.tree(1.82, 1.75, 0.95)
+
+
 BUILDINGS = {
     'divan': divan, 'saray': saray, 'elcilik': elcilik, 'konut': konut, 'hamam': hamam, 'carsi': carsi,
     'ambar': ambar, 'kereste': kereste, 'tas': tas, 'medrese': medrese, 'kisla': kisla, 'liman': liman,
@@ -1176,7 +1218,7 @@ BUILDINGS = {
 EXTRAS = {'site': (site, True), 'scaffold': (scaffold, False),
           'mine-uzum': (mine_uzum, True), 'mine-mermer': (mine_mermer, True),
           'mine-kristal': (mine_kristal, True), 'mine-kukurt': (mine_kukurt, True),
-          'npc-koy': (npc_koy, True), 'npc-korsan': (npc_korsan, True), 'npc-kale': (npc_kale, True)}
+          'npc-koy': (npc_koy, True), 'pazar': (pazar, True), 'npc-korsan': (npc_korsan, True), 'npc-kale': (npc_kale, True)}
 
 
 def main(ids):
