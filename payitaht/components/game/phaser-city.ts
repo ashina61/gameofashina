@@ -14,7 +14,7 @@
  * Phaser'in ESM paketinde varsayılan dışa aktarım yok; ad alanı olarak alınır.
  */
 import * as Phaser from 'phaser'
-import { TILE, CITY_SLOTS, COAST_SLOTS, DEFENSE_SLOTS, DEFENSE_FOUNDATION, ROAD_GRAPH, HALL_SLOT_ID, slotById } from '@/lib/game/city-map'
+import { TILE, CITY_SLOTS, COAST_SLOTS, DEFENSE_SLOTS, DEFENSE_FOUNDATION, ROAD_GRAPH, HALL_SLOT_ID, ROAD_EXITS, WALL_GATES, slotById } from '@/lib/game/city-map'
 import { LIVE_SLOTS, liveSlotByIndex, type LiveSlot } from '@/lib/game/city-map/live-adapter'
 import { buildCityTerrain, preloadTerrain, cityWorldRect, cityContentRect, mineSite } from '@/lib/game/city-map/terrain-builder'
 import { GROUND_TARGET_W, FOOTPRINT_DIAMOND_W, ART_DIAMOND_PX } from '@/lib/game/city-map/building-assets'
@@ -320,6 +320,7 @@ export class CityScene extends Phaser.Scene {
   private openSlotIds(game: Game, moving: BuildingId | null = null, movePlot: number | null = null) {
     const ids = new Set(this.occupiedSlotIds(game, moving, movePlot))
     for (const s of LIVE_SLOTS) if (plotOpen(game, s.index)) ids.add(s.slotId)
+    for (const id of ROAD_EXITS) ids.add(id) // kapılardan çıkan caddeler hep açık
     return [...ids]
   }
 
@@ -399,9 +400,9 @@ export class CityScene extends Phaser.Scene {
   }
 
   /*
-   * SURLAR — savunma halkası boyunca kumtaşı duvar (sur kitinin renkleriyle),
-   * savunma yuvalarında boyalı yuvarlak kuleler, yolların surdan geçtiği her
-   * noktada iki kuleli KAPI açıklığı (hiçbir yol duvarın içinden geçmez).
+   * SURLAR — şehri ve limanı saran kalın kumtaşı duvar, savunma yuvalarında
+   * ve köşelerde kuleler. Haritadaki kapılarda açıklık: kara kapılarında
+   * kemerli kapı kulesi, limanda iki kule arasında gerili zincir.
    * Duvar seviyeyle yükselir. Parçalar kısa tutulur ve derinlikleri zemin
    * y'sidir: binalar ve ağaçlarla doğru sıralanır.
    */
@@ -409,52 +410,42 @@ export class CityScene extends Phaser.Scene {
     const ring = DEFENSE_FOUNDATION.map(p => p.screen)
     const n = ring.length
     const wallH = TILE.h * (1.05 + Math.min(level, 10) * 0.06)
-    const gapHalf = TILE.w * 0.34
-
-    // Yol kenarlarının halka kenarlarını kestiği noktalar = kapılar.
-    const cross = (p: { x: number; y: number }, q: { x: number; y: number }, a: { x: number; y: number }, b: { x: number; y: number }) => {
-      const d = (q.x - p.x) * (b.y - a.y) - (q.y - p.y) * (b.x - a.x)
-      if (Math.abs(d) < 1e-6) return null
-      const t = ((a.x - p.x) * (b.y - a.y) - (a.y - p.y) * (b.x - a.x)) / d
-      const u = ((a.x - p.x) * (q.y - p.y) - (a.y - p.y) * (q.x - p.x)) / d
-      return t >= 0 && t <= 1 && u >= 0 && u <= 1 ? u : null
+    // KAPILAR haritadan gelir (kara kapıları + limanın deniz kapısı). Açıklık
+    // halka boyunca yay uzunluğuyla açılır; köşeye düşse de tam genişlikte olur.
+    const segLen = ring.map((p, i) => Math.hypot(ring[(i + 1) % n].x - p.x, ring[(i + 1) % n].y - p.y))
+    const segStart: number[] = []
+    segLen.reduce((acc, l, i) => { segStart[i] = acc; return acc + l }, 0)
+    const perimeter = segLen.reduce((x, y) => x + y, 0)
+    const pointAt = (s: number) => {
+      const w = ((s % perimeter) + perimeter) % perimeter
+      let i = 0
+      while (i < n - 1 && segStart[i + 1] <= w) i++
+      const u = (w - segStart[i]) / (segLen[i] || 1), A = ring[i], B = ring[(i + 1) % n]
+      return { x: A.x + (B.x - A.x) * u, y: A.y + (B.y - A.y) * u }
     }
-    const nodes = new Map(ROAD_GRAPH.nodes.map(nd => [nd.id, nd.screen]))
-    const hits: Array<{ seg: number; u: number; x: number; y: number }> = []
-    for (const e of ROAD_GRAPH.edges) {
-      const A = nodes.get(e.from), B = nodes.get(e.to)
-      if (!A || !B) continue
-      let prev = A
-      for (let k = 1; k <= 24; k++) {
-        const t = k / 24, w = 1 - t
-        const cur = { x: w * w * A.x + 2 * w * t * e.ctrl.x + t * t * B.x, y: w * w * A.y + 2 * w * t * e.ctrl.y + t * t * B.y }
-        for (let i = 0; i < n; i++) {
-          const u = cross(prev, cur, ring[i], ring[(i + 1) % n])
-          if (u === null) continue
-          const a = ring[i], b = ring[(i + 1) % n]
-          hits.push({ seg: i, u, x: a.x + (b.x - a.x) * u, y: a.y + (b.y - a.y) * u })
-        }
-        prev = cur
+    const gateSpans = WALL_GATES.map(gate => {
+      let best = { s: 0, d: Infinity }
+      for (let i = 0; i < n; i++) {
+        const A = ring[i], B = ring[(i + 1) % n], dx = B.x - A.x, dy = B.y - A.y
+        const u = Math.max(0, Math.min(1, ((gate.screen.x - A.x) * dx + (gate.screen.y - A.y) * dy) / (dx * dx + dy * dy || 1)))
+        const d = Math.hypot(A.x + dx * u - gate.screen.x, A.y + dy * u - gate.screen.y)
+        if (d < best.d) best = { s: segStart[i] + u * segLen[i], d }
       }
-    }
-    // Yakın geçişler TEK kapıda birleşir (liman yolları gibi demetler tek
-    // geniş açıklık olur; köşe aşan demet iki kenarda da açıklık alır).
-    const clusters: Array<typeof hits> = []
-    for (const h of hits) {
-      const near = clusters.filter(c => c.some(o => Math.hypot(o.x - h.x, o.y - h.y) < TILE.w * 1.3))
-      if (near.length === 0) { clusters.push([h]); continue }
-      const merged = near.flat().concat(h)
-      for (const c of near) clusters.splice(clusters.indexOf(c), 1)
-      clusters.push(merged)
-    }
+      const half = gate.kind === 'sea' ? TILE.w * 1.3 : TILE.w * 0.5
+      return { kind: gate.kind, s0: best.s - half, s1: best.s + half, center: pointAt(best.s) }
+    })
+    // Her kenar için [t0, t1] açıklıkları.
     const gates: Array<{ seg: number; t0: number; t1: number }> = []
-    for (const c of clusters) {
-      for (const seg of new Set(c.map(h => h.seg))) {
-        const us = c.filter(h => h.seg === seg).map(h => h.u)
-        const len = Math.hypot(ring[(seg + 1) % n].x - ring[seg].x, ring[(seg + 1) % n].y - ring[seg].y)
-        gates.push({ seg, t0: Math.max(0, Math.min(...us) - gapHalf / len), t1: Math.min(1, Math.max(...us) + gapHalf / len) })
+    for (const g of gateSpans) {
+      for (let i = 0; i < n; i++) {
+        for (const shift of [-perimeter, 0, perimeter]) {
+          const a0 = segStart[i] + shift, a1 = a0 + segLen[i]
+          const lo = Math.max(a0, g.s0), hi = Math.min(a1, g.s1)
+          if (hi > lo) gates.push({ seg: i, t0: (lo - a0) / segLen[i], t1: (hi - a0) / segLen[i] })
+        }
       }
     }
+    const hits = gateSpans.map(g => g.center)
 
     const V = (x: number, y: number) => new Phaser.Math.Vector2(x, y)
     const hall = slotById(HALL_SLOT_ID)!.screen
@@ -557,20 +548,72 @@ export class CityScene extends Phaser.Scene {
       tower(s.screen.x, s.screen.y + TILE.h * 0.2, TILE.w * 0.78)
       placed.push(s.screen)
     }
-    // Kapı kuleleri: açıklığın iki ucunda; köşe kulesine ya da başka kuleye
-    // çok yakınsa atlanır (kule yığını olmasın).
-    for (const g of gates) {
-      const A = ring[g.seg], B = ring[(g.seg + 1) % n]
-      const len = Math.hypot(B.x - A.x, B.y - A.y)
-      const ends: number[] = []
-      if (g.t0 > 0) ends.push(g.t0 - TILE.w * 0.1 / len)
-      if (g.t1 < 1) ends.push(g.t1 + TILE.w * 0.1 / len)
-      for (const u of ends) {
-        const x = A.x + (B.x - A.x) * u, y = A.y + (B.y - A.y) * u
-        if (placed.some(p => Math.hypot(p.x - x, p.y - y) < TILE.w * 0.7)) continue
-        placed.push({ x, y })
-        tower(x, y + TILE.h * 0.1, TILE.w * 0.55)
+    // KAPILAR. Kara kapısı: iki kule + kemerli kapı kulesi (lento, mazgal,
+    // sancak). Deniz kapısı: iki büyük kule arasında gerili liman zinciri.
+    for (const g of gateSpans) {
+      const land = g.kind === 'land'
+      const pad = TILE.w * 0.1
+      const L = pointAt(g.s0 - pad), R = pointAt(g.s1 + pad)
+      for (const p of [L, R]) {
+        placed.push(p)
+        tower(p.x, p.y + TILE.h * 0.12, TILE.w * (land ? 0.66 : 0.9))
       }
+      const lg = this.add.graphics().setDepth(Math.max(L.y, R.y) + 1.8)
+      if (land) {
+        // Kapı kulesi: yolun üstüne oturan kemerli taş blok. Kemer, geçidin
+        // baktığı yüzde (kuzey kapısında ön yüz, yan kapılarda yan yüz).
+        const c = g.center, w = TILE.w * 1.1, h = wallH * 1.7, d = w * 0.34
+        const x0 = c.x - w / 2, x1 = c.x + w / 2, y0 = c.y + TILE.h * 0.3
+        const tgA = pointAt(g.s0), tgB = pointAt(g.s1)
+        const sideGate = Math.abs(tgB.y - tgA.y) > Math.abs(tgB.x - tgA.x) // duvar dikey: geçit doğu-batı
+        lg.fillStyle(0x1b2a14, 0.24); lg.fillEllipse(c.x + w * 0.25, y0 + 6, w * 1.5, w * 0.34)
+        // Yan yüz (sağ), ön yüz, üst.
+        lg.fillStyle(0xb0936a, 1); lg.fillPoints([V(x1, y0), V(x1 + d, y0 - d / 2), V(x1 + d, y0 - d / 2 - h), V(x1, y0 - h)], true)
+        lg.fillStyle(0xdcc497, 1); lg.fillRect(x0, y0 - h, w, h)
+        lg.fillStyle(0xeadbb6, 1); lg.fillPoints([V(x0, y0 - h), V(x1, y0 - h), V(x1 + d, y0 - d / 2 - h), V(x0 + d, y0 - d / 2 - h)], true)
+        // Taş sıraları.
+        lg.lineStyle(1.2, 0x8a6c47, 0.32)
+        for (const f of [0.25, 0.45, 0.65, 0.85]) lg.lineBetween(x0, y0 - h * f, x1, y0 - h * f)
+        lg.fillStyle(0x7d6444, 0.35); lg.fillRect(x0, y0 - h * 0.1, w, h * 0.1)
+        // Kemerli geçit (koyu) ve açık ahşap kanat.
+        const arch = (cx: number, by: number, aw: number, ah: number, skew: number) => {
+          const pts: Phaser.Math.Vector2[] = [V(cx - aw / 2, by - skew * aw / 2)]
+          for (let k = 0; k <= 12; k++) {
+            const t = Math.PI - k / 12 * Math.PI
+            pts.push(V(cx + Math.cos(t) * aw / 2, by - ah - Math.sin(t) * aw * 0.42 + skew * Math.cos(t) * aw / 2))
+          }
+          pts.push(V(cx + aw / 2, by + skew * aw / 2))
+          return pts
+        }
+        lg.fillStyle(0x2e2216, 0.92)
+        if (sideGate) lg.fillPoints(arch(x1 + d / 2, y0 - d / 4, d * 0.78, h * 0.42, -0.5), true)
+        else lg.fillPoints(arch(c.x, y0, w * 0.42, h * 0.42, 0), true)
+        // Mazgallar ve sancak.
+        for (let k = 0; k < 5; k++) {
+          const x = x0 + (k + 0.2) * w / 5
+          lg.fillStyle(0xdcc497, 1); lg.fillRect(x, y0 - h - 14, w / 10, 14)
+          lg.fillStyle(0xeadbb6, 1); lg.fillRect(x, y0 - h - 16, w / 10, 3)
+        }
+        const mx = c.x + d / 2, my = y0 - h - d / 4
+        lg.lineStyle(3, 0x5a4630, 1); lg.lineBetween(mx, my, mx, my - 70)
+        lg.fillStyle(0xe2bd78, 1); lg.fillCircle(mx, my - 72, 3.5)
+        lg.fillStyle(0xb3261e, 1); lg.fillPoints([V(mx + 2, my - 68), V(mx + 44, my - 60), V(mx + 37, my - 51), V(mx + 44, my - 42), V(mx + 2, my - 36)], true)
+        lg.setDepth(y0 + 2)
+      } else {
+        // Liman zinciri: kulelerden sarkan halkalı zincir + şamandıralar.
+        const pts: Phaser.Math.Vector2[] = []
+        for (let k = 0; k <= 24; k++) {
+          const t = k / 24
+          pts.push(V(L.x + (R.x - L.x) * t, L.y + (R.y - L.y) * t - wallH * 0.55 + Math.sin(t * Math.PI) * wallH * 0.5))
+        }
+        lg.lineStyle(5, 0x2b2622, 0.9); lg.strokePoints(pts, false)
+        for (let k = 1; k < 24; k += 1) { lg.fillStyle(0x4a423a, 1); lg.fillCircle(pts[k].x, pts[k].y, 3) }
+        for (const t of [0.3, 0.7]) {
+          const p = pts[Math.round(t * 24)]
+          lg.fillStyle(0xb3261e, 1); lg.fillEllipse(p.x, p.y + 8, 18, 10)
+        }
+      }
+      this.pieces.push(lg)
     }
     // Ara burçlar: halkanın köşelerinde düzenli aralıkla (kapılarda değil).
     for (const p of ring) {
@@ -737,7 +780,8 @@ export class CityScene extends Phaser.Scene {
     const textureKey = level === 0 && this.textures.exists('b_site') ? 'b_site' : `${id}-${buildingStage(level)}`
     if (BUILDINGS[id].art && this.textures.exists(textureKey)) {
       const img = this.add.image(anc.x, anc.baseY, textureKey).setOrigin(0.5, 1)
-      const scale = this.artScale()
+      // Divanhane meydanın gösterişli merkezi: diğer binalardan büyük.
+      const scale = this.artScale() * (slot.slotId === HALL_SLOT_ID ? 1.5 : 1)
       img.setScale(scale).setDepth(anc.baseY)
       img.setFlipX(this.state.flips.includes(id))
       dispW = img.width * scale; dispH = img.height * scale

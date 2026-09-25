@@ -38,17 +38,17 @@ const screenY = (gx, gy) => Math.round((gx + gy) * (TILE_H / 2))
 const withScreen = (o) => ({ ...o, screen: { x: screenX(o.gx, o.gy), y: screenY(o.gx, o.gy) } })
 
 /*
- * IKARIAM ŞEHİR PLANI: bir MEYDAN, bir ANA CADDE ve bir ÇEVRE YOLU.
+ * IKARIAM ŞEHİR PLANI: MEYDAN, DÖRT CADDE, ÇEVRE YOLU, LİMANI SARAN SUR.
  *
- *   - Belediye meydanın ortasında. Ana cadde güneydeki kapıdan gelir,
- *     meydandan geçer ve kuzeydeki tepeye çıkar.
- *   - Meydanın çevresinde oval bir ÇEVRE YOLU döner. Arsalar bu yolun iki
- *     yanına dizilir: 6 iç arsa meydana bakar, 14 dış arsa yolun dışında
- *     sıralanır; 4 arsa da ana caddenin iki yakasında.
- *   - Her arsa yola kısa bir girişle bağlanır; arsalar birbirine bağlanmaz
- *     (yol ağı sade kalır, binalar sokakları "sıralar").
- *   - Sur, arsaların çevresinde sabit bir payla dolanan yuvarlatılmış bir
- *     halkadır; ana cadde güneydeki kapıdan çıkıp limana iner.
+ *   - Belediye (Divanhane) taş döşeli oval MEYDANIN ortasında TEK başınadır;
+ *     meydanda başka arsa yoktur.
+ *   - Dört cadde meydana bağlanır: güney caddesi limana iner, kuzey, doğu ve
+ *     batı caddeleri surdaki kara kapılarından çıkar.
+ *   - Meydanın çevresinde oval bir ÇEVRE YOLU döner. 4 arsa yol ile meydan
+ *     arasında (köşegenlerde), 16 arsa yolun dışında, 4 arsa da kuzey-güney
+ *     caddesinin iki yakasında. Her arsanın yola kendi kısa girişi var.
+ *   - SUR limanı ve tersaneyi de içine alır: alt kenarı denizde bir mendirek
+ *     olarak uzanır, ortasında zincirli DENİZ KAPISI vardır.
  *
  * Konumlar ekran pikseli (belediyeye göre); toGrid karoya oturtur.
  */
@@ -57,22 +57,24 @@ const toGrid = (dx, dy) => {
   if (((sgn + d) % 2 + 2) % 2 === 1) sgn += 1
   return { gx: CENTER.gx + (sgn + d) / 2, gy: CENTER.gy + (sgn - d) / 2 }
 }
-const RING = { rx: 860, ry: 620 } // çevre yolu
+function toGridF(dx, dy) { const d = dx / 64, s = dy / 32; return { gx: CENTER.gx + (s + d) / 2, gy: CENTER.gy + (s - d) / 2 } }
+const PLAZA = { rx: 440, ry: 320 } // taş meydan
+const RING = { rx: 1000, ry: 720 } // çevre yolu
 const RING_N = 24
 const ringAt = (deg, k = 1) => [Math.cos(deg * Math.PI / 180) * RING.rx * k, Math.sin(deg * Math.PI / 180) * RING.ry * k]
 
-// İç arsalar (meydan çevresi): kuzey-güney ana caddeye açık.
-const INNER = [0, 45, 135, 180, 225, 315].map(a => ({ at: ringAt(a, 0.55), ring: a }))
-// Dış arsalar: çevre yolunun dışında, eşit aralıklı; cadde yönleri boş.
-const OUTER = Array.from({ length: 14 }, (_, k) => 90 + (k + 0.5) * 360 / 14).map(a => ({ at: ringAt(a, 1.4), ring: a }))
-// Ana caddenin iki yakası (güneyde kapıya, kuzeyde tepeye doğru).
-const AVE_S = 1180, AVE_N = -1180
+// Meydan ile çevre yolu arası: yalnızca köşegenler (caddeler boş kalır).
+const INNER = [45, 135, 225, 315].map(a => ({ at: ringAt(a, 0.74), ring: a }))
+// Çevre yolunun dışı: eşit aralıklı 16 arsa, dört cadde yönü boş.
+const OUTER = Array.from({ length: 16 }, (_, k) => 90 + (k + 0.5) * 360 / 16).map(a => ({ at: ringAt(a, 1.34), ring: a }))
+// Kuzey-güney caddesinin iki yakası.
+const AVE_S = 1330, AVE_N = -1330
 const AVENUE = [
   { at: [-300, AVE_S], ave: 's' }, { at: [300, AVE_S], ave: 's' },
   { at: [-300, AVE_N], ave: 'n' }, { at: [300, AVE_N], ave: 'n' },
 ]
+const rOf = (p) => (p.at[0] / 1340) ** 2 + (p.at[1] / 965) ** 2 + p.at[1] * 1e-6
 const PLOTS = [...INNER, ...OUTER.sort((p, q) => rOf(p) - rOf(q)), ...AVENUE]
-function rOf(p) { return (p.at[0] / 1204) ** 2 + (p.at[1] / 868) ** 2 + p.at[1] * 1e-6 }
 if (PLOTS.length !== 24) throw new Error(`24 arsa bekleniyordu, ${PLOTS.length}`)
 
 // --- SLOTLAR --------------------------------------------------------------
@@ -93,27 +95,36 @@ const COAST_PX = [[-560, maxY + 470], [0, maxY + 510], [560, maxY + 470]]
 COAST_PX.forEach(([x, y], i) => {
   slots.push(withScreen({ id: `coast_${String(i + 1).padStart(2, '0')}`, type: 'coast', ...toGrid(x, y), fw: FOOT, fh: FOOT, fixed: false }))
 })
+const coastMaxY = Math.max(...COAST_PX.map(p => p[1]))
 
 /*
- * SUR: arsaları sabit payla saran yuvarlatılmış halka (süper-elips). Alt
- * kenar düzdür; kapı ana caddenin çıktığı yerde. Kule yuvaları köşelerde.
+ * SUR: arsaları ve limanı saran yuvarlatılmış halka (süper-elips). Üstte ve
+ * yanlarda arsalardan sabit pay; altta limanın önünden, denizden geçer.
  */
-const W_L = minX - 380, W_R = maxX + 380, W_T = minY - 430, W_B = maxY + 270
+const W_L = minX - 400, W_R = maxX + 400, W_T = minY - 440, W_B = coastMaxY + 330
 const W_CX = (W_L + W_R) / 2, W_CY = (W_T + W_B) / 2, W_RX = (W_R - W_L) / 2, W_RY = (W_B - W_T) / 2
-const superPt = (t, e = 3.2) => {
+const superPt = (t, e = 3.4) => {
   const c = Math.cos(t), s = Math.sin(t)
   return [W_CX + W_RX * Math.sign(c) * Math.abs(c) ** (2 / e), W_CY + W_RY * Math.sign(s) * Math.abs(s) ** (2 / e)]
 }
-const ringPt = ([x, y]) => withScreen({ ...toGridF(x, y) })
-function toGridF(dx, dy) { const d = dx / 64, s = dy / 32; return { gx: CENTER.gx + (s + d) / 2, gy: CENTER.gy + (s - d) / 2 } }
-const WALL_N = 28
-const foundationPts = Array.from({ length: WALL_N }, (_, k) => ringPt(superPt(-Math.PI / 2 + k * 2 * Math.PI / WALL_N)))
+const WALL_N = 36
+const foundationPts = Array.from({ length: WALL_N }, (_, k) => withScreen(toGridF(...superPt(-Math.PI / 2 + k * 2 * Math.PI / WALL_N))))
+// Surun belli bir yükseklikteki (y) sağ/sol kenarı.
+const wallXAt = (y, side) => {
+  let best = null
+  for (let k = 0; k < 4000; k++) {
+    const p = superPt(k * 2 * Math.PI / 4000)
+    if (Math.sign(p[0]) !== side) continue
+    if (!best || Math.abs(p[1] - y) < Math.abs(best[1] - y)) best = p
+  }
+  return best[0]
+}
 const DEFENSE_ANCHORS = [
-  { id: 'defense_tower_top', at: superPt(-Math.PI / 2) },
-  { id: 'defense_tower_left', at: superPt(Math.PI) },
-  { id: 'defense_tower_right', at: superPt(0) },
-  { id: 'defense_tower_bottom', at: superPt(Math.PI * 0.72) },
-  { id: 'defense_gate', at: superPt(Math.PI * 0.28) },
+  { id: 'defense_tower_top', at: superPt(-Math.PI / 2 - 0.55) },
+  { id: 'defense_tower_left', at: superPt(Math.PI - 0.5) },
+  { id: 'defense_tower_right', at: superPt(-0.5) },
+  { id: 'defense_tower_bottom', at: superPt(Math.PI * 0.8) },
+  { id: 'defense_gate', at: superPt(Math.PI * 0.2) },
 ]
 DEFENSE_ANCHORS.forEach(({ id, at }) => {
   slots.push(withScreen({ id, type: 'defense', ...toGrid(at[0], at[1]), fw: FOOT, fh: FOOT, fixed: true }))
@@ -122,31 +133,40 @@ DEFENSE_ANCHORS.forEach(({ id, at }) => {
 // --- YOL AĞI --------------------------------------------------------------
 const street = new Map() // id -> {gx, gy}
 const edges = []
-const node = (id, x, y) => { street.set(id, { id, ...toGridF(x, y) }); return id } // sokak düğümleri karoya oturtulmaz: kavisler pürüzsüz
+// Sokak düğümleri karoya oturtulmaz: kavisler pürüzsüz kalır.
+const node = (id, x, y) => { street.set(id, { id, ...toGridF(x, y) }); return id }
 // Çevre yolu.
 const ringIds = Array.from({ length: RING_N }, (_, k) => node(`st_r${k}`, ...ringAt(k * 360 / RING_N)))
 ringIds.forEach((id, k) => edges.push({ from: id, to: ringIds[(k + 1) % RING_N], ring: true }))
 const ringNear = (deg) => ringIds[((Math.round(deg / (360 / RING_N)) % RING_N) + RING_N) % RING_N]
-// Ana cadde: kapı -> güney çevre -> meydan (belediye) -> kuzey çevre -> tepe.
-const south = ringNear(90), north = ringNear(270)
-const gateY = W_B
+// Dört cadde meydana (belediyeye) bağlanır.
+for (const deg of [0, 90, 180, 270]) edges.push({ from: 'city_hall', to: ringNear(deg) })
+// Güney caddesi: çevre yolundan limana; set basamakları (st_stairs).
 node('st_ave_s', 0, (RING.ry + AVE_S) / 2)
 node('st_ave_s2', 0, AVE_S)
-node('st_gate', 0, gateY)
+node('st_stairs', 0, (AVE_S + coastMaxY) / 2)
+edges.push({ from: ringNear(90), to: 'st_ave_s' }, { from: 'st_ave_s', to: 'st_ave_s2' }, { from: 'st_ave_s2', to: 'st_stairs' })
+// Kuzey caddesi: kuzey kapısına.
 node('st_ave_n', 0, (-RING.ry + AVE_N) / 2)
 node('st_ave_n2', 0, AVE_N)
-edges.push({ from: 'city_hall', to: south }, { from: 'city_hall', to: north })
-edges.push({ from: south, to: 'st_ave_s' }, { from: 'st_ave_s', to: 'st_ave_s2' }, { from: 'st_ave_s2', to: 'st_gate' })
-edges.push({ from: north, to: 'st_ave_n' }, { from: 'st_ave_n', to: 'st_ave_n2' })
+node('st_gate_n', 0, W_T)
+node('st_out_n', 0, W_T - 420)
+edges.push({ from: ringNear(270), to: 'st_ave_n' }, { from: 'st_ave_n', to: 'st_ave_n2' }, { from: 'st_ave_n2', to: 'st_gate_n' }, { from: 'st_gate_n', to: 'st_out_n' })
+// Doğu ve batı caddeleri: yan kapılara.
+const gateE = wallXAt(0, 1), gateW = wallXAt(0, -1)
+node('st_gate_e', gateE, 0); node('st_out_e', gateE + 480, 60)
+node('st_gate_w', gateW, 0); node('st_out_w', gateW - 480, 60)
+edges.push({ from: ringNear(0), to: 'st_gate_e' }, { from: 'st_gate_e', to: 'st_out_e' })
+edges.push({ from: ringNear(180), to: 'st_gate_w' }, { from: 'st_gate_w', to: 'st_out_w' })
 // Arsa girişleri.
 for (const p of PLOTS) {
   if (p.ave) edges.push({ from: p.ave === 's' ? 'st_ave_s2' : 'st_ave_n2', to: p.id })
   else edges.push({ from: ringNear(p.ring), to: p.id })
 }
-// Kapıdan limana; rıhtım boyunca.
+// Setten limana; rıhtım boyunca.
 const coastSlots = slots.filter(s => s.type === 'coast')
 const coastSorted = [...coastSlots].sort((a, b) => a.screen.x - b.screen.x)
-edges.push({ from: 'st_gate', to: coastSorted[1].id })
+edges.push({ from: 'st_stairs', to: coastSorted[1].id })
 for (let i = 0; i + 1 < coastSorted.length; i++) edges.push({ from: coastSorted[i].id, to: coastSorted[i + 1].id })
 
 const citySlots = slots.filter(s => s.type === 'city')
@@ -163,6 +183,17 @@ const roadEdges = edges.map(e => {
   const f = 2 / Math.max(0.5, Math.hypot(ax, ay)) - 1 // eğri orta noktası elipsin üstünde
   return { from: e.from, to: e.to, ctrl: { x: Math.round(hall0.x + (mid.x - hall0.x) * f), y: Math.round(hall0.y + (mid.y - hall0.y) * f) } }
 })
+
+// Sur kapıları: üç kara kapısı + limanın zincirli deniz kapısı.
+const at = (x, y) => ({ x: hall0.x + Math.round(x), y: hall0.y + Math.round(y) })
+const wallGates = [
+  { id: 'gate_n', kind: 'land', screen: at(0, W_T), road: 'st_out_n' },
+  { id: 'gate_e', kind: 'land', screen: at(gateE, 0), road: 'st_out_e' },
+  { id: 'gate_w', kind: 'land', screen: at(gateW, 0), road: 'st_out_w' },
+  { id: 'gate_sea', kind: 'sea', screen: at(0, W_B) },
+]
+const plaza = { screen: at(0, 0), rx: PLAZA.rx, ry: PLAZA.ry }
+const ringRoad = { rx: RING.rx, ry: RING.ry }
 
 // --- Şehir sınırları (rapor + kamera) ------------------------------------
 const bounds = (arr) => ({
@@ -184,6 +215,9 @@ const citySlotsJson = {
   bounds: cityBounds,
   slots,
   defenseFoundation: foundationPts,
+  wallGates,
+  plaza,
+  ringRoad,
   roadGraph: { nodes: roadNodes, edges: roadEdges },
 }
 mkdirSync(join(ROOT, 'lib/game/city-map'), { recursive: true })

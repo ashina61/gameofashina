@@ -14,7 +14,7 @@
  */
 import * as Phaser from 'phaser'
 import {
-  CITY_SLOTS, COAST_SLOTS, DEFENSE_SLOTS, DEFENSE_FOUNDATION, ROAD_GRAPH,
+  CITY_SLOTS, COAST_SLOTS, DEFENSE_SLOTS, DEFENSE_FOUNDATION, ROAD_GRAPH, ROAD_EXITS, PLAZA, RING_ROAD,
   HALL_SLOT_ID, slotById, SLOTS, TILE, type CitySlot, type ScreenPoint,
 } from './index'
 import { GROUND_TARGET_W, GROUND_TARGET_D, FOOTPRINT_DIAMOND_W } from './building-assets'
@@ -112,8 +112,9 @@ type RoadCurve = {
  * slotlarına en kısa yolların birleşimi alınır. Böylece slot/graph değişirse
  * görsel yol hiyerarşisi de otomatik uyum sağlar.
  */
+/** Ana caddeler: meydandan limana ve sur kapılarına giden yollar. */
 function arterialEdgeKeys(): Set<string> {
-  return roadEdgeKeysForTargets(COAST_SLOTS.map(s => s.id))
+  return roadEdgeKeysForTargets([...COAST_SLOTS.map(s => s.id), ...ROAD_EXITS])
 }
 
 /** Bir yönde, slot elmasının DIŞ kenarına çıkan nokta. Yol bina altına girmez. */
@@ -565,9 +566,7 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1, occupiedSl
     }
   }
 
-  // 2c) ŞEHİR DÜZLÜĞÜ (Ikariam): şehir yamaçta düzlenmiş oval bir yayladadır.
-  // Yaylanın denize bakan alt yarısında kesme taş set, altında gölge; liman
-  // yolu seti basamaklarla geçer. Yayla hafifçe daha açık ve güneşlidir.
+  // 2c) ŞEHİR DÜZLÜĞÜ: şehir hafifçe daha açık ve güneşli oval bir yaylada.
   {
     const tg = scene.add.graphics().setDepth(-860)
     const xs = CITY_SLOTS.map(c => c.screen.x), ys = CITY_SLOTS.map(c => c.screen.y)
@@ -577,61 +576,6 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1, occupiedSl
     const ry = (Math.max(...ys) - Math.min(...ys)) / 2 + TILE.h * 3.2
     tg.fillStyle(0xc9d18a, 0.16); tg.fillEllipse(cx, cy, rx * 2, ry * 2)
     tg.fillStyle(0xd6d894, 0.10); tg.fillEllipse(cx - rx * 0.1, cy - ry * 0.12, rx * 1.5, ry * 1.4)
-    const H = TILE.h * 1.25
-    const gate = ROAD_GRAPH.nodes.find(n => n.id === 'st_gate')?.screen
-    const arc = (t0: number, t1: number, off = 0) => {
-      const pts: Phaser.Math.Vector2[] = []
-      for (let k = 0; k <= 40; k++) {
-        const t = t0 + (t1 - t0) * k / 40
-        pts.push(V(cx + Math.cos(t) * rx, cy + Math.sin(t) * ry + off))
-      }
-      return pts
-    }
-    // Setin yayı: alt yarı (sağdan sola). Kapı yolunun geçtiği yerde boşluk.
-    const gateT = gate ? Math.acos(Math.max(-1, Math.min(1, (gate.x - cx) / rx))) : Math.PI / 2
-    const gap = TILE.w * 0.55 / rx
-    const pieces: Array<[number, number]> = [[0.12 * Math.PI, gateT - gap], [gateT + gap, 0.88 * Math.PI]]
-    for (const [t0, t1] of pieces) {
-      if (t1 <= t0) continue
-      const topLine = arc(t0, t1), bottomLine = arc(t0, t1, H)
-      // Gölge (set altına).
-      tg.fillStyle(0x2f421c, 0.30); tg.fillPoints([...arc(t0, t1, H), ...arc(t0, t1, H + TILE.h * 0.5).reverse()], true)
-      tg.fillStyle(0x2f421c, 0.14); tg.fillPoints([...arc(t0, t1, H + TILE.h * 0.5), ...arc(t0, t1, H + TILE.h * 1.1).reverse()], true)
-      // Taş yüz.
-      tg.fillStyle(0xa98f68, 1); tg.fillPoints([...topLine, ...bottomLine.reverse()], true)
-      // Taş sıraları ve derzler.
-      for (const f of [1 / 3, 2 / 3]) { tg.lineStyle(2, 0x7e6848, 0.7); tg.strokePoints(arc(t0, t1, H * f), false) }
-      const joints = Math.max(2, Math.round((t1 - t0) * rx / (TILE.w * 0.36)))
-      for (let j = 0; j <= joints; j++) {
-        const t = t0 + (t1 - t0) * j / joints
-        for (let r = 0; r < 3; r++) {
-          const tt = t + (r % 2 ? (t1 - t0) / joints / 2 : 0)
-          if (tt > t1) continue
-          const x = cx + Math.cos(tt) * rx, y = cy + Math.sin(tt) * ry
-          tg.lineStyle(1.6, 0x7e6848, 0.6); tg.lineBetween(x, y + H * r / 3 + 2, x, y + H * (r + 1) / 3 - 2)
-        }
-      }
-      // Üst dudak ve alt çizgi.
-      tg.lineStyle(5, 0xeadbb2, 1); tg.strokePoints(topLine, false)
-      tg.lineStyle(2.5, 0x5e4b31, 0.85); tg.strokePoints(arc(t0, t1, H), false)
-      // Uçlar yamaca iner.
-      for (const t of [t0, t1]) {
-        const x = cx + Math.cos(t) * rx, y = cy + Math.sin(t) * ry
-        const dir = Math.cos(t) >= 0 ? 1 : -1
-        tg.fillStyle(0x8c7a4c, 1); tg.fillTriangle(x, y, x, y + H, x + dir * TILE.w * 0.8, y + H)
-      }
-    }
-    // Kapı yolunun basamakları.
-    if (gate) {
-      const x = cx + Math.cos(gateT) * rx, y = cy + Math.sin(gateT) * ry
-      const w = TILE.w * 0.55, steps = 5, sh = (H + TILE.h * 0.3) / steps
-      for (let k = 0; k < steps; k++) {
-        tg.fillStyle(k % 2 ? 0xc9b58c : 0xe0cfa6, 1)
-        tg.fillRect(x - w, y - TILE.h * 0.15 + k * sh, w * 2, sh)
-        tg.lineStyle(1.5, 0x8a7550, 0.8)
-        tg.lineBetween(x - w, y - TILE.h * 0.15 + (k + 1) * sh, x + w, y - TILE.h * 0.15 + (k + 1) * sh)
-      }
-    }
   }
 
   // 2d) BOYALI ZEMİN: izometrik yönde binlerce kısa fırça darbesi + güneşin
@@ -657,6 +601,127 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1, occupiedSl
     // Kenarlarda hafif karartma: göz şehrin ortasına çekilir.
     light.fillStyle(0x1e2c14, 0.10); light.fillRect(wr.x, wr.y, TILE.w * 2.5, wr.h)
     light.fillRect(wr.x + wr.w - TILE.w * 2.5, wr.y, TILE.w * 2.5, wr.h)
+  }
+
+  // 2e) MEYDAN VE ÇEVRE DÜZENLEMESİ (Ikariam): Divanhane taş döşeli oval bir
+  // meydanın ortasında tek başına durur. Meydanda köşegen çiçek tarhları,
+  // önünde şadırvan, girişlerinde bayrak direkleri; meydan ile çevre yolu
+  // arası bakımlı çimen. Dört caddenin iki yanı servi ağaçlı.
+  const plazaDecor: Phaser.GameObjects.GameObject[] = []
+  {
+    const P = PLAZA.screen, prx = PLAZA.rx, pry = PLAZA.ry
+    // Çevre yolunun içi: bakımlı açık yeşil çimen.
+    const lawn = scene.add.graphics().setDepth(-858)
+    lawn.fillStyle(0xb9d27a, 0.22); lawn.fillEllipse(P.x, P.y, RING_ROAD.rx * 2, RING_ROAD.ry * 2)
+    lawn.fillStyle(0xc6db88, 0.14); lawn.fillEllipse(P.x, P.y, RING_ROAD.rx * 1.6, RING_ROAD.ry * 1.6)
+
+    const pz = scene.add.graphics().setDepth(-795)
+    const ell = (k: number) => Array.from({ length: 64 }, (_, i) => {
+      const t = i / 64 * Math.PI * 2
+      return V(P.x + Math.cos(t) * prx * k, P.y + Math.sin(t) * pry * k)
+    })
+    // Bordür + gölge, taş zemin, iki halka bant.
+    pz.fillStyle(0x2f421c, 0.22); pz.fillEllipse(P.x + 10, P.y + 12, prx * 2 + 30, pry * 2 + 24)
+    pz.fillStyle(0x9a845e, 1); pz.fillEllipse(P.x, P.y, prx * 2 + 22, pry * 2 + 16)
+    pz.fillStyle(0xdccba3, 1); pz.fillEllipse(P.x, P.y, prx * 2, pry * 2)
+    pz.fillStyle(0xcfbb91, 1); pz.fillEllipse(P.x, P.y, prx * 1.56, pry * 1.56)
+    pz.fillStyle(0xe4d6b3, 1); pz.fillEllipse(P.x, P.y, prx * 1.4, pry * 1.4)
+    // Döşeme derzleri: halkalar ve ışınlar.
+    for (const k of [0.36, 0.55, 0.7, 0.86]) { pz.lineStyle(2, 0xa99270, 0.45); pz.strokePoints(ell(k), true) }
+    for (let i = 0; i < 32; i++) {
+      const t = i / 32 * Math.PI * 2, c = Math.cos(t), s = Math.sin(t)
+      pz.lineStyle(1.6, 0xa99270, 0.35)
+      pz.lineBetween(P.x + c * prx * 0.36, P.y + s * pry * 0.36, P.x + c * prx, P.y + s * pry)
+    }
+    pz.lineStyle(3, 0xf1e6ca, 0.9); pz.strokePoints(ell(1), true)
+    // Köşegenlerde çiçek tarhları (çit + çimen + çiçek).
+    const fr = mulberry32(8080)
+    for (const deg of [45, 135, 225, 315]) {
+      const t = deg * Math.PI / 180
+      const bx = P.x + Math.cos(t) * prx * 0.74, by = P.y + Math.sin(t) * pry * 0.74
+      const bw = TILE.w * 0.95, bh = TILE.h * 0.62
+      pz.fillStyle(0x3e5f2a, 1); pz.fillEllipse(bx, by + 3, bw + 12, bh + 9)
+      pz.fillStyle(0x6f9a48, 1); pz.fillEllipse(bx, by, bw, bh)
+      pz.fillStyle(0x86ad57, 1); pz.fillEllipse(bx - bw * 0.08, by - bh * 0.1, bw * 0.7, bh * 0.6)
+      const colors = [0xd8453a, 0xf2c94c, 0xf6efe0, 0xc05aa0]
+      for (let k = 0; k < 26; k++) {
+        const a = fr() * Math.PI * 2, r = Math.sqrt(fr()) * 0.42
+        pz.fillStyle(colors[k % colors.length], 1)
+        pz.fillCircle(bx + Math.cos(a) * bw * r, by + Math.sin(a) * bh * r, 3.2)
+      }
+    }
+
+    // Şadırvan: Divanhane'nin önünde, güney girişine bakan.
+    const fx = P.x, fy = P.y + pry * 0.66
+    const f = scene.add.graphics().setDepth(fy)
+    const oct = (rx: number, ry: number, dy = 0) => Array.from({ length: 8 }, (_, i) => {
+      const t = (i + 0.5) / 8 * Math.PI * 2
+      return V(fx + Math.cos(t) * rx, fy + dy + Math.sin(t) * ry)
+    })
+    f.fillStyle(0x2f421c, 0.25); f.fillEllipse(fx + 8, fy + 10, TILE.w * 1.1, TILE.h * 0.62)
+    f.fillStyle(0xb39c74, 1); f.fillPoints(oct(TILE.w * 0.5, TILE.h * 0.3, 0), true)
+    f.fillStyle(0xe9dcbc, 1); f.fillPoints(oct(TILE.w * 0.5, TILE.h * 0.3, -10), true)
+    f.fillStyle(0x5aa6c0, 1); f.fillPoints(oct(TILE.w * 0.42, TILE.h * 0.24, -11), true)
+    f.fillStyle(0x8fd0e0, 0.8); f.fillEllipse(fx - 8, fy - 15, TILE.w * 0.4, TILE.h * 0.16)
+    // Orta sütun ve küçük kubbeli taç.
+    f.fillStyle(0xd9c9a4, 1); f.fillRect(fx - 7, fy - 52, 14, 42)
+    f.fillStyle(0xeee3c8, 1); f.fillEllipse(fx, fy - 52, 34, 13)
+    f.fillStyle(0x7f9690, 1); f.fillEllipse(fx, fy - 60, 26, 20)
+    f.fillStyle(0xe2bd78, 1); f.fillRect(fx - 1.5, fy - 78, 3, 12)
+    for (let k = 0; k < 10; k++) { f.fillStyle(0xf4fbff, 0.8); f.fillCircle(fx + (fr() - 0.5) * 40, fy - 20 - fr() * 22, 2.2) }
+    plazaDecor.push(f)
+
+    // Girişlerde bayrak direkleri (kırmızı sancak, altın alem).
+    const pole = (x: number, y: number) => {
+      const g = scene.add.graphics().setDepth(y)
+      g.fillStyle(0x2f421c, 0.25); g.fillEllipse(x + 6, y + 3, 22, 8)
+      g.fillStyle(0xb39c74, 1); g.fillRect(x - 7, y - 8, 14, 9)
+      g.lineStyle(4, 0x5a4630, 1); g.lineBetween(x, y - 6, x, y - 118)
+      g.fillStyle(0xe2bd78, 1); g.fillCircle(x, y - 121, 4)
+      g.fillStyle(0xb3261e, 1); g.fillPoints([V(x + 2, y - 114), V(x + 46, y - 106), V(x + 40, y - 96), V(x + 46, y - 86), V(x + 2, y - 82)], true)
+      g.fillStyle(0xf6efe0, 1); g.fillCircle(x + 20, y - 98, 5); g.fillStyle(0xb3261e, 1); g.fillCircle(x + 22, y - 98, 4)
+      plazaDecor.push(g)
+    }
+    for (const deg of [90, 270, 0, 180]) {
+      const t = deg * Math.PI / 180
+      const ex = P.x + Math.cos(t) * prx, ey = P.y + Math.sin(t) * pry
+      const side = deg % 180 === 0 ? { x: 0, y: TILE.h * 0.62 } : { x: TILE.w * 0.62, y: 0 }
+      pole(ex - side.x, ey - side.y); pole(ex + side.x, ey + side.y)
+    }
+
+    // Caddelerin iki yanı servi ağaçlı (yalnızca sur içinde, arsalardan uzak).
+    const wall = DEFENSE_FOUNDATION.map(p => p.screen)
+    const insideWall = (x: number, y: number) => {
+      let inside = false
+      for (let i = 0, j = wall.length - 1; i < wall.length; j = i++) {
+        const a = wall[i], b = wall[j]
+        if ((a.y > y) !== (b.y > y) && x < (b.x - a.x) * (y - a.y) / (b.y - a.y) + a.x) inside = !inside
+      }
+      return inside
+    }
+    const nodeAt = new Map(ROAD_GRAPH.nodes.map(n => [n.id, n.screen]))
+    const mainIds = (id: string) => id === HALL_SLOT_ID || /^st_(ave|gate|stairs|r0$|r6$|r12$|r18$)/.test(id)
+    const tr = mulberry32(2718)
+    for (const e of ROAD_GRAPH.edges) {
+      if (!mainIds(e.from) || !mainIds(e.to)) continue
+      if (e.from.startsWith('st_r') && e.to.startsWith('st_r')) continue
+      const A = nodeAt.get(e.from)!, B = nodeAt.get(e.to)!
+      const len = Math.hypot(B.x - A.x, B.y - A.y), ux = (B.x - A.x) / len, uy = (B.y - A.y) / len
+      const off = TILE.w * 0.44
+      for (let d = TILE.w * 0.3; d < len - TILE.w * 0.2; d += TILE.w * 0.52) {
+        for (const side of [-1, 1]) {
+          const x = A.x + ux * d - uy * off * side, y = A.y + uy * d + ux * off * side * 0.8
+          const pr = ((x - P.x) / prx) ** 2 + ((y - P.y) / pry) ** 2
+          if (pr < 1.35) continue // meydanın kendisi
+          const rr = Math.hypot((x - P.x) / RING_ROAD.rx, (y - P.y) / RING_ROAD.ry)
+          if (Math.abs(rr - 1) < 0.1) continue // çevre yolu kavşağı
+          if (!insideWall(x, y) || y > shoreY(x) - TILE.h * 1.2) continue
+          if ([...CITY_SLOTS, ...COAST_SLOTS, ...DEFENSE_SLOTS].some(s => s.id !== HALL_SLOT_ID && nearSlot(x, y, s, 0.95))) continue
+          const img = stamp(tr() < 0.5 ? 'd_cypress' : 'd_cypress-b', x, y, TILE.w * (0.24 + tr() * 0.05), y, 0.92)
+          if (img) plazaDecor.push(img)
+        }
+      }
+    }
   }
 
   // 3) TAŞ / TOPRAK katmanı.
@@ -799,6 +864,7 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1, occupiedSl
   initialOccupied.add(HALL_SLOT_ID)
   const clearForDecor = (wx: number, wy: number, margin = 0.9) =>
     wy < shoreY(wx) - TILE.h * 0.58 &&
+    ((wx - PLAZA.screen.x) / PLAZA.rx) ** 2 + ((wy - PLAZA.screen.y) / PLAZA.ry) ** 2 > 1.5 &&
     !occ.some(s => nearSlot(
       wx, wy, s,
       initialOccupied.has(s.id) ? margin : Math.min(margin, s.fixed ? 0.90 : 0.66),

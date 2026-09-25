@@ -36,6 +36,8 @@ export type CityBounds = {
   minX: number; maxX: number; minY: number; maxY: number
 }
 
+export type WallGate = { id: string; kind: 'land' | 'sea'; screen: ScreenPoint; road?: string }
+
 export type CityMapData = {
   tile: { w: number; h: number }
   map: { w: number; h: number; orientation: string }
@@ -45,6 +47,12 @@ export type CityMapData = {
   bounds: CityBounds
   slots: CitySlot[]
   defenseFoundation: { gx: number; gy: number; screen: ScreenPoint }[]
+  /** Sur kapıları: kara kapıları (dışarı çıkan yol düğümüyle) + deniz kapısı. */
+  wallGates: WallGate[]
+  /** Belediyenin taş meydanı (ekran pikseli yarıçaplar). */
+  plaza: { screen: ScreenPoint; rx: number; ry: number }
+  /** Meydanı saran çevre yolu (belediyeye göre yarıçaplar). */
+  ringRoad: { rx: number; ry: number }
   roadGraph: { nodes: RoadNode[]; edges: RoadEdge[] }
 }
 
@@ -58,6 +66,11 @@ export const HALL_SLOT_ID = CITY_MAP.hallSlotId
 export const CITY_BOUNDS = CITY_MAP.bounds
 export const ROAD_GRAPH = CITY_MAP.roadGraph
 export const DEFENSE_FOUNDATION = CITY_MAP.defenseFoundation
+export const WALL_GATES = CITY_MAP.wallGates
+export const PLAZA = CITY_MAP.plaza
+export const RING_ROAD = CITY_MAP.ringRoad
+/** Kapılardan dışarı çıkan yolların uç düğümleri: bu caddeler hep görünür. */
+export const ROAD_EXITS = WALL_GATES.flatMap(g => (g.road ? [g.road] : []))
 
 export function slotById(id: string): CitySlot | undefined {
   return SLOTS.find(s => s.id === id)

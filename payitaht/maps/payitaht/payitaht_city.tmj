@@ -10,7 +10,7 @@
  "tilewidth": 128,
  "tileheight": 64,
  "nextlayerid": 10,
- "nextobjectid": 93,
+ "nextobjectid": 101,
  "tilesets": [],
  "properties": [
   {
@@ -64,7 +64,7 @@
    "draworder": "topdown",
    "objects": [
     {
-     "id": 60,
+     "id": 68,
      "name": "city_hall",
      "type": "city",
      "x": 3136,
@@ -112,11 +112,11 @@
      ]
     },
     {
-     "id": 61,
+     "id": 69,
      "name": "city_01",
      "type": "city",
-     "x": 3392,
-     "y": 4224,
+     "x": 3776,
+     "y": 4544,
      "width": 128,
      "height": 128,
      "visible": true,
@@ -135,55 +135,7 @@
       {
        "name": "gx",
        "type": "int",
-       "value": 54
-      },
-      {
-       "name": "gy",
-       "type": "int",
-       "value": 67
-      },
-      {
-       "name": "fw",
-       "type": "int",
-       "value": 2
-      },
-      {
-       "name": "fh",
-       "type": "int",
-       "value": 2
-      },
-      {
-       "name": "fixed",
-       "type": "bool",
-       "value": false
-      }
-     ]
-    },
-    {
-     "id": 62,
-     "name": "city_02",
-     "type": "city",
-     "x": 3584,
-     "y": 4544,
-     "width": 128,
-     "height": 128,
-     "visible": true,
-     "rotation": 0,
-     "properties": [
-      {
-       "name": "slotId",
-       "type": "string",
-       "value": "city_02"
-      },
-      {
-       "name": "slotType",
-       "type": "string",
-       "value": "city"
-      },
-      {
-       "name": "gx",
-       "type": "int",
-       "value": 57
+       "value": 60
       },
       {
        "name": "gy",
@@ -208,11 +160,11 @@
      ]
     },
     {
-     "id": 63,
-     "name": "city_03",
+     "id": 70,
+     "name": "city_02",
      "type": "city",
      "x": 3264,
-     "y": 4864,
+     "y": 5056,
      "width": 128,
      "height": 128,
      "visible": true,
@@ -221,7 +173,7 @@
       {
        "name": "slotId",
        "type": "string",
-       "value": "city_03"
+       "value": "city_02"
       },
       {
        "name": "slotType",
@@ -232,486 +184,6 @@
        "name": "gx",
        "type": "int",
        "value": 52
-      },
-      {
-       "name": "gy",
-       "type": "int",
-       "value": 77
-      },
-      {
-       "name": "fw",
-       "type": "int",
-       "value": 2
-      },
-      {
-       "name": "fh",
-       "type": "int",
-       "value": 2
-      },
-      {
-       "name": "fixed",
-       "type": "bool",
-       "value": false
-      }
-     ]
-    },
-    {
-     "id": 64,
-     "name": "city_04",
-     "type": "city",
-     "x": 2944,
-     "y": 4672,
-     "width": 128,
-     "height": 128,
-     "visible": true,
-     "rotation": 0,
-     "properties": [
-      {
-       "name": "slotId",
-       "type": "string",
-       "value": "city_04"
-      },
-      {
-       "name": "slotType",
-       "type": "string",
-       "value": "city"
-      },
-      {
-       "name": "gx",
-       "type": "int",
-       "value": 47
-      },
-      {
-       "name": "gy",
-       "type": "int",
-       "value": 74
-      },
-      {
-       "name": "fw",
-       "type": "int",
-       "value": 2
-      },
-      {
-       "name": "fh",
-       "type": "int",
-       "value": 2
-      },
-      {
-       "name": "fixed",
-       "type": "bool",
-       "value": false
-      }
-     ]
-    },
-    {
-     "id": 65,
-     "name": "city_05",
-     "type": "city",
-     "x": 2752,
-     "y": 4352,
-     "width": 128,
-     "height": 128,
-     "visible": true,
-     "rotation": 0,
-     "properties": [
-      {
-       "name": "slotId",
-       "type": "string",
-       "value": "city_05"
-      },
-      {
-       "name": "slotType",
-       "type": "string",
-       "value": "city"
-      },
-      {
-       "name": "gx",
-       "type": "int",
-       "value": 44
-      },
-      {
-       "name": "gy",
-       "type": "int",
-       "value": 69
-      },
-      {
-       "name": "fw",
-       "type": "int",
-       "value": 2
-      },
-      {
-       "name": "fh",
-       "type": "int",
-       "value": 2
-      },
-      {
-       "name": "fixed",
-       "type": "bool",
-       "value": false
-      }
-     ]
-    },
-    {
-     "id": 66,
-     "name": "city_06",
-     "type": "city",
-     "x": 3072,
-     "y": 4032,
-     "width": 128,
-     "height": 128,
-     "visible": true,
-     "rotation": 0,
-     "properties": [
-      {
-       "name": "slotId",
-       "type": "string",
-       "value": "city_06"
-      },
-      {
-       "name": "slotType",
-       "type": "string",
-       "value": "city"
-      },
-      {
-       "name": "gx",
-       "type": "int",
-       "value": 49
-      },
-      {
-       "name": "gy",
-       "type": "int",
-       "value": 64
-      },
-      {
-       "name": "fw",
-       "type": "int",
-       "value": 2
-      },
-      {
-       "name": "fh",
-       "type": "int",
-       "value": 2
-      },
-      {
-       "name": "fixed",
-       "type": "bool",
-       "value": false
-      }
-     ]
-    },
-    {
-     "id": 67,
-     "name": "city_07",
-     "type": "city",
-     "x": 2176,
-     "y": 3712,
-     "width": 128,
-     "height": 128,
-     "visible": true,
-     "rotation": 0,
-     "properties": [
-      {
-       "name": "slotId",
-       "type": "string",
-       "value": "city_07"
-      },
-      {
-       "name": "slotType",
-       "type": "string",
-       "value": "city"
-      },
-      {
-       "name": "gx",
-       "type": "int",
-       "value": 35
-      },
-      {
-       "name": "gy",
-       "type": "int",
-       "value": 59
-      },
-      {
-       "name": "fw",
-       "type": "int",
-       "value": 2
-      },
-      {
-       "name": "fh",
-       "type": "int",
-       "value": 2
-      },
-      {
-       "name": "fixed",
-       "type": "bool",
-       "value": false
-      }
-     ]
-    },
-    {
-     "id": 68,
-     "name": "city_08",
-     "type": "city",
-     "x": 2432,
-     "y": 3456,
-     "width": 128,
-     "height": 128,
-     "visible": true,
-     "rotation": 0,
-     "properties": [
-      {
-       "name": "slotId",
-       "type": "string",
-       "value": "city_08"
-      },
-      {
-       "name": "slotType",
-       "type": "string",
-       "value": "city"
-      },
-      {
-       "name": "gx",
-       "type": "int",
-       "value": 39
-      },
-      {
-       "name": "gy",
-       "type": "int",
-       "value": 55
-      },
-      {
-       "name": "fw",
-       "type": "int",
-       "value": 2
-      },
-      {
-       "name": "fh",
-       "type": "int",
-       "value": 2
-      },
-      {
-       "name": "fixed",
-       "type": "bool",
-       "value": false
-      }
-     ]
-    },
-    {
-     "id": 69,
-     "name": "city_09",
-     "type": "city",
-     "x": 2112,
-     "y": 4160,
-     "width": 128,
-     "height": 128,
-     "visible": true,
-     "rotation": 0,
-     "properties": [
-      {
-       "name": "slotId",
-       "type": "string",
-       "value": "city_09"
-      },
-      {
-       "name": "slotType",
-       "type": "string",
-       "value": "city"
-      },
-      {
-       "name": "gx",
-       "type": "int",
-       "value": 34
-      },
-      {
-       "name": "gy",
-       "type": "int",
-       "value": 66
-      },
-      {
-       "name": "fw",
-       "type": "int",
-       "value": 2
-      },
-      {
-       "name": "fh",
-       "type": "int",
-       "value": 2
-      },
-      {
-       "name": "fixed",
-       "type": "bool",
-       "value": false
-      }
-     ]
-    },
-    {
-     "id": 70,
-     "name": "city_10",
-     "type": "city",
-     "x": 2880,
-     "y": 3392,
-     "width": 128,
-     "height": 128,
-     "visible": true,
-     "rotation": 0,
-     "properties": [
-      {
-       "name": "slotId",
-       "type": "string",
-       "value": "city_10"
-      },
-      {
-       "name": "slotType",
-       "type": "string",
-       "value": "city"
-      },
-      {
-       "name": "gx",
-       "type": "int",
-       "value": 46
-      },
-      {
-       "name": "gy",
-       "type": "int",
-       "value": 54
-      },
-      {
-       "name": "fw",
-       "type": "int",
-       "value": 2
-      },
-      {
-       "name": "fh",
-       "type": "int",
-       "value": 2
-      },
-      {
-       "name": "fixed",
-       "type": "bool",
-       "value": false
-      }
-     ]
-    },
-    {
-     "id": 71,
-     "name": "city_11",
-     "type": "city",
-     "x": 2240,
-     "y": 4608,
-     "width": 128,
-     "height": 128,
-     "visible": true,
-     "rotation": 0,
-     "properties": [
-      {
-       "name": "slotId",
-       "type": "string",
-       "value": "city_11"
-      },
-      {
-       "name": "slotType",
-       "type": "string",
-       "value": "city"
-      },
-      {
-       "name": "gx",
-       "type": "int",
-       "value": 36
-      },
-      {
-       "name": "gy",
-       "type": "int",
-       "value": 73
-      },
-      {
-       "name": "fw",
-       "type": "int",
-       "value": 2
-      },
-      {
-       "name": "fh",
-       "type": "int",
-       "value": 2
-      },
-      {
-       "name": "fixed",
-       "type": "bool",
-       "value": false
-      }
-     ]
-    },
-    {
-     "id": 72,
-     "name": "city_12",
-     "type": "city",
-     "x": 3328,
-     "y": 3520,
-     "width": 128,
-     "height": 128,
-     "visible": true,
-     "rotation": 0,
-     "properties": [
-      {
-       "name": "slotId",
-       "type": "string",
-       "value": "city_12"
-      },
-      {
-       "name": "slotType",
-       "type": "string",
-       "value": "city"
-      },
-      {
-       "name": "gx",
-       "type": "int",
-       "value": 53
-      },
-      {
-       "name": "gy",
-       "type": "int",
-       "value": 56
-      },
-      {
-       "name": "fw",
-       "type": "int",
-       "value": 2
-      },
-      {
-       "name": "fh",
-       "type": "int",
-       "value": 2
-      },
-      {
-       "name": "fixed",
-       "type": "bool",
-       "value": false
-      }
-     ]
-    },
-    {
-     "id": 73,
-     "name": "city_13",
-     "type": "city",
-     "x": 2560,
-     "y": 5056,
-     "width": 128,
-     "height": 128,
-     "visible": true,
-     "rotation": 0,
-     "properties": [
-      {
-       "name": "slotId",
-       "type": "string",
-       "value": "city_13"
-      },
-      {
-       "name": "slotType",
-       "type": "string",
-       "value": "city"
-      },
-      {
-       "name": "gx",
-       "type": "int",
-       "value": 41
       },
       {
        "name": "gy",
@@ -736,106 +208,10 @@
      ]
     },
     {
-     "id": 74,
-     "name": "city_14",
+     "id": 71,
+     "name": "city_03",
      "type": "city",
-     "x": 3776,
-     "y": 3840,
-     "width": 128,
-     "height": 128,
-     "visible": true,
-     "rotation": 0,
-     "properties": [
-      {
-       "name": "slotId",
-       "type": "string",
-       "value": "city_14"
-      },
-      {
-       "name": "slotType",
-       "type": "string",
-       "value": "city"
-      },
-      {
-       "name": "gx",
-       "type": "int",
-       "value": 60
-      },
-      {
-       "name": "gy",
-       "type": "int",
-       "value": 61
-      },
-      {
-       "name": "fw",
-       "type": "int",
-       "value": 2
-      },
-      {
-       "name": "fh",
-       "type": "int",
-       "value": 2
-      },
-      {
-       "name": "fixed",
-       "type": "bool",
-       "value": false
-      }
-     ]
-    },
-    {
-     "id": 75,
-     "name": "city_15",
-     "type": "city",
-     "x": 3008,
-     "y": 5376,
-     "width": 128,
-     "height": 128,
-     "visible": true,
-     "rotation": 0,
-     "properties": [
-      {
-       "name": "slotId",
-       "type": "string",
-       "value": "city_15"
-      },
-      {
-       "name": "slotType",
-       "type": "string",
-       "value": "city"
-      },
-      {
-       "name": "gx",
-       "type": "int",
-       "value": 48
-      },
-      {
-       "name": "gy",
-       "type": "int",
-       "value": 85
-      },
-      {
-       "name": "fw",
-       "type": "int",
-       "value": 2
-      },
-      {
-       "name": "fh",
-       "type": "int",
-       "value": 2
-      },
-      {
-       "name": "fixed",
-       "type": "bool",
-       "value": false
-      }
-     ]
-    },
-    {
-     "id": 76,
-     "name": "city_16",
-     "type": "city",
-     "x": 4096,
+     "x": 2496,
      "y": 4288,
      "width": 128,
      "height": 128,
@@ -845,7 +221,7 @@
       {
        "name": "slotId",
        "type": "string",
-       "value": "city_16"
+       "value": "city_03"
       },
       {
        "name": "slotType",
@@ -855,7 +231,7 @@
       {
        "name": "gx",
        "type": "int",
-       "value": 65
+       "value": 40
       },
       {
        "name": "gy",
@@ -880,11 +256,11 @@
      ]
     },
     {
-     "id": 77,
-     "name": "city_17",
+     "id": 72,
+     "name": "city_04",
      "type": "city",
-     "x": 3456,
-     "y": 5504,
+     "x": 3008,
+     "y": 3776,
      "width": 128,
      "height": 128,
      "visible": true,
@@ -893,7 +269,7 @@
       {
        "name": "slotId",
        "type": "string",
-       "value": "city_17"
+       "value": "city_04"
       },
       {
        "name": "slotType",
@@ -903,7 +279,535 @@
       {
        "name": "gx",
        "type": "int",
-       "value": 55
+       "value": 48
+      },
+      {
+       "name": "gy",
+       "type": "int",
+       "value": 60
+      },
+      {
+       "name": "fw",
+       "type": "int",
+       "value": 2
+      },
+      {
+       "name": "fh",
+       "type": "int",
+       "value": 2
+      },
+      {
+       "name": "fixed",
+       "type": "bool",
+       "value": false
+      }
+     ]
+    },
+    {
+     "id": 73,
+     "name": "city_05",
+     "type": "city",
+     "x": 2048,
+     "y": 3584,
+     "width": 128,
+     "height": 128,
+     "visible": true,
+     "rotation": 0,
+     "properties": [
+      {
+       "name": "slotId",
+       "type": "string",
+       "value": "city_05"
+      },
+      {
+       "name": "slotType",
+       "type": "string",
+       "value": "city"
+      },
+      {
+       "name": "gx",
+       "type": "int",
+       "value": 33
+      },
+      {
+       "name": "gy",
+       "type": "int",
+       "value": 57
+      },
+      {
+       "name": "fw",
+       "type": "int",
+       "value": 2
+      },
+      {
+       "name": "fh",
+       "type": "int",
+       "value": 2
+      },
+      {
+       "name": "fixed",
+       "type": "bool",
+       "value": false
+      }
+     ]
+    },
+    {
+     "id": 74,
+     "name": "city_06",
+     "type": "city",
+     "x": 2304,
+     "y": 3328,
+     "width": 128,
+     "height": 128,
+     "visible": true,
+     "rotation": 0,
+     "properties": [
+      {
+       "name": "slotId",
+       "type": "string",
+       "value": "city_06"
+      },
+      {
+       "name": "slotType",
+       "type": "string",
+       "value": "city"
+      },
+      {
+       "name": "gx",
+       "type": "int",
+       "value": 37
+      },
+      {
+       "name": "gy",
+       "type": "int",
+       "value": 53
+      },
+      {
+       "name": "fw",
+       "type": "int",
+       "value": 2
+      },
+      {
+       "name": "fh",
+       "type": "int",
+       "value": 2
+      },
+      {
+       "name": "fixed",
+       "type": "bool",
+       "value": false
+      }
+     ]
+    },
+    {
+     "id": 75,
+     "name": "city_07",
+     "type": "city",
+     "x": 1984,
+     "y": 4032,
+     "width": 128,
+     "height": 128,
+     "visible": true,
+     "rotation": 0,
+     "properties": [
+      {
+       "name": "slotId",
+       "type": "string",
+       "value": "city_07"
+      },
+      {
+       "name": "slotType",
+       "type": "string",
+       "value": "city"
+      },
+      {
+       "name": "gx",
+       "type": "int",
+       "value": 32
+      },
+      {
+       "name": "gy",
+       "type": "int",
+       "value": 64
+      },
+      {
+       "name": "fw",
+       "type": "int",
+       "value": 2
+      },
+      {
+       "name": "fh",
+       "type": "int",
+       "value": 2
+      },
+      {
+       "name": "fixed",
+       "type": "bool",
+       "value": false
+      }
+     ]
+    },
+    {
+     "id": 76,
+     "name": "city_08",
+     "type": "city",
+     "x": 2752,
+     "y": 3264,
+     "width": 128,
+     "height": 128,
+     "visible": true,
+     "rotation": 0,
+     "properties": [
+      {
+       "name": "slotId",
+       "type": "string",
+       "value": "city_08"
+      },
+      {
+       "name": "slotType",
+       "type": "string",
+       "value": "city"
+      },
+      {
+       "name": "gx",
+       "type": "int",
+       "value": 44
+      },
+      {
+       "name": "gy",
+       "type": "int",
+       "value": 52
+      },
+      {
+       "name": "fw",
+       "type": "int",
+       "value": 2
+      },
+      {
+       "name": "fh",
+       "type": "int",
+       "value": 2
+      },
+      {
+       "name": "fixed",
+       "type": "bool",
+       "value": false
+      }
+     ]
+    },
+    {
+     "id": 77,
+     "name": "city_09",
+     "type": "city",
+     "x": 3136,
+     "y": 3328,
+     "width": 128,
+     "height": 128,
+     "visible": true,
+     "rotation": 0,
+     "properties": [
+      {
+       "name": "slotId",
+       "type": "string",
+       "value": "city_09"
+      },
+      {
+       "name": "slotType",
+       "type": "string",
+       "value": "city"
+      },
+      {
+       "name": "gx",
+       "type": "int",
+       "value": 50
+      },
+      {
+       "name": "gy",
+       "type": "int",
+       "value": 53
+      },
+      {
+       "name": "fw",
+       "type": "int",
+       "value": 2
+      },
+      {
+       "name": "fh",
+       "type": "int",
+       "value": 2
+      },
+      {
+       "name": "fixed",
+       "type": "bool",
+       "value": false
+      }
+     ]
+    },
+    {
+     "id": 78,
+     "name": "city_10",
+     "type": "city",
+     "x": 2048,
+     "y": 4416,
+     "width": 128,
+     "height": 128,
+     "visible": true,
+     "rotation": 0,
+     "properties": [
+      {
+       "name": "slotId",
+       "type": "string",
+       "value": "city_10"
+      },
+      {
+       "name": "slotType",
+       "type": "string",
+       "value": "city"
+      },
+      {
+       "name": "gx",
+       "type": "int",
+       "value": 33
+      },
+      {
+       "name": "gy",
+       "type": "int",
+       "value": 70
+      },
+      {
+       "name": "fw",
+       "type": "int",
+       "value": 2
+      },
+      {
+       "name": "fh",
+       "type": "int",
+       "value": 2
+      },
+      {
+       "name": "fixed",
+       "type": "bool",
+       "value": false
+      }
+     ]
+    },
+    {
+     "id": 79,
+     "name": "city_11",
+     "type": "city",
+     "x": 2304,
+     "y": 4928,
+     "width": 128,
+     "height": 128,
+     "visible": true,
+     "rotation": 0,
+     "properties": [
+      {
+       "name": "slotId",
+       "type": "string",
+       "value": "city_11"
+      },
+      {
+       "name": "slotType",
+       "type": "string",
+       "value": "city"
+      },
+      {
+       "name": "gx",
+       "type": "int",
+       "value": 37
+      },
+      {
+       "name": "gy",
+       "type": "int",
+       "value": 78
+      },
+      {
+       "name": "fw",
+       "type": "int",
+       "value": 2
+      },
+      {
+       "name": "fh",
+       "type": "int",
+       "value": 2
+      },
+      {
+       "name": "fixed",
+       "type": "bool",
+       "value": false
+      }
+     ]
+    },
+    {
+     "id": 80,
+     "name": "city_12",
+     "type": "city",
+     "x": 3648,
+     "y": 3584,
+     "width": 128,
+     "height": 128,
+     "visible": true,
+     "rotation": 0,
+     "properties": [
+      {
+       "name": "slotId",
+       "type": "string",
+       "value": "city_12"
+      },
+      {
+       "name": "slotType",
+       "type": "string",
+       "value": "city"
+      },
+      {
+       "name": "gx",
+       "type": "int",
+       "value": 58
+      },
+      {
+       "name": "gy",
+       "type": "int",
+       "value": 57
+      },
+      {
+       "name": "fw",
+       "type": "int",
+       "value": 2
+      },
+      {
+       "name": "fh",
+       "type": "int",
+       "value": 2
+      },
+      {
+       "name": "fixed",
+       "type": "bool",
+       "value": false
+      }
+     ]
+    },
+    {
+     "id": 81,
+     "name": "city_13",
+     "type": "city",
+     "x": 2688,
+     "y": 5312,
+     "width": 128,
+     "height": 128,
+     "visible": true,
+     "rotation": 0,
+     "properties": [
+      {
+       "name": "slotId",
+       "type": "string",
+       "value": "city_13"
+      },
+      {
+       "name": "slotType",
+       "type": "string",
+       "value": "city"
+      },
+      {
+       "name": "gx",
+       "type": "int",
+       "value": 43
+      },
+      {
+       "name": "gy",
+       "type": "int",
+       "value": 84
+      },
+      {
+       "name": "fw",
+       "type": "int",
+       "value": 2
+      },
+      {
+       "name": "fh",
+       "type": "int",
+       "value": 2
+      },
+      {
+       "name": "fixed",
+       "type": "bool",
+       "value": false
+      }
+     ]
+    },
+    {
+     "id": 82,
+     "name": "city_14",
+     "type": "city",
+     "x": 4032,
+     "y": 3968,
+     "width": 128,
+     "height": 128,
+     "visible": true,
+     "rotation": 0,
+     "properties": [
+      {
+       "name": "slotId",
+       "type": "string",
+       "value": "city_14"
+      },
+      {
+       "name": "slotType",
+       "type": "string",
+       "value": "city"
+      },
+      {
+       "name": "gx",
+       "type": "int",
+       "value": 64
+      },
+      {
+       "name": "gy",
+       "type": "int",
+       "value": 63
+      },
+      {
+       "name": "fw",
+       "type": "int",
+       "value": 2
+      },
+      {
+       "name": "fh",
+       "type": "int",
+       "value": 2
+      },
+      {
+       "name": "fixed",
+       "type": "bool",
+       "value": false
+      }
+     ]
+    },
+    {
+     "id": 83,
+     "name": "city_15",
+     "type": "city",
+     "x": 3136,
+     "y": 5504,
+     "width": 128,
+     "height": 128,
+     "visible": true,
+     "rotation": 0,
+     "properties": [
+      {
+       "name": "slotId",
+       "type": "string",
+       "value": "city_15"
+      },
+      {
+       "name": "slotType",
+       "type": "string",
+       "value": "city"
+      },
+      {
+       "name": "gx",
+       "type": "int",
+       "value": 50
       },
       {
        "name": "gy",
@@ -928,11 +832,107 @@
      ]
     },
     {
-     "id": 78,
-     "name": "city_18",
+     "id": 84,
+     "name": "city_16",
      "type": "city",
      "x": 4224,
-     "y": 4736,
+     "y": 4416,
+     "width": 128,
+     "height": 128,
+     "visible": true,
+     "rotation": 0,
+     "properties": [
+      {
+       "name": "slotId",
+       "type": "string",
+       "value": "city_16"
+      },
+      {
+       "name": "slotType",
+       "type": "string",
+       "value": "city"
+      },
+      {
+       "name": "gx",
+       "type": "int",
+       "value": 67
+      },
+      {
+       "name": "gy",
+       "type": "int",
+       "value": 70
+      },
+      {
+       "name": "fw",
+       "type": "int",
+       "value": 2
+      },
+      {
+       "name": "fh",
+       "type": "int",
+       "value": 2
+      },
+      {
+       "name": "fixed",
+       "type": "bool",
+       "value": false
+      }
+     ]
+    },
+    {
+     "id": 85,
+     "name": "city_17",
+     "type": "city",
+     "x": 3584,
+     "y": 5632,
+     "width": 128,
+     "height": 128,
+     "visible": true,
+     "rotation": 0,
+     "properties": [
+      {
+       "name": "slotId",
+       "type": "string",
+       "value": "city_17"
+      },
+      {
+       "name": "slotType",
+       "type": "string",
+       "value": "city"
+      },
+      {
+       "name": "gx",
+       "type": "int",
+       "value": 57
+      },
+      {
+       "name": "gy",
+       "type": "int",
+       "value": 89
+      },
+      {
+       "name": "fw",
+       "type": "int",
+       "value": 2
+      },
+      {
+       "name": "fh",
+       "type": "int",
+       "value": 2
+      },
+      {
+       "name": "fixed",
+       "type": "bool",
+       "value": false
+      }
+     ]
+    },
+    {
+     "id": 86,
+     "name": "city_18",
+     "type": "city",
+     "x": 4352,
+     "y": 4864,
      "width": 128,
      "height": 128,
      "visible": true,
@@ -951,12 +951,12 @@
       {
        "name": "gx",
        "type": "int",
-       "value": 67
+       "value": 69
       },
       {
        "name": "gy",
        "type": "int",
-       "value": 75
+       "value": 77
       },
       {
        "name": "fw",
@@ -976,11 +976,11 @@
      ]
     },
     {
-     "id": 79,
+     "id": 87,
      "name": "city_19",
      "type": "city",
-     "x": 3840,
-     "y": 5376,
+     "x": 3968,
+     "y": 5504,
      "width": 128,
      "height": 128,
      "visible": true,
@@ -999,12 +999,12 @@
       {
        "name": "gx",
        "type": "int",
-       "value": 61
+       "value": 63
       },
       {
        "name": "gy",
        "type": "int",
-       "value": 85
+       "value": 87
       },
       {
        "name": "fw",
@@ -1024,11 +1024,11 @@
      ]
     },
     {
-     "id": 80,
+     "id": 88,
      "name": "city_20",
      "type": "city",
-     "x": 4096,
-     "y": 5120,
+     "x": 4224,
+     "y": 5248,
      "width": 128,
      "height": 128,
      "visible": true,
@@ -1047,12 +1047,12 @@
       {
        "name": "gx",
        "type": "int",
-       "value": 65
+       "value": 67
       },
       {
        "name": "gy",
        "type": "int",
-       "value": 81
+       "value": 83
       },
       {
        "name": "fw",
@@ -1072,11 +1072,11 @@
      ]
     },
     {
-     "id": 81,
+     "id": 89,
      "name": "city_21",
      "type": "city",
-     "x": 4160,
-     "y": 5760,
+     "x": 4352,
+     "y": 5952,
      "width": 128,
      "height": 128,
      "visible": true,
@@ -1095,12 +1095,12 @@
       {
        "name": "gx",
        "type": "int",
-       "value": 66
+       "value": 69
       },
       {
        "name": "gy",
        "type": "int",
-       "value": 91
+       "value": 94
       },
       {
        "name": "fw",
@@ -1120,11 +1120,11 @@
      ]
     },
     {
-     "id": 82,
+     "id": 90,
      "name": "city_22",
      "type": "city",
-     "x": 4480,
-     "y": 5440,
+     "x": 4672,
+     "y": 5632,
      "width": 128,
      "height": 128,
      "visible": true,
@@ -1143,12 +1143,12 @@
       {
        "name": "gx",
        "type": "int",
-       "value": 71
+       "value": 74
       },
       {
        "name": "gy",
        "type": "int",
-       "value": 86
+       "value": 89
       },
       {
        "name": "fw",
@@ -1168,11 +1168,11 @@
      ]
     },
     {
-     "id": 83,
+     "id": 91,
      "name": "city_23",
      "type": "city",
-     "x": 1792,
-     "y": 3392,
+     "x": 1664,
+     "y": 3264,
      "width": 128,
      "height": 128,
      "visible": true,
@@ -1191,12 +1191,12 @@
       {
        "name": "gx",
        "type": "int",
-       "value": 29
+       "value": 27
       },
       {
        "name": "gy",
        "type": "int",
-       "value": 54
+       "value": 52
       },
       {
        "name": "fw",
@@ -1216,11 +1216,11 @@
      ]
     },
     {
-     "id": 84,
+     "id": 92,
      "name": "city_24",
      "type": "city",
-     "x": 2112,
-     "y": 3072,
+     "x": 1984,
+     "y": 2944,
      "width": 128,
      "height": 128,
      "visible": true,
@@ -1239,12 +1239,12 @@
       {
        "name": "gx",
        "type": "int",
-       "value": 34
+       "value": 32
       },
       {
        "name": "gy",
        "type": "int",
-       "value": 49
+       "value": 47
       },
       {
        "name": "fw",
@@ -1276,11 +1276,11 @@
    "draworder": "topdown",
    "objects": [
     {
-     "id": 85,
+     "id": 93,
      "name": "coast_01",
      "type": "coast",
-     "x": 4544,
-     "y": 6400,
+     "x": 4736,
+     "y": 6592,
      "width": 128,
      "height": 128,
      "visible": true,
@@ -1299,12 +1299,12 @@
       {
        "name": "gx",
        "type": "int",
-       "value": 72
+       "value": 75
       },
       {
        "name": "gy",
        "type": "int",
-       "value": 101
+       "value": 104
       },
       {
        "name": "fw",
@@ -1324,11 +1324,11 @@
      ]
     },
     {
-     "id": 86,
+     "id": 94,
      "name": "coast_02",
      "type": "coast",
-     "x": 4864,
-     "y": 6144,
+     "x": 5056,
+     "y": 6336,
      "width": 128,
      "height": 128,
      "visible": true,
@@ -1347,12 +1347,12 @@
       {
        "name": "gx",
        "type": "int",
-       "value": 77
+       "value": 80
       },
       {
        "name": "gy",
        "type": "int",
-       "value": 97
+       "value": 100
       },
       {
        "name": "fw",
@@ -1372,11 +1372,11 @@
      ]
     },
     {
-     "id": 87,
+     "id": 95,
      "name": "coast_03",
      "type": "coast",
-     "x": 5120,
-     "y": 5824,
+     "x": 5312,
+     "y": 6016,
      "width": 128,
      "height": 128,
      "visible": true,
@@ -1395,12 +1395,12 @@
       {
        "name": "gx",
        "type": "int",
-       "value": 81
+       "value": 84
       },
       {
        "name": "gy",
        "type": "int",
-       "value": 92
+       "value": 95
       },
       {
        "name": "fw",
@@ -1441,120 +1441,152 @@
      "rotation": 0,
      "polygon": [
       {
-       "x": 1586.0000000587308,
-       "y": 2865.9999999412694
+       "x": 1448.00000025319,
+       "y": 2727.9999997468103
       },
       {
-       "x": 1922.1199254457524,
-       "y": 2578.184444170306
+       "x": 1777.1467198819696,
+       "y": 2434.4254860840006
       },
       {
-       "x": 2156.3391485890843,
-       "y": 2489.2491599407012
+       "x": 1983.1870823354966,
+       "y": 2335.3766823944065
       },
       {
-       "x": 2398.690524738069,
-       "y": 2490.7321228228257
+       "x": 2188.9811667973026,
+       "y": 2308.94905204854
       },
       {
-       "x": 2662.414845427358,
-       "y": 2573.9658706904575
+       "x": 2408.2635104560222,
+       "y": 2343.5028119007757
       },
       {
-       "x": 2957.3485757447415,
-       "y": 2742.054879660497
+       "x": 2647.6511971022674,
+       "y": 2436.7097823316667
       },
       {
-       "x": 3305.7384394962355,
-       "y": 3014.8667882274053
+       "x": 2913.583676464647,
+       "y": 2591.077200070279
       },
       {
-       "x": 3918,
-       "y": 3602
+       "x": 3217.179732784611,
+       "y": 2815.838806798964
       },
       {
-       "x": 4505.133211772594,
-       "y": 4214.2615605037645
+       "x": 3587.7659044356324,
+       "y": 3139.400462702934
       },
       {
-       "x": 4777.945120339503,
-       "y": 4562.6514242552585
+       "x": 4304,
+       "y": 3840
       },
       {
-       "x": 4946.034129309543,
-       "y": 4857.585154572642
+       "x": 5004.5995372970665,
+       "y": 4556.234095564368
       },
       {
-       "x": 5029.267877177173,
-       "y": 5121.30947526193
+       "x": 5328.1611932010355,
+       "y": 4926.820267215388
       },
       {
-       "x": 5030.750840059299,
-       "y": 5363.660851410916
+       "x": 5552.92279992972,
+       "y": 5230.416323535353
       },
       {
-       "x": 4941.815555829693,
-       "y": 5597.8800745542485
+       "x": 5707.290217668333,
+       "y": 5496.348802897733
       },
       {
-       "x": 4654.000000058731,
-       "y": 5933.999999941269
+       "x": 5800.497188099224,
+       "y": 5735.736489543977
       },
       {
-       "x": 4317.8800745542485,
-       "y": 6221.815555829693
+       "x": 5835.05094795146,
+       "y": 5955.018833202697
       },
       {
-       "x": 4083.6608514109157,
-       "y": 6310.750840059299
+       "x": 5808.623317605594,
+       "y": 6160.812917664503
       },
       {
-       "x": 3841.3094752619304,
-       "y": 6309.267877177173
+       "x": 5709.574513915999,
+       "y": 6366.853280118031
       },
       {
-       "x": 3577.585154572642,
-       "y": 6226.034129309543
+       "x": 5416.000000253191,
+       "y": 6695.999999746809
       },
       {
-       "x": 3282.6514242552585,
-       "y": 6057.945120339503
+       "x": 5086.853280118031,
+       "y": 6989.574513915999
       },
       {
-       "x": 2934.2615605037645,
-       "y": 5785.133211772595
+       "x": 4880.812917664503,
+       "y": 7088.623317605594
       },
       {
-       "x": 2322.0000001741137,
-       "y": 5198.000000174114
+       "x": 4675.018833202697,
+       "y": 7115.05094795146
       },
       {
-       "x": 1734.8667882274067,
-       "y": 4585.738439496237
+       "x": 4455.736489543979,
+       "y": 7080.497188099225
       },
       {
-       "x": 1462.0548796604974,
-       "y": 4237.3485757447415
+       "x": 4216.348802897733,
+       "y": 6987.290217668334
       },
       {
-       "x": 1293.9658706904575,
-       "y": 3942.4148454273586
+       "x": 3950.4163235353535,
+       "y": 6832.922799929721
       },
       {
-       "x": 1210.7321228228257,
-       "y": 3678.6905247380696
+       "x": 3646.8202672153884,
+       "y": 6608.1611932010355
       },
       {
-       "x": 1209.2491599407015,
-       "y": 3436.3391485890834
+       "x": 3276.234095564367,
+       "y": 6284.5995372970665
       },
       {
-       "x": 1298.1844441703058,
-       "y": 3202.1199254457524
+       "x": 2560.00000086606,
+       "y": 5584.00000086606
       },
       {
-       "x": 1586.0000000587308,
-       "y": 2865.9999999412694
+       "x": 1859.4004627029346,
+       "y": 4867.765904435633
+      },
+      {
+       "x": 1535.8388067989636,
+       "y": 4497.179732784611
+      },
+      {
+       "x": 1311.0772000702798,
+       "y": 4193.583676464647
+      },
+      {
+       "x": 1156.7097823316665,
+       "y": 3927.6511971022674
+      },
+      {
+       "x": 1063.5028119007757,
+       "y": 3688.2635104560227
+      },
+      {
+       "x": 1028.9490520485401,
+       "y": 3468.981166797302
+      },
+      {
+       "x": 1055.3766823944065,
+       "y": 3263.187082335496
+      },
+      {
+       "x": 1154.4254860840006,
+       "y": 3057.1467198819696
+      },
+      {
+       "x": 1448.00000025319,
+       "y": 2727.9999997468103
       }
      ],
      "properties": [
@@ -1566,11 +1598,11 @@
      ]
     },
     {
-     "id": 88,
+     "id": 96,
      "name": "defense_tower_top",
      "type": "defense",
-     "x": 1536,
-     "y": 2816,
+     "x": 960,
+     "y": 3456,
      "width": 128,
      "height": 128,
      "visible": true,
@@ -1589,12 +1621,12 @@
       {
        "name": "gx",
        "type": "int",
-       "value": 25
+       "value": 16
       },
       {
        "name": "gy",
        "type": "int",
-       "value": 45
+       "value": 55
       },
       {
        "name": "fw",
@@ -1614,11 +1646,11 @@
      ]
     },
     {
-     "id": 89,
+     "id": 97,
      "name": "defense_tower_left",
      "type": "defense",
-     "x": 2304,
-     "y": 5184,
+     "x": 3840,
+     "y": 6720,
      "width": 128,
      "height": 128,
      "visible": true,
@@ -1637,12 +1669,12 @@
       {
        "name": "gx",
        "type": "int",
-       "value": 37
+       "value": 61
       },
       {
        "name": "gy",
        "type": "int",
-       "value": 82
+       "value": 106
       },
       {
        "name": "fw",
@@ -1662,11 +1694,11 @@
      ]
     },
     {
-     "id": 90,
+     "id": 98,
      "name": "defense_tower_right",
      "type": "defense",
-     "x": 3904,
-     "y": 3584,
+     "x": 2880,
+     "y": 2560,
      "width": 128,
      "height": 128,
      "visible": true,
@@ -1685,12 +1717,12 @@
       {
        "name": "gx",
        "type": "int",
-       "value": 62
+       "value": 46
       },
       {
        "name": "gy",
        "type": "int",
-       "value": 57
+       "value": 41
       },
       {
        "name": "fw",
@@ -1710,11 +1742,11 @@
      ]
     },
     {
-     "id": 91,
+     "id": 99,
      "name": "defense_tower_bottom",
      "type": "defense",
-     "x": 3776,
-     "y": 6272,
+     "x": 4096,
+     "y": 6912,
      "width": 128,
      "height": 128,
      "visible": true,
@@ -1733,12 +1765,12 @@
       {
        "name": "gx",
        "type": "int",
-       "value": 60
+       "value": 65
       },
       {
        "name": "gy",
        "type": "int",
-       "value": 99
+       "value": 109
       },
       {
        "name": "fw",
@@ -1758,11 +1790,11 @@
      ]
     },
     {
-     "id": 92,
+     "id": 100,
      "name": "defense_gate",
      "type": "defense",
-     "x": 4992,
-     "y": 5056,
+     "x": 5632,
+     "y": 5376,
      "width": 128,
      "height": 128,
      "visible": true,
@@ -1781,12 +1813,12 @@
       {
        "name": "gx",
        "type": "int",
-       "value": 79
+       "value": 89
       },
       {
        "name": "gy",
        "type": "int",
-       "value": 80
+       "value": 85
       },
       {
        "name": "fw",
@@ -1860,12 +1892,12 @@
      "rotation": 0,
      "polyline": [
       {
-       "x": 3630,
-       "y": 4050
+       "x": 3700,
+       "y": 3980
       },
       {
-       "x": 3775.815913267862,
-       "y": 4225.119702659264
+       "x": 3869.312625618349,
+       "y": 4183.386799329281
       }
      ],
      "properties": [
@@ -1891,12 +1923,12 @@
      "rotation": 0,
      "polyline": [
       {
-       "x": 3775.815913267862,
-       "y": 4225.119702659264
+       "x": 3869.312625618349,
+       "y": 4183.386799329281
       },
       {
-       "x": 3882.3909236273084,
-       "y": 4417.609076372692
+       "x": 3993.0127018922194,
+       "y": 4406.987298107781
       }
      ],
      "properties": [
@@ -1922,12 +1954,12 @@
      "rotation": 0,
      "polyline": [
       {
-       "x": 3882.3909236273084,
-       "y": 4417.609076372692
+       "x": 3993.0127018922194,
+       "y": 4406.987298107781
       },
       {
-       "x": 3942.4621202458748,
-       "y": 4614.350288425444
+       "x": 4062.670273047588,
+       "y": 4635.56349186104
       }
      ],
      "properties": [
@@ -1953,12 +1985,12 @@
      "rotation": 0,
      "polyline": [
       {
-       "x": 3942.4621202458748,
-       "y": 4614.350288425444
+       "x": 4062.670273047588,
+       "y": 4635.56349186104
       },
       {
-       "x": 3951.935750346352,
-       "y": 4801.935750346352
+       "x": 4073.538290724796,
+       "y": 4853.538290724796
       }
      ],
      "properties": [
@@ -1984,12 +2016,12 @@
      "rotation": 0,
      "polyline": [
       {
-       "x": 3951.935750346352,
-       "y": 4801.935750346352
+       "x": 4073.538290724796,
+       "y": 4853.538290724796
       },
       {
-       "x": 3910.1662016933064,
-       "y": 4967.581822905138
+       "x": 4024.8761174793894,
+       "y": 5046.057072376869
       }
      ],
      "properties": [
@@ -2015,12 +2047,12 @@
      "rotation": 0,
      "polyline": [
       {
-       "x": 3910.1662016933064,
-       "y": 4967.581822905138
+       "x": 4024.8761174793894,
+       "y": 5046.057072376869
       },
       {
-       "x": 3820,
-       "y": 5100
+       "x": 3920,
+       "y": 5200
       }
      ],
      "properties": [
@@ -2046,12 +2078,12 @@
      "rotation": 0,
      "polyline": [
       {
-       "x": 3820,
-       "y": 5100
+       "x": 3920,
+       "y": 5200
       },
       {
-       "x": 3687.5818229051383,
-       "y": 5190.166201693306
+       "x": 3766.0570723768687,
+       "y": 5304.87611747939
       }
      ],
      "properties": [
@@ -2077,12 +2109,12 @@
      "rotation": 0,
      "polyline": [
       {
-       "x": 3687.5818229051383,
-       "y": 5190.166201693306
+       "x": 3766.0570723768687,
+       "y": 5304.87611747939
       },
       {
-       "x": 3521.935750346352,
-       "y": 5231.935750346352
+       "x": 3573.538290724796,
+       "y": 5353.538290724796
       }
      ],
      "properties": [
@@ -2108,12 +2140,12 @@
      "rotation": 0,
      "polyline": [
       {
-       "x": 3521.935750346352,
-       "y": 5231.935750346352
+       "x": 3573.538290724796,
+       "y": 5353.538290724796
       },
       {
-       "x": 3334.350288425444,
-       "y": 5222.462120245875
+       "x": 3355.5634918610403,
+       "y": 5342.670273047588
       }
      ],
      "properties": [
@@ -2139,12 +2171,12 @@
      "rotation": 0,
      "polyline": [
       {
-       "x": 3334.350288425444,
-       "y": 5222.462120245875
+       "x": 3355.5634918610403,
+       "y": 5342.670273047588
       },
       {
-       "x": 3137.609076372691,
-       "y": 5162.390923627308
+       "x": 3126.9872981077806,
+       "y": 5273.012701892219
       }
      ],
      "properties": [
@@ -2170,12 +2202,12 @@
      "rotation": 0,
      "polyline": [
       {
-       "x": 3137.609076372691,
-       "y": 5162.390923627308
+       "x": 3126.9872981077806,
+       "y": 5273.012701892219
       },
       {
-       "x": 2945.1197026592636,
-       "y": 5055.815913267862
+       "x": 2903.386799329281,
+       "y": 5149.31262561835
       }
      ],
      "properties": [
@@ -2201,12 +2233,12 @@
      "rotation": 0,
      "polyline": [
       {
-       "x": 2945.1197026592636,
-       "y": 5055.815913267862
+       "x": 2903.386799329281,
+       "y": 5149.31262561835
       },
       {
-       "x": 2770,
-       "y": 4910
+       "x": 2700,
+       "y": 4980
       }
      ],
      "properties": [
@@ -2232,12 +2264,12 @@
      "rotation": 0,
      "polyline": [
       {
-       "x": 2770,
-       "y": 4910
+       "x": 2700,
+       "y": 4980
       },
       {
-       "x": 2624.184086732138,
-       "y": 4734.880297340736
+       "x": 2530.6873743816514,
+       "y": 4776.613200670719
       }
      ],
      "properties": [
@@ -2263,12 +2295,12 @@
      "rotation": 0,
      "polyline": [
       {
-       "x": 2624.184086732138,
-       "y": 4734.880297340736
+       "x": 2530.6873743816514,
+       "y": 4776.613200670719
       },
       {
-       "x": 2517.6090763726916,
-       "y": 4542.390923627308
+       "x": 2406.9872981077806,
+       "y": 4553.012701892219
       }
      ],
      "properties": [
@@ -2294,12 +2326,12 @@
      "rotation": 0,
      "polyline": [
       {
-       "x": 2517.6090763726916,
-       "y": 4542.390923627308
+       "x": 2406.9872981077806,
+       "y": 4553.012701892219
       },
       {
-       "x": 2457.5378797541252,
-       "y": 4345.649711574556
+       "x": 2337.329726952412,
+       "y": 4324.43650813896
       }
      ],
      "properties": [
@@ -2325,12 +2357,12 @@
      "rotation": 0,
      "polyline": [
       {
-       "x": 2457.5378797541252,
-       "y": 4345.649711574556
+       "x": 2337.329726952412,
+       "y": 4324.43650813896
       },
       {
-       "x": 2448.064249653648,
-       "y": 4158.064249653648
+       "x": 2326.461709275204,
+       "y": 4106.461709275204
       }
      ],
      "properties": [
@@ -2356,12 +2388,12 @@
      "rotation": 0,
      "polyline": [
       {
-       "x": 2448.064249653648,
-       "y": 4158.064249653648
+       "x": 2326.461709275204,
+       "y": 4106.461709275204
       },
       {
-       "x": 2489.833798306694,
-       "y": 3992.4181770948617
+       "x": 2375.1238825206106,
+       "y": 3913.9429276231313
       }
      ],
      "properties": [
@@ -2387,12 +2419,12 @@
      "rotation": 0,
      "polyline": [
       {
-       "x": 2489.833798306694,
-       "y": 3992.4181770948617
+       "x": 2375.1238825206106,
+       "y": 3913.9429276231313
       },
       {
-       "x": 2580,
-       "y": 3860
+       "x": 2480,
+       "y": 3760
       }
      ],
      "properties": [
@@ -2418,12 +2450,12 @@
      "rotation": 0,
      "polyline": [
       {
-       "x": 2580,
-       "y": 3860
+       "x": 2480,
+       "y": 3760
       },
       {
-       "x": 2712.4181770948617,
-       "y": 3769.8337983066936
+       "x": 2633.9429276231313,
+       "y": 3655.12388252061
       }
      ],
      "properties": [
@@ -2449,12 +2481,12 @@
      "rotation": 0,
      "polyline": [
       {
-       "x": 2712.4181770948617,
-       "y": 3769.8337983066936
+       "x": 2633.9429276231313,
+       "y": 3655.12388252061
       },
       {
-       "x": 2878.064249653648,
-       "y": 3728.064249653648
+       "x": 2826.461709275204,
+       "y": 3606.461709275204
       }
      ],
      "properties": [
@@ -2480,12 +2512,12 @@
      "rotation": 0,
      "polyline": [
       {
-       "x": 2878.064249653648,
-       "y": 3728.064249653648
+       "x": 2826.461709275204,
+       "y": 3606.461709275204
       },
       {
-       "x": 3065.649711574556,
-       "y": 3737.5378797541252
+       "x": 3044.436508138959,
+       "y": 3617.329726952412
       }
      ],
      "properties": [
@@ -2511,12 +2543,12 @@
      "rotation": 0,
      "polyline": [
       {
-       "x": 3065.649711574556,
-       "y": 3737.5378797541252
+       "x": 3044.436508138959,
+       "y": 3617.329726952412
       },
       {
-       "x": 3262.3909236273084,
-       "y": 3797.609076372691
+       "x": 3273.012701892219,
+       "y": 3686.9872981077806
       }
      ],
      "properties": [
@@ -2542,12 +2574,12 @@
      "rotation": 0,
      "polyline": [
       {
-       "x": 3262.3909236273084,
-       "y": 3797.609076372691
+       "x": 3273.012701892219,
+       "y": 3686.9872981077806
       },
       {
-       "x": 3454.8802973407364,
-       "y": 3904.184086732138
+       "x": 3496.6132006707194,
+       "y": 3810.687374381651
       }
      ],
      "properties": [
@@ -2573,12 +2605,12 @@
      "rotation": 0,
      "polyline": [
       {
-       "x": 3454.8802973407364,
-       "y": 3904.184086732138
+       "x": 3496.6132006707194,
+       "y": 3810.687374381651
       },
       {
-       "x": 3630,
-       "y": 4050
+       "x": 3700,
+       "y": 3980
       }
      ],
      "properties": [
@@ -2596,6 +2628,37 @@
     },
     {
      "id": 26,
+     "name": "road_city_hall_st_r0",
+     "type": "road",
+     "x": 0,
+     "y": 0,
+     "visible": true,
+     "rotation": 0,
+     "polyline": [
+      {
+       "x": 3200,
+       "y": 4480
+      },
+      {
+       "x": 3700,
+       "y": 3980
+      }
+     ],
+     "properties": [
+      {
+       "name": "from",
+       "type": "string",
+       "value": "city_hall"
+      },
+      {
+       "name": "to",
+       "type": "string",
+       "value": "st_r0"
+      }
+     ]
+    },
+    {
+     "id": 27,
      "name": "road_city_hall_st_r6",
      "type": "road",
      "x": 0,
@@ -2608,8 +2671,8 @@
        "y": 4480
       },
       {
-       "x": 3820,
-       "y": 5100
+       "x": 3920,
+       "y": 5200
       }
      ],
      "properties": [
@@ -2626,7 +2689,38 @@
      ]
     },
     {
-     "id": 27,
+     "id": 28,
+     "name": "road_city_hall_st_r12",
+     "type": "road",
+     "x": 0,
+     "y": 0,
+     "visible": true,
+     "rotation": 0,
+     "polyline": [
+      {
+       "x": 3200,
+       "y": 4480
+      },
+      {
+       "x": 2700,
+       "y": 4980
+      }
+     ],
+     "properties": [
+      {
+       "name": "from",
+       "type": "string",
+       "value": "city_hall"
+      },
+      {
+       "name": "to",
+       "type": "string",
+       "value": "st_r12"
+      }
+     ]
+    },
+    {
+     "id": 29,
      "name": "road_city_hall_st_r18",
      "type": "road",
      "x": 0,
@@ -2639,8 +2733,8 @@
        "y": 4480
       },
       {
-       "x": 2580,
-       "y": 3860
+       "x": 2480,
+       "y": 3760
       }
      ],
      "properties": [
@@ -2657,7 +2751,7 @@
      ]
     },
     {
-     "id": 28,
+     "id": 30,
      "name": "road_st_r6_st_ave_s",
      "type": "road",
      "x": 0,
@@ -2666,12 +2760,12 @@
      "rotation": 0,
      "polyline": [
       {
-       "x": 3820,
-       "y": 5100
+       "x": 3920,
+       "y": 5200
       },
       {
-       "x": 4100,
-       "y": 5380
+       "x": 4225,
+       "y": 5505
       }
      ],
      "properties": [
@@ -2688,7 +2782,7 @@
      ]
     },
     {
-     "id": 29,
+     "id": 31,
      "name": "road_st_ave_s_st_ave_s2",
      "type": "road",
      "x": 0,
@@ -2697,12 +2791,12 @@
      "rotation": 0,
      "polyline": [
       {
-       "x": 4100,
-       "y": 5380
+       "x": 4225,
+       "y": 5505
       },
       {
-       "x": 4380,
-       "y": 5660
+       "x": 4530,
+       "y": 5810
       }
      ],
      "properties": [
@@ -2719,8 +2813,8 @@
      ]
     },
     {
-     "id": 30,
-     "name": "road_st_ave_s2_st_gate",
+     "id": 32,
+     "name": "road_st_ave_s2_st_stairs",
      "type": "road",
      "x": 0,
      "y": 0,
@@ -2728,12 +2822,12 @@
      "rotation": 0,
      "polyline": [
       {
-       "x": 4380,
-       "y": 5660
+       "x": 4530,
+       "y": 5810
       },
       {
-       "x": 4654,
-       "y": 5934
+       "x": 4808,
+       "y": 6088
       }
      ],
      "properties": [
@@ -2745,12 +2839,12 @@
       {
        "name": "to",
        "type": "string",
-       "value": "st_gate"
+       "value": "st_stairs"
       }
      ]
     },
     {
-     "id": 31,
+     "id": 33,
      "name": "road_st_r18_st_ave_n",
      "type": "road",
      "x": 0,
@@ -2759,12 +2853,12 @@
      "rotation": 0,
      "polyline": [
       {
-       "x": 2580,
-       "y": 3860
+       "x": 2480,
+       "y": 3760
       },
       {
-       "x": 2300,
-       "y": 3580
+       "x": 2175,
+       "y": 3455
       }
      ],
      "properties": [
@@ -2781,7 +2875,7 @@
      ]
     },
     {
-     "id": 32,
+     "id": 34,
      "name": "road_st_ave_n_st_ave_n2",
      "type": "road",
      "x": 0,
@@ -2790,12 +2884,12 @@
      "rotation": 0,
      "polyline": [
       {
-       "x": 2300,
-       "y": 3580
+       "x": 2175,
+       "y": 3455
       },
       {
-       "x": 2020,
-       "y": 3300
+       "x": 1870,
+       "y": 3150
       }
      ],
      "properties": [
@@ -2812,8 +2906,8 @@
      ]
     },
     {
-     "id": 33,
-     "name": "road_st_r0_city_01",
+     "id": 35,
+     "name": "road_st_ave_n2_st_gate_n",
      "type": "road",
      "x": 0,
      "y": 0,
@@ -2821,12 +2915,74 @@
      "rotation": 0,
      "polyline": [
       {
-       "x": 3630,
-       "y": 4050
+       "x": 1870,
+       "y": 3150
       },
       {
-       "x": 3456,
-       "y": 4288
+       "x": 1448,
+       "y": 2728
+      }
+     ],
+     "properties": [
+      {
+       "name": "from",
+       "type": "string",
+       "value": "st_ave_n2"
+      },
+      {
+       "name": "to",
+       "type": "string",
+       "value": "st_gate_n"
+      }
+     ]
+    },
+    {
+     "id": 36,
+     "name": "road_st_gate_n_st_out_n",
+     "type": "road",
+     "x": 0,
+     "y": 0,
+     "visible": true,
+     "rotation": 0,
+     "polyline": [
+      {
+       "x": 1448,
+       "y": 2728
+      },
+      {
+       "x": 1028,
+       "y": 2308
+      }
+     ],
+     "properties": [
+      {
+       "name": "from",
+       "type": "string",
+       "value": "st_gate_n"
+      },
+      {
+       "name": "to",
+       "type": "string",
+       "value": "st_out_n"
+      }
+     ]
+    },
+    {
+     "id": 37,
+     "name": "road_st_r0_st_gate_e",
+     "type": "road",
+     "x": 0,
+     "y": 0,
+     "visible": true,
+     "rotation": 0,
+     "polyline": [
+      {
+       "x": 3700,
+       "y": 3980
+      },
+      {
+       "x": 4071.8171136724627,
+       "y": 3608.1828863275373
       }
      ],
      "properties": [
@@ -2838,13 +2994,13 @@
       {
        "name": "to",
        "type": "string",
-       "value": "city_01"
+       "value": "st_gate_e"
       }
      ]
     },
     {
-     "id": 34,
-     "name": "road_st_r3_city_02",
+     "id": 38,
+     "name": "road_st_gate_e_st_out_e",
      "type": "road",
      "x": 0,
      "y": 0,
@@ -2852,11 +3008,104 @@
      "rotation": 0,
      "polyline": [
       {
-       "x": 3942.4621202458748,
-       "y": 4614.350288425444
+       "x": 4071.8171136724627,
+       "y": 3608.1828863275373
       },
       {
-       "x": 3648,
+       "x": 4371.817113672463,
+       "y": 3428.1828863275373
+      }
+     ],
+     "properties": [
+      {
+       "name": "from",
+       "type": "string",
+       "value": "st_gate_e"
+      },
+      {
+       "name": "to",
+       "type": "string",
+       "value": "st_out_e"
+      }
+     ]
+    },
+    {
+     "id": 39,
+     "name": "road_st_r12_st_gate_w",
+     "type": "road",
+     "x": 0,
+     "y": 0,
+     "visible": true,
+     "rotation": 0,
+     "polyline": [
+      {
+       "x": 2700,
+       "y": 4980
+      },
+      {
+       "x": 2328.1828863275373,
+       "y": 5351.817113672462
+      }
+     ],
+     "properties": [
+      {
+       "name": "from",
+       "type": "string",
+       "value": "st_r12"
+      },
+      {
+       "name": "to",
+       "type": "string",
+       "value": "st_gate_w"
+      }
+     ]
+    },
+    {
+     "id": 40,
+     "name": "road_st_gate_w_st_out_w",
+     "type": "road",
+     "x": 0,
+     "y": 0,
+     "visible": true,
+     "rotation": 0,
+     "polyline": [
+      {
+       "x": 2328.1828863275373,
+       "y": 5351.817113672462
+      },
+      {
+       "x": 2148.1828863275373,
+       "y": 5651.817113672463
+      }
+     ],
+     "properties": [
+      {
+       "name": "from",
+       "type": "string",
+       "value": "st_gate_w"
+      },
+      {
+       "name": "to",
+       "type": "string",
+       "value": "st_out_w"
+      }
+     ]
+    },
+    {
+     "id": 41,
+     "name": "road_st_r3_city_01",
+     "type": "road",
+     "x": 0,
+     "y": 0,
+     "visible": true,
+     "rotation": 0,
+     "polyline": [
+      {
+       "x": 4062.670273047588,
+       "y": 4635.56349186104
+      },
+      {
+       "x": 3840,
        "y": 4608
       }
      ],
@@ -2869,13 +3118,13 @@
       {
        "name": "to",
        "type": "string",
-       "value": "city_02"
+       "value": "city_01"
       }
      ]
     },
     {
-     "id": 35,
-     "name": "road_st_r9_city_03",
+     "id": 42,
+     "name": "road_st_r9_city_02",
      "type": "road",
      "x": 0,
      "y": 0,
@@ -2883,12 +3132,12 @@
      "rotation": 0,
      "polyline": [
       {
-       "x": 3334.350288425444,
-       "y": 5222.462120245875
+       "x": 3355.5634918610403,
+       "y": 5342.670273047588
       },
       {
        "x": 3328,
-       "y": 4928
+       "y": 5120
       }
      ],
      "properties": [
@@ -2900,13 +3149,13 @@
       {
        "name": "to",
        "type": "string",
-       "value": "city_03"
+       "value": "city_02"
       }
      ]
     },
     {
-     "id": 36,
-     "name": "road_st_r12_city_04",
+     "id": 43,
+     "name": "road_st_r15_city_03",
      "type": "road",
      "x": 0,
      "y": 0,
@@ -2914,43 +3163,12 @@
      "rotation": 0,
      "polyline": [
       {
-       "x": 2770,
-       "y": 4910
+       "x": 2337.329726952412,
+       "y": 4324.43650813896
       },
       {
-       "x": 3008,
-       "y": 4736
-      }
-     ],
-     "properties": [
-      {
-       "name": "from",
-       "type": "string",
-       "value": "st_r12"
-      },
-      {
-       "name": "to",
-       "type": "string",
-       "value": "city_04"
-      }
-     ]
-    },
-    {
-     "id": 37,
-     "name": "road_st_r15_city_05",
-     "type": "road",
-     "x": 0,
-     "y": 0,
-     "visible": true,
-     "rotation": 0,
-     "polyline": [
-      {
-       "x": 2457.5378797541252,
-       "y": 4345.649711574556
-      },
-      {
-       "x": 2816,
-       "y": 4416
+       "x": 2560,
+       "y": 4352
       }
      ],
      "properties": [
@@ -2962,13 +3180,13 @@
       {
        "name": "to",
        "type": "string",
-       "value": "city_05"
+       "value": "city_03"
       }
      ]
     },
     {
-     "id": 38,
-     "name": "road_st_r21_city_06",
+     "id": 44,
+     "name": "road_st_r21_city_04",
      "type": "road",
      "x": 0,
      "y": 0,
@@ -2976,12 +3194,12 @@
      "rotation": 0,
      "polyline": [
       {
-       "x": 3065.649711574556,
-       "y": 3737.5378797541252
+       "x": 3044.436508138959,
+       "y": 3617.329726952412
       },
       {
-       "x": 3136,
-       "y": 4096
+       "x": 3072,
+       "y": 3840
       }
      ],
      "properties": [
@@ -2993,13 +3211,13 @@
       {
        "name": "to",
        "type": "string",
-       "value": "city_06"
+       "value": "city_04"
       }
      ]
     },
     {
-     "id": 39,
-     "name": "road_st_r17_city_07",
+     "id": 45,
+     "name": "road_st_r17_city_05",
      "type": "road",
      "x": 0,
      "y": 0,
@@ -3007,12 +3225,12 @@
      "rotation": 0,
      "polyline": [
       {
-       "x": 2489.833798306694,
-       "y": 3992.4181770948617
+       "x": 2375.1238825206106,
+       "y": 3913.9429276231313
       },
       {
-       "x": 2240,
-       "y": 3776
+       "x": 2112,
+       "y": 3648
       }
      ],
      "properties": [
@@ -3024,13 +3242,13 @@
       {
        "name": "to",
        "type": "string",
-       "value": "city_07"
+       "value": "city_05"
       }
      ]
     },
     {
-     "id": 40,
-     "name": "road_st_r19_city_08",
+     "id": 46,
+     "name": "road_st_r19_city_06",
      "type": "road",
      "x": 0,
      "y": 0,
@@ -3038,12 +3256,12 @@
      "rotation": 0,
      "polyline": [
       {
-       "x": 2712.4181770948617,
-       "y": 3769.8337983066936
+       "x": 2633.9429276231313,
+       "y": 3655.12388252061
       },
       {
-       "x": 2496,
-       "y": 3520
+       "x": 2368,
+       "y": 3392
       }
      ],
      "properties": [
@@ -3055,13 +3273,75 @@
       {
        "name": "to",
        "type": "string",
+       "value": "city_06"
+      }
+     ]
+    },
+    {
+     "id": 47,
+     "name": "road_st_r16_city_07",
+     "type": "road",
+     "x": 0,
+     "y": 0,
+     "visible": true,
+     "rotation": 0,
+     "polyline": [
+      {
+       "x": 2326.461709275204,
+       "y": 4106.461709275204
+      },
+      {
+       "x": 2048,
+       "y": 4096
+      }
+     ],
+     "properties": [
+      {
+       "name": "from",
+       "type": "string",
+       "value": "st_r16"
+      },
+      {
+       "name": "to",
+       "type": "string",
+       "value": "city_07"
+      }
+     ]
+    },
+    {
+     "id": 48,
+     "name": "road_st_r20_city_08",
+     "type": "road",
+     "x": 0,
+     "y": 0,
+     "visible": true,
+     "rotation": 0,
+     "polyline": [
+      {
+       "x": 2826.461709275204,
+       "y": 3606.461709275204
+      },
+      {
+       "x": 2816,
+       "y": 3328
+      }
+     ],
+     "properties": [
+      {
+       "name": "from",
+       "type": "string",
+       "value": "st_r20"
+      },
+      {
+       "name": "to",
+       "type": "string",
        "value": "city_08"
       }
      ]
     },
     {
-     "id": 41,
-     "name": "road_st_r15_city_09",
+     "id": 49,
+     "name": "road_st_r22_city_09",
      "type": "road",
      "x": 0,
      "y": 0,
@@ -3069,105 +3349,12 @@
      "rotation": 0,
      "polyline": [
       {
-       "x": 2457.5378797541252,
-       "y": 4345.649711574556
+       "x": 3273.012701892219,
+       "y": 3686.9872981077806
       },
       {
-       "x": 2176,
-       "y": 4224
-      }
-     ],
-     "properties": [
-      {
-       "name": "from",
-       "type": "string",
-       "value": "st_r15"
-      },
-      {
-       "name": "to",
-       "type": "string",
-       "value": "city_09"
-      }
-     ]
-    },
-    {
-     "id": 42,
-     "name": "road_st_r21_city_10",
-     "type": "road",
-     "x": 0,
-     "y": 0,
-     "visible": true,
-     "rotation": 0,
-     "polyline": [
-      {
-       "x": 3065.649711574556,
-       "y": 3737.5378797541252
-      },
-      {
-       "x": 2944,
-       "y": 3456
-      }
-     ],
-     "properties": [
-      {
-       "name": "from",
-       "type": "string",
-       "value": "st_r21"
-      },
-      {
-       "name": "to",
-       "type": "string",
-       "value": "city_10"
-      }
-     ]
-    },
-    {
-     "id": 43,
-     "name": "road_st_r14_city_11",
-     "type": "road",
-     "x": 0,
-     "y": 0,
-     "visible": true,
-     "rotation": 0,
-     "polyline": [
-      {
-       "x": 2517.6090763726916,
-       "y": 4542.390923627308
-      },
-      {
-       "x": 2304,
-       "y": 4672
-      }
-     ],
-     "properties": [
-      {
-       "name": "from",
-       "type": "string",
-       "value": "st_r14"
-      },
-      {
-       "name": "to",
-       "type": "string",
-       "value": "city_11"
-      }
-     ]
-    },
-    {
-     "id": 44,
-     "name": "road_st_r22_city_12",
-     "type": "road",
-     "x": 0,
-     "y": 0,
-     "visible": true,
-     "rotation": 0,
-     "polyline": [
-      {
-       "x": 3262.3909236273084,
-       "y": 3797.609076372691
-      },
-      {
-       "x": 3392,
-       "y": 3584
+       "x": 3200,
+       "y": 3392
       }
      ],
      "properties": [
@@ -3179,13 +3366,13 @@
       {
        "name": "to",
        "type": "string",
-       "value": "city_12"
+       "value": "city_09"
       }
      ]
     },
     {
-     "id": 45,
-     "name": "road_st_r12_city_13",
+     "id": 50,
+     "name": "road_st_r14_city_10",
      "type": "road",
      "x": 0,
      "y": 0,
@@ -3193,19 +3380,112 @@
      "rotation": 0,
      "polyline": [
       {
-       "x": 2770,
-       "y": 4910
+       "x": 2406.9872981077806,
+       "y": 4553.012701892219
       },
       {
-       "x": 2624,
-       "y": 5120
+       "x": 2112,
+       "y": 4480
       }
      ],
      "properties": [
       {
        "name": "from",
        "type": "string",
-       "value": "st_r12"
+       "value": "st_r14"
+      },
+      {
+       "name": "to",
+       "type": "string",
+       "value": "city_10"
+      }
+     ]
+    },
+    {
+     "id": 51,
+     "name": "road_st_r13_city_11",
+     "type": "road",
+     "x": 0,
+     "y": 0,
+     "visible": true,
+     "rotation": 0,
+     "polyline": [
+      {
+       "x": 2530.6873743816514,
+       "y": 4776.613200670719
+      },
+      {
+       "x": 2368,
+       "y": 4992
+      }
+     ],
+     "properties": [
+      {
+       "name": "from",
+       "type": "string",
+       "value": "st_r13"
+      },
+      {
+       "name": "to",
+       "type": "string",
+       "value": "city_11"
+      }
+     ]
+    },
+    {
+     "id": 52,
+     "name": "road_st_r23_city_12",
+     "type": "road",
+     "x": 0,
+     "y": 0,
+     "visible": true,
+     "rotation": 0,
+     "polyline": [
+      {
+       "x": 3496.6132006707194,
+       "y": 3810.687374381651
+      },
+      {
+       "x": 3712,
+       "y": 3648
+      }
+     ],
+     "properties": [
+      {
+       "name": "from",
+       "type": "string",
+       "value": "st_r23"
+      },
+      {
+       "name": "to",
+       "type": "string",
+       "value": "city_12"
+      }
+     ]
+    },
+    {
+     "id": 53,
+     "name": "road_st_r11_city_13",
+     "type": "road",
+     "x": 0,
+     "y": 0,
+     "visible": true,
+     "rotation": 0,
+     "polyline": [
+      {
+       "x": 2903.386799329281,
+       "y": 5149.31262561835
+      },
+      {
+       "x": 2752,
+       "y": 5376
+      }
+     ],
+     "properties": [
+      {
+       "name": "from",
+       "type": "string",
+       "value": "st_r11"
       },
       {
        "name": "to",
@@ -3215,8 +3495,8 @@
      ]
     },
     {
-     "id": 46,
-     "name": "road_st_r0_city_14",
+     "id": 54,
+     "name": "road_st_r1_city_14",
      "type": "road",
      "x": 0,
      "y": 0,
@@ -3224,19 +3504,19 @@
      "rotation": 0,
      "polyline": [
       {
-       "x": 3630,
-       "y": 4050
+       "x": 3869.312625618349,
+       "y": 4183.386799329281
       },
       {
-       "x": 3840,
-       "y": 3904
+       "x": 4096,
+       "y": 4032
       }
      ],
      "properties": [
       {
        "name": "from",
        "type": "string",
-       "value": "st_r0"
+       "value": "st_r1"
       },
       {
        "name": "to",
@@ -3246,7 +3526,7 @@
      ]
     },
     {
-     "id": 47,
+     "id": 55,
      "name": "road_st_r10_city_15",
      "type": "road",
      "x": 0,
@@ -3255,12 +3535,12 @@
      "rotation": 0,
      "polyline": [
       {
-       "x": 3137.609076372691,
-       "y": 5162.390923627308
+       "x": 3126.9872981077806,
+       "y": 5273.012701892219
       },
       {
-       "x": 3072,
-       "y": 5440
+       "x": 3200,
+       "y": 5568
       }
      ],
      "properties": [
@@ -3277,7 +3557,7 @@
      ]
     },
     {
-     "id": 48,
+     "id": 56,
      "name": "road_st_r2_city_16",
      "type": "road",
      "x": 0,
@@ -3286,12 +3566,12 @@
      "rotation": 0,
      "polyline": [
       {
-       "x": 3882.3909236273084,
-       "y": 4417.609076372692
+       "x": 3993.0127018922194,
+       "y": 4406.987298107781
       },
       {
-       "x": 4160,
-       "y": 4352
+       "x": 4288,
+       "y": 4480
       }
      ],
      "properties": [
@@ -3308,8 +3588,8 @@
      ]
     },
     {
-     "id": 49,
-     "name": "road_st_r9_city_17",
+     "id": 57,
+     "name": "road_st_r8_city_17",
      "type": "road",
      "x": 0,
      "y": 0,
@@ -3317,19 +3597,19 @@
      "rotation": 0,
      "polyline": [
       {
-       "x": 3334.350288425444,
-       "y": 5222.462120245875
+       "x": 3573.538290724796,
+       "y": 5353.538290724796
       },
       {
-       "x": 3520,
-       "y": 5568
+       "x": 3648,
+       "y": 5696
       }
      ],
      "properties": [
       {
        "name": "from",
        "type": "string",
-       "value": "st_r9"
+       "value": "st_r8"
       },
       {
        "name": "to",
@@ -3339,8 +3619,8 @@
      ]
     },
     {
-     "id": 50,
-     "name": "road_st_r3_city_18",
+     "id": 58,
+     "name": "road_st_r4_city_18",
      "type": "road",
      "x": 0,
      "y": 0,
@@ -3348,19 +3628,19 @@
      "rotation": 0,
      "polyline": [
       {
-       "x": 3942.4621202458748,
-       "y": 4614.350288425444
+       "x": 4073.538290724796,
+       "y": 4853.538290724796
       },
       {
-       "x": 4288,
-       "y": 4800
+       "x": 4416,
+       "y": 4928
       }
      ],
      "properties": [
       {
        "name": "from",
        "type": "string",
-       "value": "st_r3"
+       "value": "st_r4"
       },
       {
        "name": "to",
@@ -3370,7 +3650,7 @@
      ]
     },
     {
-     "id": 51,
+     "id": 59,
      "name": "road_st_r7_city_19",
      "type": "road",
      "x": 0,
@@ -3379,12 +3659,12 @@
      "rotation": 0,
      "polyline": [
       {
-       "x": 3687.5818229051383,
-       "y": 5190.166201693306
+       "x": 3766.0570723768687,
+       "y": 5304.87611747939
       },
       {
-       "x": 3904,
-       "y": 5440
+       "x": 4032,
+       "y": 5568
       }
      ],
      "properties": [
@@ -3401,7 +3681,7 @@
      ]
     },
     {
-     "id": 52,
+     "id": 60,
      "name": "road_st_r5_city_20",
      "type": "road",
      "x": 0,
@@ -3410,12 +3690,12 @@
      "rotation": 0,
      "polyline": [
       {
-       "x": 3910.1662016933064,
-       "y": 4967.581822905138
+       "x": 4024.8761174793894,
+       "y": 5046.057072376869
       },
       {
-       "x": 4160,
-       "y": 5184
+       "x": 4288,
+       "y": 5312
       }
      ],
      "properties": [
@@ -3432,7 +3712,7 @@
      ]
     },
     {
-     "id": 53,
+     "id": 61,
      "name": "road_st_ave_s2_city_21",
      "type": "road",
      "x": 0,
@@ -3441,12 +3721,12 @@
      "rotation": 0,
      "polyline": [
       {
-       "x": 4380,
-       "y": 5660
+       "x": 4530,
+       "y": 5810
       },
       {
-       "x": 4224,
-       "y": 5824
+       "x": 4416,
+       "y": 6016
       }
      ],
      "properties": [
@@ -3463,7 +3743,7 @@
      ]
     },
     {
-     "id": 54,
+     "id": 62,
      "name": "road_st_ave_s2_city_22",
      "type": "road",
      "x": 0,
@@ -3472,12 +3752,12 @@
      "rotation": 0,
      "polyline": [
       {
-       "x": 4380,
-       "y": 5660
+       "x": 4530,
+       "y": 5810
       },
       {
-       "x": 4544,
-       "y": 5504
+       "x": 4736,
+       "y": 5696
       }
      ],
      "properties": [
@@ -3494,7 +3774,7 @@
      ]
     },
     {
-     "id": 55,
+     "id": 63,
      "name": "road_st_ave_n2_city_23",
      "type": "road",
      "x": 0,
@@ -3503,12 +3783,12 @@
      "rotation": 0,
      "polyline": [
       {
-       "x": 2020,
-       "y": 3300
+       "x": 1870,
+       "y": 3150
       },
       {
-       "x": 1856,
-       "y": 3456
+       "x": 1728,
+       "y": 3328
       }
      ],
      "properties": [
@@ -3525,7 +3805,7 @@
      ]
     },
     {
-     "id": 56,
+     "id": 64,
      "name": "road_st_ave_n2_city_24",
      "type": "road",
      "x": 0,
@@ -3534,12 +3814,12 @@
      "rotation": 0,
      "polyline": [
       {
-       "x": 2020,
-       "y": 3300
+       "x": 1870,
+       "y": 3150
       },
       {
-       "x": 2176,
-       "y": 3136
+       "x": 2048,
+       "y": 3008
       }
      ],
      "properties": [
@@ -3556,8 +3836,8 @@
      ]
     },
     {
-     "id": 57,
-     "name": "road_st_gate_coast_02",
+     "id": 65,
+     "name": "road_st_stairs_coast_02",
      "type": "road",
      "x": 0,
      "y": 0,
@@ -3565,19 +3845,19 @@
      "rotation": 0,
      "polyline": [
       {
-       "x": 4654,
-       "y": 5934
+       "x": 4808,
+       "y": 6088
       },
       {
-       "x": 4928,
-       "y": 6208
+       "x": 5120,
+       "y": 6400
       }
      ],
      "properties": [
       {
        "name": "from",
        "type": "string",
-       "value": "st_gate"
+       "value": "st_stairs"
       },
       {
        "name": "to",
@@ -3587,7 +3867,7 @@
      ]
     },
     {
-     "id": 58,
+     "id": 66,
      "name": "road_coast_01_coast_02",
      "type": "road",
      "x": 0,
@@ -3596,12 +3876,12 @@
      "rotation": 0,
      "polyline": [
       {
-       "x": 4608,
-       "y": 6464
+       "x": 4800,
+       "y": 6656
       },
       {
-       "x": 4928,
-       "y": 6208
+       "x": 5120,
+       "y": 6400
       }
      ],
      "properties": [
@@ -3618,7 +3898,7 @@
      ]
     },
     {
-     "id": 59,
+     "id": 67,
      "name": "road_coast_02_coast_03",
      "type": "road",
      "x": 0,
@@ -3627,12 +3907,12 @@
      "rotation": 0,
      "polyline": [
       {
-       "x": 4928,
-       "y": 6208
+       "x": 5120,
+       "y": 6400
       },
       {
-       "x": 5184,
-       "y": 5888
+       "x": 5376,
+       "y": 6080
       }
      ],
      "properties": [
