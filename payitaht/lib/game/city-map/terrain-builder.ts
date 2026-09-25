@@ -605,6 +605,8 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1, occupiedSl
   // önünde şadırvan, girişlerinde bayrak direkleri; meydan ile çevre yolu
   // arası bakımlı çimen. Dört caddenin iki yanı servi ağaçlı.
   const plazaDecor: Phaser.GameObjects.GameObject[] = []
+  /** Canlı katmanda dalgalanacak sancak kumaşları (direk/alem burada çizilir). */
+  const flags: Array<{ x: number; y: number; w: number; h: number; depth: number }> = []
   {
     const P = PLAZA.screen, prx = PLAZA.rx, pry = PLAZA.ry
     // Çevre yolunun içi: bakımlı açık yeşil çimen.
@@ -731,9 +733,7 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1, occupiedSl
       g.fillStyle(0xb39c74, 1); g.fillRect(x - 7, y - 8, 14, 9)
       g.lineStyle(4, 0x5a4630, 1); g.lineBetween(x, y - 6, x, y - 118)
       g.fillStyle(0xe2bd78, 1); g.fillCircle(x, y - 121, 4)
-      g.fillStyle(0xb3261e, 1); g.fillPoints([V(x + 2, y - 114), V(x + 46, y - 110), V(x + 44, y - 84), V(x + 2, y - 82)], true)
-      g.fillStyle(0xf6efe0, 1); g.fillCircle(x + 20, y - 98, 6.5); g.fillStyle(0xb3261e, 1); g.fillCircle(x + 22.5, y - 98, 5.2)
-      g.fillStyle(0xf6efe0, 1); g.fillCircle(x + 31, y - 98, 2.2)
+      flags.push({ x: x + 2, y: y - 114, w: 46, h: 30, depth: y + 0.5 }) // kumaş canlı katmanda dalgalanır
       plazaDecor.push(g)
     }
     for (const deg of [90, 270, 0, 180]) {
@@ -1406,5 +1406,5 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1, occupiedSl
     if (o instanceof Phaser.GameObjects.Graphics && o !== roads) atlas.bake(o)
   }
   atlas.finish()
-  return { updateRoads }
+  return { updateRoads, flags }
 }

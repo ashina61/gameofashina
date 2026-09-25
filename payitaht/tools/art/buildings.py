@@ -924,9 +924,8 @@ def kisla(s, st):
     towers = [(X1, Y0)] + ([(X0, Y1)] if st >= 2 else []) + ([(X0, Y0), (X1, Y1)] if st >= 3 else [])
     for (x, y) in towers:
         pointed_tower(s, x, y, 0.15, h + 0.25, col=OTTO['white'], cap=0.4)
-    for (x, y) in ((0.6, 1.62), (0.9, 1.72), (1.2, 1.62)):
-        s.box(x - 0.015, y - 0.015, 0, x + 0.015, y + 0.015, 0.3, PAL['wood2'], 'wood')
-        s.sphere(x, y, 0.34, 0.05, hexc('#d9c08c'))
+    # Talim alanı boş: askerler oyunda canlı talim yapar. Kenarda silah rafı.
+    s.box(1.72, 1.45, 0, 1.78, 1.85, 0.22, PAL['wood'], 'wood')
     s.flag(1.65, 0.25, h + 0.7, 0.5); s.flag(0.3, 1.5, 0, 0.8)
 
 

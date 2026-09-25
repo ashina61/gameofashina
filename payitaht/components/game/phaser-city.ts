@@ -16,6 +16,7 @@
 import * as Phaser from 'phaser'
 import { cityFields, cityFountains, cityStream } from '@/lib/game/city-map/city-extras'
 import { BakeAtlas } from '@/lib/game/city-map/bake'
+import { FlagField, SmokeField } from './city-life'
 import { TILE, CITY_SLOTS, COAST_SLOTS, DEFENSE_SLOTS, DEFENSE_FOUNDATION, ROAD_GRAPH, HALL_SLOT_ID, ROAD_EXITS, WALL_GATES, PLAZA, slotById } from '@/lib/game/city-map'
 import { LIVE_SLOTS, liveSlotByIndex, type LiveSlot } from '@/lib/game/city-map/live-adapter'
 import { buildCityTerrain, preloadTerrain, cityWorldRect, cityContentRect, mineSite } from '@/lib/game/city-map/terrain-builder'
@@ -54,10 +55,12 @@ export class CityScene extends Phaser.Scene {
   private events$!: CityEvents
   private built = false
   /** Divan seviyesi değişince yalnızca yol katmanı yenilenir. */
-  private terrainRoads: { updateRoads: (level: number, activeSlotIds?: string[]) => void } | null = null
+  private terrainRoads: ReturnType<typeof buildCityTerrain> | null = null
   /** Bina/arsa/rozet parçaları — her redraw'da temizlenir (zemin dokunulmaz). */
   private pieces: Phaser.GameObjects.GameObject[] = []
   private pieceAtlas: BakeAtlas | null = null
+  private flagField: FlagField | null = null
+  private smoke: SmokeField | null = null
   private walkers: Walker[] = []
   private walkerKey = ''
   private signature = ''
@@ -101,7 +104,10 @@ export class CityScene extends Phaser.Scene {
 
   create() {
     this.cameras.main.setBackgroundColor('#12333b')
+    this.flagField = new FlagField(this)
+    this.smoke = new SmokeField(this)
     this.terrainRoads = buildCityTerrain(this, this.state.buildings.divan, this.openSlotIds(this.state)) // dünya + büyüyen sokak ağı
+    for (const f of this.terrainRoads.flags) this.flagField.add(f)
     this.built = true
     this.syncWalkers()
     this.addBirds()
@@ -284,6 +290,9 @@ export class CityScene extends Phaser.Scene {
     this.stepBirds(Math.min(delta, 100) / 1000)
     this.stepCaravan(Math.min(delta, 100) / 1000)
     this.stepTroops(Math.min(delta, 100) / 1000)
+    this.flagField?.update(Math.min(delta, 100) / 1000)
+    this.smoke?.update(Math.min(delta, 100) / 1000)
+    this.stepLife(Math.min(delta, 100) / 1000)
     this.timers = this.timers.filter(t => t.bar.active)
     this.hudItems = this.hudItems.filter(h => h.c.active)
     const zoom = this.cameras.main.zoom
@@ -387,6 +396,10 @@ export class CityScene extends Phaser.Scene {
     this.pieces = []
     this.pieceAtlas?.destroy()
     this.pieceAtlas = null
+    this.flagField?.removeGroup('pieces')
+    this.smoke?.removeGroup('pieces')
+    for (const o of this.lifeObjs) o.g.destroy()
+    this.lifeObjs = []
 
     const running = activeJob(this.state)?.id
     /*
@@ -410,6 +423,7 @@ export class CityScene extends Phaser.Scene {
     if (this.state.buildings.surlar > 0) this.drawWalls(this.state.buildings.surlar)
     // Ağır sabit parçalar (sur, avlu, kule sancakları) dokuya pişirilir: her
     // karede yeniden üçgenlenmezler.
+    this.addLife()
     // Alaylar: kışla kurulunca ikinci yeniçeri devriyesi katılır.
     const troopKey = String(this.state.buildings.kisla > 0)
     if (troopKey !== this.troopKey) { this.troopKey = troopKey; this.addTroops() }
@@ -564,16 +578,10 @@ export class CityScene extends Phaser.Scene {
         // Her kulede al sancak (ay-yıldız), rüzgârda dalgalı.
         const top = y - w * 0.04 - img.height * (w / img.width) + w * 0.06
         const f = this.add.graphics().setDepth(y + 2.1)
-        const fw = w * 0.5, fh = w * 0.3
         f.lineStyle(2.5, 0x4a3a28, 1); f.lineBetween(x, top, x, top - w * 0.62)
         f.fillStyle(0xe2bd78, 1); f.fillCircle(x, top - w * 0.64, 2.6)
-        f.fillStyle(0xb3261e, 1)
-        f.fillPoints([new Phaser.Math.Vector2(x + 1, top - w * 0.6), new Phaser.Math.Vector2(x + fw * 0.5, top - w * 0.6 - 3), new Phaser.Math.Vector2(x + fw, top - w * 0.6 + 2),
-          new Phaser.Math.Vector2(x + fw, top - w * 0.6 + fh + 2), new Phaser.Math.Vector2(x + fw * 0.5, top - w * 0.6 + fh - 3), new Phaser.Math.Vector2(x + 1, top - w * 0.6 + fh)], true)
-        f.fillStyle(0xf6efe0, 1); f.fillCircle(x + fw * 0.42, top - w * 0.6 + fh * 0.5, fh * 0.26)
-        f.fillStyle(0xb3261e, 1); f.fillCircle(x + fw * 0.47, top - w * 0.6 + fh * 0.5, fh * 0.21)
-        f.fillStyle(0xf6efe0, 1); f.fillCircle(x + fw * 0.66, top - w * 0.6 + fh * 0.5, fh * 0.08)
         this.pieces.push(f)
+        this.flagField?.add({ x: x + 1, y: top - w * 0.6, w: w * 0.5, h: w * 0.3, depth: y + 2.15 }, 'pieces')
       }
     }
     const placed: Array<{ x: number; y: number }> = []
@@ -630,8 +638,8 @@ export class CityScene extends Phaser.Scene {
         const mx = c.x + d / 2, my = y0 - h - d / 4
         lg.lineStyle(3, 0x5a4630, 1); lg.lineBetween(mx, my, mx, my - 70)
         lg.fillStyle(0xe2bd78, 1); lg.fillCircle(mx, my - 72, 3.5)
-        lg.fillStyle(0xb3261e, 1); lg.fillPoints([V(mx + 2, my - 68), V(mx + 44, my - 60), V(mx + 37, my - 51), V(mx + 44, my - 42), V(mx + 2, my - 36)], true)
         lg.setDepth(y0 + 2)
+        this.flagField?.add({ x: mx + 2, y: my - 68, w: 44, h: 30, depth: y0 + 2.1 }, 'pieces')
       } else {
         // Liman zinciri: kulelerden sarkan halkalı zincir + şamandıralar.
         const pts: Phaser.Math.Vector2[] = []
@@ -1043,6 +1051,150 @@ export class CityScene extends Phaser.Scene {
         const bob = tr.bob ? Math.abs(Math.sin(this.flockClock * 6 + m.along)) * tr.bob : 0
         m.g.setPosition(p.x - dy / l * m.side, p.y + dx / l * m.side * 0.6 - bob).setScale(dx >= 0 ? 1 : -1, 1).setDepth(p.y + 0.5)
       }
+    }
+  }
+  /*
+   * CANLI SAHNELER (her yeniden çizimde binaların yerine göre kurulur):
+   *  - Kışla avlusunda talim: iki sıra yeniçeri çavuşun karşısında ileri
+   *    yürür, durur, tüfek selamı verir, geri döner.
+   *  - İnşaat süren binanın önünde çekiç sallayan ustalar.
+   *  - Meydanda şadırvanın çevresinde koşuşan çocuklar.
+   *  - Caminin avlusunda yem toplayan güvercinler.
+   *  - Hamam, tophane, simyahane, camcı ve saray mutfağı bacalarından duman.
+   */
+  private lifeObjs: Array<{ g: Phaser.GameObjects.Graphics; update: (t: number) => void }> = []
+  private lifeClock = 0
+  private stepLife(dt: number) {
+    this.lifeClock += dt
+    for (const o of this.lifeObjs) o.update(this.lifeClock)
+  }
+  /** Bina görselindeki bir noktayı (sanat birimi: 0..2 taban, z yükseklik) dünyaya çevirir. */
+  private artPoint(slot: LiveSlot, ax: number, ay: number, az = 0, hall = false) {
+    const k = this.artScale() * (hall ? 1.5 : 1)
+    return { x: slot.screen.x + (ax - ay) * 120 * k, y: slot.screen.y + ((ax + ay - 2) * 60 - az * 128) * k }
+  }
+  private slotOfBuilding(id: BuildingId) {
+    const at = this.state.placement[id]
+    return at === null || at === undefined || !this.state.buildings[id] ? null : liveSlotByIndex(at) ?? null
+  }
+  private drawSoldier(g: Phaser.GameObjects.Graphics, s: number, coat = 0x24406e) {
+    const V = (x: number, y: number) => new Phaser.Math.Vector2(x, y)
+    g.fillStyle(0x1b2a14, 0.22); g.fillEllipse(1.5 * s, 0, 9 * s, 3.4 * s)
+    g.fillStyle(coat, 1); g.fillTriangle(-3.8 * s, 0, 3.8 * s, 0, 0, -12 * s); g.fillRoundedRect(-2.7 * s, -12 * s, 5.4 * s, 6 * s, 1.6 * s)
+    g.fillStyle(0xb3261e, 1); g.fillRect(-2.8 * s, -7.6 * s, 5.6 * s, 1.5 * s)
+    g.fillStyle(0xd9a77a, 1); g.fillCircle(0, -14.6 * s, 2.5 * s)
+    g.fillStyle(0xf4efe2, 1); g.fillPoints([V(-2.4 * s, -16.4 * s), V(2.4 * s, -16.4 * s), V(1.2 * s, -23 * s), V(-4.2 * s, -21 * s)], true)
+    g.fillStyle(0xe2bd78, 1); g.fillRect(-2.4 * s, -17.2 * s, 4.8 * s, 1 * s)
+  }
+  private addLife() {
+    const life = (g: Phaser.GameObjects.Graphics, update: (t: number) => void) => { this.lifeObjs.push({ g, update }); update(this.lifeClock) }
+    const artS = this.artScale()
+    // 1) KIŞLA TALİMİ.
+    const ks = this.slotOfBuilding('kisla')
+    if (ks && ks.zone !== 'liman') {
+      const baseDepth = ks.screen.y + ART_GROUND_PX * artS + 1
+      const s = 1.35
+      for (let row = 0; row < 2; row++) {
+        for (let col = 0; col < 4; col++) {
+          const body = this.add.graphics(); this.drawSoldier(body, s)
+          const musket = this.add.graphics()
+          musket.lineStyle(1.6, 0x3a2a1c, 1); musket.lineBetween(0, 0, 0, -22 * s)
+          musket.fillStyle(0xcfd4d8, 1); musket.fillRect(-0.6, -25 * s, 1.2, 3 * s) // süngü
+          const ay = 1.52 + row * 0.17
+          const drillPos = (t: number) => {
+            const c = t % 16
+            const off = c < 6 ? c / 6 : c < 8 ? 1 : c < 14 ? 1 - (c - 8) / 6 : 0
+            const fwd = c < 7 || c >= 15
+            const marching = (c < 6) || (c >= 8 && c < 14)
+            const present = (c >= 6.2 && c < 7.6) || (c >= 14.2 && c < 15.6)
+            return { ax: 0.4 + col * 0.18 + off * 0.5, fwd, marching, present }
+          }
+          life(body, t => {
+            const d = drillPos(t)
+            const p = this.artPoint(ks, d.ax, ay)
+            const bob = d.marching ? Math.abs(Math.sin(t * 7 + col * 0.2)) * 2.2 : 0
+            body.setPosition(p.x, p.y - bob).setScale(d.fwd ? 1 : -1, 1).setDepth(baseDepth + p.y * 1e-4)
+          })
+          life(musket, t => {
+            const d = drillPos(t)
+            const p = this.artPoint(ks, d.ax, ay)
+            const bob = d.marching ? Math.abs(Math.sin(t * 7 + col * 0.2)) * 2.2 : 0
+            const dir = d.fwd ? 1 : -1
+            musket.setPosition(p.x + (d.present ? 4 : 2.6) * s * dir, p.y - 7 * s - bob)
+              .setRotation(d.present ? 0 : 0.42 * dir).setDepth(baseDepth + p.y * 1e-4 + 1e-5)
+          })
+        }
+      }
+      // Çavuş: sıraların karşısında, kolunu sallayarak komut verir.
+      const sg = this.add.graphics(); this.drawSoldier(sg, s * 1.05, 0x7a1f1f)
+      const arm = this.add.graphics(); arm.lineStyle(2.2, 0x7a1f1f, 1); arm.lineBetween(0, 0, 6 * s, -2 * s)
+      const sp = this.artPoint(ks, 1.66, 1.62)
+      life(sg, () => { sg.setPosition(sp.x, sp.y).setScale(-1, 1).setDepth(baseDepth + sp.y * 1e-4) })
+      life(arm, t => { arm.setPosition(sp.x - 2 * s, sp.y - 10 * s).setScale(-1, 1).setRotation(-0.5 + Math.sin(t * 3) * 0.6).setDepth(baseDepth + sp.y * 1e-4 + 1e-5) })
+    }
+    // 2) İNŞAAT USTALARI.
+    const job = activeJob(this.state)
+    const js = job ? this.slotOfBuilding(job.id as BuildingId) ?? (this.state.placement[job.id as BuildingId] != null ? liveSlotByIndex(this.state.placement[job.id as BuildingId]!) ?? null : null) : null
+    if (js && js.zone !== 'liman') {
+      const hall = js.slotId === HALL_SLOT_ID
+      const baseDepth = js.screen.y + ART_GROUND_PX * artS * (hall ? 1.5 : 1) + 1
+      ;[[1.85, 1.15], [1.2, 1.9], [1.75, 1.8]].forEach(([ax, ay], i) => {
+        const p = this.artPoint(js, ax, ay, 0, hall)
+        const g = this.add.graphics()
+        this.drawCitizen(g, () => 0.47) // hamal kılığında usta
+        const hm = this.add.graphics()
+        hm.lineStyle(1.6, 0x5a3a22, 1); hm.lineBetween(0, 0, 0, -9)
+        hm.fillStyle(0x6a6a6a, 1); hm.fillRect(-3, -11, 6, 3)
+        life(g, () => g.setPosition(p.x, p.y).setScale(i % 2 ? -1 : 1, 1).setDepth(baseDepth + i * 1e-3))
+        life(hm, t => hm.setPosition(p.x + (i % 2 ? -5 : 5), p.y - 12).setRotation((i % 2 ? -1 : 1) * (0.2 + Math.max(0, Math.sin(t * 8 + i * 2)) * 1.1)).setDepth(baseDepth + i * 1e-3 + 1e-4))
+      })
+    }
+    // 3) MEYDANDA ÇOCUKLAR.
+    const P = PLAZA.screen
+    const fy = P.y + PLAZA.ry * 0.74
+    ;[0x3f6f9a, 0xd6a93a, 0x4f7d4a].forEach((robe, i) => {
+      const g = this.add.graphics()
+      const s = 0.95
+      g.fillStyle(0x1b2a14, 0.2); g.fillEllipse(1, 0, 7 * s, 2.6 * s)
+      g.fillStyle(robe, 1); g.fillTriangle(-3 * s, 0, 3 * s, 0, 0, -10 * s)
+      g.fillStyle(0xd9a77a, 1); g.fillCircle(0, -12 * s, 2.3 * s)
+      g.fillStyle(i === 1 ? 0xa8322a : 0x3a2a1c, 1); g.fillEllipse(0, -13.6 * s, 4.6 * s, 2 * s)
+      life(g, t => {
+        const a = t * (1.1 + i * 0.2) + i * 2.1
+        const x = P.x + Math.cos(a) * (70 + i * 12), y = fy + Math.sin(a) * (26 + i * 5)
+        g.setPosition(x, y - Math.abs(Math.sin(t * 9 + i)) * 4).setScale(-Math.sin(a) >= 0 ? 1 : -1, 1).setDepth(y)
+      })
+    })
+    // 4) CAMİ AVLUSUNDA GÜVERCİNLER.
+    const cs = this.slotOfBuilding('cami')
+    if (cs && cs.zone !== 'liman') {
+      const baseDepth = cs.screen.y + ART_GROUND_PX * artS + 1
+      for (let i = 0; i < 9; i++) {
+        const g = this.add.graphics()
+        const tone = [0x8e9296, 0xa7abae, 0x6f7377][i % 3]
+        g.fillStyle(tone, 1); g.fillEllipse(0, -2.2, 6.6, 3.8)
+        g.fillStyle(0x5b6a6e, 1); g.fillCircle(2.8, -4.2, 1.7)
+        const home = this.artPoint(cs, 0.5 + (i % 5) * 0.22, 1.62 + Math.floor(i / 5) * 0.14)
+        life(g, t => {
+          const peck = Math.max(0, Math.sin(t * 5 + i * 1.7)) * 1.4
+          g.setPosition(home.x + Math.sin(t * 0.6 + i) * 5, home.y - peck).setScale(Math.sin(t * 0.3 + i) > 0 ? 1 : -1, 1).setDepth(baseDepth + i * 1e-3)
+        })
+      }
+    }
+    // 5) BACA DUMANLARI (sanat koordinatındaki baca ağızları).
+    const chimneys: Array<[BuildingId, number, number, number, number?]> = [
+      ['hamam', 0.36, 0.36, 1.08], ['tophane', 0.46, 0.44, 1.36], ['simyahane', 1.24, 0.51, 1.06],
+      ['camci', 1.5, 0.34, 0.56, 0x8a8480], ['kahvehane', 0.75, 0.62, 1.2],
+    ]
+    for (const [id, ax, ay, az, tint] of chimneys) {
+      const sl = this.slotOfBuilding(id)
+      if (!sl || sl.zone === 'liman') continue
+      const p = this.artPoint(sl, ax, ay, az)
+      this.smoke?.addSource(p.x, p.y, 'pieces', id === 'kahvehane' ? 0.8 : 1.3, tint ?? 0xe9e4da)
+    }
+    if (this.state.buildings.divan >= 8) { // Topkapı mutfak bacaları
+      const hs = LIVE_SLOTS.find(s => s.slotId === HALL_SLOT_ID)
+      if (hs) for (const ay of [0.3, 0.7, 1.1]) { const p = this.artPoint(hs, 1.705, ay, 0.72, true); this.smoke?.addSource(p.x, p.y, 'pieces', 0.9) }
     }
   }
   private stepCaravan(dt: number) {
