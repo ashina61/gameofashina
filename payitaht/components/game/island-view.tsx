@@ -22,7 +22,8 @@ import {
 import { UnitPicker } from './ikariam-panels'
 import { RivalDiplomacy, RivalWar, type Run } from './world-panels'
 import { FACTIONS, RIVALS, STYLE_NAMES, rivalById, rivalLevel } from '@/lib/game/rivals'
-import { targetInfo } from '@/lib/game/expeditions'
+import { targetInfo, type Report } from '@/lib/game/expeditions'
+import { BattleView } from './battle-view'
 
 const clock = (ms: number) => {
   const s = Math.max(0, Math.ceil(ms / 1000))
@@ -164,7 +165,7 @@ export function NpcPanel({ empire, npcId, now, onSpy, onRaid, onOccupy, onBlocka
       <div className="raid-summary">
         <span><Swords className="size-4" />Saldırı {force}</span>
         <span><ShieldCheck className="size-4" />Savunma {intel ? intel.lines.find(l => l.includes('Toplam savunma'))?.match(/Toplam savunma (\d+)/)?.[1] ?? '?' : '?'}</span>
-        <span><Clock3 className="size-4" />Yol {clock(targetTravelMs(city, npcId, 'raid', state.level))}</span>
+        <span title="Ordu en yavaş birliği kadar hızlıdır"><Clock3 className="size-4" />Yol {clock(targetTravelMs(city, npcId, 'raid', state.level, pick))}</span>
         <span><Users className="size-4" />Taşıma {overseas ? Math.max(ships * UNITS.nakliye.cargo, RAID_UNITS.reduce((s, id) => s + UNITS[id].pop * (pick[id] ?? 0) * 30, 0))
           : RAID_UNITS.reduce((s, id) => s + UNITS[id].pop * (pick[id] ?? 0) * 30, 0)}</span>
       </div>
@@ -192,6 +193,19 @@ export function ReportsPanel({ empire }: { empire: Empire }) {
     <div className="report-head">{r.kind === 'spy' ? <Eye className="size-4" /> : r.kind === 'piracy' ? <Skull className="size-4" /> : r.kind === 'defense' ? <ShieldCheck className="size-4" /> : <Swords className="size-4" />}
       <strong className={r.success ? 'report-win' : 'report-loss'}>{r.title}</strong>
       <time>{new Date(r.time).toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })}</time></div>
+    {r.battles?.length ? <ReportBattles report={r} /> : null}
     <ul className="report-lines">{r.lines.map(l => <li key={l}>{l}</li>)}</ul>
   </article>)}</div>
+}
+
+/** Rapordaki savaşların savaş alanı görünümü (açılır). */
+function ReportBattles({ report }: { report: Report }) {
+  const [open, setOpen] = useState<number | null>(null)
+  return <div className="report-battles">
+    <div className="report-battle-tabs">{report.battles!.map((b, i) =>
+      <Button key={i} size="sm" variant={open === i ? 'default' : 'outline'} onClick={() => setOpen(open === i ? null : i)}>
+        <Swords data-icon="inline-start" />{b.title}
+      </Button>)}</div>
+    {open !== null && report.battles![open] && <BattleView stored={report.battles![open]} />}
+  </div>
 }

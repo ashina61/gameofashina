@@ -13,6 +13,8 @@ import { effectLines } from '@/lib/game/building-info'
 import { actionPoints, armyUpkeep, merchantBuyPrice, merchantSellPrice, type UnitRole } from '@/lib/game/engine'
 import { Eye } from 'lucide-react'
 import { spyCapacity, growthRate, maxPopulation, PLOTS, zoneOf } from '@/lib/game/engine'
+import { BATTLE_STATS, SLOT_SIZE, fieldSize } from '@/lib/game/battle'
+import { UnitFigure } from './unit-art'
 
 export function BuildingDetails({ game, id, onBuild, onFlip, onMove }: { game: Game; id: BuildingId; onBuild: (id: BuildingId) => void; onFlip: (id: BuildingId) => void; onMove: (id: BuildingId) => void }) {
   const b = BUILDINGS[id], level = game.buildings[id], reason = buildReason(game, id)
@@ -311,6 +313,7 @@ export function ArmyPanel({ game, onRecruit, onBuild, home }: { game: Game; onRe
     </div>
     <p className="army-note"><Coins className="size-4" />Ordunun bakımı dakikada {Math.round(armyUpkeep(game) * 10) / 10} akçe · aynı anda {actionPoints(game)} görev (hamle puanı).</p>
     <p className="army-note"><TriangleAlert className="size-4" />Asker halktan çıkar. Eğitilen her vatandaş üretimden düşer; surlar ise asker istemez, taş ister ({wallDefense(game)} savunma).</p>
+    <BattlefieldCard level={game.buildings.divan} />
     {game.drill && <JobProgress job={game.drill} now={game.updatedAt} />}
     <div className="batch-row"><span>Parti</span>{BATCHES.map(n => <Button key={n} size="sm" variant={batch === n ? 'default' : 'outline'} onClick={() => setBatch(n)}>{n}</Button>)}</div>
     {branches.map(branch => {
@@ -325,10 +328,17 @@ export function ArmyPanel({ game, onRecruit, onBuild, home }: { game: Game; onRe
           const reason = recruitReason(game, id, batch)
           return <article className="unit-card" key={id}>
             <div className="unit-top">
-              <span className="unit-icon">{unit.branch === 'kara' ? <Swords aria-hidden="true" /> : <Ship aria-hidden="true" />}</span>
+              <span className="unit-portrait"><UnitFigure id={id} size={60} /></span>
               <span><strong>{unit.name} <em className="unit-role">{ROLE_NAMES[unit.role]}</em></strong><small>{unit.description}</small></span>
               <span className="unit-have">{game.army[id]}<small>elde</small></span>
             </div>
+            {BATTLE_STATS[id] && ROLE_ROW_SET.has(unit.role) && <div className="unit-battle" aria-label="Savaş değerleri">
+              <span title="Yakın dövüş saldırısı">⚔ {BATTLE_STATS[id]!.melee}</span>
+              {BATTLE_STATS[id]!.ranged > 0 && <span title={`Uzak saldırı · ${BATTLE_STATS[id]!.ammo} tur cephane`}>🏹 {BATTLE_STATS[id]!.ranged} ×{BATTLE_STATS[id]!.ammo}</span>}
+              <span title="Zırh: her vuruştan düşer">🛡 {BATTLE_STATS[id]!.armor}</span>
+              <span title={`Büyüklük: bir yuvaya ${Math.floor(SLOT_SIZE / BATTLE_STATS[id]!.size)} adet sığar`}>▣ {BATTLE_STATS[id]!.size}</span>
+              {BATTLE_STATS[id]!.vsWall && <span title="Sura karşı çarpan">🧱 ×{BATTLE_STATS[id]!.vsWall}</span>}
+            </div>}
             <div className="unit-stats">
               <span title="Saldırı"><Swords className="size-3" />{unit.attack}</span>
               <span title="Savunma"><ShieldCheck className="size-3" />{unit.defense}</span>
@@ -349,6 +359,19 @@ export function ArmyPanel({ game, onRecruit, onBuild, home }: { game: Game; onRe
     })}
     <p className="fine-print">Taşıma kapasitesi {cargoCapacity(game)} mal · Ticaret limanı {tradeCapacity(game)} mal. Seferler ve casusluk Ada görünümünden (soldaki Ada danışmanı) adadaki bağımsız yerleşimlere düzenlenir.</p>
   </div>
+}
+
+const ROLE_ROW_SET = new Set<UnitRole>(['front', 'flank', 'range', 'artillery', 'support'])
+/** Şehrin savaş meydanı: Divanhane seviyesiyle büyür (Ikariam). */
+function BattlefieldCard({ level }: { level: number }) {
+  const f = fieldSize(level)
+  const next = level < 5 ? 5 : level < 10 ? 10 : level < 17 ? 17 : null
+  const rows: Array<[string, number]> = [['Ön cephe', f.front], ['Kanatlar', f.flank], ['Uzak menzil', f.range], ['Kuşatma', f.artillery]]
+  return <article className="bf-card">
+    <span className="eyebrow">SAVAŞ MEYDANI · {f.name.toUpperCase()}</span>
+    <div className="bf-card-rows">{rows.map(([n, k]) => <span key={n}><strong>{k}</strong><small>{n}</small></span>)}</div>
+    <p className="fine-print">Her yuvaya bir tür birlik ve {SLOT_SIZE} büyüklük sığar; fazlası yedekte bekler ve düşenlerin yerini alır. Ön cephe boşalırsa kanat ve nişancılar öne çıkar. Nişancıların cephanesi tükenir; kanatlar düşmanın arkasına dalar; kuşatma sura vurur.{next ? ` Divanhane ${next}. seviyede meydan büyür.` : ''}</p>
+  </article>
 }
 
 /**

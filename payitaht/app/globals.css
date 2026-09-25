@@ -1046,3 +1046,38 @@
 .bp-up-arrow { display: grid; place-items: center; width: 30px; height: 30px; border-radius: 50%; background: #2f6b16; border: 2px solid #d4f5a9; }
 .bp-up-arrow svg { width: 18px; height: 18px; }
 .bp-res-icon.bp-res-gold { color: #b8860b; } .bp-res-icon.bp-res-wood { color: #7a4a1e; } .bp-res-icon.bp-res-stone { color: #6b6e72; } .bp-res-icon.bp-res-knowledge { color: #2c4a6e; }
+
+/* ---------- Birim çizimleri ve Ikariam savaş alanı ---------- */
+.unit-figure { display: block; flex-shrink: 0; }
+.unit-portrait { flex-shrink: 0; filter: drop-shadow(0 1px 1px #2a170a33); }
+.unit-battle { display: flex; flex-wrap: wrap; gap: 4px 10px; font-size: 11px; font-variant-numeric: tabular-nums; color: var(--ink, inherit); }
+.unit-battle span { display: inline-flex; align-items: center; gap: 3px; padding: 1px 6px; border-radius: 999px; background: #8a5a2214; border: 1px solid #8a5a2233; }
+.raid-unit .unit-figure { margin-right: 2px; }
+.bf-card { display: flex; flex-direction: column; gap: 8px; padding: 12px 14px; border: 1px solid #dcc38e; border-radius: var(--radius); background: #f6e8c3; }
+.bf-card-rows { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; }
+.bf-card-rows span { display: flex; flex-direction: column; align-items: center; padding: 6px 2px; border-radius: 8px; background: #fbf2d6; border: 1px solid #e2cf9c; }
+.bf-card-rows strong { font-size: 18px; font-family: var(--font-heading), Georgia, serif; color: #5a3517; font-variant-numeric: tabular-nums; }
+.bf-card-rows small { font-size: 10px; color: #7a5a32; text-align: center; }
+.report-battles { display: flex; flex-direction: column; gap: 8px; }
+.report-battle-tabs { display: flex; flex-wrap: wrap; gap: 6px; }
+.bf { display: flex; flex-direction: column; gap: 6px; padding: 10px; border-radius: 12px; background: linear-gradient(#e9dcb3, #d9c99a); border: 1px solid #b89a5e; }
+.bf-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 6px; }
+.bf-nav { display: flex; align-items: center; gap: 8px; font-variant-numeric: tabular-nums; }
+.bf-side { display: flex; flex-direction: column; gap: 3px; padding: 6px; border-radius: 10px; background: #f6ecd0cc; }
+.bf-side-head { display: flex; align-items: center; gap: 8px; }
+.bf-side-head strong { font-family: var(--font-heading), Georgia, serif; font-size: 14px; color: #3a2310; }
+.bf-side-head small { font-size: 10.5px; color: #7a5a32; margin-left: auto; font-variant-numeric: tabular-nums; }
+.bf-morale { width: 64px; height: 6px; border-radius: 3px; background: #c9b58a; overflow: hidden; }
+.bf-morale i { display: block; height: 100%; background: linear-gradient(90deg, #b3261e, #d6a93a 50%, #4f7d4a); }
+.bf-row { display: grid; grid-template-columns: 74px minmax(0, 1fr); align-items: center; gap: 6px; }
+.bf-row-name { font-size: 10.5px; color: #7a5a32; letter-spacing: 0.02em; }
+.bf-slots { display: flex; flex-wrap: wrap; gap: 3px; }
+.bf-slot { position: relative; width: 34px; height: 40px; display: flex; flex-direction: column; align-items: center; border-radius: 6px; background: #fbf2d6; border: 1px solid #d8c08a; }
+.bf-slot b { position: absolute; bottom: -1px; right: 1px; font-size: 9.5px; color: #3a2310; background: #fbf2d6e6; border-radius: 3px; padding: 0 2px; font-variant-numeric: tabular-nums; }
+.bf-slot em { position: absolute; top: -2px; right: -2px; font-size: 9px; font-style: normal; color: #fff; background: #b3261e; border-radius: 6px; padding: 0 3px; font-variant-numeric: tabular-nums; }
+.bf-empty { background: repeating-linear-gradient(45deg, #efe2bf, #efe2bf 4px, #e6d6ad 4px, #e6d6ad 8px); }
+.bf-wall { display: grid; grid-template-columns: 74px minmax(0, 1fr) auto; align-items: center; gap: 6px; font-size: 11px; color: #5a3517; }
+.bf-wall-bar { height: 10px; border-radius: 4px; background: repeating-linear-gradient(90deg, #b39c74, #b39c74 10px, #9c8763 10px, #9c8763 12px); opacity: 0.35; overflow: hidden; }
+.bf-wall-bar i { display: block; height: 100%; background: repeating-linear-gradient(90deg, #dcc497, #dcc497 10px, #b39c74 10px, #b39c74 12px); }
+.bf-clash { height: 2px; background: repeating-linear-gradient(90deg, #b3261e, #b3261e 6px, transparent 6px, transparent 10px); opacity: 0.6; }
+.bf-sum { font-size: 11px; color: #5a3517; }

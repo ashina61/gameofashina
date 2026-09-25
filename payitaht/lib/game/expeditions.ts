@@ -19,7 +19,7 @@ import {
   UNITS, UNIT_IDS, capacity, power, BUILDING_EFFECTS, logEvent, actionPoints, travelFactor, miracle, spyBonus, idleWorkers,
   LUXURY_IDS, type Army, type Game, type UnitId,
 } from './engine'
-import { battle, troopList, type Troops } from './battle'
+import { battle, troopList, type BattleSide, type Troops } from './battle'
 import { activeCity, advanceEmpire, bump, type CityRecord, type Empire } from './empire'
 import { ISLANDS, type IslandId } from './islands'
 import {
@@ -91,7 +91,20 @@ export type Mission = {
 export type Report = {
   id: string; time: number; kind: Mission['kind'] | 'defense'; cityId: string; npcId: string
   success: boolean; title: string; lines: string[]
+  /** Savaşların girdileri: rapor açılınca deterministik motorla tur tur yeniden kurulur. */
+  battles?: StoredBattle[]
 }
+/** Rapordaki bir savaşın girdisi (savaş alanı görünümü için). */
+export type StoredBattle = { title: string; attacker: string; defender: string; a: BattleSide; d: BattleSide }
+/** Çözülen görevde yapılan savaşlar (rapora eklenir). */
+let fought: StoredBattle[] = []
+/** battle() + raporda savaş alanı görünümü için girdileri sakla. */
+function fight(title: string, attacker: string, defender: string, a: BattleSide, d: BattleSide) {
+  const clone = (x: BattleSide): BattleSide => ({ ...x, troops: { ...x.troops } })
+  fought.push({ title, attacker, defender, a: clone(a), d: clone(d) })
+  return battle(a, d)
+}
+const takeFought = () => { const out = fought; fought = []; return out.length ? out : undefined }
 
 export function npcById(id: string) { return NPC_SETTLEMENTS.find(n => n.id === id) }
 
@@ -138,6 +151,8 @@ export function npcWall(level: number) { return Math.max(0, level - 2) }
 const WALL_PER_LEVEL = 120
 /** Surun can puanı (savaş motoru). */
 export function npcWallHp(level: number) { return npcWall(level) * 400 }
+/** Bağımsız yerleşimin / rakibin savaş alanı: seviye ile büyür (Divanhane karşılığı). */
+export function npcField(level: number) { return level * 2 }
 
 /** Yağmalanabilir hazine: son yağmadan beri 45 dakikada dolar. */
 export const LOOT_REFILL_MS = 45 * 60_000
@@ -185,8 +200,21 @@ export function seaTravelMs(from: IslandId, to: IslandId, g?: Game) {
   return Math.round((60 + 25 * Math.hypot(a.x - b.x, a.y - b.y)) * 1000 * mapBonus(g) * (g?.research.includes('haritacilik') ? 0.85 : 1))
 }
 /** Şehirden hedefe tek yön yol süresi. */
-export function targetTravelMs(city: CityRecord, npcId: string, kind: 'raid' | 'spy', level: number) {
-  return (kind === 'spy' ? spyTravelMs(level, city.game) : raidTravelMs(level, city.game)) + seaTravelMs(city.islandId, targetIsland(npcId)!, city.game)
+export function targetTravelMs(city: CityRecord, npcId: string, kind: 'raid' | 'spy', level: number, units?: Troops) {
+  // Ikariam: ordu en yavaş birliği kadar hızlıdır (karada kara, denizde gemi birlikleri).
+  const land = units ? slowest(units, 'kara') : 1, sea = units ? slowest(units, 'deniz') : 1
+  return Math.round((kind === 'spy' ? spyTravelMs(level, city.game) : raidTravelMs(level, city.game) * land)
+    + seaTravelMs(city.islandId, targetIsland(npcId)!, city.game) * sea)
+}
+/** Birlik hız çarpanı: 1 normal, <1 hızlı (atlı, hafif tekne), >1 yavaş (kuşatma, kalyon). */
+export const UNIT_PACE: Partial<Record<UnitId, number>> = {
+  sipahi: 0.75, azap: 0.9, karamursel: 0.8, kadirga: 0.9,
+  kocbasi: 1.5, mancinik: 1.6, topcu: 1.5, deli: 1.1, kalyon: 1.3, humbara_gemisi: 1.35, mancinik_gemisi: 1.25, ikmal_gemisi: 1.1,
+}
+/** Seçili birliklerin en yavaşının çarpanı (o koldaki birlik yoksa 1). */
+export function slowest(units: Troops, branch: 'kara' | 'deniz') {
+  const ids = (Object.entries(units) as [UnitId, number][]).filter(([id, n]) => n > 0 && UNITS[id].branch === branch).map(([id]) => id)
+  return ids.length ? Math.max(...ids.map(id => UNIT_PACE[id] ?? 1)) : 1
 }
 /** Kara birliklerini taşımak için gereken nakliye gemisi. */
 export function transportsNeeded(units: Partial<Record<UnitId, number>>) {
@@ -279,7 +307,7 @@ export function dispatchRaid(source: Empire, npcId: string, units: Partial<Recor
     clean.nakliye = ships
   }
   const level = t.npc.level
-  const travel = targetTravelMs(t.city, npcId, 'raid', level)
+  const travel = targetTravelMs(t.city, npcId, 'raid', level, clean)
   empire.missions = [...(empire.missions ?? []), {
     id: `${mode}-${t.city.id}-${npcId}-${now}`, kind: mode, cityId: t.city.id, npcId, units: clean,
     departAt: now, arriveAt: now + travel, returnAt: now + 2 * travel,
@@ -375,6 +403,7 @@ const unitList = (units: Partial<Record<UnitId, number>>) =>
  * yerinde değiştirilir; advanceEmpire tarafından çağrılır.
  */
 export function resolveArrival(empire: Empire, m: Mission) {
+  fought = []
   const city = empire.cities.find(c => c.id === m.cityId)
   m.resolved = true
   if (city && m.kind === 'piracy') return resolvePiracy(empire, city, m)
@@ -384,7 +413,7 @@ export function resolveArrival(empire: Empire, m: Mission) {
   const state = { level: npc.level }
   const g = city.game
   const report = (success: boolean, title: string, lines: string[]) => {
-    empire.reports = [{ id: `r-${m.id}`, time: m.arriveAt, kind: m.kind, cityId: m.cityId, npcId: m.npcId, success, title, lines },
+    empire.reports = [{ id: `r-${m.id}`, time: m.arriveAt, kind: m.kind, cityId: m.cityId, npcId: m.npcId, success, title, lines, battles: takeFought() },
       ...(empire.reports ?? [])].slice(0, 30)
     logEvent(g, title, m.arriveAt)
   }
@@ -425,7 +454,7 @@ export function resolveArrival(empire: Empire, m: Mission) {
   const fleet = blockadedByUs ? {} : npc.fleet
   if (m.kind === 'blockade') {
     const ships = only(m.units, WARSHIPS)
-    const naval = hasTroops(fleet) ? battle({ troops: ships, ...multipliers(g, ships, 'deniz') }, { troops: { ...fleet }, attackMul: npcMul, defenseMul: npcMul }) : null
+    const naval = hasTroops(fleet) ? fight('Deniz savaşı', 'Filomuz', `${npc.name} donanması`, { troops: ships, ...multipliers(g, ships, 'deniz') }, { troops: { ...fleet }, attackMul: npcMul, defenseMul: npcMul, fieldLevel: npcField(npc.level) }) : null
     if (naval) {
       for (const [id, n] of Object.entries(naval.attackerLost) as [UnitId, number][]) {
         g.army[id] = Math.max(0, g.army[id] - n)
@@ -445,7 +474,7 @@ export function resolveArrival(empire: Empire, m: Mission) {
       report(false, `${npc.name} önünde çıkarma yapılamadı.`, [...lines, 'Savaş gemileriyle (kadırga, ateş gemisi...) eskort ederek tekrar dene.'])
       return
     }
-    const naval = battle({ troops: ships, ...multipliers(g, ships, 'deniz') }, { troops: fleet, attackMul: npcMul, defenseMul: npcMul })
+    const naval = fight('Deniz savaşı', 'Filomuz', `${npc.name} donanması`, { troops: ships, ...multipliers(g, ships, 'deniz') }, { troops: { ...fleet }, attackMul: npcMul, defenseMul: npcMul, fieldLevel: npcField(npc.level) })
     for (const [id, n] of Object.entries(naval.attackerLost) as [UnitId, number][]) {
       g.army[id] = Math.max(0, g.army[id] - n)
       m.units[id] = Math.max(0, (m.units[id] ?? 0) - n)
@@ -460,9 +489,9 @@ export function resolveArrival(empire: Empire, m: Mission) {
   }
   // SEFER: turlu savaş motoru (battle.ts).
   const land = only(m.units, RAID_UNITS)
-  const result = battle(
+  const result = fight('Kara savaşı', 'Ordumuz', npc.name,
     { troops: land, ...multipliers(g, land, 'kara') },
-    { troops: { ...npc.garrison }, attackMul: npcMul, defenseMul: npcMul, wall: npcWallHp(state.level) * 0 + npc.wallHp },
+    { troops: { ...npc.garrison }, attackMul: npcMul, defenseMul: npcMul, wall: npc.wallHp, fieldLevel: npcField(npc.level) },
   )
   for (const [id, n] of Object.entries(result.attackerLost) as [UnitId, number][]) g.army[id] = Math.max(0, g.army[id] - n)
   // Kara birlikleri savaştan kalanlar kadar; gemiler olduğu gibi döner.
@@ -564,10 +593,11 @@ function resolveDeploy(empire: Empire, from: CityRecord, m: Mission) {
 
 /** Korsan Kalesi seferinin varışı: eskortla deniz savaşı. */
 function resolvePiracy(empire: Empire, city: CityRecord, m: Mission) {
+  fought = []
   const g = city.game
   const target = piracyTarget(m.npcId)
   if (!target) return
-  const result = battle({ troops: { ...m.units }, ...multipliers(g, m.units, 'deniz') }, { troops: { ...target.escort }, ...ESCORT_MUL })
+  const result = fight('Deniz baskını', 'Korsan filomuz', target.name, { troops: { ...m.units }, ...multipliers(g, m.units, 'deniz') }, { troops: { ...target.escort }, ...ESCORT_MUL, fieldLevel: target.level * 2 })
   for (const [id, n] of Object.entries(result.attackerLost) as [UnitId, number][]) g.army[id] = Math.max(0, g.army[id] - n)
   m.units = only(result.attackerLeft, WARSHIPS)
   const lines = [...roundLines(result.rounds, 'batan gemimiz', 'batan eskort'),
@@ -583,7 +613,7 @@ function resolvePiracy(empire: Empire, city: CityRecord, m: Mission) {
       `Korsan şöhreti +${target.points} (toplam ${g.piracy}).`)
   } else lines.push('Eskort direndi; filo ganimetsiz dönüyor.')
   const title = success ? `${target.name} ele geçirildi!` : `${target.name} kaçtı.`
-  empire.reports = [{ id: `r-${m.id}`, time: m.arriveAt, kind: 'piracy' as const, cityId: m.cityId, npcId: m.npcId, success, title, lines },
+  empire.reports = [{ id: `r-${m.id}`, time: m.arriveAt, kind: 'piracy' as const, cityId: m.cityId, npcId: m.npcId, success, title, lines, battles: takeFought() },
     ...(empire.reports ?? [])].slice(0, 30)
   logEvent(g, title, m.arriveAt)
 }
@@ -690,6 +720,7 @@ function scheduleThreat(empire: Empire, city: CityRecord, at: number) {
 }
 
 function resolveThreat(empire: Empire, t: Threat) {
+  fought = []
   const city = empire.cities.find(c => c.id === t.cityId)
   if (!city) return
   const g = city.game
@@ -699,7 +730,7 @@ function resolveThreat(empire: Empire, t: Threat) {
   const shield = 1 + miracle(g, 'kalkan') * 0.1
   const lines: string[] = []
   const report = (success: boolean, title: string) => {
-    empire.reports = [{ id: `r-${t.id}`, time: t.arriveAt, kind: 'defense' as const, cityId: city.id, npcId: t.npcId, success, title, lines },
+    empire.reports = [{ id: `r-${t.id}`, time: t.arriveAt, kind: 'defense' as const, cityId: city.id, npcId: t.npcId, success, title, lines, battles: takeFought() },
       ...(empire.reports ?? [])].slice(0, 30)
     logEvent(g, title, t.arriveAt)
   }
@@ -707,8 +738,8 @@ function resolveThreat(empire: Empire, t: Threat) {
   const ships = only(free, WARSHIPS)
   if (hasTroops(ships) && hasTroops(t.fleet)) {
     const m = multipliers(g, ships, 'deniz')
-    const naval = battle({ troops: { ...t.fleet }, attackMul: pirateMul, defenseMul: pirateMul },
-      { troops: ships, attackMul: m.attackMul * shield, defenseMul: m.defenseMul * shield })
+    const naval = fight('Deniz savaşı', `${npc.name}`, 'Donanmamız', { troops: { ...t.fleet }, attackMul: pirateMul, defenseMul: pirateMul },
+      { troops: ships, attackMul: m.attackMul * shield, defenseMul: m.defenseMul * shield, fieldLevel: g.buildings.divan })
     for (const [id, n] of Object.entries(naval.defenderLost) as [UnitId, number][]) g.army[id] = Math.max(0, g.army[id] - n)
     lines.push('Deniz savaşı:', ...roundLines(naval.rounds, 'batan korsan', 'batan gemimiz'),
       `Donanma kaybı: ${troopList(naval.defenderLost)} · korsan kaybı: ${troopList(naval.attackerLost)}.`)
@@ -731,8 +762,8 @@ function resolveThreat(empire: Empire, t: Threat) {
   const defenders: Troops = { ...land }
   for (const [id, n] of Object.entries(extra) as [UnitId, number][]) defenders[id] = (defenders[id] ?? 0) + n
   defenders.mizrakci = (defenders.mizrakci ?? 0) + guards
-  const result = battle({ troops: { ...t.troops }, attackMul: pirateMul, defenseMul: pirateMul },
-    { troops: defenders, attackMul: m.attackMul * shield, defenseMul: m.defenseMul * shield, wall: cityWallHp(g) })
+  const result = fight('Şehir savunması', `${npc.name}`, 'Şehrimiz', { troops: { ...t.troops }, attackMul: pirateMul, defenseMul: pirateMul },
+    { troops: defenders, attackMul: m.attackMul * shield, defenseMul: m.defenseMul * shield, wall: cityWallHp(g), fieldLevel: g.buildings.divan, healPerDoctor: m.healPerDoctor, moraleMul: m.moraleMul })
   const lost = { ...result.defenderLost }
   // Muhafızlar ve müttefikler önce düşer; ordu kaybı onların ötesindekidir.
   for (const id of UNIT_IDS) {

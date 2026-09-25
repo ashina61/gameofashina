@@ -101,7 +101,8 @@ test('new units need their research', () => {
 })
 
 test('ranged units run out of ammunition after three rounds', () => {
-  const archers = battle({ troops: { okcu: 40 }, attackMul: 1, defenseMul: 1 }, { troops: { mizrakci: 60 }, attackMul: 0.1, defenseMul: 1 })
+  // Ikariam: nişancılar ön cephede bir perde ister; yoksa öne çıkıp yakın dövüşe girerler.
+  const archers = battle({ troops: { okcu: 40, mizrakci: 5 }, attackMul: 1, defenseMul: 1 }, { troops: { mizrakci: 60 }, attackMul: 0.1, defenseMul: 1 })
   const lateLoss = archers.rounds.slice(3).reduce((s, r) => s + (r.defenderLoss.mizrakci ?? 0), 0)
   const earlyLoss = archers.rounds.slice(0, 3).reduce((s, r) => s + (r.defenderLoss.mizrakci ?? 0), 0)
   assert.ok(lateLoss < earlyLoss, `${earlyLoss} ${lateLoss}`)

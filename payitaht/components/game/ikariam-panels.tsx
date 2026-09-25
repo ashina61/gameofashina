@@ -8,6 +8,7 @@
 import { useState } from 'react'
 import { Sparkles, Minus, Plus, Swords, ShieldCheck, Clock3, Coins, Skull, Anchor, TriangleAlert, Repeat, Hammer } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { UnitFigure } from './unit-art'
 import {
   FAITH_CAP, GOOD_NAMES, LUXURY_IDS, MIRACLES, MIRACLE_COOLDOWN_MS, RESEARCH, RESEARCH_BRANCHES, RESEARCH_IDS, RESOURCE_IDS, UNITS,
   UNIT_IDS, WONDER_MAX, exchangeLimit, exchangeRate, futureCost, futureReason, goodAmount, idleWorkers, miracleCost, miracleMinutes,
@@ -34,6 +35,7 @@ export function UnitPicker({ ids, free, pick, onPick, step = 1 }: {
   const shown = ids.filter(id => free[id] > 0 || (pick[id] ?? 0) > 0)
   if (!shown.length) return null
   return <div className="raid-units">{shown.map(id => <div key={id} className="raid-unit">
+    <UnitFigure id={id} size={36} />
     <span><strong>{UNITS[id].name}</strong><small>{free[id]} boşta · saldırı {UNITS[id].attack}</small></span>
     <Button size="sm" variant="outline" disabled={!(pick[id] ?? 0)} onClick={() => set(id, (pick[id] ?? 0) - step)} aria-label={`${UNITS[id].name} azalt`}><Minus /></Button>
     <strong className="stepper-value">{pick[id] ?? 0}</strong>
