@@ -1001,7 +1001,7 @@ export class CityScene extends Phaser.Scene {
    * bakan kenarda iki babalı bir avlu kapısı açılır (sokak girişi oradan
    * geçer). Yan köşelerde servi, arkada meyve ağacı, kapı yanında çiçek.
    */
-  private addGardenWall(slot: LiveSlot, imgY: number, artS: number) {
+  private addGardenWall(slot: LiveSlot, imgY: number, artS: number, id: BuildingId) {
     const V = (x: number, y: number) => new Phaser.Math.Vector2(x, y)
     const cx = slot.screen.x, cy = slot.screen.y
     // Avlu mümkünse geniş (×1.3); yakındaki bir cadde/yol (ve servi sırası)
@@ -1109,6 +1109,22 @@ export class CityScene extends Phaser.Scene {
     // Ön köşede çalı kümesi, arka köşede meyve (zeytin/nar) ağacı.
     if (!nearGate(S)) { const p = inside(S, 0.84); tree('d_bush', p.x - 14, p.y - 2, TILE.w * 0.26); tree('d_flower', p.x + 16, p.y + 2, TILE.w * 0.2) }
     if (!nearGate(N)) { const p = inside(N, 0.72); tree('d_olive-tree', p.x + (rnd() < 0.5 ? -1 : 1) * 30, p.y, TILE.w * 0.62, rnd() < 0.5 ? 0xd8ecc0 : undefined) }
+    // Caminin hazîresi: arka köşede serviler arasında sarıklı şâhideler.
+    if (id === 'cami') {
+      const corner = !nearGate(W) ? W : E
+      const hz = this.add.graphics().setDepth(corner.y + 2)
+      for (let k = 0; k < 7; k++) {
+        const p = inside(corner, 0.66 + (k % 3) * 0.08)
+        const x = p.x + (corner === W ? 1 : -1) * (Math.floor(k / 3) * 20 + (k % 2) * 8), y = p.y + (k % 3) * 9 - 12
+        const h = 13 + rnd() * 7
+        hz.fillStyle(0x1b2a14, 0.2); hz.fillEllipse(x + 3, y + 1, 10, 3)
+        hz.fillStyle(0xeae5d8, 1); hz.fillRect(x - 2.5, y - h, 5, h)
+        if (rnd() < 0.6) { hz.fillStyle(0xf6f3ea, 1); hz.fillEllipse(x, y - h - 2, 9, 5) } else { hz.fillStyle(0xa8322a, 1); hz.fillRect(x - 2.5, y - h - 4, 5, 4) }
+      }
+      this.pieces.push(hz)
+      const c2 = inside(corner, 0.55)
+      tree('d_cypress', c2.x, c2.y - 6, TILE.w * 0.24)
+    }
     // Kapının iki yanında çiçek saksısı / çalı.
     for (const t of [-1, 1]) {
       const p = lerp(segs[gateSeg.i][0], segs[gateSeg.i][1], Math.min(0.97, Math.max(0.03, gateSeg.t + t * (gapHalf + 0.07))))
@@ -1174,7 +1190,7 @@ export class CityScene extends Phaser.Scene {
 
     // Boş slot görünmez; yalnızca kurulu yapının altında doğal açıklık oluşur.
     this.addOccupiedClearing(id, slot, anc.baseY)
-    if (slot.zone !== 'liman' && slot.slotId !== HALL_SLOT_ID) this.addGardenWall(slot, imgY, artS)
+    if (slot.zone !== 'liman' && slot.slotId !== HALL_SLOT_ID) this.addGardenWall(slot, imgY, artS, id)
 
     // Çok hafif temas gölgesi: doğal açıklığın üstünde yapıyı zemine bağlar.
     // Güneş sol üstten: bina gölgesi sağ-alta düşer.
