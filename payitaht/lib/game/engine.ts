@@ -101,6 +101,8 @@ export const RESEARCH_IDS = [
   'kuyu', 'casusluk', 'devlet', 'kultur', 'anatomi', 'deney', 'din', 'kus_ucusu', 'matbaa',
   'kuru_havuz', 'meslek_ordusu', 'seref', 'balistik', 'top_dokum',
   'guverte', 'korsanlik', 'genisleme', 'zift', 'yabanci_kultur', 'hafif_tekne', 'ikmal', 'havan',
+  // Hava ve buhar çağı birlikleri.
+  'kanat', 'roket', 'zenberek', 'dalgic', 'buhar',
 ] as const
 export type ResearchId = typeof RESEARCH_IDS[number]
 
@@ -158,8 +160,12 @@ export type Game = {
    */
   queue: Job[]
   study: Job | null
-  /** Kisla/tersanede suren TEK egitim emri; bos ise null. */
-  drill: Job | null
+  /**
+   * EĞİTİM SIRASI (Ikariam gibi): her yapının (Kışla, Tersane, Elçilik, Liman)
+   * kendi sırası vardır ve yapılar aynı anda eğitir; bir yapıdaki emirler
+   * birbiri ardına yürür.
+   */
+  drills: Job[]
   /** Sehrin elindeki birlikler. */
   army: Army
   /**
@@ -326,15 +332,18 @@ export const BUILDING_EFFECTS = {
  */
 export const UNIT_IDS = ['yeniceri', 'okcu', 'sipahi', 'topcu', 'kadirga', 'kalyon', 'nakliye', 'casus',
   'mizrakci', 'azap', 'sapanci', 'tufekci', 'kocbasi', 'mancinik', 'asci', 'hekim', 'ates_gemisi', 'mancinik_gemisi',
-  'deli', 'humbaraci', 'karamursel', 'humbara_gemisi', 'ikmal_gemisi'] as const
+  'deli', 'humbaraci', 'karamursel', 'humbara_gemisi', 'ikmal_gemisi',
+  // Hava birlikleri ve Ikariam'ın kalan gemileri (dönem karşılıklarıyla).
+  'hezarfen', 'lagari', 'zenberek_gemisi', 'dalgic_gemisi', 'buharli_koc', 'balon_gemisi'] as const
 export type UnitId = typeof UNIT_IDS[number]
 export type Army = Record<UnitId, number>
 /**
  * Birliğin savaş alanındaki yeri (Ikariam'daki savaş sırası):
  * front = ön cephe, flank = kanat, range = uzak menzil, artillery = kuşatma,
+ * bomber = hava (bombardıman), fighter = hava savunması (yalnız havadakine vurur),
  * support = aşçı/hekim, spy = casus, transport = nakliye.
  */
-export type UnitRole = 'front' | 'flank' | 'range' | 'artillery' | 'support' | 'spy' | 'transport'
+export type UnitRole = 'front' | 'flank' | 'range' | 'artillery' | 'bomber' | 'fighter' | 'support' | 'spy' | 'transport'
 export type Unit = {
   name: string; branch: 'kara' | 'deniz'
   role: UnitRole
@@ -383,10 +392,16 @@ export const UNITS: Record<UnitId, Unit> = {
   kadirga: { name: 'Kadırga', branch: 'deniz', role: 'front', home: 'tersane', level: 1, description: 'Hafif savaş gemisi. Kürekle döner, dar sularda üstündür.', pop: 12, cost: R(600, 420), attack: 45, defense: 35, hp: 420, upkeep: 4, seconds: 45, cargo: 0 },
   ates_gemisi: { name: 'Ateş Gemisi', branch: 'deniz', role: 'range', home: 'tersane', level: 2, tech: 'rum_atesi', description: 'Rum ateşi püskürtür; düşman filosunu tutuşturur.', pop: 10, cost: R(700, 480, 60), attack: 70, defense: 20, hp: 300, upkeep: 5, seconds: 55, cargo: 0 },
   mancinik_gemisi: { name: 'Mancınık Gemisi', branch: 'deniz', role: 'artillery', home: 'tersane', level: 4, tech: 'deniz_topculugu', description: 'Güvertesindeki mancınıkla kıyı surlarını döver.', pop: 14, cost: R(900, 700, 160), attack: 90, defense: 30, hp: 380, upkeep: 6, seconds: 65, cargo: 0 },
-  karamursel: { name: 'Karamürsel', branch: 'deniz', role: 'flank', home: 'tersane', level: 2, tech: 'hafif_tekne', description: 'Hızlı ve ucuz kanat gemisi. Düşman ateş gemilerini avlar.', pop: 6, cost: R(380, 300), attack: 40, defense: 15, hp: 220, upkeep: 2, seconds: 30, cargo: 0 },
+  karamursel: { name: 'Karamürsel', branch: 'deniz', role: 'fighter', home: 'tersane', level: 2, tech: 'hafif_tekne', description: 'Hızlı ve ucuz tekne; filonun hava savunması. Düşman balonlarını avlar, hava yoksa kanatlara dalar.', pop: 6, cost: R(380, 300), attack: 40, defense: 15, hp: 220, upkeep: 2, seconds: 30, cargo: 0 },
   humbara_gemisi: { name: 'Humbara Gemisi', branch: 'deniz', role: 'artillery', home: 'tersane', level: 6, tech: 'havan', description: 'Havanlı ağır gemi. Kıyı surlarını ve filoları uzaktan döver.', pop: 16, cost: R(1200, 900, 200), attack: 140, defense: 25, hp: 420, upkeep: 8, seconds: 80, cargo: 0 },
   ikmal_gemisi: { name: 'İkmal Gemisi', branch: 'deniz', role: 'support', home: 'tersane', level: 4, tech: 'ikmal', description: 'Filonun erzakını ve cerrahlarını taşır: moral düşmez, batan gemilerin tayfası kurtarılır.', pop: 10, cost: R(600, 500, 40), attack: 0, defense: 20, hp: 400, upkeep: 3, seconds: 50, cargo: 0 },
   kalyon: { name: 'Kalyon', branch: 'deniz', role: 'front', home: 'tersane', level: 2, description: 'Ağır kalyon. Yavaş ama denizde son sözü söyler.', pop: 25, cost: R(1400, 950, 120), attack: 120, defense: 95, hp: 900, upkeep: 8, seconds: 75, cargo: 0 },
+  hezarfen: { name: 'Hezarfen', branch: 'kara', role: 'fighter', home: 'kisla', level: 7, tech: 'kanat', description: 'Kanat takıp süzülen avcı. Düşmanın havadaki birliklerini düşürür; hava yoksa kanatlara dalar.', pop: 1, cost: R(260, 120, 20), attack: 40, defense: 6, hp: 40, upkeep: 3, seconds: 34, cargo: 0 },
+  lagari: { name: 'Lagari Roketçisi', branch: 'kara', role: 'bomber', home: 'kisla', level: 8, tech: 'roket', description: 'Barutlu roketle havadan vurur; surun üstünden safları döver. Ona yalnızca Hezarfen yetişir.', pop: 2, cost: R(420, 160, 80), attack: 90, defense: 4, hp: 70, upkeep: 5, seconds: 45, cargo: 0 },
+  zenberek_gemisi: { name: 'Zenberek Gemisi', branch: 'deniz', role: 'range', home: 'tersane', level: 3, tech: 'zenberek', description: 'Güvertesinde dev zenberek (arbalet) taşır; uzaktan ucuz ve sürekli atış.', pop: 8, cost: R(520, 420, 20), attack: 40, defense: 18, hp: 260, upkeep: 3, seconds: 42, cargo: 0 },
+  dalgic_gemisi: { name: 'Dalgıç Gemisi', branch: 'deniz', role: 'front', home: 'tersane', level: 6, tech: 'dalgic', description: 'Suyun altından yaklaşan gemi: vurulması zordur, gövdelere ağır darbe indirir.', pop: 12, cost: R(900, 520, 140), attack: 75, defense: 30, hp: 280, upkeep: 6, seconds: 70, cargo: 0 },
+  buharli_koc: { name: 'Buharlı Koç', branch: 'deniz', role: 'front', home: 'tersane', level: 8, tech: 'buhar', description: 'Buharla yürüyen demir burunlu dev gemi. Denizin en ağır ön cephesi.', pop: 20, cost: R(1800, 1100, 300), attack: 150, defense: 110, hp: 1000, upkeep: 10, seconds: 95, cargo: 0 },
+  balon_gemisi: { name: 'Balon Gemisi', branch: 'deniz', role: 'bomber', home: 'tersane', level: 8, tech: 'roket', description: 'Güvertesinden roketli balonlar kaldırır; düşman filosunu havadan döver. Ona yalnızca Karamürsel yetişir.', pop: 14, cost: R(1100, 800, 200), attack: 110, defense: 20, hp: 360, upkeep: 7, seconds: 80, cargo: 0 },
   casus: { name: 'Casus', branch: 'kara', role: 'spy', home: 'elcilik', level: 1, description: 'Elçilikte yetişir. Komşu yerleşimlerin askerini, surunu ve hazinesini gözetler; savaşmaz.', pop: 1, cost: R(140, 0), attack: 0, defense: 0, hp: 10, upkeep: 0.5, seconds: 25, cargo: 0 },
   nakliye: { name: 'Nakliye', branch: 'deniz', role: 'transport', home: 'liman', level: 1, description: 'Asker ve mal taşır. Ticaretin ve seferin ayağıdır.', pop: 8, cost: R(450, 340), attack: 0, defense: 18, hp: 200, upkeep: 1, seconds: 40, cargo: 500 },
 }
@@ -463,6 +478,11 @@ export const RESEARCH: Record<ResearchId, { branch: ResearchBranch; name: string
   hafif_tekne: { branch: 'denizcilik', name: 'Hafif Tekneler', description: 'Karamürsel yapılabilir: hızlı ve ucuz kanat gemisi.', cost: 220, duration: 55, required: 2, needs: 'yelken' },
   ikmal: { branch: 'denizcilik', name: 'İkmal Gemileri', description: 'İkmal Gemisi yapılabilir: filonun moralini korur, yaralıları taşır.', cost: 500, duration: 90, required: 5, needs: 'zift' },
   havan: { branch: 'denizcilik', name: 'Havan Donanımı', description: 'Humbara Gemisi yapılabilir: en ağır deniz kuşatması.', cost: 900, duration: 115, required: 7, needs: 'deniz_topculugu' },
+  kanat: { branch: 'bilim', name: 'Hezarfen Kanatları', description: 'Hezarfen yetiştirilebilir: düşmanın hava birliklerini avlar.', cost: 1100, duration: 120, required: 7, needs: 'kus_ucusu' },
+  roket: { branch: 'bilim', name: 'Lagari Roketi', description: 'Lagari Roketçisi ve Balon Gemisi yapılabilir: havadan bombardıman.', cost: 1500, duration: 135, required: 8, needs: 'kanat' },
+  zenberek: { branch: 'denizcilik', name: 'Zenberek Ustalığı', description: 'Zenberek Gemisi yapılabilir: uzaktan atış yapan ucuz gemi.', cost: 240, duration: 55, required: 3, needs: 'yelken' },
+  dalgic: { branch: 'denizcilik', name: 'Dalgıç Gemisi', description: 'Dalgıç Gemisi yapılabilir: suyun altından saldırır, vurulması zordur.', cost: 850, duration: 110, required: 6, needs: 'gemi_govdesi' },
+  buhar: { branch: 'denizcilik', name: 'Buhar Makinesi', description: 'Buharlı Koç yapılabilir: denizin en ağır gemisi.', cost: 1700, duration: 140, required: 8, needs: 'dalgic' },
   gemi_govdesi: { branch: 'denizcilik', name: 'Sağlam Gövdeler', description: 'Deniz birliklerinin savunması %12 artar.', cost: 490, duration: 95, required: 5, needs: 'yelken' },
 }
 export const OBJECTIVES = [
@@ -507,7 +527,7 @@ export function initialGame(now: number): Game {
     forest: { level: 1, wood: 0, workers: 0 },
     government: { id: 'saltanat', changedAt: 0, anarchyUntil: 0 },
     stats: { builds: 0, trained: 0, researched: 0, donated: 0 },
-    research: [], queue: [], study: null, drill: null, claimed: [],
+    research: [], queue: [], study: null, drills: [], claimed: [],
     log: [{ text: 'Sahilhisar kuruldu. Hikâyen burada başlıyor.', time: now }],
   }
 }
@@ -536,15 +556,18 @@ export function garrisonLimit(g: Game, branch: 'kara' | 'deniz') {
 export const inGarrison = (id: UnitId) => id !== 'casus' && id !== 'nakliye'
 /** Garnizonda sayılan birlikler (seferdekiler dahil) + eğitimi süren. */
 export function garrisonUsed(g: Game, branch: 'kara' | 'deniz') {
-  const job = g.drill && UNITS[g.drill.id as UnitId].branch === branch && inGarrison(g.drill.id as UnitId) ? trainingPop(g) : 0
+  const job = (g.drills ?? []).reduce((s, j) => s + (UNITS[j.id as UnitId].branch === branch && inGarrison(j.id as UnitId) ? UNITS[j.id as UnitId].pop * (j.count ?? 0) : 0), 0)
   return UNIT_IDS.reduce((s, id) => s + (UNITS[id].branch === branch && inGarrison(id) ? UNITS[id].pop * (g.army?.[id] ?? 0) : 0), 0) + job
 }
 
 /** Egitimi SUREN birligin simdiden ayirdigi vatandas. */
 export function trainingPop(g: Game): number {
-  const job = g.drill
-  return job ? UNITS[job.id as UnitId].pop * (job.count ?? 0) : 0
+  return (g.drills ?? []).reduce((s, job) => s + UNITS[job.id as UnitId].pop * (job.count ?? 0), 0)
 }
+/** Bir yapının eğitim sırasına en fazla bu kadar emir girer. */
+export const DRILL_QUEUE_LIMIT = 5
+/** Yapının sıradaki eğitim emirleri (ilk yürüyen). */
+export function drillsAt(g: Game, home: BuildingId) { return (g.drills ?? []).filter(j => UNITS[j.id as UnitId].home === home) }
 
 /**
  * Askere gitmis vatandas sayisi.
@@ -831,7 +854,7 @@ export function luxuryCost(g: Game, id: BuildingId): Partial<LuxuryStock> {
 }
 
 /** Ağır birlikler kükürt (barut) ister. */
-export const UNIT_SULFUR: Partial<Record<UnitId, number>> = { topcu: 40, kadirga: 30, kalyon: 90, tufekci: 25, ates_gemisi: 45, mancinik_gemisi: 60, humbaraci: 50, humbara_gemisi: 120 }
+export const UNIT_SULFUR: Partial<Record<UnitId, number>> = { topcu: 40, kadirga: 30, kalyon: 90, tufekci: 25, ates_gemisi: 45, mancinik_gemisi: 60, humbaraci: 50, humbara_gemisi: 120, lagari: 60, balon_gemisi: 110, buharli_koc: 80, dalgic_gemisi: 40 }
 export function unitLuxuryCost(id: UnitId, count: number, g?: Game): Partial<LuxuryStock> {
   const s = UNIT_SULFUR[id]
   const factor = g ? Math.max(0.5, 1 - g.buildings.barutane * BUILDING_EFFECTS.barutaneSulfur) *
@@ -1005,7 +1028,8 @@ export function advance(source: Game, now: number): Game {
   const jobs: Job[] = []
   while (g.queue.length > 0 && g.queue[0].end <= now) jobs.push(g.queue.shift() as Job)
   if (g.study && g.study.end <= now) jobs.push(g.study)
-  if (g.drill && g.drill.end <= now) jobs.push(g.drill)
+  for (const job of g.drills) if (job.end <= now) jobs.push(job)
+  g.drills = g.drills.filter(job => job.end > now)
   jobs.sort((a, b) => a.end - b.end)
   for (const job of jobs) {
     produce(Math.max(cursor, job.end))
@@ -1038,7 +1062,6 @@ export function advance(source: Game, now: number): Game {
        */
       const id = job.id as UnitId
       const count = job.count ?? 0
-      g.drill = null
       g.army[id] += count
       g.stats.trained += count
       logEvent(g, `${count} ${UNITS[id].name} sancağın altına girdi.`, job.end)
@@ -1181,7 +1204,7 @@ export function recruitReason(g: Game, id: UnitId, count: number): string | null
   if (!Number.isInteger(count) || count <= 0) return 'Geçersiz sayı.'
   if (g.buildings[unit.home] < unit.level) return `${BUILDINGS[unit.home].name} ${unit.level}. seviye gerekli.`
   if (unit.tech && !g.research.includes(unit.tech)) return `${RESEARCH[unit.tech].name} araştırması gerekli.`
-  if (g.drill) return 'Eğitim sürüyor. Önce onun bitmesini bekle.'
+  if (drillsAt(g, unit.home).length >= DRILL_QUEUE_LIMIT) return `${BUILDINGS[unit.home].name} sırası dolu (en fazla ${DRILL_QUEUE_LIMIT} emir).`
   if (id === 'casus' && g.army.casus + count > spyCapacity(g)) return `Elçilik ${spyCapacity(g)} casus barındırır. Elçiliği yükselt.`
   const need = unit.pop * count
   if (inGarrison(id) && garrisonUsed(g, unit.branch) + need > garrisonLimit(g, unit.branch)) {
@@ -1292,8 +1315,10 @@ export function execute(source: Game, command: Command, now: number): { game: Ga
     const c = unitCost(command.id, command.count, g)
     for (const r of RESOURCE_IDS) g.resources[r] -= c[r]
     payLuxury(g, unitLuxuryCost(command.id, command.count, g))
-    g.drill = { id: command.id, kind: 'drill', start: now, end: now + unitDuration(g, command.id, command.count) * 1000, count: command.count }
-    logEvent(g, `${command.count} ${UNITS[command.id].name} için eğitim başladı.`, now)
+    // Aynı yapıdaki önceki emir bitince başlar; diğer yapılar paralel yürür.
+    const start = Math.max(now, ...drillsAt(g, UNITS[command.id].home).map(j => j.end))
+    g.drills.push({ id: command.id, kind: 'drill', start, end: start + unitDuration(g, command.id, command.count) * 1000, count: command.count })
+    logEvent(g, start > now ? `${command.count} ${UNITS[command.id].name} eğitim sırasına girdi.` : `${command.count} ${UNITS[command.id].name} için eğitim başladı.`, now)
   } else if (command.type === 'research') {
     const reason = researchReason(g, command.id)
     if (reason) return { game: g, error: reason }
@@ -1430,7 +1455,7 @@ export function execute(source: Game, command: Command, now: number): { game: Ga
     if (id === 'divan') return { game: g, error: 'Divanhane yıkılamaz.' }
     if (g.buildings[id] < 1) return { game: g, error: 'Bu yapı kurulu değil.' }
     if (g.queue.some(job => job.id === id)) return { game: g, error: 'İnşaat sırasındaki yapı yıkılamaz.' }
-    if (g.drill && UNITS[g.drill.id as UnitId].home === id) return { game: g, error: 'Burada eğitim sürüyor; önce bitmesini bekle.' }
+    if (drillsAt(g, id).length) return { game: g, error: 'Burada eğitim sürüyor; önce bitmesini bekle.' }
     g.buildings[id] -= 1
     if (g.buildings[id] === 0 && takesPlot(id)) {
       g.placement[id] = null
@@ -1592,7 +1617,10 @@ function fillMissing(g: Record<string, unknown>): Record<string, unknown> {
   const government = { id: gv.id ?? 'saltanat', changedAt: gv.changedAt ?? 0, anarchyUntil: gv.anarchyUntil ?? 0 }
   const st = (g.stats ?? {}) as Record<string, unknown>
   const stats = { builds: st.builds ?? 0, trained: st.trained ?? 0, researched: st.researched ?? 0, donated: st.donated ?? 0 }
-  return { ...g, ...out, army: filled, roads, flips, drill: g.drill === undefined ? null : g.drill, luxury, mine, temple,
+  // Eski kayıtta tek eğitim emri (drill) vardı; sıraya çevrilir.
+  const drills = Array.isArray(g.drills) ? g.drills : g.drill ? [g.drill] : []
+  delete (g as Record<string, unknown>).drill
+  return { ...g, ...out, army: filled, roads, flips, drills, luxury, mine, temple,
     upgrades: g.upgrades && typeof g.upgrades === 'object' ? g.upgrades : {}, future, piracy: g.piracy ?? 0, forest, government, stats }
 }
 
@@ -1702,7 +1730,7 @@ export function parseSave(raw: string): Game {
     && queue.every(job => validJob(job, 'build'))
     && new Set(queue.map(job => job.id)).size === queue.length
     && queue.every((job, i) => i === 0 || job.start >= queue[i - 1].end - 1)
-  if (!g || g.version !== 3 || !queueValid || !finite(g.updatedAt) || !g.resources || !g.buildings || !placementValid || !workersValid || !armyValid || !validJob(g.drill as Job | null, 'drill') || !RESOURCE_IDS.every(r => finite((g.resources as Resources)[r])) || !BUILDING_IDS.every(b => Number.isInteger((g.buildings as Record<BuildingId, number>)[b]) && (g.buildings as Record<BuildingId, number>)[b] >= 0 && (g.buildings as Record<BuildingId, number>)[b] <= MAX_LEVEL[b]) || (g.buildings as Record<BuildingId, number>).divan < 1 || !Array.isArray(g.research) || !(g.research as ResearchId[]).every((id: ResearchId) => RESEARCH_IDS.includes(id)) || new Set(g.research as ResearchId[]).size !== (g.research as ResearchId[]).length || !Array.isArray(g.claimed) || !(g.claimed as string[]).every((id: string) => OBJECTIVES.some(o => o.id === id)) || !validJob(g.study as Job | null, 'research') || !Array.isArray(g.log) || (g.log as unknown[]).length > 60 || !(g.log as { text: unknown; time: unknown }[]).every((l) => typeof l.text === 'string' && l.text.length < 500 && finite(l.time))) throw new Error('Kayıt dosyası okunamadı. Eski kaydın korunuyor; yeni oyun başlatabilirsin.')
+  if (!g || g.version !== 3 || !queueValid || !finite(g.updatedAt) || !g.resources || !g.buildings || !placementValid || !workersValid || !armyValid || !Array.isArray(g.drills) || (g.drills as Job[]).length > 20 || !(g.drills as Job[]).every(j => validJob(j, 'drill')) || !RESOURCE_IDS.every(r => finite((g.resources as Resources)[r])) || !BUILDING_IDS.every(b => Number.isInteger((g.buildings as Record<BuildingId, number>)[b]) && (g.buildings as Record<BuildingId, number>)[b] >= 0 && (g.buildings as Record<BuildingId, number>)[b] <= MAX_LEVEL[b]) || (g.buildings as Record<BuildingId, number>).divan < 1 || !Array.isArray(g.research) || !(g.research as ResearchId[]).every((id: ResearchId) => RESEARCH_IDS.includes(id)) || new Set(g.research as ResearchId[]).size !== (g.research as ResearchId[]).length || !Array.isArray(g.claimed) || !(g.claimed as string[]).every((id: string) => OBJECTIVES.some(o => o.id === id)) || !validJob(g.study as Job | null, 'research') || !Array.isArray(g.log) || (g.log as unknown[]).length > 60 || !(g.log as { text: unknown; time: unknown }[]).every((l) => typeof l.text === 'string' && l.text.length < 500 && finite(l.time))) throw new Error('Kayıt dosyası okunamadı. Eski kaydın korunuyor; yeni oyun başlatabilirsin.')
   const game = g as unknown as Game
   if (game.queue.some(job => game.buildings[job.id as BuildingId] >= MAX_LEVEL[job.id as BuildingId])) throw new Error('İnşaat kaydı geçersiz.')
   if (game.study && game.research.includes(game.study.id as ResearchId)) throw new Error('Araştırma kaydı geçersiz.')

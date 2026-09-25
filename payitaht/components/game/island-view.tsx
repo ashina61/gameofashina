@@ -17,10 +17,10 @@ import { LUXURY_NAMES, MIRACLES, UNITS, type UnitId } from '@/lib/game/engine'
 import { activeCity, ISLANDS, type Empire, type IslandId } from '@/lib/game/empire'
 import {
   NPC_KINDS, NPC_SETTLEMENTS, RAID_UNITS, npcById, TROOPS_PER_SHIP, WARSHIPS, availableUnits, lootPool, npcState, spyChance,
-  strikeForce, targetTravelMs, transportsNeeded, type Mission,
+  strikeForce, targetTravelMs, transportsNeeded, recallMission, spyMission, spyTaskChance, SPY_TYPES, SPY_TYPE_IDS, type Mission,
 } from '@/lib/game/expeditions'
 import { UnitPicker } from './ikariam-panels'
-import { RivalDiplomacy, RivalWar, type Run } from './world-panels'
+import { RivalDiplomacy, RivalSupport, RivalWar, type Run } from './world-panels'
 import { FACTIONS, RIVALS, STYLE_NAMES, rivalById, rivalLevel } from '@/lib/game/rivals'
 import { targetInfo, type Report } from '@/lib/game/expeditions'
 import { BattleView } from './battle-view'
@@ -45,9 +45,12 @@ export function IslandView({ empire, islandId, now, onCity, onIsland, onMine, on
   const missions = (empire.missions ?? []).filter(m => m.cityId === active.id)
   const unread = (empire.reports ?? []).filter(r => r.cityId === active.id).length
   const place = (key: string) => ({ left: `${spots[key][0] * 100}%`, top: `${spots[key][1] * 100}%` })
-  const missionTag = (m: Mission) => m.resolved
-    ? <span className="island-mission island-return"><ArrowLeft aria-hidden="true" />{clock(m.returnAt - now)}</span>
-    : <span className="island-mission">{m.kind === 'spy' ? <Eye aria-hidden="true" /> : m.units.nakliye ? <Ship aria-hidden="true" /> : <Swords aria-hidden="true" />}{clock(m.arriveAt - now)}</span>
+  const STATION: Record<string, string> = { occupy: 'işgal', blockade: 'abluka', spy: 'casus', support: 'destek' }
+  const missionTag = (m: Mission) => m.battle
+    ? <span className="island-mission island-fight"><Swords aria-hidden="true" />tur {m.battle.state.round}</span>
+    : m.stationed ? <span className="island-mission island-station">{m.kind === 'spy' ? <Eye aria-hidden="true" /> : <Anchor aria-hidden="true" />}{STATION[m.kind] ?? ''}</span>
+    : m.resolved ? <span className="island-mission island-return"><ArrowLeft aria-hidden="true" />{clock(m.returnAt - now)}</span>
+    : <span className="island-mission">{m.kind === 'spy' ? <Eye aria-hidden="true" /> : m.kind === 'support' ? <ShieldCheck aria-hidden="true" /> : m.units.nakliye ? <Ship aria-hidden="true" /> : <Swords aria-hidden="true" />}{clock(m.arriveAt - now)}</span>
   return <section className="island-view" aria-label={`${island.name} ada görünümü`}>
     <div className="island-toolbar">
       <Button size="sm" variant="outline" onClick={onCity}><ArrowLeft data-icon="inline-start" />Şehre dön</Button>
@@ -87,7 +90,7 @@ export function IslandView({ empire, islandId, now, onCity, onIsland, onMine, on
           aria-label={`${r.city}, ${r.ruler}, yapay rakip, seviye ${level}`}>
           <img src={buildingImage('divan', Math.min(30, level * 2))} alt="" />
           <span className={`island-label rival-label ${rel >= 0 ? 'rival-friend' : 'rival-foe'}`}><strong>{r.city}</strong><small>{r.ruler} · YZ · Sv. {level}</small></span>
-          {tags.map(m => <span key={m.id}>{m.stationed ? <span className="island-mission island-station"><Anchor aria-hidden="true" />{m.kind === 'occupy' ? 'işgal' : 'abluka'}</span> : missionTag(m)}</span>)}
+          {tags.map(m => <span key={m.id}>{missionTag(m)}</span>)}
         </button>
       })}
     </div>
@@ -113,7 +116,12 @@ export function NpcPanel({ empire, npcId, now, onSpy, onRaid, onOccupy, onBlocka
   const [pick, setPick] = useState<Partial<Record<UnitId, number>>>({})
   const overseas = npc.islandId !== city.islandId
   const ships = transportsNeeded(pick)
-  const intel = (empire.reports ?? []).find(r => r.npcId === npcId && r.cityId === city.id && r.kind === 'spy' && r.success)
+  const spyReports = (empire.reports ?? []).filter(r => r.npcId === npcId && r.cityId === city.id && r.kind === 'spy' && r.success)
+  // Her görev türünün en son raporu (eski kayıtlardaki genel rapor da gösterilir).
+  const intelByType = SPY_TYPE_IDS.map(t => spyReports.find(r => r.intel === t)).filter(r => !!r)
+  const legacy = spyReports.find(r => !r.intel && r.lines.some(l => l.startsWith('Garnizon')))
+  const intel = [...intelByType, ...(legacy && !intelByType.length ? [legacy] : [])]
+  const inside = (empire.missions ?? []).find(m => m.kind === 'spy' && m.stationed && m.cityId === city.id && m.npcId === npcId)
   const lastRaid = (empire.reports ?? []).find(r => r.npcId === npcId && r.cityId === city.id && r.kind === 'raid')
   const busy = (kind: Mission['kind']) => (empire.missions ?? []).some(m => m.cityId === city.id && m.npcId === npcId && m.kind === kind && !m.resolved && !m.battle)
   const fighting = (empire.missions ?? []).find(m => m.npcId === npcId && m.battle)
@@ -134,9 +142,12 @@ export function NpcPanel({ empire, npcId, now, onSpy, onRaid, onOccupy, onBlocka
 
     <section className="empire-section">
       <h3>Son istihbarat</h3>
-      {intel
-        ? <ul className="report-lines">{intel.lines.map(l => <li key={l}>{l}</li>)}</ul>
-        : <p className="fine-print">Bu yerleşim hakkında bilgi yok. Casus gönder: garnizonu, suru ve hazineyi öğrenirsin.</p>}
+      {intel.length
+        ? intel.map(r => <div key={r.id} className="intel-block">
+          <span className="eyebrow">{r.intel ? SPY_TYPES[r.intel].name.toUpperCase() : 'GENEL RAPOR'} · {new Date(r.time).toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })}</span>
+          <ul className="report-lines">{r.lines.map(l => <li key={l}>{l}</li>)}</ul>
+        </div>)
+        : <p className="fine-print">Bu yerleşim hakkında bilgi yok. Casus sızdır, sonra görev ver: garnizonu, suru, limanı ve hazineyi öğrenirsin.</p>}
     </section>
 
     <section className="empire-section">
@@ -149,8 +160,19 @@ export function NpcPanel({ empire, npcId, now, onSpy, onRaid, onOccupy, onBlocka
             <strong className="stepper-value">{spies}</strong>
             <Button size="sm" variant="outline" onClick={() => setSpies(n => Math.min(Math.max(1, free.casus), n + 1))} aria-label="Artır"><Plus /></Button>
             <small>{free.casus} boşta</small></div>
-          <p className="fine-print">Başarı şansı %{Math.round(spyChance(g, spies, state.level) * 100)} · yol {clock(targetTravelMs(city, npcId, 'spy', state.level))}. Başarısız casus yakalanır.</p>
-          <Button size="sm" disabled={busy('spy') || free.casus < spies} onClick={() => onSpy(spies)}><Eye data-icon="inline-start" />Casusları gönder</Button>
+          <p className="fine-print">Sızma şansı %{Math.round(spyChance(g, spies, state.level) * 100)} · yol {clock(targetTravelMs(city, npcId, 'spy', state.level))}. Casuslar şehirde kalır ve görev bekler; sızamayan yakalanır.</p>
+          <Button size="sm" disabled={busy('spy') || free.casus < spies} onClick={() => onSpy(spies)}><Eye data-icon="inline-start" />{inside ? 'Ağa casus ekle' : 'Casusları gönder'}</Button>
+          {inside && <div className="spy-desk">
+            <div className="spy-desk-top"><strong>İçeride {inside.units.casus ?? 0} casus</strong>
+              <Button size="sm" variant="outline" onClick={() => run((e, t) => recallMission(e, inside.id, t), 'Casuslar geri çağrıldı.')}>Geri çağır</Button></div>
+            {inside.spyTask && <p className="requirement"><Clock3 className="size-4" />{SPY_TYPES[inside.spyTask.type].name} · {clock(inside.spyTask.at - now)}</p>}
+            {SPY_TYPE_IDS.map(t => <button key={t} type="button" className="spy-task" disabled={!!inside.spyTask}
+              onClick={() => run((e, x) => spyMission(e, inside.id, t, x), `Görev verildi: ${SPY_TYPES[t].name}.`)}>
+              <strong>{SPY_TYPES[t].name}</strong><small>{SPY_TYPES[t].description}</small>
+              <small>Şans %{Math.round(spyTaskChance(g, inside.units.casus ?? 0, state.level, t) * 100)} · {clock(SPY_TYPES[t].minutes * 60_000)}</small>
+            </button>)}
+            <p className="fine-print">Başarısız görevde bir casus yakalanır. Casuslar geri çağrılana kadar şehirde kalır ve hamle puanı harcamaz.</p>
+          </div>}
         </>}
     </section>
 
@@ -167,7 +189,7 @@ export function NpcPanel({ empire, npcId, now, onSpy, onRaid, onOccupy, onBlocka
       </>}
       <div className="raid-summary">
         <span><Swords className="size-4" />Saldırı {force}</span>
-        <span><ShieldCheck className="size-4" />Savunma {intel ? intel.lines.find(l => l.includes('Toplam savunma'))?.match(/Toplam savunma (\d+)/)?.[1] ?? '?' : '?'}</span>
+        <span><ShieldCheck className="size-4" />Savunma {intel.flatMap(r => r.lines).find(l => l.includes('Toplam savunma'))?.match(/Toplam savunma (\d+)/)?.[1] ?? '?'}</span>
         <span title={`Ön cephe ${field.front}, kanat ${field.flank}, menzil ${field.range}, kuşatma ${field.artillery} yuva`}><Flag className="size-4" />{field.name}</span>
         <span title="Ordu en yavaş birliği kadar hızlıdır"><Clock3 className="size-4" />Yol {clock(targetTravelMs(city, npcId, 'raid', state.level, pick))}</span>
         <span><Users className="size-4" />Taşıma {overseas ? Math.max(ships * UNITS.nakliye.cargo, RAID_UNITS.reduce((s, id) => s + UNITS[id].pop * (pick[id] ?? 0) * 30, 0))
@@ -179,7 +201,9 @@ export function NpcPanel({ empire, npcId, now, onSpy, onRaid, onOccupy, onBlocka
       {busy('raid') && <p className="requirement"><Clock3 className="size-4" />Bu hedefe giden bir ordu yolda.</p>}
     </section>
 
-    {rival && <RivalWar empire={empire} rivalId={npcId} onOccupy={onOccupy} onBlockade={onBlockade} />}
+    {rival && (empire.world?.alliance === rival.faction
+      ? <RivalSupport empire={empire} rivalId={npcId} now={now} run={run} />
+      : <RivalWar empire={empire} rivalId={npcId} onOccupy={onOccupy} onBlockade={onBlockade} />)}
     {rival && <RivalDiplomacy empire={empire} rivalId={npcId} now={now} run={run} />}
     {lastRaid && <section className="empire-section">
       <h3>Son sefer</h3>

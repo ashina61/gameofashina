@@ -80,7 +80,7 @@ export function rivalState(empire: Empire, id: string): RivalState {
 }
 const peek = (empire: Empire, id: string): RivalState =>
   empire.world?.rivals[id] ?? { relation: 0, lootedAt: 0, treaties: [], giftAt: 0, greetDay: '' }
-function mail(empire: Empire, time: number, from: string, subject: string, body: string, rivalId?: string) {
+export function mail(empire: Empire, time: number, from: string, subject: string, body: string, rivalId?: string) {
   const w = world(empire)
   const msg: Message = { id: `m-${time}-${w.messages.length}-${rivalId ?? 'x'}`, time, from, subject, body, read: false }
   if (rivalId) msg.rivalId = rivalId
@@ -103,11 +103,14 @@ export function rivalGarrison(level: number, style: RivalStyle): Army {
   a.mizrakci = Math.round(3 * level * k); a.yeniceri = Math.round(2 * level * k); a.okcu = Math.round(2 * level * k)
   a.sapanci = Math.round(level * k); a.azap = Math.round(level * k); a.sipahi = Math.floor(level / 2 * k)
   a.topcu = Math.floor(level / 4); a.hekim = Math.floor(level / 5); a.deli = Math.max(0, Math.floor((level - 8) / 2))
+  // Güçlenen hükümdarlar hava birlikleri de besler.
+  a.hezarfen = Math.max(0, Math.floor((level - 10) / 2)); a.lagari = Math.max(0, Math.floor((level - 14) / 3))
   return a
 }
 export function rivalFleet(level: number, style: RivalStyle): Troops {
   const k = style === 'denizci' ? 2 : 1
-  return { kadirga: Math.floor(level / 2 * k), ates_gemisi: Math.floor(level / 4 * k), kalyon: Math.floor(level / 8 * k) }
+  return { kadirga: Math.floor(level / 2 * k), ates_gemisi: Math.floor(level / 4 * k), kalyon: Math.floor(level / 8 * k),
+    karamursel: Math.floor(level / 8 * k), balon_gemisi: Math.floor(level / 14 * k) }
 }
 export const rivalWallHp = (level: number) => level * 350
 export function rivalTreasury(level: number, style: RivalStyle) {
@@ -295,7 +298,7 @@ export function pacified(empire: Empire, rivalId: string) {
   const r = rivalById(rivalId)
   if (!r) return false
   return peek(empire, rivalId).treaties.includes('baris') || empire.world?.alliance === r.faction ||
-    (empire.missions ?? []).some(m => m.npcId === rivalId && m.stationed)
+    (empire.missions ?? []).some(m => m.npcId === rivalId && m.stationed && (m.kind === 'occupy' || m.kind === 'blockade'))
 }
 
 /* ------------------------------------------------------ SAVAŞ SONUÇLARI */

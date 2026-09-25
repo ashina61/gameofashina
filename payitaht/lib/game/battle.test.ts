@@ -1,6 +1,6 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { battle } from './battle'
+import { battle, fieldSize } from './battle'
 import { garrison, npcWallHp } from './expeditions'
 
 const side = (troops: Record<string, number>) => ({ troops, attackMul: 1, defenseMul: 1 })
@@ -67,4 +67,32 @@ test('while the wall stands, attacking infantry cannot reach the defenders', () 
   const r = battle(side({ yeniceri: 30 }), { ...side({ mizrakci: 30 }), wall: 5000, fieldLevel: 6 })
   assert.equal(r.rounds[0].defenderLoss.mizrakci ?? 0, 0)
   assert.equal(r.winner, 'defender')
+})
+
+test('bombers fly over the wall and only air defence can shoot them down', () => {
+  const side = (troops: Record<string, number>, extra = {}) => ({ troops, attackMul: 1, defenseMul: 1, fieldLevel: 10, ...extra })
+  // Sur ayaktayken bile Lagari roketleri surun ardındaki savunanı vurur.
+  const bombed = battle(side({ yeniceri: 30, lagari: 20 }), side({ mizrakci: 60 }, { wall: 5000 }))
+  assert.ok((bombed.rounds[0].defenderLoss.mizrakci ?? 0) > 0, 'roket surun üstünden vurdu')
+  // Hava savunması olmayan savunan bombardımanı düşüremez.
+  assert.equal(bombed.attackerLost.lagari ?? 0, 0)
+  const shot = battle(side({ yeniceri: 30, lagari: 20 }), side({ mizrakci: 60, hezarfen: 30 }, { wall: 5000 }))
+  assert.ok((shot.attackerLost.lagari ?? 0) > 0, 'Hezarfen roketçileri düşürdü')
+  // Havada kimse yoksa Hezarfen kanatlara dalar.
+  const strafe = battle(side({ yeniceri: 40, azap: 20 }), side({ mizrakci: 60, hezarfen: 30 }))
+  assert.ok(strafe.rounds.some(r => (r.attackerLoss.azap ?? 0) > 0))
+})
+
+test('the battlefield has air and air-defence slots and deploys them', () => {
+  assert.deepEqual([fieldSize(1).air, fieldSize(1).fighter, fieldSize(12).air], [1, 1, 2])
+  const r = battle({ troops: { yeniceri: 10, lagari: 20, hezarfen: 40 }, attackMul: 1, defenseMul: 1 }, { troops: { mizrakci: 10 }, attackMul: 1, defenseMul: 1 })
+  const l = r.rounds[0].lineupA
+  assert.equal(l.air.length, 1)
+  assert.deepEqual(l.fighter, [{ id: 'hezarfen', n: 30 }])
+})
+
+test('diving boats are hard to hit', () => {
+  const vs = (id: 'dalgic_gemisi' | 'kadirga') => battle({ troops: { kalyon: 4 }, attackMul: 1, defenseMul: 1 }, { troops: { [id]: 6 }, attackMul: 1, defenseMul: 1 })
+  const hp = (id: 'dalgic_gemisi' | 'kadirga', n: number) => n * { dalgic_gemisi: 280, kadirga: 420 }[id]
+  assert.ok(hp('dalgic_gemisi', vs('dalgic_gemisi').defenderLost.dalgic_gemisi ?? 0) <= hp('kadirga', vs('kadirga').defenderLost.kadirga ?? 0))
 })

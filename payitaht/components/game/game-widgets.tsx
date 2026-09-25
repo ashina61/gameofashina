@@ -106,7 +106,7 @@ export function AdvisorBar({ game, active, onSelect }: { game: Game; active: str
   const advisors = [
     { id: 'island' as const, label: 'Ada', icon: Pickaxe, open: true, badge: game.luxury[game.mine.specialty] >= 1 ? formatNumber(Math.floor(game.luxury[game.mine.specialty])) : null },
     { id: 'cities' as const, label: 'Şehirler', icon: Landmark, open: true, badge: activeJob(game) ? timeLeft(activeJob(game) as Job, game.updatedAt) : null },
-    { id: 'army' as const, label: 'Ordu', icon: Swords, open: game.buildings.kisla > 0, badge: game.drill ? timeLeft(game.drill, game.updatedAt) : soldiers(game) > 0 ? String(soldiers(game)) : null },
+    { id: 'army' as const, label: 'Ordu', icon: Swords, open: game.buildings.kisla > 0, badge: game.drills[0] ? timeLeft(game.drills.reduce((a, b) => (a.end < b.end ? a : b)), game.updatedAt) : soldiers(game) > 0 ? String(soldiers(game)) : null },
     { id: 'research' as const, label: 'Araştırma', icon: BookOpen, open: game.buildings.medrese > 0, badge: game.study ? timeLeft(game.study, game.updatedAt) : null },
     { id: 'diplomacy' as const, label: 'Dünya', icon: Handshake, open: true, badge: null },
   ]

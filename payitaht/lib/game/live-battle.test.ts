@@ -118,3 +118,46 @@ test('the garrison limit caps land troops by Divanhane and walls, ships by the s
   g.buildings.tersane = 2
   assert.equal(garrisonLimit(g, 'deniz'), 160)
 })
+
+test('troops can be stationed in an allied city and defend it', async () => {
+  const { dispatchSupport, recallMission, SUPPORT_WATCH_MS } = await import('./expeditions')
+  const { RIVALS } = await import('./rivals')
+  const e = advanceEmpire(army(), now)
+  const ally = RIVALS.find(r => r.islandId === 'sahil')!
+  assert.match(dispatchSupport(e, ally.id, { yeniceri: 10 }, now).error!, /ittifak üyesi/)
+  e.world!.alliance = ally.faction
+  const sent = dispatchSupport(e, ally.id, { yeniceri: 30, okcu: 10 }, now)
+  assert.equal(sent.error, undefined)
+  const m0 = sent.empire.missions![0]
+  const there = advanceEmpire(sent.empire, m0.arriveAt)
+  const m = there.missions![0]
+  assert.equal(m.stationed, true)
+  assert.equal(there.reports![0].kind, 'support')
+  // Nöbetler boyunca karşı ittifak saldırabilir; rapor savaşı tur tur taşır.
+  const later = advanceEmpire(there, m0.arriveAt + 12 * SUPPORT_WATCH_MS)
+  const fights = later.reports!.filter(r => r.kind === 'support' && r.battles?.length)
+  for (const f of fights) assert.equal(f.battles![0].title, 'Müttefik savunması')
+  assert.deepEqual(parseEmpire(JSON.stringify(later)).missions, later.missions)
+  const alive = later.missions!.find(x => x.id === m.id)
+  if (alive?.stationed) {
+    const back = recallMission(later, m.id, m0.arriveAt + 12 * SUPPORT_WATCH_MS + 1)
+    assert.equal(back.error, undefined)
+    const home = advanceEmpire(back.empire, back.empire.missions!.find(x => x.id === m.id)!.returnAt)
+    assert.equal(home.missions!.filter(x => x.kind === 'support').length, 0)
+  }
+})
+
+test('barracks and shipyard train side by side', async () => {
+  const { execute } = await import('./engine')
+  const e = initialEmpire(now)
+  const g = e.cities[0].game
+  g.buildings.kisla = 1; g.placement.kisla = freePlots(g, 'sehir')[0]
+  g.buildings.liman = 1; g.placement.liman = freePlots(g, 'liman')[0]
+  g.buildings.tersane = 1; g.placement.tersane = freePlots(g, 'liman')[0]
+  g.resources = { gold: 50_000, wood: 50_000, stone: 50_000, knowledge: 0 }
+  g.luxury.kukurt = 1000
+  const a = execute(g, { type: 'recruit', id: 'yeniceri', count: 5 }, now).game
+  const b = execute(a, { type: 'recruit', id: 'kadirga', count: 1 }, now)
+  assert.equal(b.error, undefined)
+  assert.deepEqual(b.game.drills.map(j => j.start), [now, now], 'iki yapı aynı anda başlar')
+})

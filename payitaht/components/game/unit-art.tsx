@@ -136,6 +136,53 @@ const FIGURES: Record<UnitId, () => ReactNode> = {
     <path d="M-10 52 Q-14 36 -7 28" fill="none" stroke="#3a3540" strokeWidth="3" />
     <path d="M8 40 L14 32" stroke={STEEL} strokeWidth="1.6" /><circle cx="-2" cy="21" r="0.9" fill="#f2c94c" /><circle cx="2" cy="21" r="0.9" fill="#f2c94c" />
   </Person>,
+  hezarfen: () => <g>
+    {/* kanatlar: iki yana açılmış tüy kanat */}
+    <path d="M26 30 Q10 16 2 22 Q8 24 6 28 Q12 28 10 32 Q16 32 16 36 Z" fill="#efe6d2" stroke={INK} strokeWidth="0.8" strokeLinejoin="round" />
+    <path d="M38 30 Q54 16 62 22 Q56 24 58 28 Q52 28 54 32 Q48 32 48 36 Z" fill="#efe6d2" stroke={INK} strokeWidth="0.8" strokeLinejoin="round" />
+    {[[8, 25], [12, 29], [56, 25], [52, 29]].map(([x, y]) => <path key={`${x}${y}`} d={`M${x} ${y} L${x < 32 ? x + 10 : x - 10} ${y + 2}`} stroke="#b9ae96" strokeWidth="0.7" />)}
+    <Person robe="#3d5f8a" sash={GOLD} head={<Turban c="#f6f1e6" cap="#3d5f8a" />}>
+      <path d="M-7 34 L-14 30 M7 34 L14 30" stroke={SKIN} strokeWidth="2.4" strokeLinecap="round" />
+    </Person>
+  </g>,
+  lagari: () => <g>
+    <path d="M6 56 Q14 50 18 44 Q22 50 16 58 Z" fill="#f2a53a" opacity="0.9" /><path d="M9 56 Q14 51 17 47 Q19 52 15 57 Z" fill="#e23b2e" />
+    {[[10, 60], [5, 52], [22, 58]].map(([x, y]) => <circle key={x} cx={x} cy={y} r="2.4" fill="#cfc6b8" opacity="0.7" />)}
+    <path d="M16 46 L44 14 L50 18 L22 50 Z" fill="#8a5a35" stroke={INK} strokeWidth="1" strokeLinejoin="round" />
+    <path d="M44 14 L54 6 L50 18 Z" fill={RED} stroke={INK} strokeWidth="0.8" />
+    <path d="M20 44 L14 42 M22 48 L18 54" stroke={INK} strokeWidth="1.4" />
+    <g transform="translate(14 -8) rotate(-40 32 32) scale(0.72)">
+      <Person robe="#6a2a3a" sash={GOLD} head={<Fez />} />
+    </g>
+  </g>,
+  zenberek_gemisi: () => <Ship lateen hull="#6b4428">
+    <path d="M28 38 L44 32" stroke={WOOD} strokeWidth="2.4" /><path d="M36 26 Q46 34 40 40" stroke="#5a3a22" strokeWidth="2" fill="none" />
+    <path d="M36 26 L40 40" stroke="#e9e2d0" strokeWidth="0.6" /><path d="M44 32 L52 29 L48 34 Z" fill={STEEL} stroke={INK} strokeWidth="0.5" />
+  </Ship>,
+  dalgic_gemisi: () => <g>
+    <path d="M2 32 Q32 26 62 32 L62 60 L2 60 Z" fill="#4f8ea6" opacity="0.55" />
+    <path d="M4 32 Q16 29 28 32 T52 32 T62 31" stroke="#cfe3ea" strokeWidth="1.2" fill="none" />
+    <path d="M8 44 Q32 34 56 44 Q32 54 8 44 Z" fill="#6a5a3a" stroke={INK} strokeWidth="1" opacity="0.85" />
+    <rect x="28" y="26" width="9" height="12" rx="2" fill="#7a6a48" stroke={INK} strokeWidth="1" />
+    <path d="M34 26 L34 16 L39 16" stroke="#5a4a30" strokeWidth="1.6" fill="none" /><circle cx="40" cy="16" r="1.4" fill={GOLD} />
+    <path d="M56 44 L62 40 L62 48 Z" fill={STEEL} stroke={INK} strokeWidth="0.6" />
+    {[[14, 50], [18, 54], [46, 52]].map(([x, y]) => <circle key={x} cx={x} cy={y} r="1.6" fill="none" stroke="#e8f3f6" strokeWidth="0.8" />)}
+  </g>,
+  buharli_koc: () => <g>
+    <path d="M4 50 Q32 56 60 50" stroke="#4f9bb5" strokeWidth="3" fill="none" opacity="0.7" />
+    <path d="M6 38 L54 38 L62 46 L52 50 Q32 53 12 50 Z" fill="#3a3a3e" stroke={INK} strokeWidth="1" strokeLinejoin="round" />
+    <path d="M54 38 L62 46 L56 46 Z" fill={STEEL} stroke={INK} strokeWidth="0.6" />
+    {[12, 20, 28, 36, 44].map(x => <circle key={x} cx={x} cy="42" r="0.9" fill={GOLD} />)}
+    <rect x="18" y="30" width="20" height="8" fill="#5a3a22" stroke={INK} strokeWidth="0.8" />
+    <rect x="26" y="14" width="6" height="16" fill="#2a2a2e" stroke={INK} strokeWidth="0.8" /><rect x="25" y="13" width="8" height="3" fill={RED} />
+    {[[29, 9, 4], [34, 5, 5], [41, 3, 5.5]].map(([x, y, r]) => <circle key={x} cx={x} cy={y} r={r} fill="#cfc9c0" opacity="0.8" />)}
+    <circle cx="16" cy="44" r="6" fill="#5a3a22" stroke={INK} strokeWidth="1" />{[0, 45, 90, 135].map(a => <path key={a} d="M10 44 L22 44" transform={`rotate(${a} 16 44)`} stroke={GOLD} strokeWidth="0.8" />)}
+  </g>,
+  balon_gemisi: () => <Ship hull="#6b4428" masts={1}>
+    <path d="M44 38 L48 18 M52 38 L50 18" stroke="#5a3a22" strokeWidth="0.7" />
+    <ellipse cx="50" cy="10" rx="9" ry="9" fill={RED} stroke={INK} strokeWidth="1" /><path d="M41 10 Q50 14 59 10 M50 1 L50 19" stroke="#f2ead8" strokeWidth="1" fill="none" />
+    <rect x="46" y="18" width="8" height="5" rx="1" fill="#8a5a35" stroke={INK} strokeWidth="0.6" />
+  </Ship>,
   kadirga: () => <Ship lateen oars hull="#7a4a26" />,
   karamursel: () => <Ship lateen hull="#8a5a35" sail="#e9dcc0" />,
   ates_gemisi: () => <Ship lateen oars hull="#5a2a1c">

@@ -13,7 +13,7 @@ import type { StoredBattle } from '@/lib/game/expeditions'
 import { UNITS } from '@/lib/game/engine'
 import { UnitFigure } from './unit-art'
 
-const ROW_NAMES: Record<FieldRow, string> = { front: 'Ön cephe', flank: 'Kanatlar', range: 'Uzak menzil', artillery: 'Kuşatma' }
+const ROW_NAMES: Record<FieldRow, string> = { front: 'Ön cephe', flank: 'Kanatlar', range: 'Uzak menzil', artillery: 'Kuşatma', air: 'Hava', fighter: 'Hava savunması' }
 
 function Row({ row, line, slots, loss }: { row: FieldRow; line: Lineup; slots: number; loss: Troops }) {
   if (!slots) return null

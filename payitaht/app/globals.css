@@ -1054,7 +1054,7 @@
 .unit-battle span { display: inline-flex; align-items: center; gap: 3px; padding: 1px 6px; border-radius: 999px; background: #8a5a2214; border: 1px solid #8a5a2233; }
 .raid-unit .unit-figure { margin-right: 2px; }
 .bf-card { display: flex; flex-direction: column; gap: 8px; padding: 12px 14px; border: 1px solid #dcc38e; border-radius: var(--radius); background: #f6e8c3; }
-.bf-card-rows { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; }
+.bf-card-rows { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
 .bf-card-rows span { display: flex; flex-direction: column; align-items: center; padding: 6px 2px; border-radius: 8px; background: #fbf2d6; border: 1px solid #e2cf9c; }
 .bf-card-rows strong { font-size: 18px; font-family: var(--font-heading), Georgia, serif; color: #5a3517; font-variant-numeric: tabular-nums; }
 .bf-card-rows small { font-size: 10px; color: #7a5a32; text-align: center; }
@@ -1099,3 +1099,25 @@
 .bf-garrison-bar i { display: block; height: 100%; background: #5b7a3a; }
 .bf-garrison .is-full .bf-garrison-bar i { background: #b3261e; }
 .bf-garrison .is-full strong { color: #b3261e; }
+
+/* Eğitim sırası */
+.drill-queue { display: grid; gap: 6px; padding: 10px 12px; border: 1px solid #dcc38e; border-radius: 10px; background: #fbf2d6; }
+.drill-job { display: grid; grid-template-columns: 30px 1fr; gap: 4px 8px; align-items: center; opacity: 0.75; }
+.drill-job.is-running { opacity: 1; }
+.drill-job > span:nth-child(2) { display: flex; flex-direction: column; min-width: 0; font-size: 13px; }
+.drill-job small { font-size: 11px; color: #7a5a32; font-variant-numeric: tabular-nums; }
+.drill-bar { grid-column: 2; height: 6px; border-radius: 3px; background: #e6d3a6; overflow: hidden; }
+.drill-bar i { display: block; height: 100%; background: #8a5a22; }
+
+/* Casus ağı */
+.spy-desk { display: grid; gap: 6px; margin-top: 8px; padding: 10px; border: 1px dashed #8a6a3a; border-radius: 10px; background: #f3e6c2; }
+.spy-desk-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.spy-task { display: flex; flex-direction: column; gap: 2px; text-align: left; padding: 8px 10px; border: 1px solid #dcc38e; border-radius: 8px; background: #fbf2d6; color: inherit; font: inherit; }
+.spy-task strong { font-size: 13px; }
+.spy-task small { font-size: 11px; color: #7a5a32; }
+.spy-task:disabled { opacity: 0.55; }
+.spy-task:not(:disabled):hover { border-color: #8a5a22; }
+.spy-task:focus-visible { outline: 2px solid #8a5a22; outline-offset: 2px; }
+.intel-block { display: grid; gap: 2px; }
+.intel-block + .intel-block { margin-top: 8px; padding-top: 8px; border-top: 1px solid #e2cf9c; }
+.island-mission.island-fight { background: #b3261e; color: #fff; }

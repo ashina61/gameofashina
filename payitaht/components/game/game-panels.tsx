@@ -12,7 +12,7 @@ import { luxuryIcons } from './game-widgets'
 import { effectLines } from '@/lib/game/building-info'
 import { actionPoints, armyUpkeep, merchantBuyPrice, merchantSellPrice, type UnitRole } from '@/lib/game/engine'
 import { Eye } from 'lucide-react'
-import { garrisonLimit, garrisonUsed, spyCapacity, growthRate, maxPopulation, PLOTS, zoneOf } from '@/lib/game/engine'
+import { DRILL_QUEUE_LIMIT, garrisonLimit, garrisonUsed, spyCapacity, growthRate, maxPopulation, PLOTS, zoneOf } from '@/lib/game/engine'
 import { BATTLE_STATS, SLOT_SIZE, fieldSize } from '@/lib/game/battle'
 import { UnitFigure } from './unit-art'
 
@@ -282,8 +282,8 @@ export function CitiesPanel({
 }
 
 /** Savaş alanındaki yerler (Ikariam'ın savaş sırası). */
-const ROLE_ORDER: UnitRole[] = ['front', 'flank', 'range', 'artillery', 'support', 'spy', 'transport']
-const ROLE_NAMES: Record<UnitRole, string> = { front: 'ön cephe', flank: 'kanat', range: 'uzak menzil', artillery: 'kuşatma', support: 'destek', spy: 'casus', transport: 'nakliye' }
+const ROLE_ORDER: UnitRole[] = ['front', 'flank', 'range', 'artillery', 'bomber', 'fighter', 'support', 'spy', 'transport']
+const ROLE_NAMES: Record<UnitRole, string> = { front: 'ön cephe', flank: 'kanat', range: 'uzak menzil', artillery: 'kuşatma', bomber: 'hava', fighter: 'hava savunması', support: 'destek', spy: 'casus', transport: 'nakliye' }
 
 /** Bir emirde eğitilebilecek parti büyüklükleri. */
 const BATCHES = [1, 5, 10]
@@ -314,7 +314,7 @@ export function ArmyPanel({ game, onRecruit, onBuild, home }: { game: Game; onRe
     <p className="army-note"><Coins className="size-4" />Ordunun bakımı dakikada {Math.round(armyUpkeep(game) * 10) / 10} akçe · aynı anda {actionPoints(game)} görev (hamle puanı).</p>
     <p className="army-note"><TriangleAlert className="size-4" />Asker halktan çıkar. Eğitilen her vatandaş üretimden düşer; surlar ise asker istemez, taş ister ({wallDefense(game)} savunma).</p>
     <BattlefieldCard game={game} />
-    {game.drill && <JobProgress job={game.drill} now={game.updatedAt} />}
+    <DrillQueue game={game} home={home} />
     <div className="batch-row"><span>Parti</span>{BATCHES.map(n => <Button key={n} size="sm" variant={batch === n ? 'default' : 'outline'} onClick={() => setBatch(n)}>{n}</Button>)}</div>
     {branches.map(branch => {
       const units = UNIT_IDS.filter(id => UNITS[id].branch === branch.key && (!home || UNITS[id].home === home)).sort((a, b) => ROLE_ORDER.indexOf(UNITS[a].role) - ROLE_ORDER.indexOf(UNITS[b].role))
@@ -333,11 +333,13 @@ export function ArmyPanel({ game, onRecruit, onBuild, home }: { game: Game; onRe
               <span className="unit-have">{game.army[id]}<small>elde</small></span>
             </div>
             {BATTLE_STATS[id] && ROLE_ROW_SET.has(unit.role) && <div className="unit-battle" aria-label="Savaş değerleri">
-              <span title="Yakın dövüş saldırısı">⚔ {BATTLE_STATS[id]!.melee}</span>
+              {(BATTLE_STATS[id]!.melee > 0 || (!BATTLE_STATS[id]!.ranged && !BATTLE_STATS[id]!.air)) && <span title="Yakın dövüş saldırısı">⚔ {BATTLE_STATS[id]!.melee}</span>}
               {BATTLE_STATS[id]!.ranged > 0 && <span title={`Uzak saldırı · ${BATTLE_STATS[id]!.ammo} tur cephane`}>🏹 {BATTLE_STATS[id]!.ranged} ×{BATTLE_STATS[id]!.ammo}</span>}
               <span title="Zırh: her vuruştan düşer">🛡 {BATTLE_STATS[id]!.armor}</span>
               <span title={`Büyüklük: bir yuvaya ${Math.floor(SLOT_SIZE / BATTLE_STATS[id]!.size)} adet sığar`}>▣ {BATTLE_STATS[id]!.size}</span>
               {BATTLE_STATS[id]!.vsWall && <span title="Sura karşı çarpan">🧱 ×{BATTLE_STATS[id]!.vsWall}</span>}
+              {BATTLE_STATS[id]!.air && <span title="Hava savunması: havadaki birliklere vuruş">🪶 {BATTLE_STATS[id]!.air}</span>}
+              {BATTLE_STATS[id]!.evade && <span title="Vurulması zor: aldığı hasar azalır">🌊 ×{BATTLE_STATS[id]!.evade}</span>}
             </div>}
             <div className="unit-stats">
               <span title="Saldırı"><Swords className="size-3" />{unit.attack}</span>
@@ -361,18 +363,39 @@ export function ArmyPanel({ game, onRecruit, onBuild, home }: { game: Game; onRe
   </div>
 }
 
-const ROLE_ROW_SET = new Set<UnitRole>(['front', 'flank', 'range', 'artillery', 'support'])
+const ROLE_ROW_SET = new Set<UnitRole>(['front', 'flank', 'range', 'artillery', 'bomber', 'fighter', 'support'])
 /** Şehrin savaş meydanı: Divanhane seviyesiyle büyür (Ikariam). */
+/** Eğitim sırası: her yapının emirleri, yürüyenin ilerlemesi ve bekleyenlerin başlama anı. */
+function DrillQueue({ game, home }: { game: Game; home?: BuildingId }) {
+  const jobs = game.drills.filter(j => !home || UNITS[j.id as UnitId].home === home)
+  if (!jobs.length) return null
+  const now = game.updatedAt
+  const clock = (ms: number) => { const t = Math.max(0, Math.ceil(ms / 1000)); return `${Math.floor(t / 60)}:${String(t % 60).padStart(2, '0')}` }
+  return <section className="drill-queue" aria-label="Eğitim sırası">
+    <span className="eyebrow">EĞİTİM SIRASI</span>
+    {jobs.map((j, i) => {
+      const unit = UNITS[j.id as UnitId]
+      const running = j.start <= now
+      return <div key={`${j.id}-${j.start}-${i}`} className={`drill-job${running ? ' is-running' : ''}`}>
+        <UnitFigure id={j.id as UnitId} size={30} bare />
+        <span><strong>{j.count} {unit.name}</strong><small>{BUILDINGS[unit.home].name} · {running ? `bitiş ${clock(j.end - now)}` : `sırada · ${clock(j.start - now)} sonra başlar`}</small></span>
+        {running && <span className="drill-bar"><i style={{ width: `${Math.min(100, (100 * (now - j.start)) / (j.end - j.start))}%` }} /></span>}
+      </div>
+    })}
+    <p className="fine-print">Kışla ve Tersane aynı anda eğitir; her birine en fazla {DRILL_QUEUE_LIMIT} emir sıralanır. Emir verildiği anda vatandaşlar sıraya ayrılır.</p>
+  </section>
+}
+
 function BattlefieldCard({ game }: { game: Game }) {
   const level = game.buildings.divan
   const f = fieldSize(level)
   const next = level < 5 ? 5 : level < 10 ? 10 : level < 17 ? 17 : null
-  const rows: Array<[string, number]> = [['Ön cephe', f.front], ['Kanatlar', f.flank], ['Uzak menzil', f.range], ['Kuşatma', f.artillery]]
+  const rows: Array<[string, number]> = [['Ön cephe', f.front], ['Kanatlar', f.flank], ['Uzak menzil', f.range], ['Kuşatma', f.artillery], ['Hava', f.air], ['Hava savunması', f.fighter]]
   const garrison = (['kara', 'deniz'] as const).map(b => ({ b, used: garrisonUsed(game, b), max: garrisonLimit(game, b) }))
   return <article className="bf-card">
     <span className="eyebrow">SAVAŞ MEYDANI · {f.name.toUpperCase()}</span>
     <div className="bf-card-rows">{rows.map(([n, k]) => <span key={n}><strong>{k}</strong><small>{n}</small></span>)}</div>
-    <p className="fine-print">Her yuvaya bir tür birlik ve {SLOT_SIZE} büyüklük sığar; fazlası yedekte bekler ve düşenlerin yerini alır. Ön cephe boşalırsa kanat ve nişancılar öne çıkar. Nişancıların cephanesi tükenir; kanatlar düşmanın arkasına dalar; kuşatma sura vurur. Savaş dakikada bir tur sürer: turlar arasında takviye katılır, saldıran geri çekilebilir.{next ? ` Divanhane ${next}. seviyede meydan büyür.` : ''}</p>
+    <p className="fine-print">Her yuvaya bir tür birlik ve {SLOT_SIZE} büyüklük sığar; fazlası yedekte bekler ve düşenlerin yerini alır. Ön cephe boşalırsa kanat ve nişancılar öne çıkar. Nişancıların cephanesi tükenir; kanatlar düşmanın arkasına dalar; kuşatma sura vurur; bombardıman surun üstünden vurur ve ona yalnızca hava savunması yetişir. Savaş dakikada bir tur sürer: turlar arasında takviye katılır, saldıran geri çekilebilir.{next ? ` Divanhane ${next}. seviyede meydan büyür.` : ''}</p>
     <div className="bf-garrison">{garrison.map(({ b, used, max }) => <div key={b} className={used >= max && max > 0 ? 'is-full' : ''}>
       <span>{b === 'kara' ? 'Kara garnizonu' : 'Deniz garnizonu'}</span>
       <span className="bf-garrison-bar"><i style={{ width: `${max ? Math.min(100, (100 * used) / max) : 0}%` }} /></span>

@@ -3,8 +3,8 @@ import assert from 'node:assert/strict'
 import { freePlots, recruitReason, spyCapacity } from './engine'
 import { advanceEmpire, initialEmpire, parseEmpire } from './empire'
 import {
-  NPC_SETTLEMENTS, availableUnits, dispatchRaid, dispatchSpies, lootPool, npcDefense, npcState,
-  raidTravelMs, spyTravelMs, strikeForce,
+  NPC_SETTLEMENTS, actionsInUse, availableUnits, dispatchRaid, dispatchSpies, lootPool, npcDefense, npcState,
+  raidTravelMs, recallMission, spyMission, spyTravelMs, strikeForce,
 } from './expeditions'
 
 const now = 10_000_000
@@ -36,7 +36,7 @@ test('spies need an embassy and are capped by its level', () => {
   assert.match(recruitReason(g, 'casus', 1)!, /casus barındırır/)
 })
 
-test('a spy mission reports garrison, walls and treasure (or loses the spies) deterministically', () => {
+test('spies infiltrate, stay, run missions and come home when recalled', () => {
   const e = army()
   const sent = dispatchSpies(e, koy, 4, now)
   assert.equal(sent.error, undefined)
@@ -46,10 +46,38 @@ test('a spy mission reports garrison, walls and treasure (or loses the spies) de
   assert.equal(report.kind, 'spy')
   // Aynı kayıt aynı sonucu verir.
   assert.deepEqual(advanceEmpire(sent.empire, now + spyTravelMs(1)).reports![0], report)
-  if (report.success) assert.ok(report.lines.some(l => l.startsWith('Garnizon')))
-  const home = advanceEmpire(arrived, now + 2 * spyTravelMs(1))
+  if (!report.success) { assert.equal(arrived.cities[0].game.army.casus, 0); return }
+  const m = arrived.missions![0]
+  assert.equal(m.stationed, true, 'casuslar içeride kalır')
+  // Konuşlu casus hamle puanı harcamaz.
+  assert.equal(actionsInUse(arrived, 'city-1'), 0)
+  let t = now + spyTravelMs(1) + 1000
+  const task = spyMission(arrived, m.id, 'garnizon', t)
+  assert.equal(task.error, undefined)
+  assert.match(spyMission(task.empire, m.id, 'hazine', t).error!, /başka bir görevde/)
+  // Görevler sırayla: başarılı olan istihbarat getirir, başarısız olan bir casus kaybettirir.
+  let done = arrived
+  let intel: NonNullable<typeof done.reports>[number] | undefined
+  for (const type of ['garnizon', 'garnizon', 'garnizon'] as const) {
+    const r = spyMission(done, m.id, type, t)
+    if (r.error) break
+    const before = r.empire.cities[0].game.army.casus
+    t = r.empire.missions![0].spyTask!.at
+    done = advanceEmpire(r.empire, t)
+    const rep = done.reports![0]
+    if (rep.success) { intel = rep; break }
+    assert.equal(done.cities[0].game.army.casus, before - 1)
+    t += 1000
+  }
+  assert.ok(intel, 'üç denemede en az biri başarılı')
+  assert.equal(intel!.intel, 'garnizon')
+  assert.ok(intel!.lines.some(l => l.startsWith('Garnizon')))
+  assert.ok(intel!.lines.some(l => l.startsWith('Savaş meydanı')))
+  const back = recallMission(done, m.id, t + 10 * 60_000)
+  assert.equal(back.error, undefined)
+  const home = advanceEmpire(back.empire, back.empire.missions![0].returnAt)
   assert.equal(home.missions!.length, 0)
-  assert.equal(availableUnits(home, 'city-1').casus, report.success ? 4 : 0)
+  assert.equal(availableUnits(home, 'city-1').casus, home.cities[0].game.army.casus)
 })
 
 test('a strong army takes the village and brings loot home', () => {

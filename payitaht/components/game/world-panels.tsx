@@ -11,7 +11,7 @@
 import { useState } from 'react'
 import {
   Crown, Trash2, Coffee, TreePine, FlaskConical, CalendarCheck, Gift, Truck, Anchor, Flag, Trophy, Handshake,
-  Store, Mail, Send, ScrollText, Users, Swords, Eye, Check, Pencil,
+  Store, Mail, Send, ScrollText, Users, Swords, Eye, Check, Pencil, ShieldCheck,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import {
@@ -22,8 +22,9 @@ import {
 import { activeCity, renameCity, type Empire } from '@/lib/game/empire'
 import { DAILY_TASKS, claimLogin, claimTask, loginReward, taskProgress } from '@/lib/game/daily'
 import { advanceEmpire } from '@/lib/game/empire'
-import { dispatchDeploy, recallMission, retreatMission, targetName, transportsNeeded, availableUnits, type Mission } from '@/lib/game/expeditions'
+import { dispatchDeploy, dispatchSupport, recallMission, retreatMission, targetName, transportsNeeded, availableUnits, RAID_UNITS, WARSHIPS, targetInfo, type Mission } from '@/lib/game/expeditions'
 import { BattleView } from './battle-view'
+import { troopList } from '@/lib/game/battle'
 import {
   FACTIONS, FAIR_PRICE, MARKET_GOODS, RIVALS, STYLE_NAMES, TREATIES, acceptOffer, cancelOffer, cancelTreaty, factionMembers,
   factionStanding, fillRate, joinAlliance, leaveAlliance, marketOffers, offerSlots, postOffer, proposeTreaty, rankings, readMessages,
@@ -187,7 +188,7 @@ export function MissionList({ empire, now, run }: { empire: Empire; now: number;
   const city = activeCity(empire)
   const missions = (empire.missions ?? []).filter(m => m.cityId === city.id)
   if (!missions.length) return null
-  const label: Record<string, string> = { raid: 'Sefer', spy: 'Casus', piracy: 'Korsan seferi', deploy: 'Aktarma', occupy: 'İşgal', blockade: 'Abluka' }
+  const label: Record<string, string> = { raid: 'Sefer', spy: 'Casus', piracy: 'Korsan seferi', deploy: 'Aktarma', occupy: 'İşgal', blockade: 'Abluka', support: 'Destek' }
   return <section className="empire-section">
     <h3><Flag className="size-4" /> Yoldaki ve konuşlu birlikler</h3>
     {missions.map(m => <MissionRow key={m.id} m={m} empire={empire} now={now} run={run} label={label[m.kind]} />)}
@@ -201,6 +202,8 @@ function MissionRow({ m, empire, now, run, label }: { m: Mission; empire: Empire
     <div className="mission-row-top">
       <span><strong>{label} · {m.kind === 'deploy' ? empire.cities.find(c => c.id === m.npcId)?.name : targetName(m.npcId)}</strong>
         <small>{lb ? `Savaşta · ${lb.stage === 'naval' ? 'deniz' : 'kara'} · tur ${lb.state.round} · sıradaki tur ${clock(lb.nextAt - now)}`
+          : m.stationed && m.kind === 'support' ? `Müttefik şehri koruyor · ${troopList(m.units)}`
+          : m.stationed && m.kind === 'spy' ? `İçeride ${m.units.casus ?? 0} casus${m.spyTask ? ` · görev ${clock(m.spyTask.at - now)}` : ' · görev bekliyor'}`
           : m.stationed ? `Konuşlu · saatte ${num(stationTribute(empire, m.npcId, m.kind as 'occupy' | 'blockade', now))} akçe haraç · birikmiş ${num(m.loot.gold)}`
           : m.resolved ? `Dönüş ${clock(m.returnAt - now)}` : `Varış ${clock(m.arriveAt - now)}`}</small></span>
       {lb && <Button size="sm" variant="outline" onClick={() => setWatch(w => !w)}>{watch ? 'Kapat' : 'İzle'}</Button>}
@@ -261,6 +264,27 @@ export function RivalWar({ empire, rivalId, onOccupy, onBlockade }: {
       <Button size="sm" disabled={!Object.values(ships).some(n => (n ?? 0) > 0)} onClick={() => { onBlockade(ships); setShips({}) }}>Limanı kapat</Button>
     </section>
   </>
+}
+
+/** Müttefik hükümdarın şehrine destek birliği (ittifak üyesine saldırılamaz). */
+export function RivalSupport({ empire, rivalId, now, run }: { empire: Empire; rivalId: string; now: number; run: Run }) {
+  const city = activeCity(empire)
+  const free = availableUnits(empire, city.id)
+  const [pick, setPick] = useState<Partial<Record<UnitId, number>>>({})
+  const target = targetInfo(empire, rivalId, now)!
+  const overseas = target.islandId !== city.islandId
+  const ships = overseas ? transportsNeeded(pick) : 0
+  const here = (empire.missions ?? []).filter(m => m.kind === 'support' && m.npcId === rivalId && m.cityId === city.id)
+  return <section className="empire-section">
+    <h3><ShieldCheck className="size-4" /> Müttefike destek</h3>
+    <p className="fine-print">{target.name} ittifak üyen. Birliklerin şehrinde konuşlanır ve karşı ittifak saldırırsa müttefikle birlikte savunur; zaferde ödül ve itibar kazanırsın. Bakımları senden düşer; Seferler panelinden geri çağırırsın.</p>
+    {here.map(m => <p key={m.id} className="requirement"><ShieldCheck className="size-4" />{m.stationed ? `Konuşlu: ${troopList(m.units)}` : `Yolda: ${troopList(m.units)}`}</p>)}
+    <UnitPicker ids={RAID_UNITS} free={free} pick={pick} onPick={setPick} step={5} />
+    <UnitPicker ids={WARSHIPS} free={free} pick={pick} onPick={setPick} />
+    {overseas && <p className={ships > free.nakliye ? 'requirement' : 'fine-print'}>Deniz aşırı: {ships} nakliye gemisi gerekli · boşta {free.nakliye}.</p>}
+    <Button size="sm" disabled={!Object.values(pick).some(n => (n ?? 0) > 0) || ships > free.nakliye}
+      onClick={() => { run((e, t) => dispatchSupport(e, rivalId, pick, t), 'Destek birlikleri yola çıktı.'); setPick({}) }}><ShieldCheck data-icon="inline-start" />Destek gönder</Button>
+  </section>
 }
 
 /* ------------------------------------------------------------ DÜNYA */

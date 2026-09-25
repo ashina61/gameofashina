@@ -510,11 +510,11 @@ test('egitim emri vatandasi ANINDA ayirir, bitince ikinci kez ayirmaz', () => {
   assert.equal(soldiers(ordered), 10)
   assert.equal(idleWorkers(ordered), idleBefore - 10)
   assert.equal(ordered.army.sipahi, 0)
-  // Ayni bos halkla ikinci emir verilemez.
-  assert.ok(execute(ordered, { type: 'recruit', id: 'sipahi', count: 1 }, now).error)
-  const done = advance(ordered, ordered.drill!.end)
+  // Sıradaki ikinci emir yalnız KALAN boş halktan alınır.
+  assert.match(execute(ordered, { type: 'recruit', id: 'sipahi', count: Math.floor(idleWorkers(ordered) / 2) + 1 }, now).error ?? '', /boşta vatandaş|Garnizon|kaynak/)
+  const done = advance(ordered, ordered.drills[0].end)
   assert.equal(done.army.sipahi, 5)
-  assert.equal(done.drill, null)
+  assert.deepEqual(done.drills, [])
   assert.equal(soldiers(done), 10)
   assert.equal(idleWorkers(done), idleBefore - 10)
 })
@@ -531,14 +531,23 @@ test('asker isci kapasitesini daraltir', () => {
   assert.equal(rates(drafted).wood, 0)
 })
 
-test('egitim maliyeti bir kez alinir ve ayni anda tek emir yurur', () => {
+test('egitim maliyeti bir kez alinir; ayni yapidaki emirler sirayla yurur', () => {
   const g = withBarracks()
   const price = unitCost('yeniceri', 4)
   const first = execute(g, { type: 'recruit', id: 'yeniceri', count: 4 }, now)
   assert.equal(first.game.resources.gold, g.resources.gold - price.gold)
   const second = execute(first.game, { type: 'recruit', id: 'okcu', count: 1 }, now)
-  assert.match(second.error!, /Eğitim sürüyor/)
-  assert.equal(second.game.resources.gold, first.game.resources.gold)
+  assert.equal(second.error, undefined)
+  // Okçu, yeniçeriler bitince başlar.
+  assert.equal(second.game.drills[1].start, first.game.drills[0].end)
+  const both = advance(second.game, second.game.drills[1].end)
+  assert.equal(both.army.yeniceri, 4)
+  assert.equal(both.army.okcu, 1)
+  // Sıra dolunca yeni emir alınmaz.
+  let q = second.game
+  for (let i = 0; i < 3; i++) q = execute(q, { type: 'recruit', id: 'okcu', count: 1 }, now).game
+  assert.equal(q.drills.length, 5)
+  assert.match(execute(q, { type: 'recruit', id: 'okcu', count: 1 }, now).error!, /sırası dolu/)
 })
 
 test('birlik ve bina on kosullari', () => {
@@ -570,14 +579,19 @@ test('ordu kaydedilir; ordusuz eski kayit da okunur', () => {
   const g = withBarracks()
   const ordered = execute(g, { type: 'recruit', id: 'okcu', count: 3 }, now).game
   const parsed = parseSave(JSON.stringify(ordered))
-  assert.equal(parsed.drill!.count, 3)
+  assert.equal(parsed.drills[0].count, 3)
   assert.deepEqual(parsed.army, ordered.army)
   // Askerler eklenmeden once kaydedilmis bir sehir alanlarsiz gelir.
   const legacy = JSON.parse(JSON.stringify(initialGame(now))) as Record<string, unknown>
   delete legacy.army
   delete legacy.drill
   const migrated = parseSave(JSON.stringify(legacy))
-  assert.equal(migrated.drill, null)
+  assert.deepEqual(migrated.drills, [])
+  // Tek emirli eski kayıt sıraya çevrilir.
+  const old = JSON.parse(JSON.stringify(ordered)) as Record<string, unknown>
+  old.drill = (old.drills as unknown[])[0]
+  delete old.drills
+  assert.equal(parseSave(JSON.stringify(old)).drills.length, 1)
   assert.equal(soldiers(migrated), 0)
 })
 

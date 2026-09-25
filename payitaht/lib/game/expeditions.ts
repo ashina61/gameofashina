@@ -21,14 +21,14 @@ import {
   LUXURY_IDS, type Army, type Game, type UnitId,
 } from './engine'
 import {
-  ROUND_MS, battleRound, endBattle, fieldSize, joinBattle, retreatBattle, startBattle, troopList,
+  ROUND_MS, battleRound, endBattle, fieldSize, joinBattle, replayBattle, retreatBattle, startBattle, troopList,
   type BattleJoin, type BattleResult, type BattleSide, type BattleState, type Troops,
 } from './battle'
 import { activeCity, advanceEmpire, bump, type CityRecord, type Empire } from './empire'
 import { ISLANDS, type IslandId } from './islands'
 import {
   RIVALS, allyHelp, onRivalRaided, pacified, rivalAttackMul, rivalById, rivalFleet, rivalGarrison, rivalIntel, rivalLevel,
-  rivalLoot, rivalState, rivalWallHp, STYLE_NAMES,
+  rivalLoot, rivalState, rivalWallHp, STYLE_NAMES, FACTIONS, factionMembers, mail,
 } from './rivals'
 
 export type NpcKind = 'koy' | 'korsan' | 'kale'
@@ -85,7 +85,7 @@ export type NpcState = { level: number; raidedAt: number }
 export type Loot = { gold: number; wood: number; stone: number }
 export type Mission = {
   /** raid: yerleşime sefer · spy: casusluk · piracy: Korsan Kalesi seferi (npcId = hedef). */
-  id: string; kind: 'raid' | 'spy' | 'piracy' | 'deploy' | 'occupy' | 'blockade'; cityId: string; npcId: string
+  id: string; kind: 'raid' | 'spy' | 'piracy' | 'deploy' | 'occupy' | 'blockade' | 'support'; cityId: string; npcId: string
   /** İşgal ya da ablukada bekleyen birlikler (geri çağrılana kadar dönmez). */
   stationed?: boolean
   units: Partial<Record<UnitId, number>>
@@ -93,12 +93,33 @@ export type Mission = {
   resolved: boolean; loot: Loot
   /** Varıştan sonra süren savaş (bitince rapor yazılır, dönüş başlar). */
   battle?: LiveBattle
+  /** Hedefte konuşlu casusların yürüttüğü görev. */
+  spyTask?: { type: SpyType; at: number }
+  /** Müttefik şehirdeki destek birliğinin sıradaki nöbet kontrolü. */
+  supportAt?: number
 }
+
+/**
+ * CASUS GÖREVLERİ (Ikariam'daki gibi): casuslar hedefe SIZAR ve orada kalır;
+ * oyuncu her seferinde bir görev verir. Her görevin süresi ve zorluğu vardır;
+ * başarısız görevde bir casus yakalanır. Casuslar geri çağrılana kadar kalır.
+ */
+export type SpyType = 'hazine' | 'garnizon' | 'sur' | 'donanma' | 'hareket'
+export const SPY_TYPES: Record<SpyType, { name: string; description: string; minutes: number; bonus: number }> = {
+  hazine: { name: 'Hazineyi gözetle', description: 'Ambardaki yağmalanabilir akçe, kereste ve taş.', minutes: 1, bonus: 0.15 },
+  garnizon: { name: 'Garnizonu say', description: 'Şehirdeki birlikler ve savaş meydanı.', minutes: 2, bonus: 0 },
+  sur: { name: 'Surları incele', description: 'Sur seviyesi, sur canı ve toplam savunma.', minutes: 1.5, bonus: 0.05 },
+  donanma: { name: 'Limanı gözetle', description: 'Limandaki savaş gemileri.', minutes: 2, bonus: 0 },
+  hareket: { name: 'Asker hareketleri', description: 'Sana doğru yola çıkan ordular ve niyetleri.', minutes: 3, bonus: -0.1 },
+}
+export const SPY_TYPE_IDS = Object.keys(SPY_TYPES) as SpyType[]
 export type Report = {
   id: string; time: number; kind: Mission['kind'] | 'defense'; cityId: string; npcId: string
   success: boolean; title: string; lines: string[]
   /** Savaşların girdileri: rapor açılınca deterministik motorla tur tur yeniden kurulur. */
   battles?: StoredBattle[]
+  /** Casus görevinin türü (istihbarat raporu). */
+  intel?: SpyType
 }
 /**
  * Rapordaki bir savaşın girdisi: başlangıç orduları, tur arasında katılan
@@ -253,6 +274,7 @@ export function targetTravelMs(city: CityRecord, npcId: string, kind: 'raid' | '
 export const UNIT_PACE: Partial<Record<UnitId, number>> = {
   sipahi: 0.75, azap: 0.9, karamursel: 0.8, kadirga: 0.9,
   kocbasi: 1.5, mancinik: 1.6, topcu: 1.5, deli: 1.1, kalyon: 1.3, humbara_gemisi: 1.35, mancinik_gemisi: 1.25, ikmal_gemisi: 1.1,
+  hezarfen: 0.8, lagari: 1.2, zenberek_gemisi: 1.05, dalgic_gemisi: 1.15, buharli_koc: 0.95, balon_gemisi: 1.3,
 }
 /** Seçili birliklerin en yavaşının çarpanı (o koldaki birlik yoksa 1). */
 export function slowest(units: Troops, branch: 'kara' | 'deniz') {
@@ -268,7 +290,7 @@ export function transportsNeeded(units: Partial<Record<UnitId, number>>) {
 
 /** Bu şehirde kullanılan hamle puanı: yoldaki görevler + seferdeki nakliye. */
 export function actionsInUse(empire: Empire, cityId: string) {
-  return (empire.missions ?? []).filter(m => m.cityId === cityId).length +
+  return (empire.missions ?? []).filter(m => m.cityId === cityId && !(m.stationed && (m.kind === 'spy' || m.kind === 'support'))).length +
     empire.shipments.filter(s => s.from === cityId).length
 }
 
@@ -288,7 +310,10 @@ function targetCheck(empire: Empire, npcId: string, kind: Mission['kind'], now: 
   const npc = kind === 'piracy' ? null : targetInfo(empire, npcId, now)
   if (kind !== 'piracy' && !npc) return { error: 'Bilinmeyen hedef.' }
   if (kind === 'piracy' && !piracyTarget(npcId)) return { error: 'Bilinmeyen hedef.' }
-  if (npc?.rival && kind !== 'spy') {
+  if (kind === 'support') {
+    const r = npc?.rival ? rivalById(npcId) : undefined
+    if (!r || empire.world?.alliance !== r.faction) return { error: 'Destek birliği yalnızca ittifak üyesi hükümdarlara gönderilir.' }
+  } else if (npc?.rival && kind !== 'spy') {
     const r = rivalById(npcId)!
     const s = empire.world?.rivals[npcId]
     if (s?.treaties.includes('baris')) return { error: `${r.ruler} ile barış anlaşman var. Önce anlaşmayı boz.` }
@@ -419,7 +444,9 @@ export function recallMission(source: Empire, missionId: string, now: number): {
   m.stationed = false
   m.returnAt = now + (m.arriveAt - m.departAt)
   const city = empire.cities.find(c => c.id === m.cityId)
-  if (city) logEvent(city.game, `${targetName(m.npcId)} bırakıldı; birlikler ${m.loot.gold} akçe haraçla dönüyor.`, now)
+  delete m.spyTask
+  delete m.supportAt
+  if (city) logEvent(city.game, m.kind === 'support' ? `${targetName(m.npcId)} içindeki destek birlikleri geri çağrıldı.` : m.kind === 'spy' ? `${targetName(m.npcId)} içindeki casuslar geri çağrıldı.` : `${targetName(m.npcId)} bırakıldı; birlikler ${m.loot.gold} akçe haraçla dönüyor.`, now)
   return { empire }
 }
 
@@ -452,7 +479,7 @@ function missionReport(empire: Empire, m: Mission, at: number, success: boolean,
 function concludeMission(m: Mission, at: number) {
   const travel = m.returnAt - m.arriveAt
   m.resolved = true
-  m.battle = undefined
+  delete m.battle
   m.returnAt = Math.max(at, m.arriveAt) + travel
 }
 const isAssault = (k: Mission['kind']) => k === 'raid' || k === 'occupy'
@@ -476,33 +503,37 @@ export function resolveArrival(empire: Empire, m: Mission) {
   if (m.kind === 'spy') {
     const count = m.units.casus ?? 0
     const chance = spyChance(g, count, npc.level)
-    const field = fieldSize(npc.field)
-    const fieldLine = `Savaş meydanı: ${field.name} (Divanhane ${npc.field} karşılığı · ön cephe ${field.front}, kanat ${field.flank}, menzil ${field.range}, kuşatma ${field.artillery} yuva).`
+    // Aynı şehrin casusları zaten içerideyse yenileri onlara katılır.
+    const inside = (empire.missions ?? []).find(x => x !== m && x.kind === 'spy' && x.stationed && x.cityId === m.cityId && x.npcId === m.npcId)
     if (roll(m.id) < chance) {
-      const r = rivalById(m.npcId)
-      if (r) {
-        report(true, `Casuslar ${npc.name} hakkında bilgi getirdi.`, [...rivalIntel(empire, r, m.arriveAt), fieldLine, `Toplam savunma ${Math.round(UNIT_IDS.reduce((s, id) => s + UNITS[id].defense * npc.garrison[id], 0) + npc.wallHp / 3)}.`, `Başarı şansı %${Math.round(chance * 100)} idi.`])
+      if (inside) {
+        inside.units.casus = (inside.units.casus ?? 0) + count
+        m.units = {}; m.resolved = true; m.returnAt = m.arriveAt
+        logEvent(g, `${count} casus ${npc.name} içindeki ağımıza katıldı.`, m.arriveAt)
         return
       }
-      const d = npcDefense(npc.level, false)
-      const pool = npc.loot
-      report(true, `Casuslar ${npc.name} hakkında bilgi getirdi.`, [
-        `Seviye ${npc.level} ${npc.kindName}.`,
-        `Garnizon: ${unitList(npc.garrison)}.`,
-        `Sur: seviye ${npcWall(npc.level)} (${d.wall} savunma). Toplam savunma ${d.total}.`,
-        fieldLine,
-        `Donanma: ${troopList(npc.fleet)}.`,
-        `Hazine: ${pool.gold} akçe, ${pool.wood} kereste, ${pool.stone} taş.`,
-        `Başarı şansı %${Math.round(chance * 100)} idi.`,
-      ])
+      report(true, `Casuslar ${npc.name} içine sızdı.`, [
+        `${count} casus şehirde gizlendi (sızma şansı %${Math.round(chance * 100)} idi).`,
+        'Hedef panelinden görev ver: hazine, garnizon, surlar, liman ya da asker hareketleri. Başarısız görevde bir casus yakalanır.'])
+      m.stationed = true
     } else {
       g.army.casus = Math.max(0, g.army.casus - count)
       m.units = {}
       if (npc.rival) rivalState(empire, m.npcId).relation = Math.max(-100, rivalState(empire, m.npcId).relation - 10)
       report(false, `${count} casus ${npc.name} muhafızlarına yakalandı.`, [
-        `Başarı şansı %${Math.round(chance * 100)} idi. Daha çok casus gönder ya da Elçiliği yükselt.`,
+        `Sızma şansı %${Math.round(chance * 100)} idi. Daha çok casus gönder ya da Elçiliği yükselt.`,
       ])
     }
+    return
+  }
+  if (m.kind === 'support') {
+    const r = rivalById(m.npcId)!
+    rivalState(empire, m.npcId).relation = Math.min(100, rivalState(empire, m.npcId).relation + 5)
+    mail(empire, m.arriveAt, r.ruler, 'Destek', `Askerlerin ${r.city} surlarına dizildi. Birliğimize bağlılığını unutmayacağız.`, r.id)
+    report(true, `Destek birliklerimiz ${npc.name} şehrine ulaştı.`, [`Konuşlanan: ${unitList(m.units)}.`,
+      `${FACTIONS[r.faction].name} düşmanları saldırırsa birliklerimiz müttefikle birlikte savunur. Seferler panelinden geri çağırabilirsin.`])
+    m.stationed = true
+    m.supportAt = m.arriveAt + SUPPORT_WATCH_MS
     return
   }
   // TAKVİYE: aynı şehirden gelen ordu, hedefte süren savaşa sıradaki turda katılır.
@@ -543,6 +574,161 @@ export function resolveArrival(empire: Empire, m: Mission) {
     return openNaval()
   }
   openLand(m, g, npc, m.arriveAt, [], [])
+}
+
+/**
+ * MÜTTEFİKE DESTEK (Ikariam'da müttefik şehre birlik konuşlandırma): ittifak
+ * üyesi hükümdarın şehrine asker ve gemi gönderilir; orada kalır, bakımı
+ * senden düşer. Karşı ittifak o şehre saldırırsa birliklerin müttefikin
+ * garnizonuyla birlikte savunur; kazanınca ödül ve itibar gelir.
+ */
+export const SUPPORT_WATCH_MS = 2 * 3600_000
+export function dispatchSupport(source: Empire, rivalId: string, units: Partial<Record<UnitId, number>>, now: number): { empire: Empire; error?: string } {
+  const empire = advanceEmpire(source, now)
+  const t = targetCheck(empire, rivalId, 'support', now)
+  if ('error' in t) return { empire, error: t.error }
+  const free = availableUnits(empire, t.city.id)
+  const clean: Partial<Record<UnitId, number>> = {}
+  for (const [id, n] of Object.entries(units) as [UnitId, number][]) {
+    if (!(RAID_UNITS.includes(id) || WARSHIPS.includes(id)) || !Number.isInteger(n) || n < 0) return { empire, error: 'Geçersiz birlik seçimi.' }
+    if (n > free[id]) return { empire, error: `Bu kadar boşta ${UNITS[id].name} yok.` }
+    if (n > 0) clean[id] = n
+  }
+  if (!hasTroops(clean)) return { empire, error: 'En az bir birlik seç.' }
+  if (t.npc.islandId !== t.city.islandId) {
+    const ships = transportsNeeded(clean)
+    if (ships > free.nakliye) return { empire, error: `Bu destek için ${ships} nakliye gemisi gerekli (boşta ${free.nakliye}).` }
+    if (ships) clean.nakliye = ships
+  }
+  const travel = targetTravelMs(t.city, rivalId, 'raid', t.npc.level, clean)
+  empire.missions = [...(empire.missions ?? []), {
+    id: `support-${t.city.id}-${rivalId}-${now}`, kind: 'support', cityId: t.city.id, npcId: rivalId, units: clean,
+    departAt: now, arriveAt: now + travel, returnAt: now + 2 * travel, resolved: false, loot: { gold: 0, wood: 0, stone: 0 },
+  }]
+  logEvent(t.city.game, `Destek birlikleri müttefik ${t.npc.name} şehrine yola çıktı.`, now)
+  return { empire }
+}
+/** Nöbet: karşı ittifak saldırırsa savaş (anında çözülür, raporda tur tur izlenir). */
+function resolveSupportWatch(empire: Empire, m: Mission) {
+  const at = m.supportAt!
+  const r = rivalById(m.npcId)
+  const city = empire.cities.find(c => c.id === m.cityId)
+  if (!r || !city) { delete m.supportAt; return }
+  // İttifaktan ayrıldıysan birlikler kendiliğinden döner.
+  if (empire.world?.alliance !== r.faction) {
+    m.stationed = false; delete m.supportAt
+    m.returnAt = at + (m.arriveAt - m.departAt)
+    logEvent(city.game, `${r.city} artık müttefik değil; destek birlikleri dönüyor.`, at)
+    return
+  }
+  m.supportAt = at + SUPPORT_WATCH_MS + Math.round(roll(`${m.id}-${at}-next`) * 3600_000)
+  if (roll(`${m.id}-${at}`) >= 0.35) return
+  const g = city.game
+  const enemies = factionMembers(r.faction === 'dogu' ? 'bati' : 'dogu')
+  const foe = enemies[Math.floor(roll(`${m.id}-${at}-foe`) * enemies.length)]
+  const L = rivalLevel(empire, foe, at), own = rivalLevel(empire, r, at)
+  const band: Troops = {}
+  for (const [id, n] of Object.entries(rivalGarrison(L, foe.style)) as [UnitId, number][]) if (n && UNITS[id].role !== 'support') band[id] = Math.ceil(n * 0.6)
+  // Müttefikin kendi garnizonunun yarısı + bizim kara birliklerimiz.
+  const allyTroops: Troops = {}
+  for (const [id, n] of Object.entries(rivalGarrison(own, r.style)) as [UnitId, number][]) if (n) allyTroops[id] = Math.floor(n * 0.5)
+  const ours = only(m.units, RAID_UNITS)
+  const defenders: Troops = { ...allyTroops }
+  for (const [id, n] of Object.entries(ours) as [UnitId, number][]) defenders[id] = (defenders[id] ?? 0) + n
+  const mul = multipliers(g, ours, 'kara')
+  const a: BattleSide = { troops: band, attackMul: rivalAttackMul(L), defenseMul: rivalAttackMul(L) }
+  const d: BattleSide = { troops: defenders, attackMul: mul.attackMul, defenseMul: mul.defenseMul, wall: rivalWallHp(own), fieldLevel: rivalField(own) }
+  const stored: StoredBattle = { title: 'Müttefik savunması', attacker: `${foe.city} ordusu`, defender: `${r.city} ve birliklerimiz`, a: cloneSide(a), d: cloneSide(d) }
+  const res = replayBattle(a, d)
+  // Kayıplar önce müttefikin askerlerinden, sonra bizimkilerden düşer (orantılı).
+  const lost: Troops = {}
+  for (const [id, n] of Object.entries(res.defenderLost) as [UnitId, number][]) {
+    const share = (ours[id] ?? 0) / Math.max(1, defenders[id] ?? 0)
+    const k = Math.min(ours[id] ?? 0, Math.round(n * share))
+    if (k > 0) { lost[id] = k; g.army[id] = Math.max(0, g.army[id] - k); m.units[id] = Math.max(0, (m.units[id] ?? 0) - k) }
+  }
+  const lines = [`${foe.ruler} (${FACTIONS[foe.faction].name}, yapay rakip) ${r.city} şehrine saldırdı.`,
+    ...roundLines(res.rounds, 'saldıran kaybı', 'savunan kaybı'), `Birliklerimizin kaybı: ${troopList(lost)}.`, res.reason]
+  const win = res.winner === 'defender'
+  if (win) {
+    const bounty = Math.round((Object.entries(res.attackerLost) as [UnitId, number][]).reduce((s, [id, n]) => s + UNITS[id].pop * n, 0) * 10)
+    g.resources.gold = Math.min(capacity(g), g.resources.gold + bounty)
+    rivalState(empire, r.id).relation = Math.min(100, rivalState(empire, r.id).relation + 10)
+    for (const x of factionMembers(r.faction)) if (x.id !== r.id) rivalState(empire, x.id).relation = Math.min(100, rivalState(empire, x.id).relation + 3)
+    lines.push(`Saldırı püskürtüldü. ${r.ruler} ${bounty} akçe gönderdi; ittifakta itibarın arttı.`)
+  } else lines.push('Şehir düştü; sağ kalan birliklerimiz surlarda direniyor.')
+  empire.reports = [{ id: `r-${m.id}-${at}`, time: at, kind: 'support' as const, cityId: m.cityId, npcId: m.npcId, success: win,
+    title: win ? `${r.city} savunmasında zafer!` : `${r.city} savunmasında ağır kayıp.`, lines, battles: [stored] }, ...(empire.reports ?? [])].slice(0, 30)
+  logEvent(g, win ? `${r.city} savunmasında zafer!` : `${r.city} savunmasında ağır kayıp.`, at)
+  if (!hasTroops(only(m.units, [...RAID_UNITS, ...WARSHIPS]))) {
+    m.stationed = false; delete m.supportAt; m.returnAt = at + (m.arriveAt - m.departAt)
+  }
+}
+
+/** Bir casus görevinin başarı şansı. */
+export function spyTaskChance(g: Game, count: number, level: number, type: SpyType) {
+  return Math.min(0.95, Math.max(0.05, spyChance(g, count, level) + SPY_TYPES[type].bonus))
+}
+/** İçerideki casuslara görev ver. */
+export function spyMission(source: Empire, missionId: string, type: SpyType, now: number): { empire: Empire; error?: string } {
+  const empire = advanceEmpire(source, now)
+  const m = (empire.missions ?? []).find(x => x.id === missionId)
+  if (!m || m.kind !== 'spy' || !m.stationed) return { empire, error: 'Orada casusun yok.' }
+  if (!SPY_TYPES[type]) return { empire, error: 'Bilinmeyen görev.' }
+  if (m.spyTask) return { empire, error: 'Casuslar başka bir görevde.' }
+  const city = empire.cities.find(c => c.id === m.cityId)!
+  m.spyTask = { type, at: now + Math.round(SPY_TYPES[type].minutes * 60_000 * travelFactor(city.game)) }
+  logEvent(city.game, `Casuslara görev verildi: ${SPY_TYPES[type].name} (${targetName(m.npcId)}).`, now)
+  return { empire }
+}
+/** Görev zamanı geldi: istihbarat raporu ya da yakalanan casus. */
+function resolveSpyTask(empire: Empire, m: Mission) {
+  const task = m.spyTask!
+  delete m.spyTask
+  const city = empire.cities.find(c => c.id === m.cityId)
+  const npc = targetInfo(empire, m.npcId, task.at)
+  if (!city || !npc) return
+  const g = city.game
+  const count = m.units.casus ?? 0
+  const chance = spyTaskChance(g, count, npc.level, task.type)
+  const info = SPY_TYPES[task.type]
+  const push = (success: boolean, title: string, lines: string[]) => {
+    empire.reports = [{ id: `r-${m.id}-${task.at}`, time: task.at, kind: 'spy' as const, cityId: m.cityId, npcId: m.npcId, success, title, lines,
+      intel: success ? task.type : undefined }, ...(empire.reports ?? [])].slice(0, 30)
+    logEvent(g, title, task.at)
+  }
+  if (roll(`${m.id}-${task.type}-${task.at}`) >= chance) {
+    g.army.casus = Math.max(0, g.army.casus - 1)
+    m.units.casus = Math.max(0, count - 1)
+    if (npc.rival) rivalState(empire, m.npcId).relation = Math.max(-100, rivalState(empire, m.npcId).relation - 5)
+    const left = m.units.casus ?? 0
+    push(false, `${npc.name}: bir casusumuz yakalandı.`, [`${info.name} başarısız (şans %${Math.round(chance * 100)}).`,
+      left ? `İçeride ${left} casus kaldı.` : 'Şehirde casusumuz kalmadı.'])
+    if (!left) { m.stationed = false; m.resolved = true; m.returnAt = task.at }
+    return
+  }
+  const field = fieldSize(npc.field)
+  const d = npc.rival ? null : npcDefense(npc.level, false)
+  const lines: string[] = [`Seviye ${npc.level} ${npc.kindName}.`]
+  if (task.type === 'hazine') lines.push(`Hazine: ${npc.loot.gold} akçe, ${npc.loot.wood} kereste, ${npc.loot.stone} taş.`,
+    npc.rival ? 'Yağmalanan hazine 2 saatte dolar.' : 'Yağmalanan hazine 45 dakikada dolar.')
+  if (task.type === 'garnizon') lines.push(`Garnizon: ${unitList(npc.garrison)}.`,
+    `Savaş meydanı: ${field.name} (Divanhane ${npc.field} karşılığı · ön cephe ${field.front}, kanat ${field.flank}, menzil ${field.range}, kuşatma ${field.artillery}, hava ${field.air}+${field.fighter} yuva).`)
+  if (task.type === 'sur') lines.push(d ? `Sur: seviye ${npcWall(npc.level)}, can ${npc.wallHp}.` : `Sur canı ${npc.wallHp}.`,
+    `Toplam savunma ${d ? d.total : Math.round(UNIT_IDS.reduce((s, id) => s + UNITS[id].defense * npc.garrison[id], 0) + npc.wallHp / 3)}.`)
+  if (task.type === 'donanma') lines.push(`Donanma: ${troopList(npc.fleet)}.`)
+  if (task.type === 'hareket') {
+    const coming = (empire.threats ?? []).filter(t => t.npcId === m.npcId)
+    lines.push(...(coming.length ? coming.map(t => `${empire.cities.find(c => c.id === t.cityId)?.name ?? 'Şehrin'} üzerine yolda: ${troopList(t.troops)}${hasTroops(t.fleet) ? ` · filo ${troopList(t.fleet)}` : ''} · varış ${new Date(t.arriveAt).toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })}.`)
+      : ['Şu an sana doğru yola çıkmış bir ordu yok.']))
+    if (npc.rival) {
+      const rel = rivalState(empire, m.npcId).relation
+      lines.push(rel <= -20 ? `İlişki ${rel}: saldırı hazırlığı konuşuluyor.` : rel >= 20 ? `İlişki ${rel}: sana karşı iyi niyetliler.` : `İlişki ${rel}: temkinli bekliyorlar.`)
+      if (rivalById(m.npcId)) lines.push(...rivalIntel(empire, rivalById(m.npcId)!, task.at).slice(0, 1))
+    }
+  }
+  lines.push(`Görev şansı %${Math.round(chance * 100)} idi.`)
+  push(true, `${info.name}: ${npc.name}`, lines)
 }
 
 /** Kara savaşını başlat (surlu garnizona karşı). */
@@ -606,7 +792,7 @@ function finishMission(empire: Empire, m: Mission, at: number) {
   m.units = Object.fromEntries((Object.entries(m.units) as [UnitId, number][]).filter(([, n]) => n > 0))
   const done = [...lb.done, lb.info]
   const lines = [...lb.lines]
-  m.battle = undefined
+  delete m.battle
   if (m.kind === 'piracy') return concludePiracy(empire, m, city, res, at, done)
   const npc = targetInfo(empire, m.npcId, at)!
   const finish = (success: boolean, title: string, more: string[]) => {
@@ -757,7 +943,7 @@ export function resolveReturn(empire: Empire, m: Mission) {
   for (const r of ['gold', 'wood', 'stone'] as const) g.resources[r] = Math.min(cap, g.resources[r] + m.loot[r])
   // Savaşa katılıp birliklerini ana orduya devreden takviyenin dönecek kimsesi yoktur.
   if (!hasTroops(m.units) && m.kind !== 'spy') return
-  if (m.kind !== 'spy' || (m.units.casus ?? 0) > 0) logEvent(g, m.kind === 'raid' ? 'Ordu şehre döndü.' : m.kind === 'piracy' ? 'Filo limana döndü.' : m.kind === 'deploy' ? 'Aktarılamayan birlikler döndü.' : 'Casuslar şehre döndü.', m.returnAt)
+  if (m.kind !== 'spy' || (m.units.casus ?? 0) > 0) logEvent(g, m.kind === 'raid' || m.kind === 'occupy' ? 'Ordu şehre döndü.' : m.kind === 'support' ? 'Destek birlikleri şehre döndü.' : m.kind === 'blockade' ? 'Filo limana döndü.' : m.kind === 'piracy' ? 'Filo limana döndü.' : m.kind === 'deploy' ? 'Aktarılamayan birlikler döndü.' : 'Casuslar şehre döndü.', m.returnAt)
 }
 
 /**
@@ -766,13 +952,16 @@ export function resolveReturn(empire: Empire, m: Mission) {
  */
 export function advanceMissions(empire: Empire, now: number) {
   const gone = new Set<Mission>()
-  const due = (m: Mission) => gone.has(m) ? Infinity : m.battle ? m.battle.nextAt : !m.resolved ? m.arriveAt : m.stationed ? Infinity : m.returnAt
+  const due = (m: Mission) => gone.has(m) ? Infinity : m.battle ? m.battle.nextAt : !m.resolved ? m.arriveAt
+    : m.stationed ? m.spyTask?.at ?? m.supportAt ?? Infinity : m.returnAt
   for (let guard = 0; guard < 20_000; guard++) {
     let next: Mission | undefined, at = Infinity
     for (const m of empire.missions ?? []) { const d = due(m); if (d <= now && d < at) { at = d; next = m } }
     if (!next) break
     if (next.battle) stepMission(empire, next)
     else if (!next.resolved) resolveArrival(empire, next)
+    else if (next.stationed && next.spyTask) resolveSpyTask(empire, next)
+    else if (next.stationed && next.supportAt !== undefined) resolveSupportWatch(empire, next)
     else { resolveReturn(empire, next); gone.add(next) }
   }
   empire.missions = (empire.missions ?? []).filter(m => !gone.has(m))
@@ -805,13 +994,15 @@ export function parseMissionState(obj: Record<string, unknown>, cityIds: Set<str
   const npcs = obj.npcs && typeof obj.npcs === 'object' ? (obj.npcs as Record<string, NpcState>) : {}
   if (missions.length > 40 || reports.length > 30) throw new Error('Sefer kayıtları okunamadı.')
   for (const m of missions) {
-    if (!m || typeof m.id !== 'string' || !['raid', 'spy', 'piracy', 'deploy', 'occupy', 'blockade'].includes(m.kind) || !cityIds.has(m.cityId) ||
+    if (!m || typeof m.id !== 'string' || !['raid', 'spy', 'piracy', 'deploy', 'occupy', 'blockade', 'support'].includes(m.kind) || !cityIds.has(m.cityId) ||
         !(m.kind === 'piracy' ? piracyTarget(m.npcId) : m.kind === 'deploy' ? cityIds.has(m.npcId) : targetIsland(m.npcId)) ||
         (m.stationed !== undefined && typeof m.stationed !== 'boolean') ||
         !finite(m.departAt) || !finite(m.arriveAt) || !finite(m.returnAt) || typeof m.resolved !== 'boolean' ||
         !m.units || typeof m.units !== 'object' ||
         !(Object.entries(m.units) as [string, number][]).every(([id, n]) => UNIT_IDS.includes(id as UnitId) && Number.isInteger(n) && n >= 0) ||
-        !m.loot || !finite(m.loot.gold) || !finite(m.loot.wood) || !finite(m.loot.stone) || !liveOk(m.battle)) throw new Error('Sefer kayıtları okunamadı.')
+        !m.loot || !finite(m.loot.gold) || !finite(m.loot.wood) || !finite(m.loot.stone) || !liveOk(m.battle) ||
+        (m.supportAt !== undefined && !finite(m.supportAt)) ||
+        (m.spyTask !== undefined && (!m.spyTask || !SPY_TYPE_IDS.includes(m.spyTask.type) || !finite(m.spyTask.at)))) throw new Error('Sefer kayıtları okunamadı.')
   }
   for (const r of reports) {
     if (!r || typeof r.id !== 'string' || typeof r.title !== 'string' || !Array.isArray(r.lines) || !finite(r.time)) throw new Error('Rapor kayıtları okunamadı.')
@@ -950,7 +1141,7 @@ function finishDefense(empire: Empire, t: Threat, at: number): boolean {
   }
   const done = [...lb.done, lb.info]
   const lines = [...lb.lines]
-  t.battle = undefined
+  delete t.battle
   const name = targetName(t.npcId)
   const rival = !!rivalById(t.npcId)
   const report = (success: boolean, title: string) => {

@@ -40,7 +40,13 @@ export type BattleSide = {
 }
 
 /** Birliğin savaş değerleri (Ikariam: büyüklük, yakın/uzak saldırı, cephane, zırh). */
-export type BattleStats = { size: number; melee: number; ranged: number; ammo: number; armor: number; vsWall?: number }
+export type BattleStats = {
+  size: number; melee: number; ranged: number; ammo: number; armor: number; vsWall?: number
+  /** Hava savunması: havadaki birliklere vuruş. */
+  air?: number
+  /** Vurulma zorluğu (dalgıç): aldığı hasarın bu kadarı işler. */
+  evade?: number
+}
 export const BATTLE_STATS: Partial<Record<UnitId, BattleStats>> = {
   // Ön cephe
   mizrakci: { size: 1, melee: 6, ranged: 0, ammo: 0, armor: 4 },
@@ -58,13 +64,20 @@ export const BATTLE_STATS: Partial<Record<UnitId, BattleStats>> = {
   mancinik: { size: 5, melee: 0, ranged: 55, ammo: 5, armor: 2, vsWall: 3 },
   topcu: { size: 5, melee: 0, ranged: 65, ammo: 4, armor: 1, vsWall: 3 },
   humbaraci: { size: 1, melee: 2, ranged: 70, ammo: 2, armor: 0, vsWall: 1.5 },
+  // Hava: bombardıman yalnızca hava savunmasına açıktır; hava savunması yalnız havaya vurur.
+  lagari: { size: 2, melee: 0, ranged: 90, ammo: 2, armor: 0 },
+  hezarfen: { size: 1, melee: 0, ranged: 0, ammo: 0, armor: 1, air: 40 },
   // Destek (sahada yer tutmaz)
   asci: { size: 1, melee: 0, ranged: 0, ammo: 0, armor: 0 },
   hekim: { size: 1, melee: 0, ranged: 0, ammo: 0, armor: 0 },
   // Deniz
   kadirga: { size: 3, melee: 45, ranged: 0, ammo: 0, armor: 8 },
   kalyon: { size: 6, melee: 120, ranged: 0, ammo: 0, armor: 20 },
-  karamursel: { size: 2, melee: 40, ranged: 0, ammo: 0, armor: 4 },
+  karamursel: { size: 2, melee: 0, ranged: 0, ammo: 0, armor: 4, air: 40 },
+  zenberek_gemisi: { size: 3, melee: 6, ranged: 40, ammo: 5, armor: 5 },
+  dalgic_gemisi: { size: 3, melee: 75, ranged: 0, ammo: 0, armor: 6, evade: 0.6 },
+  buharli_koc: { size: 6, melee: 150, ranged: 0, ammo: 0, armor: 26 },
+  balon_gemisi: { size: 4, melee: 0, ranged: 110, ammo: 2, armor: 3 },
   ates_gemisi: { size: 3, melee: 10, ranged: 70, ammo: 3, armor: 5 },
   mancinik_gemisi: { size: 4, melee: 0, ranged: 90, ammo: 4, armor: 6, vsWall: 3 },
   humbara_gemisi: { size: 5, melee: 0, ranged: 140, ammo: 3, armor: 5, vsWall: 2 },
@@ -72,17 +85,17 @@ export const BATTLE_STATS: Partial<Record<UnitId, BattleStats>> = {
 }
 const stats = (id: UnitId): BattleStats => BATTLE_STATS[id] ?? { size: 1, melee: UNITS[id].attack, ranged: 0, ammo: 0, armor: 0 }
 
-export type FieldRow = 'front' | 'flank' | 'range' | 'artillery'
-export const FIELD_ROWS: FieldRow[] = ['front', 'flank', 'range', 'artillery']
+export type FieldRow = 'front' | 'flank' | 'range' | 'artillery' | 'air' | 'fighter'
+export const FIELD_ROWS: FieldRow[] = ['front', 'flank', 'range', 'artillery', 'air', 'fighter']
 export type FieldSize = Record<FieldRow, number> & { name: string }
 /** Bir yuvaya sığan toplam birlik büyüklüğü. */
 export const SLOT_SIZE = 30
 /** Savaş alanı: savunanın şehir seviyesine göre (Ikariam'daki gibi büyür). */
 export function fieldSize(level = 1): FieldSize {
-  if (level >= 17) return { name: 'Devasa meydan', front: 7, flank: 6, range: 7, artillery: 4 }
-  if (level >= 10) return { name: 'Büyük meydan', front: 7, flank: 4, range: 7, artillery: 3 }
-  if (level >= 5) return { name: 'Orta meydan', front: 5, flank: 2, range: 5, artillery: 2 }
-  return { name: 'Küçük meydan', front: 3, flank: 0, range: 3, artillery: 1 }
+  if (level >= 17) return { name: 'Devasa meydan', front: 7, flank: 6, range: 7, artillery: 4, air: 2, fighter: 2 }
+  if (level >= 10) return { name: 'Büyük meydan', front: 7, flank: 4, range: 7, artillery: 3, air: 2, fighter: 2 }
+  if (level >= 5) return { name: 'Orta meydan', front: 5, flank: 2, range: 5, artillery: 2, air: 1, fighter: 1 }
+  return { name: 'Küçük meydan', front: 3, flank: 0, range: 3, artillery: 1, air: 1, fighter: 1 }
 }
 
 export type Slot = { id: UnitId; n: number }
@@ -118,7 +131,7 @@ export const BATTLE_WINDOW_MS = 2 * (MAX_ROUNDS + 1) * ROUND_MS
 /** Morali bunun altına inen taraf çekilir. */
 export const RETREAT_MORALE = 25
 
-const ROLE_ROW: Partial<Record<UnitRole, FieldRow>> = { front: 'front', flank: 'flank', range: 'range', artillery: 'artillery' }
+const ROLE_ROW: Partial<Record<UnitRole, FieldRow>> = { front: 'front', flank: 'flank', range: 'range', artillery: 'artillery', bomber: 'air', fighter: 'fighter' }
 const count = (t: Troops, id: UnitId) => t[id] ?? 0
 const fighting = (id: UnitId) => !!ROLE_ROW[UNITS[id].role]
 function totalHp(t: Troops) { return UNIT_IDS.reduce((s, id) => s + (fighting(id) ? count(t, id) * UNITS[id].hp : 0), 0) }
@@ -127,7 +140,7 @@ function alive(t: Troops) { return UNIT_IDS.some(id => count(t, id) > 0 && fight
 /** Birlikleri yuvalara dizer; ön cephe boşsa kanat/menzil/kuşatma öne geçer. */
 function deploy(t: Troops, size: FieldSize): Lineup {
   const left: Troops = { ...t }
-  const line: Lineup = { front: [], flank: [], range: [], artillery: [], reserve: 0 }
+  const line: Lineup = { front: [], flank: [], range: [], artillery: [], air: [], fighter: [], reserve: 0 }
   const fill = (row: FieldRow, slots: number, ids: UnitId[]) => {
     for (const id of ids) {
       const per = Math.max(1, Math.floor(SLOT_SIZE / stats(id).size))
@@ -145,6 +158,8 @@ function deploy(t: Troops, size: FieldSize): Lineup {
   fill('flank', size.flank, byRole('flank'))
   fill('range', size.range, byRole('range'))
   fill('artillery', size.artillery, byRole('artillery'))
+  fill('air', size.air, byRole('bomber'))
+  fill('fighter', size.fighter, byRole('fighter'))
   line.reserve = UNIT_IDS.reduce((s, id) => s + (fighting(id) ? count(left, id) : 0), 0)
   return line
 }
@@ -219,7 +234,7 @@ export function battleRound(st: BattleState): BattleRound | null {
     for (const s of row) {
       const armor = stats(s.id).armor * defMul
       const pass = h.perHit > 0 ? Math.max(0.3, 1 - armor / h.perHit) : 1
-      const got = h.dmg * factor * (s.n * UNITS[s.id].hp / hpRow) * pass + (carry[s.id] ?? 0)
+      const got = h.dmg * factor * (s.n * UNITS[s.id].hp / hpRow) * pass * (stats(s.id).evade ?? 1) + (carry[s.id] ?? 0)
       const dead = Math.min(count(t, s.id), Math.floor(got / UNITS[s.id].hp))
       carry[s.id] = dead >= count(t, s.id) ? 0 : got - dead * UNITS[s.id].hp
       if (dead > 0) { lost[s.id] = count(lost, s.id) + dead }
@@ -227,6 +242,16 @@ export function battleRound(st: BattleState): BattleRound | null {
   }
   /** İlk dolu sıra (öncelik sırasıyla). */
   const firstRow = (l: Lineup, order: FieldRow[]) => order.map(r => l[r]).find(r => r.length) ?? []
+  /**
+   * Hava savunması (Ikariam'da gyrokopter/çarklı tekne): karşı bombardımanı,
+   * sonra karşı hava savunmasını vurur. Havada kimse yoksa kanatlara yarım güçle dalar.
+   */
+  const airDuel = (t: Troops, target: Lineup, fighters: Slot[], atkMul: number, defMul: number, carry: Record<string, number>, lost: Troops) => {
+    const h = hit(fighters, id => stats(id).air ?? 0, atkMul)
+    const sky = firstRow(target, ['air', 'fighter'])
+    if (sky.length) strike(t, sky, h, defMul, carry, lost)
+    else strike(t, firstRow(target, ['flank', 'range', 'artillery']), h, defMul, carry, lost, 0.5)
+  }
   const shoot = (l: Lineup, ammo: Troops, rows: FieldRow[]) => {
     const slots = rows.flatMap(r => l[r])
     return { slots, h: hit(slots, id => (count(ammo, id) > 0 ? stats(id).ranged : 0), 1) }
@@ -252,6 +277,10 @@ export function battleRound(st: BattleState): BattleRound | null {
   }
   // Kanatlar: karşı kanat, yoksa arkadaki nişancı ve kuşatma (sur kanatları korumaz).
   strike(D, firstRow(lD, ['flank', 'range', 'artillery', 'front']), aFlank, defender.defenseMul, st.carryD, ld)
+  // HAVA: bombardıman surun üstünden ön safları döver; hava savunması önce havayı vurur.
+  const aBomb = shoot(lA, ammoA, ['air'])
+  strike(D, firstRow(lD, ['front', 'range', 'artillery', 'flank']), { dmg: aBomb.h.dmg * attacker.attackMul, perHit: aBomb.h.perHit * attacker.attackMul }, defender.defenseMul, st.carryD, ld)
+  airDuel(D, lD, lA.fighter, attacker.attackMul, defender.defenseMul, st.carryD, ld)
   // --- SAVUNAN vurur ---
   const dMel = hit(lD.front, id => stats(id).melee, defender.attackMul)
   const dFlank = hit(lD.flank, id => stats(id).melee, defender.attackMul)
@@ -260,9 +289,12 @@ export function battleRound(st: BattleState): BattleRound | null {
   strike(A, firstRow(lA, ['front', 'flank', 'range', 'artillery']), dMel, attacker.defenseMul, st.carryA, la)
   strike(A, firstRow(lA, ['front', 'flank', 'range', 'artillery']), dRangeH, attacker.defenseMul, st.carryA, la)
   strike(A, firstRow(lA, ['flank', 'range', 'artillery', 'front']), dFlank, attacker.defenseMul, st.carryA, la)
-  // Cephane: ateş eden nişancı ve kuşatma birer atım harcar.
-  for (const s of [...aRange.slots, ...aArt.slots]) if (count(ammoA, s.id) > 0) ammoA[s.id] = count(ammoA, s.id) - 1
-  for (const s of dRange.slots) if (count(ammoD, s.id) > 0) ammoD[s.id] = count(ammoD, s.id) - 1
+  const dBomb = shoot(lD, ammoD, ['air'])
+  strike(A, firstRow(lA, ['front', 'range', 'artillery', 'flank']), { dmg: dBomb.h.dmg * defender.attackMul, perHit: dBomb.h.perHit * defender.attackMul }, attacker.defenseMul, st.carryA, la)
+  airDuel(A, lA, lD.fighter, defender.attackMul, attacker.defenseMul, st.carryA, la)
+  // Cephane: ateş eden nişancı, kuşatma ve bombardıman birer atım harcar.
+  for (const s of [...aRange.slots, ...aArt.slots, ...aBomb.slots]) if (count(ammoA, s.id) > 0) ammoA[s.id] = count(ammoA, s.id) - 1
+  for (const s of [...dRange.slots, ...dBomb.slots]) if (count(ammoD, s.id) > 0) ammoD[s.id] = count(ammoD, s.id) - 1
   // Kayıpları uygula.
   for (const [id, n] of Object.entries(la) as [UnitId, number][]) { A[id] = count(A, id) - n; st.lostA[id] = count(st.lostA, id) + n }
   for (const [id, n] of Object.entries(ld) as [UnitId, number][]) { D[id] = count(D, id) - n; st.lostD[id] = count(st.lostD, id) + n }
