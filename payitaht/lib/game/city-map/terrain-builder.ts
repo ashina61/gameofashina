@@ -21,7 +21,7 @@ import { GROUND_TARGET_W, GROUND_TARGET_D, FOOTPRINT_DIAMOND_W, ART_DIAMOND_PX }
 import { asset } from '@/lib/asset'
 import { roadStyleFor, roadTierForHallLevel, type RoadKind } from './road-style'
 import { edgeKey, roadEdgeKeysForTargets } from './road-tree'
-import { cityFields, cityFountains, cityStream, nearStreamAt, shoreYAt } from './city-extras'
+import { aqueductHits, cityAqueduct, cityBazaar, cityFields, cityFountains, cityStream, nearStreamAt, shoreYAt } from './city-extras'
 import { bakeGraphics, BakeAtlas } from './bake'
 
 /** Arazi dokuları ve dekor (tools/art/decor.py ile çizilir). */
@@ -834,16 +834,15 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1, occupiedSl
       plazaDecor.push(g)
     }
 
-    // ÇARŞI: güney caddesinin liman ucunda iki sıra tenteli tezgâh.
-    const nodeAt = new Map(ROAD_GRAPH.nodes.map(n => [n.id, n.screen]))
-    const top = nodeAt.get('st_ave_s2'), bottom = nodeAt.get('st_stairs')
-    if (top && bottom) {
+    // İSKELE ÇARŞISI: limana yakın, hiçbir binanın (en yüksek aşamadaki)
+    // görsel alanına binmeyen yerde dört tenteli tezgâh (bkz. cityBazaar).
+    {
       const awnings: Array<[number, number]> = [[0xb3261e, 0xf6efe0], [0x2f6b4c, 0xf6efe0], [0x2d4a78, 0xf2c94c], [0xd6a93a, 0xb3261e]]
       const goods = [0xc8453a, 0xe29b2f, 0x7a4f2a, 0x9c3d6a, 0xf2c94c, 0x5b7d3a]
       let k = 0
-      for (let y = top.y + TILE.h * 2.2; y < bottom.y + TILE.h * 0.4; y += TILE.h * 1.9) {
-        for (const side of [-1, 1]) {
-          const x = top.x + side * TILE.w * 1.0
+      for (const spot of cityBazaar()) {
+        {
+          const x = spot.x, y = spot.y
           const g = scene.add.graphics().setDepth(y)
           const w = TILE.w * 0.95, d = TILE.h * 0.42, hgt = TILE.h * 0.9
           const [c1, c2] = awnings[k++ % awnings.length]
@@ -1068,6 +1067,106 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1, occupiedSl
     }
   }
 
+  // 2i) SU KEMERİ ve MAKSEM: iki katlı kemer dizisi tepeden şehre su taşır,
+  // şehir içindeki maksemde (su terazisi) biter. Her göz ayrı parça; derinliği
+  // tabanına göre: binalar ve surla doğru sıralanır.
+  {
+    const aq = cityAqueduct()
+    if (aq) {
+      const dx = aq.to.x - aq.from.x, dy = aq.to.y - aq.from.y
+      const len = Math.hypot(dx, dy), ux = dx / len, uy = dy / len
+      // Zemin (karo) uzayında dik: kalınlık izleyiciye doğru.
+      const gx = (x: number, y: number) => (x / (TILE.w / 2) + y / (TILE.h / 2)) / 2
+      const gy = (x: number, y: number) => (y / (TILE.h / 2) - x / (TILE.w / 2)) / 2
+      const lg = Math.hypot(gx(dx, dy), gy(dx, dy)) || 1
+      let ngx = -gy(dx, dy) / lg * 0.34, ngy = gx(dx, dy) / lg * 0.34
+      let nx = (ngx - ngy) * TILE.w / 2, ny = (ngx + ngy) * TILE.h / 2
+      if (ny < 0) { nx = -nx; ny = -ny; ngx = -ngx; ngy = -ngy } // ön yüz izleyiciye baksın
+      const Pt = (s: number, z: number, off = 0) => V(aq.from.x + ux * s + nx * off, aq.from.y + uy * s + ny * off - z)
+      const B = 58, pw = 15
+      const H1 = 82, S1 = 48, H2 = 132, S2 = 106, TOP = 146
+      const face = 0xd8c39a, faceDk = 0xb9a276, soffit = 0x6e5a3e, cap = 0xeadbb6
+      const n = Math.floor((len - 36) / B)
+      const arch = (s0: number, s1: number, spring: number, rise: number, off: number) => {
+        const pts: Phaser.Math.Vector2[] = []
+        for (let k = 0; k <= 10; k++) {
+          const a = k / 10
+          pts.push(Pt(s0 + (s1 - s0) * a, spring + Math.sin(a * Math.PI) * rise, off))
+        }
+        return pts
+      }
+      // Surla kesiştiği gözler surun önünde çizilir (kemer surdan yüksek).
+      const ring = DEFENSE_FOUNDATION.map(p => p.screen)
+      const crossAt: number[] = []
+      for (let k = 0; k < ring.length; k++) {
+        const a = ring[k], b = ring[(k + 1) % ring.length]
+        const d = (b.x - a.x) * uy - (b.y - a.y) * ux
+        if (Math.abs(d) < 1e-6) continue
+        const t = ((aq.from.x - a.x) * uy - (aq.from.y - a.y) * ux) / d
+        const sAlong = ((a.x + (b.x - a.x) * t) - aq.from.x) * ux + ((a.y + (b.y - a.y) * t) - aq.from.y) * uy
+        if (t >= 0 && t <= 1 && sAlong >= 0 && sAlong <= len) crossAt.push(sAlong)
+      }
+      for (let i = 0; i < n; i++) {
+        const s0 = i * B, s1 = s0 + B
+        const overWall = crossAt.some(c => c > s0 - B * 1.2 && c < s1 + B * 1.2)
+        const g = scene.add.graphics().setDepth(Math.max(Pt(s0, 0).y, Pt(s1, 0).y) + ny + 1 + (overWall ? 400 : 0))
+        g.fillStyle(0x2f421c, 0.2)
+        g.fillPoints([Pt(s0, 0, 1), Pt(s1, 0, 1), V(Pt(s1, 0, 1).x + 22, Pt(s1, 0, 1).y + 16), V(Pt(s0, 0, 1).x + 22, Pt(s0, 0, 1).y + 16)], true)
+        for (const [lo, spring, hi, p] of [[0, S1, H1, pw], [H1, S2, H2, pw * 0.8]] as const) {
+          const a0 = s0 + p / 2, a1 = s1 - p / 2
+          const rise = Math.min((a1 - a0) * 0.55, hi - spring - 6)
+          // Kemer altı (tonoz yüzü): ön ve arka kemer eğrisi arasında koyu şerit.
+          const fa = arch(a0, a1, spring, rise, ny > 0 ? 1 : 0), ba = arch(a0, a1, spring, rise, ny > 0 ? 0 : 1)
+          g.fillStyle(soffit, 1); g.fillPoints([...fa, ...ba.reverse()], true)
+          // Ayakların yan yüzü.
+          g.fillStyle(faceDk, 1)
+          g.fillPoints([Pt(a1, lo, 1), Pt(a1, lo, 0), Pt(a1, spring, 0), Pt(a1, spring, 1)], true)
+          // Ön yüz: sol ayak + sağ ayak + kemer üstü kuşak (kemer eğrisiyle).
+          g.fillStyle(face, 1)
+          g.fillPoints([Pt(s0, lo, 1), Pt(a0, lo, 1), Pt(a0, spring, 1), Pt(s0, spring, 1)], true)
+          g.fillPoints([Pt(a1, lo, 1), Pt(s1, lo, 1), Pt(s1, spring, 1), Pt(a1, spring, 1)], true)
+          g.fillPoints([Pt(s0, spring, 1), ...arch(a0, a1, spring, rise, 1), Pt(s1, spring, 1), Pt(s1, hi, 1), Pt(s0, hi, 1)], true)
+          // Taş sıraları ve kemer taşları.
+          g.lineStyle(1, 0x9c8763, 0.5)
+          for (let z = lo + 12; z < hi; z += 12) {
+            if (z > spring - 1 && z < spring + rise) { g.lineBetween(Pt(s0, z, 1).x, Pt(s0, z, 1).y, Pt(a0 - 1, z, 1).x, Pt(a0 - 1, z, 1).y); g.lineBetween(Pt(a1 + 1, z, 1).x, Pt(a1 + 1, z, 1).y, Pt(s1, z, 1).x, Pt(s1, z, 1).y) }
+            else g.lineBetween(Pt(s0, z, 1).x, Pt(s0, z, 1).y, Pt(s1, z, 1).x, Pt(s1, z, 1).y)
+          }
+          g.lineStyle(2, 0xb39c74, 1); g.strokePoints(arch(a0, a1, spring, rise, 1), false)
+          g.fillStyle(cap, 1)
+          g.fillPoints([Pt(s0, hi, 1), Pt(s1, hi, 1), Pt(s1, hi + 3, 1), Pt(s0, hi + 3, 1)], true)
+        }
+        // Su yolu (oluk): üst yüz, içinde akan su.
+        g.fillStyle(face, 1); g.fillPoints([Pt(s0, H2, 1), Pt(s1, H2, 1), Pt(s1, TOP, 1), Pt(s0, TOP, 1)], true)
+        g.fillStyle(cap, 1); g.fillPoints([Pt(s0, TOP, 1), Pt(s1, TOP, 1), Pt(s1, TOP, 0), Pt(s0, TOP, 0)], true)
+        g.fillStyle(0x4f9bb5, 1); g.fillPoints([Pt(s0, TOP + 0.5, 0.65), Pt(s1, TOP + 0.5, 0.65), Pt(s1, TOP + 0.5, 0.35), Pt(s0, TOP + 0.5, 0.35)], true)
+        plazaDecor.push(g)
+      }
+      // MAKSEM: kare taş kule, sivri kemerli pencere, kurşun kırma çatı, alem.
+      const m = aq.to, hw = TILE.w * 0.42, hh = hw / 2, mh = 150
+      const W_ = V(m.x - hw, m.y), S_ = V(m.x, m.y + hh), E_ = V(m.x + hw, m.y), N_ = V(m.x, m.y - hh)
+      const up = (p: Phaser.Math.Vector2, z: number) => V(p.x, p.y - z)
+      const mg = scene.add.graphics().setDepth(m.y + hh + 2)
+      mg.fillStyle(0x2f421c, 0.25); mg.fillEllipse(m.x + 26, m.y + hh + 4, hw * 2.6, hh * 1.6)
+      mg.fillStyle(face, 1); mg.fillPoints([W_, S_, up(S_, mh), up(W_, mh)], true)
+      mg.fillStyle(faceDk, 1); mg.fillPoints([S_, E_, up(E_, mh), up(S_, mh)], true)
+      mg.lineStyle(1, 0x9c8763, 0.5)
+      for (let z = 14; z < mh; z += 14) { mg.lineBetween(W_.x, W_.y - z, S_.x, S_.y - z); mg.lineBetween(S_.x, S_.y - z, E_.x, E_.y - z) }
+      // Pencereler (sivri kemer) ve su ağzı.
+      for (const [a, b] of [[W_, S_], [S_, E_]] as const) {
+        const cx = (a.x + b.x) / 2, cy = (a.y + b.y) / 2
+        mg.fillStyle(0x3a2d24, 1)
+        mg.fillPoints([V(cx - 7, cy - 70), V(cx + 7, cy - 70 + (b.y - a.y) * 0.12), V(cx + 7, cy - 96 + (b.y - a.y) * 0.12), V(cx, cy - 106), V(cx - 7, cy - 96)], true)
+      }
+      mg.fillStyle(cap, 1); mg.fillPoints([up(W_, mh), up(S_, mh), up(E_, mh), up(N_, mh)], true)
+      const apex = V(m.x, m.y - mh - 46)
+      mg.fillStyle(0x7b949c, 1); mg.fillPoints([up(W_, mh - 4), up(S_, mh - 4), apex], true)
+      mg.fillStyle(0x8fa7ae, 1); mg.fillPoints([up(S_, mh - 4), up(E_, mh - 4), apex], true)
+      mg.fillStyle(0xe2bd78, 1); mg.fillRect(apex.x - 1.5, apex.y - 14, 3, 14); mg.fillCircle(apex.x, apex.y - 16, 3)
+      plazaDecor.push(mg)
+    }
+  }
+
   // 3) TAŞ / TOPRAK katmanı.
   const g = scene.add.graphics().setDepth(-800)
 
@@ -1217,6 +1316,8 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1, occupiedSl
     !cityFields().some(f => Math.abs(wx - f.x) / (f.hw + 30) + Math.abs(wy - f.y) / (f.hh + 15) < 1) &&
     !cityFountains().some(c => Math.hypot(wx - c.x, (wy - c.y) * 2) < TILE.w * 0.8) &&
     !nearStreamAt(wx, wy, 46, 30) &&
+    !aqueductHits(wx, wy, 40, 26) &&
+    !cityBazaar().some(b => Math.abs(b.x - wx) < TILE.w * 0.7 && wy < b.y + 20 && wy > b.y - TILE.h * 2.2) &&
     !occ.some(s => nearSlot(
       wx, wy, s,
       initialOccupied.has(s.id) ? margin : Math.min(margin, s.fixed ? 0.90 : 0.66),

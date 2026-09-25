@@ -70,6 +70,7 @@ export function cityFields(): CityField[] {
       if (nearRoad(x, y, hw + 46, hh + 23, p => Math.abs(p.x - x) / (hw + 46) + Math.abs(p.y - y) / (hh + 23) < 1)) continue
       if (wall.some(p => Math.abs(p.x - x) / (hw + 70) + Math.abs(p.y - y) / (hh + 35) < 1)) continue
       if (nearStream(x, y, hw + 40, hh + 20, p => Math.abs(p.x - x) / (hw + 40) + Math.abs(p.y - y) / (hh + 20) < 1)) continue
+      if (aqueductHits(x, y, hw + 30, hh + 15)) continue
       cands.push({ x, y, d: Math.hypot((x - P.x) / RING_ROAD.rx, (y - P.y) / RING_ROAD.ry) })
     }
   }
@@ -320,4 +321,138 @@ let streamNear: ReturnType<typeof pointGrid> | null = null
 export function nearStreamAt(x: number, y: number, rx: number, ry: number) {
   streamNear ??= pointGrid(cityStream().pts)
   return streamNear(x, y, rx, ry, p => Math.abs(p.x - x) < rx && Math.abs(p.y - y) < ry)
+}
+
+/*
+ * SU KEMERİ (Bozdoğan / Mağlova gibi): tepelerden izometrik eksen boyunca
+ * düz bir hatla gelir, surun üstünden aşar ve şehir içindeki MAKSEM'de (su
+ * terazisi kulesi) biter. Hat arsaların görsel alanına, mezarlığa, madene,
+ * çeşmelere ve dereye binmez; yolları kemerlerinin altından geçirir.
+ */
+export type CityAqueduct = { from: ScreenPoint; to: ScreenPoint } | null
+/** Bir arsadaki binanın (en yüksek aşamada) ekranda kapladığı kutu. */
+function artBox(s: { type: string; screen: ScreenPoint }) {
+  if (s.type === 'coast') return { x0: s.screen.x - 250, x1: s.screen.x + 250, y0: s.screen.y + 64 - 400, y1: s.screen.y + 80 }
+  if (s.type === 'defense') return { x0: s.screen.x - 60, x1: s.screen.x + 60, y0: s.screen.y - 160, y1: s.screen.y + 30 }
+  return { x0: s.screen.x - 280, x1: s.screen.x + 280, y0: s.screen.y - 400, y1: s.screen.y + 150 }
+}
+const inBox = (b: { x0: number; x1: number; y0: number; y1: number }, x: number, y: number, pad = 0) =>
+  x > b.x0 - pad && x < b.x1 + pad && y > b.y0 - pad && y < b.y1 + pad
+let aqueductCache: CityAqueduct | undefined
+export function cityAqueduct(): CityAqueduct {
+  if (aqueductCache !== undefined) return aqueductCache
+  const wall = DEFENSE_FOUNDATION.map(p => p.screen)
+  const inWall = (x: number, y: number) => {
+    let inside = false
+    for (let i = 0, j = wall.length - 1; i < wall.length; j = i++) {
+      const a = wall[i], b = wall[j]
+      if ((a.y > y) !== (b.y > y) && x < (b.x - a.x) * (y - a.y) / (b.y - a.y) + a.x) inside = !inside
+    }
+    return inside
+  }
+  const hall = SLOTS.find(s => s.fixed && s.type === 'city')!.screen
+  const top = Math.min(...wall.map(p => p.y))
+  const avoid = [
+    { x: hall.x + TILE.w * 4.6, y: top - TILE.h * 3.2, r: TILE.w * 2.6 }, // mezarlık
+    { x: hall.x - TILE.w * 3.4, y: top - TILE.h * 2.4, r: TILE.w * 1.8 }, // ada madeni
+    ...cityFountains().map(c => ({ x: c.x, y: c.y, r: TILE.w * 0.9 })),
+  ]
+  const nearStream = pointGrid(cityStream().pts)
+  const boxes = SLOTS.filter(s => s.type === 'city').map(artBox)
+  const clearAt = (x: number, y: number, pad: number) =>
+    !boxes.some(b => inBox(b, x, y, pad)) &&
+    !avoid.some(a => Math.hypot(a.x - x, (a.y - y) * 1.6) < a.r) &&
+    !nearStream(x, y, pad + 20, pad + 20, p => Math.hypot(p.x - x, p.y - y) < pad + 20)
+  let best: CityAqueduct = null, bestScore = Infinity
+  // İzometrik eksen yönleri: kuzeydoğu (sağ-yukarı) ya da kuzeybatı (sol-yukarı).
+  for (const dir of [{ x: 2 / Math.sqrt(5), y: -1 / Math.sqrt(5) }, { x: -2 / Math.sqrt(5), y: -1 / Math.sqrt(5) }]) {
+    for (let my = top + 200; my < hall.y - 500; my += 40) {
+      for (let mx = hall.x - 1500; mx <= hall.x + 1500; mx += 40) {
+        if (!inWall(mx, my) || !clearAt(mx, my, 60)) continue
+        // Hattı dışarı doğru uzat: surdan tepelere (en az 640 px) çıkana kadar.
+        let ok = true, outside = 0, len = 0, inside = 0
+        for (let d = 60; d < 1700; d += 30) {
+          const x = mx + dir.x * d, y = my + dir.y * d
+          if (!clearAt(x, y, 24)) { ok = false; break }
+          if (!inWall(x, y)) outside += 30; else if (!outside) inside += 30
+          len = d
+          if (outside >= 640) break // tepelere kadar uzansın
+        }
+        // Şehir içinde görünür bir kemer dizisi olsun (en az ~6 göz).
+        if (!ok || outside < 640 || inside < 350) continue
+        // Maksem merkeze yakın, hat çok uzun olmayan seçilir.
+        const score = Math.hypot(mx - hall.x, (my - hall.y) * 1.3) + len * 0.25
+        if (score < bestScore) { bestScore = score; best = { to: { x: mx, y: my }, from: { x: mx + dir.x * len, y: my + dir.y * len } } }
+      }
+    }
+  }
+  aqueductCache = best
+  return best
+}
+/** (x,y) su kemeri hattına (yarı eksenler rx/ry) yakın mı? */
+export function aqueductHits(x: number, y: number, rx: number, ry: number) {
+  const a = cityAqueduct()
+  if (!a) return false
+  const n = Math.max(2, Math.ceil(Math.hypot(a.to.x - a.from.x, a.to.y - a.from.y) / 20))
+  for (let i = 0; i <= n; i++) {
+    const px = a.from.x + (a.to.x - a.from.x) * i / n, py = a.from.y + (a.to.y - a.from.y) * i / n
+    if (Math.abs(px - x) / rx + Math.abs(py - y) / ry < 1) return true
+  }
+  return Math.abs(a.to.x - x) / (rx + 40) + Math.abs(a.to.y - y) / (ry + 30) < 1 // maksem
+}
+
+/*
+ * İSKELE ÇARŞISI: dört tenteli tezgâh; liman yoluna yakın, hiçbir binanın
+ * (en yüksek aşamadaki) görsel alanına, tarlaya, dereye, yola binmeyen yer.
+ */
+let bazaarCache: ScreenPoint[] | null = null
+export function cityBazaar(): ScreenPoint[] {
+  if (bazaarCache) return bazaarCache
+  const nodeAt = new Map(ROAD_GRAPH.nodes.map(n => [n.id, n.screen]))
+  const roadPts: ScreenPoint[] = []
+  for (const e of ROAD_GRAPH.edges) {
+    const A = nodeAt.get(e.from), B = nodeAt.get(e.to)
+    if (!A || !B) continue
+    for (let k = 0; k <= 24; k++) { const t = k / 24, u = 1 - t; roadPts.push({ x: u * u * A.x + 2 * u * t * e.ctrl.x + t * t * B.x, y: u * u * A.y + 2 * u * t * e.ctrl.y + t * t * B.y }) }
+  }
+  const nearRoad = pointGrid(roadPts), nearStream = pointGrid(cityStream().pts)
+  const boxes = SLOTS.map(artBox)
+  const fields = cityFields()
+  const W = TILE.w * 0.95, H = TILE.h * 1.9 // tezgâh + tente (ekranda)
+  const free = (x: number, y: number) =>
+    !boxes.some(b => x + W / 2 > b.x0 && x - W / 2 < b.x1 && y > b.y0 && y - H < b.y1) &&
+    !fields.some(f => Math.abs(f.x - x) / (f.hw + W * 0.7) + Math.abs(f.y - y) / (f.hh + H * 0.6) < 1) &&
+    !nearRoad(x, y, W * 0.6, 26, p => Math.abs(p.x - x) < W * 0.6 && Math.abs(p.y - y) < 26) &&
+    !nearStream(x, y, W, 40, p => Math.abs(p.x - x) < W && Math.abs(p.y - y) < 40) &&
+    !aqueductHits(x, y, W, 50) &&
+    y < shoreYAt(x) - TILE.h * 2
+  const stairs = nodeAt.get('st_stairs') ?? nodeAt.get(ROAD_GRAPH.nodes[0].id)!
+  const wall = DEFENSE_FOUNDATION.map(p => p.screen)
+  const inWall = (x: number, y: number) => {
+    let inside = false
+    for (let i = 0, j = wall.length - 1; i < wall.length; j = i++) {
+      const a = wall[i], b = wall[j]
+      if ((a.y > y) !== (b.y > y) && x < (b.x - a.x) * (y - a.y) / (b.y - a.y) + a.x) inside = !inside
+    }
+    return inside
+  }
+  const P = PLAZA.screen
+  const fountains = cityFountains()
+  const cands: Array<{ x: number; y: number; d: number }> = []
+  for (let y = Math.min(...wall.map(p => p.y)) + 200; y < stairs.y + 200; y += 20) {
+    for (let x = Math.min(...wall.map(p => p.x)) + 150; x <= Math.max(...wall.map(p => p.x)) - 150; x += 20) {
+      if (!inWall(x, y) || ((x - P.x) / (PLAZA.rx * 1.3)) ** 2 + ((y - P.y) / (PLAZA.ry * 1.3)) ** 2 < 1) continue
+      if (fountains.some(f => Math.hypot(f.x - x, (f.y - y) * 1.5) < TILE.w * 1.6)) continue
+      // 2x2 tezgâh bloğu: sol-sağ sütun, üst-alt sıra.
+      const spots = [[-W * 0.62, 0], [W * 0.62, 0], [-W * 0.62, H * 0.95], [W * 0.62, H * 0.95]].map(([dx, dy]) => ({ x: x + dx, y: y + dy }))
+      if (!spots.every(p => free(p.x, p.y))) continue
+      // Limana yakın olsun; yola bitişikse ayrıca tercih edilir (müşteri gelsin).
+      const roadNear = nearRoad(x, y + H * 0.5, W * 2, H * 1.2, () => true)
+      cands.push({ x, y, d: Math.hypot(x - stairs.x, (y - stairs.y) * 1.3) + (roadNear ? 0 : 150) })
+    }
+  }
+  cands.sort((a, b) => a.d - b.d)
+  const c = cands[0]
+  bazaarCache = c ? [[-W * 0.62, 0], [W * 0.62, 0], [-W * 0.62, H * 0.95], [W * 0.62, H * 0.95]].map(([dx, dy]) => ({ x: c.x + dx, y: c.y + dy })) : []
+  return bazaarCache
 }
