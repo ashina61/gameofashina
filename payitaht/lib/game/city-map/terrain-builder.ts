@@ -21,7 +21,7 @@ import { GROUND_TARGET_W, GROUND_TARGET_D, FOOTPRINT_DIAMOND_W, ART_DIAMOND_PX }
 import { asset } from '@/lib/asset'
 import { roadStyleFor, roadTierForHallLevel, type RoadKind } from './road-style'
 import { edgeKey, roadEdgeKeysForTargets } from './road-tree'
-import { cityFields, cityFountains } from './city-extras'
+import { cityFields, cityFountains, cityStream } from './city-extras'
 
 /** Arazi dokuları ve dekor (tools/art/decor.py ile çizilir). */
 export const TERRAIN_TILES = ['grass', 'dirt'] as const
@@ -793,6 +793,7 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1, occupiedSl
           if (Math.abs(rr - 1) < 0.1) continue // çevre yolu kavşağı
           if (!insideWall(x, y) || y > shoreY(x) - TILE.h * 1.2) continue
           if (cityFountains().some(c => Math.hypot(x - c.x, (y - c.y) * 1.6) < TILE.w * 0.75)) continue // çeşme başı açık
+          if (cityStream().pts.some(p => Math.hypot(p.x - x, p.y - y) < 40)) continue // dere
           if ([...CITY_SLOTS, ...COAST_SLOTS, ...DEFENSE_SLOTS].some(s => s.id !== HALL_SLOT_ID && nearSlot(x, y, s, 0.95))) continue
           const img = stamp(tr() < 0.5 ? 'd_cypress' : 'd_cypress-b', x, y, TILE.w * (0.24 + tr() * 0.05), y, 0.92)
           if (img) plazaDecor.push(img)
@@ -989,6 +990,94 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1, occupiedSl
     }
   }
 
+  // 2h) DERE: tepeden denize kıvrılan su; kıyıda saz ve taş, yolları geçtiği
+  // yerlerde kemerli Osmanlı köprüsü, orta bölümde su değirmeni.
+  {
+    const st = cityStream()
+    const sr = mulberry32(3131)
+    const water = scene.add.graphics().setDepth(-803)
+    const pass = (extra: number, color: number, alpha: number, scaleW = 1) => {
+      for (let i = 0; i + 1 < st.pts.length; i++) {
+        const a = st.pts[i], b = st.pts[i + 1]
+        water.lineStyle(st.widths[i] * scaleW + extra, color, alpha)
+        water.lineBetween(a.x, a.y, b.x, b.y)
+      }
+      for (let i = 0; i < st.pts.length; i += 3) { water.fillStyle(color, alpha); water.fillCircle(st.pts[i].x, st.pts[i].y, (st.widths[i] * scaleW + extra) / 2) }
+    }
+    pass(18, 0x5f7a3c, 0.55) // nemli çimen kıyı
+    pass(9, 0x8a7a50, 1) // çamur kıyı
+    pass(0, 0x3f8aa6, 1) // su
+    pass(-6, 0x5aa6c0, 1) // açık su
+    pass(-12, 0x8fd0e0, 0.55, 0.5) // parıltı
+    // Ağızda denize açılan yelpaze.
+    const m = st.pts[st.pts.length - 1]
+    water.fillStyle(0x5aa6c0, 0.6); water.fillEllipse(m.x, m.y + 10, 90, 34)
+    // Kıyı sazları ve taşlar.
+    for (let i = 4; i < st.pts.length - 4; i += 7) {
+      const a = st.pts[i - 1], b = st.pts[i + 1], l = Math.hypot(b.x - a.x, b.y - a.y) || 1
+      const nx = -(b.y - a.y) / l, ny = (b.x - a.x) / l
+      if (st.bridges.some(br => Math.hypot(br.x - st.pts[i].x, br.y - st.pts[i].y) < 60)) continue
+      const side = sr() < 0.5 ? 1 : -1, off = st.widths[i] / 2 + 6
+      const x = st.pts[i].x + nx * off * side, y = st.pts[i].y + ny * off * side
+      const g = scene.add.graphics().setDepth(y)
+      if (sr() < 0.7) {
+        for (let k = 0; k < 6; k++) {
+          const rx = x + (sr() - 0.5) * 16, h = 10 + sr() * 12
+          g.lineStyle(1.6, sr() < 0.5 ? 0x4f7d34 : 0x7a9a44, 1); g.lineBetween(rx, y, rx + (sr() - 0.5) * 5, y - h)
+          if (sr() < 0.3) { g.fillStyle(0x6a4a2a, 1); g.fillEllipse(rx + 1, y - h, 3, 7) }
+        }
+      } else {
+        g.fillStyle(0x9a948a, 1); g.fillEllipse(x, y - 3, 14, 9); g.fillStyle(0xbab4a8, 1); g.fillEllipse(x - 2, y - 5, 8, 5)
+      }
+      plazaDecor.push(g)
+    }
+    // KÖPRÜLER: kambur taş köprü (yol dereyi dik keser).
+    for (const br of st.bridges) {
+      const g = scene.add.graphics().setDepth(br.y + 2)
+      const sx = Math.cos(br.angle), sy = Math.sin(br.angle) // dere yönü
+      const rx = -sy, ry = sx // yol yönü
+      const L = 78, Wd = 36, hump = 9
+      const P = (u: number, v: number, lift = 0) => V(br.x + rx * u + sx * v, br.y + ry * u + sy * v - lift)
+      g.fillStyle(0x24424c, 0.45); g.fillEllipse(br.x + sx * 22, br.y + sy * 22 + 6, 46, 16)
+      const deck = [P(-L / 2, -Wd / 2), P(0, -Wd / 2, hump), P(L / 2, -Wd / 2), P(L / 2, Wd / 2), P(0, Wd / 2, hump), P(-L / 2, Wd / 2)]
+      g.fillStyle(0xb8a67e, 1); g.fillPoints(deck.map(p => V(p.x, p.y + 6)), true)
+      g.fillStyle(0xd9c9a4, 1); g.fillPoints(deck, true)
+      g.lineStyle(1, 0xa89468, 0.6)
+      for (let u = -L / 2 + 10; u < L / 2; u += 10) { const a = P(u, -Wd / 2, hump * (1 - Math.abs(u) / (L / 2))), b = P(u, Wd / 2, hump * (1 - Math.abs(u) / (L / 2))); g.lineBetween(a.x, a.y, b.x, b.y) }
+      // Korkuluklar (iki kenar) ve uçlarda taş babalar.
+      for (const v of [-Wd / 2, Wd / 2]) {
+        const rail = [-1, -0.5, 0, 0.5, 1].map(t => P(t * L / 2, v, hump * (1 - Math.abs(t)) + 7))
+        g.lineStyle(6, 0xeee2c4, 1); g.strokePoints(rail, false)
+        g.lineStyle(1.5, 0x9c8763, 0.8); g.strokePoints(rail.map(p => V(p.x, p.y + 3)), false)
+        for (const t of [-1, 1]) { const q = P(t * L / 2, v, 12); g.fillStyle(0xeee2c4, 1); g.fillRect(q.x - 4, q.y - 4, 8, 10) }
+      }
+      // Kemer gözü (izleyiciye bakan yüzde).
+      const face = sy * 1 >= 0 ? Wd / 2 : -Wd / 2
+      const c = P(0, face)
+      g.fillStyle(0x2e3a3a, 0.75); g.beginPath(); g.arc(c.x, c.y + 6, 13, Math.PI, 0, false); g.closePath(); g.fillPath()
+      plazaDecor.push(g)
+    }
+    // SU DEĞİRMENİ: taş zemin kat, ahşap üst kat, kiremit çatı (çark sahnede döner).
+    if (st.mill) {
+      const { x, y } = st.mill
+      const g = scene.add.graphics().setDepth(y)
+      const w = 112, h1 = 40, h2 = 34, d = 40
+      g.fillStyle(0x1b2a14, 0.25); g.fillEllipse(x + 16, y + 6, w * 1.4, 22)
+      g.fillStyle(0xa3998a, 1); g.fillPoints([V(x + w / 2, y), V(x + w / 2 + d, y - d / 2), V(x + w / 2 + d, y - d / 2 - h1), V(x + w / 2, y - h1)], true)
+      g.fillStyle(0xc9bfa8, 1); g.fillRect(x - w / 2, y - h1, w, h1)
+      g.fillStyle(0x7a5230, 1); g.fillRect(x - w / 2 + 2, y - h1 - h2, w - 4, h2)
+      g.fillStyle(0x5f3f22, 1); g.fillPoints([V(x + w / 2 - 2, y - h1), V(x + w / 2 + d - 2, y - d / 2 - h1), V(x + w / 2 + d - 2, y - d / 2 - h1 - h2), V(x + w / 2 - 2, y - h1 - h2)], true)
+      g.fillStyle(0x3a2a1c, 1); g.fillRect(x - 11, y - 30, 22, 30); g.fillRect(x - w / 2 + 14, y - h1 - 24, 14, 13); g.fillRect(x + w / 2 - 30, y - h1 - 24, 14, 13)
+      g.fillStyle(0xb5532e, 1); g.fillPoints([V(x - w / 2 - 6, y - h1 - h2), V(x + w / 2 + 6, y - h1 - h2), V(x + w / 2 + d + 4, y - h1 - h2 - d / 2), V(x + d / 2, y - h1 - h2 - 46), V(x - w / 2 + d / 2 - 6, y - h1 - h2 - 38)], true)
+      g.lineStyle(1.2, 0x8a3a20, 0.7)
+      for (let k = 1; k < 7; k++) g.lineBetween(x - w / 2 - 6 + k * 4, y - h1 - h2 - k * 6, x + w / 2 + 6 + k * 4, y - h1 - h2 - k * 6)
+      g.fillStyle(0xd9d1bd, 1); g.fillRect(x + 12, y - h1 - h2 - 52, 11, 20) // baca
+      // Çuval ve saman.
+      g.fillStyle(0xe2d3a6, 1); g.fillEllipse(x - w / 2 - 10, y - 5, 12, 12); g.fillEllipse(x - w / 2 - 20, y - 3, 11, 10)
+      plazaDecor.push(g)
+    }
+  }
+
   // 3) TAŞ / TOPRAK katmanı.
   const g = scene.add.graphics().setDepth(-800)
 
@@ -1132,6 +1221,7 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1, occupiedSl
     ((wx - PLAZA.screen.x) / PLAZA.rx) ** 2 + ((wy - PLAZA.screen.y) / PLAZA.ry) ** 2 > 1.5 &&
     !cityFields().some(f => Math.abs(wx - f.x) / (f.hw + 30) + Math.abs(wy - f.y) / (f.hh + 15) < 1) &&
     !cityFountains().some(c => Math.hypot(wx - c.x, (wy - c.y) * 2) < TILE.w * 0.8) &&
+    !cityStream().pts.some(p => Math.abs(p.x - wx) < 46 && Math.abs(p.y - wy) < 30) &&
     !occ.some(s => nearSlot(
       wx, wy, s,
       initialOccupied.has(s.id) ? margin : Math.min(margin, s.fixed ? 0.90 : 0.66),

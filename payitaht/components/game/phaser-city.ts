@@ -14,7 +14,7 @@
  * Phaser'in ESM paketinde varsayılan dışa aktarım yok; ad alanı olarak alınır.
  */
 import * as Phaser from 'phaser'
-import { cityFields, cityFountains } from '@/lib/game/city-map/city-extras'
+import { cityFields, cityFountains, cityStream } from '@/lib/game/city-map/city-extras'
 import { TILE, CITY_SLOTS, COAST_SLOTS, DEFENSE_SLOTS, DEFENSE_FOUNDATION, ROAD_GRAPH, HALL_SLOT_ID, ROAD_EXITS, WALL_GATES, PLAZA, slotById } from '@/lib/game/city-map'
 import { LIVE_SLOTS, liveSlotByIndex, type LiveSlot } from '@/lib/game/city-map/live-adapter'
 import { buildCityTerrain, preloadTerrain, cityWorldRect, cityContentRect, mineSite } from '@/lib/game/city-map/terrain-builder'
@@ -634,6 +634,17 @@ export class CityScene extends Phaser.Scene {
       }
       this.pieces.push(lg)
     }
+    // SU KEMERLERİ: derenin surun altından geçtiği yerde demir parmaklıklı kemer.
+    for (const a of cityStream().wallArches) {
+      const g = this.add.graphics().setDepth(a.y + 1.9)
+      const aw = 34, ah = wallH * 0.5
+      g.fillStyle(0x223a40, 0.9); g.beginPath(); g.moveTo(a.x - aw / 2, a.y + 2); g.lineTo(a.x - aw / 2, a.y - ah * 0.5)
+      g.arc(a.x, a.y - ah * 0.5, aw / 2, Math.PI, 0, false); g.lineTo(a.x + aw / 2, a.y + 2); g.closePath(); g.fillPath()
+      g.lineStyle(2, 0x3a3530, 1)
+      for (let k = -2; k <= 2; k++) g.lineBetween(a.x + k * 6, a.y + 2, a.x + k * 6, a.y - ah * 0.5 - Math.sqrt(Math.max(0, 1 - (k * 6 / (aw / 2)) ** 2)) * aw / 2)
+      g.lineStyle(2.5, 0xeadbb6, 1); g.beginPath(); g.arc(a.x, a.y - ah * 0.5, aw / 2 + 2, Math.PI, 0, false); g.strokePath()
+      this.pieces.push(g)
+    }
     // Ara burçlar: halkanın köşelerinde düzenli aralıkla (kapılarda değil).
     for (const p of ring) {
       if (placed.some(q => Math.hypot(q.x - p.x, q.y - p.y) < TILE.w * 3.2)) continue
@@ -746,7 +757,7 @@ export class CityScene extends Phaser.Scene {
    * sürü halinde havalanıp döner, yeniden konar) ve limanın üstünde süzülen
    * martılar.
    */
-  private birds: Array<{ g: Phaser.GameObjects.Graphics; kind: 'pigeon' | 'gull' | 'sheep' | 'boat'; hx: number; hy: number; x: number; y: number; ph: number; r: number; sp: number }> = []
+  private birds: Array<{ g: Phaser.GameObjects.Graphics; kind: 'pigeon' | 'gull' | 'sheep' | 'boat' | 'ripple' | 'duck' | 'wheel'; hx: number; hy: number; x: number; y: number; ph: number; r: number; sp: number }> = []
   private flockClock = 0
   private addBirds() {
     for (const b of this.birds) b.g.destroy()
@@ -815,6 +826,37 @@ export class CityScene extends Phaser.Scene {
         this.birds.push({ g, kind: 'sheep', hx: c.x + dx, hy: c.y + dy, x: 0, y: 0, ph: 0, r: 1.5, sp: 0.02 })
       }
     }
+    // DERE: akıntıyla süzülen parıltılar, yüzen ördekler, dönen değirmen çarkı.
+    const stream = cityStream()
+    this.streamPath = null
+    if (stream.pts.length > 3) {
+      this.streamPath = new Phaser.Curves.Path(stream.pts[0].x, stream.pts[0].y)
+      for (const p of stream.pts.slice(1)) this.streamPath.lineTo(p.x, p.y)
+      this.streamLen = this.streamPath.getLength()
+      for (let i = 0; i < 26; i++) {
+        const g = this.add.graphics().setDepth(-802)
+        g.lineStyle(2, 0xeaf8fc, 0.8); g.lineBetween(-5, 0, 5, 0)
+        this.birds.push({ g, kind: 'ripple', hx: 0, hy: 0, x: 0, y: 0, ph: rnd(), r: (rnd() - 0.5) * 8, sp: 0 })
+      }
+      for (let i = 0; i < 3; i++) {
+        const g = this.add.graphics()
+        g.fillStyle(0x1b3a4a, 0.25); g.fillEllipse(1, 1, 14, 5)
+        g.fillStyle(i === 0 ? 0x6b4a2a : 0x8a6a4a, 1); g.fillEllipse(0, -2, 13, 7)
+        g.fillStyle(i === 0 ? 0x2f6b4c : 0x7a5a3a, 1); g.fillCircle(5, -6, 3)
+        g.fillStyle(0xe0a030, 1); g.fillRect(7.5, -6.5, 3, 1.6)
+        this.birds.push({ g, kind: 'duck', hx: 0, hy: 0, x: 0, y: 0, ph: 0.45 + i * 0.012, r: 0, sp: 0.35 + i * 0.05 })
+      }
+    }
+    if (stream.mill) {
+      const w = stream.mill.wheel
+      const g = this.add.graphics().setPosition(w.x, w.y - 26).setDepth(w.y + 1)
+      g.lineStyle(4, 0x5f3f22, 1); g.strokeCircle(0, 0, 32)
+      g.lineStyle(2, 0x7a5230, 1)
+      for (let k = 0; k < 10; k++) { const t = k / 10 * Math.PI * 2; g.lineBetween(0, 0, Math.cos(t) * 32, Math.sin(t) * 32); g.fillStyle(0x7a5230, 1); g.fillRect(Math.cos(t) * 32 - 4, Math.sin(t) * 32 - 4, 8, 8) }
+      g.fillStyle(0x3a2a1c, 1); g.fillCircle(0, 0, 4)
+      g.setScale(0.55, 1) // yandan görünüş
+      this.birds.push({ g, kind: 'wheel', hx: w.x, hy: w.y, x: 0, y: 0, ph: 0, r: 0, sp: 1.2 })
+    }
     // DEVE KERVANI: doğu kapısından girip meydana kadar gelir, geri döner.
     const nodeAt = new Map(ROAD_GRAPH.nodes.map(n => [n.id, n.screen]))
     const route = ['st_out_e', 'st_gate_e', 'st_r0'].map(id => nodeAt.get(id)).filter((p): p is { x: number; y: number } => !!p)
@@ -842,6 +884,8 @@ export class CityScene extends Phaser.Scene {
     }
     this.stepBirds(0)
   }
+  private streamPath: Phaser.Curves.Path | null = null
+  private streamLen = 1
   private caravan: Phaser.GameObjects.Graphics[] = []
   private caravanPath: Phaser.Curves.Path | null = null
   private caravanLen = 0
@@ -870,6 +914,21 @@ export class CityScene extends Phaser.Scene {
     const lift = flying ? Math.sin((cycle - 14) / 4 * Math.PI) : 0
     for (const b of this.birds) {
       b.ph += dt * b.sp
+      if (b.kind === 'wheel') { b.g.rotation += dt * b.sp; continue }
+      if ((b.kind === 'ripple' || b.kind === 'duck') && this.streamPath) {
+        if (b.kind === 'ripple') b.ph = (b.ph + dt * 40 / this.streamLen) % 1
+        const t = b.kind === 'duck' ? 0.35 + 0.25 * (0.5 + 0.5 * Math.sin(b.ph * 0.25 + b.sp * 9)) + (b.sp - 0.35) * 0.1 : b.ph
+        const p = this.streamPath.getPoint(Math.min(0.999, t)), q = this.streamPath.getPoint(Math.min(1, t + 0.002))
+        const l = Math.hypot(q.x - p.x, q.y - p.y) || 1
+        if (b.kind === 'ripple') {
+          b.g.setPosition(p.x - (q.y - p.y) / l * b.r, p.y + (q.x - p.x) / l * b.r).setRotation(Math.atan2(q.y - p.y, q.x - p.x))
+          b.g.setAlpha(0.3 + 0.5 * Math.abs(Math.sin(b.ph * 60)))
+        } else {
+          const back = Math.cos(b.ph * 0.25 + b.sp * 9) < 0
+          b.g.setPosition(p.x, p.y + 2).setScale((q.x - p.x) * (back ? -1 : 1) >= 0 ? 1 : -1, 1).setDepth(p.y + 1)
+        }
+        continue
+      }
       if (b.kind === 'sheep') {
         // Yavaş otlama: küçük bir daire içinde gezinir, arada başını eğer.
         const x = b.hx + Math.cos(b.ph) * b.r, y = b.hy + Math.sin(b.ph * 1.3) * b.r * 0.4
