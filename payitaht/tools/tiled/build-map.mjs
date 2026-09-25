@@ -90,9 +90,10 @@ COAST_PX.forEach(([x, y], i) => {
 })
 
 /*
- * SAVUNMA: ovali saran sekizgen sur; kule yuvaları köşelerde.
+ * SAVUNMA: ovali saran sekizgen sur; kule yuvaları köşelerde. Sur şehri
+ * sıkıştırmaz: arsalarla sur arasında geniş bahçe/bayır payı kalır.
  */
-const L = minX - 300, R = maxX + 300, T = minY - 420, B = maxY + 240
+const L = minX - 720, R = maxX + 720, T = minY - 760, B = maxY + 250
 const px = (x, y) => [x / 64, y / 32]
 const ringPt = ([dRel, sRel]) => {
   const d = -20 + dRel, s = 120 + sRel
