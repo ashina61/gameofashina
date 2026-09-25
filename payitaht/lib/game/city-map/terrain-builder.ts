@@ -159,8 +159,10 @@ function roadCurves(V: (x: number, y: number) => Phaser.Math.Vector2): RoadCurve
     const segment = Math.hypot(end.x - start.x, end.y - start.y)
     const bend = Math.hypot(vx, vy)
     const maxBend = segment * (kind === 'avenue' ? 0.20 : kind === 'street' ? 0.24 : 0.16)
-    const bendScale = bend > 0 ? Math.min(1, maxBend / bend) : 0
-    const blend = kind === 'avenue' ? 0.48 : kind === 'street' ? 0.56 : 0.42
+    // Çevre yolu (st_r*) kenarları elips yayını AYNEN izler; kırpılmaz.
+    const ringArc = e.from.startsWith('st_r') && e.to.startsWith('st_r')
+    const bendScale = ringArc ? 1 : bend > 0 ? Math.min(1, maxBend / bend) : 0
+    const blend = ringArc ? 1 : kind === 'avenue' ? 0.48 : kind === 'street' ? 0.56 : 0.42
     const ctrl = V(mx + vx * bendScale * blend, my + vy * bendScale * blend)
 
     out.push({

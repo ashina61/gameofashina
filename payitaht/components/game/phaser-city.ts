@@ -408,8 +408,7 @@ export class CityScene extends Phaser.Scene {
   private drawWalls(level: number) {
     const ring = DEFENSE_FOUNDATION.map(p => p.screen)
     const n = ring.length
-    const wallH = TILE.h * (0.55 + Math.min(level, 10) * 0.05)
-    const walk = TILE.h * 0.26
+    const wallH = TILE.h * (1.05 + Math.min(level, 10) * 0.06)
     const gapHalf = TILE.w * 0.34
 
     // Yol kenarlarının halka kenarlarını kestiği noktalar = kapılar.
@@ -458,34 +457,66 @@ export class CityScene extends Phaser.Scene {
     }
 
     const V = (x: number, y: number) => new Phaser.Math.Vector2(x, y)
+    const hall = slotById(HALL_SLOT_ID)!.screen
+    // Zemin (karo) uzayında dik vektör: duvarın KALINLIĞI şehre doğru uzanır.
+    const thick = (p0: { x: number; y: number }, p1: { x: number; y: number }) => {
+      const gx = (x: number, y: number) => (x / (TILE.w / 2) + y / (TILE.h / 2)) / 2
+      const gy = (x: number, y: number) => (y / (TILE.h / 2) - x / (TILE.w / 2)) / 2
+      const dgx = gx(p1.x - p0.x, p1.y - p0.y), dgy = gy(p1.x - p0.x, p1.y - p0.y)
+      const l = Math.hypot(dgx, dgy) || 1
+      const ngx = -dgy / l * 0.42, ngy = dgx / l * 0.42 // 0.42 karo kalınlık
+      const nx = (ngx - ngy) * TILE.w / 2, ny = (ngx + ngy) * TILE.h / 2
+      const mx = (p0.x + p1.x) / 2, my = (p0.y + p1.y) / 2
+      if ((hall.x - mx) * nx + (hall.y - my) * ny < 0) return { x: -nx, y: -ny }
+      return { x: nx, y: ny }
+    }
     const piece = (p0: { x: number; y: number }, p1: { x: number; y: number }) => {
-      const g = this.add.graphics().setDepth(Math.max(p0.y, p1.y) + 1)
-      const dx = p1.x - p0.x, dy = p1.y - p0.y
+      const n = thick(p0, p1)
+      // Ön yüz: izleyiciye (ekranda aşağıya) bakan kenar.
+      const inFront = n.y > 0
+      const f0 = inFront ? { x: p0.x + n.x, y: p0.y + n.y } : p0
+      const f1 = inFront ? { x: p1.x + n.x, y: p1.y + n.y } : p1
+      const b0 = inFront ? p0 : { x: p0.x + n.x, y: p0.y + n.y }
+      const b1 = inFront ? p1 : { x: p1.x + n.x, y: p1.y + n.y }
+      const g = this.add.graphics().setDepth(Math.max(f0.y, f1.y) + 1)
+      const dx = f1.x - f0.x, dy = f1.y - f0.y
       // Işık sol-üstten: "\\" yönlü yüzler aydınlık, "/" yönlüler gölgede.
-      const lit = dx * dy > 0 ? 1 : dy === 0 ? 0.6 : 0.25
-      const face = lit > 0.8 ? 0xd9bf92 : lit > 0.5 ? 0xc9ad80 : 0xb3966c
-      const top = 0xe8d6ae
-      g.fillStyle(0x1b2a14, 0.20)
-      g.fillPoints([V(p0.x, p0.y), V(p1.x, p1.y), V(p1.x + TILE.w * 0.14, p1.y + TILE.h * 0.22), V(p0.x + TILE.w * 0.14, p0.y + TILE.h * 0.22)], true)
+      const lit = dx * dy > 0 ? 1 : Math.abs(dy) < Math.abs(dx) * 0.2 ? 0.6 : 0.25
+      const face = lit > 0.8 ? 0xdcc497 : lit > 0.5 ? 0xcbb083 : 0xb0936a
+      const top = 0xeadbb6
+      // Zemin gölgesi.
+      g.fillStyle(0x1b2a14, 0.22)
+      g.fillPoints([V(f0.x, f0.y), V(f1.x, f1.y), V(f1.x + TILE.w * 0.2, f1.y + TILE.h * 0.3), V(f0.x + TILE.w * 0.2, f0.y + TILE.h * 0.3)], true)
+      // Kaide (koyu taş şerit) + ön yüz.
       g.fillStyle(face, 1)
-      g.fillPoints([V(p0.x, p0.y), V(p1.x, p1.y), V(p1.x, p1.y - wallH), V(p0.x, p0.y - wallH)], true)
-      // Taş sıraları.
-      g.lineStyle(1.4, 0x8a6c47, 0.30)
-      for (const f of [0.33, 0.66]) g.lineBetween(p0.x, p0.y - wallH * f, p1.x, p1.y - wallH * f)
+      g.fillPoints([V(f0.x, f0.y), V(f1.x, f1.y), V(f1.x, f1.y - wallH), V(f0.x, f0.y - wallH)], true)
+      g.fillStyle(0x7d6444, 0.35)
+      g.fillPoints([V(f0.x, f0.y), V(f1.x, f1.y), V(f1.x, f1.y - wallH * 0.14), V(f0.x, f0.y - wallH * 0.14)], true)
+      // Taş sıraları ve derzler.
+      g.lineStyle(1.2, 0x8a6c47, 0.32)
+      for (const f of [0.3, 0.52, 0.74]) g.lineBetween(f0.x, f0.y - wallH * f, f1.x, f1.y - wallH * f)
+      const len = Math.hypot(dx, dy), ux = dx / (len || 1), uy = dy / (len || 1)
+      for (let d = TILE.w * 0.1, row = 0; d < len; d += TILE.w * 0.11, row++) {
+        const lo = row % 2 ? 0.3 : 0.52, hi = row % 2 ? 0.52 : 0.74
+        g.lineBetween(f0.x + ux * d, f0.y + uy * d - wallH * lo, f0.x + ux * d, f0.y + uy * d - wallH * hi)
+      }
+      // Üst yürüyüş yolu (kalınlık görünür).
       g.fillStyle(top, 1)
-      g.fillPoints([V(p0.x, p0.y - wallH), V(p1.x, p1.y - wallH), V(p1.x, p1.y - wallH - walk), V(p0.x, p0.y - wallH - walk)], true)
+      g.fillPoints([V(f0.x, f0.y - wallH), V(f1.x, f1.y - wallH), V(b1.x, b1.y - wallH), V(b0.x, b0.y - wallH)], true)
+      g.lineStyle(1.4, 0x8a6c47, 0.45)
+      g.lineBetween(b0.x, b0.y - wallH, b1.x, b1.y - wallH)
       // Mazgallar (ön kenar boyunca).
-      const len = Math.hypot(dx, dy), step = TILE.w * 0.15, mw = TILE.w * 0.075, mh = TILE.h * 0.17
-      const ux = dx / (len || 1), uy = dy / (len || 1)
+      const step = TILE.w * 0.17, mw = TILE.w * 0.09, mh = TILE.h * 0.2
       for (let d = step * 0.3; d + mw <= len; d += step) {
-        const a = { x: p0.x + ux * d, y: p0.y + uy * d - wallH }
+        const a = { x: f0.x + ux * d, y: f0.y + uy * d - wallH }
         const b = { x: a.x + ux * mw, y: a.y + uy * mw }
         g.fillStyle(face, 1)
         g.fillPoints([V(a.x, a.y), V(b.x, b.y), V(b.x, b.y - mh), V(a.x, a.y - mh)], true)
         g.fillStyle(top, 1)
-        g.fillPoints([V(a.x, a.y - mh), V(b.x, b.y - mh), V(b.x, b.y - mh - walk * 0.4), V(a.x, a.y - mh - walk * 0.4)], true)
+        g.fillPoints([V(a.x, a.y - mh), V(b.x, b.y - mh), V(b.x + n.x * 0.35 * (inFront ? -1 : 1), b.y - mh + n.y * 0.35 * (inFront ? -1 : 1)), V(a.x + n.x * 0.35 * (inFront ? -1 : 1), a.y - mh + n.y * 0.35 * (inFront ? -1 : 1))], true)
       }
-      g.lineStyle(1.6, 0x6e5436, 0.55); g.lineBetween(p0.x, p0.y, p1.x, p1.y)
+      g.lineStyle(1.6, 0x5e4630, 0.6); g.lineBetween(f0.x, f0.y, f1.x, f1.y)
+      g.lineStyle(1.2, 0x6e5436, 0.5); g.lineBetween(f0.x, f0.y - wallH, f1.x, f1.y - wallH)
       this.pieces.push(g)
     }
 
@@ -523,7 +554,7 @@ export class CityScene extends Phaser.Scene {
     }
     const placed: Array<{ x: number; y: number }> = []
     for (const s of DEFENSE_SLOTS) {
-      tower(s.screen.x, s.screen.y + TILE.h * 0.2, TILE.w * 0.62)
+      tower(s.screen.x, s.screen.y + TILE.h * 0.2, TILE.w * 0.78)
       placed.push(s.screen)
     }
     // Kapı kuleleri: açıklığın iki ucunda; köşe kulesine ya da başka kuleye
@@ -538,8 +569,15 @@ export class CityScene extends Phaser.Scene {
         const x = A.x + (B.x - A.x) * u, y = A.y + (B.y - A.y) * u
         if (placed.some(p => Math.hypot(p.x - x, p.y - y) < TILE.w * 0.7)) continue
         placed.push({ x, y })
-        tower(x, y + TILE.h * 0.1, TILE.w * 0.4)
+        tower(x, y + TILE.h * 0.1, TILE.w * 0.55)
       }
+    }
+    // Ara burçlar: halkanın köşelerinde düzenli aralıkla (kapılarda değil).
+    for (const p of ring) {
+      if (placed.some(q => Math.hypot(q.x - p.x, q.y - p.y) < TILE.w * 3.2)) continue
+      if (hits.some(h => Math.hypot(h.x - p.x, h.y - p.y) < TILE.w * 1.2)) continue
+      placed.push(p)
+      tower(p.x, p.y + TILE.h * 0.15, TILE.w * 0.6)
     }
   }
 

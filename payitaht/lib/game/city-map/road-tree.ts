@@ -48,5 +48,13 @@ export function roadEdgeKeysForTargets(targets: Iterable<string>): Set<string> {
       node = p.node
     }
   }
+  // Görünen iki SOKAK düğümü arasındaki kenar da görünür: çevre yolu gibi
+  // döngüler ağaçta bir yerden kopuk kalmaz. Arsalar yaprak olduğu için
+  // bu, arsadan arsaya yol açmaz.
+  const onTree = new Set<string>()
+  for (const k of keys) for (const id of k.split('|')) onTree.add(id)
+  for (const e of ROAD_GRAPH.edges) {
+    if (e.from.startsWith('st_') && e.to.startsWith('st_') && onTree.has(e.from) && onTree.has(e.to)) keys.add(edgeKey(e.from, e.to))
+  }
   return keys
 }
