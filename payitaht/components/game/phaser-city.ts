@@ -825,6 +825,114 @@ export class CityScene extends Phaser.Scene {
       new Phaser.Math.Vector2(cx, cy + h / 2), new Phaser.Math.Vector2(cx - w / 2, cy)]
   }
 
+  /*
+   * AVLU: kurulu her kara binasının çevresinde alçak taş bahçe duvarı. Yola
+   * bakan kenarda iki babalı bir avlu kapısı açılır (sokak girişi oradan
+   * geçer). Yan köşelerde servi, arkada meyve ağacı, kapı yanında çiçek.
+   */
+  private addGardenWall(slot: LiveSlot, imgY: number, artS: number) {
+    const V = (x: number, y: number) => new Phaser.Math.Vector2(x, y)
+    const cx = slot.screen.x, cy = slot.screen.y
+    // Avlu mümkünse geniş (×1.3); yakındaki bir cadde/yol (ve servi sırası)
+    // duvarın içinde kalıyorsa yola değmeyene kadar daraltılır.
+    const nodeAt = new Map(ROAD_GRAPH.nodes.map(n => [n.id, n.screen]))
+    const roadPts: Array<{ x: number; y: number }> = []
+    for (const e of ROAD_GRAPH.edges) {
+      if (e.from === slot.slotId || e.to === slot.slotId) continue
+      const A = nodeAt.get(e.from), B = nodeAt.get(e.to)
+      if (!A || !B || Math.min(Math.hypot(A.x - cx, A.y - cy), Math.hypot(B.x - cx, B.y - cy), Math.hypot(e.ctrl.x - cx, e.ctrl.y - cy)) > TILE.w * 6) continue
+      for (let k = 0; k <= 24; k++) {
+        const t = k / 24, u = 1 - t
+        roadPts.push({ x: u * u * A.x + 2 * u * t * e.ctrl.x + t * t * B.x, y: u * u * A.y + 2 * u * t * e.ctrl.y + t * t * B.y })
+      }
+    }
+    let f = 1.3
+    const base = 211 * artS
+    while (f > 1.06 && roadPts.some(p => Math.abs(p.x - cx) / (base * f) + Math.abs(p.y - cy) / (base * f / 2) < 1 + TILE.w * 0.62 / (base * f))) f -= 0.03
+    const hw = base * f, hh = hw / 2
+    const N = { x: cx, y: cy - hh }, E = { x: cx + hw, y: cy }, S = { x: cx, y: cy + hh }, W = { x: cx - hw, y: cy }
+    const ring = [N, E, S, W]
+    // Kapı: bu arsaya bağlanan yol düğümüne bakan noktada.
+    const edge = ROAD_GRAPH.edges.find(e => e.from === slot.slotId || e.to === slot.slotId)
+    const other = edge ? ROAD_GRAPH.nodes.find(n => n.id === (edge.from === slot.slotId ? edge.to : edge.from))?.screen : undefined
+    const dx = (other?.x ?? cx) - cx, dy = (other?.y ?? cy + 1) - cy
+    const k = 1 / (Math.abs(dx) / hw + Math.abs(dy) / hh || 1)
+    const gate = { x: cx + dx * k, y: cy + dy * k }
+    const segs = ring.map((a, i) => [a, ring[(i + 1) % 4]] as const)
+    const onSeg = (p: { x: number; y: number }, a: { x: number; y: number }, b: { x: number; y: number }) => {
+      const l2 = (b.x - a.x) ** 2 + (b.y - a.y) ** 2
+      const t = ((p.x - a.x) * (b.x - a.x) + (p.y - a.y) * (b.y - a.y)) / l2
+      return { t, d: Math.hypot(a.x + (b.x - a.x) * t - p.x, a.y + (b.y - a.y) * t - p.y) }
+    }
+    const gateSeg = segs.map(([a, b], i) => ({ i, ...onSeg(gate, a, b) })).sort((p, q) => p.d - q.d)[0]
+    const segLen = Math.hypot(hw, hh), gapHalf = TILE.w * 0.36 / segLen
+    const wallH = TILE.h * 0.3
+    const rnd = (() => { let sd = (slot.index + 7) * 0x9e3779b1; return () => { sd = (Math.imul(sd, 1664525) + 1013904223) | 0; return (sd >>> 0) / 4294967296 } })()
+    const stone = [0xe6d7b4, 0xdccba5, 0xe9dcc0][slot.index % 3]
+
+    const piece = (a: { x: number; y: number }, b: { x: number; y: number }, front: boolean) => {
+      const g = this.add.graphics().setDepth(front ? imgY + 0.1 : cy - hh - 1)
+      g.fillStyle(0x1b2a14, 0.18)
+      g.fillPoints([V(a.x, a.y), V(b.x, b.y), V(b.x + 6, b.y + 5), V(a.x + 6, a.y + 5)], true)
+      g.fillStyle(Phaser.Display.Color.ValueToColor(stone).darken(front ? 10 : 22).color, 1)
+      g.fillPoints([V(a.x, a.y), V(b.x, b.y), V(b.x, b.y - wallH), V(a.x, a.y - wallH)], true)
+      g.fillStyle(stone, 1)
+      g.fillPoints([V(a.x, a.y - wallH), V(b.x, b.y - wallH), V(b.x, b.y - wallH - 4), V(a.x, a.y - wallH - 4)], true)
+      g.lineStyle(1, 0x8a6c47, 0.35); g.lineBetween(a.x, a.y - wallH * 0.5, b.x, b.y - wallH * 0.5)
+      this.pieces.push(g)
+    }
+    const pillar = (p: { x: number; y: number }, front: boolean) => {
+      const g = this.add.graphics().setDepth(front ? imgY + 0.12 : cy - hh - 0.9)
+      g.fillStyle(Phaser.Display.Color.ValueToColor(stone).darken(14).color, 1); g.fillRect(p.x - 5, p.y - wallH - 14, 10, wallH + 14)
+      g.fillStyle(stone, 1); g.fillRect(p.x - 6, p.y - wallH - 18, 12, 5)
+      g.fillStyle(0xb3261e, 1); g.fillCircle(p.x, p.y - wallH - 20, 2.4)
+      this.pieces.push(g)
+    }
+    const lerp = (a: { x: number; y: number }, b: { x: number; y: number }, t: number) => ({ x: a.x + (b.x - a.x) * t, y: a.y + (b.y - a.y) * t })
+    // Avlu zemini: bakımlı çimen, kenarında koyu bordür; kapıdan binaya taş yol.
+    const yard = this.add.graphics().setDepth(cy - hh - 2)
+    yard.fillStyle(0x6f9447, 0.55); yard.fillPoints(ring.map(p => V(p.x, p.y)), true)
+    yard.fillStyle(0x86ab58, 0.45); yard.fillPoints(ring.map(p => V(cx + (p.x - cx) * 0.9, cy + (p.y - cy) * 0.9)), true)
+    const padEdge = { x: cx + (gate.x - cx) * 0.7, y: cy + (gate.y - cy) * 0.7 }
+    yard.lineStyle(TILE.w * 0.2, 0xcdb88c, 1); yard.lineBetween(gate.x, gate.y, padEdge.x, padEdge.y)
+    yard.lineStyle(TILE.w * 0.14, 0xe2d3ae, 1); yard.lineBetween(gate.x, gate.y, padEdge.x, padEdge.y)
+    this.pieces.push(yard)
+    segs.forEach(([a, b], i) => {
+      const front = i === 1 || i === 2 // E→S ve S→W: izleyiciye bakan kenarlar
+      if (i !== gateSeg.i) { piece(a, b, front); return }
+      const t0 = Math.max(0.05, gateSeg.t - gapHalf), t1 = Math.min(0.95, gateSeg.t + gapHalf)
+      piece(a, lerp(a, b, t0), front); piece(lerp(a, b, t1), b, front)
+      pillar(lerp(a, b, t0), front); pillar(lerp(a, b, t1), front)
+    })
+
+    // Ağaçlar ve çiçekler (sprite: arazi dekoru dokuları).
+    const tree = (key: string, x: number, y: number, w: number, tint?: number) => {
+      if (!this.textures.exists(key)) return
+      const img = this.add.image(x, y, key).setOrigin(0.5, 0.92).setDepth(y)
+      const src = this.textures.get(key).getSourceImage() as HTMLImageElement
+      img.setDisplaySize(w, w * src.height / src.width)
+      if (tint !== undefined) img.setTint(tint)
+      this.pieces.push(img)
+    }
+    const nearGate = (p: { x: number; y: number }) => Math.hypot(p.x - gate.x, p.y - gate.y) < TILE.w * 0.7
+    const inside = (p: { x: number; y: number }, f: number) => ({ x: cx + (p.x - cx) * f, y: cy + (p.y - cy) * f })
+    // Yan köşelerde (içeride) servi çifti, kapı o köşeye düşmüyorsa.
+    for (const c of [W, E]) {
+      if (nearGate(c)) continue
+      const a = inside(c, 0.9), b = inside(c, 0.8)
+      tree(rnd() < 0.5 ? 'd_cypress' : 'd_cypress-b', a.x, a.y - 4, TILE.w * 0.27)
+      tree('d_cypress', b.x, b.y + 10, TILE.w * 0.23)
+    }
+    // Ön köşede çalı kümesi, arka köşede meyve (zeytin/nar) ağacı.
+    if (!nearGate(S)) { const p = inside(S, 0.84); tree('d_bush', p.x - 14, p.y - 2, TILE.w * 0.26); tree('d_flower', p.x + 16, p.y + 2, TILE.w * 0.2) }
+    if (!nearGate(N)) { const p = inside(N, 0.72); tree('d_olive-tree', p.x + (rnd() < 0.5 ? -1 : 1) * 30, p.y, TILE.w * 0.62, rnd() < 0.5 ? 0xd8ecc0 : undefined) }
+    // Kapının iki yanında çiçek saksısı / çalı.
+    for (const t of [-1, 1]) {
+      const p = lerp(segs[gateSeg.i][0], segs[gateSeg.i][1], Math.min(0.97, Math.max(0.03, gateSeg.t + t * (gapHalf + 0.07))))
+      tree(rnd() < 0.6 ? 'd_flower' : 'd_bush', p.x, p.y + 4, TILE.w * 0.2)
+    }
+  }
+
   /** Yalnızca KURULU kara binasında görünen, kenarı olmayan doğal açıklık. */
   private addOccupiedClearing(id: BuildingId, slot: LiveSlot, depth: number) {
     if (slot.zone === 'liman') return
@@ -883,6 +991,7 @@ export class CityScene extends Phaser.Scene {
 
     // Boş slot görünmez; yalnızca kurulu yapının altında doğal açıklık oluşur.
     this.addOccupiedClearing(id, slot, anc.baseY)
+    if (slot.zone !== 'liman' && slot.slotId !== HALL_SLOT_ID) this.addGardenWall(slot, imgY, artS)
 
     // Çok hafif temas gölgesi: doğal açıklığın üstünde yapıyı zemine bağlar.
     // Güneş sol üstten: bina gölgesi sağ-alta düşer.
