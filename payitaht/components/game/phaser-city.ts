@@ -14,6 +14,7 @@
  * Phaser'in ESM paketinde varsayılan dışa aktarım yok; ad alanı olarak alınır.
  */
 import * as Phaser from 'phaser'
+import { cityFields, cityFountains } from '@/lib/game/city-map/city-extras'
 import { TILE, CITY_SLOTS, COAST_SLOTS, DEFENSE_SLOTS, DEFENSE_FOUNDATION, ROAD_GRAPH, HALL_SLOT_ID, ROAD_EXITS, WALL_GATES, PLAZA, slotById } from '@/lib/game/city-map'
 import { LIVE_SLOTS, liveSlotByIndex, type LiveSlot } from '@/lib/game/city-map/live-adapter'
 import { buildCityTerrain, preloadTerrain, cityWorldRect, cityContentRect, mineSite } from '@/lib/game/city-map/terrain-builder'
@@ -279,6 +280,7 @@ export class CityScene extends Phaser.Scene {
   update(_time: number, delta: number) {
     this.stepWalkers(Math.min(delta, 100) / 1000)
     this.stepBirds(Math.min(delta, 100) / 1000)
+    this.stepCaravan(Math.min(delta, 100) / 1000)
     this.timers = this.timers.filter(t => t.bar.active)
     this.hudItems = this.hudItems.filter(h => h.c.active)
     const zoom = this.cameras.main.zoom
@@ -744,11 +746,13 @@ export class CityScene extends Phaser.Scene {
    * sürü halinde havalanıp döner, yeniden konar) ve limanın üstünde süzülen
    * martılar.
    */
-  private birds: Array<{ g: Phaser.GameObjects.Graphics; kind: 'pigeon' | 'gull'; hx: number; hy: number; x: number; y: number; ph: number; r: number; sp: number }> = []
+  private birds: Array<{ g: Phaser.GameObjects.Graphics; kind: 'pigeon' | 'gull' | 'sheep' | 'boat'; hx: number; hy: number; x: number; y: number; ph: number; r: number; sp: number }> = []
   private flockClock = 0
   private addBirds() {
     for (const b of this.birds) b.g.destroy()
+    for (const g of this.caravan) g.destroy()
     this.birds = []
+    this.caravan = []
     let seed = 0xb12d
     const rnd = () => { seed = (Math.imul(seed, 1664525) + 1013904223) | 0; return (seed >>> 0) / 4294967296 }
     const P = PLAZA.screen
@@ -773,7 +777,91 @@ export class CityScene extends Phaser.Scene {
       g.fillStyle(0x3a3a3a, 1); g.fillCircle(-9, -2, 1); g.fillCircle(9, -2, 1)
       this.birds.push({ g, kind: 'gull', hx: sea.x + (rnd() - 0.5) * 900, hy: sea.y + 260 + rnd() * 320, x: 0, y: 0, ph: rnd() * 10, r: 90 + rnd() * 160, sp: 0.25 + rnd() * 0.2 })
     }
+    // MERALAR: yünlü koyunlar otlar, yanında asalı çoban.
+    for (const f of cityFields().filter(f => f.kind === 'mera')) {
+      for (let i = 0; i < 9; i++) {
+        const g = this.add.graphics()
+        const tone = i % 4 === 3 ? 0x4a3a30 : 0xf2eee4
+        g.fillStyle(0x1b2a14, 0.22); g.fillEllipse(1, 1, 16, 5)
+        g.fillStyle(0x3a2e26, 1); g.fillRect(-5, -4, 2, 5); g.fillRect(3, -4, 2, 5)
+        g.fillStyle(tone, 1); g.fillEllipse(0, -7, 16, 10); g.fillCircle(-4, -9, 4); g.fillCircle(3, -10, 4)
+        g.fillStyle(0x3a2e26, 1); g.fillEllipse(8.5, -8, 6, 5)
+        const hx = f.x + (rnd() - 0.5) * f.hw * 1.1, hy = f.y + (rnd() - 0.5) * f.hh * 0.9
+        this.birds.push({ g, kind: 'sheep', hx, hy, x: hx, y: hy, ph: rnd() * 20, r: 14 + rnd() * 18, sp: 0.08 + rnd() * 0.08 })
+      }
+      const sh = this.add.graphics().setDepth(f.y + f.hh * 0.3)
+      this.drawCitizen(sh, () => 0.9) // kahverengi entarili, sarıklı çoban
+      sh.setPosition(f.x + f.hw * 0.45, f.y + f.hh * 0.3)
+      sh.lineStyle(1.6, 0x5a4020, 1); sh.lineBetween(5, 0, 7, -26)
+      this.birds.push({ g: sh, kind: 'sheep', hx: f.x + f.hw * 0.45, hy: f.y + f.hh * 0.3, x: 0, y: 0, ph: 0, r: 4, sp: 0.03 })
+    }
+    // KAYIKLAR: limanın içinde kürek çeken iki kayık.
+    for (let i = 0; i < 2; i++) {
+      const g = this.add.graphics()
+      g.fillStyle(0x1b3a4a, 0.3); g.fillEllipse(2, 3, 40, 9)
+      g.fillStyle(0x7a4a26, 1); g.fillPoints([new Phaser.Math.Vector2(-20, -4), new Phaser.Math.Vector2(20, -4), new Phaser.Math.Vector2(14, 3), new Phaser.Math.Vector2(-14, 3)], true)
+      g.fillStyle(0xb3261e, 1); g.fillRect(-18, -6, 36, 2.5)
+      this.drawCitizen(g, () => (i ? 0.7 : 0.05))
+      g.lineStyle(1.6, 0x5a4020, 1); g.lineBetween(-6, -8, -16, 4); g.lineBetween(6, -8, 16, 4)
+      this.birds.push({ g, kind: 'boat', hx: sea.x + (i ? 260 : -240), hy: sea.y + 190 + i * 70, x: 0, y: 0, ph: rnd() * 6, r: 120 + i * 60, sp: 0.12 + i * 0.05 })
+    }
+    // ÇEŞME BAŞI: testili kadınlar ve su içen yolcular (sabit).
+    for (const c of cityFountains()) {
+      for (const [dx, dy] of [[-TILE.w * 0.34, 10], [TILE.w * 0.42, 14]]) {
+        if (rnd() < 0.3) continue
+        const g = this.add.graphics().setPosition(c.x + dx, c.y + dy).setDepth(c.y + dy)
+        this.drawCitizen(g, () => (rnd() < 0.6 ? 0.3 : 0.8))
+        g.fillStyle(0xb8622e, 1); g.fillEllipse(dx < 0 ? 6 : -6, -9, 6, 8); g.fillRect(dx < 0 ? 5 : -7, -14, 2, 3)
+        this.birds.push({ g, kind: 'sheep', hx: c.x + dx, hy: c.y + dy, x: 0, y: 0, ph: 0, r: 1.5, sp: 0.02 })
+      }
+    }
+    // DEVE KERVANI: doğu kapısından girip meydana kadar gelir, geri döner.
+    const nodeAt = new Map(ROAD_GRAPH.nodes.map(n => [n.id, n.screen]))
+    const route = ['st_out_e', 'st_gate_e', 'st_r0'].map(id => nodeAt.get(id)).filter((p): p is { x: number; y: number } => !!p)
+    const hall = slotById(HALL_SLOT_ID)!.screen
+    route.push({ x: hall.x + PLAZA.rx * 1.05, y: hall.y + 14 })
+    this.caravanPath = route.length > 2 ? new Phaser.Curves.Path(route[0].x, route[0].y) : null
+    if (this.caravanPath) {
+      for (const p of route.slice(1)) this.caravanPath.lineTo(p.x, p.y)
+      this.caravanLen = this.caravanPath.getLength()
+      for (let i = 0; i < 4; i++) {
+        const g = this.add.graphics()
+        if (i === 0) this.drawCitizen(g, () => 0.9)
+        else {
+          g.fillStyle(0x1b2a14, 0.22); g.fillEllipse(2, 1, 30, 7)
+          g.fillStyle(0x8a6436, 1)
+          for (const lx of [-9, -5, 6, 10]) g.fillRect(lx, -12, 2.4, 13)
+          g.fillStyle(0xc49a5e, 1); g.fillEllipse(0, -16, 26, 11); g.fillEllipse(-1, -22, 12, 9)
+          g.fillStyle(0xb8872e, 1); g.fillRect(-7, -22, 5, 10); g.fillStyle(0xb3261e, 1); g.fillRect(2, -21, 5, 9) // yük denkleri
+          g.fillStyle(0xc49a5e, 1); g.fillPoints([new Phaser.Math.Vector2(10, -18), new Phaser.Math.Vector2(16, -30), new Phaser.Math.Vector2(20, -30), new Phaser.Math.Vector2(14, -16)], true)
+          g.fillEllipse(19, -31, 8, 5)
+          g.lineStyle(1, 0x5a4020, 1); g.lineBetween(20, -30, 26, -24)
+        }
+        this.caravan.push(g)
+      }
+    }
     this.stepBirds(0)
+  }
+  private caravan: Phaser.GameObjects.Graphics[] = []
+  private caravanPath: Phaser.Curves.Path | null = null
+  private caravanLen = 0
+  private caravanT = 0
+  private stepCaravan(dt: number) {
+    if (!this.caravanPath || !this.caravan.length) return
+    // 0→1 içeri, 1 bekleme, 1→0 dışarı, 0 bekleme (toplam ~2 dk).
+    this.caravanT = (this.caravanT + dt / 120) % 1
+    const c = this.caravanT
+    const pos = c < 0.4 ? c / 0.4 : c < 0.5 ? 1 : c < 0.9 ? 1 - (c - 0.5) / 0.4 : 0
+    const inbound = c < 0.5
+    this.caravan.forEach((g, i) => {
+      const gap = 46 / this.caravanLen * i
+      const t = Math.min(1, Math.max(0, inbound ? pos - gap : pos + gap))
+      const p = this.caravanPath!.getPoint(t)
+      const q = this.caravanPath!.getPoint(Math.min(1, t + 0.01))
+      const facingLeft = (q.x - p.x) * (inbound ? 1 : -1) < 0
+      g.setPosition(p.x, p.y + (i % 2 ? 4 : -4)).setScale(facingLeft ? -1 : 1, 1).setDepth(p.y)
+      g.setVisible(t > 0.002 || pos > 0.002)
+    })
   }
   private stepBirds(dt: number) {
     this.flockClock += dt
@@ -782,6 +870,17 @@ export class CityScene extends Phaser.Scene {
     const lift = flying ? Math.sin((cycle - 14) / 4 * Math.PI) : 0
     for (const b of this.birds) {
       b.ph += dt * b.sp
+      if (b.kind === 'sheep') {
+        // Yavaş otlama: küçük bir daire içinde gezinir, arada başını eğer.
+        const x = b.hx + Math.cos(b.ph) * b.r, y = b.hy + Math.sin(b.ph * 1.3) * b.r * 0.4
+        b.g.setPosition(x, y).setScale(Math.cos(b.ph + Math.PI / 2) < 0 ? 1 : -1, 1).setDepth(y)
+        continue
+      }
+      if (b.kind === 'boat') {
+        const x = b.hx + Math.cos(b.ph) * b.r, y = b.hy + Math.sin(b.ph) * b.r * 0.25
+        b.g.setPosition(x, y).setScale(-Math.sin(b.ph) >= 0 ? 1 : -1, 1).setDepth(y)
+        continue
+      }
       if (b.kind === 'gull') {
         b.x = b.hx + Math.cos(b.ph) * b.r
         b.y = b.hy + Math.sin(b.ph) * b.r * 0.4 - 140
@@ -897,6 +996,18 @@ export class CityScene extends Phaser.Scene {
     yard.lineStyle(TILE.w * 0.2, 0xcdb88c, 1); yard.lineBetween(gate.x, gate.y, padEdge.x, padEdge.y)
     yard.lineStyle(TILE.w * 0.14, 0xe2d3ae, 1); yard.lineBetween(gate.x, gate.y, padEdge.x, padEdge.y)
     this.pieces.push(yard)
+    // Arka duvarlardan birinin üstünde asma (yeşil yaprak, mor salkım).
+    const vineSeg = [0, 3].find(i => i !== gateSeg.i && rnd() < 0.7)
+    if (vineSeg !== undefined) {
+      const [a, b] = segs[vineSeg]
+      const vg = this.add.graphics().setDepth(cy - hh - 0.8)
+      for (let t = 0.08; t < 0.92; t += 0.045) {
+        const x = a.x + (b.x - a.x) * t, y = a.y + (b.y - a.y) * t - wallH - 3
+        vg.fillStyle(rnd() < 0.5 ? 0x4f7d34 : 0x6a9a44, 1); vg.fillEllipse(x, y - rnd() * 4, 14, 9)
+        if (rnd() < 0.3) { vg.fillStyle(0x5b2a5a, 1); vg.fillCircle(x + 2, y + 4, 2.4); vg.fillCircle(x, y + 6, 2) }
+      }
+      this.pieces.push(vg)
+    }
     segs.forEach(([a, b], i) => {
       const front = i === 1 || i === 2 // E→S ve S→W: izleyiciye bakan kenarlar
       if (i !== gateSeg.i) { piece(a, b, front); return }
