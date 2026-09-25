@@ -478,6 +478,41 @@ def draw_deco(d, dm, f, dec, T, base):
             d.line([FP(uc, v0 + 0.01), FP(uc, v1 - 0.02)], fill=mul(PAL['frame'], 0.6) + (160,), width=max(1, int(0.8 * SS)))
         if kind == 'win':
             d.line([FP(u0 - 0.03 / W_, v0 - 0.012 / H_), FP(u1 + 0.03 / W_, v0 - 0.012 / H_)], fill=mul(PAL['frame'], 0.95) + (255,), width=int(2 * SS))
+    elif kind == 'studs':  # ahşap karkas: dikmeler + çapraz payandalar (Osmanlı konağı üst katı)
+        n, v0, v1, col = dec[1], dec[2], dec[3], dec[4]
+        c = mul(col, 0.75 + 0.35 * ((sum(base) / 3) / 210)) + (255,)
+        wd = max(1, int(1.6 * SS))
+        d.line([FP(0, v0), FP(1, v0)], fill=c, width=wd)
+        d.line([FP(0, v1), FP(1, v1)], fill=c, width=wd)
+        for i in range(n + 1):
+            u = i / n
+            d.line([FP(u, v0), FP(u, v1)], fill=c, width=wd)
+            if i < n and i % 2 == 0:
+                d.line([FP(u, v0), FP(u + 1 / n, v1)], fill=c, width=max(1, int(1.1 * SS)))
+    elif kind == 'kafes':  # kafesli pencere: çerçeve, koyu iç, ahşap çapraz kafes
+        uc, vb, w, h = dec[1], dec[2], dec[3], dec[4]
+        u0, u1 = uc - w / 2 / W_, uc + w / 2 / W_
+        v0, v1 = vb / H_, (vb + h) / H_
+        pu, pv = 0.02 / W_, 0.02 / H_
+        d.polygon([FP(u0 - pu, v0 - pv), FP(u1 + pu, v0 - pv), FP(u1 + pu, v1 + pv), FP(u0 - pu, v1 + pv)], fill=mul(PAL['wooddark'], 1.1) + (255,))
+        d.polygon([FP(u0, v0), FP(u1, v0), FP(u1, v1), FP(u0, v1)], fill=mul(PAL['window'], 0.9) + (255,))
+        lc = mul(PAL['wood'], 1.15) + (255,)
+        k = 5
+        for i in range(-k, k + 1):
+            a = i / k
+            d.line([FP(u0 + (u1 - u0) * max(0, a), v0 + (v1 - v0) * max(0, -a)), FP(u0 + (u1 - u0) * min(1, 1 + a), v0 + (v1 - v0) * min(1, 1 - a))], fill=lc, width=max(1, int(0.8 * SS)))
+            d.line([FP(u1 - (u1 - u0) * max(0, a), v0 + (v1 - v0) * max(0, -a)), FP(u1 - (u1 - u0) * min(1, 1 + a), v0 + (v1 - v0) * min(1, 1 - a))], fill=lc, width=max(1, int(0.8 * SS)))
+    elif kind == 'cini':  # çini kuşak: mavi zemin, beyaz-turkuaz desen
+        v0, v1 = dec[1], dec[2]
+        d.polygon([FP(0, v0), FP(1, v0), FP(1, v1), FP(0, v1)], fill=hexc('#2f6a9a') + (255,))
+        n = max(4, int(W_ / 0.06))
+        for i in range(n):
+            u = (i + 0.5) / n
+            c = FP(u, (v0 + v1) / 2)
+            r = 0.012 * A * SS
+            d.ellipse([c[0] - r, c[1] - r, c[0] + r, c[1] + r], fill=(236, 244, 246, 255) if i % 2 else (64, 170, 170, 255))
+        d.line([FP(0, v0), FP(1, v0)], fill=hexc('#f4efe4') + (255,), width=max(1, int(1.0 * SS)))
+        d.line([FP(0, v1), FP(1, v1)], fill=hexc('#f4efe4') + (255,), width=max(1, int(1.0 * SS)))
     elif kind == 'stripes':  # tente çizgileri (u boyunca)
         n, col = dec[1], dec[2]
         for i in range(0, n, 2):

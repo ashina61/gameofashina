@@ -222,6 +222,104 @@ def lantern(s, x, y, z):
     s.sphere(x, y, z, 0.022, hexc('#f2c65a'))
 
 
+# ------------------------------------------------------------------ OSMANLI PARÇALARI
+OTTO = {
+    'ochre': hexc('#ecd09a'), 'pink': hexc('#ecc0a8'), 'blue': hexc('#c6d8de'), 'white': hexc('#f6eedc'),
+    'green': hexc('#d3dcb0'), 'timber': hexc('#5a3a22'), 'stone': hexc('#d8c6a0'),
+}
+
+
+def _kafes_row(length, vb, spacing=0.26, w=0.1, h=0.19, skip_mid=False):
+    n = max(1, int(length / spacing))
+    out = []
+    for i in range(n):
+        u = (i + 0.5) / n
+        if skip_mid and abs(u - 0.5) < 0.6 / n:
+            continue
+        out.append(('kafes', u, vb, w, h))
+    return out
+
+
+def konak(s, x0, y0, x1, y1, floors=2, col=None, cumba=True, roofcol=None, door=0.5, eave=0.12, stone_base=True):
+    """OSMANLI KONAĞI: taş zemin kat, taşan (çıkmalı) ahşap karkaslı sıvalı üst
+    katlar, kafesli pencereler, +y yüzünde konsollu cumba, geniş saçaklı kırma çatı."""
+    col = col or OTTO['white']
+    g = 0.34
+    base_col = OTTO['stone'] if stone_base else col
+    small = [('win', u, 0.12, 0.07, 0.12, None) for u in (0.2, 0.8)]
+    s.box(x0, y0, 0, x1, y1, g, base_col, 'stone' if stone_base else 'plaster',
+          deco_y=([('courses', 0.1)] if stone_base else []) + small + [('archdoor', door, 0, 0.15, 0.25)],
+          deco_x=([('courses', 0.1)] if stone_base else []) + small)
+    top = g
+    ox = 0.0
+    for f in range(max(0, floors - 1)):
+        ox += 0.045
+        fh = 0.36
+        ny = max(2, int((x1 - x0 + 2 * ox) / 0.12)); nx = max(2, int((y1 - y0 + 2 * ox) / 0.12))
+        s.box(x0 - ox, y0 - ox, top, x1 + ox, y1 + ox, top + fh, col, 'plaster',
+              deco_y=[('studs', ny, 0.02, 0.98, OTTO['timber'])] + _kafes_row(x1 - x0, 0.1, skip_mid=cumba and f == floors - 2),
+              deco_x=[('studs', nx, 0.02, 0.98, OTTO['timber'])] + _kafes_row(y1 - y0, 0.1))
+        # kat arası konsollar (çıkma altı)
+        for i in range(ny // 2 + 1):
+            bx = x0 - ox + (x1 - x0 + 2 * ox) * i / max(1, ny // 2)
+            s.box(bx - 0.012, y1 + ox - 0.05, top - 0.05, bx + 0.012, y1 + ox, top, OTTO['timber'], 'wood', outline=False)
+        top += fh
+    if cumba and floors >= 2:
+        cx = (x0 + x1) / 2
+        cw = min(0.2, (x1 - x0) * 0.28)
+        cy1 = y1 + ox
+        s.box(cx - cw, cy1, top - 0.34, cx + cw, cy1 + 0.13, top - 0.02, col, 'plaster',
+              deco_y=[('studs', 4, 0.02, 0.98, OTTO['timber'])] + [('kafes', 0.3, 0.08, 0.08, 0.18), ('kafes', 0.7, 0.08, 0.08, 0.18)],
+              deco_x=[('kafes', 0.5, 0.08, 0.06, 0.18)])
+        for bx in (cx - cw + 0.02, cx + cw - 0.02):  # eğik payanda
+            s.box(bx - 0.015, cy1, top - 0.44, bx + 0.015, cy1 + 0.1, top - 0.34, OTTO['timber'], 'wood', outline=False)
+    rc = roofcol or PAL['roof']
+    rh = min(x1 - x0, y1 - y0) * 0.22
+    s.hip(x0 - ox, y0 - ox, x1 + ox, y1 + ox, top, rh, rc, over=eave, mat='roof' if rc in (PAL['roof'], PAL['roof2']) else 'lead',
+          ridge=max(0.0, (x1 - x0) - (y1 - y0)))
+    return top
+
+
+def dome_row(s, x0, x1, y, z, n, r, finial=False, axis='x'):
+    for i in range(n):
+        t = (i + 0.5) / n
+        if axis == 'x':
+            s.dome(x0 + (x1 - x0) * t, y, z, r, PAL['lead'], 'lead', hscale=0.8, finial=finial)
+        else:
+            s.dome(y, x0 + (x1 - x0) * t, z, r, PAL['lead'], 'lead', hscale=0.8, finial=finial)
+
+
+def pointed_tower(s, x, y, r, h, col=None, cap=0.42):
+    """Sekizgen gövde + sivri kurşun külah + altın alem (Rumeli Hisarı, Selimiye kışlası)."""
+    col = col or OTTO['stone']
+    s.cylinder(x, y, 0, h, r, col, 'stone', n=8)
+    s.cylinder(x, y, h, h + 0.04, r * 1.12, PAL['stone2'], 'stone', n=8)
+    s.cone(x, y, h + 0.04, cap, r * 1.15, PAL['lead'], 'lead', n=8)
+    s.sphere(x, y, h + 0.06 + cap, 0.018, PAL['gold'])
+
+
+def fil_gozu(s, cx, cy, z0, r, hscale=0.8):
+    """Hamam kubbesindeki cam ışıklıklar (fil gözü)."""
+    for b in (0.5, 0.95):
+        for k in range(7):
+            a = -0.35 * math.pi + k * (1.15 * math.pi / 6)
+            x = cx + r * math.cos(b) * math.cos(a)
+            y = cy + r * math.cos(b) * math.sin(a)
+            z = z0 + r * hscale * math.sin(b)
+            s.sphere(x, y, z + 0.005, 0.016, hexc('#e9f4f0'))
+
+
+def cardak(s, x0, y0, x1, y1, h=0.4):
+    """Asma çardağı: dört direk, üstünde yapraklı örtü, mor salkımlar."""
+    for (x, y) in ((x0, y0), (x1, y0), (x0, y1), (x1, y1)):
+        s.box(x - 0.015, y - 0.015, 0, x + 0.015, y + 0.015, h, PAL['wood2'], 'wood', outline=False)
+    for i in range(4):
+        for j in range(3):
+            s.blob(x0 + (x1 - x0) * (i + 0.5) / 4, y0 + (y1 - y0) * (j + 0.5) / 3, h + 0.02, 0.09, PAL['leaf'], squash=0.45)
+    for i in range(3):
+        s.sphere(x0 + (x1 - x0) * (i + 0.7) / 3.5, y1 - 0.03, h - 0.05, 0.02, hexc('#5b2a5a'))
+
+
 # ------------------------------------------------------------------ BİNALAR
 def divan(s, st):
     """TOPKAPI SARAYI: Adalet Kulesi, üç kubbeli Kubbealtı (Divan-ı Hümâyun),
@@ -324,108 +422,6 @@ def saray(s, st):
     s.tree(1.45, 1.0, 0.75, 'cypress')
 
 
-def elcilik(s, st):
-    ground(s, 0.2, 0.2, 1.85, 1.85, hexc('#d2bb8c'))
-    h = 0.8 if st == 1 else 1.1
-    block(s, 0.45, 0.45, 1.45, 1.3, h, door_y=0.5, shutter='s', roof='hip', roofcol=PAL['roof'], spacing=0.25)
-    portico(s, 0.55, 1.35, 1.3, 0.22, 0.5 if st == 1 else 0.8, 4 if st == 1 else 6)
-    if st >= 2:
-        block(s, 1.45, 0.6, 1.8, 1.2, 0.7, shutter='s', roof='hip', roofcol=PAL['roof'])
-    if st == 3:
-        block(s, 0.2, 0.6, 0.45, 1.2, 0.7, shutter='s', roof='hip', roofcol=PAL['roof'])
-        domed(s, 0.95, 0.88, h + 0.3, 0.14, drum=0.08)
-    cols = [PAL['red'], PAL['blue'], PAL['teal'], hexc('#d6a93a'), PAL['green']]
-    for i in range(2 + st):
-        x = 0.35 + i * 0.32
-        s.flag(x, 1.72, 0, 0.75, cols[i % len(cols)])
-
-
-def konut(s, st):
-    ground(s, 0.15, 0.15, 1.9, 1.9, hexc('#d9c299'))
-    houses = [
-        (0.3, 0.3, 0.95, 0.9, 0.75, 'gx'),
-        (1.1, 0.35, 1.7, 0.95, 0.5, 'hip'),
-        (0.3, 1.1, 0.85, 1.7, 0.5, 'gy'),
-        (1.05, 1.05, 1.75, 1.7, 1.1, 'hip'),
-    ]
-    count = {1: 2, 2: 3, 3: 4}[st]
-    order = [0, 2, 1, 3]
-    for idx in order[:count]:
-        x0, y0, x1, y1, h, roof = houses[idx]
-        if st == 3 and idx == 0:
-            h = 1.1
-        # cumba: üst kat çıkması
-        block(s, x0, y0, x1, y1, h, door_y=0.35, shutter='s', roof=roof, roofcol=PAL['roof'], spacing=0.26)
-        if h >= 0.75:
-            s.box(x0 + 0.12, y1, h - 0.4, x1 - 0.12, y1 + 0.1, h - 0.05, PAL['plaster2'], 'plaster',
-                  deco_y=[('win', 0.3, 0.08, 0.1, 0.18, None), ('win', 0.7, 0.08, 0.1, 0.18, None)])
-    s.tree(1.0, 1.0, 0.7)
-    if count < 4:
-        s.tree(1.4, 1.4, 0.8); s.tree(1.6, 1.2, 0.6, 'cypress')
-    s.barrel(0.9, 1.8)
-
-
-def hamam(s, st):
-    ground(s, 0.15, 0.15, 1.9, 1.9, hexc('#d2bb8c'))
-    def hall(x0, y0, x1, y1, h, r):
-        block(s, x0, y0, x1, y1, h, col=PAL['stone'], mat='stone', wins=False, roof='flat', door_y=0.5)
-        s.dome((x0 + x1) / 2, (y0 + y1) / 2, h + 0.05, r, PAL['lead'], 'lead', hscale=0.8)
-        # yıldız delikler
-        return h
-    if st == 1:
-        hall(0.5, 0.45, 1.4, 1.35, 0.5, 0.36)
-    elif st == 2:
-        hall(0.35, 0.45, 1.25, 1.35, 0.55, 0.38)
-        block(s, 1.25, 0.6, 1.7, 1.2, 0.42, col=PAL['stone'], mat='stone', wins=False, roof='flat')
-        s.dome(1.47, 0.9, 0.47, 0.16, PAL['lead'], 'lead', hscale=0.8, finial=False)
-    else:
-        hall(0.25, 0.3, 1.15, 1.2, 0.6, 0.4)
-        block(s, 1.15, 0.45, 1.75, 1.05, 0.45, col=PAL['stone'], mat='stone', wins=False, roof='flat')
-        s.dome(1.3, 0.75, 0.5, 0.13, PAL['lead'], 'lead', hscale=0.8, finial=False)
-        s.dome(1.6, 0.75, 0.5, 0.13, PAL['lead'], 'lead', hscale=0.8, finial=False)
-        block(s, 0.45, 1.2, 1.35, 1.65, 0.45, col=PAL['plaster'], shutter=None, roof='hip', roofcol=PAL['roof'], kind='arch')
-    # ocak bacası
-    s.box(0.3, 0.3, 0, 0.42, 0.42, 0.95, PAL['stonedark'], 'stone')
-    s.tree(1.75, 1.6, 0.7, 'cypress')
-
-
-def carsi(s, st):
-    ground(s, 0.1, 0.1, 1.92, 1.92, hexc('#d9c299'))
-    pave(s, 0.2, 0.2, 1.85, 1.85, hexc('#d4c29c'), n=9)
-    cols = [PAL['red'], PAL['blue'], hexc('#d6a93a'), PAL['teal'], PAL['green']]
-    if st >= 2:
-        # bedesten: kubbeli taş han
-        n = 2 if st == 2 else 3
-        block(s, 0.25, 0.25, 0.25 + 0.42 * n, 0.8, 0.6, col=PAL['stone'], mat='stone', wins=False, roof='flat', door_y=0.5)
-        for i in range(n):
-            s.dome(0.46 + 0.42 * i, 0.52, 0.65, 0.17, PAL['lead'], 'lead', hscale=0.85, finial=i == 0)
-    stalls = [(0.3, 0.95), (0.85, 0.95), (1.35, 0.4), (0.3, 1.45), (0.85, 1.45), (1.35, 0.95), (1.35, 1.45)]
-    k = {1: 4, 2: 5, 3: 7}[st]
-    if st >= 2:
-        stalls = [p for p in stalls if not (p[1] < 0.8 and p[0] < 0.25 + 0.42 * (2 if st == 2 else 3))]
-    for i, (x, y) in enumerate(stalls[:k]):
-        s.box(x, y, 0, x + 0.4, y + 0.32, 0.3, PAL['wood'], 'wood', deco_y=[('vplanks', 5)], deco_x=[('vplanks', 4)])
-        awning(s, x - 0.02, x + 0.42, y + 0.32, 0.42, 0.2, cols[i % len(cols)])
-        s.crate(x + 0.05, y + 0.36, 0.09); s.barrel(x + 0.32, y + 0.42, 0.045)
-    if st == 1:
-        s.tree(1.5, 0.5, 0.8)
-
-
-def ambar(s, st):
-    ground(s, 0.15, 0.15, 1.9, 1.9, hexc('#cdb484'))
-    block(s, 0.3, 0.35, 1.3, 1.1, 0.55 if st == 1 else 0.7, col=PAL['stone'], mat='stone', wins=False, roof='gx', roofcol=PAL['roof'], door_y=0.5, rh=0.32)
-    if st >= 2:
-        block(s, 1.35, 0.3, 1.8, 1.25, 0.6, col=PAL['wood'], mat='wood', wins=False, roof='gy', roofcol=PAL['roof2'], door_x=0.5, rh=0.25, trim=False)
-    if st == 3:
-        block(s, 0.3, 1.15, 0.95, 1.75, 0.5, col=PAL['stone'], mat='stone', wins=False, roof='gy', roofcol=PAL['roof'], door_x=0.5, rh=0.25)
-        crane(s, 1.2, 1.35, 0.95, 0.35)
-    for i in range(2 + st):
-        s.crate(1.05 + (i % 3) * 0.18, 1.3 + (i // 3) * 0.2, 0.14)
-    for i in range(1 + st):
-        s.barrel(0.45 + i * 0.16, 1.35 if st < 3 else 1.82, 0.06)
-    s.tree(1.8, 1.7, 0.6)
-
-
 def kereste(s, st):
     ground(s, 0.15, 0.15, 1.9, 1.9, hexc('#c7ae7c'))
     # açık odun hangarı
@@ -462,40 +458,6 @@ def tas(s, st):
     if st == 3:
         s.box(1.1, 1.55, 0, 1.75, 1.7, 0.1, PAL['wood2'], 'wood', deco_top=[('vplanks', 6)])  # kızak
         stone_blocks(s, 1.2, 1.5, 2, 0.12, seed=13)
-
-
-def medrese(s, st):
-    ground(s, 0.1, 0.1, 1.92, 1.92, hexc('#d2bb8c'))
-    pave(s, 0.55, 0.55, 1.45, 1.45, PAL['marble'], n=6)
-    # U şeklinde revaklı hücreler
-    for (x0, y0, x1, y1) in ((0.2, 0.2, 1.75, 0.55), (0.2, 0.55, 0.55, 1.6)) + (((1.45, 0.55, 1.8, 1.6),) if st >= 2 else ()):
-        block(s, x0, y0, x1, y1, 0.42, kind='arch', roof='hip', roofcol=PAL['lead'], spacing=0.22, ridge=max(0.0, max(x1 - x0, y1 - y0) - 0.5) if (x1 - x0) > (y1 - y0) else 0.0)
-    # dershane kubbesi
-    domed(s, 0.97, 0.38, 0.45, 0.26 + 0.03 * st, drum=0.1)
-    s.cylinder(1.0, 1.0, 0, 0.12, 0.1, PAL['marble'], 'marble', top=PAL['water'])  # şadırvan
-    if st == 3:
-        minaret(s, 1.72, 0.3, 1.25)
-        for cx in (0.35, 1.6):
-            s.dome(cx, 0.37, 0.47, 0.1, PAL['lead'], 'lead', hscale=0.85, finial=False)
-    s.tree(1.3, 1.65, 0.8, 'cypress'); s.tree(0.7, 1.7, 0.7)
-
-
-def kisla(s, st):
-    ground(s, 0.1, 0.1, 1.92, 1.92, hexc('#c9b58c'))
-    pave(s, 0.3, 1.05, 1.85, 1.85, hexc('#cdb88c'), n=4)
-    h = 0.6 + 0.1 * st
-    block(s, 0.25, 0.25, 1.45, 1.0, h, col=PAL['stone'], mat='stone', wins=True, kind='arch', spacing=0.28, roof='flat', door_y=0.5)
-    crenel(s, 0.22, 0.22, 1.48, 1.03, h + 0.05)
-    if st >= 2:
-        for (x, y) in ((1.62, 0.4),) + (((0.4, 1.6),) if st == 3 else ()):
-            s.cylinder(x, y, 0, h + 0.35, 0.17, PAL['stone'], 'stone', n=18)
-            s.cone(x, y, h + 0.35, 0.3, 0.2, PAL['roof'], 'roof', n=18)
-    # talim avlusu: kukla hedefler + silah rafı
-    for (x, y) in ((1.0, 1.35), (1.3, 1.55), (1.6, 1.3)):
-        s.box(x - 0.015, y - 0.015, 0, x + 0.015, y + 0.015, 0.3, PAL['wood2'], 'wood')
-        s.sphere(x, y, 0.34, 0.05, hexc('#d9c08c'))
-    s.box(0.45, 1.5, 0, 0.8, 1.56, 0.22, PAL['wood'], 'wood')
-    s.flag(1.4, 0.3, h + 0.1, 0.6); s.flag(0.3, 0.9, h + 0.1, 0.5)
 
 
 def liman(s, st):
@@ -543,29 +505,6 @@ def tersane(s, st):
 
 
 # ---------------------------------------------------------------- YENİ BİNALAR
-def kahvehane(s, st):
-    ground(s, 0.15, 0.15, 1.9, 1.9, hexc('#d6be90'))
-    pave(s, 0.4, 1.2, 1.8, 1.85, hexc('#d9c59d'), n=6)
-    h = 0.75 if st == 1 else 1.0
-    block(s, 0.35, 0.35, 1.3, 1.15, h, col=PAL['plaster'], door_y=0.4, shutter='s', roof='hip', roofcol=PAL['roof'], spacing=0.26)
-    # ahşap kafesli üst kat çıkması
-    s.box(0.5, 1.15, h - 0.38, 1.15, 1.26, h - 0.04, PAL['wood'], 'wood', deco_y=[('vplanks', 8)])
-    # asma çardak
-    for x, y in ((0.45, 1.8), (1.25, 1.8), (1.25, 1.3)):
-        s.cylinder(x, y, 0, 0.42, 0.018, PAL['wooddark'], 'wood', n=6)
-    s.add(Prim([Face([(0.4, 1.25, 0.43), (1.3, 1.25, 0.43), (1.3, 1.85, 0.43), (0.4, 1.85, 0.43)], hexc('#6d9a45'), 'leaf', None, False, (0, 0, 1))], key=3.6, cast=True))
-    for (x, y) in ((0.65, 1.5), (1.0, 1.6)):
-        s.cylinder(x, y, 0, 0.12, 0.07, PAL['wood2'], 'wood', n=12)
-    for i in range(3):
-        lantern(s, 0.55 + i * 0.3, 1.85, 0.4)
-    if st >= 2:
-        block(s, 1.35, 0.4, 1.8, 1.0, 0.6, col=PAL['plaster2'], shutter='s', roof='gy', roofcol=PAL['roof'])
-    if st == 3:
-        awning(s, 1.35, 1.8, 1.0, 0.45, 0.25, PAL['red'], axis='y')
-        s.box(0.9, 0.5, h + 0.25, 1.0, 0.6, h + 0.6, PAL['stonedark'], 'stone')  # baca
-    s.tree(1.7, 1.6, 0.8)
-
-
 def cami(s, st):
     """AYASOFYA: pembe-aşı boyalı gövde, köşe payandaları, pencereli kasnak
     üstünde basık büyük kubbe, iki yanında basamaklanan yarım kubbeler;
@@ -619,74 +558,6 @@ def cami(s, st):
         s.cylinder(1.0, 1.7, 0.08, 0.24, 0.02, PAL['marble'], 'marble', n=8)
         s.dome(1.0, 1.7, 0.24, 0.07, lead, 'lead', hscale=0.7, finial=False)
     s.tree(1.82, 1.1, 0.9, 'cypress'); s.tree(0.18, 1.1, 0.9, 'cypress')
-
-
-def muze(s, st):
-    ground(s, 0.15, 0.15, 1.9, 1.9, hexc('#d6c095'))
-    x0, x1 = 0.4, 1.55 if st > 1 else 1.4
-    y0, y1 = 0.35, 1.2
-    s.box(x0 - 0.08, y0 - 0.08, 0, x1 + 0.08, y1 + 0.25, 0.1, PAL['marble'], 'marble', deco_y=[('courses', 0.05)], deco_x=[('courses', 0.05)])
-    block(s, x0, y0, x1, y1 - 0.15, 0.62 + 0.08 * st, z0=0.1, col=PAL['marble'], mat='marble', wins=False, roof='gy', roofcol=PAL['roof'], rh=0.2, door_y=0.5)
-    portico(s, x0, x1, y1 - 0.15, 0.3, 0.62 + 0.08 * st, 4 + st, z0=0.1, roofcol=None)
-    s.gable(x0 - 0.02, y1 - 0.2, x1 + 0.02, y1 + 0.17, 0.81 + 0.08 * st, 0.2, PAL['roof'], axis='y', wall=PAL['marble'], wallmat='marble', over=0.03)
-    # heykel kaideleri
-    for x in (0.3, 1.7):
-        s.box(x - 0.06, 1.55, 0, x + 0.06, 1.67, 0.18, PAL['marble'], 'marble')
-        s.cylinder(x, 1.61, 0.18, 0.36, 0.03, hexc('#c9c0ae'), 'marble', n=8)
-        s.sphere(x, 1.61, 0.39, 0.035, hexc('#c9c0ae'))
-    if st == 3:
-        block(s, 1.55, 0.4, 1.85, 1.0, 0.5, col=PAL['marble'], mat='marble', wins=True, kind='arch', roof='hip', roofcol=PAL['roof'])
-    s.tree(1.75, 1.45, 0.75, 'cypress')
-
-
-def marangoz(s, st):
-    ground(s, 0.15, 0.15, 1.9, 1.9, hexc('#c7ae7c'))
-    block(s, 0.35, 0.35, 1.25, 1.05, 0.55, col=PAL['wood'], mat='wood', wins=True, spacing=0.3, roof='gx', roofcol=PAL['roof2'], door_y=0.5, trim=False, rh=0.3)
-    # kalas yığınları
-    for i in range(2 + st):
-        z = i * 0.035
-        s.box(0.35, 1.3, z, 1.05, 1.42, z + 0.03, hexc('#c98f55'), 'wood')
-    s.box(1.3, 1.3, 0, 1.36, 1.5, 0.16, PAL['wood2'], 'wood'); s.box(1.6, 1.3, 0, 1.66, 1.5, 0.16, PAL['wood2'], 'wood')
-    s.box(1.28, 1.36, 0.16, 1.7, 1.44, 0.2, hexc('#c98f55'), 'wood')  # tezgâh
-    if st >= 2:
-        s.box(1.35, 0.4, 0, 1.8, 1.0, 0.45, PAL['wood2'], 'wood', deco_y=[('vplanks', 5)], deco_x=[('vplanks', 6)])
-        s.gable(1.35, 0.4, 1.8, 1.0, 0.45, 0.2, PAL['roof2'], axis='y', wall=PAL['wood2'], wallmat='wood')
-    if st == 3:
-        logs(s, 0.3, 1.55, 3, 'x', 0.5)
-    s.tree(1.75, 1.75, 0.7)
-
-
-def mimar(s, st):
-    ground(s, 0.15, 0.15, 1.9, 1.9, hexc('#d6c095'))
-    block(s, 0.3, 0.3, 1.25, 1.1, 0.8 if st < 3 else 1.1, col=PAL['ochre'], shutter='s', roof='hip', roofcol=PAL['roof'], door_y=0.5, spacing=0.26)
-    # avluda maket: iskeleli küçük kubbe
-    x, y = 1.45, 1.45
-    s.box(x - 0.2, y - 0.2, 0, x + 0.2, y + 0.2, 0.08, PAL['stone'], 'stone')
-    domed(s, x, y, 0.08, 0.14, drum=0.08, finial=st > 1)
-    for (a, b) in ((x - 0.2, y - 0.2), (x + 0.2, y - 0.2), (x - 0.2, y + 0.2), (x + 0.2, y + 0.2)):
-        s.box(a - 0.012, b - 0.012, 0, a + 0.012, b + 0.012, 0.4, PAL['wood2'], 'wood')
-    s.box(x - 0.21, y + 0.18, 0.2, x + 0.21, y + 0.21, 0.22, PAL['wood'], 'wood')
-    s.box(x + 0.18, y - 0.21, 0.2, x + 0.21, y + 0.21, 0.22, PAL['wood'], 'wood')
-    if st >= 2:
-        stone_blocks(s, 0.4, 1.35, 3, 0.1, seed=21)
-        s.box(1.35, 0.45, 0, 1.75, 0.95, 0.55, PAL['plaster'], 'plaster', deco_x=facade(0.5, 0.55, shutter='s'), deco_y=trims(0.55))
-        s.hip(1.35, 0.45, 1.75, 0.95, 0.55, 0.18, PAL['roof'])
-    s.tree(0.25, 1.75, 0.8, 'cypress')
-
-
-def ormanci(s, st):
-    ground(s, 0.15, 0.15, 1.9, 1.9, hexc('#b9a574'))
-    block(s, 0.3, 0.3, 0.95, 0.85, 0.45, col=PAL['wood'], mat='wood', wins=True, spacing=0.3, roof='gx', roofcol=PAL['wood2'], door_y=0.5, trim=False, rh=0.28)
-    # fidanlık sıraları
-    rows = 2 + st
-    for r in range(rows):
-        for c in range(4):
-            x, y = 1.1 + c * 0.2, 0.35 + r * 0.3
-            if y > 1.75:
-                continue
-            s.tree(x, y, 0.35 + 0.08 * (r % 2) + 0.05 * st, 'cypress' if (r + c) % 3 == 0 else 'olive')
-    logs(s, 0.35, 1.15, 3, 'x', 0.45)
-    s.tree(0.3, 1.75, 0.95); s.tree(0.7, 1.75, 0.8)
 
 
 def tasci(s, st):
@@ -877,101 +748,6 @@ def npc_kale(s, st):
 
 
 # ------------------------------------------------ IKARIAM KARŞILIĞI YENİ YAPILAR
-def bagci(s, st):
-    ground(s, 0.15, 0.15, 1.9, 1.9, hexc('#bda271'))
-    block(s, 0.3, 0.3, 0.95, 0.9, 0.5 + 0.1 * st, shutter='s', roof='gx', roofcol=PAL['roof'], door_y=0.5)
-    for r in range(2 + st):
-        for c in range(4):
-            x, y = 1.1 + c * 0.2, 0.35 + r * 0.3
-            if y < 1.8:
-                s.blob(x, y, 0.16, 0.07, mix(hexc('#5f8c3e'), hexc('#7aa04a'), s.rnd.random() * 0.6), squash=0.8)
-                s.sphere(x + 0.03, y + 0.04, 0.1, 0.028, hexc('#6b2f63'), n=8, rings=5)
-    for i in range(2 + st):
-        s.barrel(0.4 + i * 0.14, 1.2, 0.06)
-
-
-def simyahane(s, st):
-    ground(s, 0.15, 0.15, 1.9, 1.9, hexc('#c2b08a'))
-    block(s, 0.4, 0.4, 1.2, 1.1, 0.6, col=PAL['stone'], mat='stone', kind='arch', roof='flat', door_y=0.5)
-    s.cylinder(1.45, 0.7, 0, 0.8 + 0.2 * st, 0.18, PAL['stone'], 'stone', n=18)
-    s.dome(1.45, 0.7, 0.8 + 0.2 * st, 0.18, PAL['lead'], 'lead', hscale=0.9)
-    for i in range(1 + st):
-        s.cone(0.5 + i * 0.3, 1.4, 0, 0.14, 0.1, hexc('#e2c94a'), 'stone', n=10)
-
-
-def camci(s, st):
-    ground(s, 0.15, 0.15, 1.9, 1.9, hexc('#cdb88f'))
-    block(s, 0.35, 0.35, 1.25, 1.05, 0.55, col=PAL['plaster'], kind='arch', roof='gx', roofcol=PAL['roof'], door_y=0.5)
-    s.box(1.35, 0.5, 0, 1.7, 0.85, 0.35, hexc('#b8664a'), 'stone')  # fırın
-    s.dome(1.52, 0.67, 0.35, 0.15, hexc('#b8664a'), 'stone', finial=False)
-    for i in range(2 + st):
-        s.cone(0.5 + i * 0.22, 1.45, 0, 0.18, 0.05, hexc('#7fc4e0'), 'flat', n=6)
-
-
-def mahzen(s, st):
-    ground(s, 0.15, 0.15, 1.9, 1.9, hexc('#c9b084'))
-    block(s, 0.35, 0.35, 1.35, 1.0, 0.45, col=PAL['stone'], mat='stone', wins=False, roof='gx', roofcol=PAL['roof'], door_y=0.3, rh=0.25)
-    s.box(0.55, 1.0, 0, 1.0, 1.25, 0.2, PAL['stonedark'], 'stone', deco_y=[('archdoor', 0.5, 0, 0.2, 0.18)])
-    for i in range(3 + st):
-        s.barrel(1.2 + (i % 3) * 0.16, 1.3 + (i // 3) * 0.18, 0.065)
-
-
-def gozlukcu(s, st):
-    ground(s, 0.15, 0.15, 1.9, 1.9, hexc('#d2bb8c'))
-    block(s, 0.4, 0.4, 1.25, 1.1, 0.7 + 0.1 * st, col=PAL['ochre'], shutter='s', roof='hip', roofcol=PAL['roof'], door_y=0.5, spacing=0.24)
-    awning(s, 0.5, 1.15, 1.1, 0.42, 0.2, PAL['blue'])
-    s.tree(1.6, 1.5, 0.8, 'cypress')
-
-
-def barutane(s, st):
-    ground(s, 0.1, 0.1, 1.92, 1.92, hexc('#b9a680'))
-    s.box(0.3, 0.3, 0, 0.9, 0.8, 0.4, PAL['stone'], 'stone', deco_y=[('courses', 0.1), ('archdoor', 0.5, 0, 0.16, 0.26)], deco_x=[('courses', 0.1)])
-    s.box(0.27, 0.27, 0.4, 0.93, 0.83, 0.45, PAL['stone2'], 'stone')
-    for i in range(1 + st):
-        x = 1.1 + i * 0.25
-        s.cylinder(x, 1.3, 0, 0.35, 0.02, PAL['wooddark'], 'wood', n=6)
-        s.cone(x, 1.3, 0.35, 0.12, 0.04, PAL['red'], 'flat', n=8)
-    for i in range(2 + st):
-        s.barrel(0.4 + i * 0.13, 1.1, 0.055)
-
-
-def depo(s, st):
-    ground(s, 0.15, 0.15, 1.9, 1.9, hexc('#c7ae7c'))
-    for i in range(1 + (st > 1) + (st > 2)):
-        y0 = 0.3 + i * 0.5
-        block(s, 0.3, y0, 1.6, y0 + 0.42, 0.5, col=PAL['wood'], mat='wood', wins=False, roof='gx', roofcol=PAL['roof2'], door_y=0.5, trim=False, rh=0.22)
-    for i in range(4):
-        s.crate(1.65, 0.4 + i * 0.25, 0.12)
-
-
-def ticaret_merkezi(s, st):
-    ground(s, 0.1, 0.1, 1.92, 1.92, hexc('#d6c095'))
-    pave(s, 0.6, 0.6, 1.4, 1.4, PAL['marble'], n=6)
-    for (x0, y0, x1, y1) in ((0.2, 0.2, 1.75, 0.55), (0.2, 0.55, 0.55, 1.7)) + (((1.45, 0.55, 1.8, 1.7),) if st >= 2 else ()):
-        block(s, x0, y0, x1, y1, 0.5, kind='arch', roof='hip', roofcol=PAL['roof'], spacing=0.22)
-    s.cylinder(1.0, 1.0, 0, 0.12, 0.1, PAL['marble'], 'marble', top=PAL['water'])
-    for i in range(2 + st):
-        s.crate(0.75 + (i % 3) * 0.18, 1.5 + (i // 3) * 0.16, 0.12)
-
-
-def harita_arsivi(s, st):
-    ground(s, 0.15, 0.15, 1.9, 1.9, hexc('#d2bb8c'))
-    block(s, 0.35, 0.35, 1.3, 1.1, 0.75, col=PAL['plaster'], shutter='s', roof='hip', roofcol=PAL['lead'], door_y=0.5, spacing=0.26)
-    s.cylinder(1.5, 0.6, 0, 1.0 + 0.15 * st, 0.13, PAL['plaster'], 'plaster', n=16)
-    s.dome(1.5, 0.6, 1.0 + 0.15 * st, 0.13, PAL['lead'], 'lead')
-    s.flag(0.4, 0.4, 0.95, 0.5, PAL['blue'])
-
-
-def valilik(s, st):
-    ground(s, 0.15, 0.15, 1.9, 1.9, hexc('#d2bb8c'))
-    block(s, 0.35, 0.35, 1.45, 1.25, 0.75 + 0.1 * st, door_y=0.5, shutter='s', roof='hip', roofcol=PAL['lead'], spacing=0.25)
-    portico(s, 0.55, 1.25, 1.25, 0.22, 0.45, 4)
-    if st >= 2:
-        domed(s, 0.9, 0.8, 0.85 + 0.1 * st + 0.3, 0.14, drum=0.06)
-    s.flag(0.4, 0.4, 0.95, 0.55)
-    s.tree(1.75, 1.6, 0.8, 'cypress')
-
-
 def korsan_kalesi(s, st):
     """Korsan kalesi: taş burç, ahşap çit, iskele, kara bayrak; seviyeyle büyür."""
     ground(s, 0.1, 0.1, 1.92, 1.92, hexc('#cdb88a'))
@@ -993,20 +769,6 @@ def korsan_kalesi(s, st):
         s.flag(1.15, 0.35, 0.8, 0.4, PAL['red'])
 
 
-def kara_pazar(s, st):
-    """Kara pazar: loş tenteler, sandık yığınları, fener; arka sokakta bir han."""
-    ground(s, 0.1, 0.1, 1.92, 1.92, hexc('#c9b58c'))
-    pave(s, 0.25, 0.25, 1.8, 1.8, hexc('#bfae8a'), n=7)
-    cols = [hexc('#5a2b3a'), hexc('#2f3f4f'), hexc('#4b3a22'), hexc('#3d4a2c')]
-    block(s, 0.25, 0.25, 1.0, 0.7, 0.55 + 0.1 * st, col=PAL['stone2'], mat='stone', roof='hip', roofcol=PAL['wooddark'], door_y=0.5, spacing=0.3)
-    stalls = [(0.3, 0.95), (0.85, 0.95), (1.35, 0.5), (1.35, 1.05), (0.3, 1.45), (0.85, 1.45)][:2 + st]
-    for i, (x, y) in enumerate(stalls):
-        s.box(x, y, 0, x + 0.38, y + 0.3, 0.28, PAL['wooddark'], 'wood', deco_y=[('vplanks', 5)], deco_x=[('vplanks', 4)])
-        awning(s, x - 0.02, x + 0.4, y + 0.3, 0.4, 0.2, cols[i % len(cols)], stripes=False)
-        s.crate(x + 0.05, y + 0.34, 0.1); s.barrel(x + 0.3, y + 0.4, 0.045)
-    lantern(s, 1.2, 1.35, 0.45)
-
-
 def siginak(s, st):
     """Gizli sığınak: sarmaşıklı taş ev, alçak kapı, kuyu ve çardak; seviyeyle gizli kule."""
     ground(s, 0.15, 0.15, 1.9, 1.9, hexc('#bfae86'))
@@ -1022,6 +784,383 @@ def siginak(s, st):
     if st >= 3:
         s.cylinder(0.5, 0.55, 0, 0.95, 0.1, col, 'stone', n=14)
         s.cone(0.5, 0.55, 0.95, 0.22, 0.14, PAL['wooddark'], 'wood')
+
+
+# ------------------------------------------------------------------ OSMANLI TARİFLERİ
+def konut(s, st):
+    """Konaklar: cumbalı, ahşap karkaslı, renkli sıvalı Osmanlı evleri."""
+    ground(s, 0.15, 0.15, 1.9, 1.9, hexc('#d9c299'))
+    if st == 1:
+        konak(s, 0.5, 0.45, 1.3, 1.15, 2, OTTO['ochre'])
+        s.tree(1.6, 0.5, 0.9); s.tree(0.3, 1.6, 0.85, 'cypress')
+    elif st == 2:
+        konak(s, 0.3, 0.55, 1.05, 1.3, 2, OTTO['ochre'])
+        konak(s, 1.2, 0.3, 1.78, 0.9, 2, OTTO['pink'], cumba=False)
+        s.tree(1.55, 1.45, 0.95); s.tree(0.25, 1.7, 0.85, 'cypress')
+    else:
+        konak(s, 0.3, 0.3, 1.1, 1.05, 3, OTTO['white'])
+        konak(s, 1.22, 0.3, 1.8, 0.88, 2, OTTO['pink'], cumba=False)
+        konak(s, 1.2, 1.05, 1.78, 1.62, 2, OTTO['blue'])
+        s.tree(0.4, 1.55, 1.0); s.tree(0.85, 1.75, 0.8, 'cypress')
+    s.barrel(0.95, 1.75)
+
+
+def elcilik(s, st):
+    """Elçilik: üç katlı büyük konak (yalı üslubu), sütunlu giriş, ülke sancakları."""
+    ground(s, 0.2, 0.2, 1.85, 1.85, hexc('#d2bb8c'))
+    pave(s, 0.4, 1.35, 1.6, 1.85, PAL['marble'], n=6)
+    konak(s, 0.4, 0.4, 1.45, 1.2, 2 if st == 1 else 3, OTTO['white'], roofcol=PAL['roof'])
+    if st >= 2:
+        konak(s, 1.5, 0.5, 1.85, 1.05, 2, OTTO['ochre'], cumba=False)
+    if st == 3:
+        konak(s, 0.12, 0.5, 0.38, 1.05, 2, OTTO['ochre'], cumba=False)
+    cols = [PAL['red'], PAL['blue'], PAL['teal'], hexc('#d6a93a'), PAL['green']]
+    for i in range(2 + st):
+        s.flag(0.35 + i * 0.3, 1.78, 0, 0.75, cols[i % len(cols)])
+
+
+def hamam(s, st):
+    """Hamam: fil gözlü kurşun kubbeler, taş gövde, soğukluk kanadı, ocak bacası."""
+    ground(s, 0.15, 0.15, 1.9, 1.9, hexc('#d2bb8c'))
+    def hall(x0, y0, x1, y1, h, r):
+        block(s, x0, y0, x1, y1, h, col=PAL['stone'], mat='stone', wins=False, roof='flat', door_y=0.5)
+        s.dome((x0 + x1) / 2, (y0 + y1) / 2, h + 0.05, r, PAL['lead'], 'lead', hscale=0.8)
+        fil_gozu(s, (x0 + x1) / 2, (y0 + y1) / 2, h + 0.05, r)
+    if st == 1:
+        hall(0.5, 0.45, 1.4, 1.35, 0.5, 0.36)
+    elif st == 2:
+        hall(0.35, 0.45, 1.25, 1.35, 0.55, 0.38)
+        block(s, 1.25, 0.6, 1.7, 1.2, 0.42, col=PAL['stone'], mat='stone', wins=False, roof='flat')
+        s.dome(1.47, 0.9, 0.47, 0.16, PAL['lead'], 'lead', hscale=0.8, finial=False)
+        fil_gozu(s, 1.47, 0.9, 0.47, 0.16)
+    else:
+        hall(0.25, 0.3, 1.15, 1.2, 0.6, 0.4)
+        block(s, 1.15, 0.45, 1.75, 1.05, 0.45, col=PAL['stone'], mat='stone', wins=False, roof='flat')
+        for cx in (1.3, 1.6):
+            s.dome(cx, 0.75, 0.5, 0.13, PAL['lead'], 'lead', hscale=0.8, finial=False)
+            fil_gozu(s, cx, 0.75, 0.5, 0.13)
+        # soğukluk: ahşap saçaklı giriş kanadı
+        konak(s, 0.45, 1.2, 1.35, 1.65, 1, OTTO['white'], cumba=False, stone_base=False)
+    s.box(0.3, 0.3, 0, 0.42, 0.42, 0.95, PAL['stonedark'], 'stone')
+    s.cone(0.36, 0.36, 0.95, 0.12, 0.08, PAL['lead'], 'lead', n=8)
+    s.tree(1.75, 1.6, 0.8, 'cypress')
+
+
+def carsi(s, st):
+    """Çarşı: kubbeli taş bedesten, önünde arasta dükkânları ve tenteler."""
+    ground(s, 0.1, 0.1, 1.92, 1.92, hexc('#d9c299'))
+    pave(s, 0.2, 0.2, 1.85, 1.85, hexc('#d4c29c'), n=9)
+    nx = (2, 3, 3)[st - 1]; ny = (1, 1, 2)[st - 1]
+    x0, y0 = 0.25, 0.25
+    x1, y1 = x0 + 0.42 * nx, y0 + 0.45 * ny
+    block(s, x0, y0, x1, y1, 0.55, col=OTTO['stone'], mat='stone', kind='arch', spacing=0.21, roof='flat', door_y=0.5)
+    for j in range(ny):
+        dome_row(s, x0, x1, y0 + 0.225 + 0.45 * j, 0.6, nx, 0.16, finial=(j == 0))
+    cols = [PAL['red'], PAL['blue'], hexc('#d6a93a'), PAL['teal'], PAL['green']]
+    stalls = [(0.3, y1 + 0.12), (0.85, y1 + 0.12), (1.4, y1 + 0.12), (1.45, 0.3), (1.45, 0.75), (0.3, y1 + 0.6), (0.85, y1 + 0.6)]
+    stalls = [p for p in stalls if not (p[0] < x1 and p[1] < y1)][:(3, 4, 5)[st - 1]]
+    for i, (x, y) in enumerate(stalls):
+        s.box(x, y, 0, x + 0.4, y + 0.3, 0.3, PAL['wood'], 'wood', deco_y=[('vplanks', 5)], deco_x=[('vplanks', 4)])
+        awning(s, x - 0.02, x + 0.42, y + 0.3, 0.42, 0.2, cols[i % len(cols)])
+        s.crate(x + 0.05, y + 0.34, 0.09); s.barrel(x + 0.32, y + 0.42, 0.045)
+
+
+def ambar(s, st):
+    """Ambar: kalın taş duvarlı, kurşun kubbeli kiler (bedesten üslubu) ve avlu."""
+    ground(s, 0.15, 0.15, 1.9, 1.9, hexc('#cdb484'))
+    n = (2, 3, 3)[st - 1]
+    x0, x1, y0, y1 = 0.3, 0.3 + 0.4 * n, 0.3, 0.95
+    block(s, x0, y0, x1, y1, 0.55, col=OTTO['stone'], mat='stone', wins=False, roof='flat', door_y=0.5)
+    dome_row(s, x0, x1, (y0 + y1) / 2, 0.6, n, 0.17)
+    if st >= 2:
+        konak(s, 1.35, 1.05, 1.82, 1.62, 1, OTTO['ochre'], cumba=False)
+    if st == 3:
+        crane(s, 1.2, 1.35, 0.95, 0.35)
+    for i in range(2 + st):
+        s.crate(0.4 + (i % 3) * 0.18, 1.2 + (i // 3) * 0.2, 0.14)
+    for i in range(1 + st):
+        s.barrel(0.45 + i * 0.16, 1.75, 0.06)
+
+
+def medrese(s, st):
+    """Medrese: revaklı avlunun çevresinde kubbeli öğrenci hücreleri, büyük
+    dershane kubbesi, avluda şadırvan; son aşamada ince minare."""
+    ground(s, 0.1, 0.1, 1.92, 1.92, hexc('#d2bb8c'))
+    pave(s, 0.6, 0.6, 1.45, 1.45, PAL['marble'], n=6)
+    wings = [(0.2, 0.2, 1.3, 0.55, 'x'), (0.2, 0.55, 0.55, 1.6, 'y')]
+    if st >= 2:
+        wings.append((1.5, 0.55, 1.85, 1.6, 'y'))
+    for (x0, y0, x1, y1, ax) in wings:
+        block(s, x0, y0, x1, y1, 0.4, col=PAL['marble'], mat='marble', kind='arch', spacing=0.2, roof='flat')
+        if ax == 'x':
+            dome_row(s, x0, x1, (y0 + y1) / 2, 0.45, int((x1 - x0) / 0.27), 0.11)
+        else:
+            dome_row(s, y0, y1, (x0 + x1) / 2, 0.45, int((y1 - y0) / 0.27), 0.11, axis='y')
+    # Dershane: köşede büyük kubbeli kare oda.
+    block(s, 1.3, 0.15, 1.85, 0.62, 0.52, col=PAL['marble'], mat='marble', kind='arch', spacing=0.22, roof='flat')
+    domed(s, 1.575, 0.385, 0.56, 0.2 + 0.02 * st, drum=0.08, wall=PAL['marble'])
+    s.cylinder(1.0, 1.0, 0, 0.1, 0.12, PAL['marble'], 'marble', top=PAL['water'])
+    if st == 3:
+        minaret(s, 0.3, 1.75, 1.2, r=0.05)
+    s.tree(1.3, 1.7, 0.85, 'cypress'); s.tree(0.8, 1.72, 0.8)
+
+
+def kisla(s, st):
+    """Kışla (Selimiye): avlulu taş blok, çok katlı pencere dizileri, köşelerde
+    sivri kurşun külahlı kuleler; önünde talim alanı."""
+    ground(s, 0.1, 0.1, 1.92, 1.92, hexc('#c9b58c'))
+    pave(s, 0.3, 1.4, 1.85, 1.88, hexc('#cdb88c'), n=4)
+    h = 0.55 + 0.1 * st
+    X0, Y0, X1, Y1 = 0.25, 0.25, 1.65, 1.25
+    t = 0.3
+    wings = [(X0, Y0, X1, Y0 + t), (X0, Y0 + t, X0 + t, Y1)]
+    if st >= 2:
+        wings.append((X1 - t, Y0 + t, X1, Y1))
+    if st >= 3:
+        wings.append((X0 + t, Y1 - t, X1 - t, Y1))
+    for (a, b, c, d) in wings:
+        block(s, a, b, c, d, h, col=OTTO['white'], mat='plaster', kind='arch', spacing=0.2, roof='hip', roofcol=PAL['lead'],
+              rh=0.1, ridge=max(0.0, (c - a) - (d - b)))
+    towers = [(X1, Y0)] + ([(X0, Y1)] if st >= 2 else []) + ([(X0, Y0), (X1, Y1)] if st >= 3 else [])
+    for (x, y) in towers:
+        pointed_tower(s, x, y, 0.15, h + 0.25, col=OTTO['white'], cap=0.4)
+    for (x, y) in ((0.6, 1.62), (0.9, 1.72), (1.2, 1.62)):
+        s.box(x - 0.015, y - 0.015, 0, x + 0.015, y + 0.015, 0.3, PAL['wood2'], 'wood')
+        s.sphere(x, y, 0.34, 0.05, hexc('#d9c08c'))
+    s.flag(1.65, 0.25, h + 0.7, 0.5); s.flag(0.3, 1.5, 0, 0.8)
+
+
+def kahvehane(s, st):
+    """Kahvehane: geniş saçaklı ahşap köşk, önünde asma çardağı, peykeler, çınar."""
+    ground(s, 0.15, 0.15, 1.9, 1.9, hexc('#d6c096'))
+    pave(s, 0.3, 1.05, 1.5, 1.8, hexc('#d9c7a1'), n=5)
+    if st == 1:
+        konak(s, 0.35, 0.35, 1.15, 0.95, 1, OTTO['ochre'], cumba=False, stone_base=False, eave=0.17)
+    else:
+        konak(s, 0.3, 0.3, 1.2, 0.95, 2, OTTO['ochre'], eave=0.17)
+    cardak(s, 0.4, 1.1, 1.2, 1.6, 0.42)
+    for (x, y) in ((0.55, 1.3), (0.85, 1.45), (1.05, 1.25)):  # peyke/tabure
+        s.cylinder(x, y, 0, 0.1, 0.05, PAL['wood'], 'wood', n=8)
+    if st >= 3:
+        s.cylinder(1.6, 0.6, 0, 0.1, 0.13, PAL['marble'], 'marble', top=PAL['water'])
+    s.tree(1.6, 1.5, 1.05); s.tree(1.7, 0.4, 0.85, 'cypress')
+
+
+def muze(s, st):
+    """Müze (Çinili Köşk): yükseltilmiş taş set üstünde çini kuşaklı köşk,
+    önde sivri kemerli revak, ortada kurşun kubbe."""
+    ground(s, 0.15, 0.15, 1.9, 1.9, hexc('#d6c096'))
+    s.box(0.3, 0.3, 0, 1.7, 1.45, 0.12, OTTO['stone'], 'stone', deco_y=[('courses', 0.06)], deco_x=[('courses', 0.06)])
+    x0, y0, x1, y1 = 0.45, 0.4, 1.55, 1.15
+    s.box(x0, y0, 0.12, x1, y1, 0.62, OTTO['white'], 'plaster',
+          deco_y=[('cini', 0.72, 0.84), ('arch', 0.25, 0.08, 0.09, 0.2), ('arch', 0.75, 0.08, 0.09, 0.2), ('archdoor', 0.5, 0, 0.14, 0.26)],
+          deco_x=[('cini', 0.72, 0.84), ('arch', 0.3, 0.08, 0.09, 0.2), ('arch', 0.7, 0.08, 0.09, 0.2)])
+    s.hip(x0, y0, x1, y1, 0.62, 0.06, PAL['lead'], over=0.12, mat='lead')
+    domed(s, (x0 + x1) / 2, (y0 + y1) / 2, 0.66, 0.22 + 0.03 * st, drum=0.08, wall=OTTO['white'])
+    # Revak: sivri kemerli sütun dizisi, kurşun saçak.
+    n = 6 if st == 1 else 8
+    for i in range(n):
+        cx = x0 + 0.05 + (x1 - x0 - 0.1) * i / (n - 1)
+        s.cylinder(cx, y1 + 0.2, 0.12, 0.5, 0.025, PAL['marble'], 'marble', n=8)
+    s.hip(x0 - 0.02, y1, x1 + 0.02, y1 + 0.24, 0.5, 0.05, PAL['lead'], over=0.08, mat='lead')
+    if st >= 2:
+        for sx in (x0 - 0.02, x1 - 0.2):
+            s.dome(sx + 0.11, y0 + 0.15, 0.66, 0.08, PAL['lead'], 'lead', hscale=0.85, finial=False)
+    if st >= 3:  # bahçede antik sütun parçaları, lahit
+        for (x, y) in ((1.72, 0.5), (1.78, 0.8)):
+            s.cylinder(x, y, 0, 0.26, 0.04, PAL['marble'], 'marble', n=10)
+        s.box(1.6, 1.55, 0, 1.85, 1.72, 0.12, PAL['marble'], 'marble')
+    s.tree(0.2, 1.65, 0.9, 'cypress'); s.tree(1.75, 1.7, 0.95)
+
+
+def marangoz(s, st):
+    ground(s, 0.15, 0.15, 1.9, 1.9, hexc('#cdb484'))
+    konak(s, 0.35, 0.35, 1.2, 1.0, 1 if st == 1 else 2, OTTO['ochre'], cumba=st == 3)
+    if st >= 2:
+        s.box(1.3, 0.3, 0, 1.8, 0.85, 0.4, PAL['wood'], 'wood', deco_y=[('vplanks', 6)], deco_x=[('vplanks', 6)])
+        s.hip(1.3, 0.3, 1.8, 0.85, 0.4, 0.15, PAL['roof2'], over=0.12)
+    logs(s, 0.4, 1.3, n=3 + st)
+    s.crate(1.3, 1.3, 0.14); s.crate(1.5, 1.4, 0.12)
+    s.tree(1.7, 1.65, 0.8)
+
+
+def mimar(s, st):
+    ground(s, 0.15, 0.15, 1.9, 1.9, hexc('#d2bb8c'))
+    konak(s, 0.35, 0.3, 1.2, 1.0, 1 + min(st, 2), OTTO['white'])
+    # Çizimhane: kubbeli küçük taş oda.
+    if st >= 2:
+        block(s, 1.3, 0.35, 1.78, 0.85, 0.42, col=OTTO['stone'], mat='stone', wins=False, roof='flat', door_x=0.5)
+        s.dome(1.54, 0.6, 0.46, 0.17, PAL['lead'], 'lead', hscale=0.8)
+    stone_blocks(s, 0.4, 1.35, n=2 + st)
+    if st == 3:
+        crane(s, 1.4, 1.35, 0.9, 0.3)
+    s.tree(0.25, 1.7, 0.85, 'cypress')
+
+
+def ormanci(s, st):
+    ground(s, 0.15, 0.15, 1.9, 1.9, hexc('#c9b58c'))
+    konak(s, 0.4, 0.4, 1.15, 0.95, 1 if st == 1 else 2, hexc('#b98a5a'), cumba=False, stone_base=True)
+    logs(s, 1.3, 0.4, n=2 + st, axis='y')
+    for i in range(3 + st):
+        s.tree(0.3 + (i % 4) * 0.4, 1.25 + (i // 4) * 0.35, 0.7 + 0.08 * (i % 3), 'cypress' if i % 2 else 'olive')
+
+
+def bagci(s, st):
+    ground(s, 0.15, 0.15, 1.9, 1.9, hexc('#cdb484'))
+    konak(s, 0.3, 0.3, 1.0, 0.9, 2, OTTO['pink'], cumba=st >= 2)
+    rows = 2 + st
+    for r in range(rows):
+        y = 1.1 + r * 0.18
+        s.box(0.3, y - 0.01, 0, 1.75, y + 0.01, 0.2, PAL['wood2'], 'wood', outline=False)
+        for i in range(8):
+            s.blob(0.35 + i * 0.19, y, 0.2, 0.06, PAL['leaf'], squash=0.7)
+            if (i + r) % 3 == 0:
+                s.sphere(0.37 + i * 0.19, y + 0.03, 0.14, 0.018, hexc('#5b2a5a'))
+    for i in range(st):
+        s.barrel(1.3 + i * 0.16, 0.5, 0.06)
+
+
+def simyahane(s, st):
+    ground(s, 0.15, 0.15, 1.9, 1.9, hexc('#cdb484'))
+    block(s, 0.4, 0.4, 1.3, 1.1, 0.5, col=OTTO['stone'], mat='stone', kind='arch', spacing=0.25, roof='flat', door_y=0.5)
+    s.dome(0.85, 0.75, 0.55, 0.26, PAL['lead'], 'lead', hscale=0.8)
+    s.box(1.18, 0.45, 0, 1.3, 0.57, 0.95, PAL['stonedark'], 'stone')
+    s.cone(1.24, 0.51, 0.95, 0.1, 0.08, PAL['lead'], 'lead', n=8)
+    for i in range(2 + st):
+        s.cone(0.4 + i * 0.22, 1.4, 0, 0.12, 0.06, hexc('#e6c34a'), 'flat', n=10)
+    if st >= 2:
+        s.dome(1.55, 0.6, 0, 0.2, hexc('#b8654a'), 'plaster', hscale=0.9, finial=False)  # ocak
+    s.tree(1.7, 1.6, 0.8, 'cypress')
+
+
+def camci(s, st):
+    ground(s, 0.15, 0.15, 1.9, 1.9, hexc('#cdb484'))
+    konak(s, 0.35, 0.35, 1.15, 0.95, 1 if st == 1 else 2, OTTO['blue'], cumba=st == 3)
+    s.dome(1.5, 0.6, 0, 0.26, hexc('#b8654a'), 'plaster', hscale=0.95, finial=False)  # cam fırını
+    s.box(1.46, 0.3, 0.2, 1.54, 0.38, 0.55, PAL['stonedark'], 'stone')
+    for i in range(3 + st):
+        s.cone(0.4 + i * 0.18, 1.35, 0, 0.14, 0.05, hexc('#4fa3c7'), 'flat', n=10)
+    s.tree(1.7, 1.6, 0.8)
+
+
+def mahzen(s, st):
+    ground(s, 0.15, 0.15, 1.9, 1.9, hexc('#c9b58c'))
+    konak(s, 0.35, 0.35, 1.2, 1.0, 1 if st == 1 else 2, OTTO['ochre'], cumba=False)
+    # Tonozlu taş mahzen girişi.
+    s.box(1.3, 0.4, 0, 1.75, 1.0, 0.3, OTTO['stone'], 'stone', deco_x=[('courses', 0.08), ('archdoor', 0.5, 0, 0.18, 0.24)])
+    s.gable(1.3, 0.4, 1.75, 1.0, 0.3, 0.12, PAL['lead'], axis='y', mat='lead', wall=OTTO['stone'], wallmat='stone')
+    for i in range(2 + st):
+        s.barrel(0.45 + (i % 4) * 0.2, 1.35 + (i // 4) * 0.2, 0.07)
+    s.tree(1.7, 1.65, 0.8)
+
+
+def gozlukcu(s, st):
+    ground(s, 0.15, 0.15, 1.9, 1.9, hexc('#d2bb8c'))
+    konak(s, 0.4, 0.35, 1.3, 1.05, 1 + min(st, 2), OTTO['white'])
+    awning(s, 0.45, 1.25, 1.05, 0.32, 0.2, PAL['blue'])
+    if st == 3:
+        konak(s, 1.4, 0.4, 1.85, 0.95, 2, OTTO['green'], cumba=False)
+    s.tree(1.6, 1.55, 0.85, 'cypress')
+
+
+def barutane(s, st):
+    ground(s, 0.15, 0.15, 1.9, 1.9, hexc('#c9b58c'))
+    block(s, 0.4, 0.4, 1.2, 1.0, 0.45, col=OTTO['stone'], mat='stone', wins=False, roof='flat', door_y=0.5)
+    s.dome(0.8, 0.7, 0.5, 0.26, PAL['lead'], 'lead', hscale=0.75)
+    if st >= 2:
+        block(s, 1.3, 0.4, 1.75, 0.85, 0.35, col=OTTO['stone'], mat='stone', wins=False, roof='flat')
+        s.dome(1.525, 0.625, 0.4, 0.15, PAL['lead'], 'lead', hscale=0.75, finial=False)
+    for i in range(1 + st):  # deneme topları
+        x = 0.5 + i * 0.35
+        s.cylinder(x, 1.45, 0.08, 0.14, 0.05, PAL['iron'], 'flat', n=10)
+        s.box(x - 0.08, 1.4, 0, x + 0.08, 1.5, 0.07, PAL['wood2'], 'wood')
+    s.tree(1.75, 1.6, 0.8, 'cypress')
+
+
+def depo(s, st):
+    """Depo: uzun taş arasta, sırt boyunca küçük kurşun kubbeler; avluda sandık yığını."""
+    ground(s, 0.15, 0.15, 1.9, 1.9, hexc('#cdb484'))
+    n = (3, 4, 5)[st - 1]
+    x0, x1 = 0.25, min(1.8, 0.25 + 0.3 * n)
+    block(s, x0, 0.3, x1, 0.8, 0.45, col=OTTO['stone'], mat='stone', kind='arch', spacing=0.3, roof='flat', door_y=0.5)
+    dome_row(s, x0, x1, 0.55, 0.5, n, 0.12)
+    if st >= 2:
+        block(s, 0.25, 0.9, 0.75, 1.6, 0.4, col=OTTO['stone'], mat='stone', wins=False, roof='flat', door_x=0.5)
+        dome_row(s, 0.9, 1.6, 0.5, 0.45, 2, 0.13, axis='y')
+    for i in range(3 + st):
+        s.crate(0.95 + (i % 3) * 0.2, 1.05 + (i // 3) * 0.22, 0.15)
+
+
+def ticaret_merkezi(s, st):
+    """Ticaret merkezi (han / kervansaray): kubbe sıralı revaklı kanatlar,
+    yüksek taç kapı, avlunun ortasında köşk mescit."""
+    ground(s, 0.1, 0.1, 1.92, 1.92, hexc('#d2bb8c'))
+    pave(s, 0.55, 0.55, 1.45, 1.45, PAL['stone'], n=6)
+    t = 0.32
+    wings = [(0.2, 0.2, 1.8, 0.2 + t, 'x'), (0.2, 0.2 + t, 0.2 + t, 1.8, 'y')]
+    if st >= 2:
+        wings.append((1.8 - t, 0.2 + t, 1.8, 1.8, 'y'))
+    for (a, b, c, d, ax) in wings:
+        block(s, a, b, c, d, 0.5, col=OTTO['stone'], mat='stone', kind='arch', spacing=0.2, roof='flat')
+        if ax == 'x':
+            dome_row(s, a, c, (b + d) / 2, 0.55, int((c - a) / 0.3), 0.11)
+        else:
+            dome_row(s, b, d, (a + c) / 2, 0.55, int((d - b) / 0.3), 0.11, axis='y')
+    # Taç kapı (ön): yüksek sivri kemerli portal.
+    s.box(0.8, 1.72, 0, 1.25, 1.86, 0.72, OTTO['stone'], 'stone', deco_y=[('courses', 0.1), ('archdoor', 0.5, 0, 0.2, 0.42), ('cini', 0.8, 0.88)])
+    crenel(s, 0.8, 1.72, 1.25, 1.86, 0.72, OTTO['stone'], step=0.09, size=0.05, h=0.05)
+    # Köşk mescit: dört ayak üstünde küçük kubbeli oda.
+    if st >= 2:
+        for (x, y) in ((0.88, 0.88), (1.12, 0.88), (0.88, 1.12), (1.12, 1.12)):
+            s.box(x - 0.03, y - 0.03, 0, x + 0.03, y + 0.03, 0.3, OTTO['stone'], 'stone')
+        s.box(0.83, 0.83, 0.3, 1.17, 1.17, 0.5, OTTO['stone'], 'stone', deco_y=[('arch', 0.5, 0.04, 0.08, 0.12)], deco_x=[('arch', 0.5, 0.04, 0.08, 0.12)])
+        s.dome(1.0, 1.0, 0.5, 0.14, PAL['lead'], 'lead', hscale=0.85)
+    for i in range(1 + st):
+        s.crate(0.65 + i * 0.2, 1.4, 0.13)
+
+
+def harita_arsivi(s, st):
+    """Harita arşivi (Osmanlı kütüphanesi): yükseltilmiş taş kitaplık, ortada
+    kubbe, önde küçük kubbeli revak, çini kuşak."""
+    ground(s, 0.15, 0.15, 1.9, 1.9, hexc('#d2bb8c'))
+    s.box(0.35, 0.35, 0, 1.55, 1.3, 0.1, OTTO['stone'], 'stone')
+    x0, y0, x1, y1 = 0.45, 0.4, 1.45, 1.1
+    s.box(x0, y0, 0.1, x1, y1, 0.6, OTTO['stone'], 'stone',
+          deco_y=[('courses', 0.1), ('cini', 0.74, 0.84), ('arch', 0.25, 0.1, 0.09, 0.2), ('arch', 0.75, 0.1, 0.09, 0.2)],
+          deco_x=[('courses', 0.1), ('cini', 0.74, 0.84), ('arch', 0.5, 0.1, 0.09, 0.2)])
+    s.box(x0 - 0.03, y0 - 0.03, 0.6, x1 + 0.03, y1 + 0.03, 0.64, PAL['lead'], 'lead')
+    domed(s, (x0 + x1) / 2, (y0 + y1) / 2, 0.64, 0.24 + 0.02 * st, drum=0.08, wall=OTTO['stone'])
+    if st >= 2:  # revak: üç küçük kubbe
+        s.box(x0 + 0.1, y1, 0.1, x1 - 0.1, y1 + 0.2, 0.45, OTTO['stone'], 'stone', deco_y=[('arch', u, 0.02, 0.1, 0.22) for u in (0.2, 0.5, 0.8)])
+        dome_row(s, x0 + 0.1, x1 - 0.1, y1 + 0.1, 0.45, 3, 0.09)
+    if st == 3:
+        s.flag(1.6, 0.35, 0, 0.9, PAL['blue'])
+    s.tree(0.25, 1.65, 0.9, 'cypress'); s.tree(1.7, 1.6, 0.85)
+
+
+def valilik(s, st):
+    """Valilik (hükümet konağı): simetrik büyük konak, ortada cumbalı giriş,
+    kurşun kırma çatı, sancak."""
+    ground(s, 0.15, 0.15, 1.9, 1.9, hexc('#d2bb8c'))
+    pave(s, 0.5, 1.3, 1.5, 1.85, PAL['marble'], n=5)
+    konak(s, 0.35, 0.4, 1.6, 1.2, 2 if st == 1 else 3, OTTO['white'], roofcol=PAL['lead'])
+    portico(s, 0.8, 1.15, 1.2, 0.2, 0.34, 4)
+    s.flag(0.97, 0.8, 1.35 if st > 1 else 1.0, 0.6)
+    s.tree(0.25, 1.6, 0.9, 'cypress'); s.tree(1.75, 1.6, 0.9, 'cypress')
+
+
+def kara_pazar(s, st):
+    """Kara pazar: arka sokakta koyu ahşap konak (han), loş tenteler, sandıklar, fener."""
+    ground(s, 0.1, 0.1, 1.92, 1.92, hexc('#c9b58c'))
+    pave(s, 0.25, 0.25, 1.8, 1.8, hexc('#bfae8a'), n=7)
+    cols = [hexc('#5a2b3a'), hexc('#2f3f4f'), hexc('#4b3a22'), hexc('#3d4a2c')]
+    konak(s, 0.25, 0.25, 1.0, 0.7, 1 + min(st, 2), hexc('#b89a78'), cumba=st >= 2, roofcol=PAL['roof2'])
+    stalls = [(0.3, 0.95), (0.85, 0.95), (1.35, 0.5), (1.35, 1.05), (0.3, 1.45), (0.85, 1.45)][:2 + st]
+    for i, (x, y) in enumerate(stalls):
+        s.box(x, y, 0, x + 0.38, y + 0.3, 0.28, PAL['wooddark'], 'wood', deco_y=[('vplanks', 5)], deco_x=[('vplanks', 4)])
+        awning(s, x - 0.02, x + 0.4, y + 0.3, 0.4, 0.2, cols[i % len(cols)], stripes=False)
+        s.crate(x + 0.05, y + 0.34, 0.1); s.barrel(x + 0.3, y + 0.4, 0.045)
+    lantern(s, 1.2, 1.35, 0.45)
 
 
 BUILDINGS = {

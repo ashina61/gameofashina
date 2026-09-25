@@ -283,6 +283,7 @@ export class CityScene extends Phaser.Scene {
     this.stepWalkers(Math.min(delta, 100) / 1000)
     this.stepBirds(Math.min(delta, 100) / 1000)
     this.stepCaravan(Math.min(delta, 100) / 1000)
+    this.stepTroops(Math.min(delta, 100) / 1000)
     this.timers = this.timers.filter(t => t.bar.active)
     this.hudItems = this.hudItems.filter(h => h.c.active)
     const zoom = this.cameras.main.zoom
@@ -409,6 +410,9 @@ export class CityScene extends Phaser.Scene {
     if (this.state.buildings.surlar > 0) this.drawWalls(this.state.buildings.surlar)
     // Ağır sabit parçalar (sur, avlu, kule sancakları) dokuya pişirilir: her
     // karede yeniden üçgenlenmezler.
+    // Alaylar: kışla kurulunca ikinci yeniçeri devriyesi katılır.
+    const troopKey = String(this.state.buildings.kisla > 0)
+    if (troopKey !== this.troopKey) { this.troopKey = troopKey; this.addTroops() }
     const atlas = new BakeAtlas(this, 'pieces-atlas')
     this.pieces = this.pieces.flatMap(p => (p instanceof Phaser.GameObjects.Graphics && !this.tweens.isTweening(p) ? atlas.bake(p) : [p]))
     atlas.finish()
@@ -752,6 +756,21 @@ export class CityScene extends Phaser.Scene {
       g.fillStyle(0x6a3a22, 1); g.fillRect(-2 * s, -18.4 * s, 4 * s, 2.2 * s)
       g.fillStyle(0xc9a46a, 1); g.fillRoundedRect(-7.4 * s, -16 * s, 5.4 * s, 8 * s, 1.2 * s)
       g.lineStyle(1, 0x7a5a30, 1); g.lineBetween(-7.4 * s, -12 * s, -2 * s, -12 * s)
+    } else if (roll < 0.6) {
+      // Simitçi: beyaz önlük, başında simit tablası.
+      body(0xe9e2d0, 0xb3261e)
+      g.fillStyle(skin, 1); g.fillCircle(0, -14.6 * s, 2.5 * s)
+      g.fillStyle(0x8a5a35, 1); g.fillEllipse(0, -18.4 * s, 12 * s, 3 * s)
+      g.lineStyle(1.4 * s, 0xc8883e, 1)
+      for (const dx of [-3.6, 0, 3.6]) g.strokeEllipse(dx * s, -19.6 * s, 3.2 * s, 1.8 * s)
+    } else if (roll < 0.66) {
+      // Sucu: sırtında pirinç kap, elinde tas.
+      body(0x3f6f9a, 0xe2bd78)
+      g.fillStyle(skin, 1); g.fillCircle(0, -14.6 * s, 2.5 * s)
+      g.fillStyle(0xa8322a, 1); g.fillRect(-2 * s, -18.6 * s, 4 * s, 2.6 * s)
+      g.fillStyle(0xc9982e, 1); g.fillRoundedRect(-7.6 * s, -17 * s, 5 * s, 9 * s, 2 * s)
+      g.fillStyle(0xe8c25a, 1); g.fillRect(-7 * s, -15 * s, 1.2 * s, 5 * s)
+      g.fillStyle(0xc9982e, 1); g.fillCircle(4 * s, -8 * s, 1.4 * s)
     } else {
       // Esnaf: renkli entari, fes ya da sarık.
       const robes = [0xb8412f, 0x3f6f9a, 0x4f7d4a, 0xd6a93a, 0x7a4f8a, 0xe9dcc0, 0x8a5a35]
@@ -902,6 +921,130 @@ export class CityScene extends Phaser.Scene {
   private caravanPath: Phaser.Curves.Path | null = null
   private caravanLen = 0
   private caravanT = 0
+  /*
+   * ASKER VE ALAY: yeniçeri devriyeleri (bayraktar önde, tüfekli neferler iki
+   * sıra), meydanı dönen mehter takımı (tuğ, kös, zurna), doğu-batı caddesinde
+   * mızraklı sipahiler. Hepsi caddeler ve meydan çevresi boyunca yürür.
+   */
+  private troopKey = ''
+  private troops: Array<{
+    members: Array<{ g: Phaser.GameObjects.Graphics; along: number; side: number }>
+    pts: Array<{ x: number; y: number }>; len: number; t: number; dir: 1 | -1; speed: number; loop: boolean; bob: number
+  }> = []
+  private addTroops() {
+    for (const tr of this.troops) for (const m of tr.members) m.g.destroy()
+    this.troops = []
+    const P = PLAZA.screen
+    const node = (id: string) => ROAD_GRAPH.nodes.find(n => n.id === id)?.screen
+    const rim = (a0: number, a1: number, k = 1.08) => Array.from({ length: 13 }, (_, i) => {
+      const a = (a0 + (a1 - a0) * i / 12) * Math.PI / 180
+      return { x: P.x + Math.cos(a) * PLAZA.rx * k, y: P.y + Math.sin(a) * PLAZA.ry * k }
+    })
+    const route = (ids: string[], mid: Array<{ x: number; y: number }>, tail: string[]) =>
+      [...ids.map(node), ...mid, ...tail.map(node)].filter((p): p is { x: number; y: number } => !!p)
+    const sample = (pts: Array<{ x: number; y: number }>, loop = false) => {
+      const path = new Phaser.Curves.Path(pts[0].x, pts[0].y)
+      for (const p of pts.slice(1)) path.lineTo(p.x, p.y)
+      if (loop) path.lineTo(pts[0].x, pts[0].y)
+      const len = path.getLength()
+      return { pts: path.getSpacedPoints(Math.max(60, Math.round(len / 6))).map(v => ({ x: v.x, y: v.y })), len }
+    }
+    const V = (x: number, y: number) => new Phaser.Math.Vector2(x, y)
+    const s = 1.55 // alaylar sokak halkından biraz iri: uzaktan seçilsin
+    const janissary = (leader: boolean) => {
+      const g = this.add.graphics()
+      g.fillStyle(0x1b2a14, 0.22); g.fillEllipse(1.5 * s, 0, 9 * s, 3.4 * s)
+      g.fillStyle(0x24406e, 1); g.fillTriangle(-3.8 * s, 0, 3.8 * s, 0, 0, -12 * s); g.fillRoundedRect(-2.7 * s, -12 * s, 5.4 * s, 6 * s, 1.6 * s)
+      g.fillStyle(0xb3261e, 1); g.fillRect(-2.8 * s, -7.6 * s, 5.6 * s, 1.5 * s)
+      g.fillStyle(0xd9a77a, 1); g.fillCircle(0, -14.6 * s, 2.5 * s)
+      g.fillStyle(0xf4efe2, 1); g.fillPoints([V(-2.4 * s, -16.4 * s), V(2.4 * s, -16.4 * s), V(1.2 * s, -23 * s), V(-4.2 * s, -21 * s)], true)
+      g.fillStyle(0xe2bd78, 1); g.fillRect(-2.4 * s, -17.2 * s, 4.8 * s, 1 * s)
+      if (leader) { // bayraktar: al sancak
+        g.lineStyle(1.4, 0x4a3a28, 1); g.lineBetween(3 * s, -6 * s, 3 * s, -34 * s)
+        g.fillStyle(0xb3261e, 1); g.fillPoints([V(3.2 * s, -34 * s), V(13 * s, -32 * s), V(11 * s, -28 * s), V(13 * s, -24 * s), V(3.2 * s, -25 * s)], true)
+        g.fillStyle(0xf6efe0, 1); g.fillCircle(7 * s, -29.5 * s, 1.8 * s); g.fillStyle(0xb3261e, 1); g.fillCircle(7.7 * s, -29.5 * s, 1.5 * s)
+      } else { // tüfek omuzda
+        g.lineStyle(1.3, 0x3a2a1c, 1); g.lineBetween(2.4 * s, -6 * s, 5.6 * s, -22 * s)
+      }
+      return g
+    }
+    const mehter = (i: number) => {
+      const g = this.add.graphics()
+      g.fillStyle(0x1b2a14, 0.22); g.fillEllipse(1.5 * s, 0, 9 * s, 3.4 * s)
+      g.fillStyle(0xa8322a, 1); g.fillTriangle(-3.8 * s, 0, 3.8 * s, 0, 0, -12 * s); g.fillRoundedRect(-2.7 * s, -12 * s, 5.4 * s, 6 * s, 1.6 * s)
+      g.fillStyle(0xe2bd78, 1); g.fillRect(-2.8 * s, -7.6 * s, 5.6 * s, 1.4 * s)
+      g.fillStyle(0xd9a77a, 1); g.fillCircle(0, -14.6 * s, 2.5 * s)
+      g.fillStyle(0xf2ead8, 1); g.fillEllipse(0, -17.4 * s, 6.4 * s, 4 * s); g.fillStyle(0xb3261e, 1); g.fillRect(-1.2 * s, -21 * s, 2.4 * s, 3.2 * s)
+      if (i === 0) { // tuğ: at kuyruklu sancak direği
+        g.lineStyle(1.5, 0x4a3a28, 1); g.lineBetween(3 * s, -6 * s, 3 * s, -36 * s)
+        g.fillStyle(0xe2bd78, 1); g.fillCircle(3 * s, -37 * s, 1.6 * s)
+        g.fillStyle(0x2a1a10, 1); g.fillTriangle(1 * s, -34 * s, 5 * s, -34 * s, 3 * s, -24 * s)
+      } else if (i % 3 === 1) { // kös/davul
+        g.fillStyle(0x8a5a35, 1); g.fillEllipse(3.2 * s, -8.5 * s, 6 * s, 5 * s)
+        g.fillStyle(0xe9dcc0, 1); g.fillEllipse(3.2 * s, -10 * s, 5 * s, 2 * s)
+      } else if (i % 3 === 2) { // zurna
+        g.lineStyle(1.6, 0x6a4a2a, 1); g.lineBetween(1.6 * s, -14 * s, 6.4 * s, -10 * s)
+        g.fillStyle(0xc9982e, 1); g.fillCircle(6.6 * s, -9.8 * s, 1.2 * s)
+      } else { // zil
+        g.fillStyle(0xe2bd78, 1); g.fillCircle(-3 * s, -9 * s, 1.5 * s); g.fillCircle(3 * s, -9 * s, 1.5 * s)
+      }
+      return g
+    }
+    const sipahi = () => {
+      const g = this.add.graphics()
+      g.fillStyle(0x1b2a14, 0.22); g.fillEllipse(2 * s, 0, 20 * s, 4 * s)
+      g.fillStyle(0x6a4428, 1)
+      for (const lx of [-6, -3.5, 4, 6.5]) g.fillRect(lx * s, -7 * s, 1.4 * s, 7 * s)
+      g.fillEllipse(0, -8.5 * s, 16 * s, 6 * s)
+      g.fillPoints([V(6 * s, -9 * s), V(9 * s, -16 * s), V(11.5 * s, -15 * s), V(8.5 * s, -8 * s)], true)
+      g.fillEllipse(11 * s, -15.5 * s, 4.6 * s, 2.6 * s)
+      g.fillStyle(0x2a1a10, 1); g.fillTriangle(-8 * s, -9 * s, -11 * s, -3 * s, -7 * s, -6 * s)
+      g.fillStyle(0xb3261e, 1); g.fillRect(-3.4 * s, -11 * s, 6 * s, 2 * s) // eyer örtüsü
+      g.fillStyle(0xb3261e, 1); g.fillRoundedRect(-2 * s, -19 * s, 4.4 * s, 8 * s, 1.4 * s)
+      g.fillStyle(0xd9a77a, 1); g.fillCircle(0.2 * s, -21 * s, 2.2 * s)
+      g.fillStyle(0xf2ead8, 1); g.fillEllipse(0.2 * s, -23.4 * s, 5.4 * s, 3.2 * s)
+      g.lineStyle(1.3, 0x4a3a28, 1); g.lineBetween(-4 * s, -8 * s, 10 * s, -30 * s) // mızrak
+      g.fillStyle(0xb3261e, 1); g.fillTriangle(9 * s, -28 * s, 13 * s, -27 * s, 10.5 * s, -25 * s)
+      return g
+    }
+    const add = (pts: Array<{ x: number; y: number }>, members: Array<{ g: Phaser.GameObjects.Graphics; along: number; side: number }>, speed: number, loop: boolean, t0: number, bob = 0) => {
+      if (pts.length < 2) { for (const m of members) m.g.destroy(); return }
+      const sm = sample(pts, loop)
+      this.troops.push({ members, pts: sm.pts, len: sm.len, t: t0, dir: 1, speed, loop, bob })
+    }
+    const squad = () => [
+      { g: janissary(true), along: 0, side: 0 },
+      ...[0, 1, 2, 3, 4].map(i => ({ g: janissary(false), along: 19 + Math.floor(i / 2) * 18, side: i === 4 ? 0 : i % 2 ? 11 : -11 })),
+    ]
+    // 1) Kuzey kapısı → kuzey caddesi → meydan çevresi (doğudan) → güney caddesi → liman.
+    add(route(['st_gate_n', 'st_ave_n2', 'st_ave_n', 'st_r18'], rim(-90, 90), ['st_r6', 'st_ave_s', 'st_ave_s2', 'st_stairs']), squad(), 30, false, 0.1)
+    // 2) Kışla kuruluysa batı-doğu devriyesi (meydanın kuzeyinden).
+    if (this.state.buildings.kisla > 0) {
+      add(route(['st_gate_w', 'st_r12'], rim(180, 360), ['st_r0', 'st_gate_e']), squad(), 28, false, 0.6)
+    }
+    // 3) Mehter: meydanı çevreleyen tur (bayram alayı gibi, ritimli).
+    add(rim(0, 348, 1.12), Array.from({ length: 8 }, (_, i) => ({ g: mehter(i), along: i === 0 ? 0 : 14 + Math.floor((i - 1) / 2) * 14, side: i === 0 ? 0 : (i % 2 ? 8 : -8) })), 16, true, 0.3, 1.5)
+    // 4) Sipahiler: doğu-batı caddesinde çift atlı.
+    add(route(['st_gate_e', 'st_r0'], rim(0, 180, 1.14), ['st_r12', 'st_gate_w']), [{ g: sipahi(), along: 0, side: -8 }, { g: sipahi(), along: 6, side: 10 }], 46, false, 0.35)
+    this.stepTroops(0)
+  }
+  private stepTroops(dt: number) {
+    for (const tr of this.troops) {
+      tr.t += tr.dir * tr.speed * dt / tr.len
+      if (tr.loop) tr.t = ((tr.t % 1) + 1) % 1
+      else if (tr.t > 1) { tr.t = 1; tr.dir = -1 } else if (tr.t < 0) { tr.t = 0; tr.dir = 1 }
+      const n = tr.pts.length
+      for (const m of tr.members) {
+        let u = tr.t - tr.dir * m.along / tr.len
+        u = tr.loop ? ((u % 1) + 1) % 1 : Math.min(1, Math.max(0, u))
+        const k = Math.min(n - 2, Math.floor(u * (n - 1)))
+        const p = tr.pts[k], q = tr.pts[k + 1]
+        const dx = (q.x - p.x) * tr.dir, dy = (q.y - p.y) * tr.dir, l = Math.hypot(dx, dy) || 1
+        const bob = tr.bob ? Math.abs(Math.sin(this.flockClock * 6 + m.along)) * tr.bob : 0
+        m.g.setPosition(p.x - dy / l * m.side, p.y + dx / l * m.side * 0.6 - bob).setScale(dx >= 0 ? 1 : -1, 1).setDepth(p.y + 0.5)
+      }
+    }
+  }
   private stepCaravan(dt: number) {
     if (!this.caravanPath || !this.caravan.length) return
     // 0→1 içeri, 1 bekleme, 1→0 dışarı, 0 bekleme (toplam ~2 dk).
