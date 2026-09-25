@@ -1,6 +1,7 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { freePlots, zoneOf, type BuildingId, type Game } from './engine'
+import { BATTLE_WINDOW_MS } from './battle'
 import { advanceEmpire, initialEmpire, parseEmpire, type Empire } from './empire'
 import { dispatchBlockade, dispatchRaid, dispatchSpies, recallMission, targetInfo } from './expeditions'
 import {
@@ -39,13 +40,13 @@ test('raiding a ruler loots, angers them and brings a revenge raid', () => {
   const sent = dispatchRaid(spied.empire, kemer, { yeniceri: 80, okcu: 30, topcu: 6 }, now)
   assert.equal(sent.error, undefined)
   const m = sent.empire.missions!.find(x => x.kind === 'raid')!
-  const hit = advanceEmpire(sent.empire, m.arriveAt)
+  const hit = advanceEmpire(sent.empire, m.arriveAt + BATTLE_WINDOW_MS)
   const report = hit.reports!.find(r => r.kind === 'raid')!
   assert.equal(report.success, true, report.lines.join('\n'))
   assert.ok(rivalState(hit, kemer).relation < 0)
   const revenge = hit.threats!.find(t => t.npcId === kemer)
   assert.ok(revenge, 'intikam baskını planlandı')
-  const after = advanceEmpire(hit, revenge!.arriveAt)
+  const after = advanceEmpire(hit, revenge!.arriveAt + BATTLE_WINDOW_MS)
   assert.ok(after.reports!.some(r => r.kind === 'defense'))
   assert.ok(parseEmpire(JSON.stringify(after)))
 })

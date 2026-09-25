@@ -12,7 +12,7 @@ import { luxuryIcons } from './game-widgets'
 import { effectLines } from '@/lib/game/building-info'
 import { actionPoints, armyUpkeep, merchantBuyPrice, merchantSellPrice, type UnitRole } from '@/lib/game/engine'
 import { Eye } from 'lucide-react'
-import { spyCapacity, growthRate, maxPopulation, PLOTS, zoneOf } from '@/lib/game/engine'
+import { garrisonLimit, garrisonUsed, spyCapacity, growthRate, maxPopulation, PLOTS, zoneOf } from '@/lib/game/engine'
 import { BATTLE_STATS, SLOT_SIZE, fieldSize } from '@/lib/game/battle'
 import { UnitFigure } from './unit-art'
 
@@ -313,7 +313,7 @@ export function ArmyPanel({ game, onRecruit, onBuild, home }: { game: Game; onRe
     </div>
     <p className="army-note"><Coins className="size-4" />Ordunun bakımı dakikada {Math.round(armyUpkeep(game) * 10) / 10} akçe · aynı anda {actionPoints(game)} görev (hamle puanı).</p>
     <p className="army-note"><TriangleAlert className="size-4" />Asker halktan çıkar. Eğitilen her vatandaş üretimden düşer; surlar ise asker istemez, taş ister ({wallDefense(game)} savunma).</p>
-    <BattlefieldCard level={game.buildings.divan} />
+    <BattlefieldCard game={game} />
     {game.drill && <JobProgress job={game.drill} now={game.updatedAt} />}
     <div className="batch-row"><span>Parti</span>{BATCHES.map(n => <Button key={n} size="sm" variant={batch === n ? 'default' : 'outline'} onClick={() => setBatch(n)}>{n}</Button>)}</div>
     {branches.map(branch => {
@@ -363,14 +363,22 @@ export function ArmyPanel({ game, onRecruit, onBuild, home }: { game: Game; onRe
 
 const ROLE_ROW_SET = new Set<UnitRole>(['front', 'flank', 'range', 'artillery', 'support'])
 /** Şehrin savaş meydanı: Divanhane seviyesiyle büyür (Ikariam). */
-function BattlefieldCard({ level }: { level: number }) {
+function BattlefieldCard({ game }: { game: Game }) {
+  const level = game.buildings.divan
   const f = fieldSize(level)
   const next = level < 5 ? 5 : level < 10 ? 10 : level < 17 ? 17 : null
   const rows: Array<[string, number]> = [['Ön cephe', f.front], ['Kanatlar', f.flank], ['Uzak menzil', f.range], ['Kuşatma', f.artillery]]
+  const garrison = (['kara', 'deniz'] as const).map(b => ({ b, used: garrisonUsed(game, b), max: garrisonLimit(game, b) }))
   return <article className="bf-card">
     <span className="eyebrow">SAVAŞ MEYDANI · {f.name.toUpperCase()}</span>
     <div className="bf-card-rows">{rows.map(([n, k]) => <span key={n}><strong>{k}</strong><small>{n}</small></span>)}</div>
-    <p className="fine-print">Her yuvaya bir tür birlik ve {SLOT_SIZE} büyüklük sığar; fazlası yedekte bekler ve düşenlerin yerini alır. Ön cephe boşalırsa kanat ve nişancılar öne çıkar. Nişancıların cephanesi tükenir; kanatlar düşmanın arkasına dalar; kuşatma sura vurur.{next ? ` Divanhane ${next}. seviyede meydan büyür.` : ''}</p>
+    <p className="fine-print">Her yuvaya bir tür birlik ve {SLOT_SIZE} büyüklük sığar; fazlası yedekte bekler ve düşenlerin yerini alır. Ön cephe boşalırsa kanat ve nişancılar öne çıkar. Nişancıların cephanesi tükenir; kanatlar düşmanın arkasına dalar; kuşatma sura vurur. Savaş dakikada bir tur sürer: turlar arasında takviye katılır, saldıran geri çekilebilir.{next ? ` Divanhane ${next}. seviyede meydan büyür.` : ''}</p>
+    <div className="bf-garrison">{garrison.map(({ b, used, max }) => <div key={b} className={used >= max && max > 0 ? 'is-full' : ''}>
+      <span>{b === 'kara' ? 'Kara garnizonu' : 'Deniz garnizonu'}</span>
+      <span className="bf-garrison-bar"><i style={{ width: `${max ? Math.min(100, (100 * used) / max) : 0}%` }} /></span>
+      <strong>{used} / {max}</strong>
+    </div>)}</div>
+    <p className="fine-print">Garnizon sınırı birliklerin halk karşılığıdır (seferdekiler dahil; casus ve nakliye hariç). Kara sınırını Divanhane ve Surlar, deniz sınırını Tersane yükseltir.</p>
   </article>
 }
 

@@ -1,6 +1,7 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { freePlots, zoneOf, type BuildingId, type Game } from './engine'
+import { BATTLE_WINDOW_MS } from './battle'
 import { advanceEmpire, initialEmpire, parseEmpire, type Empire } from './empire'
 import {
   PROTECTION_DIVAN, THREAT_WARNING_MS, availableUnits, dispatchPiracy, dispatchRaid, safeStock, targetTravelMs,
@@ -53,7 +54,7 @@ test('a pirate fleet blocks an unescorted landing; warships clear the coast', ()
   e.cities[0].game.army.kadirga = 10; e.cities[0].game.army.ates_gemisi = 3
   const escorted = dispatchRaid(e, 'zeytin-korsan', { yeniceri: 60, okcu: 20, kadirga: 10, ates_gemisi: 3 }, now)
   assert.equal(escorted.error, undefined)
-  const fought = advanceEmpire(escorted.empire, escorted.empire.missions![0].arriveAt)
+  const fought = advanceEmpire(escorted.empire, escorted.empire.missions![0].arriveAt + BATTLE_WINDOW_MS)
   assert.ok(fought.reports![0].lines.includes('Deniz savaşı:'))
   assert.ok(fought.reports![0].lines.some(l => l.includes('karaya çıktı')), fought.reports![0].lines.join('\n'))
   // Aynı adadaki hedefe savaş gemisi götürülmez.
@@ -115,7 +116,7 @@ test('walls and soldiers repel the raid and earn a bounty', () => {
   g.buildings.divan = PROTECTION_DIVAN; g.buildings.surlar = 3; place(g, 'kisla', 3)
   g.army.yeniceri = 40; g.army.okcu = 15; g.army.mizrakci = 20
   const warned = advanceEmpire(advanceEmpire(e, now), now + 2 * HOUR)
-  const hit = advanceEmpire(warned, warned.threats![0].arriveAt)
+  const hit = advanceEmpire(warned, warned.threats![0].arriveAt + BATTLE_WINDOW_MS)
   const report = hit.reports![0]
   assert.equal(report.success, true, report.lines.join('\n'))
   assert.ok(report.lines.some(l => l.includes('Ödül')))

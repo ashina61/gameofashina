@@ -8,7 +8,7 @@
 import { useMemo, useState } from 'react'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { battle, FIELD_ROWS, troopList, type FieldRow, type Lineup, type Troops } from '@/lib/game/battle'
+import { FIELD_ROWS, replayBattle, troopList, type FieldRow, type Lineup, type Troops } from '@/lib/game/battle'
 import type { StoredBattle } from '@/lib/game/expeditions'
 import { UNITS } from '@/lib/game/engine'
 import { UnitFigure } from './unit-art'
@@ -43,20 +43,29 @@ function Side({ name, line, field, loss, morale, top }: {
   </div>
 }
 
-export function BattleView({ stored }: { stored: StoredBattle }) {
-  const result = useMemo(() => battle(stored.a, stored.d), [stored])
-  const [i, setI] = useState(0)
-  if (!result.rounds.length) return <p className="fine-print">{result.reason}</p>
-  const r = result.rounds[Math.min(i, result.rounds.length - 1)]
+/** Süren savaş: kaçıncı turda olduğu ve sıradakinin zamanı. */
+export type LiveInfo = { round: number; nextAt: number; now: number }
+
+export function BattleView({ stored, live }: { stored: StoredBattle; live?: LiveInfo }) {
+  const result = useMemo(() => replayBattle(stored.a, stored.d, stored.joins, stored.retreat), [stored])
+  const rounds = live ? result.rounds.slice(0, live.round) : result.rounds
+  // Canlı savaşta son tur izlenir; oyuncu geri gidince o turda kalır.
+  const [pick, setPick] = useState<number | null>(null)
+  if (!rounds.length) return <p className="fine-print">{live ? 'Ordular meydana diziliyor…' : result.reason}</p>
+  const i = Math.min(pick ?? (live ? rounds.length - 1 : 0), rounds.length - 1)
+  const r = rounds[i]
   const wallMax = stored.d.wall ?? 0
+  const joined = (stored.joins ?? []).filter(j => j.round === r.round && Object.values(j.troops).some(n => (n ?? 0) > 0))
+  const secs = live ? Math.max(0, Math.ceil((live.nextAt - live.now) / 1000)) : 0
   return <section className="bf">
     <div className="bf-head">
-      <span className="eyebrow">{stored.title.toUpperCase()} · {result.field.name.toUpperCase()}</span>
+      <span className="eyebrow">{stored.title.toUpperCase()} · {result.field.name.toUpperCase()}{live ? ' · SÜRÜYOR' : ''}</span>
       <div className="bf-nav">
-        <Button size="sm" variant="outline" disabled={i === 0} onClick={() => setI(i - 1)} aria-label="Önceki tur"><ChevronLeft /></Button>
-        <strong>Tur {r.round} / {result.rounds.length}</strong>
-        <Button size="sm" variant="outline" disabled={i >= result.rounds.length - 1} onClick={() => setI(i + 1)} aria-label="Sonraki tur"><ChevronRight /></Button>
+        <Button size="sm" variant="outline" disabled={i === 0} onClick={() => setPick(i - 1)} aria-label="Önceki tur"><ChevronLeft /></Button>
+        <strong>Tur {r.round} / {rounds.length}</strong>
+        <Button size="sm" variant="outline" disabled={i >= rounds.length - 1} onClick={() => setPick(i + 1 >= rounds.length - 1 && live ? null : i + 1)} aria-label="Sonraki tur"><ChevronRight /></Button>
       </div>
+      {live && <small className="bf-next">Sıradaki tur {Math.floor(secs / 60)}:{String(secs % 60).padStart(2, '0')}</small>}
     </div>
     <Side name={stored.defender} line={r.lineupD} field={result.field} loss={r.defenderLoss} morale={r.moraleD} top />
     {wallMax > 0 && <div className="bf-wall" title="Sur">
@@ -66,8 +75,9 @@ export function BattleView({ stored }: { stored: StoredBattle }) {
     </div>}
     <div className="bf-clash" aria-hidden="true" />
     <Side name={stored.attacker} line={r.lineupA} field={result.field} loss={r.attackerLoss} morale={r.moraleA} top={false} />
+    {joined.map((j, k) => <p key={k} className="bf-join">Takviye · {j.side === 'a' ? stored.attacker : stored.defender}: {troopList(j.troops)}</p>)}
     <p className="bf-sum">Bu tur: {stored.attacker} kaybı {troopList(r.attackerLoss)} · {stored.defender} kaybı {troopList(r.defenderLoss)}.</p>
-    {i === result.rounds.length - 1 && <p className={result.winner === 'attacker' ? 'report-win' : 'report-loss'}>
+    {!live && i === rounds.length - 1 && <p className={result.winner === 'attacker' ? 'report-win' : 'report-loss'}>
       {result.winner === 'attacker' ? `${stored.attacker} kazandı.` : `${stored.defender} kazandı.`} {result.reason}
     </p>}
   </section>

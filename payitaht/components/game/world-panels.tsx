@@ -22,7 +22,8 @@ import {
 import { activeCity, renameCity, type Empire } from '@/lib/game/empire'
 import { DAILY_TASKS, claimLogin, claimTask, loginReward, taskProgress } from '@/lib/game/daily'
 import { advanceEmpire } from '@/lib/game/empire'
-import { dispatchDeploy, recallMission, targetName, transportsNeeded, availableUnits } from '@/lib/game/expeditions'
+import { dispatchDeploy, recallMission, retreatMission, targetName, transportsNeeded, availableUnits, type Mission } from '@/lib/game/expeditions'
+import { BattleView } from './battle-view'
 import {
   FACTIONS, FAIR_PRICE, MARKET_GOODS, RIVALS, STYLE_NAMES, TREATIES, acceptOffer, cancelOffer, cancelTreaty, factionMembers,
   factionStanding, fillRate, joinAlliance, leaveAlliance, marketOffers, offerSlots, postOffer, proposeTreaty, rankings, readMessages,
@@ -189,13 +190,25 @@ export function MissionList({ empire, now, run }: { empire: Empire; now: number;
   const label: Record<string, string> = { raid: 'Sefer', spy: 'Casus', piracy: 'Korsan seferi', deploy: 'Aktarma', occupy: 'İşgal', blockade: 'Abluka' }
   return <section className="empire-section">
     <h3><Flag className="size-4" /> Yoldaki ve konuşlu birlikler</h3>
-    {missions.map(m => <article key={m.id} className="mission-row">
-      <span><strong>{label[m.kind]} · {m.kind === 'deploy' ? empire.cities.find(c => c.id === m.npcId)?.name : targetName(m.npcId)}</strong>
-        <small>{m.stationed ? `Konuşlu · saatte ${num(stationTribute(empire, m.npcId, m.kind as 'occupy' | 'blockade', now))} akçe haraç · birikmiş ${num(m.loot.gold)}`
-          : m.resolved ? `Dönüş ${clock(m.returnAt - now)}` : `Varış ${clock(m.arriveAt - now)}`}</small></span>
-      {m.stationed && <Button size="sm" variant="outline" onClick={() => run((e, t) => recallMission(e, m.id, t), 'Birlikler geri çağrıldı.')}>Geri çağır</Button>}
-    </article>)}
+    {missions.map(m => <MissionRow key={m.id} m={m} empire={empire} now={now} run={run} label={label[m.kind]} />)}
   </section>
+}
+
+function MissionRow({ m, empire, now, run, label }: { m: Mission; empire: Empire; now: number; run: Run; label: string }) {
+  const [watch, setWatch] = useState(false)
+  const lb = m.battle
+  return <article className={`mission-row${lb ? ' is-fighting' : ''}`}>
+    <div className="mission-row-top">
+      <span><strong>{label} · {m.kind === 'deploy' ? empire.cities.find(c => c.id === m.npcId)?.name : targetName(m.npcId)}</strong>
+        <small>{lb ? `Savaşta · ${lb.stage === 'naval' ? 'deniz' : 'kara'} · tur ${lb.state.round} · sıradaki tur ${clock(lb.nextAt - now)}`
+          : m.stationed ? `Konuşlu · saatte ${num(stationTribute(empire, m.npcId, m.kind as 'occupy' | 'blockade', now))} akçe haraç · birikmiş ${num(m.loot.gold)}`
+          : m.resolved ? `Dönüş ${clock(m.returnAt - now)}` : `Varış ${clock(m.arriveAt - now)}`}</small></span>
+      {lb && <Button size="sm" variant="outline" onClick={() => setWatch(w => !w)}>{watch ? 'Kapat' : 'İzle'}</Button>}
+      {lb && <Button size="sm" variant="destructive" onClick={() => run((e, t) => retreatMission(e, m.id, t), 'Ordu geri çekiliyor.')}>Geri çekil</Button>}
+      {m.stationed && <Button size="sm" variant="outline" onClick={() => run((e, t) => recallMission(e, m.id, t), 'Birlikler geri çağrıldı.')}>Geri çağır</Button>}
+    </div>
+    {lb && watch && <BattleView stored={lb.info} live={{ round: lb.state.round, nextAt: lb.nextAt, now }} />}
+  </article>
 }
 
 /* ------------------------------------------------------------ RAKİP */

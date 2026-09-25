@@ -1081,3 +1081,21 @@
 .bf-wall-bar i { display: block; height: 100%; background: repeating-linear-gradient(90deg, #dcc497, #dcc497 10px, #b39c74 10px, #b39c74 12px); }
 .bf-clash { height: 2px; background: repeating-linear-gradient(90deg, #b3261e, #b3261e 6px, transparent 6px, transparent 10px); opacity: 0.6; }
 .bf-sum { font-size: 11px; color: #5a3517; }
+
+/* Canlı savaş: seferler listesi, kuşatma uyarısı, garnizon */
+.mission-row:has(> .mission-row-top) { display: flex; flex-direction: column; align-items: stretch; gap: 8px; }
+.mission-row-top { display: flex; gap: 8px; align-items: center; }
+.mission-row-top > span:first-child { flex: 1; display: flex; flex-direction: column; min-width: 0; gap: 2px; font-size: 13px; }
+.mission-row.is-fighting { border-color: #b3261e80; box-shadow: inset 3px 0 0 #b3261e; }
+.bf-next { width: 100%; font-size: 11px; color: #8a3a1a; font-variant-numeric: tabular-nums; }
+.bf-join { margin: 0; font-size: 12px; color: #2f5d2a; }
+.threat-banner.is-siege { animation: siege-pulse 1.6s ease-in-out infinite; }
+@keyframes siege-pulse { 50% { box-shadow: 0 0 0 4px #b3261e44; } }
+@media (prefers-reduced-motion: reduce) { .threat-banner.is-siege { animation: none; } }
+.bf-garrison { display: grid; gap: 6px; }
+.bf-garrison > div { display: grid; grid-template-columns: 7.5em 1fr auto; gap: 8px; align-items: center; font-size: 12px; }
+.bf-garrison strong { font-variant-numeric: tabular-nums; font-size: 12px; }
+.bf-garrison-bar { height: 8px; border-radius: 4px; background: #e6d3a6; overflow: hidden; }
+.bf-garrison-bar i { display: block; height: 100%; background: #5b7a3a; }
+.bf-garrison .is-full .bf-garrison-bar i { background: #b3261e; }
+.bf-garrison .is-full strong { color: #b3261e; }

@@ -524,6 +524,22 @@ export function assignedWorkers(g: Game) { return WORKER_IDS.reduce((sum, id) =>
  */
 export function idleWorkers(g: Game) { return Math.max(0, population(g) - assignedWorkers(g) - g.mine.miners - (g.forest?.workers ?? 0) - (g.temple?.priests ?? 0) - soldiers(g)) }
 
+/**
+ * GARNİZON SINIRI (Ikariam): şehrin besleyip barındırabileceği asker ve gemi,
+ * nüfus (birlik başına halk) cinsinden. Kara birlikleri Divanhane ve Surlar,
+ * savaş gemileri Tersane ile artar. Casus (Elçilik sınırı) ve nakliye sayılmaz.
+ */
+export function garrisonLimit(g: Game, branch: 'kara' | 'deniz') {
+  return branch === 'kara' ? 100 + 50 * g.buildings.divan + 50 * g.buildings.surlar
+    : g.buildings.tersane > 0 ? 40 + 60 * g.buildings.tersane : 0
+}
+export const inGarrison = (id: UnitId) => id !== 'casus' && id !== 'nakliye'
+/** Garnizonda sayılan birlikler (seferdekiler dahil) + eğitimi süren. */
+export function garrisonUsed(g: Game, branch: 'kara' | 'deniz') {
+  const job = g.drill && UNITS[g.drill.id as UnitId].branch === branch && inGarrison(g.drill.id as UnitId) ? trainingPop(g) : 0
+  return UNIT_IDS.reduce((s, id) => s + (UNITS[id].branch === branch && inGarrison(id) ? UNITS[id].pop * (g.army?.[id] ?? 0) : 0), 0) + job
+}
+
 /** Egitimi SUREN birligin simdiden ayirdigi vatandas. */
 export function trainingPop(g: Game): number {
   const job = g.drill
@@ -1168,6 +1184,9 @@ export function recruitReason(g: Game, id: UnitId, count: number): string | null
   if (g.drill) return 'Eğitim sürüyor. Önce onun bitmesini bekle.'
   if (id === 'casus' && g.army.casus + count > spyCapacity(g)) return `Elçilik ${spyCapacity(g)} casus barındırır. Elçiliği yükselt.`
   const need = unit.pop * count
+  if (inGarrison(id) && garrisonUsed(g, unit.branch) + need > garrisonLimit(g, unit.branch)) {
+    return `Garnizon sınırı dolu (${garrisonUsed(g, unit.branch)}/${garrisonLimit(g, unit.branch)}). ${unit.branch === 'kara' ? "Divanhane'yi ya da Surları" : "Tersane'yi"} yükselt.`
+  }
   if (idleWorkers(g) < need) return `${need} boşta vatandaş gerekli. Halk panelinden işçi çek.`
   const c = unitCost(id, count, g)
   if (RESOURCE_IDS.some(r => g.resources[r] < c[r])) return 'Yeterli kaynak yok.'

@@ -9,7 +9,7 @@
  * Şehir sahnesi arkada açık kalır: ada görünümü onun üstüne biner.
  */
 import { useState } from 'react'
-import { ArrowLeft, ScrollText, Eye, Swords, Clock3, ShieldCheck, Users, Minus, Plus, Ship, Anchor, Skull } from 'lucide-react'
+import { ArrowLeft, ScrollText, Eye, Swords, Clock3, ShieldCheck, Users, Minus, Plus, Ship, Anchor, Skull, Flag } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import layout from '@/lib/game/island-layout.json'
 import { asset, buildingImage } from '@/lib/asset'
@@ -24,6 +24,7 @@ import { RivalDiplomacy, RivalWar, type Run } from './world-panels'
 import { FACTIONS, RIVALS, STYLE_NAMES, rivalById, rivalLevel } from '@/lib/game/rivals'
 import { targetInfo, type Report } from '@/lib/game/expeditions'
 import { BattleView } from './battle-view'
+import { MAX_ROUNDS, RETREAT_MORALE, fieldSize } from '@/lib/game/battle'
 
 const clock = (ms: number) => {
   const s = Math.max(0, Math.ceil(ms / 1000))
@@ -114,7 +115,9 @@ export function NpcPanel({ empire, npcId, now, onSpy, onRaid, onOccupy, onBlocka
   const ships = transportsNeeded(pick)
   const intel = (empire.reports ?? []).find(r => r.npcId === npcId && r.cityId === city.id && r.kind === 'spy' && r.success)
   const lastRaid = (empire.reports ?? []).find(r => r.npcId === npcId && r.cityId === city.id && r.kind === 'raid')
-  const busy = (kind: Mission['kind']) => (empire.missions ?? []).some(m => m.cityId === city.id && m.npcId === npcId && m.kind === kind && !m.resolved)
+  const busy = (kind: Mission['kind']) => (empire.missions ?? []).some(m => m.cityId === city.id && m.npcId === npcId && m.kind === kind && !m.resolved && !m.battle)
+  const fighting = (empire.missions ?? []).find(m => m.npcId === npcId && m.battle)
+  const field = fieldSize(npc.field)
   const force = Math.round(strikeForce(g, pick))
   const pool = npc.loot
   return <div className="advisor-panel npc-panel">
@@ -165,12 +168,14 @@ export function NpcPanel({ empire, npcId, now, onSpy, onRaid, onOccupy, onBlocka
       <div className="raid-summary">
         <span><Swords className="size-4" />Saldırı {force}</span>
         <span><ShieldCheck className="size-4" />Savunma {intel ? intel.lines.find(l => l.includes('Toplam savunma'))?.match(/Toplam savunma (\d+)/)?.[1] ?? '?' : '?'}</span>
+        <span title={`Ön cephe ${field.front}, kanat ${field.flank}, menzil ${field.range}, kuşatma ${field.artillery} yuva`}><Flag className="size-4" />{field.name}</span>
         <span title="Ordu en yavaş birliği kadar hızlıdır"><Clock3 className="size-4" />Yol {clock(targetTravelMs(city, npcId, 'raid', state.level, pick))}</span>
         <span><Users className="size-4" />Taşıma {overseas ? Math.max(ships * UNITS.nakliye.cargo, RAID_UNITS.reduce((s, id) => s + UNITS[id].pop * (pick[id] ?? 0) * 30, 0))
           : RAID_UNITS.reduce((s, id) => s + UNITS[id].pop * (pick[id] ?? 0) * 30, 0)}</span>
       </div>
-      <p className="fine-print">Savaş en fazla 6 tur sürer ve zar yoktur. Ön cephe hasarın çoğunu karşılar, kuşatma birlikleri (koçbaşı, mancınık, topçu) suru hızla yıkar. Morali 30'un altına düşen taraf geri çekilir. Aşçı morali korur, hekim yaralıları kurtarır. Ganimeti hayatta kalanlar taşır.</p>
-      <Button size="sm" disabled={busy('raid') || !RAID_UNITS.some(id => (pick[id] ?? 0) > 0) || (overseas && ships > free.nakliye)} onClick={() => { onRaid(pick); setPick({}) }}><Swords data-icon="inline-start" />Sefere çık</Button>
+      <p className="fine-print">Savaş {field.name.toLocaleLowerCase('tr')}da (Divanhane {npc.field} karşılığı) dakikada bir tur, en fazla {MAX_ROUNDS} tur sürer ve zar yoktur. Ön cephe hasarın çoğunu karşılar, kuşatma birlikleri (koçbaşı, mancınık, topçu) suru yıkar. Morali {RETREAT_MORALE}'in altına düşen taraf çekilir. Turlar arasında aynı şehirden gelen ordu takviye olarak katılır; Seferler panelinden geri çekilebilirsin. Ganimeti hayatta kalanlar taşır.</p>
+      {fighting && <p className="requirement"><Swords className="size-4" />Burada savaş sürüyor (tur {fighting.battle!.state.round}). {fighting.cityId === city.id ? 'Göndereceğin ordu takviye olarak katılır.' : 'Yeni ordu savaş bitene kadar önünde bekler.'}</p>}
+      <Button size="sm" disabled={busy('raid') || !RAID_UNITS.some(id => (pick[id] ?? 0) > 0) || (overseas && ships > free.nakliye)} onClick={() => { onRaid(pick); setPick({}) }}><Swords data-icon="inline-start" />{fighting?.cityId === city.id ? 'Takviye gönder' : 'Sefere çık'}</Button>
       {busy('raid') && <p className="requirement"><Clock3 className="size-4" />Bu hedefe giden bir ordu yolda.</p>}
     </section>
 

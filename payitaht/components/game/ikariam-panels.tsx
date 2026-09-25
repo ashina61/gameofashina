@@ -16,7 +16,8 @@ import {
   type Command, type Game, type Good, type UnitId,
 } from '@/lib/game/engine'
 import { activeCity, type Empire } from '@/lib/game/empire'
-import { PIRACY_TARGETS, THREAT_WARNING_MS, WARSHIPS, availableUnits, cityGuards, cityWallHp, safeStock } from '@/lib/game/expeditions'
+import { PIRACY_TARGETS, THREAT_WARNING_MS, WARSHIPS, availableUnits, cityGuards, cityWallHp, safeStock, targetName } from '@/lib/game/expeditions'
+import { BattleView } from './battle-view'
 import { troopList } from '@/lib/game/battle'
 
 const clock = (ms: number) => {
@@ -188,7 +189,7 @@ export function PiracyPanel({ empire, now, onPiracy }: {
     <Button size="sm" disabled={!Object.values(pick).some(n => (n ?? 0) > 0) || missions.some(m => m.npcId === t.id)}
       onClick={() => { onPiracy(t.id, pick); setPick({}) }}><Anchor data-icon="inline-start" />{t.name} peşine düş</Button>
     {missions.map(m => <p key={m.id} className="requirement"><Clock3 className="size-4" />
-      {PIRACY_TARGETS.find(p => p.id === m.npcId)?.name}: {m.resolved ? `dönüş ${clock(m.returnAt - now)}` : `varış ${clock(m.arriveAt - now)}`}</p>)}
+      {PIRACY_TARGETS.find(p => p.id === m.npcId)?.name}: {m.battle ? `savaşta · tur ${m.battle.state.round}` : m.resolved ? `dönüş ${clock(m.returnAt - now)}` : `varış ${clock(m.arriveAt - now)}`}</p>)}
   </section>
 }
 
@@ -197,9 +198,10 @@ export function ThreatBanner({ empire, now, onOpen }: { empire: Empire; now: num
   const city = activeCity(empire)
   const threat = (empire.threats ?? []).find(t => t.cityId === city.id && t.arriveAt - now <= THREAT_WARNING_MS)
   if (!threat) return null
-  return <button type="button" className="threat-banner" onClick={onOpen}>
+  const lb = threat.battle
+  return <button type="button" className={`threat-banner${lb ? ' is-siege' : ''}`} onClick={onOpen}>
     <TriangleAlert aria-hidden="true" />
-    <span><strong>Korsan baskını · {clock(threat.arriveAt - now)}</strong>
+    <span><strong>{lb ? `Kapıda savaş · ${lb.stage === 'naval' ? 'deniz' : 'surlar'} · tur ${lb.state.round}` : `${targetName(threat.npcId)} baskını · ${clock(threat.arriveAt - now)}`}</strong>
       <small>{troopList(threat.troops)}{Object.values(threat.fleet).some(n => (n ?? 0) > 0) ? ` · filo: ${troopList(threat.fleet)}` : ''}</small></span>
   </button>
 }
@@ -216,8 +218,9 @@ export function DefenseSummary({ empire }: { empire: Empire }) {
       <span>Sur canı {num(cityWallHp(g))}</span>
       <span>Sur muhafızı {cityGuards(g)}</span>
       <span>Korunan mal {num(safeStock(g))}/tür</span>
-      <span>{g.buildings.divan < 5 ? 'Acemi koruması (Divanhane 5\'e kadar)' : incoming ? `Baskın yolda · ${clock(incoming.arriveAt - g.updatedAt)}` : next ? `Sonraki baskın ~${clock(Math.max(0, next - g.updatedAt))}` : 'Gözcüler denizde'}</span>
+      <span>{g.buildings.divan < 5 ? 'Acemi koruması (Divanhane 5\'e kadar)' : incoming?.battle ? `Kapıda savaş · tur ${incoming.battle.state.round}` : incoming ? `Baskın yolda · ${clock(incoming.arriveAt - g.updatedAt)}` : next ? `Sonraki baskın ~${clock(Math.max(0, next - g.updatedAt))}` : 'Gözcüler denizde'}</span>
     </div>
-    <p className="fine-print">Korsanlar önce limandaki savaş gemilerine, sonra sura ve şehirdeki kara birliklerine çarpar. Seferdeki birlikler şehri savunmaz.</p>
+    {incoming?.battle && <BattleView stored={incoming.battle.info} live={{ round: incoming.battle.state.round, nextAt: incoming.battle.nextAt, now: g.updatedAt }} />}
+    <p className="fine-print">Korsanlar önce limandaki savaş gemilerine, sonra sura ve şehirdeki kara birliklerine çarpar. Savaş dakikada bir tur sürer: bu sırada eğitimi biten ya da seferden dönen birlikler sıradaki tura katılır, ama şehirden birlik çıkamaz. Seferdeki birlikler şehri savunmaz.</p>
   </section>
 }

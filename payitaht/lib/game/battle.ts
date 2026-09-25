@@ -102,6 +102,8 @@ export type BattleResult = {
   attackerLeft: Troops; defenderLeft: Troops
   attackerLost: Troops; defenderLost: Troops
   healed: Troops
+  /** Savunanın hekimlerinin kurtardığı. */
+  healedD: Troops
   wallLeft: number
   field: FieldSize
   /** Neden bitti: dağıldı / moral / tur sınırı. */
@@ -109,6 +111,10 @@ export type BattleResult = {
 }
 
 export const MAX_ROUNDS = 10
+/** İki tur arası gerçek zaman (Ikariam'da 15 dk; bu oyunun hızında 1 dk). */
+export const ROUND_MS = 60_000
+/** Deniz + kara aşamalı en uzun savaşın süresi (sınır). */
+export const BATTLE_WINDOW_MS = 2 * (MAX_ROUNDS + 1) * ROUND_MS
 /** Morali bunun altına inen taraf çekilir. */
 export const RETREAT_MORALE = 25
 
@@ -150,23 +156,62 @@ const hit = (slots: Slot[], val: (id: UnitId) => number, mul: number): Hit => {
   return { dmg, perHit: n ? dmg / n : 0 }
 }
 
-export function battle(attacker: BattleSide, defender: BattleSide): BattleResult {
-  const A: Troops = { ...attacker.troops }, D: Troops = { ...defender.troops }
-  const field = fieldSize(defender.fieldLevel ?? 1)
-  const startA = totalHp(A), startD = totalHp(D)
-  const wallStart = defender.wall ?? 0
-  let wall = wallStart
-  let moraleA = 100, moraleD = 100
-  const ammoA: Partial<Record<UnitId, number>> = {}, ammoD: Partial<Record<UnitId, number>> = {}
-  for (const id of UNIT_IDS) { ammoA[id] = stats(id).ammo; ammoD[id] = stats(id).ammo }
-  // Aşçı (ve filoda İkmal Gemisi) her tur moral toparlar.
-  const rally = (t: Troops) => Math.min(12, count(t, 'asci') * 1.5 + count(t, 'ikmal_gemisi') * 3)
-  const carryA: Record<string, number> = {}, carryD: Record<string, number> = {}
-  const lostA: Troops = {}, lostD: Troops = {}
-  const rounds: BattleRound[] = []
-  let reason = 'Tur sınırı doldu; savunan yerini korudu.'
-  let loser: 'attacker' | 'defender' | null = null
+/**
+ * CANLI SAVAŞ DURUMU. Savaş tur tur ilerler (Ikariam'da her tur gerçek zamanda
+ * ayrı bir anda çarpışılır): iki tur arasında taraflara takviye katılabilir,
+ * saldıran geri çekilebilir. Durum JSON'a yazılabilir; kayıtta saklanır.
+ */
+export type BattleState = {
+  /** Tarafların çarpanları ve ŞU ANKİ birlikleri. */
+  a: BattleSide; d: BattleSide
+  field: FieldSize
+  wall: number
+  moraleA: number; moraleD: number
+  ammoA: Troops; ammoD: Troops
+  carryA: Record<string, number>; carryD: Record<string, number>
+  lostA: Troops; lostD: Troops
+  round: number
+  rounds: BattleRound[]
+  over?: { loser: 'attacker' | 'defender'; reason: string }
+}
 
+/** Savaş alanı kurulur; ilk tur battleRound ile çarpışılır. */
+export function startBattle(attacker: BattleSide, defender: BattleSide): BattleState {
+  const ammo = () => Object.fromEntries(UNIT_IDS.map(id => [id, stats(id).ammo])) as Troops
+  return {
+    a: { ...attacker, troops: { ...attacker.troops } }, d: { ...defender, troops: { ...defender.troops } },
+    field: fieldSize(defender.fieldLevel ?? 1), wall: defender.wall ?? 0, moraleA: 100, moraleD: 100,
+    ammoA: ammo(), ammoD: ammo(), carryA: {}, carryD: {}, lostA: {}, lostD: {}, round: 0, rounds: [],
+  }
+}
+
+/** Takviye: iki tur arasında bir tarafa birlik katılır (eksi sayı ayrılan birliktir). */
+export function joinBattle(st: BattleState, side: 'a' | 'd', troops: Troops) {
+  const t = side === 'a' ? st.a.troops : st.d.troops
+  for (const [id, n] of Object.entries(troops) as [UnitId, number][]) t[id] = Math.max(0, count(t, id) + n)
+}
+
+/** Saldıran geri çekilir (tur arasında). */
+export function retreatBattle(st: BattleState) {
+  if (!st.over) st.over = { loser: 'attacker', reason: 'Saldıran ordu geri çekildi.' }
+}
+
+// Aşçı (ve filoda İkmal Gemisi) her tur moral toparlar.
+const rally = (t: Troops) => Math.min(12, count(t, 'asci') * 1.5 + count(t, 'ikmal_gemisi') * 3)
+const hpOf = (t: Troops) => UNIT_IDS.reduce((s, id) => s + count(t, id) * UNITS[id].hp, 0)
+
+/** Bir tur çarpışır; savaş biterse st.over dolar. Tur yapılamadıysa null. */
+export function battleRound(st: BattleState): BattleRound | null {
+  if (st.over) return null
+  const A = st.a.troops, D = st.d.troops
+  const attacker = st.a, defender = st.d
+  const lA = deploy(A, st.field), lD = deploy(D, st.field)
+  if (!lA.front.length) { st.over = { loser: 'attacker', reason: 'Saldıranın öne sürecek askeri kalmadı.' }; return null }
+  if (!lD.front.length && st.wall <= 0) { st.over = { loser: 'defender', reason: 'Savunanın safları dağıldı.' }; return null }
+  const round = st.round + 1
+  // Moral kaybı ordunun savaşa giren toplam canına göre (takviye dahil).
+  const startA = totalHp(A) + hpOf(st.lostA), startD = totalHp(D) + hpOf(st.lostD)
+  const ammoA = st.ammoA, ammoD = st.ammoD
   /** Hasarı bir sıradaki yığınlara can payına göre dağıtır; zırh her vuruştan düşer. */
   const strike = (t: Troops, row: Slot[], h: Hit, defMul: number, carry: Record<string, number>, lost: Troops, factor = 1) => {
     if (h.dmg <= 0 || !row.length) return
@@ -182,65 +227,65 @@ export function battle(attacker: BattleSide, defender: BattleSide): BattleResult
   }
   /** İlk dolu sıra (öncelik sırasıyla). */
   const firstRow = (l: Lineup, order: FieldRow[]) => order.map(r => l[r]).find(r => r.length) ?? []
-
-  for (let round = 1; round <= MAX_ROUNDS; round++) {
-    const lA = deploy(A, field), lD = deploy(D, field)
-    if (!lA.front.length) { loser = 'attacker'; reason = 'Saldıranın öne sürecek askeri kalmadı.'; break }
-    if (!lD.front.length && wall <= 0) { loser = 'defender'; reason = 'Savunanın safları dağıldı.'; break }
-    const la: Troops = {}, ld: Troops = {}
-    const shoot = (l: Lineup, ammo: Partial<Record<UnitId, number>>, rows: FieldRow[]) => {
-      const slots = rows.flatMap(r => l[r])
-      const h = hit(slots, id => (count(ammo, id) > 0 ? stats(id).ranged : 0), 1)
-      return { slots, h }
-    }
-    // --- SALDIRAN vurur ---
-    const aMel = hit(lA.front, id => stats(id).melee, attacker.attackMul)
-    const aFlank = hit(lA.flank, id => stats(id).melee, attacker.attackMul)
-    const aRange = shoot(lA, ammoA, ['range'])
-    const aArt = shoot(lA, ammoA, ['artillery'])
-    const aRangeH = { dmg: aRange.h.dmg * attacker.attackMul, perHit: aRange.h.perHit * attacker.attackMul }
-    const aArtWall = aArt.slots.reduce((s, x) => s + (count(ammoA, x.id) > 0 ? stats(x.id).ranged * (stats(x.id).vsWall ?? 1) * x.n : 0), 0) * attacker.attackMul
-    const aArtH = { dmg: aArt.h.dmg * attacker.attackMul, perHit: aArt.h.perHit * attacker.attackMul }
-    const wallBefore = wall
-    if (wall > 0) {
-      // Sur ayakta: ön cephe ve kuşatma sura; nişancılar surun ardına yarım.
-      const onWall = aMel.dmg * 0.5 + aArtWall
-      wall = Math.max(0, wall - onWall)
-      strike(D, firstRow(lD, ['front', 'range', 'artillery', 'flank']), aRangeH, defender.defenseMul * 1.3, carryD, ld, 0.5)
-    } else {
-      strike(D, firstRow(lD, ['front', 'flank', 'range', 'artillery']), aMel, defender.defenseMul, carryD, ld)
-      strike(D, firstRow(lD, ['front', 'flank', 'range', 'artillery']), aRangeH, defender.defenseMul, carryD, ld)
-      strike(D, firstRow(lD, ['front', 'flank', 'range', 'artillery']), aArtH, defender.defenseMul, carryD, ld)
-    }
-    // Kanatlar: karşı kanat, yoksa arkadaki nişancı ve kuşatma (sur kanatları korumaz).
-    strike(D, firstRow(lD, ['flank', 'range', 'artillery', 'front']), aFlank, defender.defenseMul, carryD, ld)
-    // --- SAVUNAN vurur ---
-    const dMel = hit(lD.front, id => stats(id).melee, defender.attackMul)
-    const dFlank = hit(lD.flank, id => stats(id).melee, defender.attackMul)
-    const dRange = shoot(lD, ammoD, ['range', 'artillery'])
-    const dRangeH = { dmg: dRange.h.dmg * defender.attackMul * (wallBefore > 0 ? 1.2 : 1), perHit: dRange.h.perHit * defender.attackMul }
-    strike(A, firstRow(lA, ['front', 'flank', 'range', 'artillery']), dMel, attacker.defenseMul, carryA, la)
-    strike(A, firstRow(lA, ['front', 'flank', 'range', 'artillery']), dRangeH, attacker.defenseMul, carryA, la)
-    strike(A, firstRow(lA, ['flank', 'range', 'artillery', 'front']), dFlank, attacker.defenseMul, carryA, la)
-    // Cephane: ateş eden nişancı ve kuşatma birer atım harcar.
-    for (const s of [...aRange.slots, ...aArt.slots]) if (count(ammoA, s.id) > 0) ammoA[s.id] = count(ammoA, s.id) - 1
-    for (const s of dRange.slots) if (count(ammoD, s.id) > 0) ammoD[s.id] = count(ammoD, s.id) - 1
-    // Kayıpları uygula.
-    for (const [id, n] of Object.entries(la) as [UnitId, number][]) { A[id] = count(A, id) - n; lostA[id] = count(lostA, id) + n }
-    for (const [id, n] of Object.entries(ld) as [UnitId, number][]) { D[id] = count(D, id) - n; lostD[id] = count(lostD, id) + n }
-    const lossA = (UNIT_IDS.reduce((s, id) => s + count(la, id) * UNITS[id].hp, 0)) / Math.max(1, startA)
-    const lossD = (UNIT_IDS.reduce((s, id) => s + count(ld, id) * UNITS[id].hp, 0)) / Math.max(1, startD)
-    moraleA = Math.max(0, Math.min(100, moraleA - lossA * 130 * (attacker.moraleMul ?? 1) + (lossA > 0 ? rally(A) : 0)))
-    moraleD = Math.max(0, Math.min(100, moraleD - lossD * 130 * (defender.moraleMul ?? 1) + (lossD > 0 ? rally(D) : 0)
-      - (wall <= 0 && wallBefore > 0 ? 10 : 0)))
-    rounds.push({ round, attackerLoss: la, defenderLoss: ld, wall: Math.round(wall), moraleA: Math.round(moraleA), moraleD: Math.round(moraleD), lineupA: lA, lineupD: lD })
-    if (!alive(A)) { loser = 'attacker'; reason = 'Saldıran ordu yok oldu.'; break }
-    if (!alive(D) && wall <= 0) { loser = 'defender'; reason = 'Savunanın askeri kalmadı.'; break }
-    if (moraleA < RETREAT_MORALE) { loser = 'attacker'; reason = 'Saldıranın morali çöktü; geri çekildi.'; break }
-    if (moraleD < RETREAT_MORALE) { loser = 'defender'; reason = 'Savunanın morali çöktü; kaçtı.'; break }
+  const shoot = (l: Lineup, ammo: Troops, rows: FieldRow[]) => {
+    const slots = rows.flatMap(r => l[r])
+    return { slots, h: hit(slots, id => (count(ammo, id) > 0 ? stats(id).ranged : 0), 1) }
   }
+  const la: Troops = {}, ld: Troops = {}
+  // --- SALDIRAN vurur ---
+  const aMel = hit(lA.front, id => stats(id).melee, attacker.attackMul)
+  const aFlank = hit(lA.flank, id => stats(id).melee, attacker.attackMul)
+  const aRange = shoot(lA, ammoA, ['range'])
+  const aArt = shoot(lA, ammoA, ['artillery'])
+  const aRangeH = { dmg: aRange.h.dmg * attacker.attackMul, perHit: aRange.h.perHit * attacker.attackMul }
+  const aArtWall = aArt.slots.reduce((s, x) => s + (count(ammoA, x.id) > 0 ? stats(x.id).ranged * (stats(x.id).vsWall ?? 1) * x.n : 0), 0) * attacker.attackMul
+  const aArtH = { dmg: aArt.h.dmg * attacker.attackMul, perHit: aArt.h.perHit * attacker.attackMul }
+  const wallBefore = st.wall
+  if (st.wall > 0) {
+    // Sur ayakta: ön cephe ve kuşatma sura; nişancılar surun ardına yarım.
+    st.wall = Math.max(0, st.wall - (aMel.dmg * 0.5 + aArtWall))
+    strike(D, firstRow(lD, ['front', 'range', 'artillery', 'flank']), aRangeH, defender.defenseMul * 1.3, st.carryD, ld, 0.5)
+  } else {
+    strike(D, firstRow(lD, ['front', 'flank', 'range', 'artillery']), aMel, defender.defenseMul, st.carryD, ld)
+    strike(D, firstRow(lD, ['front', 'flank', 'range', 'artillery']), aRangeH, defender.defenseMul, st.carryD, ld)
+    strike(D, firstRow(lD, ['front', 'flank', 'range', 'artillery']), aArtH, defender.defenseMul, st.carryD, ld)
+  }
+  // Kanatlar: karşı kanat, yoksa arkadaki nişancı ve kuşatma (sur kanatları korumaz).
+  strike(D, firstRow(lD, ['flank', 'range', 'artillery', 'front']), aFlank, defender.defenseMul, st.carryD, ld)
+  // --- SAVUNAN vurur ---
+  const dMel = hit(lD.front, id => stats(id).melee, defender.attackMul)
+  const dFlank = hit(lD.flank, id => stats(id).melee, defender.attackMul)
+  const dRange = shoot(lD, ammoD, ['range', 'artillery'])
+  const dRangeH = { dmg: dRange.h.dmg * defender.attackMul * (wallBefore > 0 ? 1.2 : 1), perHit: dRange.h.perHit * defender.attackMul }
+  strike(A, firstRow(lA, ['front', 'flank', 'range', 'artillery']), dMel, attacker.defenseMul, st.carryA, la)
+  strike(A, firstRow(lA, ['front', 'flank', 'range', 'artillery']), dRangeH, attacker.defenseMul, st.carryA, la)
+  strike(A, firstRow(lA, ['flank', 'range', 'artillery', 'front']), dFlank, attacker.defenseMul, st.carryA, la)
+  // Cephane: ateş eden nişancı ve kuşatma birer atım harcar.
+  for (const s of [...aRange.slots, ...aArt.slots]) if (count(ammoA, s.id) > 0) ammoA[s.id] = count(ammoA, s.id) - 1
+  for (const s of dRange.slots) if (count(ammoD, s.id) > 0) ammoD[s.id] = count(ammoD, s.id) - 1
+  // Kayıpları uygula.
+  for (const [id, n] of Object.entries(la) as [UnitId, number][]) { A[id] = count(A, id) - n; st.lostA[id] = count(st.lostA, id) + n }
+  for (const [id, n] of Object.entries(ld) as [UnitId, number][]) { D[id] = count(D, id) - n; st.lostD[id] = count(st.lostD, id) + n }
+  const lossA = hpOf(la) / Math.max(1, startA), lossD = hpOf(ld) / Math.max(1, startD)
+  st.moraleA = Math.max(0, Math.min(100, st.moraleA - lossA * 130 * (attacker.moraleMul ?? 1) + (lossA > 0 ? rally(A) : 0)))
+  st.moraleD = Math.max(0, Math.min(100, st.moraleD - lossD * 130 * (defender.moraleMul ?? 1) + (lossD > 0 ? rally(D) : 0)
+    - (st.wall <= 0 && wallBefore > 0 ? 10 : 0)))
+  st.round = round
+  const r: BattleRound = { round, attackerLoss: la, defenderLoss: ld, wall: Math.round(st.wall), moraleA: Math.round(st.moraleA), moraleD: Math.round(st.moraleD), lineupA: lA, lineupD: lD }
+  st.rounds.push(r)
+  if (!alive(A)) st.over = { loser: 'attacker', reason: 'Saldıran ordu yok oldu.' }
+  else if (!alive(D) && st.wall <= 0) st.over = { loser: 'defender', reason: 'Savunanın askeri kalmadı.' }
+  else if (st.moraleA < RETREAT_MORALE) st.over = { loser: 'attacker', reason: 'Saldıranın morali çöktü; geri çekildi.' }
+  else if (st.moraleD < RETREAT_MORALE) st.over = { loser: 'defender', reason: 'Savunanın morali çöktü; kaçtı.' }
   // Tur sınırı: sur ayaktaysa ya da savunan tutunduysa savunan kazanır.
-  const attackerWins = loser === 'defender'
+  else if (round >= MAX_ROUNDS) st.over = { loser: 'attacker', reason: 'Tur sınırı doldu; savunan yerini korudu.' }
+  return r
+}
+
+/** Savaş biter: hekimler yaralıları kurtarır, sonuç çıkar. */
+export function endBattle(st: BattleState): BattleResult {
+  if (!st.over) st.over = { loser: 'attacker', reason: 'Savaş yarıda kaldı.' }
+  const A = st.a.troops, D = st.d.troops
   const heal = (t: Troops, lost: Troops, per: number): Troops => {
     // Hekim karada, İkmal Gemisi denizde yaralıları kurtarır (ölülerin en fazla %40'ı).
     const cap = count(t, 'hekim') * per + count(t, 'ikmal_gemisi') * 4
@@ -253,13 +298,32 @@ export function battle(attacker: BattleSide, defender: BattleSide): BattleResult
     }
     return out
   }
-  const healed = heal(A, lostA, attacker.healPerDoctor ?? 3)
-  heal(D, lostD, defender.healPerDoctor ?? 3)
+  const healed = heal(A, st.lostA, st.a.healPerDoctor ?? 3)
+  const healedD = heal(D, st.lostD, st.d.healPerDoctor ?? 3)
   const clean = (t: Troops) => Object.fromEntries((Object.entries(t) as [UnitId, number][]).filter(([, n]) => n > 0)) as Troops
   return {
-    winner: attackerWins ? 'attacker' : 'defender', rounds, reason, field,
-    attackerLeft: clean(A), defenderLeft: clean(D), attackerLost: clean(lostA), defenderLost: clean(lostD), healed, wallLeft: Math.round(wall),
+    winner: st.over.loser === 'defender' ? 'attacker' : 'defender', rounds: st.rounds, reason: st.over.reason, field: st.field,
+    attackerLeft: clean(A), defenderLeft: clean(D), attackerLost: clean(st.lostA), defenderLost: clean(st.lostD), healed, healedD,
+    wallLeft: Math.round(st.wall),
   }
+}
+
+/** Takviye (tur öncesi) ve geri çekilme (tur sonrası) olayları. */
+export type BattleJoin = { round: number; side: 'a' | 'd'; troops: Troops }
+/** Bir savaşı girdilerinden baştan sona yeniden kurar (rapor görünümü). */
+export function replayBattle(a: BattleSide, d: BattleSide, joins: BattleJoin[] = [], retreat?: number): BattleResult {
+  const st = startBattle(a, d)
+  while (!st.over) {
+    for (const j of joins) if (j.round === st.round + 1) joinBattle(st, j.side, j.troops)
+    battleRound(st)
+    if (retreat !== undefined && st.round >= retreat) retreatBattle(st)
+  }
+  return endBattle(st)
+}
+
+/** Tek seferde çözülen savaş (canlı olmayan). */
+export function battle(attacker: BattleSide, defender: BattleSide): BattleResult {
+  return replayBattle(attacker, defender)
 }
 
 export const troopList = (t: Troops) =>
