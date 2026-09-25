@@ -19,16 +19,17 @@ export type FlagSpec = {
   crescent?: boolean
 }
 
-type LiveFlag = FlagSpec & { g: Phaser.GameObjects.Graphics; ph: number; group: string }
+type LiveFlag = FlagSpec & { g: Phaser.GameObjects.Graphics; ph: number; group: string; minLevel: number }
 
 export class FlagField {
   private flags: LiveFlag[] = []
   private t = 0
+  private level = 99
   constructor(private scene: Phaser.Scene) {}
 
-  add(f: FlagSpec, group = 'static') {
-    const g = this.scene.add.graphics().setDepth(f.depth)
-    this.flags.push({ ...f, g, ph: (f.x * 0.013 + f.y * 0.007) % (Math.PI * 2), group })
+  add(f: FlagSpec, group = 'static', minLevel = 0) {
+    const g = this.scene.add.graphics().setDepth(f.depth).setVisible(this.level >= minLevel)
+    this.flags.push({ ...f, g, ph: (f.x * 0.013 + f.y * 0.007) % (Math.PI * 2), group, minLevel })
     this.draw(this.flags[this.flags.length - 1])
   }
 
@@ -37,9 +38,15 @@ export class FlagField {
     this.flags = this.flags.filter(f => f.group !== group)
   }
 
+  /** Kademeli gelişme: bayrağın açıldığı seviyeden düşükse gizlenir. */
+  setLevel(level: number) {
+    this.level = level
+    for (const f of this.flags) f.g.setVisible(level >= f.minLevel)
+  }
+
   update(dt: number) {
     this.t += dt
-    for (const f of this.flags) this.draw(f)
+    for (const f of this.flags) if (f.g.visible) this.draw(f)
   }
 
   private draw(f: LiveFlag) {

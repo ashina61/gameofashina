@@ -359,7 +359,10 @@ export function cityAqueduct(): CityAqueduct {
   ]
   const nearStream = pointGrid(cityStream().pts)
   const boxes = SLOTS.filter(s => s.type === 'city').map(artBox)
+  // Sur kuleleri ve kapıları: kemer bunların yanından geçmez (su kapısı açılır).
+  const towers = [...SLOTS.filter(s => s.type === 'defense').map(s => s.screen), ...WALL_GATES.map(g => g.screen)]
   const clearAt = (x: number, y: number, pad: number) =>
+    !towers.some(t => Math.hypot(t.x - x, (t.y - y) * 1.5) < 260) &&
     !boxes.some(b => inBox(b, x, y, pad)) &&
     !avoid.some(a => Math.hypot(a.x - x, (a.y - y) * 1.6) < a.r) &&
     !nearStream(x, y, pad + 20, pad + 20, p => Math.hypot(p.x - x, p.y - y) < pad + 20)
@@ -471,4 +474,28 @@ export function cityBazaar(): CityBazaar {
   }
   bazaarCache = best
   return best
+}
+
+/** Su kemerinin sur halkasını kestiği noktalar (surda su kapısı açılır). */
+export function aqueductWallCrossings(): ScreenPoint[] {
+  const a = cityAqueduct()
+  if (!a) return []
+  const ring = DEFENSE_FOUNDATION.map(p => p.screen)
+  const out: ScreenPoint[] = []
+  for (let k = 0; k < ring.length; k++) {
+    const p = ring[k], q = ring[(k + 1) % ring.length]
+    const d = (a.to.x - a.from.x) * (q.y - p.y) - (a.to.y - a.from.y) * (q.x - p.x)
+    if (Math.abs(d) < 1e-6) continue
+    const t = ((p.x - a.from.x) * (q.y - p.y) - (p.y - a.from.y) * (q.x - p.x)) / d
+    const u = ((p.x - a.from.x) * (a.to.y - a.from.y) - (p.y - a.from.y) * (a.to.x - a.from.x)) / d
+    if (t >= 0 && t <= 1 && u >= 0 && u <= 1) out.push({ x: a.from.x + (a.to.x - a.from.x) * t, y: a.from.y + (a.to.y - a.from.y) * t })
+  }
+  return out
+}
+
+/** Kademeli gelişme: kaçıncı tarla hangi Divanhane seviyesinde açılır. */
+export function fieldTier(i: number) { return i < 4 ? 3 : i < 8 ? 4 : 5 }
+/** Kavşak çeşmeleri 3., kapı içi çeşmeleri 5. seviyede açılır. */
+export function fountainTier(c: ScreenPoint) {
+  return Math.hypot((c.x - PLAZA.screen.x) / RING_ROAD.rx, (c.y - PLAZA.screen.y) / RING_ROAD.ry) < 1.3 ? 3 : 5
 }

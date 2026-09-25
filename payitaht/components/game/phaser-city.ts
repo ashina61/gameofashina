@@ -14,7 +14,7 @@
  * Phaser'in ESM paketinde varsayılan dışa aktarım yok; ad alanı olarak alınır.
  */
 import * as Phaser from 'phaser'
-import { cityFields, cityFountains, cityStream } from '@/lib/game/city-map/city-extras'
+import { aqueductWallCrossings, cityFields, cityFountains, cityStream, fieldTier, fountainTier } from '@/lib/game/city-map/city-extras'
 import { BakeAtlas } from '@/lib/game/city-map/bake'
 import { FlagField, SmokeField } from './city-life'
 import { TILE, CITY_SLOTS, COAST_SLOTS, DEFENSE_SLOTS, DEFENSE_FOUNDATION, ROAD_GRAPH, HALL_SLOT_ID, ROAD_EXITS, WALL_GATES, PLAZA, slotById } from '@/lib/game/city-map'
@@ -43,6 +43,15 @@ export type CityEvents = {
 
 /** Sürüklemeyi dokunuştan ayıran eşik (ekran pikseli). */
 const TAP_SLOP = 12
+/**
+ * KADEMELİ BÜYÜME: görsel 3 aşamada değişir (1-3, 4-7, 8+); aşama içinde her
+ * seviye binayı biraz büyütür (%90 → %100), böylece her yükseltme görünür.
+ */
+function stageGrowth(level: number) {
+  if (level <= 0) return 1
+  const p = level >= 8 ? Math.min(1, (level - 8) / 4) : level >= 4 ? (level - 4) / 3 : (level - 1) / 2
+  return 0.9 + 0.1 * p
+}
 /** Bina görsellerinde zemin elmasının merkezi, resmin altından bu kadar yukarıda (sanat pikseli, 600px tuval). */
 const ART_GROUND_PX = 118
 function isTap(p: Phaser.Input.Pointer) {
@@ -107,7 +116,8 @@ export class CityScene extends Phaser.Scene {
     this.flagField = new FlagField(this)
     this.smoke = new SmokeField(this)
     this.terrainRoads = buildCityTerrain(this, this.state.buildings.divan, this.openSlotIds(this.state)) // dünya + büyüyen sokak ağı
-    for (const f of this.terrainRoads.flags) this.flagField.add(f)
+    for (const f of this.terrainRoads.flags) this.flagField.add(f, 'static', f.minLevel)
+    this.applyDevelopment()
     this.built = true
     this.syncWalkers()
     this.addBirds()
@@ -349,6 +359,7 @@ export class CityScene extends Phaser.Scene {
     if (game.buildings.divan !== this.framedDivan) { // yeni arsalar açıldı: "şehir" kadrajı büyür
       this.framedDivan = game.buildings.divan
       this.cityZoom = Math.max(this.townZoom(), this.minZoom)
+      this.applyDevelopment()
     }
     this.terrainRoads?.updateRoads(game.buildings.divan, this.openSlotIds(game, moving, movePlot))
     this.syncWalkers()
@@ -359,6 +370,13 @@ export class CityScene extends Phaser.Scene {
     this.moving = moving
     this.movePlot = movePlot
     this.redraw()
+  }
+
+  /** Şehir Divanhane ile kademeli gelişir: süsler ve sancaklar seviyeye göre açılır. */
+  private applyDevelopment() {
+    const lv = this.state.buildings.divan
+    this.terrainRoads?.setDevelopment(lv)
+    this.flagField?.setLevel(lv)
   }
 
   /** Taşıma kipinde bir binanın oturabileceği arsalar (boş + kendi arsası). */
@@ -425,7 +443,7 @@ export class CityScene extends Phaser.Scene {
     // karede yeniden üçgenlenmezler.
     this.addLife()
     // Alaylar: kışla kurulunca ikinci yeniçeri devriyesi katılır.
-    const troopKey = String(this.state.buildings.kisla > 0)
+    const troopKey = `${this.state.buildings.kisla > 0}|${Math.min(5, this.state.buildings.divan)}`
     if (troopKey !== this.troopKey) { this.troopKey = troopKey; this.addTroops() }
     const atlas = new BakeAtlas(this, 'pieces-atlas')
     this.pieces = this.pieces.flatMap(p => (p instanceof Phaser.GameObjects.Graphics && !this.tweens.isTweening(p) ? atlas.bake(p) : [p]))
@@ -457,7 +475,7 @@ export class CityScene extends Phaser.Scene {
       const u = (w - segStart[i]) / (segLen[i] || 1), A = ring[i], B = ring[(i + 1) % n]
       return { x: A.x + (B.x - A.x) * u, y: A.y + (B.y - A.y) * u }
     }
-    const gateSpans = WALL_GATES.map(gate => {
+    const gateSpans = [...WALL_GATES, ...aqueductWallCrossings().map(screen => ({ kind: 'aq' as const, screen }))].map(gate => {
       let best = { s: 0, d: Infinity }
       for (let i = 0; i < n; i++) {
         const A = ring[i], B = ring[(i + 1) % n], dx = B.x - A.x, dy = B.y - A.y
@@ -465,7 +483,7 @@ export class CityScene extends Phaser.Scene {
         const d = Math.hypot(A.x + dx * u - gate.screen.x, A.y + dy * u - gate.screen.y)
         if (d < best.d) best = { s: segStart[i] + u * segLen[i], d }
       }
-      const half = gate.kind === 'sea' ? TILE.w * 1.3 : TILE.w * 0.5
+      const half = gate.kind === 'sea' ? TILE.w * 1.3 : gate.kind === 'aq' ? TILE.w * 0.42 : TILE.w * 0.5
       return { kind: gate.kind, s0: best.s - half, s1: best.s + half, center: pointAt(best.s) }
     })
     // Her kenar için [t0, t1] açıklıkları.
@@ -597,8 +615,9 @@ export class CityScene extends Phaser.Scene {
       const L = pointAt(g.s0 - pad), R = pointAt(g.s1 + pad)
       for (const p of [L, R]) {
         placed.push(p)
-        tower(p.x, p.y + TILE.h * 0.12, TILE.w * (land ? 0.66 : 0.9))
+        tower(p.x, p.y + TILE.h * 0.12, TILE.w * (land ? 0.66 : g.kind === 'aq' ? 0.5 : 0.9))
       }
+      if (g.kind === 'aq') continue // su kapısı: kemer açıklıktan geçer, iki küçük burç yeter
       const lg = this.add.graphics().setDepth(Math.max(L.y, R.y) + 1.8)
       if (land) {
         // Kapı kulesi: yolun üstüne oturan kemerli taş blok. Kemer, geçidin
@@ -794,7 +813,7 @@ export class CityScene extends Phaser.Scene {
    * sürü halinde havalanıp döner, yeniden konar) ve limanın üstünde süzülen
    * martılar.
    */
-  private birds: Array<{ g: Phaser.GameObjects.Graphics; kind: 'pigeon' | 'gull' | 'sheep' | 'boat' | 'ripple' | 'duck' | 'wheel'; hx: number; hy: number; x: number; y: number; ph: number; r: number; sp: number }> = []
+  private birds: Array<{ g: Phaser.GameObjects.Graphics; kind: 'pigeon' | 'gull' | 'sheep' | 'boat' | 'ripple' | 'duck' | 'wheel'; minLv?: number; hx: number; hy: number; x: number; y: number; ph: number; r: number; sp: number }> = []
   private flockClock = 0
   private addBirds() {
     for (const b of this.birds) b.g.destroy()
@@ -815,7 +834,7 @@ export class CityScene extends Phaser.Scene {
       g.fillStyle(0x5b6a6e, 1); g.fillCircle(3.2, -4.6, 1.9)
       g.fillStyle(0x3a3a3a, 1); g.fillRect(-4.6, -3.2, 2.2, 1.2)
       g.fillStyle(0xe0a060, 1); g.fillRect(4.8, -4.8, 1.4, 0.8)
-      this.birds.push({ g, kind: 'pigeon', hx, hy, x: hx, y: hy, ph: rnd() * 10, r: 60 + rnd() * 90, sp: 0.8 + rnd() * 0.5 })
+      this.birds.push({ g, kind: 'pigeon', minLv: 3, hx, hy, x: hx, y: hy, ph: rnd() * 10, r: 60 + rnd() * 90, sp: 0.8 + rnd() * 0.5 })
     }
     const sea = COAST_SLOTS.reduce((m, c) => ({ x: m.x + c.screen.x / COAST_SLOTS.length, y: Math.max(m.y, c.screen.y) }), { x: 0, y: -Infinity })
     for (let i = 0; i < 6; i++) {
@@ -826,7 +845,9 @@ export class CityScene extends Phaser.Scene {
       this.birds.push({ g, kind: 'gull', hx: sea.x + (rnd() - 0.5) * 900, hy: sea.y + 260 + rnd() * 320, x: 0, y: 0, ph: rnd() * 10, r: 90 + rnd() * 160, sp: 0.25 + rnd() * 0.2 })
     }
     // MERALAR: yünlü koyunlar otlar, yanında asalı çoban.
-    for (const f of cityFields().filter(f => f.kind === 'mera')) {
+    for (const [fi, f] of cityFields().entries()) {
+      if (f.kind !== 'mera') continue
+      const minLv = fieldTier(fi)
       for (let i = 0; i < 9; i++) {
         const g = this.add.graphics()
         const tone = i % 4 === 3 ? 0x4a3a30 : 0xf2eee4
@@ -835,13 +856,13 @@ export class CityScene extends Phaser.Scene {
         g.fillStyle(tone, 1); g.fillEllipse(0, -7, 16, 10); g.fillCircle(-4, -9, 4); g.fillCircle(3, -10, 4)
         g.fillStyle(0x3a2e26, 1); g.fillEllipse(8.5, -8, 6, 5)
         const hx = f.x + (rnd() - 0.5) * f.hw * 1.1, hy = f.y + (rnd() - 0.5) * f.hh * 0.9
-        this.birds.push({ g, kind: 'sheep', hx, hy, x: hx, y: hy, ph: rnd() * 20, r: 14 + rnd() * 18, sp: 0.08 + rnd() * 0.08 })
+        this.birds.push({ g, kind: 'sheep', minLv, hx, hy, x: hx, y: hy, ph: rnd() * 20, r: 14 + rnd() * 18, sp: 0.08 + rnd() * 0.08 })
       }
       const sh = this.add.graphics().setDepth(f.y + f.hh * 0.3)
       this.drawCitizen(sh, () => 0.9) // kahverengi entarili, sarıklı çoban
       sh.setPosition(f.x + f.hw * 0.45, f.y + f.hh * 0.3)
       sh.lineStyle(1.6, 0x5a4020, 1); sh.lineBetween(5, 0, 7, -26)
-      this.birds.push({ g: sh, kind: 'sheep', hx: f.x + f.hw * 0.45, hy: f.y + f.hh * 0.3, x: 0, y: 0, ph: 0, r: 4, sp: 0.03 })
+      this.birds.push({ g: sh, kind: 'sheep', minLv, hx: f.x + f.hw * 0.45, hy: f.y + f.hh * 0.3, x: 0, y: 0, ph: 0, r: 4, sp: 0.03 })
     }
     // KAYIKLAR: limanın içinde kürek çeken iki kayık.
     for (let i = 0; i < 2; i++) {
@@ -860,7 +881,7 @@ export class CityScene extends Phaser.Scene {
         const g = this.add.graphics().setPosition(c.x + dx, c.y + dy).setDepth(c.y + dy)
         this.drawCitizen(g, () => (rnd() < 0.6 ? 0.3 : 0.8))
         g.fillStyle(0xb8622e, 1); g.fillEllipse(dx < 0 ? 6 : -6, -9, 6, 8); g.fillRect(dx < 0 ? 5 : -7, -14, 2, 3)
-        this.birds.push({ g, kind: 'sheep', hx: c.x + dx, hy: c.y + dy, x: 0, y: 0, ph: 0, r: 1.5, sp: 0.02 })
+        this.birds.push({ g, kind: 'sheep', minLv: fountainTier(c), hx: c.x + dx, hy: c.y + dy, x: 0, y: 0, ph: 0, r: 1.5, sp: 0.02 })
       }
     }
     // DERE: akıntıyla süzülen parıltılar, yüzen ördekler, dönen değirmen çarkı.
@@ -894,7 +915,7 @@ export class CityScene extends Phaser.Scene {
       for (let k = 0; k < 10; k++) { const t = k / 10 * Math.PI * 2; g.lineBetween(0, 0, Math.cos(t) * 32, Math.sin(t) * 32); g.fillStyle(0x7a5230, 1); g.fillRect(Math.cos(t) * 32 - 4, Math.sin(t) * 32 - 4, 8, 8) }
       g.fillStyle(0x3a2a1c, 1); g.fillCircle(0, 0, 4)
       g.setScale(0.55, 1) // yandan görünüş
-      this.birds.push({ g, kind: 'wheel', hx: w.x, hy: w.y, x: 0, y: 0, ph: 0, r: 0, sp: 1.2 })
+      this.birds.push({ g, kind: 'wheel', minLv: 4, hx: w.x, hy: w.y, x: 0, y: 0, ph: 0, r: 0, sp: 1.2 })
     }
     // DEVE KERVANI: doğu kapısından girip meydana kadar gelir, geri döner.
     const nodeAt = new Map(ROAD_GRAPH.nodes.map(n => [n.id, n.screen]))
@@ -1024,16 +1045,17 @@ export class CityScene extends Phaser.Scene {
       { g: janissary(true), along: 0, side: 0 },
       ...[0, 1, 2, 3, 4].map(i => ({ g: janissary(false), along: 19 + Math.floor(i / 2) * 18, side: i === 4 ? 0 : i % 2 ? 11 : -11 })),
     ]
+    const lv = this.state.buildings.divan
     // 1) Kuzey kapısı → kuzey caddesi → meydan çevresi (doğudan) → güney caddesi → liman.
-    add(route(['st_gate_n', 'st_ave_n2', 'st_ave_n', 'st_r18'], rim(-90, 90), ['st_r6', 'st_ave_s', 'st_ave_s2', 'st_stairs']), squad(), 30, false, 0.1)
+    if (lv >= 2) add(route(['st_gate_n', 'st_ave_n2', 'st_ave_n', 'st_r18'], rim(-90, 90), ['st_r6', 'st_ave_s', 'st_ave_s2', 'st_stairs']), squad(), 30, false, 0.1)
     // 2) Kışla kuruluysa batı-doğu devriyesi (meydanın kuzeyinden).
     if (this.state.buildings.kisla > 0) {
       add(route(['st_gate_w', 'st_r12'], rim(180, 360), ['st_r0', 'st_gate_e']), squad(), 28, false, 0.6)
     }
     // 3) Mehter: meydanı çevreleyen tur (bayram alayı gibi, ritimli).
-    add(rim(0, 348, 1.12), Array.from({ length: 8 }, (_, i) => ({ g: mehter(i), along: i === 0 ? 0 : 14 + Math.floor((i - 1) / 2) * 14, side: i === 0 ? 0 : (i % 2 ? 8 : -8) })), 16, true, 0.3, 1.5)
+    if (lv >= 4) add(rim(0, 348, 1.12), Array.from({ length: 8 }, (_, i) => ({ g: mehter(i), along: i === 0 ? 0 : 14 + Math.floor((i - 1) / 2) * 14, side: i === 0 ? 0 : (i % 2 ? 8 : -8) })), 16, true, 0.3, 1.5)
     // 4) Sipahiler: doğu-batı caddesinde çift atlı.
-    add(route(['st_gate_e', 'st_r0'], rim(0, 180, 1.14), ['st_r12', 'st_gate_w']), [{ g: sipahi(), along: 0, side: -8 }, { g: sipahi(), along: 6, side: 10 }], 46, false, 0.35)
+    if (lv >= 5) add(route(['st_gate_e', 'st_r0'], rim(0, 180, 1.14), ['st_r12', 'st_gate_w']), [{ g: sipahi(), along: 0, side: -8 }, { g: sipahi(), along: 6, side: 10 }], 46, false, 0.35)
     this.stepTroops(0)
   }
   private stepTroops(dt: number) {
@@ -1149,10 +1171,10 @@ export class CityScene extends Phaser.Scene {
         life(hm, t => hm.setPosition(p.x + (i % 2 ? -5 : 5), p.y - 12).setRotation((i % 2 ? -1 : 1) * (0.2 + Math.max(0, Math.sin(t * 8 + i * 2)) * 1.1)).setDepth(baseDepth + i * 1e-3 + 1e-4))
       })
     }
-    // 3) MEYDANDA ÇOCUKLAR.
+    // 3) MEYDANDA ÇOCUKLAR (şadırvan 3. seviyede gelir).
     const P = PLAZA.screen
     const fy = P.y + PLAZA.ry * 0.74
-    ;[0x3f6f9a, 0xd6a93a, 0x4f7d4a].forEach((robe, i) => {
+    ;(this.state.buildings.divan >= 3 ? [0x3f6f9a, 0xd6a93a, 0x4f7d4a] : []).forEach((robe, i) => {
       const g = this.add.graphics()
       const s = 0.95
       g.fillStyle(0x1b2a14, 0.2); g.fillEllipse(1, 0, 7 * s, 2.6 * s)
@@ -1199,6 +1221,7 @@ export class CityScene extends Phaser.Scene {
   }
   private stepCaravan(dt: number) {
     if (!this.caravanPath || !this.caravan.length) return
+    if (this.state.buildings.divan < 3) { for (const g of this.caravan) g.setVisible(false); return }
     // 0→1 içeri, 1 bekleme, 1→0 dışarı, 0 bekleme (toplam ~2 dk).
     this.caravanT = (this.caravanT + dt / 120) % 1
     const c = this.caravanT
@@ -1219,7 +1242,11 @@ export class CityScene extends Phaser.Scene {
     // 18 sn döngü: ~14 sn yerde, ~4 sn havada.
     const cycle = this.flockClock % 18, flying = cycle > 14
     const lift = flying ? Math.sin((cycle - 14) / 4 * Math.PI) : 0
+    const lv = this.state.buildings.divan
     for (const b of this.birds) {
+      const on = !b.minLv || lv >= b.minLv
+      if (b.g.visible !== on) b.g.setVisible(on)
+      if (!on) continue
       b.ph += dt * b.sp
       if (b.kind === 'wheel') { b.g.rotation += dt * b.sp; continue }
       if ((b.kind === 'ripple' || b.kind === 'duck') && this.streamPath) {
@@ -1364,7 +1391,8 @@ export class CityScene extends Phaser.Scene {
     yard.lineStyle(TILE.w * 0.14, 0xe2d3ae, 1); yard.lineBetween(gate.x, gate.y, padEdge.x, padEdge.y)
     this.pieces.push(yard)
     // Arka duvarlardan birinin üstünde asma (yeşil yaprak, mor salkım).
-    const vineSeg = [0, 3].find(i => i !== gateSeg.i && rnd() < 0.7)
+    const lvl = this.state.buildings[id]
+    const vineSeg = lvl >= 5 ? [0, 3].find(i => i !== gateSeg.i && rnd() < 0.7) : undefined
     if (vineSeg !== undefined) {
       const [a, b] = segs[vineSeg]
       const vg = this.add.graphics().setDepth(cy - hh - 0.8)
@@ -1394,8 +1422,8 @@ export class CityScene extends Phaser.Scene {
     }
     const nearGate = (p: { x: number; y: number }) => Math.hypot(p.x - gate.x, p.y - gate.y) < TILE.w * 0.7
     const inside = (p: { x: number; y: number }, f: number) => ({ x: cx + (p.x - cx) * f, y: cy + (p.y - cy) * f })
-    // Yan köşelerde (içeride) servi çifti, kapı o köşeye düşmüyorsa.
-    for (const c of [W, E]) {
+    // Yan köşelerde (içeride) servi çifti (3. seviyeden), kapı o köşeye düşmüyorsa.
+    for (const c of lvl >= 3 ? [W, E] : []) {
       if (nearGate(c)) continue
       const a = inside(c, 0.9), b = inside(c, 0.8)
       tree(rnd() < 0.5 ? 'd_cypress' : 'd_cypress-b', a.x, a.y - 4, TILE.w * 0.27)
@@ -1403,9 +1431,9 @@ export class CityScene extends Phaser.Scene {
     }
     // Ön köşede çalı kümesi, arka köşede meyve (zeytin/nar) ağacı.
     if (!nearGate(S)) { const p = inside(S, 0.84); tree('d_bush', p.x - 14, p.y - 2, TILE.w * 0.26); tree('d_flower', p.x + 16, p.y + 2, TILE.w * 0.2) }
-    if (!nearGate(N)) { const p = inside(N, 0.72); tree('d_olive-tree', p.x + (rnd() < 0.5 ? -1 : 1) * 30, p.y, TILE.w * 0.62, rnd() < 0.5 ? 0xd8ecc0 : undefined) }
+    if (!nearGate(N) && lvl >= 4) { const p = inside(N, 0.72); tree('d_olive-tree', p.x + (rnd() < 0.5 ? -1 : 1) * 30, p.y, TILE.w * 0.62, rnd() < 0.5 ? 0xd8ecc0 : undefined) }
     // Caminin hazîresi: arka köşede serviler arasında sarıklı şâhideler.
-    if (id === 'cami') {
+    if (id === 'cami' && lvl >= 3) {
       const corner = !nearGate(W) ? W : E
       const hz = this.add.graphics().setDepth(corner.y + 2)
       for (let k = 0; k < 7; k++) {
@@ -1476,7 +1504,8 @@ export class CityScene extends Phaser.Scene {
     const anc = this.anchor(slot)
     const level = this.state.buildings[id]
     // Divanhane meydanın gösterişli merkezi: diğer binalardan büyük.
-    const artS = this.artScale() * (slot.slotId === HALL_SLOT_ID ? 1.5 : 1)
+    // Kademeli büyüme: aynı görsel aşamasında da seviye arttıkça bina biraz büyür.
+    const artS = this.artScale() * (slot.slotId === HALL_SLOT_ID ? 1.5 : 1) * stageGrowth(level)
     // Görselin zemin elması resmin altından ART_GROUND_PX yukarıda: elmas
     // arsanın (belediyede meydanın) tam ortasına düz oturur. Liman görselleri
     // rıhtıma göre çizildiği için eski temas noktasını kullanır.
@@ -1485,7 +1514,7 @@ export class CityScene extends Phaser.Scene {
 
     // Boş slot görünmez; yalnızca kurulu yapının altında doğal açıklık oluşur.
     this.addOccupiedClearing(id, slot, anc.baseY)
-    if (slot.zone !== 'liman' && slot.slotId !== HALL_SLOT_ID) this.addGardenWall(slot, imgY, artS, id)
+    if (slot.zone !== 'liman' && slot.slotId !== HALL_SLOT_ID && level >= 2) this.addGardenWall(slot, imgY, artS, id)
 
     // Çok hafif temas gölgesi: doğal açıklığın üstünde yapıyı zemine bağlar.
     // Güneş sol üstten: bina gölgesi sağ-alta düşer.

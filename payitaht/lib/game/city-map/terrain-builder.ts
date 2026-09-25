@@ -21,7 +21,7 @@ import { GROUND_TARGET_W, GROUND_TARGET_D, FOOTPRINT_DIAMOND_W, ART_DIAMOND_PX }
 import { asset } from '@/lib/asset'
 import { roadStyleFor, roadTierForHallLevel, type RoadKind } from './road-style'
 import { edgeKey, roadEdgeKeysForTargets } from './road-tree'
-import { aqueductHits, cityAqueduct, cityBazaar, cityFields, cityFountains, cityStream, nearStreamAt, shoreYAt } from './city-extras'
+import { aqueductHits, cityAqueduct, cityBazaar, cityFields, cityFountains, cityStream, fieldTier, fountainTier, nearStreamAt, shoreYAt } from './city-extras'
 import { bakeGraphics, BakeAtlas } from './bake'
 
 /** Arazi dokuları ve dekor (tools/art/decor.py ile çizilir). */
@@ -230,6 +230,15 @@ function nearSlot(wx: number, wy: number, slot: CitySlot, margin = 1) {
 /** Katmanlı şehir zeminini sahneye kurar. Bina sprite'larından ÖNCE bir kez çağrılır. */
 export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1, occupiedSlotIds: string[] = []) {
   const existing = new Set(scene.children.list)
+  /*
+   * KADEMELİ GELİŞME: şehir süsleri Divanhane seviyesiyle açılır. Oluşturulan
+   * her nesne o anki `tier` ile etiketlenir; setDevelopment(level) görünürlüğü
+   * ayarlar (arazi yeniden kurulmaz).
+   */
+  let tier = 0
+  const tierOf = new Map<Phaser.GameObjects.GameObject, number>()
+  const onAdded = (go: Phaser.GameObjects.GameObject) => { if (tier > 1) tierOf.set(go, tier) }
+  scene.sys.events.on(Phaser.Scenes.Events.ADDED_TO_SCENE, onAdded)
   const wr = cityWorldRect()
   const V = (x: number, y: number) => new Phaser.Math.Vector2(x, y)
   const coastMinY = Math.min(...COAST_SLOTS.map(s => s.screen.y))
@@ -607,15 +616,23 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1, occupiedSl
   // arası bakımlı çimen. Dört caddenin iki yanı servi ağaçlı.
   const plazaDecor: Phaser.GameObjects.GameObject[] = []
   /** Canlı katmanda dalgalanacak sancak kumaşları (direk/alem burada çizilir). */
-  const flags: Array<{ x: number; y: number; w: number; h: number; depth: number }> = []
+  const flags: Array<{ x: number; y: number; w: number; h: number; depth: number; minLevel: number }> = []
   {
     const P = PLAZA.screen, prx = PLAZA.rx, pry = PLAZA.ry
     // Çevre yolunun içi: bakımlı açık yeşil çimen.
+    tier = 3
     const lawn = scene.add.graphics().setDepth(-858)
     lawn.fillStyle(0xb9d27a, 0.22); lawn.fillEllipse(P.x, P.y, RING_ROAD.rx * 2, RING_ROAD.ry * 2)
     lawn.fillStyle(0xc6db88, 0.14); lawn.fillEllipse(P.x, P.y, RING_ROAD.rx * 1.6, RING_ROAD.ry * 1.6)
 
-    const pz = scene.add.graphics().setDepth(-795)
+    // Seviye 1: sıkıştırılmış toprak meydan (taş döşeme 2. seviyede gelir).
+    tier = 0
+    const dirt = scene.add.graphics().setDepth(-796)
+    dirt.fillStyle(0x2f421c, 0.16); dirt.fillEllipse(P.x + 8, P.y + 10, prx * 2 + 20, pry * 2 + 16)
+    dirt.fillStyle(0xb89e70, 1); dirt.fillEllipse(P.x, P.y, prx * 2 + 10, pry * 2 + 8)
+    dirt.fillStyle(0xc9b184, 1); dirt.fillEllipse(P.x - 10, P.y - 6, prx * 1.7, pry * 1.6)
+    tier = 2
+    let pz = scene.add.graphics().setDepth(-795)
     const ell = (k: number) => Array.from({ length: 64 }, (_, i) => {
       const t = i / 64 * Math.PI * 2
       return V(P.x + Math.cos(t) * prx * k, P.y + Math.sin(t) * pry * k)
@@ -650,7 +667,9 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1, occupiedSl
     // ölçeği (phaser-city artScale) × belediye büyütmesi 1.5.
     const hallHalf = 211 * (FOOTPRINT_DIAMOND_W / ART_DIAMOND_PX) * 1.8 * 1.5
     const lowHalf = hallHalf * 1.16
+    tier = 0; pz = scene.add.graphics().setDepth(-794.9)
     podium(lowHalf, 0, 0xcdb88c, 0xa48b62, 0xeee2c4)
+    tier = 3; pz = scene.add.graphics().setDepth(-794.8)
     podium(hallHalf * 1.06, 12, 0xe2d3ae, 0xb49b70, 0xf6ecd2)
     // Kürsünün dört ucunda basamak.
     for (const [dx, dy] of [[0, 0.5], [1, 0], [-1, 0], [0, -0.5]]) {
@@ -660,6 +679,7 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1, occupiedSl
     }
 
     // LALE TARHLARI (arka köşegenler): çitle çevrili, kırmızı-sarı laleler.
+    tier = 4; pz = scene.add.graphics().setDepth(-794.7)
     const fr = mulberry32(8080)
     const tulips = (bx: number, by: number, bw: number, bh: number) => {
       pz.fillStyle(0x3e5f2a, 1); pz.fillEllipse(bx, by + 3, bw + 14, bh + 10)
@@ -680,6 +700,7 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1, occupiedSl
 
     // ÇINAR ve SEKİ (ön köşegenler): meydanın gölgelik ulu çınarları, dibinde
     // yuvarlak taş oturma sekisi.
+    tier = 3; pz = scene.add.graphics().setDepth(-794.6)
     for (const deg of [35, 145]) {
       const t = deg * Math.PI / 180
       const cx = P.x + Math.cos(t) * prx * 0.8, cy = P.y + Math.sin(t) * pry * 0.8
@@ -727,6 +748,7 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1, occupiedSl
     f.lineStyle(3, 0xe2bd78, 1); f.beginPath(); f.arc(fx + 2, roofY - 74, 6, Math.PI * 0.35, Math.PI * 1.65, false); f.strokePath()
     plazaDecor.push(f)
 
+    tier = 2
     // Girişlerde bayrak direkleri (al sancak, ay-yıldız, altın alem).
     const pole = (x: number, y: number) => {
       const g = scene.add.graphics().setDepth(y)
@@ -734,7 +756,7 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1, occupiedSl
       g.fillStyle(0xb39c74, 1); g.fillRect(x - 7, y - 8, 14, 9)
       g.lineStyle(4, 0x5a4630, 1); g.lineBetween(x, y - 6, x, y - 118)
       g.fillStyle(0xe2bd78, 1); g.fillCircle(x, y - 121, 4)
-      flags.push({ x: x + 2, y: y - 114, w: 46, h: 30, depth: y + 0.5 }) // kumaş canlı katmanda dalgalanır
+      flags.push({ x: x + 2, y: y - 114, w: 46, h: 30, depth: y + 0.5, minLevel: tier }) // kumaş canlı katmanda dalgalanır
       plazaDecor.push(g)
     }
     for (const deg of [90, 270, 0, 180]) {
@@ -743,6 +765,7 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1, occupiedSl
       const side = deg % 180 === 0 ? { x: 0, y: TILE.h * 0.62 } : { x: TILE.w * 0.62, y: 0 }
       pole(ex - side.x, ey - side.y); pole(ex + side.x, ey + side.y)
     }
+    tier = 5
     // Meydan fenerleri: bordür boyunca demir direkli kandiller.
     for (let k = 0; k < 8; k++) {
       const t = (k + 0.5) / 8 * Math.PI * 2
@@ -756,6 +779,7 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1, occupiedSl
       plazaDecor.push(g)
     }
 
+    tier = 3
     // Caddelerin iki yanı servi ağaçlı (yalnızca sur içinde, arsalardan uzak).
     const wall = DEFENSE_FOUNDATION.map(p => p.screen)
     const insideWall = (x: number, y: number) => {
@@ -798,6 +822,7 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1, occupiedSl
   {
     const or = mulberry32(1453)
     // MEZARLIK.
+    tier = 2
     const cem = cemeterySite()
     const cg = scene.add.graphics().setDepth(-702)
     cg.fillStyle(0x5f7d3c, 0.35); cg.fillEllipse(cem.x, cem.y, TILE.w * 4.2, TILE.h * 3.4)
@@ -835,6 +860,7 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1, occupiedSl
       plazaDecor.push(g)
     }
 
+    tier = 5
     // İSKELE PAZARI: binalarla aynı çizim aracından arasta + çadırlı pazar
     // yeri; en yakın yola toprak bir patikayla bağlanır (bkz. cityBazaar).
     const bz = cityBazaar()
@@ -864,7 +890,8 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1, occupiedSl
       const k = f.hw / TILE.w
       return { x: f.x + (a * U.x + b * Vv.x) * k, y: f.y + (a * U.y + b * Vv.y) * k }
     }
-    for (const f of cityFields()) {
+    for (const [fi, f] of cityFields().entries()) {
+      tier = fieldTier(fi)
       const g = scene.add.graphics().setDepth(f.y - f.hh)
       const corners = [at(f, -1, -1), at(f, 1, -1), at(f, 1, 1), at(f, -1, 1)].map(p => V(p.x, p.y))
       // Kuru taş sınır duvarı + zemin.
@@ -930,6 +957,7 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1, occupiedSl
 
     // ÇEŞMELER: mermer ayna taşı, sivri kemerli niş, kitabe, tunç lüle, yalak.
     for (const c of cityFountains()) {
+      tier = fountainTier(c)
       const g = scene.add.graphics().setDepth(c.y)
       const w = TILE.w * 0.52, h = TILE.h * 1.05, d = w * 0.3
       const x0 = c.x - w / 2, x1 = c.x + w / 2, y0 = c.y
@@ -961,6 +989,7 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1, occupiedSl
     }
   }
 
+  tier = 0 // dere hep var
   // 2h) DERE: tepeden denize kıvrılan su; kıyıda saz ve taş, yolları geçtiği
   // yerlerde kemerli Osmanlı köprüsü, orta bölümde su değirmeni.
   {
@@ -1028,6 +1057,7 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1, occupiedSl
       g.fillStyle(0x2e3a3a, 0.75); g.beginPath(); g.arc(c.x, c.y + 6, 13, Math.PI, 0, false); g.closePath(); g.fillPath()
       plazaDecor.push(g)
     }
+    tier = 4
     // SU DEĞİRMENİ: taş zemin kat, ahşap üst kat, kiremit çatı (çark sahnede döner).
     if (st.mill) {
       const { x, y } = st.mill
@@ -1053,6 +1083,7 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1, occupiedSl
   // şehir içindeki maksemde (su terazisi) biter. Her göz ayrı parça; derinliği
   // tabanına göre: binalar ve surla doğru sıralanır.
   {
+    tier = 6
     const aq = cityAqueduct()
     if (aq) {
       const dx = aq.to.x - aq.from.x, dy = aq.to.y - aq.from.y
@@ -1077,21 +1108,10 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1, occupiedSl
         }
         return pts
       }
-      // Surla kesiştiği gözler surun önünde çizilir (kemer surdan yüksek).
-      const ring = DEFENSE_FOUNDATION.map(p => p.screen)
-      const crossAt: number[] = []
-      for (let k = 0; k < ring.length; k++) {
-        const a = ring[k], b = ring[(k + 1) % ring.length]
-        const d = (b.x - a.x) * uy - (b.y - a.y) * ux
-        if (Math.abs(d) < 1e-6) continue
-        const t = ((aq.from.x - a.x) * uy - (aq.from.y - a.y) * ux) / d
-        const sAlong = ((a.x + (b.x - a.x) * t) - aq.from.x) * ux + ((a.y + (b.y - a.y) * t) - aq.from.y) * uy
-        if (t >= 0 && t <= 1 && sAlong >= 0 && sAlong <= len) crossAt.push(sAlong)
-      }
       for (let i = 0; i < n; i++) {
         const s0 = i * B, s1 = s0 + B
-        const overWall = crossAt.some(c => c > s0 - B * 1.2 && c < s1 + B * 1.2)
-        const g = scene.add.graphics().setDepth(Math.max(Pt(s0, 0).y, Pt(s1, 0).y) + ny + 1 + (overWall ? 400 : 0))
+        // Surla kesişen göz surdaki su kapısının içinden geçer (bkz. drawWalls).
+        const g = scene.add.graphics().setDepth(Math.max(Pt(s0, 0).y, Pt(s1, 0).y) + ny + 1)
         g.fillStyle(0x2f421c, 0.2)
         g.fillPoints([Pt(s0, 0, 1), Pt(s1, 0, 1), V(Pt(s1, 0, 1).x + 22, Pt(s1, 0, 1).y + 16), V(Pt(s0, 0, 1).x + 22, Pt(s0, 0, 1).y + 16)], true)
         for (const [lo, spring, hi, p] of [[0, S1, H1, pw], [H1, S2, H2, pw * 0.8]] as const) {
@@ -1149,6 +1169,7 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1, occupiedSl
     }
   }
 
+  tier = 0
   // 3) TAŞ / TOPRAK katmanı.
   const g = scene.add.graphics().setDepth(-800)
 
@@ -1484,10 +1505,19 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1, occupiedSl
   // İlk bina/arsa doluluğunu tüm koruluklar yaratıldıktan sonra da uygula.
   syncAmbientDecor(occupiedSlotIds)
   // Sabit arazi katmanlarını dokuya pişir (yollar ayrı: her güncellemede).
+  tier = 0
+  scene.sys.events.off(Phaser.Scenes.Events.ADDED_TO_SCENE, onAdded)
   const atlas = new BakeAtlas(scene, 'terrain-atlas')
   for (const o of scene.children.list.filter(o => !existing.has(o))) {
-    if (o instanceof Phaser.GameObjects.Graphics && o !== roads) atlas.bake(o)
+    if (!(o instanceof Phaser.GameObjects.Graphics) || o === roads) continue
+    const t = tierOf.get(o)
+    const out = atlas.bake(o)
+    if (t) { tierOf.delete(o); for (const r of out) tierOf.set(r, t) }
   }
   atlas.finish()
-  return { updateRoads, flags }
+  /** Divanhane seviyesine göre şehir süslerini göster/gizle. */
+  const setDevelopment = (level: number) => {
+    for (const [o, t] of tierOf) (o as unknown as Phaser.GameObjects.Components.Visible).setVisible(level >= t)
+  }
+  return { updateRoads, flags, setDevelopment }
 }
