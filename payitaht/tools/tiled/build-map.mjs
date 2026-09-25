@@ -41,148 +41,104 @@ const screenY = (gx, gy) => Math.round((gx + gy) * (TILE_H / 2))
 const withScreen = (o) => ({ ...o, screen: { x: screenX(o.gx, o.gy), y: screenY(o.gx, o.gy) } })
 
 /*
- * IKARIAM YOĞUNLUĞUNDA KOMPAKT ŞEHİR.
- *
- * Eski yerleşim 24 slotu ~2000x2600 px'lik bir alana, kıyıyı ~2000 px aşağıya
- * yaymıştı: binalar arasında 4-5 bina boyu çayır kalıyordu ve şehir "boş"
- * görünüyordu. Ikariam'da binalar arasında yalnızca dar sokak vardır; boşluğu
- * şehir değil MANZARA (orman, kayalık, deniz) doldurur.
- *
- * KAFES: ekran-hizalı (u,v) kafesi, u≡v (mod 2) — kaydırmalı "tuğla" dizilim.
- * Adım P=4 karo: 2x2 footprint'ler arasında her yönde 2 karoluk sokak kalır.
- *   gx = 50 + P·(u+v)/2 ,  gy = 70 + P·(v-u)/2
- *   ekran: X = 256·u (yatay), Y = 128·v (dikey)  — belediyeye göre.
- * DİKEY TELEFON için uzun oval: |u|≤2 (5 sütun), v∈[-6,5]. Belediyenin
- * çevresindeki 4 çapraz hücre MEYDAN olarak boş; tepe asimetrik (organik).
- * Dar şehir, HUD'un açık bıraktığı bantta daha BÜYÜK zoom'la tek ekrana sığar.
- *
- * ORGANİKLİK: her slota deterministik ±1 karo sarsıntı verilir; ama hiçbir iki
- * footprint arasında 1 karodan az sokak kalmayacak şekilde (aksi halde sarsıntı
- * reddedilir). Böylece dizilim satranç tahtası gibi durmaz.
- *
- * DEĞİŞMEZLER: belediye (50,70)'te çakılı, bütün slotlar 2x2, slot SAYILARI ve
- * SIRALARI aynı (24 city + 6 coast + 5 defense) → motor kayıtları (index
- * tabanlı) bozulmaz; yalnızca konumlar sıkılaşır.
+ * IKARIAM ŞEHRİ: arsalar izometrik eksenlerde (gx, gy) geniş bir kafese oturur
+ * ve belediyenin çevresinde, dikeyde biraz uzun OVAL bir alana yayılır. Satır
+ * ya da şerit yok; şehir her yöne eşit büyür. Kafes adımı 7 karo: arsalar
+ * arasında 5 karoluk çayır/patika kalır. Hafif sarsıntı organik görünüm verir.
  */
-/*
- * TERAS ŞEHİR (Ikariam). Şehir bir yamaca yayılır: altı teras sırası, her
- * sırada dört arsa, aralarında çayır ve ağaç. Ortadan limandan yukarı TEK ana
- * cadde çıkar; her terasın önünden TEK bir yan sokak geçer ve arsalar ona
- * cephe verir. Belediye dördüncü sıranın ortasında, caddenin üstünde durur.
- *
- * Konumlar ekran pikseli (belediyeye göre) olarak verilir ve izometrik kare
- * koordinatına yuvarlanır. Arsalar ~340 px aralıklıdır (eskiden 256): bina
- * başına nefes alanı kalır, göz ana caddeyi ve binaları kolayca izler.
- */
+const S = 7
+const RX = 1150, RY = 1400 // oval (ekran pikseli)
+let seed = 7331
+const rnd = () => { seed = (seed * 1103515245 + 12345) & 0x7fffffff; return seed / 0x7fffffff }
+const cands = []
+for (let a = -5; a <= 5; a++) for (let b = -5; b <= 5; b++) {
+  if (a === 0 && b === 0) continue
+  const x = S * (a - b) * 64, y = S * (a + b) * 32
+  cands.push({ a, b, x, y, r: (x / RX) ** 2 + (y / RY) ** 2 })
+}
+cands.sort((p, q) => p.r - q.r || p.y - q.y || p.x - q.x)
+const CITY_CELLS = cands.slice(0, 24)
+if (CITY_CELLS.length !== 24) throw new Error('24 arsa bekleniyordu')
+// Sıra = belediyeye uzaklık (motor arsaları bu sırayla açar).
+CITY_CELLS.sort((p, q) => p.r - q.r || p.y - q.y || p.x - q.x)
+
+// --- SLOTLAR --------------------------------------------------------------
+const slots = []
+slots.push(withScreen({ id: 'city_hall', type: 'city', gx: CENTER.gx, gy: CENTER.gy, fw: FOOT, fh: FOOT, fixed: true }))
+const cellId = new Map([['0,0', 'city_hall']])
+CITY_CELLS.forEach((c, i) => {
+  const id = `city_${String(i + 1).padStart(2, '0')}`
+  const jx = Math.round((rnd() - 0.5) * 2), jy = Math.round((rnd() - 0.5) * 2) // ±1 karo
+  slots.push(withScreen({ id, type: 'city', gx: CENTER.gx + S * c.a + jx, gy: CENTER.gy + S * c.b + jy, fw: FOOT, fh: FOOT, fixed: false }))
+  cellId.set(`${c.a},${c.b}`, id)
+})
 const toGrid = (dx, dy) => {
   let d = Math.round(dx / 64), sgn = Math.round(dy / 32)
   if (((sgn + d) % 2 + 2) % 2 === 1) sgn += 1
   return { gx: CENTER.gx + (sgn + d) / 2, gy: CENTER.gy + (sgn - d) / 2 }
 }
-const ROWS = [
-  { y: -1080, xs: [-620, -230, 230, 620] },
-  { y: -720, xs: [-760, -390, 390, 760] },
-  { y: -360, xs: [-620, -230, 230, 620] },
-  { y: 0, xs: [-800, -430, 430, 800] }, // belediye (0,0) bu sıranın ortasında
-  { y: 360, xs: [-620, -230, 230, 620] },
-  { y: 720, xs: [-760, -390, 390, 760] },
-]
-const STREET_DY = 150 // yan sokak, arsanın önünden (aşağısından) geçer
-
-let seed = 7331
-const rnd = () => { seed = (seed * 1103515245 + 12345) & 0x7fffffff; return seed / 0x7fffffff }
-
-// Arsa hücreleri + küçük deterministik sarsıntı (organik görünüm).
-const CITY_CELLS = []
-ROWS.forEach((row, r) => row.xs.forEach(x => {
-  const jx = Math.round((rnd() - 0.5) * 50), jy = Math.round((rnd() - 0.5) * 40)
-  CITY_CELLS.push({ row: r, x: x + jx, y: row.y + jy })
-}))
-if (CITY_CELLS.length !== 24) throw new Error(`24 city hücresi bekleniyordu, bulundu ${CITY_CELLS.length}`)
-/*
- * SIRA = BELEDİYEYE UZAKLIK. Motor arsaları Divanhane seviyesiyle bu sırayla
- * açar: şehir merkezden kenarlara doğru büyür.
- */
-CITY_CELLS.sort((a, b) => Math.hypot(a.x, a.y * 1.2) - Math.hypot(b.x, b.y * 1.2) || a.y - b.y || a.x - b.x)
-
-// --- SLOTLAR --------------------------------------------------------------
-const slots = []
-slots.push(withScreen({ id: 'city_hall', type: 'city', gx: CENTER.gx, gy: CENTER.gy, fw: FOOT, fh: FOOT, fixed: true }))
-CITY_CELLS.forEach((c, i) => {
-  slots.push(withScreen({ id: `city_${String(i + 1).padStart(2, '0')}`, type: 'city', ...toGrid(c.x, c.y), fw: FOOT, fh: FOOT, fixed: false }))
-  c.id = `city_${String(i + 1).padStart(2, '0')}`
-})
+const cityPts = slots.map(s => ({ x: s.screen.x - slots[0].screen.x, y: s.screen.y - slots[0].screen.y }))
+const minX = Math.min(...cityPts.map(p => p.x)), maxX = Math.max(...cityPts.map(p => p.x))
+const minY = Math.min(...cityPts.map(p => p.y)), maxY = Math.max(...cityPts.map(p => p.y))
 
 /*
- * KIYI: limanda üç deniz arsası (Ikariam), caddenin bittiği yerde.
+ * KIYI: limanda üç deniz arsası, şehrin altında.
  */
-const COAST_PX = [[-520, 1170], [0, 1210], [520, 1170]]
+const COAST_PX = [[-560, maxY + 430], [0, maxY + 470], [560, maxY + 430]]
 COAST_PX.forEach(([x, y], i) => {
   slots.push(withScreen({ id: `coast_${String(i + 1).padStart(2, '0')}`, type: 'coast', ...toGrid(x, y), fw: FOOT, fh: FOOT, fixed: false }))
 })
 
 /*
- * SAVUNMA: teras şehrini saran sur halkası; kapı caddenin limana indiği yerde.
- * Noktalar ekran-göreli [X/64, Y/32].
+ * SAVUNMA: ovali saran sekizgen sur; kule yuvaları köşelerde.
  */
+const L = minX - 300, R = maxX + 300, T = minY - 420, B = maxY + 240
+const px = (x, y) => [x / 64, y / 32]
 const ringPt = ([dRel, sRel]) => {
   const d = -20 + dRel, s = 120 + sRel
   return withScreen({ gx: (s + d) / 2, gy: (s - d) / 2 })
 }
 const DEFENSE_ANCHORS = [
-  { id: 'defense_tower_top', at: [0, -41] },
-  { id: 'defense_tower_left', at: [-16.5, -8] },
-  { id: 'defense_tower_right', at: [16.5, -8] },
-  { id: 'defense_tower_bottom', at: [-16.5, 29] },
-  { id: 'defense_gate', at: [16.5, 29] },
+  { id: 'defense_tower_top', at: px(0, T) },
+  { id: 'defense_tower_left', at: px(L, (T + B) / 2) },
+  { id: 'defense_tower_right', at: px(R, (T + B) / 2) },
+  { id: 'defense_tower_bottom', at: px(L * 0.62, B) },
+  { id: 'defense_gate', at: px(R * 0.62, B) },
 ]
 DEFENSE_ANCHORS.forEach(({ id, at }) => {
   const p = ringPt(at)
   slots.push(withScreen({ id, type: 'defense', gx: p.gx, gy: p.gy, fw: FOOT, fh: FOOT, fixed: true }))
 })
 const foundationPts = [
-  [0, -41], [14, -37], [16.5, -8], [16.5, 29], [0, 31], [-16.5, 29], [-16.5, -8], [-14, -37],
+  px(0, T), px(R * 0.62, T + (B - T) * 0.12), px(R, (T + B) / 2), px(R * 0.62, B), px(0, B + 40),
+  px(L * 0.62, B), px(L, (T + B) / 2), px(L * 0.62, T + (B - T) * 0.12),
 ].map(ringPt)
 
 // --- YOL AĞACI -----------------------------------------------------------
 /*
- * Ana cadde: her teras sokağının caddeyle kavşağı (x=0) yukarıdan aşağıya
- * zincirlenir; belediye kendi terasının kavşağıdır (arkadan girip önden
- * çıkılır). Teras sokakları kavşaktan iki yana, arsaların kapılarına uzanır.
- * Caddenin alt ucu kapıdan limana iner; iskeleler rıhtım boyunca bağlanır.
+ * Ikariam patikaları: yollar binadan binaya, izometrik eksenler boyunca uzanır.
+ * Aday kenarlar kafeste yan yana duran arsalardır (a±1 ya da b±1); oyun
+ * belediyeden açık arsalara giden en kısa ağacı gösterir (road-tree). En alt
+ * arsalardan biri kapıdan limana iner; iskeleler rıhtım boyunca bağlanır.
  */
 const citySlots = slots.filter(s => s.type === 'city')
 const coastSlots = slots.filter(s => s.type === 'coast')
 const street = new Map()
 const edges = []
-const addNode = (key, dx, dy) => {
-  const node = withScreen({ id: `st_${key}`, ...toGrid(dx, dy) })
-  street.set(key, node)
-  return node.id
-}
-const junctions = []
-ROWS.forEach((row, r) => {
-  const sy = row.y + STREET_DY
-  const junction = r === 3 ? 'city_hall' : addNode(`j${r}`, 0, sy)
-  junctions.push(junction)
-  // Sokak iki yana: kavşak → en yakın kapı → sonraki kapı...
-  for (const side of [-1, 1]) {
-    const cells = CITY_CELLS.filter(c => c.row === r && Math.sign(c.x) === side).sort((a, b) => Math.abs(a.x) - Math.abs(b.x))
-    let prev = junction
-    cells.forEach((c, k) => {
-      const door = addNode(`d${r}_${side > 0 ? 'e' : 'w'}${k}`, c.x, (r === 3 ? STREET_DY * 0.6 : sy) + (c.y - row.y) * 0.5)
-      edges.push({ from: prev, to: door })
-      edges.push({ from: door, to: c.id })
-      prev = door
-    })
+const cellsAll = [{ a: 0, b: 0 }, ...CITY_CELLS]
+for (const c of cellsAll) {
+  for (const [da, db] of [[1, 0], [0, 1]]) {
+    const to = cellId.get(`${c.a + da},${c.b + db}`)
+    if (to) edges.push({ from: cellId.get(`${c.a},${c.b}`), to })
   }
-})
-for (let r = 0; r + 1 < junctions.length; r++) edges.push({ from: junctions[r], to: junctions[r + 1] })
+}
 const coastSorted = [...coastSlots].sort((a, b) => a.screen.x - b.screen.x)
 const mid = coastSorted[Math.floor(coastSorted.length / 2)]
-const gate = addNode('gate', 0, 1010)
-edges.push({ from: junctions[junctions.length - 1], to: gate })
-edges.push({ from: gate, to: mid.id })
+const bottomPlot = [...citySlots].sort((p, q) => (q.screen.y - Math.abs(q.screen.x - mid.screen.x) * 0.3) - (p.screen.y - Math.abs(p.screen.x - mid.screen.x) * 0.3))[0]
+const gateNode = withScreen({ id: 'st_gate', ...toGrid((bottomPlot.screen.x + mid.screen.x) / 2 - slots[0].screen.x, (bottomPlot.screen.y + mid.screen.y) / 2 - slots[0].screen.y) })
+street.set('gate', gateNode)
+edges.push({ from: bottomPlot.id, to: gateNode.id })
+edges.push({ from: gateNode.id, to: mid.id })
 for (let i = 0; i + 1 < coastSorted.length; i++) edges.push({ from: coastSorted[i].id, to: coastSorted[i + 1].id })
 
 const roadNodes = [...citySlots, ...coastSlots, ...[...street.values()].map(withScreen)]

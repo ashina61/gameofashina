@@ -99,7 +99,7 @@ type RoadCurve = {
   from: string
   to: string
   kind: RoadKind
-  curve: Phaser.Curves.QuadraticBezier
+  curve: Phaser.Curves.QuadraticBezier | Phaser.Curves.Line
 }
 
 /**
@@ -563,70 +563,73 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1, occupiedSl
     }
   }
 
-  // 2c) TERASLAR (Ikariam): şehir basamaklı bir yamaçta durur. Her arsa
-  // sırasının önünde kesme taş istinat duvarı, altında gölge; ana cadde
-  // duvarları basamaklarla geçer. Üst teraslar hafifçe daha aydınlık.
+  // 2c) ŞEHİR DÜZLÜĞÜ (Ikariam): şehir yamaçta düzlenmiş oval bir yayladadır.
+  // Yaylanın denize bakan alt yarısında kesme taş set, altında gölge; liman
+  // yolu seti basamaklarla geçer. Yayla hafifçe daha açık ve güneşlidir.
   {
     const tg = scene.add.graphics().setDepth(-860)
-    const hall = slotById(HALL_SLOT_ID)!.screen
-    const ringXs = DEFENSE_FOUNDATION.map(p => p.screen.x)
-    const half = Math.max(...ringXs.map(x => Math.abs(x - hall.x))) - TILE.w * 0.45
-    void half
-    const sorted = [...CITY_SLOTS].sort((a, b) => a.screen.y - b.screen.y)
-    const rows: CitySlot[][] = []
-    for (const c of sorted) {
-      const last = rows[rows.length - 1]
-      if (last && c.screen.y - last[last.length - 1].screen.y < TILE.h * 1.6) last.push(c)
-      else rows.push([c])
+    const xs = CITY_SLOTS.map(c => c.screen.x), ys = CITY_SLOTS.map(c => c.screen.y)
+    const cx = (Math.min(...xs) + Math.max(...xs)) / 2
+    const cy = (Math.min(...ys) + Math.max(...ys)) / 2
+    const rx = (Math.max(...xs) - Math.min(...xs)) / 2 + TILE.w * 1.7
+    const ry = (Math.max(...ys) - Math.min(...ys)) / 2 + TILE.h * 3.2
+    tg.fillStyle(0xc9d18a, 0.16); tg.fillEllipse(cx, cy, rx * 2, ry * 2)
+    tg.fillStyle(0xd6d894, 0.10); tg.fillEllipse(cx - rx * 0.1, cy - ry * 0.12, rx * 1.5, ry * 1.4)
+    const H = TILE.h * 1.25
+    const gate = ROAD_GRAPH.nodes.find(n => n.id === 'st_gate')?.screen
+    const arc = (t0: number, t1: number, off = 0) => {
+      const pts: Phaser.Math.Vector2[] = []
+      for (let k = 0; k <= 40; k++) {
+        const t = t0 + (t1 - t0) * k / 40
+        pts.push(V(cx + Math.cos(t) * rx, cy + Math.sin(t) * ry + off))
+      }
+      return pts
     }
-    const H = TILE.h * 1.15 // istinat duvarı yüksekliği
-    const stairHalf = TILE.w * 0.5
-    let prevFront = -Infinity
-    rows.forEach((row, i) => {
-      const fy = row.reduce((a, c) => a + c.screen.y, 0) / row.length + TILE.h * 3.1
-      const x0 = Math.min(...row.map(c => c.screen.x)) - TILE.w * 1.25
-      const x1 = Math.max(...row.map(c => c.screen.x)) + TILE.w * 1.25
-      // Teras düzlüğü: sırayla açık/koyu, üsttekiler daha güneşli.
-      const top = Number.isFinite(prevFront) ? prevFront + H : fy - TILE.h * 6
-      tg.fillStyle(i % 2 ? 0xa9bd6c : 0xc4ce86, 0.20)
-      tg.fillRoundedRect(x0, top, x1 - x0, fy - top, TILE.h * 0.8)
-      prevFront = fy
-      // Duvarın altına düşen gölge.
-      tg.fillStyle(0x2f421c, 0.34); tg.fillRect(x0, fy + H, x1 - x0, TILE.h * 0.4)
-      tg.fillStyle(0x2f421c, 0.16); tg.fillRect(x0, fy + H + TILE.h * 0.4, x1 - x0, TILE.h * 0.5)
-      // Uçlarda toprak yamaç: duvar araziye iner.
-      for (const [ex, dir] of [[x0, -1], [x1, 1]] as const) {
-        tg.fillStyle(0x8c7a4c, 1)
-        tg.fillTriangle(ex, fy, ex, fy + H, ex + dir * TILE.w * 0.9, fy + H)
-        tg.fillStyle(0x6f8a44, 0.9)
-        tg.fillTriangle(ex, fy - 2, ex + dir * TILE.w * 0.9, fy + H - 2, ex + dir * TILE.w * 1.1, fy + H)
-      }
-      for (const [a, b] of [[x0, hall.x - stairHalf], [hall.x + stairHalf, x1]] as const) {
-        if (b - a < 4) continue
-        tg.fillStyle(0x9a8260, 1); tg.fillRect(a, fy, b - a, H)
-        const bw = TILE.w * 0.34, courses = 3
-        for (let r = 0; r < courses; r++) {
-          const y = fy + r * H / courses
-          for (let x = a + (r % 2 ? bw / 2 : 0) - (r % 2 ? bw : 0); x < b; x += bw) {
-            const xa = Math.max(a, x), xb = Math.min(b, x + bw - 3)
-            if (xb - xa <= 2) continue
-            const shade = (Math.floor((x - a) / bw) * 7 + r * 3) % 4
-            tg.fillStyle([0xc9b085, 0xb89e75, 0xa88f68, 0xd3bb90][shade], 1)
-            tg.fillRect(xa + 1.5, y + 1.5, xb - xa, H / courses - 3)
-          }
+    // Setin yayı: alt yarı (sağdan sola). Kapı yolunun geçtiği yerde boşluk.
+    const gateT = gate ? Math.acos(Math.max(-1, Math.min(1, (gate.x - cx) / rx))) : Math.PI / 2
+    const gap = TILE.w * 0.55 / rx
+    const pieces: Array<[number, number]> = [[0.12 * Math.PI, gateT - gap], [gateT + gap, 0.88 * Math.PI]]
+    for (const [t0, t1] of pieces) {
+      if (t1 <= t0) continue
+      const topLine = arc(t0, t1), bottomLine = arc(t0, t1, H)
+      // Gölge (set altına).
+      tg.fillStyle(0x2f421c, 0.30); tg.fillPoints([...arc(t0, t1, H), ...arc(t0, t1, H + TILE.h * 0.5).reverse()], true)
+      tg.fillStyle(0x2f421c, 0.14); tg.fillPoints([...arc(t0, t1, H + TILE.h * 0.5), ...arc(t0, t1, H + TILE.h * 1.1).reverse()], true)
+      // Taş yüz.
+      tg.fillStyle(0xa98f68, 1); tg.fillPoints([...topLine, ...bottomLine.reverse()], true)
+      // Taş sıraları ve derzler.
+      for (const f of [1 / 3, 2 / 3]) { tg.lineStyle(2, 0x7e6848, 0.7); tg.strokePoints(arc(t0, t1, H * f), false) }
+      const joints = Math.max(2, Math.round((t1 - t0) * rx / (TILE.w * 0.36)))
+      for (let j = 0; j <= joints; j++) {
+        const t = t0 + (t1 - t0) * j / joints
+        for (let r = 0; r < 3; r++) {
+          const tt = t + (r % 2 ? (t1 - t0) / joints / 2 : 0)
+          if (tt > t1) continue
+          const x = cx + Math.cos(tt) * rx, y = cy + Math.sin(tt) * ry
+          tg.lineStyle(1.6, 0x7e6848, 0.6); tg.lineBetween(x, y + H * r / 3 + 2, x, y + H * (r + 1) / 3 - 2)
         }
-        tg.fillStyle(0xeadbb2, 1); tg.fillRect(a, fy - 4, b - a, 6)
-        tg.lineStyle(2.5, 0x5e4b31, 0.8); tg.lineBetween(a, fy + H, b, fy + H)
       }
-      // Ana caddenin basamakları.
-      const steps = 5, sh = (H + TILE.h * 0.3) / steps
+      // Üst dudak ve alt çizgi.
+      tg.lineStyle(5, 0xeadbb2, 1); tg.strokePoints(topLine, false)
+      tg.lineStyle(2.5, 0x5e4b31, 0.85); tg.strokePoints(arc(t0, t1, H), false)
+      // Uçlar yamaca iner.
+      for (const t of [t0, t1]) {
+        const x = cx + Math.cos(t) * rx, y = cy + Math.sin(t) * ry
+        const dir = Math.cos(t) >= 0 ? 1 : -1
+        tg.fillStyle(0x8c7a4c, 1); tg.fillTriangle(x, y, x, y + H, x + dir * TILE.w * 0.8, y + H)
+      }
+    }
+    // Kapı yolunun basamakları.
+    if (gate) {
+      const x = cx + Math.cos(gateT) * rx, y = cy + Math.sin(gateT) * ry
+      const w = TILE.w * 0.55, steps = 5, sh = (H + TILE.h * 0.3) / steps
       for (let k = 0; k < steps; k++) {
         tg.fillStyle(k % 2 ? 0xc9b58c : 0xe0cfa6, 1)
-        tg.fillRect(hall.x - stairHalf, fy - TILE.h * 0.15 + k * sh, stairHalf * 2, sh)
+        tg.fillRect(x - w, y - TILE.h * 0.15 + k * sh, w * 2, sh)
         tg.lineStyle(1.5, 0x8a7550, 0.8)
-        tg.lineBetween(hall.x - stairHalf, fy - TILE.h * 0.15 + (k + 1) * sh, hall.x + stairHalf, fy - TILE.h * 0.15 + (k + 1) * sh)
+        tg.lineBetween(x - w, y - TILE.h * 0.15 + (k + 1) * sh, x + w, y - TILE.h * 0.15 + (k + 1) * sh)
       }
-    })
+    }
   }
 
   // 2d) BOYALI ZEMİN: izometrik yönde binlerce kısa fırça darbesi + güneşin
@@ -709,6 +712,18 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1, occupiedSl
       const cityId = r.from.startsWith('coast_') ? r.to : r.from
       return visibleKeys.has(key) || active.has(cityId)
     })
+
+    // Henüz açılmamış bir arsanın İÇİNDEN geçen yol, arsa kenarında kesik
+    // kalmasın: uçları arsa ortasına bağlanır, yol tek parça görünür.
+    const through: RoadCurve[] = []
+    for (const r of visibleCurves) {
+      for (const [id, end] of [[r.from, r.curve.getPoint(0)], [r.to, r.curve.getPoint(1)]] as const) {
+        const slot = active.has(id) ? null : slotById(id)
+        if (!slot || slot.type !== 'city') continue
+        through.push({ from: id, to: id, kind: r.kind, curve: new Phaser.Curves.Line(end, V(slot.screen.x, slot.screen.y)) })
+      }
+    }
+    visibleCurves.push(...through)
 
     // Kıyı promenadı bir slot göstergesi değildir; ilk liman/tersane
     // kurulunca dünyaya doğal biçimde eklenir.

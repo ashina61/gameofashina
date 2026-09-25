@@ -115,22 +115,33 @@ export class CityScene extends Phaser.Scene {
    * bu ikisinin arasındaki AÇIK BANTTA ortalanır; aksi halde tam ortalanan
    * şehrin üstü kaynak şeridinin, limanı menünün arkasında kalır.
    */
+  private framedDivan = -1
   private static readonly HUD_TOP = 0.13
   private static readonly HUD_BOTTOM = 0.15
 
   /**
-   * KASABA kutusu: city slotları, bina silüetlerinin taşmasıyla. Ikariam'daki
+   * KASABA kutusu: açık city slotları, bina silüetlerinin taşmasıyla. Ikariam'daki
    * gibi varsayılan görünüm bütün şehri tek ekranda gösterir; liman hemen
    * altta görünür, çapa düğmesi (focusHarbour) ona yakınlaşır.
    */
   private townRect() {
-    const pts = CITY_SLOTS.map(s => s.screen)
-    const xs = pts.map(p => p.x), ys = pts.map(p => p.y)
-    const padX = FOOTPRINT_DIAMOND_W * 0.62
-    const padTop = TILE.h * 5 // en üst sıradaki binaların çatı/kubbe payı
-    const padBottom = TILE.h * 1.5
-    const x = Math.min(...xs) - padX, y = Math.min(...ys) - padTop
-    return { x, y, w: Math.max(...xs) + padX - x, h: Math.max(...ys) + padBottom - y }
+    // Yalnızca AÇIK arsalar: şehir büyüdükçe kadraj da genişler (Ikariam gibi).
+    const open = new Set(this.openSlotIds(this.state))
+    const openCity = CITY_SLOTS.filter(s => open.has(s.id))
+    const box = (slots: typeof CITY_SLOTS) => {
+      const xs = slots.map(s => s.screen.x), ys = slots.map(s => s.screen.y)
+      const padX = FOOTPRINT_DIAMOND_W * 0.62
+      const padTop = TILE.h * 5 // en üst sıradaki binaların çatı/kubbe payı
+      const padBottom = TILE.h * 1.5
+      const x = Math.min(...xs) - padX, y = Math.min(...ys) - padTop
+      return { x, y, w: Math.max(...xs) + padX - x, h: Math.max(...ys) + padBottom - y }
+    }
+    const full = box(CITY_SLOTS)
+    if (openCity.length < 3) return full
+    // Küçük kasabada bile fazla yakın olmasın: tam şehrin en az ~%90 genişliği kadrajda.
+    const t = box(openCity)
+    const w = Math.max(t.w, full.w * 0.9), h = Math.max(t.h, full.h * 0.7)
+    return { x: t.x + t.w / 2 - w / 2, y: t.y + t.h / 2 - h / 2, w, h }
   }
 
   /** Dünyayı KAPLAYAN en uzak zoom: dünyanın dışındaki boşluk hiç görünmez. */
@@ -316,6 +327,10 @@ export class CityScene extends Phaser.Scene {
   sync(game: Game, showLabels: boolean, placing: boolean, moving: BuildingId | null = null, movePlot: number | null = null) {
     this.state = game
     if (!this.built) return
+    if (game.buildings.divan !== this.framedDivan) { // yeni arsalar açıldı: "şehir" kadrajı büyür
+      this.framedDivan = game.buildings.divan
+      this.cityZoom = Math.max(this.townZoom(), this.minZoom)
+    }
     this.terrainRoads?.updateRoads(game.buildings.divan, this.openSlotIds(game, moving, movePlot))
     this.syncWalkers()
     const next = `${visualSignature(game)}|${showLabels}|${placing}|${moving ?? '-'}|${movePlot ?? '-'}`
