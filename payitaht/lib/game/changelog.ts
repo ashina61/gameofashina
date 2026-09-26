@@ -6,6 +6,14 @@ export type Release = { version: string; date: string; title: string; notes: str
 
 export const CHANGELOG: Release[] = [
   {
+    version: '0.24.0', date: '26 Eylül 2026', title: 'Android deneme sürümü ve giriş ekranı',
+    notes: [
+      'Oyun artık Android uygulaması (APK) olarak da kurulabiliyor: tamamen çevrimdışı, kayıt telefonda durur; yeni sürüm eskisinin üstüne kurulur.',
+      'Giriş ekranı: kayıt varsa hükümdar, arma, başkent ve son oynama zamanıyla "Devam et"; ilk açılışta hükümdar adı, başkent adı, arma ve renk seçilerek yeni oyun.',
+      'Giriş ekranında "Nasıl oynanır" ve sürüm notları; ayarlardan giriş ekranına dönülebilir.',
+    ],
+  },
+  {
     version: '0.23.0', date: '26 Eylül 2026', title: 'Karagöz Perdesi ve Ikariam ekranları',
     notes: [
       'Karagöz Perdesi: Ikariam\'daki tiyatronun karşılığı gölge oyunu. Dram kereste ve taşı, Komedi lüks malı %10 artırır; Kültür gösterisi huzur, Tanrısal gösterim lütuf verir. Işıklı perdesi, sedirleri ve kandil dizileriyle yeni bina.',

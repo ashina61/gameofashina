@@ -15,7 +15,8 @@ export function usePwa() {
     const message = (event: MessageEvent) => { if (event.data === 'OFFLINE_READY') setOfflineReady(true) }
     window.addEventListener('beforeinstallprompt', beforeInstall)
     window.addEventListener('appinstalled', onInstall)
-    if ('serviceWorker' in navigator && process.env.NODE_ENV === 'production') {
+    // Android paketinde (NEXT_PUBLIC_NATIVE=1) dosyalar zaten APK'nin içinde; önbellek işçisi gereksiz.
+    if ('serviceWorker' in navigator && process.env.NODE_ENV === 'production' && process.env.NEXT_PUBLIC_NATIVE !== '1') {
       navigator.serviceWorker.addEventListener('message', message)
       const scope = asset('/')
       const nextStatic = asset('/_next/static/')

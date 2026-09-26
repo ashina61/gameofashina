@@ -1,6 +1,6 @@
 'use client'
 
-import useSWR from 'swr'
+import useSWR, { mutate as mutateCache } from 'swr'
 import { execute, type Command, type UnitId } from '@/lib/game/engine'
 import { dispatchPiracy, dispatchRaid, dispatchSpies } from '@/lib/game/expeditions'
 import {
@@ -33,6 +33,25 @@ function load(): Empire {
   const empire = advanceEmpire(memory ?? initialEmpire(Date.now()), Date.now())
   save(empire)
   return empire
+}
+/**
+ * GİRİŞ EKRANI İÇİN: kaydı DEĞİŞTİRMEDEN okur. Kayıt yoksa `empire`
+ * boştur; bozuksa `error` dolar (oyun o kaydın üstüne yazmaz).
+ */
+export function peekSave(): { empire?: Empire; error?: string } {
+  try {
+    const raw = localStorage.getItem(SAVE_KEY)
+    return raw ? { empire: parseEmpire(raw) } : {}
+  } catch (error) {
+    return { error: error instanceof Error ? error.message : 'Kayıt okunamadı.' }
+  }
+}
+/** Giriş ekranındaki "Yeni oyun": eski kaydın yerine verilen imparatorluk. */
+export function startNewGame(empire: Empire) {
+  corrupt = false
+  warning = ''
+  save(empire)
+  void mutateCache(SAVE_KEY, empire, { revalidate: false })
 }
 export function useGame() {
   const { data, mutate } = useSWR<Empire>(SAVE_KEY, load, {

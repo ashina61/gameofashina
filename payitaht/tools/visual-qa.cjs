@@ -25,6 +25,12 @@ async function main() {
     })
     const origin = process.env.VISUAL_QA_URL || 'http://127.0.0.1:4173/gameofashina/'
     await page.goto(origin, { waitUntil: 'domcontentloaded', timeout: 60_000 })
+    // Giriş ekranı: ilk açılışta yeni oyun formu, kayıt varsa "Devam et".
+    const title = path.join(out, 'title-390x844.png')
+    await page.getByRole('button', { name: /Hikâyeye başla|Devam et/ }).waitFor({ timeout: 45_000 })
+    await page.screenshot({ path: title, animations: 'disabled' })
+    diagnostics.screenshots.push(path.basename(title))
+    await page.getByRole('button', { name: /Hikâyeye başla|Devam et/ }).click()
     await page.waitForFunction(() => {
       const canvas = document.querySelector('canvas')
       return canvas && canvas.width > 0 && canvas.height > 0 && canvas.clientWidth > 0

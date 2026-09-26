@@ -1,0 +1,104 @@
+# Payitaht Adaları'nın Android deneme APK'sini derler.
+#
+# NEDEN BURADA: oyun tamamen istemcide çalışan statik bir site; Capacitor onu
+# bir Android WebView'ına gömer. Android SDK GitHub'ın Ubuntu makinelerinde
+# hazır gelir, bu yüzden APK burada derlenir.
+#
+# ÇIKTI: her derlemede APK iki yere konur:
+#   1. Bu çalıştırmanın "Artifacts" bölümü (payitaht-adalari-apk).
+#   2. "apk-latest" adlı ön sürüm (Releases) - telefondan doğrudan indirilir.
+#
+# Sunucu yok, hesap yok: kayıt telefonun kendisinde durur. APK her seferinde
+# aynı deneme anahtarıyla imzalanır, yeni sürüm eskisinin üstüne kurulur.
+name: Android APK
+
+on:
+  push:
+    branches: [main, claude/ancient-city-phaser-game-r9e0qu]
+    paths:
+      - 'payitaht/**'
+      - '.github/workflows/android.yml'
+  workflow_dispatch:
+
+# Ön sürümü (apk-latest) güncellemek için yazma izni gerekir.
+permissions:
+  contents: write
+
+concurrency:
+  group: android-apk-${{ github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    working-directory: payitaht
+
+jobs:
+  apk:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: pnpm kur
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+          run_install: false
+
+      - name: Bağımlılıklar
+        run: pnpm install --frozen-lockfile
+
+      # Kök adreste (https://localhost/) çalışacak statik site; önbellek
+      # işçisi kapalı (NEXT_PUBLIC_NATIVE=1), dosyalar zaten APK'nin içinde.
+      - name: Oyunu derle (statik export)
+        env:
+          STATIC_EXPORT: '1'
+          NEXT_PUBLIC_NATIVE: '1'
+        run: pnpm build
+
+      - name: Web dosyalarını Android projesine kopyala
+        run: pnpm exec cap sync android
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - uses: android-actions/setup-android@v3
+
+      - name: APK derle
+        working-directory: payitaht/android
+        run: |
+          chmod +x gradlew
+          ./gradlew assembleDebug --no-daemon --stacktrace
+
+      - name: APK'yi adlandır
+        id: apk
+        run: |
+          version=$(grep -m1 -oP "version: '\K[0-9.]+" lib/game/changelog.ts)
+          name="payitaht-adalari-${version}.apk"
+          cp android/app/build/outputs/apk/debug/app-debug.apk "$name"
+          echo "name=$name" >> "$GITHUB_OUTPUT"
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: payitaht-adalari-apk
+          path: payitaht/${{ steps.apk.outputs.name }}
+          if-no-files-found: error
+
+      # Telefondan tek dokunuşla indirilecek sabit adres: Releases → apk-latest.
+      - name: Ön sürümü güncelle (apk-latest)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release delete apk-latest --cleanup-tag --yes || true
+          gh release create apk-latest "${{ steps.apk.outputs.name }}" \
+            --prerelease \
+            --target "$GITHUB_SHA" \
+            --title "Payitaht Adaları ${{ steps.apk.outputs.version }} (Android deneme)" \
+            --notes "Çevrimdışı deneme sürümü. APK'yi telefona indirip kur; 'bilinmeyen kaynaklardan yükleme' izni istenebilir. Kayıt telefonda durur; yeni sürüm eskisinin üstüne kurulur. Diğer hükümdarlar yapay rakiptir. Derleme: ${GITHUB_SHA::7}"
