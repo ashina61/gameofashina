@@ -145,7 +145,7 @@ export function playerScore(empire: Empire): Score {
     research = Math.max(research, c.game.research.length)
   }
   const science = research * 100
-  return { name: activeCity(empire).name, ruler: 'Sen', you: true, total: buildings * 100 + science + military + Math.round(gold / 10), military, science, gold, buildings }
+  return { name: activeCity(empire).name, ruler: empire.profile?.ruler ?? 'Sen', you: true, total: buildings * 100 + science + military + Math.round(gold / 10), military, science, gold, buildings }
 }
 export function rankings(empire: Empire, now: number, key: 'total' | 'military' | 'science' | 'gold' = 'total') {
   return [playerScore(empire), ...RIVALS.map(r => rivalScore(empire, r, now))].sort((a, b) => b[key] - a[key])

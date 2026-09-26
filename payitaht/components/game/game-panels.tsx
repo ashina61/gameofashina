@@ -15,6 +15,7 @@ import { Eye } from 'lucide-react'
 import { DRILL_QUEUE_LIMIT, garrisonLimit, garrisonUsed, spyCapacity, growthRate, maxPopulation, PLOTS, zoneOf } from '@/lib/game/engine'
 import { BATTLE_STATS, SLOT_SIZE, fieldSize } from '@/lib/game/battle'
 import { UnitFigure } from './unit-art'
+import { ResearchEmblem } from './research-art'
 
 export function BuildingDetails({ game, id, onBuild, onFlip, onMove }: { game: Game; id: BuildingId; onBuild: (id: BuildingId) => void; onFlip: (id: BuildingId) => void; onMove: (id: BuildingId) => void }) {
   const b = BUILDINGS[id], level = game.buildings[id], reason = buildReason(game, id)
@@ -39,10 +40,6 @@ export function BuildingDetails({ game, id, onBuild, onFlip, onMove }: { game: G
 export function BuildingList({ game, onSelect }: { game: Game; onSelect: (id: BuildingId) => void }) {
   return <div className="building-list">{BUILDING_IDS.map(id => <button key={id} className="building-list-item" onClick={() => onSelect(id)}>{BUILDINGS[id].art ? <img src={buildingImage(id, game.buildings[id])} alt="" width={88} height={88} /> : <span className="list-pending"><Hammer aria-hidden="true" /></span>}<span><span className="eyebrow">{BUILDINGS[id].category}</span><strong>{BUILDINGS[id].name}</strong><span>{game.buildings[id] ? `Seviye ${game.buildings[id]}${game.buildings[id] >= MAX_LEVEL[id] ? ' · Tamamlandı' : ' · Geliştirilebilir'}` : 'Boş arsa · Yeni yapı'}</span></span><ChevronRight className="size-4" /></button>)}</div>
 }
-const researchIcons: Partial<Record<ResearchId, typeof TreePine>> = {
-  tools: TreePine, storage: Warehouse, ticaret: Coins, architecture: Ruler,
-  alimler: FlaskConical, celik: Swords, istihkam: ShieldCheck, pusula: Compass, yelken: Ship,
-}
 export function ResearchPanel({ game, onResearch }: { game: Game; onResearch: (id: ResearchId) => void }) {
   const [focus, setFocus] = useState<ResearchBranch | 'all'>('all')
   const scientists = scientistCount(game)
@@ -66,8 +63,9 @@ export function ResearchPanel({ game, onResearch }: { game: Game; onResearch: (i
     return <section className="research-branch" key={branch.key}>
       <div className="research-branch-top"><h3>{branch.title}</h3><span>{doneCount}/{ids.length}</span></div>
       {ids.map(id => {
-        const r = RESEARCH[id], reason = researchReason(game, id), done = game.research.includes(id), Icon = researchIcons[id] ?? BookOpen
-        return <article className="research-card" key={id}><div className="research-card-top"><span className="research-icon"><Icon /></span><span><h3>{r.name}</h3></span>{done && <Check className="size-5" />}</div><p>{r.description}</p><div className="research-bottom"><CostDisplay value={{ knowledge: r.cost }} /><span><Clock3 className="size-3" /> {r.duration} sn</span><Button size="sm" variant={done ? 'secondary' : 'default'} disabled={!!reason} onClick={() => onResearch(id)}>{done ? 'Keşfedildi' : game.study?.id === id ? 'Sürüyor' : 'Araştır'}</Button></div>{reason && !done && <p className="fine-print">{reason}</p>}</article>
+        const r = RESEARCH[id], reason = researchReason(game, id), done = game.research.includes(id)
+        const state = done ? 'done' : game.study?.id === id ? 'active' : reason && /gerekli|Önce/.test(reason) ? 'locked' : 'open'
+        return <article className={`research-card is-${state}`} key={id}><div className="research-card-top"><ResearchEmblem id={id} size={56} state={state} /><span><h3>{r.name}</h3></span>{done && <Check className="size-5" />}</div><p>{r.description}</p><div className="research-bottom"><CostDisplay value={{ knowledge: r.cost }} /><span><Clock3 className="size-3" /> {r.duration} sn</span><Button size="sm" variant={done ? 'secondary' : 'default'} disabled={!!reason} onClick={() => onResearch(id)}>{done ? 'Keşfedildi' : game.study?.id === id ? 'Sürüyor' : 'Araştır'}</Button></div>{reason && !done && <p className="fine-print">{reason}</p>}</article>
       })}
     </section>
   })}</div>

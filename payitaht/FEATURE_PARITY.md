@@ -2,7 +2,7 @@
 
 Ikariam'ın oyun sistemleri Payitaht evrenine (Osmanlı-Akdeniz) uyarlanır. Ikariam'ın
 görselleri, metinleri ve birebir sayıları kopyalanmaz; sistemler ve oyun döngüsü
-eşlenir. Durum: ✅ var · 🟡 kısmen · ❌ yok. (Güncelleme: 2026-09-25, paket 4)
+eşlenir. Durum: ✅ var · 🟡 kısmen · ❌ yok. (Güncelleme: 2026-09-26, sürüm 0.17.0)
 
 ## Kaynaklar ve ekonomi
 
@@ -108,6 +108,8 @@ eşlenir. Durum: ✅ var · 🟡 kısmen · ❌ yok. (Güncelleme: 2026-09-25, p
 | Diplomasi (kültür anlaşması vb.) | Kültür, ticaret, barış anlaşmaları; hediye; ilişki puanı | ✅ yapay rakiplerle |
 | İttifak | Doğu / Batı Birliği: üyelik, baskında yardım | ✅ yapay rakiplerle |
 | Mesajlar | Mektuplaşma (selam, tehdit, haraç), gelen kutusu | ✅ yapay rakiplerle |
+| Oyuncu profili | Hükümdar profili: ad, unvan (Bey → Sultan), arma, düstur, puan ve sıralama, şehirler, istatistikler, başarımlar | ✅ |
+| Sürüm notları | Profilin ve ayarların dibinde sürüm numarası; 0.1.0'dan bugüne bütün sürümler | ✅ |
 | Gerçek insan oyuncular | — (çevrimiçi sunucu gerekir) | ❌ |
 | Ada ormanı (ortak kereste ocağı) | Ada ormanı: oduncular + kereste bağışıyla 25 seviye | ✅ |
 

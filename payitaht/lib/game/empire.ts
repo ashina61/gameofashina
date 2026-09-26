@@ -1,3 +1,4 @@
+import { parseProfile, type Profile } from './profile'
 import {
   advance, actionPoints, capacity, logEvent, cargoCapacity, initialGame, parseSave, tradeCapacity, travelFactor, loadingSpeed,
   LUXURY_IDS, LUXURY_NAMES, RESOURCE_IDS, RESOURCE_NAMES, type Game, type Luxury, type Resource,
@@ -50,6 +51,8 @@ export type Empire = {
   daily?: Daily
   /** Yapay rakip hükümdarlar, ittifak, mesajlar, pazar. */
   world?: World
+  /** Hükümdar profili: ad, arma, düstur. */
+  profile?: Profile
 }
 
 export function initialEmpire(now: number): Empire {
@@ -115,9 +118,11 @@ export function parseEmpire(raw: string): Empire {
   if (st !== undefined && !(['raids', 'spies', 'piracy', 'shipments'] as const).every(k => finite(st?.[k]))) throw new Error('Sayaç kaydı okunamadı.')
   const daily = parseDaily(obj.daily)
   const worldState = parseWorld(obj.world, ids)
+  const profile = parseProfile(obj.profile)
   return {
     version: 1, activeCityId: obj.activeCityId, cities, shipments, nextId: obj.nextId, ...extra,
     ...(st ? { stats: { ...st } } : {}), ...(daily ? { daily } : {}), ...(worldState ? { world: worldState } : {}),
+    ...(profile ? { profile } : {}),
   }
 }
 

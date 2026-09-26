@@ -18,6 +18,8 @@ import { activeCity, islandOf, type Empire } from '@/lib/game/empire'
 import { actionsInUse } from '@/lib/game/expeditions'
 import { luxuryIcons } from './game-widgets'
 import { AdvisorPortrait, type AdvisorId } from './advisor-portraits'
+import { RulerCrest } from './profile-panel'
+import { profileOf } from '@/lib/game/profile'
 
 export function compact(n: number) {
   const v = Math.floor(n)
@@ -48,10 +50,11 @@ export function advisorNews(game: Game, empire: Empire | undefined, seen: Adviso
   }
 }
 
-export function IkaTopBar({ game, empire, news, onCity, onEconomy, onAdvisor }: {
+export function IkaTopBar({ game, empire, news, onCity, onEconomy, onAdvisor, onProfile }: {
   game: Game; empire: Empire | undefined; news: Record<AdvisorId, number>
-  onCity: () => void; onEconomy: () => void; onAdvisor: (id: AdvisorId) => void
+  onCity: () => void; onEconomy: () => void; onAdvisor: (id: AdvisorId) => void; onProfile: () => void
 }) {
+  const prof = empire ? profileOf(empire) : null
   const city = empire ? activeCity(empire) : null
   const island = city ? islandOf(city) : null
   const r = rates(game)
@@ -69,6 +72,10 @@ export function IkaTopBar({ game, empire, news, onCity, onEconomy, onAdvisor }: 
   ]
   return <header className="ika-top">
     <div className="ika-ribbon">
+      {prof && <button type="button" className="ika-crest" onClick={onProfile} aria-label={`Hükümdar profili: ${prof.ruler}`}>
+        <RulerCrest crest={prof.crest} color={prof.color} size={40} />
+        <span className="ika-crest-level" title="Divanhane seviyesi">{game.buildings.divan}</span>
+      </button>}
       <button type="button" className="ika-city" onClick={onCity} aria-label={`Şehir: ${city?.name ?? ''}. Şehirlerini aç`}>
         <span className="ika-city-level">{game.buildings.divan}</span>
         <span className="ika-city-name"><strong>{city?.name ?? 'Sahilhisar'}</strong><small>{island?.name}</small></span>

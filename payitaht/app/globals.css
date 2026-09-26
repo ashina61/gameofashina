@@ -272,7 +272,7 @@
 .research-intro p { color: var(--muted-foreground); font-size: 10px; margin-top: 4px; }
 .research-card { border: 1px solid var(--border); border-radius: 7px; padding: 16px; background: #d1b17105; }
 .research-card-top { display: flex; align-items: center; gap: 12px; }
-.research-card-top > svg { margin-left: auto; color: var(--green); }
+.research-card-top > svg:not(.research-emblem) { margin-left: auto; color: var(--green); }
 .research-icon { width: 40px; height: 44px; display: grid; place-items: center; border: 1px solid var(--border); border-radius: 22px 22px 3px 3px; color: var(--gold); }
 .research-icon svg { width: 21px; height: 21px; stroke-width: 1.3; }
 .research-card h3 { font-family: var(--font-heading), Georgia, serif; font-size: 24px; font-weight: 500; line-height: 1.1; margin-top: 4px; }
@@ -1121,3 +1121,72 @@
 .intel-block { display: grid; gap: 2px; }
 .intel-block + .intel-block { margin-top: 8px; padding-top: 8px; border-top: 1px solid #e2cf9c; }
 .island-mission.island-fight { background: #b3261e; color: #fff; }
+
+/* Araştırma amblemleri */
+.research-emblem { flex: none; filter: drop-shadow(0 2px 2px #3a24104d); }
+.research-emblem.is-locked { filter: grayscale(0.85) opacity(0.6); }
+.research-emblem.is-active { animation: emblem-glow 2.2s ease-in-out infinite; }
+@keyframes emblem-glow { 50% { filter: drop-shadow(0 0 6px #e2bd78); } }
+@media (prefers-reduced-motion: reduce) { .research-emblem.is-active { animation: none; } }
+.research-card.is-done { background: #e8f0d8; }
+.research-card.is-locked h3 { opacity: 0.7; }
+
+/* Hükümdar profili */
+.ika-crest { flex: none; display: grid; place-items: center; width: 44px; height: 48px; padding: 0; border: 0; background: none; cursor: pointer; filter: drop-shadow(0 2px 2px #0006); }
+.ika-crest:focus-visible { outline: 2px solid #e2bd78; outline-offset: 2px; border-radius: 8px; }
+.profile-head { display: grid; grid-template-columns: auto 1fr auto; gap: 12px; align-items: center; padding: 14px; border: 1px solid #dcc38e; border-radius: 12px; background: linear-gradient(#fbf2d6, #f1e0b4); }
+.profile-id { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.profile-id strong { font-family: var(--font-heading), Georgia, serif; font-size: 26px; line-height: 1.1; color: #3a2410; overflow-wrap: anywhere; }
+.profile-id q { font-style: italic; font-size: 13px; color: #6a4a22; }
+.profile-id small { font-size: 12px; color: #7a5a32; }
+.profile-edit { display: grid; gap: 6px; }
+.profile-edit label, .profile-label { font-size: 12px; font-weight: 600; color: #6a4a22; margin-top: 4px; }
+.crest-picker, .color-picker { display: flex; flex-wrap: wrap; gap: 6px; }
+.crest-picker button { padding: 2px; border: 2px solid transparent; border-radius: 10px; background: #fbf2d6; }
+.crest-picker button[aria-checked="true"] { border-color: #8a5a22; }
+.color-picker button { width: 30px; height: 30px; border-radius: 50%; border: 3px solid #fbf2d6; box-shadow: 0 0 0 1px #8a5a22; }
+.color-picker button[aria-checked="true"] { box-shadow: 0 0 0 3px #8a5a22; }
+.title-track { height: 10px; border-radius: 5px; background: #e6d3a6; overflow: hidden; }
+.title-track span { display: block; height: 100%; background: linear-gradient(90deg, #b58a3a, #e2bd78); }
+.profile-tiles { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.profile-tiles > div { display: flex; flex-direction: column; gap: 2px; padding: 10px; border: 1px solid #e2cf9c; border-radius: 10px; background: #fbf2d6; }
+.profile-tiles small { font-size: 11px; color: #7a5a32; text-transform: uppercase; letter-spacing: 0.06em; }
+.profile-tiles strong { font-family: var(--font-heading), Georgia, serif; font-size: 22px; color: #3a2410; font-variant-numeric: tabular-nums; }
+.profile-tiles span { font-size: 12px; color: #8a5a22; font-weight: 600; }
+.profile-city { display: flex; flex-direction: column; gap: 2px; width: 100%; text-align: left; padding: 10px 12px; border: 1px solid #e2cf9c; border-radius: 10px; background: #fbf2d6; color: inherit; font: inherit; }
+.profile-city + .profile-city { margin-top: 6px; }
+.profile-city strong { font-size: 14px; }
+.profile-city small { font-size: 12px; color: #7a5a32; }
+.profile-stats { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px 14px; margin: 0; }
+.profile-stats > div { display: flex; justify-content: space-between; gap: 8px; padding: 4px 0; border-bottom: 1px dotted #d8c39a; font-size: 13px; }
+.profile-stats dt { color: #6a4a22; }
+.profile-stats dd { margin: 0; font-weight: 700; font-variant-numeric: tabular-nums; }
+.achievements { display: grid; gap: 8px; }
+.achievement { display: grid; grid-template-columns: 30px 1fr; gap: 8px; align-items: start; padding: 8px 10px; border: 1px solid #e2cf9c; border-radius: 10px; background: #fbf2d6; }
+.achievement > span:last-child { display: flex; flex-direction: column; gap: 3px; }
+.achievement strong { font-size: 14px; }
+.achievement small { font-size: 11px; color: #7a5a32; font-variant-numeric: tabular-nums; }
+.achievement-medal { font-size: 24px; line-height: 1; color: #b9a67e; }
+.achievement.is-done { background: #f6e3a8; border-color: #c9a24e; }
+.achievement.is-done .achievement-medal { color: #b8872e; }
+.achievement-bar { height: 6px; border-radius: 3px; background: #e6d3a6; overflow: hidden; }
+.achievement-bar i { display: block; height: 100%; background: #8a5a22; }
+.achievement.is-done .achievement-bar i { background: #2f6b4c; }
+.profile-foot { display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 8px 0 4px; }
+.version-link { display: block; margin: 12px auto 0; padding: 4px 8px; border: 0; background: none; font-size: 11px; color: #9a8662; text-decoration: underline dotted; cursor: pointer; }
+.version-link:hover, .version-link:focus-visible { color: #6a4a22; }
+
+/* Sürüm notları */
+.changelog { display: grid; gap: 10px; }
+.release { padding: 12px 14px; border: 1px solid #e2cf9c; border-radius: 10px; background: #fbf2d6; }
+.release:first-of-type { border-color: #c9a24e; background: #f8ebc4; }
+.release-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 10px; }
+.release-version { font-family: ui-monospace, monospace; font-size: 12px; padding: 1px 6px; border-radius: 6px; background: #3a2410; color: #f6ecd6; }
+.release-head strong { font-family: var(--font-heading), Georgia, serif; font-size: 18px; color: #3a2410; }
+.release-head em { font-style: normal; font-size: 11px; font-weight: 700; padding: 1px 6px; border-radius: 6px; background: #2f6b4c; color: #fff; }
+.release-head time { margin-left: auto; font-size: 11px; color: #7a5a32; }
+.release ul { margin: 8px 0 0; padding-left: 18px; display: grid; gap: 4px; font-size: 13px; line-height: 1.45; color: #4a3218; }
+.ika-crest { position: relative; }
+.ika-crest + .ika-city .ika-city-level { display: none; }
+.ika-crest-level { position: absolute; right: -4px; bottom: -2px; min-width: 20px; height: 20px; padding: 0 4px; display: grid; place-items: center; border-radius: 10px;
+  background: #5a3517; border: 2px solid #e2bd78; font-family: var(--font-heading), Georgia, serif; font-weight: 800; font-size: 12px; color: #fbe9bb; }
