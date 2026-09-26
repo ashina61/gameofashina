@@ -68,7 +68,11 @@ jobs:
           distribution: temurin
           java-version: '21'
 
+      # Varsayılan paket listesi artık bulunmayan 'tools' paketini ister;
+      # derlemenin gerçekten kullandığı paketler açıkça verilir.
       - uses: android-actions/setup-android@v3
+        with:
+          packages: 'platform-tools platforms;android-36 build-tools;36.0.0'
 
       - name: APK derle
         working-directory: payitaht/android
