@@ -6,6 +6,19 @@ export type Release = { version: string; date: string; title: string; notes: str
 
 export const CHANGELOG: Release[] = [
   {
+    version: '0.22.0', date: '26 Eylül 2026', title: 'Savaş ilanı, kuşatma ve ortak filo',
+    notes: [
+      'Düşman ya da savaşçı hükümdarlar artık kendiliğinden savaş ilan eder: iki saat önceden mektup gelir; şehri yağmalamaya, işgal etmeye ya da limanı abluka etmeye gelirler.',
+      'İşgal edilen şehirden ordu, casus ve nakliye çıkamaz; ablukada deniz yolu kapanır. Her saat haraç alınır; Ordu panelinden şehri kurtarır ya da ablukayı kırarsın, barış kuşatmayı kaldırır.',
+      'Yakalanmayan düşman casusları şehirde kalır ve saldırıyı kolaylaştırır; Gizli Sığınak onları gösterir ve kovar. Yeni casus görevi: hükümdarın araştırmalarını incele.',
+      'Ticaret gemileri Ikariam gibi Ticaret Limanı\'ndan satın alınır, fiyatı her gemiyle artar; bütün şehirler ortak filoyu kullanır.',
+      'Birliklerin lüks bedeli: barutlu ve ağır birlikler kükürt, Aşçı üzüm, Hekim kristal ister.',
+      'Koloniyi terk edebilir, Sarayı başka şehre taşıyıp başkenti değiştirebilirsin.',
+      'İmparatorluk özeti: bütün şehirlerin kaynakları, binaları ve ordusu tek tabloda (Vezir sayfası).',
+      'Raporlar silinebilir ve arşivlenebilir; uzun savaşların kaydı artık okunamaz hâle gelmez.',
+    ],
+  },
+  {
     version: '0.21.0', date: '26 Eylül 2026', title: 'Daha oyunsu arayüz',
     notes: [
       'Kaynaklar resimlendi: akçe sikkeleri, kereste kütükleri, kesme taş, ilim kandili, üzüm salkımı, mermer, kristal ve kükürt her yerde kendi resmiyle görünür.',

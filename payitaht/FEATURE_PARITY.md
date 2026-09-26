@@ -2,14 +2,14 @@
 
 Ikariam'ın oyun sistemleri Payitaht evrenine (Osmanlı-Akdeniz) uyarlanır. Ikariam'ın
 görselleri, metinleri ve birebir sayıları kopyalanmaz; sistemler ve oyun döngüsü
-eşlenir. Durum: ✅ var · 🟡 kısmen · ❌ yok. (Güncelleme: 2026-09-26, sürüm 0.19.0)
+eşlenir. Durum: ✅ var · 🟡 kısmen · ❌ yok. (Güncelleme: 2026-09-26, sürüm 0.22.0)
 
 ## Kaynaklar ve ekonomi
 
 | Ikariam | Payitaht | Durum |
 |---|---|---|
 | Altın, vergi | Akçe (Konaklar vergisi, Çarşı esnafı) | ✅ |
-| Odun (ada kereste ocağı) | Kereste Ocağı (şehir içinde) + Taş | 🟡 ada ortak kereste ocağı yok |
+| Odun (ada kereste ocağı) | Ada ormanı (oduncular, kereste bağışıyla 25 seviye) + şehirdeki Kereste Ocağı ve Taş | ✅ |
 | Şarap / Mermer / Kristal / Kükürt | Üzüm / Mermer / Kristal / Kükürt, ada madeni | ✅ |
 | Araştırma puanı, bilim adamı | İlim, Medrese âlimleri (bakım gideri) | ✅ |
 | Vatandaş, işçi atama | Nüfus, Halk paneli, maden işçileri; Ikariam gibi resimli halk ↔ işçi kaydırıcısı, çekerken üretim önizlemesi | ✅ |
@@ -21,6 +21,9 @@ eşlenir. Durum: ✅ var · 🟡 kısmen · ❌ yok. (Güncelleme: 2026-09-26, s
 | Depo/Çöplük | Depo (+2.500 saklama/sv) | ✅ |
 | Meyhane ikram seviyesi | Kahvehane ikram ayarı | ✅ |
 | Bina yıkma, şehir adı | Bina resmindeki Yık düğmesi: bir seviye ya da tamamen yıkım; şehir adını değiştirme | ✅ |
+| Koloniyi terk etme, başkenti taşıma | Şehri terk et (gemiler filoda kalır); Sarayı başka şehre taşı (günde bir) | ✅ |
+| Genel bakış (bütün şehirler) | İmparatorluk özeti: kaynak/üretim, bina ve ordu tabloları | ✅ |
+| Rapor arşivi | Rapor silme, arşivleme (10 rapor), arşivlenmemişleri temizleme | ✅ |
 | Günlük görevler, giriş ödülü | 3 günlük görev + 7 günlük giriş serisi | ✅ |
 | Liman yükleme hızı | Nakliye süresine yükleme eklenir, liman seviyesiyle hızlanır | ✅ |
 
@@ -69,7 +72,7 @@ eşlenir. Durum: ✅ var · 🟡 kısmen · ❌ yok. (Güncelleme: 2026-09-26, s
 | Çarklı hızlı tekne (hava savunması), Destek gemisi, Roket gemisi | Karamürsel (hava savunması), İkmal Gemisi, Humbara Gemisi | ✅ dönem karşılığı |
 | Balista gemisi, Dalgıç gemisi, Buharlı koç, Balon gemisi | Zenberek Gemisi, Dalgıç Gemisi (vurulması zor), Buharlı Koç, Balon Gemisi | ✅ |
 | Koç gemisi, Ateş gemisi, Mancınık gemisi | Kadırga, Ateş Gemisi, Mancınık Gemisi, Kalyon | ✅ |
-| Nakliye gemisi | Nakliye | ✅ |
+| Ticaret gemileri (ortak filo, limandan satın alma) | Ticaret Limanı'ndan her biri öncekinden pahalı gemi; bütün şehirler ortak filoyu kullanır | ✅ |
 | Casus | Casus | ✅ |
 | Savaş alanı (satırlar, turlar, sur, moral) | Yuvalı meydan (ön cephe, kanat, menzil, kuşatma, hava, hava savunması), Divanhane ile büyür; yedek birlikler | ✅ |
 | Gerçek zamanlı turlar, takviye, geri çekilme | Dakikada bir tur, bir taraf dağılana ya da kaçana kadar; aynı şehirden takviye, eğitimi biten askerin savunmaya katılması, geri çekilme; tıkanan savaş biter | ✅ |
@@ -81,10 +84,14 @@ eşlenir. Durum: ✅ var · 🟡 kısmen · ❌ yok. (Güncelleme: 2026-09-26, s
 | Birlikleri kendi şehirlerin arasında taşıma | Birlik aktarma (nakliyeyle) | ✅ |
 | Müttefik şehre birlik ve filo konuşlandırma | Destek birliği şehri, filo limanı savunur (önce deniz, sonra kara savaşı) | ✅ yapay rakiplerle |
 | Casusluk görevleri (hedefte kalan casus) | Casus sızar ve kalır; hazine, garnizon, sur, liman, asker hareketleri görevleri; başarısızlıkta bir casus yakalanır | ✅ |
+| Araştırma casusluğu | Hükümdar şehrinde "Araştırmaları incele" görevi: dört daldaki ilerleme ve son öğrenilenler | ✅ |
+| Şehirdeki yabancı casuslar | Yakalanmayan düşman casusu şehirde kalır; Gizli Sığınak görür ve kovar (yarım saatte bir) | ✅ yapay rakiplerle |
 | Cephane, moral | Birim başına cephane (tükenince atış durur); moral kaybı, Şeref Kanunu, Aşçı, İkmal Gemisi | ✅ |
 | Deniz savaşı | Deniz aşırı seferde önce hedefin donanmasıyla savaş; eskortsuz çıkarma yapılamaz | ✅ |
 | Başka adaya sefer | Nakliye gemisiyle (40 asker/gemi) her adadaki yerleşime sefer ve casus | ✅ |
 | Şehre gelen saldırılar | Korsan baskınları: Divanhane 5'ten sonra, 15 dk önceden uyarı; donanma → sur + muhafız + ordu; ambarın %20'si korunur | ✅ |
+| Düşman oyuncunun saldırısı, işgal, abluka | Düşman ya da savaşçı hükümdarlar savaş ilan eder (2 saat önceden); şehri işgal eder ya da limanı abluka eder, saatlik haraç alır; şehirdeki ordu/filo ile kurtarma savaşı; barış kuşatmayı kaldırır | ✅ yapay rakiplerle |
+| Birliklerin lüks bedeli | Barutlu ve ağır birlikler kükürt, Aşçı üzüm, Hekim kristal ister | ✅ |
 
 ## Araştırma
 

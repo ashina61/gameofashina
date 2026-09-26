@@ -47,8 +47,8 @@ export function diploAdvice(e: Empire) {
   return 'Diplomasi yolunda. Pazardaki tekliflere göz atmayı unutmayın.'
 }
 
-export function CityAdvisor({ empire, game, onCity, onBuilding, onCities, onBuildList }: {
-  empire: Empire; game: Game; onCity: (id: string) => void; onBuilding: (id: BuildingId) => void; onCities: () => void; onBuildList: () => void
+export function CityAdvisor({ empire, game, onCity, onBuilding, onCities, onBuildList, onOverview }: {
+  empire: Empire; game: Game; onCity: (id: string) => void; onBuilding: (id: BuildingId) => void; onCities: () => void; onBuildList: () => void; onOverview: () => void
 }) {
   const current = activeCity(empire)
   return <>
@@ -68,6 +68,7 @@ export function CityAdvisor({ empire, game, onCity, onBuilding, onCities, onBuil
       <div className="batch-row">
         <Button size="sm" variant="outline" onClick={onCities}>Şehirler ve harita<ChevronRight data-icon="inline-end" /></Button>
         <Button size="sm" variant="outline" onClick={onBuildList}>Bütün yapılar<ChevronRight data-icon="inline-end" /></Button>
+        <Button size="sm" variant="outline" onClick={onOverview}>İmparatorluk özeti<ChevronRight data-icon="inline-end" /></Button>
       </div>
     </Box>
     <Box title="Üretim">
@@ -93,6 +94,6 @@ export function ArmyAdvisor({ empire, game, run, onArmy }: { empire: Empire; gam
     </Box>
     <DefenseSummary empire={empire} />
     <MissionList empire={empire} now={game.updatedAt} run={run} />
-    <Box title="Savaş ve casus raporları"><ReportsPanel empire={empire} /></Box>
+    <Box title="Savaş ve casus raporları"><ReportsPanel empire={empire} run={run} /></Box>
   </>
 }

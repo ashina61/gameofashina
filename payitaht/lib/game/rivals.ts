@@ -11,7 +11,7 @@
  * mesajlaşır. Hepsi deterministiktir: aynı kayıt aynı dünyayı üretir.
  */
 import {
-  BUILDING_IDS, LUXURY_IDS, UNITS, UNIT_IDS, capacity, cargoCapacity, logEvent, travelFactor,
+  BUILDING_IDS, LUXURY_IDS, UNITS, UNIT_IDS, capacity, cargoCapacity, counterSpy, logEvent, travelFactor,
   type Army, type Game, type Good, type UnitId,
 } from './engine'
 import { troopList, type Troops } from './battle'
@@ -58,7 +58,14 @@ export type Delivery = { id: string; cityId: string; good: Good; amount: number;
 export type World = {
   start: number; slot: number; alliance: FactionId | null; allianceAt: number
   rivals: Record<string, RivalState>; messages: Message[]; offers: Offer[]; deliveries: Delivery[]; traded: string[]
+  /** Şehirlerine sızmış yakalanmamış düşman casusları (Gizli Sığınak görür ve kovar). */
+  spies?: ForeignSpy[]
+  /** Şehir başına son kovma denemesi. */
+  expelAt?: Record<string, number>
 }
+export type ForeignSpy = { id: string; rivalId: string; cityId: string; since: number }
+export const MAX_FOREIGN_SPIES = 3
+export const EXPEL_COOLDOWN_MS = 30 * 60_000
 
 const HOUR = 3600_000
 const clamp = (n: number, a: number, b: number) => Math.max(a, Math.min(b, n))
@@ -211,6 +218,12 @@ export function proposeTreaty(source: Empire, rivalId: string, kind: TreatyId, n
   relate(empire, rivalId, 5)
   mail(empire, now, r.ruler, `${TREATIES[kind].name}: kabul`, `${TREATIES[kind].description} Hayırlı olsun.`, rivalId)
   logEvent(g, `${r.ruler} ile ${TREATIES[kind].name.toLocaleLowerCase('tr')} imzalandı.`, now)
+  if (kind === 'baris') {
+    // Barış: yoldaki orduları döner, kuşatmaları kalkar.
+    empire.threats = (empire.threats ?? []).filter(t => t.npcId !== rivalId || !!t.battle)
+    empire.sieges = (empire.sieges ?? []).filter(x => x.rivalId !== rivalId)
+    if (!empire.sieges.length) delete empire.sieges
+  }
   return { empire }
 }
 export function cancelTreaty(source: Empire, rivalId: string, kind: TreatyId, now: number): { empire: Empire; error?: string } {
@@ -348,6 +361,75 @@ function revenge(empire: Empire, r: Rival, city: CityRecord, at: number) {
   empire.threats = [...(empire.threats ?? []), { id: `revenge-${r.id}-${at}`, cityId: city.id, npcId: r.id, level: L, arriveAt, troops, fleet }]
   mail(empire, at, r.ruler, 'İntikam', `${city.name} bunun hesabını verecek. Ordumuz yola çıkıyor.`, r.id)
 }
+/**
+ * SAVAŞ İLANI (Ikariam'da düşman oyuncunun saldırısı): düşman ya da savaşçı
+ * huylu hükümdarlar kendiliğinden saldırır. Niyet huya ve ilişkiye göre:
+ * denizci limanı abluka eder, savaşçı ya da kin güden şehri işgal eder,
+ * diğerleri yağmalar. Şehirde casusu varsa ordusu daha iyi hazırlanır.
+ */
+export function declareWar(empire: Empire, r: Rival, city: CityRecord, at: number, intent: 'raid' | 'occupy' | 'blockade') {
+  const L = rivalLevel(empire, r, at)
+  const spy = (world(empire).spies ?? []).some(x => x.rivalId === r.id && x.cityId === city.id)
+  const k = (intent === 'raid' ? 0.6 : 0.75) * (spy ? 1.15 : 1)
+  const g = rivalGarrison(L, r.style)
+  const troops: Troops = {}
+  if (intent !== 'blockade') for (const id of UNIT_IDS) if (g[id] && UNITS[id].role !== 'support') troops[id] = Math.ceil(g[id] * k)
+  const overseas = r.islandId !== city.islandId
+  const fleet = overseas || intent === 'blockade'
+    ? Object.fromEntries(Object.entries(rivalFleet(L, r.style)).map(([id, n]) => [id, Math.ceil((n ?? 0) * k)])) as Troops : {}
+  const arriveAt = at + 2 * HOUR
+  empire.threats = [...(empire.threats ?? []), { id: `war-${r.id}-${at}`, cityId: city.id, npcId: r.id, level: L, arriveAt, troops, fleet, intent }]
+  const aim = intent === 'occupy' ? 'şehrinizi işgal etmek' : intent === 'blockade' ? 'limanınızı abluka etmek' : 'hazinenizi yağmalamak'
+  mail(empire, at, r.ruler, 'Savaş ilanı', `${city.name} üzerine yürüyoruz; niyetimiz ${aim}. Ordumuz iki saate kapınızda.${spy ? ' Casuslarımız surlarınızı iyi tanıyor.' : ''}`, r.id)
+  logEvent(city.game, `${r.ruler} savaş ilan etti! Ordusu iki saate ${city.name} kapısında (${aim.split(' ').pop()}).`, at)
+}
+/** Saatlik dünya olayı: düşman bir hükümdar savaş ilan eder mi? */
+function considerWar(empire: Empire, at: number, s: number) {
+  if ((empire.threats ?? []).some(t => rivalById(t.npcId)) || (empire.sieges ?? []).length) return
+  const cities = empire.cities.filter(c => c.game.buildings.divan >= 5 && !(empire.threats ?? []).some(t => t.cityId === c.id))
+  if (!cities.length) return
+  const w = world(empire)
+  // Kışkırtılmamış savaşçı hükümdarlar dünyanın ilk iki gününde saldırmaz.
+  const seasoned = at - w.start >= 2 * 24 * HOUR
+  const cands = RIVALS.filter(r => !pacified(empire, r.id) && w.alliance !== r.faction &&
+    (peek(empire, r.id).relation <= -10 || (r.style === 'savasci' && seasoned && peek(empire, r.id).relation <= 0)))
+    .sort((a, b) => peek(empire, a.id).relation - peek(empire, b.id).relation)
+  for (const r of cands) {
+    const rel = peek(empire, r.id).relation
+    const spyCity = cities.find(c => (w.spies ?? []).some(x => x.rivalId === r.id && x.cityId === c.id))
+    const chance = 0.1 + (rel <= -40 ? 0.2 : rel <= -10 ? 0.1 : 0) + (r.style === 'savasci' ? 0.06 : 0) + (spyCity ? 0.1 : 0)
+    if (roll(`war-${r.id}-${s}`) >= chance) continue
+    const city = spyCity ?? cities[Math.floor(roll(`warc-${r.id}-${s}`) * cities.length)]
+    const intent = r.style === 'denizci' && city.game.buildings.liman > 0 ? 'blockade'
+      : r.style === 'savasci' || rel <= -40 ? 'occupy' : 'raid'
+    declareWar(empire, r, city, at, intent)
+    return
+  }
+}
+
+/** GİZLİ SIĞINAK: şehirdeki yabancı casusları kovmayı dener (yarım saatte bir). */
+export function expelSpies(source: Empire, cityId: string, now: number): { empire: Empire; error?: string } {
+  const empire = advanceEmpire(source, now)
+  const city = empire.cities.find(c => c.id === cityId)
+  const w = world(empire)
+  if (!city) return { empire, error: 'Şehir bulunamadı.' }
+  if (city.game.buildings.siginak < 1) return { empire, error: 'Yabancı casusları bulmak için Gizli Sığınak gerekli.' }
+  const here = (w.spies ?? []).filter(x => x.cityId === cityId)
+  if (!here.length) return { empire, error: 'Bu şehirde bilinen yabancı casus yok.' }
+  const last = w.expelAt?.[cityId] ?? 0
+  if (now < last + EXPEL_COOLDOWN_MS) return { empire, error: `Muhafızlar yeniden arama yapmak için ${Math.ceil((last + EXPEL_COOLDOWN_MS - now) / 60_000)} dk bekliyor.` }
+  w.expelAt = { ...(w.expelAt ?? {}), [cityId]: now }
+  const chance = Math.min(0.95, 0.4 + counterSpy(city.game))
+  const caught = here.filter(x => roll(`expel-${x.id}-${now}`) < chance)
+  w.spies = (w.spies ?? []).filter(x => !caught.includes(x))
+  for (const x of caught) {
+    relate(empire, x.rivalId, -3)
+    mail(empire, now, 'Gizli Sığınak', 'Casus kovuldu', `${rivalById(x.rivalId)?.ruler ?? 'Bir hükümdar'} hesabına çalışan casus ${city.name} şehrinden kovuldu.`)
+  }
+  logEvent(city.game, caught.length ? `${caught.length} yabancı casus yakalanıp kovuldu.` : 'Yabancı casuslar muhafızlardan kaçtı; saklanmaya devam ediyorlar.', now)
+  return caught.length ? { empire } : { empire, error: 'Casuslar kaçtı; biraz sonra yeniden dene.' }
+}
+
 /** İşgal / abluka saatlik haracı. */
 export function stationTribute(empire: Empire, rivalId: string, kind: 'occupy' | 'blockade', now: number) {
   const r = rivalById(rivalId)
@@ -500,6 +582,7 @@ export function advanceWorld(empire: Empire, now: number) {
       if (!m.stationed || (m.kind !== 'occupy' && m.kind !== 'blockade') || at <= m.arriveAt) continue
       m.loot = { ...m.loot, gold: m.loot.gold + stationTribute(empire, m.npcId, m.kind, at) }
     }
+    if (s % 6 === 3) considerWar(empire, at, s)
     if (s % 6 === 0) {
       const r = RIVALS[Math.floor(roll(`mail-${s}`) * RIVALS.length)]
       const [subject, body] = MAIL_LINES[Math.floor(roll(`line-${s}`) * MAIL_LINES.length)]
@@ -515,6 +598,12 @@ export function advanceWorld(empire: Empire, now: number) {
         if (caught) {
           relate(empire, r.id, -3)
           mail(empire, at, 'Gizli Sığınak', 'Casus yakalandı', `${r.ruler} hesabına çalışan bir casus ${city.name} ambarını gözetlerken yakalandı.`)
+        } else {
+          // Yakalanmayan casus şehirde kalır: saldırıyı kolaylaştırır; Gizli Sığınak onu bulup kovabilir.
+          const spies = w.spies ?? []
+          if (spies.filter(x => x.cityId === city.id).length < MAX_FOREIGN_SPIES && !spies.some(x => x.cityId === city.id && x.rivalId === r.id)) {
+            w.spies = [...spies, { id: `fs-${r.id}-${city.id}-${s}`, rivalId: r.id, cityId: city.id, since: at }]
+          }
         }
       }
     }
@@ -543,6 +632,9 @@ export function parseWorld(raw: unknown, cityIds: Set<string>): World | undefine
   for (const d of w.deliveries) {
     if (!d || typeof d.id !== 'string' || !cityIds.has(d.cityId) || !(d.good in FAIR_PRICE) || !Number.isInteger(d.amount) || d.amount < 0 || !fin(d.eta)) bad()
   }
+  if (w.spies !== undefined && (!Array.isArray(w.spies) || w.spies.length > 60)) bad()
+  for (const x of w.spies ?? []) if (!x || typeof x.id !== 'string' || !rivalById(x.rivalId) || !cityIds.has(x.cityId) || !fin(x.since)) bad()
+  if (w.expelAt !== undefined && (typeof w.expelAt !== 'object' || !Object.entries(w.expelAt).every(([id, t]) => cityIds.has(id) && fin(t)))) bad()
   return structuredClone(w)
 }
 

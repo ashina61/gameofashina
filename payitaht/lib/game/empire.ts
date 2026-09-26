@@ -21,7 +21,7 @@ export { ISLANDS, type IslandId } from './islands'
 import { ISLANDS, type IslandId } from './islands'
 import { ensureDaily, parseDaily, type Daily } from './daily'
 import { advanceWorld, parseWorld, type World } from './rivals'
-import { advanceMissions, advanceThreats, idleMerchants, merchantShipPrice, parseMissionState, shipCargo, totalMerchants, type Mission, type NpcState, type Report, type Threat } from './expeditions'
+import { advanceMissions, advanceSieges, advanceThreats, idleMerchants, siegeBlock, type Siege, merchantShipPrice, parseMissionState, shipCargo, totalMerchants, type Mission, type NpcState, type Report, type Threat } from './expeditions'
 export const COLONY_COST = { gold: 900, wood: 1200, stone: 450 } as const
 const COLONY_SHIPS = 3
 export const MAX_CITIES = 12
@@ -55,6 +55,8 @@ export type Empire = {
   world?: World
   /** Hükümdar profili: ad, arma, düstur. */
   profile?: Profile
+  /** Yapay rakiplerin işgal ettiği şehirler ve abluka ettiği limanlar. */
+  sieges?: Siege[]
   /** Başkentin kimliği (yoksa ilk şehir, city-1). Saray taşınınca değişir. */
   capitalId?: string
   /** Başkentin son taşındığı an (bekleme süresi için). */
@@ -184,6 +186,7 @@ export function advanceEmpire(source: Empire, now: number): Empire {
   empire.shipments = pending
   advanceMissions(empire, now)
   advanceThreats(empire, now)
+  advanceSieges(empire, now)
   ensureDaily(empire, now)
   advanceWorld(empire, now)
   return empire
@@ -280,7 +283,7 @@ export function moveCapital(source: Empire, cityId: string, now: number): { empi
 function cityBusy(empire: Empire, cityId: string) {
   return (empire.missions ?? []).some(m => m.cityId === cityId || (m.kind === 'deploy' && m.npcId === cityId)) ||
     empire.shipments.some(s => s.from === cityId || s.to === cityId) ||
-    (empire.threats ?? []).some(t => t.cityId === cityId)
+    (empire.threats ?? []).some(t => t.cityId === cityId) || (empire.sieges ?? []).some(s => s.cityId === cityId)
 }
 /**
  * KOLONİYİ TERK ET (Ikariam gibi): şehir, binaları, ambarı ve oradaki ordu
@@ -302,6 +305,8 @@ export function abandonCity(source: Empire, cityId: string, now: number): { empi
   if (empire.world) {
     empire.world.offers = empire.world.offers.filter(o => o.cityId !== cityId)
     empire.world.deliveries = empire.world.deliveries.filter(d => d.cityId !== cityId)
+    if (empire.world.spies) empire.world.spies = empire.world.spies.filter(x => x.cityId !== cityId)
+    if (empire.world.expelAt) delete empire.world.expelAt[cityId]
   }
   logEvent(capital.game, `${city.name} terk edildi. Halkı ve binaları ${islandOf(city).name} adasında kaldı.`, now)
   return { empire }
@@ -316,6 +321,8 @@ export function shipResources(source: Empire, to: string, resource: Cargo, amoun
   if (!CARGO_IDS.includes(resource) ||
       !Number.isSafeInteger(amount) || amount <= 0) return { empire, error: 'Geçersiz kaynak miktarı.' }
   if (from.game.buildings.liman < 1) return { empire, error: 'Önce bu şehirde Ticaret Limanı kur.' }
+  const blocked = siegeBlock(empire, from.id, true) ?? siegeBlock(empire, to, true)
+  if (blocked) return { empire, error: blocked }
   if (empire.shipments.some(s => s.from === from.id)) return { empire, error: 'Bu şehrin nakliye gemileri seferde.' }
   if ((empire.missions ?? []).filter(m => m.cityId === from.id).length + 1 > actionPoints(from.game)) {
     return { empire, error: `Hamle puanı yok (${actionPoints(from.game)}). Bir görevin dönmesini bekle.` }

@@ -1380,3 +1380,31 @@
 }
 .fleet-row { display: grid; grid-template-columns: 72px minmax(0, 1fr); gap: 10px; align-items: center; }
 .fleet-ship { display: grid; place-items: center; border-radius: 12px; background: radial-gradient(ellipse at 50% 70%, #9fd0c7 0%, #5f9d91 70%); padding: 4px; }
+
+/* Kuşatma paneli */
+.siege-panel { border-left: 4px solid #b3261e; }
+.siege-sides { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.siege-sides > div { display: grid; gap: 2px; padding: 8px 10px; border-radius: 10px; background: #fbf2d6; border: 1px solid #e2cf9c; min-width: 0; }
+.siege-sides > div:first-child { background: #f7dcd2; border-color: #d99a8a; }
+.siege-sides small { font-size: 10px; letter-spacing: .04em; text-transform: uppercase; color: #7a5a32; font-weight: 700; }
+.siege-sides strong { font-size: 12.5px; color: #3a2410; line-height: 1.35; }
+.threat-banner.is-held { background: linear-gradient(#7a1d12, #5a130c); }
+.report-tools { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; font-size: 12px; color: #7a5a32; }
+.report-actions { display: inline-flex; gap: 4px; margin-left: auto; }
+.report-actions button { display: grid; place-items: center; width: 30px; height: 30px; border-radius: 50%; border: 1px solid #d8bf86; background: #fbf3dc; color: #7a4e24; }
+.report-actions button svg { width: 15px; height: 15px; }
+.report-actions button[aria-pressed="true"] { background: #e2bd78; color: #3a2410; }
+.report-card.is-kept { border-color: #c9a24e; box-shadow: inset 3px 0 0 #c9a24e; }
+/* İmparatorluk özeti */
+.overview-scroll { overflow-x: auto; border: 1px solid #d8bf86; border-radius: 10px; background: #fbf3dc; -webkit-overflow-scrolling: touch; }
+.overview-table { border-collapse: collapse; font-size: 12px; min-width: 100%; font-variant-numeric: tabular-nums lining-nums; }
+.overview-table th, .overview-table td { padding: 6px 8px; border-bottom: 1px solid #ead9ae; text-align: right; white-space: nowrap; vertical-align: top; }
+.overview-table thead th { position: sticky; top: 0; background: #efdcae; color: #5a3e1e; font-size: 11px; text-align: center; }
+.overview-table th[scope="row"] { text-align: left; position: sticky; left: 0; background: #f6e8c4; z-index: 1; font-weight: 700; color: #3a2410; }
+.overview-table td small { display: block; font-size: 10px; color: #3f7a3a; }
+.overview-table td.is-full { color: #b3261e; font-weight: 700; }
+.overview-table td.is-up { color: #3f7a3a; font-weight: 700; }
+.overview-table tr.is-sieged th[scope="row"] { box-shadow: inset 3px 0 0 #b3261e; }
+.ov-icon { width: 18px; height: 18px; }
+.ov-warn { font-style: normal; color: #b3261e; font-weight: 700; }
+.threat-banner.is-held + .threat-banner { transform: translateY(62px); }

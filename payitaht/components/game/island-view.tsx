@@ -10,7 +10,7 @@
  */
 import { Hint } from './hint'
 import { useState } from 'react'
-import { ArrowLeft, ScrollText, Eye, Swords, Clock3, ShieldCheck, Users, Minus, Plus, Ship, Anchor, Skull, Flag } from 'lucide-react'
+import { ArrowLeft, ScrollText, Eye, Swords, Clock3, ShieldCheck, Users, Minus, Plus, Ship, Anchor, Skull, Flag, Bookmark, BookmarkCheck, Trash2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import layout from '@/lib/game/island-layout.json'
 import { asset, buildingImage } from '@/lib/asset'
@@ -23,7 +23,7 @@ import {
 import { UnitPicker } from './ikariam-panels'
 import { RivalDiplomacy, RivalSupport, RivalWar, type Run } from './world-panels'
 import { FACTIONS, RIVALS, STYLE_NAMES, rivalById, rivalLevel } from '@/lib/game/rivals'
-import { targetInfo, type Report } from '@/lib/game/expeditions'
+import { clearReports, deleteReport, keepReport, targetInfo, type Report } from '@/lib/game/expeditions'
 import { BattleView } from './battle-view'
 import { RETREAT_MORALE, fieldSize } from '@/lib/game/battle'
 
@@ -167,7 +167,7 @@ export function NpcPanel({ empire, npcId, now, onSpy, onRaid, onOccupy, onBlocka
             <div className="spy-desk-top"><strong>İçeride {inside.units.casus ?? 0} casus</strong>
               <Button size="sm" variant="outline" onClick={() => run((e, t) => recallMission(e, inside.id, t), 'Casuslar geri çağrıldı.')}>Geri çağır</Button></div>
             {inside.spyTask && <p className="requirement"><Clock3 className="size-4" />{SPY_TYPES[inside.spyTask.type].name} · {clock(inside.spyTask.at - now)}</p>}
-            {SPY_TYPE_IDS.map(t => <button key={t} type="button" className="spy-task" disabled={!!inside.spyTask}
+            {SPY_TYPE_IDS.filter(t => t !== 'arastirma' || !!rival).map(t => <button key={t} type="button" className="spy-task" disabled={!!inside.spyTask}
               onClick={() => run((e, x) => spyMission(e, inside.id, t, x), `Görev verildi: ${SPY_TYPES[t].name}.`)}>
               <strong>{SPY_TYPES[t].name}</strong><small>{SPY_TYPES[t].description}</small>
               <small>Şans %{Math.round(spyTaskChance(g, inside.units.casus ?? 0, state.level, t) * 100)} · {clock(SPY_TYPES[t].minutes * 60_000)}</small>
@@ -267,17 +267,28 @@ export function ReportLines({ lines }: { lines: string[] }) {
 }
 
 /** Savaş ve casusluk raporları. */
-export function ReportsPanel({ empire }: { empire: Empire }) {
+export function ReportsPanel({ empire, run }: { empire: Empire; run?: Run }) {
   const city = activeCity(empire)
   const reports = (empire.reports ?? []).filter(r => r.cityId === city.id)
   if (!reports.length) return <p className="fine-print">Henüz rapor yok. Ada görünümünden bir yerleşime casus ya da ordu gönder.</p>
-  return <div className="advisor-panel">{reports.map(r => <article key={r.id} className="report-card">
-    <div className="report-head">{r.kind === 'spy' ? <Eye className="size-4" /> : r.kind === 'piracy' ? <Skull className="size-4" /> : r.kind === 'defense' ? <ShieldCheck className="size-4" /> : <Swords className="size-4" />}
-      <strong className={r.success ? 'report-win' : 'report-loss'}>{r.title}</strong>
-      <time>{new Date(r.time).toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })}</time></div>
-    {r.battles?.length ? <ReportBattles report={r} /> : null}
-    <ReportLines lines={r.lines} />
-  </article>)}</div>
+  const loose = reports.filter(r => !r.kept).length
+  return <div className="advisor-panel">
+    {run && loose > 1 && <div className="report-tools">
+      <span>{reports.length} rapor · {reports.length - loose} arşivde</span>
+      <Button size="sm" variant="outline" onClick={() => run((e, t) => clearReports(e, city.id, t), 'Raporlar temizlendi.')}><Trash2 data-icon="inline-start" />Arşivlenmemişleri sil</Button>
+    </div>}
+    {reports.map(r => <article key={r.id} className={r.kept ? 'report-card is-kept' : 'report-card'}>
+      <div className="report-head">{r.kind === 'spy' ? <Eye className="size-4" /> : r.kind === 'piracy' ? <Skull className="size-4" /> : r.kind === 'defense' ? <ShieldCheck className="size-4" /> : <Swords className="size-4" />}
+        <strong className={r.success ? 'report-win' : 'report-loss'}>{r.title}</strong>
+        <time>{new Date(r.time).toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })}</time>
+        {run && <span className="report-actions">
+          <button type="button" aria-pressed={!!r.kept} aria-label={r.kept ? 'Arşivden çıkar' : 'Arşivle'} title={r.kept ? 'Arşivden çıkar' : 'Arşivle (silinmez)'}
+            onClick={() => run((e, t) => keepReport(e, r.id, t))}>{r.kept ? <BookmarkCheck /> : <Bookmark />}</button>
+          <button type="button" aria-label="Raporu sil" title="Sil" onClick={() => run((e, t) => deleteReport(e, r.id, t))}><Trash2 /></button>
+        </span>}</div>
+      {r.battles?.length ? <ReportBattles report={r} /> : null}
+      <ReportLines lines={r.lines} />
+    </article>)}</div>
 }
 
 /** Rapordaki savaşların savaş alanı görünümü (açılır). */

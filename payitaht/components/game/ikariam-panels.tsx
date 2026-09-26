@@ -19,7 +19,9 @@ import {
   type Command, type Game, type Good, type UnitId,
 } from '@/lib/game/engine'
 import { activeCity, type Empire } from '@/lib/game/empire'
-import { PIRACY_TARGETS, THREAT_WARNING_MS, WARSHIPS, availableUnits, cityGuards, cityWallHp, safeStock, targetName } from '@/lib/game/expeditions'
+import { PIRACY_TARGETS, RAID_UNITS, SIEGE_MAX_MS, THREAT_WARNING_MS, WARSHIPS, availableUnits, cityGuards, cityWallHp, liberateCity, safeStock, siegeTribute, targetName, type Siege } from '@/lib/game/expeditions'
+import { EXPEL_COOLDOWN_MS, expelSpies, rivalById } from '@/lib/game/rivals'
+import type { Run } from './world-panels'
 import { BattleView } from './battle-view'
 import { GUILDS, GUILD_IDS, GUILD_MAX, PATRON_COOLDOWN_MS, devotionFor, guildLevel, himmetCap, himmetRate, patronSlots } from '@/lib/game/guilds'
 import { troopList } from '@/lib/game/battle'
@@ -232,14 +234,21 @@ export function PiracyPanel({ empire, now, onPiracy }: {
 /** Yaklaşan korsan baskını uyarısı (şehir ekranının üstünde). */
 export function ThreatBanner({ empire, now, onOpen }: { empire: Empire; now: number; onOpen: () => void }) {
   const city = activeCity(empire)
-  const threat = (empire.threats ?? []).find(t => t.cityId === city.id && t.arriveAt - now <= THREAT_WARNING_MS)
-  if (!threat) return null
-  const lb = threat.battle
-  return <button type="button" className={`threat-banner${lb ? ' is-siege' : ''}`} onClick={onOpen}>
+  // Hükümdarların savaş ilanı iki saat önceden görünür; korsanlar 15 dakika önceden.
+  const threat = (empire.threats ?? []).find(t => t.cityId === city.id && (t.intent || t.arriveAt - now <= THREAT_WARNING_MS))
+  const siege = (empire.sieges ?? []).find(s => s.cityId === city.id)
+  const held = siege && <button type="button" className="threat-banner is-siege is-held" onClick={onOpen}>
     <TriangleAlert aria-hidden="true" />
-    <span><strong>{lb ? `Kapıda savaş · ${lb.stage === 'naval' ? 'deniz' : 'surlar'} · tur ${lb.state.round}` : `${targetName(threat.npcId)} baskını · ${clock(threat.arriveAt - now)}`}</strong>
-      <small>{troopList(threat.troops)}{Object.values(threat.fleet).some(n => (n ?? 0) > 0) ? ` · filo: ${troopList(threat.fleet)}` : ''}</small></span>
+    <span><strong>{siege.kind === 'occupy' ? `Şehir işgal altında · ${targetName(siege.rivalId)}` : `Liman abluka altında · ${targetName(siege.rivalId)}`}</strong>
+      <small>{troopList(siege.troops)} · saatte {num(siegeTribute(siege))} akçe · kurtarmak için dokun</small></span>
   </button>
+  if (!threat) return held || null
+  const lb = threat.battle
+  return <>{held}<button type="button" className={`threat-banner${lb ? ' is-siege' : ''}`} onClick={onOpen}>
+    <TriangleAlert aria-hidden="true" />
+    <span><strong>{lb ? `Kapıda savaş · ${lb.stage === 'naval' ? 'deniz' : 'surlar'} · tur ${lb.state.round}` : `${targetName(threat.npcId)} ${threat.intent === 'occupy' ? 'işgale geliyor' : threat.intent === 'blockade' ? 'limanı kapatmaya geliyor' : 'baskını'} · ${clock(threat.arriveAt - now)}`}</strong>
+      <small>{troopList(threat.troops)}{Object.values(threat.fleet).some(n => (n ?? 0) > 0) ? ` · filo: ${troopList(threat.fleet)}` : ''}</small></span>
+  </button></>
 }
 
 /** Savunma özeti (Ordu panelinde). */
@@ -258,5 +267,48 @@ export function DefenseSummary({ empire }: { empire: Empire }) {
     </div>
     {incoming?.battle && <BattleView stored={incoming.battle.info} live={{ round: incoming.battle.state.round, nextAt: incoming.battle.nextAt, now: g.updatedAt }} />}
     <Hint>Korsanlar önce limandaki savaş gemilerine, sonra sura ve şehirdeki kara birliklerine çarpar. Savaş dakikada bir tur sürer: bu sırada eğitimi biten ya da seferden dönen birlikler sıradaki tura katılır, ama şehirden birlik çıkamaz. Seferdeki birlikler şehri savunmaz.</Hint>
+  </section>
+}
+
+/** KUŞATMA: işgalci ordu / abluka filosu ile şehrin gücü; kurtarma saldırısı. */
+export function SiegePanel({ empire, now, run }: { empire: Empire; now: number; run: Run }) {
+  const city = activeCity(empire)
+  const sieges = (empire.sieges ?? []).filter(s => s.cityId === city.id)
+  if (!sieges.length) return null
+  const free = availableUnits(empire, city.id)
+  return <>{sieges.map((s: Siege) => {
+    const mine = Object.fromEntries((s.kind === 'occupy' ? RAID_UNITS : WARSHIPS).filter(id => free[id] > 0).map(id => [id, free[id]]))
+    return <section key={s.id} className="empire-section siege-panel">
+      <h3><TriangleAlert className="size-4" /> {s.kind === 'occupy' ? 'Şehir işgal altında' : 'Liman abluka altında'}</h3>
+      <p className="report-loss">{rivalById(s.rivalId)?.ruler ?? targetName(s.rivalId)} (yapay rakip) · {s.kind === 'occupy' ? 'kapılar tutuluyor: ordu, casus ve nakliye çıkamaz' : 'deniz yolu kapalı: nakliye ve deniz aşırı sefer yok'}.</p>
+      <div className="siege-sides">
+        <div><small>Düşman</small><strong>{troopList(s.troops)}</strong></div>
+        <div><small>{s.kind === 'occupy' ? 'Şehirdeki kara birliklerin' : 'Limandaki savaş gemilerin'}</small><strong>{troopList(mine)}</strong></div>
+      </div>
+      <p className="fine-print"><Clock3 className="size-3" /> Saatte {num(siegeTribute(s))} akçe haraç · en geç {clock(s.since + SIEGE_MAX_MS - now)} sonra çekilirler.</p>
+      <Button size="sm" variant="destructive" disabled={!Object.keys(mine).length}
+        onClick={() => run((e, t) => liberateCity(e, city.id, s.kind, t), s.kind === 'occupy' ? 'Şehir kurtarıldı!' : 'Abluka kırıldı!')}>
+        <Swords data-icon="inline-start" />{s.kind === 'occupy' ? 'Şehri kurtar' : 'Ablukayı kır'}</Button>
+      <Hint>Savaş tek seferde olur ve raporda tur tur izlenir. Yetmezse başka şehirden birlik aktar, Kışla ya da Tersane'de eğit; ya da hükümdarla barış anlaşması yap.</Hint>
+    </section>
+  })}</>
+}
+
+/** GİZLİ SIĞINAK: şehre sızmış yabancı casuslar. */
+export function ForeignSpies({ empire, game, now, run }: { empire: Empire; game: Game; now: number; run: Run }) {
+  const city = activeCity(empire)
+  const spies = (empire.world?.spies ?? []).filter(x => x.cityId === city.id)
+  const last = empire.world?.expelAt?.[city.id] ?? 0
+  const wait = last + EXPEL_COOLDOWN_MS - now
+  return <section className="empire-section">
+    <h3><Skull className="size-4" /> Şehirdeki yabancı casuslar</h3>
+    {game.buildings.siginak < 1 ? <p className="fine-print">Yabancı casusları bulmak için Gizli Sığınak kur.</p>
+      : !spies.length ? <p className="fine-print">Muhafızlar şehirde yabancı casus bulamadı.</p>
+      : <>
+        <ul className="wm-facts">{spies.map(x => <li key={x.id}><Skull className="size-3" />{rivalById(x.rivalId)?.ruler ?? 'Bilinmeyen'} (yapay rakip) · {clock(now - x.since)} önce sızdı</li>)}</ul>
+        <p className="fine-print">Casusları olan hükümdar saldırırsa ordusu surlarını iyi tanır (+%15 asker) ve bu şehri seçme olasılığı artar.</p>
+        <Button size="sm" disabled={wait > 0} onClick={() => run((e, t) => expelSpies(e, city.id, t), 'Casuslar kovuldu.')}>
+          <ShieldCheck data-icon="inline-start" />{wait > 0 ? `Yeniden arama · ${clock(wait)}` : 'Casusları yakala ve kov'}</Button>
+      </>}
   </section>
 }
