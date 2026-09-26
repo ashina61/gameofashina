@@ -17,6 +17,7 @@ import * as Phaser from 'phaser'
 import { aqueductWallCrossings, cityFields, cityFountains, cityStream, fieldTier, fountainTier } from '@/lib/game/city-map/city-extras'
 import { BakeAtlas } from '@/lib/game/city-map/bake'
 import { FlagField, SmokeField } from './city-life'
+import { SkyLayer } from './city-sky'
 import { TILE, CITY_SLOTS, COAST_SLOTS, DEFENSE_SLOTS, DEFENSE_FOUNDATION, ROAD_GRAPH, HALL_SLOT_ID, ROAD_EXITS, WALL_GATES, PLAZA, slotById } from '@/lib/game/city-map'
 import { LIVE_SLOTS, liveSlotByIndex, type LiveSlot } from '@/lib/game/city-map/live-adapter'
 import { buildCityTerrain, preloadTerrain, cityWorldRect, cityContentRect, mineSite } from '@/lib/game/city-map/terrain-builder'
@@ -70,6 +71,8 @@ export class CityScene extends Phaser.Scene {
   private pieceAtlas: BakeAtlas | null = null
   private flagField: FlagField | null = null
   private smoke: SmokeField | null = null
+  /** Bulut gölgeleri, gün ışığı ve gece pencere ışıkları (city-sky.ts). */
+  private sky: SkyLayer | null = null
   private walkers: Walker[] = []
   private walkerKey = ''
   private signature = ''
@@ -121,6 +124,7 @@ export class CityScene extends Phaser.Scene {
     this.built = true
     this.syncWalkers()
     this.addBirds()
+    this.sky = new SkyLayer(this, cityWorldRect())
     this.drawMine()
     this.setupCamera()
     this.installCamera()
@@ -302,6 +306,7 @@ export class CityScene extends Phaser.Scene {
     this.stepTroops(Math.min(delta, 100) / 1000)
     this.flagField?.update(Math.min(delta, 100) / 1000)
     this.smoke?.update(Math.min(delta, 100) / 1000)
+    this.sky?.update(Math.min(delta, 100) / 1000)
     this.stepLife(Math.min(delta, 100) / 1000)
     this.timers = this.timers.filter(t => t.bar.active)
     this.hudItems = this.hudItems.filter(h => h.c.active)
@@ -416,6 +421,7 @@ export class CityScene extends Phaser.Scene {
     this.pieceAtlas = null
     this.flagField?.removeGroup('pieces')
     this.smoke?.removeGroup('pieces')
+    this.sky?.removeGroup('pieces')
     for (const o of this.lifeObjs) o.g.destroy()
     this.lifeObjs = []
 
@@ -1636,6 +1642,12 @@ export class CityScene extends Phaser.Scene {
       img.setFlipX(this.state.flips.includes(id))
       dispW = img.width * scale; dispH = img.height * scale
       this.pieces.push(img)
+      // Gece: pencerelerde kandil ışığı (liman ve iskeleler hariç).
+      if (level > 0 && slot.zone !== 'liman') {
+        const flip = this.state.flips.includes(id) ? -1 : 1
+        this.sky?.addLight(anc.x - flip * dispW * 0.12, imgY - dispH * 0.34, 'pieces')
+        this.sky?.addLight(anc.x + flip * dispW * 0.16, imgY - dispH * 0.28, 'pieces')
+      }
       // Yükseltme sürerken binanın önünde ahşap iskele durur.
       if (active && level > 0 && this.textures.exists('b_scaffold')) {
         const sc = this.add.image(anc.x, imgY, 'b_scaffold').setOrigin(0.5, 1).setScale(scale).setDepth(imgY + 0.05)
@@ -1694,7 +1706,8 @@ export class CityScene extends Phaser.Scene {
     const lvl = this.add.text(62, 2, String(level), { fontFamily: f.heading, fontSize: '56px', color: '#fbe9bb', fontStyle: '800' })
       .setOrigin(0.5, 0.5).setResolution(2)
     const parts: Phaser.GameObjects.GameObject[] = [g, nameText, lvl]
-    const c = this.add.container(x, y, parts).setDepth(depth)
+    // Etiket ve sayaçlar gece örtüsünün (city-sky, 3e5) üstünde: karanlıkta da okunur.
+    const c = this.add.container(x, y, parts).setDepth(4e5 + depth / 1e4)
     this.hudItems.push({ c, width: w, height: 140, css: 22 })
     this.fitHudItem(this.hudItems[this.hudItems.length - 1])
     return c
@@ -1733,7 +1746,8 @@ export class CityScene extends Phaser.Scene {
     const text = this.add.text(205, -2, '', { fontFamily: f.body, fontSize: '40px', color: '#2e1807', fontStyle: '800' })
       .setOrigin(0.5, 0.5).setResolution(2)
     const parts: Phaser.GameObjects.GameObject[] = [frame, bar, text]
-    const c = this.add.container(x, y, parts).setDepth(depth)
+    // Etiket ve sayaçlar gece örtüsünün (city-sky, 3e5) üstünde: karanlıkta da okunur.
+    const c = this.add.container(x, y, parts).setDepth(4e5 + depth / 1e4)
     this.hudItems.push({ c, width: 478, height: 100, css: 20 })
     this.fitHudItem(this.hudItems[this.hudItems.length - 1])
     this.timers.push({ bar, text, start, end })

@@ -30,6 +30,13 @@
   --radius-xl: 16px;
 }
 :root {
+  /*
+   * GÜVENLİ ALAN: tarayıcının env() değeri ya da Capacitor'ın (Android
+   * uygulaması) enjekte ettiği --safe-area-inset-* değişkeni, hangisi büyükse.
+   * Bazı Android WebView sürümleri env() için 0 döndürür.
+   */
+  --sa-top: max(env(safe-area-inset-top, 0px), var(--safe-area-inset-top, 0px));
+  --sa-bottom: max(env(safe-area-inset-bottom, 0px), var(--safe-area-inset-bottom, 0px));
   color-scheme: dark;
   --background: #102b29;
   --foreground: #efeade;
@@ -60,7 +67,7 @@
 }
 .game-shell { height: 100dvh; min-height: 500px; display: flex; flex-direction: column; overflow: hidden; background: #123c46; }
 /* --- OYUNCU KARTI: sol ust kose ------------------------------------------ */
-.player-card { position: fixed; top: calc(env(safe-area-inset-top, 0px) + 52px); left: 10px; z-index: 3; display: flex; align-items: center; gap: 9px; padding: 6px 8px 6px 6px; border-radius: 14px; background: #0f2a26d6; border: 1px solid #d9c18540; backdrop-filter: blur(9px); pointer-events: auto; }
+.player-card { position: fixed; top: calc(var(--sa-top) + 52px); left: 10px; z-index: 3; display: flex; align-items: center; gap: 9px; padding: 6px 8px 6px 6px; border-radius: 14px; background: #0f2a26d6; border: 1px solid #d9c18540; backdrop-filter: blur(9px); pointer-events: auto; }
 /* GÜÇ ROZETİ — referanstaki çapraz kılıç + büyük sayı. */
 .player-power { display: flex; align-items: center; gap: 5px; padding: 4px 9px 4px 7px; border-radius: 9px; background: linear-gradient(#3a1d1b, #2a1513); border: 1px solid #a5563f66; color: #ffd9ad; }
 .player-power svg { width: 15px; height: 15px; color: #e07a4e; stroke-width: 2; }
@@ -89,7 +96,7 @@
  * Referans oyunlarin hepsinde kaynaklar sag ust KOSEDE, dar bir yigin.
  */
 /* KAYNAK ŞERİDİ — referanstaki gibi en üstte YATAY bir sıra ikon-hap. */
-.resource-bar { position: fixed; top: calc(env(safe-area-inset-top, 0px) + 8px); left: 8px; right: 8px; z-index: 3; display: flex; flex-direction: row; gap: 5px; pointer-events: auto; }
+.resource-bar { position: fixed; top: calc(var(--sa-top) + 8px); left: 8px; right: 8px; z-index: 3; display: flex; flex-direction: row; gap: 5px; pointer-events: auto; }
 .resource { flex: 1 1 0; min-width: 0; display: flex; align-items: center; gap: 6px; padding: 4px 8px 4px 5px; border-radius: 10px; background: #0d2522ee; border: 1px solid #d9c18540; box-shadow: 0 3px 10px #05141240; text-align: left; position: relative; }
 .resource-symbol { order: 0; width: 24px; height: 24px; flex-shrink: 0; display: grid; place-items: center; color: var(--gold); background: #d6b77b1c; border: 1px solid #d6b77b33; border-radius: 8px; }
 .resource-symbol svg { width: 15px; height: 15px; stroke-width: 1.7; }
@@ -111,7 +118,7 @@
 .side-build.side-active { background: radial-gradient(circle at 35% 30%, #caa24a, #8a6d24); color: #23180a; border-color: #ffe6a6; }
 
 /* TAŞIMA ONAY ŞERİDİ — referanstaki büyük yeşil ✓ / kırmızı ✗. */
-.move-confirm { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(env(safe-area-inset-bottom, 0px) + 92px); z-index: 4; display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 10px 14px 12px; border-radius: 16px; background: #0d2522ea; border: 1px solid #d9c18559; backdrop-filter: blur(9px); box-shadow: 0 10px 30px #05141277; pointer-events: auto; }
+.move-confirm { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(var(--sa-bottom) + 92px); z-index: 4; display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 10px 14px 12px; border-radius: 16px; background: #0d2522ea; border: 1px solid #d9c18559; backdrop-filter: blur(9px); box-shadow: 0 10px 30px #05141277; pointer-events: auto; }
 .move-confirm-title { font-family: var(--font-heading), Georgia, serif; font-size: 15px; color: #fff4da; }
 .move-confirm-hint { font-size: 10px; color: #cbe6bd; }
 .move-confirm-actions { display: flex; gap: 22px; margin-top: 6px; }
@@ -125,7 +132,7 @@
 .building-tools .btn, .building-tools button { flex: 1; }
 
 /* ALT LOG ŞERİDİ — referanstaki sohbet gibi tek satır günlük. */
-.hud-ticker { position: fixed; left: 10px; right: 74px; bottom: calc(env(safe-area-inset-bottom, 0px) + 84px); z-index: 3; display: flex; align-items: center; gap: 8px; padding: 6px 10px; border-radius: 10px; background: #0d2522d0; border: 1px solid #d9c18533; backdrop-filter: blur(6px); text-align: left; pointer-events: auto; overflow: hidden; }
+.hud-ticker { position: fixed; left: 10px; right: 74px; bottom: calc(var(--sa-bottom) + 84px); z-index: 3; display: flex; align-items: center; gap: 8px; padding: 6px 10px; border-radius: 10px; background: #0d2522d0; border: 1px solid #d9c18533; backdrop-filter: blur(6px); text-align: left; pointer-events: auto; overflow: hidden; }
 .hud-ticker-tag { flex-shrink: 0; font-size: 8px; letter-spacing: 1px; font-weight: 700; color: #23180a; background: var(--gold); border-radius: 4px; padding: 2px 5px; }
 .hud-ticker-text { font-size: 11px; color: #e7ecd9; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .game-body { display: flex; flex: 1; min-height: 0; }
@@ -216,7 +223,7 @@
 /* --- ALT MENU: ortada duran bir hap --------------------------------------
  * Tam genislikte bir serit degil. Dunya onun iki yanindan da gorunur.
  */
-.bottom-navigation { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(env(safe-area-inset-bottom, 0px) + 10px); z-index: 3; display: flex; padding: 5px; border-radius: 18px; background: #0d2624ec; border: 1px solid #d9c18540; backdrop-filter: blur(9px); box-shadow: 0 8px 26px #05141266; pointer-events: auto; }
+.bottom-navigation { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(var(--sa-bottom) + 10px); z-index: 3; display: flex; padding: 5px; border-radius: 18px; background: #0d2624ec; border: 1px solid #d9c18540; backdrop-filter: blur(9px); box-shadow: 0 8px 26px #05141266; pointer-events: auto; }
 .nav-items { display: flex; gap: 2px; }
 .nav-item { display: flex; flex-direction: column; position: relative; align-items: center; justify-content: center; gap: 3px; width: 66px; padding: 7px 4px 6px; border-radius: 13px; color: #a3b2a7; background: none; border: 0; font-size: 9.5px; }
 .nav-item > svg { width: 19px; height: 19px; }
@@ -225,7 +232,7 @@
 .game-loading { flex: 1; display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 16px; }
 .game-loading h1 { font-family: var(--font-heading), serif; font-size: 30px; }
 .game-loading p { font-size: 12px; color: var(--muted-foreground); }
-.game-sheet { max-height: min(90dvh, 820px); border-radius: 18px 18px 0 0; border-color: #b49a6666; max-width: 480px; margin-inline: auto; padding-bottom: env(safe-area-inset-bottom, 0px); box-shadow: 0 -20px 100px #041b2190; gap: 0; }
+.game-sheet { max-height: min(90dvh, 820px); border-radius: 18px 18px 0 0; border-color: #b49a6666; max-width: 480px; margin-inline: auto; padding-bottom: var(--sa-bottom); box-shadow: 0 -20px 100px #041b2190; gap: 0; }
 .game-sheet [data-slot='sheet-header'] { padding: 25px 24px 18px; border-bottom: 1px solid var(--border); gap: 6px; flex-shrink: 0; }
 .game-sheet [data-slot='sheet-title'] { font-family: var(--font-heading), Georgia, serif; font-size: 31px; font-weight: 500; line-height: 1.1; }
 .game-sheet [data-slot='sheet-description'] { font-size: 11px; }
@@ -298,13 +305,13 @@
 .settings-panel h3 { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 500; }
 .settings-panel h3 svg { width: 17px; height: 17px; color: var(--gold); }
 .settings-panel p { font-size: 11px; line-height: 1.8; color: var(--muted-foreground); }
-.save-warning { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(env(safe-area-inset-bottom, 0px) + 92px); z-index: 5; max-width: min(360px, 92vw); padding: 9px 16px; border-radius: 20px; font-size: 11.5px; color: #ffe9dd; background: #7c3a2ef2; border: 1px solid #e0857366; box-shadow: 0 6px 20px #0a1a1866; }
+.save-warning { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(var(--sa-bottom) + 92px); z-index: 5; max-width: min(360px, 92vw); padding: 9px 16px; border-radius: 20px; font-size: 11.5px; color: #ffe9dd; background: #7c3a2ef2; border: 1px solid #e0857366; box-shadow: 0 6px 20px #0a1a1866; }
 .storage-warning { color: #eab094 !important; }
 @media (min-width: 1450px) { .city-sidebar { width: 350px; padding: 28px; gap: 28px; } .game-header { height: 86px; } .city-title { padding: 30px 40px 65px; } }
 @media (max-width: 1000px) { .map-tip { display: none; } }
 @media (max-width: 767px) {
   .game-shell { min-height: 440px; }
-  .game-header { height: calc(65px + env(safe-area-inset-top, 0px)); padding: env(safe-area-inset-top, 0px) 17px 0; }
+  .game-header { height: calc(65px + var(--sa-top)); padding: var(--sa-top) 17px 0; }
   .brand { gap: 8px; }
   .brand-mark { width: 30px; height: 35px; border-radius: 18px 18px 3px 3px; }
   .brand-mark svg { width: 23px; height: 23px; }
@@ -358,7 +365,7 @@
   .queue-arrow { width: 12px; height: 12px; }
   .queue-card > time { font-size: 9px; }
   .queue-copy strong { font-size: 10px; }
-  .bottom-navigation { height: calc(68px + env(safe-area-inset-bottom, 0px)); padding-left: 0; padding-right: 0; }
+  .bottom-navigation { height: calc(68px + var(--sa-bottom)); padding-left: 0; padding-right: 0; }
   .nav-items { width: 100%; }
   .nav-item { width: 60px; gap: 3px; font-size: 9px; }
   .nav-item > svg { width: 19px; height: 19px; }
@@ -377,19 +384,19 @@
   .resource-symbol svg { width: 18px; }
   .resource strong { font-size: 11px; }
   .mobile-objective small { font-size: 7px; }
-  .advisor-bar { top: calc(env(safe-area-inset-top, 0px) + 104px); }
+  .advisor-bar { top: calc(var(--sa-top) + 104px); }
   .queue-bar { top: 250px; }
   .queue-arrow { display: none; }
   .queue-icon { width: 23px; border: none; }
   .upgrade-cost { flex-direction: column; align-items: flex-start; }
 }
 @media (max-height: 660px) and (max-width: 767px) {
-  .game-header { height: calc(57px + env(safe-area-inset-top, 0px)); }
+  .game-header { height: calc(57px + var(--sa-top)); }
   .resource-bar { gap: 3px; }
   .city-title { padding-top: 14px; }
   .city-title h1 { font-size: 30px; }
   .mobile-objective { bottom: 80px; min-height: 48px; padding-top: 6px; padding-bottom: 6px; }
-  .bottom-navigation { height: calc(62px + env(safe-area-inset-bottom, 0px)); }
+  .bottom-navigation { height: calc(62px + var(--sa-bottom)); }
   .map-bottom-tools { bottom: 140px; }
 }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; scroll-behavior: auto !important; } }
@@ -458,7 +465,7 @@
  * sekmeyi verir ve arkasindan sehir gorunur.
  */
 /* Rozetin ALTINDA baslar: ikisi ust uste binerse ikisi de okunmaz olur. */
-.advisor-bar { position: fixed; left: 12px; top: calc(env(safe-area-inset-top, 0px) + 112px); z-index: 3; display: flex; flex-direction: column; gap: 4px; padding: 6px 5px; border-radius: 12px; background: #0f2a26a6; border: 1px solid #d9c18526; backdrop-filter: blur(8px); pointer-events: auto; }
+.advisor-bar { position: fixed; left: 12px; top: calc(var(--sa-top) + 112px); z-index: 3; display: flex; flex-direction: column; gap: 4px; padding: 6px 5px; border-radius: 12px; background: #0f2a26a6; border: 1px solid #d9c18526; backdrop-filter: blur(8px); pointer-events: auto; }
 .advisor { position: relative; display: flex; flex-direction: column; align-items: center; gap: 1px; width: 40px; padding: 5px 2px; border-radius: 8px; background: none; border: 0; color: #b6c4b8; font-size: 7px; letter-spacing: .1px; }
 .advisor-head { width: 20px; height: 20px; flex-shrink: 0; display: grid; place-items: center; color: var(--gold); background: transparent; border: none; }
 .advisor-head svg { width: 17px; height: 17px; stroke-width: 1.5; }
@@ -524,7 +531,7 @@
 .unit-bottom > span { display: inline-flex; align-items: center; gap: 5px; font-size: 11px; color: var(--muted-foreground); }
 .unit-bottom button { margin-left: auto; }
 @media (max-width: 767px) {
-  .advisor-bar { left: 8px; top: calc(env(safe-area-inset-top, 0px) + 108px); gap: 3px; padding: 5px 4px; }
+  .advisor-bar { left: 8px; top: calc(var(--sa-top) + 108px); gap: 3px; padding: 5px 4px; }
   .advisor { width: 38px; font-size: 7px; }
   .advisor-head svg { width: 16px; height: 16px; }
   .city-stats { grid-template-columns: repeat(2, 1fr); }
@@ -576,7 +583,7 @@
 /* PAYİTAHT V2: painterly city artwork + legible six-action Ottoman mobile HUD.
    Pure presentation: no slot, save or economy changes. */
 .imperial-brand {
-  position: fixed; z-index: 4; top: calc(env(safe-area-inset-top, 0px) + 1px);
+  position: fixed; z-index: 4; top: calc(var(--sa-top) + 1px);
   left: 50%; transform: translateX(-50%); padding: 0 32px 3px;
   color: #ffefc6; font: 700 clamp(20px, 6vw, 29px)/1.35 Georgia, serif;
   text-shadow: 0 2px 2px #090f12, 0 0 11px #bb862d8c;
@@ -586,7 +593,7 @@
 }
 .game-shell { background: #153943; }
 .player-card {
-  top: calc(env(safe-area-inset-top, 0px) + 47px); left: 8px;
+  top: calc(var(--sa-top) + 47px); left: 8px;
   max-width: calc(100vw - 16px); border-radius: 11px;
   border-color: #d3a957bd;
   background: linear-gradient(160deg, #12232bf5, #07141bf0);
@@ -595,7 +602,7 @@
 .player-face, .player-icon { border-color: #cda85b7d; border-radius: 50%; }
 .player-copy strong { color: #fff0c7; }
 .player-power { border-color: #cc9d51a6; }
-.resource-bar { top: calc(env(safe-area-inset-top, 0px) + 103px); gap: 3px; left: 5px; right: 5px; }
+.resource-bar { top: calc(var(--sa-top) + 103px); gap: 3px; left: 5px; right: 5px; }
 .resource {
   padding: 4px 3px; gap: 3px; min-height: 45px; border-radius: 7px;
   border-color: #cba65a85;
@@ -615,7 +622,7 @@
 .resource strong { font-family: Georgia, serif; font-size: clamp(10px, 2.5vw, 15px); color: #fff1cf; }
 .resource-rate { font-size: 8px; color: #a4d080; }
 .resource-population .resource-rate { color: #e8c78b; }
-.advisor-bar { top: calc(env(safe-area-inset-top, 0px) + 165px); }
+.advisor-bar { top: calc(var(--sa-top) + 165px); }
 .weather { top: 190px; }
 .map-top-tools { top: 193px; }
 .map-top-tools button, .side-action {
@@ -625,14 +632,14 @@
 }
 .side-build.side-active { background: radial-gradient(circle at 30% 15%, #e4c67e, #8c5c24); color: #251507; }
 .hud-ticker {
-  bottom: calc(env(safe-area-inset-bottom, 0px) + 81px);
+  bottom: calc(var(--sa-bottom) + 81px);
   border-radius: 6px; border-color: #caa15c94; background: #0b1721eb;
 }
 .hud-ticker-tag { background: #cfa95d; color: #24170b; }
 .bottom-navigation {
   left: 0; right: 0; bottom: 0; transform: none; width: 100%;
-  height: calc(71px + env(safe-area-inset-bottom, 0px));
-  border-radius: 12px 12px 0 0; padding: 4px 4px env(safe-area-inset-bottom, 0px);
+  height: calc(71px + var(--sa-bottom));
+  border-radius: 12px 12px 0 0; padding: 4px 4px var(--sa-bottom);
   border: 1px solid #d3a354b8; border-bottom: 0;
   background: linear-gradient(180deg, #14232df9, #06131bfa);
   box-shadow: 0 -6px 21px #0009, inset 0 1px #efd2933f;
@@ -650,14 +657,14 @@
 }
 .nav-indicator { background: #f5d488; }
 @media (max-width: 767px) {
-  .player-card { top: calc(env(safe-area-inset-top, 0px) + 43px); }
-  .resource-bar { top: calc(env(safe-area-inset-top, 0px) + 99px); }
-  .advisor-bar { top: calc(env(safe-area-inset-top, 0px) + 160px); }
+  .player-card { top: calc(var(--sa-top) + 43px); }
+  .resource-bar { top: calc(var(--sa-top) + 99px); }
+  .advisor-bar { top: calc(var(--sa-top) + 160px); }
   .weather { top: 190px; right: 57px; }
   .map-top-tools { top: 190px; }
-  .bottom-navigation { height: calc(71px + env(safe-area-inset-bottom, 0px)); }
+  .bottom-navigation { height: calc(71px + var(--sa-bottom)); }
   .nav-item { width: auto; font-size: clamp(8px, 2.1vw, 10px); }
-  .hud-ticker { bottom: calc(env(safe-area-inset-bottom, 0px) + 79px); }
+  .hud-ticker { bottom: calc(var(--sa-bottom) + 79px); }
 }
 @media (max-width: 359px) {
   .resource { gap: 1px; padding-inline: 2px; }
@@ -688,7 +695,7 @@
 .building-effects-row em { font-style: normal; font-weight: 700; color: var(--gold); font-variant-numeric: tabular-nums lining-nums; }
 
 /* --- ADA GÖRÜNÜMÜ ---------------------------------------------------------- */
-.island-view { position: fixed; inset: 0; z-index: 2; overflow-y: auto; background: #1d5f73; padding: calc(env(safe-area-inset-top, 0px) + 150px) 0 calc(env(safe-area-inset-bottom, 0px) + 96px); pointer-events: auto; }
+.island-view { position: fixed; inset: 0; z-index: 2; overflow-y: auto; background: #1d5f73; padding: calc(var(--sa-top) + 150px) 0 calc(var(--sa-bottom) + 96px); pointer-events: auto; }
 .island-toolbar { position: sticky; top: 0; z-index: 2; display: flex; align-items: center; gap: 8px; margin: 0 auto 8px; padding: 6px 10px 6px 64px; max-width: 560px; }
 .island-toolbar .island-title { flex: 1; min-width: 0; display: flex; flex-direction: column; line-height: 1.15; color: #fff6e2; text-shadow: 0 1px 3px #0009; }
 .island-title strong { font-size: 15px; }
@@ -732,7 +739,7 @@
  * boyutları panelin genişliğine (--hud-w) bağlıdır.
  * ========================================================================= */
 .game-shell .imperial-brand, .game-shell .player-card, .game-shell .resource-bar, .game-shell .weather { display: none; }
-.painted-hud { --hud-w: min(100vw - 8px, 560px); position: fixed; z-index: 4; top: calc(env(safe-area-inset-top, 0px) + 4px); left: 50%; transform: translateX(-50%); width: var(--hud-w); aspect-ratio: 2158 / 524; pointer-events: none; filter: drop-shadow(0 6px 10px #0008); }
+.painted-hud { --hud-w: min(100vw - 8px, 560px); position: fixed; z-index: 4; top: calc(var(--sa-top) + 4px); left: 50%; transform: translateX(-50%); width: var(--hud-w); aspect-ratio: 2158 / 524; pointer-events: none; filter: drop-shadow(0 6px 10px #0008); }
 .painted-hud-bg { position: absolute; inset: 0; width: 100%; height: 100%; }
 .painted-hud button, .painted-hud span { font-variant-numeric: lining-nums tabular-nums; position: absolute; pointer-events: auto; color: #fff4dc; font-family: var(--font-heading), Georgia, serif; text-shadow: 0 1px 2px #000c; line-height: 1; background: none; border: 0; padding: 0; white-space: nowrap; }
 .hud-portrait { left: 1%; top: 2%; width: 13%; height: 72%; border-radius: 50%; }
@@ -744,7 +751,7 @@
 .hud-res small { font-size: calc(var(--hud-w) * .02); font-weight: 600; color: #a6e27a; }
 .hud-res-full { color: #ff9a86 !important; }
 
-.painted-nav { --nav-w: min(100vw - 4px, 560px); position: fixed; z-index: 4; left: 50%; bottom: calc(env(safe-area-inset-bottom, 0px) + 2px); transform: translateX(-50%); width: var(--nav-w); aspect-ratio: 2162 / 470; pointer-events: auto; filter: drop-shadow(0 -4px 10px #0007); }
+.painted-nav { --nav-w: min(100vw - 4px, 560px); position: fixed; z-index: 4; left: 50%; bottom: calc(var(--sa-bottom) + 2px); transform: translateX(-50%); width: var(--nav-w); aspect-ratio: 2162 / 470; pointer-events: auto; filter: drop-shadow(0 -4px 10px #0007); }
 .painted-nav > img { position: absolute; inset: 0; width: 100%; height: 100%; }
 .painted-nav-cell { position: absolute; top: 16%; height: 80%; background: none; border: 0; border-radius: 10px; }
 .painted-nav-cell:first-of-type { top: 0; height: 100%; }
@@ -753,24 +760,24 @@
 .painted-badge { position: absolute; transform: translate(-50%, -50%); color: #fff; font-weight: 800; font-size: 13px; line-height: 1; font-family: var(--font-heading), Georgia, serif; text-shadow: 0 1px 2px #000a; pointer-events: none; }
 .painted-nav-badge { top: 14%; left: 78%; min-width: 20px; padding: 3px 5px; border-radius: 10px; background: #b8231c; border: 1px solid #f1cf7f; }
 
-.painted-side { position: fixed; z-index: 3; right: 6px; top: calc(env(safe-area-inset-top, 0px) + (min(100vw - 8px, 560px) * .243) + 14px); display: flex; flex-direction: column; gap: 4px; pointer-events: auto; }
+.painted-side { position: fixed; z-index: 3; right: 6px; top: calc(var(--sa-top) + (min(100vw - 8px, 560px) * .243) + 14px); display: flex; flex-direction: column; gap: 4px; pointer-events: auto; }
 .painted-side button { position: relative; width: 62px; background: none; border: 0; padding: 0; filter: drop-shadow(0 4px 6px #0008); }
 .painted-side img { display: block; width: 100%; height: auto; }
 .painted-side .painted-badge { font-size: 12px; }
 
-.painted-quest { position: fixed; z-index: 3; left: 6px; top: calc(env(safe-area-inset-top, 0px) + (min(100vw - 8px, 560px) * .243) + 14px); width: min(58vw, 300px); aspect-ratio: 520 / 154; background: none; border: 0; padding: 0; text-align: left; pointer-events: auto; filter: drop-shadow(0 4px 8px #0008); }
+.painted-quest { position: fixed; z-index: 3; left: 6px; top: calc(var(--sa-top) + (min(100vw - 8px, 560px) * .243) + 14px); width: min(58vw, 300px); aspect-ratio: 520 / 154; background: none; border: 0; padding: 0; text-align: left; pointer-events: auto; filter: drop-shadow(0 4px 8px #0008); }
 .painted-quest img { position: absolute; inset: 0; width: 100%; height: 100%; }
 .painted-quest-text { position: absolute; left: 33%; right: 13%; top: 18%; bottom: 36%; display: flex; align-items: center; color: #fff1d6; font-size: 12px; line-height: 1.2; font-family: var(--font-heading), Georgia, serif; text-shadow: 0 1px 2px #000; overflow: hidden; }
 .painted-quest-count { font-variant-numeric: lining-nums; position: absolute; right: 14%; bottom: 14%; color: #f1d892; font-size: 11px; font-weight: 700; }
 .painted-quest-done .painted-quest-count { color: #9fe07a; }
 
 /* Boyalı panellere göre yeniden yerleşim. */
-.game-shell .advisor-bar { top: calc(env(safe-area-inset-top, 0px) + (min(100vw - 8px, 560px) * .243) + 14px + min(58vw, 300px) * .296 + 8px); }
-.game-shell .map-top-tools { top: calc(env(safe-area-inset-top, 0px) + (min(100vw - 8px, 560px) * .243) + 234px); bottom: auto; right: 16px; }
+.game-shell .advisor-bar { top: calc(var(--sa-top) + (min(100vw - 8px, 560px) * .243) + 14px + min(58vw, 300px) * .296 + 8px); }
+.game-shell .map-top-tools { top: calc(var(--sa-top) + (min(100vw - 8px, 560px) * .243) + 234px); bottom: auto; right: 16px; }
 .game-shell .map-top-tools button { width: 34px; height: 34px; }
-.game-shell .hud-ticker { bottom: calc(env(safe-area-inset-bottom, 0px) + min(100vw - 4px, 560px) * .217 + 8px); }
+.game-shell .hud-ticker { bottom: calc(var(--sa-bottom) + min(100vw - 4px, 560px) * .217 + 8px); }
 .game-shell .bottom-navigation { display: none; }
-.island-view { padding-top: calc(env(safe-area-inset-top, 0px) + (min(100vw - 8px, 560px) * .243) + 16px); padding-bottom: calc(env(safe-area-inset-bottom, 0px) + min(100vw - 4px, 560px) * .217 + 60px); }
+.island-view { padding-top: calc(var(--sa-top) + (min(100vw - 8px, 560px) * .243) + 16px); padding-bottom: calc(var(--sa-bottom) + min(100vw - 4px, 560px) * .217 + 60px); }
 .game-island .painted-quest { display: none; }
 .island-toolbar { padding-right: 76px; }
 .unit-role { font-style: normal; font-size: 10px; font-weight: 600; letter-spacing: .04em; color: var(--gold); margin-left: 4px; text-transform: uppercase; }
@@ -790,7 +797,7 @@
 .piracy-target[aria-pressed="true"] { border-color: var(--gold); box-shadow: 0 0 0 1px var(--gold) inset; }
 .piracy-target:disabled { opacity: .55; cursor: not-allowed; }
 .people-cap { font-size: .7em; font-weight: 500; color: var(--muted-foreground); }
-.threat-banner { position: fixed; z-index: 4; left: 6px; top: calc(env(safe-area-inset-top, 0px) + (min(100vw - 8px, 560px) * .243) + (min(58vw, 300px) * .3) + 20px); max-width: min(72vw, 320px); display: flex; align-items: center; gap: 8px; padding: 8px 12px; border: 1px solid #f3b3a0; border-radius: 12px; background: #7d2419f0; color: #fff3ea; text-align: left; pointer-events: auto; box-shadow: 0 4px 12px #0008; animation: threat-pulse 1.6s ease-in-out infinite; }
+.threat-banner { position: fixed; z-index: 4; left: 6px; top: calc(var(--sa-top) + (min(100vw - 8px, 560px) * .243) + (min(58vw, 300px) * .3) + 20px); max-width: min(72vw, 320px); display: flex; align-items: center; gap: 8px; padding: 8px 12px; border: 1px solid #f3b3a0; border-radius: 12px; background: #7d2419f0; color: #fff3ea; text-align: left; pointer-events: auto; box-shadow: 0 4px 12px #0008; animation: threat-pulse 1.6s ease-in-out infinite; }
 .threat-banner svg { flex-shrink: 0; width: 20px; height: 20px; color: #ffd27a; }
 .threat-banner span { display: flex; flex-direction: column; min-width: 0; line-height: 1.2; }
 .threat-banner strong { font-size: 13px; font-variant-numeric: tabular-nums lining-nums; }
@@ -859,7 +866,7 @@
     repeating-linear-gradient(0deg, #0000 0 3px, #8a5a2208 3px 4px),
     linear-gradient(180deg, #f5e6bd, #e9d29c);
 }
-.bp-bar { flex-shrink: 0; display: flex; align-items: center; gap: 8px; padding: calc(env(safe-area-inset-top, 0px) + 8px) 10px 8px;
+.bp-bar { flex-shrink: 0; display: flex; align-items: center; gap: 8px; padding: calc(var(--sa-top) + 8px) 10px 8px;
   background: linear-gradient(180deg, #6a3f1b, var(--brown-2)); border-bottom: 3px solid #c9a45a; box-shadow: 0 3px 10px #0006; color: #f7e5b5; }
 .bp-back { width: 40px; height: 40px; flex-shrink: 0; display: grid; place-items: center; border-radius: 50%; border: 1px solid #c9a45a88; background: #2a170899; color: #f7e5b5; }
 .bp-back svg { width: 20px; height: 20px; }
@@ -870,7 +877,7 @@
 .bp-level { position: relative; width: 44px; height: 46px; flex-shrink: 0; display: grid; place-items: center; }
 .bp-level img { position: absolute; inset: 0; width: 100%; height: 100%; }
 .bp-level b { position: relative; font-family: var(--font-heading), Georgia, serif; font-size: 18px; color: #fbe9bb; text-shadow: 0 1px 2px #000; }
-.bp-scroll { flex: 1; overflow-y: auto; overscroll-behavior: contain; padding: 0 12px calc(env(safe-area-inset-bottom, 0px) + 24px); display: flex; flex-direction: column; gap: 12px; max-width: 560px; width: 100%; margin: 0 auto; }
+.bp-scroll { flex: 1; overflow-y: auto; overscroll-behavior: contain; padding: 0 12px calc(var(--sa-bottom) + 24px); display: flex; flex-direction: column; gap: 12px; max-width: 560px; width: 100%; margin: 0 auto; }
 .bp-hero { position: relative; margin: 0 -12px; height: 210px; display: grid; place-items: end center; overflow: hidden;
   background: radial-gradient(60% 50% at 50% 70%, #cfe3a9 0%, transparent 70%), linear-gradient(180deg, #9fcbe0 0%, #cfe6ee 45%, #b8cf8a 46%, #8fb065 100%);
   border-bottom: 2px solid var(--edge); box-shadow: inset 0 -20px 30px #5a351722; }
@@ -974,9 +981,9 @@
  * OYUN ÇERÇEVESİ (ika-hud.tsx) — tek görünüm dili: kahverengi şerit,
  * parşömen kaynak şeridi, danışman madalyonları, kahverengi alt menü.
  * ========================================================================= */
-.game-shell { --ika-top: calc(env(safe-area-inset-top, 0px) + 94px); --ika-nav: calc(env(safe-area-inset-bottom, 0px) + 62px); background: #6f9a5a; }
+.game-shell { --ika-top: calc(var(--sa-top) + 94px); --ika-nav: calc(var(--sa-bottom) + 62px); background: #6f9a5a; }
 .ika-top { position: fixed; z-index: 5; top: 0; left: 0; right: 0; pointer-events: auto; box-shadow: 0 3px 10px #0007; }
-.ika-ribbon { display: flex; align-items: center; gap: 8px; padding: calc(env(safe-area-inset-top, 0px) + 5px) 8px 5px;
+.ika-ribbon { display: flex; align-items: center; gap: 8px; padding: calc(var(--sa-top) + 5px) 8px 5px;
   background: linear-gradient(180deg, #6a3f1b, #3a210c); border-bottom: 2px solid #c9a45a; }
 .ika-city { flex: 1; min-width: 0; display: flex; align-items: center; gap: 8px; background: none; border: 0; padding: 0; color: #fbe9bb; text-align: left; }
 .ika-city > svg { width: 16px; height: 16px; flex-shrink: 0; color: #e2bd78; }
@@ -1003,7 +1010,7 @@
 .ika-chip small { font-size: 9.5px; color: #3f7d1f; font-weight: 700; }
 .ika-chip-full { background: #f7d9cf; border-color: #c96a55; }
 .ika-chip-full small { color: #a3321f; }
-.ika-nav { position: fixed; z-index: 5; left: 0; right: 0; bottom: 0; display: flex; padding: 4px 4px calc(env(safe-area-inset-bottom, 0px) + 4px);
+.ika-nav { position: fixed; z-index: 5; left: 0; right: 0; bottom: 0; display: flex; padding: 4px 4px calc(var(--sa-bottom) + 4px);
   background: linear-gradient(180deg, #5a3517, #2e1a09); border-top: 2px solid #c9a45a; box-shadow: 0 -3px 10px #0007; pointer-events: auto; }
 .ika-nav-item { position: relative; flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 5px 0 3px; border: 0; border-radius: 8px; background: none; color: #e7d3a4; font-size: 11px; font-weight: 700; }
 .ika-nav-item svg { width: 22px; height: 22px; }
@@ -1531,7 +1538,7 @@
   --t-ink: #3a2310; --t-gold: #e8cf8f; --t-lacquer: #9c2a1c; --t-paper: #f5e6bd; --t-edge: #9c7440;
   position: fixed; inset: 0; z-index: 10; overflow-y: auto; overscroll-behavior: contain;
   display: flex; flex-direction: column; align-items: center; gap: 14px;
-  padding: calc(env(safe-area-inset-top, 0px) + 28px) 16px calc(env(safe-area-inset-bottom, 0px) + 18px);
+  padding: calc(var(--sa-top) + 28px) 16px calc(var(--sa-bottom) + 18px);
   background: #0c2427; color: var(--t-paper);
 }
 .title-sea { position: fixed; inset: -4%; background-size: cover; background-position: 50% 55%; filter: saturate(0.9) brightness(0.72); transform: scale(1.15); animation: title-drift 40s ease-in-out infinite alternate; }
@@ -1588,3 +1595,110 @@
 .title-notes-scroll { max-height: 46dvh; overflow-y: auto; padding-right: 4px; }
 .title-foot { text-align: center; font-size: 11px; line-height: 1.6; color: #e6f0ea; text-shadow: 0 1px 3px #000c; margin-top: auto; }
 @media (prefers-reduced-motion: reduce) { .title-sea, .title-skyline .is-ship { animation: none; } }
+
+/* ── BİLDİRİMLER (sonner): küçük parşömen şerit, en fazla iki tane ─────── */
+[data-sonner-toaster] [data-sonner-toast] {
+  padding: 9px 12px; min-height: 0; gap: 8px; border-radius: 12px; font-size: 13px; font-weight: 600; line-height: 1.3;
+  background: linear-gradient(180deg, #fff8e4, #f1dfb2); color: #3a2310; border: 1.5px solid #9c7440;
+  box-shadow: 0 6px 16px #3a231040;
+}
+[data-sonner-toaster] [data-sonner-toast][data-type='success'] [data-icon] { color: #3f7a2e; }
+[data-sonner-toaster] [data-sonner-toast][data-type='error'] { background: linear-gradient(180deg, #fff1ea, #f4d2c2); border-color: #a3321f; color: #6e1a10; }
+[data-sonner-toaster] [data-sonner-toast][data-type='error'] [data-icon] { color: #a3321f; }
+
+/* ── DÜNYA HARİTASI: rakip savaşları ve yoldaki gemiler ─────────────────── */
+.wm-war-line { stroke: #c0392b; stroke-width: 3; stroke-dasharray: 7 6; fill: none; opacity: 0.85; animation: wm-march 1.2s linear infinite; }
+@keyframes wm-march { to { stroke-dashoffset: -26; } }
+.wm-war-mark { animation: wm-pulse 1.6s ease-in-out infinite; transform-box: fill-box; }
+@keyframes wm-pulse { 50% { opacity: 0.55; } }
+.wm-ship { filter: drop-shadow(0 1px 1px #0008); }
+.wm-dot.wm-war { background: #c0392b; }
+@media (prefers-reduced-motion: reduce) { .wm-war-line, .wm-war-mark { animation: none; } }
+
+/* ── TEKLİFLER, HABERLER, TEMPO ─────────────────────────────────────────── */
+.world-panel .world-tabs { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+.world-panel .world-tabs button { font-size: 10.5px; padding-inline: 1px; }
+.pace-tabs { grid-template-columns: repeat(3, minmax(0, 1fr)) !important; margin-bottom: 6px; }
+.pace-tabs button { padding: 10px 4px; font-size: 12.5px; }
+.proposals { display: flex; flex-direction: column; gap: 10px; }
+.proposal-card { display: flex; flex-direction: column; gap: 8px; padding: 12px; border-radius: 12px; background: linear-gradient(180deg, #fffaf0, #f6e8c4); border: 1.5px solid #b8955a; box-shadow: 0 2px 6px #5a351722; }
+.proposal-card.is-harac { border-color: #a3321f; background: linear-gradient(180deg, #fff5ef, #f5dccd); }
+.proposal-card.is-hediye, .proposal-card.is-anlasma { border-color: #4f7d4a; }
+.proposal-card header { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.proposal-kind { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 800; letter-spacing: 0.8px; text-transform: uppercase; color: #5a3517; }
+.proposal-kind svg { width: 16px; height: 16px; }
+.is-harac .proposal-kind { color: #a3321f; }
+.proposal-card time { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; color: #6e4d2a; font-variant-numeric: tabular-nums; }
+.proposal-from { display: flex; flex-direction: column; align-items: flex-start; text-align: left; background: none; border: 0; padding: 0; }
+.proposal-from strong { font-family: var(--font-heading), Georgia, serif; font-size: 20px; line-height: 1.1; color: #3a2310; }
+.proposal-from small { font-size: 11.5px; color: #6e4d2a; }
+.proposal-text { font-size: 13px; line-height: 1.45; color: #3a2310; font-style: italic; }
+.proposal-deal { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.deal-chip { display: inline-flex; align-items: center; gap: 5px; padding: 5px 10px 5px 8px; border-radius: 999px; background: #fffaf0; border: 1px solid #d9bd85; font-variant-numeric: tabular-nums; }
+.deal-chip small { font-size: 10px; font-weight: 800; letter-spacing: 0.6px; text-transform: uppercase; color: #6e4d2a; }
+.deal-chip b { font-size: 14px; color: #3a2310; }
+.proposal-swap { font-size: 18px; color: #8a5a22; }
+.proposal-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.war-row { display: flex; flex-direction: column; gap: 5px; padding: 10px 0; border-bottom: 1px solid #e0c995; }
+.war-sides { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 8px; }
+.war-sides button { background: none; border: 0; font-family: var(--font-heading), Georgia, serif; font-size: 17px; font-weight: 700; color: #3a2310; }
+.war-sides button:first-child { text-align: right; }
+.war-sides button:last-child { text-align: left; }
+.war-sides svg { width: 18px; height: 18px; color: #a3321f; }
+.war-meter { display: block; height: 8px; border-radius: 99px; background: #6e8fb0; overflow: hidden; border: 1px solid #5a3517; }
+.war-meter span { display: block; height: 100%; background: linear-gradient(90deg, #a3321f, #c9543f); transition: width 0.6s; }
+.war-row small { font-size: 11.5px; color: #6e4d2a; text-align: center; }
+.news-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
+.news-list li { display: grid; grid-template-columns: 30px 1fr auto; gap: 8px; align-items: center; padding: 8px 0; border-bottom: 1px solid #e8d4a6; font-size: 13px; line-height: 1.4; color: #3a2310; }
+.news-list li > i { display: grid; place-items: center; width: 28px; height: 28px; border-radius: 50%; background: #f1e0b4; color: #5a3517; }
+.news-list li > i svg { width: 15px; height: 15px; }
+.news-list .news-savas > i, .news-list .news-catisma > i { background: #f3d2c7; color: #a3321f; }
+.news-list .news-baris > i, .news-list .news-anlasma > i { background: #d9e8cf; color: #3f6a37; }
+.news-list .news-ticaret > i { background: #d4e6ec; color: #2f6f86; }
+.news-list time { display: block; font-size: 10.5px; color: #8a6a44; font-variant-numeric: tabular-nums; margin-top: 1px; }
+.news-list button { display: grid; place-items: center; width: 34px; height: 34px; border-radius: 50%; background: none; border: 1px solid #d9bd85; color: #5a3517; }
+.rival-war { display: flex; align-items: center; gap: 5px; font-size: 11.5px; font-weight: 700; color: #a3321f; }
+
+/* ── ALT MENÜ (0.25): beş düğme, ortada yükseltilmiş Harita madalyonu ───── */
+.game-shell { --ika-nav: calc(var(--sa-bottom) + 64px); }
+/* Sayfalar alt menünün üstünde biter; menü her ekrandan erişilir. */
+.game-shell .bp { bottom: var(--ika-nav); }
+.game-shell .bp .bp-scroll { padding-bottom: 28px; }
+.game-shell .ika-nav {
+  z-index: 70; height: var(--ika-nav); align-items: stretch; gap: 2px; padding: 5px 6px calc(var(--sa-bottom) + 5px);
+  background:
+    repeating-linear-gradient(90deg, #0000 0 22px, #ffffff06 22px 23px),
+    linear-gradient(180deg, #6a3f1b 0%, #4a2a10 45%, #2e1a09 100%);
+  border-top: 0; box-shadow: 0 -1px 0 #e2bd78, 0 -3px 0 #7a4e24, 0 -8px 18px #0008;
+}
+.game-shell .ika-nav-item {
+  flex: 1; min-width: 0; justify-content: center; gap: 1px; padding: 0; border-radius: 12px; color: #e9d3a0;
+  font-size: 10.5px; letter-spacing: .02em; transition: background .15s, color .15s, transform .08s;
+}
+.game-shell .ika-nav-item:active { transform: translateY(1px); }
+.game-shell .ika-nav-icon { display: grid; place-items: center; width: 34px; height: 30px; border-radius: 10px; }
+.game-shell .ika-nav-icon svg { width: 22px; height: 22px; filter: drop-shadow(0 1px 0 #0008); }
+.game-shell .ika-nav-label { line-height: 1; text-shadow: 0 1px 0 #0009; }
+.game-shell .ika-nav-active { background: none; box-shadow: none; color: #ffe7a8; }
+.game-shell .ika-nav-active .ika-nav-icon { background: radial-gradient(circle at 50% 35%, #f4d488, #b8813f 70%); color: #2e1807; box-shadow: inset 0 1px 0 #fff7, 0 0 0 1px #3a210c, 0 0 12px #f4d48866; }
+.game-shell .ika-nav-active .ika-nav-icon svg { filter: none; }
+.game-shell .ika-nav-active .ika-nav-label { color: #ffe7a8; }
+.game-shell .ika-nav-item:focus-visible { outline: 2px solid #ffe7a8; outline-offset: -2px; }
+/* Ortadaki madalyon: bardan taşar, altın halka, pusula. */
+.game-shell .ika-nav-center { position: relative; }
+.game-shell .ika-nav-center .ika-nav-icon {
+  position: relative; margin-top: -26px; width: 56px; height: 56px; border-radius: 50%; color: #fbe9bb;
+  background: radial-gradient(circle at 45% 35%, #2f7a92, #17445a 70%);
+  box-shadow: 0 0 0 3px #e2bd78, 0 0 0 5px #5a3517, 0 6px 12px #000a, inset 0 2px 0 #ffffff40;
+}
+.game-shell .ika-nav-center .ika-nav-icon svg { width: 28px; height: 28px; }
+.game-shell .ika-nav-center.ika-nav-active .ika-nav-icon { background: radial-gradient(circle at 45% 35%, #f4d488, #b8813f 70%); color: #2e1807; }
+.game-shell .ika-nav-center .ika-nav-label { margin-top: 2px; }
+.game-shell .ika-nav-item .ika-badge { top: -4px; right: calc(50% - 26px); z-index: 1; }
+.game-shell .ika-nav-center .ika-badge { top: -30px; right: calc(50% - 32px); }
+.map-top-tools .map-offer { position: relative; background: radial-gradient(circle at 45% 35%, #fff3d4, #e2bd78); color: #5a3517; animation: offer-bob 1.8s ease-in-out infinite; }
+.map-top-tools .map-offer b { position: absolute; top: -6px; right: -6px; min-width: 18px; height: 18px; padding: 0 4px; border-radius: 9px; background: #b3261e; color: #fff; font-size: 11px; line-height: 18px; }
+@keyframes offer-bob { 50% { transform: translateY(-3px) rotate(-4deg); } }
+@media (prefers-reduced-motion: reduce) { .map-top-tools .map-offer { animation: none; } }
+/* Olay şeridi, ortadaki Harita madalyonunun üstünde kalır. */
+.game-shell .hud-ticker { bottom: calc(var(--ika-nav) + 30px); }

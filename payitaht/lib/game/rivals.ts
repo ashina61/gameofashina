@@ -18,6 +18,7 @@ import { troopList, type Troops } from './battle'
 import { idleMerchants, shipCargo } from './expeditions'
 import { activeCity, advanceEmpire, type CityRecord, type Empire } from './empire'
 import { ISLANDS, type IslandId } from './islands'
+import { aiHour, busyAtWar, parseAi, worldNews, PACES, type News, type Pace, type Proposal, type RivalWar } from './ai'
 
 export type RivalStyle = 'tuccar' | 'savasci' | 'alim' | 'denizci'
 export type FactionId = 'dogu' | 'bati'
@@ -63,14 +64,28 @@ export type World = {
   spies?: ForeignSpy[]
   /** Şehir başına son kovma denemesi. */
   expelAt?: Record<string, number>
+  /** Yapay rakiplerin temposu (deneme için "hareketli"). Yoksa "normal". */
+  pace?: Pace
+  /** Rakiplerin kendi aralarındaki savaşlar (ai.ts). */
+  wars?: RivalWar[]
+  /** Dünya haberleri: savaş, barış, ticaret, büyüme. */
+  news?: News[]
+  /** Rakiplerin sana getirdiği teklifler (ticaret, anlaşma, haraç, yardım, hediye). */
+  proposals?: Proposal[]
+  /** Savaşlarla kazanılan / kaybedilen güç (seviye farkı, -5..+5). */
+  power?: Record<string, number>
+  /** Haraç ödendi: bu zamana kadar o hükümdar saldırmaz. */
+  truce?: Record<string, number>
 }
 export type ForeignSpy = { id: string; rivalId: string; cityId: string; since: number }
 export const MAX_FOREIGN_SPIES = 3
+/** Aynı anda yolda olabilecek en fazla teslimat (ambarı dolu limanda bekleyenler dahil). */
+export const MAX_DELIVERIES = 60
 export const EXPEL_COOLDOWN_MS = 30 * 60_000
 
 const HOUR = 3600_000
 const clamp = (n: number, a: number, b: number) => Math.max(a, Math.min(b, n))
-function roll(seed: string) {
+export function roll(seed: string) {
   let h = 2166136261
   for (let i = 0; i < seed.length; i++) h = Math.imul(h ^ seed.charCodeAt(i), 16777619)
   h ^= h >>> 13; h = Math.imul(h, 0x5bd1e995); h ^= h >>> 15
@@ -91,7 +106,7 @@ export function rivalState(empire: Empire, id: string): RivalState {
   if (!w.rivals[id]) w.rivals[id] = { relation: 0, lootedAt: 0, treaties: [], giftAt: 0, greetDay: '' }
   return w.rivals[id]
 }
-const peek = (empire: Empire, id: string): RivalState =>
+export const peek = (empire: Empire, id: string): RivalState =>
   empire.world?.rivals[id] ?? { relation: 0, lootedAt: 0, treaties: [], giftAt: 0, greetDay: '' }
 export function mail(empire: Empire, time: number, from: string, subject: string, body: string, rivalId?: string) {
   const w = world(empire)
@@ -99,7 +114,7 @@ export function mail(empire: Empire, time: number, from: string, subject: string
   if (rivalId) msg.rivalId = rivalId
   w.messages = [msg, ...w.messages].slice(0, 40)
 }
-function relate(empire: Empire, id: string, delta: number) {
+export function relate(empire: Empire, id: string, delta: number) {
   const s = rivalState(empire, id)
   s.relation = clamp(Math.round(s.relation + delta), -100, 100)
 }
@@ -108,7 +123,7 @@ function relate(empire: Empire, id: string, delta: number) {
 
 export function rivalLevel(empire: Empire, r: Rival, now: number) {
   const start = empire.world?.start ?? now
-  return clamp(r.base + Math.floor(Math.max(0, now - start) / (5 * HOUR)), 1, 40)
+  return clamp(r.base + Math.floor(Math.max(0, now - start) / (5 * HOUR)) + (empire.world?.power?.[r.id] ?? 0), 1, 40)
 }
 export function rivalGarrison(level: number, style: RivalStyle): Army {
   const k = style === 'savasci' ? 1.4 : style === 'tuccar' ? 0.8 : 1
@@ -334,6 +349,7 @@ export function pacified(empire: Empire, rivalId: string) {
   const r = rivalById(rivalId)
   if (!r) return false
   return peek(empire, rivalId).treaties.includes('baris') || empire.world?.alliance === r.faction ||
+    (empire.world?.truce?.[rivalId] ?? 0) > (empire.world?.slot ?? 0) * HOUR ||
     (empire.missions ?? []).some(m => m.npcId === rivalId && m.stationed && (m.kind === 'occupy' || m.kind === 'blockade'))
 }
 
@@ -347,6 +363,11 @@ export function onRivalRaided(empire: Empire, rivalId: string, city: CityRecord,
   s.lootedAt = at
   relate(empire, rivalId, -25)
   for (const other of factionMembers(r.faction)) if (other.id !== rivalId) relate(empire, other.id, -5)
+  // Düşmanımın düşmanı: bu hükümdarla savaşta olan rakip sevinir.
+  for (const war of empire.world?.wars ?? []) {
+    const foe = war.a === rivalId ? war.b : war.b === rivalId ? war.a : null
+    if (foe) relate(empire, foe, 5)
+  }
   revenge(empire, r, city, at)
 }
 function revenge(empire: Empire, r: Rival, city: CityRecord, at: number) {
@@ -383,16 +404,19 @@ export function declareWar(empire: Empire, r: Rival, city: CityRecord, at: numbe
   const aim = intent === 'occupy' ? 'şehrinizi işgal etmek' : intent === 'blockade' ? 'limanınızı abluka etmek' : 'hazinenizi yağmalamak'
   mail(empire, at, r.ruler, 'Savaş ilanı', `${city.name} üzerine yürüyoruz; niyetimiz ${aim}. Ordumuz iki saate kapınızda.${spy ? ' Casuslarımız surlarınızı iyi tanıyor.' : ''}`, r.id)
   logEvent(city.game, `${r.ruler} savaş ilan etti! Ordusu iki saate ${city.name} kapısında (${aim.split(' ').pop()}).`, at)
+  worldNews(empire, at, 'savas', `${r.ruler} (${r.city}) senin şehrin ${city.name} üzerine yürüyor.`, [r.id])
 }
 /** Saatlik dünya olayı: düşman bir hükümdar savaş ilan eder mi? */
 function considerWar(empire: Empire, at: number, s: number) {
   if ((empire.threats ?? []).some(t => rivalById(t.npcId)) || (empire.sieges ?? []).length) return
-  const cities = empire.cities.filter(c => c.game.buildings.divan >= 5 && !(empire.threats ?? []).some(t => t.cityId === c.id))
-  if (!cities.length) return
   const w = world(empire)
-  // Kışkırtılmamış savaşçı hükümdarlar dünyanın ilk iki gününde saldırmaz.
-  const seasoned = at - w.start >= 2 * 24 * HOUR
-  const cands = RIVALS.filter(r => !pacified(empire, r.id) && w.alliance !== r.faction &&
+  const pace = PACES[w.pace ?? 'normal']
+  const cities = empire.cities.filter(c => c.game.buildings.divan >= pace.warDivan && !(empire.threats ?? []).some(t => t.cityId === c.id))
+  if (!cities.length) return
+  // Kışkırtılmamış savaşçı hükümdarlar dünyanın ilk günlerinde saldırmaz (hareketli tempoda bekleme yok).
+  const seasoned = at - w.start >= pace.graceHours * HOUR
+  // Başka bir rakiple savaşan hükümdarın ordusu cephededir.
+  const cands = RIVALS.filter(r => !pacified(empire, r.id) && w.alliance !== r.faction && !busyAtWar(empire, r.id) &&
     (peek(empire, r.id).relation <= -10 || (r.style === 'savasci' && seasoned && peek(empire, r.id).relation <= 0)))
     .sort((a, b) => peek(empire, a.id).relation - peek(empire, b.id).relation)
   for (const r of cands) {
@@ -465,11 +489,11 @@ export function marketOffers(empire: Empire, now: number): MarketOffer[] {
   }
   return out.filter(o => !(empire.world?.traded ?? []).includes(o.id))
 }
-const addGood = (g: Game, good: Good, n: number) => {
+export const addGood = (g: Game, good: Good, n: number) => {
   if ((LUXURY_IDS as readonly string[]).includes(good)) g.luxury[good as keyof Game['luxury']] += n
   else g.resources[good as keyof Game['resources']] += n
 }
-const stockOf = (g: Game, good: Good) => (LUXURY_IDS as readonly string[]).includes(good) ? g.luxury[good as keyof Game['luxury']] : g.resources[good as keyof Game['resources']]
+export const stockOf = (g: Game, good: Good) => (LUXURY_IDS as readonly string[]).includes(good) ? g.luxury[good as keyof Game['luxury']] : g.resources[good as keyof Game['resources']]
 /* ------------------------------------------------------- ASKER TİCARETİ */
 
 /** Paralı asker teklifi: savaşçı ve denizci hükümdarlar saat başı birlik satar. */
@@ -532,6 +556,7 @@ export function acceptOffer(source: Empire, offerId: string, now: number): { emp
   const total = Math.round(offer.amount * offer.price)
   const eta = now + Math.round(seaMinutes(r.islandId, city.islandId) * 60_000 * travelFactor(g))
   const w = world(empire)
+  if (w.deliveries.length >= MAX_DELIVERIES) return { empire, error: 'Limanlarda bekleyen yük çok; önce ambarlarda yer aç.' }
   if (offer.side === 'sell') {
     if (g.resources.gold < total) return { empire, error: `${total} akçe gerekli.` }
     g.resources.gold -= total
@@ -632,7 +657,8 @@ export function advanceWorld(empire: Empire, now: number) {
       if (!m.stationed || (m.kind !== 'occupy' && m.kind !== 'blockade') || at <= m.arriveAt) continue
       m.loot = { ...m.loot, gold: m.loot.gold + stationTribute(empire, m.npcId, m.kind, at) }
     }
-    if (s % 6 === 3) considerWar(empire, at, s)
+    if (s % PACES[w.pace ?? 'normal'].warEvery === 3 % PACES[w.pace ?? 'normal'].warEvery) considerWar(empire, at, s)
+    aiHour(empire, at, s)
     if (s % 6 === 0) {
       const r = RIVALS[Math.floor(roll(`mail-${s}`) * RIVALS.length)]
       const [subject, body] = MAIL_LINES[Math.floor(roll(`line-${s}`) * MAIL_LINES.length)]
@@ -668,7 +694,7 @@ export function parseWorld(raw: unknown, cityIds: Set<string>): World | undefine
   const bad = () => { throw new Error('Dünya kaydı okunamadı.') }
   if (!w || !fin(w.start) || !Number.isInteger(w.slot) || !(w.alliance === null || w.alliance in FACTIONS) || !fin(w.allianceAt) ||
       !w.rivals || typeof w.rivals !== 'object' || !Array.isArray(w.messages) || w.messages.length > 40 ||
-      !Array.isArray(w.offers) || w.offers.length > 40 || !Array.isArray(w.deliveries) || w.deliveries.length > 60 ||
+      !Array.isArray(w.offers) || w.offers.length > 200 || !Array.isArray(w.deliveries) || w.deliveries.length > 200 ||
       !Array.isArray(w.traded) || w.traded.length > 200) bad()
   for (const [id, s] of Object.entries(w.rivals)) {
     if (!rivalById(id) || !s || !Number.isFinite(s.relation) || Math.abs(s.relation) > 100 || !fin(s.lootedAt) || !fin(s.giftAt) ||
@@ -685,6 +711,7 @@ export function parseWorld(raw: unknown, cityIds: Set<string>): World | undefine
   if (w.spies !== undefined && (!Array.isArray(w.spies) || w.spies.length > 60)) bad()
   for (const x of w.spies ?? []) if (!x || typeof x.id !== 'string' || !rivalById(x.rivalId) || !cityIds.has(x.cityId) || !fin(x.since)) bad()
   if (w.expelAt !== undefined && (typeof w.expelAt !== 'object' || !Object.entries(w.expelAt).every(([id, t]) => cityIds.has(id) && fin(t)))) bad()
+  parseAi(w, bad)
   return structuredClone(w)
 }
 

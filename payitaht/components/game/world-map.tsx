@@ -13,7 +13,9 @@ import { MIRACLES } from '@/lib/game/engine'
 import { activeCity, type Empire } from '@/lib/game/empire'
 import { ISLANDS, type IslandId } from '@/lib/game/islands'
 import { seaTravelMs } from '@/lib/game/expeditions'
-import { RIVALS, rivalLevel } from '@/lib/game/rivals'
+import { RIVALS, rivalLevel, seaMinutes } from '@/lib/game/rivals'
+import { travelFactor } from '@/lib/game/engine'
+import { rivalWarLine } from './ai-panels'
 
 const LUX_TINT: Record<string, string> = { uzum: '#8fae5a', mermer: '#d9cfae', kristal: '#9fc3c9', kukurt: '#d8b85a' }
 const U = 44 // bir koordinat birimi (px, viewBox içinde)
@@ -48,6 +50,30 @@ export function WorldMap({ empire, now, missing, onSelectCity, onColonize, onVie
   const travel = seaTravelMs(here.islandId, sel, here.game)
   const routes = useMemo(() => empire.cities.filter(c => c.id !== here.id).map(c => ISLANDS.find(i => i.id === c.islandId)!), [empire.cities, here.id])
   const home = ISLANDS.find(i => i.id === here.islandId)!
+  const at = (id: IslandId) => { const i = ISLANDS.find(x => x.id === id)!; return { x: (i.x + 0.75) * U, y: (i.y + 0.75) * U } }
+  const wars = (empire.world?.wars ?? []).map(w => {
+    const A = RIVALS.find(r => r.id === w.a)!, B = RIVALS.find(r => r.id === w.b)!
+    const p = at(A.islandId), q = at(B.islandId)
+    return { id: w.id, same: A.islandId === B.islandId, x1: p.x, y1: p.y, x2: q.x, y2: q.y, title: `${A.city} ile ${B.city} savaşta (yapay rakipler)` }
+  })
+  const ships = [
+    ...(empire.world?.deliveries ?? []).flatMap(d => {
+      const r = RIVALS.find(x => x.city === d.from), to = empire.cities.find(c => c.id === d.cityId)
+      if (!r || !to || r.islandId === to.islandId) return []
+      const dur = seaMinutes(r.islandId, to.islandId) * 60_000 * travelFactor(to.game)
+      const k = Math.max(0, Math.min(1, 1 - (d.eta - now) / dur))
+      const p = at(r.islandId), q = at(to.islandId)
+      return [{ id: d.id, x: p.x + (q.x - p.x) * k, y: p.y + (q.y - p.y) * k, title: `${d.from} gemisi ${to.name} yolunda` }]
+    }),
+    ...empire.shipments.flatMap(sh => {
+      const a = empire.cities.find(c => c.id === sh.from), b = empire.cities.find(c => c.id === sh.to)
+      if (!a || !b || a.islandId === b.islandId) return []
+      const dur = seaTravelMs(a.islandId, b.islandId, a.game)
+      const k = dur ? Math.max(0, Math.min(1, 1 - (sh.eta - now) / dur)) : 1
+      const p = at(a.islandId), q = at(b.islandId)
+      return [{ id: sh.id, x: p.x + (q.x - p.x) * k, y: p.y + (q.y - p.y) * k, title: `Nakliye: ${a.name} → ${b.name}` }]
+    }),
+  ]
   const scroller = useRef<HTMLDivElement>(null)
   // Açılışta harita kendi adana ortalanır.
   useEffect(() => {
@@ -69,6 +95,17 @@ export function WorldMap({ empire, now, missing, onSelectCity, onColonize, onVie
         {Array.from({ length: Math.ceil(maxY) }, (_, y) => <g key={`y${y}`}><path d={`M0 ${y * U} H${W}`} stroke="#ffffff" strokeOpacity="0.07" /><text x={3} y={y * U + 11} className="wm-coord">{y}</text></g>)}
         {/* Kendi şehirlerin arasındaki deniz yolları */}
         {routes.map(t => <path key={t.id} d={`M${(home.x + 0.75) * U} ${(home.y + 0.75) * U} L${(t.x + 0.75) * U} ${(t.y + 0.75) * U}`} stroke="#f6ecd6" strokeWidth="2" strokeDasharray="5 5" opacity="0.7" />)}
+        {/* Yapay rakiplerin kendi aralarındaki savaşlar: kızıl, akan kesikli çizgi. */}
+        {wars.map(w => w.same
+          ? <g key={w.id} className="wm-war-mark" transform={`translate(${w.x1} ${w.y1 - 26})`}><title>{w.title}</title><circle r="8" fill="#8a1f14" stroke="#f6ecd6" strokeWidth="1.5" /><path d="M-4 -4 L4 4 M4 -4 L-4 4" stroke="#fff4d8" strokeWidth="1.8" strokeLinecap="round" /></g>
+          : <g key={w.id}><title>{w.title}</title>
+            <path d={`M${w.x1} ${w.y1} L${w.x2} ${w.y2}`} className="wm-war-line" />
+            <g className="wm-war-mark" transform={`translate(${(w.x1 + w.x2) / 2} ${(w.y1 + w.y2) / 2})`}><circle r="8" fill="#8a1f14" stroke="#f6ecd6" strokeWidth="1.5" /><path d="M-4 -4 L4 4 M4 -4 L-4 4" stroke="#fff4d8" strokeWidth="1.8" strokeLinecap="round" /></g>
+          </g>)}
+        {/* Yoldaki gemiler: rakiplerden gelen mallar ve kendi nakliyelerin. */}
+        {ships.map(sh => <g key={sh.id} className="wm-ship" transform={`translate(${sh.x} ${sh.y})`}><title>{sh.title}</title>
+          <path d="M-7 1 H7 L4 6 H-4 Z" fill="#6b4424" stroke="#2e1c0e" strokeWidth="0.8" /><path d="M0 1 V-9 L6 -2 H0" fill="#f6ecd6" stroke="#2e1c0e" strokeWidth="0.6" />
+        </g>)}
         {ISLANDS.map(i => {
           const cx = (i.x + 0.75) * U, cy = (i.y + 0.75) * U
           const mine = empire.cities.find(c => c.islandId === i.id)
@@ -86,7 +123,7 @@ export function WorldMap({ empire, now, missing, onSelectCity, onColonize, onVie
         })}
       </svg>
     </div>
-    <div className="wm-legend"><span><i className="wm-dot wm-you" />Şehrin</span><span><i className="wm-dot wm-rival" />Yapay rakip</span><span>Renk: lüks yatağı</span></div>
+    <div className="wm-legend"><span><i className="wm-dot wm-you" />Şehrin</span><span><i className="wm-dot wm-rival" />Yapay rakip</span><span>Renk: lüks yatağı</span>{wars.length > 0 && <span><i className="wm-dot wm-war" />Rakip savaşı</span>}</div>
     <article className="wm-card">
       <div className="wm-card-top">
         <span><span className="eyebrow">[{island.x}:{island.y}] · {island.specialty.toLocaleUpperCase('tr')} YATAĞI</span><strong>{island.name}</strong>
@@ -94,7 +131,7 @@ export function WorldMap({ empire, now, missing, onSelectCity, onColonize, onVie
       </div>
       <ul className="wm-facts">
         <li><Crown className="size-3" />{own ? `Şehrin: ${own.name} (Divanhane ${own.game.buildings.divan})` : 'Burada şehrin yok'}</li>
-        {rivals.map(r => <li key={r.id}><span className="wm-dot wm-rival" />{r.city} · {r.ruler} · sv. {rivalLevel(empire, r, now)} (yapay rakip)</li>)}
+        {rivals.map(r => <li key={r.id}><span className="wm-dot wm-rival" />{r.city} · {r.ruler} · sv. {rivalLevel(empire, r, now)} (yapay rakip){rivalWarLine(empire, r.id) ? ` · ⚔ ${rivalWarLine(empire, r.id)!.split(' (')[0]}` : ''}</li>)}
         <li><Anchor className="size-3" />Üç bağımsız yerleşim: köy, korsan ini, asi kalesi</li>
         {sel !== here.islandId && <li><Clock3 className="size-3" />{here.name} şehrinden deniz yolu ~{clock(travel)}</li>}
       </ul>

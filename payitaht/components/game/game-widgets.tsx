@@ -55,7 +55,7 @@ export function ObjectiveCard({ game, onClaim, onBuild }: { game: Game; onClaim:
   const objective = OBJECTIVES.find(o => !game.claimed.includes(o.id))
   const ready = OBJECTIVES.filter(o => !game.claimed.includes(o.id) && objectiveDone(game, o.id))
   const list = <details className="objective-list">
-    <summary>Bütün adımlar · {game.claimed.length}/{OBJECTIVES.length}</summary>
+    <summary>Bütün adımlar · {game.claimed.length} tamamlandı</summary>
     <ol>{OBJECTIVES.map(o => {
       const got = game.claimed.includes(o.id), done = objectiveDone(game, o.id)
       return <li key={o.id} className={got ? 'is-got' : done ? 'is-ready' : o.id === objective?.id ? 'is-current' : ''}>
@@ -67,7 +67,7 @@ export function ObjectiveCard({ game, onClaim, onBuild }: { game: Game; onClaim:
   </details>
   if (!objective) return <section className="objective-card"><span className="eyebrow"><Check className="size-3" /> BAŞLANGIÇ TAMAMLANDI</span><h3>Bir şehirden fazlası.</h3><p>Tüm hedefleri tamamladın. Şimdi şehrini büyütmeye devam et.</p>{list}</section>
   const done = objectiveDone(game, objective.id)
-  return <section className="objective-card"><div className="objective-heading"><span className="eyebrow"><Sparkles className="size-3" /> SIRADAKİ HEDEF</span><span>{game.claimed.length + 1} / {OBJECTIVES.length}</span></div>
+  return <section className="objective-card"><div className="objective-heading"><span className="eyebrow"><Sparkles className="size-3" /> SIRADAKİ HEDEF</span><span>Adım {Math.min(OBJECTIVES.length, game.claimed.length + 1)} / {OBJECTIVES.length}</span></div>
     <span className="objective-track" aria-hidden="true"><span style={{ width: `${(game.claimed.length / OBJECTIVES.length) * 100}%` }} /></span>
     <h3>{objective.title}</h3><p>{objective.description}</p>
     <div className="objective-footer"><span><AkceArt className="size-4" /> {objective.reward} akçe</span>

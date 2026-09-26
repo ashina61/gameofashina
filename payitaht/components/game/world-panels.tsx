@@ -12,8 +12,9 @@ import { Hint } from './hint'
 import { useState } from 'react'
 import {
   Crown, Trash2, Coffee, TreePine, FlaskConical, CalendarCheck, Gift, Truck, Anchor, Flag, Trophy, Handshake,
-  Store, Mail, Send, ScrollText, Users, Swords, Eye, Check, Pencil, ShieldCheck,
+  Store, Mail, Send, ScrollText, Users, Swords, Eye, Check, Pencil, ShieldCheck, Newspaper,
 } from 'lucide-react'
+import { NewsPanel, PaceSetting, ProposalsPanel, rivalWarLine } from './ai-panels'
 import { Button } from '@/components/ui/button'
 import {
   ANARCHY_MS, BUILDINGS, FOREST_MAX_LEVEL, GOVERNMENTS, GOVERNMENT_COOLDOWN_MS, GOOD_NAMES, GOVERNMENT_IDS, UNITS, UNIT_IDS,
@@ -159,7 +160,7 @@ export function DailyPanel({ empire, run }: { empire: Empire; run: Run }) {
       return <article key={id} className="daily-task">
         <span><strong>{t.text}</strong><small>{p} / {t.need} · ödül {Object.entries(t.reward).map(([r, n]) => `${num(n!)} ${GOOD_NAMES[r as Good].toLocaleLowerCase('tr')}`).join(', ')}</small></span>
         <span className="people-meter"><span style={{ width: `${p / t.need * 100}%` }} /></span>
-        <Button size="sm" disabled={done || p < t.need} onClick={() => run(mutate((e, now) => claimTask(e, id, now)), 'Görev ödülü alındı.')}>{done ? 'Alındı' : 'Ödülü al'}</Button>
+        <Button size="sm" disabled={done || p < t.need} onClick={() => run(mutate((e, now) => claimTask(e, id, now)), 'Günlük görev ödülü hazinede.')}>{done ? 'Alındı' : p < t.need ? 'Sürüyor' : 'Ödülü al'}</Button>
       </article>
     })}
     <p className="fine-print">Görevler her gün (UTC gece yarısı) yenilenir.</p>
@@ -294,24 +295,28 @@ export function RivalSupport({ empire, rivalId, now, run }: { empire: Empire; ri
 
 /* ------------------------------------------------------------ DÜNYA */
 
-type Tab = 'rank' | 'diplo' | 'market' | 'mail'
+type Tab = 'rank' | 'diplo' | 'offers' | 'market' | 'news' | 'mail'
 export function WorldPanel({ empire, now, run, onRival, initial = 'rank' }: { empire: Empire; now: number; run: Run; onRival: (id: string) => void; initial?: Tab }) {
   const [tab, setTab] = useState<Tab>(initial)
   const unread = (empire.world?.messages ?? []).filter(m => !m.read).length
+  const offers = (empire.world?.proposals ?? []).filter(p => p.until > now).length
+  const badge = (key: Tab) => key === 'mail' ? unread : key === 'offers' ? offers : 0
   return <div className="advisor-panel world-panel">
     <p className="fine-print">{'Bu dünyadaki hükümdarlar yapay rakiplerdir, gerçek oyuncu değildir. Çevrimiçi rakipler için oyun sunucusu gerekir.'}</p>
     <div className="world-tabs" role="group" aria-label="Dünya">
-      {([['rank', 'Sıralama', Trophy], ['diplo', 'Diplomasi', Handshake], ['market', 'Pazar', Store], ['mail', 'Mektuplar', Mail]] as const)
+      {([['rank', 'Sıralama', Trophy], ['diplo', 'Diplomasi', Handshake], ['offers', 'Teklifler', Gift], ['market', 'Pazar', Store], ['news', 'Haberler', Newspaper], ['mail', 'Mektup', Mail]] as const)
         .map(([key, label, Icon]) => <button key={key} type="button" aria-pressed={tab === key}
-          aria-label={key === 'mail' && unread ? `${label}: ${unread} okunmamış` : undefined} onClick={() => {
+          aria-label={badge(key) ? `${label}: ${badge(key)} yeni` : undefined} onClick={() => {
           setTab(key)
           if (key === 'mail' && unread) run((e, x) => readMessages(e, x))
-        }}><Icon className="size-5" /><span>{label}</span>{key === 'mail' && unread > 0 && <b className="world-tab-badge">{unread}</b>}</button>)}
+        }}><Icon className="size-5" /><span>{label}</span>{badge(key) > 0 && <b className="world-tab-badge">{badge(key)}</b>}</button>)}
     </div>
     {tab === 'rank' && <Rankings empire={empire} now={now} onRival={onRival} />}
     {tab === 'diplo' && <Diplomacy empire={empire} now={now} run={run} onRival={onRival} />}
     {tab === 'market' && <TradeCenter empire={empire} now={now} run={run} onRival={onRival} />}
     {tab === 'mail' && <Inbox empire={empire} onRival={onRival} />}
+    {tab === 'offers' && <ProposalsPanel empire={empire} now={now} run={run} onRival={onRival} />}
+    {tab === 'news' && <NewsPanel empire={empire} now={now} onRival={onRival} />}
   </div>
 }
 
@@ -350,8 +355,13 @@ function Diplomacy({ empire, now, run, onRival }: { empire: Empire; now: number;
           <span><strong>{r.city}</strong><small>{r.ruler} · {STYLE_NAMES[r.style]} · {FACTIONS[r.faction].name} · Sv. {rivalLevel(empire, r, now)}</small></span>
           <span className={(s?.relation ?? 0) >= 0 ? 'report-win' : 'report-loss'}>{s?.relation ?? 0}</span>
           <small>{(s?.treaties ?? []).map(t => TREATIES[t].name.split(' ')[0]).join(' · ') || '—'}</small>
+          {rivalWarLine(empire, r.id) && <small className="rival-war"><Swords className="size-3" />{rivalWarLine(empire, r.id)}</small>}
         </button>
       })}
+    </section>
+    <section className="empire-section">
+      <h3><Swords className="size-4" /> Yapay rakip temposu</h3>
+      <PaceSetting empire={empire} run={run} />
     </section>
   </>
 }

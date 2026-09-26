@@ -14,6 +14,10 @@ const config: CapacitorConfig = {
   webDir: 'out',
   backgroundColor: '#102b29',
   android: { allowMixedContent: false },
+  plugins: {
+    // Koyu kahve çubuk üstünde açık renk saat ve simgeler; güvenli alan CSS'e aktarılır.
+    SystemBars: { style: 'DARK', insetsHandling: 'css' },
+  },
 }
 
 export default config

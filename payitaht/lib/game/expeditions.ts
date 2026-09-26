@@ -116,6 +116,9 @@ export const SPY_TYPES: Record<SpyType, { name: string; description: string; min
 }
 export const SPY_TYPE_IDS = Object.keys(SPY_TYPES) as SpyType[]
 export const MAX_REPORTS = 30
+/** Kayıt denetiminin üst sınırları: oyunun gerçekten üretebileceğinin rahatça üstünde. */
+export const MAX_THREATS = 64
+export const MAX_MISSIONS = 200
 /** Rapor listesini sınırda tutar: arşivlenenler kalır, en eski arşivlenmemişler düşer. */
 export function trimReports(list: Report[]): Report[] {
   let loose = MAX_REPORTS - list.filter(r => r.kept).length
@@ -1088,7 +1091,8 @@ export function parseMissionState(obj: Record<string, unknown>, cityIds: Set<str
       troopsOk(lb.state.a?.troops) && troopsOk(lb.state.d?.troops) && finite(lb.state.wall) && Number.isInteger(lb.state.round) &&
       lb.state.round >= 0 && lb.state.round <= MAX_ROUNDS && Array.isArray(lb.state.rounds) && Array.isArray(lb.lines) && Array.isArray(lb.done)
   }
-  if (threats.length > 8) throw new Error('Baskın kayıtları okunamadı.')
+  // 12 şehrin korsanları + 14 hükümdarın intikamı + savaş ilanı aynı anda gelebilir.
+  if (threats.length > MAX_THREATS) throw new Error('Baskın kayıtları okunamadı.')
   for (const t of threats) {
     if (!t || typeof t.id !== 'string' || !cityIds.has(t.cityId) || !targetIsland(t.npcId) || !Number.isInteger(t.level) || t.level < 1 ||
         t.level > 100 || !finite(t.arriveAt) || !troopsOk(t.troops) || !troopsOk(t.fleet) || !liveOk(t.battle) ||
@@ -1098,7 +1102,7 @@ export function parseMissionState(obj: Record<string, unknown>, cityIds: Set<str
   for (const [id, at] of Object.entries(nextThreat)) if (!cityIds.has(id) || !finite(at)) throw new Error('Baskın kayıtları okunamadı.')
   const reports = Array.isArray(obj.reports) ? (obj.reports as Report[]) : []
   const npcs = obj.npcs && typeof obj.npcs === 'object' ? (obj.npcs as Record<string, NpcState>) : {}
-  if (missions.length > 40 || reports.length > MAX_REPORTS + 10) throw new Error('Sefer kayıtları okunamadı.')
+  if (missions.length > MAX_MISSIONS || reports.length > MAX_REPORTS + 10) throw new Error('Sefer kayıtları okunamadı.')
   for (const m of missions) {
     if (!m || typeof m.id !== 'string' || !['raid', 'spy', 'piracy', 'deploy', 'occupy', 'blockade', 'support'].includes(m.kind) || !cityIds.has(m.cityId) ||
         !(m.kind === 'piracy' ? piracyTarget(m.npcId) : m.kind === 'deploy' ? cityIds.has(m.npcId) : targetIsland(m.npcId)) ||
@@ -1118,7 +1122,7 @@ export function parseMissionState(obj: Record<string, unknown>, cityIds: Set<str
     if (!npcById(id) || !s || !Number.isInteger(s.level) || s.level < 1 || s.level > MAX_NPC_LEVEL || !finite(s.raidedAt)) throw new Error('Ada kayıtları okunamadı.')
   }
   const sieges = Array.isArray(obj.sieges) ? (obj.sieges as Siege[]) : []
-  if (sieges.length > 24) throw new Error('Kuşatma kayıtları okunamadı.')
+  if (sieges.length > 48) throw new Error('Kuşatma kayıtları okunamadı.')
   for (const s of sieges) {
     if (!s || typeof s.id !== 'string' || !rivalById(s.rivalId) || !cityIds.has(s.cityId) || (s.kind !== 'occupy' && s.kind !== 'blockade') ||
         !Number.isInteger(s.level) || s.level < 1 || s.level > 100 || !finite(s.since) || !finite(s.tick) || !troopsOk(s.troops)) throw new Error('Kuşatma kayıtları okunamadı.')

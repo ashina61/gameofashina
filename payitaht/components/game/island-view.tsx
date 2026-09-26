@@ -8,6 +8,7 @@
  * ordu gönderilir; yoldaki görevler hedefin üstünde geri sayımla görünür.
  * Şehir sahnesi arkada açık kalır: ada görünümü onun üstüne biner.
  */
+import { rivalWarLine } from './ai-panels'
 import { Hint } from './hint'
 import { useState } from 'react'
 import { ArrowLeft, ScrollText, Eye, Swords, Clock3, ShieldCheck, Users, Minus, Plus, Ship, Anchor, Skull, Flag, Bookmark, BookmarkCheck, Trash2 } from 'lucide-react'
@@ -137,6 +138,7 @@ export function NpcPanel({ empire, npcId, now, onSpy, onRaid, onOccupy, onBlocka
         <span><span className="eyebrow">{npc.kindName.toLocaleUpperCase('tr')} · SEVİYE {state.level}</span>
           <strong>{npc.name}</strong><span>{rival ? `${rival.ruler} · ${STYLE_NAMES[rival.style]} · ${FACTIONS[rival.faction].name}` : NPC_KINDS[npcById(npcId)!.kind].description}</span></span>
       </div>
+      {rival && rivalWarLine(empire, rival.id) && <p className="rival-war"><Swords className="size-3" />{rivalWarLine(empire, rival.id)}</p>}
       <p className="fine-print">{rival
         ? `Yapay rakip hükümdar (gerçek oyuncu değil). Gücü dünya yaşıyla büyür; yağmalanan hazinesi 2 saatte dolar${pool.gold > 0 ? '' : ' — şu an boş'}.`
         : `Bağımsız bir yerleşim (gerçek oyuncu değil). Yağmalanınca toparlanır ve bir seviye güçlenir; hazinesi 45 dakikada dolar${pool.gold > 0 ? '' : ' — şu an boş'}.`}</p>

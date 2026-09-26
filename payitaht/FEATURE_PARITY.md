@@ -95,6 +95,7 @@ eşlenir. Durum: ✅ var · 🟡 kısmen · ❌ yok. (Güncelleme: 2026-09-26, s
 | Başka adaya sefer | Nakliye gemisiyle (40 asker/gemi) her adadaki yerleşime sefer ve casus | ✅ |
 | Şehre gelen saldırılar | Korsan baskınları: Divanhane 5'ten sonra, 15 dk önceden uyarı; donanma → sur + muhafız + ordu; ambarın %20'si korunur | ✅ |
 | Düşman oyuncunun saldırısı, işgal, abluka | Düşman ya da savaşçı hükümdarlar savaş ilan eder (2 saat önceden); şehri işgal eder ya da limanı abluka eder, saatlik haraç alır; şehirdeki ordu/filo ile kurtarma savaşı; barış kuşatmayı kaldırır | ✅ yapay rakiplerle |
+| Yaşayan dünya (diğer oyuncuların hareketi) | Yapay rakipler kendi aralarında savaşır (güç ve seviye değişir), sana satış/alım, anlaşma, haraç, yardım ve hediye teklifi getirir; dünya haberleri; deneme için tempo ayarı (sakin / normal / hareketli) | ✅ yapay rakiplerle |
 | Birliklerin lüks bedeli | Barutlu ve ağır birlikler kükürt, Aşçı üzüm, Hekim kristal ister | ✅ |
 
 ## Araştırma

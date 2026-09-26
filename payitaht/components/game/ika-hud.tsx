@@ -5,11 +5,11 @@
  *
  * Üstte koyu kahverengi şerit: şehir seçici ve dört danışman (Vezir, Serasker,
  * Âlim, Elçi). Haber olan danışman parlar ve sayı gösterir. Altında parşömen
- * kaynak şeridi. En altta kahverengi menü: Şehir, Ada, Harita, İnşa, Görevler.
+ * kaynak şeridi. En altta kahverengi menü: Şehir, Ada, Harita, Dünya, Görevler.
  * Eski boyalı görseller kullanılmaz; her şey CSS ve vektör çizimdir.
  */
 import type { ReactNode } from 'react'
-import { Castle, TreePalm, Map, ScrollText, ChevronDown } from 'lucide-react'
+import { Castle, TreePalm, Compass, Earth, ScrollText, ChevronDown } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import {
   LUXURY_NAMES, actionPoints, capacity, fullResources, maxPopulation, population, rates, researchReason, RESEARCH_IDS, type Game,
@@ -47,7 +47,7 @@ export function advisorNews(game: Game, empire: Empire | undefined, seen: Adviso
     city: Math.min(99, game.log.filter(l => l.time > seen.city).length),
     army: Math.min(99, reports + threats),
     research: idleResearch,
-    diplo: Math.min(99, (empire?.world?.messages ?? []).filter(m => !m.read).length),
+    diplo: Math.min(99, (empire?.world?.messages ?? []).filter(m => !m.read).length + (empire?.world?.proposals ?? []).filter(p => p.until > game.updatedAt).length),
   }
 }
 
@@ -98,16 +98,23 @@ export function IkaTopBar({ game, empire, news, onCity, onEconomy, onAdvisor, on
   </header>
 }
 
-export type IkaNavKey = 'city' | 'island' | 'map' | 'objectives'
+export type IkaNavKey = 'city' | 'island' | 'map' | 'world' | 'objectives'
+/**
+ * ALT MENÜ: beş düğme; ortadaki Harita yükseltilmiş madalyon. Sayfalar
+ * açıkken de görünür kalır, böylece her ekrandan tek dokunuşla geçilir.
+ */
 export function IkaNav({ active, badges, onSelect }: { active: IkaNavKey | null; badges: Partial<Record<IkaNavKey, number>>; onSelect: (k: IkaNavKey) => void }) {
   const items: { key: IkaNavKey; label: string; icon: ReactNode }[] = [
     { key: 'city', label: 'Şehir', icon: <Castle /> }, { key: 'island', label: 'Ada', icon: <TreePalm /> },
-    { key: 'map', label: 'Harita', icon: <Map /> },
+    { key: 'map', label: 'Harita', icon: <Compass /> },
+    { key: 'world', label: 'Dünya', icon: <Earth /> },
     { key: 'objectives', label: 'Görevler', icon: <ScrollText /> },
   ]
   return <nav className="ika-nav" aria-label="Oyun menüsü">{items.map(i => <button key={i.key} type="button"
-    className={cn('ika-nav-item', active === i.key && 'ika-nav-active')} aria-current={active === i.key ? 'page' : undefined} onClick={() => onSelect(i.key)}>
-    {i.icon}<span>{i.label}</span>{(badges[i.key] ?? 0) > 0 && <b className="ika-badge">{badges[i.key]}</b>}
+    className={cn('ika-nav-item', i.key === 'map' && 'ika-nav-center', active === i.key && 'ika-nav-active')} aria-current={active === i.key ? 'page' : undefined}
+    aria-label={(badges[i.key] ?? 0) > 0 ? `${i.label}: ${badges[i.key]} yeni` : i.label} onClick={() => onSelect(i.key)}>
+    <span className="ika-nav-icon" aria-hidden="true">{i.icon}</span><span className="ika-nav-label">{i.label}</span>
+    {(badges[i.key] ?? 0) > 0 && <b className="ika-badge" aria-hidden="true">{Math.min(99, badges[i.key]!)}</b>}
   </button>)}</nav>
 }
 

@@ -6,6 +6,19 @@ export type Release = { version: string; date: string; title: string; notes: str
 
 export const CHANGELOG: Release[] = [
   {
+    version: '0.25.0', date: '26 Eylül 2026', title: 'Yaşayan dünya: yapay rakipler savaşıyor ve ticaret yapıyor',
+    notes: [
+      'Yapay rakipler artık kendi aralarında savaşıyor: savaşçı ve denizci hükümdarlar öbür ittifaka savaş açar, her saat çarpışır; kazanan güçlenir, kaybeden zayıflar (seviye ve sıralama değişir).',
+      'Rakipler sana teklif getiriyor: eksik malını satar, fazla malını almak ister, anlaşma önerir, güçlü savaşçılar haraç ister, dostlar hediye yollar, savaştaki müttefikin yardım ister. Kabul et ya da geri çevir; teklifler birkaç saat sonra düşer.',
+      'Elçi sayfasında yeni Teklifler ve Haberler sekmeleri: süren savaşlar, dünya haberleri, kervanlar ve büyüyen şehirler. Haritada rakip savaşları ve yoldaki gemiler görünür.',
+      'Yapay rakip temposu (Ayarlar ve Diplomasi): Sakin, Normal ya da oyunu denemek için Hareketli.',
+      'Şehir sahnesi: sürüklenen bulut gölgeleri; cihaz saatine göre akşam kızıllığı ve gece karanlığı, gece pencerelerde kandil ışıkları. Teklif gelince şehir ekranında elçi mektubu belirir.',
+      'Yeni alt menü: Şehir, Ada, ortada Harita madalyonu, Dünya ve Görevler; sayfalar açıkken de görünür.',
+      'Android: başlıklar ve bildirimler artık durum çubuğunun altına girmiyor; bildirimler küçük ve üst üste yığılmıyor.',
+      'Düzeltmeler: aynı anda 8\'den fazla düşman ordusu gelince kaydın açılmaması, sonuçlanmamış günlük görevde "Ödülü al" yazısı, Pages sürümünde eksik simge (404).',
+    ],
+  },
+  {
     version: '0.24.0', date: '26 Eylül 2026', title: 'Android deneme sürümü ve giriş ekranı',
     notes: [
       'Oyun artık Android uygulaması (APK) olarak da kurulabiliyor: tamamen çevrimdışı, kayıt telefonda durur; yeni sürüm eskisinin üstüne kurulur.',

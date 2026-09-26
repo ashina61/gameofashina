@@ -13,6 +13,8 @@
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
         <item name="android:background">@null</item>
+        <!-- Durum ve gezinme çubuğunun arkası: oyunun koyu kahve şeridi. -->
+        <item name="android:windowBackground">@color/payitaht_bar</item>
     </style>
 
 
