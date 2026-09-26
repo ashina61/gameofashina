@@ -9,7 +9,7 @@
  * Eski boyalı görseller kullanılmaz; her şey CSS ve vektör çizimdir.
  */
 import type { ReactNode } from 'react'
-import { Coins, Trees, Mountain, BookOpen, Users, Castle, TreePalm, Map, Hammer, ScrollText, ChevronDown, Flag } from 'lucide-react'
+import { Castle, TreePalm, Map, ScrollText, ChevronDown } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import {
   LUXURY_NAMES, actionPoints, capacity, fullResources, maxPopulation, population, rates, researchReason, RESEARCH_IDS, type Game,
@@ -17,6 +17,7 @@ import {
 import { activeCity, islandOf, type Empire } from '@/lib/game/empire'
 import { actionsInUse } from '@/lib/game/expeditions'
 import { luxuryIcons } from './game-widgets'
+import { AkceArt, HamleArt, IlimArt, KeresteArt, NufusArt, TasArt } from './resource-art'
 import { AdvisorPortrait, type AdvisorId } from './advisor-portraits'
 import { RulerCrest } from './profile-panel'
 import { profileOf } from '@/lib/game/profile'
@@ -62,13 +63,13 @@ export function IkaTopBar({ game, empire, news, onCity, onEconomy, onAdvisor, on
   const lux = game.mine.specialty
   const LuxIcon = luxuryIcons[lux]
   const chips: { key: string; icon: ReactNode; value: string; sub?: string; label: string; full?: boolean }[] = [
-    { key: 'gold', icon: <Coins />, value: compact(game.resources.gold), sub: `${r.gold >= 0 ? '+' : ''}${compact(r.gold)}`, label: 'Akçe', full: full.includes('gold') },
-    { key: 'wood', icon: <Trees />, value: compact(game.resources.wood), sub: `+${compact(r.wood)}`, label: 'Kereste', full: full.includes('wood') },
-    { key: 'stone', icon: <Mountain />, value: compact(game.resources.stone), sub: `+${compact(r.stone)}`, label: 'Taş', full: full.includes('stone') },
-    { key: 'knowledge', icon: <BookOpen />, value: compact(game.resources.knowledge), sub: `+${r.knowledge.toFixed(1)}`, label: 'İlim', full: full.includes('knowledge') },
+    { key: 'gold', icon: <AkceArt />, value: compact(game.resources.gold), sub: `${r.gold >= 0 ? '+' : ''}${compact(r.gold)}`, label: 'Akçe', full: full.includes('gold') },
+    { key: 'wood', icon: <KeresteArt />, value: compact(game.resources.wood), sub: `+${compact(r.wood)}`, label: 'Kereste', full: full.includes('wood') },
+    { key: 'stone', icon: <TasArt />, value: compact(game.resources.stone), sub: `+${compact(r.stone)}`, label: 'Taş', full: full.includes('stone') },
+    { key: 'knowledge', icon: <IlimArt />, value: compact(game.resources.knowledge), sub: `+${r.knowledge.toFixed(1)}`, label: 'İlim', full: full.includes('knowledge') },
     { key: 'lux', icon: <LuxIcon />, value: compact(game.luxury[lux]), label: LUXURY_NAMES[lux] },
-    { key: 'pop', icon: <Users />, value: `${compact(population(game))}`, sub: `/${compact(maxPopulation(game))}`, label: 'Nüfus' },
-    { key: 'ap', icon: <Flag />, value: `${empire && city ? actionPoints(game) - actionsInUse(empire, city.id) : actionPoints(game)}`, sub: `/${actionPoints(game)}`, label: 'Hamle puanı' },
+    { key: 'pop', icon: <NufusArt />, value: `${compact(population(game))}`, sub: `/${compact(maxPopulation(game))}`, label: 'Nüfus' },
+    { key: 'ap', icon: <HamleArt />, value: `${empire && city ? actionPoints(game) - actionsInUse(empire, city.id) : actionPoints(game)}`, sub: `/${actionPoints(game)}`, label: 'Hamle puanı' },
   ]
   return <header className="ika-top">
     <div className="ika-ribbon">
@@ -97,11 +98,11 @@ export function IkaTopBar({ game, empire, news, onCity, onEconomy, onAdvisor, on
   </header>
 }
 
-export type IkaNavKey = 'city' | 'island' | 'map' | 'build' | 'objectives'
+export type IkaNavKey = 'city' | 'island' | 'map' | 'objectives'
 export function IkaNav({ active, badges, onSelect }: { active: IkaNavKey | null; badges: Partial<Record<IkaNavKey, number>>; onSelect: (k: IkaNavKey) => void }) {
   const items: { key: IkaNavKey; label: string; icon: ReactNode }[] = [
     { key: 'city', label: 'Şehir', icon: <Castle /> }, { key: 'island', label: 'Ada', icon: <TreePalm /> },
-    { key: 'map', label: 'Harita', icon: <Map /> }, { key: 'build', label: 'İnşa', icon: <Hammer /> },
+    { key: 'map', label: 'Harita', icon: <Map /> },
     { key: 'objectives', label: 'Görevler', icon: <ScrollText /> },
   ]
   return <nav className="ika-nav" aria-label="Oyun menüsü">{items.map(i => <button key={i.key} type="button"

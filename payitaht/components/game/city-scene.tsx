@@ -1,7 +1,7 @@
 'use client'
 
 import { useRef, useState } from 'react'
-import { Sun, Flag, Move, Hammer, X, Anchor, Landmark } from 'lucide-react'
+import { Sun, Flag, Move, Anchor, Landmark } from 'lucide-react'
 import type { Game, BuildingId } from '@/lib/game/engine'
 import { CityCanvas, type CityControls } from './city-canvas'
 
@@ -15,7 +15,7 @@ import { CityCanvas, type CityControls } from './city-canvas'
  * yapmiyordu. Tuval dunyayi ekrandan buyuk tutar; gezinme bu yuzden gercek.
  */
 
-export function CityScene({ game, placing, onBuilding, onPlot, onRoad, moving, movePlot, onMovePlot, onMine, onExitBuild, onOpenList }: {
+export function CityScene({ game, placing, onBuilding, onPlot, onRoad, moving, movePlot, onMovePlot, onMine }: {
   game: Game
   placing: boolean
   onBuilding: (id: BuildingId) => void
@@ -25,8 +25,6 @@ export function CityScene({ game, placing, onBuilding, onPlot, onRoad, moving, m
   movePlot: number | null
   onMovePlot: (plot: number) => void
   onMine: () => void
-  onExitBuild: () => void
-  onOpenList: () => void
 }) {
   // Ikariam gibi: bina adları varsayılan olarak GİZLİ (göz binaya ve caddeye odaklanır);
   // bayrak düğmesi açar. İnşaat süren binanın sayacı her zaman görünür.
@@ -35,20 +33,6 @@ export function CityScene({ game, placing, onBuilding, onPlot, onRoad, moving, m
 
   return <section className="city-scene" aria-label="Sahilhisar şehir haritası">
     <CityCanvas game={game} showLabels={labels} placing={placing} controls={controls} onBuilding={onBuilding} onPlot={onPlot} onRoad={onRoad} moving={moving} movePlot={movePlot} onMovePlot={onMovePlot} onMine={onMine} />
-
-    {/*
-      * İNŞA KİPİ.
-      *
-      * Bos arsalar surekli isaretli durmuyor; oyuncu "İnşa"ya bastiginda
-      * harita insa kipine giriyor ve arsalar beliriyor. Referans oyunlarin
-      * hepsi boyle: dunya normalde bir dunya, yalnizca yerlestirirken bir
-      * izgara.
-      */}
-    {placing && !moving && <div className="build-hint">
-      <span><Hammer aria-hidden="true" /> Boş arsaya dokun ve yapını seç</span>
-      <button onClick={onOpenList}>Listeden seç</button>
-      <button className="build-exit" onClick={onExitBuild} aria-label="İnşa kipinden çık"><X /></button>
-    </div>}
 
     <span className="weather" title="Şehirde güneşli bir gün"><Sun aria-hidden="true" /></span>
 

@@ -438,7 +438,8 @@ export class CityScene extends Phaser.Scene {
       if (s) this.drawMoveFrame(s)
     }
     // Ikariam: Sur inşa edilince şehrin çevresinde duvar + kuleler belirir.
-    if (this.state.buildings.surlar > 0) this.drawWalls(this.state.buildings.surlar)
+    // Sur yokken aynı halkada kazılmış temel hendeği görünür; dokununca Surlar açılır.
+    this.drawWalls(this.state.buildings.surlar)
     // Ağır sabit parçalar (sur, avlu, kule sancakları) dokuya pişirilir: her
     // karede yeniden üçgenlenmezler.
     this.addLife()
@@ -459,6 +460,7 @@ export class CityScene extends Phaser.Scene {
    * y'sidir: binalar ve ağaçlarla doğru sıralanır.
    */
   private drawWalls(level: number) {
+    const trench = level <= 0
     const ring = DEFENSE_FOUNDATION.map(p => p.screen)
     const n = ring.length
     const wallH = TILE.h * (1.05 + Math.min(level, 10) * 0.06)
@@ -513,7 +515,50 @@ export class CityScene extends Phaser.Scene {
       if ((hall.x - mx) * nx + (hall.y - my) * ny < 0) return { x: -nx, y: -ny }
       return { x: nx, y: ny }
     }
+    // TEMEL HENDEĞİ: kazılmış koyu toprak şerit, dışında atılmış toprak seti,
+    // iç kenarda ip gerili ölçü kazıkları. Binaların altında kalır.
+    const ditch = (p0: { x: number; y: number }, p1: { x: number; y: number }) => {
+      const t = thick(p0, p1), nv = { x: t.x * 2.2, y: t.y * 2.2 }
+      const q0 = { x: p0.x + nv.x, y: p0.y + nv.y }, q1 = { x: p1.x + nv.x, y: p1.y + nv.y }
+      const g = this.add.graphics().setDepth(-780)
+      // Dışa atılmış toprak seti.
+      g.fillStyle(0xb99a68, 0.9)
+      g.fillPoints([V(p0.x - nv.x * 0.35, p0.y - nv.y * 0.35), V(p1.x - nv.x * 0.35, p1.y - nv.y * 0.35), V(p1.x, p1.y), V(p0.x, p0.y)], true)
+      // Hendek: kenarları açık, dibi koyu (derinlik hissi).
+      g.fillStyle(0x7a5a36, 1); g.fillPoints([V(p0.x, p0.y), V(p1.x, p1.y), V(q1.x, q1.y), V(q0.x, q0.y)], true)
+      const i0 = { x: p0.x + nv.x * 0.25, y: p0.y + nv.y * 0.25 }, i1 = { x: p1.x + nv.x * 0.25, y: p1.y + nv.y * 0.25 }
+      const j0 = { x: p0.x + nv.x * 0.75, y: p0.y + nv.y * 0.75 }, j1 = { x: p1.x + nv.x * 0.75, y: p1.y + nv.y * 0.75 }
+      g.fillStyle(0x4e3820, 1); g.fillPoints([V(i0.x, i0.y + 3), V(i1.x, i1.y + 3), V(j1.x, j1.y + 3), V(j0.x, j0.y + 3)], true)
+      g.lineStyle(1.4, 0x3a2914, 0.5); g.lineBetween(p0.x, p0.y, p1.x, p1.y)
+      g.lineStyle(1.4, 0xd8c08e, 0.7); g.lineBetween(q0.x, q0.y, q1.x, q1.y)
+      this.pieces.push(g)
+      // Ölçü kazıkları ve ip (iç kenarda, kendi y'sinde).
+      const k = this.add.graphics().setDepth(Math.max(q0.y, q1.y) + 1)
+      const len = Math.hypot(q1.x - q0.x, q1.y - q0.y), ux = (q1.x - q0.x) / (len || 1), uy = (q1.y - q0.y) / (len || 1)
+      const posts: Array<{ x: number; y: number }> = []
+      for (let d = TILE.w * 0.12; d < len; d += TILE.w * 0.45) posts.push({ x: q0.x + ux * d, y: q0.y + uy * d })
+      k.lineStyle(1.2, 0xefe2c0, 0.85)
+      for (let i = 1; i < posts.length; i++) k.lineBetween(posts[i - 1].x, posts[i - 1].y - 9, posts[i].x, posts[i].y - 9)
+      for (const p of posts) { k.fillStyle(0x6b4a2b, 1); k.fillRect(p.x - 2.5, p.y - 22, 5, 22); k.fillStyle(0xb3261e, 1); k.fillRect(p.x - 2.5, p.y - 24, 5, 5) }
+      this.pieces.push(k)
+      // Dışarı atılmış toprak yığınları.
+      const m = this.add.graphics().setDepth(Math.max(p0.y, p1.y))
+      const plen = Math.hypot(p1.x - p0.x, p1.y - p0.y)
+      for (let d = TILE.w * 0.3; d < plen; d += TILE.w * 0.8) {
+        const x = p0.x + (p1.x - p0.x) * d / plen - nv.x * 0.45, y = p0.y + (p1.y - p0.y) * d / plen - nv.y * 0.45
+        m.fillStyle(0x8d6a40, 1); m.fillEllipse(x, y, TILE.w * 0.34, TILE.h * 0.3)
+        m.fillStyle(0xb99a68, 1); m.fillEllipse(x - 3, y - 4, TILE.w * 0.22, TILE.h * 0.16)
+      }
+      this.pieces.push(m)
+      // Hendeğe dokunmak Surlar sayfasını açar (binaların altında kalır).
+      const cx = (p0.x + p1.x + q0.x + q1.x) / 4, cy = (p0.y + p1.y + q0.y + q1.y) / 4
+      const hw = Math.max(Math.abs(p1.x - p0.x), Math.abs(nv.x)) + TILE.w * 0.3, hh = Math.max(Math.abs(p1.y - p0.y), Math.abs(nv.y)) + TILE.h * 0.5
+      const hit = this.add.rectangle(cx, cy, hw, hh).setInteractive({ useHandCursor: true }).setFillStyle(0xffffff, 0).setDepth(-700)
+      hit.on('pointerup', (ptr: Phaser.Input.Pointer) => { if (isTap(ptr) && !this.moving) this.events$.onBuilding('surlar') })
+      this.pieces.push(hit)
+    }
     const piece = (p0: { x: number; y: number }, p1: { x: number; y: number }) => {
+      if (trench) return ditch(p0, p1)
       const n = thick(p0, p1)
       // Ön yüz: izleyiciye (ekranda aşağıya) bakan kenar.
       const inFront = n.y > 0
@@ -583,6 +628,7 @@ export class CityScene extends Phaser.Scene {
       }
     }
 
+    if (trench) { this.drawWallSite(ring); return }
     // Kuleler: savunma yuvalarında büyük, kapı iki yanında küçük.
     const tower = (x: number, y: number, w: number) => {
       const base = this.add.graphics().setDepth(y + 1.5)
@@ -693,6 +739,60 @@ export class CityScene extends Phaser.Scene {
       placed.push(p)
       tower(p.x, p.y + TILE.h * 0.15, TILE.w * 0.6)
     }
+  }
+
+  /**
+   * SUR TEMELİ (sur henüz yokken): kule yuvalarında taş yığını ve iskele
+   * kazığı, en öndeki kule yuvasında "Surları ör" tabelası. Hendeğe ya da
+   * tabelaya dokunmak Surlar sayfasını açar.
+   */
+  private drawWallSite(ring: Array<{ x: number; y: number }>) {
+    for (const s of DEFENSE_SLOTS) {
+      const { x, y } = s.screen
+      const g = this.add.graphics().setDepth(y + 1)
+      g.fillStyle(0x1b2a14, 0.2); g.fillEllipse(x + 6, y + 4, TILE.w * 0.7, TILE.h * 0.4)
+      g.fillStyle(0x7a5a36, 1); g.fillEllipse(x, y, TILE.w * 0.62, TILE.h * 0.36)
+      g.fillStyle(0x4e3820, 1); g.fillEllipse(x, y + 2, TILE.w * 0.4, TILE.h * 0.22)
+      // Kesme taş yığını.
+      for (const [dx, dy] of [[-16, -2], [-4, 2], [8, -3], [-10, -10], [2, -9]] as const) {
+        g.fillStyle(0xd9c7a1, 1); g.fillRect(x + dx - TILE.w * 0.28, y + dy - 6, 12, 7)
+        g.fillStyle(0xb8a37c, 1); g.fillRect(x + dx - TILE.w * 0.28, y + dy + 1, 12, 2)
+      }
+      this.pieces.push(g)
+    }
+    // Tabela.
+    const hall = slotById(HALL_SLOT_ID)!.screen
+    // Kuzey kapısının hemen yanında (açılışta ekranda): halkanın Divanhane'nin
+    // kuzeyinde, ona yatayda en yakın noktası (kapı açıklığı hariç).
+    let front = ring[0], best = Infinity
+    for (let i = 0; i < ring.length; i++) {
+      const A = ring[i], B = ring[(i + 1) % ring.length]
+      for (let k = 0; k <= 30; k++) {
+        const q = { x: A.x + (B.x - A.x) * k / 30, y: A.y + (B.y - A.y) * k / 30 }
+        if (q.y >= hall.y || WALL_GATES.some(g => Math.hypot(g.screen.x - q.x, g.screen.y - q.y) < TILE.w * 1.1)) continue
+        const score = Math.abs(q.x - hall.x) + Math.abs(q.y - hall.y) * 0.05
+        if (score < best) { best = score; front = q }
+      }
+    }
+    const sx = front.x, sy = front.y - TILE.h * 0.4
+    const sign = this.add.container(sx, sy).setDepth(front.y + 3)
+    const board = this.add.graphics()
+    board.fillStyle(0x5e3c22, 1); board.fillRect(-3, -8, 6, 60)
+    board.fillStyle(0x1b2a14, 0.25); board.fillRoundedRect(-78, -58, 162, 52, 8)
+    board.fillStyle(0xa26f41, 1); board.fillRoundedRect(-82, -62, 164, 52, 8)
+    board.lineStyle(3, 0x5e3c22, 1); board.strokeRoundedRect(-82, -62, 164, 52, 8)
+    const f = this.headingFont()
+    const t1 = this.add.text(0, -48, 'SUR TEMELİ', { fontFamily: f.heading, fontSize: '36px', color: '#f8e7bd', fontStyle: '700' }).setOrigin(0.5).setScale(0.5)
+    const t2 = this.add.text(0, -27, 'Dokun: surları ör', { fontFamily: f.body, fontSize: '26px', color: '#fbe9bb', fontStyle: '700' }).setOrigin(0.5).setScale(0.5)
+    sign.add([board, t1, t2])
+    sign.setScale(2.4)
+    // Dokunma alanı ayrı, görünmez bir dikdörtgen (kap nesnesinin yerel koordinatları kaygan).
+    const signHit = this.add.rectangle(sx, sy - 20 * 2.4, 180 * 2.4, 110 * 2.4).setInteractive({ useHandCursor: true })
+      .setFillStyle(0xffffff, 0).setDepth(front.y + 3.1)
+    signHit.on('pointerup', (p: Phaser.Input.Pointer) => { if (isTap(p) && !this.moving) this.events$.onBuilding('surlar') })
+    this.pieces.push(signHit)
+    this.tweens.add({ targets: sign, y: sy - 12, duration: 1100, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' })
+    this.pieces.push(sign)
   }
 
   /*

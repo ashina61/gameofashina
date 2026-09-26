@@ -1321,7 +1321,7 @@ export type Command =
   /** Yönetim biçimini değiştir. */
   | { type: 'government'; id: GovernmentId }
   /** Bir binayı bir seviye yık. */
-  | { type: 'demolish'; id: BuildingId }
+  | { type: 'demolish'; id: BuildingId; all?: boolean }
   /** Deneyler: kristali ilime çevir (100'lük partiler). */
   | { type: 'experiment'; batches: number }
 export function execute(source: Game, command: Command, now: number): { game: Game; error?: string } {
@@ -1578,7 +1578,7 @@ export function execute(source: Game, command: Command, now: number): { game: Ga
     if (g.buildings[id] < 1) return { game: g, error: 'Bu yapı kurulu değil.' }
     if (g.queue.some(job => job.id === id)) return { game: g, error: 'İnşaat sırasındaki yapı yıkılamaz.' }
     if (drillsAt(g, id).length) return { game: g, error: 'Burada eğitim sürüyor; önce bitmesini bekle.' }
-    g.buildings[id] -= 1
+    g.buildings[id] = command.all ? 0 : g.buildings[id] - 1
     if (g.buildings[id] === 0 && takesPlot(id)) {
       g.placement[id] = null
       g.flips = g.flips.filter(f => f !== id)

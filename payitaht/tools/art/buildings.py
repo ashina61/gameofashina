@@ -460,48 +460,176 @@ def tas(s, st):
         stone_blocks(s, 1.2, 1.5, 2, 0.12, seed=13)
 
 
+def water_basin(s, x0, y0, x1, y1, z=0.02):
+    """Liman havuzu: koyu deniz suyu ve üstünde açık dalga çizgileri."""
+    s.flat([(x0, y0, z), (x1, y0, z), (x1, y1, z), (x0, y1, z)], hexc('#4d8fa3'), 'flat', key=-98)
+    rnd = s.rnd
+    for i in range(int((x1 - x0) * (y1 - y0) * 26)):
+        x = x0 + 0.05 + rnd.random() * (x1 - x0 - 0.2)
+        y = y0 + 0.05 + rnd.random() * (y1 - y0 - 0.1)
+        s.flat([(x, y, z + 0.004), (x + 0.12, y, z + 0.004), (x + 0.12, y + 0.012, z + 0.004), (x, y + 0.012, z + 0.004)],
+               hexc('#a9d6de'), 'flat', key=-97)
+
+
+def ship(s, x0, y, L, B, z=0.02, masts=2, rig='square', hull=None, band=None, sails=True, stern=True):
+    """Osmanlı gemisi: sivri baş (+x), kıç köşkü, kırmızı-altın küpeşte,
+    direkler ve yelkenler. Gövde tek dışbükey parça (sıralama sağlam)."""
+    hull = hull or hexc('#6b4424')
+    band = band or PAL['red']
+    D = B * 0.55
+
+    def ring(xs, xe, xt, half, zz):
+        return [(xs, y - half, zz), (xe, y - half, zz), (xt, y, zz), (xe, y + half, zz), (xs, y + half, zz)]
+
+    def slab(r_top, r_bot, col, top_col, mat='wood', key=None):
+        faces = [Face(r_top, top_col, mat, None, True, (0, 0, 1)), Face(list(reversed(r_bot)), col, mat, None, True, (0, 0, -1))]
+        for i in range(len(r_top)):
+            j = (i + 1) % len(r_top)
+            faces.append(Face([r_bot[i], r_bot[j], r_top[j], r_top[i]], col, mat, None, True))
+        return s.add(Prim(faces, key=key))
+
+    k = x0 + L * 0.5 + y + 0.1
+    bot = ring(x0 + L * 0.1, x0 + L * 0.66, x0 + L * 0.9, B * 0.2, z - 0.02)
+    mid = ring(x0, x0 + L * 0.72, x0 + L, B / 2, z + D)
+    slab(mid, bot, hull, hexc('#b48a58'), key=k)
+    top = ring(x0 - 0.01, x0 + L * 0.72, x0 + L + 0.02, B / 2 + 0.012, z + D + 0.045)
+    slab(top, mid, band, hexc('#b48a58'), key=k + 0.01)
+    if stern:  # kıç köşkü
+        s.box(x0 + 0.01, y - B * 0.42, z + D + 0.045, x0 + L * 0.2, y + B * 0.42, z + D + 0.17, hexc('#8a5a30'), 'wood',
+              deco_y=[('band', 0.75, 0.9, PAL['gold']), ('win', 0.3, 0.03, 0.035, 0.05), ('win', 0.7, 0.03, 0.035, 0.05)],
+              deco_x=[('band', 0.75, 0.9, PAL['gold'])], key=k + 0.02)
+        s.flag(x0 + 0.04, y, z + D + 0.17, 0.35, key=k + 0.3)
+    zd = z + D + 0.045
+    for m in range(masts):
+        mx = x0 + L * (0.35 + 0.3 * m) if masts > 1 else x0 + L * 0.5
+        mh = (0.95 if m == 0 or masts == 1 else 0.8) * L / 1.1
+        s.cylinder(mx, y, zd, zd + mh, 0.014, PAL['wooddark'], 'wood', n=6, key=k + 0.05 + m * 0.01)
+        if not sails:
+            continue
+        if rig == 'lateen':  # kadırga: üçgen latin yelken
+            pts = [(mx - L * 0.28, y, zd + mh * 0.25), (mx + L * 0.2, y, zd + mh * 1.02), (mx + L * 0.02, y, zd + mh * 0.3)]
+            s.add(Prim([Face(pts, hexc('#f4ead2'), 'canvas', None, False, (0, 1, 0))], key=k + 0.2 + m * 0.01, cull=False))
+        else:  # kalyon: iki kat kare yelken
+            for (z0f, z1f, w) in ((0.3, 0.62, 0.46), (0.66, 0.9, 0.36)):
+                hw = B * 2.2 * w
+                pts = [(mx + 0.02, y - hw, zd + mh * z0f), (mx + 0.02, y + hw, zd + mh * z0f),
+                       (mx + 0.02, y + hw * 0.9, zd + mh * z1f), (mx + 0.02, y - hw * 0.9, zd + mh * z1f)]
+                deco = [('crescent',)] if z0f < 0.5 and m == 0 else None
+                s.add(Prim([Face(pts, hexc('#f6eedb'), 'canvas', deco, False, (1, 0, 0))], key=k + 0.25 + m * 0.01, cull=False))
+        s.sphere(mx, y, zd + mh + 0.01, 0.018, PAL['gold'])
+
+
+def bollards(s, pts, z=0.1):
+    for x, y in pts:
+        s.cylinder(x, y, z, z + 0.05, 0.018, PAL['iron'], 'flat', n=8)
+
+
+def cannonballs(s, x, y, z=0.1):
+    r = 0.022
+    for i in range(3):
+        for j in range(3 - i):
+            s.sphere(x + j * 2 * r + i * r, y + i * r * 1.7, z + r + i * r * 1.5, r, PAL['iron'])
+
+
 def liman(s, st):
-    # iskele: ahşap platform (kıyıdan denize, +x+y yönünde)
-    s.box(0.2, 0.2, 0, 1.3, 1.1, 0.08, PAL['stone'], 'stone', deco_y=[('courses', 0.04)], deco_x=[('courses', 0.04)])
-    L = 1.75 if st >= 2 else 1.55
-    for x, y in ((1.0, L), (1.25, L), (L, 1.0), (L, 0.75)):
-        s.cylinder(x, y, -0.05, 0.08, 0.025, PAL['wooddark'], 'wood', n=6)
-    s.box(1.0, 1.1, 0.04, 1.25, L, 0.09, PAL['wood'], 'wood', deco_top=[('vplanks', 3)])
-    s.box(1.3, 0.75, 0.04, L, 1.0, 0.09, PAL['wood'], 'wood', deco_top=[('planks', 3)])
-    block(s, 0.25, 0.25, 0.85, 0.75, 0.5, col=PAL['plaster'], wins=True, roof='gx', roofcol=PAL['roof'], door_y=0.5, z0=0.08)
-    crane(s, 1.1, 0.95, 0.9, 0.45)
-    for i in range(2 + st):
-        s.crate(0.95 + (i % 3) * 0.15, 0.3 + (i // 3) * 0.17, 0.12, z=0.08)
-    s.barrel(0.4, 0.95, 0.05, z=0.08); s.barrel(0.55, 1.0, 0.05, z=0.08)
+    """TİCARET LİMANI: taş rıhtımla çevrili liman havuzu, revaklı gümrük
+    hanı, ambarlar, vinçler, fener kulesi ve demirli ticaret gemileri."""
+    q = PAL['stone']
+    cr = [('courses', 0.05)]
+    # Rıhtım (L biçimli), içinde havuz.
+    s.box(0.08, 0.08, 0, 1.95, 1.0, 0.1, q, 'stone', deco_y=cr, deco_x=cr, top=hexc('#e2d3b0'))
+    s.box(0.08, 1.0, 0, 0.9, 1.95, 0.1, q, 'stone', deco_y=cr, deco_x=cr, top=hexc('#e2d3b0'))
+    water_basin(s, 0.9, 1.0, 1.97, 1.97)
+    bollards(s, [(1.1 + 0.2 * i, 0.96) for i in range(4)] + [(0.86, 1.2 + 0.2 * i) for i in range(4)])
+    # Gümrük hanı: revaklı zemin kat + kafesli üst kat, kurşun kırma çatı.
+    gx1 = 0.85 if st == 1 else 0.95
+    s.box(0.15, 0.15, 0.1, gx1, 0.8, 0.46, hexc('#efe0bf'), 'stone',
+          deco_y=[('courses', 0.1)] + [('arch', (i + 0.5) / 4, 0.02, 0.12, 0.26) for i in range(4)],
+          deco_x=[('courses', 0.1)] + [('arch', (i + 0.5) / 4, 0.02, 0.12, 0.26) for i in range(4)])
+    s.box(0.13, 0.13, 0.46, gx1 + 0.02, 0.82, 0.5, PAL['stone2'], 'stone')
+    s.box(0.15, 0.15, 0.5, gx1, 0.8, 0.84, PAL['plaster'], 'plaster',
+          deco_y=[('win', (i + 0.5) / 4, 0.08, 0.1, 0.17, 'shutter') for i in range(4)],
+          deco_x=[('win', (i + 0.5) / 4, 0.08, 0.1, 0.17, 'shutter') for i in range(4)])
+    s.hip(0.15, 0.15, gx1, 0.8, 0.84, 0.26, PAL['lead'], mat='lead')
     if st == 3:
-        block(s, 0.25, 0.8, 0.7, 1.05, 0.4, col=PAL['wood'], mat='wood', wins=False, roof='gy', roofcol=PAL['roof2'], z0=0.08, trim=False)
-        s.cylinder(0.3, 0.3, 0.58, 1.1, 0.06, PAL['stone'], 'stone')  # fener
-        s.sphere(0.3, 0.3, 1.14, 0.05, hexc('#f2c65a'))
+        domed(s, (0.15 + gx1) / 2, 0.475, 0.96, 0.14)
+    # Ambarlar (rıhtım boyunca), vinç ve yük.
+    if st >= 2:
+        block(s, 1.1, 0.15, 1.85, 0.55, 0.42, z0=0.1, col=hexc('#d9c7a1'), mat='stone', wins=False, roof='gy', roofcol=PAL['roof'],
+              door_x=0.5, door_y=0.5)
+    crane(s, 1.3, 0.85, 1.0, 0.5, axis='y')
+    for i in range(2 + st):
+        s.crate(1.02 + (i % 3) * 0.17, 0.62 + (i // 3) * 0.14, 0.12, z=0.1)
+    for i in range(2 + st):
+        s.barrel(0.3 + (i % 3) * 0.13, 1.05 + (i // 3) * 0.14, 0.045, z=0.1)
+    # Fener kulesi rıhtım ucunda: taş kaide, kırmızı kuşaklı gövde, fener odası.
+    fz = 0.85 + 0.18 * st
+    s.box(0.28, 1.55, 0.1, 0.62, 1.89, 0.34, PAL['stone2'], 'stone', deco_y=[('courses', 0.06)], deco_x=[('courses', 0.06), ('archdoor', 0.5, 0.0, 0.1, 0.18)])
+    s.cylinder(0.45, 1.72, 0.34, fz, 0.11, PAL['marble'], 'stone', deco=[('band', 0.25, 0.4, PAL['red']), ('band', 0.62, 0.77, PAL['red'])])
+    s.cylinder(0.45, 1.72, fz, fz + 0.04, 0.16, PAL['stone2'], 'stone')
+    s.cylinder(0.45, 1.72, fz + 0.04, fz + 0.17, 0.085, hexc('#f5d27a'), 'flat')
+    s.cone(0.45, 1.72, fz + 0.17, 0.15, 0.12, PAL['lead'], 'lead')
+    s.sphere(0.45, 1.72, fz + 0.34, 0.025, PAL['gold'])
+    # Demirli gemiler.
+    ship(s, 1.0, 1.3, 0.8 + 0.1 * st, 0.24, masts=1 + (st >= 2), rig='square')
+    if st >= 2:
+        ship(s, 1.05, 1.8, 0.55, 0.16, masts=1, rig='lateen', stern=False)
+    s.flag(0.2, 0.2, 0.84, 0.55)
+    if st == 3:
+        s.flag(1.85, 0.2, 0.52, 0.5)
 
 
 def tersane(s, st):
-    s.box(0.2, 0.2, 0, 1.2, 1.3, 0.08, PAL['stone'], 'stone', deco_y=[('courses', 0.04)], deco_x=[('courses', 0.04)])
-    # kızak (denize eğimli)
-    s.box(0.6, 0.55, 0.0, 1.85, 1.0, 0.05, PAL['wood2'], 'wood', deco_top=[('vplanks', 6)])
-    # gemi gövdesi iskeleti: kaburgalar
-    n = 5 + st
+    """TERSANE-İ ÂMİRE: denize açılan kemerli, kurşun örtülü gemi gözleri;
+    önünde kızakta yapılan kadırga ve suya indirilmiş kalyon; kaptan paşa
+    köşkü, gülle yığınları, kereste ve vinç."""
+    q = PAL['stone']
+    cr = [('courses', 0.05)]
+    s.box(0.05, 0.05, 0, 1.25, 1.95, 0.1, q, 'stone', deco_y=cr, deco_x=cr, top=hexc('#e2d3b0'))
+    water_basin(s, 1.25, 0.05, 1.97, 1.97)
+    n = 2 + (st >= 2)
+    w = 0.44
     for i in range(n):
-        x = 0.8 + i * 0.13
-        h = 0.26 - abs(i - n / 2) * 0.015
-        s.box(x, 0.62, 0.05, x + 0.025, 0.66, 0.05 + h, PAL['wood'], 'wood')
-        s.box(x, 0.89, 0.05, x + 0.025, 0.93, 0.05 + h, PAL['wood'], 'wood')
-        s.box(x, 0.62, 0.05, x + 0.025, 0.93, 0.08, PAL['wood'], 'wood')
-    s.box(0.78, 0.76, 0.05, 0.8 + n * 0.13, 0.79, 0.12, PAL['wooddark'], 'wood')  # omurga
+        y0 = 0.12 + i * (w + 0.02)
+        s.box(0.15, y0, 0.1, 1.2, y0 + w, 0.64, hexc('#e6d5b2'), 'stone',
+              deco_x=[('courses', 0.1), ('band', 0.86, 0.92, PAL['stone2']), ('archdoor', 0.5, 0.0, 0.32, 0.46)],
+              deco_y=[('courses', 0.1)] + ([('arch', (k + 0.5) / 4, 0.14, 0.1, 0.22) for k in range(4)] if i == n - 1 else []))
+        s.gable(0.12, y0 - 0.02, 1.23, y0 + w + 0.02, 0.64, 0.26, PAL['lead'], axis='x', mat='lead', wall=hexc('#e6d5b2'), wallmat='stone')
+    # Kızak: gözden suya uzanan ahşap rampa ve üstünde yapılan gemi.
+    ym = 0.12 + (n // 2) * (w + 0.02) + w / 2
+    s.box(1.2, ym - 0.14, 0.02, 1.9, ym + 0.14, 0.06, PAL['wood2'], 'wood', deco_top=[('vplanks', 6)])
+    if st == 1:
+        m = 6
+        for i in range(m):
+            x = 1.28 + i * 0.1
+            hgt = 0.26 - abs(i - m / 2) * 0.02
+            s.box(x, ym - 0.13, 0.06, x + 0.022, ym - 0.1, 0.06 + hgt, PAL['wood'], 'wood')
+            s.box(x, ym + 0.1, 0.06, x + 0.022, ym + 0.13, 0.06 + hgt, PAL['wood'], 'wood')
+        s.box(1.26, ym - 0.015, 0.06, 1.9, ym + 0.015, 0.12, PAL['wooddark'], 'wood')
+    else:
+        ship(s, 1.25, ym, 0.68, 0.24, z=0.08, masts=1, rig='lateen', sails=False)
+    if st >= 2:  # suya indirilmiş kalyon
+        ship(s, 1.3, 0.3 if ym > 0.8 else 1.55, 0.62, 0.2, masts=2, rig='square')
+    if st == 3:  # ikinci kalyon ve kaptan paşa köşkü
+        ship(s, 1.3, 1.72, 0.6, 0.2, masts=2, rig='square')
+    # Kaptan paşa köşkü / tersane emini.
+    ky = 0.12 + n * (w + 0.02) + 0.02
+    if st == 1:  # boş rıhtımda yelken ve halat atölyesi, kereste yığınları
+        block(s, 0.82, 1.1, 1.2, 1.46, 0.38, z0=0.1, col=PAL['wood'], mat='wood', wins=False, roof='gx', roofcol=PAL['roof2'], trim=False, door_y=0.5)
+        logs(s, 0.8, 1.62, 4, 'x', 0.4)
+        cannonballs(s, 0.3, 1.66)
+    if ky < 1.85:
+        s.box(0.15, ky, 0.1, 0.75, min(1.9, ky + 0.42), 0.5, PAL['plaster'], 'plaster',
+              deco_y=[('win', (k + 0.5) / 3, 0.1, 0.1, 0.18, 'shutter') for k in range(3)],
+              deco_x=[('archdoor', 0.5, 0.0, 0.13, 0.24)])
+        s.hip(0.15, ky, 0.75, min(1.9, ky + 0.42), 0.5, 0.2, PAL['roof'])
+        if st >= 2:
+            cannonballs(s, 0.85, ky + 0.12)
+            logs(s, 0.85, min(1.75, ky + 0.3), 3, 'x', 0.35)
+    crane(s, 1.15, 0.1, 1.15, 0.45, axis='x')
+    s.flag(0.2, 0.15, 0.9, 0.6)
     if st >= 2:
-        # çatılı tersane gözü
-        for (x, y) in ((0.6, 0.45), (1.6, 0.45), (0.6, 1.1), (1.6, 1.1)):
-            s.box(x - 0.03, y - 0.03, 0, x + 0.03, y + 0.03, 0.6, PAL['stone'], 'stone')
-        s.gable(0.55, 0.4, 1.65, 1.15, 0.6, 0.3, PAL['lead'], axis='x', mat='lead', wall=PAL['stone'], wallmat='stone')
-    crane(s, 0.4, 1.1, 0.95, 0.4, axis='y')
-    logs(s, 0.25, 1.45, 3, 'x', 0.45)
-    block(s, 0.25, 0.25, 0.55, 0.55, 0.45, col=PAL['plaster'], roof='hip', roofcol=PAL['roof'], z0=0.08, door_y=0.5)
-    if st == 3:
-        s.flag(1.2, 0.45, 0.9, 0.5)
+        s.flag(1.1, 0.15, 0.9, 0.55)
 
 
 # ---------------------------------------------------------------- YENİ BİNALAR

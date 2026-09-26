@@ -47,8 +47,8 @@ export function diploAdvice(e: Empire) {
   return 'Diplomasi yolunda. Pazardaki tekliflere göz atmayı unutmayın.'
 }
 
-export function CityAdvisor({ empire, game, onCity, onBuilding, onCities }: {
-  empire: Empire; game: Game; onCity: (id: string) => void; onBuilding: (id: BuildingId) => void; onCities: () => void
+export function CityAdvisor({ empire, game, onCity, onBuilding, onCities, onBuildList }: {
+  empire: Empire; game: Game; onCity: (id: string) => void; onBuilding: (id: BuildingId) => void; onCities: () => void; onBuildList: () => void
 }) {
   const current = activeCity(empire)
   return <>
@@ -65,7 +65,10 @@ export function CityAdvisor({ empire, game, onCity, onBuilding, onCities }: {
           </tr>
         })}</tbody>
       </table>
-      <Button size="sm" variant="outline" onClick={onCities}>Şehirler ve harita<ChevronRight data-icon="inline-end" /></Button>
+      <div className="batch-row">
+        <Button size="sm" variant="outline" onClick={onCities}>Şehirler ve harita<ChevronRight data-icon="inline-end" /></Button>
+        <Button size="sm" variant="outline" onClick={onBuildList}>Bütün yapılar<ChevronRight data-icon="inline-end" /></Button>
+      </div>
     </Box>
     <Box title="Üretim">
       <table className="bp-table"><tbody>

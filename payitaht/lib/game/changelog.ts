@@ -6,6 +6,19 @@ export type Release = { version: string; date: string; title: string; notes: str
 
 export const CHANGELOG: Release[] = [
   {
+    version: '0.21.0', date: '26 Eylül 2026', title: 'Daha oyunsu arayüz',
+    notes: [
+      'Kaynaklar resimlendi: akçe sikkeleri, kereste kütükleri, kesme taş, ilim kandili, üzüm salkımı, mermer, kristal ve kükürt her yerde kendi resmiyle görünür.',
+      'İşçi ataması Ikariam gibi: solda boştaki halk, sağda oduncu, taşçı, âlim, esnaf, madenci ya da imam resmi; kaydırıcıyı çektikçe üretimin nasıl değişeceği görünür, Onayla ile uygulanır.',
+      'Bina resminin köşesinde Çevir, Taşı ve Yık düğmeleri; yıkarken bir seviye ya da tamamen yıkma seçilir.',
+      'Sur kurulmadan önce şehrin çevresinde kazılmış temel hendeği ve "Sur temeli" tabelası görünür; hendeğe dokununca Surlar açılır.',
+      'Alt menüdeki İnşa kaldırıldı: boş arsaya dokunarak kurarsın, bütün yapılar listesi Vezir sayfasında.',
+      'Ticaret Limanı ve Tersane yeniden çizildi: taş rıhtımlı liman havuzu, revaklı gümrük hanı, fener kulesi, demirli kalyonlar; kemerli gemi gözleri, kızakta kadırga ve kaptan paşa köşkü.',
+      'Savaş raporları tur tur tabloda: iki tarafın kaybı, sur ve moral çubukları; uzun savaşlar kısaltılmış gösterilir.',
+      'Kabartmalı oyun düğmeleri, alttan kayarak açılan sayfalar; uzun açıklamalar "Nasıl işler?" düğmesinin arkasında.',
+    ],
+  },
+  {
     version: '0.20.0', date: '26 Eylül 2026', title: 'Arayüz cilası',
     notes: [
       'Alt menüdeki Harita artık doğrudan dünya haritasını açar; şehir listesi ve nakliye haritanın altında.',

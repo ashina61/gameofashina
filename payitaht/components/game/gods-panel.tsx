@@ -8,6 +8,7 @@
 import { useState } from 'react'
 import { Clock3, Flame, Sparkles } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { Hint } from './hint'
 import { LUXURY_IDS, LUXURY_NAMES, type Command, type Game } from '@/lib/game/engine'
 import { GODS, GOD_IDS, OFFER_RATE, PATRON_CHANGE_MS, blessing, godBuff, lutufCap, lutufRate, type GodId } from '@/lib/game/gods'
 
@@ -93,6 +94,7 @@ export function GodsPanel({ game, now, onCommand }: { game: Game; now: number; o
         </dl>
       </article>
     })}</div>
-    <p className="fine-print">{changeWait > 0 ? `Hamini değiştirmek için ${clock(changeWait)} bekle. ` : ''}Hami tanrının lütfü mabet seviyesiyle büyür (en fazla 20. derece). Kudretten sonra tanrı 4 saat dinlenir. Kadim Türk mitolojisinin tanrıları; Ikariam'daki tanrılar sisteminin karşılığı.</p>
+    {changeWait > 0 && <p className="fine-print"><Clock3 className="size-3" /> Hamini değiştirmek için {clock(changeWait)} bekle.</p>}
+    <Hint>Hami tanrının lütfü mabet seviyesiyle büyür (en fazla 20. derece). Kudretten sonra tanrı 4 saat dinlenir. Kadim Türk mitolojisinin tanrıları; Ikariam'daki tanrılar sisteminin karşılığı.</Hint>
   </section>
 }

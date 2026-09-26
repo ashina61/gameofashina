@@ -1,16 +1,19 @@
 'use client'
 
+import { Hint } from './hint'
 import { useState } from 'react'
-import { ArrowUp, Hammer, Clock3, LockKeyhole, Check, BookOpen, ChevronRight, TreePine, Warehouse, Ruler, Users, UserRound, Minus, Plus as PlusIcon, House, HeartHandshake, TriangleAlert, Landmark, Swords, Ship, ShieldCheck, Handshake, Coins, FlaskConical, Compass, FlipHorizontal2, Move } from 'lucide-react'
+import { ArrowUp, Hammer, Clock3, LockKeyhole, Check, BookOpen, ChevronRight, TreePine, Warehouse, Ruler, Users, UserRound, Minus, Plus as PlusIcon, House, HeartHandshake, TriangleAlert, Landmark, Swords, Ship, ShieldCheck, Handshake, FlaskConical, Compass, FlipHorizontal2, Move } from 'lucide-react'
+import { AkceArt } from './resource-art'
+import { WorkforceSlider, type Figure } from './workforce'
 import { Button } from '@/components/ui/button'
 import { CostDisplay, JobProgress } from './game-widgets'
 import { BUILDINGS, BUILDING_IDS, MAX_LEVEL, RESEARCH, RESEARCH_IDS, RESEARCH_BRANCHES, RESOURCE_IDS, RESOURCE_NAMES, UNITS, UNIT_IDS, WORKER_IDS, WORKERS_PER_LEVEL, activeJob, cargoCapacity, cityDefense, cost, duration, buildReason, power, rates, recruitReason, researchReason, scientistCount, scientistUpkeepPerMinute, idleWorkers, population, housing, contentment, soldiers, takesPlot, tradeCapacity, unhousedByUnrest, unitCost, unitDuration, wallDefense, workerCapacity, type BuildingId, type ResearchId, type ResearchBranch, type UnitId, type WorkerId, type Game } from '@/lib/game/engine'
 import { buildingImage } from '@/lib/asset'
 import { activeCity, colonyPalaceLevel, MAX_CITIES, CARGO_IDS, CARGO_NAMES, COLONY_COST, ISLANDS, type Cargo, type Empire, type IslandId } from '@/lib/game/empire'
 import { LUXURY_IDS, LUXURY_NAMES, MERCHANT_BUY, MERCHANT_SELL, MINE_MAX_LEVEL, luxuryCost, luxuryProduction, merchantLimit, mineCapacity, mineUpgradeCost, unitLuxuryCost, wineServed, type Luxury } from '@/lib/game/engine'
-import { luxuryIcons } from './game-widgets'
+import { luxuryIcons, resourceIcons } from './game-widgets'
 import { effectLines } from '@/lib/game/building-info'
-import { actionPoints, armyUpkeep, merchantBuyPrice, merchantSellPrice, type UnitRole } from '@/lib/game/engine'
+import { actionPoints, armyUpkeep, merchantBuyPrice, merchantSellPrice, type UnitRole, type Resource } from '@/lib/game/engine'
 import { Eye } from 'lucide-react'
 import { DRILL_QUEUE_LIMIT, garrisonLimit, garrisonUsed, spyCapacity, growthRate, maxPopulation, PLOTS, zoneOf } from '@/lib/game/engine'
 import { BATTLE_STATS, SLOT_SIZE, fieldSize } from '@/lib/game/battle'
@@ -30,7 +33,7 @@ export function BuildingDetails({ game, id, onBuild, onFlip, onMove }: { game: G
   })
   return <div className="building-details"><div className="building-preview"><div className="preview-halo" />{b.art ? <img src={buildingImage(id, level)} alt={`${b.name} mimari görünümü`} width={360} height={360} /> : <span className="preview-pending"><Hammer aria-hidden="true" /><small>Görsel hazırlanıyor</small></span>}<span>{level ? `SEVİYE ${level}` : 'YENİ YAPI'}</span></div><span className="eyebrow">{b.category}</span><p>{b.description}</p><BuildingEffects game={game} id={id} level={level} max={max} /><div className="building-upgrade"><span>{level ? `Seviye ${level}` : 'Boş arsa'}</span><ArrowUp className="size-4" /><strong>{level >= max ? 'En yüksek seviye' : `Seviye ${level + 1}`}</strong></div>{active ? <JobProgress job={active} now={game.updatedAt} /> : level < max && <><div className="upgrade-cost"><span>Gerekli kaynaklar</span><CostDisplay value={cost(game, id)} lux={luxuryCost(game, id)} /></div><div className="duration-row"><Clock3 className="size-4" /> {duration(game, id)} saniye <span>Prototip süresi</span></div></>}{forecast.length > 0 && <section className="building-cost-forecast">
     <strong>Sonraki seviyelerin maliyeti</strong>
-    <p className="fine-print">Fiyatlar mevcut araştırma indirimlerini içerir. Sonraki yükseltmelerin ücreti, o günkü teknolojine göre yeniden hesaplanır.</p>
+    <Hint>Fiyatlar mevcut araştırma indirimlerini içerir. Sonraki yükseltmelerin ücreti, o günkü teknolojine göre yeniden hesaplanır.</Hint>
     {forecast.map(item => <div key={item.level} className="building-forecast-row">
       <strong>Sv. {item.level}</strong>
       <span>{item.price.gold.toLocaleString('tr-TR')} akçe · {item.price.wood.toLocaleString('tr-TR')} kereste · {item.price.stone.toLocaleString('tr-TR')} taş</span>
@@ -72,7 +75,7 @@ export function ResearchPanel({ game, onResearch }: { game: Game; onResearch: (i
   })}</div>
 }
 export function JournalPanel({ game }: { game: Game }) {
-  return <div className="journal-panel"><span className="eyebrow">ŞEHRİNİN HİKÂYESİ</span>{game.log.map((entry, index) => <div className="journal-entry" key={`${entry.time}-${index}`}><span className="journal-dot" /><div><p>{entry.text}</p><time>{new Date(entry.time).toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })} · {new Date(entry.time).toLocaleDateString('tr-TR', { day: 'numeric', month: 'short' })}</time></div></div>)}<p className="fine-print">Tek oyunculu prototip. Buradaki tüm gelişmeler kendi şehrine aittir; gerçek oyuncu etkinliği gösterilmez.</p></div>
+  return <div className="journal-panel"><span className="eyebrow">ŞEHRİNİN HİKÂYESİ</span>{game.log.map((entry, index) => <div className="journal-entry" key={`${entry.time}-${index}`}><span className="journal-dot" /><div><p>{entry.text}</p><time>{new Date(entry.time).toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })} · {new Date(entry.time).toLocaleDateString('tr-TR', { day: 'numeric', month: 'short' })}</time></div></div>)}<Hint>Tek oyunculu prototip. Buradaki tüm gelişmeler kendi şehrine aittir; gerçek oyuncu etkinliği gösterilmez.</Hint></div>
 }
 
 /**
@@ -118,6 +121,10 @@ export function PlotPicker({ game, plot, onBuild }: { game: Game; plot: number; 
  * kapasitesi kadar isci alir ve sehrin nufusu bu kapasitelerin toplamindan
  * KUCUK oldugunda oyuncu secim yapmak zorunda kalir.
  */
+const PEOPLE_WORK: Record<WorkerId, { figure: Figure; res: Resource; unit: string; label: string }> = {
+  kereste: { figure: 'oduncu', res: 'wood', unit: 'kereste', label: 'Oduncu' }, tas: { figure: 'tasci', res: 'stone', unit: 'taş', label: 'Taşçı' },
+  medrese: { figure: 'alim', res: 'knowledge', unit: 'ilim', label: 'Âlim' }, carsi: { figure: 'esnaf', res: 'gold', unit: 'akçe', label: 'Esnaf' },
+}
 export function PeoplePanel({ game, onAssign }: { game: Game; onAssign: (id: WorkerId, value: number) => void }) {
   const idle = idleWorkers(game)
   const unhoused = unhousedByUnrest(game)
@@ -145,24 +152,16 @@ export function PeoplePanel({ game, onAssign }: { game: Game; onAssign: (id: Wor
           <p className="fine-print">Önce bu yapıyı inşa et.</p>
         </article>
       }
+      const w = PEOPLE_WORK[id]
+      const Icon = resourceIcons[w.res]
       return <article className="people-row" key={id}>
-        <div className="people-row-top">
-          <strong>{BUILDINGS[id].name}</strong>
-          <span className="people-count">{value} / {capacity}</span>
-        </div>
-        <span className="people-meter"><span style={{ width: `${(value / capacity) * 100}%` }} /></span>
-        <div className="people-controls">
-          <Button size="sm" variant="outline" aria-label={`${BUILDINGS[id].name} işçi azalt`} disabled={value <= 0} onClick={() => onAssign(id, value - 10)}><Minus /></Button>
-          <input
-            type="range" min={0} max={capacity} step={1} value={value}
-            aria-label={`${BUILDINGS[id].name} işçi sayısı`}
-            onChange={event => onAssign(id, Number(event.target.value))}
-          />
-          <Button size="sm" variant="outline" aria-label={`${BUILDINGS[id].name} işçi artır`} disabled={value >= capacity || idle <= 0} onClick={() => onAssign(id, value + 10)}><PlusIcon /></Button>
-        </div>
+        <div className="people-row-top"><strong>{BUILDINGS[id].name}</strong></div>
+        <WorkforceSlider label={w.label} figure={w.figure} value={value} cap={capacity} idle={idle}
+          preview={n => { const v = rates({ ...game, workers: { ...game.workers, [id]: n } })[w.res]; return { amount: v, icon: <Icon className="workforce-icon" />, text: <><b>{w.res === 'knowledge' ? v.toFixed(1) : Math.round(v)}</b> {w.unit}/dk</> } }}
+          onCommit={n => onAssign(id, n)} />
       </article>
     })}
-    <p className="fine-print">Her yapı seviyesi {WORKERS_PER_LEVEL} işçi alır. Nüfus, barınma ve huzurdan hangisi küçükse o tavana zamanla büyür. Boşta kalan halk üretim yapmaz; akçe ise halkın kendisinden gelir ve işçi istemez.</p>
+    <Hint>Her yapı seviyesi {WORKERS_PER_LEVEL} işçi alır. Nüfus, barınma ve huzurdan hangisi küçükse o tavana zamanla büyür. Boşta kalan halk üretim yapmaz; akçe ise halkın kendisinden gelir ve işçi istemez.</Hint>
   </div>
 }
 
@@ -230,7 +229,7 @@ export function CitiesPanel({
   const worldMap = <>
     <section className="empire-section">
       <h3>Dünya haritası · {ISLANDS.length} ada</h3>
-      <p className="fine-print">Her adada tek bir lüks kaynak yatağı bulunur: şehir yalnızca kendi adasının kaynağını madenden çıkarır. Diğerlerini koloni kurarak, nakliyeyle ya da Çarşı'daki tüccardan edinirsin. Uzak adalara yolculuk uzun sürer.</p>
+      <Hint>Her adada tek bir lüks kaynak yatağı bulunur: şehir yalnızca kendi adasının kaynağını madenden çıkarır. Diğerlerini koloni kurarak, nakliyeyle ya da Çarşı'daki tüccardan edinirsin. Uzak adalara yolculuk uzun sürer.</Hint>
       <WorldMap empire={empire} now={game.updatedAt} onSelectCity={onSelectCity} onColonize={onColonize} onViewIsland={onViewIsland}
         missing={capital.buildings.saray < colonyPalaceLevel(empire) ? `Saray ${colonyPalaceLevel(empire)}. seviye gerekli`
           : capital.buildings.liman < 1 || capital.army.nakliye < 3 ? 'Başkentte liman ve 3 nakliye gemisi gerekli' : null} />
@@ -264,7 +263,7 @@ export function CitiesPanel({
             <Button size="sm" disabled={!targetCity || !Number.isSafeInteger(Number(cargoAmount)) || Number(cargoAmount) <= 0}
               onClick={() => onCargo(targetCity, cargoResource, Number(cargoAmount))}>Gemileri gönder</Button>
           </div>}
-      <p className="fine-print">Nakliye için gönderici şehirde Ticaret Limanı ve nakliye gemisi gerekir. Yük yolculuk sırasında çıkar, varışta hedef şehrin ambarına iner; ambar doluysa gemi yükü bekletir.</p>
+      <Hint>Nakliye için gönderici şehirde Ticaret Limanı ve nakliye gemisi gerekir. Yük yolculuk sırasında çıkar, varışta hedef şehrin ambarına iner; ambar doluysa gemi yükü bekletir.</Hint>
     </section>
   </div>
 }
@@ -299,7 +298,7 @@ export function ArmyPanel({ game, onRecruit, onBuild, home }: { game: Game; onRe
       <div><ShieldCheck className="size-5" /><span>Savunma</span><strong>{cityDefense(game)}</strong></div>
       <div><Swords className="size-5" /><span>Saldırı</span><strong>{land.attack}</strong></div>
     </div>
-    <p className="army-note"><Coins className="size-4" />Ordunun bakımı dakikada {Math.round(armyUpkeep(game) * 10) / 10} akçe · aynı anda {actionPoints(game)} görev (hamle puanı).</p>
+    <p className="army-note"><AkceArt className="size-4" />Ordunun bakımı dakikada {Math.round(armyUpkeep(game) * 10) / 10} akçe · aynı anda {actionPoints(game)} görev (hamle puanı).</p>
     <p className="army-note"><TriangleAlert className="size-4" />Asker halktan çıkar. Eğitilen her vatandaş üretimden düşer; surlar ise asker istemez, taş ister ({wallDefense(game)} savunma).</p>
     <BattlefieldCard game={game} />
     <DrillQueue game={game} home={home} />
@@ -334,7 +333,7 @@ export function ArmyPanel({ game, onRecruit, onBuild, home }: { game: Game; onRe
               <span title="Savunma"><ShieldCheck className="size-3" />{unit.defense}</span>
               <span title="Aldığı vatandaş"><Users className="size-3" />{unit.pop}</span>
               <span title="Can puanı">❤ {unit.hp}</span>
-              <span title="Bakım gideri (akçe/dk)"><Coins className="size-3" />{unit.upkeep}/dk</span>
+              <span title="Bakım gideri (akçe/dk)"><AkceArt className="size-3" />{unit.upkeep}/dk</span>
               {unit.cargo > 0 && <span title="Taşıma"><Warehouse className="size-3" />{unit.cargo}</span>}
             </div>
             <div className="unit-bottom">
@@ -370,7 +369,7 @@ function DrillQueue({ game, home }: { game: Game; home?: BuildingId }) {
         {running && <span className="drill-bar"><i style={{ width: `${Math.min(100, (100 * (now - j.start)) / (j.end - j.start))}%` }} /></span>}
       </div>
     })}
-    <p className="fine-print">Kışla ve Tersane aynı anda eğitir; her birine en fazla {DRILL_QUEUE_LIMIT} emir sıralanır. Emir verildiği anda vatandaşlar sıraya ayrılır.</p>
+    <Hint>Kışla ve Tersane aynı anda eğitir; her birine en fazla {DRILL_QUEUE_LIMIT} emir sıralanır. Emir verildiği anda vatandaşlar sıraya ayrılır.</Hint>
   </section>
 }
 
@@ -383,14 +382,12 @@ function BattlefieldCard({ game }: { game: Game }) {
   return <article className="bf-card">
     <span className="eyebrow">SAVAŞ MEYDANI · {f.name.toUpperCase()}</span>
     <div className="bf-card-rows">{rows.map(([n, k]) => <span key={n}><strong>{k}</strong><small>{n}</small></span>)}</div>
-    <p className="fine-print">Her yuvaya bir tür birlik ve {SLOT_SIZE} büyüklük sığar; fazlası yedekte bekler ve düşenlerin yerini alır. Ön cephe boşalırsa kanat ve nişancılar öne çıkar. Nişancıların cephanesi tükenir; kanatlar düşmanın arkasına dalar; kuşatma sura vurur; bombardıman surun üstünden vurur ve ona yalnızca hava savunması yetişir. Savaş dakikada bir tur, bir taraf dağılana ya da kaçana kadar sürer: turlar arasında takviye katılır, saldıran geri çekilebilir.{next ? ` Divanhane ${next}. seviyede meydan büyür.` : ''}</p>
-    <p className="fine-print">Deniz savaşları kendi meydanında yapılır ({fieldSize(Math.max(game.buildings.liman, game.buildings.tersane), true).name}: kanat yok, ön hat {fieldSize(Math.max(game.buildings.liman, game.buildings.tersane), true).front} yuva); Liman ve Tersane büyüdükçe genişler.</p>
+    <Hint>Her yuvaya bir tür birlik ve {SLOT_SIZE} büyüklük sığar; fazlası yedekte bekler ve düşenlerin yerini alır. Ön cephe boşalırsa kanat ve nişancılar öne çıkar. Nişancıların cephanesi tükenir; kanatlar düşmanın arkasına dalar; kuşatma sura vurur; bombardıman surun üstünden vurur ve ona yalnızca hava savunması yetişir. Savaş dakikada bir tur, bir taraf dağılana ya da kaçana kadar sürer: turlar arasında takviye katılır, saldıran geri çekilebilir.{next ? ` Divanhane ${next}. seviyede meydan büyür.` : ''} Deniz savaşları kendi meydanında yapılır ({fieldSize(Math.max(game.buildings.liman, game.buildings.tersane), true).name}: kanat yok, ön hat {fieldSize(Math.max(game.buildings.liman, game.buildings.tersane), true).front} yuva); Liman ve Tersane büyüdükçe genişler. Garnizon sınırı birliklerin halk karşılığıdır (seferdekiler dahil; casus ve nakliye hariç). Kara sınırını Divanhane ve Surlar, deniz sınırını Tersane yükseltir.</Hint>
     <div className="bf-garrison">{garrison.map(({ b, used, max }) => <div key={b} className={used >= max && max > 0 ? 'is-full' : ''}>
       <span>{b === 'kara' ? 'Kara garnizonu' : 'Deniz garnizonu'}</span>
       <span className="bf-garrison-bar"><i style={{ width: `${max ? Math.min(100, (100 * used) / max) : 0}%` }} /></span>
       <strong>{used} / {max}</strong>
     </div>)}</div>
-    <p className="fine-print">Garnizon sınırı birliklerin halk karşılığıdır (seferdekiler dahil; casus ve nakliye hariç). Kara sınırını Divanhane ve Surlar, deniz sınırını Tersane yükseltir.</p>
   </article>
 }
 
@@ -412,9 +409,9 @@ export function DiplomacyPanel({ game, onBuild }: { game: Game; onBuild: (id: Bu
     </article>}
     <article className="city-card">
       <div className="city-card-top"><span className="city-emblem"><Ship aria-hidden="true" /></span><span><span className="eyebrow">TİCARET</span><strong>{tradeCapacity(game)} mal kapasite</strong><span>{game.army.nakliye} nakliye gemisi · {cargoCapacity(game)} taşıma</span></span></div>
-      <p className="fine-print">Ticaret Limanı kapasiteyi, nakliye gemileri taşımayı verir. Karşı taraf — başka oyuncular — bu prototipte yok; sayılar hazır, ticaret yolu açıldığında bağlanacak.</p>
+      <Hint>Ticaret Limanı kapasiteyi, nakliye gemileri taşımayı verir. Karşı taraf — başka oyuncular — bu prototipte yok; sayılar hazır, ticaret yolu açıldığında bağlanacak.</Hint>
     </article>
-    <p className="fine-print">Burada gerçek oyuncu, ittifak ya da mesaj gösterilmez. Uydurma bir liste koymaktansa boş bırakmak dürüst olanı.</p>
+    <Hint>Burada gerçek oyuncu, ittifak ya da mesaj gösterilmez. Uydurma bir liste koymaktansa boş bırakmak dürüst olanı.</Hint>
   </div>
 }
 
@@ -446,16 +443,9 @@ export function IslandPanel({ game, islandName, onMiners, onDonate, onTrade }: {
           <strong>{LUXURY_NAMES[spec]} madeni · seviye {game.mine.level}</strong>
           <span>{game.mine.miners}/{cap} işçi · dakikada {perMin} {LUXURY_NAMES[spec].toLocaleLowerCase('tr')}</span></span>
       </div>
-      <article className="people-row">
-        <div className="people-row-top"><strong>Maden işçileri</strong><span>{game.mine.miners} / {cap}</span></div>
-        <input type="range" min={0} max={cap} step={1} value={game.mine.miners} aria-label="Maden işçileri"
-          onChange={event => onMiners(Number(event.target.value))} />
-        <p className="fine-print">Boştaki halk: {idleWorkers(game)}. İşçi başına dakikada 3 {LUXURY_NAMES[spec].toLocaleLowerCase('tr')}; üretim yapılarındaki işçiler buraya kendiliğinden geçmez.</p>
-        <div className="batch-row">
-          <Button size="sm" variant="outline" onClick={() => onMiners(0)}>Boşalt</Button>
-          <Button size="sm" variant="outline" onClick={() => onMiners(Math.min(cap, free))}>Doldur</Button>
-        </div>
-      </article>
+      <WorkforceSlider label="Madenci" figure="madenci" value={game.mine.miners} cap={cap} idle={idleWorkers(game)}
+        preview={n => { const v = luxuryProduction({ ...game, mine: { ...game.mine, miners: n } })[spec]; return { amount: v, icon: <SpecIcon className="workforce-icon" />, text: <><b>{v.toFixed(1)}</b> {LUXURY_NAMES[spec].toLocaleLowerCase('tr')}/dk</> } }}
+        onCommit={onMiners} note={`İşçi başına dakikada 3 ${LUXURY_NAMES[spec].toLocaleLowerCase('tr')}. Üretim yapılarındaki işçiler buraya kendiliğinden geçmez.`} />
     </article>
 
     <section className="empire-section">

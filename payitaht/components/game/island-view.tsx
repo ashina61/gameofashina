@@ -8,6 +8,7 @@
  * ordu gönderilir; yoldaki görevler hedefin üstünde geri sayımla görünür.
  * Şehir sahnesi arkada açık kalır: ada görünümü onun üstüne biner.
  */
+import { Hint } from './hint'
 import { useState } from 'react'
 import { ArrowLeft, ScrollText, Eye, Swords, Clock3, ShieldCheck, Users, Minus, Plus, Ship, Anchor, Skull, Flag } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -145,9 +146,9 @@ export function NpcPanel({ empire, npcId, now, onSpy, onRaid, onOccupy, onBlocka
       {intel.length
         ? intel.map(r => <div key={r.id} className="intel-block">
           <span className="eyebrow">{r.intel ? SPY_TYPES[r.intel].name.toUpperCase() : 'GENEL RAPOR'} · {new Date(r.time).toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })}</span>
-          <ul className="report-lines">{r.lines.map(l => <li key={l}>{l}</li>)}</ul>
+          <ReportLines lines={r.lines} />
         </div>)
-        : <p className="fine-print">Bu yerleşim hakkında bilgi yok. Casus sızdır, sonra görev ver: garnizonu, suru, limanı ve hazineyi öğrenirsin.</p>}
+        : <Hint>Bu yerleşim hakkında bilgi yok. Casus sızdır, sonra görev ver: garnizonu, suru, limanı ve hazineyi öğrenirsin.</Hint>}
     </section>
 
     <section className="empire-section">
@@ -171,7 +172,7 @@ export function NpcPanel({ empire, npcId, now, onSpy, onRaid, onOccupy, onBlocka
               <strong>{SPY_TYPES[t].name}</strong><small>{SPY_TYPES[t].description}</small>
               <small>Şans %{Math.round(spyTaskChance(g, inside.units.casus ?? 0, state.level, t) * 100)} · {clock(SPY_TYPES[t].minutes * 60_000)}</small>
             </button>)}
-            <p className="fine-print">Başarısız görevde bir casus yakalanır. Casuslar geri çağrılana kadar şehirde kalır ve hamle puanı harcamaz.</p>
+            <Hint>Başarısız görevde bir casus yakalanır. Casuslar geri çağrılana kadar şehirde kalır ve hamle puanı harcamaz.</Hint>
           </div>}
         </>}
     </section>
@@ -195,7 +196,7 @@ export function NpcPanel({ empire, npcId, now, onSpy, onRaid, onOccupy, onBlocka
         <span><Users className="size-4" />Taşıma {overseas ? Math.max(ships * UNITS.nakliye.cargo, RAID_UNITS.reduce((s, id) => s + UNITS[id].pop * (pick[id] ?? 0) * 30, 0))
           : RAID_UNITS.reduce((s, id) => s + UNITS[id].pop * (pick[id] ?? 0) * 30, 0)}</span>
       </div>
-      <p className="fine-print">Savaş {field.name.toLocaleLowerCase('tr')}da (Divanhane {npc.field} karşılığı) dakikada bir tur, bir taraf dağılana ya da kaçana kadar sürer; zar yoktur. Ön cephe hasarın çoğunu karşılar, kuşatma birlikleri (koçbaşı, mancınık, topçu) suru yıkar. Morali {RETREAT_MORALE}'in altına düşen taraf çekilir. Turlar arasında aynı şehirden gelen ordu takviye olarak katılır; Seferler panelinden geri çekilebilirsin. Ganimeti hayatta kalanlar taşır.</p>
+      <Hint>Savaş {field.name.toLocaleLowerCase('tr')}da (Divanhane {npc.field} karşılığı) dakikada bir tur, bir taraf dağılana ya da kaçana kadar sürer; zar yoktur. Ön cephe hasarın çoğunu karşılar, kuşatma birlikleri (koçbaşı, mancınık, topçu) suru yıkar. Morali {RETREAT_MORALE}'in altına düşen taraf çekilir. Turlar arasında aynı şehirden gelen ordu takviye olarak katılır; Seferler panelinden geri çekilebilirsin. Ganimeti hayatta kalanlar taşır.</Hint>
       {fighting && <p className="requirement"><Swords className="size-4" />Burada savaş sürüyor (tur {fighting.battle!.state.round}). {fighting.cityId === city.id ? 'Göndereceğin ordu takviye olarak katılır.' : 'Yeni ordu savaş bitene kadar önünde bekler.'}</p>}
       <Button size="sm" disabled={busy('raid') || !RAID_UNITS.some(id => (pick[id] ?? 0) > 0) || (overseas && ships > free.nakliye)} onClick={() => { onRaid(pick); setPick({}) }}><Swords data-icon="inline-start" />{fighting?.cityId === city.id ? 'Takviye gönder' : 'Sefere çık'}</Button>
       {busy('raid') && <p className="requirement"><Clock3 className="size-4" />Bu hedefe giden bir ordu yolda.</p>}
@@ -208,9 +209,61 @@ export function NpcPanel({ empire, npcId, now, onSpy, onRaid, onOccupy, onBlocka
     {lastRaid && <section className="empire-section">
       <h3>Son sefer</h3>
       <p className={lastRaid.success ? 'report-win' : 'report-loss'}>{lastRaid.title}</p>
-      <ul className="report-lines">{lastRaid.lines.map(l => <li key={l}>{l}</li>)}</ul>
+      <ReportLines lines={lastRaid.lines} />
     </section>}
   </div>
+}
+
+/**
+ * RAPOR SATIRLARI: "Tur 3: kaybımız … · düşman kaybı … · moral 80/60." gibi
+ * ardışık tur satırları okunaklı bir tur tablosuna dönüşür; diğer satırlar
+ * düz yazı kalır. Eski kayıtlardaki raporlar da aynı biçimde okunur.
+ */
+type RoundRow = { round: number; a: string; b: string; wall: string | null; moraleA: number; moraleD: number; labels: [string, string] }
+const splitLoss = (part: string) => { const m = part.match(/^(.*?) ((?:\d|yok).*)$/); return m ? [m[1], m[2]] : [part, ''] }
+function parseRound(line: string): RoundRow | null {
+  const m = line.match(/^Tur (\d+): (.+)$/)
+  if (!m) return null
+  const parts = m[2].replace(/\.$/, '').split(' · ')
+  const moral = parts.pop()?.match(/moral (\d+)\/(\d+)/)
+  if (!moral || parts.length < 2) return null
+  const wall = parts.length > 2 ? parts[2].replace(/^sur /, '') : null
+  const [la, a] = splitLoss(parts[0]), [lb, b] = splitLoss(parts[1])
+  return { round: +m[1], a, b, wall, moraleA: +moral[1], moraleD: +moral[2], labels: [la, lb] }
+}
+const cap = (t: string) => t.charAt(0).toLocaleUpperCase('tr') + t.slice(1)
+function RoundTable({ rows, title }: { rows: RoundRow[]; title?: string }) {
+  const [all, setAll] = useState(false)
+  const long = rows.length > 6
+  const shown = long && !all ? [...rows.slice(0, 3), ...rows.slice(-2)] : rows
+  const hasWall = rows.some(r => r.wall)
+  const loss = (t: string) => t === 'yok' || !t ? <span className="rt-none">—</span> : t
+  return <div className="round-table">
+    {title && <p className="round-table-title"><Swords className="size-3" />{title.replace(/:$/, '')}</p>}
+    <table>
+      <thead><tr><th>Tur</th><th className="rt-a">{cap(rows[0].labels[0])}</th><th className="rt-b">{cap(rows[0].labels[1])}</th>{hasWall && <th>Sur</th>}<th>Moral</th></tr></thead>
+      <tbody>{shown.flatMap((r, i) => [...(long && !all && i === 3 ? [<tr key="gap" className="rt-gap"><td colSpan={hasWall ? 5 : 4}>⋯ {rows.length - 5} tur ⋯</td></tr>] : []), <tr key={r.round}>
+        <td className="rt-round">{r.round}</td><td>{loss(r.a)}</td><td>{loss(r.b)}</td>{hasWall && <td>{r.wall ?? '—'}</td>}
+        <td className="rt-morale"><span className="rt-bar"><i style={{ width: `${Math.min(100, r.moraleA)}%` }} /></span><span className="rt-bar is-foe"><i style={{ width: `${Math.min(100, r.moraleD)}%` }} /></span></td>
+      </tr>])}</tbody>
+    </table>
+    {long && <button type="button" className="round-table-more" onClick={() => setAll(v => !v)}>{all ? 'Kısalt' : `Bütün turlar (${rows.length})`}</button>}
+  </div>
+}
+export function ReportLines({ lines }: { lines: string[] }) {
+  const blocks: Array<{ kind: 'text'; text: string } | { kind: 'rounds'; rows: RoundRow[]; title?: string }> = []
+  for (const l of lines) {
+    const row = parseRound(l)
+    const last = blocks[blocks.length - 1]
+    if (row) {
+      if (last?.kind === 'rounds') last.rows.push(row)
+      else if (last?.kind === 'text' && /:$/.test(last.text)) { blocks.pop(); blocks.push({ kind: 'rounds', rows: [row], title: last.text }) }
+      else blocks.push({ kind: 'rounds', rows: [row] })
+    } else blocks.push({ kind: 'text', text: l })
+  }
+  return <div className="report-body">{blocks.map((b, i) => b.kind === 'rounds'
+    ? <RoundTable key={i} rows={b.rows} title={b.title} />
+    : <p key={i} className="report-line">{b.text}</p>)}</div>
 }
 
 /** Savaş ve casusluk raporları. */
@@ -223,7 +276,7 @@ export function ReportsPanel({ empire }: { empire: Empire }) {
       <strong className={r.success ? 'report-win' : 'report-loss'}>{r.title}</strong>
       <time>{new Date(r.time).toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })}</time></div>
     {r.battles?.length ? <ReportBattles report={r} /> : null}
-    <ul className="report-lines">{r.lines.map(l => <li key={l}>{l}</li>)}</ul>
+    <ReportLines lines={r.lines} />
   </article>)}</div>
 }
 

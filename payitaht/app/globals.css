@@ -244,7 +244,7 @@
 .upgrade-cost > span { color: var(--muted-foreground); }
 .cost-display { display: flex; flex-wrap: wrap; gap: 14px; }
 .cost-display > span { display: flex; gap: 5px; align-items: center; font-size: 12px; color: #e4d1a5; font-variant-numeric: tabular-nums lining-nums; }
-.cost-display svg { width: 15px; height: 15px; stroke-width: 1.5; }
+.cost-display svg { width: 17px; height: 17px; stroke-width: 1.5; }
 .duration-row { display: flex; align-items: center; gap: 6px; color: var(--foreground); font-size: 11px; }
 .duration-row > span { margin-left: auto; color: var(--muted-foreground); font-size: 10px; }
 .requirement { display: flex; align-items: center; gap: 8px; color: var(--gold) !important; font-size: 11px !important; }
@@ -998,7 +998,7 @@
 .ika-res::-webkit-scrollbar { display: none; }
 .ika-chip { flex: 1 0 auto; display: inline-flex; align-items: baseline; gap: 3px; padding: 2px 6px; border-radius: 4px; background: #f6e8c3; border: 1px solid #d8bf88; white-space: nowrap; font-variant-numeric: tabular-nums lining-nums; }
 .ika-chip i { align-self: center; display: grid; place-items: center; }
-.ika-chip i svg { width: 14px; height: 14px; color: #6e4d2a; }
+.ika-chip i svg { width: 18px; height: 18px; color: #6e4d2a; filter: drop-shadow(0 1px 0 #fff8); }
 .ika-chip b { font-size: 12.5px; font-weight: 800; }
 .ika-chip small { font-size: 9.5px; color: #3f7d1f; font-weight: 700; }
 .ika-chip-full { background: #f7d9cf; border-color: #c96a55; }
@@ -1279,3 +1279,102 @@
 .world-tabs button:focus-visible { outline: 2px solid #b3261e; outline-offset: -3px; }
 .world-tab-badge { position: absolute; top: 4px; right: calc(50% - 22px); min-width: 17px; height: 17px; padding: 0 4px; border-radius: 9px; background: #b3261e; color: #fff; font-size: 10px; line-height: 17px; text-align: center; }
 .bp-here { font-size: 11px; color: #8a6a3a; }
+
+/* Bina sahnesinin köşesinde Ikariam gibi yuvarlak araç düğmeleri (çevir, taşı, yık). */
+.bp-hero-tools { position: absolute; top: 10px; right: 12px; display: flex; flex-direction: column; gap: 8px; z-index: 1; }
+.bp-hero-tools button { display: grid; place-items: center; width: 46px; height: 46px; border-radius: 50%; border: 2px solid #e2bd78;
+  background: radial-gradient(circle at 40% 35%, #8a5a2e, #4e2f14); color: #fbe9bb; box-shadow: 0 3px 8px #0006; position: relative; }
+.bp-hero-tools button svg { width: 18px; height: 18px; }
+.bp-hero-tools button span { position: absolute; bottom: -2px; left: 50%; transform: translateX(-50%); font-size: 9px; font-weight: 700;
+  background: #3a2310; color: #fbe9bb; padding: 0 5px; border-radius: 6px; line-height: 13px; }
+.bp-hero-tools button.is-danger { background: radial-gradient(circle at 40% 35%, #c2412f, #7a1d12); }
+.bp-hero-tools button[aria-pressed="true"] { outline: 3px solid #fbe9bb; }
+.bp-hero-tools button:focus-visible { outline: 3px solid #fff; outline-offset: 2px; }
+.demolish-sheet { display: grid; gap: 6px; margin: 10px 0; padding: 12px 14px; border-radius: 12px; border: 2px solid #b3261e;
+  background: linear-gradient(#fbe6d8, #f3d2bd); color: #4a1a10; }
+.demolish-sheet strong { display: inline-flex; align-items: center; gap: 6px; font-size: 15px; }
+.demolish-sheet p { margin: 0; font-size: 12.5px; }
+
+/* İŞ GÜCÜ KAYDIRICISI — Ikariam'daki halk ↔ işçi kutusu. */
+.workforce { display: grid; gap: 8px; padding: 10px; border-radius: 14px; border: 1px solid #c9a86a;
+  background: linear-gradient(180deg, #fbf1d6 0%, #f1dfb3 100%); box-shadow: inset 0 1px 0 #fff8, 0 2px 6px #6b4a2226; }
+.workforce-stage { display: grid; grid-template-columns: 64px minmax(0, 1fr) 64px; gap: 8px; align-items: center; }
+.workforce-side { display: flex; flex-direction: column; align-items: center; gap: 0; padding: 4px 0 6px; border-radius: 12px;
+  background: radial-gradient(ellipse at 50% 85%, #e5c98f 0%, transparent 70%); }
+.workforce-side strong { font-size: 18px; line-height: 1.1; color: #3a2410; font-variant-numeric: tabular-nums lining-nums; }
+.workforce-side small { font-size: 10px; color: #7a5a32; text-align: center; line-height: 1.1; }
+.workforce-side.is-worker strong { color: #2f5a2a; }
+.workforce-mid { display: grid; gap: 6px; min-width: 0; }
+.workforce-out { display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 13px; color: #4a3218; min-width: 0; flex-wrap: wrap; }
+.workforce-out b { font-size: 17px; color: #3a2410; font-variant-numeric: tabular-nums lining-nums; }
+.workforce-out em { font-style: normal; font-weight: 800; font-size: 12px; padding: 1px 7px; border-radius: 10px; }
+.workforce-out em.is-up { background: #d9ecc8; color: #2f5a2a; }
+.workforce-out em.is-down { background: #f3d0c4; color: #8a2a1a; }
+.workforce-icon { width: 24px; height: 24px; flex-shrink: 0; }
+.workforce input[type="range"] { -webkit-appearance: none; appearance: none; width: 100%; height: 14px; border-radius: 8px; margin: 4px 0;
+  background: linear-gradient(90deg, #6f9a3e 0 var(--fill), #d8c39a var(--fill) var(--limit), #bda77b var(--limit));
+  border: 1px solid #8a6a3a; box-shadow: inset 0 1px 3px #0003; }
+.workforce input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 28px; height: 28px; border-radius: 50%;
+  background: radial-gradient(circle at 40% 35%, #fbe29a, #c8962c 70%, #8a5a14); border: 2px solid #5e3c22; box-shadow: 0 2px 5px #0005; cursor: grab; }
+.workforce input[type="range"]::-moz-range-thumb { width: 26px; height: 26px; border-radius: 50%;
+  background: radial-gradient(circle at 40% 35%, #fbe29a, #c8962c 70%, #8a5a14); border: 2px solid #5e3c22; box-shadow: 0 2px 5px #0005; cursor: grab; }
+.workforce input[type="range"]:focus-visible { outline: 2px solid #b3261e; outline-offset: 3px; }
+.workforce-steps { display: flex; align-items: center; justify-content: center; gap: 4px; }
+.workforce-steps button { display: grid; place-items: center; width: 30px; height: 30px; border-radius: 50%; border: 1px solid #a88350;
+  background: #fbf2d6; color: #5a3e1e; }
+.workforce-steps button:disabled { opacity: 0.4; }
+.workforce-steps button svg { width: 16px; height: 16px; }
+.workforce-count { min-width: 64px; text-align: center; font-weight: 700; font-size: 13px; color: #3a2410; font-variant-numeric: tabular-nums lining-nums; }
+.workforce-confirm { display: flex; gap: 8px; justify-content: center; }
+.workforce-note { margin: 0; font-size: 11.5px; color: #7a5a32; text-align: center; }
+.person-art { display: block; filter: drop-shadow(0 1px 0 #fff6); }
+
+/* Rapor gövdesi ve tur tablosu. */
+.report-body { display: grid; gap: 6px; }
+.report-line { margin: 0; font-size: 12.5px; color: #4a3218; line-height: 1.4; }
+.round-table { border: 1px solid #d8bf86; border-radius: 10px; overflow: hidden; background: #fbf3dc; }
+.round-table-title { display: flex; align-items: center; gap: 5px; margin: 0; padding: 5px 9px; font-size: 12px; font-weight: 700; color: #5a3e1e; background: #efdcae; }
+.round-table table { width: 100%; border-collapse: collapse; font-size: 11.5px; font-variant-numeric: tabular-nums lining-nums; }
+.round-table th { text-align: left; padding: 4px 6px; font-size: 10px; letter-spacing: .3px; color: #7a5a32; border-bottom: 1px solid #e2cf9c; font-weight: 700; }
+.round-table td { padding: 4px 6px; border-bottom: 1px dashed #ead9ae; color: #3a2410; vertical-align: middle; }
+.round-table tr:last-child td { border-bottom: 0; }
+.rt-round { font-weight: 800; color: #8a5a22; width: 26px; text-align: center; }
+.rt-none { color: #b7a27a; }
+.rt-morale { width: 64px; }
+.rt-bar { display: block; height: 4px; border-radius: 3px; background: #e6d6ad; overflow: hidden; margin: 2px 0; }
+.rt-bar i { display: block; height: 100%; background: #a4652a; }
+.rt-bar.is-foe i { background: #3f6f9a; }
+.round-table th.rt-a { color: #a4652a; } .round-table th.rt-b { color: #3f6f9a; }
+.rt-gap td { text-align: center; color: #9a7a4a; font-size: 11px; background: #f5e8c6; }
+.round-table-more { display: block; width: 100%; padding: 6px; font-size: 12px; font-weight: 700; color: #7a4e24; background: #f3e3b8; border-top: 1px solid #e2cf9c; }
+
+/* OYUN DÜĞMELERİ — sayfalardaki bütün düğmeler kabartmalı, basınca içeri göçen
+   oyun düğmesi olur (koyu ceviz birincil, parşömen ikincil, kırmızı yıkım). */
+.bp [data-slot="button"], .ika-page [data-slot="button"] { border-radius: 10px; font-weight: 700; letter-spacing: .01em;
+  transition: transform .06s ease, box-shadow .06s ease, filter .12s ease; }
+.bp [data-slot="button"][data-variant="default"] { background: linear-gradient(#b8813f, #7a4e24 60%, #6a4119); color: #fdf0cf; border: 1px solid #4e2f14;
+  text-shadow: 0 1px 0 #0007; box-shadow: inset 0 1px 0 #ffe0a655, 0 2px 0 #4e2f14, 0 3px 6px #0003; }
+.bp [data-slot="button"][data-variant="outline"], .bp [data-slot="button"][data-variant="secondary"] { background: linear-gradient(#fffaf0, #f0ddb0); color: #4a3218;
+  border: 1px solid #b8955a; box-shadow: inset 0 1px 0 #fff, 0 2px 0 #b8955a, 0 3px 5px #6b4a2226; }
+.bp [data-slot="button"][data-variant="destructive"] { background: linear-gradient(#d0503a, #9a2a1a); color: #fff3e6; border: 1px solid #6a1a10;
+  text-shadow: 0 1px 0 #0006; box-shadow: inset 0 1px 0 #ffb09a66, 0 2px 0 #6a1a10, 0 3px 6px #0003; }
+.bp [data-slot="button"][data-variant="ghost"] { color: #5a3e1e; }
+.bp [data-slot="button"]:not(:disabled):hover { filter: brightness(1.06); }
+.bp [data-slot="button"]:not(:disabled):active { transform: translateY(2px); box-shadow: inset 0 2px 4px #0003; }
+.bp [data-slot="button"]:disabled { filter: grayscale(.6); opacity: .55; }
+
+/* İPUCU — kapalı açıklama. */
+.hint { border-radius: 10px; }
+.hint summary { display: inline-flex; align-items: center; gap: 5px; cursor: pointer; list-style: none; font-size: 12px; font-weight: 700;
+  color: #7a5a32; padding: 4px 10px 4px 7px; border-radius: 14px; border: 1px dashed #c9a86a; background: #fbf3dc; width: fit-content; }
+.hint summary::-webkit-details-marker { display: none; }
+.hint summary svg { width: 14px; height: 14px; }
+.hint[open] summary { border-style: solid; background: #f3e3b8; }
+.hint p { margin: 6px 0 0; padding: 8px 10px; font-size: 12px; line-height: 1.5; color: #5a3e1e; background: #fbf3dc; border-left: 3px solid #c9a86a; border-radius: 0 8px 8px 0; }
+.hint summary:focus-visible { outline: 2px solid #b3261e; outline-offset: 2px; }
+
+/* Sayfa açılışı: parşömen alttan kayarak gelir. */
+@media (prefers-reduced-motion: no-preference) {
+  .bp { animation: bp-rise .22s ease-out; }
+  @keyframes bp-rise { from { transform: translateY(18px); opacity: .4; } to { transform: none; opacity: 1; } }
+}

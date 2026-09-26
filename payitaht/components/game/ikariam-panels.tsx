@@ -5,8 +5,11 @@
  * Kara Pazar takası, Korsan Kalesi seferleri ve yaklaşan korsan baskını.
  * Hepsi motorun kendi fonksiyonlarını okur; panel sayı uydurmaz.
  */
+import { Hint } from './hint'
 import { useState } from 'react'
-import { Sparkles, Minus, Plus, Swords, ShieldCheck, Clock3, Coins, Skull, Anchor, TriangleAlert, Repeat, Hammer } from 'lucide-react'
+import { Sparkles, Minus, Plus, Swords, ShieldCheck, Clock3, Skull, Anchor, TriangleAlert, Repeat, Hammer } from 'lucide-react'
+import { AkceArt } from './resource-art'
+import { WorkforceSlider } from './workforce'
 import { Button } from '@/components/ui/button'
 import { UnitFigure } from './unit-art'
 import {
@@ -78,7 +81,7 @@ export function GuildPanel({ game, now, onCommand }: { game: Game; now: number; 
         </div>
       </article>
     })}</div>
-    <p className="fine-print">Tekke 1. seviyede bir, 5.'de iki, 10.'da üç loncayı himaye eder. Himayede olmayan lonca derecesini korur ama etki etmez. Loncalar yönetim biçimi himmeti %25 artırır. Tanrılar ayrıca Ongun Mabedi'ndedir.</p>
+    <Hint>Tekke 1. seviyede bir, 5.'de iki, 10.'da üç loncayı himaye eder. Himayede olmayan lonca derecesini korur ama etki etmez. Loncalar yönetim biçimi himmeti %25 artırır. Tanrılar ayrıca Ongun Mabedi'ndedir.</Hint>
   </section>
 }
 
@@ -105,13 +108,9 @@ export function TemplePanel({ game, now, onCommand }: { game: Game; now: number;
     {game.buildings.cami < 1
       ? <p className="requirement"><Hammer className="size-4" />Rahipler Cami'de hizmet eder. Önce Cami kur.</p>
       : <>
-        <div className="people-row-top"><strong>Rahipler</strong><span className="people-count">{t.priests} / {cap}</span></div>
-        <div className="people-controls">
-          <Button size="sm" variant="outline" aria-label="Rahip azalt" disabled={t.priests <= 0} onClick={() => onCommand({ type: 'priests', value: t.priests - 1 })}><Minus /></Button>
-          <input type="range" min={0} max={cap} step={1} value={t.priests} aria-label="Rahip sayısı"
-            onChange={e => onCommand({ type: 'priests', value: Number(e.target.value) })} />
-          <Button size="sm" variant="outline" aria-label="Rahip artır" disabled={t.priests >= cap || idleWorkers(game) <= 0} onClick={() => onCommand({ type: 'priests', value: t.priests + 1 })}><Plus /></Button>
-        </div>
+        <WorkforceSlider label="İmam" figure="rahip" value={t.priests} cap={cap} idle={idleWorkers(game)}
+          preview={n => { const v = Math.min(n, cap) * 0.5; return { amount: v, icon: <Sparkles className="workforce-icon" />, text: <><b>{v.toFixed(1)}</b> inanç/dk</> } }}
+          onCommit={n => onCommand({ type: 'priests', value: n })} />
         <div className="people-row-top"><span>İnanç</span><span className="people-count">{num(t.faith)} / {num(FAITH_CAP)} · +{(Math.min(t.priests, cap) * 0.5).toFixed(1)}/dk</span></div>
         <span className="people-meter"><span style={{ width: `${Math.min(100, t.faith / need * 100)}%` }} /></span>
         {active && <p className="report-win"><Sparkles className="size-4" /> {m.name} mucizesi etkin · {clock(t.until - now)}</p>}
@@ -128,7 +127,7 @@ export function UpgradePanel({ game, onCommand }: { game: Game; onCommand: (c: C
   const ids = UNIT_IDS.filter(id => !['spy', 'transport', 'support'].includes(UNITS[id].role))
   return <section className="empire-section">
     <h3><Swords className="size-4" /> Birlik yükseltmeleri</h3>
-    <p className="fine-print">Her seviye o birliğin saldırısını ya da zırhını %5 artırır. Tophane'nin her iki seviyesi bir yükseltme seviyesi açar (şu an en fazla {upgradeCap(game)}). Bedeli akçe ve kristaldir.</p>
+    <Hint>Her seviye o birliğin saldırısını ya da zırhını %5 artırır. Tophane'nin her iki seviyesi bir yükseltme seviyesi açar (şu an en fazla {upgradeCap(game)}). Bedeli akçe ve kristaldir.</Hint>
     {game.buildings.tophane < 2 && <p className="requirement"><Hammer className="size-4" />Yükseltmeler Tophane 2. seviyede açılır.</p>}
     <div className="upgrade-list">{ids.map(id => {
       const u = game.upgrades[id] ?? { atk: 0, def: 0 }
@@ -157,7 +156,7 @@ const FUTURE_EFFECT: Record<string, (l: number) => string> = {
 export function FuturePanel({ game, onCommand }: { game: Game; onCommand: (c: Command) => void }) {
   return <section className="research-branch">
     <div className="research-branch-top"><h3>Gelecek araştırmaları</h3><span><Repeat className="size-4" /></span></div>
-    <p className="fine-print">Bir dalın bütün araştırmaları bitince o dalın Geleceği açılır ve sınırsızca tekrarlanır; her seviye daha pahalıdır ve anında işler.</p>
+    <Hint>Bir dalın bütün araştırmaları bitince o dalın Geleceği açılır ve sınırsızca tekrarlanır; her seviye daha pahalıdır ve anında işler.</Hint>
     {RESEARCH_BRANCHES.map(b => {
       const level = game.future[b.key]
       const reason = futureReason(game, b.key)
@@ -215,14 +214,14 @@ export function PiracyPanel({ empire, now, onPiracy }: {
     <div className="piracy-targets">{PIRACY_TARGETS.map(p => <button key={p.id} type="button" className="piracy-target"
       aria-pressed={target === p.id} disabled={g.buildings.korsan_kalesi < p.level} onClick={() => setTarget(p.id)}>
       <strong>{p.name}</strong><small>{p.description}</small>
-      <small><Coins className="size-3" /> {num(p.gold * (1 + g.buildings.korsan_kalesi * 0.1))} · <Clock3 className="size-3" /> {clock(p.minutes * 60_000 * travelFactor(g))}
+      <small><AkceArt className="size-3" /> {num(p.gold * (1 + g.buildings.korsan_kalesi * 0.1))} · <Clock3 className="size-3" /> {clock(p.minutes * 60_000 * travelFactor(g))}
         {g.buildings.korsan_kalesi < p.level ? ` · Kale ${p.level}. sv.` : ''}</small>
       <small>Eskort: {troopList(p.escort)}</small>
     </button>)}</div>
     {WARSHIPS.every(id => free[id] <= 0)
       ? <p className="fine-print">Limanda boşta savaş gemisi yok. Tersane'de kadırga yap.</p>
       : <UnitPicker ids={WARSHIPS} free={free} pick={pick} onPick={setPick} />}
-    <p className="fine-print">Eskort gemileri zayıf zırhlıdır ama batmadan pes etmez: kalabalık bir filo götür. Kayıplar kalıcıdır.</p>
+    <Hint>Eskort gemileri zayıf zırhlıdır ama batmadan pes etmez: kalabalık bir filo götür. Kayıplar kalıcıdır.</Hint>
     <Button size="sm" disabled={!Object.values(pick).some(n => (n ?? 0) > 0) || missions.some(m => m.npcId === t.id)}
       onClick={() => { onPiracy(t.id, pick); setPick({}) }}><Anchor data-icon="inline-start" />{t.name} peşine düş</Button>
     {missions.map(m => <p key={m.id} className="requirement"><Clock3 className="size-4" />
@@ -258,6 +257,6 @@ export function DefenseSummary({ empire }: { empire: Empire }) {
       <span>{g.buildings.divan < 5 ? 'Acemi koruması (Divanhane 5\'e kadar)' : incoming?.battle ? `Kapıda savaş · tur ${incoming.battle.state.round}` : incoming ? `Baskın yolda · ${clock(incoming.arriveAt - g.updatedAt)}` : next ? `Sonraki baskın ~${clock(Math.max(0, next - g.updatedAt))}` : 'Gözcüler denizde'}</span>
     </div>
     {incoming?.battle && <BattleView stored={incoming.battle.info} live={{ round: incoming.battle.state.round, nextAt: incoming.battle.nextAt, now: g.updatedAt }} />}
-    <p className="fine-print">Korsanlar önce limandaki savaş gemilerine, sonra sura ve şehirdeki kara birliklerine çarpar. Savaş dakikada bir tur sürer: bu sırada eğitimi biten ya da seferden dönen birlikler sıradaki tura katılır, ama şehirden birlik çıkamaz. Seferdeki birlikler şehri savunmaz.</p>
+    <Hint>Korsanlar önce limandaki savaş gemilerine, sonra sura ve şehirdeki kara birliklerine çarpar. Savaş dakikada bir tur sürer: bu sırada eğitimi biten ya da seferden dönen birlikler sıradaki tura katılır, ama şehirden birlik çıkamaz. Seferdeki birlikler şehri savunmaz.</Hint>
   </section>
 }

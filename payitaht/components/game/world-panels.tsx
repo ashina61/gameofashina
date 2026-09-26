@@ -8,6 +8,7 @@
  * ilgili her şey (sıralama, diplomasi, pazar, mesajlar). Rakipler her yerde
  * "yapay rakip" diye anılır; gerçek oyuncu gibi gösterilmez.
  */
+import { Hint } from './hint'
 import { useState } from 'react'
 import {
   Crown, Trash2, Coffee, TreePine, FlaskConical, CalendarCheck, Gift, Truck, Anchor, Flag, Trophy, Handshake,
@@ -31,6 +32,8 @@ import {
   rivalById, rivalLevel, sendGift, stationTribute, treatyCost, writeLetter, type FactionId, type RankKey, type TreatyId,
 } from '@/lib/game/rivals'
 import { UnitPicker } from './ikariam-panels'
+import { WorkforceSlider } from './workforce'
+import { KeresteArt } from './resource-art'
 
 export type Op = (e: Empire, now: number) => { empire: Empire; error?: string }
 export type Run = (op: Op, ok?: string) => void
@@ -78,16 +81,18 @@ export function CityAdmin({ empire, game, now, onCommand, run }: { empire: Empir
   </>
 }
 
-/** Binayı bir seviye yık (onaylı). */
-export function DemolishRow({ game, id, onCommand }: { game: Game; id: BuildingId; onCommand: (c: Command) => void }) {
-  const [sure, setSure] = useState(false)
-  if (id === 'divan' || game.buildings[id] < 1) return null
-  return <section className="empire-section demolish-row">
-    {sure
-      ? <div className="batch-row"><span>{BUILDINGS[id].name} {game.buildings[id] - 1 ? `${game.buildings[id] - 1}. seviyeye inecek` : 'tamamen yıkılacak'}. Harcanan kaynak geri gelmez.</span>
-        <Button size="sm" variant="destructive" onClick={() => { onCommand({ type: 'demolish', id }); setSure(false) }}>Yık</Button>
-        <Button size="sm" variant="outline" onClick={() => setSure(false)}>Vazgeç</Button></div>
-      : <Button size="sm" variant="ghost" onClick={() => setSure(true)}><Trash2 data-icon="inline-start" />Bir seviye yık</Button>}
+/** YIKIM onayı (Ikariam'daki yık düğmesi): bir seviye ya da tamamen. */
+export function DemolishConfirm({ game, id, onCommand, onClose }: { game: Game; id: BuildingId; onCommand: (c: Command) => void; onClose: () => void }) {
+  const level = game.buildings[id]
+  if (id === 'divan' || level < 1) return null
+  return <section className="demolish-sheet" role="alertdialog" aria-label={`${BUILDINGS[id].name} yıkılsın mı?`}>
+    <strong><Trash2 className="size-4" /> {BUILDINGS[id].name} yıkılsın mı?</strong>
+    <p>Harcanan kaynak geri gelmez. {level > 1 ? `Bir seviye yıkarsan ${level - 1}. seviyeye iner.` : 'Arsa boşalır.'}</p>
+    <div className="batch-row">
+      {level > 1 && <Button size="sm" variant="destructive" onClick={() => { onCommand({ type: 'demolish', id }); onClose() }}>Bir seviye yık</Button>}
+      <Button size="sm" variant="destructive" onClick={() => { onCommand({ type: 'demolish', id, all: true }); onClose() }}>Tamamen yık</Button>
+      <Button size="sm" variant="outline" onClick={onClose}>Vazgeç</Button>
+    </div>
   </section>
 }
 
@@ -118,12 +123,9 @@ export function ForestPanel({ game, onCommand }: { game: Game; onCommand: (c: Co
   const [gift, setGift] = useState(500)
   return <section className="empire-section">
     <h3><TreePine className="size-4" /> Ada ormanı · Sv. {f.level}</h3>
-    <div className="people-row-top"><strong>Oduncular</strong><span className="people-count">{f.workers} / {cap}</span></div>
-    <div className="people-controls">
-      <input type="range" min={0} max={cap} value={f.workers} aria-label="Oduncu sayısı" onChange={e => onCommand({ type: 'foresters', value: Number(e.target.value) })} />
-      <Button size="sm" variant="ghost" disabled={idleWorkers(game) <= 0} onClick={() => onCommand({ type: 'foresters', value: f.workers + idleWorkers(game) })}>Boştakiler</Button>
-    </div>
-    <p className="fine-print">Orman dakikada {num(forestProduction(game))} kereste verir (çarpanlardan önce). Her oduncu 4 kereste keser.</p>
+    <WorkforceSlider label="Oduncu" figure="oduncu" value={f.workers} cap={cap} idle={idleWorkers(game)}
+      preview={n => { const v = forestProduction({ ...game, forest: { ...f, workers: n } }); return { amount: v, icon: <KeresteArt className="workforce-icon" />, text: <><b>{num(v)}</b> kereste/dk</> } }}
+      onCommit={n => onCommand({ type: 'foresters', value: n })} note="Her oduncu 4 kereste keser (şehir çarpanlarından önce)." />
     {f.level < FOREST_MAX_LEVEL && <>
       <div className="people-row-top"><span>Orman bağışı</span><span className="people-count">{num(f.wood)} / {num(forestUpgradeCost(f.level))}</span></div>
       <span className="people-meter"><span style={{ width: `${Math.min(100, f.wood / forestUpgradeCost(f.level) * 100)}%` }} /></span>
@@ -253,13 +255,13 @@ export function RivalWar({ empire, rivalId, onOccupy, onBlockade }: {
   return <>
     <section className="empire-section">
       <h3><Swords className="size-4" /> İşgal et</h3>
-      <p className="fine-print">Kazanırsan ordu şehirde kalır: her saat haraç toplar, hükümdar sana saldıramaz. Geri çağırınca haraçla döner.</p>
+      <Hint>Kazanırsan ordu şehirde kalır: her saat haraç toplar, hükümdar sana saldıramaz. Geri çağırınca haraçla döner.</Hint>
       <UnitPicker ids={land} free={free} pick={troops} onPick={setTroops} step={5} />
       <Button size="sm" disabled={!Object.values(troops).some(n => (n ?? 0) > 0)} onClick={() => { onOccupy(troops); setTroops({}) }}>İşgale çık</Button>
     </section>
     <section className="empire-section">
       <h3><Anchor className="size-4" /> Abluka</h3>
-      <p className="fine-print">Savaş gemileri önce donanmasıyla savaşır; kazanırsa liman kapanır: pazarı kapanır, donanması çıkamaz, filo saatlik liman haracı toplar.</p>
+      <Hint>Savaş gemileri önce donanmasıyla savaşır; kazanırsa liman kapanır: pazarı kapanır, donanması çıkamaz, filo saatlik liman haracı toplar.</Hint>
       <UnitPicker ids={warships} free={free} pick={ships} onPick={setShips} />
       <Button size="sm" disabled={!Object.values(ships).some(n => (n ?? 0) > 0)} onClick={() => { onBlockade(ships); setShips({}) }}>Limanı kapat</Button>
     </section>
@@ -277,7 +279,7 @@ export function RivalSupport({ empire, rivalId, now, run }: { empire: Empire; ri
   const here = (empire.missions ?? []).filter(m => m.kind === 'support' && m.npcId === rivalId && m.cityId === city.id)
   return <section className="empire-section">
     <h3><ShieldCheck className="size-4" /> Müttefike destek</h3>
-    <p className="fine-print">{target.name} ittifak üyen. Birliklerin şehrinde konuşlanır ve karşı ittifak saldırırsa müttefikle birlikte savunur; zaferde ödül ve itibar kazanırsın. Bakımları senden düşer; Seferler panelinden geri çağırırsın.</p>
+    <Hint>{target.name} ittifak üyen. Birliklerin şehrinde konuşlanır ve karşı ittifak saldırırsa müttefikle birlikte savunur; zaferde ödül ve itibar kazanırsın. Bakımları senden düşer; Seferler panelinden geri çağırırsın.</Hint>
     {here.map(m => <p key={m.id} className="requirement"><ShieldCheck className="size-4" />{m.stationed ? `Konuşlu: ${troopList(m.units)}` : `Yolda: ${troopList(m.units)}`}</p>)}
     <UnitPicker ids={RAID_UNITS} free={free} pick={pick} onPick={setPick} step={5} />
     <UnitPicker ids={WARSHIPS} free={free} pick={pick} onPick={setPick} />
@@ -335,7 +337,7 @@ function Diplomacy({ empire, now, run, onRival }: { empire: Empire; now: number;
         {alliance === f ? <Button size="sm" variant="outline" onClick={() => run((e, x) => leaveAlliance(e, x), 'İttifaktan ayrıldın.')}>Ayrıl</Button>
           : <Button size="sm" disabled={!!alliance} onClick={() => run((e, x) => joinAlliance(e, f, x), 'İttifaka katıldın.')}>Katıl</Button>}
       </article>)}
-      <p className="fine-print">Üyelik için Elçilik 3. seviye ve ittifakla ortalama 5 ilişki gerekir. Üyeler sana saldırmaz, baskında yardım gönderir; öbür ittifak soğur.</p>
+      <Hint>Üyelik için Elçilik 3. seviye ve ittifakla ortalama 5 ilişki gerekir. Üyeler sana saldırmaz, baskında yardım gönderir; öbür ittifak soğur.</Hint>
     </section>
     <section className="empire-section">
       <h3><Handshake className="size-4" /> Hükümdarlar</h3>
@@ -382,7 +384,7 @@ function Market({ empire, now, run }: { empire: Empire; now: number; run: Run })
         <span><strong>{num(o.left)} / {num(o.amount)} {GOOD_NAMES[o.good]} · {o.price} akçe</strong><small>Dakikada ~{fillRate(empire, o).toFixed(1)} birim satılıyor</small></span>
         <Button size="sm" variant="outline" onClick={() => run((e, x) => cancelOffer(e, o.id, x), 'Teklif geri çekildi.')}>Geri çek</Button>
       </article>)}
-      <p className="fine-print">Yapay tüccarlar adil fiyata yakın teklifleri hızlı alır; adil fiyatın %60 üstünde hiç almazlar.</p>
+      <Hint>Yapay tüccarlar adil fiyata yakın teklifleri hızlı alır; adil fiyatın %60 üstünde hiç almazlar.</Hint>
     </section>
     {deliveries.length > 0 && <section className="empire-section">
       <h3><Truck className="size-4" /> Yoldaki teslimatlar</h3>

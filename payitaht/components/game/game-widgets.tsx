@@ -1,14 +1,18 @@
 'use client'
 
-import { Coins, Trees, Mountain, BookOpen, Hammer, Check, ArrowUpRight, Sparkles, TriangleAlert, Landmark, Swords, Handshake, LockKeyhole, Grape, Columns3, Gem, Flame, Pickaxe } from 'lucide-react'
+import { Hint } from './hint'
+import { Hammer, Check, ArrowUpRight, Sparkles, TriangleAlert, Landmark, Swords, Handshake, LockKeyhole, Pickaxe } from 'lucide-react'
+import type { ComponentType, SVGProps } from 'react'
+import { AkceArt, IlimArt, KeresteArt, KristalArt, KukurtArt, MermerArt, TasArt, UzumArt } from './resource-art'
 import { Progress } from '@/components/ui/progress'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { LUXURY_IDS, LUXURY_NAMES, luxuryRates, type Luxury, type LuxuryStock } from '@/lib/game/engine'
 import { BUILDINGS, RESEARCH, RESOURCE_IDS, RESOURCE_NAMES, OBJECTIVES, activeJob, rates, capacity, fullResources, nearlyFullResources, formatNumber, population, soldiers, timeLeft, objectiveDone, type Game, type Resource, type Job, type BuildingId, type ResearchId } from '@/lib/game/engine'
 
-export const resourceIcons = { gold: Coins, wood: Trees, stone: Mountain, knowledge: BookOpen }
-export const luxuryIcons: Record<Luxury, typeof Grape> = { uzum: Grape, mermer: Columns3, kristal: Gem, kukurt: Flame }
+type ArtIcon = ComponentType<SVGProps<SVGSVGElement>>
+export const resourceIcons: Record<Resource, ArtIcon> = { gold: AkceArt, wood: KeresteArt, stone: TasArt, knowledge: IlimArt }
+export const luxuryIcons: Record<Luxury, ArtIcon> = { uzum: UzumArt, mermer: MermerArt, kristal: KristalArt, kukurt: KukurtArt }
 export function ResourceBar({ game, onSelect }: { game: Game; onSelect: () => void }) {
   const production = rates(game)
   const full = fullResources(game)
@@ -43,7 +47,7 @@ export function JobProgress({ job, now }: { job: Job; now: number }) {
 export function QueueCard({ game, kind, onClick }: { game: Game; kind: 'build' | 'research'; onClick: () => void }) {
   const job = kind === 'build' ? activeJob(game) : game.study
   const waiting = kind === 'build' ? Math.max(0, game.queue.length - 1) : 0
-  const Icon = kind === 'build' ? Hammer : BookOpen
+  const Icon = kind === 'build' ? Hammer : IlimArt
   const title = job ? kind === 'build' ? BUILDINGS[job.id as BuildingId].name : RESEARCH[job.id as ResearchId].name : kind === 'build' ? 'Ustaların hazır' : 'Bilgiyi keşfet'
   return <button className="queue-card" onClick={onClick}><span className="queue-icon"><Icon aria-hidden="true" /></span><span className="queue-copy"><span className="eyebrow">{kind === 'build' ? 'İNŞAAT' : 'ARAŞTIRMA'}</span><strong>{title}</strong>{job ? <span className="queue-meter"><span style={{ width: `${Math.min(100, (game.updatedAt - job.start) / (job.end - job.start) * 100)}%` }} /></span> : <span className="queue-hint">{kind === 'build' ? 'Şehrini geliştirmeye başla' : 'Medresede yeni bir ufuk'}</span>}</span>{job ? <span className="queue-right">{waiting > 0 && <span className="queue-waiting" title={`Sırada ${waiting} iş daha`}>+{waiting}</span>}<time>{timeLeft(job, game.updatedAt)}</time></span> : <ArrowUpRight className="queue-arrow" aria-hidden="true" />}</button>
 }
@@ -66,7 +70,7 @@ export function ObjectiveCard({ game, onClaim, onBuild }: { game: Game; onClaim:
   return <section className="objective-card"><div className="objective-heading"><span className="eyebrow"><Sparkles className="size-3" /> SIRADAKİ HEDEF</span><span>{game.claimed.length + 1} / {OBJECTIVES.length}</span></div>
     <span className="objective-track" aria-hidden="true"><span style={{ width: `${(game.claimed.length / OBJECTIVES.length) * 100}%` }} /></span>
     <h3>{objective.title}</h3><p>{objective.description}</p>
-    <div className="objective-footer"><span><Coins className="size-4" /> {objective.reward} akçe</span>
+    <div className="objective-footer"><span><AkceArt className="size-4" /> {objective.reward} akçe</span>
       <Button size="sm" variant={done ? 'default' : 'outline'} onClick={() => done ? onClaim(objective.id) : onBuild()}>{done ? 'Ödülü al' : 'Hedefe git'}<ArrowUpRight data-icon="inline-end" /></Button></div>
     {ready.length > 1 && <Button size="sm" variant="outline" className="objective-all" onClick={() => ready.forEach(o => onClaim(o.id))}><Check data-icon="inline-start" />Tamamlanan {ready.length} adımın ödülünü al ({ready.reduce((s, o) => s + o.reward, 0)} akçe)</Button>}
     {list}
@@ -106,7 +110,7 @@ export function EconomyDetails({ game }: { game: Game }) {
         <span>{rate >= 0 ? '+' : ''}{rate}/dk</span>
       </div>
     })}
-    <p className="fine-print">Prototipte süreler kısaltılmıştır. Oyun kapalıyken en fazla 8 saat üretim hesaplanır. Dolan ambarlarda üretim durur.</p>
+    <Hint>Prototipte süreler kısaltılmıştır. Oyun kapalıyken en fazla 8 saat üretim hesaplanır. Dolan ambarlarda üretim durur.</Hint>
   </div>
 }
 
@@ -126,7 +130,7 @@ export function AdvisorBar({ game, active, onSelect }: { game: Game; active: str
     { id: 'island' as const, label: 'Ada', icon: Pickaxe, open: true, badge: game.luxury[game.mine.specialty] >= 1 ? formatNumber(Math.floor(game.luxury[game.mine.specialty])) : null },
     { id: 'cities' as const, label: 'Şehirler', icon: Landmark, open: true, badge: activeJob(game) ? timeLeft(activeJob(game) as Job, game.updatedAt) : null },
     { id: 'army' as const, label: 'Ordu', icon: Swords, open: game.buildings.kisla > 0, badge: game.drills[0] ? timeLeft(game.drills.reduce((a, b) => (a.end < b.end ? a : b)), game.updatedAt) : soldiers(game) > 0 ? String(soldiers(game)) : null },
-    { id: 'research' as const, label: 'Araştırma', icon: BookOpen, open: game.buildings.medrese > 0, badge: game.study ? timeLeft(game.study, game.updatedAt) : null },
+    { id: 'research' as const, label: 'Araştırma', icon: IlimArt, open: game.buildings.medrese > 0, badge: game.study ? timeLeft(game.study, game.updatedAt) : null },
     { id: 'diplomacy' as const, label: 'Dünya', icon: Handshake, open: true, badge: null },
   ]
   return <nav className="advisor-bar" aria-label="Danışmanlar">{advisors.map(advisor => {

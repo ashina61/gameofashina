@@ -10,8 +10,9 @@
  * tablosu...). Mobilde aynı sıra alt alta dizilir; kutular parşömen gövdeli,
  * kahverengi başlık şeritlidir.
  */
-import { useEffect, type ReactNode } from 'react'
-import { ArrowLeft, ArrowUp, Coins, Trees, Mountain, Clock3, LockKeyhole, FlipHorizontal2, Move, Hammer, Users, BookOpen, ChevronRight, X } from 'lucide-react'
+import { Hint } from './hint'
+import { useEffect, useState, type ReactNode } from 'react'
+import { ArrowLeft, ArrowUp, Clock3, LockKeyhole, FlipHorizontal2, Move, Hammer, Users, BookOpen, ChevronRight, Trash2, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { asset, buildingImage } from '@/lib/asset'
 import {
@@ -24,12 +25,13 @@ import {
 import { activeCity, type Empire } from '@/lib/game/empire'
 import { cityGuards, cityWallHp, safeStock } from '@/lib/game/expeditions'
 import { culturalTreaties } from '@/lib/game/rivals'
-import { luxuryIcons, JobProgress } from './game-widgets'
+import { luxuryIcons, resourceIcons, JobProgress } from './game-widgets'
 import { ArmyPanel, BuildingEffects } from './game-panels'
-import { DemolishRow } from './world-panels'
+import { DemolishConfirm } from './world-panels'
+import { WorkforceSlider, type Figure } from './workforce'
 
 const num = (n: number) => Math.floor(n).toLocaleString('tr-TR')
-const RES_ICON: Record<Resource, typeof Coins> = { gold: Coins, wood: Trees, stone: Mountain, knowledge: BookOpen }
+const RES_ICON = resourceIcons
 const time = (s: number) => s >= 3600 ? `${Math.floor(s / 3600)} sa ${Math.floor(s / 60) % 60} dk` : s >= 60 ? `${Math.floor(s / 60)} dk ${s % 60} sn` : `${s} sn`
 
 /** Ikariam'ın içerik kutusu: kahverengi başlık şeridi + parşömen gövde. */
@@ -84,17 +86,17 @@ function UpgradeBox({ game, id, onBuild }: { game: Game; id: BuildingId; onBuild
 }
 
 /** Bir üretim yapısının işçi kaydırıcısı (Ikariam'daki "işçi" kutusu). */
+const WORK: Record<WorkerId, { figure: Figure; res: Resource; unit: string }> = {
+  kereste: { figure: 'oduncu', res: 'wood', unit: 'kereste' }, tas: { figure: 'tasci', res: 'stone', unit: 'taş' },
+  medrese: { figure: 'alim', res: 'knowledge', unit: 'ilim' }, carsi: { figure: 'esnaf', res: 'gold', unit: 'akçe (net)' },
+}
 function Workers({ game, id, unit, perWorker, onCommand }: { game: Game; id: WorkerId; unit: string; perWorker: string; onCommand: (c: Command) => void }) {
-  const cap = workerCapacity(game, id), value = game.workers[id], idle = idleWorkers(game)
-  return <div className="bp-workers">
-    <div className="bp-workers-top"><Users className="size-4" /><span>{unit}</span><strong>{value} / {cap}</strong></div>
-    <input type="range" min={0} max={cap} value={value} aria-label={`${unit} sayısı`} onChange={e => onCommand({ type: 'workers', id, value: Number(e.target.value) })} />
-    <div className="bp-workers-foot">
-      <Button size="sm" variant="outline" disabled={value <= 0} onClick={() => onCommand({ type: 'workers', id, value: 0 })}>Hepsini çek</Button>
-      <span>Boşta {idle} kişi · {perWorker}</span>
-      <Button size="sm" variant="outline" disabled={idle <= 0 || value >= cap} onClick={() => onCommand({ type: 'workers', id, value: value + idle })}>Doldur</Button>
-    </div>
-  </div>
+  const w = WORK[id]
+  const Icon = RES_ICON[w.res]
+  const at = (n: number) => rates({ ...game, workers: { ...game.workers, [id]: n } })[w.res]
+  return <WorkforceSlider label={unit} figure={w.figure} value={game.workers[id]} cap={workerCapacity(game, id)} idle={idleWorkers(game)}
+    preview={n => { const v = at(n); return { amount: v, icon: <Icon className="workforce-icon" />, text: <><b>{w.res === 'knowledge' ? v.toFixed(1) : num(v)}</b> {w.unit}/dk</> } }}
+    onCommit={n => onCommand({ type: 'workers', id, value: n })} note={perWorker} />
 }
 
 /** Binaya özel kutular. */
@@ -145,7 +147,7 @@ function BuildingView({ game, empire, id, onCommand, onRecruit, onNav, onBuildin
       const study = game.study
       return <>
         <Box title="Âlimler">
-          <Workers game={game} id="medrese" unit="Âlim" perWorker={`âlim başı ${(9).toFixed(0)} akçe/saat`} onCommand={onCommand} />
+          <Workers game={game} id="medrese" unit="Âlim" perWorker="Her âlim saatte 9 akçe maaş alır." onCommand={onCommand} />
           <Table rows={[
             ['İlim üretimi', <strong key="k">{r.knowledge.toFixed(1)} /dk</strong>],
             ['Âlim maaşı', `${num(scientistUpkeepPerMinute(game) * 60)} akçe/saat`],
@@ -159,11 +161,11 @@ function BuildingView({ game, empire, id, onCommand, onRecruit, onNav, onBuildin
         </Box>
       </>
     }
-    case 'kereste': return <Box title="Oduncular"><Workers game={game} id="kereste" unit="Oduncu" perWorker={`${num(r.wood)} kereste/dk`} onCommand={onCommand} />
+    case 'kereste': return <Box title="Oduncular"><Workers game={game} id="kereste" unit="Oduncu" perWorker="Her oduncu şehrin kerestesine katkı verir; boştaki halk üretim yapmaz." onCommand={onCommand} />
       <p className="bp-note">Adanın ormanında da oduncu çalıştırabilirsin (ada ormanı: {num(forestProduction(game))} kereste/dk).</p>
       <Button size="sm" variant="outline" onClick={() => onNav('island')}>Ada ormanına git<ChevronRight data-icon="inline-end" /></Button></Box>
-    case 'tas': return <Box title="Taşçılar"><Workers game={game} id="tas" unit="Taşçı" perWorker={`${num(r.stone)} taş/dk`} onCommand={onCommand} /></Box>
-    case 'carsi': return <Box title="Esnaf"><Workers game={game} id="carsi" unit="Esnaf" perWorker={`${num(r.gold)} akçe/dk net`} onCommand={onCommand} />
+    case 'tas': return <Box title="Taşçılar"><Workers game={game} id="tas" unit="Taşçı" perWorker="Taş ocağında çalışan her taşçı taş üretir." onCommand={onCommand} /></Box>
+    case 'carsi': return <Box title="Esnaf"><Workers game={game} id="carsi" unit="Esnaf" perWorker="Esnaf çarşıda akçe kazandırır." onCommand={onCommand} />
       <p className="bp-note">Çarşı'daki tüccarla lüks mal alıp satmak için Ada paneline git.</p>
       <Button size="sm" variant="outline" onClick={() => onNav('island')}>Tüccara git<ChevronRight data-icon="inline-end" /></Button></Box>
     case 'surlar': return <Box title="Şehir savunması">
@@ -174,7 +176,7 @@ function BuildingView({ game, empire, id, onCommand, onRecruit, onNav, onBuildin
         ['Sur muhafızı', `${cityGuards(game)} mızrakçı`],
         ['Yağmadan korunan mal', `${num(safeStock(game))} / tür`],
       ]} />
-      <p className="bp-note">Saldırıda önce sur hasar emer: kuşatma birlikleri sura üç kat, diğerleri yarım vurur. Sur yıkılınca savunanın morali sarsılır. Sur her seviyede savunmaya 4 muhafız ekler.</p>
+      <Hint>Saldırıda önce sur hasar emer: kuşatma birlikleri sura üç kat, diğerleri yarım vurur. Sur yıkılınca savunanın morali sarsılır. Sur her seviyede savunmaya 4 muhafız ekler.</Hint>
     </Box>
     case 'ambar': case 'depo': {
       const cap = capacity(game), safe = safeStock(game)
@@ -223,7 +225,7 @@ function BuildingView({ game, empire, id, onCommand, onRecruit, onNav, onBuildin
     case 'muze': return <Box title="Kültür">
       <Table rows={[['Müze huzuru', `+${num(game.buildings.muze * BUILDING_EFFECTS.muzeContentment * (game.research.includes('kultur') ? 1.5 : 1))}`],
         ['Kültür anlaşması (bu şehirde)', `${game.culture ?? 0} / ${game.buildings.muze}`], ['İmparatorluktaki anlaşma', `${empire ? culturalTreaties(empire) : 0}`]]} />
-      <p className="bp-note">Her kültür anlaşması Müze seviyesi kadar şehirde +50 huzur verir. Anlaşmalar Dünya panelinden yapılır.</p>
+      <Hint>Her kültür anlaşması Müze seviyesi kadar şehirde +50 huzur verir. Anlaşmalar Dünya panelinden yapılır.</Hint>
       <Button size="sm" variant="outline" onClick={() => onNav('diplomacy')}>Anlaşma yap<ChevronRight data-icon="inline-end" /></Button>
     </Box>
     case 'saray': case 'valilik': return empire ? <Box title="İmparatorluk">
@@ -284,11 +286,19 @@ export function BuildingPage({ game, empire, id, onClose, onBuild, onFlip, onMov
     return { level: level + step + 1, price: cost(projected, id), seconds: duration(projected, id) }
   })
   const city = empire ? activeCity(empire).name : ''
+  const [razing, setRazing] = useState(false)
+  const movable = level > 0 && takesPlot(id)
   return <IkaPage title={b.name} subtitle={`${city} · ${b.category.toLocaleLowerCase('tr')}`} label={`${b.name} sayfası`} onClose={onClose}
     badge={<span className="bp-level" aria-label={`Seviye ${level}`}><b>{level}</b></span>}>
       <section className="bp-hero">
         {b.art ? <img src={buildingImage(id, Math.max(1, level))} alt={`${b.name} görünümü`} /> : <span className="bp-pending"><Hammer /></span>}
+        {level > 0 && <div className="bp-hero-tools" role="group" aria-label="Yapı araçları">
+          {movable && b.art && <button type="button" onClick={onFlip} aria-label={game.flips.includes(id) ? 'Yönü geri çevir' : 'Yönünü çevir'}><FlipHorizontal2 /><span>Çevir</span></button>}
+          {movable && id !== 'divan' && <button type="button" onClick={onMove} aria-label="Başka arsaya taşı"><Move /><span>Taşı</span></button>}
+          {id !== 'divan' && <button type="button" className="is-danger" aria-pressed={razing} onClick={() => setRazing(v => !v)} aria-label="Yık"><Trash2 /><span>Yık</span></button>}
+        </div>}
       </section>
+      {razing && <DemolishConfirm game={game} id={id} onCommand={onCommand} onClose={() => setRazing(false)} />}
       <p className="bp-desc">{b.description}</p>
       <UpgradeBox game={game} id={id} onBuild={onBuild} />
       <Box title="Seviye etkisi"><BuildingEffects game={game} id={id} level={level} max={max} /></Box>
@@ -300,13 +310,6 @@ export function BuildingPage({ game, empire, id, onClose, onBuild, onFlip, onMov
           <span key="c" className="bp-mini-costs">{RESOURCE_IDS.filter(r => f.price[r] > 0).map(r => <span key={r}><ResIcon id={r} />{num(f.price[r])}</span>)}</span>,
           time(f.seconds),
         ])} />
-      </Box>}
-      {level > 0 && <Box title="Yapı">
-        {takesPlot(id) && <div className="bp-tools">
-          {b.art && <Button size="sm" variant="outline" onClick={onFlip}><FlipHorizontal2 data-icon="inline-start" />{game.flips.includes(id) ? 'Yönü geri çevir' : 'Çevir'}</Button>}
-          {id !== 'divan' && <Button size="sm" variant="outline" onClick={onMove}><Move data-icon="inline-start" />Taşı</Button>}
-        </div>}
-        <DemolishRow game={game} id={id} onCommand={onCommand} />
       </Box>}
   </IkaPage>
 }

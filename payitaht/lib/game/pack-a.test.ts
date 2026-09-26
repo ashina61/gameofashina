@@ -68,6 +68,14 @@ test('demolishing lowers a level and frees the plot at zero', () => {
   assert.equal(g.placement.hamam, null)
 })
 
+test('demolishing completely razes every level at once', () => {
+  let g = initialGame(now)
+  place(g, 'hamam', 4)
+  g = execute(g, { type: 'demolish', id: 'hamam', all: true }, now).game
+  assert.equal(g.buildings.hamam, 0)
+  assert.equal(g.placement.hamam, null)
+})
+
 test('new research has real effects', () => {
   const g = initialGame(now)
   place(g, 'elcilik', 2)

@@ -12,7 +12,7 @@ eşlenir. Durum: ✅ var · 🟡 kısmen · ❌ yok. (Güncelleme: 2026-09-26, s
 | Odun (ada kereste ocağı) | Kereste Ocağı (şehir içinde) + Taş | 🟡 ada ortak kereste ocağı yok |
 | Şarap / Mermer / Kristal / Kükürt | Üzüm / Mermer / Kristal / Kükürt, ada madeni | ✅ |
 | Araştırma puanı, bilim adamı | İlim, Medrese âlimleri (bakım gideri) | ✅ |
-| Vatandaş, işçi atama | Nüfus, Halk paneli, maden işçileri | ✅ |
+| Vatandaş, işçi atama | Nüfus, Halk paneli, maden işçileri; Ikariam gibi resimli halk ↔ işçi kaydırıcısı, çekerken üretim önizlemesi | ✅ |
 | Memnuniyet (meyhane, müze) | Huzur: Hamam, Kahvehane (üzüm), Cami, Müze | ✅ |
 | Nüfusun zamanla büyümesi | Halk huzur/barınma tavanına zamanla büyür (huzur fazlası hızlandırır) | ✅ |
 | Birlik bakım gideri | Her birliğin akçe/dk gideri | ✅ |
@@ -20,7 +20,7 @@ eşlenir. Durum: ✅ var · 🟡 kısmen · ❌ yok. (Güncelleme: 2026-09-26, s
 | Hamle puanı | Divanhane'yle artan eşzamanlı görev sayısı | ✅ |
 | Depo/Çöplük | Depo (+2.500 saklama/sv) | ✅ |
 | Meyhane ikram seviyesi | Kahvehane ikram ayarı | ✅ |
-| Bina yıkma, şehir adı | Seviye seviye yıkım, şehir adını değiştirme | ✅ |
+| Bina yıkma, şehir adı | Bina resmindeki Yık düğmesi: bir seviye ya da tamamen yıkım; şehir adını değiştirme | ✅ |
 | Günlük görevler, giriş ödülü | 3 günlük görev + 7 günlük giriş serisi | ✅ |
 | Liman yükleme hızı | Nakliye süresine yükleme eklenir, liman seviyesiyle hızlanır | ✅ |
 
