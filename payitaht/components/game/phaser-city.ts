@@ -27,6 +27,7 @@ import { edgeKey, roadEdgeKeysForTargets } from '@/lib/game/city-map/road-tree'
 import { visualSignature } from '@/lib/game/city-render'
 import { BUILDINGS, BUILDING_IDS, activeJob, plotOpen, population, zoneOf, type BuildingId, type Game } from '@/lib/game/engine'
 import { asset, buildingImage, buildingStage } from '@/lib/asset'
+import { canvasDpr } from '@/lib/render-dpr'
 
 /** Yolda yürüyen vatandaş (Ikariam'ın sokaktaki halkı). */
 type Walker = { body: Phaser.GameObjects.Graphics; edge: RoadEdge; forward: boolean; t: number; speed: number; side: number }
@@ -1743,7 +1744,7 @@ export class CityScene extends Phaser.Scene {
    */
   private hudItems: { c: Phaser.GameObjects.Container; width: number; height: number; css: number }[] = []
   private fitHudItem(h: { c: Phaser.GameObjects.Container; width: number; height: number; css: number }) {
-    const dpr = Math.min(2, (typeof window !== 'undefined' && window.devicePixelRatio) || 1)
+    const dpr = canvasDpr()
     const zoom = this.cameras.main.zoom || 1
     const s = Math.min(0.6, (h.css * dpr) / zoom / h.height)
     h.c.setScale(s)

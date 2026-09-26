@@ -57,9 +57,19 @@ export class FlagField {
     for (const f of this.flags) f.g.setVisible(level >= f.minLevel)
   }
 
+  private acc = 0
+  /** Dalga saniyede ~20 kez çizilir; yalnızca kamerada görünen bayraklar. */
   update(dt: number) {
     this.t += dt
-    for (const f of this.flags) if (f.g.visible) this.draw(f)
+    this.acc += dt
+    if (this.acc < 0.05) return
+    this.acc = 0
+    const v = this.scene.cameras.main.worldView
+    for (const f of this.flags) {
+      if (!f.g.visible) continue
+      if (f.x + f.w < v.x - 20 || f.x - f.w > v.right + 20 || f.y + f.h < v.y - 20 || f.y - f.h > v.bottom + 20) continue
+      this.draw(f)
+    }
   }
 
   private draw(f: LiveFlag) {

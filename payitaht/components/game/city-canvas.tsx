@@ -5,6 +5,7 @@ import type { CityScene } from './phaser-city'
 import type { BuildingId, Game } from '@/lib/game/engine'
 import type { BannerLook } from '@/lib/game/banner'
 import type { FlagLook } from './city-life'
+import { canvasDpr } from '@/lib/render-dpr'
 
 /*
  * TUVAL KÖPRÜSÜ.
@@ -80,7 +81,7 @@ export function CityCanvas({ game, showLabels, placing, controls, onBuilding, on
        * Ust sinir 2: DPR 3 telefonlarda dort kat piksel, gorunur kazanc
        * olmadan pil yakar.
        */
-      const dpr = Math.min(2, window.devicePixelRatio || 1)
+      const dpr = canvasDpr()
       const box = holder.current.getBoundingClientRect()
       const view = new CityScene()
       scene.current = view
