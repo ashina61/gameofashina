@@ -24,7 +24,7 @@ import { advanceWorld, parseWorld, type World } from './rivals'
 import { advanceMissions, advanceThreats, committedUnits, parseMissionState, type Mission, type NpcState, type Report, type Threat } from './expeditions'
 export const COLONY_COST = { gold: 900, wood: 1200, stone: 450 } as const
 const COLONY_SHIPS = 3
-const MAX_CITIES = 8
+const MAX_CITIES = 12
 const CITY_NAMES = ['Yeni Sahil', 'Akçaşehir', 'Yeni Liman', 'Yelkenhisar', 'Kervansaray', 'Yeni Hisar', 'Mavikent']
 
 export type CityRecord = { id: string; islandId: IslandId; name: string; game: Game }

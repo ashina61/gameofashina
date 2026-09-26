@@ -55,7 +55,9 @@ export function ProfilePanel({ empire, now, run, onCity, onSettings, onChangelog
   const [draft, setDraft] = useState({ ruler: p.ruler, motto: p.motto, crest: p.crest, color: p.color })
   const days = Math.max(1, Math.ceil((now - p.since) / 86_400_000))
   const done = list.filter(a => a.value >= a.goal).length
-  const tiles: [string, number, number][] = [['Toplam puan', score.total, ranks.total], ['Askerî', score.military, ranks.military], ['Bilim', score.science, ranks.science], ['Hazine', score.gold, ranks.gold]]
+  const tiles: [string, number, number][] = [['Toplam puan', score.total, ranks.total], ['İnşaatçı', score.builder, ranks.builder],
+    ['Askerî', score.military, ranks.military], ['Saldırı', score.offense, ranks.offense], ['Savunma', score.defense, ranks.defense],
+    ['Bilim', score.science, ranks.science], ['Hazine', score.gold, ranks.gold], ['Ticaret', score.trade, ranks.trade]]
   const rows: [string, string][] = [
     ['Şehir', num(stats.cities)], ['Nüfus', num(stats.population)], ['Asker ve tayfa', num(stats.soldiers)], ['Bina seviyesi', num(stats.levels)],
     ['Araştırma', num(stats.research)], ['Kurulan yapı', num(stats.builds)], ['Eğitilen birlik', num(stats.trained)], ['Bağış (kereste)', num(stats.donated)],

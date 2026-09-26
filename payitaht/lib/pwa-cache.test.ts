@@ -11,7 +11,7 @@ test('service worker Pages base path altında kaydolur', () => {
 
 test('service worker cache sürümü ve asset yenileme stratejisi güncel', () => {
   const sw = readFileSync('public/sw.js', 'utf8')
-  assert.match(sw, /payitaht-shell-v5/)
+  assert.match(sw, /payitaht-shell-v6/)
   assert.match(sw, /self\.registration\.scope/)
   assert.match(sw, /url\.pathname\.startsWith\(gameImages\)/)
   // Yalnızca JavaScript sözdizimini derle; self çağrıları çalıştırılmaz.

@@ -136,7 +136,7 @@ test('troops can be stationed in an allied city and defend it', async () => {
   // Nöbetler boyunca karşı ittifak saldırabilir; rapor savaşı tur tur taşır.
   const later = advanceEmpire(there, m0.arriveAt + 12 * SUPPORT_WATCH_MS)
   const fights = later.reports!.filter(r => r.kind === 'support' && r.battles?.length)
-  for (const f of fights) assert.equal(f.battles![0].title, 'Müttefik savunması')
+  for (const f of fights) assert.ok(f.battles!.every(b => b.title === 'Müttefik savunması' || b.title === 'Liman savunması'))
   assert.deepEqual(parseEmpire(JSON.stringify(later)).missions, later.missions)
   const alive = later.missions!.find(x => x.id === m.id)
   if (alive?.stationed) {
@@ -160,4 +160,34 @@ test('barracks and shipyard train side by side', async () => {
   const b = execute(a, { type: 'recruit', id: 'kadirga', count: 1 }, now)
   assert.equal(b.error, undefined)
   assert.deepEqual(b.game.drills.map(j => j.start), [now, now], 'iki yapı aynı anda başlar')
+})
+
+test('the Ahi lodge gathers himmet; devoted guilds under patronage give their bonus', async () => {
+  const { execute, advance, power, rates, contentment } = await import('./engine')
+  const { guildBonus, guildLevel } = await import('./guilds')
+  const e = initialEmpire(now)
+  let g = e.cities[0].game
+  assert.match(execute(g, { type: 'devote', guild: 'tuccar', amount: 100 }, now).error!, /Tekkesi/)
+  g.buildings.tekke = 5
+  g.placement.tekke = freePlots(g, 'sehir')[0]
+  g = advance(g, now + 4 * 60 * 60_000)
+  assert.ok(g.guilds.himmet >= 400, `himmet ${g.guilds.himmet}`)
+  const gold = rates(g).gold
+  let r = execute(g, { type: 'devote', guild: 'tuccar', amount: 400 }, g.updatedAt)
+  assert.equal(r.error, undefined)
+  assert.equal(guildLevel(r.game.guilds.devotion.tuccar), 2)
+  assert.equal(guildBonus(r.game, 'tuccar'), 0, 'himayede değilken etki yok')
+  r = execute(r.game, { type: 'patron', guild: 'tuccar' }, g.updatedAt)
+  assert.equal(guildBonus(r.game, 'tuccar'), 2)
+  assert.ok(rates(r.game).gold > gold)
+  // İki lonca himaye edilebilir (Tekke 5); değişiklik için beklenir.
+  assert.match(execute(r.game, { type: 'patron', guild: 'demirci' }, g.updatedAt + 1000).error!, /alışıyor/)
+  const later = execute(r.game, { type: 'patron', guild: 'kahveci' }, g.updatedAt + 31 * 60_000)
+  assert.equal(later.error, undefined)
+  assert.ok(contentment(later.game) >= contentment(r.game))
+  assert.match(execute(later.game, { type: 'patron', guild: 'demirci' }, g.updatedAt + 62 * 60_000).error!, /2 loncayı/)
+  void power
+  // Kayıt dönüşü.
+  const { parseSave } = await import('./engine')
+  assert.deepEqual(parseSave(JSON.stringify(later.game)).guilds, later.game.guilds)
 })

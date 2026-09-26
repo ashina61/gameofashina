@@ -28,7 +28,7 @@ import { troopList } from '@/lib/game/battle'
 import {
   FACTIONS, FAIR_PRICE, MARKET_GOODS, RIVALS, STYLE_NAMES, TREATIES, acceptOffer, cancelOffer, cancelTreaty, factionMembers,
   factionStanding, fillRate, joinAlliance, leaveAlliance, marketOffers, offerSlots, postOffer, proposeTreaty, rankings, readMessages,
-  rivalById, rivalLevel, sendGift, stationTribute, treatyCost, writeLetter, type FactionId, type TreatyId,
+  rivalById, rivalLevel, sendGift, stationTribute, treatyCost, writeLetter, type FactionId, type RankKey, type TreatyId,
 } from '@/lib/game/rivals'
 import { UnitPicker } from './ikariam-panels'
 
@@ -310,15 +310,15 @@ export function WorldPanel({ empire, now, run, onRival, initial = 'rank' }: { em
 }
 
 function Rankings({ empire, now, onRival }: { empire: Empire; now: number; onRival: (id: string) => void }) {
-  const [key, setKey] = useState<'total' | 'military' | 'science' | 'gold'>('total')
+  const [key, setKey] = useState<RankKey>('total')
   const rows = rankings(empire, now, key)
   return <section className="empire-section">
-    <div className="batch-row">{([['total', 'Genel'], ['military', 'Askerî'], ['science', 'Bilim'], ['gold', 'Hazine']] as const).map(([k, l]) =>
-      <Button key={k} size="sm" variant={key === k ? 'default' : 'outline'} onClick={() => setKey(k)}>{l}</Button>)}</div>
+    <div className="rank-tabs" role="group" aria-label="Sıralama kolu">{([['total', 'Genel'], ['builder', 'İnşaatçı'], ['military', 'Askerî'], ['offense', 'Saldırı'], ['defense', 'Savunma'], ['science', 'Bilim'], ['gold', 'Hazine'], ['trade', 'Ticaret']] as const).map(([k, l]) =>
+      <Button key={k} size="sm" variant={key === k ? 'default' : 'outline'} aria-pressed={key === k} onClick={() => setKey(k)}>{l}</Button>)}</div>
     <ol className="rank-table">{rows.map((s, i) => <li key={s.name + i} className={s.you ? 'rank-you' : undefined}>
       <span className="rank-no">{i + 1}</span>
       <button type="button" disabled={s.you} onClick={() => s.rivalId && onRival(s.rivalId)}>
-        <strong>{s.name}</strong><small>{s.you ? 'Sen' : `${s.ruler} · yapay rakip`}</small></button>
+        <strong>{s.name}</strong><small>{s.you ? `${s.ruler} · sen` : `${s.ruler} · yapay rakip`}</small></button>
       <span className="rank-score">{num(s[key])}</span>
     </li>)}</ol>
   </section>

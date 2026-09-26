@@ -96,3 +96,23 @@ test('diving boats are hard to hit', () => {
   const hp = (id: 'dalgic_gemisi' | 'kadirga', n: number) => n * { dalgic_gemisi: 280, kadirga: 420 }[id]
   assert.ok(hp('dalgic_gemisi', vs('dalgic_gemisi').defenderLost.dalgic_gemisi ?? 0) <= hp('kadirga', vs('kadirga').defenderLost.kadirga ?? 0))
 })
+
+test('the sea has its own battlefield without flanks', () => {
+  assert.equal(fieldSize(12, true).flank, 0)
+  assert.equal(fieldSize(12, true).name, 'Açık deniz')
+  assert.notEqual(fieldSize(12, true).front, fieldSize(12).front)
+})
+
+test('battles run until a side breaks, not to a fixed round count', () => {
+  const side = (troops: Record<string, number>, extra = {}) => ({ troops, attackMul: 1, defenseMul: 1, fieldLevel: 10, ...extra })
+  const long = battle(side({ mizrakci: 90, asci: 40 }), side({ mizrakci: 90, asci: 40, hekim: 5 }))
+  assert.ok(long.rounds.length > 10, `tur: ${long.rounds.length}`)
+  assert.doesNotMatch(long.reason, /Tur sınırı/)
+})
+
+test('archers out of arrows fight hand to hand', () => {
+  const side = (troops: Record<string, number>) => ({ troops, attackMul: 1, defenseMul: 1, fieldLevel: 10 })
+  const r = battle(side({ mizrakci: 30, okcu: 60 }), side({ mizrakci: 120 }))
+  const late = r.rounds.slice(3)
+  assert.ok(late.some(x => Object.values(x.defenderLoss).some(n => (n ?? 0) > 0)), 'cephane bitince de hasar sürer')
+})

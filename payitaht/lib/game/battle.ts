@@ -35,8 +35,10 @@ export type BattleSide = {
   moraleMul?: number
   /** Hekim başına kurtarılan asker (varsayılan 3; Teşrih 6). */
   healPerDoctor?: number
-  /** Savaş alanını belirleyen şehir seviyesi (savunanın Divanhanesi). */
+  /** Savaş alanını belirleyen şehir seviyesi (savunanın Divanhanesi ya da limanı). */
   fieldLevel?: number
+  /** Deniz savaşı: denizin kendi meydanı (kanat yok, hava ve kuşatma sıraları gemilerin). */
+  naval?: boolean
 }
 
 /** Birliğin savaş değerleri (Ikariam: büyüklük, yakın/uzak saldırı, cephane, zırh). */
@@ -90,8 +92,17 @@ export const FIELD_ROWS: FieldRow[] = ['front', 'flank', 'range', 'artillery', '
 export type FieldSize = Record<FieldRow, number> & { name: string }
 /** Bir yuvaya sığan toplam birlik büyüklüğü. */
 export const SLOT_SIZE = 30
-/** Savaş alanı: savunanın şehir seviyesine göre (Ikariam'daki gibi büyür). */
-export function fieldSize(level = 1): FieldSize {
+/**
+ * Savaş alanı: savunanın şehir seviyesine göre (Ikariam'daki gibi büyür).
+ * Denizde ayrı meydan kurulur: kanat yoktur, ön hat ve atış hattı geniştir.
+ */
+export function fieldSize(level = 1, naval = false): FieldSize {
+  if (naval) {
+    if (level >= 17) return { name: 'Engin deniz', front: 7, flank: 0, range: 7, artillery: 4, air: 2, fighter: 2 }
+    if (level >= 10) return { name: 'Açık deniz', front: 6, flank: 0, range: 6, artillery: 3, air: 2, fighter: 2 }
+    if (level >= 5) return { name: 'Kıyı suları', front: 4, flank: 0, range: 4, artillery: 2, air: 1, fighter: 1 }
+    return { name: 'Dar boğaz', front: 3, flank: 0, range: 3, artillery: 1, air: 1, fighter: 1 }
+  }
   if (level >= 17) return { name: 'Devasa meydan', front: 7, flank: 6, range: 7, artillery: 4, air: 2, fighter: 2 }
   if (level >= 10) return { name: 'Büyük meydan', front: 7, flank: 4, range: 7, artillery: 3, air: 2, fighter: 2 }
   if (level >= 5) return { name: 'Orta meydan', front: 5, flank: 2, range: 5, artillery: 2, air: 1, fighter: 1 }
@@ -123,7 +134,13 @@ export type BattleResult = {
   reason: string
 }
 
-export const MAX_ROUNDS = 10
+/**
+ * Ikariam'da savaş bir taraf dağılana ya da kaçana kadar sürer. Güvenlik için
+ * üst sınır: bu kadar turda da bitmezse saldıran çekilir. Ayrıca üst üste üç
+ * turda kimse kayıp vermez ve sur değişmezse savaş TIKANIR, saldıran çekilir.
+ */
+export const MAX_ROUNDS = 60
+export const STALEMATE_ROUNDS = 3
 /** İki tur arası gerçek zaman (Ikariam'da 15 dk; bu oyunun hızında 1 dk). */
 export const ROUND_MS = 60_000
 /** Deniz + kara aşamalı en uzun savaşın süresi (sınır). */
@@ -188,6 +205,8 @@ export type BattleState = {
   round: number
   rounds: BattleRound[]
   over?: { loser: 'attacker' | 'defender'; reason: string }
+  /** Üst üste kayıpsız geçen tur (tıkanma). */
+  quiet?: number
 }
 
 /** Savaş alanı kurulur; ilk tur battleRound ile çarpışılır. */
@@ -195,7 +214,7 @@ export function startBattle(attacker: BattleSide, defender: BattleSide): BattleS
   const ammo = () => Object.fromEntries(UNIT_IDS.map(id => [id, stats(id).ammo])) as Troops
   return {
     a: { ...attacker, troops: { ...attacker.troops } }, d: { ...defender, troops: { ...defender.troops } },
-    field: fieldSize(defender.fieldLevel ?? 1), wall: defender.wall ?? 0, moraleA: 100, moraleD: 100,
+    field: fieldSize(defender.fieldLevel ?? 1, !!defender.naval), wall: defender.wall ?? 0, moraleA: 100, moraleD: 100,
     ammoA: ammo(), ammoD: ammo(), carryA: {}, carryD: {}, lostA: {}, lostD: {}, round: 0, rounds: [],
   }
 }
@@ -228,13 +247,16 @@ export function battleRound(st: BattleState): BattleRound | null {
   const startA = totalHp(A) + hpOf(st.lostA), startD = totalHp(D) + hpOf(st.lostD)
   const ammoA = st.ammoA, ammoD = st.ammoD
   /** Hasarı bir sıradaki yığınlara can payına göre dağıtır; zırh her vuruştan düşer. */
+  let dealt = 0
   const strike = (t: Troops, row: Slot[], h: Hit, defMul: number, carry: Record<string, number>, lost: Troops, factor = 1) => {
     if (h.dmg <= 0 || !row.length) return
     const hpRow = row.reduce((s, x) => s + x.n * UNITS[x.id].hp, 0)
     for (const s of row) {
       const armor = stats(s.id).armor * defMul
       const pass = h.perHit > 0 ? Math.max(0.3, 1 - armor / h.perHit) : 1
-      const got = h.dmg * factor * (s.n * UNITS[s.id].hp / hpRow) * pass * (stats(s.id).evade ?? 1) + (carry[s.id] ?? 0)
+      const fresh = h.dmg * factor * (s.n * UNITS[s.id].hp / hpRow) * pass * (stats(s.id).evade ?? 1)
+      dealt += fresh
+      const got = fresh + (carry[s.id] ?? 0)
       const dead = Math.min(count(t, s.id), Math.floor(got / UNITS[s.id].hp))
       carry[s.id] = dead >= count(t, s.id) ? 0 : got - dead * UNITS[s.id].hp
       if (dead > 0) { lost[s.id] = count(lost, s.id) + dead }
@@ -254,7 +276,8 @@ export function battleRound(st: BattleState): BattleRound | null {
   }
   const shoot = (l: Lineup, ammo: Troops, rows: FieldRow[]) => {
     const slots = rows.flatMap(r => l[r])
-    return { slots, h: hit(slots, id => (count(ammo, id) > 0 ? stats(id).ranged : 0), 1) }
+    // Cephanesi biten nişancı yakın dövüşe geçer (Ikariam'daki gibi).
+    return { slots, h: hit(slots, id => (count(ammo, id) > 0 ? stats(id).ranged : stats(id).melee), 1) }
   }
   const la: Troops = {}, ld: Troops = {}
   // --- SALDIRAN vurur ---
@@ -309,8 +332,13 @@ export function battleRound(st: BattleState): BattleRound | null {
   else if (!alive(D) && st.wall <= 0) st.over = { loser: 'defender', reason: 'Savunanın askeri kalmadı.' }
   else if (st.moraleA < RETREAT_MORALE) st.over = { loser: 'attacker', reason: 'Saldıranın morali çöktü; geri çekildi.' }
   else if (st.moraleD < RETREAT_MORALE) st.over = { loser: 'defender', reason: 'Savunanın morali çöktü; kaçtı.' }
-  // Tur sınırı: sur ayaktaysa ya da savunan tutunduysa savunan kazanır.
-  else if (round >= MAX_ROUNDS) st.over = { loser: 'attacker', reason: 'Tur sınırı doldu; savunan yerini korudu.' }
+  else {
+    // Tıkanma: kimse kayıp vermiyor ve sur yerinde duruyorsa saldıran çekilir.
+    const idle = dealt < 0.5 && Math.round(st.wall) === Math.round(wallBefore)
+    st.quiet = idle ? (st.quiet ?? 0) + 1 : 0
+    if (st.quiet >= STALEMATE_ROUNDS) st.over = { loser: 'attacker', reason: 'Savaş tıkandı: kimse ilerleyemedi, saldıran çekildi.' }
+    else if (round >= MAX_ROUNDS) st.over = { loser: 'attacker', reason: 'Savaş çok uzadı; saldıran ordu yorgun düşüp çekildi.' }
+  }
   return r
 }
 

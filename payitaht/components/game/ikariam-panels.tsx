@@ -18,6 +18,7 @@ import {
 import { activeCity, type Empire } from '@/lib/game/empire'
 import { PIRACY_TARGETS, THREAT_WARNING_MS, WARSHIPS, availableUnits, cityGuards, cityWallHp, safeStock, targetName } from '@/lib/game/expeditions'
 import { BattleView } from './battle-view'
+import { GUILDS, GUILD_IDS, GUILD_MAX, PATRON_COOLDOWN_MS, devotionFor, guildLevel, himmetCap, himmetRate, patronSlots } from '@/lib/game/guilds'
 import { troopList } from '@/lib/game/battle'
 
 const clock = (ms: number) => {
@@ -43,6 +44,42 @@ export function UnitPicker({ ids, free, pick, onPick, step = 1 }: {
     <Button size="sm" variant="outline" disabled={(pick[id] ?? 0) >= free[id]} onClick={() => set(id, (pick[id] ?? 0) + step)} aria-label={`${UNITS[id].name} artır`}><Plus /></Button>
     <Button size="sm" variant="ghost" onClick={() => set(id, free[id])}>Hepsi</Button>
   </div>)}</div>
+}
+
+/** AHİ TEKKESİ: himmet, lonca dereceleri ve himaye (Ikariam'daki tanrılar). */
+export function GuildPanel({ game, now, onCommand }: { game: Game; now: number; onCommand: (c: Command) => void }) {
+  const gs = game.guilds
+  const slots = patronSlots(game.buildings.tekke)
+  const cap = himmetCap(game)
+  const cooling = now < gs.changedAt + PATRON_COOLDOWN_MS
+  const [amount, setAmount] = useState(100)
+  return <section className="empire-section guild-panel">
+    <h3><Sparkles className="size-4" /> Lonca himayesi · {gs.patrons.length}/{slots}</h3>
+    <div className="people-row-top"><span>Himmet</span><span className="people-count">{num(gs.himmet)} / {num(cap)} · +{himmetRate(game).toFixed(1)}/dk</span></div>
+    <span className="people-meter"><span style={{ width: `${Math.min(100, (gs.himmet / cap) * 100)}%` }} /></span>
+    <div className="batch-row"><span>Adak</span>{[100, 500, 2000].map(n => <Button key={n} size="sm" variant={amount === n ? 'default' : 'outline'} onClick={() => setAmount(n)}>{num(n)}</Button>)}</div>
+    {cooling && <p className="fine-print"><Clock3 className="size-3" /> Loncalar yeni düzene alışıyor · {clock(gs.changedAt + PATRON_COOLDOWN_MS - now)}</p>}
+    <div className="guild-list">{GUILD_IDS.map(id => {
+      const g = GUILDS[id]
+      const level = guildLevel(gs.devotion[id])
+      const on = gs.patrons.includes(id)
+      const next = level < GUILD_MAX ? devotionFor(level + 1) : null
+      const from = devotionFor(level)
+      return <article key={id} className={`guild-card${on ? ' is-patron' : ''}`}>
+        <div className="guild-top"><span className="guild-seal" aria-hidden="true">{level}</span>
+          <span><strong>{g.name}</strong><small>{g.craft}</small></span>
+          {on && <em>Himayede</em>}</div>
+        <p className="guild-effect">{level ? g.effect(level) : 'Henüz derecesi yok'}{next ? ` → ${level + 1}. derece: ${g.effect(level + 1)}` : ' · en yüksek derece'}</p>
+        {next && <><span className="people-meter"><span style={{ width: `${Math.min(100, ((gs.devotion[id] - from) / (next - from)) * 100)}%` }} /></span>
+          <small className="guild-need">{num(gs.devotion[id])} / {num(next)} himmet</small></>}
+        <div className="batch-row">
+          <Button size="sm" variant="outline" disabled={!next || gs.himmet < 1} onClick={() => onCommand({ type: 'devote', guild: id, amount })}>{num(Math.min(amount, Math.floor(gs.himmet)))} ada</Button>
+          <Button size="sm" variant={on ? 'secondary' : 'default'} disabled={cooling || (!on && gs.patrons.length >= slots)} onClick={() => onCommand({ type: 'patron', guild: id })}>{on ? 'Himayeden çıkar' : 'Himaye et'}</Button>
+        </div>
+      </article>
+    })}</div>
+    <p className="fine-print">Tekke 1. seviyede bir, 5.'de iki, 10.'da üç loncayı himaye eder. Himayede olmayan lonca derecesini korur ama etki etmez. Loncalar yönetim biçimi himmeti %25 artırır. (Ikariam'daki tanrılar sisteminin Osmanlı esnaf karşılığı.)</p>
+  </section>
 }
 
 /** CAMİ: rahipler inanç biriktirir; inanç adanın harikasının mucizesini çağırır. */

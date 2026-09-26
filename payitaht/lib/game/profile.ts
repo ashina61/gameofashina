@@ -6,7 +6,7 @@
 import { BUILDING_IDS, RESEARCH_IDS, UNIT_IDS, UNITS, population, soldiers } from './engine'
 import { advanceEmpire, type Empire } from './empire'
 import { counters } from './daily'
-import { playerScore, rankings, RIVALS, FACTIONS } from './rivals'
+import { playerScore, rankings, RIVALS, FACTIONS, type RankKey } from './rivals'
 
 export const CRESTS = ['hilal', 'lale', 'kilic', 'gemi', 'kule', 'kitap'] as const
 export type CrestId = typeof CRESTS[number]
@@ -113,8 +113,9 @@ export function achievements(empire: Empire): Achievement[] {
 
 /** Sıralamadaki yerin (1 = ilk) her kolda. */
 export function profileRanks(empire: Empire, now: number) {
-  const place = (key: 'total' | 'military' | 'science' | 'gold') => rankings(empire, now, key).findIndex(x => x.you) + 1
-  return { total: place('total'), military: place('military'), science: place('science'), gold: place('gold'), of: RIVALS.length + 1 }
+  const place = (key: RankKey) => rankings(empire, now, key).findIndex(x => x.you) + 1
+  const keys: RankKey[] = ['total', 'builder', 'military', 'offense', 'defense', 'science', 'gold', 'trade']
+  return { ...(Object.fromEntries(keys.map(k => [k, place(k)])) as Record<RankKey, number>), of: RIVALS.length + 1 }
 }
 export const allianceName = (empire: Empire) => empire.world?.alliance ? FACTIONS[empire.world.alliance].name : null
 export { playerScore }

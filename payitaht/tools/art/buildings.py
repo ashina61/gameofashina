@@ -1428,6 +1428,43 @@ def kara_pazar(s, st):
         s.crate(1.55 + (i % 2) * 0.15, 1.2 + (i // 2) * 0.16, 0.12)
 
 
+
+def tekke(s, st):
+    """Ahi Tekkesi: sekizgen semahane, üstünde yeşil yivli külah; yanında kubbeli
+    derviş hücreleri ve ocak bacaları; avluda şadırvan, serviler, lonca sancağı."""
+    ground(s, 0.1, 0.1, 1.92, 1.92, hexc('#d2bb8c'))
+    pave(s, 0.25, 1.1, 1.85, 1.85, PAL['marble'], n=6)
+    green = hexc('#3f8a5a')
+    cx, cy = 0.75, 0.72
+    h = (0.5, 0.58, 0.66)[st - 1]
+    r = 0.34
+    s.cylinder(cx, cy, 0, h, r, OTTO['white'], 'plaster', n=8,
+               deco=[('arch', u, 0.12, 0.07, 0.16) for u in (0.2, 0.5, 0.8)])
+    s.cylinder(cx, cy, h, h + 0.05, r * 1.1, PAL['stone2'], 'stone', n=8)
+    s.cone(cx, cy, h + 0.05, (0.5, 0.6, 0.72)[st - 1], r * 1.08, green, 'lead', n=16)
+    s.sphere(cx, cy, h + 0.12 + (0.5, 0.6, 0.72)[st - 1], 0.022, PAL['gold'])
+    # Derviş hücreleri: kubbe sıralı alçak kanat (ikinci aşamadan uzar).
+    n = (2, 3, 4)[st - 1]
+    x0, x1 = 1.18, min(1.85, 1.18 + 0.2 * n)
+    s.box(x0, 0.3, 0, x1, 0.7, 0.36, OTTO['stone'], 'stone', deco_y=[('courses', 0.09)] + [('archdoor', (i + 0.5) / n, 0, 0.1, 0.2) for i in range(n)],
+          deco_x=[('courses', 0.09)])
+    s.box(x0 - 0.02, 0.28, 0.36, x1 + 0.02, 0.72, 0.39, PAL['lead'], 'lead')
+    dome_row(s, x0, x1, 0.5, 0.39, n, 0.08)
+    for i in range(n):
+        x = x0 + (x1 - x0) * (i + 0.5) / n
+        s.box(x - 0.02, 0.32, 0.36, x + 0.02, 0.36, 0.52, PAL['stonedark'], 'stone', outline=False)
+    if st >= 3:  # matbah (aşevi): kiremit çatılı konak
+        konak(s, 1.35, 0.85, 1.82, 1.25, 1, OTTO['ochre'], cumba=False)
+    # Şadırvan: sekiz direkli, kurşun külahlı.
+    fx, fy = 1.05, 1.45
+    s.cylinder(fx, fy, 0, 0.08, 0.16, PAL['marble'], 'marble', top=PAL['water'], n=8)
+    for k in range(8):
+        a = 2 * math.pi * k / 8
+        s.cylinder(fx + 0.15 * math.cos(a), fy + 0.15 * math.sin(a), 0.08, 0.3, 0.012, PAL['wood2'], 'wood', n=6)
+    s.cone(fx, fy, 0.3, 0.14, 0.2, PAL['lead'], 'lead', n=8)
+    s.flag(0.35, 1.3, 0, 0.8, green)
+    s.tree(0.3, 1.75, 0.95, 'cypress'); s.tree(1.75, 1.7, 0.95, 'cypress'); s.tree(1.6, 1.35, 0.8)
+
 BUILDINGS = {
     'divan': divan, 'saray': saray, 'elcilik': elcilik, 'konut': konut, 'hamam': hamam, 'carsi': carsi,
     'ambar': ambar, 'kereste': kereste, 'tas': tas, 'medrese': medrese, 'kisla': kisla, 'liman': liman,
@@ -1436,7 +1473,7 @@ BUILDINGS = {
     'bagci': bagci, 'simyahane': simyahane, 'camci': camci, 'mahzen': mahzen, 'gozlukcu': gozlukcu,
     'barutane': barutane, 'depo': depo, 'ticaret_merkezi': ticaret_merkezi, 'harita_arsivi': harita_arsivi,
     'valilik': valilik, 'korsan_kalesi': korsan_kalesi, 'kara_pazar': kara_pazar,
-    'siginak': siginak,
+    'siginak': siginak, 'tekke': tekke,
 }
 # Aşamasız yardımcı katmanlar: (fonksiyon, gölge var mı)
 EXTRAS = {'site': (site, True), 'scaffold': (scaffold, False),

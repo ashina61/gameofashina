@@ -2,7 +2,7 @@
 
 Ikariam'ın oyun sistemleri Payitaht evrenine (Osmanlı-Akdeniz) uyarlanır. Ikariam'ın
 görselleri, metinleri ve birebir sayıları kopyalanmaz; sistemler ve oyun döngüsü
-eşlenir. Durum: ✅ var · 🟡 kısmen · ❌ yok. (Güncelleme: 2026-09-26, sürüm 0.17.0)
+eşlenir. Durum: ✅ var · 🟡 kısmen · ❌ yok. (Güncelleme: 2026-09-26, sürüm 0.18.0)
 
 ## Kaynaklar ve ekonomi
 
@@ -46,6 +46,7 @@ eşlenir. Durum: ✅ var · 🟡 kısmen · ❌ yok. (Güncelleme: 2026-09-26, s
 | Ormancı / Taş ustası / Bağcı / Simyacı / Camcı | Ormancı Evi / Taşçı Ustası / Bağcı Evi / Simyahane / Camcı | ✅ |
 | Marangoz / Mimar / Şaraphane / Optikçi / Havai fişek alanı | Marangozhane / Mimarbaşı / Şıra Mahzeni / Gözlükçü / Barut Deneme Alanı | ✅ |
 | Tapınak (rahipler, mucizeler) | Cami: rahipler inanç toplar, adanın harikasının mucizesi çağrılır | ✅ |
+| Tanrılar (lütuf, himaye) | Ahi Tekkesi: himmet, altı esnaf loncası, derece ve himaye (Tekke seviyesiyle 1-3 lonca) | ✅ Osmanlı karşılığı |
 | Deniz Haritası Arşivi | Harita Arşivi | ✅ |
 | Korsan Kalesi | Korsan Kalesi: tüccar gemilerine korsan seferi, korsan şöhreti, +%10 yağma/sv | ✅ |
 | Kara Pazar | Kara Pazar: her malı başka bir mala takas (3,2:1 → 2:1) | ✅ |
@@ -70,13 +71,14 @@ eşlenir. Durum: ✅ var · 🟡 kısmen · ❌ yok. (Güncelleme: 2026-09-26, s
 | Nakliye gemisi | Nakliye | ✅ |
 | Casus | Casus | ✅ |
 | Savaş alanı (satırlar, turlar, sur, moral) | Yuvalı meydan (ön cephe, kanat, menzil, kuşatma, hava, hava savunması), Divanhane ile büyür; yedek birlikler | ✅ |
-| Gerçek zamanlı turlar, takviye, geri çekilme | Dakikada bir tur (en fazla 10); aynı şehirden takviye, eğitimi biten askerin savunmaya katılması, geri çekilme | ✅ |
+| Gerçek zamanlı turlar, takviye, geri çekilme | Dakikada bir tur, bir taraf dağılana ya da kaçana kadar; aynı şehirden takviye, eğitimi biten askerin savunmaya katılması, geri çekilme; tıkanan savaş biter | ✅ |
+| Deniz savaş meydanı | Denize özel meydan: kanat yok, Liman/Tersane seviyesiyle genişler | ✅ |
 | Garnizon sınırı | Kara: Divanhane + Surlar, deniz: Tersane (halk karşılığı) | ✅ |
 | Birim eğitim sırası | Her yapıya 5 emir, Kışla ve Tersane paralel | ✅ |
 | Barbar köyü | Barbar Köyü, Korsan İni, Asi Kalesi | ✅ |
 | Başka şehre saldırı, işgal, abluka | Hükümdar şehirlerine yağma, işgal (saatlik haraç), liman ablukası, intikam baskınları | ✅ yapay rakiplerle |
 | Birlikleri kendi şehirlerin arasında taşıma | Birlik aktarma (nakliyeyle) | ✅ |
-| Müttefik şehre birlik konuşlandırma | Destek birliği: ittifak üyesinin şehrini karşı ittifaka karşı savunur | ✅ yapay rakiplerle |
+| Müttefik şehre birlik ve filo konuşlandırma | Destek birliği şehri, filo limanı savunur (önce deniz, sonra kara savaşı) | ✅ yapay rakiplerle |
 | Casusluk görevleri (hedefte kalan casus) | Casus sızar ve kalır; hazine, garnizon, sur, liman, asker hareketleri görevleri; başarısızlıkta bir casus yakalanır | ✅ |
 | Cephane, moral | Birim başına cephane (tükenince atış durur); moral kaybı, Şeref Kanunu, Aşçı, İkmal Gemisi | ✅ |
 | Deniz savaşı | Deniz aşırı seferde önce hedefin donanmasıyla savaş; eskortsuz çıkarma yapılamaz | ✅ |
@@ -101,9 +103,11 @@ eşlenir. Durum: ✅ var · 🟡 kısmen · ❌ yok. (Güncelleme: 2026-09-26, s
 | Ada görünümü | Boyalı ada haritası | ✅ |
 | Ada madenine bağış | Kereste bağışıyla maden seviyesi | ✅ |
 | Harikalar | Her adada bir harika (8 farklı mucize), kereste bağışıyla 5 seviye | ✅ |
-| Dünya haritası, koloni | 8 adalık atlas, koloni | ✅ |
+| Dünya haritası, koloni | 16 adalık koordinatlı dünya haritası, 12 şehre kadar koloni | ✅ (Ikariam'dan küçük) |
 | Nakliye, ticaret | Şehirler arası nakliye, NPC tüccar | ✅ |
-| Sıralama | Genel / askerî / bilim / hazine sıralaması (sen + 10 yapay rakip) | ✅ yapay rakiplerle |
+| Sıralama | Genel, inşaatçı, askerî, saldırı, savunma, bilim, hazine, ticaret (sen + 14 yapay rakip) | ✅ yapay rakiplerle |
+| Öğretici görevler | 18 adımlık başlangıç eğitimi + günlük görevler | ✅ |
+| Bildirimler | Oyun açıkken baskın, savaş ve inşaat bildirimi | 🟡 kapalıyken bildirim sunucu ister |
 | Ticaret karakolu (oyuncu pazarı) | Saatlik hükümdar teklifleri + Ticaret Merkezi'nde kendi satış tekliflerin | ✅ yapay rakiplerle |
 | Diplomasi (kültür anlaşması vb.) | Kültür, ticaret, barış anlaşmaları; hediye; ilişki puanı | ✅ yapay rakiplerle |
 | İttifak | Doğu / Batı Birliği: üyelik, baskında yardım | ✅ yapay rakiplerle |
@@ -116,9 +120,8 @@ eşlenir. Durum: ✅ var · 🟡 kısmen · ❌ yok. (Güncelleme: 2026-09-26, s
 ## Kalanlar
 
 - **Gerçek insan oyuncular.** Başka gerçek oyunculara saldırı, onlarla ticaret, ittifak ve
-  mesajlaşma bir oyun sunucusu ve hesap sistemi ister. Bu sürümde aynı sistemler 10
+  mesajlaşma bir oyun sunucusu ve hesap sistemi ister. Bu sürümde aynı sistemler 14
   **yapay rakip hükümdarla** çalışır ve arayüzde her yerde "yapay rakip" diye yazar.
 - **Ücretli özellikler** (ambrosia, premium danışmanlar) bilerek eklenmedi.
-- **Dünyanın boyutu.** 8 ada ve en fazla 8 şehir; Ikariam'ın yüzlerce adalık koordinatlı dünyası yok.
-- **Tanrılar ve Olimpos Tapınağı** yok (Cami, harika ve mucize sistemi kısmen karşılar).
-- **Savaşın tur sınırı:** Ikariam'da savaş bir taraf bitene kadar sürer, burada 10. turda savunan kazanır.
+- **Dünyanın boyutu.** 16 ada ve 12 şehir; Ikariam'ın yüzlerce adalık dünyasından küçük.
+- **Kapalıyken bildirim.** Oyun tamamen kapalıyken bildirim göndermek bir push sunucusu ister.

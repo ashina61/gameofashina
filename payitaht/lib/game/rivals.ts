@@ -37,6 +37,11 @@ export const RIVALS: Rival[] = [
   { id: 'r-kor', city: 'Korsuyu', ruler: 'Turgut Reis', islandId: 'atessiz', style: 'denizci', faction: 'bati', base: 7 },
   { id: 'r-cinar', city: 'Çınaraltı', ruler: 'Gülbahar Sultan', islandId: 'zeytin', style: 'alim', faction: 'bati', base: 5 },
   { id: 'r-sarp', city: 'Sarphisar', ruler: 'Deli Ali Paşa', islandId: 'kizil', style: 'savasci', faction: 'dogu', base: 8 },
+  // Uzak adaların hükümdarları (0.18.0).
+  { id: 'r-mercan', city: 'Mercanköy', ruler: 'Piyale Reis', islandId: 'mercan', style: 'denizci', faction: 'dogu', base: 6 },
+  { id: 'r-sakiz', city: 'Sakızlı', ruler: 'Mihrimah Hatun', islandId: 'sakiz', style: 'tuccar', faction: 'bati', base: 7 },
+  { id: 'r-kartal', city: 'Kartalkaya', ruler: 'Koca Yusuf Ağa', islandId: 'kartal', style: 'savasci', faction: 'dogu', base: 9 },
+  { id: 'r-fener', city: 'Fenerbahçe', ruler: 'Ali Kuşçu Efendi', islandId: 'fener', style: 'alim', faction: 'bati', base: 8 },
 ]
 export const rivalById = (id: string) => RIVALS.find(r => r.id === id)
 
@@ -126,7 +131,14 @@ export function rivalLoot(empire: Empire, r: Rival, now: number) {
 
 /* --------------------------------------------------------------- SIRALAMA */
 
-export type Score = { name: string; ruler: string; rivalId?: string; you?: boolean; total: number; military: number; science: number; gold: number; buildings: number }
+export type Score = {
+  name: string; ruler: string; rivalId?: string; you?: boolean
+  total: number; military: number; science: number; gold: number; buildings: number
+  /** Ikariam'ın ek sıralama kolları: inşaatçı, saldırı, savunma, ticaret. */
+  builder: number; offense: number; defense: number; trade: number
+}
+export type RankKey = 'total' | 'builder' | 'military' | 'offense' | 'defense' | 'science' | 'gold' | 'trade'
+const sidePower = (t: Troops, key: 'attack' | 'defense') => (Object.entries(t) as [UnitId, number][]).reduce((s, [id, n]) => s + UNITS[id][key] * (n ?? 0), 0)
 const troopPower = (t: Troops) => (Object.entries(t) as [UnitId, number][]).reduce((s, [id, n]) => s + (UNITS[id].attack + UNITS[id].defense) * n, 0)
 export function rivalScore(empire: Empire, r: Rival, now: number): Score {
   const L = rivalLevel(empire, r, now)
@@ -134,20 +146,30 @@ export function rivalScore(empire: Empire, r: Rival, now: number): Score {
   const science = Math.round(Math.min(90, L * (r.style === 'alim' ? 3 : 2.2)) * 100)
   const military = Math.round(troopPower(rivalGarrison(L, r.style)) + troopPower(rivalFleet(L, r.style)))
   const gold = rivalTreasury(L, r.style).gold
-  return { name: r.city, ruler: r.ruler, rivalId: r.id, total: buildings * 100 + science + military + Math.round(gold / 10), military, science, gold, buildings }
+  const troops = { ...rivalGarrison(L, r.style), ...Object.fromEntries(Object.entries(rivalFleet(L, r.style)).map(([k, v]) => [k, (rivalGarrison(L, r.style)[k as UnitId] ?? 0) + (v ?? 0)])) } as Troops
+  const offense = Math.round(sidePower(troops, 'attack'))
+  const defense = Math.round(sidePower(troops, 'defense') + rivalWallHp(L) / 3)
+  const trade = Math.round(L * (r.style === 'tuccar' ? 260 : r.style === 'denizci' ? 180 : 110))
+  return { name: r.city, ruler: r.ruler, rivalId: r.id, total: buildings * 100 + science + military + Math.round(gold / 10), military, science, gold, buildings,
+    builder: buildings * 100, offense, defense, trade }
 }
 export function playerScore(empire: Empire): Score {
-  let buildings = 0, military = 0, gold = 0, research = 0
+  let buildings = 0, military = 0, gold = 0, research = 0, offense = 0, defense = 0, ports = 0
   for (const c of empire.cities) {
     buildings += BUILDING_IDS.reduce((s, id) => s + c.game.buildings[id], 0)
     military += troopPower(c.game.army)
     gold += c.game.resources.gold
     research = Math.max(research, c.game.research.length)
+    offense += sidePower(c.game.army, 'attack')
+    defense += sidePower(c.game.army, 'defense') + c.game.buildings.surlar * 150
+    ports += c.game.buildings.liman + c.game.buildings.ticaret_merkezi
   }
   const science = research * 100
-  return { name: activeCity(empire).name, ruler: empire.profile?.ruler ?? 'Sen', you: true, total: buildings * 100 + science + military + Math.round(gold / 10), military, science, gold, buildings }
+  const trade = (empire.stats?.shipments ?? 0) * 120 + ports * 60 + (empire.world?.offers ?? []).reduce((s, o) => s + (o.amount - o.left), 0)
+  return { name: activeCity(empire).name, ruler: empire.profile?.ruler ?? 'Sen', you: true, total: buildings * 100 + science + military + Math.round(gold / 10), military, science, gold, buildings,
+    builder: buildings * 100, offense: Math.round(offense), defense: Math.round(defense), trade: Math.round(trade) }
 }
-export function rankings(empire: Empire, now: number, key: 'total' | 'military' | 'science' | 'gold' = 'total') {
+export function rankings(empire: Empire, now: number, key: RankKey = 'total') {
   return [playerScore(empire), ...RIVALS.map(r => rivalScore(empire, r, now))].sort((a, b) => b[key] - a[key])
 }
 

@@ -58,7 +58,7 @@ test('colonies are independent playable cities; each island holds at most one ci
   world.cities[1].game = second.game
   assert.equal(world.cities[0].game.queue.length, 0, 'colony building cannot affect capital queue')
   assert.equal(world.cities[1].game.queue.length, 1)
-  assert.equal(ISLANDS.length, 8)
+  assert.equal(ISLANDS.length, 16)
   assert.deepEqual(parseEmpire(JSON.stringify(world)), world)
 })
 

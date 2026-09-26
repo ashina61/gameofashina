@@ -9,6 +9,7 @@ import {
   BUILDING_EFFECTS, UNITS, UNIT_IDS, WORKERS_PER_LEVEL, capacity, contentment, corruption, counterSpy, drillBonus, exchangeLimit, exchangeRate, housing,
   merchantBuyPrice, merchantLimit, merchantSellPrice, tradeCapacity, wallDefense, type BuildingId, type Game,
 } from './engine'
+import { himmetCap, himmetRate, patronSlots } from './guilds'
 
 export type EffectLine = { label: string; value: string }
 
@@ -105,6 +106,10 @@ export function effectLines(game: Game, id: BuildingId, level: number): EffectLi
     case 'korsan_kalesi': return [
       { label: 'Yağma ganimeti', value: `+${pct(level * E.korsanLoot)}` },
       { label: 'Korsan seferi', value: level > 0 ? 'açık' : 'kapalı' },
+    ]
+    case 'tekke': return [
+      { label: 'Himmet', value: `+${(himmetRate(g)).toFixed(1)}/dk · en fazla ${num(himmetCap(g))}` },
+      { label: 'Himaye edilen lonca', value: `${patronSlots(level)}` },
     ]
     case 'siginak': return [
       { label: 'Casus yeri', value: `+${level * E.siginakSpies}` },

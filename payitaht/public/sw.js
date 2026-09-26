@@ -1,4 +1,4 @@
-const CACHE = 'payitaht-shell-v5'
+const CACHE = 'payitaht-shell-v6'
 const BASE = new URL(self.registration.scope).pathname.replace(/\/$/, '')
 const p = path => `${BASE}${path.startsWith('/') ? path : `/${path}`}`
 const ASSETS = [
@@ -96,4 +96,11 @@ self.addEventListener('fetch', event => {
         .catch(() => caches.match(request)),
     )
   }
+})
+
+// Bildirime dokununca oyunu öne getir (açık değilse aç).
+self.addEventListener('notificationclick', event => {
+  event.notification.close()
+  event.waitUntil(self.clients.matchAll({ type: 'window', includeUncontrolled: true })
+    .then(list => (list[0] ? list[0].focus() : self.clients.openWindow(p('/')))))
 })

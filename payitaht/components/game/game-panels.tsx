@@ -16,6 +16,7 @@ import { DRILL_QUEUE_LIMIT, garrisonLimit, garrisonUsed, spyCapacity, growthRate
 import { BATTLE_STATS, SLOT_SIZE, fieldSize } from '@/lib/game/battle'
 import { UnitFigure } from './unit-art'
 import { ResearchEmblem } from './research-art'
+import { WorldMap } from './world-map'
 
 export function BuildingDetails({ game, id, onBuild, onFlip, onMove }: { game: Game; id: BuildingId; onBuild: (id: BuildingId) => void; onFlip: (id: BuildingId) => void; onMove: (id: BuildingId) => void }) {
   const b = BUILDINGS[id], level = game.buildings[id], reason = buildReason(game, id)
@@ -223,30 +224,11 @@ export function CitiesPanel({
     </section>
 
     <section className="empire-section">
-      <h3>Adalar haritası</h3>
-      <p className="fine-print">Her adada tek bir lüks kaynak yatağı bulunur: şehir yalnızca kendi adasının kaynağını madenden çıkarır. Diğerlerini koloni kurarak, nakliyeyle ya da Çarşı'daki tüccardan edinirsin.</p>
-      <div className="island-atlas">
-        {ISLANDS.map(island => {
-          const city = empire.cities.find(c => c.islandId === island.id)
-          const missing = capital.buildings.saray < colonyPalaceLevel(empire)
-            ? `Saray ${colonyPalaceLevel(empire)}. seviye gerekli`
-            : capital.buildings.liman < 1 || capital.army.nakliye < 3
-              ? 'Başkentte liman ve 3 nakliye gemisi gerekli'
-              : null
-          return <article key={island.id} className="island-atlas-card">
-            <span className="eyebrow">{island.specialty} yatağı</span>
-            <strong>{island.name}</strong>
-            <span>{city ? city.name : 'Boş ada'}</span>
-            {city
-              ? <Button size="sm" variant="outline" onClick={() => onSelectCity(city.id)}>
-                {city.id === current.id ? 'Bu şehir' : 'Şehre git'}
-              </Button>
-              : <Button size="sm" disabled={!!missing} onClick={() => onColonize(island.id)}>Koloni kur</Button>}
-            <Button size="sm" variant="ghost" onClick={() => onViewIsland(island.id)}>Adayı gör</Button>
-            {!city && missing && <small>{missing}</small>}
-          </article>
-        })}
-      </div>
+      <h3>Dünya haritası · {ISLANDS.length} ada</h3>
+      <p className="fine-print">Her adada tek bir lüks kaynak yatağı bulunur: şehir yalnızca kendi adasının kaynağını madenden çıkarır. Diğerlerini koloni kurarak, nakliyeyle ya da Çarşı'daki tüccardan edinirsin. Uzak adalara yolculuk uzun sürer.</p>
+      <WorldMap empire={empire} now={game.updatedAt} onSelectCity={onSelectCity} onColonize={onColonize} onViewIsland={onViewIsland}
+        missing={capital.buildings.saray < colonyPalaceLevel(empire) ? `Saray ${colonyPalaceLevel(empire)}. seviye gerekli`
+          : capital.buildings.liman < 1 || capital.army.nakliye < 3 ? 'Başkentte liman ve 3 nakliye gemisi gerekli' : null} />
       <p className="fine-print">Yeni koloni: {COLONY_COST.gold} akçe, {COLONY_COST.wood} kereste, {COLONY_COST.stone} taş. Saray seviyesi toplam koloni sayısını sınırlar; her şehir ayrı bina, üretim ve orduya sahiptir.</p>
     </section>
 
@@ -393,7 +375,8 @@ function BattlefieldCard({ game }: { game: Game }) {
   return <article className="bf-card">
     <span className="eyebrow">SAVAŞ MEYDANI · {f.name.toUpperCase()}</span>
     <div className="bf-card-rows">{rows.map(([n, k]) => <span key={n}><strong>{k}</strong><small>{n}</small></span>)}</div>
-    <p className="fine-print">Her yuvaya bir tür birlik ve {SLOT_SIZE} büyüklük sığar; fazlası yedekte bekler ve düşenlerin yerini alır. Ön cephe boşalırsa kanat ve nişancılar öne çıkar. Nişancıların cephanesi tükenir; kanatlar düşmanın arkasına dalar; kuşatma sura vurur; bombardıman surun üstünden vurur ve ona yalnızca hava savunması yetişir. Savaş dakikada bir tur sürer: turlar arasında takviye katılır, saldıran geri çekilebilir.{next ? ` Divanhane ${next}. seviyede meydan büyür.` : ''}</p>
+    <p className="fine-print">Her yuvaya bir tür birlik ve {SLOT_SIZE} büyüklük sığar; fazlası yedekte bekler ve düşenlerin yerini alır. Ön cephe boşalırsa kanat ve nişancılar öne çıkar. Nişancıların cephanesi tükenir; kanatlar düşmanın arkasına dalar; kuşatma sura vurur; bombardıman surun üstünden vurur ve ona yalnızca hava savunması yetişir. Savaş dakikada bir tur, bir taraf dağılana ya da kaçana kadar sürer: turlar arasında takviye katılır, saldıran geri çekilebilir.{next ? ` Divanhane ${next}. seviyede meydan büyür.` : ''}</p>
+    <p className="fine-print">Deniz savaşları kendi meydanında yapılır ({fieldSize(Math.max(game.buildings.liman, game.buildings.tersane), true).name}: kanat yok, ön hat {fieldSize(Math.max(game.buildings.liman, game.buildings.tersane), true).front} yuva); Liman ve Tersane büyüdükçe genişler.</p>
     <div className="bf-garrison">{garrison.map(({ b, used, max }) => <div key={b} className={used >= max && max > 0 ? 'is-full' : ''}>
       <span>{b === 'kara' ? 'Kara garnizonu' : 'Deniz garnizonu'}</span>
       <span className="bf-garrison-bar"><i style={{ width: `${max ? Math.min(100, (100 * used) / max) : 0}%` }} /></span>

@@ -49,9 +49,28 @@ export function QueueCard({ game, kind, onClick }: { game: Game; kind: 'build' |
 }
 export function ObjectiveCard({ game, onClaim, onBuild }: { game: Game; onClaim: (id: string) => void; onBuild: () => void }) {
   const objective = OBJECTIVES.find(o => !game.claimed.includes(o.id))
-  if (!objective) return <section className="objective-card"><span className="eyebrow"><Check className="size-3" /> BAŞLANGIÇ TAMAMLANDI</span><h3>Bir şehirden fazlası.</h3><p>Tüm hedefleri tamamladın. Şimdi şehrini büyütmeye devam et.</p></section>
+  const ready = OBJECTIVES.filter(o => !game.claimed.includes(o.id) && objectiveDone(game, o.id))
+  const list = <details className="objective-list">
+    <summary>Bütün adımlar · {game.claimed.length}/{OBJECTIVES.length}</summary>
+    <ol>{OBJECTIVES.map(o => {
+      const got = game.claimed.includes(o.id), done = objectiveDone(game, o.id)
+      return <li key={o.id} className={got ? 'is-got' : done ? 'is-ready' : o.id === objective?.id ? 'is-current' : ''}>
+        <span className="objective-mark" aria-hidden="true">{got ? '✓' : done ? '!' : '·'}</span>
+        <span><strong>{o.title}</strong><small>{o.description}</small></span>
+        {!got && done ? <Button size="sm" onClick={() => onClaim(o.id)}>{o.reward}</Button> : <small className="objective-reward">{o.reward} akçe</small>}
+      </li>
+    })}</ol>
+  </details>
+  if (!objective) return <section className="objective-card"><span className="eyebrow"><Check className="size-3" /> BAŞLANGIÇ TAMAMLANDI</span><h3>Bir şehirden fazlası.</h3><p>Tüm hedefleri tamamladın. Şimdi şehrini büyütmeye devam et.</p>{list}</section>
   const done = objectiveDone(game, objective.id)
-  return <section className="objective-card"><div className="objective-heading"><span className="eyebrow"><Sparkles className="size-3" /> SIRADAKİ HEDEF</span><span>{game.claimed.length + 1} / 3</span></div><h3>{objective.title}</h3><p>{objective.description}</p><div className="objective-footer"><span><Coins className="size-4" /> {objective.reward} akçe</span><Button size="sm" variant={done ? 'default' : 'outline'} onClick={() => done ? onClaim(objective.id) : onBuild()}>{done ? 'Ödülü al' : 'Hedefe git'}<ArrowUpRight data-icon="inline-end" /></Button></div></section>
+  return <section className="objective-card"><div className="objective-heading"><span className="eyebrow"><Sparkles className="size-3" /> SIRADAKİ HEDEF</span><span>{game.claimed.length + 1} / {OBJECTIVES.length}</span></div>
+    <span className="objective-track" aria-hidden="true"><span style={{ width: `${(game.claimed.length / OBJECTIVES.length) * 100}%` }} /></span>
+    <h3>{objective.title}</h3><p>{objective.description}</p>
+    <div className="objective-footer"><span><Coins className="size-4" /> {objective.reward} akçe</span>
+      <Button size="sm" variant={done ? 'default' : 'outline'} onClick={() => done ? onClaim(objective.id) : onBuild()}>{done ? 'Ödülü al' : 'Hedefe git'}<ArrowUpRight data-icon="inline-end" /></Button></div>
+    {ready.length > 1 && <Button size="sm" variant="outline" className="objective-all" onClick={() => ready.forEach(o => onClaim(o.id))}><Check data-icon="inline-start" />Tamamlanan {ready.length} adımın ödülünü al ({ready.reduce((s, o) => s + o.reward, 0)} akçe)</Button>}
+    {list}
+  </section>
 }
 export function EconomyDetails({ game }: { game: Game }) {
   const production = rates(game)

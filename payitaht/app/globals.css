@@ -716,7 +716,7 @@
 .report-head strong { flex: 1; font-size: 13px; }
 .report-head time { font-size: 11px; color: var(--muted-foreground); font-variant-numeric: tabular-nums; }
 .raid-units { display: flex; flex-direction: column; gap: 6px; }
-.raid-unit { display: grid; grid-template-columns: 1fr auto auto auto auto; gap: 6px; align-items: center; }
+.raid-unit { display: grid; grid-template-columns: auto minmax(0, 1fr) auto auto auto auto; gap: 6px; align-items: center; padding: 6px 8px; border: 1px solid #e2cf9c; border-radius: 10px; background: #fbf2d6; }
 .raid-unit > span { display: flex; flex-direction: column; min-width: 0; }
 .raid-unit small { font-size: 11px; color: var(--muted-foreground); }
 .stepper-value { min-width: 28px; text-align: center; font-variant-numeric: tabular-nums; }
@@ -1190,3 +1190,55 @@
 .ika-crest + .ika-city .ika-city-level { display: none; }
 .ika-crest-level { position: absolute; right: -4px; bottom: -2px; min-width: 20px; height: 20px; padding: 0 4px; display: grid; place-items: center; border-radius: 10px;
   background: #5a3517; border: 2px solid #e2bd78; font-family: var(--font-heading), Georgia, serif; font-weight: 800; font-size: 12px; color: #fbe9bb; }
+
+/* Ahi Tekkesi: lonca himayesi */
+.guild-list { display: grid; gap: 8px; }
+.guild-card { display: grid; gap: 6px; padding: 10px 12px; border: 1px solid #e2cf9c; border-radius: 10px; background: #fbf2d6; }
+.guild-card.is-patron { border-color: #3f8a5a; background: #e6f0dc; box-shadow: inset 3px 0 0 #3f8a5a; }
+.guild-top { display: grid; grid-template-columns: 34px 1fr auto; gap: 8px; align-items: center; }
+.guild-top > span:nth-child(2) { display: flex; flex-direction: column; min-width: 0; }
+.guild-top strong { font-size: 14px; }
+.guild-top small { font-size: 11px; color: #7a5a32; }
+.guild-top em { font-style: normal; font-size: 11px; font-weight: 700; color: #fff; background: #3f8a5a; padding: 2px 8px; border-radius: 10px; }
+.guild-seal { width: 34px; height: 34px; display: grid; place-items: center; border-radius: 50%; background: radial-gradient(#5aa06f, #2c6a42); border: 2px solid #e2bd78;
+  color: #fff; font-family: var(--font-heading), Georgia, serif; font-weight: 800; font-variant-numeric: tabular-nums; }
+.guild-effect { margin: 0; font-size: 12px; color: #4a3218; }
+.guild-need { font-size: 11px; color: #7a5a32; font-variant-numeric: tabular-nums; }
+.objective-track { display: block; height: 5px; margin: 6px 0 2px; border-radius: 3px; background: #e6d3a6; overflow: hidden; } .objective-track span { display: block; height: 100%; background: #8a5a22; }
+.rank-tabs { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: thin; } .rank-tabs > button { flex: none; }
+
+/* Dünya haritası */
+.world-map { display: grid; gap: 8px; }
+.world-map-scroll { overflow: auto; max-height: 62vh; border-radius: 12px; border: 2px solid #8a6a3a; box-shadow: inset 0 0 20px #0004; -webkit-overflow-scrolling: touch; }
+.world-map-scroll svg { display: block; }
+.wm-coord { font: 600 8px ui-monospace, monospace; fill: #e8f4f6; opacity: 0.55; }
+.wm-label { font: 700 10px var(--font-sans, system-ui), sans-serif; fill: #fbf2d6; text-anchor: middle; paint-order: stroke; stroke: #1f3f4a; stroke-width: 3px; }
+.wm-label.is-active { fill: #ffe9a8; font-size: 11px; }
+.wm-island { cursor: pointer; outline: none; }
+.wm-island:focus-visible polygon:nth-child(2) { stroke: #ffe9a8; stroke-width: 3; }
+.wm-legend { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 11px; color: #6a4a22; }
+.wm-legend span { display: inline-flex; align-items: center; gap: 5px; }
+.wm-dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; border: 1px solid #f6ecd6; flex: none; }
+.wm-you { background: #b3261e; }
+.wm-rival { background: #24406e; }
+.wm-card { display: grid; gap: 8px; padding: 12px 14px; border: 1px solid #dcc38e; border-radius: 12px; background: linear-gradient(#fbf2d6, #f1e0b4); }
+.wm-card-top > span { display: flex; flex-direction: column; gap: 2px; }
+.wm-card-top strong { font-family: var(--font-heading), Georgia, serif; font-size: 22px; color: #3a2410; }
+.wm-card-top small { font-size: 12px; color: #7a5a32; }
+.wm-facts { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; font-size: 13px; color: #4a3218; }
+.wm-facts li { display: flex; align-items: center; gap: 6px; }
+.objective-all { margin-top: 8px; width: 100%; }
+.objective-list { margin-top: 10px; border-top: 1px dashed #d8c39a; padding-top: 8px; }
+.objective-list summary { cursor: pointer; font-size: 12px; font-weight: 700; color: #6a4a22; }
+.objective-list ol { list-style: none; margin: 8px 0 0; padding: 0; display: grid; gap: 6px; }
+.objective-list li { display: grid; grid-template-columns: 22px minmax(0, 1fr) auto; gap: 8px; align-items: center; padding: 6px 8px; border-radius: 8px; background: #fbf2d6; opacity: 0.75; }
+.objective-list li > span:nth-child(2) { display: flex; flex-direction: column; min-width: 0; }
+.objective-list li strong { font-size: 13px; }
+.objective-list li small { font-size: 11px; color: #7a5a32; }
+.objective-list li.is-current { opacity: 1; box-shadow: inset 3px 0 0 #8a5a22; }
+.objective-list li.is-ready { opacity: 1; background: #f6e3a8; }
+.objective-list li.is-got { opacity: 0.55; }
+.objective-mark { width: 22px; height: 22px; display: grid; place-items: center; border-radius: 50%; background: #e6d3a6; font-weight: 800; font-size: 12px; color: #6a4a22; }
+.objective-list li.is-got .objective-mark { background: #2f6b4c; color: #fff; }
+.objective-list li.is-ready .objective-mark { background: #b8872e; color: #fff; }
+.objective-reward { font-variant-numeric: tabular-nums; white-space: nowrap; }

@@ -24,7 +24,7 @@ import { RivalDiplomacy, RivalSupport, RivalWar, type Run } from './world-panels
 import { FACTIONS, RIVALS, STYLE_NAMES, rivalById, rivalLevel } from '@/lib/game/rivals'
 import { targetInfo, type Report } from '@/lib/game/expeditions'
 import { BattleView } from './battle-view'
-import { MAX_ROUNDS, RETREAT_MORALE, fieldSize } from '@/lib/game/battle'
+import { RETREAT_MORALE, fieldSize } from '@/lib/game/battle'
 
 const clock = (ms: number) => {
   const s = Math.max(0, Math.ceil(ms / 1000))
@@ -195,7 +195,7 @@ export function NpcPanel({ empire, npcId, now, onSpy, onRaid, onOccupy, onBlocka
         <span><Users className="size-4" />Taşıma {overseas ? Math.max(ships * UNITS.nakliye.cargo, RAID_UNITS.reduce((s, id) => s + UNITS[id].pop * (pick[id] ?? 0) * 30, 0))
           : RAID_UNITS.reduce((s, id) => s + UNITS[id].pop * (pick[id] ?? 0) * 30, 0)}</span>
       </div>
-      <p className="fine-print">Savaş {field.name.toLocaleLowerCase('tr')}da (Divanhane {npc.field} karşılığı) dakikada bir tur, en fazla {MAX_ROUNDS} tur sürer ve zar yoktur. Ön cephe hasarın çoğunu karşılar, kuşatma birlikleri (koçbaşı, mancınık, topçu) suru yıkar. Morali {RETREAT_MORALE}'in altına düşen taraf çekilir. Turlar arasında aynı şehirden gelen ordu takviye olarak katılır; Seferler panelinden geri çekilebilirsin. Ganimeti hayatta kalanlar taşır.</p>
+      <p className="fine-print">Savaş {field.name.toLocaleLowerCase('tr')}da (Divanhane {npc.field} karşılığı) dakikada bir tur, bir taraf dağılana ya da kaçana kadar sürer; zar yoktur. Ön cephe hasarın çoğunu karşılar, kuşatma birlikleri (koçbaşı, mancınık, topçu) suru yıkar. Morali {RETREAT_MORALE}'in altına düşen taraf çekilir. Turlar arasında aynı şehirden gelen ordu takviye olarak katılır; Seferler panelinden geri çekilebilirsin. Ganimeti hayatta kalanlar taşır.</p>
       {fighting && <p className="requirement"><Swords className="size-4" />Burada savaş sürüyor (tur {fighting.battle!.state.round}). {fighting.cityId === city.id ? 'Göndereceğin ordu takviye olarak katılır.' : 'Yeni ordu savaş bitene kadar önünde bekler.'}</p>}
       <Button size="sm" disabled={busy('raid') || !RAID_UNITS.some(id => (pick[id] ?? 0) > 0) || (overseas && ships > free.nakliye)} onClick={() => { onRaid(pick); setPick({}) }}><Swords data-icon="inline-start" />{fighting?.cityId === city.id ? 'Takviye gönder' : 'Sefere çık'}</Button>
       {busy('raid') && <p className="requirement"><Clock3 className="size-4" />Bu hedefe giden bir ordu yolda.</p>}

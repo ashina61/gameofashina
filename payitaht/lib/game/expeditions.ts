@@ -558,7 +558,7 @@ export function resolveArrival(empire: Empire, m: Mission) {
   const ships = only(m.units, WARSHIPS)
   const openNaval = () => {
     m.battle = openBattle('naval', 'Deniz savaşı', 'Filomuz', `${npc.name} donanması`, { troops: ships, ...multipliers(g, ships, 'deniz') },
-      { troops: { ...fleet }, attackMul: npc.mul, defenseMul: npc.mul, fieldLevel: npc.field }, m.arriveAt)
+      { troops: { ...fleet }, attackMul: npc.mul, defenseMul: npc.mul, fieldLevel: npc.field, naval: true }, m.arriveAt)
   }
   if (m.kind === 'blockade') {
     if (!hasTroops(fleet)) return concludeBlockade(empire, m, city, m.arriveAt, [], [])
@@ -627,38 +627,62 @@ function resolveSupportWatch(empire: Empire, m: Mission) {
   const enemies = factionMembers(r.faction === 'dogu' ? 'bati' : 'dogu')
   const foe = enemies[Math.floor(roll(`${m.id}-${at}-foe`) * enemies.length)]
   const L = rivalLevel(empire, foe, at), own = rivalLevel(empire, r, at)
-  const band: Troops = {}
-  for (const [id, n] of Object.entries(rivalGarrison(L, foe.style)) as [UnitId, number][]) if (n && UNITS[id].role !== 'support') band[id] = Math.ceil(n * 0.6)
-  // Müttefikin kendi garnizonunun yarısı + bizim kara birliklerimiz.
-  const allyTroops: Troops = {}
-  for (const [id, n] of Object.entries(rivalGarrison(own, r.style)) as [UnitId, number][]) if (n) allyTroops[id] = Math.floor(n * 0.5)
-  const ours = only(m.units, RAID_UNITS)
-  const defenders: Troops = { ...allyTroops }
-  for (const [id, n] of Object.entries(ours) as [UnitId, number][]) defenders[id] = (defenders[id] ?? 0) + n
-  const mul = multipliers(g, ours, 'kara')
-  const a: BattleSide = { troops: band, attackMul: rivalAttackMul(L), defenseMul: rivalAttackMul(L) }
-  const d: BattleSide = { troops: defenders, attackMul: mul.attackMul, defenseMul: mul.defenseMul, wall: rivalWallHp(own), fieldLevel: rivalField(own) }
-  const stored: StoredBattle = { title: 'Müttefik savunması', attacker: `${foe.city} ordusu`, defender: `${r.city} ve birliklerimiz`, a: cloneSide(a), d: cloneSide(d) }
-  const res = replayBattle(a, d)
-  // Kayıplar önce müttefikin askerlerinden, sonra bizimkilerden düşer (orantılı).
-  const lost: Troops = {}
-  for (const [id, n] of Object.entries(res.defenderLost) as [UnitId, number][]) {
-    const share = (ours[id] ?? 0) / Math.max(1, defenders[id] ?? 0)
-    const k = Math.min(ours[id] ?? 0, Math.round(n * share))
-    if (k > 0) { lost[id] = k; g.army[id] = Math.max(0, g.army[id] - k); m.units[id] = Math.max(0, (m.units[id] ?? 0) - k) }
+  const scale = (t: Troops, k: number) => Object.fromEntries((Object.entries(t) as [UnitId, number][]).filter(([, n]) => n).map(([id, n]) => [id, Math.ceil(n * k)])) as Troops
+  const merge = (x: Troops, y: Troops) => { const o: Troops = { ...x }; for (const [id, n] of Object.entries(y) as [UnitId, number][]) o[id] = (o[id] ?? 0) + n; return o }
+  /** Kayıplar müttefikle orantılı paylaşılır; bizimkiler ordudan düşer. */
+  const share = (lostAll: Troops, ours: Troops, all: Troops) => {
+    const lost: Troops = {}
+    for (const [id, n] of Object.entries(lostAll) as [UnitId, number][]) {
+      const k = Math.min(ours[id] ?? 0, Math.round(n * (ours[id] ?? 0) / Math.max(1, all[id] ?? 0)))
+      if (k > 0) { lost[id] = k; g.army[id] = Math.max(0, g.army[id] - k); m.units[id] = Math.max(0, (m.units[id] ?? 0) - k) }
+    }
+    return lost
   }
-  const lines = [`${foe.ruler} (${FACTIONS[foe.faction].name}, yapay rakip) ${r.city} şehrine saldırdı.`,
-    ...roundLines(res.rounds, 'saldıran kaybı', 'savunan kaybı'), `Birliklerimizin kaybı: ${troopList(lost)}.`, res.reason]
-  const win = res.winner === 'defender'
+  const lines = [`${foe.ruler} (${FACTIONS[foe.faction].name}, yapay rakip) ${r.city} şehrine saldırdı.`]
+  const battles: StoredBattle[] = []
+  let win = false, bountyFrom: Troops = {}
+  // DENİZ: başka adadan gelen düşman önce limanı zorlar; filomuz müttefik donanmasıyla karşılar.
+  const enemyFleet = foe.islandId !== r.islandId ? scale(rivalFleet(L, foe.style), 0.6) : {}
+  let landed = true
+  if (hasTroops(enemyFleet)) {
+    const ourShips = only(m.units, WARSHIPS)
+    const fleet = merge(scale(rivalFleet(own, r.style), 0.5), ourShips)
+    const ms = multipliers(g, ourShips, 'deniz')
+    const na: BattleSide = { troops: enemyFleet, attackMul: rivalAttackMul(L), defenseMul: rivalAttackMul(L) }
+    const nd: BattleSide = { troops: fleet, attackMul: ms.attackMul, defenseMul: ms.defenseMul, fieldLevel: rivalField(own), naval: true }
+    battles.push({ title: 'Liman savunması', attacker: `${foe.city} donanması`, defender: `${r.city} limanı ve filomuz`, a: cloneSide(na), d: cloneSide(nd) })
+    const nres = hasTroops(fleet) ? replayBattle(na, nd) : null
+    if (nres) {
+      const lostShips = share(nres.defenderLost, ourShips, fleet)
+      lines.push('Deniz savaşı:', ...roundLines(nres.rounds, 'batan düşman', 'batan savunan'), `Filomuzun kaybı: ${troopList(lostShips)}.`, nres.reason)
+      if (nres.winner === 'defender') { landed = false; win = true; bountyFrom = nres.attackerLost; lines.push('Düşman donanması limanın önünde dağıldı; ordu karaya çıkamadı.') }
+    } else battles.pop()
+  }
+  if (landed) {
+    const band: Troops = {}
+    for (const [id, n] of Object.entries(rivalGarrison(L, foe.style)) as [UnitId, number][]) if (n && UNITS[id].role !== 'support') band[id] = Math.ceil(n * 0.6)
+    // Müttefikin kendi garnizonunun yarısı + bizim kara birliklerimiz.
+    const ours = only(m.units, RAID_UNITS)
+    const defenders = merge(scale(rivalGarrison(own, r.style), 0.5), ours)
+    const mul = multipliers(g, ours, 'kara')
+    const a: BattleSide = { troops: band, attackMul: rivalAttackMul(L), defenseMul: rivalAttackMul(L) }
+    const d: BattleSide = { troops: defenders, attackMul: mul.attackMul, defenseMul: mul.defenseMul, wall: rivalWallHp(own), fieldLevel: rivalField(own) }
+    battles.push({ title: 'Müttefik savunması', attacker: `${foe.city} ordusu`, defender: `${r.city} ve birliklerimiz`, a: cloneSide(a), d: cloneSide(d) })
+    const res = replayBattle(a, d)
+    const lost = share(res.defenderLost, ours, defenders)
+    lines.push(...roundLines(res.rounds, 'saldıran kaybı', 'savunan kaybı'), `Birliklerimizin kaybı: ${troopList(lost)}.`, res.reason)
+    win = res.winner === 'defender'
+    bountyFrom = res.attackerLost
+  }
   if (win) {
-    const bounty = Math.round((Object.entries(res.attackerLost) as [UnitId, number][]).reduce((s, [id, n]) => s + UNITS[id].pop * n, 0) * 10)
+    const bounty = Math.round((Object.entries(bountyFrom) as [UnitId, number][]).reduce((s, [id, n]) => s + UNITS[id].pop * n, 0) * 10)
     g.resources.gold = Math.min(capacity(g), g.resources.gold + bounty)
     rivalState(empire, r.id).relation = Math.min(100, rivalState(empire, r.id).relation + 10)
     for (const x of factionMembers(r.faction)) if (x.id !== r.id) rivalState(empire, x.id).relation = Math.min(100, rivalState(empire, x.id).relation + 3)
     lines.push(`Saldırı püskürtüldü. ${r.ruler} ${bounty} akçe gönderdi; ittifakta itibarın arttı.`)
   } else lines.push('Şehir düştü; sağ kalan birliklerimiz surlarda direniyor.')
   empire.reports = [{ id: `r-${m.id}-${at}`, time: at, kind: 'support' as const, cityId: m.cityId, npcId: m.npcId, success: win,
-    title: win ? `${r.city} savunmasında zafer!` : `${r.city} savunmasında ağır kayıp.`, lines, battles: [stored] }, ...(empire.reports ?? [])].slice(0, 30)
+    title: win ? `${r.city} savunmasında zafer!` : `${r.city} savunmasında ağır kayıp.`, lines, battles }, ...(empire.reports ?? [])].slice(0, 30)
   logEvent(g, win ? `${r.city} savunmasında zafer!` : `${r.city} savunmasında ağır kayıp.`, at)
   if (!hasTroops(only(m.units, [...RAID_UNITS, ...WARSHIPS]))) {
     m.stationed = false; delete m.supportAt; m.returnAt = at + (m.arriveAt - m.departAt)
@@ -912,7 +936,7 @@ function openPiracy(city: CityRecord, m: Mission) {
   const target = piracyTarget(m.npcId)
   if (!target) { m.resolved = true; return }
   m.battle = openBattle('naval', 'Deniz baskını', 'Korsan filomuz', target.name, { troops: { ...m.units }, ...multipliers(city.game, m.units, 'deniz') },
-    { troops: { ...target.escort }, ...ESCORT_MUL, fieldLevel: target.level * 2 }, m.arriveAt)
+    { troops: { ...target.escort }, ...ESCORT_MUL, fieldLevel: target.level * 2, naval: true }, m.arriveAt)
 }
 function concludePiracy(empire: Empire, m: Mission, city: CityRecord, result: BattleResult, at: number, done: StoredBattle[]) {
   const g = city.game
@@ -1080,7 +1104,7 @@ function openDefense(empire: Empire, t: Threat): boolean {
   if (hasTroops(ships) && hasTroops(t.fleet)) {
     const m = multipliers(g, ships, 'deniz'), shield = 1 + miracle(g, 'kalkan') * 0.1, mul = 1 + t.level * 0.03
     t.battle = openBattle('naval', 'Deniz savaşı', targetName(t.npcId), 'Donanmamız', { troops: { ...t.fleet }, attackMul: mul, defenseMul: mul },
-      { troops: ships, attackMul: m.attackMul * shield, defenseMul: m.defenseMul * shield, fieldLevel: g.buildings.divan }, t.arriveAt)
+      { troops: ships, attackMul: m.attackMul * shield, defenseMul: m.defenseMul * shield, fieldLevel: Math.max(g.buildings.liman, g.buildings.tersane), naval: true }, t.arriveAt)
   } else openLandDefense(empire, t, t.arriveAt, [], [])
   return true
 }

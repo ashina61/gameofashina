@@ -6,6 +6,20 @@ export type Release = { version: string; date: string; title: string; notes: str
 
 export const CHANGELOG: Release[] = [
   {
+    version: '0.18.0', date: '26 Eylül 2026', title: 'Loncalar, geniş dünya ve deniz meydanı',
+    notes: [
+      'Ahi Tekkesi: himmet biriktirir; himmeti altı esnaf loncasına adayıp himayene aldığın loncaların bereketinden yararlanırsın (Ikariam\'daki tanrıların karşılığı).',
+      'Savaşlar artık bir taraf dağılana ya da kaçana kadar sürer; cephanesi biten nişancı yakın dövüşe geçer, ilerlemeyen savaş tıkanıp biter.',
+      'Deniz savaşlarının kendi meydanı var: kanat yok, ön hat ve atış hattı Liman ve Tersane ile genişler.',
+      'Dünya iki katına çıktı: 16 ada, dört yeni yapay rakip hükümdar, 12 şehre kadar koloni ve koordinatlı dünya haritası.',
+      'Başlangıç eğitimi 18 adıma çıktı; tamamlanan adımların ödülü tek dokunuşla alınır.',
+      'Sıralamaya inşaatçı, saldırı, savunma ve ticaret kolları eklendi; profilde sekiz kolda yerin görünür.',
+      'Bildirimler: oyun açıkken baskın, savaş sonucu ve biten inşaat için sistem bildirimi (Ayarlar).',
+      'Müttefik şehre gönderilen filo, başka adadan gelen düşman donanmasını limanda karşılar.',
+      'Birlik seçici ve görev listesi yenilendi.',
+    ],
+  },
+  {
     version: '0.17.0', date: '26 Eylül 2026', title: 'Amblemler, profil ve yeni binalar',
     notes: [
       'Her araştırmanın kendi amblemi var: dalın renginde sekiz köşeli yıldız, ortada o araştırmanın motifi.',

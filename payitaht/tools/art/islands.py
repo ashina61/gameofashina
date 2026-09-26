@@ -22,11 +22,14 @@ W, H = LAYOUT['size']
 SS = 2
 DECOR = os.path.join(ROOT, 'public', 'images', 'game', 'decor')
 OUT = os.path.join(ROOT, 'public', 'images', 'game', 'islands')
-ISLANDS = ['sahil', 'zeytin', 'akcam', 'kizil', 'akdeniz', 'yalcin', 'baglik', 'atessiz']
+ISLANDS = ['sahil', 'zeytin', 'akcam', 'kizil', 'akdeniz', 'yalcin', 'baglik', 'atessiz',
+           'mercan', 'sakiz', 'lodos', 'kartal', 'poyraz', 'fener', 'hisarada', 'lalezar']
 # Adanın kaynağına göre hafif renk karakteri.
 MOOD = {
     'sahil': (0, 0, 0), 'akdeniz': (4, 2, -4), 'zeytin': (-6, 8, -6), 'baglik': (-4, 6, -8),
     'akcam': (-8, -2, 10), 'yalcin': (-6, -2, 8), 'kizil': (14, 2, -12), 'atessiz': (16, 0, -14),
+    'mercan': (-4, 6, -6), 'sakiz': (2, 2, -2), 'lodos': (-8, -2, 12), 'kartal': (12, 0, -10),
+    'poyraz': (-2, 8, -8), 'fener': (-6, -4, 10), 'hisarada': (14, -2, -12), 'lalezar': (6, 2, -2),
 }
 
 
@@ -168,5 +171,6 @@ def island(iid):
 
 
 if __name__ == '__main__':
-    for iid in ISLANDS:
+    import sys
+    for iid in (sys.argv[1:] or ISLANDS):
         island(iid)

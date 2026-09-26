@@ -22,7 +22,7 @@ function army() {
 const koy = 'sahil-koy', kale = 'sahil-kale'
 
 test('every island has three independent settlements', () => {
-  assert.equal(NPC_SETTLEMENTS.length, 24)
+  assert.equal(NPC_SETTLEMENTS.length, 48)
   assert.deepEqual(NPC_SETTLEMENTS.filter(n => n.islandId === 'sahil').map(n => n.kind), ['koy', 'korsan', 'kale'])
 })
 
