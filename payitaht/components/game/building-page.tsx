@@ -14,7 +14,7 @@ import { Hint } from './hint'
 import { useEffect, useState, type ReactNode } from 'react'
 import { ArrowLeft, ArrowUp, Clock3, LockKeyhole, FlipHorizontal2, Move, Hammer, Users, BookOpen, ChevronRight, Trash2, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { asset, buildingImage } from '@/lib/asset'
+import { asset, buildingImage, buildingStage } from '@/lib/asset'
 import {
   BUILDINGS, BUILDING_EFFECTS, LUXURY_IDS, LUXURY_NAMES, MAX_LEVEL, RESEARCH, RESOURCE_IDS, RESOURCE_NAMES, WORKERS_PER_LEVEL,
   actionPoints, activeJob, armyUpkeep, buildReason, capacity, cargoCapacity, contentment, corruption, cost, counterSpy, duration,
@@ -288,15 +288,25 @@ export function BuildingPage({ game, empire, id, onClose, onBuild, onFlip, onMov
   const city = empire ? activeCity(empire).name : ''
   const [razing, setRazing] = useState(false)
   const movable = level > 0 && takesPlot(id)
+  const artStage = buildingStage(level)
+  const sceneTone = ['liman', 'tersane', 'korsan_kalesi'].includes(id) ? 'maritime'
+    : ['medrese', 'gozlukcu', 'simyahane', 'muze'].includes(id) ? 'scholar'
+      : ['kisla', 'surlar', 'tophane', 'barutane'].includes(id) ? 'military' : 'civic'
   return <IkaPage title={b.name} subtitle={`${city} · ${b.category.toLocaleLowerCase('tr')}`} label={`${b.name} sayfası`} onClose={onClose}
     badge={<span className="bp-level" aria-label={`Seviye ${level}`}><b>{level}</b></span>}>
-      <section className="bp-hero">
+      <section className={`bp-hero bp-building-scene bp-scene-${sceneTone}`}>
+        <span className="bp-scene-caption"><small>{b.category}</small><strong>{city}</strong></span>
         {b.art ? <img src={buildingImage(id, Math.max(1, level))} alt={`${b.name} görünümü`} /> : <span className="bp-pending"><Hammer /></span>}
         {level > 0 && <div className="bp-hero-tools" role="group" aria-label="Yapı araçları">
           {movable && b.art && <button type="button" onClick={onFlip} aria-label={game.flips.includes(id) ? 'Yönü geri çevir' : 'Yönünü çevir'}><FlipHorizontal2 /><span>Çevir</span></button>}
           {movable && id !== 'divan' && <button type="button" onClick={onMove} aria-label="Başka arsaya taşı"><Move /><span>Taşı</span></button>}
           {id !== 'divan' && <button type="button" className="is-danger" aria-pressed={razing} onClick={() => setRazing(v => !v)} aria-label="Yık"><Trash2 /><span>Yık</span></button>}
         </div>}
+        <div className="bp-art-stages" aria-label={`Bina görseli ${artStage}. aşama`}>
+          {['Kuruluş', 'Gelişim', 'İhtişam'].map((name, i) => <span key={name} className={i + 1 === artStage ? 'is-current' : ''}>
+            <i aria-hidden="true">{['I', 'II', 'III'][i]}</i>{name}
+          </span>)}
+        </div>
       </section>
       {razing && <DemolishConfirm game={game} id={id} onCommand={onCommand} onClose={() => setRazing(false)} />}
       <p className="bp-desc">{b.description}</p>

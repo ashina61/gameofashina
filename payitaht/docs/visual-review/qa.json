@@ -1,0 +1,26 @@
+{
+  "viewports": [
+    320,
+    390,
+    430,
+    1280
+  ],
+  "dpr": 2,
+  "screens": [
+    "city-320",
+    "city-390",
+    "city-430",
+    "divanhane",
+    "kisla",
+    "research",
+    "research-filter",
+    "profile",
+    "world",
+    "buildings",
+    "medrese",
+    "desktop"
+  ],
+  "pageErrors": [],
+  "missingAssets": [],
+  "readOnly": true
+}
