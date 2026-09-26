@@ -17,11 +17,11 @@
  */
 import {
   UNITS, UNIT_IDS, capacity, power, BUILDING_EFFECTS, logEvent, actionPoints, travelFactor, miracle, spyBonus, idleWorkers,
-  garrisonLimit, garrisonUsed, inGarrison,
+  garrisonLimit, garrisonUsed, inGarrison, cargoCapacity,
   LUXURY_IDS, type Army, type Game, type UnitId,
 } from './engine'
 import {
-  ROUND_MS, battleRound, endBattle, fieldSize, joinBattle, replayBattle, retreatBattle, startBattle, troopList,
+  MAX_ROUNDS, ROUND_MS, battleRound, endBattle, fieldSize, joinBattle, replayBattle, retreatBattle, startBattle, troopList,
   type BattleJoin, type BattleResult, type BattleSide, type BattleState, type Troops,
 } from './battle'
 import { godBuff } from './gods'
@@ -239,8 +239,32 @@ export function committedUnits(empire: Empire, cityId: string): Partial<Record<U
 export function availableUnits(empire: Empire, cityId: string): Army {
   const city = empire.cities.find(c => c.id === cityId)!
   const busy = committedUnits(empire, cityId)
-  return Object.fromEntries(UNIT_IDS.map(id => [id, Math.max(0, city.game.army[id] - (busy[id] ?? 0))])) as Army
+  const out = Object.fromEntries(UNIT_IDS.map(id => [id, Math.max(0, city.game.army[id] - (busy[id] ?? 0))])) as Army
+  // Ikariam gibi ticaret filosu imparatorluğun ortak havuzudur: her şehir limandaki boş gemileri kullanır.
+  out.nakliye = idleMerchants(empire)
+  return out
 }
+
+/* ------------------------------------------------------- TİCARET FİLOSU */
+
+/** Bir nakliye gemisinin taşıdığı mal (Pusula ve Yükleme araştırmalarıyla). */
+export function shipCargo(g: Game) { return cargoCapacity({ ...g, army: { ...g.army, nakliye: 1 } }) }
+/** Nakliyenin bağladığı gemi sayısı (eski kayıtlarda yükten hesaplanır). */
+export function shipmentShips(empire: Empire, s: Empire['shipments'][number]) {
+  if (s.ships) return s.ships
+  const from = empire.cities.find(c => c.id === s.from)
+  return from ? Math.ceil(s.amount / Math.max(1, shipCargo(from.game))) : 0
+}
+/** İmparatorluğun bütün ticaret gemileri. */
+export function totalMerchants(empire: Empire) { return empire.cities.reduce((n, c) => n + c.game.army.nakliye, 0) }
+/** Limanda boş bekleyen gemiler: seferdekiler ve yük taşıyanlar düşülür. */
+export function idleMerchants(empire: Empire) {
+  const sailing = (empire.missions ?? []).reduce((n, m) => n + (m.units.nakliye ?? 0), 0)
+  const loaded = empire.shipments.reduce((n, s) => n + shipmentShips(empire, s), 0)
+  return Math.max(0, totalMerchants(empire) - sailing - loaded)
+}
+/** Sıradaki geminin fiyatı: her gemiyle artar (Ikariam'daki gibi). */
+export function merchantShipPrice(total: number) { return Math.round(480 * Math.pow(1.15, total) / 10) * 10 }
 
 /** Seçili birliklerin saldırı gücü (araştırma ve Tophane bonuslarıyla). */
 export function strikeForce(g: Game, units: Partial<Record<UnitId, number>>) {
@@ -1006,7 +1030,7 @@ export function parseMissionState(obj: Record<string, unknown>, cityIds: Set<str
     const lb = b as LiveBattle
     return !!lb && (lb.stage === 'naval' || lb.stage === 'land') && finite(lb.nextAt) && !!lb.state && !!lb.info &&
       troopsOk(lb.state.a?.troops) && troopsOk(lb.state.d?.troops) && finite(lb.state.wall) && Number.isInteger(lb.state.round) &&
-      lb.state.round >= 0 && lb.state.round <= 50 && Array.isArray(lb.state.rounds) && Array.isArray(lb.lines) && Array.isArray(lb.done)
+      lb.state.round >= 0 && lb.state.round <= MAX_ROUNDS && Array.isArray(lb.state.rounds) && Array.isArray(lb.lines) && Array.isArray(lb.done)
   }
   if (threats.length > 8) throw new Error('Baskın kayıtları okunamadı.')
   for (const t of threats) {

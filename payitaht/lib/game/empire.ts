@@ -1,6 +1,6 @@
 import { parseProfile, type Profile } from './profile'
 import {
-  advance, actionPoints, capacity, logEvent, cargoCapacity, initialGame, parseSave, tradeCapacity, travelFactor, loadingSpeed,
+  advance, actionPoints, capacity, freePlots, logEvent, cargoCapacity, initialGame, parseSave, tradeCapacity, travelFactor, loadingSpeed,
   LUXURY_IDS, LUXURY_NAMES, RESOURCE_IDS, RESOURCE_NAMES, type Game, type Luxury, type Resource,
 } from './engine'
 
@@ -21,7 +21,7 @@ export { ISLANDS, type IslandId } from './islands'
 import { ISLANDS, type IslandId } from './islands'
 import { ensureDaily, parseDaily, type Daily } from './daily'
 import { advanceWorld, parseWorld, type World } from './rivals'
-import { advanceMissions, advanceThreats, committedUnits, parseMissionState, type Mission, type NpcState, type Report, type Threat } from './expeditions'
+import { advanceMissions, advanceThreats, idleMerchants, merchantShipPrice, parseMissionState, shipCargo, totalMerchants, type Mission, type NpcState, type Report, type Threat } from './expeditions'
 export const COLONY_COST = { gold: 900, wood: 1200, stone: 450 } as const
 const COLONY_SHIPS = 3
 export const MAX_CITIES = 12
@@ -31,6 +31,8 @@ export type CityRecord = { id: string; islandId: IslandId; name: string; game: G
 export type Shipment = {
   id: string; from: string; to: string; resource: Cargo
   amount: number; eta: number
+  /** Yükü taşıyan gemi sayısı (ortak ticaret filosundan). */
+  ships?: number
 }
 export type Empire = {
   version: 1; activeCityId: string; cities: CityRecord[]
@@ -53,6 +55,10 @@ export type Empire = {
   world?: World
   /** Hükümdar profili: ad, arma, düstur. */
   profile?: Profile
+  /** Başkentin kimliği (yoksa ilk şehir, city-1). Saray taşınınca değişir. */
+  capitalId?: string
+  /** Başkentin son taşındığı an (bekleme süresi için). */
+  capitalMovedAt?: number
 }
 
 export function initialEmpire(now: number): Empire {
@@ -62,6 +68,12 @@ export function initialEmpire(now: number): Empire {
     shipments: [], nextId: 2, missions: [], reports: [], npcs: {}, threats: [], nextThreat: {},
   }
 }
+/** Başkentin kimliği ve kaydı (Saray yalnız burada kurulur). */
+export function capitalId(empire: Empire) { return empire.capitalId ?? 'city-1' }
+export function capitalCity(empire: Empire): CityRecord {
+  return empire.cities.find(c => c.id === capitalId(empire)) ?? empire.cities[0]
+}
+export const CAPITAL_MOVE_COOLDOWN_MS = 24 * 3600_000
 export function activeCity(empire: Empire): CityRecord {
   return empire.cities.find(city => city.id === empire.activeCityId) ?? empire.cities[0]
 }
@@ -101,14 +113,16 @@ export function parseEmpire(raw: string): Empire {
     game.temple.wonder = island.wonder
     return { ...city, game }
   })
-  if (!ids.has(obj.activeCityId) || !cities.some(city => city.id === 'city-1' && city.islandId === 'sahil')) {
+  const cap = obj.capitalId ?? 'city-1'
+  if (!ids.has(obj.activeCityId) || typeof cap !== 'string' || !ids.has(cap) ||
+      (obj.capitalMovedAt !== undefined && !finite(obj.capitalMovedAt))) {
     throw new Error('Başkent kaydı okunamadı.')
   }
   const shipments: Shipment[] = obj.shipments.map(s => {
     if (!s || typeof s.id !== 'string' || s.id.length > 80 || !ids.has(s.from) || !ids.has(s.to) ||
         s.from === s.to || !CARGO_IDS.includes(s.resource) ||
         !Number.isInteger(s.amount) || s.amount <= 0 || s.amount > 100_000 ||
-        !finite(s.eta)) throw new Error('Nakliye kaydı okunamadı.')
+        !finite(s.eta) || (s.ships !== undefined && (!Number.isInteger(s.ships) || s.ships < 0))) throw new Error('Nakliye kaydı okunamadı.')
     return { ...s }
   })
   if (new Set(shipments.map(s => s.from)).size !== shipments.length ||
@@ -123,6 +137,7 @@ export function parseEmpire(raw: string): Empire {
     version: 1, activeCityId: obj.activeCityId, cities, shipments, nextId: obj.nextId, ...extra,
     ...(st ? { stats: { ...st } } : {}), ...(daily ? { daily } : {}), ...(worldState ? { world: worldState } : {}),
     ...(profile ? { profile } : {}),
+    ...(obj.capitalId ? { capitalId: obj.capitalId } : {}), ...(obj.capitalMovedAt !== undefined ? { capitalMovedAt: obj.capitalMovedAt } : {}),
   }
 }
 
@@ -149,7 +164,7 @@ export function advanceEmpire(source: Empire, now: number): Empire {
   const empire = structuredClone(source)
   // Yolsuzluk ve Saray/Valilik kuralı için her şehir imparatorluktaki yerini bilir.
   for (const city of empire.cities) {
-    city.game.empire = { cities: empire.cities.length, capital: city.id === 'city-1' }
+    city.game.empire = { cities: empire.cities.length, capital: city.id === capitalId(empire) }
     // Cami'nin mucizesi şehrin adasındaki harikadan gelir.
     city.game.temple.wonder = islandOf(city).wonder
   }
@@ -174,9 +189,22 @@ export function advanceEmpire(source: Empire, now: number): Empire {
   return empire
 }
 
+/** Ticaret Limanı'ndan bir ticaret gemisi satın al (fiyat her gemiyle artar; gemi ortak filoya katılır). */
+export function buyMerchantShip(source: Empire, now: number): { empire: Empire; error?: string } {
+  const empire = advanceEmpire(source, now)
+  const city = activeCity(empire)
+  if (city.game.buildings.liman < 1) return { empire, error: 'Gemi satın almak için bu şehirde Ticaret Limanı gerekli.' }
+  const price = merchantShipPrice(totalMerchants(empire))
+  if (city.game.resources.gold < price) return { empire, error: `${price} akçe gerekli.` }
+  city.game.resources.gold -= price
+  city.game.army.nakliye += 1
+  logEvent(city.game, `Limana yeni bir ticaret gemisi katıldı (${price} akçe).`, now)
+  return { empire }
+}
+
 /** Yeni koloni için gereken Saray seviyesi (Genişleme araştırması bir seviye düşürür). */
 export function colonyPalaceLevel(empire: Empire) {
-  return Math.max(1, empire.cities.length - (empire.cities[0].game.research.includes('genisleme') ? 1 : 0))
+  return Math.max(1, empire.cities.length - (capitalCity(empire).game.research.includes('genisleme') ? 1 : 0))
 }
 
 export function foundColony(source: Empire, islandId: IslandId, now: number):
@@ -188,16 +216,13 @@ export function foundColony(source: Empire, islandId: IslandId, now: number):
     return { empire, error: 'Bu adada zaten bir şehrin var.' }
   }
   if (empire.cities.length >= MAX_CITIES) return { empire, error: 'Şehir sınırına ulaştın.' }
-  const capital = empire.cities[0].game
+  const capital = capitalCity(empire).game
   const palaceNeed = colonyPalaceLevel(empire)
   if (capital.buildings.saray < palaceNeed) {
     return { empire, error: `Yeni bir şehir için Saray en az ${palaceNeed}. seviye olmalı.` }
   }
-  if (capital.buildings.liman < 1 || capital.army.nakliye < COLONY_SHIPS) {
-    return { empire, error: 'Başkentte Ticaret Limanı ve en az 3 nakliye gemisi gerekli.' }
-  }
-  if (empire.shipments.some(s => s.from === empire.cities[0].id)) {
-    return { empire, error: 'Başkent gemileri nakliyede; dönüşlerini bekle.' }
+  if (capital.buildings.liman < 1 || idleMerchants(empire) < COLONY_SHIPS) {
+    return { empire, error: 'Başkentte Ticaret Limanı ve limanda boş en az 3 ticaret gemisi gerekli.' }
   }
   for (const [resource, amount] of Object.entries(COLONY_COST) as [keyof typeof COLONY_COST, number][]) {
     if (capital.resources[resource] < amount) {
@@ -224,6 +249,64 @@ export function foundColony(source: Empire, islandId: IslandId, now: number):
   return { empire }
 }
 
+/**
+ * BAŞKENTİ TAŞI (Ikariam'da sarayı başka şehre kurmak): eski başkentin Sarayı
+ * yıkılır, yeni başkentte Valilik kalkar ve 1. seviye Saray kurulur. Bir gün
+ * bekleme süresi vardır.
+ */
+export function moveCapital(source: Empire, cityId: string, now: number): { empire: Empire; error?: string } {
+  const empire = advanceEmpire(source, now)
+  const target = empire.cities.find(c => c.id === cityId)
+  const old = capitalCity(empire)
+  if (!target) return { empire, error: 'Şehir bulunamadı.' }
+  if (target.id === old.id) return { empire, error: 'Bu şehir zaten başkent.' }
+  if (empire.capitalMovedAt !== undefined && now < empire.capitalMovedAt + CAPITAL_MOVE_COOLDOWN_MS) return { empire, error: 'Başkent bir günde bir kez taşınabilir.' }
+  if (target.game.buildings.divan < 3) return { empire, error: 'Yeni başkentte Divanhane en az 3. seviye olmalı.' }
+  const g = target.game
+  if (g.queue.some(j => j.id === 'valilik' || j.id === 'saray') || old.game.queue.some(j => j.id === 'saray')) return { empire, error: 'Saray ya da Valilik inşaatı sürerken başkent taşınamaz.' }
+  const plot = g.placement.valilik ?? freePlots(g, 'sehir')[0]
+  if (plot === undefined || plot === null) return { empire, error: 'Yeni başkentte Saray için boş arsa gerekli.' }
+  g.buildings.valilik = 0; g.placement.valilik = null
+  g.buildings.saray = 1; g.placement.saray = plot
+  old.game.buildings.saray = 0; old.game.placement.saray = null
+  empire.capitalId = target.id
+  empire.capitalMovedAt = now
+  logEvent(g, `Saray kuruldu: ${target.name} artık başkent.`, now)
+  logEvent(old.game, `Saray ${target.name} şehrine taşındı; ${old.name} artık bir koloni.`, now)
+  return { empire }
+}
+
+/** Seferdeki, yoldaki ya da kuşatılan bir şehir terk edilemez; bu şehri bağlayan işleri sayar. */
+function cityBusy(empire: Empire, cityId: string) {
+  return (empire.missions ?? []).some(m => m.cityId === cityId || (m.kind === 'deploy' && m.npcId === cityId)) ||
+    empire.shipments.some(s => s.from === cityId || s.to === cityId) ||
+    (empire.threats ?? []).some(t => t.cityId === cityId)
+}
+/**
+ * KOLONİYİ TERK ET (Ikariam gibi): şehir, binaları, ambarı ve oradaki ordu
+ * kaybolur. Ticaret gemileri ortak filoda kalır (başkente geçer). Başkent
+ * terk edilemez.
+ */
+export function abandonCity(source: Empire, cityId: string, now: number): { empire: Empire; error?: string } {
+  const empire = advanceEmpire(source, now)
+  const city = empire.cities.find(c => c.id === cityId)
+  if (!city) return { empire, error: 'Şehir bulunamadı.' }
+  if (city.id === capitalId(empire)) return { empire, error: 'Başkent terk edilemez. Önce başkenti taşı.' }
+  if (cityBusy(empire, cityId)) return { empire, error: 'Bu şehrin yoldaki ordusu, nakliyesi ya da kapısında düşman var; önce bunlar bitsin.' }
+  const capital = capitalCity(empire)
+  capital.game.army.nakliye += city.game.army.nakliye
+  empire.cities = empire.cities.filter(c => c.id !== cityId)
+  if (empire.activeCityId === cityId) empire.activeCityId = capital.id
+  if (empire.nextThreat) delete empire.nextThreat[cityId]
+  empire.reports = (empire.reports ?? []).filter(r => r.cityId !== cityId)
+  if (empire.world) {
+    empire.world.offers = empire.world.offers.filter(o => o.cityId !== cityId)
+    empire.world.deliveries = empire.world.deliveries.filter(d => d.cityId !== cityId)
+  }
+  logEvent(capital.game, `${city.name} terk edildi. Halkı ve binaları ${islandOf(city).name} adasında kaldı.`, now)
+  return { empire }
+}
+
 export function shipResources(source: Empire, to: string, resource: Cargo, amount: number, now: number):
   { empire: Empire; error?: string } {
   const empire = advanceEmpire(source, now)
@@ -237,10 +320,10 @@ export function shipResources(source: Empire, to: string, resource: Cargo, amoun
   if ((empire.missions ?? []).filter(m => m.cityId === from.id).length + 1 > actionPoints(from.game)) {
     return { empire, error: `Hamle puanı yok (${actionPoints(from.game)}). Bir görevin dönmesini bekle.` }
   }
-  // Seferdeki (asker taşıyan) nakliye gemileri mal taşıyamaz.
-  const ships = Math.max(0, from.game.army.nakliye - (committedUnits(empire, from.id).nakliye ?? 0))
-  const limit = Math.min(cargoCapacity({ ...from.game, army: { ...from.game.army, nakliye: ships } }), tradeCapacity(from.game))
-  if (limit <= 0) return { empire, error: 'Bu şehirde nakliye gemisi gerekli.' }
+  // Ortak ticaret filosunun limanda boş bekleyen gemileri yükü taşır.
+  const idle = idleMerchants(empire), per = Math.max(1, shipCargo(from.game))
+  const limit = Math.min(idle * per, tradeCapacity(from.game))
+  if (limit <= 0) return { empire, error: 'Limanda boş ticaret gemisi yok. Ticaret Limanı\'ndan gemi satın al.' }
   if (amount > limit) return { empire, error: `Tek seferde en fazla ${limit} kaynak taşınabilir.` }
   if (amount > stock(from.game, resource)) return { empire, error: 'Bu kadar kaynak bulunmuyor.' }
   const a = islandOf(from), b = islandOf(destination)
@@ -249,7 +332,7 @@ export function shipResources(source: Empire, to: string, resource: Cargo, amoun
   addStock(from.game, resource, -amount)
   bump(empire, 'shipments')
   empire.shipments.push({
-    id: `shipment-${from.id}-${now}`, from: from.id, to, resource, amount,
+    id: `shipment-${from.id}-${now}`, from: from.id, to, resource, amount, ships: Math.ceil(amount / per),
     eta: now + Math.round(minutes * 60_000 * (from.game.research.includes('haritacilik') ? .85 : 1) * travelFactor(from.game)),
   })
   return { empire }

@@ -486,6 +486,7 @@ function withBarracks(base = initialGame(now)) {
   // Kurulu her yapinin bir arsasi olmali; kayit dogrulamasi bunu arar.
   g.placement.kisla = 5
   g.resources = { gold: 20_000, wood: 20_000, stone: 20_000, knowledge: 0 }
+  g.luxury.kukurt = 2000 // barutlu birlikler kükürt ister
   return g
 }
 

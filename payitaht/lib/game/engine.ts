@@ -274,7 +274,7 @@ export const BUILDINGS: Record<BuildingId, BuildingDef> = {
   elcilik: { name: 'Elçilik', category: 'YÖNETİM', description: 'Komşularınla konuşmanın kapısı. Diplomasi danışmanını ve ittifak defterini açar.', base: 200, art: true, needs: { id: 'divan', level: 2 } },
   kisla: { name: 'Kışla', category: 'ASKERÎ', description: 'Halkından asker yetiştirir. Her eğitilen vatandaş üretimden düşer — ordunun bedeli budur.', base: 180, art: true, needs: { id: 'divan', level: 2 } },
   surlar: { name: 'Surlar', category: 'ASKERÎ', description: 'Şehrin taş kalkanı. Her seviye savunmaya asker gerektirmeyen güç ekler. Arsa kaplamaz — şehrin çevresine örülür.', base: 150, art: true, zone: 'sur', needs: { id: 'kisla', level: 1 } },
-  liman: { name: 'Ticaret Limanı', category: 'LİMAN', description: 'Denizin kapısı. Ticaret kapasitesi verir ve nakliye gemisi inşa ettirir.', base: 160, art: true, zone: 'liman', needs: { id: 'divan', level: 2 } },
+  liman: { name: 'Ticaret Limanı', category: 'LİMAN', description: 'Denizin kapısı. Ticaret kapasitesi verir; ortak ticaret filosu için gemi buradan satın alınır.', base: 160, art: true, zone: 'liman', needs: { id: 'divan', level: 2 } },
   tersane: { name: 'Tersane', category: 'LİMAN', description: 'Savaş gemilerinin doğduğu yer. Kadırga ve kalyon buradan denize iner. Şehirde değil, denizin kenarındaki iskeleye kurulur.', base: 240, art: true, zone: 'liman', needs: { id: 'liman', level: 1 } },
   /*
    * IKARIAM KARSILIKLARI. Ikariam'daki Meyhane/Müze huzuru, Marangoz/Mimar
@@ -895,12 +895,29 @@ export function luxuryCost(g: Game, id: BuildingId): Partial<LuxuryStock> {
 }
 
 /** Ağır birlikler kükürt (barut) ister. */
-export const UNIT_SULFUR: Partial<Record<UnitId, number>> = { topcu: 40, kadirga: 30, kalyon: 90, tufekci: 25, ates_gemisi: 45, mancinik_gemisi: 60, humbaraci: 50, humbara_gemisi: 120, lagari: 60, balon_gemisi: 110, buharli_koc: 80, dalgic_gemisi: 40 }
+/**
+ * Birliklerin lüks mal bedeli (Ikariam gibi): barutlu ve ağır birlikler
+ * kükürt, aşçı üzüm (şarap), hekim kristal ister. Barut Deneme Alanı ve Top
+ * Döküm araştırması kükürdü azaltır.
+ */
+export const UNIT_LUX: Partial<Record<UnitId, Partial<LuxuryStock>>> = {
+  yeniceri: { kukurt: 6 }, azap: { kukurt: 10 }, okcu: { kukurt: 8 }, tufekci: { kukurt: 25 }, mancinik: { kukurt: 30 },
+  topcu: { kukurt: 40 }, deli: { kukurt: 45 }, humbaraci: { kukurt: 50 }, hezarfen: { kukurt: 30 }, lagari: { kukurt: 60 },
+  asci: { uzum: 30 }, hekim: { kristal: 30 },
+  kadirga: { kukurt: 30 }, kalyon: { kukurt: 90 }, ates_gemisi: { kukurt: 45 }, mancinik_gemisi: { kukurt: 60 }, humbara_gemisi: { kukurt: 120 },
+  balon_gemisi: { kukurt: 110 }, buharli_koc: { kukurt: 80 }, dalgic_gemisi: { kukurt: 40 },
+}
+/** Eski adıyla yalnız kükürt tablosu (geriye uyum). */
+export const UNIT_SULFUR: Partial<Record<UnitId, number>> = Object.fromEntries(
+  Object.entries(UNIT_LUX).filter(([, c]) => c?.kukurt).map(([id, c]) => [id, c!.kukurt!])) as Partial<Record<UnitId, number>>
 export function unitLuxuryCost(id: UnitId, count: number, g?: Game): Partial<LuxuryStock> {
-  const s = UNIT_SULFUR[id]
-  const factor = g ? Math.max(0.5, 1 - g.buildings.barutane * BUILDING_EFFECTS.barutaneSulfur) *
+  const base = UNIT_LUX[id]
+  if (!base) return {}
+  const sulfur = g ? Math.max(0.5, 1 - g.buildings.barutane * BUILDING_EFFECTS.barutaneSulfur) *
     ((id === 'topcu' || id === 'humbaraci') && g.research.includes('top_dokum') ? 0.75 : 1) : 1
-  return s ? { kukurt: Math.round(s * count * factor) } : {}
+  const out: Partial<LuxuryStock> = {}
+  for (const [lux, n] of Object.entries(base) as [Luxury, number][]) out[lux] = Math.round(n * count * (lux === 'kukurt' ? sulfur : 1))
+  return out
 }
 
 function hasLuxury(g: Game, need: Partial<LuxuryStock>) {
@@ -1251,6 +1268,7 @@ export function drillBonus(g: Game, home: BuildingId) {
 export function recruitReason(g: Game, id: UnitId, count: number): string | null {
   const unit = UNITS[id]
   if (!Number.isInteger(count) || count <= 0) return 'Geçersiz sayı.'
+  if (id === 'nakliye') return "Ticaret gemileri eğitilmez; Ticaret Limanı'ndan satın alınır ve bütün şehirlerin ortak filosuna katılır."
   if (g.buildings[unit.home] < unit.level) return `${BUILDINGS[unit.home].name} ${unit.level}. seviye gerekli.`
   if (unit.tech && !g.research.includes(unit.tech)) return `${RESEARCH[unit.tech].name} araştırması gerekli.`
   if (drillsAt(g, unit.home).length >= DRILL_QUEUE_LIMIT) return `${BUILDINGS[unit.home].name} sırası dolu (en fazla ${DRILL_QUEUE_LIMIT} emir).`
@@ -1262,7 +1280,9 @@ export function recruitReason(g: Game, id: UnitId, count: number): string | null
   if (idleWorkers(g) < need) return `${need} boşta vatandaş gerekli. Halk panelinden işçi çek.`
   const c = unitCost(id, count, g)
   if (RESOURCE_IDS.some(r => g.resources[r] < c[r])) return 'Yeterli kaynak yok.'
-  if (!hasLuxury(g, unitLuxuryCost(id, count, g))) return `${unitLuxuryCost(id, count, g).kukurt} kükürt gerekli (barut).`
+  const lux = unitLuxuryCost(id, count, g)
+  const short = LUXURY_IDS.find(l => g.luxury[l] < (lux[l] ?? 0))
+  if (short) return `${lux[short]} ${LUXURY_NAMES[short].toLocaleLowerCase('tr')} gerekli${short === 'kukurt' ? ' (barut)' : ''}.`
   return null
 }
 

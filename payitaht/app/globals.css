@@ -1378,3 +1378,5 @@
   .bp { animation: bp-rise .22s ease-out; }
   @keyframes bp-rise { from { transform: translateY(18px); opacity: .4; } to { transform: none; opacity: 1; } }
 }
+.fleet-row { display: grid; grid-template-columns: 72px minmax(0, 1fr); gap: 10px; align-items: center; }
+.fleet-ship { display: grid; place-items: center; border-radius: 12px; background: radial-gradient(ellipse at 50% 70%, #9fd0c7 0%, #5f9d91 70%); padding: 4px; }

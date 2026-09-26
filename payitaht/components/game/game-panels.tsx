@@ -4,17 +4,19 @@ import { Hint } from './hint'
 import { useState } from 'react'
 import { ArrowUp, Hammer, Clock3, LockKeyhole, Check, BookOpen, ChevronRight, TreePine, Warehouse, Ruler, Users, UserRound, Minus, Plus as PlusIcon, House, HeartHandshake, TriangleAlert, Landmark, Swords, Ship, ShieldCheck, Handshake, FlaskConical, Compass, FlipHorizontal2, Move } from 'lucide-react'
 import { AkceArt } from './resource-art'
+import { idleMerchants } from '@/lib/game/expeditions'
 import { WorkforceSlider, type Figure } from './workforce'
 import { Button } from '@/components/ui/button'
 import { CostDisplay, JobProgress } from './game-widgets'
 import { BUILDINGS, BUILDING_IDS, MAX_LEVEL, RESEARCH, RESEARCH_IDS, RESEARCH_BRANCHES, RESOURCE_IDS, RESOURCE_NAMES, UNITS, UNIT_IDS, WORKER_IDS, WORKERS_PER_LEVEL, activeJob, cargoCapacity, cityDefense, cost, duration, buildReason, power, rates, recruitReason, researchReason, scientistCount, scientistUpkeepPerMinute, idleWorkers, population, housing, contentment, soldiers, takesPlot, tradeCapacity, unhousedByUnrest, unitCost, unitDuration, wallDefense, workerCapacity, type BuildingId, type ResearchId, type ResearchBranch, type UnitId, type WorkerId, type Game } from '@/lib/game/engine'
 import { buildingImage } from '@/lib/asset'
-import { activeCity, colonyPalaceLevel, MAX_CITIES, CARGO_IDS, CARGO_NAMES, COLONY_COST, ISLANDS, type Cargo, type Empire, type IslandId } from '@/lib/game/empire'
+import { abandonCity, activeCity, capitalCity, capitalId, colonyPalaceLevel, MAX_CITIES, moveCapital, CARGO_IDS, CARGO_NAMES, COLONY_COST, ISLANDS, type Cargo, type Empire, type IslandId } from '@/lib/game/empire'
 import { LUXURY_IDS, LUXURY_NAMES, MERCHANT_BUY, MERCHANT_SELL, MINE_MAX_LEVEL, luxuryCost, luxuryProduction, merchantLimit, mineCapacity, mineUpgradeCost, unitLuxuryCost, wineServed, type Luxury } from '@/lib/game/engine'
 import { luxuryIcons, resourceIcons } from './game-widgets'
 import { effectLines } from '@/lib/game/building-info'
 import { actionPoints, armyUpkeep, merchantBuyPrice, merchantSellPrice, type UnitRole, type Resource } from '@/lib/game/engine'
-import { Eye } from 'lucide-react'
+import { Crown, Eye, Flag } from 'lucide-react'
+import type { Run } from './world-panels'
 import { DRILL_QUEUE_LIMIT, garrisonLimit, garrisonUsed, spyCapacity, growthRate, maxPopulation, PLOTS, zoneOf } from '@/lib/game/engine'
 import { BATTLE_STATS, SLOT_SIZE, fieldSize } from '@/lib/game/battle'
 import { UnitFigure } from './unit-art'
@@ -174,8 +176,9 @@ export function PeoplePanel({ game, onAssign }: { game: Game; onAssign: (id: Wor
  * Kilidi acilmamis bir ozelligi gizlemek yerine gostermek, oyuncuya hedef verir.
  */
 export function CitiesPanel({
-  game, empire, onBuilding, onSelectCity, onColonize, onCargo, onViewIsland, mapFirst = false,
+  game, empire, onBuilding, onSelectCity, onColonize, onCargo, onViewIsland, mapFirst = false, run,
 }: {
+  run?: Run
   game: Game
   empire: Empire
   onBuilding: (id: BuildingId) => void
@@ -191,14 +194,16 @@ export function CitiesPanel({
   const [cargoResource, setCargoResource] = useState<Cargo>('wood')
   const [cargoAmount, setCargoAmount] = useState('100')
   const activeShipment = empire.shipments.find(shipment => shipment.from === current.id)
-  const capital = empire.cities[0].game
+  const capital = capitalCity(empire).game
+  const isCapital = current.id === capitalId(empire)
+  const [confirm, setConfirm] = useState<null | 'move' | 'abandon'>(null)
   const built = BUILDING_IDS.filter(id => game.buildings[id] > 0)
   const production = rates(game)
   const cityCard = <>
     <article className="city-card">
       <div className="city-card-top">
         <span className="city-emblem"><Landmark aria-hidden="true" /></span>
-        <span><span className="eyebrow">{current.id === 'city-1' ? 'BAŞKENT' : 'YENİ ŞEHİR'}</span>
+        <span><span className="eyebrow">{isCapital ? 'BAŞKENT' : 'KOLONİ'}</span>
           <strong>{current.name}</strong><span>Seviye {game.buildings.divan} · {built.length} yapı · {ISLANDS.find(i => i.id === current.islandId)?.name}</span></span>
       </div>
       <div className="city-stats">
@@ -209,7 +214,22 @@ export function CitiesPanel({
       </div>
       <div className="city-rates">{RESOURCE_IDS.filter(id => production[id] > 0).map(id =>
         <span key={id}>{RESOURCE_NAMES[id]} <strong>+{Math.round(production[id])}/dk</strong></span>)}</div>
-      <Button size="sm" variant="outline" onClick={() => onBuilding('divan')}>Divanhaneye git<ChevronRight data-icon="inline-end" /></Button>
+      <div className="batch-row">
+        <Button size="sm" variant="outline" onClick={() => onBuilding('divan')}>Divanhaneye git<ChevronRight data-icon="inline-end" /></Button>
+        {!isCapital && run && <Button size="sm" variant="outline" onClick={() => setConfirm(confirm === 'move' ? null : 'move')}><Crown data-icon="inline-start" />Başkenti buraya taşı</Button>}
+        {!isCapital && run && <Button size="sm" variant="ghost" onClick={() => setConfirm(confirm === 'abandon' ? null : 'abandon')}><Flag data-icon="inline-start" />Şehri terk et</Button>}
+      </div>
+      {confirm && run && <section className="demolish-sheet" role="alertdialog">
+        {confirm === 'move'
+          ? <><strong><Crown className="size-4" /> {current.name} başkent olsun mu?</strong>
+            <p>{capitalCity(empire).name} şehrindeki Saray yıkılır; burada Valilik kalkar ve 1. seviye Saray kurulur. Başkent günde bir kez taşınabilir.</p></>
+          : <><strong><Flag className="size-4" /> {current.name} terk edilsin mi?</strong>
+            <p>Şehir, binaları, ambarı ve buradaki ordu kaybolur. Ticaret gemileri ortak filoda kalır. Bu geri alınamaz.</p></>}
+        <div className="batch-row">
+          <Button size="sm" variant="destructive" onClick={() => { const c = confirm; setConfirm(null); run(c === 'move' ? (e, t) => moveCapital(e, current.id, t) : (e, t) => abandonCity(e, current.id, t), c === 'move' ? 'Saray taşındı; yeni başkent ilan edildi.' : 'Şehir terk edildi.') }}>{confirm === 'move' ? 'Başkenti taşı' : 'Terk et'}</Button>
+          <Button size="sm" variant="outline" onClick={() => setConfirm(null)}>Vazgeç</Button>
+        </div>
+      </section>}
     </article>
   </>
   const cityList = <>
@@ -232,7 +252,7 @@ export function CitiesPanel({
       <Hint>Her adada tek bir lüks kaynak yatağı bulunur: şehir yalnızca kendi adasının kaynağını madenden çıkarır. Diğerlerini koloni kurarak, nakliyeyle ya da Çarşı'daki tüccardan edinirsin. Uzak adalara yolculuk uzun sürer.</Hint>
       <WorldMap empire={empire} now={game.updatedAt} onSelectCity={onSelectCity} onColonize={onColonize} onViewIsland={onViewIsland}
         missing={capital.buildings.saray < colonyPalaceLevel(empire) ? `Saray ${colonyPalaceLevel(empire)}. seviye gerekli`
-          : capital.buildings.liman < 1 || capital.army.nakliye < 3 ? 'Başkentte liman ve 3 nakliye gemisi gerekli' : null} />
+          : capital.buildings.liman < 1 || idleMerchants(empire) < 3 ? 'Başkentte liman ve limanda boş 3 ticaret gemisi gerekli' : null} />
       <p className="fine-print">Yeni koloni: {COLONY_COST.gold} akçe, {COLONY_COST.wood} kereste, {COLONY_COST.stone} taş. Saray seviyesi toplam koloni sayısını sınırlar; her şehir ayrı bina, üretim ve orduya sahiptir.</p>
     </section>
 

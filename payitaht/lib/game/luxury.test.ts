@@ -67,7 +67,10 @@ test('heavy units need sulfur', () => {
   const g = initialGame(now)
   g.buildings.kisla = 3
   g.resources = { gold: 1e5, wood: 1e5, stone: 1e5, knowledge: 0 }
-  assert.deepEqual(unitLuxuryCost('yeniceri', 5), {})
+  assert.deepEqual(unitLuxuryCost('mizrakci', 5), {})
+  assert.deepEqual(unitLuxuryCost('yeniceri', 5), { kukurt: 30 })
+  assert.deepEqual(unitLuxuryCost('asci', 2), { uzum: 60 })
+  assert.deepEqual(unitLuxuryCost('hekim', 1), { kristal: 30 })
   assert.match(recruitReason(g, 'topcu', 1)!, /kükürt|vatandaş/)
 })
 

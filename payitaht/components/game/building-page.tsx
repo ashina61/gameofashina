@@ -12,7 +12,7 @@
  */
 import { Hint } from './hint'
 import { useEffect, useState, type ReactNode } from 'react'
-import { ArrowLeft, ArrowUp, Clock3, LockKeyhole, FlipHorizontal2, Move, Hammer, Users, BookOpen, ChevronRight, Trash2, X } from 'lucide-react'
+import { ArrowLeft, ArrowUp, Clock3, LockKeyhole, FlipHorizontal2, Move, Hammer, Users, BookOpen, ChevronRight, Plus, Trash2, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { asset, buildingImage } from '@/lib/asset'
 import {
@@ -27,7 +27,10 @@ import { cityGuards, cityWallHp, safeStock } from '@/lib/game/expeditions'
 import { culturalTreaties } from '@/lib/game/rivals'
 import { luxuryIcons, resourceIcons, JobProgress } from './game-widgets'
 import { ArmyPanel, BuildingEffects } from './game-panels'
-import { DemolishConfirm } from './world-panels'
+import { DemolishConfirm, type Run } from './world-panels'
+import { UnitFigure } from './unit-art'
+import { buyMerchantShip } from '@/lib/game/empire'
+import { idleMerchants, merchantShipPrice, shipCargo, totalMerchants } from '@/lib/game/expeditions'
 import { WorkforceSlider, type Figure } from './workforce'
 
 const num = (n: number) => Math.floor(n).toLocaleString('tr-TR')
@@ -99,9 +102,29 @@ function Workers({ game, id, unit, perWorker, onCommand }: { game: Game; id: Wor
     onCommit={n => onCommand({ type: 'workers', id, value: n })} note={perWorker} />
 }
 
+/** TİCARET FİLOSU (Ikariam gibi): gemiler satın alınır, bütün şehirler ortak kullanır. */
+function MerchantFleet({ empire, game, run }: { empire: Empire; game: Game; run: Run }) {
+  const total = totalMerchants(empire), idle = idleMerchants(empire), price = merchantShipPrice(total)
+  return <Box title={`Ticaret filosu · ${total} gemi`}>
+    <div className="fleet-row">
+      <span className="fleet-ship"><UnitFigure id="nakliye" size={64} /></span>
+      <Table rows={[
+        ['Limanda boş', `${idle} gemi`],
+        ['Seferde ya da yükte', `${total - idle} gemi`],
+        ['Gemi başına yük', `${num(shipCargo(game))} mal`],
+      ]} />
+    </div>
+    <button type="button" className="bp-upgrade-button" disabled={game.resources.gold < price}
+      onClick={() => run((e, t) => buyMerchantShip(e, t), 'Yeni ticaret gemisi limana katıldı.')}>
+      <span className="bp-up-arrow"><Plus aria-hidden="true" /></span>Gemi satın al · {num(price)} akçe
+    </button>
+    <p className="bp-note">Gemiler bütün şehirlerin ortak filosudur: nakliye, deniz aşırı sefer ve koloni için limanda boş olan gemiler kullanılır. Her yeni gemi bir öncekinden pahalıdır.</p>
+  </Box>
+}
+
 /** Binaya özel kutular. */
-function BuildingView({ game, empire, id, onCommand, onRecruit, onNav, onBuildingNav }: {
-  game: Game; empire: Empire | undefined; id: BuildingId; onCommand: (c: Command) => void
+function BuildingView({ game, empire, id, onCommand, onRecruit, onNav, onBuildingNav, run }: {
+  game: Game; empire: Empire | undefined; id: BuildingId; onCommand: (c: Command) => void; run?: Run
   onRecruit: (id: UnitId, count: number) => void; onNav: (panel: 'research' | 'diplomacy' | 'island' | 'people' | 'cities') => void
   onBuildingNav: (id: BuildingId) => void
 }) {
@@ -196,11 +219,11 @@ function BuildingView({ game, empire, id, onCommand, onRecruit, onNav, onBuildin
           <Table rows={[
             ['Ticaret kapasitesi', num(tradeCapacity(game))],
             ['Yükleme hızı', `${num(loadingSpeed(game))} mal/dk`],
-            ['Nakliye gemisi', `${game.army.nakliye} (${num(cargoCapacity(game))} mal taşır)`],
             ['Yolculuk süresi', `%${Math.round(travelFactor(game) * 100)}`],
           ]} />
           <Button size="sm" variant="outline" onClick={() => onNav('cities')}>Nakliye gönder<ChevronRight data-icon="inline-end" /></Button>
         </Box>}
+        {id === 'liman' && empire && run && <MerchantFleet empire={empire} game={game} run={run} />}
         {id === 'elcilik' && <Box title="Casusluk ve diplomasi">
           <Table rows={[
             ['Casus', `${game.army.casus} / ${spyCapacity(game)}`],
@@ -209,9 +232,9 @@ function BuildingView({ game, empire, id, onCommand, onRecruit, onNav, onBuildin
           ]} />
           <Button size="sm" variant="outline" onClick={() => onNav('diplomacy')}>Dünya ve diplomasi<ChevronRight data-icon="inline-end" /></Button>
         </Box>}
-        <Box title={id === 'tersane' ? 'Gemi yapımı' : id === 'liman' ? 'Nakliye gemileri' : id === 'elcilik' ? 'Casus eğitimi' : 'Asker eğitimi'} className="bp-army">
+        {id !== 'liman' && <Box title={id === 'tersane' ? 'Gemi yapımı' : id === 'elcilik' ? 'Casus eğitimi' : 'Asker eğitimi'} className="bp-army">
           <ArmyPanel game={game} onRecruit={onRecruit} onBuild={onBuildingNav} home={id} />
-        </Box>
+        </Box>}
       </>
     case 'konut': case 'hamam': return <Box title="Halk">
       <Table rows={[['Nüfus', `${num(population(game))} / ${num(maxPopulation(game))}`], ['Barınma', num(housing(game))], ['Huzur', num(contentment(game))],
@@ -273,8 +296,8 @@ export function IkaPage({ title, subtitle, badge, hero, onClose, children, label
   </div>
 }
 
-export function BuildingPage({ game, empire, id, onClose, onBuild, onFlip, onMove, onCommand, onRecruit, onNav, onBuildingNav, children }: {
-  game: Game; empire: Empire | undefined; id: BuildingId
+export function BuildingPage({ game, empire, id, onClose, onBuild, onFlip, onMove, onCommand, onRecruit, onNav, onBuildingNav, run, children }: {
+  game: Game; empire: Empire | undefined; id: BuildingId; run?: Run
   onClose: () => void; onBuild: () => void; onFlip: () => void; onMove: () => void
   onCommand: (c: Command) => void; onRecruit: (id: UnitId, count: number) => void
   onNav: (panel: 'research' | 'diplomacy' | 'island' | 'people' | 'cities') => void; onBuildingNav: (id: BuildingId) => void
@@ -302,7 +325,7 @@ export function BuildingPage({ game, empire, id, onClose, onBuild, onFlip, onMov
       <p className="bp-desc">{b.description}</p>
       <UpgradeBox game={game} id={id} onBuild={onBuild} />
       <Box title="Seviye etkisi"><BuildingEffects game={game} id={id} level={level} max={max} /></Box>
-      <BuildingView game={game} empire={empire} id={id} onCommand={onCommand} onRecruit={onRecruit} onNav={onNav} onBuildingNav={onBuildingNav} />
+      <BuildingView game={game} empire={empire} id={id} onCommand={onCommand} onRecruit={onRecruit} onNav={onNav} onBuildingNav={onBuildingNav} run={run} />
       {children}
       {forecast.length > 0 && <Box title="Sonraki seviyeler">
         <Table head={['Sv.', 'Maliyet', 'Süre']} rows={forecast.map(f => [

@@ -9,7 +9,7 @@ import { useState } from 'react'
 import { Award, Castle, Pencil, Settings, Swords, Trophy, ScrollText } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { population, soldiers } from '@/lib/game/engine'
-import { islandOf, type Empire } from '@/lib/game/empire'
+import { capitalId, islandOf, type Empire } from '@/lib/game/empire'
 import {
   CREST_COLORS, CREST_NAMES, CRESTS, achievements, allianceName, playerScore, profileOf, profileRanks, profileStats, rulerTitle, setProfile,
   type CrestId,
@@ -106,7 +106,7 @@ export function ProfilePanel({ empire, now, run, onCity, onSettings, onChangelog
     <section className="empire-section">
       <h3><Castle className="size-4" /> Şehirlerin</h3>
       {empire.cities.map(c => <button key={c.id} type="button" className="profile-city" onClick={() => onCity(c.id)}>
-        <strong>{c.name}{c.id === 'city-1' ? ' · başkent' : ''}</strong>
+        <strong>{c.name}{c.id === capitalId(empire) ? ' · başkent' : ''}</strong>
         <small>{islandOf(c).name} · Divanhane {c.game.buildings.divan} · nüfus {num(population(c.game))} · asker {num(soldiers(c.game))}</small>
       </button>)}
     </section>
