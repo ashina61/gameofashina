@@ -51,7 +51,7 @@ async function main() {
     // Regression for the actual multi-city UI: opening the atlas must not
     // throw and the legacy save must have been wrapped as a valid empire.
     await page.getByRole('button', { name: 'Harita', exact: true }).click()
-    await page.getByText('Adalar haritası', { exact: true }).waitFor({ timeout: 10_000 })
+    await page.getByText('Dünya haritası', { exact: true }).first().waitFor({ timeout: 10_000 })
     const empire = await page.evaluate(() =>
       JSON.parse(localStorage.getItem('payitaht-adalari-v1') || 'null'))
     if (empire?.version !== 1 || !Array.isArray(empire.cities) || empire.cities.length < 1) {
