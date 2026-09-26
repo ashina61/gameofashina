@@ -27,7 +27,24 @@ const COLONY_SHIPS = 3
 export const MAX_CITIES = 12
 const CITY_NAMES = ['Yeni Sahil', 'Akçaşehir', 'Yeni Liman', 'Yelkenhisar', 'Kervansaray', 'Yeni Hisar', 'Mavikent']
 
-export type CityRecord = { id: string; islandId: IslandId; name: string; game: Game }
+export type CityRecord = { id: string; islandId: IslandId; name: string; game: Game; emblem?: EmblemId }
+/** ŞEHİR NİŞANI (Ikariam'daki şehir nişanı): adada şehrin üstünde dalgalanır; Divanhane seviyesiyle açılır. */
+export const EMBLEMS = {
+  sancak: { name: 'Al sancak', divan: 1 }, lale: { name: 'Lale', divan: 1 }, zeytin: { name: 'Zeytin dalı', divan: 3 },
+  gemi: { name: 'Kadırga', divan: 5 }, kule: { name: 'Burç', divan: 7 }, kartal: { name: 'Çift başlı kartal', divan: 10 },
+  yildiz: { name: 'Sekiz köşe yıldız', divan: 12 }, tugra: { name: 'Tuğra', divan: 15 },
+} as const
+export type EmblemId = keyof typeof EMBLEMS
+export const EMBLEM_IDS = Object.keys(EMBLEMS) as EmblemId[]
+export function setCityEmblem(source: Empire, cityId: string, emblem: EmblemId, now: number): { empire: Empire; error?: string } {
+  const empire = advanceEmpire(source, now)
+  const city = empire.cities.find(c => c.id === cityId)
+  if (!city || !EMBLEMS[emblem]) return { empire, error: 'Bilinmeyen nişan.' }
+  if (city.game.buildings.divan < EMBLEMS[emblem].divan) return { empire, error: `Bu nişan için Divanhane ${EMBLEMS[emblem].divan}. seviye gerekli.` }
+  city.emblem = emblem
+  logEvent(city.game, `${city.name} yeni nişanını astı: ${EMBLEMS[emblem].name}.`, now)
+  return { empire }
+}
 export type Shipment = {
   id: string; from: string; to: string; resource: Cargo
   amount: number; eta: number
@@ -105,6 +122,7 @@ export function parseEmpire(raw: string): Empire {
         ids.has(city.id) || islandIds.has(city.islandId) ||
         !ISLANDS.some(island => island.id === city.islandId) ||
         typeof city.name !== 'string' || city.name.length < 1 || city.name.length > 40 ||
+        (city.emblem !== undefined && !EMBLEM_IDS.includes(city.emblem)) ||
         !city.game || typeof city.game !== 'object') throw new Error('Şehir kayıtları okunamadı.')
     ids.add(city.id); islandIds.add(city.islandId)
     // Run the existing save migration and validations for EVERY city.

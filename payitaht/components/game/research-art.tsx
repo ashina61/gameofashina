@@ -13,6 +13,7 @@ const BRANCH: Record<ResearchBranch, [string, string]> = {
   bilim: ['#cfe0ef', '#3d5f8a'],
   askeri: ['#f0c4b4', '#9a3324'],
   denizcilik: ['#cfe8ee', '#2f7a92'],
+  mitoloji: ['#e3d3f0', '#6a4a8a'],
 }
 const S = { stroke: INK, strokeWidth: 1.4, strokeLinejoin: 'round' as const, strokeLinecap: 'round' as const }
 
@@ -92,6 +93,14 @@ const Architect = () => <g {...S}><DomeArch /><path d="M40 16 L48 16 L44 24 Z" f
 const Scholars = () => <g {...S}><Book /><path d="M32 14 l1.5 3 3.4 0.4 -2.5 2.3 0.7 3.3 -3.1 -1.7 -3.1 1.7 0.7 -3.3 -2.5 -2.3 3.4 -0.4 Z" fill={GOLD} /></g>
 const PenGear = () => <g><Gear cx={26} cy={36} r={8} /><g {...S}><path d="M36 42 L48 18" stroke={GOLD} strokeWidth="2.5" /><path d="M36 42 L34 46" /></g></g>
 
+/* Mitoloji: ongun direği, balbal, kopuz, kam davulu, tamga, gök kutu. */
+const Totem = () => <g {...S}><rect x="29" y="22" width="6" height="26" fill={WOOD} /><path d="M29 30 H35 M29 38 H35" strokeWidth="0.8" /><path d="M32 22 Q22 16 18 20 Q24 22 26 26 Q30 20 32 22 Q34 20 38 26 Q40 22 46 20 Q42 16 32 22 Z" fill={GOLD} /><circle cx="32" cy="18" r="2.5" fill={PAPER} /></g>
+const Balbal = () => <g {...S}><path d="M24 48 V22 Q24 14 32 14 Q40 14 40 22 V48 Z" fill="#b7ae9c" /><circle cx="29" cy="24" r="1.3" fill={INK} /><circle cx="35" cy="24" r="1.3" fill={INK} /><path d="M29 30 Q32 32 35 30 M26 38 Q32 36 38 38 M28 42 L32 36" strokeWidth="1" fill="none" /></g>
+const Kopuz = () => <g {...S}><path d="M22 40 Q16 30 24 26 Q32 24 34 32 Q36 42 26 44 Z" fill={WOOD} /><circle cx="26" cy="34" r="2.5" fill={INK} /><path d="M32 28 L46 14" stroke={WOOD} strokeWidth="3" /><path d="M44 12 L48 16" strokeWidth="2" /><path d="M24 30 L44 14 M26 32 L46 16" strokeWidth="0.6" /></g>
+const Drum = () => <g {...S}><ellipse cx="32" cy="32" rx="14" ry="15" fill="#e8d6b0" /><ellipse cx="32" cy="32" rx="14" ry="15" fill="none" strokeWidth="2.4" stroke={WOOD} /><path d="M32 19 V45 M20 28 H44" stroke={RED} strokeWidth="1.2" /><circle cx="26" cy="24" r="2" fill={RED} stroke="none" /><circle cx="38" cy="40" r="2" fill={RED} stroke="none" /><path d="M44 44 L50 50" stroke={WOOD} strokeWidth="2.5" /></g>
+const Tamga = () => <g {...S} fill="none"><path d="M24 44 L32 20 L40 44" strokeWidth="3" stroke={RED} /><path d="M20 26 Q32 34 44 26" strokeWidth="3" stroke={RED} /><circle cx="32" cy="16" r="2.5" fill={GOLD} /></g>
+const Kut = () => <g {...S}><circle cx="32" cy="32" r="12" fill="#9fc3e6" /><path d="M32 22 l2.6 5.3 5.8 0.8 -4.2 4.1 1 5.8 -5.2 -2.7 -5.2 2.7 1 -5.8 -4.2 -4.1 5.8 -0.8 Z" fill={GOLD} />{Array.from({ length: 8 }, (_, i) => <path key={i} d="M32 16 V12" transform={`rotate(${i * 45} 32 32)`} stroke={GOLD} strokeWidth="2" />)}</g>
+
 /** Her araştırmanın motifi. */
 const MOTIF: Record<ResearchId, () => ReactNode> = {
   tools: Hammer, storage: Crates, ticaret: Scales, makara: Pulley, geometri: Divider, su_terazisi: Level,
@@ -108,6 +117,7 @@ const MOTIF: Record<ResearchId, () => ReactNode> = {
   guverte: () => <Cannon ship />, korsanlik: Skull, genisleme: Island, zift: Tar, yabanci_kultur: Globe,
   hafif_tekne: Boat, ikmal: SupplyShip, havan: MortarGun,
   kanat: Wings, roket: Rocket, zenberek: Crossbow, dalgic: Periscope, buhar: Steam,
+  ongun_toresi: Totem, balbal: Balbal, destan: Kopuz, kam_ayini: Drum, tore: Tamga, gok_kutu: Kut,
 }
 
 /** Sekiz köşeli yıldız çerçeve (iki iç içe kare). */

@@ -51,13 +51,20 @@ export const PATRON_CHANGE_MS = 6 * 3600_000
 export const POWER_REST_MS = 4 * 3600_000
 /** Sunu karşılığı: bu kadar mal = 1 lütuf. */
 export const OFFER_RATE = { gold: 40, wood: 60, stone: 50, luxury: 8 } as const
-export function lutufRate(g: Game) { return (g.buildings.mabet ?? 0) * 0.3 }
-export function lutufCap(g: Game) { return 1000 + 400 * (g.buildings.mabet ?? 0) }
+export function lutufRate(g: Game) {
+  return (g.buildings.mabet ?? 0) * 0.3 * (g.research?.includes('ongun_toresi') ? 1.2 : 1) * (1 + (g.future?.mitoloji ?? 0) * 0.05)
+}
+export function lutufCap(g: Game) { return (1000 + 400 * (g.buildings.mabet ?? 0)) * (g.research?.includes('balbal') ? 1.5 : 1) }
+/** Kudretten sonra dinlenme (Kam Ayinleri 3 saate indirir). */
+export function powerRestMs(g: Game) { return g.research?.includes('kam_ayini') ? 3 * 3600_000 : POWER_REST_MS }
+/** Hami değiştirme beklemesi (Töre 3 saate indirir). */
+export function patronChangeMs(g: Game) { return g.research?.includes('tore') ? 3 * 3600_000 : PATRON_CHANGE_MS }
 /** Hami tanrının sürekli lütfünün derecesi (mabet seviyesi, en fazla 20). */
 export function blessing(g: Game, id: GodId) {
   const s = g.gods
   if (!s || s.patron !== id || !(g.buildings.mabet > 0)) return 0
-  return Math.min(20, g.buildings.mabet)
+  const kut = g.research?.includes('gok_kutu')
+  return Math.min(kut ? 25 : 20, g.buildings.mabet + (kut ? 2 : 0))
 }
 /** Süreli kudret şu an etkin mi? */
 export function godBuff(g: Game, id: GodId, now = g.updatedAt) {

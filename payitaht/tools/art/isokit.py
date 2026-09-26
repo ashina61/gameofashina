@@ -523,6 +523,21 @@ def draw_deco(d, dm, f, dec, T, base):
         r = 0.035 * A * SS
         d.ellipse([c[0] - r, c[1] - r, c[0] + r, c[1] + r], fill=(250, 244, 230, 255))
         d.ellipse([c[0] - r * 0.55, c[1] - r * 1.0, c[0] + r * 1.2, c[1] + r * 0.8], fill=base + (255,))
+    elif kind == 'karagoz':  # gölge oyunu perdesi: ışıklı perde üstünde Karagöz ile Hacivat
+        d.polygon([FP(0.04, 0.06), FP(0.96, 0.06), FP(0.96, 0.94), FP(0.04, 0.94)], fill=(255, 236, 190, 255))
+        d.polygon([FP(0.12, 0.14), FP(0.88, 0.14), FP(0.88, 0.86), FP(0.12, 0.86)], fill=(255, 246, 214, 255))
+        def figure(cx, col, hat):
+            # gövde (cübbe), baş, başlık ve uzanan kol
+            d.polygon([FP(cx - 0.09, 0.14), FP(cx + 0.09, 0.14), FP(cx + 0.06, 0.5), FP(cx - 0.06, 0.5)], fill=col)
+            h = [FP(cx - 0.05 + 0.1 * math.cos(t) * 0.5 + 0.05, 0.6 + 0.09 * math.sin(t)) for t in [i * math.pi / 8 for i in range(16)]]
+            d.polygon(h, fill=col)
+            if hat == 'kavuk':
+                d.polygon([FP(cx - 0.06, 0.66), FP(cx + 0.06, 0.66), FP(cx + 0.03, 0.82), FP(cx - 0.03, 0.82)], fill=col)
+            else:
+                d.polygon([FP(cx - 0.06, 0.66), FP(cx + 0.06, 0.66), FP(cx + 0.1, 0.84)], fill=col)
+            d.line([FP(cx, 0.44), FP(cx + (0.16 if cx < 0.5 else -0.16), 0.52)], fill=col, width=max(2, int(2.2 * SS)))
+        figure(0.33, (120, 40, 28, 235), 'isik')
+        figure(0.67, (40, 52, 110, 235), 'kavuk')
     elif kind == 'ribs':  # kurşun çatı/kubbe dilimleri gibi dikey çizgiler
         n = dec[1]
         for i in range(1, n):

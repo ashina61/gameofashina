@@ -25,6 +25,7 @@ import { RivalDiplomacy, RivalSupport, RivalWar, type Run } from './world-panels
 import { FACTIONS, RIVALS, STYLE_NAMES, rivalById, rivalLevel } from '@/lib/game/rivals'
 import { clearReports, deleteReport, keepReport, targetInfo, type Report } from '@/lib/game/expeditions'
 import { BattleView } from './battle-view'
+import { CityEmblem } from './city-emblem'
 import { RETREAT_MORALE, fieldSize } from '@/lib/game/battle'
 
 const clock = (ms: number) => {
@@ -64,7 +65,7 @@ export function IslandView({ empire, islandId, now, onCity, onIsland, onMine, on
       <img className="island-bg" src={asset(`/images/game/islands/${island.id}.webp`)} alt="" width={layout.size[0]} height={layout.size[1]} />
       {city && <button className="island-spot island-city" style={place('city')} onClick={home ? onCity : undefined} disabled={!home} aria-label={`${city.name} şehri`}>
         <img src={buildingImage('divan', city.game.buildings.divan)} alt="" />
-        <span className="island-label"><strong>{city.name}</strong><small>{home ? `Divanhane ${city.game.buildings.divan}` : 'Senin şehrin · Şehirler panelinden geç'}</small></span>
+        <span className="island-label"><strong><CityEmblem id={city.emblem} size={16} /> {city.name}</strong><small>{home ? `Divanhane ${city.game.buildings.divan}` : 'Senin şehrin · Şehirler panelinden geç'}</small></span>
       </button>}
       <button className="island-spot island-mine" style={place('mine')} onClick={home ? onMine : undefined} disabled={!home} aria-label={`${LUXURY_NAMES[island.luxury]} madeni`}>
         <img src={asset(`/images/game/buildings/mine-${island.luxury}.webp`)} alt="" />

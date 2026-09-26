@@ -18,7 +18,7 @@ import { Button } from '@/components/ui/button'
 import {
   ANARCHY_MS, BUILDINGS, FOREST_MAX_LEVEL, GOVERNMENTS, GOVERNMENT_COOLDOWN_MS, GOOD_NAMES, GOVERNMENT_IDS, UNITS, UNIT_IDS,
   anarchy, forestCapacity, forestProduction, forestUpgradeCost, governmentCost, idleWorkers, tavernLevel, wineConsumption,
-  type BuildingId, type Command, type Game, type Good, type UnitId,
+  LUXURY_IDS, type BuildingId, type Command, type Game, type Good, type Luxury, type Resource, type UnitId,
 } from '@/lib/game/engine'
 import { activeCity, renameCity, type Empire } from '@/lib/game/empire'
 import { DAILY_TASKS, claimLogin, claimTask, loginReward, taskProgress } from '@/lib/game/daily'
@@ -30,7 +30,10 @@ import {
   FACTIONS, FAIR_PRICE, MARKET_GOODS, RIVALS, STYLE_NAMES, TREATIES, acceptOffer, cancelOffer, cancelTreaty, factionMembers,
   factionStanding, fillRate, joinAlliance, leaveAlliance, marketOffers, offerSlots, postOffer, proposeTreaty, rankings, readMessages,
   rivalById, rivalLevel, sendGift, stationTribute, treatyCost, writeLetter, type FactionId, type RankKey, type TreatyId,
+  buyMercenaries, mercenaryOffers, seaMinutes,
 } from '@/lib/game/rivals'
+import { luxuryIcons, resourceIcons } from './game-widgets'
+import { UnitFigure } from './unit-art'
 import { UnitPicker } from './ikariam-panels'
 import { WorkforceSlider } from './workforce'
 import { KeresteArt } from './resource-art'
@@ -307,7 +310,7 @@ export function WorldPanel({ empire, now, run, onRival, initial = 'rank' }: { em
     </div>
     {tab === 'rank' && <Rankings empire={empire} now={now} onRival={onRival} />}
     {tab === 'diplo' && <Diplomacy empire={empire} now={now} run={run} onRival={onRival} />}
-    {tab === 'market' && <Market empire={empire} now={now} run={run} />}
+    {tab === 'market' && <TradeCenter empire={empire} now={now} run={run} onRival={onRival} />}
     {tab === 'mail' && <Inbox empire={empire} onRival={onRival} />}
   </div>
 }
@@ -353,24 +356,98 @@ function Diplomacy({ empire, now, run, onRival }: { empire: Empire; now: number;
   </>
 }
 
-function Market({ empire, now, run }: { empire: Empire; now: number; run: Run }) {
+/**
+ * TİCARET MERKEZİ (Ikariam'daki sekmeler): mal ticareti (al/sat, mal ve
+ * menzil süzgeci), asker ticareti (paralı asker), ticaret anlaşmaları ve
+ * kendi tekliflerin. Karşı taraf yapay rakip hükümdarlardır.
+ */
+type TradeTab = 'goods' | 'troops' | 'treaty' | 'own'
+export function TradeCenter({ empire, now, run, onRival }: { empire: Empire; now: number; run: Run; onRival?: (id: string) => void }) {
+  const [tab, setTab] = useState<TradeTab>('goods')
+  return <div className="trade-center">
+    <div className="world-tabs trade-tabs" role="group" aria-label="Ticaret Merkezi">
+      {([['goods', 'Mal ticareti', Store], ['troops', 'Asker ticareti', Swords], ['treaty', 'Anlaşmalar', Handshake], ['own', 'Tekliflerin', Send]] as const).map(([k, l, Icon]) =>
+        <button key={k} type="button" aria-pressed={tab === k} onClick={() => setTab(k)}><Icon className="size-5" /><span>{l}</span></button>)}
+    </div>
+    {tab === 'goods' && <GoodsTrade empire={empire} now={now} run={run} />}
+    {tab === 'troops' && <TroopTrade empire={empire} now={now} run={run} />}
+    {tab === 'treaty' && <TradeTreaties empire={empire} now={now} run={run} onRival={onRival} />}
+    {tab === 'own' && <OwnOffers empire={empire} now={now} run={run} />}
+  </div>
+}
+function GoodsTrade({ empire, now, run }: { empire: Empire; now: number; run: Run }) {
+  const city = activeCity(empire)
+  const [side, setSide] = useState<'sell' | 'buy'>('sell')
+  const [good, setGood] = useState<Good | 'all'>('all')
+  const [radius, setRadius] = useState<'ada' | 'yakin' | 'hepsi'>('hepsi')
+  const limit = radius === 'ada' ? 2.01 : radius === 'yakin' ? 4 : Infinity
+  const offers = marketOffers(empire, now).map(o => ({ o, r: rivalById(o.rivalId)!, dist: seaMinutes(rivalById(o.rivalId)!.islandId, city.islandId) }))
+    .filter(x => x.o.side === side && (good === 'all' || x.o.good === good) && x.dist <= limit)
+    .sort((a, b) => a.o.price - b.o.price || a.dist - b.dist)
+  return <section className="empire-section">
+    <h3><Store className="size-4" /> Ucuz mal tarayıcısı · saat başı yenilenir</h3>
+    <div className="trade-filters">
+      <div className="seg" role="radiogroup" aria-label="Yön">
+        <button type="button" role="radio" aria-checked={side === 'sell'} onClick={() => setSide('sell')}>Satın al</button>
+        <button type="button" role="radio" aria-checked={side === 'buy'} onClick={() => setSide('buy')}>Sat</button>
+      </div>
+      <select aria-label="Mal" value={good} onChange={e => setGood(e.target.value as Good | 'all')}>
+        <option value="all">Bütün mallar</option>{MARKET_GOODS.map(x => <option key={x} value={x}>{GOOD_NAMES[x]}</option>)}
+      </select>
+      <select aria-label="Arama çapı" value={radius} onChange={e => setRadius(e.target.value as 'ada' | 'yakin' | 'hepsi')}>
+        <option value="ada">Ada çevresi</option><option value="yakin">Yakın adalar</option><option value="hepsi">Bütün dünya</option>
+      </select>
+    </div>
+    {!offers.length ? <p className="fine-print">Şu an bu süzgece uyan teklif yok. Süzgeci genişlet ya da bir saat sonra yeniden bak.</p>
+      : <div className="trade-table">{offers.map(({ o, r, dist }) => <article key={o.id} className="trade-row">
+        <span className="trade-good">{(() => { const I = (LUXURY_IDS as readonly string[]).includes(o.good) ? luxuryIcons[o.good as Luxury] : resourceIcons[o.good as Resource]; return <I className="trade-icon" /> })()}</span>
+        <span className="trade-main"><strong>{num(o.amount)} {GOOD_NAMES[o.good]}</strong><small>{r.city} · {r.ruler} (yapay rakip) · ~{Math.round(dist)} dk</small></span>
+        <span className="trade-price"><b>{o.price}</b><small>akçe/birim</small><em className={o.price <= FAIR_PRICE[o.good] === (side === 'sell') ? 'is-good' : 'is-bad'}>adil {FAIR_PRICE[o.good]}</em></span>
+        <Button size="sm" variant={side === 'sell' ? 'default' : 'outline'} onClick={() => run((e, x) => acceptOffer(e, o.id, x), side === 'sell' ? 'Mal yolda.' : 'Mal yola çıktı; bedeli gelecek.')}>{side === 'sell' ? `Al · ${num(o.amount * o.price)}` : `Sat · ${num(o.amount * o.price)}`}</Button>
+      </article>)}</div>}
+  </section>
+}
+function TroopTrade({ empire, now, run }: { empire: Empire; now: number; run: Run }) {
+  const offers = mercenaryOffers(empire, now)
+  return <section className="empire-section">
+    <h3><Swords className="size-4" /> Paralı askerler · saat başı yenilenir</h3>
+    {!offers.length ? <p className="fine-print">Şu an asker satan hükümdar yok.</p> : offers.map(o => {
+      const r = rivalById(o.rivalId)!, u = UNITS[o.unit]
+      return <article key={o.id} className="trade-row">
+        <span className="trade-good"><UnitFigure id={o.unit} size={44} /></span>
+        <span className="trade-main"><strong>{o.count} {u.name}</strong><small>{r.city} · {r.ruler} (yapay rakip) · {u.pop * o.count} vatandaş yer</small></span>
+        <span className="trade-price"><b>{num(o.price)}</b><small>akçe/adet</small></span>
+        <Button size="sm" onClick={() => run((e, x) => buyMercenaries(e, o.id, x), `${o.count} ${u.name} sancağına katıldı.`)}>Al · {num(o.price * o.count)}</Button>
+      </article>
+    })}
+    <Hint>Paralı askerler hemen şehre katılır; şehirde boşta vatandaş (barınak) ve garnizonda yer ister. Ticaret anlaşması olan hükümdar %10 ucuz satar; ilişkisi çok kötü olan satmaz.</Hint>
+  </section>
+}
+function TradeTreaties({ empire, now, run, onRival }: { empire: Empire; now: number; run: Run; onRival?: (id: string) => void }) {
+  return <section className="empire-section">
+    <h3><Handshake className="size-4" /> Ticaret anlaşmaları</h3>
+    <p className="fine-print">{TREATIES.ticaret.description} İlişki en az {TREATIES.ticaret.need} olmalı.</p>
+    <div className="trade-table">{RIVALS.map(r => {
+      const s = empire.world?.rivals[r.id]
+      const on = s?.treaties.includes('ticaret')
+      return <article key={r.id} className="trade-row">
+        <span className="trade-main"><strong>{r.city}</strong><small>{r.ruler} (yapay rakip) · ilişki {s?.relation ?? 0}</small></span>
+        {on ? <em className="treaty-on"><Check className="size-3" /> Anlaşma var</em>
+          : <Button size="sm" variant="outline" onClick={() => run((e, x) => proposeTreaty(e, r.id, 'ticaret', x), 'Ticaret anlaşması imzalandı.')}>Teklif et · {num(treatyCost(empire, r, now))}</Button>}
+        {onRival && <Button size="sm" variant="ghost" aria-label={`${r.ruler} sayfası`} onClick={() => onRival(r.id)}><Eye /></Button>}
+      </article>
+    })}</div>
+  </section>
+}
+function OwnOffers({ empire, now, run }: { empire: Empire; now: number; run: Run }) {
   const city = activeCity(empire)
   const g = city.game
-  const offers = marketOffers(empire, now)
   const mine = (empire.world?.offers ?? []).filter(o => o.cityId === city.id)
   const deliveries = (empire.world?.deliveries ?? []).filter(d => d.cityId === city.id)
   const [good, setGood] = useState<Good>('wood')
   const [amount, setAmount] = useState('500')
   const [price, setPrice] = useState(String(FAIR_PRICE.wood))
   return <>
-    <section className="empire-section">
-      <h3><Store className="size-4" /> Hükümdarların teklifleri · saat başı yenilenir</h3>
-      {offers.map(o => { const r = rivalById(o.rivalId)!; return <article key={o.id} className="mission-row">
-        <span><strong>{o.side === 'sell' ? 'Satıyor' : 'Alıyor'}: {num(o.amount)} {GOOD_NAMES[o.good]}</strong>
-          <small>{r.city} · birimi {o.price} akçe (adil {FAIR_PRICE[o.good]}) · toplam {num(o.amount * o.price)}</small></span>
-        <Button size="sm" variant="outline" onClick={() => run((e, x) => acceptOffer(e, o.id, x), o.side === 'sell' ? 'Mal yolda.' : 'Mal yola çıktı; bedeli gelecek.')}>{o.side === 'sell' ? 'Satın al' : 'Sat'}</Button>
-      </article> })}
-    </section>
     <section className="empire-section">
       <h3><Send className="size-4" /> Senin tekliflerin · {mine.length}/{offerSlots(g)}</h3>
       {offerSlots(g) < 1 ? <p className="fine-print">Kendi satış teklifin için Ticaret Merkezi kur.</p> : <div className="empire-shipment-form">

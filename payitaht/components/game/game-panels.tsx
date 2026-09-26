@@ -3,7 +3,7 @@
 import { Hint } from './hint'
 import { useState } from 'react'
 import { ArrowUp, Hammer, Clock3, LockKeyhole, Check, BookOpen, ChevronRight, TreePine, Warehouse, Ruler, Users, UserRound, Minus, Plus as PlusIcon, House, HeartHandshake, TriangleAlert, Landmark, Swords, Ship, ShieldCheck, Handshake, FlaskConical, Compass, FlipHorizontal2, Move } from 'lucide-react'
-import { AkceArt } from './resource-art'
+import { AkceArt, IlimArt } from './resource-art'
 import { idleMerchants } from '@/lib/game/expeditions'
 import { WorkforceSlider, type Figure } from './workforce'
 import { Button } from '@/components/ui/button'
@@ -15,7 +15,7 @@ import { LUXURY_IDS, LUXURY_NAMES, MERCHANT_BUY, MERCHANT_SELL, MINE_MAX_LEVEL, 
 import { luxuryIcons, resourceIcons } from './game-widgets'
 import { effectLines } from '@/lib/game/building-info'
 import { actionPoints, armyUpkeep, merchantBuyPrice, merchantSellPrice, type UnitRole, type Resource } from '@/lib/game/engine'
-import { Crown, Eye, Flag } from 'lucide-react'
+import { ChevronsLeft, ChevronsRight, Crown, Eye, Flag } from 'lucide-react'
 import type { Run } from './world-panels'
 import { DRILL_QUEUE_LIMIT, garrisonLimit, garrisonUsed, spyCapacity, growthRate, maxPopulation, PLOTS, zoneOf } from '@/lib/game/engine'
 import { BATTLE_STATS, SLOT_SIZE, fieldSize } from '@/lib/game/battle'
@@ -46,35 +46,65 @@ export function BuildingDetails({ game, id, onBuild, onFlip, onMove }: { game: G
 export function BuildingList({ game, onSelect }: { game: Game; onSelect: (id: BuildingId) => void }) {
   return <div className="building-list">{BUILDING_IDS.map(id => <button key={id} className="building-list-item" onClick={() => onSelect(id)}>{BUILDINGS[id].art ? <img src={buildingImage(id, game.buildings[id])} alt="" width={88} height={88} /> : <span className="list-pending"><Hammer aria-hidden="true" /></span>}<span><span className="eyebrow">{BUILDINGS[id].category}</span><strong>{BUILDINGS[id].name}</strong><span>{game.buildings[id] ? `Seviye ${game.buildings[id]}${game.buildings[id] >= MAX_LEVEL[id] ? ' · Tamamlandı' : ' · Geliştirilebilir'}` : 'Boş arsa · Yeni yapı'}</span></span><ChevronRight className="size-4" /></button>)}</div>
 }
+/**
+ * ARAŞTIRMA DANIŞMANI (Ikariam düzeni): üstte âlim sayısı, ilim ve saatlik
+ * birikim; dal sekmeleri; seçili araştırmanın ayrıntısı (etki, gerekenler,
+ * masraf, ne zaman yeteceği); altında dalın numaralı listesi ve kandil
+ * işaretleri (yanan: tamam, kırmızı: sıradaki, sönük: kilitli).
+ */
+const researchState = (game: Game, id: ResearchId) => {
+  const reason = researchReason(game, id)
+  return game.research.includes(id) ? 'done' : game.study?.id === id ? 'active' : reason && /gerekli|Önce/.test(reason) && !/devam eden/.test(reason) ? 'locked' : 'open'
+}
+const clockMin = (m: number) => { const h = Math.floor(m / 60), d = Math.floor(h / 24); return d ? `${d} g ${h % 24} sa` : h ? `${h} sa ${Math.round(m % 60)} dk` : `${Math.max(1, Math.round(m))} dk` }
 export function ResearchPanel({ game, onResearch }: { game: Game; onResearch: (id: ResearchId) => void }) {
-  const [focus, setFocus] = useState<ResearchBranch | 'all'>('all')
-  const scientists = scientistCount(game)
-  const production = rates(game).knowledge
-  return <div className="research-panel">
-    <div className="research-intro"><BookOpen className="size-5" /><span>
-      <strong>Medrese / Akademi</strong>
-      <p>{scientists}/{game.buildings.medrese * WORKERS_PER_LEVEL} âlim ·
-        +{production.toFixed(1)} ilim/dk · {(scientistUpkeepPerMinute(game) * 60).toFixed(0)} akçe/saat bakım.</p>
-      <p>Âlim sayısını Halk panelinden ayarlayabilirsin. Dört araştırma kolu yeni yapı, ekonomi ve askerî bonuslar açar.</p>
-    </span></div>
-    {game.study && <JobProgress job={game.study} now={game.updatedAt} />}
-    <div className="research-branch-tabs" role="group" aria-label="Araştırma dalları">
-      <button type="button" aria-pressed={focus === 'all'} onClick={() => setFocus('all')}>Tümü</button>
-      {RESEARCH_BRANCHES.map(branch => <button type="button" key={branch.key}
-        aria-pressed={focus === branch.key} onClick={() => setFocus(branch.key)}>{branch.title}</button>)}
+  const firstOpen = (b: ResearchBranch) => RESEARCH_IDS.find(id => RESEARCH[id].branch === b && !game.research.includes(id))
+  const [branch, setBranch] = useState<ResearchBranch>(() => RESEARCH_BRANCHES.find(b => firstOpen(b.key))?.key ?? 'ekonomi')
+  const [picked, setPicked] = useState<ResearchId | null>(null)
+  const ids = RESEARCH_IDS.filter(id => RESEARCH[id].branch === branch)
+  const sel = picked && RESEARCH[picked].branch === branch ? picked : firstOpen(branch) ?? ids[0]
+  const rate = rates(game).knowledge
+  const r = RESEARCH[sel], reason = researchReason(game, sel), state = researchState(game, sel)
+  const short = Math.max(0, r.cost - game.resources.knowledge)
+  return <div className="research-panel rs">
+    <div className="rs-stats">
+      <span><Users className="size-4" /><b>{scientistCount(game)}</b><small>âlim</small></span>
+      <span><IlimArt className="rs-lamp" /><b>{Math.floor(game.resources.knowledge).toLocaleString('tr-TR')}</b><small>ilim</small></span>
+      <span><Clock3 className="size-4" /><b>+{(rate * 60).toFixed(1)}</b><small>saatlik</small></span>
+      <span><AkceArt className="rs-lamp" /><b>−{(scientistUpkeepPerMinute(game) * 60).toFixed(0)}</b><small>akçe/saat</small></span>
     </div>
-    {RESEARCH_BRANCHES.filter(branch => focus === 'all' || focus === branch.key).map(branch => {
-    const ids = RESEARCH_IDS.filter(id => RESEARCH[id].branch === branch.key)
-    const doneCount = ids.filter(id => game.research.includes(id)).length
-    return <section className="research-branch" key={branch.key}>
-      <div className="research-branch-top"><h3>{branch.title}</h3><span>{doneCount}/{ids.length}</span></div>
-      {ids.map(id => {
-        const r = RESEARCH[id], reason = researchReason(game, id), done = game.research.includes(id)
-        const state = done ? 'done' : game.study?.id === id ? 'active' : reason && /gerekli|Önce/.test(reason) ? 'locked' : 'open'
-        return <article className={`research-card is-${state}`} key={id}><div className="research-card-top"><ResearchEmblem id={id} size={56} state={state} /><span><h3>{r.name}</h3></span>{done && <Check className="size-5" />}</div><p>{r.description}</p><div className="research-bottom"><CostDisplay value={{ knowledge: r.cost }} /><span><Clock3 className="size-3" /> {r.duration} sn</span><Button size="sm" variant={done ? 'secondary' : 'default'} disabled={!!reason} onClick={() => onResearch(id)}>{done ? 'Keşfedildi' : game.study?.id === id ? 'Sürüyor' : 'Araştır'}</Button></div>{reason && !done && <p className="fine-print">{reason}</p>}</article>
+    {game.study && <JobProgress job={game.study} now={game.updatedAt} />}
+    <div className="world-tabs rs-tabs" role="group" aria-label="Araştırma dalları">
+      {RESEARCH_BRANCHES.map(b => {
+        const all = RESEARCH_IDS.filter(id => RESEARCH[id].branch === b.key)
+        return <button type="button" key={b.key} aria-pressed={branch === b.key} onClick={() => { setBranch(b.key); setPicked(null) }}>
+          <span>{b.title}</span><small className="rs-count">{all.filter(id => game.research.includes(id)).length}/{all.length}</small></button>
       })}
-    </section>
-  })}</div>
+    </div>
+    <article className={`rs-detail is-${state}`}>
+      <div className="rs-detail-top"><ResearchEmblem id={sel} size={72} state={state} />
+        <span><span className="eyebrow">{RESEARCH_BRANCHES.find(b => b.key === branch)!.title.toLocaleUpperCase('tr')} · {ids.indexOf(sel) + 1}. ARAŞTIRMA</span><h3>{r.name}</h3></span></div>
+      <p className="rs-effect"><b>Etkisi:</b> {r.description}</p>
+      <ul className="rs-needs">
+        {r.needs && <li className={game.research.includes(r.needs) ? 'is-ok' : 'is-no'}>{game.research.includes(r.needs) ? <Check className="size-3" /> : <LockKeyhole className="size-3" />}{RESEARCH[r.needs].name}</li>}
+        <li className={game.buildings.medrese >= r.required ? 'is-ok' : 'is-no'}>{game.buildings.medrese >= r.required ? <Check className="size-3" /> : <LockKeyhole className="size-3" />}Medrese {r.required}. seviye</li>
+      </ul>
+      <div className="rs-cost">
+        <span className={short > 0 && state !== 'done' ? 'is-short' : undefined}><IlimArt className="rs-lamp" />{r.cost.toLocaleString('tr-TR')} ilim</span>
+        <span><Clock3 className="size-4" />{r.duration} sn</span>
+        {state !== 'done' && short > 0 && <span className="rs-when">{rate > 0 ? `Yeterli ilim ~${clockMin(short / rate)} sonra` : 'İlim üretimi yok: Medrese\'ye âlim ata'}</span>}
+      </div>
+      {state === 'done' ? <p className="report-win"><Check className="size-4" /> Keşfedildi</p>
+        : <Button disabled={!!reason} onClick={() => onResearch(sel)}><BookOpen data-icon="inline-start" />{state === 'active' ? 'Sürüyor' : 'Araştır'}</Button>}
+      {reason && state !== 'done' && state !== 'active' && <p className="fine-print">{reason}</p>}
+    </article>
+    <ol className="rs-list">{ids.map((id, i) => {
+      const st = researchState(game, id)
+      return <li key={id}><button type="button" aria-pressed={id === sel} className={`is-${st}`} onClick={() => setPicked(id)}>
+        <span className="rs-num">{i + 1}.</span><span className="rs-name">{RESEARCH[id].name}</span><IlimArt className={`rs-bulb is-${st}`} aria-label={st === 'done' ? 'tamam' : st === 'locked' ? 'kilitli' : st === 'active' ? 'sürüyor' : 'açık'} />
+      </button></li>
+    })}</ol>
+  </div>
 }
 export function JournalPanel({ game }: { game: Game }) {
   return <div className="journal-panel"><span className="eyebrow">ŞEHRİNİN HİKÂYESİ</span>{game.log.map((entry, index) => <div className="journal-entry" key={`${entry.time}-${index}`}><span className="journal-dot" /><div><p>{entry.text}</p><time>{new Date(entry.time).toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })} · {new Date(entry.time).toLocaleDateString('tr-TR', { day: 'numeric', month: 'short' })}</time></div></div>)}<Hint>Tek oyunculu prototip. Buradaki tüm gelişmeler kendi şehrine aittir; gerçek oyuncu etkinliği gösterilmez.</Hint></div>
@@ -293,7 +323,15 @@ const ROLE_ORDER: UnitRole[] = ['front', 'flank', 'range', 'artillery', 'bomber'
 const ROLE_NAMES: Record<UnitRole, string> = { front: 'ön cephe', flank: 'kanat', range: 'uzak menzil', artillery: 'kuşatma', bomber: 'hava', fighter: 'hava savunması', support: 'destek', spy: 'casus', transport: 'nakliye' }
 
 /** Bir emirde eğitilebilecek parti büyüklükleri. */
-const BATCHES = [1, 5, 10]
+/** Şu an eğitilebilecek en fazla adet (kaynak, halk, garnizon, lüks): ikili arama. */
+function maxRecruit(game: Game, id: UnitId) {
+  if (recruitReason(game, id, 1)) return 0
+  let lo = 1, hi = 1
+  while (hi < 5000 && !recruitReason(game, id, hi * 2)) hi *= 2
+  hi = Math.min(5000, hi * 2)
+  while (lo < hi) { const mid = Math.ceil((lo + hi) / 2); if (recruitReason(game, id, mid)) hi = mid - 1; else lo = mid }
+  return lo
+}
 
 /**
  * ORDU danismani.
@@ -303,7 +341,7 @@ const BATCHES = [1, 5, 10]
  * bosta oldugunu gormezse, uretiminin nicin dustugunu anlamaz.
  */
 export function ArmyPanel({ game, onRecruit, onBuild, home }: { game: Game; onRecruit: (id: UnitId, count: number) => void; onBuild: (id: BuildingId) => void; home?: BuildingId }) {
-  const [batch, setBatch] = useState(1)
+  const [counts, setCounts] = useState<Partial<Record<UnitId, number>>>({})
   const land = power(game, 'kara')
   const sea = power(game, 'deniz')
   const branches: { key: 'kara' | 'deniz'; title: string; home: BuildingId }[] = [
@@ -322,7 +360,6 @@ export function ArmyPanel({ game, onRecruit, onBuild, home }: { game: Game; onRe
     <p className="army-note"><TriangleAlert className="size-4" />Asker halktan çıkar. Eğitilen her vatandaş üretimden düşer; surlar ise asker istemez, taş ister ({wallDefense(game)} savunma).</p>
     <BattlefieldCard game={game} />
     <DrillQueue game={game} home={home} />
-    <div className="batch-row"><span>Parti</span>{BATCHES.map(n => <Button key={n} size="sm" variant={batch === n ? 'default' : 'outline'} onClick={() => setBatch(n)}>{n}</Button>)}</div>
     {branches.map(branch => {
       const units = UNIT_IDS.filter(id => UNITS[id].branch === branch.key && (!home || UNITS[id].home === home)).sort((a, b) => ROLE_ORDER.indexOf(UNITS[a].role) - ROLE_ORDER.indexOf(UNITS[b].role))
       if (!units.length) return null
@@ -332,6 +369,9 @@ export function ArmyPanel({ game, onRecruit, onBuild, home }: { game: Game; onRe
         {!ready && <button className="army-locked" onClick={() => onBuild(branch.home)}><LockKeyhole className="size-4" /><span><strong>{BUILDINGS[branch.home].name} gerekli</strong><small>{BUILDINGS[branch.home].description}</small></span><ChevronRight className="size-4" /></button>}
         {units.map(id => {
           const unit = UNITS[id]
+          const max = maxRecruit(game, id)
+          const batch = Math.max(1, Math.min(counts[id] ?? 1, Math.max(1, max)))
+          const set = (n: number) => setCounts(c => ({ ...c, [id]: Math.max(1, Math.min(Math.max(1, max), Math.round(n) || 1)) }))
           const reason = recruitReason(game, id, batch)
           return <article className="unit-card" key={id}>
             <div className="unit-top">
@@ -356,6 +396,13 @@ export function ArmyPanel({ game, onRecruit, onBuild, home }: { game: Game; onRe
               <span title="Bakım gideri (akçe/dk)"><AkceArt className="size-3" />{unit.upkeep}/dk</span>
               {unit.cargo > 0 && <span title="Taşıma"><Warehouse className="size-3" />{unit.cargo}</span>}
             </div>
+            {max > 1 && <div className="unit-slider">
+              <button type="button" aria-label="Bir" onClick={() => set(1)}><ChevronsLeft /></button>
+              <input type="range" min={1} max={max} value={batch} aria-label={`${unit.name} sayısı`} style={{ ['--fill' as string]: `${((batch - 1) / Math.max(1, max - 1)) * 100}%` }} onChange={e => set(Number(e.target.value))} />
+              <button type="button" aria-label="En fazla" onClick={() => set(max)}><ChevronsRight /></button>
+              <input type="number" inputMode="numeric" min={1} max={max} value={batch} aria-label={`${unit.name} adedi`} onChange={e => set(Number(e.target.value))} />
+              <small>en fazla {max}</small>
+            </div>}
             <div className="unit-bottom">
               <CostDisplay value={unitCost(id, batch, game)} lux={unitLuxuryCost(id, batch, game)} />
               <span><Clock3 className="size-3" /> {unitDuration(game, id, batch)} sn</span>

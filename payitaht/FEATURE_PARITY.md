@@ -2,7 +2,7 @@
 
 Ikariam'ın oyun sistemleri Payitaht evrenine (Osmanlı-Akdeniz) uyarlanır. Ikariam'ın
 görselleri, metinleri ve birebir sayıları kopyalanmaz; sistemler ve oyun döngüsü
-eşlenir. Durum: ✅ var · 🟡 kısmen · ❌ yok. (Güncelleme: 2026-09-26, sürüm 0.22.0)
+eşlenir. Durum: ✅ var · 🟡 kısmen · ❌ yok. (Güncelleme: 2026-09-26, sürüm 0.23.0)
 
 ## Kaynaklar ve ekonomi
 
@@ -22,6 +22,9 @@ eşlenir. Durum: ✅ var · 🟡 kısmen · ❌ yok. (Güncelleme: 2026-09-26, s
 | Meyhane ikram seviyesi | Kahvehane ikram ayarı | ✅ |
 | Bina yıkma, şehir adı | Bina resmindeki Yık düğmesi: bir seviye ya da tamamen yıkım; şehir adını değiştirme | ✅ |
 | Koloniyi terk etme, başkenti taşıma | Şehri terk et (gemiler filoda kalır); Sarayı başka şehre taşı (günde bir) | ✅ |
+| Belediye özeti ve şehir nişanı | Divanhane üstünde boş konut, garnizonlar, hamle, büyüme, net akçe, yolsuzluk, halkın yüzü; meslek şeridi; Divanhane seviyesiyle açılan 8 şehir nişanı (adada görünür) | ✅ |
+| Kışla eğitim kaydırıcısı | Birlik başına kaydırıcı, adet kutusu ve en fazla düğmesi | ✅ |
+| Maliyet azaltan binaların dökümü | Marangozhane, Mimarbaşı, Şıra Mahzeni, Gözlükçü, Barut Deneme Alanı: temel → araştırma → lonca → bina yüzde çubukları | ✅ |
 | Genel bakış (bütün şehirler) | İmparatorluk özeti: kaynak/üretim, bina ve ordu tabloları | ✅ |
 | Rapor arşivi | Rapor silme, arşivleme (10 rapor), arşivlenmemişleri temizleme | ✅ |
 | Günlük görevler, giriş ödülü | 3 günlük görev + 7 günlük giriş serisi | ✅ |
@@ -49,6 +52,7 @@ eşlenir. Durum: ✅ var · 🟡 kısmen · ❌ yok. (Güncelleme: 2026-09-26, s
 | Ormancı / Taş ustası / Bağcı / Simyacı / Camcı | Ormancı Evi / Taşçı Ustası / Bağcı Evi / Simyahane / Camcı | ✅ |
 | Marangoz / Mimar / Şaraphane / Optikçi / Havai fişek alanı | Marangozhane / Mimarbaşı / Şıra Mahzeni / Gözlükçü / Barut Deneme Alanı | ✅ |
 | Tapınak (rahipler, mucizeler) | Cami: rahipler inanç toplar, adanın harikasının mucizesi çağrılır | ✅ |
+| Tiyatro (gösteriler) | Karagöz Perdesi: gölge oyunu; Dram (+%10 kereste/taş), Komedi (+%10 lüks), Kültür (huzur), Tanrısal (lütuf) 12 saat, perde dinlenir | ✅ Osmanlı karşılığı |
 | Tanrılar (lütuf, kudret) | Ongun Mabedi: sekiz kadim Türk tanrısı (Tengri, Umay, Ülgen, Kayra, Erlik, Kızagan, Su İyesi, Yel Ana); lütuf, sunu, hami tanrı, kudret | ✅ |
 | (ek) Esnaf loncaları | Ahi Tekkesi: himmet, altı lonca, derece ve himaye | ✅ Osmanlı eki |
 | Deniz Haritası Arşivi | Harita Arşivi | ✅ |
@@ -97,7 +101,8 @@ eşlenir. Durum: ✅ var · 🟡 kısmen · ❌ yok. (Güncelleme: 2026-09-26, s
 
 | Ikariam | Payitaht | Durum |
 |---|---|---|
-| 4 dal (Denizcilik, Ekonomi, Bilim, Askerî) | 4 dal | ✅ |
+| 5 dal (Denizcilik, Ekonomi, Bilim, Askerî, Mitoloji) | 5 dal; Mitoloji: Ongun Töresi, Balbal Taşları, Destanlar, Kam Ayinleri, Töre, Gök Kutu | ✅ |
+| Araştırma danışmanı düzeni | Numaralı liste, kandil işaretleri, ayrıntı (etki, gerekenler, masraf, ne zaman yeteceği), âlim/ilim/saatlik özet | ✅ |
 | Binaları/birlikleri açan araştırmalar | Bağcılık, Simya, Cam Ustalığı, Optik, Tıp, Askerî Mühendislik, Kuşatma, Rum Ateşi, Deniz Topçuluğu, Barut, Ticaret, Haritacılık… | ✅ |
 | Makara, Geometri, Su terazisi | Makara Düzeni, Hendese, Su Terazisi | ✅ |
 | Tam araştırma ağacı | 70 araştırma (her dalda ~17) | ✅ |
@@ -116,6 +121,7 @@ eşlenir. Durum: ✅ var · 🟡 kısmen · ❌ yok. (Güncelleme: 2026-09-26, s
 | Sıralama | Genel, inşaatçı, askerî, saldırı, savunma, bilim, hazine, ticaret (sen + 14 yapay rakip) | ✅ yapay rakiplerle |
 | Öğretici görevler | 18 adımlık başlangıç eğitimi + günlük görevler | ✅ |
 | Bildirimler | Oyun açıkken baskın, savaş ve inşaat bildirimi | 🟡 kapalıyken bildirim sunucu ister |
+| Ticaret Merkezi sekmeleri | Mal ticareti (al/sat, mal ve menzil süzgeci), asker ticareti (paralı asker), ticaret anlaşmaları, kendi tekliflerin | ✅ yapay rakiplerle |
 | Ticaret karakolu (oyuncu pazarı) | Saatlik hükümdar teklifleri + Ticaret Merkezi'nde kendi satış tekliflerin | ✅ yapay rakiplerle |
 | Diplomasi (kültür anlaşması vb.) | Kültür, ticaret, barış anlaşmaları; hediye; ilişki puanı | ✅ yapay rakiplerle |
 | İttifak | Doğu / Batı Birliği: üyelik, baskında yardım | ✅ yapay rakiplerle |

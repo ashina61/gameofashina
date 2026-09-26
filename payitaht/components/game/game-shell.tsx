@@ -12,9 +12,9 @@ import { ObjectiveCard, EconomyDetails } from './game-widgets'
 import { IslandView, NpcPanel } from './island-view'
 import { EmpireOverview } from './overview'
 import { BuildingPage, IkaPage } from './building-page'
-import { CityAdmin, DailyPanel, DeployPanel, ExperimentPanel, ForestPanel, MissionList, TavernPanel, WorldPanel, type Op } from './world-panels'
+import { CityAdmin, DailyPanel, DeployPanel, TradeCenter, ExperimentPanel, ForestPanel, MissionList, TavernPanel, WorldPanel, type Op } from './world-panels'
 import { dispatchBlockade, dispatchRaid, targetName } from '@/lib/game/expeditions'
-import { DefenseSummary, ExchangePanel, ForeignSpies, SiegePanel, FuturePanel, GuildPanel, PiracyPanel, TemplePanel, ThreatBanner, UpgradePanel } from './ikariam-panels'
+import { DefenseSummary, ExchangePanel, ForeignSpies, SiegePanel, FuturePanel, GuildPanel, PiracyPanel, TemplePanel, TheatrePanel, ThreatBanner, UpgradePanel } from './ikariam-panels'
 import { IkaNav, IkaTopBar, AdvisorSpeech, advisorNews, type AdvisorSeen, type IkaNavKey } from './ika-hud'
 import { ArmyAdvisor, CityAdvisor, diploAdvice, researchAdvice } from './advisor-pages'
 import type { AdvisorId } from './advisor-portraits'
@@ -94,6 +94,9 @@ export default function GameShell() {
     const quick: Partial<Record<Command['type'], string>> = {
       wonder: 'Kereste harikaya ulaştı.', miracle: 'Mucize başladı!', upgrade: 'Tophane ustaları işini bitirdi.',
       future: 'Gelecek araştırması ilerledi.', exchange: 'Kara Pazar\'da takas yapıldı.',
+      show: 'Perde açıldı: gösteri başladı!', demolish: 'Yapı yıkıldı.', god: 'Hami tanrı seçildi.', offering: 'Sunu kabul edildi.',
+      invoke: 'Tanrının kudreti çağrıldı!', devote: 'Himmet loncaya adandı.', patron: 'Lonca himayesi değişti.', foresters: 'Oduncular ormanda.',
+      tavern: 'İkram ayarlandı.', government: 'Yeni yönetim ilan edildi.', experiment: 'Deney yapıldı.',
     }
     if (quick[action.type]) { toast.success(quick[action.type]); return }
     if (action.type === 'donate') { toast.success('Bağış madene ulaştı.'); return }
@@ -174,7 +177,7 @@ export default function GameShell() {
     {game && selected && <BuildingPage game={game} empire={empire} id={selected} onClose={() => setSelected(null)}
       onBuild={() => act({ type: 'build', id: selected })} onFlip={() => act({ type: 'flip', id: selected })} onMove={() => startMove(selected)}
       onCommand={act} run={runOp} onRecruit={(id, count) => act({ type: 'recruit', id, count })} onBuildingNav={openBuilding}
-      onNav={p => { setSelected(null); if (p === 'island') { setView('island'); setPanel('island') } else openPanel(p) }}>{selected === 'divan' && empire && <CityAdmin empire={empire} game={game} now={game.updatedAt} onCommand={act} run={runOp} />}{selected === 'kahvehane' && <TavernPanel game={game} onCommand={act} />}{selected === 'medrese' && <ExperimentPanel game={game} onCommand={act} />}{(selected === 'siginak' || selected === 'elcilik') && empire && <ForeignSpies empire={empire} game={game} now={game.updatedAt} run={runOp} />}{selected === 'tekke' && <GuildPanel game={game} now={game.updatedAt} onCommand={act} />}{selected === 'mabet' && <GodsPanel game={game} now={game.updatedAt} onCommand={act} />}{selected === 'cami' && <TemplePanel game={game} now={game.updatedAt} onCommand={act} />}{selected === 'tophane' && <UpgradePanel game={game} onCommand={act} />}{selected === 'kara_pazar' && <ExchangePanel game={game} onCommand={act} />}{selected === 'korsan_kalesi' && empire && <PiracyPanel empire={empire} now={game.updatedAt} onPiracy={(id, units) => { const e = piracy(id, units); if (e) toast.error(e); else toast.success('Filo denize açıldı.') }} />}</BuildingPage>}
+      onNav={p => { setSelected(null); if (p === 'island') { setView('island'); setPanel('island') } else openPanel(p) }}>{selected === 'divan' && empire && <CityAdmin empire={empire} game={game} now={game.updatedAt} onCommand={act} run={runOp} />}{selected === 'kahvehane' && <TavernPanel game={game} onCommand={act} />}{selected === 'medrese' && <ExperimentPanel game={game} onCommand={act} />}{(selected === 'siginak' || selected === 'elcilik') && empire && <ForeignSpies empire={empire} game={game} now={game.updatedAt} run={runOp} />}{selected === 'ticaret_merkezi' && empire && <TradeCenter empire={empire} now={game.updatedAt} run={runOp} onRival={openRival} />}{selected === 'karagoz' && <TheatrePanel game={game} now={game.updatedAt} onCommand={act} />}{selected === 'tekke' && <GuildPanel game={game} now={game.updatedAt} onCommand={act} />}{selected === 'mabet' && <GodsPanel game={game} now={game.updatedAt} onCommand={act} />}{selected === 'cami' && <TemplePanel game={game} now={game.updatedAt} onCommand={act} />}{selected === 'tophane' && <UpgradePanel game={game} onCommand={act} />}{selected === 'kara_pazar' && <ExchangePanel game={game} onCommand={act} />}{selected === 'korsan_kalesi' && empire && <PiracyPanel empire={empire} now={game.updatedAt} onPiracy={(id, units) => { const e = piracy(id, units); if (e) toast.error(e); else toast.success('Filo denize açıldı.') }} />}</BuildingPage>}
     {(panel || plot !== null || npc) && <IkaPage onClose={() => { setPanel(null); setPlot(null); setNpc(null) }}
       title={npc ? targetName(npc) : plot !== null ? (PLOTS[plot]?.zone === 'liman' ? 'Deniz arsası' : 'Boş arsa') : panel ? titles[panel] : 'Şehrin'}
       subtitle={npc ? (npc.startsWith('r-') ? 'Yapay rakip hükümdar' : 'Bağımsız yerleşim') : plot !== null ? 'Bu arsaya hangi yapıyı kuracaksın?' : panel === 'build' ? 'Her yapı, yeni bir başlangıç.' : panel === 'research' ? 'İlim, şehrinin en değerli hazinesidir.' : panel === 'people' ? 'Emeği nereye ayıracağına sen karar ver.' : panel === 'army' ? 'Asker halktan çıkar. Bedelini bilerek öde.' : panel === 'cities' ? 'Hükmünün altındaki her şehir.' : panel === 'map' ? 'Adalar, rakipler ve deniz yolları' : panel === 'overview' ? 'Bütün şehirler tek tabloda' : panel === 'diplomacy' ? 'Yapay rakipler: sıralama, anlaşmalar, pazar, mektuplar' : panel === 'island' ? 'Adanın madeni, ormanı, harikası ve tüccarı' : currentCityName}

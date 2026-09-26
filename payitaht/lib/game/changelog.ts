@@ -6,6 +6,18 @@ export type Release = { version: string; date: string; title: string; notes: str
 
 export const CHANGELOG: Release[] = [
   {
+    version: '0.23.0', date: '26 Eylül 2026', title: 'Karagöz Perdesi ve Ikariam ekranları',
+    notes: [
+      'Karagöz Perdesi: Ikariam\'daki tiyatronun karşılığı gölge oyunu. Dram kereste ve taşı, Komedi lüks malı %10 artırır; Kültür gösterisi huzur, Tanrısal gösterim lütuf verir. Işıklı perdesi, sedirleri ve kandil dizileriyle yeni bina.',
+      'Beşinci araştırma dalı Mitoloji: Ongun Töresi, Balbal Taşları, Destanlar, Kam Ayinleri, Töre ve Gök Kutu; Mitolojinin Geleceği lütfü hızlandırır.',
+      'Araştırma danışmanı Ikariam düzeninde: numaralı liste ve kandil işaretleri, seçili araştırmanın etkisi, gerekenleri, masrafı ve ilmin ne zaman yeteceği.',
+      'Kışla ve Tersane\'de her birlik için kaydırıcı, adet kutusu ve en fazla düğmesi.',
+      'Divanhane özeti: boş konut, garnizon sınırları, hamle puanı, büyüme, net akçe, yolsuzluk ve halkın yüzü; meslek şeridi; adada dalgalanan şehir nişanı.',
+      'Ticaret Merkezi sekmeleri: ucuz mal tarayıcısı (al/sat, mal, menzil), paralı asker ticareti, ticaret anlaşmaları ve kendi tekliflerin.',
+      'Marangozhane, Mimarbaşı, Şıra Mahzeni, Gözlükçü ve Barut Deneme Alanı\'nda maliyet dökümü çubukları.',
+    ],
+  },
+  {
     version: '0.22.0', date: '26 Eylül 2026', title: 'Savaş ilanı, kuşatma ve ortak filo',
     notes: [
       'Düşman ya da savaşçı hükümdarlar artık kendiliğinden savaş ilan eder: iki saat önceden mektup gelir; şehri yağmalamaya, işgal etmeye ya da limanı abluka etmeye gelirler.',

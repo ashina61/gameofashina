@@ -10,7 +10,7 @@ import { Clock3, Flame, Sparkles } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Hint } from './hint'
 import { LUXURY_IDS, LUXURY_NAMES, type Command, type Game } from '@/lib/game/engine'
-import { GODS, GOD_IDS, OFFER_RATE, PATRON_CHANGE_MS, blessing, godBuff, lutufCap, lutufRate, type GodId } from '@/lib/game/gods'
+import { GODS, GOD_IDS, OFFER_RATE, blessing, patronChangeMs, godBuff, lutufCap, lutufRate, type GodId } from '@/lib/game/gods'
 
 const num = (n: number) => Math.floor(n).toLocaleString('tr-TR')
 const clock = (ms: number) => { const s = Math.max(0, Math.ceil(ms / 1000)), h = Math.floor(s / 3600); return h ? `${h} sa ${Math.floor(s / 60) % 60} dk` : `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}` }
@@ -53,7 +53,7 @@ export function GodsPanel({ game, now, onCommand }: { game: Game; now: number; o
   const [amount, setAmount] = useState(1000)
   const rate = (LUXURY_IDS as readonly string[]).includes(good) ? OFFER_RATE.luxury : OFFER_RATE[good as 'gold' | 'wood' | 'stone']
   const have = (LUXURY_IDS as readonly string[]).includes(good) ? game.luxury[good as (typeof LUXURY_IDS)[number]] : game.resources[good as 'gold' | 'wood' | 'stone']
-  const changeWait = t.patron ? t.changedAt + PATRON_CHANGE_MS - now : 0
+  const changeWait = t.patron ? t.changedAt + patronChangeMs(game) - now : 0
   const patron = t.patron
   return <section className="empire-section gods-panel">
     <h3><Sparkles className="size-4" /> Kadim tanrılar</h3>

@@ -632,6 +632,50 @@ def tersane(s, st):
         s.flag(1.1, 0.15, 0.9, 0.55)
 
 
+def karagoz(s, st):
+    """KARAGÖZ PERDESİ: kahve ocağının önünde ışıklı gölge oyunu perdesi,
+    ahşap sahne kulübesi, seyirci sedirleri, fenerler; büyüdükçe çizgili
+    gölgelik ve kubbeli kahvehane."""
+    ground(s, 0.08, 0.08, 1.92, 1.92, hexc('#cdb484'))
+    pave(s, 0.25, 0.9, 1.85, 1.85, n=6)
+    # Sahne kulübesi: arkası kapalı ahşap oda, önünde (+y) perde.
+    s.box(0.25, 0.3, 0, 1.2, 0.85, 0.62, PAL['wood'], 'wood', deco_y=[('karagoz',)],
+          deco_x=[('planks', 5), ('archdoor', 0.5, 0.0, 0.14, 0.26)])
+    s.box(0.2, 0.25, 0.62, 1.25, 0.9, 0.68, PAL['wood2'], 'wood')
+    s.hip(0.2, 0.25, 1.25, 0.9, 0.68, 0.22, PAL['roof'])
+    # Perdenin iki yanında sarkan kırmızı perde kanatları.
+    for x in (0.22, 1.18):
+        s.box(x, 0.85, 0.06, x + 0.05, 0.9, 0.62, PAL['red'], 'canvas')
+    # Seyirci sedirleri.
+    for row in range(1 + (st >= 2)):
+        y = 1.2 + row * 0.3
+        s.box(0.35, y, 0, 1.1, y + 0.12, 0.12, PAL['wood2'], 'wood', deco_top=[('planks', 3)])
+    # Fenerler.
+    for x in (0.18, 1.3):
+        s.cylinder(x, 0.95, 0, 0.55, 0.015, PAL['wooddark'], 'flat', n=6)
+        s.sphere(x, 0.95, 0.6, 0.045, hexc('#f5c85a'))
+    if st >= 2:
+        # Seyircinin üstünde kandil dizisi (perdeyi örtmez).
+        for (x0, y0, x1, y1) in ((0.18, 0.95, 0.3, 1.85), (1.3, 0.95, 1.2, 1.85)):
+            s.cylinder(x1, y1, 0, 0.55, 0.015, PAL['wooddark'], 'flat', n=6)
+        cols = [PAL['red'], hexc('#f5c85a'), hexc('#2f7a92'), PAL['green']]
+        for i in range(7):
+            t = (i + 1) / 8
+            for (x0, y0, x1, y1) in ((0.18, 0.95, 0.3, 1.85), (1.3, 0.95, 1.2, 1.85)):
+                s.sphere(x0 + (x1 - x0) * t, y0 + (y1 - y0) * t, 0.55 - 0.08 * math.sin(t * math.pi), 0.022, cols[i % 4])
+        # Kahve ocağının önünde çizgili tente.
+        awning(s, 1.35, 1.75, 1.55, 0.34, 0.22, PAL['red'])
+        s.box(1.35, 1.2, 0, 1.75, 1.55, 0.36, PAL['plaster'], 'plaster', deco_y=[('arch', 0.5, 0.05, 0.14, 0.2)], deco_x=[('win', 0.5, 0.12, 0.1, 0.14, 'shutter')])
+        s.hip(1.35, 1.2, 1.75, 1.55, 0.36, 0.14, PAL['roof2'])
+        s.cylinder(1.55, 1.38, 0.5, 0.62, 0.02, hexc('#7a7a7a'), 'flat', n=6)  # ocak bacası
+    if st >= 3:
+        domed(s, 0.72, 0.57, 0.9, 0.16)
+        s.flag(1.25, 0.3, 0.9, 0.55)
+        for i in range(4):
+            s.barrel(1.4 + (i % 2) * 0.14, 1.7 + (i // 2) * 0.1, 0.035)
+    s.tree(1.75, 0.35, 0.8, kind='cypress')
+
+
 # ---------------------------------------------------------------- YENİ BİNALAR
 def cami(s, st):
     """AYASOFYA: pembe-aşı boyalı gövde, köşe payandaları, pencereli kasnak
@@ -1652,7 +1696,7 @@ BUILDINGS = {
     'bagci': bagci, 'simyahane': simyahane, 'camci': camci, 'mahzen': mahzen, 'gozlukcu': gozlukcu,
     'barutane': barutane, 'depo': depo, 'ticaret_merkezi': ticaret_merkezi, 'harita_arsivi': harita_arsivi,
     'valilik': valilik, 'korsan_kalesi': korsan_kalesi, 'kara_pazar': kara_pazar,
-    'siginak': siginak, 'tekke': tekke, 'mabet': mabet,
+    'siginak': siginak, 'tekke': tekke, 'mabet': mabet, 'karagoz': karagoz,
 }
 # Aşamasız yardımcı katmanlar: (fonksiyon, gölge var mı)
 EXTRAS = {'site': (site, True), 'scaffold': (scaffold, False),

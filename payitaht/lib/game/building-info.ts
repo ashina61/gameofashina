@@ -11,6 +11,7 @@ import {
 } from './engine'
 import { himmetCap, himmetRate, patronSlots } from './guilds'
 import { lutufCap, lutufRate } from './gods'
+import { showContentment, showCooldownMs, showFavor } from './theatre'
 
 export type EffectLine = { label: string; value: string }
 
@@ -120,6 +121,12 @@ export function effectLines(game: Game, id: BuildingId, level: number): EffectLi
     case 'mabet': return [
       { label: 'Lütuf', value: `+${(lutufRate(g)).toFixed(1)}/dk · en fazla ${num(lutufCap(g))}` },
       { label: 'Hami tanrının lütfü', value: `${Math.min(20, level)}. derece` },
+    ]
+    case 'karagoz': return [
+      { label: 'Gösteri süresi', value: '12 saat' },
+      { label: 'Perdenin dinlenmesi', value: `${showCooldownMs(level) / 3600_000} saat` },
+      { label: 'Kültür gösterisi huzuru', value: `+${showContentment(level)}` },
+      { label: 'Tanrısal gösterim lütfu', value: `+${showFavor(level)}` },
     ]
     case 'siginak': return [
       { label: 'Casus yeri', value: `+${level * E.siginakSpies}` },

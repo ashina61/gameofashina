@@ -11,10 +11,11 @@
  * mesajlaşır. Hepsi deterministiktir: aynı kayıt aynı dünyayı üretir.
  */
 import {
-  BUILDING_IDS, LUXURY_IDS, UNITS, UNIT_IDS, capacity, cargoCapacity, counterSpy, logEvent, travelFactor,
+  BUILDING_IDS, LUXURY_IDS, UNITS, UNIT_IDS, capacity, counterSpy, garrisonLimit, garrisonUsed, idleWorkers, logEvent, travelFactor,
   type Army, type Game, type Good, type UnitId,
 } from './engine'
 import { troopList, type Troops } from './battle'
+import { idleMerchants, shipCargo } from './expeditions'
 import { activeCity, advanceEmpire, type CityRecord, type Empire } from './empire'
 import { ISLANDS, type IslandId } from './islands'
 
@@ -469,6 +470,54 @@ const addGood = (g: Game, good: Good, n: number) => {
   else g.resources[good as keyof Game['resources']] += n
 }
 const stockOf = (g: Game, good: Good) => (LUXURY_IDS as readonly string[]).includes(good) ? g.luxury[good as keyof Game['luxury']] : g.resources[good as keyof Game['resources']]
+/* ------------------------------------------------------- ASKER TİCARETİ */
+
+/** Paralı asker teklifi: savaşçı ve denizci hükümdarlar saat başı birlik satar. */
+export type MercOffer = { id: string; rivalId: string; unit: UnitId; count: number; price: number }
+const MERC_POOL: Record<RivalStyle, UnitId[]> = {
+  savasci: ['yeniceri', 'sipahi', 'okcu', 'azap', 'topcu'], denizci: ['kadirga', 'kalyon', 'ates_gemisi'],
+  tuccar: ['mizrakci', 'sapanci'], alim: ['hekim', 'okcu'],
+}
+export function mercenaryOffers(empire: Empire, now: number): MercOffer[] {
+  const slot = Math.floor(now / HOUR)
+  const out: MercOffer[] = []
+  for (const r of RIVALS) {
+    if (blockaded(empire, r.id) || peek(empire, r.id).relation < -20) continue
+    const n = r.style === 'savasci' || r.style === 'denizci' ? 1 : roll(`merc-${r.id}-${slot}`) < 0.35 ? 1 : 0
+    for (let i = 0; i < n; i++) {
+      const key = `m-${r.id}-${slot}-${i}`
+      const pool = MERC_POOL[r.style]
+      const unit = pool[Math.floor(roll(`${key}-u`) * pool.length)]
+      const L = rivalLevel(empire, r, now)
+      const naval = UNITS[unit].branch === 'deniz'
+      const count = Math.max(1, Math.round((naval ? 1 + L / 3 : 4 + L * 1.5) * (0.6 + roll(`${key}-c`) * 0.8)))
+      const c = UNITS[unit].cost
+      const price = Math.round((c.gold + c.wood * 2 + c.stone * 3) * (1.5 + roll(`${key}-p`) * 0.5) * (peek(empire, r.id).treaties.includes('ticaret') ? 0.9 : 1))
+      out.push({ id: key, rivalId: r.id, unit, count, price })
+    }
+  }
+  return out.filter(o => !(empire.world?.traded ?? []).includes(o.id))
+}
+/** Paralı askerleri satın al: halktan yer, garnizonda yer ve akçe ister; birlikler hemen katılır. */
+export function buyMercenaries(source: Empire, offerId: string, now: number): { empire: Empire; error?: string } {
+  const empire = advanceEmpire(source, now)
+  const o = mercenaryOffers(empire, now).find(x => x.id === offerId)
+  if (!o) return { empire, error: 'Bu teklif artık geçerli değil.' }
+  const city = activeCity(empire), g = city.game, u = UNITS[o.unit], r = rivalById(o.rivalId)!
+  const total = o.price * o.count, pop = u.pop * o.count
+  if (u.branch === 'deniz' && g.buildings.tersane < 1) return { empire, error: 'Gemileri demirlemek için Tersane gerekli.' }
+  if (garrisonUsed(g, u.branch) + pop > garrisonLimit(g, u.branch)) return { empire, error: `Garnizonda yer yok (${garrisonUsed(g, u.branch)}/${garrisonLimit(g, u.branch)}).` }
+  if (idleWorkers(g) < pop) return { empire, error: `${pop} boşta vatandaş gerekli (paralı askerler şehirde barınır).` }
+  if (g.resources.gold < total) return { empire, error: `${total} akçe gerekli.` }
+  g.resources.gold -= total
+  g.army[o.unit] += o.count
+  const w = world(empire)
+  w.traded = [...w.traded.filter(id => Number(id.split('-').at(-2)) >= Math.floor(now / HOUR) - 1), o.id]
+  relate(empire, r.id, 1)
+  logEvent(g, `${r.city} (${r.ruler}) ${o.count} ${u.name} gönderdi; ${total} akçe ödendi.`, now)
+  return { empire }
+}
+
 export function seaMinutes(a: IslandId, b: IslandId) {
   const A = ISLANDS.find(i => i.id === a)!, B = ISLANDS.find(i => i.id === b)!
   return 2 + Math.hypot(A.x - B.x, A.y - B.y) / 3
@@ -490,7 +539,8 @@ export function acceptOffer(source: Empire, offerId: string, now: number): { emp
     logEvent(g, `${r.city} pazarından ${offer.amount} ${offer.good} alındı; gemileri yolda.`, now)
   } else {
     if (g.buildings.liman < 1) return { empire, error: 'Satış için Ticaret Limanı gerekli.' }
-    if (cargoCapacity(g) < offer.amount) return { empire, error: `Nakliye gemilerin ${cargoCapacity(g)} mal taşır; bu satış ${offer.amount} ister.` }
+    const fleetCap = idleMerchants(empire) * shipCargo(g)
+    if (fleetCap < offer.amount) return { empire, error: `Limandaki boş ticaret gemileri ${fleetCap} mal taşır; bu satış ${offer.amount} ister.` }
     if (stockOf(g, offer.good) < offer.amount) return { empire, error: 'Bu kadar malın yok.' }
     addGood(g, offer.good, -offer.amount)
     w.deliveries = [...w.deliveries, { id: `d-${offer.id}`, cityId: city.id, good: 'gold', amount: total, eta, from: r.city }]

@@ -94,11 +94,11 @@ test('yakalanmayan casus şehirde kalır; Gizli Sığınak kovar', () => {
   assert.match(expelSpies(bare, 'city-1', now + 1000).error!, /Gizli Sığınak/)
 })
 
-test('abluka altındaki limandan nakliye çıkmaz; araştırma casusluğu dört dal verir', () => {
+test('abluka altındaki limandan nakliye çıkmaz; araştırma casusluğu her dalı verir', () => {
   const e = town()
   e.sieges = [{ id: 's1', rivalId: 'r-mavi', cityId: 'city-1', kind: 'blockade', level: 3, since: now, tick: now, troops: { kadirga: 2 } }]
   assert.match(shipResources(e, 'city-1', 'wood', 10, now).error ?? '', /abluka|hedef/)
-  assert.equal(rivalResearch(rival('r-mavi'), 6).length, 4)
+  assert.equal(rivalResearch(rival('r-mavi'), 6).length, 5)
 })
 
 test('arşivlenen rapor kalır, diğerleri silinir', async () => {
@@ -116,4 +116,20 @@ test('arşivlenen rapor kalır, diğerleri silinir', async () => {
   e = clearReports(e, 'city-1', now).empire
   assert.deepEqual(e.reports!.map(r => r.id), ['r2'])
   assert.deepEqual(parseEmpire(JSON.stringify(e)).reports, e.reports)
+})
+
+test('paralı asker: hükümdarlar birlik satar; halk, garnizon ve akçe ister', async () => {
+  const { mercenaryOffers, buyMercenaries } = await import('./rivals')
+  const e = town()
+  const g = e.cities[0].game
+  g.resources.gold = 200_000
+  const offers = mercenaryOffers(e, now)
+  assert.ok(offers.length > 0)
+  const land = offers.find(o => ['yeniceri', 'sipahi', 'okcu', 'azap', 'topcu', 'mizrakci', 'sapanci', 'hekim'].includes(o.unit))!
+  const before = g.army[land.unit]
+  const bought = buyMercenaries(e, land.id, now)
+  assert.equal(bought.error, undefined, bought.error)
+  assert.equal(bought.empire.cities[0].game.army[land.unit], before + land.count)
+  assert.match(buyMercenaries(bought.empire, land.id, now).error!, /geçerli değil/)
+  assert.doesNotThrow(() => parseEmpire(JSON.stringify(bought.empire)))
 })

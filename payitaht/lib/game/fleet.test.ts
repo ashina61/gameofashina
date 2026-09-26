@@ -77,3 +77,12 @@ test('başkent taşınır; koloni terk edilir ve gemileri filoda kalır', async 
   assert.equal(totalMerchants(left.empire), 6)
   assert.doesNotThrow(() => parseEmpire(JSON.stringify(left.empire)))
 })
+
+test('şehir nişanı Divanhane seviyesiyle açılır ve kaydedilir', async () => {
+  const { setCityEmblem } = await import('./empire')
+  const e = harbour()
+  assert.match(setCityEmblem(e, 'city-1', 'tugra', now).error!, /Divanhane 15/)
+  const ok = setCityEmblem(e, 'city-1', 'lale', now)
+  assert.equal(ok.error, undefined)
+  assert.equal(parseEmpire(JSON.stringify(ok.empire)).cities[0].emblem, 'lale')
+})

@@ -16,12 +16,13 @@ import { ArrowLeft, ArrowUp, Clock3, LockKeyhole, FlipHorizontal2, Move, Hammer,
 import { Button } from '@/components/ui/button'
 import { asset, buildingImage } from '@/lib/asset'
 import {
-  BUILDINGS, BUILDING_EFFECTS, LUXURY_IDS, LUXURY_NAMES, MAX_LEVEL, RESEARCH, RESOURCE_IDS, RESOURCE_NAMES, WORKERS_PER_LEVEL,
+  BUILDINGS, BUILDING_EFFECTS, constructionDiscount, LUXURY_IDS, LUXURY_NAMES, MAX_LEVEL, RESEARCH, RESOURCE_IDS, RESOURCE_NAMES, WORKERS_PER_LEVEL,
   actionPoints, activeJob, armyUpkeep, buildReason, capacity, cargoCapacity, contentment, corruption, cost, counterSpy, duration,
   forestProduction, growthRate, housing, idleWorkers, loadingSpeed, luxuryCost, luxuryProduction, maxPopulation, population, rates,
   scientistUpkeepPerMinute, soldiers, spyBonus, spyCapacity, takesPlot, tavernLevel, tradeCapacity, travelFactor, wallDefense,
   wineConsumption, wineServed, workerCapacity, type BuildingId, type Command, type Game, type Luxury, type Resource, type UnitId, type WorkerId,
 } from '@/lib/game/engine'
+import { GUILDS, guildBonus } from '@/lib/game/guilds'
 import { activeCity, type Empire } from '@/lib/game/empire'
 import { cityGuards, cityWallHp, safeStock } from '@/lib/game/expeditions'
 import { culturalTreaties } from '@/lib/game/rivals'
@@ -29,6 +30,7 @@ import { luxuryIcons, resourceIcons, JobProgress } from './game-widgets'
 import { ArmyPanel, BuildingEffects } from './game-panels'
 import { DemolishConfirm, type Run } from './world-panels'
 import { UnitFigure } from './unit-art'
+import { DivanOverview } from './divan-overview'
 import { buyMerchantShip } from '@/lib/game/empire'
 import { idleMerchants, merchantShipPrice, shipCargo, totalMerchants } from '@/lib/game/expeditions'
 import { WorkforceSlider, type Figure } from './workforce'
@@ -122,6 +124,37 @@ function MerchantFleet({ empire, game, run }: { empire: Empire; game: Game; run:
   </Box>
 }
 
+/**
+ * MALİYET DÖKÜMÜ (Ikariam marangoz sayfası): temel maliyetten araştırma,
+ * lonca ve bu yapının indirimleri düşülür; kalan yüzde çubukla gösterilir.
+ */
+function CostBreakdown({ game, id }: { game: Game; id: BuildingId }) {
+  const E = BUILDING_EFFECTS
+  const research = constructionDiscount(game), guild = guildBonus(game, 'dulger') * GUILDS.dulger.per
+  const rows: Record<string, { title: string; icon: ReactNode; parts: [string, number][] }[]> = {
+    marangoz: [{ title: 'Binaların kereste bedeli', icon: <ResIcon id="wood" />, parts: [['Araştırmalar', research], ['Dülgerler loncası', guild], ['Marangozhane', game.buildings.marangoz * E.marangozWood]] }],
+    mimar: [{ title: 'Binaların taş ve mermer bedeli', icon: <ResIcon id="stone" />, parts: [['Araştırmalar', research], ['Dülgerler loncası', guild], ['Mimarbaşı', game.buildings.mimar * E.mimarStone]] }],
+    mahzen: [{ title: 'Kahvehanenin üzüm tüketimi', icon: <ResIcon id="uzum" />, parts: [['Şıra Mahzeni', game.buildings.mahzen * E.mahzenWine]] }],
+    gozlukcu: [{ title: 'Binaların kristal bedeli', icon: <ResIcon id="kristal" />, parts: [['Gözlükçü', game.buildings.gozlukcu * E.gozlukcuCrystal]] }],
+    barutane: [
+      { title: 'Birliklerin kükürt bedeli', icon: <ResIcon id="kukurt" />, parts: [['Barut Deneme Alanı', game.buildings.barutane * E.barutaneSulfur]] },
+      { title: 'Topçu ve humbaracı kükürdü', icon: <ResIcon id="kukurt" />, parts: [['Top Dökümü araştırması', game.research.includes('top_dokum') ? 0.25 : 0], ['Barut Deneme Alanı', game.buildings.barutane * E.barutaneSulfur]] },
+    ],
+  }
+  return <>{(rows[id] ?? []).map(r => {
+    let left = 1
+    return <Box key={r.title} title={<span className="cb-title">{r.icon}{r.title}</span>}>
+      <div className="cost-breakdown">
+        <div className="cb-row"><span>Temel maliyet</span><b>%100</b><i style={{ width: '100%' }} /></div>
+        {r.parts.map(([label, cut]) => { left = Math.max(0.5, left - cut); return <div key={label} className={cut > 0 ? 'cb-row' : 'cb-row is-zero'}>
+          <span>− {label} (%{(cut * 100).toFixed(cut * 100 % 1 ? 1 : 0)})</span><b>%{(left * 100).toFixed(left * 100 % 1 ? 1 : 0)}</b><i style={{ width: `${left * 100}%` }} />
+        </div> })}
+      </div>
+      <p className="bp-note">İndirimler toplanır; bedel temel değerin %50'sinin altına inmez.</p>
+    </Box>
+  })}</>
+}
+
 /** Binaya özel kutular. */
 function BuildingView({ game, empire, id, onCommand, onRecruit, onNav, onBuildingNav, run }: {
   game: Game; empire: Empire | undefined; id: BuildingId; onCommand: (c: Command) => void; run?: Run
@@ -141,6 +174,7 @@ function BuildingView({ game, empire, id, onCommand, onRecruit, onNav, onBuildin
       const other = content - parts.reduce((s, [, n]) => s + n, 0)
       const gross = r.gold + scientistUpkeepPerMinute(game) + armyUpkeep(game)
       return <>
+        <DivanOverview game={game} empire={empire} run={run} />
         <Box title="Şehrin halkı">
           <Table rows={[
             ['Nüfus', <strong key="p">{num(population(game))} / {num(maxPopulation(game))}</strong>],
@@ -256,6 +290,7 @@ function BuildingView({ game, empire, id, onCommand, onRecruit, onNav, onBuildin
       <p className="bp-note">Saray seviyesi kurabileceğin koloni sayısını belirler; kolonide Valilik yolsuzluğu siler.</p>
       <Button size="sm" variant="outline" onClick={() => onNav('cities')}>Şehirler ve atlas<ChevronRight data-icon="inline-end" /></Button>
     </Box> : null
+    case 'marangoz': case 'mimar': case 'mahzen': case 'gozlukcu': case 'barutane': return <CostBreakdown game={game} id={id} />
     case 'bagci': case 'simyahane': case 'camci': case 'tasci': case 'ormanci': {
       const lux = luxuryProduction(game)
       const out: Record<string, string> = {
