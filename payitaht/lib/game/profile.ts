@@ -17,7 +17,7 @@ export const CREST_COLORS = ['#b3261e', '#2f6b4c', '#24406e', '#6a2a3a', '#8a5a2
 export type Profile = { ruler: string; crest: CrestId; color: string; motto: string; since: number }
 
 export function profileOf(empire: Empire): Profile {
-  return empire.profile ?? { ruler: 'Bey', crest: 'hilal', color: CREST_COLORS[0], motto: '', since: empire.world?.start ?? empire.cities[0].game.updatedAt }
+  return empire.profile ?? { ruler: 'Ertuğrul', crest: 'hilal', color: CREST_COLORS[0], motto: '', since: empire.world?.start ?? empire.cities[0].game.updatedAt }
 }
 
 /** Unvan puanla yükselir (Ikariam'daki sıralama unvanlarının karşılığı). */

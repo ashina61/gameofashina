@@ -85,10 +85,12 @@ export function GodsPanel({ game, now, onCommand }: { game: Game; now: number; o
       const on = patron === id
       return <article key={id} className={on ? 'god-card is-patron' : 'god-card'}>
         <GodEmblem id={id} size={52} on={on} />
-        <span><strong>{g.name}</strong><small className="god-title">{g.title} · {g.domain}</small>
-          <small>Lütuf: {g.passive(Math.min(20, Math.max(1, game.buildings.mabet)))}</small>
-          <small>Kudret · {g.power}: {g.powerText} ({num(g.cost)} lütuf)</small></span>
+        <span><strong>{g.name}</strong><small className="god-title">{g.title} · {g.domain}</small></span>
         {on ? <em>Hamin</em> : <Button size="sm" variant="outline" disabled={changeWait > 0} onClick={() => onCommand({ type: 'god', god: id })}>Hami seç</Button>}
+        <dl className="god-card-body">
+          <dt>Lütuf</dt><dd>{g.passive(Math.min(20, Math.max(1, game.buildings.mabet)))}</dd>
+          <dt>{g.power}</dt><dd>{g.powerText} <b>{num(g.cost)} lütuf</b></dd>
+        </dl>
       </article>
     })}</div>
     <p className="fine-print">{changeWait > 0 ? `Hamini değiştirmek için ${clock(changeWait)} bekle. ` : ''}Hami tanrının lütfü mabet seviyesiyle büyür (en fazla 20. derece). Kudretten sonra tanrı 4 saat dinlenir. Kadim Türk mitolojisinin tanrıları; Ikariam'daki tanrılar sisteminin karşılığı.</p>

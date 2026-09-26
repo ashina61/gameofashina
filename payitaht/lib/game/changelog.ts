@@ -6,6 +6,17 @@ export type Release = { version: string; date: string; title: string; notes: str
 
 export const CHANGELOG: Release[] = [
   {
+    version: '0.20.0', date: '26 Eylül 2026', title: 'Arayüz cilası',
+    notes: [
+      'Alt menüdeki Harita artık doğrudan dünya haritasını açar; şehir listesi ve nakliye haritanın altında.',
+      'Elçi sayfasının sekmeleri dar ekrana sığan dört dilimli bir şeride dönüştü; okunmamış mektuplar rozetle görünür.',
+      'Tanrı kartları yeniden düzenlendi: lütuf ve kudret ayrı satırlarda, tam genişlikte okunur.',
+      'Lonca adak düğmesi "Adak sun" oldu; kışla ve tersane artık uzun birlik listesi yerine tür sayısını ve o seviyede açılan birlikleri gösterir.',
+      'Şehir sınırı doğru gösterilir (1/12); sayılar her yerde düz rakamla yazılır.',
+      'Dönüş mesajı sadeleşti ve yalnızca beş dakikadan uzun aralarda yazılır; hükümdarın varsayılan adı Ertuğrul oldu.',
+    ],
+  },
+  {
     version: '0.19.0', date: '26 Eylül 2026', title: 'Kadim tanrılar',
     notes: [
       'Ongun Mabedi: balbal taşları, ongun direği, kutsal ateş ve keçe otağlarla açık hava mabedi. Lütuf biriktirir; akçe, kereste, taş ya da lüks mal sunarak lütfü artırırsın.',

@@ -9,7 +9,7 @@ const now = 10_000_000
 
 test('the ruler can name themselves, pick a crest and a motto; bad input is refused', () => {
   const e = advanceEmpire(initialEmpire(now), now)
-  assert.equal(profileOf(e).ruler, 'Bey')
+  assert.equal(profileOf(e).ruler, 'Ertuğrul')
   assert.match(setProfile(e, { ruler: 'X' }, now).error!, /2-24/)
   assert.match(setProfile(e, { crest: 'ejder' as never }, now).error!, /arma/)
   assert.match(setProfile(e, { color: '#000000' }, now).error!, /renk/)

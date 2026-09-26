@@ -295,12 +295,13 @@ export function WorldPanel({ empire, now, run, onRival, initial = 'rank' }: { em
   const unread = (empire.world?.messages ?? []).filter(m => !m.read).length
   return <div className="advisor-panel world-panel">
     <p className="fine-print">{'Bu dünyadaki hükümdarlar yapay rakiplerdir, gerçek oyuncu değildir. Çevrimiçi rakipler için oyun sunucusu gerekir.'}</p>
-    <div className="research-branch-tabs" role="group" aria-label="Dünya">
-      {([['rank', 'Sıralama', Trophy], ['diplo', 'Diplomasi', Handshake], ['market', 'Pazar', Store], ['mail', `Mesajlar${unread ? ` · ${unread}` : ''}`, Mail]] as const)
-        .map(([key, label, Icon]) => <button key={key} type="button" aria-pressed={tab === key} onClick={() => {
+    <div className="world-tabs" role="group" aria-label="Dünya">
+      {([['rank', 'Sıralama', Trophy], ['diplo', 'Diplomasi', Handshake], ['market', 'Pazar', Store], ['mail', 'Mektuplar', Mail]] as const)
+        .map(([key, label, Icon]) => <button key={key} type="button" aria-pressed={tab === key}
+          aria-label={key === 'mail' && unread ? `${label}: ${unread} okunmamış` : undefined} onClick={() => {
           setTab(key)
           if (key === 'mail' && unread) run((e, x) => readMessages(e, x))
-        }}><Icon className="size-4" /> {label}</button>)}
+        }}><Icon className="size-5" /><span>{label}</span>{key === 'mail' && unread > 0 && <b className="world-tab-badge">{unread}</b>}</button>)}
     </div>
     {tab === 'rank' && <Rankings empire={empire} now={now} onRival={onRival} />}
     {tab === 'diplo' && <Diplomacy empire={empire} now={now} run={run} onRival={onRival} />}

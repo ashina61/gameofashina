@@ -73,7 +73,7 @@ export function GuildPanel({ game, now, onCommand }: { game: Game; now: number; 
         {next && <><span className="people-meter"><span style={{ width: `${Math.min(100, ((gs.devotion[id] - from) / (next - from)) * 100)}%` }} /></span>
           <small className="guild-need">{num(gs.devotion[id])} / {num(next)} himmet</small></>}
         <div className="batch-row">
-          <Button size="sm" variant="outline" disabled={!next || gs.himmet < 1} onClick={() => onCommand({ type: 'devote', guild: id, amount })}>{num(Math.min(amount, Math.floor(gs.himmet)))} ada</Button>
+          <Button size="sm" variant="outline" disabled={!next || gs.himmet < 1} onClick={() => onCommand({ type: 'devote', guild: id, amount })}>Adak sun ({num(Math.min(amount, Math.floor(gs.himmet)))})</Button>
           <Button size="sm" variant={on ? 'secondary' : 'default'} disabled={cooling || (!on && gs.patrons.length >= slots)} onClick={() => onCommand({ type: 'patron', guild: id })}>{on ? 'Himayeden çıkar' : 'Himaye et'}</Button>
         </div>
       </article>

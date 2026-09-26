@@ -21,7 +21,12 @@ const num = (x: number) => Math.round(x).toLocaleString('tr-TR')
 export function effectLines(game: Game, id: BuildingId, level: number): EffectLine[] {
   const g: Game = { ...game, buildings: { ...game.buildings, [id]: level } }
   const E = BUILDING_EFFECTS
-  const unlocks = (home: BuildingId) => UNIT_IDS.filter(u => UNITS[u].home === home && UNITS[u].level <= level).map(u => UNITS[u].name).join(', ') || '—'
+  // Uzun birlik listesi yerine sayı ve o seviyede açılanlar (dar ekranda tablo taşmasın).
+  const unlocks = (home: BuildingId) => {
+    const all = UNIT_IDS.filter(u => UNITS[u].home === home && UNITS[u].level <= level)
+    const fresh = all.filter(u => UNITS[u].level === level).map(u => UNITS[u].name)
+    return all.length ? `${all.length} tür${fresh.length ? ` · yeni: ${fresh.join(', ')}` : ''}` : '—'
+  }
   switch (id) {
     case 'divan': return [
       { label: 'Diğer yapıların tavanı', value: `Sv. ${level + 1}` },

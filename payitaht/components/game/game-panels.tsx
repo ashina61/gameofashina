@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button'
 import { CostDisplay, JobProgress } from './game-widgets'
 import { BUILDINGS, BUILDING_IDS, MAX_LEVEL, RESEARCH, RESEARCH_IDS, RESEARCH_BRANCHES, RESOURCE_IDS, RESOURCE_NAMES, UNITS, UNIT_IDS, WORKER_IDS, WORKERS_PER_LEVEL, activeJob, cargoCapacity, cityDefense, cost, duration, buildReason, power, rates, recruitReason, researchReason, scientistCount, scientistUpkeepPerMinute, idleWorkers, population, housing, contentment, soldiers, takesPlot, tradeCapacity, unhousedByUnrest, unitCost, unitDuration, wallDefense, workerCapacity, type BuildingId, type ResearchId, type ResearchBranch, type UnitId, type WorkerId, type Game } from '@/lib/game/engine'
 import { buildingImage } from '@/lib/asset'
-import { activeCity, colonyPalaceLevel, CARGO_IDS, CARGO_NAMES, COLONY_COST, ISLANDS, type Cargo, type Empire, type IslandId } from '@/lib/game/empire'
+import { activeCity, colonyPalaceLevel, MAX_CITIES, CARGO_IDS, CARGO_NAMES, COLONY_COST, ISLANDS, type Cargo, type Empire, type IslandId } from '@/lib/game/empire'
 import { LUXURY_IDS, LUXURY_NAMES, MERCHANT_BUY, MERCHANT_SELL, MINE_MAX_LEVEL, luxuryCost, luxuryProduction, merchantLimit, mineCapacity, mineUpgradeCost, unitLuxuryCost, wineServed, type Luxury } from '@/lib/game/engine'
 import { luxuryIcons } from './game-widgets'
 import { effectLines } from '@/lib/game/building-info'
@@ -175,7 +175,7 @@ export function PeoplePanel({ game, onAssign }: { game: Game; onAssign: (id: Wor
  * Kilidi acilmamis bir ozelligi gizlemek yerine gostermek, oyuncuya hedef verir.
  */
 export function CitiesPanel({
-  game, empire, onBuilding, onSelectCity, onColonize, onCargo, onViewIsland,
+  game, empire, onBuilding, onSelectCity, onColonize, onCargo, onViewIsland, mapFirst = false,
 }: {
   game: Game
   empire: Empire
@@ -184,6 +184,8 @@ export function CitiesPanel({
   onColonize: (islandId: IslandId) => void
   onCargo: (cityId: string, resource: Cargo, amount: number) => void
   onViewIsland: (islandId: IslandId) => void
+  /** Alt menüdeki Harita: dünya haritası en üstte, şehir kartı gizli. */
+  mapFirst?: boolean
 }) {
   const current = activeCity(empire)
   const [targetCity, setTargetCity] = useState('')
@@ -193,7 +195,7 @@ export function CitiesPanel({
   const capital = empire.cities[0].game
   const built = BUILDING_IDS.filter(id => game.buildings[id] > 0)
   const production = rates(game)
-  return <div className="advisor-panel">
+  const cityCard = <>
     <article className="city-card">
       <div className="city-card-top">
         <span className="city-emblem"><Landmark aria-hidden="true" /></span>
@@ -210,9 +212,10 @@ export function CitiesPanel({
         <span key={id}>{RESOURCE_NAMES[id]} <strong>+{Math.round(production[id])}/dk</strong></span>)}</div>
       <Button size="sm" variant="outline" onClick={() => onBuilding('divan')}>Divanhaneye git<ChevronRight data-icon="inline-end" /></Button>
     </article>
-
+  </>
+  const cityList = <>
     <section className="empire-section">
-      <h3>Şehirlerin · {empire.cities.length}/{ISLANDS.length}</h3>
+      <h3>Şehirlerin · {empire.cities.length}/{MAX_CITIES}</h3>
       <div className="empire-city-list">
         {empire.cities.map(city => <button key={city.id} className="empire-city-button"
           aria-current={city.id === current.id ? 'true' : undefined}
@@ -223,6 +226,8 @@ export function CitiesPanel({
       </div>
     </section>
 
+  </>
+  const worldMap = <>
     <section className="empire-section">
       <h3>Dünya haritası · {ISLANDS.length} ada</h3>
       <p className="fine-print">Her adada tek bir lüks kaynak yatağı bulunur: şehir yalnızca kendi adasının kaynağını madenden çıkarır. Diğerlerini koloni kurarak, nakliyeyle ya da Çarşı'daki tüccardan edinirsin. Uzak adalara yolculuk uzun sürer.</p>
@@ -232,6 +237,9 @@ export function CitiesPanel({
       <p className="fine-print">Yeni koloni: {COLONY_COST.gold} akçe, {COLONY_COST.wood} kereste, {COLONY_COST.stone} taş. Saray seviyesi toplam koloni sayısını sınırlar; her şehir ayrı bina, üretim ve orduya sahiptir.</p>
     </section>
 
+  </>
+  return <div className="advisor-panel">
+    {mapFirst ? <>{worldMap}{cityList}</> : <>{cityCard}{cityList}{worldMap}</>}
     <section className="empire-section">
       <h3>Şehirler arası nakliye</h3>
       {activeShipment

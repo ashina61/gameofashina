@@ -59,7 +59,7 @@ export function CityAdvisor({ empire, game, onCity, onBuilding, onCities }: {
         <tbody>{empire.cities.map(c => {
           const job = activeJob(c.game)
           return <tr key={c.id}>
-            <td><button type="button" className="ika-link" onClick={() => onCity(c.id)}>{c.name}{c.id === current.id ? ' ·' : ''}</button></td>
+            <td><button type="button" className="ika-link" onClick={() => onCity(c.id)}>{c.name}</button>{c.id === current.id && <small className="bp-here"> · burada</small>}</td>
             <td>{num(population(c.game))}/{num(maxPopulation(c.game))}</td>
             <td>{job ? `${BUILDINGS[job.id as BuildingId].name} ${timeLeft(job, c.game.updatedAt)}` : <span className="ika-warn-text">boş</span>}</td>
           </tr>

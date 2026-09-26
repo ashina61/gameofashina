@@ -1117,7 +1117,10 @@ export function advance(source: Game, now: number): Game {
   g.mine.miners = clampMiners(g)
   g.forest.workers = clampForest(g)
   g.temple.priests = clampPriests(g)
-  if (now - start > 60_000) logEvent(g, `${Math.floor((now - start) / 60_000)} dakika sonra hoş geldin. Kaynak üretimi hesaplandı (en fazla 8 saat).`, now)
+  if (now - start > 5 * 60_000) {
+    const m = Math.floor((now - start) / 60_000), away = m >= 60 ? `${Math.floor(m / 60)} saat${m % 60 ? ` ${m % 60} dakika` : ''}` : `${m} dakika`
+    logEvent(g, `Hoş geldin! Yokluğundaki ${away}${away.endsWith('saat') ? 'lik' : 'lık'} üretim ambara kondu${m > 480 ? ' (en fazla 8 saati sayılır)' : ''}.`, now)
+  }
   g.updatedAt = now
   return g
 }
