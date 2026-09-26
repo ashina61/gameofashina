@@ -1,37 +1,44 @@
 /**
- * SES VE TİTREŞİM — dosyasız, WebAudio ile anında üretilen efektler.
+ * SES, MÜZİK VE TİTREŞİM — dosyasız, WebAudio ile anında üretilir.
  *
- *  • Efektler: dokunuş tıkı, onay çınlaması (pentatonik), hata tokmağı,
- *    akçe şıngırtısı, inşaat çekici, savaş davulu.
- *  • Ortam: şehir ekranında hafif dalga uğultusu ve ara sıra kuş cıvıltısı.
- *  • Titreşim: Android'de kısa dokunsal geri bildirim (navigator.vibrate).
- * Ayarlar cihazda saklanır; tarayıcı sesi ilk dokunuşta açar (otomatik
- * oynatma kuralı), o yüzden ses bağlamı ilk etkileşimde kurulur.
+ *  • Müzik: Hicaz makamında ud, ney, dem ve darbuka (lib/music.ts).
+ *  • Efektler SEYREK ve yumuşak: her düğmede tık yok; yalnızca önemli
+ *    anlarda ud teli (onay, ödül), tahta tokmak (inşaat), davul (savaş).
+ *  • Ortam: isteğe bağlı hafif dalga uğultusu.
+ *  • Titreşim: Android'de önemli anlarda kısa geri bildirim.
+ * Tarayıcı sesi ancak ilk dokunuşta açar; bağlam o anda kurulur.
  */
-export type SoundPrefs = { sfx: boolean; ambient: boolean; haptics: boolean }
+import { drum, playPluck, startMusic } from './music'
+
+export type SoundPrefs = { music: boolean; sfx: boolean; ambient: boolean; haptics: boolean }
 const KEY = 'payitaht-ses'
-const DEFAULTS: SoundPrefs = { sfx: true, ambient: true, haptics: true }
+const DEFAULTS: SoundPrefs = { music: true, sfx: true, ambient: false, haptics: true }
 
 let prefs: SoundPrefs = DEFAULTS
 let loaded = false
 let ctx: AudioContext | null = null
 let master: GainNode | null = null
 let ambience: { stop: () => void } | null = null
+let music: (() => void) | null = null
 let ambientWanted = false
+let musicWanted = false
 const listeners = new Set<(p: SoundPrefs) => void>()
 
 export function soundPrefs(): SoundPrefs {
   if (!loaded && typeof window !== 'undefined') {
     loaded = true
-    try { prefs = { ...DEFAULTS, ...JSON.parse(localStorage.getItem(KEY) ?? '{}') } } catch { prefs = DEFAULTS }
+    try {
+      const raw = JSON.parse(localStorage.getItem(KEY) ?? '{}')
+      // 0.26 kaydında müzik yoktu; ortam sesi müzikle çakışmasın diye kapanır.
+      prefs = { ...DEFAULTS, ...raw, ...(raw.music === undefined ? { ambient: false } : {}) }
+    } catch { prefs = DEFAULTS }
   }
   return prefs
 }
 export function setSoundPrefs(patch: Partial<SoundPrefs>) {
   prefs = { ...soundPrefs(), ...patch }
   try { localStorage.setItem(KEY, JSON.stringify(prefs)) } catch { /* kayıt yoksa oturumluk */ }
-  if (!prefs.ambient) stopAmbience()
-  else if (ambientWanted) startAmbience()
+  sync()
   for (const f of listeners) f(prefs)
 }
 export function onSoundPrefs(f: (p: SoundPrefs) => void) { listeners.add(f); return () => { listeners.delete(f) } }
@@ -43,59 +50,60 @@ function audio(): AudioContext | null {
     if (!AC) return null
     ctx = new AC()
     master = ctx.createGain()
-    master.gain.value = 0.5
+    master.gain.value = 0.6
     master.connect(ctx.destination)
   }
   if (ctx.state === 'suspended') void ctx.resume()
   return ctx
 }
 
-/** Tek nota: saldırı-sönüm zarfı. */
-function tone(freq: number, at: number, dur: number, type: OscillatorType, vol: number, glide?: number) {
-  const a = audio()
-  if (!a || !master) return
-  const t = a.currentTime + at
-  const o = a.createOscillator(), g = a.createGain()
-  o.type = type
-  o.frequency.setValueAtTime(freq, t)
-  if (glide) o.frequency.exponentialRampToValueAtTime(glide, t + dur)
-  g.gain.setValueAtTime(0.0001, t)
-  g.gain.exponentialRampToValueAtTime(vol, t + 0.008)
-  g.gain.exponentialRampToValueAtTime(0.0001, t + dur)
-  o.connect(g).connect(master)
-  o.start(t)
-  o.stop(t + dur + 0.02)
-}
-function noise(at: number, dur: number, vol: number, freq: number, q = 1) {
-  const a = audio()
-  if (!a || !master) return
-  const t = a.currentTime + at
-  const buf = a.createBuffer(1, Math.max(1, Math.floor(a.sampleRate * dur)), a.sampleRate)
-  const d = buf.getChannelData(0)
-  for (let i = 0; i < d.length; i++) d[i] = (Math.random() * 2 - 1) * (1 - i / d.length) ** 2
-  const src = a.createBufferSource(), f = a.createBiquadFilter(), g = a.createGain()
-  src.buffer = buf
-  f.type = 'bandpass'; f.frequency.value = freq; f.Q.value = q
-  g.gain.value = vol
-  src.connect(f).connect(g).connect(master)
-  src.start(t)
+/** Müzik ve ortam sesini tercihe ve isteğe göre aç/kapat (bağlam varsa). */
+function sync() {
+  if (!ctx || !master) return
+  const p = soundPrefs()
+  if (musicWanted && p.music && !music) music = startMusic(ctx, master)
+  if ((!musicWanted || !p.music) && music) { music(); music = null }
+  if (ambientWanted && p.ambient && !ambience) startAmbience()
+  if ((!ambientWanted || !p.ambient) && ambience) { ambience.stop(); ambience = null }
 }
 
-export type Sfx = 'tap' | 'ok' | 'error' | 'coin' | 'build' | 'war' | 'open'
-const SOUNDS: Record<Sfx, () => void> = {
-  tap: () => tone(880, 0, 0.05, 'sine', 0.05, 660),
-  open: () => { tone(523, 0, 0.09, 'triangle', 0.05); tone(784, 0.04, 0.12, 'triangle', 0.04) },
-  ok: () => { tone(659, 0, 0.16, 'triangle', 0.09); tone(880, 0.07, 0.2, 'triangle', 0.08); tone(1175, 0.14, 0.28, 'sine', 0.06) },
-  error: () => { tone(196, 0, 0.18, 'square', 0.05, 150); tone(147, 0.08, 0.22, 'square', 0.04, 110) },
-  coin: () => { for (let i = 0; i < 4; i++) tone(1568 + i * 180, i * 0.055, 0.14, 'sine', 0.07) ; noise(0, 0.12, 0.05, 6000, 3) },
-  build: () => { for (let i = 0; i < 3; i++) { noise(i * 0.16, 0.06, 0.35, 900, 2); tone(220, i * 0.16, 0.06, 'triangle', 0.07, 150) } },
-  war: () => { for (let i = 0; i < 3; i++) { tone(90, i * 0.22, 0.25, 'sine', 0.22, 55); noise(i * 0.22, 0.08, 0.2, 300, 1) } },
+function knock(at: number, vol: number) {
+  const a = ctx!, len = Math.floor(a.sampleRate * 0.09)
+  const b = a.createBuffer(1, len, a.sampleRate)
+  const d = b.getChannelData(0)
+  for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * (1 - i / len) ** 4
+  const s = a.createBufferSource(), f = a.createBiquadFilter(), g = a.createGain()
+  s.buffer = b; f.type = 'lowpass'; f.frequency.value = 900
+  g.gain.value = vol
+  s.connect(f).connect(g).connect(master!)
+  s.start(at)
+  const o = a.createOscillator(), og = a.createGain()
+  o.frequency.setValueAtTime(210, at); o.frequency.exponentialRampToValueAtTime(140, at + 0.08)
+  og.gain.setValueAtTime(vol * 0.5, at); og.gain.exponentialRampToValueAtTime(0.0001, at + 0.1)
+  o.connect(og).connect(master!); o.start(at); o.stop(at + 0.12)
 }
-const BUZZ: Partial<Record<Sfx, number | number[]>> = { tap: 6, ok: 14, error: [20, 40, 20], coin: [10, 30, 10], build: [12, 30, 12], war: [40, 60, 40] }
+
+/** Hicaz basamakları (Re4 = 293.66 Hz). */
+const RE = 293.66, MIb = 311.1, SOL = 392, LA = 440, SIb = 466.2, RE5 = 587.3, FAd5 = 740, LA5 = 880
+
+export type Sfx = 'ok' | 'error' | 'coin' | 'build' | 'war'
+const SOUNDS: Record<Sfx, (t: number) => void> = {
+  ok: t => { playPluck(ctx!, master!, t, RE, 0.35, 1.1); playPluck(ctx!, master!, t + 0.09, LA, 0.3, 1.3) },
+  coin: t => { [RE5, FAd5, LA5].forEach((f, i) => playPluck(ctx!, master!, t + i * 0.07, f, 0.26, 1.2)) },
+  error: t => { playPluck(ctx!, master!, t, SIb, 0.3, 0.9); playPluck(ctx!, master!, t + 0.12, MIb, 0.32, 1.1) },
+  build: t => { knock(t, 0.5); knock(t + 0.2, 0.42); playPluck(ctx!, master!, t + 0.05, SOL / 2, 0.18, 0.8) },
+  war: t => { for (let i = 0; i < 3; i++) drum(ctx!, master!, t + i * 0.26, 'dum', 1.2); drum(ctx!, master!, t + 0.13, 'tek', 0.6) },
+}
+const BUZZ: Partial<Record<Sfx, number | number[]>> = { ok: 12, error: [18, 40, 18], coin: [10, 30, 10], build: [12, 40, 12], war: [40, 60, 40] }
+let lastAt = 0
 
 export function play(s: Sfx) {
   const p = soundPrefs()
-  if (p.sfx) { try { SOUNDS[s]() } catch { /* ses yoksa sessiz */ } }
+  // Aynı anda üst üste binen sesler tek sese iner.
+  const now = typeof performance !== 'undefined' ? performance.now() : 0
+  if (now - lastAt < 120) return
+  lastAt = now
+  if (p.sfx) { try { const a = audio(); if (a && master) SOUNDS[s](a.currentTime + 0.01) } catch { /* ses yoksa sessiz */ } }
   if (p.haptics && BUZZ[s] && typeof navigator !== 'undefined' && 'vibrate' in navigator) {
     try { navigator.vibrate(BUZZ[s]!) } catch { /* desteklenmiyor */ }
   }
@@ -104,10 +112,8 @@ export function play(s: Sfx) {
 /* ------------------------------------------------------------- ORTAM SESİ */
 
 function startAmbience() {
-  if (ambience || !soundPrefs().ambient) return
-  const a = audio()
-  if (!a || !master) return
-  // Dalga: düşük geçiren gürültü, yavaş nefes alan ses seviyesi.
+  const a = ctx
+  if (!a || !master || ambience) return
   const len = a.sampleRate * 4
   const buf = a.createBuffer(1, len, a.sampleRate)
   const d = buf.getChannelData(0)
@@ -116,44 +122,29 @@ function startAmbience() {
   const src = a.createBufferSource(), lp = a.createBiquadFilter(), g = a.createGain()
   const lfo = a.createOscillator(), lg = a.createGain()
   src.buffer = buf; src.loop = true
-  lp.type = 'lowpass'; lp.frequency.value = 520
-  g.gain.value = 0.05
-  lfo.frequency.value = 0.12; lg.gain.value = 0.035
+  lp.type = 'lowpass'; lp.frequency.value = 480
+  g.gain.value = 0.035
+  lfo.frequency.value = 0.12; lg.gain.value = 0.025
   lfo.connect(lg).connect(g.gain)
   src.connect(lp).connect(g).connect(master)
   src.start(); lfo.start()
-  // Kuşlar: arada bir iki üç cıvıltı.
-  const timer = window.setInterval(() => {
-    if (Math.random() < 0.55) return
-    const base = 2200 + Math.random() * 1400
-    const n = 2 + Math.floor(Math.random() * 3)
-    for (let i = 0; i < n; i++) tone(base, i * 0.11, 0.07, 'sine', 0.018, base * 1.35)
-  }, 3200)
-  ambience = { stop: () => { window.clearInterval(timer); try { src.stop(); lfo.stop() } catch { /* zaten durdu */ } } }
+  ambience = { stop: () => { try { src.stop(); lfo.stop() } catch { /* zaten durdu */ } } }
 }
-function stopAmbience() { ambience?.stop(); ambience = null }
 
-/** Şehir ekranı açıkken ortam sesi istenir; sayfa gizlenince susar. */
-export function wantAmbience(on: boolean) {
-  ambientWanted = on
-  if (on && ctx) startAmbience()
-  else if (!on) stopAmbience()
-}
+/** Oyun ekranı açıkken müzik ve ortam istenir. */
+export function wantMusic(on: boolean) { musicWanted = on; sync() }
+export function wantAmbience(on: boolean) { ambientWanted = on; sync() }
 
 let wired = false
-/** Her düğmeye hafif tık sesi; ses bağlamı ilk dokunuşta kurulur. */
+/** Ses bağlamı ilk dokunuşta kurulur (tarayıcı kuralı); sekme gizlenince susar. */
 export function wireUiSounds() {
   if (wired || typeof document === 'undefined') return
   wired = true
-  document.addEventListener('pointerdown', e => {
-    const first = !ctx
-    audio()
-    if (first && ambientWanted) startAmbience()
-    const el = (e.target as HTMLElement | null)?.closest('button, [role="button"], a')
-    if (el && !(el as HTMLButtonElement).disabled) play('tap')
-  }, { capture: true, passive: true })
+  const first = () => { audio(); sync() }
+  document.addEventListener('pointerdown', first, { capture: true, passive: true })
+  document.addEventListener('keydown', first, { capture: true })
   document.addEventListener('visibilitychange', () => {
-    if (document.hidden) { stopAmbience(); void ctx?.suspend() }
-    else { void ctx?.resume(); if (ambientWanted) startAmbience() }
+    if (document.hidden) void ctx?.suspend()
+    else void ctx?.resume()
   })
 }

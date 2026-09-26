@@ -1,4 +1,5 @@
 'use client'
+import { ObjectiveArt } from './quest-art'
 
 import { Hint } from './hint'
 import { Hammer, Check, ArrowUpRight, Sparkles, TriangleAlert, Landmark, Swords, Handshake, LockKeyhole, Pickaxe } from 'lucide-react'
@@ -59,7 +60,7 @@ export function ObjectiveCard({ game, onClaim, onBuild }: { game: Game; onClaim:
     <ol>{OBJECTIVES.map(o => {
       const got = game.claimed.includes(o.id), done = objectiveDone(game, o.id)
       return <li key={o.id} className={got ? 'is-got' : done ? 'is-ready' : o.id === objective?.id ? 'is-current' : ''}>
-        <span className="objective-mark" aria-hidden="true">{got ? '✓' : done ? '!' : '·'}</span>
+        <span className="objective-thumb"><ObjectiveArt id={o.id} go={o.go} game={game} size={50} /><b className="objective-mark" aria-hidden="true">{got ? '✓' : done ? '!' : o.id === objective?.id ? '▸' : ''}</b></span>
         <span><strong>{o.title}</strong><small>{o.description}</small></span>
         {!got && done ? <Button size="sm" onClick={() => onClaim(o.id)}>{o.reward}</Button> : <small className="objective-reward">{o.reward} akçe</small>}
       </li>
@@ -69,7 +70,7 @@ export function ObjectiveCard({ game, onClaim, onBuild }: { game: Game; onClaim:
   const done = objectiveDone(game, objective.id)
   return <section className="objective-card"><div className="objective-heading"><span className="eyebrow"><Sparkles className="size-3" /> SIRADAKİ HEDEF</span><span>Adım {Math.min(OBJECTIVES.length, game.claimed.length + 1)} / {OBJECTIVES.length}</span></div>
     <span className="objective-track" aria-hidden="true"><span style={{ width: `${(game.claimed.length / OBJECTIVES.length) * 100}%` }} /></span>
-    <h3>{objective.title}</h3><p>{objective.description}</p>
+    <div className="objective-main"><ObjectiveArt id={objective.id} go={objective.go} game={game} size={118} /><div><h3>{objective.title}</h3><p>{objective.description}</p></div></div>
     <div className="objective-footer"><span><AkceArt className="size-4" /> {objective.reward} akçe</span>
       <Button size="sm" variant={done ? 'default' : 'outline'} onClick={() => done ? onClaim(objective.id) : onBuild()}>{done ? 'Ödülü al' : 'Hedefe git'}<ArrowUpRight data-icon="inline-end" /></Button></div>
     {ready.length > 1 && <Button size="sm" variant="outline" className="objective-all" onClick={() => ready.forEach(o => onClaim(o.id))}><Check data-icon="inline-start" />Tamamlanan {ready.length} adımın ödülünü al ({ready.reduce((s, o) => s + o.reward, 0)} akçe)</Button>}

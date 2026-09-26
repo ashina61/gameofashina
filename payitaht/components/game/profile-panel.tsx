@@ -11,7 +11,7 @@ import { Button } from '@/components/ui/button'
 import { population, soldiers } from '@/lib/game/engine'
 import { capitalId, islandOf, type Empire } from '@/lib/game/empire'
 import {
-  CREST_COLORS, CREST_NAMES, CRESTS, achievements, allianceName, playerScore, profileOf, profileRanks, profileStats, rulerTitle, setProfile,
+  BANNERS, BANNER_NAMES, CREST_COLORS, CREST_NAMES, CRESTS, type BannerId, achievements, allianceName, playerScore, profileOf, profileRanks, profileStats, rulerTitle, setProfile,
   type CrestId,
 } from '@/lib/game/profile'
 import { CHANGELOG, VERSION } from '@/lib/game/changelog'
@@ -30,6 +30,53 @@ function CrestSymbol({ crest }: { crest: CrestId }) {
     case 'kule': return <g {...s}><path d="M22 46 V24 H26 V20 H30 V24 H34 V20 H38 V24 H42 V46 Z" fill={PAPER} /><path d="M29 46 V38 A3 3 0 0 1 35 38 V46" fill={INK} /><path d="M30 30 H34" /></g>
     case 'kitap': return <g {...s}><path d="M32 24 Q25 20 18 22 V42 Q25 40 32 44 Q39 40 46 42 V22 Q39 20 32 24 Z" fill={PAPER} /><path d="M32 24 V44" /></g>
   }
+}
+
+
+/**
+ * SANCAK — direğe bağlı, rüzgârda dalgalanan hükümdar bayrağı. Dalga direkten
+ * uca doğru büyür; biçim profilde seçilir, renk ve arma profilden gelir.
+ */
+function flagPath(banner: BannerId, phase: number) {
+  const x0 = 46, top = 22, h = 116, L = 244, N = 16
+  const wave = (x: number) => Math.sin(x / L * Math.PI * 2.2 + phase) * 9 * (x / L)
+  const edge = (y: number, t: number) => { const x = t * L; return [x0 + x, y + wave(x) + (banner === 'ucgen' ? (y === top ? t * h * 0.46 : -t * h * 0.46) : 0)] }
+  const topPts = Array.from({ length: N + 1 }, (_, i) => edge(top, i / N))
+  const botPts = Array.from({ length: N + 1 }, (_, i) => edge(top + h, i / N)).reverse()
+  const [tx, ty] = topPts[N], [bx, by] = botPts[0]
+  const fly: number[][] = banner === 'kirlangic' ? [[tx - 64, (ty + by) / 2]]
+    : banner === 'cifte' ? [[tx - 6, ty + h * 0.16], [tx - 30, ty + h * 0.34], [tx - 118, (ty + by) / 2], [bx - 30, by - h * 0.34], [bx - 6, by - h * 0.16]]
+    : banner === 'ucgen' ? [] : []
+  const pts = [...topPts, ...fly, ...botPts]
+  return 'M' + pts.map(([x, y]) => `${x.toFixed(1)} ${y.toFixed(1)}`).join(' L') + ' Z'
+}
+export function SancakArt({ crest, color, banner = 'kirlangic', size = 280, still = false }: { crest: CrestId; color: string; banner?: BannerId; size?: number; still?: boolean }) {
+  const frames = [0, 1.6, 3.2, 4.8, 6.4].map(ph => flagPath(banner, ph))
+  const id = `sancak-${banner}-${color.slice(1)}`
+  return <svg viewBox="0 0 320 214" width={size} height={size * 214 / 320} className="sancak-art" role="img" aria-label={`Sancak: ${BANNER_NAMES[banner]}`}>
+    <defs>
+      <linearGradient id={`${id}-fold`} x1="0" x2="1">
+        {[0, 0.18, 0.36, 0.54, 0.72, 0.9].map((o, i) => <stop key={o} offset={o} stopColor={i % 2 ? '#000' : '#fff'} stopOpacity={i % 2 ? 0.16 : 0.1} />)}
+      </linearGradient>
+    </defs>
+    {/* Direk ve alem */}
+    <rect x="38" y="16" width="7" height="196" rx="3" fill="#6b4424" />
+    <rect x="39.5" y="16" width="2" height="196" fill="#9a6a3a" opacity="0.7" />
+    <circle cx="41.5" cy="14" r="6" fill="#e2bd78" stroke="#8a5a22" strokeWidth="1.2" />
+    <path d="M41.5 -2 a8 8 0 1 0 0.1 0 a6 6 0 1 1 -0.1 0 Z" fill="#e2bd78" transform="translate(0 2) scale(1 0.9)" />
+    <g>
+      <path d={frames[0]} fill={color} stroke="#e2bd78" strokeWidth="3" strokeLinejoin="round">
+        {!still && <animate attributeName="d" dur="2.6s" repeatCount="indefinite" values={frames.join(';')} />}
+      </path>
+      <path d={frames[0]} fill={`url(#${id}-fold)`}>
+        {!still && <animate attributeName="d" dur="2.6s" repeatCount="indefinite" values={frames.join(';')} />}
+      </path>
+      <g transform={`translate(${banner === 'ucgen' ? 96 : 128} 50) scale(${banner === 'ucgen' ? 1.1 : 1.5})`}>
+        {!still && <animateTransform attributeName="transform" type="translate" additive="sum" dur="2.6s" repeatCount="indefinite" values="0 0; 0 3; 0 0; 0 -3; 0 0" />}
+        <CrestSymbol crest={crest} />
+      </g>
+    </g>
+  </svg>
 }
 
 /** Hükümdar arması: altın çerçeveli kalkan, renk zemin, sembol. */
@@ -52,7 +99,8 @@ export function ProfilePanel({ empire, now, run, onCity, onSettings, onChangelog
   const stats = profileStats(empire)
   const list = achievements(empire)
   const [edit, setEdit] = useState(false)
-  const [draft, setDraft] = useState({ ruler: p.ruler, motto: p.motto, crest: p.crest, color: p.color })
+  const banner = p.banner ?? 'kirlangic'
+  const [draft, setDraft] = useState({ ruler: p.ruler, motto: p.motto, crest: p.crest, color: p.color, banner })
   const days = Math.max(1, Math.ceil((now - p.since) / 86_400_000))
   const done = list.filter(a => a.value >= a.goal).length
   const tiles: [string, number, number][] = [['Toplam puan', score.total, ranks.total], ['İnşaatçı', score.builder, ranks.builder],
@@ -65,6 +113,10 @@ export function ProfilePanel({ empire, now, run, onCity, onSettings, onChangelog
     ['Korsan şöhreti', num(stats.fame)], ['Nakliye', num(stats.shipments)],
   ]
   return <div className="advisor-panel profile-panel">
+    <section className="profile-sancak" aria-label="Hükümdarın sancağı">
+      <SancakArt crest={edit ? draft.crest : p.crest} color={edit ? draft.color : p.color} banner={edit ? draft.banner : banner} size={300} />
+      <span className="profile-sancak-name"><small>{title.name}</small>{p.ruler}</span>
+    </section>
     <article className="profile-head">
       <RulerCrest crest={p.crest} color={p.color} size={92} />
       <div className="profile-id">
@@ -73,7 +125,7 @@ export function ProfilePanel({ empire, now, run, onCity, onSettings, onChangelog
         {p.motto && <q>{p.motto}</q>}
         <small>{allianceName(empire) ?? 'İttifaksız'} · {empire.cities.length} şehir</small>
       </div>
-      <Button size="sm" variant="outline" onClick={() => { setDraft({ ruler: p.ruler, motto: p.motto, crest: p.crest, color: p.color }); setEdit(e => !e) }} aria-expanded={edit}>
+      <Button size="sm" variant="outline" onClick={() => { setDraft({ ruler: p.ruler, motto: p.motto, crest: p.crest, color: p.color, banner }); setEdit(e => !e) }} aria-expanded={edit}>
         <Pencil data-icon="inline-start" />{edit ? 'Kapat' : 'Düzenle'}</Button>
     </article>
 
@@ -82,6 +134,9 @@ export function ProfilePanel({ empire, now, run, onCity, onSettings, onChangelog
       <input id="profile-name" className="text-input" value={draft.ruler} maxLength={24} onChange={e => setDraft({ ...draft, ruler: e.target.value })} />
       <label htmlFor="profile-motto">Düstur</label>
       <input id="profile-motto" className="text-input" value={draft.motto} maxLength={60} placeholder="Devlet-i ebed-müddet" onChange={e => setDraft({ ...draft, motto: e.target.value })} />
+      <span className="profile-label">Sancak</span>
+      <div className="banner-picker" role="radiogroup" aria-label="Sancak biçimi">{BANNERS.map(b => <button key={b} type="button" role="radio" aria-checked={draft.banner === b}
+        onClick={() => setDraft({ ...draft, banner: b })} title={BANNER_NAMES[b]}><SancakArt crest={draft.crest} color={draft.color} banner={b} size={72} still /><small>{BANNER_NAMES[b]}</small></button>)}</div>
       <span className="profile-label">Arma</span>
       <div className="crest-picker" role="radiogroup" aria-label="Arma">{CRESTS.map(c => <button key={c} type="button" role="radio" aria-checked={draft.crest === c}
         onClick={() => setDraft({ ...draft, crest: c })} title={CREST_NAMES[c]}><RulerCrest crest={c} color={draft.color} size={44} /></button>)}</div>

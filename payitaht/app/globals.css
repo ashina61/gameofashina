@@ -1744,3 +1744,40 @@
 /* Hedef şeridi alt solda, olay şeridinin üstünde: başparmağa yakın, haritayı örtmez. */
 .quest-chip { top: auto; bottom: calc(var(--ika-nav) + 76px); max-width: min(82vw, 360px); }
 @keyframes quest-in { from { transform: translateY(8px); opacity: 0; } }
+
+/* ── GÖREV ÇİZİMLERİ ───────────────────────────────────────────────────── */
+.quest-art { position: relative; flex-shrink: 0; display: block; border-radius: 10px; overflow: hidden; border: 1.5px solid #b99160; box-shadow: inset 0 0 0 1px #fff8, 0 2px 5px #5a351733; }
+.quest-art-sky { position: absolute; inset: 0; background: linear-gradient(180deg, #bfe0ea 0%, #e8f2dc 58%, #cfe0a4 100%); }
+.quest-art.is-gold .quest-art-sky { background: linear-gradient(180deg, #f6e1a4 0%, #fbf0cf 55%, #d6dd9a 100%); }
+.quest-art.is-dusk .quest-art-sky { background: linear-gradient(180deg, #d9b8a4 0%, #f3dfc0 55%, #c9d49a 100%); }
+.quest-art-hill { position: absolute; left: -10%; right: -10%; bottom: -34%; height: 62%; border-radius: 50%; background: radial-gradient(ellipse at 50% 30%, #9fbf66, #6f9a48 70%); box-shadow: inset 0 3px 0 #b8d27a; }
+.quest-art-subject { position: absolute; inset: 6% 6% 8%; display: flex; align-items: flex-end; justify-content: center; }
+.quest-art-subject > img { max-width: 100%; max-height: 100%; object-fit: contain; filter: drop-shadow(0 3px 3px #3a231055); }
+.quest-art-row { display: flex; align-items: flex-end; justify-content: center; gap: 2px; }
+.quest-art-row svg { filter: drop-shadow(0 2px 2px #3a231044); }
+.objective-main { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 12px; align-items: center; margin-top: 12px; }
+.objective-main h3 { margin-top: 0 !important; }
+.objective-main p { margin-top: 4px; }
+.objective-list li { grid-template-columns: 50px minmax(0, 1fr) auto; }
+.objective-thumb { position: relative; display: block; }
+.objective-thumb .objective-mark { position: absolute; right: -5px; bottom: -5px; width: 20px; height: 20px; font-size: 11px; box-shadow: 0 0 0 2px #fbf2d6; }
+.objective-thumb .objective-mark:empty { display: none; }
+.daily-task { grid-template-columns: 52px minmax(0, 1fr) auto; }
+.daily-task > .quest-art { grid-row: 1 / span 2; }
+.daily-task > span:nth-child(2) { display: flex; flex-direction: column; min-width: 0; gap: 2px; font-size: 13px; }
+.daily-task > span.quest-art { flex-direction: initial; }
+.daily-task .people-meter { grid-column: 2 / -1; }
+.daily-login > .quest-art { width: 52px; }
+
+/* ── HÜKÜMDAR SANCAĞI (profil başı) ────────────────────────────────────── */
+.profile-sancak { position: relative; display: flex; justify-content: center; align-items: flex-end; margin: 0 0 10px; padding: 14px 8px 0; border-radius: 12px; overflow: hidden;
+  border: 1px solid #b99160; background: radial-gradient(120% 90% at 30% 10%, #fdf3d6 0%, #cfe3e6 55%, #9fc3cf 100%); min-height: 190px; }
+.profile-sancak::after { content: ''; position: absolute; left: -10%; right: -10%; bottom: -60px; height: 90px; border-radius: 50%; background: radial-gradient(ellipse at 50% 30%, #9fbf66, #6f9a48 70%); }
+.profile-sancak .sancak-art { position: relative; z-index: 1; max-width: 100%; height: auto; filter: drop-shadow(0 6px 8px #3a231044); }
+.profile-sancak-name { position: absolute; z-index: 2; right: 12px; bottom: 10px; display: flex; flex-direction: column; align-items: flex-end; text-align: right;
+  font-family: var(--font-heading), Georgia, serif; font-size: 22px; font-weight: 700; color: #fbf2d6; text-shadow: 0 2px 3px #0009; line-height: 1.05; }
+.profile-sancak-name small { font-family: var(--font-body), sans-serif; font-size: 10.5px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: #ffe7a8; }
+.banner-picker { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; }
+.banner-picker button { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 6px 2px; border-radius: 10px; border: 1.5px solid transparent; background: #fffaf080; }
+.banner-picker button[aria-checked='true'] { border-color: #5a3517; background: #fffaf0; box-shadow: 0 2px 6px #5a351744; }
+.banner-picker small { font-size: 10px; font-weight: 700; color: #6e4d2a; text-align: center; line-height: 1.1; }

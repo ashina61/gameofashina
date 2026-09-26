@@ -14,6 +14,7 @@ import {
   Crown, Trash2, Coffee, TreePine, FlaskConical, CalendarCheck, Gift, Truck, Anchor, Flag, Trophy, Handshake,
   Store, Mail, Send, ScrollText, Users, Swords, Eye, Check, Pencil, ShieldCheck, Newspaper,
 } from 'lucide-react'
+import { DailyArt } from './quest-art'
 import { NewsPanel, PaceSetting, ProposalsPanel, rivalWarLine } from './ai-panels'
 import { Button } from '@/components/ui/button'
 import {
@@ -150,7 +151,7 @@ export function DailyPanel({ empire, run }: { empire: Empire; run: Run }) {
   return <section className="empire-section">
     <h3><CalendarCheck className="size-4" /> Günlük görevler</h3>
     <div className="daily-login">
-      <Gift className="size-5" />
+      <DailyArt task="login" />
       <span><strong>Günlük giriş · {Math.max(1, nextStreak)}. gün</strong><small>{num(reward.gold)} akçe · {num(reward.wood)} kereste (7 güne kadar büyür)</small></span>
       <Button size="sm" disabled={loginDone} onClick={() => run(mutate((e, now) => claimLogin(e, now)), 'Giriş ödülü hazinede.')}>{loginDone ? 'Alındı' : 'Al'}</Button>
     </div>
@@ -158,6 +159,7 @@ export function DailyPanel({ empire, run }: { empire: Empire; run: Run }) {
       const t = DAILY_TASKS.find(x => x.id === id)!
       const p = taskProgress(empire, id), done = d.claimed.includes(id)
       return <article key={id} className="daily-task">
+        <DailyArt task={t.key} />
         <span><strong>{t.text}</strong><small>{p} / {t.need} · ödül {Object.entries(t.reward).map(([r, n]) => `${num(n!)} ${GOOD_NAMES[r as Good].toLocaleLowerCase('tr')}`).join(', ')}</small></span>
         <span className="people-meter"><span style={{ width: `${p / t.need * 100}%` }} /></span>
         <Button size="sm" disabled={done || p < t.need} onClick={() => run(mutate((e, now) => claimTask(e, id, now)), 'Günlük görev ödülü hazinede.')}>{done ? 'Alındı' : p < t.need ? 'Sürüyor' : 'Ödülü al'}</Button>

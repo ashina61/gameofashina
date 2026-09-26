@@ -14,7 +14,11 @@ export const CREST_NAMES: Record<CrestId, string> = {
   hilal: 'Hilal ve yıldız', lale: 'Lale', kilic: 'Çifte kılıç', gemi: 'Kadırga', kule: 'Burç', kitap: 'Kitap',
 }
 export const CREST_COLORS = ['#b3261e', '#2f6b4c', '#24406e', '#6a2a3a', '#8a5a22', '#2f7a92'] as const
-export type Profile = { ruler: string; crest: CrestId; color: string; motto: string; since: number }
+/** Sancak biçimi (profilin başında dalgalanır). */
+export const BANNERS = ['kirlangic', 'cifte', 'ucgen', 'duz'] as const
+export type BannerId = typeof BANNERS[number]
+export const BANNER_NAMES: Record<BannerId, string> = { kirlangic: 'Kırlangıç kuyruk', cifte: 'Çifte dil', ucgen: 'Üçgen flama', duz: 'Dört köşe' }
+export type Profile = { ruler: string; crest: CrestId; color: string; motto: string; since: number; banner?: BannerId }
 
 export function profileOf(empire: Empire): Profile {
   return empire.profile ?? { ruler: 'Ertuğrul', crest: 'hilal', color: CREST_COLORS[0], motto: '', since: empire.world?.start ?? empire.cities[0].game.updatedAt }
@@ -32,7 +36,7 @@ export function rulerTitle(score: number) {
   return { name: t.name, next: next?.name, need: next ? next.min - score : 0, progress: next ? (score - t.min) / (next.min - t.min) : 1 }
 }
 
-export function setProfile(source: Empire, patch: Partial<Pick<Profile, 'ruler' | 'crest' | 'color' | 'motto'>>, now: number): { empire: Empire; error?: string } {
+export function setProfile(source: Empire, patch: Partial<Pick<Profile, 'ruler' | 'crest' | 'color' | 'motto' | 'banner'>>, now: number): { empire: Empire; error?: string } {
   const empire = advanceEmpire(source, now)
   const p = { ...profileOf(empire) }
   if (patch.ruler !== undefined) {
@@ -49,6 +53,10 @@ export function setProfile(source: Empire, patch: Partial<Pick<Profile, 'ruler' 
     if (!CRESTS.includes(patch.crest)) return { empire, error: 'Bilinmeyen arma.' }
     p.crest = patch.crest
   }
+  if (patch.banner !== undefined) {
+    if (!BANNERS.includes(patch.banner)) return { empire, error: 'Bilinmeyen sancak.' }
+    p.banner = patch.banner
+  }
   if (patch.color !== undefined) {
     if (!(CREST_COLORS as readonly string[]).includes(patch.color)) return { empire, error: 'Bilinmeyen renk.' }
     p.color = patch.color
@@ -62,8 +70,8 @@ export function parseProfile(raw: unknown): Profile | undefined {
   const p = raw as Profile
   if (!p || typeof p.ruler !== 'string' || p.ruler.length < 1 || p.ruler.length > 24 || !CRESTS.includes(p.crest) ||
       !(CREST_COLORS as readonly string[]).includes(p.color) || typeof p.motto !== 'string' || p.motto.length > 60 ||
-      typeof p.since !== 'number' || !Number.isFinite(p.since)) throw new Error('Profil kaydı okunamadı.')
-  return { ruler: p.ruler, crest: p.crest, color: p.color, motto: p.motto, since: p.since }
+      typeof p.since !== 'number' || !Number.isFinite(p.since) || (p.banner !== undefined && !BANNERS.includes(p.banner))) throw new Error('Profil kaydı okunamadı.')
+  return { ruler: p.ruler, crest: p.crest, color: p.color, motto: p.motto, since: p.since, ...(p.banner ? { banner: p.banner } : {}) }
 }
 
 /** Profil sayfasının istatistikleri. */

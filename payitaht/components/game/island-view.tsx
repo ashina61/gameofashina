@@ -34,9 +34,9 @@ const clock = (ms: number) => {
   return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`
 }
 
-export function IslandView({ empire, islandId, now, onCity, onIsland, onMine, onNpc, onReports }: {
+export function IslandView({ empire, islandId, now, onCity, onIsland, onMine, onForest, onNpc, onReports }: {
   empire: Empire; islandId: IslandId; now: number
-  onCity: () => void; onIsland: (id: IslandId) => void; onMine: () => void; onNpc: (id: string) => void; onReports: () => void
+  onCity: () => void; onIsland: (id: IslandId) => void; onMine: () => void; onForest: () => void; onNpc: (id: string) => void; onReports: () => void
 }) {
   const active = activeCity(empire)
   const island = ISLANDS.find(i => i.id === islandId)!
@@ -82,7 +82,7 @@ export function IslandView({ empire, islandId, now, onCity, onIsland, onMine, on
           {active.map(m => <span key={m.id}>{missionTag(m)}</span>)}
         </button>
       })}
-      {home && <button className="island-spot island-forest" style={place('forest')} onClick={onMine} aria-label={`Ada ormanı, seviye ${active.game.forest.level}`}>
+      {home && <button className="island-spot island-forest" style={place('forest')} onClick={onForest} aria-label={`Ada ormanı, seviye ${active.game.forest.level}`}>
         <span className="island-label"><strong>Ada ormanı</strong><small>Sv. {active.game.forest.level} · {active.game.forest.workers} oduncu</small></span>
       </button>}
       {RIVALS.filter(r => r.islandId === island.id).map((r, i) => {

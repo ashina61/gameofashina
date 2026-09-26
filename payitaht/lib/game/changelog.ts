@@ -6,6 +6,16 @@ export type Release = { version: string; date: string; title: string; notes: str
 
 export const CHANGELOG: Release[] = [
   {
+    version: '0.27.0', date: '26 Eylül 2026', title: 'Fasıl müziği, sancak ve resimli görevler',
+    notes: [
+      'Arka plan müziği: Hicaz makamında ud, ney, dem ve Düyek usulünde darbuka; oyunun içinde çalınan yaklaşık iki dakikalık bir fasıl. Giriş ekranında da çalar.',
+      'Sesler yenilendi: her dokunuştaki tık kaldırıldı. Yalnızca önemli anlarda yumuşak ud teli (onay, ödül), tahta tokmak (inşaat) ve davul (savaş). Ayarlar\'da Müzik, Efekt, Ortam sesi ve Titreşim ayrı ayrı açılır.',
+      'Adada maden ile orman ayrıldı: Ada ormanı artık kendi sayfasında (oduncular, bağış, orman resmi); Kereste Ocağı\'ndaki düğme de oraya gider.',
+      'Görevlere çizimler: her hedef kendi binasını, âlimini, askerini ya da madenini gösterir; günlük görevler de resimli.',
+      'Hükümdar profilinin başında boş bina yerine rüzgârda dalgalanan sancağın: dört biçim (kırlangıç kuyruk, çifte dil, üçgen flama, dört köşe), arma ve renk senin seçimin.',
+    ],
+  },
+  {
     version: '0.26.0', date: '26 Eylül 2026', title: 'Canlı şehir, ses ve Play Store cilası',
     notes: [
       'Şehrin arka planı canlandı: çayırda ot tutamları, yonca lekeleri ve kır çiçekleri; fıstık çamı, çınar, kavak ve meyve ağaçları; dere boyunca kavak sırası.',

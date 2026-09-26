@@ -158,7 +158,7 @@ function CostBreakdown({ game, id }: { game: Game; id: BuildingId }) {
 /** Binaya özel kutular. */
 function BuildingView({ game, empire, id, onCommand, onRecruit, onNav, onBuildingNav, run }: {
   game: Game; empire: Empire | undefined; id: BuildingId; onCommand: (c: Command) => void; run?: Run
-  onRecruit: (id: UnitId, count: number) => void; onNav: (panel: 'research' | 'diplomacy' | 'island' | 'people' | 'cities') => void
+  onRecruit: (id: UnitId, count: number) => void; onNav: (panel: 'research' | 'diplomacy' | 'island' | 'forest' | 'people' | 'cities') => void
   onBuildingNav: (id: BuildingId) => void
 }) {
   const r = rates(game)
@@ -220,7 +220,7 @@ function BuildingView({ game, empire, id, onCommand, onRecruit, onNav, onBuildin
     }
     case 'kereste': return <Box title="Oduncular"><Workers game={game} id="kereste" unit="Oduncu" perWorker="Her oduncu şehrin kerestesine katkı verir; boştaki halk üretim yapmaz." onCommand={onCommand} />
       <p className="bp-note">Adanın ormanında da oduncu çalıştırabilirsin (ada ormanı: {num(forestProduction(game))} kereste/dk).</p>
-      <Button size="sm" variant="outline" onClick={() => onNav('island')}>Ada ormanına git<ChevronRight data-icon="inline-end" /></Button></Box>
+      <Button size="sm" variant="outline" onClick={() => onNav('forest')}>Ada ormanına git<ChevronRight data-icon="inline-end" /></Button></Box>
     case 'tas': return <Box title="Taşçılar"><Workers game={game} id="tas" unit="Taşçı" perWorker="Taş ocağında çalışan her taşçı taş üretir." onCommand={onCommand} /></Box>
     case 'carsi': return <Box title="Esnaf"><Workers game={game} id="carsi" unit="Esnaf" perWorker="Esnaf çarşıda akçe kazandırır." onCommand={onCommand} />
       <p className="bp-note">Çarşı'daki tüccarla lüks mal alıp satmak için Ada paneline git.</p>
@@ -335,7 +335,7 @@ export function BuildingPage({ game, empire, id, onClose, onBuild, onFlip, onMov
   game: Game; empire: Empire | undefined; id: BuildingId; run?: Run
   onClose: () => void; onBuild: () => void; onFlip: () => void; onMove: () => void
   onCommand: (c: Command) => void; onRecruit: (id: UnitId, count: number) => void
-  onNav: (panel: 'research' | 'diplomacy' | 'island' | 'people' | 'cities') => void; onBuildingNav: (id: BuildingId) => void
+  onNav: (panel: 'research' | 'diplomacy' | 'island' | 'forest' | 'people' | 'cities') => void; onBuildingNav: (id: BuildingId) => void
   children?: ReactNode
 }) {
   const b = BUILDINGS[id], level = game.buildings[id], max = MAX_LEVEL[id]
