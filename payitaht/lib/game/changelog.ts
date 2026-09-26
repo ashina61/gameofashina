@@ -6,6 +6,15 @@ export type Release = { version: string; date: string; title: string; notes: str
 
 export const CHANGELOG: Release[] = [
   {
+    version: '0.19.0', date: '26 Eylül 2026', title: 'Kadim tanrılar',
+    notes: [
+      'Ongun Mabedi: balbal taşları, ongun direği, kutsal ateş ve keçe otağlarla açık hava mabedi. Lütuf biriktirir; akçe, kereste, taş ya da lüks mal sunarak lütfü artırırsın.',
+      'Sekiz kadim Türk tanrısı: Tengri, Umay Ana, Ülgen, Kayra Han, Erlik Han, Kızagan, Su İyesi, Yel Ana. Şehir birini hami seçer; hami tanrının lütfü mabet seviyesiyle büyür.',
+      'Her tanrının kudreti: Kut (bir saatlik üretim), Bereket Yağmuru, Aydınlanma, Yaratış, Karanlık Korku (baskıncıların üçte biri kaçar), Savaş Narası, Dalga Kalkanı, Poyraz.',
+      'Başlangıç eğitimine mabet adımı eklendi (19 adım).',
+    ],
+  },
+  {
     version: '0.18.0', date: '26 Eylül 2026', title: 'Loncalar, geniş dünya ve deniz meydanı',
     notes: [
       'Ahi Tekkesi: himmet biriktirir; himmeti altı esnaf loncasına adayıp himayene aldığın loncaların bereketinden yararlanırsın (Ikariam\'daki tanrıların karşılığı).',

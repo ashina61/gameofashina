@@ -78,7 +78,7 @@ export function GuildPanel({ game, now, onCommand }: { game: Game; now: number; 
         </div>
       </article>
     })}</div>
-    <p className="fine-print">Tekke 1. seviyede bir, 5.'de iki, 10.'da üç loncayı himaye eder. Himayede olmayan lonca derecesini korur ama etki etmez. Loncalar yönetim biçimi himmeti %25 artırır. (Ikariam'daki tanrılar sisteminin Osmanlı esnaf karşılığı.)</p>
+    <p className="fine-print">Tekke 1. seviyede bir, 5.'de iki, 10.'da üç loncayı himaye eder. Himayede olmayan lonca derecesini korur ama etki etmez. Loncalar yönetim biçimi himmeti %25 artırır. Tanrılar ayrıca Ongun Mabedi'ndedir.</p>
   </section>
 }
 

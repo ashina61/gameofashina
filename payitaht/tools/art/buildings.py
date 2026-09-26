@@ -1465,6 +1465,57 @@ def tekke(s, st):
     s.flag(0.35, 1.3, 0, 0.8, green)
     s.tree(0.3, 1.75, 0.95, 'cypress'); s.tree(1.75, 1.7, 0.95, 'cypress'); s.tree(1.6, 1.35, 0.8)
 
+
+def mabet(s, st):
+    """Ongun Mabedi: açık hava mabedi. Taş çember ve balbal taşları, ortada
+    oymalı ongun direği (tepesinde kartal), kutsal ateş; keçe otağ, tuğlar ve
+    bez bağlanmış dilek ağacı. Son aşamada kurgan ve ikinci otağ."""
+    ground(s, 0.1, 0.1, 1.92, 1.92, hexc('#bdb07a'))
+    cx, cy = 0.95, 0.95
+    s.flat([(cx + 0.62 * math.cos(a), cy + 0.62 * math.sin(a) * 1.0, 0.004) for a in [i * math.pi / 16 for i in range(32)]], hexc('#cdbf8e'), 'ground', key=-55)
+    # Balbal taşları: çember boyunca dikili taşlar.
+    n = (8, 10, 12)[st - 1]
+    for k in range(n):
+        a = 2 * math.pi * k / n + 0.2
+        x, y = cx + 0.58 * math.cos(a), cy + 0.58 * math.sin(a)
+        h = 0.2 + 0.06 * ((k * 7) % 3)
+        s.box(x - 0.035, y - 0.03, 0, x + 0.035, y + 0.03, h, hexc('#a8a294'), 'stone')
+        s.sphere(x, y, h + 0.02, 0.03, hexc('#a8a294'), 'stone')
+    # Ongun direği: oymalı, renkli halkalar, tepede kartal.
+    oh = (0.9, 1.1, 1.25)[st - 1]
+    s.cylinder(cx, cy, 0, oh, 0.045, PAL['wood'], 'wood', n=10)
+    for i, col in enumerate([PAL['red'], hexc('#2f7a92'), PAL['gold'], PAL['red']][:2 + st]):
+        z = 0.25 + i * (oh - 0.35) / (2 + st)
+        s.cylinder(cx, cy, z, z + 0.06, 0.055, col, 'wood', n=10)
+    s.sphere(cx, cy, oh + 0.04, 0.05, hexc('#5a3a22'))
+    for sx in (-1, 1):  # kartal kanatları
+        s.add(Prim([Face([(cx, cy, oh + 0.05), (cx + sx * 0.2, cy - sx * 0.2, oh + 0.14), (cx + sx * 0.16, cy - sx * 0.16, oh + 0.02)], hexc('#6a4a2a'), 'wood', None, False, (0.3, 0.3, 1))], cull=False))
+    # Kutsal ateş: taş ocak, alev.
+    fx, fy = cx + 0.28, cy + 0.2
+    s.cylinder(fx, fy, 0, 0.07, 0.1, hexc('#8a8478'), 'stone', n=10, top=hexc('#3a2a1c'))
+    s.cone(fx, fy, 0.07, 0.2, 0.07, hexc('#f2a53a'), 'flat', n=8)
+    s.cone(fx, fy, 0.07, 0.12, 0.045, hexc('#ffe08a'), 'flat', n=8)
+    # Keçe otağ (yurt).
+    def otag(x, y, r):
+        s.cylinder(x, y, 0, 0.26, r, hexc('#efe6d2'), 'canvas', n=16, deco=[('band', 0.55, 0.68, PAL['red'])])
+        s.cone(x, y, 0.26, 0.2, r * 1.05, hexc('#d9cdb0'), 'canvas', n=16)
+        s.sphere(x, y, 0.47, 0.025, PAL['red'])
+    if st >= 2:
+        otag(0.35, 0.4, 0.2)
+    if st >= 3:
+        otag(1.6, 0.35, 0.17)
+        s.blob(1.6, 1.6, 0.0, 0.3, hexc('#8f9a52'), 'leaf', squash=0.5)  # kurgan
+        s.box(1.58, 1.58, 0.14, 1.64, 1.64, 0.45, hexc('#a8a294'), 'stone')
+    # Tuğlar: direk + at kılı püskül.
+    for (x, y) in ((0.3, 1.3), (1.55, 0.95))[:1 + (st >= 2)]:
+        s.cylinder(x, y, 0, 0.75, 0.012, PAL['wooddark'], 'flat', n=6)
+        s.sphere(x, y, 0.78, 0.022, PAL['gold'])
+        s.cone(x, y, 0.55, 0.2, 0.05, hexc('#f4efe4'), 'flat', n=10)
+    # Dilek ağacı: bez bağlı dallar.
+    s.tree(0.45, 1.65, 1.0)
+    for k, col in enumerate([PAL['red'], hexc('#2f7a92'), PAL['gold'], hexc('#f4efe4'), PAL['green']]):
+        s.box(0.35 + (k % 3) * 0.08, 1.58 + (k // 3) * 0.1, 0.34 + (k % 2) * 0.06, 0.37 + (k % 3) * 0.08, 1.6 + (k // 3) * 0.1, 0.44 + (k % 2) * 0.06, col, 'canvas', outline=False)
+
 BUILDINGS = {
     'divan': divan, 'saray': saray, 'elcilik': elcilik, 'konut': konut, 'hamam': hamam, 'carsi': carsi,
     'ambar': ambar, 'kereste': kereste, 'tas': tas, 'medrese': medrese, 'kisla': kisla, 'liman': liman,
@@ -1473,7 +1524,7 @@ BUILDINGS = {
     'bagci': bagci, 'simyahane': simyahane, 'camci': camci, 'mahzen': mahzen, 'gozlukcu': gozlukcu,
     'barutane': barutane, 'depo': depo, 'ticaret_merkezi': ticaret_merkezi, 'harita_arsivi': harita_arsivi,
     'valilik': valilik, 'korsan_kalesi': korsan_kalesi, 'kara_pazar': kara_pazar,
-    'siginak': siginak, 'tekke': tekke,
+    'siginak': siginak, 'tekke': tekke, 'mabet': mabet,
 }
 # Aşamasız yardımcı katmanlar: (fonksiyon, gölge var mı)
 EXTRAS = {'site': (site, True), 'scaffold': (scaffold, False),

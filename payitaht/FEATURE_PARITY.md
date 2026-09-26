@@ -2,7 +2,7 @@
 
 Ikariam'ın oyun sistemleri Payitaht evrenine (Osmanlı-Akdeniz) uyarlanır. Ikariam'ın
 görselleri, metinleri ve birebir sayıları kopyalanmaz; sistemler ve oyun döngüsü
-eşlenir. Durum: ✅ var · 🟡 kısmen · ❌ yok. (Güncelleme: 2026-09-26, sürüm 0.18.0)
+eşlenir. Durum: ✅ var · 🟡 kısmen · ❌ yok. (Güncelleme: 2026-09-26, sürüm 0.19.0)
 
 ## Kaynaklar ve ekonomi
 
@@ -46,7 +46,8 @@ eşlenir. Durum: ✅ var · 🟡 kısmen · ❌ yok. (Güncelleme: 2026-09-26, s
 | Ormancı / Taş ustası / Bağcı / Simyacı / Camcı | Ormancı Evi / Taşçı Ustası / Bağcı Evi / Simyahane / Camcı | ✅ |
 | Marangoz / Mimar / Şaraphane / Optikçi / Havai fişek alanı | Marangozhane / Mimarbaşı / Şıra Mahzeni / Gözlükçü / Barut Deneme Alanı | ✅ |
 | Tapınak (rahipler, mucizeler) | Cami: rahipler inanç toplar, adanın harikasının mucizesi çağrılır | ✅ |
-| Tanrılar (lütuf, himaye) | Ahi Tekkesi: himmet, altı esnaf loncası, derece ve himaye (Tekke seviyesiyle 1-3 lonca) | ✅ Osmanlı karşılığı |
+| Tanrılar (lütuf, kudret) | Ongun Mabedi: sekiz kadim Türk tanrısı (Tengri, Umay, Ülgen, Kayra, Erlik, Kızagan, Su İyesi, Yel Ana); lütuf, sunu, hami tanrı, kudret | ✅ |
+| (ek) Esnaf loncaları | Ahi Tekkesi: himmet, altı lonca, derece ve himaye | ✅ Osmanlı eki |
 | Deniz Haritası Arşivi | Harita Arşivi | ✅ |
 | Korsan Kalesi | Korsan Kalesi: tüccar gemilerine korsan seferi, korsan şöhreti, +%10 yağma/sv | ✅ |
 | Kara Pazar | Kara Pazar: her malı başka bir mala takas (3,2:1 → 2:1) | ✅ |

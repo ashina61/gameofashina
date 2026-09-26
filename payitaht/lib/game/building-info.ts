@@ -10,6 +10,7 @@ import {
   merchantBuyPrice, merchantLimit, merchantSellPrice, tradeCapacity, wallDefense, type BuildingId, type Game,
 } from './engine'
 import { himmetCap, himmetRate, patronSlots } from './guilds'
+import { lutufCap, lutufRate } from './gods'
 
 export type EffectLine = { label: string; value: string }
 
@@ -110,6 +111,10 @@ export function effectLines(game: Game, id: BuildingId, level: number): EffectLi
     case 'tekke': return [
       { label: 'Himmet', value: `+${(himmetRate(g)).toFixed(1)}/dk · en fazla ${num(himmetCap(g))}` },
       { label: 'Himaye edilen lonca', value: `${patronSlots(level)}` },
+    ]
+    case 'mabet': return [
+      { label: 'Lütuf', value: `+${(lutufRate(g)).toFixed(1)}/dk · en fazla ${num(lutufCap(g))}` },
+      { label: 'Hami tanrının lütfü', value: `${Math.min(20, level)}. derece` },
     ]
     case 'siginak': return [
       { label: 'Casus yeri', value: `+${level * E.siginakSpies}` },

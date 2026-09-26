@@ -1242,3 +1242,26 @@
 .objective-list li.is-got .objective-mark { background: #2f6b4c; color: #fff; }
 .objective-list li.is-ready .objective-mark { background: #b8872e; color: #fff; }
 .objective-reward { font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+/* Ongun Mabedi: kadim tanrılar */
+.god-emblem { flex: none; filter: drop-shadow(0 2px 2px #3a24104d); }
+.god-emblem.is-on { filter: drop-shadow(0 0 6px #e2bd78); }
+.offering { display: grid; gap: 6px; padding: 10px; border: 1px dashed #b8872e; border-radius: 10px; background: #fbf2d6; }
+.god-patron { display: grid; grid-template-columns: auto 1fr; gap: 10px; align-items: center; padding: 12px; border-radius: 12px; border: 1px solid #c9a24e;
+  background: linear-gradient(135deg, #f8ebc4, #f1dca0); }
+.god-patron > span { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.god-patron strong { font-family: var(--font-heading), Georgia, serif; font-size: 22px; color: #3a2410; }
+.god-patron small { font-size: 12px; color: #6a4a22; display: inline-flex; align-items: center; gap: 4px; }
+.god-patron > button { grid-column: 1 / -1; }
+.god-active { color: #2f6b4c !important; font-weight: 700; }
+.god-list { display: grid; gap: 8px; }
+.god-card { display: grid; grid-template-columns: 52px minmax(0, 1fr) auto; gap: 10px; align-items: center; padding: 8px 10px; border: 1px solid #e2cf9c; border-radius: 10px; background: #fbf2d6; }
+.god-card > span { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.god-card strong { font-size: 15px; }
+.god-card small { font-size: 11px; color: #6a4a22; line-height: 1.35; }
+.god-card .god-title { color: #8a5a22; font-weight: 600; }
+.god-card.is-patron { border-color: #b8872e; background: #f6e3a8; }
+.god-card em { font-style: normal; font-size: 11px; font-weight: 700; color: #fff; background: #b8872e; padding: 2px 8px; border-radius: 10px; }
+.gods-panel, .gods-panel > *, .guild-panel, .guild-panel > * { min-width: 0; }
+.gods-panel .batch-row, .guild-panel .batch-row { flex-wrap: wrap; }
+.offering .profile-label { display: inline-flex; align-items: center; gap: 4px; }

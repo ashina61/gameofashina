@@ -1,5 +1,6 @@
 /**
- * AHİ TEKKESİ VE LONCA HİMAYESİ — Ikariam'daki tanrılar sisteminin karşılığı.
+ * AHİ TEKKESİ VE LONCA HİMAYESİ — Osmanlı esnaf loncalarının kalıcı bonusları.
+ * (Tanrılar ayrı sistemdir: bkz. gods.ts, Ongun Mabedi.)
  *
  * Tekke dakikada HİMMET biriktirir (seviyeyle artar). Oyuncu himmeti bir
  * loncaya ADAR; adanan himmet loncanın derecesini (0-10) yükseltir. Ama

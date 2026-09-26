@@ -24,6 +24,7 @@ import {
   ROUND_MS, battleRound, endBattle, fieldSize, joinBattle, replayBattle, retreatBattle, startBattle, troopList,
   type BattleJoin, type BattleResult, type BattleSide, type BattleState, type Troops,
 } from './battle'
+import { godBuff } from './gods'
 import { activeCity, advanceEmpire, bump, type CityRecord, type Empire } from './empire'
 import { ISLANDS, type IslandId } from './islands'
 import {
@@ -1101,11 +1102,18 @@ function openDefense(empire: Empire, t: Threat): boolean {
   const g = city.game
   const ships = only(availableUnits(empire, city.id), WARSHIPS)
   t.spare = {}; t.ownLost = {}
+  // Erlik Han'ın Karanlık Korkusu: baskıncıların üçte biri kapıya varmadan kaçar.
+  const fear: string[] = []
+  if (godBuff(g, 'erlik', t.arriveAt)) {
+    const cut = (x: Troops) => Object.fromEntries((Object.entries(x) as [UnitId, number][]).map(([id, n]) => [id, Math.floor(n * 2 / 3)]).filter(([, n]) => (n as number) > 0)) as Troops
+    t.troops = cut(t.troops); t.fleet = cut(t.fleet)
+    fear.push('Erlik Han\'ın karanlık korkusu çöktü: baskıncıların üçte biri kaçtı.')
+  }
   if (hasTroops(ships) && hasTroops(t.fleet)) {
     const m = multipliers(g, ships, 'deniz'), shield = 1 + miracle(g, 'kalkan') * 0.1, mul = 1 + t.level * 0.03
     t.battle = openBattle('naval', 'Deniz savaşı', targetName(t.npcId), 'Donanmamız', { troops: { ...t.fleet }, attackMul: mul, defenseMul: mul },
-      { troops: ships, attackMul: m.attackMul * shield, defenseMul: m.defenseMul * shield, fieldLevel: Math.max(g.buildings.liman, g.buildings.tersane), naval: true }, t.arriveAt)
-  } else openLandDefense(empire, t, t.arriveAt, [], [])
+      { troops: ships, attackMul: m.attackMul * shield, defenseMul: m.defenseMul * shield, fieldLevel: Math.max(g.buildings.liman, g.buildings.tersane), naval: true }, t.arriveAt, fear)
+  } else openLandDefense(empire, t, t.arriveAt, fear, [])
   return true
 }
 /** Kara savaşı: sur muhafızları + şehrin kara birlikleri (+ ittifak yardımı), sur önce hasar emer. */
