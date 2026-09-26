@@ -26,7 +26,11 @@ import { bakeGraphics, BakeAtlas } from './bake'
 
 /** Arazi dokuları ve dekor (tools/art/decor.py ile çizilir). */
 export const TERRAIN_TILES = ['grass', 'dirt'] as const
-export const DECOR_TILES = ['olive-tree', 'bush', 'flower', 'rock', 'cypress', 'cypress-b'] as const
+export const DECOR_TILES = [
+  'olive-tree', 'bush', 'flower', 'rock', 'cypress', 'cypress-b',
+  // 0.26: çeşitlilik — fıstık çamı, çınar, kavak, meyve ağacı ve kır hayatı.
+  'pine', 'plane-tree', 'poplar', 'fruit-tree', 'haystack', 'well', 'woodpile', 'beehives', 'tulip-bed',
+] as const
 /**
  * ADA MADENİ yeri: kuzey kulesinin batısında, surların hemen dışında.
  * Orman burayı boş bırakır; sahne adanın kaynağına göre maden çizer.
@@ -496,6 +500,39 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1, occupiedSl
     const roll = microRnd()
     micro.fillStyle(roll > 0.62 ? 0xd8c78c : roll > 0.28 ? 0x546d43 : 0x8d764e, 0.035 + microRnd() * 0.065)
     micro.fillEllipse(x, y, 1.5 + microRnd() * 5.5, 0.8 + microRnd() * 2.1)
+  }
+  /*
+   * ÇİM DOKUSU (0.26): düz yeşil yerine yaşayan çayır. Yonca lekeleri,
+   * binlerce ot tutamı ve küme küme kır çiçekleri. Hepsi tek Graphics'te,
+   * dokuya pişirilir (kamerada ek maliyet yok); deniz ve kumsala girmez.
+   */
+  {
+    const land = (x: number) => Math.max(0, shoreY(x) - wr.y - TILE.h * 1.6)
+    for (let i = 0; i < 90; i++) {
+      const x = wr.x + microRnd() * wr.w, y = wr.y + microRnd() * land(x)
+      micro.fillStyle(microRnd() > 0.5 ? 0x4f7a38 : 0x9bb866, 0.07 + microRnd() * 0.06)
+      micro.fillEllipse(x, y, TILE.w * (0.5 + microRnd() * 1.1), TILE.h * (0.4 + microRnd() * 0.8))
+    }
+    const bladeCols = [0x4a6e32, 0x5d8a3c, 0x7da04e, 0xa9c070]
+    for (let i = 0; i < 2600; i++) {
+      const x = wr.x + microRnd() * wr.w, y = wr.y + microRnd() * land(x)
+      const h = 3 + microRnd() * 5, c = bladeCols[Math.floor(microRnd() * bladeCols.length)]
+      micro.lineStyle(1.3, c, 0.35 + microRnd() * 0.3)
+      micro.lineBetween(x, y, x - 2.2, y - h)
+      micro.lineBetween(x, y, x + 0.4, y - h * 1.15)
+      micro.lineBetween(x, y, x + 2.4, y - h * 0.9)
+    }
+    const petals = [0xf6f1e4, 0xf2d24c, 0xc46fb0, 0xd9534a, 0x9ab6e0]
+    for (let k = 0; k < 70; k++) {
+      const cx = wr.x + microRnd() * wr.w, cy = wr.y + microRnd() * land(cx)
+      const col = petals[Math.floor(microRnd() * petals.length)]
+      const n = 5 + Math.floor(microRnd() * 9)
+      for (let j = 0; j < n; j++) {
+        const x = cx + (microRnd() - 0.5) * TILE.w * 0.9, y = cy + (microRnd() - 0.5) * TILE.h * 0.7
+        micro.fillStyle(0x3f6a2e, 0.5); micro.fillCircle(x + 0.6, y + 0.8, 1.6)
+        micro.fillStyle(col, 0.9); micro.fillCircle(x, y, 1.5 + microRnd())
+      }
+    }
   }
 
   // Büyük yumuşak ton geçişleri.
@@ -1472,12 +1509,19 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1, occupiedSl
         if (roll > (0.10 + 0.70 * t) * (0.12 + 1.6 * clump)) continue
         if (!clearForDecor(jx, jy, 0.8)) continue
         const rockBias = 0.08 * t
-        const key = pick < 0.52 - rockBias ? 'd_olive-tree'
-          : pick < 0.60 - rockBias ? 'd_cypress'
-          : pick < 0.66 - rockBias ? 'd_cypress-b'
-          : pick < 0.84 - rockBias ? 'd_bush'
-          : pick < 0.96 ? 'd_rock' : 'd_flower'
+        // 0.26: zeytinliğin arasına fıstık çamı, çınar ve kavak karışır.
+        const key = pick < 0.34 - rockBias ? 'd_olive-tree'
+          : pick < 0.43 - rockBias ? 'd_pine'
+          : pick < 0.49 - rockBias ? 'd_plane-tree'
+          : pick < 0.54 - rockBias ? 'd_cypress'
+          : pick < 0.58 - rockBias ? 'd_cypress-b'
+          : pick < 0.61 - rockBias ? 'd_poplar'
+          : pick < 0.82 - rockBias ? 'd_bush'
+          : pick < 0.95 ? 'd_rock' : 'd_flower'
         const w = key === 'd_olive-tree' ? TILE.w * (0.62 + size * 0.34 + clump * 0.36)
+          : key === 'd_pine' ? TILE.w * (0.66 + size * 0.3 + clump * 0.3)
+          : key === 'd_plane-tree' ? TILE.w * (0.7 + size * 0.3 + clump * 0.3)
+          : key === 'd_poplar' ? TILE.w * (0.26 + size * 0.1)
           : key.startsWith('d_cypress') ? TILE.w * (0.30 + size * 0.12)
           : key === 'd_rock' ? TILE.w * (0.30 + size * 0.18)
           : key === 'd_bush' ? TILE.w * (0.30 + size * 0.14)
@@ -1489,7 +1533,7 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1, occupiedSl
     // KÜTLE olarak okunur (tek Graphics, ucuz).
     const floor = scene.add.graphics().setDepth(-706)
     for (const p of wild) {
-      if (p.clump < 0.45 || p.key !== 'd_olive-tree') continue
+      if (p.clump < 0.45 || !['d_olive-tree', 'd_pine', 'd_plane-tree'].includes(p.key)) continue
       floor.fillStyle(0x2f4a24, 0.10 + 0.10 * p.clump)
       floor.fillEllipse(p.x, p.y - TILE.h * 0.35, p.w * 1.35, p.w * 0.62)
     }
@@ -1498,6 +1542,72 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1, occupiedSl
     for (const p of wild) {
       const image = stamp(p.key, p.x, p.y, p.w, -700, 0.92, 1, p.tint)
       if (image) { image.setFlipX(p.flip); ambientDecor.push({ image, x: p.x, y: p.y }) }
+    }
+  }
+
+  /*
+   * KIR HAYATI (0.26): sur içindeki boş çimen artık ıssız değil. Arsalardan,
+   * yollardan ve dereden uzak açıklıklara küçük sahneler: çınar gölgesi,
+   * meyve bahçesi, kuyu başı, lale tarhı. Tarla kenarında saman, kovan ve
+   * odun; dere boyunca kavak sırası. Bir arsaya bina kurulunca yakınındaki
+   * sahne (ambientDecor) kendiliğinden kaybolur.
+   */
+  {
+    const lifeRnd = mulberry32(260926)
+    const spots: Array<{ x: number; y: number }> = []
+    const far = (x: number, y: number, d: number) =>
+      !spots.some(p => Math.hypot(p.x - x, (p.y - y) * 1.6) < d) &&
+      !clusterCenters.some(c => Math.hypot(c.x - x, (c.y - y) * 1.6) < TILE.w * 1.2)
+    const put = (key: string, x: number, y: number, w: number) => {
+      if (!clearForDecor(x, y, 0.72)) return false
+      const image = stamp(key, x, y, w, -700, 0.92, 1)
+      if (image) { image.setFlipX(lifeRnd() > 0.5); ambientDecor.push({ image, x, y }) }
+      return !!image
+    }
+    const scenes: Array<(x: number, y: number) => void> = [
+      // Çınar gölgesi: ulu çınar, dibinde çalı ve çiçek.
+      (x, y) => { put('d_plane-tree', x, y, TILE.w * 0.95); put('d_bush', x + TILE.w * 0.42, y + TILE.h * 0.3, TILE.w * 0.3); put('d_flower', x - TILE.w * 0.38, y + TILE.h * 0.35, TILE.w * 0.28) },
+      // Meyve bahçesi: üç portakal / nar ağacı.
+      (x, y) => { for (const [dx, dy] of [[0, 0], [0.45, 0.25], [-0.4, 0.3]]) put('d_fruit-tree', x + TILE.w * dx, y + TILE.h * dy, TILE.w * 0.5) },
+      // Kuyu başı.
+      (x, y) => { put('d_well', x, y, TILE.w * 0.42); put('d_fruit-tree', x + TILE.w * 0.45, y - TILE.h * 0.15, TILE.w * 0.46); put('d_flower', x - TILE.w * 0.35, y + TILE.h * 0.2, TILE.w * 0.26) },
+      // Lale tarhı ve fıstık çamı.
+      (x, y) => { put('d_tulip-bed', x, y, TILE.w * 0.6); put('d_pine', x + TILE.w * 0.55, y - TILE.h * 0.25, TILE.w * 0.8) },
+    ]
+    const hallS = slotById(HALL_SLOT_ID)!.screen
+    let tries = 0
+    while (spots.length < 36 && tries++ < 1600) {
+      const x = wr.x + wr.w * (0.1 + lifeRnd() * 0.8)
+      const y = wr.y + (shoreY(x) - wr.y) * (0.12 + lifeRnd() * 0.8)
+      if (Math.hypot(x - hallS.x, (y - hallS.y) * 1.8) < TILE.w * 2.2) continue
+      if (!clearForDecor(x, y, 0.85) || !far(x, y, TILE.w * 1.5)) continue
+      spots.push({ x, y })
+      scenes[spots.length % scenes.length](x, y)
+    }
+    // Tek tük gölgelik ağaçlar: çayırı noktalayan çınar, çam ve meyve ağaçları.
+    const singles = ['d_plane-tree', 'd_pine', 'd_fruit-tree', 'd_olive-tree', 'd_fruit-tree', 'd_poplar']
+    for (let i = 0, placed = 0; i < 700 && placed < 60; i++) {
+      const x = wr.x + wr.w * (0.06 + lifeRnd() * 0.88)
+      const y = wr.y + (shoreY(x) - wr.y) * (0.1 + lifeRnd() * 0.84)
+      if (!far(x, y, TILE.w * 0.9)) continue
+      const key = singles[Math.floor(lifeRnd() * singles.length)]
+      const w = key === 'd_plane-tree' ? 0.78 : key === 'd_pine' ? 0.74 : key === 'd_olive-tree' ? 0.66 : key === 'd_poplar' ? 0.28 : 0.46
+      if (put(key, x, y, TILE.w * w * (0.85 + lifeRnd() * 0.3))) { spots.push({ x, y }); placed++ }
+    }
+    // Tarla kenarları: saman yığını, arı kovanı, odun.
+    for (const [i, f] of cityFields().entries()) {
+      const sideX = f.x + (i % 2 ? 1 : -1) * (f.hw + TILE.w * 0.45)
+      put(['d_haystack', 'd_beehives', 'd_woodpile'][i % 3], sideX, f.y + TILE.h * 0.1, TILE.w * (i % 3 === 0 ? 0.42 : 0.5))
+      if (i % 2 === 0) put('d_haystack', sideX + TILE.w * 0.2, f.y + TILE.h * 0.55, TILE.w * 0.34)
+    }
+    // Dere boyunca kavak sırası (iki yakada, aralıklı).
+    const pts = cityStream().pts
+    for (let i = 4; i < pts.length - 2; i += 3) {
+      const p = pts[i], q = pts[i + 1]
+      const l = Math.hypot(q.x - p.x, q.y - p.y) || 1
+      const nx = -(q.y - p.y) / l, ny = (q.x - p.x) / l
+      const side = i % 2 ? 1 : -1
+      if (lifeRnd() < 0.7) put('d_poplar', p.x + nx * 68 * side, p.y + ny * 40 * side, TILE.w * (0.28 + lifeRnd() * 0.08))
     }
   }
 

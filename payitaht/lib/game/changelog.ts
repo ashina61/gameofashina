@@ -6,6 +6,17 @@ export type Release = { version: string; date: string; title: string; notes: str
 
 export const CHANGELOG: Release[] = [
   {
+    version: '0.26.0', date: '26 Eylül 2026', title: 'Canlı şehir, ses ve Play Store cilası',
+    notes: [
+      'Şehrin arka planı canlandı: çayırda ot tutamları, yonca lekeleri ve kır çiçekleri; fıstık çamı, çınar, kavak ve meyve ağaçları; dere boyunca kavak sırası.',
+      'Boş çimenlere küçük sahneler: çınar gölgesi, meyve bahçesi, kuyu başı, lale tarhı; tarla kenarlarında saman yığını, arı kovanı ve odun. Arsaya bina kurulunca sahne kendiliğinden kalkar.',
+      'Ses: dokunuş, onay, hata, inşaat çekici, ödül şıngırtısı ve savaş davulu; şehirde dalga ve kuş sesi. Android\'de kısa titreşim. Ayarlar\'dan ayrı ayrı kapatılır.',
+      'Android geri tuşu artık uygulamayı kapatmıyor: açık sayfayı, ada görünümünü ya da taşıma kipini kapatır.',
+      'Şehir ekranında sıradaki hedef şeridi: hedefe tek dokunuşla git, bitince ödülü oradan al.',
+      'Telefon dikey yönde kilitli; ayarlarda Hakkında bölümü (çevrimdışı, veri toplamaz, reklamsız).',
+    ],
+  },
+  {
     version: '0.25.0', date: '26 Eylül 2026', title: 'Yaşayan dünya: yapay rakipler savaşıyor ve ticaret yapıyor',
     notes: [
       'Yapay rakipler artık kendi aralarında savaşıyor: savaşçı ve denizci hükümdarlar öbür ittifaka savaş açar, her saat çarpışır; kazanan güçlenir, kaybeden zayıflar (seviye ve sıralama değişir).',

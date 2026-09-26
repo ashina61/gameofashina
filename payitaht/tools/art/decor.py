@@ -104,6 +104,106 @@ def cypress(s, tall=1.0):
     s.cone(1, 1, 0.2, 0.55 * tall, 0.115, mix(col, hexc('#5b8a45'), 0.25), 'leaf', n=14)
 
 
+def pine(s):
+    """Fıstık çamı: uzun eğik gövde, tepede yayvan şemsiye taç."""
+    s.rnd.seed(21)
+    s.cylinder(1, 1, 0, 0.62, 0.028, hexc('#7a5634'), 'wood', n=8)
+    s.cylinder(1.04, 0.98, 0.45, 0.66, 0.02, hexc('#6e4c2e'), 'wood', n=8)
+    base = hexc('#3f6a3a')
+    for i in range(22):
+        a = s.rnd.random() * 2 * math.pi
+        r = 0.27 * math.sqrt(s.rnd.random())
+        s.blob(1 + math.cos(a) * r, 1 + math.sin(a) * r, 0.66 + s.rnd.random() * 0.08,
+               0.07 + s.rnd.random() * 0.035, mix(base, hexc('#6f9a4e'), s.rnd.random() * 0.55), squash=0.55)
+
+
+def plane_tree(s):
+    """Çınar: kalın gövde, iri yuvarlak koyu yeşil taç."""
+    s.rnd.seed(33)
+    s.cylinder(1, 1, 0, 0.36, 0.05, hexc('#8a7a62'), 'wood', n=10)
+    base = hexc('#4f7e3a')
+    for i in range(26):
+        a = s.rnd.random() * 2 * math.pi
+        r = 0.22 * math.sqrt(s.rnd.random())
+        s.blob(1 + math.cos(a) * r, 1 + math.sin(a) * r, 0.36 + s.rnd.random() * 0.26,
+               0.09 + s.rnd.random() * 0.05, mix(base, hexc('#86ad54'), s.rnd.random() * 0.5), squash=0.85)
+
+
+def poplar(s):
+    """Kavak: ince uzun, açık yeşil sütun."""
+    s.rnd.seed(44)
+    s.cylinder(1, 1, 0, 0.12, 0.022, hexc('#8a7a62'), 'wood', n=8)
+    for i in range(14):
+        z = 0.1 + i * 0.06
+        w = 0.07 + 0.05 * math.sin(min(1, (i + 1) / 13) * math.pi)
+        s.blob(1 + (s.rnd.random() - 0.5) * 0.03, 1 + (s.rnd.random() - 0.5) * 0.03, z, w,
+               mix(hexc('#6f9a3e'), hexc('#b3c264'), s.rnd.random() * 0.6), squash=0.9)
+
+
+def fruit_tree(s):
+    """Portakal / nar ağacı: küçük yuvarlak taç, turuncu ve kızıl meyveler."""
+    s.rnd.seed(55)
+    s.cylinder(1, 1, 0, 0.16, 0.024, hexc('#6e5236'), 'wood', n=8)
+    for i in range(12):
+        a = s.rnd.random() * 2 * math.pi
+        r = 0.12 * math.sqrt(s.rnd.random())
+        s.blob(1 + math.cos(a) * r, 1 + math.sin(a) * r, 0.18 + s.rnd.random() * 0.1,
+               0.065 + s.rnd.random() * 0.03, mix(hexc('#3f7a34'), hexc('#6d9c45'), s.rnd.random() * 0.5), squash=0.85)
+    for i in range(11):
+        a = s.rnd.random() * 2 * math.pi
+        r = 0.15 * math.sqrt(s.rnd.random())
+        s.sphere(1 + math.cos(a) * r, 1 + math.sin(a) * r, 0.2 + s.rnd.random() * 0.1, 0.017,
+                 hexc('#e8892b') if i % 3 else hexc('#b8322a'), n=8, rings=5)
+
+
+def haystack(s):
+    """Saman yığını: altın sarısı kubbe, tepesinde çubuk."""
+    col = hexc('#d9b45a')
+    s.cylinder(1, 1, 0, 0.1, 0.16, col, 'canvas', n=20)
+    s.dome(1, 1, 0.1, 0.16, mix(col, hexc('#f0d58a'), 0.3), 'canvas', hscale=1.3, n=20, rings=7, ribs=False, finial=False)
+    s.cylinder(1, 1, 0.28, 0.36, 0.008, PAL['wooddark'], 'wood', n=6)
+
+
+def well(s):
+    """Kuyu: taş bilezik, iki direk, kiremit çatı, kova."""
+    s.cylinder(1, 1, 0, 0.1, 0.1, PAL['stone'], 'stone', n=18, top=PAL['water'], topmat='flat')
+    for dx in (-0.1, 0.1):
+        s.box(1 + dx - 0.012, 1 - 0.012, 0.1, 1 + dx + 0.012, 1 + 0.012, 0.3, PAL['wood2'], 'wood')
+    s.box(1 - 0.11, 1 - 0.01, 0.26, 1 + 0.11, 1 + 0.01, 0.28, PAL['wood'], 'wood')
+    s.gable(0.86, 0.9, 1.14, 1.1, 0.3, 0.08, PAL['roof'], axis='x', over=0.02)
+    s.cylinder(1.03, 1.03, 0.1, 0.15, 0.022, PAL['wood'], 'wood', n=10)
+
+
+def woodpile(s):
+    """Odun yığını: kesik kütükler."""
+    s.rnd.seed(8)
+    for row, z in ((0, 0), (1, 0.05), (2, 0.1)):
+        for i in range(4 - row):
+            x = 0.86 + row * 0.03 + i * 0.075
+            s.box(x, 0.94, z, x + 0.065, 1.12, z + 0.05, mix(PAL['wood'], PAL['wood2'], s.rnd.random()), 'wood',
+                  top=mix(hexc('#e6c08a'), hexc('#c9a06a'), s.rnd.random()))
+    s.box(1.18, 0.98, 0, 1.24, 1.04, 0.07, PAL['wooddark'], 'wood')
+
+
+def beehives(s):
+    """Arı kovanları: üç küçük boyalı kutu."""
+    cols = [hexc('#e8d6a0'), hexc('#d9b45a'), hexc('#c9a06a')]
+    for i, (x, y) in enumerate(((0.9, 0.95), (1.06, 0.92), (0.98, 1.1))):
+        s.box(x, y, 0, x + 0.09, y + 0.09, 0.09, cols[i], 'wood')
+        s.hip(x - 0.01, y - 0.01, x + 0.1, y + 0.1, 0.09, 0.035, PAL['roof2'], over=0.0)
+
+
+def tulip_bed(s):
+    """Lale tarhı: taş bordürlü toprak, kırmızı ve sarı lale sıraları."""
+    s.box(0.8, 0.9, 0, 1.2, 1.1, 0.025, PAL['stone2'], 'stone', top=hexc('#7a5a3a'), topmat='ground')
+    s.rnd.seed(12)
+    for i in range(8):
+        for j in range(3):
+            x, y = 0.83 + i * 0.048, 0.94 + j * 0.06
+            s.cylinder(x, y, 0.025, 0.07, 0.004, hexc('#4f7d3a'), 'leaf', n=5)
+            s.sphere(x, y, 0.08, 0.014, [hexc('#c9302c'), hexc('#f2c230'), hexc('#d94f7a')][(i + j) % 3], n=8, rings=5)
+
+
 def tower(s):
     col = hexc('#dcc69a')
     s.cylinder(1, 1, 0, 1.25, 0.16, col, 'stone', n=24)
@@ -147,6 +247,8 @@ def texture(path, colors, seed, pebbles=None, blades=None, size=(1116, 775)):
 
 
 def main():
+    if len(sys.argv) > 1 and sys.argv[1] == 'yeni':
+        return yeni()
     os.makedirs(DECOR, exist_ok=True); os.makedirs(TERRAIN, exist_ok=True); os.makedirs(WALLS, exist_ok=True)
     render_crop(olive, os.path.join(DECOR, 'olive-tree.png'), 420)
     render_crop(bush, os.path.join(DECOR, 'bush.png'), 300)
@@ -154,10 +256,33 @@ def main():
     render_crop(rock, os.path.join(DECOR, 'rock.png'), 320)
     render_crop(lambda s: cypress(s, 1.0), os.path.join(DECOR, 'cypress.png'), 150)
     render_crop(lambda s: cypress(s, 0.75), os.path.join(DECOR, 'cypress-b.png'), 160)
+    render_crop(pine, os.path.join(DECOR, 'pine.png'), 360)
+    render_crop(plane_tree, os.path.join(DECOR, 'plane-tree.png'), 400)
+    render_crop(poplar, os.path.join(DECOR, 'poplar.png'), 150)
+    render_crop(fruit_tree, os.path.join(DECOR, 'fruit-tree.png'), 240)
+    render_crop(haystack, os.path.join(DECOR, 'haystack.png'), 220)
+    render_crop(well, os.path.join(DECOR, 'well.png'), 220)
+    render_crop(woodpile, os.path.join(DECOR, 'woodpile.png'), 260)
+    render_crop(beehives, os.path.join(DECOR, 'beehives.png'), 240)
+    render_crop(tulip_bed, os.path.join(DECOR, 'tulip-bed.png'), 300)
     # Sur kulesi: taban tuvalin alt kenarında (phaser-city origin 0.5, 1).
     render_crop(tower, os.path.join(WALLS, 'tower-round.png'), 222, base_frac=0.97, contact=False)
     texture(os.path.join(TERRAIN, 'grass.png'), [(120, 158, 84), (150, 176, 96), (86, 124, 58)], 7, blades=True)
     texture(os.path.join(TERRAIN, 'dirt.png'), [(196, 168, 118), (176, 146, 98), (128, 104, 70)], 8, pebbles=900, size=(1144, 820))
+
+
+
+def yeni():
+    """Yalnızca 0.26 dekorlarını çiz (eskiler aynen kalsın)."""
+    render_crop(pine, os.path.join(DECOR, 'pine.png'), 360)
+    render_crop(plane_tree, os.path.join(DECOR, 'plane-tree.png'), 400)
+    render_crop(poplar, os.path.join(DECOR, 'poplar.png'), 150)
+    render_crop(fruit_tree, os.path.join(DECOR, 'fruit-tree.png'), 240)
+    render_crop(haystack, os.path.join(DECOR, 'haystack.png'), 220)
+    render_crop(well, os.path.join(DECOR, 'well.png'), 220)
+    render_crop(woodpile, os.path.join(DECOR, 'woodpile.png'), 260)
+    render_crop(beehives, os.path.join(DECOR, 'beehives.png'), 240)
+    render_crop(tulip_bed, os.path.join(DECOR, 'tulip-bed.png'), 300)
 
 
 if __name__ == '__main__':

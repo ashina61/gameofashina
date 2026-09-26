@@ -1,0 +1,25 @@
+'use client'
+
+import { ChevronRight, Gift, ScrollText } from 'lucide-react'
+import { OBJECTIVES, objectiveDone, type Game } from '@/lib/game/engine'
+
+/**
+ * SIRADAKİ HEDEF ŞERİDİ — şehir ekranında yeni oyuncuya yol gösterir.
+ * Hedef bitince altın renge döner ve "Ödülü al" der; bütün hedefler
+ * tamamlanınca kaybolur. Metne dokunmak Görevler sayfasını açar.
+ */
+export function QuestChip({ game, onOpen, onGo, onClaim }: { game: Game; onOpen: () => void; onGo: () => void; onClaim: (id: string) => void }) {
+  const next = OBJECTIVES.find(o => !game.claimed.includes(o.id))
+  if (!next) return null
+  const done = objectiveDone(game, next.id)
+  const step = OBJECTIVES.indexOf(next) + 1
+  return <div className={`quest-chip${done ? ' is-done' : ''}`}>
+    <button type="button" className="quest-chip-main" onClick={onOpen} aria-label={`Sıradaki hedef ${step}/${OBJECTIVES.length}: ${next.title}. Görevleri aç`}>
+      <span className="quest-chip-icon" aria-hidden="true">{done ? <Gift /> : <ScrollText />}</span>
+      <span className="quest-chip-text"><small>Hedef {step}/{OBJECTIVES.length}{done ? ' · tamam!' : ''}</small><strong>{next.title}</strong></span>
+    </button>
+    <button type="button" className="quest-chip-go" onClick={() => done ? onClaim(next.id) : onGo()}>
+      {done ? 'Ödülü al' : 'Git'}{!done && <ChevronRight aria-hidden="true" />}
+    </button>
+  </div>
+}

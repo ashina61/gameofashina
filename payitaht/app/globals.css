@@ -1702,3 +1702,45 @@
 @media (prefers-reduced-motion: reduce) { .map-top-tools .map-offer { animation: none; } }
 /* Olay şeridi, ortadaki Harita madalyonunun üstünde kalır. */
 .game-shell .hud-ticker { bottom: calc(var(--ika-nav) + 30px); }
+
+/* ── SIRADAKİ HEDEF ŞERİDİ (şehir ekranı) ──────────────────────────────── */
+.quest-chip { position: fixed; z-index: 4; left: 8px; top: calc(var(--ika-top) + 8px); max-width: calc(100vw - 64px); display: flex; align-items: stretch;
+  border-radius: 12px; background: linear-gradient(180deg, #fff8e4, #f1dfb2); border: 1.5px solid #9c7440; box-shadow: 0 4px 12px #3a231055; overflow: hidden;
+  animation: quest-in .35s ease-out; }
+@keyframes quest-in { from { transform: translateY(-8px); opacity: 0; } }
+.quest-chip-main { display: flex; align-items: center; gap: 8px; min-width: 0; padding: 6px 8px 6px 7px; background: none; border: 0; text-align: left; color: #3a2310; }
+.quest-chip-icon { flex-shrink: 0; display: grid; place-items: center; width: 30px; height: 30px; border-radius: 50%; background: #5a3517; color: #fbe9bb; box-shadow: 0 0 0 2px #e2bd78; }
+.quest-chip-icon svg { width: 16px; height: 16px; }
+.quest-chip-text { display: flex; flex-direction: column; min-width: 0; line-height: 1.15; }
+.quest-chip-text small { font-size: 10px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: #8a5a22; }
+.quest-chip-text strong { font-family: var(--font-heading), Georgia, serif; font-size: 15.5px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.quest-chip-go { flex-shrink: 0; display: flex; align-items: center; gap: 2px; padding: 0 10px 0 12px; border: 0; border-left: 1px solid #d9bd85;
+  background: linear-gradient(180deg, #b8813f, #7a4e24); color: #fdf0cf; font-size: 13px; font-weight: 800; }
+.quest-chip-go svg { width: 16px; height: 16px; }
+.quest-chip.is-done { border-color: #c9a45a; box-shadow: 0 0 0 2px #f4d48866, 0 4px 12px #3a231055; }
+.quest-chip.is-done .quest-chip-icon { background: radial-gradient(circle at 45% 35%, #f4d488, #b8813f); color: #3a2310; animation: quest-glow 1.4s ease-in-out infinite; }
+.quest-chip.is-done .quest-chip-go { background: linear-gradient(180deg, #58a03a, #3a7a24); }
+@keyframes quest-glow { 50% { box-shadow: 0 0 0 2px #e2bd78, 0 0 14px #f4d488; } }
+@media (prefers-reduced-motion: reduce) { .quest-chip, .quest-chip.is-done .quest-chip-icon { animation: none; } }
+
+/* ── AYARLAR: ses anahtarları ──────────────────────────────────────────── */
+.sound-settings { display: flex; flex-direction: column; gap: 4px; }
+.toggle-row { display: grid; grid-template-columns: 22px 1fr auto; align-items: center; gap: 10px; padding: 8px 2px; border-bottom: 1px solid #e0c995; cursor: pointer; }
+.toggle-row:last-child { border-bottom: 0; }
+.toggle-row > svg { width: 20px; height: 20px; color: #6e4d2a; }
+.toggle-row span { display: flex; flex-direction: column; }
+.toggle-row strong { font-size: 14px; color: #3a2310; }
+.toggle-row small { font-size: 11.5px; color: #6e4d2a; }
+.toggle-row input { appearance: none; width: 46px; height: 26px; border-radius: 13px; background: #cdb688; position: relative; cursor: pointer; transition: background .2s; border: 1px solid #9c7440; }
+.toggle-row input::after { content: ''; position: absolute; top: 2px; left: 2px; width: 20px; height: 20px; border-radius: 50%; background: #fffaf0; box-shadow: 0 1px 3px #0005; transition: transform .2s; }
+.toggle-row input:checked { background: #5a8a3a; }
+.toggle-row input:checked::after { transform: translateX(20px); }
+.toggle-row input:focus-visible { outline: 2px solid #5a3517; outline-offset: 2px; }
+/* Kaynak şeridi kayar: sağ kenarda solma ipucu verir. */
+.game-shell .ika-res { -webkit-mask-image: linear-gradient(90deg, #000 88%, transparent); mask-image: linear-gradient(90deg, #000 88%, transparent); }
+/* Dokunuşta yumuşak basılma hissi. */
+.game-shell .ika-advisor, .game-shell .ika-crest, .game-shell .map-top-tools button, .game-shell .rival-row, .game-shell .building-list-item { transition: transform .08s; }
+.game-shell .ika-advisor:active, .game-shell .ika-crest:active, .game-shell .map-top-tools button:active { transform: scale(.93); }
+/* Hedef şeridi alt solda, olay şeridinin üstünde: başparmağa yakın, haritayı örtmez. */
+.quest-chip { top: auto; bottom: calc(var(--ika-nav) + 76px); max-width: min(82vw, 360px); }
+@keyframes quest-in { from { transform: translateY(8px); opacity: 0; } }
