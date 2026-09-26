@@ -28,7 +28,7 @@ import { godBuff } from './gods'
 import { activeCity, advanceEmpire, bump, type CityRecord, type Empire } from './empire'
 import { ISLANDS, type IslandId } from './islands'
 import {
-  RIVALS, allyHelp, onRivalRaided, pacified, rivalAttackMul, rivalById, rivalFleet, rivalGarrison, rivalIntel, rivalLevel,
+  RIVALS, allyHelp, isAlly, onRivalRaided, pacified, rivalAttackMul, rivalById, rivalFleet, rivalGarrison, rivalIntel, rivalLevel,
   rivalLoot, rivalState, rivalWallHp, STYLE_NAMES, FACTIONS, factionMembers, mail,
 } from './rivals'
 
@@ -372,12 +372,12 @@ function targetCheck(empire: Empire, npcId: string, kind: Mission['kind'], now: 
   if (kind === 'piracy' && !piracyTarget(npcId)) return { error: 'Bilinmeyen hedef.' }
   if (kind === 'support') {
     const r = npc?.rival ? rivalById(npcId) : undefined
-    if (!r || empire.world?.alliance !== r.faction) return { error: 'Destek birliği yalnızca ittifak üyesi hükümdarlara gönderilir.' }
+    if (!r || !isAlly(empire, r.id)) return { error: 'Destek birliği yalnızca ittifak üyesi hükümdarlara gönderilir.' }
   } else if (npc?.rival && kind !== 'spy') {
     const r = rivalById(npcId)!
     const s = empire.world?.rivals[npcId]
     if (s?.treaties.includes('baris')) return { error: `${r.ruler} ile barış anlaşman var. Önce anlaşmayı boz.` }
-    if (empire.world?.alliance === r.faction) return { error: 'İttifak üyesine saldırılmaz.' }
+    if (isAlly(empire, r.id)) return { error: 'İttifak üyesine saldırılmaz.' }
   }
   if ((kind === 'occupy' || kind === 'blockade') && !npc?.rival) return { error: 'İşgal ve abluka yalnızca hükümdar şehirlerine yapılır.' }
   if ((kind === 'occupy' || kind === 'blockade') && (empire.missions ?? []).some(m => m.npcId === npcId && (m.kind === 'occupy' || m.kind === 'blockade') && m.kind === kind)) {
@@ -677,7 +677,7 @@ function resolveSupportWatch(empire: Empire, m: Mission) {
   const city = empire.cities.find(c => c.id === m.cityId)
   if (!r || !city) { delete m.supportAt; return }
   // İttifaktan ayrıldıysan birlikler kendiliğinden döner.
-  if (empire.world?.alliance !== r.faction) {
+  if (!isAlly(empire, r.id)) {
     m.stationed = false; delete m.supportAt
     m.returnAt = at + (m.arriveAt - m.departAt)
     logEvent(city.game, `${r.city} artık müttefik değil; destek birlikleri dönüyor.`, at)

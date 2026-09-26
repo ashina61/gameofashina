@@ -6,6 +6,17 @@ export type Release = { version: string; date: string; title: string; notes: str
 
 export const CHANGELOG: Release[] = [
   {
+    version: '0.28.0', date: '26 Eylül 2026', title: 'İttifak, sancaklı şehir ve kaldırımlı sokaklar',
+    notes: [
+      'İttifak (alt menü): kendi ittifakını kur (ad + kısaltma), yapay rakipleri davet et, Başkomutan / Hariciye / Dahiliye rütbeleri ver, genelge yaz, üyeler cevaplasın; Doğu ve Batı Birliği ile barış, saldırmazlık ya da savaş; ittifak sıralaması. Üyeler sana saldırmaz, baskında yardıma gelir, şehirlerine destek birliği gönderebilirsin.',
+      'Şehirdeki bütün bayraklar artık senin sancağın: binaların, meydanın ve surların üstünde senin rengin, biçimin ve armanla dalgalanır; sancağı değiştirince hepsi değişir. Bina sayfalarında, görevlerde ve giriş ekranında da.',
+      'Yollar baştan yapıldı: geniş toprak yollarda tekerlek izi ve çakıl; taş yollarda tek tek dizilmiş arnavut kaldırımı ve bordür taşları; kesme taş caddede su oluğu; kavşaklar yuvarlak birleşir, kenarlar çimenle kaynaşır, ana caddelerde fenerler.',
+      'Bina sayfasının başında görünüm aşamaları: Sv. 1–3, 4–7 ve 8+ görünümüne dokunup yükseltince binanın nasıl görüneceğini gör.',
+      'Medresede süren araştırma çizimiyle görünür. Kum saati ve âlim simgeleri boyalı çizimlerle değişti.',
+      'Alttaki OLAY şeridi kaldırıldı (olaylar Vezir\'de).',
+    ],
+  },
+  {
     version: '0.27.0', date: '26 Eylül 2026', title: 'Fasıl müziği, sancak ve resimli görevler',
     notes: [
       'Arka plan müziği: Hicaz makamında ud, ney, dem ve Düyek usulünde darbuka; oyunun içinde çalınan yaklaşık iki dakikalık bir fasıl. Giriş ekranında da çalar.',

@@ -1,4 +1,5 @@
 'use client'
+import { KumSaatiArt } from './resource-art'
 
 /**
  * BİNA SAYFASI — Ikariam'daki bina görünümünün mobil karşılığı.
@@ -12,9 +13,9 @@
  */
 import { Hint } from './hint'
 import { useEffect, useState, type ReactNode } from 'react'
-import { ArrowLeft, ArrowUp, Clock3, LockKeyhole, FlipHorizontal2, Move, Hammer, Users, BookOpen, ChevronRight, Plus, Trash2, X } from 'lucide-react'
+import { ArrowLeft, ArrowUp, LockKeyhole, FlipHorizontal2, Move, Hammer, ChevronRight, Plus, Trash2, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { asset, buildingImage } from '@/lib/asset'
+import { asset, buildingImage , buildingStage } from '@/lib/asset'
 import {
   BUILDINGS, BUILDING_EFFECTS, constructionDiscount, LUXURY_IDS, LUXURY_NAMES, MAX_LEVEL, RESEARCH, RESOURCE_IDS, RESOURCE_NAMES, WORKERS_PER_LEVEL,
   actionPoints, activeJob, armyUpkeep, buildReason, capacity, cargoCapacity, contentment, corruption, cost, counterSpy, duration,
@@ -27,6 +28,10 @@ import { activeCity, type Empire } from '@/lib/game/empire'
 import { cityGuards, cityWallHp, safeStock } from '@/lib/game/expeditions'
 import { culturalTreaties } from '@/lib/game/rivals'
 import { luxuryIcons, resourceIcons, JobProgress } from './game-widgets'
+import { ResearchEmblem } from './research-art'
+import { BuildingArt } from './building-art'
+import { PersonArt } from './workforce'
+import type { ResearchId } from '@/lib/game/engine'
 import { ArmyPanel, BuildingEffects } from './game-panels'
 import { DemolishConfirm, type Run } from './world-panels'
 import { UnitFigure } from './unit-art'
@@ -79,9 +84,9 @@ function UpgradeBox({ game, id, onBuild }: { game: Game; id: BuildingId; onBuild
           {short && <small>-{num(n - stock(game, r))}</small>}
         </li>
       })}
-        <li className="bp-time"><Clock3 aria-hidden="true" /><strong>{time(duration(game, id))}</strong></li>
+        <li className="bp-time"><KumSaatiArt aria-hidden="true" /><strong>{time(duration(game, id))}</strong></li>
       </ul>
-      {queued > 0 && <p className="bp-note"><Clock3 className="size-4" /> İnşaat sırasında {queued + 1}. sırada.</p>}
+      {queued > 0 && <p className="bp-note"><KumSaatiArt className="size-4" /> İnşaat sırasında {queued + 1}. sırada.</p>}
       {reason && queued < 0 && <p className="bp-warn"><LockKeyhole className="size-4" /> {reason}</p>}
       <button type="button" className="bp-upgrade-button" disabled={!!reason} onClick={onBuild}>
         <span className="bp-up-arrow"><ArrowUp aria-hidden="true" /></span>{level ? 'Yükselt' : 'İnşa et'}
@@ -212,8 +217,12 @@ function BuildingView({ game, empire, id, onCommand, onRecruit, onNav, onBuildin
           ]} />
         </Box>
         <Box title="Araştırma">
-          {study ? <><p className="bp-note"><BookOpen className="size-4" /> {RESEARCH[study.id as keyof typeof RESEARCH].name}</p><JobProgress job={study} now={game.updatedAt} /></>
-            : <p className="bp-note">Şu an araştırma yok.</p>}
+          {study ? <div className="bp-study">
+            <ResearchEmblem id={study.id as ResearchId} size={76} state="active" />
+            <div><span className="eyebrow">ŞU AN ARAŞTIRILIYOR</span><strong>{RESEARCH[study.id as ResearchId].name}</strong>
+              <JobProgress job={study} now={game.updatedAt} /></div>
+          </div>
+            : <div className="bp-study is-idle"><PersonArt kind="alim" size={52} /><p className="bp-note">Şu an araştırma yok. Âlimler yeni bir konu bekliyor.</p></div>}
           <Button size="sm" onClick={() => onNav('research')}>Araştırmalara git<ChevronRight data-icon="inline-end" /></Button>
         </Box>
       </>
@@ -345,11 +354,23 @@ export function BuildingPage({ game, empire, id, onClose, onBuild, onFlip, onMov
   })
   const city = empire ? activeCity(empire).name : ''
   const [razing, setRazing] = useState(false)
+  // Görünüm önizlemesi: 1 = Sv. 1-3, 2 = Sv. 4-7, 3 = Sv. 8+ (null = şu anki).
+  const [peek, setPeek] = useState<1 | 2 | 3 | null>(null)
+  const stage = buildingStage(Math.max(1, level))
+  const shown = peek ?? stage
+  const stages = ([[1, 1, 'Sv. 1–3'], [2, 4, 'Sv. 4–7'], [3, 8, 'Sv. 8+']] as const).filter(([, from]) => from <= max)
   const movable = level > 0 && takesPlot(id)
   return <IkaPage title={b.name} subtitle={`${city} · ${b.category.toLocaleLowerCase('tr')}`} label={`${b.name} sayfası`} onClose={onClose}
     badge={<span className="bp-level" aria-label={`Seviye ${level}`}><b>{level}</b></span>}>
       <section className="bp-hero">
-        {b.art ? <img src={buildingImage(id, Math.max(1, level))} alt={`${b.name} görünümü`} /> : <span className="bp-pending"><Hammer /></span>}
+        {b.art ? <BuildingArt key={shown} className="bp-hero-art" id={id} level={shown === 1 ? 1 : shown === 2 ? 4 : 8} alt={`${b.name} görünümü`} /> : <span className="bp-pending"><Hammer /></span>}
+        {b.art && stages.length > 1 && <div className="bp-stages" role="group" aria-label="Seviyeye göre görünüm">
+          {stages.map(([st, from, label]) => <button key={st} type="button" aria-pressed={shown === st} onClick={() => setPeek(st === stage ? null : st)}
+            className={st === stage ? 'is-current' : level >= from ? 'is-reached' : 'is-locked'} aria-label={`${label} görünümü${st === stage ? ' (şu anki)' : ''}`}>
+            <img src={buildingImage(id, from)} alt="" /><span>{label}</span>
+          </button>)}
+        </div>}
+        {peek && peek !== stage && <span className="bp-stage-note">{peek > stage ? 'Yükselttikçe böyle görünecek' : 'Eski görünümü'}</span>}
         {level > 0 && <div className="bp-hero-tools" role="group" aria-label="Yapı araçları">
           {movable && b.art && <button type="button" onClick={onFlip} aria-label={game.flips.includes(id) ? 'Yönü geri çevir' : 'Yönünü çevir'}><FlipHorizontal2 /><span>Çevir</span></button>}
           {movable && id !== 'divan' && <button type="button" onClick={onMove} aria-label="Başka arsaya taşı"><Move /><span>Taşı</span></button>}

@@ -16,7 +16,9 @@ import { capitalCity, initialEmpire, renameCity, type Empire } from '@/lib/game/
 import { CREST_COLORS, CREST_NAMES, CRESTS, profileOf, rulerTitle, setProfile, type CrestId } from '@/lib/game/profile'
 import { playerScore } from '@/lib/game/rivals'
 import { VERSION } from '@/lib/game/changelog'
-import { asset, buildingImage } from '@/lib/asset'
+import { asset } from '@/lib/asset'
+import { BannerContext, BuildingArt } from './building-art'
+import type { BannerLook } from '@/lib/game/banner'
 
 type Mode = 'menu' | 'new' | 'howto' | 'notes'
 
@@ -98,12 +100,13 @@ export function TitleScreen({ onStart }: { onStart: () => void }) {
     {hasSave && <button type="button" className="title-btn" onClick={() => { setMode('menu'); setConfirmWipe(false) }}><ChevronLeft />Vazgeç</button>}
   </form>
 
-  return <main className="title-screen">
+  const look: BannerLook = profile ? { color: profile.color, shape: profile.banner ?? 'kirlangic', crest: profile.crest } : { color, shape: 'kirlangic', crest }
+  return <BannerContext.Provider value={look}><main className="title-screen">
     <div className="title-sea" aria-hidden="true" style={{ backgroundImage: `url(${asset('/images/game/islands/sahil.webp')})` }} />
     <div className="title-skyline" aria-hidden="true">
-      <img src={buildingImage('saray', 8)} alt="" className="is-left" />
-      <img src={buildingImage('divan', 8)} alt="" className="is-mid" />
-      <img src={buildingImage('liman', 8)} alt="" className="is-right" />
+      <BuildingArt id="saray" level={8} className="is-left" />
+      <BuildingArt id="divan" level={8} className="is-mid" />
+      <BuildingArt id="liman" level={8} className="is-right" />
       <img src={asset('/images/game/ships/ship-a.png')} alt="" className="is-ship" />
     </div>
 
@@ -157,5 +160,5 @@ export function TitleScreen({ onStart }: { onStart: () => void }) {
       <p>Çevrimdışı deneme sürümü · kayıt bu cihazda · sürüm {VERSION}</p>
       <p>Diğer hükümdarlar yapay rakiptir; gerçek oyuncu yoktur.</p>
     </footer>
-  </main>
+  </main></BannerContext.Provider>
 }

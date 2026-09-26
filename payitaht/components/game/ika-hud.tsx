@@ -5,11 +5,11 @@
  *
  * Üstte koyu kahverengi şerit: şehir seçici ve dört danışman (Vezir, Serasker,
  * Âlim, Elçi). Haber olan danışman parlar ve sayı gösterir. Altında parşömen
- * kaynak şeridi. En altta kahverengi menü: Şehir, Ada, Harita, Dünya, Görevler.
+ * kaynak şeridi. En altta kahverengi menü: Şehir, Ada, Harita, İttifak, Görevler.
  * Eski boyalı görseller kullanılmaz; her şey CSS ve vektör çizimdir.
  */
 import type { ReactNode } from 'react'
-import { Castle, TreePalm, Compass, Earth, ScrollText, ChevronDown } from 'lucide-react'
+import { Castle, TreePalm, Compass, Shield, ScrollText, ChevronDown } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import {
   LUXURY_NAMES, actionPoints, capacity, fullResources, maxPopulation, population, rates, researchReason, RESEARCH_IDS, type Game,
@@ -98,7 +98,7 @@ export function IkaTopBar({ game, empire, news, onCity, onEconomy, onAdvisor, on
   </header>
 }
 
-export type IkaNavKey = 'city' | 'island' | 'map' | 'world' | 'objectives'
+export type IkaNavKey = 'city' | 'island' | 'map' | 'alliance' | 'objectives'
 /**
  * ALT MENÜ: beş düğme; ortadaki Harita yükseltilmiş madalyon. Sayfalar
  * açıkken de görünür kalır, böylece her ekrandan tek dokunuşla geçilir.
@@ -107,7 +107,7 @@ export function IkaNav({ active, badges, onSelect }: { active: IkaNavKey | null;
   const items: { key: IkaNavKey; label: string; icon: ReactNode }[] = [
     { key: 'city', label: 'Şehir', icon: <Castle /> }, { key: 'island', label: 'Ada', icon: <TreePalm /> },
     { key: 'map', label: 'Harita', icon: <Compass /> },
-    { key: 'world', label: 'Dünya', icon: <Earth /> },
+    { key: 'alliance', label: 'İttifak', icon: <Shield /> },
     { key: 'objectives', label: 'Görevler', icon: <ScrollText /> },
   ]
   return <nav className="ika-nav" aria-label="Oyun menüsü">{items.map(i => <button key={i.key} type="button"

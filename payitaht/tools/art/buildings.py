@@ -12,6 +12,7 @@ Ikariam'daki gibi bina büyüdükçe görünüşü değişir:
 Her bina isokit parçalarından kurulur; deterministiktir (sabit tohum).
 """
 import math
+import json
 import os
 import sys
 
@@ -1716,6 +1717,10 @@ def main(ids):
         sc.render(path, ground_shadow=shadow)
         print('yazıldı', os.path.relpath(path, ROOT))
     ids = [i for i in ids if i in BUILDINGS]
+    # Oyuncu binalarının sancak kumaşı oyunda canlı çizilir: burada yalnız direk.
+    os.environ['NOFLAG'] = '1'
+    manifest_path = os.path.join(ROOT, 'lib', 'game', 'city-map', 'building-flags.json')
+    manifest = json.load(open(manifest_path)) if os.path.exists(manifest_path) else {}
     # Eski boyalı görseller kullanılmıyor: bütün binalar aynı ölçek ve dille çizilir.
     for bid in ids:
         for st in (1, 2, 3):
@@ -1723,7 +1728,13 @@ def main(ids):
             BUILDINGS[bid](s, st)
             path = os.path.join(OUT, f'{bid}-{st}.webp')
             im = s.render(path)
-            print('yazıldı', os.path.relpath(path, ROOT), im.size)
+            if s.flag_px:
+                manifest[f'{bid}-{st}'] = [im.size[0], im.size[1], s.flag_px]
+            else:
+                manifest.pop(f'{bid}-{st}', None)
+            print('yazıldı', os.path.relpath(path, ROOT), im.size, len(s.flag_px), 'sancak')
+    json.dump(dict(sorted(manifest.items())), open(manifest_path, 'w'), separators=(',', ':'))
+    os.environ.pop('NOFLAG', None)
 
 
 if __name__ == '__main__':

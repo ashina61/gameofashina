@@ -1,11 +1,12 @@
 'use client'
+import { KumSaatiArt } from './resource-art'
 
 /**
  * YAPAY RAKİPLERİN DÜNYASI — teklifler, dünya haberleri, rakip savaşları ve
  * tempo ayarı. Buradaki bütün hükümdarlar yapay rakiptir (gerçek oyuncu değil).
  */
 import type { ReactNode } from 'react'
-import { Check, Clock3, Coins, Eye, Gift, Handshake, HeartHandshake, Newspaper, Ship, Swords, TrendingUp, X } from 'lucide-react'
+import { Check, Coins, Eye, Gift, Handshake, HeartHandshake, Newspaper, Ship, Swords, TrendingUp, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { GOOD_NAMES, LUXURY_IDS, type Good, type Luxury, type Resource } from '@/lib/game/engine'
 import type { Empire } from '@/lib/game/empire'
@@ -50,7 +51,7 @@ function ProposalCard({ p, empire, now, run, onRival }: { p: Proposal; empire: E
   return <article className={`proposal-card is-${p.kind}`}>
     <header>
       <span className="proposal-kind">{KIND_ICON[p.kind]}{PROPOSAL_NAMES[p.kind]}</span>
-      <time><Clock3 className="size-3" />{left(p.until - now)}</time>
+      <time><KumSaatiArt className="size-3" />{left(p.until - now)}</time>
     </header>
     <button type="button" className="proposal-from" onClick={() => onRival(r.id)}>
       <strong>{r.city}</strong><small>{r.ruler} · {STYLE_NAMES[r.style]} · sv. {rivalLevel(empire, r, now)} · yapay rakip</small>

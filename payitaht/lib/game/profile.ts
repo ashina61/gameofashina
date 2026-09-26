@@ -99,7 +99,7 @@ export function achievements(empire: Empire): Achievement[] {
   const s = profileStats(empire)
   const maxDivan = Math.max(...empire.cities.map(x => x.game.buildings.divan))
   const ships = empire.cities.reduce((a, x) => a + UNIT_IDS.filter(id => UNITS[id].branch === 'deniz').reduce((b, id) => b + x.game.army[id], 0), 0)
-  const allied = empire.world?.alliance ? 1 : 0
+  const allied = empire.world?.alliance || empire.world?.pact ? 1 : 0
   return [
     { id: 'kurucu', name: 'Şehrin kurucusu', description: 'Divanhane 5. seviyeye ulaşsın.', value: maxDivan, goal: 5 },
     { id: 'payitaht', name: 'Payitaht', description: 'Divanhane 15. seviyeye ulaşsın.', value: maxDivan, goal: 15 },
@@ -125,5 +125,5 @@ export function profileRanks(empire: Empire, now: number) {
   const keys: RankKey[] = ['total', 'builder', 'military', 'offense', 'defense', 'science', 'gold', 'trade']
   return { ...(Object.fromEntries(keys.map(k => [k, place(k)])) as Record<RankKey, number>), of: RIVALS.length + 1 }
 }
-export const allianceName = (empire: Empire) => empire.world?.alliance ? FACTIONS[empire.world.alliance].name : null
+export const allianceName = (empire: Empire) => empire.world?.pact ? `${empire.world.pact.name} [${empire.world.pact.tag}]` : empire.world?.alliance ? FACTIONS[empire.world.alliance].name : null
 export { playerScore }

@@ -10,10 +10,7 @@
  */
 import { Hint } from './hint'
 import { useState } from 'react'
-import {
-  Crown, Trash2, Coffee, TreePine, FlaskConical, CalendarCheck, Gift, Truck, Anchor, Flag, Trophy, Handshake,
-  Store, Mail, Send, ScrollText, Users, Swords, Eye, Check, Pencil, ShieldCheck, Newspaper,
-} from 'lucide-react'
+import { Crown, Trash2, Coffee, TreePine, FlaskConical, CalendarCheck, Gift, Truck, Anchor, Flag, Trophy, Handshake, Store, Mail, Send, ScrollText, Swords, Eye, Check, Pencil, ShieldCheck, Newspaper } from 'lucide-react'
 import { DailyArt } from './quest-art'
 import { NewsPanel, PaceSetting, ProposalsPanel, rivalWarLine } from './ai-panels'
 import { Button } from '@/components/ui/button'
@@ -38,7 +35,7 @@ import { luxuryIcons, resourceIcons } from './game-widgets'
 import { UnitFigure } from './unit-art'
 import { UnitPicker } from './ikariam-panels'
 import { WorkforceSlider } from './workforce'
-import { KeresteArt } from './resource-art'
+import { KeresteArt, NufusArt } from './resource-art'
 
 export type Op = (e: Empire, now: number) => { empire: Empire; error?: string }
 export type Run = (op: Op, ok?: string) => void
@@ -341,11 +338,11 @@ function Diplomacy({ empire, now, run, onRival }: { empire: Empire; now: number;
   const alliance = empire.world?.alliance ?? null
   return <>
     <section className="empire-section">
-      <h3><Users className="size-4" /> İttifak {alliance ? `· ${FACTIONS[alliance].name}` : ''}</h3>
+      <h3><NufusArt className="size-4" /> İttifak {alliance ? `· ${FACTIONS[alliance].name}` : ''}</h3>
       {(Object.keys(FACTIONS) as FactionId[]).map(f => <article key={f} className="mission-row">
         <span><strong>{FACTIONS[f].name}</strong><small>“{FACTIONS[f].motto}” · {factionMembers(f).map(r => r.city).join(', ')} · ortalama ilişki {factionStanding(empire, f)}</small></span>
         {alliance === f ? <Button size="sm" variant="outline" onClick={() => run((e, x) => leaveAlliance(e, x), 'İttifaktan ayrıldın.')}>Ayrıl</Button>
-          : <Button size="sm" disabled={!!alliance} onClick={() => run((e, x) => joinAlliance(e, f, x), 'İttifaka katıldın.')}>Katıl</Button>}
+          : <Button size="sm" disabled={!!alliance || !!empire.world?.pact} onClick={() => run((e, x) => joinAlliance(e, f, x), 'İttifaka katıldın.')}>Katıl</Button>}
       </article>)}
       <Hint>Üyelik için Elçilik 3. seviye ve ittifakla ortalama 5 ilişki gerekir. Üyeler sana saldırmaz, baskında yardım gönderir; öbür ittifak soğur.</Hint>
     </section>

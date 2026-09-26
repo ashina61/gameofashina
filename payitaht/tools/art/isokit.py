@@ -15,6 +15,7 @@ silindir, koni) kurulur ve Ikariam'ın temiz, ışıklı izometrik diline göre
 TUVALİN ALT KENARI = elmasın alt köşesi (oyunda origin 0.5,1 ile oturur).
 """
 import math
+import os
 import random
 
 import numpy as np
@@ -114,6 +115,10 @@ class Scene:
     def __init__(self, seed=1):
         self.prims = []
         self.rnd = random.Random(seed)
+        # Sancak direkleri: (x, y, z_tepe). NOFLAG=1 ile kumaş çizilmez; oyun
+        # kumaşı oyuncunun sancağıyla canlı çizer (flags.json).
+        self.flags = []
+        self.flag_px = []
 
     def add(self, prim):
         self.prims.append(prim)
@@ -292,6 +297,9 @@ class Scene:
     def flag(self, x, y, z, h=0.7, color=None, key=None):
         color = color or PAL['red']
         self.cylinder(x, y, z, z + h, 0.012, PAL['wooddark'], 'flat', n=6, cast=False)
+        self.flags.append((x, y, z + h))
+        if os.environ.get('NOFLAG') == '1':
+            return
         k = (x + y + z * 0.25 + 0.5) if key is None else key
         self.add(Prim([Face([(x, y, z + h), (x + 0.28, y - 0.04, z + h - 0.05), (x + 0.26, y - 0.04, z + h - 0.2), (x, y, z + h - 0.16)],
                             color, 'canvas', [('crescent',)], False, (0.2, 1, 0))], key=k, cull=False))
@@ -308,6 +316,12 @@ class Scene:
         H = int(math.ceil(bottom - top))
         ox, oy = W / 2, -top
         T = lambda p: (p[0] + ox, p[1] + oy)
+        # Direk tepelerinin son görseldeki yeri ve kumaş boyu (piksel).
+        self.flag_px = []
+        for (fx, fy, fz) in self.flags:
+            a, b, c = proj((fx, fy, fz)), proj((fx + 0.28, fy - 0.04, fz)), proj((fx, fy, fz - 0.16))
+            self.flag_px.append([round((a[0] + ox) / SS, 1), round((a[1] + oy) / SS, 1),
+                                 round(abs(b[0] - a[0]) / SS, 1), round(abs(c[1] - a[1]) / SS, 1)])
         if max(xs) + ox > W or min(xs) + ox < 0:
             print('  uyarı: yatay taşma', path)
 

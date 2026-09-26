@@ -15,9 +15,10 @@
 import { GOOD_NAMES, LUXURY_IDS, logEvent, travelFactor, type Good } from './engine'
 import { activeCity, advanceEmpire, type Empire } from './empire'
 import { idleMerchants, shipCargo } from './expeditions'
+import { pactHour } from './pact'
 import {
   FAIR_PRICE, MAX_DELIVERIES, RIVALS, TREATIES, addGood, culturalTreaties, embassyLevel, mail, peek, playerScore, relate, rivalById, rivalLevel,
-  rivalScore, rivalState, roll, seaMinutes, stockOf, world, type Rival, type TreatyId, type World,
+  isAlly, rivalScore, rivalState, roll, seaMinutes, stockOf, world, type Rival, type TreatyId, type World,
 } from './rivals'
 
 const HOUR = 3600_000
@@ -96,6 +97,9 @@ export function aiHour(empire: Empire, at: number, s: number) {
   if (roll(`warstart-${s}`) < 0.035 * k) startRivalWar(empire, w, at, s)
   if (roll(`prop-${s}`) < 0.14 * k) propose(empire, w, at, s)
   if (roll(`caravan-${s}`) < 0.06 * k) caravan(empire, at, s)
+  pactHour(empire, at, s, k)
+  // Hariciye Nazırı: ittifak üyelerinden ek ticaret teklifi.
+  if (w.pact && Object.values(w.pact.ranks).includes('hariciye') && roll(`propx-${s}`) < 0.08 * k) propose(empire, w, at, s + 0.5)
   growth(empire, at)
 }
 
@@ -118,8 +122,8 @@ function fightWars(empire: Empire, w: World, at: number, s: number) {
     shiftPower(w, L.id, -1)
     worldNews(empire, at, 'baris', `${W.city} savaşı kazandı; ${L.city} barış için haraç ödedi. ${W.ruler} güçleniyor.`, [W.id, L.id])
     // Müttefiklerin savaşı biterse haber mektupla da gelir.
-    if (w.alliance && (W.faction === w.alliance || L.faction === w.alliance)) {
-      const ally = W.faction === w.alliance ? W : L
+    if (isAlly(empire, W.id) || isAlly(empire, L.id)) {
+      const ally = isAlly(empire, W.id) ? W : L
       mail(empire, at, ally.ruler, ally === W ? 'Zafer' : 'Yenilgi', ally === W ? `${L.city} diz çöktü. Destek verenleri unutmayız.` : `${W.city} karşısında geri çekildik. İttifak yeniden toparlanacak.`, ally.id)
     }
   }
@@ -132,15 +136,19 @@ function startRivalWar(empire: Empire, w: World, at: number, s: number) {
   const free = RIVALS.filter(r => !busyAtWar(empire, r.id))
   const aggressors = free.filter(r => r.style === 'savasci' || r.style === 'denizci')
   if (!aggressors.length) return
-  const A = pick(aggressors, `wa-${s}`)
-  const targets = free.filter(r => r.id !== A.id && r.faction !== A.faction)
+  // İttifakın savaştığı yapay ittifak varsa üyelerin ordusu önce ona yürür.
+  const foe = w.pact && (Object.entries(w.pact.stance).find(([, st]) => st === 'savas')?.[0] as Rival['faction'] | undefined)
+  const warriors = foe ? free.filter(r => w.pact!.members.includes(r.id)) : []
+  const A = warriors.length && roll(`wp-${s}`) < 0.6 ? pick(warriors, `wpa-${s}`) : pick(aggressors, `wa-${s}`)
+  const side = (r: Rival) => w.pact?.members.includes(r.id) ? 'pact' : r.faction
+  const targets = free.filter(r => r.id !== A.id && side(r) !== side(A) && (!warriors.includes(A) || r.faction === foe))
   if (!targets.length) return
   const B = pick(targets, `wb-${s}`)
   const war: RivalWar = { id: `w-${A.id}-${B.id}-${s}`, a: A.id, b: B.id, since: at, until: at + (12 + Math.floor(roll(`wd-${s}`) * 24)) * HOUR, score: 0 }
   w.wars = [...(w.wars ?? []), war]
   worldNews(empire, at, 'savas', `${A.ruler} (${A.city}) ${B.city} şehrine savaş açtı.`, [A.id, B.id])
   // İttifaktaki bir üye saldırıya uğrarsa senden yardım ister.
-  const ally = w.alliance === B.faction ? B : w.alliance === A.faction ? A : null
+  const ally = isAlly(empire, B.id) ? B : isAlly(empire, A.id) ? A : null
   if (ally) addProposal(w, {
     id: `p-${ally.id}-${s}-y`, rivalId: ally.id, kind: 'yardim', time: at, until: at + PROPOSAL_MS,
     want: { good: 'gold', amount: round10(rivalLevel(empire, ally, at) * 150) },

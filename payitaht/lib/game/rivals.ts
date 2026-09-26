@@ -18,6 +18,7 @@ import { troopList, type Troops } from './battle'
 import { idleMerchants, shipCargo } from './expeditions'
 import { activeCity, advanceEmpire, type CityRecord, type Empire } from './empire'
 import { ISLANDS, type IslandId } from './islands'
+import { pactHelpLevel, parsePact, type Pact } from './pact'
 import { aiHour, busyAtWar, parseAi, worldNews, PACES, type News, type Pace, type Proposal, type RivalWar } from './ai'
 
 export type RivalStyle = 'tuccar' | 'savasci' | 'alim' | 'denizci'
@@ -76,6 +77,15 @@ export type World = {
   power?: Record<string, number>
   /** Haraç ödendi: bu zamana kadar o hükümdar saldırmaz. */
   truce?: Record<string, number>
+  /** Oyuncunun kendi kurduğu ittifak (pact.ts). */
+  pact?: Pact
+}
+/** Bu hükümdar senin ittifakında mı (kendi ittifakın ya da katıldığın yapay ittifak)? */
+export function isAlly(empire: Empire, rivalId: string) {
+  const w = empire.world
+  if (w?.pact) return w.pact.members.includes(rivalId)
+  const r = rivalById(rivalId)
+  return !!r && !!w?.alliance && w.alliance === r.faction
 }
 export type ForeignSpy = { id: string; rivalId: string; cityId: string; since: number }
 export const MAX_FOREIGN_SPIES = 3
@@ -203,7 +213,7 @@ export function treatyCost(empire: Empire, r: Rival, now: number) { return 150 *
 function accepts(empire: Empire, r: Rival, kind: TreatyId) {
   const s = peek(empire, r.id)
   const liking = (r.style === 'tuccar' && kind === 'ticaret' ? 10 : 0) + (r.style === 'alim' && kind === 'kultur' ? 10 : 0) -
-    (r.style === 'savasci' && kind === 'baris' ? 15 : 0) + (empire.world?.alliance === r.faction ? 15 : 0)
+    (r.style === 'savasci' && kind === 'baris' ? 15 : 0) + (isAlly(empire, r.id) ? 15 : 0)
   return s.relation + liking >= TREATIES[kind].need
 }
 export function culturalTreaties(empire: Empire) {
@@ -321,6 +331,7 @@ export function joinAlliance(source: Empire, f: FactionId, now: number): { empir
   const w = world(empire)
   if (!FACTIONS[f]) return { empire, error: 'Bilinmeyen ittifak.' }
   if (w.alliance) return { empire, error: `Zaten ${FACTIONS[w.alliance].name} üyesisin.` }
+  if (w.pact) return { empire, error: `Kendi ittifakın var (${w.pact.name}). Katılmak için önce onu dağıt.` }
   if (embassyLevel(empire) < 3) return { empire, error: 'İttifaka katılmak için Elçilik 3. seviye gerekli.' }
   if (factionStanding(empire, f) < 5) return { empire, error: `${FACTIONS[f].name} seni henüz tanımıyor (ortalama ilişki ${factionStanding(empire, f)}, gereken 5). Üyelerine selam ve hediye gönder.` }
   w.alliance = f; w.allianceAt = now
@@ -339,6 +350,10 @@ export function leaveAlliance(source: Empire, now: number): { empire: Empire; er
 }
 /** Baskına uğrayan şehre ittifakın gönderdiği yardım. */
 export function allyHelp(empire: Empire, now: number): Troops {
+  if (empire.world?.pact) {
+    const L = Math.round(pactHelpLevel(empire, now))
+    return L ? { mizrakci: 2 * L, yeniceri: L, okcu: L } : {}
+  }
   const f = empire.world?.alliance
   if (!f) return {}
   const avg = Math.round(factionMembers(f).reduce((s, r) => s + rivalLevel(empire, r, now), 0) / factionMembers(f).length)
@@ -348,7 +363,8 @@ export function allyHelp(empire: Empire, now: number): Troops {
 export function pacified(empire: Empire, rivalId: string) {
   const r = rivalById(rivalId)
   if (!r) return false
-  return peek(empire, rivalId).treaties.includes('baris') || empire.world?.alliance === r.faction ||
+  return peek(empire, rivalId).treaties.includes('baris') || isAlly(empire, rivalId) ||
+    (empire.world?.pact?.stance[r.faction] === 'saldirmazlik') ||
     (empire.world?.truce?.[rivalId] ?? 0) > (empire.world?.slot ?? 0) * HOUR ||
     (empire.missions ?? []).some(m => m.npcId === rivalId && m.stationed && (m.kind === 'occupy' || m.kind === 'blockade'))
 }
@@ -416,8 +432,8 @@ function considerWar(empire: Empire, at: number, s: number) {
   // Kışkırtılmamış savaşçı hükümdarlar dünyanın ilk günlerinde saldırmaz (hareketli tempoda bekleme yok).
   const seasoned = at - w.start >= pace.graceHours * HOUR
   // Başka bir rakiple savaşan hükümdarın ordusu cephededir.
-  const cands = RIVALS.filter(r => !pacified(empire, r.id) && w.alliance !== r.faction && !busyAtWar(empire, r.id) &&
-    (peek(empire, r.id).relation <= -10 || (r.style === 'savasci' && seasoned && peek(empire, r.id).relation <= 0)))
+  const cands = RIVALS.filter(r => !pacified(empire, r.id) && !isAlly(empire, r.id) && !busyAtWar(empire, r.id) &&
+    (peek(empire, r.id).relation <= -10 || w.pact?.stance[r.faction] === 'savas' || (r.style === 'savasci' && seasoned && peek(empire, r.id).relation <= 0)))
     .sort((a, b) => peek(empire, a.id).relation - peek(empire, b.id).relation)
   for (const r of cands) {
     const rel = peek(empire, r.id).relation
@@ -712,6 +728,7 @@ export function parseWorld(raw: unknown, cityIds: Set<string>): World | undefine
   for (const x of w.spies ?? []) if (!x || typeof x.id !== 'string' || !rivalById(x.rivalId) || !cityIds.has(x.cityId) || !fin(x.since)) bad()
   if (w.expelAt !== undefined && (typeof w.expelAt !== 'object' || !Object.entries(w.expelAt).every(([id, t]) => cityIds.has(id) && fin(t)))) bad()
   parseAi(w, bad)
+  if (w.pact !== undefined) parsePact(w.pact, bad)
   return structuredClone(w)
 }
 

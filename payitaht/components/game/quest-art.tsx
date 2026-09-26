@@ -11,6 +11,7 @@ import { BUILDINGS, type BuildingId, type Game, type ObjectiveGo } from '@/lib/g
 import type { DailyTask } from '@/lib/game/daily'
 import { asset, buildingImage } from '@/lib/asset'
 import { PersonArt } from './workforce'
+import { BuildingArt } from './building-art'
 import { UnitFigure } from './unit-art'
 import { AkceArt, IlimArt } from './resource-art'
 
@@ -34,7 +35,7 @@ export function ObjectiveArt({ id, go, game, size = 120 }: { id: string; go: Obj
   if (go === 'army') return <Stage size={size} tone="gold"><span className="quest-art-row"><UnitFigure id="mizrakci" size={size * 0.34} bare /><UnitFigure id="yeniceri" size={size * 0.4} bare /><UnitFigure id="okcu" size={size * 0.34} bare /></span></Stage>
   const b = go as BuildingId
   return <Stage size={size} tone={id.startsWith('divan') || id === 'first-upgrade' ? 'gold' : 'day'}>
-    {BUILDINGS[b]?.art ? <Img src={buildingImage(b, TARGET[id] ?? 1)} /> : <AkceArt width={size * 0.4} height={size * 0.4} />}
+    {BUILDINGS[b]?.art ? <BuildingArt id={b} level={TARGET[id] ?? 1} /> : <AkceArt width={size * 0.4} height={size * 0.4} />}
   </Stage>
 }
 

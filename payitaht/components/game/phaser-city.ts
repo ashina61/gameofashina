@@ -16,7 +16,8 @@
 import * as Phaser from 'phaser'
 import { aqueductWallCrossings, cityFields, cityFountains, cityStream, fieldTier, fountainTier } from '@/lib/game/city-map/city-extras'
 import { BakeAtlas } from '@/lib/game/city-map/bake'
-import { FlagField, SmokeField } from './city-life'
+import { FlagField, SmokeField, type FlagLook } from './city-life'
+import { BUILDING_FLAGS } from '@/lib/game/banner'
 import { SkyLayer } from './city-sky'
 import { TILE, CITY_SLOTS, COAST_SLOTS, DEFENSE_SLOTS, DEFENSE_FOUNDATION, ROAD_GRAPH, HALL_SLOT_ID, ROAD_EXITS, WALL_GATES, PLAZA, slotById } from '@/lib/game/city-map'
 import { LIVE_SLOTS, liveSlotByIndex, type LiveSlot } from '@/lib/game/city-map/live-adapter'
@@ -90,9 +91,16 @@ export class CityScene extends Phaser.Scene {
 
   constructor() { super('city') }
 
-  init(data: { game: Game; events: CityEvents }) {
+  /** Oyuncunun sancağı: şehirdeki bütün bayraklar bununla çizilir. */
+  private look: FlagLook | null = null
+  init(data: { game: Game; events: CityEvents; look?: FlagLook }) {
     this.state = data.game
     this.events$ = data.events
+    this.look = data.look ?? null
+  }
+  setBanner(look: FlagLook) {
+    this.look = look
+    this.flagField?.setLook(look)
   }
 
   preload() {
@@ -117,6 +125,7 @@ export class CityScene extends Phaser.Scene {
   create() {
     this.cameras.main.setBackgroundColor('#12333b')
     this.flagField = new FlagField(this)
+    if (this.look) this.flagField.setLook(this.look)
     this.smoke = new SmokeField(this)
     this.terrainRoads = buildCityTerrain(this, this.state.buildings.divan, this.openSlotIds(this.state)) // dünya + büyüyen sokak ağı
     for (const f of this.terrainRoads.flags) this.flagField.add(f, 'static', f.minLevel)
@@ -1096,8 +1105,9 @@ export class CityScene extends Phaser.Scene {
       g.fillStyle(0xe2bd78, 1); g.fillRect(-2.4 * s, -17.2 * s, 4.8 * s, 1 * s)
       if (leader) { // bayraktar: al sancak
         g.lineStyle(1.4, 0x4a3a28, 1); g.lineBetween(3 * s, -6 * s, 3 * s, -34 * s)
-        g.fillStyle(0xb3261e, 1); g.fillPoints([V(3.2 * s, -34 * s), V(13 * s, -32 * s), V(11 * s, -28 * s), V(13 * s, -24 * s), V(3.2 * s, -25 * s)], true)
-        g.fillStyle(0xf6efe0, 1); g.fillCircle(7 * s, -29.5 * s, 1.8 * s); g.fillStyle(0xb3261e, 1); g.fillCircle(7.7 * s, -29.5 * s, 1.5 * s)
+        const banner = this.look?.color ?? 0xb3261e
+        g.fillStyle(banner, 1); g.fillPoints([V(3.2 * s, -34 * s), V(13 * s, -32 * s), V(11 * s, -28 * s), V(13 * s, -24 * s), V(3.2 * s, -25 * s)], true)
+        g.fillStyle(0xf6efe0, 1); g.fillCircle(7 * s, -29.5 * s, 1.8 * s); g.fillStyle(banner, 1); g.fillCircle(7.7 * s, -29.5 * s, 1.5 * s)
       } else { // tüfek omuzda
         g.lineStyle(1.3, 0x3a2a1c, 1); g.lineBetween(2.4 * s, -6 * s, 5.6 * s, -22 * s)
       }
@@ -1642,6 +1652,18 @@ export class CityScene extends Phaser.Scene {
       img.setFlipX(this.state.flips.includes(id))
       dispW = img.width * scale; dispH = img.height * scale
       this.pieces.push(img)
+      // Sancaklar: görseldeki direklerin tepesine oyuncunun sancağı (tools/art → building-flags.json).
+      const anchors = BUILDING_FLAGS[textureKey]
+      if (anchors) {
+        const [W, H, list] = anchors
+        const flip = this.state.flips.includes(id)
+        for (const [fx, fy, fw, fh] of list) {
+          this.flagField?.add({
+            x: anc.x + (fx - W / 2) * scale * (flip ? -1 : 1), y: imgY - (H - fy) * scale,
+            w: fw * scale * 1.2, h: fh * scale * 1.25, depth: imgY + 0.02, dir: flip ? -1 : 1,
+          }, 'pieces')
+        }
+      }
       // Gece: pencerelerde kandil ışığı (liman ve iskeleler hariç).
       if (level > 0 && slot.zone !== 'liman') {
         const flip = this.state.flips.includes(id) ? -1 : 1
@@ -1829,10 +1851,8 @@ export class CityScene extends Phaser.Scene {
     this.pieces.push(pad)
     g.fillStyle(0x0d1c16, 0.12); g.fillEllipse(x + 1, baseY - 1, s * 0.24, s * 0.09)
     g.fillStyle(0x5a3d24, 0.92); g.fillRect(x - s * 0.018, baseY - poleH, s * 0.036, poleH)
-    g.fillStyle(0xa64a37, 0.95)
-    g.fillPoints([new Phaser.Math.Vector2(x + s * 0.018, baseY - poleH),
-      new Phaser.Math.Vector2(x + s * 0.018, baseY - poleH + s * 0.16),
-      new Phaser.Math.Vector2(x + s * 0.25, baseY - poleH + s * 0.08)], true)
+    // Arsa sancağı: oyuncunun sancağı, rüzgârda dalgalanır.
+    this.flagField?.add({ x: x + s * 0.018, y: baseY - poleH + s * 0.01, w: s * 0.26, h: s * 0.16, depth: cy + 0.01 }, 'pieces')
     g.fillStyle(0xcaa24a, 0.9); g.fillCircle(x, baseY - poleH, s * 0.03)
     this.pieces.push(g)
   }

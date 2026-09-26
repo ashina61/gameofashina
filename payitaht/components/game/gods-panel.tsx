@@ -1,4 +1,5 @@
 'use client'
+import { KumSaatiArt } from './resource-art'
 
 /**
  * ONGUN MABEDİ PANELİ: lütuf, sunu, hami tanrı ve kudret.
@@ -6,7 +7,7 @@
  * sarmal, boynuz, kılıç, dalga, rüzgâr.
  */
 import { useState } from 'react'
-import { Clock3, Flame, Sparkles } from 'lucide-react'
+import { Flame, Sparkles } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Hint } from './hint'
 import { LUXURY_IDS, LUXURY_NAMES, type Command, type Game } from '@/lib/game/engine'
@@ -76,7 +77,7 @@ export function GodsPanel({ game, now, onCommand }: { game: Game; now: number; o
       <GodEmblem id={patron} size={72} on />
       <span><span className="eyebrow">HAMİ TANRI</span><strong>{GODS[patron].name}</strong><small>{GODS[patron].passive(blessing(game, patron))} (mabet {game.buildings.mabet}. seviye)</small>
         {godBuff(game, patron, now) && t.buff && <small className="god-active"><Sparkles className="size-3" /> {GODS[patron].power} etkin · {clock(t.buff.until - now)}</small>}
-        {now < (t.rest[patron] ?? 0) && <small><Clock3 className="size-3" /> Dinleniyor · {clock((t.rest[patron] ?? 0) - now)}</small>}</span>
+        {now < (t.rest[patron] ?? 0) && <small><KumSaatiArt className="size-3" /> Dinleniyor · {clock((t.rest[patron] ?? 0) - now)}</small>}</span>
       <Button size="sm" disabled={now < (t.rest[patron] ?? 0) || t.lutuf < GODS[patron].cost} onClick={() => onCommand({ type: 'invoke' })}>
         <Sparkles data-icon="inline-start" />{GODS[patron].power} ({num(GODS[patron].cost)})</Button>
     </article>}
@@ -94,7 +95,7 @@ export function GodsPanel({ game, now, onCommand }: { game: Game; now: number; o
         </dl>
       </article>
     })}</div>
-    {changeWait > 0 && <p className="fine-print"><Clock3 className="size-3" /> Hamini değiştirmek için {clock(changeWait)} bekle.</p>}
+    {changeWait > 0 && <p className="fine-print"><KumSaatiArt className="size-3" /> Hamini değiştirmek için {clock(changeWait)} bekle.</p>}
     <Hint>Hami tanrının lütfü mabet seviyesiyle büyür (en fazla 20. derece). Kudretten sonra tanrı 4 saat dinlenir. Kadim Türk mitolojisinin tanrıları; Ikariam'daki tanrılar sisteminin karşılığı.</Hint>
   </section>
 }

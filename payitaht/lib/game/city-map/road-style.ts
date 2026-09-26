@@ -46,7 +46,8 @@ export function roadStyleFor(kind: RoadKind, level: number): RoadVisualStyle {
   // Mobilde yol, bina/parselden rol çalmamalı: ana arter okunur ama dar,
   // mahalle yolu daha ince. Kıyı promenadı ayrı olarak terrain-builder'da çizilir.
   // Ikariam: sokaklar arsa blokları arasını dolduran, net okunan taş/toprak yollardır.
-  const scale = avenue ? 1.2 : quay ? 1.05 : 0.95
+  // 0.28: yollar belirgin sokaklar — Ikariam'daki gibi arsaların arasını dolduran geniş şeritler.
+  const scale = avenue ? 1.8 : quay ? 1.4 : 1.4
 
   const palette = quay
     ? [

@@ -1,4 +1,5 @@
 'use client'
+import { KumSaatiArt } from './resource-art'
 
 /**
  * DÜNYA HARİTASI (Ikariam'daki dünya görünümü): koordinatlı deniz, üstünde
@@ -7,7 +8,7 @@
  * altında bilgi kartı açılır.
  */
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { Anchor, Clock3, Crown, Eye } from 'lucide-react'
+import { Anchor, Crown, Eye } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { MIRACLES } from '@/lib/game/engine'
 import { activeCity, type Empire } from '@/lib/game/empire'
@@ -133,7 +134,7 @@ export function WorldMap({ empire, now, missing, onSelectCity, onColonize, onVie
         <li><Crown className="size-3" />{own ? `Şehrin: ${own.name} (Divanhane ${own.game.buildings.divan})` : 'Burada şehrin yok'}</li>
         {rivals.map(r => <li key={r.id}><span className="wm-dot wm-rival" />{r.city} · {r.ruler} · sv. {rivalLevel(empire, r, now)} (yapay rakip){rivalWarLine(empire, r.id) ? ` · ⚔ ${rivalWarLine(empire, r.id)!.split(' (')[0]}` : ''}</li>)}
         <li><Anchor className="size-3" />Üç bağımsız yerleşim: köy, korsan ini, asi kalesi</li>
-        {sel !== here.islandId && <li><Clock3 className="size-3" />{here.name} şehrinden deniz yolu ~{clock(travel)}</li>}
+        {sel !== here.islandId && <li><KumSaatiArt className="size-3" />{here.name} şehrinden deniz yolu ~{clock(travel)}</li>}
       </ul>
       <div className="batch-row">
         <Button size="sm" variant="outline" onClick={() => onViewIsland(sel)}><Eye data-icon="inline-start" />Adayı gör</Button>

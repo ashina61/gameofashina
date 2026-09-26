@@ -1,4 +1,5 @@
 'use client'
+import { KumSaatiArt, NufusArt } from './resource-art'
 
 /**
  * ADA GÖRÜNÜMÜ — Ikariam'daki ada ekranının karşılığı.
@@ -11,7 +12,7 @@
 import { rivalWarLine } from './ai-panels'
 import { Hint } from './hint'
 import { useState } from 'react'
-import { ArrowLeft, ScrollText, Eye, Swords, Clock3, ShieldCheck, Users, Minus, Plus, Ship, Anchor, Skull, Flag, Bookmark, BookmarkCheck, Trash2 } from 'lucide-react'
+import { ArrowLeft, ScrollText, Eye, Swords, ShieldCheck, Minus, Plus, Ship, Anchor, Skull, Flag, Bookmark, BookmarkCheck, Trash2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import layout from '@/lib/game/island-layout.json'
 import { asset, buildingImage } from '@/lib/asset'
@@ -23,7 +24,7 @@ import {
 } from '@/lib/game/expeditions'
 import { UnitPicker } from './ikariam-panels'
 import { RivalDiplomacy, RivalSupport, RivalWar, type Run } from './world-panels'
-import { FACTIONS, RIVALS, STYLE_NAMES, rivalById, rivalLevel } from '@/lib/game/rivals'
+import { FACTIONS, RIVALS, STYLE_NAMES, rivalById, rivalLevel , isAlly } from '@/lib/game/rivals'
 import { clearReports, deleteReport, keepReport, targetInfo, type Report } from '@/lib/game/expeditions'
 import { BattleView } from './battle-view'
 import { CityEmblem } from './city-emblem'
@@ -169,7 +170,7 @@ export function NpcPanel({ empire, npcId, now, onSpy, onRaid, onOccupy, onBlocka
           {inside && <div className="spy-desk">
             <div className="spy-desk-top"><strong>İçeride {inside.units.casus ?? 0} casus</strong>
               <Button size="sm" variant="outline" onClick={() => run((e, t) => recallMission(e, inside.id, t), 'Casuslar geri çağrıldı.')}>Geri çağır</Button></div>
-            {inside.spyTask && <p className="requirement"><Clock3 className="size-4" />{SPY_TYPES[inside.spyTask.type].name} · {clock(inside.spyTask.at - now)}</p>}
+            {inside.spyTask && <p className="requirement"><KumSaatiArt className="size-4" />{SPY_TYPES[inside.spyTask.type].name} · {clock(inside.spyTask.at - now)}</p>}
             {SPY_TYPE_IDS.filter(t => t !== 'arastirma' || !!rival).map(t => <button key={t} type="button" className="spy-task" disabled={!!inside.spyTask}
               onClick={() => run((e, x) => spyMission(e, inside.id, t, x), `Görev verildi: ${SPY_TYPES[t].name}.`)}>
               <strong>{SPY_TYPES[t].name}</strong><small>{SPY_TYPES[t].description}</small>
@@ -195,17 +196,17 @@ export function NpcPanel({ empire, npcId, now, onSpy, onRaid, onOccupy, onBlocka
         <span><Swords className="size-4" />Saldırı {force}</span>
         <span><ShieldCheck className="size-4" />Savunma {intel.flatMap(r => r.lines).find(l => l.includes('Toplam savunma'))?.match(/Toplam savunma (\d+)/)?.[1] ?? '?'}</span>
         <span title={`Ön cephe ${field.front}, kanat ${field.flank}, menzil ${field.range}, kuşatma ${field.artillery} yuva`}><Flag className="size-4" />{field.name}</span>
-        <span title="Ordu en yavaş birliği kadar hızlıdır"><Clock3 className="size-4" />Yol {clock(targetTravelMs(city, npcId, 'raid', state.level, pick))}</span>
-        <span><Users className="size-4" />Taşıma {overseas ? Math.max(ships * UNITS.nakliye.cargo, RAID_UNITS.reduce((s, id) => s + UNITS[id].pop * (pick[id] ?? 0) * 30, 0))
+        <span title="Ordu en yavaş birliği kadar hızlıdır"><KumSaatiArt className="size-4" />Yol {clock(targetTravelMs(city, npcId, 'raid', state.level, pick))}</span>
+        <span><NufusArt className="size-4" />Taşıma {overseas ? Math.max(ships * UNITS.nakliye.cargo, RAID_UNITS.reduce((s, id) => s + UNITS[id].pop * (pick[id] ?? 0) * 30, 0))
           : RAID_UNITS.reduce((s, id) => s + UNITS[id].pop * (pick[id] ?? 0) * 30, 0)}</span>
       </div>
       <Hint>Savaş {field.name.toLocaleLowerCase('tr')}da (Divanhane {npc.field} karşılığı) dakikada bir tur, bir taraf dağılana ya da kaçana kadar sürer; zar yoktur. Ön cephe hasarın çoğunu karşılar, kuşatma birlikleri (koçbaşı, mancınık, topçu) suru yıkar. Morali {RETREAT_MORALE}'in altına düşen taraf çekilir. Turlar arasında aynı şehirden gelen ordu takviye olarak katılır; Seferler panelinden geri çekilebilirsin. Ganimeti hayatta kalanlar taşır.</Hint>
       {fighting && <p className="requirement"><Swords className="size-4" />Burada savaş sürüyor (tur {fighting.battle!.state.round}). {fighting.cityId === city.id ? 'Göndereceğin ordu takviye olarak katılır.' : 'Yeni ordu savaş bitene kadar önünde bekler.'}</p>}
       <Button size="sm" disabled={busy('raid') || !RAID_UNITS.some(id => (pick[id] ?? 0) > 0) || (overseas && ships > free.nakliye)} onClick={() => { onRaid(pick); setPick({}) }}><Swords data-icon="inline-start" />{fighting?.cityId === city.id ? 'Takviye gönder' : 'Sefere çık'}</Button>
-      {busy('raid') && <p className="requirement"><Clock3 className="size-4" />Bu hedefe giden bir ordu yolda.</p>}
+      {busy('raid') && <p className="requirement"><KumSaatiArt className="size-4" />Bu hedefe giden bir ordu yolda.</p>}
     </section>
 
-    {rival && (empire.world?.alliance === rival.faction
+    {rival && (isAlly(empire, rival.id)
       ? <RivalSupport empire={empire} rivalId={npcId} now={now} run={run} />
       : <RivalWar empire={empire} rivalId={npcId} onOccupy={onOccupy} onBlockade={onBlockade} />)}
     {rival && <RivalDiplomacy empire={empire} rivalId={npcId} now={now} run={run} />}

@@ -3,6 +3,8 @@
 import { useEffect, useRef } from 'react'
 import type { CityScene } from './phaser-city'
 import type { BuildingId, Game } from '@/lib/game/engine'
+import type { BannerLook } from '@/lib/game/banner'
+import type { FlagLook } from './city-life'
 
 /*
  * TUVAL KÖPRÜSÜ.
@@ -32,9 +34,12 @@ type Props = {
   onMovePlot: (plot: number) => void
   /** Ada madenine dokunuldu. */
   onMine: () => void
+  /** Oyuncunun sancağı (renk, biçim, arma). */
+  banner?: BannerLook
 }
+const toLook = (b?: BannerLook): FlagLook | undefined => b && { color: parseInt(b.color.slice(1), 16), shape: b.shape, crest: b.crest }
 
-export function CityCanvas({ game, showLabels, placing, controls, onBuilding, onPlot, onRoad, moving, movePlot, onMovePlot, onMine }: Props) {
+export function CityCanvas({ game, showLabels, placing, controls, onBuilding, onPlot, onRoad, moving, movePlot, onMovePlot, onMine, banner }: Props) {
   const holder = useRef<HTMLDivElement>(null)
   const scene = useRef<CityScene | null>(null)
   /*
@@ -45,6 +50,7 @@ export function CityCanvas({ game, showLabels, placing, controls, onBuilding, on
   const handlers = useRef({ onBuilding, onPlot, onRoad, onMovePlot, onMine })
   handlers.current = { onBuilding, onPlot, onRoad, onMovePlot, onMine }
   const firstState = useRef(game)
+  const firstLook = useRef(toLook(banner))
 
   useEffect(() => {
     let disposed = false
@@ -113,6 +119,7 @@ export function CityCanvas({ game, showLabels, placing, controls, onBuilding, on
       })
       instance.scene.add('city', view, true, {
         game: firstState.current,
+        look: firstLook.current,
         events: {
           onBuilding: (id: BuildingId) => handlers.current.onBuilding(id),
           onPlot: (index: number) => handlers.current.onPlot(index),
@@ -144,5 +151,7 @@ export function CityCanvas({ game, showLabels, placing, controls, onBuilding, on
   // hicbir sey cizmez.
   useEffect(() => { scene.current?.sync(game, showLabels, placing, moving, movePlot) }, [game, showLabels, placing, moving, movePlot])
 
+  const lookKey = banner ? `${banner.color}-${banner.shape}-${banner.crest}` : ''
+  useEffect(() => { const l = toLook(banner); if (l) { firstLook.current = l; scene.current?.setBanner(l) } }, [lookKey]) // eslint-disable-line react-hooks/exhaustive-deps
   return <div ref={holder} className="city-canvas" aria-hidden="true" />
 }

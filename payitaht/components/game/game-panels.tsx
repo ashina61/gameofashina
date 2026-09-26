@@ -1,9 +1,10 @@
 'use client'
+import { PersonArt } from './workforce'
 
 import { Hint } from './hint'
 import { useState } from 'react'
-import { ArrowUp, Hammer, Clock3, LockKeyhole, Check, BookOpen, ChevronRight, TreePine, Warehouse, Ruler, Users, UserRound, Minus, Plus as PlusIcon, House, HeartHandshake, TriangleAlert, Landmark, Swords, Ship, ShieldCheck, Handshake, FlaskConical, Compass, FlipHorizontal2, Move } from 'lucide-react'
-import { AkceArt, IlimArt } from './resource-art'
+import { ArrowUp, Hammer, LockKeyhole, Check, BookOpen, ChevronRight, Warehouse, UserRound, House, HeartHandshake, TriangleAlert, Landmark, Swords, Ship, ShieldCheck, Handshake, FlipHorizontal2, Move } from 'lucide-react'
+import { AkceArt, IlimArt, KumSaatiArt, NufusArt } from './resource-art'
 import { idleMerchants } from '@/lib/game/expeditions'
 import { WorkforceSlider, type Figure } from './workforce'
 import { Button } from '@/components/ui/button'
@@ -33,7 +34,7 @@ export function BuildingDetails({ game, id, onBuild, onFlip, onMove }: { game: G
     const projected: Game = { ...game, buildings: { ...game.buildings, [id]: at } }
     return { level: at + 1, price: cost(projected, id), seconds: duration(projected, id) }
   })
-  return <div className="building-details"><div className="building-preview"><div className="preview-halo" />{b.art ? <img src={buildingImage(id, level)} alt={`${b.name} mimari görünümü`} width={360} height={360} /> : <span className="preview-pending"><Hammer aria-hidden="true" /><small>Görsel hazırlanıyor</small></span>}<span>{level ? `SEVİYE ${level}` : 'YENİ YAPI'}</span></div><span className="eyebrow">{b.category}</span><p>{b.description}</p><BuildingEffects game={game} id={id} level={level} max={max} /><div className="building-upgrade"><span>{level ? `Seviye ${level}` : 'Boş arsa'}</span><ArrowUp className="size-4" /><strong>{level >= max ? 'En yüksek seviye' : `Seviye ${level + 1}`}</strong></div>{active ? <JobProgress job={active} now={game.updatedAt} /> : level < max && <><div className="upgrade-cost"><span>Gerekli kaynaklar</span><CostDisplay value={cost(game, id)} lux={luxuryCost(game, id)} /></div><div className="duration-row"><Clock3 className="size-4" /> {duration(game, id)} saniye <span>Prototip süresi</span></div></>}{forecast.length > 0 && <section className="building-cost-forecast">
+  return <div className="building-details"><div className="building-preview"><div className="preview-halo" />{b.art ? <img src={buildingImage(id, level)} alt={`${b.name} mimari görünümü`} width={360} height={360} /> : <span className="preview-pending"><Hammer aria-hidden="true" /><small>Görsel hazırlanıyor</small></span>}<span>{level ? `SEVİYE ${level}` : 'YENİ YAPI'}</span></div><span className="eyebrow">{b.category}</span><p>{b.description}</p><BuildingEffects game={game} id={id} level={level} max={max} /><div className="building-upgrade"><span>{level ? `Seviye ${level}` : 'Boş arsa'}</span><ArrowUp className="size-4" /><strong>{level >= max ? 'En yüksek seviye' : `Seviye ${level + 1}`}</strong></div>{active ? <JobProgress job={active} now={game.updatedAt} /> : level < max && <><div className="upgrade-cost"><span>Gerekli kaynaklar</span><CostDisplay value={cost(game, id)} lux={luxuryCost(game, id)} /></div><div className="duration-row"><KumSaatiArt className="size-4" /> {duration(game, id)} saniye <span>Prototip süresi</span></div></>}{forecast.length > 0 && <section className="building-cost-forecast">
     <strong>Sonraki seviyelerin maliyeti</strong>
     <Hint>Fiyatlar mevcut araştırma indirimlerini içerir. Sonraki yükseltmelerin ücreti, o günkü teknolojine göre yeniden hesaplanır.</Hint>
     {forecast.map(item => <div key={item.level} className="building-forecast-row">
@@ -41,7 +42,7 @@ export function BuildingDetails({ game, id, onBuild, onFlip, onMove }: { game: G
       <span>{item.price.gold.toLocaleString('tr-TR')} akçe · {item.price.wood.toLocaleString('tr-TR')} kereste · {item.price.stone.toLocaleString('tr-TR')} taş</span>
       <small>{Math.ceil(item.seconds / 60)} dk</small>
     </div>)}
-  </section>}{queued > 0 && <p className="requirement"><Clock3 className="size-4" />İnşaat sırasında {queued + 1}. sırada bekliyor.</p>}{reason && !active && queued < 0 && <p className="requirement"><LockKeyhole className="size-4" />{reason}</p>}{level > 0 && takesPlot(id) && <div className="building-tools">{b.art && <Button variant="outline" size="sm" onClick={() => onFlip(id)}><FlipHorizontal2 data-icon="inline-start" />{game.flips.includes(id) ? 'Yönü geri çevir' : 'Çevir'}</Button>}{id !== 'divan' && <Button variant="outline" size="sm" onClick={() => onMove(id)}><Move data-icon="inline-start" />Taşı</Button>}</div>}<Button size="lg" className="w-full" disabled={!!reason} onClick={() => onBuild(id)}><Hammer data-icon="inline-start" />{active ? 'İnşaat devam ediyor' : level >= max ? 'Tamamen geliştirildi' : level ? 'Binayı yükselt' : 'İnşaata başla'}</Button></div>
+  </section>}{queued > 0 && <p className="requirement"><KumSaatiArt className="size-4" />İnşaat sırasında {queued + 1}. sırada bekliyor.</p>}{reason && !active && queued < 0 && <p className="requirement"><LockKeyhole className="size-4" />{reason}</p>}{level > 0 && takesPlot(id) && <div className="building-tools">{b.art && <Button variant="outline" size="sm" onClick={() => onFlip(id)}><FlipHorizontal2 data-icon="inline-start" />{game.flips.includes(id) ? 'Yönü geri çevir' : 'Çevir'}</Button>}{id !== 'divan' && <Button variant="outline" size="sm" onClick={() => onMove(id)}><Move data-icon="inline-start" />Taşı</Button>}</div>}<Button size="lg" className="w-full" disabled={!!reason} onClick={() => onBuild(id)}><Hammer data-icon="inline-start" />{active ? 'İnşaat devam ediyor' : level >= max ? 'Tamamen geliştirildi' : level ? 'Binayı yükselt' : 'İnşaata başla'}</Button></div>
 }
 export function BuildingList({ game, onSelect }: { game: Game; onSelect: (id: BuildingId) => void }) {
   return <div className="building-list">{BUILDING_IDS.map(id => <button key={id} className="building-list-item" onClick={() => onSelect(id)}>{BUILDINGS[id].art ? <img src={buildingImage(id, game.buildings[id])} alt="" width={88} height={88} /> : <span className="list-pending"><Hammer aria-hidden="true" /></span>}<span><span className="eyebrow">{BUILDINGS[id].category}</span><strong>{BUILDINGS[id].name}</strong><span>{game.buildings[id] ? `Seviye ${game.buildings[id]}${game.buildings[id] >= MAX_LEVEL[id] ? ' · Tamamlandı' : ' · Geliştirilebilir'}` : 'Boş arsa · Yeni yapı'}</span></span><ChevronRight className="size-4" /></button>)}</div>
@@ -68,9 +69,9 @@ export function ResearchPanel({ game, onResearch }: { game: Game; onResearch: (i
   const short = Math.max(0, r.cost - game.resources.knowledge)
   return <div className="research-panel rs">
     <div className="rs-stats">
-      <span><Users className="size-4" /><b>{scientistCount(game)}</b><small>âlim</small></span>
+      <span><PersonArt kind="alim" size={26} /><b>{scientistCount(game)}</b><small>âlim</small></span>
       <span><IlimArt className="rs-lamp" /><b>{Math.floor(game.resources.knowledge).toLocaleString('tr-TR')}</b><small>ilim</small></span>
-      <span><Clock3 className="size-4" /><b>+{(rate * 60).toFixed(1)}</b><small>saatlik</small></span>
+      <span><KumSaatiArt className="size-4" /><b>+{Math.round(rate * 60).toLocaleString('tr-TR')}</b><small>ilim/saat</small></span>
       <span><AkceArt className="rs-lamp" /><b>−{(scientistUpkeepPerMinute(game) * 60).toFixed(0)}</b><small>akçe/saat</small></span>
     </div>
     {game.study && <JobProgress job={game.study} now={game.updatedAt} />}
@@ -91,7 +92,7 @@ export function ResearchPanel({ game, onResearch }: { game: Game; onResearch: (i
       </ul>
       <div className="rs-cost">
         <span className={short > 0 && state !== 'done' ? 'is-short' : undefined}><IlimArt className="rs-lamp" />{r.cost.toLocaleString('tr-TR')} ilim</span>
-        <span><Clock3 className="size-4" />{r.duration} sn</span>
+        <span><KumSaatiArt className="size-4" />{r.duration} sn</span>
         {state !== 'done' && short > 0 && <span className="rs-when">{rate > 0 ? `Yeterli ilim ~${clockMin(short / rate)} sonra` : 'İlim üretimi yok: Medrese\'ye âlim ata'}</span>}
       </div>
       {state === 'done' ? <p className="report-win"><Check className="size-4" /> Keşfedildi</p>
@@ -163,7 +164,7 @@ export function PeoplePanel({ game, onAssign }: { game: Game; onAssign: (id: Wor
   return <div className="people-panel">
     <div className="people-summary">
       <span className="eyebrow">ŞEHRİN HALKI</span>
-      <div><Users className="size-5" /><span>Nüfus</span><strong>{population(game)}<small className="people-cap"> / {maxPopulation(game)}</small></strong></div>
+      <div><NufusArt className="size-5" /><span>Nüfus</span><strong>{population(game)}<small className="people-cap"> / {maxPopulation(game)}</small></strong></div>
       <div><UserRound className="size-5" /><span>Boşta</span><strong className={idle === 0 ? 'people-none' : undefined}>{idle}</strong></div>
       <div><House className="size-5" /><span>Barınma</span><strong>{housing(game)}</strong></div>
       <div><HeartHandshake className="size-5" /><span>Huzur</span><strong>{contentment(game)}</strong></div>
@@ -173,7 +174,7 @@ export function PeoplePanel({ game, onAssign }: { game: Game; onAssign: (id: Wor
       * kesfetmesi zor bir tavan: sayilar ayni ekranda dursa bile aradaki
       * ILISKI soylenmezse "neden nufusum artmiyor" sorusu cevapsiz kalir.
       */}
-    {growthRate(game) > 0 && <p className="fine-print" role="status"><Users className="size-3" /> Halk büyüyor: dakikada +{growthRate(game).toFixed(1)} kişi. Huzur fazlası büyümeyi hızlandırır.</p>}
+    {growthRate(game) > 0 && <p className="fine-print" role="status"><NufusArt className="size-3" /> Halk büyüyor: dakikada +{growthRate(game).toFixed(1)} kişi. Huzur fazlası büyümeyi hızlandırır.</p>}
     {unhoused > 0 && <p className="storage-alert" role="status"><TriangleAlert className="size-4" />Huzursuzluk yüzünden {unhoused} kişilik konak boş duruyor. Hamam kur ya da yükselt.</p>}
     {WORKER_IDS.map(id => {
       const capacity = workerCapacity(game, id)
@@ -351,7 +352,7 @@ export function ArmyPanel({ game, onRecruit, onBuild, home }: { game: Game; onRe
   return <div className="advisor-panel">
     <div className="army-summary">
       <span className="eyebrow">SANCAĞIN ALTINDA</span>
-      <div><Users className="size-5" /><span>Asker</span><strong>{soldiers(game)}</strong></div>
+      <div><NufusArt className="size-5" /><span>Asker</span><strong>{soldiers(game)}</strong></div>
       <div><UserRound className="size-5" /><span>Boşta halk</span><strong className={idleWorkers(game) === 0 ? 'people-none' : undefined}>{idleWorkers(game)}</strong></div>
       <div><ShieldCheck className="size-5" /><span>Savunma</span><strong>{cityDefense(game)}</strong></div>
       <div><Swords className="size-5" /><span>Saldırı</span><strong>{land.attack}</strong></div>
@@ -391,7 +392,7 @@ export function ArmyPanel({ game, onRecruit, onBuild, home }: { game: Game; onRe
             <div className="unit-stats">
               <span title="Saldırı"><Swords className="size-3" />{unit.attack}</span>
               <span title="Savunma"><ShieldCheck className="size-3" />{unit.defense}</span>
-              <span title="Aldığı vatandaş"><Users className="size-3" />{unit.pop}</span>
+              <span title="Aldığı vatandaş"><NufusArt className="size-3" />{unit.pop}</span>
               <span title="Can puanı">❤ {unit.hp}</span>
               <span title="Bakım gideri (akçe/dk)"><AkceArt className="size-3" />{unit.upkeep}/dk</span>
               {unit.cargo > 0 && <span title="Taşıma"><Warehouse className="size-3" />{unit.cargo}</span>}
@@ -405,7 +406,7 @@ export function ArmyPanel({ game, onRecruit, onBuild, home }: { game: Game; onRe
             </div>}
             <div className="unit-bottom">
               <CostDisplay value={unitCost(id, batch, game)} lux={unitLuxuryCost(id, batch, game)} />
-              <span><Clock3 className="size-3" /> {unitDuration(game, id, batch)} sn</span>
+              <span><KumSaatiArt className="size-3" /> {unitDuration(game, id, batch)} sn</span>
               <Button size="sm" disabled={!!reason} onClick={() => onRecruit(id, batch)}>{batch} eğit</Button>
             </div>
             {reason && <p className="fine-print">{reason}</p>}

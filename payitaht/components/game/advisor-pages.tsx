@@ -50,7 +50,7 @@ export function diploAdvice(e: Empire) {
   if (unread) return `${unread} yeni mektup var efendim. Hükümdarların ne dediğine bakalım.`
   const war = e.world?.wars?.[0]
   if (war) return `${rivalById(war.a)?.city} ile ${rivalById(war.b)?.city} savaşta. Savaşan hükümdarların ordusu cephede; pazarları ise mala aç. Haberler sekmesinden izleyelim.`
-  if (!e.world?.alliance) return 'Bir ittifaka katılmak baskınlarda yardım getirir. Hükümdarlarla ilişkimizi güçlendirelim.'
+  if (!e.world?.alliance && !e.world?.pact) return 'Bir ittifaka katılmak baskınlarda yardım getirir. Hükümdarlarla ilişkimizi güçlendirelim.'
   return 'Diplomasi yolunda. Pazardaki tekliflere göz atmayı unutmayın.'
 }
 

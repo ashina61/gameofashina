@@ -7,8 +7,8 @@
  */
 import { Hint } from './hint'
 import { useState } from 'react'
-import { Sparkles, Minus, Plus, Swords, ShieldCheck, Clock3, Skull, Anchor, TriangleAlert, Repeat, Hammer } from 'lucide-react'
-import { AkceArt } from './resource-art'
+import { Sparkles, Minus, Plus, Swords, ShieldCheck, Skull, Anchor, TriangleAlert, Repeat, Hammer } from 'lucide-react'
+import { AkceArt, KumSaatiArt } from './resource-art'
 import { SHOWS, SHOW_IDS, type ShowId } from '@/lib/game/theatre'
 import { WorkforceSlider } from './workforce'
 import { Button } from '@/components/ui/button'
@@ -64,7 +64,7 @@ export function GuildPanel({ game, now, onCommand }: { game: Game; now: number; 
     <div className="people-row-top"><span>Himmet</span><span className="people-count">{num(gs.himmet)} / {num(cap)} · +{himmetRate(game).toFixed(1)}/dk</span></div>
     <span className="people-meter"><span style={{ width: `${Math.min(100, (gs.himmet / cap) * 100)}%` }} /></span>
     <div className="batch-row"><span>Adak</span>{[100, 500, 2000].map(n => <Button key={n} size="sm" variant={amount === n ? 'default' : 'outline'} onClick={() => setAmount(n)}>{num(n)}</Button>)}</div>
-    {cooling && <p className="fine-print"><Clock3 className="size-3" /> Loncalar yeni düzene alışıyor · {clock(gs.changedAt + PATRON_COOLDOWN_MS - now)}</p>}
+    {cooling && <p className="fine-print"><KumSaatiArt className="size-3" /> Loncalar yeni düzene alışıyor · {clock(gs.changedAt + PATRON_COOLDOWN_MS - now)}</p>}
     <div className="guild-list">{GUILD_IDS.map(id => {
       const g = GUILDS[id]
       const level = guildLevel(gs.devotion[id])
@@ -117,7 +117,7 @@ export function TemplePanel({ game, now, onCommand }: { game: Game; now: number;
         <div className="people-row-top"><span>İnanç</span><span className="people-count">{num(t.faith)} / {num(FAITH_CAP)} · +{(Math.min(t.priests, cap) * 0.5).toFixed(1)}/dk</span></div>
         <span className="people-meter"><span style={{ width: `${Math.min(100, t.faith / need * 100)}%` }} /></span>
         {active && <p className="report-win"><Sparkles className="size-4" /> {m.name} mucizesi etkin · {clock(t.until - now)}</p>}
-        {resting && <p className="fine-print"><Clock3 className="size-3" /> Harika dinleniyor · {clock(t.cooldownUntil - now)}</p>}
+        {resting && <p className="fine-print"><KumSaatiArt className="size-3" /> Harika dinleniyor · {clock(t.cooldownUntil - now)}</p>}
         <Button size="sm" disabled={!!active || resting || t.wonderLevel < 1 || t.faith < need} onClick={() => onCommand({ type: 'miracle' })}>
           <Sparkles data-icon="inline-start" />Mucizeyi çağır ({num(need)} inanç)</Button>
         <p className="fine-print">Her rahip dakikada 0,5 inanç toplar ve üretimde çalışmaz. Mucizeden sonra harika {MIRACLE_COOLDOWN_MS / 3600_000} saat dinlenir.</p>
@@ -218,7 +218,7 @@ export function PiracyPanel({ empire, now, onPiracy }: {
     <div className="piracy-targets">{PIRACY_TARGETS.map(p => <button key={p.id} type="button" className="piracy-target"
       aria-pressed={target === p.id} disabled={g.buildings.korsan_kalesi < p.level} onClick={() => setTarget(p.id)}>
       <strong>{p.name}</strong><small>{p.description}</small>
-      <small><AkceArt className="size-3" /> {num(p.gold * (1 + g.buildings.korsan_kalesi * 0.1))} · <Clock3 className="size-3" /> {clock(p.minutes * 60_000 * travelFactor(g))}
+      <small><AkceArt className="size-3" /> {num(p.gold * (1 + g.buildings.korsan_kalesi * 0.1))} · <KumSaatiArt className="size-3" /> {clock(p.minutes * 60_000 * travelFactor(g))}
         {g.buildings.korsan_kalesi < p.level ? ` · Kale ${p.level}. sv.` : ''}</small>
       <small>Eskort: {troopList(p.escort)}</small>
     </button>)}</div>
@@ -228,7 +228,7 @@ export function PiracyPanel({ empire, now, onPiracy }: {
     <Hint>Eskort gemileri zayıf zırhlıdır ama batmadan pes etmez: kalabalık bir filo götür. Kayıplar kalıcıdır.</Hint>
     <Button size="sm" disabled={!Object.values(pick).some(n => (n ?? 0) > 0) || missions.some(m => m.npcId === t.id)}
       onClick={() => { onPiracy(t.id, pick); setPick({}) }}><Anchor data-icon="inline-start" />{t.name} peşine düş</Button>
-    {missions.map(m => <p key={m.id} className="requirement"><Clock3 className="size-4" />
+    {missions.map(m => <p key={m.id} className="requirement"><KumSaatiArt className="size-4" />
       {PIRACY_TARGETS.find(p => p.id === m.npcId)?.name}: {m.battle ? `savaşta · tur ${m.battle.state.round}` : m.resolved ? `dönüş ${clock(m.returnAt - now)}` : `varış ${clock(m.arriveAt - now)}`}</p>)}
   </section>
 }
@@ -287,7 +287,7 @@ export function SiegePanel({ empire, now, run }: { empire: Empire; now: number; 
         <div><small>Düşman</small><strong>{troopList(s.troops)}</strong></div>
         <div><small>{s.kind === 'occupy' ? 'Şehirdeki kara birliklerin' : 'Limandaki savaş gemilerin'}</small><strong>{troopList(mine)}</strong></div>
       </div>
-      <p className="fine-print"><Clock3 className="size-3" /> Saatte {num(siegeTribute(s))} akçe haraç · en geç {clock(s.since + SIEGE_MAX_MS - now)} sonra çekilirler.</p>
+      <p className="fine-print"><KumSaatiArt className="size-3" /> Saatte {num(siegeTribute(s))} akçe haraç · en geç {clock(s.since + SIEGE_MAX_MS - now)} sonra çekilirler.</p>
       <Button size="sm" variant="destructive" disabled={!Object.keys(mine).length}
         onClick={() => run((e, t) => liberateCity(e, city.id, s.kind, t), s.kind === 'occupy' ? 'Şehir kurtarıldı!' : 'Abluka kırıldı!')}>
         <Swords data-icon="inline-start" />{s.kind === 'occupy' ? 'Şehri kurtar' : 'Ablukayı kır'}</Button>
@@ -359,7 +359,7 @@ export function TheatrePanel({ game, now, onCommand }: { game: Game; now: number
     <h3><Sparkles className="size-4" /> Hangi oyunu sahneleyelim?</h3>
     <ShadowStage show={active?.id ?? null} />
     {active && <p className="report-win"><Sparkles className="size-4" /> "{SHOWS[active.id].play}" oynanıyor · {SHOWS[active.id].effect(lv)} · {clock(active.until - now)}</p>}
-    {!active && wait > 0 && <p className="fine-print"><Clock3 className="size-3" /> Perde dinleniyor · {clock(wait)}</p>}
+    {!active && wait > 0 && <p className="fine-print"><KumSaatiArt className="size-3" /> Perde dinleniyor · {clock(wait)}</p>}
     <div className="show-grid">{SHOW_IDS.map(id => {
       const s = SHOWS[id]
       const blocked = id === 'tanrisal' && game.buildings.mabet < 1
