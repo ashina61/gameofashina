@@ -123,6 +123,54 @@ async function main() {
     await page.screenshot({ path: coast, animations: 'disabled' })
     diagnostics.screenshots.push(path.basename(coast))
 
+    // İç panel QA: bu ekranlar CSS/yerleşim açısından haritadan bağımsız
+    // kırılabiliyor. Gerçek kullanıcı akışından aç ve iki mobil viewportta çek.
+    const closePage = async () => {
+      await page.getByRole('button', { name: 'Geri' }).first().click()
+      await page.waitForTimeout(180)
+    }
+
+    await page.getByRole('button', { name: /Araştırma danışmanı/ }).click()
+    await page.getByRole('group', { name: 'Araştırma dalları' }).waitFor({ timeout: 10_000 })
+    const research = path.join(out, `panel-research-${label}.png`)
+    await page.screenshot({ path: research, animations: 'disabled' })
+    diagnostics.screenshots.push(path.basename(research))
+    await closePage()
+
+    await page.getByRole('button', { name: /Ordu danışmanı/ }).click()
+    await page.getByRole('button', { name: 'Orduya git' }).waitFor({ timeout: 10_000 })
+    await page.getByRole('button', { name: 'Orduya git' }).click()
+    await page.getByText('SANCAĞIN ALTINDA', { exact: true }).waitFor({ timeout: 10_000 })
+    const army = path.join(out, `panel-army-${label}.png`)
+    await page.screenshot({ path: army, animations: 'disabled' })
+    diagnostics.screenshots.push(path.basename(army))
+    await closePage()
+
+    await page.getByRole('button', { name: /Şehir danışmanı/ }).click()
+    await page.getByRole('button', { name: /Bütün yapılar/ }).waitFor({ timeout: 10_000 })
+    await page.getByRole('button', { name: /Bütün yapılar/ }).click()
+    await page.getByRole('heading', { name: 'Şehrini büyüt' }).waitFor({ timeout: 10_000 })
+    const buildings = path.join(out, `panel-buildings-${label}.png`)
+    await page.screenshot({ path: buildings, animations: 'disabled' })
+    diagnostics.screenshots.push(path.basename(buildings))
+    await closePage()
+
+    await page.getByRole('button', { name: /Diplomasi danışmanı/ }).click()
+    await page.getByRole('group', { name: 'Dünya' }).waitFor({ timeout: 10_000 })
+    const diplomacy = path.join(out, `panel-diplomacy-${label}.png`)
+    await page.screenshot({ path: diplomacy, animations: 'disabled' })
+    diagnostics.screenshots.push(path.basename(diplomacy))
+    await closePage()
+
+    await page.getByRole('button', { name: /Hükümdar profili/ }).click()
+    await page.getByRole('button', { name: 'Oyun ayarları' }).waitFor({ timeout: 10_000 })
+    await page.getByRole('button', { name: 'Oyun ayarları' }).click()
+    await page.getByRole('heading', { name: 'Oyun ayarları' }).waitFor({ timeout: 10_000 })
+    const settings = path.join(out, `panel-settings-${label}.png`)
+    await page.screenshot({ path: settings, animations: 'disabled' })
+    diagnostics.screenshots.push(path.basename(settings))
+    await closePage()
+
     // Regression for the actual multi-city UI: opening the atlas must not
     // throw and the legacy save must have been wrapped as a valid empire.
     await page.getByRole('button', { name: 'Harita', exact: true }).click()
