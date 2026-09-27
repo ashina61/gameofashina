@@ -1,4 +1,5 @@
 name: Generate Coast Facing Assets
+# One-off generator validation for the new straight coast variants.
 
 on:
   push:
