@@ -7,7 +7,7 @@ async function main() {
   const out = path.resolve('visual-review')
   await fs.mkdir(out, { recursive: true })
   const browser = await chromium.launch({ headless: true, args: ['--no-sandbox'] })
-  const diagnostics = { pageErrors: [], missingGameAssets: [], screenshots: [], viewports: [] }
+  const diagnostics = { pageErrors: [], missingGameAssets: [], screenshots: [], viewports: [], buildingStageLoads: {} }
   const origin = process.env.VISUAL_QA_URL || 'http://127.0.0.1:4173/gameofashina/'
 
   const runViewport = async ({ width, height }) => {
@@ -21,10 +21,15 @@ async function main() {
       colorScheme: 'light',
     })
     const page = await context.newPage()
+    const buildingStageLoads = new Set()
     page.on('pageerror', error => diagnostics.pageErrors.push(`${label}: ${error.message}`))
     page.on('response', response => {
-      if (response.status() >= 400 && response.url().includes('/images/game/')) {
-        diagnostics.missingGameAssets.push(`${label}: ${response.status()} ${response.url()}`)
+      const url = response.url()
+      if (response.status() >= 400 && url.includes('/images/game/')) {
+        diagnostics.missingGameAssets.push(`${label}: ${response.status()} ${url}`)
+      }
+      if (/\/images\/game\/buildings\/[a-z0-9_-]+-[123]\.webp(?:\?|$)/.test(url)) {
+        buildingStageLoads.add(url.split('?')[0])
       }
     })
 
@@ -47,6 +52,10 @@ async function main() {
     const center = path.join(out, `city-center-${label}.png`)
     await page.screenshot({ path: center, animations: 'disabled' })
     diagnostics.screenshots.push(path.basename(center))
+    diagnostics.buildingStageLoads[label] = [...buildingStageLoads].map(url => url.split('/').pop()).sort()
+    if (buildingStageLoads.size > 32) {
+      throw new Error(`${label}: city boot loaded ${buildingStageLoads.size} staged building textures; lazy-loading regressed.`)
+    }
 
     const harbour = page.getByRole('button', { name: 'Donanma ve limana git' })
     await harbour.click({ timeout: 10_000 })
