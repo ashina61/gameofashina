@@ -867,8 +867,11 @@
     repeating-linear-gradient(0deg, #0000 0 3px, #8a5a2208 3px 4px),
     linear-gradient(180deg, #f5e6bd, #e9d29c);
 }
-.bp-bar { flex-shrink: 0; display: flex; align-items: center; gap: 8px; padding: calc(var(--sa-top) + 8px) 10px 8px;
-  background: linear-gradient(180deg, #6a3f1b, var(--brown-2)); border-bottom: 3px solid #c9a45a; box-shadow: 0 3px 10px #0006; color: #f7e5b5; }
+.bp-bar { position: relative; flex-shrink: 0; display: flex; align-items: center; gap: 8px; padding: calc(var(--sa-top) + 8px) 10px 9px;
+  background: linear-gradient(180deg, #74451d, #4d2d14 58%, var(--brown-2)); border-bottom: 3px solid #c9a45a;
+  box-shadow: 0 4px 14px #0007, inset 0 1px #fff2ba1c; color: #f7e5b5; }
+.bp-bar::after { content: ''; position: absolute; left: 52px; right: 52px; bottom: -2px; height: 1px;
+  background: linear-gradient(90deg, transparent, #f0d38d, transparent); opacity: .72; }
 .bp-back { width: 40px; height: 40px; flex-shrink: 0; display: grid; place-items: center; border-radius: 50%; border: 1px solid #c9a45a88; background: #2a170899; color: #f7e5b5; }
 .bp-back svg { width: 20px; height: 20px; }
 .bp-close { display: none; }
@@ -999,10 +1002,17 @@
 .ika-city-name strong { font-family: var(--font-heading), Georgia, serif; font-size: 17px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-shadow: 0 1px 2px #000a; }
 .ika-city-name small { font-size: 10px; color: #c9b78e; }
 .ika-advisors { display: flex; gap: 2px; flex-shrink: 0; padding-left: 3px; border-left: 1px solid #d1b4683d; }
-.ika-advisor { position: relative; width: 41px; height: 41px; padding: 0; border: 0; background: none; border-radius: 50%;
+.ika-advisor { position: relative; width: 43px; height: 43px; padding: 0; border: 0; background: none; border-radius: 50%;
   filter: drop-shadow(0 2px 3px #0009); transition: transform .12s ease, filter .12s ease; }
 .ika-advisor:active { transform: scale(.94); }
-.ika-advisor svg { display: block; }
+.ika-advisor-ring { position: absolute; inset: 1px; display: grid; place-items: center; border-radius: 50%;
+  border: 1px solid #d9c18524; background: radial-gradient(circle at 50% 30%, #ffffff10, transparent 70%);
+  transition: border-color .15s ease, box-shadow .15s ease, background .15s ease; }
+.ika-advisor-ring svg { display: block; }
+.ika-advisor-active .ika-advisor-ring { border-color: #f0d38dcc; background: radial-gradient(circle at 50% 35%, #f0d38d2e, #6d4a241a 62%, transparent 72%);
+  box-shadow: 0 0 0 2px #4d2f1699, 0 0 10px #f0d38d66, inset 0 0 10px #fff2ba14; }
+.ika-advisor-active::after { content: ''; position: absolute; left: 50%; bottom: -4px; width: 14px; height: 3px; transform: translateX(-50%);
+  border-radius: 3px; background: #f2d37d; box-shadow: 0 0 7px #f2d37d99; }
 .ika-advisor-news svg { animation: advisor-glow 1.6s ease-in-out infinite; }
 @keyframes advisor-glow { 50% { filter: drop-shadow(0 0 6px #ffd66b) brightness(1.15); } }
 @media (prefers-reduced-motion: reduce) { .ika-advisor-news svg { animation: none; filter: drop-shadow(0 0 5px #ffd66b); } }
@@ -1072,8 +1082,9 @@
 .game-shell .hud-ticker-text { color: #f3e6c8; }
 .game-shell .threat-banner { left: 8px; right: 8px; max-width: none; top: calc(var(--ika-top) + 8px); }
 .game-shell .map-top-tools { top: calc(var(--ika-top) + 60px); right: 8px; bottom: auto; }
-.game-shell .map-top-tools button { background: #102522e8; border: 1px solid #c5a45d8f; color: #e6c77d;
-  box-shadow: 0 3px 8px #0007, inset 0 1px #ffffff10; backdrop-filter: blur(7px); }
+.game-shell .map-top-tools button { width: 44px; height: 44px; border-radius: 10px; background: linear-gradient(180deg, #17352fe8, #0d211ee8);
+  border: 1px solid #c5a45d8f; color: #e6c77d; box-shadow: 0 4px 10px #0007, inset 0 1px #ffffff14; backdrop-filter: blur(7px); }
+.game-shell .map-top-tools button:focus-visible { outline: 2px solid #f2d37d; outline-offset: 2px; }
 .game-shell .weather, .game-shell .map-bottom-tools { display: none; }
 .game-shell .build-hint { bottom: calc(var(--ika-nav) + 42px); background: #102522f0; border: 1px solid #c5a45d82;
   box-shadow: 0 4px 12px #0007; backdrop-filter: blur(8px); }
@@ -1732,7 +1743,9 @@
 .game-shell .ika-nav-icon { display: grid; place-items: center; width: 34px; height: 30px; border-radius: 10px; }
 .game-shell .ika-nav-icon svg { width: 22px; height: 22px; filter: drop-shadow(0 1px 0 #0008); }
 .game-shell .ika-nav-label { line-height: 1; text-shadow: 0 1px 0 #0009; }
-.game-shell .ika-nav-active { background: none; box-shadow: none; color: #ffe7a8; }
+.game-shell .ika-nav-active { background: linear-gradient(180deg, #d3ae5a12, #d3ae5a05); box-shadow: inset 0 1px #f5dda044; color: #ffe7a8; }
+.game-shell .ika-nav-active::before { content: ''; position: absolute; top: 2px; left: 50%; width: 22px; height: 3px; transform: translateX(-50%);
+  border-radius: 3px; background: #f2d37d; box-shadow: 0 0 8px #f2d37d88; }
 .game-shell .ika-nav-active .ika-nav-icon { background: radial-gradient(circle at 50% 35%, #f4d488, #b8813f 70%); color: #2e1807; box-shadow: inset 0 1px 0 #fff7, 0 0 0 1px #3a210c, 0 0 12px #f4d48866; }
 .game-shell .ika-nav-active .ika-nav-icon svg { filter: none; }
 .game-shell .ika-nav-active .ika-nav-label { color: #ffe7a8; }
@@ -1905,7 +1918,9 @@
     overflow: visible; border-bottom: 2px solid #a8884e;
     background: linear-gradient(180deg, #203630, #122722);
   }
-  .ika-chip { min-width: 0; min-height: 0; gap: 1px 3px; padding: 3px 5px; border-radius: 4px; }
+  .ika-chip { min-width: 0; min-height: 0; gap: 1px 3px; padding: 3px 5px; border-radius: 6px; }
+  .ika-stock { background: linear-gradient(180deg, #ffffff0d, #ffffff05); border-color: #d9c18528; }
+  .ika-status { background: linear-gradient(180deg, #102a26cc, #0b201dcc); border-color: #8fbf9c2c; }
   .ika-stock { grid-column: span 3; display: grid; grid-template-columns: 16px minmax(0, 1fr); grid-template-rows: 10px 15px 10px; }
   .ika-stock .ika-resource-name { grid-area: 1 / 1 / 2 / 3; }
   .ika-stock i { grid-area: 2 / 1; }
