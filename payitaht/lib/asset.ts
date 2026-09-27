@@ -23,7 +23,15 @@ export function buildingStage(level: number): 1 | 2 | 3 {
   return level >= 8 ? 3 : level >= 4 ? 2 : 1
 }
 
+/**
+ * Bina sanat revizyonu. WebP dosya adları seviye/stage için sabit kaldığı için
+ * GitHub Pages/CDN/PWA cache eski resmi gösterebilir. Generator sanatı topluca
+ * değiştiğinde bu değeri yükselt; query string hem browser hem SW cache anahtarını
+ * değiştirir, binary dosya adlarını ve BUILDING_FLAGS anahtarlarını bozmaz.
+ */
+export const BUILDING_ART_REV = '20260927-coast-v2'
+
 /** Bir bina gorselinin yolu (tools/art/buildings.py ile cizilir). */
 export function buildingImage(id: string, level = 1) {
-  return asset(`/images/game/buildings/${id}-${buildingStage(level)}.webp`)
+  return `${asset(`/images/game/buildings/${id}-${buildingStage(level)}.webp`)}?art=${BUILDING_ART_REV}`
 }
