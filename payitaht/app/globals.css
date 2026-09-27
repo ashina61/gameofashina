@@ -1012,9 +1012,20 @@
   background: linear-gradient(180deg, #152925ee, #0d201de8); color: #f6e8c3; text-align: left;
   box-shadow: 0 4px 10px #0005; backdrop-filter: blur(8px); }
 .ika-res::-webkit-scrollbar { display: none; }
-.ika-chip { flex: 1 0 auto; min-height: 29px; display: inline-flex; align-items: center; gap: 3px; padding: 2px 6px;
+.ika-chip { position: relative; flex: 1 0 auto; min-height: 29px; display: inline-flex; align-items: center; gap: 3px; padding: 2px 6px;
   border-radius: 7px; background: #ffffff0a; border: 1px solid #d4b56a24; white-space: nowrap;
   font-variant-numeric: tabular-nums lining-nums; box-shadow: inset 0 1px #ffffff0a; }
+.ika-chip-delta { position: absolute; z-index: 3; top: 0; right: 3px; pointer-events: none; padding: 1px 4px; border-radius: 7px;
+  font-style: normal; font-size: 10px; font-weight: 900; line-height: 1.15; text-shadow: 0 1px 2px #000c;
+  animation: resource-fly .72s cubic-bezier(.18,.72,.2,1) forwards; }
+.ika-chip-delta.is-plus { color: #dcffb9; background: #356c2bd9; border: 1px solid #9ed06f88; }
+.ika-chip-delta.is-minus { color: #ffd1c4; background: #7a2d24df; border: 1px solid #df826d88; }
+@keyframes resource-fly {
+  0% { opacity: 0; transform: translateY(7px) scale(.88); }
+  18% { opacity: 1; transform: translateY(0) scale(1.04); }
+  68% { opacity: 1; }
+  100% { opacity: 0; transform: translateY(-11px) scale(.96); }
+}
 .ika-chip i { align-self: center; display: grid; place-items: center; }
 .ika-chip i svg { width: 18px; height: 18px; color: #d7b96f; filter: drop-shadow(0 1px 2px #0008); }
 .ika-chip b { font-size: 13px; line-height: 1; font-weight: 800; color: #fff0cc; text-shadow: 0 1px 2px #000b; }
@@ -1031,6 +1042,22 @@
 .ika-nav-icon { width: 32px; height: 29px; display: grid; place-items: center; border-radius: 50%; transition: transform .12s ease, background .12s ease; }
 .ika-nav-item svg { width: 22px; height: 22px; stroke-width: 1.8; }
 .ika-nav-item:active .ika-nav-icon { transform: scale(.92); }
+/* Dokunma hissi: sahne dışındaki ana oyun kontrolleri parmak altında çok kısa çöker.
+ * Alt nav kendi ikon animasyonunu kullandığı için burada özellikle hariç tutulur. */
+.ika-top button:not(:disabled), .map-top-tools button:not(:disabled), .bp button:not(:disabled),
+.ika-page button:not(:disabled), .move-confirm button:not(:disabled), .build-hint button:not(:disabled) {
+  transition: transform .08s ease, filter .08s ease;
+  transform-origin: center;
+}
+.ika-top button:not(:disabled):active, .map-top-tools button:not(:disabled):active, .bp button:not(:disabled):active,
+.ika-page button:not(:disabled):active, .move-confirm button:not(:disabled):active, .build-hint button:not(:disabled):active {
+  transform: translateY(1px) scale(.97);
+  filter: brightness(.96);
+}
+@media (prefers-reduced-motion: reduce) {
+  .ika-chip-delta { animation: none; opacity: 1; }
+  .ika-top button, .map-top-tools button, .bp button, .ika-page button, .move-confirm button, .build-hint button { transition: none !important; }
+}
 .ika-nav-active { color: #ffe6a4; background: none; box-shadow: none; }
 .ika-nav-active .ika-nav-icon { background: radial-gradient(circle, #b98a425c, #7b552820 68%, transparent 72%); box-shadow: inset 0 0 0 1px #e5c77a66; }
 .ika-nav-center { transform: translateY(-11px); }
