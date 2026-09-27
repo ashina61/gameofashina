@@ -273,15 +273,26 @@ export class CityScene extends Phaser.Scene {
     const harbourIndex = this.state.placement.liman
     const shipyard = shipyardIndex === null ? null : liveSlotByIndex(shipyardIndex)
     const harbour = harbourIndex === null ? null : liveSlotByIndex(harbourIndex)
-    const destination = shipyard?.zone === 'liman'
-      ? shipyard.screen
-      : harbour?.zone === 'liman'
-        ? harbour.screen
-        : COAST_SLOTS[Math.floor(COAST_SLOTS.length / 2)].screen
-    // Limana YAKINLAŞ ve rıhtımı HUD'un açık bıraktığı bandın ortasına getir
-    // (alt menünün arkasında kalmasın).
-    this.cameras.main.setZoom(Phaser.Math.Clamp(Math.max(this.cityZoom * 1.55, 0.66), this.minZoom, this.maxZoom))
-    this.centerInBand(destination.x, destination.y - TILE.h * 0.45)
+    const hasShipyard = shipyard?.zone === 'liman'
+    const hasHarbour = harbour?.zone === 'liman'
+    // İkisi de kuruluysa "donanma ve liman" düğmesi tek yapıya değil bütün
+    // kıyı kompleksine bakar. Mobilde yalnız Tersane'ye aşırı zoom yapmak
+    // Ticaret Limanı'nı kadraj dışına atıyordu.
+    const destination = hasShipyard && hasHarbour
+      ? {
+          x: (shipyard.screen.x + harbour.screen.x) / 2,
+          y: (shipyard.screen.y + harbour.screen.y) / 2,
+        }
+      : hasShipyard
+        ? shipyard.screen
+        : hasHarbour
+          ? harbour.screen
+          : COAST_SLOTS[Math.floor(COAST_SLOTS.length / 2)].screen
+    // İki kıyı yapısı varken bir miktar daha geniş kadraj; tek yapıdaysa eski
+    // yakın plan korunur. HUD altındaki açık banda oturt.
+    const harbourZoom = hasShipyard && hasHarbour ? 1.32 : 1.55
+    this.cameras.main.setZoom(Phaser.Math.Clamp(Math.max(this.cityZoom * harbourZoom, 0.64), this.minZoom, this.maxZoom))
+    this.centerInBand(destination.x, destination.y - TILE.h * 0.38)
     this.velocity = { x: 0, y: 0 }
   }
   /** React kontrolü: yakınlaştırmayı çarpanla değiştir. */
