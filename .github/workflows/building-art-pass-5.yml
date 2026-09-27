@@ -8,6 +8,13 @@ on:
       - 'payitaht/tools/art/buildings.py'
       - 'payitaht/tools/art/isokit.py'
       - '.github/workflows/building-art-pass-5.yml'
+  pull_request:
+    branches:
+      - claude/ancient-city-phaser-game-r9e0qu
+    paths:
+      - 'payitaht/tools/art/buildings.py'
+      - 'payitaht/tools/art/isokit.py'
+      - '.github/workflows/building-art-pass-5.yml'
 
 permissions:
   contents: write
