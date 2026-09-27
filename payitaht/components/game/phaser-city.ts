@@ -1605,7 +1605,7 @@ export class CityScene extends Phaser.Scene {
    * Bina-türü mikro prop'ları. Yeni asset gerektirmez: mevcut decor sprite'ları
    * ve küçük vektör parçaları kullanılır. Dizilim bina+slot ile deterministiktir.
    */
-  private addBuildingProps(id: BuildingId, slot: LiveSlot, imgY: number, artS: number) {
+  private addBuildingProps(id: BuildingId, slot: LiveSlot, imgY: number) {
     const profile = buildingVisualProfile(id)
     if (!profile.props.length || id === 'divan') return
 
@@ -1789,7 +1789,7 @@ export class CityScene extends Phaser.Scene {
       img.setFlipX(this.state.flips.includes(id))
       dispW = img.width * scale; dispH = img.height * scale
       this.pieces.push(img)
-      this.addBuildingProps(id, slot, imgY, artS)
+      if (level > 0) this.addBuildingProps(id, slot, imgY)
       // Sancaklar: görseldeki direklerin tepesine oyuncunun sancağı (tools/art → building-flags.json).
       const anchors = BUILDING_FLAGS[textureKey]
       if (anchors) {
