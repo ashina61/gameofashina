@@ -29,7 +29,7 @@ export function buildingStage(level: number): 1 | 2 | 3 {
  * değiştiğinde bu değeri yükselt; query string hem browser hem SW cache anahtarını
  * değiştirir, binary dosya adlarını ve BUILDING_FLAGS anahtarlarını bozmaz.
  */
-export const BUILDING_ART_REV = '20260927-coast-v2'
+export const BUILDING_ART_REV = '20260927-coast-facing-v1'
 
 export type CoastFacing = 'left' | 'straight' | 'right'
 
