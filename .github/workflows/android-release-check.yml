@@ -1,0 +1,61 @@
+name: Android Release Check
+
+on:
+  pull_request:
+    branches:
+      - claude/ancient-city-phaser-game-r9e0qu
+    paths:
+      - 'payitaht/**'
+      - '.github/workflows/android-release-check.yml'
+      - '.github/workflows/android-release.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: android-release-check-${{ github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    working-directory: payitaht
+
+jobs:
+  release-check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+          run_install: false
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Build native static export
+        env:
+          STATIC_EXPORT: '1'
+          NEXT_PUBLIC_NATIVE: '1'
+        run: pnpm build
+      - name: Sync Capacitor
+        run: pnpm exec cap sync android
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - uses: android-actions/setup-android@v3
+        with:
+          packages: 'platform-tools platforms;android-36 build-tools;36.0.0'
+      - name: Build unsigned production bundle with R8
+        working-directory: payitaht/android
+        env:
+          PAYITAHT_VERSION_CODE: '999999'
+          PAYITAHT_VERSION_NAME: '0.0.0-ci'
+        run: |
+          chmod +x gradlew
+          ./gradlew bundleRelease --no-daemon --stacktrace
+      - name: Verify release bundle exists
+        run: test -s android/app/build/outputs/bundle/release/app-release.aab
