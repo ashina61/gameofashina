@@ -2317,8 +2317,8 @@ def _p6_culture(s, st, kind):
         s.hip(x0 - 0.02, y0 - 0.02, x1 + 0.02, y1 + 0.02, 0.47, 0.22, PAL['roof'], over=0.18)
         cardak(s, 0.32, 1.10, 1.18, 1.62, 0.40)
         if st >= 2:
-            s.box(0.54, 0.46, 0.63, 0.88, 0.20, OTTO['white'], 'plaster')
-            s.hip(0.52, 0.44, 0.65, 0.90, 0.20, 0.08, PAL['roof'], over=0.05)
+            s.box(0.54, 0.46, 0.47, 0.63, 0.88, 0.67, OTTO['white'], 'plaster')
+            s.hip(0.52, 0.44, 0.65, 0.90, 0.67, 0.08, PAL['roof'], over=0.05)
         if st >= 3:
             s.cylinder(1.58, 0.62, 0, 0.08, 0.14, PAL['marble'], 'marble', n=14, top=PAL['water'])
         for x, y in ((0.48, 1.30), (0.82, 1.42), (1.04, 1.24)):
