@@ -7,7 +7,7 @@ async function main() {
   const out = path.resolve('visual-review')
   await fs.mkdir(out, { recursive: true })
   const browser = await chromium.launch({ headless: true, args: ['--no-sandbox'] })
-  const diagnostics = { pageErrors: [], missingGameAssets: [], screenshots: [], viewports: [], buildingStageLoads: {} }
+  const diagnostics = { pageErrors: [], missingGameAssets: [], screenshots: [], viewports: [], buildingStageLoads: {}, coastSeed: {} }
   const origin = process.env.VISUAL_QA_URL || 'http://127.0.0.1:4173/gameofashina/'
 
   const runViewport = async ({ width, height }) => {
@@ -64,8 +64,9 @@ async function main() {
     await page.evaluate(() => {
       const key = 'payitaht-adalari-v1'
       const empire = JSON.parse(localStorage.getItem(key) || 'null')
-      const game = empire?.cities?.[0]?.game
-      if (!game?.buildings || !game?.placement) throw new Error('Visual QA empire save shape unavailable')
+      const city = empire?.cities?.find(c => c.id === empire.activeCityId) ?? empire?.cities?.[0]
+      const game = city?.game
+      if (!game?.buildings || !game?.placement) throw new Error('Visual QA active-city save shape unavailable')
       game.buildings.liman = 2
       game.buildings.tersane = 2
       game.placement.liman = 25
@@ -80,6 +81,24 @@ async function main() {
       return canvas && canvas.width > 0 && canvas.clientWidth > 0
     }, null, { timeout: 45_000 })
     await page.waitForTimeout(5000)
+    const seeded = await page.evaluate(() => {
+      const empire = JSON.parse(localStorage.getItem('payitaht-adalari-v1') || 'null')
+      const city = empire?.cities?.find(c => c.id === empire.activeCityId) ?? empire?.cities?.[0]
+      const game = city?.game
+      return {
+        cityId: city?.id ?? null,
+        activeCityId: empire?.activeCityId ?? null,
+        liman: game?.buildings?.liman ?? null,
+        tersane: game?.buildings?.tersane ?? null,
+        pLiman: game?.placement?.liman ?? null,
+        pTersane: game?.placement?.tersane ?? null,
+      }
+    })
+    diagnostics.coastSeed = diagnostics.coastSeed || {}
+    diagnostics.coastSeed[label] = seeded
+    if (seeded.liman !== 2 || seeded.tersane !== 2 || seeded.pLiman !== 25 || seeded.pTersane !== 26) {
+      throw new Error(`${label}: coast QA seed did not survive reload: ${JSON.stringify(seeded)}`)
+    }
 
     const harbour = page.getByRole('button', { name: 'Donanma ve limana git' })
     await harbour.click({ timeout: 10_000 })
