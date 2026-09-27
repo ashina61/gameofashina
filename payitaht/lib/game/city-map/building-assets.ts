@@ -30,6 +30,80 @@ export const BUILDING_RENDER_SCALE = 0.82
  * genişliği. Tuval 600 px, elmas 480 px; tuvalin alt kenarı elmasın alt köşesi.
  */
 export const ART_DIAMOND_PX = 480
+
+
+export type BuildingVisualFamily = 'civic' | 'civil' | 'production' | 'military' | 'commercial' | 'harbour'
+export type BuildingYardStyle = 'none' | 'soft' | 'work' | 'stone' | 'courtyard' | 'harbour'
+export type BuildingProp =
+  | 'bush' | 'flower' | 'cypress' | 'fruit-tree' | 'woodpile' | 'rock'
+  | 'well' | 'haystack' | 'beehives' | 'crate' | 'rack' | 'bench' | 'canopy'
+
+export type BuildingVisualProfile = {
+  family: BuildingVisualFamily
+  scale: number
+  tint: number
+  yard: BuildingYardStyle
+  props: readonly BuildingProp[]
+  /** Aynı bina farklı slotlarda kopya gibi görünmesin; footprint değişmez. */
+  variation: number
+}
+
+/**
+ * Canlı şehirdeki sanat yönetimi tek noktada tutulur. Bunlar oyun mekaniği
+ * değildir: maliyet, üretim, slot veya kayıt formatını değiştirmez.
+ */
+const VISUALS: Record<string, BuildingVisualProfile> = {
+  divan: { family: 'civic', scale: 1.36, tint: 0xfff5e6, yard: 'courtyard', props: ['flower', 'cypress'], variation: 0 },
+  saray: { family: 'civic', scale: 1.08, tint: 0xfff5e6, yard: 'courtyard', props: ['cypress', 'flower'], variation: 0.015 },
+  medrese: { family: 'civic', scale: 1.08, tint: 0xfff5e6, yard: 'courtyard', props: ['bench', 'cypress'], variation: 0.012 },
+  cami: { family: 'civic', scale: 1.08, tint: 0xfff5e6, yard: 'courtyard', props: ['cypress', 'flower'], variation: 0.01 },
+  hamam: { family: 'civic', scale: 1.06, tint: 0xfff5e6, yard: 'stone', props: ['well', 'bush'], variation: 0.014 },
+  elcilik: { family: 'civic', scale: 1.06, tint: 0xfff5e6, yard: 'courtyard', props: ['flower', 'cypress'], variation: 0.014 },
+  muze: { family: 'civic', scale: 1.07, tint: 0xfff5e6, yard: 'courtyard', props: ['bench', 'flower'], variation: 0.012 },
+  valilik: { family: 'civic', scale: 1.08, tint: 0xfff5e6, yard: 'courtyard', props: ['cypress', 'bench'], variation: 0.012 },
+  tekke: { family: 'civic', scale: 1.05, tint: 0xfff5e6, yard: 'soft', props: ['cypress', 'flower'], variation: 0.016 },
+  mabet: { family: 'civic', scale: 1.07, tint: 0xfff5e6, yard: 'stone', props: ['cypress', 'flower'], variation: 0.012 },
+  harita_arsivi: { family: 'civic', scale: 1.02, tint: 0xf8edde, yard: 'stone', props: ['crate', 'bench'], variation: 0.015 },
+
+  konut: { family: 'civil', scale: 0.92, tint: 0xf8edde, yard: 'soft', props: ['flower', 'fruit-tree'], variation: 0.035 },
+  kahvehane: { family: 'civil', scale: 0.96, tint: 0xf8edde, yard: 'soft', props: ['bench', 'canopy'], variation: 0.028 },
+  karagoz: { family: 'civil', scale: 0.93, tint: 0xf8edde, yard: 'soft', props: ['bench', 'canopy'], variation: 0.03 },
+
+  kereste: { family: 'production', scale: 0.92, tint: 0xf1e6d3, yard: 'work', props: ['woodpile', 'woodpile'], variation: 0.035 },
+  ormanci: { family: 'production', scale: 0.92, tint: 0xf1e6d3, yard: 'work', props: ['woodpile', 'bush'], variation: 0.035 },
+  marangoz: { family: 'production', scale: 1.01, tint: 0xf1e6d3, yard: 'work', props: ['woodpile', 'rack'], variation: 0.025 },
+  tas: { family: 'production', scale: 0.92, tint: 0xf1e6d3, yard: 'work', props: ['rock', 'rock'], variation: 0.035 },
+  tasci: { family: 'production', scale: 0.92, tint: 0xf1e6d3, yard: 'work', props: ['rock', 'crate'], variation: 0.035 },
+  mimar: { family: 'production', scale: 1.0, tint: 0xf1e6d3, yard: 'work', props: ['rock', 'woodpile'], variation: 0.024 },
+  bagci: { family: 'production', scale: 0.92, tint: 0xf1e6d3, yard: 'soft', props: ['beehives', 'fruit-tree'], variation: 0.035 },
+  mahzen: { family: 'production', scale: 0.92, tint: 0xf1e6d3, yard: 'work', props: ['crate', 'haystack'], variation: 0.032 },
+  simyahane: { family: 'production', scale: 0.92, tint: 0xf1e6d3, yard: 'work', props: ['crate', 'rock'], variation: 0.03 },
+  camci: { family: 'production', scale: 0.92, tint: 0xf1e6d3, yard: 'work', props: ['crate', 'rock'], variation: 0.03 },
+  gozlukcu: { family: 'production', scale: 0.92, tint: 0xf1e6d3, yard: 'work', props: ['crate', 'bench'], variation: 0.03 },
+  barutane: { family: 'production', scale: 0.92, tint: 0xf1e6d3, yard: 'stone', props: ['crate', 'rack'], variation: 0.025 },
+
+  carsi: { family: 'commercial', scale: 0.99, tint: 0xf8edde, yard: 'stone', props: ['canopy', 'crate'], variation: 0.025 },
+  ticaret_merkezi: { family: 'commercial', scale: 1.03, tint: 0xf8edde, yard: 'stone', props: ['canopy', 'crate'], variation: 0.02 },
+  kara_pazar: { family: 'commercial', scale: 0.98, tint: 0xf3e4d1, yard: 'work', props: ['canopy', 'crate'], variation: 0.028 },
+  ambar: { family: 'commercial', scale: 1.03, tint: 0xf8edde, yard: 'work', props: ['crate', 'haystack'], variation: 0.022 },
+  depo: { family: 'commercial', scale: 1.03, tint: 0xf8edde, yard: 'work', props: ['crate', 'woodpile'], variation: 0.022 },
+
+  kisla: { family: 'military', scale: 1.03, tint: 0xf5ece0, yard: 'stone', props: ['rack', 'crate'], variation: 0.018 },
+  tophane: { family: 'military', scale: 1.03, tint: 0xf5ece0, yard: 'stone', props: ['rack', 'crate'], variation: 0.018 },
+  korsan_kalesi: { family: 'military', scale: 1.04, tint: 0xf5ece0, yard: 'stone', props: ['rack', 'rock'], variation: 0.016 },
+  siginak: { family: 'military', scale: 0.94, tint: 0xf5ece0, yard: 'stone', props: ['rock', 'rack'], variation: 0.02 },
+
+  liman: { family: 'harbour', scale: 1.03, tint: 0xf2f6ee, yard: 'harbour', props: ['crate', 'woodpile'], variation: 0.018 },
+  tersane: { family: 'harbour', scale: 1.06, tint: 0xf2f6ee, yard: 'harbour', props: ['woodpile', 'rack'], variation: 0.018 },
+}
+
+const DEFAULT_VISUAL: BuildingVisualProfile = {
+  family: 'civil', scale: 0.98, tint: 0xf8edde, yard: 'soft', props: ['bush'], variation: 0.02,
+}
+
+export function buildingVisualProfile(id: string): BuildingVisualProfile {
+  return VISUALS[id] ?? DEFAULT_VISUAL
+}
 /** Elmas / tuval oranı: yeni sanatta zemin-temas oranı her binada aynı. */
 const ART_CONTACT = (ART_DIAMOND_PX / 600) * (GROUND_TARGET_W * BUILDING_RENDER_SCALE) / FOOTPRINT_DIAMOND_W
 
