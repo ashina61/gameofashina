@@ -1079,7 +1079,7 @@ def hamam(s, st):
     if st >= 2:
         cell(1.22, 0.42, 1.72, 0.98, 0.38, 0.16)
         # Soyunmalık/soğukluk: kırma çatılı, kubbe kümesinden bilinçli farklı.
-        s.box(0.42, 1.20, 1.28, 1.72, 0.36, OTTO['white'], 'plaster',
+        s.box(0.42, 1.20, 0, 1.28, 1.72, 0.36, OTTO['white'], 'plaster',
               deco_y=[('archdoor', 0.5, 0, 0.14, 0.24), ('win', 0.22, 0.10, 0.08, 0.13, 'shutter'), ('win', 0.78, 0.10, 0.08, 0.13, 'shutter')],
               deco_x=[('win', 0.5, 0.10, 0.08, 0.13, 'shutter')])
         s.hip(0.40, 1.18, 1.30, 1.74, 0.36, 0.16, PAL['roof'], over=0.09)
