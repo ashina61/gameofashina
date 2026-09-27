@@ -669,8 +669,29 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1, occupiedSl
     tier = 0
     const dirt = scene.add.graphics().setDepth(-796)
     dirt.fillStyle(0x2f421c, 0.16); dirt.fillEllipse(P.x + 8, P.y + 10, prx * 2 + 20, pry * 2 + 16)
-    dirt.fillStyle(0xb89e70, 1); dirt.fillEllipse(P.x, P.y, prx * 2 + 10, pry * 2 + 8)
-    dirt.fillStyle(0xc9b184, 1); dirt.fillEllipse(P.x - 10, P.y - 6, prx * 1.7, pry * 1.6)
+    const soilRnd = mulberry32(41381)
+    const soilEdge = Array.from({ length: 96 }, (_, i) => {
+      const a = i / 96 * Math.PI * 2, r = 0.98 + soilRnd() * 0.04
+      return V(P.x + Math.cos(a) * prx * r, P.y + Math.sin(a) * pry * r)
+    })
+    dirt.fillStyle(0xbfa578, 1); dirt.fillPoints(soilEdge, true)
+    // Mottled packed earth, with a worn centre and a broken grassy edge.
+    // Static seeded marks share the terrain bake; no animated objects.
+    for (let i = 0; i < 1500; i++) {
+      const a = soilRnd() * Math.PI * 2, r = Math.sqrt(soilRnd()) * 0.99
+      const x = P.x + Math.cos(a) * prx * r, y = P.y + Math.sin(a) * pry * r
+      dirt.fillStyle(i % 3 === 0 ? 0x8e7750 : 0xe0c797, 0.07 + soilRnd() * 0.12)
+      dirt.fillEllipse(x, y, 5 + soilRnd() * 24, 2 + soilRnd() * 9)
+      if (i % 7 === 0) {
+        dirt.fillStyle(0x7c6a4d, 0.35); dirt.fillEllipse(x, y, 2.5, 1.5)
+        dirt.fillStyle(0xe1cfaa, 0.7); dirt.fillEllipse(x - 0.5, y - 0.8, 2, 1)
+      }
+      if (r > 0.94 && i % 3 === 0) {
+        dirt.lineStyle(1.4, 0x748c45, 0.65)
+        dirt.lineBetween(x, y, x - 2, y - 4)
+        dirt.lineBetween(x, y, x + 2, y - 3)
+      }
+    }
     tier = 2
     let pz = scene.add.graphics().setDepth(-795)
     const ell = (k: number) => Array.from({ length: 64 }, (_, i) => {
@@ -683,12 +704,22 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1, occupiedSl
     pz.fillStyle(0xdccba3, 1); pz.fillEllipse(P.x, P.y, prx * 2, pry * 2)
     pz.fillStyle(0xcfbb91, 1); pz.fillEllipse(P.x, P.y, prx * 1.56, pry * 1.56)
     pz.fillStyle(0xe4d6b3, 1); pz.fillEllipse(P.x, P.y, prx * 1.4, pry * 1.4)
-    // Döşeme derzleri: halkalar ve ışınlar.
-    for (const k of [0.36, 0.55, 0.7, 0.86]) { pz.lineStyle(2, 0xa99270, 0.45); pz.strokePoints(ell(k), true) }
-    for (let i = 0; i < 20; i++) {
-      const t = i / 20 * Math.PI * 2, c = Math.cos(t), s = Math.sin(t)
-      pz.lineStyle(1.6, 0xa99270, 0.35)
-      pz.lineBetween(P.x + c * prx * 0.36, P.y + s * pry * 0.36, P.x + c * prx, P.y + s * pry)
+    // Individually laid, staggered limestone voussoirs instead of giant wedges.
+    const pavingRnd = mulberry32(29117)
+    for (let row = 2; row < 16; row++) {
+      const inner = row / 16 + 0.003, outer = (row + 1) / 16 - 0.003
+      const count = Math.round(outer * 110)
+      for (let i = 0; i < count; i++) {
+        const a = (i + (row % 2) * 0.5) / count * Math.PI * 2
+        const b = a + Math.PI * 2 / count - 0.006
+        const p = (t: number, r: number) => V(P.x + Math.cos(t) * prx * r, P.y + Math.sin(t) * pry * r)
+        const band = row === 11 || row === 15
+        const colors = band ? [0xab9166, 0xb99f74, 0xc3ad83] : [0xd9c69e, 0xe4d3ae, 0xcfbc95, 0xddcda9]
+        pz.fillStyle(colors[Math.floor(pavingRnd() * colors.length)], 1)
+        pz.fillPoints([p(a, inner), p(b, inner), p(b, outer), p(a, outer)], true)
+        pz.lineStyle(0.8, 0xf5e9cf, 0.45)
+        pz.lineBetween(p(a, inner).x, p(a, inner).y, p(b, inner).x, p(b, inner).y)
+      }
     }
     pz.lineStyle(3, 0xf1e6ca, 0.9); pz.strokePoints(ell(1), true)
     // KÜRSÜ: Divanhane'nin iki basamaklı taş kaidesi. Görselin zemin

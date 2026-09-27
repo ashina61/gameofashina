@@ -91,8 +91,8 @@ export function IkaTopBar({ game, empire, news, onCity, onEconomy, onAdvisor, on
       </nav>
     </div>
     <button type="button" className="ika-res" onClick={onEconomy} aria-label={`Kaynaklar, ambar ${compact(capacity(game))}`}>
-      {chips.map(c => <span key={c.key} className={cn('ika-chip', c.full && 'ika-chip-full')} title={c.label}>
-        <i aria-hidden="true">{c.icon}</i><b>{c.value}</b>{c.sub && <small>{c.sub}</small>}<span className="sr-only">{c.label}</span>
+      {chips.map((c, index) => <span key={c.key} className={cn('ika-chip', index < 4 ? 'ika-stock' : 'ika-status', c.full && 'ika-chip-full')} title={c.label}>
+        <i aria-hidden="true">{c.icon}</i><b>{c.value}</b>{c.sub && <small className={c.key === 'gold' && r.gold < 0 ? 'ika-rate-negative' : undefined}>{c.sub}</small>}<span className="sr-only ika-resource-name">{c.label}</span>
       </span>)}
     </button>
   </header>

@@ -123,7 +123,7 @@ export class CityScene extends Phaser.Scene {
     // İnşaat iskelesi (tools/art/buildings.py).
     if (!this.textures.exists('b_scaffold')) this.load.image('b_scaffold', asset('/images/game/buildings/scaffold.webp'))
     preloadTerrain(this)
-    if (!this.textures.exists('w_tower')) this.load.image('w_tower', asset('/images/game/walls/tower-round.png'))
+    if (!this.textures.exists('w_tower')) this.load.svg('w_tower', asset('/images/game/walls/tower-round.svg'))
   }
 
   /**
@@ -655,13 +655,40 @@ export class CityScene extends Phaser.Scene {
       g.fillPoints([V(f0.x, f0.y), V(f1.x, f1.y), V(f1.x, f1.y - wallH), V(f0.x, f0.y - wallH)], true)
       g.fillStyle(0x7d6444, 0.35)
       g.fillPoints([V(f0.x, f0.y), V(f1.x, f1.y), V(f1.x, f1.y - wallH * 0.14), V(f0.x, f0.y - wallH * 0.14)], true)
-      // Taş sıraları ve derzler.
-      g.lineStyle(1.2, 0x8a6c47, 0.32)
-      for (const f of [0.3, 0.52, 0.74]) g.lineBetween(f0.x, f0.y - wallH * f, f1.x, f1.y - wallH * f)
       const len = Math.hypot(dx, dy), ux = dx / (len || 1), uy = dy / (len || 1)
-      for (let d = TILE.w * 0.1, row = 0; d < len; d += TILE.w * 0.11, row++) {
-        const lo = row % 2 ? 0.3 : 0.52, hi = row % 2 ? 0.52 : 0.74
-        g.lineBetween(f0.x + ux * d, f0.y + uy * d - wallH * lo, f0.x + ux * d, f0.y + uy * d - wallH * hi)
+      // Ashlar courses: staggered joints, chipped light edges and varied stone.
+      // Coordinates seed the patina, so redraws never shuffle the masonry.
+      const stoneW = TILE.w * 0.16, courses = 6
+      const stonePoint = (d: number, h: number) => V(f0.x + ux * d, f0.y + uy * d - h)
+      for (let row = 0; row < courses; row++) {
+        const lo = row * wallH / courses + 1, hi = (row + 1) * wallH / courses - 0.8
+        for (let col = -1; col * stoneW < len; col++) {
+          const start = Math.max(0, (col + (row % 2) * 0.5) * stoneW + 0.7)
+          const end = Math.min(len, (col + 1 + (row % 2) * 0.5) * stoneW - 0.7)
+          if (end <= start) continue
+          const variation = Math.abs(Math.sin(p0.x * 0.13 + p0.y * 0.17 + row * 7.1 + col * 3.7))
+          const c = Phaser.Display.Color.ValueToColor(face)
+          if (variation > 0.5) c.lighten(variation * 7)
+          else c.darken((0.5 - variation) * 12)
+          g.fillStyle(c.color, 1)
+          g.fillPoints([stonePoint(start, lo), stonePoint(end, lo), stonePoint(end, hi), stonePoint(start, hi)], true)
+          g.lineStyle(0.9, 0xffedc9, 0.32)
+          const a = stonePoint(start + 1, hi), b = stonePoint(end, hi)
+          g.lineBetween(a.x, a.y, b.x, b.y)
+        }
+      }
+      // Rain-darkened foot and a shallow string course under the parapet.
+      g.lineStyle(3, 0x59603b, 0.26)
+      g.lineBetween(f0.x, f0.y - 3, f1.x, f1.y - 3)
+      g.lineStyle(4, 0x735b3d, 0.30)
+      g.lineBetween(f0.x, f0.y - wallH * 0.83, f1.x, f1.y - wallH * 0.83)
+      g.lineStyle(2, 0xf0ddb2, 0.8)
+      g.lineBetween(f0.x, f0.y - wallH * 0.86, f1.x, f1.y - wallH * 0.86)
+      // Recessed arrow slit, painted only: no new interaction or collision.
+      if (len > TILE.w * 0.32) {
+        const p = stonePoint(len * 0.5, wallH * 0.66)
+        g.lineStyle(5, 0xf1dcb3, 0.65); g.lineBetween(p.x + 2, p.y - 6, p.x + 2, p.y + 8)
+        g.lineStyle(3, 0x493e30, 0.9); g.lineBetween(p.x, p.y - 7, p.x, p.y + 7)
       }
       // Üst yürüyüş yolu (kalınlık görünür).
       g.fillStyle(top, 1)
@@ -677,6 +704,10 @@ export class CityScene extends Phaser.Scene {
         g.fillPoints([V(a.x, a.y), V(b.x, b.y), V(b.x, b.y - mh), V(a.x, a.y - mh)], true)
         g.fillStyle(top, 1)
         g.fillPoints([V(a.x, a.y - mh), V(b.x, b.y - mh), V(b.x + n.x * 0.35 * (inFront ? -1 : 1), b.y - mh + n.y * 0.35 * (inFront ? -1 : 1)), V(a.x + n.x * 0.35 * (inFront ? -1 : 1), a.y - mh + n.y * 0.35 * (inFront ? -1 : 1))], true)
+        const bx = n.x * 0.35 * (inFront ? -1 : 1), by = n.y * 0.35 * (inFront ? -1 : 1)
+        g.fillStyle(0x8e7757, 1)
+        g.fillPoints([V(b.x, b.y), V(b.x + bx, b.y + by), V(b.x + bx, b.y + by - mh), V(b.x, b.y - mh)], true)
+        g.lineStyle(1, 0xffebc6, 0.8); g.lineBetween(a.x, a.y - mh, b.x, b.y - mh)
       }
       g.lineStyle(1.6, 0x5e4630, 0.6); g.lineBetween(f0.x, f0.y, f1.x, f1.y)
       g.lineStyle(1.2, 0x6e5436, 0.5); g.lineBetween(f0.x, f0.y - wallH, f1.x, f1.y - wallH)
