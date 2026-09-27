@@ -4,12 +4,14 @@ import useSWR, { mutate as mutateCache } from 'swr'
 import { execute, type Command, type UnitId } from '@/lib/game/engine'
 import { dispatchPiracy, dispatchRaid, dispatchSpies } from '@/lib/game/expeditions'
 import {
-  activeCity, advanceEmpire, foundColony, initialEmpire, parseEmpire,
+  activeCity, advanceEmpire, foundColony, initialEmpire,
   shipResources, type Cargo, type Empire, type IslandId,
 } from '@/lib/game/empire'
+import {
+  SAVE_KEY, exportStoredEmpire, importStoredEmpire, loadStoredEmpire, peekStoredEmpire, saveStoredEmpire,
+} from '@/lib/game/save-storage'
 
-// Same key as the legacy single-city save. First load upgrades it in place.
-export const SAVE_KEY = 'payitaht-adalari-v1'
+export { SAVE_KEY } from '@/lib/game/save-storage'
 let memory: Empire | null = null
 let warning = ''
 let corrupt = false
@@ -17,17 +19,18 @@ let corrupt = false
 function save(empire: Empire) {
   memory = empire
   if (corrupt) return
-  try { localStorage.setItem(SAVE_KEY, JSON.stringify(empire)) }
+  try { saveStoredEmpire(localStorage, empire) }
   catch { warning = 'Cihazda kayıt kullanılamıyor. Bu oturumdaki ilerleme, sayfa kapatıldığında kaybolabilir.' }
 }
 function load(): Empire {
   if (!corrupt) {
-    try {
-      const raw = localStorage.getItem(SAVE_KEY)
-      if (raw) memory = parseEmpire(raw)
-    } catch (error) {
-      warning = error instanceof Error ? error.message : 'Kayıt okunamadı.'
-      corrupt = true // Never overwrite a damaged save with a fresh game.
+    const stored = loadStoredEmpire(localStorage)
+    if (stored.error) {
+      warning = stored.error
+      corrupt = true // Ana + backup birlikte okunamıyorsa hiçbir şeyi ezme.
+    } else {
+      if (stored.empire) memory = stored.empire
+      if (stored.warning) warning = stored.warning
     }
   }
   const empire = advanceEmpire(memory ?? initialEmpire(Date.now()), Date.now())
@@ -39,12 +42,8 @@ function load(): Empire {
  * boştur; bozuksa `error` dolar (oyun o kaydın üstüne yazmaz).
  */
 export function peekSave(): { empire?: Empire; error?: string } {
-  try {
-    const raw = localStorage.getItem(SAVE_KEY)
-    return raw ? { empire: parseEmpire(raw) } : {}
-  } catch (error) {
-    return { error: error instanceof Error ? error.message : 'Kayıt okunamadı.' }
-  }
+  const stored = peekStoredEmpire(localStorage)
+  return stored.error ? { error: stored.error } : stored.empire ? { empire: stored.empire } : {}
 }
 /** Giriş ekranındaki "Yeni oyun": eski kaydın yerine verilen imparatorluk. */
 export function startNewGame(empire: Empire) {
@@ -112,5 +111,19 @@ export function useGame() {
     warning = ''
     commit(initialEmpire(Date.now()))
   }
-  return { game, empire: data, command, selectCity, colonize, sendCargo, spy, raid, piracy, run, reset, warning }
+  function exportSave() {
+    return exportStoredEmpire(load())
+  }
+  function importSave(raw: string): string | undefined {
+    try {
+      const empire = importStoredEmpire(localStorage, raw)
+      memory = empire
+      corrupt = false
+      warning = ''
+      void mutate(empire, { revalidate: false })
+    } catch (error) {
+      return error instanceof Error ? error.message : 'Yedek dosyası okunamadı.'
+    }
+  }
+  return { game, empire: data, command, selectCity, colonize, sendCargo, spy, raid, piracy, run, reset, exportSave, importSave, warning }
 }
