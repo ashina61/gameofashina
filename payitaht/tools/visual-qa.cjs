@@ -7,7 +7,7 @@ async function main() {
   const out = path.resolve('visual-review')
   await fs.mkdir(out, { recursive: true })
   const browser = await chromium.launch({ headless: true, args: ['--no-sandbox'] })
-  const diagnostics = { pageErrors: [], missingGameAssets: [], screenshots: [], viewports: [], buildingStageLoads: {} }
+  const diagnostics = { pageErrors: [], missingGameAssets: [], screenshots: [], viewports: [], buildingStageLoads: {}, coastSeed: {} }
   const origin = process.env.VISUAL_QA_URL || 'http://127.0.0.1:4173/gameofashina/'
 
   const runViewport = async ({ width, height }) => {
@@ -55,6 +55,55 @@ async function main() {
     diagnostics.buildingStageLoads[label] = [...buildingStageLoads].map(url => url.split('/').pop()).sort()
     if (buildingStageLoads.size > 32) {
       throw new Error(`${label}: city boot loaded ${buildingStageLoads.size} staged building textures; lazy-loading regressed.`)
+    }
+
+    // Kıyı QA'sı gerçek binayı görsün: boş başlangıç limanına odaklanmak
+    // mavi-panel/anchor gibi coast regression'larını yakalamıyordu. Test save'inde
+    // Liman + Tersane'yi kullanıcı ekranındaki gibi seviye 2 ve iki coast slotuna
+    // yerleştir; sonra sayfayı gerçek save parse/migration yolu üzerinden yeniden aç.
+    const coastSeedRaw = await page.evaluate(() => {
+      const key = 'payitaht-adalari-v1'
+      const empire = JSON.parse(localStorage.getItem(key) || 'null')
+      const city = empire?.cities?.find(c => c.id === empire.activeCityId) ?? empire?.cities?.[0]
+      const game = city?.game
+      if (!game?.buildings || !game?.placement) throw new Error('Visual QA active-city save shape unavailable')
+      game.buildings.liman = 2
+      game.buildings.tersane = 2
+      game.placement.liman = 25
+      game.placement.tersane = 26
+      return JSON.stringify(empire)
+    })
+    // reload sırasında useGame pagehide handler eski in-memory kaydı flush eder.
+    // Bu yüzden seed'i eski document'ta localStorage'a yazmak yetmez. Init script
+    // yeni document'ta uygulama kodundan ÖNCE çalışır ve test state'ini son kez yazar.
+    await page.addInitScript(raw => {
+      localStorage.setItem('payitaht-adalari-v1', raw)
+    }, coastSeedRaw)
+    await page.reload({ waitUntil: 'domcontentloaded' })
+    await page.getByRole('button', { name: /Hikâyeye başla|Devam et/ }).waitFor({ timeout: 45_000 })
+    await page.getByRole('button', { name: /Hikâyeye başla|Devam et/ }).click()
+    await page.waitForFunction(() => {
+      const canvas = document.querySelector('canvas')
+      return canvas && canvas.width > 0 && canvas.clientWidth > 0
+    }, null, { timeout: 45_000 })
+    await page.waitForTimeout(5000)
+    const seeded = await page.evaluate(() => {
+      const empire = JSON.parse(localStorage.getItem('payitaht-adalari-v1') || 'null')
+      const city = empire?.cities?.find(c => c.id === empire.activeCityId) ?? empire?.cities?.[0]
+      const game = city?.game
+      return {
+        cityId: city?.id ?? null,
+        activeCityId: empire?.activeCityId ?? null,
+        liman: game?.buildings?.liman ?? null,
+        tersane: game?.buildings?.tersane ?? null,
+        pLiman: game?.placement?.liman ?? null,
+        pTersane: game?.placement?.tersane ?? null,
+      }
+    })
+    diagnostics.coastSeed = diagnostics.coastSeed || {}
+    diagnostics.coastSeed[label] = seeded
+    if (seeded.liman !== 2 || seeded.tersane !== 2 || seeded.pLiman !== 25 || seeded.pTersane !== 26) {
+      throw new Error(`${label}: coast QA seed did not survive reload: ${JSON.stringify(seeded)}`)
     }
 
     const harbour = page.getByRole('button', { name: 'Donanma ve limana git' })

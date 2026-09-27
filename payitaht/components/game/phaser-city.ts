@@ -273,15 +273,36 @@ export class CityScene extends Phaser.Scene {
     const harbourIndex = this.state.placement.liman
     const shipyard = shipyardIndex === null ? null : liveSlotByIndex(shipyardIndex)
     const harbour = harbourIndex === null ? null : liveSlotByIndex(harbourIndex)
-    const destination = shipyard?.zone === 'liman'
-      ? shipyard.screen
-      : harbour?.zone === 'liman'
-        ? harbour.screen
-        : COAST_SLOTS[Math.floor(COAST_SLOTS.length / 2)].screen
-    // Limana YAKINLAŞ ve rıhtımı HUD'un açık bıraktığı bandın ortasına getir
-    // (alt menünün arkasında kalmasın).
-    this.cameras.main.setZoom(Phaser.Math.Clamp(Math.max(this.cityZoom * 1.55, 0.66), this.minZoom, this.maxZoom))
-    this.centerInBand(destination.x, destination.y - TILE.h * 0.45)
+    const hasShipyard = shipyard?.zone === 'liman'
+    const hasHarbour = harbour?.zone === 'liman'
+    // İkisi de kuruluysa "donanma ve liman" düğmesi tek yapıya değil bütün
+    // kıyı kompleksine bakar. Mobilde yalnız Tersane'ye aşırı zoom yapmak
+    // Ticaret Limanı'nı kadraj dışına atıyordu.
+    const destination = hasShipyard && hasHarbour
+      ? {
+          x: (shipyard.screen.x + harbour.screen.x) / 2,
+          y: (shipyard.screen.y + harbour.screen.y) / 2,
+        }
+      : hasShipyard
+        ? shipyard.screen
+        : hasHarbour
+          ? harbour.screen
+          : COAST_SLOTS[Math.floor(COAST_SLOTS.length / 2)].screen
+    // İki kıyı yapısı varken zoom'u sabit çarpanla değil GERÇEK yatay aralığa
+    // göre fit et. 390px telefonda coast_01 ↔ coast_02 merkezleri yaklaşık
+    // 576 world-px ayrık; 0.64 zoom iki sprite'ın kenarını kesiyordu.
+    const bothCoast = hasShipyard && hasHarbour
+    const pairWorldW = bothCoast
+      ? Math.abs(shipyard.screen.x - harbour.screen.x) + GROUND_TARGET_W * 1.65
+      : 0
+    const pairFitZoom = bothCoast
+      ? (this.scale.width * 0.94) / Math.max(1, pairWorldW)
+      : Infinity
+    const zoom = bothCoast
+      ? Math.max(this.minZoom, pairFitZoom)
+      : Math.max(this.cityZoom * 1.55, 0.66)
+    this.cameras.main.setZoom(Phaser.Math.Clamp(zoom, this.minZoom, this.maxZoom))
+    this.centerInBand(destination.x, destination.y - TILE.h * (bothCoast ? 0.18 : 0.45))
     this.velocity = { x: 0, y: 0 }
   }
   /** React kontrolü: yakınlaştırmayı çarpanla değiştir. */
@@ -1716,7 +1737,7 @@ export class CityScene extends Phaser.Scene {
 
   /** Bina ailesine göre deterministik mikro-prop; seviye/stage arttıkça çevre de gelişir. */
   private addBuildingProps(id: BuildingId, slot: LiveSlot, level: number, imgY: number) {
-    if (level <= 0 || id === 'divan' || id === 'surlar') return
+    if (level <= 0 || id === 'divan' || id === 'surlar' || slot.zone === 'liman') return
     const profile = this.buildingVisualProfile(id, slot)
     const stage = buildingStage(level)
     const rnd = this.visualRnd(this.buildingVisualSeed(id, slot) ^ 0x51ed270b)
@@ -1814,7 +1835,14 @@ export class CityScene extends Phaser.Scene {
     // Görselin zemin elması resmin altından ART_GROUND_PX yukarıda: elmas
     // arsanın (belediyede meydanın) tam ortasına düz oturur. Liman görselleri
     // rıhtıma göre çizildiği için eski temas noktasını kullanır.
-    const imgY = slot.zone === 'liman' ? anc.baseY : slot.screen.y + ART_GROUND_PX * artS
+    // Kıyı yapıları kara-su çizgisine değil birkaç piksel DENİZE oturur.
+    // Kullanıcı ekranlarında eski anchor yapıları sahilin üstüne bırakılmış diorama
+    // gibi gösteriyordu. Liman biraz, tersane ise kızakları nedeniyle biraz daha
+    // fazla denize kaydırılır.
+    const coastSink = slot.zone === 'liman'
+      ? TILE.h * (id === 'tersane' ? 0.30 : id === 'liman' ? 0.24 : 0.18)
+      : 0
+    const imgY = slot.zone === 'liman' ? anc.baseY + coastSink : slot.screen.y + ART_GROUND_PX * artS
     let dispW = TILE.w * 2, dispH = TILE.h * 2
 
     // Boş slot görünmez; yalnızca kurulu yapının altında doğal açıklık oluşur.
