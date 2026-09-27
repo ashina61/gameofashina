@@ -1762,8 +1762,6 @@
 .toggle-row input:checked { background: #5a8a3a; }
 .toggle-row input:checked::after { transform: translateX(20px); }
 .toggle-row input:focus-visible { outline: 2px solid #5a3517; outline-offset: 2px; }
-/* Kaynak şeridi kayar: sağ kenarda solma ipucu verir. */
-.game-shell .ika-res { -webkit-mask-image: linear-gradient(90deg, #000 88%, transparent); mask-image: linear-gradient(90deg, #000 88%, transparent); }
 /* Dokunuşta yumuşak basılma hissi. */
 .game-shell .ika-advisor, .game-shell .ika-crest, .game-shell .map-top-tools button, .game-shell .rival-row, .game-shell .building-list-item { transition: transform .08s; }
 .game-shell .ika-advisor:active, .game-shell .ika-crest:active, .game-shell .map-top-tools button:active { transform: scale(.93); }
@@ -1868,3 +1866,33 @@
 .title-skyline .building-art.is-mid { left: 50%; width: 56%; transform: translateX(-50%); z-index: 1; }
 .title-skyline .building-art.is-right { right: -4%; width: 44%; bottom: 6%; }
 .title-skyline .building-art > img { position: static; filter: none; }
+
+/* Resource ledger: keep all seven counters visible on a phone. */
+.game-shell .ika-res { -webkit-mask-image: none; mask-image: none; }
+.ika-chip small.ika-rate-negative { color: #ffb6a0; }
+@media (max-width: 600px) {
+  .game-shell { --ika-top: calc(var(--sa-top) + 143px); }
+  .game-shell .ika-res {
+    display: grid; grid-template-columns: repeat(12, minmax(0, 1fr));
+    grid-template-rows: 44px 32px; gap: 3px; padding: 5px;
+    overflow: visible; border-bottom: 2px solid #a8884e;
+    background: linear-gradient(180deg, #203630, #122722);
+  }
+  .ika-chip { min-width: 0; min-height: 0; gap: 1px 3px; padding: 3px 5px; border-radius: 4px; }
+  .ika-stock { grid-column: span 3; display: grid; grid-template-columns: 16px minmax(0, 1fr); grid-template-rows: 10px 15px 10px; }
+  .ika-stock .ika-resource-name { grid-area: 1 / 1 / 2 / 3; }
+  .ika-stock i { grid-area: 2 / 1; }
+  .ika-stock b { grid-area: 2 / 2; text-align: right; font-size: 11px; }
+  .ika-stock small { grid-area: 3 / 1 / 4 / 3; text-align: right; font-size: 9px; }
+  .ika-status { grid-column: span 4; display: grid; grid-template-columns: 16px auto minmax(0, 1fr); grid-template-rows: 10px 13px; }
+  .ika-status .ika-resource-name { grid-area: 1 / 1 / 2 / 4; }
+  .ika-status i { grid-area: 2 / 1; }
+  .ika-status b { grid-area: 2 / 2; font-size: 11px; }
+  .ika-status small { grid-area: 2 / 3; font-size: 9px; color: #c9d5b8; }
+  .ika-chip i svg { width: 16px; height: 16px; }
+  .ika-chip .ika-resource-name {
+    position: static; width: auto; height: auto; margin: 0; padding: 0;
+    overflow: hidden; clip: auto; clip-path: none; white-space: nowrap; color: #d6c79e;
+    font-size: 8px; line-height: 10px; font-weight: 600; letter-spacing: .025em;
+  }
+}
