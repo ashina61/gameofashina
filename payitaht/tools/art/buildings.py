@@ -618,64 +618,92 @@ def liman(s, st):
 
 
 def tersane(s, st):
-    """TERSANE-İ ÂMİRE: paralel uzun gemi gözleri ve suya doğru açık büyük
-    ağızlar; konak benzeri blok yerine endüstriyel kıyı silueti."""
-    q = hexc('#c8b897')
-    s.box(0.05, 0.05, 0, 1.28, 1.95, 0.08, PAL['stone'], 'stone',
-          deco_y=[('courses', 0.05)], deco_x=[('courses', 0.05)], top=hexc('#dfcfac'))
-    water_basin(s, 1.28, 0.05, 1.98, 1.97)
+    """TERSANE-İ ÂMİRE: su rengi asset'e bake edilmez. Kara tarafında uzun
+    gemi gözleri ve atölyeler, deniz tarafında şeffaf zeminin üstüne uzanan
+    kızaklar, kazıklar ve gemi inşa iskeleti bulunur; alttan gerçek runtime
+    denizi görünür."""
+    stone = hexc('#c8b897')
+    cap = hexc('#dfcfac')
+    wood = PAL['wood2']
 
-    # Uzun, paralel gemi gözleri. Duvar kütlesinden çok ritmik açıklık/çatı okunur.
+    # Kara-kıyı sınırı: tam dikdörtgen platform yerine dar ve parçalı taş rıhtım.
+    # +x deniz yönü açık bırakılır; böylece sprite'ın altında gerçek deniz görünür.
+    s.box(0.06, 0.08, 0, 0.34, 1.90, 0.10, stone, 'stone',
+          deco_x=[('courses', 0.06)], deco_y=[('courses', 0.06)], top=cap)
+    s.box(0.34, 0.08, 0, 1.18, 0.28, 0.10, stone, 'stone',
+          deco_y=[('courses', 0.06)], deco_x=[('courses', 0.06)], top=cap)
+
+    # Gemi gözleri: kara tarafında uzun, alçak ve denize açık. Ön uçları suya
+    # basmıyor; yalnız duvar/çatı/iskelet var, aradaki boşluk şeffaf.
     n = 2 + (st >= 2)
-    bay = 0.43
+    bay = 0.44
     for i in range(n):
-        y0 = 0.12 + i * 0.47
+        y0 = 0.16 + i * 0.49
         y1 = y0 + bay
-        # Yan duvarlar; suya bakan +x ağzı açık kalır.
-        s.box(0.14, y0, 0.08, 0.22, y1, 0.50, q, 'stone',
+        # Arka duvar ve yan taşıyıcılar.
+        s.box(0.14, y0, 0.10, 0.24, y1, 0.48, stone, 'stone',
               deco_x=[('courses', 0.07)])
-        s.box(0.22, y0, 0.08, 1.18, y0 + 0.08, 0.50, q, 'stone',
+        s.box(0.24, y0, 0.10, 1.08, y0 + 0.07, 0.48, stone, 'stone',
               deco_y=[('courses', 0.07)])
-        s.box(0.22, y1 - 0.08, 0.08, 1.18, y1, 0.50, q, 'stone',
+        s.box(0.24, y1 - 0.07, 0.10, 1.08, y1, 0.48, stone, 'stone',
               deco_y=[('courses', 0.07)])
-        # Büyük beşik çatı gemi gözü siluetini tek bakışta ayırır.
-        s.gable(0.12, y0 - 0.02, 1.22, y1 + 0.02, 0.50, 0.26,
-                PAL['lead'], axis='x', mat='lead', wall=q, wallmat='stone', over=0.05)
-        # İçte kızak rayları.
-        for off in (-0.09, 0.09):
-            s.box(0.26, (y0 + y1) / 2 + off - 0.012, 0.08, 1.88, (y0 + y1) / 2 + off + 0.012, 0.11,
-                  PAL['wooddark'], 'wood', outline=False)
+        # Büyük beşik çatı denize doğru uzanır; altı açık kalır.
+        s.gable(0.12, y0 - 0.025, 1.10, y1 + 0.025, 0.48, 0.24,
+                PAL['lead'], axis='x', mat='lead', wall=stone, wallmat='stone', over=0.05)
 
-    # Orta gözde yapım halindeki kadırga; stage arttıkça iskelet gemiye dönüşür.
-    ym = 0.12 + (n // 2) * 0.47 + bay / 2
+        # İki ahşap kızak rayı: kıyıdan şeffaf deniz bölgesine kadar uzanır.
+        ym = (y0 + y1) / 2
+        for off in (-0.085, 0.085):
+            s.box(0.38, ym + off - 0.013, 0.035,
+                  1.88, ym + off + 0.013, 0.075,
+                  PAL['wooddark'], 'wood', outline=False)
+        # Ray altı yatay traversler, su üstünde ince bir ritim verir.
+        for k in range(7):
+            x = 0.44 + k * 0.21
+            s.box(x, ym - 0.13, 0.025, x + 0.035, ym + 0.13, 0.055,
+                  wood, 'wood', outline=False)
+
+    # Orta kızakta yapım halindeki kadırga.
+    ym = 0.16 + (n // 2) * 0.49 + bay / 2
     if st == 1:
+        # Sadece omurga + kaburgalar: suyla karışan büyük opak gövde yok.
+        s.box(0.72, ym - 0.016, 0.09, 1.70, ym + 0.016, 0.15, PAL['wooddark'], 'wood')
         for i in range(7):
-            x = 0.78 + i * 0.14
-            rib = 0.18 + 0.08 * math.sin(i / 6 * math.pi)
-            s.box(x, ym - rib, 0.10, x + 0.02, ym - rib + 0.025, 0.10 + rib * 1.2, PAL['wood'], 'wood')
-            s.box(x, ym + rib - 0.025, 0.10, x + 0.02, ym + rib, 0.10 + rib * 1.2, PAL['wood'], 'wood')
-        s.box(0.74, ym - 0.018, 0.10, 1.78, ym + 0.018, 0.18, PAL['wooddark'], 'wood')
+            x = 0.78 + i * 0.13
+            rib = 0.16 + 0.075 * math.sin(i / 6 * math.pi)
+            s.box(x, ym - rib, 0.08, x + 0.020, ym - rib + 0.025, 0.08 + rib * 1.15, PAL['wood'], 'wood')
+            s.box(x, ym + rib - 0.025, 0.08, x + 0.020, ym + rib, 0.08 + rib * 1.15, PAL['wood'], 'wood')
     else:
-        ship(s, 1.24, ym, 0.70, 0.24, z=0.10, masts=1, rig='lateen', sails=False)
+        ship(s, 1.26, ym, 0.68, 0.22, z=0.07, masts=1, rig='lateen', sails=False)
+
+    # Denize oturan ahşap servis iskelesi. İskelenin altı şeffaf; yalnız kazık,
+    # tabla ve babalar çizilir.
+    pier_y = 1.66
+    for x in (0.48, 0.72, 0.96, 1.20, 1.44, 1.68):
+        s.cylinder(x, pier_y - 0.10, 0, 0.16, 0.025, PAL['wooddark'], 'wood', n=8)
+        s.cylinder(x, pier_y + 0.10, 0, 0.16, 0.025, PAL['wooddark'], 'wood', n=8)
+    s.box(0.42, pier_y - 0.14, 0.13, 1.76, pier_y + 0.14, 0.18,
+          wood, 'wood', deco_top=[('vplanks', 10)])
+
+    # Vinç ve malzeme kara/rıhtım tarafında kalır.
+    crane(s, 0.78, 1.44, 0.88 + 0.12 * st, 0.36, axis='x')
+    logs(s, 0.16, 1.56, 3 + st, 'x', 0.42)
+    for i in range(2 + st):
+        s.crate(0.18 + (i % 2) * 0.16, 1.74 + (i // 2) * 0.12, 0.09, z=0.10)
 
     if st >= 2:
-        # Suya indirilmiş gemi + büyük portal vinç.
-        ship(s, 1.34, 0.28 if ym > 0.85 else 1.62, 0.58, 0.18, masts=1, rig='lateen')
-        crane(s, 1.12, 0.10, 1.22, 0.50, axis='x')
-        cannonballs(s, 0.34, 1.72)
+        # Küçük servis teknesi gerçek deniz üstünde okunur.
+        ship(s, 1.56, 0.28, 0.46, 0.14, z=0.035, masts=1, rig='lateen', stern=False)
     if st >= 3:
-        # İkinci vinç ve donatım alanı, fakat konak/köşk kütlesi yok.
-        crane(s, 0.62, 1.76, 0.94, 0.38, axis='y')
-        logs(s, 0.26, 1.62, 4, 'x', 0.48)
-        for i in range(3):
-            s.crate(0.88 + i * 0.15, 1.68, 0.11)
+        crane(s, 0.40, 0.42, 1.00, 0.40, axis='x')
+        cannonballs(s, 0.24, 1.36, z=0.10)
 
-    # Tersane emini için küçük gözetim odası; ana silueti bastırmaz.
-    s.box(0.18, 1.58, 0.08, 0.58, 1.90, 0.40, PAL['plaster'], 'plaster',
-          deco_y=[('win', 0.5, 0.10, 0.10, 0.16, 'shutter')],
-          deco_x=[('archdoor', 0.5, 0.0, 0.13, 0.24)])
-    s.hip(0.16, 1.56, 0.60, 1.92, 0.40, 0.14, PAL['roof2'], over=0.05)
-    s.flag(0.30, 1.66, 0.42, 0.48)
+    # Tersane emini odası: kara köşesinde küçük; suyun üstüne taşmaz.
+    s.box(0.10, 1.54, 0.10, 0.44, 1.88, 0.42, PAL['plaster'], 'plaster',
+          deco_y=[('win', 0.5, 0.09, 0.09, 0.15, 'shutter')],
+          deco_x=[('archdoor', 0.5, 0.0, 0.12, 0.22)])
+    s.hip(0.08, 1.52, 0.46, 1.90, 0.42, 0.13, PAL['roof2'], over=0.05)
+    s.flag(0.24, 1.62, 0.46, 0.42)
 
 
 def karagoz(s, st):
@@ -2351,50 +2379,76 @@ def _p6_culture(s, st, kind):
 
 
 def _p6_harbour(s, st):
-    """TİCARET LİMANI: geniş açık rıhtım + gümrük hanı + fener; tersaneden
-    farklı olarak gemi üretimi değil mal akışı ve kent kapısı okunur."""
-    q = PAL['stone']
-    # Sol/üst tarafta taş şehir rıhtımı, sağ-alt geniş su havuzu.
-    s.box(0.05, 0.05, 0, 1.92, 0.74, 0.09, q, 'stone',
-          deco_y=[('courses', 0.05)], deco_x=[('courses', 0.05)], top=hexc('#dfcfac'))
-    s.box(0.05, 0.74, 0, 0.74, 1.94, 0.09, q, 'stone',
-          deco_y=[('courses', 0.05)], deco_x=[('courses', 0.05)], top=hexc('#dfcfac'))
-    water_basin(s, 0.74, 0.74, 1.98, 1.98)
-    bollards(s, [(0.88 + i * 0.22, 0.72) for i in range(5)] + [(0.72, 0.92 + i * 0.22) for i in range(4)])
+    """TİCARET LİMANI: deniz rengi asset'e bake edilmez. Gümrük ve ambar
+    kara tarafında kalır; taş mendirek, ahşap iskele, vinç ve gemiler şeffaf
+    deniz bölgesinin üstüne uzanır. Böylece oyunun gerçek denizi alttan görünür."""
+    stone = PAL['stone']
+    cap = hexc('#dfcfac')
 
-    # Gümrük hanı: yatay ve şehir kapısı gibi.
-    h = 0.46 + 0.05 * st
-    s.box(0.14, 0.14, 0.09, 1.16, 0.58, 0.09 + h, hexc('#e4d2ad'), 'stone',
-          deco_y=[('courses', 0.08), ('archdoor', 0.5, 0, 0.18, 0.28)]
-                 + [('arch', u, 0.10, 0.09, 0.17) for u in (0.20, 0.80)],
+    # Kara tarafında dar taş rıhtım omurgası. Eski L biçimli dev opak platform
+    # küçültüldü; deniz tarafında geniş şeffaf boşluk bırakıldı.
+    s.box(0.06, 0.08, 0, 1.50, 0.34, 0.10, stone, 'stone',
+          deco_y=[('courses', 0.055)], deco_x=[('courses', 0.055)], top=cap)
+    s.box(0.06, 0.34, 0, 0.40, 1.88, 0.10, stone, 'stone',
+          deco_y=[('courses', 0.055)], deco_x=[('courses', 0.055)], top=cap)
+
+    # Gümrük hanı: tamamı kara tarafında ve daha yatay; denizi örtmez.
+    h = 0.42 + 0.05 * st
+    s.box(0.12, 0.12, 0.10, 1.02, 0.52, 0.10 + h, hexc('#e4d2ad'), 'stone',
+          deco_y=[('courses', 0.08), ('archdoor', 0.50, 0, 0.16, 0.25),
+                  ('arch', 0.18, 0.08, 0.085, 0.15), ('arch', 0.82, 0.08, 0.085, 0.15)],
           deco_x=[('courses', 0.08)])
-    s.hip(0.12, 0.12, 1.18, 0.60, 0.09 + h, 0.16, PAL['lead'], over=0.08, mat='lead')
+    s.hip(0.10, 0.10, 1.04, 0.54, 0.10 + h, 0.15, PAL['lead'], over=0.07, mat='lead')
 
     if st >= 2:
-        # Rıhtım ambarı.
-        s.box(1.28, 0.16, 0.09, 1.84, 0.58, 0.44, hexc('#cdbb99'), 'stone',
-              deco_y=[('archdoor', 0.5, 0, 0.16, 0.24)])
-        s.gable(1.26, 0.14, 1.86, 0.60, 0.44, 0.16, PAL['roof'], axis='x',
-                wall=hexc('#cdbb99'), wallmat='stone')
-        crane(s, 1.42, 0.68, 0.88, 0.38, axis='y')
+        # Küçük rıhtım ambarı; yine su üstüne büyük kütle taşımıyor.
+        s.box(1.08, 0.12, 0.10, 1.48, 0.52, 0.39, hexc('#cdbb99'), 'stone',
+              deco_y=[('archdoor', 0.5, 0, 0.14, 0.22)])
+        s.gable(1.06, 0.10, 1.50, 0.54, 0.39, 0.14, PAL['roof'], axis='x',
+                wall=hexc('#cdbb99'), wallmat='stone', over=0.04)
 
-    # Fener: tersanedeki üretim siluetinden farklı tek dikey odak.
-    fh = 0.82 + 0.12 * st
-    s.cylinder(0.36, 1.58, 0.09, fh, 0.10, PAL['marble'], 'stone', n=12,
-               deco=[('band', 0.34, 0.46, PAL['red']), ('band', 0.70, 0.82, PAL['red'])])
-    s.cylinder(0.36, 1.58, fh, fh + 0.05, 0.14, PAL['stone2'], 'stone', n=12)
-    s.cylinder(0.36, 1.58, fh + 0.05, fh + 0.16, 0.075, hexc('#f5d27a'), 'flat', n=10)
-    s.cone(0.36, 1.58, fh + 0.16, 0.14, 0.10, PAL['lead'], 'lead', n=10)
+    # Ana taş iskele: dar bir parmak gibi şeffaf denizin içine uzanır.
+    s.box(0.32, 0.86, 0.02, 1.58, 1.10, 0.10, stone, 'stone',
+          deco_y=[('courses', 0.05)], deco_x=[('courses', 0.05)], top=cap)
+    bollards(s, [(0.48 + i * 0.22, 0.84) for i in range(5)] +
+                [(0.48 + i * 0.22, 1.12) for i in range(5)], z=0.10)
 
-    # Ticaret gemileri + yük.
-    ship(s, 0.92, 1.16, 0.82 + 0.08 * st, 0.23, masts=1 + (st >= 2), rig='square')
-    if st >= 3:
-        ship(s, 1.08, 1.70, 0.56, 0.17, masts=1, rig='lateen', stern=False)
+    # İkinci ahşap yükleme iskelesi; aralarında runtime denizi görünür.
+    for x in (0.52, 0.78, 1.04, 1.30, 1.56):
+        s.cylinder(x, 1.42, 0, 0.15, 0.024, PAL['wooddark'], 'wood', n=8)
+        s.cylinder(x, 1.64, 0, 0.15, 0.024, PAL['wooddark'], 'wood', n=8)
+    s.box(0.44, 1.38, 0.13, 1.66, 1.68, 0.18, PAL['wood2'], 'wood',
+          deco_top=[('vplanks', 9)])
+    bollards(s, [(0.54 + i * 0.26, 1.36) for i in range(4)], z=0.18)
+
+    # Yük vinci su-kara sınırında, gemi boşaltma yönüne bakar.
+    crane(s, 0.42, 0.70, 0.78 + 0.08 * st, 0.36, axis='x')
+    if st >= 2:
+        crane(s, 1.18, 1.24, 0.72, 0.30, axis='y')
+
+    # Mallar kıyı hattında kümelenir; su alanına yayılmaz.
     for i in range(3 + st):
-        s.crate(0.84 + (i % 3) * 0.17, 0.80 + (i // 3) * 0.14, 0.10)
+        s.crate(0.52 + (i % 3) * 0.18, 0.60 + (i // 3) * 0.14, 0.09, z=0.10)
     for i in range(2 + st):
-        s.barrel(0.18 + (i % 3) * 0.13, 0.88 + (i // 3) * 0.14, 0.045)
-    s.flag(0.18, 0.18, 0.62, 0.46)
+        s.barrel(0.14 + (i % 2) * 0.13, 0.66 + (i // 2) * 0.14, 0.042, z=0.10)
+
+    # Fener artık dev kule değil; rıhtım ucunda küçük liman feneri.
+    fh = 0.58 + 0.10 * st
+    fx, fy = 0.22, 1.58
+    s.cylinder(fx, fy, 0.10, fh, 0.075, PAL['marble'], 'stone', n=12,
+               deco=[('band', 0.28, 0.42, PAL['red'])])
+    s.cylinder(fx, fy, fh, fh + 0.045, 0.11, PAL['stone2'], 'stone', n=12)
+    s.cylinder(fx, fy, fh + 0.045, fh + 0.13, 0.060, hexc('#f5d27a'), 'flat', n=10)
+    s.cone(fx, fy, fh + 0.13, 0.11, 0.085, PAL['lead'], 'lead', n=10)
+
+    # Ticaret gemileri tamamen şeffaf deniz bölgesi üzerinde. Kendi mavi zeminleri yok.
+    ship(s, 1.20, 1.20, 0.66 + 0.07 * st, 0.19, z=0.035,
+         masts=1 + (st >= 2), rig='square')
+    if st >= 3:
+        ship(s, 1.30, 1.78, 0.44, 0.13, z=0.03,
+             masts=1, rig='lateen', stern=False)
+
+    s.flag(0.18, 0.18, 0.58, 0.42)
 
 
 # --- Pass 6 override girişleri -------------------------------------
