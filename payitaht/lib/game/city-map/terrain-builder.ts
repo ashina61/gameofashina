@@ -368,7 +368,7 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1, occupiedSl
 
   // Büyük doğal renk bölgeleri: izometrik hücrelere bağlı değiller.
   const landColors = [0x5f8a45, 0x86a85a, 0x9fa565, 0x6f9650, 0x8d9a58, 0x557a3e]
-  for (let i = 0; i < 14; i++) {
+  for (let i = 0; i < 24; i++) {
     const x = wr.x + landRnd() * wr.w
     const y = wr.y + landRnd() * Math.max(TILE.h, shoreY(x) - wr.y - TILE.h)
     organicPatch(
@@ -542,7 +542,7 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1, occupiedSl
   const variation = scene.add.graphics().setDepth(-880)
   const patchRnd = mulberry32(6161)
   const patchColors = [0x557b3f, 0xa89c60, 0x6b9148, 0x8a7c4f]
-  for (let i = 0; i < 24; i++) {
+  for (let i = 0; i < 14; i++) {
     const x = wr.x + wr.w * (0.04 + patchRnd() * 0.92)
     const y = wr.y + (shoreY(x) - wr.y) * (0.03 + patchRnd() * 0.94)
     variation.fillStyle(patchColors[i % patchColors.length], 0.022 + patchRnd() * 0.032)
@@ -686,7 +686,7 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1, occupiedSl
     // Döşeme derzleri: halkalar ve ışınlar.
     for (const k of [0.36, 0.55, 0.7, 0.86]) { pz.lineStyle(2, 0xa99270, 0.45); pz.strokePoints(ell(k), true) }
     for (let i = 0; i < 20; i++) {
-      const t = i / 32 * Math.PI * 2, c = Math.cos(t), s = Math.sin(t)
+      const t = i / 20 * Math.PI * 2, c = Math.cos(t), s = Math.sin(t)
       pz.lineStyle(1.6, 0xa99270, 0.35)
       pz.lineBetween(P.x + c * prx * 0.36, P.y + s * pry * 0.36, P.x + c * prx, P.y + s * pry)
     }
@@ -704,7 +704,7 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1, occupiedSl
       pz.lineStyle(2.5, rim, 0.9); pz.strokePoints([N, E, S, W], true)
     }
     // Görseldeki zemin elmasının yarı genişliği: 211 sanat pikseli × bina
-    // ölçeği (phaser-city artScale) × belediye büyütmesi 1.5.
+    // ölçeği (phaser-city artScale) × belediye silüet katsayısı 1.36.
     const hallHalf = 211 * (FOOTPRINT_DIAMOND_W / ART_DIAMOND_PX) * 1.8 * 1.36
     const lowHalf = hallHalf * 1.16
     tier = 0; pz = scene.add.graphics().setDepth(-794.9)
