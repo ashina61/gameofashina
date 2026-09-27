@@ -26,7 +26,7 @@ import { GROUND_TARGET_W, FOOTPRINT_DIAMOND_W, ART_DIAMOND_PX, visualProfile, ty
 import { edgeKey, roadEdgeKeysForTargets } from '@/lib/game/city-map/road-tree'
 import { visualSignature } from '@/lib/game/city-render'
 import { BUILDINGS, BUILDING_IDS, activeJob, plotOpen, population, zoneOf, type BuildingId, type Game } from '@/lib/game/engine'
-import { asset, buildingImage, buildingStage } from '@/lib/asset'
+import { asset, buildingArtKey, buildingImage, buildingStage } from '@/lib/asset'
 import { canvasDpr } from '@/lib/render-dpr'
 
 /** Yolda yürüyen vatandaş (Ikariam'ın sokaktaki halkı). */
@@ -113,8 +113,9 @@ export class CityScene extends Phaser.Scene {
     for (const id of BUILDING_IDS) {
       const level = this.state.buildings[id]
       if (!BUILDINGS[id].art || level <= 0 || id === 'surlar') continue
-      const key = `${id}-${buildingStage(level)}`
-      if (!this.textures.exists(key)) this.load.image(key, buildingImage(id, level))
+      const facing = id === 'liman' || id === 'tersane' ? this.state.coastFacing[id] : undefined
+      const key = buildingArtKey(id, level, facing)
+      if (!this.textures.exists(key)) this.load.image(key, buildingImage(id, level, facing))
     }
     if (!this.textures.exists('b_site')) this.load.image('b_site', asset('/images/game/buildings/site.webp'))
     for (const lux of ['uzum', 'mermer', 'kristal', 'kukurt']) {
@@ -133,10 +134,11 @@ export class CityScene extends Phaser.Scene {
    */
   private ensureBuildingTexture(id: BuildingId, level: number) {
     if (!BUILDINGS[id].art || level <= 0 || id === 'surlar') return
-    const key = `${id}-${buildingStage(level)}`
+    const facing = id === 'liman' || id === 'tersane' ? this.state.coastFacing[id] : undefined
+    const key = buildingArtKey(id, level, facing)
     if (this.textures.exists(key) || this.loadingBuildingTextures.has(key)) return
     this.loadingBuildingTextures.add(key)
-    this.load.image(key, buildingImage(id, level))
+    this.load.image(key, buildingImage(id, level, facing))
     this.load.once(`filecomplete-image-${key}`, () => {
       this.loadingBuildingTextures.delete(key)
       if (!this.built) return
@@ -1865,20 +1867,21 @@ export class CityScene extends Phaser.Scene {
     this.pieces.push(shadow)
 
     // Ikariam: seviye 0 iken (ilk inşaat) temel + iskele; sonra seviye aşamasının görseli.
-    const textureKey = level === 0 && this.textures.exists('b_site') ? 'b_site' : `${id}-${buildingStage(level)}`
+    const coastFacing = id === 'liman' || id === 'tersane' ? this.state.coastFacing[id] : undefined
+    const textureKey = level === 0 && this.textures.exists('b_site') ? 'b_site' : buildingArtKey(id, level, coastFacing)
     if (level > 0 && BUILDINGS[id].art && !this.textures.exists(textureKey)) this.ensureBuildingTexture(id, level)
     if (BUILDINGS[id].art && this.textures.exists(textureKey)) {
       const img = this.add.image(anc.x, imgY, textureKey).setOrigin(0.5, 1)
       const scale = artS
       img.setScale(scale).setDepth(imgY).setTint(profile.tint)
-      img.setFlipX(this.state.flips.includes(id))
+      const flip = coastFacing ? coastFacing === 'right' : this.state.flips.includes(id)
+      img.setFlipX(flip)
       dispW = img.width * scale; dispH = img.height * scale
       this.pieces.push(img)
       // Sancaklar: görseldeki direklerin tepesine oyuncunun sancağı (tools/art → building-flags.json).
       const anchors = BUILDING_FLAGS[textureKey]
       if (anchors) {
         const [W, H, list] = anchors
-        const flip = this.state.flips.includes(id)
         for (const [fx, fy, fw, fh] of list) {
           this.flagField?.add({
             x: anc.x + (fx - W / 2) * scale * (flip ? -1 : 1), y: imgY - (H - fy) * scale,
@@ -1888,9 +1891,9 @@ export class CityScene extends Phaser.Scene {
       }
       // Gece: pencerelerde kandil ışığı (liman ve iskeleler hariç).
       if (level > 0 && slot.zone !== 'liman') {
-        const flip = this.state.flips.includes(id) ? -1 : 1
-        this.sky?.addLight(anc.x - flip * dispW * 0.12, imgY - dispH * 0.34, 'pieces')
-        this.sky?.addLight(anc.x + flip * dispW * 0.16, imgY - dispH * 0.28, 'pieces')
+        const lightDir = flip ? -1 : 1
+        this.sky?.addLight(anc.x - lightDir * dispW * 0.12, imgY - dispH * 0.34, 'pieces')
+        this.sky?.addLight(anc.x + lightDir * dispW * 0.16, imgY - dispH * 0.28, 'pieces')
       }
       // Yükseltme sürerken binanın önünde ahşap iskele durur.
       if (active && level > 0 && this.textures.exists('b_scaffold')) {

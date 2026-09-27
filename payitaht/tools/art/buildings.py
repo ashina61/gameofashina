@@ -2642,6 +2642,206 @@ def surlar(s, st):
 
     s.flag(1.00, 1.18, h + 0.16, 0.48)
 
+
+# ================================================================
+# COAST FACING — "DÜZ" varyantları
+# Yan görünüm (left/right) mevcut liman/tersane assetini kullanır. Bu iki
+# fonksiyon kıyıdan oyuncuya doğru inen, ekranda daha "düz" okunan ayrı
+# isometrik geometri üretir. Su yine asset'e bake edilmez.
+# ================================================================
+
+def _diag_slab(s, ax, ay, bx, by, width, z0, z1, col, mat='wood', top=None, key=None):
+    """XY düzleminde keyfi açıyla ince prizma; x=y doğrultusu ekranda dikey okunur."""
+    dx, dy = bx - ax, by - ay
+    ln = max(1e-6, math.hypot(dx, dy))
+    px, py = -dy / ln * width / 2, dx / ln * width / 2
+    bot = [(ax + px, ay + py, z0), (bx + px, by + py, z0),
+           (bx - px, by - py, z0), (ax - px, ay - py, z0)]
+    upper = [(x, y, z1) for x, y, _ in bot]
+    faces = [
+        Face(upper, top or col, mat, None, True, (0, 0, 1)),
+        Face(list(reversed(bot)), col, mat, None, True, (0, 0, -1)),
+    ]
+    for i in range(4):
+        j = (i + 1) % 4
+        faces.append(Face([bot[i], bot[j], upper[j], upper[i]], col, mat, None, True))
+    return s.add(Prim(faces, key=key))
+
+
+def _diag_ship(s, x0, y0, length, beam, z=0.025, masts=1, sails=True, band=None):
+    """x=y ekseninde ilerleyen küçük Osmanlı gemisi; düz kıyı varyantı için."""
+    band = band or PAL['red']
+    rt = math.sqrt(0.5)
+    dx, dy = rt, rt
+    px, py = -rt, rt
+
+    def p(t, side, zz):
+        return (x0 + dx * length * t + px * beam * side,
+                y0 + dy * length * t + py * beam * side, zz)
+
+    # Sivri baş + geniş orta + dar kıç; üst halka.
+    top = [p(0.02, .34, z + beam * .44),
+           p(.64, .52, z + beam * .44),
+           p(1.00, 0, z + beam * .44),
+           p(.64, -.52, z + beam * .44),
+           p(0.02, -.34, z + beam * .44)]
+    bot = [p(0.12, .20, z - .015),
+           p(.62, .30, z - .015),
+           p(.88, 0, z - .015),
+           p(.62, -.30, z - .015),
+           p(.12, -.20, z - .015)]
+    faces = [
+        Face(top, hexc('#b48a58'), 'wood', None, True, (0, 0, 1)),
+        Face(list(reversed(bot)), hexc('#6b4424'), 'wood', None, True, (0, 0, -1)),
+    ]
+    for i in range(5):
+        j = (i + 1) % 5
+        faces.append(Face([bot[i], bot[j], top[j], top[i]], hexc('#6b4424'), 'wood', None, True))
+    s.add(Prim(faces, key=x0 + y0 + length))
+    # Küpeşte bandı.
+    _diag_slab(s, x0 + dx * length * .08, y0 + dy * length * .08,
+               x0 + dx * length * .78, y0 + dy * length * .78,
+               beam * .84, z + beam * .39, z + beam * .48, band, 'wood')
+
+    for m in range(masts):
+        t = .44 if masts == 1 else .34 + .30 * m
+        mx, my = x0 + dx * length * t, y0 + dy * length * t
+        mh = length * (.62 if masts == 1 else .52)
+        base = z + beam * .46
+        s.cylinder(mx, my, base, base + mh, 0.012, PAL['wooddark'], 'wood', n=6)
+        if sails:
+            # Yelken düz görünümde ekran yatayına yakın açılır.
+            hw = beam * 1.05
+            pts = [(mx + px * hw, my + py * hw, base + mh * .40),
+                   (mx - px * hw, my - py * hw, base + mh * .40),
+                   (mx - px * hw * .78, my - py * hw * .78, base + mh * .78),
+                   (mx + px * hw * .78, my + py * hw * .78, base + mh * .78)]
+            s.add(Prim([Face(pts, hexc('#f4ead2'), 'canvas', None, False, (dx, dy, 0))],
+                       key=x0 + y0 + 8 + m, cull=False))
+        s.sphere(mx, my, base + mh + .01, .015, PAL['gold'])
+
+
+def liman_duz(s, st):
+    """Ticaret Limanı — ekranda düz/önden kıyı yönü."""
+    stone = hexc('#c8b795')
+    pale = hexc('#ddcaa4')
+    wood = PAL['wood2']
+    dark = PAL['wooddark']
+
+    # Kara tarafında simetrik, küçük gümrük yapısı.
+    h = .34 + .04 * st
+    s.box(.44, .18, .09, 1.30, .54, .09 + h, OTTO['white'], 'plaster',
+          deco_y=[('archdoor', .5, 0, .14, .22),
+                  ('win', .20, .08, .07, .12, 'shutter'),
+                  ('win', .80, .08, .07, .12, 'shutter')],
+          deco_x=[('win', .5, .08, .07, .12, 'shutter')])
+    s.gable(.42, .16, 1.32, .56, .09 + h, .15, PAL['roof'], axis='x',
+            wall=OTTO['white'], wallmat='plaster', over=.055)
+
+    if st >= 2:
+        s.box(1.34, .20, .09, 1.68, .50, .34, stone, 'stone',
+              deco_y=[('archdoor', .5, 0, .12, .20)])
+        s.gable(1.32, .18, 1.70, .52, .34, .12, PAL['roof2'], axis='y',
+                wall=stone, wallmat='stone', over=.04)
+
+    # Ana taş rıhtım x=y doğrultusunda: izometrik ekranda aşağı doğru "düz".
+    ax, ay, bx, by = .72, .66, 1.58, 1.52
+    _diag_slab(s, ax, ay, bx, by, .20, .025, .10, stone, 'stone', pale)
+    rt = math.sqrt(.5)
+    px, py = -rt, rt
+    for k in range(5):
+        t = .16 + k * .16
+        cx, cy = ax + (bx-ax)*t, ay + (by-ay)*t
+        for side in (-1, 1):
+            s.cylinder(cx + px*.13*side, cy + py*.13*side, .10, .15, .016, PAL['iron'], 'flat', n=8)
+
+    # Ayrı ahşap iskele stage 2+: ana rıhtımın yanında, yine düz eksende.
+    if st >= 2:
+        shift = .33
+        ax2, ay2 = ax + px*shift, ay + py*shift
+        bx2, by2 = bx + px*shift, by + py*shift
+        _diag_slab(s, ax2, ay2, bx2, by2, .16, .10, .16, wood, 'wood', hexc('#ad7a45'))
+        for k in range(4):
+            t = .18 + k * .20
+            cx, cy = ax2 + (bx2-ax2)*t, ay2 + (by2-ay2)*t
+            for side in (-1, 1):
+                s.cylinder(cx + px*.10*side, cy + py*.10*side, 0, .13, .020, dark, 'wood', n=8)
+
+    # Ticaret gemisi rıhtımın yanında aynı düz eksende.
+    _diag_ship(s, .90, .96 if st == 1 else 1.06, .62 + .05*st, .16, z=.025,
+               masts=1 + (st >= 3), sails=True)
+    if st >= 3:
+        _diag_ship(s, .54, 1.20, .34, .10, z=.020, masts=1, sails=False, band=PAL['teal'])
+
+    # Yük/vinç kara sınırında; suya zemin basılmaz.
+    crane(s, .42, .60, .60 + .07*st, .24, axis='x')
+    for i in range(2 + st):
+        s.crate(.28 + (i % 3)*.15, .58 + (i // 3)*.12, .072, z=.09)
+    if st >= 2:
+        s.flag(.56, .22, .50, .34)
+
+
+def tersane_duz(s, st):
+    """Donanma Tersanesi — ekranda düz/önden kızak yönü."""
+    stone = hexc('#c8b795')
+    pale = hexc('#ddcaa4')
+    wood = PAL['wood2']
+    dark = PAL['wooddark']
+    rt = math.sqrt(.5)
+    px, py = -rt, rt
+
+    # Küçük merkez işlik; iki yana dev çatı kütlesi yok.
+    s.box(.42, .18, .08, 1.18, .52, .38, OTTO['ochre'], 'plaster',
+          deco_y=[('archdoor', .36, 0, .13, .22), ('win', .72, .08, .07, .12, 'shutter')])
+    s.gable(.40, .16, 1.20, .54, .38, .15, PAL['roof2'], axis='x',
+            wall=OTTO['ochre'], wallmat='plaster', over=.05)
+
+    # 1/2/3 paralel düz kızak; ray araları tamamen şeffaf.
+    base_ax, base_ay, base_bx, base_by = .64, .64, 1.58, 1.58
+    shifts = [0] if st == 1 else ([-.24, .24] if st == 2 else [-.34, 0, .34])
+    for sh in shifts:
+        ax, ay = base_ax + px*sh, base_ay + py*sh
+        bx, by = base_bx + px*sh, base_by + py*sh
+        _diag_slab(s, ax, ay, ax + (bx-ax)*.22, ay + (by-ay)*.22, .22, .025, .075, stone, 'stone', pale)
+        for off in (-.065, .065):
+            _diag_slab(s, ax + px*off, ay + py*off, bx + px*off, by + py*off,
+                       .022, .035, .068, dark, 'wood')
+        # Seyrek travers.
+        for k in range(6):
+            t = .12 + k*.15
+            cx, cy = ax + (bx-ax)*t, ay + (by-ay)*t
+            _diag_slab(s, cx + px*.11, cy + py*.11, cx - px*.11, cy - py*.11,
+                       .025, .025, .050, wood, 'wood')
+
+    # Orta kızakta inşa halindeki gemi.
+    if st == 1:
+        _diag_slab(s, .78, .78, 1.42, 1.42, .035, .08, .14, dark, 'wood')
+        for k in range(5):
+            t = .18 + k*.15
+            cx, cy = .78 + (.64*t), .78 + (.64*t)
+            _diag_slab(s, cx + px*.13, cy + py*.13, cx - px*.13, cy - py*.13,
+                       .018, .075, .075 + (.10 + .02*k), PAL['wood'], 'wood')
+    else:
+        _diag_ship(s, .82, .82, .68, .18, z=.055, masts=1, sails=False,
+                   band=PAL['red'])
+
+    # Portal vinç: kızakları ekranda yatay kesen çapraz travers.
+    gx, gy = 1.04, 1.04
+    vh = .58 + .08*st
+    for side in (-1, 1):
+        x, y = gx + px*.28*side, gy + py*.28*side
+        s.cylinder(x, y, 0, vh, .025, dark, 'wood', n=8)
+    _diag_slab(s, gx + px*.32, gy + py*.32, gx - px*.32, gy - py*.32,
+               .035, vh-.045, vh, dark, 'wood')
+
+    # Kara tarafında malzeme; denize geniş taban yok.
+    logs(s, .18, 1.18, 2 + st, 'x', .34)
+    for i in range(1 + st):
+        s.crate(.24 + (i % 2)*.15, 1.42 + (i // 2)*.12, .072, z=.08)
+    if st >= 3:
+        _diag_ship(s, 1.22, .52, .34, .10, z=.020, masts=1, sails=False, band=PAL['teal'])
+    s.flag(.52, .22, .46, .34)
+
 BUILDINGS = {
     'divan': divan, 'saray': saray, 'elcilik': elcilik, 'konut': konut, 'hamam': hamam, 'carsi': carsi,
     'ambar': ambar, 'kereste': kereste, 'tas': tas, 'medrese': medrese, 'kisla': kisla, 'liman': liman,
@@ -2651,6 +2851,8 @@ BUILDINGS = {
     'barutane': barutane, 'depo': depo, 'ticaret_merkezi': ticaret_merkezi, 'harita_arsivi': harita_arsivi,
     'valilik': valilik, 'korsan_kalesi': korsan_kalesi, 'kara_pazar': kara_pazar,
     'siginak': siginak, 'tekke': tekke, 'mabet': mabet, 'karagoz': karagoz,
+    # Görsel yön varyantları: oyun katalogu değil, yalnız asset üretim anahtarı.
+    'liman-duz': liman_duz, 'tersane-duz': tersane_duz,
 }
 # Aşamasız yardımcı katmanlar: (fonksiyon, gölge var mı)
 EXTRAS = {'site': (site, True), 'scaffold': (scaffold, False),

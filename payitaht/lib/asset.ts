@@ -29,9 +29,20 @@ export function buildingStage(level: number): 1 | 2 | 3 {
  * değiştiğinde bu değeri yükselt; query string hem browser hem SW cache anahtarını
  * değiştirir, binary dosya adlarını ve BUILDING_FLAGS anahtarlarını bozmaz.
  */
-export const BUILDING_ART_REV = '20260927-coast-v2'
+export const BUILDING_ART_REV = '20260927-coast-facing-v1'
+
+export type CoastFacing = 'left' | 'straight' | 'right'
+
+/**
+ * Kıyı binalarında straight ayrı kod-üretilmiş asset'tir; left/right aynı yan
+ * sprite'ın aynalanmış iki yönüdür. Kara binalarında dosya adı değişmez.
+ */
+export function buildingArtKey(id: string, level = 1, facing?: CoastFacing) {
+  const straight = (id === 'liman' || id === 'tersane') && facing === 'straight'
+  return `${id}${straight ? '-duz' : ''}-${buildingStage(level)}`
+}
 
 /** Bir bina gorselinin yolu (tools/art/buildings.py ile cizilir). */
-export function buildingImage(id: string, level = 1) {
-  return `${asset(`/images/game/buildings/${id}-${buildingStage(level)}.webp`)}?art=${BUILDING_ART_REV}`
+export function buildingImage(id: string, level = 1, facing?: CoastFacing) {
+  return `${asset(`/images/game/buildings/${buildingArtKey(id, level, facing)}.webp`)}?art=${BUILDING_ART_REV}`
 }

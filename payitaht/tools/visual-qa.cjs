@@ -110,7 +110,7 @@ async function main() {
     // art after reload. This catches stale asset revisions / wrong generator output
     // even if the save shape itself is valid.
     const loadedNames = [...buildingStageLoads].map(url => url.split('/').pop())
-    for (const expected of ['liman-1.webp', 'tersane-1.webp']) {
+    for (const expected of ['liman-duz-1.webp', 'tersane-duz-1.webp']) {
       if (!loadedNames.includes(expected)) {
         throw new Error(`${label}: expected coast texture was not loaded: ${expected}; loaded=${loadedNames.join(',')}`)
       }

@@ -100,6 +100,34 @@ test('save validation rejects malformed saves without silently losing data', () 
   assert.throws(() => parseSave(JSON.stringify({ ...g, resources: { ...g.resources, gold: -1 } })))
 })
 
+test('coast facing defaults straight, persists, and migrates legacy coast flips', () => {
+  const g = initialGame(now)
+  assert.deepEqual(g.coastFacing, { liman: 'straight', tersane: 'straight' })
+
+  const right = execute(g, { type: 'face', id: 'liman', facing: 'right' }, now).game
+  assert.equal(right.coastFacing.liman, 'right')
+  assert.notEqual(visualSignature(right), visualSignature(g))
+  assert.deepEqual(parseSave(JSON.stringify(right)).coastFacing, right.coastFacing)
+
+  const legacy = structuredClone(g) as unknown as Record<string, unknown>
+  delete legacy.coastFacing
+  legacy.flips = ['liman', 'konut']
+  const migrated = parseSave(JSON.stringify(legacy))
+  assert.equal(migrated.coastFacing.liman, 'right')
+  assert.equal(migrated.coastFacing.tersane, 'straight')
+  assert.ok(!migrated.flips.includes('liman'))
+  assert.ok(migrated.flips.includes('konut'))
+})
+
+test('legacy flip command no longer conflicts with coast facing', () => {
+  const g = initialGame(now)
+  const coast = execute(g, { type: 'flip', id: 'tersane' }, now).game
+  assert.equal(coast.coastFacing.tersane, 'straight')
+  assert.ok(!coast.flips.includes('tersane'))
+  const land = execute(g, { type: 'flip', id: 'konut' }, now).game
+  assert.ok(land.flips.includes('konut'))
+})
+
 /* ---------------------------------------------------------------------------
  * v2: ISCI DAGITIMI VE ARSALAR
  * ------------------------------------------------------------------------ */

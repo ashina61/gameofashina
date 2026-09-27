@@ -137,7 +137,7 @@ export default function GameShell({ onTitle }: { onTitle?: () => void } = {}) {
      * cikmasi kullanilamaz hale getirirdi.
      */
     // Isci, yol ve aynalama SESSIZ: her dokunusta bildirim cikmasi kullanilamaz.
-    if (action.type === 'workers' || action.type === 'miners' || action.type === 'road' || action.type === 'flip' || action.type === 'priests') return
+    if (action.type === 'workers' || action.type === 'miners' || action.type === 'road' || action.type === 'flip' || action.type === 'face' || action.type === 'priests') return
     const quick: Partial<Record<Command['type'], string>> = {
       wonder: 'Kereste harikaya ulaştı.', miracle: 'Mucize başladı!', upgrade: 'Tophane ustaları işini bitirdi.',
       future: 'Gelecek araştırması ilerledi.', exchange: 'Kara Pazar\'da takas yapıldı.',
