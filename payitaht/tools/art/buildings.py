@@ -1150,26 +1150,26 @@ def medrese(s, st):
     pave(s, 0.62, 0.62, 1.42, 1.46, PAL['marble'], n=5)
 
     # Arka hücre kanadı.
-    s.box(0.22, 0.20, 1.44, 0.50, 0.38, PAL['marble'], 'marble',
+    s.box(0.22, 0.20, 0, 1.44, 0.50, 0.38, PAL['marble'], 'marble',
           deco_y=[('arch', (i + 0.5) / 5, 0.03, 0.10, 0.22) for i in range(5)],
           deco_x=[('courses', 0.08)])
     dome_row(s, 0.22, 1.44, 0.35, 0.42, 5, 0.10)
 
     # Sol kanat: avluya dönük revak hissi.
-    s.box(0.22, 0.50, 0.52, 1.62, 0.38, PAL['marble'], 'marble',
+    s.box(0.22, 0.50, 0, 0.52, 1.62, 0.38, PAL['marble'], 'marble',
           deco_x=[('arch', (i + 0.5) / 4, 0.03, 0.10, 0.22) for i in range(4)],
           deco_y=[('courses', 0.08)])
     dome_row(s, 0.50, 1.62, 0.37, 0.42, 4, 0.10, axis='y')
 
     if st >= 2:
         # Sağ kanatla U-plan tamamlanır, avlu açık kalır.
-        s.box(1.48, 0.54, 1.78, 1.62, 0.38, PAL['marble'], 'marble',
+        s.box(1.48, 0.54, 0, 1.78, 1.62, 0.38, PAL['marble'], 'marble',
               deco_x=[('arch', (i + 0.5) / 4, 0.03, 0.10, 0.22) for i in range(4)],
               deco_y=[('courses', 0.08)])
         dome_row(s, 0.54, 1.62, 1.63, 0.42, 4, 0.10, axis='y')
 
     # Dershane: tek büyük kubbe, diğer hücrelerden belirgin şekilde yüksek.
-    s.box(1.28, 0.14, 1.84, 0.58, 0.54, PAL['marble'], 'marble',
+    s.box(1.28, 0.14, 0, 1.84, 0.58, 0.54, PAL['marble'], 'marble',
           deco_y=[('cini', 0.72, 0.84), ('archdoor', 0.5, 0, 0.16, 0.30)],
           deco_x=[('arch', 0.5, 0.10, 0.10, 0.20)])
     domed(s, 1.56, 0.36, 0.58, 0.22 + 0.02 * st, drum=0.08, wall=PAL['marble'])
@@ -1194,7 +1194,7 @@ def kisla(s, st):
     h = (0.46, 0.54, 0.62)[st - 1]
 
     # Arka ana koğuş: uzun ve sert yatay çizgi.
-    s.box(0.20, 0.20, 1.76, 0.55, h, stone, 'stone',
+    s.box(0.20, 0.20, 0, 1.76, 0.55, h, stone, 'stone',
           deco_y=[('courses', 0.08)] + [('win', u, 0.16, 0.07, 0.12, None) for u in (0.14, 0.31, 0.69, 0.86)],
           deco_x=[('courses', 0.08)])
     s.gable(0.18, 0.18, 1.78, 0.57, h, 0.18, PAL['lead'], axis='x',
@@ -1204,7 +1204,7 @@ def kisla(s, st):
     for x0, x1 in ((0.20, 0.52), (1.44, 1.76)):
         if x0 > 1 and st == 1:
             continue
-        s.box(x0, 0.55, x1, 1.48, h - 0.04, stone, 'stone',
+        s.box(x0, 0.55, 0, x1, 1.48, h - 0.04, stone, 'stone',
               deco_x=[('courses', 0.08)] + [('win', u, 0.14, 0.07, 0.12, None) for u in (0.25, 0.50, 0.75)],
               deco_y=[('courses', 0.08)])
         s.gable(x0 - 0.02, 0.53, x1 + 0.02, 1.50, h - 0.04, 0.15, PAL['lead'],
@@ -1212,7 +1212,7 @@ def kisla(s, st):
 
     # Ön kapı kulesi: avluyu çerçeveleyen sert odak.
     gh = h + 0.18 + 0.06 * st
-    s.box(0.80, 1.48, 1.18, 1.80, gh, dark, 'stone',
+    s.box(0.80, 1.48, 0, 1.18, 1.80, gh, dark, 'stone',
           deco_y=[('courses', 0.08), ('archdoor', 0.5, 0, 0.22, 0.34)],
           deco_x=[('courses', 0.08)])
     crenel(s, 0.80, 1.48, 1.18, 1.80, gh, dark, step=0.09, size=0.05, h=0.06)
@@ -1226,7 +1226,7 @@ def kisla(s, st):
         pointed_tower(s, x, y, 0.12, h + 0.22, col=dark, cap=0.26)
 
     # Talim avlusu: hedef ve silah rafı.
-    s.box(0.52, 1.18, 0.58, 1.58, 0.20, PAL['wood'], 'wood')
+    s.box(0.52, 1.18, 0, 0.58, 1.58, 0.20, PAL['wood'], 'wood')
     for k in range(3 + st):
         x = 1.28 + k * 0.07
         s.box(x, 1.20, 0, x + 0.018, 1.22, 0.34, PAL['wood2'], 'wood')
