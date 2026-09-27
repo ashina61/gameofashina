@@ -38,14 +38,18 @@ jobs:
         run: python -m pip install --disable-pip-version-check numpy pillow
       - name: Compile generator
         run: python -m py_compile tools/art/buildings.py tools/art/isokit.py
-      - name: Render remaining redesigned buildings
-        run: |
-          python tools/art/buildings.py \
-            ambar depo ticaret_merkezi kara_pazar \
-            marangoz mimar camci simyahane gozlukcu bagci mahzen ormanci tasci \
-            tophane barutane siginak korsan_kalesi \
-            saray valilik elcilik muze harita_arsivi \
-            cami tekke mabet kahvehane karagoz liman
+      - name: Render storage and trade family
+        run: python tools/art/buildings.py ambar depo ticaret_merkezi kara_pazar
+      - name: Render workshop family
+        run: python tools/art/buildings.py marangoz mimar camci simyahane gozlukcu bagci mahzen ormanci tasci
+      - name: Render military family
+        run: python tools/art/buildings.py tophane barutane siginak korsan_kalesi
+      - name: Render civic family
+        run: python tools/art/buildings.py saray valilik elcilik muze harita_arsivi
+      - name: Render culture family
+        run: python tools/art/buildings.py cami tekke mabet kahvehane karagoz
+      - name: Render harbour family
+        run: python tools/art/buildings.py liman
       - name: Commit generated WebP assets
         run: |
           git config user.name "payitaht-art-bot"
