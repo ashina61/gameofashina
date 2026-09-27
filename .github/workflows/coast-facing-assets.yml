@@ -1,0 +1,78 @@
+name: Generate Coast Facing Assets
+
+on:
+  push:
+    branches:
+      - chatgpt/coast-facing-system
+    paths:
+      - 'payitaht/tools/art/buildings.py'
+      - '.github/workflows/coast-facing-assets.yml'
+  pull_request:
+    branches:
+      - claude/ancient-city-phaser-game-r9e0qu
+    paths:
+      - 'payitaht/tools/art/buildings.py'
+      - '.github/workflows/coast-facing-assets.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: payitaht
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: chatgpt/coast-facing-system
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install art dependencies
+        run: python -m pip install --disable-pip-version-check numpy pillow
+      - name: Compile generator
+        run: python -m py_compile tools/art/buildings.py tools/art/isokit.py
+      - name: Render straight coast variants
+        run: python tools/art/buildings.py liman-duz tersane-duz
+      - name: Validate straight coast assets
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          from PIL import Image
+          root = Path('public/images/game/buildings')
+          for bid in ('liman-duz','tersane-duz'):
+              for stage in (1,2,3):
+                  p = root / f'{bid}-{stage}.webp'
+                  if not p.exists():
+                      raise SystemExit(f'missing: {p}')
+                  im = Image.open(p).convert('RGBA')
+                  a = im.getchannel('A')
+                  if im.width != 600:
+                      raise SystemExit(f'bad width {p}: {im.size}')
+                  lo, hi = a.getextrema()
+                  if hi == 0 or lo == 255:
+                      raise SystemExit(f'bad alpha {p}: {(lo, hi)}')
+                  occupied = sum(v > 24 for v in a.getdata()) / (im.width * im.height)
+                  print(p.name, im.size, 'occupied=', round(occupied, 3), 'bbox=', a.getbbox())
+                  if occupied > 0.64:
+                      raise SystemExit(f'{p} too opaque for coast variant: {occupied:.3f}')
+          PY
+      - name: Commit generated assets
+        run: |
+          git config user.name "payitaht-art-bot"
+          git config user.email "actions@github.com"
+          git add \
+            public/images/game/buildings/liman-duz-*.webp \
+            public/images/game/buildings/tersane-duz-*.webp \
+            lib/game/city-map/building-flags.json
+          if git diff --cached --quiet; then
+            echo "Straight coast assets already current."
+            exit 0
+          fi
+          git commit -m "Generate straight Liman and Tersane variants"
+          git pull --rebase origin chatgpt/coast-facing-system
+          git push origin HEAD:chatgpt/coast-facing-system
