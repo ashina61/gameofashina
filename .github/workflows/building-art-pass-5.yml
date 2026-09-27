@@ -35,7 +35,7 @@ jobs:
         with:
           python-version: '3.12'
       - name: Install art dependencies
-        run: python -m pip install --disable-pip-version-check pillow
+        run: python -m pip install --disable-pip-version-check numpy pillow
       - name: Render redesigned core buildings
         run: |
           python tools/art/buildings.py konut kereste tas kisla medrese hamam carsi tersane
