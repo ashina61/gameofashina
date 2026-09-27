@@ -13,7 +13,7 @@ import { KumSaatiArt } from './resource-art'
  */
 import { Hint } from './hint'
 import { useEffect, useState, type ReactNode } from 'react'
-import { ArrowLeft, ArrowUp, LockKeyhole, FlipHorizontal2, Move, Hammer, ChevronRight, Plus, Trash2, X } from 'lucide-react'
+import { ArrowLeft, ArrowUp, LockKeyhole, FlipHorizontal2, RotateCw, Move, Hammer, ChevronRight, Plus, Trash2, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { asset, buildingImage , buildingStage } from '@/lib/asset'
 import {
@@ -360,19 +360,24 @@ export function BuildingPage({ game, empire, id, onClose, onBuild, onFlip, onMov
   const shown = peek ?? stage
   const stages = ([[1, 1, 'Sv. 1–3'], [2, 4, 'Sv. 4–7'], [3, 8, 'Sv. 8+']] as const).filter(([, from]) => from <= max)
   const movable = level > 0 && takesPlot(id)
+  const coast = id === 'liman' || id === 'tersane'
+  const facing = coast ? game.coastFacing[id] : undefined
+  const facingLabel = facing === 'left' ? 'Sol' : facing === 'right' ? 'Sağ' : 'Düz'
+  const nextFacing = facing === 'straight' ? 'right' : facing === 'right' ? 'left' : 'straight'
   return <IkaPage title={b.name} subtitle={`${city} · ${b.category.toLocaleLowerCase('tr')}`} label={`${b.name} sayfası`} onClose={onClose}
     badge={<span className="bp-level" aria-label={`Seviye ${level}`}><b>{level}</b></span>}>
       <section className="bp-hero">
-        {b.art ? <BuildingArt key={shown} className="bp-hero-art" id={id} level={shown === 1 ? 1 : shown === 2 ? 4 : 8} alt={`${b.name} görünümü`} /> : <span className="bp-pending"><Hammer /></span>}
+        {b.art ? <BuildingArt key={`${shown}-${facing ?? 'default'}`} className="bp-hero-art" id={id} level={shown === 1 ? 1 : shown === 2 ? 4 : 8} facing={facing} alt={`${b.name} görünümü`} /> : <span className="bp-pending"><Hammer /></span>}
         {b.art && stages.length > 1 && <div className="bp-stages" role="group" aria-label="Seviyeye göre görünüm">
           {stages.map(([st, from, label]) => <button key={st} type="button" aria-pressed={shown === st} onClick={() => setPeek(st === stage ? null : st)}
             className={st === stage ? 'is-current' : level >= from ? 'is-reached' : 'is-locked'} aria-label={`${label} görünümü${st === stage ? ' (şu anki)' : ''}`}>
-            <img src={buildingImage(id, from)} alt="" /><span>{label}</span>
+            <img src={buildingImage(id, from, facing)} alt="" style={facing === 'right' ? { transform: 'scaleX(-1)' } : undefined} /><span>{label}</span>
           </button>)}
         </div>}
         {peek && peek !== stage && <span className="bp-stage-note">{peek > stage ? 'Yükselttikçe böyle görünecek' : 'Eski görünümü'}</span>}
         {level > 0 && <div className="bp-hero-tools" role="group" aria-label="Yapı araçları">
-          {movable && b.art && <button type="button" onClick={onFlip} aria-label={game.flips.includes(id) ? 'Yönü geri çevir' : 'Yönünü çevir'}><FlipHorizontal2 /><span>Çevir</span></button>}
+          {movable && b.art && coast && <button type="button" onClick={() => onCommand({ type: 'face', id, facing: nextFacing })} aria-label={`Yön: ${facingLabel}. Dokunarak değiştir`}><RotateCw /><span>Yön: {facingLabel}</span></button>}
+          {movable && b.art && !coast && <button type="button" onClick={onFlip} aria-label={game.flips.includes(id) ? 'Yönü geri çevir' : 'Yönünü çevir'}><FlipHorizontal2 /><span>Çevir</span></button>}
           {movable && id !== 'divan' && <button type="button" onClick={onMove} aria-label="Başka arsaya taşı"><Move /><span>Taşı</span></button>}
           {id !== 'divan' && <button type="button" className="is-danger" aria-pressed={razing} onClick={() => setRazing(v => !v)} aria-label="Yık"><Trash2 /><span>Yık</span></button>}
         </div>}
