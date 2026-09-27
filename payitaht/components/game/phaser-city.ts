@@ -1686,7 +1686,9 @@ export class CityScene extends Phaser.Scene {
 
     // Aile imzası: sprite dışı küçük öğeler kopyala-yapıştır hissini kırar.
     const g = this.add.graphics().setDepth(cy + TILE.h * 0.58)
+    let drewFamily = false
     if (profile.family === 'military') {
+      drewFamily = true
       const x = cx + GROUND_TARGET_W * 0.34, y = cy + TILE.h * 0.42
       g.fillStyle(0x4e3820, 1); g.fillRect(x - 13, y - 7, 26, 7)
       for (let i = 0; i < 4 + stage; i++) {
@@ -1695,6 +1697,7 @@ export class CityScene extends Phaser.Scene {
         g.fillStyle(0xb9a67c, 1); g.fillTriangle(px + 1, y - 38 - i % 2 * 4, px - 2, y - 31, px + 5, y - 33)
       }
     } else if (profile.family === 'trade') {
+      drewFamily = true
       const x = cx - GROUND_TARGET_W * 0.36, y = cy + TILE.h * 0.46
       for (let i = 0; i < stage + 1; i++) {
         g.fillStyle(i % 2 ? 0x8b6034 : 0xa97843, 1)
@@ -1702,6 +1705,7 @@ export class CityScene extends Phaser.Scene {
         g.lineStyle(1, 0x5f3f23, 0.7); g.strokeRect(x + i * 10, y - 8 - (i % 2) * 6, 15, 10)
       }
     } else if (profile.family === 'harbour') {
+      drewFamily = true
       const x = cx + GROUND_TARGET_W * 0.34, y = cy + TILE.h * 0.42
       for (let i = 0; i < stage + 1; i++) {
         g.fillStyle(0x6f4a2b, 1); g.fillEllipse(x + i * 12, y - i % 2 * 4, 13, 10)
@@ -1709,12 +1713,13 @@ export class CityScene extends Phaser.Scene {
       }
       g.lineStyle(2, 0xb99a67, 0.8); g.strokeCircle(cx - GROUND_TARGET_W * 0.33, cy + TILE.h * 0.4, 8 + stage * 2)
     } else if (profile.family === 'scholar' || profile.family === 'culture') {
+      drewFamily = true
       const x = cx + GROUND_TARGET_W * 0.34, y = cy + TILE.h * 0.44
       g.fillStyle(0x705135, 1); g.fillRect(x - 13, y - 5, 26, 5)
       g.fillRect(x - 11, y, 3, 10); g.fillRect(x + 8, y, 3, 10)
       if (stage >= 2) { g.fillStyle(0xd2b86d, 1); g.fillCircle(x, y - 12, 4); g.lineStyle(1.5, 0x705135, 1); g.lineBetween(x, y - 8, x, y - 2) }
     }
-    if (g.commandBuffer?.length) this.pieces.push(g)
+    if (drewFamily) this.pieces.push(g)
     else g.destroy()
   }
 
