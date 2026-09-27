@@ -106,6 +106,16 @@ async function main() {
       throw new Error(`${label}: coast QA seed did not survive reload: ${JSON.stringify(seeded)}`)
     }
 
+    // Coast regression guard: seeded buildings must actually request their staged
+    // art after reload. This catches stale asset revisions / wrong generator output
+    // even if the save shape itself is valid.
+    const loadedNames = [...buildingStageLoads].map(url => url.split('/').pop())
+    for (const expected of ['liman-1.webp', 'tersane-1.webp']) {
+      if (!loadedNames.includes(expected)) {
+        throw new Error(`${label}: expected coast texture was not loaded: ${expected}; loaded=${loadedNames.join(',')}`)
+      }
+    }
+
     const harbour = page.getByRole('button', { name: 'Donanma ve limana git' })
     await harbour.click({ timeout: 10_000 })
     await page.waitForTimeout(1800)
