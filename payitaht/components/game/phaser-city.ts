@@ -166,17 +166,18 @@ export class CityScene extends Phaser.Scene {
     const openCity = CITY_SLOTS.filter(s => open.has(s.id))
     const box = (slots: typeof CITY_SLOTS) => {
       const xs = slots.map(s => s.screen.x), ys = slots.map(s => s.screen.y)
-      const padX = FOOTPRINT_DIAMOND_W * 0.62
-      const padTop = TILE.h * 5 // en üst sıradaki binaların çatı/kubbe payı
-      const padBottom = TILE.h * 1.5
+      const padX = FOOTPRINT_DIAMOND_W * 0.54
+      const padTop = TILE.h * 4.4 // çatı/kubbe için pay; dağ manzarasını kadraja zorlamaz
+      const padBottom = TILE.h * 2.8 // alt bantta kıyı/liman yönü nefes alsın
       const x = Math.min(...xs) - padX, y = Math.min(...ys) - padTop
       return { x, y, w: Math.max(...xs) + padX - x, h: Math.max(...ys) + padBottom - y }
     }
     const full = box(CITY_SLOTS)
     if (openCity.length < 3) return full
-    // Küçük kasabada bile fazla yakın olmasın: tam şehrin en az ~%90 genişliği kadrajda.
+    // Kasaba büyüdükçe kadraj genişler; erken oyunda bütün boş slot alanını
+    // göstermek yerine yaşayan merkez baskın kalır.
     const t = box(openCity)
-    const w = Math.max(t.w, full.w * 0.9), h = Math.max(t.h, full.h * 0.7)
+    const w = Math.max(t.w, full.w * 0.82), h = Math.max(t.h, full.h * 0.66)
     return { x: t.x + t.w / 2 - w / 2, y: t.y + t.h / 2 - h / 2, w, h }
   }
 
@@ -190,8 +191,9 @@ export class CityScene extends Phaser.Scene {
   private townZoom() {
     const t = this.townRect()
     const bandH = this.scale.height * (1 - CityScene.HUD_TOP - CityScene.HUD_BOTTOM)
-    // Açılışta şehrin ortası yakın: en dış sütunlar kenarda hafifçe kesilir, kaydırarak görülür.
-    return Math.min(this.scale.width / (t.w * 0.8), bandH / (t.h * 0.78))
+    // Dikey mobil kompozisyon: şehir ekranda baskın, ama çatı ve alt kıyı
+    // ipuçları görünür. Kenarlar bilinçli olarak hafifçe ekran dışına taşabilir.
+    return Math.min(this.scale.width / (t.w * 0.84), bandH / (t.h * 0.86))
   }
 
   /** Bir dünya noktasını açık bandın ortasına getirir (HUD'a göre kaydırılmış). */
@@ -223,7 +225,10 @@ export class CityScene extends Phaser.Scene {
     const t = this.townRect()
     const hall = slotById(HALL_SLOT_ID)!
     this.cameras.main.setZoom(Phaser.Math.Clamp(this.cityZoom, this.minZoom, this.maxZoom))
-    this.centerInBand(hall.screen.x, t.y + t.h / 2)
+    // Belediye görsel odağıdır; kamera bir miktar güneye kayar ki alt tarafta
+    // kıyı/liman yönü hissedilsin, fakat şehir merkezi HUD altında ezilmesin.
+    const focusY = Phaser.Math.Clamp(hall.screen.y + TILE.h * 1.15, t.y + t.h * 0.42, t.y + t.h * 0.58)
+    this.centerInBand(hall.screen.x, focusY)
     this.velocity = { x: 0, y: 0 }
   }
 
@@ -252,8 +257,8 @@ export class CityScene extends Phaser.Scene {
         : COAST_SLOTS[Math.floor(COAST_SLOTS.length / 2)].screen
     // Limana YAKINLAŞ ve rıhtımı HUD'un açık bıraktığı bandın ortasına getir
     // (alt menünün arkasında kalmasın).
-    this.cameras.main.setZoom(Phaser.Math.Clamp(Math.max(this.cityZoom * 1.9, 0.7), this.minZoom, this.maxZoom))
-    this.centerInBand(destination.x, destination.y - TILE.h)
+    this.cameras.main.setZoom(Phaser.Math.Clamp(Math.max(this.cityZoom * 1.55, 0.66), this.minZoom, this.maxZoom))
+    this.centerInBand(destination.x, destination.y - TILE.h * 0.45)
     this.velocity = { x: 0, y: 0 }
   }
   /** React kontrolü: yakınlaştırmayı çarpanla değiştir. */
@@ -338,11 +343,36 @@ export class CityScene extends Phaser.Scene {
   }
 
   /**
-   * Bina sanatı tek ölçekle çizildi: görseldeki 2x2 elması (ART_DIAMOND_PX)
-   * footprint'ten biraz büyük gösterilir; Ikariam'daki gibi binalar sokağa
-   * kadar taşar ve şehir dolu görünür. Bina başına ayar yoktur.
+   * Bütün bina sanatının ortak 2x2 taban ölçeği. Bunun üstündeki küçük farklar
+   * footprint'i değiştirmez; yalnızca silüet sınıfını dengeler.
    */
   private artScale() { return (FOOTPRINT_DIAMOND_W / ART_DIAMOND_PX) * 1.8 }
+
+  /** Mobil şehir silüeti: küçük üretim yapıları geri, kamusal yapılar öne. */
+  private buildingVisualScale(id: BuildingId, slot: LiveSlot) {
+    if (slot.slotId === HALL_SLOT_ID) return 1.36
+    if (slot.zone === 'liman') {
+      if (id === 'tersane') return 1.06
+      if (id === 'liman') return 1.03
+      return 0.98
+    }
+    const small = ([
+      'konut', 'kereste', 'tas', 'ormanci', 'tasci', 'bagci', 'simyahane',
+      'camci', 'mahzen', 'gozlukcu', 'barutane', 'siginak', 'karagoz',
+    ] as BuildingId[])
+    const large = ([
+      'kisla', 'ambar', 'tophane', 'ticaret_merkezi', 'korsan_kalesi',
+      'depo', 'marangoz', 'mimar',
+    ] as BuildingId[])
+    const monument = ([
+      'saray', 'medrese', 'cami', 'hamam', 'elcilik', 'muze', 'valilik',
+      'tekke', 'mabet',
+    ] as BuildingId[])
+    if (monument.includes(id)) return 1.08
+    if (large.includes(id)) return 1.03
+    if (small.includes(id)) return 0.92
+    return 0.98
+  }
 
   private occupiedSlotIds(game: Game, moving: BuildingId | null = null, movePlot: number | null = null) {
     const ids: string[] = []
@@ -1622,7 +1652,7 @@ export class CityScene extends Phaser.Scene {
     const level = this.state.buildings[id]
     // Divanhane meydanın gösterişli merkezi: diğer binalardan büyük.
     // Kademeli büyüme: aynı görsel aşamasında da seviye arttıkça bina biraz büyür.
-    const artS = this.artScale() * (slot.slotId === HALL_SLOT_ID ? 1.5 : 1) * stageGrowth(level)
+    const artS = this.artScale() * this.buildingVisualScale(id, slot) * stageGrowth(level)
     // Görselin zemin elması resmin altından ART_GROUND_PX yukarıda: elmas
     // arsanın (belediyede meydanın) tam ortasına düz oturur. Liman görselleri
     // rıhtıma göre çizildiği için eski temas noktasını kullanır.

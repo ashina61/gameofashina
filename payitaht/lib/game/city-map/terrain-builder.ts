@@ -368,7 +368,7 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1, occupiedSl
 
   // Büyük doğal renk bölgeleri: izometrik hücrelere bağlı değiller.
   const landColors = [0x5f8a45, 0x86a85a, 0x9fa565, 0x6f9650, 0x8d9a58, 0x557a3e]
-  for (let i = 0; i < 36; i++) {
+  for (let i = 0; i < 24; i++) {
     const x = wr.x + landRnd() * wr.w
     const y = wr.y + landRnd() * Math.max(TILE.h, shoreY(x) - wr.y - TILE.h)
     organicPatch(
@@ -388,7 +388,7 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1, occupiedSl
   const grassSurface = softSurfaceTexture('t_grass')
   const dirtSurface = softSurfaceTexture('t_dirt')
   const surfaceRnd = mulberry32(72831)
-  if (grassSurface && dirtSurface) for (let i = 0; i < 175; i++) {
+  if (grassSurface && dirtSurface) for (let i = 0; i < 112; i++) {
     const dirt = i % 9 === 0 || (i % 17 === 0)
     const key = dirt ? dirtSurface : grassSurface
     const size = TILE.w * (5.6 + surfaceRnd() * 4.0)
@@ -461,7 +461,7 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1, occupiedSl
   // Sakin su yüzeyi: az sayıda geniş, düşük alfa boya izi.
   const water = scene.add.graphics().setDepth(-899)
   const waterRnd = mulberry32(8145)
-  for (let i = 0; i < 92; i++) {
+  for (let i = 0; i < 56; i++) {
     const x = wr.x + waterRnd() * wr.w
     const top = shoreY(x) + TILE.h * 0.9
     const y = top + waterRnd() * Math.max(TILE.h, wr.y + wr.h - top)
@@ -497,7 +497,7 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1, occupiedSl
   // Yakın plan mikro doku: kuru ot, çakıl, renk kırılması.
   const micro = scene.add.graphics().setDepth(-887)
   const microRnd = mulberry32(77123)
-  for (let i = 0; i < 320; i++) {
+  for (let i = 0; i < 160; i++) {
     const x = wr.x + microRnd() * wr.w
     const y = wr.y + microRnd() * Math.max(0, shoreY(x) - wr.y - TILE.h)
     const roll = microRnd()
@@ -511,13 +511,13 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1, occupiedSl
    */
   {
     const land = (x: number) => Math.max(0, shoreY(x) - wr.y - TILE.h * 1.6)
-    for (let i = 0; i < 90; i++) {
+    for (let i = 0; i < 48; i++) {
       const x = wr.x + microRnd() * wr.w, y = wr.y + microRnd() * land(x)
       micro.fillStyle(microRnd() > 0.5 ? 0x4f7a38 : 0x9bb866, 0.07 + microRnd() * 0.06)
       micro.fillEllipse(x, y, TILE.w * (0.5 + microRnd() * 1.1), TILE.h * (0.4 + microRnd() * 0.8))
     }
     const bladeCols = [0x4a6e32, 0x5d8a3c, 0x7da04e, 0xa9c070]
-    for (let i = 0; i < 2600; i++) {
+    for (let i = 0; i < 1100; i++) {
       const x = wr.x + microRnd() * wr.w, y = wr.y + microRnd() * land(x)
       const h = 3 + microRnd() * 5, c = bladeCols[Math.floor(microRnd() * bladeCols.length)]
       micro.lineStyle(1.3, c, 0.35 + microRnd() * 0.3)
@@ -526,7 +526,7 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1, occupiedSl
       micro.lineBetween(x, y, x + 2.4, y - h * 0.9)
     }
     const petals = [0xf6f1e4, 0xf2d24c, 0xc46fb0, 0xd9534a, 0x9ab6e0]
-    for (let k = 0; k < 70; k++) {
+    for (let k = 0; k < 36; k++) {
       const cx = wr.x + microRnd() * wr.w, cy = wr.y + microRnd() * land(cx)
       const col = petals[Math.floor(microRnd() * petals.length)]
       const n = 5 + Math.floor(microRnd() * 9)
@@ -542,7 +542,7 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1, occupiedSl
   const variation = scene.add.graphics().setDepth(-880)
   const patchRnd = mulberry32(6161)
   const patchColors = [0x557b3f, 0xa89c60, 0x6b9148, 0x8a7c4f]
-  for (let i = 0; i < 24; i++) {
+  for (let i = 0; i < 14; i++) {
     const x = wr.x + wr.w * (0.04 + patchRnd() * 0.92)
     const y = wr.y + (shoreY(x) - wr.y) * (0.03 + patchRnd() * 0.94)
     variation.fillStyle(patchColors[i % patchColors.length], 0.022 + patchRnd() * 0.032)
@@ -631,7 +631,7 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1, occupiedSl
     const brush = scene.add.graphics().setDepth(-885)
     const br = mulberry32(24680)
     const greens = [0x5d8a3f, 0x7ea453, 0x98b562, 0x6f9448, 0xa9bd6a, 0x4f7a37, 0xc4c57a]
-    for (let i = 0; i < 2600; i++) {
+    for (let i = 0; i < 900; i++) {
       const x = wr.x + br() * wr.w
       const y = wr.y + br() * Math.max(0, shoreY(x) - wr.y - TILE.h * 0.5)
       const len = TILE.w * (0.08 + br() * 0.22)
@@ -641,7 +641,7 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1, occupiedSl
     }
     const light = scene.add.graphics().setDepth(-884)
     const hall = slotById(HALL_SLOT_ID)!.screen
-    for (let k = 0; k < 6; k++) {
+    for (let k = 0; k < 4; k++) {
       light.fillStyle(0xffe6a0, 0.035)
       light.fillEllipse(hall.x - TILE.w * 3, hall.y - TILE.h * 10, TILE.w * (8 + k * 4), TILE.h * (10 + k * 5))
     }
@@ -685,8 +685,8 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1, occupiedSl
     pz.fillStyle(0xe4d6b3, 1); pz.fillEllipse(P.x, P.y, prx * 1.4, pry * 1.4)
     // Döşeme derzleri: halkalar ve ışınlar.
     for (const k of [0.36, 0.55, 0.7, 0.86]) { pz.lineStyle(2, 0xa99270, 0.45); pz.strokePoints(ell(k), true) }
-    for (let i = 0; i < 32; i++) {
-      const t = i / 32 * Math.PI * 2, c = Math.cos(t), s = Math.sin(t)
+    for (let i = 0; i < 20; i++) {
+      const t = i / 20 * Math.PI * 2, c = Math.cos(t), s = Math.sin(t)
       pz.lineStyle(1.6, 0xa99270, 0.35)
       pz.lineBetween(P.x + c * prx * 0.36, P.y + s * pry * 0.36, P.x + c * prx, P.y + s * pry)
     }
@@ -704,8 +704,8 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1, occupiedSl
       pz.lineStyle(2.5, rim, 0.9); pz.strokePoints([N, E, S, W], true)
     }
     // Görseldeki zemin elmasının yarı genişliği: 211 sanat pikseli × bina
-    // ölçeği (phaser-city artScale) × belediye büyütmesi 1.5.
-    const hallHalf = 211 * (FOOTPRINT_DIAMOND_W / ART_DIAMOND_PX) * 1.8 * 1.5
+    // ölçeği (phaser-city artScale) × belediye silüet katsayısı 1.36.
+    const hallHalf = 211 * (FOOTPRINT_DIAMOND_W / ART_DIAMOND_PX) * 1.8 * 1.36
     const lowHalf = hallHalf * 1.16
     tier = 0; pz = scene.add.graphics().setDepth(-794.9)
     podium(lowHalf, 0, 0xcdb88c, 0xa48b62, 0xeee2c4)
@@ -807,7 +807,7 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1, occupiedSl
     }
     tier = 5
     // Meydan fenerleri: bordür boyunca demir direkli kandiller.
-    for (let k = 0; k < 8; k++) {
+    for (let k = 0; k < 6; k++) {
       const t = (k + 0.5) / 8 * Math.PI * 2
       const x = P.x + Math.cos(t) * prx * 0.97, y = P.y + Math.sin(t) * pry * 0.97
       const g = scene.add.graphics().setDepth(y)
@@ -839,8 +839,9 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1, occupiedSl
       const A = nodeAt.get(e.from)!, B = nodeAt.get(e.to)!
       const len = Math.hypot(B.x - A.x, B.y - A.y), ux = (B.x - A.x) / len, uy = (B.y - A.y) / len
       const off = TILE.w * 0.44
-      for (let d = TILE.w * 0.3; d < len - TILE.w * 0.2; d += TILE.w * 0.52) {
+      for (let d = TILE.w * 0.3; d < len - TILE.w * 0.2; d += TILE.w * 0.72) {
         for (const side of [-1, 1]) {
+          if (tr() < 0.34) continue
           const x = A.x + ux * d - uy * off * side, y = A.y + uy * d + ux * off * side * 0.8
           const pr = ((x - P.x) / prx) ** 2 + ((y - P.y) / pry) ** 2
           if (pr < 1.35) continue // meydanın kendisi
@@ -1453,8 +1454,46 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1, occupiedSl
         })
       }
     }
-    // Yol ağı (binlerce taş) dokuya pişirilir; yollar ana görsel olduğundan bütçesi yüksek.
+    // Yol ağı dokuya pişirilir; yol dokusunun üstünde sadece az sayıda,
+    // anlamlı sokak kenarı prop'u canlı kalır. Böylece şehir yoğunlaşır ama
+    // zemin rastgele dekorla kirlenmez. Props yalnızca GÖRÜNÜR yol ağında doğar.
     roadTextures = bakeGraphics(scene, roads, { keep: true, maxPixels: 4_000_000 }).filter(o => o !== roads)
+
+    const propRnd = mulberry32(91217 + tier * 997 + active.size * 37)
+    const propSlots = [...CITY_SLOTS, ...COAST_SLOTS, ...DEFENSE_SLOTS]
+    const roadsideClear = (x: number, y: number) =>
+      y < shoreY(x) - TILE.h * 0.7 &&
+      ((x - PLAZA.screen.x) / (PLAZA.rx * 1.12)) ** 2 + ((y - PLAZA.screen.y) / (PLAZA.ry * 1.12)) ** 2 > 1 &&
+      !nearStreamAt(x, y, 48, 34) &&
+      !cityFields().some(f => Math.abs(x - f.x) / (f.hw + 22) + Math.abs(y - f.y) / (f.hh + 14) < 1) &&
+      !cityFountains().some(f => Math.hypot(x - f.x, (y - f.y) * 1.6) < TILE.w * 0.68) &&
+      !propSlots.some(s => nearSlot(x, y, s, active.has(s.id) ? 1.02 : 0.70))
+
+    for (const r of visibleCurves.filter(r => r.kind !== 'quay')) {
+      const samples = r.kind === 'avenue' ? [0.18, 0.38, 0.62, 0.82] : [0.34, 0.68]
+      for (const u of samples) {
+        if (r.kind === 'street' && propRnd() < 0.52) continue
+        if (r.kind === 'avenue' && propRnd() < 0.18) continue
+        const p = r.curve.getPoint(u), tangent = r.curve.getTangent(u)
+        const len = Math.hypot(tangent.x, tangent.y) || 1
+        const side = propRnd() > 0.5 ? 1 : -1
+        const nx = -tangent.y / len, ny = tangent.x / len
+        const distance = TILE.w * (r.kind === 'avenue' ? 0.46 : 0.34)
+        const x = p.x + nx * distance * side
+        const y = p.y + ny * distance * side * 0.78
+        if (!roadsideClear(x, y)) continue
+        const roll = propRnd()
+        const key = roll < 0.36 ? 'd_bush'
+          : roll < 0.62 ? 'd_flower'
+          : roll < 0.84 ? 'd_woodpile'
+          : 'd_well'
+        const width = key === 'd_well' ? TILE.w * 0.34
+          : key === 'd_woodpile' ? TILE.w * 0.40
+          : TILE.w * (0.22 + propRnd() * 0.08)
+        const image = stamp(key, x, y, width, y - 0.2, 0.92, 0.88 + propRnd() * 0.10)
+        if (image) roadTextures.push(image)
+      }
+    }
   }
   updateRoads(divanLevel, occupiedSlotIds)
 
@@ -1539,7 +1578,7 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1, occupiedSl
 
   // İç alanda az sayıda ama daha büyük koruluk.
   let guard = 0
-  while (clusterCenters.length < 14 && guard++ < 320) {
+  while (clusterCenters.length < 10 && guard++ < 280) {
     const x = wr.x + wr.w * (0.08 + clusterRnd() * 0.84)
     const y = wr.y + (shoreY(x) - wr.y) * (0.08 + clusterRnd() * 0.78)
     if (!clearForDecor(x, y, 0.78)) continue
@@ -1602,7 +1641,7 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1, occupiedSl
     const cem = cemeterySite()
     const tints = [0xffffff, 0xeef3e2, 0xe3ebd4, 0xf4eedc, 0xdde6cc]
     const wild: Array<{ x: number; y: number; key: string; w: number; tint: number; flip: boolean; clump: number }> = []
-    const stepX = TILE.w * 0.62, stepY = TILE.h * 0.95
+    const stepX = TILE.w * 0.78, stepY = TILE.h * 1.15
     // Düşük frekanslı YOĞUNLUK ALANI: ağaçlar tek tek serpilmez, koruluk
     // KÜTLELERİ oluşturur; aralarında çayır boşlukları kalır (≈[-1,1]).
     const S = TILE.w * 3.2
@@ -1696,7 +1735,7 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1, occupiedSl
     ]
     const hallS = slotById(HALL_SLOT_ID)!.screen
     let tries = 0
-    while (spots.length < 36 && tries++ < 1600) {
+    while (spots.length < 18 && tries++ < 1000) {
       const x = wr.x + wr.w * (0.1 + lifeRnd() * 0.8)
       const y = wr.y + (shoreY(x) - wr.y) * (0.12 + lifeRnd() * 0.8)
       if (Math.hypot(x - hallS.x, (y - hallS.y) * 1.8) < TILE.w * 2.2) continue
@@ -1706,7 +1745,7 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1, occupiedSl
     }
     // Tek tük gölgelik ağaçlar: çayırı noktalayan çınar, çam ve meyve ağaçları.
     const singles = ['d_plane-tree', 'd_pine', 'd_fruit-tree', 'd_olive-tree', 'd_fruit-tree', 'd_poplar']
-    for (let i = 0, placed = 0; i < 700 && placed < 60; i++) {
+    for (let i = 0, placed = 0; i < 500 && placed < 28; i++) {
       const x = wr.x + wr.w * (0.06 + lifeRnd() * 0.88)
       const y = wr.y + (shoreY(x) - wr.y) * (0.1 + lifeRnd() * 0.84)
       if (!far(x, y, TILE.w * 0.9)) continue
