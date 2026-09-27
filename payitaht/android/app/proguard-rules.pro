@@ -1,21 +1,19 @@
-# Add project specific ProGuard rules here.
-# You can control the set of applied configuration files using the
-# proguardFiles setting in build.gradle.
-#
-# For more details, see
-#   http://developer.android.com/guide/developing/tools/proguard.html
+# Payitaht Adaları — production R8 rules.
+# Capacitor'ın WebView ↔ native köprüsünde JS tarafından çağrılan üyeler isim
+# bazlıdır; JavascriptInterface anotasyonlu metotlar küçültmede korunmalıdır.
 
-# If your project uses WebView with JS, uncomment the following
-# and specify the fully qualified class name to the JavaScript interface
-# class:
-#-keepclassmembers class fqcn.of.javascript.interface.for.webview {
-#   public *;
-#}
+-keepattributes *Annotation*
+-keepclassmembers class * {
+    @android.webkit.JavascriptInterface <methods>;
+}
 
-# Uncomment this to preserve the line number information for
-# debugging stack traces.
-#-keepattributes SourceFile,LineNumberTable
+# Capacitor plugin metadata/bridge sınıfları küçük bir yüzey; oyunun JS bundle'ını
+# etkilemez. Native tarafta agresif shrink sırasında plugin keşfini güvenli tut.
+-keep @com.getcapacitor.annotation.CapacitorPlugin class * { *; }
+-keep class com.getcapacitor.Bridge { *; }
+-keep class com.getcapacitor.BridgeActivity { *; }
+-keep class com.getcapacitor.PluginHandle { *; }
 
-# If you keep the line number information, uncomment this to
-# hide the original source file name.
-#-renamesourcefileattribute SourceFile
+# Crash stack trace'lerinde kaynak satırı kalır; release teşhisi yapılabilir.
+-keepattributes SourceFile,LineNumberTable
+-renamesourcefileattribute SourceFile

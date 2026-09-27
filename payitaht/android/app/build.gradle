@@ -1,5 +1,13 @@
 apply plugin: 'com.android.application'
 
+def releaseStorePath = System.getenv("PAYITAHT_KEYSTORE_PATH")
+def releaseStorePassword = System.getenv("PAYITAHT_KEYSTORE_PASSWORD")
+def releaseKeyAlias = System.getenv("PAYITAHT_KEY_ALIAS")
+def releaseKeyPassword = System.getenv("PAYITAHT_KEY_PASSWORD")
+def releaseVersionCode = (System.getenv("PAYITAHT_VERSION_CODE") ?: "28") as Integer
+def releaseVersionName = System.getenv("PAYITAHT_VERSION_NAME") ?: "0.28.0"
+def hasReleaseSigning = releaseStorePath && releaseStorePassword && releaseKeyAlias && releaseKeyPassword
+
 android {
     namespace = "com.ashina.payitaht"
     compileSdk = rootProject.ext.compileSdkVersion
@@ -7,36 +15,44 @@ android {
         applicationId "com.ashina.payitaht"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 28
-        versionName "0.28.0"
+        versionCode releaseVersionCode
+        versionName releaseVersionName
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         aaptOptions {
              // Files and dirs to omit from the packaged assets dir, modified to accommodate modern web apps.
-             // Default: https://android.googlesource.com/platform/frameworks/base/+/282e181b58cf72b6ca770dc7ca5f91f135444502/tools/aapt/AaptAssets.cpp#61
-            ignoreAssetsPattern = '!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~'
+             ignoreAssetsPattern = '!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~'
         }
     }
-    /*
-     * DENEME İMZASI: her derleme aynı anahtarla imzalanır, böylece yeni APK
-     * eskisinin ÜSTÜNE kurulur ve cihazdaki kayıt silinmez. Anahtar yalnızca
-     * bu deneme sürümü içindir; mağaza yayını için ayrı, gizli bir anahtar
-     * gerekir.
-     */
+
     signingConfigs {
+        // Sadece cihaz üstü deneme APK'ları için; mağaza anahtarı değildir.
         deneme {
             storeFile file('deneme.keystore')
             storePassword 'payitaht-deneme'
             keyAlias 'deneme'
             keyPassword 'payitaht-deneme'
         }
+        // Play release anahtarı repoya girmez. Workflow secret'ları env olarak verir.
+        if (hasReleaseSigning) {
+            release {
+                storeFile file(releaseStorePath)
+                storePassword releaseStorePassword
+                keyAlias releaseKeyAlias
+                keyPassword releaseKeyPassword
+            }
+        }
     }
+
     buildTypes {
         debug {
             signingConfig signingConfigs.deneme
         }
         release {
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            // Production: küçültme/obfuscation + kullanılmayan Android resource'larını at.
+            minifyEnabled true
+            shrinkResources true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            if (hasReleaseSigning) signingConfig signingConfigs.release
         }
     }
 }
