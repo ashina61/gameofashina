@@ -1,150 +1,163 @@
-# ASSET PAKETİ SPEC — Isometric City Sprint 1
+# PAYİTAHT GÖRSEL ASSET SPEC — Güncel
 
-Bu belge, göndereceğin asset paketinin **birebir** oyuna oturması için gereken
-teknik kuralları tanımlar. Amaç: bir turda doğru paket → tek seferde premium
-izometrik şehir.
+Bu belge canlı oyundaki şehir asset sisteminin güncel sözleşmesidir. Eski 14-bina / değişken-footprint dokümanı artık geçerli değildir.
 
-> Kod tarafı (grid→ekran çevrimi, metrikler) `lib/game/render/iso-metrics.ts`
-> içinde hazır. Paket bu spec'e uyduğunda render sistemi üstüne kurulacak.
+## 1. Temel sanat standardı
 
----
+- Projeksiyon: tutarlı 2:1 izometrik görünüm.
+- Işık: sol-üst ana ışık, sağ-alt yumuşak gölge.
+- Stil: Osmanlı–Ege, painterly-realistic / realistic-stylized; oyuncak, neon, kalın siyah outline yok.
+- Bina çıktısı: şeffaf arka planlı WebP.
+- Generator: `tools/art/buildings.py` + `tools/art/isokit.py`.
+- Çıktı klasörü: `public/images/game/buildings/`.
+- Her bina üç görsel aşamaya sahiptir:
+  - `<id>-1.webp` → seviye 1–3
+  - `<id>-2.webp` → seviye 4–7
+  - `<id>-3.webp` → seviye 8+
+- Generator 600 px genişlikte çıktı üretir.
+- Bina zemin elması sanat uzayında 480 px genişlik standardını kullanır.
+- Phaser tarafındaki ortak anchor / footprint matematiği değiştirilmeden asset yenilenmelidir.
 
-## 0. GENEL KURALLAR (hepsi için geçerli)
+## 2. Yerleşim sözleşmesi
 
-- **Format:** PNG-32, gerçek şeffaf alfa (arka plan YOK, beyaz/checker YOK).
-- **Projeksiyon:** 2:1 izometrik elmas, sabit kamera ~30–35°. TÜM asset'ler
-  aynı açıdan.
-- **Işık:** TEK yön — **sol-üst**. Gölge yumuşak, sağ-alta düşer. Her asset'te
-  aynı.
-- **Renk dili:** warm limestone / terracotta / muted green / olive / natural
-  wood / dark brown / parchment / deep Mediterranean blue / muted gold.
-  Neon/pastel/candy YOK, kalın siyah dış çizgi YOK, oyuncak/cartoon YOK.
-- **Stil:** realistic-stylized / painterly 3D. Tek bir MASTER ART DIRECTION
-  prompt'undan türetilmiş, tutarlı ölçek ve detay.
-- **Çözünürlük:** aşağıdaki ölçüler @1x. Mümkünse **@2x** gönder (retina için),
-  ben @1x'i türetirim. 4x gerekmez.
-- **İsimlendirme:** dosya adları AYNEN aşağıdaki gibi olmalı (küçük harf,
-  tire). Klasör yapısı korunmalı.
+Normal kara binalarının tamamı aynı standart şehir slot sistemine oturur. Bir normal kara binası başka bir normal kara slotuna taşınabilir; asset içine özel parsel, yol veya çevre mimarisi gömülmez.
 
-Klasör yapısı:
-```
-assets/
-  terrain/   grass.png dirt.png stone.png water.png rock.png farm.png
-             shore-*.png (kıyı geçişleri)
-  roads/     (bkz. §3 tam liste)
-  buildings/ (bkz. §4 — oyun id'leriyle)
-  water/     dock.png pier.png boat.png fishing.png
-  decor/     (bkz. §6 tam liste)
-```
+- Divanhane (`divan`) merkezde sabittir.
+- Normal kara binaları: ortak 2×2 görsel footprint sözleşmesi.
+- Liman yapıları (`liman`, `tersane`) ayrı coast slotlarına aittir.
+- Surlar (`surlar`) normal bina slotu kullanmaz; savunma halkası runtime'da çizilir.
+- Yol, kıyı, savunma temeli ve şehir zemini bina PNG'lerine bake edilmez.
+- Bina altı avlu/prop desteğinin önemli kısmı runtime render katmanında oluşturulur.
 
----
+## 3. Güncel bina kataloğu
 
-## 1. TILE TEMEL ÖLÇÜSÜ
+### Sabit merkez
+- `divan` — Divanhane / şehir merkezi
 
-- Karo üst yüzü (diamond): **96 × 48 px** (@1x). Bu, `iso-metrics.ts`'teki
-  `tileWidth/tileHeight` ile birebir.
-- Terrain/road tile PNG'si karonun **yükseklik dudağını** da içerebilir:
-  toplam tuval örn. **96 × 64** (üstte 48 elmas + 16 px yan/kalınlık).
-- **Anchor:** elmasın alt-orta noktası. (Yani PNG'nin altı, karonun ön köşesi.)
+### Yönetim ve kamusal
+- `saray`
+- `valilik`
+- `elcilik`
+- `muze`
+- `harita_arsivi`
 
----
+### Konut, ticaret ve kültür
+- `konut`
+- `carsi`
+- `ticaret_merkezi`
+- `kara_pazar`
+- `kahvehane`
+- `karagoz`
 
-## 2. TERRAIN (§4 brief)
+### Üretim ve uzman işlikleri
+- `ambar`
+- `depo`
+- `kereste`
+- `tas`
+- `ormanci`
+- `tasci`
+- `marangoz`
+- `mimar`
+- `bagci`
+- `mahzen`
+- `camci`
+- `simyahane`
+- `gozlukcu`
 
-Her biri 96×48 (dudakla 96×64) izometrik karo, seamless döşenebilir:
+### Bilim, din ve sosyal yapılar
+- `medrese`
+- `cami`
+- `hamam`
+- `tekke`
+- `mabet`
 
-| Dosya | Ne |
-|---|---|
-| `terrain/grass.png` | çim |
-| `terrain/dirt.png` | toprak |
-| `terrain/stone.png` | taş zemin |
-| `terrain/water.png` | su (istersen 2–4 kare animasyon: `water-0..3.png`) |
-| `terrain/rock.png` | kayalık |
-| `terrain/farm.png` | tarla toprağı |
+### Askerî
+- `kisla`
+- `tophane`
+- `barutane`
+- `siginak`
+- `korsan_kalesi`
 
-**Kıyı geçişleri (önemli, "excel grid" hissini kırar):** çim→su kenarları.
-İdeal set (yoksa ben harmanlarım): `shore-n/e/s/w.png`, `shore-ne/nw/se/sw.png`.
-Grid çizgisi GÖRÜNMEMELİ; karolar bitişince tek doğal zemin gibi durmalı.
+### Kıyı
+- `liman`
+- `tersane`
 
----
+### Özel savunma
+- `surlar`
 
-## 3. ROADS — otomatik döşeme seti (§5 brief)
+Toplam canlı bina id sayısı: **38**.
 
-Komşuluğa göre otomatik seçilecek. Hepsi 96×48 iso karo tabanında, taş yol:
+## 4. Mimari aile ilkesi
 
-```
-roads/straight-ns.png     (kuzey-güney düz)
-roads/straight-ew.png     (doğu-batı düz)
-roads/corner-ne.png       roads/corner-nw.png
-roads/corner-se.png       roads/corner-sw.png
-roads/t-n.png roads/t-e.png roads/t-s.png roads/t-w.png   (T kavşak)
-roads/cross.png           (4 yönlü kavşak)
-roads/end-n.png roads/end-e.png roads/end-s.png roads/end-w.png  (çıkmaz)
-roads/plaza.png           (meydan)
-roads/bridge-ns.png roads/bridge-ew.png   (su üstü köprü)
-```
+Aynı isometrik kamera ve malzeme dili korunur; fakat tüm binalar aynı `box + roof` reçetesinden çıkmış gibi görünmemelidir.
 
----
+- Konut: asimetrik, gündelik, küçük avlu/yan kütle.
+- Üretim: açık işlik, malzeme sahası, sundurma ve ekipman.
+- Ticaret: avlu, yükleme alanı, arasta/tente veya han dili.
+- Askerî: ağır taş, sert giriş aksı, kule/istihkâm.
+- Bilim/kültür: avlu, revak, okuma/sosyal alan.
+- Anıtsal: güçlü merkezî kütle, kubbe/portiko/kanat hiyerarşisi.
+- Liman: gümrük, rıhtım, yük akışı.
+- Tersane: gemi gözleri, kızak, üretim/vinç.
+- Surlar: runtime halka duvar + kapı + kule sistemi.
 
-## 4. BUILDINGS — oyunun 14 yapısı (footprint AUTHORITATIVE)
+## 5. Asset ile runtime katmanının sınırı
 
-**Önemli:** binalar bu 14 oyun id'siyle isimlenmeli. Footprint = kaç tile
-kaplar. Bina PNG'si footprint tabanına oturur; taban alt-orta anchor, çatı
-yukarı taşar. Genişlik ≈ (footprint genişliği × 96 px).
+Bina WebP'sinde:
+- ana mimari kütle,
+- çatı/kubbe/kule,
+- yapıya özgü kalıcı küçük öğeler bulunabilir.
 
-| Oyun id | Yapı | Referans karşılığı | Footprint | Not |
-|---|---|---|---|---|
-| `divan` | Divanhane | Town Hall | **3×3** | ana LANDMARK, en belirgin |
-| `saray` | Saray | Palace | **3×3** | ikinci landmark, kubbe/avlu |
-| `medrese` | Medrese | Academy | 2×2 | avlulu, revaklı |
-| `hamam` | Hamam | Bath house | 2×2 | **kubbeli** (Osmanlı) |
-| `elcilik` | Elçilik | Embassy | 2×2 | |
-| `konut` | Konaklar | Housing | 2×2 | 2–3 varyant istersen: `konut-a/b/c.png` |
-| `carsi` | Çarşı | Bazaar/Market | 2×2 | tenteli, mal dolu |
-| `ambar` | Ambar | Granary/Warehouse | 2×2 | |
-| `kereste` | Kereste Ocağı | Lumber camp | 2×2 | ahşap, kütükler |
-| `tas` | Taş Ocağı | Quarry | 2×2 | taş ocağı/vagon |
-| `kisla` | Kışla | Barracks | **3×3** | askeri |
-| `liman` | Ticaret Limanı | Dock/Trade port | 2×2 | **su kenarı**, iskele bitişik |
-| `tersane` | Tersane | Shipyard | **3×2** | **su kenarı**, gemi iskeleti |
-| `surlar` | Surlar | Walls | özel | §5'e bak |
+Runtime katmanında:
+- slot zemini ve clearing,
+- yol bağlantıları,
+- ortak bina gölgesi,
+- bina-türü mikro prop'ları,
+- sancaklar,
+- vatandaşlar/askerler,
+- duman ve çevresel efektler,
+- sur halkası bulunur.
 
-İsteğe bağlı ama iyi olur: her bina için **seviye varyantı** (level 1/2/3
-görsel farkı) — `divan-l1.png` gibi. Vermezsen tek görsel + seviye rozeti
-kullanılır (mevcut davranış).
+Bu ayrım, bina değiştirildiğinde veya başka slota taşındığında görsel sistemin bozulmamasını sağlar.
 
-Her bina PNG'sinde öneri anchor: **(x=0.5, y=~0.85)** — tabanın çakıştığı yer.
-Farklıysa dosyaya not düş, ben `BuildingVisualConfig`'e işlerim.
+## 6. Surlar
 
----
+`surlar-1/2/3.webp` yalnızca bina paneli/önizleme dilini temsil eder. Şehirde görünen gerçek sur:
 
-## 5. SURLAR (duvarlar) — özel
+- `DEFENSE_FOUNDATION` halkasını izler,
+- kapı açıklıklarını `WALL_GATES` üzerinden bırakır,
+- seviyeye göre yükselir,
+- kuleleri ve deniz kapısını ayrı render eder,
+- seviye 0'da inşa hendeği/temel olarak görünür.
 
-Duvar tek bina değil, şehir kenarına örülür. Otomatik döşeme için:
-`wall-ns.png wall-ew.png wall-corner-*.png wall-gate.png wall-tower.png`.
-Hepsi 96×48 iso tabanında, taş sur, sol-üst ışık.
+Bu nedenle tek bir sur PNG'si şehir çevresine ölçeklenmez.
 
----
+## 7. Görsel QA
 
-## 6. WATER / HARBOR (§11) ve DECOR (§12)
+Ana mobil QA en az şu sahneleri doğrulamalıdır:
 
-Harbor: `water/dock.png` `water/pier.png` `water/boat.png` `water/fishing.png`.
+- başlık / giriş,
+- şehir merkezi,
+- liman odağı,
+- dünya/ada haritası.
 
-Dekor (hepsi transparent PNG, taban alt-orta anchor, ~1 tile veya küçük):
-```
-decor/cypress.png decor/olive-tree.png decor/broadleaf-tree.png
-decor/bush.png decor/flower.png decor/rock.png
-decor/barrel.png decor/crate.png decor/amphora.png
-decor/bench.png decor/lamp.png decor/fountain.png
-decor/market-stall.png decor/cart.png decor/sign.png decor/statue.png
-```
+Kontroller:
+- JavaScript page error yok,
+- `/images/game/` altında 4xx asset yok,
+- canvas gerçek mobil viewport'ta render oluyor,
+- HUD şehir/liman içeriğini kritik biçimde kapatmıyor.
 
----
+## 8. Değişmez kurallar
 
-## 7. TESLİM
+Görsel asset çalışması sırasında aşağıdakiler değiştirilmez:
 
-- Yukarıdaki klasör yapısında bir zip, veya tek tek dosyalar.
-- Eksik olan olursa sorun değil — gelenler kurulur, eksikler `TODO_ASSET`
-  işaretlenir (brief §24: renkli dikdörtgen/emoji placeholder KULLANILMAZ).
-- **Ayrıca MASTER VISUAL REFERENCE görselini tekrar gönder** — kompozisyon,
-  ışık ve renk hedefini ona göre kilitleyeceğim.
+- ekonomi,
+- bina maliyetleri,
+- üretim değerleri,
+- araştırma,
+- save formatı,
+- bina açılma koşulları,
+- slot kapasitesi,
+- normal kara bina yerleşim kuralları.
+
+Yeni bir bina görseli eklendiğinde önce generator/asset sözleşmesi korunur, ardından Mobile Visual QA ile gerçek oyun sahnesinde doğrulanır.
