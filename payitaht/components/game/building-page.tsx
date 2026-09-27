@@ -360,8 +360,9 @@ export function BuildingPage({ game, empire, id, onClose, onBuild, onFlip, onMov
   const shown = peek ?? stage
   const stages = ([[1, 1, 'Sv. 1–3'], [2, 4, 'Sv. 4–7'], [3, 8, 'Sv. 8+']] as const).filter(([, from]) => from <= max)
   const movable = level > 0 && takesPlot(id)
-  const coast = id === 'liman' || id === 'tersane'
-  const facing = coast ? game.coastFacing[id] : undefined
+  const coastId = id === 'liman' || id === 'tersane' ? id : null
+  const coast = coastId !== null
+  const facing = coastId ? game.coastFacing[coastId] : undefined
   const facingLabel = facing === 'left' ? 'Sol' : facing === 'right' ? 'Sağ' : 'Düz'
   const nextFacing = facing === 'straight' ? 'right' : facing === 'right' ? 'left' : 'straight'
   return <IkaPage title={b.name} subtitle={`${city} · ${b.category.toLocaleLowerCase('tr')}`} label={`${b.name} sayfası`} onClose={onClose}
@@ -376,7 +377,7 @@ export function BuildingPage({ game, empire, id, onClose, onBuild, onFlip, onMov
         </div>}
         {peek && peek !== stage && <span className="bp-stage-note">{peek > stage ? 'Yükselttikçe böyle görünecek' : 'Eski görünümü'}</span>}
         {level > 0 && <div className="bp-hero-tools" role="group" aria-label="Yapı araçları">
-          {movable && b.art && coast && <button type="button" onClick={() => onCommand({ type: 'face', id, facing: nextFacing })} aria-label={`Yön: ${facingLabel}. Dokunarak değiştir`}><RotateCw /><span>Yön: {facingLabel}</span></button>}
+          {movable && b.art && coast && <button type="button" onClick={() => coastId && onCommand({ type: 'face', id: coastId, facing: nextFacing })} aria-label={`Yön: ${facingLabel}. Dokunarak değiştir`}><RotateCw /><span>Yön: {facingLabel}</span></button>}
           {movable && b.art && !coast && <button type="button" onClick={onFlip} aria-label={game.flips.includes(id) ? 'Yönü geri çevir' : 'Yönünü çevir'}><FlipHorizontal2 /><span>Çevir</span></button>}
           {movable && id !== 'divan' && <button type="button" onClick={onMove} aria-label="Başka arsaya taşı"><Move /><span>Taşı</span></button>}
           {id !== 'divan' && <button type="button" className="is-danger" aria-pressed={razing} onClick={() => setRazing(v => !v)} aria-label="Yık"><Trash2 /><span>Yık</span></button>}
