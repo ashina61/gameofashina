@@ -1,5 +1,6 @@
 'use client'
 
+import { useEffect } from 'react'
 import useSWR, { mutate as mutateCache } from 'swr'
 import { execute, type Command, type UnitId } from '@/lib/game/engine'
 import { dispatchPiracy, dispatchRaid, dispatchSpies } from '@/lib/game/expeditions'
@@ -15,15 +16,27 @@ export { SAVE_KEY } from '@/lib/game/save-storage'
 let memory: Empire | null = null
 let warning = ''
 let corrupt = false
+let hydrated = false
+let lastPersistedAt = 0
+const PASSIVE_PERSIST_MS = 5_000
 
-function save(empire: Empire) {
+function save(empire: Empire, force = false) {
   memory = empire
   if (corrupt) return
-  try { saveStoredEmpire(localStorage, empire) }
-  catch { warning = 'Cihazda kayıt kullanılamıyor. Bu oturumdaki ilerleme, sayfa kapatıldığında kaybolabilir.' }
+  const now = Date.now()
+  if (!force && now - lastPersistedAt < PASSIVE_PERSIST_MS) return
+  try {
+    saveStoredEmpire(localStorage, empire)
+    lastPersistedAt = now
+  } catch {
+    warning = 'Cihazda kayıt kullanılamıyor. Bu oturumdaki ilerleme, sayfa kapatıldığında kaybolabilir.'
+  }
 }
 function load(): Empire {
-  if (!corrupt) {
+  // SWR saniyede bir ilerletir; synchronous localStorage yalnızca ilk hydrate'ta
+  // okunur. Sonraki tick'ler bellekte ilerler ve 5 sn'de bir diske yazılır.
+  if (!corrupt && !hydrated) {
+    hydrated = true
     const stored = loadStoredEmpire(localStorage)
     if (stored.error) {
       warning = stored.error
@@ -48,17 +61,28 @@ export function peekSave(): { empire?: Empire; error?: string } {
 /** Giriş ekranındaki "Yeni oyun": eski kaydın yerine verilen imparatorluk. */
 export function startNewGame(empire: Empire) {
   corrupt = false
+  hydrated = true
   warning = ''
-  save(empire)
+  save(empire, true)
   void mutateCache(SAVE_KEY, empire, { revalidate: false })
 }
 export function useGame() {
   const { data, mutate } = useSWR<Empire>(SAVE_KEY, load, {
     refreshInterval: 1000, revalidateOnFocus: true, dedupingInterval: 0,
   })
+  useEffect(() => {
+    const flush = () => { if (memory && !corrupt) save(memory, true) }
+    const onVisibility = () => { if (document.visibilityState === 'hidden') flush() }
+    window.addEventListener('pagehide', flush)
+    document.addEventListener('visibilitychange', onVisibility)
+    return () => {
+      window.removeEventListener('pagehide', flush)
+      document.removeEventListener('visibilitychange', onVisibility)
+    }
+  }, [])
   const game = data ? activeCity(data).game : undefined
   function commit(empire: Empire) {
-    save(empire)
+    save(empire, true)
     void mutate(empire, { revalidate: false })
   }
   function command(action: Command) {
@@ -119,6 +143,7 @@ export function useGame() {
       const empire = importStoredEmpire(localStorage, raw)
       memory = empire
       corrupt = false
+      hydrated = true
       warning = ''
       void mutate(empire, { revalidate: false })
     } catch (error) {
