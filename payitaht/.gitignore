@@ -16,3 +16,7 @@ node_modules
 
 # Statik disa aktarim ciktisi (STATIC_EXPORT=1); onizleme icin uretilir.
 out/
+
+# Play Store signing / release artifacts (never commit)
+android/app/payitaht-release.keystore
+*.aab
