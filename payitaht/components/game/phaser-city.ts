@@ -374,6 +374,27 @@ export class CityScene extends Phaser.Scene {
     return 0.98
   }
 
+  /**
+   * Farklı bina PNG'lerini tek sahnenin aynı sıcak ışığına yaklaştıran çok hafif
+   * multiply tonu. Renk/istatistik verisi değildir; yalnızca render katmanıdır.
+   */
+  private buildingVisualTint(id: BuildingId, slot: LiveSlot) {
+    if (slot.zone === 'liman') return 0xf2f6ee
+    const production = ([
+      'kereste', 'tas', 'ormanci', 'tasci', 'bagci', 'simyahane', 'camci',
+      'mahzen', 'gozlukcu', 'barutane', 'marangoz',
+    ] as BuildingId[])
+    const military = (['kisla', 'tophane', 'korsan_kalesi', 'siginak'] as BuildingId[])
+    const monument = ([
+      'divan', 'saray', 'medrese', 'cami', 'hamam', 'elcilik', 'muze',
+      'valilik', 'tekke', 'mabet',
+    ] as BuildingId[])
+    if (monument.includes(id)) return 0xfff5e6
+    if (military.includes(id)) return 0xf5ece0
+    if (production.includes(id)) return 0xf1e6d3
+    return 0xf8edde
+  }
+
   private occupiedSlotIds(game: Game, moving: BuildingId | null = null, movePlot: number | null = null) {
     const ids: string[] = []
     for (const id of BUILDING_IDS) {
@@ -1683,7 +1704,7 @@ export class CityScene extends Phaser.Scene {
     if (BUILDINGS[id].art && this.textures.exists(textureKey)) {
       const img = this.add.image(anc.x, imgY, textureKey).setOrigin(0.5, 1)
       const scale = artS
-      img.setScale(scale).setDepth(imgY)
+      img.setScale(scale).setDepth(imgY).setTint(this.buildingVisualTint(id, slot))
       img.setFlipX(this.state.flips.includes(id))
       dispW = img.width * scale; dispH = img.height * scale
       this.pieces.push(img)
@@ -1707,7 +1728,7 @@ export class CityScene extends Phaser.Scene {
       }
       // Yükseltme sürerken binanın önünde ahşap iskele durur.
       if (active && level > 0 && this.textures.exists('b_scaffold')) {
-        const sc = this.add.image(anc.x, imgY, 'b_scaffold').setOrigin(0.5, 1).setScale(scale).setDepth(imgY + 0.05)
+        const sc = this.add.image(anc.x, imgY, 'b_scaffold').setOrigin(0.5, 1).setScale(scale).setDepth(imgY + 0.05).setTint(0xf3e5cf)
         this.pieces.push(sc)
       }
     } else {
