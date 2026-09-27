@@ -262,7 +262,8 @@
 .building-list { display: flex; flex-direction: column; }
 .building-list-item { display: flex; align-items: center; gap: 15px; min-height: 103px; border: none; border-bottom: 1px solid var(--border); background: none; text-align: left; padding: 8px 0; }
 .building-list-item:last-child { border-bottom: none; }
-.building-list-item > img { width: 78px; height: 78px; object-fit: contain; }
+.building-list-item > img { width: 78px; height: 78px; object-fit: contain;
+  filter: saturate(.90) contrast(.98) sepia(.035) drop-shadow(0 3px 4px #0003); }
 .building-list-item > span { display: flex; flex: 1; flex-direction: column; gap: 6px; }
 .building-list-item strong { font-family: var(--font-heading), Georgia, serif; font-size: 23px; font-weight: 500; }
 .building-list-item > span > span:last-child { font-size: 10px; color: var(--muted-foreground); }
@@ -881,7 +882,8 @@
 .bp-hero { position: relative; margin: 0 -12px; height: 210px; display: grid; place-items: end center; overflow: hidden;
   background: radial-gradient(60% 50% at 50% 70%, #cfe3a9 0%, transparent 70%), linear-gradient(180deg, #9fcbe0 0%, #cfe6ee 45%, #b8cf8a 46%, #8fb065 100%);
   border-bottom: 2px solid var(--edge); box-shadow: inset 0 -20px 30px #5a351722; }
-.bp-hero img { position: relative; width: min(78%, 330px); height: 200px; object-fit: contain; object-position: bottom; filter: drop-shadow(0 8px 10px #0005); }
+.bp-hero img { position: relative; width: min(78%, 330px); height: 200px; object-fit: contain; object-position: bottom;
+  filter: saturate(.90) contrast(.98) sepia(.035) drop-shadow(0 8px 10px #0005); }
 .bp-pending { width: 90px; height: 90px; display: grid; place-items: center; border-radius: 50%; background: #0002; margin-bottom: 50px; }
 .bp-desc { font-size: 13.5px; line-height: 1.5; color: var(--ink); padding: 10px 12px; background: var(--parch); border: 1px solid var(--edge); border-radius: 4px; box-shadow: 0 1px 0 #fff8 inset; }
 .bp-box { border: 1px solid var(--edge); border-radius: 4px; background: var(--parch); box-shadow: 0 2px 6px #5a351733; overflow: hidden; }
