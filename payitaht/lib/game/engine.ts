@@ -91,6 +91,10 @@ export function forestUpgradeCost(level: number) { return Math.round(400 * 1.5 *
 export const BUILDING_IDS = ['divan', 'saray', 'elcilik', 'konut', 'hamam', 'carsi', 'ambar', 'kereste', 'tas', 'medrese', 'kisla', 'surlar', 'liman', 'tersane', 'kahvehane', 'cami', 'muze', 'marangoz', 'mimar', 'ormanci', 'tasci', 'tophane',
   'bagci', 'simyahane', 'camci', 'mahzen', 'gozlukcu', 'barutane', 'depo', 'ticaret_merkezi', 'harita_arsivi', 'valilik', 'korsan_kalesi', 'kara_pazar', 'siginak', 'tekke', 'mabet', 'karagoz'] as const
 export type BuildingId = typeof BUILDING_IDS[number]
+export const COAST_FACING_IDS = ['liman', 'tersane'] as const
+export type CoastBuildingId = typeof COAST_FACING_IDS[number]
+export type CoastFacing = 'left' | 'straight' | 'right'
+export type CoastFacings = Record<CoastBuildingId, CoastFacing>
 export const RESEARCH_IDS = [
   'tools', 'storage', 'ticaret', 'architecture', 'alimler', 'celik',
   'istihkam', 'pusula', 'yelken',
@@ -184,6 +188,8 @@ export type Game = {
    * donme yok; oyuncu binayi yatayda cevirebilir (flipX).
    */
   flips: BuildingId[]
+  /** Kıyı yapılarının görsel yönü. Oyun mekaniğini etkilemez. */
+  coastFacing: CoastFacings
   /** Lüks kaynak ambarı (ana kaynaklarla aynı ambar kapasitesini paylaşır). */
   luxury: LuxuryStock
   /** Şehrin adasındaki lüks kaynak madeni. */
@@ -559,7 +565,7 @@ export function initialGame(now: number): Game {
     placement: { ...blankNull(BUILDING_IDS), ...START_PLOTS },
     workers: { ...blank(WORKER_IDS), kereste: WORKERS_PER_LEVEL, tas: WORKERS_PER_LEVEL },
     army: blank(UNIT_IDS),
-    roads: [...START_ROADS], flips: [],
+    roads: [...START_ROADS], flips: [], coastFacing: { liman: 'straight', tersane: 'straight' },
     luxury: { uzum: 0, mermer: 0, kristal: 0, kukurt: 0 },
     // Başkent Sahil Adası'nda: mermer yatağı. Koloniler kendi adasınınkini alır.
     mine: { specialty: 'mermer', level: 1, wood: 0, miners: 0 },
@@ -1320,8 +1326,10 @@ export type Command =
   | { type: 'recruit'; id: UnitId; count: number }
   /** Bir yol hucresini ac/kapat (oyuncu yolu kendi doser). */
   | { type: 'road'; cell: string }
-  /** Bir binayi yatayda aynala (sag-sol cevir). */
+  /** Bir binayi yatayda aynala (sag-sol cevir). Kara binalari icin. */
   | { type: 'flip'; id: BuildingId }
+  /** Liman/Tersane icin gorsel yon: sol / duz / sag. */
+  | { type: 'face'; id: CoastBuildingId; facing: CoastFacing }
   /** Kurulu bir binayi BOS bir arsaya tasi. */
   | { type: 'move'; id: BuildingId; plot: number }
   /** Ada madenine işçi ata. */
@@ -1428,10 +1436,17 @@ export function execute(source: Game, command: Command, now: number): { game: Ga
       ? g.roads.filter(c => c !== command.cell)
       : [...g.roads, command.cell]
   } else if (command.type === 'flip') {
-    // Binayi yatayda aynala; sessiz.
+    // Kara binalarini yatayda aynala. Kiyi yapilari artik 3 yonlu facing kullanir.
+    if ((COAST_FACING_IDS as readonly string[]).includes(command.id)) return { game: g }
     g.flips = g.flips.includes(command.id)
       ? g.flips.filter(id => id !== command.id)
       : [...g.flips, command.id]
+  } else if (command.type === 'face') {
+    if (!(COAST_FACING_IDS as readonly string[]).includes(command.id)) return { game: g, error: 'Bu yapı kıyı yönü kullanmıyor.' }
+    if (!(['left', 'straight', 'right'] as const).includes(command.facing)) return { game: g, error: 'Geçersiz yapı yönü.' }
+    g.coastFacing = { ...g.coastFacing, [command.id]: command.facing }
+    // Eski save'lerdeki coast flip state'i yeni facing ile cakismasin.
+    g.flips = g.flips.filter(id => id !== command.id)
   } else if (command.type === 'miners') {
     g.mine.miners = Number.isFinite(command.value) ? Math.max(0, Math.floor(command.value)) : 0
     g.mine.miners = clampMiners(g)
@@ -1765,9 +1780,17 @@ function fillMissing(g: Record<string, unknown>): Record<string, unknown> {
   const roads = Array.isArray(g.roads)
     ? [...new Set((g.roads as unknown[]).filter((c): c is string => typeof c === 'string' && isRoadCell(c)))]
     : []
-  const flips = Array.isArray(g.flips)
+  const rawFlips = Array.isArray(g.flips)
     ? [...new Set((g.flips as unknown[]).filter((id): id is BuildingId => BUILDING_IDS.includes(id as BuildingId)))]
     : []
+  const rawFacing = (g.coastFacing ?? {}) as Record<string, unknown>
+  const validFacing = (v: unknown): v is CoastFacing => v === 'left' || v === 'straight' || v === 'right'
+  const coastFacing: CoastFacings = {
+    // Eski kayitta coast bina flip edilmisse bunu yeni sistemde Sag olarak koru.
+    liman: validFacing(rawFacing.liman) ? rawFacing.liman : rawFlips.includes('liman') ? 'right' : 'straight',
+    tersane: validFacing(rawFacing.tersane) ? rawFacing.tersane : rawFlips.includes('tersane') ? 'right' : 'straight',
+  }
+  const flips = rawFlips.filter(id => !(COAST_FACING_IDS as readonly string[]).includes(id))
   // Lüks kaynaklar ve ada madeni sonradan eklendi: eski kayıtta boş başlar.
   const lux = (g.luxury ?? {}) as Record<string, unknown>
   const luxury: Record<string, unknown> = {}
@@ -1796,7 +1819,7 @@ function fillMissing(g: Record<string, unknown>): Record<string, unknown> {
   const guilds: Guilds = { ...emptyGuilds(), ...gd, devotion: { ...emptyGuilds().devotion, ...(gd.devotion ?? {}) }, patrons: Array.isArray(gd.patrons) ? gd.patrons : [] }
   const sho = (g.shows ?? {}) as Partial<Shows>
   const shows: Shows = { active: sho.active ?? null, readyAt: sho.readyAt ?? 0 }
-  return { ...g, ...out, army: filled, roads, flips, drills, luxury, mine, temple, guilds, gods, shows,
+  return { ...g, ...out, army: filled, roads, flips, coastFacing, drills, luxury, mine, temple, guilds, gods, shows,
     upgrades: g.upgrades && typeof g.upgrades === 'object' ? g.upgrades : {}, future, piracy: g.piracy ?? 0, forest, government, stats }
 }
 
