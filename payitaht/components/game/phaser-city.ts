@@ -1096,6 +1096,11 @@ export class CityScene extends Phaser.Scene {
     // KAYIKLAR: limanın içinde kürek çeken iki kayık.
     for (let i = 0; i < 2; i++) {
       const g = this.add.graphics()
+      // İnce köpük izi: kayık hareket ettiğinde deniz "cam levha" gibi durmaz.
+      g.lineStyle(1.4, 0xd9f0ea, 0.52)
+      g.lineBetween(-28, 5, -48, 11); g.lineBetween(-25, 7, -43, 17)
+      g.lineStyle(0.9, 0xbfe4df, 0.38)
+      g.lineBetween(-30, 11, -56, 22)
       g.fillStyle(0x1b3a4a, 0.3); g.fillEllipse(2, 3, 40, 9)
       g.fillStyle(0x7a4a26, 1); g.fillPoints([new Phaser.Math.Vector2(-20, -4), new Phaser.Math.Vector2(20, -4), new Phaser.Math.Vector2(14, 3), new Phaser.Math.Vector2(-14, 3)], true)
       g.fillStyle(0xb3261e, 1); g.fillRect(-18, -6, 36, 2.5)
@@ -1433,7 +1438,61 @@ export class CityScene extends Phaser.Scene {
         })
       }
     }
-    // 5) BACA DUMANLARI (sanat koordinatındaki baca ağızları).
+    // 5) LİMAN HAYATI — kurulu yapıya bağlı hamal/yük ve tersane çalışma ritmi.
+    const limanSlot = this.slotOfBuilding('liman')
+    if (limanSlot) {
+      const dir = this.state.coastFacing.liman === 'right' ? -1 : 1
+      for (let i = 0; i < 2; i++) {
+        const porter = this.add.graphics()
+        this.drawCitizen(porter, () => 0.47) // hamal
+        life(porter, t => {
+          const phase = (t * (0.17 + i * 0.025) + i * 0.46) % 1
+          const sweep = phase < 0.5 ? phase * 2 : 2 - phase * 2
+          const x = limanSlot.screen.x + dir * (-TILE.w * 0.28 + sweep * TILE.w * 0.56) + (i ? TILE.w * 0.05 : 0)
+          const y = limanSlot.screen.y + TILE.h * (0.66 + i * 0.15) + Math.sin(t * 5 + i) * 2
+          porter.setPosition(x, y).setScale((phase < 0.5 ? dir : -dir), 1).setDepth(y + 2)
+        })
+      }
+      // Vinç kancası/yük: kısa salınım; büyük yeni sprite yerine sahne detayı.
+      const hook = this.add.graphics()
+      hook.lineStyle(2.0, 0x4a3828, 0.9); hook.lineBetween(0, -36, 0, 0)
+      hook.fillStyle(0x8b633f, 1); hook.fillRect(-8, 0, 16, 11)
+      hook.lineStyle(1.3, 0xd8bd83, 0.75); hook.strokeRect(-8, 0, 16, 11)
+      life(hook, t => {
+        const sway = Math.sin(t * 1.8) * TILE.w * 0.035
+        const x = limanSlot.screen.x + dir * TILE.w * 0.18 + sway
+        const y = limanSlot.screen.y + TILE.h * 0.44 + Math.sin(t * 1.3) * 3
+        hook.setPosition(x, y).setRotation(Math.sin(t * 1.8) * 0.04).setDepth(y + 3)
+      })
+    }
+
+    const tersaneSlot = this.slotOfBuilding('tersane')
+    if (tersaneSlot) {
+      const worker = this.add.graphics(); this.drawCitizen(worker, () => 0.72)
+      const hammer = this.add.graphics()
+      hammer.lineStyle(1.8, 0x5a3a22, 1); hammer.lineBetween(0, 0, 0, -11)
+      hammer.fillStyle(0x6f7274, 1); hammer.fillRect(-3.5, -13, 7, 3)
+      const dir = this.state.coastFacing.tersane === 'right' ? -1 : 1
+      life(worker, t => {
+        const x = tersaneSlot.screen.x + dir * TILE.w * 0.05
+        const y = tersaneSlot.screen.y + TILE.h * 0.70
+        worker.setPosition(x, y).setScale(dir, 1).setDepth(y + 3)
+      })
+      life(hammer, t => {
+        const x = tersaneSlot.screen.x + dir * TILE.w * 0.10
+        const y = tersaneSlot.screen.y + TILE.h * 0.58
+        const hit = Math.max(0, Math.sin(t * 5.4))
+        hammer.setPosition(x, y).setScale(dir, 1).setRotation(dir * (-0.65 + hit * 1.15)).setDepth(y + 4)
+      })
+      // Tersane çalışıyorsa hafif talaş/toz.
+      this.smoke?.addSource(
+        tersaneSlot.screen.x + dir * TILE.w * 0.08,
+        tersaneSlot.screen.y + TILE.h * 0.52,
+        'pieces', 0.34, 0xc5ad83,
+      )
+    }
+
+    // 6) BACA DUMANLARI (sanat koordinatındaki baca ağızları).
     const chimneys: Array<[BuildingId, number, number, number, number?]> = [
       ['hamam', 0.36, 0.36, 1.08], ['tophane', 0.46, 0.44, 1.36], ['simyahane', 1.24, 0.51, 1.06],
       ['camci', 1.5, 0.34, 0.56, 0x8a8480], ['kahvehane', 0.75, 0.62, 1.2],
@@ -1827,6 +1886,25 @@ export class CityScene extends Phaser.Scene {
     else g.destroy()
   }
 
+  /** Dokunma geri bildirimi: binayı kapatmadan zeminde kısa altın halka. */
+  private flashBuildingTap(x: number, y: number, radius: number, depth: number) {
+    const g = this.add.graphics().setPosition(x, y).setDepth(depth)
+    g.lineStyle(Math.max(2, TILE.w * 0.018), 0xe7c978, 0.9)
+    g.strokeEllipse(0, 0, radius * 2, radius * 0.72)
+    g.fillStyle(0xf5e1a2, 0.08)
+    g.fillEllipse(0, 0, radius * 1.7, radius * 0.56)
+    g.setScale(0.72).setAlpha(0.9)
+    this.tweens.add({
+      targets: g,
+      scaleX: 1.18,
+      scaleY: 1.18,
+      alpha: 0,
+      duration: 230,
+      ease: 'Cubic.easeOut',
+      onComplete: () => g.destroy(),
+    })
+  }
+
   private addBuilding(id: BuildingId, slot: LiveSlot, active: boolean) {
     const anc = this.anchor(slot)
     const level = this.state.buildings[id]
@@ -1846,6 +1924,7 @@ export class CityScene extends Phaser.Scene {
       : 0
     const imgY = slot.zone === 'liman' ? anc.baseY + coastSink : slot.screen.y + ART_GROUND_PX * artS
     let dispW = TILE.w * 2, dispH = TILE.h * 2
+    let buildingSprite: Phaser.GameObjects.Image | null = null
 
     // Boş slot görünmez; yalnızca kurulu yapının altında doğal açıklık oluşur.
     this.addOccupiedClearing(id, slot, anc.baseY)
@@ -1872,6 +1951,7 @@ export class CityScene extends Phaser.Scene {
     if (level > 0 && BUILDINGS[id].art && !this.textures.exists(textureKey)) this.ensureBuildingTexture(id, level)
     if (BUILDINGS[id].art && this.textures.exists(textureKey)) {
       const img = this.add.image(anc.x, imgY, textureKey).setOrigin(0.5, 1)
+      buildingSprite = img
       const scale = artS
       img.setScale(scale).setDepth(imgY).setTint(profile.tint)
       const flip = coastFacing ? coastFacing === 'right' : this.state.flips.includes(id)
@@ -1899,6 +1979,11 @@ export class CityScene extends Phaser.Scene {
       if (active && level > 0 && this.textures.exists('b_scaffold')) {
         const sc = this.add.image(anc.x, imgY, 'b_scaffold').setOrigin(0.5, 1).setScale(scale).setDepth(imgY + 0.05).setTint(0xf3e5cf)
         this.pieces.push(sc)
+        // Çekiç/saw hareketine eşlik eden ince taş-ahşap tozu. SmokeField redraw'da
+        // "pieces" grubunu temizlediği için uzun oturumda kaynak birikmez.
+        const dustY = slot.zone === 'liman' ? imgY - TILE.h * 0.12 : anc.baseY - TILE.h * 0.20
+        this.smoke?.addSource(anc.x - TILE.w * 0.10, dustY, 'pieces', 0.55, 0xcdbb93)
+        this.smoke?.addSource(anc.x + TILE.w * 0.08, dustY - TILE.h * 0.06, 'pieces', 0.40, 0xd9c9a5)
       }
     } else {
       // Görseli olmayan yapı: basit taş kaide (yalnızca yedek).
@@ -1910,7 +1995,35 @@ export class CityScene extends Phaser.Scene {
     // Dokunuş: binaya dokun → panel aç.
     const hit = this.add.rectangle(anc.x, imgY - dispH * 0.4, dispW * 0.7, dispH * 0.6)
       .setInteractive({ useHandCursor: true }).setFillStyle(0xffffff, 0).setDepth(imgY + 0.2)
-    hit.on('pointerup', (p: Phaser.Input.Pointer) => { if (isTap(p) && !this.moving) this.events$.onBuilding(id) })
+    const restoreSprite = () => {
+      if (!buildingSprite?.active) return
+      this.tweens.killTweensOf(buildingSprite)
+      buildingSprite.setScale(artS)
+    }
+    hit.on('pointerdown', () => {
+      if (!buildingSprite?.active || this.moving) return
+      this.tweens.killTweensOf(buildingSprite)
+      buildingSprite.setScale(artS * 0.985)
+    })
+    hit.on('pointerout', restoreSprite)
+    hit.on('pointerup', (p: Phaser.Input.Pointer) => {
+      if (!isTap(p) || this.moving) { restoreSprite(); return }
+      if (buildingSprite?.active) {
+        this.tweens.killTweensOf(buildingSprite)
+        buildingSprite.setScale(artS * 0.985)
+        this.tweens.add({
+          targets: buildingSprite,
+          scaleX: artS * 1.025,
+          scaleY: artS * 1.025,
+          duration: 75,
+          yoyo: true,
+          ease: 'Sine.easeOut',
+          onComplete: () => { if (buildingSprite?.active) buildingSprite.setScale(artS) },
+        })
+      }
+      this.flashBuildingTap(anc.x, anc.baseY - TILE.h * 0.06, GROUND_TARGET_W * (slot.zone === 'liman' ? 0.34 : 0.29), imgY + 0.18)
+      this.events$.onBuilding(id)
+    })
     this.pieces.push(hit)
 
     // Normal şehir görünümünde UI bina sanatının üstüne binmez.
