@@ -57,6 +57,30 @@ async function main() {
       throw new Error(`${label}: city boot loaded ${buildingStageLoads.size} staged building textures; lazy-loading regressed.`)
     }
 
+    // Kıyı QA'sı gerçek binayı görsün: boş başlangıç limanına odaklanmak
+    // mavi-panel/anchor gibi coast regression'larını yakalamıyordu. Test save'inde
+    // Liman + Tersane'yi kullanıcı ekranındaki gibi seviye 2 ve iki coast slotuna
+    // yerleştir; sonra sayfayı gerçek save parse/migration yolu üzerinden yeniden aç.
+    await page.evaluate(() => {
+      const key = 'payitaht-adalari-v1'
+      const empire = JSON.parse(localStorage.getItem(key) || 'null')
+      const game = empire?.cities?.[0]?.game
+      if (!game?.buildings || !game?.placement) throw new Error('Visual QA empire save shape unavailable')
+      game.buildings.liman = 2
+      game.buildings.tersane = 2
+      game.placement.liman = 25
+      game.placement.tersane = 26
+      localStorage.setItem(key, JSON.stringify(empire))
+    })
+    await page.reload({ waitUntil: 'domcontentloaded' })
+    await page.getByRole('button', { name: /Hikâyeye başla|Devam et/ }).waitFor({ timeout: 45_000 })
+    await page.getByRole('button', { name: /Hikâyeye başla|Devam et/ }).click()
+    await page.waitForFunction(() => {
+      const canvas = document.querySelector('canvas')
+      return canvas && canvas.width > 0 && canvas.clientWidth > 0
+    }, null, { timeout: 45_000 })
+    await page.waitForTimeout(5000)
+
     const harbour = page.getByRole('button', { name: 'Donanma ve limana git' })
     await harbour.click({ timeout: 10_000 })
     await page.waitForTimeout(1800)
