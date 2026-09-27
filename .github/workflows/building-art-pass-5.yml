@@ -1,0 +1,54 @@
+name: Regenerate Building Art Pass 5
+
+on:
+  push:
+    branches:
+      - chatgpt/building-art-pass-5
+    paths:
+      - 'payitaht/tools/art/buildings.py'
+      - 'payitaht/tools/art/isokit.py'
+      - '.github/workflows/building-art-pass-5.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  regenerate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    defaults:
+      run:
+        working-directory: payitaht
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: chatgpt/building-art-pass-5
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install art dependencies
+        run: python -m pip install --disable-pip-version-check pillow
+      - name: Render redesigned core buildings
+        run: |
+          python tools/art/buildings.py konut kereste tas kisla medrese hamam carsi tersane
+      - name: Commit generated WebP assets
+        run: |
+          git config user.name "payitaht-art-bot"
+          git config user.email "actions@github.com"
+          git add \
+            public/images/game/buildings/konut-*.webp \
+            public/images/game/buildings/kereste-*.webp \
+            public/images/game/buildings/tas-*.webp \
+            public/images/game/buildings/kisla-*.webp \
+            public/images/game/buildings/medrese-*.webp \
+            public/images/game/buildings/hamam-*.webp \
+            public/images/game/buildings/carsi-*.webp \
+            public/images/game/buildings/tersane-*.webp \
+            lib/game/city-map/building-flags.json
+          if git diff --cached --quiet; then
+            echo "Generated assets already up to date."
+            exit 0
+          fi
+          git commit -m "Regenerate eight core building silhouettes"
+          git push origin HEAD:chatgpt/building-art-pass-5
