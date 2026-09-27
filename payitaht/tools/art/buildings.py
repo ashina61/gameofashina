@@ -4,7 +4,7 @@ PAYİTAHT BİNA SANATI — bütün binalar, her biri 3 SEVİYE AŞAMASINDA.
     python3 tools/art/buildings.py            # hepsi
     python3 tools/art/buildings.py divan cami # yalnızca verilenler
 
-Ikariam'daki gibi bina büyüdükçe görünüşü değişir:
+Ikariam'daki gibi bina büyüdükçe görünüşü değişir; ana mimari aileler artık bilinçli olarak farklı siluet kullanır:
   aşama 1 = seviye 1-3, aşama 2 = seviye 4-7, aşama 3 = seviye 8+.
 
 Çıktı: public/images/game/buildings/<id>-<aşama>.webp (600 px genişlik,
