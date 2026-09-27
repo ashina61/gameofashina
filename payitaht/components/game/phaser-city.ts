@@ -288,11 +288,21 @@ export class CityScene extends Phaser.Scene {
         : hasHarbour
           ? harbour.screen
           : COAST_SLOTS[Math.floor(COAST_SLOTS.length / 2)].screen
-    // İki kıyı yapısı varken bir miktar daha geniş kadraj; tek yapıdaysa eski
-    // yakın plan korunur. HUD altındaki açık banda oturt.
-    const harbourZoom = hasShipyard && hasHarbour ? 1.32 : 1.55
-    this.cameras.main.setZoom(Phaser.Math.Clamp(Math.max(this.cityZoom * harbourZoom, 0.64), this.minZoom, this.maxZoom))
-    this.centerInBand(destination.x, destination.y - TILE.h * 0.38)
+    // İki kıyı yapısı varken zoom'u sabit çarpanla değil GERÇEK yatay aralığa
+    // göre fit et. 390px telefonda coast_01 ↔ coast_02 merkezleri yaklaşık
+    // 576 world-px ayrık; 0.64 zoom iki sprite'ın kenarını kesiyordu.
+    const bothCoast = hasShipyard && hasHarbour
+    const pairWorldW = bothCoast
+      ? Math.abs(shipyard.screen.x - harbour.screen.x) + GROUND_TARGET_W * 1.65
+      : 0
+    const pairFitZoom = bothCoast
+      ? (this.scale.width * 0.94) / Math.max(1, pairWorldW)
+      : Infinity
+    const zoom = bothCoast
+      ? Math.max(this.minZoom, pairFitZoom)
+      : Math.max(this.cityZoom * 1.55, 0.66)
+    this.cameras.main.setZoom(Phaser.Math.Clamp(zoom, this.minZoom, this.maxZoom))
+    this.centerInBand(destination.x, destination.y - TILE.h * (bothCoast ? 0.18 : 0.45))
     this.velocity = { x: 0, y: 0 }
   }
   /** React kontrolü: yakınlaştırmayı çarpanla değiştir. */
