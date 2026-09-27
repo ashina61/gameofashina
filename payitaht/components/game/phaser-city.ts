@@ -1245,7 +1245,7 @@ export class CityScene extends Phaser.Scene {
   }
   /** Bina görselindeki bir noktayı (sanat birimi: 0..2 taban, z yükseklik) dünyaya çevirir. */
   private artPoint(slot: LiveSlot, ax: number, ay: number, az = 0, hall = false) {
-    const k = this.artScale() * (hall ? 1.5 : 1)
+    const k = this.artScale() * (hall ? visualProfile('divan').scale : 1)
     return { x: slot.screen.x + (ax - ay) * 120 * k, y: slot.screen.y + ((ax + ay - 2) * 60 - az * 128) * k }
   }
   private slotOfBuilding(id: BuildingId) {
@@ -1312,7 +1312,7 @@ export class CityScene extends Phaser.Scene {
     const js = job ? this.slotOfBuilding(job.id as BuildingId) ?? (this.state.placement[job.id as BuildingId] != null ? liveSlotByIndex(this.state.placement[job.id as BuildingId]!) ?? null : null) : null
     if (js && js.zone !== 'liman') {
       const hall = js.slotId === HALL_SLOT_ID
-      const baseDepth = js.screen.y + ART_GROUND_PX * artS * (hall ? 1.5 : 1) + 1
+      const baseDepth = js.screen.y + ART_GROUND_PX * artS * (hall ? visualProfile('divan').scale : 1) + 1
       ;[[1.85, 1.15], [1.2, 1.9], [1.75, 1.8]].forEach(([ax, ay], i) => {
         const p = this.artPoint(js, ax, ay, 0, hall)
         const g = this.add.graphics()
