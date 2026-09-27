@@ -82,6 +82,8 @@ export class CityScene extends Phaser.Scene {
   private placing = false
   private moving: BuildingId | null = null
   private movePlot: number | null = null
+  /** Runtime'da istenen bina texture'ları; aynı dosyayı paralel iki kez istemeyiz. */
+  private loadingBuildingTextures = new Set<string>()
 
   // Kamera (map-debug ile aynı davranış): CITY VIEW varsayılan, pinch + drag.
   private minZoom = 0.15
@@ -105,13 +107,14 @@ export class CityScene extends Phaser.Scene {
   }
 
   preload() {
-    // Her bina üç aşamada çizildi (tools/art/buildings.py); seviye yükseldikçe görünüm değişir.
+    // Eskiden 38 bina × 3 stage = 114 WebP açılışta yükleniyordu. Şehir sahnesi
+    // yalnızca gerçekten kurulu binaların MEVCUT stage'ini preload eder; yeni
+    // bina/stage gerektiğinde ensureBuildingTexture() onu runtime'da getirir.
     for (const id of BUILDING_IDS) {
-      if (!BUILDINGS[id].art) continue
-      for (const [stage, level] of [[1, 1], [2, 4], [3, 8]] as const) {
-        const key = `${id}-${stage}`
-        if (!this.textures.exists(key)) this.load.image(key, buildingImage(id, level))
-      }
+      const level = this.state.buildings[id]
+      if (!BUILDINGS[id].art || level <= 0 || id === 'surlar') continue
+      const key = `${id}-${buildingStage(level)}`
+      if (!this.textures.exists(key)) this.load.image(key, buildingImage(id, level))
     }
     if (!this.textures.exists('b_site')) this.load.image('b_site', asset('/images/game/buildings/site.webp'))
     for (const lux of ['uzum', 'mermer', 'kristal', 'kukurt']) {
@@ -121,6 +124,26 @@ export class CityScene extends Phaser.Scene {
     if (!this.textures.exists('b_scaffold')) this.load.image('b_scaffold', asset('/images/game/buildings/scaffold.webp'))
     preloadTerrain(this)
     if (!this.textures.exists('w_tower')) this.load.image('w_tower', asset('/images/game/walls/tower-round.png'))
+  }
+
+  /**
+   * Yeni bina kurulduğunda veya seviye 4/8 eşiğinde sanat stage'i değiştiğinde
+   * sadece gereken WebP'yi getir. Yükleme bitince görünür imzayı sıfırlayıp
+   * sahneyi yeniden çiziyoruz; save/oyun mekaniği beklemez.
+   */
+  private ensureBuildingTexture(id: BuildingId, level: number) {
+    if (!BUILDINGS[id].art || level <= 0 || id === 'surlar') return
+    const key = `${id}-${buildingStage(level)}`
+    if (this.textures.exists(key) || this.loadingBuildingTextures.has(key)) return
+    this.loadingBuildingTextures.add(key)
+    this.load.image(key, buildingImage(id, level))
+    this.load.once(`filecomplete-image-${key}`, () => {
+      this.loadingBuildingTextures.delete(key)
+      if (!this.built) return
+      this.signature = ''
+      this.redraw()
+    })
+    if (!this.load.isLoading()) this.load.start()
   }
 
   create() {
@@ -1784,6 +1807,7 @@ export class CityScene extends Phaser.Scene {
 
     // Ikariam: seviye 0 iken (ilk inşaat) temel + iskele; sonra seviye aşamasının görseli.
     const textureKey = level === 0 && this.textures.exists('b_site') ? 'b_site' : `${id}-${buildingStage(level)}`
+    if (level > 0 && BUILDINGS[id].art && !this.textures.exists(textureKey)) this.ensureBuildingTexture(id, level)
     if (BUILDINGS[id].art && this.textures.exists(textureKey)) {
       const img = this.add.image(anc.x, imgY, textureKey).setOrigin(0.5, 1)
       const scale = artS
