@@ -136,6 +136,58 @@ async function main() {
     await page.screenshot({ path: atlas, animations: 'disabled' })
     diagnostics.screenshots.push(path.basename(atlas))
 
+    // Content UI QA: the main city/harbour screenshots cannot catch card/tab/form
+    // regressions inside the full-screen panels. Exercise representative screens on
+    // the compact viewport and fail on horizontal overflow.
+    if (width === 390) {
+      const assertPanelFits = async name => {
+        const overflow = await page.evaluate(() => ({
+          inner: window.innerWidth,
+          doc: document.documentElement.scrollWidth,
+          panel: document.querySelector('.bp')?.scrollWidth ?? 0,
+        }))
+        if (overflow.doc > overflow.inner + 2 || overflow.panel > overflow.inner + 2) {
+          throw new Error(`${label}: ${name} panel horizontally overflows: ${JSON.stringify(overflow)}`)
+        }
+      }
+      const snapPanel = async name => {
+        await page.waitForTimeout(250)
+        await assertPanelFits(name)
+        const file = path.join(out, `ui-${name}-${label}.png`)
+        await page.screenshot({ path: file, animations: 'disabled' })
+        diagnostics.screenshots.push(path.basename(file))
+      }
+      const back = async () => {
+        await page.getByRole('button', { name: 'Geri' }).first().click()
+        await page.waitForTimeout(180)
+      }
+
+      await back() // Dünya haritası -> şehir
+
+      await page.getByRole('button', { name: /^Araştırma danışmanı/ }).click()
+      await page.getByRole('dialog', { name: /Âlim · Araştırma/ }).waitFor({ timeout: 10_000 })
+      await snapPanel('research')
+      await back()
+
+      await page.getByRole('button', { name: /^Şehir danışmanı/ }).click()
+      await page.getByRole('button', { name: /Bütün yapılar/ }).click()
+      await page.getByRole('dialog', { name: /Şehrini büyüt/ }).waitFor({ timeout: 10_000 })
+      await snapPanel('buildings')
+      await back()
+
+      await page.getByRole('button', { name: /^Ordu danışmanı/ }).click()
+      await page.getByRole('button', { name: /Orduya git/ }).click()
+      await page.getByRole('dialog', { name: /Ordu ve donanma/ }).waitFor({ timeout: 10_000 })
+      await snapPanel('army')
+      await back()
+
+      await page.getByRole('button', { name: /^Hükümdar profili:/ }).click()
+      await page.getByRole('button', { name: /Oyun ayarları/ }).click()
+      await page.getByRole('dialog', { name: /Oyun ayarları/ }).waitFor({ timeout: 10_000 })
+      await snapPanel('settings')
+      await back()
+    }
+
     await context.close()
   }
 
