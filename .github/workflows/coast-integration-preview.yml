@@ -1,0 +1,122 @@
+name: Coast Integration Preview
+
+on:
+  push:
+    branches:
+      - chatgpt/coast-integration-pass-2
+    paths:
+      - 'payitaht/tools/art/buildings.py'
+      - 'payitaht/components/game/phaser-city.ts'
+      - 'payitaht/lib/game/city-map/building-assets.ts'
+      - '.github/workflows/coast-integration-preview.yml'
+  pull_request:
+    branches:
+      - claude/ancient-city-phaser-game-r9e0qu
+    paths:
+      - 'payitaht/tools/art/buildings.py'
+      - 'payitaht/components/game/phaser-city.ts'
+      - 'payitaht/lib/game/city-map/building-assets.ts'
+      - '.github/workflows/coast-integration-preview.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  regenerate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: payitaht
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: chatgpt/coast-integration-pass-2
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install art dependencies
+        run: python -m pip install --disable-pip-version-check numpy pillow
+      - name: Compile generator
+        run: python -m py_compile tools/art/buildings.py tools/art/isokit.py
+      - name: Guard active coast generators
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          src = Path('tools/art/buildings.py').read_text()
+          a = src.index('def tersane(s, st):')
+          b = src.index('\ndef karagoz(s, st):', a)
+          c = src.index('def _p6_harbour(s, st):')
+          d = src.index('\n\n# --- Pass 6 override girişleri', c)
+          for name, block in [('tersane', src[a:b]), ('liman', src[c:d])]:
+              for forbidden in ('water_basin(', "hexc('#4d8fa3')"):
+                  if forbidden in block:
+                      raise SystemExit(f'{name} contains baked-water primitive: {forbidden}')
+          print('Active coast generators contain no baked water.')
+          PY
+      - name: Render coast assets
+        run: python tools/art/buildings.py liman tersane
+      - name: Validate transparency and build preview
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          from PIL import Image, ImageDraw, ImageFont
+          root = Path('public/images/game/buildings')
+          files = [root / f'{bid}-{stage}.webp' for bid in ('liman','tersane') for stage in (1,2,3)]
+          ims = []
+          for p in files:
+              im = Image.open(p).convert('RGBA')
+              alpha = im.getchannel('A')
+              if im.width != 600:
+                  raise SystemExit(f'bad width {p}: {im.size}')
+              if alpha.getextrema()[0] == 255:
+                  raise SystemExit(f'{p} lost transparent background')
+              occupied = sum(v > 24 for v in alpha.getdata()) / (im.width * im.height)
+              print(p.name, im.size, 'occupied=', round(occupied, 3), 'bbox=', alpha.getbbox())
+              if occupied > 0.62:
+                  raise SystemExit(f'{p} too opaque for open coast art: {occupied:.3f}')
+              ims.append((p.stem, im))
+
+          cell_w, cell_h = 640, 520
+          sheet = Image.new('RGB', (cell_w * 3, cell_h * 2), (93, 159, 151))
+          draw = ImageDraw.Draw(sheet)
+          for idx, (name, im) in enumerate(ims):
+              row, col = divmod(idx, 3)
+              x0, y0 = col * cell_w, row * cell_h
+              # Simulated runtime coast: grass -> sand -> sea. Asset itself remains alpha.
+              draw.rectangle((x0, y0, x0 + cell_w, y0 + 235), fill=(151, 166, 93))
+              draw.polygon([(x0, y0+205),(x0+cell_w,y0+250),(x0+cell_w,y0+305),(x0,y0+270)], fill=(205,184,132))
+              draw.rectangle((x0, y0+270, x0+cell_w, y0+cell_h), fill=(83, 157, 151))
+              scale = min(0.78, 500 / im.width, 400 / im.height)
+              preview = im.resize((int(im.width*scale), int(im.height*scale)), Image.Resampling.LANCZOS)
+              px = x0 + (cell_w-preview.width)//2
+              py = y0 + 74
+              sheet.paste(preview, (px,py), preview)
+              draw.rectangle((x0+10,y0+10,x0+180,y0+42), fill=(20,45,42))
+              draw.text((x0+20,y0+17), name, fill=(245,235,205))
+          out = Path('coast-preview.png')
+          sheet.save(out)
+          print('preview:', out)
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: coast-integration-preview
+          path: payitaht/coast-preview.png
+          if-no-files-found: error
+          retention-days: 7
+      - name: Commit generated coast WebP assets
+        run: |
+          git config user.name "payitaht-art-bot"
+          git config user.email "actions@github.com"
+          git add \
+            public/images/game/buildings/liman-*.webp \
+            public/images/game/buildings/tersane-*.webp \
+            lib/game/city-map/building-flags.json
+          if git diff --cached --quiet; then
+            echo "Generated assets already current."
+            exit 0
+          fi
+          git commit -m "Regenerate coast integration v2 assets"
+          git pull --rebase origin chatgpt/coast-integration-pass-2
+          git push origin HEAD:chatgpt/coast-integration-pass-2
