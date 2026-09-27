@@ -1716,7 +1716,7 @@ export class CityScene extends Phaser.Scene {
 
   /** Bina ailesine göre deterministik mikro-prop; seviye/stage arttıkça çevre de gelişir. */
   private addBuildingProps(id: BuildingId, slot: LiveSlot, level: number, imgY: number) {
-    if (level <= 0 || id === 'divan' || id === 'surlar') return
+    if (level <= 0 || id === 'divan' || id === 'surlar' || slot.zone === 'liman') return
     const profile = this.buildingVisualProfile(id, slot)
     const stage = buildingStage(level)
     const rnd = this.visualRnd(this.buildingVisualSeed(id, slot) ^ 0x51ed270b)
@@ -1814,7 +1814,14 @@ export class CityScene extends Phaser.Scene {
     // Görselin zemin elması resmin altından ART_GROUND_PX yukarıda: elmas
     // arsanın (belediyede meydanın) tam ortasına düz oturur. Liman görselleri
     // rıhtıma göre çizildiği için eski temas noktasını kullanır.
-    const imgY = slot.zone === 'liman' ? anc.baseY : slot.screen.y + ART_GROUND_PX * artS
+    // Kıyı yapıları kara-su çizgisine değil birkaç piksel DENİZE oturur.
+    // Kullanıcı ekranlarında eski anchor yapıları sahilin üstüne bırakılmış diorama
+    // gibi gösteriyordu. Liman biraz, tersane ise kızakları nedeniyle biraz daha
+    // fazla denize kaydırılır.
+    const coastSink = slot.zone === 'liman'
+      ? TILE.h * (id === 'tersane' ? 0.30 : id === 'liman' ? 0.24 : 0.18)
+      : 0
+    const imgY = slot.zone === 'liman' ? anc.baseY + coastSink : slot.screen.y + ART_GROUND_PX * artS
     let dispW = TILE.w * 2, dispH = TILE.h * 2
 
     // Boş slot görünmez; yalnızca kurulu yapının altında doğal açıklık oluşur.
