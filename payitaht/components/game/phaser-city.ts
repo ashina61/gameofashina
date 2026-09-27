@@ -1631,16 +1631,20 @@ export class CityScene extends Phaser.Scene {
 
     // Boş slot görünmez; yalnızca kurulu yapının altında doğal açıklık oluşur.
     this.addOccupiedClearing(id, slot, anc.baseY)
-    if (slot.zone !== 'liman' && slot.slotId !== HALL_SLOT_ID && level >= 2) this.addGardenWall(slot, imgY, artS, id)
+    // Her binayı aynı avlu duvarına hapsetmek şehri tekrar eden bir "compound"
+    // ızgarasına çeviriyordu. Avlu yalnızca gerçekten avlulu/temsili yapılarda.
+    const courtyardBuilding = (['saray', 'medrese', 'cami', 'hamam', 'elcilik', 'muze', 'valilik', 'tekke', 'mabet'] as BuildingId[]).includes(id)
+    if (courtyardBuilding && slot.zone !== 'liman' && slot.slotId !== HALL_SLOT_ID && level >= 2) this.addGardenWall(slot, imgY, artS, id)
 
-    // Çok hafif temas gölgesi: doğal açıklığın üstünde yapıyı zemine bağlar.
-    // Güneş sol üstten: bina gölgesi sağ-alta düşer.
+    // İki parçalı temas gölgesi: önce yapının tam altında yumuşak ambient
+    // contact, sonra sağ-alt tarafa kısa güneş gölgesi. Böylece sprite zeminden
+    // kopmuş gibi değil aynı arazi üzerinde durur.
     const shadow = this.add.graphics().setDepth(anc.baseY - 0.3)
     if (slot.zone !== 'liman') {
-      shadow.fillStyle(0x223018, 0.22)
-      shadow.fillEllipse(anc.x + TILE.w * 0.28, anc.baseY - TILE.h * 0.62, GROUND_TARGET_W * 0.62, GROUND_TARGET_W * 0.2)
-      shadow.fillStyle(0x223018, 0.14)
-      shadow.fillEllipse(anc.x + TILE.w * 0.55, anc.baseY - TILE.h * 0.45, GROUND_TARGET_W * 0.5, GROUND_TARGET_W * 0.14)
+      shadow.fillStyle(0x1d2918, 0.16)
+      shadow.fillEllipse(anc.x + TILE.w * 0.08, slot.screen.y + TILE.h * 0.30, GROUND_TARGET_W * 0.72, TILE.h * 0.72)
+      shadow.fillStyle(0x1d2918, 0.085)
+      shadow.fillEllipse(anc.x + TILE.w * 0.34, slot.screen.y + TILE.h * 0.42, GROUND_TARGET_W * 0.52, TILE.h * 0.42)
     }
     this.pieces.push(shadow)
 
@@ -1791,16 +1795,17 @@ export class CityScene extends Phaser.Scene {
     t.text.setText(h > 0 ? `${h}sa ${m}dk` : m > 0 ? `${m}dk ${sec}sn` : `${sec}sn`)
   }
 
-  /** BOŞ ARSA: normal şehir görünümünde yalnızca zemin görünür.
-   * Bayraklar İnşa/Taşıma kipinde açılır; ekran sürekli kırmızı flamayla dolmaz.
+  /** BOŞ ARSA: normal şehir görünümünde gerçekten doğal zemin olarak kalır.
+   * Slot çerçevesi/bayrağı yalnızca oyuncu inşa veya taşıma kararı verirken açılır.
    */
   private addEmptyPlot(slot: LiveSlot) {
     const anc = this.anchor(slot)
-    // Ikariam "inşaat alanı": her boş arsada küçük bir bayrak HER ZAMAN durur
-    // (oyuncu nereye kurabileceğini görür). Vurgulu 2x2 zemin yalnızca inşa kipinde.
-    if (this.placing) this.drawBuildPad(slot)
-    // Bayrak arsanın TAM ORTASINA dikilir (footprint merkezi).
-    this.drawBuildFlag(slot.screen.x, slot.screen.y, slot.zone === 'liman')
+    const editingPlots = this.placing || this.moving !== null
+    if (editingPlots) {
+      this.drawBuildPad(slot)
+      // Bayrak arsanın TAM ORTASINA dikilir (footprint merkezi).
+      this.drawBuildFlag(slot.screen.x, slot.screen.y, slot.zone === 'liman')
+    }
     const hit = this.add.rectangle(slot.screen.x, slot.screen.y - TILE.h * 0.3, TILE.w * 1.6, TILE.h * 1.8)
       .setInteractive({ useHandCursor: true }).setFillStyle(0xffffff, 0).setDepth(anc.baseY + 0.2)
     hit.on('pointerup', (p: Phaser.Input.Pointer) => { if (isTap(p) && !this.moving) this.events$.onPlot(slot.index) })
