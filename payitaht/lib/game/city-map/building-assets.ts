@@ -118,8 +118,24 @@ export type BuildingVisualProfile = {
   tint: number
   /** Seviye yükseldikçe çevreye deterministik olarak eklenen küçük prop havuzu. */
   decor: readonly BuildingDecorKey[]
+  /** Aynı footprint içinde bina+slota göre uygulanabilecek mikro ölçek farkı. */
+  variation: number
   /** Düşük taş avlu duvarı yalnızca gerçekten avlulu yapılarda. */
   courtyard?: boolean
+}
+
+const familyVariation: Record<BuildingVisualFamily, number> = {
+  hall: 0,
+  residential: 0.035,
+  production: 0.03,
+  trade: 0.024,
+  military: 0.018,
+  scholar: 0.018,
+  monument: 0.012,
+  culture: 0.024,
+  harbour: 0.016,
+  special: 0.018,
+  defense: 0,
 }
 
 const vp = (
@@ -129,7 +145,7 @@ const vp = (
   tint: number,
   decor: readonly BuildingDecorKey[],
   courtyard = false,
-): BuildingVisualProfile => ({ family, yard, scale, tint, decor, courtyard })
+): BuildingVisualProfile => ({ family, yard, scale, tint, decor, variation: familyVariation[family], courtyard })
 
 export const BUILDING_VISUALS: Record<BuildingId, BuildingVisualProfile> = {
   divan: vp('hall', 'stone', 1.36, 0xfff5e6, ['cypress', 'flower', 'tulip-bed'], false),

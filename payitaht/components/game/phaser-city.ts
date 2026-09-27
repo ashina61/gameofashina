@@ -373,6 +373,13 @@ export class CityScene extends Phaser.Scene {
     }
   }
 
+  /** Aynı yapı tipleri aynı ölçüde damga gibi durmasın; footprint değişmez. */
+  private buildingMicroScale(id: BuildingId, slot: LiveSlot, profile: BuildingVisualProfile) {
+    if (profile.variation <= 0) return 1
+    const rnd = this.visualRnd(this.buildingVisualSeed(id, slot) ^ 0x6f13a9d5)
+    return 1 + (rnd() * 2 - 1) * profile.variation
+  }
+
   private occupiedSlotIds(game: Game, moving: BuildingId | null = null, movePlot: number | null = null) {
     const ids: string[] = []
     for (const id of BUILDING_IDS) {
@@ -1654,7 +1661,7 @@ export class CityScene extends Phaser.Scene {
   }
 
   /** Bina ailesine göre deterministik mikro-prop; seviye/stage arttıkça çevre de gelişir. */
-  private addBuildingProps(id: BuildingId, slot: LiveSlot, level: number) {
+  private addBuildingProps(id: BuildingId, slot: LiveSlot, level: number, imgY: number) {
     if (level <= 0 || id === 'divan' || id === 'surlar') return
     const profile = this.buildingVisualProfile(id, slot)
     const stage = buildingStage(level)
@@ -1672,7 +1679,8 @@ export class CityScene extends Phaser.Scene {
       const spot = spots[(i + Math.floor(rnd() * spots.length)) % spots.length]
       const x = cx + spot.x * GROUND_TARGET_W * (0.55 + rnd() * 0.08)
       const y = cy + spot.y * TILE.h * (0.92 + rnd() * 0.12)
-      const img = this.add.image(x, y, 'd_' + key).setOrigin(0.5, 0.92).setDepth(y + 0.02)
+      const front = spot.y > 0.12
+      const img = this.add.image(x, y, 'd_' + key).setOrigin(0.5, 0.92).setDepth(front ? imgY + 0.06 : imgY - 0.08)
       const src = this.textures.get('d_' + key).getSourceImage() as HTMLImageElement
       const baseW = key.includes('tree') || key.includes('pine') || key.includes('cypress') || key.includes('poplar')
         ? TILE.w * (0.24 + stage * 0.025)
@@ -1684,8 +1692,9 @@ export class CityScene extends Phaser.Scene {
       this.pieces.push(img)
     }
 
-    // Aile imzası: sprite dışı küçük öğeler kopyala-yapıştır hissini kırar.
-    const g = this.add.graphics().setDepth(cy + TILE.h * 0.58)
+    // Aile imzası: öndeki küçük öğeler sprite siluetini gerçekten kıracak
+    // şekilde binanın ön depth'ine çıkar; yalnızca zeminde kaybolmaz.
+    const g = this.add.graphics().setDepth(imgY + 0.07)
     let drewFamily = false
     if (profile.family === 'military') {
       drewFamily = true
@@ -1718,6 +1727,24 @@ export class CityScene extends Phaser.Scene {
       g.fillStyle(0x705135, 1); g.fillRect(x - 13, y - 5, 26, 5)
       g.fillRect(x - 11, y, 3, 10); g.fillRect(x + 8, y, 3, 10)
       if (stage >= 2) { g.fillStyle(0xd2b86d, 1); g.fillCircle(x, y - 12, 4); g.lineStyle(1.5, 0x705135, 1); g.lineBetween(x, y - 8, x, y - 2) }
+    } else if (profile.family === 'production') {
+      drewFamily = true
+      const x = cx + GROUND_TARGET_W * 0.30, y = cy + TILE.h * 0.46
+      // Küçük iş tezgâhı / malzeme sehpası.
+      g.fillStyle(0x765332, 1); g.fillRect(x - 16, y - 11, 32, 6)
+      g.fillRect(x - 13, y - 5, 4, 10); g.fillRect(x + 9, y - 5, 4, 10)
+      if (stage >= 2) {
+        g.lineStyle(2, 0x4d4033, 1); g.lineBetween(x - 10, y - 15, x + 8, y - 26)
+        g.lineStyle(1.5, 0xb89d70, 0.9); g.lineBetween(x - 7, y - 17, x + 11, y - 28)
+      }
+    } else if (profile.family === 'residential' && stage >= 2) {
+      drewFamily = true
+      const x = cx - GROUND_TARGET_W * 0.31, y = cy + TILE.h * 0.44
+      // Çamaşır ipi / küçük gündelik hayat izi: konutları kopya sprite olmaktan çıkarır.
+      g.lineStyle(2, 0x68492c, 1); g.lineBetween(x - 14, y, x - 12, y - 28); g.lineBetween(x + 16, y, x + 14, y - 27)
+      g.lineStyle(1.2, 0x8e7a5d, 1); g.lineBetween(x - 12, y - 24, x + 14, y - 23)
+      g.fillStyle(0xb94b3f, 0.9); g.fillRect(x - 7, y - 23, 7, 8)
+      g.fillStyle(0xe2d4b2, 0.95); g.fillRect(x + 4, y - 22, 7, 7)
     }
     if (drewFamily) this.pieces.push(g)
     else g.destroy()
@@ -1729,7 +1756,7 @@ export class CityScene extends Phaser.Scene {
     // Divanhane meydanın gösterişli merkezi: diğer binalardan büyük.
     // Kademeli büyüme: aynı görsel aşamasında da seviye arttıkça bina biraz büyür.
     const profile = this.buildingVisualProfile(id, slot)
-    const artS = this.artScale() * profile.scale * stageGrowth(level)
+    const artS = this.artScale() * profile.scale * this.buildingMicroScale(id, slot, profile) * stageGrowth(level)
     // Görselin zemin elması resmin altından ART_GROUND_PX yukarıda: elmas
     // arsanın (belediyede meydanın) tam ortasına düz oturur. Liman görselleri
     // rıhtıma göre çizildiği için eski temas noktasını kullanır.
@@ -1741,7 +1768,7 @@ export class CityScene extends Phaser.Scene {
     // Her binayı aynı avlu duvarına hapsetmek şehri tekrar eden bir "compound"
     // ızgarasına çeviriyordu. Avlu yalnızca gerçekten avlulu/temsili yapılarda.
     if (profile.courtyard && slot.zone !== 'liman' && slot.slotId !== HALL_SLOT_ID && level >= 2) this.addGardenWall(slot, imgY, artS, id)
-    this.addBuildingProps(id, slot, level)
+    this.addBuildingProps(id, slot, level, imgY)
 
     // İki parçalı temas gölgesi: önce yapının tam altında yumuşak ambient
     // contact, sonra sağ-alt tarafa kısa güneş gölgesi. Böylece sprite zeminden
