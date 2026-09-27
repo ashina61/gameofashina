@@ -17,6 +17,7 @@
  */
 import { TILE } from './index'
 import { buildingImage } from '@/lib/asset'
+import type { BuildingId } from '@/lib/game/engine'
 
 /** Footprint elması genişliği (2x2 => 2*TILE.w). Zemin teması bunun altında kalır. */
 export const FOOTPRINT_DIAMOND_W = TILE.w * 2 // 256
@@ -87,4 +88,90 @@ export function assetById(id: string): BuildingAsset | undefined {
  */
 export function groundScale(imgW: number, a: BuildingAsset): number {
   return (GROUND_TARGET_W * BUILDING_RENDER_SCALE) / (imgW * a.groundContactWidthRatio)
+}
+
+
+/* -------------------------------------------------------------------------
+ * CANLI ŞEHİR GÖRSEL PROFİLLERİ
+ *
+ * Procedural bina PNG'lerinin tek kalıptan çıkmış hissini, motor verisine
+ * dokunmadan render katmanında kırar. Aynı 2x2 footprint/anchor korunur;
+ * yalnızca silüet ölçeği, zemin karakteri ve çevre prop dili değişir.
+ * ---------------------------------------------------------------------- */
+export type BuildingVisualFamily =
+  | 'hall' | 'residential' | 'production' | 'trade' | 'military'
+  | 'scholar' | 'monument' | 'culture' | 'harbour' | 'special' | 'defense'
+
+export type BuildingYardStyle = 'none' | 'soft' | 'work' | 'stone' | 'green' | 'military' | 'harbour'
+
+export type BuildingDecorKey =
+  | 'olive-tree' | 'bush' | 'flower' | 'rock' | 'cypress' | 'cypress-b'
+  | 'pine' | 'plane-tree' | 'poplar' | 'fruit-tree' | 'haystack' | 'well'
+  | 'woodpile' | 'beehives' | 'tulip-bed'
+
+export type BuildingVisualProfile = {
+  family: BuildingVisualFamily
+  yard: BuildingYardStyle
+  /** Ortak 2x2 footprint içinde yalnızca görünen sprite boyu. */
+  scale: number
+  /** Phaser multiply tint; ortak sıcak şehir ışığını korur. */
+  tint: number
+  /** Seviye yükseldikçe çevreye deterministik olarak eklenen küçük prop havuzu. */
+  decor: readonly BuildingDecorKey[]
+  /** Düşük taş avlu duvarı yalnızca gerçekten avlulu yapılarda. */
+  courtyard?: boolean
+}
+
+const vp = (
+  family: BuildingVisualFamily,
+  yard: BuildingYardStyle,
+  scale: number,
+  tint: number,
+  decor: readonly BuildingDecorKey[],
+  courtyard = false,
+): BuildingVisualProfile => ({ family, yard, scale, tint, decor, courtyard })
+
+export const BUILDING_VISUALS: Record<BuildingId, BuildingVisualProfile> = {
+  divan: vp('hall', 'stone', 1.36, 0xfff5e6, ['cypress', 'flower', 'tulip-bed'], false),
+  saray: vp('monument', 'green', 1.10, 0xfff5e6, ['cypress', 'flower', 'tulip-bed', 'well'], true),
+  elcilik: vp('monument', 'green', 1.06, 0xfff3e4, ['cypress', 'flower', 'well'], true),
+  konut: vp('residential', 'soft', 0.91, 0xf7edde, ['bush', 'flower', 'fruit-tree', 'well']),
+  hamam: vp('monument', 'stone', 1.05, 0xfff3e4, ['well', 'cypress', 'flower'], true),
+  carsi: vp('trade', 'stone', 1.00, 0xf6ead7, ['woodpile', 'flower', 'bush']),
+  ambar: vp('production', 'work', 1.01, 0xf1e5d2, ['woodpile', 'haystack', 'rock']),
+  kereste: vp('production', 'work', 0.92, 0xefe3cf, ['woodpile', 'pine', 'rock']),
+  tas: vp('production', 'work', 0.92, 0xeee5d8, ['rock', 'woodpile', 'bush']),
+  medrese: vp('scholar', 'green', 1.08, 0xfff6e8, ['cypress', 'well', 'flower'], true),
+  kisla: vp('military', 'military', 1.04, 0xf4ebe0, ['rock', 'woodpile', 'cypress']),
+  surlar: vp('defense', 'none', 1.00, 0xf2e7d6, []),
+  liman: vp('harbour', 'harbour', 1.03, 0xf2f6ee, ['woodpile', 'rock']),
+  tersane: vp('harbour', 'harbour', 1.07, 0xf0f4eb, ['woodpile', 'rock']),
+  kahvehane: vp('culture', 'soft', 0.96, 0xf8edde, ['flower', 'bush', 'well']),
+  cami: vp('monument', 'green', 1.10, 0xfff7ea, ['cypress', 'flower', 'well'], true),
+  muze: vp('culture', 'stone', 1.06, 0xfff2e1, ['cypress', 'flower', 'rock'], true),
+  marangoz: vp('production', 'work', 0.96, 0xf0e3ce, ['woodpile', 'pine', 'haystack']),
+  mimar: vp('trade', 'stone', 0.99, 0xf4eadb, ['rock', 'woodpile', 'bush']),
+  ormanci: vp('production', 'work', 0.90, 0xeee4d1, ['woodpile', 'pine', 'bush']),
+  tasci: vp('production', 'work', 0.91, 0xeee5d9, ['rock', 'woodpile', 'bush']),
+  tophane: vp('military', 'military', 1.04, 0xf3e9dd, ['rock', 'woodpile', 'haystack']),
+  bagci: vp('production', 'soft', 0.91, 0xf2e6d1, ['fruit-tree', 'bush', 'flower']),
+  simyahane: vp('scholar', 'work', 0.94, 0xf4e7d8, ['rock', 'bush', 'flower']),
+  camci: vp('production', 'work', 0.92, 0xf1e7d7, ['rock', 'woodpile', 'bush']),
+  mahzen: vp('production', 'work', 0.91, 0xeee2cf, ['woodpile', 'haystack', 'rock']),
+  gozlukcu: vp('scholar', 'soft', 0.92, 0xf6ebdc, ['flower', 'bush', 'well']),
+  barutane: vp('military', 'military', 0.94, 0xf1e6d8, ['rock', 'woodpile', 'bush']),
+  depo: vp('production', 'work', 1.02, 0xf0e4d1, ['woodpile', 'haystack', 'rock']),
+  ticaret_merkezi: vp('trade', 'stone', 1.05, 0xf8ecda, ['woodpile', 'flower', 'well']),
+  harita_arsivi: vp('scholar', 'green', 1.01, 0xf8edde, ['cypress', 'well', 'flower']),
+  valilik: vp('monument', 'green', 1.08, 0xfff4e5, ['cypress', 'flower', 'tulip-bed'], true),
+  korsan_kalesi: vp('military', 'military', 1.06, 0xeee5dc, ['rock', 'woodpile', 'pine']),
+  kara_pazar: vp('trade', 'work', 0.98, 0xf0e3d3, ['woodpile', 'bush', 'haystack']),
+  siginak: vp('military', 'military', 0.93, 0xeee6dc, ['rock', 'bush', 'woodpile']),
+  tekke: vp('culture', 'green', 1.05, 0xfbf0df, ['cypress', 'flower', 'well'], true),
+  mabet: vp('monument', 'green', 1.08, 0xfff5e7, ['cypress', 'tulip-bed', 'flower'], true),
+  karagoz: vp('culture', 'soft', 0.92, 0xf7ead8, ['flower', 'bush', 'woodpile']),
+}
+
+export function visualProfile(id: BuildingId): BuildingVisualProfile {
+  return BUILDING_VISUALS[id]
 }
