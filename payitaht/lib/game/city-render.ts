@@ -248,5 +248,6 @@ export function visualSignature(game: Game): string {
     // Oyuncunun dosedigi yollar ve aynaladigi binalar da sahneyi degistirir.
     game.roads.join(','),
     game.flips.join(','),
+    `${game.coastFacing.liman},${game.coastFacing.tersane}`,
   ].join('|')
 }
