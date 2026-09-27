@@ -29,7 +29,7 @@ import { NPC_SETTLEMENTS } from '@/lib/game/expeditions'
 import { useGame } from '@/hooks/use-game'
 import { usePwa } from '@/hooks/use-pwa'
 import { useAlerts, useNotifySetting } from '@/hooks/use-alerts'
-import { BUILDINGS, OBJECTIVES, PLOTS, objectiveDone, type BuildingId, type Command } from '@/lib/game/engine'
+import { BUILDINGS, BUILDING_IDS, OBJECTIVES, PLOTS, objectiveDone, type BuildingId, type Command } from '@/lib/game/engine'
 import { cn } from '@/lib/utils'
 import { ProfilePanel, ChangelogPanel } from './profile-panel'
 import { GodsPanel } from './gods-panel'
@@ -79,6 +79,24 @@ export default function GameShell({ onTitle }: { onTitle?: () => void } = {}) {
   const [confirmReset, setConfirmReset] = useState(false)
   const saveImportRef = useRef<HTMLInputElement>(null)
   const currentCityName = empire ? activeCity(empire).name : 'Sahilhisar'
+  // Aktif oturumda tamamlanan inşa/yükseltmeye ses + titreşim + kısa bildirim.
+  // Şehir değiştirildiğinde farklı seviyeleri "yeni tamamlandı" sanmamak için cityId de tutulur.
+  const completionRef = useRef<{ cityId: string; levels: Record<BuildingId, number> } | null>(null)
+  useEffect(() => {
+    if (!game || !empire) return
+    const cityId = empire.activeCityId
+    const prev = completionRef.current
+    if (!prev || prev.cityId !== cityId) {
+      completionRef.current = { cityId, levels: { ...game.buildings } }
+      return
+    }
+    const completed = BUILDING_IDS.filter(id => game.buildings[id] > prev.levels[id])
+    completionRef.current = { cityId, levels: { ...game.buildings } }
+    if (!completed.length) return
+    const id = completed[0]
+    const lv = game.buildings[id]
+    say.ok(`${BUILDINGS[id].name} tamamlandı · Seviye ${lv}`, 'coin')
+  }, [game, empire])
   /*
    * İNŞA KİPİ.
    *
