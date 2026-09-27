@@ -2433,6 +2433,138 @@ def karagoz(s, st): _p6_culture(s, st, 'karagoz')
 def liman(s, st): _p6_harbour(s, st)
 
 
+
+# ================================================================
+# FINAL VISUAL PASS — DIVANHANE + SURLAR
+# Ana landmark ve savunma önizlemesi, güncel şehir sanat diliyle eşleşir.
+# ================================================================
+
+def divan(s, st):
+    """DİVANHANE / PAYİTAHT MERKEZİ: sabit ana landmark. Tek bir saray kutusu
+    değil; tören avlusu, merkez divan kubbesi, iki yan kanat ve Adalet Kulesi
+    üzerinden okunur. Aşama arttıkça kompleks genişler ama taban anchor değişmez."""
+    ground(s, 0.06, 0.06, 1.96, 1.96, hexc('#d5c092'))
+    pave(s, 0.26, 0.78, 1.74, 1.86, PAL['marble'], n=7)
+
+    lead = PAL['lead']
+    wall = OTTO['white']
+    stone = hexc('#d2c09d')
+
+    # Ana Divan-ı Hümayun: merkezde daha kısa ama geniş, kubbe onu taçlandırır.
+    h = (0.48, 0.54, 0.60)[st - 1]
+    s.box(0.46, 0.28, 0, 1.52, 0.92, h, wall, 'plaster',
+          deco_y=[('arch', 0.18, 0.10, 0.09, 0.18),
+                  ('archdoor', 0.50, 0, 0.18, 0.30),
+                  ('arch', 0.82, 0.10, 0.09, 0.18)],
+          deco_x=[('arch', 0.28, 0.10, 0.09, 0.18),
+                  ('arch', 0.72, 0.10, 0.09, 0.18)])
+    # Geniş Osmanlı saçağı.
+    s.hip(0.42, 0.24, 1.56, 0.96, h, 0.10, lead, over=0.14, mat='lead')
+    domed(s, 0.99, 0.60, h + 0.04, 0.25 + 0.02 * st, drum=0.07, wall=wall)
+
+    # Ön revak: sabit landmark'ın güçlü yatay tabanı.
+    portico(s, 0.42, 1.56, 0.92, 0.28, 0.40, 7 if st >= 2 else 5,
+            col=PAL['marble'], roofcol=lead)
+
+    # Adalet Kulesi: merkezden sola kayık tek baskın dikey eleman.
+    th = (0.80, 1.00, 1.20)[st - 1]
+    tx, ty = 0.28, 0.34
+    s.box(tx - 0.13, ty - 0.13, 0, tx + 0.13, ty + 0.13, th, stone, 'stone',
+          deco_y=[('courses', 0.08), ('arch', 0.5, 0.12, 0.08, 0.16)],
+          deco_x=[('courses', 0.08), ('arch', 0.5, 0.12, 0.08, 0.16)])
+    s.box(tx - 0.15, ty - 0.15, th, tx + 0.15, ty + 0.15, th + 0.05, PAL['stone2'], 'stone')
+    s.cylinder(tx, ty, th + 0.05, th + 0.30, 0.14, PAL['marble'], 'marble', n=12)
+    s.cone(tx, ty, th + 0.30, 0.34 + 0.05 * st, 0.16, lead, 'lead', n=12)
+    s.sphere(tx, ty, th + 0.67 + 0.05 * st, 0.018, PAL['gold'])
+
+    # Yan yönetim kanatları: level 1'de sol, level 2'de sağ, level 3'te tam avlu.
+    s.box(0.18, 0.98, 0, 0.58, 1.56, 0.34, OTTO['ochre'], 'plaster',
+          deco_x=[('kafes', 0.30, 0.08, 0.08, 0.14),
+                  ('kafes', 0.70, 0.08, 0.08, 0.14)])
+    s.hip(0.16, 0.96, 0.60, 1.58, 0.34, 0.12, PAL['roof'], over=0.08)
+
+    if st >= 2:
+        s.box(1.42, 0.98, 0, 1.82, 1.56, 0.34, OTTO['ochre'], 'plaster',
+              deco_x=[('kafes', 0.30, 0.08, 0.08, 0.14),
+                      ('kafes', 0.70, 0.08, 0.08, 0.14)])
+        s.hip(1.40, 0.96, 1.84, 1.58, 0.34, 0.12, PAL['roof'], over=0.08)
+
+        # Bâbüsselâm: tören avlusunun önünde, iki ince kapı kulesi.
+        gx0, gx1, gy0, gy1 = 0.72, 1.28, 1.58, 1.76
+        gh = 0.34
+        s.box(gx0, gy0, 0, gx1, gy1, gh, wall, 'plaster',
+              deco_y=[('band', 0.58, 0.70, hexc('#345f49')),
+                      ('archdoor', 0.5, 0, 0.20, 0.29)])
+        crenel(s, gx0, gy0, gx1, gy1, gh, wall, step=0.09, size=0.045, h=0.055)
+        for x in (gx0 - 0.03, gx1 + 0.03):
+            s.cylinder(x, (gy0 + gy1) / 2, 0, 0.52 + 0.07 * st, 0.11, wall, 'plaster', n=8)
+            s.cone(x, (gy0 + gy1) / 2, 0.52 + 0.07 * st, 0.30, 0.13, lead, 'lead', n=8)
+
+    # Avlu şadırvanı: level 2'den sonra şehir merkezi daha "yaşayan" görünür.
+    if st >= 2:
+        s.cylinder(1.00, 1.30, 0, 0.08, 0.15, PAL['marble'], 'marble', n=16, top=PAL['water'])
+        s.cylinder(1.00, 1.30, 0.08, 0.22, 0.018, PAL['marble'], 'marble', n=8)
+
+    if st >= 3:
+        # Saray mutfakları: arka sağda ritmik bacalar, ana silueti boğmaz.
+        s.box(1.60, 0.18, 0, 1.86, 0.96, 0.34, stone, 'stone',
+              deco_x=[('courses', 0.07)], deco_y=[('courses', 0.07)])
+        for i in range(4):
+            cy = 0.30 + i * 0.18
+            s.cylinder(1.73, cy, 0.34, 0.60, 0.045, stone, 'stone', n=10)
+            s.dome(1.73, cy, 0.60, 0.060, lead, 'lead', hscale=0.70, finial=False)
+
+        # Tören sancağı ve iki servi, landmark'ı diğer anıtsal yapılardan ayırır.
+        s.flag(1.00, 1.66, 0.44, 0.62)
+        s.tree(0.30, 1.70, 0.86, 'cypress')
+        s.tree(1.70, 1.70, 0.86, 'cypress')
+
+
+def surlar(s, st):
+    """SURLAR ÖNİZLEMESİ: oyun içindeki halka duvarın temsilî kapı kesiti.
+    Level arttıkça duvar kalınlaşır, kapı kulesi ve mazgal ritmi güçlenir."""
+    ground(s, 0.12, 0.12, 1.90, 1.90, hexc('#c7b183'))
+    pave(s, 0.30, 1.40, 1.72, 1.82, hexc('#b8a078'), n=4)
+
+    h = (0.38, 0.50, 0.62)[st - 1]
+    col = hexc('#c9b083')
+    top = hexc('#dfcaa0')
+
+    # Uzun ana duvar kesiti.
+    s.box(0.18, 1.06, 0, 1.82, 1.36, h, col, 'stone',
+          deco_y=[('courses', 0.07), ('archdoor', 0.50, 0, 0.24, 0.34)],
+          deco_x=[('courses', 0.07)])
+    s.box(0.16, 1.04, h, 1.84, 1.38, h + 0.05, top, 'stone')
+    crenel(s, 0.18, 1.06, 1.82, 1.36, h + 0.05, col,
+           step=0.11 if st < 3 else 0.095, size=0.05, h=0.065)
+
+    # Kapı iki yanında yuvarlak kuleler; level 1'de kısa, 3'te belirgin.
+    for x in (0.36, 1.64):
+        th = h + 0.22 + 0.08 * st
+        s.cylinder(x, 1.21, 0, th, 0.18 + 0.01 * st, col, 'stone', n=16)
+        s.cylinder(x, 1.21, th, th + 0.05, 0.21 + 0.01 * st, top, 'stone', n=16)
+        # Runtime duvar dili gibi düz/mazgallı kule; fantastik sivri çatı yok.
+        for k in range(8):
+            a = 2 * math.pi * k / 8
+            cx = x + math.cos(a) * (0.17 + 0.01 * st)
+            cy = 1.21 + math.sin(a) * (0.17 + 0.01 * st)
+            s.box(cx - 0.028, cy - 0.028, th + 0.05,
+                  cx + 0.028, cy + 0.028, th + 0.12, col, 'stone')
+
+    # Level 2: bir yan duvar kanadı; level 3: ikinci kanat + nöbetçi platformu.
+    if st >= 2:
+        s.box(0.18, 0.40, 0, 0.46, 1.06, h * 0.92, col, 'stone',
+              deco_x=[('courses', 0.07)])
+        crenel(s, 0.18, 0.40, 0.46, 1.06, h * 0.92, col, step=0.12, size=0.05, h=0.06)
+    if st >= 3:
+        s.box(1.54, 0.40, 0, 1.82, 1.06, h * 0.92, col, 'stone',
+              deco_x=[('courses', 0.07)])
+        crenel(s, 1.54, 0.40, 1.82, 1.06, h * 0.92, col, step=0.12, size=0.05, h=0.06)
+        s.box(0.78, 0.66, 0, 1.22, 0.94, 0.28, hexc('#a98e67'), 'stone',
+              deco_y=[('courses', 0.06)])
+
+    s.flag(1.00, 1.18, h + 0.16, 0.48)
+
 BUILDINGS = {
     'divan': divan, 'saray': saray, 'elcilik': elcilik, 'konut': konut, 'hamam': hamam, 'carsi': carsi,
     'ambar': ambar, 'kereste': kereste, 'tas': tas, 'medrese': medrese, 'kisla': kisla, 'liman': liman,

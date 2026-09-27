@@ -7,44 +7,51 @@ async function main() {
   const out = path.resolve('visual-review')
   await fs.mkdir(out, { recursive: true })
   const browser = await chromium.launch({ headless: true, args: ['--no-sandbox'] })
-  const diagnostics = { pageErrors: [], missingGameAssets: [], screenshots: [] }
-  try {
+  const diagnostics = { pageErrors: [], missingGameAssets: [], screenshots: [], viewports: [] }
+  const origin = process.env.VISUAL_QA_URL || 'http://127.0.0.1:4173/gameofashina/'
+
+  const runViewport = async ({ width, height }) => {
+    const label = `${width}x${height}`
+    diagnostics.viewports.push(label)
     const context = await browser.newContext({
-      viewport: { width: 390, height: 844 },
+      viewport: { width, height },
       deviceScaleFactor: 2,
       isMobile: true,
       hasTouch: true,
       colorScheme: 'light',
     })
     const page = await context.newPage()
-    page.on('pageerror', error => diagnostics.pageErrors.push(error.message))
+    page.on('pageerror', error => diagnostics.pageErrors.push(`${label}: ${error.message}`))
     page.on('response', response => {
       if (response.status() >= 400 && response.url().includes('/images/game/')) {
-        diagnostics.missingGameAssets.push(`${response.status()} ${response.url()}`)
+        diagnostics.missingGameAssets.push(`${label}: ${response.status()} ${response.url()}`)
       }
     })
-    const origin = process.env.VISUAL_QA_URL || 'http://127.0.0.1:4173/gameofashina/'
+
     await page.goto(origin, { waitUntil: 'domcontentloaded', timeout: 60_000 })
-    // Giriş ekranı: ilk açılışta yeni oyun formu, kayıt varsa "Devam et".
-    const title = path.join(out, 'title-390x844.png')
+
+    const title = path.join(out, `title-${label}.png`)
     await page.getByRole('button', { name: /Hikâyeye başla|Devam et/ }).waitFor({ timeout: 45_000 })
     await page.screenshot({ path: title, animations: 'disabled' })
     diagnostics.screenshots.push(path.basename(title))
+
     await page.getByRole('button', { name: /Hikâyeye başla|Devam et/ }).click()
     await page.waitForFunction(() => {
       const canvas = document.querySelector('canvas')
       return canvas && canvas.width > 0 && canvas.height > 0 && canvas.clientWidth > 0
     }, null, { timeout: 45_000 })
+
     // Give React, texture loading and Phaser's first render time to settle.
     await page.waitForTimeout(6500)
-    const center = path.join(out, 'city-center-390x844.png')
+
+    const center = path.join(out, `city-center-${label}.png`)
     await page.screenshot({ path: center, animations: 'disabled' })
     diagnostics.screenshots.push(path.basename(center))
 
     const harbour = page.getByRole('button', { name: 'Donanma ve limana git' })
     await harbour.click({ timeout: 10_000 })
     await page.waitForTimeout(1800)
-    const coast = path.join(out, 'harbour-390x844.png')
+    const coast = path.join(out, `harbour-${label}.png`)
     await page.screenshot({ path: coast, animations: 'disabled' })
     diagnostics.screenshots.push(path.basename(coast))
 
@@ -55,17 +62,29 @@ async function main() {
     const empire = await page.evaluate(() =>
       JSON.parse(localStorage.getItem('payitaht-adalari-v1') || 'null'))
     if (empire?.version !== 1 || !Array.isArray(empire.cities) || empire.cities.length < 1) {
-      throw new Error('Empire save was not initialized or migrated.')
+      throw new Error(`${label}: Empire save was not initialized or migrated.`)
     }
-    const atlas = path.join(out, 'island-atlas-390x844.png')
+    const atlas = path.join(out, `island-atlas-${label}.png`)
     await page.screenshot({ path: atlas, animations: 'disabled' })
     diagnostics.screenshots.push(path.basename(atlas))
+
+    await context.close()
+  }
+
+  try {
+    // Compact and tall/common modern Android widths: catch HUD collisions that
+    // a single 390×844 reference viewport can miss.
+    for (const viewport of [
+      { width: 390, height: 844 },
+      { width: 412, height: 915 },
+    ]) {
+      await runViewport(viewport)
+    }
 
     await fs.writeFile(path.join(out, 'diagnostics.json'), JSON.stringify(diagnostics, null, 2))
     if (diagnostics.pageErrors.length || diagnostics.missingGameAssets.length) {
       throw new Error('Mobile city rendered with JavaScript errors or missing game assets; check visual-review/diagnostics.json')
     }
-    await context.close()
   } finally {
     await browser.close()
   }
