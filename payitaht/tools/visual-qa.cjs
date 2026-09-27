@@ -61,7 +61,7 @@ async function main() {
     // mavi-panel/anchor gibi coast regression'larını yakalamıyordu. Test save'inde
     // Liman + Tersane'yi kullanıcı ekranındaki gibi seviye 2 ve iki coast slotuna
     // yerleştir; sonra sayfayı gerçek save parse/migration yolu üzerinden yeniden aç.
-    await page.evaluate(() => {
+    const coastSeedRaw = await page.evaluate(() => {
       const key = 'payitaht-adalari-v1'
       const empire = JSON.parse(localStorage.getItem(key) || 'null')
       const city = empire?.cities?.find(c => c.id === empire.activeCityId) ?? empire?.cities?.[0]
@@ -71,8 +71,14 @@ async function main() {
       game.buildings.tersane = 2
       game.placement.liman = 25
       game.placement.tersane = 26
-      localStorage.setItem(key, JSON.stringify(empire))
+      return JSON.stringify(empire)
     })
+    // reload sırasında useGame pagehide handler eski in-memory kaydı flush eder.
+    // Bu yüzden seed'i eski document'ta localStorage'a yazmak yetmez. Init script
+    // yeni document'ta uygulama kodundan ÖNCE çalışır ve test state'ini son kez yazar.
+    await page.addInitScript(raw => {
+      localStorage.setItem('payitaht-adalari-v1', raw)
+    }, coastSeedRaw)
     await page.reload({ waitUntil: 'domcontentloaded' })
     await page.getByRole('button', { name: /Hikâyeye başla|Devam et/ }).waitFor({ timeout: 45_000 })
     await page.getByRole('button', { name: /Hikâyeye başla|Devam et/ }).click()
