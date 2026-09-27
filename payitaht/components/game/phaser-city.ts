@@ -451,6 +451,11 @@ export class CityScene extends Phaser.Scene {
 
   /** React tarafından çağrılır; yalnızca GÖRÜNEN bir şey değiştiyse çizer. */
   sync(game: Game, showLabels: boolean, placing: boolean, moving: BuildingId | null = null, movePlot: number | null = null) {
+    // Aktif oturumda tamamlanan bina/yükseltmeyi yakala. İlk hydrate'ta kutlama
+    // oynatılmaz; yalnızca önceki sahne durumuna göre seviye gerçekten artmışsa.
+    const completed = this.built
+      ? BUILDING_IDS.filter(id => game.buildings[id] > this.state.buildings[id])
+      : []
     this.state = game
     if (!this.built) return
     if (game.buildings.divan !== this.framedDivan) { // yeni arsalar açıldı: "şehir" kadrajı büyür
@@ -467,6 +472,8 @@ export class CityScene extends Phaser.Scene {
     this.moving = moving
     this.movePlot = movePlot
     this.redraw()
+    // Redraw yeni bina sprite'ını yerine koyduktan hemen sonra kısa dünya-içi kutlama.
+    if (completed.length) this.time.delayedCall(35, () => completed.slice(0, 3).forEach((id, i) => this.celebrateBuilding(id, i * 90)))
   }
 
   /** Şehir Divanhane ile kademeli gelişir: süsler ve sancaklar seviyeye göre açılır. */
@@ -1884,6 +1891,57 @@ export class CityScene extends Phaser.Scene {
     }
     if (drewFamily) this.pieces.push(g)
     else g.destroy()
+  }
+
+  /** İnşaat/yükseltme tamamlanınca kısa, dünyaya bağlı kutlama. */
+  private celebrateBuilding(id: BuildingId, delay = 0) {
+    this.time.delayedCall(delay, () => {
+      let slot = this.slotOfBuilding(id)
+      if (!slot && id === 'surlar') slot = LIVE_SLOTS.find(s => s.slotId === HALL_SLOT_ID) ?? null
+      if (!slot) return
+      const anc = this.anchor(slot)
+      const x = anc.x
+      const y = anc.baseY - TILE.h * (slot.zone === 'liman' ? 0.18 : 0.34)
+
+      // Çok hafif kamera darbesi: başarı hissi verir ama oyuncunun kadrajını bozmaz.
+      this.cameras.main.shake(105, 0.00105)
+
+      const ring = this.add.graphics().setPosition(x, y).setDepth(3.6e5)
+      ring.lineStyle(Math.max(2, TILE.w * 0.020), 0xf2d37d, 0.95)
+      ring.strokeEllipse(0, 0, GROUND_TARGET_W * 0.54, TILE.h * 0.76)
+      ring.lineStyle(Math.max(1, TILE.w * 0.009), 0xfff1b8, 0.85)
+      ring.strokeEllipse(0, 0, GROUND_TARGET_W * 0.36, TILE.h * 0.48)
+      ring.setScale(0.62).setAlpha(0.95)
+      this.tweens.add({
+        targets: ring,
+        scaleX: 1.38,
+        scaleY: 1.38,
+        alpha: 0,
+        duration: 620,
+        ease: 'Cubic.easeOut',
+        onComplete: () => ring.destroy(),
+      })
+
+      // Küçük altın kıvılcımlar; ParticleEmitter açmadan birkaç pooled Graphics.
+      for (let i = 0; i < 12; i++) {
+        const a = (Math.PI * 2 * i) / 12 + (i % 2) * 0.13
+        const dist = GROUND_TARGET_W * (0.16 + (i % 3) * 0.035)
+        const spark = this.add.graphics().setPosition(x, y).setDepth(3.6e5 + 1)
+        spark.fillStyle(i % 3 === 0 ? 0xfff0a8 : 0xe8bc55, 1)
+        spark.fillCircle(0, 0, i % 3 === 0 ? 3.2 : 2.3)
+        this.tweens.add({
+          targets: spark,
+          x: x + Math.cos(a) * dist,
+          y: y + Math.sin(a) * dist * 0.42 - TILE.h * 0.18,
+          alpha: 0,
+          scaleX: 0.55,
+          scaleY: 0.55,
+          duration: 430 + (i % 4) * 45,
+          ease: 'Quad.easeOut',
+          onComplete: () => spark.destroy(),
+        })
+      }
+    })
   }
 
   /** Dokunma geri bildirimi: binayı kapatmadan zeminde kısa altın halka. */
