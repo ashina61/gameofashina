@@ -54,8 +54,8 @@ export function advisorNews(game: Game, empire: Empire | undefined, seen: Adviso
 type StockFxKey = 'gold' | 'wood' | 'stone' | 'knowledge'
 type StockFx = { value: number; stamp: number }
 
-export function IkaTopBar({ game, empire, news, onCity, onEconomy, onAdvisor, onProfile }: {
-  game: Game; empire: Empire | undefined; news: Record<AdvisorId, number>
+export function IkaTopBar({ game, empire, news, activeAdvisor, onCity, onEconomy, onAdvisor, onProfile }: {
+  game: Game; empire: Empire | undefined; news: Record<AdvisorId, number>; activeAdvisor?: AdvisorId | null
   onCity: () => void; onEconomy: () => void; onAdvisor: (id: AdvisorId) => void; onProfile: () => void
 }) {
   const prof = empire ? profileOf(empire) : null
@@ -125,9 +125,11 @@ export function IkaTopBar({ game, empire, news, onCity, onEconomy, onAdvisor, on
         <ChevronDown aria-hidden="true" />
       </button>
       <nav className="ika-advisors" aria-label="Danışmanlar">
-        {(Object.keys(ADVISORS) as AdvisorId[]).map(id => <button key={id} type="button" className={cn('ika-advisor', news[id] > 0 && 'ika-advisor-news')}
-          onClick={() => onAdvisor(id)} aria-label={`${ADVISORS[id].title} (${ADVISORS[id].name})${news[id] ? `: ${news[id]} haber` : ''}`}>
-          <AdvisorPortrait id={id} size={42} />
+        {(Object.keys(ADVISORS) as AdvisorId[]).map(id => <button key={id} type="button"
+          className={cn('ika-advisor', news[id] > 0 && 'ika-advisor-news', activeAdvisor === id && 'ika-advisor-active')}
+          onClick={() => onAdvisor(id)} aria-pressed={activeAdvisor === id}
+          aria-label={`${ADVISORS[id].title} (${ADVISORS[id].name})${news[id] ? `: ${news[id]} haber` : ''}`}>
+          <span className="ika-advisor-ring" aria-hidden="true"><AdvisorPortrait id={id} size={42} /></span>
           {news[id] > 0 && <span className="ika-badge">{news[id]}</span>}
         </button>)}
       </nav>
