@@ -58,4 +58,8 @@ jobs:
             exit 0
           fi
           git commit -m "Regenerate eight core building silhouettes"
+          # Başka bir PR/push workflow'u aynı branch'i ilerletmiş olabilir.
+          # Üretilen binary commit'i güncel remote head üstüne taşı ve fast-forward push et.
+          git fetch origin chatgpt/building-art-pass-5
+          git rebase origin/chatgpt/building-art-pass-5
           git push origin HEAD:chatgpt/building-art-pass-5
