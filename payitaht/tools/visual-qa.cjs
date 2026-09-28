@@ -86,6 +86,12 @@ async function main() {
       game.buildings.kereste = 8
       game.buildings.tas = 8
       game.buildings.ambar = 8
+      game.buildings.elcilik = 8
+      game.placement.elcilik = 10
+      game.buildings.hamam = 8
+      game.placement.hamam = 11
+      game.buildings.kahvehane = 8
+      game.placement.kahvehane = 12
       return JSON.stringify(empire)
     })
     // reload sırasında useGame pagehide handler eski in-memory kaydı flush eder.
@@ -131,7 +137,7 @@ async function main() {
       }
     }
     if (width === 390) {
-      for (const expected of ['cami-painted-3.webp', 'saray-painted-3.webp', 'konut-painted-3.webp', 'kisla-painted-3.webp', 'medrese-painted-3.webp', 'carsi-painted-3.webp', 'kereste-painted-3.webp', 'tas-painted-3.webp', 'ambar-painted-3.webp']) {
+      for (const expected of ['cami-painted-3.webp', 'saray-painted-3.webp', 'konut-painted-3.webp', 'kisla-painted-3.webp', 'medrese-painted-3.webp', 'carsi-painted-3.webp', 'kereste-painted-3.webp', 'tas-painted-3.webp', 'ambar-painted-3.webp', 'elcilik-painted-3.webp', 'hamam-painted-3.webp', 'kahvehane-painted-3.webp']) {
         if (!loadedNames.includes(expected)) throw new Error(`${label}: painted stage 3 did not load: ${expected}`)
       }
       const mosque = path.join(out, `city-cami-upgrade-${label}.png`)
