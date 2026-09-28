@@ -71,6 +71,12 @@ async function main() {
       game.buildings.tersane = 2
       game.placement.liman = 25
       game.placement.tersane = 26
+      // Boyalı yapının en geniş aşamasını gerçek şehir kadrajında kontrol et.
+      game.buildings.cami = 8
+      game.placement.cami = 3
+      game.buildings.saray = 8
+      game.placement.saray = 5
+      game.buildings.konut = 8
       return JSON.stringify(empire)
     })
     // reload sırasında useGame pagehide handler eski in-memory kaydı flush eder.
@@ -114,6 +120,14 @@ async function main() {
       if (!loadedNames.includes(expected)) {
         throw new Error(`${label}: expected coast texture was not loaded: ${expected}; loaded=${loadedNames.join(',')}`)
       }
+    }
+    if (width === 390) {
+      for (const expected of ['cami-painted-3.webp', 'saray-painted-3.webp', 'konut-painted-3.webp']) {
+        if (!loadedNames.includes(expected)) throw new Error(`${label}: painted stage 3 did not load: ${expected}`)
+      }
+      const mosque = path.join(out, `city-cami-upgrade-${label}.png`)
+      await page.screenshot({ path: mosque, animations: 'disabled' })
+      diagnostics.screenshots.push(path.basename(mosque))
     }
 
     const harbour = page.getByRole('button', { name: 'Donanma ve limana git' })

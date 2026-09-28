@@ -29,7 +29,12 @@ export function buildingStage(level: number): 1 | 2 | 3 {
  * değiştiğinde bu değeri yükselt; query string hem browser hem SW cache anahtarını
  * değiştirir, binary dosya adlarını ve BUILDING_FLAGS anahtarlarını bozmaz.
  */
-export const BUILDING_ART_REV = '20260928-painted-divan-v1'
+export const BUILDING_ART_REV = '20260928-painted-landmarks-v2'
+
+/** Tam şeffaf, eski izokit tuvali yerine boyanmış üç aşamalı görseller. */
+export function isPaintedBuilding(id: string) {
+  return id === 'divan' || id === 'cami' || id === 'saray' || id === 'konut'
+}
 
 export type CoastFacing = 'left' | 'straight' | 'right'
 
@@ -44,6 +49,6 @@ export function buildingArtKey(id: string, level = 1, facing?: CoastFacing) {
 
 /** Bir bina gorselinin yolu (tools/art/buildings.py ile cizilir). */
 export function buildingImage(id: string, level = 1, facing?: CoastFacing) {
-  if (id === 'divan') return `${asset(`/images/game/buildings/divan-painted-${buildingStage(level)}.webp`)}?art=${BUILDING_ART_REV}`
+  if (isPaintedBuilding(id)) return `${asset(`/images/game/buildings/${id}-painted-${buildingStage(level)}.webp`)}?art=${BUILDING_ART_REV}`
   return `${asset(`/images/game/buildings/${buildingArtKey(id, level, facing)}.webp`)}?art=${BUILDING_ART_REV}`
 }

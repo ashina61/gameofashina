@@ -26,7 +26,7 @@ import { GROUND_TARGET_W, FOOTPRINT_DIAMOND_W, ART_DIAMOND_PX, visualProfile, ty
 import { edgeKey, roadEdgeKeysForTargets } from '@/lib/game/city-map/road-tree'
 import { visualSignature } from '@/lib/game/city-render'
 import { BUILDINGS, BUILDING_IDS, activeJob, plotOpen, population, zoneOf, type BuildingId, type Game } from '@/lib/game/engine'
-import { asset, buildingArtKey, buildingImage, buildingStage } from '@/lib/asset'
+import { asset, buildingArtKey, buildingImage, buildingStage, isPaintedBuilding } from '@/lib/asset'
 import { canvasDpr } from '@/lib/render-dpr'
 
 /** Yolda yürüyen vatandaş (Ikariam'ın sokaktaki halkı). */
@@ -57,10 +57,10 @@ function stageGrowth(level: number) {
 }
 /** Bina görsellerinde zemin elmasının merkezi, resmin altından bu kadar yukarıda (sanat pikseli, 600px tuval). */
 const ART_GROUND_PX = 118
-/** Divanhane'nin boyalı PNG tuvali 1466px: eski 600px sprite genişliğine eşle. */
-const PAINTED_HALL_SCALE = 600 / 1466
-/** Aynı dünya temasını korumak için boyalı tuvaldeki zemin merkezinin alt payı. */
-const PAINTED_HALL_GROUND_PX = ART_GROUND_PX / PAINTED_HALL_SCALE
+/** Boyalı tuvalleri eski 600px sprite genişliğiyle aynı dünya ölçeğine eşle. */
+const PAINTED_SOURCE_WIDTH: Partial<Record<BuildingId, number>> = {
+  divan: 1466, cami: 1445, saray: 1542, konut: 1633,
+}
 function isTap(p: Phaser.Input.Pointer) {
   return p.downTime > 0 && Phaser.Math.Distance.Between(p.downX, p.downY, p.upX, p.upY) < TAP_SLOP
 }
@@ -1987,8 +1987,8 @@ export class CityScene extends Phaser.Scene {
     // Divanhane meydanın gösterişli merkezi: diğer binalardan büyük.
     // Kademeli büyüme: aynı görsel aşamasında da seviye arttıkça bina biraz büyür.
     const profile = this.buildingVisualProfile(id, slot)
-    const artS = this.artScale() * profile.scale * this.buildingMicroScale(id, slot, profile) * stageGrowth(level)
-      * (id === 'divan' ? PAINTED_HALL_SCALE : 1)
+    const paintedScale = PAINTED_SOURCE_WIDTH[id] ? 600 / PAINTED_SOURCE_WIDTH[id] : 1
+    const artS = this.artScale() * profile.scale * this.buildingMicroScale(id, slot, profile) * stageGrowth(level) * paintedScale
     // Görselin zemin elması resmin altından ART_GROUND_PX yukarıda: elmas
     // arsanın (belediyede meydanın) tam ortasına düz oturur. Liman görselleri
     // rıhtıma göre çizildiği için eski temas noktasını kullanır.
@@ -1999,8 +1999,7 @@ export class CityScene extends Phaser.Scene {
     const coastSink = slot.zone === 'liman'
       ? TILE.h * (id === 'tersane' ? 0.30 : id === 'liman' ? 0.24 : 0.18)
       : 0
-    const imgY = slot.zone === 'liman' ? anc.baseY + coastSink
-      : slot.screen.y + (id === 'divan' ? PAINTED_HALL_GROUND_PX : ART_GROUND_PX) * artS
+    const imgY = slot.zone === 'liman' ? anc.baseY + coastSink : slot.screen.y + ART_GROUND_PX * artS / paintedScale
     let dispW = TILE.w * 2, dispH = TILE.h * 2
     let buildingSprite: Phaser.GameObjects.Image | null = null
 
@@ -2008,8 +2007,8 @@ export class CityScene extends Phaser.Scene {
     this.addOccupiedClearing(id, slot, anc.baseY)
     // Her binayı aynı avlu duvarına hapsetmek şehri tekrar eden bir "compound"
     // ızgarasına çeviriyordu. Avlu yalnızca gerçekten avlulu/temsili yapılarda.
-    if (profile.courtyard && slot.zone !== 'liman' && slot.slotId !== HALL_SLOT_ID && level >= 2) this.addGardenWall(slot, imgY, artS, id)
-    this.addBuildingProps(id, slot, level, imgY)
+    if (profile.courtyard && !isPaintedBuilding(id) && slot.zone !== 'liman' && slot.slotId !== HALL_SLOT_ID && level >= 2) this.addGardenWall(slot, imgY, artS, id)
+    if (!isPaintedBuilding(id)) this.addBuildingProps(id, slot, level, imgY)
 
     // İki parçalı temas gölgesi: önce yapının tam altında yumuşak ambient
     // contact, sonra sağ-alt tarafa kısa güneş gölgesi. Böylece sprite zeminden
@@ -2037,9 +2036,9 @@ export class CityScene extends Phaser.Scene {
       dispW = img.width * scale; dispH = img.height * scale
       this.pieces.push(img)
       // Sancaklar: görseldeki direklerin tepesine oyuncunun sancağı (tools/art → building-flags.json).
-      // Boyalı Divanhane'de kumaş/direk görsele dahildir; eski vektör
+      // Boyalı yapılarda sancak/ayrıntı görsele dahildir; eski vektör
       // manifestindeki koordinatlar farklı tuvale işaret eder.
-      const anchors = id === 'divan' ? undefined : BUILDING_FLAGS[textureKey]
+      const anchors = isPaintedBuilding(id) ? undefined : BUILDING_FLAGS[textureKey]
       if (anchors) {
         const [W, H, list] = anchors
         for (const [fx, fy, fw, fh] of list) {

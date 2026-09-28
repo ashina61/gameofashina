@@ -8,7 +8,7 @@
 import { createContext, useContext } from 'react'
 import { BUILDING_FLAGS, DEFAULT_LOOK, type BannerLook } from '@/lib/game/banner'
 import type { BuildingId } from '@/lib/game/engine'
-import { buildingArtKey, buildingImage, type CoastFacing } from '@/lib/asset'
+import { buildingArtKey, buildingImage, isPaintedBuilding, type CoastFacing } from '@/lib/asset'
 
 export const BannerContext = createContext<BannerLook>(DEFAULT_LOOK)
 export const useBanner = () => useContext(BannerContext)
@@ -42,7 +42,7 @@ export function FlagCloth({ look, style }: { look: BannerLook; style?: React.CSS
 export function BuildingArt({ id, level, className, alt = '', facing }: { id: BuildingId; level: number; className?: string; alt?: string; facing?: CoastFacing }) {
   const look = useBanner()
   const key = buildingArtKey(id, Math.max(1, level), facing)
-  const m = id === 'divan' ? undefined : BUILDING_FLAGS[key]
+  const m = isPaintedBuilding(id) ? undefined : BUILDING_FLAGS[key]
   const src = buildingImage(id, level, facing)
   const mirror = (id === 'liman' || id === 'tersane') && facing === 'right'
   if (!m) return <img className={className} src={src} alt={alt} draggable={false} style={mirror ? { transform: 'scaleX(-1)' } : undefined} />
