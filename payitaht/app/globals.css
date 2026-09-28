@@ -2035,6 +2035,10 @@
   text-shadow: 0 1px 2px #0008;
 }
 .bp .world-tabs button[aria-pressed="true"] svg { color: #f0d27d; }
+/* 5-6 sekmeli dünya/diplomasi gruplarında 4+2 dengesizliğini önle. */
+.bp .world-tabs:has(> :nth-child(5)) { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.bp .rank-tabs { display: flex; flex-wrap: wrap; gap: 6px; }
+.bp .rank-tabs button { min-height: 38px; flex: 1 1 calc(25% - 6px); }
 
 /* Bina listesi: asset + kimlik + durum rozeti + net yön oku. */
 .bp .building-list {
