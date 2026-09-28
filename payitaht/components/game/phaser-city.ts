@@ -57,6 +57,10 @@ function stageGrowth(level: number) {
 }
 /** Bina görsellerinde zemin elmasının merkezi, resmin altından bu kadar yukarıda (sanat pikseli, 600px tuval). */
 const ART_GROUND_PX = 118
+/** Divanhane'nin boyalı PNG tuvali 1466px: eski 600px sprite genişliğine eşle. */
+const PAINTED_HALL_SCALE = 600 / 1466
+/** Aynı dünya temasını korumak için boyalı tuvaldeki zemin merkezinin alt payı. */
+const PAINTED_HALL_GROUND_PX = ART_GROUND_PX / PAINTED_HALL_SCALE
 function isTap(p: Phaser.Input.Pointer) {
   return p.downTime > 0 && Phaser.Math.Distance.Between(p.downX, p.downY, p.upX, p.upY) < TAP_SLOP
 }
@@ -1984,6 +1988,7 @@ export class CityScene extends Phaser.Scene {
     // Kademeli büyüme: aynı görsel aşamasında da seviye arttıkça bina biraz büyür.
     const profile = this.buildingVisualProfile(id, slot)
     const artS = this.artScale() * profile.scale * this.buildingMicroScale(id, slot, profile) * stageGrowth(level)
+      * (id === 'divan' ? PAINTED_HALL_SCALE : 1)
     // Görselin zemin elması resmin altından ART_GROUND_PX yukarıda: elmas
     // arsanın (belediyede meydanın) tam ortasına düz oturur. Liman görselleri
     // rıhtıma göre çizildiği için eski temas noktasını kullanır.
@@ -1994,7 +1999,8 @@ export class CityScene extends Phaser.Scene {
     const coastSink = slot.zone === 'liman'
       ? TILE.h * (id === 'tersane' ? 0.30 : id === 'liman' ? 0.24 : 0.18)
       : 0
-    const imgY = slot.zone === 'liman' ? anc.baseY + coastSink : slot.screen.y + ART_GROUND_PX * artS
+    const imgY = slot.zone === 'liman' ? anc.baseY + coastSink
+      : slot.screen.y + (id === 'divan' ? PAINTED_HALL_GROUND_PX : ART_GROUND_PX) * artS
     let dispW = TILE.w * 2, dispH = TILE.h * 2
     let buildingSprite: Phaser.GameObjects.Image | null = null
 
@@ -2031,7 +2037,9 @@ export class CityScene extends Phaser.Scene {
       dispW = img.width * scale; dispH = img.height * scale
       this.pieces.push(img)
       // Sancaklar: görseldeki direklerin tepesine oyuncunun sancağı (tools/art → building-flags.json).
-      const anchors = BUILDING_FLAGS[textureKey]
+      // Boyalı Divanhane'de kumaş/direk görsele dahildir; eski vektör
+      // manifestindeki koordinatlar farklı tuvale işaret eder.
+      const anchors = id === 'divan' ? undefined : BUILDING_FLAGS[textureKey]
       if (anchors) {
         const [W, H, list] = anchors
         for (const [fx, fy, fw, fh] of list) {

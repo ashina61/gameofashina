@@ -42,7 +42,7 @@ export function FlagCloth({ look, style }: { look: BannerLook; style?: React.CSS
 export function BuildingArt({ id, level, className, alt = '', facing }: { id: BuildingId; level: number; className?: string; alt?: string; facing?: CoastFacing }) {
   const look = useBanner()
   const key = buildingArtKey(id, Math.max(1, level), facing)
-  const m = BUILDING_FLAGS[key]
+  const m = id === 'divan' ? undefined : BUILDING_FLAGS[key]
   const src = buildingImage(id, level, facing)
   const mirror = (id === 'liman' || id === 'tersane') && facing === 'right'
   if (!m) return <img className={className} src={src} alt={alt} draggable={false} style={mirror ? { transform: 'scaleX(-1)' } : undefined} />
