@@ -14,9 +14,9 @@ export function QuestChip({ game, onOpen, onGo, onClaim }: { game: Game; onOpen:
   const done = objectiveDone(game, next.id)
   const step = OBJECTIVES.indexOf(next) + 1
   return <div className={`quest-chip${done ? ' is-done' : ''}`}>
-    <button type="button" className="quest-chip-main" onClick={onOpen} aria-label={`Sıradaki hedef ${step}/${OBJECTIVES.length}: ${next.title}. Görevleri aç`}>
+    <button type="button" className="quest-chip-main" onClick={onOpen} aria-label={`Sıradaki hedef ${step}/${OBJECTIVES.length}: ${next.description}. Görevleri aç`}>
       <span className="quest-chip-icon" aria-hidden="true">{done ? <Gift /> : <ScrollText />}</span>
-      <span className="quest-chip-text"><small>Hedef {step}/{OBJECTIVES.length}{done ? ' · tamam!' : ''}</small><strong>{next.title}</strong></span>
+      <span className="quest-chip-text"><small>Hedef {step}/{OBJECTIVES.length}{done ? ' · tamam!' : ` · ${next.title}`}</small><strong>{next.description}</strong></span>
     </button>
     <button type="button" className="quest-chip-go" onClick={() => done ? onClaim(next.id) : onGo()}>
       {done ? 'Ödülü al' : 'Git'}{!done && <ChevronRight aria-hidden="true" />}

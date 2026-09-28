@@ -218,7 +218,7 @@ export class CityScene extends Phaser.Scene {
     const bandH = this.scale.height * (1 - CityScene.HUD_TOP - CityScene.HUD_BOTTOM)
     // Dikey mobil kompozisyon: şehir ekranda baskın, ama çatı ve alt kıyı
     // ipuçları görünür. Kenarlar bilinçli olarak hafifçe ekran dışına taşabilir.
-    return Math.min(this.scale.width / (t.w * 0.84), bandH / (t.h * 0.86))
+    return Math.min(this.scale.width / (t.w * 0.78), bandH / (t.h * 0.80))
   }
 
   /** Bir dünya noktasını açık bandın ortasına getirir (HUD'a göre kaydırılmış). */
