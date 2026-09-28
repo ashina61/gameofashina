@@ -477,9 +477,9 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1, occupiedSl
   // üstünde, şehrin altında durur; rıhtımlara/liman binalarına değmez.
   const ships: Array<[string, number, number, number, boolean]> = [
     // [doku, x ofseti (TILE.w), kıyıdan derinlik (TILE.h), genişlik (TILE.w), ayna]
-    ['s_ship-a', -4.1, 5.4, 1.05, false],
-    ['s_ship-b', 3.6, 7.6, 1.3, true],
-    ['s_ship-a', -0.4, 12.5, 0.95, true],
+    ['s_ship-a', -2.9, 5.3, 1.05, false],
+    ['s_ship-b', 2.5, 7.0, 1.2, true],
+    ['s_ship-a', 0.0, 8.9, 0.95, true],
   ]
   ships.forEach(([key, ox, oy, w, flip], i) => {
     const x = bayCx + ox * TILE.w
