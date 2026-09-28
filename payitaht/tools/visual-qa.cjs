@@ -87,11 +87,17 @@ async function main() {
       game.buildings.tas = 8
       game.buildings.ambar = 8
       game.buildings.elcilik = 8
-      game.placement.elcilik = 3
+      game.placement.elcilik = 13
       game.buildings.hamam = 8
-      game.placement.hamam = 5
+      game.placement.hamam = 14
       game.buildings.kahvehane = 8
-      game.placement.kahvehane = 1
+      game.placement.kahvehane = 15
+      game.buildings.muze = 8
+      game.placement.muze = 3
+      game.buildings.marangoz = 8
+      game.placement.marangoz = 5
+      game.buildings.mimar = 8
+      game.placement.mimar = 1
       return JSON.stringify(empire)
     })
     // reload sırasında useGame pagehide handler eski in-memory kaydı flush eder.
@@ -137,12 +143,12 @@ async function main() {
       }
     }
     if (width === 390) {
-      for (const expected of ['cami-painted-3.webp', 'saray-painted-3.webp', 'konut-painted-3.webp', 'kisla-painted-3.webp', 'medrese-painted-3.webp', 'carsi-painted-3.webp', 'kereste-painted-3.webp', 'tas-painted-3.webp', 'ambar-painted-3.webp', 'elcilik-painted-3.webp', 'hamam-painted-3.webp', 'kahvehane-painted-3.webp']) {
+      for (const expected of ['cami-painted-3.webp', 'saray-painted-3.webp', 'konut-painted-3.webp', 'kisla-painted-3.webp', 'medrese-painted-3.webp', 'carsi-painted-3.webp', 'kereste-painted-3.webp', 'tas-painted-3.webp', 'ambar-painted-3.webp', 'elcilik-painted-3.webp', 'hamam-painted-3.webp', 'kahvehane-painted-3.webp', 'muze-painted-3.webp', 'marangoz-painted-3.webp', 'mimar-painted-3.webp']) {
         if (!loadedNames.includes(expected)) throw new Error(`${label}: painted stage 3 did not load: ${expected}`)
       }
-      const civic = path.join(out, `city-civic-upgrade-${label}.png`)
-      await page.screenshot({ path: civic, animations: 'disabled' })
-      diagnostics.screenshots.push(path.basename(civic))
+      const craft = path.join(out, `city-craft-upgrade-${label}.png`)
+      await page.screenshot({ path: craft, animations: 'disabled' })
+      diagnostics.screenshots.push(path.basename(craft))
     }
 
     const harbour = page.getByRole('button', { name: 'Donanma ve limana git' })
