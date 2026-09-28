@@ -201,6 +201,10 @@ async function main() {
       await runViewport(viewport)
     }
 
+    const requiredPanelShots = ['ui-research-390x844.png', 'ui-buildings-390x844.png', 'ui-army-390x844.png', 'ui-settings-390x844.png']
+    for (const shot of requiredPanelShots) {
+      if (!diagnostics.screenshots.includes(shot)) throw new Error(`Missing content UI QA screenshot: ${shot}`)
+    }
     await fs.writeFile(path.join(out, 'diagnostics.json'), JSON.stringify(diagnostics, null, 2))
     if (diagnostics.pageErrors.length || diagnostics.missingGameAssets.length) {
       throw new Error('Mobile city rendered with JavaScript errors or missing game assets; check visual-review/diagnostics.json')
