@@ -60,6 +60,7 @@ const ART_GROUND_PX = 118
 /** Boyalı tuvalleri eski 600px sprite genişliğiyle aynı dünya ölçeğine eşle. */
 const PAINTED_SOURCE_WIDTH: Partial<Record<BuildingId, number>> = {
   divan: 1466, cami: 1445, saray: 1542, konut: 1633,
+  kisla: 1466, medrese: 1448, carsi: 1774,
 }
 function isTap(p: Phaser.Input.Pointer) {
   return p.downTime > 0 && Phaser.Math.Distance.Between(p.downX, p.downY, p.upX, p.upY) < TAP_SLOP

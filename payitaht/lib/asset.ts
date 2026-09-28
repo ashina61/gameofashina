@@ -29,11 +29,12 @@ export function buildingStage(level: number): 1 | 2 | 3 {
  * değiştiğinde bu değeri yükselt; query string hem browser hem SW cache anahtarını
  * değiştirir, binary dosya adlarını ve BUILDING_FLAGS anahtarlarını bozmaz.
  */
-export const BUILDING_ART_REV = '20260928-painted-landmarks-v2'
+export const BUILDING_ART_REV = '20260928-painted-civic-v3'
 
 /** Tam şeffaf, eski izokit tuvali yerine boyanmış üç aşamalı görseller. */
 export function isPaintedBuilding(id: string) {
   return id === 'divan' || id === 'cami' || id === 'saray' || id === 'konut'
+    || id === 'kisla' || id === 'medrese' || id === 'carsi'
 }
 
 export type CoastFacing = 'left' | 'straight' | 'right'
