@@ -18,7 +18,7 @@ import { RIVALS, rivalLevel, seaMinutes } from '@/lib/game/rivals'
 import { travelFactor } from '@/lib/game/engine'
 import { rivalWarLine } from './ai-panels'
 
-const LUX_TINT: Record<string, string> = { uzum: '#8fae5a', mermer: '#d9cfae', kristal: '#9fc3c9', kukurt: '#d8b85a' }
+const LUX_TINT: Record<string, string> = { uzum: '#7b9a5b', mermer: '#c5b99b', kristal: '#8eb0b2', kukurt: '#bca35d' }
 const U = 44 // bir koordinat birimi (px, viewBox içinde)
 const clock = (ms: number) => { const m = Math.round(ms / 60_000); return m >= 60 ? `${Math.floor(m / 60)} sa ${m % 60} dk` : `${m} dk` }
 
@@ -35,6 +35,23 @@ function coast(id: string, cx: number, cy: number, r: number) {
     pts.push(`${(cx + Math.cos(a) * r * k * 1.15).toFixed(1)},${(cy + Math.sin(a) * r * k * 0.85).toFixed(1)}`)
   }
   return pts.join(' ')
+}
+
+/** Cartographic relief is anchored to the island, so panning never changes it. */
+function islandRelief(id: string, cx: number, cy: number, tint: string) {
+  let seed = 0
+  for (const ch of id) seed = (seed * 33 + ch.charCodeAt(0)) >>> 0
+  const hill = (seed % 7) - 3
+  return <g aria-hidden="true">
+    <path d={`M${cx - 16} ${cy + 4} Q${cx - 8} ${cy - 8 + hill} ${cx - 2} ${cy - 3} Q${cx + 5} ${cy - 13 - hill} ${cx + 15} ${cy + 3} L${cx + 16} ${cy + 12} Q${cx} ${cy + 20} ${cx - 16} ${cy + 9}Z`} fill={tint} opacity=".8" />
+    <path d={`M${cx - 10} ${cy + 8} Q${cx - 2} ${cy + 3} ${cx + 13} ${cy + 8}`} fill="none" stroke="#f5e3ac" strokeOpacity=".45" strokeWidth="1.2" />
+    <path d={`M${cx - 10} ${cy + 1} l5 -8 4 6 5 -10 8 12`} fill="none" stroke="#344f3d" strokeOpacity=".55" strokeWidth="1.1" strokeLinejoin="round" />
+    <path d={`M${cx - 4} ${cy - 3} l3 -4 2 3 M${cx + 5} ${cy - 5} l2 -3 2 3`} fill="none" stroke="#efe1b5" strokeOpacity=".8" strokeWidth=".9" />
+    {[[-12, 6], [-8, 10], [11, 4], [14, 8], [hill, 12]].map(([x, y], k) => <g key={k} transform={`translate(${cx + x} ${cy + y})`}>
+      <path d="M0 4 V-3" stroke="#3e4c32" strokeWidth=".9" /><ellipse cy="-4" rx={k % 2 ? 2.1 : 1.5} ry={k % 2 ? 3 : 4} fill="#325b43" />
+    </g>)}
+    <path d={`M${cx - 1} ${cy + 12} L${cx + 7} ${cy + 13} M${cx + 1} ${cy + 10} V${cy + 14}`} stroke="#775b38" strokeWidth="1.1" />
+  </g>
 }
 
 export function WorldMap({ empire, now, missing, onSelectCity, onColonize, onViewIsland }: {
@@ -87,13 +104,19 @@ export function WorldMap({ empire, now, missing, onSelectCity, onColonize, onVie
     <div className="world-map-scroll" ref={scroller}>
       <svg viewBox={`0 0 ${W} ${H}`} width={W} height={H} role="img" aria-label="Dünya haritası">
         <defs>
-          <radialGradient id="wm-sea" cx="50%" cy="40%" r="75%"><stop offset="0" stopColor="#5fa3b5" /><stop offset="1" stopColor="#2f6f86" /></radialGradient>
-          <pattern id="wm-wave" width="36" height="18" patternUnits="userSpaceOnUse"><path d="M2 12 q6 -5 12 0 t12 0" stroke="#bfe0e8" strokeWidth="1" fill="none" opacity="0.35" /></pattern>
+          <radialGradient id="wm-sea" cx="48%" cy="42%" r="78%"><stop offset="0" stopColor="#367686" /><stop offset=".62" stopColor="#245c6b" /><stop offset="1" stopColor="#173e4f" /></radialGradient>
+          <linearGradient id="wm-land" x1="0" y1="0" x2=".8" y2="1"><stop offset="0" stopColor="#d5c78e" /><stop offset="1" stopColor="#9da96c" /></linearGradient>
+          <filter id="wm-shadow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="2.5" /></filter>
         </defs>
         <rect width={W} height={H} fill="url(#wm-sea)" />
-        <rect width={W} height={H} fill="url(#wm-wave)" />
-        {Array.from({ length: Math.ceil(maxX) }, (_, x) => <g key={`x${x}`}><path d={`M${x * U} 0 V${H}`} stroke="#ffffff" strokeOpacity="0.07" /><text x={x * U + 3} y={11} className="wm-coord">{x}</text></g>)}
-        {Array.from({ length: Math.ceil(maxY) }, (_, y) => <g key={`y${y}`}><path d={`M0 ${y * U} H${W}`} stroke="#ffffff" strokeOpacity="0.07" /><text x={3} y={y * U + 11} className="wm-coord">{y}</text></g>)}
+        {/* Sparse, irregular sea marks read as water without a tiled wallpaper. */}
+        {Array.from({ length: Math.ceil(W / 39) * Math.ceil(H / 34) }, (_, n) => {
+          const cols = Math.ceil(W / 39), x = (n % cols) * 39 + ((n * 17) % 21), y = Math.floor(n / cols) * 34 + ((n * 13) % 17)
+          return <path key={n} d={`M${x} ${y} q5 -2 10 0 m3 2 q4 -1 8 0`} fill="none" stroke="#9fc2c0" strokeWidth=".7" strokeOpacity={n % 4 === 0 ? '.22' : '.10'} />
+        })}
+        {Array.from({ length: Math.ceil(maxX) }, (_, x) => <g key={`x${x}`}><path d={`M${x * U} 0 V${H}`} stroke="#d8cfad" strokeOpacity="0.09" /><text x={x * U + 3} y={11} className="wm-coord">{x}</text></g>)}
+        {Array.from({ length: Math.ceil(maxY) }, (_, y) => <g key={`y${y}`}><path d={`M0 ${y * U} H${W}`} stroke="#d8cfad" strokeOpacity="0.09" /><text x={3} y={y * U + 11} className="wm-coord">{y}</text></g>)}
+        <g className="wm-compass" transform={`translate(${W - 38} 36)`} aria-hidden="true"><circle r="18" fill="#102e38" fillOpacity=".45" stroke="#c8b57c" strokeOpacity=".7" /><path d="M0 -13 L3 -3 13 0 3 3 0 13 -3 3 -13 0 -3 -3Z" fill="#d7c58e" /><circle r="2.5" fill="#713b24" /><text y="-22">K</text></g>
         {/* Kendi şehirlerin arasındaki deniz yolları */}
         {routes.map(t => <path key={t.id} d={`M${(home.x + 0.75) * U} ${(home.y + 0.75) * U} L${(t.x + 0.75) * U} ${(t.y + 0.75) * U}`} stroke="#f6ecd6" strokeWidth="2" strokeDasharray="5 5" opacity="0.7" />)}
         {/* Yapay rakiplerin kendi aralarındaki savaşlar: kızıl, akan kesikli çizgi. */}
@@ -114,12 +137,13 @@ export function WorldMap({ empire, now, missing, onSelectCity, onColonize, onVie
           const active = i.id === sel
           return <g key={i.id} className="wm-island" role="button" tabIndex={0} aria-label={`${i.name} [${i.x}:${i.y}]`} aria-pressed={active}
             onClick={() => setSel(i.id)} onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') setSel(i.id) }}>
-            <polygon points={coast(i.id, cx, cy + 3, 19)} fill="#e7d6a6" opacity="0.55" />
-            <polygon points={coast(i.id, cx, cy, 17)} fill={LUX_TINT[i.luxury]} stroke={active ? '#fff3c4' : '#5a4a22'} strokeWidth={active ? 3 : 1.2} />
-            <circle cx={cx + 6} cy={cy - 4} r="5" fill="#4f7d4a" opacity="0.8" /><circle cx={cx - 7} cy={cy + 3} r="4" fill="#4f7d4a" opacity="0.7" />
+            <polygon points={coast(i.id, cx + 2, cy + 5, 23)} fill="#071e29" opacity=".5" filter="url(#wm-shadow)" />
+            <polygon points={coast(i.id, cx, cy + 2, 23)} fill="#e4cf94" stroke="#f4dfad" strokeWidth="1" />
+            <polygon points={coast(i.id, cx, cy, 19.5)} fill="url(#wm-land)" stroke={active ? '#fff2bf' : '#715b3d'} strokeWidth={active ? 2.4 : 1} />
+            {islandRelief(i.id, cx, cy, LUX_TINT[i.luxury])}
             {mine && <g><circle cx={cx} cy={cy - 2} r="7" fill="#b3261e" stroke="#f6ecd6" strokeWidth="1.5" /><path d={`M${cx - 3} ${cy - 2} l2 2 4 -4`} stroke="#fff" strokeWidth="1.6" fill="none" /></g>}
             {Array.from({ length: rv }, (_, k) => <circle key={k} cx={cx + 10 + k * 7} cy={cy + 10} r="3.5" fill="#24406e" stroke="#f6ecd6" strokeWidth="1" />)}
-            <text x={cx} y={cy + 30} className={active ? 'wm-label is-active' : 'wm-label'}>{i.name}</text>
+            <text x={cx} y={cy + 39} className={active ? 'wm-label is-active' : 'wm-label'}>{i.name}</text>
           </g>
         })}
       </svg>

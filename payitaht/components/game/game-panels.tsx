@@ -45,7 +45,26 @@ export function BuildingDetails({ game, id, onBuild, onFlip, onMove }: { game: G
   </section>}{queued > 0 && <p className="requirement"><KumSaatiArt className="size-4" />İnşaat sırasında {queued + 1}. sırada bekliyor.</p>}{reason && !active && queued < 0 && <p className="requirement"><LockKeyhole className="size-4" />{reason}</p>}{level > 0 && takesPlot(id) && <div className="building-tools">{b.art && <Button variant="outline" size="sm" onClick={() => onFlip(id)}><FlipHorizontal2 data-icon="inline-start" />{game.flips.includes(id) ? 'Yönü geri çevir' : 'Çevir'}</Button>}{id !== 'divan' && <Button variant="outline" size="sm" onClick={() => onMove(id)}><Move data-icon="inline-start" />Taşı</Button>}</div>}<Button size="lg" className="w-full" disabled={!!reason} onClick={() => onBuild(id)}><Hammer data-icon="inline-start" />{active ? 'İnşaat devam ediyor' : level >= max ? 'Tamamen geliştirildi' : level ? 'Binayı yükselt' : 'İnşaata başla'}</Button></div>
 }
 export function BuildingList({ game, onSelect }: { game: Game; onSelect: (id: BuildingId) => void }) {
-  return <div className="building-list">{BUILDING_IDS.map(id => {
+  const [query, setQuery] = useState('')
+  const [filter, setFilter] = useState<'all' | 'built' | 'new'>('all')
+  const matching = BUILDING_IDS.filter(id => {
+    if (filter === 'built' && !game.buildings[id]) return false
+    if (filter === 'new' && game.buildings[id]) return false
+    const text = `${BUILDINGS[id].name} ${BUILDINGS[id].category}`.toLocaleLowerCase('tr-TR')
+    return text.includes(query.trim().toLocaleLowerCase('tr-TR'))
+  })
+  return <div className="building-list">
+    <div className="building-list-filters">
+      <label htmlFor="building-search">Yapı ara</label>
+      <input id="building-search" type="search" placeholder="Örn. Medrese, liman, üretim…" value={query} onChange={e => setQuery(e.target.value)} />
+      <div role="group" aria-label="Yapı durumu">
+        {([['all', 'Tümü'], ['built', 'Kurulu'], ['new', 'Yeni yapılar']] as const).map(([key, label]) =>
+          <button key={key} type="button" aria-pressed={filter === key} onClick={() => setFilter(key)}>{label}</button>)}
+      </div>
+      <small>{matching.length} yapı gösteriliyor</small>
+    </div>
+    {matching.length === 0 && <p className="building-list-empty">Bu aramada yapı bulunamadı.</p>}
+    {matching.map(id => {
     const level = game.buildings[id]
     const complete = level >= MAX_LEVEL[id]
     return <button key={id} className={`building-list-item${level ? ' is-built' : ' is-new'}${complete ? ' is-max' : ''}`} onClick={() => onSelect(id)}>

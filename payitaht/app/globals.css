@@ -1280,13 +1280,14 @@
 
 /* Dünya haritası */
 .world-map { display: grid; gap: 8px; }
-.world-map-scroll { overflow: auto; max-height: 62vh; border-radius: 12px; border: 2px solid #8a6a3a; box-shadow: inset 0 0 20px #0004; -webkit-overflow-scrolling: touch; }
+.world-map-scroll { overflow: auto; max-height: 62vh; border-radius: 12px; border: 3px solid #b49158; box-shadow: 0 4px 12px #3d2b1740, inset 0 0 20px #0004; -webkit-overflow-scrolling: touch; background: #245c6b; }
 .world-map-scroll svg { display: block; }
-.wm-coord { font: 600 8px ui-monospace, monospace; fill: #e8f4f6; opacity: 0.55; }
-.wm-label { font: 700 10px var(--font-sans, system-ui), sans-serif; fill: #fbf2d6; text-anchor: middle; paint-order: stroke; stroke: #1f3f4a; stroke-width: 3px; }
-.wm-label.is-active { fill: #ffe9a8; font-size: 11px; }
+.wm-coord { font: 600 8px ui-monospace, monospace; fill: #e8d8a7; opacity: 0.4; }
+.wm-label { font: 700 10px var(--font-sans, system-ui), sans-serif; fill: #fff0cc; text-anchor: middle; paint-order: stroke; stroke: #123440; stroke-width: 3.5px; stroke-linejoin: round; }
+.wm-label.is-active { fill: #ffe1a0; font-size: 11px; }
+.wm-compass text { fill: #f3dcaa; font: 700 10px var(--font-heading), Georgia, serif; text-anchor: middle; }
 .wm-island { cursor: pointer; outline: none; }
-.wm-island:focus-visible polygon:nth-child(2) { stroke: #ffe9a8; stroke-width: 3; }
+.wm-island:focus-visible polygon:nth-child(3) { stroke: #ffe9a8; stroke-width: 3; }
 .wm-legend { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 11px; color: #6a4a22; }
 .wm-legend span { display: inline-flex; align-items: center; gap: 5px; }
 .wm-dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; border: 1px solid #f6ecd6; flex: none; }
@@ -1779,6 +1780,7 @@
 .quest-chip-icon svg { width: 16px; height: 16px; }
 .quest-chip-text { display: flex; flex-direction: column; min-width: 0; line-height: 1.15; }
 .quest-chip-text small { font-size: 10px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: #8a5a22; }
+.quest-chip-text small { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .quest-chip-text strong { font-family: var(--font-heading), Georgia, serif; font-size: 15.5px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .quest-chip-go { flex-shrink: 0; display: flex; align-items: center; gap: 2px; padding: 0 10px 0 12px; border: 0; border-left: 1px solid #d9bd85;
   background: linear-gradient(180deg, #b8813f, #7a4e24); color: #fdf0cf; font-size: 13px; font-weight: 800; }
@@ -2045,6 +2047,30 @@
   display: grid;
   gap: 8px;
 }
+.bp .building-list-filters {
+  display: grid;
+  gap: 8px;
+  padding: 11px;
+  margin-bottom: 4px;
+  border: 1px solid #c7a66d;
+  border-radius: 12px;
+  background: linear-gradient(180deg, #fff8e4, #efdbad);
+}
+.bp .building-list-filters label { font-weight: 700; color: #5a3517; font-size: 13px; }
+.bp .building-list-filters input {
+  width: 100%; min-width: 0; min-height: 44px; padding: 9px 12px;
+  border: 1px solid #b99961; border-radius: 8px; background: #fffbef; color: #3a2310;
+  font: inherit; font-size: 14px;
+}
+.bp .building-list-filters input:focus-visible { outline: 2px solid #835c2a; outline-offset: 2px; }
+.bp .building-list-filters > div { display: flex; gap: 6px; flex-wrap: wrap; }
+.bp .building-list-filters button {
+  flex: 1; min-height: 42px; padding: 7px; border: 1px solid #c7a66d;
+  border-radius: 8px; background: #fff5da; color: #5a3517; font-size: 12px; font-weight: 700;
+}
+.bp .building-list-filters button[aria-pressed="true"] { color: #fff4d7; border-color: #573016; background: #65401f; }
+.bp .building-list-filters small { font-size: 11px; color: #765a35; }
+.bp .building-list-empty { padding: 18px; text-align: center; color: #765a35; }
 .bp .building-list-item {
   position: relative;
   display: grid;
