@@ -99,11 +99,17 @@ async function main() {
       game.buildings.mimar = 8
       game.placement.mimar = 18
       game.buildings.ormanci = 8
-      game.placement.ormanci = 3
+      game.placement.ormanci = 19
       game.buildings.tasci = 8
-      game.placement.tasci = 5
+      game.placement.tasci = 20
       game.buildings.bagci = 8
-      game.placement.bagci = 1
+      game.placement.bagci = 21
+      game.buildings.tophane = 8
+      game.placement.tophane = 3
+      game.buildings.simyahane = 8
+      game.placement.simyahane = 5
+      game.buildings.camci = 8
+      game.placement.camci = 1
       return JSON.stringify(empire)
     })
     // reload sırasında useGame pagehide handler eski in-memory kaydı flush eder.
@@ -149,12 +155,12 @@ async function main() {
       }
     }
     if (width === 390) {
-      for (const expected of ['cami-painted-3.webp', 'saray-painted-3.webp', 'konut-painted-3.webp', 'kisla-painted-3.webp', 'medrese-painted-3.webp', 'carsi-painted-3.webp', 'kereste-painted-3.webp', 'tas-painted-3.webp', 'ambar-painted-3.webp', 'elcilik-painted-3.webp', 'hamam-painted-3.webp', 'kahvehane-painted-3.webp', 'muze-painted-3.webp', 'marangoz-painted-3.webp', 'mimar-painted-3.webp', 'ormanci-painted-3.webp', 'tasci-painted-3.webp', 'bagci-painted-3.webp']) {
+      for (const expected of ['cami-painted-3.webp', 'saray-painted-3.webp', 'konut-painted-3.webp', 'kisla-painted-3.webp', 'medrese-painted-3.webp', 'carsi-painted-3.webp', 'kereste-painted-3.webp', 'tas-painted-3.webp', 'ambar-painted-3.webp', 'elcilik-painted-3.webp', 'hamam-painted-3.webp', 'kahvehane-painted-3.webp', 'muze-painted-3.webp', 'marangoz-painted-3.webp', 'mimar-painted-3.webp', 'ormanci-painted-3.webp', 'tasci-painted-3.webp', 'bagci-painted-3.webp', 'tophane-painted-3.webp', 'simyahane-painted-3.webp', 'camci-painted-3.webp']) {
         if (!loadedNames.includes(expected)) throw new Error(`${label}: painted stage 3 did not load: ${expected}`)
       }
-      const resources = path.join(out, `city-resources-upgrade-${label}.png`)
-      await page.screenshot({ path: resources, animations: 'disabled' })
-      diagnostics.screenshots.push(path.basename(resources))
+      const specialists = path.join(out, `city-specialists-upgrade-${label}.png`)
+      await page.screenshot({ path: specialists, animations: 'disabled' })
+      diagnostics.screenshots.push(path.basename(specialists))
     }
 
     const harbour = page.getByRole('button', { name: 'Donanma ve limana git' })
