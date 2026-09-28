@@ -659,11 +659,34 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1, occupiedSl
   const flags: Array<{ x: number; y: number; w: number; h: number; depth: number; minLevel: number }> = []
   {
     const P = PLAZA.screen, prx = PLAZA.rx, pry = PLAZA.ry
-    // Çevre yolunun içi: bakımlı açık yeşil çimen.
-    tier = 3
+    // Meydan ile çevre yolu arasındaki çayır ilk günden okunur. Gelişmiş
+    // park düzeni daha sonra açılır; seviye 1'de geniş düz yeşil leke yerine
+    // kırık renkli, biçilmiş ot ve seyrek kır çiçeği görünür.
+    tier = 0
     const lawn = scene.add.graphics().setDepth(-858)
-    lawn.fillStyle(0xb9d27a, 0.22); lawn.fillEllipse(P.x, P.y, RING_ROAD.rx * 2, RING_ROAD.ry * 2)
-    lawn.fillStyle(0xc6db88, 0.14); lawn.fillEllipse(P.x, P.y, RING_ROAD.rx * 1.6, RING_ROAD.ry * 1.6)
+    lawn.fillStyle(0xb9c978, 0.15); lawn.fillEllipse(P.x, P.y, RING_ROAD.rx * 1.76, RING_ROAD.ry * 1.76)
+    const meadowRnd = mulberry32(53091)
+    const meadowSlots = [...CITY_SLOTS, ...COAST_SLOTS, ...DEFENSE_SLOTS]
+    for (let i = 0; i < 640; i++) {
+      const a = meadowRnd() * Math.PI * 2
+      const r = 0.49 + meadowRnd() * 0.43
+      const x = P.x + Math.cos(a) * RING_ROAD.rx * r
+      const y = P.y + Math.sin(a) * RING_ROAD.ry * r
+      if (((x - P.x) / prx) ** 2 + ((y - P.y) / pry) ** 2 < 1.25) continue
+      if (meadowSlots.some(s => nearSlot(x, y, s, 0.78))) continue
+      const color = i % 11 === 0 ? 0xd8cb81 : i % 4 === 0 ? 0x668d49 : 0xaac36c
+      lawn.fillStyle(color, i % 11 === 0 ? 0.28 : 0.16)
+      lawn.fillEllipse(x, y, 9 + meadowRnd() * 22, 3 + meadowRnd() * 7)
+      if (i % 7 === 0) {
+        lawn.lineStyle(1.5, 0x527b3d, 0.50)
+        lawn.lineBetween(x, y, x - 2, y - 5)
+        lawn.lineBetween(x + 3, y, x + 5, y - 4)
+      }
+    }
+    tier = 3
+    const tendedLawn = scene.add.graphics().setDepth(-857)
+    tendedLawn.fillStyle(0xc6db88, 0.12)
+    tendedLawn.fillEllipse(P.x, P.y, RING_ROAD.rx * 1.6, RING_ROAD.ry * 1.6)
 
     // Seviye 1: sıkıştırılmış toprak meydan (taş döşeme 2. seviyede gelir).
     tier = 0
@@ -1621,6 +1644,21 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1, occupiedSl
     })
   }
   for (const c of clusterCenters) placeCluster(c.x, c.y, c.size, c.spread)
+
+  // Meydan çevresindeki boş çayır, dünya ölçeğindeki rastgele koruluklara
+  // bırakılınca başlangıç kadrajında ıssız kalıyor. Küçük ağaç grupları
+  // çevre yolunun iç kenarına yerleşir; arsa, dere ve yol güvenliği aynı
+  // clearForDecor kontrolünden geçer. Yerleşim kayıtları değişmez.
+  const ringRnd = mulberry32(31721)
+  for (let i = 0; i < 32; i++) {
+    const a = (i + 0.25 + ringRnd() * 0.5) / 32 * Math.PI * 2
+    const r = 0.78 + ringRnd() * 0.15
+    const x = PLAZA.screen.x + Math.cos(a) * RING_ROAD.rx * r
+    const y = PLAZA.screen.y + Math.sin(a) * RING_ROAD.ry * r
+    if (!clearForDecor(x, y, 0.82)) continue
+    if (clusterCenters.some(c => Math.hypot(c.x - x, (c.y - y) * 1.5) < TILE.w * 1.15)) continue
+    placeCluster(x, y, 3 + Math.floor(ringRnd() * 3), 0.24)
+  }
 
   // Haritanın üst/yan kenarlarını koruluklarla hafifçe çerçevele.
   // Bu, sonsuz boş zemin hissini keser ama şehir merkezini kapatmaz.

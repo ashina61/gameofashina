@@ -1791,12 +1791,26 @@ export class CityScene extends Phaser.Scene {
         g.fillEllipse(x, y, rx * (0.18 + rnd() * 0.18), ry * (0.16 + rnd() * 0.14))
       }
     } else if (profile.yard !== 'none') {
-      g.fillStyle(0xb59e6e, id === 'divan' ? 0.075 : 0.055)
+      g.fillStyle(0xb59e6e, id === 'divan' ? 0.075 : 0.13)
       g.fillPoints(points, true)
       for (let i = 0; i < 3; i++) {
         const x = cx + (rnd() - 0.5) * rx * 0.85, y = cy + (rnd() - 0.5) * ry * 0.75
         g.fillStyle(i % 2 ? 0xd0bc8d : 0x8d7853, 0.020 + rnd() * 0.018)
         g.fillEllipse(x, y, rx * (0.34 + rnd() * 0.22), ry * (0.25 + rnd() * 0.20))
+      }
+    }
+
+    // Aşınmış avlu kenarı binanın çizilmiş tabanını çimene bağlar. Çok küçük
+    // taş/ot izleri yalnızca kurulu yapının footprint'i içinde kalır; boş arsa
+    // ve komşu yol üzerine sabit dekor taşınmaz.
+    if (id !== 'divan' && profile.yard !== 'none') {
+      for (let i = 0; i < 34; i++) {
+        const a = rnd() * Math.PI * 2
+        const r = Math.sqrt(rnd()) * 0.91
+        const x = cx + Math.cos(a) * rx * r
+        const y = cy + Math.sin(a) * ry * r
+        g.fillStyle(i % 5 === 0 ? 0xe7d7ae : i % 3 === 0 ? 0x596e3b : 0x806b4c, 0.22 + rnd() * 0.16)
+        g.fillEllipse(x, y, 2 + rnd() * 6, 1.2 + rnd() * 2.4)
       }
     }
 
