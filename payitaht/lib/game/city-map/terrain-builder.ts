@@ -377,15 +377,17 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1, occupiedSl
   const grassSurface = softSurfaceTexture('t_grass')
   const dirtSurface = softSurfaceTexture('t_dirt')
   const surfaceRnd = mulberry32(72831)
-  if (grassSurface && dirtSurface) for (let i = 0; i < 180; i++) {
+  if (grassSurface && dirtSurface) for (let i = 0; i < 420; i++) {
     const dirt = i % 9 === 0 || (i % 17 === 0)
     const key = dirt ? dirtSurface : grassSurface
     const size = TILE.w * (6.8 + surfaceRnd() * 4.5)
     const x = wr.x + wr.w * (0.025 + surfaceRnd() * 0.95)
-    const maxY = shoreY(x) - size * 0.42
+    const maxY = shoreY(x) - size * 0.34
     if (maxY <= wr.y) continue
-    const y = wr.y + (maxY - wr.y) * surfaceRnd()
-    const img = stamp(key, x, y, size, -895, 0.5, dirt ? 0.23 : 0.60)
+    // Kıyıya yakın şerit de malzeme alsın; geniş elips kara sınırını aşmaz.
+    const y = i % 5 === 0 ? maxY - size * surfaceRnd() * 0.22
+      : wr.y + (maxY - wr.y) * surfaceRnd()
+    const img = stamp(key, x, y, size, -895, 0.5, dirt ? 0.17 : 0.43)
     img?.setFlipX(surfaceRnd() > 0.5)
     img?.setAngle((surfaceRnd() - 0.5) * 18)
   }
