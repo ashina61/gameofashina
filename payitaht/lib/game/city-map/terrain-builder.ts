@@ -47,7 +47,7 @@ export function cemeterySite() {
   return { x: hall.x + TILE.w * 4.6, y: top - TILE.h * 3.2 }
 }
 /** Kara taban rengi (burunlar dahil her yerde aynı). */
-const LAND_BASE = 0x8fa964
+const LAND_BASE = 0x899b58
 /** Koyda demirli gemiler (tools/art/gen-procedural-assets.py). */
 export const SHIP_TILES = ['ship-a', 'ship-b'] as const
 
@@ -277,10 +277,8 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1, occupiedSl
     return img
   }
 
-  // Ressam işi arazi katmanı: mevcut izometrik çim/toprak karolarının SADECE
-  // üst yüzeyini alır. Kalın yan yüzler ve dikdörtgen PNG sınırları maskelenir;
-  // yüzeyin dış kenarı da yumuşatılır. Böylece zemine karo döşemeden gerçek
-  // asset dokusunu büyük, rastgele kesişen boya lekeleri olarak kullanabiliriz.
+  // Boyalı arazi malzemesinin sınırını yumuşatarak birbirine geçen geniş
+  // lekeler üretir. Kaynak görseller tam yüzeydir; eski karo yan yüzü yoktur.
   const softSurfaceTexture = (sourceKey: string) => {
     const key = sourceKey + '__ground'
     if (scene.textures.exists(key)) return key
@@ -296,17 +294,11 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1, occupiedSl
     for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
       const index = (y * w + x) * 4 + 3
       if (image.data[index] === 0) continue
-      // Texture'ların üst yüzeyi yaklaşık 2:1 elmas şeklinde. Kenarların
-      // içinde başlayarak alpha'yı sıfıra indir; toprağın kalın yan yüzü yok.
-      const diamond = Math.abs((x - w * 0.5) / (w * 0.49))
-        + Math.abs((y - h * 0.435) / (h * 0.345))
-      // Geniş feather: uzak zoomda elmas sınırı veya ayrı yeşil ada kalmasın.
-      const oval = Math.hypot((x - w * 0.5) / (w * 0.50),
-        (y - h * 0.435) / (h * 0.355))
-      const diamondT = Phaser.Math.Clamp((0.92 - diamond) / 0.58, 0, 1)
-      const ovalT = Phaser.Math.Clamp((1.00 - oval) / 0.55, 0, 1)
+      const oval = Math.hypot((x - w * 0.5) / (w * 0.49),
+        (y - h * 0.5) / (h * 0.49))
+      const ovalT = Phaser.Math.Clamp((1.00 - oval) / 0.42, 0, 1)
       const soft = (t: number) => t * t * (3 - 2 * t)
-      image.data[index] = Math.round(image.data[index] * soft(diamondT) * soft(ovalT))
+      image.data[index] = Math.round(image.data[index] * soft(ovalT))
     }
     context.putImageData(image, 0, 0)
     texture.refresh()
@@ -381,22 +373,19 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1, occupiedSl
     )
   }
 
-  // Düz renk ekranı kıran, grid'den bağımsız gerçek boyalı arazi dokusu.
-  // Eski uygulamada tam karo alpha=0.055 ile sadece 11 kez basılıyordu;
-  // büyük şehirde hiç görünmüyordu. Artık karonun yan yüzü yok ve sert sınır
-  // yok; geniş yüzeyler farklı boy/konum/açıyla örtüşerek doğal zemini kurar.
+  // Grid'den bağımsız boyalı çim ve seyrek sıkıştırılmış toprak lekeleri.
   const grassSurface = softSurfaceTexture('t_grass')
   const dirtSurface = softSurfaceTexture('t_dirt')
   const surfaceRnd = mulberry32(72831)
-  if (grassSurface && dirtSurface) for (let i = 0; i < 112; i++) {
+  if (grassSurface && dirtSurface) for (let i = 0; i < 180; i++) {
     const dirt = i % 9 === 0 || (i % 17 === 0)
     const key = dirt ? dirtSurface : grassSurface
-    const size = TILE.w * (5.6 + surfaceRnd() * 4.0)
+    const size = TILE.w * (6.8 + surfaceRnd() * 4.5)
     const x = wr.x + wr.w * (0.025 + surfaceRnd() * 0.95)
-    const maxY = shoreY(x) - size * 0.58
+    const maxY = shoreY(x) - size * 0.42
     if (maxY <= wr.y) continue
     const y = wr.y + (maxY - wr.y) * surfaceRnd()
-    const img = stamp(key, x, y, size, -895, 0.435, dirt ? 0.25 : 0.43)
+    const img = stamp(key, x, y, size, -895, 0.5, dirt ? 0.23 : 0.60)
     img?.setFlipX(surfaceRnd() > 0.5)
     img?.setAngle((surfaceRnd() - 0.5) * 18)
   }
@@ -698,6 +687,10 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1, occupiedSl
       return V(P.x + Math.cos(a) * prx * r, P.y + Math.sin(a) * pry * r)
     })
     dirt.fillStyle(0xbfa578, 1); dirt.fillPoints(soilEdge, true)
+    if (dirtSurface) {
+      const soil = stamp(dirtSurface, P.x, P.y, prx * 2.1, -795.9, 0.5, 0.58)
+      soil?.setDisplaySize(prx * 2.1, pry * 2.25)
+    }
     // Mottled packed earth, with a worn centre and a broken grassy edge.
     // Static seeded marks share the terrain bake; no animated objects.
     for (let i = 0; i < 1500; i++) {
