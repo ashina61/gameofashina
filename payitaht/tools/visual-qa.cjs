@@ -61,7 +61,7 @@ async function main() {
     // mavi-panel/anchor gibi coast regression'larını yakalamıyordu. Test save'inde
     // Liman + Tersane'yi kullanıcı ekranındaki gibi seviye 2 ve iki coast slotuna
     // yerleştir; sonra sayfayı gerçek save parse/migration yolu üzerinden yeniden aç.
-    const coastSeedRaw = await page.evaluate(() => {
+    const coastSeedRaw = await page.evaluate(seedWidth => {
       const key = 'payitaht-adalari-v1'
       const empire = JSON.parse(localStorage.getItem(key) || 'null')
       const city = empire?.cities?.find(c => c.id === empire.activeCityId) ?? empire?.cities?.[0]
@@ -110,14 +110,23 @@ async function main() {
       game.placement.simyahane = 23
       game.buildings.camci = 8
       game.placement.camci = 24
-      game.buildings.mahzen = 8
-      game.placement.mahzen = 3
-      game.buildings.gozlukcu = 8
-      game.placement.gozlukcu = 5
-      game.buildings.barutane = 8
-      game.placement.barutane = 1
+      // Tüm kara yuvaları dolu. İkinci viewportta üç yuvayı yeni tüccar
+      // çizimleri için kullan; ilk viewport eski zanaat regresyonunu korur.
+      const crafts = seedWidth === 390
+      game.buildings.mahzen = crafts ? 8 : 0
+      game.placement.mahzen = crafts ? 3 : null
+      game.buildings.gozlukcu = crafts ? 8 : 0
+      game.placement.gozlukcu = crafts ? 5 : null
+      game.buildings.barutane = crafts ? 8 : 0
+      game.placement.barutane = crafts ? 1 : null
+      game.buildings.depo = crafts ? 0 : 8
+      game.placement.depo = crafts ? null : 3
+      game.buildings.ticaret_merkezi = crafts ? 0 : 8
+      game.placement.ticaret_merkezi = crafts ? null : 5
+      game.buildings.harita_arsivi = crafts ? 0 : 8
+      game.placement.harita_arsivi = crafts ? null : 1
       return JSON.stringify(empire)
-    })
+    }, width)
     // reload sırasında useGame pagehide handler eski in-memory kaydı flush eder.
     // Bu yüzden seed'i eski document'ta localStorage'a yazmak yetmez. Init script
     // yeni document'ta uygulama kodundan ÖNCE çalışır ve test state'ini son kez yazar.
@@ -167,6 +176,13 @@ async function main() {
       const specialists = path.join(out, `city-crafts-upgrade-${label}.png`)
       await page.screenshot({ path: specialists, animations: 'disabled' })
       diagnostics.screenshots.push(path.basename(specialists))
+    } else {
+      for (const expected of ['depo-painted-3.webp', 'ticaret_merkezi-painted-3.webp', 'harita_arsivi-painted-3.webp']) {
+        if (!loadedNames.includes(expected)) throw new Error(`${label}: merchant stage 3 did not load: ${expected}`)
+      }
+      const merchants = path.join(out, `city-merchants-upgrade-${label}.png`)
+      await page.screenshot({ path: merchants, animations: 'disabled' })
+      diagnostics.screenshots.push(path.basename(merchants))
     }
 
     const harbour = page.getByRole('button', { name: 'Donanma ve limana git' })
