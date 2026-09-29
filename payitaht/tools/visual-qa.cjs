@@ -271,6 +271,23 @@ async function main() {
       await page.getByRole('button', { name: /Bütün yapılar/ }).click()
       await page.getByRole('dialog', { name: /Şehrini büyüt/ }).waitFor({ timeout: 10_000 })
       await snapPanel('buildings')
+      await page.getByRole('searchbox', { name: 'Yapı ara' }).fill('Medrese')
+      await page.locator('.building-list-item').filter({ hasText: 'Medrese' }).click()
+      await page.getByRole('dialog', { name: 'Medrese sayfası' }).waitFor({ timeout: 10_000 })
+      for (const [stage, button] of [[3, null], [1, 'Sv. 1–3 görünümü'], [2, 'Sv. 4–7 görünümü']]) {
+        if (button) await page.getByRole('button', { name: button }).click()
+        const art = page.getByRole('img', { name: 'Medrese görünümü' })
+        await art.evaluate(img => new Promise((resolve, reject) => {
+          if (img.complete && img.naturalWidth > 0) return resolve()
+          img.addEventListener('load', resolve, { once: true })
+          img.addEventListener('error', reject, { once: true })
+        }))
+        const src = await art.getAttribute('src')
+        if (!src?.includes(`medrese-painted-${stage}.webp?art=20260930-observatory-v1`)) {
+          throw new Error(`Medrese stage ${stage} loaded unexpected art: ${src}`)
+        }
+        await snapPanel(`medrese-stage-${stage}`)
+      }
       await back()
 
       await page.getByRole('button', { name: /^Ordu danışmanı/ }).click()
@@ -341,7 +358,7 @@ async function main() {
       await runViewport(viewport)
     }
 
-    const requiredPanelShots = ['ui-research-390x844.png', 'ui-buildings-390x844.png', 'ui-army-390x844.png', 'ui-settings-390x844.png', 'ui-colony-345x768.png']
+    const requiredPanelShots = ['ui-research-390x844.png', 'ui-buildings-390x844.png', 'ui-medrese-stage-1-390x844.png', 'ui-medrese-stage-2-390x844.png', 'ui-medrese-stage-3-390x844.png', 'ui-army-390x844.png', 'ui-settings-390x844.png', 'ui-colony-345x768.png']
     for (const shot of requiredPanelShots) {
       if (!diagnostics.screenshots.includes(shot)) throw new Error(`Missing content UI QA screenshot: ${shot}`)
     }

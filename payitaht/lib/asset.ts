@@ -64,6 +64,6 @@ export function buildingImage(id: string, level = 1, facing?: CoastFacing) {
     const variant = facing === 'straight' ? `${id}-duz` : id
     return `${asset(`/images/game/buildings/${variant}-painted-${buildingStage(level)}.webp`)}?art=${BUILDING_ART_REV}`
   }
-  if (isPaintedBuilding(id)) return `${asset(`/images/game/buildings/${id}-painted-${buildingStage(level)}.webp`)}?art=${BUILDING_ART_REV}`
+  if (isPaintedBuilding(id)) return `${asset(`/images/game/buildings/${id}-painted-${buildingStage(level)}.webp`)}?art=${id === 'medrese' ? '20260930-observatory-v1' : BUILDING_ART_REV}`
   return `${asset(`/images/game/buildings/${buildingArtKey(id, level, facing)}.webp`)}?art=${BUILDING_ART_REV}`
 }
