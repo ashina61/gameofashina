@@ -927,15 +927,14 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1, occupiedSl
     tier = 2
     const cem = cemeterySite()
     const cg = scene.add.graphics().setDepth(-702)
-    cg.fillStyle(0x5f7d3c, 0.35); cg.fillEllipse(cem.x, cem.y, TILE.w * 4.2, TILE.h * 3.4)
-    cg.lineStyle(3, 0xb8a47c, 0.8); cg.strokeEllipse(cem.x, cem.y, TILE.w * 4.2, TILE.h * 3.4)
+    cg.fillStyle(0x667f45, 0.13); cg.fillEllipse(cem.x, cem.y, TILE.w * 3.8, TILE.h * 3.1)
     const stones: Array<{ x: number; y: number }> = []
-    for (let r = -2; r <= 2; r++) {
-      for (let c = -4; c <= 4; c++) {
-        const x = cem.x + c * TILE.w * 0.42 + r * TILE.w * 0.2 + (or() - 0.5) * 12
-        const y = cem.y + r * TILE.h * 0.55 + c * TILE.h * 0.1 + (or() - 0.5) * 8
+    for (let r = -1; r <= 1; r++) {
+      for (let c = -3; c <= 3; c++) {
+        const x = cem.x + c * TILE.w * 0.49 + r * TILE.w * 0.2 + (or() - 0.5) * 24
+        const y = cem.y + r * TILE.h * 0.75 + c * TILE.h * 0.1 + (or() - 0.5) * 14
         if (((x - cem.x) / (TILE.w * 1.9)) ** 2 + ((y - cem.y) / (TILE.h * 1.5)) ** 2 > 1) continue
-        if (or() < 0.22) {
+        if (or() < 0.34) {
           const img = stamp(or() < 0.5 ? 'd_cypress' : 'd_cypress-b', x, y, TILE.w * (0.24 + or() * 0.06), y, 0.92)
           if (img) plazaDecor.push(img)
           continue
@@ -945,7 +944,7 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1, occupiedSl
     }
     for (const st of stones) {
       const g = scene.add.graphics().setDepth(st.y)
-      const h = 18 + or() * 12, w = 6 + or() * 2, tilt = (or() - 0.5) * 4
+      const h = 16 + or() * 9, w = 6 + or() * 2, tilt = (or() - 0.5) * 4
       g.fillStyle(0x2f421c, 0.25); g.fillEllipse(st.x + 5, st.y + 1, w * 2.4, 4)
       g.fillStyle(0xe9e4d6, 1); g.fillPoints([V(st.x - w / 2, st.y), V(st.x + w / 2, st.y), V(st.x + w / 2 + tilt, st.y - h), V(st.x - w / 2 + tilt, st.y - h)], true)
       g.fillStyle(0xc9c2ae, 1); g.fillRect(st.x + w / 2 - 2, st.y - h + 2, 2, h - 2)
@@ -985,83 +984,32 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1, occupiedSl
   // meralar; yol kavşaklarında ve kapı içlerinde Osmanlı çeşmeleri.
   {
     const fr = mulberry32(1071)
-    // İzometrik eksenler (karo yönleri): u = gx yönü, v = gy yönü.
-    const U = { x: TILE.w / 2, y: TILE.h / 2 }, Vv = { x: -TILE.w / 2, y: TILE.h / 2 }
-    const at = (f: { x: number; y: number; hw: number }, a: number, b: number) => {
-      // a, b ∈ [-1, 1]: tarla elmasının içinde izometrik koordinat.
-      const k = f.hw / TILE.w
-      return { x: f.x + (a * U.x + b * Vv.x) * k, y: f.y + (a * U.y + b * Vv.y) * k }
-    }
+    // Sabit çitli, sert elmas tabanlı çizim tarlaları yerine, hiçbir inşa
+    // yuvasına bağlı olmayan küçük boyalı korular ve bostan kümeleri.
     for (const [fi, f] of cityFields().entries()) {
       tier = fieldTier(fi)
-      const g = scene.add.graphics().setDepth(f.y - f.hh)
-      const corners = [at(f, -1, -1), at(f, 1, -1), at(f, 1, 1), at(f, -1, 1)].map(p => V(p.x, p.y))
-      // Kuru taş sınır duvarı + zemin.
-      const soil = f.kind === 'bostan' ? 0x9c7a4c : f.kind === 'bag' ? 0xa89868 : f.kind === 'mera' ? 0x8fb35a : 0x88a658
-      g.fillStyle(0x2f421c, 0.18); g.fillPoints(corners.map(p => V(p.x + 6, p.y + 5)), true)
-      g.fillStyle(soil, f.kind === 'mera' ? 0.55 : 0.95); g.fillPoints(corners, true)
-      if (f.kind !== 'mera') { g.lineStyle(5, 0xcdbd98, 1); g.strokePoints(corners, true); g.lineStyle(1.5, 0x8a7550, 0.6); g.strokePoints(corners, true) }
-      else { // Mera: çit kazıkları.
-        for (let i = 0; i < 4; i++) {
-          const a = corners[i], b = corners[(i + 1) % 4]
-          g.lineStyle(2, 0x7a5a30, 0.9); g.lineBetween(a.x, a.y - 8, b.x, b.y - 8)
-          for (let k = 0; k <= 8; k++) { const x = a.x + (b.x - a.x) * k / 8, y = a.y + (b.y - a.y) * k / 8; g.lineBetween(x, y, x, y - 12) }
-        }
+      const ground = scene.add.graphics().setDepth(-805)
+      ground.fillStyle(f.kind === 'mera' ? 0x92a95d : 0x9e9f61, 0.13)
+      ground.fillEllipse(f.x, f.y, f.hw * 1.8, f.hh * 1.65)
+      plazaDecor.push(ground)
+      const count = f.kind === 'meyve' ? 4 : f.kind === 'mera' ? 2 : 6
+      for (let i = 0; i < count; i++) {
+        const x = f.x + (fr() - 0.5) * f.hw * 1.35
+        const y = f.y + (fr() - 0.5) * f.hh * 1.3
+        const key = f.kind === 'meyve' ? 'd_olive-tree'
+          : i % 3 === 0 ? 'd_flower' : 'd_bush'
+        const w = f.kind === 'meyve' ? TILE.w * (0.36 + fr() * 0.1)
+          : f.kind === 'mera' ? TILE.w * 0.28 : TILE.w * (0.22 + fr() * 0.06)
+        const img = stamp(key, x, y, w, y, 0.92, 0.88)
+        if (img) plazaDecor.push(img)
       }
-      if (f.kind === 'bag') {
-        // BAĞ: kazıklara sarılı asma sıraları, mor salkımlar.
-        for (let r = -0.8; r <= 0.81; r += 0.2) {
-          const a = at(f, -0.9, r), b = at(f, 0.9, r)
-          g.lineStyle(1.5, 0x6a4a2a, 1); g.lineBetween(a.x, a.y - 9, b.x, b.y - 9)
-          for (let t = 0; t <= 1.001; t += 0.1) {
-            const x = a.x + (b.x - a.x) * t, y = a.y + (b.y - a.y) * t
-            g.lineStyle(1.5, 0x6a4a2a, 1); g.lineBetween(x, y, x, y - 12)
-            g.fillStyle(fr() < 0.5 ? 0x4f7d34 : 0x5f8f3c, 1); g.fillEllipse(x, y - 12, 13, 8)
-            if (fr() < 0.35) { g.fillStyle(0x5b2a5a, 1); g.fillCircle(x + 3, y - 7, 2.4); g.fillCircle(x + 1.5, y - 5, 2) }
-          }
-        }
-      } else if (f.kind === 'bostan') {
-        // BOSTAN: toprak sıraları arasında sebze sıraları, bir kuyu ve korkuluk.
-        for (let r = -0.85; r <= 0.86; r += 0.17) {
-          const a = at(f, -0.9, r), b = at(f, 0.9, r)
-          const crop = [0x6d9a3c, 0x8ab04a, 0x4f7d34][Math.round((r + 1) * 6) % 3]
-          for (let t = 0; t <= 1.001; t += 0.07) {
-            const x = a.x + (b.x - a.x) * t, y = a.y + (b.y - a.y) * t
-            g.fillStyle(crop, 1); g.fillCircle(x, y - 2, 3.4)
-            if (fr() < 0.08) { g.fillStyle(0xc8453a, 1); g.fillCircle(x + 2, y - 3, 1.8) }
-          }
-        }
-        const w = at(f, 0.62, -0.62)
-        g.fillStyle(0x8a8478, 1); g.fillEllipse(w.x, w.y, 26, 13); g.fillStyle(0x3f6f8a, 1); g.fillEllipse(w.x, w.y - 3, 18, 8)
-        g.lineStyle(2.5, 0x6a4a2a, 1); g.lineBetween(w.x - 11, w.y - 2, w.x - 11, w.y - 26); g.lineBetween(w.x + 11, w.y - 2, w.x + 11, w.y - 26); g.lineBetween(w.x - 13, w.y - 26, w.x + 13, w.y - 26)
-        g.lineStyle(1, 0x3a3a3a, 1); g.lineBetween(w.x, w.y - 26, w.x, w.y - 12); g.fillStyle(0x7a5a30, 1); g.fillRect(w.x - 3, w.y - 13, 6, 5)
-        const s = at(f, -0.5, 0.55)
-        g.lineStyle(2, 0x6a4a2a, 1); g.lineBetween(s.x, s.y, s.x, s.y - 30); g.lineBetween(s.x - 11, s.y - 22, s.x + 11, s.y - 22)
-        g.fillStyle(0xb3261e, 1); g.fillRect(s.x - 5, s.y - 24, 10, 12); g.fillStyle(0xe9d7a6, 1); g.fillEllipse(s.x, s.y - 30, 16, 6)
-      } else if (f.kind === 'meyve') {
-        // MEYVE BAHÇESİ: sıra sıra nar ve zeytin ağaçları.
-        for (let a = -0.6; a <= 0.61; a += 0.6) {
-          for (let b = -0.6; b <= 0.61; b += 0.6) {
-            const p = at(f, a + (fr() - 0.5) * 0.1, b + (fr() - 0.5) * 0.1)
-            const pom = fr() < 0.5
-            const img = stamp('d_olive-tree', p.x, p.y, TILE.w * (0.5 + fr() * 0.12), p.y, 0.92, 1, pom ? 0xc8e0a0 : undefined)
-            if (img) plazaDecor.push(img)
-            if (pom) {
-              const d = scene.add.graphics().setDepth(p.y + 0.1)
-              for (let k = 0; k < 6; k++) { d.fillStyle(0xc8231c, 1); d.fillCircle(p.x + (fr() - 0.5) * TILE.w * 0.36, p.y - TILE.h * (0.55 + fr() * 0.45), 2.6) }
-              plazaDecor.push(d)
-            }
-          }
-        }
-      }
-      plazaDecor.push(g)
     }
 
     // ÇEŞMELER: mermer ayna taşı, sivri kemerli niş, kitabe, tunç lüle, yalak.
     for (const c of cityFountains()) {
       tier = fountainTier(c)
       const g = scene.add.graphics().setDepth(c.y)
-      const w = TILE.w * 0.52, h = TILE.h * 1.05, d = w * 0.3
+      const w = TILE.w * 0.38, h = TILE.h * 0.74, d = w * 0.3
       const x0 = c.x - w / 2, x1 = c.x + w / 2, y0 = c.y
       g.fillStyle(0x1b2a14, 0.24); g.fillEllipse(c.x + w * 0.3, y0 + 6, w * 1.5, 16)
       // Yan yüz, ön yüz, saçak.
@@ -1198,8 +1146,8 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1, occupiedSl
       let nx = (ngx - ngy) * TILE.w / 2, ny = (ngx + ngy) * TILE.h / 2
       if (ny < 0) { nx = -nx; ny = -ny; ngx = -ngx; ngy = -ngy } // ön yüz izleyiciye baksın
       const Pt = (s: number, z: number, off = 0) => V(aq.from.x + ux * s + nx * off, aq.from.y + uy * s + ny * off - z)
-      const B = 58, pw = 15
-      const H1 = 82, S1 = 48, H2 = 132, S2 = 106, TOP = 146
+      const B = 58, pw = 13
+      const H1 = 49, S1 = 28, H2 = 78, S2 = 62, TOP = 87
       const face = 0xd8c39a, faceDk = 0xb9a276, soffit = 0x6e5a3e, cap = 0xeadbb6
       const n = Math.floor((len - 36) / B)
       const arch = (s0: number, s1: number, spring: number, rise: number, off: number) => {
@@ -1247,7 +1195,7 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1, occupiedSl
         plazaDecor.push(g)
       }
       // MAKSEM: kare taş kule, sivri kemerli pencere, kurşun kırma çatı, alem.
-      const m = aq.to, hw = TILE.w * 0.42, hh = hw / 2, mh = 150
+      const m = aq.to, hw = TILE.w * 0.32, hh = hw / 2, mh = 91
       const W_ = V(m.x - hw, m.y), S_ = V(m.x, m.y + hh), E_ = V(m.x + hw, m.y), N_ = V(m.x, m.y - hh)
       const up = (p: Phaser.Math.Vector2, z: number) => V(p.x, p.y - z)
       const mg = scene.add.graphics().setDepth(m.y + hh + 2)
@@ -1260,10 +1208,10 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1, occupiedSl
       for (const [a, b] of [[W_, S_], [S_, E_]] as const) {
         const cx = (a.x + b.x) / 2, cy = (a.y + b.y) / 2
         mg.fillStyle(0x3a2d24, 1)
-        mg.fillPoints([V(cx - 7, cy - 70), V(cx + 7, cy - 70 + (b.y - a.y) * 0.12), V(cx + 7, cy - 96 + (b.y - a.y) * 0.12), V(cx, cy - 106), V(cx - 7, cy - 96)], true)
+        mg.fillPoints([V(cx - 6, cy - 43), V(cx + 6, cy - 43 + (b.y - a.y) * 0.12), V(cx + 6, cy - 60 + (b.y - a.y) * 0.12), V(cx, cy - 68), V(cx - 6, cy - 60)], true)
       }
       mg.fillStyle(cap, 1); mg.fillPoints([up(W_, mh), up(S_, mh), up(E_, mh), up(N_, mh)], true)
-      const apex = V(m.x, m.y - mh - 46)
+      const apex = V(m.x, m.y - mh - 30)
       mg.fillStyle(0x7b949c, 1); mg.fillPoints([up(W_, mh - 4), up(S_, mh - 4), apex], true)
       mg.fillStyle(0x8fa7ae, 1); mg.fillPoints([up(S_, mh - 4), up(E_, mh - 4), apex], true)
       mg.fillStyle(0xe2bd78, 1); mg.fillRect(apex.x - 1.5, apex.y - 14, 3, 14); mg.fillCircle(apex.x, apex.y - 16, 3)
@@ -1330,6 +1278,18 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1, occupiedSl
       const cityId = r.from.startsWith('coast_') ? r.to : r.from
       return visibleKeys.has(key) || active.has(cityId)
     })
+
+    // Her normal kara yuvası aynı giriş bağlantısını alır. Bina kimliğine
+    // bağlı yön/arsa kuralı yoktur; kışla başka yuvaya taşınınca da yol yeni
+    // yuvanın ön kenarına kadar uzanır.
+    for (const id of active) {
+      if (id === HALL_SLOT_ID) continue
+      const slot = slotById(id)
+      if (!slot || slot.type !== 'city') continue
+      const ends = visibleCurves.flatMap(r => r.from === id ? [r.curve.getPoint(0)] : r.to === id ? [r.curve.getPoint(1)] : [])
+      const front = ends.sort((a, b) => b.y - a.y)[0]
+      if (front) visibleCurves.push({ from: id, to: id, kind: 'street', curve: new Phaser.Curves.Line(front, V(slot.screen.x, slot.screen.y + TILE.h * 0.08)) })
+    }
 
     // Henüz açılmamış bir arsanın İÇİNDEN geçen yol, arsa kenarında kesik
     // kalmasın: uçları arsa ortasına bağlanır, yol tek parça görünür.

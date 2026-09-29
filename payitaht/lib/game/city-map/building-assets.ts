@@ -157,7 +157,7 @@ export const BUILDING_VISUALS: Record<BuildingId, BuildingVisualProfile> = {
   ambar: vp('production', 'work', 1.01, 0xf1e5d2, ['woodpile', 'haystack', 'rock']),
   kereste: vp('production', 'work', 0.92, 0xefe3cf, ['woodpile', 'pine', 'rock']),
   tas: vp('production', 'work', 0.92, 0xeee5d8, ['rock', 'woodpile', 'bush']),
-  medrese: vp('scholar', 'green', 1.08, 0xfff6e8, ['cypress', 'well', 'flower'], true),
+  medrese: vp('scholar', 'green', 0.72, 0xfff6e8, ['cypress', 'well', 'flower'], true),
   kisla: vp('military', 'military', 1.04, 0xf4ebe0, ['rock', 'woodpile', 'cypress']),
   surlar: vp('defense', 'none', 1.00, 0xf2e7d6, []),
   liman: vp('harbour', 'harbour', 0.95, 0xf5f4ea, []),
