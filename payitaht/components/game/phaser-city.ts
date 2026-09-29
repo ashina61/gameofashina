@@ -68,6 +68,9 @@ const PAINTED_SOURCE_WIDTH: Partial<Record<BuildingId, number>> = {
   tophane: 1774, simyahane: 1632, camci: 1774,
   mahzen: 1774, gozlukcu: 1632, barutane: 1774,
   depo: 1774, ticaret_merkezi: 1774, harita_arsivi: 1774,
+  valilik: 1747, kara_pazar: 1774, siginak: 1774,
+  tekke: 1774, mabet: 1774, karagoz: 1642,
+  korsan_kalesi: 1774,
 }
 function isTap(p: Phaser.Input.Pointer) {
   return p.downTime > 0 && Phaser.Math.Distance.Between(p.downX, p.downY, p.upX, p.upY) < TAP_SLOP

@@ -110,21 +110,33 @@ async function main() {
       game.placement.simyahane = 23
       game.buildings.camci = 8
       game.placement.camci = 24
-      // Tüm kara yuvaları dolu. İkinci viewportta üç yuvayı yeni tüccar
-      // çizimleri için kullan; ilk viewport eski zanaat regresyonunu korur.
+      // Tüm kara yuvaları dolu. İkinci viewport tüccarları, üçüncüsü son
+      // altı kara yapısını gösterir; ilk viewport zanaat regresyonunu korur.
       const crafts = seedWidth === 390
+      const merchants = seedWidth === 412
+      const finalBuildings = seedWidth === 430
       game.buildings.mahzen = crafts ? 8 : 0
       game.placement.mahzen = crafts ? 3 : null
       game.buildings.gozlukcu = crafts ? 8 : 0
       game.placement.gozlukcu = crafts ? 5 : null
       game.buildings.barutane = crafts ? 8 : 0
       game.placement.barutane = crafts ? 1 : null
-      game.buildings.depo = crafts ? 0 : 8
-      game.placement.depo = crafts ? null : 3
-      game.buildings.ticaret_merkezi = crafts ? 0 : 8
-      game.placement.ticaret_merkezi = crafts ? null : 5
-      game.buildings.harita_arsivi = crafts ? 0 : 8
-      game.placement.harita_arsivi = crafts ? null : 1
+      game.buildings.depo = merchants ? 8 : 0
+      game.placement.depo = merchants ? 3 : null
+      game.buildings.ticaret_merkezi = merchants ? 8 : 0
+      game.placement.ticaret_merkezi = merchants ? 5 : null
+      game.buildings.harita_arsivi = merchants ? 8 : 0
+      game.placement.harita_arsivi = merchants ? 1 : null
+      if (finalBuildings) {
+        for (const id of ['elcilik', 'hamam', 'kahvehane']) {
+          game.buildings[id] = 0
+          game.placement[id] = null
+        }
+        for (const [id, slot] of [['valilik', 1], ['kara_pazar', 3], ['siginak', 5], ['tekke', 13], ['mabet', 14], ['karagoz', 15], ['korsan_kalesi', 27]]) {
+          game.buildings[id] = 8
+          game.placement[id] = slot
+        }
+      }
       return JSON.stringify(empire)
     }, width)
     // reload sırasında useGame pagehide handler eski in-memory kaydı flush eder.
@@ -176,13 +188,20 @@ async function main() {
       const specialists = path.join(out, `city-crafts-upgrade-${label}.png`)
       await page.screenshot({ path: specialists, animations: 'disabled' })
       diagnostics.screenshots.push(path.basename(specialists))
-    } else {
+    } else if (width === 412) {
       for (const expected of ['depo-painted-3.webp', 'ticaret_merkezi-painted-3.webp', 'harita_arsivi-painted-3.webp']) {
         if (!loadedNames.includes(expected)) throw new Error(`${label}: merchant stage 3 did not load: ${expected}`)
       }
       const merchants = path.join(out, `city-merchants-upgrade-${label}.png`)
       await page.screenshot({ path: merchants, animations: 'disabled' })
       diagnostics.screenshots.push(path.basename(merchants))
+    } else {
+      for (const expected of ['valilik-painted-3.webp', 'kara_pazar-painted-3.webp', 'siginak-painted-3.webp', 'tekke-painted-3.webp', 'mabet-painted-3.webp', 'karagoz-painted-3.webp', 'korsan_kalesi-painted-3.webp']) {
+        if (!loadedNames.includes(expected)) throw new Error(`${label}: final painted stage 3 did not load: ${expected}`)
+      }
+      const finalBuildings = path.join(out, `city-final-buildings-${label}.png`)
+      await page.screenshot({ path: finalBuildings, animations: 'disabled' })
+      diagnostics.screenshots.push(path.basename(finalBuildings))
     }
 
     const harbour = page.getByRole('button', { name: 'Donanma ve limana git' })
@@ -266,6 +285,7 @@ async function main() {
     for (const viewport of [
       { width: 390, height: 844 },
       { width: 412, height: 915 },
+      { width: 430, height: 932 },
     ]) {
       await runViewport(viewport)
     }
