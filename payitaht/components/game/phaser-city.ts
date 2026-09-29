@@ -1924,6 +1924,30 @@ export class CityScene extends Phaser.Scene {
     else g.destroy()
   }
 
+  /** Boyalı yapının avlusu boş kalmasın; bitki ve taşlar yalnızca mevcut parselde yaşar. */
+  private addPaintedYardProps(id: BuildingId, slot: LiveSlot, level: number, imgY: number) {
+    if (level <= 0 || slot.zone === 'liman' || id === 'divan') return
+    const profile = this.buildingVisualProfile(id, slot)
+    const rnd = this.visualRnd(this.buildingVisualSeed(id, slot) ^ 0x61ad29b7)
+    const natural = profile.decor.filter(key => ['bush', 'flower', 'rock', 'cypress', 'cypress-b', 'olive-tree', 'tulip-bed'].includes(key))
+    const choices = natural.length ? natural : ['bush', 'rock']
+    const count = buildingStage(level) >= 2 ? 3 : 2
+    for (let i = 0; i < count; i++) {
+      const key = choices[(i + Math.floor(rnd() * choices.length)) % choices.length]
+      const texture = 'd_' + key
+      if (!this.textures.exists(texture)) continue
+      const side = i % 2 ? 1 : -1
+      const x = slot.screen.x + side * GROUND_TARGET_W * (0.31 + rnd() * 0.045)
+      const y = slot.screen.y + TILE.h * (0.24 + (i === 2 ? 0.12 : 0) + rnd() * 0.08)
+      const image = this.add.image(x, y, texture).setOrigin(0.5, 0.92).setDepth(imgY + 0.06)
+      const source = this.textures.get(texture).getSourceImage() as HTMLImageElement
+      const width = TILE.w * (key.includes('cypress') || key.includes('tree') ? 0.19 : 0.16)
+      image.setDisplaySize(width, width * source.height / source.width).setAlpha(0.85)
+      image.setFlipX(side > 0)
+      this.pieces.push(image)
+    }
+  }
+
   /** İnşaat/yükseltme tamamlanınca kısa, dünyaya bağlı kutlama. */
   private celebrateBuilding(id: BuildingId, delay = 0) {
     this.time.delayedCall(delay, () => {
@@ -2021,7 +2045,8 @@ export class CityScene extends Phaser.Scene {
     // Her binayı aynı avlu duvarına hapsetmek şehri tekrar eden bir "compound"
     // ızgarasına çeviriyordu. Avlu yalnızca gerçekten avlulu/temsili yapılarda.
     if (profile.courtyard && !isPaintedBuilding(id) && slot.zone !== 'liman' && slot.slotId !== HALL_SLOT_ID && level >= 2) this.addGardenWall(slot, imgY, artS, id)
-    if (!isPaintedBuilding(id)) this.addBuildingProps(id, slot, level, imgY)
+    if (isPaintedBuilding(id)) this.addPaintedYardProps(id, slot, level, imgY)
+    else this.addBuildingProps(id, slot, level, imgY)
 
     // İki parçalı temas gölgesi: önce yapının tam altında yumuşak ambient
     // contact, sonra sağ-alt tarafa kısa güneş gölgesi. Böylece sprite zeminden
@@ -2049,19 +2074,25 @@ export class CityScene extends Phaser.Scene {
       dispW = img.width * scale; dispH = img.height * scale
       this.pieces.push(img)
       if (id === 'medrese' && level > 0) {
-        // Rasathane ayrıntısı avlunun içinde kalır; medrese hangi standart
-        // yuvaya taşınırsa taşınsın yola ya da komşu parsele yerleşmez.
-        const x = anc.x + GROUND_TARGET_W * 0.13, y = imgY - TILE.h * 0.40
+        // Arka düz çatıya kurulmuş büyük pirinç rasat dürbünü. Kaynak görsele
+        // göre koordinatlandırıldığı için her aşamada/slotta binayla ölçeklenir.
         const glass = this.add.graphics().setDepth(imgY + 0.035)
-        glass.lineStyle(3, 0x6a4b31, 1)
-        glass.lineBetween(x, y - 15, x - 13, y + 10)
-        glass.lineBetween(x, y - 15, x + 14, y + 10)
-        glass.lineBetween(x, y - 15, x, y + 11)
-        glass.fillStyle(0x8a6135, 1); glass.fillCircle(x, y - 16, 4)
-        glass.lineStyle(10, 0x8c6034, 1); glass.lineBetween(x - 18, y - 21, x + 20, y - 35)
-        glass.lineStyle(5, 0xd5ad62, 1); glass.lineBetween(x - 17, y - 23, x + 19, y - 37)
-        glass.fillStyle(0x3c5960, 1); glass.fillEllipse(x - 20, y - 21, 7, 11)
-        glass.lineStyle(2, 0xeee0b9, 0.9); glass.strokeEllipse(x - 20, y - 21, 7, 11)
+        const x = img.width * 0.555, y = img.height * 0.315
+        glass.fillStyle(0x3a4350, 0.24); glass.fillEllipse(x + 9, y + 10, 94, 18)
+        glass.lineStyle(8, 0x654b32, 1)
+        glass.lineBetween(x, y - 22, x - 43, y + 9)
+        glass.lineBetween(x, y - 22, x + 45, y + 9)
+        glass.lineBetween(x, y - 22, x + 5, y + 11)
+        glass.fillStyle(0xa0793e, 1); glass.fillCircle(x, y - 24, 11)
+        glass.lineStyle(38, 0x67492e, 1); glass.lineBetween(x - 76, y - 47, x + 94, y - 123)
+        glass.lineStyle(29, 0xb28b4c, 1); glass.lineBetween(x - 73, y - 50, x + 89, y - 123)
+        glass.lineStyle(8, 0xe5c47f, 0.9); glass.lineBetween(x - 67, y - 56, x + 82, y - 123)
+        glass.fillStyle(0x364d5a, 1); glass.fillEllipse(x - 80, y - 46, 22, 40)
+        glass.lineStyle(6, 0xe4c583, 1); glass.strokeEllipse(x - 80, y - 46, 22, 40)
+        glass.fillStyle(0x533a28, 1); glass.fillEllipse(x + 94, y - 126, 15, 28)
+        glass.lineStyle(5, 0xd9b571, 1); glass.strokeEllipse(x + 94, y - 126, 15, 28)
+        glass.setPosition(anc.x + (flip ? dispW / 2 : -dispW / 2), imgY - dispH)
+        glass.setScale(flip ? -scale : scale, scale)
         this.pieces.push(glass)
       }
       // Sancaklar: görseldeki direklerin tepesine oyuncunun sancağı (tools/art → building-flags.json).

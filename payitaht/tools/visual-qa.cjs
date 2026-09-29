@@ -284,6 +284,47 @@ async function main() {
       await page.getByRole('dialog', { name: /Oyun ayarları/ }).waitFor({ timeout: 10_000 })
       await snapPanel('settings')
       await back()
+
+      // Kullanıcıdaki 345px koloni ekranı: üç şehir eylemi kartı/sayfayı
+      // yana itmemeli. Save parse yolundan ikinci şehri açıp gerçek paneli ölç.
+      const colonyRaw = await page.evaluate(() => {
+        const empire = JSON.parse(localStorage.getItem('payitaht-adalari-v1'))
+        const colony = structuredClone(empire.cities[0])
+        colony.id = 'city-2'
+        colony.name = 'Yeni Sahil'
+        colony.islandId = 'baglik'
+        colony.game.buildings.saray = 0
+        colony.game.placement.saray = null
+        colony.game.buildings.valilik = 1
+        colony.game.placement.valilik = 11
+        empire.cities.push(colony)
+        empire.activeCityId = colony.id
+        empire.nextId = 3
+        return JSON.stringify(empire)
+      })
+      await page.addInitScript(raw => localStorage.setItem('payitaht-adalari-v1', raw), colonyRaw)
+      await page.setViewportSize({ width: 345, height: 768 })
+      await page.reload({ waitUntil: 'domcontentloaded' })
+      await page.getByRole('button', { name: /Hikâyeye başla|Devam et/ }).click()
+      await page.getByRole('button', { name: /Şehir: Yeni Sahil.*Şehirlerini aç/ }).click()
+      await page.getByRole('dialog', { name: /Şehirlerin/ }).waitFor()
+      const boxes = await page.evaluate(() => {
+        const card = document.querySelector('.cities-panel .city-card')
+        const buttons = [...(card?.querySelectorAll('.batch-row button') || [])]
+        const viewport = window.innerWidth
+        return { viewport, scroll: document.documentElement.scrollWidth,
+          card: card?.getBoundingClientRect().toJSON(),
+          buttons: buttons.map(button => button.getBoundingClientRect().toJSON()) }
+      })
+      if (!boxes.card || boxes.buttons.length !== 3 || boxes.scroll > boxes.viewport + 2 ||
+          boxes.card.left < -2 || boxes.card.right > boxes.viewport + 2 ||
+          boxes.buttons.some(b => b.left < -2 || b.right > boxes.viewport + 2)) {
+        throw new Error(`345px colony page overflow: ${JSON.stringify(boxes)}`)
+      }
+      diagnostics.colonyLayout = boxes
+      const colonyShot = path.join(out, 'ui-colony-345x768.png')
+      await page.screenshot({ path: colonyShot, animations: 'disabled' })
+      diagnostics.screenshots.push(path.basename(colonyShot))
     }
 
     await context.close()
@@ -300,7 +341,7 @@ async function main() {
       await runViewport(viewport)
     }
 
-    const requiredPanelShots = ['ui-research-390x844.png', 'ui-buildings-390x844.png', 'ui-army-390x844.png', 'ui-settings-390x844.png']
+    const requiredPanelShots = ['ui-research-390x844.png', 'ui-buildings-390x844.png', 'ui-army-390x844.png', 'ui-settings-390x844.png', 'ui-colony-345x768.png']
     for (const shot of requiredPanelShots) {
       if (!diagnostics.screenshots.includes(shot)) throw new Error(`Missing content UI QA screenshot: ${shot}`)
     }

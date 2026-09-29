@@ -571,10 +571,16 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1, occupiedSl
       const foot = V(top.x + w * 0.08, baseY)
       hills.fillStyle(light, haze); hills.fillPoints([left, midL, top, foot], true)
       hills.fillStyle(dark, haze); hills.fillPoints([top, midR, right, foot], true)
-      // Kayalık doruk ve sırt çizgisi.
-      hills.fillStyle(rock, haze * 0.9)
+      // Kayalık yalnızca dorukta; boya katmanları ve kısa yüzey izleri
+      // geniş düz üçgenlerin zeminden kopuk görünmesini önler.
+      hills.fillStyle(rock, haze * 0.45)
       hills.fillPoints([V(top.x - w * 0.16, top.y + h * 0.22), top, V(top.x + w * 0.2, top.y + h * 0.26), V(top.x + w * 0.02, top.y + h * 0.3)], true)
-      hills.lineStyle(2, 0x3e4a2c, 0.25 * haze); hills.lineBetween(top.x, top.y, foot.x, foot.y)
+      for (let j = 0; j < 22; j++) {
+        const u = (hr() * 2 - 1) * 0.76, v = 0.30 + hr() * 0.58
+        const x = cx + u * w * v, y = top.y + h * v
+        hills.lineStyle(1 + hr() * 2, j % 4 === 0 ? rock : j % 3 === 0 ? dark : light, 0.12 * haze)
+        hills.lineBetween(x, y, x + (hr() - 0.5) * w * 0.16, y + h * 0.035)
+      }
     }
     // Uzak, orta ve yakın sıra (arkadan öne).
     const ranges = [
@@ -592,9 +598,12 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1, occupiedSl
         const w = r.w[0] + hr() * (r.w[1] - r.w[0])
         peak(cx, r.base, h, w, r.light, r.dark, r.rock, r.haze)
       }
-      // Dağ eteği araziye yumuşakça karışır.
-      hills.fillStyle(r.dark, 0.35)
-      hills.fillRect(wr.x, r.base - TILE.h * 0.2, wr.w, TILE.h * 0.8)
+      // Dağ eteği tek renkli yatay şerit yerine çim dokusuna karışır.
+      for (let i = 0; i < 24; i++) {
+        const x = wr.x + (i + hr() * 0.7) / 24 * wr.w
+        hills.fillStyle(i % 3 === 0 ? r.light : r.dark, 0.08 + hr() * 0.07)
+        hills.fillEllipse(x, r.base + (hr() - 0.5) * TILE.h, TILE.w * (0.8 + hr()), TILE.h * (0.5 + hr() * 0.6))
+      }
     }
     // Sıradağların üstü (dünyanın en üstü): puslu uzak sırt, gökyüzü yok.
     hills.fillStyle(0xa9b594, 1)
@@ -1185,6 +1194,20 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1, occupiedSl
             else g.lineBetween(Pt(s0, z, 1).x, Pt(s0, z, 1).y, Pt(s1, z, 1).x, Pt(s1, z, 1).y)
           }
           g.lineStyle(2, 0xb39c74, 1); g.strokePoints(arch(a0, a1, spring, rise, 1), false)
+          // Aşınmış harç, gölgeli taş ve dipteki yosun kemeri zemine bağlar.
+          for (let k = 0; k < 6; k++) {
+            const s = s0 + 5 + (k * 17 + i * 11) % (B - 10)
+            const z = lo + 7 + (k * 13) % Math.max(12, hi - lo - 8)
+            const p = Pt(s, z, 1)
+            g.fillStyle(k % 3 === 0 ? 0x708052 : 0x8e7757, k % 3 === 0 ? 0.24 : 0.16)
+            g.fillEllipse(p.x, p.y, 4 + (k % 3) * 2, 2 + (k % 2))
+          }
+          if (lo === 0) {
+            for (const s of [s0 + 4, s1 - 5]) {
+              const p = Pt(s, 2, 1)
+              g.fillStyle(0x647747, 0.38); g.fillEllipse(p.x, p.y + 3, 12, 5)
+            }
+          }
           g.fillStyle(cap, 1)
           g.fillPoints([Pt(s0, hi, 1), Pt(s1, hi, 1), Pt(s1, hi + 3, 1), Pt(s0, hi + 3, 1)], true)
         }
