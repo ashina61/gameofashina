@@ -2073,28 +2073,6 @@ export class CityScene extends Phaser.Scene {
       img.setFlipX(flip)
       dispW = img.width * scale; dispH = img.height * scale
       this.pieces.push(img)
-      if (id === 'medrese' && level > 0) {
-        // Arka düz çatıya kurulmuş büyük pirinç rasat dürbünü. Kaynak görsele
-        // göre koordinatlandırıldığı için her aşamada/slotta binayla ölçeklenir.
-        const glass = this.add.graphics().setDepth(imgY + 0.035)
-        const x = img.width * 0.555, y = img.height * 0.315
-        glass.fillStyle(0x3a4350, 0.24); glass.fillEllipse(x + 9, y + 10, 94, 18)
-        glass.lineStyle(8, 0x654b32, 1)
-        glass.lineBetween(x, y - 22, x - 43, y + 9)
-        glass.lineBetween(x, y - 22, x + 45, y + 9)
-        glass.lineBetween(x, y - 22, x + 5, y + 11)
-        glass.fillStyle(0xa0793e, 1); glass.fillCircle(x, y - 24, 11)
-        glass.lineStyle(38, 0x67492e, 1); glass.lineBetween(x - 76, y - 47, x + 94, y - 123)
-        glass.lineStyle(29, 0xb28b4c, 1); glass.lineBetween(x - 73, y - 50, x + 89, y - 123)
-        glass.lineStyle(8, 0xe5c47f, 0.9); glass.lineBetween(x - 67, y - 56, x + 82, y - 123)
-        glass.fillStyle(0x364d5a, 1); glass.fillEllipse(x - 80, y - 46, 22, 40)
-        glass.lineStyle(6, 0xe4c583, 1); glass.strokeEllipse(x - 80, y - 46, 22, 40)
-        glass.fillStyle(0x533a28, 1); glass.fillEllipse(x + 94, y - 126, 15, 28)
-        glass.lineStyle(5, 0xd9b571, 1); glass.strokeEllipse(x + 94, y - 126, 15, 28)
-        glass.setPosition(anc.x + (flip ? dispW / 2 : -dispW / 2), imgY - dispH)
-        glass.setScale(flip ? -scale : scale, scale)
-        this.pieces.push(glass)
-      }
       // Sancaklar: görseldeki direklerin tepesine oyuncunun sancağı (tools/art → building-flags.json).
       // Boyalı yapılarda sancak/ayrıntı görsele dahildir; eski vektör
       // manifestindeki koordinatlar farklı tuvale işaret eder.
