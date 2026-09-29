@@ -2048,6 +2048,22 @@ export class CityScene extends Phaser.Scene {
       img.setFlipX(flip)
       dispW = img.width * scale; dispH = img.height * scale
       this.pieces.push(img)
+      if (id === 'medrese' && level > 0) {
+        // Rasathane ayrıntısı avlunun içinde kalır; medrese hangi standart
+        // yuvaya taşınırsa taşınsın yola ya da komşu parsele yerleşmez.
+        const x = anc.x + GROUND_TARGET_W * 0.13, y = imgY - TILE.h * 0.40
+        const glass = this.add.graphics().setDepth(imgY + 0.035)
+        glass.lineStyle(3, 0x6a4b31, 1)
+        glass.lineBetween(x, y - 15, x - 13, y + 10)
+        glass.lineBetween(x, y - 15, x + 14, y + 10)
+        glass.lineBetween(x, y - 15, x, y + 11)
+        glass.fillStyle(0x8a6135, 1); glass.fillCircle(x, y - 16, 4)
+        glass.lineStyle(10, 0x8c6034, 1); glass.lineBetween(x - 18, y - 21, x + 20, y - 35)
+        glass.lineStyle(5, 0xd5ad62, 1); glass.lineBetween(x - 17, y - 23, x + 19, y - 37)
+        glass.fillStyle(0x3c5960, 1); glass.fillEllipse(x - 20, y - 21, 7, 11)
+        glass.lineStyle(2, 0xeee0b9, 0.9); glass.strokeEllipse(x - 20, y - 21, 7, 11)
+        this.pieces.push(glass)
+      }
       // Sancaklar: görseldeki direklerin tepesine oyuncunun sancağı (tools/art → building-flags.json).
       // Boyalı yapılarda sancak/ayrıntı görsele dahildir; eski vektör
       // manifestindeki koordinatlar farklı tuvale işaret eder.

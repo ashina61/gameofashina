@@ -28,5 +28,8 @@ test('tarlalar arsalara ve dereye binmez', () => {
 })
 
 test('çeşmeler suyun üstüne düşmez', () => {
-  for (const c of cityFountains()) assert.ok(!nearStreamAt(c.x, c.y, 30, 20), `çeşme dere üstünde (${c.x}, ${c.y})`)
+  for (const c of cityFountains()) {
+    assert.ok(!nearStreamAt(c.x, c.y, 30, 20), `çeşme dere üstünde (${c.x}, ${c.y})`)
+    assert.ok(!inYard(c.x, c.y, 0.68), `çeşme herhangi bir bina yuvasında (${c.x}, ${c.y})`)
+  }
 })
