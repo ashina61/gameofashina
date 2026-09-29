@@ -29,7 +29,7 @@ export function buildingStage(level: number): 1 | 2 | 3 {
  * değiştiğinde bu değeri yükselt; query string hem browser hem SW cache anahtarını
  * değiştirir, binary dosya adlarını ve BUILDING_FLAGS anahtarlarını bozmaz.
  */
-export const BUILDING_ART_REV = '20260929-painted-specialists-v1'
+export const BUILDING_ART_REV = '20260929-painted-crafts-v2'
 
 /** Tam şeffaf, eski izokit tuvali yerine boyanmış üç aşamalı görseller. */
 export function isPaintedBuilding(id: string) {
@@ -40,6 +40,7 @@ export function isPaintedBuilding(id: string) {
     || id === 'muze' || id === 'marangoz' || id === 'mimar'
     || id === 'ormanci' || id === 'tasci' || id === 'bagci'
     || id === 'tophane' || id === 'simyahane' || id === 'camci'
+    || id === 'mahzen' || id === 'gozlukcu' || id === 'barutane'
 }
 
 export type CoastFacing = 'left' | 'straight' | 'right'
