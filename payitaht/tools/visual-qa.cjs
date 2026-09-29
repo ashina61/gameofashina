@@ -67,10 +67,14 @@ async function main() {
       const city = empire?.cities?.find(c => c.id === empire.activeCityId) ?? empire?.cities?.[0]
       const game = city?.game
       if (!game?.buildings || !game?.placement) throw new Error('Visual QA active-city save shape unavailable')
-      game.buildings.liman = 2
-      game.buildings.tersane = 2
+      const coastLevel = seedWidth === 430 ? 8 : seedWidth === 412 ? 5 : 2
+      const coastFacing = seedWidth === 430 ? 'right' : seedWidth === 412 ? 'left' : 'straight'
+      game.buildings.liman = coastLevel
+      game.buildings.tersane = coastLevel
       game.placement.liman = 25
       game.placement.tersane = 26
+      game.coastFacing.liman = coastFacing
+      game.coastFacing.tersane = coastFacing
       // Boyalı yapının en geniş aşamasını gerçek şehir kadrajında kontrol et.
       game.buildings.cami = 8
       game.placement.cami = 10
@@ -164,11 +168,15 @@ async function main() {
         tersane: game?.buildings?.tersane ?? null,
         pLiman: game?.placement?.liman ?? null,
         pTersane: game?.placement?.tersane ?? null,
+        limanFacing: game?.coastFacing?.liman ?? null,
+        tersaneFacing: game?.coastFacing?.tersane ?? null,
       }
     })
     diagnostics.coastSeed = diagnostics.coastSeed || {}
     diagnostics.coastSeed[label] = seeded
-    if (seeded.liman !== 2 || seeded.tersane !== 2 || seeded.pLiman !== 25 || seeded.pTersane !== 26) {
+    const coastLevel = width === 430 ? 8 : width === 412 ? 5 : 2
+    const coastFacing = width === 430 ? 'right' : width === 412 ? 'left' : 'straight'
+    if (seeded.liman !== coastLevel || seeded.tersane !== coastLevel || seeded.pLiman !== 25 || seeded.pTersane !== 26 || seeded.limanFacing !== coastFacing || seeded.tersaneFacing !== coastFacing) {
       throw new Error(`${label}: coast QA seed did not survive reload: ${JSON.stringify(seeded)}`)
     }
 
@@ -176,7 +184,9 @@ async function main() {
     // art after reload. This catches stale asset revisions / wrong generator output
     // even if the save shape itself is valid.
     const loadedNames = [...buildingStageLoads].map(url => url.split('/').pop())
-    for (const expected of ['liman-duz-1.webp', 'tersane-duz-1.webp']) {
+    const coastVariant = coastFacing === 'straight' ? '-duz' : ''
+    const coastStage = width === 430 ? 3 : width === 412 ? 2 : 1
+    for (const expected of [`liman${coastVariant}-painted-${coastStage}.webp`, `tersane${coastVariant}-painted-${coastStage}.webp`]) {
       if (!loadedNames.includes(expected)) {
         throw new Error(`${label}: expected coast texture was not loaded: ${expected}; loaded=${loadedNames.join(',')}`)
       }

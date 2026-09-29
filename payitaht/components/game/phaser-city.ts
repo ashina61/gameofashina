@@ -71,6 +71,7 @@ const PAINTED_SOURCE_WIDTH: Partial<Record<BuildingId, number>> = {
   valilik: 1747, kara_pazar: 1774, siginak: 1774,
   tekke: 1774, mabet: 1774, karagoz: 1642,
   korsan_kalesi: 1774,
+  liman: 1598, tersane: 1774,
 }
 function isTap(p: Phaser.Input.Pointer) {
   return p.downTime > 0 && Phaser.Math.Distance.Between(p.downX, p.downY, p.upX, p.upY) < TAP_SLOP
@@ -305,12 +306,13 @@ export class CityScene extends Phaser.Scene {
         : hasHarbour
           ? harbour.screen
           : COAST_SLOTS[Math.floor(COAST_SLOTS.length / 2)].screen
-    // İki kıyı yapısı varken zoom'u sabit çarpanla değil GERÇEK yatay aralığa
-    // göre fit et. 390px telefonda coast_01 ↔ coast_02 merkezleri yaklaşık
-    // 576 world-px ayrık; 0.64 zoom iki sprite'ın kenarını kesiyordu.
+    // İki kıyı yapısını boyalı sprite'ların tam genişliğiyle kadraja al.
+    // Eski 210px zemin elması hesabı yeni iskele/kızakların uçlarını kesiyordu.
     const bothCoast = hasShipyard && hasHarbour
+    const coastSpriteW = 600 * this.artScale()
+      * Math.max(visualProfile('liman').scale, visualProfile('tersane').scale) * 1.08
     const pairWorldW = bothCoast
-      ? Math.abs(shipyard.screen.x - harbour.screen.x) + GROUND_TARGET_W * 1.65
+      ? Math.abs(shipyard.screen.x - harbour.screen.x) + coastSpriteW
       : 0
     const pairFitZoom = bothCoast
       ? (this.scale.width * 0.94) / Math.max(1, pairWorldW)
