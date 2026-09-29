@@ -319,7 +319,7 @@ export function CitiesPanel({
     </section>
 
   </>
-  return <div className="advisor-panel">
+  return <div className="advisor-panel cities-panel">
     {mapFirst ? <>{worldMap}{cityList}</> : <>{cityCard}{cityList}{worldMap}</>}
     <section className="empire-section">
       <h3>Şehirler arası nakliye</h3>
