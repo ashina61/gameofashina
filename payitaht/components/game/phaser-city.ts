@@ -306,12 +306,13 @@ export class CityScene extends Phaser.Scene {
         : hasHarbour
           ? harbour.screen
           : COAST_SLOTS[Math.floor(COAST_SLOTS.length / 2)].screen
-    // İki kıyı yapısı varken zoom'u sabit çarpanla değil GERÇEK yatay aralığa
-    // göre fit et. 390px telefonda coast_01 ↔ coast_02 merkezleri yaklaşık
-    // 576 world-px ayrık; 0.64 zoom iki sprite'ın kenarını kesiyordu.
+    // İki kıyı yapısını boyalı sprite'ların tam genişliğiyle kadraja al.
+    // Eski 210px zemin elması hesabı yeni iskele/kızakların uçlarını kesiyordu.
     const bothCoast = hasShipyard && hasHarbour
+    const coastSpriteW = 600 * this.artScale()
+      * Math.max(visualProfile('liman').scale, visualProfile('tersane').scale) * 1.08
     const pairWorldW = bothCoast
-      ? Math.abs(shipyard.screen.x - harbour.screen.x) + GROUND_TARGET_W * 1.65
+      ? Math.abs(shipyard.screen.x - harbour.screen.x) + coastSpriteW
       : 0
     const pairFitZoom = bothCoast
       ? (this.scale.width * 0.94) / Math.max(1, pairWorldW)
