@@ -377,12 +377,17 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1, occupiedSl
   const grassSurface = softSurfaceTexture('t_grass')
   const dirtSurface = softSurfaceTexture('t_dirt')
   const surfaceRnd = mulberry32(72831)
+  // Burunlar kıvrılırken bir lekenin merkezindeki kıyı çizgisi yeterli
+  // değildir: görünür genişlik boyunca en içeride kalan kara sınırını al.
+  const safeShore = (x: number, size: number) => Math.min(
+    ...Array.from({ length: 9 }, (_, i) => shoreY(x + (i - 4) * size / 8)),
+  )
   if (grassSurface && dirtSurface) for (let i = 0; i < 420; i++) {
     const dirt = i % 9 === 0 || (i % 17 === 0)
     const key = dirt ? dirtSurface : grassSurface
     const size = TILE.w * (6.8 + surfaceRnd() * 4.5)
     const x = wr.x + wr.w * (0.025 + surfaceRnd() * 0.95)
-    const maxY = shoreY(x) - size * 0.34
+    const maxY = safeShore(x, size) - size * 0.35
     if (maxY <= wr.y) continue
     // Kıyıya yakın şerit de malzeme alsın; geniş elips kara sınırını aşmaz.
     const y = i % 5 === 0 ? maxY - size * surfaceRnd() * 0.22
@@ -390,6 +395,13 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1, occupiedSl
     const img = stamp(key, x, y, size, -895, 0.5, dirt ? 0.17 : 0.43)
     img?.setFlipX(surfaceRnd() > 0.5)
     img?.setAngle((surfaceRnd() - 0.5) * 18)
+  }
+  // Geniş lekelerin yumuşak kenarı sahilde tek renk bant bırakmasın.
+  if (grassSurface) for (let i = 0; i < 110; i++) {
+    const size = TILE.w * (2.2 + surfaceRnd() * 2.5)
+    const x = wr.x + wr.w * (0.02 + surfaceRnd() * 0.96)
+    const y = safeShore(x, size) - size * (0.34 + surfaceRnd() * 0.25)
+    stamp(grassSurface, x, y, size, -895, 0.5, 0.51)
   }
 
   // Kesintisiz, hafif düzensiz sahil şeridi: çim → kuru kum → ıslak kum → su.
