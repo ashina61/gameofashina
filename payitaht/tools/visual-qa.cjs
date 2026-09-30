@@ -236,6 +236,27 @@ async function main() {
     await page.screenshot({ path: atlas, animations: 'disabled' })
     diagnostics.screenshots.push(path.basename(atlas))
 
+    // The island's forest must have actual loaded art, not just its label.
+    await page.getByRole('button', { name: 'Geri' }).first().click()
+    await page.getByRole('button', { name: 'Ada', exact: true }).click()
+    const forest = page.getByRole('button', { name: /^Ada ormanı, seviye/ })
+    const forestArt = forest.locator('img')
+    await forestArt.waitFor()
+    await page.waitForFunction(() => {
+      const img = document.querySelector('.island-forest > img')
+      return img?.complete && img.naturalWidth > 0
+    }, null, { timeout: 10_000 })
+    const forestBox = await forestArt.boundingBox()
+    if (!forestBox || forestBox.width < 50 || forestBox.height < 35) throw new Error(`${label}: forest art is hidden or too small`)
+    const islandForest = path.join(out, `island-forest-${label}.png`)
+    await page.screenshot({ path: islandForest, animations: 'disabled' })
+    diagnostics.screenshots.push(path.basename(islandForest))
+    await forest.click()
+    await page.getByRole('dialog', { name: /Ada ormanı/ }).waitFor()
+    await page.getByRole('heading', { name: /Ada ormanı · Sv\./ }).waitFor()
+    await page.getByRole('button', { name: 'Geri' }).first().click()
+    await page.getByRole('button', { name: 'Şehre dön', exact: true }).click()
+
     // Content UI QA: the main city/harbour screenshots cannot catch card/tab/form
     // regressions inside the full-screen panels. Exercise representative screens on
     // the compact viewport and fail on horizontal overflow.
@@ -261,8 +282,6 @@ async function main() {
         await page.getByRole('button', { name: 'Geri' }).first().click()
         await page.waitForTimeout(180)
       }
-
-      await back() // Dünya haritası -> şehir
 
       await page.getByRole('button', { name: /^Araştırma danışmanı/ }).click()
       await page.getByRole('dialog', { name: /Âlim · Araştırma/ }).waitFor({ timeout: 10_000 })

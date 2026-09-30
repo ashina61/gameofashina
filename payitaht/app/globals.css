@@ -862,7 +862,7 @@
 .island-rival { width: 22%; }
 .rival-label.rival-foe { border-color: #e2745f99; }
 .rival-label.rival-friend { border-color: #9fd38a99; }
-.island-forest { width: 20%; transform: translate(-50%, -50%); }
+.island-forest { width: 22%; transform: translate(-50%, -78%); }
 .island-station { background: #7d5a1e; }
 
 /* =========================================================================
