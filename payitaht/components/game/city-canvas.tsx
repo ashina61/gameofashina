@@ -6,6 +6,7 @@ import type { BuildingId, Game } from '@/lib/game/engine'
 import type { BannerLook } from '@/lib/game/banner'
 import type { FlagLook } from './city-life'
 import { canvasDpr } from '@/lib/render-dpr'
+import { PEACEFUL_CITY, type SiegeAppearance } from '@/lib/game/siege-appearance'
 
 /*
  * TUVAL KÖPRÜSÜ.
@@ -37,10 +38,11 @@ type Props = {
   onMine: () => void
   /** Oyuncunun sancağı (renk, biçim, arma). */
   banner?: BannerLook
+  siege?: SiegeAppearance
 }
 const toLook = (b?: BannerLook): FlagLook | undefined => b && { color: parseInt(b.color.slice(1), 16), shape: b.shape, crest: b.crest }
 
-export function CityCanvas({ game, showLabels, placing, controls, onBuilding, onPlot, onRoad, moving, movePlot, onMovePlot, onMine, banner }: Props) {
+export function CityCanvas({ game, showLabels, placing, controls, onBuilding, onPlot, onRoad, moving, movePlot, onMovePlot, onMine, banner, siege = PEACEFUL_CITY }: Props) {
   const holder = useRef<HTMLDivElement>(null)
   const scene = useRef<CityScene | null>(null)
   /*
@@ -50,8 +52,10 @@ export function CityCanvas({ game, showLabels, placing, controls, onBuilding, on
    */
   const handlers = useRef({ onBuilding, onPlot, onRoad, onMovePlot, onMine })
   handlers.current = { onBuilding, onPlot, onRoad, onMovePlot, onMine }
-  const firstState = useRef(game)
   const firstLook = useRef(toLook(banner))
+  // Async Phaser import may finish after a siege starts/ends; use the latest props.
+  const latest = useRef({ game, showLabels, placing, moving, movePlot, siege })
+  latest.current = { game, showLabels, placing, moving, movePlot, siege }
 
   useEffect(() => {
     let disposed = false
@@ -119,9 +123,14 @@ export function CityCanvas({ game, showLabels, placing, controls, onBuilding, on
         scene: [],
       })
       instance.scene.add('city', view, true, {
-        game: firstState.current,
+        game: latest.current.game,
+        siege: latest.current.siege,
         look: firstLook.current,
         events: {
+          onReady: () => {
+            const p = latest.current
+            view.sync(p.game, p.showLabels, p.placing, p.moving, p.movePlot, p.siege)
+          },
           onBuilding: (id: BuildingId) => handlers.current.onBuilding(id),
           onPlot: (index: number) => handlers.current.onPlot(index),
           onRoad: (cell: string) => handlers.current.onRoad(cell),
@@ -150,7 +159,7 @@ export function CityCanvas({ game, showLabels, placing, controls, onBuilding, on
 
   // Durum degistiginde sahneye haber ver; sahne gorunen bir sey degismediyse
   // hicbir sey cizmez.
-  useEffect(() => { scene.current?.sync(game, showLabels, placing, moving, movePlot) }, [game, showLabels, placing, moving, movePlot])
+  useEffect(() => { scene.current?.sync(game, showLabels, placing, moving, movePlot, siege) }, [game, showLabels, placing, moving, movePlot, siege])
 
   const lookKey = banner ? `${banner.color}-${banner.shape}-${banner.crest}` : ''
   useEffect(() => { const l = toLook(banner); if (l) { firstLook.current = l; scene.current?.setBanner(l) } }, [lookKey]) // eslint-disable-line react-hooks/exhaustive-deps

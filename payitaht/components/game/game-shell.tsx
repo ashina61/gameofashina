@@ -7,6 +7,7 @@ import { SoundSettings } from './sound-settings'
 import { QuestChip } from './quest-chip'
 import { AlliancePanel } from './alliance-panel'
 import { bannerLook } from '@/lib/game/banner'
+import { citySiegeAppearance } from '@/lib/game/siege-appearance'
 import { BannerContext } from './building-art'
 import { play, wantAmbience, type Sfx } from '@/lib/sfx'
 import { toast } from 'sonner'
@@ -257,7 +258,7 @@ export default function GameShell({ onTitle }: { onTitle?: () => void } = {}) {
       * ÜST ŞERİT (ika-hud.tsx): şehir seçici, dört danışman ve kaynaklar.
       */}
     {game && <IkaTopBar game={game} empire={empire} news={news} activeAdvisor={activeAdvisor} onProfile={() => openPanel('profile')} onCity={() => openPanel('cities')} onEconomy={() => openPanel('economy')} onAdvisor={openAdvisor} />}
-    {game ? <>{empire && <ThreatBanner empire={empire} now={game.updatedAt} onOpen={() => openPanel('army')} />}<div className="game-body"><div className="city-column"><CityScene key={empire?.activeCityId} banner={bannerLook(empire)} offers={(empire?.world?.proposals ?? []).filter(p => p.until > game.updatedAt).length} onOffers={() => openAdvisor('diplo')} game={game} placing={plot !== null || moving !== null} onBuilding={openBuilding} onPlot={openPlot} onRoad={cell => act({ type: 'road', cell })} moving={moving} movePlot={movePlot} onMine={() => { setSelected(null); setPlot(null); setPanel('island') }} onMovePlot={setMovePlot} />{view === 'island' && empire && <IslandView empire={empire} islandId={viewIsland ?? activeCity(empire).islandId} onIsland={setViewIsland} now={game.updatedAt} onCity={() => { setView('city'); setViewIsland(null) }} onMine={() => { setNpc(null); setPanel('island') }} onForest={() => { setNpc(null); setPanel('forest') }} onNpc={id => { setPanel(null); setSelected(null); setPlot(null); setNpc(id) }} onReports={() => openAdvisor('army')} />}</div></div>
+    {game ? <>{empire && <ThreatBanner empire={empire} now={game.updatedAt} onOpen={() => openPanel('army')} />}<div className="game-body"><div className="city-column"><CityScene key={empire?.activeCityId} siege={citySiegeAppearance(empire)} banner={bannerLook(empire)} offers={(empire?.world?.proposals ?? []).filter(p => p.until > game.updatedAt).length} onOffers={() => openAdvisor('diplo')} game={game} placing={plot !== null || moving !== null} onBuilding={openBuilding} onPlot={openPlot} onRoad={cell => act({ type: 'road', cell })} moving={moving} movePlot={movePlot} onMine={() => { setSelected(null); setPlot(null); setPanel('island') }} onMovePlot={setMovePlot} />{view === 'island' && empire && <IslandView empire={empire} islandId={viewIsland ?? activeCity(empire).islandId} onIsland={setViewIsland} now={game.updatedAt} onCity={() => { setView('city'); setViewIsland(null) }} onMine={() => { setNpc(null); setPanel('island') }} onForest={() => { setNpc(null); setPanel('forest') }} onNpc={id => { setPanel(null); setSelected(null); setPlot(null); setNpc(id) }} onReports={() => openAdvisor('army')} />}</div></div>
       {/* TAŞIMA ONAY ŞERİDİ — referanstaki yeşil ✓/✗. */}
       {moving && <div className="move-confirm">
         <span className="move-confirm-title">{BUILDINGS[moving].name} taşınıyor</span>

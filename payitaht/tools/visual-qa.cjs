@@ -9,6 +9,7 @@ async function main() {
   const browser = await chromium.launch({ headless: true, args: ['--no-sandbox'] })
   const diagnostics = { pageErrors: [], missingGameAssets: [], screenshots: [], viewports: [], buildingStageLoads: {}, coastSeed: {} }
   const origin = process.env.VISUAL_QA_URL || 'http://127.0.0.1:4173/gameofashina/'
+  let siegeSeedRaw
 
   const runViewport = async ({ width, height }) => {
     const label = `${width}x${height}`
@@ -143,6 +144,7 @@ async function main() {
       }
       return JSON.stringify(empire)
     }, width)
+    if (width === 390) siegeSeedRaw = coastSeedRaw
     // reload sırasında useGame pagehide handler eski in-memory kaydı flush eder.
     // Bu yüzden seed'i eski document'ta localStorage'a yazmak yetmez. Init script
     // yeni document'ta uygulama kodundan ÖNCE çalışır ve test state'ini son kez yazar.
@@ -357,6 +359,7 @@ async function main() {
     ]) {
       await runViewport(viewport)
     }
+    await require('./siege-visual-qa.cjs')(browser, out, origin, siegeSeedRaw, diagnostics)
 
     const requiredPanelShots = ['ui-research-390x844.png', 'ui-buildings-390x844.png', 'ui-medrese-stage-1-390x844.png', 'ui-medrese-stage-2-390x844.png', 'ui-medrese-stage-3-390x844.png', 'ui-army-390x844.png', 'ui-settings-390x844.png', 'ui-colony-345x768.png']
     for (const shot of requiredPanelShots) {
