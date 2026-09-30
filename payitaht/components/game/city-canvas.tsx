@@ -127,17 +127,16 @@ export function CityCanvas({ game, showLabels, placing, controls, onBuilding, on
         siege: latest.current.siege,
         look: firstLook.current,
         events: {
+          onReady: () => {
+            const p = latest.current
+            view.sync(p.game, p.showLabels, p.placing, p.moving, p.movePlot, p.siege)
+          },
           onBuilding: (id: BuildingId) => handlers.current.onBuilding(id),
           onPlot: (index: number) => handlers.current.onPlot(index),
           onRoad: (cell: string) => handlers.current.onRoad(cell),
           onMovePlot: (plot: number) => handlers.current.onMovePlot(plot),
           onMine: () => handlers.current.onMine(),
         },
-      })
-
-      view.events.once('create', () => {
-        const p = latest.current
-        view.sync(p.game, p.showLabels, p.placing, p.moving, p.movePlot, p.siege)
       })
 
       // Ekran donunce ya da kabuk degisince tuval yeniden olculur.

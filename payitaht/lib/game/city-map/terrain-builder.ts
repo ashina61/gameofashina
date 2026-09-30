@@ -484,6 +484,7 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1, occupiedSl
     ['s_ship-b', 2.5, 7.0, 1.2, true],
     ['s_ship-a', 0.0, 8.9, 0.95, true],
   ]
+  const merchantShips: Phaser.GameObjects.Image[] = []
   ships.forEach(([key, ox, oy, w, flip], i) => {
     const x = bayCx + ox * TILE.w
     const y = shoreY(x) + oy * TILE.h
@@ -491,6 +492,7 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1, occupiedSl
     const img = stamp(key, x, y, TILE.w * w, -690, 0.86)
     if (!img) return
     img.setFlipX(flip)
+    merchantShips.push(img)
     scene.tweens.add({
       targets: img, y: y + 5, angle: flip ? -1.4 : 1.4,
       duration: 2300 + i * 450, ease: 'Sine.easeInOut', yoyo: true, repeat: -1, delay: i * 380,
@@ -1847,5 +1849,6 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1, occupiedSl
   const setDevelopment = (level: number) => {
     for (const [o, t] of tierOf) (o as unknown as Phaser.GameObjects.Components.Visible).setVisible(level >= t)
   }
-  return { updateRoads, flags, setDevelopment }
+  const setBlockaded = (blockaded: boolean) => { for (const ship of merchantShips) ship.setVisible(!blockaded) }
+  return { updateRoads, flags, setDevelopment, setBlockaded }
 }

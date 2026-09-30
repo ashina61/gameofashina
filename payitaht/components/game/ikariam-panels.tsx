@@ -243,7 +243,7 @@ export function ThreatBanner({ empire, now, onOpen }: { empire: Empire; now: num
   const held = siege && <button type="button" className="threat-banner is-siege is-held" onClick={onOpen}>
     <TriangleAlert aria-hidden="true" />
     <span><strong>{bothHeld ? 'Şehir işgal altında · liman ablukada' : siege.kind === 'occupy' ? `Şehir işgal altında · ${targetName(siege.rivalId)}` : `Liman abluka altında · ${targetName(siege.rivalId)}`}</strong>
-      <small>{troopList(siege.troops)} · saatte {num(siegeTribute(siege))} akçe · kurtarmak için dokun</small></span>
+      <small>{bothHeld ? `Kara ve deniz yolları tutuluyor · saatte ${num((empire.sieges ?? []).filter(s => s.cityId === city.id).reduce((sum, s) => sum + siegeTribute(s), 0))} akçe` : `${troopList(siege.troops)} · saatte ${num(siegeTribute(siege))} akçe`} · kurtarmak için dokun</small></span>
   </button>
   if (!threat) return held || null
   const lb = threat.battle

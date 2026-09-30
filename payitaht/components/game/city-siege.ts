@@ -34,7 +34,7 @@ export class CitySiegeLayer {
       const center = COAST_SLOTS[1].screen
       // Stay inside the bay, in front of the coast slots, including an unbuilt harbour.
       for (const [i, dx] of [-490, -240, 10, 260, 510].entries()) {
-        const x = center.x + dx, y = center.y + 240 + Math.abs(dx) * 0.06
+        const x = center.x + dx, y = center.y + 470 + Math.abs(dx) * 0.06
         const wake = scene.add.graphics().setPosition(x, y).setDepth(y - 0.5)
         wake.fillStyle(0x102d37, 0.25); wake.fillEllipse(0, 0, 235, 48)
         wake.lineStyle(2, 0xd3e7db, 0.35); wake.strokeEllipse(0, 2, 245, 52)

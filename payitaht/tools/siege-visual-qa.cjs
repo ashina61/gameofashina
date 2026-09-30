@@ -31,6 +31,7 @@ module.exports = async function siegeReview(browser, out, origin, seedRaw, diagn
     await page.locator('input[type="file"]').setInputFiles({ name: 'siege-qa.json', mimeType: 'application/json', buffer: Buffer.from(JSON.stringify({ ...seed, sieges })) })
     await page.getByRole('dialog', { name: /Oyun ayarları/ }).waitFor({ state: 'hidden' })
     await page.waitForTimeout(1600)
+    await page.getByText('Kayıt yedeği geri yüklendi.').waitFor({ state: 'hidden', timeout: 10_000 })
     if (!await page.evaluate(() => document.querySelector('canvas') === window.siegeQaCanvas)) throw new Error('Siege transition reset the Phaser canvas')
     const classes = await page.locator('.city-scene').getAttribute('class')
     if (classes.includes('city-occupied') !== sieges.some(s => s.kind === 'occupy') || classes.includes('city-blockaded') !== sieges.some(s => s.kind === 'blockade')) {

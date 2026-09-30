@@ -36,6 +36,7 @@ type Walker = { body: Phaser.GameObjects.Graphics; edge: RoadEdge; forward: bool
 type RoadEdge = { key: string; from: string; to: string; curve: Phaser.Curves.QuadraticBezier; length: number }
 
 export type CityEvents = {
+  onReady?: () => void
   onBuilding: (id: BuildingId) => void
   onPlot: (index: number) => void
   /** (Artık kullanılmıyor — yollar güvenli road graph'tan zemine pişer.) */
@@ -181,6 +182,7 @@ export class CityScene extends Phaser.Scene {
     this.flagField.setLook(this.sceneBanner())
     this.smoke = new SmokeField(this)
     this.terrainRoads = buildCityTerrain(this, this.state.buildings.divan, this.openSlotIds(this.state)) // dünya + büyüyen sokak ağı
+    this.terrainRoads.setBlockaded(!!this.siege.blockade)
     for (const f of this.terrainRoads.flags) this.flagField.add(f, 'static', f.minLevel)
     this.applyDevelopment()
     this.built = true
@@ -192,6 +194,7 @@ export class CityScene extends Phaser.Scene {
     this.installCamera()
     this.redraw()
     this.events.once('shutdown', () => { this.siegeLayer?.destroy(); this.siegeLayer = null })
+    this.events$.onReady?.()
   }
 
   /* ------------------------------------------------------------------ KAMERA */
@@ -335,7 +338,8 @@ export class CityScene extends Phaser.Scene {
       ? Math.max(this.minZoom, pairFitZoom)
       : Math.max(this.cityZoom * 1.55, 0.66)
     this.cameras.main.setZoom(Phaser.Math.Clamp(zoom, this.minZoom, this.maxZoom))
-    this.centerInBand(destination.x, destination.y + (this.siege.blockade ? 90 : -TILE.h * (bothCoast ? 0.18 : 0.45)))
+    this.centerInBand(this.siege.blockade ? COAST_SLOTS[1].screen.x : destination.x,
+      this.siege.blockade ? COAST_SLOTS[1].screen.y + 220 : destination.y - TILE.h * (bothCoast ? 0.18 : 0.45))
     this.velocity = { x: 0, y: 0 }
   }
   /** React kontrolü: yakınlaştırmayı çarpanla değiştir. */
@@ -492,7 +496,10 @@ export class CityScene extends Phaser.Scene {
     this.state = game
     this.siege = siege
     if (!this.built) return
-    if (siegeChanged) this.flagField?.setLook(this.sceneBanner())
+    if (siegeChanged) {
+      this.flagField?.setLook(this.sceneBanner())
+      this.terrainRoads?.setBlockaded(!!siege.blockade)
+    }
     if (game.buildings.divan !== this.framedDivan) { // yeni arsalar açıldı: "şehir" kadrajı büyür
       this.framedDivan = game.buildings.divan
       this.cityZoom = Math.max(this.townZoom(), this.minZoom)
