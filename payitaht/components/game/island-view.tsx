@@ -28,6 +28,7 @@ import { FACTIONS, RIVALS, STYLE_NAMES, rivalById, rivalLevel , isAlly } from '@
 import { clearReports, deleteReport, keepReport, targetInfo, type Report } from '@/lib/game/expeditions'
 import { BattleView } from './battle-view'
 import { CityEmblem } from './city-emblem'
+import { MapViewport } from './map-viewport'
 import { RETREAT_MORALE, fieldSize } from '@/lib/game/battle'
 
 const clock = (ms: number) => {
@@ -63,6 +64,7 @@ export function IslandView({ empire, islandId, now, onCity, onIsland, onMine, on
         <small>{LUXURY_NAMES[island.luxury]} yatağı · {MIRACLES[island.wonder].wonder}{home ? '' : ' · deniz aşırı'}</small></label>
       <Button size="sm" variant="outline" onClick={onReports}><ScrollText data-icon="inline-start" />Raporlar{unread > 0 ? ` · ${unread}` : ''}</Button>
     </div>
+    <MapViewport key={island.id} width={layout.size[0]} height={layout.size[1]} fitWidth className="island-map-viewport">
     <div className="island-map">
       <img className="island-bg" src={asset(`/images/game/islands/${island.id}.webp`)} alt="" width={layout.size[0]} height={layout.size[1]} />
       {city && <button className="island-spot island-city" style={place('city')} onClick={home ? onCity : undefined} disabled={!home} aria-label={`${city.name} şehri`}>
@@ -99,6 +101,7 @@ export function IslandView({ empire, islandId, now, onCity, onIsland, onMine, on
         </button>
       })}
     </div>
+    </MapViewport>
   </section>
 }
 
