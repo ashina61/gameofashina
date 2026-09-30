@@ -84,6 +84,7 @@ export function IslandView({ empire, islandId, now, onCity, onIsland, onMine, on
         </button>
       })}
       {home && <button className="island-spot island-forest" style={place('forest')} onClick={onForest} aria-label={`Ada ormanı, seviye ${active.game.forest.level}`}>
+        <img src={asset('/images/game/buildings/forest-hero.webp')} alt="" width={600} height={440} />
         <span className="island-label"><strong>Ada ormanı</strong><small>Sv. {active.game.forest.level} · {active.game.forest.workers} oduncu</small></span>
       </button>}
       {RIVALS.filter(r => r.islandId === island.id).map((r, i) => {
