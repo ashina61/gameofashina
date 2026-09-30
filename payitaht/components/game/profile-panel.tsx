@@ -5,15 +5,16 @@
  * Profil: arma, ad, unvan, düstur, puanlar ve sıralama, şehirler,
  * istatistikler, başarımlar. Sürüm numarası sayfanın dibinde, sessizce durur.
  */
-import { useState } from 'react'
+import { useId, useState } from 'react'
 import { Award, Castle, Pencil, Settings, Swords, Trophy, ScrollText } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { population, soldiers } from '@/lib/game/engine'
 import { capitalId, islandOf, type Empire } from '@/lib/game/empire'
 import {
   BANNERS, BANNER_NAMES, CREST_COLORS, CREST_NAMES, CRESTS, type BannerId, achievements, allianceName, playerScore, profileOf, profileRanks, profileStats, rulerTitle, setProfile,
-  type CrestId,
+  type CrestId, type Profile,
 } from '@/lib/game/profile'
+import { BANNER_OUTLINES } from '@/lib/game/banner-shapes'
 import { CHANGELOG, VERSION } from '@/lib/game/changelog'
 import type { Run } from './world-panels'
 
@@ -28,6 +29,12 @@ function CrestSymbol({ crest }: { crest: CrestId }) {
     case 'kilic': return <g {...s}><path d="M20 46 Q30 30 44 18" stroke={PAPER} strokeWidth="3" fill="none" /><path d="M44 46 Q34 30 20 18" stroke={PAPER} strokeWidth="3" fill="none" /><path d="M18 42 L24 48 M46 42 L40 48" stroke={GOLD} strokeWidth="2.5" /></g>
     case 'gemi': return <g {...s}><path d="M16 38 H48 L43 46 H21 Z" fill={PAPER} /><path d="M32 38 V16" /><path d="M33 18 Q44 26 42 34 H33 Z" fill={PAPER} /><path d="M18 44 L14 50 M24 45 L20 51 M30 46 L26 52" stroke={PAPER} /></g>
     case 'kule': return <g {...s}><path d="M22 46 V24 H26 V20 H30 V24 H34 V20 H38 V24 H42 V46 Z" fill={PAPER} /><path d="M29 46 V38 A3 3 0 0 1 35 38 V46" fill={INK} /><path d="M30 30 H34" /></g>
+    case 'gunes': return <g fill={PAPER}><circle cx="32" cy="32" r="8" />{Array.from({ length: 12 }, (_, i) => <path key={i} d="M30 21 L32 15 L34 21 Z" transform={`rotate(${i * 30} 32 32)`} />)}</g>
+    case 'kartal': return <g {...s} fill={PAPER}><path d="M32 23 L37 18 L39 23 L35 27 L35 34 L50 24 L47 35 L40 38 L45 42 L35 40 L32 49 L29 40 L19 42 L24 38 L17 35 L14 24 L29 34 L29 27 Z" /></g>
+    case 'kurt': return <g {...s} fill={PAPER}><path d="M22 24 L22 15 L30 22 L36 21 L43 16 L44 28 L40 33 L39 43 L32 49 L25 43 L24 33 Z" /><path d="M27 30 L30 32 M37 30 L34 32" stroke={INK} strokeWidth="2" /><path d="M29 39 L35 39 L32 43 Z" fill={INK} /></g>
+    case 'okyay': return <g stroke={PAPER} strokeWidth="2" fill="none"><path d="M22 17 Q48 32 22 47 L22 17 M16 32 H49 M42 26 L49 32 L42 38" /><path d="M16 28 L20 32 L16 36" /></g>
+    case 'cinar': return <g {...s} fill={PAPER}><path d="M29 36 H35 L34 45 L39 49 H25 L30 45 Z" /><path d="M19 34 Q12 28 22 24 Q20 16 29 19 Q32 10 36 19 Q46 16 44 25 Q54 29 45 35 Q38 40 32 35 Q24 40 19 34 Z" /></g>
+    case 'cark': return <g {...s} fill={PAPER}><path d="M32 15 L37 22 L44 20 L42 27 L49 32 L42 37 L44 44 L37 42 L32 49 L27 42 L20 44 L22 37 L15 32 L22 27 L20 20 L27 22 Z" /><circle cx="32" cy="32" r="6" fill={GOLD} /></g>
     case 'kitap': return <g {...s}><path d="M32 24 Q25 20 18 22 V42 Q25 40 32 44 Q39 40 46 42 V22 Q39 20 32 24 Z" fill={PAPER} /><path d="M32 24 V44" /></g>
   }
 }
@@ -38,21 +45,14 @@ function CrestSymbol({ crest }: { crest: CrestId }) {
  * uca doğru büyür; biçim profilde seçilir, renk ve arma profilden gelir.
  */
 function flagPath(banner: BannerId, phase: number) {
-  const x0 = 46, top = 22, h = 116, L = 244, N = 16
-  const wave = (x: number) => Math.sin(x / L * Math.PI * 2.2 + phase) * 9 * (x / L)
-  const edge = (y: number, t: number) => { const x = t * L; return [x0 + x, y + wave(x) + (banner === 'ucgen' ? (y === top ? t * h * 0.46 : -t * h * 0.46) : 0)] }
-  const topPts = Array.from({ length: N + 1 }, (_, i) => edge(top, i / N))
-  const botPts = Array.from({ length: N + 1 }, (_, i) => edge(top + h, i / N)).reverse()
-  const [tx, ty] = topPts[N], [bx, by] = botPts[0]
-  const fly: number[][] = banner === 'kirlangic' ? [[tx - 64, (ty + by) / 2]]
-    : banner === 'cifte' ? [[tx - 6, ty + h * 0.16], [tx - 30, ty + h * 0.34], [tx - 118, (ty + by) / 2], [bx - 30, by - h * 0.34], [bx - 6, by - h * 0.16]]
-    : banner === 'ucgen' ? [] : []
-  const pts = [...topPts, ...fly, ...botPts]
-  return 'M' + pts.map(([x, y]) => `${x.toFixed(1)} ${y.toFixed(1)}`).join(' L') + ' Z'
+  return 'M' + BANNER_OUTLINES[banner].map(([u, v]) => {
+    const wave = Math.sin(u * Math.PI * 2.2 + phase) * 9 * u
+    return `${(46 + u * 244).toFixed(1)} ${(22 + v * 116 + wave).toFixed(1)}`
+  }).join(' L') + ' Z'
 }
 export function SancakArt({ crest, color, banner = 'kirlangic', size = 280, still = false }: { crest: CrestId; color: string; banner?: BannerId; size?: number; still?: boolean }) {
   const frames = [0, 1.6, 3.2, 4.8, 6.4].map(ph => flagPath(banner, ph))
-  const id = `sancak-${banner}-${color.slice(1)}`
+  const id = useId().replace(/:/g, '')
   return <svg viewBox="0 0 320 214" width={size} height={size * 214 / 320} className="sancak-art" role="img" aria-label={`Sancak: ${BANNER_NAMES[banner]}`}>
     <defs>
       <linearGradient id={`${id}-fold`} x1="0" x2="1">
@@ -77,6 +77,21 @@ export function SancakArt({ crest, color, banner = 'kirlangic', size = 280, stil
       </g>
     </g>
   </svg>
+}
+
+export type SancakChoice = Pick<Profile, 'crest' | 'color'> & { banner: BannerId }
+export function SancakPicker({ value, onChange }: { value: SancakChoice; onChange: (value: SancakChoice) => void }) {
+  return <div className="sancak-picker">
+      <span className="profile-label">Sancak</span>
+      <div className="banner-picker" role="radiogroup" aria-label="Sancak biçimi">{BANNERS.map(b => <button key={b} type="button" role="radio" aria-checked={value.banner === b}
+        aria-label={BANNER_NAMES[b]} onClick={() => onChange({ ...value, banner: b })} title={BANNER_NAMES[b]}><SancakArt crest={value.crest} color={value.color} banner={b} size={72} still /><small>{BANNER_NAMES[b]}</small></button>)}</div>
+      <span className="profile-label">Arma</span>
+      <div className="crest-picker" role="radiogroup" aria-label="Arma">{CRESTS.map(c => <button key={c} type="button" role="radio" aria-checked={value.crest === c}
+        aria-label={CREST_NAMES[c]} onClick={() => onChange({ ...value, crest: c })} title={CREST_NAMES[c]}><RulerCrest crest={c} color={value.color} size={44} /></button>)}</div>
+      <span className="profile-label">Renk</span>
+      <div className="color-picker" role="radiogroup" aria-label="Renk">{CREST_COLORS.map(c => <button key={c} type="button" role="radio" aria-checked={value.color === c}
+        style={{ background: c }} onClick={() => onChange({ ...value, color: c })} aria-label={c} />)}</div>
+  </div>
 }
 
 /** Hükümdar arması: altın çerçeveli kalkan, renk zemin, sembol. */
@@ -134,15 +149,7 @@ export function ProfilePanel({ empire, now, run, onCity, onSettings, onChangelog
       <input id="profile-name" className="text-input" value={draft.ruler} maxLength={24} onChange={e => setDraft({ ...draft, ruler: e.target.value })} />
       <label htmlFor="profile-motto">Düstur</label>
       <input id="profile-motto" className="text-input" value={draft.motto} maxLength={60} placeholder="Devlet-i ebed-müddet" onChange={e => setDraft({ ...draft, motto: e.target.value })} />
-      <span className="profile-label">Sancak</span>
-      <div className="banner-picker" role="radiogroup" aria-label="Sancak biçimi">{BANNERS.map(b => <button key={b} type="button" role="radio" aria-checked={draft.banner === b}
-        onClick={() => setDraft({ ...draft, banner: b })} title={BANNER_NAMES[b]}><SancakArt crest={draft.crest} color={draft.color} banner={b} size={72} still /><small>{BANNER_NAMES[b]}</small></button>)}</div>
-      <span className="profile-label">Arma</span>
-      <div className="crest-picker" role="radiogroup" aria-label="Arma">{CRESTS.map(c => <button key={c} type="button" role="radio" aria-checked={draft.crest === c}
-        onClick={() => setDraft({ ...draft, crest: c })} title={CREST_NAMES[c]}><RulerCrest crest={c} color={draft.color} size={44} /></button>)}</div>
-      <span className="profile-label">Renk</span>
-      <div className="color-picker" role="radiogroup" aria-label="Renk">{CREST_COLORS.map(c => <button key={c} type="button" role="radio" aria-checked={draft.color === c}
-        style={{ background: c }} onClick={() => setDraft({ ...draft, color: c })} aria-label={c} />)}</div>
+      <SancakPicker value={draft} onChange={value => setDraft({ ...draft, ...value })} />
       <Button size="sm" onClick={() => { run((e, t) => setProfile(e, draft, t), 'Profil kaydedildi.'); setEdit(false) }}>Kaydet</Button>
     </section>}
 

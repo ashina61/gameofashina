@@ -1,7 +1,7 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { advanceEmpire, initialEmpire, parseEmpire } from './empire'
-import { achievements, profileOf, profileRanks, rulerTitle, setProfile } from './profile'
+import { BANNERS, CRESTS, CREST_COLORS, achievements, profileOf, profileRanks, rulerTitle, setProfile } from './profile'
 import { rankings } from './rivals'
 import { CHANGELOG, VERSION } from './changelog'
 
@@ -45,4 +45,15 @@ test('the changelog runs from 0.1.0 to the current version, newest first', () =>
   assert.equal(CHANGELOG.at(-1)!.version, '0.1.0')
   const n = (v: string) => v.split('.').map(Number).reduce((a, b) => a * 1000 + b, 0)
   for (let i = 1; i < CHANGELOG.length; i++) assert.ok(n(CHANGELOG[i - 1].version) > n(CHANGELOG[i].version))
+})
+
+test('expanded heraldry survives save reload while old choices remain supported', () => {
+  const original = advanceEmpire(initialEmpire(now), now)
+  for (const banner of BANNERS) for (const crest of CRESTS) {
+    const color = CREST_COLORS[CRESTS.indexOf(crest) % CREST_COLORS.length]
+    const changed = setProfile(original, { banner, crest, color }, now)
+    assert.equal(changed.error, undefined)
+    const restored = profileOf(parseEmpire(JSON.stringify(changed.empire)))
+    assert.deepEqual([restored.banner, restored.crest, restored.color], [banner, crest, color])
+  }
 })
