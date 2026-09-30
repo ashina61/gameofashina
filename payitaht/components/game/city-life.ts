@@ -7,6 +7,8 @@
  *    havuzlanmış görüntüler yükselir, büyür, söner.
  */
 import * as Phaser from 'phaser'
+import { BANNER_OUTLINES } from '@/lib/game/banner-shapes'
+import type { BannerId } from '@/lib/game/profile'
 
 export type FlagSpec = {
   /** Kumaşın direğe bağlandığı üst nokta. */
@@ -22,7 +24,7 @@ export type FlagSpec = {
   crescent?: boolean
 }
 /** Oyuncunun sancağı: renk, biçim, arma (lib/game/banner.ts). */
-export type FlagLook = { color: number; shape: 'kirlangic' | 'cifte' | 'ucgen' | 'duz'; crest: string }
+export type FlagLook = { color: number; shape: BannerId; crest: string }
 
 type LiveFlag = FlagSpec & { g: Phaser.GameObjects.Graphics; ph: number; group: string; minLevel: number }
 const PAPER = 0xf6efe0
@@ -74,7 +76,7 @@ export class FlagField {
 
   private draw(f: LiveFlag) {
     const g = f.g
-    const N = 7
+    const N = 12
     const dir = f.dir ?? 1
     const own = f.color === undefined
     const shape = own ? this.look.shape : 'duz'
@@ -82,22 +84,13 @@ export class FlagField {
     const top: Phaser.Math.Vector2[] = [], bottom: Phaser.Math.Vector2[] = []
     const wave = (u: number) => Math.sin(this.t * 4.2 + f.ph - u * 3.4) * f.h * 0.17 * u + u * f.h * 0.06
     const X = (u: number) => f.x + dir * u * f.w * (1 - 0.06 * Math.abs(Math.sin(this.t * 2 + f.ph + u * 2)))
-    for (let i = 0; i <= N; i++) {
-      const u = i / N
-      const x = X(u), y = f.y + wave(u)
-      const pinch = shape === 'ucgen' ? u * f.h * 0.46 : 0
-      top.push(new Phaser.Math.Vector2(x, y + pinch))
-      bottom.push(new Phaser.Math.Vector2(x, y + f.h * (1 - 0.08 * u) - pinch))
-    }
-    // Uçtaki kesik: kırlangıç kuyruk ve çifte dil.
-    const tipU = 1, tx = X(tipU), mid = f.y + wave(tipU) + f.h * 0.46
-    const notch: Phaser.Math.Vector2[] = shape === 'kirlangic' ? [new Phaser.Math.Vector2(tx - dir * f.w * 0.26, mid)]
-      : shape === 'cifte' ? [new Phaser.Math.Vector2(tx - dir * f.w * 0.04, mid - f.h * 0.3), new Phaser.Math.Vector2(tx - dir * f.w * 0.1, mid - f.h * 0.12),
-        new Phaser.Math.Vector2(tx - dir * f.w * 0.44, mid), new Phaser.Math.Vector2(tx - dir * f.w * 0.1, mid + f.h * 0.12), new Phaser.Math.Vector2(tx - dir * f.w * 0.04, mid + f.h * 0.3)]
-      : []
+    const outline = BANNER_OUTLINES[shape]
+    const points = outline.map(([u, v]) => new Phaser.Math.Vector2(X(u), f.y + wave(u) + f.h * v * (1 - .08 * u)))
+    top.push(...points.slice(0, N + 1))
+    bottom.push(...points.slice(-N - 1))
     g.clear()
     g.fillStyle(color, 1)
-    g.fillPoints([...top, ...notch, ...bottom.reverse()], true)
+    g.fillPoints(points, true)
     // Gölgeli kıvrım: dalganın çukurunda koyu şerit.
     g.fillStyle(0x000000, 0.12)
     for (let i = 1; i < N - 1; i += 2) {
@@ -113,6 +106,27 @@ export class FlagField {
     const crest = own ? this.look.crest : 'hilal'
     g.fillStyle(PAPER, 1); g.lineStyle(Math.max(1, s * 0.22), PAPER, 1)
     switch (crest) {
+      case 'gunes':
+        g.fillCircle(cx, cy, s * .55)
+        for (let k = 0; k < 12; k++) { const a = k * Math.PI / 6; g.lineBetween(cx + Math.cos(a) * s * .75, cy + Math.sin(a) * s * .75, cx + Math.cos(a) * s * 1.2, cy + Math.sin(a) * s * 1.2) }
+        break
+      case 'kartal':
+      case 'kurt': {
+        const pts = crest === 'kartal' ? [[0,-.7],[.35,-1],[.4,-.5],[.2,0],[1.2,-.5],[.9,.3],[.3,.5],[0,1],[-.3,.5],[-.9,.3],[-1.2,-.5],[-.2,0],[-.4,-.5]] : [[-.7,-.5],[-.7,-1],[0,-.6],[.7,-1],[.7,-.3],[.4,.7],[0,1],[-.4,.7]]
+        g.fillPoints(pts.map(([x,y]) => new Phaser.Math.Vector2(cx+x*s, cy+y*s)), true)
+        break
+      }
+      case 'okyay':
+        g.strokePoints(Array.from({ length: 13 }, (_, k) => { const a = -Math.PI/2+k*Math.PI/12; return new Phaser.Math.Vector2(cx+Math.cos(a)*s*.75, cy+Math.sin(a)*s) }), false)
+        g.lineBetween(cx, cy-s, cx, cy+s); g.lineBetween(cx-s, cy, cx+s, cy)
+        g.lineBetween(cx+s, cy, cx+s*.6, cy-s*.35); g.lineBetween(cx+s, cy, cx+s*.6, cy+s*.35)
+        break
+      case 'cinar':
+        g.fillCircle(cx, cy-s*.5, s*.7); g.fillCircle(cx-s*.5, cy-s*.1, s*.55); g.fillCircle(cx+s*.5, cy-s*.1, s*.55)
+        g.fillRect(cx-s*.15, cy, s*.3, s); break
+      case 'cark':
+        g.fillPoints(Array.from({ length: 16 }, (_, k) => { const a = -Math.PI/2+k*Math.PI/8, r = s*(k%2 ? .65 : 1.1); return new Phaser.Math.Vector2(cx+Math.cos(a)*r, cy+Math.sin(a)*r) }), true)
+        break
       case 'lale':
         g.fillEllipse(cx, cy - s * 0.1, s * 1.1, s * 1.2)
         g.fillTriangle(cx - s * 0.55, cy - s * 0.2, cx - s * 0.3, cy - s * 1.05, cx - s * 0.05, cy - s * 0.4)

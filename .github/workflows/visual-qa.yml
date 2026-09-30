@@ -12,6 +12,7 @@ on:
       - 'payitaht/lib/game/city-map/**'
       - 'payitaht/public/images/game/**'
       - 'payitaht/tools/visual-qa.cjs'
+      - 'payitaht/tools/heraldry-qa.cjs'
       - 'payitaht/tools/siege-visual-qa.cjs'
       - '.github/workflows/visual-qa.yml'
   pull_request:
@@ -22,6 +23,7 @@ on:
       - 'payitaht/lib/game/city-map/**'
       - 'payitaht/public/images/game/**'
       - 'payitaht/tools/visual-qa.cjs'
+      - 'payitaht/tools/heraldry-qa.cjs'
       - 'payitaht/tools/siege-visual-qa.cjs'
       - '.github/workflows/visual-qa.yml'
   workflow_dispatch:
@@ -72,6 +74,12 @@ jobs:
             sleep 1
           done
           curl -fsS http://127.0.0.1:4173/gameofashina/ -o /dev/null
+      - name: Check profile and alliance heraldry
+        env:
+          NODE_PATH: ${{ runner.temp }}/visual/node_modules
+        run: |
+          node --check tools/heraldry-qa.cjs
+          node tools/heraldry-qa.cjs
       - name: Screenshot center and harbour on mobile
         env:
           NODE_PATH: ${{ runner.temp }}/visual/node_modules

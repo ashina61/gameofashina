@@ -2463,3 +2463,10 @@
 .map-zoom-controls button { display: grid; place-items: center; width: 38px; height: 38px; border: 1px solid #c9a45a; border-radius: 8px; background: #173b34ed; color: #fff0c7; box-shadow: 0 2px 5px #0005; }
 .map-zoom-controls svg { width: 18px; height: 18px; }
 .map-zoom-controls button:focus-visible { outline: 2px solid #ffe7a8; outline-offset: 2px; }
+
+.sancak-picker { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.sancak-picker .banner-picker { grid-template-columns: repeat(auto-fit, minmax(92px, 1fr)); }
+.sancak-picker .banner-picker button { min-height: 80px; padding: 8px 4px; }
+.sancak-picker .crest-picker button { min-width: 48px; min-height: 48px; }
+.sancak-picker .color-picker button { min-width: 36px; min-height: 36px; }
+.alliance-banner-edit > .sancak-art { align-self: center; max-width: 100%; height: auto; }

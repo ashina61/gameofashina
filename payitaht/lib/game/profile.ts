@@ -8,16 +8,16 @@ import { advanceEmpire, type Empire } from './empire'
 import { counters } from './daily'
 import { playerScore, rankings, RIVALS, FACTIONS, type RankKey } from './rivals'
 
-export const CRESTS = ['hilal', 'lale', 'kilic', 'gemi', 'kule', 'kitap'] as const
+export const CRESTS = ['hilal', 'lale', 'kilic', 'gemi', 'kule', 'kitap', 'gunes', 'kartal', 'kurt', 'okyay', 'cinar', 'cark'] as const
 export type CrestId = typeof CRESTS[number]
 export const CREST_NAMES: Record<CrestId, string> = {
-  hilal: 'Hilal ve yıldız', lale: 'Lale', kilic: 'Çifte kılıç', gemi: 'Kadırga', kule: 'Burç', kitap: 'Kitap',
+  hilal: 'Hilal ve yıldız', lale: 'Lale', kilic: 'Çifte kılıç', gemi: 'Kadırga', kule: 'Burç', kitap: 'Kitap', gunes: 'Güneş', kartal: 'Kartal', kurt: 'Bozkurt', okyay: 'Ok ve yay', cinar: 'Çınar', cark: 'Sekiz köşeli yıldız',
 }
-export const CREST_COLORS = ['#b3261e', '#2f6b4c', '#24406e', '#6a2a3a', '#8a5a22', '#2f7a92'] as const
+export const CREST_COLORS = ['#b3261e', '#2f6b4c', '#24406e', '#6a2a3a', '#8a5a22', '#2f7a92', '#49336f', '#9b642e', '#1c4441', '#a54d35', '#34404d', '#796529'] as const
 /** Sancak biçimi (profilin başında dalgalanır). */
-export const BANNERS = ['kirlangic', 'cifte', 'ucgen', 'duz'] as const
+export const BANNERS = ['kirlangic', 'cifte', 'ucgen', 'duz', 'sivri', 'oyuk', 'yuvarlak', 'testere', 'ucdil', 'dar'] as const
 export type BannerId = typeof BANNERS[number]
-export const BANNER_NAMES: Record<BannerId, string> = { kirlangic: 'Kırlangıç kuyruk', cifte: 'Çifte dil', ucgen: 'Üçgen flama', duz: 'Dört köşe' }
+export const BANNER_NAMES: Record<BannerId, string> = { kirlangic: 'Kırlangıç kuyruk', cifte: 'Çifte dil', ucgen: 'Üçgen flama', duz: 'Dört köşe', sivri: 'Mızrak uç', oyuk: 'Derin kuyruk', yuvarlak: 'Yuvarlak uç', testere: 'Dişli uç', ucdil: 'Üç dil', dar: 'İnce flama' }
 export type Profile = { ruler: string; crest: CrestId; color: string; motto: string; since: number; banner?: BannerId }
 
 export function profileOf(empire: Empire): Profile {
