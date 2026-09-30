@@ -2446,3 +2446,20 @@
   .bp .world-tabs button,
   .bp .building-list-item { transition: none; }
 }
+
+/* Gestures change the map camera, never the game HUD or page viewport. */
+.game-shell { touch-action: pan-x pan-y; }
+.game-shell .island-view { display: flex; flex-direction: column; overflow: hidden; padding-bottom: var(--ika-nav); }
+.game-shell .island-toolbar { flex-shrink: 0; width: 100%; }
+.map-viewport-frame { position: relative; min-width: 0; min-height: 0; overflow: hidden; background: #245c6b; }
+.map-viewport { width: 100%; height: 100%; overflow: auto; touch-action: none; overscroll-behavior: contain; scrollbar-width: none; }
+.map-viewport::-webkit-scrollbar { display: none; }
+.map-viewport-space { position: relative; margin: 0 auto; }
+.map-viewport-art { transform-origin: top left; user-select: none; }
+.map-viewport-art img { user-select: none; -webkit-user-drag: none; }
+.island-map-viewport { flex: 1; }
+.world-map-scroll.map-viewport-frame { height: min(62vh, 480px); overflow: hidden; }
+.map-zoom-controls { position: absolute; right: 10px; bottom: 10px; display: flex; gap: 4px; }
+.map-zoom-controls button { display: grid; place-items: center; width: 38px; height: 38px; border: 1px solid #c9a45a; border-radius: 8px; background: #173b34ed; color: #fff0c7; box-shadow: 0 2px 5px #0005; }
+.map-zoom-controls svg { width: 18px; height: 18px; }
+.map-zoom-controls button:focus-visible { outline: 2px solid #ffe7a8; outline-offset: 2px; }

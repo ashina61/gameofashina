@@ -2,6 +2,7 @@
 const fs = require('node:fs/promises')
 const path = require('node:path')
 const { chromium } = require('playwright')
+const { checkMapZoom } = require('./map-zoom-qa.cjs')
 
 async function main() {
   const out = path.resolve('visual-review')
@@ -232,6 +233,7 @@ async function main() {
     if (empire?.version !== 1 || !Array.isArray(empire.cities) || empire.cities.length < 1) {
       throw new Error(`${label}: Empire save was not initialized or migrated.`)
     }
+    await checkMapZoom(page, '.world-map-scroll', `world-${label}`, out)
     const atlas = path.join(out, `island-atlas-${label}.png`)
     await page.screenshot({ path: atlas, animations: 'disabled' })
     diagnostics.screenshots.push(path.basename(atlas))
@@ -248,6 +250,7 @@ async function main() {
     }, null, { timeout: 10_000 })
     const forestBox = await forestArt.boundingBox()
     if (!forestBox || forestBox.width < 50 || forestBox.height < 35) throw new Error(`${label}: forest art is hidden or too small`)
+    await checkMapZoom(page, '.island-map-viewport', `island-${label}`, out)
     const islandForest = path.join(out, `island-forest-${label}.png`)
     await page.screenshot({ path: islandForest, animations: 'disabled' })
     diagnostics.screenshots.push(path.basename(islandForest))

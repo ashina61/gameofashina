@@ -10,6 +10,7 @@ import { KumSaatiArt } from './resource-art'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Anchor, Crown, Eye } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { MapViewport } from './map-viewport'
 import { MIRACLES } from '@/lib/game/engine'
 import { activeCity, type Empire } from '@/lib/game/empire'
 import { ISLANDS, type IslandId } from '@/lib/game/islands'
@@ -101,7 +102,7 @@ export function WorldMap({ empire, now, missing, onSelectCity, onColonize, onVie
     el.scrollTop = Math.max(0, (home.y + 0.75) * U - el.clientHeight / 2)
   }, [home.x, home.y])
   return <div className="world-map">
-    <div className="world-map-scroll" ref={scroller}>
+    <MapViewport width={W} height={H} viewportRef={scroller} className="world-map-scroll">
       <svg viewBox={`0 0 ${W} ${H}`} width={W} height={H} role="img" aria-label="Dünya haritası">
         <defs>
           <radialGradient id="wm-sea" cx="48%" cy="42%" r="78%"><stop offset="0" stopColor="#367686" /><stop offset=".62" stopColor="#245c6b" /><stop offset="1" stopColor="#173e4f" /></radialGradient>
@@ -147,7 +148,7 @@ export function WorldMap({ empire, now, missing, onSelectCity, onColonize, onVie
           </g>
         })}
       </svg>
-    </div>
+    </MapViewport>
     <div className="wm-legend"><span><i className="wm-dot wm-you" />Şehrin</span><span><i className="wm-dot wm-rival" />Yapay rakip</span><span>Renk: lüks yatağı</span>{wars.length > 0 && <span><i className="wm-dot wm-war" />Rakip savaşı</span>}</div>
     <article className="wm-card">
       <div className="wm-card-top">
