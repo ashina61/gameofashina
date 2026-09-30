@@ -28,6 +28,8 @@ import { visualSignature } from '@/lib/game/city-render'
 import { BUILDINGS, BUILDING_IDS, activeJob, plotOpen, population, zoneOf, type BuildingId, type Game } from '@/lib/game/engine'
 import { asset, buildingArtKey, buildingImage, buildingStage, isPaintedBuilding } from '@/lib/asset'
 import { canvasDpr } from '@/lib/render-dpr'
+import { PEACEFUL_CITY, siegeAppearanceKey, type SiegeAppearance } from '@/lib/game/siege-appearance'
+import { CitySiegeLayer, preloadSiegeArt } from './city-siege'
 
 /** Yolda yürüyen vatandaş (Ikariam'ın sokaktaki halkı). */
 type Walker = { body: Phaser.GameObjects.Graphics; edge: RoadEdge; forward: boolean; t: number; speed: number; side: number }
@@ -100,6 +102,8 @@ export class CityScene extends Phaser.Scene {
   private movePlot: number | null = null
   /** Runtime'da istenen bina texture'ları; aynı dosyayı paralel iki kez istemeyiz. */
   private loadingBuildingTextures = new Set<string>()
+  private siege: SiegeAppearance = PEACEFUL_CITY
+  private siegeLayer: CitySiegeLayer | null = null
 
   // Kamera (map-debug ile aynı davranış): CITY VIEW varsayılan, pinch + drag.
   private minZoom = 0.15
@@ -112,17 +116,24 @@ export class CityScene extends Phaser.Scene {
 
   /** Oyuncunun sancağı: şehirdeki bütün bayraklar bununla çizilir. */
   private look: FlagLook | null = null
-  init(data: { game: Game; events: CityEvents; look?: FlagLook }) {
+  init(data: { game: Game; events: CityEvents; look?: FlagLook; siege?: SiegeAppearance }) {
     this.state = data.game
     this.events$ = data.events
     this.look = data.look ?? null
+    this.siege = data.siege ?? PEACEFUL_CITY
+  }
+  private sceneBanner(): FlagLook {
+    return this.siege.occupation
+      ? { color: this.siege.occupation.color, shape: 'cifte', crest: 'kilic' }
+      : this.look ?? { color: 0xb3261e, shape: 'kirlangic', crest: 'hilal' }
   }
   setBanner(look: FlagLook) {
     this.look = look
-    this.flagField?.setLook(look)
+    this.flagField?.setLook(this.sceneBanner())
   }
 
   preload() {
+    preloadSiegeArt(this)
     // Eskiden 38 bina × 3 stage = 114 WebP açılışta yükleniyordu. Şehir sahnesi
     // yalnızca gerçekten kurulu binaların MEVCUT stage'ini preload eder; yeni
     // bina/stage gerektiğinde ensureBuildingTexture() onu runtime'da getirir.
@@ -167,7 +178,7 @@ export class CityScene extends Phaser.Scene {
   create() {
     this.cameras.main.setBackgroundColor('#12333b')
     this.flagField = new FlagField(this)
-    if (this.look) this.flagField.setLook(this.look)
+    this.flagField.setLook(this.sceneBanner())
     this.smoke = new SmokeField(this)
     this.terrainRoads = buildCityTerrain(this, this.state.buildings.divan, this.openSlotIds(this.state)) // dünya + büyüyen sokak ağı
     for (const f of this.terrainRoads.flags) this.flagField.add(f, 'static', f.minLevel)
@@ -180,6 +191,7 @@ export class CityScene extends Phaser.Scene {
     this.setupCamera()
     this.installCamera()
     this.redraw()
+    this.events.once('shutdown', () => { this.siegeLayer?.destroy(); this.siegeLayer = null })
   }
 
   /* ------------------------------------------------------------------ KAMERA */
@@ -317,11 +329,13 @@ export class CityScene extends Phaser.Scene {
     const pairFitZoom = bothCoast
       ? (this.scale.width * 0.94) / Math.max(1, pairWorldW)
       : Infinity
-    const zoom = bothCoast
+    const zoom = this.siege.blockade
+      ? Math.max(this.minZoom, this.scale.width * 0.88 / 1420)
+      : bothCoast
       ? Math.max(this.minZoom, pairFitZoom)
       : Math.max(this.cityZoom * 1.55, 0.66)
     this.cameras.main.setZoom(Phaser.Math.Clamp(zoom, this.minZoom, this.maxZoom))
-    this.centerInBand(destination.x, destination.y - TILE.h * (bothCoast ? 0.18 : 0.45))
+    this.centerInBand(destination.x, destination.y + (this.siege.blockade ? 90 : -TILE.h * (bothCoast ? 0.18 : 0.45)))
     this.velocity = { x: 0, y: 0 }
   }
   /** React kontrolü: yakınlaştırmayı çarpanla değiştir. */
@@ -385,6 +399,7 @@ export class CityScene extends Phaser.Scene {
     this.flagField?.update(Math.min(delta, 100) / 1000)
     this.smoke?.update(Math.min(delta, 100) / 1000)
     this.sky?.update(Math.min(delta, 100) / 1000)
+    this.siegeLayer?.update(Math.min(delta, 100) / 1000)
     this.stepLife(Math.min(delta, 100) / 1000)
     this.timers = this.timers.filter(t => t.bar.active)
     this.hudItems = this.hudItems.filter(h => h.c.active)
@@ -467,14 +482,17 @@ export class CityScene extends Phaser.Scene {
   }
 
   /** React tarafından çağrılır; yalnızca GÖRÜNEN bir şey değiştiyse çizer. */
-  sync(game: Game, showLabels: boolean, placing: boolean, moving: BuildingId | null = null, movePlot: number | null = null) {
+  sync(game: Game, showLabels: boolean, placing: boolean, moving: BuildingId | null = null, movePlot: number | null = null, siege: SiegeAppearance = PEACEFUL_CITY) {
     // Aktif oturumda tamamlanan bina/yükseltmeyi yakala. İlk hydrate'ta kutlama
     // oynatılmaz; yalnızca önceki sahne durumuna göre seviye gerçekten artmışsa.
     const completed = this.built
       ? BUILDING_IDS.filter(id => game.buildings[id] > this.state.buildings[id])
       : []
+    const siegeChanged = siegeAppearanceKey(this.siege) !== siegeAppearanceKey(siege)
     this.state = game
+    this.siege = siege
     if (!this.built) return
+    if (siegeChanged) this.flagField?.setLook(this.sceneBanner())
     if (game.buildings.divan !== this.framedDivan) { // yeni arsalar açıldı: "şehir" kadrajı büyür
       this.framedDivan = game.buildings.divan
       this.cityZoom = Math.max(this.townZoom(), this.minZoom)
@@ -482,7 +500,7 @@ export class CityScene extends Phaser.Scene {
     }
     this.terrainRoads?.updateRoads(game.buildings.divan, this.openSlotIds(game, moving, movePlot))
     this.syncWalkers()
-    const next = `${visualSignature(game)}|${showLabels}|${placing}|${moving ?? '-'}|${movePlot ?? '-'}`
+    const next = `${visualSignature(game)}|${showLabels}|${placing}|${moving ?? '-'}|${movePlot ?? '-'}|${siegeAppearanceKey(siege)}`
     if (next === this.signature) return
     this.showLabels = showLabels
     this.placing = placing
@@ -530,7 +548,9 @@ export class CityScene extends Phaser.Scene {
   }
 
   private redraw() {
-    this.signature = `${visualSignature(this.state)}|${this.showLabels}|${this.placing}|${this.moving ?? '-'}|${this.movePlot ?? '-'}`
+    this.signature = `${visualSignature(this.state)}|${this.showLabels}|${this.placing}|${this.moving ?? '-'}|${this.movePlot ?? '-'}|${siegeAppearanceKey(this.siege)}`
+    this.siegeLayer?.destroy()
+    this.siegeLayer = new CitySiegeLayer(this, this.siege)
     for (const piece of this.pieces) piece.destroy()
     this.pieces = []
     this.pieceAtlas?.destroy()
@@ -566,7 +586,7 @@ export class CityScene extends Phaser.Scene {
     // karede yeniden üçgenlenmezler.
     this.addLife()
     // Alaylar: kışla kurulunca ikinci yeniçeri devriyesi katılır.
-    const troopKey = `${this.state.buildings.kisla > 0}|${Math.min(5, this.state.buildings.divan)}`
+    const troopKey = `${this.state.buildings.kisla > 0}|${Math.min(5, this.state.buildings.divan)}|${siegeAppearanceKey(this.siege)}`
     if (troopKey !== this.troopKey) { this.troopKey = troopKey; this.addTroops() }
     const atlas = new BakeAtlas(this, 'pieces-atlas')
     this.pieces = this.pieces.flatMap(p => (p instanceof Phaser.GameObjects.Graphics && !this.tweens.isTweening(p) ? atlas.bake(p) : [p]))
@@ -957,7 +977,8 @@ export class CityScene extends Phaser.Scene {
    */
   private syncWalkers() {
     const visible = roadEdgeKeysForTargets(this.openSlotIds(this.state))
-    const count = visible.size ? Math.min(26, 3 + Math.floor(population(this.state) / 22)) : 0
+    const peacefulCount = visible.size ? Math.min(26, 3 + Math.floor(population(this.state) / 22)) : 0
+    const count = this.siege.occupation ? Math.min(3, peacefulCount) : peacefulCount
     const key = [...visible].sort().join(',') + '#' + count
     if (key === this.walkerKey) return
     this.walkerKey = key
@@ -1241,14 +1262,14 @@ export class CityScene extends Phaser.Scene {
     const janissary = (leader: boolean) => {
       const g = this.add.graphics()
       g.fillStyle(0x1b2a14, 0.22); g.fillEllipse(1.5 * s, 0, 9 * s, 3.4 * s)
-      g.fillStyle(0x24406e, 1); g.fillTriangle(-3.8 * s, 0, 3.8 * s, 0, 0, -12 * s); g.fillRoundedRect(-2.7 * s, -12 * s, 5.4 * s, 6 * s, 1.6 * s)
+      g.fillStyle((this.siege.occupation?.color ?? 0x24406e), 1); g.fillTriangle(-3.8 * s, 0, 3.8 * s, 0, 0, -12 * s); g.fillRoundedRect(-2.7 * s, -12 * s, 5.4 * s, 6 * s, 1.6 * s)
       g.fillStyle(0xb3261e, 1); g.fillRect(-2.8 * s, -7.6 * s, 5.6 * s, 1.5 * s)
       g.fillStyle(0xd9a77a, 1); g.fillCircle(0, -14.6 * s, 2.5 * s)
       g.fillStyle(0xf4efe2, 1); g.fillPoints([V(-2.4 * s, -16.4 * s), V(2.4 * s, -16.4 * s), V(1.2 * s, -23 * s), V(-4.2 * s, -21 * s)], true)
       g.fillStyle(0xe2bd78, 1); g.fillRect(-2.4 * s, -17.2 * s, 4.8 * s, 1 * s)
       if (leader) { // bayraktar: al sancak
         g.lineStyle(1.4, 0x4a3a28, 1); g.lineBetween(3 * s, -6 * s, 3 * s, -34 * s)
-        const banner = this.look?.color ?? 0xb3261e
+        const banner = this.siege.occupation?.color ?? this.look?.color ?? 0xb3261e
         g.fillStyle(banner, 1); g.fillPoints([V(3.2 * s, -34 * s), V(13 * s, -32 * s), V(11 * s, -28 * s), V(13 * s, -24 * s), V(3.2 * s, -25 * s)], true)
         g.fillStyle(0xf6efe0, 1); g.fillCircle(7 * s, -29.5 * s, 1.8 * s); g.fillStyle(banner, 1); g.fillCircle(7.7 * s, -29.5 * s, 1.5 * s)
       } else { // tüfek omuzda
@@ -1306,15 +1327,15 @@ export class CityScene extends Phaser.Scene {
     ]
     const lv = this.state.buildings.divan
     // 1) Kuzey kapısı → kuzey caddesi → meydan çevresi (doğudan) → güney caddesi → liman.
-    if (lv >= 2) add(route(['st_gate_n', 'st_ave_n2', 'st_ave_n', 'st_r18'], rim(-90, 90), ['st_r6', 'st_ave_s', 'st_ave_s2', 'st_stairs']), squad(), 30, false, 0.1)
+    if (lv >= 2 || this.siege.occupation) add(route(['st_gate_n', 'st_ave_n2', 'st_ave_n', 'st_r18'], rim(-90, 90), ['st_r6', 'st_ave_s', 'st_ave_s2', 'st_stairs']), squad(), 30, false, 0.1)
     // 2) Kışla kuruluysa batı-doğu devriyesi (meydanın kuzeyinden).
-    if (this.state.buildings.kisla > 0) {
+    if (this.state.buildings.kisla > 0 || this.siege.occupation) {
       add(route(['st_gate_w', 'st_r12'], rim(180, 360), ['st_r0', 'st_gate_e']), squad(), 28, false, 0.6)
     }
     // 3) Mehter: meydanı çevreleyen tur (bayram alayı gibi, ritimli).
-    if (lv >= 4) add(rim(0, 348, 1.12), Array.from({ length: 8 }, (_, i) => ({ g: mehter(i), along: i === 0 ? 0 : 14 + Math.floor((i - 1) / 2) * 14, side: i === 0 ? 0 : (i % 2 ? 8 : -8) })), 16, true, 0.3, 1.5)
+    if (lv >= 4 && !this.siege.occupation) add(rim(0, 348, 1.12), Array.from({ length: 8 }, (_, i) => ({ g: mehter(i), along: i === 0 ? 0 : 14 + Math.floor((i - 1) / 2) * 14, side: i === 0 ? 0 : (i % 2 ? 8 : -8) })), 16, true, 0.3, 1.5)
     // 4) Sipahiler: doğu-batı caddesinde çift atlı.
-    if (lv >= 5) add(route(['st_gate_e', 'st_r0'], rim(0, 180, 1.14), ['st_r12', 'st_gate_w']), [{ g: sipahi(), along: 0, side: -8 }, { g: sipahi(), along: 6, side: 10 }], 46, false, 0.35)
+    if (lv >= 5 && !this.siege.occupation) add(route(['st_gate_e', 'st_r0'], rim(0, 180, 1.14), ['st_r12', 'st_gate_w']), [{ g: sipahi(), along: 0, side: -8 }, { g: sipahi(), along: 6, side: 10 }], 46, false, 0.35)
     this.stepTroops(0)
   }
   private stepTroops(dt: number) {
@@ -1534,7 +1555,7 @@ export class CityScene extends Phaser.Scene {
   }
   private stepCaravan(dt: number) {
     if (!this.caravanPath || !this.caravan.length) return
-    if (this.state.buildings.divan < 3) { for (const g of this.caravan) g.setVisible(false); return }
+    if (this.state.buildings.divan < 3 || this.siege.occupation) { for (const g of this.caravan) g.setVisible(false); return }
     // 0→1 içeri, 1 bekleme, 1→0 dışarı, 0 bekleme (toplam ~2 dk).
     this.caravanT = (this.caravanT + dt / 120) % 1
     const c = this.caravanT
@@ -1557,7 +1578,7 @@ export class CityScene extends Phaser.Scene {
     const lift = flying ? Math.sin((cycle - 14) / 4 * Math.PI) : 0
     const lv = this.state.buildings.divan
     for (const b of this.birds) {
-      const on = !b.minLv || lv >= b.minLv
+      const on = (!b.minLv || lv >= b.minLv) && !(b.kind === 'boat' && this.siege.blockade)
       if (b.g.visible !== on) b.g.setVisible(on)
       if (!on) continue
       b.ph += dt * b.sp

@@ -5,6 +5,7 @@ import { Sun, Sunset, Moon, Flag, Move, Anchor, Landmark, ScrollText } from 'luc
 import { skyTint } from '@/lib/game/sky'
 import type { BannerLook } from '@/lib/game/banner'
 import type { Game, BuildingId } from '@/lib/game/engine'
+import { PEACEFUL_CITY, type SiegeAppearance } from '@/lib/game/siege-appearance'
 import { CityCanvas, type CityControls } from './city-canvas'
 
 /*
@@ -17,7 +18,7 @@ import { CityCanvas, type CityControls } from './city-canvas'
  * yapmiyordu. Tuval dunyayi ekrandan buyuk tutar; gezinme bu yuzden gercek.
  */
 
-export function CityScene({ game, placing, onBuilding, onPlot, onRoad, moving, movePlot, onMovePlot, onMine, offers = 0, onOffers, banner }: {
+export function CityScene({ game, placing, onBuilding, onPlot, onRoad, moving, movePlot, onMovePlot, onMine, offers = 0, onOffers, banner, siege = PEACEFUL_CITY }: {
   game: Game
   placing: boolean
   onBuilding: (id: BuildingId) => void
@@ -31,14 +32,17 @@ export function CityScene({ game, placing, onBuilding, onPlot, onRoad, moving, m
   offers?: number
   onOffers?: () => void
   banner?: BannerLook
+  siege?: SiegeAppearance
 }) {
   // Ikariam gibi: bina adları varsayılan olarak GİZLİ (göz binaya ve caddeye odaklanır);
   // bayrak düğmesi açar. İnşaat süren binanın sayacı her zaman görünür.
   const [labels, setLabels] = useState(false)
   const controls = useRef<CityControls | null>(null)
 
-  return <section className="city-scene" aria-label="Sahilhisar şehir haritası">
-    <CityCanvas game={game} showLabels={labels} placing={placing} controls={controls} onBuilding={onBuilding} onPlot={onPlot} onRoad={onRoad} moving={moving} movePlot={movePlot} onMovePlot={onMovePlot} onMine={onMine} banner={banner} />
+  return <section className={`city-scene${siege.occupation ? ' city-occupied' : ''}${siege.blockade ? ' city-blockaded' : ''}`}
+    aria-label={`Şehir haritası${siege.occupation ? ' · işgal altında' : ''}${siege.blockade ? ' · liman abluka altında' : ''}`}>
+    <CityCanvas game={game} showLabels={labels} placing={placing} controls={controls} onBuilding={onBuilding} onPlot={onPlot} onRoad={onRoad} moving={moving} movePlot={movePlot} onMovePlot={onMovePlot} onMine={onMine} banner={banner} siege={siege} />
+    {(siege.occupation || siege.blockade) && <div className="siege-atmosphere" aria-hidden="true" />}
 
     <Weather time={game.updatedAt} />
 

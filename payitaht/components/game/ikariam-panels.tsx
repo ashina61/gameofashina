@@ -239,9 +239,10 @@ export function ThreatBanner({ empire, now, onOpen }: { empire: Empire; now: num
   // Hükümdarların savaş ilanı iki saat önceden görünür; korsanlar 15 dakika önceden.
   const threat = (empire.threats ?? []).find(t => t.cityId === city.id && (t.intent || t.arriveAt - now <= THREAT_WARNING_MS))
   const siege = (empire.sieges ?? []).find(s => s.cityId === city.id)
+  const bothHeld = (empire.sieges ?? []).some(s => s.cityId === city.id && s.kind === 'occupy') && (empire.sieges ?? []).some(s => s.cityId === city.id && s.kind === 'blockade')
   const held = siege && <button type="button" className="threat-banner is-siege is-held" onClick={onOpen}>
     <TriangleAlert aria-hidden="true" />
-    <span><strong>{siege.kind === 'occupy' ? `Şehir işgal altında · ${targetName(siege.rivalId)}` : `Liman abluka altında · ${targetName(siege.rivalId)}`}</strong>
+    <span><strong>{bothHeld ? 'Şehir işgal altında · liman ablukada' : siege.kind === 'occupy' ? `Şehir işgal altında · ${targetName(siege.rivalId)}` : `Liman abluka altında · ${targetName(siege.rivalId)}`}</strong>
       <small>{troopList(siege.troops)} · saatte {num(siegeTribute(siege))} akçe · kurtarmak için dokun</small></span>
   </button>
   if (!threat) return held || null
