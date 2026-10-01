@@ -43,11 +43,11 @@ export function roadStyleFor(kind: RoadKind, level: number): RoadVisualStyle {
   const tier = roadTierForHallLevel(level)
   const avenue = kind === 'avenue'
   const quay = kind === 'quay'
-  // Mobilde yol, bina/parselden rol çalmamalı: ana arter okunur ama dar,
-  // mahalle yolu daha ince. Kıyı promenadı ayrı olarak terrain-builder'da çizilir.
-  // Ikariam: sokaklar arsa blokları arasını dolduran, net okunan taş/toprak yollardır.
-  // 0.28: yollar belirgin sokaklar — Ikariam'daki gibi arsaların arasını dolduran geniş şeritler.
-  const scale = avenue ? 1.8 : quay ? 1.4 : 1.4
+  // Şehir ekranında yol bina ve araziyi bastırmamalı. Ana arter uzaktan okunur,
+  // mahalle sokakları daha ince kalır; kıyı promenadı rıhtımla birleşir.
+  // Genişlik farkı aynı zamanda "slot ızgarası" hissini kırıp gerçek sokak
+  // hiyerarşisi verir.
+  const scale = avenue ? 1.32 : quay ? 1.08 : 0.96
 
   const palette = quay
     ? [
@@ -66,10 +66,10 @@ export function roadStyleFor(kind: RoadKind, level: number): RoadVisualStyle {
   return {
     shoulderW: (quay ? 0.44 : tier === 1 ? 0.36 : 0.40) * scale,
     shoulder: palette[0],
-    shoulderAlpha: quay ? 0.40 : 0.32,
+    shoulderAlpha: quay ? 0.30 : 0.20,
     borderW: (tier === 1 && !quay ? 0.29 : 0.325) * scale,
     border: palette[1],
-    borderAlpha: quay ? 0.55 : tier === 1 ? 0 : tier === 2 ? 0.6 : tier === 3 ? 0.7 : 0.8,
+    borderAlpha: quay ? 0.48 : tier === 1 ? 0 : tier === 2 ? 0.46 : tier === 3 ? 0.56 : 0.66,
     fillW: (quay ? 0.27 : tier === 1 ? 0.22 : 0.245) * scale,
     fill: palette[2],
     highlightW: 0.018 * scale,

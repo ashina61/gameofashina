@@ -45,7 +45,38 @@ export function BuildingDetails({ game, id, onBuild, onFlip, onMove }: { game: G
   </section>}{queued > 0 && <p className="requirement"><KumSaatiArt className="size-4" />İnşaat sırasında {queued + 1}. sırada bekliyor.</p>}{reason && !active && queued < 0 && <p className="requirement"><LockKeyhole className="size-4" />{reason}</p>}{level > 0 && takesPlot(id) && <div className="building-tools">{b.art && <Button variant="outline" size="sm" onClick={() => onFlip(id)}><FlipHorizontal2 data-icon="inline-start" />{game.flips.includes(id) ? 'Yönü geri çevir' : 'Çevir'}</Button>}{id !== 'divan' && <Button variant="outline" size="sm" onClick={() => onMove(id)}><Move data-icon="inline-start" />Taşı</Button>}</div>}<Button size="lg" className="w-full" disabled={!!reason} onClick={() => onBuild(id)}><Hammer data-icon="inline-start" />{active ? 'İnşaat devam ediyor' : level >= max ? 'Tamamen geliştirildi' : level ? 'Binayı yükselt' : 'İnşaata başla'}</Button></div>
 }
 export function BuildingList({ game, onSelect }: { game: Game; onSelect: (id: BuildingId) => void }) {
-  return <div className="building-list">{BUILDING_IDS.map(id => <button key={id} className="building-list-item" onClick={() => onSelect(id)}>{BUILDINGS[id].art ? <img src={buildingImage(id, game.buildings[id])} alt="" width={88} height={88} /> : <span className="list-pending"><Hammer aria-hidden="true" /></span>}<span><span className="eyebrow">{BUILDINGS[id].category}</span><strong>{BUILDINGS[id].name}</strong><span>{game.buildings[id] ? `Seviye ${game.buildings[id]}${game.buildings[id] >= MAX_LEVEL[id] ? ' · Tamamlandı' : ' · Geliştirilebilir'}` : 'Boş arsa · Yeni yapı'}</span></span><ChevronRight className="size-4" /></button>)}</div>
+  const [query, setQuery] = useState('')
+  const [filter, setFilter] = useState<'all' | 'built' | 'new'>('all')
+  const matching = BUILDING_IDS.filter(id => {
+    if (filter === 'built' && !game.buildings[id]) return false
+    if (filter === 'new' && game.buildings[id]) return false
+    const text = `${BUILDINGS[id].name} ${BUILDINGS[id].category}`.toLocaleLowerCase('tr-TR')
+    return text.includes(query.trim().toLocaleLowerCase('tr-TR'))
+  })
+  return <div className="building-list">
+    <div className="building-list-filters">
+      <label htmlFor="building-search">Yapı ara</label>
+      <input id="building-search" type="search" placeholder="Örn. Medrese, liman, üretim…" value={query} onChange={e => setQuery(e.target.value)} />
+      <div role="group" aria-label="Yapı durumu">
+        {([['all', 'Tümü'], ['built', 'Kurulu'], ['new', 'Yeni yapılar']] as const).map(([key, label]) =>
+          <button key={key} type="button" aria-pressed={filter === key} onClick={() => setFilter(key)}>{label}</button>)}
+      </div>
+      <small>{matching.length} yapı gösteriliyor</small>
+    </div>
+    {matching.length === 0 && <p className="building-list-empty">Bu aramada yapı bulunamadı.</p>}
+    {matching.map(id => {
+    const level = game.buildings[id]
+    const complete = level >= MAX_LEVEL[id]
+    return <button key={id} className={`building-list-item${level ? ' is-built' : ' is-new'}${complete ? ' is-max' : ''}`} onClick={() => onSelect(id)}>
+      <span className="building-list-art">{BUILDINGS[id].art ? <img src={buildingImage(id, level)} alt="" width={88} height={88} /> : <span className="list-pending"><Hammer aria-hidden="true" /></span>}</span>
+      <span className="building-list-copy"><span className="eyebrow">{BUILDINGS[id].category}</span><strong>{BUILDINGS[id].name}</strong>
+        <span className={`building-list-state${complete ? ' is-complete' : level ? ' is-upgrade' : ' is-build'}`}>
+          {level ? `Seviye ${level}${complete ? ' · Tamamlandı' : ' · Geliştirilebilir'}` : 'Yeni yapı'}
+        </span>
+      </span>
+      <span className="building-list-next" aria-hidden="true"><ChevronRight className="size-4" /></span>
+    </button>
+  })}</div>
 }
 /**
  * ARAŞTIRMA DANIŞMANI (Ikariam düzeni): üstte âlim sayısı, ilim ve saatlik
@@ -135,12 +166,12 @@ export function PlotPicker({ game, plot, onBuild }: { game: Game; plot: number; 
       const reason = buildReason(game, id)
       return <button key={id} className="building-list-item" disabled={!!reason} onClick={() => onBuild(id, plot)}>
         {BUILDINGS[id].art ? <img src={buildingImage(id)} alt="" width={88} height={88} /> : <span className="list-pending"><Hammer aria-hidden="true" /></span>}
-        <span>
+        <span className="building-list-copy">
           <span className="eyebrow">{BUILDINGS[id].category}</span>
           <strong>{BUILDINGS[id].name}</strong>
-          <span>{reason ?? 'Bu arsaya kurulabilir'}</span>
+          <span className={`building-list-state ${reason ? 'is-locked' : 'is-build'}`}>{reason ?? 'Bu arsaya kurulabilir'}</span>
         </span>
-        <ChevronRight className="size-4" />
+        <span className="building-list-next" aria-hidden="true"><ChevronRight className="size-4" /></span>
       </button>
     })}
   </div>
@@ -288,7 +319,7 @@ export function CitiesPanel({
     </section>
 
   </>
-  return <div className="advisor-panel">
+  return <div className="advisor-panel cities-panel">
     {mapFirst ? <>{worldMap}{cityList}</> : <>{cityCard}{cityList}{worldMap}</>}
     <section className="empire-section">
       <h3>Şehirler arası nakliye</h3>

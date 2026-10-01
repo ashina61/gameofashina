@@ -8,7 +8,7 @@
 import { createContext, useContext } from 'react'
 import { BUILDING_FLAGS, DEFAULT_LOOK, type BannerLook } from '@/lib/game/banner'
 import type { BuildingId } from '@/lib/game/engine'
-import { buildingImage, buildingStage } from '@/lib/asset'
+import { buildingArtKey, buildingImage, isPaintedBuilding, type CoastFacing } from '@/lib/asset'
 
 export const BannerContext = createContext<BannerLook>(DEFAULT_LOOK)
 export const useBanner = () => useContext(BannerContext)
@@ -39,13 +39,15 @@ export function FlagCloth({ look, style }: { look: BannerLook; style?: React.CSS
 }
 
 /** Bina resmi; resimde sancak direği varsa kumaşı üstüne çizilir. */
-export function BuildingArt({ id, level, className, alt = '' }: { id: BuildingId; level: number; className?: string; alt?: string }) {
+export function BuildingArt({ id, level, className, alt = '', facing }: { id: BuildingId; level: number; className?: string; alt?: string; facing?: CoastFacing }) {
   const look = useBanner()
-  const m = BUILDING_FLAGS[`${id}-${buildingStage(Math.max(1, level))}`]
-  const src = buildingImage(id, level)
-  if (!m) return <img className={className} src={src} alt={alt} draggable={false} />
+  const key = buildingArtKey(id, Math.max(1, level), facing)
+  const m = isPaintedBuilding(id) ? undefined : BUILDING_FLAGS[key]
+  const src = buildingImage(id, level, facing)
+  const mirror = (id === 'liman' || id === 'tersane') && facing === 'right'
+  if (!m) return <img className={className} src={src} alt={alt} draggable={false} style={mirror ? { transform: 'scaleX(-1)' } : undefined} />
   const [W, H, list] = m
-  return <span className={`building-art ${className ?? ''}`} style={{ aspectRatio: `${W} / ${H}` }}>
+  return <span className={`building-art ${className ?? ''}`} style={{ aspectRatio: `${W} / ${H}`, transform: mirror ? 'scaleX(-1)' : undefined }}>
     <img src={src} alt={alt} draggable={false} />
     {list.map(([fx, fy, fw, fh], i) => <FlagCloth key={i} look={look} style={{
       left: `${(fx / W) * 100}%`, top: `${(fy / H) * 100}%`, width: `${(fw * 1.2 / W) * 100}%`, height: `${(fh * 1.25 / H) * 100}%`,

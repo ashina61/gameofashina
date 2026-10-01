@@ -8,7 +8,7 @@
  * kaynak şeridi. En altta kahverengi menü: Şehir, Ada, Harita, İttifak, Görevler.
  * Eski boyalı görseller kullanılmaz; her şey CSS ve vektör çizimdir.
  */
-import type { ReactNode } from 'react'
+import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { Castle, TreePalm, Compass, Shield, ScrollText, ChevronDown } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import {
@@ -51,8 +51,11 @@ export function advisorNews(game: Game, empire: Empire | undefined, seen: Adviso
   }
 }
 
-export function IkaTopBar({ game, empire, news, onCity, onEconomy, onAdvisor, onProfile }: {
-  game: Game; empire: Empire | undefined; news: Record<AdvisorId, number>
+type StockFxKey = 'gold' | 'wood' | 'stone' | 'knowledge'
+type StockFx = { value: number; stamp: number }
+
+export function IkaTopBar({ game, empire, news, activeAdvisor, onCity, onEconomy, onAdvisor, onProfile }: {
+  game: Game; empire: Empire | undefined; news: Record<AdvisorId, number>; activeAdvisor?: AdvisorId | null
   onCity: () => void; onEconomy: () => void; onAdvisor: (id: AdvisorId) => void; onProfile: () => void
 }) {
   const prof = empire ? profileOf(empire) : null
@@ -60,6 +63,45 @@ export function IkaTopBar({ game, empire, news, onCity, onEconomy, onAdvisor, on
   const island = city ? islandOf(city) : null
   const r = rates(game)
   const full = fullResources(game)
+
+  // Kaynak barı sürekli üretim yaptığı için her saniye popup çıkarmıyoruz.
+  // Yalnızca harcama veya beklenen pasif üretimin belirgin üstündeki toplu kazanç
+  // kısa bir +/- geri bildirimi üretir.
+  const [stockFx, setStockFx] = useState<Partial<Record<StockFxKey, StockFx>>>({})
+  const fxStamp = useRef(0)
+  const previousStocks = useRef<{
+    time: number
+    values: Record<StockFxKey, number>
+    rates: Record<StockFxKey, number>
+  } | null>(null)
+  useEffect(() => {
+    const values: Record<StockFxKey, number> = {
+      gold: game.resources.gold,
+      wood: game.resources.wood,
+      stone: game.resources.stone,
+      knowledge: game.resources.knowledge,
+    }
+    const nowRates: Record<StockFxKey, number> = {
+      gold: r.gold, wood: r.wood, stone: r.stone, knowledge: r.knowledge,
+    }
+    const prev = previousStocks.current
+    previousStocks.current = { time: game.updatedAt, values, rates: nowRates }
+    if (!prev) return
+    const dtMin = Math.max(0, Math.min(1, (game.updatedAt - prev.time) / 60_000))
+    const next: Partial<Record<StockFxKey, StockFx>> = {}
+    ;(['gold', 'wood', 'stone', 'knowledge'] as StockFxKey[]).forEach(key => {
+      const delta = values[key] - prev.values[key]
+      const passive = Math.max(0, prev.rates[key]) * dtMin
+      // Eksi her zaman oyuncu aksiyonudur; artıda pasif üretim + küçük yuvarlama payını aş.
+      if (delta < -0.49 || delta > Math.max(5, passive * 2.4 + 1)) {
+        next[key] = { value: delta, stamp: ++fxStamp.current }
+      }
+    })
+    if (!Object.keys(next).length) return
+    setStockFx(next)
+    const timer = window.setTimeout(() => setStockFx({}), 760)
+    return () => window.clearTimeout(timer)
+  }, [game])
   const lux = game.mine.specialty
   const LuxIcon = luxuryIcons[lux]
   const chips: { key: string; icon: ReactNode; value: string; sub?: string; label: string; full?: boolean }[] = [
@@ -83,17 +125,26 @@ export function IkaTopBar({ game, empire, news, onCity, onEconomy, onAdvisor, on
         <ChevronDown aria-hidden="true" />
       </button>
       <nav className="ika-advisors" aria-label="Danışmanlar">
-        {(Object.keys(ADVISORS) as AdvisorId[]).map(id => <button key={id} type="button" className={cn('ika-advisor', news[id] > 0 && 'ika-advisor-news')}
-          onClick={() => onAdvisor(id)} aria-label={`${ADVISORS[id].title} (${ADVISORS[id].name})${news[id] ? `: ${news[id]} haber` : ''}`}>
-          <AdvisorPortrait id={id} size={42} />
+        {(Object.keys(ADVISORS) as AdvisorId[]).map(id => <button key={id} type="button"
+          className={cn('ika-advisor', news[id] > 0 && 'ika-advisor-news', activeAdvisor === id && 'ika-advisor-active')}
+          onClick={() => onAdvisor(id)} aria-pressed={activeAdvisor === id}
+          aria-label={`${ADVISORS[id].title} (${ADVISORS[id].name})${news[id] ? `: ${news[id]} haber` : ''}`}>
+          <span className="ika-advisor-ring" aria-hidden="true"><AdvisorPortrait id={id} size={42} /></span>
           {news[id] > 0 && <span className="ika-badge">{news[id]}</span>}
         </button>)}
       </nav>
     </div>
     <button type="button" className="ika-res" onClick={onEconomy} aria-label={`Kaynaklar, ambar ${compact(capacity(game))}`}>
-      {chips.map(c => <span key={c.key} className={cn('ika-chip', c.full && 'ika-chip-full')} title={c.label}>
-        <i aria-hidden="true">{c.icon}</i><b>{c.value}</b>{c.sub && <small>{c.sub}</small>}<span className="sr-only">{c.label}</span>
-      </span>)}
+      {chips.map((c, index) => {
+        const fx = stockFx[c.key as StockFxKey]
+        return <span key={c.key} className={cn('ika-chip', index < 4 ? 'ika-stock' : 'ika-status', c.full && 'ika-chip-full')} title={c.label}>
+          <i aria-hidden="true">{c.icon}</i><b>{c.value}</b>{c.sub && <small className={c.key === 'gold' && r.gold < 0 ? 'ika-rate-negative' : undefined}>{c.sub}</small>}
+          {fx && <em key={fx.stamp} className={cn('ika-chip-delta', fx.value > 0 ? 'is-plus' : 'is-minus')} aria-hidden="true">
+            {fx.value > 0 ? '+' : '−'}{compact(Math.abs(fx.value))}
+          </em>}
+          <span className="sr-only ika-resource-name">{c.label}</span>
+        </span>
+      })}
     </button>
   </header>
 }

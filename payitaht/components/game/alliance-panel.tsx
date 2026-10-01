@@ -20,8 +20,8 @@ import {
   FACTIONS, RIVALS, STYLE_NAMES, factionMembers, factionStanding, joinAlliance, leaveAlliance, peek, rivalById, rivalLevel, rivalScore,
   type FactionId,
 } from '@/lib/game/rivals'
-import { profileOf } from '@/lib/game/profile'
-import { SancakArt } from './profile-panel'
+import { profileOf, setProfile } from '@/lib/game/profile'
+import { SancakArt, SancakPicker, type SancakChoice } from './profile-panel'
 import { Hint } from './hint'
 import type { Run } from './world-panels'
 
@@ -70,7 +70,20 @@ function General({ empire, now, run }: { empire: Empire; now: number; run: Run }
   const p = empire.world!.pact!
   const [motto, setMotto] = useState(p.motto)
   const [confirm, setConfirm] = useState(false)
+  const prof = profileOf(empire)
+  const [editBanner, setEditBanner] = useState(false)
+  const [look, setLook] = useState<SancakChoice>({ crest: prof.crest, color: prof.color, banner: prof.banner ?? 'kirlangic' })
   return <>
+    <section className="empire-section alliance-banner-edit">
+      <h3><Flag className="size-4" /> İttifak sancağı</h3>
+      <p className="fine-print">İttifakın, lider profilindeki sancak ve armayı kullanır.</p>
+      <Button size="sm" variant="outline" aria-expanded={editBanner} onClick={() => { setLook({ crest: prof.crest, color: prof.color, banner: prof.banner ?? 'kirlangic' }); setEditBanner(!editBanner) }}>{editBanner ? 'Vazgeç' : 'Sancağı düzenle'}</Button>
+      {editBanner && <>
+        <SancakArt {...look} size={260} />
+        <SancakPicker value={look} onChange={setLook} />
+        <Button size="sm" onClick={() => { run((e, t) => setProfile(e, look, t), 'Sancak kaydedildi.'); setEditBanner(false) }}>Sancağı kaydet</Button>
+      </>}
+    </section>
     <section className="empire-section">
       <h3><Crown className="size-4" /> İttifak sıralaması</h3>
       <Rankings empire={empire} now={now} />

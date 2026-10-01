@@ -1,0 +1,90 @@
+name: Android Production AAB
+
+on:
+  workflow_dispatch:
+    inputs:
+      version_name:
+        description: 'Play versionName (ör. 0.29.0)'
+        required: true
+        type: string
+      version_code:
+        description: 'Play versionCode (her yayında artmalı)'
+        required: true
+        type: number
+
+permissions:
+  contents: read
+
+defaults:
+  run:
+    working-directory: payitaht
+
+jobs:
+  signed-aab:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+          run_install: false
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Build native static export
+        env:
+          STATIC_EXPORT: '1'
+          NEXT_PUBLIC_NATIVE: '1'
+        run: pnpm build
+      - name: Sync Capacitor
+        run: pnpm exec cap sync android
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - uses: android-actions/setup-android@v3
+        with:
+          packages: 'platform-tools platforms;android-36 build-tools;36.0.0'
+      - name: Materialize Play signing key
+        env:
+          KEYSTORE_B64: ${{ secrets.PAYITAHT_KEYSTORE_B64 }}
+        run: |
+          if [ -z "$KEYSTORE_B64" ]; then
+            echo "::error::PAYITAHT_KEYSTORE_B64 secret is missing"
+            exit 1
+          fi
+          printf '%s' "$KEYSTORE_B64" | base64 --decode > android/app/payitaht-release.keystore
+          test -s android/app/payitaht-release.keystore
+      - name: Build signed production AAB
+        working-directory: payitaht/android
+        env:
+          PAYITAHT_KEYSTORE_PATH: 'payitaht-release.keystore'
+          PAYITAHT_KEYSTORE_PASSWORD: ${{ secrets.PAYITAHT_KEYSTORE_PASSWORD }}
+          PAYITAHT_KEY_ALIAS: ${{ secrets.PAYITAHT_KEY_ALIAS }}
+          PAYITAHT_KEY_PASSWORD: ${{ secrets.PAYITAHT_KEY_PASSWORD }}
+          PAYITAHT_VERSION_CODE: ${{ inputs.version_code }}
+          PAYITAHT_VERSION_NAME: ${{ inputs.version_name }}
+        run: |
+          for name in PAYITAHT_KEYSTORE_PASSWORD PAYITAHT_KEY_ALIAS PAYITAHT_KEY_PASSWORD; do
+            if [ -z "${!name}" ]; then
+              echo "::error::Missing secret: $name"
+              exit 1
+            fi
+          done
+          chmod +x gradlew
+          ./gradlew bundleRelease --no-daemon --stacktrace
+      - name: Verify signed bundle
+        run: |
+          aab="android/app/build/outputs/bundle/release/app-release.aab"
+          test -s "$aab"
+          jarsigner -verify "$aab"
+          cp "$aab" "payitaht-adalari-${{ inputs.version_name }}-${{ inputs.version_code }}.aab"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: payitaht-play-aab-${{ inputs.version_name }}
+          path: payitaht/payitaht-adalari-${{ inputs.version_name }}-${{ inputs.version_code }}.aab
+          if-no-files-found: error
+          retention-days: 30

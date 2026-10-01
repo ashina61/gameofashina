@@ -98,13 +98,16 @@ export function cityFountains(): ScreenPoint[] {
   // Dereye düşen çeşme yolun öbür yakasına alınır.
   const nearStream = pointGrid(cityStream().pts)
   const wet = (p: ScreenPoint) => nearStream(p.x, p.y, TILE.w * 0.8, TILE.w * 0.6, q => Math.hypot(q.x - p.x, (q.y - p.y) * 1.4) < TILE.w * 0.8)
+  const clearLot = (p: ScreenPoint) => !SLOTS.some(s => s.type === 'city' &&
+    Math.abs(p.x - s.screen.x) / (FOOTPRINT_DIAMOND_W * 0.68) +
+    Math.abs(p.y - s.screen.y) / (FOOTPRINT_DIAMOND_W * 0.34) < 1)
   for (const deg of [0, 90, 180, 270]) {
     const t = deg * Math.PI / 180
     const x = P.x + Math.cos(t) * RING_ROAD.rx, y = P.y + Math.sin(t) * RING_ROAD.ry
     const dx = deg === 0 ? -TILE.w * 0.75 : deg === 180 ? TILE.w * 0.75 : -TILE.w * 0.62
     const dy = deg === 90 ? -TILE.h * 1.3 : deg === 270 ? TILE.h * 1.5 : -TILE.h * 0.62
     const opts = [{ x: x + dx, y: y + dy }, { x: x - dx, y: y + dy }, { x: x + dx, y: y - dy * 1.4 }]
-    const pick = opts.find(p => !wet(p))
+    const pick = opts.find(p => !wet(p) && clearLot(p))
     if (pick) out.push(pick)
   }
   const wall = DEFENSE_FOUNDATION.map(p => p.screen)
@@ -114,7 +117,7 @@ export function cityFountains(): ScreenPoint[] {
     const dx = cx - g.screen.x, dy = cy - g.screen.y, l = Math.hypot(dx, dy) || 1
     const ux = dx / l, uy = dy / l
     const p = { x: g.screen.x + ux * TILE.w * 1.9 - uy * TILE.w * 0.62, y: g.screen.y + uy * TILE.w * 1.9 + ux * TILE.h * 0.9 }
-    if (!wet(p)) out.push(p)
+    if (!wet(p) && clearLot(p)) out.push(p)
   }
   fountainsCache = out
   return out
