@@ -1,7 +1,7 @@
 'use client'
 
 /**
- * Cami (rahip, harika, mucize), Tophane yükseltmeleri, Gelecek araştırmaları,
+ * Cami (imam, harika, mucize), Tophane yükseltmeleri, Gelecek araştırmaları,
  * Kara Pazar takası, Korsan Kalesi seferleri ve yaklaşan korsan baskını.
  * Hepsi motorun kendi fonksiyonlarını okur; panel sayı uydurmaz.
  */
@@ -88,7 +88,7 @@ export function GuildPanel({ game, now, onCommand }: { game: Game; now: number; 
   </section>
 }
 
-/** CAMİ: rahipler inanç biriktirir; inanç adanın harikasının mucizesini çağırır. */
+/** CAMİ: imamlar inanç biriktirir; inanç adanın harikasının mucizesini çağırır. */
 export function TemplePanel({ game, now, onCommand }: { game: Game; now: number; onCommand: (c: Command) => void }) {
   const t = game.temple
   const m = MIRACLES[t.wonder]
@@ -109,7 +109,7 @@ export function TemplePanel({ game, now, onCommand }: { game: Game; now: number;
       </div>
     </>}
     {game.buildings.cami < 1
-      ? <p className="requirement"><Hammer className="size-4" />Rahipler Cami'de hizmet eder. Önce Cami kur.</p>
+      ? <p className="requirement"><Hammer className="size-4" />İmamlar ve hocalar Cami'de hizmet eder. Önce Cami kur.</p>
       : <>
         <WorkforceSlider label="İmam" figure="rahip" value={t.priests} cap={cap} idle={idleWorkers(game)}
           preview={n => { const v = Math.min(n, cap) * 0.5; return { amount: v, icon: <Sparkles className="workforce-icon" />, text: <><b>{v.toFixed(1)}</b> inanç/dk</> } }}
@@ -120,7 +120,7 @@ export function TemplePanel({ game, now, onCommand }: { game: Game; now: number;
         {resting && <p className="fine-print"><KumSaatiArt className="size-3" /> Harika dinleniyor · {clock(t.cooldownUntil - now)}</p>}
         <Button size="sm" disabled={!!active || resting || t.wonderLevel < 1 || t.faith < need} onClick={() => onCommand({ type: 'miracle' })}>
           <Sparkles data-icon="inline-start" />Mucizeyi çağır ({num(need)} inanç)</Button>
-        <p className="fine-print">Her rahip dakikada 0,5 inanç toplar ve üretimde çalışmaz. Mucizeden sonra harika {MIRACLE_COOLDOWN_MS / 3600_000} saat dinlenir.</p>
+        <p className="fine-print">Her imam dakikada 0,5 inanç toplar ve üretimde çalışmaz. Mucizeden sonra harika {MIRACLE_COOLDOWN_MS / 3600_000} saat dinlenir.</p>
       </>}
   </section>
 }

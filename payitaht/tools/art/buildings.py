@@ -395,32 +395,159 @@ def divan(s, st):
         s.tree(1.7, 0.5, 0.9)
 
 
+def palace_face(length, h, floors, door=None, spacing=0.17):
+    """Saray cephesi: kat kat yüksek kemerli pencereler, altın kat silmeleri,
+    kaide ve yaldızlı saçak kuşağı (Dolmabahçe)."""
+    fh = h / floors
+    deco = [('band', 0, min(0.3, 0.07 / h), PAL['stone2'])]
+    n = max(1, int(length / spacing))
+    for f in range(floors):
+        vb = f * fh + 0.07
+        for i in range(n):
+            u = (i + 0.5) / n
+            if f == 0 and door is not None and abs(u - door) < 0.7 / n:
+                continue
+            deco.append(('arch', u, vb, 0.07, fh * 0.6))
+        if f > 0:
+            deco.append(('band', (f * fh - 0.012) / h, (f * fh + 0.012) / h, PAL['gold']))
+    deco.append(('band', 1 - 0.06 / h, 1, PAL['gold']))
+    if door is not None:
+        deco.append(('archdoor', door, 0, 0.17, 0.32))
+    return deco
+
+
+def balustrade(s, x0, y0, x1, y1, z, col=None, step=0.08, urns=True):
+    """Dam korkuluğu: ön iki kenarda babalar + küpeşte, köşelerde altın vazo."""
+    col = col or PAL['marble']
+    for (a0, a1, fixed, ax) in ((x0, x1, y1, 'x'), (y0, y1, x1, 'y')):
+        n = max(2, int((a1 - a0) / step))
+        for i in range(n + 1):
+            t = a0 + (a1 - a0) * i / n
+            if ax == 'x':
+                s.box(t - 0.012, fixed - 0.03, z, t + 0.012, fixed, z + 0.06, col, 'marble', outline=False)
+            else:
+                s.box(fixed - 0.03, t - 0.012, z, fixed, t + 0.012, z + 0.06, col, 'marble', outline=False)
+        if ax == 'x':
+            s.box(a0, fixed - 0.035, z + 0.06, a1, fixed, z + 0.085, col, 'marble')
+        else:
+            s.box(fixed - 0.035, a0, z + 0.06, fixed, a1, z + 0.085, col, 'marble')
+    if urns:
+        for (ux, uy) in ((x0 + 0.02, y1 - 0.02), (x1 - 0.02, y1 - 0.02), (x1 - 0.02, y0 + 0.02)):
+            s.cylinder(ux, uy, z + 0.085, z + 0.12, 0.02, PAL['gold'], 'lead', n=8)
+            s.sphere(ux, uy, z + 0.14, 0.022, PAL['gold'])
+
+
+def tulips(s, x0, y0, x1, y1, seed=0):
+    """Lale tarhı: taş bordürlü toprakta kırmızı, sarı, pembe ve beyaz laleler."""
+    s.box(x0, y0, 0, x1, y1, 0.025, PAL['stone2'], 'stone', top=hexc('#6f5234'), topmat='ground')
+    cols = [hexc('#c9302c'), hexc('#f2c230'), hexc('#d94f7a'), hexc('#f4efe4'), hexc('#b8232b')]
+    nx = max(2, int((x1 - x0) / 0.055)); ny = max(1, int((y1 - y0) / 0.06))
+    for i in range(nx):
+        for j in range(ny):
+            x = x0 + (i + 0.5) * (x1 - x0) / nx
+            y = y0 + (j + 0.5) * (y1 - y0) / ny
+            s.cylinder(x, y, 0.025, 0.07, 0.004, hexc('#4f7d3a'), 'leaf', n=5, cast=False)
+            s.sphere(x, y, 0.078, 0.014, cols[(i * 2 + j + seed) % len(cols)], n=8, rings=5)
+
+
+def fountain(s, cx, cy, r=0.16, tiers=2):
+    """Mermer havuzlu fıskiye: geniş havuz, sütunlu gövde, üst kâse."""
+    s.cylinder(cx, cy, 0, 0.07, r, PAL['marble'], 'marble', top=PAL['water'], n=26)
+    s.cylinder(cx, cy, 0.07, 0.2, 0.026, PAL['marble'], 'marble', n=10)
+    s.cylinder(cx, cy, 0.2, 0.23, r * 0.45, PAL['marble'], 'marble', n=16, top=PAL['water'])
+    if tiers >= 2:
+        s.cylinder(cx, cy, 0.23, 0.32, 0.016, PAL['marble'], 'marble', n=8)
+        s.cylinder(cx, cy, 0.32, 0.34, r * 0.25, PAL['marble'], 'marble', n=12, top=PAL['water'])
+        s.sphere(cx, cy, 0.37, 0.018, hexc('#bfe3e6'))
+    else:
+        s.sphere(cx, cy, 0.26, 0.018, hexc('#bfe3e6'))
+
+
 def saray(s, st):
-    ground(s, 0.1, 0.1, 1.92, 1.92, hexc('#d6c095'))
-    pave(s, 0.45, 0.45, 1.6, 1.6, PAL['marble'], n=8)
-    if st >= 1:
-        block(s, 0.2, 0.2, 1.7, 0.6, 0.75, roof='hip', roofcol=PAL['lead'], ridge=0.9)
-        block(s, 0.2, 0.6, 0.6, 1.7, 0.6 if st == 1 else 0.75, roof='hip', roofcol=PAL['lead'], ridge=0.6)
+    """DOLMABAHÇE SARAYI: beyaz mermer uzun cephe, kat kat kemerli pencereler,
+    altın silmeler, korkuluklu dam ve altın vazolar; ortada sütunlu alınlıklı
+    tören salonu ve büyük kubbe. Aşama aşama kanatlar, saat kulesi, Saltanat
+    Kapısı, lale bahçeleri ve fıskiyeler eklenir."""
+    ground(s, 0.1, 0.1, 1.92, 1.92, hexc('#d9c6a0'))
+    marble, gold, lead = PAL['marble'], PAL['gold'], PAL['lead']
+    cream = hexc('#f6ecd8')
+    pave(s, 0.25, 0.95, 1.85, 1.85, marble, n=9)
+    # --- Ana cephe (arkada, x boyunca).
+    mx0, mx1 = (0.45, 1.55) if st == 1 else (0.2, 1.8)
+    my0, my1 = 0.22, 0.66
+    mh = 0.78
+    s.box(mx0, my0, 0, mx1, my1, mh, cream, 'marble',
+          deco_y=palace_face(mx1 - mx0, mh, 2), deco_x=palace_face(my1 - my0, mh, 2))
+    s.box(mx0 - 0.03, my0 - 0.03, mh, mx1 + 0.03, my1 + 0.03, mh + 0.04, marble, 'marble')
+    s.hip(mx0, my0, mx1, my1, mh + 0.04, 0.08, lead, over=0.0, mat='lead', ridge=(mx1 - mx0) - (my1 - my0))
+    balustrade(s, mx0 - 0.03, my0 - 0.03, mx1 + 0.03, my1 + 0.03, mh + 0.04)
+    # --- Yan kanatlar.
+    wings = []
     if st >= 2:
-        block(s, 1.35, 0.6, 1.75, 1.45, 0.6, roof='hip', roofcol=PAL['lead'], ridge=0.4)
-        domed(s, 0.95, 0.4, 0.82, 0.22, drum=0.08)
-        # havuz
-        s.flat([(0.9, 0.9, 0.01), (1.2, 0.9, 0.01), (1.2, 1.2, 0.01), (0.9, 1.2, 0.01)], PAL['water'], 'flat', key=-40)
-    # ön duvar + kapı kulesi
-    wall_h = 0.35
-    s.box(0.6, 1.7, 0, 1.2, 1.82, wall_h, PAL['plaster'], 'plaster', deco_y=trims(wall_h))
-    s.box(1.5, 1.45 if st >= 2 else 0.6, 0, 1.82, 1.82, wall_h, PAL['plaster'], 'plaster', deco_x=trims(wall_h))
-    block(s, 1.15, 1.55, 1.55, 1.9, 0.7, door_y=0.5, wins=False, roof='hip', roofcol=PAL['lead'])
-    s.tree(1.0, 1.05, 0.7, 'cypress') if st == 1 else None
-    if st == 3:
-        # Adalet kulesi
-        block(s, 0.25, 0.25, 0.55, 0.55, 1.55, wins=False, roof='flat', key=None)
-        s.cone(0.4, 0.4, 1.6, 0.45, 0.21, PAL['lead'], 'lead', n=4)
-        s.sphere(0.4, 0.4, 2.08, 0.02, PAL['gold'])
-        domed(s, 0.4, 1.25, 0.78, 0.16, drum=0.06)
-        s.flag(1.35, 1.72, 0.95, 0.5)
-    s.flag(1.2, 1.6, 0.92, 0.5)
-    s.tree(1.45, 1.0, 0.75, 'cypress')
+        wings.append((1.42, my1, 1.8, 1.32))
+    if st >= 3:
+        wings.append((0.2, my1, 0.58, 1.32))
+    for (x0, y0, x1, y1) in wings:
+        wh = 0.66
+        s.box(x0, y0, 0, x1, y1, wh, cream, 'marble', deco_y=palace_face(x1 - x0, wh, 2, door=0.5), deco_x=palace_face(y1 - y0, wh, 2))
+        s.box(x0 - 0.03, y0, wh, x1 + 0.03, y1 + 0.03, wh + 0.04, marble, 'marble')
+        s.hip(x0, y0, x1, y1, wh + 0.04, 0.07, lead, over=0.0, mat='lead', ridge=(y1 - y0) - (x1 - x0))
+        balustrade(s, x0 - 0.03, y0, x1 + 0.03, y1 + 0.03, wh + 0.04)
+        s.flag((x0 + x1) / 2, (y0 + y1) / 2, wh + 0.12, 0.42)
+    # --- Tören salonu (orta): öne taşan, daha yüksek; sütunlu alınlıklı revak.
+    cx0, cx1 = 0.74, 1.26
+    ch = (0.96, 1.02, 1.1)[st - 1]
+    s.box(cx0, my0 - 0.02, 0, cx1, my1 + 0.12, ch, marble, 'marble',
+          deco_y=palace_face(cx1 - cx0, ch, 2, door=0.5, spacing=0.14), deco_x=palace_face(my1 - my0 + 0.14, ch, 2, spacing=0.14))
+    s.box(cx0 - 0.03, my0 - 0.05, ch, cx1 + 0.03, my1 + 0.15, ch + 0.05, marble, 'marble', deco_y=[('band', 0.3, 1, gold)], deco_x=[('band', 0.3, 1, gold)])
+    portico(s, cx0 - 0.02, cx1 + 0.02, my1 + 0.12, 0.24, 0.6, 6, col=marble, roofcol=cream)
+    s.sphere((cx0 + cx1) / 2, my1 + 0.37, 0.76, 0.03, gold)  # alınlıkta tuğra madalyonu
+    # Merdiven: alçalan geniş mermer basamaklar.
+    for k in range(3):
+        s.box(cx0 - 0.04 - k * 0.03, my1 + 0.36 + k * 0.06, 0, cx1 + 0.04 + k * 0.03, my1 + 0.42 + k * 0.06, 0.05 - k * 0.016, marble, 'marble')
+    # Kubbe: kasnaklı, aşama 3'te yaldızlı; altın alem.
+    if st >= 2:
+        r = 0.2 if st == 2 else 0.24
+        dcol = lead if st == 2 else hexc('#d8b35a')
+        s.cylinder((cx0 + cx1) / 2, (my0 + my1) / 2 + 0.05, ch + 0.05, ch + 0.17, r * 1.02, marble, 'marble', n=24)
+        s.dome((cx0 + cx1) / 2, (my0 + my1) / 2 + 0.05, ch + 0.17, r, dcol, 'lead', hscale=1.0, finial=False)
+        top = ch + 0.17 + r
+        s.cylinder((cx0 + cx1) / 2, (my0 + my1) / 2 + 0.05, top, top + 0.1, 0.012, gold, 'flat', n=6)
+        s.sphere((cx0 + cx1) / 2, (my0 + my1) / 2 + 0.05, top + 0.12, 0.026, gold)
+    else:
+        s.hip(cx0 - 0.03, my0 - 0.05, cx1 + 0.03, my1 + 0.15, ch + 0.05, 0.1, lead, over=0.02, mat='lead')
+        s.sphere((cx0 + cx1) / 2, (my0 + my1) / 2 + 0.05, ch + 0.2, 0.026, gold)
+    s.flag((cx0 + cx1) / 2 + 0.16, my0 + 0.1, ch + 0.05, 0.55)
+    # --- Bahçe: fıskiye, lale tarhları, serviler.
+    fountain(s, 1.0, 1.42, 0.2 if st >= 2 else 0.16, tiers=2 if st >= 2 else 1)
+    beds = [(0.55, 1.2, 0.8, 1.32), (1.2, 1.2, 1.45, 1.32)]
+    if st >= 2:
+        beds += [(0.55, 1.55, 0.8, 1.67), (1.2, 1.55, 1.45, 1.67)]
+    if st >= 3:
+        beds += [(0.28, 1.4, 0.45, 1.75), (1.6, 1.4, 1.77, 1.62)]
+    for i, b in enumerate(beds):
+        tulips(s, *b, seed=i)
+    for (x, y) in ((0.32, 1.05), (1.68, 1.05))[: (1 if st == 1 else 2)]:
+        s.tree(x, y, 0.95, 'cypress')
+    # --- Saat kulesi (aşama 3): ince, kademeli, saat kadranlı, kurşun külahlı.
+    if st >= 3:
+        tx, ty = 1.72, 1.78
+        s.box(tx - 0.09, ty - 0.09, 0, tx + 0.09, ty + 0.09, 0.62, cream, 'marble',
+              deco_y=[('band', 0.9, 1, gold), ('arch', 0.5, 0.1, 0.06, 0.2)], deco_x=[('band', 0.9, 1, gold), ('arch', 0.5, 0.1, 0.06, 0.2)])
+        s.box(tx - 0.075, ty - 0.075, 0.62, tx + 0.075, ty + 0.075, 0.9, marble, 'marble',
+              deco_y=[('band', 0.45, 0.8, hexc('#f7f2e6')), ('band', 0.93, 1, gold)], deco_x=[('band', 0.45, 0.8, hexc('#f7f2e6')), ('band', 0.93, 1, gold)])
+        for (px, py) in ((tx, ty + 0.078), (tx + 0.078, ty)):
+            s.sphere(px, py, 0.78, 0.035, hexc('#1f2a36'))
+        s.box(tx - 0.06, ty - 0.06, 0.9, tx + 0.06, ty + 0.06, 1.02, cream, 'marble', deco_y=[('arch', 0.5, 0.02, 0.05, 0.08)], deco_x=[('arch', 0.5, 0.02, 0.05, 0.08)])
+        s.cone(tx, ty, 1.02, 0.2, 0.08, lead, 'lead', n=8)
+        s.sphere(tx, ty, 1.24, 0.018, gold)
+        # Saltanat Kapısı: iki yaldızlı sütunlu kapı, ön kenarda alçak korkuluk.
+        s.box(0.3, 1.86, 0, 0.78, 1.9, 0.12, marble, 'marble')
+        s.box(1.22, 1.86, 0, 1.6, 1.9, 0.12, marble, 'marble')
+        for gx in (0.8, 1.2):
+            s.box(gx - 0.04, 1.84, 0, gx + 0.04, 1.92, 0.42, marble, 'marble', deco_y=[('band', 0.8, 1, gold)], deco_x=[('band', 0.8, 1, gold)])
+            s.sphere(gx, 1.88, 0.47, 0.035, gold)
+        s.flag(0.24, 0.3, mh + 0.12, 0.5)
 
 
 def kereste(s, st):

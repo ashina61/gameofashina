@@ -26,7 +26,7 @@ export type Good = Resource | Luxury
 /**
  * HARİKALAR VE MUCİZELER (Ikariam'ın ada harikaları ve tapınağı).
  * Her adanın bir harikası vardır; harika bağışla yükselir, Cami'deki
- * rahiplerin biriktirdiği inançla harikanın mucizesi çağrılır.
+ * imamların biriktirdiği inançla harikanın mucizesi çağrılır.
  */
 export const MIRACLE_IDS = ['kalkan', 'bereket', 'ilim', 'savas', 'ruzgar', 'huzur', 'bolluk', 'demirci'] as const
 export type MiracleId = typeof MIRACLE_IDS[number]
@@ -190,7 +190,7 @@ export type Game = {
   mine: IslandMine
   /** Yetişkin halk: huzur ve barınma tavanına doğru ZAMANLA büyür (eski kayıtta yok = tavanda). */
   citizens?: number
-  /** Cami rahipleri, inanç, adanın harikası ve mucize durumu. */
+  /** Cami imamları, inanç, adanın harikası ve mucize durumu. */
   temple: Temple
   /** Tophane'de birlik başına saldırı/zırh yükseltmeleri. */
   upgrades: Partial<Record<UnitId, { atk: number; def: number }>>
@@ -475,7 +475,7 @@ export const RESEARCH: Record<ResearchId, { branch: ResearchBranch; name: string
   kultur: { branch: 'bilim', name: 'Kültür Alışverişi', description: 'Müze\'nin huzur katkısı %50 artar; yabancı hükümdarlarla kültür anlaşması yapılabilir.', cost: 480, duration: 80, required: 5, needs: 'devlet' },
   anatomi: { branch: 'bilim', name: 'Teşrih', description: 'Hekimler savaştan sonra iki kat asker kurtarır.', cost: 520, duration: 85, required: 5, needs: 'tip' },
   deney: { branch: 'bilim', name: 'Deneyler', description: 'Medrese\'de kristal ilime çevrilebilir (100 kristal → 150 ilim).', cost: 600, duration: 90, required: 6, needs: 'optik' },
-  din: { branch: 'bilim', name: 'Devlet Dini', description: 'Rahiplerin inancı %50 artar; harika mucizeden sonra üçte bir kısa dinlenir.', cost: 700, duration: 95, required: 6, needs: 'devlet' },
+  din: { branch: 'bilim', name: 'Devlet Dini', description: 'İmamların topladığı inanç %50 artar; harika mucizeden sonra üçte bir kısa dinlenir.', cost: 700, duration: 95, required: 6, needs: 'devlet' },
   kus_ucusu: { branch: 'bilim', name: 'Kuş Uçuşu', description: 'Humbaracı yetiştirilebilir: surların üstünden bomba atar.', cost: 900, duration: 110, required: 7, needs: 'deney' },
   matbaa: { branch: 'bilim', name: 'Matbaa', description: 'İlim üretimi %10 artar.', cost: 1400, duration: 130, required: 8, needs: 'mekanik_kalem' },
   // ASKERÎ (devam)
@@ -1086,7 +1086,7 @@ export function advance(source: Game, now: number): Game {
     const max = maxPopulation(g)
     const citizens = g.citizens ?? max
     g.citizens = citizens >= max ? max : Math.min(max, citizens + growthRate(g) * minutes)
-    // Rahipler inanç biriktirir.
+    // İmamlar inanç biriktirir.
     g.temple.faith = Math.min(FAITH_CAP, g.temple.faith + Math.min(g.temple.priests, priestCapacity(g)) * 0.5 * minutes *
       (g.research.includes('din') ? 1.5 : 1) * (govIs(g, 'mesihat') ? 1.5 : 1))
     // Mabet lütuf biriktirir.
@@ -1330,7 +1330,7 @@ export type Command =
   | { type: 'donate'; amount: number }
   /** Çarşıdaki tüccardan lüks kaynak al ya da sat. */
   | { type: 'trade'; id: Luxury; side: 'buy' | 'sell'; amount: number }
-  /** Cami'ye rahip ata. */
+  /** Cami'ye imam ata. */
   | { type: 'priests'; value: number }
   /** Adanın harikasına kereste bağışla. */
   | { type: 'wonder'; amount: number }
@@ -1488,7 +1488,7 @@ export function execute(source: Game, command: Command, now: number): { game: Ga
     if (t.wonderLevel < 1) return { game: g, error: 'Adanın harikası henüz kurulmadı. Kereste bağışla.' }
     if (t.active && now < t.until) return { game: g, error: 'Mucize zaten etkin.' }
     if (now < t.cooldownUntil) return { game: g, error: 'Harika dinleniyor; bir süre sonra tekrar dene.' }
-    if (t.faith < miracleCost(t.wonderLevel)) return { game: g, error: `${miracleCost(t.wonderLevel)} inanç gerekli. Rahiplerin biriktiriyor.` }
+    if (t.faith < miracleCost(t.wonderLevel)) return { game: g, error: `${miracleCost(t.wonderLevel)} inanç gerekli. İmamların biriktiriyor.` }
     t.faith -= miracleCost(t.wonderLevel)
     t.active = t.wonder
     t.until = now + miracleMinutes(t.wonderLevel) * 60_000
