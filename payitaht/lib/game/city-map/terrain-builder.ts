@@ -32,6 +32,8 @@ export const DECOR_TILES = [
   'pine', 'plane-tree', 'poplar', 'fruit-tree', 'haystack', 'well', 'woodpile', 'beehives', 'tulip-bed',
   // 0.29: Osmanlı'nın lalesi — çimende kendiliğinden bitmiş lale öbekleri.
   'tulip-clump',
+  // V2 Faz 4.4: mahalle dekoru — çeşme, pazar tezgâhı, bostan, mezarlık, yel değirmeni.
+  'cesme', 'tezgah', 'bostan', 'mezarlik', 'degirmen',
 ] as const
 /**
  * ADA MADENİ yeri: kuzey kulesinin batısında, surların hemen dışında.
@@ -1267,15 +1269,19 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1, occupiedSl
   // Ambient ağaç/çalılar boş slotların çevresine kadar yaklaşabilir. Bir slot
   // sonradan inşa edilince statik terrain'i yeniden üretmek yerine yalnızca
   // o binayla çakışan ambient sprite'ları gizleriz (save/slot etkilenmez).
-  const ambientDecor: Array<{ image: Phaser.GameObjects.Image; x: number; y: number }> = []
+  const ambientDecor: Array<{ image: Phaser.GameObjects.Image; x: number; y: number; minLevel?: number }> = []
+  // Mahalle dekoru Divanhane seviyesiyle açılır (V2 Faz 4.4).
+  let hallLevel = divanLevel
+  let lastActive: string[] = occupiedSlotIds
   const syncAmbientDecor = (activeSlotIds: string[]) => {
+    lastActive = activeSlotIds
     const active = new Set(activeSlotIds)
     active.add(HALL_SLOT_ID)
     const occupiedSlots = [...active].map(id => slotById(id)).filter(
       (slot): slot is NonNullable<typeof slot> => slot != null,
     )
     for (const item of ambientDecor) {
-      item.image.setVisible(!occupiedSlots.some(slot => nearSlot(item.x, item.y, slot, 1.14)))
+      item.image.setVisible(hallLevel >= (item.minLevel ?? 0) && !occupiedSlots.some(slot => nearSlot(item.x, item.y, slot, 1.14)))
     }
   }
 
@@ -1283,6 +1289,7 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1, occupiedSl
   let roadTextures: Phaser.GameObjects.GameObject[] = []
 
   const updateRoads = (level: number, activeSlotIds: string[] = occupiedSlotIds) => {
+    if (level !== hallLevel) { hallLevel = level; syncAmbientDecor(activeSlotIds ?? lastActive) }
     const tier = roadTierForHallLevel(level)
     const active = new Set(activeSlotIds)
     active.add(HALL_SLOT_ID)
@@ -1845,6 +1852,40 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1, occupiedSl
       const nx = -(q.y - p.y) / l, ny = (q.x - p.x) / l
       const side = i % 2 ? 1 : -1
       if (lifeRnd() < 0.7) put('d_poplar', p.x + nx * 68 * side, p.y + ny * 40 * side, TILE.w * (0.28 + lifeRnd() * 0.08))
+    }
+    /*
+     * MAHALLE (V2 Faz 4.4): şehir büyüdükçe boş çimen dolar. Her sahnenin bir
+     * açılış seviyesi var (Divanhane 3'ten 14'e); Divanhane 10+ şehirde
+     * çeşme başları, pazar tezgâhları, bostanlar, mezarlık ve yel değirmenleri
+     * çayırın büyük kısmını kaplar. Bina kurulunca yakınındaki sahne kaybolur.
+     */
+    const putL = (key: string, x: number, y: number, w: number, minLevel: number) => {
+      if (!clearForDecor(x, y, 0.7)) return false
+      const image = stamp(key, x, y, w, -700, 0.92, 1)
+      if (image) { image.setFlipX(lifeRnd() > 0.5); ambientDecor.push({ image, x, y, minLevel }) }
+      return !!image
+    }
+    const hoods: Array<(x: number, y: number, lv: number) => void> = [
+      // Çeşme başı: mermer çeşme, iki servi, çiçek.
+      (x, y, lv) => { if (putL('d_cesme', x, y, TILE.w * 0.62, lv)) { putL('d_cypress', x - TILE.w * 0.48, y - TILE.h * 0.2, TILE.w * 0.2, lv); putL('d_cypress-b', x + TILE.w * 0.5, y - TILE.h * 0.1, TILE.w * 0.2, lv); putL('d_flower', x + TILE.w * 0.1, y + TILE.h * 0.55, TILE.w * 0.26, lv) } },
+      // Mahalle pazarı: iki tezgâh, sandık ve odun.
+      (x, y, lv) => { if (putL('d_tezgah', x, y, TILE.w * 0.62, lv)) { putL('d_tezgah', x + TILE.w * 0.72, y + TILE.h * 0.38, TILE.w * 0.58, lv); putL('d_woodpile', x - TILE.w * 0.5, y + TILE.h * 0.3, TILE.w * 0.34, lv) } },
+      // Bostan: sebze tarhı, kuyu, saman.
+      (x, y, lv) => { if (putL('d_bostan', x, y, TILE.w * 0.86, lv)) { putL('d_well', x + TILE.w * 0.66, y - TILE.h * 0.1, TILE.w * 0.36, lv); putL('d_haystack', x - TILE.w * 0.6, y + TILE.h * 0.25, TILE.w * 0.32, lv) } },
+      // Mezarlık: servilerin gölgesinde.
+      (x, y, lv) => { if (putL('d_mezarlik', x, y, TILE.w * 0.84, lv)) { putL('d_cypress', x - TILE.w * 0.5, y - TILE.h * 0.15, TILE.w * 0.22, lv); putL('d_cypress-b', x + TILE.w * 0.15, y - TILE.h * 0.5, TILE.w * 0.2, lv) } },
+      // Yel değirmeni ve tarla kenarı.
+      (x, y, lv) => { if (putL('d_degirmen', x, y, TILE.w * 0.7, lv)) { putL('d_haystack', x + TILE.w * 0.55, y + TILE.h * 0.3, TILE.w * 0.34, lv); putL('d_bush', x - TILE.w * 0.45, y + TILE.h * 0.35, TILE.w * 0.28, lv) } },
+    ]
+    for (let tries2 = 0, placed = 0; tries2 < 1600 && placed < 16; tries2++) {
+      const x = wr.x + wr.w * (0.08 + lifeRnd() * 0.84)
+      const y = wr.y + (shoreY(x) - wr.y) * (0.12 + lifeRnd() * 0.78)
+      if (Math.hypot(x - hallS.x, (y - hallS.y) * 1.8) < TILE.w * 2.4) continue
+      if (!clearForDecor(x, y, 0.9) || !far(x, y, TILE.w * 1.4)) continue
+      spots.push({ x, y })
+      // Seviye: ilk sahneler Divanhane 3'te, sonuncular 14'te açılır.
+      hoods[placed % hoods.length](x, y, 3 + Math.round(placed * 11 / 15))
+      placed++
     }
   }
 

@@ -32,6 +32,9 @@ import { PEACEFUL_CITY, siegeAppearanceKey, type SiegeAppearance } from '@/lib/g
 import { CitySiegeLayer, preloadSiegeArt } from './city-siege'
 import { lowMotion, particles } from '@/lib/motion'
 
+/** Sancak direği dikilen devlet yapıları (V2 Faz 4.1). */
+const FLAG_POLE_BUILDINGS = new Set<BuildingId>(['divan', 'saray', 'valilik', 'kisla', 'elcilik', 'tophane', 'korsan_kalesi', 'kara_pazar'])
+
 /** Yolda yürüyen vatandaş (Ikariam'ın sokaktaki halkı). */
 type Walker = { body: Phaser.GameObjects.Graphics; edge: RoadEdge; forward: boolean; t: number; speed: number; side: number }
 type RoadEdge = { key: string; from: string; to: string; curve: Phaser.Curves.QuadraticBezier; length: number }
@@ -193,6 +196,20 @@ export class CityScene extends Phaser.Scene {
     this.syncWalkers()
     this.addBirds()
     this.sky = new SkyLayer(this, cityWorldRect())
+    // Meydanın çevresinde ve kapı yollarında sokak fenerleri (V2 Faz 4.5).
+    if (this.sky) {
+      for (let i = 0; i < 8; i++) {
+        const ang = (i / 8) * Math.PI * 2 + Math.PI / 8
+        const lx = PLAZA.screen.x + Math.cos(ang) * PLAZA.rx * 1.12, ly = PLAZA.screen.y + Math.sin(ang) * PLAZA.ry * 1.12
+        this.sky.addLantern(lx, ly, ly + 1, 'static', 1.25)
+      }
+      for (const gate of WALL_GATES.filter(g => g.kind === 'land')) {
+        for (const k of [0.32, 0.62]) {
+          const lx = PLAZA.screen.x + (gate.screen.x - PLAZA.screen.x) * k + TILE.w * 0.28, ly = PLAZA.screen.y + (gate.screen.y - PLAZA.screen.y) * k
+          this.sky.addLantern(lx, ly, ly + 1, 'static', 1.15)
+        }
+      }
+    }
     this.drawMine()
     this.setupCamera()
     this.installCamera()
@@ -2332,7 +2349,11 @@ export class CityScene extends Phaser.Scene {
     // Divanhane meydanın gösterişli merkezi: diğer binalardan büyük.
     // Kademeli büyüme: aynı görsel aşamasında da seviye arttıkça bina biraz büyür.
     const profile = this.buildingVisualProfile(id, slot)
-    const paintedScale = PAINTED_SOURCE_WIDTH[id] ? 600 / PAINTED_SOURCE_WIDTH[id] : 1
+    // Boyalı tuvalin GERÇEK genişliği kullanılır (V2 Faz 4.3): aşamalar arasında
+    // tuval eni farklı olabiliyor (ör. Ticaret Merkezi 2: 1683, tablo 1774).
+    const paintedKey = isPaintedBuilding(id) && level > 0 ? buildingArtKey(id, level, id === 'liman' || id === 'tersane' ? this.state.coastFacing[id] : undefined) : null
+    const realW = paintedKey && this.textures.exists(paintedKey) ? this.textures.get(paintedKey).getSourceImage().width : 0
+    const paintedScale = PAINTED_SOURCE_WIDTH[id] ? 600 / (realW || PAINTED_SOURCE_WIDTH[id]!) : 1
     const artS = this.artScale() * profile.scale * this.buildingMicroScale(id, slot, profile) * stageGrowth(level) * paintedScale
     // Görselin zemin elması resmin altından ART_GROUND_PX yukarıda: elmas
     // arsanın (belediyede meydanın) tam ortasına düz oturur. Liman görselleri
@@ -2385,6 +2406,25 @@ export class CityScene extends Phaser.Scene {
       // Boyalı yapılarda sancak/ayrıntı görsele dahildir; eski vektör
       // manifestindeki koordinatlar farklı tuvale işaret eder.
       const anchors = isPaintedBuilding(id) ? undefined : BUILDING_FLAGS[textureKey]
+      /*
+       * V2 Faz 4.1: boyalı görsellerde gömülü sancak YOK (bütün görseller tarandı:
+       * kırmızı bölgeler kiremit, alem ve tente). Devlet yapılarının yanına
+       * oyuncunun sancağını taşıyan bir direk dikilir; sancak değişince bu
+       * bayraklar da değişir.
+       */
+      if (isPaintedBuilding(id) && FLAG_POLE_BUILDINGS.has(id) && level > 0 && slot.zone !== 'liman' && !active) {
+        const dir = flip ? -1 : 1
+        const px = slot.screen.x + dir * (slot.fw + slot.fh) * TILE.w * 0.25 * 0.82
+        const py = slot.screen.y + TILE.h * 0.12
+        const poleH = TILE.h * (id === 'divan' || id === 'saray' ? 3.6 : 3.0)
+        const pole = this.add.graphics().setDepth(imgY + 0.03)
+        pole.fillStyle(0x0d1c16, 0.18); pole.fillEllipse(px + 4, py, 22, 8)
+        pole.fillStyle(0x5a3d24, 1); pole.fillRect(px - 2.5, py - poleH, 5, poleH)
+        pole.fillStyle(0x7a5634, 1); pole.fillRect(px - 2.5, py - poleH, 2, poleH)
+        pole.fillStyle(0xcaa24a, 1); pole.fillCircle(px, py - poleH, 5)
+        this.pieces.push(pole)
+        this.flagField?.add({ x: px + 2.5 * dir, y: py - poleH + 4, w: TILE.w * 0.46, h: TILE.w * 0.28, depth: imgY + 0.04, dir }, 'pieces')
+      }
       if (anchors) {
         const [W, H, list] = anchors
         for (const [fx, fy, fw, fh] of list) {

@@ -6,6 +6,17 @@ export type Release = { version: string; date: string; title: string; notes: str
 
 export const CHANGELOG: Release[] = [
   {
+    version: '0.35.0', date: '2 Ekim 2026', title: 'Şehir sanatı: sancak direkleri, mahalle, fenerler ve boyalı deniz',
+    notes: [
+      'Divanhane, saray, valilik, kışla, elçilik, tophane, korsan kalesi ve kara pazarın yanında senin sancağını taşıyan direk; sancağını değiştirince hepsi değişir.',
+      'Şehir büyüdükçe çayır doluyor: çeşme başları, mahalle pazarı tezgâhları, bostanlar, servili mezarlık ve yel değirmenleri Divanhane 3\'ten 14\'e kadar sırayla açılır.',
+      'Gece meydanın çevresinde ve kapı yollarında sokak fenerleri yanar; zemine sıcak ışık halkası düşer.',
+      'Dünya haritasında boyalı deniz dokusu, adaların çevresinde sığlık ve kıyı köpüğü, şehirlerin arasında kavisli, akan deniz yolları.',
+      'Bina boyları dengelendi: kışla, elçilik ve taş ocağı fazla büyüktü, mabet, korsan kalesi, medrese ve Karagöz perdesi fazla küçüktü.',
+      'Görsel kaynakları belgesi düzeltildi: hangi görsellerin kodla çizildiği ve boyalı bina setinin kaynağının henüz yazılmadığı açıkça belirtildi.',
+    ],
+  },
+  {
     version: '0.34.0', date: '2 Ekim 2026', title: 'Oyun hissi: uçan altınlar, toz, ışık ve davul',
     notes: [
       'Ödül alınca altın ve mal jetonları karttan üst bardaki sayaca uçar; sayaç sayarak artar. Üst bardaki bütün sayılar artık atlamadan, sayarak değişir.',

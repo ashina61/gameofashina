@@ -204,6 +204,103 @@ def tulip_bed(s):
             s.sphere(x, y, 0.08, 0.014, [hexc('#c9302c'), hexc('#f2c230'), hexc('#d94f7a')][(i + j) % 3], n=8, rings=5)
 
 
+# ---------------------------------------------------------------- MAHALLE (V2 Faz 4.4)
+
+def cesme(s):
+    """Meydan çeşmesi: sekiz köşe mermer havuz, ortada kubbeli taş sebil, su."""
+    s.cylinder(1, 1, 0, 0.07, 0.24, PAL['marble'], 'marble', n=8, top=PAL['water'], topmat='flat')
+    s.cylinder(1, 1, 0.0, 0.24, 0.07, PAL['stone'], 'stone', n=8)
+    s.cylinder(1, 1, 0.24, 0.27, 0.095, PAL['stone2'], 'stone', n=8)
+    s.dome(1, 1, 0.27, 0.08, PAL['lead'], 'lead', n=16, rings=6)
+    for a in range(4):
+        ang = a * math.pi / 2 + math.pi / 4
+        s.cylinder(1 + math.cos(ang) * 0.08, 1 + math.sin(ang) * 0.08, 0.12, 0.14, 0.012, PAL['gold'], 'flat', n=6)
+
+
+def tezgah(s):
+    """Pazar tezgâhı: tahta sergi, dört direk, kırmızı-beyaz çizgili tente, meyve sepetleri."""
+    s.box(0.8, 0.9, 0, 1.2, 1.1, 0.12, PAL['wood'], 'wood', deco_y=[('planks', 3)])
+    for x, y in ((0.8, 0.9), (1.18, 0.9), (0.8, 1.08), (1.18, 1.08)):
+        s.box(x, y, 0, x + 0.02, y + 0.02, 0.34, PAL['wood2'], 'wood')
+    for i in range(5):
+        x0 = 0.77 + i * 0.094
+        s.gable(x0, 0.86, x0 + 0.094, 1.14, 0.34, 0.07, PAL['red'] if i % 2 == 0 else PAL['white'], axis='y', over=0.0, mat='canvas')
+    s.rnd.seed(21)
+    fruit = [hexc('#e07b26'), hexc('#c9302c'), hexc('#e8c337'), hexc('#7aa13c')]
+    for i in range(4):
+        x = 0.86 + i * 0.09
+        s.cylinder(x, 1.0, 0.12, 0.15, 0.035, hexc('#c8a165'), 'wood', n=10)
+        for k in range(3):
+            s.sphere(x - 0.012 + k * 0.012, 1.0 + (k % 2) * 0.01, 0.165, 0.016, fruit[i], n=8, rings=5)
+    s.crate(1.22, 1.12, 0.09)
+
+
+def bostan(s):
+    """Bostan: çit içinde toprak tarhlar, sıra sıra sebze, bir korkuluk."""
+    s.box(0.72, 0.84, 0, 1.28, 1.16, 0.02, hexc('#8a6440'), 'ground', top=hexc('#7a5434'), topmat='ground')
+    s.rnd.seed(33)
+    greens = [hexc('#5f8c3e'), hexc('#7aa64a'), hexc('#4a7a36')]
+    for r in range(4):
+        y = 0.88 + r * 0.075
+        for i in range(7):
+            x = 0.76 + i * 0.075
+            s.blob(x, y, 0.04, 0.028, greens[(r + i) % 3])
+            if r == 1 and i % 2 == 0:
+                s.sphere(x, y, 0.06, 0.016, hexc('#c9302c'), n=8, rings=5)
+    for x in (0.7, 1.3):
+        for k in range(5):
+            y = 0.82 + k * 0.085
+            s.box(x - 0.008, y, 0, x + 0.008, y + 0.012, 0.09, PAL['wood2'], 'wood')
+    s.box(0.7, 0.82, 0.06, 0.712, 1.18, 0.07, PAL['wood'], 'wood')
+    s.box(1.29, 0.82, 0.06, 1.302, 1.18, 0.07, PAL['wood'], 'wood')
+    s.box(0.99, 0.99, 0, 1.01, 1.01, 0.26, PAL['wood2'], 'wood')
+    s.box(0.94, 0.99, 0.18, 1.06, 1.01, 0.2, PAL['wood2'], 'wood')
+    s.sphere(1.0, 1.0, 0.29, 0.03, PAL['canvas'], n=8, rings=6)
+
+
+def mezarlik(s):
+    """Mezarlık: alçak taş duvar, kavuklu ve sade mezar taşları, servi."""
+    s.box(0.72, 0.84, 0, 1.28, 0.86, 0.06, PAL['stone2'], 'stone')
+    s.box(0.72, 0.84, 0, 0.74, 1.16, 0.06, PAL['stone2'], 'stone')
+    s.flat([(0.74, 0.86, 0.001), (1.28, 0.86, 0.001), (1.28, 1.16, 0.001), (0.74, 1.16, 0.001)], hexc('#6f8a4a'))
+    s.rnd.seed(41)
+    for r in range(2):
+        for i in range(4):
+            x, y = 0.84 + i * 0.11, 0.94 + r * 0.12
+            h = 0.07 + s.rnd.random() * 0.04
+            s.box(x, y, 0, x + 0.04, y + 0.014, h, PAL['marble'], 'marble')
+            if (i + r) % 2 == 0:
+                s.cylinder(x + 0.02, y + 0.007, h, h + 0.03, 0.024, PAL['white'], 'marble', n=10)
+                s.cylinder(x + 0.02, y + 0.007, h + 0.03, h + 0.04, 0.012, hexc('#c9302c'), 'flat', n=8)
+    s.tree(1.24, 0.9, 0.45, kind='cypress')
+
+
+def degirmen(s):
+    """Yel değirmeni: taş gövde, ahşap külah, dört kanat."""
+    s.cylinder(1, 1, 0, 0.5, 0.13, PAL['stone'], 'stone', n=14)
+    s.cone(1, 1, 0.5, 0.16, 0.15, PAL['wood2'], 'wood', n=14)
+    s.box(0.98, 1.12, 0.3, 1.02, 1.16, 0.38, PAL['wooddark'], 'wood')
+    hub_x, hub_y, hub_z = 1.0, 1.17, 0.36
+    s.box(hub_x - 0.012, hub_y, hub_z - 0.012, hub_x + 0.012, hub_y + 0.02, hub_z + 0.33, PAL['wood'], 'wood')
+    s.box(hub_x - 0.012, hub_y, hub_z - 0.33, hub_x + 0.012, hub_y + 0.02, hub_z - 0.0, PAL['wood'], 'wood')
+    s.box(hub_x - 0.33, hub_y, hub_z - 0.012, hub_x, hub_y + 0.02, hub_z + 0.012, PAL['wood'], 'wood')
+    s.box(hub_x, hub_y, hub_z - 0.012, hub_x + 0.33, hub_y + 0.02, hub_z + 0.012, PAL['wood'], 'wood')
+    for dx, dz, w, h in ((0.014, 0.08, 0.07, 0.24), (-0.084, -0.32, 0.07, 0.24)):
+        s.box(hub_x + dx, hub_y + 0.004, hub_z + dz, hub_x + dx + w, hub_y + 0.016, hub_z + dz + h, PAL['canvas'], 'canvas')
+    for dx, dz, w, h in ((-0.32, 0.014, 0.24, 0.07), (0.08, -0.084, 0.24, 0.07)):
+        s.box(hub_x + dx, hub_y + 0.004, hub_z + dz, hub_x + dx + w, hub_y + 0.016, hub_z + dz + h, PAL['canvas'], 'canvas')
+    s.box(0.95, 0.86, 0, 1.05, 0.88, 0.16, PAL['door'], 'wood')
+
+
+def mahalle():
+    """Yalnız mahalle dekorlarını çiz: python3 tools/art/decor.py mahalle"""
+    render_crop(cesme, os.path.join(DECOR, 'cesme.png'), 260)
+    render_crop(tezgah, os.path.join(DECOR, 'tezgah.png'), 300)
+    render_crop(bostan, os.path.join(DECOR, 'bostan.png'), 340)
+    render_crop(mezarlik, os.path.join(DECOR, 'mezarlik.png'), 340)
+    render_crop(degirmen, os.path.join(DECOR, 'degirmen.png'), 300)
+
+
 def tower(s):
     col = hexc('#dcc69a')
     s.cylinder(1, 1, 0, 1.25, 0.16, col, 'stone', n=24)
@@ -249,6 +346,8 @@ def texture(path, colors, seed, pebbles=None, blades=None, size=(1116, 775)):
 def main():
     if len(sys.argv) > 1 and sys.argv[1] == 'yeni':
         return yeni()
+    if len(sys.argv) > 1 and sys.argv[1] == 'mahalle':
+        return mahalle()
     os.makedirs(DECOR, exist_ok=True); os.makedirs(TERRAIN, exist_ok=True); os.makedirs(WALLS, exist_ok=True)
     render_crop(olive, os.path.join(DECOR, 'olive-tree.png'), 420)
     render_crop(bush, os.path.join(DECOR, 'bush.png'), 300)

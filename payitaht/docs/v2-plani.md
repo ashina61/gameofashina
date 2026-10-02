@@ -184,6 +184,17 @@ parçacık sayısı yarıya iner.
 | 4.6 | **Ada ve dünya:** dünya haritası için boyalı deniz, kıyı köpüğü, rota çizgileri. | M | — |
 | 4.7 | **Görsel kaynağı:** `public/images/game/CREDITS.md` hâlâ "bütün görseller kodla çizilir" diyor. Bu yanlış: boyalı binalar ayrı bir kaynaktan geldi. Kaynak ve kullanım hakkı yazılır. | S | Belge gerçeği söylüyor. |
 
+**Durum: Faz 4 büyük ölçüde tamam (0.35.0); 4.2'nin boyalı sur seti ve 4.7'nin kaynak satırı açık.**
+
+- **4.1:** Bütün boyalı görseller tarandı (doygun kırmızı ve çevresi saydam bölgeler kümelenip tek tek gözle kontrol edildi). Gömülü sancak yok; bulunanlar kiremit, alem ve tente. Silinecek bir şey olmadığından devlet yapılarının (Divanhane, saray, valilik, kışla, elçilik, tophane, korsan kalesi, kara pazar) yanına canlı sancak direği dikildi. Sancak değişince hepsi değişiyor.
+- **4.2 (kısmen):** Vektör surda kesme taş sıraları, kaydırılmış derzler ve taş renk farkı zaten var. Tam boyalı sur seti (düz, köşe, kapı, burç × 3 kademe) için boyalı görsel gerekiyor; sur halkası açılı kenarlardan oluştuğu için parça setinin bu açılara göre çizilmesi gerekir. Açık iş.
+- **4.3:** `tools/art/scale-audit.py` görünür alana göre ölçek denetimi yapar. Kışla 0.92, elçilik 0.93, taş ocağı 0.80, hamam 0.97, korsan kalesi 1.20, mabet 1.22, medrese 0.80, Karagöz 1.02 oldu; artık sapan yok. Boyalı ölçek, tablo yerine görselin gerçek genişliğinden hesaplanıyor (Ticaret Merkezi 2'nin tuvali 1683 px, tablo 1774 diyordu). Bulanıklık yok: en yakın zoom'da bina ~430 cihaz pikseli, kaynak 1466+ px.
+- **4.4:** `tools/art/decor.py mahalle`: çeşme, pazar tezgâhı, bostan, mezarlık, yel değirmeni. Şehirde 16 mahalle sahnesi Divanhane 3–14 arasında sırayla açılır. "%30'un altında boş alan" ölçümü otomatik değil; Divanhane 12 ekran görüntüsünde çayır belirgin biçimde dolu.
+- **4.5:** Meydanın çevresinde 8, kapı yollarında 6 sokak feneri; gece zeminde ışık halkası (`SkyLayer.addLantern`).
+- **4.6:** Dünya haritasında türbülans dokulu deniz, ada sığlıkları, dönen kıyı köpüğü, kavisli ve akan rota çizgileri.
+- **4.7:** `CREDITS.md` gerçeği söylüyor. Boyalı bina setinin kaynağı ve kullanım hakkı depo sahibince yazılmalı (Play Store öncesi şart).
+
+
 ## Faz 5 — Oyun tasarımı ve tutunma (0.35–0.36)
 
 | # | İş | Boyut | Bitti sayılır |

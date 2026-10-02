@@ -2950,7 +2950,7 @@
 .bp-mapview .world-map { position: relative; flex: 1; min-height: 0; display: flex; flex-direction: column; }
 .bp-mapview .world-map-scroll.map-viewport-frame { flex: 1; height: auto; max-height: none; border: 0; border-radius: 0; box-shadow: inset 0 0 40px #0006; }
 .bp-mapview .wm-legend { position: absolute; z-index: 2; top: 10px; left: 10px; gap: 4px 10px; padding: 6px 10px; border-radius: 10px; color: var(--c-parch); background: #102e38d9; border: 1px solid #c8b57c80; font-size: var(--fs-xs); pointer-events: none; }
-.bp-mapview .wm-tip { position: absolute; z-index: 2; left: 50%; bottom: 14px; transform: translateX(-50%); margin: 0; padding: 6px 14px; border-radius: 999px; color: var(--c-cream); background: #102e38d9; border: 1px solid #c8b57c80; font-size: var(--fs-sm); font-weight: 700; pointer-events: none; white-space: nowrap; }
+.bp-mapview .wm-tip { position: absolute; z-index: 2; left: 50%; bottom: 52px; transform: translateX(-50%); margin: 0; padding: 6px 14px; border-radius: 999px; color: var(--c-cream); background: #102e38d9; border: 1px solid #c8b57c80; font-size: var(--fs-sm); font-weight: 700; pointer-events: none; white-space: nowrap; }
 .bp-mapview .map-zoom-controls { top: 10px; bottom: auto; flex-direction: column; }
 .bp.bp-sheet.is-modeless { max-height: 46dvh; }
 .wm-sheet { padding-top: 10px; }
@@ -3073,3 +3073,10 @@
 html[data-motion="az"] *, html[data-motion="az"] *::before, html[data-motion="az"] *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
 /* Baskın / kuşatma şeridi dokunulabilir: en az parmak boyu (Faz 0.2 kuralı). */
 .threat-banner { min-height: 44px; }
+
+/* V2 Faz 4.6 — dünya haritası: kıyı köpüğü ve akan rota çizgisi. */
+.wm-foam { animation: wm-foam 9s linear infinite; }
+@keyframes wm-foam { to { stroke-dashoffset: -64; } }
+.wm-route path:last-child { animation: wm-route 2.4s linear infinite; }
+@keyframes wm-route { to { stroke-dashoffset: -26; } }
+@media (prefers-reduced-motion: reduce) { .wm-foam, .wm-route path:last-child { animation: none; } }
