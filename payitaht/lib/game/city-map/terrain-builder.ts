@@ -30,6 +30,8 @@ export const DECOR_TILES = [
   'olive-tree', 'bush', 'flower', 'rock', 'cypress', 'cypress-b',
   // 0.26: çeşitlilik — fıstık çamı, çınar, kavak, meyve ağacı ve kır hayatı.
   'pine', 'plane-tree', 'poplar', 'fruit-tree', 'haystack', 'well', 'woodpile', 'beehives', 'tulip-bed',
+  // 0.29: Osmanlı'nın lalesi — çimende kendiliğinden bitmiş lale öbekleri.
+  'tulip-clump',
 ] as const
 /**
  * ADA MADENİ yeri: kuzey kulesinin batısında, surların hemen dışında.
@@ -1792,11 +1794,19 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1, occupiedSl
       // Kuyu başı.
       (x, y) => { put('d_well', x, y, TILE.w * 0.42); put('d_fruit-tree', x + TILE.w * 0.45, y - TILE.h * 0.15, TILE.w * 0.46); put('d_flower', x - TILE.w * 0.35, y + TILE.h * 0.2, TILE.w * 0.26) },
       // Lale tarhı ve fıstık çamı.
-      (x, y) => { put('d_tulip-bed', x, y, TILE.w * 0.6); put('d_pine', x + TILE.w * 0.55, y - TILE.h * 0.25, TILE.w * 0.8) },
+      (x, y) => { put('d_tulip-bed', x, y, TILE.w * 0.9); put('d_pine', x + TILE.w * 0.55, y - TILE.h * 0.25, TILE.w * 0.8) },
+      // Lale bahçesi: üç tarh ve kenarında öbekler (Lale Devri bahçeleri).
+      (x, y) => {
+        put('d_tulip-bed', x, y, TILE.w * 0.95); put('d_tulip-bed', x + TILE.w * 0.9, y + TILE.h * 0.45, TILE.w * 0.85)
+        put('d_tulip-bed', x - TILE.w * 0.88, y + TILE.h * 0.42, TILE.w * 0.85); put('d_tulip-clump', x + TILE.w * 0.1, y + TILE.h * 0.85, TILE.w * 0.5)
+        put('d_cypress', x - TILE.w * 0.2, y - TILE.h * 0.35, TILE.w * 0.22)
+      },
+      // Çayırda lale öbekleri ve bir zeytin.
+      (x, y) => { for (const [dx, dy] of [[0, 0], [0.5, 0.28], [-0.46, 0.32], [0.06, 0.6]]) put('d_tulip-clump', x + TILE.w * dx, y + TILE.h * dy, TILE.w * 0.48); put('d_olive-tree', x + TILE.w * 0.7, y - TILE.h * 0.25, TILE.w * 0.6) },
     ]
     const hallS = slotById(HALL_SLOT_ID)!.screen
     let tries = 0
-    while (spots.length < 18 && tries++ < 1000) {
+    while (spots.length < 22 && tries++ < 1200) {
       const x = wr.x + wr.w * (0.1 + lifeRnd() * 0.8)
       const y = wr.y + (shoreY(x) - wr.y) * (0.12 + lifeRnd() * 0.8)
       if (Math.hypot(x - hallS.x, (y - hallS.y) * 1.8) < TILE.w * 2.2) continue
@@ -1813,6 +1823,13 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1, occupiedSl
       const key = singles[Math.floor(lifeRnd() * singles.length)]
       const w = key === 'd_plane-tree' ? 0.78 : key === 'd_pine' ? 0.74 : key === 'd_olive-tree' ? 0.66 : key === 'd_poplar' ? 0.28 : 0.46
       if (put(key, x, y, TILE.w * w * (0.85 + lifeRnd() * 0.3))) { spots.push({ x, y }); placed++ }
+    }
+    // Çayıra serpilmiş tek tük lale öbekleri.
+    for (let i = 0, placed = 0; i < 500 && placed < 28; i++) {
+      const x = wr.x + wr.w * (0.06 + lifeRnd() * 0.88)
+      const y = wr.y + (shoreY(x) - wr.y) * (0.1 + lifeRnd() * 0.84)
+      if (!far(x, y, TILE.w * 0.7)) continue
+      if (put('d_tulip-clump', x, y, TILE.w * (0.42 + lifeRnd() * 0.14))) { spots.push({ x, y }); placed++ }
     }
     // Tarla kenarları: saman yığını, arı kovanı, odun.
     for (const [i, f] of cityFields().entries()) {
