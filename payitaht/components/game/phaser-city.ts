@@ -196,7 +196,7 @@ export class CityScene extends Phaser.Scene {
     this.setupCamera()
     this.installCamera()
     this.redraw()
-    this.events.once('shutdown', () => { this.siegeLayer?.destroy(); this.siegeLayer = null })
+    this.events.once('shutdown', () => { this.siegeLayer?.destroy(); this.siegeLayer = null; delete document.documentElement.dataset.cityReady })
     this.events$.onReady?.()
   }
 
@@ -602,6 +602,19 @@ export class CityScene extends Phaser.Scene {
     this.pieces = this.pieces.flatMap(p => (p instanceof Phaser.GameObjects.Graphics && !this.tweens.isTweening(p) ? atlas.bake(p) : [p]))
     atlas.finish()
     this.pieceAtlas = atlas
+    this.markReady()
+  }
+
+  /**
+   * HAZIR SİNYALİ: bütün bina dokuları inmiş ve sahne bir kez çizilmişse
+   * <html data-city-ready="n"> artar. QA sabit süre beklemek yerine bunu bekler.
+   */
+  private readyCount = 0
+  private markReady() {
+    if (!this.built || this.load.isLoading() || this.loadingBuildingTextures.size) return
+    this.game.events.once(Phaser.Core.Events.POST_RENDER, () => {
+      if (typeof document !== 'undefined') document.documentElement.dataset.cityReady = String(++this.readyCount)
+    })
   }
 
   /*
@@ -802,13 +815,16 @@ export class CityScene extends Phaser.Scene {
       }
       const no = pieceNo++
       // Dokunma alanı: ön yüz + üst yol + mazgal payı (parmak için biraz geniş).
+      // Çizimden AYRI görünmez bölge: duvar Graphics'i dokuya pişirilince
+      // (BakeAtlas) kendi giriş alanı yok olur, bölge kalır.
       const wallHit = (o: Phaser.GameObjects.Graphics) => {
         const up = wallH + TILE.h * 0.3
-        o.setInteractive({
+        const zone = this.add.zone(0, 0, 1, 1).setOrigin(0, 0).setDepth(o.depth + 0.01).setInteractive({
           hitArea: new Phaser.Geom.Polygon([f0.x, f0.y + 6, f1.x, f1.y + 6, f1.x, f1.y - up, b1.x, b1.y - up, b0.x, b0.y - up, f0.x, f0.y - up]),
           hitAreaCallback: Phaser.Geom.Polygon.Contains, useHandCursor: true,
         })
-        tapWall(o)
+        tapWall(zone)
+        this.pieces.push(zone)
       }
       // Kademe 1: mazgal yerine sivri uçlu ahşap kazık dizisi.
       if (tier === 1) {

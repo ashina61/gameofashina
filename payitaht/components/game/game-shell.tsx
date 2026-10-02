@@ -256,6 +256,21 @@ export default function GameShell({ onTitle }: { onTitle?: () => void } = {}) {
     setPanel(id === 'city' ? 'advisor-city' : id === 'army' ? 'reports' : id === 'research' ? 'research' : 'diplomacy')
   }
   const news = game ? advisorNews(game, empire, seen) : { city: 0, army: 0, research: 0, diplo: 0 }
+  /*
+   * QA KANCASI: yalnız localStorage 'payitaht-qa' = '1' iken (tools/layout-qa.cjs)
+   * her sayfa ve bina sayfası menüden gezinmeden açılabilsin. Oyuncu görmez.
+   */
+  useEffect(() => {
+    try { if (localStorage.getItem('payitaht-qa') !== '1') return } catch { return }
+    const w = window as unknown as { __payitahtQa?: unknown }
+    w.__payitahtQa = {
+      panel: (p: Exclude<Panel, null>) => { setSelected(null); setNpc(null); setPlot(null); if (p === 'island' || p === 'forest') { setView('island'); setPanel(p) } else { setView('city'); openPanel(p) } },
+      building: (id: BuildingId) => { setView('city'); openBuilding(id) },
+      advisor: (id: AdvisorId) => openAdvisor(id),
+      island: () => { setPanel(null); setSelected(null); setView('island') },
+      close: () => { setPanel(null); setSelected(null); setPlot(null); setNpc(null); setView('city') },
+    }
+  })
   const foundingCity = !empire || empire.activeCityId === empire.cities[0]?.id
   const claimable = game && foundingCity ? OBJECTIVES.filter(o => !game.claimed.includes(o.id) && objectiveDone(game, o.id)).length : 0
   const navActive: IkaNavKey | null = panel === 'map' ? 'map' : panel === 'objectives' ? 'objectives' : panel === 'alliance' ? 'alliance'

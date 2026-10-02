@@ -135,7 +135,7 @@ export function ResearchPanel({ game, onResearch }: { game: Game; onResearch: (i
       const st = researchState(game, id), why = st === 'locked' ? researchReason(game, id) : null
       const note = st === 'done' ? 'Keşfedildi' : st === 'active' ? 'Âlimler çalışıyor' : why ?? `${RESEARCH[id].cost.toLocaleString('tr-TR')} ilim · ${RESEARCH[id].duration} sn`
       return <li key={id} className={`is-${st}`}><button type="button" aria-pressed={id === sel} className={`is-${st}`} onClick={() => setPicked(id)}>
-        <span className="rs-node"><ResearchEmblem id={id} size={40} state={st} /><b className="rs-num">{i + 1}</b></span>
+        <span className="rs-node"><ResearchEmblem id={id} size={40} state={st} /><b className="rs-num" data-tiny>{i + 1}</b></span>
         <span className="rs-copy"><span className="rs-name">{RESEARCH[id].name}</span><small>{note}</small></span>
         {st === 'done' ? <Check className="rs-tick" aria-label="tamam" /> : st === 'locked' ? <LockKeyhole className="rs-tick" aria-label="kilitli" /> : null}
       </button></li>

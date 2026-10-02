@@ -6,6 +6,17 @@ export type Release = { version: string; date: string; title: string; notes: str
 
 export const CHANGELOG: Release[] = [
   {
+    version: '0.30.0', date: '2 Ekim 2026', title: 'Parmağa göre düğmeler, okunur yazılar, hata raporu',
+    notes: [
+      'Bütün düğmeler ve seçim alanları en az parmak boyunda (44 px): rapor arşivle/sil, geri, işçi adımları, harita yakınlaştırma, renk seçimi, sekmeler ve bağlantılar artık ıskalanmıyor.',
+      '11 px altındaki bütün yazılar büyüdü (110 yazı kuralı); yalnız rozet ve madalyon içi rakamlar küçük kaldı.',
+      'Dar telefonda işçi kaydırıcısı figürleri üstte, düğmeleri altta tam genişlikte gösterir; rapor başlığında saat artık düğmelerin altında kalmaz.',
+      'Surların her yeri dokunmaya yanıt verir (0.29.1\'de duvar parçalarının bir kısmı yanıt vermiyordu).',
+      'Ayarlar > Hata raporu: oyunda bir hata olursa son 20 kayıt yalnızca bu cihazda tutulur; "Hata raporunu kopyala" ile istersen paylaşabilirsin. Hiçbir şey otomatik gönderilmez.',
+      'Arka planda: her sürümde bütün sayfaları ve 38 bina sayfasını telefon ekranında açıp taşma, kesik yazı, küçük düğme, minik yazı ve üst üste binme arayan otomatik denetim.',
+    ],
+  },
+  {
     version: '0.29.1', date: '2 Ekim 2026', title: 'Telefona uygun üst bar, dokunulan surlar, hazine defteri',
     notes: [
       'Surlara dokununca Surlar sayfası açılır (duvar, burç ve kapı). Sur seviyesi ana kapının üstünde madalyonda yazar; etiketler açıkken diğer binalar gibi ad + seviye.',

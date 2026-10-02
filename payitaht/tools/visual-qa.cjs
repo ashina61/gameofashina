@@ -11,6 +11,12 @@ async function main() {
   const diagnostics = { pageErrors: [], missingGameAssets: [], screenshots: [], viewports: [], buildingStageLoads: {}, coastSeed: {} }
   const origin = process.env.VISUAL_QA_URL || 'http://127.0.0.1:4173/gameofashina/'
   let siegeSeedRaw
+  // Sahne hazır sinyali (phaser-city markReady): sabit süre beklemek yerine.
+  const waitCityReady = async (page, after = 0) => {
+    await page.waitForFunction(n => Number(document.documentElement.dataset.cityReady || 0) > n, after, { timeout: 90_000 })
+    await page.waitForTimeout(400) // bayrak/duman ilk kareleri
+  }
+  diagnostics.metrics = {}
 
   const runViewport = async ({ width, height }) => {
     const label = `${width}x${height}`
@@ -44,14 +50,20 @@ async function main() {
     await page.screenshot({ path: title, animations: 'disabled' })
     diagnostics.screenshots.push(path.basename(title))
 
+    const bootStart = Date.now()
     await page.getByRole('button', { name: /Hikâyeye başla|Devam et/ }).click()
     await page.waitForFunction(() => {
       const canvas = document.querySelector('canvas')
       return canvas && canvas.width > 0 && canvas.height > 0 && canvas.clientWidth > 0
     }, null, { timeout: 45_000 })
-
-    // Give React, texture loading and Phaser's first render time to settle.
-    await page.waitForTimeout(6500)
+    // React, doku yükleme ve Phaser'ın ilk tam çizimi bitene kadar.
+    await waitCityReady(page)
+    // Faz 0.6: açılış süresi (Devam et → şehrin ilk tam karesi) ve JS belleği.
+    // CI yazılımla çizer; sayılar cihazdan yavaştır, eğilim için tutulur.
+    diagnostics.metrics[label] = {
+      bootMs: Date.now() - bootStart,
+      heapMB: await page.evaluate(() => Math.round((performance.memory?.usedJSHeapSize ?? 0) / 1048576)),
+    }
 
     const center = path.join(out, `city-center-${label}.png`)
     await page.screenshot({ path: center, animations: 'disabled' })
@@ -161,7 +173,7 @@ async function main() {
       const canvas = document.querySelector('canvas')
       return canvas && canvas.width > 0 && canvas.clientWidth > 0
     }, null, { timeout: 45_000 })
-    await page.waitForTimeout(5000)
+    await waitCityReady(page)
     const seeded = await page.evaluate(() => {
       const empire = JSON.parse(localStorage.getItem('payitaht-adalari-v1') || 'null')
       const city = empire?.cities?.find(c => c.id === empire.activeCityId) ?? empire?.cities?.[0]
@@ -376,18 +388,31 @@ async function main() {
   try {
     // Compact and tall/common modern Android widths: catch HUD collisions that
     // a single 390×844 reference viewport can miss.
-    for (const viewport of [
-      { width: 390, height: 844 },
-      { width: 412, height: 915 },
-      { width: 430, height: 932 },
-    ]) {
+    // CI bu üç genişliği paralel işlerde koşturur: VISUAL_QA_VIEWPORTS=390x844
+    // (kuşatma turu ve içerik sayfaları 390 işindedir). Boşsa hepsi sırayla.
+    const all = [{ width: 390, height: 844 }, { width: 412, height: 915 }, { width: 430, height: 932 }]
+    const wanted = (process.env.VISUAL_QA_VIEWPORTS || '').split(',').map(v => v.trim()).filter(Boolean)
+    const viewports = wanted.length ? all.filter(v => wanted.includes(`${v.width}x${v.height}`)) : all
+    if (!viewports.length) throw new Error(`VISUAL_QA_VIEWPORTS matched nothing: ${process.env.VISUAL_QA_VIEWPORTS}`)
+    for (const viewport of viewports) {
+      const started = Date.now()
       await runViewport(viewport)
+      console.log(`${viewport.width}x${viewport.height}: ${Math.round((Date.now() - started) / 1000)} sn`)
     }
-    await require('./siege-visual-qa.cjs')(browser, out, origin, siegeSeedRaw, diagnostics)
-
-    const requiredPanelShots = ['ui-research-390x844.png', 'ui-buildings-390x844.png', 'ui-medrese-stage-1-390x844.png', 'ui-medrese-stage-2-390x844.png', 'ui-medrese-stage-3-390x844.png', 'ui-army-390x844.png', 'ui-settings-390x844.png', 'ui-colony-345x768.png']
-    for (const shot of requiredPanelShots) {
-      if (!diagnostics.screenshots.includes(shot)) throw new Error(`Missing content UI QA screenshot: ${shot}`)
+    const compact = viewports.some(v => v.width === 390)
+    if (compact) {
+      await require('./siege-visual-qa.cjs')(browser, out, origin, siegeSeedRaw, diagnostics)
+      const requiredPanelShots = ['ui-research-390x844.png', 'ui-buildings-390x844.png', 'ui-medrese-stage-1-390x844.png', 'ui-medrese-stage-2-390x844.png', 'ui-medrese-stage-3-390x844.png', 'ui-army-390x844.png', 'ui-settings-390x844.png', 'ui-colony-345x768.png']
+      for (const shot of requiredPanelShots) {
+        if (!diagnostics.screenshots.includes(shot)) throw new Error(`Missing content UI QA screenshot: ${shot}`)
+      }
+    }
+    // Bütçe: CI yazılımla çizdiği için cihazdan cömert (varsayılan 25 sn, 400 MB).
+    const bootBudget = Number(process.env.VISUAL_QA_BOOT_BUDGET_MS || 25_000), heapBudget = Number(process.env.VISUAL_QA_HEAP_BUDGET_MB || 400)
+    for (const [label, m] of Object.entries(diagnostics.metrics)) {
+      console.log(`${label}: açılış ${m.bootMs} ms, bellek ${m.heapMB} MB`)
+      if (m.bootMs > bootBudget) console.log(`::warning title=Açılış süresi::${label} açılış ${m.bootMs} ms (bütçe ${bootBudget} ms)`)
+      if (m.heapMB > heapBudget) console.log(`::warning title=Bellek::${label} JS belleği ${m.heapMB} MB (bütçe ${heapBudget} MB)`)
     }
     await fs.writeFile(path.join(out, 'diagnostics.json'), JSON.stringify(diagnostics, null, 2))
     if (diagnostics.pageErrors.length || diagnostics.missingGameAssets.length) {

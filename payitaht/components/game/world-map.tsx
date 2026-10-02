@@ -84,8 +84,8 @@ export function WorldMap({ empire, now, missing, onSelectCity, onColonize, onVie
           const cols = Math.ceil(W / 39), x = (n % cols) * 39 + ((n * 17) % 21), y = Math.floor(n / cols) * 34 + ((n * 13) % 17)
           return <path key={n} d={`M${x} ${y} q5 -2 10 0 m3 2 q4 -1 8 0`} fill="none" stroke="#9fc2c0" strokeWidth=".7" strokeOpacity={n % 4 === 0 ? '.22' : '.10'} />
         })}
-        {Array.from({ length: Math.ceil(maxX) }, (_, x) => <g key={`x${x}`}><path d={`M${x * U} 0 V${H}`} stroke="#d8cfad" strokeOpacity="0.09" /><text x={x * U + 3} y={11} className="wm-coord">{x}</text></g>)}
-        {Array.from({ length: Math.ceil(maxY) }, (_, y) => <g key={`y${y}`}><path d={`M0 ${y * U} H${W}`} stroke="#d8cfad" strokeOpacity="0.09" /><text x={3} y={y * U + 11} className="wm-coord">{y}</text></g>)}
+        {Array.from({ length: Math.ceil(maxX) }, (_, x) => <g key={`x${x}`}><path d={`M${x * U} 0 V${H}`} stroke="#d8cfad" strokeOpacity="0.09" /><text x={x * U + 3} y={11} className="wm-coord" data-tiny>{x}</text></g>)}
+        {Array.from({ length: Math.ceil(maxY) }, (_, y) => <g key={`y${y}`}><path d={`M0 ${y * U} H${W}`} stroke="#d8cfad" strokeOpacity="0.09" /><text x={3} y={y * U + 11} className="wm-coord" data-tiny>{y}</text></g>)}
         <g className="wm-compass" transform={`translate(${W - 38} 36)`} aria-hidden="true"><circle r="18" fill="#102e38" fillOpacity=".45" stroke="#c8b57c" strokeOpacity=".7" /><path d="M0 -13 L3 -3 13 0 3 3 0 13 -3 3 -13 0 -3 -3Z" fill="#d7c58e" /><circle r="2.5" fill="#713b24" /><text y="-22">K</text></g>
         {/* Kendi şehirlerin arasındaki deniz yolları */}
         {routes.map(t => <path key={t.id} d={`M${(home.x + 0.75) * U} ${(home.y + 0.75) * U} L${(t.x + 0.75) * U} ${(t.y + 0.75) * U}`} stroke="#f6ecd6" strokeWidth="2" strokeDasharray="5 5" opacity="0.7" />)}

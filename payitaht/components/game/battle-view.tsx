@@ -112,7 +112,7 @@ export function BattleSummary({ stored, us }: { stored: StoredBattle; us: 'a' | 
       <div className="bs-units">{s.units.slice(0, 8).map(([id, n]) => {
         const lost = Math.min(n, s.lost[id] ?? 0)
         return <span key={id} className={lost >= n ? 'bs-unit is-wiped' : 'bs-unit'} title={`${UNITS[id].name}: ${n} geldi, ${lost} düştü`}>
-          <UnitFigure id={id} size={34} bare /><b>{n}</b>{lost > 0 && <em>−{lost}</em>}
+          <UnitFigure id={id} size={34} bare /><b>{n}</b>{lost > 0 && <em data-tiny>−{lost}</em>}
         </span>
       })}{s.units.length > 8 && <span className="bs-more">+{s.units.length - 8}</span>}</div>
       <small className="bs-morale">Moral <span className="bs-bar is-morale"><i style={{ width: `${s.morale}%` }} /></span> {s.morale}</small>

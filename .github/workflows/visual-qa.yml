@@ -1,5 +1,6 @@
-# Non-blocking visual QA. Captures the REAL rendered game at phone size.
-# Runs only when rendering code / game art changes, not on every economy edit.
+# Mobile visual QA. Captures the REAL rendered game at phone size and checks
+# the layout rules of V2 Faz 0 (overflow, clipped text, 44px touch targets,
+# 11px text, overlaps). Suites run in parallel; each builds the static export.
 name: Mobile Visual QA
 
 on:
@@ -8,28 +9,31 @@ on:
       - claude/ancient-city-phaser-game-r9e0qu
       - 'chatgpt/painted-*'
     paths:
-      - 'payitaht/components/game/**'
-      - 'payitaht/lib/game/city-map/**'
+      - 'payitaht/app/**'
+      - 'payitaht/components/**'
+      - 'payitaht/hooks/**'
+      - 'payitaht/lib/**'
       - 'payitaht/public/images/game/**'
-      - 'payitaht/tools/visual-qa.cjs'
-      - 'payitaht/tools/heraldry-qa.cjs'
-      - 'payitaht/tools/siege-visual-qa.cjs'
+      - 'payitaht/tools/*.cjs'
+      - 'payitaht/tools/fixtures/**'
       - '.github/workflows/visual-qa.yml'
   pull_request:
     branches:
       - claude/ancient-city-phaser-game-r9e0qu
     paths:
-      - 'payitaht/components/game/**'
-      - 'payitaht/lib/game/city-map/**'
+      - 'payitaht/app/**'
+      - 'payitaht/components/**'
+      - 'payitaht/hooks/**'
+      - 'payitaht/lib/**'
       - 'payitaht/public/images/game/**'
-      - 'payitaht/tools/visual-qa.cjs'
-      - 'payitaht/tools/heraldry-qa.cjs'
-      - 'payitaht/tools/siege-visual-qa.cjs'
+      - 'payitaht/tools/*.cjs'
+      - 'payitaht/tools/fixtures/**'
       - '.github/workflows/visual-qa.yml'
   workflow_dispatch:
 
 permissions:
   contents: read
+  actions: read
 
 concurrency:
   group: mobile-visual-qa-${{ github.ref }}
@@ -40,11 +44,16 @@ defaults:
     working-directory: payitaht
 
 jobs:
-  screenshot:
+  qa:
+    name: ${{ matrix.suite }}
     runs-on: ubuntu-latest
-    # Yazılımla (GPU'suz) çizilen Phaser ekranı yavaş: yeşil koşular bile
-    # 15 dakikayı buluyordu, 18 dakikalık sınır ağır bir koşucuda yetmedi.
-    timeout-minutes: 30
+    # Yazılımla (GPU'suz) çizilen Phaser ekranı yavaş; her takım ayrı işte
+    # koşar, en uzunu ~10 dk. Sınır pay bırakır.
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        suite: [layout, heraldry, city-390, city-412, city-430]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -76,23 +85,41 @@ jobs:
             sleep 1
           done
           curl -fsS http://127.0.0.1:4173/gameofashina/ -o /dev/null
-      - name: Check profile and alliance heraldry
+      - name: Run ${{ matrix.suite }}
         env:
           NODE_PATH: ${{ runner.temp }}/visual/node_modules
+          SUITE: ${{ matrix.suite }}
         run: |
-          node --check tools/heraldry-qa.cjs
-          node tools/heraldry-qa.cjs
-      - name: Screenshot center and harbour on mobile
+          case "$SUITE" in
+            layout)   node --check tools/layout-qa.cjs && node tools/layout-qa.cjs ;;
+            heraldry) node --check tools/heraldry-qa.cjs && node tools/heraldry-qa.cjs ;;
+            city-390) VISUAL_QA_VIEWPORTS=390x844 node tools/visual-qa.cjs ;;
+            city-412) VISUAL_QA_VIEWPORTS=412x915 node tools/visual-qa.cjs ;;
+            city-430) VISUAL_QA_VIEWPORTS=430x932 node tools/visual-qa.cjs ;;
+            *) echo "unknown suite $SUITE"; exit 1 ;;
+          esac
+      # Faz 0.5: önceki yeşil koşunun aynı takımıyla piksel karşılaştırması.
+      # Yalnız uyarı üretir; tasarım değişikliği bilinçliyse yok sayılır.
+      - name: Fetch previous green screenshots
+        if: success() && github.event_name == 'push'
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SUITE: ${{ matrix.suite }}
+        run: |
+          prev=$(gh run list --repo "$GITHUB_REPOSITORY" --workflow visual-qa.yml --branch "$GITHUB_REF_NAME" --status success --limit 1 --json databaseId -q '.[0].databaseId')
+          if [ -n "$prev" ]; then gh run download "$prev" --repo "$GITHUB_REPOSITORY" -n "payitaht-visual-$SUITE" -D "${RUNNER_TEMP}/prev" || true; fi
+      - name: Compare with previous screenshots
+        if: success() && github.event_name == 'push'
+        continue-on-error: true
         env:
           NODE_PATH: ${{ runner.temp }}/visual/node_modules
-        run: |
-          node --check tools/visual-qa.cjs
-          node tools/visual-qa.cjs
-      - name: Upload mobile screenshots and diagnostics
+        run: node tools/visual-diff.cjs "${RUNNER_TEMP}/prev" visual-review
+      - name: Upload screenshots and diagnostics
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: payitaht-mobile-visuals-${{ github.sha }}
+          name: payitaht-visual-${{ matrix.suite }}
           path: payitaht/visual-review/
           retention-days: 14
           if-no-files-found: warn

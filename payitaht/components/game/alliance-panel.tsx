@@ -51,7 +51,7 @@ export function AlliancePanel({ empire, now, run, onRival }: { empire: Empire; n
     <div className="world-tabs alliance-tabs" role="group" aria-label="İttifak">
       {([['genel', 'Genel', Shield], ['uyeler', 'Üyeler', Users], ['gorevler', 'Görevler', ListChecks], ['genelge', 'Genelge', Megaphone], ['diplomasi', 'Diplomasi', Handshake]] as const).map(([k, label, Icon]) =>
         <button key={k} type="button" aria-pressed={tab === k} onClick={() => { setTab(k); if (k === 'genelge' && unread) run((e, x) => readCirculars(e, x)) }}>
-          <Icon className="size-5" /><span>{label}</span>{k === 'genelge' && unread > 0 && <b className="world-tab-badge">{unread}</b>}</button>)}
+          <Icon className="size-5" /><span>{label}</span>{k === 'genelge' && unread > 0 && <b className="world-tab-badge" data-tiny>{unread}</b>}</button>)}
     </div>
     {tab === 'genel' && <General empire={empire} now={now} run={run} />}
     {tab === 'uyeler' && <Members empire={empire} now={now} run={run} onRival={onRival} />}

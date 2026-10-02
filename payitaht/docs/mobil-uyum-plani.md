@@ -19,10 +19,10 @@ Bu listenin bütün açık maddeleri [v2-plani.md](./v2-plani.md)'ye taşındı;
 | 5 | Oranlarda nokta/virgül karışık, "-0" | ✅ 0.29.1 |
 | 6 | Bina maliyetinde "eksik" miktarı taşıyor | ✅ 0.29.1 |
 | 7 | Sayfa düğme sıraları sağdan kesiliyor | ✅ 0.29.1 |
-| 8 | **Otomatik taşma testi yok.** Bu hatalar ancak telefonda görülünce bulundu. | Açık |
+| 8 | Otomatik taşma testi yok | ✅ 0.30.0 — `tools/layout-qa.cjs` CI'da |
 | 9 | Olay günlüğünde tekrar eden satırlar ("İşgalciler 3600 akçe haraç topladı" ×5) | ✅ 0.29.1 — `groupLog` |
-| 10 | **Küçük yazılar** (CSS'te 142 yerde 9–11px) | Açık |
-| 11 | **Küçük dokunma hedefleri** (rapor yer imi/sil, sekme düğmeleri ~32px) | Açık |
+| 10 | Küçük yazılar (CSS'te 142 yerde 9–11px) | ✅ 0.30.0 — taban 11 px |
+| 11 | Küçük dokunma hedefleri | ✅ 0.30.0 — en az 44 px |
 
 **8 — Taşma testi.** `tools/visual-qa.cjs`'e 360×740 ekranda bir tur ekle:
 şehir, hazine, dört danışman, ittifak, görevler, yapı listesi ve her bina

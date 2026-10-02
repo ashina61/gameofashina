@@ -331,7 +331,7 @@ export function WorldPanel({ empire, now, run, onRival, initial = 'rank' }: { em
           aria-label={badge(key) ? `${label}: ${badge(key)} yeni` : undefined} onClick={() => {
           setTab(key)
           if (key === 'mail' && unread) run((e, x) => readMessages(e, x))
-        }}><Icon className="size-5" /><span>{label}</span>{badge(key) > 0 && <b className="world-tab-badge">{badge(key)}</b>}</button>)}
+        }}><Icon className="size-5" /><span>{label}</span>{badge(key) > 0 && <b className="world-tab-badge" data-tiny>{badge(key)}</b>}</button>)}
     </div>
     {tab === 'rank' && <Rankings empire={empire} now={now} onRival={onRival} />}
     {tab === 'diplo' && <Diplomacy empire={empire} now={now} run={run} onRival={onRival} />}

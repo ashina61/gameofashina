@@ -126,7 +126,7 @@ export function IkaTopBar({ game, empire, news, activeAdvisor, onCity, onEconomy
           onClick={() => onAdvisor(id)} aria-pressed={activeAdvisor === id}
           aria-label={`${ADVISORS[id].title} (${ADVISORS[id].name})${news[id] ? `: ${news[id]} haber` : ''}`}>
           <span className="ika-advisor-ring" aria-hidden="true"><AdvisorPortrait id={id} size={42} /></span>
-          {news[id] > 0 && <span className="ika-badge">{news[id] > 9 ? '9+' : news[id]}</span>}
+          {news[id] > 0 && <span className="ika-badge" data-tiny>{news[id] > 9 ? '9+' : news[id]}</span>}
         </button>)}
       </nav>
     </div>
@@ -162,7 +162,7 @@ export function IkaNav({ active, badges, onSelect }: { active: IkaNavKey | null;
     className={cn('ika-nav-item', i.key === 'map' && 'ika-nav-center', active === i.key && 'ika-nav-active')} aria-current={active === i.key ? 'page' : undefined}
     aria-label={(badges[i.key] ?? 0) > 0 ? `${i.label}: ${badges[i.key]} yeni` : i.label} onClick={() => onSelect(i.key)}>
     <span className="ika-nav-icon" aria-hidden="true">{i.icon}</span><span className="ika-nav-label">{i.label}</span>
-    {(badges[i.key] ?? 0) > 0 && <b className="ika-badge" aria-hidden="true">{badges[i.key]! > 9 ? '9+' : badges[i.key]}</b>}
+    {(badges[i.key] ?? 0) > 0 && <b className="ika-badge" data-tiny aria-hidden="true">{badges[i.key]! > 9 ? '9+' : badges[i.key]}</b>}
   </button>)}</nav>
 }
 

@@ -63,6 +63,18 @@ Boyut etiketleri: **S** = bir oturumda biter · **M** = iki-üç oturum · **L**
 | 0.6 | **Açılış süresi ve bellek ölçümü:** QA'da "Devam et" ile şehrin ilk karesi arası süre ve JS heap ölçülüp `diagnostics.json`'a yazılır. Sınırı aşan uyarı verir. | S | Sayılar her koşuda görünüyor. |
 | 0.7 | **Yerel hata kaydı:** yakalanmayan hatalar son 20 kayıtla cihazda tutulur. Ayarlar > Hakkında'da "Hata raporunu kopyala" düğmesi olur. (Sunucu yok, veri toplanmaz.) | S | Kasıtlı hata kaydı kopyalanabiliyor. |
 
+**Durum: ✅ 0.30.0'da tamamlandı.** Uygulamada plandan sapmalar:
+
+- **0.1–0.3:** `tools/layout-qa.cjs` 360×740'ta başlık ekranı, şehir, ada, 19 sayfa ve 38 bina sayfasını açar.
+  - **Ek kural:** "çakışma" (yazının yanındaki düğmenin altında kalması).
+  - **Öz-denetim:** Her koşuda bilerek bozuk öğeler enjekte edilir; test bunları yakalamazsa kendisi düşer.
+  - **İlk ölçüm:** 95 taşma, 817 küçük dokunma alanı ve 2.211 minik yazı çıktı. Hepsi sıfıra indi.
+    - CSS'te 11 px altındaki 110 yazı kuralı 11 px oldu.
+    - Bütün düğme ve alanlar 44 px oldu; işçi kaydırıcısı ve rapor başlığı dar ekranda yeniden dizildi.
+- **0.4:** Sinyal `window.__cityReady` yerine `<html data-city-ready>`. QA tek iş yerine 5 paralel takım oldu: düzen, sancak ve üç şehir genişliği.
+- **0.5:** Depoya referans görüntü konmadı. Her koşu, aynı daldaki **önceki yeşil koşunun** görüntüleriyle karşılaştırılır. Fark tablosu iş özetine yazılır.
+- **Bulunan gerçek hata:** 0.29.1'de sur parçalarına eklenen dokunma alanı, sahne dokuya pişirilirken kayboluyordu; yalnız burç ve kapılar dokunmaya yanıt veriyordu. Dokunma alanı ayrı, görünmez bir bölgeye taşındı.
+
 ## Faz 1 — Tek görsel dil: oyun arayüz kiti (0.31)
 
 "Uygulama hissinin" kökü burada. Ekranları yeniden yapmadan önce yapı taşları hazırlanır.

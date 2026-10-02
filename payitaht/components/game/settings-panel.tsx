@@ -5,11 +5,12 @@
  * ses, görünüm, bildirimler, yeni oyun, giriş ekranı ve hakkında.
  * (game-shell'deki tek satırlık dev bloktan ayrıldı.)
  */
-import { useRef, useState } from 'react'
-import { Bell, Download, HardDrive, Home, Info, Moon, Music, RotateCcw, Swords, Upload, WifiOff } from 'lucide-react'
+import { useEffect, useRef, useState } from 'react'
+import { Bell, Bug, Download, HardDrive, Home, Info, Moon, Music, RotateCcw, Swords, Upload, WifiOff } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import type { Empire } from '@/lib/game/empire'
 import { VERSION } from '@/lib/game/changelog'
+import { clearErrors, errorReport, readErrors, type ErrorEntry } from '@/lib/game/error-log'
 import { PaceSetting } from './ai-panels'
 import { DayNightSetting, SoundSettings } from './sound-settings'
 import type { Run } from './world-panels'
@@ -44,6 +45,30 @@ export function SettingsPanel({ empire, run, warning, native, pwa, notify, onBac
   </div> : <Button variant="outline" onClick={() => setConfirmReset(true)}><RotateCcw data-icon="inline-start" /> Yeni oyun başlat</Button>}</section>{onTitle && 
     <section><h3><Home /> Giriş ekranı</h3><p>Oyun kaydedildi; giriş ekranına dönüp devam edebilir ya da yeni bir hikâye başlatabilirsin.</p><Button variant="outline" onClick={onTitle}><Home data-icon="inline-start" /> Giriş ekranına dön</Button></section>}
     <section><h3><Info /> Hakkında</h3><p>Payitaht Adaları, Osmanlı esintili tek oyunculu bir ada stratejisidir. Çevrimdışı çalışır: hesap açılmaz, kişisel veri toplanmaz, reklam ve uygulama içi satın alma yoktur. Kayıt yalnızca bu cihazda durur.</p><p className="fine-print">Dünyadaki diğer hükümdarlar yapay rakiptir; gerçek oyuncu yoktur. Müzik ve sesler oyunun içinde, cihazda üretilir.</p></section>
+    <ErrorReport />
     <button type="button" className="version-link" onClick={onChangelog}>Payitaht Adaları · sürüm {VERSION} · sürüm notları</button>
   </div>
+}
+
+/**
+ * HATA RAPORU: cihazda tutulan son hatalar. Kopyalanan düz metin, oyuncu
+ * isterse geliştiriciye iletilir; oyun kendisi hiçbir yere göndermez.
+ */
+function ErrorReport() {
+  const [list, setList] = useState<ErrorEntry[]>([])
+  const [note, setNote] = useState('')
+  useEffect(() => setList(readErrors()), [])
+  async function copy() {
+    const text = errorReport(list, { version: VERSION, device: navigator.userAgent, now: Date.now() })
+    try { await navigator.clipboard.writeText(text); setNote('Rapor panoya kopyalandı.') }
+    catch { setNote('Kopyalanamadı; bu cihaz panoya yazmaya izin vermiyor.') }
+  }
+  return <section className="error-report"><h3><Bug /> Hata raporu</h3>
+    <p className="fine-print">{list.length ? `Bu cihazda ${list.length} hata kaydı var (son: ${new Date(list[0].time).toLocaleString('tr-TR')}). Rapor yalnızca sen kopyalarsan paylaşılır.` : 'Bu cihazda kayıtlı hata yok.'}</p>
+    <div className="batch-row">
+      <Button size="sm" variant="outline" onClick={copy}>Hata raporunu kopyala</Button>
+      {list.length > 0 && <Button size="sm" variant="ghost" onClick={() => { clearErrors(); setList([]); setNote('Hata kayıtları silindi.') }}>Kayıtları sil</Button>}
+    </div>
+    {note && <p className="fine-print" role="status">{note}</p>}
+  </section>
 }
