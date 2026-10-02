@@ -83,18 +83,57 @@ function knock(at: number, vol: number) {
   o.connect(og).connect(master!); o.start(at); o.stop(at + 0.12)
 }
 
+/** Kâğıt hışırtısı: yüksek geçiren süzgeçten geçen kısa gürültü. */
+function rustle(at: number, vol: number, len = 0.32) {
+  const a = ctx!, n = Math.floor(a.sampleRate * len)
+  const b = a.createBuffer(1, n, a.sampleRate), d = b.getChannelData(0)
+  for (let i = 0; i < n; i++) d[i] = (Math.random() * 2 - 1) * Math.sin(Math.PI * i / n) * (0.6 + 0.4 * Math.sin(i / 300))
+  const s = a.createBufferSource(), f = a.createBiquadFilter(), g = a.createGain()
+  s.buffer = b; f.type = 'highpass'; f.frequency.value = 2200; g.gain.value = vol
+  s.connect(f).connect(g).connect(master!); s.start(at)
+}
+
+/** Boru (nefir): yumuşak testere dalga, alçak geçiren süzgeç, hafif titreme. */
+function horn(at: number, freq: number, dur: number, vol: number) {
+  const a = ctx!, o = a.createOscillator(), f = a.createBiquadFilter(), g = a.createGain(), lfo = a.createOscillator(), lg = a.createGain()
+  o.type = 'sawtooth'; o.frequency.value = freq
+  lfo.frequency.value = 5.5; lg.gain.value = freq * 0.012
+  lfo.connect(lg).connect(o.frequency)
+  f.type = 'lowpass'; f.frequency.value = 900
+  g.gain.setValueAtTime(0.0001, at); g.gain.exponentialRampToValueAtTime(vol, at + 0.12)
+  g.gain.setValueAtTime(vol, at + dur - 0.15); g.gain.exponentialRampToValueAtTime(0.0001, at + dur)
+  o.connect(f).connect(g).connect(master!)
+  o.start(at); lfo.start(at); o.stop(at + dur + 0.05); lfo.stop(at + dur + 0.05)
+}
+
 /** Hicaz basamakları (Re4 = 293.66 Hz). */
 const RE = 293.66, MIb = 311.1, SOL = 392, LA = 440, SIb = 466.2, RE5 = 587.3, FAd5 = 740, LA5 = 880
 
-export type Sfx = 'ok' | 'error' | 'coin' | 'build' | 'war'
+/**
+ * SES HARİTASI (V2 Faz 3.9) — her ana eylemin kendi sesi:
+ *   tap      binaya dokunma (tahta tık)        build   inşaat başladı (tokmak)
+ *   fanfare  seviye atladı (ud arpej + davul)   coin    ödül / akçe
+ *   scroll   araştırma bitti (parşömen + tel)   sail    sefer çıktı (nefir)
+ *   march    ordu döndü / eğitim (davul yürüyüşü) war   baskın geliyor (savaş davulu)
+ *   ok, error onay ve ret
+ */
+export type Sfx = 'ok' | 'error' | 'coin' | 'build' | 'war' | 'tap' | 'fanfare' | 'scroll' | 'sail' | 'march'
 const SOUNDS: Record<Sfx, (t: number) => void> = {
   ok: t => { playPluck(ctx!, master!, t, RE, 0.35, 1.1); playPluck(ctx!, master!, t + 0.09, LA, 0.3, 1.3) },
   coin: t => { [RE5, FAd5, LA5].forEach((f, i) => playPluck(ctx!, master!, t + i * 0.07, f, 0.26, 1.2)) },
   error: t => { playPluck(ctx!, master!, t, SIb, 0.3, 0.9); playPluck(ctx!, master!, t + 0.12, MIb, 0.32, 1.1) },
   build: t => { knock(t, 0.5); knock(t + 0.2, 0.42); playPluck(ctx!, master!, t + 0.05, SOL / 2, 0.18, 0.8) },
   war: t => { for (let i = 0; i < 3; i++) drum(ctx!, master!, t + i * 0.26, 'dum', 1.2); drum(ctx!, master!, t + 0.13, 'tek', 0.6) },
+  tap: t => { knock(t, 0.16) },
+  fanfare: t => {
+    ;[RE, LA, RE5, FAd5, LA5].forEach((f, i) => playPluck(ctx!, master!, t + i * 0.085, f, 0.28, 1.4))
+    drum(ctx!, master!, t, 'dum', 0.9); drum(ctx!, master!, t + 0.34, 'dum', 1.1)
+  },
+  scroll: t => { rustle(t, 0.22); playPluck(ctx!, master!, t + 0.22, RE5, 0.24, 1.6); playPluck(ctx!, master!, t + 0.34, LA5, 0.2, 1.6) },
+  sail: t => { horn(t, RE / 2, 0.9, 0.16); horn(t + 0.05, LA / 2, 0.85, 0.1) },
+  march: t => { [0, 0.18, 0.36, 0.54].forEach((d, i) => drum(ctx!, master!, t + d, i % 2 ? 'tek' : 'dum', i % 2 ? 0.5 : 0.9)) },
 }
-const BUZZ: Partial<Record<Sfx, number | number[]>> = { ok: 12, error: [18, 40, 18], coin: [10, 30, 10], build: [12, 40, 12], war: [40, 60, 40] }
+const BUZZ: Partial<Record<Sfx, number | number[]>> = { ok: 12, error: [18, 40, 18], coin: [10, 30, 10], build: [12, 40, 12], war: [40, 60, 40], tap: 6, fanfare: [14, 40, 14, 40, 24], scroll: 12, sail: 16, march: [10, 50, 10] }
 let lastAt = 0
 
 export function play(s: Sfx) {

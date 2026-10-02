@@ -6,6 +6,20 @@ export type Release = { version: string; date: string; title: string; notes: str
 
 export const CHANGELOG: Release[] = [
   {
+    version: '0.34.0', date: '2 Ekim 2026', title: 'Oyun hissi: uçan altınlar, toz, ışık ve davul',
+    notes: [
+      'Ödül alınca altın ve mal jetonları karttan üst bardaki sayaca uçar; sayaç sayarak artar. Üst bardaki bütün sayılar artık atlamadan, sayarak değişir.',
+      'Yükselt\'e basınca harcanan mallar sayaçtan düğmeye uçar; şehirde binanın dibinde toz bulutu kabarır, tahta tokmak sesi gelir.',
+      'Bina seviye atlayınca üstünde ışık sütunu ve altın halka belirir, seviye madalyonu büyüyüp küçülür, kısa bir ud ve davul fanfarı çalar.',
+      'Araştırma bitince Medrese\'de mavi ışık yanar, parşömen hışırtısı ve ud teli duyulur.',
+      'Sefere çıkınca limandan bir yelkenli açığa açılır (nefir sesi); ordu dönünce deniz kapısından meydana asker kolu yürür (davul).',
+      'Baskın yaklaşırken mendireğin dışında al yelkenli düşman gemileri bekler, meydanda nöbetçiler belirir.',
+      'Binaya dokununca kısa tahta tık sesi. Her ana eylemin artık kendi sesi var.',
+      'Ayarlar > Görünüm > "Az hareket": bütün bu efektleri kapatır, sonuç hemen görünür. Cihazda "hareketi azalt" açıksa zaten kapalı; zayıf cihazda parçacıklar yarıya iner.',
+      'Kuşatma şeridi parmak boyuna büyüdü.',
+    ],
+  },
+  {
     version: '0.33.0', date: '2 Ekim 2026', title: 'Bütün sayfalar sahne: harita, teklifler, savaş, ittifak',
     notes: [
       'Dünya haritası bütün ekranı kaplıyor; bir adaya dokununca bilgisi alttan açılır, harita arkada kaydırılmaya devam eder. Şehirler sayfasında "Dünya haritasını aç" düğmesi var.',

@@ -1,7 +1,8 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { Moon, Music, Vibrate, Volume2, Waves } from './ui-art'
+import { Moon, Music, Sparkles, Vibrate, Volume2, Waves } from './ui-art'
+import { lowMotionSetting, setLowMotion } from '@/lib/motion'
 import { onSoundPrefs, play, setSoundPrefs, soundPrefs, type SoundPrefs } from '@/lib/sfx'
 import { dayNightEnabled, setDayNight } from '@/lib/game/sky'
 
@@ -31,5 +32,16 @@ export function DayNightSetting() {
     <Moon aria-hidden="true" />
     <span><strong>Gece ve gündüz</strong><small>Şehir gerçek saate göre akşam olur, fenerler yanar. Kapalıyken hep gündüz.</small></span>
     <input id="gece-gunduz" type="checkbox" role="switch" checked={on} onChange={e => { setDayNight(e.target.checked); setOn(e.target.checked) }} />
+  </label></div>
+}
+
+/** Ayarlar: "Az hareket" — uçan jetonlar, sayarak değişen sayılar, şehirdeki toz ve ışık efektleri kapanır. */
+export function MotionSetting() {
+  const [on, setOn] = useState(false)
+  useEffect(() => { setOn(lowMotionSetting()) }, [])
+  return <div className="sound-settings"><label className="toggle-row" htmlFor="az-hareket">
+    <Sparkles aria-hidden="true" />
+    <span><strong>Az hareket</strong><small>Uçan jetonlar, sayan sayılar, toz ve ışık efektleri kapanır; sonuç hemen görünür. Cihazında "hareketi azalt" açıksa zaten kapalıdır.</small></span>
+    <input id="az-hareket" type="checkbox" role="switch" checked={on} onChange={e => { setLowMotion(e.target.checked); setOn(e.target.checked) }} />
   </label></div>
 }

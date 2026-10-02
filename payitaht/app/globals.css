@@ -3063,3 +3063,13 @@
 @media (prefers-reduced-motion: reduce) { .goal-card.is-ready .goal-chest { animation: none; } }
 .goal-token { display: inline-flex; align-items: center; gap: 3px; font-variant-numeric: tabular-nums lining-nums; }
 .goal-token svg { width: 18px; height: 18px; }
+
+/* =========================================================================
+ * V2 Faz 3 — OYUN HİSSİ: uçan jetonlar (lib/fx.ts) ve "Az hareket" ayarı.
+ * ========================================================================= */
+.fx-layer { position: fixed; inset: 0; z-index: 200; pointer-events: none; overflow: hidden; }
+.fx-token { position: fixed; width: 26px; height: 26px; display: grid; place-items: center; filter: drop-shadow(0 2px 2px #0007); will-change: transform, opacity; }
+.fx-token > i, .fx-token svg { width: 26px; height: 26px; display: block; }
+html[data-motion="az"] *, html[data-motion="az"] *::before, html[data-motion="az"] *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
+/* Baskın / kuşatma şeridi dokunulabilir: en az parmak boyu (Faz 0.2 kuralı). */
+.threat-banner { min-height: 44px; }

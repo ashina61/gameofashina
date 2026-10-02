@@ -20,6 +20,7 @@ import { luxuryIcons } from './game-widgets'
 import { AkceArt, HamleArt, IlimArt, KeresteArt, NufusArt, TasArt } from './resource-art'
 import { AdvisorPortrait, type AdvisorId } from './advisor-portraits'
 import { RulerCrest } from './profile-panel'
+import { CountUp } from './count-up'
 import { profileOf } from '@/lib/game/profile'
 import type { BadgeMode } from '@/lib/game/badges'
 
@@ -103,12 +104,12 @@ export function IkaTopBar({ game, empire, news, modes, activeAdvisor, onCity, on
   }, [game])
   const lux = game.mine.specialty
   const LuxIcon = luxuryIcons[lux]
-  const chips: { key: string; icon: ReactNode; value: string; sub?: string; label: string; full?: boolean; cap?: boolean }[] = [
-    { key: 'gold', icon: <AkceArt />, value: compact(game.resources.gold), sub: `${r.gold >= 0 ? '+' : ''}${compact(r.gold)}`, label: 'Akçe', full: full.includes('gold') },
-    { key: 'wood', icon: <KeresteArt />, value: compact(game.resources.wood), sub: `+${compact(r.wood)}`, label: 'Kereste', full: full.includes('wood') },
-    { key: 'stone', icon: <TasArt />, value: compact(game.resources.stone), sub: `+${compact(r.stone)}`, label: 'Taş', full: full.includes('stone') },
-    { key: 'knowledge', icon: <IlimArt />, value: compact(game.resources.knowledge), sub: formatRate(r.knowledge, true), label: 'İlim', full: full.includes('knowledge') },
-    { key: 'lux', icon: <LuxIcon />, value: compact(game.luxury[lux]), label: LUXURY_NAMES[lux] },
+  const chips: { key: string; icon: ReactNode; value: string; num?: number; sub?: string; label: string; full?: boolean; cap?: boolean }[] = [
+    { key: 'gold', icon: <AkceArt />, value: compact(game.resources.gold), num: game.resources.gold, sub: `${r.gold >= 0 ? '+' : ''}${compact(r.gold)}`, label: 'Akçe', full: full.includes('gold') },
+    { key: 'wood', icon: <KeresteArt />, value: compact(game.resources.wood), num: game.resources.wood, sub: `+${compact(r.wood)}`, label: 'Kereste', full: full.includes('wood') },
+    { key: 'stone', icon: <TasArt />, value: compact(game.resources.stone), num: game.resources.stone, sub: `+${compact(r.stone)}`, label: 'Taş', full: full.includes('stone') },
+    { key: 'knowledge', icon: <IlimArt />, value: compact(game.resources.knowledge), num: game.resources.knowledge, sub: formatRate(r.knowledge, true), label: 'İlim', full: full.includes('knowledge') },
+    { key: 'lux', icon: <LuxIcon />, value: compact(game.luxury[lux]), num: game.luxury[lux], label: LUXURY_NAMES[lux] },
     { key: 'pop', icon: <NufusArt />, value: `${compact(population(game))}`, sub: `/${compact(maxPopulation(game))}`, label: population(game) >= maxPopulation(game) ? 'Nüfus (konut dolu)' : 'Nüfus', cap: population(game) >= maxPopulation(game) },
     { key: 'ap', icon: <HamleArt />, value: `${empire && city ? actionPoints(game) - actionsInUse(empire, city.id) : actionPoints(game)}`, sub: `/${actionPoints(game)}`, label: 'Sefer hakkı (aynı anda yapılabilecek sefer)' },
   ]
@@ -138,7 +139,7 @@ export function IkaTopBar({ game, empire, news, modes, activeAdvisor, onCity, on
         const fx = stockFx[c.key as StockFxKey]
         return <span key={c.key} className={cn('ika-chip', index < 4 ? 'ika-stock' : 'ika-status', c.full && 'ika-chip-full', c.cap && 'ika-chip-cap')} data-k={c.key} title={c.label}>
           <i aria-hidden="true">{c.icon}</i>
-          <span className="ika-chip-num"><b>{c.value}</b>{c.sub && <small className={c.key === 'gold' && r.gold < 0 ? 'ika-rate-negative' : undefined}>{c.sub}</small>}</span>
+          <span className="ika-chip-num">{c.num !== undefined ? <CountUp value={Math.floor(c.num)} format={compact} /> : <b>{c.value}</b>}{c.sub && <small className={c.key === 'gold' && r.gold < 0 ? 'ika-rate-negative' : undefined}>{c.sub}</small>}</span>
           {fx && <em key={fx.stamp} className={cn('ika-chip-delta', fx.value > 0 ? 'is-plus' : 'is-minus')} aria-hidden="true">
             {fx.value > 0 ? '+' : '−'}{compact(Math.abs(fx.value))}
           </em>}

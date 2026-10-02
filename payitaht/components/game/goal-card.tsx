@@ -10,6 +10,7 @@ import { GameButton } from './game-button'
 import { Meter } from './stat-kit'
 import { GOOD_NAMES, LUXURY_IDS, formatNumber, type Good, type Luxury, type Resource } from '@/lib/game/engine'
 import { luxuryIcons, resourceIcons } from './game-widgets'
+import { flyGoods } from '@/lib/fx'
 
 export type GoalState = 'run' | 'ready' | 'done'
 
@@ -24,8 +25,10 @@ export function RewardTokens({ reward, extra }: { reward: Partial<Record<Good, n
   </span>
 }
 
-export function GoalCard({ art, title, text, value, need, reward, state, onClaim, claim = 'Ödülü al' }: {
+export function GoalCard({ art, title, text, value, need, reward, goods, state, onClaim, claim = 'Ödülü al' }: {
   art: ReactNode; title: ReactNode; text?: ReactNode; value: number; need: number
+  /** Ödül alınınca karttan üst bara uçacak mallar (Faz 3.2). */
+  goods?: Partial<Record<string, number>>
   reward: ReactNode; state: GoalState; onClaim: () => void; claim?: string
 }) {
   return <article className={`goal-card is-${state}`}>
@@ -36,7 +39,7 @@ export function GoalCard({ art, title, text, value, need, reward, state, onClaim
       <Meter value={Math.min(value, need)} max={need} label={`İlerleme: ${formatNumber(Math.min(value, need))} / ${formatNumber(need)}`} tone={state === 'run' ? undefined : 'full'} />
       {reward}
     </span>
-    <GameButton size="sm" variant={state === 'ready' ? 'default' : 'outline'} disabled={state !== 'ready'} onClick={onClaim}>
+    <GameButton size="sm" variant={state === 'ready' ? 'default' : 'outline'} disabled={state !== 'ready'} onClick={e => { if (goods) flyGoods(e.currentTarget.closest('.goal-card'), goods); onClaim() }}>
       {state === 'done' ? 'Alındı' : state === 'ready' ? claim : 'Sürüyor'}
     </GameButton>
   </article>

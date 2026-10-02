@@ -19,7 +19,7 @@ import { CityCanvas, type CityControls } from './city-canvas'
  * yapmiyordu. Tuval dunyayi ekrandan buyuk tutar; gezinme bu yuzden gercek.
  */
 
-export function CityScene({ game, placing, onBuilding, onPlot, onRoad, moving, movePlot, onMovePlot, onMine, offers = 0, offerMode = 'count', onOffers, banner, siege = PEACEFUL_CITY, paused = false }: {
+export function CityScene({ game, placing, onBuilding, onPlot, onRoad, moving, movePlot, onMovePlot, onMine, offers = 0, offerMode = 'count', onOffers, banner, siege = PEACEFUL_CITY, paused = false, raid = false }: {
   game: Game
   placing: boolean
   onBuilding: (id: BuildingId) => void
@@ -37,6 +37,7 @@ export function CityScene({ game, placing, onBuilding, onPlot, onRoad, moving, m
   siege?: SiegeAppearance
   /** Şehri tamamen örten bir sayfa açık. */
   paused?: boolean
+  raid?: boolean
 }) {
   // Ikariam gibi: bina adları varsayılan olarak GİZLİ (göz binaya ve caddeye odaklanır);
   // bayrak düğmesi açar. İnşaat süren binanın sayacı her zaman görünür.
@@ -45,7 +46,7 @@ export function CityScene({ game, placing, onBuilding, onPlot, onRoad, moving, m
 
   return <section className={`city-scene${siege.occupation ? ' city-occupied' : ''}${siege.blockade ? ' city-blockaded' : ''}`}
     aria-label={`Şehir haritası${siege.occupation ? ' · işgal altında' : ''}${siege.blockade ? ' · liman abluka altında' : ''}`}>
-    <CityCanvas game={game} showLabels={labels} placing={placing} controls={controls} onBuilding={onBuilding} onPlot={onPlot} onRoad={onRoad} moving={moving} movePlot={movePlot} onMovePlot={onMovePlot} onMine={onMine} banner={banner} siege={siege} paused={paused} />
+    <CityCanvas game={game} showLabels={labels} placing={placing} controls={controls} onBuilding={onBuilding} onPlot={onPlot} onRoad={onRoad} moving={moving} movePlot={movePlot} onMovePlot={onMovePlot} onMine={onMine} banner={banner} siege={siege} paused={paused} raid={raid} />
     {(siege.occupation || siege.blockade) && <div className="siege-atmosphere" aria-hidden="true" />}
 
     <Weather time={game.updatedAt} />

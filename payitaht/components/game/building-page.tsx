@@ -1,5 +1,6 @@
 'use client'
 import { KumSaatiArt } from './resource-art'
+import { flyGoods } from '@/lib/fx'
 
 /**
  * BİNA SAYFASI — Ikariam'daki bina görünümünün mobil karşılığı.
@@ -86,7 +87,8 @@ function UpgradeDock({ game, id, onBuild }: { game: Game; id: BuildingId; onBuil
     <CostTokens items={needs.map(([r, n]) => ({ key: r, icon: <ResIcon id={r} />, name: name(r), need: n, have: stock(game, r) }))} />
     {queued > 0 && <p className="bp-note"><KumSaatiArt className="size-4" /> İnşaat sırasında {queued + 1}. sırada.</p>}
     {reason && queued < 0 && <p className="bp-warn"><LockKeyhole className="size-4" /> {reason}</p>}
-    <button type="button" className="bp-upgrade-button" disabled={!!reason} onClick={onBuild}>
+    <button type="button" className="bp-upgrade-button" disabled={!!reason}
+      onClick={e => { flyGoods(e.currentTarget, Object.fromEntries(needs), true); onBuild() }}>
       <span className="bp-up-arrow"><ArrowUp aria-hidden="true" /></span>{level ? `Yükselt · Sv. ${level + 1}` : 'İnşa et'}
       <span className="bp-up-time"><KumSaatiArt aria-hidden="true" />{time(duration(game, id))}</span>
     </button>

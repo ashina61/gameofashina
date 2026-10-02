@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { wantMusic, wireUiSounds } from '@/lib/sfx'
 import { installErrorLog } from '@/lib/game/error-log'
+import { applyMotionAttr } from '@/lib/motion'
 import GameShell from './game-shell'
 import { TitleScreen } from './title-screen'
 
@@ -13,5 +14,6 @@ export function GameRoot() {
   useEffect(() => { wireUiSounds(); wantMusic(true); return () => wantMusic(false) }, [])
   // Yakalanmayan hatalar cihazda tutulur (Ayarlar > Hakkında > Hata raporu).
   useEffect(() => installErrorLog(), [])
+  useEffect(() => applyMotionAttr(), [])
   return started ? <GameShell onTitle={() => setStarted(false)} /> : <TitleScreen onStart={() => setStarted(true)} />
 }

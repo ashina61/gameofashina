@@ -30,6 +30,7 @@ import { asset, buildingArtKey, buildingImage, buildingStage, isPaintedBuilding 
 import { canvasDpr } from '@/lib/render-dpr'
 import { PEACEFUL_CITY, siegeAppearanceKey, type SiegeAppearance } from '@/lib/game/siege-appearance'
 import { CitySiegeLayer, preloadSiegeArt } from './city-siege'
+import { lowMotion, particles } from '@/lib/motion'
 
 /** Yolda yürüyen vatandaş (Ikariam'ın sokaktaki halkı). */
 type Walker = { body: Phaser.GameObjects.Graphics; edge: RoadEdge; forward: boolean; t: number; speed: number; side: number }
@@ -345,6 +346,85 @@ export class CityScene extends Phaser.Scene {
       this.siege.blockade ? COAST_SLOTS[1].screen.y + 220 : destination.y - TILE.h * (bothCoast ? 0.18 : 0.45))
     this.velocity = { x: 0, y: 0 }
   }
+  /* ------------------------------------------------ V2 Faz 3.5 / 3.6 */
+
+  /** Yelkenli: tekne, direk, yelken (renk), tepede küçük sancak. */
+  private fxShip(sail: number, flag: number, size = 1) {
+    const V = (x: number, y: number) => new Phaser.Math.Vector2(x * size, y * size)
+    const g = this.add.graphics()
+    g.lineStyle(1.4, 0xd9f0ea, 0.5); g.lineBetween(-34 * size, 6 * size, -60 * size, 14 * size)
+    g.fillStyle(0x1b3a4a, 0.3); g.fillEllipse(2 * size, 5 * size, 70 * size, 12 * size)
+    g.fillStyle(0x6b4424, 1); g.fillPoints([V(-34, -4), V(34, -4), V(24, 7), V(-26, 7)], true)
+    g.fillStyle(0xe2bd78, 1); g.fillRect(-32 * size, -6 * size, 64 * size, 2.5 * size)
+    g.lineStyle(2 * size, 0x3a2a1c, 1); g.lineBetween(0, -4 * size, 0, -58 * size)
+    g.fillStyle(sail, 1); g.fillPoints([V(2, -54), V(30, -14), V(2, -10)], true)
+    g.fillStyle(sail, 0.92); g.fillPoints([V(-2, -50), V(-24, -16), V(-2, -12)], true)
+    g.fillStyle(flag, 1); g.fillPoints([V(0, -58), V(14, -55), V(0, -51)], true)
+    return g
+  }
+
+  /** Sefer çıktı: limandan (yoksa deniz kapısından) bir yelkenli açığa açılır. */
+  fxSail() {
+    if (!this.built || lowMotion()) return
+    const index = this.state.placement.liman ?? this.state.placement.tersane
+    const slot = index === null ? null : liveSlotByIndex(index)
+    const from = slot?.zone === 'liman' ? slot.screen : (WALL_GATES.find(g => g.kind === 'sea')?.screen ?? COAST_SLOTS[1].screen)
+    const ship = this.fxShip(0xf6ecd6, this.look?.color ?? 0xb3261e, 2).setPosition(from.x, from.y + TILE.h * 1.2).setDepth(from.y + 2400)
+    const side = from.x < COAST_SLOTS[1].screen.x ? -1 : 1
+    this.tweens.add({ targets: ship, x: from.x + side * TILE.w * 7, y: from.y + TILE.h * 4.5, scaleX: 0.6, scaleY: 0.6, duration: 5200, ease: 'Sine.easeIn' })
+    this.tweens.add({ targets: ship, alpha: 0, delay: 3800, duration: 1400, onComplete: () => ship.destroy() })
+    this.tweens.add({ targets: ship, angle: 4, duration: 700, yoyo: true, repeat: 3, ease: 'Sine.easeInOut' })
+  }
+
+  /** Ordu döndü: deniz kapısından meydana uzun bir asker kolu yürür. */
+  fxMarch() {
+    if (!this.built || lowMotion()) return
+    const gate = WALL_GATES.find(g => g.kind === 'sea')?.screen ?? COAST_SLOTS[1].screen
+    const to = PLAZA.screen
+    const n = particles(8)
+    for (let i = 0; i < n; i++) {
+      const g = this.add.graphics()
+      this.drawSoldier(g, 1.55, this.look?.color ?? 0x24406e)
+      const lag = i * 220
+      g.setPosition(gate.x + (i % 2 ? 10 : -10), gate.y).setDepth(gate.y + 10).setAlpha(0)
+      this.tweens.add({ targets: g, alpha: 1, delay: lag, duration: 250 })
+      this.tweens.add({
+        targets: g, x: to.x + (i % 2 ? 14 : -14), y: to.y + PLAZA.ry * 0.4, delay: lag, duration: 4200, ease: 'Linear',
+        onUpdate: () => g.setDepth(g.y + 10),
+      })
+      this.tweens.add({ targets: g, alpha: 0, delay: lag + 3800, duration: 500, onComplete: () => g.destroy() })
+    }
+  }
+
+  /** Baskın geliyor: ufukta al yelkenli düşman gemileri ve meydanda nöbetçiler. */
+  private raid: Phaser.GameObjects.Graphics[] = []
+  private raidWanted = false
+  setRaidAlert(on: boolean) {
+    // Sahne hazır değilse istek saklanır; ilk sync'te uygulanır.
+    this.raidWanted = on
+    if (!this.built) return
+    if (!on || lowMotion()) { for (const g of this.raid) { this.tweens.killTweensOf(g); g.destroy() } this.raid = []; if (!on) return }
+    if (this.raid.length || lowMotion()) return
+    const sea = COAST_SLOTS[1].screen
+    // Mendireğin dışında, limana yaklaşan üç al yelkenli.
+    const spots = [[-2.4, 5.4, 2.0], [2.6, 5.9, 1.85], [0.4, 7.2, 1.6]]
+    for (let i = 0; i < spots.length; i++) {
+      const [dx, dy, size] = spots[i]
+      const g = this.fxShip(0x8a1f14, 0xb3261e, size).setPosition(sea.x + dx * TILE.w, sea.y + dy * TILE.h).setDepth(sea.y + 2600)
+      this.tweens.add({ targets: g, y: g.y - 6, angle: i % 2 ? 3 : -3, duration: 1300 + i * 200, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' })
+      this.raid.push(g)
+    }
+    // Surda / meydanda nöbetçiler.
+    for (let i = 0; i < particles(4); i++) {
+      const g = this.add.graphics()
+      this.drawSoldier(g, 1.7, 0x7a1f1f)
+      const a = (i / 4) * Math.PI + Math.PI * 0.1
+      g.setPosition(PLAZA.screen.x + Math.cos(a) * PLAZA.rx * 1.15, PLAZA.screen.y + Math.sin(a) * PLAZA.ry * 1.15).setDepth(PLAZA.screen.y + 400)
+      this.tweens.add({ targets: g, scaleY: 1.04, duration: 600, yoyo: true, repeat: -1 })
+      this.raid.push(g)
+    }
+  }
+
   /** React kontrolü: yakınlaştırmayı çarpanla değiştir. */
   zoomBy(factor: number) {
     if (!this.built) return
@@ -495,6 +575,11 @@ export class CityScene extends Phaser.Scene {
     const completed = this.built
       ? BUILDING_IDS.filter(id => game.buildings[id] > this.state.buildings[id])
       : []
+    // V2 Faz 3.1 / 3.7: yeni başlayan inşaat (toz bulutu) ve biten araştırma (Medrese'de ışık).
+    const started = this.built
+      ? game.queue.filter(j => j.kind === 'build' && !this.state.queue.some(p => p.id === j.id && p.start === j.start)).map(j => j.id as BuildingId)
+      : []
+    const learned = this.built && game.research.length > this.state.research.length
     const siegeChanged = siegeAppearanceKey(this.siege) !== siegeAppearanceKey(siege)
     this.state = game
     this.siege = siege
@@ -510,6 +595,9 @@ export class CityScene extends Phaser.Scene {
     }
     this.terrainRoads?.updateRoads(game.buildings.divan, this.openSlotIds(game, moving, movePlot))
     this.syncWalkers()
+    if (this.raidWanted && !this.raid.length) this.setRaidAlert(true)
+    if (started.length) this.time.delayedCall(60, () => started.slice(0, 2).forEach(id => this.dustBuilding(id)))
+    if (learned && game.buildings.medrese > 0) this.time.delayedCall(60, () => this.celebrateBuilding('medrese', 0, 0x9fd3ff))
     const next = `${visualSignature(game)}|${showLabels}|${placing}|${moving ?? '-'}|${movePlot ?? '-'}|${siegeAppearanceKey(siege)}`
     if (next === this.signature) return
     this.showLabels = showLabels
@@ -2122,7 +2210,8 @@ export class CityScene extends Phaser.Scene {
   }
 
   /** İnşaat/yükseltme tamamlanınca kısa, dünyaya bağlı kutlama. */
-  private celebrateBuilding(id: BuildingId, delay = 0) {
+  private celebrateBuilding(id: BuildingId, delay = 0, tint = 0xf2d37d) {
+    if (lowMotion()) return
     this.time.delayedCall(delay, () => {
       let slot = this.slotOfBuilding(id)
       if (!slot && id === 'surlar') slot = LIVE_SLOTS.find(s => s.slotId === HALL_SLOT_ID) ?? null
@@ -2133,9 +2222,14 @@ export class CityScene extends Phaser.Scene {
 
       // Çok hafif kamera darbesi: başarı hissi verir ama oyuncunun kadrajını bozmaz.
       this.cameras.main.shake(105, 0.00105)
+      const label = this.labelOf.get(id)
+      if (label?.active) {
+        const sx = label.scaleX, sy = label.scaleY
+        this.tweens.add({ targets: label, scaleX: sx * 1.35, scaleY: sy * 1.35, duration: 180, yoyo: true, ease: 'Back.easeOut', onComplete: () => label.setScale(sx, sy) })
+      }
 
       const ring = this.add.graphics().setPosition(x, y).setDepth(3.6e5)
-      ring.lineStyle(Math.max(2, TILE.w * 0.020), 0xf2d37d, 0.95)
+      ring.lineStyle(Math.max(2, TILE.w * 0.020), tint, 0.95)
       ring.strokeEllipse(0, 0, GROUND_TARGET_W * 0.54, TILE.h * 0.76)
       ring.lineStyle(Math.max(1, TILE.w * 0.009), 0xfff1b8, 0.85)
       ring.strokeEllipse(0, 0, GROUND_TARGET_W * 0.36, TILE.h * 0.48)
@@ -2151,8 +2245,17 @@ export class CityScene extends Phaser.Scene {
       })
 
       // Küçük altın kıvılcımlar; ParticleEmitter açmadan birkaç pooled Graphics.
-      for (let i = 0; i < 12; i++) {
-        const a = (Math.PI * 2 * i) / 12 + (i % 2) * 0.13
+      // Seviye atlayınca binanın üstünde yükselen ışık sütunu (V2 Faz 3.3).
+      const beam = this.add.graphics().setPosition(x, y).setDepth(3.6e5 - 1)
+      beam.fillStyle(tint, 0.22)
+      beam.fillRect(-GROUND_TARGET_W * 0.1, -TILE.h * 3.2, GROUND_TARGET_W * 0.2, TILE.h * 3.2)
+      beam.fillStyle(0xffffff, 0.18)
+      beam.fillRect(-GROUND_TARGET_W * 0.035, -TILE.h * 3.2, GROUND_TARGET_W * 0.07, TILE.h * 3.2)
+      beam.setScale(1, 0.2).setAlpha(0)
+      this.tweens.add({ targets: beam, scaleY: 1, alpha: 1, duration: 260, ease: 'Quad.easeOut', yoyo: true, hold: 240, onComplete: () => beam.destroy() })
+      const n = particles(12)
+      for (let i = 0; i < n; i++) {
+        const a = (Math.PI * 2 * i) / n + (i % 2) * 0.13
         const dist = GROUND_TARGET_W * (0.16 + (i % 3) * 0.035)
         const spark = this.add.graphics().setPosition(x, y).setDepth(3.6e5 + 1)
         spark.fillStyle(i % 3 === 0 ? 0xfff0a8 : 0xe8bc55, 1)
@@ -2170,6 +2273,38 @@ export class CityScene extends Phaser.Scene {
         })
       }
     })
+  }
+
+  /**
+   * İNŞAAT BAŞLADI (V2 Faz 3.1): binanın dibinde kahverengi toz bulutu
+   * kabarır ve dağılır; iskele, yeni sprite'la zaten görünür.
+   */
+  private dustBuilding(id: BuildingId) {
+    if (lowMotion()) return
+    let slot = this.slotOfBuilding(id)
+    if (!slot && id === 'surlar') slot = LIVE_SLOTS.find(s => s.slotId === HALL_SLOT_ID) ?? null
+    if (!slot) return
+    const anc = this.anchor(slot)
+    const n = particles(14)
+    for (let i = 0; i < n; i++) {
+      const a = (Math.PI * 2 * i) / n + (i % 3) * 0.2
+      const r = GROUND_TARGET_W * (0.12 + (i % 4) * 0.05)
+      const puff = this.add.graphics().setPosition(anc.x + Math.cos(a) * r * 0.4, anc.baseY - TILE.h * 0.05).setDepth(3.6e5)
+      puff.fillStyle(i % 2 ? 0xd8bf96 : 0xb89a70, 0.62)
+      puff.fillCircle(0, 0, TILE.w * (0.14 + (i % 3) * 0.06))
+      puff.setScale(0.5)
+      this.tweens.add({
+        targets: puff,
+        x: anc.x + Math.cos(a) * r,
+        y: anc.baseY - TILE.h * (0.1 + (i % 5) * 0.07) + Math.sin(a) * r * 0.3,
+        scaleX: 1.6, scaleY: 1.4, alpha: 0,
+        delay: (i % 4) * 40,
+        duration: 700 + (i % 3) * 120,
+        ease: 'Quad.easeOut',
+        onComplete: () => puff.destroy(),
+      })
+    }
+    this.cameras.main.shake(90, 0.0008)
   }
 
   /** Dokunma geri bildirimi: binayı kapatmadan zeminde kısa altın halka. */
@@ -2320,7 +2455,9 @@ export class CityScene extends Phaser.Scene {
     // Seviye rozeti yalnızca etiketler açıldığında veya inşaat aktifken görünür.
     // Boyalı etiket: seviye dairesi + isim plakası (binanın alt yarısında, her şeyin üstünde).
     if (this.showLabels || active) {
-      this.pieces.push(this.makePaintedLabel(anc.x, imgY - dispH * 0.30, level, BUILDINGS[id].name, 1e6 + imgY))
+      const label = this.makePaintedLabel(anc.x, imgY - dispH * 0.30, level, BUILDINGS[id].name, 1e6 + imgY)
+      this.labelOf.set(id, label)
+      this.pieces.push(label)
     }
     // İnşaat sürüyorsa altında süre çubuğu (çekiç, ilerleme, kalan süre, yeşil ok).
     const job = activeJob(this.state)
@@ -2337,6 +2474,8 @@ export class CityScene extends Phaser.Scene {
     return this.fontCache
   }
   private fontCache: { heading: string; body: string } | null = null
+  /** Binanın seviye etiketi: seviye atlayınca madalyon büyüyüp küçülür (V2 Faz 3.3). */
+  private labelOf = new Map<BuildingId, Phaser.GameObjects.Container>()
 
   /** Ikariam etiketi: kahverengi seviye dairesi + parşömen isim şeridi (vektör). */
   private makePaintedLabel(x: number, y: number, level: number, name: string, depth: number) {

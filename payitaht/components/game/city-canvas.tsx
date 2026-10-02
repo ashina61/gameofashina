@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useRef } from 'react'
+import { play } from '@/lib/sfx'
 import type { CityScene } from './phaser-city'
 import type { BuildingId, Game } from '@/lib/game/engine'
 import type { BannerLook } from '@/lib/game/banner'
@@ -41,10 +42,12 @@ type Props = {
   siege?: SiegeAppearance
   /** Tam ekran bir sayfa şehri örtüyor: döngü uyur, pil ve işlemci boşa harcanmaz. */
   paused?: boolean
+  /** Bu şehre baskın yolda: ufukta düşman yelkenlileri, meydanda nöbetçiler (V2 Faz 3.6). */
+  raid?: boolean
 }
 const toLook = (b?: BannerLook): FlagLook | undefined => b && { color: parseInt(b.color.slice(1), 16), shape: b.shape, crest: b.crest }
 
-export function CityCanvas({ game, showLabels, placing, controls, onBuilding, onPlot, onRoad, moving, movePlot, onMovePlot, onMine, banner, siege = PEACEFUL_CITY, paused = false }: Props) {
+export function CityCanvas({ game, showLabels, placing, controls, onBuilding, onPlot, onRoad, moving, movePlot, onMovePlot, onMine, banner, siege = PEACEFUL_CITY, paused = false, raid = false }: Props) {
   const holder = useRef<HTMLDivElement>(null)
   const phaser = useRef<import('phaser').Game | null>(null)
   const scene = useRef<CityScene | null>(null)
@@ -57,8 +60,8 @@ export function CityCanvas({ game, showLabels, placing, controls, onBuilding, on
   handlers.current = { onBuilding, onPlot, onRoad, onMovePlot, onMine }
   const firstLook = useRef(toLook(banner))
   // Async Phaser import may finish after a siege starts/ends; use the latest props.
-  const latest = useRef({ game, showLabels, placing, moving, movePlot, siege })
-  latest.current = { game, showLabels, placing, moving, movePlot, siege }
+  const latest = useRef({ game, showLabels, placing, moving, movePlot, siege, raid })
+  latest.current = { game, showLabels, placing, moving, movePlot, siege, raid }
 
   useEffect(() => {
     let disposed = false
@@ -134,8 +137,9 @@ export function CityCanvas({ game, showLabels, placing, controls, onBuilding, on
           onReady: () => {
             const p = latest.current
             view.sync(p.game, p.showLabels, p.placing, p.moving, p.movePlot, p.siege)
+            view.setRaidAlert(p.raid)
           },
-          onBuilding: (id: BuildingId) => handlers.current.onBuilding(id),
+          onBuilding: (id: BuildingId) => { play('tap'); handlers.current.onBuilding(id) },
           onPlot: (index: number) => handlers.current.onPlot(index),
           onRoad: (cell: string) => handlers.current.onRoad(cell),
           onMovePlot: (plot: number) => handlers.current.onMovePlot(plot),
@@ -175,6 +179,18 @@ export function CityCanvas({ game, showLabels, placing, controls, onBuilding, on
     if (paused) loop.sleep()
     else loop.wake()
   }, [paused])
+
+  useEffect(() => { scene.current?.setRaidAlert(raid) }, [raid])
+  // Sefer çıkınca/dönünce kabuk 'payitaht-city-fx' olayı yollar (V2 Faz 3.5).
+  useEffect(() => {
+    const on = (e: Event) => {
+      const kind = (e as CustomEvent<string>).detail
+      if (kind === 'sail') scene.current?.fxSail()
+      else if (kind === 'march') scene.current?.fxMarch()
+    }
+    window.addEventListener('payitaht-city-fx', on)
+    return () => window.removeEventListener('payitaht-city-fx', on)
+  }, [])
 
   // Durum degistiginde sahneye haber ver; sahne gorunen bir sey degismediyse
   // hicbir sey cizmez.

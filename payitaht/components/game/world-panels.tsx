@@ -39,6 +39,7 @@ import { WorkforceSlider } from './workforce'
 import { KeresteArt, NufusArt } from './resource-art'
 import { RulerCrest } from './profile-panel'
 import { GoalCard, RewardTokens } from './goal-card'
+import { flyGoods } from '@/lib/fx'
 import { buildingImage } from '@/lib/asset'
 import { profileOf, rivalHeraldry } from '@/lib/game/profile'
 
@@ -155,13 +156,13 @@ export function DailyPanel({ empire, run }: { empire: Empire; run: Run }) {
     <div className="daily-login">
       <DailyArt task="login" />
       <span><strong>Günlük giriş · {Math.max(1, nextStreak)}. gün</strong><small>{num(reward.gold)} akçe · {num(reward.wood)} kereste (7 güne kadar büyür)</small></span>
-      <GameButton size="sm" disabled={loginDone} onClick={() => run(mutate((e, now) => claimLogin(e, now)), 'Giriş ödülü hazinede.')}>{loginDone ? 'Alındı' : 'Al'}</GameButton>
+      <GameButton size="sm" disabled={loginDone} onClick={ev => { flyGoods(ev.currentTarget, { gold: reward.gold, wood: reward.wood }); run(mutate((e, now) => claimLogin(e, now)), 'Giriş ödülü hazinede.') }}>{loginDone ? 'Alındı' : 'Al'}</GameButton>
     </div>
     {d.tasks.map(id => {
       const t = DAILY_TASKS.find(x => x.id === id)!
       const p = taskProgress(empire, id), done = d.claimed.includes(id)
       return <GoalCard key={id} art={<DailyArt task={t.key} />} title={t.text} value={p} need={t.need}
-        reward={<RewardTokens reward={t.reward} />} state={done ? 'done' : p >= t.need ? 'ready' : 'run'}
+        goods={t.reward} reward={<RewardTokens reward={t.reward} />} state={done ? 'done' : p >= t.need ? 'ready' : 'run'}
         onClaim={() => run(mutate((e, now) => claimTask(e, id, now)), 'Günlük görev ödülü hazinede.')} />
     })}
     <p className="fine-print">Görevler her gün (UTC gece yarısı) yenilenir.</p>
@@ -186,7 +187,7 @@ export function MilestonesPanel({ empire, run }: { empire: Empire; run: Run }) {
     {list.map(m => {
       const p = milestoneProgress(empire, m), done = got.has(m.id), ready = !done && milestoneDone(empire, m)
       return <GoalCard key={m.id} art={<img src={buildingImage(MILESTONE_ART[m.id] ?? 'divan', 8)} alt="" width={64} height={64} loading="lazy" />}
-        title={m.title} text={m.text} value={p} need={m.need} reward={<RewardTokens reward={m.reward} />}
+        title={m.title} text={m.text} value={p} need={m.need} goods={m.reward} reward={<RewardTokens reward={m.reward} />}
         state={done ? 'done' : ready ? 'ready' : 'run'} onClaim={() => run(mutate((e, now) => claimMilestone(e, m.id, now)), `${m.title}: ödül hazinede.`)} />
     })}
   </section>

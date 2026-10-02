@@ -219,7 +219,7 @@ function Goals({ empire, now, run }: { empire: Empire; now: number; run: Run }) 
       : g.tasks.map(id => {
       const t = PACT_GOALS.find(x => x.id === id)!
       const prog = pactGoalProgress(empire, id, now), done = g.claimed.includes(id)
-      return <GoalCard key={id} art={<Shield />} title={t.text} value={prog} need={t.need}
+      return <GoalCard key={id} art={<Shield />} title={t.text} value={prog} need={t.need} goods={{ gold: t.gold }}
         reward={<RewardTokens reward={{ gold: t.gold }} extra={<span className="goal-token"><Award aria-hidden="true" /><b>+{GOAL_PRESTIGE}</b> itibar</span>} />}
         state={done ? 'done' : prog >= t.need ? 'ready' : 'run'} onClaim={() => run((e, x) => claimPactGoal(e, id, x), 'İttifak görevi tamamlandı.')} />
     })}

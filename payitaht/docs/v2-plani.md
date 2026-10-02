@@ -159,6 +159,19 @@ Faz 1'deki kit ile her ekran yeniden düzenlenir. Sıra, oyuncunun en çok görd
 Hepsi `prefers-reduced-motion` ve Ayarlar > "Az hareket" ile kapanır. Düşük cihazda
 parçacık sayısı yarıya iner.
 
+**Durum: Faz 3 tamam (0.34.0).**
+
+- **Altyapı:** `lib/motion.ts` (Az hareket ayarı + cihaz ayarı, zayıf cihaz, parçacık sayısı), `lib/fx.ts` (uçan jetonlar; simge üst bardaki çipten kopyalanır), `components/game/count-up.tsx` (sayarak değişen sayı, DOM'a doğrudan yazar). `<html data-motion="az">` CSS animasyonlarını da kısaltır.
+- **3.1:** Yükselt'te maliyet jetonları sayaçtan düğmeye uçar; şehirde yeni inşaatın dibinde toz bulutu (`dustBuilding`). Sayfa açıkken şehir uyuduğu için toz, şehre dönünce oynar.
+- **3.2:** Günlük görev, büyük hedef, ittifak görevi, başlangıç hedefi, hedef çipi ve günlük giriş ödülü üst bara uçar. Not: bir sayfa açıkken üst bar sayfa başlığının altında kalır; jetonlar yine bar konumuna uçar.
+- **3.3:** Seviye atlamada ışık sütunu + halka + kıvılcım (vardı) + madalyon nabzı + `fanfare` sesi.
+- **3.4:** Zemin halkası (vardı) + `tap` sesi.
+- **3.5:** Sefer sayısı artınca limandan yelkenli, azalınca deniz kapısından meydana asker kolu (`payitaht-city-fx` olayı).
+- **3.6:** Görünür baskında (korsan 15 dk, hükümdar ilanı 2 sa önceden) mendirek dışında üç al yelkenli ve meydanda nöbetçiler; davul vardı. Nöbetçiler surun üstünde değil meydanda duruyor (sur çizgisine yerleşim Faz 4'te).
+- **3.7:** Araştırma bitince Medrese'de mavi ışık sütunu + `scroll` sesi + bildirim.
+- **3.8:** Üst bardaki dört kaynak ve lüks mal `CountUp` ile sayarak değişir.
+- **3.9:** Ses haritası `lib/sfx.ts`'in başında: tap, build, fanfare, coin, scroll, sail, march, war, ok, error. Her birinin kısa titreşimi de var.
+
 ## Faz 4 — Şehir ve harita sanatı (0.34–0.35)
 
 | # | İş | Boyut | Bitti sayılır |

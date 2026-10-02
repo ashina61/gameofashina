@@ -1,5 +1,6 @@
 'use client'
 import { ObjectiveArt } from './quest-art'
+import { flyGoods } from '@/lib/fx'
 import { Meter } from './stat-kit'
 
 import { Hint } from './hint'
@@ -65,7 +66,7 @@ export function ObjectiveCard({ game, onClaim, onBuild }: { game: Game; onClaim:
       return <li key={o.id} className={got ? 'is-got' : done ? 'is-ready' : o.id === objective?.id ? 'is-current' : ''}>
         <span className="objective-thumb"><ObjectiveArt id={o.id} go={o.go} game={game} size={50} /><b className="objective-mark" aria-hidden="true">{got ? '✓' : done ? '!' : o.id === objective?.id ? '▸' : ''}</b></span>
         <span><strong>{o.title}</strong><small>{o.description}</small></span>
-        {!got && done ? <GameButton size="sm" onClick={() => onClaim(o.id)}>{o.reward}</GameButton> : <small className="objective-reward">{o.reward} akçe</small>}
+        {!got && done ? <GameButton size="sm" onClick={e => { flyGoods(e.currentTarget, { gold: o.reward }); onClaim(o.id) }}>{o.reward}</GameButton> : <small className="objective-reward">{o.reward} akçe</small>}
       </li>
     })}</ol>
   </details>
@@ -75,8 +76,8 @@ export function ObjectiveCard({ game, onClaim, onBuild }: { game: Game; onClaim:
     <span className="objective-track" aria-hidden="true"><span style={{ width: `${(game.claimed.length / OBJECTIVES.length) * 100}%` }} /></span>
     <div className="objective-main"><ObjectiveArt id={objective.id} go={objective.go} game={game} size={118} /><div><h3>{objective.title}</h3><p>{objective.description}</p></div></div>
     <div className="objective-footer"><span><AkceArt className="size-4" /> {objective.reward} akçe</span>
-      <GameButton size="sm" variant={done ? 'default' : 'outline'} onClick={() => done ? onClaim(objective.id) : onBuild()}>{done ? <>Ödülü al<Check data-icon="inline-end" /></> : <>Hedefe git<ArrowUpRight data-icon="inline-end" /></>}</GameButton></div>
-    {ready.length > 1 && <GameButton size="sm" variant="outline" className="objective-all" onClick={() => ready.forEach(o => onClaim(o.id))}><Check data-icon="inline-start" />Tamamlanan {ready.length} adımın ödülünü al ({ready.reduce((s, o) => s + o.reward, 0)} akçe)</GameButton>}
+      <GameButton size="sm" variant={done ? 'default' : 'outline'} onClick={e => { if (done) { flyGoods(e.currentTarget, { gold: objective.reward }); onClaim(objective.id) } else onBuild() }}>{done ? <>Ödülü al<Check data-icon="inline-end" /></> : <>Hedefe git<ArrowUpRight data-icon="inline-end" /></>}</GameButton></div>
+    {ready.length > 1 && <GameButton size="sm" variant="outline" className="objective-all" onClick={e => { flyGoods(e.currentTarget, { gold: ready.reduce((s, o) => s + o.reward, 0) }); ready.forEach(o => onClaim(o.id)) }}><Check data-icon="inline-start" />Tamamlanan {ready.length} adımın ödülünü al ({ready.reduce((s, o) => s + o.reward, 0)} akçe)</GameButton>}
     {list}
   </section>
 }
