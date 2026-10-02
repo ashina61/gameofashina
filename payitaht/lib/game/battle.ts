@@ -250,15 +250,20 @@ export function battleRound(st: BattleState): BattleRound | null {
   let dealt = 0
   const strike = (t: Troops, row: Slot[], h: Hit, defMul: number, carry: Record<string, number>, lost: Troops, factor = 1) => {
     if (h.dmg <= 0 || !row.length) return
-    const hpRow = row.reduce((s, x) => s + x.n * UNITS[x.id].hp, 0)
+    // Kayıplar tur sonunda düşülür; bu turda zaten ölenler bir daha ölemez.
+    const left = (id: UnitId) => Math.max(0, count(t, id) - count(lost, id))
+    const hpRow = row.reduce((s, x) => s + left(x.id) * UNITS[x.id].hp, 0)
+    if (hpRow <= 0) return
     for (const s of row) {
+      const alive = left(s.id)
+      if (alive <= 0) continue
       const armor = stats(s.id).armor * defMul
       const pass = h.perHit > 0 ? Math.max(0.3, 1 - armor / h.perHit) : 1
-      const fresh = h.dmg * factor * (s.n * UNITS[s.id].hp / hpRow) * pass * (stats(s.id).evade ?? 1)
+      const fresh = h.dmg * factor * (alive * UNITS[s.id].hp / hpRow) * pass * (stats(s.id).evade ?? 1)
       dealt += fresh
       const got = fresh + (carry[s.id] ?? 0)
-      const dead = Math.min(count(t, s.id), Math.floor(got / UNITS[s.id].hp))
-      carry[s.id] = dead >= count(t, s.id) ? 0 : got - dead * UNITS[s.id].hp
+      const dead = Math.min(alive, Math.floor(got / UNITS[s.id].hp))
+      carry[s.id] = dead >= alive ? 0 : got - dead * UNITS[s.id].hp
       if (dead > 0) { lost[s.id] = count(lost, s.id) + dead }
     }
   }

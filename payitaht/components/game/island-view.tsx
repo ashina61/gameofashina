@@ -278,12 +278,18 @@ export function ReportLines({ lines }: { lines: string[] }) {
 export function ReportsPanel({ empire, run }: { empire: Empire; run?: Run }) {
   const city = activeCity(empire)
   const reports = (empire.reports ?? []).filter(r => r.cityId === city.id)
+  // Toplu silme geri alınamaz: önce sorar.
+  const [confirmClear, setConfirmClear] = useState(false)
   if (!reports.length) return <p className="fine-print">Henüz rapor yok. Ada görünümünden bir yerleşime casus ya da ordu gönder.</p>
   const loose = reports.filter(r => !r.kept).length
   return <div className="advisor-panel">
     {run && loose > 1 && <div className="report-tools">
       <span>{reports.length} rapor · {reports.length - loose} arşivde</span>
-      <Button size="sm" variant="outline" onClick={() => run((e, t) => clearReports(e, city.id, t), 'Raporlar temizlendi.')}><Trash2 data-icon="inline-start" />Arşivlenmemişleri sil</Button>
+      {confirmClear
+        ? <span className="report-confirm"><span>{loose} rapor silinsin mi?</span>
+          <Button size="sm" variant="destructive" onClick={() => { setConfirmClear(false); run((e, t) => clearReports(e, city.id, t), 'Raporlar temizlendi.') }}>Evet, sil</Button>
+          <Button size="sm" variant="outline" onClick={() => setConfirmClear(false)}>Vazgeç</Button></span>
+        : <Button size="sm" variant="outline" onClick={() => setConfirmClear(true)}><Trash2 data-icon="inline-start" />Arşivlenmemişleri sil</Button>}
     </div>}
     {reports.map(r => <article key={r.id} className={r.kept ? 'report-card is-kept' : 'report-card'}>
       <div className="report-head">{r.kind === 'spy' ? <Eye className="size-4" /> : r.kind === 'piracy' ? <Skull className="size-4" /> : r.kind === 'defense' ? <ShieldCheck className="size-4" /> : <Swords className="size-4" />}

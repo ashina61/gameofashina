@@ -116,3 +116,15 @@ test('archers out of arrows fight hand to hand', () => {
   const late = r.rounds.slice(3)
   assert.ok(late.some(x => Object.values(x.defenderLoss).some(n => (n ?? 0) > 0)), 'cephane bitince de hasar sürer')
 })
+
+test('no side ever loses more troops than it brought (several strikes in one round)', () => {
+  const a = { troops: { yeniceri: 80, okcu: 40, sipahi: 16, mizrakci: 30, topcu: 3, asci: 4, hekim: 3 }, attackMul: 1.08, defenseMul: 1.08, moraleMul: 1, healPerDoctor: 3 }
+  const d = { troops: { yeniceri: 5, okcu: 5, sipahi: 2, mizrakci: 15, azap: 2, sapanci: 10, hekim: 1 }, attackMul: 1.15, defenseMul: 1.15, wall: 1200, fieldLevel: 10 }
+  for (const [side, res] of [[d.troops, battle(a, d).defenderLost], [a.troops, battle(a, d).attackerLost]] as const) {
+    for (const [id, n] of Object.entries(res)) assert.ok((n as number) <= ((side as Record<string, number>)[id] ?? 0), `${id}: ${n}`)
+  }
+  const r = battle(a, d)
+  const perRound: Record<string, number> = {}
+  for (const rd of r.rounds) for (const [id, n] of Object.entries(rd.defenderLoss)) perRound[id] = (perRound[id] ?? 0) + (n as number)
+  for (const [id, n] of Object.entries(perRound)) assert.ok(n <= ((d.troops as Record<string, number>)[id] ?? 0), `round sum ${id}: ${n}`)
+})

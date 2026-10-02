@@ -55,8 +55,10 @@ export function QueueCard({ game, kind, onClick }: { game: Game; kind: 'build' |
 export function ObjectiveCard({ game, onClaim, onBuild }: { game: Game; onClaim: (id: string) => void; onBuild: () => void }) {
   const objective = OBJECTIVES.find(o => !game.claimed.includes(o.id))
   const ready = OBJECTIVES.filter(o => !game.claimed.includes(o.id) && objectiveDone(game, o.id))
+  // Tamamlanan = ödülü alınmış + ödülü bekleyen (ikisi ayrı ayrı gösterilir).
+  const doneCount = game.claimed.length + ready.length
   const list = <details className="objective-list">
-    <summary>Bütün adımlar · {game.claimed.length} tamamlandı</summary>
+    <summary>Bütün adımlar · {doneCount} / {OBJECTIVES.length} tamamlandı{ready.length ? ` · ${ready.length} ödül bekliyor` : ''}</summary>
     <ol>{OBJECTIVES.map(o => {
       const got = game.claimed.includes(o.id), done = objectiveDone(game, o.id)
       return <li key={o.id} className={got ? 'is-got' : done ? 'is-ready' : o.id === objective?.id ? 'is-current' : ''}>
@@ -72,7 +74,7 @@ export function ObjectiveCard({ game, onClaim, onBuild }: { game: Game; onClaim:
     <span className="objective-track" aria-hidden="true"><span style={{ width: `${(game.claimed.length / OBJECTIVES.length) * 100}%` }} /></span>
     <div className="objective-main"><ObjectiveArt id={objective.id} go={objective.go} game={game} size={118} /><div><h3>{objective.title}</h3><p>{objective.description}</p></div></div>
     <div className="objective-footer"><span><AkceArt className="size-4" /> {objective.reward} akçe</span>
-      <Button size="sm" variant={done ? 'default' : 'outline'} onClick={() => done ? onClaim(objective.id) : onBuild()}>{done ? 'Ödülü al' : 'Hedefe git'}<ArrowUpRight data-icon="inline-end" /></Button></div>
+      <Button size="sm" variant={done ? 'default' : 'outline'} onClick={() => done ? onClaim(objective.id) : onBuild()}>{done ? <>Ödülü al<Check data-icon="inline-end" /></> : <>Hedefe git<ArrowUpRight data-icon="inline-end" /></>}</Button></div>
     {ready.length > 1 && <Button size="sm" variant="outline" className="objective-all" onClick={() => ready.forEach(o => onClaim(o.id))}><Check data-icon="inline-start" />Tamamlanan {ready.length} adımın ödülünü al ({ready.reduce((s, o) => s + o.reward, 0)} akçe)</Button>}
     {list}
   </section>
