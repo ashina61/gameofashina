@@ -6,7 +6,7 @@ const ASSETS = [
   p('/manifest.webmanifest'),
   p('/icon-192.png'),
   p('/icon-512.png'),
-  ...['divan', 'konut', 'kereste', 'tas', 'ambar', 'medrese'].map(name => p(`/images/game/buildings/${name}-1.webp`)),
+  ...['divan', 'konut', 'kereste', 'tas', 'ambar', 'medrese'].map(name => p(`/images/game/buildings/${name}-painted-1.webp`)),
 ]
 
 self.addEventListener('install', event => {

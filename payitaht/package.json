@@ -1,21 +1,22 @@
 {
   "name": "payitaht-adalari",
-  "version": "0.28.0",
+  "version": "0.29.0",
   "private": true,
   "packageManager": "pnpm@9.15.9",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start"
+    "start": "next start",
+    "typecheck": "tsc --noEmit",
+    "test": "tsx --test $(find lib -name '*.test.ts')",
+    "check": "pnpm typecheck && pnpm test"
   },
   "dependencies": {
     "@base-ui/react": "^1.5.0",
     "@capacitor/android": "^8.5.2",
     "@capacitor/core": "^8.5.2",
-    "@vercel/analytics": "1.6.1",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
-    "cn": "^0.2.6",
     "lucide-react": "^1.16.0",
     "next": "16.3.3",
     "next-themes": "^0.4.6",
