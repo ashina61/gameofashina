@@ -17,7 +17,7 @@ import { Button } from '@/components/ui/button'
 import {
   ANARCHY_MS, BUILDINGS, FOREST_MAX_LEVEL, GOVERNMENTS, GOVERNMENT_COOLDOWN_MS, GOOD_NAMES, GOVERNMENT_IDS, UNITS, UNIT_IDS,
   anarchy, forestCapacity, forestProduction, forestUpgradeCost, governmentCost, idleWorkers, tavernLevel, wineConsumption,
-  LUXURY_IDS, type BuildingId, type Command, type Game, type Good, type Luxury, type Resource, type UnitId,
+  LUXURY_IDS, type BuildingId, type Command, type Game, type Good, type Luxury, type Resource, type UnitId, formatRate,
 } from '@/lib/game/engine'
 import { activeCity, renameCity, type Empire } from '@/lib/game/empire'
 import { DAILY_TASKS, claimLogin, claimTask, loginReward, taskProgress } from '@/lib/game/daily'
@@ -106,7 +106,7 @@ export function TavernPanel({ game, onCommand }: { game: Game; onCommand: (c: Co
     <h3><Coffee className="size-4" /> İkram · {level} / {game.buildings.kahvehane}</h3>
     <input type="range" min={0} max={game.buildings.kahvehane} value={level} aria-label="İkram seviyesi"
       onChange={e => onCommand({ type: 'tavern', value: Number(e.target.value) })} />
-    <p className="fine-print">Her ikram seviyesi dakikada {wineConsumption({ ...game, tavern: 1 }).toFixed(1)} üzüm harcar ve huzuru artırır. Şu an dakikada {wineConsumption(game).toFixed(1)} üzüm.</p>
+    <p className="fine-print">Her ikram seviyesi dakikada {formatRate(wineConsumption({ ...game, tavern: 1 }))} üzüm harcar ve huzuru artırır. Şu an dakikada {formatRate(wineConsumption(game))} üzüm.</p>
   </section>
 }
 
@@ -490,7 +490,7 @@ function OwnOffers({ empire, now, run }: { empire: Empire; now: number; run: Run
         <Button size="sm" onClick={() => run((e, x) => postOffer(e, good, Number(amount), Number(price), x), 'Teklif Ticaret Merkezi\'nde.')}>Teklif ver</Button>
       </div>}
       {mine.map(o => <article key={o.id} className="mission-row">
-        <span><strong>{num(o.left)} / {num(o.amount)} {GOOD_NAMES[o.good]} · {o.price} akçe</strong><small>Dakikada ~{fillRate(empire, o).toFixed(1)} birim satılıyor</small></span>
+        <span><strong>{num(o.left)} / {num(o.amount)} {GOOD_NAMES[o.good]} · {o.price} akçe</strong><small>Dakikada ~{formatRate(fillRate(empire, o))} birim satılıyor</small></span>
         <Button size="sm" variant="outline" onClick={() => run((e, x) => cancelOffer(e, o.id, x), 'Teklif geri çekildi.')}>Geri çek</Button>
       </article>)}
       <Hint>Yapay tüccarlar adil fiyata yakın teklifleri hızlı alır; adil fiyatın %60 üstünde hiç almazlar.</Hint>

@@ -21,7 +21,7 @@ import {
   actionPoints, activeJob, armyUpkeep, buildReason, capacity, cargoCapacity, contentment, corruption, cost, counterSpy, duration,
   forestProduction, growthRate, housing, idleWorkers, loadingSpeed, luxuryCost, luxuryProduction, maxPopulation, population, rates,
   scientistUpkeepPerMinute, soldiers, spyBonus, spyCapacity, takesPlot, tavernLevel, tradeCapacity, travelFactor, wallDefense,
-  wineConsumption, wineServed, workerCapacity, type BuildingId, type Command, type Game, type Luxury, type Resource, type UnitId, type WorkerId,
+  wineConsumption, wineServed, workerCapacity, type BuildingId, type Command, type Game, type Luxury, type Resource, type UnitId, type WorkerId, formatRate,
 } from '@/lib/game/engine'
 import { GUILDS, guildBonus } from '@/lib/game/guilds'
 import { activeCity, type Empire } from '@/lib/game/empire'
@@ -81,7 +81,7 @@ function UpgradeBox({ game, id, onBuild }: { game: Game; id: BuildingId; onBuild
         const short = stock(game, r) < n
         return <li key={r} className={short ? 'bp-short' : undefined} title={name(r)}>
           <ResIcon id={r} /><span className="sr-only">{name(r)}</span><strong>{num(n)}</strong>
-          {short && <small>-{num(n - stock(game, r))}</small>}
+          {short && <small>eksik {num(n - stock(game, r))}</small>}
         </li>
       })}
         <li className="bp-time"><KumSaatiArt aria-hidden="true" /><strong>{time(duration(game, id))}</strong></li>
@@ -105,7 +105,7 @@ function Workers({ game, id, unit, perWorker, onCommand }: { game: Game; id: Wor
   const Icon = RES_ICON[w.res]
   const at = (n: number) => rates({ ...game, workers: { ...game.workers, [id]: n } })[w.res]
   return <WorkforceSlider label={unit} figure={w.figure} value={game.workers[id]} cap={workerCapacity(game, id)} idle={idleWorkers(game)}
-    preview={n => { const v = at(n); return { amount: v, icon: <Icon className="workforce-icon" />, text: <><b>{w.res === 'knowledge' ? v.toFixed(1) : num(v)}</b> {w.unit}/dk</> } }}
+    preview={n => { const v = at(n); return { amount: v, icon: <Icon className="workforce-icon" />, text: <><b>{w.res === 'knowledge' ? formatRate(v) : num(v)}</b> {w.unit}/dk</> } }}
     onCommit={n => onCommand({ type: 'workers', id, value: n })} note={perWorker} />
 }
 
@@ -183,7 +183,7 @@ function BuildingView({ game, empire, id, onCommand, onRecruit, onNav, onBuildin
         <Box title="Şehrin halkı">
           <Table rows={[
             ['Nüfus', <strong key="p">{num(population(game))} / {num(maxPopulation(game))}</strong>],
-            ['Büyüme', growthRate(game) > 0 ? `+${growthRate(game).toFixed(1)} kişi/dk` : 'Tavanda'],
+            ['Büyüme', growthRate(game) > 0 ? `+${formatRate(growthRate(game))} kişi/dk` : 'Tavanda'],
             ['Barınma (Konaklar)', num(housing(game))],
             ['Boşta halk', num(idleWorkers(game))],
             ['Asker', num(soldiers(game))],
@@ -196,8 +196,8 @@ function BuildingView({ game, empire, id, onCommand, onRecruit, onNav, onBuildin
         <Box title="Hazine">
           <Table rows={[
             ['Vergi ve esnaf', `+${num(gross)} akçe/dk`],
-            ['Âlim maaşları', `-${(scientistUpkeepPerMinute(game)).toFixed(1)} akçe/dk`],
-            ['Ordu bakımı', `-${armyUpkeep(game).toFixed(1)} akçe/dk`],
+            ['Âlim maaşları', `${formatRate(-scientistUpkeepPerMinute(game))} akçe/dk`],
+            ['Ordu bakımı', `${formatRate(-armyUpkeep(game))} akçe/dk`],
             [<strong key="n">Net gelir</strong>, <strong key="v">{num(r.gold)} akçe/dk</strong>],
             ['Yolsuzluk', `%${Math.round(corruption(game) * 100)}`],
             ['Sefer hakkı', `aynı anda ${actionPoints(game)} sefer`],
@@ -211,7 +211,7 @@ function BuildingView({ game, empire, id, onCommand, onRecruit, onNav, onBuildin
         <Box title="Âlimler">
           <Workers game={game} id="medrese" unit="Âlim" perWorker="Her âlim saatte 9 akçe maaş alır." onCommand={onCommand} />
           <Table rows={[
-            ['İlim üretimi', <strong key="k">{r.knowledge.toFixed(1)} /dk</strong>],
+            ['İlim üretimi', <strong key="k">{formatRate(r.knowledge)} /dk</strong>],
             ['Âlim maaşı', `${num(scientistUpkeepPerMinute(game) * 60)} akçe/saat`],
             ['Tamamlanan araştırma', `${game.research.length}`],
           ]} />
@@ -281,11 +281,11 @@ function BuildingView({ game, empire, id, onCommand, onRecruit, onNav, onBuildin
       </>
     case 'konut': case 'hamam': return <Box title="Halk">
       <Table rows={[['Nüfus', `${num(population(game))} / ${num(maxPopulation(game))}`], ['Barınma', num(housing(game))], ['Huzur', num(contentment(game))],
-        ['Büyüme', growthRate(game) > 0 ? `+${growthRate(game).toFixed(1)} kişi/dk` : 'Tavanda']]} />
+        ['Büyüme', growthRate(game) > 0 ? `+${formatRate(growthRate(game))} kişi/dk` : 'Tavanda']]} />
       <Button size="sm" variant="outline" onClick={() => onNav('people')}>Halk paneli<ChevronRight data-icon="inline-end" /></Button>
     </Box>
     case 'kahvehane': return <Box title="Üzüm ikramı">
-      <Table rows={[['İkram seviyesi', `${tavernLevel(game)} / ${game.buildings.kahvehane}`], ['Üzüm tüketimi', `${wineConsumption(game).toFixed(1)} /dk`],
+      <Table rows={[['İkram seviyesi', `${tavernLevel(game)} / ${game.buildings.kahvehane}`], ['Üzüm tüketimi', `${formatRate(wineConsumption(game))} /dk`],
         ['Ambardaki üzüm', num(game.luxury.uzum)], ['İkram ediliyor mu', wineServed(game) ? 'Evet' : 'Hayır (üzüm yok)']]} />
     </Box>
     case 'muze': return <Box title="Kültür">
@@ -303,8 +303,8 @@ function BuildingView({ game, empire, id, onCommand, onRecruit, onNav, onBuildin
     case 'bagci': case 'simyahane': case 'camci': case 'tasci': case 'ormanci': {
       const lux = luxuryProduction(game)
       const out: Record<string, string> = {
-        bagci: `${lux.uzum.toFixed(1)} üzüm/dk`, simyahane: `${lux.kukurt.toFixed(1)} kükürt/dk`, camci: `${lux.kristal.toFixed(1)} kristal/dk`,
-        tasci: `${num(r.stone)} taş/dk · ${lux.mermer.toFixed(1)} mermer/dk`, ormanci: `${num(r.wood)} kereste/dk`,
+        bagci: `${formatRate(lux.uzum)} üzüm/dk`, simyahane: `${formatRate(lux.kukurt)} kükürt/dk`, camci: `${formatRate(lux.kristal)} kristal/dk`,
+        tasci: `${num(r.stone)} taş/dk · ${formatRate(lux.mermer)} mermer/dk`, ormanci: `${num(r.wood)} kereste/dk`,
       }
       return <Box title="Üretim"><Table rows={[['Şehrin üretimi', out[id]], ['Maden işçisi', `${game.mine.miners}`]]} />
         <Button size="sm" variant="outline" onClick={() => onNav('island')}>Ada madenine git<ChevronRight data-icon="inline-end" /></Button></Box>

@@ -8,6 +8,7 @@
 import { useEffect, useState, type ReactNode } from 'react'
 import { Check, ChevronsLeft, ChevronsRight, Minus, Plus, Undo2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { formatRate } from '@/lib/game/engine'
 
 export type Figure = 'halk' | 'oduncu' | 'tasci' | 'alim' | 'esnaf' | 'madenci' | 'rahip'
 
@@ -83,7 +84,7 @@ export function WorkforceSlider({ label, figure, value, cap, idle, preview, onCo
       </div>
       <div className="workforce-mid">
         <div className="workforce-out">{next.icon}<span>{next.text}</span>
-          {changed && Math.abs(delta) > 0.001 && <em className={delta > 0 ? 'is-up' : 'is-down'}>{delta > 0 ? '+' : '−'}{Math.abs(delta) >= 10 ? Math.round(Math.abs(delta)) : Math.abs(delta).toFixed(1)}</em>}</div>
+          {changed && Math.abs(delta) > 0.001 && <em className={delta > 0 ? 'is-up' : 'is-down'}>{delta > 0 ? '+' : '−'}{Math.abs(delta) >= 10 ? Math.round(Math.abs(delta)) : formatRate(Math.abs(delta))}</em>}</div>
         <input type="range" min={0} max={Math.max(1, cap)} value={d} disabled={cap === 0} aria-label={`${label} sayısı`}
           style={{ ['--fill' as string]: `${cap ? (d / cap) * 100 : 0}%`, ['--limit' as string]: `${cap ? (max / cap) * 100 : 0}%` }}
           onChange={e => set(Number(e.target.value))} />

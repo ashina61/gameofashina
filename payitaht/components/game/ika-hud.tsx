@@ -12,7 +12,7 @@ import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { Castle, TreePalm, Compass, Shield, ScrollText, ChevronDown } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import {
-  LUXURY_NAMES, actionPoints, capacity, fullResources, maxPopulation, population, rates, researchReason, RESEARCH_IDS, type Game,
+  LUXURY_NAMES, actionPoints, capacity, fullResources, maxPopulation, population, rates, researchReason, RESEARCH_IDS, type Game, formatRate, formatShort,
 } from '@/lib/game/engine'
 import { activeCity, islandOf, type Empire } from '@/lib/game/empire'
 import { actionsInUse } from '@/lib/game/expeditions'
@@ -22,12 +22,8 @@ import { AdvisorPortrait, type AdvisorId } from './advisor-portraits'
 import { RulerCrest } from './profile-panel'
 import { profileOf } from '@/lib/game/profile'
 
-export function compact(n: number) {
-  const v = Math.floor(n)
-  if (v >= 1_000_000) return `${(v / 1_000_000).toLocaleString('tr-TR', { maximumFractionDigits: 1 })}M`
-  if (v >= 100_000) return `${(v / 1000).toLocaleString('tr-TR', { maximumFractionDigits: 0 })}K`
-  return v.toLocaleString('tr-TR')
-}
+/** Üst bar sayacı: en fazla 5 karakter (bkz. formatShort). */
+export const compact = formatShort
 
 export const ADVISORS: Record<AdvisorId, { name: string; title: string }> = {
   city: { name: 'Vezir', title: 'Şehir danışmanı' },
@@ -104,13 +100,13 @@ export function IkaTopBar({ game, empire, news, activeAdvisor, onCity, onEconomy
   }, [game])
   const lux = game.mine.specialty
   const LuxIcon = luxuryIcons[lux]
-  const chips: { key: string; icon: ReactNode; value: string; sub?: string; label: string; full?: boolean }[] = [
+  const chips: { key: string; icon: ReactNode; value: string; sub?: string; label: string; full?: boolean; cap?: boolean }[] = [
     { key: 'gold', icon: <AkceArt />, value: compact(game.resources.gold), sub: `${r.gold >= 0 ? '+' : ''}${compact(r.gold)}`, label: 'Akçe', full: full.includes('gold') },
     { key: 'wood', icon: <KeresteArt />, value: compact(game.resources.wood), sub: `+${compact(r.wood)}`, label: 'Kereste', full: full.includes('wood') },
     { key: 'stone', icon: <TasArt />, value: compact(game.resources.stone), sub: `+${compact(r.stone)}`, label: 'Taş', full: full.includes('stone') },
-    { key: 'knowledge', icon: <IlimArt />, value: compact(game.resources.knowledge), sub: `+${r.knowledge.toFixed(1)}`, label: 'İlim', full: full.includes('knowledge') },
+    { key: 'knowledge', icon: <IlimArt />, value: compact(game.resources.knowledge), sub: formatRate(r.knowledge, true), label: 'İlim', full: full.includes('knowledge') },
     { key: 'lux', icon: <LuxIcon />, value: compact(game.luxury[lux]), label: LUXURY_NAMES[lux] },
-    { key: 'pop', icon: <NufusArt />, value: `${compact(population(game))}`, sub: `/${compact(maxPopulation(game))}`, label: 'Nüfus' },
+    { key: 'pop', icon: <NufusArt />, value: `${compact(population(game))}`, sub: `/${compact(maxPopulation(game))}`, label: population(game) >= maxPopulation(game) ? 'Nüfus (konut dolu)' : 'Nüfus', cap: population(game) >= maxPopulation(game) },
     { key: 'ap', icon: <HamleArt />, value: `${empire && city ? actionPoints(game) - actionsInUse(empire, city.id) : actionPoints(game)}`, sub: `/${actionPoints(game)}`, label: 'Sefer hakkı (aynı anda yapılabilecek sefer)' },
   ]
   return <header className="ika-top">
@@ -137,8 +133,9 @@ export function IkaTopBar({ game, empire, news, activeAdvisor, onCity, onEconomy
     <button type="button" className="ika-res" onClick={onEconomy} aria-label={`Kaynaklar, ambar ${compact(capacity(game))}`}>
       {chips.map((c, index) => {
         const fx = stockFx[c.key as StockFxKey]
-        return <span key={c.key} className={cn('ika-chip', index < 4 ? 'ika-stock' : 'ika-status', c.full && 'ika-chip-full')} title={c.label}>
-          <i aria-hidden="true">{c.icon}</i><b>{c.value}</b>{c.sub && <small className={c.key === 'gold' && r.gold < 0 ? 'ika-rate-negative' : undefined}>{c.sub}</small>}
+        return <span key={c.key} className={cn('ika-chip', index < 4 ? 'ika-stock' : 'ika-status', c.full && 'ika-chip-full', c.cap && 'ika-chip-cap')} data-k={c.key} title={c.label}>
+          <i aria-hidden="true">{c.icon}</i>
+          <span className="ika-chip-num"><b>{c.value}</b>{c.sub && <small className={c.key === 'gold' && r.gold < 0 ? 'ika-rate-negative' : undefined}>{c.sub}</small>}</span>
           {fx && <em key={fx.stamp} className={cn('ika-chip-delta', fx.value > 0 ? 'is-plus' : 'is-minus')} aria-hidden="true">
             {fx.value > 0 ? '+' : '−'}{compact(Math.abs(fx.value))}
           </em>}

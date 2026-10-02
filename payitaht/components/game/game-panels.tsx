@@ -9,7 +9,7 @@ import { idleMerchants } from '@/lib/game/expeditions'
 import { WorkforceSlider, type Figure } from './workforce'
 import { Button } from '@/components/ui/button'
 import { CostDisplay, JobProgress } from './game-widgets'
-import { BUILDINGS, BUILDING_IDS, MAX_LEVEL, RESEARCH, RESEARCH_IDS, RESEARCH_BRANCHES, RESOURCE_IDS, RESOURCE_NAMES, UNITS, UNIT_IDS, WORKER_IDS, WORKERS_PER_LEVEL, activeJob, cargoCapacity, cityDefense, cost, duration, buildReason, power, rates, recruitReason, researchReason, scientistCount, scientistUpkeepPerMinute, idleWorkers, population, housing, contentment, soldiers, takesPlot, tradeCapacity, unhousedByUnrest, unitCost, unitDuration, wallDefense, workerCapacity, type BuildingId, type ResearchId, type ResearchBranch, type UnitId, type WorkerId, type Game } from '@/lib/game/engine'
+import { BUILDINGS, BUILDING_IDS, MAX_LEVEL, RESEARCH, RESEARCH_IDS, RESEARCH_BRANCHES, RESOURCE_IDS, RESOURCE_NAMES, UNITS, UNIT_IDS, WORKER_IDS, WORKERS_PER_LEVEL, activeJob, cargoCapacity, cityDefense, cost, duration, buildReason, power, rates, recruitReason, researchReason, scientistCount, scientistUpkeepPerMinute, idleWorkers, population, housing, contentment, soldiers, takesPlot, tradeCapacity, unhousedByUnrest, unitCost, unitDuration, wallDefense, workerCapacity, type BuildingId, type ResearchId, type ResearchBranch, type UnitId, type WorkerId, type Game, formatRate, groupLog } from '@/lib/game/engine'
 import { buildingImage } from '@/lib/asset'
 import { abandonCity, activeCity, capitalCity, capitalId, colonyPalaceLevel, MAX_CITIES, moveCapital, CARGO_IDS, CARGO_NAMES, COLONY_COST, ISLANDS, type Cargo, type Empire, type IslandId } from '@/lib/game/empire'
 import { LUXURY_IDS, LUXURY_NAMES, MERCHANT_BUY, MERCHANT_SELL, MINE_MAX_LEVEL, luxuryCost, luxuryProduction, merchantLimit, mineCapacity, mineUpgradeCost, unitLuxuryCost, wineServed, type Luxury } from '@/lib/game/engine'
@@ -102,8 +102,8 @@ export function ResearchPanel({ game, onResearch }: { game: Game; onResearch: (i
     <div className="rs-stats">
       <span><PersonArt kind="alim" size={26} /><b>{scientistCount(game)}</b><small>âlim</small></span>
       <span><IlimArt className="rs-lamp" /><b>{Math.floor(game.resources.knowledge).toLocaleString('tr-TR')}</b><small>ilim</small></span>
-      <span><KumSaatiArt className="size-4" /><b>+{Math.round(rate * 60).toLocaleString('tr-TR')}</b><small>ilim/saat</small></span>
-      <span><AkceArt className="rs-lamp" /><b>−{(scientistUpkeepPerMinute(game) * 60).toFixed(0)}</b><small>akçe/saat</small></span>
+      <span><KumSaatiArt className="size-4" /><b>{formatRate(rate * 60, true)}</b><small>ilim/saat</small></span>
+      <span><AkceArt className="rs-lamp" /><b>{formatRate(-scientistUpkeepPerMinute(game) * 60)}</b><small>akçe/saat</small></span>
     </div>
     {game.study && <JobProgress job={game.study} now={game.updatedAt} />}
     <div className="world-tabs rs-tabs" role="group" aria-label="Araştırma dalları">
@@ -143,7 +143,7 @@ export function ResearchPanel({ game, onResearch }: { game: Game; onResearch: (i
   </div>
 }
 export function JournalPanel({ game }: { game: Game }) {
-  return <div className="journal-panel"><span className="eyebrow">ŞEHRİNİN HİKÂYESİ</span>{game.log.map((entry, index) => <div className="journal-entry" key={`${entry.time}-${index}`}><span className="journal-dot" /><div><p>{entry.text}</p><time>{new Date(entry.time).toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })} · {new Date(entry.time).toLocaleDateString('tr-TR', { day: 'numeric', month: 'short' })}</time></div></div>)}<Hint>Tek oyunculu prototip. Buradaki tüm gelişmeler kendi şehrine aittir; gerçek oyuncu etkinliği gösterilmez.</Hint></div>
+  return <div className="journal-panel"><span className="eyebrow">ŞEHRİNİN HİKÂYESİ</span>{groupLog(game.log).map((entry, index) => <div className="journal-entry" key={`${entry.time}-${index}`}><span className="journal-dot" /><div><p>{entry.text}{entry.count > 1 && <b className="ika-events-count"> ×{entry.count}</b>}</p><time>{new Date(entry.time).toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })} · {new Date(entry.time).toLocaleDateString('tr-TR', { day: 'numeric', month: 'short' })}</time></div></div>)}<Hint>Tek oyunculu prototip. Buradaki tüm gelişmeler kendi şehrine aittir; gerçek oyuncu etkinliği gösterilmez.</Hint></div>
 }
 
 /**
@@ -209,7 +209,7 @@ export function PeoplePanel({ game, onAssign }: { game: Game; onAssign: (id: Wor
       * kesfetmesi zor bir tavan: sayilar ayni ekranda dursa bile aradaki
       * ILISKI soylenmezse "neden nufusum artmiyor" sorusu cevapsiz kalir.
       */}
-    {growthRate(game) > 0 && <p className="fine-print" role="status"><NufusArt className="size-3" /> Halk büyüyor: dakikada +{growthRate(game).toFixed(1)} kişi. Huzur fazlası büyümeyi hızlandırır.</p>}
+    {growthRate(game) > 0 && <p className="fine-print" role="status"><NufusArt className="size-3" /> Halk büyüyor: dakikada +{formatRate(growthRate(game))} kişi. Huzur fazlası büyümeyi hızlandırır.</p>}
     {unhoused > 0 && <p className="storage-alert" role="status"><TriangleAlert className="size-4" />Huzursuzluk yüzünden {unhoused} kişilik konak boş duruyor. Hamam kur ya da yükselt.</p>}
     {WORKER_IDS.map(id => {
       const capacity = workerCapacity(game, id)
@@ -225,7 +225,7 @@ export function PeoplePanel({ game, onAssign }: { game: Game; onAssign: (id: Wor
       return <article className="people-row" key={id}>
         <div className="people-row-top"><strong>{BUILDINGS[id].name}</strong></div>
         <WorkforceSlider label={w.label} figure={w.figure} value={value} cap={capacity} idle={idle}
-          preview={n => { const v = rates({ ...game, workers: { ...game.workers, [id]: n } })[w.res]; return { amount: v, icon: <Icon className="workforce-icon" />, text: <><b>{w.res === 'knowledge' ? v.toFixed(1) : Math.round(v)}</b> {w.unit}/dk</> } }}
+          preview={n => { const v = rates({ ...game, workers: { ...game.workers, [id]: n } })[w.res]; return { amount: v, icon: <Icon className="workforce-icon" />, text: <><b>{w.res === 'knowledge' ? formatRate(v) : Math.round(v)}</b> {w.unit}/dk</> } }}
           onCommit={n => onAssign(id, n)} />
       </article>
     })}
@@ -547,7 +547,7 @@ export function IslandPanel({ game, islandName, onMiners, onDonate, onTrade }: {
           <span>{game.mine.miners}/{cap} işçi · dakikada {perMin} {LUXURY_NAMES[spec].toLocaleLowerCase('tr')}</span></span>
       </div>
       <WorkforceSlider label="Madenci" figure="madenci" value={game.mine.miners} cap={cap} idle={idleWorkers(game)}
-        preview={n => { const v = luxuryProduction({ ...game, mine: { ...game.mine, miners: n } })[spec]; return { amount: v, icon: <SpecIcon className="workforce-icon" />, text: <><b>{v.toFixed(1)}</b> {LUXURY_NAMES[spec].toLocaleLowerCase('tr')}/dk</> } }}
+        preview={n => { const v = luxuryProduction({ ...game, mine: { ...game.mine, miners: n } })[spec]; return { amount: v, icon: <SpecIcon className="workforce-icon" />, text: <><b>{formatRate(v)}</b> {LUXURY_NAMES[spec].toLocaleLowerCase('tr')}/dk</> } }}
         onCommit={onMiners} note={`İşçi başına dakikada 3 ${LUXURY_NAMES[spec].toLocaleLowerCase('tr')}. Üretim yapılarındaki işçiler buraya kendiliğinden geçmez.`} />
     </article>
 

@@ -7,7 +7,7 @@
  */
 import {
   BUILDING_EFFECTS, UNITS, UNIT_IDS, WORKERS_PER_LEVEL, capacity, contentment, corruption, counterSpy, drillBonus, exchangeLimit, exchangeRate, housing,
-  merchantBuyPrice, merchantLimit, merchantSellPrice, tradeCapacity, wallDefense, type BuildingId, type Game,
+  merchantBuyPrice, merchantLimit, merchantSellPrice, tradeCapacity, wallDefense, type BuildingId, type Game, formatRate,
 } from './engine'
 import { himmetCap, himmetRate, patronSlots } from './guilds'
 import { lutufCap, lutufRate } from './gods'
@@ -115,11 +115,11 @@ export function effectLines(game: Game, id: BuildingId, level: number): EffectLi
       { label: 'Korsan seferi', value: level > 0 ? 'açık' : 'kapalı' },
     ]
     case 'tekke': return [
-      { label: 'Himmet', value: `+${(himmetRate(g)).toFixed(1)}/dk · en fazla ${num(himmetCap(g))}` },
+      { label: 'Himmet', value: `+${formatRate(himmetRate(g))}/dk · en fazla ${num(himmetCap(g))}` },
       { label: 'Himaye edilen lonca', value: `${patronSlots(level)}` },
     ]
     case 'mabet': return [
-      { label: 'Lütuf', value: `+${(lutufRate(g)).toFixed(1)}/dk · en fazla ${num(lutufCap(g))}` },
+      { label: 'Lütuf', value: `+${formatRate(lutufRate(g))}/dk · en fazla ${num(lutufCap(g))}` },
       { label: 'Hami tanrının lütfü', value: `${Math.min(20, level)}. derece` },
     ]
     case 'karagoz': return [

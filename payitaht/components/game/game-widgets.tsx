@@ -9,7 +9,7 @@ import { Progress } from '@/components/ui/progress'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { LUXURY_IDS, LUXURY_NAMES, luxuryRates, type Luxury, type LuxuryStock } from '@/lib/game/engine'
-import { BUILDINGS, RESEARCH, RESOURCE_IDS, RESOURCE_NAMES, OBJECTIVES, activeJob, rates, capacity, fullResources, nearlyFullResources, formatNumber, population, soldiers, timeLeft, objectiveDone, type Game, type Resource, type Job, type BuildingId, type ResearchId } from '@/lib/game/engine'
+import { BUILDINGS, RESEARCH, RESOURCE_IDS, RESOURCE_NAMES, OBJECTIVES, activeJob, rates, capacity, fullResources, nearlyFullResources, formatNumber, formatRate, population, soldiers, timeLeft, objectiveDone, type Game, type Resource, type Job, type BuildingId, type ResearchId } from '@/lib/game/engine'
 
 type ArtIcon = ComponentType<SVGProps<SVGSVGElement>>
 export const resourceIcons: Record<Resource, ArtIcon> = { gold: AkceArt, wood: KeresteArt, stone: TasArt, knowledge: IlimArt }
@@ -84,36 +84,44 @@ export function EconomyDetails({ game }: { game: Game }) {
   const luxRates = luxuryRates(game)
   const limit = capacity(game)
   const full = fullResources(game)
-  return <div className="economy-list">
-    {full.length > 0 && <p className="storage-alert" role="status"><TriangleAlert className="size-4" />{full.map(id => RESOURCE_NAMES[id]).join(', ')} ambarı dolu. Üretim boşa gidiyor — Ambar’ı yükselt ya da harca.</p>}
-    {RESOURCE_IDS.map(id => {
-      const Icon = resourceIcons[id]
-      const ratio = Math.min(1, game.resources[id] / limit)
-      return <div className={cn('economy-item', full.includes(id) && 'economy-item-full')} key={id}>
-        <Icon className="size-6" />
-        <div>
-          <strong>{RESOURCE_NAMES[id]}</strong>
-          <span>{formatNumber(game.resources[id])} / {formatNumber(limit)}</span>
-          <span className="storage-meter"><span style={{ width: `${ratio * 100}%` }} /></span>
-        </div>
-        <span>+{production[id]}/dk</span>
-      </div>
-    })}
-    {LUXURY_IDS.map(id => {
-      const Icon = luxuryIcons[id]
-      const ratio = Math.min(1, game.luxury[id] / limit)
-      const rate = Math.round(luxRates[id] * 10) / 10
-      return <div className="economy-item economy-luxury" key={id}>
-        <Icon className="size-6" />
-        <div>
-          <strong>{LUXURY_NAMES[id]}{game.mine.specialty === id ? ' · ada yatağı' : ''}</strong>
-          <span>{formatNumber(game.luxury[id])} / {formatNumber(limit)}</span>
-          <span className="storage-meter"><span style={{ width: `${ratio * 100}%` }} /></span>
-        </div>
-        <span>{rate >= 0 ? '+' : ''}{rate}/dk</span>
-      </div>
-    })}
-    <Hint>Prototipte süreler kısaltılmıştır. Oyun kapalıyken en fazla 8 saat üretim hesaplanır. Dolan ambarlarda üretim durur.</Hint>
+  const nearly = nearlyFullResources(game)
+  /*
+   * HAZİNE DEFTERİ: her mal bir satır — madalyon simge, ad, stok / ambar,
+   * kalın doluluk çubuğu ve sağda dakikalık oran rozeti. Oranlar
+   * formatRate ile yuvarlanır (ham ondalık "825.6628..." görünmez).
+   */
+  const row = (key: string, Icon: ArtIcon, name: string, stock: number, rate: number, opts: { full?: boolean; nearly?: boolean; note?: string } = {}) => {
+    const ratio = Math.min(1, stock / limit)
+    return <li className={cn('treasury-row', opts.full && 'is-full', opts.nearly && 'is-nearly')} key={key}>
+      <span className="treasury-icon"><Icon aria-hidden="true" /></span>
+      <span className="treasury-main">
+        <span className="treasury-name"><strong>{name}</strong>{opts.note && <small>{opts.note}</small>}</span>
+        <span className="treasury-meter" role="meter" aria-valuemin={0} aria-valuemax={limit} aria-valuenow={Math.floor(stock)} aria-label={`${name} ambarı`}>
+          <span style={{ width: `${ratio * 100}%` }} />
+          <b>{formatNumber(stock)} / {formatNumber(limit)}</b>
+        </span>
+      </span>
+      <span className={cn('treasury-rate', rate < 0 && 'is-down', rate === 0 && 'is-idle')}>
+        {opts.full ? 'Dolu' : rate === 0 ? 'Üretim yok' : <>{formatRate(rate, true)}<small>/dk</small></>}
+      </span>
+    </li>
+  }
+  const spec = game.mine.specialty
+  return <div className="treasury">
+    {full.length > 0 && <p className="storage-alert" role="status"><TriangleAlert className="size-4" />{full.map(id => RESOURCE_NAMES[id]).join(', ')} ambarı dolu. Üretim boşa gidiyor: Ambar’ı yükselt ya da harca.</p>}
+    <section>
+      <h4 className="treasury-head"><span>Ana kaynaklar</span><small>Ambar: {formatNumber(limit)}</small></h4>
+      <ul>{RESOURCE_IDS.map(id => row(id, resourceIcons[id], RESOURCE_NAMES[id], game.resources[id], production[id], {
+        full: full.includes(id), nearly: nearly.includes(id), note: id === 'gold' && production.gold < 0 ? 'Gider gelirden fazla' : undefined,
+      }))}</ul>
+    </section>
+    <section>
+      <h4 className="treasury-head"><span>Lüks mallar</span><small>Adanın yatağı: {LUXURY_NAMES[spec]}</small></h4>
+      <ul>{LUXURY_IDS.map(id => row(id, luxuryIcons[id], LUXURY_NAMES[id], game.luxury[id], Math.round(luxRates[id] * 10) / 10, {
+        note: id === spec ? 'ada yatağı' : luxRates[id] === 0 ? 'ticaretle ya da başka adadan' : undefined,
+      }))}</ul>
+    </section>
+    <Hint>Oyun kapalıyken en fazla 8 saatlik üretim hesaplanır. Dolan ambarda üretim durur.</Hint>
   </div>
 }
 

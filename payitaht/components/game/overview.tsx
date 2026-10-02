@@ -6,7 +6,7 @@
  * şehre geçilir.
  */
 import { useState } from 'react'
-import { BUILDINGS, BUILDING_IDS, LUXURY_IDS, LUXURY_NAMES, RESOURCE_IDS, RESOURCE_NAMES, UNITS, UNIT_IDS, activeJob, population, maxPopulation, rates, luxuryRates, capacity, type BuildingId } from '@/lib/game/engine'
+import { BUILDINGS, BUILDING_IDS, LUXURY_IDS, LUXURY_NAMES, RESOURCE_IDS, RESOURCE_NAMES, UNITS, UNIT_IDS, activeJob, population, maxPopulation, rates, luxuryRates, capacity, type BuildingId, formatRate } from '@/lib/game/engine'
 import { capitalId, islandOf, type Empire } from '@/lib/game/empire'
 import { siegeAt, totalMerchants, idleMerchants } from '@/lib/game/expeditions'
 import { luxuryIcons, resourceIcons } from './game-widgets'
@@ -36,8 +36,8 @@ export function EmpireOverview({ empire, onCity }: { empire: Empire; onCity: (id
           const siege = siegeAt(empire, c.id)
           return <tr key={c.id} className={siege ? 'is-sieged' : undefined}>
             {cityCell(c.id, c.name)}
-            {RESOURCE_IDS.map(k => <td key={k} className={g.resources[k] >= full ? 'is-full' : undefined}>{n(g.resources[k])}<small>{r[k] >= 0 ? '+' : ''}{k === 'knowledge' ? r[k].toFixed(1) : n(r[k])}</small></td>)}
-            {LUXURY_IDS.map(k => <td key={k}>{n(g.luxury[k])}<small>{lr[k] > 0 ? `+${lr[k].toFixed(1)}` : ''}</small></td>)}
+            {RESOURCE_IDS.map(k => <td key={k} className={g.resources[k] >= full ? 'is-full' : undefined}>{n(g.resources[k])}<small>{r[k] >= 0 ? '+' : ''}{k === 'knowledge' ? formatRate(r[k]) : n(r[k])}</small></td>)}
+            {LUXURY_IDS.map(k => <td key={k}>{n(g.luxury[k])}<small>{lr[k] > 0 ? `+${formatRate(lr[k])}` : ''}</small></td>)}
             <td>{n(population(g))}<small>/{n(maxPopulation(g))}</small></td>
             <td>{siege ? <em className="ov-warn">{siege.kind === 'occupy' ? 'işgal' : 'abluka'}</em> : job ? BUILDINGS[job.id as BuildingId].name : <span className="ika-warn-text">boş</span>}</td>
           </tr>

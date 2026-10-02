@@ -46,7 +46,7 @@ export function awaySummary(before: Empire, after: Empire): AwaySummary | null {
     .map(r => ({ title: r.title, success: r.success }))
   const news = (after.world?.news ?? []).filter(n => n.time > since && !(before.world?.news ?? []).some(o => o.id === n.id)).map(n => n.text)
   const full = after.cities.some(c => (['gold', 'wood', 'stone'] as const).some(k => c.game.resources[k] >= capacity(c.game) - 1))
-  return { minutes: Math.round(ms / 60_000), built, researched, trained, gained, reports: reports.slice(0, 6), news: news.slice(0, 5), full }
+  return { minutes: Math.round(ms / 60_000), built, researched, trained, gained, reports: reports.slice(0, 6), news: [...new Set(news)].slice(0, 5), full }
 }
 
 /** "3 sa 20 dk", "2 gün 4 sa" gibi. */

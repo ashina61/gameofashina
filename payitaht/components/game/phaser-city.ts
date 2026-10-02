@@ -667,6 +667,10 @@ export class CityScene extends Phaser.Scene {
       }
     }
     const hits = gateSpans.map(g => g.center)
+    // Örülmüş sura (parça, burç, kapı) dokunmak Surlar sayfasını açar.
+    const tapWall = (o: Phaser.GameObjects.GameObject) => {
+      o.on('pointerup', (ptr: Phaser.Input.Pointer) => { if (isTap(ptr) && !this.moving) this.events$.onBuilding('surlar') })
+    }
 
     const V = (x: number, y: number) => new Phaser.Math.Vector2(x, y)
     const hall = slotById(HALL_SLOT_ID)!.screen
@@ -797,6 +801,15 @@ export class CityScene extends Phaser.Scene {
         }
       }
       const no = pieceNo++
+      // Dokunma alanı: ön yüz + üst yol + mazgal payı (parmak için biraz geniş).
+      const wallHit = (o: Phaser.GameObjects.Graphics) => {
+        const up = wallH + TILE.h * 0.3
+        o.setInteractive({
+          hitArea: new Phaser.Geom.Polygon([f0.x, f0.y + 6, f1.x, f1.y + 6, f1.x, f1.y - up, b1.x, b1.y - up, b0.x, b0.y - up, f0.x, f0.y - up]),
+          hitAreaCallback: Phaser.Geom.Polygon.Contains, useHandCursor: true,
+        })
+        tapWall(o)
+      }
       // Kademe 1: mazgal yerine sivri uçlu ahşap kazık dizisi.
       if (tier === 1) {
         if (!rising) {
@@ -808,6 +821,7 @@ export class CityScene extends Phaser.Scene {
           g.lineStyle(2, 0x4e3420, 0.9); g.lineBetween(f0.x, f0.y - wallH - TILE.h * 0.08, f1.x, f1.y - wallH - TILE.h * 0.08)
         }
         g.lineStyle(1.6, 0x5e4630, 0.6); g.lineBetween(f0.x, f0.y, f1.x, f1.y)
+        wallHit(g)
         this.pieces.push(g)
         if (building && (rising || (inFront && no % 2 === 0))) this.scaffoldOn(f0, f1, wallH, Math.max(f0.y, f1.y) + 1.05)
         return
@@ -841,6 +855,7 @@ export class CityScene extends Phaser.Scene {
       }
       g.lineStyle(1.6, 0x5e4630, 0.6); g.lineBetween(f0.x, f0.y, f1.x, f1.y)
       g.lineStyle(1.2, 0x6e5436, 0.5); g.lineBetween(f0.x, f0.y - wallH, f1.x, f1.y - wallH)
+      wallHit(g)
       this.pieces.push(g)
       // Yükseltme sürerken öne bakan parçaların önünde ahşap iskele.
       if (building && inFront && no % 2 === 0) this.scaffoldOn(f0, f1, wallH, Math.max(f0.y, f1.y) + 1.05)
@@ -871,6 +886,11 @@ export class CityScene extends Phaser.Scene {
       const front = this.wallFront(ring)
       this.pieces.push(this.makeTimer(front.x, front.y + TILE.h * 0.5, job.start, job.end, 1e6 + front.y))
     }
+    // Etiketler açıkken (ya da yükseltme sürerken) diğer binalar gibi seviye + ad.
+    if (level > 0 && (this.showLabels || building)) {
+      const front = this.wallFront(ring)
+      this.pieces.push(this.makePaintedLabel(front.x, front.y - wallH - TILE.h * 0.2, level, BUILDINGS.surlar.name, 1e6 + front.y))
+    }
     if (rising) return
     // Kuleler: savunma yuvalarında büyük, kapı iki yanında küçük.
     const tower = (x: number, y: number, w: number) => {
@@ -881,6 +901,7 @@ export class CityScene extends Phaser.Scene {
       if (this.textures.exists('w_tower')) {
         const img = this.add.image(x, y - w * 0.04, 'w_tower').setOrigin(0.5, 1).setDepth(y + 2)
         img.setScale(w / img.width)
+        img.setInteractive({ useHandCursor: true }); tapWall(img)
         this.pieces.push(img)
         // Her kulede al sancak (ay-yıldız), rüzgârda dalgalı.
         const top = y - w * 0.04 - img.height * (w / img.width) + w * 0.06
@@ -892,6 +913,8 @@ export class CityScene extends Phaser.Scene {
       }
     }
     const placed: Array<{ x: number; y: number }> = []
+    // Açılışta görünen (en kuzeydeki) kara kapısı: seviye madalyonu burada.
+    let northGate: { x: number; y: number; depth: number } | null = null
     for (const s of DEFENSE_SLOTS) {
       tower(s.screen.x, s.screen.y + TILE.h * 0.2, TILE.w * (tier === 1 ? 0.66 : tier === 3 ? 0.86 : 0.78))
       placed.push(s.screen)
@@ -948,6 +971,18 @@ export class CityScene extends Phaser.Scene {
         lg.fillStyle(0xe2bd78, 1); lg.fillCircle(mx, my - 72, 3.5)
         lg.setDepth(y0 + 2)
         this.flagField?.add({ x: mx + 2, y: my - 68, w: 44, h: 30, depth: y0 + 2.1 }, 'pieces')
+        // KİTABE: kemerin üstünde mermer levha (süs; seviye madalyonda yazar).
+        const kx = c.x, ky = y0 - h * 0.72, kw = w * 0.42, kh = h * 0.24
+        lg.fillStyle(0x3a2914, 0.35); lg.fillRoundedRect(kx - kw / 2 + 2, ky - kh / 2 + 2, kw, kh, 4)
+        lg.fillStyle(0xf4ead2, 1); lg.fillRoundedRect(kx - kw / 2, ky - kh / 2, kw, kh, 4)
+        lg.lineStyle(2, 0xb08a4e, 1); lg.strokeRoundedRect(kx - kw / 2, ky - kh / 2, kw, kh, 4)
+        lg.lineStyle(1.5, 0x8a6c47, 0.7)
+        for (const f of [0.35, 0.65]) lg.lineBetween(kx - kw * 0.32, ky - kh / 2 + kh * f, kx + kw * 0.32, ky - kh / 2 + kh * f)
+        if (!northGate || y0 < northGate.y) northGate = { x: c.x, y: y0 - h - 18, depth: y0 }
+        const gateHit = this.add.rectangle(c.x + d / 2, y0 - h / 2 - 8, w + d, h + 24).setInteractive({ useHandCursor: true })
+          .setFillStyle(0xffffff, 0).setDepth(y0 + 2.2)
+        tapWall(gateHit)
+        this.pieces.push(gateHit)
       } else {
         // Liman zinciri: kulelerden sarkan halkalı zincir + şamandıralar.
         const pts: Phaser.Math.Vector2[] = []
@@ -964,6 +999,10 @@ export class CityScene extends Phaser.Scene {
       }
       this.pieces.push(lg)
     }
+    // Seviye her zaman okunur: ana kapının üstünde ekranda sabit boyda madalyon
+    // (etiketler açıkken tam etiket zaten seviye gösterir).
+    const gateBadge = northGate as { x: number; y: number; depth: number } | null
+    if (gateBadge && !this.showLabels && !building) this.pieces.push(this.makeLevelBadge(gateBadge.x, gateBadge.y, level, 1e6 + gateBadge.depth))
     // SU KEMERLERİ: derenin surun altından geçtiği yerde demir parmaklıklı kemer.
     for (const a of cityStream().wallArches) {
       const g = this.add.graphics().setDepth(a.y + 1.9)
@@ -2308,17 +2347,32 @@ export class CityScene extends Phaser.Scene {
     return c
   }
 
+  /** Yalnız seviye dairesi (sur kapısı): etiketin madalyonu, isim şeridi yok. */
+  private makeLevelBadge(x: number, y: number, level: number, depth: number) {
+    const f = this.headingFont()
+    const g = this.add.graphics()
+    g.fillStyle(0x2a170a, 0.35); g.fillCircle(64, 4, 58)
+    g.fillStyle(0x5a3517, 1); g.fillCircle(60, 0, 56)
+    g.lineStyle(7, 0xe2bd78, 1); g.strokeCircle(60, 0, 53)
+    const t = this.add.text(60, 2, String(level), { fontFamily: f.heading, fontSize: '58px', color: '#fbe9bb', fontStyle: '800' })
+      .setOrigin(0.5, 0.5).setResolution(2)
+    const c = this.add.container(x, y, [g, t]).setDepth(4e5 + depth / 1e4)
+    this.hudItems.push({ c, width: 120, height: 120, css: 24, max: 4 }) // uzak görünümde de okunur
+    this.fitHudItem(this.hudItems[this.hudItems.length - 1])
+    return c
+  }
+
   /*
    * Etiket ve sayaçlar EKRANDA sabit boyda kalır (Ikariam'daki gibi): uzak
    * görünümde okunur, yakında binayı örtmez. Tuval cihaz pikselindedir
    * (city-canvas: zoom 1/dpr), yani ekranda 1 CSS pikseli = dpr / kamera zoom'u
    * dünya birimi.
    */
-  private hudItems: { c: Phaser.GameObjects.Container; width: number; height: number; css: number }[] = []
-  private fitHudItem(h: { c: Phaser.GameObjects.Container; width: number; height: number; css: number }) {
+  private hudItems: { c: Phaser.GameObjects.Container; width: number; height: number; css: number; max?: number }[] = []
+  private fitHudItem(h: { c: Phaser.GameObjects.Container; width: number; height: number; css: number; max?: number }) {
     const dpr = canvasDpr()
     const zoom = this.cameras.main.zoom || 1
-    const s = Math.min(0.6, (h.css * dpr) / zoom / h.height)
+    const s = Math.min(h.max ?? 0.6, (h.css * dpr) / zoom / h.height)
     h.c.setScale(s)
     // Konteyner sol kenardan kurulur; ortalamak için yarı genişlik kadar sola kayar.
     const baseX = h.c.getData('baseX') ?? h.c.x

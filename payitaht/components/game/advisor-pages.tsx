@@ -10,7 +10,7 @@ import { ChevronRight, Swords } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import {
   BUILDINGS, activeJob, contentment, fullResources, housing, idleWorkers, maxPopulation, population, rates, researchReason, RESEARCH_IDS,
-  timeLeft, type BuildingId, type Game,
+  timeLeft, type BuildingId, type Game, formatRate, groupLog,
 } from '@/lib/game/engine'
 import { activeCity, type Empire } from '@/lib/game/empire'
 import { AdvisorSpeech } from './ika-hud'
@@ -81,13 +81,14 @@ export function CityAdvisor({ empire, game, onCity, onBuilding, onCities, onBuil
     <Box title="Üretim">
       <table className="bp-table"><tbody>
         {([['Akçe', rates(game).gold], ['Kereste', rates(game).wood], ['Taş', rates(game).stone], ['İlim', rates(game).knowledge]] as const)
-          .map(([l, v]) => <tr key={l}><td>{l}</td><td>{v.toFixed(l === 'İlim' ? 1 : 0)} /dk</td></tr>)}
+          .map(([l, v]) => <tr key={l}><td>{l}</td><td>{formatRate(v)} /dk</td></tr>)}
       </tbody></table>
       <Button size="sm" variant="outline" onClick={() => onBuilding('divan')}>Divanhane<ChevronRight data-icon="inline-end" /></Button>
     </Box>
     <Box title="Olaylar">
-      <ul className="ika-events">{game.log.slice(0, 20).map((l, i) => <li key={i}>
-        <time>{new Date(l.time).toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })}</time><span>{l.text}</span></li>)}</ul>
+      <ul className="ika-events">{groupLog(game.log).slice(0, 20).map((l, i) => <li key={i}>
+        <time>{new Date(l.time).toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })}</time>
+        <span>{l.text}{l.count > 1 && <b className="ika-events-count" title={`${l.count} kez, ${new Date(l.first).toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })} itibarıyla`}> ×{l.count}</b>}</span></li>)}</ul>
     </Box>
   </>
 }

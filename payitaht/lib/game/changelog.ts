@@ -6,6 +6,16 @@ export type Release = { version: string; date: string; title: string; notes: str
 
 export const CHANGELOG: Release[] = [
   {
+    version: '0.29.1', date: '2 Ekim 2026', title: 'Telefona uygun üst bar, dokunulan surlar, hazine defteri',
+    notes: [
+      'Surlara dokununca Surlar sayfası açılır (duvar, burç ve kapı). Sur seviyesi ana kapının üstünde madalyonda yazar; etiketler açıkken diğer binalar gibi ad + seviye.',
+      'Üst kaynak çubuğu telefonda yeniden: daha yüksek plakalar, sayılar kesilmez (9.876 · 33,2B · 1,2M; B = bin, M = milyon). Konut dolunca nüfus sarıya döner.',
+      'Hazine ve üretim sayfası defter oldu: her mal madalyonlu, kalın doluluk çubuğunda stok / ambar, sağda dakikalık oran; dolu ambar kızarır, üretimi olmayan mal "Üretim yok" der.',
+      'Bütün oranlar yuvarlanır ve Türkçe yazılır (825.6628319999999 yerine 826; 12.5 yerine 12,5); "-0" ve "+0" yazmaz.',
+      'Bina maliyetinde eksik miktar sayının altına iner, kutudan taşmaz; sayfalardaki düğme sıraları dar ekranda alta kayar; günlükte art arda aynı olay tek satırda "×5" diye toplanır.',
+    ],
+  },
+  {
     version: '0.29.0', date: '2 Ekim 2026', title: 'Boyalı şehir, ittifak görevleri ve resimli raporlar',
     notes: [
       'Bütün binalar üç aşamada boyalı çizimlerle yenilendi; liman ve tersane kıyıya oturdu, kuşatmada işgalci ordular ve abluka filoları şehirde görünür.',

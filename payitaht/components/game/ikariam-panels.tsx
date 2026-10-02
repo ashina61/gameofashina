@@ -17,7 +17,7 @@ import {
   FAITH_CAP, GOOD_NAMES, LUXURY_IDS, MIRACLES, MIRACLE_COOLDOWN_MS, RESEARCH, RESEARCH_BRANCHES, RESEARCH_IDS, RESOURCE_IDS, UNITS,
   UNIT_IDS, WONDER_MAX, exchangeLimit, exchangeRate, futureCost, futureReason, goodAmount, idleWorkers, miracleCost, miracleMinutes,
   priestCapacity, upgradeCap, upgradeCost, upgradeReason, wonderCost, travelFactor,
-  type Command, type Game, type Good, type UnitId,
+  type Command, type Game, type Good, type UnitId, formatRate,
 } from '@/lib/game/engine'
 import { activeCity, type Empire } from '@/lib/game/empire'
 import { PIRACY_TARGETS, RAID_UNITS, SIEGE_MAX_MS, THREAT_WARNING_MS, WARSHIPS, availableUnits, cityGuards, cityWallHp, liberateCity, safeStock, siegeTribute, targetName, type Siege } from '@/lib/game/expeditions'
@@ -62,7 +62,7 @@ export function GuildPanel({ game, now, onCommand }: { game: Game; now: number; 
   const [amount, setAmount] = useState(100)
   return <section className="empire-section guild-panel">
     <h3><Sparkles className="size-4" /> Lonca himayesi · {gs.patrons.length}/{slots}</h3>
-    <div className="people-row-top"><span>Himmet</span><span className="people-count">{num(gs.himmet)} / {num(cap)} · +{himmetRate(game).toFixed(1)}/dk</span></div>
+    <div className="people-row-top"><span>Himmet</span><span className="people-count">{num(gs.himmet)} / {num(cap)} · +{formatRate(himmetRate(game))}/dk</span></div>
     <span className="people-meter"><span style={{ width: `${Math.min(100, (gs.himmet / cap) * 100)}%` }} /></span>
     <div className="batch-row"><span>Adak</span>{[100, 500, 2000].map(n => <Button key={n} size="sm" variant={amount === n ? 'default' : 'outline'} onClick={() => setAmount(n)}>{num(n)}</Button>)}</div>
     {cooling && <p className="fine-print"><KumSaatiArt className="size-3" /> Loncalar yeni düzene alışıyor · {clock(gs.changedAt + PATRON_COOLDOWN_MS - now)}</p>}
@@ -113,9 +113,9 @@ export function TemplePanel({ game, now, onCommand }: { game: Game; now: number;
       ? <p className="requirement"><Hammer className="size-4" />İmamlar ve hocalar Cami'de hizmet eder. Önce Cami kur.</p>
       : <>
         <WorkforceSlider label="İmam" figure="rahip" value={t.priests} cap={cap} idle={idleWorkers(game)}
-          preview={n => { const v = Math.min(n, cap) * 0.5; return { amount: v, icon: <Sparkles className="workforce-icon" />, text: <><b>{v.toFixed(1)}</b> inanç/dk</> } }}
+          preview={n => { const v = Math.min(n, cap) * 0.5; return { amount: v, icon: <Sparkles className="workforce-icon" />, text: <><b>{formatRate(v)}</b> inanç/dk</> } }}
           onCommit={n => onCommand({ type: 'priests', value: n })} />
-        <div className="people-row-top"><span>İnanç</span><span className="people-count">{num(t.faith)} / {num(FAITH_CAP)} · +{(Math.min(t.priests, cap) * 0.5).toFixed(1)}/dk</span></div>
+        <div className="people-row-top"><span>İnanç</span><span className="people-count">{num(t.faith)} / {num(FAITH_CAP)} · +{formatRate(Math.min(t.priests, cap) * 0.5)}/dk</span></div>
         <span className="people-meter"><span style={{ width: `${Math.min(100, t.faith / need * 100)}%` }} /></span>
         {active && <p className="report-win"><Sparkles className="size-4" /> {m.name} mucizesi etkin · {clock(t.until - now)}</p>}
         {resting && <p className="fine-print"><KumSaatiArt className="size-3" /> Harika dinleniyor · {clock(t.cooldownUntil - now)}</p>}

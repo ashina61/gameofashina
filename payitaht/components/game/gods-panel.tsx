@@ -10,7 +10,7 @@ import { useState } from 'react'
 import { Flame, Sparkles } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Hint } from './hint'
-import { LUXURY_IDS, LUXURY_NAMES, type Command, type Game } from '@/lib/game/engine'
+import { LUXURY_IDS, LUXURY_NAMES, type Command, type Game, formatRate } from '@/lib/game/engine'
 import { GODS, GOD_IDS, OFFER_RATE, blessing, patronChangeMs, godBuff, lutufCap, lutufRate, type GodId } from '@/lib/game/gods'
 
 const num = (n: number) => Math.floor(n).toLocaleString('tr-TR')
@@ -58,7 +58,7 @@ export function GodsPanel({ game, now, onCommand }: { game: Game; now: number; o
   const patron = t.patron
   return <section className="empire-section gods-panel">
     <h3><Sparkles className="size-4" /> Kadim tanrılar</h3>
-    <div className="people-row-top"><span>Lütuf</span><span className="people-count">{num(t.lutuf)} / {num(cap)} · +{lutufRate(game).toFixed(1)}/dk</span></div>
+    <div className="people-row-top"><span>Lütuf</span><span className="people-count">{num(t.lutuf)} / {num(cap)} · +{formatRate(lutufRate(game))}/dk</span></div>
     <span className="people-meter"><span style={{ width: `${Math.min(100, (t.lutuf / cap) * 100)}%` }} /></span>
 
     <div className="offering">

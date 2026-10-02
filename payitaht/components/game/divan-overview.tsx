@@ -9,7 +9,7 @@
 import { Swords, Anchor, Flag, Sprout, Scale, House } from 'lucide-react'
 import {
   actionPoints, contentment, corruption, garrisonLimit, garrisonUsed, growthRate, housing, idleWorkers,
-  luxuryProduction, population, rates, scientistUpkeepPerMinute, LUXURY_NAMES, type Game,
+  luxuryProduction, population, rates, scientistUpkeepPerMinute, LUXURY_NAMES, type Game, formatRate,
 } from '@/lib/game/engine'
 import { EMBLEMS, EMBLEM_IDS, activeCity, capitalId, setCityEmblem, type Empire } from '@/lib/game/empire'
 import { actionsInUse } from '@/lib/game/expeditions'
@@ -46,10 +46,10 @@ export function DivanOverview({ game, empire, run }: { game: Game; empire?: Empi
   const jobs: { fig: Figure; label: string; count: number; out: string; neg?: string }[] = [
     { fig: 'oduncu', label: 'Oduncu', count: game.workers.kereste + (game.forest?.workers ?? 0), out: `+${n(r.wood)} kereste` },
     { fig: 'tasci', label: 'Taşçı', count: game.workers.tas, out: `+${n(r.stone)} taş` },
-    { fig: 'madenci', label: 'Madenci', count: game.mine.miners, out: `+${lux[spec].toFixed(1)} ${LUXURY_NAMES[spec].toLocaleLowerCase('tr')}` },
-    { fig: 'alim', label: 'Âlim', count: game.workers.medrese, out: `+${r.knowledge.toFixed(1)} ilim`, neg: `−${scientistUpkeepPerMinute(game).toFixed(1)} akçe` },
+    { fig: 'madenci', label: 'Madenci', count: game.mine.miners, out: `+${formatRate(lux[spec])} ${LUXURY_NAMES[spec].toLocaleLowerCase('tr')}` },
+    { fig: 'alim', label: 'Âlim', count: game.workers.medrese, out: `+${formatRate(r.knowledge)} ilim`, neg: `${formatRate(-scientistUpkeepPerMinute(game))} akçe` },
     { fig: 'esnaf', label: 'Esnaf', count: game.workers.carsi, out: 'çarşı akçesi' },
-    { fig: 'rahip', label: 'İmam', count: game.temple?.priests ?? 0, out: `+${((game.temple?.priests ?? 0) * 0.5).toFixed(1)} inanç` },
+    { fig: 'rahip', label: 'İmam', count: game.temple?.priests ?? 0, out: `+${formatRate((game.temple?.priests ?? 0) * 0.5)} inanç` },
     { fig: 'halk', label: 'Boştaki halk', count: idleWorkers(game), out: `+${n(r.gold)} akçe net` },
   ]
   const free = Math.max(0, housing(game) - population(game))
@@ -64,7 +64,7 @@ export function DivanOverview({ game, empire, run }: { game: Game; empire?: Empi
       <span><Swords /><small>Kara garnizonu</small><b>{n(garrisonUsed(game, 'kara'))}<i>/{n(garrisonLimit(game, 'kara'))}</i></b></span>
       <span><Anchor /><small>Deniz garnizonu</small><b>{n(garrisonUsed(game, 'deniz'))}<i>/{n(garrisonLimit(game, 'deniz'))}</i></b></span>
       <span><Flag /><small>Sefer hakkı</small><b>{ap - used}<i>/{ap}</i></b></span>
-      <span><Sprout /><small>Büyüme</small><b className={growthRate(game) > 0 ? 'is-up' : undefined}>{(growthRate(game) * 60).toFixed(1)}<i>/saat</i></b></span>
+      <span><Sprout /><small>Büyüme</small><b className={growthRate(game) > 0 ? 'is-up' : undefined}>{formatRate(growthRate(game) * 60)}<i>/saat</i></b></span>
       <span><Scale /><small>Net akçe</small><b className={r.gold >= 0 ? 'is-up' : 'is-down'}>{n(r.gold * 60)}<i>/saat</i></b></span>
     </div>
     <div className="dv-strip" aria-label="Nüfus ve üretim">
