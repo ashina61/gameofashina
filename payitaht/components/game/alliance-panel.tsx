@@ -9,7 +9,7 @@ import { NufusArt } from './resource-art'
  * ittifaklarla barış, saldırmazlık, savaş). Üyeler yapay rakiptir.
  */
 import { useState } from 'react'
-import { BookOpen, Check, Crown, Eye, Flag, Handshake, ListChecks, Megaphone, Pin, Scroll, Shield, Swords, UserMinus, UserPlus, Users } from './ui-art'
+import { Award, BookOpen, Check, Crown, Eye, Flag, Handshake, ListChecks, Megaphone, Pin, Scroll, Shield, Swords, UserMinus, UserPlus, Users } from './ui-art'
 import { GameButton } from './game-button'
 import type { Empire } from '@/lib/game/empire'
 import {
@@ -21,8 +21,9 @@ import {
   FACTIONS, RIVALS, STYLE_NAMES, factionMembers, factionStanding, joinAlliance, leaveAlliance, peek, rivalById, rivalLevel, rivalScore,
   type FactionId,
 } from '@/lib/game/rivals'
-import { profileOf, setProfile } from '@/lib/game/profile'
-import { SancakArt, SancakPicker, type SancakChoice } from './profile-panel'
+import { profileOf, rivalHeraldry, setProfile } from '@/lib/game/profile'
+import { GoalCard, RewardTokens } from './goal-card'
+import { RulerCrest, SancakArt, SancakPicker, type SancakChoice } from './profile-panel'
 import { Hint } from './hint'
 import type { Run } from './world-panels'
 
@@ -45,9 +46,11 @@ export function AlliancePanel({ empire, now, run, onRival }: { empire: Empire; n
       <div><span className="eyebrow">İTTİFAK · LİDER {prof.ruler.toLocaleUpperCase('tr')}</span>
         <strong>{p.name} <em>[{p.tag}]</em></strong>
         {p.motto && <q>{p.motto}</q>}
-        <small>{p.members.length + 1} / {pactCap(empire) + 1} üye · itibar {num(p.prestige ?? 0)} · kuruluş {new Date(p.founded).toLocaleDateString('tr-TR')}</small></div>
+        <small>{p.members.length + 1} / {pactCap(empire) + 1} üye · kuruluş {new Date(p.founded).toLocaleDateString('tr-TR')}</small></div>
+      <span className="pact-medal" role="img" aria-label={`İtibar ${num(p.prestige ?? 0)}`}><Award aria-hidden="true" /><b>{num(p.prestige ?? 0)}</b><small>itibar</small></span>
     </section>
-    {p.notice && <p className="pact-notice"><Pin className="size-4" aria-hidden="true" /><span><b>İç duyuru</b>{p.notice}</span></p>}
+    {/* Duyuru: rulo parşömen (V2 Faz 2.7). */}
+    {p.notice && <p className="pact-notice pact-scroll"><Pin className="size-4" aria-hidden="true" /><span><b>İç duyuru</b>{p.notice}</span></p>}
     <div className="world-tabs alliance-tabs" role="group" aria-label="İttifak">
       {([['genel', 'Genel', Shield], ['uyeler', 'Üyeler', Users], ['gorevler', 'Görevler', ListChecks], ['genelge', 'Genelge', Megaphone], ['diplomasi', 'Diplomasi', Handshake]] as const).map(([k, label, Icon]) =>
         <button key={k} type="button" aria-pressed={tab === k} onClick={() => { setTab(k); if (k === 'genelge' && unread) run((e, x) => readCirculars(e, x)) }}>
@@ -119,17 +122,28 @@ function Members({ empire, now, run, onRival }: { empire: Empire; now: number; r
   return <>
     <section className="empire-section">
       <h3><NufusArt className="size-4" /> Üyeler · {p.members.length + 1}/{pactCap(empire) + 1}</h3>
-      <article className="member-row is-you"><span><strong>{prof.ruler}</strong><small>{rankTitle(p, 'lider')} · sen</small></span></article>
-      {p.members.map(id => {
-        const r = rivalById(id)!
-        return <article key={id} className="member-row">
-          <button type="button" className="member-name" onClick={() => onRival(id)}><strong>{r.city}</strong><small>{r.ruler} · {STYLE_NAMES[r.style]} · sv. {rivalLevel(empire, r, now)} · {num(rivalScore(empire, r, now).total)} puan</small></button>
-          <select aria-label={`${r.ruler} rütbesi`} value={p.ranks[id] ?? 'uye'} onChange={e => run((x, t) => setRank(x, id, e.target.value as PactRank, t), 'Rütbe verildi.')}>
-            {(Object.keys(PACT_RANKS) as PactRank[]).map(k => <option key={k} value={k}>{rankTitle(p, k)}</option>)}
-          </select>
-          <GameButton size="sm" variant="ghost" aria-label={`${r.ruler} ittifaktan çıkar`} onClick={() => run((x, t) => kickMember(x, id, t), 'Üye çıkarıldı.')}><UserMinus /></GameButton>
+      <div className="member-cards">
+        <article className="member-card is-you">
+          <RulerCrest crest={prof.crest} color={prof.color} size={48} />
+          <span className="member-card-name"><strong>{prof.ruler}</strong><small>sen</small></span>
+          <span className="member-rank">{rankTitle(p, 'lider')}</span>
         </article>
-      })}
+        {p.members.map(id => {
+          const r = rivalById(id)!, h = rivalHeraldry(id)
+          return <article key={id} className="member-card">
+            <button type="button" className="member-card-name" onClick={() => onRival(id)}>
+              <RulerCrest crest={h.crest} color={h.color} size={48} />
+              <span><strong>{r.city}</strong><small>{r.ruler}</small><small>{STYLE_NAMES[r.style]} · Sv. {rivalLevel(empire, r, now)} · {num(rivalScore(empire, r, now).total)} puan</small></span>
+            </button>
+            <div className="member-card-tools">
+              <select aria-label={`${r.ruler} rütbesi`} value={p.ranks[id] ?? 'uye'} onChange={e => run((x, t) => setRank(x, id, e.target.value as PactRank, t), 'Rütbe verildi.')}>
+                {(Object.keys(PACT_RANKS) as PactRank[]).map(k => <option key={k} value={k}>{rankTitle(p, k)}</option>)}
+              </select>
+              <GameButton size="sm" variant="ghost" aria-label={`${r.ruler} ittifaktan çıkar`} onClick={() => run((x, t) => kickMember(x, id, t), 'Üye çıkarıldı.')}><UserMinus /></GameButton>
+            </div>
+          </article>
+        })}
+      </div>
     </section>
     <RankDuties empire={empire} run={run} />
     <section className="empire-section">
@@ -205,12 +219,9 @@ function Goals({ empire, now, run }: { empire: Empire; now: number; run: Run }) 
       : g.tasks.map(id => {
       const t = PACT_GOALS.find(x => x.id === id)!
       const prog = pactGoalProgress(empire, id, now), done = g.claimed.includes(id)
-      return <article key={id} className={done ? 'daily-task milestone is-done' : prog >= t.need ? 'daily-task milestone is-ready' : 'daily-task milestone'}>
-        <span className="milestone-seal" aria-hidden="true"><Shield /></span>
-        <span><strong>{t.text}</strong><small>{prog} / {t.need} · ödül {num(t.gold)} akçe, +{GOAL_PRESTIGE} itibar</small></span>
-        <span className="people-meter"><span style={{ width: `${prog / t.need * 100}%` }} /></span>
-        <GameButton size="sm" disabled={done || prog < t.need} onClick={() => run((e, x) => claimPactGoal(e, id, x), 'İttifak görevi tamamlandı.')}>{done ? 'Alındı' : prog < t.need ? 'Sürüyor' : 'Ödülü al'}</GameButton>
-      </article>
+      return <GoalCard key={id} art={<Shield />} title={t.text} value={prog} need={t.need}
+        reward={<RewardTokens reward={{ gold: t.gold }} extra={<span className="goal-token"><Award aria-hidden="true" /><b>+{GOAL_PRESTIGE}</b> itibar</span>} />}
+        state={done ? 'done' : prog >= t.need ? 'ready' : 'run'} onClaim={() => run((e, x) => claimPactGoal(e, id, x), 'İttifak görevi tamamlandı.')} />
     })}
   </section>
 }

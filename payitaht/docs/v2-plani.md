@@ -119,7 +119,7 @@ Faz 1'deki kit ile her ekran yeniden düzenlenir. Sıra, oyuncunun en çok görd
 | 2.9 | **Ayarlar ve Hakkında** | "Meta" ekran; Lucide kalabilir ama `GameButton` ve çerçeve kullanılır. | S | — |
 | 2.10 | **Üst bar ve alt menü** | Üst bar boyalı çerçeveli plaka. Alt menü ikonları boyalı. Rozet kuralı: aynı anda en çok 2 kırmızı rozet, gerisi nokta. | M | Ekran görüntüsünde en çok 2 sayılı rozet. |
 
-**İlerleme: 0.32.0'da 2.1 ve 2.10 tamam.**
+**Durum: Faz 2 tamam (0.32.0: 2.1, 2.10 · 0.33.0: 2.2–2.9).**
 
 - **2.1:** Bina sayfası değişti.
   - Yükselt doku altta sabit: maliyet jetonları, tek satır uyarı, süre düğmenin içinde.
@@ -132,6 +132,15 @@ Faz 1'deki kit ile her ekran yeniden düzenlenir. Sıra, oyuncunun en çok görd
   - Öncelik sırası: ordu, görev ödülü, elçi, teklif, ittifak, şehir, araştırma.
   - En çok iki rozet sayı gösterir, kalanlar nokta olur.
   - Üst bar koyu ahşap plaka oldu: pirinç kenar ve perçinli.
+- **2.2:** Vezir'in şehir tablosu kart oldu (Divanhane madalyası, nüfus çubuğu, süren iş). Olaylar ve şehir günlüğü gün gün gruplanan simgeli zaman çizelgesi (`event-timeline.tsx`, `lib/game/log-view.ts`). Savunma özeti `StatRow` ızgarası.
+- **2.3:** Teklif kartı: rakibin arması (`rivalHeraldry`, kayıtta saklanmaz, kimlikten türetilir), büyük "Verir ⇄ İster" jetonları, kalan süre çubuğu, iki büyük düğme; alıntı ikincil. Sıralamada ilk üç kürsüde.
+- **2.4:** Dünya haritası kendi tam ekran sayfası (görünür alanın %82'si). Ada bilgisi arka perdesiz alt çekmecede; "Nasıl işler?" kutusu kalktı, koloni bedeli çekmecede.
+- **2.5:** Savaş özeti ~2,5 sn canlanır, "Geç" düğmesi ve azaltılmış hareket ayarı son kareyi gösterir. Ölçüm sırasında bulundu: tam ekran sayfa açıkken Phaser şehri her kareyi çiziyordu (yavaş cihazda kare 650 ms). Şehir artık örtülüyken uyuyor (kare 17 ms).
+- **2.6:** Araştırma dalları şerit; dal sayfaları yan yana kaydırılır (scroll-snap), seçili düğüm büyür.
+- **2.7:** İttifak başlığında itibar madalyonu, üyeler armalı portre kartı, duyuru rulo parşömen.
+- **2.8:** `GoalCard`: günlük görev, büyük hedef (bina görselli) ve ittifak görevi aynı kart; ödül sandığı ve jetonlar. Altınların üst bara uçması Faz 3.2'de.
+- **2.9:** Ayarlar ve Hakkında zaten `GameButton` ve çerçeveyi kullanıyordu (Faz 1.2, 1.4); ek iş gerekmedi.
+- **QA:** `visual-qa` taşma hatasında taşan öğeyi (metin düğümleri dahil) yazar. `map-zoom-qa` sabit arayüzü sayfa giriş animasyonu bittikten sonra ölçer.
 
 ## Faz 3 — Oyun hissi: hareket, ses, geri bildirim (0.34)
 

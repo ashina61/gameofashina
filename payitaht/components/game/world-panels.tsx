@@ -37,6 +37,10 @@ import { UnitFigure } from './unit-art'
 import { UnitPicker } from './ikariam-panels'
 import { WorkforceSlider } from './workforce'
 import { KeresteArt, NufusArt } from './resource-art'
+import { RulerCrest } from './profile-panel'
+import { GoalCard, RewardTokens } from './goal-card'
+import { buildingImage } from '@/lib/asset'
+import { profileOf, rivalHeraldry } from '@/lib/game/profile'
 
 export type Op = (e: Empire, now: number) => { empire: Empire; error?: string }
 export type Run = (op: Op, ok?: string) => void
@@ -156,17 +160,19 @@ export function DailyPanel({ empire, run }: { empire: Empire; run: Run }) {
     {d.tasks.map(id => {
       const t = DAILY_TASKS.find(x => x.id === id)!
       const p = taskProgress(empire, id), done = d.claimed.includes(id)
-      return <article key={id} className="daily-task">
-        <DailyArt task={t.key} />
-        <span><strong>{t.text}</strong><small>{p} / {t.need} · ödül {Object.entries(t.reward).map(([r, n]) => `${num(n!)} ${GOOD_NAMES[r as Good].toLocaleLowerCase('tr')}`).join(', ')}</small></span>
-        <span className="people-meter"><span style={{ width: `${p / t.need * 100}%` }} /></span>
-        <GameButton size="sm" disabled={done || p < t.need} onClick={() => run(mutate((e, now) => claimTask(e, id, now)), 'Günlük görev ödülü hazinede.')}>{done ? 'Alındı' : p < t.need ? 'Sürüyor' : 'Ödülü al'}</GameButton>
-      </article>
+      return <GoalCard key={id} art={<DailyArt task={t.key} />} title={t.text} value={p} need={t.need}
+        reward={<RewardTokens reward={t.reward} />} state={done ? 'done' : p >= t.need ? 'ready' : 'run'}
+        onClaim={() => run(mutate((e, now) => claimTask(e, id, now)), 'Günlük görev ödülü hazinede.')} />
     })}
     <p className="fine-print">Görevler her gün (UTC gece yarısı) yenilenir.</p>
   </section>
 }
 
+/** Büyük hedefin kartındaki bina görseli (V2 Faz 2.8). */
+const MILESTONE_ART: Record<string, string> = {
+  divan10: 'divan', divan15: 'divan', divan20: 'divan', colony2: 'liman', colony4: 'liman', research15: 'medrese', research40: 'medrese',
+  army200: 'kisla', raids10: 'kisla', walls10: 'surlar', pop2000: 'konut', saray5: 'saray',
+}
 /** BÜYÜK HEDEFLER: başlangıçtan sonra aylarca sürecek ödüllü kilometre taşları. */
 export function MilestonesPanel({ empire, run }: { empire: Empire; run: Run }) {
   const got = new Set(empire.milestones ?? [])
@@ -179,12 +185,9 @@ export function MilestonesPanel({ empire, run }: { empire: Empire; run: Run }) {
     <h3><Crown className="size-4" /> Büyük hedefler · {got.size} / {MILESTONES.length}</h3>
     {list.map(m => {
       const p = milestoneProgress(empire, m), done = got.has(m.id), ready = !done && milestoneDone(empire, m)
-      return <article key={m.id} className={done ? 'daily-task milestone is-done' : ready ? 'daily-task milestone is-ready' : 'daily-task milestone'}>
-        <span className="milestone-seal" aria-hidden="true"><Crown /></span>
-        <span><strong>{m.title}</strong><small>{m.text} · {num(p)} / {num(m.need)} · ödül {Object.entries(m.reward).map(([r, n]) => `${num(n!)} ${GOOD_NAMES[r as Good].toLocaleLowerCase('tr')}`).join(', ')}</small></span>
-        <span className="people-meter"><span style={{ width: `${p / m.need * 100}%` }} /></span>
-        <GameButton size="sm" disabled={!ready} onClick={() => run(mutate((e, now) => claimMilestone(e, m.id, now)), `${m.title}: ödül hazinede.`)}>{done ? 'Alındı' : ready ? 'Ödülü al' : 'Sürüyor'}</GameButton>
-      </article>
+      return <GoalCard key={m.id} art={<img src={buildingImage(MILESTONE_ART[m.id] ?? 'divan', 8)} alt="" width={64} height={64} loading="lazy" />}
+        title={m.title} text={m.text} value={p} need={m.need} reward={<RewardTokens reward={m.reward} />}
+        state={done ? 'done' : ready ? 'ready' : 'run'} onClaim={() => run(mutate((e, now) => claimMilestone(e, m.id, now)), `${m.title}: ödül hazinede.`)} />
     })}
   </section>
 }
@@ -348,13 +351,33 @@ function Rankings({ empire, now, onRival }: { empire: Empire; now: number; onRiv
   return <section className="empire-section">
     <div className="rank-tabs" role="group" aria-label="Sıralama kolu">{([['total', 'Genel'], ['builder', 'İnşaatçı'], ['military', 'Askerî'], ['offense', 'Saldırı'], ['defense', 'Savunma'], ['science', 'Bilim'], ['gold', 'Hazine'], ['trade', 'Ticaret']] as const).map(([k, l]) =>
       <GameButton key={k} size="sm" variant={key === k ? 'default' : 'outline'} aria-pressed={key === k} onClick={() => setKey(k)}>{l}</GameButton>)}</div>
-    <ol className="rank-table">{rows.map((s, i) => <li key={s.name + i} className={s.you ? 'rank-you' : undefined}>
-      <span className="rank-no">{i + 1}</span>
+    <RankPodium empire={empire} rows={rows.slice(0, 3)} score={key} onRival={onRival} />
+    <ol className="rank-table" start={4}>{rows.slice(3).map((s, i) => <li key={s.name + i} className={s.you ? 'rank-you' : undefined}>
+      <span className="rank-no">{i + 4}</span>
       <button type="button" disabled={s.you} onClick={() => s.rivalId && onRival(s.rivalId)}>
         <strong>{s.name}</strong><small>{s.you ? `${s.ruler} · sen` : `${s.ruler} · yapay rakip`}</small></button>
       <span className="rank-score">{num(s[key])}</span>
     </li>)}</ol>
   </section>
+}
+
+/** İlk üç kürsüde: ortada birinci, armalarıyla. */
+function RankPodium({ empire, rows, score, onRival }: { empire: Empire; rows: ReturnType<typeof rankings>; score: RankKey; onRival: (id: string) => void }) {
+  const me = profileOf(empire)
+  const order = [1, 0, 2].filter(i => rows[i])
+  return <ol className="rank-podium" aria-label="İlk üç">{order.map(i => {
+    const s = rows[i]
+    const h = s.you ? { crest: me.crest, color: me.color } : rivalHeraldry(s.rivalId ?? '')
+    return <li key={s.name} className={`podium-${i + 1}${s.you ? ' rank-you' : ''}`} value={i + 1}>
+      <button type="button" disabled={s.you} onClick={() => s.rivalId && onRival(s.rivalId)} aria-label={`${i + 1}. ${s.name}, ${num(s[score])} puan${s.you ? ', sen' : ', yapay rakip'}`}>
+        <RulerCrest crest={h.crest} color={h.color} size={i === 0 ? 56 : 44} />
+        <strong>{s.name}</strong>
+        <small>{s.you ? 'sen' : 'yapay rakip'}</small>
+        <b>{num(s[score])}</b>
+      </button>
+      <span className="podium-step" aria-hidden="true">{i + 1}</span>
+    </li>
+  })}</ol>
 }
 
 function Diplomacy({ empire, now, run, onRival }: { empire: Empire; now: number; run: Run; onRival: (id: string) => void }) {

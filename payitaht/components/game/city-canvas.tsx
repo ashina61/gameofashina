@@ -39,11 +39,14 @@ type Props = {
   /** Oyuncunun sancağı (renk, biçim, arma). */
   banner?: BannerLook
   siege?: SiegeAppearance
+  /** Tam ekran bir sayfa şehri örtüyor: döngü uyur, pil ve işlemci boşa harcanmaz. */
+  paused?: boolean
 }
 const toLook = (b?: BannerLook): FlagLook | undefined => b && { color: parseInt(b.color.slice(1), 16), shape: b.shape, crest: b.crest }
 
-export function CityCanvas({ game, showLabels, placing, controls, onBuilding, onPlot, onRoad, moving, movePlot, onMovePlot, onMine, banner, siege = PEACEFUL_CITY }: Props) {
+export function CityCanvas({ game, showLabels, placing, controls, onBuilding, onPlot, onRoad, moving, movePlot, onMovePlot, onMine, banner, siege = PEACEFUL_CITY, paused = false }: Props) {
   const holder = useRef<HTMLDivElement>(null)
+  const phaser = useRef<import('phaser').Game | null>(null)
   const scene = useRef<CityScene | null>(null)
   /*
    * Geri cagrilar ve ilk durum REF'te tutulur. Sahne bir kez kurulur; her
@@ -122,6 +125,7 @@ export function CityCanvas({ game, showLabels, placing, controls, onBuilding, on
         audio: { noAudio: true },
         scene: [],
       })
+      phaser.current = instance
       instance.scene.add('city', view, true, {
         game: latest.current.game,
         siege: latest.current.siege,
@@ -150,12 +154,27 @@ export function CityCanvas({ game, showLabels, placing, controls, onBuilding, on
 
     return () => {
       disposed = true
+      phaser.current = null
       scene.current = null
       controls.current = null
       cleanup()
       instance?.destroy(true)
     }
   }, [])
+
+  /*
+   * ORTULU SEHIR UYUR (V2 Faz 2.5 ölçümü): bina sayfası, panel ya da ada
+   * görünümü şehri tamamen örterken Phaser her kareyi boşuna çiziyordu;
+   * yavaş cihazda sayfa animasyonları kare atlıyordu. Uyanınca Phaser
+   * zaman farkını sıfırlar, tween'ler zıplamaz. Kurulum bitmeden uyutulmaz:
+   * ilk kare çizilmeden "şehir hazır" işareti gelmez.
+   */
+  useEffect(() => {
+    const loop = phaser.current?.loop
+    if (!loop || !document.documentElement.dataset.cityReady) return
+    if (paused) loop.sleep()
+    else loop.wake()
+  }, [paused])
 
   // Durum degistiginde sahneye haber ver; sahne gorunen bir sey degismediyse
   // hicbir sey cizmez.

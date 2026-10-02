@@ -8,7 +8,8 @@ import type { ReactNode } from 'react'
 import { RESEARCH, type ResearchBranch, type ResearchId } from '@/lib/game/engine'
 
 const INK = '#2a1a10', GOLD = '#e2bd78', PAPER = '#f6ecd6', STEEL = '#b9c2c8', WOOD = '#8a5a35', RED = '#b3261e', SEA = '#4f9bb5'
-const BRANCH: Record<ResearchBranch, [string, string]> = {
+/** Dal renkleri (açık, koyu): amblem zemini ve araştırma şeridi. */
+export const BRANCH: Record<ResearchBranch, [string, string]> = {
   ekonomi: ['#f1d9a0', '#b58a3a'],
   bilim: ['#cfe0ef', '#3d5f8a'],
   askeri: ['#f0c4b4', '#9a3324'],

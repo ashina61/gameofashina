@@ -5,7 +5,7 @@ import { KumSaatiArt } from './resource-art'
  * YAPAY RAKİPLERİN DÜNYASI — teklifler, dünya haberleri, rakip savaşları ve
  * tempo ayarı. Buradaki bütün hükümdarlar yapay rakiptir (gerçek oyuncu değil).
  */
-import type { ReactNode } from 'react'
+import type { CSSProperties, ReactNode } from 'react'
 import { Check, Coins, Eye, Gift, Handshake, HeartHandshake, Newspaper, Ship, Swords, TrendingUp, X } from './ui-art'
 import { GameButton } from './game-button'
 import { GOOD_NAMES, LUXURY_IDS, type Good, type Luxury, type Resource } from '@/lib/game/engine'
@@ -15,6 +15,8 @@ import {
 } from '@/lib/game/ai'
 import { STYLE_NAMES, rivalById, rivalLevel } from '@/lib/game/rivals'
 import { luxuryIcons, resourceIcons } from './game-widgets'
+import { RulerCrest } from './profile-panel'
+import { rivalHeraldry } from '@/lib/game/profile'
 import type { Run } from './world-panels'
 
 const num = (n: number) => Math.floor(n).toLocaleString('tr-TR')
@@ -25,8 +27,13 @@ function GoodIcon({ good }: { good: Good }) {
   const Icon = (LUXURY_IDS as readonly string[]).includes(good) ? luxuryIcons[good as Luxury] : resourceIcons[good as Resource]
   return <Icon className="size-5" aria-hidden="true" />
 }
-function DealChip({ label, deal }: { label: string; deal: Deal }) {
-  return <span className="deal-chip"><small>{label}</small><GoodIcon good={deal.good} /><b>{num(deal.amount)}</b><span className="sr-only">{GOOD_NAMES[deal.good]}</span></span>
+function DealToken({ label, deal, side }: { label: string; deal: Deal; side: 'give' | 'want' }) {
+  return <span className={`deal-token is-${side}`}>
+    <small>{label}</small>
+    <span className="deal-medal" aria-hidden="true"><GoodIcon good={deal.good} /></span>
+    <b>{num(deal.amount)}</b>
+    <em>{GOOD_NAMES[deal.good]}</em>
+  </span>
 }
 const KIND_ICON: Record<ProposalKind, ReactNode> = {
   satis: <Ship />, alis: <Coins />, anlasma: <Handshake />, harac: <Swords />, yardim: <HeartHandshake />, hediye: <Gift />,
@@ -46,25 +53,33 @@ export function ProposalsPanel({ empire, now, run, onRival }: { empire: Empire; 
 
 function ProposalCard({ p, empire, now, run, onRival }: { p: Proposal; empire: Empire; now: number; run: Run; onRival: (id: string) => void }) {
   const r = rivalById(p.rivalId)!
+  const h = rivalHeraldry(r.id)
   const accept = p.kind === 'harac' ? 'Haracı öde' : p.kind === 'yardim' ? 'Destek gönder' : p.kind === 'hediye' ? 'Teşekkürle al' : p.kind === 'anlasma' ? 'İmzala' : 'Kabul et'
   const ok = p.kind === 'harac' ? 'Haraç ödendi; bir gün saldırı yok.' : p.kind === 'anlasma' ? 'Anlaşma imzalandı.' : p.kind === 'yardim' ? 'Destek yola çıktı.' : 'Anlaşıldı; gemiler yolda.'
-  return <article className={`proposal-card is-${p.kind}`}>
-    <header>
+  // Süre çubuğu: teklifin ömründen kalan pay; azaldıkça kızarır.
+  const span = Math.max(1, p.until - p.time)
+  const rest = Math.max(0, Math.min(1, (p.until - now) / span))
+  return <article className={`proposal-card is-${p.kind}`} style={{ '--crest': h.color } as CSSProperties}>
+    <header className="proposal-head">
+      <button type="button" className="proposal-from" onClick={() => onRival(r.id)} aria-label={`${r.city} hükümdarını aç`}>
+        <RulerCrest crest={h.crest} color={h.color} size={52} />
+        <span><strong>{r.city}</strong><small>{r.ruler} · {STYLE_NAMES[r.style]} · Sv. {rivalLevel(empire, r, now)}</small><small className="proposal-ai">yapay rakip</small></span>
+      </button>
       <span className="proposal-kind">{KIND_ICON[p.kind]}{PROPOSAL_NAMES[p.kind]}</span>
-      <time><KumSaatiArt className="size-3" />{left(p.until - now)}</time>
     </header>
-    <button type="button" className="proposal-from" onClick={() => onRival(r.id)}>
-      <strong>{r.city}</strong><small>{r.ruler} · {STYLE_NAMES[r.style]} · sv. {rivalLevel(empire, r, now)} · yapay rakip</small>
-    </button>
-    <p className="proposal-text">“{p.text}”</p>
     {(p.give || p.want) && <div className="proposal-deal">
-      {p.give && <DealChip label="Verir" deal={p.give} />}
+      {p.give && <DealToken label="Verir" deal={p.give} side="give" />}
       {p.give && p.want && <span className="proposal-swap" aria-hidden="true">⇄</span>}
-      {p.want && <DealChip label="İster" deal={p.want} />}
+      {p.want && <DealToken label="İster" deal={p.want} side="want" />}
     </div>}
+    <p className="proposal-text">“{p.text}”</p>
+    <div className={`proposal-time${rest < 0.25 ? ' is-late' : ''}`} role="meter" aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(rest * 100)} aria-label={`Teklifin kalan süresi: ${left(p.until - now)}`}>
+      <span className="proposal-time-bar"><span style={{ width: `${rest * 100}%` }} /></span>
+      <time><KumSaatiArt className="size-4" />{left(p.until - now)}</time>
+    </div>
     <div className="proposal-actions">
-      <GameButton size="sm" onClick={() => run((e, x) => acceptProposal(e, p.id, x), ok)}><Check data-icon="inline-start" />{accept}</GameButton>
-      <GameButton size="sm" variant="outline" onClick={() => run((e, x) => declineProposal(e, p.id, x), p.kind === 'harac' ? 'Haraç reddedildi. Surları hazırla!' : 'Teklif geri çevrildi.')}><X data-icon="inline-start" />{p.kind === 'harac' ? 'Reddet' : 'Geri çevir'}</GameButton>
+      <GameButton onClick={() => run((e, x) => acceptProposal(e, p.id, x), ok)}><Check data-icon="inline-start" />{accept}</GameButton>
+      <GameButton variant="outline" onClick={() => run((e, x) => declineProposal(e, p.id, x), p.kind === 'harac' ? 'Haraç reddedildi. Surları hazırla!' : 'Teklif geri çevrildi.')}><X data-icon="inline-start" />{p.kind === 'harac' ? 'Reddet' : 'Geri çevir'}</GameButton>
     </div>
   </article>
 }

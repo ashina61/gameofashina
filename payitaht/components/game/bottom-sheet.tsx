@@ -4,10 +4,11 @@
  * ALT ÇEKMECE (V2 Faz 1.6) — haritada seçilen şeyin bilgisi tam sayfa yerine
  * alttan açılır; harita arkada görünür kalır. Tutamaçtan ya da başlıktan
  * aşağı çekince (90 px) ya da arka plana dokununca kapanır. Escape de kapatır.
+ * modeless: arka perde yok; harita çekmece açıkken de kaydırılıp dokunulur.
  */
 import { useEffect, useRef, useState, type PointerEvent, type ReactNode } from 'react'
 
-export function BottomSheet({ label, onClose, children }: { label: string; onClose: () => void; children: ReactNode }) {
+export function BottomSheet({ label, onClose, children, modeless = false }: { label: string; onClose: () => void; children: ReactNode; modeless?: boolean }) {
   const [drag, setDrag] = useState(0)
   const start = useRef<number | null>(null)
   useEffect(() => {
@@ -30,8 +31,8 @@ export function BottomSheet({ label, onClose, children }: { label: string; onClo
     else setDrag(0)
   }
   return <>
-    <div className="sheet-backdrop" onClick={onClose} aria-hidden="true" />
-    <div className="bp bp-sheet" role="dialog" aria-modal="true" aria-label={label}
+    {!modeless && <div className="sheet-backdrop" onClick={onClose} aria-hidden="true" />}
+    <div className={modeless ? 'bp bp-sheet is-modeless' : 'bp bp-sheet'} role="dialog" aria-modal={!modeless} aria-label={label}
       style={drag ? { transform: `translateY(${drag}px)`, transition: 'none' } : undefined}>
       <div className="sheet-grip" onPointerDown={down} onPointerMove={move} onPointerUp={up} onPointerCancel={up}>
         <span className="sheet-handle" aria-hidden="true" />

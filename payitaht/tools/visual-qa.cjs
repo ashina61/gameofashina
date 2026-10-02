@@ -283,6 +283,21 @@ async function main() {
           inner: window.innerWidth,
           doc: document.documentElement.scrollWidth,
           panel: document.querySelector('.bp')?.scrollWidth ?? 0,
+          // Taşan öğeler (metin düğümleri dahil): hatada neyin taştığı yazsın.
+          culprits: (() => {
+            const root = document.querySelector('.bp'), out = [], range = document.createRange()
+            if (!root) return out
+            const walker = document.createTreeWalker(root, NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_TEXT)
+            for (let n = walker.nextNode(); n && out.length < 6; n = walker.nextNode()) {
+              let r
+              if (n.nodeType === 3) { if (!n.textContent.trim()) continue; range.selectNodeContents(n); r = range.getBoundingClientRect() } else r = n.getBoundingClientRect()
+              if (r.right > window.innerWidth + 2 || r.left < -2) {
+                const el = n.nodeType === 3 ? n.parentElement : n
+                out.push(`${n.nodeType === 3 ? 'text in ' : ''}${el.tagName.toLowerCase()}.${String(el.className).split(' ').slice(0, 2).join('.')} [${Math.round(r.left)}..${Math.round(r.right)}]`)
+              }
+            }
+            return out
+          })(),
         }))
         if (overflow.doc > overflow.inner + 2 || overflow.panel > overflow.inner + 2) {
           throw new Error(`${label}: ${name} panel horizontally overflows: ${JSON.stringify(overflow)}`)

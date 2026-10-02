@@ -6,13 +6,14 @@ import { rivalById } from '@/lib/game/rivals'
  * Vezir şehirleri ve olayları, Serasker orduyu ve raporları anlatır. Her
  * danışman duruma göre bir öğüt verir.
  */
-import { ChevronRight, Swords } from './ui-art'
+import { ChevronRight, Hammer, Swords } from './ui-art'
 import { GameButton } from './game-button'
-import { StatRow } from './stat-kit'
+import { Meter, StatRow } from './stat-kit'
+import { EventTimeline } from './event-timeline'
 import { resourceIcons } from './game-widgets'
 import {
   BUILDINGS, activeJob, contentment, fullResources, housing, idleWorkers, maxPopulation, population, rates, researchReason, RESEARCH_IDS,
-  timeLeft, type BuildingId, type Game, formatRate, groupLog,
+  timeLeft, type BuildingId, type Game, formatRate,
 } from '@/lib/game/engine'
 import { activeCity, type Empire } from '@/lib/game/empire'
 import { AdvisorSpeech } from './ika-hud'
@@ -63,17 +64,19 @@ export function CityAdvisor({ empire, game, onCity, onBuilding, onCities, onBuil
   return <>
     <AdvisorSpeech id="city">{cityAdvice(game)}</AdvisorSpeech>
     <Box title="Şehirlerin">
-      <table className="bp-table">
-        <thead><tr><th>Şehir</th><th>Nüfus</th><th>İnşaat</th></tr></thead>
-        <tbody>{empire.cities.map(c => {
-          const job = activeJob(c.game)
-          return <tr key={c.id}>
-            <td><button type="button" className="ika-link" onClick={() => onCity(c.id)}>{c.name}</button>{c.id === current.id && <small className="bp-here"> · burada</small>}</td>
-            <td>{num(population(c.game))}/{num(maxPopulation(c.game))}</td>
-            <td>{job ? `${BUILDINGS[job.id as BuildingId].name} ${timeLeft(job, c.game.updatedAt)}` : <span className="ika-warn-text">boş</span>}</td>
-          </tr>
-        })}</tbody>
-      </table>
+      {/* Tablo yerine şehir kartı: Divanhane madalyonu, nüfus çubuğu, ustaların işi. */}
+      <div className="cc-list">{empire.cities.map(c => {
+        const job = activeJob(c.game)
+        return <button key={c.id} type="button" className={`cc-card${c.id === current.id ? ' is-here' : ''}`} onClick={() => onCity(c.id)}
+          aria-label={`${c.name}${c.id === current.id ? ' (buradasın)' : ''}: şehre git`}>
+          <span className="cc-medal" aria-hidden="true">{c.game.buildings.divan}</span>
+          <span className="cc-main">
+            <span className="cc-name"><strong>{c.name}</strong>{c.id === current.id && <small>burada</small>}</span>
+            <Meter value={population(c.game)} max={maxPopulation(c.game)} label={`${c.name} nüfusu`} />
+            <span className={`cc-job${job ? '' : ' is-idle'}`}><Hammer aria-hidden="true" />{job ? `${BUILDINGS[job.id as BuildingId].name} · ${timeLeft(job, c.game.updatedAt)}` : 'Ustalar boşta'}</span>
+          </span>
+        </button>
+      })}</div>
       <div className="batch-row">
         <GameButton size="sm" variant="outline" onClick={onCities}>Şehirler ve harita<ChevronRight data-icon="inline-end" /></GameButton>
         <GameButton size="sm" variant="outline" onClick={onBuildList}>Bütün yapılar<ChevronRight data-icon="inline-end" /></GameButton>
@@ -90,9 +93,7 @@ export function CityAdvisor({ empire, game, onCity, onBuilding, onCities, onBuil
       <GameButton size="sm" variant="outline" onClick={() => onBuilding('divan')}>Divanhane<ChevronRight data-icon="inline-end" /></GameButton>
     </Box>
     <Box title="Olaylar">
-      <ul className="ika-events">{groupLog(game.log).slice(0, 20).map((l, i) => <li key={i}>
-        <time>{new Date(l.time).toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })}</time>
-        <span>{l.text}{l.count > 1 && <b className="ika-events-count" title={`${l.count} kez, ${new Date(l.first).toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })} itibarıyla`}> ×{l.count}</b>}</span></li>)}</ul>
+      <EventTimeline log={game.log} now={game.updatedAt} />
     </Box>
   </>
 }

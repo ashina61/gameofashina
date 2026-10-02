@@ -5,8 +5,8 @@
  * girdilerle deterministik motorda yeniden kurulur; her tur için iki ordunun
  * yuvalardaki dizilişi, sur, moral ve kayıplar gösterilir.
  */
-import { useMemo, useState } from 'react'
-import { ChevronLeft, ChevronRight } from './ui-art'
+import { useMemo, useState, type CSSProperties } from 'react'
+import { ChevronLeft, ChevronRight, Swords } from './ui-art'
 import { GameButton } from './game-button'
 import { FIELD_ROWS, replayBattle, troopList, type FieldRow, type Lineup, type Troops } from '@/lib/game/battle'
 import type { StoredBattle } from '@/lib/game/expeditions'
@@ -84,9 +84,11 @@ export function BattleView({ stored, live }: { stored: StoredBattle; live?: Live
 }
 
 /**
- * SAVAŞ ÖZETİ (raporun başında): kazanan şeridi, iki ordunun birlikleri
- * figürleriyle "getirilen / kaybedilen", son moral ve sur. Tur tur ayrıntı
- * BattleView'da; düz yazı satırları bunun altında kalır.
+ * SAVAŞ ÖZETİ (raporun başında): iki ordunun birlikleri figürleriyle
+ * "getirilen / kaybedilen", son moral ve sur. Tur tur ayrıntı BattleView'da.
+ * V2 Faz 2.5: kart açılışta ~2,5 sn canlanır — ordular karşılaşır, kayıplar
+ * sırayla düşer, sonda ZAFER / YENİLGİ mührü basılır. "Geç" ya da azaltılmış
+ * hareket ayarı doğrudan son hâli gösterir; son hâl animasyonsuz da aynıdır.
  */
 export function BattleSummary({ stored, us }: { stored: StoredBattle; us: 'a' | 'd' }) {
   const result = useMemo(() => replayBattle(stored.a, stored.d, stored.joins, stored.retreat), [stored])
@@ -104,19 +106,29 @@ export function BattleSummary({ stored, us }: { stored: StoredBattle; us: 'a' | 
   }
   const sides = [side(us), side(us === 'a' ? 'd' : 'a')]
   const wallMax = stored.d.wall ?? 0
-  return <section className={won ? 'bs is-won' : 'bs is-lost'} aria-label={`${stored.title} özeti`}>
-    <div className="bs-banner"><strong>{won ? 'ZAFER' : 'YENİLGİ'}</strong><small>{stored.title} · {result.rounds.length} tur · {result.field.name}</small></div>
-    <div className="bs-sides">{sides.map(s => <div key={s.name} className={s.mine ? 'bs-side is-mine' : 'bs-side'}>
+  const [done, setDone] = useState(false)
+  return <section className={`bs ${won ? 'is-won' : 'is-lost'}${done ? ' is-done' : ''}`} aria-label={`${stored.title} özeti: ${won ? 'zafer' : 'yenilgi'}`}
+    onAnimationEnd={e => { if (e.animationName === 'bs-stamp') setDone(true) }}>
+    <div className="bs-banner">
+      <strong className="bs-stamp">{won ? 'ZAFER' : 'YENİLGİ'}</strong>
+      <small>{stored.title} · {result.rounds.length} tur · {result.field.name}</small>
+      {!done && <button type="button" className="bs-skip" onClick={() => setDone(true)}>Geç</button>}
+    </div>
+    <div className="bs-sides">
+      <span className="bs-vs" aria-hidden="true"><Swords /></span>
+      {sides.map((s, k) => <div key={s.name} className={s.mine ? 'bs-side is-mine' : 'bs-side'} style={{ '--from': k ? '14px' : '-14px' } as CSSProperties}>
       <div className="bs-side-head"><strong>{s.name}</strong><small>{s.total - s.dead} / {s.total} ayakta</small></div>
       <span className="bs-bar" title={`${s.total - s.dead} / ${s.total}`}><i style={{ width: `${s.total ? Math.round(100 * (s.total - s.dead) / s.total) : 0}%` }} /></span>
-      <div className="bs-units">{s.units.slice(0, 8).map(([id, n]) => {
+      <div className="bs-units">{s.units.slice(0, 8).map(([id, n], i) => {
         const lost = Math.min(n, s.lost[id] ?? 0)
-        return <span key={id} className={lost >= n ? 'bs-unit is-wiped' : 'bs-unit'} title={`${UNITS[id].name}: ${n} geldi, ${lost} düştü`}>
+        return <span key={id} className={lost >= n ? 'bs-unit is-wiped' : 'bs-unit'} title={`${UNITS[id].name}: ${n} geldi, ${lost} düştü`}
+          style={{ '--d': `${700 + i * 140 + k * 70}ms` } as CSSProperties}>
           <UnitFigure id={id} size={34} bare /><b>{n}</b>{lost > 0 && <em data-tiny>−{lost}</em>}
         </span>
       })}{s.units.length > 8 && <span className="bs-more">+{s.units.length - 8}</span>}</div>
       <small className="bs-morale">Moral <span className="bs-bar is-morale"><i style={{ width: `${s.morale}%` }} /></span> {s.morale}</small>
-    </div>)}</div>
+    </div>)}
+    </div>
     {wallMax > 0 && <p className="bs-wall">Sur {result.wallLeft > 0 ? `${result.wallLeft} / ${wallMax} ayakta` : 'yıkıldı'}</p>}
     <p className="bs-reason">{result.reason}</p>
   </section>

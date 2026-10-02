@@ -1,8 +1,8 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { advanceEmpire, initialEmpire, parseEmpire } from './empire'
-import { BANNERS, CRESTS, CREST_COLORS, achievements, profileOf, profileRanks, rulerTitle, setProfile } from './profile'
-import { rankings } from './rivals'
+import { BANNERS, CRESTS, CREST_COLORS, achievements, profileOf, profileRanks, rivalHeraldry, rulerTitle, setProfile } from './profile'
+import { RIVALS, rankings } from './rivals'
 import { CHANGELOG, VERSION } from './changelog'
 
 const now = 10_000_000
@@ -55,5 +55,18 @@ test('expanded heraldry survives save reload while old choices remain supported'
     assert.equal(changed.error, undefined)
     const restored = profileOf(parseEmpire(JSON.stringify(changed.empire)))
     assert.deepEqual([restored.banner, restored.crest, restored.color], [banner, crest, color])
+  }
+})
+
+test('rivalHeraldry is stable, matches style and never repeats a crest+colour pair', () => {
+  const seen = new Set<string>()
+  for (const r of RIVALS) {
+    const h = rivalHeraldry(r.id)
+    assert.deepEqual(rivalHeraldry(r.id), h)
+    assert.ok(CRESTS.includes(h.crest))
+    if (r.style === 'savasci') assert.ok(['kilic', 'kartal', 'kurt', 'okyay'].includes(h.crest))
+    const key = h.crest + h.color
+    assert.ok(!seen.has(key), key)
+    seen.add(key)
   }
 })

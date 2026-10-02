@@ -7,7 +7,8 @@
  */
 import { Hint } from './hint'
 import { useState } from 'react'
-import { Sparkles, Minus, Plus, Swords, ShieldCheck, Skull, Anchor, TriangleAlert, Repeat, Hammer } from './ui-art'
+import { Sparkles, Minus, Plus, Swords, ShieldCheck, Skull, Anchor, TriangleAlert, Repeat, Hammer, Castle, Users, Warehouse } from './ui-art'
+import { StatRow } from './stat-kit'
 import { AkceArt, KumSaatiArt } from './resource-art'
 import { SHOWS, SHOW_IDS, type ShowId } from '@/lib/game/theatre'
 import { WorkforceSlider } from './workforce'
@@ -263,11 +264,12 @@ export function DefenseSummary({ empire }: { empire: Empire }) {
   const next = incoming?.arriveAt ?? empire.nextThreat?.[city.id]
   return <section className="empire-section">
     <h3><ShieldCheck className="size-4" /> Şehir savunması</h3>
-    <div className="raid-summary">
-      <span>Sur canı {num(cityWallHp(g))}</span>
-      <span>Sur muhafızı {cityGuards(g)}</span>
-      <span>Korunan mal {num(safeStock(g))}/tür</span>
-      <span>{g.buildings.divan < 5 ? 'Acemi koruması (Divanhane 5\'e kadar)' : incoming?.battle ? `Kapıda savaş · tur ${incoming.battle.state.round}` : incoming ? `Baskın yolda · ${clock(incoming.arriveAt - g.updatedAt)}` : next ? `Sonraki baskın ~${clock(Math.max(0, next - g.updatedAt))}` : 'Gözcüler denizde'}</span>
+    <div className="sk-grid">
+      <StatRow icon={<Castle />} label="Sur canı" value={num(cityWallHp(g))} />
+      <StatRow icon={<Users />} label="Sur muhafızı" value={cityGuards(g)} />
+      <StatRow icon={<Warehouse />} label="Korunan mal" note="her türden" value={num(safeStock(g))} />
+      <StatRow icon={<Swords />} label={g.buildings.divan < 5 ? 'Acemi koruması' : incoming ? 'Baskın' : 'Sonraki baskın'} tone={incoming ? 'down' : undefined}
+        value={g.buildings.divan < 5 ? 'Divan 5\'e kadar' : incoming?.battle ? `tur ${incoming.battle.state.round}` : incoming ? clock(incoming.arriveAt - g.updatedAt) : next ? `~${clock(Math.max(0, next - g.updatedAt))}` : 'yok'} />
     </div>
     {incoming?.battle && <BattleView stored={incoming.battle.info} live={{ round: incoming.battle.state.round, nextAt: incoming.battle.nextAt, now: g.updatedAt }} />}
     <Hint>Korsanlar önce limandaki savaş gemilerine, sonra sura ve şehirdeki kara birliklerine çarpar. Savaş dakikada bir tur sürer: bu sırada eğitimi biten ya da seferden dönen birlikler sıradaki tura katılır, ama şehirden birlik çıkamaz. Seferdeki birlikler şehri savunmaz.</Hint>

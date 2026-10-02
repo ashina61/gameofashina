@@ -2,28 +2,28 @@
 import { PersonArt } from './workforce'
 
 import { Hint } from './hint'
-import { useState } from 'react'
+import { useLayoutEffect, useRef, useState, type CSSProperties } from 'react'
 import { ArrowUp, Hammer, LockKeyhole, Check, BookOpen, ChevronRight, Warehouse, UserRound, House, HeartHandshake, TriangleAlert, Landmark, Swords, Ship, ShieldCheck, Handshake, FlipHorizontal2, Move } from './ui-art'
 import { AkceArt, IlimArt, KumSaatiArt, NufusArt } from './resource-art'
 import { idleMerchants } from '@/lib/game/expeditions'
 import { WorkforceSlider, type Figure } from './workforce'
 import { GameButton } from './game-button'
 import { NowNext } from './stat-kit'
+import { EventTimeline } from './event-timeline'
 import { CostDisplay, JobProgress } from './game-widgets'
-import { BUILDINGS, BUILDING_IDS, MAX_LEVEL, RESEARCH, RESEARCH_IDS, RESEARCH_BRANCHES, RESOURCE_IDS, RESOURCE_NAMES, UNITS, UNIT_IDS, WORKER_IDS, WORKERS_PER_LEVEL, activeJob, cargoCapacity, cityDefense, cost, duration, buildReason, power, rates, recruitReason, researchReason, scientistCount, scientistUpkeepPerMinute, idleWorkers, population, housing, contentment, soldiers, takesPlot, tradeCapacity, unhousedByUnrest, unitCost, unitDuration, wallDefense, workerCapacity, type BuildingId, type ResearchId, type ResearchBranch, type UnitId, type WorkerId, type Game, formatRate, groupLog } from '@/lib/game/engine'
+import { BUILDINGS, BUILDING_IDS, MAX_LEVEL, RESEARCH, RESEARCH_IDS, RESEARCH_BRANCHES, RESOURCE_IDS, RESOURCE_NAMES, UNITS, UNIT_IDS, WORKER_IDS, WORKERS_PER_LEVEL, activeJob, cargoCapacity, cityDefense, cost, duration, buildReason, power, rates, recruitReason, researchReason, scientistCount, scientistUpkeepPerMinute, idleWorkers, population, housing, contentment, soldiers, takesPlot, tradeCapacity, unhousedByUnrest, unitCost, unitDuration, wallDefense, workerCapacity, type BuildingId, type ResearchId, type ResearchBranch, type UnitId, type WorkerId, type Game, formatRate } from '@/lib/game/engine'
 import { buildingImage } from '@/lib/asset'
 import { abandonCity, activeCity, capitalCity, capitalId, colonyPalaceLevel, MAX_CITIES, moveCapital, CARGO_IDS, CARGO_NAMES, COLONY_COST, ISLANDS, type Cargo, type Empire, type IslandId } from '@/lib/game/empire'
 import { LUXURY_IDS, LUXURY_NAMES, MERCHANT_BUY, MERCHANT_SELL, MINE_MAX_LEVEL, luxuryCost, luxuryProduction, merchantLimit, mineCapacity, mineUpgradeCost, unitLuxuryCost, wineServed, type Luxury } from '@/lib/game/engine'
 import { luxuryIcons, resourceIcons } from './game-widgets'
 import { effectLines } from '@/lib/game/building-info'
 import { actionPoints, armyUpkeep, merchantBuyPrice, merchantSellPrice, type UnitRole, type Resource } from '@/lib/game/engine'
-import { ChevronsLeft, ChevronsRight, Crown, Eye, Flag } from './ui-art'
+import { ChevronsLeft, ChevronsRight, Compass, Crown, Eye, Flag } from './ui-art'
 import type { Run } from './world-panels'
 import { DRILL_QUEUE_LIMIT, garrisonLimit, garrisonUsed, spyCapacity, growthRate, maxPopulation, PLOTS, zoneOf } from '@/lib/game/engine'
 import { BATTLE_STATS, SLOT_SIZE, fieldSize } from '@/lib/game/battle'
 import { UnitFigure } from './unit-art'
-import { ResearchEmblem } from './research-art'
-import { WorldMap } from './world-map'
+import { BRANCH, ResearchEmblem } from './research-art'
 
 export function BuildingDetails({ game, id, onBuild, onFlip, onMove }: { game: Game; id: BuildingId; onBuild: (id: BuildingId) => void; onFlip: (id: BuildingId) => void; onMove: (id: BuildingId) => void }) {
   const b = BUILDINGS[id], level = game.buildings[id], reason = buildReason(game, id)
@@ -99,6 +99,28 @@ export function ResearchPanel({ game, onResearch }: { game: Game; onResearch: (i
   const rate = rates(game).knowledge
   const r = RESEARCH[sel], reason = researchReason(game, sel), state = researchState(game, sel)
   const short = Math.max(0, r.cost - game.resources.knowledge)
+  // Dal sayfaları: şeride dokununca kaydırılır, parmakla kaydırınca dal değişir.
+  const pager = useRef<HTMLDivElement>(null)
+  const settle = useRef<number | undefined>(undefined)
+  const go = (k: number) => {
+    const el = pager.current
+    setBranch(RESEARCH_BRANCHES[k].key); setPicked(null)
+    el?.scrollTo({ left: k * el.clientWidth, behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' })
+  }
+  const onPage = () => {
+    window.clearTimeout(settle.current)
+    settle.current = window.setTimeout(() => {
+      const el = pager.current
+      if (!el || !el.clientWidth) return
+      const next = RESEARCH_BRANCHES[Math.round(el.scrollLeft / el.clientWidth)]?.key
+      if (next && next !== branch) { setBranch(next); setPicked(null) }
+    }, 120)
+  }
+  // Açılışta seçili dalın sayfasına anında gidilir.
+  useLayoutEffect(() => {
+    const el = pager.current
+    if (el) el.scrollLeft = RESEARCH_BRANCHES.findIndex(b => b.key === branch) * el.clientWidth
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
   return <div className="research-panel rs">
     <div className="rs-stats">
       <span><PersonArt kind="alim" size={26} /><b>{scientistCount(game)}</b><small>âlim</small></span>
@@ -107,11 +129,16 @@ export function ResearchPanel({ game, onResearch }: { game: Game; onResearch: (i
       <span><AkceArt className="rs-lamp" /><b>{formatRate(-scientistUpkeepPerMinute(game) * 60)}</b><small>akçe/saat</small></span>
     </div>
     {game.study && <JobProgress job={game.study} now={game.updatedAt} />}
-    <div className="world-tabs rs-tabs" role="group" aria-label="Araştırma dalları">
-      {RESEARCH_BRANCHES.map(b => {
+    {/* V2 Faz 2.6: sekme ızgarası yerine dal adlarıyla şerit; dallar yan yana kaydırılır. */}
+    <div className="rs-strip" role="tablist" aria-label="Araştırma dalları">
+      {RESEARCH_BRANCHES.map((b, k) => {
         const all = RESEARCH_IDS.filter(id => RESEARCH[id].branch === b.key)
-        return <button type="button" key={b.key} aria-pressed={branch === b.key} onClick={() => { setBranch(b.key); setPicked(null) }}>
-          <span>{b.title}</span><small className="rs-count">{all.filter(id => game.research.includes(id)).length}/{all.length}</small></button>
+        const done = all.filter(id => game.research.includes(id)).length
+        return <button type="button" role="tab" key={b.key} aria-selected={branch === b.key} onClick={() => go(k)}
+          style={{ '--b-light': BRANCH[b.key][0], '--b-dark': BRANCH[b.key][1] } as CSSProperties}>
+          <span>{b.title}</span>
+          <span className="rs-strip-meter" aria-label={`${done} / ${all.length} keşfedildi`}><i style={{ width: `${(100 * done) / all.length}%` }} /></span>
+        </button>
       })}
     </div>
     <article className={`rs-detail is-${state}`}>
@@ -131,20 +158,23 @@ export function ResearchPanel({ game, onResearch }: { game: Game; onResearch: (i
         : <GameButton disabled={!!reason} onClick={() => onResearch(sel)}><BookOpen data-icon="inline-start" />{state === 'active' ? 'Sürüyor' : 'Araştır'}</GameButton>}
       {reason && state !== 'done' && state !== 'active' && <p className="fine-print">{reason}</p>}
     </article>
-    {/* Araştırma yolu: her konu çizimiyle bir düğüm; düğümler dal boyunca birbirine bağlı. */}
-    <ol className="rs-list rs-path">{ids.map((id, i) => {
-      const st = researchState(game, id), why = st === 'locked' ? researchReason(game, id) : null
-      const note = st === 'done' ? 'Keşfedildi' : st === 'active' ? 'Âlimler çalışıyor' : why ?? `${RESEARCH[id].cost.toLocaleString('tr-TR')} ilim · ${RESEARCH[id].duration} sn`
-      return <li key={id} className={`is-${st}`}><button type="button" aria-pressed={id === sel} className={`is-${st}`} onClick={() => setPicked(id)}>
-        <span className="rs-node"><ResearchEmblem id={id} size={40} state={st} /><b className="rs-num" data-tiny>{i + 1}</b></span>
-        <span className="rs-copy"><span className="rs-name">{RESEARCH[id].name}</span><small>{note}</small></span>
-        {st === 'done' ? <Check className="rs-tick" aria-label="tamam" /> : st === 'locked' ? <LockKeyhole className="rs-tick" aria-label="kilitli" /> : null}
-      </button></li>
-    })}</ol>
+    {/* Araştırma yolu: her dal bir sayfa; sayfalar yan yana, tek kaydırma dal değiştirir. Seçili düğüm büyür. */}
+    <div className="rs-branches" ref={pager} onScroll={onPage}>{RESEARCH_BRANCHES.map(b => {
+      const list = RESEARCH_IDS.filter(id => RESEARCH[id].branch === b.key)
+      return <ol key={b.key} className="rs-list rs-path" aria-label={`${b.title} yolu`} inert={b.key !== branch}>{list.map((id, i) => {
+        const st = researchState(game, id), why = st === 'locked' ? researchReason(game, id) : null
+        const note = st === 'done' ? 'Keşfedildi' : st === 'active' ? 'Âlimler çalışıyor' : why ?? `${RESEARCH[id].cost.toLocaleString('tr-TR')} ilim · ${RESEARCH[id].duration} sn`
+        return <li key={id} className={`is-${st}`}><button type="button" aria-pressed={id === sel} className={`is-${st}`} onClick={() => setPicked(id)}>
+          <span className="rs-node"><ResearchEmblem id={id} size={40} state={st} /><b className="rs-num" data-tiny>{i + 1}</b></span>
+          <span className="rs-copy"><span className="rs-name">{RESEARCH[id].name}</span><small>{note}</small></span>
+          {st === 'done' ? <Check className="rs-tick" aria-label="tamam" /> : st === 'locked' ? <LockKeyhole className="rs-tick" aria-label="kilitli" /> : null}
+        </button></li>
+      })}</ol>
+    })}</div>
   </div>
 }
 export function JournalPanel({ game }: { game: Game }) {
-  return <div className="journal-panel"><span className="eyebrow">ŞEHRİNİN HİKÂYESİ</span>{groupLog(game.log).map((entry, index) => <div className="journal-entry" key={`${entry.time}-${index}`}><span className="journal-dot" /><div><p>{entry.text}{entry.count > 1 && <b className="ika-events-count"> ×{entry.count}</b>}</p><time>{new Date(entry.time).toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })} · {new Date(entry.time).toLocaleDateString('tr-TR', { day: 'numeric', month: 'short' })}</time></div></div>)}<Hint>Tek oyunculu prototip. Buradaki tüm gelişmeler kendi şehrine aittir; gerçek oyuncu etkinliği gösterilmez.</Hint></div>
+  return <div className="journal-panel"><span className="eyebrow">ŞEHRİNİN HİKÂYESİ</span><EventTimeline log={game.log} now={game.updatedAt} limit={60} /></div>
 }
 
 /**
@@ -243,25 +273,22 @@ export function PeoplePanel({ game, onAssign }: { game: Game; onAssign: (id: Wor
  * Kilidi acilmamis bir ozelligi gizlemek yerine gostermek, oyuncuya hedef verir.
  */
 export function CitiesPanel({
-  game, empire, onBuilding, onSelectCity, onColonize, onCargo, onViewIsland, mapFirst = false, run,
+  game, empire, onBuilding, onSelectCity, onCargo, onMap, run,
 }: {
   run?: Run
   game: Game
   empire: Empire
   onBuilding: (id: BuildingId) => void
   onSelectCity: (cityId: string) => void
-  onColonize: (islandId: IslandId) => void
   onCargo: (cityId: string, resource: Cargo, amount: number) => void
-  onViewIsland: (islandId: IslandId) => void
-  /** Alt menüdeki Harita: dünya haritası en üstte, şehir kartı gizli. */
-  mapFirst?: boolean
+  /** Dünya haritası artık kendi tam ekran sayfası (V2 Faz 2.4). */
+  onMap?: () => void
 }) {
   const current = activeCity(empire)
   const [targetCity, setTargetCity] = useState('')
   const [cargoResource, setCargoResource] = useState<Cargo>('wood')
   const [cargoAmount, setCargoAmount] = useState('100')
   const activeShipment = empire.shipments.find(shipment => shipment.from === current.id)
-  const capital = capitalCity(empire).game
   const isCapital = current.id === capitalId(empire)
   const [confirm, setConfirm] = useState<null | 'move' | 'abandon'>(null)
   const built = BUILDING_IDS.filter(id => game.buildings[id] > 0)
@@ -313,19 +340,11 @@ export function CitiesPanel({
     </section>
 
   </>
-  const worldMap = <>
-    <section className="empire-section">
-      <h3>Dünya haritası · {ISLANDS.length} ada</h3>
-      <Hint>Her adada tek bir lüks kaynak yatağı bulunur: şehir yalnızca kendi adasının kaynağını madenden çıkarır. Diğerlerini koloni kurarak, nakliyeyle ya da Çarşı'daki tüccardan edinirsin. Uzak adalara yolculuk uzun sürer.</Hint>
-      <WorldMap empire={empire} now={game.updatedAt} onSelectCity={onSelectCity} onColonize={onColonize} onViewIsland={onViewIsland}
-        missing={capital.buildings.saray < colonyPalaceLevel(empire) ? `Saray ${colonyPalaceLevel(empire)}. seviye gerekli`
-          : capital.buildings.liman < 1 || idleMerchants(empire) < 3 ? 'Başkentte liman ve limanda boş 3 ticaret gemisi gerekli' : null} />
-      <p className="fine-print">Yeni koloni: {COLONY_COST.gold} akçe, {COLONY_COST.wood} kereste, {COLONY_COST.stone} taş. Saray seviyesi toplam koloni sayısını sınırlar; her şehir ayrı bina, üretim ve orduya sahiptir.</p>
-    </section>
-
-  </>
+  const mapLink = onMap && <section className="empire-section">
+    <GameButton variant="outline" className="wm-open" onClick={onMap}><Compass data-icon="inline-start" />Dünya haritasını aç · {ISLANDS.length} ada<ChevronRight data-icon="inline-end" /></GameButton>
+  </section>
   return <div className="advisor-panel cities-panel">
-    {mapFirst ? <>{worldMap}{cityList}</> : <>{cityCard}{cityList}{worldMap}</>}
+    {cityCard}{cityList}{mapLink}
     <section className="empire-section">
       <h3>Şehirler arası nakliye</h3>
       {activeShipment
@@ -604,3 +623,11 @@ export function BuildingEffects({ game, id, level, max }: { game: Game; id: Buil
       nowLabel={level > 0 ? `Sv. ${level}` : 'Kurulmadı'} nextLabel={`Sv. ${level + 1}`} />)}
   </section>
 }
+
+/** Koloni kurmanın önündeki engel (yoksa null) ve bedeli; dünya haritası çekmecesi gösterir. */
+export function colonyBlocker(empire: Empire): string | null {
+  const capital = capitalCity(empire).game
+  return capital.buildings.saray < colonyPalaceLevel(empire) ? `Saray ${colonyPalaceLevel(empire)}. seviye gerekli`
+    : capital.buildings.liman < 1 || idleMerchants(empire) < 3 ? 'Başkentte liman ve limanda boş 3 ticaret gemisi gerekli' : null
+}
+export const colonyCostText = `${COLONY_COST.gold} akçe, ${COLONY_COST.wood} kereste, ${COLONY_COST.stone} taş`

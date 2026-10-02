@@ -4,13 +4,15 @@ import { KumSaatiArt } from './resource-art'
 /**
  * DÜNYA HARİTASI (Ikariam'daki dünya görünümü): koordinatlı deniz, üstünde
  * adalar. Her adanın yeri [x:y], lüks yatağı, harikası; üstünde senin şehrin,
- * yapay rakip hükümdarlar ve bağımsız yerleşimler görünür. Bir adaya dokununca
- * altında bilgi kartı açılır.
+ * yapay rakip hükümdarlar ve bağımsız yerleşimler görünür. V2 Faz 2.4: harita
+ * bütün sayfayı kaplar; bir adaya dokununca bilgisi alt çekmecede açılır,
+ * harita arkada görünür ve dokunulabilir kalır.
  */
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { Anchor, Crown, Eye } from './ui-art'
+import { Anchor, Crown, Eye, X } from './ui-art'
 import { GameButton } from './game-button'
 import { MapViewport } from './map-viewport'
+import { BottomSheet } from './bottom-sheet'
 import { asset } from '@/lib/asset'
 import { MIRACLES } from '@/lib/game/engine'
 import { activeCity, type Empire } from '@/lib/game/empire'
@@ -25,18 +27,14 @@ const U = 44 // bir koordinat birimi (px, viewBox içinde)
 const clock = (ms: number) => { const m = Math.round(ms / 60_000); return m >= 60 ? `${Math.floor(m / 60)} sa ${m % 60} dk` : `${m} dk` }
 
 
-export function WorldMap({ empire, now, missing, onSelectCity, onColonize, onViewIsland }: {
-  empire: Empire; now: number; missing: string | null
+export function WorldMap({ empire, now, missing, colonyCost, onSelectCity, onColonize, onViewIsland }: {
+  empire: Empire; now: number; missing: string | null; colonyCost: string
   onSelectCity: (id: string) => void; onColonize: (id: IslandId) => void; onViewIsland: (id: IslandId) => void
 }) {
   const here = activeCity(empire)
-  const [sel, setSel] = useState<IslandId>(here.islandId)
+  const [sel, setSel] = useState<IslandId | null>(null)
   const maxX = Math.max(...ISLANDS.map(i => i.x)) + 1.5, maxY = Math.max(...ISLANDS.map(i => i.y)) + 1.5
   const W = maxX * U, H = maxY * U
-  const island = ISLANDS.find(i => i.id === sel)!
-  const own = empire.cities.find(c => c.islandId === sel)
-  const rivals = RIVALS.filter(r => r.islandId === sel)
-  const travel = seaTravelMs(here.islandId, sel, here.game)
   const routes = useMemo(() => empire.cities.filter(c => c.id !== here.id).map(c => ISLANDS.find(i => i.id === c.islandId)!), [empire.cities, here.id])
   const home = ISLANDS.find(i => i.id === here.islandId)!
   const at = (id: IslandId) => { const i = ISLANDS.find(x => x.id === id)!; return { x: (i.x + 0.75) * U, y: (i.y + 0.75) * U } }
@@ -119,25 +117,41 @@ export function WorldMap({ empire, now, missing, onSelectCity, onColonize, onVie
         })}
       </svg>
     </MapViewport>
-    <div className="wm-legend"><span><i className="wm-dot wm-you" />Şehrin</span><span><i className="wm-dot wm-rival" />Yapay rakip</span><span>Renk: lüks yatağı</span>{wars.length > 0 && <span><i className="wm-dot wm-war" />Rakip savaşı</span>}</div>
-    <article className="wm-card">
-      <div className="wm-card-top">
-        <span><span className="eyebrow">[{island.x}:{island.y}] · {island.specialty.toLocaleUpperCase('tr')} YATAĞI</span><strong>{island.name}</strong>
-          <small>Harika: {MIRACLES[island.wonder].wonder} ({MIRACLES[island.wonder].name})</small></span>
-      </div>
+    <div className="wm-legend" aria-label="Harita işaretleri"><span><i className="wm-dot wm-you" />Şehrin</span><span><i className="wm-dot wm-rival" />Yapay rakip</span>{wars.length > 0 && <span><i className="wm-dot wm-war" />Savaş</span>}</div>
+    {!sel && <p className="wm-tip">Bir adaya dokun</p>}
+    {sel && <IslandSheet key={sel} empire={empire} now={now} id={sel} missing={missing} colonyCost={colonyCost} onClose={() => setSel(null)}
+      onSelectCity={onSelectCity} onColonize={onColonize} onViewIsland={onViewIsland} />}
+  </div>
+}
+
+function IslandSheet({ empire, now, id, missing, colonyCost, onClose, onSelectCity, onColonize, onViewIsland }: {
+  empire: Empire; now: number; id: IslandId; missing: string | null; colonyCost: string; onClose: () => void
+  onSelectCity: (id: string) => void; onColonize: (id: IslandId) => void; onViewIsland: (id: IslandId) => void
+}) {
+  const here = activeCity(empire)
+  const island = ISLANDS.find(i => i.id === id)!
+  const own = empire.cities.find(c => c.islandId === id)
+  const rivals = RIVALS.filter(r => r.islandId === id)
+  const travel = seaTravelMs(here.islandId, id, here.game)
+  return <BottomSheet label={`${island.name} adası`} onClose={onClose} modeless>
+    <header className="bp-bar">
+      <div className="bp-title"><h1>{island.name}</h1><small>[{island.x}:{island.y}] · {island.specialty} yatağı · Harika: {MIRACLES[island.wonder].wonder}</small></div>
+      <button type="button" className="bp-back" onClick={onClose} aria-label="Kapat"><X /></button>
+    </header>
+    <div className="bp-scroll wm-sheet">
       <ul className="wm-facts">
-        <li><Crown className="size-3" />{own ? `Şehrin: ${own.name} (Divanhane ${own.game.buildings.divan})` : 'Burada şehrin yok'}</li>
-        {rivals.map(r => <li key={r.id}><span className="wm-dot wm-rival" />{r.city} · {r.ruler} · sv. {rivalLevel(empire, r, now)} (yapay rakip){rivalWarLine(empire, r.id) ? ` · ⚔ ${rivalWarLine(empire, r.id)!.split(' (')[0]}` : ''}</li>)}
-        <li><Anchor className="size-3" />Üç bağımsız yerleşim: köy, korsan ini, asi kalesi</li>
-        {sel !== here.islandId && <li><KumSaatiArt className="size-3" />{here.name} şehrinden deniz yolu ~{clock(travel)}</li>}
+        <li><Crown className="size-4" />{own ? `Şehrin: ${own.name} (Divanhane ${own.game.buildings.divan})` : 'Burada şehrin yok'}</li>
+        {rivals.map(r => <li key={r.id}><span className="wm-dot wm-rival" />{r.city} · {r.ruler} · Sv. {rivalLevel(empire, r, now)} (yapay rakip){rivalWarLine(empire, r.id) ? ` · ⚔ ${rivalWarLine(empire, r.id)!.split(' (')[0]}` : ''}</li>)}
+        <li><Anchor className="size-4" />Üç bağımsız yerleşim: köy, korsan ini, asi kalesi</li>
+        {id !== here.islandId && <li><KumSaatiArt className="size-4" />{here.name} şehrinden deniz yolu ~{clock(travel)}</li>}
       </ul>
       <div className="batch-row">
-        <GameButton size="sm" variant="outline" onClick={() => onViewIsland(sel)}><Eye data-icon="inline-start" />Adayı gör</GameButton>
+        <GameButton variant="outline" onClick={() => onViewIsland(id)}><Eye data-icon="inline-start" />Adayı gör</GameButton>
         {own
-          ? <GameButton size="sm" onClick={() => onSelectCity(own.id)} disabled={own.id === here.id}>{own.id === here.id ? 'Bu şehir' : 'Şehre git'}</GameButton>
-          : <GameButton size="sm" disabled={!!missing} onClick={() => onColonize(sel)}>Koloni kur</GameButton>}
+          ? <GameButton onClick={() => onSelectCity(own.id)} disabled={own.id === here.id}>{own.id === here.id ? 'Bu şehir' : 'Şehre git'}</GameButton>
+          : <GameButton disabled={!!missing} onClick={() => onColonize(id)}>Koloni kur</GameButton>}
       </div>
-      {!own && missing && <p className="fine-print">{missing}</p>}
-    </article>
-  </div>
+      {!own && <p className="fine-print">{missing ?? `Koloni bedeli: ${colonyCost}.`}</p>}
+    </div>
+  </BottomSheet>
 }

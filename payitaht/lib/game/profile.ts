@@ -127,3 +127,20 @@ export function profileRanks(empire: Empire, now: number) {
 }
 export const allianceName = (empire: Empire) => empire.world?.pact ? `${empire.world.pact.name} [${empire.world.pact.tag}]` : empire.world?.alliance ? FACTIONS[empire.world.alliance].name : null
 export { playerScore }
+
+/**
+ * YAPAY RAKİP ARMASI (V2 Faz 2.3) — rakipler kayıtta arma saklamaz; arma ve
+ * renk kimlikten türetilir, her açılışta aynı çıkar. Sembol üslubu anlatır
+ * (savaşçıda kılıç, âlimde kitap...), renk sıradan gelir: iki rakip aynı
+ * arma ve rengi birlikte taşımaz.
+ */
+const STYLE_CRESTS: Record<'tuccar' | 'savasci' | 'alim' | 'denizci', CrestId[]> = {
+  savasci: ['kilic', 'kartal', 'kurt', 'okyay'], tuccar: ['lale', 'cark', 'gunes', 'hilal'], alim: ['kitap', 'cinar', 'gunes', 'kule'], denizci: ['gemi', 'hilal', 'kule', 'cark'],
+}
+export function rivalHeraldry(rivalId: string): { crest: CrestId; color: string } {
+  const i = Math.max(0, RIVALS.findIndex(r => r.id === rivalId))
+  const r = RIVALS[i]
+  const pool = STYLE_CRESTS[r.style]
+  const nth = RIVALS.slice(0, i).filter(x => x.style === r.style).length
+  return { crest: pool[nth % pool.length], color: CREST_COLORS[(i * 5 + 1) % CREST_COLORS.length] }
+}

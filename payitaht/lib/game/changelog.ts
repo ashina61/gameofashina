@@ -6,6 +6,21 @@ export type Release = { version: string; date: string; title: string; notes: str
 
 export const CHANGELOG: Release[] = [
   {
+    version: '0.33.0', date: '2 Ekim 2026', title: 'Bütün sayfalar sahne: harita, teklifler, savaş, ittifak',
+    notes: [
+      'Dünya haritası bütün ekranı kaplıyor; bir adaya dokununca bilgisi alttan açılır, harita arkada kaydırılmaya devam eder. Şehirler sayfasında "Dünya haritasını aç" düğmesi var.',
+      'Teklif kartlarında yapay rakibin arması, büyük "Verir ⇄ İster" mal jetonları ve kalan süre çubuğu; süre azalınca çubuk kızarır.',
+      'Sıralamada ilk üç hükümdar armalarıyla kürsüde duruyor, kalanlar altta liste.',
+      'Savaş özeti açılınca canlanıyor: ordular karşılaşır, kayıplar sırayla düşer, sonda ZAFER ya da YENİLGİ mührü basılır. "Geç" ile hemen biter.',
+      'Araştırmada dallar şerit oldu; yolu sağa sola kaydırarak dal değiştirirsin, seçili konu büyür.',
+      'İttifak: sancağın dibinde itibar madalyonu, üyeler armalı kartlarda, duyuru rulo parşömende.',
+      'Günlük görev, büyük hedef ve ittifak görevleri aynı kartta: görsel, kalın ilerleme çubuğu, ödül sandığı ve jetonlar. Büyük hedeflerde ilgili binanın resmi var.',
+      'Vezir\'in şehir listesi kart oldu; şehir günlüğü ve olaylar gün gün, simgeli zaman çizelgesinde.',
+      'Şehir, üstünde tam ekran bir sayfa açıkken çizilmiyor: pil daha az gidiyor ve sayfa animasyonları takılmıyor.',
+      'Düzeltme: dar ekranda bina sayfasındaki "eksik" yazısı ekrandan taşıyordu.',
+    ],
+  },
+  {
     version: '0.32.0', date: '2 Ekim 2026', title: 'Bina sayfası sahne oldu, rozetler sakinleşti',
     notes: [
       'Bina sayfasında Yükselt düğmesi artık altta sabit: maliyet jetonları ve süre hep görünür, sayfayı kaydırmak gerekmez.',

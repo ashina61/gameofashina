@@ -5,6 +5,8 @@ async function checkMapZoom(page, selector, label, out) {
   const frame = page.locator(selector)
   const viewport = frame.locator('.map-viewport')
   await viewport.waitFor()
+  // Sayfa kayarak açılır; sabit arayüz, giriş animasyonu bitince ölçülür.
+  await page.waitForFunction(() => document.getAnimations().every(a => a.playState !== 'running' || a.effect?.getComputedTiming().iterations === Infinity))
   const fixed = await page.locator('.ika-top, .ika-nav, .island-toolbar, .bp-bar').evaluateAll(els => els.map(el => {
     const b = el.getBoundingClientRect(); return [b.x, b.y, b.width, b.height]
   }))

@@ -1017,7 +1017,7 @@
 .ika-city { flex: 1; min-width: 0; display: flex; align-items: center; gap: 7px; background: none; border: 0; padding: 2px 0; color: #f7e8c0; text-align: left; }
 .ika-city > svg { width: 16px; height: 16px; flex-shrink: 0; color: var(--c-gold); }
 .ika-city-level { width: 32px; height: 32px; flex-shrink: 0; display: grid; place-items: center; border-radius: 50%;
-  background: radial-gradient(circle at 35% 25%, #7d5830, #3b2414 68%); border: 2px solid #d9b96f;
+  background: radial-gradient(circle at 35% 25%, #7d5830, var(--c-wood-dark) 68%); border: 2px solid #d9b96f;
   font-family: var(--font-heading), Georgia, serif; font-weight: 800; font-size: 15px; color: #fff0c7;
   box-shadow: 0 2px 5px #000a, inset 0 1px #fff3; }
 .ika-city-name { display: flex; flex-direction: column; min-width: 0; line-height: 1.1; }
@@ -2600,7 +2600,7 @@
 .treasury-row { display: grid; grid-template-columns: 44px minmax(0, 1fr) auto; align-items: center; gap: 10px; padding: 7px 9px;
   border-radius: 10px; border: 1px solid #c9a76c; background: linear-gradient(180deg, #fff8e2, #f3e3b6); box-shadow: 0 1px 2px #5a351722; }
 .treasury-icon { width: 44px; height: 44px; display: grid; place-items: center; border-radius: 50%;
-  background: radial-gradient(circle at 40% 30%, #7d5830, #3b2414 70%); border: 2px solid #d9b96f; box-shadow: 0 2px 4px #0005, inset 0 1px #fff3; }
+  background: radial-gradient(circle at 40% 30%, #7d5830, var(--c-wood-dark) 70%); border: 2px solid #d9b96f; box-shadow: 0 2px 4px #0005, inset 0 1px #fff3; }
 .treasury-icon svg { width: 28px; height: 28px; filter: drop-shadow(0 1px 1px #0008); }
 .treasury-main { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
 .treasury-name { display: flex; align-items: baseline; gap: 6px; min-width: 0; }
@@ -2733,7 +2733,7 @@
 .sk-row { display: grid; grid-template-columns: 40px minmax(0, 1fr) auto; align-items: center; gap: 10px; padding: 6px 10px 6px 6px;
   border-radius: 12px; border: 1px solid #d3b57c; background: linear-gradient(180deg, var(--c-paper), #f6e7c4); }
 .sk-medal { width: 40px; height: 40px; display: grid; place-items: center; border-radius: 50%;
-  background: radial-gradient(circle at 40% 30%, #7d5830, #3b2414 70%); border: 2px solid #d9b96f; box-shadow: 0 2px 3px #0004, inset 0 1px #fff3; }
+  background: radial-gradient(circle at 40% 30%, #7d5830, var(--c-wood-dark) 70%); border: 2px solid #d9b96f; box-shadow: 0 2px 3px #0004, inset 0 1px #fff3; }
 .sk-medal svg { width: 24px; height: 24px; }
 .sk-label { display: flex; flex-direction: column; min-width: 0; font-size: 14px; font-weight: 800; color: var(--c-ink); }
 .sk-label small { font-size: 11px; font-weight: 600; color: var(--c-ink-soft); }
@@ -2806,7 +2806,7 @@
 .bp-building .bp-hero { height: clamp(200px, 26vh, 250px); }
 .bp-plaque { position: absolute; z-index: 2; left: 50%; bottom: 8px; transform: translateX(-50%); display: flex; align-items: center; gap: 0; pointer-events: none; }
 .bp-plaque-level { position: relative; z-index: 1; width: 48px; height: 48px; display: grid; place-items: center; border-radius: 50%;
-  background: radial-gradient(circle at 40% 30%, #8a5a2e, #3b2414 70%); border: 3px solid var(--c-gold); box-shadow: 0 3px 6px #0007, inset 0 1px #fff4;
+  background: radial-gradient(circle at 40% 30%, #8a5a2e, var(--c-wood-dark) 70%); border: 3px solid var(--c-gold); box-shadow: 0 3px 6px #0007, inset 0 1px #fff4;
   font-family: var(--font-heading), Georgia, serif; font-size: 22px; font-weight: 800; color: var(--c-cream); text-shadow: 0 1px 2px #000; }
 .bp-plaque-text { display: flex; flex-direction: column; margin-left: -10px; padding: 4px 14px 4px 18px; border-radius: 0 10px 10px 0;
   background: linear-gradient(180deg, #a63a28, #6e1e14); box-shadow: 0 2px 5px #0006; color: var(--c-cream); line-height: 1.15; }
@@ -2835,6 +2835,10 @@
 .bp-dock .bp-costs li { padding: 3px 4px; gap: 4px; font-size: 13px; }
 .bp-dock .sk-token { width: 24px; height: 24px; }
 .bp-dock .sk-token svg { width: 18px; height: 18px; }
+/* Dokta jeton dar (62px): "eksik N" kendi satırına iner, sığmazsa kırılır; ekrandan taşmaz. */
+.bp-dock .bp-costs li.bp-short { grid-template-rows: auto auto; }
+.bp-dock .bp-costs li.bp-short > :first-child { grid-row: 1; }
+.bp-dock .bp-costs li.bp-short small { grid-column: 1 / -1; white-space: normal; text-align: center; overflow-wrap: anywhere; }
 .bp-dock .bp-warn { font-size: 12px; margin: 0; display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; }
 .bp-dock .bp-warn svg { display: none; }
 .bp-up-time { display: inline-flex; align-items: center; gap: 3px; margin-left: 4px; padding: 2px 8px; border-radius: 999px;
@@ -2847,3 +2851,215 @@
 .game-shell:has(.bp-dock) .ika-nav-center { transform: none; }
 .game-shell:has(.bp-dock) .ika-nav-center .ika-nav-icon { margin-top: 0; width: 40px; height: 40px; }
 .game-shell:has(.bp-dock) .ika-nav-center .ika-nav-icon svg { width: 22px; height: 22px; }
+
+/* =========================================================================
+ * V2 FAZ 2.2 — DANIŞMAN SAYFALARI: tablo yerine şehir kartları, ikili değer
+ * ızgarası ve simgeli, güne göre gruplu olay zaman çizelgesi.
+ * ========================================================================= */
+.sk-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.sk-grid .sk-row { grid-template-columns: 34px minmax(0, 1fr); grid-template-rows: auto auto; row-gap: 0; padding: 6px 8px 6px 6px; }
+.sk-grid .sk-medal { grid-row: 1 / 3; width: 34px; height: 34px; }
+.sk-grid .sk-medal svg { width: 20px; height: 20px; }
+.sk-grid .sk-label { font-size: 12px; font-weight: 700; color: var(--c-ink-soft); }
+.sk-grid .sk-value { grid-column: 2; font-size: 15px; white-space: normal; }
+
+.cc-list { display: flex; flex-direction: column; gap: 6px; }
+.cc-card { display: grid; grid-template-columns: 44px minmax(0, 1fr); align-items: center; gap: 10px; width: 100%; padding: 8px 10px 8px 8px;
+  text-align: left; border-radius: 12px; border: 1px solid #d3b57c; background: linear-gradient(180deg, var(--c-paper), #f6e7c4); }
+.cc-card.is-here { border-color: var(--c-gold-deep); box-shadow: inset 0 0 0 1px var(--c-gold); }
+.cc-medal { width: 44px; height: 44px; display: grid; place-items: center; border-radius: 50%;
+  background: radial-gradient(circle at 40% 30%, #8a5a2e, var(--c-wood-dark) 70%); border: 2px solid var(--c-gold);
+  font-family: var(--font-heading), Georgia, serif; font-size: 18px; font-weight: 800; color: var(--c-cream); box-shadow: 0 2px 3px #0005; }
+.cc-main { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.cc-name { display: flex; align-items: baseline; gap: 6px; }
+.cc-name strong { font-family: var(--font-heading), Georgia, serif; font-size: 17px; color: var(--c-ink); }
+.cc-name small { padding: 0 6px; border-radius: 999px; background: var(--c-gold); color: var(--c-ink-deep); font-size: 11px; font-weight: 800; }
+.cc-job { display: flex; align-items: center; gap: 5px; font-size: 12px; font-weight: 700; color: var(--c-ink-soft); }
+.cc-job svg { width: 18px; height: 18px; }
+.cc-job.is-idle { color: var(--c-bad); }
+
+.tl { display: flex; flex-direction: column; gap: 10px; }
+.tl-day-head { display: flex; align-items: center; gap: 8px; margin: 0 0 4px; font-size: 12px; font-weight: 800; color: var(--c-ink-soft); letter-spacing: .04em; }
+.tl-day-head::after { content: ''; flex: 1; height: 1px; background: linear-gradient(90deg, var(--c-tan-line), transparent); }
+.tl ol { position: relative; list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px; }
+.tl ol::before { content: ''; position: absolute; left: 17px; top: 6px; bottom: 6px; width: 2px; background: #c9a86a66; }
+.tl-item { position: relative; display: grid; grid-template-columns: 36px minmax(0, 1fr) auto; align-items: center; gap: 8px; padding: 3px 0; }
+.tl-icon { width: 36px; height: 36px; display: grid; place-items: center; border-radius: 50%; border: 2px solid var(--c-tan-gold);
+  background: radial-gradient(circle at 40% 30%, var(--c-paper), #ead39a 75%); box-shadow: 0 1px 2px #5a351733; }
+.tl-icon svg { width: 22px; height: 22px; }
+.tl-item.is-war .tl-icon { border-color: #b3261e99; }
+.tl-item.is-reward .tl-icon { border-color: var(--c-gold-deep); }
+.tl-text { font-size: 13px; line-height: 1.35; color: var(--c-ink); }
+.tl-item time { font-size: 11px; font-weight: 700; color: var(--c-ink-muted); font-variant-numeric: tabular-nums lining-nums; }
+
+/* =========================================================================
+ * V2 Faz 2.3 — TEKLİF KARTI VE KÜRSÜ: hükümdarın arması başta, mallar büyük
+ * boyalı jeton, alıntı ikincil, süre çubuğu, iki büyük düğme. Sıralamada ilk
+ * üç kürsüde (ortada birinci), kalanlar liste.
+ * ========================================================================= */
+.proposal-card { gap: 10px; padding: 12px 12px 14px; border-top: 5px solid var(--crest, var(--c-tan-border-2)); }
+.proposal-head { align-items: flex-start; }
+.proposal-head .proposal-from { flex-direction: row; align-items: center; gap: 10px; min-width: 0; flex: 1; cursor: pointer; }
+.proposal-head .proposal-from > span { display: flex; flex-direction: column; min-width: 0; }
+.proposal-head .proposal-from strong { font-size: var(--fs-xl); }
+.proposal-head .proposal-from small { line-height: 1.3; }
+.proposal-head .ruler-crest { flex: none; filter: drop-shadow(0 2px 2px #3b241444); }
+.proposal-ai { font-weight: 800; letter-spacing: 0.4px; text-transform: uppercase; color: var(--c-ink-muted) !important; }
+.proposal-head .proposal-kind { flex: none; padding: 4px 8px; border-radius: 999px; background: var(--c-parch-2); border: 1px solid var(--c-parch-edge); }
+.proposal-deal { display: grid; grid-template-columns: 1fr auto 1fr; gap: 6px; align-items: stretch; }
+.proposal-deal:has(> :only-child) { grid-template-columns: 1fr; }
+.deal-token { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 8px 6px 9px; border-radius: 12px; border: 1.5px solid var(--c-tan-line); background: linear-gradient(180deg, var(--c-paper), var(--c-parch-2)); box-shadow: inset 0 1px #fff, 0 2px 4px #5a351722; font-variant-numeric: tabular-nums; }
+.deal-token.is-give { border-color: #6f9a5b; background: linear-gradient(180deg, #f6fbe9, #e4efcb); }
+.deal-token.is-want { border-color: var(--c-gold-deep); }
+.deal-token small { font-size: var(--fs-xs); font-weight: 800; letter-spacing: 0.8px; text-transform: uppercase; color: var(--c-ink-soft); }
+.deal-medal { width: 44px; height: 44px; display: grid; place-items: center; border-radius: 50%; background: radial-gradient(circle at 35% 30%, var(--c-cream), var(--c-parch-shade)); border: 2px solid var(--c-gold-soft); box-shadow: inset 0 -2px 3px #5a351733; }
+.deal-medal svg { width: 30px; height: 30px; }
+.deal-token b { font-size: var(--fs-xl); line-height: 1.1; color: var(--c-ink); }
+.deal-token em { font-style: normal; font-size: var(--fs-xs); color: var(--c-ink-soft); text-align: center; }
+.proposal-deal .proposal-swap { align-self: center; font-size: 22px; font-weight: 800; color: var(--c-wood-edge); }
+.proposal-text { font-size: var(--fs-sm); color: var(--c-ink-soft); padding-left: 8px; border-left: 2px solid var(--c-parch-edge); }
+.proposal-time { display: flex; align-items: center; gap: 8px; }
+.proposal-time-bar { flex: 1; height: 8px; border-radius: 999px; background: var(--c-parch-shade); box-shadow: inset 0 1px 2px #3b241433; overflow: hidden; }
+.proposal-time-bar > span { display: block; height: 100%; border-radius: inherit; background: linear-gradient(180deg, var(--c-gold), var(--c-gold-deep)); }
+.proposal-time.is-late .proposal-time-bar > span { background: linear-gradient(180deg, #e0715f, var(--c-bad)); }
+.proposal-time time { flex: none; font-size: var(--fs-sm); font-weight: 700; color: var(--c-ink); }
+.proposal-time.is-late time { color: var(--c-bad); }
+.proposal-actions { gap: 10px; }
+.proposal-actions [data-slot="button"] { min-height: 48px; }
+
+.rank-podium { list-style: none; margin: 4px 0 10px; padding: 0; display: grid; grid-template-columns: 1fr 1.15fr 1fr; align-items: end; gap: 6px; }
+.rank-podium li { display: flex; flex-direction: column; min-width: 0; }
+.rank-podium button { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 6px 4px 8px; background: none; border: 0; color: var(--c-ink); text-align: center; cursor: pointer; min-width: 0; }
+.rank-podium button:disabled { cursor: default; opacity: 1; }
+.rank-podium strong { font-family: var(--font-heading), Georgia, serif; font-size: var(--fs-md); line-height: 1.15; max-width: 100%; overflow-wrap: anywhere; }
+.rank-podium small { font-size: var(--fs-xs); color: var(--c-ink-muted); }
+.rank-podium b { font-size: var(--fs-base); font-variant-numeric: tabular-nums; color: var(--c-ink-deep); }
+.podium-step { display: grid; place-items: center; border-radius: 8px 8px 3px 3px; color: var(--c-gold-pale); font-size: var(--fs-2xl); font-weight: 800; line-height: 1; font-variant-numeric: lining-nums; text-shadow: 0 1px 1px #0006; background: linear-gradient(180deg, var(--c-brown-warm), var(--c-wood-dark)); border: 2px solid var(--c-gold-soft); border-bottom: 0; box-shadow: inset 0 2px #ffffff33; }
+.podium-1 .podium-step { height: 64px; background: linear-gradient(180deg, var(--c-gold-mid), var(--c-brass-dark)); }
+.podium-2 .podium-step { height: 46px; }
+.podium-3 .podium-step { height: 34px; }
+.rank-podium .rank-you button strong { color: var(--c-gold-deep); }
+.rank-podium .rank-you .podium-step { border-color: var(--c-gold-pale); }
+
+/* =========================================================================
+ * V2 Faz 2.4 — TAM EKRAN DÜNYA HARİTASI: harita sayfanın tamamını kaplar
+ * (hedef: görünür alanın ≥ %75'i), işaretler sol üstte yüzer, adanın bilgisi
+ * arka perdesiz alt çekmecede açılır; harita arkada dokunulabilir kalır.
+ * ========================================================================= */
+.game-shell .bp-mapview > .bp-scroll { padding: 0; gap: 0; max-width: none; overflow: hidden; }
+.bp-mapview .world-map { position: relative; flex: 1; min-height: 0; display: flex; flex-direction: column; }
+.bp-mapview .world-map-scroll.map-viewport-frame { flex: 1; height: auto; max-height: none; border: 0; border-radius: 0; box-shadow: inset 0 0 40px #0006; }
+.bp-mapview .wm-legend { position: absolute; z-index: 2; top: 10px; left: 10px; gap: 4px 10px; padding: 6px 10px; border-radius: 10px; color: var(--c-parch); background: #102e38d9; border: 1px solid #c8b57c80; font-size: var(--fs-xs); pointer-events: none; }
+.bp-mapview .wm-tip { position: absolute; z-index: 2; left: 50%; bottom: 14px; transform: translateX(-50%); margin: 0; padding: 6px 14px; border-radius: 999px; color: var(--c-cream); background: #102e38d9; border: 1px solid #c8b57c80; font-size: var(--fs-sm); font-weight: 700; pointer-events: none; white-space: nowrap; }
+.bp-mapview .map-zoom-controls { top: 10px; bottom: auto; flex-direction: column; }
+.bp.bp-sheet.is-modeless { max-height: 46dvh; }
+.wm-sheet { padding-top: 10px; }
+.wm-sheet .wm-facts { font-size: var(--fs-md); gap: 6px; }
+.wm-sheet .wm-facts svg { flex: none; color: var(--c-ink-soft); }
+.wm-sheet .batch-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.wm-ship { animation: wm-bob 2.4s ease-in-out infinite; transform-box: fill-box; }
+@keyframes wm-bob { 50% { translate: 0 -2px; } }
+@media (prefers-reduced-motion: reduce) { .wm-ship { animation: none; } }
+.wm-open { width: 100%; justify-content: center; }
+
+/* =========================================================================
+ * V2 Faz 2.5 — CANLANAN SAVAŞ ÖZETİ (~2,5 sn): ordular iki yandan gelir,
+ * çubuklar erir, kayıplar sırayla düşer, sonda mühür basılır. Son kare
+ * animasyonsuz hâlle aynıdır; .is-done ve azaltılmış hareket onu gösterir.
+ * ========================================================================= */
+.bs-banner { position: relative; flex-direction: column; align-items: center; gap: 2px; padding: 10px 56px 18px; background: linear-gradient(180deg, var(--c-brown-warm), var(--c-wood-dark)); border-bottom: 2px solid var(--c-gold-soft); text-align: center; }
+.bs.is-lost .bs-banner { background: linear-gradient(180deg, var(--c-brown-warm), var(--c-wood-dark)); }
+.bs-banner small { text-align: center; }
+.bs-stamp { display: inline-block; padding: 1px 14px 0; border: 3px double currentColor; border-radius: 6px; font-family: var(--font-heading), Georgia, serif; font-size: var(--fs-2xl); letter-spacing: .14em; line-height: 1.15; transform: rotate(-4deg);
+  color: #9fe08f; background: #1f3d1f99; text-shadow: 0 1px 2px #0008; }
+.bs.is-lost .bs-stamp { color: #ffb4a3; background: #4a1a1299; }
+.bs-skip { position: absolute; right: 8px; top: 50%; translate: 0 -50%; min-width: 44px; min-height: 44px; padding: 0 10px; border-radius: 999px; border: 1px solid #c9a45a88; background: #2a170899; color: var(--c-cream); font-size: var(--fs-sm); font-weight: 700; }
+.bs-sides { position: relative; }
+.bs-vs { position: absolute; z-index: 1; left: 50%; top: -21px; width: 30px; height: 30px; margin-left: -15px; display: grid; place-items: center; border-radius: 50%; color: var(--c-gold-pale); background: radial-gradient(circle at 40% 30%, var(--c-brown-warm), var(--c-wood-dark)); border: 2px solid var(--c-gold-soft); box-shadow: 0 2px 4px #0006; }
+.bs-vs svg { width: 16px; height: 16px; }
+
+.bs:not(.is-done) .bs-side { animation: bs-arrive .5s cubic-bezier(.2,.8,.2,1) both; }
+.bs:not(.is-done) .bs-vs { animation: bs-clash .9s .35s ease-out both; }
+.bs:not(.is-done) .bs-bar:not(.is-morale) i { animation: bs-drain 1.3s .6s ease-in-out both; }
+.bs:not(.is-done) .bs-unit em { animation: bs-fall .35s var(--d, .8s) cubic-bezier(.3,1.6,.5,1) both; }
+.bs:not(.is-done) .bs-unit.is-wiped { animation: bs-wipe .4s calc(var(--d, .8s) + .2s) ease-out both; }
+.bs:not(.is-done) .bs-stamp { animation: bs-stamp .45s 1.9s cubic-bezier(.2,1.4,.4,1) both; }
+@keyframes bs-arrive { from { opacity: 0; translate: var(--from, 0) 0; } }
+@keyframes bs-clash { 0%, 100% { scale: 1; } 30% { scale: 1.45; box-shadow: 0 0 0 6px #f2d37d55; } }
+@keyframes bs-drain { from { width: 100%; } }
+@keyframes bs-fall { from { opacity: 0; translate: 0 -10px; scale: 1.4; } }
+@keyframes bs-wipe { from { opacity: 1; filter: none; } }
+@keyframes bs-stamp { from { opacity: 0; transform: rotate(-14deg) scale(2.4); } }
+@media (prefers-reduced-motion: reduce) {
+  .bs .bs-side, .bs .bs-vs, .bs .bs-bar i, .bs .bs-unit em, .bs .bs-unit.is-wiped, .bs .bs-stamp { animation: none !important; }
+  .bs-skip { display: none; }
+}
+
+/* =========================================================================
+ * V2 Faz 2.6 — ARAŞTIRMA: dal şeridi + yan yana dal sayfaları (scroll-snap);
+ * tek kaydırma dal değiştirir, seçili düğüm büyür.
+ * ========================================================================= */
+.rs-strip { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; margin: 2px -12px 0; padding: 2px 12px 4px; scroll-snap-type: x proximity; }
+.rs-strip::-webkit-scrollbar { display: none; }
+.rs-strip button { flex: none; scroll-snap-align: center; display: flex; flex-direction: column; justify-content: center; gap: 4px; min-height: 44px; min-width: 92px; padding: 6px 12px; border-radius: 999px;
+  border: 1.5px solid var(--b-dark); background: linear-gradient(180deg, var(--c-paper), var(--b-light)); color: var(--c-ink); font-size: var(--fs-md); font-weight: 700; }
+.rs-strip button[aria-selected="true"] { color: var(--c-paper); background: linear-gradient(180deg, var(--b-dark), var(--c-wood-dark)); border-color: var(--c-gold-soft); box-shadow: 0 2px 6px #3b241455, inset 0 1px #ffffff33; }
+.rs-strip-meter { display: block; height: 4px; border-radius: 4px; background: #3b241422; overflow: hidden; }
+.rs-strip-meter i { display: block; height: 100%; background: var(--b-dark); }
+.rs-strip [aria-selected="true"] .rs-strip-meter { background: #ffffff33; }
+.rs-strip [aria-selected="true"] .rs-strip-meter i { background: var(--c-gold-pale); }
+.rs-branches { display: flex; align-items: flex-start; overflow-x: auto; overscroll-behavior-x: contain; scroll-snap-type: x mandatory; scrollbar-width: none; }
+.rs-branches::-webkit-scrollbar { display: none; }
+.rs-branches > .rs-path { flex: 0 0 100%; min-width: 0; scroll-snap-align: start; scroll-snap-stop: always; }
+.rs-path button .rs-node { transition: scale .2s ease; }
+.rs-path button[aria-pressed="true"] .rs-node { scale: 1.18; }
+.bp .rs-path li button[aria-pressed="true"] { min-height: 62px; box-shadow: 0 2px 8px #5a351733; }
+
+/* =========================================================================
+ * V2 Faz 2.7 — İTTİFAK: başta sancak + ad + itibar madalyonu, üyeler armalı
+ * portre kartı, görevler ilerleme çubuklu ödül kartı, duyuru rulo parşömen.
+ * ========================================================================= */
+/* Madalyon sancağın dibine asılı mühür gibi durur; yazının yerini almaz. */
+.alliance-head { position: relative; }
+.pact-medal { position: absolute; left: 6px; bottom: 6px; width: 58px; height: 58px; display: flex; flex-direction: column; align-items: center; justify-content: center; border-radius: 50%; color: var(--c-ink-deep);
+  background: radial-gradient(circle at 38% 30%, var(--c-gold-pale), var(--c-gold-mid) 70%, var(--c-brass-dark)); border: 3px solid var(--c-gold-deep); box-shadow: 0 3px 6px #3b241455, inset 0 2px #ffffff88, inset 0 -3px 4px #3b241444; }
+.pact-medal svg { width: 16px; height: 16px; color: var(--c-brass-dark); }
+.pact-medal b { font-size: var(--fs-base); line-height: 1; font-variant-numeric: tabular-nums lining-nums; }
+.alliance-head .pact-medal small { font-size: var(--fs-xs); line-height: 1; color: var(--c-brass-dark); font-weight: 700; }
+.pact-scroll { position: relative; padding: 12px 16px; border-radius: 4px; border: 0; background: linear-gradient(180deg, var(--c-cream), var(--c-parch-2) 60%, var(--c-parch-shade)); box-shadow: 0 2px 5px #5a351733;
+  border-left: 8px solid var(--c-wood-edge); border-right: 8px solid var(--c-wood-edge); border-image: none; }
+.pact-scroll::before, .pact-scroll::after { content: ''; position: absolute; top: -3px; bottom: -3px; width: 6px; border-radius: 3px; background: linear-gradient(90deg, var(--c-brass-dark), var(--c-gold-soft), var(--c-brass-dark)); }
+.pact-scroll::before { left: -10px; } .pact-scroll::after { right: -10px; }
+.member-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; }
+.member-card { display: flex; flex-direction: column; gap: 8px; padding: 10px; border-radius: 12px; border: 1.5px solid var(--c-tan-line); background: linear-gradient(180deg, var(--c-paper), var(--c-parch-2)); box-shadow: 0 2px 4px #5a351722; }
+.member-card.is-you { align-items: center; text-align: center; border-color: var(--c-gold-deep); }
+.member-card-name { display: flex; align-items: center; gap: 8px; min-width: 0; padding: 0; border: 0; background: none; text-align: left; color: var(--c-ink); }
+.member-card.is-you .member-card-name { flex-direction: column; gap: 0; text-align: center; }
+.member-card-name > span { display: flex; flex-direction: column; min-width: 0; }
+.member-card-name strong { font-family: var(--font-heading), Georgia, serif; font-size: var(--fs-lg); line-height: 1.1; overflow-wrap: anywhere; }
+.member-card-name small { font-size: var(--fs-xs); color: var(--c-ink-soft); line-height: 1.3; }
+.member-card .ruler-crest { flex: none; }
+.member-rank { padding: 2px 10px; border-radius: 999px; background: var(--c-wood-dark); color: var(--c-gold-pale); font-size: var(--fs-xs); font-weight: 700; }
+.member-card-tools { display: grid; grid-template-columns: minmax(0, 1fr) 44px; gap: 6px; align-items: center; margin-top: auto; }
+.member-card-tools select { min-width: 0; min-height: 44px; border-radius: 8px; border: 1px solid var(--c-tan-border); background: var(--c-paper); color: var(--c-ink); font-size: var(--fs-sm); padding: 0 6px; }
+.goal-card { display: grid; grid-template-columns: 64px minmax(0, 1fr); gap: 8px 10px; align-items: center; padding: 10px; border-radius: 12px; border: 1.5px solid var(--c-tan-line); background: linear-gradient(180deg, var(--c-paper), var(--c-parch-2)); box-shadow: 0 2px 4px #5a351718; }
+.goal-card + .goal-card { margin-top: 8px; }
+.goal-card > [data-slot="button"] { grid-column: 1 / -1; }
+.goal-card.is-ready { border-color: var(--c-gold-deep); box-shadow: 0 0 0 2px #e6c97566; }
+.goal-card.is-done { opacity: .72; }
+.goal-art { width: 64px; height: 64px; display: grid; place-items: center; border-radius: 12px; overflow: hidden; color: var(--c-gold-pale);
+  background: radial-gradient(circle at 50% 40%, var(--c-parch-light), var(--c-parch-shade)); border: 2px solid var(--c-gold-soft); box-shadow: inset 0 -3px 6px #5a351722; }
+.goal-art img { width: 100%; height: 100%; object-fit: contain; }
+.goal-art > svg { width: 34px; height: 34px; color: var(--c-brown-warm); }
+.goal-body { display: flex; flex-direction: column; gap: 5px; min-width: 0; }
+.goal-body strong { font-size: var(--fs-md); color: var(--c-ink); line-height: 1.25; }
+.goal-body small { font-size: var(--fs-xs); color: var(--c-ink-soft); line-height: 1.3; }
+.goal-reward { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; font-size: var(--fs-sm); font-weight: 700; color: var(--c-ink); }
+.goal-chest { width: 26px; height: 26px; display: grid; place-items: center; border-radius: 6px; color: var(--c-gold-pale);
+  background: linear-gradient(180deg, var(--c-brown-warm), var(--c-wood-dark)); border: 1.5px solid var(--c-gold-soft); }
+.goal-chest svg { width: 16px; height: 16px; }
+.goal-card.is-ready .goal-chest { animation: goal-bob 1.4s ease-in-out infinite; }
+@keyframes goal-bob { 50% { translate: 0 -2px; rotate: -6deg; } }
+@media (prefers-reduced-motion: reduce) { .goal-card.is-ready .goal-chest { animation: none; } }
+.goal-token { display: inline-flex; align-items: center; gap: 3px; font-variant-numeric: tabular-nums lining-nums; }
+.goal-token svg { width: 18px; height: 18px; }
