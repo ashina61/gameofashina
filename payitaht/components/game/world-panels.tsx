@@ -21,6 +21,7 @@ import {
 } from '@/lib/game/engine'
 import { activeCity, renameCity, type Empire } from '@/lib/game/empire'
 import { DAILY_TASKS, claimLogin, claimTask, loginReward, taskProgress } from '@/lib/game/daily'
+import { MILESTONES, claimMilestone, milestoneDone, milestoneProgress } from '@/lib/game/milestones'
 import { advanceEmpire } from '@/lib/game/empire'
 import { dispatchDeploy, dispatchSupport, recallMission, retreatMission, targetName, transportsNeeded, availableUnits, RAID_UNITS, WARSHIPS, targetInfo, type Mission } from '@/lib/game/expeditions'
 import { BattleView } from './battle-view'
@@ -163,6 +164,28 @@ export function DailyPanel({ empire, run }: { empire: Empire; run: Run }) {
       </article>
     })}
     <p className="fine-print">Görevler her gün (UTC gece yarısı) yenilenir.</p>
+  </section>
+}
+
+/** BÜYÜK HEDEFLER: başlangıçtan sonra aylarca sürecek ödüllü kilometre taşları. */
+export function MilestonesPanel({ empire, run }: { empire: Empire; run: Run }) {
+  const got = new Set(empire.milestones ?? [])
+  // Sıra: ödülü bekleyenler, sürenler (ilerlemeye göre), alınanlar en sonda.
+  const list = [...MILESTONES].sort((a, b) => {
+    const rank = (m: typeof a) => got.has(m.id) ? 2 : milestoneDone(empire, m) ? 0 : 1
+    return rank(a) - rank(b) || milestoneProgress(empire, b) / b.need - milestoneProgress(empire, a) / a.need
+  })
+  return <section className="empire-section">
+    <h3><Crown className="size-4" /> Büyük hedefler · {got.size} / {MILESTONES.length}</h3>
+    {list.map(m => {
+      const p = milestoneProgress(empire, m), done = got.has(m.id), ready = !done && milestoneDone(empire, m)
+      return <article key={m.id} className={done ? 'daily-task milestone is-done' : ready ? 'daily-task milestone is-ready' : 'daily-task milestone'}>
+        <span className="milestone-seal" aria-hidden="true"><Crown /></span>
+        <span><strong>{m.title}</strong><small>{m.text} · {num(p)} / {num(m.need)} · ödül {Object.entries(m.reward).map(([r, n]) => `${num(n!)} ${GOOD_NAMES[r as Good].toLocaleLowerCase('tr')}`).join(', ')}</small></span>
+        <span className="people-meter"><span style={{ width: `${p / m.need * 100}%` }} /></span>
+        <Button size="sm" disabled={!ready} onClick={() => run(mutate((e, now) => claimMilestone(e, m.id, now)), `${m.title}: ödül hazinede.`)}>{done ? 'Alındı' : ready ? 'Ödülü al' : 'Sürüyor'}</Button>
+      </article>
+    })}
   </section>
 }
 

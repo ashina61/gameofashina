@@ -387,7 +387,7 @@ function targetCheck(empire: Empire, npcId: string, kind: Mission['kind'], now: 
     return { error: 'Başka adaya sefer için bu şehirde Ticaret Limanı gerekli.' }
   }
   if (actionsInUse(empire, city.id) >= actionPoints(city.game)) {
-    return { error: `Hamle puanı yok (${actionPoints(city.game)}). Bir görevin dönmesini bekle ya da Divanhane'yi yükselt.` }
+    return { error: `Sefer hakkın doldu (${actionPoints(city.game)}). Bir görevin dönmesini bekle ya da Divanhane'yi yükselt.` }
   }
   if (kind !== 'spy' && underSiege(empire, city.id)) return { error: 'Şehrin önünde savaş sürüyor: birlikler surlardan ayrılamaz.' }
   const blocked = siegeBlock(empire, city.id, kind === 'piracy' || (!!npc && npc.islandId !== city.islandId))
@@ -955,7 +955,7 @@ export function dispatchDeploy(source: Empire, toCityId: string, units: Partial<
   const from = activeCity(empire)
   const to = empire.cities.find(c => c.id === toCityId)
   if (!to || to.id === from.id) return { empire, error: 'Geçerli bir hedef şehir seç.' }
-  if (actionsInUse(empire, from.id) >= actionPoints(from.game)) return { empire, error: `Hamle puanı yok (${actionPoints(from.game)}).` }
+  if (actionsInUse(empire, from.id) >= actionPoints(from.game)) return { empire, error: `Sefer hakkın doldu (${actionPoints(from.game)}).` }
   if (underSiege(empire, from.id)) return { empire, error: 'Şehrin önünde savaş sürüyor: birlikler surlardan ayrılamaz.' }
   const blocked = siegeBlock(empire, from.id, true)
   if (blocked) return { empire, error: blocked }
@@ -1284,6 +1284,12 @@ function stepThreat(empire: Empire, t: Threat): boolean {
   if (!st.over) { lb.nextAt += ROUND_MS; return false }
   return finishDefense(empire, t, at)
 }
+/** Aynı olay hep aynı cümleyle gelmesin: olay kimliğinden seçilen anlatım. */
+function variant(id: string, options: string[]): string {
+  let h = 0
+  for (const ch of id) h = (h * 31 + ch.charCodeAt(0)) >>> 0
+  return options[h % options.length]
+}
 function finishDefense(empire: Empire, t: Threat, at: number): boolean {
   const lb = t.battle!
   const city = empire.cities.find(c => c.id === t.cityId)!
@@ -1314,8 +1320,17 @@ function finishDefense(empire: Empire, t: Threat, at: number): boolean {
     lines.push('Deniz savaşı:', ...roundLines(res.rounds, 'batan korsan', 'batan gemimiz'),
       `Donanma kaybı: ${troopList(lost)} · korsan kaybı: ${troopList(res.attackerLost)}.`, res.reason)
     if (res.winner === 'defender') {
-      lines.push(`Korsanlar karaya çıkamadan kaçtı. Ödül: ${bounty()} akçe.`)
-      report(true, `Donanmamız ${name} korsanlarını denizde durdurdu.`)
+      lines.push(variant(t.id + 'l', [
+        `Korsanlar karaya çıkamadan kaçtı. Ödül: ${bounty()} akçe.`,
+        `Kıyıdaki halk zafer şenliği yaptı; Divan ${bounty()} akçe ödül dağıttı.`,
+        `Yelkenleri yırtılan korsanlar ufka kaçtı. Ganimet: ${bounty()} akçe.`,
+      ]))
+      report(true, variant(t.id, [
+        `Donanmamız ${name} korsanlarını denizde durdurdu.`,
+        `${name} korsanları limana yaklaşamadan battı!`,
+        `Toplarımız ${name} filosunu geri çevirdi.`,
+        `Deniz bizim: ${name} korsanları kaçtı.`,
+      ]))
       return true
     }
     if (t.intent === 'blockade') {
@@ -1331,8 +1346,10 @@ function finishDefense(empire: Empire, t: Threat, at: number): boolean {
   lines.push(...roundLines(res.rounds, 'korsan kaybı', 'kaybımız'),
     `Şehrin kaybı: ${troopList(lost)} (sur muhafızları: ${cityGuards(g)}).`, `Korsan kaybı: ${troopList(res.attackerLost)}.`, res.reason)
   if (res.winner === 'defender') {
-    lines.push(`Baskın püskürtüldü. Ödül: ${bounty()} akçe.`)
-    report(true, rival ? `${name} ordusu surlarda durduruldu!` : `${name} korsanları surlarda durduruldu!`)
+    lines.push(variant(t.id + 'l', [`Baskın püskürtüldü. Ödül: ${bounty()} akçe.`, `Surlar dayandı; kaçan düşmandan ${bounty()} akçe ganimet kaldı.`, `Muhafızlar kapıyı tuttu. Ödül: ${bounty()} akçe.`]))
+    report(true, rival
+      ? variant(t.id, [`${name} ordusu surlarda durduruldu!`, `${name} askerleri surlarımızda dağıldı!`, `Kapılar tuttu: ${name} geri çekildi.`])
+      : variant(t.id, [`${name} korsanları surlarda durduruldu!`, `Surlar ${name} korsanlarına geçit vermedi!`, `${name} baskını kanlı bitti: korsanlar kaçtı.`]))
     return true
   }
   if (t.intent === 'occupy') {

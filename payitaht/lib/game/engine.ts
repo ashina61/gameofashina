@@ -472,7 +472,7 @@ export const RESEARCH: Record<ResearchId, { branch: ResearchBranch; name: string
   mutfak: { branch: 'ekonomi', name: 'Saray Mutfağı', description: 'Kahvehane\'nin üzüm tüketimi %10 azalır, üzümlü ikramın huzuru %20 artar.', cost: 300, duration: 65, required: 3, needs: 'bagcilik' },
   yardim_eli: { branch: 'ekonomi', name: 'İmece', description: 'Ada madeni ve ormanı %25 daha çok işçi alır.', cost: 360, duration: 70, required: 4, needs: 'zenginlik' },
   yasama: { branch: 'ekonomi', name: 'Kanunnâme', description: 'Kolonilerdeki yolsuzluk %25 azalır.', cost: 520, duration: 85, required: 5, needs: 'tatil' },
-  burokrasi: { branch: 'ekonomi', name: 'Bürokrasi', description: 'Her şehirde bir hamle puanı daha.', cost: 700, duration: 95, required: 6, needs: 'yasama' },
+  burokrasi: { branch: 'ekonomi', name: 'Bürokrasi', description: 'Her şehirde aynı anda bir sefer daha (sefer hakkı +1).', cost: 700, duration: 95, required: 6, needs: 'yasama' },
   utopya: { branch: 'ekonomi', name: 'Erdemli Şehir', description: 'Başkentte huzur 200 artar.', cost: 2400, duration: 150, required: 10, needs: 'burokrasi' },
   // BİLİM (devam)
   kuyu: { branch: 'bilim', name: 'Kuyu Kazımı', description: 'Başkentte huzur ve barınma 50 artar.', cost: 60, duration: 30, required: 1 },
@@ -1065,14 +1065,21 @@ export function cost(g: Game, id: BuildingId): Resources {
   return { gold: base, wood: Math.round(base * 1.2 * Math.max(0.5, woodFactor)),
     stone: Math.round(base * .75 * Math.max(0.5, stoneFactor)), knowledge: 0 }
 }
+/** 5. seviyeden sonra her seviyenin süre çarpanı. */
+export const LATE_PACE = 1.16
+/** Tek bir yükseltme en çok 12 saat sürer (bir gece). */
+export const MAX_BUILD_SECONDS = 12 * 3600
 export function duration(g: Game, id: BuildingId) {
   const level = g.buildings[id]
   // Early-game timers remain unchanged; high levels become progressively
   // longer, with distinct building curves instead of a linear universal timer.
   const growth = level < 3 ? 1 : (BUILDING_GROWTH[id] / 1.25) ** (level - 2)
-  return Math.round((20 + level * 10) * growth *
+  // Uzun soluk: ilk beş seviye dakikalar sürer (oyuncu hızla ısınır); sonra
+  // her seviye %16 daha uzun sürer — 15. seviye yarım saat, 25. seviye saatler.
+  const pace = level <= 5 ? 1 : LATE_PACE ** (level - 5)
+  return Math.min(MAX_BUILD_SECONDS, Math.round((20 + level * 10) * growth * pace *
     (g.research.includes('architecture') ? .75 : 1) * (govIs(g, 'ayan') ? 0.8 : govIs(g, 'loncalar') ? 1.05 : 1) *
-    (1 - Math.min(0.3, blessing(g, 'kayra') * GODS.kayra.per)))
+    (1 - Math.min(0.3, blessing(g, 'kayra') * GODS.kayra.per))))
 }
 export function logEvent(g: Game, text: string, time: number) { g.log = [{ text, time }, ...g.log].slice(0, 60) }
 export function advance(source: Game, now: number): Game {

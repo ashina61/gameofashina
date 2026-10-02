@@ -200,7 +200,7 @@ function BuildingView({ game, empire, id, onCommand, onRecruit, onNav, onBuildin
             ['Ordu bakımı', `-${armyUpkeep(game).toFixed(1)} akçe/dk`],
             [<strong key="n">Net gelir</strong>, <strong key="v">{num(r.gold)} akçe/dk</strong>],
             ['Yolsuzluk', `%${Math.round(corruption(game) * 100)}`],
-            ['Hamle puanı', `${actionPoints(game)} görev`],
+            ['Sefer hakkı', `aynı anda ${actionPoints(game)} sefer`],
           ]} />
         </Box>
       </>

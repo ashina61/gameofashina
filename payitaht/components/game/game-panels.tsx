@@ -392,7 +392,7 @@ export function ArmyPanel({ game, onRecruit, onBuild, home }: { game: Game; onRe
       <div><ShieldCheck className="size-5" /><span>Savunma</span><strong>{cityDefense(game)}</strong></div>
       <div><Swords className="size-5" /><span>Saldırı</span><strong>{land.attack}</strong></div>
     </div>
-    <p className="army-note"><AkceArt className="size-4" />Ordunun bakımı dakikada {Math.round(armyUpkeep(game) * 10) / 10} akçe · aynı anda {actionPoints(game)} görev (hamle puanı).</p>
+    <p className="army-note"><AkceArt className="size-4" />Ordunun bakımı dakikada {Math.round(armyUpkeep(game) * 10) / 10} akçe · aynı anda en fazla {actionPoints(game)} sefer (sefer hakkı).</p>
     <p className="army-note"><TriangleAlert className="size-4" />Asker halktan çıkar. Eğitilen her vatandaş üretimden düşer; surlar ise asker istemez, taş ister ({wallDefense(game)} savunma).</p>
     <BattlefieldCard game={game} />
     <DrillQueue game={game} home={home} />

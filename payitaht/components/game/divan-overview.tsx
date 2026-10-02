@@ -63,7 +63,7 @@ export function DivanOverview({ game, empire, run }: { game: Game; empire?: Empi
       <span><House /><small>Boş konut</small><b>{n(free)}<i>/{n(housing(game))}</i></b></span>
       <span><Swords /><small>Kara garnizonu</small><b>{n(garrisonUsed(game, 'kara'))}<i>/{n(garrisonLimit(game, 'kara'))}</i></b></span>
       <span><Anchor /><small>Deniz garnizonu</small><b>{n(garrisonUsed(game, 'deniz'))}<i>/{n(garrisonLimit(game, 'deniz'))}</i></b></span>
-      <span><Flag /><small>Hamle puanı</small><b>{ap - used}<i>/{ap}</i></b></span>
+      <span><Flag /><small>Sefer hakkı</small><b>{ap - used}<i>/{ap}</i></b></span>
       <span><Sprout /><small>Büyüme</small><b className={growthRate(game) > 0 ? 'is-up' : undefined}>{(growthRate(game) * 60).toFixed(1)}<i>/saat</i></b></span>
       <span><Scale /><small>Net akçe</small><b className={r.gold >= 0 ? 'is-up' : 'is-down'}>{n(r.gold * 60)}<i>/saat</i></b></span>
     </div>

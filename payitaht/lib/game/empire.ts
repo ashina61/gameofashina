@@ -20,6 +20,7 @@ function addStock(g: Game, c: Cargo, n: number) { if (isLuxury(c)) g.luxury[c] +
 export { ISLANDS, type IslandId } from './islands'
 import { ISLANDS, type IslandId } from './islands'
 import { ensureDaily, parseDaily, type Daily } from './daily'
+import { parseMilestones } from './milestones'
 import { advanceWorld, parseWorld, type World } from './rivals'
 import { advanceMissions, advanceSieges, advanceThreats, idleMerchants, siegeBlock, type Siege, merchantShipPrice, parseMissionState, shipCargo, totalMerchants, type Mission, type NpcState, type Report, type Threat } from './expeditions'
 export const COLONY_COST = { gold: 900, wood: 1200, stone: 450 } as const
@@ -68,6 +69,8 @@ export type Empire = {
   stats?: { raids: number; spies: number; piracy: number; shipments: number }
   /** Günlük görevler ve giriş serisi. */
   daily?: Daily
+  /** Ödülü alınmış büyük hedefler (lib/game/milestones). */
+  milestones?: string[]
   /** Yapay rakip hükümdarlar, ittifak, mesajlar, pazar. */
   world?: World
   /** Hükümdar profili: ad, arma, düstur. */
@@ -151,11 +154,12 @@ export function parseEmpire(raw: string): Empire {
   const st = obj.stats
   if (st !== undefined && !(['raids', 'spies', 'piracy', 'shipments'] as const).every(k => finite(st?.[k]))) throw new Error('Sayaç kaydı okunamadı.')
   const daily = parseDaily(obj.daily)
+  const milestones = parseMilestones(obj.milestones)
   const worldState = parseWorld(obj.world, ids)
   const profile = parseProfile(obj.profile)
   return {
     version: 1, activeCityId: obj.activeCityId, cities, shipments, nextId: obj.nextId, ...extra,
-    ...(st ? { stats: { ...st } } : {}), ...(daily ? { daily } : {}), ...(worldState ? { world: worldState } : {}),
+    ...(st ? { stats: { ...st } } : {}), ...(daily ? { daily } : {}), ...(milestones ? { milestones } : {}), ...(worldState ? { world: worldState } : {}),
     ...(profile ? { profile } : {}),
     ...(obj.capitalId ? { capitalId: obj.capitalId } : {}), ...(obj.capitalMovedAt !== undefined ? { capitalMovedAt: obj.capitalMovedAt } : {}),
   }
@@ -343,7 +347,7 @@ export function shipResources(source: Empire, to: string, resource: Cargo, amoun
   if (blocked) return { empire, error: blocked }
   if (empire.shipments.some(s => s.from === from.id)) return { empire, error: 'Bu şehrin nakliye gemileri seferde.' }
   if ((empire.missions ?? []).filter(m => m.cityId === from.id).length + 1 > actionPoints(from.game)) {
-    return { empire, error: `Hamle puanı yok (${actionPoints(from.game)}). Bir görevin dönmesini bekle.` }
+    return { empire, error: `Sefer hakkın doldu (${actionPoints(from.game)}). Bir görevin dönmesini bekle.` }
   }
   // Ortak ticaret filosunun limanda boş bekleyen gemileri yükü taşır.
   const idle = idleMerchants(empire), per = Math.max(1, shipCargo(from.game))

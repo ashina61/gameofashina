@@ -30,8 +30,8 @@ export function effectLines(game: Game, id: BuildingId, level: number): EffectLi
   }
   switch (id) {
     case 'divan': return [
-      { label: 'Diğer yapıların tavanı', value: `Sv. ${level + 1}` },
-      { label: 'İdari barınma', value: `+${num(Math.max(0, level - 1) * E.divanHousing)} kişi` },
+      { label: 'Diğer binaların çıkabileceği seviye', value: `en fazla ${level + 1}` },
+      { label: 'Divanhane\'de oturan halk', value: `+${num(Math.max(0, level - 1) * E.divanHousing)} kişi` },
     ]
     case 'saray': return [
       { label: 'Koloni hakkı', value: `${level} yeni şehir` },

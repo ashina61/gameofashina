@@ -122,7 +122,7 @@ test('spies and an army may head to the same target at once, but not two armies'
   const spied = dispatchSpies(e, koy, 1, now)
   const raided = dispatchRaid(spied.empire, koy, { yeniceri: 5 }, now)
   assert.equal(raided.error, undefined)
-  assert.match(dispatchRaid(raided.empire, koy, { yeniceri: 5 }, now).error!, /ordu zaten yolda|Hamle puanı/)
+  assert.match(dispatchRaid(raided.empire, koy, { yeniceri: 5 }, now).error!, /ordu zaten yolda|Sefer hakkın doldu/)
 })
 
 test('action points cap how many missions a city runs at once', () => {
@@ -130,5 +130,5 @@ test('action points cap how many missions a city runs at once', () => {
   const first = dispatchRaid(e, koy, { yeniceri: 5 }, now)
   const second = dispatchRaid(first.empire, 'sahil-korsan', { yeniceri: 5 }, now)
   assert.equal(second.error, undefined)
-  assert.match(dispatchRaid(second.empire, kale, { yeniceri: 5 }, now).error!, /Hamle puanı/)
+  assert.match(dispatchRaid(second.empire, kale, { yeniceri: 5 }, now).error!, /Sefer hakkın doldu/)
 })

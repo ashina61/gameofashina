@@ -13,11 +13,15 @@ import {
 } from '@/lib/game/save-storage'
 
 export { SAVE_KEY } from '@/lib/game/save-storage'
+import { awaySummary, type AwaySummary } from '@/lib/game/away'
 let memory: Empire | null = null
 let warning = ''
 let corrupt = false
 let hydrated = false
 let lastPersistedAt = 0
+/** Açılışta hesaplanan "yokluğunda olanlar" özeti (bir kez okunur). */
+let away: AwaySummary | null = null
+export function takeAwaySummary(): AwaySummary | null { const a = away; away = null; return a }
 const PASSIVE_PERSIST_MS = 5_000
 
 function save(empire: Empire, force = false) {
@@ -35,6 +39,7 @@ function save(empire: Empire, force = false) {
 function load(): Empire {
   // SWR saniyede bir ilerletir; synchronous localStorage yalnızca ilk hydrate'ta
   // okunur. Sonraki tick'ler bellekte ilerler ve 5 sn'de bir diske yazılır.
+  let restored: Empire | null = null
   if (!corrupt && !hydrated) {
     hydrated = true
     const stored = loadStoredEmpire(localStorage)
@@ -42,11 +47,12 @@ function load(): Empire {
       warning = stored.error
       corrupt = true // Ana + backup birlikte okunamıyorsa hiçbir şeyi ezme.
     } else {
-      if (stored.empire) memory = stored.empire
+      if (stored.empire) { memory = stored.empire; restored = stored.empire }
       if (stored.warning) warning = stored.warning
     }
   }
   const empire = advanceEmpire(memory ?? initialEmpire(Date.now()), Date.now())
+  if (restored) away = awaySummary(restored, empire)
   save(empire)
   return empire
 }

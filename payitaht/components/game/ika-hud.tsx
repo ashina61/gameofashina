@@ -111,7 +111,7 @@ export function IkaTopBar({ game, empire, news, activeAdvisor, onCity, onEconomy
     { key: 'knowledge', icon: <IlimArt />, value: compact(game.resources.knowledge), sub: `+${r.knowledge.toFixed(1)}`, label: 'İlim', full: full.includes('knowledge') },
     { key: 'lux', icon: <LuxIcon />, value: compact(game.luxury[lux]), label: LUXURY_NAMES[lux] },
     { key: 'pop', icon: <NufusArt />, value: `${compact(population(game))}`, sub: `/${compact(maxPopulation(game))}`, label: 'Nüfus' },
-    { key: 'ap', icon: <HamleArt />, value: `${empire && city ? actionPoints(game) - actionsInUse(empire, city.id) : actionPoints(game)}`, sub: `/${actionPoints(game)}`, label: 'Hamle puanı' },
+    { key: 'ap', icon: <HamleArt />, value: `${empire && city ? actionPoints(game) - actionsInUse(empire, city.id) : actionPoints(game)}`, sub: `/${actionPoints(game)}`, label: 'Sefer hakkı (aynı anda yapılabilecek sefer)' },
   ]
   return <header className="ika-top">
     <div className="ika-ribbon">

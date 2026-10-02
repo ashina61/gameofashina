@@ -180,7 +180,7 @@ export function NpcPanel({ empire, npcId, now, onSpy, onRaid, onOccupy, onBlocka
               <strong>{SPY_TYPES[t].name}</strong><small>{SPY_TYPES[t].description}</small>
               <small>Şans %{Math.round(spyTaskChance(g, inside.units.casus ?? 0, state.level, t) * 100)} · {clock(SPY_TYPES[t].minutes * 60_000)}</small>
             </button>)}
-            <Hint>Başarısız görevde bir casus yakalanır. Casuslar geri çağrılana kadar şehirde kalır ve hamle puanı harcamaz.</Hint>
+            <Hint>Başarısız görevde bir casus yakalanır. Casuslar geri çağrılana kadar şehirde kalır ve sefer hakkı harcamaz.</Hint>
           </div>}
         </>}
     </section>
