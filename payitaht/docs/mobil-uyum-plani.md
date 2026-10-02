@@ -3,6 +3,7 @@
 Amaç: telefonda **hiçbir sayı kesilmesin, hiçbir şey taşmasın, her önemli
 şeye başparmakla dokunulsun** ve sayfalar uygulama değil oyun gibi dursun.
 Teşhis için: [oyun-mu-uygulama-mi.md](./oyun-mu-uygulama-mi.md).
+Bu listenin bütün açık maddeleri [v2-plani.md](./v2-plani.md)'ye taşındı; güncel sıra oradadır.
 
 Öncelik: **P0** = hata, hemen. **P1** = oyun hissini en çok artıran iş.
 **P2** = cila ve performans. Her maddenin sonunda "bitti sayılır" ölçütü var.
