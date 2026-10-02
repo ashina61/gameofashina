@@ -6,6 +6,20 @@ export type Release = { version: string; date: string; title: string; notes: str
 
 export const CHANGELOG: Release[] = [
   {
+    version: '0.29.0', date: '2 Ekim 2026', title: 'Boyalı şehir, ittifak görevleri ve resimli raporlar',
+    notes: [
+      'Bütün binalar üç aşamada boyalı çizimlerle yenilendi; liman ve tersane kıyıya oturdu, kuşatmada işgalci ordular ve abluka filoları şehirde görünür.',
+      'Savaş raporları resimli: başta ZAFER / YENİLGİ şeridi, iki ordunun birlikleri figürleriyle (gelen / düşen), moral ve sur; tur tabloları ayrıntıda. Araştırma listesi çizimli bir yol, dünya haritasında adalar kendi boyalı görselleriyle.',
+      'İttifak Ikariam gibi: dış sayfa (tanıtım), üyelere iç duyuru, rütbelerin görev ve yetkileri, rütbelere özel adlar (Serdar, Kethüda…) ve her hafta üç ittifak görevi (akçe, ilişki ve sıralamaya eklenen itibar).',
+      'Surlar seviyesine göre değişir: 1-3 moloz duvar ve ahşap kazık, 4-7 kesme taş, 8+ tuğla kuşaklı yüksek sur ve sancak renginde asılı flamalar. Sur örülürken iskele ve kapıda süre sayacı.',
+      'Şehrin çevresinde lale bahçeleri ve çayırda lale öbekleri; adada orman çizimi görünür.',
+      'Yeni oyuncuya dört adımlık rehber; oyuna dönünce "yokluğunda olanlar" özeti; Görevler\'de on iki ödüllü Büyük hedef (Divanhane 10/15/20, koloniler, ordu, sefer, sur, nüfus).',
+      'Tempo: ilk beş seviye yine dakikalar sürer, sonrası her seviye biraz daha uzun (Divanhane 15 ≈ 35 dk, 20 ≈ 2 saat); en uzun yükseltme 12 saat.',
+      'Gece şehri karartmıyor (yumuşak alacakaranlık; Ayarlar > Görünüm\'den kapatılabilir); kaynak çubuğu tek sıra, baskın uyarısı küçük, rozetler en çok 9+.',
+      'Düzeltmeler: aynı turda ölen askerin tekrar ölmesi (15 mızrakçının 27 kaybı) giderildi; raporları toplu silmek onay ister; görev sayacı tamamlanan adımları doğru sayar; Cami\'de rahip yerine imam. "Hamle puanı" artık "Sefer hakkı".',
+    ],
+  },
+  {
     version: '0.28.0', date: '26 Eylül 2026', title: 'İttifak, sancaklı şehir ve kaldırımlı sokaklar',
     notes: [
       'İttifak (alt menü): kendi ittifakını kur (ad + kısaltma), yapay rakipleri davet et, Başkomutan / Hariciye / Dahiliye rütbeleri ver, genelge yaz, üyeler cevaplasın; Doğu ve Batı Birliği ile barış, saldırmazlık ya da savaş; ittifak sıralaması. Üyeler sana saldırmaz, baskında yardıma gelir, şehirlerine destek birliği gönderebilirsin.',
