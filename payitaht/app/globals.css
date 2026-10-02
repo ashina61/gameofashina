@@ -1095,7 +1095,10 @@
   background: #102522e8; border: 1px solid #c5a45d73; box-shadow: 0 3px 10px #0006; backdrop-filter: blur(7px); }
 .game-shell .hud-ticker-tag { background: #8a6130; color: #fff0c7; }
 .game-shell .hud-ticker-text { color: #f3e6c8; }
-.game-shell .threat-banner { left: 8px; right: 8px; max-width: none; top: calc(var(--ika-top) + 8px); }
+.game-shell .threat-banner { left: 8px; right: auto; max-width: calc(100vw - 84px); top: calc(var(--ika-top) + 6px); padding: 5px 12px 5px 9px; border-radius: 999px; gap: 6px; }
+.game-shell .threat-banner svg { width: 16px; height: 16px; }
+.game-shell .threat-banner strong { font-size: 12px; }
+.game-shell .threat-banner small { font-size: 10px; }
 .game-shell .map-top-tools { top: calc(var(--ika-top) + 60px); right: 8px; bottom: auto; }
 .game-shell .map-top-tools button { width: 44px; height: 44px; border-radius: 10px; background: linear-gradient(180deg, #17352fe8, #0d211ee8);
   border: 1px solid #c5a45d8f; color: #e6c77d; box-shadow: 0 4px 10px #0007, inset 0 1px #ffffff14; backdrop-filter: blur(7px); }
@@ -1925,36 +1928,27 @@
 .title-skyline .building-art.is-right { right: -4%; width: 44%; bottom: 6%; }
 .title-skyline .building-art > img { position: static; filter: none; }
 
-/* Resource ledger: keep all seven counters visible on a phone. */
+/* Kaynak defteri: yedi sayaç telefonda TEK SIRADA (harita ekranın çoğunu alır).
+ * Stoklar: simge + değer, altında küçük üretim; durumlar: simge + değer. */
 .game-shell .ika-res { -webkit-mask-image: none; mask-image: none; }
 .ika-chip small.ika-rate-negative { color: #ffb6a0; }
 @media (max-width: 600px) {
-  .game-shell { --ika-top: calc(var(--sa-top) + 143px); }
+  .game-shell { --ika-top: calc(var(--sa-top) + 100px); }
   .game-shell .ika-res {
-    display: grid; grid-template-columns: repeat(12, minmax(0, 1fr));
-    grid-template-rows: 44px 32px; gap: 3px; padding: 5px;
+    display: grid; grid-template-columns: repeat(4, minmax(0, 1.18fr)) repeat(3, minmax(0, 0.9fr));
+    gap: 2px; padding: 3px 4px 4px;
     overflow: visible; border-bottom: 2px solid #a8884e;
     background: linear-gradient(180deg, #203630, #122722);
   }
-  .ika-chip { min-width: 0; min-height: 0; gap: 1px 3px; padding: 3px 5px; border-radius: 6px; }
+  .ika-chip { min-width: 0; min-height: 0; padding: 2px 3px; border-radius: 6px;
+    display: grid; grid-template-columns: 15px minmax(0, 1fr); grid-template-rows: 15px 11px; column-gap: 2px; align-items: center; }
   .ika-stock { background: linear-gradient(180deg, #ffffff0d, #ffffff05); border-color: #d9c18528; }
   .ika-status { background: linear-gradient(180deg, #102a26cc, #0b201dcc); border-color: #8fbf9c2c; }
-  .ika-stock { grid-column: span 3; display: grid; grid-template-columns: 16px minmax(0, 1fr); grid-template-rows: 10px 15px 10px; }
-  .ika-stock .ika-resource-name { grid-area: 1 / 1 / 2 / 3; }
-  .ika-stock i { grid-area: 2 / 1; }
-  .ika-stock b { grid-area: 2 / 2; text-align: right; font-size: 11px; }
-  .ika-stock small { grid-area: 3 / 1 / 4 / 3; text-align: right; font-size: 9px; }
-  .ika-status { grid-column: span 4; display: grid; grid-template-columns: 16px auto minmax(0, 1fr); grid-template-rows: 10px 13px; }
-  .ika-status .ika-resource-name { grid-area: 1 / 1 / 2 / 4; }
-  .ika-status i { grid-area: 2 / 1; }
-  .ika-status b { grid-area: 2 / 2; font-size: 11px; }
-  .ika-status small { grid-area: 2 / 3; font-size: 9px; color: #c9d5b8; }
-  .ika-chip i svg { width: 16px; height: 16px; }
-  .ika-chip .ika-resource-name {
-    position: static; width: auto; height: auto; margin: 0; padding: 0;
-    overflow: hidden; clip: auto; clip-path: none; white-space: nowrap; color: #d6c79e;
-    font-size: 8px; line-height: 10px; font-weight: 600; letter-spacing: .025em;
-  }
+  .ika-chip i { grid-area: 1 / 1 / 3 / 2; }
+  .ika-chip b { grid-area: 1 / 2; text-align: right; font-size: 11.5px; white-space: nowrap; overflow: hidden; }
+  .ika-chip small { grid-area: 2 / 2; text-align: right; font-size: 9px; white-space: nowrap; overflow: hidden; }
+  .ika-status small { color: #c9d5b8; }
+  .ika-chip i svg { width: 15px; height: 15px; }
 }
 
 

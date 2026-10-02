@@ -1,8 +1,9 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { Music, Vibrate, Volume2, Waves } from 'lucide-react'
+import { Moon, Music, Vibrate, Volume2, Waves } from 'lucide-react'
 import { onSoundPrefs, play, setSoundPrefs, soundPrefs, type SoundPrefs } from '@/lib/sfx'
+import { dayNightEnabled, setDayNight } from '@/lib/game/sky'
 
 /** Ayarlar: efekt sesleri, ortam sesi, titreşim. */
 export function SoundSettings() {
@@ -20,4 +21,15 @@ export function SoundSettings() {
     <input id={`ses-${r.key}`} type="checkbox" role="switch" checked={p[r.key]}
       onChange={e => { setSoundPrefs({ [r.key]: e.target.checked }); if (e.target.checked && (r.key === 'sfx' || r.key === 'haptics')) play('ok') }} />
   </label>)}</div>
+}
+
+/** Ayarlar: şehirde gerçek saate bağlı gece-gündüz örtüsü. */
+export function DayNightSetting() {
+  const [on, setOn] = useState(true)
+  useEffect(() => { setOn(dayNightEnabled()) }, [])
+  return <div className="sound-settings"><label className="toggle-row" htmlFor="gece-gunduz">
+    <Moon aria-hidden="true" />
+    <span><strong>Gece ve gündüz</strong><small>Şehir gerçek saate göre akşam olur, fenerler yanar. Kapalıyken hep gündüz.</small></span>
+    <input id="gece-gunduz" type="checkbox" role="switch" checked={on} onChange={e => { setDayNight(e.target.checked); setOn(e.target.checked) }} />
+  </label></div>
 }
