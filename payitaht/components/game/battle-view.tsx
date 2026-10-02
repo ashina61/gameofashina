@@ -6,8 +6,8 @@
  * yuvalardaki dizilişi, sur, moral ve kayıplar gösterilir.
  */
 import { useMemo, useState } from 'react'
-import { ChevronLeft, ChevronRight } from 'lucide-react'
-import { Button } from '@/components/ui/button'
+import { ChevronLeft, ChevronRight } from './ui-art'
+import { GameButton } from './game-button'
 import { FIELD_ROWS, replayBattle, troopList, type FieldRow, type Lineup, type Troops } from '@/lib/game/battle'
 import type { StoredBattle } from '@/lib/game/expeditions'
 import { UNITS } from '@/lib/game/engine'
@@ -61,9 +61,9 @@ export function BattleView({ stored, live }: { stored: StoredBattle; live?: Live
     <div className="bf-head">
       <span className="eyebrow">{stored.title.toUpperCase()} · {result.field.name.toUpperCase()}{live ? ' · SÜRÜYOR' : ''}</span>
       <div className="bf-nav">
-        <Button size="sm" variant="outline" disabled={i === 0} onClick={() => setPick(i - 1)} aria-label="Önceki tur"><ChevronLeft /></Button>
+        <GameButton size="sm" variant="outline" disabled={i === 0} onClick={() => setPick(i - 1)} aria-label="Önceki tur"><ChevronLeft /></GameButton>
         <strong>Tur {r.round} / {rounds.length}</strong>
-        <Button size="sm" variant="outline" disabled={i >= rounds.length - 1} onClick={() => setPick(i + 1 >= rounds.length - 1 && live ? null : i + 1)} aria-label="Sonraki tur"><ChevronRight /></Button>
+        <GameButton size="sm" variant="outline" disabled={i >= rounds.length - 1} onClick={() => setPick(i + 1 >= rounds.length - 1 && live ? null : i + 1)} aria-label="Sonraki tur"><ChevronRight /></GameButton>
       </div>
       {live && <small className="bf-next">Sıradaki tur {Math.floor(secs / 60)}:{String(secs % 60).padStart(2, '0')}</small>}
     </div>

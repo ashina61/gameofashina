@@ -53,6 +53,8 @@ jobs:
         run: pnpm exec tsc --noEmit
       - name: Testler
         run: pnpm exec tsx --test $(find lib -name '*.test.ts')
+      - name: CSS renk denetimi
+        run: node tools/css-lint.cjs
 
       # Statik disa aktarim, Pages KOKUNDE (/gameofashina) yayinlanacak sekilde.
       - name: Derle (statik export)

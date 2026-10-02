@@ -6,6 +6,17 @@ export type Release = { version: string; date: string; title: string; notes: str
 
 export const CHANGELOG: Release[] = [
   {
+    version: '0.31.0', date: '2 Ekim 2026', title: 'Tek görsel dil: boyalı ikonlar, altın düğmeler, kurdeleli kutular',
+    notes: [
+      'Oyundaki 88 ikonun hepsi kaynak simgeleriyle aynı boyalı dilde: mürekkep kontur, malzemesine göre renk (pirinç, çelik, ahşap, al, yeşil, deniz, parşömen), parlama ve gölge. Çizgi ikon kalmadı.',
+      'Bütün düğmeler tek tip oyun düğmesi: bombeli yüz, alt kenar gölgesi, basınca çöker. Asıl eylem altın, ikincil parşömen, tehlikeli eylem al. Ada ekranındaki düğmeler de artık aynı.',
+      'Sayfa kutuları ahşap kenarlı parşömen; başlıklar BÜYÜK HARF şerit yerine uçları kesik al kurdele.',
+      'Bina maliyetleri yuvarlak jetonlarda; seviye etkileri tablo yerine "şimdi ➜ sonraki seviye" satırları. Vezir\'in üretim tablosu simgeli satırlara döndü.',
+      'Adada bir köye ya da rakibe dokununca bilgisi alttan açılan çekmecede gelir; harita arkada görünür kalır, aşağı çekince kapanır.',
+      'Danışman portreleri boyalı: mürekkep kontur, ışık ve gölge.',
+    ],
+  },
+  {
     version: '0.30.0', date: '2 Ekim 2026', title: 'Parmağa göre düğmeler, okunur yazılar, hata raporu',
     notes: [
       'Bütün düğmeler ve seçim alanları en az parmak boyunda (44 px): rapor arşivle/sil, geri, işçi adımları, harita yakınlaştırma, renk seçimi, sekmeler ve bağlantılar artık ıskalanmıyor.',

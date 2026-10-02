@@ -1,13 +1,14 @@
 'use client'
 import { ObjectiveArt } from './quest-art'
+import { Meter } from './stat-kit'
 
 import { Hint } from './hint'
-import { Hammer, Check, ArrowUpRight, Sparkles, TriangleAlert, Landmark, Swords, Handshake, LockKeyhole, Pickaxe } from 'lucide-react'
+import { Hammer, Check, ArrowUpRight, Sparkles, TriangleAlert, Landmark, Swords, Handshake, LockKeyhole, Pickaxe } from './ui-art'
 import type { ComponentType, SVGProps } from 'react'
 import { AkceArt, IlimArt, KeresteArt, KristalArt, KukurtArt, MermerArt, TasArt, UzumArt } from './resource-art'
 import { Progress } from '@/components/ui/progress'
 import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui/button'
+import { GameButton } from './game-button'
 import { LUXURY_IDS, LUXURY_NAMES, luxuryRates, type Luxury, type LuxuryStock } from '@/lib/game/engine'
 import { BUILDINGS, RESEARCH, RESOURCE_IDS, RESOURCE_NAMES, OBJECTIVES, activeJob, rates, capacity, fullResources, nearlyFullResources, formatNumber, formatRate, population, soldiers, timeLeft, objectiveDone, type Game, type Resource, type Job, type BuildingId, type ResearchId } from '@/lib/game/engine'
 
@@ -64,7 +65,7 @@ export function ObjectiveCard({ game, onClaim, onBuild }: { game: Game; onClaim:
       return <li key={o.id} className={got ? 'is-got' : done ? 'is-ready' : o.id === objective?.id ? 'is-current' : ''}>
         <span className="objective-thumb"><ObjectiveArt id={o.id} go={o.go} game={game} size={50} /><b className="objective-mark" aria-hidden="true">{got ? '✓' : done ? '!' : o.id === objective?.id ? '▸' : ''}</b></span>
         <span><strong>{o.title}</strong><small>{o.description}</small></span>
-        {!got && done ? <Button size="sm" onClick={() => onClaim(o.id)}>{o.reward}</Button> : <small className="objective-reward">{o.reward} akçe</small>}
+        {!got && done ? <GameButton size="sm" onClick={() => onClaim(o.id)}>{o.reward}</GameButton> : <small className="objective-reward">{o.reward} akçe</small>}
       </li>
     })}</ol>
   </details>
@@ -74,8 +75,8 @@ export function ObjectiveCard({ game, onClaim, onBuild }: { game: Game; onClaim:
     <span className="objective-track" aria-hidden="true"><span style={{ width: `${(game.claimed.length / OBJECTIVES.length) * 100}%` }} /></span>
     <div className="objective-main"><ObjectiveArt id={objective.id} go={objective.go} game={game} size={118} /><div><h3>{objective.title}</h3><p>{objective.description}</p></div></div>
     <div className="objective-footer"><span><AkceArt className="size-4" /> {objective.reward} akçe</span>
-      <Button size="sm" variant={done ? 'default' : 'outline'} onClick={() => done ? onClaim(objective.id) : onBuild()}>{done ? <>Ödülü al<Check data-icon="inline-end" /></> : <>Hedefe git<ArrowUpRight data-icon="inline-end" /></>}</Button></div>
-    {ready.length > 1 && <Button size="sm" variant="outline" className="objective-all" onClick={() => ready.forEach(o => onClaim(o.id))}><Check data-icon="inline-start" />Tamamlanan {ready.length} adımın ödülünü al ({ready.reduce((s, o) => s + o.reward, 0)} akçe)</Button>}
+      <GameButton size="sm" variant={done ? 'default' : 'outline'} onClick={() => done ? onClaim(objective.id) : onBuild()}>{done ? <>Ödülü al<Check data-icon="inline-end" /></> : <>Hedefe git<ArrowUpRight data-icon="inline-end" /></>}</GameButton></div>
+    {ready.length > 1 && <GameButton size="sm" variant="outline" className="objective-all" onClick={() => ready.forEach(o => onClaim(o.id))}><Check data-icon="inline-start" />Tamamlanan {ready.length} adımın ödülünü al ({ready.reduce((s, o) => s + o.reward, 0)} akçe)</GameButton>}
     {list}
   </section>
 }
@@ -91,15 +92,11 @@ export function EconomyDetails({ game }: { game: Game }) {
    * formatRate ile yuvarlanır (ham ondalık "825.6628..." görünmez).
    */
   const row = (key: string, Icon: ArtIcon, name: string, stock: number, rate: number, opts: { full?: boolean; nearly?: boolean; note?: string } = {}) => {
-    const ratio = Math.min(1, stock / limit)
     return <li className={cn('treasury-row', opts.full && 'is-full', opts.nearly && 'is-nearly')} key={key}>
       <span className="treasury-icon"><Icon aria-hidden="true" /></span>
       <span className="treasury-main">
         <span className="treasury-name"><strong>{name}</strong>{opts.note && <small>{opts.note}</small>}</span>
-        <span className="treasury-meter" role="meter" aria-valuemin={0} aria-valuemax={limit} aria-valuenow={Math.floor(stock)} aria-label={`${name} ambarı`}>
-          <span style={{ width: `${ratio * 100}%` }} />
-          <b>{formatNumber(stock)} / {formatNumber(limit)}</b>
-        </span>
+        <Meter value={stock} max={limit} label={`${name} ambarı`} tone={opts.full ? 'full' : opts.nearly ? 'warn' : 'ok'} />
       </span>
       <span className={cn('treasury-rate', rate < 0 && 'is-down', rate === 0 && 'is-idle')}>
         {opts.full ? 'Dolu' : rate === 0 ? 'Üretim yok' : <>{formatRate(rate, true)}<small>/dk</small></>}

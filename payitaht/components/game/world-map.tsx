@@ -8,8 +8,8 @@ import { KumSaatiArt } from './resource-art'
  * altında bilgi kartı açılır.
  */
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { Anchor, Crown, Eye } from 'lucide-react'
-import { Button } from '@/components/ui/button'
+import { Anchor, Crown, Eye } from './ui-art'
+import { GameButton } from './game-button'
 import { MapViewport } from './map-viewport'
 import { asset } from '@/lib/asset'
 import { MIRACLES } from '@/lib/game/engine'
@@ -132,10 +132,10 @@ export function WorldMap({ empire, now, missing, onSelectCity, onColonize, onVie
         {sel !== here.islandId && <li><KumSaatiArt className="size-3" />{here.name} şehrinden deniz yolu ~{clock(travel)}</li>}
       </ul>
       <div className="batch-row">
-        <Button size="sm" variant="outline" onClick={() => onViewIsland(sel)}><Eye data-icon="inline-start" />Adayı gör</Button>
+        <GameButton size="sm" variant="outline" onClick={() => onViewIsland(sel)}><Eye data-icon="inline-start" />Adayı gör</GameButton>
         {own
-          ? <Button size="sm" onClick={() => onSelectCity(own.id)} disabled={own.id === here.id}>{own.id === here.id ? 'Bu şehir' : 'Şehre git'}</Button>
-          : <Button size="sm" disabled={!!missing} onClick={() => onColonize(sel)}>Koloni kur</Button>}
+          ? <GameButton size="sm" onClick={() => onSelectCity(own.id)} disabled={own.id === here.id}>{own.id === here.id ? 'Bu şehir' : 'Şehre git'}</GameButton>
+          : <GameButton size="sm" disabled={!!missing} onClick={() => onColonize(sel)}>Koloni kur</GameButton>}
       </div>
       {!own && missing && <p className="fine-print">{missing}</p>}
     </article>

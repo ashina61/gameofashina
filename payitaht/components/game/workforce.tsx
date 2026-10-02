@@ -6,8 +6,8 @@
  * üretimin nasıl değişeceği anında görünür; "Onayla" ile uygulanır.
  */
 import { useEffect, useState, type ReactNode } from 'react'
-import { Check, ChevronsLeft, ChevronsRight, Minus, Plus, Undo2 } from 'lucide-react'
-import { Button } from '@/components/ui/button'
+import { Check, ChevronsLeft, ChevronsRight, Minus, Plus, Undo2 } from './ui-art'
+import { GameButton } from './game-button'
 import { formatRate } from '@/lib/game/engine'
 
 export type Figure = 'halk' | 'oduncu' | 'tasci' | 'alim' | 'esnaf' | 'madenci' | 'rahip'
@@ -102,8 +102,8 @@ export function WorkforceSlider({ label, figure, value, cap, idle, preview, onCo
       </div>
     </div>
     {changed && <div className="workforce-confirm">
-      <Button size="sm" onClick={() => onCommit(d)}><Check data-icon="inline-start" />Onayla</Button>
-      <Button size="sm" variant="outline" onClick={() => setDraft(value)}><Undo2 data-icon="inline-start" />Geri al</Button>
+      <GameButton size="sm" onClick={() => onCommit(d)}><Check data-icon="inline-start" />Onayla</GameButton>
+      <GameButton size="sm" variant="outline" onClick={() => setDraft(value)}><Undo2 data-icon="inline-start" />Geri al</GameButton>
     </div>}
     {note && <p className="workforce-note">{note}</p>}
   </div>

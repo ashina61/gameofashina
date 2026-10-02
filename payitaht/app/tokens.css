@@ -1,0 +1,56 @@
+/*
+ * TASARIM BELİRTEÇLERİ (V2 Faz 1.1) — oyunun tek renk ve yazı ölçeği.
+ * globals.css'te bir renk 5 kez geçerse buraya taşınır (tools/css-lint.cjs
+ * denetler). Önek --c- / --fs-: sayfa içindeki eski yerel değişkenlerle
+ * (.bp { --ink … }) çakışmaz.
+ */
+:root {
+  /* Mürekkep (yazı) */
+  --c-ink: #3a2310;
+  --c-ink-deep: #2e1807;
+  --c-ink-warm: #3b2611;
+  --c-ink-soft: #6e4d2a;
+  --c-ink-muted: #7a5a32;
+  /* Kahverengi (ahşap, çerçeve) */
+  --c-brown: #5a3517;
+  --c-brown-soft: #5a3e1e;
+  --c-brown-deep: #4a3218;
+  --c-brown-mid: #6a4a22;
+  --c-brown-warm: #7a4e24;
+  --c-wood-edge: #8a5a22;
+  --c-edge: #9c7440;
+  --c-edge-2: #8a6a3a;
+  --c-tan-line: #c9a86a;
+  --c-tan-border: #b99160;
+  --c-tan-border-2: #b8955a;
+  --c-tan-gold: #c9a45a;
+  /* Altın */
+  --c-gold: #e2bd78;
+  --c-gold-deep: #b8872e;
+  --c-gold-mid: #c8962c;
+  --c-gold-soft: #c9a24e;
+  --c-gold-pale: #ffe7a8;
+  /* Parşömen */
+  --c-paper: #fffaf0;
+  --c-paper-warm: #fff8e6;
+  --c-parch: #fbf2d6;
+  --c-parch-light: #fbf3dc;
+  --c-parch-2: #f6e8c3;
+  --c-parch-gold: #f6e3a8;
+  --c-parch-shade: #e6d3a6;
+  --c-parch-line: #e2cf9c;
+  --c-parch-edge: #dcc38e;
+  --c-cream: #fbe9bb;
+  /* Durum */
+  --c-bad: #b3261e;
+  --c-bad-deep: #a3321f;
+  --c-ok-deep: #2f5a2a;
+  /* Yazı ölçeği: 11 taban (Faz 0.3), 13 gövde, 16/20/24 başlık */
+  --fs-xs: 11px;
+  --fs-sm: 12px;
+  --fs-md: 13px;
+  --fs-base: 14px;
+  --fs-lg: 16px;
+  --fs-xl: 20px;
+  --fs-2xl: 24px;
+}

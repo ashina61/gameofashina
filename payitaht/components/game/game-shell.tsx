@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
-import { X, Check } from 'lucide-react'
+import { X, Check } from './ui-art'
 
 import { SettingsPanel } from './settings-panel'
 import { QuestChip } from './quest-chip'
@@ -15,7 +15,7 @@ import { BannerContext } from './building-art'
 import { play, wantAmbience, type Sfx } from '@/lib/sfx'
 import { toast } from 'sonner'
 import { Toaster } from '@/components/ui/sonner'
-import { Button } from '@/components/ui/button'
+import { GameButton } from './game-button'
 
 import { CityScene } from './city-scene'
 import { BuildingList, ResearchPanel, JournalPanel, PlotPicker, PeoplePanel, CitiesPanel, ArmyPanel, IslandPanel } from './game-panels'
@@ -265,7 +265,7 @@ export default function GameShell({ onTitle }: { onTitle?: () => void } = {}) {
     const w = window as unknown as { __payitahtQa?: unknown }
     w.__payitahtQa = {
       panel: (p: Exclude<Panel, null>) => { setSelected(null); setNpc(null); setPlot(null); if (p === 'island' || p === 'forest') { setView('island'); setPanel(p) } else { setView('city'); openPanel(p) } },
-      building: (id: BuildingId) => { setView('city'); openBuilding(id) },
+      building: (id: BuildingId) => { setNpc(null); setView('city'); openBuilding(id) },
       advisor: (id: AdvisorId) => openAdvisor(id),
       island: () => { setPanel(null); setSelected(null); setView('island') },
       close: () => { setPanel(null); setSelected(null); setPlot(null); setNpc(null); setView('city') },
@@ -312,7 +312,7 @@ export default function GameShell({ onTitle }: { onTitle?: () => void } = {}) {
       onBuild={() => act({ type: 'build', id: selected })} onFlip={() => act({ type: 'flip', id: selected })} onMove={() => startMove(selected)}
       onCommand={act} run={runOp} onRecruit={(id, count) => act({ type: 'recruit', id, count })} onBuildingNav={openBuilding}
       onNav={p => { setSelected(null); if (p === 'island' || p === 'forest') { setView('island'); setPanel(p) } else openPanel(p) }}>{selected === 'divan' && empire && <CityAdmin empire={empire} game={game} now={game.updatedAt} onCommand={act} run={runOp} />}{selected === 'kahvehane' && <TavernPanel game={game} onCommand={act} />}{selected === 'medrese' && <ExperimentPanel game={game} onCommand={act} />}{(selected === 'siginak' || selected === 'elcilik') && empire && <ForeignSpies empire={empire} game={game} now={game.updatedAt} run={runOp} />}{selected === 'ticaret_merkezi' && empire && <TradeCenter empire={empire} now={game.updatedAt} run={runOp} onRival={openRival} />}{selected === 'karagoz' && <TheatrePanel game={game} now={game.updatedAt} onCommand={act} />}{selected === 'tekke' && <GuildPanel game={game} now={game.updatedAt} onCommand={act} />}{selected === 'mabet' && <GodsPanel game={game} now={game.updatedAt} onCommand={act} />}{selected === 'cami' && <TemplePanel game={game} now={game.updatedAt} onCommand={act} />}{selected === 'tophane' && <UpgradePanel game={game} onCommand={act} />}{selected === 'kara_pazar' && <ExchangePanel game={game} onCommand={act} />}{selected === 'korsan_kalesi' && empire && <PiracyPanel empire={empire} now={game.updatedAt} onPiracy={(id, units) => { const e = piracy(id, units); if (e) say.no(e); else say.ok('Filo denize açıldı.') }} />}</BuildingPage>}
-    {(panel || plot !== null || npc) && <IkaPage onClose={() => { setPanel(null); setPlot(null); setNpc(null) }}
+    {(panel || plot !== null || npc) && <IkaPage sheet={!!npc && !panel && plot === null && view === 'island'} onClose={() => { setPanel(null); setPlot(null); setNpc(null) }}
       title={npc ? targetName(npc) : plot !== null ? (PLOTS[plot]?.zone === 'liman' ? 'Deniz arsası' : 'Boş arsa') : panel ? titles[panel] : 'Şehrin'}
       subtitle={npc ? (npc.startsWith('r-') ? 'Yapay rakip hükümdar' : 'Bağımsız yerleşim') : plot !== null ? 'Bu arsaya hangi yapıyı kuracaksın?' : panel === 'build' ? 'Her yapı, yeni bir başlangıç.' : panel === 'research' ? 'İlim, şehrinin en değerli hazinesidir.' : panel === 'people' ? 'Emeği nereye ayıracağına sen karar ver.' : panel === 'army' ? 'Asker halktan çıkar. Bedelini bilerek öde.' : panel === 'cities' ? 'Hükmünün altındaki her şehir.' : panel === 'map' ? 'Adalar, rakipler ve deniz yolları' : panel === 'overview' ? 'Bütün şehirler tek tabloda' : panel === 'diplomacy' ? 'Yapay rakipler: sıralama, anlaşmalar, pazar, mektuplar' : panel === 'island' ? 'Lüks mal yatağı, ada harikası ve tüccar' : panel === 'forest' ? 'Oduncular, kereste ve ormanın büyümesi' : panel === 'alliance' ? (empire?.world?.pact ? `${empire.world.pact.name} [${empire.world.pact.tag}]` : 'Birlikten kuvvet doğar') : currentCityName}
       hero={panelHero()}>{game && <>
@@ -338,7 +338,7 @@ export default function GameShell({ onTitle }: { onTitle?: () => void } = {}) {
       {panel === 'changelog' && <ChangelogPanel />}
       {panel === 'economy' && <EconomyDetails game={game} />}
       {panel === 'objectives' && foundingCity && <ObjectiveCard game={game} onClaim={id => act({ type: 'claim', id })} onBuild={target} />}
-      {panel === 'objectives' && !foundingCity && <section className="advisor-panel"><h3>Şehir hedefleri</h3><p>Başlangıç eğitimi kurucu şehirde ilerler. Bu koloniyi dilediğin gibi geliştirebilirsin.</p><Button onClick={() => visitCity(empire!.cities[0].id)}>Kurucu şehre git</Button></section>}
+      {panel === 'objectives' && !foundingCity && <section className="advisor-panel"><h3>Şehir hedefleri</h3><p>Başlangıç eğitimi kurucu şehirde ilerler. Bu koloniyi dilediğin gibi geliştirebilirsin.</p><GameButton onClick={() => visitCity(empire!.cities[0].id)}>Kurucu şehre git</GameButton></section>}
       {panel === 'objectives' && empire && <DailyPanel empire={empire} run={runOp} />}
       {panel === 'objectives' && empire && <MilestonesPanel empire={empire} run={runOp} />}
       {panel === 'settings' && <SettingsPanel empire={empire} run={runOp} warning={warning} native={native}

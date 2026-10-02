@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { Moon, Music, Vibrate, Volume2, Waves } from 'lucide-react'
+import { Moon, Music, Vibrate, Volume2, Waves } from './ui-art'
 import { onSoundPrefs, play, setSoundPrefs, soundPrefs, type SoundPrefs } from '@/lib/sfx'
 import { dayNightEnabled, setDayNight } from '@/lib/game/sky'
 

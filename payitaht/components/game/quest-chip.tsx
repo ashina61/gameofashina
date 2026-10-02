@@ -1,6 +1,6 @@
 'use client'
 
-import { ChevronRight, Gift, ScrollText } from 'lucide-react'
+import { ChevronRight, Gift, ScrollText } from './ui-art'
 import { OBJECTIVES, objectiveDone, type Game } from '@/lib/game/engine'
 
 /**

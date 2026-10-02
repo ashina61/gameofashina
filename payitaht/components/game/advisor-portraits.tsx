@@ -2,18 +2,23 @@
  * DANIŞMAN PORTRELERİ — Ikariam'ın dört danışmanının (şehir, ordu, araştırma,
  * diplomasi) Osmanlı karşılıkları, düz vektör çizim: Vezir, Serasker, Âlim, Elçi.
  * Her biri 100x100 bir madalyon içine çizilir; renkler oyunun kahverengi /
- * parşömen diliyle uyumludur.
+ * parşömen diliyle uyumludur. V2 Faz 1.7: boyalı binalar ve ikonlarla aynı
+ * dil için mürekkep kontur, sol üstten ışık, sağ alttan gölge ve madalyonun
+ * iç kenar gölgesi.
  */
 export type AdvisorId = 'city' | 'army' | 'research' | 'diplo'
 
-const SKIN = '#e2b487', SKIN_SHADE = '#c98f5f', BEARD = '#3b2a1c', GREY = '#d9d2c3'
+const SKIN = '#e2b487', SKIN_SHADE = '#c98f5f', BEARD = '#3b2a1c', GREY = '#d9d2c3', INK = '#2a170a'
 
 function Face({ beard = BEARD, long = false }: { beard?: string; long?: boolean }) {
   return <>
     <ellipse cx="50" cy="56" rx="15" ry="18" fill={SKIN} />
-    <ellipse cx="36" cy="56" rx="3" ry="5" fill={SKIN_SHADE} />
-    <ellipse cx="64" cy="56" rx="3" ry="5" fill={SKIN_SHADE} />
+    <ellipse cx="36" cy="56" rx="3" ry="5" fill={SKIN_SHADE} stroke="none" />
+    <ellipse cx="64" cy="56" rx="3" ry="5" fill={SKIN_SHADE} stroke="none" />
+    <ellipse cx="42" cy="60" rx="3.6" ry="2.2" fill="#e08a6a" opacity="0.45" stroke="none" />
+    <ellipse cx="58" cy="60" rx="3.6" ry="2.2" fill="#e08a6a" opacity="0.45" stroke="none" />
     <path d="M43 52 q3 -2 6 0 M51 52 q3 -2 6 0" stroke="#3a2412" strokeWidth="1.6" fill="none" strokeLinecap="round" />
+    <path d="M42 47 q8 -6 16 0" stroke="#fff3dc" strokeWidth="1.1" fill="none" opacity="0.55" strokeLinecap="round" />
     <path d="M50 55 l-2 6 h3" stroke={SKIN_SHADE} strokeWidth="1.4" fill="none" strokeLinecap="round" />
     {long
       ? <path d={`M35 60 q2 22 15 30 q13 -8 15 -30 q-4 6 -15 8 q-11 -2 -15 -8z`} fill={beard} />
@@ -30,9 +35,15 @@ export function AdvisorPortrait({ id, size = 44 }: { id: AdvisorId; size?: numbe
         <stop offset="1" stopColor="#2a170a" />
       </radialGradient>
       <clipPath id={`clip-${id}`}><circle cx="50" cy="50" r="46" /></clipPath>
+      <radialGradient id={`light-${id}`} cx="30%" cy="22%" r="60%">
+        <stop offset="0" stopColor="#fff4d6" stopOpacity="0.38" /><stop offset="0.55" stopColor="#fff4d6" stopOpacity="0" />
+      </radialGradient>
+      <radialGradient id={`shade-${id}`} cx="72%" cy="82%" r="70%">
+        <stop offset="0.35" stopColor="#1a0c04" stopOpacity="0" /><stop offset="1" stopColor="#1a0c04" stopOpacity="0.45" />
+      </radialGradient>
     </defs>
     <circle cx="50" cy="50" r="48" fill={`url(#bg-${id})`} stroke="#e2bd78" strokeWidth="4" />
-    <g clipPath={`url(#clip-${id})`}>
+    <g clipPath={`url(#clip-${id})`} stroke={INK} strokeWidth="1.3" strokeLinejoin="round">
       {id === 'city' && <>
         {/* VEZİR: kırmızı kaftan, kürklü yaka, büyük beyaz kallavi kavuk */}
         <path d="M14 100 q6 -26 36 -28 q30 2 36 28z" fill="#9a2a1f" />
@@ -71,6 +82,11 @@ export function AdvisorPortrait({ id, size = 44 }: { id: AdvisorId; size?: numbe
         <path d="M58 25 q8 4 6 14" stroke="#1e1a17" strokeWidth="2" fill="none" />
         <rect x="16" y="78" width="24" height="7" rx="3.5" fill="#efe2c0" stroke="#b08d57" strokeWidth="1.2" transform="rotate(-20 28 81)" />
       </>}
+      {/* Işık ve gölge: düz vektörü boyalı hacme çevirir. */}
+      <circle cx="50" cy="50" r="46" fill={`url(#light-${id})`} stroke="none" />
+      <circle cx="50" cy="50" r="46" fill={`url(#shade-${id})`} stroke="none" />
     </g>
+    <circle cx="50" cy="50" r="44.5" fill="none" stroke="#000" strokeOpacity="0.35" strokeWidth="3" />
+    <circle cx="50" cy="50" r="48" fill="none" stroke="#fff3c4" strokeOpacity="0.45" strokeWidth="1" />
   </svg>
 }

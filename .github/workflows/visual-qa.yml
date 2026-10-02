@@ -72,9 +72,16 @@ jobs:
           NEXT_PUBLIC_ASSET_BASE: /gameofashina
         run: pnpm build
       - name: Install isolated browser for visual QA
+        # apt aynası zaman zaman takılıyor (0.30.0'da bir iş 12 dk asılı kaldı):
+        # her deneme 5 dk ile sınırlı, üç deneme.
+        timeout-minutes: 16
         run: |
           npm install --no-audit --no-fund --prefix "${RUNNER_TEMP}/visual" playwright@1.55.0
-          "${RUNNER_TEMP}/visual/node_modules/.bin/playwright" install --with-deps chromium
+          for i in 1 2 3; do
+            timeout 300 "${RUNNER_TEMP}/visual/node_modules/.bin/playwright" install --with-deps chromium && exit 0
+            echo "::warning::Tarayıcı kurulumu $i. denemede bitmedi, yeniden deneniyor"; sleep 10
+          done
+          exit 1
       - name: Serve static export under real Pages base path
         run: |
           mkdir -p "${RUNNER_TEMP}/visual-site/gameofashina"

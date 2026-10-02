@@ -12,8 +12,8 @@ import { KumSaatiArt, NufusArt } from './resource-art'
 import { rivalWarLine } from './ai-panels'
 import { Hint } from './hint'
 import { useState } from 'react'
-import { ArrowLeft, ScrollText, Eye, Swords, ShieldCheck, Minus, Plus, Ship, Anchor, Skull, Flag, Bookmark, BookmarkCheck, Trash2 } from 'lucide-react'
-import { Button } from '@/components/ui/button'
+import { ArrowLeft, ScrollText, Eye, Swords, ShieldCheck, Minus, Plus, Ship, Anchor, Skull, Flag, Bookmark, BookmarkCheck, Trash2 } from './ui-art'
+import { GameButton } from './game-button'
 import layout from '@/lib/game/island-layout.json'
 import { asset, buildingImage } from '@/lib/asset'
 import { LUXURY_NAMES, MIRACLES, UNITS, type UnitId } from '@/lib/game/engine'
@@ -58,11 +58,11 @@ export function IslandView({ empire, islandId, now, onCity, onIsland, onMine, on
     : <span className="island-mission">{m.kind === 'spy' ? <Eye aria-hidden="true" /> : m.kind === 'support' ? <ShieldCheck aria-hidden="true" /> : m.units.nakliye ? <Ship aria-hidden="true" /> : <Swords aria-hidden="true" />}{clock(m.arriveAt - now)}</span>
   return <section className="island-view" aria-label={`${island.name} ada görünümü`}>
     <div className="island-toolbar">
-      <Button size="sm" variant="outline" onClick={onCity}><ArrowLeft data-icon="inline-start" />Şehre dön</Button>
+      <GameButton size="sm" variant="outline" onClick={onCity}><ArrowLeft data-icon="inline-start" />Şehre dön</GameButton>
       <label className="island-title"><select className="island-select" value={island.id} aria-label="Ada seç" onChange={e => onIsland(e.target.value as IslandId)}>
         {ISLANDS.map(i => <option key={i.id} value={i.id}>{i.name}</option>)}</select>
         <small>{LUXURY_NAMES[island.luxury]} yatağı · {MIRACLES[island.wonder].wonder}{home ? '' : ' · deniz aşırı'}</small></label>
-      <Button size="sm" variant="outline" onClick={onReports}><ScrollText data-icon="inline-start" />Raporlar{unread > 0 ? ` · ${unread}` : ''}</Button>
+      <GameButton size="sm" variant="outline" onClick={onReports}><ScrollText data-icon="inline-start" />Raporlar{unread > 0 ? ` · ${unread}` : ''}</GameButton>
     </div>
     <MapViewport key={island.id} width={layout.size[0]} height={layout.size[1]} fitWidth className="island-map-viewport">
     <div className="island-map">
@@ -165,15 +165,15 @@ export function NpcPanel({ empire, npcId, now, onSpy, onRaid, onOccupy, onBlocka
         ? <p className="fine-print">Casuslar Elçilik'te yetişir. Önce Elçilik kur.</p>
         : <>
           <div className="batch-row"><span>Casus</span>
-            <Button size="sm" variant="outline" onClick={() => setSpies(n => Math.max(1, n - 1))} aria-label="Azalt"><Minus /></Button>
+            <GameButton size="sm" variant="outline" onClick={() => setSpies(n => Math.max(1, n - 1))} aria-label="Azalt"><Minus /></GameButton>
             <strong className="stepper-value">{spies}</strong>
-            <Button size="sm" variant="outline" onClick={() => setSpies(n => Math.min(Math.max(1, free.casus), n + 1))} aria-label="Artır"><Plus /></Button>
+            <GameButton size="sm" variant="outline" onClick={() => setSpies(n => Math.min(Math.max(1, free.casus), n + 1))} aria-label="Artır"><Plus /></GameButton>
             <small>{free.casus} boşta</small></div>
           <p className="fine-print">Sızma şansı %{Math.round(spyChance(g, spies, state.level) * 100)} · yol {clock(targetTravelMs(city, npcId, 'spy', state.level))}. Casuslar şehirde kalır ve görev bekler; sızamayan yakalanır.</p>
-          <Button size="sm" disabled={busy('spy') || free.casus < spies} onClick={() => onSpy(spies)}><Eye data-icon="inline-start" />{inside ? 'Ağa casus ekle' : 'Casusları gönder'}</Button>
+          <GameButton size="sm" disabled={busy('spy') || free.casus < spies} onClick={() => onSpy(spies)}><Eye data-icon="inline-start" />{inside ? 'Ağa casus ekle' : 'Casusları gönder'}</GameButton>
           {inside && <div className="spy-desk">
             <div className="spy-desk-top"><strong>İçeride {inside.units.casus ?? 0} casus</strong>
-              <Button size="sm" variant="outline" onClick={() => run((e, t) => recallMission(e, inside.id, t), 'Casuslar geri çağrıldı.')}>Geri çağır</Button></div>
+              <GameButton size="sm" variant="outline" onClick={() => run((e, t) => recallMission(e, inside.id, t), 'Casuslar geri çağrıldı.')}>Geri çağır</GameButton></div>
             {inside.spyTask && <p className="requirement"><KumSaatiArt className="size-4" />{SPY_TYPES[inside.spyTask.type].name} · {clock(inside.spyTask.at - now)}</p>}
             {SPY_TYPE_IDS.filter(t => t !== 'arastirma' || !!rival).map(t => <button key={t} type="button" className="spy-task" disabled={!!inside.spyTask}
               onClick={() => run((e, x) => spyMission(e, inside.id, t, x), `Görev verildi: ${SPY_TYPES[t].name}.`)}>
@@ -206,7 +206,7 @@ export function NpcPanel({ empire, npcId, now, onSpy, onRaid, onOccupy, onBlocka
       </div>
       <Hint>Savaş {field.name.toLocaleLowerCase('tr')}da (Divanhane {npc.field} karşılığı) dakikada bir tur, bir taraf dağılana ya da kaçana kadar sürer; zar yoktur. Ön cephe hasarın çoğunu karşılar, kuşatma birlikleri (koçbaşı, mancınık, topçu) suru yıkar. Morali {RETREAT_MORALE}'in altına düşen taraf çekilir. Turlar arasında aynı şehirden gelen ordu takviye olarak katılır; Seferler panelinden geri çekilebilirsin. Ganimeti hayatta kalanlar taşır.</Hint>
       {fighting && <p className="requirement"><Swords className="size-4" />Burada savaş sürüyor (tur {fighting.battle!.state.round}). {fighting.cityId === city.id ? 'Göndereceğin ordu takviye olarak katılır.' : 'Yeni ordu savaş bitene kadar önünde bekler.'}</p>}
-      <Button size="sm" disabled={busy('raid') || !RAID_UNITS.some(id => (pick[id] ?? 0) > 0) || (overseas && ships > free.nakliye)} onClick={() => { onRaid(pick); setPick({}) }}><Swords data-icon="inline-start" />{fighting?.cityId === city.id ? 'Takviye gönder' : 'Sefere çık'}</Button>
+      <GameButton size="sm" disabled={busy('raid') || !RAID_UNITS.some(id => (pick[id] ?? 0) > 0) || (overseas && ships > free.nakliye)} onClick={() => { onRaid(pick); setPick({}) }}><Swords data-icon="inline-start" />{fighting?.cityId === city.id ? 'Takviye gönder' : 'Sefere çık'}</GameButton>
       {busy('raid') && <p className="requirement"><KumSaatiArt className="size-4" />Bu hedefe giden bir ordu yolda.</p>}
     </section>
 
@@ -291,9 +291,9 @@ export function ReportsPanel({ empire, run }: { empire: Empire; run?: Run }) {
       <span>{reports.length} rapor · {reports.length - loose} arşivde</span>
       {confirmClear
         ? <span className="report-confirm"><span>{loose} rapor silinsin mi?</span>
-          <Button size="sm" variant="destructive" onClick={() => { setConfirmClear(false); run((e, t) => clearReports(e, city.id, t), 'Raporlar temizlendi.') }}>Evet, sil</Button>
-          <Button size="sm" variant="outline" onClick={() => setConfirmClear(false)}>Vazgeç</Button></span>
-        : <Button size="sm" variant="outline" onClick={() => setConfirmClear(true)}><Trash2 data-icon="inline-start" />Arşivlenmemişleri sil</Button>}
+          <GameButton size="sm" variant="destructive" onClick={() => { setConfirmClear(false); run((e, t) => clearReports(e, city.id, t), 'Raporlar temizlendi.') }}>Evet, sil</GameButton>
+          <GameButton size="sm" variant="outline" onClick={() => setConfirmClear(false)}>Vazgeç</GameButton></span>
+        : <GameButton size="sm" variant="outline" onClick={() => setConfirmClear(true)}><Trash2 data-icon="inline-start" />Arşivlenmemişleri sil</GameButton>}
     </div>}
     {reports.map(r => <article key={r.id} className={r.kept ? 'report-card is-kept' : 'report-card'}>
       <div className="report-head">{r.kind === 'spy' ? <Eye className="size-4" /> : r.kind === 'piracy' ? <Skull className="size-4" /> : r.kind === 'defense' ? <ShieldCheck className="size-4" /> : <Swords className="size-4" />}
@@ -314,9 +314,9 @@ function ReportBattles({ report }: { report: Report }) {
   const [open, setOpen] = useState<number | null>(null)
   return <div className="report-battles">
     <div className="report-battle-tabs">{report.battles!.map((b, i) =>
-      <Button key={i} size="sm" variant={open === i ? 'default' : 'outline'} onClick={() => setOpen(open === i ? null : i)}>
+      <GameButton key={i} size="sm" variant={open === i ? 'default' : 'outline'} onClick={() => setOpen(open === i ? null : i)}>
         <Swords data-icon="inline-start" />{b.title}: savaş alanı
-      </Button>)}</div>
+      </GameButton>)}</div>
     {open !== null && report.battles![open] && <BattleView stored={report.battles![open]} />}
   </div>
 }

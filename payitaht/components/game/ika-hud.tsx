@@ -9,7 +9,7 @@
  * Eski boyalı görseller kullanılmaz; her şey CSS ve vektör çizimdir.
  */
 import { useEffect, useRef, useState, type ReactNode } from 'react'
-import { Castle, TreePalm, Compass, Shield, ScrollText, ChevronDown } from 'lucide-react'
+import { Castle, TreePalm, Compass, Shield, ScrollText, ChevronDown } from './ui-art'
 import { cn } from '@/lib/utils'
 import {
   LUXURY_NAMES, actionPoints, capacity, fullResources, maxPopulation, population, rates, researchReason, RESEARCH_IDS, type Game, formatRate, formatShort,

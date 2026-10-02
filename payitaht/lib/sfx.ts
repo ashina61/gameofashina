@@ -109,6 +109,12 @@ export function play(s: Sfx) {
   }
 }
 
+/** Düğmeye basış: ses yok (0.27'de her dokunuştaki tık kaldırıldı), yalnız çok kısa titreşim. */
+export function tapFeel() {
+  if (!soundPrefs().haptics || typeof navigator === 'undefined' || !('vibrate' in navigator)) return
+  try { navigator.vibrate(6) } catch { /* desteklenmiyor */ }
+}
+
 /* ------------------------------------------------------------- ORTAM SESİ */
 
 function startAmbience() {

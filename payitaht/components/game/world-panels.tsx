@@ -10,10 +10,10 @@
  */
 import { Hint } from './hint'
 import { useState } from 'react'
-import { Crown, Trash2, Coffee, TreePine, FlaskConical, CalendarCheck, Gift, Truck, Anchor, Flag, Trophy, Handshake, Store, Mail, Send, ScrollText, Swords, Eye, Check, Pencil, ShieldCheck, Newspaper } from 'lucide-react'
+import { Crown, Trash2, Coffee, TreePine, FlaskConical, CalendarCheck, Gift, Truck, Anchor, Flag, Trophy, Handshake, Store, Mail, Send, ScrollText, Swords, Eye, Check, Pencil, ShieldCheck, Newspaper } from './ui-art'
 import { DailyArt } from './quest-art'
 import { NewsPanel, PaceSetting, ProposalsPanel, rivalWarLine } from './ai-panels'
-import { Button } from '@/components/ui/button'
+import { GameButton } from './game-button'
 import {
   ANARCHY_MS, BUILDINGS, FOREST_MAX_LEVEL, GOVERNMENTS, GOVERNMENT_COOLDOWN_MS, GOOD_NAMES, GOVERNMENT_IDS, UNITS, UNIT_IDS,
   anarchy, forestCapacity, forestProduction, forestUpgradeCost, governmentCost, idleWorkers, tavernLevel, wineConsumption,
@@ -65,7 +65,7 @@ export function CityAdmin({ empire, game, now, onCommand, run }: { empire: Empir
       <h3><Pencil className="size-4" /> Şehrin adı</h3>
       <div className="batch-row">
         <input id="city-name" className="text-input" value={name} maxLength={24} onChange={e => setName(e.target.value)} aria-label="Şehir adı" />
-        <Button size="sm" disabled={name.trim() === city.name} onClick={() => run((e, t) => renameCity(e, city.id, name, t), 'Şehrin yeni adı ilan edildi.')}>Değiştir</Button>
+        <GameButton size="sm" disabled={name.trim() === city.name} onClick={() => run((e, t) => renameCity(e, city.id, name, t), 'Şehrin yeni adı ilan edildi.')}>Değiştir</GameButton>
       </div>
     </section>
     <section className="empire-section">
@@ -76,8 +76,8 @@ export function CityAdmin({ empire, game, now, onCommand, run }: { empire: Empir
         <strong>{GOVERNMENTS[id].name}</strong>
         <ul>{GOVERNMENTS[id].effects.map(e => <li key={e}>{e}</li>)}</ul>
         {gov.id === id ? <span className="gov-badge"><Check className="size-3" /> Yürürlükte</span>
-          : <Button size="sm" variant="outline" disabled={locked || cooling || game.resources.gold < governmentCost(game)}
-            onClick={() => onCommand({ type: 'government', id })}>İlan et</Button>}
+          : <GameButton size="sm" variant="outline" disabled={locked || cooling || game.resources.gold < governmentCost(game)}
+            onClick={() => onCommand({ type: 'government', id })}>İlan et</GameButton>}
       </article>)}</div>
       <p className="fine-print">Değişiklik {num(governmentCost(game))} akçe tutar ve {ANARCHY_MS / 60_000} dakika kargaşa getirir. {cooling ? `Yeni değişiklik için ${clock(gov.changedAt + GOVERNMENT_COOLDOWN_MS - now)} bekle.` : `Sonra ${GOVERNMENT_COOLDOWN_MS / 3600_000} saat yeniden değiştirilemez.`}</p>
     </section>
@@ -92,9 +92,9 @@ export function DemolishConfirm({ game, id, onCommand, onClose }: { game: Game; 
     <strong><Trash2 className="size-4" /> {BUILDINGS[id].name} yıkılsın mı?</strong>
     <p>Harcanan kaynak geri gelmez. {level > 1 ? `Bir seviye yıkarsan ${level - 1}. seviyeye iner.` : 'Arsa boşalır.'}</p>
     <div className="batch-row">
-      {level > 1 && <Button size="sm" variant="destructive" onClick={() => { onCommand({ type: 'demolish', id }); onClose() }}>Bir seviye yık</Button>}
-      <Button size="sm" variant="destructive" onClick={() => { onCommand({ type: 'demolish', id, all: true }); onClose() }}>Tamamen yık</Button>
-      <Button size="sm" variant="outline" onClick={onClose}>Vazgeç</Button>
+      {level > 1 && <GameButton size="sm" variant="destructive" onClick={() => { onCommand({ type: 'demolish', id }); onClose() }}>Bir seviye yık</GameButton>}
+      <GameButton size="sm" variant="destructive" onClick={() => { onCommand({ type: 'demolish', id, all: true }); onClose() }}>Tamamen yık</GameButton>
+      <GameButton size="sm" variant="outline" onClick={onClose}>Vazgeç</GameButton>
     </div>
   </section>
 }
@@ -115,8 +115,8 @@ export function ExperimentPanel({ game, onCommand }: { game: Game; onCommand: (c
   return <section className="empire-section">
     <h3><FlaskConical className="size-4" /> Deneyler</h3>
     <p className="fine-print">100 kristal → 150 ilim. Ambarda {num(game.luxury.kristal)} kristal.</p>
-    <div className="batch-row">{[1, 5, 10].map(n => <Button key={n} size="sm" variant="outline" disabled={game.luxury.kristal < n * 100}
-      onClick={() => onCommand({ type: 'experiment', batches: n })}>{n * 100} kristal</Button>)}</div>
+    <div className="batch-row">{[1, 5, 10].map(n => <GameButton key={n} size="sm" variant="outline" disabled={game.luxury.kristal < n * 100}
+      onClick={() => onCommand({ type: 'experiment', batches: n })}>{n * 100} kristal</GameButton>)}</div>
   </section>
 }
 
@@ -132,8 +132,8 @@ export function ForestPanel({ game, onCommand }: { game: Game; onCommand: (c: Co
     {f.level < FOREST_MAX_LEVEL && <>
       <div className="people-row-top"><span>Orman bağışı</span><span className="people-count">{num(f.wood)} / {num(forestUpgradeCost(f.level))}</span></div>
       <span className="people-meter"><span style={{ width: `${Math.min(100, f.wood / forestUpgradeCost(f.level) * 100)}%` }} /></span>
-      <div className="batch-row">{[250, 500, 1000].map(n => <Button key={n} size="sm" variant={gift === n ? 'default' : 'outline'} onClick={() => setGift(n)}>{num(n)}</Button>)}
-        <Button size="sm" disabled={game.resources.wood < gift} onClick={() => onCommand({ type: 'forestDonate', amount: gift })}>Bağışla</Button></div>
+      <div className="batch-row">{[250, 500, 1000].map(n => <GameButton key={n} size="sm" variant={gift === n ? 'default' : 'outline'} onClick={() => setGift(n)}>{num(n)}</GameButton>)}
+        <GameButton size="sm" disabled={game.resources.wood < gift} onClick={() => onCommand({ type: 'forestDonate', amount: gift })}>Bağışla</GameButton></div>
     </>}
   </section>
 }
@@ -151,7 +151,7 @@ export function DailyPanel({ empire, run }: { empire: Empire; run: Run }) {
     <div className="daily-login">
       <DailyArt task="login" />
       <span><strong>Günlük giriş · {Math.max(1, nextStreak)}. gün</strong><small>{num(reward.gold)} akçe · {num(reward.wood)} kereste (7 güne kadar büyür)</small></span>
-      <Button size="sm" disabled={loginDone} onClick={() => run(mutate((e, now) => claimLogin(e, now)), 'Giriş ödülü hazinede.')}>{loginDone ? 'Alındı' : 'Al'}</Button>
+      <GameButton size="sm" disabled={loginDone} onClick={() => run(mutate((e, now) => claimLogin(e, now)), 'Giriş ödülü hazinede.')}>{loginDone ? 'Alındı' : 'Al'}</GameButton>
     </div>
     {d.tasks.map(id => {
       const t = DAILY_TASKS.find(x => x.id === id)!
@@ -160,7 +160,7 @@ export function DailyPanel({ empire, run }: { empire: Empire; run: Run }) {
         <DailyArt task={t.key} />
         <span><strong>{t.text}</strong><small>{p} / {t.need} · ödül {Object.entries(t.reward).map(([r, n]) => `${num(n!)} ${GOOD_NAMES[r as Good].toLocaleLowerCase('tr')}`).join(', ')}</small></span>
         <span className="people-meter"><span style={{ width: `${p / t.need * 100}%` }} /></span>
-        <Button size="sm" disabled={done || p < t.need} onClick={() => run(mutate((e, now) => claimTask(e, id, now)), 'Günlük görev ödülü hazinede.')}>{done ? 'Alındı' : p < t.need ? 'Sürüyor' : 'Ödülü al'}</Button>
+        <GameButton size="sm" disabled={done || p < t.need} onClick={() => run(mutate((e, now) => claimTask(e, id, now)), 'Günlük görev ödülü hazinede.')}>{done ? 'Alındı' : p < t.need ? 'Sürüyor' : 'Ödülü al'}</GameButton>
       </article>
     })}
     <p className="fine-print">Görevler her gün (UTC gece yarısı) yenilenir.</p>
@@ -183,7 +183,7 @@ export function MilestonesPanel({ empire, run }: { empire: Empire; run: Run }) {
         <span className="milestone-seal" aria-hidden="true"><Crown /></span>
         <span><strong>{m.title}</strong><small>{m.text} · {num(p)} / {num(m.need)} · ödül {Object.entries(m.reward).map(([r, n]) => `${num(n!)} ${GOOD_NAMES[r as Good].toLocaleLowerCase('tr')}`).join(', ')}</small></span>
         <span className="people-meter"><span style={{ width: `${p / m.need * 100}%` }} /></span>
-        <Button size="sm" disabled={!ready} onClick={() => run(mutate((e, now) => claimMilestone(e, m.id, now)), `${m.title}: ödül hazinede.`)}>{done ? 'Alındı' : ready ? 'Ödülü al' : 'Sürüyor'}</Button>
+        <GameButton size="sm" disabled={!ready} onClick={() => run(mutate((e, now) => claimMilestone(e, m.id, now)), `${m.title}: ödül hazinede.`)}>{done ? 'Alındı' : ready ? 'Ödülü al' : 'Sürüyor'}</GameButton>
       </article>
     })}
   </section>
@@ -206,8 +206,8 @@ export function DeployPanel({ empire, run }: { empire: Empire; run: Run }) {
       {others.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}</select></label>
     <UnitPicker ids={UNIT_IDS.filter(id => id !== 'nakliye')} free={free} pick={pick} onPick={setPick} />
     {ships > 0 && <p className="fine-print">{ships} nakliye gemisi gerekli · boşta {free.nakliye}.</p>}
-    <Button size="sm" disabled={!to || !Object.values(pick).some(n => (n ?? 0) > 0)}
-      onClick={() => { run((e, now) => dispatchDeploy(e, to, pick, now), 'Birlikler yola çıktı.'); setPick({}) }}>Gönder</Button>
+    <GameButton size="sm" disabled={!to || !Object.values(pick).some(n => (n ?? 0) > 0)}
+      onClick={() => { run((e, now) => dispatchDeploy(e, to, pick, now), 'Birlikler yola çıktı.'); setPick({}) }}>Gönder</GameButton>
     <p className="fine-print">Birlikler hedef şehrin halkından yer ister; sığmayanlar geri döner.</p>
   </section>
 }
@@ -234,9 +234,9 @@ function MissionRow({ m, empire, now, run, label }: { m: Mission; empire: Empire
           : m.stationed && m.kind === 'spy' ? `İçeride ${m.units.casus ?? 0} casus${m.spyTask ? ` · görev ${clock(m.spyTask.at - now)}` : ' · görev bekliyor'}`
           : m.stationed ? `Konuşlu · saatte ${num(stationTribute(empire, m.npcId, m.kind as 'occupy' | 'blockade', now))} akçe haraç · birikmiş ${num(m.loot.gold)}`
           : m.resolved ? `Dönüş ${clock(m.returnAt - now)}` : `Varış ${clock(m.arriveAt - now)}`}</small></span>
-      {lb && <Button size="sm" variant="outline" onClick={() => setWatch(w => !w)}>{watch ? 'Kapat' : 'İzle'}</Button>}
-      {lb && <Button size="sm" variant="destructive" onClick={() => run((e, t) => retreatMission(e, m.id, t), 'Ordu geri çekiliyor.')}>Geri çekil</Button>}
-      {m.stationed && <Button size="sm" variant="outline" onClick={() => run((e, t) => recallMission(e, m.id, t), 'Birlikler geri çağrıldı.')}>Geri çağır</Button>}
+      {lb && <GameButton size="sm" variant="outline" onClick={() => setWatch(w => !w)}>{watch ? 'Kapat' : 'İzle'}</GameButton>}
+      {lb && <GameButton size="sm" variant="destructive" onClick={() => run((e, t) => retreatMission(e, m.id, t), 'Ordu geri çekiliyor.')}>Geri çekil</GameButton>}
+      {m.stationed && <GameButton size="sm" variant="outline" onClick={() => run((e, t) => recallMission(e, m.id, t), 'Birlikler geri çağrıldı.')}>Geri çağır</GameButton>}
     </div>
     {lb && watch && <BattleView stored={lb.info} live={{ round: lb.state.round, nextAt: lb.nextAt, now }} />}
   </article>
@@ -254,16 +254,16 @@ export function RivalDiplomacy({ empire, rivalId, now, run }: { empire: Empire; 
     {(Object.keys(TREATIES) as TreatyId[]).map(t => <article key={t} className="mission-row">
       <span><strong>{TREATIES[t].name}</strong><small>{TREATIES[t].description} {s.treaties.includes(t) ? '' : `Gereken ilişki ~${TREATIES[t].need} · ${num(treatyCost(empire, r, now))} akçe.`}</small></span>
       {s.treaties.includes(t)
-        ? <Button size="sm" variant="outline" onClick={() => run((e, x) => cancelTreaty(e, rivalId, t, x), 'Anlaşma bozuldu.')}>Boz</Button>
-        : <Button size="sm" onClick={() => run((e, x) => proposeTreaty(e, rivalId, t, x), 'Anlaşma imzalandı.')}>Teklif et</Button>}
+        ? <GameButton size="sm" variant="outline" onClick={() => run((e, x) => cancelTreaty(e, rivalId, t, x), 'Anlaşma bozuldu.')}>Boz</GameButton>
+        : <GameButton size="sm" onClick={() => run((e, x) => proposeTreaty(e, rivalId, t, x), 'Anlaşma imzalandı.')}>Teklif et</GameButton>}
     </article>)}
     <div className="batch-row"><Gift className="size-4" />
-      {[500, 2000, 5000].map(n => <Button key={n} size="sm" variant={gift === n ? 'default' : 'outline'} onClick={() => setGift(n)}>{num(n)}</Button>)}
-      <Button size="sm" onClick={() => run((e, x) => sendGift(e, rivalId, gift, x), 'Hediye yola çıktı.')}>Hediye gönder</Button></div>
+      {[500, 2000, 5000].map(n => <GameButton key={n} size="sm" variant={gift === n ? 'default' : 'outline'} onClick={() => setGift(n)}>{num(n)}</GameButton>)}
+      <GameButton size="sm" onClick={() => run((e, x) => sendGift(e, rivalId, gift, x), 'Hediye yola çıktı.')}>Hediye gönder</GameButton></div>
     <div className="batch-row"><Mail className="size-4" />
-      <Button size="sm" variant="outline" onClick={() => run((e, x) => writeLetter(e, rivalId, 'selam', x), 'Mektup gönderildi.')}>Selam</Button>
-      <Button size="sm" variant="outline" onClick={() => run((e, x) => writeLetter(e, rivalId, 'tehdit', x), 'Tehdit mektubu gönderildi.')}>Tehdit</Button>
-      <Button size="sm" variant="outline" onClick={() => run((e, x) => writeLetter(e, rivalId, 'harac', x), 'Haraç istendi.')}>Haraç iste</Button></div>
+      <GameButton size="sm" variant="outline" onClick={() => run((e, x) => writeLetter(e, rivalId, 'selam', x), 'Mektup gönderildi.')}>Selam</GameButton>
+      <GameButton size="sm" variant="outline" onClick={() => run((e, x) => writeLetter(e, rivalId, 'tehdit', x), 'Tehdit mektubu gönderildi.')}>Tehdit</GameButton>
+      <GameButton size="sm" variant="outline" onClick={() => run((e, x) => writeLetter(e, rivalId, 'harac', x), 'Haraç istendi.')}>Haraç iste</GameButton></div>
     <p className="fine-print">{r.ruler} bir yapay rakiptir ({STYLE_NAMES[r.style]}, {FACTIONS[r.faction].name}). Yağma ilişkiyi düşürür ve intikam baskını getirir; hediye ve selam ilişkiyi yükseltir.</p>
   </section>
 }
@@ -283,13 +283,13 @@ export function RivalWar({ empire, rivalId, onOccupy, onBlockade }: {
       <h3><Swords className="size-4" /> İşgal et</h3>
       <Hint>Kazanırsan ordu şehirde kalır: her saat haraç toplar, hükümdar sana saldıramaz. Geri çağırınca haraçla döner.</Hint>
       <UnitPicker ids={land} free={free} pick={troops} onPick={setTroops} step={5} />
-      <Button size="sm" disabled={!Object.values(troops).some(n => (n ?? 0) > 0)} onClick={() => { onOccupy(troops); setTroops({}) }}>İşgale çık</Button>
+      <GameButton size="sm" disabled={!Object.values(troops).some(n => (n ?? 0) > 0)} onClick={() => { onOccupy(troops); setTroops({}) }}>İşgale çık</GameButton>
     </section>
     <section className="empire-section">
       <h3><Anchor className="size-4" /> Abluka</h3>
       <Hint>Savaş gemileri önce donanmasıyla savaşır; kazanırsa liman kapanır: pazarı kapanır, donanması çıkamaz, filo saatlik liman haracı toplar.</Hint>
       <UnitPicker ids={warships} free={free} pick={ships} onPick={setShips} />
-      <Button size="sm" disabled={!Object.values(ships).some(n => (n ?? 0) > 0)} onClick={() => { onBlockade(ships); setShips({}) }}>Limanı kapat</Button>
+      <GameButton size="sm" disabled={!Object.values(ships).some(n => (n ?? 0) > 0)} onClick={() => { onBlockade(ships); setShips({}) }}>Limanı kapat</GameButton>
     </section>
   </>
 }
@@ -310,8 +310,8 @@ export function RivalSupport({ empire, rivalId, now, run }: { empire: Empire; ri
     <UnitPicker ids={RAID_UNITS} free={free} pick={pick} onPick={setPick} step={5} />
     <UnitPicker ids={WARSHIPS} free={free} pick={pick} onPick={setPick} />
     {overseas && <p className={ships > free.nakliye ? 'requirement' : 'fine-print'}>Deniz aşırı: {ships} nakliye gemisi gerekli · boşta {free.nakliye}.</p>}
-    <Button size="sm" disabled={!Object.values(pick).some(n => (n ?? 0) > 0) || ships > free.nakliye}
-      onClick={() => { run((e, t) => dispatchSupport(e, rivalId, pick, t), 'Destek birlikleri yola çıktı.'); setPick({}) }}><ShieldCheck data-icon="inline-start" />Destek gönder</Button>
+    <GameButton size="sm" disabled={!Object.values(pick).some(n => (n ?? 0) > 0) || ships > free.nakliye}
+      onClick={() => { run((e, t) => dispatchSupport(e, rivalId, pick, t), 'Destek birlikleri yola çıktı.'); setPick({}) }}><ShieldCheck data-icon="inline-start" />Destek gönder</GameButton>
   </section>
 }
 
@@ -347,7 +347,7 @@ function Rankings({ empire, now, onRival }: { empire: Empire; now: number; onRiv
   const rows = rankings(empire, now, key)
   return <section className="empire-section">
     <div className="rank-tabs" role="group" aria-label="Sıralama kolu">{([['total', 'Genel'], ['builder', 'İnşaatçı'], ['military', 'Askerî'], ['offense', 'Saldırı'], ['defense', 'Savunma'], ['science', 'Bilim'], ['gold', 'Hazine'], ['trade', 'Ticaret']] as const).map(([k, l]) =>
-      <Button key={k} size="sm" variant={key === k ? 'default' : 'outline'} aria-pressed={key === k} onClick={() => setKey(k)}>{l}</Button>)}</div>
+      <GameButton key={k} size="sm" variant={key === k ? 'default' : 'outline'} aria-pressed={key === k} onClick={() => setKey(k)}>{l}</GameButton>)}</div>
     <ol className="rank-table">{rows.map((s, i) => <li key={s.name + i} className={s.you ? 'rank-you' : undefined}>
       <span className="rank-no">{i + 1}</span>
       <button type="button" disabled={s.you} onClick={() => s.rivalId && onRival(s.rivalId)}>
@@ -364,8 +364,8 @@ function Diplomacy({ empire, now, run, onRival }: { empire: Empire; now: number;
       <h3><NufusArt className="size-4" /> İttifak {alliance ? `· ${FACTIONS[alliance].name}` : ''}</h3>
       {(Object.keys(FACTIONS) as FactionId[]).map(f => <article key={f} className="mission-row">
         <span><strong>{FACTIONS[f].name}</strong><small>“{FACTIONS[f].motto}” · {factionMembers(f).map(r => r.city).join(', ')} · ortalama ilişki {factionStanding(empire, f)}</small></span>
-        {alliance === f ? <Button size="sm" variant="outline" onClick={() => run((e, x) => leaveAlliance(e, x), 'İttifaktan ayrıldın.')}>Ayrıl</Button>
-          : <Button size="sm" disabled={!!alliance || !!empire.world?.pact} onClick={() => run((e, x) => joinAlliance(e, f, x), 'İttifaka katıldın.')}>Katıl</Button>}
+        {alliance === f ? <GameButton size="sm" variant="outline" onClick={() => run((e, x) => leaveAlliance(e, x), 'İttifaktan ayrıldın.')}>Ayrıl</GameButton>
+          : <GameButton size="sm" disabled={!!alliance || !!empire.world?.pact} onClick={() => run((e, x) => joinAlliance(e, f, x), 'İttifaka katıldın.')}>Katıl</GameButton>}
       </article>)}
       <Hint>Üyelik için Elçilik 3. seviye ve ittifakla ortalama 5 ilişki gerekir. Üyeler sana saldırmaz, baskında yardım gönderir; öbür ittifak soğur.</Hint>
     </section>
@@ -435,7 +435,7 @@ function GoodsTrade({ empire, now, run }: { empire: Empire; now: number; run: Ru
         <span className="trade-good">{(() => { const I = (LUXURY_IDS as readonly string[]).includes(o.good) ? luxuryIcons[o.good as Luxury] : resourceIcons[o.good as Resource]; return <I className="trade-icon" /> })()}</span>
         <span className="trade-main"><strong>{num(o.amount)} {GOOD_NAMES[o.good]}</strong><small>{r.city} · {r.ruler} (yapay rakip) · ~{Math.round(dist)} dk</small></span>
         <span className="trade-price"><b>{o.price}</b><small>akçe/birim</small><em className={o.price <= FAIR_PRICE[o.good] === (side === 'sell') ? 'is-good' : 'is-bad'}>adil {FAIR_PRICE[o.good]}</em></span>
-        <Button size="sm" variant={side === 'sell' ? 'default' : 'outline'} onClick={() => run((e, x) => acceptOffer(e, o.id, x), side === 'sell' ? 'Mal yolda.' : 'Mal yola çıktı; bedeli gelecek.')}>{side === 'sell' ? `Al · ${num(o.amount * o.price)}` : `Sat · ${num(o.amount * o.price)}`}</Button>
+        <GameButton size="sm" variant={side === 'sell' ? 'default' : 'outline'} onClick={() => run((e, x) => acceptOffer(e, o.id, x), side === 'sell' ? 'Mal yolda.' : 'Mal yola çıktı; bedeli gelecek.')}>{side === 'sell' ? `Al · ${num(o.amount * o.price)}` : `Sat · ${num(o.amount * o.price)}`}</GameButton>
       </article>)}</div>}
   </section>
 }
@@ -449,7 +449,7 @@ function TroopTrade({ empire, now, run }: { empire: Empire; now: number; run: Ru
         <span className="trade-good"><UnitFigure id={o.unit} size={44} /></span>
         <span className="trade-main"><strong>{o.count} {u.name}</strong><small>{r.city} · {r.ruler} (yapay rakip) · {u.pop * o.count} vatandaş yer</small></span>
         <span className="trade-price"><b>{num(o.price)}</b><small>akçe/adet</small></span>
-        <Button size="sm" onClick={() => run((e, x) => buyMercenaries(e, o.id, x), `${o.count} ${u.name} sancağına katıldı.`)}>Al · {num(o.price * o.count)}</Button>
+        <GameButton size="sm" onClick={() => run((e, x) => buyMercenaries(e, o.id, x), `${o.count} ${u.name} sancağına katıldı.`)}>Al · {num(o.price * o.count)}</GameButton>
       </article>
     })}
     <Hint>Paralı askerler hemen şehre katılır; şehirde boşta vatandaş (barınak) ve garnizonda yer ister. Ticaret anlaşması olan hükümdar %10 ucuz satar; ilişkisi çok kötü olan satmaz.</Hint>
@@ -465,8 +465,8 @@ function TradeTreaties({ empire, now, run, onRival }: { empire: Empire; now: num
       return <article key={r.id} className="trade-row">
         <span className="trade-main"><strong>{r.city}</strong><small>{r.ruler} (yapay rakip) · ilişki {s?.relation ?? 0}</small></span>
         {on ? <em className="treaty-on"><Check className="size-3" /> Anlaşma var</em>
-          : <Button size="sm" variant="outline" onClick={() => run((e, x) => proposeTreaty(e, r.id, 'ticaret', x), 'Ticaret anlaşması imzalandı.')}>Teklif et · {num(treatyCost(empire, r, now))}</Button>}
-        {onRival && <Button size="sm" variant="ghost" aria-label={`${r.ruler} sayfası`} onClick={() => onRival(r.id)}><Eye /></Button>}
+          : <GameButton size="sm" variant="outline" onClick={() => run((e, x) => proposeTreaty(e, r.id, 'ticaret', x), 'Ticaret anlaşması imzalandı.')}>Teklif et · {num(treatyCost(empire, r, now))}</GameButton>}
+        {onRival && <GameButton size="sm" variant="ghost" aria-label={`${r.ruler} sayfası`} onClick={() => onRival(r.id)}><Eye /></GameButton>}
       </article>
     })}</div>
   </section>
@@ -487,11 +487,11 @@ function OwnOffers({ empire, now, run }: { empire: Empire; now: number; run: Run
           {MARKET_GOODS.map(x => <option key={x} value={x}>{GOOD_NAMES[x]}</option>)}</select></label>
         <label>Miktar<input type="number" min={1} value={amount} onChange={e => setAmount(e.target.value)} /></label>
         <label>Birim fiyat<input type="number" min={0.1} step={0.1} value={price} onChange={e => setPrice(e.target.value)} /></label>
-        <Button size="sm" onClick={() => run((e, x) => postOffer(e, good, Number(amount), Number(price), x), 'Teklif Ticaret Merkezi\'nde.')}>Teklif ver</Button>
+        <GameButton size="sm" onClick={() => run((e, x) => postOffer(e, good, Number(amount), Number(price), x), 'Teklif Ticaret Merkezi\'nde.')}>Teklif ver</GameButton>
       </div>}
       {mine.map(o => <article key={o.id} className="mission-row">
         <span><strong>{num(o.left)} / {num(o.amount)} {GOOD_NAMES[o.good]} · {o.price} akçe</strong><small>Dakikada ~{formatRate(fillRate(empire, o))} birim satılıyor</small></span>
-        <Button size="sm" variant="outline" onClick={() => run((e, x) => cancelOffer(e, o.id, x), 'Teklif geri çekildi.')}>Geri çek</Button>
+        <GameButton size="sm" variant="outline" onClick={() => run((e, x) => cancelOffer(e, o.id, x), 'Teklif geri çekildi.')}>Geri çek</GameButton>
       </article>)}
       <Hint>Yapay tüccarlar adil fiyata yakın teklifleri hızlı alır; adil fiyatın %60 üstünde hiç almazlar.</Hint>
     </section>
@@ -510,7 +510,7 @@ function Inbox({ empire, onRival }: { empire: Empire; onRival: (id: string) => v
       <time>{new Date(m.time).toLocaleString('tr-TR', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit' })}</time></div>
     <p className="fine-print mail-from">{m.from}{m.rivalId ? ' (yapay rakip)' : ''}</p>
     <p className="mail-body">{m.body}</p>
-    {m.rivalId && <Button size="sm" variant="ghost" onClick={() => onRival(m.rivalId!)}><Eye data-icon="inline-start" />Hükümdarı aç</Button>}
+    {m.rivalId && <GameButton size="sm" variant="ghost" onClick={() => onRival(m.rivalId!)}><Eye data-icon="inline-start" />Hükümdarı aç</GameButton>}
   </article>)}</section>
 }
 

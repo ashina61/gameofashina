@@ -9,7 +9,7 @@
  * hükümdarlar yapay rakiptir; gerçek oyuncu yoktur.
  */
 import { useEffect, useState } from 'react'
-import { BookOpen, ChevronLeft, Play, ScrollText, Sparkles, TriangleAlert } from 'lucide-react'
+import { BookOpen, ChevronLeft, Play, ScrollText, Sparkles, TriangleAlert } from './ui-art'
 import { RulerCrest, ChangelogPanel } from './profile-panel'
 import { peekSave, startNewGame } from '@/hooks/use-game'
 import { capitalCity, initialEmpire, renameCity, type Empire } from '@/lib/game/empire'

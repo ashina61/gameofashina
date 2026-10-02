@@ -6,8 +6,10 @@ import { rivalById } from '@/lib/game/rivals'
  * Vezir şehirleri ve olayları, Serasker orduyu ve raporları anlatır. Her
  * danışman duruma göre bir öğüt verir.
  */
-import { ChevronRight, Swords } from 'lucide-react'
-import { Button } from '@/components/ui/button'
+import { ChevronRight, Swords } from './ui-art'
+import { GameButton } from './game-button'
+import { StatRow } from './stat-kit'
+import { resourceIcons } from './game-widgets'
 import {
   BUILDINGS, activeJob, contentment, fullResources, housing, idleWorkers, maxPopulation, population, rates, researchReason, RESEARCH_IDS,
   timeLeft, type BuildingId, type Game, formatRate, groupLog,
@@ -73,17 +75,19 @@ export function CityAdvisor({ empire, game, onCity, onBuilding, onCities, onBuil
         })}</tbody>
       </table>
       <div className="batch-row">
-        <Button size="sm" variant="outline" onClick={onCities}>Şehirler ve harita<ChevronRight data-icon="inline-end" /></Button>
-        <Button size="sm" variant="outline" onClick={onBuildList}>Bütün yapılar<ChevronRight data-icon="inline-end" /></Button>
-        <Button size="sm" variant="outline" onClick={onOverview}>İmparatorluk özeti<ChevronRight data-icon="inline-end" /></Button>
+        <GameButton size="sm" variant="outline" onClick={onCities}>Şehirler ve harita<ChevronRight data-icon="inline-end" /></GameButton>
+        <GameButton size="sm" variant="outline" onClick={onBuildList}>Bütün yapılar<ChevronRight data-icon="inline-end" /></GameButton>
+        <GameButton size="sm" variant="outline" onClick={onOverview}>İmparatorluk özeti<ChevronRight data-icon="inline-end" /></GameButton>
       </div>
     </Box>
     <Box title="Üretim">
-      <table className="bp-table"><tbody>
-        {([['Akçe', rates(game).gold], ['Kereste', rates(game).wood], ['Taş', rates(game).stone], ['İlim', rates(game).knowledge]] as const)
-          .map(([l, v]) => <tr key={l}><td>{l}</td><td>{formatRate(v)} /dk</td></tr>)}
-      </tbody></table>
-      <Button size="sm" variant="outline" onClick={() => onBuilding('divan')}>Divanhane<ChevronRight data-icon="inline-end" /></Button>
+      <div className="sk-list">
+        {([['gold', 'Akçe'], ['wood', 'Kereste'], ['stone', 'Taş'], ['knowledge', 'İlim']] as const).map(([k, l]) => {
+          const v = rates(game)[k], Icon = resourceIcons[k]
+          return <StatRow key={k} icon={<Icon />} label={l} value={<>{formatRate(v, true)}<small> /dk</small></>} tone={v > 0 ? 'up' : v < 0 ? 'down' : 'idle'} />
+        })}
+      </div>
+      <GameButton size="sm" variant="outline" onClick={() => onBuilding('divan')}>Divanhane<ChevronRight data-icon="inline-end" /></GameButton>
     </Box>
     <Box title="Olaylar">
       <ul className="ika-events">{groupLog(game.log).slice(0, 20).map((l, i) => <li key={i}>
@@ -98,7 +102,7 @@ export function ArmyAdvisor({ empire, game, run, onArmy }: { empire: Empire; gam
     <AdvisorSpeech id="army">{armyAdvice(empire, game)}</AdvisorSpeech>
     <Box title="Kışla ve tersane">
       <p className="bp-note">Asker ve gemi eğitimi, birlik aktarma.</p>
-      <Button size="sm" onClick={onArmy}><Swords data-icon="inline-start" />Orduya git</Button>
+      <GameButton size="sm" onClick={onArmy}><Swords data-icon="inline-start" />Orduya git</GameButton>
     </Box>
     <DefenseSummary empire={empire} />
     <MissionList empire={empire} now={game.updatedAt} run={run} />

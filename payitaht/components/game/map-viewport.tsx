@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useRef, type ReactNode, type RefObject } from 'react'
-import { Minus, Plus, RotateCcw } from 'lucide-react'
+import { Minus, Plus, RotateCcw } from './ui-art'
 
 /** Only the map artwork moves; controls and the surrounding game UI stay fixed. */
 export function MapViewport({ children, width, height, fitWidth = false, className = '', viewportRef }: {

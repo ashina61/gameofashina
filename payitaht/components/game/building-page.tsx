@@ -13,8 +13,10 @@ import { KumSaatiArt } from './resource-art'
  */
 import { Hint } from './hint'
 import { useEffect, useState, type ReactNode } from 'react'
-import { ArrowLeft, ArrowUp, LockKeyhole, FlipHorizontal2, RotateCw, Move, Hammer, ChevronRight, Plus, Trash2, X } from 'lucide-react'
-import { Button } from '@/components/ui/button'
+import { ArrowLeft, ArrowUp, LockKeyhole, FlipHorizontal2, RotateCw, Move, Hammer, ChevronRight, Plus, Trash2, X } from './ui-art'
+import { GameButton } from './game-button'
+import { CostTokens } from './stat-kit'
+import { BottomSheet } from './bottom-sheet'
 import { asset, buildingImage , buildingStage } from '@/lib/asset'
 import {
   BUILDINGS, BUILDING_EFFECTS, constructionDiscount, LUXURY_IDS, LUXURY_NAMES, MAX_LEVEL, RESEARCH, RESOURCE_IDS, RESOURCE_NAMES, WORKERS_PER_LEVEL,
@@ -77,15 +79,8 @@ function UpgradeBox({ game, id, onBuild }: { game: Game; id: BuildingId; onBuild
   ]
   return <Box title={level ? `Genişlet · Sv. ${level} → ${level + 1}` : 'İnşa et'} className="bp-upgrade">
     {active ? <JobProgress job={active} now={game.updatedAt} /> : <>
-      <ul className="bp-costs">{needs.map(([r, n]) => {
-        const short = stock(game, r) < n
-        return <li key={r} className={short ? 'bp-short' : undefined} title={name(r)}>
-          <ResIcon id={r} /><span className="sr-only">{name(r)}</span><strong>{num(n)}</strong>
-          {short && <small>eksik {num(n - stock(game, r))}</small>}
-        </li>
-      })}
-        <li className="bp-time"><KumSaatiArt aria-hidden="true" /><strong>{time(duration(game, id))}</strong></li>
-      </ul>
+      <CostTokens items={needs.map(([r, n]) => ({ key: r, icon: <ResIcon id={r} />, name: name(r), need: n, have: stock(game, r) }))}
+        extra={<li className="bp-time"><span className="sk-token" aria-hidden="true"><KumSaatiArt /></span><strong>{time(duration(game, id))}</strong></li>} />
       {queued > 0 && <p className="bp-note"><KumSaatiArt className="size-4" /> İnşaat sırasında {queued + 1}. sırada.</p>}
       {reason && queued < 0 && <p className="bp-warn"><LockKeyhole className="size-4" /> {reason}</p>}
       <button type="button" className="bp-upgrade-button" disabled={!!reason} onClick={onBuild}>
@@ -223,17 +218,17 @@ function BuildingView({ game, empire, id, onCommand, onRecruit, onNav, onBuildin
               <JobProgress job={study} now={game.updatedAt} /></div>
           </div>
             : <div className="bp-study is-idle"><PersonArt kind="alim" size={52} /><p className="bp-note">Şu an araştırma yok. Âlimler yeni bir konu bekliyor.</p></div>}
-          <Button size="sm" onClick={() => onNav('research')}>Araştırmalara git<ChevronRight data-icon="inline-end" /></Button>
+          <GameButton size="sm" onClick={() => onNav('research')}>Araştırmalara git<ChevronRight data-icon="inline-end" /></GameButton>
         </Box>
       </>
     }
     case 'kereste': return <Box title="Oduncular"><Workers game={game} id="kereste" unit="Oduncu" perWorker="Her oduncu şehrin kerestesine katkı verir; boştaki halk üretim yapmaz." onCommand={onCommand} />
       <p className="bp-note">Adanın ormanında da oduncu çalıştırabilirsin (ada ormanı: {num(forestProduction(game))} kereste/dk).</p>
-      <Button size="sm" variant="outline" onClick={() => onNav('forest')}>Ada ormanına git<ChevronRight data-icon="inline-end" /></Button></Box>
+      <GameButton size="sm" variant="outline" onClick={() => onNav('forest')}>Ada ormanına git<ChevronRight data-icon="inline-end" /></GameButton></Box>
     case 'tas': return <Box title="Taşçılar"><Workers game={game} id="tas" unit="Taşçı" perWorker="Taş ocağında çalışan her taşçı taş üretir." onCommand={onCommand} /></Box>
     case 'carsi': return <Box title="Esnaf"><Workers game={game} id="carsi" unit="Esnaf" perWorker="Esnaf çarşıda akçe kazandırır." onCommand={onCommand} />
       <p className="bp-note">Çarşı'daki tüccarla lüks mal alıp satmak için Ada paneline git.</p>
-      <Button size="sm" variant="outline" onClick={() => onNav('island')}>Tüccara git<ChevronRight data-icon="inline-end" /></Button></Box>
+      <GameButton size="sm" variant="outline" onClick={() => onNav('island')}>Tüccara git<ChevronRight data-icon="inline-end" /></GameButton></Box>
     case 'surlar': return <Box title="Şehir savunması">
       <Table rows={[
         ['Sur seviyesi', `${game.buildings.surlar}`],
@@ -264,7 +259,7 @@ function BuildingView({ game, empire, id, onCommand, onRecruit, onNav, onBuildin
             ['Yükleme hızı', `${num(loadingSpeed(game))} mal/dk`],
             ['Yolculuk süresi', `%${Math.round(travelFactor(game) * 100)}`],
           ]} />
-          <Button size="sm" variant="outline" onClick={() => onNav('cities')}>Nakliye gönder<ChevronRight data-icon="inline-end" /></Button>
+          <GameButton size="sm" variant="outline" onClick={() => onNav('cities')}>Nakliye gönder<ChevronRight data-icon="inline-end" /></GameButton>
         </Box>}
         {id === 'liman' && empire && run && <MerchantFleet empire={empire} game={game} run={run} />}
         {id === 'elcilik' && <Box title="Casusluk ve diplomasi">
@@ -273,7 +268,7 @@ function BuildingView({ game, empire, id, onCommand, onRecruit, onNav, onBuildin
             ['Casusluk başarısı', `+%${Math.round(spyBonus(game) * 100)}`],
             ['Yabancı casus yakalama', `%${Math.round(counterSpy(game) * 100)}`],
           ]} />
-          <Button size="sm" variant="outline" onClick={() => onNav('diplomacy')}>Dünya ve diplomasi<ChevronRight data-icon="inline-end" /></Button>
+          <GameButton size="sm" variant="outline" onClick={() => onNav('diplomacy')}>Dünya ve diplomasi<ChevronRight data-icon="inline-end" /></GameButton>
         </Box>}
         {id !== 'liman' && <Box title={id === 'tersane' ? 'Gemi yapımı' : id === 'elcilik' ? 'Casus eğitimi' : 'Asker eğitimi'} className="bp-army">
           <ArmyPanel game={game} onRecruit={onRecruit} onBuild={onBuildingNav} home={id} />
@@ -282,7 +277,7 @@ function BuildingView({ game, empire, id, onCommand, onRecruit, onNav, onBuildin
     case 'konut': case 'hamam': return <Box title="Halk">
       <Table rows={[['Nüfus', `${num(population(game))} / ${num(maxPopulation(game))}`], ['Barınma', num(housing(game))], ['Huzur', num(contentment(game))],
         ['Büyüme', growthRate(game) > 0 ? `+${formatRate(growthRate(game))} kişi/dk` : 'Tavanda']]} />
-      <Button size="sm" variant="outline" onClick={() => onNav('people')}>Halk paneli<ChevronRight data-icon="inline-end" /></Button>
+      <GameButton size="sm" variant="outline" onClick={() => onNav('people')}>Halk paneli<ChevronRight data-icon="inline-end" /></GameButton>
     </Box>
     case 'kahvehane': return <Box title="Üzüm ikramı">
       <Table rows={[['İkram seviyesi', `${tavernLevel(game)} / ${game.buildings.kahvehane}`], ['Üzüm tüketimi', `${formatRate(wineConsumption(game))} /dk`],
@@ -292,12 +287,12 @@ function BuildingView({ game, empire, id, onCommand, onRecruit, onNav, onBuildin
       <Table rows={[['Müze huzuru', `+${num(game.buildings.muze * BUILDING_EFFECTS.muzeContentment * (game.research.includes('kultur') ? 1.5 : 1))}`],
         ['Kültür anlaşması (bu şehirde)', `${game.culture ?? 0} / ${game.buildings.muze}`], ['İmparatorluktaki anlaşma', `${empire ? culturalTreaties(empire) : 0}`]]} />
       <Hint>Her kültür anlaşması Müze seviyesi kadar şehirde +50 huzur verir. Anlaşmalar Dünya panelinden yapılır.</Hint>
-      <Button size="sm" variant="outline" onClick={() => onNav('diplomacy')}>Anlaşma yap<ChevronRight data-icon="inline-end" /></Button>
+      <GameButton size="sm" variant="outline" onClick={() => onNav('diplomacy')}>Anlaşma yap<ChevronRight data-icon="inline-end" /></GameButton>
     </Box>
     case 'saray': case 'valilik': return empire ? <Box title="İmparatorluk">
       <Table head={['Şehir', 'Divanhane', 'Yolsuzluk']} rows={empire.cities.map(c => [c.name, `${c.game.buildings.divan}`, `%${Math.round(corruption(c.game) * 100)}`])} />
       <p className="bp-note">Saray seviyesi kurabileceğin koloni sayısını belirler; kolonide Valilik yolsuzluğu siler.</p>
-      <Button size="sm" variant="outline" onClick={() => onNav('cities')}>Şehirler ve atlas<ChevronRight data-icon="inline-end" /></Button>
+      <GameButton size="sm" variant="outline" onClick={() => onNav('cities')}>Şehirler ve atlas<ChevronRight data-icon="inline-end" /></GameButton>
     </Box> : null
     case 'marangoz': case 'mimar': case 'mahzen': case 'gozlukcu': case 'barutane': return <CostBreakdown game={game} id={id} />
     case 'bagci': case 'simyahane': case 'camci': case 'tasci': case 'ormanci': {
@@ -307,7 +302,7 @@ function BuildingView({ game, empire, id, onCommand, onRecruit, onNav, onBuildin
         tasci: `${num(r.stone)} taş/dk · ${formatRate(lux.mermer)} mermer/dk`, ormanci: `${num(r.wood)} kereste/dk`,
       }
       return <Box title="Üretim"><Table rows={[['Şehrin üretimi', out[id]], ['Maden işçisi', `${game.mine.miners}`]]} />
-        <Button size="sm" variant="outline" onClick={() => onNav('island')}>Ada madenine git<ChevronRight data-icon="inline-end" /></Button></Box>
+        <GameButton size="sm" variant="outline" onClick={() => onNav('island')}>Ada madenine git<ChevronRight data-icon="inline-end" /></GameButton></Box>
     }
     default: return null
   }
@@ -318,14 +313,24 @@ function BuildingView({ game, empire, id, onCommand, onRecruit, onNav, onBuildin
  * görseli ve parşömen kaydırma alanı. Bina sayfaları ve bütün danışman
  * panelleri (Kışla, Araştırma, Dünya...) bu çerçeveyi kullanır.
  */
-export function IkaPage({ title, subtitle, badge, hero, onClose, children, label }: {
+export function IkaPage({ title, subtitle, badge, hero, onClose, children, label, sheet }: {
   title: string; subtitle?: string; badge?: ReactNode; hero?: string | null; onClose: () => void; children: ReactNode; label?: string
+  /** Haritada seçilen şey: tam sayfa yerine alt çekmece (harita arkada görünür). */
+  sheet?: boolean
 }) {
   useEffect(() => {
     const key = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose() }
     window.addEventListener('keydown', key)
     return () => window.removeEventListener('keydown', key)
   }, [onClose])
+  if (sheet) return <BottomSheet label={label ?? title} onClose={onClose}>
+    <header className="bp-bar">
+      <div className="bp-title"><h1>{title}</h1>{subtitle && <small>{subtitle}</small>}</div>
+      {badge}
+      <button type="button" className="bp-back" onClick={onClose} aria-label="Kapat"><X /></button>
+    </header>
+    <div className="bp-scroll">{children}</div>
+  </BottomSheet>
   return <div className="bp" role="dialog" aria-modal="true" aria-label={label ?? title}>
     <header className="bp-bar">
       <button type="button" className="bp-back" onClick={onClose} aria-label="Geri"><ArrowLeft /></button>

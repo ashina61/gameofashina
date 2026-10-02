@@ -7,11 +7,11 @@
  */
 import { Hint } from './hint'
 import { useState } from 'react'
-import { Sparkles, Minus, Plus, Swords, ShieldCheck, Skull, Anchor, TriangleAlert, Repeat, Hammer } from 'lucide-react'
+import { Sparkles, Minus, Plus, Swords, ShieldCheck, Skull, Anchor, TriangleAlert, Repeat, Hammer } from './ui-art'
 import { AkceArt, KumSaatiArt } from './resource-art'
 import { SHOWS, SHOW_IDS, type ShowId } from '@/lib/game/theatre'
 import { WorkforceSlider } from './workforce'
-import { Button } from '@/components/ui/button'
+import { GameButton } from './game-button'
 import { UnitFigure } from './unit-art'
 import {
   FAITH_CAP, GOOD_NAMES, LUXURY_IDS, MIRACLES, MIRACLE_COOLDOWN_MS, RESEARCH, RESEARCH_BRANCHES, RESEARCH_IDS, RESOURCE_IDS, UNITS,
@@ -46,10 +46,10 @@ export function UnitPicker({ ids, free, pick, onPick, step = 1 }: {
   return <div className="raid-units">{shown.map(id => <div key={id} className="raid-unit">
     <UnitFigure id={id} size={36} />
     <span><strong>{UNITS[id].name}</strong><small>{free[id]} boşta · saldırı {UNITS[id].attack}</small></span>
-    <Button size="sm" variant="outline" disabled={!(pick[id] ?? 0)} onClick={() => set(id, (pick[id] ?? 0) - step)} aria-label={`${UNITS[id].name} azalt`}><Minus /></Button>
+    <GameButton size="sm" variant="outline" disabled={!(pick[id] ?? 0)} onClick={() => set(id, (pick[id] ?? 0) - step)} aria-label={`${UNITS[id].name} azalt`}><Minus /></GameButton>
     <strong className="stepper-value">{pick[id] ?? 0}</strong>
-    <Button size="sm" variant="outline" disabled={(pick[id] ?? 0) >= free[id]} onClick={() => set(id, (pick[id] ?? 0) + step)} aria-label={`${UNITS[id].name} artır`}><Plus /></Button>
-    <Button size="sm" variant="ghost" onClick={() => set(id, free[id])}>Hepsi</Button>
+    <GameButton size="sm" variant="outline" disabled={(pick[id] ?? 0) >= free[id]} onClick={() => set(id, (pick[id] ?? 0) + step)} aria-label={`${UNITS[id].name} artır`}><Plus /></GameButton>
+    <GameButton size="sm" variant="ghost" onClick={() => set(id, free[id])}>Hepsi</GameButton>
   </div>)}</div>
 }
 
@@ -64,7 +64,7 @@ export function GuildPanel({ game, now, onCommand }: { game: Game; now: number; 
     <h3><Sparkles className="size-4" /> Lonca himayesi · {gs.patrons.length}/{slots}</h3>
     <div className="people-row-top"><span>Himmet</span><span className="people-count">{num(gs.himmet)} / {num(cap)} · +{formatRate(himmetRate(game))}/dk</span></div>
     <span className="people-meter"><span style={{ width: `${Math.min(100, (gs.himmet / cap) * 100)}%` }} /></span>
-    <div className="batch-row"><span>Adak</span>{[100, 500, 2000].map(n => <Button key={n} size="sm" variant={amount === n ? 'default' : 'outline'} onClick={() => setAmount(n)}>{num(n)}</Button>)}</div>
+    <div className="batch-row"><span>Adak</span>{[100, 500, 2000].map(n => <GameButton key={n} size="sm" variant={amount === n ? 'default' : 'outline'} onClick={() => setAmount(n)}>{num(n)}</GameButton>)}</div>
     {cooling && <p className="fine-print"><KumSaatiArt className="size-3" /> Loncalar yeni düzene alışıyor · {clock(gs.changedAt + PATRON_COOLDOWN_MS - now)}</p>}
     <div className="guild-list">{GUILD_IDS.map(id => {
       const g = GUILDS[id]
@@ -80,8 +80,8 @@ export function GuildPanel({ game, now, onCommand }: { game: Game; now: number; 
         {next && <><span className="people-meter"><span style={{ width: `${Math.min(100, ((gs.devotion[id] - from) / (next - from)) * 100)}%` }} /></span>
           <small className="guild-need">{num(gs.devotion[id])} / {num(next)} himmet</small></>}
         <div className="batch-row">
-          <Button size="sm" variant="outline" disabled={!next || gs.himmet < 1} onClick={() => onCommand({ type: 'devote', guild: id, amount })}>Adak sun ({num(Math.min(amount, Math.floor(gs.himmet)))})</Button>
-          <Button size="sm" variant={on ? 'secondary' : 'default'} disabled={cooling || (!on && gs.patrons.length >= slots)} onClick={() => onCommand({ type: 'patron', guild: id })}>{on ? 'Himayeden çıkar' : 'Himaye et'}</Button>
+          <GameButton size="sm" variant="outline" disabled={!next || gs.himmet < 1} onClick={() => onCommand({ type: 'devote', guild: id, amount })}>Adak sun ({num(Math.min(amount, Math.floor(gs.himmet)))})</GameButton>
+          <GameButton size="sm" variant={on ? 'secondary' : 'default'} disabled={cooling || (!on && gs.patrons.length >= slots)} onClick={() => onCommand({ type: 'patron', guild: id })}>{on ? 'Himayeden çıkar' : 'Himaye et'}</GameButton>
         </div>
       </article>
     })}</div>
@@ -105,8 +105,8 @@ export function TemplePanel({ game, now, onCommand }: { game: Game; now: number;
       <div className="people-row-top"><span>Harika bağışı</span><span className="people-count">{num(t.wonderWood)} / {num(wonderCost(t.wonderLevel))} kereste</span></div>
       <span className="people-meter"><span style={{ width: `${Math.min(100, t.wonderWood / wonderCost(t.wonderLevel) * 100)}%` }} /></span>
       <div className="batch-row">
-        {[250, 500, 1000, 2500].map(n => <Button key={n} size="sm" variant={gift === n ? 'default' : 'outline'} onClick={() => setGift(n)}>{num(n)}</Button>)}
-        <Button size="sm" disabled={game.resources.wood < gift} onClick={() => onCommand({ type: 'wonder', amount: gift })}>Bağışla</Button>
+        {[250, 500, 1000, 2500].map(n => <GameButton key={n} size="sm" variant={gift === n ? 'default' : 'outline'} onClick={() => setGift(n)}>{num(n)}</GameButton>)}
+        <GameButton size="sm" disabled={game.resources.wood < gift} onClick={() => onCommand({ type: 'wonder', amount: gift })}>Bağışla</GameButton>
       </div>
     </>}
     {game.buildings.cami < 1
@@ -119,8 +119,8 @@ export function TemplePanel({ game, now, onCommand }: { game: Game; now: number;
         <span className="people-meter"><span style={{ width: `${Math.min(100, t.faith / need * 100)}%` }} /></span>
         {active && <p className="report-win"><Sparkles className="size-4" /> {m.name} mucizesi etkin · {clock(t.until - now)}</p>}
         {resting && <p className="fine-print"><KumSaatiArt className="size-3" /> Harika dinleniyor · {clock(t.cooldownUntil - now)}</p>}
-        <Button size="sm" disabled={!!active || resting || t.wonderLevel < 1 || t.faith < need} onClick={() => onCommand({ type: 'miracle' })}>
-          <Sparkles data-icon="inline-start" />Mucizeyi çağır ({num(need)} inanç)</Button>
+        <GameButton size="sm" disabled={!!active || resting || t.wonderLevel < 1 || t.faith < need} onClick={() => onCommand({ type: 'miracle' })}>
+          <Sparkles data-icon="inline-start" />Mucizeyi çağır ({num(need)} inanç)</GameButton>
         <p className="fine-print">Her imam dakikada 0,5 inanç toplar ve üretimde çalışmaz. Mucizeden sonra harika {MIRACLE_COOLDOWN_MS / 3600_000} saat dinlenir.</p>
       </>}
   </section>
@@ -139,11 +139,11 @@ export function UpgradePanel({ game, onCommand }: { game: Game; onCommand: (c: C
         <strong>{UNITS[id].name}</strong>
         {(['atk', 'def'] as const).map(stat => {
           const c = upgradeCost(game, id, stat), reason = upgradeReason(game, id, stat)
-          return <Button key={stat} size="sm" variant="outline" disabled={!!reason} title={reason ?? undefined}
+          return <GameButton key={stat} size="sm" variant="outline" disabled={!!reason} title={reason ?? undefined}
             onClick={() => onCommand({ type: 'upgrade', id, stat })}>
             {stat === 'atk' ? <Swords data-icon="inline-start" /> : <ShieldCheck data-icon="inline-start" />}
             {u[stat]} → {u[stat] + 1}<small className="upgrade-cost-hint">{num(c.gold)}a · {c.kristal}k</small>
-          </Button>
+          </GameButton>
         })}
       </div>
     })}</div>
@@ -170,7 +170,7 @@ export function FuturePanel({ game, onCommand }: { game: Game; onCommand: (c: Co
         <div className="research-card-top"><ResearchEmblem id={RESEARCH_IDS.filter(id => RESEARCH[id].branch === b.key).slice(-1)[0]} size={52} state={left > 0 ? 'locked' : 'open'} /><span><h3>{b.title} Geleceği · Sv. {level}</h3></span></div>
         <p>Şu an: {level ? FUTURE_EFFECT[b.key](level) : 'yok'} · Sonraki seviye: <b>{FUTURE_EFFECT[b.key](level + 1)}</b></p>
         <div className="research-bottom"><span>{num(futureCost(level))} ilim</span>
-          <Button size="sm" disabled={!!reason} onClick={() => onCommand({ type: 'future', branch: b.key })}>İlerlet</Button></div>
+          <GameButton size="sm" disabled={!!reason} onClick={() => onCommand({ type: 'future', branch: b.key })}>İlerlet</GameButton></div>
         {left > 0 && <p className="fine-print">Önce bu dalda {left} araştırma kaldı.</p>}
       </article>
     })}
@@ -195,9 +195,9 @@ export function ExchangePanel({ game, onCommand }: { game: Game; onCommand: (c: 
       <label>Al<select value={to} onChange={e => setTo(e.target.value as Good)}>
         {GOODS.filter(g => g !== from).map(g => <option key={g} value={g}>{GOOD_NAMES[g]}</option>)}</select></label>
       <label>Miktar<input type="number" min={1} step={1} inputMode="numeric" value={amount} onChange={e => setAmount(e.target.value)} /></label>
-      <Button size="sm" disabled={!Number.isSafeInteger(n) || n <= 0 || from === to}
+      <GameButton size="sm" disabled={!Number.isSafeInteger(n) || n <= 0 || from === to}
         onClick={() => onCommand({ type: 'exchange', from, to, amount: n })}>
-        {Number.isSafeInteger(n) && n > 0 ? `${num(n)} → ${num(n / rate)} ${GOOD_NAMES[to]}` : 'Takas et'}</Button>
+        {Number.isSafeInteger(n) && n > 0 ? `${num(n)} → ${num(n / rate)} ${GOOD_NAMES[to]}` : 'Takas et'}</GameButton>
     </div>
   </section>
 }
@@ -227,8 +227,8 @@ export function PiracyPanel({ empire, now, onPiracy }: {
       ? <p className="fine-print">Limanda boşta savaş gemisi yok. Tersane'de kadırga yap.</p>
       : <UnitPicker ids={WARSHIPS} free={free} pick={pick} onPick={setPick} />}
     <Hint>Eskort gemileri zayıf zırhlıdır ama batmadan pes etmez: kalabalık bir filo götür. Kayıplar kalıcıdır.</Hint>
-    <Button size="sm" disabled={!Object.values(pick).some(n => (n ?? 0) > 0) || missions.some(m => m.npcId === t.id)}
-      onClick={() => { onPiracy(t.id, pick); setPick({}) }}><Anchor data-icon="inline-start" />{t.name} peşine düş</Button>
+    <GameButton size="sm" disabled={!Object.values(pick).some(n => (n ?? 0) > 0) || missions.some(m => m.npcId === t.id)}
+      onClick={() => { onPiracy(t.id, pick); setPick({}) }}><Anchor data-icon="inline-start" />{t.name} peşine düş</GameButton>
     {missions.map(m => <p key={m.id} className="requirement"><KumSaatiArt className="size-4" />
       {PIRACY_TARGETS.find(p => p.id === m.npcId)?.name}: {m.battle ? `savaşta · tur ${m.battle.state.round}` : m.resolved ? `dönüş ${clock(m.returnAt - now)}` : `varış ${clock(m.arriveAt - now)}`}</p>)}
   </section>
@@ -290,9 +290,9 @@ export function SiegePanel({ empire, now, run }: { empire: Empire; now: number; 
         <div><small>{s.kind === 'occupy' ? 'Şehirdeki kara birliklerin' : 'Limandaki savaş gemilerin'}</small><strong>{troopList(mine)}</strong></div>
       </div>
       <p className="fine-print"><KumSaatiArt className="size-3" /> Saatte {num(siegeTribute(s))} akçe haraç · en geç {clock(s.since + SIEGE_MAX_MS - now)} sonra çekilirler.</p>
-      <Button size="sm" variant="destructive" disabled={!Object.keys(mine).length}
+      <GameButton size="sm" variant="destructive" disabled={!Object.keys(mine).length}
         onClick={() => run((e, t) => liberateCity(e, city.id, s.kind, t), s.kind === 'occupy' ? 'Şehir kurtarıldı!' : 'Abluka kırıldı!')}>
-        <Swords data-icon="inline-start" />{s.kind === 'occupy' ? 'Şehri kurtar' : 'Ablukayı kır'}</Button>
+        <Swords data-icon="inline-start" />{s.kind === 'occupy' ? 'Şehri kurtar' : 'Ablukayı kır'}</GameButton>
       <Hint>Savaş tek seferde olur ve raporda tur tur izlenir. Yetmezse başka şehirden birlik aktar, Kışla ya da Tersane'de eğit; ya da hükümdarla barış anlaşması yap.</Hint>
     </section>
   })}</>
@@ -311,8 +311,8 @@ export function ForeignSpies({ empire, game, now, run }: { empire: Empire; game:
       : <>
         <ul className="wm-facts">{spies.map(x => <li key={x.id}><Skull className="size-3" />{rivalById(x.rivalId)?.ruler ?? 'Bilinmeyen'} (yapay rakip) · {clock(now - x.since)} önce sızdı</li>)}</ul>
         <p className="fine-print">Casusları olan hükümdar saldırırsa ordusu surlarını iyi tanır (+%15 asker) ve bu şehri seçme olasılığı artar.</p>
-        <Button size="sm" disabled={wait > 0} onClick={() => run((e, t) => expelSpies(e, city.id, t), 'Casuslar kovuldu.')}>
-          <ShieldCheck data-icon="inline-start" />{wait > 0 ? `Yeniden arama · ${clock(wait)}` : 'Casusları yakala ve kov'}</Button>
+        <GameButton size="sm" disabled={wait > 0} onClick={() => run((e, t) => expelSpies(e, city.id, t), 'Casuslar kovuldu.')}>
+          <ShieldCheck data-icon="inline-start" />{wait > 0 ? `Yeniden arama · ${clock(wait)}` : 'Casusları yakala ve kov'}</GameButton>
       </>}
   </section>
 }
@@ -367,7 +367,7 @@ export function TheatrePanel({ game, now, onCommand }: { game: Game; now: number
       const blocked = id === 'tanrisal' && game.buildings.mabet < 1
       return <article key={id} className={active?.id === id ? 'show-card is-on' : 'show-card'}>
         <strong>{s.name}</strong><em>"{s.play}"</em><small>{s.effect(lv)}{id !== 'tanrisal' ? ' · 12 saat' : ''}</small>
-        <Button size="sm" disabled={!!active || wait > 0 || blocked} onClick={() => onCommand({ type: 'show', show: id })}>{blocked ? 'Mabet gerekli' : 'Gösteriyi sun'}</Button>
+        <GameButton size="sm" disabled={!!active || wait > 0 || blocked} onClick={() => onCommand({ type: 'show', show: id })}>{blocked ? 'Mabet gerekli' : 'Gösteriyi sun'}</GameButton>
       </article>
     })}</div>
     <Hint>Aynı anda tek gösteri oynar; bittiğinde perde bir süre dinlenir (seviye yükseldikçe kısalır). Karagöz Perdesi Ikariam'daki tiyatronun Osmanlı karşılığıdır.</Hint>

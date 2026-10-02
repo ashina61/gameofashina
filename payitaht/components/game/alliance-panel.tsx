@@ -9,8 +9,8 @@ import { NufusArt } from './resource-art'
  * ittifaklarla barış, saldırmazlık, savaş). Üyeler yapay rakiptir.
  */
 import { useState } from 'react'
-import { BookOpen, Check, Crown, Eye, Flag, Handshake, ListChecks, Megaphone, Pin, Scroll, Shield, Swords, UserMinus, UserPlus, Users } from 'lucide-react'
-import { Button } from '@/components/ui/button'
+import { BookOpen, Check, Crown, Eye, Flag, Handshake, ListChecks, Megaphone, Pin, Scroll, Shield, Swords, UserMinus, UserPlus, Users } from './ui-art'
+import { GameButton } from './game-button'
 import type { Empire } from '@/lib/game/empire'
 import {
   ABOUT_MAX, CIRCULAR_TOPICS, GOAL_PRESTIGE, NOTICE_MAX, PACT_GOALS, PACT_RANKS, RANK_DUTIES, STANCES, TITLE_MAX, allianceRankings, claimPactGoal,
@@ -80,11 +80,11 @@ function General({ empire, now, run }: { empire: Empire; now: number; run: Run }
     <section className="empire-section alliance-banner-edit">
       <h3><Flag className="size-4" /> İttifak sancağı</h3>
       <p className="fine-print">İttifakın, lider profilindeki sancak ve armayı kullanır.</p>
-      <Button size="sm" variant="outline" aria-expanded={editBanner} onClick={() => { setLook({ crest: prof.crest, color: prof.color, banner: prof.banner ?? 'kirlangic' }); setEditBanner(!editBanner) }}>{editBanner ? 'Vazgeç' : 'Sancağı düzenle'}</Button>
+      <GameButton size="sm" variant="outline" aria-expanded={editBanner} onClick={() => { setLook({ crest: prof.crest, color: prof.color, banner: prof.banner ?? 'kirlangic' }); setEditBanner(!editBanner) }}>{editBanner ? 'Vazgeç' : 'Sancağı düzenle'}</GameButton>
       {editBanner && <>
         <SancakArt {...look} size={260} />
         <SancakPicker value={look} onChange={setLook} />
-        <Button size="sm" onClick={() => { run((e, t) => setProfile(e, look, t), 'Sancak kaydedildi.'); setEditBanner(false) }}>Sancağı kaydet</Button>
+        <GameButton size="sm" onClick={() => { run((e, t) => setProfile(e, look, t), 'Sancak kaydedildi.'); setEditBanner(false) }}>Sancağı kaydet</GameButton>
       </>}
     </section>
     <section className="empire-section">
@@ -104,9 +104,9 @@ function General({ empire, now, run }: { empire: Empire; now: number; run: Run }
     <section className="empire-section">
       <h3><Scroll className="size-4" /> İttifak düsturu</h3>
       <div className="batch-row"><input id="pact-motto" className="text-input" value={motto} maxLength={80} placeholder="Birlikten kuvvet doğar" onChange={e => setMotto(e.target.value)} />
-        <Button size="sm" onClick={() => run((e, x) => setPactMotto(e, motto, x), 'Düstur kaydedildi.')}>Kaydet</Button></div>
-      {confirm ? <div className="batch-row"><Button size="sm" variant="destructive" onClick={() => run((e, x) => leavePact(e, x), 'İttifak dağıtıldı.')}>Evet, dağıt</Button><Button size="sm" variant="outline" onClick={() => setConfirm(false)}>Vazgeç</Button></div>
-        : <Button size="sm" variant="outline" onClick={() => setConfirm(true)}>İttifakı dağıt</Button>}
+        <GameButton size="sm" onClick={() => run((e, x) => setPactMotto(e, motto, x), 'Düstur kaydedildi.')}>Kaydet</GameButton></div>
+      {confirm ? <div className="batch-row"><GameButton size="sm" variant="destructive" onClick={() => run((e, x) => leavePact(e, x), 'İttifak dağıtıldı.')}>Evet, dağıt</GameButton><GameButton size="sm" variant="outline" onClick={() => setConfirm(false)}>Vazgeç</GameButton></div>
+        : <GameButton size="sm" variant="outline" onClick={() => setConfirm(true)}>İttifakı dağıt</GameButton>}
     </section>
   </>
 }
@@ -127,7 +127,7 @@ function Members({ empire, now, run, onRival }: { empire: Empire; now: number; r
           <select aria-label={`${r.ruler} rütbesi`} value={p.ranks[id] ?? 'uye'} onChange={e => run((x, t) => setRank(x, id, e.target.value as PactRank, t), 'Rütbe verildi.')}>
             {(Object.keys(PACT_RANKS) as PactRank[]).map(k => <option key={k} value={k}>{rankTitle(p, k)}</option>)}
           </select>
-          <Button size="sm" variant="ghost" aria-label={`${r.ruler} ittifaktan çıkar`} onClick={() => run((x, t) => kickMember(x, id, t), 'Üye çıkarıldı.')}><UserMinus /></Button>
+          <GameButton size="sm" variant="ghost" aria-label={`${r.ruler} ittifaktan çıkar`} onClick={() => run((x, t) => kickMember(x, id, t), 'Üye çıkarıldı.')}><UserMinus /></GameButton>
         </article>
       })}
     </section>
@@ -139,7 +139,7 @@ function Members({ empire, now, run, onRival }: { empire: Empire; now: number; r
         const rel = peek(empire, r.id).relation
         return <article key={r.id} className="member-row">
           <button type="button" className="member-name" onClick={() => onRival(r.id)}><strong>{r.city}</strong><small>{r.ruler} · {FACTIONS[r.faction].name} · ilişki <b className={rel >= need ? 'report-win' : 'report-loss'}>{rel}</b></small></button>
-          <Button size="sm" disabled={p.members.length >= pactCap(empire)} variant={rel >= need ? 'default' : 'outline'} onClick={() => run((x, t) => invitePact(x, r.id, t), `${r.ruler} ittifaka katıldı!`)}>Davet et</Button>
+          <GameButton size="sm" disabled={p.members.length >= pactCap(empire)} variant={rel >= need ? 'default' : 'outline'} onClick={() => run((x, t) => invitePact(x, r.id, t), `${r.ruler} ittifaka katıldı!`)}>Davet et</GameButton>
         </article>
       })}
     </section>
@@ -161,7 +161,7 @@ function PactTexts({ empire, run }: { empire: Empire; run: Run }) {
     <p className="fine-print">Yalnız üyeler görür; ittifak sayfasının en üstünde durur.</p>
     <textarea id="pact-notice" className="text-input" rows={2} maxLength={NOTICE_MAX} value={notice} placeholder="Cuma günü ortak talim; korsanlara karşı limanlar tetikte." onChange={e => setNotice(e.target.value)} />
     <small className="fine-print">{notice.length} / {NOTICE_MAX}</small>
-    <Button size="sm" onClick={() => run((e, x) => setPactTexts(e, { about, notice }, x), 'İttifak sayfası kaydedildi.')}>Kaydet</Button>
+    <GameButton size="sm" onClick={() => run((e, x) => setPactTexts(e, { about, notice }, x), 'İttifak sayfası kaydedildi.')}>Kaydet</GameButton>
   </section>
 }
 
@@ -185,7 +185,7 @@ function RankDuties({ empire, run }: { empire: Empire; run: Run }) {
         <ul className="rank-rights">{d.rights.map(r => <li key={r}><Check aria-hidden="true" />{r}</li>)}</ul>
         <small className="rank-who">{who.length ? who.join(', ') : k === 'uye' ? 'Rütbesiz üye yok' : 'Boş: Üyeler listesinden ata'}</small>
         {edit === k && <div className="batch-row"><input id={`rank-title-${k}`} className="text-input" maxLength={TITLE_MAX} value={title} placeholder={d.name} onChange={e => setTitle(e.target.value)} />
-          <Button size="sm" onClick={() => { run((e, x) => setRankTitle(e, k, title, x), 'Rütbe adı kaydedildi.'); setEdit(null) }}>Kaydet</Button></div>}
+          <GameButton size="sm" onClick={() => { run((e, x) => setRankTitle(e, k, title, x), 'Rütbe adı kaydedildi.'); setEdit(null) }}>Kaydet</GameButton></div>}
       </article>
     })}
   </section>
@@ -201,7 +201,7 @@ function Goals({ empire, now, run }: { empire: Empire; now: number; run: Run }) 
     <h3><ListChecks className="size-4" /> İttifak görevleri</h3>
     <p className="fine-print">Her hafta üç ortak görev. Tamamlanan her görev akçe ve ittifaka {GOAL_PRESTIGE} itibar kazandırır; itibar sıralamaya eklenir. Yenilenmesine {days} gün {hours} saat.</p>
     {!g || g.week !== new Date(weekStart(now)).toISOString().slice(0, 10)
-      ? <Button size="sm" onClick={() => run((e, x) => refreshPactGoals(e, x), 'Bu haftanın görevleri belirlendi.')}>Bu haftanın görevlerini getir</Button>
+      ? <GameButton size="sm" onClick={() => run((e, x) => refreshPactGoals(e, x), 'Bu haftanın görevleri belirlendi.')}>Bu haftanın görevlerini getir</GameButton>
       : g.tasks.map(id => {
       const t = PACT_GOALS.find(x => x.id === id)!
       const prog = pactGoalProgress(empire, id, now), done = g.claimed.includes(id)
@@ -209,7 +209,7 @@ function Goals({ empire, now, run }: { empire: Empire; now: number; run: Run }) 
         <span className="milestone-seal" aria-hidden="true"><Shield /></span>
         <span><strong>{t.text}</strong><small>{prog} / {t.need} · ödül {num(t.gold)} akçe, +{GOAL_PRESTIGE} itibar</small></span>
         <span className="people-meter"><span style={{ width: `${prog / t.need * 100}%` }} /></span>
-        <Button size="sm" disabled={done || prog < t.need} onClick={() => run((e, x) => claimPactGoal(e, id, x), 'İttifak görevi tamamlandı.')}>{done ? 'Alındı' : prog < t.need ? 'Sürüyor' : 'Ödülü al'}</Button>
+        <GameButton size="sm" disabled={done || prog < t.need} onClick={() => run((e, x) => claimPactGoal(e, id, x), 'İttifak görevi tamamlandı.')}>{done ? 'Alındı' : prog < t.need ? 'Sürüyor' : 'Ödülü al'}</GameButton>
       </article>
     })}
   </section>
@@ -229,7 +229,7 @@ function Circulars({ empire, run }: { empire: Empire; run: Run }) {
       <p className="fine-print">{CIRCULAR_TOPICS[topic].body}</p>
       <label className="sr-only" htmlFor="pact-note">Ek not</label>
       <input id="pact-note" className="text-input" value={note} maxLength={140} placeholder="Ek not (isteğe bağlı)" onChange={e => setNote(e.target.value)} />
-      <Button size="sm" onClick={() => { run((e, x) => sendCircular(e, topic, note, x), 'Genelge bütün üyelere ulaştı.'); setNote('') }}><Megaphone data-icon="inline-start" />Bütün üyelere gönder</Button>
+      <GameButton size="sm" onClick={() => { run((e, x) => sendCircular(e, topic, note, x), 'Genelge bütün üyelere ulaştı.'); setNote('') }}><Megaphone data-icon="inline-start" />Bütün üyelere gönder</GameButton>
     </section>
     <section className="empire-section">
       <h3><Scroll className="size-4" /> Genelgeler</h3>
@@ -271,13 +271,13 @@ function NoAlliance({ empire, run }: { empire: Empire; run: Run }) {
       <input id="pact-name" className="text-input" value={name} maxLength={30} placeholder="Ay Yıldız Birliği" onChange={e => setName(e.target.value)} />
       <label htmlFor="pact-tag" className="profile-label">Kısaltma</label>
       <input id="pact-tag" className="text-input" value={tag} maxLength={5} placeholder="AYB" onChange={e => setTag(e.target.value)} />
-      <Button onClick={() => run((e, x) => foundPact(e, name, tag, x), 'İttifak kuruldu!')}><Flag data-icon="inline-start" />İttifakı kur</Button>
+      <GameButton onClick={() => run((e, x) => foundPact(e, name, tag, x), 'İttifak kuruldu!')}><Flag data-icon="inline-start" />İttifakı kur</GameButton>
     </section>
     <section className="empire-section">
       <h3><Handshake className="size-4" /> Ya da bir ittifaka katıl</h3>
       {(Object.keys(FACTIONS) as FactionId[]).map(f => <article key={f} className="mission-row">
         <span><strong>{FACTIONS[f].name}</strong><small>“{FACTIONS[f].motto}” · {factionMembers(f).length} yapay rakip · ortalama ilişki {factionStanding(empire, f)}</small></span>
-        <Button size="sm" onClick={() => run((e, x) => joinAlliance(e, f, x), 'İttifaka katıldın.')}>Katıl</Button>
+        <GameButton size="sm" onClick={() => run((e, x) => joinAlliance(e, f, x), 'İttifaka katıldın.')}>Katıl</GameButton>
       </article>)}
       <Hint>Katılmak için Elçilik 3. seviye ve üyelerle ortalama 5 ilişki gerekir.</Hint>
     </section>
@@ -293,7 +293,7 @@ function FactionView({ empire, now, run, onRival, f }: { empire: Empire; now: nu
         <button type="button" className="member-name" onClick={() => onRival(r.id)}><strong>{r.city}</strong><small>{r.ruler} · sv. {rivalLevel(empire, r, now)} · ilişki {peek(empire, r.id).relation}</small></button>
         <Eye className="size-4" />
       </article>)}
-      <Button size="sm" variant="outline" onClick={() => run((e, x) => leaveAlliance(e, x), 'İttifaktan ayrıldın.')}>İttifaktan ayrıl</Button>
+      <GameButton size="sm" variant="outline" onClick={() => run((e, x) => leaveAlliance(e, x), 'İttifaktan ayrıldın.')}>İttifaktan ayrıl</GameButton>
     </section>
     <section className="empire-section"><h3><Crown className="size-4" /> İttifak sıralaması</h3><Rankings empire={empire} now={now} /></section>
   </div>

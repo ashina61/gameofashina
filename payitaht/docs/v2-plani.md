@@ -89,6 +89,19 @@ Boyut etiketleri: **S** = bir oturumda biter · **M** = iki-üç oturum · **L**
 | 1.6 | **Alt çekmece (bottom sheet):** harita, ada ve şehirde seçilen şeyin bilgisi tam sayfa yerine alttan açılan çekmecede gösterilir (sürükleyip kapatılır). | M | Ada ve dünya haritasında kullanılıyor. |
 | 1.7 | **Danışman portreleri** boyalı stile çekilir (doku + ışık). Gerekirse yeniden çizilir. | M | Portre ile bina yan yana uyumsuz görünmüyor. |
 
+**Durum: ✅ 0.31.0'da tamamlandı (1.6 kısmen).** Uygulamada plandan sapmalar:
+
+- **1.1:** Belirteçlerin öneki `--c-` / `--fs-`. Sayfa içindeki eski yerel değişkenlerle (`.bp { --ink … }`) çakışmasın diye böyle seçildi.
+  - globals.css'te 5 ya da daha çok geçen 36 renk belirteç oldu; 493 kullanım `var(--c-…)`'a geçti.
+  - Görünüşte aynı tonlar tek belirtece toplandı (`#3a2410` → `#3a2310` gibi).
+  - `tools/css-lint.cjs` bir renk 5 kez tekrar edince Deploy kapısında düşer.
+- **1.2:** Düğme ses çıkarmaz, yalnız 6 ms titreşim verir. 0.27'de her dokunuştaki tık sesi bilerek kaldırılmıştı; bu karar korundu. 136 düğmenin hepsi `GameButton` oldu; oyun klasöründe shadcn Button kalmadı.
+- **1.3:** İkonlar Python'la değil, `tools/art/ui-icons.mjs` ile üretildi.
+  - Bu araç Lucide'in çizgi geometrisini (ISC lisansı) depoya yazar. `ui-art.tsx` aynı geometriye kaynak simgeleriyle aynı boyalı işlemi uygular: mürekkep kontur, malzeme rengi (pirinç, çelik, ahşap, al, yeşil, deniz, parşömen, taş), parlama ve gölge.
+  - Sonuç: ~30 değil, oyunun kullandığı 88 ikonun hepsi boyalı. Lucide kullanan oyun dosyası 25'ten **0**'a indi.
+- **1.4:** Kurdele rengi koyu al (Osmanlı al-altın). Çerçevenin alt köşelerinde pirinç perçin var.
+- **1.6:** Çekmece adada seçilen köy ve rakip için kullanılıyor. Dünya haritası tam ekrana geçince (2.4) orada da kullanılacak.
+
 ## Faz 2 — Ekranlar: belge değil, sahne (0.32–0.33)
 
 Faz 1'deki kit ile her ekran yeniden düzenlenir. Sıra, oyuncunun en çok gördüğü ekrandan başlar.

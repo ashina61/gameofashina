@@ -6,8 +6,8 @@ import { KumSaatiArt } from './resource-art'
  * tempo ayarı. Buradaki bütün hükümdarlar yapay rakiptir (gerçek oyuncu değil).
  */
 import type { ReactNode } from 'react'
-import { Check, Coins, Eye, Gift, Handshake, HeartHandshake, Newspaper, Ship, Swords, TrendingUp, X } from 'lucide-react'
-import { Button } from '@/components/ui/button'
+import { Check, Coins, Eye, Gift, Handshake, HeartHandshake, Newspaper, Ship, Swords, TrendingUp, X } from './ui-art'
+import { GameButton } from './game-button'
 import { GOOD_NAMES, LUXURY_IDS, type Good, type Luxury, type Resource } from '@/lib/game/engine'
 import type { Empire } from '@/lib/game/empire'
 import {
@@ -63,8 +63,8 @@ function ProposalCard({ p, empire, now, run, onRival }: { p: Proposal; empire: E
       {p.want && <DealChip label="İster" deal={p.want} />}
     </div>}
     <div className="proposal-actions">
-      <Button size="sm" onClick={() => run((e, x) => acceptProposal(e, p.id, x), ok)}><Check data-icon="inline-start" />{accept}</Button>
-      <Button size="sm" variant="outline" onClick={() => run((e, x) => declineProposal(e, p.id, x), p.kind === 'harac' ? 'Haraç reddedildi. Surları hazırla!' : 'Teklif geri çevrildi.')}><X data-icon="inline-start" />{p.kind === 'harac' ? 'Reddet' : 'Geri çevir'}</Button>
+      <GameButton size="sm" onClick={() => run((e, x) => acceptProposal(e, p.id, x), ok)}><Check data-icon="inline-start" />{accept}</GameButton>
+      <GameButton size="sm" variant="outline" onClick={() => run((e, x) => declineProposal(e, p.id, x), p.kind === 'harac' ? 'Haraç reddedildi. Surları hazırla!' : 'Teklif geri çevrildi.')}><X data-icon="inline-start" />{p.kind === 'harac' ? 'Reddet' : 'Geri çevir'}</GameButton>
     </div>
   </article>
 }

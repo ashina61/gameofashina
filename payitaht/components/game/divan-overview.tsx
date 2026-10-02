@@ -6,7 +6,7 @@
  * altında "Nüfus ve üretim" şeridi (her meslek resmiyle, sayısı ve getirisi)
  * ve şehir nişanı seçimi.
  */
-import { Swords, Anchor, Flag, Sprout, Scale, House } from 'lucide-react'
+import { Swords, Anchor, Flag, Sprout, Scale, House } from './ui-art'
 import {
   actionPoints, contentment, corruption, garrisonLimit, garrisonUsed, growthRate, housing, idleWorkers,
   luxuryProduction, population, rates, scientistUpkeepPerMinute, LUXURY_NAMES, type Game, formatRate,

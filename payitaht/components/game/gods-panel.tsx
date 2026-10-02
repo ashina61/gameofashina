@@ -7,8 +7,8 @@ import { KumSaatiArt } from './resource-art'
  * sarmal, boynuz, kılıç, dalga, rüzgâr.
  */
 import { useState } from 'react'
-import { Flame, Sparkles } from 'lucide-react'
-import { Button } from '@/components/ui/button'
+import { Flame, Sparkles } from './ui-art'
+import { GameButton } from './game-button'
 import { Hint } from './hint'
 import { LUXURY_IDS, LUXURY_NAMES, type Command, type Game, formatRate } from '@/lib/game/engine'
 import { GODS, GOD_IDS, OFFER_RATE, blessing, patronChangeMs, godBuff, lutufCap, lutufRate, type GodId } from '@/lib/game/gods'
@@ -64,11 +64,11 @@ export function GodsPanel({ game, now, onCommand }: { game: Game; now: number; o
     <div className="offering">
       <span className="profile-label"><Flame className="size-3" /> Sunu</span>
       <div className="batch-row" role="group" aria-label="Sunulacak mal">
-        {(['gold', 'wood', 'stone', ...LUXURY_IDS] as Good[]).map(g => <Button key={g} size="sm" variant={good === g ? 'default' : 'outline'} onClick={() => setGood(g)}>{GOOD_NAMES[g]}</Button>)}
+        {(['gold', 'wood', 'stone', ...LUXURY_IDS] as Good[]).map(g => <GameButton key={g} size="sm" variant={good === g ? 'default' : 'outline'} onClick={() => setGood(g)}>{GOOD_NAMES[g]}</GameButton>)}
       </div>
       <div className="batch-row">
-        {[rate * 10, rate * 50, rate * 200].map(n => <Button key={n} size="sm" variant={amount === n ? 'default' : 'outline'} onClick={() => setAmount(n)}>{num(n)}</Button>)}
-        <Button size="sm" disabled={have < rate} onClick={() => onCommand({ type: 'offering', good, amount })}><Flame data-icon="inline-start" />Sun (+{num(Math.min(amount, have) / rate)} lütuf)</Button>
+        {[rate * 10, rate * 50, rate * 200].map(n => <GameButton key={n} size="sm" variant={amount === n ? 'default' : 'outline'} onClick={() => setAmount(n)}>{num(n)}</GameButton>)}
+        <GameButton size="sm" disabled={have < rate} onClick={() => onCommand({ type: 'offering', good, amount })}><Flame data-icon="inline-start" />Sun (+{num(Math.min(amount, have) / rate)} lütuf)</GameButton>
       </div>
       <p className="fine-print">{rate} {GOOD_NAMES[good].toLocaleLowerCase('tr')} = 1 lütuf · elinde {num(have)}.</p>
     </div>
@@ -78,8 +78,8 @@ export function GodsPanel({ game, now, onCommand }: { game: Game; now: number; o
       <span><span className="eyebrow">HAMİ TANRI</span><strong>{GODS[patron].name}</strong><small>{GODS[patron].passive(blessing(game, patron))} (mabet {game.buildings.mabet}. seviye)</small>
         {godBuff(game, patron, now) && t.buff && <small className="god-active"><Sparkles className="size-3" /> {GODS[patron].power} etkin · {clock(t.buff.until - now)}</small>}
         {now < (t.rest[patron] ?? 0) && <small><KumSaatiArt className="size-3" /> Dinleniyor · {clock((t.rest[patron] ?? 0) - now)}</small>}</span>
-      <Button size="sm" disabled={now < (t.rest[patron] ?? 0) || t.lutuf < GODS[patron].cost} onClick={() => onCommand({ type: 'invoke' })}>
-        <Sparkles data-icon="inline-start" />{GODS[patron].power} ({num(GODS[patron].cost)})</Button>
+      <GameButton size="sm" disabled={now < (t.rest[patron] ?? 0) || t.lutuf < GODS[patron].cost} onClick={() => onCommand({ type: 'invoke' })}>
+        <Sparkles data-icon="inline-start" />{GODS[patron].power} ({num(GODS[patron].cost)})</GameButton>
     </article>}
 
     <div className="god-list">{GOD_IDS.map(id => {
@@ -88,7 +88,7 @@ export function GodsPanel({ game, now, onCommand }: { game: Game; now: number; o
       return <article key={id} className={on ? 'god-card is-patron' : 'god-card'}>
         <GodEmblem id={id} size={52} on={on} />
         <span><strong>{g.name}</strong><small className="god-title">{g.title} · {g.domain}</small></span>
-        {on ? <em>Hamin</em> : <Button size="sm" variant="outline" disabled={changeWait > 0} onClick={() => onCommand({ type: 'god', god: id })}>Hami seç</Button>}
+        {on ? <em>Hamin</em> : <GameButton size="sm" variant="outline" disabled={changeWait > 0} onClick={() => onCommand({ type: 'god', god: id })}>Hami seç</GameButton>}
         <dl className="god-card-body">
           <dt>Lütuf</dt><dd>{g.passive(Math.min(20, Math.max(1, game.buildings.mabet)))}</dd>
           <dt>{g.power}</dt><dd>{g.powerText} <b>{num(g.cost)} lütuf</b></dd>

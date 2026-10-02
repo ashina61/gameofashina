@@ -3,7 +3,7 @@
  * "Nasıl işler?" düğmesine dokununca açılır.
  */
 import type { ReactNode } from 'react'
-import { Info } from 'lucide-react'
+import { Info } from './ui-art'
 
 export function Hint({ children, label = 'Nasıl işler?' }: { children: ReactNode; label?: string }) {
   return <details className="hint">

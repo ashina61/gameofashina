@@ -1,7 +1,7 @@
 'use client'
 
 import { useRef, useState } from 'react'
-import { Sun, Sunset, Moon, Flag, Move, Anchor, Landmark, ScrollText } from 'lucide-react'
+import { Sun, Sunset, Moon, Flag, Move, Anchor, Landmark, ScrollText } from './ui-art'
 import { skyTint } from '@/lib/game/sky'
 import type { BannerLook } from '@/lib/game/banner'
 import type { Game, BuildingId } from '@/lib/game/engine'

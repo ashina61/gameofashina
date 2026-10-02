@@ -6,8 +6,8 @@
  * istatistikler, başarımlar. Sürüm numarası sayfanın dibinde, sessizce durur.
  */
 import { useId, useState } from 'react'
-import { Award, Castle, Pencil, Settings, Swords, Trophy, ScrollText } from 'lucide-react'
-import { Button } from '@/components/ui/button'
+import { Award, Castle, Pencil, Settings, Swords, Trophy, ScrollText } from './ui-art'
+import { GameButton } from './game-button'
 import { population, soldiers } from '@/lib/game/engine'
 import { capitalId, islandOf, type Empire } from '@/lib/game/empire'
 import {
@@ -140,8 +140,8 @@ export function ProfilePanel({ empire, now, run, onCity, onSettings, onChangelog
         {p.motto && <q>{p.motto}</q>}
         <small>{allianceName(empire) ?? 'İttifaksız'} · {empire.cities.length} şehir</small>
       </div>
-      <Button size="sm" variant="outline" onClick={() => { setDraft({ ruler: p.ruler, motto: p.motto, crest: p.crest, color: p.color, banner }); setEdit(e => !e) }} aria-expanded={edit}>
-        <Pencil data-icon="inline-start" />{edit ? 'Kapat' : 'Düzenle'}</Button>
+      <GameButton size="sm" variant="outline" onClick={() => { setDraft({ ruler: p.ruler, motto: p.motto, crest: p.crest, color: p.color, banner }); setEdit(e => !e) }} aria-expanded={edit}>
+        <Pencil data-icon="inline-start" />{edit ? 'Kapat' : 'Düzenle'}</GameButton>
     </article>
 
     {edit && <section className="empire-section profile-edit">
@@ -150,7 +150,7 @@ export function ProfilePanel({ empire, now, run, onCity, onSettings, onChangelog
       <label htmlFor="profile-motto">Düstur</label>
       <input id="profile-motto" className="text-input" value={draft.motto} maxLength={60} placeholder="Devlet-i ebed-müddet" onChange={e => setDraft({ ...draft, motto: e.target.value })} />
       <SancakPicker value={draft} onChange={value => setDraft({ ...draft, ...value })} />
-      <Button size="sm" onClick={() => { run((e, t) => setProfile(e, draft, t), 'Profil kaydedildi.'); setEdit(false) }}>Kaydet</Button>
+      <GameButton size="sm" onClick={() => { run((e, t) => setProfile(e, draft, t), 'Profil kaydedildi.'); setEdit(false) }}>Kaydet</GameButton>
     </section>}
 
     <section className="empire-section">
@@ -192,7 +192,7 @@ export function ProfilePanel({ empire, now, run, onCity, onSettings, onChangelog
     </section>
 
     <div className="profile-foot">
-      <Button size="sm" variant="outline" onClick={onSettings}><Settings data-icon="inline-start" />Oyun ayarları</Button>
+      <GameButton size="sm" variant="outline" onClick={onSettings}><Settings data-icon="inline-start" />Oyun ayarları</GameButton>
       <button type="button" className="version-link" onClick={onChangelog}>Sürüm {VERSION} · sürüm notları</button>
     </div>
   </div>

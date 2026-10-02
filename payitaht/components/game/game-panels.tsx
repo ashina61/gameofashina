@@ -3,11 +3,12 @@ import { PersonArt } from './workforce'
 
 import { Hint } from './hint'
 import { useState } from 'react'
-import { ArrowUp, Hammer, LockKeyhole, Check, BookOpen, ChevronRight, Warehouse, UserRound, House, HeartHandshake, TriangleAlert, Landmark, Swords, Ship, ShieldCheck, Handshake, FlipHorizontal2, Move } from 'lucide-react'
+import { ArrowUp, Hammer, LockKeyhole, Check, BookOpen, ChevronRight, Warehouse, UserRound, House, HeartHandshake, TriangleAlert, Landmark, Swords, Ship, ShieldCheck, Handshake, FlipHorizontal2, Move } from './ui-art'
 import { AkceArt, IlimArt, KumSaatiArt, NufusArt } from './resource-art'
 import { idleMerchants } from '@/lib/game/expeditions'
 import { WorkforceSlider, type Figure } from './workforce'
-import { Button } from '@/components/ui/button'
+import { GameButton } from './game-button'
+import { NowNext } from './stat-kit'
 import { CostDisplay, JobProgress } from './game-widgets'
 import { BUILDINGS, BUILDING_IDS, MAX_LEVEL, RESEARCH, RESEARCH_IDS, RESEARCH_BRANCHES, RESOURCE_IDS, RESOURCE_NAMES, UNITS, UNIT_IDS, WORKER_IDS, WORKERS_PER_LEVEL, activeJob, cargoCapacity, cityDefense, cost, duration, buildReason, power, rates, recruitReason, researchReason, scientistCount, scientistUpkeepPerMinute, idleWorkers, population, housing, contentment, soldiers, takesPlot, tradeCapacity, unhousedByUnrest, unitCost, unitDuration, wallDefense, workerCapacity, type BuildingId, type ResearchId, type ResearchBranch, type UnitId, type WorkerId, type Game, formatRate, groupLog } from '@/lib/game/engine'
 import { buildingImage } from '@/lib/asset'
@@ -16,7 +17,7 @@ import { LUXURY_IDS, LUXURY_NAMES, MERCHANT_BUY, MERCHANT_SELL, MINE_MAX_LEVEL, 
 import { luxuryIcons, resourceIcons } from './game-widgets'
 import { effectLines } from '@/lib/game/building-info'
 import { actionPoints, armyUpkeep, merchantBuyPrice, merchantSellPrice, type UnitRole, type Resource } from '@/lib/game/engine'
-import { ChevronsLeft, ChevronsRight, Crown, Eye, Flag } from 'lucide-react'
+import { ChevronsLeft, ChevronsRight, Crown, Eye, Flag } from './ui-art'
 import type { Run } from './world-panels'
 import { DRILL_QUEUE_LIMIT, garrisonLimit, garrisonUsed, spyCapacity, growthRate, maxPopulation, PLOTS, zoneOf } from '@/lib/game/engine'
 import { BATTLE_STATS, SLOT_SIZE, fieldSize } from '@/lib/game/battle'
@@ -42,7 +43,7 @@ export function BuildingDetails({ game, id, onBuild, onFlip, onMove }: { game: G
       <span>{item.price.gold.toLocaleString('tr-TR')} akçe · {item.price.wood.toLocaleString('tr-TR')} kereste · {item.price.stone.toLocaleString('tr-TR')} taş</span>
       <small>{Math.ceil(item.seconds / 60)} dk</small>
     </div>)}
-  </section>}{queued > 0 && <p className="requirement"><KumSaatiArt className="size-4" />İnşaat sırasında {queued + 1}. sırada bekliyor.</p>}{reason && !active && queued < 0 && <p className="requirement"><LockKeyhole className="size-4" />{reason}</p>}{level > 0 && takesPlot(id) && <div className="building-tools">{b.art && <Button variant="outline" size="sm" onClick={() => onFlip(id)}><FlipHorizontal2 data-icon="inline-start" />{game.flips.includes(id) ? 'Yönü geri çevir' : 'Çevir'}</Button>}{id !== 'divan' && <Button variant="outline" size="sm" onClick={() => onMove(id)}><Move data-icon="inline-start" />Taşı</Button>}</div>}<Button size="lg" className="w-full" disabled={!!reason} onClick={() => onBuild(id)}><Hammer data-icon="inline-start" />{active ? 'İnşaat devam ediyor' : level >= max ? 'Tamamen geliştirildi' : level ? 'Binayı yükselt' : 'İnşaata başla'}</Button></div>
+  </section>}{queued > 0 && <p className="requirement"><KumSaatiArt className="size-4" />İnşaat sırasında {queued + 1}. sırada bekliyor.</p>}{reason && !active && queued < 0 && <p className="requirement"><LockKeyhole className="size-4" />{reason}</p>}{level > 0 && takesPlot(id) && <div className="building-tools">{b.art && <GameButton variant="outline" size="sm" onClick={() => onFlip(id)}><FlipHorizontal2 data-icon="inline-start" />{game.flips.includes(id) ? 'Yönü geri çevir' : 'Çevir'}</GameButton>}{id !== 'divan' && <GameButton variant="outline" size="sm" onClick={() => onMove(id)}><Move data-icon="inline-start" />Taşı</GameButton>}</div>}<GameButton size="lg" className="w-full" disabled={!!reason} onClick={() => onBuild(id)}><Hammer data-icon="inline-start" />{active ? 'İnşaat devam ediyor' : level >= max ? 'Tamamen geliştirildi' : level ? 'Binayı yükselt' : 'İnşaata başla'}</GameButton></div>
 }
 export function BuildingList({ game, onSelect }: { game: Game; onSelect: (id: BuildingId) => void }) {
   const [query, setQuery] = useState('')
@@ -127,7 +128,7 @@ export function ResearchPanel({ game, onResearch }: { game: Game; onResearch: (i
         {state !== 'done' && short > 0 && <span className="rs-when">{rate > 0 ? `Yeterli ilim ~${clockMin(short / rate)} sonra` : 'İlim üretimi yok: Medrese\'ye âlim ata'}</span>}
       </div>
       {state === 'done' ? <p className="report-win"><Check className="size-4" /> Keşfedildi</p>
-        : <Button disabled={!!reason} onClick={() => onResearch(sel)}><BookOpen data-icon="inline-start" />{state === 'active' ? 'Sürüyor' : 'Araştır'}</Button>}
+        : <GameButton disabled={!!reason} onClick={() => onResearch(sel)}><BookOpen data-icon="inline-start" />{state === 'active' ? 'Sürüyor' : 'Araştır'}</GameButton>}
       {reason && state !== 'done' && state !== 'active' && <p className="fine-print">{reason}</p>}
     </article>
     {/* Araştırma yolu: her konu çizimiyle bir düğüm; düğümler dal boyunca birbirine bağlı. */}
@@ -281,9 +282,9 @@ export function CitiesPanel({
       <div className="city-rates">{RESOURCE_IDS.filter(id => production[id] > 0).map(id =>
         <span key={id}>{RESOURCE_NAMES[id]} <strong>+{Math.round(production[id])}/dk</strong></span>)}</div>
       <div className="batch-row">
-        <Button size="sm" variant="outline" onClick={() => onBuilding('divan')}>Divanhaneye git<ChevronRight data-icon="inline-end" /></Button>
-        {!isCapital && run && <Button size="sm" variant="outline" onClick={() => setConfirm(confirm === 'move' ? null : 'move')}><Crown data-icon="inline-start" />Başkenti buraya taşı</Button>}
-        {!isCapital && run && <Button size="sm" variant="ghost" onClick={() => setConfirm(confirm === 'abandon' ? null : 'abandon')}><Flag data-icon="inline-start" />Şehri terk et</Button>}
+        <GameButton size="sm" variant="outline" onClick={() => onBuilding('divan')}>Divanhaneye git<ChevronRight data-icon="inline-end" /></GameButton>
+        {!isCapital && run && <GameButton size="sm" variant="outline" onClick={() => setConfirm(confirm === 'move' ? null : 'move')}><Crown data-icon="inline-start" />Başkenti buraya taşı</GameButton>}
+        {!isCapital && run && <GameButton size="sm" variant="ghost" onClick={() => setConfirm(confirm === 'abandon' ? null : 'abandon')}><Flag data-icon="inline-start" />Şehri terk et</GameButton>}
       </div>
       {confirm && run && <section className="demolish-sheet" role="alertdialog">
         {confirm === 'move'
@@ -292,8 +293,8 @@ export function CitiesPanel({
           : <><strong><Flag className="size-4" /> {current.name} terk edilsin mi?</strong>
             <p>Şehir, binaları, ambarı ve buradaki ordu kaybolur. Ticaret gemileri ortak filoda kalır. Bu geri alınamaz.</p></>}
         <div className="batch-row">
-          <Button size="sm" variant="destructive" onClick={() => { const c = confirm; setConfirm(null); run(c === 'move' ? (e, t) => moveCapital(e, current.id, t) : (e, t) => abandonCity(e, current.id, t), c === 'move' ? 'Saray taşındı; yeni başkent ilan edildi.' : 'Şehir terk edildi.') }}>{confirm === 'move' ? 'Başkenti taşı' : 'Terk et'}</Button>
-          <Button size="sm" variant="outline" onClick={() => setConfirm(null)}>Vazgeç</Button>
+          <GameButton size="sm" variant="destructive" onClick={() => { const c = confirm; setConfirm(null); run(c === 'move' ? (e, t) => moveCapital(e, current.id, t) : (e, t) => abandonCity(e, current.id, t), c === 'move' ? 'Saray taşındı; yeni başkent ilan edildi.' : 'Şehir terk edildi.') }}>{confirm === 'move' ? 'Başkenti taşı' : 'Terk et'}</GameButton>
+          <GameButton size="sm" variant="outline" onClick={() => setConfirm(null)}>Vazgeç</GameButton>
         </div>
       </section>}
     </article>
@@ -346,8 +347,8 @@ export function CitiesPanel({
               <input type="number" min={1} step={1} inputMode="numeric" value={cargoAmount}
                 onChange={event => setCargoAmount(event.target.value)} />
             </label>
-            <Button size="sm" disabled={!targetCity || !Number.isSafeInteger(Number(cargoAmount)) || Number(cargoAmount) <= 0}
-              onClick={() => onCargo(targetCity, cargoResource, Number(cargoAmount))}>Gemileri gönder</Button>
+            <GameButton size="sm" disabled={!targetCity || !Number.isSafeInteger(Number(cargoAmount)) || Number(cargoAmount) <= 0}
+              onClick={() => onCargo(targetCity, cargoResource, Number(cargoAmount))}>Gemileri gönder</GameButton>
           </div>}
       <Hint>Nakliye için gönderici şehirde Ticaret Limanı ve nakliye gemisi gerekir. Yük yolculuk sırasında çıkar, varışta hedef şehrin ambarına iner; ambar doluysa gemi yükü bekletir.</Hint>
     </section>
@@ -442,7 +443,7 @@ export function ArmyPanel({ game, onRecruit, onBuild, home }: { game: Game; onRe
             <div className="unit-bottom">
               <CostDisplay value={unitCost(id, batch, game)} lux={unitLuxuryCost(id, batch, game)} />
               <span><KumSaatiArt className="size-3" /> {unitDuration(game, id, batch)} sn</span>
-              <Button size="sm" disabled={!!reason} onClick={() => onRecruit(id, batch)}>{batch} eğit</Button>
+              <GameButton size="sm" disabled={!!reason} onClick={() => onRecruit(id, batch)}>{batch} eğit</GameButton>
             </div>
             {reason && <p className="fine-print">{reason}</p>}
           </article>
@@ -559,7 +560,7 @@ export function IslandPanel({ game, islandName, onMiners, onDonate, onTrade }: {
           <p className="fine-print">Ada halkı kereste bağışıyla madeni büyütür. Seviye {game.mine.level + 1} için {game.mine.wood} / {next} kereste toplandı; her seviye {`+`}12 işçi yeri açar.</p>
           <span className="storage-meter"><span style={{ width: `${Math.min(100, (game.mine.wood / next) * 100)}%` }} /></span>
           <div className="batch-row">{[100, 500, 2000].map(n =>
-            <Button key={n} size="sm" variant="outline" disabled={game.resources.wood < n} onClick={() => onDonate(n)}>{n} kereste</Button>)}</div>
+            <GameButton key={n} size="sm" variant="outline" disabled={game.resources.wood < n} onClick={() => onDonate(n)}>{n} kereste</GameButton>)}</div>
         </>}
     </section>
 
@@ -581,11 +582,11 @@ export function IslandPanel({ game, islandName, onMiners, onDonate, onTrade }: {
         : <>
           <p className="fine-print">Alış {merchantBuyPrice(game)} akçe, satış {merchantSellPrice(game)} akçe (Ticaret Merkezi iyileştirir). Tek seferde en fazla {merchantLimit(game)} birim (Çarşı seviyesiyle artar).</p>
           <div className="batch-row"><span>Parti</span>{[10, 50, 150].filter(n => n <= merchantLimit(game)).map(n =>
-            <Button key={n} size="sm" variant={lot === n ? 'default' : 'outline'} onClick={() => setLot(n)}>{n}</Button>)}</div>
+            <GameButton key={n} size="sm" variant={lot === n ? 'default' : 'outline'} onClick={() => setLot(n)}>{n}</GameButton>)}</div>
           <div className="merchant-list">{LUXURY_IDS.map(id => <div key={id} className="merchant-row">
             <span>{LUXURY_NAMES[id]}</span>
-            <Button size="sm" variant="outline" disabled={game.resources.gold < Math.ceil(lot * merchantBuyPrice(game))} onClick={() => onTrade(id, 'buy', lot)}>Al · {Math.ceil(lot * merchantBuyPrice(game))}</Button>
-            <Button size="sm" variant="outline" disabled={game.luxury[id] < lot} onClick={() => onTrade(id, 'sell', lot)}>Sat</Button>
+            <GameButton size="sm" variant="outline" disabled={game.resources.gold < Math.ceil(lot * merchantBuyPrice(game))} onClick={() => onTrade(id, 'buy', lot)}>Al · {Math.ceil(lot * merchantBuyPrice(game))}</GameButton>
+            <GameButton size="sm" variant="outline" disabled={game.luxury[id] < lot} onClick={() => onTrade(id, 'sell', lot)}>Sat</GameButton>
           </div>)}</div>
         </>}
     </section>
@@ -597,10 +598,9 @@ export function BuildingEffects({ game, id, level, max }: { game: Game; id: Buil
   const now = level > 0 ? effectLines(game, id, level) : []
   const next = level < max ? effectLines(game, id, level + 1) : []
   const rows = (next.length ? next : now).map((line, i) => ({ label: line.label, now: now[i]?.value ?? '—', next: next[i]?.value }))
-  return <section className="building-effects" aria-label="Seviye etkisi">
-    <div className="building-effects-head"><span>Etki</span><span>{level > 0 ? `Sv. ${level}` : 'Kurulmadı'}</span>{next.length > 0 && <span>Sv. {level + 1}</span>}</div>
-    {rows.map(row => <div key={row.label} className="building-effects-row">
-      <span>{row.label}</span><strong>{row.now}</strong>{row.next !== undefined && <em>{row.next}</em>}
-    </div>)}
+  // Tablo yerine her etki bir satır: şimdi ➜ sonraki seviye (yeşil).
+  return <section className="building-effects sk-effects" aria-label="Seviye etkisi">
+    {rows.map(row => <NowNext key={row.label} label={row.label} now={row.now} next={row.next}
+      nowLabel={level > 0 ? `Sv. ${level}` : 'Kurulmadı'} nextLabel={`Sv. ${level + 1}`} />)}
   </section>
 }
