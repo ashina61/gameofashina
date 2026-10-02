@@ -1,4 +1,5 @@
 'use client'
+import type { BadgeMode } from '@/lib/game/badges'
 
 import { useRef, useState } from 'react'
 import { Sun, Sunset, Moon, Flag, Move, Anchor, Landmark, ScrollText } from './ui-art'
@@ -18,7 +19,7 @@ import { CityCanvas, type CityControls } from './city-canvas'
  * yapmiyordu. Tuval dunyayi ekrandan buyuk tutar; gezinme bu yuzden gercek.
  */
 
-export function CityScene({ game, placing, onBuilding, onPlot, onRoad, moving, movePlot, onMovePlot, onMine, offers = 0, onOffers, banner, siege = PEACEFUL_CITY }: {
+export function CityScene({ game, placing, onBuilding, onPlot, onRoad, moving, movePlot, onMovePlot, onMine, offers = 0, offerMode = 'count', onOffers, banner, siege = PEACEFUL_CITY }: {
   game: Game
   placing: boolean
   onBuilding: (id: BuildingId) => void
@@ -30,6 +31,7 @@ export function CityScene({ game, placing, onBuilding, onPlot, onRoad, moving, m
   onMine: () => void
   /** Bekleyen yapay rakip teklifleri: elçi mektubu düğmesi. */
   offers?: number
+  offerMode?: BadgeMode
   onOffers?: () => void
   banner?: BannerLook
   siege?: SiegeAppearance
@@ -54,7 +56,7 @@ export function CityScene({ game, placing, onBuilding, onPlot, onRoad, moving, m
       <button aria-label="Belediyeye dön" title="Belediyeye dön"
         onClick={() => controls.current?.recenter()}><Landmark /></button>
       {offers > 0 && onOffers && <button className="map-offer" aria-label={`${offers} yapay rakip teklifi bekliyor`} title="Elçi mektubu" onClick={onOffers}>
-        <ScrollText /><b>{offers}</b></button>}
+        <ScrollText />{offerMode === 'dot' ? <b className="is-dot" aria-hidden="true" /> : offerMode && <b>{offers}</b>}</button>}
     </div>
 
     {/*

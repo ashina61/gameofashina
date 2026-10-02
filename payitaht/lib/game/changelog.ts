@@ -6,6 +6,16 @@ export type Release = { version: string; date: string; title: string; notes: str
 
 export const CHANGELOG: Release[] = [
   {
+    version: '0.32.0', date: '2 Ekim 2026', title: 'Bina sayfası sahne oldu, rozetler sakinleşti',
+    notes: [
+      'Bina sayfasında Yükselt düğmesi artık altta sabit: maliyet jetonları ve süre hep görünür, sayfayı kaydırmak gerekmez.',
+      'Binanın büyük görselinin ortasında seviye plakası; açıklama tek satır, ⓘ düğmesi açıklamanın tamamını ve "Nasıl işler?" notlarını açar.',
+      'Binanın kendi işi (eğitim, işçiler, depo…) ve gelişim bilgisi (seviye etkisi, sonraki seviyeler) iki sekmede.',
+      'Rozetler: aynı anda en çok iki sayılı rozet (önce baskın ve görev ödülü), diğer haberler küçük nokta.',
+      'Üst bar koyu ahşap plaka; pirinç kenar ve perçinler.',
+    ],
+  },
+  {
     version: '0.31.0', date: '2 Ekim 2026', title: 'Tek görsel dil: boyalı ikonlar, altın düğmeler, kurdeleli kutular',
     notes: [
       'Oyundaki 88 ikonun hepsi kaynak simgeleriyle aynı boyalı dilde: mürekkep kontur, malzemesine göre renk (pirinç, çelik, ahşap, al, yeşil, deniz, parşömen), parlama ve gölge. Çizgi ikon kalmadı.',

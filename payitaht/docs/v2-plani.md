@@ -119,6 +119,20 @@ Faz 1'deki kit ile her ekran yeniden düzenlenir. Sıra, oyuncunun en çok görd
 | 2.9 | **Ayarlar ve Hakkında** | "Meta" ekran; Lucide kalabilir ama `GameButton` ve çerçeve kullanılır. | S | — |
 | 2.10 | **Üst bar ve alt menü** | Üst bar boyalı çerçeveli plaka. Alt menü ikonları boyalı. Rozet kuralı: aynı anda en çok 2 kırmızı rozet, gerisi nokta. | M | Ekran görüntüsünde en çok 2 sayılı rozet. |
 
+**İlerleme: 0.32.0'da 2.1 ve 2.10 tamam.**
+
+- **2.1:** Bina sayfası değişti.
+  - Yükselt doku altta sabit: maliyet jetonları, tek satır uyarı, süre düğmenin içinde.
+  - Görsel büyüdü; ortasında seviye plakası var.
+  - Açıklama tek satır. ⓘ düğmesi tamamını ve "Nasıl işler?" kutularını açar.
+  - Binanın kendi işi ve "Gelişim" (etki, sonraki seviyeler) iki sekme oldu.
+  - Bina sayfası açıkken alt menünün Harita madalyonu yukarı taşmıyor; Yükselt'i örtüyordu.
+  - `layout-qa` her bina için Yükselt'in ekranda olduğunu ve üstüne bir şey binmediğini denetler.
+- **2.10:** Rozet bütçesi `lib/game/badges.ts`'te.
+  - Öncelik sırası: ordu, görev ödülü, elçi, teklif, ittifak, şehir, araştırma.
+  - En çok iki rozet sayı gösterir, kalanlar nokta olur.
+  - Üst bar koyu ahşap plaka oldu: pirinç kenar ve perçinli.
+
 ## Faz 3 — Oyun hissi: hareket, ses, geri bildirim (0.34)
 
 | # | An | Ne olur | Boyut |

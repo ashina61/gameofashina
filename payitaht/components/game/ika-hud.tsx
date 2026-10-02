@@ -21,6 +21,7 @@ import { AkceArt, HamleArt, IlimArt, KeresteArt, NufusArt, TasArt } from './reso
 import { AdvisorPortrait, type AdvisorId } from './advisor-portraits'
 import { RulerCrest } from './profile-panel'
 import { profileOf } from '@/lib/game/profile'
+import type { BadgeMode } from '@/lib/game/badges'
 
 /** Üst bar sayacı: en fazla 5 karakter (bkz. formatShort). */
 export const compact = formatShort
@@ -50,8 +51,10 @@ export function advisorNews(game: Game, empire: Empire | undefined, seen: Adviso
 type StockFxKey = 'gold' | 'wood' | 'stone' | 'knowledge'
 type StockFx = { value: number; stamp: number }
 
-export function IkaTopBar({ game, empire, news, activeAdvisor, onCity, onEconomy, onAdvisor, onProfile }: {
+export function IkaTopBar({ game, empire, news, modes, activeAdvisor, onCity, onEconomy, onAdvisor, onProfile }: {
   game: Game; empire: Empire | undefined; news: Record<AdvisorId, number>; activeAdvisor?: AdvisorId | null
+  /** Rozet bütçesi (lib/game/badges): sayı mı nokta mı. Verilmezse hepsi sayı. */
+  modes?: Partial<Record<AdvisorId, BadgeMode>>
   onCity: () => void; onEconomy: () => void; onAdvisor: (id: AdvisorId) => void; onProfile: () => void
 }) {
   const prof = empire ? profileOf(empire) : null
@@ -126,7 +129,7 @@ export function IkaTopBar({ game, empire, news, activeAdvisor, onCity, onEconomy
           onClick={() => onAdvisor(id)} aria-pressed={activeAdvisor === id}
           aria-label={`${ADVISORS[id].title} (${ADVISORS[id].name})${news[id] ? `: ${news[id]} haber` : ''}`}>
           <span className="ika-advisor-ring" aria-hidden="true"><AdvisorPortrait id={id} size={42} /></span>
-          {news[id] > 0 && <span className="ika-badge" data-tiny>{news[id] > 9 ? '9+' : news[id]}</span>}
+          {news[id] > 0 && <Badge n={news[id]} mode={modes?.[id] ?? 'count'} />}
         </button>)}
       </nav>
     </div>
@@ -146,12 +149,18 @@ export function IkaTopBar({ game, empire, news, activeAdvisor, onCity, onEconomy
   </header>
 }
 
+/** Kırmızı rozet: bütçe içindeyse sayı (en çok 9+), değilse küçük nokta. */
+export function Badge({ n, mode }: { n: number; mode: BadgeMode }) {
+  if (!mode) return null
+  return mode === 'dot' ? <span className="ika-badge is-dot" aria-hidden="true" /> : <span className="ika-badge" data-tiny aria-hidden="true">{n > 9 ? '9+' : n}</span>
+}
+
 export type IkaNavKey = 'city' | 'island' | 'map' | 'alliance' | 'objectives'
 /**
  * ALT MENÜ: beş düğme; ortadaki Harita yükseltilmiş madalyon. Sayfalar
  * açıkken de görünür kalır, böylece her ekrandan tek dokunuşla geçilir.
  */
-export function IkaNav({ active, badges, onSelect }: { active: IkaNavKey | null; badges: Partial<Record<IkaNavKey, number>>; onSelect: (k: IkaNavKey) => void }) {
+export function IkaNav({ active, badges, modes, onSelect }: { active: IkaNavKey | null; badges: Partial<Record<IkaNavKey, number>>; modes?: Partial<Record<IkaNavKey, BadgeMode>>; onSelect: (k: IkaNavKey) => void }) {
   const items: { key: IkaNavKey; label: string; icon: ReactNode }[] = [
     { key: 'city', label: 'Şehir', icon: <Castle /> }, { key: 'island', label: 'Ada', icon: <TreePalm /> },
     { key: 'map', label: 'Harita', icon: <Compass /> },
@@ -162,7 +171,7 @@ export function IkaNav({ active, badges, onSelect }: { active: IkaNavKey | null;
     className={cn('ika-nav-item', i.key === 'map' && 'ika-nav-center', active === i.key && 'ika-nav-active')} aria-current={active === i.key ? 'page' : undefined}
     aria-label={(badges[i.key] ?? 0) > 0 ? `${i.label}: ${badges[i.key]} yeni` : i.label} onClick={() => onSelect(i.key)}>
     <span className="ika-nav-icon" aria-hidden="true">{i.icon}</span><span className="ika-nav-label">{i.label}</span>
-    {(badges[i.key] ?? 0) > 0 && <b className="ika-badge" data-tiny aria-hidden="true">{badges[i.key]! > 9 ? '9+' : badges[i.key]}</b>}
+    {(badges[i.key] ?? 0) > 0 && <Badge n={badges[i.key]!} mode={modes?.[i.key] ?? 'count'} />}
   </button>)}</nav>
 }
 

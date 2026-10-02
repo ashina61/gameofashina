@@ -74,14 +74,27 @@ function scanPage() {
   // Sabit katmanlar (alt menü, sayfa) arası örtüşme sayılmaz: içerik menünün
   // arkasından kayar. Haritalardaki işaret etiketleri de muaf.
   const layer = x => { for (let e = x; e; e = e.parentElement) { const p = getComputedStyle(e).position; if (p === 'fixed' || p === 'sticky') return e } return null }
+  // Görünen kutu: öğenin kutusu, taşanı kırpan bütün üst kaplarla kesişir
+  // (kaydırma alanında görünmeyen kısım sayılmaz).
+  const visibleRect = el => {
+    let { left, top, right, bottom } = el.getBoundingClientRect()
+    for (let e = el.parentElement; e && e !== document.body; e = e.parentElement) {
+      const cs = getComputedStyle(e)
+      if (cs.overflowX === 'visible' && cs.overflowY === 'visible') continue
+      const r = e.getBoundingClientRect()
+      left = Math.max(left, r.left); top = Math.max(top, r.top); right = Math.min(right, r.right); bottom = Math.min(bottom, r.bottom)
+    }
+    return { left, top, right, bottom, width: Math.max(0, right - left), height: Math.max(0, bottom - top) }
+  }
   for (const el of controls) {
-    const a = el.getBoundingClientRect()
+    const a = visibleRect(el)
     const scope = el.parentElement?.parentElement
-    if (!scope || !a.width || el.closest('.map-viewport-frame, [data-hscroll]')) continue
+    if (!scope || !a.width || !a.height || el.closest('.map-viewport-frame, [data-hscroll]')) continue
     const own = layer(el)
     for (const t of scope.querySelectorAll('*')) {
       if (t === el || el.contains(t) || t.contains(el) || !ownText(t) || skip(t) || !shown(t) || layer(t) !== own || t.closest('[data-tiny]')) continue
-      const b = t.getBoundingClientRect()
+      const b = visibleRect(t)
+      if (!b.width || !b.height) continue
       const w = Math.min(a.right, b.right) - Math.max(a.left, b.left), h = Math.min(a.bottom, b.bottom) - Math.max(a.top, b.top)
       if (w > 4 && h > 4) note('çakışma', t, { düğme: text(el) })
     }
@@ -131,8 +144,30 @@ async function main() {
       page.on('pageerror', e => report.hatalar.push(`${label}: ${e.message}`))
       const visit = async (key, open) => {
         await page.evaluate(open)
-        await page.waitForTimeout(350)
+        await page.waitForTimeout(150)
+        // Sayfa giriş animasyonu (alttan kayma) bitmeden ölçme: sonlu bütün
+        // animasyonlar dursun (sonsuz döngüler, ör. bayrak, sayılmaz).
+        await page.waitForFunction(() => document.getAnimations().every(a => a.playState !== 'running' || a.effect?.getComputedTiming().iterations === Infinity), null, { timeout: 5000 }).catch(() => {})
+        await page.waitForTimeout(100)
         const found = await page.evaluate(scanPage)
+        // Bina sayfası (V2 2.1): Yükselt doku kaydırmadan görünür ve düğmenin
+        // üstüne başka bir şey (ör. alt menü madalyonu) binmez.
+        if (key.startsWith('bina:')) {
+          const dock = await page.evaluate(() => {
+            const d = document.querySelector('.bp-dock')
+            if (!d) return 'Yükselt doku yok'
+            const btn = d.querySelector('button') || d
+            const r = btn.getBoundingClientRect()
+            if (r.top < 0 || r.bottom > innerHeight) return `Yükselt ekranda değil (${Math.round(r.top)}..${Math.round(r.bottom)})`
+            const mid = r.top + r.height / 2, low = r.bottom - 3, cx = r.left + r.width / 2
+            for (const [x, y] of [[cx, mid], [r.left + 12, mid], [r.right - 12, mid], [cx, low], [cx - 30, low], [cx + 30, low]]) {
+              const h = document.elementFromPoint(x, y)
+              if (h && !btn.contains(h)) return `Yükselt'in üstünde başka öğe: ${h.tagName.toLowerCase()}.${[...h.classList].join('.')}`
+            }
+            return null
+          })
+          if (dock) (found.çakışma[`.bp-dock :: ${dock}`] ??= { örnek: dock, adet: 0 }).adet++
+        }
         const n = Object.fromEntries(Object.entries(found).map(([k, v]) => [k, Object.values(v).reduce((s, x) => s + x.adet, 0)]))
         for (const k of Object.keys(n)) report.toplam[k] += n[k]
         if (Object.values(n).some(Boolean)) report.sayfalar[`${label} ${key}`] = found

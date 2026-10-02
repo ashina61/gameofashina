@@ -12,8 +12,8 @@ import { KumSaatiArt } from './resource-art'
  * kahverengi başlık şeritlidir.
  */
 import { Hint } from './hint'
-import { useEffect, useState, type ReactNode } from 'react'
-import { ArrowLeft, ArrowUp, LockKeyhole, FlipHorizontal2, RotateCw, Move, Hammer, ChevronRight, Plus, Trash2, X } from './ui-art'
+import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from 'react'
+import { ArrowLeft, ArrowUp, Info, LockKeyhole, FlipHorizontal2, RotateCw, Move, Hammer, ChevronRight, Plus, Trash2, X } from './ui-art'
 import { GameButton } from './game-button'
 import { CostTokens } from './stat-kit'
 import { BottomSheet } from './bottom-sheet'
@@ -65,29 +65,32 @@ function ResIcon({ id }: { id: Resource | Luxury }) {
 const stock = (g: Game, id: Resource | Luxury) => (LUXURY_IDS as readonly string[]).includes(id) ? g.luxury[id as Luxury] : g.resources[id as Resource]
 const name = (id: Resource | Luxury) => (LUXURY_IDS as readonly string[]).includes(id) ? LUXURY_NAMES[id as Luxury] : RESOURCE_NAMES[id as Resource]
 
-/** "Genişlet" kutusu: gereken kaynaklar (eksik olan kırmızı), süre, yükselt. */
-function UpgradeBox({ game, id, onBuild }: { game: Game; id: BuildingId; onBuild: () => void }) {
+/**
+ * YÜKSELTME DOKU (V2 Faz 2.1): sayfanın altında sabit, başparmak bölgesinde.
+ * Üstte maliyet jetonları (eksik olan kırmızı) ve süre, altında Yükselt.
+ * İnşaat sürüyorsa ilerleme çubuğu; en yüksek seviyede kısa not.
+ */
+function UpgradeDock({ game, id, onBuild }: { game: Game; id: BuildingId; onBuild: () => void }) {
   const level = game.buildings[id], max = MAX_LEVEL[id]
   const active = activeJob(game)?.id === id ? activeJob(game) : null
   const queued = game.queue.findIndex(job => job.id === id)
   const reason = buildReason(game, id)
-  if (level >= max) return <Box title="Genişlet"><p className="bp-note">En yüksek seviyeye ulaşıldı.</p></Box>
+  if (level >= max) return <div className="bp-dock is-max"><p className="bp-note">En yüksek seviyeye ulaşıldı.</p></div>
+  if (active) return <div className="bp-dock"><JobProgress job={active} now={game.updatedAt} /></div>
   const c = cost(game, id), lux = luxuryCost(game, id)
   const needs: [Resource | Luxury, number][] = [
     ...RESOURCE_IDS.filter(r => c[r] > 0).map(r => [r, c[r]] as [Resource, number]),
     ...LUXURY_IDS.filter(r => (lux[r] ?? 0) > 0).map(r => [r, lux[r]!] as [Luxury, number]),
   ]
-  return <Box title={level ? `Genişlet · Sv. ${level} → ${level + 1}` : 'İnşa et'} className="bp-upgrade">
-    {active ? <JobProgress job={active} now={game.updatedAt} /> : <>
-      <CostTokens items={needs.map(([r, n]) => ({ key: r, icon: <ResIcon id={r} />, name: name(r), need: n, have: stock(game, r) }))}
-        extra={<li className="bp-time"><span className="sk-token" aria-hidden="true"><KumSaatiArt /></span><strong>{time(duration(game, id))}</strong></li>} />
-      {queued > 0 && <p className="bp-note"><KumSaatiArt className="size-4" /> İnşaat sırasında {queued + 1}. sırada.</p>}
-      {reason && queued < 0 && <p className="bp-warn"><LockKeyhole className="size-4" /> {reason}</p>}
-      <button type="button" className="bp-upgrade-button" disabled={!!reason} onClick={onBuild}>
-        <span className="bp-up-arrow"><ArrowUp aria-hidden="true" /></span>{level ? 'Yükselt' : 'İnşa et'}
-      </button>
-    </>}
-  </Box>
+  return <div className="bp-dock" aria-label={level ? `Genişlet · Sv. ${level} → ${level + 1}` : 'İnşa et'}>
+    <CostTokens items={needs.map(([r, n]) => ({ key: r, icon: <ResIcon id={r} />, name: name(r), need: n, have: stock(game, r) }))} />
+    {queued > 0 && <p className="bp-note"><KumSaatiArt className="size-4" /> İnşaat sırasında {queued + 1}. sırada.</p>}
+    {reason && queued < 0 && <p className="bp-warn"><LockKeyhole className="size-4" /> {reason}</p>}
+    <button type="button" className="bp-upgrade-button" disabled={!!reason} onClick={onBuild}>
+      <span className="bp-up-arrow"><ArrowUp aria-hidden="true" /></span>{level ? `Yükselt · Sv. ${level + 1}` : 'İnşa et'}
+      <span className="bp-up-time"><KumSaatiArt aria-hidden="true" />{time(duration(game, id))}</span>
+    </button>
+  </div>
 }
 
 /** Bir üretim yapısının işçi kaydırıcısı (Ikariam'daki "işçi" kutusu). */
@@ -313,8 +316,11 @@ function BuildingView({ game, empire, id, onCommand, onRecruit, onNav, onBuildin
  * görseli ve parşömen kaydırma alanı. Bina sayfaları ve bütün danışman
  * panelleri (Kışla, Araştırma, Dünya...) bu çerçeveyi kullanır.
  */
-export function IkaPage({ title, subtitle, badge, hero, onClose, children, label, sheet }: {
+export function IkaPage({ title, subtitle, badge, hero, onClose, children, label, sheet, footer, className }: {
   title: string; subtitle?: string; badge?: ReactNode; hero?: string | null; onClose: () => void; children: ReactNode; label?: string
+  /** Sayfanın altında sabit kalan alan (bina sayfasında Yükselt doku). */
+  footer?: ReactNode
+  className?: string
   /** Haritada seçilen şey: tam sayfa yerine alt çekmece (harita arkada görünür). */
   sheet?: boolean
 }) {
@@ -331,7 +337,7 @@ export function IkaPage({ title, subtitle, badge, hero, onClose, children, label
     </header>
     <div className="bp-scroll">{children}</div>
   </BottomSheet>
-  return <div className="bp" role="dialog" aria-modal="true" aria-label={label ?? title}>
+  return <div className={className ? `bp ${className}` : 'bp'} role="dialog" aria-modal="true" aria-label={label ?? title}>
     <header className="bp-bar">
       <button type="button" className="bp-back" onClick={onClose} aria-label="Geri"><ArrowLeft /></button>
       <div className="bp-title"><h1>{title}</h1>{subtitle && <small>{subtitle}</small>}</div>
@@ -342,6 +348,7 @@ export function IkaPage({ title, subtitle, badge, hero, onClose, children, label
       {hero !== undefined && <section className="bp-hero bp-hero-small">{hero ? <img src={hero} alt="" /> : null}</section>}
       {children}
     </div>
+    {footer}
   </div>
 }
 
@@ -359,6 +366,15 @@ export function BuildingPage({ game, empire, id, onClose, onBuild, onFlip, onMov
   })
   const city = empire ? activeCity(empire).name : ''
   const [razing, setRazing] = useState(false)
+  // ⓘ: açıklamanın tamamı ve "Nasıl işler?" kutuları yalnız istenince görünür.
+  const [help, setHelp] = useState(false)
+  // Sekmeler: binanın kendi işi (Yapı) ve gelişim bilgisi (Gelişim).
+  const [tab, setTab] = useState<'yapi' | 'gelisim'>('yapi')
+  const workRef = useRef<HTMLDivElement>(null)
+  const [hasWork, setHasWork] = useState(true)
+  useLayoutEffect(() => { setHasWork(!!workRef.current?.childElementCount) }, [id, level, children])
+  // Başka binaya geçince sayfa baştan: binanın kendi işi, açıklama kapalı.
+  useEffect(() => { setTab('yapi'); setHelp(false); setPeek(null); setRazing(false) }, [id])
   // Görünüm önizlemesi: 1 = Sv. 1-3, 2 = Sv. 4-7, 3 = Sv. 8+ (null = şu anki).
   const [peek, setPeek] = useState<1 | 2 | 3 | null>(null)
   const stage = buildingStage(Math.max(1, level))
@@ -370,8 +386,11 @@ export function BuildingPage({ game, empire, id, onClose, onBuild, onFlip, onMov
   const facing = coastId ? game.coastFacing[coastId] : undefined
   const facingLabel = facing === 'left' ? 'Sol' : facing === 'right' ? 'Sağ' : 'Düz'
   const nextFacing = facing === 'straight' ? 'right' : facing === 'right' ? 'left' : 'straight'
+  const showTab = hasWork ? tab : 'gelisim'
   return <IkaPage title={b.name} subtitle={`${city} · ${b.category.toLocaleLowerCase('tr')}`} label={`${b.name} sayfası`} onClose={onClose}
-    badge={<span className="bp-level" aria-label={`Seviye ${level}`}><b>{level}</b></span>}>
+    className={`bp-building${help ? ' show-help' : ''}`}
+    badge={<button type="button" className="bp-help" aria-pressed={help} onClick={() => setHelp(v => !v)} aria-label={help ? 'Açıklamaları gizle' : 'Nasıl işler? Açıklamaları göster'}><Info /></button>}
+    footer={<UpgradeDock game={game} id={id} onBuild={onBuild} />}>
       <section className="bp-hero">
         {b.art ? <BuildingArt key={`${shown}-${facing ?? 'default'}`} className="bp-hero-art" id={id} level={shown === 1 ? 1 : shown === 2 ? 4 : 8} facing={facing} alt={`${b.name} görünümü`} /> : <span className="bp-pending"><Hammer /></span>}
         {b.art && stages.length > 1 && <div className="bp-stages" role="group" aria-label="Seviyeye göre görünüm">
@@ -381,6 +400,10 @@ export function BuildingPage({ game, empire, id, onClose, onBuild, onFlip, onMov
           </button>)}
         </div>}
         {peek && peek !== stage && <span className="bp-stage-note">{peek > stage ? 'Yükselttikçe böyle görünecek' : 'Eski görünümü'}</span>}
+        {!peek && <div className="bp-plaque" aria-label={`Seviye ${level}, en fazla ${max}`}>
+          <span className="bp-plaque-level" aria-hidden="true">{level}</span>
+          <span className="bp-plaque-text"><b>{level ? `Seviye ${level}` : 'Kurulmadı'}</b><small>en fazla {max}</small></span>
+        </div>}
         {level > 0 && <div className="bp-hero-tools" role="group" aria-label="Yapı araçları">
           {movable && b.art && coast && <button type="button" onClick={() => coastId && onCommand({ type: 'face', id: coastId, facing: nextFacing })} aria-label={`Yön: ${facingLabel}. Dokunarak değiştir`}><RotateCw /><span>Yön: {facingLabel}</span></button>}
           {movable && b.art && !coast && <button type="button" onClick={onFlip} aria-label={game.flips.includes(id) ? 'Yönü geri çevir' : 'Yönünü çevir'}><FlipHorizontal2 /><span>Çevir</span></button>}
@@ -389,11 +412,17 @@ export function BuildingPage({ game, empire, id, onClose, onBuild, onFlip, onMov
         </div>}
       </section>
       {razing && <DemolishConfirm game={game} id={id} onCommand={onCommand} onClose={() => setRazing(false)} />}
-      <p className="bp-desc">{b.description}</p>
-      <UpgradeBox game={game} id={id} onBuild={onBuild} />
+      <p className="bp-desc" onClick={() => setHelp(true)}>{b.description}</p>
+      {hasWork && <div className="bp-tabs" role="tablist" aria-label={`${b.name} bölümleri`}>
+        <button type="button" role="tab" aria-selected={showTab === 'yapi'} onClick={() => setTab('yapi')}>{b.name}</button>
+        <button type="button" role="tab" aria-selected={showTab === 'gelisim'} onClick={() => setTab('gelisim')}>Gelişim</button>
+      </div>}
+      <div ref={workRef} className="bp-tabpanel" hidden={showTab !== 'yapi'}>
+        <BuildingView game={game} empire={empire} id={id} onCommand={onCommand} onRecruit={onRecruit} onNav={onNav} onBuildingNav={onBuildingNav} run={run} />
+        {children}
+      </div>
+      <div className="bp-tabpanel" hidden={showTab !== 'gelisim'}>
       <Box title="Seviye etkisi"><BuildingEffects game={game} id={id} level={level} max={max} /></Box>
-      <BuildingView game={game} empire={empire} id={id} onCommand={onCommand} onRecruit={onRecruit} onNav={onNav} onBuildingNav={onBuildingNav} run={run} />
-      {children}
       {forecast.length > 0 && <Box title="Sonraki seviyeler">
         <Table head={['Sv.', 'Maliyet', 'Süre']} rows={forecast.map(f => [
           `${f.level}`,
@@ -401,5 +430,6 @@ export function BuildingPage({ game, empire, id, onClose, onBuild, onFlip, onMov
           time(f.seconds),
         ])} />
       </Box>}
+      </div>
   </IkaPage>
 }

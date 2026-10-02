@@ -2691,10 +2691,10 @@
 .bp-box, .bp .empire-section {
   position: relative; overflow: visible; border: 2px solid var(--c-wood-edge); border-radius: 12px;
   background:
-    radial-gradient(circle at 10px calc(100% - 10px), #f6dc8e 0 2.5px, #6b4318 3px 4px, transparent 4.5px),
-    radial-gradient(circle at calc(100% - 10px) calc(100% - 10px), #f6dc8e 0 2.5px, #6b4318 3px 4px, transparent 4.5px),
+    radial-gradient(circle at 10px calc(100% - 10px), #f6dc8e 0 2.5px, var(--c-brass-dark) 3px 4px, transparent 4.5px),
+    radial-gradient(circle at calc(100% - 10px) calc(100% - 10px), #f6dc8e 0 2.5px, var(--c-brass-dark) 3px 4px, transparent 4.5px),
     radial-gradient(130% 90% at 50% 0%, var(--c-paper) 0%, #f8ecd0 55%, #f0dcae 100%);
-  box-shadow: inset 0 0 0 2px #f8eacb, inset 0 0 20px #c9a46a4d, 0 3px 0 #6b4318, 0 6px 12px #3a1d0830;
+  box-shadow: inset 0 0 0 2px #f8eacb, inset 0 0 20px #c9a46a4d, 0 3px 0 var(--c-brass-dark), 0 6px 12px #3a1d0830;
 }
 .bp-box-title, .bp .empire-section > h3 {
   position: relative; z-index: 1; display: flex; align-items: center; gap: 8px; min-height: 40px;
@@ -2777,3 +2777,73 @@
 @keyframes sheet-in { from { transform: translateY(100%); } to { transform: translateY(0); } }
 @keyframes sheet-fade { from { opacity: 0; } to { opacity: 1; } }
 @media (prefers-reduced-motion: reduce) { .bp.bp-sheet, .sheet-backdrop { animation: none; transition: none; } }
+
+/* =========================================================================
+ * V2 FAZ 2.10 — ROZET BÜTÇESİ: sayısı gösterilmeyen haber küçük nokta.
+ * ÜST BAR: koyu ahşap plaka, pirinç kenar ve perçinler; sayaçlar plakaya
+ * gömülü pirinç çerçeveli yuvalar.
+ * ========================================================================= */
+.ika-badge.is-dot { min-width: 0; width: 12px; height: 12px; padding: 0; top: -1px; right: -1px; border-width: 2px; }
+.map-offer b.is-dot { min-width: 0; width: 12px; height: 12px; padding: 0; font-size: 0; }
+.game-shell .ika-res { position: relative;
+  background:
+    radial-gradient(circle at 7px 50%, #f6dc8e 0 2px, var(--c-brass-dark) 2.5px 3.5px, transparent 4px),
+    radial-gradient(circle at calc(100% - 7px) 50%, #f6dc8e 0 2px, var(--c-brass-dark) 2.5px 3.5px, transparent 4px),
+    repeating-linear-gradient(90deg, #ffffff05 0 2px, #0000 2px 9px),
+    linear-gradient(180deg, #3b2a18 0%, #24170c 55%, #1a1009 100%);
+  border-bottom: 2px solid var(--c-gold); box-shadow: inset 0 1px 0 #f2d37d55, inset 0 -1px 0 #0008, 0 4px 10px #0008; }
+.ika-ribbon { border-bottom-color: var(--c-gold); }
+.ika-stock { background: linear-gradient(180deg, #4a321c, #2b1b0e); border-color: #c9a45a66;
+  box-shadow: inset 0 1px 0 #f2d37d33, inset 0 -2px 0 #0006, 0 1px 0 #f2d37d22; }
+.ika-status { background: linear-gradient(180deg, #1d3a33, #10251f); border-color: #c9a45a55; }
+@media (max-width: 600px) { .game-shell .ika-res { padding-left: 14px; padding-right: 14px; } }
+
+/* =========================================================================
+ * V2 FAZ 2.1 — BİNA SAYFASI SAHNE GİBİ: büyük kahraman görseli ve seviye
+ * plakası, tek satır açıklama (ⓘ ile tamamı ve "Nasıl işler?" kutuları),
+ * Yapı / Gelişim sekmeleri, altta sabit Yükselt doku.
+ * ========================================================================= */
+.bp-building .bp-hero { height: clamp(200px, 26vh, 250px); }
+.bp-plaque { position: absolute; z-index: 2; left: 50%; bottom: 8px; transform: translateX(-50%); display: flex; align-items: center; gap: 0; pointer-events: none; }
+.bp-plaque-level { position: relative; z-index: 1; width: 48px; height: 48px; display: grid; place-items: center; border-radius: 50%;
+  background: radial-gradient(circle at 40% 30%, #8a5a2e, #3b2414 70%); border: 3px solid var(--c-gold); box-shadow: 0 3px 6px #0007, inset 0 1px #fff4;
+  font-family: var(--font-heading), Georgia, serif; font-size: 22px; font-weight: 800; color: var(--c-cream); text-shadow: 0 1px 2px #000; }
+.bp-plaque-text { display: flex; flex-direction: column; margin-left: -10px; padding: 4px 14px 4px 18px; border-radius: 0 10px 10px 0;
+  background: linear-gradient(180deg, #a63a28, #6e1e14); box-shadow: 0 2px 5px #0006; color: var(--c-cream); line-height: 1.15; }
+.bp-plaque-text b { font-family: var(--font-heading), Georgia, serif; font-size: 15px; text-shadow: 0 1px 2px #2a0d06; }
+.bp-plaque-text small { font-size: 11px; color: #f3d9a8; }
+.bp-help { width: 44px; height: 44px; flex-shrink: 0; display: grid; place-items: center; border-radius: 50%;
+  border: 1px solid #c9a45a88; background: #2a170899; }
+.bp-help svg { width: 24px; height: 24px; }
+.bp-help[aria-pressed="true"] { background: var(--c-gold); box-shadow: 0 0 0 2px #2a1708, 0 0 10px #f2d37d88; }
+.bp-building:not(.show-help) .bp-desc { display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; cursor: pointer;
+  /* Kırpma dolgu kutusunda olur: dikey dolgu yerine saydam kenar, ikinci satır görünmesin. */
+  padding-block: 0; border-width: 10px 12px; border-color: transparent; outline: 1px solid var(--c-edge); outline-offset: -1px; }
+.bp-building:not(.show-help) .hint { display: none; }
+.bp-tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; padding: 4px; border-radius: 14px;
+  background: linear-gradient(180deg, #5a3517, #3a2310); box-shadow: inset 0 1px 3px #0008; }
+.bp-tabs button { min-height: 44px; border-radius: 10px; font-weight: 800; font-size: 14px; color: #f3dfb3; background: transparent; border: 0; }
+.bp-tabs button[aria-selected="true"] { color: #3a1d08; background: linear-gradient(180deg, #fbe39a, #e9b955 50%, #c98f2e);
+  box-shadow: inset 0 1px 0 #fff8d6, 0 2px 0 #7a4e18; }
+.bp-tabpanel { display: flex; flex-direction: column; gap: 12px; }
+.bp-tabpanel[hidden] { display: none; }
+.bp-dock { position: relative; z-index: 2; flex-shrink: 0; display: grid; gap: 8px; padding: 10px 12px 12px;
+  border-top: 2px solid var(--c-gold); background: linear-gradient(180deg, #f8ecd0, #ead39a);
+  box-shadow: 0 -6px 14px #3a1d0833, inset 0 1px 0 #fff8; }
+.bp-dock.is-max { padding: 12px; }
+.bp-dock .bp-costs { grid-template-columns: repeat(auto-fill, minmax(62px, 1fr)); gap: 4px; }
+.bp-dock .bp-costs li { padding: 3px 4px; gap: 4px; font-size: 13px; }
+.bp-dock .sk-token { width: 24px; height: 24px; }
+.bp-dock .sk-token svg { width: 18px; height: 18px; }
+.bp-dock .bp-warn { font-size: 12px; margin: 0; display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; }
+.bp-dock .bp-warn svg { display: none; }
+.bp-up-time { display: inline-flex; align-items: center; gap: 3px; margin-left: 4px; padding: 2px 8px; border-radius: 999px;
+  background: #0003; font-size: 13px; font-weight: 700; }
+.bp-up-time svg { width: 16px; height: 16px; }
+.bp-dock .bp-upgrade-button { min-height: 50px; }
+/* Bina sayfası açıkken alttaki Harita madalyonu yukarı taşmaz (Yükselt'i
+ * örtmesin); menü hizasında, biraz küçük durur. */
+.game-shell .bp-dock { gap: 6px; }
+.game-shell:has(.bp-dock) .ika-nav-center { transform: none; }
+.game-shell:has(.bp-dock) .ika-nav-center .ika-nav-icon { margin-top: 0; width: 40px; height: 40px; }
+.game-shell:has(.bp-dock) .ika-nav-center .ika-nav-icon svg { width: 22px; height: 22px; }
