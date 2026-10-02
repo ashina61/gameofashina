@@ -82,3 +82,42 @@ export function BattleView({ stored, live }: { stored: StoredBattle; live?: Live
     </p>}
   </section>
 }
+
+/**
+ * SAVAŞ ÖZETİ (raporun başında): kazanan şeridi, iki ordunun birlikleri
+ * figürleriyle "getirilen / kaybedilen", son moral ve sur. Tur tur ayrıntı
+ * BattleView'da; düz yazı satırları bunun altında kalır.
+ */
+export function BattleSummary({ stored, us }: { stored: StoredBattle; us: 'a' | 'd' }) {
+  const result = useMemo(() => replayBattle(stored.a, stored.d, stored.joins, stored.retreat), [stored])
+  const won = (result.winner === 'attacker') === (us === 'a')
+  const last = result.rounds[result.rounds.length - 1]
+  const side = (who: 'a' | 'd') => {
+    const start = { ...(who === 'a' ? stored.a.troops : stored.d.troops) } as Troops
+    for (const j of stored.joins ?? []) if (j.side === who) for (const [id, n] of Object.entries(j.troops)) start[id as keyof Troops] = (start[id as keyof Troops] ?? 0) + (n ?? 0)
+    const lost = who === 'a' ? result.attackerLost : result.defenderLost
+    const units = (Object.entries(start) as [keyof Troops, number][]).filter(([, n]) => n > 0).sort((x, y) => y[1] - x[1])
+    const total = units.reduce((s, [, n]) => s + n, 0)
+    const dead = Object.values(lost).reduce((s, n) => s + (n ?? 0), 0)
+    const morale = last ? (who === 'a' ? last.moraleA : last.moraleD) : 100
+    return { name: who === 'a' ? stored.attacker : stored.defender, units, lost, total, dead, morale, mine: who === us }
+  }
+  const sides = [side(us), side(us === 'a' ? 'd' : 'a')]
+  const wallMax = stored.d.wall ?? 0
+  return <section className={won ? 'bs is-won' : 'bs is-lost'} aria-label={`${stored.title} özeti`}>
+    <div className="bs-banner"><strong>{won ? 'ZAFER' : 'YENİLGİ'}</strong><small>{stored.title} · {result.rounds.length} tur · {result.field.name}</small></div>
+    <div className="bs-sides">{sides.map(s => <div key={s.name} className={s.mine ? 'bs-side is-mine' : 'bs-side'}>
+      <div className="bs-side-head"><strong>{s.name}</strong><small>{s.total - s.dead} / {s.total} ayakta</small></div>
+      <span className="bs-bar" title={`${s.total - s.dead} / ${s.total}`}><i style={{ width: `${s.total ? Math.round(100 * (s.total - s.dead) / s.total) : 0}%` }} /></span>
+      <div className="bs-units">{s.units.slice(0, 8).map(([id, n]) => {
+        const lost = Math.min(n, s.lost[id] ?? 0)
+        return <span key={id} className={lost >= n ? 'bs-unit is-wiped' : 'bs-unit'} title={`${UNITS[id].name}: ${n} geldi, ${lost} düştü`}>
+          <UnitFigure id={id} size={34} bare /><b>{n}</b>{lost > 0 && <em>−{lost}</em>}
+        </span>
+      })}{s.units.length > 8 && <span className="bs-more">+{s.units.length - 8}</span>}</div>
+      <small className="bs-morale">Moral <span className="bs-bar is-morale"><i style={{ width: `${s.morale}%` }} /></span> {s.morale}</small>
+    </div>)}</div>
+    {wallMax > 0 && <p className="bs-wall">Sur {result.wallLeft > 0 ? `${result.wallLeft} / ${wallMax} ayakta` : 'yıkıldı'}</p>}
+    <p className="bs-reason">{result.reason}</p>
+  </section>
+}

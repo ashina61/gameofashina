@@ -24,6 +24,7 @@ import { PIRACY_TARGETS, RAID_UNITS, SIEGE_MAX_MS, THREAT_WARNING_MS, WARSHIPS, 
 import { EXPEL_COOLDOWN_MS, expelSpies, rivalById } from '@/lib/game/rivals'
 import type { Run } from './world-panels'
 import { BattleView } from './battle-view'
+import { ResearchEmblem } from './research-art'
 import { GUILDS, GUILD_IDS, GUILD_MAX, PATRON_COOLDOWN_MS, devotionFor, guildLevel, himmetCap, himmetRate, patronSlots } from '@/lib/game/guilds'
 import { troopList } from '@/lib/game/battle'
 
@@ -166,8 +167,8 @@ export function FuturePanel({ game, onCommand }: { game: Game; onCommand: (c: Co
       const reason = futureReason(game, b.key)
       const left = RESEARCH_IDS.filter(id => RESEARCH[id].branch === b.key && !game.research.includes(id)).length
       return <article key={b.key} className="research-card">
-        <div className="research-card-top"><span className="research-icon"><Repeat /></span><span><h3>{b.title} Geleceği · Sv. {level}</h3></span></div>
-        <p>{level ? FUTURE_EFFECT[b.key](level) : 'Henüz yok'} → {FUTURE_EFFECT[b.key](level + 1)}</p>
+        <div className="research-card-top"><ResearchEmblem id={RESEARCH_IDS.filter(id => RESEARCH[id].branch === b.key).slice(-1)[0]} size={52} state={left > 0 ? 'locked' : 'open'} /><span><h3>{b.title} Geleceği · Sv. {level}</h3></span></div>
+        <p>Şu an: {level ? FUTURE_EFFECT[b.key](level) : 'yok'} · Sonraki seviye: <b>{FUTURE_EFFECT[b.key](level + 1)}</b></p>
         <div className="research-bottom"><span>{num(futureCost(level))} ilim</span>
           <Button size="sm" disabled={!!reason} onClick={() => onCommand({ type: 'future', branch: b.key })}>İlerlet</Button></div>
         {left > 0 && <p className="fine-print">Önce bu dalda {left} araştırma kaldı.</p>}

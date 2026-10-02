@@ -26,7 +26,7 @@ import { UnitPicker } from './ikariam-panels'
 import { RivalDiplomacy, RivalSupport, RivalWar, type Run } from './world-panels'
 import { FACTIONS, RIVALS, STYLE_NAMES, rivalById, rivalLevel , isAlly } from '@/lib/game/rivals'
 import { clearReports, deleteReport, keepReport, targetInfo, type Report } from '@/lib/game/expeditions'
-import { BattleView } from './battle-view'
+import { BattleSummary, BattleView } from './battle-view'
 import { CityEmblem } from './city-emblem'
 import { MapViewport } from './map-viewport'
 import { RETREAT_MORALE, fieldSize } from '@/lib/game/battle'
@@ -258,7 +258,7 @@ function RoundTable({ rows, title }: { rows: RoundRow[]; title?: string }) {
     {long && <button type="button" className="round-table-more" onClick={() => setAll(v => !v)}>{all ? 'Kısalt' : `Bütün turlar (${rows.length})`}</button>}
   </div>
 }
-export function ReportLines({ lines }: { lines: string[] }) {
+export function ReportLines({ lines, compact }: { lines: string[]; compact?: boolean }) {
   const blocks: Array<{ kind: 'text'; text: string } | { kind: 'rounds'; rows: RoundRow[]; title?: string }> = []
   for (const l of lines) {
     const row = parseRound(l)
@@ -269,9 +269,13 @@ export function ReportLines({ lines }: { lines: string[] }) {
       else blocks.push({ kind: 'rounds', rows: [row] })
     } else blocks.push({ kind: 'text', text: l })
   }
+  // Özet kartı olan raporda tur tabloları "ayrıntılı kayıt" altına iner.
+  const tables = blocks.filter(b => b.kind === 'rounds')
   return <div className="report-body">{blocks.map((b, i) => b.kind === 'rounds'
-    ? <RoundTable key={i} rows={b.rows} title={b.title} />
-    : <p key={i} className="report-line">{b.text}</p>)}</div>
+    ? (compact ? null : <RoundTable key={i} rows={b.rows} title={b.title} />)
+    : <p key={i} className="report-line">{b.text}</p>)}
+    {compact && tables.length > 0 && <details className="report-details"><summary>Tur tur kayıt</summary>
+      {tables.map((b, i) => b.kind === 'rounds' && <RoundTable key={i} rows={b.rows} title={b.title} />)}</details>}</div>
 }
 
 /** Savaş ve casusluk raporları. */
@@ -300,8 +304,8 @@ export function ReportsPanel({ empire, run }: { empire: Empire; run?: Run }) {
             onClick={() => run((e, t) => keepReport(e, r.id, t))}>{r.kept ? <BookmarkCheck /> : <Bookmark />}</button>
           <button type="button" aria-label="Raporu sil" title="Sil" onClick={() => run((e, t) => deleteReport(e, r.id, t))}><Trash2 /></button>
         </span>}</div>
-      {r.battles?.length ? <ReportBattles report={r} /> : null}
-      <ReportLines lines={r.lines} />
+      {r.battles?.length ? <>{r.battles.map((b, i) => <BattleSummary key={i} stored={b} us={r.kind === 'defense' || r.kind === 'support' ? 'd' : 'a'} />)}<ReportBattles report={r} /></> : null}
+      <ReportLines lines={r.lines} compact={!!r.battles?.length} />
     </article>)}</div>
 }
 
@@ -311,7 +315,7 @@ function ReportBattles({ report }: { report: Report }) {
   return <div className="report-battles">
     <div className="report-battle-tabs">{report.battles!.map((b, i) =>
       <Button key={i} size="sm" variant={open === i ? 'default' : 'outline'} onClick={() => setOpen(open === i ? null : i)}>
-        <Swords data-icon="inline-start" />{b.title}
+        <Swords data-icon="inline-start" />{b.title}: savaş alanı
       </Button>)}</div>
     {open !== null && report.battles![open] && <BattleView stored={report.battles![open]} />}
   </div>
