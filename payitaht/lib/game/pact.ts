@@ -14,7 +14,7 @@
  * Üyeler sana saldırmaz, baskında yardıma gelir, şehirlerine destek birliği
  * gönderebilirsin. Bütün üyeler yapay rakiptir; gerçek oyuncu yoktur.
  */
-import { logEvent } from './engine'
+import { capacity, logEvent } from './engine'
 import { activeCity, advanceEmpire, type Empire } from './empire'
 import {
   FACTIONS, RIVALS, embassyLevel, mail, peek, playerScore, relate, rivalById, rivalLevel, rivalScore, roll, world,
@@ -23,6 +23,14 @@ import {
 
 const HOUR = 3600_000
 export type PactRank = 'genel' | 'hariciye' | 'dahiliye' | 'uye'
+/** Rütbe görevleri: ne yapar, hangi yetkiyi taşır (Ikariam'daki rütbe hakları). */
+export const RANK_DUTIES: Record<PactRank | 'lider', { name: string; duty: string; rights: string[] }> = {
+  lider: { name: 'Lider', duty: 'İttifakı kurar ve yönetir; son söz onundur.', rights: ['Rütbe verir', 'Üye çıkarır', 'Diplomasi', 'İttifakı dağıtır'] },
+  genel: { name: 'Başkomutan', duty: 'Ortak savunmayı ve seferleri yönetir.', rights: ['Baskında iki kat yardım', 'Sefer genelgesi'] },
+  hariciye: { name: 'Hariciye Nazırı', duty: 'Öbür ittifaklarla ve tüccarlarla pazarlık eder.', rights: ['Daha sık ticaret teklifi', 'Antlaşma hazırlığı'] },
+  dahiliye: { name: 'Dahiliye Nazırı', duty: 'Üyeleri bir arada tutar, yenilerini ikna eder.', rights: ['Davet için ilişki −10', 'İç duyuru'] },
+  uye: { name: 'Üye', duty: 'İttifakın sancağı altında savaşır ve ticaret eder.', rights: ['Genelge okur', 'Yardıma gelir'] },
+}
 export const PACT_RANKS: Record<PactRank, { name: string; text: string }> = {
   genel: { name: 'Başkomutan', text: 'Baskında ittifakın yardım ordusunu yönetir: bu üye iki kat asker yollar.' },
   hariciye: { name: 'Hariciye Nazırı', text: 'Pazarlıkları yürütür: üyelerden gelen ticaret teklifleri sıklaşır.' },
@@ -36,7 +44,18 @@ export type Pact = {
   name: string; tag: string; motto: string; founded: number
   members: string[]; ranks: Record<string, PactRank>
   circulars: Circular[]; stance: Partial<Record<FactionId, Stance>>
+  /** Dış sayfa: başka hükümdarların gördüğü ittifak tanıtımı. */
+  about?: string
+  /** İç duyuru: yalnız üyelerin gördüğü sabit not (Ikariam'daki iç sayfa). */
+  notice?: string
+  /** Rütbelerin ittifaka özel adları (boşsa varsayılan ad). */
+  titles?: Partial<Record<PactRank | 'lider', string>>
+  /** Haftalık ittifak görevleri ve ittifakın biriken itibarı. */
+  goals?: PactGoals
+  prestige?: number
 }
+export type PactGoals = { week: string; base: GoalCounters; tasks: string[]; claimed: string[] }
+type GoalCounters = { raids: number; shipments: number; spies: number; members: number }
 export const MAX_CIRCULARS = 24
 export const INVITE_NEED = 20
 export const CIRCULAR_COOLDOWN_MS = 2 * HOUR
@@ -59,6 +78,7 @@ export function foundPact(source: Empire, name: string, tag: string, now: number
   if (t.length < 2 || t.length > 5) return { empire, error: 'Kısaltma 2-5 harf olmalı.' }
   if (Object.values(FACTIONS).some(f => f.name.toLocaleLowerCase('tr') === n.toLocaleLowerCase('tr'))) return { empire, error: 'Bu ad başka bir ittifakın.' }
   w.pact = { name: n, tag: t, motto: '', founded: now, members: [], ranks: {}, circulars: [], stance: {} }
+  ensurePactGoals(empire, now)
   circular(w.pact, now, 'sen', 'İttifak kuruldu', `${n} [${t}] bugün kuruldu. Kapımız dostlara açık.`)
   logEvent(activeCity(empire).game, `${n} [${t}] ittifakı kuruldu.`, now)
   return { empire }
@@ -127,6 +147,115 @@ export function setPactMotto(source: Empire, motto: string, now: number): { empi
   const m = motto.trim()
   if (m.length > 80) return { empire, error: 'Düstur en fazla 80 harf.' }
   p.motto = m
+  return { empire }
+}
+
+const clean = (t: string) => t.replace(/[\u0000-\u0009\u000b-\u001f]/g, '').trim()
+export const ABOUT_MAX = 400
+export const NOTICE_MAX = 300
+export const TITLE_MAX = 24
+
+/** Dış sayfa ve iç duyuru (boş bırakılırsa kaldırılır). */
+export function setPactTexts(source: Empire, texts: { about?: string; notice?: string }, now: number): { empire: Empire; error?: string } {
+  const empire = advanceEmpire(source, now)
+  const p = world(empire).pact
+  if (!p) return { empire, error: 'Önce bir ittifak kur.' }
+  for (const [k, max] of [['about', ABOUT_MAX], ['notice', NOTICE_MAX]] as const) {
+    const v = texts[k]
+    if (v === undefined) continue
+    const t = clean(v)
+    if (t.length > max) return { empire, error: `${k === 'about' ? 'Tanıtım' : 'Duyuru'} en fazla ${max} harf.` }
+    if (t) p[k] = t
+    else delete p[k]
+  }
+  if (texts.notice !== undefined && p.notice) circular(p, now, 'sen', 'İç duyuru güncellendi', p.notice)
+  return { empire }
+}
+
+/** Rütbeye ittifaka özel ad verir ("Serdar", "Kethüda" gibi); boş ad varsayılana döner. */
+export function setRankTitle(source: Empire, rank: PactRank | 'lider', title: string, now: number): { empire: Empire; error?: string } {
+  const empire = advanceEmpire(source, now)
+  const p = world(empire).pact
+  if (!p) return { empire, error: 'Önce bir ittifak kur.' }
+  if (!(rank in RANK_DUTIES)) return { empire, error: 'Bilinmeyen rütbe.' }
+  const t = clean(title)
+  if (t.length > TITLE_MAX) return { empire, error: `Rütbe adı en fazla ${TITLE_MAX} harf.` }
+  const titles = { ...p.titles }
+  if (t) titles[rank] = t
+  else delete titles[rank]
+  if (Object.keys(titles).length) p.titles = titles
+  else delete p.titles
+  return { empire }
+}
+export const rankTitle = (p: Pact, rank: PactRank | 'lider') => p.titles?.[rank] ?? RANK_DUTIES[rank].name
+
+/* -------------------------------------------------------- İTTİFAK GÖREVLERİ */
+
+/** Haftalık ortak görevler: ilerleme, haftanın başındaki sayaçlarla farktır. */
+export const PACT_GOALS: { id: string; text: string; key: keyof GoalCounters | 'defense' | 'circulars'; need: number; gold: number }[] = [
+  { id: 'raids3', text: 'Üç seferi zaferle bitir', key: 'raids', need: 3, gold: 2500 },
+  { id: 'ship2', text: 'İki nakliye gönder', key: 'shipments', need: 2, gold: 1500 },
+  { id: 'spies2', text: 'İki casus görevi düzenle', key: 'spies', need: 2, gold: 1500 },
+  { id: 'member1', text: 'İttifaka yeni bir üye kazandır', key: 'members', need: 1, gold: 2000 },
+  { id: 'defend1', text: 'Bir baskını püskürt', key: 'defense', need: 1, gold: 2000 },
+  { id: 'circ2', text: 'Üyelere iki genelge gönder', key: 'circulars', need: 2, gold: 1000 },
+]
+export const GOAL_PRESTIGE = 100
+/** Haftanın (Pazartesi, UTC) başlangıcı. */
+export function weekStart(now: number) {
+  const d = new Date(now)
+  return Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate() - (d.getUTCDay() + 6) % 7)
+}
+const weekKey = (now: number) => new Date(weekStart(now)).toISOString().slice(0, 10)
+function goalCounters(empire: Empire, p: Pact): GoalCounters {
+  const st = empire.stats ?? { raids: 0, spies: 0, piracy: 0, shipments: 0 }
+  return { raids: st.raids, shipments: st.shipments, spies: st.spies, members: p.members.length }
+}
+/** Hafta değiştiyse yeni üç görev kurulur (pactHour ve işlemler çağırır). */
+export function ensurePactGoals(empire: Empire, now: number) {
+  const p = empire.world?.pact
+  if (!p) return
+  const week = weekKey(now)
+  if (p.goals?.week === week) return
+  let h = 0
+  for (const ch of week + p.tag) h = (h * 31 + ch.charCodeAt(0)) >>> 0
+  const pool = PACT_GOALS.map(g => g.id), tasks: string[] = []
+  while (tasks.length < 3) { h = (h * 1103515245 + 12345) >>> 0; tasks.push(pool.splice(h % pool.length, 1)[0]) }
+  p.goals = { week, base: goalCounters(empire, p), tasks, claimed: [] }
+}
+/** Görevler henüz kurulmadıysa (eski kayıt, yeni hafta) hemen kurar. */
+export function refreshPactGoals(source: Empire, now: number): { empire: Empire; error?: string } {
+  const empire = advanceEmpire(source, now)
+  if (!world(empire).pact) return { empire, error: 'Önce bir ittifak kur.' }
+  ensurePactGoals(empire, now)
+  return { empire }
+}
+export function pactGoalProgress(empire: Empire, id: string, now: number) {
+  const p = empire.world?.pact, g = PACT_GOALS.find(x => x.id === id)
+  if (!p || !g) return 0
+  const since = weekStart(now)
+  let n = 0
+  if (g.key === 'defense') n = (empire.reports ?? []).filter(r => r.kind === 'defense' && r.success && r.time >= since).length
+  else if (g.key === 'circulars') n = p.circulars.filter(c => c.from === 'sen' && c.time >= since && c.replies?.length).length
+  else n = goalCounters(empire, p)[g.key] - (p.goals?.week === weekKey(now) ? p.goals.base[g.key] : goalCounters(empire, p)[g.key])
+  return Math.max(0, Math.min(g.need, n))
+}
+export function claimPactGoal(source: Empire, id: string, now: number): { empire: Empire; error?: string } {
+  const empire = advanceEmpire(source, now)
+  const p = world(empire).pact
+  if (!p) return { empire, error: 'Önce bir ittifak kur.' }
+  ensurePactGoals(empire, now)
+  const goals = p.goals!, g = PACT_GOALS.find(x => x.id === id)
+  if (!g || !goals.tasks.includes(id)) return { empire, error: 'Bu haftanın görevi değil.' }
+  if (goals.claimed.includes(id)) return { empire, error: 'Ödül zaten alındı.' }
+  if (pactGoalProgress(empire, id, now) < g.need) return { empire, error: 'Görev henüz bitmedi.' }
+  goals.claimed.push(id)
+  p.prestige = (p.prestige ?? 0) + GOAL_PRESTIGE
+  const city = activeCity(empire).game
+  city.resources.gold = Math.min(capacity(city), city.resources.gold + g.gold)
+  for (const m of p.members) relate(empire, m, 3)
+  circular(p, now, 'sen', 'İttifak görevi tamamlandı', `${g.text}. İttifakın itibarı ${GOAL_PRESTIGE} arttı; üyeler kutluyor.`)
+  logEvent(city, `İttifak görevi: ${g.text}.`, now)
   return { empire }
 }
 
@@ -207,7 +336,7 @@ export function allianceRankings(empire: Empire, now: number) {
   const rows: { id: string; name: string; tag: string; members: number; score: number; you: boolean }[] = []
   const score = (r: Rival) => rivalScore(empire, r, now).total
   if (p) rows.push({ id: 'pact', name: p.name, tag: p.tag, members: p.members.length + 1, you: true,
-    score: playerScore(empire).total + p.members.reduce((s, id) => s + score(rivalById(id)!), 0) })
+    score: playerScore(empire).total + p.members.reduce((s, id) => s + score(rivalById(id)!), 0) + (p.prestige ?? 0) })
   for (const f of Object.keys(FACTIONS) as FactionId[]) {
     const roster = RIVALS.filter(r => r.faction === f && !p?.members.includes(r.id))
     const mine = empire.world?.alliance === f
@@ -235,6 +364,7 @@ const MEMBER_POSTS = [
 /** aiHour içinden: üyeler ara sıra genelge yazar. */
 export function pactHour(empire: Empire, at: number, s: number, k: number) {
   const p = empire.world?.pact
+  if (p) ensurePactGoals(empire, at)
   if (!p || !p.members.length) return
   if (roll(`pact-${s}`) > 0.06 * k) return
   const id = p.members[Math.floor(roll(`pactm-${s}`) * p.members.length)]
@@ -255,6 +385,15 @@ export function parsePact(raw: unknown, bad: () => never): Pact | undefined {
       !p.ranks || typeof p.ranks !== 'object' || !Object.entries(p.ranks).every(([id, rk]) => p.members.includes(id) && rk in PACT_RANKS) ||
       !Array.isArray(p.circulars) || p.circulars.length > MAX_CIRCULARS ||
       !p.stance || typeof p.stance !== 'object' || !Object.entries(p.stance).every(([f, st]) => f in FACTIONS && st in STANCES)) bad()
+  const str = (v: unknown, max: number) => v === undefined || (typeof v === 'string' && v.length <= max)
+  if (!str(p.about, ABOUT_MAX) || !str(p.notice, NOTICE_MAX) || (p.prestige !== undefined && !fin(p.prestige))) bad()
+  if (p.titles !== undefined && (!p.titles || typeof p.titles !== 'object' || !Object.entries(p.titles).every(([k, v]) => k in RANK_DUTIES && typeof v === 'string' && v.length <= TITLE_MAX))) bad()
+  if (p.goals !== undefined) {
+    const g = p.goals
+    if (!g || typeof g.week !== 'string' || !g.base || !(['raids', 'shipments', 'spies', 'members'] as const).every(k => fin(g.base[k])) ||
+        !Array.isArray(g.tasks) || g.tasks.length > 3 || !g.tasks.every(t => PACT_GOALS.some(x => x.id === t)) ||
+        !Array.isArray(g.claimed) || !g.claimed.every(t => g.tasks.includes(t))) bad()
+  }
   for (const c of p.circulars) {
     if (!c || typeof c.id !== 'string' || !fin(c.time) || typeof c.from !== 'string' || typeof c.subject !== 'string' || typeof c.body !== 'string' ||
         typeof c.read !== 'boolean' || (c.replies !== undefined && (!Array.isArray(c.replies) || !c.replies.every(x => x && rivalById(x.rivalId) && typeof x.text === 'string')))) bad()
