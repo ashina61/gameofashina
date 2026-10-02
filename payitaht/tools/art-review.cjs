@@ -33,6 +33,8 @@ async function main() {
       viewport: { width: Number(process.env.QA_WIDTH) || 1280, height: 900 },
       serviceWorkers: 'block',
     })
+    // Yeni oyunun ilk açılış rehberi QA tıklamalarını örtmesin.
+    await page.addInitScript(() => { try { localStorage.setItem('payitaht-rehber', 'goruldu') } catch {} })
     const errors = []
     page.on('pageerror', error => errors.push(error.message))
     page.on('response', response => {

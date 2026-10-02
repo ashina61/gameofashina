@@ -64,6 +64,8 @@ if (require.main === module) {
     try {
       for (const width of [390, 412, 430]) {
         const page = await browser.newPage({ viewport: { width, height: 844 }, hasTouch: true, isMobile: true })
+        // Yeni oyunun ilk açılış rehberi QA tıklamalarını örtmesin.
+        await page.addInitScript(() => { try { localStorage.setItem('payitaht-rehber', 'goruldu') } catch {} })
         // Route the production export directly, without requiring a listening server.
         await page.route('http://heraldry.test/**', async route => {
           const url = new URL(route.request().url())

@@ -3,6 +3,8 @@ const path = require('node:path')
 /** Use the real save importer to test same-scene siege start/end (no reload). */
 module.exports = async function siegeReview(browser, out, origin, seedRaw, diagnostics) {
   const context = await browser.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, isMobile: true, hasTouch: true })
+  // Yeni oyunun ilk açılış rehberi QA tıklamalarını örtmesin.
+  await context.addInitScript(() => { try { localStorage.setItem('payitaht-rehber', 'goruldu') } catch {} })
   const page = await context.newPage()
   page.on('pageerror', e => diagnostics.pageErrors.push(`siege: ${e.message}`))
   page.on('response', r => {

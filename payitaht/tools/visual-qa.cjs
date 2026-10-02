@@ -22,6 +22,8 @@ async function main() {
       hasTouch: true,
       colorScheme: 'light',
     })
+    // Yeni oyunun ilk açılış rehberi QA tıklamalarını örtmesin.
+    await context.addInitScript(() => { try { localStorage.setItem('payitaht-rehber', 'goruldu') } catch {} })
     const page = await context.newPage()
     const buildingStageLoads = new Set()
     page.on('pageerror', error => diagnostics.pageErrors.push(`${label}: ${error.message}`))
