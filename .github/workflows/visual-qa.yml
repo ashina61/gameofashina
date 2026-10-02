@@ -42,7 +42,9 @@ defaults:
 jobs:
   screenshot:
     runs-on: ubuntu-latest
-    timeout-minutes: 18
+    # Yazılımla (GPU'suz) çizilen Phaser ekranı yavaş: yeşil koşular bile
+    # 15 dakikayı buluyordu, 18 dakikalık sınır ağır bir koşucuda yetmedi.
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
