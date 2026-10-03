@@ -4,6 +4,7 @@ import { edgeKey, roadEdgeKeysForTargets } from '../road-tree'
 import { cityFields, cityFountains, nearStreamAt } from '../city-extras'
 import { bakeGraphics } from '../bake'
 import * as Phaser from 'phaser'
+import { liteMode } from '@/lib/motion'
 import { mulberry32, type RoadCurve, roadCurves, displayRoadCurves, nearSlot, paintedGroundTexture } from '../terrain-builder'
 
 export function buildRoads({ V, divanLevel, occupiedSlotIds, scene, shoreY, stamp }: { V: (x: number, y: number) => Phaser.Math.Vector2; divanLevel: number; occupiedSlotIds: string[]; scene: Phaser.Scene; shoreY: (x: number) => number; stamp: (key: string, wx: number, wy: number, tw: number, depth: number, oy?: number, alpha?: number, tint?: number | undefined) => Phaser.GameObjects.Image | null }) {
@@ -39,7 +40,7 @@ export function buildRoads({ V, divanLevel, occupiedSlotIds, scene, shoreY, stam
       (slot): slot is NonNullable<typeof slot> => slot != null,
     )
     for (const item of ambientDecor) {
-      item.image.setVisible(hallLevel >= (item.minLevel ?? 0) && !occupiedSlots.some(slot => nearSlot(item.x, item.y, slot, 1.14)))
+      item.image.setVisible((!liteMode() || item.image.getData('decorOrdinal') % 2 === 1) && hallLevel >= (item.minLevel ?? 0) && !occupiedSlots.some(slot => nearSlot(item.x, item.y, slot, 1.14)))
     }
   }
 
@@ -296,8 +297,8 @@ export function buildRoads({ V, divanLevel, occupiedSlotIds, scene, shoreY, stam
       !cityFountains().some(f => Math.hypot(x - f.x, (y - f.y) * 1.6) < TILE.w * 0.68) &&
       !propSlots.some(s => nearSlot(x, y, s, active.has(s.id) ? 1.02 : 0.70))
 
-    for (const r of visibleCurves.filter(r => r.kind !== 'quay')) {
-      const samples = r.kind === 'avenue' ? [0.18, 0.38, 0.62, 0.82] : [0.34, 0.68]
+    for (const r of visibleCurves.filter(r => r.kind === 'avenue')) {
+      const samples = [0.38, 0.68]
       for (const u of samples) {
         if (r.kind === 'street' && propRnd() < 0.52) continue
         if (r.kind === 'avenue' && propRnd() < 0.18) continue
@@ -309,15 +310,9 @@ export function buildRoads({ V, divanLevel, occupiedSlotIds, scene, shoreY, stam
         const x = p.x + nx * distance * side
         const y = p.y + ny * distance * side * 0.78
         if (!roadsideClear(x, y)) continue
-        const roll = propRnd()
-        const key = roll < 0.36 ? 'd_bush'
-          : roll < 0.62 ? 'd_flower'
-          : roll < 0.84 ? 'd_woodpile'
-          : 'd_well'
-        const width = key === 'd_well' ? TILE.w * 0.34
-          : key === 'd_woodpile' ? TILE.w * 0.40
-          : TILE.w * (0.22 + propRnd() * 0.08)
-        const image = stamp(key, x, y, width, y - 0.2, 0.92, 0.88 + propRnd() * 0.10)
+        const key = u < 0.5 ? 'd_terracotta-pots' : 'd_stone-bench'
+        const width = TILE.w * (u < 0.5 ? 0.4 : 0.6)
+        const image = stamp(key, x, y, width, y - 0.2, 0.92, 1)
         if (image) roadTextures.push(image)
       }
     }

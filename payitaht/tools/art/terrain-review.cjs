@@ -5,9 +5,9 @@ const { qaOrigin, START_BUTTON } = require('../lib/qa.cjs')
 const { reviewWebp } = require('../lib/review-webp.cjs')
 async function main() {
  const phase = process.argv[2] || 'after'; if (!['before','after'].includes(phase)) throw new Error('before or after required');
- const out = path.resolve(`visual-review/G4/${phase}`); await fs.mkdir(out,{recursive:true})
+ const out = path.resolve(`${process.env.G4_REVIEW_ROOT || 'visual-review/G4'}/${phase}`); await fs.mkdir(out,{recursive:true})
  const groups = ['terrain','decor'], cells = []
- for (const group of groups) for (const name of (await fs.readdir(`public/images/game/${group}`)).filter(n=>n.endsWith('.webp'))) cells.push(`<figure><img src="/images/game/${group}/${name}"><figcaption>${group}/${name}</figcaption></figure>`)
+ for (const group of groups) for (const name of (await fs.readdir(`public/images/game/${group}`)).filter(n=>n.endsWith('.webp')&&!n.endsWith('-sm.webp'))) cells.push(`<figure><img src="/images/game/${group}/${name}"><figcaption>${group}/${name}</figcaption></figure>`)
  const html = `<meta charset="utf-8"><style>body{margin:0;padding:16px;background:#e2dac2;color:#2a1a0e;font:11px system-ui}main{display:grid;grid-template-columns:repeat(7,1fr);gap:8px}figure{margin:0;height:142px;background:#b8c195;display:grid;place-items:center}img{max-width:140px;max-height:116px}figcaption{font-size:10px}</style><h1>G4 · 11 zemin / tepe + 31 dekor</h1><main>${cells.join('')}</main>`
  const server=http.createServer(async(req,res)=>{try{if(req.url==='/'){res.setHeader('Content-Type','text/html');res.end(html);return}const p=path.resolve('public','.'+new URL(req.url,'http://localhost').pathname);if(!p.startsWith(path.resolve('public')+path.sep))throw new Error('Path');res.setHeader('Content-Type','image/webp');res.end(await fs.readFile(p))}catch{res.writeHead(404);res.end()}})
  await new Promise(r=>server.listen(0,'127.0.0.1',r)); const browser=await chromium.launch({headless:true,args:['--no-sandbox']})

@@ -1,0 +1,608 @@
+{
+  "normal": [
+    {
+      "bootMs": 3190,
+      "total": 289,
+      "visible": 151,
+      "lite": false,
+      "zoom": 0.20568737099288095,
+      "trees": [
+        {
+          "key": "d_cypress",
+          "height": 44.99999999999999,
+          "width": 18.281249999999996
+        },
+        {
+          "key": "d_cypress-b",
+          "height": 45.00000000000001,
+          "width": 25.3125
+        },
+        {
+          "key": "d_cypress",
+          "height": 44.99999999999999,
+          "width": 18.281249999999996
+        },
+        {
+          "key": "d_cypress-b",
+          "height": 45.00000000000001,
+          "width": 25.3125
+        },
+        {
+          "key": "d_fig-tree",
+          "height": 45,
+          "width": 54.339622641509436
+        },
+        {
+          "key": "d_orange-tree",
+          "height": 44.99999999999999,
+          "width": 48.81355932203389
+        },
+        {
+          "key": "d_pomegranate-tree",
+          "height": 44.99999999999999,
+          "width": 47.73480662983425
+        },
+        {
+          "key": "d_plane-tree",
+          "height": 45,
+          "width": 77.14285714285714
+        },
+        {
+          "key": "d_olive-tree",
+          "height": 45,
+          "width": 53.33333333333333
+        },
+        {
+          "key": "d_fig-tree",
+          "height": 45,
+          "width": 54.339622641509436
+        },
+        {
+          "key": "d_orange-tree",
+          "height": 44.99999999999999,
+          "width": 48.81355932203389
+        },
+        {
+          "key": "d_olive-tree",
+          "height": 45,
+          "width": 53.33333333333333
+        },
+        {
+          "key": "d_pine",
+          "height": 45,
+          "width": 64.4776119402985
+        },
+        {
+          "key": "d_pine",
+          "height": 45,
+          "width": 64.4776119402985
+        },
+        {
+          "key": "d_pomegranate-tree",
+          "height": 44.99999999999999,
+          "width": 47.73480662983425
+        },
+        {
+          "key": "d_plane-tree",
+          "height": 45,
+          "width": 77.14285714285714
+        },
+        {
+          "key": "d_plane-tree",
+          "height": 45,
+          "width": 77.14285714285714
+        },
+        {
+          "key": "d_cypress",
+          "height": 44.99999999999999,
+          "width": 18.281249999999996
+        },
+        {
+          "key": "d_cypress-b",
+          "height": 45.00000000000001,
+          "width": 25.3125
+        },
+        {
+          "key": "d_olive-tree",
+          "height": 45,
+          "width": 53.33333333333333
+        },
+        {
+          "key": "d_pine",
+          "height": 45,
+          "width": 64.4776119402985
+        },
+        {
+          "key": "d_fig-tree",
+          "height": 45,
+          "width": 54.339622641509436
+        },
+        {
+          "key": "d_orange-tree",
+          "height": 44.99999999999999,
+          "width": 48.81355932203389
+        },
+        {
+          "key": "d_pomegranate-tree",
+          "height": 44.99999999999999,
+          "width": 47.73480662983425
+        }
+      ],
+      "smallAssets": 31
+    },
+    {
+      "bootMs": 2320,
+      "total": 289,
+      "visible": 151,
+      "lite": false,
+      "zoom": 0.20568737099288095,
+      "trees": [
+        {
+          "key": "d_cypress",
+          "height": 44.99999999999999,
+          "width": 18.281249999999996
+        },
+        {
+          "key": "d_cypress-b",
+          "height": 45.00000000000001,
+          "width": 25.3125
+        },
+        {
+          "key": "d_cypress",
+          "height": 44.99999999999999,
+          "width": 18.281249999999996
+        },
+        {
+          "key": "d_cypress-b",
+          "height": 45.00000000000001,
+          "width": 25.3125
+        },
+        {
+          "key": "d_fig-tree",
+          "height": 45,
+          "width": 54.339622641509436
+        },
+        {
+          "key": "d_orange-tree",
+          "height": 44.99999999999999,
+          "width": 48.81355932203389
+        },
+        {
+          "key": "d_pomegranate-tree",
+          "height": 44.99999999999999,
+          "width": 47.73480662983425
+        },
+        {
+          "key": "d_plane-tree",
+          "height": 45,
+          "width": 77.14285714285714
+        },
+        {
+          "key": "d_olive-tree",
+          "height": 45,
+          "width": 53.33333333333333
+        },
+        {
+          "key": "d_fig-tree",
+          "height": 45,
+          "width": 54.339622641509436
+        },
+        {
+          "key": "d_orange-tree",
+          "height": 44.99999999999999,
+          "width": 48.81355932203389
+        },
+        {
+          "key": "d_olive-tree",
+          "height": 45,
+          "width": 53.33333333333333
+        },
+        {
+          "key": "d_pine",
+          "height": 45,
+          "width": 64.4776119402985
+        },
+        {
+          "key": "d_pine",
+          "height": 45,
+          "width": 64.4776119402985
+        },
+        {
+          "key": "d_pomegranate-tree",
+          "height": 44.99999999999999,
+          "width": 47.73480662983425
+        },
+        {
+          "key": "d_plane-tree",
+          "height": 45,
+          "width": 77.14285714285714
+        },
+        {
+          "key": "d_plane-tree",
+          "height": 45,
+          "width": 77.14285714285714
+        },
+        {
+          "key": "d_cypress",
+          "height": 44.99999999999999,
+          "width": 18.281249999999996
+        },
+        {
+          "key": "d_cypress-b",
+          "height": 45.00000000000001,
+          "width": 25.3125
+        },
+        {
+          "key": "d_olive-tree",
+          "height": 45,
+          "width": 53.33333333333333
+        },
+        {
+          "key": "d_pine",
+          "height": 45,
+          "width": 64.4776119402985
+        },
+        {
+          "key": "d_fig-tree",
+          "height": 45,
+          "width": 54.339622641509436
+        },
+        {
+          "key": "d_orange-tree",
+          "height": 44.99999999999999,
+          "width": 48.81355932203389
+        },
+        {
+          "key": "d_pomegranate-tree",
+          "height": 44.99999999999999,
+          "width": 47.73480662983425
+        }
+      ],
+      "smallAssets": 31
+    },
+    {
+      "bootMs": 2325,
+      "total": 289,
+      "visible": 151,
+      "lite": false,
+      "zoom": 0.20568737099288095,
+      "trees": [
+        {
+          "key": "d_cypress",
+          "height": 44.99999999999999,
+          "width": 18.281249999999996
+        },
+        {
+          "key": "d_cypress-b",
+          "height": 45.00000000000001,
+          "width": 25.3125
+        },
+        {
+          "key": "d_cypress",
+          "height": 44.99999999999999,
+          "width": 18.281249999999996
+        },
+        {
+          "key": "d_cypress-b",
+          "height": 45.00000000000001,
+          "width": 25.3125
+        },
+        {
+          "key": "d_fig-tree",
+          "height": 45,
+          "width": 54.339622641509436
+        },
+        {
+          "key": "d_orange-tree",
+          "height": 44.99999999999999,
+          "width": 48.81355932203389
+        },
+        {
+          "key": "d_pomegranate-tree",
+          "height": 44.99999999999999,
+          "width": 47.73480662983425
+        },
+        {
+          "key": "d_plane-tree",
+          "height": 45,
+          "width": 77.14285714285714
+        },
+        {
+          "key": "d_olive-tree",
+          "height": 45,
+          "width": 53.33333333333333
+        },
+        {
+          "key": "d_fig-tree",
+          "height": 45,
+          "width": 54.339622641509436
+        },
+        {
+          "key": "d_orange-tree",
+          "height": 44.99999999999999,
+          "width": 48.81355932203389
+        },
+        {
+          "key": "d_olive-tree",
+          "height": 45,
+          "width": 53.33333333333333
+        },
+        {
+          "key": "d_pine",
+          "height": 45,
+          "width": 64.4776119402985
+        },
+        {
+          "key": "d_pine",
+          "height": 45,
+          "width": 64.4776119402985
+        },
+        {
+          "key": "d_pomegranate-tree",
+          "height": 44.99999999999999,
+          "width": 47.73480662983425
+        },
+        {
+          "key": "d_plane-tree",
+          "height": 45,
+          "width": 77.14285714285714
+        },
+        {
+          "key": "d_plane-tree",
+          "height": 45,
+          "width": 77.14285714285714
+        },
+        {
+          "key": "d_cypress",
+          "height": 44.99999999999999,
+          "width": 18.281249999999996
+        },
+        {
+          "key": "d_cypress-b",
+          "height": 45.00000000000001,
+          "width": 25.3125
+        },
+        {
+          "key": "d_olive-tree",
+          "height": 45,
+          "width": 53.33333333333333
+        },
+        {
+          "key": "d_pine",
+          "height": 45,
+          "width": 64.4776119402985
+        },
+        {
+          "key": "d_fig-tree",
+          "height": 45,
+          "width": 54.339622641509436
+        },
+        {
+          "key": "d_orange-tree",
+          "height": 44.99999999999999,
+          "width": 48.81355932203389
+        },
+        {
+          "key": "d_pomegranate-tree",
+          "height": 44.99999999999999,
+          "width": 47.73480662983425
+        }
+      ],
+      "smallAssets": 31
+    }
+  ],
+  "lite": [
+    {
+      "bootMs": 2315,
+      "total": 289,
+      "visible": 78,
+      "lite": true,
+      "zoom": 0.20568737099288095,
+      "trees": [
+        {
+          "key": "d_cypress-b",
+          "height": 45.00000000000001,
+          "width": 25.3125
+        },
+        {
+          "key": "d_cypress",
+          "height": 44.99999999999999,
+          "width": 18.281249999999996
+        },
+        {
+          "key": "d_orange-tree",
+          "height": 44.99999999999999,
+          "width": 48.81355932203389
+        },
+        {
+          "key": "d_olive-tree",
+          "height": 45,
+          "width": 53.33333333333333
+        },
+        {
+          "key": "d_fig-tree",
+          "height": 45,
+          "width": 54.339622641509436
+        },
+        {
+          "key": "d_olive-tree",
+          "height": 45,
+          "width": 53.33333333333333
+        },
+        {
+          "key": "d_pomegranate-tree",
+          "height": 44.99999999999999,
+          "width": 47.73480662983425
+        },
+        {
+          "key": "d_plane-tree",
+          "height": 45,
+          "width": 77.14285714285714
+        },
+        {
+          "key": "d_cypress",
+          "height": 44.99999999999999,
+          "width": 18.281249999999996
+        },
+        {
+          "key": "d_pine",
+          "height": 45,
+          "width": 64.4776119402985
+        },
+        {
+          "key": "d_fig-tree",
+          "height": 45,
+          "width": 54.339622641509436
+        },
+        {
+          "key": "d_pomegranate-tree",
+          "height": 44.99999999999999,
+          "width": 47.73480662983425
+        }
+      ],
+      "smallAssets": 31
+    },
+    {
+      "bootMs": 2384,
+      "total": 289,
+      "visible": 78,
+      "lite": true,
+      "zoom": 0.20568737099288095,
+      "trees": [
+        {
+          "key": "d_cypress-b",
+          "height": 45.00000000000001,
+          "width": 25.3125
+        },
+        {
+          "key": "d_cypress",
+          "height": 44.99999999999999,
+          "width": 18.281249999999996
+        },
+        {
+          "key": "d_orange-tree",
+          "height": 44.99999999999999,
+          "width": 48.81355932203389
+        },
+        {
+          "key": "d_olive-tree",
+          "height": 45,
+          "width": 53.33333333333333
+        },
+        {
+          "key": "d_fig-tree",
+          "height": 45,
+          "width": 54.339622641509436
+        },
+        {
+          "key": "d_olive-tree",
+          "height": 45,
+          "width": 53.33333333333333
+        },
+        {
+          "key": "d_pomegranate-tree",
+          "height": 44.99999999999999,
+          "width": 47.73480662983425
+        },
+        {
+          "key": "d_plane-tree",
+          "height": 45,
+          "width": 77.14285714285714
+        },
+        {
+          "key": "d_cypress",
+          "height": 44.99999999999999,
+          "width": 18.281249999999996
+        },
+        {
+          "key": "d_pine",
+          "height": 45,
+          "width": 64.4776119402985
+        },
+        {
+          "key": "d_fig-tree",
+          "height": 45,
+          "width": 54.339622641509436
+        },
+        {
+          "key": "d_pomegranate-tree",
+          "height": 44.99999999999999,
+          "width": 47.73480662983425
+        }
+      ],
+      "smallAssets": 31
+    },
+    {
+      "bootMs": 2259,
+      "total": 289,
+      "visible": 78,
+      "lite": true,
+      "zoom": 0.20568737099288095,
+      "trees": [
+        {
+          "key": "d_cypress-b",
+          "height": 45.00000000000001,
+          "width": 25.3125
+        },
+        {
+          "key": "d_cypress",
+          "height": 44.99999999999999,
+          "width": 18.281249999999996
+        },
+        {
+          "key": "d_orange-tree",
+          "height": 44.99999999999999,
+          "width": 48.81355932203389
+        },
+        {
+          "key": "d_olive-tree",
+          "height": 45,
+          "width": 53.33333333333333
+        },
+        {
+          "key": "d_fig-tree",
+          "height": 45,
+          "width": 54.339622641509436
+        },
+        {
+          "key": "d_olive-tree",
+          "height": 45,
+          "width": 53.33333333333333
+        },
+        {
+          "key": "d_pomegranate-tree",
+          "height": 44.99999999999999,
+          "width": 47.73480662983425
+        },
+        {
+          "key": "d_plane-tree",
+          "height": 45,
+          "width": 77.14285714285714
+        },
+        {
+          "key": "d_cypress",
+          "height": 44.99999999999999,
+          "width": 18.281249999999996
+        },
+        {
+          "key": "d_pine",
+          "height": 45,
+          "width": 64.4776119402985
+        },
+        {
+          "key": "d_fig-tree",
+          "height": 45,
+          "width": 54.339622641509436
+        },
+        {
+          "key": "d_pomegranate-tree",
+          "height": 44.99999999999999,
+          "width": 47.73480662983425
+        }
+      ],
+      "smallAssets": 31
+    }
+  ],
+  "errors": [],
+  "missing": []
+}

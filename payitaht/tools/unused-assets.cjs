@@ -53,6 +53,9 @@ function isUsed(rel, code, names) {
   const stem = base.replace(ASSET_EXT, '')
   if (code.includes(stem)) return true
   const dir = path.dirname(rel).split(path.sep).pop()
+  // Dekor telefon kopyası: preloadTerrain kimliği + isteğe bağlı -sm.
+  const decorSmall = stem.match(/^(.+)-sm$/)
+  if (dir === 'decor' && decorSmall && code.includes('decor/${d}') && names.has(decorSmall[1])) return true
   // Boyalı bina: `${id}-painted-${stage}` (+ telefon boyu -sm).
   const painted = stem.match(/^(.+?)-painted-\d(?:-sm)?$/)
   if (painted && code.includes('-painted-${')) return names.has(painted[1].replace(/-duz$/, ''))

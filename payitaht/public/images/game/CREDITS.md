@@ -185,3 +185,5 @@ Her dosya OpenAI ImageGen / Codex görsel üretimi, 2026-10-03. G0 stil sayfası
 | `decor/coffee-garden.webp` | OpenAI ImageGen, 2026-10-03 |
 
 G4 kuru otun ilk denemesi (`exec-c1d90ed1-016b-442e-a5f1-526428d6039e.png`, OpenAI ImageGen, 2026-10-03) bina çıktığı için reddedildi; oyuna/depoya alınmadı. Tarif kaydı `tools/art/prompts/g4.md` sonunda.
+
+G4 revizyon: yukarıdaki 31 dekorun her biri için `decor/<ad>-sm.webp` türevi `tools/art/half-size.py` ile üretildi (2026-10-03). Kaynak/üretim hakkı aynı; ağaçlar 192 px, diğerleri 128 px uzun kenar, Lanczos/WebP kalite 82. Ana çim onaylı dokuyu korur; yeşil ton render katmanında uygulanır. Yeni AI çizimi üretilmedi.

@@ -19,6 +19,7 @@ import { FlagField, SmokeField, type FlagLook } from './city-life'
 import { SkyLayer } from './city-sky'
 import { TILE, CITY_SLOTS, COAST_SLOTS, HALL_SLOT_ID, ROAD_EXITS, WALL_GATES, PLAZA, slotById } from '@/lib/game/city-map'
 import { LIVE_SLOTS, liveSlotByIndex, type LiveSlot } from '@/lib/game/city-map/live-adapter'
+import { liteMode, onLiteChange } from '@/lib/motion'
 import { buildCityTerrain, preloadTerrain, cityWorldRect, cityContentRect, mineSite } from '@/lib/game/city-map/terrain-builder'
 import { FOOTPRINT_DIAMOND_W, ART_DIAMOND_PX, visualProfile, type BuildingVisualProfile } from '@/lib/game/city-map/building-assets'
 import { visualSignature } from '@/lib/game/city-render'
@@ -133,6 +134,13 @@ export class CityScene extends Phaser.Scene {
     this.flagField.setLook(this.sceneBanner())
     this.smoke = new SmokeField(this)
     this.terrainRoads = buildCityTerrain(this, this.state.buildings.divan, this.openSlotIds(this.state)) // dünya + büyüyen sokak ağı
+    const offDecorLite = onLiteChange(() => {
+      for (const child of this.children.list) if (child instanceof Phaser.GameObjects.Image && child.texture.key.startsWith('d_')) child.setVisible(!liteMode() || child.getData('decorOrdinal') % 2 === 1)
+      this.applyDevelopment()
+      this.terrainRoads?.syncAmbientDecor(this.openSlotIds(this.state))
+      this.markReady()
+    })
+    this.events.once('shutdown', offDecorLite)
     this.terrainRoads.setBlockaded(!!this.siege.blockade)
     for (const f of this.terrainRoads.flags) this.flagField.add(f, 'static', f.minLevel)
     this.applyDevelopment()
@@ -209,7 +217,7 @@ export class CityScene extends Phaser.Scene {
     const bandH = this.scale.height * (1 - CityScene.HUD_TOP - CityScene.HUD_BOTTOM)
     // Dikey mobil kompozisyon: şehir ekranda baskın, ama çatı ve alt kıyı
     // ipuçları görünür. Kenarlar bilinçli olarak hafifçe ekran dışına taşabilir.
-    return Math.min(this.scale.width / (t.w * 0.78), bandH / (t.h * 0.80)) * 1.08
+    return Math.min(this.scale.width / (t.w * 0.78), bandH / (t.h * 0.80))
   }
   /** Bir dünya noktasını açık bandın ortasına getirir (HUD'a göre kaydırılmış). */
   centerInBand(x: number, y: number) {
@@ -562,7 +570,13 @@ export class CityScene extends Phaser.Scene {
   markReady() {
     if (!this.built || this.load.isLoading() || this.loadingBuildingTextures.size) return
     this.game.events.once(Phaser.Core.Events.POST_RENDER, () => {
-      if (typeof document !== 'undefined') document.documentElement.dataset.cityReady = String(++this.readyCount)
+      if (typeof document !== 'undefined') {
+        document.documentElement.dataset.cityReady = String(++this.readyCount)
+        if (localStorage.getItem('payitaht-qa') === '1') {
+          const decor = this.children.list.filter((c): c is Phaser.GameObjects.Image => c instanceof Phaser.GameObjects.Image && c.texture.key.startsWith('d_'))
+          document.documentElement.dataset.decorReview = JSON.stringify({ total: decor.length, visible: decor.filter(c => c.visible).length, lite: liteMode(), zoom: this.cameras.main.zoom, trees: decor.filter(c => c.visible && /tree|cypress|pine|poplar/.test(c.texture.key)).map(c => ({ key: c.texture.key, height: c.displayHeight * this.cameras.main.zoom, width: c.displayWidth * this.cameras.main.zoom })) })
+        }
+      }
     })
   }
   drawWalls(level: number) { return drawWalls(this, level) }
