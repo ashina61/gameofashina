@@ -45,11 +45,10 @@ export function GuideSpot({ game }: { game: Game }) {
   const gameRef = useRef(game)
   gameRef.current = game
   useEffect(() => {
-    let frame = 0, last = 0
-    const loop = (t: number) => {
-      frame = requestAnimationFrame(loop)
-      if (t - last < 250) { if (current.current) setBox(prev => same(prev, current.current!.getBoundingClientRect())); return }
-      last = t
+    // Kare başına değil, saniyede dört kez bakar: her karede düzen okumak
+    // zayıf telefonda ana iş parçacığını tıkar. Kaydırmada da hemen yenilenir.
+    const tick = () => {
+      if (document.visibilityState === 'hidden') return
       const next = pickGuideTarget(gameRef.current)
       if (next !== current.current) {
         current.current?.classList.remove('guide-glow')
@@ -58,8 +57,15 @@ export function GuideSpot({ game }: { game: Game }) {
       }
       setBox(prev => next ? same(prev, next.getBoundingClientRect()) : null)
     }
-    frame = requestAnimationFrame(loop)
-    return () => { cancelAnimationFrame(frame); current.current?.classList.remove('guide-glow'); current.current = null }
+    tick()
+    const id = window.setInterval(tick, 250)
+    const onScroll = () => { if (current.current) setBox(prev => same(prev, current.current!.getBoundingClientRect())) }
+    window.addEventListener('scroll', onScroll, { capture: true, passive: true })
+    return () => {
+      window.clearInterval(id)
+      window.removeEventListener('scroll', onScroll, { capture: true })
+      current.current?.classList.remove('guide-glow'); current.current = null
+    }
   }, [])
   if (!box) return null
   const above = box.top > 70
