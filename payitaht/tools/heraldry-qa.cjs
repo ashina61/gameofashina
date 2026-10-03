@@ -18,14 +18,14 @@ async function checkHeraldry(page, label, out) {
     if (new Set(paths).size !== 10) throw new Error(`${label}: banner silhouettes are duplicated`)
     await choice('Sancak biçimi', 'Yuvarlak uç').click()
     await choice('Arma', 'Bozkurt').click()
-    await choice('Renk', '#49336f').click()
+    await choice('Renk', 'Mor').click()
     await page.screenshot({ path: path.join(out, `heraldry-profile-${label}.png`), animations: 'disabled' })
     await page.getByRole('button', { name: 'Kaydet', exact: true }).click()
     await page.waitForFunction(key => JSON.parse(localStorage.getItem(key)).profile?.banner === 'yuvarlak', key)
     await page.reload()
     await page.getByRole('button', { name: /Hikâyeye başla|Devam et/ }).click()
     await openProfile()
-    for (const [group, name] of [['Sancak biçimi', 'Yuvarlak uç'], ['Arma', 'Bozkurt'], ['Renk', '#49336f']]) {
+    for (const [group, name] of [['Sancak biçimi', 'Yuvarlak uç'], ['Arma', 'Bozkurt'], ['Renk', 'Mor']]) {
       if (await choice(group, name).getAttribute('aria-checked') !== 'true') throw new Error(`${label}: choice did not survive reload`)
     }
     // An existing player-led alliance uses the same saved appearance.
@@ -52,7 +52,7 @@ async function checkHeraldry(page, label, out) {
     })
     await choice('Sancak biçimi', 'Üç dil').click()
     await choice('Arma', 'Çınar').click()
-    await choice('Renk', '#796529').click()
+    await choice('Renk', 'Zeytin').click()
     await page.screenshot({ path: path.join(out, `heraldry-alliance-${label}.png`), animations: 'disabled' })
     await page.getByRole('button', { name: 'Sancağı kaydet' }).click()
     await page.waitForFunction(key => { const p = JSON.parse(localStorage.getItem(key)).profile; return p.banner === 'ucdil' && p.crest === 'cinar' && p.color === '#796529' }, key)

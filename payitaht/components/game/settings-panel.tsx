@@ -15,6 +15,7 @@ import { PaceSetting } from './ai-panels'
 import { DayNightSetting, LiteModeSetting, MotionSetting, NoticeSettings, SoundSettings } from './sound-settings'
 import { notificationsSupported } from '@/lib/notify'
 import type { Run } from './world-panels'
+import { t } from '@/lib/i18n/tr'
 
 export type SettingsProps = {
   empire: Empire | undefined
@@ -42,7 +43,7 @@ export function SettingsPanel({ empire, run, warning, native, pwa, notify, onBac
     <section><h3><Music /> Ses ve titreşim</h3><SoundSettings /></section>
     <section><h3><Moon /> Görünüm</h3><DayNightSetting /><MotionSetting /><LiteModeSetting /></section>
     {notificationsSupported() ? <section><h3><Bell /> Bildirimler</h3><p>Oyun kapalıyken telefonun seni çağırır. Her türü ayrı açıp kapatabilirsin; oyuna dönünce bekleyen hatırlatmalar silinir.</p><NoticeSettings /></section> : <section><h3><Bell /> Bildirimler</h3><p>{notify.supported ? 'Baskın uyarıları, savaş sonuçları ve biten inşaatlar için bildirim. Oyun açıkken (arka planda da) çalışır; oyun tamamen kapalıyken bildirim için sunucu gerekir.' : 'Bu tarayıcı bildirimleri desteklemiyor.'}</p>{notify.supported && <GameButton variant={notify.on ? 'outline' : 'default'} onClick={() => void notify.toggle()}><Bell data-icon="inline-start" />{notify.on ? 'Bildirimleri kapat' : 'Bildirimleri aç'}</GameButton>}{notify.denied && <p className="fine-print">Bildirim izni tarayıcıda kapalı; tarayıcı ayarlarından izin verebilirsin.</p>}</section>}
-    <section><h3>Yeni bir hikâye</h3><p>Şehrin, kaynakların ve araştırmaların sıfırlanır. Bu işlem geri alınamaz.</p>{confirmReset ? <div className="flex gap-3"><GameButton variant="destructive" onClick={() => { onReset(); setConfirmReset(false) }}>Evet, şehrimi sıfırla</GameButton><GameButton variant="outline" onClick={() => setConfirmReset(false)}>Vazgeç</GameButton>
+    <section><h3>Yeni bir hikâye</h3><p>Şehrin, kaynakların ve araştırmaların sıfırlanır. Bu işlem geri alınamaz.</p>{confirmReset ? <div className="flex gap-3"><GameButton variant="destructive" onClick={() => { onReset(); setConfirmReset(false) }}>Evet, şehrimi sıfırla</GameButton><GameButton variant="outline" onClick={() => setConfirmReset(false)}>{t.action.cancel}</GameButton>
   </div> : <GameButton variant="outline" onClick={() => setConfirmReset(true)}><RotateCcw data-icon="inline-start" /> Yeni oyun başlat</GameButton>}</section>{onTitle && 
     <section><h3><Home /> Giriş ekranı</h3><p>Oyun kaydedildi; giriş ekranına dönüp devam edebilir ya da yeni bir hikâye başlatabilirsin.</p><GameButton variant="outline" onClick={onTitle}><Home data-icon="inline-start" /> Giriş ekranına dön</GameButton></section>}
     <section><h3><Info /> Hakkında</h3><p>Payitaht Adaları, Osmanlı esintili tek oyunculu bir ada stratejisidir. Çevrimdışı çalışır: hesap açılmaz, kişisel veri toplanmaz, reklam ve uygulama içi satın alma yoktur. Kayıt yalnızca bu cihazda durur.</p><p className="fine-print">Dünyadaki diğer hükümdarlar yapay rakiptir; gerçek oyuncu yoktur. Müzik ve sesler oyunun içinde, cihazda üretilir.</p></section>

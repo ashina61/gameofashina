@@ -30,6 +30,7 @@ import { BattleSummary, BattleView } from './battle-view'
 import { CityEmblem } from './city-emblem'
 import { MapViewport } from './map-viewport'
 import { RETREAT_MORALE, fieldSize } from '@/lib/game/battle'
+import { t } from '@/lib/i18n/tr'
 
 const clock = (ms: number) => {
   const s = Math.max(0, Math.ceil(ms / 1000))
@@ -292,7 +293,7 @@ export function ReportsPanel({ empire, run }: { empire: Empire; run?: Run }) {
       {confirmClear
         ? <span className="report-confirm"><span>{loose} rapor silinsin mi?</span>
           <GameButton size="sm" variant="destructive" onClick={() => { setConfirmClear(false); run((e, t) => clearReports(e, city.id, t), 'Raporlar temizlendi.') }}>Evet, sil</GameButton>
-          <GameButton size="sm" variant="outline" onClick={() => setConfirmClear(false)}>Vazgeç</GameButton></span>
+          <GameButton size="sm" variant="outline" onClick={() => setConfirmClear(false)}>{t.action.cancel}</GameButton></span>
         : <GameButton size="sm" variant="outline" onClick={() => setConfirmClear(true)}><Trash2 data-icon="inline-start" />Arşivlenmemişleri sil</GameButton>}
     </div>}
     {reports.map(r => <article key={r.id} className={r.kept ? 'report-card is-kept' : 'report-card'}>

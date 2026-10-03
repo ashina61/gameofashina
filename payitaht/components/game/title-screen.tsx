@@ -13,12 +13,13 @@ import { BookOpen, ChevronLeft, Play, ScrollText, Sparkles, TriangleAlert } from
 import { RulerCrest, ChangelogPanel } from './profile-panel'
 import { peekSave, startNewGame } from '@/hooks/use-game'
 import { capitalCity, initialEmpire, renameCity, type Empire } from '@/lib/game/empire'
-import { CREST_COLORS, CREST_NAMES, CRESTS, profileOf, rulerTitle, setProfile, type CrestId } from '@/lib/game/profile'
+import { COLOR_NAMES, CREST_COLORS, CREST_NAMES, CRESTS, profileOf, rulerTitle, setProfile, type CrestId } from '@/lib/game/profile'
 import { playerScore } from '@/lib/game/rivals'
 import { VERSION } from '@/lib/game/changelog'
 import { asset } from '@/lib/asset'
 import { BannerContext, BuildingArt } from './building-art'
 import type { BannerLook } from '@/lib/game/banner'
+import { t } from '@/lib/i18n/tr'
 
 type Mode = 'menu' | 'new' | 'howto' | 'notes'
 
@@ -92,12 +93,12 @@ export function TitleScreen({ onStart }: { onStart: () => void }) {
     </fieldset>
     <fieldset className="title-colors">
       <legend>Renk</legend>
-      {CREST_COLORS.map(c => <button key={c} type="button" aria-pressed={color === c} aria-label={`Renk ${c}`} style={{ background: c }} onClick={() => setColor(c)} />)}
+      {CREST_COLORS.map(c => <button key={c} type="button" aria-pressed={color === c} aria-label={`Renk: ${COLOR_NAMES[c]}`} title={COLOR_NAMES[c]} style={{ background: c }} onClick={() => setColor(c)}>{color === c && <span className="swatch-check" aria-hidden="true">✓</span>}</button>)}
     </fieldset>
     {error && <p role="alert" className="title-error">{error}</p>}
     {confirmWipe && <p role="alert" className="title-warn"><TriangleAlert /> Bu cihazdaki eski şehrin silinecek. Emin misin?</p>}
     <button type="submit" className="title-btn is-primary"><Sparkles />{confirmWipe ? 'Evet, eskisini sil ve başla' : 'Hikâyeye başla'}</button>
-    {hasSave && <button type="button" className="title-btn" onClick={() => { setMode('menu'); setConfirmWipe(false) }}><ChevronLeft />Vazgeç</button>}
+    {hasSave && <button type="button" className="title-btn" onClick={() => { setMode('menu'); setConfirmWipe(false) }}><ChevronLeft />{t.action.cancel}</button>}
   </form>
 
   const look: BannerLook = profile ? { color: profile.color, shape: profile.banner ?? 'kirlangic', crest: profile.crest } : { color, shape: 'kirlangic', crest }
@@ -122,13 +123,13 @@ export function TitleScreen({ onStart }: { onStart: () => void }) {
       : mode === 'howto' ? <div className="title-howto">
         <h2>Nasıl oynanır?</h2>
         <ol>{HOWTO.map(h => <li key={h.title}><strong>{h.title}</strong><span>{h.text}</span></li>)}</ol>
-        <button type="button" className="title-btn" onClick={() => setMode('menu')}><ChevronLeft />Geri</button>
+        <button type="button" className="title-btn" onClick={() => setMode('menu')}><ChevronLeft />{t.action.back}</button>
       </div>
 
       : mode === 'notes' ? <div className="title-notes">
         <h2>Sürüm notları</h2>
         <div className="title-notes-scroll"><ChangelogPanel /></div>
-        <button type="button" className="title-btn" onClick={() => setMode('menu')}><ChevronLeft />Geri</button>
+        <button type="button" className="title-btn" onClick={() => setMode('menu')}><ChevronLeft />{t.action.back}</button>
       </div>
 
       : !hasSave || mode === 'new' ? <>

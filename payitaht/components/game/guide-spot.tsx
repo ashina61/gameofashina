@@ -8,11 +8,12 @@
  */
 import { useEffect, useRef, useState } from 'react'
 import { GUIDED_STEPS, OBJECTIVES, objectiveDone, type Game } from '@/lib/game/engine'
+import { t } from '@/lib/i18n/tr'
 
 const TARGETS: Record<string, string[]> = {
   'first-upgrade': ['.bp-of-divan .bp-upgrade-button'],
   'first-academy': ['.bp-of-medrese .bp-upgrade-button'],
-  'first-worker': ['.bp-of-medrese .workforce-confirm button', '.bp-of-medrese [aria-label="Bir artır"]'],
+  'first-worker': ['.bp-of-medrese .workforce-confirm button', `.bp-of-medrese [aria-label="${t.action.increase}"]`],
   'first-research': ['[data-guide="research"]'],
   barracks: ['.bp-of-kisla .bp-upgrade-button'],
   walls: ['.bp-of-surlar .bp-upgrade-button'],

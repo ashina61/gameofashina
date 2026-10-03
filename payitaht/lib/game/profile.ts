@@ -14,6 +14,11 @@ export const CREST_NAMES: Record<CrestId, string> = {
   hilal: 'Hilal ve yıldız', lale: 'Lale', kilic: 'Çifte kılıç', gemi: 'Kadırga', kule: 'Burç', kitap: 'Kitap', gunes: 'Güneş', kartal: 'Kartal', kurt: 'Bozkurt', okyay: 'Ok ve yay', cinar: 'Çınar', cark: 'Sekiz köşeli yıldız',
 }
 export const CREST_COLORS = ['#b3261e', '#2f6b4c', '#24406e', '#6a2a3a', '#8a5a22', '#2f7a92', '#49336f', '#9b642e', '#1c4441', '#a54d35', '#34404d', '#796529'] as const
+/** Renklerin adı (V2 Faz 8.2/8.3): ekran okuyucu ve renk körü oyuncu için. */
+export const COLOR_NAMES: Record<(typeof CREST_COLORS)[number], string> = {
+  '#b3261e': 'Al', '#2f6b4c': 'Yeşil', '#24406e': 'Lacivert', '#6a2a3a': 'Bordo', '#8a5a22': 'Kahve', '#2f7a92': 'Turkuaz',
+  '#49336f': 'Mor', '#9b642e': 'Tarçın', '#1c4441': 'Çam yeşili', '#a54d35': 'Kiremit', '#34404d': 'Füme', '#796529': 'Zeytin',
+}
 /** Sancak biçimi (profilin başında dalgalanır). */
 export const BANNERS = ['kirlangic', 'cifte', 'ucgen', 'duz', 'sivri', 'oyuk', 'yuvarlak', 'testere', 'ucdil', 'dar'] as const
 export type BannerId = typeof BANNERS[number]

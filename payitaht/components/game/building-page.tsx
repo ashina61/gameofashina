@@ -43,6 +43,7 @@ import { DivanOverview } from './divan-overview'
 import { buyMerchantShip } from '@/lib/game/empire'
 import { idleMerchants, merchantShipPrice, shipCargo, totalMerchants } from '@/lib/game/expeditions'
 import { WorkforceSlider, type Figure } from './workforce'
+import { t } from '@/lib/i18n/tr'
 
 const num = (n: number) => Math.floor(n).toLocaleString('tr-TR')
 const RES_ICON = resourceIcons
@@ -336,16 +337,16 @@ export function IkaPage({ title, subtitle, badge, hero, onClose, children, label
     <header className="bp-bar">
       <div className="bp-title"><h1>{title}</h1>{subtitle && <small>{subtitle}</small>}</div>
       {badge}
-      <button type="button" className="bp-back" onClick={onClose} aria-label="Kapat"><X /></button>
+      <button type="button" className="bp-back" onClick={onClose} aria-label={t.action.close}><X /></button>
     </header>
     <div className="bp-scroll">{children}</div>
   </BottomSheet>
   return <div className={className ? `bp ${className}` : 'bp'} role="dialog" aria-modal="true" aria-label={label ?? title}>
     <header className="bp-bar">
-      <button type="button" className="bp-back" onClick={onClose} aria-label="Geri"><ArrowLeft /></button>
+      <button type="button" className="bp-back" onClick={onClose} aria-label={t.action.back}><ArrowLeft /></button>
       <div className="bp-title"><h1>{title}</h1>{subtitle && <small>{subtitle}</small>}</div>
       {badge}
-      <button type="button" className="bp-back bp-close" onClick={onClose} aria-label="Kapat"><X /></button>
+      <button type="button" className="bp-back bp-close" onClick={onClose} aria-label={t.action.close}><X /></button>
     </header>
     <div className="bp-scroll">
       {hero !== undefined && <section className="bp-hero bp-hero-small">{hero ? <img src={hero} alt="" /> : null}</section>}

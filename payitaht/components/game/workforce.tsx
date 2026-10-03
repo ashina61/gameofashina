@@ -9,6 +9,7 @@ import { useEffect, useState, type ReactNode } from 'react'
 import { Check, ChevronsLeft, ChevronsRight, Minus, Plus, Undo2 } from './ui-art'
 import { GameButton } from './game-button'
 import { formatRate } from '@/lib/game/engine'
+import { t } from '@/lib/i18n/tr'
 
 export type Figure = 'halk' | 'oduncu' | 'tasci' | 'alim' | 'esnaf' | 'madenci' | 'rahip'
 
@@ -90,9 +91,9 @@ export function WorkforceSlider({ label, figure, value, cap, idle, preview, onCo
           onChange={e => set(Number(e.target.value))} />
         <div className="workforce-steps">
           <button type="button" aria-label="Hepsini çek" disabled={d <= 0} onClick={() => set(0)}><ChevronsLeft /></button>
-          <button type="button" aria-label="Bir azalt" disabled={d <= 0} onClick={() => set(d - 1)}><Minus /></button>
+          <button type="button" aria-label={t.action.decrease} disabled={d <= 0} onClick={() => set(d - 1)}><Minus /></button>
           <span className="workforce-count">{d} / {cap}</span>
-          <button type="button" aria-label="Bir artır" disabled={d >= max} onClick={() => set(d + 1)}><Plus /></button>
+          <button type="button" aria-label={t.action.increase} disabled={d >= max} onClick={() => set(d + 1)}><Plus /></button>
           <button type="button" aria-label="Doldur" disabled={d >= max} onClick={() => set(max)}><ChevronsRight /></button>
         </div>
       </div>
@@ -102,7 +103,7 @@ export function WorkforceSlider({ label, figure, value, cap, idle, preview, onCo
       </div>
     </div>
     {changed && <div className="workforce-confirm">
-      <GameButton size="sm" onClick={() => onCommit(d)}><Check data-icon="inline-start" />Onayla</GameButton>
+      <GameButton size="sm" onClick={() => onCommit(d)}><Check data-icon="inline-start" />{t.action.confirm}</GameButton>
       <GameButton size="sm" variant="outline" onClick={() => setDraft(value)}><Undo2 data-icon="inline-start" />Geri al</GameButton>
     </div>}
     {note && <p className="workforce-note">{note}</p>}

@@ -11,12 +11,13 @@ import { GameButton } from './game-button'
 import { population, soldiers } from '@/lib/game/engine'
 import { capitalId, islandOf, type Empire } from '@/lib/game/empire'
 import {
-  BANNERS, BANNER_NAMES, CREST_COLORS, CREST_NAMES, CRESTS, type BannerId, type MedalTier, type Achievement, achievements, allianceName, playerScore, profileOf, profileRanks, profileStats, rulerTitle, setProfile,
+  BANNERS, BANNER_NAMES, COLOR_NAMES, CREST_COLORS, CREST_NAMES, CRESTS, type BannerId, type MedalTier, type Achievement, achievements, allianceName, playerScore, profileOf, profileRanks, profileStats, rulerTitle, setProfile,
   type CrestId, type Profile,
 } from '@/lib/game/profile'
 import { BANNER_OUTLINES } from '@/lib/game/banner-shapes'
 import { CHANGELOG, VERSION } from '@/lib/game/changelog'
 import type { Run } from './world-panels'
+import { t } from '@/lib/i18n/tr'
 
 const num = (n: number) => Math.floor(n).toLocaleString('tr-TR')
 const GOLD = '#e2bd78', INK = '#2a1a10', PAPER = '#f6ecd6'
@@ -90,7 +91,7 @@ export function SancakPicker({ value, onChange }: { value: SancakChoice; onChang
         aria-label={CREST_NAMES[c]} onClick={() => onChange({ ...value, crest: c })} title={CREST_NAMES[c]}><RulerCrest crest={c} color={value.color} size={44} /></button>)}</div>
       <span className="profile-label">Renk</span>
       <div className="color-picker" role="radiogroup" aria-label="Renk">{CREST_COLORS.map(c => <button key={c} type="button" role="radio" aria-checked={value.color === c}
-        style={{ background: c }} onClick={() => onChange({ ...value, color: c })} aria-label={c} />)}</div>
+        style={{ background: c }} onClick={() => onChange({ ...value, color: c })} aria-label={COLOR_NAMES[c]} title={COLOR_NAMES[c]}>{value.color === c && <span className="swatch-check" aria-hidden="true">✓</span>}</button>)}</div>
   </div>
 }
 
@@ -176,7 +177,7 @@ export function ProfilePanel({ empire, now, run, onCity, onSettings, onChangelog
         <small>{allianceName(empire) ?? 'İttifaksız'} · {empire.cities.length} şehir</small>
       </div>
       <GameButton size="sm" variant="outline" onClick={() => { setDraft({ ruler: p.ruler, motto: p.motto, crest: p.crest, color: p.color, banner }); setEdit(e => !e) }} aria-expanded={edit}>
-        <Pencil data-icon="inline-start" />{edit ? 'Kapat' : 'Düzenle'}</GameButton>
+        <Pencil data-icon="inline-start" />{edit ? t.action.close : t.action.edit}</GameButton>
     </article>
 
     {edit && <section className="empire-section profile-edit">

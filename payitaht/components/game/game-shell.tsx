@@ -44,6 +44,7 @@ import { GodsPanel } from './gods-panel'
 import { asset, buildingImage } from '@/lib/asset'
 import { activeCity, islandOf, type IslandId } from '@/lib/game/empire'
 import type { Cargo } from '@/lib/game/empire'
+import { t } from '@/lib/i18n/tr'
 
 /** Android paketi (Capacitor): ana ekrana ekleme bölümü gereksiz. */
 const native = process.env.NEXT_PUBLIC_NATIVE === '1'
@@ -315,8 +316,8 @@ export default function GameShell({ onTitle }: { onTitle?: () => void } = {}) {
         <span className="move-confirm-title">{BUILDINGS[moving].name} taşınıyor</span>
         <span className="move-confirm-hint">Binayı sürükle ya da boş arsaya dokun</span>
         <div className="move-confirm-actions">
-          <button className="move-cancel" onClick={cancelMove} aria-label="Vazgeç"><X /></button>
-          <button className="move-ok" onClick={confirmMove} aria-label="Onayla"><Check /></button>
+          <button className="move-cancel" onClick={cancelMove} aria-label={t.action.cancel}><X /></button>
+          <button className="move-ok" onClick={confirmMove} aria-label={t.action.confirm}><Check /></button>
         </div>
       </div>}
       {/*

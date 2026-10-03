@@ -512,9 +512,10 @@
 }
 
 /* --- ORDU ----------------------------------------------------------------- */
-.army-summary { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 14px; align-items: center; padding: 14px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--card); }
+.army-summary { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px 14px; align-items: center; padding: 14px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--card); }
 .army-summary .eyebrow { grid-column: 1 / -1; }
-.army-summary > div { display: flex; align-items: center; gap: 9px; color: var(--muted-foreground); font-size: 12px; }
+.army-summary > div { display: flex; align-items: center; gap: 9px; color: var(--muted-foreground); font-size: 12px; min-width: 0; }
+.army-summary > div > span { min-width: 0; overflow-wrap: anywhere; line-height: 1.2; }
 .army-summary svg { color: var(--gold); flex-shrink: 0; }
 .army-summary strong { margin-left: auto; font-family: var(--font-heading), Georgia, serif; font-size: 20px; color: var(--foreground); font-variant-numeric: tabular-nums lining-nums; }
 /* Ordunun bedeli nufustur; oyuncu bunu her acisinda okumali. */
@@ -1036,8 +1037,8 @@
 .ika-advisor-active::after { content: ''; position: absolute; left: 50%; bottom: -4px; width: 14px; height: 3px; transform: translateX(-50%);
   border-radius: 3px; background: #f2d37d; box-shadow: 0 0 7px #f2d37d99; }
 .ika-advisor-news svg { animation: advisor-glow 1.6s ease-in-out infinite; }
-@keyframes advisor-glow { 50% { filter: drop-shadow(0 0 6px #ffd66b) brightness(1.15); } }
-@media (prefers-reduced-motion: reduce) { .ika-advisor-news svg { animation: none; filter: drop-shadow(0 0 5px #ffd66b); } }
+@keyframes advisor-glow { 50% { filter: drop-shadow(0 0 6px var(--c-alert-gold)) brightness(1.15); } }
+@media (prefers-reduced-motion: reduce) { .ika-advisor-news svg { animation: none; filter: drop-shadow(0 0 5px var(--c-alert-gold)); } }
 .ika-badge { position: absolute; top: -3px; right: -3px; min-width: 18px; height: 18px; padding: 0 4px; display: grid; place-items: center; border-radius: 9px;
   background: var(--c-bad); border: 1.5px solid var(--c-cream); color: #fff; font-size: 10.5px; font-weight: 800; line-height: 1; font-style: normal; }
 .ika-res { display: flex; width: 100%; gap: 2px; overflow-x: auto; scrollbar-width: none; padding: 3px 5px 4px; border: 0; border-bottom: 1px solid #caa65f8f;
@@ -1976,7 +1977,11 @@
   .ika-status[data-k="pop"] small { display: none; }
   .ika-chip-full { background: linear-gradient(180deg, #7a2d24, #4d1a14); border-color: #df826d99; }
 }
-.ika-chip-cap b { color: #ffd66b; }
+.ika-chip-cap b { color: var(--c-alert-gold); }
+/* Renk körlüğü: dolu ambar/konut yalnız renkle değil, köşedeki ünlem rozetiyle de okunur. */
+.ika-chip-flag { position: absolute; z-index: 2; top: 1px; left: 1px; width: 12px; height: 12px; display: grid; place-items: center;
+  border-radius: 50%; border: 1px solid #1a0d09; background: var(--c-alert-gold); color: #2a1408; font-size: 9.5px; font-weight: 900; line-height: 1;
+  box-shadow: 0 1px 2px #000a; pointer-events: none; }
 
 
 /* =========================================================================
@@ -3129,3 +3134,15 @@ html[data-motion="az"] *, html[data-motion="az"] *::before, html[data-motion="az
 .lite-row { grid-template-columns: 22px 1fr; cursor: default; }
 .lite-row .seg { grid-column: 1 / -1; justify-self: start; display: inline-flex; flex-direction: row; }
 .lite-row .seg button { min-width: 84px; }
+/* Seçili renk yalnız çerçeveyle değil işaretle de belli (V2 Faz 8.2). */
+.color-picker button, .title-colors button { display: grid; place-items: center; }
+.swatch-check { color: #fff; font-size: 16px; font-weight: 800; line-height: 1; text-shadow: 0 0 2px #000, 0 1px 2px #000; }
+
+/* Şehri liste olarak gör (Faz 8.3): klavye odağı gelince görünür olur. */
+.city-scene .city-list:focus-within { position: absolute; z-index: 30; inset: 8px 8px auto; width: auto; height: auto; max-height: 70%;
+  margin: 0; padding: 8px; overflow: auto; clip: auto; clip-path: none; white-space: normal;
+  border: 1px solid var(--gold); border-radius: 12px; background: #0c1d1bf2; box-shadow: 0 8px 24px #000a; }
+.city-list ul { display: grid; gap: 4px; margin: 0; padding: 0; list-style: none; }
+.city-list button { width: 100%; min-height: 44px; padding: 6px 10px; border-radius: 8px; text-align: left;
+  color: #fff0cc; background: #ffffff10; font-size: 14px; }
+.city-list button:focus-visible { outline: 2px solid var(--c-alert-gold); outline-offset: 1px; }

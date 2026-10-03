@@ -7,6 +7,11 @@
  *   küçük     dokunulan öğenin parmak alanı 44×44 px'ten küçük
  *   minik     11 px'ten küçük yazı ([data-tiny] ile işaretli rakamlar hariç)
  *   çakışma   bir yazı, yanındaki düğmenin altında/üstünde kalıyor
+ *   isimsiz   düğme ya da alanın ekran okuyucuya okunacak adı yok (V2 Faz 8.3)
+ *
+ * İkinci tur aynı sayfaları %130 yazı boyuyla dener (V2 Faz 8.1): Android'in
+ * sistem yazı boyutu gibi her öğenin yazısı büyütülür; minik kuralı bu turda
+ * sayılmaz (yazı zaten büyük).
  *
  * Herhangi bir ihlal varsa çıkış kodu 1. Rapor: visual-review/layout-report.json
  *
@@ -18,14 +23,14 @@ const path = require('node:path')
 const { chromium } = require('playwright')
 
 const ORIGIN = process.env.LAYOUT_QA_URL || 'http://127.0.0.1:4173/gameofashina/'
-const VIEWPORTS = [{ width: 360, height: 740 }]
+const VIEWPORTS = [{ width: 360, height: 740 }, { width: 360, height: 740, zoom: 1.3 }]
 const PANELS = ['economy', 'advisor-city', 'reports', 'research', 'diplomacy', 'build', 'army', 'people', 'cities', 'map', 'overview',
   'alliance', 'objectives', 'journal', 'profile', 'settings', 'changelog', 'island', 'forest']
 
 /** Sayfada çalışır: görünür öğeleri dört kurala göre ölçer. */
 function scanPage() {
   const W = innerWidth, H = innerHeight, MIN = 44, R = MIN / 2 - 1
-  const found = { taşma: {}, kesik: {}, küçük: {}, minik: {}, çakışma: {} }
+  const found = { taşma: {}, kesik: {}, küçük: {}, minik: {}, çakışma: {}, isimsiz: {} }
   const name = el => el.tagName.toLowerCase() + [...el.classList].slice(0, 2).map(c => '.' + c).join('')
   const where = el => { const p = []; for (let e = el, i = 0; e && e !== document.body && i < 3; e = e.parentElement, i++) p.unshift(name(e)); return p.join(' > ') }
   const text = el => (el.innerText || el.getAttribute('aria-label') || '').trim().replace(/\s+/g, ' ').slice(0, 40)
@@ -69,6 +74,15 @@ function scanPage() {
     }
     if (el.matches('button, a[href], [role="button"], [role="tab"], [role="radio"], [role="switch"], summary, select, input:not([type="hidden"])') && !el.disabled) controls.push(el)
   }
+  // İsimsiz: ekran okuyucunun okuyacağı ad yok (yazı, aria-label, title, label, resim alt).
+  const accName = el => {
+    const by = el.getAttribute('aria-labelledby')
+    if (by) return by.split(/\s+/).map(id => document.getElementById(id)?.textContent ?? '').join(' ').trim()
+    const label = el.id ? document.querySelector(`label[for="${CSS.escape(el.id)}"]`) : el.closest('label')
+    return (el.getAttribute('aria-label') || el.textContent || el.getAttribute('title') || label?.textContent ||
+      [...el.querySelectorAll('img[alt]')].map(i => i.alt).join(' ') || el.getAttribute('placeholder') || '').trim()
+  }
+  for (const el of controls) if (!accName(el)) note('isimsiz', el)
   // Çakışma: düğmenin yakın akrabalarındaki (iki üst kap) yazılardan biri
   // düğmenin kutusuyla 4 px'ten fazla örtüşüyorsa.
   // Sabit katmanlar (alt menü, sayfa) arası örtüşme sayılmaz: içerik menünün
@@ -124,11 +138,11 @@ async function main() {
   await fs.mkdir(out, { recursive: true })
   const fixture = JSON.parse(await fs.readFile(path.join(__dirname, 'fixtures', 'late-game.json'), 'utf8'))
   const browser = await chromium.launch({ headless: true, args: ['--no-sandbox'] })
-  const report = { sayfalar: {}, toplam: { taşma: 0, kesik: 0, küçük: 0, minik: 0, çakışma: 0 }, hatalar: [] }
+  const report = { sayfalar: {}, toplam: { taşma: 0, kesik: 0, küçük: 0, minik: 0, çakışma: 0, isimsiz: 0 }, hatalar: [] }
   try {
     for (const vp of VIEWPORTS) {
-      const label = `${vp.width}x${vp.height}`
-      const context = await browser.newContext({ viewport: vp, deviceScaleFactor: 1, isMobile: true, hasTouch: true })
+      const label = `${vp.width}x${vp.height}${vp.zoom ? `@${Math.round(vp.zoom * 100)}%` : ''}`
+      const context = await browser.newContext({ viewport: { width: vp.width, height: vp.height }, deviceScaleFactor: 1, isMobile: true, hasTouch: true })
       await context.addInitScript(raw => {
         try {
           const e = JSON.parse(raw)
@@ -149,7 +163,17 @@ async function main() {
         // animasyonlar dursun (sonsuz döngüler, ör. bayrak, sayılmaz).
         await page.waitForFunction(() => document.getAnimations().every(a => a.playState !== 'running' || a.effect?.getComputedTiming().iterations === Infinity), null, { timeout: 5000 }).catch(() => {})
         await page.waitForTimeout(100)
+        if (vp.zoom) {
+          // Sistem yazı boyutu: her öğenin hesaplanan yazısı büyür (önce hepsi okunur, sonra yazılır).
+          await page.evaluate(z => {
+            const els = [...document.querySelectorAll('body *')].filter(el => !el.dataset.qaZoom && !(el instanceof SVGElement))
+            const sizes = els.map(el => parseFloat(getComputedStyle(el).fontSize))
+            els.forEach((el, i) => { el.style.fontSize = `${sizes[i] * z}px`; el.dataset.qaZoom = '1' })
+          }, vp.zoom)
+          await page.waitForTimeout(120)
+        }
         const found = await page.evaluate(scanPage)
+        if (vp.zoom) found.minik = {}
         // Bina sayfası (V2 2.1): Yükselt doku kaydırmadan görünür ve düğmenin
         // üstüne başka bir şey (ör. alt menü madalyonu) binmez.
         if (key.startsWith('bina:')) {
@@ -171,7 +195,7 @@ async function main() {
         const n = Object.fromEntries(Object.entries(found).map(([k, v]) => [k, Object.values(v).reduce((s, x) => s + x.adet, 0)]))
         for (const k of Object.keys(n)) report.toplam[k] += n[k]
         if (Object.values(n).some(Boolean)) report.sayfalar[`${label} ${key}`] = found
-        console.log(`${label} ${key.padEnd(24)} taşma ${n.taşma} · kesik ${n.kesik} · küçük ${n.küçük} · minik ${n.minik} · çakışma ${n.çakışma}`)
+        console.log(`${label} ${key.padEnd(24)} taşma ${n.taşma} · kesik ${n.kesik} · küçük ${n.küçük} · minik ${n.minik} · çakışma ${n.çakışma} · isimsiz ${n.isimsiz}`)
       }
       await page.goto(ORIGIN, { waitUntil: 'domcontentloaded', timeout: 60_000 })
       await page.getByRole('button', { name: /Devam et/ }).waitFor()
@@ -193,13 +217,13 @@ async function main() {
         const host = document.querySelector('.bp .bp-scroll') || document.querySelector('.bp')
         const bad = document.createElement('div')
         bad.innerHTML = '<div style="width:520px;height:10px">geniş</div><button style="width:20px;height:20px">x</button><span style="font-size:9px">minik</span>' +
-          '<div><div style="position:relative;height:50px"><button style="width:80px;height:44px">düğme</button><span style="position:absolute;left:10px;top:12px">üstte yazı</span></div></div>'
+          '<div><div style="position:relative;height:50px"><button style="width:80px;height:44px">düğme</button><span style="position:absolute;left:10px;top:12px">üstte yazı</span></div></div><button style="width:48px;height:48px"></button>'
         host.prepend(bad)
         const found = (0, eval)(scan)()
         bad.remove()
         return Object.fromEntries(Object.entries(found).map(([k, v]) => [k, Object.keys(v).length]))
       }, `(${scanPage})`)
-      if (!self.taşma || !self.küçük || !self.minik || !self.çakışma) throw new Error(`Öz-denetim başarısız, kurallar bozuk öğeyi görmedi: ${JSON.stringify(self)}`)
+      if (!self.taşma || !self.küçük || !self.minik || !self.çakışma || !self.isimsiz) throw new Error(`Öz-denetim başarısız, kurallar bozuk öğeyi görmedi: ${JSON.stringify(self)}`)
       console.log(`${label} öz-denetim              yakalandı: ${JSON.stringify(self)}`)
       for (const p of PANELS) await visit(`sayfa:${p}`, new Function(`window.__payitahtQa.panel(${JSON.stringify(p)})`))
       await visit('ada', () => window.__payitahtQa.island())
@@ -211,7 +235,7 @@ async function main() {
   }
   await fs.writeFile(path.join(out, 'layout-report.json'), JSON.stringify(report, null, 2))
   const t = report.toplam
-  console.log(`\nTOPLAM taşma ${t.taşma} · kesik ${t.kesik} · küçük ${t.küçük} · minik ${t.minik} · çakışma ${t.çakışma} · sayfa hatası ${report.hatalar.length}`)
+  console.log(`\nTOPLAM taşma ${t.taşma} · kesik ${t.kesik} · küçük ${t.küçük} · minik ${t.minik} · çakışma ${t.çakışma} · isimsiz ${t.isimsiz} · sayfa hatası ${report.hatalar.length}`)
   if (report.hatalar.length || Object.values(t).some(Boolean)) {
     for (const [p, f] of Object.entries(report.sayfalar)) for (const [kind, items] of Object.entries(f)) for (const [where, x] of Object.entries(items))
       console.log(`  ${kind.padEnd(6)} ${p} :: ${where} "${x.örnek}" ×${x.adet}${x.gen ? ` (${x.gen}×${x.yük})` : ''}${x.px ? ` (${x.px}px)` : ''}`)

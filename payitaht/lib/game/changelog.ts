@@ -6,6 +6,16 @@ export type Release = { version: string; date: string; title: string; notes: str
 
 export const CHANGELOG: Release[] = [
   {
+    version: '0.39.0', date: '3 Ekim 2026', title: 'Herkes için: büyük yazı, renk körlüğü ve ekran okuyucu',
+    notes: [
+      'Telefonun yazı boyutu %130\'a büyütülünce de bütün ekranlar düzgün kalır. Ordu özetindeki taşan satırlar düzeltildi.',
+      'Renk körlüğü: dolu ambar ve dolu konut yalnız renkle değil, kaynak çubuğunda köşedeki ünlem rozetiyle de görünür. Sancak renk seçicide her rengin adı var ve seçili renk ✓ ile işaretlenir.',
+      'Ekran okuyucu: şehir haritası için "Şehri liste olarak gör" listesi geldi. Binalar seviyeleriyle sıralanır, seçince bina sayfası açılır. Klavyeyle odak gelince liste ekranda da açılır.',
+      'Adı olmayan düğme kalmadı; her sürümde otomatik denetleniyor.',
+      'Arka planda: ortak arayüz metinleri tek dosyada (lib/i18n/tr.ts). İleride başka bir dil eklemenin yolu açık.',
+    ],
+  },
+  {
     version: '0.38.0', date: '3 Ekim 2026', title: 'Hafif ve tutumlu: küçük görseller, boşta yavaşlayan şehir, hafif mod',
     notes: [
       'Bina görsellerinin telefon boyu kopyası var: arayüz ve Android uygulaması yarı boyu kullanır. Uygulama yaklaşık 34 MB küçüldü; görüntü aynı.',

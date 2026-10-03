@@ -26,6 +26,7 @@ import { GoalCard, RewardTokens } from './goal-card'
 import { RulerCrest, SancakArt, SancakPicker, type SancakChoice } from './profile-panel'
 import { Hint } from './hint'
 import type { Run } from './world-panels'
+import { t } from '@/lib/i18n/tr'
 
 const num = (n: number) => Math.floor(n).toLocaleString('tr-TR')
 const when = (t: number) => new Date(t).toLocaleString('tr-TR', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit' })
@@ -83,7 +84,7 @@ function General({ empire, now, run }: { empire: Empire; now: number; run: Run }
     <section className="empire-section alliance-banner-edit">
       <h3><Flag className="size-4" /> İttifak sancağı</h3>
       <p className="fine-print">İttifakın, lider profilindeki sancak ve armayı kullanır.</p>
-      <GameButton size="sm" variant="outline" aria-expanded={editBanner} onClick={() => { setLook({ crest: prof.crest, color: prof.color, banner: prof.banner ?? 'kirlangic' }); setEditBanner(!editBanner) }}>{editBanner ? 'Vazgeç' : 'Sancağı düzenle'}</GameButton>
+      <GameButton size="sm" variant="outline" aria-expanded={editBanner} onClick={() => { setLook({ crest: prof.crest, color: prof.color, banner: prof.banner ?? 'kirlangic' }); setEditBanner(!editBanner) }}>{editBanner ? t.action.cancel : 'Sancağı düzenle'}</GameButton>
       {editBanner && <>
         <SancakArt {...look} size={260} />
         <SancakPicker value={look} onChange={setLook} />
@@ -108,7 +109,7 @@ function General({ empire, now, run }: { empire: Empire; now: number; run: Run }
       <h3><Scroll className="size-4" /> İttifak düsturu</h3>
       <div className="batch-row"><input id="pact-motto" className="text-input" value={motto} maxLength={80} placeholder="Birlikten kuvvet doğar" onChange={e => setMotto(e.target.value)} />
         <GameButton size="sm" onClick={() => run((e, x) => setPactMotto(e, motto, x), 'Düstur kaydedildi.')}>Kaydet</GameButton></div>
-      {confirm ? <div className="batch-row"><GameButton size="sm" variant="destructive" onClick={() => run((e, x) => leavePact(e, x), 'İttifak dağıtıldı.')}>Evet, dağıt</GameButton><GameButton size="sm" variant="outline" onClick={() => setConfirm(false)}>Vazgeç</GameButton></div>
+      {confirm ? <div className="batch-row"><GameButton size="sm" variant="destructive" onClick={() => run((e, x) => leavePact(e, x), 'İttifak dağıtıldı.')}>Evet, dağıt</GameButton><GameButton size="sm" variant="outline" onClick={() => setConfirm(false)}>{t.action.cancel}</GameButton></div>
         : <GameButton size="sm" variant="outline" onClick={() => setConfirm(true)}>İttifakı dağıt</GameButton>}
     </section>
   </>
@@ -194,7 +195,7 @@ function RankDuties({ empire, run }: { empire: Empire; run: Run }) {
       const d = RANK_DUTIES[k], who = holders(k)
       return <article key={k} className="rank-duty">
         <div className="rank-duty-head"><strong>{rankTitle(p, k)}</strong>{p.titles?.[k] && <small>({d.name})</small>}
-          <button type="button" className="rank-duty-edit" onClick={() => { setEdit(edit === k ? null : k); setTitle(p.titles?.[k] ?? '') }}>{edit === k ? 'Vazgeç' : 'Adını değiştir'}</button></div>
+          <button type="button" className="rank-duty-edit" onClick={() => { setEdit(edit === k ? null : k); setTitle(p.titles?.[k] ?? '') }}>{edit === k ? t.action.cancel : 'Adını değiştir'}</button></div>
         <p>{d.duty}</p>
         <ul className="rank-rights">{d.rights.map(r => <li key={r}><Check aria-hidden="true" />{r}</li>)}</ul>
         <small className="rank-who">{who.length ? who.join(', ') : k === 'uye' ? 'Rütbesiz üye yok' : 'Boş: Üyeler listesinden ata'}</small>

@@ -21,6 +21,7 @@ import { seaTravelMs } from '@/lib/game/expeditions'
 import { RIVALS, rivalLevel, seaMinutes } from '@/lib/game/rivals'
 import { travelFactor } from '@/lib/game/engine'
 import { rivalWarLine } from './ai-panels'
+import { t } from '@/lib/i18n/tr'
 
 const LUX_TINT: Record<string, string> = { uzum: '#7b9a5b', mermer: '#c5b99b', kristal: '#8eb0b2', kukurt: '#bca35d' }
 const U = 44 // bir koordinat birimi (px, viewBox içinde)
@@ -157,7 +158,7 @@ function IslandSheet({ empire, now, id, missing, colonyCost, onClose, onSelectCi
   return <BottomSheet label={`${island.name} adası`} onClose={onClose} modeless>
     <header className="bp-bar">
       <div className="bp-title"><h1>{island.name}</h1><small>[{island.x}:{island.y}] · {island.specialty} yatağı · Harika: {MIRACLES[island.wonder].wonder}</small></div>
-      <button type="button" className="bp-back" onClick={onClose} aria-label="Kapat"><X /></button>
+      <button type="button" className="bp-back" onClick={onClose} aria-label={t.action.close}><X /></button>
     </header>
     <div className="bp-scroll wm-sheet">
       <ul className="wm-facts">

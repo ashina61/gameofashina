@@ -43,6 +43,7 @@ import { flyGoods } from '@/lib/fx'
 import { buildingImage } from '@/lib/asset'
 import { SEASONS, seasonWeek } from '@/lib/game/events'
 import { profileOf, rivalHeraldry } from '@/lib/game/profile'
+import { t } from '@/lib/i18n/tr'
 
 export type Op = (e: Empire, now: number) => { empire: Empire; error?: string }
 export type Run = (op: Op, ok?: string) => void
@@ -100,7 +101,7 @@ export function DemolishConfirm({ game, id, onCommand, onClose }: { game: Game; 
     <div className="batch-row">
       {level > 1 && <GameButton size="sm" variant="destructive" onClick={() => { onCommand({ type: 'demolish', id }); onClose() }}>Bir seviye yık</GameButton>}
       <GameButton size="sm" variant="destructive" onClick={() => { onCommand({ type: 'demolish', id, all: true }); onClose() }}>Tamamen yık</GameButton>
-      <GameButton size="sm" variant="outline" onClick={onClose}>Vazgeç</GameButton>
+      <GameButton size="sm" variant="outline" onClick={onClose}>{t.action.cancel}</GameButton>
     </div>
   </section>
 }
@@ -224,7 +225,7 @@ export function DeployPanel({ empire, run }: { empire: Empire; run: Run }) {
     <UnitPicker ids={UNIT_IDS.filter(id => id !== 'nakliye')} free={free} pick={pick} onPick={setPick} />
     {ships > 0 && <p className="fine-print">{ships} nakliye gemisi gerekli · boşta {free.nakliye}.</p>}
     <GameButton size="sm" disabled={!to || !Object.values(pick).some(n => (n ?? 0) > 0)}
-      onClick={() => { run((e, now) => dispatchDeploy(e, to, pick, now), 'Birlikler yola çıktı.'); setPick({}) }}>Gönder</GameButton>
+      onClick={() => { run((e, now) => dispatchDeploy(e, to, pick, now), 'Birlikler yola çıktı.'); setPick({}) }}>{t.action.send}</GameButton>
     <p className="fine-print">Birlikler hedef şehrin halkından yer ister; sığmayanlar geri döner.</p>
   </section>
 }
@@ -251,7 +252,7 @@ function MissionRow({ m, empire, now, run, label }: { m: Mission; empire: Empire
           : m.stationed && m.kind === 'spy' ? `İçeride ${m.units.casus ?? 0} casus${m.spyTask ? ` · görev ${clock(m.spyTask.at - now)}` : ' · görev bekliyor'}`
           : m.stationed ? `Konuşlu · saatte ${num(stationTribute(empire, m.npcId, m.kind as 'occupy' | 'blockade', now))} akçe haraç · birikmiş ${num(m.loot.gold)}`
           : m.resolved ? `Dönüş ${clock(m.returnAt - now)}` : `Varış ${clock(m.arriveAt - now)}`}</small></span>
-      {lb && <GameButton size="sm" variant="outline" onClick={() => setWatch(w => !w)}>{watch ? 'Kapat' : 'İzle'}</GameButton>}
+      {lb && <GameButton size="sm" variant="outline" onClick={() => setWatch(w => !w)}>{watch ? t.action.close : t.action.watch}</GameButton>}
       {lb && <GameButton size="sm" variant="destructive" onClick={() => run((e, t) => retreatMission(e, m.id, t), 'Ordu geri çekiliyor.')}>Geri çekil</GameButton>}
       {m.stationed && <GameButton size="sm" variant="outline" onClick={() => run((e, t) => recallMission(e, m.id, t), 'Birlikler geri çağrıldı.')}>Geri çağır</GameButton>}
     </div>

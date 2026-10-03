@@ -283,6 +283,13 @@ Divanhane 20 → hedef 30. gün · aktif: 2 · gunde3: 16 · gunde1: yok
 | 8.3 | Ekran okuyucu: bütün düğmelerde Türkçe etiket (çoğu var), Phaser sahnesi için "şehri liste olarak gör" seçeneği. | M |
 | 8.4 | Metinler tek dosyada toplanır (`lib/i18n/tr.ts`). İngilizce V2'ye zorunlu değil, ama yolu açılır. | M |
 
+**İlerleme: 0.39.0'da Faz 8 tamam (8.4 başlangıç düzeyinde).**
+
+- **8.1:** `tools/layout-qa.cjs` artık iki tur yapıyor: 360×740 ve aynı ekranda %130 yazı. %130 turunda her öğenin hesaplanan yazı boyu 1,3 ile çarpılır. Bulunan tek sorun ordu özetindeki taşmaydı, düzeltildi. Bütün sayfalar ve bina sayfaları iki turda da 0.
+- **8.2:** Dolu ambar/konut çipinde köşede "!" rozeti var. Sancak renk düğmelerinin adı (Al, Yeşil, Lacivert…) ve seçili renkte ✓ işareti var. Kırmızı/yeşil maliyetler zaten "eksik N" yazısı ve kilit/onay ikonu taşıyordu.
+- **8.3:** Yeni `isimsiz` kuralı her görünür düğme, bağlantı ve girişin erişilebilir adı olduğunu denetler; sonuç 0. Phaser tuvali `aria-hidden` olduğu için şehir sahnesine "Şehri liste olarak gör" listesi eklendi. Liste kurulu ve temeli atılan binaları seviye ve yükseltme durumuyla düğme olarak sunar; klavye odağında görünür olur.
+- **8.4:** `lib/i18n/tr.ts` `Strings` tipini ve Türkçe sözlüğü tanımlar. Ortak düğmeler (Kapat, Geri, Vazgeç, Onayla, Gönder…), şehir sahnesi etiketleri ve HUD durum metinleri buradan okunur. Bir test, taşınan düğme metinlerinin oyun bileşenlerine düz yazı olarak geri dönmesini engeller. Bina, birim ve araştırma metinleri kendi veri dosyalarında kalıyor; tamamı İngilizce gelirse oradan çevrilir.
+
 ## Faz 9 — Mağaza kapısı (senin işin, ertelendi)
 
 Daha önce "Play Store işlerini atla" dedin. V2'yi yayınlamak için yine de gerekenler:

@@ -5,9 +5,10 @@ import { useRef, useState } from 'react'
 import { Sun, Sunset, Moon, Flag, Move, Anchor, Landmark, ScrollText } from './ui-art'
 import { skyTint } from '@/lib/game/sky'
 import type { BannerLook } from '@/lib/game/banner'
-import type { Game, BuildingId } from '@/lib/game/engine'
+import { BUILDINGS, BUILDING_IDS, type Game, type BuildingId } from '@/lib/game/engine'
 import { PEACEFUL_CITY, type SiegeAppearance } from '@/lib/game/siege-appearance'
 import { CityCanvas, type CityControls } from './city-canvas'
+import { t } from '@/lib/i18n/tr'
 
 /*
  * ŞEHİR EKRANI.
@@ -45,20 +46,21 @@ export function CityScene({ game, placing, onBuilding, onPlot, onRoad, moving, m
   const controls = useRef<CityControls | null>(null)
 
   return <section className={`city-scene${siege.occupation ? ' city-occupied' : ''}${siege.blockade ? ' city-blockaded' : ''}`}
-    aria-label={`Şehir haritası${siege.occupation ? ' · işgal altında' : ''}${siege.blockade ? ' · liman abluka altında' : ''}`}>
+    aria-label={`${t.city.map}${siege.occupation ? ` · ${t.city.occupied}` : ''}${siege.blockade ? ` · ${t.city.blockaded}` : ''}`}>
     <CityCanvas game={game} showLabels={labels} placing={placing} controls={controls} onBuilding={onBuilding} onPlot={onPlot} onRoad={onRoad} moving={moving} movePlot={movePlot} onMovePlot={onMovePlot} onMine={onMine} banner={banner} siege={siege} paused={paused} raid={raid} />
     {(siege.occupation || siege.blockade) && <div className="siege-atmosphere" aria-hidden="true" />}
+    <CityList game={game} onBuilding={onBuilding} />
 
     <Weather time={game.updatedAt} />
 
     <div className="map-top-tools">
-      <button aria-label={labels ? 'Bina etiketlerini gizle' : 'Bina etiketlerini göster'}
+      <button aria-label={labels ? t.city.labelsHide : t.city.labelsShow}
         onClick={() => setLabels(v => !v)} aria-pressed={labels}><Flag /></button>
-      <button aria-label="Donanma ve limana git" title="Donanma ve limana git"
+      <button aria-label={t.city.harbour} title={t.city.harbour}
         onClick={() => controls.current?.focusHarbour()}><Anchor /></button>
-      <button aria-label="Belediyeye dön" title="Belediyeye dön"
+      <button aria-label={t.city.recenter} title={t.city.recenter}
         onClick={() => controls.current?.recenter()}><Landmark /></button>
-      {offers > 0 && onOffers && <button className="map-offer" aria-label={`${offers} yapay rakip teklifi bekliyor`} title="Elçi mektubu" onClick={onOffers}>
+      {offers > 0 && onOffers && <button className="map-offer" aria-label={t.city.rivalOffers(offers)} title="Elçi mektubu" onClick={onOffers}>
         <ScrollText />{offerMode === 'dot' ? <b className="is-dot" aria-hidden="true" /> : offerMode && <b>{offers}</b>}</button>}
     </div>
 
@@ -69,9 +71,26 @@ export function CityScene({ game, placing, onBuilding, onPlot, onRoad, moving, m
       */}
     {/* Pusula da kaldirildi; yalnizca kisa bir gezinme ipucu kaliyor. */}
     <div className="map-bottom-tools">
-      <span className="map-tip"><Move className="size-3" /> Sürükle · iki parmakla yakınlaş</span>
+      <span className="map-tip"><Move className="size-3" /> {t.city.dragHint}</span>
     </div>
   </section>
+}
+
+/**
+ * ŞEHRİ LİSTE OLARAK GÖR (V2 Faz 8.3): Phaser tuvali ekran okuyucuya kapalı
+ * (aria-hidden). Bu liste aynı binaları düğme olarak sunar; görünmez durur,
+ * klavyeyle odak gelince ekranda açılır.
+ */
+function CityList({ game, onBuilding }: { game: Game; onBuilding: (id: BuildingId) => void }) {
+  const building = new Set(game.queue.filter(j => j.kind === 'build').map(j => j.id))
+  const ids = BUILDING_IDS.filter(id => game.buildings[id] > 0 || building.has(id))
+  return <nav className="sr-only city-list" aria-label={t.city.asList}>
+    <ul>
+      {ids.map(id => <li key={id}><button type="button" onClick={() => onBuilding(id)}>
+        {BUILDINGS[id].name}, {game.buildings[id] > 0 ? t.building.level(game.buildings[id]) : t.building.founding}{building.has(id) && game.buildings[id] > 0 ? `, ${t.building.upgrading}` : ''}
+      </button></li>)}
+    </ul>
+  </nav>
 }
 
 /** Günün saatine göre güneş, akşam ya da ay (şehir sahnesindeki ışıkla aynı saat). */

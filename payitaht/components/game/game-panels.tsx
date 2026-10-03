@@ -26,6 +26,7 @@ import { DRILL_QUEUE_LIMIT, garrisonLimit, garrisonUsed, spyCapacity, growthRate
 import { BATTLE_STATS, SLOT_SIZE, fieldSize } from '@/lib/game/battle'
 import { UnitFigure } from './unit-art'
 import { BRANCH, ResearchEmblem } from './research-art'
+import { t } from '@/lib/i18n/tr'
 
 export function BuildingDetails({ game, id, onBuild, onFlip, onMove }: { game: Game; id: BuildingId; onBuild: (id: BuildingId) => void; onFlip: (id: BuildingId) => void; onMove: (id: BuildingId) => void }) {
   const b = BUILDINGS[id], level = game.buildings[id], reason = buildReason(game, id)
@@ -323,7 +324,7 @@ export function CitiesPanel({
             <p>Şehir, binaları, ambarı ve buradaki ordu kaybolur. Ticaret gemileri ortak filoda kalır. Bu geri alınamaz.</p></>}
         <div className="batch-row">
           <GameButton size="sm" variant="destructive" onClick={() => { const c = confirm; setConfirm(null); run(c === 'move' ? (e, t) => moveCapital(e, current.id, t) : (e, t) => abandonCity(e, current.id, t), c === 'move' ? 'Saray taşındı; yeni başkent ilan edildi.' : 'Şehir terk edildi.') }}>{confirm === 'move' ? 'Başkenti taşı' : 'Terk et'}</GameButton>
-          <GameButton size="sm" variant="outline" onClick={() => setConfirm(null)}>Vazgeç</GameButton>
+          <GameButton size="sm" variant="outline" onClick={() => setConfirm(null)}>{t.action.cancel}</GameButton>
         </div>
       </section>}
     </article>
