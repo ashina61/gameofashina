@@ -9,7 +9,7 @@
   border-bottom: 1px solid #caa65f99; box-shadow: 0 4px 12px #0007, inset 0 -1px #0007;
   backdrop-filter: blur(9px); }
 .ika-city { flex: 1; min-width: 0; display: flex; align-items: center; gap: 7px; background: none; border: 0; padding: 2px 0; color: #f7e8c0; text-align: left; }
-.ika-city > svg { width: 16px; height: 16px; flex-shrink: 0; color: var(--c-gold); }
+.ika-city > :is(svg, .painted-icon) { width: 16px; height: 16px; flex-shrink: 0; color: var(--c-gold); }
 .ika-city-level { width: 32px; height: 32px; flex-shrink: 0; display: grid; place-items: center; border-radius: 50%;
   background: radial-gradient(circle at 35% 25%, #7d5830, var(--c-wood-dark) 68%); border: 2px solid #d9b96f;
   font-family: var(--font-heading), Georgia, serif; font-weight: 800; font-size: 15px; color: #fff0c7;
@@ -24,14 +24,14 @@
 .ika-advisor-ring { position: absolute; inset: 1px; display: grid; place-items: center; border-radius: 50%;
   border: 1px solid #d9c18524; background: radial-gradient(circle at 50% 30%, #ffffff10, transparent 70%);
   transition: border-color .15s ease, box-shadow .15s ease, background .15s ease; }
-.ika-advisor-ring svg { display: block; }
+.ika-advisor-ring :is(svg, .painted-icon) { display: block; }
 .ika-advisor-active .ika-advisor-ring { border-color: #f0d38dcc; background: radial-gradient(circle at 50% 35%, #f0d38d2e, #6d4a241a 62%, transparent 72%);
   box-shadow: 0 0 0 2px #4d2f1699, 0 0 10px #f0d38d66, inset 0 0 10px #fff2ba14; }
 .ika-advisor-active::after { content: ''; position: absolute; left: 50%; bottom: -4px; width: 14px; height: 3px; transform: translateX(-50%);
   border-radius: 3px; background: #f2d37d; box-shadow: 0 0 7px #f2d37d99; }
-.ika-advisor-news svg { animation: advisor-glow 1.6s ease-in-out infinite; }
+.ika-advisor-news :is(svg, .painted-icon) { animation: advisor-glow 1.6s ease-in-out infinite; }
 @keyframes advisor-glow { 50% { filter: drop-shadow(0 0 6px var(--c-alert-gold)) brightness(1.15); } }
-@media (prefers-reduced-motion: reduce) { .ika-advisor-news svg { animation: none; filter: drop-shadow(0 0 5px var(--c-alert-gold)); } }
+@media (prefers-reduced-motion: reduce) { .ika-advisor-news :is(svg, .painted-icon) { animation: none; filter: drop-shadow(0 0 5px var(--c-alert-gold)); } }
 .ika-badge { position: absolute; top: -3px; right: -3px; min-width: 18px; height: 18px; padding: 0 4px; display: grid; place-items: center; border-radius: 9px;
   background: var(--c-bad); border: 1.5px solid var(--c-cream); color: #fff; font-size: 10.5px; font-weight: 800; line-height: 1; font-style: normal; }
 .ika-res { display: flex; width: 100%; gap: 2px; overflow-x: auto; scrollbar-width: none; padding: 3px 5px 4px; border: 0; border-bottom: 1px solid #caa65f8f;
@@ -53,7 +53,7 @@
   100% { opacity: 0; transform: translateY(-11px) scale(.96); }
 }
 .ika-chip i { align-self: center; display: grid; place-items: center; }
-.ika-chip i svg { width: 18px; height: 18px; color: #d7b96f; filter: drop-shadow(0 1px 2px #0008); }
+.ika-chip i :is(svg, .painted-icon) { width: 18px; height: 18px; color: #d7b96f; filter: drop-shadow(0 1px 2px #0008); }
 .ika-chip b { font-size: 13px; line-height: 1; font-weight: 800; color: #fff0cc; text-shadow: 0 1px 2px #000b; }
 .ika-chip small { font-size: 11px; line-height: 1; color: #a8d681; font-weight: 700; }
 .ika-chip-full { background: #702c2690; border-color: #df826d88; }
@@ -66,7 +66,7 @@
   gap: 2px; padding: 5px 0 3px; border: 0; border-radius: 11px; background: none; color: #d6c49d;
   font-size: 11px; font-weight: 700; text-shadow: 0 1px 2px #000c; }
 .ika-nav-icon { width: 32px; height: 29px; display: grid; place-items: center; border-radius: 50%; transition: transform .12s ease, background .12s ease; }
-.ika-nav-item svg { width: 22px; height: 22px; stroke-width: 1.8; }
+.ika-nav-item :is(svg, .painted-icon) { width: 22px; height: 22px; stroke-width: 1.8; }
 .ika-nav-item:active .ika-nav-icon { transform: scale(.92); }
 /* Dokunma hissi: sahne dışındaki ana oyun kontrolleri parmak altında çok kısa çöker.
  * Alt nav kendi ikon animasyonunu kullandığı için burada özellikle hariç tutulur. */
@@ -92,7 +92,7 @@
 .ika-nav-item .ika-badge { top: 0; right: calc(50% - 22px); }
 
 .game-shell .threat-banner { left: 8px; right: auto; max-width: calc(100vw - 84px); top: calc(var(--ika-top) + 6px); padding: 5px 12px 5px 9px; border-radius: 999px; gap: 6px; }
-.game-shell .threat-banner svg { width: 16px; height: 16px; }
+.game-shell .threat-banner :is(svg, .painted-icon) { width: 16px; height: 16px; }
 .game-shell .threat-banner strong { font-size: 12px; }
 .game-shell .threat-banner small { font-size: 11px; }
 .game-shell .map-top-tools { top: calc(var(--ika-top) + 60px); right: 8px; bottom: auto; }
@@ -111,7 +111,7 @@
 .game-loading { background: linear-gradient(180deg, #f5e6bd, #e9d29c); color: var(--c-ink); }
 /* Danışman konuşması */
 .ika-speech { display: flex; align-items: flex-end; gap: 10px; margin-top: 12px; }
-.ika-speech > svg { flex-shrink: 0; filter: drop-shadow(0 3px 5px #0006); }
+.ika-speech > :is(svg, .painted-icon) { flex-shrink: 0; filter: drop-shadow(0 3px 5px #0006); }
 .ika-bubble { position: relative; flex: 1; padding: 10px 12px; border: 1px solid var(--edge, var(--c-edge)); border-radius: 10px; background: var(--c-paper); box-shadow: 0 2px 6px #5a351733; }
 .ika-bubble::before { content: ''; position: absolute; left: -8px; bottom: 16px; width: 14px; height: 14px; background: var(--c-paper); border-left: 1px solid var(--c-edge); border-bottom: 1px solid var(--c-edge); transform: rotate(45deg); }
 .ika-bubble strong { font-family: var(--font-heading), Georgia, serif; font-size: 16px; color: var(--c-brown); }
@@ -122,5 +122,5 @@
 /* Bina sayfası: görselsiz rozet ve yükselt oku */
 
 .bp-up-arrow { display: grid; place-items: center; width: 30px; height: 30px; border-radius: 50%; background: #2f6b16; border: 2px solid #d4f5a9; }
-.bp-up-arrow svg { width: 18px; height: 18px; }
+.bp-up-arrow :is(svg, .painted-icon) { width: 18px; height: 18px; }
 .bp-res-icon.bp-res-gold { color: #b8860b; } .bp-res-icon.bp-res-wood { color: #7a4a1e; } .bp-res-icon.bp-res-stone { color: #6b6e72; } .bp-res-icon.bp-res-knowledge { color: #2c4a6e; }

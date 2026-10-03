@@ -1,15 +1,18 @@
 /**
  * BOYALI ARAYÜZ İKONLARI (V2 Faz 1.3) — kaynak simgeleriyle (resource-art)
  * aynı dil: koyu mürekkep kontur, renkli gövde, sol üstten ışık ve hafif
- * gölge. Geometri ui-icon-data.ts'ten (Lucide çizgileri) gelir; her ikonun
+ * gölge. G2 ana menü ikonları WebP, küçük glifler ui-icon-data.ts'ten gelir; her ikonun
  * amacına uygun bir malzemesi (pirinç, çelik, ahşap, al, yeşil, deniz,
  * parşömen, taş) vardır.
  *
  * Lucide bileşenleriyle aynı adları ve aynı arayüzü taşır (className, size,
  * aria-*, data-*): import satırını değiştirmek yeter.
  */
-import { createElement, type SVGProps } from 'react'
+import { createElement, type SVGProps, type ImgHTMLAttributes } from 'react'
+import { asset } from '@/lib/asset'
 import { ICON_DATA, type IconName, type IconNode } from './ui-icon-data'
+
+const PAINTED_ICONS: Partial<Record<IconName, string>> = { Castle: 'city', TreePalm: 'island', Compass: 'map', Shield: 'alliance', ScrollText: 'objectives', Flag: 'flag', Anchor: 'harbour', Landmark: 'divan', Gift: 'offer' }
 
 const INK = '#3a2410'
 
@@ -54,7 +57,10 @@ function make(name: IconName) {
   const node = ICON_DATA[name] as IconNode
   const tone = TONES[TONE_OF[name] ?? 'brass']
   const kebab = name.replace(/([a-z0-9])([A-Z])/g, '$1-$2').toLowerCase()
-  function PaintedIcon({ size = 24, strokeWidth: _sw, absoluteStrokeWidth: _abs, color: _color, className, ...rest }: IconProps) {
+  function PaintedIcon({ size = 24, strokeWidth: _sw, absoluteStrokeWidth: _abs, color: _color, className, children: _children, ref: _ref, ...rest }: IconProps) {
+    const painted = PAINTED_ICONS[name]
+    const tiny = (typeof size === 'number' && size < 16) || /(?:^|\s)(?:size|w)-[1-3](?:\.5)?(?:\s|$)/.test(className ?? '')
+    if (painted && !tiny) return <img {...rest as unknown as ImgHTMLAttributes<HTMLImageElement>} src={asset(`/images/game/icons/ui-${painted}.webp`)} alt="" aria-hidden="true" width={size} height={size} className={`pi pi-${kebab} painted-icon painted-ui-icon${className ? ` ${className}` : ''}`} />
     return <svg viewBox="-1.5 -1.5 27 27" width={size} height={size} fill="none" strokeLinecap="round" strokeLinejoin="round"
       aria-hidden="true" className={`pi pi-${kebab}${className ? ` ${className}` : ''}`} {...rest}>
       <g transform="translate(0.7 1)" stroke="#2a1608" strokeOpacity="0.32" strokeWidth="4">{shapes(node)}</g>

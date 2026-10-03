@@ -1,5 +1,5 @@
 'use client'
-import { KumSaatiArt } from './resource-art'
+import { YolsuzlukArt, KumSaatiArt } from './resource-art'
 import { Term } from './term'
 import { flyGoods } from '@/lib/fx'
 
@@ -201,7 +201,7 @@ function BuildingView({ game, empire, id, onCommand, onRecruit, onNav, onBuildin
             [<Term key="t" label="Âlim maaşları" />, `${formatRate(-scientistUpkeepPerMinute(game))} akçe/dk`],
             [<Term key="t" label="Ordu bakımı" />, `${formatRate(-armyUpkeep(game))} akçe/dk`],
             [<strong key="n"><Term label="Net gelir" /></strong>, <strong key="v">{num(r.gold)} akçe/dk</strong>],
-            [<Term key="t" label="Yolsuzluk" />, `%${Math.round(corruption(game) * 100)}`],
+            [<span key="t" className="painted-term"><YolsuzlukArt width={20} height={20} /><Term label="Yolsuzluk" /></span>, `%${Math.round(corruption(game) * 100)}`],
             [<Term key="t" label="Sefer hakkı" />, `aynı anda ${actionPoints(game)} sefer`],
           ]} />
         </Box>

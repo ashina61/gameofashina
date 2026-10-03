@@ -14,13 +14,13 @@
 }
 .game-shell .ika-nav-item:active { transform: translateY(1px); }
 .game-shell .ika-nav-icon { display: grid; place-items: center; width: 34px; height: 30px; border-radius: 10px; }
-.game-shell .ika-nav-icon svg { width: 22px; height: 22px; filter: drop-shadow(0 1px 0 #0008); }
+.game-shell .ika-nav-icon :is(svg, .painted-icon) { width: 22px; height: 22px; filter: drop-shadow(0 1px 0 #0008); }
 .game-shell .ika-nav-label { line-height: 1; text-shadow: 0 1px 0 #0009; }
 .game-shell .ika-nav-active { background: linear-gradient(180deg, #d3ae5a12, #d3ae5a05); box-shadow: inset 0 1px #f5dda044; color: var(--c-gold-pale); }
 .game-shell .ika-nav-active::before { content: ''; position: absolute; top: 2px; left: 50%; width: 22px; height: 3px; transform: translateX(-50%);
   border-radius: 3px; background: #f2d37d; box-shadow: 0 0 8px #f2d37d88; }
 .game-shell .ika-nav-active .ika-nav-icon { background: radial-gradient(circle at 50% 35%, #f4d488, #b8813f 70%); color: var(--c-ink-deep); box-shadow: inset 0 1px 0 #fff7, 0 0 0 1px #3a210c, 0 0 12px #f4d48866; }
-.game-shell .ika-nav-active .ika-nav-icon svg { filter: none; }
+.game-shell .ika-nav-active .ika-nav-icon :is(svg, .painted-icon) { filter: none; }
 .game-shell .ika-nav-active .ika-nav-label { color: var(--c-gold-pale); }
 .game-shell .ika-nav-item:focus-visible { outline: 2px solid var(--c-gold-pale); outline-offset: -2px; }
 /* Ortadaki madalyon: bardan taşar, altın halka, pusula. */
@@ -30,7 +30,7 @@
   background: radial-gradient(circle at 45% 35%, #2f7a92, #17445a 70%);
   box-shadow: 0 0 0 3px var(--c-gold), 0 0 0 5px var(--c-brown), 0 6px 12px #000a, inset 0 2px 0 #ffffff40;
 }
-.game-shell .ika-nav-center .ika-nav-icon svg { width: 28px; height: 28px; }
+.game-shell .ika-nav-center .ika-nav-icon :is(svg, .painted-icon) { width: 28px; height: 28px; }
 .game-shell .ika-nav-center.ika-nav-active .ika-nav-icon { background: radial-gradient(circle at 45% 35%, #f4d488, #b8813f 70%); color: var(--c-ink-deep); }
 .game-shell .ika-nav-center .ika-nav-label { margin-top: 2px; }
 .game-shell .ika-nav-item .ika-badge { top: -4px; right: calc(50% - 26px); z-index: 1; }
@@ -46,14 +46,14 @@
 @keyframes quest-in { from { transform: translateY(-8px); opacity: 0; } }
 .quest-chip-main { display: flex; align-items: center; gap: 8px; min-width: 0; padding: 6px 8px 6px 7px; background: none; border: 0; text-align: left; color: var(--c-ink); }
 .quest-chip-icon { flex-shrink: 0; display: grid; place-items: center; width: 30px; height: 30px; border-radius: 50%; background: var(--c-brown); color: var(--c-cream); box-shadow: 0 0 0 2px var(--c-gold); }
-.quest-chip-icon svg { width: 16px; height: 16px; }
+.quest-chip-icon :is(svg, .painted-icon) { width: 16px; height: 16px; }
 .quest-chip-text { display: flex; flex-direction: column; min-width: 0; line-height: 1.15; }
 .quest-chip-text small { font-size: 11px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: var(--c-wood-edge); }
 .quest-chip-text small { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .quest-chip-text strong { font-family: var(--font-heading), Georgia, serif; font-size: 15.5px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .quest-chip-go { flex-shrink: 0; display: flex; align-items: center; gap: 2px; padding: 0 10px 0 12px; border: 0; border-left: 1px solid #d9bd85;
   background: linear-gradient(180deg, #b8813f, var(--c-brown-warm)); color: #fdf0cf; font-size: 13px; font-weight: 800; }
-.quest-chip-go svg { width: 16px; height: 16px; }
+.quest-chip-go :is(svg, .painted-icon) { width: 16px; height: 16px; }
 .quest-chip.is-done { border-color: var(--c-tan-gold); box-shadow: 0 0 0 2px #f4d48866, 0 4px 12px #3a231055; }
 .quest-chip.is-done .quest-chip-icon { background: radial-gradient(circle at 45% 35%, #f4d488, #b8813f); color: var(--c-ink); animation: quest-glow 1.4s ease-in-out infinite; }
 .quest-chip.is-done .quest-chip-go { background: linear-gradient(180deg, #58a03a, #3a7a24); }
@@ -64,7 +64,7 @@
 .sound-settings { display: flex; flex-direction: column; gap: 4px; }
 .toggle-row { display: grid; grid-template-columns: 22px 1fr auto; align-items: center; gap: 10px; padding: 8px 2px; border-bottom: 1px solid var(--c-parch-line); cursor: pointer; }
 .toggle-row:last-child { border-bottom: 0; }
-.toggle-row > svg { width: 20px; height: 20px; color: var(--c-ink-soft); }
+.toggle-row > :is(svg, .painted-icon) { width: 20px; height: 20px; color: var(--c-ink-soft); }
 .toggle-row span { display: flex; flex-direction: column; }
 .toggle-row strong { font-size: 14px; color: var(--c-ink); }
 .toggle-row small { font-size: 11.5px; color: var(--c-ink-soft); }
@@ -89,7 +89,7 @@
 .quest-art-subject { position: absolute; inset: 6% 6% 8%; display: flex; align-items: flex-end; justify-content: center; }
 .quest-art-subject > img { max-width: 100%; max-height: 100%; object-fit: contain; filter: drop-shadow(0 3px 3px #3a231055); }
 .quest-art-row { display: flex; align-items: flex-end; justify-content: center; gap: 2px; }
-.quest-art-row svg { filter: drop-shadow(0 2px 2px #3a231044); }
+.quest-art-row :is(svg, .painted-icon) { filter: drop-shadow(0 2px 2px #3a231044); }
 .objective-main { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 12px; align-items: center; margin-top: 12px; }
 .objective-main h3 { margin-top: 0 !important; }
 .objective-main p { margin-top: 4px; }
@@ -126,7 +126,7 @@
 .alliance-panel .alliance-tabs { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 .alliance-perks { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
 .alliance-perks li { display: grid; grid-template-columns: 20px 1fr; gap: 8px; align-items: start; font-size: 13px; line-height: 1.4; color: var(--c-ink); }
-.alliance-perks svg { width: 17px; height: 17px; color: var(--c-wood-edge); margin-top: 1px; }
+.alliance-perks :is(svg, .painted-icon) { width: 17px; height: 17px; color: var(--c-wood-edge); margin-top: 1px; }
 .member-row { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; gap: 8px; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--c-parch-line); }
 .member-row.is-you { grid-template-columns: 1fr; }
 .member-row > span, .member-name { display: flex; flex-direction: column; min-width: 0; text-align: left; background: none; border: 0; padding: 0; }
@@ -199,13 +199,13 @@
     border: 1px solid #d9c18540; box-shadow: inset 0 1px #ffffff14, inset 0 -2px #0003, 0 1px 2px #0006; }
   .ika-stock { display: grid; grid-template-columns: 19px minmax(0, 1fr); column-gap: 3px; align-items: center;
     background: linear-gradient(180deg, #3b2a18, #24170c); }
-  .ika-stock i svg { width: 19px; height: 19px; }
+  .ika-stock i :is(svg, .painted-icon) { width: 19px; height: 19px; }
   .ika-stock .ika-chip-num { flex-direction: column; align-items: flex-end; gap: 2px; }
   .ika-chip b { font-size: 13px; letter-spacing: -.01em; white-space: nowrap; }
   .ika-chip small { font-size: 11px; white-space: nowrap; }
   .ika-status { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; padding: 3px 2px;
     background: linear-gradient(180deg, #17322c, #0c211d); border-color: #8fbf9c40; }
-  .ika-status i svg { width: 17px; height: 17px; }
+  .ika-status i :is(svg, .painted-icon) { width: 17px; height: 17px; }
   .ika-status .ika-chip-num { gap: 0; }
   .ika-status b { font-size: 11.5px; }
   .ika-status small { color: #c9d5b8; font-size: 11px; }

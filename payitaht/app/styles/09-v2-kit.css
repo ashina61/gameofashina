@@ -13,7 +13,7 @@
   border-radius: 10px; border: 1px solid #c9a76c; background: linear-gradient(180deg, #fff8e2, #f3e3b6); box-shadow: 0 1px 2px #5a351722; }
 .treasury-icon { width: 44px; height: 44px; display: grid; place-items: center; border-radius: 50%;
   background: radial-gradient(circle at 40% 30%, #7d5830, var(--c-wood-dark) 70%); border: 2px solid #d9b96f; box-shadow: 0 2px 4px #0005, inset 0 1px #fff3; }
-.treasury-icon svg { width: 28px; height: 28px; filter: drop-shadow(0 1px 1px #0008); }
+.treasury-icon :is(svg, .painted-icon) { width: 28px; height: 28px; filter: drop-shadow(0 1px 1px #0008); }
 .treasury-main { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
 .treasury-name { display: flex; align-items: baseline; gap: 6px; min-width: 0; }
 .treasury-name strong { font-size: 14px; font-weight: 800; color: var(--ink, var(--c-ink)); }
@@ -58,7 +58,7 @@
 /* Rapor başlığı: simge | başlık (altında saat) | 44 px'lik eylemler.
  * Saat artık büyüyen düğmelerin altına kaymaz. */
 .bp .report-head { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; column-gap: 8px; row-gap: 2px; align-items: center; }
-.bp .report-head > svg { grid-column: 1; grid-row: 1; }
+.bp .report-head > :is(svg, .painted-icon) { grid-column: 1; grid-row: 1; }
 .bp .report-head > strong { grid-column: 2; grid-row: 1; }
 .bp .report-head > time { grid-column: 2; grid-row: 2; margin-left: 0; }
 .bp .report-head > .report-actions { grid-column: 3; grid-row: 1 / span 2; margin-left: 0; }
@@ -72,7 +72,7 @@
   font: inherit; font-size: 14px; font-weight: 800; letter-spacing: .01em; line-height: 1.15;
   cursor: pointer; user-select: none; -webkit-tap-highlight-color: transparent;
   transition: transform .06s ease, box-shadow .06s ease, filter .12s ease; }
-.gbtn > svg { flex-shrink: 0; width: 18px; height: 18px; }
+.gbtn > :is(svg, .painted-icon) { flex-shrink: 0; width: 18px; height: 18px; }
 .gbtn-sm, .gbtn-xs { font-size: 13px; padding: 0 12px; border-radius: 10px; }
 .gbtn-lg { min-height: 52px; padding: 0 22px; font-size: 16px; border-radius: 14px; }
 .gbtn-icon { width: 44px; padding: 0; border-radius: 50%; }
@@ -122,7 +122,7 @@
   content: ''; position: absolute; left: 22px; right: 22px; bottom: 5px; height: 1px;
   background: linear-gradient(90deg, transparent, #f2d37d99, transparent);
 }
-.bp .empire-section > h3 svg, .bp-box-title svg { width: 20px; height: 20px; }
+.bp .empire-section > h3 :is(svg, .painted-icon), .bp-box-title :is(svg, .painted-icon) { width: 20px; height: 20px; }
 .bp-box-body { padding: 10px 14px 16px; }
 .bp .empire-section > :not(h3) { margin-inline: 14px; }
 .bp .empire-section > :last-child { margin-bottom: 16px; }
@@ -146,7 +146,7 @@
   border-radius: 12px; border: 1px solid #d3b57c; background: linear-gradient(180deg, var(--c-paper), #f6e7c4); }
 .sk-medal { width: 40px; height: 40px; display: grid; place-items: center; border-radius: 50%;
   background: radial-gradient(circle at 40% 30%, #7d5830, var(--c-wood-dark) 70%); border: 2px solid #d9b96f; box-shadow: 0 2px 3px #0004, inset 0 1px #fff3; }
-.sk-medal svg { width: 24px; height: 24px; }
+.sk-medal :is(svg, .painted-icon) { width: 24px; height: 24px; }
 .sk-label { display: flex; flex-direction: column; min-width: 0; font-size: 14px; font-weight: 800; color: var(--c-ink); }
 .sk-label small { font-size: 11px; font-weight: 600; color: var(--c-ink-soft); }
 .sk-value { font-size: 16px; font-weight: 800; color: var(--c-ink); font-variant-numeric: tabular-nums lining-nums; white-space: nowrap; }
@@ -171,7 +171,7 @@
 /* CostTokens: boyalı jeton (simge madalyonda). */
 .sk-costs .sk-token { flex-shrink: 0; width: 30px; height: 30px; display: grid; place-items: center; border-radius: 50%;
   background: radial-gradient(circle at 40% 30%, #fff6dc, #e8cf98 70%); border: 1.5px solid #a8783a; box-shadow: 0 1px 2px #5a351744, inset 0 1px #fff; }
-.sk-costs .sk-token svg { width: 20px; height: 20px; }
+.sk-costs .sk-token :is(svg, .painted-icon) { width: 20px; height: 20px; }
 .sk-costs li.bp-short .sk-token { border-color: var(--c-bad); background: radial-gradient(circle at 40% 30%, #fff1ec, #f3c4b8 70%); }
 
 /* =========================================================================
@@ -226,7 +226,7 @@
 .bp-plaque-text small { font-size: 11px; color: #f3d9a8; }
 .bp-help { width: 44px; height: 44px; flex-shrink: 0; display: grid; place-items: center; border-radius: 50%;
   border: 1px solid #c9a45a88; background: #2a170899; }
-.bp-help svg { width: 24px; height: 24px; }
+.bp-help :is(svg, .painted-icon) { width: 24px; height: 24px; }
 .bp-help[aria-pressed="true"] { background: var(--c-gold); box-shadow: 0 0 0 2px #2a1708, 0 0 10px #f2d37d88; }
 .bp-building:not(.show-help) .bp-desc { display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; cursor: pointer;
   /* Kırpma dolgu kutusunda olur: dikey dolgu yerine saydam kenar, ikinci satır görünmesin. */
@@ -246,23 +246,23 @@
 .bp-dock .bp-costs { grid-template-columns: repeat(auto-fill, minmax(62px, 1fr)); gap: 4px; }
 .bp-dock .bp-costs li { padding: 3px 4px; gap: 4px; font-size: 13px; }
 .bp-dock .sk-token { width: 24px; height: 24px; }
-.bp-dock .sk-token svg { width: 18px; height: 18px; }
+.bp-dock .sk-token :is(svg, .painted-icon) { width: 18px; height: 18px; }
 /* Dokta jeton dar (62px): "eksik N" kendi satırına iner, sığmazsa kırılır; ekrandan taşmaz. */
 .bp-dock .bp-costs li.bp-short { grid-template-rows: auto auto; }
 .bp-dock .bp-costs li.bp-short > :first-child { grid-row: 1; }
 .bp-dock .bp-costs li.bp-short small { grid-column: 1 / -1; white-space: normal; text-align: center; overflow-wrap: anywhere; }
 .bp-dock .bp-warn { font-size: 12px; margin: 0; display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; }
-.bp-dock .bp-warn svg { display: none; }
+.bp-dock .bp-warn :is(svg, .painted-icon) { display: none; }
 .bp-up-time { display: inline-flex; align-items: center; gap: 3px; margin-left: 4px; padding: 2px 8px; border-radius: 999px;
   background: #0003; font-size: 13px; font-weight: 700; }
-.bp-up-time svg { width: 16px; height: 16px; }
+.bp-up-time :is(svg, .painted-icon) { width: 16px; height: 16px; }
 .bp-dock .bp-upgrade-button { min-height: 50px; }
 /* Bina sayfası açıkken alttaki Harita madalyonu yukarı taşmaz (Yükselt'i
  * örtmesin); menü hizasında, biraz küçük durur. */
 .game-shell .bp-dock { gap: 6px; }
 .game-shell:has(.bp-dock) .ika-nav-center { transform: none; }
 .game-shell:has(.bp-dock) .ika-nav-center .ika-nav-icon { margin-top: 0; width: 40px; height: 40px; }
-.game-shell:has(.bp-dock) .ika-nav-center .ika-nav-icon svg { width: 22px; height: 22px; }
+.game-shell:has(.bp-dock) .ika-nav-center .ika-nav-icon :is(svg, .painted-icon) { width: 22px; height: 22px; }
 
 /* =========================================================================
  * V2 FAZ 2.2 — DANIŞMAN SAYFALARI: tablo yerine şehir kartları, ikili değer
@@ -271,7 +271,7 @@
 .sk-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
 .sk-grid .sk-row { grid-template-columns: 34px minmax(0, 1fr); grid-template-rows: auto auto; row-gap: 0; padding: 6px 8px 6px 6px; }
 .sk-grid .sk-medal { grid-row: 1 / 3; width: 34px; height: 34px; }
-.sk-grid .sk-medal svg { width: 20px; height: 20px; }
+.sk-grid .sk-medal :is(svg, .painted-icon) { width: 20px; height: 20px; }
 .sk-grid .sk-label { font-size: 12px; font-weight: 700; color: var(--c-ink-soft); }
 .sk-grid .sk-value { grid-column: 2; font-size: 15px; white-space: normal; }
 
@@ -287,7 +287,7 @@
 .cc-name strong { font-family: var(--font-heading), Georgia, serif; font-size: 17px; color: var(--c-ink); }
 .cc-name small { padding: 0 6px; border-radius: 999px; background: var(--c-gold); color: var(--c-ink-deep); font-size: 11px; font-weight: 800; }
 .cc-job { display: flex; align-items: center; gap: 5px; font-size: 12px; font-weight: 700; color: var(--c-ink-soft); }
-.cc-job svg { width: 18px; height: 18px; }
+.cc-job :is(svg, .painted-icon) { width: 18px; height: 18px; }
 .cc-job.is-idle { color: var(--c-bad); }
 
 .tl { display: flex; flex-direction: column; gap: 10px; }
@@ -298,7 +298,7 @@
 .tl-item { position: relative; display: grid; grid-template-columns: 36px minmax(0, 1fr) auto; align-items: center; gap: 8px; padding: 3px 0; }
 .tl-icon { width: 36px; height: 36px; display: grid; place-items: center; border-radius: 50%; border: 2px solid var(--c-tan-gold);
   background: radial-gradient(circle at 40% 30%, var(--c-paper), #ead39a 75%); box-shadow: 0 1px 2px #5a351733; }
-.tl-icon svg { width: 22px; height: 22px; }
+.tl-icon :is(svg, .painted-icon) { width: 22px; height: 22px; }
 .tl-item.is-war .tl-icon { border-color: #b3261e99; }
 .tl-item.is-reward .tl-icon { border-color: var(--c-gold-deep); }
 .tl-text { font-size: 13px; line-height: 1.35; color: var(--c-ink); }
@@ -325,7 +325,7 @@
 .deal-token.is-want { border-color: var(--c-gold-deep); }
 .deal-token small { font-size: var(--fs-xs); font-weight: 800; letter-spacing: 0.8px; text-transform: uppercase; color: var(--c-ink-soft); }
 .deal-medal { width: 44px; height: 44px; display: grid; place-items: center; border-radius: 50%; background: radial-gradient(circle at 35% 30%, var(--c-cream), var(--c-parch-shade)); border: 2px solid var(--c-gold-soft); box-shadow: inset 0 -2px 3px #5a351733; }
-.deal-medal svg { width: 30px; height: 30px; }
+.deal-medal :is(svg, .painted-icon) { width: 30px; height: 30px; }
 .deal-token b { font-size: var(--fs-xl); line-height: 1.1; color: var(--c-ink); }
 .deal-token em { font-style: normal; font-size: var(--fs-xs); color: var(--c-ink-soft); text-align: center; }
 .proposal-deal .proposal-swap { align-self: center; font-size: 22px; font-weight: 800; color: var(--c-wood-edge); }
@@ -367,7 +367,7 @@
 .bp.bp-sheet.is-modeless { max-height: 46dvh; }
 .wm-sheet { padding-top: 10px; }
 .wm-sheet .wm-facts { font-size: var(--fs-md); gap: 6px; }
-.wm-sheet .wm-facts svg { flex: none; color: var(--c-ink-soft); }
+.wm-sheet .wm-facts :is(svg, .painted-icon) { flex: none; color: var(--c-ink-soft); }
 .wm-sheet .batch-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 .wm-ship { animation: wm-bob 2.4s ease-in-out infinite; transform-box: fill-box; }
 @keyframes wm-bob { 50% { translate: 0 -2px; } }
@@ -388,7 +388,7 @@
 .bs-skip { position: absolute; right: 8px; top: 50%; translate: 0 -50%; min-width: 44px; min-height: 44px; padding: 0 10px; border-radius: 999px; border: 1px solid #c9a45a88; background: #2a170899; color: var(--c-cream); font-size: var(--fs-sm); font-weight: 700; }
 .bs-sides { position: relative; }
 .bs-vs { position: absolute; z-index: 1; left: 50%; top: -21px; width: 30px; height: 30px; margin-left: -15px; display: grid; place-items: center; border-radius: 50%; color: var(--c-gold-pale); background: radial-gradient(circle at 40% 30%, var(--c-brown-warm), var(--c-wood-dark)); border: 2px solid var(--c-gold-soft); box-shadow: 0 2px 4px #0006; }
-.bs-vs svg { width: 16px; height: 16px; }
+.bs-vs :is(svg, .painted-icon) { width: 16px; height: 16px; }
 
 .bs:not(.is-done) .bs-side { animation: bs-arrive .5s cubic-bezier(.2,.8,.2,1) both; }
 .bs:not(.is-done) .bs-vs { animation: bs-clash .9s .35s ease-out both; }
@@ -435,7 +435,7 @@
 .alliance-head { position: relative; }
 .pact-medal { position: absolute; left: 6px; bottom: 6px; width: 58px; height: 58px; display: flex; flex-direction: column; align-items: center; justify-content: center; border-radius: 50%; color: var(--c-ink-deep);
   background: radial-gradient(circle at 38% 30%, var(--c-gold-pale), var(--c-gold-mid) 70%, var(--c-brass-dark)); border: 3px solid var(--c-gold-deep); box-shadow: 0 3px 6px #3b241455, inset 0 2px #ffffff88, inset 0 -3px 4px #3b241444; }
-.pact-medal svg { width: 16px; height: 16px; color: var(--c-brass-dark); }
+.pact-medal :is(svg, .painted-icon) { width: 16px; height: 16px; color: var(--c-brass-dark); }
 .pact-medal b { font-size: var(--fs-base); line-height: 1; font-variant-numeric: tabular-nums lining-nums; }
 .alliance-head .pact-medal small { font-size: var(--fs-xs); line-height: 1; color: var(--c-brass-dark); font-weight: 700; }
 .pact-scroll { position: relative; padding: 12px 16px; border-radius: 4px; border: 0; background: linear-gradient(180deg, var(--c-cream), var(--c-parch-2) 60%, var(--c-parch-shade)); box-shadow: 0 2px 5px #5a351733;
@@ -462,26 +462,26 @@
 .goal-art { width: 64px; height: 64px; display: grid; place-items: center; border-radius: 12px; overflow: hidden; color: var(--c-gold-pale);
   background: radial-gradient(circle at 50% 40%, var(--c-parch-light), var(--c-parch-shade)); border: 2px solid var(--c-gold-soft); box-shadow: inset 0 -3px 6px #5a351722; }
 .goal-art img { width: 100%; height: 100%; object-fit: contain; }
-.goal-art > svg { width: 34px; height: 34px; color: var(--c-brown-warm); }
+.goal-art > :is(svg, .painted-icon) { width: 34px; height: 34px; color: var(--c-brown-warm); }
 .goal-body { display: flex; flex-direction: column; gap: 5px; min-width: 0; }
 .goal-body strong { font-size: var(--fs-md); color: var(--c-ink); line-height: 1.25; }
 .goal-body small { font-size: var(--fs-xs); color: var(--c-ink-soft); line-height: 1.3; }
 .goal-reward { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; font-size: var(--fs-sm); font-weight: 700; color: var(--c-ink); }
 .goal-chest { width: 26px; height: 26px; display: grid; place-items: center; border-radius: 6px; color: var(--c-gold-pale);
   background: linear-gradient(180deg, var(--c-brown-warm), var(--c-wood-dark)); border: 1.5px solid var(--c-gold-soft); }
-.goal-chest svg { width: 16px; height: 16px; }
+.goal-chest :is(svg, .painted-icon) { width: 16px; height: 16px; }
 .goal-card.is-ready .goal-chest { animation: goal-bob 1.4s ease-in-out infinite; }
 @keyframes goal-bob { 50% { translate: 0 -2px; rotate: -6deg; } }
 @media (prefers-reduced-motion: reduce) { .goal-card.is-ready .goal-chest { animation: none; } }
 .goal-token { display: inline-flex; align-items: center; gap: 3px; font-variant-numeric: tabular-nums lining-nums; }
-.goal-token svg { width: 18px; height: 18px; }
+.goal-token :is(svg, .painted-icon) { width: 18px; height: 18px; }
 
 /* =========================================================================
  * V2 Faz 3 — OYUN HİSSİ: uçan jetonlar (lib/fx.ts) ve "Az hareket" ayarı.
  * ========================================================================= */
 .fx-layer { position: fixed; inset: 0; z-index: 200; pointer-events: none; overflow: hidden; }
 .fx-token { position: fixed; width: 26px; height: 26px; display: grid; place-items: center; filter: drop-shadow(0 2px 2px #0007); will-change: transform, opacity; }
-.fx-token > i, .fx-token svg { width: 26px; height: 26px; display: block; }
+.fx-token > i, .fx-token :is(svg, .painted-icon) { width: 26px; height: 26px; display: block; }
 html[data-motion="az"] *, html[data-motion="az"] *::before, html[data-motion="az"] *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
 /* Baskın / kuşatma şeridi dokunulabilir: en az parmak boyu (Faz 0.2 kuralı). */
 .threat-banner { min-height: 44px; }
@@ -518,8 +518,8 @@ html[data-motion="az"] *, html[data-motion="az"] *::before, html[data-motion="az
 .guide-glow { outline: 3px solid var(--c-gold-pale); outline-offset: 2px; animation: guide-pulse 1.3s ease-in-out infinite; }
 @keyframes guide-pulse { 0%, 100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--c-gold) 70%, transparent); } 50% { box-shadow: 0 0 14px 6px color-mix(in srgb, var(--c-gold) 70%, transparent); } }
 .guide-arrow { position: fixed; z-index: 65; pointer-events: none; transform: translateX(-50%); filter: drop-shadow(0 2px 3px rgb(0 0 0 / .35)); animation: guide-bob .8s ease-in-out infinite alternate; }
-.guide-arrow svg { display: block; }
-.guide-arrow.is-below svg { transform: rotate(180deg); }
+.guide-arrow :is(svg, .painted-icon) { display: block; }
+.guide-arrow.is-below :is(svg, .painted-icon) { transform: rotate(180deg); }
 @keyframes guide-bob { from { translate: 0 0; } to { translate: 0 8px; } }
 .guide-arrow.is-below { animation-direction: alternate-reverse; }
 [data-motion="az"] .guide-glow, [data-motion="az"] .guide-arrow { animation: none; }

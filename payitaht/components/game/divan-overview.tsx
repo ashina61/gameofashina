@@ -6,6 +6,7 @@
  * altında "Nüfus ve üretim" şeridi (her meslek resmiyle, sayısı ve getirisi)
  * ve şehir nişanı seçimi.
  */
+import { HuzurArt } from './resource-art'
 import { Swords, Anchor, Flag, Sprout, Scale, House } from './ui-art'
 import {
   actionPoints, contentment, corruption, garrisonLimit, garrisonUsed, growthRate, housing, idleWorkers,
@@ -57,7 +58,7 @@ export function DivanOverview({ game, empire, run }: { game: Game; empire?: Empi
     <div className="dv-head">
       <span className="dv-emblem"><CityEmblem id={city?.emblem} size={46} /></span>
       <span className="dv-title"><small>{city ? (empire && city.id === capitalId(empire) ? 'BAŞKENT' : 'KOLONİ') : 'ŞEHİR'}</small><strong>{city?.name ?? 'Şehrin'}</strong></span>
-      <span className="dv-mood"><MoodFace g={game} size={52} /><small>{moodOf(game).name} · yolsuzluk %{Math.round(corruption(game) * 100)}</small></span>
+      <span className="dv-mood"><MoodFace g={game} size={52} /><HuzurArt width={20} height={20} /><small>{moodOf(game).name} · yolsuzluk %{Math.round(corruption(game) * 100)}</small></span>
     </div>
     <div className="dv-stats">
       <span><House /><small>Boş konut</small><b>{n(free)}<i>/{n(housing(game))}</i></b></span>

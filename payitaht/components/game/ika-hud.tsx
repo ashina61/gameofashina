@@ -6,7 +6,7 @@
  * Üstte koyu kahverengi şerit: şehir seçici ve dört danışman (Vezir, Serasker,
  * Âlim, Elçi). Haber olan danışman parlar ve sayı gösterir. Altında parşömen
  * kaynak şeridi. En altta kahverengi menü: Şehir, Ada, Harita, İttifak, Görevler.
- * Eski boyalı görseller kullanılmaz; her şey CSS ve vektör çizimdir.
+ * G1 kit malzemeleri ve G2 boyalı ikonlar; danışman portreleri G3’te yenilenir.
  */
 import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { Castle, TreePalm, Compass, Shield, ScrollText, ChevronDown } from './ui-art'

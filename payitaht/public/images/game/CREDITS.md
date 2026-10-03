@@ -80,3 +80,31 @@ G0 onayı 2026-10-03'te verildi. Ek onay notları: ikonlar 24 px'te
 G3 portreleri 42 px dairede yüz ortalı ve seçilebilir, omuzlar daire içinde
 kırpılacak. Düğme/plaka süsleri sabit köşe dilimlerinde; orta alan uzatılabilir.
 Onay kanıtları WebP ≤200 KB; önceki G0 PNG kanıtlarının çalışma kopyaları silindi.
+
+## 5. G2 — kaynak ve menü ikonları
+
+OpenAI ImageGen, 2026-10-03. Onaylı G0 stil sayfası referansıyla üretim. Tam promptlar: `tools/art/prompts/g2.md`; ortak kök: `tools/art/prompts/_kok.md`. OpenAI kullanım koşulları geçerlidir; başka oyunlardan görsel alınmadı. Şeffaf 256 px WebP, ikon başına ≤12 KB.
+
+| Dosya | Üretim |
+|---|---|
+| `icons/res-akce.webp` | OpenAI ImageGen, 2026-10-03 |
+| `icons/res-kereste.webp` | OpenAI ImageGen, 2026-10-03 |
+| `icons/res-tas.webp` | OpenAI ImageGen, 2026-10-03 |
+| `icons/res-ilim.webp` | OpenAI ImageGen, 2026-10-03 |
+| `icons/res-uzum.webp` | OpenAI ImageGen, 2026-10-03 |
+| `icons/res-mermer.webp` | OpenAI ImageGen, 2026-10-03 |
+| `icons/res-kristal.webp` | OpenAI ImageGen, 2026-10-03 |
+| `icons/res-kukurt.webp` | OpenAI ImageGen, 2026-10-03 |
+| `icons/res-nufus.webp` | OpenAI ImageGen, 2026-10-03 |
+| `icons/res-sefer.webp` | OpenAI ImageGen, 2026-10-03 |
+| `icons/res-huzur.webp` | OpenAI ImageGen, 2026-10-03 |
+| `icons/res-yolsuzluk.webp` | OpenAI ImageGen, 2026-10-03 |
+| `icons/ui-city.webp` | OpenAI ImageGen, 2026-10-03 |
+| `icons/ui-island.webp` | OpenAI ImageGen, 2026-10-03 |
+| `icons/ui-map.webp` | OpenAI ImageGen, 2026-10-03 |
+| `icons/ui-alliance.webp` | OpenAI ImageGen, 2026-10-03 |
+| `icons/ui-objectives.webp` | OpenAI ImageGen, 2026-10-03 |
+| `icons/ui-flag.webp` | OpenAI ImageGen, 2026-10-03 |
+| `icons/ui-harbour.webp` | OpenAI ImageGen, 2026-10-03 |
+| `icons/ui-divan.webp` | OpenAI ImageGen, 2026-10-03 |
+| `icons/ui-offer.webp` | OpenAI ImageGen, 2026-10-03 |

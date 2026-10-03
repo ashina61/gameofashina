@@ -64,7 +64,7 @@
 }
 .sk-meter {
   background: transparent;
-  border-image: var(--art-walnut-plate) 56 fill / 4px / 0 stretch;
+  border-image: var(--art-button-parch) 56 fill / 4px / 0 stretch;
 }
 .sk-meter > span {
   background: transparent;
@@ -82,3 +82,9 @@
   border-image-source: var(--art-button-gold);
   color: var(--c-ink);
 }
+
+.painted-icon { object-fit: contain; display: inline-block; vertical-align: middle; flex-shrink: 0; }
+.painted-ui-icon { background: var(--art-medal-frame) center/100% 100% no-repeat; padding: 1.5px; border-radius: 50%; box-sizing: border-box; }
+.painted-term { display: inline-flex; align-items: center; gap: 6px; }
+/* Keep glossary controls fully tappable beside painted table icons. */
+.bp-table .term-btn { min-height: 44px; }

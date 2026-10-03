@@ -1,0 +1,102 @@
+[
+  {
+    "file": "res-akce.webp",
+    "bytes": 11604
+  },
+  {
+    "file": "res-kereste.webp",
+    "bytes": 11922
+  },
+  {
+    "file": "res-tas.webp",
+    "bytes": 11950
+  },
+  {
+    "file": "res-ilim.webp",
+    "bytes": 11826
+  },
+  {
+    "file": "res-uzum.webp",
+    "bytes": 11808
+  },
+  {
+    "file": "res-mermer.webp",
+    "bytes": 11952
+  },
+  {
+    "file": "res-kristal.webp",
+    "bytes": 11994
+  },
+  {
+    "file": "res-kukurt.webp",
+    "bytes": 11872
+  },
+  {
+    "file": "res-nufus.webp",
+    "bytes": 11898
+  },
+  {
+    "file": "res-sefer.webp",
+    "bytes": 9390
+  },
+  {
+    "file": "res-huzur.webp",
+    "bytes": 11440
+  },
+  {
+    "file": "res-yolsuzluk.webp",
+    "bytes": 11924
+  },
+  {
+    "file": "ui-city.webp",
+    "bytes": 11518
+  },
+  {
+    "file": "ui-island.webp",
+    "bytes": 10908,
+    "quality": 28,
+    "content": 200
+  },
+  {
+    "file": "ui-map.webp",
+    "bytes": 11892,
+    "quality": 64,
+    "content": 200
+  },
+  {
+    "file": "ui-alliance.webp",
+    "bytes": 11710,
+    "quality": 64,
+    "content": 200
+  },
+  {
+    "file": "ui-objectives.webp",
+    "bytes": 11480,
+    "quality": 82,
+    "content": 200
+  },
+  {
+    "file": "ui-flag.webp",
+    "bytes": 8908,
+    "quality": 82,
+    "content": 200
+  },
+  {
+    "file": "ui-harbour.webp",
+    "bytes": 11856,
+    "quality": 64,
+    "content": 200
+  },
+  {
+    "file": "ui-divan.webp",
+    "bytes": 11574,
+    "quality": 82,
+    "content": 200
+  },
+  {
+    "file": "ui-offer.webp",
+    "bytes": 11382,
+    "quality": 82,
+    "content": 200
+  }
+]
