@@ -45,3 +45,14 @@ Bunlar bu depodaki betiklerle üretilir. Kaynağı kodun kendisidir; betiği yen
 Boyalı görsellerde gömülü sancak yok. Faz 4.1'de bütün görseller tarandı;
 bulunan kırmızı bölgeler kiremit, alem ve tente çıktı. Oyuncunun sancağı devlet
 yapılarının yanındaki direklerde çalışma anında çizilir.
+
+## 3. Görsel yenileme — G0 stil belgesi
+
+| Dosya | Üreten araç / tarih | Tarif ve referans | Kullanım notu |
+|---|---|---|---|
+| `docs/stil-sayfasi.webp` (public klasörünün dışındaki belge) | Codex görsel üretimi, OpenAI ImageGen, 2026-10-03 | `tools/art/prompts/g0.md`, ortak kök `tools/art/prompts/_kok.md`; mevcut `buildings/divan-painted-1.webp` stil referansı | Yeniçeri, şehir danışmanı, akçe/kereste/taş, boş düğme ve zeytin ağacı için üretilmiş özgün stil örnekleri. OpenAI hizmet koşulları kapsamında çıktı kullanımına tabidir; üçüncü taraf oyun görseli kullanılmamıştır. Mevcut bina setinin bölüm 2'deki kaynak belirsizliği bu üretimle giderilmiş sayılmaz. |
+
+G0 belgesi onay içindir, `public/` altında sunulmaz ve telefonda indirilmez.
+Bina referansının asıl dosyası korunmuştur. Stil örnekleri henüz oyun asset'i
+olarak bağlanmamıştır; brifte G0 için kod bağlantısı yoktur. Ayrı oyun dosyaları
+onaydan sonra ilgili fazda üretilir ve ayrıca kaydedilir.

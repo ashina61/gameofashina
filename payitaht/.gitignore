@@ -23,3 +23,8 @@ android/app/payitaht-release.keystore
 
 # QA ekran görüntüleri (tools/visual-qa.cjs, layout-qa.cjs): her koşuda yeniden üretilir.
 /visual-review/
+
+# Görsel brifinin onay durakları: teslim kanıtları kalıcıdır.
+!/visual-review/
+/visual-review/*
+!/visual-review/G0/
