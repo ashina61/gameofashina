@@ -8,44 +8,11 @@ export function drawCityLife({ T, V, plazaDecor, scene, stamp }: { T: { tier: nu
   // 2f) OSMANLI DOKUSU: kuzey kapısı dışında servilikli mezarlık (sarıklı ve
   // fesli şahideler), liman yolunda tenteli çarşı tezgâhları.
   {
-    const or = mulberry32(1453)
     // MEZARLIK.
     T.tier = 2
     const cem = cemeterySite()
-    const cg = scene.add.graphics().setDepth(-702)
-    cg.fillStyle(0x667f45, 0.13); cg.fillEllipse(cem.x, cem.y, TILE.w * 3.8, TILE.h * 3.1)
-    const stones: Array<{ x: number; y: number }> = []
-    for (let r = -1; r <= 1; r++) {
-      for (let c = -3; c <= 3; c++) {
-        const x = cem.x + c * TILE.w * 0.49 + r * TILE.w * 0.2 + (or() - 0.5) * 24
-        const y = cem.y + r * TILE.h * 0.75 + c * TILE.h * 0.1 + (or() - 0.5) * 14
-        if (((x - cem.x) / (TILE.w * 1.9)) ** 2 + ((y - cem.y) / (TILE.h * 1.5)) ** 2 > 1) continue
-        if (or() < 0.34) {
-          const img = stamp(or() < 0.5 ? 'd_cypress' : 'd_cypress-b', x, y, TILE.w * (0.24 + or() * 0.06), y, 0.92)
-          if (img) plazaDecor.push(img)
-          continue
-        }
-        stones.push({ x, y })
-      }
-    }
-    for (const st of stones) {
-      const g = scene.add.graphics().setDepth(st.y)
-      const h = 16 + or() * 9, w = 6 + or() * 2, tilt = (or() - 0.5) * 4
-      g.fillStyle(0x2f421c, 0.25); g.fillEllipse(st.x + 5, st.y + 1, w * 2.4, 4)
-      g.fillStyle(0xe9e4d6, 1); g.fillPoints([V(st.x - w / 2, st.y), V(st.x + w / 2, st.y), V(st.x + w / 2 + tilt, st.y - h), V(st.x - w / 2 + tilt, st.y - h)], true)
-      g.fillStyle(0xc9c2ae, 1); g.fillRect(st.x + w / 2 - 2, st.y - h + 2, 2, h - 2)
-      const top = or()
-      if (top < 0.45) { // sarık
-        g.fillStyle(0xf6f3ea, 1); g.fillEllipse(st.x + tilt, st.y - h - 3, w * 1.9, 8)
-        g.lineStyle(1, 0xc9c2ae, 1); g.lineBetween(st.x + tilt - w * 0.8, st.y - h - 3, st.x + tilt + w * 0.8, st.y - h - 5)
-      } else if (top < 0.75) { // fes
-        g.fillStyle(0xa8322a, 1); g.fillRect(st.x + tilt - w * 0.55, st.y - h - 7, w * 1.1, 7)
-      } else { // sivri (kadın mezarı), çiçek motifi
-        g.fillStyle(0xe9e4d6, 1); g.fillTriangle(st.x + tilt - w / 2, st.y - h, st.x + tilt + w / 2, st.y - h, st.x + tilt, st.y - h - 7)
-        g.fillStyle(0xc8453a, 1); g.fillCircle(st.x + tilt * 0.5, st.y - h * 0.6, 1.6)
-      }
-      plazaDecor.push(g)
-    }
+    const cemetery = stamp('d_mezarlik', cem.x, cem.y, TILE.w * 3.5, cem.y, 0.92)
+    if (cemetery) plazaDecor.push(cemetery)
 
     T.tier = 5
     // İSKELE PAZARI: binalarla aynı çizim aracından arasta + çadırlı pazar
@@ -91,37 +58,11 @@ export function drawCityLife({ T, V, plazaDecor, scene, stamp }: { T: { tier: nu
       }
     }
 
-    // ÇEŞMELER: mermer ayna taşı, sivri kemerli niş, kitabe, tunç lüle, yalak.
+    // Boyalı çeşmeler aynı sabit konum ve gelişme seviyesinde kalır.
     for (const c of cityFountains()) {
       T.tier = fountainTier(c)
-      const g = scene.add.graphics().setDepth(c.y)
-      const w = TILE.w * 0.38, h = TILE.h * 0.74, d = w * 0.3
-      const x0 = c.x - w / 2, x1 = c.x + w / 2, y0 = c.y
-      g.fillStyle(0x1b2a14, 0.24); g.fillEllipse(c.x + w * 0.3, y0 + 6, w * 1.5, 16)
-      // Yan yüz, ön yüz, saçak.
-      g.fillStyle(0xc9bfa8, 1); g.fillPoints([V(x1, y0), V(x1 + d, y0 - d / 2), V(x1 + d, y0 - d / 2 - h), V(x1, y0 - h)], true)
-      g.fillStyle(0xf1ece0, 1); g.fillRect(x0, y0 - h, w, h)
-      g.fillStyle(0xd9d1bd, 1); g.fillRect(x0, y0 - h * 0.12, w, h * 0.12)
-      // Sivri kemerli niş.
-      const nw = w * 0.56, nx = c.x, ny = y0 - h * 0.14
-      g.fillStyle(0xcfc6b0, 1)
-      g.fillPoints([V(nx - nw / 2, ny), V(nx - nw / 2, ny - h * 0.42), V(nx, ny - h * 0.66), V(nx + nw / 2, ny - h * 0.42), V(nx + nw / 2, ny)], true)
-      g.lineStyle(1.5, 0xa99f88, 1)
-      g.strokePoints([V(nx - nw / 2, ny), V(nx - nw / 2, ny - h * 0.42), V(nx, ny - h * 0.66), V(nx + nw / 2, ny - h * 0.42), V(nx + nw / 2, ny)], false)
-      // Kitabe (yeşil zemin üstünde altın satırlar).
-      g.fillStyle(0x2f5a44, 1); g.fillRect(x0 + w * 0.12, y0 - h * 0.95, w * 0.76, h * 0.18)
-      g.lineStyle(1.2, 0xe2bd78, 1)
-      for (const r of [0.33, 0.66]) g.lineBetween(x0 + w * 0.18, y0 - h * (0.95 - 0.18 * r), x0 + w * 0.82, y0 - h * (0.95 - 0.18 * r))
-      // Saçak ve tepe.
-      g.fillStyle(0x7f9690, 1); g.fillPoints([V(x0 - 6, y0 - h), V(x1 + 6, y0 - h), V(x1 + d + 6, y0 - h - d / 2), V(x0 + d - 6, y0 - h - d / 2)], true)
-      g.fillStyle(0x9fb3ad, 1); g.fillEllipse(c.x + d / 2, y0 - h - d / 2 - 2, w * 0.5, 12)
-      g.fillStyle(0xe2bd78, 1); g.fillRect(c.x + d / 2 - 1, y0 - h - d / 2 - 16, 2, 10)
-      // Lüle, akan su, yalak.
-      g.fillStyle(0xb8872e, 1); g.fillRect(nx - 2, ny - h * 0.3, 4, 6)
-      g.lineStyle(2, 0x9fd6e8, 0.9); g.lineBetween(nx, ny - h * 0.3 + 6, nx, ny - 4)
-      g.fillStyle(0xd9d1bd, 1); g.fillRect(x0 + w * 0.08, y0 - 8, w * 0.84, 10)
-      g.fillStyle(0x5aa6c0, 1); g.fillRect(x0 + w * 0.14, y0 - 6, w * 0.72, 4)
-      plazaDecor.push(g)
+      const img = stamp('d_cesme', c.x, c.y, TILE.w * 0.48, c.y, 0.92)
+      if (img) plazaDecor.push(img)
     }
   }
 

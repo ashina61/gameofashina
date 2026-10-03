@@ -4,7 +4,7 @@ import { edgeKey, roadEdgeKeysForTargets } from '../road-tree'
 import { cityFields, cityFountains, nearStreamAt } from '../city-extras'
 import { bakeGraphics } from '../bake'
 import * as Phaser from 'phaser'
-import { mulberry32, type RoadCurve, roadCurves, displayRoadCurves, nearSlot } from '../terrain-builder'
+import { mulberry32, type RoadCurve, roadCurves, displayRoadCurves, nearSlot, paintedGroundTexture } from '../terrain-builder'
 
 export function buildRoads({ V, divanLevel, occupiedSlotIds, scene, shoreY, stamp }: { V: (x: number, y: number) => Phaser.Math.Vector2; divanLevel: number; occupiedSlotIds: string[]; scene: Phaser.Scene; shoreY: (x: number) => number; stamp: (key: string, wx: number, wy: number, tw: number, depth: number, oy?: number, alpha?: number, tint?: number | undefined) => Phaser.GameObjects.Image | null }) {
   // 3) TAŞ / TOPRAK katmanı.
@@ -271,6 +271,20 @@ export function buildRoads({ V, divanLevel, occupiedSlotIds, scene, shoreY, stam
     // anlamlı sokak kenarı prop'u canlı kalır. Böylece şehir yoğunlaşır ama
     // zemin rastgele dekorla kirlenmez. Props yalnızca GÖRÜNÜR yol ağında doğar.
     roadTextures = bakeGraphics(scene, roads, { keep: true, maxPixels: 4_000_000 }).filter(o => o !== roads)
+
+    // Boyalı malzeme aynı görünür yol eğrilerine uygulanır; ağ ve genişlik değişmez.
+    for (const r of visibleCurves) {
+      const material = r.kind === 'quay' ? 't_quay-stone' : tier <= 2 ? 't_dirt' : tier === 3 ? 't_cobble' : 't_plaza-stone'
+      const key = paintedGroundTexture(scene, material)
+      if (!key) continue
+      const width = TILE.w * roadStyleFor(r.kind, level).fillW
+      const count = Math.min(80, Math.max(2, Math.ceil(r.curve.getLength() / (width * 0.65))))
+      for (let i = 0; i <= count; i++) {
+        const u = i / count, p = r.curve.getPointAt(u), tangent = r.curve.getTangentAt(u)
+        const img = stamp(key, p.x, p.y, width * 1.45, -800.8, 0.5, 0.50)
+        if (img) { img.setDisplaySize(width * 1.45, width * 0.95).setRotation(Math.atan2(tangent.y, tangent.x)); roadTextures.push(img) }
+      }
+    }
 
     const propRnd = mulberry32(91217 + tier * 997 + active.size * 37)
     const propSlots = [...CITY_SLOTS, ...COAST_SLOTS, ...DEFENSE_SLOTS]

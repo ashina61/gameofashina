@@ -26,7 +26,7 @@ export function placeDecor({ ambientDecor, curves, occupiedSlotIds, quaySpine, s
       initialOccupied.has(s.id) ? margin : Math.min(margin, s.fixed ? 0.90 : 0.66),
     )) &&
     !roadSamples.some(p => Math.hypot(p.x - wx, p.y - wy) < TILE.w * 0.18)
-  const kinds = ['d_olive-tree', 'd_bush', 'd_flower', 'd_rock']
+  const kinds = ['d_olive-tree', 'd_bush', 'd_flower', 'd_rock', 'd_lavender', 'd_dry-grass']
   let di = 0
   const decorRnd = mulberry32(4242)
   const decorWidth = (key: string) =>
@@ -69,7 +69,7 @@ export function placeDecor({ ambientDecor, curves, occupiedSlotIds, quaySpine, s
       const rx = TILE.w * spread * radius
       const ry = TILE.h * spread * 1.15 * radius
       const roll = clusterRnd()
-      const key = roll < 0.60 ? 'd_bush' : roll < 0.83 ? 'd_flower' : 'd_rock'
+      const key = roll < 0.42 ? 'd_bush' : roll < 0.62 ? 'd_flower' : roll < 0.75 ? 'd_lavender' : roll < 0.86 ? 'd_dry-grass' : 'd_rock'
       placeDecor(
         cx + Math.cos(a) * rx,
         cy + Math.sin(a) * ry,
@@ -82,14 +82,14 @@ export function placeDecor({ ambientDecor, curves, occupiedSlotIds, quaySpine, s
 
   // İç alanda az sayıda ama daha büyük koruluk.
   let guard = 0
-  while (clusterCenters.length < 10 && guard++ < 280) {
+  while (clusterCenters.length < 18 && guard++ < 280) {
     const x = wr.x + wr.w * (0.08 + clusterRnd() * 0.84)
     const y = wr.y + (shoreY(x) - wr.y) * (0.08 + clusterRnd() * 0.78)
     if (!clearForDecor(x, y, 0.78)) continue
-    if (clusterCenters.some(c => Math.hypot(c.x - x, c.y - y) < TILE.w * 2.15)) continue
+    if (clusterCenters.some(c => Math.hypot(c.x - x, c.y - y) < TILE.w * 1.65)) continue
     clusterCenters.push({
       x, y,
-      size: 6 + Math.floor(clusterRnd() * 5),
+      size: 8 + Math.floor(clusterRnd() * 7),
       spread: 0.48 + clusterRnd() * 0.25,
     })
   }
@@ -100,14 +100,14 @@ export function placeDecor({ ambientDecor, curves, occupiedSlotIds, quaySpine, s
   // çevre yolunun iç kenarına yerleşir; arsa, dere ve yol güvenliği aynı
   // clearForDecor kontrolünden geçer. Yerleşim kayıtları değişmez.
   const ringRnd = mulberry32(31721)
-  for (let i = 0; i < 32; i++) {
-    const a = (i + 0.25 + ringRnd() * 0.5) / 32 * Math.PI * 2
+  for (let i = 0; i < 48; i++) {
+    const a = (i + 0.25 + ringRnd() * 0.5) / 48 * Math.PI * 2
     const r = 0.78 + ringRnd() * 0.15
     const x = PLAZA.screen.x + Math.cos(a) * RING_ROAD.rx * r
     const y = PLAZA.screen.y + Math.sin(a) * RING_ROAD.ry * r
     if (!clearForDecor(x, y, 0.82)) continue
     if (clusterCenters.some(c => Math.hypot(c.x - x, (c.y - y) * 1.5) < TILE.w * 1.15)) continue
-    placeCluster(x, y, 3 + Math.floor(ringRnd() * 3), 0.24)
+    placeCluster(x, y, 4 + Math.floor(ringRnd() * 4), 0.24)
   }
 
   // Haritanın üst/yan kenarlarını koruluklarla hafifçe çerçevele.
@@ -160,7 +160,7 @@ export function placeDecor({ ambientDecor, curves, occupiedSlotIds, quaySpine, s
     const cem = cemeterySite()
     const tints = [0xffffff, 0xeef3e2, 0xe3ebd4, 0xf4eedc, 0xdde6cc]
     const wild: Array<{ x: number; y: number; key: string; w: number; tint: number; flip: boolean; clump: number }> = []
-    const stepX = TILE.w * 0.78, stepY = TILE.h * 1.15
+    const stepX = TILE.w * 0.60, stepY = TILE.h * 0.88
     // Düşük frekanslı YOĞUNLUK ALANI: ağaçlar tek tek serpilmez, koruluk
     // KÜTLELERİ oluşturur; aralarında çayır boşlukları kalır (≈[-1,1]).
     const S = TILE.w * 3.2
@@ -188,17 +188,17 @@ export function placeDecor({ ambientDecor, curves, occupiedSlotIds, quaySpine, s
         if (!clearForDecor(jx, jy, 0.8)) continue
         const rockBias = 0.08 * t
         // 0.26: zeytinliğin arasına fıstık çamı, çınar ve kavak karışır.
-        const key = pick < 0.34 - rockBias ? 'd_olive-tree'
-          : pick < 0.43 - rockBias ? 'd_pine'
-          : pick < 0.49 - rockBias ? 'd_plane-tree'
-          : pick < 0.54 - rockBias ? 'd_cypress'
-          : pick < 0.58 - rockBias ? 'd_cypress-b'
-          : pick < 0.61 - rockBias ? 'd_poplar'
-          : pick < 0.82 - rockBias ? 'd_bush'
-          : pick < 0.95 ? 'd_rock' : 'd_flower'
+        const key = pick < 0.26 - rockBias ? 'd_olive-tree'
+          : pick < 0.36 - rockBias ? 'd_pine' : pick < 0.43 - rockBias ? 'd_plane-tree'
+          : pick < 0.48 - rockBias ? 'd_cypress' : pick < 0.52 - rockBias ? 'd_cypress-b'
+          : pick < 0.55 - rockBias ? 'd_poplar' : pick < 0.58 - rockBias ? 'd_fig-tree'
+          : pick < 0.61 - rockBias ? 'd_orange-tree' : pick < 0.64 - rockBias ? 'd_pomegranate-tree'
+          : pick < 0.78 - rockBias ? 'd_bush' : pick < 0.92 ? 'd_rock'
+          : pick < 0.96 ? 'd_flower' : 'd_lavender'
         const w = key === 'd_olive-tree' ? TILE.w * (0.62 + size * 0.34 + clump * 0.36)
           : key === 'd_pine' ? TILE.w * (0.66 + size * 0.3 + clump * 0.3)
           : key === 'd_plane-tree' ? TILE.w * (0.7 + size * 0.3 + clump * 0.3)
+          : ['d_fig-tree', 'd_orange-tree', 'd_pomegranate-tree'].includes(key) ? TILE.w * (0.58 + size * 0.24)
           : key === 'd_poplar' ? TILE.w * (0.26 + size * 0.1)
           : key.startsWith('d_cypress') ? TILE.w * (0.30 + size * 0.12)
           : key === 'd_rock' ? TILE.w * (0.30 + size * 0.18)
@@ -260,9 +260,15 @@ export function placeDecor({ ambientDecor, curves, occupiedSlotIds, quaySpine, s
       // Çayırda lale öbekleri ve bir zeytin.
       (x, y) => { for (const [dx, dy] of [[0, 0], [0.5, 0.28], [-0.46, 0.32], [0.06, 0.6]]) put('d_tulip-clump', x + TILE.w * dx, y + TILE.h * dy, TILE.w * 0.48); put('d_olive-tree', x + TILE.w * 0.7, y - TILE.h * 0.25, TILE.w * 0.6) },
     ]
+    // G4 mahalle çeşitleri; hepsi mevcut arsa/yol/dere korumasından geçer.
+    scenes.push(
+      (x, y) => { put('d_coffee-garden', x, y, TILE.w * 0.9); put('d_terracotta-pots', x + TILE.w * 0.5, y + TILE.h * 0.25, TILE.w * 0.3) },
+      (x, y) => { put('d_stone-bench', x, y, TILE.w * 0.55); put('d_fig-tree', x - TILE.w * 0.48, y - TILE.h * 0.25, TILE.w * 0.65) },
+      (x, y) => { put('d_grain-sacks', x, y, TILE.w * 0.38); put('d_tezgah', x + TILE.w * 0.55, y - TILE.h * 0.1, TILE.w * 0.6) },
+    )
     const hallS = slotById(HALL_SLOT_ID)!.screen
     let tries = 0
-    while (spots.length < 22 && tries++ < 1200) {
+    while (spots.length < 32 && tries++ < 1200) {
       const x = wr.x + wr.w * (0.1 + lifeRnd() * 0.8)
       const y = wr.y + (shoreY(x) - wr.y) * (0.12 + lifeRnd() * 0.8)
       if (Math.hypot(x - hallS.x, (y - hallS.y) * 1.8) < TILE.w * 2.2) continue
@@ -301,6 +307,7 @@ export function placeDecor({ ambientDecor, curves, occupiedSlotIds, quaySpine, s
       const nx = -(q.y - p.y) / l, ny = (q.x - p.x) / l
       const side = i % 2 ? 1 : -1
       if (lifeRnd() < 0.7) put('d_poplar', p.x + nx * 68 * side, p.y + ny * 40 * side, TILE.w * (0.28 + lifeRnd() * 0.08))
+      put('d_reed-clump', p.x + nx * 90 * side, p.y + ny * 65 * side, TILE.w * 0.32)
     }
     /*
      * MAHALLE (V2 Faz 4.4): şehir büyüdükçe boş çimen dolar. Her sahnenin bir

@@ -2,7 +2,7 @@ import { CITY_SLOTS, COAST_SLOTS, DEFENSE_SLOTS, DEFENSE_FOUNDATION, ROAD_GRAPH,
 import { FOOTPRINT_DIAMOND_W, ART_DIAMOND_PX } from '../building-assets'
 import { cityFountains, nearStreamAt } from '../city-extras'
 import * as Phaser from 'phaser'
-import { mulberry32, nearSlot } from '../terrain-builder'
+import { mulberry32, nearSlot, paintedGroundTexture } from '../terrain-builder'
 
 export function drawPlaza({ T, V, dirtSurface, scene, shoreY, stamp }: { T: { tier: number; }; V: (x: number, y: number) => Phaser.Math.Vector2; dirtSurface: string | null; scene: Phaser.Scene; shoreY: (x: number) => number; stamp: (key: string, wx: number, wy: number, tw: number, depth: number, oy?: number, alpha?: number, tint?: number | undefined) => Phaser.GameObjects.Image | null }) {
   // 2e) MEYDAN VE ÇEVRE DÜZENLEMESİ (Ikariam): Divanhane taş döşeli oval bir
@@ -86,6 +86,12 @@ export function drawPlaza({ T, V, dirtSurface, scene, shoreY, stamp }: { T: { ti
     pz.fillStyle(0xdccba3, 1); pz.fillEllipse(P.x, P.y, prx * 2, pry * 2)
     pz.fillStyle(0xcfbb91, 1); pz.fillEllipse(P.x, P.y, prx * 1.56, pry * 1.56)
     pz.fillStyle(0xe4d6b3, 1); pz.fillEllipse(P.x, P.y, prx * 1.4, pry * 1.4)
+    const plazaSurface = paintedGroundTexture(scene, 't_plaza-stone')
+    if (plazaSurface) {
+      const img = stamp(plazaSurface, P.x, P.y, prx * 2, -794.8, 0.5, 0.72)
+      img?.setDisplaySize(prx * 2, pry * 2)
+      if (img) plazaDecor.push(img)
+    }
     // Individually laid, staggered limestone voussoirs instead of giant wedges.
     const pavingRnd = mulberry32(29117)
     for (let row = 2; row < 16; row++) {

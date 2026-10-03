@@ -1,0 +1,15 @@
+{
+  "typecheck": "passed",
+  "tests": "passed",
+  "lint": "passed",
+  "css-lint": "passed",
+  "unused-css": "passed",
+  "unused-assets": "passed",
+  "half-size": "passed",
+  "v2-criteria": "passed",
+  "build": "passed",
+  "visual": "passed",
+  "layout": "passed",
+  "first-ten": "passed",
+  "terrain-review": "passed"
+}

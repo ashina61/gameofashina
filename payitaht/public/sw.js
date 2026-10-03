@@ -1,4 +1,4 @@
-const CACHE = 'payitaht-shell-v30'
+const CACHE = 'payitaht-shell-v31'
 const BASE = new URL(self.registration.scope).pathname.replace(/\/$/, '')
 const p = path => `${BASE}${path.startsWith('/') ? path : `/${path}`}`
 const ASSETS = [
@@ -6,6 +6,8 @@ const ASSETS = [
   p('/manifest.webmanifest'),
   p('/icon-192.png'),
   p('/icon-512.png'),
+  ...["olive-tree", "bush", "flower", "rock", "cypress", "cypress-b", "pine", "plane-tree", "poplar", "fruit-tree", "haystack", "well", "woodpile", "beehives", "tulip-bed", "tulip-clump", "cesme", "tezgah", "bostan", "mezarlik", "degirmen", "fig-tree", "orange-tree", "pomegranate-tree", "reed-clump", "dry-grass", "lavender", "terracotta-pots", "grain-sacks", "stone-bench", "coffee-garden"].map(name => p(`/images/game/decor/${name}.webp`)),
+  ...["grass", "dirt", "grass-shade", "grass-dry", "plaza-stone", "cobble", "quay-stone", "shore-sand", "water-shallow", "water-deep", "hills"].map(name => p(`/images/game/terrain/${name}.webp`)),
   ...['city', 'army', 'research', 'diplo'].map(id => p(`/images/game/portraits/advisor-${id}.webp`)),
   ...['res-akce', 'res-kereste', 'res-ilim', 'res-kahve', 'res-mermer', 'res-kristal', 'res-kukurt', 'res-nufus', 'res-sefer', 'res-huzur', 'res-yolsuzluk', 'ui-city', 'ui-island', 'ui-map', 'ui-alliance', 'ui-objectives', 'ui-flag', 'ui-harbour', 'ui-divan', 'ui-offer'].map(name => p(`/images/game/icons/${name}.webp`)),
   ...['page-frame', 'walnut-plate', 'button-gold', 'button-parch', 'button-red', 'ribbon-red', 'medal-frame'].map(name => p(`/images/game/ui/${name}.webp`)),

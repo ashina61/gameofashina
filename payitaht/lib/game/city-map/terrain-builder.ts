@@ -26,8 +26,8 @@ import { drawCityLife } from './terrain/life'
 import { buildRoads } from './terrain/roads'
 import { placeDecor } from './terrain/decor'
 
-/** Arazi dokuları ve dekor (tools/art/decor.py ile çizilir). */
-export const TERRAIN_TILES = ['grass', 'dirt'] as const
+/** G4 boyalı arazi/dekor; üretim tarifleri tools/art/prompts/g4.md. */
+export const TERRAIN_TILES = ['grass', 'dirt', 'grass-shade', 'grass-dry', 'plaza-stone', 'cobble', 'quay-stone', 'shore-sand', 'water-shallow', 'water-deep', 'hills'] as const
 export const DECOR_TILES = [
   'olive-tree', 'bush', 'flower', 'rock', 'cypress', 'cypress-b',
   // 0.26: çeşitlilik — fıstık çamı, çınar, kavak, meyve ağacı ve kır hayatı.
@@ -36,6 +36,9 @@ export const DECOR_TILES = [
   'tulip-clump',
   // V2 Faz 4.4: mahalle dekoru — çeşme, pazar tezgâhı, bostan, mezarlık, yel değirmeni.
   'cesme', 'tezgah', 'bostan', 'mezarlik', 'degirmen',
+  // G4: meyve, kıyı ve mahalle çeşitleri.
+  'fig-tree', 'orange-tree', 'pomegranate-tree', 'reed-clump', 'dry-grass', 'lavender',
+  'terracotta-pots', 'grain-sacks', 'stone-bench', 'coffee-garden',
 ] as const
 /**
  * ADA MADENİ yeri: kuzey kulesinin batısında, surların hemen dışında.
@@ -103,10 +106,10 @@ export function cityContentRect() {
 /** Terrain + dekor tile'larını sahneye yükler (scene.preload içinde). */
 export function preloadTerrain(scene: Phaser.Scene) {
   for (const t of TERRAIN_TILES) {
-    if (!scene.textures.exists('t_' + t)) scene.load.image('t_' + t, asset(`/images/game/terrain/${t}.png`))
+    if (!scene.textures.exists('t_' + t)) scene.load.image('t_' + t, asset(`/images/game/terrain/${t}.webp`))
   }
   for (const d of DECOR_TILES) {
-    if (!scene.textures.exists('d_' + d)) scene.load.image('d_' + d, asset(`/images/game/decor/${d}.png`))
+    if (!scene.textures.exists('d_' + d)) scene.load.image('d_' + d, asset(`/images/game/decor/${d}.webp`))
   }
   if (!scene.textures.exists('b_pazar')) scene.load.image('b_pazar', asset('/images/game/buildings/pazar.webp'))
   for (const sh of SHIP_TILES) {
@@ -240,6 +243,33 @@ export function nearSlot(wx: number, wy: number, slot: CitySlot, margin = 1) {
   return dx + 2 * dy < FOOTPRINT_DIAMOND_W * margin
 }
 
+/** A shared soft material boundary avoids square texture seams. */
+export function paintedGroundTexture(scene: Phaser.Scene, sourceKey: string) {
+  const key = sourceKey + '__ground'
+  if (scene.textures.exists(key)) return key
+  const source = scene.textures.get(sourceKey).getSourceImage() as HTMLImageElement
+  if (!source?.width || !source?.height) return null
+  const texture = scene.textures.createCanvas(key, source.width, source.height)
+  if (!texture) return null
+  const context = texture.getContext()
+  context.clearRect(0, 0, source.width, source.height)
+  context.drawImage(source, 0, 0)
+  const image = context.getImageData(0, 0, source.width, source.height)
+  const w = source.width, h = source.height
+  for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
+    const index = (y * w + x) * 4 + 3
+    if (image.data[index] === 0) continue
+    const oval = Math.hypot((x - w * 0.5) / (w * 0.49),
+      (y - h * 0.5) / (h * 0.49))
+    const ovalT = Phaser.Math.Clamp((1.00 - oval) / 0.42, 0, 1)
+    const soft = (t: number) => t * t * (3 - 2 * t)
+    image.data[index] = Math.round(image.data[index] * soft(ovalT))
+  }
+  context.putImageData(image, 0, 0)
+  texture.refresh()
+  return key
+}
+
 /** Katmanlı şehir zeminini sahneye kurar. Bina sprite'larından ÖNCE bir kez çağrılır. */
 export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1, occupiedSlotIds: string[] = []) {
   const existing = new Set(scene.children.list)
@@ -283,31 +313,7 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1, occupiedSl
 
   // Boyalı arazi malzemesinin sınırını yumuşatarak birbirine geçen geniş
   // lekeler üretir. Kaynak görseller tam yüzeydir; eski karo yan yüzü yoktur.
-  const softSurfaceTexture = (sourceKey: string) => {
-    const key = sourceKey + '__ground'
-    if (scene.textures.exists(key)) return key
-    const source = scene.textures.get(sourceKey).getSourceImage() as HTMLImageElement
-    if (!source?.width || !source?.height) return null
-    const texture = scene.textures.createCanvas(key, source.width, source.height)
-    if (!texture) return null
-    const context = texture.getContext()
-    context.clearRect(0, 0, source.width, source.height)
-    context.drawImage(source, 0, 0)
-    const image = context.getImageData(0, 0, source.width, source.height)
-    const w = source.width, h = source.height
-    for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
-      const index = (y * w + x) * 4 + 3
-      if (image.data[index] === 0) continue
-      const oval = Math.hypot((x - w * 0.5) / (w * 0.49),
-        (y - h * 0.5) / (h * 0.49))
-      const ovalT = Phaser.Math.Clamp((1.00 - oval) / 0.42, 0, 1)
-      const soft = (t: number) => t * t * (3 - 2 * t)
-      image.data[index] = Math.round(image.data[index] * soft(ovalT))
-    }
-    context.putImageData(image, 0, 0)
-    texture.refresh()
-    return key
-  }
+  const softSurfaceTexture = (key: string) => paintedGroundTexture(scene, key)
 
   // 1) TABAN — karo dışında hiçbir koyu boşluk kalmasın.
   const g0 = scene.add.graphics().setDepth(-1000)
@@ -380,6 +386,7 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1, occupiedSl
   // Grid'den bağımsız boyalı çim ve seyrek sıkıştırılmış toprak lekeleri.
   const grassSurface = softSurfaceTexture('t_grass')
   const dirtSurface = softSurfaceTexture('t_dirt')
+  const meadowSurfaces = ['t_grass', 't_grass-shade', 't_grass-dry'].map(softSurfaceTexture).filter((key): key is string => !!key)
   const surfaceRnd = mulberry32(72831)
   // Burunlar kıvrılırken bir lekenin merkezindeki kıyı çizgisi yeterli
   // değildir: görünür genişlik boyunca en içeride kalan kara sınırını al.
@@ -388,7 +395,7 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1, occupiedSl
   )
   if (grassSurface && dirtSurface) for (let i = 0; i < 420; i++) {
     const dirt = i % 9 === 0 || (i % 17 === 0)
-    const key = dirt ? dirtSurface : grassSurface
+    const key = dirt ? dirtSurface : meadowSurfaces[i % meadowSurfaces.length]
     const size = TILE.w * (6.8 + surfaceRnd() * 4.5)
     const x = wr.x + wr.w * (0.025 + surfaceRnd() * 0.95)
     const maxY = safeShore(x, size) - size * 0.35
@@ -396,7 +403,7 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1, occupiedSl
     // Kıyıya yakın şerit de malzeme alsın; geniş elips kara sınırını aşmaz.
     const y = i % 5 === 0 ? maxY - size * surfaceRnd() * 0.22
       : wr.y + (maxY - wr.y) * surfaceRnd()
-    const img = stamp(key, x, y, size, -895, 0.5, dirt ? 0.17 : 0.43)
+    const img = stamp(key, x, y, size, -895, 0.5, dirt ? 0.24 : 0.62)
     img?.setFlipX(surfaceRnd() > 0.5)
     img?.setAngle((surfaceRnd() - 0.5) * 18)
   }
@@ -439,6 +446,15 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1, occupiedSl
   terrain.lineStyle(1.7, 0x66794d, 0.18)
   terrain.strokePoints(smoothTop, false)
 
+  // Boyalı kum/ince köpük aynı kıyı eğrisini izler; liman girişleri açık.
+  const sandSurface = softSurfaceTexture('t_shore-sand')
+  if (sandSurface) for (let i = 1; i < shoreTop.length - 1; i++) {
+    const p = shoreTop[i]
+    if (COAST_SLOTS.some(slot => Math.hypot(slot.screen.x - p.x, slot.screen.y - p.y) < GROUND_TARGET_W)) continue
+    const img = stamp(sandSurface, p.x, shoreY(p.x) + TILE.h * 0.45, TILE.w * 1.25, -899.5, 0.5, 0.65)
+    img?.setDisplaySize(TILE.w * 1.25, TILE.h * 0.70)
+  }
+
   // Kıyıda tek tek serpilmiş taş yerine seyrek KAYA KÜMELERİ.
   // Coast inşa slotlarının önü bilinçli olarak açık kalır.
   for (let i = 3; i < shoreTop.length - 3; i += 2) {
@@ -476,6 +492,21 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1, occupiedSl
     const h = 0.9 + waterRnd() * 1.5
     water.fillStyle(waterRnd() > 0.40 ? 0xdcebe4 : 0x8fc6c1, 0.045 + waterRnd() * 0.085)
     water.fillEllipse(x, y, w, h)
+  }
+  // G4 su malzemeleri: yumuşak boya lekeleri yalnızca kıyıdan sonra.
+  const shallowSurface = softSurfaceTexture('t_water-shallow')
+  const deepSurface = softSurfaceTexture('t_water-deep')
+  if (shallowSurface && deepSurface) for (let i = 0; i < 100; i++) {
+    const size = TILE.w * (3.5 + waterRnd() * 4.5)
+    const x = wr.x + waterRnd() * wr.w
+    const top = Math.max(...Array.from({ length: 9 }, (_, j) => shoreY(x + (j - 4) * size / 8)))
+    const shallow = i % 3 === 0
+    const minY = top + size * 0.32 + TILE.h * 0.8
+    const maxY = wr.y + wr.h - size * 0.28
+    if (maxY <= minY) continue
+    const y = shallow ? minY : minY + waterRnd() * (maxY - minY)
+    const img = stamp(shallow ? shallowSurface : deepSurface, x, y, size, -898.9, 0.5, shallow ? 0.48 : 0.34)
+    img?.setDisplaySize(size, size * 0.52)
   }
   // Kare/su çerçevesi barındıran eski tile PNG'leri burada basılmaz.
 

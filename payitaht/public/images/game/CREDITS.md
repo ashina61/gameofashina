@@ -14,8 +14,8 @@ Bunlar bu depodaki betiklerle üretilir. Kaynağı kodun kendisidir; betiği yen
 | `buildings/site.webp`, `buildings/scaffold.webp`, `buildings/surlar-{1,2,3}.webp` | `tools/art/buildings.py` (`tools/art/isokit.py` izometri motoru) |
 | `buildings/mine-*.webp`, `buildings/npc-*.webp`, `buildings/pazar.webp` | `tools/art/buildings.py` |
 | `buildings/forest-hero.webp` | Kodla üretildi (commit `903ff63`), ama üreten betik depoya konmamış. Yeniden üretilemez; değiştirilecekse betiği yazılmalı. |
-| `decor/*.png` (ağaçlar, çalı, çiçek, kaya, kuyu, kovan, saman, odun, lale) | `tools/art/decor.py`, `tools/art/tulips.py` |
-| `terrain/*.png` | `tools/art/decor.py` |
+| Eski `decor/*.png` (G4’te kaldırıldı) | `tools/art/decor.py`, `tools/art/tulips.py` |
+| Eski `terrain/*.png` (G4’te kaldırıldı) | `tools/art/decor.py` |
 | `walls/tower-round.*` | `tools/art/wall-tower.mjs` |
 | `ships/*.png` | `tools/art/gen-procedural-assets.py` |
 | `islands/*.webp` | `tools/art/islands.py`, `tools/art/island-thumbs.py` |
@@ -134,3 +134,54 @@ OpenAI ImageGen, 2026-10-03. Onaylı G0 stil sayfasıyla ayrı üretim; promptla
 | `portraits/advisor-army.webp` | army |
 | `portraits/advisor-research.webp` | research |
 | `portraits/advisor-diplo.webp` | diplo |
+
+## 8. G4 — şehir zemini ve dekor
+
+Her dosya OpenAI ImageGen / Codex görsel üretimi, 2026-10-03. G0 stil sayfası referansı; tarifler `tools/art/prompts/g4.md`, ortak kök `_kok.md`. OpenAI hizmet koşulları kapsamında çıktı kullanımı; üçüncü taraf oyun görseli kullanılmadı. Kodlama: WebP kalite 82’den bütçeye göre azalır, şeffaf nesnelerde alfa kalite 70.
+
+| Dosya | Araç / tarih |
+|---|---|
+| `terrain/grass.webp` | OpenAI ImageGen, 2026-10-03 |
+| `terrain/dirt.webp` | OpenAI ImageGen, 2026-10-03 |
+| `terrain/grass-shade.webp` | OpenAI ImageGen, 2026-10-03 |
+| `terrain/grass-dry.webp` | OpenAI ImageGen, 2026-10-03 |
+| `terrain/plaza-stone.webp` | OpenAI ImageGen, 2026-10-03 |
+| `terrain/cobble.webp` | OpenAI ImageGen, 2026-10-03 |
+| `terrain/quay-stone.webp` | OpenAI ImageGen, 2026-10-03 |
+| `terrain/shore-sand.webp` | OpenAI ImageGen, 2026-10-03 |
+| `terrain/water-shallow.webp` | OpenAI ImageGen, 2026-10-03 |
+| `terrain/water-deep.webp` | OpenAI ImageGen, 2026-10-03 |
+| `terrain/hills.webp` | OpenAI ImageGen, 2026-10-03 |
+| `decor/olive-tree.webp` | OpenAI ImageGen, 2026-10-03 |
+| `decor/bush.webp` | OpenAI ImageGen, 2026-10-03 |
+| `decor/flower.webp` | OpenAI ImageGen, 2026-10-03 |
+| `decor/rock.webp` | OpenAI ImageGen, 2026-10-03 |
+| `decor/cypress.webp` | OpenAI ImageGen, 2026-10-03 |
+| `decor/cypress-b.webp` | OpenAI ImageGen, 2026-10-03 |
+| `decor/pine.webp` | OpenAI ImageGen, 2026-10-03 |
+| `decor/plane-tree.webp` | OpenAI ImageGen, 2026-10-03 |
+| `decor/poplar.webp` | OpenAI ImageGen, 2026-10-03 |
+| `decor/fruit-tree.webp` | OpenAI ImageGen, 2026-10-03 |
+| `decor/haystack.webp` | OpenAI ImageGen, 2026-10-03 |
+| `decor/well.webp` | OpenAI ImageGen, 2026-10-03 |
+| `decor/woodpile.webp` | OpenAI ImageGen, 2026-10-03 |
+| `decor/beehives.webp` | OpenAI ImageGen, 2026-10-03 |
+| `decor/tulip-bed.webp` | OpenAI ImageGen, 2026-10-03 |
+| `decor/tulip-clump.webp` | OpenAI ImageGen, 2026-10-03 |
+| `decor/cesme.webp` | OpenAI ImageGen, 2026-10-03 |
+| `decor/tezgah.webp` | OpenAI ImageGen, 2026-10-03 |
+| `decor/bostan.webp` | OpenAI ImageGen, 2026-10-03 |
+| `decor/mezarlik.webp` | OpenAI ImageGen, 2026-10-03 |
+| `decor/degirmen.webp` | OpenAI ImageGen, 2026-10-03 |
+| `decor/fig-tree.webp` | OpenAI ImageGen, 2026-10-03 |
+| `decor/orange-tree.webp` | OpenAI ImageGen, 2026-10-03 |
+| `decor/pomegranate-tree.webp` | OpenAI ImageGen, 2026-10-03 |
+| `decor/reed-clump.webp` | OpenAI ImageGen, 2026-10-03 |
+| `decor/dry-grass.webp` | OpenAI ImageGen, 2026-10-03 |
+| `decor/lavender.webp` | OpenAI ImageGen, 2026-10-03 |
+| `decor/terracotta-pots.webp` | OpenAI ImageGen, 2026-10-03 |
+| `decor/grain-sacks.webp` | OpenAI ImageGen, 2026-10-03 |
+| `decor/stone-bench.webp` | OpenAI ImageGen, 2026-10-03 |
+| `decor/coffee-garden.webp` | OpenAI ImageGen, 2026-10-03 |
+
+G4 kuru otun ilk denemesi (`exec-c1d90ed1-016b-442e-a5f1-526428d6039e.png`, OpenAI ImageGen, 2026-10-03) bina çıktığı için reddedildi; oyuna/depoya alınmadı. Tarif kaydı `tools/art/prompts/g4.md` sonunda.
