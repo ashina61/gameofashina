@@ -45,7 +45,7 @@ export function BuildingArt({ id, level, className, alt = '', facing }: { id: Bu
   const m = isPaintedBuilding(id) ? undefined : BUILDING_FLAGS[key]
   const src = buildingImage(id, level, facing)
   const mirror = (id === 'liman' || id === 'tersane') && facing === 'right'
-  if (!m) return <img className={className} src={src} alt={alt} draggable={false} style={mirror ? { transform: 'scaleX(-1)' } : undefined} />
+  if (!m) return <img className={className} src={src} alt={alt} draggable={false} decoding="async" style={mirror ? { transform: 'scaleX(-1)' } : undefined} />
   const [W, H, list] = m
   return <span className={`building-art ${className ?? ''}`} style={{ aspectRatio: `${W} / ${H}`, transform: mirror ? 'scaleX(-1)' : undefined }}>
     <img src={src} alt={alt} draggable={false} />

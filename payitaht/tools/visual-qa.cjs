@@ -38,8 +38,9 @@ async function main() {
       if (response.status() >= 400 && url.includes('/images/game/')) {
         diagnostics.missingGameAssets.push(`${label}: ${response.status()} ${url}`)
       }
-      if (/\/images\/game\/buildings\/[a-z0-9_-]+-[123]\.webp(?:\?|$)/.test(url)) {
-        buildingStageLoads.add(url.split('?')[0])
+      // Telefon boyu kopya (-sm, V2 Faz 6.1) aynı aşama sayılır.
+      if (/\/images\/game\/buildings\/[a-z0-9_-]+-[123](?:-sm)?\.webp(?:\?|$)/.test(url)) {
+        buildingStageLoads.add(url.split('?')[0].replace(/-sm\.webp$/, '.webp'))
       }
     })
 
@@ -336,7 +337,8 @@ async function main() {
           img.addEventListener('error', reject, { once: true })
         }))
         const src = await art.getAttribute('src')
-        if (!src?.includes(`medrese-painted-${stage}.webp?art=20260930-observatory-v1`)) {
+        // Arayüz telefon boyu kopyayı kullanır (V2 Faz 6.1).
+        if (!src?.includes(`medrese-painted-${stage}-sm.webp?art=20260930-observatory-v1`)) {
           throw new Error(`Medrese stage ${stage} loaded unexpected art: ${src}`)
         }
         await snapPanel(`medrese-stage-${stage}`)

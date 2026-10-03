@@ -45,10 +45,39 @@ export function lowDevice(): boolean {
   return (mem !== undefined && mem <= 4) || (navigator.hardwareConcurrency ?? 8) <= 4
 }
 
-/** Bir efektin parçacık sayısı: az harekette 0, zayıf cihazda yarısı. */
+/**
+ * HAFİF MOD (V2 Faz 6.4): zayıf cihazda pil ve ısı için şehir sahnesi
+ * sadeleşir: daha az yürüyen halk, yarı parçacık, bina gölgesi yok, yarı
+ * boy bina görseli, en çok 30 kare/sn. Otomatik (zayıf cihaz algılanınca),
+ * ya da Ayarlar'dan elle açık/kapalı.
+ */
+export type LiteSetting = 'otomatik' | 'acik' | 'kapali'
+const LITE_KEY = 'payitaht-hafif'
+const liteListeners = new Set<(on: boolean) => void>()
+let liteCached: LiteSetting | null = null
+export function liteSetting(): LiteSetting {
+  if (liteCached !== null) return liteCached
+  try {
+    const v = typeof localStorage !== 'undefined' ? localStorage.getItem(LITE_KEY) : null
+    liteCached = v === 'acik' || v === 'kapali' ? v : 'otomatik'
+  } catch { liteCached = 'otomatik' }
+  return liteCached
+}
+export function setLiteSetting(v: LiteSetting) {
+  liteCached = v
+  try { if (v === 'otomatik') localStorage.removeItem(LITE_KEY); else localStorage.setItem(LITE_KEY, v) } catch { /* oturumluk */ }
+  for (const f of liteListeners) f(liteMode())
+}
+export function onLiteChange(f: (on: boolean) => void) { liteListeners.add(f); return () => { liteListeners.delete(f) } }
+export function liteMode(): boolean {
+  const s = liteSetting()
+  return s === 'acik' || (s === 'otomatik' && lowDevice())
+}
+
+/** Bir efektin parçacık sayısı: az harekette 0, hafif modda yarısı. */
 export function particles(n: number): number {
   if (lowMotion()) return 0
-  return lowDevice() ? Math.max(1, Math.ceil(n / 2)) : n
+  return liteMode() ? Math.max(1, Math.ceil(n / 2)) : n
 }
 
 /** Kaç jeton uçsun: miktar arttıkça biraz çoğalır (2–6). */

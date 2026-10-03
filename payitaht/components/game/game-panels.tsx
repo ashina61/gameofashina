@@ -71,7 +71,7 @@ export function BuildingList({ game, onSelect }: { game: Game; onSelect: (id: Bu
     const level = game.buildings[id]
     const complete = level >= MAX_LEVEL[id]
     return <button key={id} className={`building-list-item${level ? ' is-built' : ' is-new'}${complete ? ' is-max' : ''}`} onClick={() => onSelect(id)}>
-      <span className="building-list-art">{BUILDINGS[id].art ? <img src={buildingImage(id, level)} alt="" width={88} height={88} /> : <span className="list-pending"><Hammer aria-hidden="true" /></span>}</span>
+      <span className="building-list-art">{BUILDINGS[id].art ? <img src={buildingImage(id, level)} alt="" width={88} height={88} loading="lazy" decoding="async" /> : <span className="list-pending"><Hammer aria-hidden="true" /></span>}</span>
       <span className="building-list-copy"><span className="eyebrow">{BUILDINGS[id].category}</span><strong>{BUILDINGS[id].name}</strong>
         <span className={`building-list-state${complete ? ' is-complete' : level ? ' is-upgrade' : ' is-build'}`}>
           {level ? `Seviye ${level}${complete ? ' · Tamamlandı' : ' · Geliştirilebilir'}` : 'Yeni yapı'}
@@ -202,7 +202,7 @@ export function PlotPicker({ game, plot, onBuild }: { game: Game; plot: number; 
     {candidates.map(id => {
       const reason = buildReason(game, id)
       return <button key={id} className="building-list-item" disabled={!!reason} onClick={() => onBuild(id, plot)}>
-        {BUILDINGS[id].art ? <img src={buildingImage(id)} alt="" width={88} height={88} /> : <span className="list-pending"><Hammer aria-hidden="true" /></span>}
+        {BUILDINGS[id].art ? <img src={buildingImage(id)} alt="" width={88} height={88} loading="lazy" decoding="async" /> : <span className="list-pending"><Hammer aria-hidden="true" /></span>}
         <span className="building-list-copy">
           <span className="eyebrow">{BUILDINGS[id].category}</span>
           <strong>{BUILDINGS[id].name}</strong>

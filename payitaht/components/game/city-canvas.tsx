@@ -7,6 +7,8 @@ import type { BuildingId, Game } from '@/lib/game/engine'
 import type { BannerLook } from '@/lib/game/banner'
 import type { FlagLook } from './city-life'
 import { canvasDpr } from '@/lib/render-dpr'
+import { IDLE_AFTER_MS, setFrameCap, wantedFps } from '@/lib/frame-cap'
+import { liteMode, onLiteChange } from '@/lib/motion'
 import { PEACEFUL_CITY, type SiegeAppearance } from '@/lib/game/siege-appearance'
 
 /*
@@ -179,6 +181,38 @@ export function CityCanvas({ game, showLabels, placing, controls, onBuilding, on
     if (paused) loop.sleep()
     else loop.wake()
   }, [paused])
+
+  /*
+   * BOŞTA KARE SINIRI (V2 Faz 6.3): beş saniye dokunulmayan şehir 20 kare/sn
+   * çizer; dokunuş, kaydırma ya da sefer efekti tam hıza döndürür. Hafif
+   * modda (zayıf cihaz) üst sınır 30. Arka planda Phaser zaten durur.
+   */
+  useEffect(() => {
+    const el = holder.current
+    if (!el) return
+    let timer = 0, idle = false
+    const apply = () => { const loop = phaser.current?.loop; if (loop) setFrameCap(loop, wantedFps(idle, liteMode())) }
+    const wake = () => {
+      window.clearTimeout(timer)
+      if (idle) { idle = false; apply() }
+      timer = window.setTimeout(() => { idle = true; apply() }, IDLE_AFTER_MS)
+    }
+    const onMove = (e: PointerEvent) => { if (e.buttons) wake() }
+    el.addEventListener('pointerdown', wake, { passive: true })
+    el.addEventListener('pointermove', onMove, { passive: true })
+    el.addEventListener('wheel', wake, { passive: true })
+    window.addEventListener('payitaht-city-fx', wake)
+    const offLite = onLiteChange(apply)
+    wake(); apply()
+    return () => {
+      window.clearTimeout(timer)
+      el.removeEventListener('pointerdown', wake)
+      el.removeEventListener('pointermove', onMove)
+      el.removeEventListener('wheel', wake)
+      window.removeEventListener('payitaht-city-fx', wake)
+      offLite()
+    }
+  }, [])
 
   useEffect(() => { scene.current?.setRaidAlert(raid) }, [raid])
   // Sefer çıkınca/dönünce kabuk 'payitaht-city-fx' olayı yollar (V2 Faz 3.5).

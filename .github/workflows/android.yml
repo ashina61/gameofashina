@@ -60,6 +60,13 @@ jobs:
           NEXT_PUBLIC_NATIVE: '1'
         run: pnpm build
 
+      # Uygulama yalnız telefon boyu bina görsellerini kullanır (V2 Faz 6.1;
+      # bina ekranda en çok ~900 cihaz pikseli kaplar). Tam boylar APK'ye girmez.
+      - name: Tam boy bina görsellerini APK'den çıkar
+        run: |
+          find out/images/game/buildings -name '*-painted-[0-9].webp' -delete
+          du -sh out/images/game/buildings
+
       - name: Web dosyalarını Android projesine kopyala
         run: pnpm exec cap sync android
 

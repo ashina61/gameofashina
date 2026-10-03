@@ -3125,3 +3125,7 @@ html[data-motion="az"] *, html[data-motion="az"] *::before, html[data-motion="az
 .guide-arrow.is-below { animation-direction: alternate-reverse; }
 [data-motion="az"] .guide-glow, [data-motion="az"] .guide-arrow { animation: none; }
 @media (prefers-reduced-motion: reduce) { .guide-glow, .guide-arrow { animation: none; } }
+/* Hafif mod seçici (V2 Faz 6.4): dar ekranda seçenekler alta iner. */
+.lite-row { grid-template-columns: 22px 1fr; cursor: default; }
+.lite-row .seg { grid-column: 1 / -1; justify-self: start; display: inline-flex; flex-direction: row; }
+.lite-row .seg button { min-width: 84px; }

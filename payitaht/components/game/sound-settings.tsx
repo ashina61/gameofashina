@@ -1,11 +1,11 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { Bell, Moon, Music, Sparkles, Vibrate, Volume2, Waves } from './ui-art'
+import { Bell, Moon, Music, Sparkles, Sprout, Vibrate, Volume2, Waves } from './ui-art'
 import { GameButton } from './game-button'
 import { DEFAULT_NOTICE_PREFS, NOTICE_KINDS, NOTICE_NAMES, type NoticePrefs } from '@/lib/game/notices'
 import { ensurePermission, noticePrefs, notificationPermission, onNoticePrefs, setNoticePrefs } from '@/lib/notify'
-import { lowMotionSetting, setLowMotion } from '@/lib/motion'
+import { lowDevice, lowMotionSetting, liteSetting, setLiteSetting, setLowMotion, type LiteSetting } from '@/lib/motion'
 import { onSoundPrefs, play, setSoundPrefs, soundPrefs, type SoundPrefs } from '@/lib/sfx'
 import { dayNightEnabled, setDayNight } from '@/lib/game/sky'
 
@@ -47,6 +47,20 @@ export function MotionSetting() {
     <span><strong>Az hareket</strong><small>Uçan jetonlar, sayan sayılar, toz ve ışık efektleri kapanır; sonuç hemen görünür. Cihazında "hareketi azalt" açıksa zaten kapalıdır.</small></span>
     <input id="az-hareket" type="checkbox" role="switch" checked={on} onChange={e => { setLowMotion(e.target.checked); setOn(e.target.checked) }} />
   </label></div>
+}
+
+/** Ayarlar: hafif mod (V2 Faz 6.4) — zayıf cihazda kendiliğinden açılır, elle de seçilir. */
+export function LiteModeSetting() {
+  const [v, setV] = useState<LiteSetting>('otomatik')
+  const [weak, setWeak] = useState(false)
+  useEffect(() => { setV(liteSetting()); setWeak(lowDevice()) }, [])
+  const opts: [LiteSetting, string][] = [['otomatik', 'Otomatik'], ['acik', 'Açık'], ['kapali', 'Kapalı']]
+  return <div className="sound-settings"><div className="toggle-row lite-row">
+    <Sprout aria-hidden="true" />
+    <span><strong>Hafif mod</strong><small>Pil ve ısı için şehir sadeleşir: daha az yürüyen halk, yarı parçacık, daha küçük bina görselleri, en çok 30 kare/sn. {v === 'otomatik' ? (weak ? 'Bu cihaz zayıf algılandı; şu an açık.' : 'Bu cihaz güçlü algılandı; şu an kapalı.') : ''}</small></span>
+    <div className="seg" role="radiogroup" aria-label="Hafif mod">{opts.map(([k, label]) =>
+      <button key={k} type="button" role="radio" aria-checked={v === k} onClick={() => { setLiteSetting(k); setV(k) }}>{label}</button>)}</div>
+  </div></div>
 }
 
 /** Ayarlar (Android): telefon bildirimleri, tür tür açılıp kapanır (V2 Faz 5.5). */

@@ -255,6 +255,14 @@ Divanhane 20 → hedef 30. gün · aktif: 2 · gunde3: 16 · gunde1: yok
 | 6.4 | **Düşük cihaz modu:** halk sayısı, parçacık ve gölge azalır (otomatik algı + Ayarlar). | S | — |
 | 6.5 | **APK boyutu:** kullanılmayan görseller CI'da raporlanır (dosya hiçbir yerde anılmıyorsa uyarı). | S | — |
 
+**İlerleme: 0.38.0'da Faz 6 tamam.**
+
+- **6.1:** `tools/art/half-size.py` her boyalı bina için yarı boy `-sm.webp` üretir. 117 görselde tam boy 34,2 MB, telefon boyu 10,4 MB. `buildingImage(..., size)` arayüzde hep küçüğü verir. Şehir tuvali web'de 2x ekranda tam boyu, aksi halde, hafif modda ve Android'de küçüğü yükler. Ölçek dosyanın gerçek eninden okunduğu için görüntü aynı kalır. Ölçüm: bina en yakın yakınlaştırmada ~750–900 cihaz pikseli kaplıyor, küçük kopya (887 px) yetiyor. Bu yüzden Android derlemesi tam boyları APK'den siliyor (~34 MB küçülme). Deploy işi kopyaların varlığını denetliyor (`--check`).
+- **6.2:** Şehir zaten yalnız kurulu binaların o anki aşamasını yüklüyordu. Liste ve sayfa görsellerine `loading="lazy"` ve `decoding="async"` eklendi. Önbellek işçisi küçük kopyaları önden alıyor.
+- **6.3:** `lib/frame-cap.ts`: 5 sn dokunulmayan şehir 20 kare/sn çizer. Dokunuş, kaydırma, tekerlek ya da sefer efekti tam hıza döndürür. Arka planda Phaser zaten duruyor. Pil ölçümü telefonda yapılmalı.
+- **6.4:** Hafif mod (`liteMode`, Ayarlar > Görünüm: Otomatik/Açık/Kapalı). Otomatikte zayıf cihaz algılanınca (≤4 GB bellek ya da ≤4 çekirdek) açılır. En çok 10 yürüyen, parçacık yarıya, tek temas gölgesi, yarı boy görsel, en çok 30 kare/sn.
+- **6.5:** `tools/unused-assets.cjs` her görselin koddan (ad, ön ek + şablon, klasör + şablon) anılıp anılmadığını raporlar. Deploy işinde uyarı olarak çalışıyor. Bugün 315 görsel, kullanılmayan 0.
+
 ## Faz 7 — Kod sağlığı (fazlara yayılır, V2'den önce biter)
 
 | # | İş | Boyut | Bitti sayılır |

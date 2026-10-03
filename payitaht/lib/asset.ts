@@ -58,12 +58,20 @@ export function buildingArtKey(id: string, level = 1, facing?: CoastFacing) {
   return `${id}${straight ? '-duz' : ''}-${buildingStage(level)}`
 }
 
-/** Bir bina gorselinin yolu (tools/art/buildings.py ile cizilir). */
-export function buildingImage(id: string, level = 1, facing?: CoastFacing) {
+/**
+ * Bir bina gorselinin yolu (tools/art/buildings.py ile cizilir).
+ *
+ * Boyalı binaların iki boyu var (V2 Faz 6.1): `full` ~1774 px, `sm` yarısı
+ * (tools/art/half-size.py). Arayüz her zaman küçüğü kullanır; şehir tuvali
+ * yalnız 2x ekranda büyüğü ister (buildingTextureSize).
+ */
+export type ArtSize = 'full' | 'sm'
+export function buildingImage(id: string, level = 1, facing?: CoastFacing, size: ArtSize = 'sm') {
+  const sm = size === 'sm' ? '-sm' : ''
   if (id === 'liman' || id === 'tersane') {
     const variant = facing === 'straight' ? `${id}-duz` : id
-    return `${asset(`/images/game/buildings/${variant}-painted-${buildingStage(level)}.webp`)}?art=${BUILDING_ART_REV}`
+    return `${asset(`/images/game/buildings/${variant}-painted-${buildingStage(level)}${sm}.webp`)}?art=${BUILDING_ART_REV}`
   }
-  if (isPaintedBuilding(id)) return `${asset(`/images/game/buildings/${id}-painted-${buildingStage(level)}.webp`)}?art=${id === 'medrese' ? '20260930-observatory-v1' : BUILDING_ART_REV}`
+  if (isPaintedBuilding(id)) return `${asset(`/images/game/buildings/${id}-painted-${buildingStage(level)}${sm}.webp`)}?art=${id === 'medrese' ? '20260930-observatory-v1' : BUILDING_ART_REV}`
   return `${asset(`/images/game/buildings/${buildingArtKey(id, level, facing)}.webp`)}?art=${BUILDING_ART_REV}`
 }

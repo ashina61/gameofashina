@@ -26,11 +26,18 @@ import { GROUND_TARGET_W, FOOTPRINT_DIAMOND_W, ART_DIAMOND_PX, visualProfile, ty
 import { edgeKey, roadEdgeKeysForTargets } from '@/lib/game/city-map/road-tree'
 import { visualSignature } from '@/lib/game/city-render'
 import { BUILDINGS, BUILDING_IDS, activeJob, plotOpen, population, zoneOf, type BuildingId, type Game } from '@/lib/game/engine'
-import { asset, buildingArtKey, buildingImage, buildingStage, isPaintedBuilding } from '@/lib/asset'
+import { asset, buildingArtKey, buildingImage, buildingStage, isPaintedBuilding, type ArtSize } from '@/lib/asset'
 import { canvasDpr } from '@/lib/render-dpr'
+/**
+ * Şehir tuvalinde bina görseli boyu (V2 Faz 6.1): web'de 2x ekranda tam boy,
+ * aksi halde, hafif modda ve Android paketinde yarı boy. Ölçek dosyanın gerçek genişliğinden
+ * okunduğu için iki boy aynı büyüklükte çizilir.
+ */
+// Android paketinde tam boylar hiç yoktur (android.yml onları APK'den çıkarır).
+const cityArtSize = (): ArtSize => process.env.NEXT_PUBLIC_NATIVE !== '1' && canvasDpr() >= 2 && !liteMode() ? 'full' : 'sm'
 import { PEACEFUL_CITY, siegeAppearanceKey, type SiegeAppearance } from '@/lib/game/siege-appearance'
 import { CitySiegeLayer, preloadSiegeArt } from './city-siege'
-import { lowMotion, particles } from '@/lib/motion'
+import { liteMode, lowMotion, particles } from '@/lib/motion'
 
 /** Sancak direği dikilen devlet yapıları (V2 Faz 4.1). */
 const FLAG_POLE_BUILDINGS = new Set<BuildingId>(['divan', 'saray', 'valilik', 'kisla', 'elcilik', 'tophane', 'korsan_kalesi', 'kara_pazar'])
@@ -150,7 +157,7 @@ export class CityScene extends Phaser.Scene {
       if (!BUILDINGS[id].art || level <= 0 || id === 'surlar') continue
       const facing = id === 'liman' || id === 'tersane' ? this.state.coastFacing[id] : undefined
       const key = buildingArtKey(id, level, facing)
-      if (!this.textures.exists(key)) this.load.image(key, buildingImage(id, level, facing))
+      if (!this.textures.exists(key)) this.load.image(key, buildingImage(id, level, facing, cityArtSize()))
     }
     if (!this.textures.exists('b_site')) this.load.image('b_site', asset('/images/game/buildings/site.webp'))
     for (const lux of ['uzum', 'mermer', 'kristal', 'kukurt']) {
@@ -173,7 +180,7 @@ export class CityScene extends Phaser.Scene {
     const key = buildingArtKey(id, level, facing)
     if (this.textures.exists(key) || this.loadingBuildingTextures.has(key)) return
     this.loadingBuildingTextures.add(key)
-    this.load.image(key, buildingImage(id, level, facing))
+    this.load.image(key, buildingImage(id, level, facing, cityArtSize()))
     this.load.once(`filecomplete-image-${key}`, () => {
       this.loadingBuildingTextures.delete(key)
       if (!this.built) return
@@ -1234,7 +1241,8 @@ export class CityScene extends Phaser.Scene {
    */
   private syncWalkers() {
     const visible = roadEdgeKeysForTargets(this.openSlotIds(this.state))
-    const peacefulCount = visible.size ? Math.min(26, 3 + Math.floor(population(this.state) / 22)) : 0
+    // Hafif modda sokaklar sadeleşir (V2 Faz 6.4): en çok 10 yürüyen.
+    const peacefulCount = visible.size ? Math.min(liteMode() ? 10 : 26, 3 + Math.floor(population(this.state) / (liteMode() ? 60 : 22))) : 0
     const count = this.siege.occupation ? Math.min(3, peacefulCount) : peacefulCount
     const key = [...visible].sort().join(',') + '#' + count
     if (key === this.walkerKey) return
@@ -2384,8 +2392,11 @@ export class CityScene extends Phaser.Scene {
     if (slot.zone !== 'liman') {
       shadow.fillStyle(0x1d2918, 0.16)
       shadow.fillEllipse(anc.x + TILE.w * 0.08, slot.screen.y + TILE.h * 0.30, GROUND_TARGET_W * 0.72, TILE.h * 0.72)
-      shadow.fillStyle(0x1d2918, 0.085)
-      shadow.fillEllipse(anc.x + TILE.w * 0.34, slot.screen.y + TILE.h * 0.42, GROUND_TARGET_W * 0.52, TILE.h * 0.42)
+      // Hafif modda yalnız temas gölgesi kalır.
+      if (!liteMode()) {
+        shadow.fillStyle(0x1d2918, 0.085)
+        shadow.fillEllipse(anc.x + TILE.w * 0.34, slot.screen.y + TILE.h * 0.42, GROUND_TARGET_W * 0.52, TILE.h * 0.42)
+      }
     }
     this.pieces.push(shadow)
 

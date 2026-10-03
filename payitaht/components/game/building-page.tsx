@@ -399,7 +399,7 @@ export function BuildingPage({ game, empire, id, onClose, onBuild, onFlip, onMov
         {b.art && stages.length > 1 && <div className="bp-stages" role="group" aria-label="Seviyeye göre görünüm">
           {stages.map(([st, from, label]) => <button key={st} type="button" aria-pressed={shown === st} onClick={() => setPeek(st === stage ? null : st)}
             className={st === stage ? 'is-current' : level >= from ? 'is-reached' : 'is-locked'} aria-label={`${label} görünümü${st === stage ? ' (şu anki)' : ''}`}>
-            <img src={buildingImage(id, from, facing)} alt="" style={facing === 'right' ? { transform: 'scaleX(-1)' } : undefined} /><span>{label}</span>
+            <img src={buildingImage(id, from, facing)} alt="" loading="lazy" decoding="async" style={facing === 'right' ? { transform: 'scaleX(-1)' } : undefined} /><span>{label}</span>
           </button>)}
         </div>}
         {peek && peek !== stage && <span className="bp-stage-note">{peek > stage ? 'Yükselttikçe böyle görünecek' : 'Eski görünümü'}</span>}

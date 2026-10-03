@@ -6,6 +6,16 @@ export type Release = { version: string; date: string; title: string; notes: str
 
 export const CHANGELOG: Release[] = [
   {
+    version: '0.38.0', date: '3 Ekim 2026', title: 'Hafif ve tutumlu: küçük görseller, boşta yavaşlayan şehir, hafif mod',
+    notes: [
+      'Bina görsellerinin telefon boyu kopyası var: arayüz ve Android uygulaması yarı boyu kullanır. Uygulama yaklaşık 34 MB küçüldü; görüntü aynı.',
+      'Beş saniye dokunulmayan şehir saniyede 20 kareyle çizer; dokununca hemen tam hıza döner. Pil ve ısı için.',
+      'Hafif mod (Ayarlar > Görünüm): daha az yürüyen halk, yarı parçacık, sade gölge, en çok 30 kare/sn. Zayıf cihazda kendiliğinden açılır; elle de seçilir.',
+      'Liste ve sayfalardaki bina resimleri ekrana gelince yüklenir.',
+      'Arka planda: kullanılmayan görsel raporu ve telefon boyu kopya denetimi her derlemede çalışır.',
+    ],
+  },
+  {
     version: '0.37.0', date: '3 Ekim 2026', title: 'İlk on dakika, yaşayan rakipler, madalyalar ve bildirimler',
     notes: [
       'İlk on dakika rehberi: ilk sekiz hedef Divanhane, Medrese, ilk âlim, ilk araştırma, Kışla, sur temeli, ilk bölük ve ilk sefer oldu. Her adımda basacağın tek düğme parlar, üstünde ok durur.',
