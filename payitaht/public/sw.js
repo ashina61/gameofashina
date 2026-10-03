@@ -1,7 +1,8 @@
-const CACHE = 'payitaht-shell-v33'
+const CACHE = 'payitaht-shell-v34'
 const BASE = new URL(self.registration.scope).pathname.replace(/\/$/, '')
 const p = path => `${BASE}${path.startsWith('/') ? path : `/${path}`}`
 const ASSETS = [
+  ...["yeniceri", "okcu", "sipahi", "topcu", "kadirga", "kalyon", "nakliye", "casus", "mizrakci", "azap", "sapanci", "tufekci", "kocbasi", "mancinik", "asci", "hekim", "ates_gemisi", "mancinik_gemisi", "deli", "humbaraci", "karamursel", "humbara_gemisi", "ikmal_gemisi", "hezarfen", "lagari", "zenberek_gemisi", "dalgic_gemisi", "buharli_koc", "balon_gemisi"].map(id => p(`/images/game/units/${id}.webp`)),
   p('/'),
   p('/manifest.webmanifest'),
   p('/icon-192.png'),

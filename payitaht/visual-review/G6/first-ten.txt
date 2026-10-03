@@ -1,0 +1,11 @@
+1.0 dk: first-upgrade
+1.6 dk: first-academy
+1.6 dk: first-worker
+2.3 dk: first-research
+tıklanamadı: İnşa et
+20 sn (locator.click: Timeout 3000ms exceeded.)
+2.9 dk: barracks
+3.4 dk: walls
+4.3 dk: troops
+4.7 dk: first-raid
+İlk sekiz hedef 4.7 oyun dakikasında tamam.

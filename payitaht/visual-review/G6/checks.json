@@ -1,0 +1,17 @@
+{
+  "typecheck": "passed",
+  "tests": {
+    "passed": 319,
+    "failed": 0
+  },
+  "eslint": "passed, zero warnings",
+  "css": "passed, zero unused",
+  "unusedAssets": "passed, zero unused",
+  "halfSize": "passed",
+  "v2": "passed",
+  "staticExport": "passed",
+  "layout": "passed, all violations zero",
+  "visual390": "passed, no missing assets or page errors",
+  "firstTen": "passed, 4.7 game minutes",
+  "unitScreens": "passed"
+}

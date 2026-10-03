@@ -187,3 +187,51 @@ Her dosya OpenAI ImageGen / Codex görsel üretimi, 2026-10-03. G0 stil sayfası
 G4 kuru otun ilk denemesi (`exec-c1d90ed1-016b-442e-a5f1-526428d6039e.png`, OpenAI ImageGen, 2026-10-03) bina çıktığı için reddedildi; oyuna/depoya alınmadı. Tarif kaydı `tools/art/prompts/g4.md` sonunda.
 
 G4 revizyon: yukarıdaki 31 dekorun her biri için `decor/<ad>-sm.webp` türevi `tools/art/half-size.py` ile üretildi (2026-10-03). Kaynak/üretim hakkı aynı; ağaçlar 192 px, diğerleri 128 px uzun kenar, Lanczos/WebP kalite 82. Ana çim onaylı dokuyu korur; yeşil ton render katmanında uygulanır. Yeni AI çizimi üretilmedi.
+
+## G6 — boyalı birlik figürleri
+
+OpenAI ImageGen (yerleşik araç), 2026-10-03; özgün Osmanlı–Akdeniz figürleri. G0 stil sayfası yalnız görsel aile referansı. Tarif kökü ve her konu: `tools/art/prompts/g6.md`. Alfa korunarak 512×512 WebP; kullanım: `components/game/unit-art.tsx`. Gerçek kişi ya da başka oyun karakteri kullanılmadı.
+
+| Dosya | Üretim tarifi / konu |
+|---|---|
+| `units/yeniceri.webp` | Janissary red kaftan cream trousers white tall keche bork, musket and belt yatagan |
+| `units/okcu.webp` | archer olive robe cream turban, prominent curved bow and quiver |
+| `units/sipahi.webp` | mounted cavalry chestnut horse red rider steel Ottoman helmet and lance |
+| `units/topcu.webp` | bronze long cannon wooden wheeled carriage with one small Ottoman artillery crewman |
+| `units/kadirga.webp` | slender Ottoman rowing war galley one cream lateen sail, visible oars crescent pennant |
+| `units/kalyon.webp` | large three-mast Ottoman galleon square cream sails and broadside cannon ports |
+| `units/nakliye.webp` | two-mast merchant transport ship blue flag sacks and cargo barrels |
+| `units/casus.webp` | Ottoman spy dark hooded cloak, concealed dagger and rolled map |
+| `units/mizrakci.webp` | spearman rust brown robe cream turban long spear and round brass shield |
+| `units/azap.webp` | light infantry green robe red cap curved sabre and small buckler |
+| `units/sapanci.webp` | slinger tan robe cloth cap sling raised and stone pouch |
+| `units/tufekci.webp` | musketeer burgundy coat red cap long wooden-stock musket |
+| `units/kocbasi.webp` | siege battering ram roofed timber frame wheels heavy iron-tipped log |
+| `units/mancinik.webp` | wooden siege catapult large throwing arm stone sling and counterweight |
+| `units/asci.webp` | Ottoman cook cream robe white cloth headwear copper cauldron and large wood spoon |
+| `units/hekim.webp` | Ottoman healer green robe cream turban leather medical satchel herbs bandages no modern red cross |
+| `units/ates_gemisi.webp` | low Ottoman fire galley lateen sail bronze fire-projector at forward bow small contained flame ship not burning |
+| `units/mancinik_gemisi.webp` | two-mast Ottoman galley distinct wooden catapult installed prominently on deck |
+| `units/deli.webp` | Ottoman heavy infantry fur shoulder trim feather-adorned helmet mace round shield natural proportion no horns |
+| `units/humbaraci.webp` | Ottoman grenadier brown coat metal helmet red belt spherical grenade and grenade pouch |
+| `units/karamursel.webp` | compact Ottoman coastal war vessel short round hull single large lateen cream sail |
+| `units/humbara_gemisi.webp` | two-mast dark-hulled Ottoman bomb ship prominent short mortar on deck |
+| `units/ikmal_gemisi.webp` | two-mast supply ship green pennant barrels crates and provisioning sacks |
+| `units/hezarfen.webp` | fictional Ottoman wing engineer blue robe white turban large wood and feather glider wings spread no real person |
+| `units/lagari.webp` | fictional Ottoman rocket pilot burgundy robe mounted wood brass rocket red tip tilted upwards right with small contained flame no real person |
+| `units/zenberek_gemisi.webp` | Ottoman lateen galley heavy crossbow ballista installed on forward bow |
+| `units/dalgic_gemisi.webp` | fictional early Ottoman wood and bronze submarine pointed bow towards right short periscope tiny bubbles no solid water background |
+| `units/buharli_koc.webp` | Ottoman fantasy early iron steam ram ship pointed steel ram bow forward right brass rivets paddle wheel small smokestack steam |
+| `units/balon_gemisi.webp` | Ottoman observation vessel tethered large red cream striped balloon above deck ropes visibly join ship and balloon no modern airship |
+
+G6 seçilen kaynak çıktılarının birlik kimliği, kaynak PNG adı ve son WebP kodlama ayarları `visual-review/G6/encoding.json` içinde. Kaynak PNG dosyaları depoya alınmaz.
+
+G6 reddedilen/ara üretimler (OpenAI ImageGen, 2026-10-03): aşağıdaki çıktılar tekil şeffaf figür şartını sağlamadığı veya düzenleme öncesi ara kaynak olduğu için oyuna alınmadı. İlk toplu denemede ortak kök aktarımı eksikti; referansın kompozisyonunu da üreten denemeler durduruldu ve tekil tariflerle yeniden üretildi. Kalyon deniz/sky fonu kaldırılarak yeniden düzenlendi.
+
+- `exec-03c14412-8480-422d-bdc8-af17f0fa9490.png`
+- `exec-63f9050e-2a48-41f6-9da3-ddb0cc87e6be.png`
+- `exec-760eb4fa-c8b8-4a22-96c0-efaa893e1d39.png`
+- `exec-824d9d84-83ae-4b44-9db8-5aed567e0b3a.png`
+- `exec-c6b77505-284e-4d49-b991-e5b21e18defc.png`
+
+G6 son kodlama: telefon toplamı ondalık 15.000.000 bayt sınırında; kara figürü ≤25.000, deniz figürü ≤40.000 bayt (birlik başına 60 KB üst sınırından daha sıkı). Alfa ve RGB kalite ayarları `visual-review/G6/encoding.json`; poz/ölçek korunur.
