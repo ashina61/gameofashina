@@ -7,8 +7,9 @@
  * zaten söyler. Hedefler `data-guide` işaretleriyle bulunur.
  */
 import { useEffect, useRef, useState } from 'react'
-import { GUIDED_STEPS, OBJECTIVES, objectiveDone, type Game } from '@/lib/game/engine'
+import { GUIDED_STEPS, OBJECTIVES, UNITS, UNIT_IDS, objectiveDone, type Game, type UnitId } from '@/lib/game/engine'
 import { t } from '@/lib/i18n/tr'
+import { lowMotion } from '@/lib/motion'
 
 const TARGETS: Record<string, string[]> = {
   'first-upgrade': ['.bp-of-divan .bp-upgrade-button'],
@@ -20,7 +21,16 @@ const TARGETS: Record<string, string[]> = {
   troops: ['[data-guide="recruit-mizrakci"]', '[data-guide="recruit-yeniceri"]'],
   'first-raid': ['[data-guide="raid"]', '[data-guide="all-mizrakci"]', '[data-guide="all-yeniceri"]', '[data-guide="npc-koy"]'],
 }
+/** Adımın sayfası: açıksa (inşaat sürerken düğme yerine çubuk olsa da) oyuncu bekler. */
+const PAGE: Record<string, string> = {
+  'first-upgrade': '.bp-of-divan', 'first-academy': '.bp-of-medrese', 'first-worker': '.bp-of-medrese',
+  barracks: '.bp-of-kisla', walls: '.bp-of-surlar',
+}
 const CHIP = '.quest-chip-go'
+/** Rehberin bir kez görünür yere kaydırdığı düğmeler. */
+const scrolled = new WeakSet<Element>()
+/** Görev şeridi açık bir sayfanın altında kalırsa oyuncu önce sayfayı kapatmalı. */
+const LEAVE = ['.bp-back', `[aria-label="${t.action.close}"]`, `[aria-label="${t.action.back}"]`, '[data-guide="to-city"]']
 
 /** Görünür, basılabilir ve üstü örtülü olmayan öğe mi? */
 function usable(el: Element): el is HTMLElement {
@@ -31,12 +41,37 @@ function usable(el: Element): el is HTMLElement {
   return !hit || el.contains(hit) || hit.contains(el)
 }
 
+const isLandSoldier = (id: UnitId) => UNITS[id]?.branch === 'kara' && UNITS[id].role !== 'spy'
+const landSoldiers = (game: Game) => UNIT_IDS.reduce((n, id) => n + (isLandSoldier(id) ? game.army[id] : 0), 0)
+
 export function pickGuideTarget(game: Game): HTMLElement | null {
   const step = OBJECTIVES.slice(0, GUIDED_STEPS).find(o => !game.claimed.includes(o.id))
   if (!step || document.querySelector('.frg')) return null
-  const list = objectiveDone(game, step.id) ? [CHIP] : [...(TARGETS[step.id] ?? []), CHIP]
-  for (const sel of list) for (const el of document.querySelectorAll(sel)) if (usable(el)) return el
-  return null
+  const first = (sels: string[]) => {
+    for (const sel of sels) for (const el of document.querySelectorAll(sel)) if (usable(el)) return el
+    return null
+  }
+  // Hedef bittiyse ödül görev şeridinde alınır; şerit bir sayfanın altında
+  // kalmışsa sayfanın geri/kapat düğmesi parlar (yoksa oyuncu ne yapacağını bilmez).
+  if (objectiveDone(game, step.id)) return first([CHIP, ...LEAVE])
+  // İlk bölük: eğitimde olanlarla beş kişi tamamsa eğitim bitene kadar bekle
+  // (yoksa ok "1 eğit"i parlatmayı sürdürür ve oyuncu gereğinden çok asker basar).
+  if (step.id === 'troops' && landSoldiers(game) + game.drills.reduce((n, j) => n + (isLandSoldier(j.id as UnitId) ? j.count ?? 0 : 0), 0) >= 5) return null
+  const targets = TARGETS[step.id] ?? []
+  const hit = first(targets)
+  if (hit) return hit
+  // Düğme sayfada ama ekranın dışında: bir kez görünür yere kaydır (oyuncu
+  // sonra kendisi kaydırırsa onu geri çekiştirmeyiz).
+  for (const sel of targets) for (const el of document.querySelectorAll(sel)) {
+    if (el instanceof HTMLElement && !(el as HTMLButtonElement).disabled && !scrolled.has(el)) {
+      const r = el.getBoundingClientRect()
+      if (r.width >= 4 && (r.bottom < 0 || r.top > innerHeight)) { scrolled.add(el); el.scrollIntoView({ block: 'center', behavior: lowMotion() ? 'auto' : 'smooth' }); return null }
+    }
+  }
+  // Doğru sayfadayız ama düğme henüz basılamıyor (kaynak bekleniyor): hiçbir şey parlamaz.
+  if (targets.some(sel => document.querySelector(sel)) || (PAGE[step.id] && document.querySelector(PAGE[step.id]))) return null
+  // Yanlış sayfa açıksa önce görev şeridi, o da örtülüyse geri/kapat.
+  return first([CHIP, ...LEAVE])
 }
 
 export function GuideSpot({ game }: { game: Game }) {

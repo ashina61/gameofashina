@@ -252,9 +252,11 @@ export default function GameShell({ onTitle }: { onTitle?: () => void } = {}) {
   }
   function target() {
     if (!game) return
-    const go = OBJECTIVES.find(o => !game.claimed.includes(o.id))?.go ?? 'research'
+    const next = OBJECTIVES.find(o => !game.claimed.includes(o.id))
+    const go = next?.go ?? 'research'
     if (go === 'research' || go === 'people' || go === 'army') openPanel(go)
-    else if (go === 'island') { setView('island'); setPanel('island') }
+    // İlk sefer adadaki köyü ister: maden paneli açılırsa köyü örterdi.
+    else if (go === 'island') { setView('island'); setPanel(next?.id === 'first-raid' ? null : 'island') }
     else openBuilding(go)
   }
   /** Danışmanların son bakılma zamanı (haber rozetleri için, cihazda hatırlanır). */
