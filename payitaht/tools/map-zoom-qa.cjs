@@ -1,5 +1,6 @@
 const path = require('node:path')
 const fs = require('node:fs/promises')
+const { START_BUTTON, qaOrigin, skipGuide } = require('./lib/qa.cjs')
 
 async function checkMapZoom(page, selector, label, out) {
   const frame = page.locator(selector)
@@ -54,9 +55,9 @@ if (require.main === module) {
       for (const width of [390, 412, 430]) {
         const page = await browser.newPage({ viewport: { width, height: 844 }, isMobile: true, hasTouch: true })
         // Yeni oyunun ilk açılış rehberi QA tıklamalarını örtmesin.
-        await page.addInitScript(() => { try { localStorage.setItem('payitaht-rehber', 'goruldu') } catch { /* depolama kapalı */ } })
-        await page.goto(process.env.VISUAL_QA_URL || 'http://127.0.0.1:4175/gameofashina/')
-        await page.getByRole('button', { name: /Hikâyeye başla|Devam et/ }).click()
+        await skipGuide(page)
+        await page.goto(qaOrigin('VISUAL_QA_URL', 4175))
+        await page.getByRole('button', { name: START_BUTTON }).click()
         await page.getByRole('button', { name: 'Harita', exact: true }).click()
         await checkMapZoom(page, '.world-map-scroll', `world-${width}`, out)
         await page.getByRole('button', { name: 'Geri', exact: true }).first().click()

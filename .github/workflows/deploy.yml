@@ -57,6 +57,8 @@ jobs:
         run: pnpm lint
       - name: CSS renk denetimi
         run: node tools/css-lint.cjs
+      - name: Kullanılmayan CSS sınıfları
+        run: node tools/unused-css.cjs --strict
       - name: Telefon boyu bina görselleri
         run: python3 tools/art/half-size.py --check
       - name: Kullanılmayan görseller (uyarı)

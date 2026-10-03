@@ -1,5 +1,6 @@
 const path = require('node:path')
 const fs = require('node:fs/promises')
+const { START_BUTTON, skipGuide } = require('./lib/qa.cjs')
 
 async function checkHeraldry(page, label, out) {
   const key = 'payitaht-adalari-v1'
@@ -23,7 +24,7 @@ async function checkHeraldry(page, label, out) {
     await page.getByRole('button', { name: 'Kaydet', exact: true }).click()
     await page.waitForFunction(key => JSON.parse(localStorage.getItem(key)).profile?.banner === 'yuvarlak', key)
     await page.reload()
-    await page.getByRole('button', { name: /Hikâyeye başla|Devam et/ }).click()
+    await page.getByRole('button', { name: START_BUTTON }).click()
     await openProfile()
     for (const [group, name] of [['Sancak biçimi', 'Yuvarlak uç'], ['Arma', 'Bozkurt'], ['Renk', 'Mor']]) {
       if (await choice(group, name).getAttribute('aria-checked') !== 'true') throw new Error(`${label}: choice did not survive reload`)
@@ -38,7 +39,7 @@ async function checkHeraldry(page, label, out) {
     const seeded = await page.evaluate(key => localStorage.getItem(key), key)
     await page.addInitScript(({key, seeded}) => localStorage.setItem(key, seeded), {key, seeded})
     await page.reload()
-    await page.getByRole('button', { name: /Hikâyeye başla|Devam et/ }).click()
+    await page.getByRole('button', { name: START_BUTTON }).click()
     await page.getByRole('button', { name: 'İttifak', exact: true }).click()
     // Düğme gelmezse CI günlüğüne sayfanın durumunu yaz (kayıt, açık panel, ekrandaki yazı).
     await page.getByRole('button', { name: 'Sancağı düzenle' }).click().catch(async e => {
@@ -74,7 +75,7 @@ if (require.main === module) {
       for (const width of [390, 412, 430]) {
         const page = await browser.newPage({ viewport: { width, height: 844 }, hasTouch: true, isMobile: true })
         // Yeni oyunun ilk açılış rehberi QA tıklamalarını örtmesin.
-        await page.addInitScript(() => { try { localStorage.setItem('payitaht-rehber', 'goruldu') } catch { /* depolama kapalı */ } })
+        await skipGuide(page)
         // Route the production export directly, without requiring a listening server.
         await page.route('http://heraldry.test/**', async route => {
           const url = new URL(route.request().url())
@@ -84,7 +85,7 @@ if (require.main === module) {
         })
         const errors = []; page.on('pageerror', e => errors.push(e.message))
         await page.goto('http://heraldry.test/gameofashina/')
-        await page.getByRole('button', { name: /Hikâyeye başla|Devam et/ }).click()
+        await page.getByRole('button', { name: START_BUTTON }).click()
         await checkHeraldry(page, `${width}`, out)
         if (errors.length) throw new Error(errors.join('\n'))
         console.log(`${width}px: distinct banners, full palette, saved profile and alliance editor passed`)

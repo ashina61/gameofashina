@@ -3,13 +3,14 @@ const fs = require('node:fs/promises')
 const path = require('node:path')
 const { chromium } = require('playwright')
 const { checkMapZoom } = require('./map-zoom-qa.cjs')
+const { START_BUTTON, qaOrigin, skipGuide } = require('./lib/qa.cjs')
 
 async function main() {
   const out = path.resolve('visual-review')
   await fs.mkdir(out, { recursive: true })
   const browser = await chromium.launch({ headless: true, args: ['--no-sandbox'] })
   const diagnostics = { pageErrors: [], missingGameAssets: [], screenshots: [], viewports: [], buildingStageLoads: {}, coastSeed: {} }
-  const origin = process.env.VISUAL_QA_URL || 'http://127.0.0.1:4173/gameofashina/'
+  const origin = qaOrigin('VISUAL_QA_URL')
   let siegeSeedRaw
   // Sahne hazır sinyali (phaser-city markReady): sabit süre beklemek yerine.
   const waitCityReady = async (page, after = 0) => {
@@ -29,7 +30,7 @@ async function main() {
       colorScheme: 'light',
     })
     // Yeni oyunun ilk açılış rehberi QA tıklamalarını örtmesin.
-    await context.addInitScript(() => { try { localStorage.setItem('payitaht-rehber', 'goruldu') } catch { /* depolama kapalı */ } })
+    await skipGuide(context)
     const page = await context.newPage()
     const buildingStageLoads = new Set()
     page.on('pageerror', error => diagnostics.pageErrors.push(`${label}: ${error.message}`))
@@ -47,12 +48,12 @@ async function main() {
     await page.goto(origin, { waitUntil: 'domcontentloaded', timeout: 60_000 })
 
     const title = path.join(out, `title-${label}.png`)
-    await page.getByRole('button', { name: /Hikâyeye başla|Devam et/ }).waitFor({ timeout: 45_000 })
+    await page.getByRole('button', { name: START_BUTTON }).waitFor({ timeout: 45_000 })
     await page.screenshot({ path: title, animations: 'disabled' })
     diagnostics.screenshots.push(path.basename(title))
 
     const bootStart = Date.now()
-    await page.getByRole('button', { name: /Hikâyeye başla|Devam et/ }).click()
+    await page.getByRole('button', { name: START_BUTTON }).click()
     await page.waitForFunction(() => {
       const canvas = document.querySelector('canvas')
       return canvas && canvas.width > 0 && canvas.height > 0 && canvas.clientWidth > 0
@@ -168,8 +169,8 @@ async function main() {
       localStorage.setItem('payitaht-adalari-v1', raw)
     }, coastSeedRaw)
     await page.reload({ waitUntil: 'domcontentloaded' })
-    await page.getByRole('button', { name: /Hikâyeye başla|Devam et/ }).waitFor({ timeout: 45_000 })
-    await page.getByRole('button', { name: /Hikâyeye başla|Devam et/ }).click()
+    await page.getByRole('button', { name: START_BUTTON }).waitFor({ timeout: 45_000 })
+    await page.getByRole('button', { name: START_BUTTON }).click()
     await page.waitForFunction(() => {
       const canvas = document.querySelector('canvas')
       return canvas && canvas.width > 0 && canvas.clientWidth > 0
@@ -377,7 +378,7 @@ async function main() {
       await page.addInitScript(raw => localStorage.setItem('payitaht-adalari-v1', raw), colonyRaw)
       await page.setViewportSize({ width: 345, height: 768 })
       await page.reload({ waitUntil: 'domcontentloaded' })
-      await page.getByRole('button', { name: /Hikâyeye başla|Devam et/ }).click()
+      await page.getByRole('button', { name: START_BUTTON }).click()
       await page.getByRole('button', { name: /Şehir: Yeni Sahil.*Şehirlerini aç/ }).click()
       await page.getByRole('dialog', { name: /Şehirlerin/ }).waitFor()
       const boxes = await page.evaluate(() => {

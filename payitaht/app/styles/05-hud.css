@@ -1,0 +1,126 @@
+/* =========================================================================
+ * OYUN ÇERÇEVESİ (ika-hud.tsx) — tek görünüm dili: kahverengi şerit,
+ * parşömen kaynak şeridi, danışman madalyonları, kahverengi alt menü.
+ * ========================================================================= */
+.game-shell { --ika-top: calc(var(--sa-top) + 86px); --ika-nav: calc(var(--sa-bottom) + 70px); background: #6f9a5a; }
+.ika-top { position: fixed; z-index: 5; top: 0; left: 0; right: 0; pointer-events: auto; }
+.ika-ribbon { display: flex; align-items: center; gap: 7px; min-height: 48px; padding: calc(var(--sa-top) + 3px) 7px 3px;
+  background: linear-gradient(180deg, #172d29f2, #0c1d1be8 70%, #26190fdc);
+  border-bottom: 1px solid #caa65f99; box-shadow: 0 4px 12px #0007, inset 0 -1px #0007;
+  backdrop-filter: blur(9px); }
+.ika-city { flex: 1; min-width: 0; display: flex; align-items: center; gap: 7px; background: none; border: 0; padding: 2px 0; color: #f7e8c0; text-align: left; }
+.ika-city > svg { width: 16px; height: 16px; flex-shrink: 0; color: var(--c-gold); }
+.ika-city-level { width: 32px; height: 32px; flex-shrink: 0; display: grid; place-items: center; border-radius: 50%;
+  background: radial-gradient(circle at 35% 25%, #7d5830, var(--c-wood-dark) 68%); border: 2px solid #d9b96f;
+  font-family: var(--font-heading), Georgia, serif; font-weight: 800; font-size: 15px; color: #fff0c7;
+  box-shadow: 0 2px 5px #000a, inset 0 1px #fff3; }
+.ika-city-name { display: flex; flex-direction: column; min-width: 0; line-height: 1.1; }
+.ika-city-name strong { font-family: var(--font-heading), Georgia, serif; font-size: 17px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-shadow: 0 1px 2px #000a; }
+.ika-city-name small { font-size: 11px; color: #c9b78e; }
+.ika-advisors { display: flex; gap: 2px; flex-shrink: 0; padding-left: 3px; border-left: 1px solid #d1b4683d; }
+.ika-advisor { position: relative; width: 43px; height: 43px; padding: 0; border: 0; background: none; border-radius: 50%;
+  filter: drop-shadow(0 2px 3px #0009); transition: transform .12s ease, filter .12s ease; }
+.ika-advisor:active { transform: scale(.94); }
+.ika-advisor-ring { position: absolute; inset: 1px; display: grid; place-items: center; border-radius: 50%;
+  border: 1px solid #d9c18524; background: radial-gradient(circle at 50% 30%, #ffffff10, transparent 70%);
+  transition: border-color .15s ease, box-shadow .15s ease, background .15s ease; }
+.ika-advisor-ring svg { display: block; }
+.ika-advisor-active .ika-advisor-ring { border-color: #f0d38dcc; background: radial-gradient(circle at 50% 35%, #f0d38d2e, #6d4a241a 62%, transparent 72%);
+  box-shadow: 0 0 0 2px #4d2f1699, 0 0 10px #f0d38d66, inset 0 0 10px #fff2ba14; }
+.ika-advisor-active::after { content: ''; position: absolute; left: 50%; bottom: -4px; width: 14px; height: 3px; transform: translateX(-50%);
+  border-radius: 3px; background: #f2d37d; box-shadow: 0 0 7px #f2d37d99; }
+.ika-advisor-news svg { animation: advisor-glow 1.6s ease-in-out infinite; }
+@keyframes advisor-glow { 50% { filter: drop-shadow(0 0 6px var(--c-alert-gold)) brightness(1.15); } }
+@media (prefers-reduced-motion: reduce) { .ika-advisor-news svg { animation: none; filter: drop-shadow(0 0 5px var(--c-alert-gold)); } }
+.ika-badge { position: absolute; top: -3px; right: -3px; min-width: 18px; height: 18px; padding: 0 4px; display: grid; place-items: center; border-radius: 9px;
+  background: var(--c-bad); border: 1.5px solid var(--c-cream); color: #fff; font-size: 10.5px; font-weight: 800; line-height: 1; font-style: normal; }
+.ika-res { display: flex; width: 100%; gap: 2px; overflow-x: auto; scrollbar-width: none; padding: 3px 5px 4px; border: 0; border-bottom: 1px solid #caa65f8f;
+  background: linear-gradient(180deg, #152925ee, #0d201de8); color: var(--c-parch-2); text-align: left;
+  box-shadow: 0 4px 10px #0005; backdrop-filter: blur(8px); }
+.ika-res::-webkit-scrollbar { display: none; }
+.ika-chip { position: relative; flex: 1 0 auto; min-height: 29px; display: inline-flex; align-items: center; gap: 3px; padding: 2px 6px;
+  border-radius: 7px; background: #ffffff0a; border: 1px solid #d4b56a24; white-space: nowrap;
+  font-variant-numeric: tabular-nums lining-nums; box-shadow: inset 0 1px #ffffff0a; }
+.ika-chip-delta { position: absolute; z-index: 3; top: 0; right: 3px; pointer-events: none; padding: 1px 4px; border-radius: 7px;
+  font-style: normal; font-size: 10px; font-weight: 900; line-height: 1.15; text-shadow: 0 1px 2px #000c;
+  animation: resource-fly .72s cubic-bezier(.18,.72,.2,1) forwards; }
+.ika-chip-delta.is-plus { color: #dcffb9; background: #356c2bd9; border: 1px solid #9ed06f88; }
+.ika-chip-delta.is-minus { color: #ffd1c4; background: #7a2d24df; border: 1px solid #df826d88; }
+@keyframes resource-fly {
+  0% { opacity: 0; transform: translateY(7px) scale(.88); }
+  18% { opacity: 1; transform: translateY(0) scale(1.04); }
+  68% { opacity: 1; }
+  100% { opacity: 0; transform: translateY(-11px) scale(.96); }
+}
+.ika-chip i { align-self: center; display: grid; place-items: center; }
+.ika-chip i svg { width: 18px; height: 18px; color: #d7b96f; filter: drop-shadow(0 1px 2px #0008); }
+.ika-chip b { font-size: 13px; line-height: 1; font-weight: 800; color: #fff0cc; text-shadow: 0 1px 2px #000b; }
+.ika-chip small { font-size: 11px; line-height: 1; color: #a8d681; font-weight: 700; }
+.ika-chip-full { background: #702c2690; border-color: #df826d88; }
+.ika-chip-full b, .ika-chip-full small { color: #ffb7a5; }
+.ika-nav { position: fixed; z-index: 5; left: 6px; right: 6px; bottom: calc(var(--sa-bottom) + 4px); display: flex;
+  min-height: 58px; padding: 5px 5px 4px; border-radius: 18px; border: 1px solid #c7a45d9c;
+  background: linear-gradient(180deg, #172b28f5, #0a1918f7 72%, #18120cf8);
+  box-shadow: 0 -5px 18px #0009, inset 0 1px #f0d89c24; pointer-events: auto; backdrop-filter: blur(10px); }
+.ika-nav-item { position: relative; flex: 1; min-width: 0; display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 2px; padding: 5px 0 3px; border: 0; border-radius: 11px; background: none; color: #d6c49d;
+  font-size: 11px; font-weight: 700; text-shadow: 0 1px 2px #000c; }
+.ika-nav-icon { width: 32px; height: 29px; display: grid; place-items: center; border-radius: 50%; transition: transform .12s ease, background .12s ease; }
+.ika-nav-item svg { width: 22px; height: 22px; stroke-width: 1.8; }
+.ika-nav-item:active .ika-nav-icon { transform: scale(.92); }
+/* Dokunma hissi: sahne dışındaki ana oyun kontrolleri parmak altında çok kısa çöker.
+ * Alt nav kendi ikon animasyonunu kullandığı için burada özellikle hariç tutulur. */
+.ika-top button:not(:disabled), .map-top-tools button:not(:disabled), .bp button:not(:disabled), .move-confirm button:not(:disabled){
+  transition: transform .08s ease, filter .08s ease;
+  transform-origin: center;
+}
+.ika-top button:not(:disabled):active, .map-top-tools button:not(:disabled):active, .bp button:not(:disabled):active, .move-confirm button:not(:disabled):active{
+  transform: translateY(1px) scale(.97);
+  filter: brightness(.96);
+}
+@media (prefers-reduced-motion: reduce) {
+  .ika-chip-delta { animation: none; opacity: 1; }
+  .ika-top button, .map-top-tools button, .bp button, .move-confirm button{ transition: none !important; }
+}
+.ika-nav-active { color: #ffe6a4; background: none; box-shadow: none; }
+.ika-nav-active .ika-nav-icon { background: radial-gradient(circle, #b98a425c, #7b552820 68%, transparent 72%); box-shadow: inset 0 0 0 1px #e5c77a66; }
+.ika-nav-center { transform: translateY(-11px); }
+.ika-nav-center .ika-nav-icon { width: 45px; height: 45px; background: radial-gradient(circle at 35% 25%, #d7b86f, #8a5b29 62%, #4a2d17);
+  color: #24170b; border: 2px solid #f0d38d; box-shadow: 0 4px 10px #000a, inset 0 1px #fff7; }
+.ika-nav-center .ika-nav-label { margin-top: -2px; color: #f1ddb0; }
+.ika-nav-center.ika-nav-active .ika-nav-icon { background: radial-gradient(circle at 35% 25%, #f1d78e, #aa7432 60%, #5b3519); box-shadow: 0 0 0 2px #e7c97966, 0 5px 12px #000b; }
+.ika-nav-item .ika-badge { top: 0; right: calc(50% - 22px); }
+
+.game-shell .threat-banner { left: 8px; right: auto; max-width: calc(100vw - 84px); top: calc(var(--ika-top) + 6px); padding: 5px 12px 5px 9px; border-radius: 999px; gap: 6px; }
+.game-shell .threat-banner svg { width: 16px; height: 16px; }
+.game-shell .threat-banner strong { font-size: 12px; }
+.game-shell .threat-banner small { font-size: 11px; }
+.game-shell .map-top-tools { top: calc(var(--ika-top) + 60px); right: 8px; bottom: auto; }
+.game-shell .map-top-tools button { width: 44px; height: 44px; border-radius: 10px; background: linear-gradient(180deg, #17352fe8, #0d211ee8);
+  border: 1px solid #c5a45d8f; color: #e6c77d; box-shadow: 0 4px 10px #0007, inset 0 1px #ffffff14; backdrop-filter: blur(7px); }
+.game-shell .map-top-tools button:focus-visible { outline: 2px solid #f2d37d; outline-offset: 2px; }
+.game-shell .weather, .game-shell .map-bottom-tools { display: none; }
+
+.game-shell .move-confirm { bottom: calc(var(--ika-nav) + 50px); background: var(--c-parch); border: 1px solid var(--c-edge); color: var(--c-ink); }
+.game-shell .island-view { padding-top: calc(var(--ika-top) + 6px); padding-bottom: calc(var(--ika-nav) + 50px); background: #3f7f95; }
+.game-shell .island-toolbar { padding: 6px 10px; }
+.game-shell .island-toolbar button { background: var(--c-parch); border: 1px solid var(--c-edge); color: var(--c-ink); }
+.game-shell .island-toolbar .island-title, .game-shell .island-select { color: var(--c-cream); }
+.game-shell .island-label { background: #fbf2d6f2; border-color: var(--c-edge); color: var(--c-ink); }
+.game-shell .island-label small { color: var(--c-ink-soft); }
+.game-loading { background: linear-gradient(180deg, #f5e6bd, #e9d29c); color: var(--c-ink); }
+/* Danışman konuşması */
+.ika-speech { display: flex; align-items: flex-end; gap: 10px; margin-top: 12px; }
+.ika-speech > svg { flex-shrink: 0; filter: drop-shadow(0 3px 5px #0006); }
+.ika-bubble { position: relative; flex: 1; padding: 10px 12px; border: 1px solid var(--edge, var(--c-edge)); border-radius: 10px; background: var(--c-paper); box-shadow: 0 2px 6px #5a351733; }
+.ika-bubble::before { content: ''; position: absolute; left: -8px; bottom: 16px; width: 14px; height: 14px; background: var(--c-paper); border-left: 1px solid var(--c-edge); border-bottom: 1px solid var(--c-edge); transform: rotate(45deg); }
+.ika-bubble strong { font-family: var(--font-heading), Georgia, serif; font-size: 16px; color: var(--c-brown); }
+.ika-bubble p { font-size: 13px; line-height: 1.45; color: var(--c-ink); margin-top: 2px; }
+
+.ika-link { background: none; border: 0; padding: 0; color: var(--c-brown); font-weight: 700; text-decoration: underline; text-underline-offset: 2px; }
+.ika-warn-text { color: var(--c-bad-deep); font-weight: 700; }
+/* Bina sayfası: görselsiz rozet ve yükselt oku */
+
+.bp-up-arrow { display: grid; place-items: center; width: 30px; height: 30px; border-radius: 50%; background: #2f6b16; border: 2px solid #d4f5a9; }
+.bp-up-arrow svg { width: 18px; height: 18px; }
+.bp-res-icon.bp-res-gold { color: #b8860b; } .bp-res-icon.bp-res-wood { color: #7a4a1e; } .bp-res-icon.bp-res-stone { color: #6b6e72; } .bp-res-icon.bp-res-knowledge { color: #2c4a6e; }

@@ -21,8 +21,9 @@
 const fs = require('node:fs/promises')
 const path = require('node:path')
 const { chromium } = require('playwright')
+const { START_BUTTON, qaOrigin } = require('./lib/qa.cjs')
 
-const ORIGIN = process.env.LAYOUT_QA_URL || 'http://127.0.0.1:4173/gameofashina/'
+const ORIGIN = qaOrigin('LAYOUT_QA_URL')
 const VIEWPORTS = [{ width: 360, height: 740 }, { width: 360, height: 740, zoom: 1.3 }]
 const PANELS = ['economy', 'advisor-city', 'reports', 'research', 'diplomacy', 'build', 'army', 'people', 'cities', 'map', 'overview',
   'alliance', 'objectives', 'journal', 'profile', 'settings', 'changelog', 'island', 'forest']
@@ -203,7 +204,7 @@ async function main() {
       await page.getByRole('button', { name: 'Yeni oyun' }).click()
       await visit('başlık:yeni-oyun', () => {})
       await page.getByRole('button', { name: 'Vazgeç' }).click()
-      await page.getByRole('button', { name: /Hikâyeye başla|Devam et/ }).click()
+      await page.getByRole('button', { name: START_BUTTON }).click()
       await page.waitForFunction(() => !!window.__payitahtQa, null, { timeout: 60_000 })
       await page.getByRole('button', { name: 'Şehre dön' }).click({ timeout: 1500 }).catch(() => {})
       const ids = await page.evaluate(() => Object.keys(JSON.parse(localStorage.getItem('payitaht-adalari-v1')).cities[0].game.buildings))

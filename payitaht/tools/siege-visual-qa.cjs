@@ -1,10 +1,11 @@
 const path = require('node:path')
+const { START_BUTTON, skipGuide } = require('./lib/qa.cjs')
 
 /** Use the real save importer to test same-scene siege start/end (no reload). */
 module.exports = async function siegeReview(browser, out, origin, seedRaw, diagnostics) {
   const context = await browser.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, isMobile: true, hasTouch: true })
   // Yeni oyunun ilk açılış rehberi QA tıklamalarını örtmesin.
-  await context.addInitScript(() => { try { localStorage.setItem('payitaht-rehber', 'goruldu') } catch { /* depolama kapalı */ } })
+  await skipGuide(context)
   const page = await context.newPage()
   page.on('pageerror', e => diagnostics.pageErrors.push(`siege: ${e.message}`))
   page.on('response', r => {
@@ -19,7 +20,7 @@ module.exports = async function siegeReview(browser, out, origin, seedRaw, diagn
   seed.cities[0].game.updatedAt = now
   await context.addInitScript(raw => localStorage.setItem('payitaht-adalari-v1', raw), JSON.stringify(seed))
   await page.goto(origin, { waitUntil: 'domcontentloaded' })
-  await page.getByRole('button', { name: /Hikâyeye başla|Devam et/ }).click()
+  await page.getByRole('button', { name: START_BUTTON }).click()
   await page.waitForFunction(() => document.querySelector('canvas')?.width > 0)
   await page.waitForFunction(() => Number(document.documentElement.dataset.cityReady || 0) > 0, null, { timeout: 90_000 })
   await page.waitForTimeout(400)

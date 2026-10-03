@@ -274,6 +274,31 @@ Divanhane 20 → hedef 30. gün · aktif: 2 · gunde3: 16 · gunde1: yok
 | 7.5 | **Kayıt şeması sürümü:** `Empire.version` ile göç fonksiyonları zinciri; her eski sürümün örnek kaydı test klasöründe açılır. | M | 0.20'den bu yana bütün kayıt örnekleri açılıyor. |
 | 7.6 | **Ölçüm araçları** (`tools/*.cjs`) tek klasörde, ortak yardımcıyla (kayıt tohumlama, rehberi atlama, sunucu). | S | — |
 
+**İlerleme: 0.40.0'da Faz 7 tamam.** Plandan sapmalar aşağıda.
+
+- **7.1:** `phaser-city.ts` 2.703 satırdan 674 satıra indi. Kalan `CityScene` sınıfı kamera, eşitleme (sync) ve yeniden çizimi tutuyor. Yöntem grupları `components/game/city/` altına sahneyi parametre alan işlevler olarak taşındı:
+  - `walls.ts`, `citizens.ts` (yürüyen halk, kuşlar, birlikler, kervan, meydan hayatı), `buildings.ts`, `effects.ts` ve `labels.ts`;
+  - ortak sabitler `shared.ts` içinde.
+
+  Sınıf tek satırlık yönlendirici yöntemleri koruyor, bu yüzden çağrılar ve sahnenin dış arayüzü değişmedi. Arazi zaten `lib/game/city-map/terrain-builder.ts` içindeydi; ayrı bir `terrain.ts` gerekmedi. En büyük dosya 674 satır. Sabit rastgelelikle çekilen ekran görüntüleri bölmeden önce ve sonra %0,52 farklı; bu, yürüyen halk ve bayrakların iki koşu arasındaki %0,6–0,75'lik gürültüsünün içinde.
+- **7.2:** `engine.ts` artık 24 satırlık bir dışa aktarım kapısı; motor `lib/game/core/` altında yedi dosya: `types`, `data`, `economy`, `rules`, `commands`, `save`, `format` (en büyüğü 560 satır).
+  - Dışa aktarılan adlar bölmeden önceki listeyle birebir aynı. Testler değişmeden geçiyor.
+  - Her modül tek başına giriş olarak yüklenebiliyor; başlatma sırası döngüsü yok.
+  - Plandaki adlardan sapma: `units`/`population` ayrı dosya olmadı; ekonomiyle iç içe oldukları için `economy.ts` içinde kaldılar (560 satır).
+- **7.3:** `globals.css` artık yalnız içe aktarım ve Tailwind teması. Stiller `app/styles/` altında sırasıyla dokuz dosyada: `01-base` … `09-v2-kit`.
+  - Sıra korunduğu için derlenen CSS bölmeden sonra bayt bayt aynıydı.
+  - `tools/unused-css.cjs` koddan anılmayan sınıfları buluyor. 86 ölü sınıfın 247 kuralı ve 22 seçicisi silindi; derlenen CSS 242 KB'tan 220 KB'a indi.
+  - Sayfa ekran görüntüleri (ui-*, başlık) %0,0 değişti; düzen denetimi 0.
+  - Rapor CI'da `--strict`: yeni ölü sınıf derlemeyi durdurur.
+- **7.4:** ESLint 9 düz yapılandırma: `@eslint/js`, `typescript-eslint` ve `react-hooks` (kancaların kuralı hata, bağımlılık listesi uyarı). `pnpm lint` sıfır uyarıyla Deploy işinde koşuyor. İlk koşudaki 32 bulgu (çoğu kullanılmayan içe aktarım ve ölü değişken) düzeltildi.
+  - **Prettier bilerek alınmadı:** kodun yoğun tek satırlık stilini 50 binden fazla satırda yeniden biçimlendirirdi ve her dosyanın geçmişini (blame) bozardı. Biçim tutarlılığını ESLint ve gözden geçirme sağlıyor.
+- **7.5:** `tools/saves/build-fixtures.sh`, 0.20.0'dan 0.39.0'a kadar çıkan her sürümü git arşivinden açar ve o sürümün kendi motoruyla bir günlük küçük bir imparatorluk oynatır: inşaat, işçi ve süren yükseltme. Kayıtlar `lib/game/fixtures/saves/` altında (21 dosya, 268 KB). `save-history.test.ts` her birini açar, bina, kaynak ve inşaat sırasının korunduğunu denetler, bir saat ilerletir ve yeniden kaydeder.
+  - Şehir kaydının göçü artık açık bir zincir: `GAME_SCHEMA` ve `GAME_MIGRATIONS` (v1→v2→v3).
+  - Daha yeni sürümün kaydı anlaşılır bir mesajla reddedilir ve yedekle ezilmez.
+  - Kayda yazan sürüm (`savedBy`) eklenir.
+  - **Sürüm rutini:** her sürümden sonra o sürümün kaydı `build-fixtures.sh <commit>=<sürüm>` ile eklenir.
+- **7.6:** QA betikleri `tools/lib/qa.cjs` yardımcısını kullanıyor: adres (`qaOrigin`), rehberi atlama (`skipGuide`), kayıt tohumlama (`seedSave`) ve başlıktan oyuna girme (`START_BUTTON`/`enterGame`). Tarayıcı içinde çalışan işlevlerdeki kayıt anahtarı bilerek düz yazı kaldı, çünkü oraya Node değişkeni geçmez.
+
 ## Faz 8 — Erişilebilirlik ve dil (0.37)
 
 | # | İş | Boyut |

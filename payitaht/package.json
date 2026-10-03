@@ -1,6 +1,6 @@
 {
   "name": "payitaht-adalari",
-  "version": "0.39.0",
+  "version": "0.40.0",
   "private": true,
   "packageManager": "pnpm@9.15.9",
   "scripts": {
@@ -11,7 +11,7 @@
     "test": "tsx --test $(find lib -name '*.test.ts')",
     "check": "pnpm typecheck && pnpm test && pnpm lint && pnpm lint:css",
     "lint": "eslint --max-warnings 0 .",
-    "lint:css": "node tools/css-lint.cjs",
+    "lint:css": "node tools/css-lint.cjs && node tools/unused-css.cjs --strict",
     "qa:layout": "node tools/layout-qa.cjs",
     "qa:city": "node tools/visual-qa.cjs"
   },

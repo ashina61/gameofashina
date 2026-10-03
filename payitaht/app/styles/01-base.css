@@ -1,0 +1,36 @@
+:root {
+  /*
+   * GÜVENLİ ALAN: tarayıcının env() değeri ya da Capacitor'ın (Android
+   * uygulaması) enjekte ettiği --safe-area-inset-* değişkeni, hangisi büyükse.
+   * Bazı Android WebView sürümleri env() için 0 döndürür.
+   */
+  --sa-top: max(env(safe-area-inset-top, 0px), var(--safe-area-inset-top, 0px));
+  --sa-bottom: max(env(safe-area-inset-bottom, 0px), var(--safe-area-inset-bottom, 0px));
+  color-scheme: dark;
+  --background: #102b29;
+  --foreground: #efeade;
+  --card: #173430;
+  --popover: #16322e;
+  --primary: #d6b77b;
+  --primary-foreground: #20352e;
+  --secondary: #25443b;
+  --muted: #2b453c;
+  --muted-foreground: #a3b4a7;
+  --accent: #305048;
+  --destructive: #bd5e50;
+  --border: #bba77630;
+  --gold: #d6b77b;
+  --green: #a5c59c;
+  --stone: #c2c8bf;
+  --radius: 8px;
+}
+@layer base {
+  * { @apply border-border outline-ring/50; box-sizing: border-box; }
+  body { @apply bg-background text-foreground; font-family: var(--font-body), sans-serif; margin: 0; font-variant-numeric: lining-nums; }
+  button, a { -webkit-tap-highlight-color: transparent; }
+  button:not(:disabled), [role='button']:not(:disabled) { cursor: pointer; }
+  button:disabled { cursor: not-allowed; opacity: .5; }
+  button:focus-visible, a:focus-visible { outline: 2px solid var(--gold); outline-offset: 4px; }
+  button { touch-action: manipulation; }
+  h1, h2, h3, p { margin: 0; }
+}

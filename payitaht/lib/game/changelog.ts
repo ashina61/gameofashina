@@ -6,6 +6,16 @@ export type Release = { version: string; date: string; title: string; notes: str
 
 export const CHANGELOG: Release[] = [
   {
+    version: '0.40.0', date: '3 Ekim 2026', title: 'Sağlam temel: eski kayıtlar, düzenli kod',
+    notes: [
+      'Kayıtların korunuyor: 0.20\'den bu yana çıkan her sürümün kaydı her derlemede yeniden açılıp ilerletilerek denetleniyor.',
+      'Daha yeni bir sürümün kaydı eski uygulamaya yüklenirse oyun açık bir mesajla durur ve kaydı yedekle ezmez; güncelleyince kaldığın yerden sürer.',
+      'Kayıt artık hangi sürümün yazdığını da taşıyor; hata raporları buna göre okunur.',
+      'Arka planda: oyun motoru, şehir sahnesi ve stiller küçük dosyalara bölündü (görünüm ve oyun aynı). Kullanılmayan 250 stil kuralı silindi; stil dosyası %9 küçüldü.',
+      'Arka planda: kod denetimi (ESLint) ve kullanılmayan stil denetimi her derlemede çalışıyor.',
+    ],
+  },
+  {
     version: '0.39.0', date: '3 Ekim 2026', title: 'Herkes için: büyük yazı, renk körlüğü ve ekran okuyucu',
     notes: [
       'Telefonun yazı boyutu %130\'a büyütülünce de bütün ekranlar düzgün kalır. Ordu özetindeki taşan satırlar düzeltildi.',

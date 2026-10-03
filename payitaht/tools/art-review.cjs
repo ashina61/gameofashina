@@ -5,6 +5,7 @@ const path = require('node:path')
 const http = require('node:http')
 const assert = require('node:assert/strict')
 const { chromium } = require('playwright')
+const { START_BUTTON, skipGuide } = require('./lib/qa.cjs')
 
 async function main() {
   const root = path.resolve('out')
@@ -34,7 +35,7 @@ async function main() {
       serviceWorkers: 'block',
     })
     // Yeni oyunun ilk açılış rehberi QA tıklamalarını örtmesin.
-    await page.addInitScript(() => { try { localStorage.setItem('payitaht-rehber', 'goruldu') } catch { /* depolama kapalı */ } })
+    await skipGuide(page)
     const errors = []
     page.on('pageerror', error => errors.push(error.message))
     page.on('response', response => {
@@ -43,7 +44,7 @@ async function main() {
     const url = `http://127.0.0.1:${server.address().port}/gameofashina/`
     const capture = name => page.screenshot({ path: path.join(output, `${tag}-${name}.png`) })
     const enter = async () => {
-      await page.getByRole('button', { name: /Hikâyeye başla|Devam et/ }).click()
+      await page.getByRole('button', { name: START_BUTTON }).click()
       await page.waitForTimeout(7000)
     }
     await page.goto(url)
