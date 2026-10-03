@@ -11,7 +11,7 @@ import { GameButton } from './game-button'
 import { population, soldiers } from '@/lib/game/engine'
 import { capitalId, islandOf, type Empire } from '@/lib/game/empire'
 import {
-  BANNERS, BANNER_NAMES, CREST_COLORS, CREST_NAMES, CRESTS, type BannerId, achievements, allianceName, playerScore, profileOf, profileRanks, profileStats, rulerTitle, setProfile,
+  BANNERS, BANNER_NAMES, CREST_COLORS, CREST_NAMES, CRESTS, type BannerId, type MedalTier, type Achievement, achievements, allianceName, playerScore, profileOf, profileRanks, profileStats, rulerTitle, setProfile,
   type CrestId, type Profile,
 } from '@/lib/game/profile'
 import { BANNER_OUTLINES } from '@/lib/game/banner-shapes'
@@ -104,6 +104,41 @@ export function RulerCrest({ crest, color, size = 72 }: { crest: CrestId; color:
   </svg>
 }
 
+/** Madalya: kurdele ve disk; derece rengi tunç, gümüş ya da altın. */
+const MEDAL: Record<MedalTier, { face: string; rim: string; ribbon: string; name: string }> = {
+  1: { face: '#c98a52', rim: '#7a4a24', ribbon: '#8c2f2a', name: 'Tunç' },
+  2: { face: '#d7dade', rim: '#7d828a', ribbon: '#2f5a8c', name: 'Gümüş' },
+  3: { face: GOLD, rim: '#8a6420', ribbon: '#2f7a4a', name: 'Altın' },
+}
+export function Medal({ tier, earned = true, size = 40 }: { tier: MedalTier; earned?: boolean; size?: number }) {
+  const m = MEDAL[tier]
+  const face = earned ? m.face : '#cfc4ac', rim = earned ? m.rim : '#a3977c', ribbon = earned ? m.ribbon : '#b5aa92'
+  return <svg viewBox="0 0 40 48" width={size} height={size * 1.2} aria-hidden="true" className="medal-svg">
+    <path d="M12 2 H20 L17 20 H9 Z" fill={ribbon} /><path d="M28 2 H20 L23 20 H31 Z" fill={ribbon} opacity="0.85" />
+    <circle cx="20" cy="31" r="14" fill={rim} />
+    <circle cx="20" cy="31" r="11.5" fill={face} />
+    <circle cx="20" cy="31" r="9" fill="none" stroke={rim} strokeWidth="0.8" opacity="0.6" />
+    {earned
+      ? <path d="M20 24 L22 29 L27 29 L23 32 L24.5 37 L20 34 L15.5 37 L17 32 L13 29 L18 29 Z" fill={rim} opacity="0.9" />
+      : <path d="M17 31 h6" stroke={rim} strokeWidth="1.6" strokeLinecap="round" />}
+  </svg>
+}
+
+/** Madalya vitrini: kazanılanlar dereceye göre, yanında sıradaki hedef. */
+function MedalShowcase({ list }: { list: Achievement[] }) {
+  const won = list.filter(a => a.value >= a.goal).sort((x, y) => y.tier - x.tier)
+  const next = list.filter(a => a.value < a.goal).sort((x, y) => y.value / y.goal - x.value / x.goal || x.tier - y.tier)[0]
+  const count = (t: MedalTier) => won.filter(a => a.tier === t).length
+  return <section className="empire-section medal-vitrin" aria-label="Madalya vitrini">
+    <h3><Award className="size-4" /> Madalya vitrini</h3>
+    <div className="medal-tally">{([3, 2, 1] as MedalTier[]).map(t => <span key={t}><Medal tier={t} size={18} />{count(t)} {MEDAL[t].name.toLocaleLowerCase('tr')}</span>)}</div>
+    {won.length > 0
+      ? <ul className="medal-shelf">{won.map(a => <li key={a.id} title={a.description}><Medal tier={a.tier} size={34} /><small>{a.name}</small></li>)}</ul>
+      : <p className="fine-print">Vitrin boş. İlk madalya birkaç yapı kurunca gelir.</p>}
+    {next && <p className="medal-next"><Medal tier={next.tier} earned={false} size={18} /><span>Sıradaki: <strong>{next.name}</strong> — {next.description} <b>{num(next.value)} / {num(next.goal)}</b></span></p>}
+  </section>
+}
+
 export function ProfilePanel({ empire, now, run, onCity, onSettings, onChangelog }: {
   empire: Empire; now: number; run: Run; onCity: (id: string) => void; onSettings: () => void; onChangelog: () => void
 }) {
@@ -153,6 +188,8 @@ export function ProfilePanel({ empire, now, run, onCity, onSettings, onChangelog
       <GameButton size="sm" onClick={() => { run((e, t) => setProfile(e, draft, t), 'Profil kaydedildi.'); setEdit(false) }}>Kaydet</GameButton>
     </section>}
 
+    <MedalShowcase list={list} />
+
     <section className="empire-section">
       <h3><Award className="size-4" /> Unvan</h3>
       <div className="title-track"><span style={{ width: `${Math.round(title.progress * 100)}%` }} /></div>
@@ -183,7 +220,7 @@ export function ProfilePanel({ empire, now, run, onCity, onSettings, onChangelog
       <div className="achievements">{list.map(a => {
         const ok = a.value >= a.goal
         return <div key={a.id} className={ok ? 'achievement is-done' : 'achievement'}>
-          <span className="achievement-medal" aria-hidden="true">{ok ? '★' : '☆'}</span>
+          <span className="achievement-medal" aria-label={`${MEDAL[a.tier].name} madalya`}><Medal tier={a.tier} earned={ok} size={26} /></span>
           <span><strong>{a.name}</strong><small>{a.description}</small>
             <span className="achievement-bar"><i style={{ width: `${Math.min(100, (100 * a.value) / a.goal)}%` }} /></span>
             <small>{num(Math.min(a.value, a.goal))} / {num(a.goal)}</small></span>

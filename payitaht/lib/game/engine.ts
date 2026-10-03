@@ -220,7 +220,7 @@ export type Game = {
   /** Yürürlükteki kültür anlaşması sayısı (her biri +50 huzur; imparatorluk yazar). */
   culture?: number
   /** Şehrin sayaçları (günlük görevler için). */
-  stats: { builds: number; trained: number; researched: number; donated: number }
+  stats: { builds: number; trained: number; researched: number; donated: number; raids?: number }
   /**
    * İmparatorluk bilgisi (empire.ts her ilerlemede yazar): toplam şehir
    * sayısı ve bu şehir başkent mi. Tek şehirli oyunda yoktur = başkent.
@@ -517,20 +517,27 @@ export const RESEARCH: Record<ResearchId, { branch: ResearchBranch; name: string
 /**
  * BAŞLANGIÇ EĞİTİMİ (Ikariam'ın adım adım öğretici görevleri): her adım
  * oyunun bir sistemini tanıtır; "Hedefe git" doğru binayı ya da paneli açar.
+ * İlk sekiz adım "ilk 10 dakika" yoludur (V2 Faz 5.1): sur temeli, ilk işçi,
+ * ilk araştırma ve ilk sefer; rehber her adımda basılacak tek düğmeyi
+ * parlatır (components/game/guide-spot.tsx). first-ten.test.ts bu yolu
+ * baştan sona oynar.
  */
+export const GUIDED_STEPS = 8
 export type ObjectiveGo = BuildingId | 'research' | 'people' | 'island' | 'army'
 export const OBJECTIVES: { id: string; title: string; description: string; reward: number; go: ObjectiveGo; done: (g: Game) => boolean }[] = [
   { id: 'first-upgrade', title: 'Şehrinin temellerini güçlendir', description: 'Divanhaneyi 2. seviyeye yükselt.', reward: 150, go: 'divan', done: g => g.buildings.divan >= 2 },
   { id: 'first-academy', title: 'Bilginin kapılarını aç', description: 'Boş arsaya bir Medrese inşa et.', reward: 200, go: 'medrese', done: g => g.buildings.medrese >= 1 },
+  { id: 'first-worker', title: 'İlk işçi', description: 'Medresede bir âlimi işe koş: âlimler ilim üretir.', reward: 150, go: 'medrese', done: g => g.workers.medrese >= 1 },
   { id: 'first-research', title: 'Yeni bir çağın başlangıcı', description: 'İlk araştırmanı tamamla.', reward: 300, go: 'research', done: g => g.research.length > 0 },
+  { id: 'barracks', title: 'Sancağı kaldır', description: 'Bir Kışla kur.', reward: 350, go: 'kisla', done: g => g.buildings.kisla >= 1 },
+  { id: 'walls', title: 'Sur temeli', description: 'Surların temelini at (1. seviye): şehir taş kalkanını alır.', reward: 400, go: 'surlar', done: g => g.buildings.surlar >= 1 },
+  { id: 'troops', title: 'İlk bölük', description: 'Kışlada beş asker yetiştir.', reward: 400, go: 'army', done: g => UNIT_IDS.reduce((s, id) => s + (UNITS[id].branch === 'kara' && UNITS[id].role !== 'spy' ? g.army[id] : 0), 0) >= 5 },
+  { id: 'first-raid', title: 'İlk sefer', description: 'Adandaki köye bir yağma seferi gönder.', reward: 500, go: 'island', done: g => (g.stats.raids ?? 0) >= 1 },
   { id: 'scholars', title: 'Âlimleri işe koş', description: 'Medresede en az iki âlim çalıştır (Halk paneli).', reward: 250, go: 'people', done: g => g.workers.medrese >= 2 },
   { id: 'homes', title: 'Yeni haneler', description: 'Konakları 3. seviyeye yükselt: nüfus tavanı artar.', reward: 300, go: 'konut', done: g => g.buildings.konut >= 3 },
   { id: 'warehouse', title: 'Ambarı genişlet', description: 'Ambarı 2. seviyeye yükselt: daha çok mal saklarsın.', reward: 300, go: 'ambar', done: g => g.buildings.ambar >= 2 },
   { id: 'coffee', title: 'Huzur kahvede başlar', description: 'Bir Kahvehane kur: halkın huzuru artar.', reward: 350, go: 'kahvehane', done: g => g.buildings.kahvehane >= 1 },
   { id: 'mine', title: 'Adanın madeni', description: 'Ada madenine en az beş işçi gönder.', reward: 400, go: 'island', done: g => g.mine.miners >= 5 },
-  { id: 'barracks', title: 'Sancağı kaldır', description: 'Bir Kışla kur.', reward: 350, go: 'kisla', done: g => g.buildings.kisla >= 1 },
-  { id: 'troops', title: 'İlk bölük', description: 'On asker yetiştir.', reward: 400, go: 'army', done: g => UNIT_IDS.reduce((s, id) => s + (UNITS[id].branch === 'kara' && UNITS[id].role !== 'spy' ? g.army[id] : 0), 0) >= 10 },
-  { id: 'walls', title: 'Taş kalkan', description: 'Surları ör (1. seviye).', reward: 400, go: 'surlar', done: g => g.buildings.surlar >= 1 },
   { id: 'harbour', title: 'Denize açılan kapı', description: 'Ticaret Limanı kur.', reward: 500, go: 'liman', done: g => g.buildings.liman >= 1 },
   { id: 'mosque', title: 'Şehrin kubbesi', description: 'Bir Cami kur: huzur ve ilim getirir.', reward: 600, go: 'cami', done: g => g.buildings.cami >= 1 },
   { id: 'divan5', title: 'Sancakbeyliği', description: 'Divanhaneyi 5. seviyeye yükselt. (Acemi koruması biter; korsanlara hazır ol.)', reward: 800, go: 'divan', done: g => g.buildings.divan >= 5 },
@@ -1835,7 +1842,7 @@ function fillMissing(g: Record<string, unknown>): Record<string, unknown> {
   const gv = (g.government ?? {}) as Record<string, unknown>
   const government = { id: gv.id ?? 'saltanat', changedAt: gv.changedAt ?? 0, anarchyUntil: gv.anarchyUntil ?? 0 }
   const st = (g.stats ?? {}) as Record<string, unknown>
-  const stats = { builds: st.builds ?? 0, trained: st.trained ?? 0, researched: st.researched ?? 0, donated: st.donated ?? 0 }
+  const stats = { builds: st.builds ?? 0, trained: st.trained ?? 0, researched: st.researched ?? 0, donated: st.donated ?? 0, ...(st.raids ? { raids: st.raids } : {}) }
   // Eski kayıtta tek eğitim emri (drill) vardı; sıraya çevrilir.
   const drills = Array.isArray(g.drills) ? g.drills : g.drill ? [g.drill] : []
   delete (g as Record<string, unknown>).drill
@@ -1954,7 +1961,7 @@ export function parseSave(raw: string): Game {
   if (!Number.isInteger(forest.level) || forest.level < 1 || forest.level > FOREST_MAX_LEVEL || !finite(forest.wood) ||
       !Number.isInteger(forest.workers) || forest.workers < 0 ||
       !GOVERNMENT_IDS.includes(government.id) || !finite(government.changedAt) || !finite(government.anarchyUntil) ||
-      !(['builds', 'trained', 'researched', 'donated'] as const).every(k => finite(stats[k])) ||
+      !(['builds', 'trained', 'researched', 'donated'] as const).every(k => finite(stats[k])) || (stats.raids !== undefined && !finite(stats.raids)) ||
       (g.tavern !== undefined && !(Number.isInteger(g.tavern) && (g.tavern as number) >= 0)) ||
       (g.culture !== undefined && !(Number.isInteger(g.culture) && (g.culture as number) >= 0 && (g.culture as number) <= 20))) {
     throw new Error('Kayıt dosyası okunamadı. Eski kaydın korunuyor; yeni oyun başlatabilirsin.')

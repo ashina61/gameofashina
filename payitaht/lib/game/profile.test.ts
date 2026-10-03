@@ -34,8 +34,10 @@ test('titles rise with score and ranks cover the whole table', () => {
 test('achievements are computed from the save', () => {
   const e = advanceEmpire(initialEmpire(now), now)
   const list = achievements(e)
-  assert.ok(list.length >= 12)
+  assert.equal(list.length, 30)
   assert.equal(new Set(list.map(a => a.id)).size, list.length)
+  for (const a of list) assert.ok(a.goal > 0 && a.name && a.description && [1, 2, 3].includes(a.tier), a.id)
+  for (const tier of [1, 2, 3]) assert.ok(list.filter(a => a.tier === tier).length >= 8, `tier ${tier}`)
   e.cities[0].game.buildings.divan = 5
   assert.ok(achievements(e).find(a => a.id === 'kurucu')!.value >= 5)
 })

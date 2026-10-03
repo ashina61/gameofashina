@@ -2,7 +2,7 @@ import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { advanceEmpire, initialEmpire, parseEmpire, type Empire } from './empire'
 import { acceptProposal, busyAtWar, declineProposal, setPace, type Proposal } from './ai'
-import { RIVALS, declareWar, pacified, rivalLevel, rivalState, world } from './rivals'
+import { BONDS, RIVALS, declareWar, onRivalRaided, pacified, recall, rivalLevel, rivalState, world } from './rivals'
 
 const now = 20_000_000
 const HOUR = 3600_000
@@ -105,4 +105,52 @@ test('a save with many incoming armies stays readable (old limit was 8)', () => 
   for (const r of RIVALS.slice(0, 12)) declareWar(e, r, e.cities[0], now, 'raid')
   assert.equal(e.threats!.length, 12)
   assert.deepEqual(parseEmpire(JSON.stringify(e)), e)
+})
+
+test('a seven-day normal world tells at least three continuing stories', () => {
+  let e = advanceEmpire(initialEmpire(now), now)
+  const seen = new Map<string, number>()
+  for (let h = 1; h <= 7 * 24; h++) {
+    e = advanceEmpire(e, now + h * HOUR)
+    for (const n of e.world?.news ?? []) if (n.story && n.story.step >= 2) seen.set(n.id, n.story.step)
+  }
+  assert.ok(seen.size >= 3, `süren hikâye haberi: ${seen.size}`)
+  assert.ok((e.world?.stories ?? []).length <= 2)
+  assert.deepEqual(parseEmpire(JSON.stringify(e)), e)
+})
+
+test('rivals have a friend and an enemy and never pick a friend as a war target', () => {
+  for (const r of RIVALS) {
+    const b = BONDS[r.id]
+    assert.ok(b && b.friend !== r.id && b.enemy !== r.id && b.friend !== b.enemy, r.id)
+    assert.ok(RIVALS.some(x => x.id === b.friend) && RIVALS.some(x => x.id === b.enemy), r.id)
+  }
+  const e = live('hareketli', 96)
+  for (const n of e.world!.news ?? []) if (n.kind === 'savas' && n.rivals.length === 2) assert.notEqual(BONDS[n.rivals[0]].friend, n.rivals[1], n.text)
+})
+
+test('letters remember a raid and a helping hand', () => {
+  const e = advanceEmpire(initialEmpire(now), now)
+  const [r] = RIVALS
+  const city = e.cities[0]
+  onRivalRaided(e, r.id, city, now)
+  assert.match(recall(e, r.id, 'kin', now + HOUR), /yağmaladınız/)
+  assert.equal(recall(e, r.id, 'minnet', now + HOUR), '')
+  // Raided rival's friend holds a grudge; its enemy is grateful.
+  const friendOfR = RIVALS.find(x => BONDS[x.id].friend === r.id)!
+  const enemyOfR = RIVALS.find(x => BONDS[x.id].enemy === r.id)!
+  assert.match(recall(e, friendOfR.id, 'kin', now + HOUR), /Dostumuz/)
+  assert.match(recall(e, enemyOfR.id, 'minnet', now + HOUR), /minnetle/)
+  onRivalRaided(e, r.id, city, now + 2 * HOUR)
+  assert.match(recall(e, r.id, 'kin', now + 3 * HOUR), /2 kez/)
+  // Memories fade after two weeks.
+  assert.equal(recall(e, r.id, 'kin', now + 15 * 24 * HOUR), '')
+  assert.deepEqual(parseEmpire(JSON.stringify(e)), e)
+})
+
+test('accepting a call for help is remembered with gratitude', () => {
+  const r = RIVALS[1]
+  const e = withProposal({ id: 'p-help', rivalId: r.id, kind: 'yardim', text: 'Yardım', want: { good: 'gold', amount: 100 } })
+  const done = acceptProposal(e, 'p-help', now).empire
+  assert.match(recall(done, r.id, 'minnet', now + HOUR), /yardım eli/)
 })

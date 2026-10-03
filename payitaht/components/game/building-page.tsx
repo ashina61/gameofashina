@@ -1,5 +1,6 @@
 'use client'
 import { KumSaatiArt } from './resource-art'
+import { Term } from './term'
 import { flyGoods } from '@/lib/fx'
 
 /**
@@ -195,12 +196,12 @@ function BuildingView({ game, empire, id, onCommand, onRecruit, onNav, onBuildin
         </Box>
         <Box title="Hazine">
           <Table rows={[
-            ['Vergi ve esnaf', `+${num(gross)} akçe/dk`],
-            ['Âlim maaşları', `${formatRate(-scientistUpkeepPerMinute(game))} akçe/dk`],
-            ['Ordu bakımı', `${formatRate(-armyUpkeep(game))} akçe/dk`],
-            [<strong key="n">Net gelir</strong>, <strong key="v">{num(r.gold)} akçe/dk</strong>],
-            ['Yolsuzluk', `%${Math.round(corruption(game) * 100)}`],
-            ['Sefer hakkı', `aynı anda ${actionPoints(game)} sefer`],
+            [<Term key="t" label="Vergi ve esnaf" />, `+${num(gross)} akçe/dk`],
+            [<Term key="t" label="Âlim maaşları" />, `${formatRate(-scientistUpkeepPerMinute(game))} akçe/dk`],
+            [<Term key="t" label="Ordu bakımı" />, `${formatRate(-armyUpkeep(game))} akçe/dk`],
+            [<strong key="n"><Term label="Net gelir" /></strong>, <strong key="v">{num(r.gold)} akçe/dk</strong>],
+            [<Term key="t" label="Yolsuzluk" />, `%${Math.round(corruption(game) * 100)}`],
+            [<Term key="t" label="Sefer hakkı" />, `aynı anda ${actionPoints(game)} sefer`],
           ]} />
         </Box>
       </>
@@ -390,7 +391,7 @@ export function BuildingPage({ game, empire, id, onClose, onBuild, onFlip, onMov
   const nextFacing = facing === 'straight' ? 'right' : facing === 'right' ? 'left' : 'straight'
   const showTab = hasWork ? tab : 'gelisim'
   return <IkaPage title={b.name} subtitle={`${city} · ${b.category.toLocaleLowerCase('tr')}`} label={`${b.name} sayfası`} onClose={onClose}
-    className={`bp-building${help ? ' show-help' : ''}`}
+    className={`bp-building bp-of-${id}${help ? ' show-help' : ''}`}
     badge={<button type="button" className="bp-help" aria-pressed={help} onClick={() => setHelp(v => !v)} aria-label={help ? 'Açıklamaları gizle' : 'Nasıl işler? Açıklamaları göster'}><Info /></button>}
     footer={<UpgradeDock game={game} id={id} onBuild={onBuild} />}>
       <section className="bp-hero">

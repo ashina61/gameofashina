@@ -15,6 +15,7 @@ import {
 export { SAVE_KEY } from '@/lib/game/save-storage'
 import { awaySummary, type AwaySummary } from '@/lib/game/away'
 import { startClock, tickClock, type ClockState } from '@/lib/game/clock'
+import { clearNotices, scheduleNotices } from '@/lib/notify'
 
 /*
  * OYUN SAATİ (V2 Faz 5.4): bütün zaman damgaları gameNow()'dan gelir. Cihaz
@@ -103,7 +104,12 @@ export function useGame() {
   })
   useEffect(() => {
     const flush = () => { if (memory && !corrupt) save(memory, true) }
-    const onVisibility = () => { if (document.visibilityState === 'hidden') flush() }
+    // Arka plana geçerken telefon bildirimleri kurulur, dönünce silinir (V2 Faz 5.5).
+    const onVisibility = () => {
+      if (document.visibilityState === 'hidden') { flush(); if (memory && !corrupt) void scheduleNotices(memory, gameNow()) }
+      else void clearNotices()
+    }
+    void clearNotices()
     window.addEventListener('pagehide', flush)
     document.addEventListener('visibilitychange', onVisibility)
     return () => {

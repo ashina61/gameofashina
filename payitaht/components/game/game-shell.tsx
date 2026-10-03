@@ -5,6 +5,7 @@ import { X, Check } from './ui-art'
 
 import { SettingsPanel } from './settings-panel'
 import { QuestChip } from './quest-chip'
+import { GuideSpot } from './guide-spot'
 import { FirstRunGuide, shouldShowGuide } from './first-run-guide'
 import { AwaySummaryCard } from './away-summary'
 import type { AwaySummary } from '@/lib/game/away'
@@ -35,7 +36,7 @@ import type { AdvisorId } from './advisor-portraits'
 import { takeAwaySummary, useGame } from '@/hooks/use-game'
 import { usePwa } from '@/hooks/use-pwa'
 import { useAlerts, useNotifySetting } from '@/hooks/use-alerts'
-import { BUILDINGS, BUILDING_IDS, OBJECTIVES, PLOTS, RESEARCH, objectiveDone, type BuildingId, type Command } from '@/lib/game/engine'
+import { BUILDINGS, BUILDING_IDS, GUIDED_STEPS, OBJECTIVES, PLOTS, RESEARCH, objectiveDone, type BuildingId, type Command } from '@/lib/game/engine'
 import { cn } from '@/lib/utils'
 import { ProfilePanel, ChangelogPanel } from './profile-panel'
 import { GodsPanel } from './gods-panel'
@@ -325,7 +326,8 @@ export default function GameShell({ onTitle }: { onTitle?: () => void } = {}) {
       {/* ALT LOG ŞERİDİ — referanstaki sohbet gibi, en son şehir günlüğü satırı. */}
       {guide && view === 'city' && !panel && <FirstRunGuide onDone={() => setGuide(false)} />}
       {away && !guide && <AwaySummaryCard summary={away} onClose={() => setAway(null)} onReports={() => { setAway(null); openPanel('reports') }} />}
-      {view === 'city' && foundingCity && !(empire?.threats ?? []).some(t => t.cityId === empire?.activeCityId) && !(empire?.sieges ?? []).length && <QuestChip game={game} onOpen={() => openPanel('objectives')} onGo={target} onClaim={id => act({ type: 'claim', id })} />}</> : <div className="game-loading"><img src={buildingImage('divan', 8)} alt="" width={150} height={150} /><h1>Şehrin uyanıyor…</h1><p>Sahilhisar kapılarını açıyor.</p></div>}
+      {view === 'city' && foundingCity && !(empire?.threats ?? []).some(t => t.cityId === empire?.activeCityId) && !(empire?.sieges ?? []).length && <QuestChip game={game} onOpen={() => openPanel('objectives')} onGo={target} onClaim={id => act({ type: 'claim', id })} />}
+      {foundingCity && OBJECTIVES.slice(0, GUIDED_STEPS).some(o => !game.claimed.includes(o.id)) && <GuideSpot game={game} />}</> : <div className="game-loading"><img src={buildingImage('divan', 8)} alt="" width={150} height={150} /><h1>Şehrin uyanıyor…</h1><p>Sahilhisar kapılarını açıyor.</p></div>}
     <IkaNav active={navActive} badges={{ objectives: claimable, alliance: unreadCirculars }} modes={{ objectives: badges.objectives, alliance: badges.alliance }} onSelect={key => {
       setSelected(null); setPlot(null); setNpc(null)
       if (key === 'city') { setPanel(null); setMoving(null); setView('city'); setViewIsland(null) }

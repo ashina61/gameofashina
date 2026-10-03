@@ -19,8 +19,9 @@ import { idleMerchants, shipCargo } from './expeditions'
 import { activeCity, advanceEmpire, type CityRecord, type Empire } from './empire'
 import { ISLANDS, type IslandId } from './islands'
 import { pactHelpLevel, parsePact, type Pact } from './pact'
-import { aiHour, busyAtWar, parseAi, worldNews, PACES, type News, type Pace, type Proposal, type RivalWar } from './ai'
+import { aiHour, busyAtWar, parseAi, worldNews, PACES, type News, type Pace, type Proposal, type RivalWar, type Story, type StoryKind } from './ai'
 
+const HOUR_MS = 3600_000
 export type RivalStyle = 'tuccar' | 'savasci' | 'alim' | 'denizci'
 export type FactionId = 'dogu' | 'bati'
 export type Rival = { id: string; city: string; ruler: string; islandId: IslandId; style: RivalStyle; faction: FactionId; base: number }
@@ -54,7 +55,36 @@ export const TREATIES: Record<TreatyId, { name: string; description: string; nee
   ticaret: { name: 'Ticaret anlaşması', description: 'Pazarda onlardan %10 ucuz alır, onlara %10 pahalı satarsın; bir teklif daha açarlar.', need: 10 },
   baris: { name: 'Barış anlaşması', description: 'Birbirinize saldırmazsınız; intikam baskını gelmez.', need: 25 },
 }
-export type RivalState = { relation: number; lootedAt: number; treaties: TreatyId[]; giftAt: number; greetDay: string }
+/**
+ * KİŞİLİK (V2 Faz 5.8): her hükümdarın bir dostu ve bir düşmanı var.
+ * Savaş açarken düşmanını seçer, dostuna el kaldırmaz; sen birine
+ * saldırınca dostu kin, düşmanı minnet duyar.
+ */
+export const BONDS: Record<string, { friend: string; enemy: string }> = {
+  'r-kemer': { friend: 'r-ates', enemy: 'r-sarp' },
+  'r-lale': { friend: 'r-bag', enemy: 'r-sakiz' },
+  'r-ilim': { friend: 'r-kule', enemy: 'r-fener' },
+  'r-ates': { friend: 'r-kemer', enemy: 'r-kartal' },
+  'r-mavi': { friend: 'r-kor', enemy: 'r-mercan' },
+  'r-kule': { friend: 'r-ilim', enemy: 'r-cinar' },
+  'r-bag': { friend: 'r-lale', enemy: 'r-kemer' },
+  'r-kor': { friend: 'r-mavi', enemy: 'r-sarp' },
+  'r-cinar': { friend: 'r-fener', enemy: 'r-kule' },
+  'r-sarp': { friend: 'r-kartal', enemy: 'r-kemer' },
+  'r-mercan': { friend: 'r-kartal', enemy: 'r-mavi' },
+  'r-sakiz': { friend: 'r-cinar', enemy: 'r-lale' },
+  'r-kartal': { friend: 'r-sarp', enemy: 'r-ates' },
+  'r-fener': { friend: 'r-cinar', enemy: 'r-ilim' },
+}
+export const friendOf = (id: string) => rivalById(BONDS[id]?.friend ?? '')
+export const enemyOf = (id: string) => rivalById(BONDS[id]?.enemy ?? '')
+
+/** Hükümdarın seninle ilgili hatırladıkları; mektuplarında anar. */
+export type MemoKind = 'yagma' | 'yardim' | 'hediye' | 'red' | 'dostuna' | 'dusmanina'
+export const MEMO_KINDS: MemoKind[] = ['yagma', 'yardim', 'hediye', 'red', 'dostuna', 'dusmanina']
+export type Memo = { kind: MemoKind; at: number; of?: string }
+export const MEMO_MS = 14 * 24 * HOUR_MS
+export type RivalState = { relation: number; lootedAt: number; treaties: TreatyId[]; giftAt: number; greetDay: string; memo?: Memo[] }
 export type Message = { id: string; time: number; from: string; rivalId?: string; subject: string; body: string; read: boolean }
 export type Offer = { id: string; cityId: string; good: Good; amount: number; left: number; price: number; since: number; tick: number }
 export type Delivery = { id: string; cityId: string; good: Good; amount: number; eta: number; from: string }
@@ -69,6 +99,10 @@ export type World = {
   pace?: Pace
   /** Rakiplerin kendi aralarındaki savaşlar (ai.ts). */
   wars?: RivalWar[]
+  /** Haberlerde süren hikâyeler (ai.ts, V2 Faz 5.8). */
+  stories?: Story[]
+  /** Son başlayan hikâyenin türü (art arda aynısı gelmesin). */
+  lastStory?: StoryKind
   /** Dünya haberleri: savaş, barış, ticaret, büyüme. */
   news?: News[]
   /** Rakiplerin sana getirdiği teklifler (ticaret, anlaşma, haraç, yardım, hediye). */
@@ -93,7 +127,7 @@ export const MAX_FOREIGN_SPIES = 3
 export const MAX_DELIVERIES = 60
 export const EXPEL_COOLDOWN_MS = 30 * 60_000
 
-const HOUR = 3600_000
+const HOUR = HOUR_MS
 const clamp = (n: number, a: number, b: number) => Math.max(a, Math.min(b, n))
 export function roll(seed: string) {
   let h = 2166136261
@@ -127,6 +161,34 @@ export function mail(empire: Empire, time: number, from: string, subject: string
 export function relate(empire: Empire, id: string, delta: number) {
   const s = rivalState(empire, id)
   s.relation = clamp(Math.round(s.relation + delta), -100, 100)
+}
+export function remember(empire: Empire, id: string, kind: MemoKind, at: number, of?: string) {
+  const s = rivalState(empire, id)
+  s.memo = [{ kind, at, ...(of ? { of } : {}) }, ...(s.memo ?? []).filter(m => at - m.at < MEMO_MS)].slice(0, 6)
+}
+const ago = (ms: number) => ms < 20 * HOUR_MS ? 'Az önce' : ms < 44 * HOUR_MS ? 'Dün' : `${Math.round(ms / (24 * HOUR_MS))} gün önce`
+const KIN: MemoKind[] = ['yagma', 'red', 'dostuna'], MINNET: MemoKind[] = ['yardim', 'hediye', 'dusmanina']
+/**
+ * Mektuba eklenecek hatıra cümlesi: kin (yağma, geri çevrilen el, dosta
+ * saldırı) ya da minnet (yardım, hediye, düşmana darbe). Yoksa boş.
+ */
+export function recall(empire: Empire, rivalId: string, tone: 'kin' | 'minnet', at: number): string {
+  const kinds = tone === 'kin' ? KIN : MINNET
+  const m = (peek(empire, rivalId).memo ?? []).find(x => kinds.includes(x.kind) && at - x.at < MEMO_MS && at >= x.at)
+  if (!m) return ''
+  const other = rivalById(m.of ?? '')?.city ?? 'komşumuz'
+  const when = ago(at - m.at)
+  switch (m.kind) {
+    case 'yagma': {
+      const n = (peek(empire, rivalId).memo ?? []).filter(x => x.kind === 'yagma').length
+      return n > 1 ? `Hazinemizi ${n} kez yağmaladınız; hiçbirini unutmadık.` : `${when} hazinemizi yağmaladınız; bunu unutmadık.`
+    }
+    case 'red': return `${when} uzattığımız eli geri çevirdiniz.`
+    case 'dostuna': return `Dostumuz ${other} üzerine yürüdünüz; onun yarası bizim de yaramız.`
+    case 'yardim': return `${when} uzattığınız yardım eli hâlâ dilimizde.`
+    case 'hediye': return `${when} gönderdiğiniz hediye hâlâ divanımızın baş köşesinde.`
+    case 'dusmanina': return `Düşmanımız ${other} üzerine indirdiğiniz darbeyi minnetle anıyoruz.`
+  }
 }
 
 /* --------------------------------------------------------------- GÜÇ VE HAZİNE */
@@ -275,7 +337,9 @@ export function sendGift(source: Empire, rivalId: string, gold: number, now: num
   const gain = Math.min(20, Math.floor(amount / (rivalLevel(empire, r, now) * 30)))
   relate(empire, rivalId, gain)
   s.giftAt = now
-  mail(empire, now, r.ruler, 'Hediyeniz ulaştı', gain > 0 ? `${amount} akçelik hediyeniz için teşekkürler. (ilişki +${gain})` : 'Nezaketiniz için teşekkürler; ama bu hediye hazinemizde fark edilmedi.', rivalId)
+  const wound = gain > 0 && (s.memo ?? []).some(m => m.kind === 'yagma') ? ' Yağmanızı unutmadık, ama bu hediye yarayı biraz sarıyor.' : ''
+  if (gain > 0) remember(empire, rivalId, 'hediye', now)
+  mail(empire, now, r.ruler, 'Hediyeniz ulaştı', gain > 0 ? `${amount} akçelik hediyeniz için teşekkürler.${wound} (ilişki +${gain})` : 'Nezaketiniz için teşekkürler; ama bu hediye hazinemizde fark edilmedi.', rivalId)
   return { empire }
 }
 
@@ -378,7 +442,20 @@ export function onRivalRaided(empire: Empire, rivalId: string, city: CityRecord,
   const s = rivalState(empire, rivalId)
   s.lootedAt = at
   relate(empire, rivalId, -25)
+  remember(empire, rivalId, 'yagma', at)
   for (const other of factionMembers(r.faction)) if (other.id !== rivalId) relate(empire, other.id, -5)
+  // Dostunun kini, düşmanının minneti (aynı hatıra günde bir kez yazılır).
+  for (const other of RIVALS) {
+    if (other.id === rivalId) continue
+    const bond = BONDS[other.id]
+    const kind: MemoKind | null = bond?.friend === rivalId ? 'dostuna' : bond?.enemy === rivalId ? 'dusmanina' : null
+    if (!kind) continue
+    relate(empire, other.id, kind === 'dostuna' ? -6 : 6)
+    if ((peek(empire, other.id).memo ?? []).some(m => m.kind === kind && m.of === rivalId && at - m.at < 24 * HOUR)) continue
+    remember(empire, other.id, kind, at, rivalId)
+    mail(empire, at, other.ruler, kind === 'dostuna' ? 'Dostumuza saldırdınız' : 'Düşmanımın düşmanı',
+      kind === 'dostuna' ? `${r.city} bizim dostumuzdur. Ona kaldırılan kılıç bize de kalkmış sayılır.` : `${r.city} hazinesini boşalttığınızı duyduk. Düşmanımızın düşmanı dostumuzdur; divanımızın kapısı size açık.`, other.id)
+  }
   // Düşmanımın düşmanı: bu hükümdarla savaşta olan rakip sevinir.
   for (const war of empire.world?.wars ?? []) {
     const foe = war.a === rivalId ? war.b : war.b === rivalId ? war.a : null
@@ -397,7 +474,8 @@ function revenge(empire: Empire, r: Rival, city: CityRecord, at: number) {
   const fleet = overseas ? Object.fromEntries(Object.entries(rivalFleet(L, r.style)).map(([id, n]) => [id, Math.ceil((n ?? 0) * 0.5)])) as Troops : {}
   const arriveAt = at + HOUR + Math.round(roll(`${r.id}-${at}`) * HOUR)
   empire.threats = [...(empire.threats ?? []), { id: `revenge-${r.id}-${at}`, cityId: city.id, npcId: r.id, level: L, arriveAt, troops, fleet }]
-  mail(empire, at, r.ruler, 'İntikam', `${city.name} bunun hesabını verecek. Ordumuz yola çıkıyor.`, r.id)
+  const twice = (peek(empire, r.id).memo ?? []).filter(m => m.kind === 'yagma').length > 1
+  mail(empire, at, r.ruler, 'İntikam', `${twice ? recall(empire, r.id, 'kin', at) + ' ' : ''}${city.name} bunun hesabını verecek. Ordumuz yola çıkıyor.`, r.id)
 }
 /**
  * SAVAŞ İLANI (Ikariam'da düşman oyuncunun saldırısı): düşman ya da savaşçı
@@ -418,7 +496,8 @@ export function declareWar(empire: Empire, r: Rival, city: CityRecord, at: numbe
   const arriveAt = at + 2 * HOUR
   empire.threats = [...(empire.threats ?? []), { id: `war-${r.id}-${at}`, cityId: city.id, npcId: r.id, level: L, arriveAt, troops, fleet, intent }]
   const aim = intent === 'occupy' ? 'şehrinizi işgal etmek' : intent === 'blockade' ? 'limanınızı abluka etmek' : 'hazinenizi yağmalamak'
-  mail(empire, at, r.ruler, 'Savaş ilanı', `${city.name} üzerine yürüyoruz; niyetimiz ${aim}. Ordumuz iki saate kapınızda.${spy ? ' Casuslarımız surlarınızı iyi tanıyor.' : ''}`, r.id)
+  const grudge = recall(empire, r.id, 'kin', at)
+  mail(empire, at, r.ruler, 'Savaş ilanı', `${grudge ? grudge + ' ' : ''}${city.name} üzerine yürüyoruz; niyetimiz ${aim}. Ordumuz iki saate kapınızda.${spy ? ' Casuslarımız surlarınızı iyi tanıyor.' : ''}`, r.id)
   logEvent(city.game, `${r.ruler} savaş ilan etti! Ordusu iki saate ${city.name} kapısında (${aim.split(' ').pop()}).`, at)
   worldNews(empire, at, 'savas', `${r.ruler} (${r.city}) senin şehrin ${city.name} üzerine yürüyor.`, [r.id])
 }
@@ -714,7 +793,8 @@ export function parseWorld(raw: unknown, cityIds: Set<string>): World | undefine
       !Array.isArray(w.traded) || w.traded.length > 200) bad()
   for (const [id, s] of Object.entries(w.rivals)) {
     if (!rivalById(id) || !s || !Number.isFinite(s.relation) || Math.abs(s.relation) > 100 || !fin(s.lootedAt) || !fin(s.giftAt) ||
-        typeof s.greetDay !== 'string' || !Array.isArray(s.treaties) || !s.treaties.every(t => t in TREATIES)) bad()
+        typeof s.greetDay !== 'string' || !Array.isArray(s.treaties) || !s.treaties.every(t => t in TREATIES) ||
+        (s.memo !== undefined && (!Array.isArray(s.memo) || s.memo.length > 6 || !s.memo.every(m => m && MEMO_KINDS.includes(m.kind) && fin(m.at) && (m.of === undefined || !!rivalById(m.of)))))) bad()
   }
   for (const m of w.messages) if (!m || typeof m.id !== 'string' || !fin(m.time) || typeof m.subject !== 'string' || typeof m.body !== 'string' || typeof m.read !== 'boolean') bad()
   for (const o of w.offers) {

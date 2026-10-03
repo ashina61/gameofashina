@@ -111,9 +111,10 @@ export function NewsPanel({ empire, now, onRival }: { empire: Empire; now: numbe
     <section className="empire-section">
       <h3><Newspaper className="size-4" /> Dünya haberleri</h3>
       {!news.length && <p className="fine-print">Henüz haber yok. Yapay rakipler savaştıkça, ticaret yaptıkça ve büyüdükçe burada yazılır.</p>}
+      {news.some(n => n.story) && <p className="fine-print">Etiketli haberler birkaç bölüm süren hikâyelerdir: kan davası, düğün, kıtlık, korsan avı. Sonraki bölüm birkaç saat içinde gelir.</p>}
       <ol className="news-list">{news.map(n => <li key={n.id} className={`news-${n.kind}`}>
         <i aria-hidden="true">{NEWS_ICON[n.kind]}</i>
-        <span>{n.text}<time>{when(n.time)}</time></span>
+        <span>{n.story && <em className="news-story">{n.story.title} · {n.story.step}/{n.story.of}</em>}{n.text}<time>{when(n.time)}</time></span>
         {n.rivals[0] && <button type="button" aria-label={`${rivalById(n.rivals[0])?.city} hükümdarını aç`} onClick={() => onRival(n.rivals[0])}><Eye className="size-4" /></button>}
       </li>)}</ol>
     </section>

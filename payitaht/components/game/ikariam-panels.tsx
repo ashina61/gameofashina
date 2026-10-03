@@ -50,7 +50,7 @@ export function UnitPicker({ ids, free, pick, onPick, step = 1 }: {
     <GameButton size="sm" variant="outline" disabled={!(pick[id] ?? 0)} onClick={() => set(id, (pick[id] ?? 0) - step)} aria-label={`${UNITS[id].name} azalt`}><Minus /></GameButton>
     <strong className="stepper-value">{pick[id] ?? 0}</strong>
     <GameButton size="sm" variant="outline" disabled={(pick[id] ?? 0) >= free[id]} onClick={() => set(id, (pick[id] ?? 0) + step)} aria-label={`${UNITS[id].name} artır`}><Plus /></GameButton>
-    <GameButton size="sm" variant="ghost" onClick={() => set(id, free[id])}>Hepsi</GameButton>
+    <GameButton size="sm" variant="ghost" data-guide={`all-${id}`} disabled={!free[id] || (pick[id] ?? 0) >= free[id]} onClick={() => set(id, free[id])}>Hepsi</GameButton>
   </div>)}</div>
 }
 

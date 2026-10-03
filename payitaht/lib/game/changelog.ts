@@ -6,6 +6,18 @@ export type Release = { version: string; date: string; title: string; notes: str
 
 export const CHANGELOG: Release[] = [
   {
+    version: '0.37.0', date: '3 Ekim 2026', title: 'İlk on dakika, yaşayan rakipler, madalyalar ve bildirimler',
+    notes: [
+      'İlk on dakika rehberi: ilk sekiz hedef Divanhane, Medrese, ilk âlim, ilk araştırma, Kışla, sur temeli, ilk bölük ve ilk sefer oldu. Her adımda basacağın tek düğme parlar, üstünde ok durur.',
+      'Yapay rakiplerin artık dostu ve düşmanı var: savaşı düşmanına açar, dostu yardıma koşar. Birini yağmalarsan dostu kin tutar, düşmanı minnet duyar. Mektuplarında geçmişi anarlar ("Hazinemizi 2 kez yağmaladınız…", "Uzattığınız yardım eli hâlâ dilimizde…"). Rakip sayfasında dostu ve düşmanı yazar.',
+      'Dünya haberlerinde birkaç bölüm süren hikâyeler: kan davası, düğün, kıtlık ve korsan avı. Kıtlıktaki şehir senden yardım isteyebilir; kan davası savaşa dönebilir.',
+      'Başarımlar 30 madalyaya çıktı (tunç, gümüş, altın). Profilde madalya vitrini kazanılanları ve sıradaki hedefi gösterir.',
+      'Terimler sözlüğü: bina etkilerindeki, savaş meydanındaki ve hazinedeki her terimin yanında ⓘ var; dokununca tek cümlelik açıklama açılır.',
+      'Android: oyun kapalıyken telefon bildirimi gelir: inşaat bitti, sefer döndü, baskın 10 dakika sonra, ambar doldu. Her biri Ayarlar\'dan ayrı kapatılır.',
+      'Türkçe ekler düzeltildi: "Fenerbahçe\'de", "Bağbaşı\'nda", "Kartalkaya\'ya" gibi.',
+    ],
+  },
+  {
     version: '0.36.0', date: '3 Ekim 2026', title: 'Haftalık olaylar, adil saat ve uzun yokluk',
     notes: [
       'Haftalık olaylar: Kervan haftası (ticaret ×1,5), Korsan sezonu (baskınlar sıklaşır, ganimet ×1,5), Hasat (kereste ×1,25), Ramazan (huzur +100). Başlarken ve biterken şehir günlüğüne ve dünya haberlerine yazılır; Görevler sayfasında "Bu hafta" kartı kalan günü gösterir.',

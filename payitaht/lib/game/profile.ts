@@ -93,29 +93,53 @@ export function profileStats(empire: Empire) {
   }
 }
 
-export type Achievement = { id: string; name: string; description: string; value: number; goal: number }
-/** Başarımlar: kayıttan hesaplanır; ilerleme çubuğuyla gösterilir. */
+/** Madalya derecesi: 1 tunç, 2 gümüş, 3 altın. */
+export type MedalTier = 1 | 2 | 3
+export type Achievement = { id: string; name: string; description: string; value: number; goal: number; tier: MedalTier }
+/**
+ * Başarımlar (V2 Faz 5.7): 30 madalya, kayıttan hesaplanır, ilerleme
+ * çubuğuyla gösterilir. Tunç madalyalar ilk saatlerde, altınlar uzun
+ * oyunda gelir; profilin vitrini kazanılanları dereceye göre dizer.
+ */
 export function achievements(empire: Empire): Achievement[] {
   const s = profileStats(empire)
   const maxDivan = Math.max(...empire.cities.map(x => x.game.buildings.divan))
+  const maxWall = Math.max(...empire.cities.map(x => x.game.buildings.surlar))
   const ships = empire.cities.reduce((a, x) => a + UNIT_IDS.filter(id => UNITS[id].branch === 'deniz').reduce((b, id) => b + x.game.army[id], 0), 0)
   const allied = empire.world?.alliance || empire.world?.pact ? 1 : 0
+  const streak = empire.daily?.streak ?? 0
+  const a = (id: string, tier: MedalTier, name: string, description: string, value: number, goal: number): Achievement => ({ id, name, description, value, goal, tier })
   return [
-    { id: 'kurucu', name: 'Şehrin kurucusu', description: 'Divanhane 5. seviyeye ulaşsın.', value: maxDivan, goal: 5 },
-    { id: 'payitaht', name: 'Payitaht', description: 'Divanhane 15. seviyeye ulaşsın.', value: maxDivan, goal: 15 },
-    { id: 'koloni', name: 'Denizler ötesi', description: 'Üç şehre hükmet.', value: s.cities, goal: 3 },
-    { id: 'kalabalik', name: 'Kalabalık memleket', description: 'İmparatorluğun nüfusu 1.000 olsun.', value: s.population, goal: 1000 },
-    { id: 'mimar', name: 'Mimarbaşı', description: 'Toplam 150 bina seviyesi kur.', value: s.levels, goal: 150 },
-    { id: 'alim', name: 'Âlimler meclisi', description: '20 araştırma tamamla.', value: s.research, goal: 20 },
-    { id: 'allame', name: 'Allâme', description: `Bütün araştırmaları (${RESEARCH_IDS.length}) tamamla.`, value: s.research, goal: RESEARCH_IDS.length },
-    { id: 'ordu', name: 'Kapıkulu', description: '300 asker ve tayfa besle.', value: s.soldiers, goal: 300 },
-    { id: 'donanma', name: 'Kaptan-ı Derya', description: '20 gemi denize indir.', value: ships, goal: 20 },
-    { id: 'zafer', name: 'Gazi', description: '10 savaş kazan.', value: s.won, goal: 10 },
-    { id: 'yagma', name: 'Akıncı', description: '15 sefer yağması yap.', value: s.raids, goal: 15 },
-    { id: 'korsan', name: 'Barbaros', description: '50 korsan şöhreti topla.', value: s.fame, goal: 50 },
-    { id: 'casus', name: 'Gözcübaşı', description: '10 casus görevi yürüt.', value: s.spies, goal: 10 },
-    { id: 'harika', name: 'Harikanın hamisi', description: 'Adanın harikasını 3. seviyeye çıkar.', value: s.wonder, goal: 3 },
-    { id: 'ittifak', name: 'Birliğin sancağı', description: 'Bir ittifaka katıl.', value: allied, goal: 1 },
+    a('ilk-tas', 1, 'İlk taş', '10 yapı kur ya da yükselt.', s.builds, 10),
+    a('kurucu', 1, 'Şehrin kurucusu', 'Divanhane 5. seviyeye ulaşsın.', maxDivan, 5),
+    a('beyler', 2, 'Sancak şehri', 'Divanhane 10. seviyeye ulaşsın.', maxDivan, 10),
+    a('payitaht', 3, 'Payitaht', 'Divanhane 15. seviyeye ulaşsın.', maxDivan, 15),
+    a('sur', 1, 'Kale kapısı', 'Surları 5. seviyeye çıkar.', maxWall, 5),
+    a('mimar', 2, 'Mimarbaşı', 'Toplam 150 bina seviyesi kur.', s.levels, 150),
+    a('usta', 3, 'Koca Sinan', '300 yapı kur ya da yükselt.', s.builds, 300),
+    a('koloni', 2, 'Denizler ötesi', 'Üç şehre hükmet.', s.cities, 3),
+    a('adalar', 3, 'Adalar efendisi', 'Beş şehre hükmet.', s.cities, 5),
+    a('kalabalik', 2, 'Kalabalık memleket', 'İmparatorluğun nüfusu 1.000 olsun.', s.population, 1000),
+    a('kalabalik2', 3, 'Cihan şehri', 'İmparatorluğun nüfusu 5.000 olsun.', s.population, 5000),
+    a('talebe', 1, 'Talebe', '5 araştırma tamamla.', s.research, 5),
+    a('alim', 2, 'Âlimler meclisi', '20 araştırma tamamla.', s.research, 20),
+    a('allame', 3, 'Allâme', `Bütün araştırmaları (${RESEARCH_IDS.length}) tamamla.`, s.research, RESEARCH_IDS.length),
+    a('talim', 1, 'Talimhane', '50 birlik eğit.', s.trained, 50),
+    a('ordu', 2, 'Kapıkulu', '300 asker ve tayfa besle.', s.soldiers, 300),
+    a('donanma', 2, 'Kaptan-ı Derya', '20 gemi denize indir.', ships, 20),
+    a('ilk-zafer', 1, 'İlk zafer', 'Bir savaş kazan.', s.won, 1),
+    a('zafer', 2, 'Gazi', '10 savaş kazan.', s.won, 10),
+    a('zafer2', 3, 'Fatih', '50 savaş kazan.', s.won, 50),
+    a('yagma', 2, 'Akıncı', '15 sefer yağması yap.', s.raids, 15),
+    a('korsan1', 1, 'Levent', 'Bir korsan seferine çık.', s.piracy, 1),
+    a('korsan', 3, 'Barbaros', '50 korsan şöhreti topla.', s.fame, 50),
+    a('casus1', 1, 'Kulak', 'Bir casus görevi yürüt.', s.spies, 1),
+    a('casus', 2, 'Gözcübaşı', '10 casus görevi yürüt.', s.spies, 10),
+    a('kervan', 1, 'Kervancı', '10 nakliye gönder.', s.shipments, 10),
+    a('hayir', 2, 'Hayırsever', 'Adaya 5.000 kereste bağışla.', s.donated, 5000),
+    a('harika', 3, 'Harikanın hamisi', 'Adanın harikasını 3. seviyeye çıkar.', s.wonder, 3),
+    a('ittifak', 1, 'Birliğin sancağı', 'Bir ittifaka katıl.', allied, 1),
+    a('sadakat', 2, 'Sadık hükümdar', 'Yedi gün üst üste oyuna gir.', streak, 7),
   ]
 }
 

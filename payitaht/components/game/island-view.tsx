@@ -78,7 +78,7 @@ export function IslandView({ empire, islandId, now, onCity, onIsland, onMine, on
       {npcs.map(npc => {
         const state = npcState(empire, npc.id)
         const active = missions.filter(m => m.npcId === npc.id)
-        return <button key={npc.id} className="island-spot island-npc" style={place(npc.kind)} onClick={() => onNpc(npc.id)}
+        return <button key={npc.id} className="island-spot island-npc" data-guide={`npc-${npc.kind}`} style={place(npc.kind)} onClick={() => onNpc(npc.id)}
           aria-label={`${npc.name}, ${NPC_KINDS[npc.kind].name}, seviye ${state.level}`}>
           <img src={asset(`/images/game/buildings/npc-${npc.kind}.webp`)} alt="" />
           <span className="island-label"><strong>{npc.name}</strong><small>{NPC_KINDS[npc.kind].name} · Sv. {state.level}</small></span>
@@ -206,7 +206,7 @@ export function NpcPanel({ empire, npcId, now, onSpy, onRaid, onOccupy, onBlocka
       </div>
       <Hint>Savaş {field.name.toLocaleLowerCase('tr')}da (Divanhane {npc.field} karşılığı) dakikada bir tur, bir taraf dağılana ya da kaçana kadar sürer; zar yoktur. Ön cephe hasarın çoğunu karşılar, kuşatma birlikleri (koçbaşı, mancınık, topçu) suru yıkar. Morali {RETREAT_MORALE}'in altına düşen taraf çekilir. Turlar arasında aynı şehirden gelen ordu takviye olarak katılır; Seferler panelinden geri çekilebilirsin. Ganimeti hayatta kalanlar taşır.</Hint>
       {fighting && <p className="requirement"><Swords className="size-4" />Burada savaş sürüyor (tur {fighting.battle!.state.round}). {fighting.cityId === city.id ? 'Göndereceğin ordu takviye olarak katılır.' : 'Yeni ordu savaş bitene kadar önünde bekler.'}</p>}
-      <GameButton size="sm" disabled={busy('raid') || !RAID_UNITS.some(id => (pick[id] ?? 0) > 0) || (overseas && ships > free.nakliye)} onClick={() => { onRaid(pick); setPick({}) }}><Swords data-icon="inline-start" />{fighting?.cityId === city.id ? 'Takviye gönder' : 'Sefere çık'}</GameButton>
+      <GameButton size="sm" data-guide="raid" disabled={busy('raid') || !RAID_UNITS.some(id => (pick[id] ?? 0) > 0) || (overseas && ships > free.nakliye)} onClick={() => { onRaid(pick); setPick({}) }}><Swords data-icon="inline-start" />{fighting?.cityId === city.id ? 'Takviye gönder' : 'Sefere çık'}</GameButton>
       {busy('raid') && <p className="requirement"><KumSaatiArt className="size-4" />Bu hedefe giden bir ordu yolda.</p>}
     </section>
 

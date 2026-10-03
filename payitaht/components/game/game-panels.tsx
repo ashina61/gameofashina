@@ -17,6 +17,8 @@ import { abandonCity, activeCity, capitalCity, capitalId, colonyPalaceLevel, MAX
 import { LUXURY_IDS, LUXURY_NAMES, MERCHANT_BUY, MERCHANT_SELL, MINE_MAX_LEVEL, luxuryCost, luxuryProduction, merchantLimit, mineCapacity, mineUpgradeCost, unitLuxuryCost, wineServed, type Luxury } from '@/lib/game/engine'
 import { luxuryIcons, resourceIcons } from './game-widgets'
 import { effectLines } from '@/lib/game/building-info'
+import { FIELD_ROW_NAMES, ROLE_NAMES } from '@/lib/game/glossary'
+import { Term } from './term'
 import { actionPoints, armyUpkeep, merchantBuyPrice, merchantSellPrice, type UnitRole, type Resource } from '@/lib/game/engine'
 import { ChevronsLeft, ChevronsRight, Compass, Crown, Eye, Flag } from './ui-art'
 import type { Run } from './world-panels'
@@ -155,7 +157,7 @@ export function ResearchPanel({ game, onResearch }: { game: Game; onResearch: (i
         {state !== 'done' && short > 0 && <span className="rs-when">{rate > 0 ? `Yeterli ilim ~${clockMin(short / rate)} sonra` : 'İlim üretimi yok: Medrese\'ye âlim ata'}</span>}
       </div>
       {state === 'done' ? <p className="report-win"><Check className="size-4" /> Keşfedildi</p>
-        : <GameButton disabled={!!reason} onClick={() => onResearch(sel)}><BookOpen data-icon="inline-start" />{state === 'active' ? 'Sürüyor' : 'Araştır'}</GameButton>}
+        : <GameButton disabled={!!reason} data-guide="research" onClick={() => onResearch(sel)}><BookOpen data-icon="inline-start" />{state === 'active' ? 'Sürüyor' : 'Araştır'}</GameButton>}
       {reason && state !== 'done' && state !== 'active' && <p className="fine-print">{reason}</p>}
     </article>
     {/* Araştırma yolu: her dal bir sayfa; sayfalar yan yana, tek kaydırma dal değiştirir. Seçili düğüm büyür. */}
@@ -376,7 +378,6 @@ export function CitiesPanel({
 
 /** Savaş alanındaki yerler (Ikariam'ın savaş sırası). */
 const ROLE_ORDER: UnitRole[] = ['front', 'flank', 'range', 'artillery', 'bomber', 'fighter', 'support', 'spy', 'transport']
-const ROLE_NAMES: Record<UnitRole, string> = { front: 'ön cephe', flank: 'kanat', range: 'uzak menzil', artillery: 'kuşatma', bomber: 'hava', fighter: 'hava savunması', support: 'destek', spy: 'casus', transport: 'nakliye' }
 
 /** Bir emirde eğitilebilecek parti büyüklükleri. */
 /** Şu an eğitilebilecek en fazla adet (kaynak, halk, garnizon, lüks): ikili arama. */
@@ -432,7 +433,7 @@ export function ArmyPanel({ game, onRecruit, onBuild, home }: { game: Game; onRe
           return <article className="unit-card" key={id}>
             <div className="unit-top">
               <span className="unit-portrait"><UnitFigure id={id} size={60} /></span>
-              <span><strong>{unit.name} <em className="unit-role">{ROLE_NAMES[unit.role]}</em></strong><small>{unit.description}</small></span>
+              <span><strong>{unit.name} <em className="unit-role"><Term label={ROLE_NAMES[unit.role]} /></em></strong><small>{unit.description}</small></span>
               <span className="unit-have">{game.army[id]}<small>elde</small></span>
             </div>
             {BATTLE_STATS[id] && ROLE_ROW_SET.has(unit.role) && <div className="unit-battle" aria-label="Savaş değerleri">
@@ -462,7 +463,7 @@ export function ArmyPanel({ game, onRecruit, onBuild, home }: { game: Game; onRe
             <div className="unit-bottom">
               <CostDisplay value={unitCost(id, batch, game)} lux={unitLuxuryCost(id, batch, game)} />
               <span><KumSaatiArt className="size-3" /> {unitDuration(game, id, batch)} sn</span>
-              <GameButton size="sm" disabled={!!reason} onClick={() => onRecruit(id, batch)}>{batch} eğit</GameButton>
+              <GameButton size="sm" disabled={!!reason} data-guide={`recruit-${id}`} onClick={() => onRecruit(id, batch)}>{batch} eğit</GameButton>
             </div>
             {reason && <p className="fine-print">{reason}</p>}
           </article>
@@ -500,11 +501,11 @@ function BattlefieldCard({ game }: { game: Game }) {
   const level = game.buildings.divan
   const f = fieldSize(level)
   const next = level < 5 ? 5 : level < 10 ? 10 : level < 17 ? 17 : null
-  const rows: Array<[string, number]> = [['Ön cephe', f.front], ['Kanatlar', f.flank], ['Uzak menzil', f.range], ['Kuşatma', f.artillery], ['Hava', f.air], ['Hava savunması', f.fighter]]
+  const rows: Array<[string, number]> = (['front', 'flank', 'range', 'artillery', 'air', 'fighter'] as const).map(k => [FIELD_ROW_NAMES[k], f[k]])
   const garrison = (['kara', 'deniz'] as const).map(b => ({ b, used: garrisonUsed(game, b), max: garrisonLimit(game, b) }))
   return <article className="bf-card">
     <span className="eyebrow">SAVAŞ MEYDANI · {f.name.toUpperCase()}</span>
-    <div className="bf-card-rows">{rows.map(([n, k]) => <span key={n}><strong>{k}</strong><small>{n}</small></span>)}</div>
+    <div className="bf-card-rows">{rows.map(([n, k]) => <span key={n}><strong>{k}</strong><small><Term label={n} /></small></span>)}</div>
     <Hint>Her yuvaya bir tür birlik ve {SLOT_SIZE} büyüklük sığar; fazlası yedekte bekler ve düşenlerin yerini alır. Ön cephe boşalırsa kanat ve nişancılar öne çıkar. Nişancıların cephanesi tükenir; kanatlar düşmanın arkasına dalar; kuşatma sura vurur; bombardıman surun üstünden vurur ve ona yalnızca hava savunması yetişir. Savaş dakikada bir tur, bir taraf dağılana ya da kaçana kadar sürer: turlar arasında takviye katılır, saldıran geri çekilebilir.{next ? ` Divanhane ${next}. seviyede meydan büyür.` : ''} Deniz savaşları kendi meydanında yapılır ({fieldSize(Math.max(game.buildings.liman, game.buildings.tersane), true).name}: kanat yok, ön hat {fieldSize(Math.max(game.buildings.liman, game.buildings.tersane), true).front} yuva); Liman ve Tersane büyüdükçe genişler. Garnizon sınırı birliklerin halk karşılığıdır (seferdekiler dahil; casus ve nakliye hariç). Kara sınırını Divanhane ve Surlar, deniz sınırını Tersane yükseltir.</Hint>
     <div className="bf-garrison">{garrison.map(({ b, used, max }) => <div key={b} className={used >= max && max > 0 ? 'is-full' : ''}>
       <span>{b === 'kara' ? 'Kara garnizonu' : 'Deniz garnizonu'}</span>
@@ -619,7 +620,7 @@ export function BuildingEffects({ game, id, level, max }: { game: Game; id: Buil
   const rows = (next.length ? next : now).map((line, i) => ({ label: line.label, now: now[i]?.value ?? '—', next: next[i]?.value }))
   // Tablo yerine her etki bir satır: şimdi ➜ sonraki seviye (yeşil).
   return <section className="building-effects sk-effects" aria-label="Seviye etkisi">
-    {rows.map(row => <NowNext key={row.label} label={row.label} now={row.now} next={row.next}
+    {rows.map(row => <NowNext key={row.label} label={<Term label={row.label} />} now={row.now} next={row.next}
       nowLabel={level > 0 ? `Sv. ${level}` : 'Kurulmadı'} nextLabel={`Sv. ${level + 1}`} />)}
   </section>
 }

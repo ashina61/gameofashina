@@ -14,7 +14,7 @@ type Step = { target: string; title: string; text: string }
 const STEPS: Step[] = [
   { target: '.ika-res', title: 'Hazinen', text: 'Akçe, kereste, taş ve ilim burada birikir; yeşil sayılar dakikalık üretimdir. Ambar dolunca sayı kızarır, üretim boşa gider.' },
   { target: '.ika-advisors', title: 'Danışmanların', text: 'Şehir, ordu, ilim ve diplomasi danışmanı. Kırmızı rozet, ilgilenmen gereken bir şey olduğunu söyler.' },
-  { target: '.quest-chip', title: 'İlk hedefin', text: 'Adım adım hedefler şehri kurdurur ve ödül verir. "Git" seni doğru binaya götürür.' },
+  { target: '.quest-chip', title: 'İlk on dakikan', text: 'Hedefler şehri adım adım kurdurur ve ödül verir. Her adımda basacağın tek düğme parlar, üstünde ok durur: önce Divanhane ve Medrese, sonra ilk âlimin, ilk araştırman, sur temeli, ilk bölüğün ve ilk seferin.' },
   { target: '.ika-nav', title: 'Dünyan', text: 'Şehir, ada, dünya haritası, ittifak ve görevler arasında buradan geçersin. Boş bir arsaya dokunarak bina kurabilirsin.' },
 ]
 

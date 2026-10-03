@@ -9,15 +9,20 @@
  *    önerirler, güçlü savaşçılar haraç ister, dostlar hediye yollar, savaştaki
  *    müttefikin yardım ister. Teklifler birkaç saat sonra düşer.
  *  • Olan biten "Dünya haberleri"ne yazılır.
+ *  • Kişilik (V2 Faz 5.8): her hükümdarın dostu ve düşmanı vardır (BONDS);
+ *    savaşı düşmanına açar, dostu yardıma koşar. Mektuplar geçmişi anar
+ *    (intikam, minnet) ve haberlerde birkaç bölüm süren hikâyeler işler.
  * Tempo ayarı (sakin / normal / hareketli) oyunu denemek için bu olayları
  * sıklaştırır. Hepsi deterministiktir: aynı kayıt aynı dünyayı üretir.
  */
 import { GOOD_NAMES, LUXURY_IDS, logEvent, travelFactor, type Good } from './engine'
 import { activeCity, advanceEmpire, type Empire } from './empire'
 import { idleMerchants, shipCargo } from './expeditions'
+import { ISLANDS } from './islands'
 import { pactHour } from './pact'
+import { da, de, den, e } from './turkce'
 import {
-  FAIR_PRICE, MAX_DELIVERIES, RIVALS, TREATIES, addGood, culturalTreaties, embassyLevel, mail, peek, playerScore, relate, rivalById, rivalLevel,
+  BONDS, FAIR_PRICE, MAX_DELIVERIES, RIVALS, TREATIES, addGood, enemyOf, friendOf, recall, remember, culturalTreaties, embassyLevel, mail, peek, playerScore, relate, rivalById, rivalLevel,
   isAlly, rivalScore, rivalState, roll, seaMinutes, stockOf, world, type Rival, type TreatyId, type World,
 } from './rivals'
 
@@ -36,7 +41,14 @@ export const PACES: Record<Pace, { name: string; text: string; k: number; warEve
 
 export type RivalWar = { id: string; a: string; b: string; since: number; until: number; score: number }
 export type NewsKind = 'savas' | 'catisma' | 'baris' | 'ticaret' | 'buyume' | 'anlasma'
-export type News = { id: string; time: number; kind: NewsKind; text: string; rivals: string[] }
+export type NewsStory = { id: string; step: number; of: number; title: string }
+export type News = { id: string; time: number; kind: NewsKind; text: string; rivals: string[]; story?: NewsStory }
+/** Birkaç bölüm süren hikâye (kan davası, düğün, kıtlık, korsan avı). */
+export type StoryKind = 'kan' | 'dugun' | 'kitlik' | 'korsan'
+export type Story = { id: string; kind: StoryKind; a: string; b: string; step: number; next: number }
+export const STORY_TITLES: Record<StoryKind, string> = { kan: 'Kan davası', dugun: 'Düğün', kitlik: 'Kıtlık', korsan: 'Korsan avı' }
+export const STORY_STEPS = 3
+const MAX_STORIES = 2
 export type ProposalKind = 'satis' | 'alis' | 'anlasma' | 'harac' | 'yardim' | 'hediye'
 export type Deal = { good: Good; amount: number }
 export type Proposal = {
@@ -65,10 +77,10 @@ export function busyAtWar(empire: Empire, rivalId: string) {
 export function warOf(empire: Empire, rivalId: string) {
   return (empire.world?.wars ?? []).find(w => w.a === rivalId || w.b === rivalId)
 }
-export function worldNews(empire: Empire, time: number, kind: NewsKind, text: string, rivals: string[]) {
+export function worldNews(empire: Empire, time: number, kind: NewsKind, text: string, rivals: string[], story?: NewsStory) {
   const w = world(empire)
   const list = w.news ?? []
-  w.news = [{ id: `n-${time}-${kind}-${rivals.join('.')}-${list.length}`, time, kind, text, rivals }, ...list].slice(0, MAX_NEWS)
+  w.news = [{ id: `n-${time}-${kind}-${rivals.join('.')}-${list.length}`, time, kind, text, rivals, ...(story ? { story } : {}) }, ...list].slice(0, MAX_NEWS)
 }
 function shiftPower(w: World, id: string, d: number) {
   const next = { ...w.power, [id]: clamp((w.power?.[id] ?? 0) + d, -5, 5) }
@@ -95,6 +107,7 @@ export function aiHour(empire: Empire, at: number, s: number) {
   }
   fightWars(empire, w, at, s)
   if (roll(`warstart-${s}`) < 0.035 * k) startRivalWar(empire, w, at, s)
+  stories(empire, w, at, s, k)
   if (roll(`prop-${s}`) < 0.14 * k) propose(empire, w, at, s)
   if (roll(`caravan-${s}`) < 0.06 * k) caravan(empire, at, s)
   pactHour(empire, at, s, k)
@@ -141,12 +154,24 @@ function startRivalWar(empire: Empire, w: World, at: number, s: number) {
   const warriors = foe ? free.filter(r => w.pact!.members.includes(r.id)) : []
   const A = warriors.length && roll(`wp-${s}`) < 0.6 ? pick(warriors, `wpa-${s}`) : pick(aggressors, `wa-${s}`)
   const side = (r: Rival) => w.pact?.members.includes(r.id) ? 'pact' : r.faction
-  const targets = free.filter(r => r.id !== A.id && side(r) !== side(A) && (!warriors.includes(A) || r.faction === foe))
+  const targets = free.filter(r => r.id !== A.id && r.id !== BONDS[A.id]?.friend && side(r) !== side(A) && (!warriors.includes(A) || r.faction === foe))
   if (!targets.length) return
-  const B = pick(targets, `wb-${s}`)
+  // Kişilik: düşmanı meydandaysa kılıcını önce ona çeker.
+  const sworn = targets.find(r => r.id === BONDS[A.id]?.enemy)
+  const B = sworn && roll(`wsw-${s}`) < 0.6 ? sworn : pick(targets, `wb-${s}`)
+  openWar(empire, w, A, B, at, s, sworn === B ? `${A.ruler} eski düşmanı ${B.ruler} ile hesaplaşmak için ${B.city} şehrine savaş açtı.` : undefined)
+}
+
+/** İki hükümdar arasında savaş başlatır; savunanın dostu yardıma koşar. */
+function openWar(empire: Empire, w: World, A: Rival, B: Rival, at: number, s: number, text?: string) {
   const war: RivalWar = { id: `w-${A.id}-${B.id}-${s}`, a: A.id, b: B.id, since: at, until: at + (12 + Math.floor(roll(`wd-${s}`) * 24)) * HOUR, score: 0 }
   w.wars = [...(w.wars ?? []), war]
-  worldNews(empire, at, 'savas', `${A.ruler} (${A.city}) ${B.city} şehrine savaş açtı.`, [A.id, B.id])
+  worldNews(empire, at, 'savas', text ?? `${A.ruler} (${A.city}) ${B.city} şehrine savaş açtı.`, [A.id, B.id])
+  const helper = friendOf(B.id)
+  if (helper && helper.id !== A.id && !busyAtWar(empire, helper.id)) {
+    war.score -= 1
+    worldNews(empire, at, 'catisma', `${helper.ruler}, dostu ${B.city} yalnız kalmasın diye asker gönderdi.`, [helper.id, B.id])
+  }
   // İttifaktaki bir üye saldırıya uğrarsa senden yardım ister.
   const ally = isAlly(empire, B.id) ? B : isAlly(empire, A.id) ? A : null
   if (ally) addProposal(w, {
@@ -173,6 +198,7 @@ function propose(empire: Empire, w: World, at: number, s: number) {
   if (p) addProposal(w, p)
 }
 
+const lead = (line: string) => line ? `${line} ` : ''
 /** Bu hükümdarın bu saatte getireceği teklif. */
 function draft(empire: Empire, r: Rival, at: number, s: number): Proposal | null {
   const g = activeCity(empire).game
@@ -184,19 +210,19 @@ function draft(empire: Empire, r: Rival, at: number, s: number): Proposal | null
   // Güçlü savaşçı haraç ister.
   if (r.style === 'savasci' && rel < 0 && rivalScore(empire, r, at).military > playerScore(empire).military * 1.2 && x < 0.6) {
     return { ...base, kind: 'harac', want: { good: 'gold', amount: round10(L * 120) },
-      text: `Ordumuzun gölgesi adanızın üstünde. Haracı ödeyin, bir gün boyunca kılıcımız kınında kalsın. Ödemezseniz hesabını sorarız.` }
+      text: `${lead(recall(empire, r.id, 'kin', at))}Ordumuzun gölgesi adanızın üstünde. Haracı ödeyin, bir gün boyunca kılıcımız kınında kalsın. Ödemezseniz hesabını sorarız.` }
   }
   // İlişki yeterliyse anlaşma önerirler (kültür için müze yeri de gerekir).
   const museums = empire.cities.reduce((sum, c) => sum + c.game.buildings.muze, 0)
   const treaty = (Object.keys(TREATIES) as TreatyId[]).find(t => !st.treaties.includes(t) && rel >= TREATIES[t].need + 5 &&
     (t !== 'kultur' || (museums > culturalTreaties(empire) && empire.cities.some(c => c.game.research.includes('kultur')))))
   if (treaty && x < 0.35) {
-    return { ...base, kind: 'anlasma', treaty, text: `Aramızdaki dostluk bir mühre değer. ${TREATIES[treaty].name} imzalayalım: ${TREATIES[treaty].description} Elçilik masrafını biz üstleniyoruz.` }
+    return { ...base, kind: 'anlasma', treaty, text: `${lead(recall(empire, r.id, 'minnet', at))}Aramızdaki dostluk bir mühre değer. ${TREATIES[treaty].name} imzalayalım: ${TREATIES[treaty].description} Elçilik masrafını biz üstleniyoruz.` }
   }
   // Dostlar hediye gönderir.
   if (rel >= 40 && x < 0.2) {
     const good = pick(TRADE_GOODS, `pg-${r.id}-${s}`)
-    return { ...base, kind: 'hediye', give: { good, amount: round10(L * 30) }, text: `Dostluğumuzun nişanı olarak ambarlarımızdan küçük bir armağan. Karşılık beklemiyoruz.` }
+    return { ...base, kind: 'hediye', give: { good, amount: round10(L * 30) }, text: `${lead(recall(empire, r.id, 'minnet', at))}Dostluğumuzun nişanı olarak ambarlarımızdan küçük bir armağan. Karşılık beklemiyoruz.` }
   }
   // Ticaret: fazla malını almak ister ya da eksiğini satar.
   const trade = st.treaties.includes('ticaret')
@@ -231,6 +257,81 @@ function caravan(empire: Empire, at: number, s: number) {
   worldNews(empire, at, 'ticaret', `${A.city} ${r2(A)} ${B.city} pazarına ${amount.toLocaleString('tr-TR')} ${goodName(good)} götürdü.`, [A.id, B.id])
 }
 const r2 = (r: Rival) => r.style === 'denizci' ? 'gemileri' : 'kervanı'
+
+/* ----------------------------------------------------------- HİKÂYELER */
+
+/** Süren hikâyeleri bir bölüm ilerletir, yer varsa yenisini başlatır. */
+function stories(empire: Empire, w: World, at: number, s: number, k: number) {
+  for (const st of [...(w.stories ?? [])]) if (st.next <= at) chapter(empire, w, st, at, s)
+  w.stories = (w.stories ?? []).filter(st => st.step < STORY_STEPS)
+  if ((w.stories.length) < MAX_STORIES && roll(`story-${s}`) < 0.07 * k) begin(empire, w, at, s)
+  if (!w.stories.length) delete w.stories
+}
+const gap = (seed: string) => (6 + Math.floor(roll(seed) * 14)) * HOUR
+function begin(empire: Empire, w: World, at: number, s: number) {
+  const busy = new Set((w.stories ?? []).flatMap(st => [st.a, st.b]))
+  const free = RIVALS.filter(r => !busy.has(r.id))
+  // Aynı türden iki hikâye aynı anda sürmez; son biten tür de hemen dönmez.
+  const kinds = (['kan', 'dugun', 'kitlik', 'korsan'] as StoryKind[]).filter(k => !(w.stories ?? []).some(st => st.kind === k) && k !== w.lastStory)
+  const kind = kinds[Math.floor(roll(`sk-${s}`) * kinds.length)]
+  const pool = kind === 'korsan' ? free.filter(r => r.style === 'denizci') : free
+  const cands = pool.filter(r => {
+    const other = kind === 'kan' ? enemyOf(r.id) : friendOf(r.id)
+    return other && !busy.has(other.id)
+  })
+  if (!cands.length) return
+  const A = pick(cands, `sa-${s}`)
+  const B = (kind === 'kan' ? enemyOf(A.id) : friendOf(A.id))!
+  const st: Story = { id: `s-${kind}-${A.id}-${s}`, kind, a: A.id, b: B.id, step: 0, next: at }
+  w.lastStory = kind
+  w.stories = [...(w.stories ?? []), st]
+  chapter(empire, w, st, at, s)
+}
+function chapter(empire: Empire, w: World, st: Story, at: number, s: number) {
+  const A = rivalById(st.a)!, B = rivalById(st.b)!
+  st.step += 1
+  st.next = at + gap(`sg-${st.id}-${st.step}`)
+  const tag = { id: st.id, step: st.step, of: STORY_STEPS, title: STORY_TITLES[st.kind] }
+  const say = (kind: NewsKind, text: string, rivals = [A.id, B.id]) => worldNews(empire, at, kind, text, rivals, tag)
+  const sea = ISLANDS.find(i => i.id === A.islandId)?.name ?? 'ada'
+  switch (st.kind) {
+    case 'kan':
+      if (st.step === 1) say('catisma', `${A.ruler} ile ${B.ruler} arasındaki eski kan davası alevlendi: ${B.city} elçisi ${A.city} divanında hakarete uğradı.`)
+      else if (st.step === 2) say('catisma', `Kan davası sürüyor: ${A.city} ile ${B.city} sınır köylerinde kılıçlar çekildi.`)
+      else if (!busyAtWar(empire, A.id) && !busyAtWar(empire, B.id) && (w.wars?.length ?? 0) < MAX_WARS && roll(`sw-${st.id}`) < 0.6) {
+        say('savas', `Kan davası savaşa döndü: ${A.ruler}, ${B.city} üzerine ordu yürüttü.`)
+        openWar(empire, w, A, B, at, s)
+      } else say('baris', `${A.city} ile ${B.city} kadıların huzurunda diyet ödeşti; kan davası şimdilik kapandı.`)
+      break
+    case 'dugun':
+      if (st.step === 1) say('anlasma', `${A.ruler} ile ${B.ruler} hanedanları arasında söz kesildi; iki şehir düğüne hazırlanıyor.`)
+      else if (st.step === 2) say('ticaret', `Çeyiz yola çıktı: ${A.city} gemileri ${B.city} limanına ipek ve gümüş taşıyor.`)
+      else {
+        say('anlasma', `Kırk gün kırk gece süren düğün bitti: ${A.city} ile ${B.city} artık akraba.`)
+        if (peek(empire, A.id).relation >= 20) mail(empire, at, A.ruler, 'Düğün davetiyesi', `${B.city} ile akraba olduk. Sofralarımızda sizin de yeriniz vardı; dostluğunuzu bu sevinçte de andık.`, A.id)
+      }
+      break
+    case 'kitlik':
+      if (st.step === 1) say('buyume', `${de(A.city)} kuraklık: ambarlar boşalıyor, ekmek pahalandı.`, [A.id])
+      else if (st.step === 2) {
+        say('ticaret', `Kıtlık sürüyor; ${B.ruler}, dostu ${A.city} için buğday gemileri gönderdi.`)
+        if (peek(empire, A.id).relation > -20) addProposal(w, {
+          id: `p-${A.id}-${s}-k`, rivalId: A.id, kind: 'yardim', time: at, until: at + PROPOSAL_MS,
+          want: { good: 'gold', amount: round10(rivalLevel(empire, A, at) * 80) },
+          text: `${lead(recall(empire, A.id, 'minnet', at))}Kıtlık halkımızı kırıyor. ${B.city} elini uzattı; sizden de bir avuç akçe bekliyoruz. Bu iyiliği unutmayız.`,
+        })
+      } else say('buyume', `${de(A.city)} yağmurlar geldi; kıtlık bitti, pazar yeniden doldu.`, [A.id])
+      break
+    case 'korsan':
+      if (st.step === 1) say('catisma', `${A.ruler} korsan avına çıktı; ${sea} sularında kara bayraklı gemiler aranıyor.`, [A.id])
+      else if (st.step === 2) say('catisma', `${A.city} donanması korsanları ${sea} açıklarında sıkıştırdı; ${da(B.ruler)} gemi gönderdi.`)
+      else {
+        say('baris', `${A.ruler} korsan reisini esir aldı; denizler biraz daha güvenli.`, [A.id])
+        shiftPower(w, A.id, 1)
+      }
+      break
+  }
+}
 
 function growth(empire: Empire, at: number) {
   for (const r of RIVALS) {
@@ -283,12 +384,13 @@ export function acceptProposal(source: Empire, id: string, now: number): { empir
       w.truce = { ...w.truce, [r.id]: now + TRUCE_MS }
       empire.threats = (empire.threats ?? []).filter(t => t.npcId !== r.id || !!t.battle)
       relate(empire, r.id, 10)
-      logEvent(g, `${r.ruler}'a haraç ödendi; bir gün saldırmayacak.`, now)
+      logEvent(g, `${e(r.ruler)} haraç ödendi; bir gün saldırmayacak.`, now)
     } else if (p.kind === 'yardim') {
       relate(empire, r.id, 8)
+      remember(empire, r.id, 'yardim', now)
       const war = warOf(empire, r.id)
       if (war) war.score += war.a === r.id ? 1 : -1
-      logEvent(g, `${r.city} savaş sandığına ${dealText(want!)} gönderildi.`, now)
+      logEvent(g, war ? `${r.city} savaş sandığına ${dealText(want!)} gönderildi.` : `${r.city} halkına ${dealText(want!)} yardım gönderildi.`, now)
     } else if (p.kind === 'hediye') {
       relate(empire, r.id, 3)
       logEvent(g, `${r.city} hediyesi yolda: ${dealText(p.give!)}.`, now)
@@ -296,7 +398,7 @@ export function acceptProposal(source: Empire, id: string, now: number): { empir
       relate(empire, r.id, 2)
       const goods = p.kind === 'satis' ? p.give! : want!
       worldNews(empire, now, 'ticaret', `${city.name} ile ${r.city} arasında ${dealText(goods)} el değiştirdi.`, [r.id])
-      logEvent(g, p.kind === 'satis' ? `${r.city}'dan ${dealText(p.give!)} alındı; gemiler yolda.` : `${dealText(want!)} ${r.city}'a satıldı; bedeli yolda.`, now)
+      logEvent(g, p.kind === 'satis' ? `${den(r.city)} ${dealText(p.give!)} alındı; gemiler yolda.` : `${dealText(want!)} ${e(r.city)} satıldı; bedeli yolda.`, now)
     }
   }
   w.proposals = (w.proposals ?? []).filter(x => x.id !== id)
@@ -312,8 +414,9 @@ export function declineProposal(source: Empire, id: string, now: number): { empi
   const r = rivalById(p.rivalId)!
   if (p.kind === 'harac') {
     relate(empire, r.id, -8)
+    remember(empire, r.id, 'red', now)
     mail(empire, now, r.ruler, 'Haraç reddedildi', 'Cevabınızı aldık. Kılıçlarımız da cevabınızı alacak.', r.id)
-  } else if (p.kind === 'yardim') relate(empire, r.id, -5)
+  } else if (p.kind === 'yardim') { relate(empire, r.id, -5); remember(empire, r.id, 'red', now) }
   else if (p.kind === 'anlasma') relate(empire, r.id, -2)
   w.proposals = (w.proposals ?? []).filter(x => x.id !== id)
   if (!w.proposals.length) delete w.proposals
@@ -340,6 +443,12 @@ export function parseAi(w: World, bad: () => never) {
   for (const x of w.wars ?? []) if (!x || typeof x.id !== 'string' || !rivalById(x.a) || !rivalById(x.b) || !fin(x.since) || !fin(x.until) || !Number.isInteger(x.score)) bad()
   if (w.news !== undefined && (!Array.isArray(w.news) || w.news.length > MAX_NEWS)) bad()
   for (const n of w.news ?? []) if (!n || typeof n.id !== 'string' || !fin(n.time) || typeof n.text !== 'string' || !Array.isArray(n.rivals) || !n.rivals.every(id => rivalById(id))) bad()
+  for (const n of w.news ?? []) if (n.story !== undefined && (!n.story || typeof n.story.id !== 'string' || typeof n.story.title !== 'string' ||
+      !Number.isInteger(n.story.step) || !Number.isInteger(n.story.of) || n.story.step < 1 || n.story.step > n.story.of)) bad()
+  if (w.stories !== undefined && (!Array.isArray(w.stories) || w.stories.length > MAX_STORIES)) bad()
+  if (w.lastStory !== undefined && !(w.lastStory in STORY_TITLES)) bad()
+  for (const x of w.stories ?? []) if (!x || typeof x.id !== 'string' || !(x.kind in STORY_TITLES) || !rivalById(x.a) || !rivalById(x.b) ||
+      !Number.isInteger(x.step) || x.step < 0 || x.step >= STORY_STEPS || !fin(x.next)) bad()
   if (w.proposals !== undefined && (!Array.isArray(w.proposals) || w.proposals.length > MAX_PROPOSALS)) bad()
   for (const p of w.proposals ?? []) {
     if (!p || typeof p.id !== 'string' || !rivalById(p.rivalId) || !(p.kind in PROPOSAL_NAMES) || !fin(p.time) || !fin(p.until) ||

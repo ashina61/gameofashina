@@ -446,6 +446,7 @@ export function dispatchRaid(source: Empire, npcId: string, units: Partial<Recor
     departAt: now, arriveAt: now + travel, returnAt: now + 2 * travel,
     resolved: false, loot: { gold: 0, wood: 0, stone: 0 },
   }]
+  if (mode === 'raid') t.city.game.stats.raids = (t.city.game.stats.raids ?? 0) + 1
   logEvent(t.city.game, overseas ? `Ordu ${clean.nakliye} gemiyle ${t.npc.name} üzerine denize açıldı.` : `Ordu ${t.npc.name} üzerine sefere çıktı.`, now)
   return { empire }
 }

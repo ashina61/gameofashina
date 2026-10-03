@@ -30,7 +30,7 @@ import {
   FACTIONS, FAIR_PRICE, MARKET_GOODS, RIVALS, STYLE_NAMES, TREATIES, acceptOffer, cancelOffer, cancelTreaty, factionMembers,
   factionStanding, fillRate, joinAlliance, leaveAlliance, marketOffers, offerSlots, postOffer, proposeTreaty, rankings, readMessages,
   rivalById, rivalLevel, sendGift, stationTribute, treatyCost, writeLetter, type FactionId, type RankKey, type TreatyId,
-  buyMercenaries, mercenaryOffers, seaMinutes,
+  buyMercenaries, mercenaryOffers, seaMinutes, friendOf, enemyOf,
 } from '@/lib/game/rivals'
 import { luxuryIcons, resourceIcons } from './game-widgets'
 import { UnitFigure } from './unit-art'
@@ -281,7 +281,11 @@ export function RivalDiplomacy({ empire, rivalId, now, run }: { empire: Empire; 
       <GameButton size="sm" variant="outline" onClick={() => run((e, x) => writeLetter(e, rivalId, 'selam', x), 'Mektup gönderildi.')}>Selam</GameButton>
       <GameButton size="sm" variant="outline" onClick={() => run((e, x) => writeLetter(e, rivalId, 'tehdit', x), 'Tehdit mektubu gönderildi.')}>Tehdit</GameButton>
       <GameButton size="sm" variant="outline" onClick={() => run((e, x) => writeLetter(e, rivalId, 'harac', x), 'Haraç istendi.')}>Haraç iste</GameButton></div>
-    <p className="fine-print">{r.ruler} bir yapay rakiptir ({STYLE_NAMES[r.style]}, {FACTIONS[r.faction].name}). Yağma ilişkiyi düşürür ve intikam baskını getirir; hediye ve selam ilişkiyi yükseltir.</p>
+    <p className="rival-bonds">
+      <span><small>Dostu</small><strong>{friendOf(r.id)?.city ?? '—'}</strong></span>
+      <span><small>Düşmanı</small><strong>{enemyOf(r.id)?.city ?? '—'}</strong></span>
+    </p>
+    <p className="fine-print">{r.ruler} bir yapay rakiptir ({STYLE_NAMES[r.style]}, {FACTIONS[r.faction].name}). Dostuna saldırırsan o da sana kin tutar; düşmanını yağmalarsan minnet duyar. Mektuplarında geçmişi anar. Yağma ilişkiyi düşürür ve intikam baskını getirir; hediye ve selam ilişkiyi yükseltir.</p>
   </section>
 }
 

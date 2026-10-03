@@ -12,7 +12,8 @@ import type { Empire } from '@/lib/game/empire'
 import { VERSION } from '@/lib/game/changelog'
 import { clearErrors, errorReport, readErrors, type ErrorEntry } from '@/lib/game/error-log'
 import { PaceSetting } from './ai-panels'
-import { DayNightSetting, MotionSetting, SoundSettings } from './sound-settings'
+import { DayNightSetting, MotionSetting, NoticeSettings, SoundSettings } from './sound-settings'
+import { notificationsSupported } from '@/lib/notify'
 import type { Run } from './world-panels'
 
 export type SettingsProps = {
@@ -40,7 +41,7 @@ export function SettingsPanel({ empire, run, warning, native, pwa, notify, onBac
     <section><h3><Swords /> Yapay rakipler</h3><p>Dünyadaki hükümdarlar yapay rakiptir. Tempo, savaşların ve tekliflerin sıklığını belirler; oyunu denemek için “Hareketli” seç.</p><PaceSetting empire={empire} run={run} /></section>}
     <section><h3><Music /> Ses ve titreşim</h3><SoundSettings /></section>
     <section><h3><Moon /> Görünüm</h3><DayNightSetting /><MotionSetting /></section>
-    <section><h3><Bell /> Bildirimler</h3><p>{notify.supported ? 'Baskın uyarıları, savaş sonuçları ve biten inşaatlar için bildirim. Oyun açıkken (arka planda da) çalışır; oyun tamamen kapalıyken bildirim için sunucu gerekir.' : 'Bu tarayıcı bildirimleri desteklemiyor.'}</p>{notify.supported && <GameButton variant={notify.on ? 'outline' : 'default'} onClick={() => void notify.toggle()}><Bell data-icon="inline-start" />{notify.on ? 'Bildirimleri kapat' : 'Bildirimleri aç'}</GameButton>}{notify.denied && <p className="fine-print">Bildirim izni tarayıcıda kapalı; tarayıcı ayarlarından izin verebilirsin.</p>}</section>
+    {notificationsSupported() ? <section><h3><Bell /> Bildirimler</h3><p>Oyun kapalıyken telefonun seni çağırır. Her türü ayrı açıp kapatabilirsin; oyuna dönünce bekleyen hatırlatmalar silinir.</p><NoticeSettings /></section> : <section><h3><Bell /> Bildirimler</h3><p>{notify.supported ? 'Baskın uyarıları, savaş sonuçları ve biten inşaatlar için bildirim. Oyun açıkken (arka planda da) çalışır; oyun tamamen kapalıyken bildirim için sunucu gerekir.' : 'Bu tarayıcı bildirimleri desteklemiyor.'}</p>{notify.supported && <GameButton variant={notify.on ? 'outline' : 'default'} onClick={() => void notify.toggle()}><Bell data-icon="inline-start" />{notify.on ? 'Bildirimleri kapat' : 'Bildirimleri aç'}</GameButton>}{notify.denied && <p className="fine-print">Bildirim izni tarayıcıda kapalı; tarayıcı ayarlarından izin verebilirsin.</p>}</section>}
     <section><h3>Yeni bir hikâye</h3><p>Şehrin, kaynakların ve araştırmaların sıfırlanır. Bu işlem geri alınamaz.</p>{confirmReset ? <div className="flex gap-3"><GameButton variant="destructive" onClick={() => { onReset(); setConfirmReset(false) }}>Evet, şehrimi sıfırla</GameButton><GameButton variant="outline" onClick={() => setConfirmReset(false)}>Vazgeç</GameButton>
   </div> : <GameButton variant="outline" onClick={() => setConfirmReset(true)}><RotateCcw data-icon="inline-start" /> Yeni oyun başlat</GameButton>}</section>{onTitle && 
     <section><h3><Home /> Giriş ekranı</h3><p>Oyun kaydedildi; giriş ekranına dönüp devam edebilir ya da yeni bir hikâye başlatabilirsin.</p><GameButton variant="outline" onClick={onTitle}><Home data-icon="inline-start" /> Giriş ekranına dön</GameButton></section>}
