@@ -123,3 +123,14 @@ OpenAI ImageGen, 2026-10-03. Onaylı G0 stil sayfası; `tools/art/prompts/g2-rev
 `res-tas.webp` ve `res-uzum.webp` 0.42.0 ile kaldırıldı. Yukarıdaki G2 ilk üretim listesi tarihsel kayıttır; eski şehir/sefer/kükürt üretimleri bu düzeltmelerle değiştirildi.
 
 Diğer sekiz menü ikonu aynı G2 üretim kaynağından daha sıkı alfa sınırıyla 256 px tuvale yeniden sığdırıldı (alfa kalitesi 50, ≤12 KB). Menü/sütun img kutusu 44 px; çizim için 40 px iç alan ve G1 madalyonuyla koyu zeminde kontrast sağlanır.
+
+## 7. G3 — danışman portreleri
+
+OpenAI ImageGen, 2026-10-03. Onaylı G0 stil sayfasıyla ayrı üretim; promptlar `tools/art/prompts/g3.md`, ortak kök `_kok.md`. OpenAI kullanım koşulları; gerçek kişi, başka oyun karakteri veya dış görsel kullanılmadı. 512×512 şeffaf WebP, portre başına ≤60 KB. 42 px dairede CSS çerçeve ve omuz kırpımı; yüz okunaklılığı `visual-review/G3` altında incelendi.
+
+| Dosya | Danışman |
+|---|---|
+| `portraits/advisor-city.webp` | city |
+| `portraits/advisor-army.webp` | army |
+| `portraits/advisor-research.webp` | research |
+| `portraits/advisor-diplo.webp` | diplo |

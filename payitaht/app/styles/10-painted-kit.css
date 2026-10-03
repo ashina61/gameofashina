@@ -99,3 +99,13 @@
 .game-shell .ika-nav-center .ika-nav-icon { width: 56px; height: 56px; }
 .game-shell { --ika-nav: calc(var(--sa-bottom) + 74px); }
 .game-shell .map-top-tools button { width: 52px; height: 52px; }
+/* G3: one circular crop, with a large centered face and clipped shoulders. */
+.advisor-portrait {
+  display: block; object-fit: cover; border-radius: 50%; box-sizing: border-box;
+  border: 2px solid var(--c-gold);
+  background: var(--art-medal-frame) center / 100% 100% no-repeat #2a1a0e;
+  box-shadow: inset 0 0 0 1px #fff3c466, 0 1px 3px #160d0866;
+}
+.ika-advisor-news .advisor-portrait { animation: advisor-glow 1.6s ease-in-out infinite; }
+.ika-speech > .advisor-portrait { flex-shrink: 0; filter: drop-shadow(0 3px 5px #0006); }
+@media (prefers-reduced-motion: reduce) { .ika-advisor-news .advisor-portrait { animation: none; filter: drop-shadow(0 0 5px var(--c-alert-gold)); } }

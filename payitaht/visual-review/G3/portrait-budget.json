@@ -1,0 +1,26 @@
+[
+  {
+    "file": "advisor-city.webp",
+    "bytes": 51968,
+    "quality": 82,
+    "alphaQuality": 70
+  },
+  {
+    "file": "advisor-army.webp",
+    "bytes": 44724,
+    "quality": 82,
+    "alphaQuality": 70
+  },
+  {
+    "file": "advisor-research.webp",
+    "bytes": 54824,
+    "quality": 82,
+    "alphaQuality": 70
+  },
+  {
+    "file": "advisor-diplo.webp",
+    "bytes": 46476,
+    "quality": 82,
+    "alphaQuality": 70
+  }
+]
