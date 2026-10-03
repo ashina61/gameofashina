@@ -9,10 +9,10 @@
  * G1 kit malzemeleri ve G2 boyalı ikonlar; danışman portreleri G3’te yenilenir.
  */
 import { useEffect, useRef, useState, type ReactNode } from 'react'
-import { Castle, TreePalm, Compass, Shield, ScrollText, ChevronDown } from './ui-art'
+import { Castle, TreePalm, Compass, Shield, ScrollText, ChevronDown, Plus, Swords, Gift, Scroll } from './ui-art'
 import { cn } from '@/lib/utils'
 import {
-  LUXURY_NAMES, actionPoints, capacity, fullResources, maxPopulation, population, rates, researchReason, RESEARCH_IDS, type Game, formatRate, formatShort,
+  LUXURY_NAMES, might, BUILDINGS, UNITS, actionPoints, capacity, fullResources, maxPopulation, population, rates, researchReason, RESEARCH_IDS, type Game, formatRate, formatShort,
 } from '@/lib/game/engine'
 import { activeCity, islandOf, type Empire } from '@/lib/game/empire'
 import { actionsInUse } from '@/lib/game/expeditions'
@@ -23,6 +23,8 @@ import { RulerCrest } from './profile-panel'
 import { CountUp } from './count-up'
 import { profileOf } from '@/lib/game/profile'
 import type { BadgeMode } from '@/lib/game/badges'
+import { buildingImage } from '@/lib/asset'
+import { SEASONS, seasonWeek } from '@/lib/game/events'
 import { t } from '@/lib/i18n/tr'
 
 /** Üst bar sayacı: en fazla 5 karakter (bkz. formatShort). */
@@ -53,11 +55,11 @@ export function advisorNews(game: Game, empire: Empire | undefined, seen: Adviso
 type StockFxKey = 'gold' | 'wood' | 'knowledge'
 type StockFx = { value: number; stamp: number }
 
-export function IkaTopBar({ game, empire, news, modes, activeAdvisor, onCity, onEconomy, onAdvisor, onProfile }: {
+export function IkaTopBar({ game, empire, news, modes, activeAdvisor, onCity, onEconomy, onAdvisor, onProfile, onMarket }: {
   game: Game; empire: Empire | undefined; news: Record<AdvisorId, number>; activeAdvisor?: AdvisorId | null
   /** Rozet bütçesi (lib/game/badges): sayı mı nokta mı. Verilmezse hepsi sayı. */
   modes?: Partial<Record<AdvisorId, BadgeMode>>
-  onCity: () => void; onEconomy: () => void; onAdvisor: (id: AdvisorId) => void; onProfile: () => void
+  onCity: () => void; onEconomy: () => void; onAdvisor: (id: AdvisorId) => void; onProfile: () => void; onMarket: () => void
 }) {
   const prof = empire ? profileOf(empire) : null
   const city = empire ? activeCity(empire) : null
@@ -121,8 +123,8 @@ export function IkaTopBar({ game, empire, news, modes, activeAdvisor, onCity, on
         <span className="ika-crest-level" title="Divanhane seviyesi">{game.buildings.divan}</span>
       </button>}
       <button type="button" className="ika-city" onClick={onCity} aria-label={`Şehir: ${city?.name ?? ''}. Şehirlerini aç`}>
-        <span className="ika-city-level">{game.buildings.divan}</span>
-        <span className="ika-city-name"><strong>{city?.name ?? 'Sahilhisar'}</strong><small>{island?.name}</small></span>
+
+        <span className="ika-city-name"><strong>{city?.name ?? 'Sahilhisar'}</strong><small>{island?.name}</small><span className="ika-might"><Swords size={12} /> {compact(might(game))}</span></span>
         <ChevronDown aria-hidden="true" />
       </button>
       <nav className="ika-advisors" aria-label="Danışmanlar">
@@ -135,12 +137,13 @@ export function IkaTopBar({ game, empire, news, modes, activeAdvisor, onCity, on
         </button>)}
       </nav>
     </div>
-    <button type="button" className="ika-res" onClick={onEconomy} aria-label={`Kaynaklar, ambar ${compact(capacity(game))}`}>
+    <div className="ika-res" role="group" aria-label={`Kaynaklar, ambar ${compact(capacity(game))}`}>
       {chips.map((c, index) => {
         const fx = stockFx[c.key as StockFxKey]
         return <span key={c.key} className={cn('ika-chip', index < 4 ? 'ika-stock' : 'ika-status', c.full && 'ika-chip-full', c.cap && 'ika-chip-cap')} data-k={c.key} title={c.label}>
-          <i aria-hidden="true">{c.icon}</i>
-          <span className="ika-chip-num">{c.num !== undefined ? <CountUp value={Math.floor(c.num)} format={compact} /> : <b>{c.value}</b>}{c.sub && <small className={c.key === 'gold' && r.gold < 0 ? 'ika-rate-negative' : undefined}>{c.sub}</small>}</span>
+          <button className="ika-stock-open" type="button" onClick={onEconomy} aria-label={`${c.label}: ${c.value}. Üretim defterini aç`}><i aria-hidden="true">{c.icon}</i>
+          <span className="ika-chip-num">{c.num !== undefined ? <CountUp value={Math.floor(c.num)} format={compact} /> : <b>{c.value}</b>}{index >= 4 && c.sub && <small>{c.sub}</small>}</span></button>
+          {index < 4 && <button type="button" className="ika-stock-add" onClick={onMarket} aria-label={`${c.label} · Çarşı ve tüccar`}><Plus size={10} /></button>}
           {fx && <em key={fx.stamp} className={cn('ika-chip-delta', fx.value > 0 ? 'is-plus' : 'is-minus')} aria-hidden="true">
             {fx.value > 0 ? '+' : '−'}{compact(Math.abs(fx.value))}
           </em>}
@@ -148,7 +151,7 @@ export function IkaTopBar({ game, empire, news, modes, activeAdvisor, onCity, on
           <span className="sr-only ika-resource-name">{c.label}</span>
         </span>
       })}
-    </button>
+    </div>
   </header>
 }
 
@@ -184,4 +187,34 @@ export function AdvisorSpeech({ id, children }: { id: AdvisorId; children: React
     <AdvisorPortrait id={id} size={84} />
     <div className="ika-bubble"><strong>{ADVISORS[id].name}</strong><p>{children}</p></div>
   </section>
+}
+
+/** Read-only city activity and shortcuts; commands stay in the existing pages. */
+export function CityActivity({ game, empire, onBuilding, onArmy, onResearch }: { game: Game; empire?: Empire; onBuilding: (id: keyof typeof BUILDINGS) => void; onArmy: () => void; onResearch: () => void }) {
+  const builds = game.queue.filter(j => j.kind === 'build')
+  const drill = game.drills[0]
+  const cityId = empire?.activeCityId
+  const mission = empire?.missions?.find(m => m.cityId === cityId && !m.stationed)
+  const rows: { id: string; label: string; start: number; end: number; image: string; click: () => void }[] = builds.map(j => ({ id: j.id, label: BUILDINGS[j.id as keyof typeof BUILDINGS].name, start: j.start, end: j.end, image: buildingImage(j.id, Math.max(1, game.buildings[j.id as keyof typeof BUILDINGS])), click: () => onBuilding(j.id as keyof typeof BUILDINGS) }))
+  if (drill) rows.push({ id: 'training', label: `Eğitim · ${UNITS[drill.id as keyof typeof UNITS].name}`, start: drill.start, end: drill.end, image: buildingImage('kisla', game.buildings.kisla || 1), click: onArmy })
+  if (game.study) rows.push({ id: 'study', label: 'Araştırma', start: game.study.start, end: game.study.end, image: buildingImage('medrese', game.buildings.medrese || 1), click: onResearch })
+  if (mission) rows.push({ id: 'mission', label: mission.resolved ? 'Sefer · Dönüş' : 'Süren sefer', start: mission.departAt, end: mission.resolved ? mission.returnAt : mission.arriveAt, image: buildingImage('liman', game.buildings.liman || 1), click: onArmy })
+  if (!rows.length) return null
+  return <aside className="city-activity" aria-label="Şehirde süren işler">{rows.map(row => {
+    const remaining = Math.max(0, Math.ceil((row.end - game.updatedAt) / 1000))
+    const progress = Math.max(0, Math.min(100, (game.updatedAt - row.start) / Math.max(1, row.end - row.start) * 100))
+    const time = remaining < 3600 ? `${Math.floor(remaining / 60)}:${String(remaining % 60).padStart(2, '0')}` : `${Math.floor(remaining / 3600)} sa`
+    return <button type="button" key={row.id} onClick={row.click} aria-label={`${row.label}: ${time} kaldı`}><img src={row.image} alt="" /><span><strong>{row.label}</strong><time>{time}</time><i className="city-activity-meter" aria-hidden="true"><i style={{ width: `${progress}%` }} /></i></span></button>
+  })}</aside>
+}
+export function CityShortcuts({ now, offers, reports, daily, onObjectives, onOffers, onReports }: { now: number; offers: number; reports: number; daily: number; onObjectives: () => void; onOffers: () => void; onReports: () => void }) {
+  const week = seasonWeek(now)
+  const days = Math.max(0, Math.ceil((week.end - now) / 86400000))
+  const items = [
+    { key: 'daily', label: 'Günlük görevler ve ödül', icon: <Gift painted />, click: onObjectives, badge: daily > 0 },
+    { key: 'week', label: `Haftalık olay: ${week.id ? SEASONS[week.id].name : 'Sakin hafta'}. ${days} gün kaldı`, icon: <ScrollText painted />, click: onObjectives, text: `${days}g` },
+    { key: 'mail', label: `Elçi mektubu: ${offers} yapay rakip teklifi`, icon: <Scroll size={34} />, click: onOffers, badge: offers > 0 },
+    { key: 'reports', label: `Raporlar: ${reports} haber`, icon: <Shield painted />, click: onReports, badge: reports > 0 },
+  ]
+  return <aside className="city-shortcuts" aria-label="Şehir kısayolları">{items.map(item => <button type="button" key={item.key} onClick={item.click} aria-label={item.label} title={item.label}>{item.icon}{item.badge && <span className="ika-badge is-dot" aria-hidden="true" />}{item.text && <small aria-hidden="true">{item.text}</small>}</button>)}</aside>
 }

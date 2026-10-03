@@ -1,3 +1,4 @@
+import { decorLanes, decorGroundRadius, decorGroundViolation, HOUSE_ART_WIDTH, HOUSE_ART_HEIGHT } from './terrain/decor-clearance'
 /**
  * ŞEHİR ZEMİNİ — PAYLAŞILAN katmanlı arazi kurucu.
  *
@@ -304,6 +305,10 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1, occupiedSl
   /** Burun kıyısında mı (limanın dışında)? Kayalık/uçurum yoğunluğu için. */
   const headland = (x: number) => smooth01((Math.abs(x - bayCx) - bayHalf) / (TILE.w * 2))
 
+  const clearanceCurves = displayRoadCurves(roadCurves(V))
+  const clearanceQuay = new Phaser.Curves.Spline([...COAST_SLOTS].sort((a, b) => a.screen.x - b.screen.x).map(s => V(s.screen.x, s.screen.y - TILE.h * 0.12)))
+  const clearanceLanes = decorLanes([...clearanceCurves, { kind: 'quay', curve: clearanceQuay }])
+  scene.registry.set('decorClearanceLanes', clearanceLanes)
   let decorOrdinal = 0
   const treeZoom = (scene as Phaser.Scene & { townZoom?: () => number }).townZoom?.() ?? 0.22
   const stamp = (
@@ -312,13 +317,22 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1, occupiedSl
   ) => {
     const src = scene.textures.get(key).getSourceImage() as HTMLImageElement
     if (!src?.width) return null
+    if (key.startsWith('d_')) {
+      const tree = /tree|cypress|pine|poplar/.test(key)
+      if (key === 'd_stone-bench') tw = HOUSE_ART_WIDTH / 4
+      else if (key === 'd_terracotta-pots') tw = HOUSE_ART_WIDTH / 6
+      else {
+        tw *= /rock|mezarlik|degirmen/.test(key) ? 1.15 : 1.8
+        if (tree) tw = Math.min(Math.max(tw, 45 / treeZoom * src.width / src.height), 65 / treeZoom * src.width / src.height)
+      }
+      if (/cypress/.test(key)) tw = Math.min(tw, HOUSE_ART_HEIGHT * src.width / src.height)
+      if (decorGroundViolation(wx, wy, decorGroundRadius(key, tw), clearanceLanes)) return null
+    }
     const img = scene.add.image(wx, wy, key).setOrigin(0.5, oy).setDepth(depth).setAlpha(alpha)
     if (key.startsWith('d_')) {
       img.setData('decorOrdinal', ++decorOrdinal)
+      img.setData('decorGroundRadius', decorGroundRadius(key, tw))
       img.setVisible(!liteMode() || decorOrdinal % 2 === 1)
-      const tree = /tree|cypress|pine|poplar/.test(key)
-      tw *= /rock|mezarlik|degirmen/.test(key) ? 1.15 : 1.8
-      if (tree) tw = Math.min(Math.max(tw, 45 / treeZoom * src.width / src.height), 65 / treeZoom * src.width / src.height)
     }
     img.setDisplaySize(tw, tw * src.height / src.width)
     if (tint !== undefined) img.setTint(tint)
@@ -631,7 +645,11 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1, occupiedSl
   atlas.finish()
   /** Divanhane seviyesine göre şehir süslerini göster/gizle. */
   const setDevelopment = (level: number) => {
-    for (const [o, t] of tierOf) (o as unknown as Phaser.GameObjects.Components.Visible).setVisible(level >= t)
+    for (const [o, t] of tierOf) {
+      const decor = o instanceof Phaser.GameObjects.Image && o.texture.key.startsWith('d_')
+      const allowed = !decor || !liteMode() || (o.getData('decorPairOrdinal') ?? o.getData('decorOrdinal')) % 2 === 1
+      ;(o as unknown as Phaser.GameObjects.Components.Visible).setVisible(level >= t && allowed)
+    }
   }
   const setBlockaded = (blockaded: boolean) => { for (const ship of merchantShips) ship.setVisible(!blockaded) }
   return { updateRoads, flags, setDevelopment, setBlockaded, syncAmbientDecor }

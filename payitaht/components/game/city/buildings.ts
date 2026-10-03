@@ -1,3 +1,4 @@
+import { decorGroundViolation, decorGroundRadius, type DecorLane } from '@/lib/game/city-map/terrain/decor-clearance'
 import * as Phaser from 'phaser'
 import { BUILDING_FLAGS } from '@/lib/game/banner'
 import { TILE, ROAD_GRAPH, HALL_SLOT_ID } from '@/lib/game/city-map'
@@ -314,9 +315,15 @@ export function addPaintedYardProps(scene: CityScene, id: BuildingId, slot: Live
     const side = i % 2 ? 1 : -1
     const x = slot.screen.x + side * GROUND_TARGET_W * (0.31 + rnd() * 0.045)
     const y = slot.screen.y + TILE.h * (0.24 + (i === 2 ? 0.12 : 0) + rnd() * 0.08)
-    const image = scene.add.image(x, y, texture).setOrigin(0.5, 0.92).setDepth(imgY + 0.06)
     const source = scene.textures.get(texture).getSourceImage() as HTMLImageElement
     const width = TILE.w * (key.includes('cypress') || key.includes('tree') ? 0.19 : 0.16)
+    const radius = decorGroundRadius(texture, width)
+    const lanes = scene.registry.get('decorClearanceLanes') as DecorLane[]
+    if (lanes && decorGroundViolation(x, y, radius, lanes)) continue
+    const image = scene.add.image(x, y, texture).setOrigin(0.5, 0.92).setDepth(imgY + 0.06)
+    const ordinal = (scene.registry.get('yardDecorOrdinal') as number | undefined ?? 0) + 1
+    scene.registry.set('yardDecorOrdinal', ordinal)
+    image.setData('decorGroundRadius', radius).setData('decorOrdinal', ordinal).setVisible(!liteMode() || ordinal % 2 === 1)
     image.setDisplaySize(width, width * source.height / source.width).setAlpha(0.85)
     image.setFlipX(side > 0)
     scene.pieces.push(image)

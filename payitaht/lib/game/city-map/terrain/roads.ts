@@ -1,3 +1,4 @@
+import { decorGroundRadius, HOUSE_ART_WIDTH, HOUSE_ART_HEIGHT } from './decor-clearance'
 import { CITY_SLOTS, COAST_SLOTS, DEFENSE_SLOTS, DEFENSE_FOUNDATION, PLAZA, HALL_SLOT_ID, slotById, TILE } from '../index'
 import { roadStyleFor, roadTierForHallLevel } from '../road-style'
 import { edgeKey, roadEdgeKeysForTargets } from '../road-tree'
@@ -287,7 +288,6 @@ export function buildRoads({ V, divanLevel, occupiedSlotIds, scene, shoreY, stam
       }
     }
 
-    const propRnd = mulberry32(91217 + tier * 997 + active.size * 37)
     const propSlots = [...CITY_SLOTS, ...COAST_SLOTS, ...DEFENSE_SLOTS]
     const roadsideClear = (x: number, y: number) =>
       y < shoreY(x) - TILE.h * 0.7 &&
@@ -297,25 +297,29 @@ export function buildRoads({ V, divanLevel, occupiedSlotIds, scene, shoreY, stam
       !cityFountains().some(f => Math.hypot(x - f.x, (y - f.y) * 1.6) < TILE.w * 0.68) &&
       !propSlots.some(s => nearSlot(x, y, s, active.has(s.id) ? 1.02 : 0.70))
 
-    for (const r of visibleCurves.filter(r => r.kind === 'avenue')) {
-      const samples = [0.38, 0.68]
-      for (const u of samples) {
-        if (r.kind === 'street' && propRnd() < 0.52) continue
-        if (r.kind === 'avenue' && propRnd() < 0.18) continue
-        const p = r.curve.getPoint(u), tangent = r.curve.getTangent(u)
+    let pairOrdinal = 0
+    // Use actual curved road normals, and place complete mirrored pairs.
+    for (const [roadIndex, r] of visibleCurves.filter(r => r.kind === 'avenue' || r.kind === 'quay').entries()) {
+      const keys = [roadIndex % 2 ? 'd_terracotta-pots' : 'd_stone-bench']
+      if (r.kind === 'avenue' && tier >= 3) keys.push(roadIndex % 2 ? 'd_cypress' : 'd_cypress-b')
+      keys.forEach((key, index) => {
+        const u = (index + 1) / (keys.length + 1)
+        const p = r.curve.getPointAt(u), tangent = r.curve.getTangentAt(u)
         const len = Math.hypot(tangent.x, tangent.y) || 1
-        const side = propRnd() > 0.5 ? 1 : -1
         const nx = -tangent.y / len, ny = tangent.x / len
-        const distance = TILE.w * (r.kind === 'avenue' ? 0.46 : 0.34)
-        const x = p.x + nx * distance * side
-        const y = p.y + ny * distance * side * 0.78
-        if (!roadsideClear(x, y)) continue
-        const key = u < 0.5 ? 'd_terracotta-pots' : 'd_stone-bench'
-        const width = TILE.w * (u < 0.5 ? 0.4 : 0.6)
-        const image = stamp(key, x, y, width, y - 0.2, 0.92, 1)
-        if (image) roadTextures.push(image)
-      }
+        const src = scene.textures.get(key).getSourceImage() as HTMLImageElement
+        const width = key === 'd_stone-bench' ? HOUSE_ART_WIDTH / 4 : key === 'd_terracotta-pots' ? HOUSE_ART_WIDTH / 6 : Math.min(HOUSE_ART_HEIGHT, 45 / 0.22) * src.width / src.height
+        const radius = decorGroundRadius(key, width)
+        const distance = TILE.w * roadStyleFor(r.kind, 10).shoulderW / 2 + radius + 18
+        const points = [-1, 1].map(side => ({ x: p.x + nx * distance * side, y: p.y + ny * distance * side }))
+        if (!points.every(p => roadsideClear(p.x, p.y))) return
+        const pair = points.map(p => stamp(key, p.x, p.y, width, p.y - 0.2, 0.92, 1))
+        if (pair.some(i => !i)) { for (const i of pair) i?.destroy(); return }
+        pairOrdinal++
+        for (const image of pair) if (image) { image.setData('roadsidePair', r.from + ':' + r.to + ':' + u).setData('decorPairOrdinal', pairOrdinal).setVisible(!liteMode() || pairOrdinal % 2 === 1); roadTextures.push(image) }
+      })
     }
+
   }
   updateRoads(divanLevel, occupiedSlotIds)
 

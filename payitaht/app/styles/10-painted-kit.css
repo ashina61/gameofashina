@@ -49,7 +49,6 @@
 .ika-chip b { color: var(--c-ink-deep); text-shadow: none; }
 .ika-chip small { color: var(--c-ok-deep); }
 .ika-chip-full b, .ika-chip-full small, .ika-chip-cap b, .ika-chip-cap small { color: var(--c-paper); }
-.ika-chip small.ika-rate-negative { color: var(--c-bad); }
 .ika-nav-center.ika-nav-active .ika-nav-icon {
   background: var(--art-medal-frame) center / 100% 100% no-repeat;
 }
@@ -109,3 +108,34 @@
 .ika-advisor-news .advisor-portrait { animation: advisor-glow 1.6s ease-in-out infinite; }
 .ika-speech > .advisor-portrait { flex-shrink: 0; filter: drop-shadow(0 3px 5px #0006); }
 @media (prefers-reduced-motion: reduce) { .ika-advisor-news .advisor-portrait { animation: none; filter: drop-shadow(0 0 5px var(--c-alert-gold)); } }
+
+/* G5: ruler identity, individually actionable stocks and floating city rails. */
+.game-shell { --ika-top: calc(var(--sa-top) + 160px); }
+.game-shell .ika-ribbon { min-height: 58px; gap: 5px; }
+.game-shell .ika-crest { flex-shrink: 0; }
+.game-shell .ika-city-name strong { font-size: 15px; }
+.ika-might { display: flex; align-items: center; gap: 3px; color: var(--c-gold-pale); font-size: 11px; font-variant-numeric: tabular-nums; }
+.game-shell .ika-res { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 3px; padding: 4px 6px; overflow: visible; }
+.game-shell .ika-chip { display: flex; flex-direction: row; min-width: 0; min-height: 44px; padding: 0; gap: 0; }
+.ika-stock-open { display: flex; justify-content: center; flex: 1; align-items: center; gap: 2px; min-width: 0; min-height: 44px; padding: 2px; color: inherit; background: none; border: 0; text-align: left; }
+.game-shell .ika-chip i :is(svg, .painted-icon) { width: 24px; height: 24px; flex-shrink: 0; }
+.game-shell .ika-chip b { font-size: 11px; }
+.game-shell .ika-chip small { font-size: 11px; }
+.game-shell .ika-chip-num { min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.ika-stock-add { position: relative; flex-shrink: 0; width: 44px; height: 44px; display: grid; place-items: center; border: 0; border-radius: 4px; background: var(--c-wood-dark); color: var(--c-gold-pale); }
+.game-shell .ika-chip-flag { top: -3px; right: 0; }
+.game-shell .map-top-tools { top: auto; right: auto; left: 8px; bottom: calc(var(--ika-nav) + 110px); flex-direction: row; gap: 6px; }
+.game-shell .map-top-tools button, .city-shortcuts button { border-radius: 50%; background: var(--c-wood-dark) var(--art-medal-frame) center / 100% 100%; }
+.city-shortcuts { position: fixed; z-index: 4; top: calc(var(--ika-top) + 35px); right: 8px; display: flex; flex-direction: column; gap: 10px; }
+.city-shortcuts button { position: relative; display: grid; place-items: center; width: 48px; height: 48px; border: 1px solid var(--c-gold); color: var(--c-paper); box-shadow: 0 3px 8px #0007; }
+.city-shortcuts button :is(svg, .painted-icon) { width: 34px; height: 34px; }
+.city-shortcuts small { position: absolute; right: -1px; bottom: -4px; padding: 1px 5px; border-radius: 5px; background: var(--c-wood-dark); color: var(--c-paper); font-size: 11px; }
+.city-activity { position: fixed; left: 6px; top: calc(var(--ika-top) + 60px); z-index: 4; width: 118px; display: flex; flex-direction: column; gap: 5px; max-height: calc(100dvh - var(--ika-top) - var(--ika-nav) - 155px); overflow-y: auto; }
+.city-activity > button { display: flex; align-items: center; gap: 4px; min-height: 48px; padding: 4px; border: 1px solid var(--c-gold); border-radius: 9px; background: #2a1a0ee8; color: var(--c-paper); text-align: left; }
+.city-activity img { width: 34px; height: 36px; object-fit: contain; flex-shrink: 0; }
+.city-activity > button > span { min-width: 0; flex: 1; }
+.city-activity strong { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 11px; }
+.city-activity time { display: block; font-size: 11px; color: var(--c-gold-pale); font-variant-numeric: tabular-nums; }
+.city-activity-meter { display: block; height: 3px; margin-top: 3px; background: #503d27; border-radius: 3px; overflow: hidden; }
+.city-activity-meter > i { display: block; height: 100%; background: var(--c-gold); }
+.game-shell .ika-nav-active::before { width: 28px; height: 12px; top: -3px; border-radius: 50%; border-bottom: 3px solid var(--c-gold-pale); background: none; }

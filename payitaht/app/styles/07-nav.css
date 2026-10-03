@@ -177,7 +177,6 @@
 /* Kaynak defteri: yedi sayaç telefonda TEK SIRADA (harita ekranın çoğunu alır).
  * Stoklar: simge + değer, altında küçük üretim; durumlar: simge + değer. */
 .game-shell .ika-res { -webkit-mask-image: none; mask-image: none; }
-.ika-chip small.ika-rate-negative { color: #ffb6a0; }
 /* Masaüstü: değer ve oran yan yana. */
 .ika-chip-num { display: inline-flex; align-items: baseline; gap: 3px; min-width: 0; }
 @media (max-width: 600px) {

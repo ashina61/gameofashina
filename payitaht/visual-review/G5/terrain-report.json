@@ -1,0 +1,460 @@
+{
+  "assets": 42,
+  "errors": [],
+  "missing": [],
+  "scenes": [
+    {
+      "scenario": "initial",
+      "checked": 139,
+      "violations": [],
+      "roadside": [
+        {
+          "key": "d_stone-bench",
+          "pair": "st_gate_n:st_out_n:0.5",
+          "width": 117.93599999999999,
+          "height": 77.3955
+        },
+        {
+          "key": "d_stone-bench",
+          "pair": "st_gate_n:st_out_n:0.5",
+          "width": 117.93599999999999,
+          "height": 77.3955
+        },
+        {
+          "key": "d_stone-bench",
+          "pair": "st_ave_n:st_ave_n2:0.5",
+          "width": 117.93599999999999,
+          "height": 77.3955
+        },
+        {
+          "key": "d_stone-bench",
+          "pair": "st_ave_n:st_ave_n2:0.5",
+          "width": 117.93599999999999,
+          "height": 77.3955
+        },
+        {
+          "key": "d_terracotta-pots",
+          "pair": "st_r18:st_ave_n:0.5",
+          "width": 78.624,
+          "height": 57.125249999999994
+        },
+        {
+          "key": "d_terracotta-pots",
+          "pair": "st_r18:st_ave_n:0.5",
+          "width": 78.624,
+          "height": 57.125249999999994
+        },
+        {
+          "key": "d_terracotta-pots",
+          "pair": "city_hall:st_r18:0.5",
+          "width": 78.624,
+          "height": 57.125249999999994
+        },
+        {
+          "key": "d_terracotta-pots",
+          "pair": "city_hall:st_r18:0.5",
+          "width": 78.624,
+          "height": 57.125249999999994
+        },
+        {
+          "key": "d_stone-bench",
+          "pair": "city_hall:st_r0:0.5",
+          "width": 117.93599999999999,
+          "height": 77.3955
+        },
+        {
+          "key": "d_stone-bench",
+          "pair": "city_hall:st_r12:0.5",
+          "width": 117.93599999999999,
+          "height": 77.3955
+        },
+        {
+          "key": "d_stone-bench",
+          "pair": "st_gate_w:st_out_w:0.5",
+          "width": 117.93599999999999,
+          "height": 77.3955
+        },
+        {
+          "key": "d_stone-bench",
+          "pair": "st_gate_e:st_out_e:0.5",
+          "width": 117.93599999999999,
+          "height": 77.3955
+        },
+        {
+          "key": "d_stone-bench",
+          "pair": "city_hall:st_r0:0.5",
+          "width": 117.93599999999999,
+          "height": 77.3955
+        },
+        {
+          "key": "d_stone-bench",
+          "pair": "city_hall:st_r12:0.5",
+          "width": 117.93599999999999,
+          "height": 77.3955
+        },
+        {
+          "key": "d_stone-bench",
+          "pair": "st_gate_e:st_out_e:0.5",
+          "width": 117.93599999999999,
+          "height": 77.3955
+        },
+        {
+          "key": "d_stone-bench",
+          "pair": "st_gate_w:st_out_w:0.5",
+          "width": 117.93599999999999,
+          "height": 77.3955
+        },
+        {
+          "key": "d_terracotta-pots",
+          "pair": "city_hall:st_r6:0.5",
+          "width": 78.624,
+          "height": 57.125249999999994
+        },
+        {
+          "key": "d_terracotta-pots",
+          "pair": "city_hall:st_r6:0.5",
+          "width": 78.624,
+          "height": 57.125249999999994
+        },
+        {
+          "key": "d_stone-bench",
+          "pair": "st_r6:st_ave_s:0.5",
+          "width": 117.93599999999999,
+          "height": 77.3955
+        },
+        {
+          "key": "d_stone-bench",
+          "pair": "st_r6:st_ave_s:0.5",
+          "width": 117.93599999999999,
+          "height": 77.3955
+        },
+        {
+          "key": "d_terracotta-pots",
+          "pair": "st_ave_s:st_ave_s2:0.5",
+          "width": 78.624,
+          "height": 57.125249999999994
+        },
+        {
+          "key": "d_terracotta-pots",
+          "pair": "st_ave_s:st_ave_s2:0.5",
+          "width": 78.624,
+          "height": 57.125249999999994
+        },
+        {
+          "key": "d_stone-bench",
+          "pair": "st_ave_s2:st_stairs:0.5",
+          "width": 117.93599999999999,
+          "height": 77.3955
+        },
+        {
+          "key": "d_stone-bench",
+          "pair": "st_ave_s2:st_stairs:0.5",
+          "width": 117.93599999999999,
+          "height": 77.3955
+        }
+      ]
+    },
+    {
+      "scenario": "grown",
+      "checked": 249,
+      "violations": [],
+      "roadside": [
+        {
+          "key": "d_stone-bench",
+          "pair": "st_gate_n:st_out_n:0.3333333333333333",
+          "width": 117.93599999999999,
+          "height": 77.3955
+        },
+        {
+          "key": "d_stone-bench",
+          "pair": "st_gate_n:st_out_n:0.3333333333333333",
+          "width": 117.93599999999999,
+          "height": 77.3955
+        },
+        {
+          "key": "d_cypress",
+          "pair": "st_ave_n2:st_gate_n:0.6666666666666666",
+          "width": 113.20266176470587,
+          "height": 278.6527058823529
+        },
+        {
+          "key": "d_cypress",
+          "pair": "st_ave_n2:st_gate_n:0.6666666666666666",
+          "width": 113.20266176470587,
+          "height": 278.6527058823529
+        },
+        {
+          "key": "d_stone-bench",
+          "pair": "st_ave_n:st_ave_n2:0.3333333333333333",
+          "width": 117.93599999999999,
+          "height": 77.3955
+        },
+        {
+          "key": "d_stone-bench",
+          "pair": "st_ave_n:st_ave_n2:0.3333333333333333",
+          "width": 117.93599999999999,
+          "height": 77.3955
+        },
+        {
+          "key": "d_terracotta-pots",
+          "pair": "st_r18:st_ave_n:0.3333333333333333",
+          "width": 78.624,
+          "height": 57.125249999999994
+        },
+        {
+          "key": "d_terracotta-pots",
+          "pair": "st_r18:st_ave_n:0.3333333333333333",
+          "width": 78.624,
+          "height": 57.125249999999994
+        },
+        {
+          "key": "d_cypress",
+          "pair": "city_hall:st_r18:0.6666666666666666",
+          "width": 113.20266176470587,
+          "height": 278.6527058823529
+        },
+        {
+          "key": "d_cypress",
+          "pair": "city_hall:st_r18:0.6666666666666666",
+          "width": 113.20266176470587,
+          "height": 278.6527058823529
+        },
+        {
+          "key": "d_stone-bench",
+          "pair": "st_gate_e:st_out_e:0.3333333333333333",
+          "width": 117.93599999999999,
+          "height": 77.3955
+        },
+        {
+          "key": "d_stone-bench",
+          "pair": "st_gate_w:st_out_w:0.3333333333333333",
+          "width": 117.93599999999999,
+          "height": 77.3955
+        },
+        {
+          "key": "d_cypress-b",
+          "pair": "city_hall:st_r0:0.6666666666666666",
+          "width": 156.74214705882352,
+          "height": 278.6527058823529
+        },
+        {
+          "key": "d_cypress-b",
+          "pair": "city_hall:st_r12:0.6666666666666666",
+          "width": 156.74214705882352,
+          "height": 278.6527058823529
+        },
+        {
+          "key": "d_cypress-b",
+          "pair": "st_gate_e:st_out_e:0.6666666666666666",
+          "width": 156.74214705882352,
+          "height": 278.6527058823529
+        },
+        {
+          "key": "d_cypress-b",
+          "pair": "st_gate_w:st_out_w:0.6666666666666666",
+          "width": 156.74214705882352,
+          "height": 278.6527058823529
+        },
+        {
+          "key": "d_cypress-b",
+          "pair": "city_hall:st_r0:0.6666666666666666",
+          "width": 156.74214705882352,
+          "height": 278.6527058823529
+        },
+        {
+          "key": "d_cypress-b",
+          "pair": "city_hall:st_r12:0.6666666666666666",
+          "width": 156.74214705882352,
+          "height": 278.6527058823529
+        },
+        {
+          "key": "d_cypress-b",
+          "pair": "st_gate_e:st_out_e:0.6666666666666666",
+          "width": 156.74214705882352,
+          "height": 278.6527058823529
+        },
+        {
+          "key": "d_cypress-b",
+          "pair": "st_gate_w:st_out_w:0.6666666666666666",
+          "width": 156.74214705882352,
+          "height": 278.6527058823529
+        },
+        {
+          "key": "d_stone-bench",
+          "pair": "st_gate_w:st_out_w:0.3333333333333333",
+          "width": 117.93599999999999,
+          "height": 77.3955
+        },
+        {
+          "key": "d_stone-bench",
+          "pair": "st_gate_e:st_out_e:0.3333333333333333",
+          "width": 117.93599999999999,
+          "height": 77.3955
+        },
+        {
+          "key": "d_cypress",
+          "pair": "city_hall:st_r6:0.6666666666666666",
+          "width": 113.20266176470587,
+          "height": 278.6527058823529
+        },
+        {
+          "key": "d_cypress",
+          "pair": "city_hall:st_r6:0.6666666666666666",
+          "width": 113.20266176470587,
+          "height": 278.6527058823529
+        },
+        {
+          "key": "d_stone-bench",
+          "pair": "st_r6:st_ave_s:0.3333333333333333",
+          "width": 117.93599999999999,
+          "height": 77.3955
+        },
+        {
+          "key": "d_stone-bench",
+          "pair": "st_r6:st_ave_s:0.3333333333333333",
+          "width": 117.93599999999999,
+          "height": 77.3955
+        },
+        {
+          "key": "d_terracotta-pots",
+          "pair": "st_ave_s:st_ave_s2:0.3333333333333333",
+          "width": 78.624,
+          "height": 57.125249999999994
+        },
+        {
+          "key": "d_terracotta-pots",
+          "pair": "st_ave_s:st_ave_s2:0.3333333333333333",
+          "width": 78.624,
+          "height": 57.125249999999994
+        },
+        {
+          "key": "d_cypress",
+          "pair": "st_ave_s:st_ave_s2:0.6666666666666666",
+          "width": 113.20266176470587,
+          "height": 278.6527058823529
+        },
+        {
+          "key": "d_cypress",
+          "pair": "st_ave_s:st_ave_s2:0.6666666666666666",
+          "width": 113.20266176470587,
+          "height": 278.6527058823529
+        },
+        {
+          "key": "d_stone-bench",
+          "pair": "st_ave_s2:st_stairs:0.3333333333333333",
+          "width": 117.93599999999999,
+          "height": 77.3955
+        },
+        {
+          "key": "d_stone-bench",
+          "pair": "st_ave_s2:st_stairs:0.3333333333333333",
+          "width": 117.93599999999999,
+          "height": 77.3955
+        }
+      ]
+    },
+    {
+      "scenario": "grown-lite",
+      "checked": 125,
+      "violations": [],
+      "roadside": [
+        {
+          "key": "d_cypress",
+          "pair": "st_ave_n2:st_gate_n:0.6666666666666666",
+          "width": 113.20266176470587,
+          "height": 278.6527058823529
+        },
+        {
+          "key": "d_cypress",
+          "pair": "st_ave_n2:st_gate_n:0.6666666666666666",
+          "width": 113.20266176470587,
+          "height": 278.6527058823529
+        },
+        {
+          "key": "d_terracotta-pots",
+          "pair": "st_r18:st_ave_n:0.3333333333333333",
+          "width": 78.624,
+          "height": 57.125249999999994
+        },
+        {
+          "key": "d_terracotta-pots",
+          "pair": "st_r18:st_ave_n:0.3333333333333333",
+          "width": 78.624,
+          "height": 57.125249999999994
+        },
+        {
+          "key": "d_stone-bench",
+          "pair": "st_gate_e:st_out_e:0.3333333333333333",
+          "width": 117.93599999999999,
+          "height": 77.3955
+        },
+        {
+          "key": "d_stone-bench",
+          "pair": "st_gate_w:st_out_w:0.3333333333333333",
+          "width": 117.93599999999999,
+          "height": 77.3955
+        },
+        {
+          "key": "d_cypress-b",
+          "pair": "city_hall:st_r0:0.6666666666666666",
+          "width": 156.74214705882352,
+          "height": 278.6527058823529
+        },
+        {
+          "key": "d_cypress-b",
+          "pair": "city_hall:st_r12:0.6666666666666666",
+          "width": 156.74214705882352,
+          "height": 278.6527058823529
+        },
+        {
+          "key": "d_cypress-b",
+          "pair": "city_hall:st_r0:0.6666666666666666",
+          "width": 156.74214705882352,
+          "height": 278.6527058823529
+        },
+        {
+          "key": "d_cypress-b",
+          "pair": "city_hall:st_r12:0.6666666666666666",
+          "width": 156.74214705882352,
+          "height": 278.6527058823529
+        },
+        {
+          "key": "d_stone-bench",
+          "pair": "st_gate_w:st_out_w:0.3333333333333333",
+          "width": 117.93599999999999,
+          "height": 77.3955
+        },
+        {
+          "key": "d_stone-bench",
+          "pair": "st_gate_e:st_out_e:0.3333333333333333",
+          "width": 117.93599999999999,
+          "height": 77.3955
+        },
+        {
+          "key": "d_stone-bench",
+          "pair": "st_r6:st_ave_s:0.3333333333333333",
+          "width": 117.93599999999999,
+          "height": 77.3955
+        },
+        {
+          "key": "d_stone-bench",
+          "pair": "st_r6:st_ave_s:0.3333333333333333",
+          "width": 117.93599999999999,
+          "height": 77.3955
+        },
+        {
+          "key": "d_cypress",
+          "pair": "st_ave_s:st_ave_s2:0.6666666666666666",
+          "width": 113.20266176470587,
+          "height": 278.6527058823529
+        },
+        {
+          "key": "d_cypress",
+          "pair": "st_ave_s:st_ave_s2:0.6666666666666666",
+          "width": 113.20266176470587,
+          "height": 278.6527058823529
+        }
+      ]
+    }
+  ]
+}

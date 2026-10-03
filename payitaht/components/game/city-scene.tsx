@@ -1,8 +1,7 @@
 'use client'
-import type { BadgeMode } from '@/lib/game/badges'
 
-import { useRef, useState } from 'react'
-import { Sun, Sunset, Moon, Flag, Move, Anchor, Landmark, Gift } from './ui-art'
+import { useRef, useState, type ReactNode } from 'react'
+import { Sun, Sunset, Moon, Flag, Move, Anchor, Landmark } from './ui-art'
 import { skyTint } from '@/lib/game/sky'
 import type { BannerLook } from '@/lib/game/banner'
 import { BUILDINGS, BUILDING_IDS, type Game, type BuildingId } from '@/lib/game/engine'
@@ -20,7 +19,7 @@ import { t } from '@/lib/i18n/tr'
  * yapmiyordu. Tuval dunyayi ekrandan buyuk tutar; gezinme bu yuzden gercek.
  */
 
-export function CityScene({ game, placing, onBuilding, onPlot, onRoad, moving, movePlot, onMovePlot, onMine, offers = 0, offerMode = 'count', onOffers, banner, siege = PEACEFUL_CITY, paused = false, raid = false }: {
+export function CityScene({ game, placing, onBuilding, onPlot, onRoad, moving, movePlot, onMovePlot, onMine, activity, shortcuts, banner, siege = PEACEFUL_CITY, paused = false, raid = false }: {
   game: Game
   placing: boolean
   onBuilding: (id: BuildingId) => void
@@ -30,10 +29,8 @@ export function CityScene({ game, placing, onBuilding, onPlot, onRoad, moving, m
   movePlot: number | null
   onMovePlot: (plot: number) => void
   onMine: () => void
-  /** Bekleyen yapay rakip teklifleri: elçi mektubu düğmesi. */
-  offers?: number
-  offerMode?: BadgeMode
-  onOffers?: () => void
+  activity?: ReactNode
+  shortcuts?: ReactNode
   banner?: BannerLook
   siege?: SiegeAppearance
   /** Şehri tamamen örten bir sayfa açık. */
@@ -52,6 +49,8 @@ export function CityScene({ game, placing, onBuilding, onPlot, onRoad, moving, m
     <CityList game={game} onBuilding={onBuilding} />
 
     <Weather time={game.updatedAt} />
+    {activity}
+    {shortcuts}
 
     <div className="map-top-tools">
       <button aria-label={labels ? t.city.labelsHide : t.city.labelsShow}
@@ -60,8 +59,7 @@ export function CityScene({ game, placing, onBuilding, onPlot, onRoad, moving, m
         onClick={() => controls.current?.focusHarbour()}><Anchor painted /></button>
       <button aria-label={t.city.recenter} title={t.city.recenter}
         onClick={() => controls.current?.recenter()}><Landmark painted /></button>
-      {offers > 0 && onOffers && <button className="map-offer" aria-label={t.city.rivalOffers(offers)} title="Elçi mektubu" onClick={onOffers}>
-        <Gift painted />{offerMode === 'dot' ? <b className="is-dot" aria-hidden="true" /> : offerMode && <b>{offers}</b>}</button>}
+
     </div>
 
     {/*

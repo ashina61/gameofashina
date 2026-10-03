@@ -53,8 +53,8 @@ function scanPage() {
   const ownText = el => [...el.childNodes].some(n => n.nodeType === 3 && n.textContent.trim())
   // Tam ekran sayfa açıkken altında kalan HUD, görev şeridi ve ada ölçülmez.
   const pageOpen = [...document.querySelectorAll('.bp')].some(shown)
-  const under = '.ika-top, .quest-chip, .threat-banner, .island-view, .map-top-tools'
-  const roots = [...document.querySelectorAll('.bp, .ika-top, .ika-nav, .quest-chip, .threat-banner, .island-view, .map-top-tools, .title-screen, [role="dialog"]')]
+  const under = '.ika-top, .quest-chip, .threat-banner, .island-view, .map-top-tools, .city-shortcuts, .city-activity'
+  const roots = [...document.querySelectorAll('.bp, .ika-top, .ika-nav, .quest-chip, .threat-banner, .island-view, .map-top-tools, .city-shortcuts, .city-activity, .title-screen, [role="dialog"]')]
     .filter(r => !(pageOpen && r.matches(under) && !r.closest('.bp')))
   const seen = new Set()
   const controls = []

@@ -1,3 +1,4 @@
+import { decorGroundViolation, decorGroundRadius, type DecorLane } from '@/lib/game/city-map/terrain/decor-clearance'
 /*
  * CANLI ŞEHİR SAHNESİ — yeni city-map slot sistemi üzerinde.
  *
@@ -135,7 +136,7 @@ export class CityScene extends Phaser.Scene {
     this.smoke = new SmokeField(this)
     this.terrainRoads = buildCityTerrain(this, this.state.buildings.divan, this.openSlotIds(this.state)) // dünya + büyüyen sokak ağı
     const offDecorLite = onLiteChange(() => {
-      for (const child of this.children.list) if (child instanceof Phaser.GameObjects.Image && child.texture.key.startsWith('d_')) child.setVisible(!liteMode() || child.getData('decorOrdinal') % 2 === 1)
+      for (const child of this.children.list) if (child instanceof Phaser.GameObjects.Image && child.texture.key.startsWith('d_')) child.setVisible(!liteMode() || (child.getData('decorPairOrdinal') ?? child.getData('decorOrdinal')) % 2 === 1)
       this.applyDevelopment()
       this.terrainRoads?.syncAmbientDecor(this.openSlotIds(this.state))
       this.markReady()
@@ -575,6 +576,8 @@ export class CityScene extends Phaser.Scene {
         if (localStorage.getItem('payitaht-qa') === '1') {
           const decor = this.children.list.filter((c): c is Phaser.GameObjects.Image => c instanceof Phaser.GameObjects.Image && c.texture.key.startsWith('d_'))
           document.documentElement.dataset.decorReview = JSON.stringify({ total: decor.length, visible: decor.filter(c => c.visible).length, lite: liteMode(), zoom: this.cameras.main.zoom, trees: decor.filter(c => c.visible && /tree|cypress|pine|poplar/.test(c.texture.key)).map(c => ({ key: c.texture.key, height: c.displayHeight * this.cameras.main.zoom, width: c.displayWidth * this.cameras.main.zoom })) })
+          const lanes = this.registry.get('decorClearanceLanes') as DecorLane[]
+          document.documentElement.dataset.decorClearance = JSON.stringify({ checked: decor.filter(c => c.visible).length, violations: decor.filter(c => c.visible).flatMap(c => { const kind = decorGroundViolation(c.x, c.y, c.getData('decorGroundRadius') ?? decorGroundRadius(c.texture.key, c.displayWidth), lanes); return kind ? [{ key: c.texture.key, x: c.x, y: c.y, kind }] : [] }), roadside: decor.filter(c => c.visible && c.getData('roadsidePair')).map(c => ({ key: c.texture.key, pair: c.getData('roadsidePair'), width: c.displayWidth, height: c.displayHeight })) })
         }
       }
     })

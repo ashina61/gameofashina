@@ -1,10 +1,9 @@
-import { CITY_SLOTS, COAST_SLOTS, DEFENSE_SLOTS, DEFENSE_FOUNDATION, ROAD_GRAPH, PLAZA, RING_ROAD, HALL_SLOT_ID, TILE } from '../index'
+import { CITY_SLOTS, COAST_SLOTS, DEFENSE_SLOTS, PLAZA, RING_ROAD, TILE } from '../index'
 import { FOOTPRINT_DIAMOND_W, ART_DIAMOND_PX } from '../building-assets'
-import { cityFountains, nearStreamAt } from '../city-extras'
 import * as Phaser from 'phaser'
 import { mulberry32, nearSlot, paintedGroundTexture } from '../terrain-builder'
 
-export function drawPlaza({ T, V, dirtSurface, scene, shoreY, stamp }: { T: { tier: number; }; V: (x: number, y: number) => Phaser.Math.Vector2; dirtSurface: string | null; scene: Phaser.Scene; shoreY: (x: number) => number; stamp: (key: string, wx: number, wy: number, tw: number, depth: number, oy?: number, alpha?: number, tint?: number | undefined) => Phaser.GameObjects.Image | null }) {
+export function drawPlaza({ T, V, dirtSurface, scene, shoreY: _shoreY, stamp }: { T: { tier: number; }; V: (x: number, y: number) => Phaser.Math.Vector2; dirtSurface: string | null; scene: Phaser.Scene; shoreY: (x: number) => number; stamp: (key: string, wx: number, wy: number, tw: number, depth: number, oy?: number, alpha?: number, tint?: number | undefined) => Phaser.GameObjects.Image | null }) {
   // 2e) MEYDAN VE ÇEVRE DÜZENLEMESİ (Ikariam): Divanhane taş döşeli oval bir
   // meydanın ortasında tek başına durur. Meydanda köşegen çiçek tarhları,
   // önünde şadırvan, girişlerinde bayrak direkleri; meydan ile çevre yolu
@@ -239,42 +238,7 @@ export function drawPlaza({ T, V, dirtSurface, scene, shoreY, stamp }: { T: { ti
     }
 
     T.tier = 3
-    // Caddelerin iki yanı servi ağaçlı (yalnızca sur içinde, arsalardan uzak).
-    const wall = DEFENSE_FOUNDATION.map(p => p.screen)
-    const insideWall = (x: number, y: number) => {
-      let inside = false
-      for (let i = 0, j = wall.length - 1; i < wall.length; j = i++) {
-        const a = wall[i], b = wall[j]
-        if ((a.y > y) !== (b.y > y) && x < (b.x - a.x) * (y - a.y) / (b.y - a.y) + a.x) inside = !inside
-      }
-      return inside
-    }
-    const nodeAt = new Map(ROAD_GRAPH.nodes.map(n => [n.id, n.screen]))
-    const mainIds = (id: string) => id === HALL_SLOT_ID || /^st_(ave|gate|r0$|r6$|r12$|r18$)/.test(id)
-    const tr = mulberry32(2718)
-    for (const e of ROAD_GRAPH.edges) {
-      if (!mainIds(e.from) || !mainIds(e.to)) continue
-      if (e.from.startsWith('st_r') && e.to.startsWith('st_r')) continue
-      const A = nodeAt.get(e.from)!, B = nodeAt.get(e.to)!
-      const len = Math.hypot(B.x - A.x, B.y - A.y), ux = (B.x - A.x) / len, uy = (B.y - A.y) / len
-      const off = TILE.w * 0.44
-      for (let d = TILE.w * 0.3; d < len - TILE.w * 0.2; d += TILE.w * 0.72) {
-        for (const side of [-1, 1]) {
-          if (tr() < 0.34) continue
-          const x = A.x + ux * d - uy * off * side, y = A.y + uy * d + ux * off * side * 0.8
-          const pr = ((x - P.x) / prx) ** 2 + ((y - P.y) / pry) ** 2
-          if (pr < 1.35) continue // meydanın kendisi
-          const rr = Math.hypot((x - P.x) / RING_ROAD.rx, (y - P.y) / RING_ROAD.ry)
-          if (Math.abs(rr - 1) < 0.1) continue // çevre yolu kavşağı
-          if (!insideWall(x, y) || y > shoreY(x) - TILE.h * 1.2) continue
-          if (cityFountains().some(c => Math.hypot(x - c.x, (y - c.y) * 1.6) < TILE.w * 0.75)) continue // çeşme başı açık
-          if (nearStreamAt(x, y, 40, 40)) continue // dere
-          if ([...CITY_SLOTS, ...COAST_SLOTS, ...DEFENSE_SLOTS].some(s => s.id !== HALL_SLOT_ID && nearSlot(x, y, s, 0.95))) continue
-          const img = stamp(tr() < 0.5 ? 'd_cypress' : 'd_cypress-b', x, y, TILE.w * (0.24 + tr() * 0.05), y, 0.92)
-          if (img) plazaDecor.push(img)
-        }
-      }
-    }
+
   }
 
   return { flags, plazaDecor }
