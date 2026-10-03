@@ -278,11 +278,17 @@
 /* Ordu: birim kartı artık düz form değil, komuta kartı. */
 .bp .army-summary {
   border-radius: 12px;
-  background:
-    linear-gradient(135deg, #4b2b16 0 28%, #f3e2b9 28.5% 100%);
+  overflow: hidden;
+  background: #f3e2b9;
   border-color: #8c612c;
 }
-.bp .army-summary .eyebrow { color: #f4db9e; text-shadow: 0 1px #0008; }
+/* Başlık kartın üstünde tam genişlikte koyu ahşap şerit (eskiden çapraz üçgen yazıyı yarıya bölüyordu). */
+.bp .army-summary .eyebrow {
+  margin: -14px -14px 2px; padding: 8px 14px;
+  background: linear-gradient(180deg, var(--c-brown), var(--c-wood-dark));
+  border-bottom: 2px solid #8c612c;
+  color: #f4db9e; text-shadow: 0 1px #0008; letter-spacing: 1.2px;
+}
 .bp .army-summary > div {
   min-height: 42px;
   padding: 6px 8px;

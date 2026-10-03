@@ -11,12 +11,27 @@
 
 ```
 payitaht/docs/gorsel-brifi.md dosyasını baştan sona oku ve oradaki fazları
-SIRAYLA uygula. Her fazın sonunda: görselleri üret, koda bağla, kontrolleri
-çalıştır (bölüm 6), önce/sonra ekran görüntülerini visual-review/ altına koy,
-ayrı bir commit at. G0 bitince DUR ve stil sayfasını onaya sun; onay gelmeden
-G1'e geçme. Oyun kuralına, ekonomiye, kayıt biçimine, slot koordinatlarına
-dokunma. Üretilen her görseli public/images/game/CREDITS.md'ye yaz.
+SIRAYLA uygula. claude/ancient-city-phaser-game-r9e0qu dalından codex/gorsel
+adlı yeni bir dal aç; bütün işi orada yap, o dala push et.
+
+Her fazın sonunda: görselleri üret, koda bağla, kontrolleri çalıştır
+(bölüm 6), önce/sonra ekran görüntülerini visual-review/ altına koy, ayrı bir
+commit at.
+
+ONAY DURAKLARI: aşağıdaki fazlardan sonra işi bitir, ne yaptığını ve ekran
+görüntülerini özetle, benden onay gelmeden sonraki faza geçme:
+  - G0 (stil sayfası)
+  - G2 (arayüz kiti + ikonlar)
+  - G4 (şehir zemini + dekor)
+  - G6 (birlikler)
+Duraklar dışındaki fazlar arasında durma, sıradakine geç.
+
+Oyun kuralına, ekonomiye, kayıt biçimine, slot koordinatlarına dokunma.
+Üretilen her görseli public/images/game/CREDITS.md'ye yaz.
 ```
+
+Onay verirken yazılacak: `"G0 onaylandı, devam et"` ya da neyin değişmesi
+gerektiği (ör. `"kubbeler daha koyu, kontur ince; G0'ı yeniden üret"`).
 
 ---
 
@@ -143,8 +158,6 @@ değişikliği oyunun davranışını değiştirmez; yalnız aynı bilgiyi oyun 
 
 ### 4.5 Sayfalar
 - Bütün sayfalar boyalı **sayfa çerçevesi** (9-dilim) + **şerit başlık** kullanır.
-- Ordu sayfasındaki "SANCAĞIN ALTINDA" kartının çapraz koyu üçgeni hatalı
-  görünüyor: boyalı başlık şeridiyle değiştir.
 - Araştırma: pastel dal sekmeleri yerine dal renginde boyalı sekmeler; amblem
   madalyonları yeni setten.
 - Birlik kartları: yeni boyalı birlik figürleri, rol rozeti (ön cephe, menzil…).
@@ -161,13 +174,13 @@ değişikliği oyunun davranışını değiştirmez; yalnız aynı bilgiyi oyun 
 
 | Faz | İş | Çıktı | Kodda bağlanacak yer |
 |---|---|---|---|
-| **G0** | Stil sayfası: bir sayfada 1 bina (mevcut divan), 1 birlik (yeniçeri), 1 portre (şehir danışmanı), 3 kaynak ikonu, 1 düğme, 1 ağaç. Prompt kökü `tools/art/prompts/_kok.md`. | `docs/stil-sayfasi.webp` | — **Burada DUR, onay iste.** |
+| **G0** | Stil sayfası: bir sayfada 1 bina (mevcut divan), 1 birlik (yeniçeri), 1 portre (şehir danışmanı), 3 kaynak ikonu, 1 düğme, 1 ağaç. Prompt kökü `tools/art/prompts/_kok.md`. | `docs/stil-sayfasi.webp` | — **Onay durağı.** |
 | **G1** | Arayüz kiti (envanter #1) | `ui/*.webp` | `app/styles/*` (CSS `border-image` / arka plan), `game-button.tsx`, `ika-hud.tsx`, alt bar |
-| **G2** | Kaynak + alt bar + sütun ikonları (#2, #3) | `icons/*.webp` | `resource-art.tsx`, `ui-art.tsx` (ikon bileşeni aynı adla `<img>` döndürür; küçük glifler SVG kalır) |
+| **G2** | Kaynak + alt bar + sütun ikonları (#2, #3) · **onay durağı** | `icons/*.webp` | `resource-art.tsx`, `ui-art.tsx` (ikon bileşeni aynı adla `<img>` döndürür; küçük glifler SVG kalır) |
 | **G3** | Danışman portreleri (#4) | `portraits/advisor-*.webp` | `advisor-portraits.tsx` |
-| **G4** | Şehir zemini + dekor (#5, #6) ve yerleşim 4.4 | `terrain/*`, `decor/*` | `lib/game/city-map/terrain-builder.ts` ve `terrain/*.ts` (`TERRAIN_TILES`, `DECOR_TILES`, `preloadTerrain`) |
+| **G4** | Şehir zemini + dekor (#5, #6) ve yerleşim 4.4 · **onay durağı** | `terrain/*`, `decor/*` | `lib/game/city-map/terrain-builder.ts` ve `terrain/*.ts` (`TERRAIN_TILES`, `DECOR_TILES`, `preloadTerrain`) |
 | **G5** | Üst bar ve sütun yerleşimi (4.1–4.3) | — | `ika-hud.tsx`, `city-scene.tsx`, `game-shell.tsx` |
-| **G6** | Birlikler (#7) | `units/*.webp` | `unit-art.tsx` (`UnitFigure` aynı imza, `<img>`) |
+| **G6** | Birlikler (#7) · **onay durağı** | `units/*.webp` | `unit-art.tsx` (`UnitFigure` aynı imza, `<img>`) |
 | **G7** | Surlar, maden, yerleşimler, iskele, gemiler (#8, #9, #12) | `buildings/*`, `walls/*`, `ships/*` | `components/game/city/walls.ts`, `phaser-city.ts` |
 | **G8** | Adalar ve dünya haritası (#10, #11) | `islands/*` | `island-view.tsx`, `world-map.tsx` |
 | **G9** | Derin sayfalar (#13–#17) | `portraits/*`, `research/*`, `medals/*` | `gods-panel.tsx`, `research-art.tsx`, `profile-panel.tsx`, `battle-view.tsx` |
