@@ -17,14 +17,14 @@ export type DailyTask = { id: string; text: string; key: keyof Counters; need: n
 
 export const DAILY_TASKS: DailyTask[] = [
   { id: 'build2', text: '2 bina yükseltmesini tamamla', key: 'builds', need: 2, reward: { gold: 500, wood: 300 } },
-  { id: 'build4', text: '4 bina yükseltmesini tamamla', key: 'builds', need: 4, reward: { gold: 900, stone: 500 } },
+  { id: 'build4', text: '4 bina yükseltmesini tamamla', key: 'builds', need: 4, reward: { gold: 900, wood: 500 } },
   { id: 'train20', text: '20 birlik yetiştir', key: 'trained', need: 20, reward: { gold: 700 } },
   { id: 'research1', text: 'Bir araştırmayı tamamla', key: 'researched', need: 1, reward: { knowledge: 150, gold: 300 } },
   { id: 'donate500', text: 'Adaya 500 kereste bağışla (maden, orman ya da harika)', key: 'donated', need: 500, reward: { gold: 600 } },
   { id: 'raid1', text: 'Bir seferi zaferle bitir', key: 'raids', need: 1, reward: { gold: 800, wood: 400 } },
   { id: 'spy1', text: 'Bir casus görevi gönder', key: 'spies', need: 1, reward: { gold: 400 } },
   { id: 'piracy1', text: 'Bir korsan seferinde gemi ele geçir', key: 'piracy', need: 1, reward: { gold: 900 } },
-  { id: 'ship1', text: 'Şehirlerin arasında bir nakliye gönder', key: 'shipments', need: 1, reward: { wood: 500, stone: 300 } },
+  { id: 'ship1', text: 'Şehirlerin arasında bir nakliye gönder', key: 'shipments', need: 1, reward: { wood: 500, gold: 300 } },
 ]
 
 export const dayKey = (now: number) => new Date(now).toISOString().slice(0, 10)

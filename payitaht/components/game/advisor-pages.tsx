@@ -84,7 +84,7 @@ export function CityAdvisor({ empire, game, onCity, onBuilding, onCities, onBuil
     </Box>
     <Box title="Üretim">
       <div className="sk-list">
-        {([['gold', 'Akçe'], ['wood', 'Kereste'], ['stone', 'Taş'], ['knowledge', 'İlim']] as const).map(([k, l]) => {
+        {([['gold', 'Akçe'], ['wood', 'Kereste'], ['knowledge', 'İlim']] as const).map(([k, l]) => {
           const v = rates(game)[k], Icon = resourceIcons[k]
           return <StatRow key={k} icon={<Icon />} label={l} value={<>{formatRate(v, true)}<small> /dk</small></>} tone={v > 0 ? 'up' : v < 0 ? 'down' : 'idle'} />
         })}

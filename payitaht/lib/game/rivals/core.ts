@@ -199,13 +199,13 @@ export function rivalFleet(level: number, style: RivalStyle): Troops {
 export const rivalWallHp = (level: number) => level * 350
 export function rivalTreasury(level: number, style: RivalStyle) {
   const k = style === 'tuccar' ? 1.5 : 1
-  return { gold: Math.round(900 * level * k), wood: Math.round(800 * level * k), stone: Math.round(500 * level * k) }
+  return { gold: Math.round(900 * level * k), wood: Math.round(1300 * level * k) }
 }
 /** Yağmalanabilir hazine: %20'si korunur, yağmadan sonra 2 saatte dolar. */
 export function rivalLoot(empire: Empire, r: Rival, now: number) {
   const t = rivalTreasury(rivalLevel(empire, r, now), r.style)
   const fill = clamp((now - peek(empire, r.id).lootedAt) / (2 * HOUR), 0, 1)
-  return { gold: Math.floor(t.gold * 0.8 * fill), wood: Math.floor(t.wood * 0.8 * fill), stone: Math.floor(t.stone * 0.8 * fill) }
+  return { gold: Math.floor(t.gold * 0.8 * fill), wood: Math.floor(t.wood * 0.8 * fill) }
 }
 
 /* --------------------------------------------------------------- SIRALAMA */

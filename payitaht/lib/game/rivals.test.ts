@@ -20,7 +20,7 @@ function strong(): Empire {
   place(g, 'konut', 8); place(g, 'hamam', 6); place(g, 'kisla', 5); place(g, 'elcilik', 3); place(g, 'liman', 2); place(g, 'tersane', 3)
   g.citizens = undefined
   g.army.yeniceri = 80; g.army.okcu = 30; g.army.topcu = 6; g.army.casus = 4
-  g.resources = { gold: 20000, wood: 9000, stone: 9000, knowledge: 0 }
+  g.resources = { gold: 20000, wood: 9000, knowledge: 0 }
   return e
 }
 const kemer = 'r-kemer' // Sahil Adası'nda, seviye 2'den başlar

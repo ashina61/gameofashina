@@ -88,6 +88,6 @@ test('göç: yeni düzen kaydı olduğu gibi yeniden yüklenir (idempotent)', ()
   const parsed = parseSave(JSON.stringify(g))
   assert.deepEqual(parsed.placement, g.placement)
   // Kara başlangıç binaları sehir, hiçbiri liman değil.
-  const land: BuildingId[] = ['divan', 'konut', 'kereste', 'tas', 'ambar']
+  const land: BuildingId[] = ['divan', 'konut', 'kereste', 'ambar']
   for (const id of land) assert.equal(PLOTS[g.placement[id]!].zone, zoneOf(id))
 })

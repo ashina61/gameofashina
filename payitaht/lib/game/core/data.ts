@@ -42,7 +42,6 @@ export const BUILDINGS: Record<BuildingId, BuildingDef> = {
   divan: { name: 'Divanhane', category: 'YÖNETİM', description: 'Şehrinin kalbi. Yeni yapıları ve daha yüksek bina seviyelerini açar.', base: 100, art: true },
   konut: { name: 'Konaklar', category: 'HALK VE EKONOMİ', description: 'Yeni ailelere yuva, şehrine gelir. Her seviyede nüfus ve akçe üretimi artar.', base: 70, art: true },
   kereste: { name: 'Kereste Ocağı', category: 'ÜRETİM', description: 'Ormanların bereketini şehrine taşır. Her seviyede dakikada 120 kereste üretir.', base: 60, art: true },
-  tas: { name: 'Taş Ocağı', category: 'ÜRETİM', description: 'Ustalarının ihtiyacı olan sağlam taş. Her seviyede dakikada 90 taş üretir.', base: 70, art: true },
   ambar: { name: 'Ambar', category: 'DEPOLAMA', description: 'Emeğini güvenle sakla. Her seviye tüm kaynakların kapasitesine 1.500 ekler.', base: 90, art: true },
   medrese: { name: 'Medrese', category: 'BİLİM', description: 'Gelecek, bilgiyle kurulur. İlim üretir ve kalıcı bonuslar veren araştırmaları açar.', base: 120, art: true, needs: { id: 'divan', level: 2 } },
   carsi: { name: 'Çarşı', category: 'TİCARET', description: 'Esnafın sesi, şehrin bereketi. Çalışan her esnaf hazineye akçe taşır.', base: 110, art: true },
@@ -62,9 +61,9 @@ export const BUILDINGS: Record<BuildingId, BuildingDef> = {
   cami: { name: 'Cami', category: 'HALKIN HUZURU', description: 'Şehrin manevi merkezi. Her seviye huzuru 35 artırır ve ilim üretimine %2 katkı verir.', base: 180, art: true, needs: { id: 'divan', level: 3 } },
   muze: { name: 'Müze', category: 'HALKIN HUZURU', description: 'Eserlerin sergilendiği kültür yapısı. Her seviye huzuru 40 artırır.', base: 210, art: true, needs: { id: 'medrese', level: 2 } },
   marangoz: { name: 'Marangozhane', category: 'MALİYET', description: 'Kerestenin ustaca işlenmesi. Her seviye bina yapımındaki kereste maliyetini %1 azaltır.', base: 110, art: true, needs: { id: 'kereste', level: 2 } },
-  mimar: { name: 'Mimarbaşı Odası', category: 'MALİYET', description: 'Hassas plan, az taş. Her seviye bina yapımındaki taş maliyetini %1 azaltır.', base: 130, art: true, needs: { id: 'tas', level: 2 } },
+  mimar: { name: 'Mimarbaşı Odası', category: 'MALİYET', description: 'Hassas plan, az mermer. Her seviye bina yapımındaki mermer maliyetini %1 azaltır.', base: 130, art: true, needs: { id: 'divan', level: 4 } },
   ormanci: { name: 'Ormancı Evi', category: 'ÜRETİM', description: 'Fidanlık ve bakım. Her seviye kereste üretimini %2 artırır.', base: 100, art: true, needs: { id: 'kereste', level: 3 } },
-  tasci: { name: 'Taşçı Ustası', category: 'ÜRETİM', description: 'Usta taşçıların atölyesi. Her seviye taş ve (mermer adasında) mermer üretimini %2 artırır.', base: 110, art: true, needs: { id: 'tas', level: 3 } },
+  tasci: { name: 'Taşçı Ustası', category: 'ÜRETİM', description: 'Usta taşçıların atölyesi. Her seviye adadan çıkan mermeri %2 artırır (mermer adasında).', base: 110, art: true, needs: { id: 'divan', level: 3 } },
   bagci: { name: 'Kahve Fidanlığı', category: 'ÜRETİM', description: 'Kahve fidanlarının bakımı. Her seviye adadan çıkan kahveyi %2 artırır.', base: 100, art: true, tech: 'bagcilik' },
   simyahane: { name: 'Simyahane', category: 'ÜRETİM', description: 'Kükürdü arıtan simyacılar. Her seviye kükürt üretimini %2 artırır.', base: 120, art: true, tech: 'simya' },
   camci: { name: 'Camcı Atölyesi', category: 'ÜRETİM', description: 'Kristali işleyen ustalar. Her seviye kristal üretimini %2 artırır.', base: 120, art: true, tech: 'camcilik' },
@@ -89,8 +88,8 @@ export const BUILDING_EFFECTS = {
   kahvehaneContentment: 20, kahvehaneWineBonus: 35, kahvehaneWine: 3,
   camiContentment: 35, camiKnowledge: 0.02,
   muzeContentment: 40,
-  marangozWood: 0.01, mimarStone: 0.01,
-  ormanciWood: 0.02, tasciStone: 0.02,
+  marangozWood: 0.01, mimarMarble: 0.01,
+  ormanciWood: 0.02, tasciMarble: 0.02,
   tophanePower: 0.02,
   korsanLoot: 0.1,
   siginakSpies: 2, siginakSpySuccess: 0.03,
@@ -153,7 +152,8 @@ export type Unit = {
   /** Nakliyenin tasidigi mal; digerlerinde 0. */
   cargo: number
 }
-const R = (gold: number, wood: number, stone = 0): Resources => ({ gold, wood, stone, knowledge: 0 })
+/** Birlik bedeli. 0.42'den önceki taş payı keresteye eklenir (taş oyundan kalktı). */
+const R = (gold: number, wood: number, stone = 0): Resources => ({ gold, wood: wood + stone, knowledge: 0 })
 export const UNITS: Record<UnitId, Unit> = {
   // ÖN CEPHE
   mizrakci: { name: 'Mızrakçı', branch: 'kara', role: 'front', home: 'kisla', level: 1, description: 'Ucuz ve sağlam. Ön safı tutar, saldırısı zayıftır.', pop: 1, cost: R(40, 30), attack: 6, defense: 12, hp: 40, upkeep: 0.5, seconds: 8, cargo: 0 },
@@ -193,14 +193,14 @@ export const UNITS: Record<UnitId, Unit> = {
 }
 export const RESEARCH: Record<ResearchId, { branch: ResearchBranch; name: string; description: string; cost: number; duration: number; required: number; needs?: ResearchId }> = {
   // EKONOMİ
-  tools: { branch: 'ekonomi', name: 'Usta Elleri', description: 'Akçe, kereste, taş ve ilim üretimi kalıcı olarak %20 artar.', cost: 30, duration: 30, required: 1 },
+  tools: { branch: 'ekonomi', name: 'Usta Elleri', description: 'Akçe, kereste ve ilim üretimi kalıcı olarak %20 artar.', cost: 30, duration: 30, required: 1 },
   storage: { branch: 'ekonomi', name: 'Ambar Nizamı', description: 'Tüm kaynakların depolama kapasitesi kalıcı olarak %25 artar.', cost: 50, duration: 40, required: 1 },
   ticaret: { branch: 'ekonomi', name: 'Ticaret Yolları', description: 'Ticaret Limanı kapasitesi kalıcı olarak %30 artar; Ticaret Merkezi açılır.', cost: 110, duration: 55, required: 3, needs: 'storage' },
-  makara: { branch: 'ekonomi', name: 'Makara Düzeni', description: 'Yeni bina yükseltmelerinin kereste ve taş maliyeti %2 azalır.', cost: 24, duration: 25, required: 1 },
-  geometri: { branch: 'ekonomi', name: 'Hendese', description: 'Yeni bina yükseltmelerinin kereste ve taş maliyeti ek %4 azalır.', cost: 180, duration: 55, required: 3, needs: 'makara' },
-  su_terazisi: { branch: 'ekonomi', name: 'Su Terazisi', description: 'Yeni bina yükseltmelerinin kereste ve taş maliyeti ek %8 azalır.', cost: 900, duration: 105, required: 5, needs: 'geometri' },
+  makara: { branch: 'ekonomi', name: 'Makara Düzeni', description: 'Yeni bina yükseltmelerinin kereste ve mermer maliyeti %2 azalır.', cost: 24, duration: 25, required: 1 },
+  geometri: { branch: 'ekonomi', name: 'Hendese', description: 'Yeni bina yükseltmelerinin kereste ve mermer maliyeti ek %4 azalır.', cost: 180, duration: 55, required: 3, needs: 'makara' },
+  su_terazisi: { branch: 'ekonomi', name: 'Su Terazisi', description: 'Yeni bina yükseltmelerinin kereste ve mermer maliyeti ek %8 azalır.', cost: 900, duration: 105, required: 5, needs: 'geometri' },
   ormancilik: { branch: 'ekonomi', name: 'Ormancılık', description: 'Kereste Ocağı üretimi %15 artar.', cost: 130, duration: 55, required: 2, needs: 'tools' },
-  tascilik: { branch: 'ekonomi', name: 'Taş İşçiliği', description: 'Taş Ocağı üretimi %15 artar.', cost: 200, duration: 65, required: 3, needs: 'ormancilik' },
+  tascilik: { branch: 'ekonomi', name: 'Mermer İşçiliği', description: 'Ada madeninden çıkan mermer %15 artar.', cost: 200, duration: 65, required: 3, needs: 'ormancilik' },
   kent_planlama: { branch: 'ekonomi', name: 'Şehir Planlaması', description: 'Şehir nüfus barınma kapasitesi 40 artar.', cost: 420, duration: 85, required: 4, needs: 'storage' },
   ambar_teknigi: { branch: 'ekonomi', name: 'Geniş Ambarlar', description: 'Kaynak saklama kapasitesi ek %15 artar; Depo açılır.', cost: 480, duration: 95, required: 4, needs: 'storage' },
   // BİLİM

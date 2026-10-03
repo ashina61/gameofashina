@@ -10,7 +10,7 @@ function withTemple(level = 5): Game {
   const g = initialGame(now)
   g.buildings.mabet = level
   g.placement.mabet = freePlots(g, 'sehir')[0]
-  g.resources = { gold: 40_000, wood: 40_000, stone: 40_000, knowledge: 0 }
+  g.resources = { gold: 40_000, wood: 40_000, knowledge: 0 }
   return g
 }
 

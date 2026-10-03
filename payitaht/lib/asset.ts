@@ -35,7 +35,7 @@ export const BUILDING_ART_REV = '20260929-painted-coast-v1'
 export function isPaintedBuilding(id: string) {
   return id === 'divan' || id === 'cami' || id === 'saray' || id === 'konut'
     || id === 'kisla' || id === 'medrese' || id === 'carsi'
-    || id === 'kereste' || id === 'tas' || id === 'ambar'
+    || id === 'kereste' || id === 'ambar'
     || id === 'elcilik' || id === 'hamam' || id === 'kahvehane'
     || id === 'muze' || id === 'marangoz' || id === 'mimar'
     || id === 'ormanci' || id === 'tasci' || id === 'bagci'

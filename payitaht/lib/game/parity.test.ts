@@ -27,7 +27,7 @@ test('units cost upkeep every minute', () => {
 test('new buildings and units are locked behind research like Ikariam', () => {
   const g = initialGame(now)
   g.buildings.divan = 10; g.buildings.kisla = 5
-  g.resources = { gold: 1e6, wood: 1e6, stone: 1e6, knowledge: 0 }
+  g.resources = { gold: 1e6, wood: 1e6, knowledge: 0 }
   assert.match(buildReason(g, 'bagci')!, /Kahvecilik/)
   g.research.push('bagcilik')
   assert.equal(buildReason(g, 'bagci'), null)
@@ -37,7 +37,7 @@ test('new buildings and units are locked behind research like Ikariam', () => {
 test('palace only in the capital, governor residence only in colonies', () => {
   const g = initialGame(now)
   g.buildings.divan = 10
-  g.resources = { gold: 1e6, wood: 1e6, stone: 1e6, knowledge: 0 }
+  g.resources = { gold: 1e6, wood: 1e6, knowledge: 0 }
   assert.match(buildReason(g, 'valilik')!, /kolonilerde/)
   g.empire = { cities: 2, capital: false }
   assert.match(buildReason(g, 'saray')!, /başkentte/)

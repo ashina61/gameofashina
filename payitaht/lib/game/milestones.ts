@@ -18,17 +18,17 @@ const army = (g: Empire['cities'][number]['game']) => Object.values(g.army).redu
 
 export const MILESTONES: Milestone[] = [
   { id: 'divan10', title: 'Sancak merkezi', text: 'Bir Divanhane\'yi 10. seviyeye çıkar', need: 10, progress: e => maxOf(e, g => g.buildings.divan), reward: { gold: 3000, wood: 3000 } },
-  { id: 'colony2', title: 'Denizaşırı', text: 'İkinci şehrini kur', need: 2, progress: e => e.cities.length, reward: { gold: 4000, stone: 2000 } },
+  { id: 'colony2', title: 'Denizaşırı', text: 'İkinci şehrini kur', need: 2, progress: e => e.cities.length, reward: { gold: 4000, wood: 2000 } },
   { id: 'research15', title: 'İlim meclisi', text: '15 araştırmayı tamamla', need: 15, progress: e => maxOf(e, g => g.research.length), reward: { knowledge: 1500, gold: 2000 } },
   { id: 'army200', title: 'Ocak kuruldu', text: '200 asker ve gemiden oluşan bir ordu besle', need: 200, progress: e => sumOf(e, army), reward: { gold: 5000 } },
   { id: 'raids10', title: 'Akıncı beyi', text: '10 seferi zaferle bitir', need: 10, progress: e => e.stats?.raids ?? 0, reward: { gold: 6000, wood: 3000 } },
-  { id: 'walls10', title: 'Kale şehir', text: 'Surları 10. seviyeye çıkar', need: 10, progress: e => maxOf(e, g => g.buildings.surlar), reward: { stone: 6000 } },
+  { id: 'walls10', title: 'Kale şehir', text: 'Surları 10. seviyeye çıkar', need: 10, progress: e => maxOf(e, g => g.buildings.surlar), reward: { gold: 3000, wood: 3000 } },
   { id: 'pop2000', title: 'Kalabalık başkent', text: 'İmparatorluğunun nüfusu 2.000\'e ulaşsın', need: 2000, progress: e => sumOf(e, population), reward: { gold: 8000 } },
-  { id: 'divan15', title: 'Beylerbeyilik', text: 'Bir Divanhane\'yi 15. seviyeye çıkar', need: 15, progress: e => maxOf(e, g => g.buildings.divan), reward: { gold: 8000, wood: 8000, stone: 5000 } },
-  { id: 'colony4', title: 'Adalar sultanı', text: 'Dört şehre hükmet', need: 4, progress: e => e.cities.length, reward: { gold: 12000, stone: 6000 } },
+  { id: 'divan15', title: 'Beylerbeyilik', text: 'Bir Divanhane\'yi 15. seviyeye çıkar', need: 15, progress: e => maxOf(e, g => g.buildings.divan), reward: { gold: 10000, wood: 11000 } },
+  { id: 'colony4', title: 'Adalar sultanı', text: 'Dört şehre hükmet', need: 4, progress: e => e.cities.length, reward: { gold: 15000, wood: 3000 } },
   { id: 'saray5', title: 'Saray halkı', text: 'Sarayı 5. seviyeye çıkar', need: 5, progress: e => maxOf(e, g => g.buildings.saray), reward: { gold: 8000 } },
   { id: 'research40', title: 'Ulema', text: '40 araştırmayı tamamla', need: 40, progress: e => maxOf(e, g => g.research.length), reward: { knowledge: 5000, gold: 6000 } },
-  { id: 'divan20', title: 'Payitaht', text: 'Bir Divanhane\'yi 20. seviyeye çıkar', need: 20, progress: e => maxOf(e, g => g.buildings.divan), reward: { gold: 20000, wood: 20000, stone: 20000 } },
+  { id: 'divan20', title: 'Payitaht', text: 'Bir Divanhane\'yi 20. seviyeye çıkar', need: 20, progress: e => maxOf(e, g => g.buildings.divan), reward: { gold: 30000, wood: 30000 } },
 ]
 
 export const milestoneProgress = (e: Empire, m: Milestone) => Math.min(m.need, m.progress(e))

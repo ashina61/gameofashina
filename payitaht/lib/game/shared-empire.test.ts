@@ -15,7 +15,7 @@ function twoCities(): Empire {
   g.buildings.saray = 1; g.placement.saray = freePlots(g, 'sehir')[0]
   g.buildings.liman = 1; g.placement.liman = freePlots(g, 'liman')[0]
   g.army.nakliye = 3
-  g.resources.gold = 9000; g.resources.wood = 9000; g.resources.stone = 9000
+  g.resources.gold = 9000; g.resources.wood = 9000
   g.research.push('ticaret')
   g.future.ekonomi = 2
   g.upgrades = { yeniceri: { atk: 2, def: 1 } }

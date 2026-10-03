@@ -55,7 +55,7 @@ test('advanced buildings need marble, science buildings crystal', () => {
   g.buildings.medrese = 4
   assert.ok((luxuryCost(g, 'medrese').kristal ?? 0) > 0)
   g.buildings.divan = 10
-  g.resources = { gold: 1e6, wood: 1e6, stone: 1e6, knowledge: 0 }
+  g.resources = { gold: 1e6, wood: 1e6, knowledge: 0 }
   assert.match(buildReason(g, 'hamam')!, /Mermer/)
   g.luxury.mermer = 1e5
   assert.equal(buildReason(g, 'hamam'), null)
@@ -66,7 +66,7 @@ test('advanced buildings need marble, science buildings crystal', () => {
 test('heavy units need sulfur', () => {
   const g = initialGame(now)
   g.buildings.kisla = 3
-  g.resources = { gold: 1e5, wood: 1e5, stone: 1e5, knowledge: 0 }
+  g.resources = { gold: 1e5, wood: 1e5, knowledge: 0 }
   assert.deepEqual(unitLuxuryCost('mizrakci', 5), {})
   assert.deepEqual(unitLuxuryCost('yeniceri', 5), { kukurt: 30 })
   assert.deepEqual(unitLuxuryCost('asci', 2), { kahve: 60 })

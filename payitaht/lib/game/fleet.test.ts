@@ -10,7 +10,7 @@ function harbour() {
   const g = e.cities[0].game
   g.buildings.liman = 1
   g.placement.liman = freePlots(g, 'liman')[0]
-  g.resources = { gold: 20_000, wood: 5000, stone: 5000, knowledge: 0 }
+  g.resources = { gold: 20_000, wood: 5000, knowledge: 0 }
   return e
 }
 

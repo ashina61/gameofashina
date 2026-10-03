@@ -16,7 +16,7 @@ test('production uses elapsed time and never exceeds storage capacity', () => {
 test('insufficient resources and prerequisites prevent construction', () => {
   const g = initialGame(now)
   assert.match(execute(g, { type: 'build', id: 'medrese' }, now).error!, /Divanhane/)
-  g.resources = { gold: 0, wood: 0, stone: 0, knowledge: 0 }
+  g.resources = { gold: 0, wood: 0, knowledge: 0 }
   const result = execute(g, { type: 'build', id: 'divan' }, now)
   assert.match(result.error!, /kaynak/)
   assert.equal(result.game.queue.length, 0)
@@ -149,21 +149,21 @@ test('isci atamasi kapasite ve nufusla sinirlidir', () => {
   // Kapasite: seviye 1 x 20 isci.
   const over = execute(g, { type: 'workers', id: 'kereste', value: 999 }, now).game
   assert.equal(over.workers.kereste, WORKERS_PER_LEVEL)
-  // Nufus 120; tas ocagi da kapasitesine kadar alabilir.
-  const both = execute(over, { type: 'workers', id: 'tas', value: 999 }, now).game
-  assert.equal(both.workers.tas, WORKERS_PER_LEVEL)
+  // Nufus 120; carsi da kapasitesine kadar alabilir.
+  const both = execute({ ...over, buildings: { ...over.buildings, carsi: 1 } }, { type: 'workers', id: 'carsi', value: 999 }, now).game
+  assert.equal(both.workers.carsi, WORKERS_PER_LEVEL)
   assert.equal(idleWorkers(both), population(both) - 2 * WORKERS_PER_LEVEL)
 })
 
 test('nufus dolunca yeni atama bostaki halkla sinirlanir', () => {
   const g = initialGame(now)
   // Nufusu yapay olarak dusur: konutu sifirlamak yerine dogrudan kalabalik kur.
-  const crowded: typeof g = { ...g, buildings: { ...g.buildings, kereste: 5, tas: 5 } }
+  const crowded: typeof g = { ...g, buildings: { ...g.buildings, kereste: 5, carsi: 5 } }
   const all = execute(crowded, { type: 'workers', id: 'kereste', value: 999 }, now).game
   assert.equal(all.workers.kereste, 5 * WORKERS_PER_LEVEL)
-  const rest = execute(all, { type: 'workers', id: 'tas', value: 999 }, now).game
-  // Nufus 120, keresteye 100 gitti; tasa yalnizca 20 kalir.
-  assert.equal(rest.workers.tas, population(rest) - all.workers.kereste)
+  const rest = execute(all, { type: 'workers', id: 'carsi', value: 999 }, now).game
+  // Nufus 120, keresteye 100 gitti; carsiya yalnizca 20 kalir.
+  assert.equal(rest.workers.carsi, population(rest) - all.workers.kereste)
   assert.equal(idleWorkers(rest), 0)
 })
 
@@ -180,9 +180,9 @@ test('yeni yapi BOS bir arsaya oturur, ayni arsaya iki yapi girmez', () => {
   const g = initialGame(now)
   assert.equal(g.placement.medrese, null)
   const free = freePlots(g)
-  assert.equal(free.length, PLOTS.filter(p => plotOpen(g, p.index)).length - 5)
+  assert.equal(free.length, PLOTS.filter(p => plotOpen(g, p.index)).length - 4)
 
-  const rich = { ...g, buildings: { ...g.buildings, divan: 2 }, resources: { gold: 9e4, wood: 9e4, stone: 9e4, knowledge: 9e4 } }
+  const rich = { ...g, buildings: { ...g.buildings, divan: 2 }, resources: { gold: 9e4, wood: 9e4, knowledge: 9e4 } }
   const built = execute(rich, { type: 'build', id: 'medrese', plot: free[1] }, now)
   assert.equal(built.error, undefined)
   assert.equal(built.game.placement.medrese, free[1])
@@ -210,7 +210,7 @@ test('arsalar gecerli ve tekil; bolgeler tanimli', () => {
   // Hepsi dunya sinirlari icinde: kamera sinirindan tasan arsa erisilemez olurdu.
   assert.ok(PLOTS.every(s => toWorldX(s.x) > 0 && toWorldX(s.x) < WORLD && toWorldY(s.y) > 0 && toWorldY(s.y) < WORLD))
   const g = initialGame(now)
-  assert.equal(freePlots(g).length, PLOTS.filter(p => plotOpen(g, p.index)).length - 5)
+  assert.equal(freePlots(g).length, PLOTS.filter(p => plotOpen(g, p.index)).length - 4)
   assert.equal(freePlots(g, 'sehir').length + freePlots(g, 'liman').length, freePlots(g).length)
 })
 
@@ -218,7 +218,7 @@ test('surlar arsa kaplamaz', () => {
   const g = initialGame(now)
   g.buildings.divan = 3; g.buildings.kisla = 1
   g.placement.kisla = freePlots(g)[0]
-  g.resources = { gold: 99_000, wood: 99_000, stone: 99_000, knowledge: 0 }
+  g.resources = { gold: 99_000, wood: 99_000, knowledge: 0 }
   const before = freePlots(g).length
   const walls = execute(g, { type: 'build', id: 'surlar' }, now).game
   assert.equal(walls.placement.surlar, null)
@@ -232,7 +232,7 @@ test('yapi kendi bolgesine kurulur', () => {
   const g = initialGame(now)
   g.buildings.divan = 3; g.buildings.liman = 1
   g.placement.liman = quay.index
-  g.resources = { gold: 99_000, wood: 99_000, stone: 99_000, knowledge: 0 }
+  g.resources = { gold: 99_000, wood: 99_000, knowledge: 0 }
   const yamac = freePlots(g, 'sehir')[0]
   assert.match(execute(g, { type: 'build', id: 'tersane', plot: yamac }, now).error!, /iskele/)
   const built = execute(g, { type: 'build', id: 'tersane' }, now).game
@@ -244,12 +244,12 @@ test('yeni bina eklemek yalnizca katalog satiri ister', () => {
   // Her katalog satiri kendi kendine yeter: seviye, arsa ve isci turetilir.
   for (const id of BUILDING_IDS) {
     assert.equal(typeof BUILDINGS[id].name, 'string')
-    assert.equal(g.buildings[id], BUILDINGS[id].name && ['divan', 'konut', 'kereste', 'tas', 'ambar'].includes(id) ? 1 : 0)
+    assert.equal(g.buildings[id], BUILDINGS[id].name && ['divan', 'konut', 'kereste', 'ambar'].includes(id) ? 1 : 0)
     assert.ok(g.placement[id] === null || PLOTS[g.placement[id]!].zone === zoneOf(id))
   }
   // Yerlesimi olan her yapinin seviyesi de vardir ve tersi.
   const placed = BUILDING_IDS.filter(id => g.placement[id] !== null)
-  assert.deepEqual(placed.sort(), ['ambar', 'divan', 'kereste', 'konut', 'tas'])
+  assert.deepEqual(placed.sort(), ['ambar', 'divan', 'kereste', 'konut'])
 })
 
 test('v1 kaydi guncel surume tasinir: yerlesim, isciler ve sira turetilir', () => {
@@ -261,15 +261,18 @@ test('v1 kaydi guncel surume tasinir: yerlesim, isciler ve sira turetilir', () =
     log: [{ text: 'eski sehir', time: now }],
   }
   const g = parseSave(JSON.stringify(legacy))
-  // Goc ZINCIRLENIR: v1 -> v2 (yerlesim, isciler) -> v3 (insaat sirasi).
-  assert.equal(g.version, 3)
+  // Goc ZINCIRLENIR: v1 -> v2 (yerlesim, isciler) -> v3 (insaat sirasi) -> v4 (tas cikti).
+  assert.equal(g.version, 4)
   assert.deepEqual(g.queue, [])
   assert.equal(g.placement.divan, 0)
   // Kurulmamis yapi arsa tutmaz.
   assert.equal(g.placement.medrese, null)
   // Isciler kapasiteye kadar doldurulur; boylece uretim eski degeriyle ayni kalir.
   assert.equal(g.workers.kereste, Math.min(3 * WORKERS_PER_LEVEL, population(g)))
-  assert.equal(rates(g).stone, 90)
+  // v4: tas cikti; tas stogu ve Tas Ocagi akce/kereste olarak iade edilir.
+  assert.equal('tas' in g.buildings, false)
+  assert.equal(g.resources.gold, 100 + 100 + 200)
+  assert.equal(g.resources.wood, 100 + 150)
 })
 
 /*
@@ -352,9 +355,9 @@ test('dolu ambar bildirilir; dolmaya yakin olan ayri sayilir', () => {
   assert.deepEqual(fullResources(full), ['wood'])
   assert.deepEqual(nearlyFullResources(full), [])
 
-  const nearly = { ...g, resources: { ...g.resources, stone: limit * 0.95 } }
+  const nearly = { ...g, resources: { ...g.resources, gold: limit * 0.95 } }
   assert.deepEqual(fullResources(nearly), [])
-  assert.deepEqual(nearlyFullResources(nearly), ['stone'])
+  assert.deepEqual(nearlyFullResources(nearly), ['gold'])
 })
 
 test('dolu ambarda uretim GERCEKTEN bosa gider - uyarinin sebebi budur', () => {
@@ -371,9 +374,9 @@ test('dolu ambarda uretim GERCEKTEN bosa gider - uyarinin sebebi budur', () => {
  * ------------------------------------------------------------------------ */
 
 test('sirada bekleyen isin sayaci oncekinin bitisinde baslar', () => {
-  const rich = { ...initialGame(now), resources: { gold: 9e5, wood: 9e5, stone: 9e5, knowledge: 9e5 } }
+  const rich = { ...initialGame(now), resources: { gold: 9e5, wood: 9e5, knowledge: 9e5 } }
   const first = execute(rich, { type: 'build', id: 'kereste' }, now).game
-  const second = execute(first, { type: 'build', id: 'tas' }, now).game
+  const second = execute(first, { type: 'build', id: 'ambar' }, now).game
   assert.equal(second.queue.length, 2)
   // Ikinci is, birincinin bittigi anda baslar - ayni anda bitmezler.
   assert.equal(second.queue[1].start, second.queue[0].end)
@@ -381,32 +384,32 @@ test('sirada bekleyen isin sayaci oncekinin bitisinde baslar', () => {
 })
 
 test('sira sinirlidir ve ayni yapi iki kez giremez', () => {
-  let g = { ...initialGame(now), resources: { gold: 9e5, wood: 9e5, stone: 9e5, knowledge: 9e5 } }
+  let g = { ...initialGame(now), resources: { gold: 9e5, wood: 9e5, knowledge: 9e5 } }
   g = execute(g, { type: 'build', id: 'kereste' }, now).game
   // Ayni yapi ikinci kez reddedilir: fiyat o anki seviyeden hesaplandigi icin
   // iki seviye tek seviyenin fiyatina alinmis olurdu.
   assert.match(execute(g, { type: 'build', id: 'kereste' }, now).error ?? '', /sırasında/)
-  g = execute(g, { type: 'build', id: 'tas' }, now).game
+  g = execute(g, { type: 'build', id: 'divan' }, now).game
   g = execute(g, { type: 'build', id: 'konut' }, now).game
   assert.equal(g.queue.length, QUEUE_LIMIT)
   assert.match(execute(g, { type: 'build', id: 'ambar' }, now).error ?? '', /sıras[ıi] dolu/)
 })
 
 test('sira SIRAYLA tamamlanir; arada kalan is bekler', () => {
-  let g = { ...initialGame(now), resources: { gold: 9e5, wood: 9e5, stone: 9e5, knowledge: 9e5 } }
+  let g = { ...initialGame(now), resources: { gold: 9e5, wood: 9e5, knowledge: 9e5 } }
   g = execute(g, { type: 'build', id: 'kereste' }, now).game
-  g = execute(g, { type: 'build', id: 'tas' }, now).game
+  g = execute(g, { type: 'build', id: 'ambar' }, now).game
   const firstEnd = g.queue[0].end
 
   // Birincinin bitisinde yalnizca o tamamlanir.
   const mid = advance(g, firstEnd)
   assert.equal(mid.buildings.kereste, 2)
-  assert.equal(mid.buildings.tas, 1)
+  assert.equal(mid.buildings.ambar, 1)
   assert.equal(mid.queue.length, 1)
-  assert.equal(activeJob(mid)?.id, 'tas')
+  assert.equal(activeJob(mid)?.id, 'ambar')
 
   const done = advance(mid, mid.queue[0].end)
-  assert.equal(done.buildings.tas, 2)
+  assert.equal(done.buildings.ambar, 2)
   assert.equal(done.queue.length, 0)
 })
 
@@ -415,7 +418,7 @@ test('v2 kaydindaki devam eden insaat siraya donusur', () => {
   const legacy = { ...JSON.parse(JSON.stringify(g)), version: 2, construction: { id: 'kereste', kind: 'build', start: now, end: now + 30_000 } }
   delete (legacy as Record<string, unknown>).queue
   const parsed = parseSave(JSON.stringify(legacy))
-  assert.equal(parsed.version, 3)
+  assert.equal(parsed.version, 4)
   assert.equal(parsed.queue.length, 1)
   assert.equal(parsed.queue[0].id, 'kereste')
   assert.equal(parsed.queue[0].end, now + 30_000)
@@ -454,25 +457,24 @@ test('isci tavanini belirleyen sey barinma degil HUZURDUR', () => {
   // Konaklar 3: barinma 200. Huzur hala 120, cunku Hamam yok.
   const grown = {
     ...g,
-    buildings: { ...g.buildings, konut: 3, kereste: 5, tas: 5 },
-    workers: { ...g.workers, kereste: 0, tas: 0 },
+    buildings: { ...g.buildings, konut: 3, kereste: 5, carsi: 5 },
+    workers: { ...g.workers, kereste: 0, carsi: 0 },
   }
   assert.equal(housing(grown), 200)
   assert.equal(contentment(grown), 120)
 
   // Iki ocagin toplam kapasitesi 200; ama sehirde yalnizca 120 kisi var.
   let city = execute(grown, { type: 'workers', id: 'kereste', value: 999 }, now).game
-  city = execute(city, { type: 'workers', id: 'tas', value: 999 }, now).game
+  city = execute(city, { type: 'workers', id: 'carsi', value: 999 }, now).game
   assert.equal(city.workers.kereste, 100)
-  assert.equal(city.workers.tas, 20)
+  assert.equal(city.workers.carsi, 20)
   assert.equal(assignedWorkers(city), 120)
   assert.equal(idleWorkers(city), 0)
 
   // Hamam kurulunca huzur 180'e cikar ve bekleyen kapasite dolabilir.
   const bathed = { ...city, buildings: { ...city.buildings, hamam: 1 } }
-  const more = execute(bathed, { type: 'workers', id: 'tas', value: 999 }, now).game
-  assert.equal(more.workers.tas, 80)
-  assert.equal(rates(more).stone, 5 * 90 * (80 / 100))
+  const more = execute(bathed, { type: 'workers', id: 'carsi', value: 999 }, now).game
+  assert.equal(more.workers.carsi, 80)
 })
 
 test('INSAAT HALINDEKI yeni yapi kaydi bozmaz', () => {
@@ -481,7 +483,7 @@ test('INSAAT HALINDEKI yeni yapi kaydi bozmaz', () => {
    * ama seviyesi 0 kalir. Dogrulama bunu gecersiz sayarsa oyuncu ilk yeni
    * yapisini kurdugu anda sayfayi yenilediginde SEHRINI KAYBEDER.
    */
-  const g = { ...initialGame(now), buildings: { ...initialGame(now).buildings, divan: 2 }, resources: { gold: 9e5, wood: 9e5, stone: 9e5, knowledge: 9e5 } }
+  const g = { ...initialGame(now), buildings: { ...initialGame(now).buildings, divan: 2 }, resources: { gold: 9e5, wood: 9e5, knowledge: 9e5 } }
   const started = execute(g, { type: 'build', id: 'medrese' }, now).game
   assert.equal(started.buildings.medrese, 0)
   assert.notEqual(started.placement.medrese, null)
@@ -516,7 +518,7 @@ function withBarracks(base = initialGame(now)) {
   g.buildings.kisla = 3
   // Kurulu her yapinin bir arsasi olmali; kayit dogrulamasi bunu arar.
   g.placement.kisla = 5
-  g.resources = { gold: 20_000, wood: 20_000, stone: 20_000, knowledge: 0 }
+  g.resources = { gold: 20_000, wood: 20_000, knowledge: 0 }
   g.luxury.kukurt = 2000 // barutlu birlikler kükürt ister
   return g
 }
@@ -526,10 +528,10 @@ test('asker egitimi kisla ve bosta halk ister', () => {
   assert.match(execute(fresh, { type: 'recruit', id: 'yeniceri', count: 1 }, now).error!, /Kışla/)
   const g = withBarracks()
   // Butun halk uretimde: once isci cekilmeden asker alinamaz.
-  g.workers = { kereste: 20, tas: 20, medrese: 0, carsi: 0 }
+  g.workers = { kereste: 20, medrese: 0, carsi: 20 }
   const full = structuredClone(g)
   full.buildings.konut = 1
-  full.workers = { kereste: 20, tas: 20, medrese: 0, carsi: 0 }
+  full.workers = { kereste: 20, medrese: 0, carsi: 20 }
   const need = population(full) - assignedWorkers(full) + 1
   assert.match(execute(full, { type: 'recruit', id: 'yeniceri', count: need }, now).error!, /boşta vatandaş/)
 })
@@ -590,7 +592,7 @@ test('birlik ve bina on kosullari', () => {
   assert.match(recruitReason(g, 'nakliye', 1)!, /Ticaret Limanı/)
   assert.equal(recruitReason(g, 'yeniceri', 1), null)
   const city = initialGame(now)
-  city.resources = { gold: 99_000, wood: 99_000, stone: 99_000, knowledge: 0 }
+  city.resources = { gold: 99_000, wood: 99_000, knowledge: 0 }
   assert.match(buildReason(city, 'saray')!, /Divanhane 3/)
   assert.match(buildReason(city, 'tersane')!, /Ticaret Limanı 1/)
   assert.match(buildReason(city, 'surlar')!, /Kışla 1/)
@@ -656,7 +658,7 @@ test('zemin geometrisi: arsalar dolulugu bilir, sur yalnizca izgarada cizilir', 
   const g = initialGame(now)
   const bare = groundShapes(g)
   assert.equal(bare.pads.length, PLOTS.length)
-  assert.equal(bare.pads.filter(p => p.occupied).length, 5)
+  assert.equal(bare.pads.filter(p => p.occupied).length, 4)
   assert.equal(bare.walls, null)
 
   const thick = groundShapes({ ...g, buildings: { ...g.buildings, surlar: 5 } })
@@ -698,7 +700,7 @@ test('gorsel imza yalnizca GORUNEN degisiklikte degisir', () => {
   // Kaynaklar arttı ama sahnede degisen bir sey yok: sahne yeniden cizilmez.
   assert.ok(tick.resources.wood > g.resources.wood)
   assert.equal(visualSignature(tick), visualSignature(g))
-  const built = execute({ ...g, resources: { gold: 9e4, wood: 9e4, stone: 9e4, knowledge: 0 } },
+  const built = execute({ ...g, resources: { gold: 9e4, wood: 9e4, knowledge: 0 } },
     { type: 'build', id: 'divan' }, now).game
   assert.notEqual(visualSignature(built), visualSignature(g))
 })
@@ -752,7 +754,7 @@ test('bina yatayda aynalanir (flip); kayitta korunur', () => {
 test('liman ve tersane denizin kenarindaki iskeleye kurulur', () => {
   const g = initialGame(now)
   g.buildings.divan = 3
-  g.resources = { gold: 9e4, wood: 9e4, stone: 9e4, knowledge: 0 }
+  g.resources = { gold: 9e4, wood: 9e4, knowledge: 0 }
   // Denizin kenarinda kiyi (coast) iskeleleri var — yeni city-map'te 6 coast slotu.
   const quays = PLOTS.filter(s => s.zone === 'liman')
   assert.ok(quays.length >= 2, `en az 2 kiyi slotu olmali, bulundu ${quays.length}`)

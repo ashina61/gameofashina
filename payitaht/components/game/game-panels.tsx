@@ -43,7 +43,7 @@ export function BuildingDetails({ game, id, onBuild, onFlip, onMove }: { game: G
     <Hint>Fiyatlar mevcut araştırma indirimlerini içerir. Sonraki yükseltmelerin ücreti, o günkü teknolojine göre yeniden hesaplanır.</Hint>
     {forecast.map(item => <div key={item.level} className="building-forecast-row">
       <strong>Sv. {item.level}</strong>
-      <span>{item.price.gold.toLocaleString('tr-TR')} akçe · {item.price.wood.toLocaleString('tr-TR')} kereste · {item.price.stone.toLocaleString('tr-TR')} taş</span>
+      <span>{item.price.gold.toLocaleString('tr-TR')} akçe · {item.price.wood.toLocaleString('tr-TR')} kereste</span>
       <small>{Math.ceil(item.seconds / 60)} dk</small>
     </div>)}
   </section>}{queued > 0 && <p className="requirement"><KumSaatiArt className="size-4" />İnşaat sırasında {queued + 1}. sırada bekliyor.</p>}{reason && !active && queued < 0 && <p className="requirement"><LockKeyhole className="size-4" />{reason}</p>}{level > 0 && takesPlot(id) && <div className="building-tools">{b.art && <GameButton variant="outline" size="sm" onClick={() => onFlip(id)}><FlipHorizontal2 data-icon="inline-start" />{game.flips.includes(id) ? 'Yönü geri çevir' : 'Çevir'}</GameButton>}{id !== 'divan' && <GameButton variant="outline" size="sm" onClick={() => onMove(id)}><Move data-icon="inline-start" />Taşı</GameButton>}</div>}<GameButton size="lg" className="w-full" disabled={!!reason} onClick={() => onBuild(id)}><Hammer data-icon="inline-start" />{active ? 'İnşaat devam ediyor' : level >= max ? 'Tamamen geliştirildi' : level ? 'Binayı yükselt' : 'İnşaata başla'}</GameButton></div>
@@ -224,7 +224,7 @@ export function PlotPicker({ game, plot, onBuild }: { game: Game; plot: number; 
  * KUCUK oldugunda oyuncu secim yapmak zorunda kalir.
  */
 const PEOPLE_WORK: Record<WorkerId, { figure: Figure; res: Resource; unit: string; label: string }> = {
-  kereste: { figure: 'oduncu', res: 'wood', unit: 'kereste', label: 'Oduncu' }, tas: { figure: 'tasci', res: 'stone', unit: 'taş', label: 'Taşçı' },
+  kereste: { figure: 'oduncu', res: 'wood', unit: 'kereste', label: 'Oduncu' },
   medrese: { figure: 'alim', res: 'knowledge', unit: 'ilim', label: 'Âlim' }, carsi: { figure: 'esnaf', res: 'gold', unit: 'akçe', label: 'Esnaf' },
 }
 export function PeoplePanel({ game, onAssign }: { game: Game; onAssign: (id: WorkerId, value: number) => void }) {
@@ -415,7 +415,7 @@ export function ArmyPanel({ game, onRecruit, onBuild, home }: { game: Game; onRe
       <div><Swords className="size-5" /><span>Saldırı</span><strong>{land.attack}</strong></div>
     </div>
     <p className="army-note"><AkceArt className="size-4" />Ordunun bakımı dakikada {Math.round(armyUpkeep(game) * 10) / 10} akçe · aynı anda en fazla {actionPoints(game)} sefer (sefer hakkı).</p>
-    <p className="army-note"><TriangleAlert className="size-4" />Asker halktan çıkar. Eğitilen her vatandaş üretimden düşer; surlar ise asker istemez, taş ister ({wallDefense(game)} savunma).</p>
+    <p className="army-note"><TriangleAlert className="size-4" />Asker halktan çıkar. Eğitilen her vatandaş üretimden düşer; surlar ise asker istemez, akçe ve kereste ister ({wallDefense(game)} savunma).</p>
     <BattlefieldCard game={game} />
     <DrillQueue game={game} home={home} />
     {branches.map(branch => {
@@ -631,4 +631,4 @@ export function colonyBlocker(empire: Empire): string | null {
   return capital.buildings.saray < colonyPalaceLevel(empire) ? `Saray ${colonyPalaceLevel(empire)}. seviye gerekli`
     : capital.buildings.liman < 1 || idleMerchants(empire) < 3 ? 'Başkentte liman ve limanda boş 3 ticaret gemisi gerekli' : null
 }
-export const colonyCostText = `${COLONY_COST.gold} akçe, ${COLONY_COST.wood} kereste, ${COLONY_COST.stone} taş`
+export const colonyCostText = `${COLONY_COST.gold} akçe, ${COLONY_COST.wood} kereste`

@@ -589,42 +589,6 @@ def kereste(s, st):
     s.tree(1.82, 1.70, 0.78, 'pine')
 
 
-def tas(s, st):
-    """TAŞ OCAĞI: bina yerine teraslı açık ocak. Basamaklı kesim yüzeyi,
-    derrick vinç ve ön tarafta işlenmiş blok sahası."""
-    ground(s, 0.08, 0.08, 1.94, 1.94, hexc('#c4b48f'))
-    rock = hexc('#aaa08d')
-
-    # Arka köşede üç kademeli ocak yüzeyi; sahnedeki ana siluet doğal kaya.
-    s.blob(0.38, 0.34, 0.13, 0.46 + st * 0.025, rock, 'stone', squash=0.95)
-    s.blob(0.82, 0.30, 0.10, 0.38 + st * 0.02, hexc('#b8ad99'), 'stone', squash=0.92)
-    s.box(0.18, 0.56, 0, 1.16, 0.88, 0.20, hexc('#c9bda5'), 'stone',
-          deco_y=[('courses', 0.07)], deco_x=[('courses', 0.07)])
-    s.box(0.28, 0.88, 0, 1.08, 1.08, 0.12, hexc('#d2c6ae'), 'stone',
-          deco_y=[('courses', 0.06)], deco_x=[('courses', 0.06)])
-
-    # Kesim hattı: büyük bloklar öne doğru küçülür.
-    stone_blocks(s, 1.20, 0.52, 2 + st, 0.15, seed=14)
-    stone_blocks(s, 1.00, 1.16, 2 + st, 0.13, seed=19)
-    stone_blocks(s, 0.38, 1.40, 1 + st, 0.11, seed=23)
-
-    # Derrick/portal vinç ocağın imzası.
-    crane(s, 1.34, 0.82, 1.08 + 0.12 * st, 0.50, axis='y')
-
-    if st >= 2:
-        # Ustabaşı kulübesi çok küçük tutulur; 'ev' gibi görünmez.
-        s.box(1.52, 0.18, 0, 1.84, 0.54, 0.32, PAL['wood'], 'wood',
-              deco_y=[('vplanks', 4), ('door', 0.5, 0, 0.13, 0.23)],
-              deco_x=[('vplanks', 4)])
-        s.gable(1.49, 0.15, 1.87, 0.57, 0.32, 0.16, PAL['roof2'], axis='y',
-                wall=PAL['wood'], wallmat='wood', over=0.06)
-
-    if st >= 3:
-        # Blok taşıma kızağı.
-        s.box(1.02, 1.56, 0, 1.80, 1.72, 0.07, PAL['wood2'], 'wood', deco_top=[('vplanks', 7)])
-        stone_blocks(s, 1.18, 1.48, 3, 0.12, seed=31)
-
-
 def water_basin(s, x0, y0, x1, y1, z=0.02):
     """Liman havuzu: koyu deniz suyu ve üstünde açık dalga çizgileri."""
     s.flat([(x0, y0, z), (x1, y0, z), (x1, y1, z), (x0, y1, z)], hexc('#4d8fa3'), 'flat', key=-98)
@@ -2971,7 +2935,7 @@ def tersane_duz(s, st):
 
 BUILDINGS = {
     'divan': divan, 'saray': saray, 'elcilik': elcilik, 'konut': konut, 'hamam': hamam, 'carsi': carsi,
-    'ambar': ambar, 'kereste': kereste, 'tas': tas, 'medrese': medrese, 'kisla': kisla, 'liman': liman,
+    'ambar': ambar, 'kereste': kereste, 'medrese': medrese, 'kisla': kisla, 'liman': liman,
     'tersane': tersane, 'kahvehane': kahvehane, 'cami': cami, 'muze': muze, 'marangoz': marangoz,
     'mimar': mimar, 'ormanci': ormanci, 'tasci': tasci, 'tophane': tophane, 'surlar': surlar,
     'bagci': bagci, 'simyahane': simyahane, 'camci': camci, 'mahzen': mahzen, 'gozlukcu': gozlukcu,

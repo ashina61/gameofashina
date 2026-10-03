@@ -137,7 +137,7 @@ export function nextPlotDivan(g: Game) { return landPlotsOpen(g) >= LAND_PLOTS ?
  */
 export const MAX_LEVEL: Record<BuildingId, number> = {
   divan: 32, saray: 32, elcilik: 32, konut: 32, hamam: 32, carsi: 32, ambar: 32,
-  kereste: 32, tas: 32, medrese: 32, kisla: 32, surlar: 40, liman: 32, tersane: 32,
+  kereste: 32, medrese: 32, kisla: 32, surlar: 40, liman: 32, tersane: 32,
   kahvehane: 32, cami: 32, muze: 32, marangoz: 32, mimar: 32, ormanci: 32, tasci: 32, tophane: 32,
   bagci: 32, simyahane: 32, camci: 32, mahzen: 32, gozlukcu: 32, barutane: 32, depo: 32,
   ticaret_merkezi: 32, harita_arsivi: 32, valilik: 32, korsan_kalesi: 32, kara_pazar: 32, siginak: 32, tekke: 32, mabet: 32, karagoz: 32,
@@ -188,8 +188,7 @@ export function unitCost(id: UnitId, count: number, game?: Game): Resources {
   const c = UNITS[id].cost
   const factor = game?.research.includes('askeri_lojistik') ? .9 : 1
   return { gold: Math.floor(c.gold * count * factor),
-    wood: Math.floor(c.wood * count * factor),
-    stone: c.stone * count, knowledge: 0 }
+    wood: Math.floor(c.wood * count * factor), knowledge: 0 }
 }
 
 /** Bir egitim emrinin suresi, saniye. */

@@ -1,5 +1,5 @@
 /**
- * KAYNAK RESİMLERİ — akçe, kereste, taş, ilim, dört lüks mal, nüfus ve hamle
+ * KAYNAK RESİMLERİ — akçe, kereste, ilim, dört lüks mal, nüfus ve hamle
  * için küçük boyalı simgeler (Ikariam'daki kaynak resimleri gibi). Lucide
  * simgeleriyle aynı arayüzü taşırlar (className, aria-hidden...), böylece
  * bütün oyun tek yerden bu resimlere geçer.
@@ -34,18 +34,6 @@ export function KeresteArt(p: P) {
   </g>
   return <Svg {...p}>{log(17, 23, 0)}{log(27, 23, 1)}{log(22, 14.5, 2)}
     <path d="M7 20.5 h8 M12 12 h8" stroke="#c48a52" strokeWidth="1" strokeLinecap="round" />
-  </Svg>
-}
-
-/** Taş: kesme taş blokları. */
-export function TasArt(p: P) {
-  const block = (x: number, y: number, w: number, h: number, k: number) => <g key={k}>
-    <path d={`M${x} ${y} l${w} 0 l3 -3 l-${w} 0 Z`} fill="#e8dcc2" stroke={INK} strokeWidth="1" strokeLinejoin="round" />
-    <path d={`M${x + w} ${y} l3 -3 v${h} l-3 3 Z`} fill="#9d8c72" stroke={INK} strokeWidth="1" strokeLinejoin="round" />
-    <rect x={x} y={y} width={w} height={h} fill="#cdbb98" stroke={INK} strokeWidth="1" />
-  </g>
-  return <Svg {...p}>{block(3, 20, 12, 8, 0)}{block(15, 20, 12, 8, 1)}{block(9, 12, 12, 8, 2)}
-    <path d="M6 24 h4 M19 25 h5 M12 16 h5" stroke="#a8977a" strokeWidth="0.9" strokeLinecap="round" />
   </Svg>
 }
 

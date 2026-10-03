@@ -29,7 +29,7 @@ export function loginTimes(profile: Profile, day: number): number[] {
 }
 
 /** Öncelik: önce Divanhane (her şeyin kapısı), sonra ekonomi ve depolama. */
-const PRIORITY: BuildingId[] = ['divan', 'konut', 'kereste', 'tas', 'ambar', 'carsi', 'medrese', 'depo', 'hamam', 'kahvehane', 'saray', 'liman']
+const PRIORITY: BuildingId[] = ['divan', 'konut', 'kereste', 'ambar', 'carsi', 'medrese', 'depo', 'hamam', 'kahvehane', 'saray', 'liman']
 const order = (): BuildingId[] => [...PRIORITY, ...BUILDING_IDS.filter(id => !PRIORITY.includes(id))]
 
 export function botTurn(source: Game, now: number): Game {
@@ -42,13 +42,13 @@ export function botTurn(source: Game, now: number): Game {
   }
   // Boştaki halk: önce ada madeni (lüks mal), sonra üretim binaları.
   const run = (cmd: Parameters<typeof execute>[1]) => { const r = execute(g, cmd, now); if (!r.error) g = r.game; return !r.error }
-  // Dengeli dağıtım: önce hepsi boşaltılır, sonra taş, kereste, ilim ve çarşıya
+  // Dengeli dağıtım: önce hepsi boşaltılır, sonra kereste, ilim ve çarşıya
   // onar onar sırayla verilir; artan halk madene gider.
   for (const w of WORKER_IDS) run({ type: 'workers', id: w, value: 0 })
   run({ type: 'miners', value: 0 })
   for (let k = 0; k < 400; k++) {
     let moved = false
-    for (const w of ['tas', 'kereste', 'medrese', 'carsi'] as const) {
+    for (const w of ['kereste', 'medrese', 'carsi'] as const) {
       const before = g.workers[w]
       if (before < workerCapacity(g, w)) { run({ type: 'workers', id: w, value: before + 10 }); moved ||= g.workers[w] > before }
     }

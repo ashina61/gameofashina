@@ -97,7 +97,7 @@ Kingdoms'ın arayüz kalitesi. **Mevcut boyalı bina seti ölçüdür:** yeni
 | # | Grup | Bugün | Adet | Karar | Öncelik |
 |---|---|---|---|---|---|
 | 1 | Arayüz kiti: üst bar plakası, alt bar, sayfa çerçevesi (9-dilim), şerit başlık, düğme (altın/parşömen/kırmızı), sekme, çip, rozet, ilerleme çubuğu | CSS gradyan | ~15 parça | **Yeni boyalı kit** | A |
-| 2 | Kaynak ikonları: akçe, kereste, taş, ilim, üzüm, mermer, kristal, kükürt, nüfus, sefer hakkı, huzur, yolsuzluk | SVG | 12 | **Yeniden çiz** | A |
+| 2 | Kaynak ikonları: akçe, kereste, ilim, kahve, mermer, kristal, kükürt, nüfus, sefer hakkı, huzur, yolsuzluk (0.42: taş oyundan çıktı, üzüm → kahve) | SVG | 11 | **Yeniden çiz** | A |
 | 3 | Alt bar ikonları (Şehir, Ada, Harita, İttifak, Görevler) + sağ sütun (bayrak, liman, belediye, teklif) | SVG çizgi | 9 | **Yeniden çiz** (boyalı madalyon içinde) | A |
 | 4 | Danışman portreleri (şehir, ordu, ilim, diplomasi) | SVG çizgi film | 4 | **Yeniden çiz** | A |
 | 5 | Şehir zemini: çim, toprak yol, meydan taşı, kıyı, deniz, uzak dağ/tepe | düz prosedürel doku | ~10 doku + 1 arka plan | **Yeni boyalı zemin kiti** | A |
@@ -115,7 +115,7 @@ Kingdoms'ın arayüz kalitesi. **Mevcut boyalı bina seti ölçüdür:** yeni
 | 17 | Savaş meydanı arka planı (kara/deniz) | yok | 2 | **Yeni çiz** (eksik) | C |
 | 18 | Giriş ekranı: arka plan + "Payitaht Adaları" logo plakası (yazısız süs çerçevesi) | kolaj iyi | 2 | Kolaj **korunur**; arka plan ve logo süsü yenilenir | C |
 | 19 | Uygulama ikonu, açılış ekranı | basit SVG | 2 | **Yeniden çiz** | C |
-| 20 | Boyalı bina seti | iyi | 38 × 3 | **Korunur.** Yalnız stil sayfasıyla uyuşmayanlar yeniden (G10'da liste çıkar) | C |
+| 20 | Boyalı bina seti | iyi | 37 × 3 | **Korunur.** Yalnız stil sayfasıyla uyuşmayanlar yeniden (G10'da liste çıkar). 0.42 değişikliği: Taş Ocağı (`tas`) kaldırıldı, çizilmez; `bagci` artık **Kahve Fidanlığı**, `mahzen` **Kahve Kileri** — ikisi kahve temasıyla (fidan sıraları, çuval, kavurma ocağı / serin kiler, çuval yığını) yeniden çizilir; ada madeni `mine-kahve.webp` kahve bahçesi olur | C |
 | 21 | Armalar ve sancaklar (12 simge, renk seçilir) | SVG | — | **SVG kalır** (renk çalışma anında boyanıyor); yalnız boyalı kalkan çerçevesi eklenir | C |
 | 22 | 16 px altı küçük glifler (ok, artı, kapat, onay) | SVG | — | **SVG kalır** (küçük boyda boyalı ikon okunmaz) | — |
 

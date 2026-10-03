@@ -9,7 +9,7 @@ import type { Game } from './engine'
 export const SHOW_IDS = ['dram', 'komedi', 'kultur', 'tanrisal'] as const
 export type ShowId = typeof SHOW_IDS[number]
 export const SHOWS: Record<ShowId, { name: string; play: string; effect: (level: number) => string }> = {
-  dram: { name: 'Dram', play: 'Ferhat ile Şirin', effect: () => 'Kereste ve taş üretimi +%10' },
+  dram: { name: 'Dram', play: 'Ferhat ile Şirin', effect: () => 'Kereste üretimi +%10' },
   komedi: { name: 'Komedi', play: 'Kanlı Nigâr', effect: () => 'Lüks mal üretimi +%10' },
   kultur: { name: 'Kültür gösterisi', play: 'Karagöz\'ün Hamamı', effect: l => `Huzur +${showContentment(l)}` },
   tanrisal: { name: 'Tanrısal gösterim', play: 'Tahir ile Zühre', effect: l => `Hemen +${showFavor(l)} lütuf (Ongun Mabedi)` },

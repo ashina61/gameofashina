@@ -1,6 +1,6 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { BUILDING_EFFECTS, buildReason, contentment, cost, initialGame, parseSave, power, rates } from './engine'
+import { BUILDING_EFFECTS, buildReason, contentment, cost, initialGame, luxuryCost, parseSave, power, rates } from './engine'
 
 const now = 1_000_000
 
@@ -22,23 +22,24 @@ test('kahvehane pours wine for extra contentment and does not cost akçe', () =>
   assert.equal(rates(g).gold, gold)
 })
 
-test('marangoz and mimar cut wood and stone costs by 1% per level', () => {
+test('marangoz and mimar cut wood and marble costs by 1% per level', () => {
   const g = initialGame(now)
+  g.buildings.hamam = 6 // mermer 3. seviyeden sonra istenir
   const before = cost(g, 'hamam')
+  const marble = luxuryCost(g, 'hamam').mermer!
   g.buildings.marangoz = 10; g.buildings.mimar = 5
   const after = cost(g, 'hamam')
   assert.equal(after.gold, before.gold)
   assert.equal(after.wood, Math.round(before.gold * 1.2 * 0.9))
-  assert.equal(after.stone, Math.round(before.gold * 0.75 * 0.95))
+  assert.ok(luxuryCost(g, 'hamam').mermer! < marble)
 })
 
-test('ormancı and taşçı boost production by 2% per level', () => {
+test('ormancı boosts wood by 2% per level', () => {
   const g = initialGame(now)
   const before = rates(g)
-  g.buildings.ormanci = 5; g.buildings.tasci = 10
+  g.buildings.ormanci = 5
   const after = rates(g)
   assert.ok(Math.abs(after.wood - before.wood * 1.10) < 1e-9)
-  assert.ok(Math.abs(after.stone - before.stone * 1.20) < 1e-9)
 })
 
 test('tophane strengthens every unit', () => {

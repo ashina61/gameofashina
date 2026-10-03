@@ -154,7 +154,7 @@ test('barracks and shipyard train side by side', async () => {
   g.buildings.kisla = 1; g.placement.kisla = freePlots(g, 'sehir')[0]
   g.buildings.liman = 1; g.placement.liman = freePlots(g, 'liman')[0]
   g.buildings.tersane = 1; g.placement.tersane = freePlots(g, 'liman')[0]
-  g.resources = { gold: 50_000, wood: 50_000, stone: 50_000, knowledge: 0 }
+  g.resources = { gold: 50_000, wood: 50_000, knowledge: 0 }
   g.luxury.kukurt = 1000
   const a = execute(g, { type: 'recruit', id: 'yeniceri', count: 5 }, now).game
   const b = execute(a, { type: 'recruit', id: 'kadirga', count: 1 }, now)

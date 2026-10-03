@@ -4,7 +4,7 @@ import {
   LUXURY_IDS, LUXURY_NAMES, RESEARCH, RESEARCH_BRANCHES, RESOURCE_NAMES, type Game, type Luxury, type ResearchId, type TradeGood, type UnitId, TRADE_GOODS,
 } from './engine'
 
-/** Nakliyeyle taşınabilen her mal: akçe, kereste, taş ve lüks kaynaklar (ilim taşınmaz). */
+/** Nakliyeyle taşınabilen her mal: akçe, kereste ve lüks kaynaklar (ilim taşınmaz). */
 export type Cargo = TradeGood
 export const CARGO_IDS: readonly Cargo[] = TRADE_GOODS
 export const CARGO_NAMES = { ...RESOURCE_NAMES, ...LUXURY_NAMES } as Record<Cargo, string>
@@ -25,7 +25,7 @@ import { advanceWorld, parseWorld, type World } from './rivals'
 import { worldNews } from './ai'
 import { SEASONS, seasonChanges } from './events'
 import { advanceMissions, advanceSieges, advanceThreats, idleMerchants, siegeBlock, type Siege, merchantShipPrice, parseMissionState, shipCargo, totalMerchants, type Mission, type NpcState, type Report, type Threat } from './expeditions'
-export const COLONY_COST = { gold: 900, wood: 1200, stone: 450 } as const
+export const COLONY_COST = { gold: 1100, wood: 1500 } as const
 const COLONY_SHIPS = 3
 export const MAX_CITIES = 12
 const CITY_NAMES = ['Yeni Sahil', 'Akçaşehir', 'Yeni Liman', 'Yelkenhisar', 'Kervansaray', 'Yeni Hisar', 'Mavikent']
@@ -60,6 +60,8 @@ export const EMPIRE_SCHEMA = 2
  * İmparatorluk kaydı göçü (ham JSON üzerinde, şehirler ayrıştırılmadan önce):
  *   1 → 2 (0.42): lüks kaynak "uzum" (üzüm) → "kahve". Kimlik kayıtta yalnız
  *   lüks kaynak adı olarak geçer (stok, maden, nakliye, teklif, birlik bedeli).
+ * Aynı sürümde ilim nakliyeden, taş oyundan çıktı; yoldaki o mallar
+ * dropRemovedGoods ile sahibine döner (taş 1:1 akçe olarak).
  */
 function migrateEmpireRaw(raw: string, version: number | undefined): string {
   if (version === undefined || version < 2) raw = raw.replace(/"uzum"/g, '"kahve"')
@@ -118,6 +120,39 @@ export function islandOf(city: CityRecord) {
 const finite = (n: unknown) => typeof n === 'number' && Number.isFinite(n) && n >= 0
 
 /** Legacy single-city saves become an empire without modifying the saved city. */
+type Loose = { good?: string; resource?: string; amount?: number; left?: number; cityId?: string; from?: string }
+/**
+ * 0.42 öncesi kayıtlarda yolda kalan ilim ve taş: gemideki ilim çıktığı şehre,
+ * taş (sevkiyat, pazar teklifi, rakip teslimatı, ganimet) akçe olarak sahibine döner.
+ * Rakip önerilerindeki taş takası düşer. Eski mal yoksa hiçbir şeye dokunmaz.
+ */
+function dropRemovedGoods(obj: Empire, cities: CityRecord[]) {
+  const n = (x: unknown) => typeof x === 'number' && Number.isFinite(x) && x > 0 ? Math.floor(x) : 0
+  const give = (cityId: unknown, key: 'gold' | 'knowledge', amount: number) => {
+    const city = cities.find(c => c.id === cityId)
+    if (city && amount > 0) city.game.resources[key] += amount
+  }
+  obj.shipments = obj.shipments.filter(s => {
+    const r = (s as Loose | null)?.resource
+    if (r === 'knowledge') give(s.from, 'knowledge', n(s.amount))
+    else if (r === 'stone') give(s.from, 'gold', n(s.amount))
+    else return true
+    return false
+  })
+  const w = obj.world as unknown as { offers?: Loose[]; deliveries?: Loose[]; proposals?: { give?: Loose; want?: Loose }[] } | undefined
+  if (w && typeof w === 'object') {
+    if (Array.isArray(w.offers)) w.offers = w.offers.filter(o => o?.good !== 'stone' || (give(o.cityId, 'gold', n(o.left)), false))
+    if (Array.isArray(w.deliveries)) w.deliveries = w.deliveries.filter(d => d?.good !== 'stone' || (give(d.cityId, 'gold', n(d.amount)), false))
+    if (Array.isArray(w.proposals)) w.proposals = w.proposals.filter(p => p?.give?.good !== 'stone' && p?.want?.good !== 'stone')
+  }
+  for (const m of (obj.missions ?? []) as unknown as { loot?: Record<string, number> }[]) {
+    if (m?.loot && 'stone' in m.loot) {
+      m.loot.gold = (Number.isFinite(m.loot.gold) ? m.loot.gold : 0) + n(m.loot.stone)
+      delete m.loot.stone
+    }
+  }
+}
+
 export function parseEmpire(source: string): Empire {
   const first: unknown = JSON.parse(source)
   if (!first || typeof first !== 'object') throw new Error('Kayıt okunamadı.')
@@ -159,14 +194,7 @@ export function parseEmpire(source: string): Empire {
       (obj.capitalMovedAt !== undefined && !finite(obj.capitalMovedAt))) {
     throw new Error('Başkent kaydı okunamadı.')
   }
-  // 0.42'den önce ilim de gemiyle taşınabiliyordu: yoldaki ilim çıktığı şehre döner.
-  for (const s of obj.shipments) {
-    if (s && (s.resource as string) === 'knowledge') {
-      const from = cities.find(c => c.id === s.from)
-      if (from && Number.isFinite(s.amount) && s.amount > 0) from.game.resources.knowledge += s.amount
-    }
-  }
-  obj.shipments = obj.shipments.filter(s => !s || (s.resource as string) !== 'knowledge')
+  dropRemovedGoods(obj, cities)
   const shipments: Shipment[] = obj.shipments.map(s => {
     if (!s || typeof s.id !== 'string' || s.id.length > 80 || !ids.has(s.from) || !ids.has(s.to) ||
         s.from === s.to || !CARGO_IDS.includes(s.resource) ||
@@ -328,7 +356,7 @@ export function foundColony(source: Empire, islandId: IslandId, now: number):
   }
   for (const [resource, amount] of Object.entries(COLONY_COST) as [keyof typeof COLONY_COST, number][]) {
     if (capital.resources[resource] < amount) {
-      const resourceName = { gold: 'akçe', wood: 'kereste', stone: 'taş' }[resource]
+      const resourceName = { gold: 'akçe', wood: 'kereste' }[resource]
       return { empire, error: `Koloni için ${amount} ${resourceName} gerekli.` }
     }
   }
@@ -338,7 +366,7 @@ export function foundColony(source: Empire, islandId: IslandId, now: number):
   const city = initialGame(now)
   // A colony is a fully playable, independent city. It starts with a compact
   // settlement and provisions, not with copies of the capital's resources.
-  city.resources = { gold: 250, wood: 250, stone: 160, knowledge: 0 }
+  city.resources = { gold: 250, wood: 400, knowledge: 0 }
   // Araştırma, yönetim ve yükseltmeler imparatorluk geneli: syncShared başkentten kopyalar.
   city.army.nakliye = 0
   city.mine = { specialty: island.luxury, level: 1, wood: 0, miners: 0 }

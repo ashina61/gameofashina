@@ -59,7 +59,7 @@ test('colonies take their island wonder', () => {
   let e = initialEmpire(now)
   const cap = e.cities[0].game
   cap.buildings.saray = 1; cap.buildings.liman = 1; cap.army.nakliye = 3
-  cap.resources = { gold: 5000, wood: 5000, stone: 5000, knowledge: 0 }
+  cap.resources = { gold: 5000, wood: 5000, knowledge: 0 }
   e = foundColony(e, 'kizil', now).empire
   e = advanceEmpire(e, now + MIN)
   assert.equal(e.cities[0].game.temple.wonder, 'kalkan')

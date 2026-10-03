@@ -45,7 +45,6 @@ export function DivanOverview({ game, empire, run }: { game: Game; empire?: Empi
   const spec = game.mine.specialty
   const jobs: { fig: Figure; label: string; count: number; out: string; neg?: string }[] = [
     { fig: 'oduncu', label: 'Oduncu', count: game.workers.kereste + (game.forest?.workers ?? 0), out: `+${n(r.wood)} kereste` },
-    { fig: 'tasci', label: 'Taşçı', count: game.workers.tas, out: `+${n(r.stone)} taş` },
     { fig: 'madenci', label: 'Madenci', count: game.mine.miners, out: `+${formatRate(lux[spec])} ${LUXURY_NAMES[spec].toLocaleLowerCase('tr')}` },
     { fig: 'alim', label: 'Âlim', count: game.workers.medrese, out: `+${formatRate(r.knowledge)} ilim`, neg: `${formatRate(-scientistUpkeepPerMinute(game))} akçe` },
     { fig: 'esnaf', label: 'Esnaf', count: game.workers.carsi, out: 'çarşı akçesi' },

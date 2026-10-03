@@ -12,7 +12,7 @@ export type AwaySummary = {
   built: string[]
   researched: string[]
   trained: string[]
-  gained: { gold: number; wood: number; stone: number; knowledge: number }
+  gained: { gold: number; wood: number; knowledge: number }
   reports: { title: string; success: boolean }[]
   news: string[]
   /** Ambarı dolu kalan şehir var mı (üretim boşa gitti). */
@@ -30,7 +30,7 @@ export function awaySummary(before: Empire, after: Empire): AwaySummary | null {
   const ms = lastSeen(after) - since
   if (ms < AWAY_MIN_MS) return null
   const built: string[] = [], researched: string[] = [], trained: string[] = []
-  const gained = { gold: 0, wood: 0, stone: 0, knowledge: 0 }
+  const gained = { gold: 0, wood: 0, knowledge: 0 }
   for (const c of after.cities) {
     const old = before.cities.find(o => o.id === c.id)
     if (!old) continue
@@ -47,7 +47,7 @@ export function awaySummary(before: Empire, after: Empire): AwaySummary | null {
   const reports = (after.reports ?? []).filter(r => r.time > since && !(before.reports ?? []).some(o => o.id === r.id))
     .map(r => ({ title: r.title, success: r.success }))
   const news = (after.world?.news ?? []).filter(n => n.time > since && !(before.world?.news ?? []).some(o => o.id === n.id)).map(n => n.text)
-  const full = after.cities.some(c => (['gold', 'wood', 'stone'] as const).some(k => c.game.resources[k] >= capacity(c.game) - 1))
+  const full = after.cities.some(c => (['gold', 'wood'] as const).some(k => c.game.resources[k] >= capacity(c.game) - 1))
   const cap = Math.min(...after.cities.map(c => offlineCapHours(c.game)))
   const cappedHours = ms > cap * 3600_000 ? cap : undefined
   return { minutes: Math.round(ms / 60_000), built, researched, trained, gained, reports: reports.slice(0, 6), news: [...new Set(news)].slice(0, 5), full, cappedHours }

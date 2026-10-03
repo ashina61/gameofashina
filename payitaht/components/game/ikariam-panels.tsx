@@ -153,7 +153,7 @@ export function UpgradePanel({ game, onCommand }: { game: Game; onCommand: (c: C
 
 /** GELECEK ARAŞTIRMALARI: bir dalın bütün araştırmaları bitince tekrar tekrar ilerler. */
 const FUTURE_EFFECT: Record<string, (l: number) => string> = {
-  ekonomi: l => `Akçe, kereste ve taş +%${2 * l}`,
+  ekonomi: l => `Akçe ve kereste +%${2 * l}`,
   bilim: l => `İlim +%${3 * l}`,
   askeri: l => `Birlik gücü +%${2 * l}`,
   denizcilik: l => `Yolculuk -%${Math.min(30, 3 * l)}`,

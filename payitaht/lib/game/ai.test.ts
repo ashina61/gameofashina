@@ -15,7 +15,7 @@ function live(pace: 'normal' | 'hareketli', hours: number): Empire {
 function withProposal(p: Omit<Proposal, 'time' | 'until'>): Empire {
   const e = advanceEmpire(initialEmpire(now), now)
   const g = e.cities[0].game
-  g.resources = { gold: 5000, wood: 3000, stone: 3000, knowledge: 0 }
+  g.resources = { gold: 5000, wood: 3000, knowledge: 0 }
   g.buildings.liman = 1; g.buildings.elcilik = 1; g.army.nakliye = 3
   world(e).proposals = [{ ...p, time: now, until: now + 8 * HOUR }]
   return e

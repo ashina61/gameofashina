@@ -6,7 +6,7 @@ import { Meter } from './stat-kit'
 import { Hint } from './hint'
 import { Hammer, Check, ArrowUpRight, Sparkles, TriangleAlert, Landmark, Swords, Handshake, LockKeyhole, Pickaxe } from './ui-art'
 import type { ComponentType, SVGProps } from 'react'
-import { AkceArt, IlimArt, KeresteArt, KristalArt, KukurtArt, MermerArt, TasArt, KahveArt } from './resource-art'
+import { AkceArt, IlimArt, KeresteArt, KristalArt, KukurtArt, MermerArt, KahveArt } from './resource-art'
 import { Progress } from '@/components/ui/progress'
 import { cn } from '@/lib/utils'
 import { GameButton } from './game-button'
@@ -14,7 +14,7 @@ import { LUXURY_IDS, LUXURY_NAMES, luxuryRates, type Luxury, type LuxuryStock } 
 import { BUILDINGS, RESEARCH, RESOURCE_IDS, RESOURCE_NAMES, OBJECTIVES, activeJob, rates, capacity, fullResources, nearlyFullResources, formatNumber, formatRate, population, soldiers, timeLeft, objectiveDone, type Game, type Resource, type Job, type BuildingId, type ResearchId } from '@/lib/game/engine'
 
 type ArtIcon = ComponentType<SVGProps<SVGSVGElement>>
-export const resourceIcons: Record<Resource, ArtIcon> = { gold: AkceArt, wood: KeresteArt, stone: TasArt, knowledge: IlimArt }
+export const resourceIcons: Record<Resource, ArtIcon> = { gold: AkceArt, wood: KeresteArt, knowledge: IlimArt }
 export const luxuryIcons: Record<Luxury, ArtIcon> = { kahve: KahveArt, mermer: MermerArt, kristal: KristalArt, kukurt: KukurtArt }
 export function ResourceBar({ game, onSelect }: { game: Game; onSelect: () => void }) {
   const production = rates(game)

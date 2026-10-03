@@ -57,10 +57,6 @@ export function effectLines(game: Game, id: BuildingId, level: number): EffectLi
       { label: 'Oduncu yeri', value: `${level * WORKERS_PER_LEVEL} kişi` },
       { label: 'Tam kadroda kereste', value: `+${num(level * 120)}/dk` },
     ]
-    case 'tas': return [
-      { label: 'Taşçı yeri', value: `${level * WORKERS_PER_LEVEL} kişi` },
-      { label: 'Tam kadroda taş', value: `+${num(level * 90)}/dk` },
-    ]
     case 'medrese': return [
       { label: 'Âlim yeri', value: `${level * WORKERS_PER_LEVEL} kişi` },
       { label: 'Tam kadroda ilim', value: `+${num(level * 8)}/dk` },
@@ -89,9 +85,9 @@ export function effectLines(game: Game, id: BuildingId, level: number): EffectLi
     ]
     case 'muze': return [{ label: 'Huzur', value: `+${num(level * E.muzeContentment)}` }]
     case 'marangoz': return [{ label: 'Kereste maliyeti', value: `-${pct(level * E.marangozWood)}` }]
-    case 'mimar': return [{ label: 'Taş ve mermer maliyeti', value: `-${pct(level * E.mimarStone)}` }]
+    case 'mimar': return [{ label: 'Mermer maliyeti', value: `-${pct(level * E.mimarMarble)}` }]
     case 'ormanci': return [{ label: 'Kereste üretimi', value: `+${pct(level * E.ormanciWood)}` }]
-    case 'tasci': return [{ label: 'Taş ve mermer üretimi', value: `+${pct(level * E.tasciStone)}` }]
+    case 'tasci': return [{ label: 'Mermer üretimi', value: `+${pct(level * E.tasciMarble)}` }]
     case 'tophane': return [{ label: 'Birlik saldırı ve savunması', value: `+${pct(level * E.tophanePower)}` }]
     case 'bagci': return [{ label: 'Kahve üretimi', value: `+${pct(level * E.bagciWine)}` }]
     case 'simyahane': return [{ label: 'Kükürt üretimi', value: `+${pct(level * E.simyaSulfur)}` }]

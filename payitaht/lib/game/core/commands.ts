@@ -38,7 +38,7 @@ export type Command =
   | { type: 'patron'; guild: GuildId }
   /** Ongun Mabedi: hami tanrı seç, sunu adak, kudret çağır. */
   | { type: 'god'; god: GodId }
-  | { type: 'offering'; good: 'gold' | 'wood' | 'stone' | Luxury; amount: number }
+  | { type: 'offering'; good: 'gold' | 'wood' | Luxury; amount: number }
   | { type: 'invoke' }
   | { type: 'show'; show: ShowId }
   /** Tophane'de bir birliğin saldırısını ya da zırhını yükselt. */
@@ -229,14 +229,14 @@ export function execute(source: Game, command: Command, now: number): { game: Ga
   } else if (command.type === 'offering') {
     if (g.buildings.mabet < 1) return { game: g, error: 'Önce Ongun Mabedi kur.' }
     const lux = (LUXURY_IDS as readonly string[]).includes(command.good)
-    const have = lux ? g.luxury[command.good as Luxury] : (command.good === 'gold' || command.good === 'wood' || command.good === 'stone') ? g.resources[command.good] : -1
+    const have = lux ? g.luxury[command.good as Luxury] : (command.good === 'gold' || command.good === 'wood') ? g.resources[command.good] : -1
     if (have < 0) return { game: g, error: 'Bu mal sunulamaz.' }
-    const rate = lux ? OFFER_RATE.luxury : OFFER_RATE[command.good as 'gold' | 'wood' | 'stone']
+    const rate = lux ? OFFER_RATE.luxury : OFFER_RATE[command.good as 'gold' | 'wood']
     const room = Math.max(0, lutufCap(g) - g.gods.lutuf)
     const amount = Math.floor(Math.min(command.amount, have, room * rate))
     if (!Number.isFinite(amount) || amount < rate) return { game: g, error: room < 1 ? 'Mabet lütufla dolu.' : 'Sunu için yeterli mal yok.' }
     if (lux) g.luxury[command.good as Luxury] -= amount
-    else g.resources[command.good as 'gold' | 'wood' | 'stone'] -= amount
+    else g.resources[command.good as 'gold' | 'wood'] -= amount
     g.gods.lutuf += amount / rate
   } else if (command.type === 'show') {
     const lv = g.buildings.karagoz

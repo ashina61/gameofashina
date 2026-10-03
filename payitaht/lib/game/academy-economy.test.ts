@@ -29,7 +29,6 @@ test('old first-build costs and first two upgrade timers remain compatible', () 
     const price = cost(projected, id)
     assert.equal(price.gold, BUILDING_GROWTH[id] ** 0 * Math.round(price.gold))
     assert.equal(price.wood, Math.round(price.gold * 1.2))
-    assert.equal(price.stone, Math.round(price.gold * .75))
   }
   g.buildings.divan = 1
   assert.equal(duration(g, 'divan'), 30)
@@ -49,8 +48,7 @@ test('different building upgrade curves and construction researches reduce only 
   const after = cost(g, 'divan')
   assert.equal(after.gold, before.gold)
   assert.equal(after.wood, Math.round(before.gold * 1.2 * .86))
-  assert.equal(after.stone, Math.round(before.gold * .75 * .86))
-  assert.ok(after.wood < before.wood && after.stone < before.stone)
+  assert.ok(after.wood < before.wood)
 })
 
 test('academy scientist staffing generates knowledge and deducts upkeep without negative gold', () => {
