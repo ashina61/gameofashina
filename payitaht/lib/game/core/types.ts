@@ -23,6 +23,12 @@ export const LUXURY_NAMES: Record<Luxury, string> = { uzum: 'Üzüm', mermer: 'M
 export type IslandMine = { specialty: Luxury; level: number; wood: number; miners: number }
 /** Ana ya da lüks kaynak (Kara Pazar, nakliye). */
 export type Good = Resource | Luxury
+/**
+ * Elle tutulabilen mallar: gemiyle taşınır, Kara Pazar'da takas edilir.
+ * İlim bir bilgi birikimidir, mal değildir: taşınmaz, satılmaz.
+ */
+export type TradeGood = Exclude<Good, 'knowledge'>
+export const TRADE_GOODS: readonly TradeGood[] = [...RESOURCE_IDS.filter((r): r is Exclude<Resource, 'knowledge'> => r !== 'knowledge'), ...LUXURY_IDS]
 
 /**
  * HARİKALAR VE MUCİZELER (Ikariam'ın ada harikaları ve tapınağı).
@@ -225,7 +231,11 @@ export type Game = {
    * İmparatorluk bilgisi (empire.ts her ilerlemede yazar): toplam şehir
    * sayısı ve bu şehir başkent mi. Tek şehirli oyunda yoktur = başkent.
    */
-  empire?: { cities: number; capital: boolean }
+  empire?: {
+    cities: number; capital: boolean
+    /** Başka şehirlerde süren araştırmalar: aynı araştırma iki şehirde birden yapılmaz. */
+    studying?: ResearchId[]
+  }
   claimed: string[]; log: { text: string; time: number }[]
 }
 

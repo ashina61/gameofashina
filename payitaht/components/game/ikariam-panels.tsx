@@ -15,7 +15,7 @@ import { WorkforceSlider } from './workforce'
 import { GameButton } from './game-button'
 import { UnitFigure } from './unit-art'
 import {
-  FAITH_CAP, GOOD_NAMES, LUXURY_IDS, MIRACLES, MIRACLE_COOLDOWN_MS, RESEARCH, RESEARCH_BRANCHES, RESEARCH_IDS, RESOURCE_IDS, UNITS,
+  FAITH_CAP, GOOD_NAMES, MIRACLES, MIRACLE_COOLDOWN_MS, RESEARCH, RESEARCH_BRANCHES, RESEARCH_IDS, TRADE_GOODS, UNITS,
   UNIT_IDS, WONDER_MAX, exchangeLimit, exchangeRate, futureCost, futureReason, goodAmount, idleWorkers, miracleCost, miracleMinutes,
   priestCapacity, upgradeCap, upgradeCost, upgradeReason, wonderCost, travelFactor,
   type Command, type Game, type Good, type UnitId, formatRate,
@@ -179,7 +179,7 @@ export function FuturePanel({ game, onCommand }: { game: Game; onCommand: (c: Co
 }
 
 /** KARA PAZAR: her malı başka bir mala zararına çevirir. */
-const GOODS: Good[] = [...RESOURCE_IDS.filter(r => r !== 'knowledge'), ...LUXURY_IDS]
+const GOODS: Good[] = [...TRADE_GOODS]
 export function ExchangePanel({ game, onCommand }: { game: Game; onCommand: (c: Command) => void }) {
   const [from, setFrom] = useState<Good>('wood')
   const [to, setTo] = useState<Good>('kristal')

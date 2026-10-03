@@ -2,7 +2,7 @@ import { SHOWS, SHOW_IDS, emptyShows, showLength, showCooldownMs, showFavor, typ
 import { GODS, GOD_IDS, OFFER_RATE, patronChangeMs, powerRestMs, lutufCap, type GodId } from '../gods'
 import { GUILDS, GUILD_IDS, GUILD_MAX, PATRON_COOLDOWN_MS, devotionFor, guildLevel, patronSlots, type GuildId } from '../guilds'
 import { isRoadCell } from '../layout'
-import { ANARCHY_MS, BUILDING_IDS, type BuildingId, COAST_FACING_IDS, type CoastBuildingId, type CoastFacing, FOREST_MAX_LEVEL, GOVERNMENTS, GOVERNMENT_COOLDOWN_MS, GOVERNMENT_IDS, type Game, type Good, type GovernmentId, LUXURY_IDS, LUXURY_NAMES, type Luxury, MIRACLES, MIRACLE_COOLDOWN_MS, RESEARCH_BRANCHES, RESOURCE_IDS, type ResearchBranch, type ResearchId, WONDER_MAX, WORKER_IDS, type WorkerId, forestUpgradeCost, governmentCost, miracleCost, miracleMinutes, takesPlot, wonderCost, zoneOf } from './types'
+import { ANARCHY_MS, BUILDING_IDS, type BuildingId, COAST_FACING_IDS, type CoastBuildingId, type CoastFacing, FOREST_MAX_LEVEL, GOVERNMENTS, GOVERNMENT_COOLDOWN_MS, GOVERNMENT_IDS, type Game, type Good, type GovernmentId, LUXURY_IDS, LUXURY_NAMES, type Luxury, MIRACLES, MIRACLE_COOLDOWN_MS, RESEARCH_BRANCHES, RESOURCE_IDS, type ResearchBranch, TRADE_GOODS, type ResearchId, WONDER_MAX, WORKER_IDS, type WorkerId, forestUpgradeCost, governmentCost, miracleCost, miracleMinutes, takesPlot, wonderCost, zoneOf } from './types'
 import { BUILDINGS, OBJECTIVES, RESEARCH, UNITS, type UnitId } from './data'
 import { GOOD_NAMES, MINE_MAX_LEVEL, addGood, capacity, clampForest, clampMiners, clampPriests, clampWorkers, cost, drillsAt, duration, exchangeLimit, exchangeRate, futureCost, futureReason, goodAmount, logEvent, luxuryCost, maxPopulation, merchantBuyPrice, merchantLimit, merchantSellPrice, mineUpgradeCost, payLuxury, population, rates, soldiers, unitLuxuryCost, upgradeCost, upgradeReason, workerCapacity } from './economy'
 import { advance, buildReason, freePlots, objectiveDone, recruitReason, researchReason, unitCost, unitDuration } from './rules'
@@ -349,7 +349,7 @@ export function execute(source: Game, command: Command, now: number): { game: Ga
     logEvent(g, `Medrese deneyleri: ${batches * 100} kristal → ${batches * 150} ilim.`, now)
   } else if (command.type === 'exchange') {
     const amount = Math.floor(command.amount)
-    const goods = [...RESOURCE_IDS, ...LUXURY_IDS] as Good[]
+    const goods = TRADE_GOODS as readonly Good[]
     if (!goods.includes(command.from) || !goods.includes(command.to) || command.from === command.to || !Number.isSafeInteger(amount) || amount <= 0) {
       return { game: g, error: 'Geçersiz takas.' }
     }

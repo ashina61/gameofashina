@@ -1,13 +1,13 @@
 import { parseProfile, type Profile } from './profile'
 import {
   advance, actionPoints, capacity, freePlots, logEvent, initialGame, parseSave, NEWER_SAVE, tradeCapacity, travelFactor, loadingSpeed,
-  LUXURY_IDS, LUXURY_NAMES, RESOURCE_IDS, RESOURCE_NAMES, type Game, type Luxury, type Resource,
+  LUXURY_IDS, LUXURY_NAMES, RESEARCH, RESEARCH_BRANCHES, RESOURCE_NAMES, type Game, type Luxury, type ResearchId, type TradeGood, type UnitId, TRADE_GOODS,
 } from './engine'
 
-/** Nakliyeyle taşınabilen her mal: ana kaynaklar + lüks kaynaklar. */
-export type Cargo = Resource | Luxury
-export const CARGO_IDS: readonly Cargo[] = [...RESOURCE_IDS, ...LUXURY_IDS]
-export const CARGO_NAMES: Record<Cargo, string> = { ...RESOURCE_NAMES, ...LUXURY_NAMES }
+/** Nakliyeyle taşınabilen her mal: akçe, kereste, taş ve lüks kaynaklar (ilim taşınmaz). */
+export type Cargo = TradeGood
+export const CARGO_IDS: readonly Cargo[] = TRADE_GOODS
+export const CARGO_NAMES = { ...RESOURCE_NAMES, ...LUXURY_NAMES } as Record<Cargo, string>
 const isLuxury = (c: Cargo): c is Luxury => (LUXURY_IDS as readonly string[]).includes(c)
 function stock(g: Game, c: Cargo) { return isLuxury(c) ? g.luxury[c] : g.resources[c] }
 function addStock(g: Game, c: Cargo, n: number) { if (isLuxury(c)) g.luxury[c] += n; else g.resources[c] += n }
@@ -147,6 +147,14 @@ export function parseEmpire(raw: string): Empire {
       (obj.capitalMovedAt !== undefined && !finite(obj.capitalMovedAt))) {
     throw new Error('Başkent kaydı okunamadı.')
   }
+  // 0.42'den önce ilim de gemiyle taşınabiliyordu: yoldaki ilim çıktığı şehre döner.
+  for (const s of obj.shipments) {
+    if (s && (s.resource as string) === 'knowledge') {
+      const from = cities.find(c => c.id === s.from)
+      if (from && Number.isFinite(s.amount) && s.amount > 0) from.game.resources.knowledge += s.amount
+    }
+  }
+  obj.shipments = obj.shipments.filter(s => !s || (s.resource as string) !== 'knowledge')
   const shipments: Shipment[] = obj.shipments.map(s => {
     if (!s || typeof s.id !== 'string' || s.id.length > 80 || !ids.has(s.from) || !ids.has(s.to) ||
         s.from === s.to || !CARGO_IDS.includes(s.resource) ||
@@ -190,6 +198,45 @@ export function renameCity(source: Empire, cityId: string, name: string, now: nu
   return { empire }
 }
 
+/**
+ * İMPARATORLUK GENELİ (Ikariam gibi): araştırmalar, "Gelecek" seviyeleri,
+ * yönetim biçimi ve Tophane yükseltmeleri bütün şehirlerde ortaktır. Kayıtta
+ * her şehir kendi kopyasını taşır (kayıt biçimi değişmez); bu işlev onları
+ * her ilerlemede ve her komuttan sonra birleştirir:
+ *   - araştırma: herhangi bir şehirde biten her şehirde bitmiş sayılır;
+ *     başka şehirde biten bir araştırma burada sürüyorsa iptal edilip ilimi iade edilir,
+ *   - Gelecek seviyesi ve Tophane yükseltmesi: en yüksek olan geçerli,
+ *   - yönetim biçimi: en son değiştirilen geçerli (kargaşa süresiyle birlikte).
+ */
+export function syncShared(empire: Empire, now: number) {
+  const cities = empire.cities
+  const research: ResearchId[] = []
+  for (const c of cities) for (const id of c.game.research) if (!research.includes(id)) research.push(id)
+  const future = { ...cities[0].game.future }
+  for (const c of cities) for (const b of RESEARCH_BRANCHES) future[b.key] = Math.max(future[b.key] ?? 0, c.game.future[b.key] ?? 0)
+  const upgrades: Game['upgrades'] = {}
+  for (const c of cities) for (const [id, u] of Object.entries(c.game.upgrades) as [UnitId, { atk: number; def: number }][]) {
+    const cur = upgrades[id] ?? { atk: 0, def: 0 }
+    upgrades[id] = { atk: Math.max(cur.atk, u.atk), def: Math.max(cur.def, u.def) }
+  }
+  const cap = capitalId(empire)
+  const gov = [...cities].sort((a, b) => (b.game.government.changedAt - a.game.government.changedAt) || (a.id === cap ? -1 : b.id === cap ? 1 : 0))[0].game.government
+  for (const c of cities) {
+    const g = c.game
+    if (g.study && research.includes(g.study.id as ResearchId)) {
+      // Aynı araştırma başka şehirde bitti: buradaki iş boşa gitmesin.
+      g.resources.knowledge += RESEARCH[g.study.id as ResearchId].cost
+      logEvent(g, `${RESEARCH[g.study.id as ResearchId].name} başka bir şehrinde tamamlandı; ilim iade edildi.`, now)
+      g.study = null
+    }
+    g.research = [...research]
+    g.future = { ...future }
+    g.upgrades = structuredClone(upgrades)
+    g.government = { ...gov }
+    g.empire = { cities: cities.length, capital: c.id === cap, studying: cities.filter(o => o !== c && o.game.study).map(o => o.game.study!.id as ResearchId) }
+  }
+}
+
 export function advanceEmpire(source: Empire, now: number): Empire {
   const empire = structuredClone(source)
   // Yolsuzluk ve Saray/Valilik kuralı için her şehir imparatorluktaki yerini bilir.
@@ -199,6 +246,7 @@ export function advanceEmpire(source: Empire, now: number): Empire {
     city.game.temple.wonder = islandOf(city).wonder
   }
   for (const city of empire.cities) city.game = advance(city.game, now)
+  syncShared(empire, now)
   const pending: Shipment[] = []
   for (const shipment of empire.shipments) {
     if (now < shipment.eta) { pending.push(shipment); continue }
@@ -279,7 +327,7 @@ export function foundColony(source: Empire, islandId: IslandId, now: number):
   // A colony is a fully playable, independent city. It starts with a compact
   // settlement and provisions, not with copies of the capital's resources.
   city.resources = { gold: 250, wood: 250, stone: 160, knowledge: 0 }
-  city.research = [] // New city's research and workforce are genuinely local.
+  // Araştırma, yönetim ve yükseltmeler imparatorluk geneli: syncShared başkentten kopyalar.
   city.army.nakliye = 0
   city.mine = { specialty: island.luxury, level: 1, wood: 0, miners: 0 }
   city.temple = { ...city.temple, wonder: island.wonder }
@@ -288,6 +336,7 @@ export function foundColony(source: Empire, islandId: IslandId, now: number):
   const name = CITY_NAMES[empire.cities.length - 1] ?? `Yeni Şehir ${empire.cities.length + 1}`
   empire.cities.push({ id, islandId, name, game: city })
   empire.activeCityId = id
+  syncShared(empire, now)
   return { empire }
 }
 

@@ -247,6 +247,7 @@ export function recruitReason(g: Game, id: UnitId, count: number): string | null
 export function researchReason(g: Game, id: ResearchId): string | null {
   if (g.research.includes(id)) return 'Araştırma tamamlandı.'
   if (g.study) return 'Önce devam eden araştırmayı tamamla.'
+  if (g.empire?.studying?.includes(id)) return 'Bu araştırma başka bir şehrinde sürüyor.'
   const needs = RESEARCH[id].needs
   if (needs && !g.research.includes(needs)) return `Önce ${RESEARCH[needs].name} araştırılmalı.`
   if (g.buildings.medrese < RESEARCH[id].required) return `Medrese ${RESEARCH[id].required}. seviye gerekli.`

@@ -54,7 +54,7 @@ test('colonies suffer corruption until the governor residence catches up', () =>
   assert.ok(rates(g).wood > wood)
   // Başkentte yolsuzluk yok; imparatorluk bunu her ilerlemede yazar.
   const e = advanceEmpire(initialEmpire(now), now + 1000)
-  assert.deepEqual(e.cities[0].game.empire, { cities: 1, capital: true })
+  assert.deepEqual(e.cities[0].game.empire, { cities: 1, capital: true, studying: [] })
 })
 
 test('production boosters, cost reducers, dump and trading post', () => {
