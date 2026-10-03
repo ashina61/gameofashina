@@ -55,11 +55,13 @@ export function GuideSpot({ game }: { game: Game }) {
         next?.classList.add('guide-glow')
         current.current = next
       }
-      setBox(prev => next ? same(prev, next.getBoundingClientRect()) : null)
+      // Kutu hemen ölçülür: güncelleyici sonra çalışır, o an hedef değişmiş olabilir.
+      const rect = next?.getBoundingClientRect() ?? null
+      setBox(prev => rect ? same(prev, rect) : null)
     }
     tick()
     const id = window.setInterval(tick, 250)
-    const onScroll = () => { if (current.current) setBox(prev => same(prev, current.current!.getBoundingClientRect())) }
+    const onScroll = () => { const rect = current.current?.getBoundingClientRect(); if (rect) setBox(prev => same(prev, rect)) }
     window.addEventListener('scroll', onScroll, { capture: true, passive: true })
     return () => {
       window.clearInterval(id)
