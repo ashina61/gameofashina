@@ -6,6 +6,17 @@ export type Release = { version: string; date: string; title: string; notes: str
 
 export const CHANGELOG: Release[] = [
   {
+    version: '0.41.0', date: '3 Ekim 2026', title: 'Rehber yolda bırakmaz',
+    notes: [
+      'İlk on dakika rehberi artık hiçbir adımda oyuncuyu ortada bırakmıyor: hedef bitince açık sayfanın geri düğmesi parlar, aşağıda kalan "eğit" düğmesine sayfa kendiliğinden kayar, inşaat sürerken ok sabırla bekler.',
+      'İlk sefer adımında "Git" artık adayı açıyor (eskiden madeni açıp köyü örtüyordu); seferden sonra "Şehre dön" parlar.',
+      'Rehber beş asker tamamlanınca "1 eğit"i parlatmayı bırakır (eskiden fazladan asker bastırıyordu).',
+      'Eski kayıtlarda (Divanhane 5 ve üstü) sonradan eklenen rehber hedefleri ok çıkarmaz.',
+      'İmparatorluk özetinde ordu, her şehir için birlik figürlü bir kart oldu (tablo yerine).',
+      'Arka planda: ilk on dakika her derlemede gerçek arayüzde baştan sona oynanıyor; büyük dosyalar bölündü; V2 ölçütleri her derlemede ölçülüyor.',
+    ],
+  },
+  {
     version: '0.40.0', date: '3 Ekim 2026', title: 'Sağlam temel: eski kayıtlar, düzenli kod',
     notes: [
       'Kayıtların korunuyor: 0.20\'den bu yana çıkan her sürümün kaydı her derlemede yeniden açılıp ilerletilerek denetleniyor.',

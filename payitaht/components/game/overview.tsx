@@ -10,6 +10,7 @@ import { BUILDINGS, BUILDING_IDS, LUXURY_IDS, LUXURY_NAMES, RESOURCE_IDS, RESOUR
 import { capitalId, islandOf, type Empire } from '@/lib/game/empire'
 import { siegeAt, totalMerchants, idleMerchants } from '@/lib/game/expeditions'
 import { luxuryIcons, resourceIcons } from './game-widgets'
+import { UnitFigure } from './unit-art'
 
 type Tab = 'res' | 'build' | 'army'
 const n = (x: number) => Math.floor(x).toLocaleString('tr-TR')
@@ -49,11 +50,18 @@ export function EmpireOverview({ empire, onCity }: { empire: Empire; onCity: (id
           {cities.map(c => { const lv = c.game.buildings[b], up = activeJob(c.game)?.id === b
             return <td key={c.id} className={up ? 'is-up' : undefined}>{lv || '—'}{up ? ' ↑' : ''}</td> })}</tr>)}</tbody>
       </table>}
-      {tab === 'army' && (unitIds.length ? <table className="overview-table">
-        <thead><tr><th>Birlik</th>{cities.map(c => <th key={c.id}><button type="button" className="ika-link" onClick={() => onCity(c.id)}>{c.name}</button></th>)}<th>Toplam</th></tr></thead>
-        <tbody>{unitIds.map(u => <tr key={u}><th scope="row">{UNITS[u].name}</th>
-          {cities.map(c => <td key={c.id}>{c.game.army[u] || '—'}</td>)}<td><b>{n(cities.reduce((s, c) => s + c.game.army[u], 0))}</b></td></tr>)}</tbody>
-      </table> : <p className="fine-print">Henüz birlik yok.</p>)}
+      {/* Ordu: şehir başına bir kart, birlikler figürüyle (tablo yerine; dar ekranda yana kaymaz). */}
+      {tab === 'army' && (unitIds.length ? <div className="ov-army">
+        {cities.map(c => {
+          const here = unitIds.filter(u => c.game.army[u] > 0)
+          return <section key={c.id} className="ov-army-city">
+            <header><button type="button" className="ika-link" onClick={() => onCity(c.id)}>{c.name}</button>{c.id === cap && <small> · başkent</small>}
+              <b>{n(here.reduce((s, u) => s + c.game.army[u], 0))} birlik</b></header>
+            {here.length ? <ul>{here.map(u => <li key={u}><UnitFigure id={u} size={34} bare title={UNITS[u].name} /><span>{UNITS[u].name}</span><b>{n(c.game.army[u])}</b></li>)}</ul>
+              : <p className="fine-print">Bu şehirde birlik yok.</p>}
+          </section>
+        })}
+      </div> : <p className="fine-print">Henüz birlik yok.</p>)}
     </div>
     <p className="fine-print">Adalar: {cities.map(c => `${c.name} (${islandOf(c).name})`).join(' · ')}</p>
   </div>

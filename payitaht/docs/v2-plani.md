@@ -13,22 +13,24 @@ V2, **telefonda baştan sona oyun gibi hissettiren, mağazaya konabilecek** sür
 Bir maddenin "yapıldı" sayılması için ölçülebilir olması gerekir. V2 çıkışı şu
 ölçütlerin **hepsi** sağlanınca olur:
 
-| Ölçüt | Bugün (0.29.1) | V2 hedefi |
-|---|---|---|
-| Sayfa ve rapor görseli (10 üzerinden, inceleme notu) | 4,5 | **7+** |
-| Oyun hissi | 4 | **7+** |
-| Uzun vadeli tutunma | 3 | **6+** |
-| UI kodu | 4 | **7+** |
-| 360×740'ta taşan / kesilen öğe (otomatik test) | test yok | **0, CI'da zorunlu** |
-| 44px altı dokunma hedefi | ölçülmüyor | **0** |
-| Oyun ekranlarında Lucide çizgi ikon kullanan dosya | 25 | **≤ 5** (yalnız ayarlar ve "meta" ekranlar) |
-| Oyun klasöründe shadcn `<Button>` | 136 | **0** (tek `GameButton`) |
-| Oyun ekranlarındaki `<table>` | 22 | **≤ 4** (yalnız ayrıntı/ayrıntılı rapor) |
-| Bina görselleri (indirilen) | ~34 MB | **≤ 15 MB** telefonda |
-| İlk açılıştan şehre kadar süre (orta Android) | ölçülmüyor | **≤ 4 sn**, ölçülüp CI'da izlenir |
-| Mobile Visual QA süresi | 19,5 dk (sınır 30) | **≤ 10 dk** |
-| En büyük kaynak dosyası | phaser-city.ts 2.497 satır | **≤ 800 satır** |
-| Testler | 243 | korunur, yeni her sistem testli |
+| Ölçüt | Bugün (0.29.1) | 0.41.0 | V2 hedefi |
+|---|---|---|---|
+| Sayfa ve rapor görseli (10 üzerinden, inceleme notu) | 4,5 | inceleme bekliyor | **7+** |
+| Oyun hissi | 4 | inceleme bekliyor | **7+** |
+| Uzun vadeli tutunma | 3 | inceleme bekliyor (5.2 tempo kararı açık) | **6+** |
+| UI kodu | 4 | inceleme bekliyor | **7+** |
+| 360×740'ta taşan / kesilen öğe (otomatik test) | test yok | **0 ✓** (+%130 yazıda 0, isimsiz düğme 0) | **0, CI'da zorunlu** |
+| 44px altı dokunma hedefi | ölçülmüyor | **0 ✓** | **0** |
+| Oyun ekranlarında Lucide çizgi ikon kullanan dosya | 25 | **0 ✓** | **≤ 5** (yalnız ayarlar ve "meta" ekranlar) |
+| Oyun klasöründe shadcn `<Button>` | 136 | **0 ✓** | **0** (tek `GameButton`) |
+| Oyun ekranlarındaki `<table>` | 22 | **4 ✓** | **≤ 4** (yalnız ayrıntı/ayrıntılı rapor) |
+| Bina görselleri (indirilen) | ~34 MB | **9,9 MB ✓** | **≤ 15 MB** telefonda |
+| İlk açılıştan şehre kadar süre (orta Android) | ölçülmüyor | CI'da ~3,3 sn (sanal makine); orta Android ölçülmedi | **≤ 4 sn**, ölçülüp CI'da izlenir |
+| Mobile Visual QA süresi | 19,5 dk (sınır 30) | **~3 dk ✓** | **≤ 10 dk** |
+| En büyük kaynak dosyası | phaser-city.ts 2.497 satır | **772 satır ✓** (engine.test.ts; çizim üreten Python araçları hariç) | **≤ 800 satır** |
+| Testler | 243 | **308 ✓** (+ tarayıcıda ilk 10 dakika) | korunur, yeni her sistem testli |
+
+`tools/v2-criteria.cjs` kodla ölçülebilen satırları her derlemede ölçer; hedefi aşan satır Deploy işini durdurur.
 
 ## Kurallar (bütün fazlar için)
 
@@ -363,8 +365,8 @@ Faz 7 ayrı bir sürüm değildir; dokunulan dosya o sürümde bölünür.
 
 - [ ] Ölçüt tablosundaki her satır hedefte.
 - [ ] 360×740, 390×844 ve 430×932'de bütün ekranların ekran görüntüsü elden geçti.
-- [ ] Yeni oyuncu turu (ilk 10 dakika) otomatik testte geçiyor.
+- [x] Yeni oyuncu turu (ilk 10 dakika) otomatik testte geçiyor. (0.41: `tools/first-ten-qa.cjs` gerçek arayüzde yalnız rehberin parlattığına basar; 8 hedef 3,6 oyun dakikasında biter, Mobile Visual QA'da koşar.)
 - [ ] 30 günlük tempo simülasyonu hedef eğride.
 - [ ] Orta segment gerçek Android cihazda 30 dakikalık oyun: çökme yok, ısınma kabul edilebilir.
-- [ ] 0.20'den bu yana kayıt örnekleri 2.0.0'da açılıyor.
+- [ ] 0.20'den bu yana kayıt örnekleri 2.0.0'da açılıyor. (0.40'tan beri her derlemede 0.20–0.39 örnekleri açılıyor; 2.0.0'da işaretlenir.)
 - [ ] Bütün CI işleri yeşil, APK yayında.

@@ -329,7 +329,8 @@ export default function GameShell({ onTitle }: { onTitle?: () => void } = {}) {
       {guide && view === 'city' && !panel && <FirstRunGuide onDone={() => setGuide(false)} />}
       {away && !guide && <AwaySummaryCard summary={away} onClose={() => setAway(null)} onReports={() => { setAway(null); openPanel('reports') }} />}
       {view === 'city' && foundingCity && !(empire?.threats ?? []).some(t => t.cityId === empire?.activeCityId) && !(empire?.sieges ?? []).length && <QuestChip game={game} onOpen={() => openPanel('objectives')} onGo={target} onClaim={id => act({ type: 'claim', id })} />}
-      {foundingCity && OBJECTIVES.slice(0, GUIDED_STEPS).some(o => !game.claimed.includes(o.id)) && <GuideSpot game={game} />}</> : <div className="game-loading"><img src={buildingImage('divan', 8)} alt="" width={150} height={150} /><h1>Şehrin uyanıyor…</h1><p>Sahilhisar kapılarını açıyor.</p></div>}
+      {/* Rehber yeni oyuncu içindir: Divanhane 5'e varmış eski kayıtta, sonradan eklenen rehber hedefleri ok çıkarmaz. */}
+      {foundingCity && game.buildings.divan < 5 && OBJECTIVES.slice(0, GUIDED_STEPS).some(o => !game.claimed.includes(o.id)) && <GuideSpot game={game} />}</> : <div className="game-loading"><img src={buildingImage('divan', 8)} alt="" width={150} height={150} /><h1>Şehrin uyanıyor…</h1><p>Sahilhisar kapılarını açıyor.</p></div>}
     <IkaNav active={navActive} badges={{ objectives: claimable, alliance: unreadCirculars }} modes={{ objectives: badges.objectives, alliance: badges.alliance }} onSelect={key => {
       setSelected(null); setPlot(null); setNpc(null)
       if (key === 'city') { setPanel(null); setMoving(null); setView('city'); setViewIsland(null) }

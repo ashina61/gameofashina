@@ -59,6 +59,9 @@ jobs:
         run: node tools/css-lint.cjs
       - name: Kullanılmayan CSS sınıfları
         run: node tools/unused-css.cjs --strict
+      - name: V2 ölçütleri
+        shell: bash
+        run: node tools/v2-criteria.cjs | tee -a "$GITHUB_STEP_SUMMARY"
       - name: Telefon boyu bina görselleri
         run: python3 tools/art/half-size.py --check
       - name: Kullanılmayan görseller (uyarı)
