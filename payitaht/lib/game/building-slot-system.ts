@@ -10,7 +10,7 @@
  * ayrımı YOKTUR. Slot tipi (city/coast/defense) uyumu çağıran tarafça
  * getEmptySlots(type) ile süzülür; taşıma da tip uyumunu doğrular.
  */
-import { SLOTS, slotById, type CitySlot, type SlotType } from './city-map'
+import { SLOTS, type CitySlot, type SlotType } from './city-map'
 
 export type Placement = Record<string, string> // buildingId -> slotId
 

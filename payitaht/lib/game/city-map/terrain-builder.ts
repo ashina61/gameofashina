@@ -266,8 +266,6 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1, occupiedSl
   const shoreY = shoreYAt // kıyı eğrisi city-extras'ta: dere ve arazi aynı çizgiyi kullanır
   /** Burun kıyısında mı (limanın dışında)? Kayalık/uçurum yoğunluğu için. */
   const headland = (x: number) => smooth01((Math.abs(x - bayCx) - bayHalf) / (TILE.w * 2))
-  const diamond = (cx: number, cy: number, w: number, h: number) =>
-    [V(cx, cy - h / 2), V(cx + w / 2, cy), V(cx, cy + h / 2), V(cx - w / 2, cy)]
 
   const stamp = (
     key: string, wx: number, wy: number, tw: number, depth: number,

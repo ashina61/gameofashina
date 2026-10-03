@@ -53,6 +53,8 @@ jobs:
         run: pnpm exec tsc --noEmit
       - name: Testler
         run: pnpm exec tsx --test $(find lib -name '*.test.ts')
+      - name: ESLint
+        run: pnpm lint
       - name: CSS renk denetimi
         run: node tools/css-lint.cjs
       - name: Telefon boyu bina görselleri

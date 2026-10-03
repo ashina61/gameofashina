@@ -29,7 +29,7 @@ import { godBuff } from './gods'
 import { activeCity, advanceEmpire, bump, type CityRecord, type Empire } from './empire'
 import { ISLANDS, type IslandId } from './islands'
 import {
-  RIVALS, allyHelp, isAlly, onRivalRaided, pacified, rivalAttackMul, rivalById, rivalFleet, rivalGarrison, rivalIntel, rivalLevel,
+  allyHelp, isAlly, onRivalRaided, rivalAttackMul, rivalById, rivalFleet, rivalGarrison, rivalIntel, rivalLevel,
   rivalLoot, rivalState, rivalWallHp, STYLE_NAMES, FACTIONS, factionMembers, mail,
 } from './rivals'
 

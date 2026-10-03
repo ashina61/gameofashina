@@ -22,7 +22,6 @@ import { DefenseSummary } from './ikariam-panels'
 import { MissionList, type Run } from './world-panels'
 import { ReportsPanel } from './island-view'
 
-const num = (n: number) => Math.floor(n).toLocaleString('tr-TR')
 
 function cityAdvice(g: Game) {
   if (!activeJob(g)) return 'Ustalar boş oturuyor efendim. İnşa menüsünden yeni bir yapıya başlayalım.'

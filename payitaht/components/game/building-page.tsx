@@ -19,10 +19,10 @@ import { ArrowLeft, ArrowUp, Info, LockKeyhole, FlipHorizontal2, RotateCw, Move,
 import { GameButton } from './game-button'
 import { CostTokens } from './stat-kit'
 import { BottomSheet } from './bottom-sheet'
-import { asset, buildingImage , buildingStage } from '@/lib/asset'
+import { buildingImage, buildingStage } from '@/lib/asset'
 import {
-  BUILDINGS, BUILDING_EFFECTS, constructionDiscount, LUXURY_IDS, LUXURY_NAMES, MAX_LEVEL, RESEARCH, RESOURCE_IDS, RESOURCE_NAMES, WORKERS_PER_LEVEL,
-  actionPoints, activeJob, armyUpkeep, buildReason, capacity, cargoCapacity, contentment, corruption, cost, counterSpy, duration,
+  BUILDINGS, BUILDING_EFFECTS, constructionDiscount, LUXURY_IDS, LUXURY_NAMES, MAX_LEVEL, RESEARCH, RESOURCE_IDS, RESOURCE_NAMES,
+  actionPoints, activeJob, armyUpkeep, buildReason, capacity, contentment, corruption, cost, counterSpy, duration,
   forestProduction, growthRate, housing, idleWorkers, loadingSpeed, luxuryCost, luxuryProduction, maxPopulation, population, rates,
   scientistUpkeepPerMinute, soldiers, spyBonus, spyCapacity, takesPlot, tavernLevel, tradeCapacity, travelFactor, wallDefense,
   wineConsumption, wineServed, workerCapacity, type BuildingId, type Command, type Game, type Luxury, type Resource, type UnitId, type WorkerId, formatRate,

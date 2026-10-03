@@ -4,7 +4,7 @@ const path = require('node:path')
 module.exports = async function siegeReview(browser, out, origin, seedRaw, diagnostics) {
   const context = await browser.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, isMobile: true, hasTouch: true })
   // Yeni oyunun ilk açılış rehberi QA tıklamalarını örtmesin.
-  await context.addInitScript(() => { try { localStorage.setItem('payitaht-rehber', 'goruldu') } catch {} })
+  await context.addInitScript(() => { try { localStorage.setItem('payitaht-rehber', 'goruldu') } catch { /* depolama kapalı */ } })
   const page = await context.newPage()
   page.on('pageerror', e => diagnostics.pageErrors.push(`siege: ${e.message}`))
   page.on('response', r => {

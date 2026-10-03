@@ -290,7 +290,7 @@ export function RivalDiplomacy({ empire, rivalId, now, run }: { empire: Empire; 
   </section>
 }
 
-export function RivalWar({ empire, rivalId, onOccupy, onBlockade }: {
+export function RivalWar({ empire, onOccupy, onBlockade }: {
   empire: Empire; rivalId: string
   onOccupy: (units: Partial<Record<UnitId, number>>) => void; onBlockade: (units: Partial<Record<UnitId, number>>) => void
 }) {

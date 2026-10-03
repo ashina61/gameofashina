@@ -113,8 +113,6 @@ export function ringOf(index: number): number {
  * LIMAN İSKELELERİ — belediyenin altindaki kiyida, iki tane yan yana.
  */
 export const QUAY_COUNT = 2
-const QUAY_CELLS: [number, number][] = [[HALL.col - 1.4, HALL.row + 1.6], [HALL.col + 1.4, HALL.row + 1.6]]
-const QUAY_SLOTS = QUAY_CELLS.map(([col, row]) => ({ zone: 'liman' as const, ...gridPos(col, row) }))
 
 /*
  * ARSALAR ARTIK YENİ CITY-MAP SİSTEMİNDEN GELİR (city-slots.json).

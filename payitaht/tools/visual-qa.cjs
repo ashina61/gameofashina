@@ -29,7 +29,7 @@ async function main() {
       colorScheme: 'light',
     })
     // Yeni oyunun ilk açılış rehberi QA tıklamalarını örtmesin.
-    await context.addInitScript(() => { try { localStorage.setItem('payitaht-rehber', 'goruldu') } catch {} })
+    await context.addInitScript(() => { try { localStorage.setItem('payitaht-rehber', 'goruldu') } catch { /* depolama kapalı */ } })
     const page = await context.newPage()
     const buildingStageLoads = new Set()
     page.on('pageerror', error => diagnostics.pageErrors.push(`${label}: ${error.message}`))

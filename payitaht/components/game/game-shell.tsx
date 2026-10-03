@@ -88,7 +88,6 @@ export default function GameShell({ onTitle }: { onTitle?: () => void } = {}) {
   const [selected, setSelected] = useState<BuildingId | null>(null)
   /** Oyuncunun haritada dokundugu BOS arsa; yapi secimi buradan yapilir. */
   const [plot, setPlot] = useState<number | null>(null)
-  const [confirmReset, setConfirmReset] = useState(false)
   const saveImportRef = useRef<HTMLInputElement>(null)
   const currentCityName = empire ? activeCity(empire).name : 'Sahilhisar'
   // Aktif oturumda tamamlanan inşa/yükseltmeye ses + titreşim + kısa bildirim.
@@ -175,7 +174,7 @@ export default function GameShell({ onTitle }: { onTitle?: () => void } = {}) {
     window.addEventListener('popstate', onPop)
     return () => window.removeEventListener('popstate', onPop)
   }, [])
-  function openPanel(value: Panel) { if (value === 'island' && view === 'city') { setView('island'); return } setNpc(null); setSelected(null); setPlot(null); setMoving(null); setPanel(value); setConfirmReset(false) }
+  function openPanel(value: Panel) { if (value === 'island' && view === 'city') { setView('island'); return } setNpc(null); setSelected(null); setPlot(null); setMoving(null); setPanel(value) }
   function openBuilding(id: BuildingId) { setPanel(null); setPlot(null); setMoving(null); setSelected(id) }
   function openPlot(index: number) { setPanel(null); setSelected(null); setMoving(null); setPlot(index) }
   function startMove(id: BuildingId) { if (!game) return; setPanel(null); setSelected(null); setPlot(null); setMoving(id); setMovePlot(game.placement[id]) }

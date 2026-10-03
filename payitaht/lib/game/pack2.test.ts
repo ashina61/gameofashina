@@ -67,7 +67,7 @@ test('colonies take their island wonder', () => {
 })
 
 test('Tophane upgrades raise one unit type', () => {
-  let g = initialGame(now)
+  const g = initialGame(now)
   g.army.yeniceri = 10
   const base = power(g, 'kara').attack
   assert.match(execute(g, { type: 'upgrade', id: 'yeniceri', stat: 'atk' }, now).error!, /Tophane/)

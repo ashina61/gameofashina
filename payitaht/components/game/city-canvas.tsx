@@ -166,6 +166,8 @@ export function CityCanvas({ game, showLabels, placing, controls, onBuilding, on
       cleanup()
       instance?.destroy(true)
     }
+    // Phaser oyunu yalnız bir kez kurulur; `controls` sabit bir ref nesnesidir.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   /*

@@ -1364,7 +1364,8 @@ export class CityScene extends Phaser.Scene {
     const P = PLAZA.screen
     for (let i = 0; i < 16; i++) {
       const a = rnd() * Math.PI * 2, r = 0.45 + rnd() * 0.5
-      let hx = P.x + Math.cos(a) * PLAZA.rx * r * 0.7, hy = P.y + PLAZA.ry * 0.74 + Math.sin(a) * PLAZA.ry * r * 0.3
+      let hx = P.x + Math.cos(a) * PLAZA.rx * r * 0.7
+      const hy = P.y + PLAZA.ry * 0.74 + Math.sin(a) * PLAZA.ry * r * 0.3
       if (Math.abs(hx - P.x) < 60 && Math.abs(hy - (P.y + PLAZA.ry * 0.74)) < 30) hx += 90
       const g = this.add.graphics()
       const tone = [0x8e9296, 0xa7abae, 0x6f7377, 0xd9d6cf][i % 4]
@@ -1783,7 +1784,7 @@ export class CityScene extends Phaser.Scene {
       hammer.lineStyle(1.8, 0x5a3a22, 1); hammer.lineBetween(0, 0, 0, -11)
       hammer.fillStyle(0x6f7274, 1); hammer.fillRect(-3.5, -13, 7, 3)
       const dir = this.state.coastFacing.tersane === 'right' ? -1 : 1
-      life(worker, t => {
+      life(worker, () => {
         const x = tersaneSlot.screen.x + dir * TILE.w * 0.05
         const y = tersaneSlot.screen.y + TILE.h * 0.70
         worker.setPosition(x, y).setScale(dir, 1).setDepth(y + 3)

@@ -102,6 +102,8 @@ export function IkaTopBar({ game, empire, news, modes, activeAdvisor, onCity, on
     setStockFx(next)
     const timer = window.setTimeout(() => setStockFx({}), 760)
     return () => window.clearTimeout(timer)
+    // Oranlar (`r`) her çizimde `game`'den yeniden hesaplanır; tetikleyici yalnız `game`.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [game])
   const lux = game.mine.specialty
   const LuxIcon = luxuryIcons[lux]

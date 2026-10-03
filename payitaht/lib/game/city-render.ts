@@ -10,7 +10,7 @@
  * yeniden yazmak oldu. Ayrica test edilebilir: bir cokgenin dogru yerde olup
  * olmadigini tarayici acmadan sinayabiliyoruz.
  */
-import { SLOTS, TILE_W, TILE_H, DRAWN_PAD, USES_MEASURED, CENTER, CENTER_PLOT, cityBounds, cityOutline, fullBounds, ringOf, type Slot } from './layout'
+import { SLOTS, TILE_W, TILE_H, DRAWN_PAD, USES_MEASURED, cityBounds, cityOutline, fullBounds, type Slot } from './layout'
 import { BUILDING_IDS, type BuildingId, type Game } from './engine'
 
 /**

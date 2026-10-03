@@ -19,7 +19,7 @@ import { asset, buildingImage } from '@/lib/asset'
 import { LUXURY_NAMES, MIRACLES, UNITS, type UnitId } from '@/lib/game/engine'
 import { activeCity, ISLANDS, type Empire, type IslandId } from '@/lib/game/empire'
 import {
-  NPC_KINDS, NPC_SETTLEMENTS, RAID_UNITS, npcById, TROOPS_PER_SHIP, WARSHIPS, availableUnits, lootPool, npcState, spyChance,
+  NPC_KINDS, NPC_SETTLEMENTS, RAID_UNITS, npcById, TROOPS_PER_SHIP, WARSHIPS, availableUnits, npcState, spyChance,
   strikeForce, targetTravelMs, transportsNeeded, recallMission, spyMission, spyTaskChance, SPY_TYPES, SPY_TYPE_IDS, type Mission,
 } from '@/lib/game/expeditions'
 import { UnitPicker } from './ikariam-panels'

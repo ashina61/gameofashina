@@ -150,6 +150,8 @@ export function setPactMotto(source: Empire, motto: string, now: number): { empi
   return { empire }
 }
 
+// Kontrol karakterlerini (satır sonu hariç) ayıklamak kasıtlı.
+// eslint-disable-next-line no-control-regex
 const clean = (t: string) => t.replace(/[\u0000-\u0009\u000b-\u001f]/g, '').trim()
 export const ABOUT_MAX = 400
 export const NOTICE_MAX = 300

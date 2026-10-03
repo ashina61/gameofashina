@@ -1,6 +1,6 @@
 import { parseProfile, type Profile } from './profile'
 import {
-  advance, actionPoints, capacity, freePlots, logEvent, cargoCapacity, initialGame, parseSave, tradeCapacity, travelFactor, loadingSpeed,
+  advance, actionPoints, capacity, freePlots, logEvent, initialGame, parseSave, NEWER_SAVE, tradeCapacity, travelFactor, loadingSpeed,
   LUXURY_IDS, LUXURY_NAMES, RESOURCE_IDS, RESOURCE_NAMES, type Game, type Luxury, type Resource,
 } from './engine'
 
@@ -54,6 +54,8 @@ export type Shipment = {
   /** Yükü taşıyan gemi sayısı (ortak ticaret filosundan). */
   ships?: number
 }
+/** İmparatorluk kaydının şema sürümü (şehir kayıtlarınınki engine.ts'te GAME_SCHEMA). */
+export const EMPIRE_SCHEMA = 1
 export type Empire = {
   version: 1; activeCityId: string; cities: CityRecord[]
   shipments: Shipment[]; nextId: number
@@ -110,6 +112,8 @@ const finite = (n: unknown) => typeof n === 'number' && Number.isFinite(n) && n 
 export function parseEmpire(raw: string): Empire {
   const parsed: unknown = JSON.parse(raw)
   if (!parsed || typeof parsed !== 'object') throw new Error('Kayıt okunamadı.')
+  // İmparatorluk şeması (EMPIRE_SCHEMA) 1'de; şehir kayıtları kendi zincirinden geçer.
+  if ('cities' in parsed && 'version' in parsed && typeof parsed.version === 'number' && parsed.version > EMPIRE_SCHEMA) throw new Error(NEWER_SAVE)
   if (!('version' in parsed) || parsed.version !== 1 || !('cities' in parsed)) {
     const legacy = parseSave(raw)
     return { ...initialEmpire(legacy.updatedAt), cities: [

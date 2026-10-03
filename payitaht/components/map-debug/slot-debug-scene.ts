@@ -10,7 +10,7 @@
  */
 import * as Phaser from 'phaser'
 import {
-  CITY_SLOTS, COAST_SLOTS, DEFENSE_SLOTS, DEFENSE_FOUNDATION, ROAD_GRAPH, CITY_BOUNDS,
+  CITY_SLOTS, COAST_SLOTS, DEFENSE_SLOTS, DEFENSE_FOUNDATION, ROAD_GRAPH,
   HALL_SLOT_ID, footprintDiamond, slotById, SLOTS, TILE, type CitySlot,
 } from '@/lib/game/city-map'
 import { BuildingSlotSystem } from '@/lib/game/building-slot-system'

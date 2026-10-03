@@ -34,7 +34,7 @@ async function main() {
       serviceWorkers: 'block',
     })
     // Yeni oyunun ilk açılış rehberi QA tıklamalarını örtmesin.
-    await page.addInitScript(() => { try { localStorage.setItem('payitaht-rehber', 'goruldu') } catch {} })
+    await page.addInitScript(() => { try { localStorage.setItem('payitaht-rehber', 'goruldu') } catch { /* depolama kapalı */ } })
     const errors = []
     page.on('pageerror', error => errors.push(error.message))
     page.on('response', response => {

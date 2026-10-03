@@ -1,4 +1,6 @@
+import { VERSION } from './changelog'
 import { parseEmpire, type Empire } from './empire'
+import { NEWER_SAVE } from './engine'
 
 /** Legacy anahtar korunur; mevcut kurulumlar ve migration bozulmaz. */
 export const SAVE_KEY = 'payitaht-adalari-v1'
@@ -34,6 +36,9 @@ export function loadStoredEmpire(store: SaveStore): StoredSave {
     raw = store.getItem(SAVE_KEY)
     if (raw) return { empire: parseEmpire(raw) }
   } catch (primaryError) {
+    // Kayıt daha yeni bir sürümden geliyorsa bozuk değildir: dokunmadan bırak,
+    // yedeği üstüne yazma (oyuncu uygulamayı güncelleyince kaldığı yerden sürer).
+    if (primaryError instanceof Error && primaryError.message === NEWER_SAVE) return { error: NEWER_SAVE }
     // Ana kayıt bozuksa onu asla sessizce ezmeyiz; tanı/kurtarma için saklarız.
     if (raw) {
       try { store.setItem(SAVE_CORRUPT_KEY, raw) } catch { /* depolama tamamen kapalı olabilir */ }
@@ -97,8 +102,15 @@ export function peekStoredEmpire(store: SaveStore): StoredSave {
  * Yazmadan önce mevcut ana kaydı parse ederek doğrular ve yalnızca sağlam
  * kayıtları backup slotuna taşır. Böylece bozuk bir string yedeği de zehirlemez.
  */
+/**
+ * Kaydı yazan uygulama sürümü (`savedBy`) kayda eklenir: ileride bir göç
+ * adımı ya da hata raporu kaydın hangi sürümden geldiğini bilir. Okurken
+ * yok sayılır.
+ */
+const serialize = (empire: Empire) => JSON.stringify({ ...empire, savedBy: VERSION })
+
 export function saveStoredEmpire(store: SaveStore, empire: Empire) {
-  const next = JSON.stringify(empire)
+  const next = serialize(empire)
   const previous = store.getItem(SAVE_KEY)
   if (previous && previous !== next) {
     try {
@@ -120,5 +132,5 @@ export function importStoredEmpire(store: SaveStore, raw: string): Empire {
 }
 
 export function exportStoredEmpire(empire: Empire) {
-  return JSON.stringify(empire, null, 2)
+  return JSON.stringify({ ...empire, savedBy: VERSION }, null, 2)
 }

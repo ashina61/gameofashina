@@ -21,7 +21,6 @@ const TARGETS: Record<string, string[]> = {
   'first-raid': ['[data-guide="raid"]', '[data-guide="all-mizrakci"]', '[data-guide="all-yeniceri"]', '[data-guide="npc-koy"]'],
 }
 const CHIP = '.quest-chip-go'
-const OPEN = '.bp, [role="dialog"]'
 
 /** Görünür, basılabilir ve üstü örtülü olmayan öğe mi? */
 function usable(el: Element): el is HTMLElement {

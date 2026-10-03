@@ -950,9 +950,6 @@ export function unitLuxuryCost(id: UnitId, count: number, g?: Game): Partial<Lux
   return out
 }
 
-function hasLuxury(g: Game, need: Partial<LuxuryStock>) {
-  return LUXURY_IDS.every(id => g.luxury[id] >= (need[id] ?? 0))
-}
 function payLuxury(g: Game, need: Partial<LuxuryStock>) {
   for (const id of LUXURY_IDS) g.luxury[id] -= need[id] ?? 0
 }
@@ -1879,8 +1876,30 @@ function migrate(g: Record<string, unknown>): Record<string, unknown> {
   return { ...g, version: 2, placement, workers }
 }
 
+/**
+ * ŞEHİR KAYDI GÖÇ ZİNCİRİ (V2 Faz 7.5). Her adım kaydı bir şema sürümünden
+ * bir sonrakine taşır; kayıt hangi sürümden gelirse gelsin sırayla en yeniye
+ * ulaşır. Yalnız ALAN EKLEYEN değişiklikler göç istemez: onları fillMissing
+ * varsayılanla doldurur. Alanın anlamı ya da biçimi değişirse buraya yeni bir
+ * adım eklenir ve GAME_SCHEMA bir artar.
+ */
+export const GAME_SCHEMA = 3
+export const GAME_MIGRATIONS: Record<number, (g: Record<string, unknown>) => Record<string, unknown>> = {
+  1: migrate,
+  2: migrateQueue,
+}
+export function migrateGame(source: unknown): Record<string, unknown> {
+  if (!source || typeof source !== 'object') throw new Error('Kayıt okunamadı.')
+  let g = source as Record<string, unknown>
+  if (typeof g.version === 'number' && g.version > GAME_SCHEMA) throw new Error(NEWER_SAVE)
+  while (typeof g.version === 'number' && g.version < GAME_SCHEMA && GAME_MIGRATIONS[g.version]) g = GAME_MIGRATIONS[g.version](g)
+  return g
+}
+/** Eski bir uygulamaya yeni sürümün kaydı yüklenirse gösterilen açıklama. */
+export const NEWER_SAVE = 'Bu kayıt oyunun daha yeni bir sürümüyle yapılmış. Kaydın korunuyor; oyunu güncelleyip yeniden aç.'
+
 export function parseSave(raw: string): Game {
-  const g = fillMissing(migrateQueue(migrate(JSON.parse(raw))))
+  const g = fillMissing(migrateGame(JSON.parse(raw)))
   const finite = (n: unknown) => typeof n === 'number' && Number.isFinite(n) && n >= 0
   const jobIds = { build: BUILDING_IDS, research: RESEARCH_IDS, drill: UNIT_IDS } as const
   const validJob = (j: Job | null, kind: Job['kind']) => j === null || (j && j.kind === kind && jobIds[kind].includes(j.id as never) && finite(j.start) && finite(j.end) && j.end > j.start
