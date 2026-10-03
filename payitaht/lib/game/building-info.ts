@@ -7,7 +7,7 @@
  */
 import {
   BUILDING_EFFECTS, UNITS, UNIT_IDS, WORKERS_PER_LEVEL, capacity, contentment, corruption, counterSpy, drillBonus, exchangeLimit, exchangeRate, housing,
-  merchantBuyPrice, merchantLimit, merchantSellPrice, tradeCapacity, wallDefense, type BuildingId, type Game, formatRate,
+  merchantBuyPrice, merchantLimit, merchantSellPrice, offlineCapHours, tradeCapacity, wallDefense, type BuildingId, type Game, formatRate,
 } from './engine'
 import { himmetCap, himmetRate, patronSlots } from './guilds'
 import { lutufCap, lutufRate } from './gods'
@@ -52,7 +52,7 @@ export function effectLines(game: Game, id: BuildingId, level: number): EffectLi
       { label: 'Tam kadroda akçe', value: `+${num(level * 100)}/dk` },
       { label: 'Tüccar partisi', value: `${num(merchantLimit(g))} birim` },
     ]
-    case 'ambar': return [{ label: 'Kaynak başına ambar', value: `${num(capacity(g))}` }]
+    case 'ambar': return [{ label: 'Kaynak başına ambar', value: `${num(capacity(g))}` }, { label: 'Çevrimdışı üretim', value: `${offlineCapHours(g)} saat` }]
     case 'kereste': return [
       { label: 'Oduncu yeri', value: `${level * WORKERS_PER_LEVEL} kişi` },
       { label: 'Tam kadroda kereste', value: `+${num(level * 120)}/dk` },

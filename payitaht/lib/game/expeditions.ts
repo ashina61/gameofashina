@@ -15,6 +15,7 @@
  * düşmüş vatandaşlardır); yalnızca yeni bir sefere tekrar gönderilemezler.
  * Kayıplar çarpışma anında ordudan silinir, ganimet dönüşte ambara iner.
  */
+import { lootMul, threatIntervalMul } from './events'
 import {
   UNITS, UNIT_IDS, capacity, power, BUILDING_EFFECTS, logEvent, actionPoints, travelFactor, miracle, spyBonus, idleWorkers,
   garrisonLimit, garrisonUsed, inGarrison, cargoCapacity, RESEARCH, RESEARCH_BRANCHES, RESEARCH_IDS,
@@ -258,7 +259,7 @@ export function rivalField(level: number) { return Math.min(24, 2 + level) }
 export const LOOT_REFILL_MS = 45 * 60_000
 export function lootPool(state: NpcState, now: number): Loot {
   const fill = Math.min(1, Math.max(0, (now - state.raidedAt) / LOOT_REFILL_MS))
-  const max = 500 * state.level
+  const max = 500 * state.level * lootMul(now)
   return { gold: Math.floor(max * fill), wood: Math.floor(max * 0.9 * fill), stone: Math.floor(max * 0.6 * fill) }
 }
 
@@ -1462,7 +1463,7 @@ export function advanceThreats(empire: Empire, now: number) {
     }
     if (!finished) { threats.push(t); continue }
     // Bir sonraki baskın 3-5 saat sonra; uzun yokluktan sonra en fazla bir baskın.
-    next[t.cityId] = Math.max(end, now) + THREAT_INTERVAL_MS + Math.round(roll(t.id) * 2 * 3600_000)
+    next[t.cityId] = Math.max(end, now) + Math.round((THREAT_INTERVAL_MS + roll(t.id) * 2 * 3600_000) * threatIntervalMul(now))
   }
   empire.threats = threats
   for (const city of empire.cities) {

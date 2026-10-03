@@ -6,6 +6,16 @@ export type Release = { version: string; date: string; title: string; notes: str
 
 export const CHANGELOG: Release[] = [
   {
+    version: '0.36.0', date: '3 Ekim 2026', title: 'Haftalık olaylar, adil saat ve uzun yokluk',
+    notes: [
+      'Haftalık olaylar: Kervan haftası (ticaret ×1,5), Korsan sezonu (baskınlar sıklaşır, ganimet ×1,5), Hasat (kereste ×1,25), Ramazan (huzur +100). Başlarken ve biterken şehir günlüğüne ve dünya haberlerine yazılır; Görevler sayfasında "Bu hafta" kartı kalan günü gösterir.',
+      'Oyun kapalıyken kaynaklar artık Ambar seviyesine göre birikir: 8 saat + Ambar\'ın her seviyesi için 1 saat (en çok 24). Ambar sayfası bu süreyi gösterir; dönüşteki özet üretimin ne zaman durduğunu söyler.',
+      'Cihaz saati geri alınırsa oyun son görülen andan gerçek zamanla sürer; saati geri almak kazanç getirmez ve oyun bunu bildirir.',
+      'Dalgıç Gemisi güçlendirildi (savunma 30 → 40, can 280 → 380): maliyetine göre rolünün en zayıfıydı.',
+      'Arka planda: birim denge raporu (tools/balance-report.ts) ve 30 günlük tempo simülasyonu (tools/pace-sim.ts).',
+    ],
+  },
+  {
     version: '0.35.0', date: '2 Ekim 2026', title: 'Şehir sanatı: sancak direkleri, mahalle, fenerler ve boyalı deniz',
     notes: [
       'Divanhane, saray, valilik, kışla, elçilik, tophane, korsan kalesi ve kara pazarın yanında senin sancağını taşıyan direk; sancağını değiştirince hepsi değişir.',

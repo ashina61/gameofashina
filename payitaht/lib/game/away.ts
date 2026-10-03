@@ -4,7 +4,7 @@
  * birlikler, biriken kaynaklar, gelen raporlar ve dünyadan haberler.
  * Kısa aralar (20 dakikadan az) özet çıkarmaz.
  */
-import { BUILDINGS, BUILDING_IDS, RESEARCH, UNITS, UNIT_IDS, capacity, type ResearchId } from './engine'
+import { BUILDINGS, BUILDING_IDS, RESEARCH, UNITS, UNIT_IDS, capacity, offlineCapHours, type ResearchId } from './engine'
 import type { Empire } from './empire'
 
 export type AwaySummary = {
@@ -17,6 +17,8 @@ export type AwaySummary = {
   news: string[]
   /** Ambarı dolu kalan şehir var mı (üretim boşa gitti). */
   full: boolean
+  /** Yokluk çevrimdışı üretim sınırını aştıysa o sınır (saat); aşmadıysa yok. */
+  cappedHours?: number
 }
 
 export const AWAY_MIN_MS = 20 * 60_000
@@ -46,7 +48,9 @@ export function awaySummary(before: Empire, after: Empire): AwaySummary | null {
     .map(r => ({ title: r.title, success: r.success }))
   const news = (after.world?.news ?? []).filter(n => n.time > since && !(before.world?.news ?? []).some(o => o.id === n.id)).map(n => n.text)
   const full = after.cities.some(c => (['gold', 'wood', 'stone'] as const).some(k => c.game.resources[k] >= capacity(c.game) - 1))
-  return { minutes: Math.round(ms / 60_000), built, researched, trained, gained, reports: reports.slice(0, 6), news: [...new Set(news)].slice(0, 5), full }
+  const cap = Math.min(...after.cities.map(c => offlineCapHours(c.game)))
+  const cappedHours = ms > cap * 3600_000 ? cap : undefined
+  return { minutes: Math.round(ms / 60_000), built, researched, trained, gained, reports: reports.slice(0, 6), news: [...new Set(news)].slice(0, 5), full, cappedHours }
 }
 
 /** "3 sa 20 dk", "2 gün 4 sa" gibi. */

@@ -24,7 +24,7 @@ import { ObjectiveCard, EconomyDetails } from './game-widgets'
 import { IslandView, NpcPanel } from './island-view'
 import { EmpireOverview } from './overview'
 import { BuildingPage, IkaPage } from './building-page'
-import { CityAdmin, DailyPanel, MilestonesPanel, DeployPanel, TradeCenter, ExperimentPanel, ForestPanel, MissionList, TavernPanel, WorldPanel, type Op } from './world-panels'
+import { CityAdmin, DailyPanel, MilestonesPanel, SeasonCard, DeployPanel, TradeCenter, ExperimentPanel, ForestPanel, MissionList, TavernPanel, WorldPanel, type Op } from './world-panels'
 import { THREAT_WARNING_MS, dispatchBlockade, dispatchRaid, targetName } from '@/lib/game/expeditions'
 import { DefenseSummary, ExchangePanel, ForeignSpies, SiegePanel, FuturePanel, GuildPanel, PiracyPanel, TemplePanel, TheatrePanel, ThreatBanner, UpgradePanel } from './ikariam-panels'
 import { badgeBudget } from '@/lib/game/badges'
@@ -366,6 +366,7 @@ export default function GameShell({ onTitle }: { onTitle?: () => void } = {}) {
       {panel === 'economy' && <EconomyDetails game={game} />}
       {panel === 'objectives' && foundingCity && <ObjectiveCard game={game} onClaim={id => act({ type: 'claim', id })} onBuild={target} />}
       {panel === 'objectives' && !foundingCity && <section className="advisor-panel"><h3>Şehir hedefleri</h3><p>Başlangıç eğitimi kurucu şehirde ilerler. Bu koloniyi dilediğin gibi geliştirebilirsin.</p><GameButton onClick={() => visitCity(empire!.cities[0].id)}>Kurucu şehre git</GameButton></section>}
+      {panel === 'objectives' && game && <SeasonCard now={game.updatedAt} />}
       {panel === 'objectives' && empire && <DailyPanel empire={empire} run={runOp} />}
       {panel === 'objectives' && empire && <MilestonesPanel empire={empire} run={runOp} />}
       {panel === 'settings' && <SettingsPanel empire={empire} run={runOp} warning={warning} native={native}

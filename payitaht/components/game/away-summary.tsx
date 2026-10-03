@@ -17,6 +17,7 @@ export function AwaySummaryCard({ summary, onClose, onReports }: { summary: Away
         <span><TasArt /><b>+{s.gained.stone.toLocaleString('tr-TR')}</b></span>
         <span><IlimArt /><b>+{s.gained.knowledge.toLocaleString('tr-TR')}</b></span>
       </div>}
+      {s.cappedHours && <p className="away-full">Üretim {s.cappedHours} saat sonra durdu: oyun kapalıyken kaynaklar en çok bu kadar birikir. Ambar'ın her seviyesi bir saat ekler (en çok 24).</p>}
       {s.full && <p className="away-full">Ambarın dolu: yokluğunda üretimin bir kısmı boşa gitti. Ambar ve Depo'yu büyütmek daha çok biriktirir.</p>}
       {s.built.length > 0 && <div className="away-block"><strong>Ustalar bitirdi</strong><ul>{s.built.map(t => <li key={t}>{t}</li>)}</ul></div>}
       {s.researched.length > 0 && <div className="away-block"><strong>Âlimler keşfetti</strong><ul>{s.researched.map(t => <li key={t}>{t}</li>)}</ul></div>}

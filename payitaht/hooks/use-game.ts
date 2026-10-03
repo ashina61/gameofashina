@@ -14,6 +14,30 @@ import {
 
 export { SAVE_KEY } from '@/lib/game/save-storage'
 import { awaySummary, type AwaySummary } from '@/lib/game/away'
+import { startClock, tickClock, type ClockState } from '@/lib/game/clock'
+
+/*
+ * OYUN SAATİ (V2 Faz 5.4): bütün zaman damgaları gameNow()'dan gelir. Cihaz
+ * saati geri alınırsa oyun son görülen andan gerçek zamanla sürer; geri
+ * alınan saat kazanç getirmez (lib/game/clock.ts).
+ */
+let clock: ClockState | null = null
+const REWIND_WARNING = 'Cihaz saati geri alınmış. Oyun saati son görülen andan gerçek zamanla sürüyor; geri alınan saat ilerleme kazandırmaz.'
+function gameNow(lastSeen = 0): number {
+  const wall = Date.now()
+  const mono = typeof performance !== 'undefined' ? performance.now() : wall
+  if (!clock) {
+    const s = startClock(lastSeen, wall, mono)
+    clock = s.state
+    if (s.rewound) warning = REWIND_WARNING
+    return clock.game
+  }
+  const t = tickClock(clock, wall, mono)
+  clock = t.state
+  if (t.rewound) warning = REWIND_WARNING
+  return t.now
+}
+const lastSeenOf = (e: Empire | null) => e ? Math.max(...e.cities.map(c => c.game.updatedAt)) : 0
 let memory: Empire | null = null
 let warning = ''
 let corrupt = false
@@ -51,7 +75,8 @@ function load(): Empire {
       if (stored.warning) warning = stored.warning
     }
   }
-  const empire = advanceEmpire(memory ?? initialEmpire(Date.now()), Date.now())
+  const now = gameNow(lastSeenOf(memory))
+  const empire = advanceEmpire(memory ?? initialEmpire(now), now)
   if (restored) away = awaySummary(restored, empire)
   save(empire)
   return empire
@@ -94,7 +119,7 @@ export function useGame() {
   function command(action: Command) {
     const empire = load()
     const city = activeCity(empire)
-    const result = execute(city.game, action, Date.now())
+    const result = execute(city.game, action, gameNow())
     city.game = result.game
     commit(empire)
     return result.error
@@ -106,40 +131,40 @@ export function useGame() {
     commit(empire)
   }
   function colonize(islandId: IslandId): string | undefined {
-    const result = foundColony(load(), islandId, Date.now())
+    const result = foundColony(load(), islandId, gameNow())
     if (result.error) return result.error
     commit(result.empire)
   }
   function sendCargo(to: string, resource: Cargo, amount: number): string | undefined {
-    const result = shipResources(load(), to, resource, amount, Date.now())
+    const result = shipResources(load(), to, resource, amount, gameNow())
     if (result.error) return result.error
     commit(result.empire)
   }
   function spy(npcId: string, count: number): string | undefined {
-    const result = dispatchSpies(load(), npcId, count, Date.now())
+    const result = dispatchSpies(load(), npcId, count, gameNow())
     if (result.error) return result.error
     commit(result.empire)
   }
   function raid(npcId: string, units: Partial<Record<UnitId, number>>): string | undefined {
-    const result = dispatchRaid(load(), npcId, units, Date.now())
+    const result = dispatchRaid(load(), npcId, units, gameNow())
     if (result.error) return result.error
     commit(result.empire)
   }
   function piracy(targetId: string, units: Partial<Record<UnitId, number>>): string | undefined {
-    const result = dispatchPiracy(load(), targetId, units, Date.now())
+    const result = dispatchPiracy(load(), targetId, units, gameNow())
     if (result.error) return result.error
     commit(result.empire)
   }
   /** İmparatorluk düzeyinde herhangi bir işlem (diplomasi, pazar, işgal...). */
   function run(op: (e: Empire, now: number) => { empire: Empire; error?: string }): string | undefined {
-    const result = op(load(), Date.now())
+    const result = op(load(), gameNow())
     if (result.error) return result.error
     commit(result.empire)
   }
   function reset() {
     corrupt = false
     warning = ''
-    commit(initialEmpire(Date.now()))
+    commit(initialEmpire(gameNow()))
   }
   function exportSave() {
     return exportStoredEmpire(load())

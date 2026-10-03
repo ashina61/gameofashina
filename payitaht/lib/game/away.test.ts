@@ -1,7 +1,7 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { advanceEmpire, initialEmpire } from './empire'
-import { execute } from './engine'
+import { execute, offlineCapHours } from './engine'
 import { awayLength, awaySummary } from './away'
 
 const now = 30_000_000
@@ -21,4 +21,14 @@ test('a short break gives no summary; a long one lists finished work and gains',
   assert.ok(s.gained.gold > 0)
   assert.equal(awayLength(s.minutes), '3 saat')
   assert.equal(awayLength(26 * 60 + 5), '1 gün 2 saat')
+})
+
+test('a 30-day absence: the summary carries world events and says production stopped at the offline cap', () => {
+  const t0 = 10_000_000
+  const before = advanceEmpire(initialEmpire(t0), t0)
+  const after = advanceEmpire(before, t0 + 30 * 24 * 3600_000)
+  const s = awaySummary(before, after)!
+  assert.ok(s, 'summary exists')
+  assert.equal(s.cappedHours, offlineCapHours(after.cities[0].game))
+  assert.ok(s.news.length + s.reports.length > 0, 'rival news or reports happened while away')
 })

@@ -1,6 +1,6 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { plotOpen, advance, assignedWorkers, capacity, cost, execute, freePlots, idleWorkers, initialGame, parseSave, population, PLOTS, rates, researchReason, duration, workerCapacity, WORKERS_PER_LEVEL, fullResources, nearlyFullResources, activeJob, QUEUE_LIMIT, housing, contentment, unhousedByUnrest, soldiers, recruitReason, buildReason, unitCost, wallDefense, cityDefense, power, UNITS, BUILDINGS, BUILDING_IDS, zoneOf } from './engine'
+import { plotOpen, advance, assignedWorkers, capacity, cost, execute, freePlots, idleWorkers, initialGame, parseSave, population, PLOTS, rates, researchReason, duration, workerCapacity, WORKERS_PER_LEVEL, fullResources, nearlyFullResources, activeJob, QUEUE_LIMIT, housing, contentment, unhousedByUnrest, soldiers, recruitReason, buildReason, unitCost, wallDefense, cityDefense, power, UNITS, BUILDINGS, BUILDING_IDS, zoneOf, offlineCapHours } from './engine'
 import { TILE_W, TILE_H, USES_MEASURED, CENTER_PLOT } from './layout'
 import { WORLD, CITY, CITY_SPAN, TILE_WORLD, toWorldX, toWorldY, px, groundShapes, buildingPlacement, visualSignature } from './city-render'
 
@@ -77,7 +77,7 @@ test('objective rewards cannot be claimed early or twice', () => {
   assert.ok(second.error)
   assert.equal(second.game.resources.gold, claimed.resources.gold)
 })
-test('offline production stops at 8 hours even for non-full resources', () => {
+test('offline production stops at the offline cap (8 h + 1 h per Ambar level) even for non-full resources', () => {
   const g = initialGame(now)
   g.buildings.medrese = 1
   /*
@@ -89,7 +89,10 @@ test('offline production stops at 8 hours even for non-full resources', () => {
    */
   g.workers.medrese = WORKERS_PER_LEVEL
   g.resources.knowledge = 0
-  assert.equal(advance(g, now + 24 * 3600_000).resources.knowledge, 8 * 60 * 8)
+  assert.equal(offlineCapHours(g), 8 + g.buildings.ambar)
+  assert.equal(advance(g, now + 30 * 3600_000).resources.knowledge, 8 * 60 * offlineCapHours(g))
+  g.buildings.ambar = 40
+  assert.equal(offlineCapHours(g), 24)
 })
 test('save validation rejects malformed saves without silently losing data', () => {
   const g = initialGame(now)

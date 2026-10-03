@@ -3080,3 +3080,12 @@ html[data-motion="az"] *, html[data-motion="az"] *::before, html[data-motion="az
 .wm-route path:last-child { animation: wm-route 2.4s linear infinite; }
 @keyframes wm-route { to { stroke-dashoffset: -26; } }
 @media (prefers-reduced-motion: reduce) { .wm-foam, .wm-route path:last-child { animation: none; } }
+
+/* V2 Faz 5.6 — haftalık olay kartı (Görevler sayfası). */
+.season-card { display: grid; gap: 3px; padding: 12px 14px; margin-bottom: 10px; border-radius: 12px; border: 1.5px solid var(--c-tan-line); background: linear-gradient(180deg, var(--c-paper), var(--c-parch-2)); }
+.season-card strong { font-family: var(--font-heading), Georgia, serif; font-size: var(--fs-xl); color: var(--c-ink); }
+.season-card p { margin: 0; font-size: var(--fs-md); color: var(--c-ink-soft); }
+.season-card small { font-size: var(--fs-xs); color: var(--c-ink-muted); font-weight: 700; }
+.season-card.is-kervan { border-color: var(--c-gold-deep); }
+.season-card.is-korsan { border-color: var(--c-bad); }
+.season-card.is-ramazan { border-color: #6f9a5b; }

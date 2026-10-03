@@ -210,6 +210,35 @@ parçacık sayısı yarıya iner.
 | 5.9 | **Denge turu:** birim maliyet/güç, araştırma süreleri, baskın sıklığı. `tools/balance-report.ts` tablo üretir. | M | Hiçbir birim maliyet başına %30'dan fazla üstün değil. |
 | 5.10 | **Anlaşılmaz terimler taraması:** bütün etiketler bir listeye çıkarılır, her terimin ⓘ açıklaması olur ("İdari barınma", "Hava savunması"...). | S | Açıklamasız terim kalmıyor. |
 
+**İlerleme: 0.36.0'da 5.3, 5.4, 5.6, 5.9 tamam; 5.2'nin aracı hazır, ayarı karar bekliyor. 5.1, 5.5, 5.7, 5.8, 5.10 sırada (0.37).**
+
+- **5.3:** Çevrimdışı üretim sınırı `offlineCapHours` = 8 + Ambar seviyesi (en çok 24). Ambar sayfasında yazıyor. Dönüş özeti sınır aşıldıysa "üretim N saat sonra durdu" der. Test: 30 gün ileri sarılan kayıtta özet hem sınırı hem dünya haberlerini içeriyor (`away.test.ts`).
+- **5.4:** `lib/game/clock.ts` oyun saati hiç geri gitmez. Cihaz saati geri alınırsa son görülen andan gerçek zamanla (performance.now) sürer ve oyuncu uyarılır. İleri atlama sunucusuz ayırt edilemez; kazancını çevrimdışı sınır keser. Test: dört saat senaryosu.
+- **5.6:** `lib/game/events.ts` 6 haftalık çevrim: Kervan, sakin, Korsan, Hasat, sakin, Ramazan. Etkiler motorda (ticaret sınırı ve gemi yükü, baskın aralığı ve ganimet, kereste, huzur). Başlangıç ve bitiş günlüğe ve dünya haberlerine yazılıyor; Görevler'de "Bu hafta" kartı var. Takvim 5 Ocak 2026'dan önce sessizdir (eski testler etkilenmez).
+- **5.9:** `lib/game/balance.ts` + `tools/balance-report.ts`. Kural testte: hiçbir savaş birimi rolünün ortanca veriminden %30 üstün değil, hiçbiri ×0,6'nın altında değil. Dalgıç Gemisi ×0,63 idi, güçlendirildi (×0,77).
+- **5.2:** `lib/game/pace.ts` + `tools/pace-sim.ts`. Sade bir bot; her girişte ödül alır, işçi ve madenciyi dağıtır, eksik lüks malı tüccardan alır, kuyruğu doldurur, araştırma başlatır. Bugünkü eğri:
+
+```
+Gün | aktif | gunde3 | gunde1
+  1 |    16 |     4 |     2
+  2 |    21 |     7 |     3
+  3 |    23 |    10 |     4
+  5 |    25 |    13 |     6
+  7 |    27 |    14 |     8
+ 10 |    29 |    16 |    11
+ 14 |    31 |    19 |    13
+ 21 |    32 |    22 |    14
+ 30 |    32 |    30 |    16
+
+Hedefe ulaşma günü (hedef ±%20):
+Divanhane 10 → hedef 2. gün · aktif: 1 · gunde3: 3 · gunde1: 9
+Divanhane 15 → hedef 7. gün · aktif: 1 · gunde3: 9 · gunde1: 25
+Divanhane 20 → hedef 30. gün · aktif: 2 · gunde3: 16 · gunde1: yok
+```
+
+  Hedefle karşılaştırma: günde 3 giren oyuncu hedefe göre başta yavaş (10'a 3. gün, 15'e 9. gün), sonra hızlı (20'ye 16. gün; hedef 30). Divanhane 10'a 2. günde ulaşmak, günde 3 girişle (2 günde 6 giriş) kuyruk yapısı yüzünden mümkün değil. Hedefe yaklaşmak için Divanhane maliyet artışı (1,35 → ~1,5–1,6) ve başlangıç maliyeti düşürülebilir. Bu, mevcut oyuncuların ilerleyişini değiştiren bir tasarım kararı olduğu için depo sahibine bırakıldı.
+
+
 ## Faz 6 — Performans ve boyut (0.36)
 
 | # | İş | Boyut | Bitti sayılır |

@@ -22,6 +22,8 @@ import { ISLANDS, type IslandId } from './islands'
 import { ensureDaily, parseDaily, type Daily } from './daily'
 import { parseMilestones } from './milestones'
 import { advanceWorld, parseWorld, type World } from './rivals'
+import { worldNews } from './ai'
+import { SEASONS, seasonChanges } from './events'
 import { advanceMissions, advanceSieges, advanceThreats, idleMerchants, siegeBlock, type Siege, merchantShipPrice, parseMissionState, shipCargo, totalMerchants, type Mission, type NpcState, type Report, type Threat } from './expeditions'
 export const COLONY_COST = { gold: 900, wood: 1200, stone: 450 } as const
 const COLONY_SHIPS = 3
@@ -211,7 +213,18 @@ export function advanceEmpire(source: Empire, now: number): Empire {
   advanceSieges(empire, now)
   ensureDaily(empire, now)
   advanceWorld(empire, now)
+  announceSeasons(empire, Math.max(...source.cities.map(c => c.game.updatedAt)), now)
   return empire
+}
+
+/** Haftalık olay başlayınca ve bitince şehir günlüğüne ve dünya haberlerine yazılır (V2 Faz 5.6). */
+function announceSeasons(empire: Empire, from: number, to: number) {
+  for (const ch of seasonChanges(from, to)) {
+    const S = SEASONS[ch.id]
+    const text = `${S.name}: ${ch.kind === 'start' ? `${S.start} ${S.effect}` : S.end}`
+    for (const c of empire.cities) logEvent(c.game, text, ch.time)
+    worldNews(empire, ch.time, ch.id === 'korsan' ? 'savas' : ch.id === 'kervan' ? 'ticaret' : 'buyume', text, [])
+  }
 }
 
 /** Ticaret Limanı'ndan bir ticaret gemisi satın al (fiyat her gemiyle artar; gemi ortak filoya katılır). */

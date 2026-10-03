@@ -1,4 +1,5 @@
 import { SHOWS, SHOW_IDS, emptyShows, showLength, showContentment, showCooldownMs, showFavor, showOn, type ShowId, type Shows } from './theatre'
+import { seasonContentment, tradeMul, woodMul } from './events'
 import { GODS, GOD_IDS, OFFER_RATE, blessing, patronChangeMs, powerRestMs, emptyGods, godBuff, lutufCap, lutufRate, type GodId, type Gods } from './gods'
 import { GUILDS, GUILD_IDS, GUILD_MAX, PATRON_COOLDOWN_MS, devotionFor, emptyGuilds, guildBonus, guildLevel, himmetCap, himmetRate, patronSlots, type GuildId, type Guilds } from './guilds'
 import { SLOTS, START_ROADS, isRoadCell, type Zone } from './layout'
@@ -420,7 +421,7 @@ export const UNITS: Record<UnitId, Unit> = {
   hezarfen: { name: 'Hezarfen', branch: 'kara', role: 'fighter', home: 'kisla', level: 7, tech: 'kanat', description: 'Kanat takıp süzülen avcı. Düşmanın havadaki birliklerini düşürür; hava yoksa kanatlara dalar.', pop: 1, cost: R(260, 120, 20), attack: 40, defense: 6, hp: 40, upkeep: 3, seconds: 34, cargo: 0 },
   lagari: { name: 'Lagari Roketçisi', branch: 'kara', role: 'bomber', home: 'kisla', level: 8, tech: 'roket', description: 'Barutlu roketle havadan vurur; surun üstünden safları döver. Ona yalnızca Hezarfen yetişir.', pop: 2, cost: R(420, 160, 80), attack: 90, defense: 4, hp: 70, upkeep: 5, seconds: 45, cargo: 0 },
   zenberek_gemisi: { name: 'Zenberek Gemisi', branch: 'deniz', role: 'range', home: 'tersane', level: 3, tech: 'zenberek', description: 'Güvertesinde dev zenberek (arbalet) taşır; uzaktan ucuz ve sürekli atış.', pop: 8, cost: R(520, 420, 20), attack: 40, defense: 18, hp: 260, upkeep: 3, seconds: 42, cargo: 0 },
-  dalgic_gemisi: { name: 'Dalgıç Gemisi', branch: 'deniz', role: 'front', home: 'tersane', level: 6, tech: 'dalgic', description: 'Suyun altından yaklaşan gemi: vurulması zordur, gövdelere ağır darbe indirir.', pop: 12, cost: R(900, 520, 140), attack: 75, defense: 30, hp: 280, upkeep: 6, seconds: 70, cargo: 0 },
+  dalgic_gemisi: { name: 'Dalgıç Gemisi', branch: 'deniz', role: 'front', home: 'tersane', level: 6, tech: 'dalgic', description: 'Suyun altından yaklaşan gemi: vurulması zordur, gövdelere ağır darbe indirir.', pop: 12, cost: R(900, 520, 140), attack: 75, defense: 40, hp: 380, upkeep: 6, seconds: 70, cargo: 0 },
   buharli_koc: { name: 'Buharlı Koç', branch: 'deniz', role: 'front', home: 'tersane', level: 8, tech: 'buhar', description: 'Buharla yürüyen demir burunlu dev gemi. Denizin en ağır ön cephesi.', pop: 20, cost: R(1800, 1100, 300), attack: 150, defense: 110, hp: 1000, upkeep: 10, seconds: 95, cargo: 0 },
   balon_gemisi: { name: 'Balon Gemisi', branch: 'deniz', role: 'bomber', home: 'tersane', level: 8, tech: 'roket', description: 'Güvertesinden roketli balonlar kaldırır; düşman filosunu havadan döver. Ona yalnızca Karamürsel yetişir.', pop: 14, cost: R(1100, 800, 200), attack: 110, defense: 20, hp: 360, upkeep: 7, seconds: 80, cargo: 0 },
   casus: { name: 'Casus', branch: 'kara', role: 'spy', home: 'elcilik', level: 1, description: 'Elçilikte yetişir. Komşu yerleşimlerin askerini, surunu ve hazinesini gözetler; savaşmaz.', pop: 1, cost: R(140, 0), attack: 0, defense: 0, hp: 10, upkeep: 0.5, seconds: 25, cargo: 0 },
@@ -685,7 +686,7 @@ export function cargoCapacity(g: Game) { return Math.round(g.army.nakliye * UNIT
   (g.research.includes('pusula') ? 1.5 : 1) * (g.research.includes('yukleme') ? 1.2 : 1)) }
 
 /** Ticaret limaninin ayni anda tasinmasina izin verdigi mal. Ticaret Yolları %30 artırır. */
-export function tradeCapacity(g: Game) { return Math.round(g.buildings.liman * 1200 * (g.research.includes('ticaret') ? 1.3 : 1) * (govIs(g, 'loncalar') ? 1.2 : 1)) }
+export function tradeCapacity(g: Game) { return Math.round(g.buildings.liman * 1200 * (g.research.includes('ticaret') ? 1.3 : 1) * (govIs(g, 'loncalar') ? 1.2 : 1) * tradeMul(g.updatedAt)) }
 /** Limanın dakikada yüklediği mal (nakliye süresine eklenir). */
 export function loadingSpeed(g: Game) { return Math.max(1, g.buildings.liman) * 300 * (g.research.includes('yabanci_kultur') ? 2 : 1) }
 
@@ -798,7 +799,7 @@ export function rates(g: Game): Resources {
       (1 + guildBonus(g, 'tuccar') * GUILDS.tuccar.per) -
       scientistUpkeepPerMinute(g) - armyUpkeep(g)),
     wood: (g.buildings.kereste * 120 * share('kereste') + forestProduction(g)) * multiplier *
-      (g.research.includes('ormancilik') ? 1.15 : 1) * (1 + g.buildings.ormanci * BUILDING_EFFECTS.ormanciWood) * (showOn(g, 'dram') ? 1.1 : 1),
+      (g.research.includes('ormancilik') ? 1.15 : 1) * (1 + g.buildings.ormanci * BUILDING_EFFECTS.ormanciWood) * (showOn(g, 'dram') ? 1.1 : 1) * woodMul(g.updatedAt),
     stone: g.buildings.tas * 90 * share('tas') * multiplier *
       (g.research.includes('tascilik') ? 1.15 : 1) * (1 + g.buildings.tasci * BUILDING_EFFECTS.tasciStone) * (showOn(g, 'dram') ? 1.1 : 1),
     knowledge: g.buildings.medrese * 8 * share('medrese') * multiplier * (1 + g.buildings.cami * BUILDING_EFFECTS.camiKnowledge) *
@@ -838,7 +839,7 @@ export function contentment(g: Game) {
     g.buildings.muze * BUILDING_EFFECTS.muzeContentment * (g.research.includes('kultur') ? 1.5 : 1) + (g.culture ?? 0) * 50 +
     (g.research.includes('tatil') ? 25 : 0) + (g.research.includes('kuyu') && capital ? 50 : 0) +
     (g.research.includes('utopya') && capital ? 200 : 0) + gov - (anarchy(g) ? 50 : 0) + guildBonus(g, 'kahveci') * GUILDS.kahveci.per + blessing(g, 'umay') * 4 +
-    (showOn(g, 'kultur') ? showContentment(g.buildings.karagoz) : 0))
+    (showOn(g, 'kultur') ? showContentment(g.buildings.karagoz) : 0) + seasonContentment(g.updatedAt))
 }
 
 /**
@@ -990,7 +991,7 @@ export function exchangeLimit(g: Game) { return 400 * g.buildings.kara_pazar }
 /** Çarşıdaki tüccar: akçe karşılığı lüks alım/satım (NPC; oyuncu pazarı değil). */
 export const MERCHANT_BUY = 6
 export const MERCHANT_SELL = 2
-export function merchantLimit(g: Game) { return g.buildings.carsi * 150 + g.buildings.ticaret_merkezi * BUILDING_EFFECTS.merchantLimit }
+export function merchantLimit(g: Game) { return Math.round((g.buildings.carsi * 150 + g.buildings.ticaret_merkezi * BUILDING_EFFECTS.merchantLimit) * tradeMul(g.updatedAt)) }
 /** Ticaret Merkezi fiyatları iyileştirir: alış en az 3, satış en çok 4 akçe. */
 export function merchantBuyPrice(g: Game) { return Math.max(3, MERCHANT_BUY - g.buildings.ticaret_merkezi * BUILDING_EFFECTS.merchantBuyStep) }
 export function merchantSellPrice(g: Game) { return Math.min(4, MERCHANT_SELL + g.buildings.ticaret_merkezi * BUILDING_EFFECTS.merchantSellStep) }
@@ -1094,12 +1095,18 @@ export function groupLog(log: Game['log']): { text: string; time: number; count:
   }
   return out
 }
+/**
+ * ÇEVRİMDIŞI ÜRETİM SINIRI (V2 Faz 5.3): oyun kapalıyken kaynaklar 8 saat
+ * birikir; Ambar'ın her seviyesi bir saat ekler (en çok 24). Sınır, ileri
+ * alınan cihaz saatinin kazancını da keser (lib/game/clock.ts).
+ */
+export function offlineCapHours(g: Game): number { return Math.min(24, 8 + g.buildings.ambar) }
 export function advance(source: Game, now: number): Game {
   const g: Game = structuredClone(source)
   if (now <= g.updatedAt) return g
   const start = g.updatedAt
   if (g.citizens === undefined) g.citizens = maxPopulation(g)
-  const cutoff = Math.min(now, start + 8 * 3600_000)
+  const cutoff = Math.min(now, start + offlineCapHours(g) * 3600_000)
   let cursor = start
   function produce(until: number) {
     const minutes = Math.max(0, Math.min(until, cutoff) - Math.min(cursor, cutoff)) / 60_000

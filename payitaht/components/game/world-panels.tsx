@@ -41,6 +41,7 @@ import { RulerCrest } from './profile-panel'
 import { GoalCard, RewardTokens } from './goal-card'
 import { flyGoods } from '@/lib/fx'
 import { buildingImage } from '@/lib/asset'
+import { SEASONS, seasonWeek } from '@/lib/game/events'
 import { profileOf, rivalHeraldry } from '@/lib/game/profile'
 
 export type Op = (e: Empire, now: number) => { empire: Empire; error?: string }
@@ -166,6 +167,18 @@ export function DailyPanel({ empire, run }: { empire: Empire; run: Run }) {
         onClaim={() => run(mutate((e, now) => claimTask(e, id, now)), 'Günlük görev ödülü hazinede.')} />
     })}
     <p className="fine-print">Görevler her gün (UTC gece yarısı) yenilenir.</p>
+  </section>
+}
+
+/** BU HAFTA (V2 Faz 5.6): haftalık olayın adı, etkisi ve kalan süresi. */
+export function SeasonCard({ now }: { now: number }) {
+  const w = seasonWeek(now)
+  const next = seasonWeek(w.end + 1)
+  const days = Math.max(0, Math.ceil((w.end - now) / 86_400_000))
+  return <section className={`season-card${w.id ? ` is-${w.id}` : ''}`}>
+    <span className="eyebrow"><CalendarCheck className="size-3" /> BU HAFTA</span>
+    {w.id ? <><strong>{SEASONS[w.id].name}</strong><p>{SEASONS[w.id].effect}</p></> : <><strong>Sakin hafta</strong><p>Bu hafta özel bir olay yok.</p></>}
+    <small>{days} gün kaldı{next.id ? ` · sonra: ${SEASONS[next.id].name}` : ''}</small>
   </section>
 }
 
