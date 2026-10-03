@@ -1,6 +1,6 @@
 # Payitaht — ortak görsel üretim kökü (G0)
 
-Durum: **G0 onayı bekleniyor**. G1'e geçmeden depo sahibinin onayı gerekir.
+Durum: **G0 onaylandı (2026-10-03)**. G2 sonunda yeniden onay beklenir.
 
 Her üretimde bu kökü, grup tarifini ve `docs/stil-sayfasi.webp` referansını
 birlikte kullan. Bina üretiminde ilgili mevcut boyalı binayı da referans ver.

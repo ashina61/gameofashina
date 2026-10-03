@@ -8,7 +8,7 @@ Tarih: 2026-10-03. **G0 onayı bekleniyor; G1 başlamadı.**
 
 | Önce | Sonra |
 |---|---|
-| [Mevcut bileşenler](before/style-sheet.png) | [Üretilen stil sayfası](after/style-sheet.png) |
+| [Mevcut bileşenler](before/style-sheet.webp) | [Üretilen stil sayfası](after/style-sheet.webp) |
 
 Önce görüntüsü `UnitFigure`, `AdvisorPortrait`, `AkceArt`, `KeresteArt`,
 `TasArt` ve `GameButton` bileşenlerinin gerçek React çıktısı ile mevcut
@@ -16,8 +16,8 @@ Divanhane/zeytin ağacı dosyalarını kullanır. Bileşenler karşılaştırma 
 büyütülmüştür. Oyun ekranı değildir. Sonra görüntüsü yeni stil belgesinin
 tarayıcıda 1536×1024 yakalamasıdır; oyun ekranına uygulanmış gibi sunulmaz.
 
-Gerçek telefon başlangıç görüntüleri: [şehir](before/city-390x844.png),
-[ordu](before/army-390x844.png). G0 yalnız sanat onayıdır: brifteki kod
+Gerçek telefon başlangıç görüntüleri: [şehir](before/city-390x844.webp),
+[ordu](before/army-390x844.webp). G0 yalnız sanat onayıdır: brifteki kod
 bağlantısı `—`; oyun görüntüsü bu fazda değişmez.
 
 Yeniden yakalama: statik derlemeden sonra Playwright erişilebilirken

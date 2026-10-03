@@ -28,3 +28,5 @@ android/app/payitaht-release.keystore
 !/visual-review/
 /visual-review/*
 !/visual-review/G0/
+!/visual-review/G1/
+!/visual-review/G2/

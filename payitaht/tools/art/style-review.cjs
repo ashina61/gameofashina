@@ -7,6 +7,7 @@ const React = require('react')
 global.React = React
 const { renderToStaticMarkup } = require('react-dom/server')
 const { chromium } = require('playwright')
+const { reviewWebp } = require('../lib/review-webp.cjs')
 const { UnitFigure } = require('../../components/game/unit-art.tsx')
 const { AdvisorPortrait } = require('../../components/game/advisor-portraits.tsx')
 const { AkceArt, KeresteArt, TasArt } = require('../../components/game/resource-art.tsx')
@@ -40,7 +41,7 @@ async function main() {
     for (const phase of ['before', 'after']) {
       await page.goto(`http://127.0.0.1:${server.address().port}/${phase}`)
       await page.evaluate(() => Promise.all([...document.images].map(im => im.decode())))
-      await page.screenshot({ path: path.join(OUT, phase, 'style-sheet.png'), animations: 'disabled' })
+      await reviewWebp(await page.screenshot({ type: 'png', animations: 'disabled' }), path.join(OUT, phase, 'style-sheet.webp'))
     }
     if (errors.length) throw new Error(errors.join('\n'))
     console.log('G0 style review: current React samples + generated style sheet captured.')

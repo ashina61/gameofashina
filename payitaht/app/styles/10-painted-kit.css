@@ -1,0 +1,84 @@
+/* G1. Real painted textures; explicit image widths do not change box geometry.
+ * Cropped 512px plates: corner caps stay inside 64px source slices. The
+ * rectangular center alone stretches. Circular parts scale uniformly. */
+.ika-ribbon, .ika-nav, .bp-bar {
+  background: var(--c-wood-dark);
+  border-image: var(--art-walnut-plate) 56 fill / 10px / 0 stretch;
+}
+.bp {
+  background: var(--c-paper-warm);
+  border: 0 solid transparent;
+  border-image: var(--art-page-frame) 48 fill / 12px / 0 stretch;
+}
+.bp-box, .bp .empire-section {
+  background: var(--c-paper-warm);
+  border-image: var(--art-page-frame) 48 fill / 12px / 0 stretch;
+  box-shadow: 0 3px 8px #0002;
+}
+.bp-box-title, .bp .empire-section > h3, .treasury-head {
+  background: transparent;
+  border: 0 solid transparent;
+  border-image: var(--art-ribbon-red) 32 72 fill / 8px 24px / 0 stretch;
+  clip-path: none;
+  box-shadow: none;
+  color: var(--c-cream);
+}
+.bp-box-title::after, .bp .empire-section > h3::after { display: none; }
+.gbtn-gold, .gbtn-parch, .gbtn-red {
+  background: transparent;
+  border-image-slice: 56 fill;
+  border-image-width: 10px;
+  border-image-repeat: stretch;
+  box-shadow: 0 2px 3px #0003;
+}
+.gbtn-gold { border-image-source: var(--art-button-gold); }
+.gbtn-parch { border-image-source: var(--art-button-parch); }
+.gbtn-red { border-image-source: var(--art-button-red); }
+/* Round icon-only controls use a uniformly scaled disk, not nine-slice. */
+.gbtn-icon:is(.gbtn-gold, .gbtn-parch, .gbtn-red),
+.ika-nav-center .ika-nav-icon, .sk-medal, .treasury-icon {
+  border-image: none;
+  background: var(--art-medal-frame) center / 100% 100% no-repeat;
+  border-color: transparent;
+  box-shadow: 0 2px 3px #0004;
+}
+.ika-chip {
+  background: transparent;
+  border-image: var(--art-button-parch) 56 fill / 6px / 0 stretch;
+}
+.ika-chip b { color: var(--c-ink-deep); text-shadow: none; }
+.ika-chip small { color: var(--c-ok-deep); }
+.ika-chip-full b, .ika-chip-full small, .ika-chip-cap b, .ika-chip-cap small { color: var(--c-paper); }
+.ika-chip small.ika-rate-negative { color: var(--c-bad); }
+.ika-nav-center.ika-nav-active .ika-nav-icon {
+  background: var(--art-medal-frame) center / 100% 100% no-repeat;
+}
+.ika-chip-full, .ika-chip-cap {
+  border-image-source: var(--art-button-red);
+  color: var(--c-paper);
+}
+.ika-chip-full .ika-chip-num, .ika-chip-cap .ika-chip-num { color: var(--c-paper); }
+.ika-badge {
+  background: transparent;
+  border-image: var(--art-button-red) 56 fill / 4px / 0 stretch;
+}
+.sk-meter {
+  background: transparent;
+  border-image: var(--art-walnut-plate) 56 fill / 4px / 0 stretch;
+}
+.sk-meter > span {
+  background: transparent;
+  border: 0 solid transparent;
+  border-image: var(--art-button-gold) 56 fill / 3px / 0 stretch;
+}
+.sk-meter.is-full > span { border-image-source: var(--art-button-red); }
+.bp-tabs button {
+  background: transparent;
+  color: var(--c-ink);
+  border: 0 solid transparent;
+  border-image: var(--art-button-parch) 56 fill / 8px / 0 stretch;
+}
+.bp-tabs button[aria-selected="true"] {
+  border-image-source: var(--art-button-gold);
+  color: var(--c-ink);
+}

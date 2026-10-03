@@ -1,0 +1,111 @@
+{
+  "pageErrors": [],
+  "missingGameAssets": [],
+  "screenshots": [
+    "title-390x844.png",
+    "city-center-390x844.png",
+    "city-crafts-upgrade-390x844.png",
+    "harbour-390x844.png",
+    "island-atlas-390x844.png",
+    "island-forest-390x844.png",
+    "ui-research-390x844.png",
+    "ui-buildings-390x844.png",
+    "ui-medrese-stage-3-390x844.png",
+    "ui-medrese-stage-1-390x844.png",
+    "ui-medrese-stage-2-390x844.png",
+    "ui-army-390x844.png",
+    "ui-settings-390x844.png",
+    "ui-colony-345x768.png",
+    "siege-occupation-390x844.png",
+    "siege-both-390x844.png",
+    "siege-both-harbour-390x844.png",
+    "siege-blockade-390x844.png",
+    "siege-liberated-harbour-390x844.png",
+    "siege-liberated-390x844.png"
+  ],
+  "viewports": [
+    "390x844"
+  ],
+  "buildingStageLoads": {
+    "390x844": [
+      "ambar-painted-1.webp",
+      "divan-painted-1.webp",
+      "divan-painted-3.webp",
+      "kereste-painted-1.webp",
+      "konut-painted-1.webp",
+      "liman-painted-3.webp",
+      "saray-painted-3.webp",
+      "tas-painted-1.webp"
+    ]
+  },
+  "coastSeed": {
+    "390x844": {
+      "cityId": "city-1",
+      "activeCityId": "city-1",
+      "liman": 2,
+      "tersane": 2,
+      "pLiman": 25,
+      "pTersane": 26,
+      "limanFacing": "straight",
+      "tersaneFacing": "straight"
+    }
+  },
+  "metrics": {
+    "390x844": {
+      "bootMs": 4278,
+      "heapMB": 61
+    }
+  },
+  "colonyLayout": {
+    "viewport": 345,
+    "scroll": 345,
+    "card": {
+      "x": 12,
+      "y": 226,
+      "width": 321,
+      "height": 438,
+      "top": 226,
+      "right": 333,
+      "bottom": 664,
+      "left": 12
+    },
+    "buttons": [
+      {
+        "x": 28,
+        "y": 500,
+        "width": 289,
+        "height": 44,
+        "top": 500,
+        "right": 317,
+        "bottom": 544,
+        "left": 28
+      },
+      {
+        "x": 28,
+        "y": 552,
+        "width": 289,
+        "height": 44,
+        "top": 552,
+        "right": 317,
+        "bottom": 596,
+        "left": 28
+      },
+      {
+        "x": 28,
+        "y": 604,
+        "width": 289,
+        "height": 44,
+        "top": 604,
+        "right": 317,
+        "bottom": 648,
+        "left": 28
+      }
+    ]
+  },
+  "siegeTransitions": [
+    "peace→occupation",
+    "occupation→both",
+    "both→blockade",
+    "blockade→peace"
+  ]
+}

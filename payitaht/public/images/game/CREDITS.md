@@ -56,3 +56,27 @@ G0 belgesi onay içindir, `public/` altında sunulmaz ve telefonda indirilmez.
 Bina referansının asıl dosyası korunmuştur. Stil örnekleri henüz oyun asset'i
 olarak bağlanmamıştır; brifte G0 için kod bağlantısı yoktur. Ayrı oyun dosyaları
 onaydan sonra ilgili fazda üretilir ve ayrıca kaydedilir.
+
+## 4. Görsel yenileme — G1 arayüz kiti
+
+Her dosya: Codex görsel üretimi / OpenAI ImageGen, 2026-10-03.
+Tarif: `tools/art/prompts/g1.md`, ortak kök `_kok.md`; G0 onaylı
+`docs/stil-sayfasi.webp` referansı. OpenAI hizmet koşulları kapsamında çıktı
+kullanımı; üçüncü taraf oyun asset'i yok. Alfa dış boşluğu kırpılıp telefon
+boyunda WebP kalite 82 kodlandı; yüksek çözünürlüklü PNG'ler depoya eklenmedi.
+
+| Dosya (`ui/`) | Kullanım |
+|---|---|
+| `page-frame.webp` | 9-dilim sayfa / içerik kartı çerçevesi |
+| `walnut-plate.webp` | 9-dilim üst bar, alt bar, sayfa başlığı, ilerleme yatağı |
+| `button-gold.webp` | Birincil düğme, seçili sekme, ilerleme dolumu |
+| `button-parch.webp` | İkincil düğme, kaynak kapsülü, sekme |
+| `button-red.webp` | Tehlike düğmesi, dolu ambar kapsülü, haber rozeti |
+| `ribbon-red.webp` | 9-dilim bölüm başlığı |
+| `medal-frame.webp` | Dairesel ikon düğmesi / değer madalyonu; oranlı ölçek |
+
+G0 onayı 2026-10-03'te verildi. Ek onay notları: ikonlar 24 px'te
+`#2a1a0e` ve `#f3e2b9` fonda test edilecek (G2); taşın kenar/gölgesi koyulaşacak.
+G3 portreleri 42 px dairede yüz ortalı ve seçilebilir, omuzlar daire içinde
+kırpılacak. Düğme/plaka süsleri sabit köşe dilimlerinde; orta alan uzatılabilir.
+Onay kanıtları WebP ≤200 KB; önceki G0 PNG kanıtlarının çalışma kopyaları silindi.
