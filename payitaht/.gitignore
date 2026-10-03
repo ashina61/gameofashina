@@ -20,3 +20,6 @@ out/
 # Play Store signing / release artifacts (never commit)
 android/app/payitaht-release.keystore
 *.aab
+
+# QA ekran görüntüleri (tools/visual-qa.cjs, layout-qa.cjs): her koşuda yeniden üretilir.
+/visual-review/
