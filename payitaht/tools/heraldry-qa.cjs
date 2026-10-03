@@ -40,7 +40,16 @@ async function checkHeraldry(page, label, out) {
     await page.reload()
     await page.getByRole('button', { name: /Hikâyeye başla|Devam et/ }).click()
     await page.getByRole('button', { name: 'İttifak', exact: true }).click()
-    await page.getByRole('button', { name: 'Sancağı düzenle' }).click()
+    // Düğme gelmezse CI günlüğüne sayfanın durumunu yaz (kayıt, açık panel, ekrandaki yazı).
+    await page.getByRole('button', { name: 'Sancağı düzenle' }).click().catch(async e => {
+      const state = await page.evaluate(key => {
+        const raw = localStorage.getItem(key); let pact = 'yok'
+        try { pact = JSON.parse(raw).world?.pact?.name ?? 'yok' } catch { pact = 'okunamadı' }
+        return { url: location.href, pact, dialogs: [...document.querySelectorAll('[role="dialog"]')].map(d => d.getAttribute('aria-label')), body: document.body.innerText.slice(0, 500) }
+      }, key).catch(err => ({ evaluate: String(err) }))
+      console.error(`${label}: alliance editor missing`, JSON.stringify(state))
+      throw e
+    })
     await choice('Sancak biçimi', 'Üç dil').click()
     await choice('Arma', 'Çınar').click()
     await choice('Renk', '#796529').click()
