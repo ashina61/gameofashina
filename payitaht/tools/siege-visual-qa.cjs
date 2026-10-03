@@ -33,8 +33,17 @@ module.exports = async function siegeReview(browser, out, origin, seedRaw, diagn
     await page.getByRole('button', { name: /Oyun ayarları/ }).click()
     await page.locator('input[type="file"]').setInputFiles({ name: 'siege-qa.json', mimeType: 'application/json', buffer: Buffer.from(JSON.stringify({ ...seed, sieges })) })
     await page.getByRole('dialog', { name: /Oyun ayarları/ }).waitFor({ state: 'hidden' })
+    // Geri yükleme bildirimi görüldü = içe aktarma bitti. Bildirimin KENDİLİĞİNDEN
+    // kapanmasını beklemek, sabit saat (setFixedTime) ve yavaş CI'da zamanlayıcıya
+    // bağlı kaldığı için ara sıra 10 sn'yi aşıyordu; kuşatma görünümü durumla beklenir,
+    // bildirimler çekimde gizlenir (shot).
+    await page.getByText('Kayıt yedeği geri yüklendi.').first().waitFor({ timeout: 10_000 })
+    const wantOcc = sieges.some(s => s.kind === 'occupy'), wantBlock = sieges.some(s => s.kind === 'blockade')
+    await page.waitForFunction(([occ, block]) => {
+      const c = document.querySelector('.city-scene')?.className ?? ''
+      return c.includes('city-occupied') === occ && c.includes('city-blockaded') === block && !!document.querySelector('.siege-atmosphere') === (occ || block)
+    }, [wantOcc, wantBlock], { timeout: 10_000 }).catch(() => {})
     await page.waitForTimeout(1600)
-    await page.getByText('Kayıt yedeği geri yüklendi.').waitFor({ state: 'hidden', timeout: 10_000 })
     if (!await page.evaluate(() => document.querySelector('canvas') === window.siegeQaCanvas)) throw new Error('Siege transition reset the Phaser canvas')
     const classes = await page.locator('.city-scene').getAttribute('class')
     if (classes.includes('city-occupied') !== sieges.some(s => s.kind === 'occupy') || classes.includes('city-blockaded') !== sieges.some(s => s.kind === 'blockade')) {
@@ -44,7 +53,7 @@ module.exports = async function siegeReview(browser, out, origin, seedRaw, diagn
   }
   const shot = async name => {
     const file = `siege-${name}-390x844.png`
-    await page.screenshot({ path: path.join(out, file), animations: 'disabled' })
+    await page.screenshot({ path: path.join(out, file), animations: 'disabled', style: '[data-sonner-toaster] { visibility: hidden !important; }' })
     diagnostics.screenshots.push(file)
   }
   await importState([occupation]); await shot('occupation')
