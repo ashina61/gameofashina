@@ -25,7 +25,7 @@ test('legacy v3 single-city save migrates without losing buildings, placement, a
   legacy.army.nakliye = 2
   legacy.resources.wood = 211
   const e = parseEmpire(JSON.stringify(legacy))
-  assert.equal(e.version, 1)
+  assert.equal(e.version, 2)
   assert.equal(e.cities.length, 1)
   assert.deepEqual(e.cities[0].game, parseSave(JSON.stringify(legacy)))
   assert.deepEqual(parseEmpire(JSON.stringify(e)), e)
@@ -110,18 +110,18 @@ test('a colony mines its own island luxury and can ship it home', () => {
   const founded = foundColony(e, 'zeytin', now)
   assert.equal(founded.error, undefined)
   const colony = activeCity(founded.empire)
-  assert.equal(colony.game.mine.specialty, 'uzum')
+  assert.equal(colony.game.mine.specialty, 'kahve')
   assert.equal(founded.empire.cities[0].game.mine.specialty, 'mermer')
-  // Koloniye üzüm koy, liman + gemi ver ve başkente gönder.
-  colony.game.luxury.uzum = 300
+  // Koloniye kahve koy, liman + gemi ver ve başkente gönder.
+  colony.game.luxury.kahve = 300
   colony.game.buildings.liman = 1
   colony.game.placement.liman = freePlots(colony.game, 'liman')[0]
   colony.game.army.nakliye = 2
-  const shipped = shipResources(founded.empire, 'city-1', 'uzum', 200, now)
+  const shipped = shipResources(founded.empire, 'city-1', 'kahve', 200, now)
   assert.equal(shipped.error, undefined)
-  assert.equal(activeCity(shipped.empire).game.luxury.uzum, 100)
+  assert.equal(activeCity(shipped.empire).game.luxury.kahve, 100)
   const arrived = advanceEmpire(shipped.empire, shipped.empire.shipments[0].eta)
-  assert.equal(arrived.cities[0].game.luxury.uzum, 200)
+  assert.equal(arrived.cities[0].game.luxury.kahve, 200)
   // Kayıt gidiş-dönüşünde maden kaynağı adadan gelir.
-  assert.equal(parseEmpire(JSON.stringify(arrived)).cities[1].game.mine.specialty, 'uzum')
+  assert.equal(parseEmpire(JSON.stringify(arrived)).cities[1].game.mine.specialty, 'kahve')
 })

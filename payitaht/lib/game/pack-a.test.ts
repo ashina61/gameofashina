@@ -50,7 +50,7 @@ test('island forest takes workers, grows with donations and yields wood', () => 
 test('tavern serving level trades wine for contentment', () => {
   let g = initialGame(now)
   place(g, 'kahvehane', 3)
-  g.luxury.uzum = 500
+  g.luxury.kahve = 500
   const full = contentment(g)
   const wine = wineConsumption(g)
   g = execute(g, { type: 'tavern', value: 1 }, now).game

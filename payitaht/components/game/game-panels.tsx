@@ -592,7 +592,7 @@ export function IslandPanel({ game, islandName, onMiners, onDonate, onTrade }: {
           <Icon aria-hidden="true" /><span>{LUXURY_NAMES[id]}</span><strong>{Math.floor(game.luxury[id])}</strong>
         </div>
       })}</div>
-      <p className="fine-print">Üzüm Kahvehane'de ikram edilir (huzur{game.buildings.kahvehane > 0 ? (wineServed(game) ? ' · şu an ikram ediliyor' : ' · üzüm yok, ikram durdu') : ''}); mermer gelişmiş binalarda, kristal ilim ve kültür yapılarında, kükürt top ve gemilerde kullanılır.</p>
+      <p className="fine-print">Kahve Kahvehane'de ikram edilir (huzur{game.buildings.kahvehane > 0 ? (wineServed(game) ? ' · şu an ikram ediliyor' : ' · kahve yok, ikram durdu') : ''}); mermer gelişmiş binalarda, kristal ilim ve kültür yapılarında, kükürt top ve gemilerde kullanılır.</p>
     </section>
 
     <section className="empire-section">

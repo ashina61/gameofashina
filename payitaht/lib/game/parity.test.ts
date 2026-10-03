@@ -28,7 +28,7 @@ test('new buildings and units are locked behind research like Ikariam', () => {
   const g = initialGame(now)
   g.buildings.divan = 10; g.buildings.kisla = 5
   g.resources = { gold: 1e6, wood: 1e6, stone: 1e6, knowledge: 0 }
-  assert.match(buildReason(g, 'bagci')!, /Bağcılık/)
+  assert.match(buildReason(g, 'bagci')!, /Kahvecilik/)
   g.research.push('bagcilik')
   assert.equal(buildReason(g, 'bagci'), null)
   assert.match(recruitReason(g, 'kocbasi', 1)!, /Mühendislik/)
@@ -60,10 +60,10 @@ test('colonies suffer corruption until the governor residence catches up', () =>
 test('production boosters, cost reducers, dump and trading post', () => {
   const g = initialGame(now)
   g.mine.miners = 12
-  g.mine.specialty = 'uzum'
-  const wine = luxuryProduction(g).uzum
+  g.mine.specialty = 'kahve'
+  const wine = luxuryProduction(g).kahve
   g.buildings.bagci = 5
-  assert.ok(Math.abs(luxuryProduction(g).uzum - wine * 1.1) < 1e-9)
+  assert.ok(Math.abs(luxuryProduction(g).kahve - wine * 1.1) < 1e-9)
   g.buildings.kahvehane = 4
   const drink = wineConsumption(g)
   g.buildings.mahzen = 10

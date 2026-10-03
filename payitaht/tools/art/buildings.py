@@ -2983,7 +2983,7 @@ BUILDINGS = {
 }
 # Aşamasız yardımcı katmanlar: (fonksiyon, gölge var mı)
 EXTRAS = {'site': (site, True), 'scaffold': (scaffold, False),
-          'mine-uzum': (mine_uzum, True), 'mine-mermer': (mine_mermer, True),
+          'mine-kahve': (mine_uzum, True), 'mine-mermer': (mine_mermer, True),
           'mine-kristal': (mine_kristal, True), 'mine-kukurt': (mine_kukurt, True),
           'npc-koy': (npc_koy, True), 'pazar': (pazar, True), 'npc-korsan': (npc_korsan, True), 'npc-kale': (npc_kale, True)}
 

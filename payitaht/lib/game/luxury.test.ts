@@ -11,7 +11,7 @@ test('a new city starts on a marble island with an empty luxury store', () => {
   const g = initialGame(now)
   assert.equal(g.mine.specialty, 'mermer')
   assert.equal(g.mine.level, 1)
-  assert.deepEqual(g.luxury, { uzum: 0, mermer: 0, kristal: 0, kukurt: 0 })
+  assert.deepEqual(g.luxury, { kahve: 0, mermer: 0, kristal: 0, kukurt: 0 })
 })
 
 test('miners extract only the island specialty and come from idle citizens', () => {
@@ -22,7 +22,7 @@ test('miners extract only the island specialty and come from idle citizens', () 
   assert.equal(idleWorkers(r.game), idle - r.game.mine.miners)
   const p = luxuryProduction(r.game)
   assert.ok(p.mermer > 0)
-  assert.equal(p.uzum + p.kristal + p.kukurt, 0)
+  assert.equal(p.kahve + p.kristal + p.kukurt, 0)
   const later = advance(r.game, now + 10 * 60_000)
   assert.ok(Math.abs(later.luxury.mermer - p.mermer * 10) < 1e-6)
 })
@@ -40,10 +40,10 @@ test('wood donations level the mine and raise its worker capacity', () => {
 test('kahvehane drinks wine; when the store runs dry the bonus disappears', () => {
   const g = initialGame(now)
   g.buildings.kahvehane = 2
-  g.luxury.uzum = 12 // 2 seviye x 3 üzüm/dk = 6/dk -> 2 dakika yeter
+  g.luxury.kahve = 12 // 2 seviye x 3 kahve/dk = 6/dk -> 2 dakika yeter
   const wet = contentment(g)
   const later = advance(g, now + 5 * 60_000)
-  assert.equal(later.luxury.uzum, 0)
+  assert.equal(later.luxury.kahve, 0)
   assert.equal(contentment(later), wet - 2 * BUILDING_EFFECTS.kahvehaneWineBonus)
 })
 
@@ -69,7 +69,7 @@ test('heavy units need sulfur', () => {
   g.resources = { gold: 1e5, wood: 1e5, stone: 1e5, knowledge: 0 }
   assert.deepEqual(unitLuxuryCost('mizrakci', 5), {})
   assert.deepEqual(unitLuxuryCost('yeniceri', 5), { kukurt: 30 })
-  assert.deepEqual(unitLuxuryCost('asci', 2), { uzum: 60 })
+  assert.deepEqual(unitLuxuryCost('asci', 2), { kahve: 60 })
   assert.deepEqual(unitLuxuryCost('hekim', 1), { kristal: 30 })
   assert.match(recruitReason(g, 'topcu', 1)!, /kükürt|vatandaş/)
 })
@@ -91,6 +91,6 @@ test('old saves without luxury load with an empty store and a level 1 marble min
   const raw = JSON.parse(JSON.stringify(g))
   delete raw.luxury; delete raw.mine
   const loaded = parseSave(JSON.stringify(raw))
-  assert.deepEqual(loaded.luxury, { uzum: 0, mermer: 0, kristal: 0, kukurt: 0 })
+  assert.deepEqual(loaded.luxury, { kahve: 0, mermer: 0, kristal: 0, kukurt: 0 })
   assert.deepEqual(loaded.mine, { specialty: 'mermer', level: 1, wood: 0, miners: 0 })
 })

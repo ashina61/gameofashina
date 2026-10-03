@@ -55,9 +55,18 @@ export type Shipment = {
   ships?: number
 }
 /** İmparatorluk kaydının şema sürümü (şehir kayıtlarınınki engine.ts'te GAME_SCHEMA). */
-export const EMPIRE_SCHEMA = 1
+export const EMPIRE_SCHEMA = 2
+/**
+ * İmparatorluk kaydı göçü (ham JSON üzerinde, şehirler ayrıştırılmadan önce):
+ *   1 → 2 (0.42): lüks kaynak "uzum" (üzüm) → "kahve". Kimlik kayıtta yalnız
+ *   lüks kaynak adı olarak geçer (stok, maden, nakliye, teklif, birlik bedeli).
+ */
+function migrateEmpireRaw(raw: string, version: number | undefined): string {
+  if (version === undefined || version < 2) raw = raw.replace(/"uzum"/g, '"kahve"')
+  return raw
+}
 export type Empire = {
-  version: 1; activeCityId: string; cities: CityRecord[]
+  version: 2; activeCityId: string; cities: CityRecord[]
   shipments: Shipment[]; nextId: number
   /** Adadaki yerleşimlere giden casus/sefer görevleri. */
   missions?: Mission[]
@@ -89,7 +98,7 @@ export type Empire = {
 
 export function initialEmpire(now: number): Empire {
   return {
-    version: 1, activeCityId: 'city-1',
+    version: 2, activeCityId: 'city-1',
     cities: [{ id: 'city-1', islandId: 'sahil', name: 'Sahilhisar', game: initialGame(now) }],
     shipments: [], nextId: 2, missions: [], reports: [], npcs: {}, threats: [], nextThreat: {},
   }
@@ -109,12 +118,15 @@ export function islandOf(city: CityRecord) {
 const finite = (n: unknown) => typeof n === 'number' && Number.isFinite(n) && n >= 0
 
 /** Legacy single-city saves become an empire without modifying the saved city. */
-export function parseEmpire(raw: string): Empire {
-  const parsed: unknown = JSON.parse(raw)
-  if (!parsed || typeof parsed !== 'object') throw new Error('Kayıt okunamadı.')
-  // İmparatorluk şeması (EMPIRE_SCHEMA) 1'de; şehir kayıtları kendi zincirinden geçer.
-  if ('cities' in parsed && 'version' in parsed && typeof parsed.version === 'number' && parsed.version > EMPIRE_SCHEMA) throw new Error(NEWER_SAVE)
-  if (!('version' in parsed) || parsed.version !== 1 || !('cities' in parsed)) {
+export function parseEmpire(source: string): Empire {
+  const first: unknown = JSON.parse(source)
+  if (!first || typeof first !== 'object') throw new Error('Kayıt okunamadı.')
+  const isEmpire = 'cities' in first && 'version' in first && typeof first.version === 'number'
+  // İmparatorluk şeması EMPIRE_SCHEMA; şehir kayıtları ayrıca kendi zincirinden geçer.
+  if (isEmpire && (first.version as number) > EMPIRE_SCHEMA) throw new Error(NEWER_SAVE)
+  const raw = migrateEmpireRaw(source, isEmpire ? first.version as number : undefined)
+  const parsed = JSON.parse(raw) as object
+  if (!isEmpire) {
     const legacy = parseSave(raw)
     return { ...initialEmpire(legacy.updatedAt), cities: [
       { id: 'city-1', islandId: 'sahil', name: 'Sahilhisar', game: legacy },
@@ -172,7 +184,7 @@ export function parseEmpire(raw: string): Empire {
   const worldState = parseWorld(obj.world, ids)
   const profile = parseProfile(obj.profile)
   return {
-    version: 1, activeCityId: obj.activeCityId, cities, shipments, nextId: obj.nextId, ...extra,
+    version: 2, activeCityId: obj.activeCityId, cities, shipments, nextId: obj.nextId, ...extra,
     ...(st ? { stats: { ...st } } : {}), ...(daily ? { daily } : {}), ...(milestones ? { milestones } : {}), ...(worldState ? { world: worldState } : {}),
     ...(profile ? { profile } : {}),
     ...(obj.capitalId ? { capitalId: obj.capitalId } : {}), ...(obj.capitalMovedAt !== undefined ? { capitalMovedAt: obj.capitalMovedAt } : {}),

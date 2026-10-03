@@ -36,7 +36,7 @@ const HOWTO: { title: string; text: string }[] = [
   { title: 'Şehrini kur', text: 'Boş arsaya dokun, yapını seç. Divanhane büyüdükçe yeni arsalar ve sokaklar açılır.' },
   { title: 'Halkı çalıştır', text: 'Oduncu, taşçı ve âlimleri kaydırıcıyla ata. Boştaki halk akçe öder; işçiler kaynak üretir.' },
   { title: 'İlimle ilerle', text: 'Medresede âlimler ilim üretir. Beş dalda araştırma yeni binaları, birlikleri ve yönetimleri açar.' },
-  { title: 'Adaları keşfet', text: 'Haritadan yeni adalara koloni kur. Her adanın lüks malı farklıdır: üzüm, mermer, kristal ya da kükürt.' },
+  { title: 'Adaları keşfet', text: 'Haritadan yeni adalara koloni kur. Her adanın lüks malı farklıdır: kahve, mermer, kristal ya da kükürt.' },
   { title: 'Ordu ve diplomasi', text: 'Kışla ve Tersane asker yetiştirir. Yapay rakip hükümdarlarla ticaret yap, anlaş ya da savaş.' },
   { title: 'Görevleri izle', text: 'Görevler ekranı sıradaki adımı gösterir ve ödül verir. Oyun sen yokken de işler; döndüğünde üretim birikmiş olur.' },
 ]

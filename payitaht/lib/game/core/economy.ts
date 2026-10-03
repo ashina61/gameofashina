@@ -33,7 +33,7 @@ export function initialGame(now: number): Game {
     workers: { ...blank(WORKER_IDS), kereste: WORKERS_PER_LEVEL, tas: WORKERS_PER_LEVEL },
     army: blank(UNIT_IDS),
     roads: [...START_ROADS], flips: [], coastFacing: { liman: 'straight', tersane: 'straight' },
-    luxury: { uzum: 0, mermer: 0, kristal: 0, kukurt: 0 },
+    luxury: { kahve: 0, mermer: 0, kristal: 0, kukurt: 0 },
     // Başkent Sahil Adası'nda: mermer yatağı. Koloniler kendi adasınınkini alır.
     mine: { specialty: 'mermer', level: 1, wood: 0, miners: 0 },
     temple: { priests: 0, faith: 0, wonder: 'kalkan', wonderLevel: 0, wonderWood: 0, active: null, until: 0, cooldownUntil: 0 },
@@ -323,15 +323,15 @@ export function mineCapacity(g: Game) { return Math.floor(g.mine.level * MINERS_
 /** Bir sonraki maden seviyesi için gereken toplam kereste bağışı. */
 export function mineUpgradeCost(level: number) { return Math.round(600 * 1.55 ** (level - 1)) }
 
-/** Kahvehane üzüm ikram ediyor mu? (Ambarda üzüm var ya da maden üzüm çıkarıyor.) */
+/** Kahvehane kahve ikram ediyor mu? (Ambarda kahve var ya da maden kahve çıkarıyor.) */
 /** Kahvehane'de ikram edilen seviye (oyuncu kısabilir). */
 export function tavernLevel(g: Game) { return Math.max(0, Math.min(g.buildings.kahvehane, g.tavern ?? g.buildings.kahvehane)) }
 export function wineServed(g: Game) {
   if (tavernLevel(g) <= 0) return false
-  return g.luxury.uzum > 0 || luxuryProduction(g).uzum >= wineConsumption(g)
+  return g.luxury.kahve > 0 || luxuryProduction(g).kahve >= wineConsumption(g)
 }
 
-/** Kahvehane'nin dakikalık üzüm tüketimi (Şıra Mahzeni azaltır). */
+/** Kahvehane'nin dakikalık kahve tüketimi (Kahve Kileri azaltır). */
 export function wineConsumption(g: Game) {
   return tavernLevel(g) * BUILDING_EFFECTS.kahvehaneWine * Math.max(0.5, 1 - g.buildings.mahzen * BUILDING_EFFECTS.mahzenWine) *
     (g.research.includes('mutfak') ? 0.9 : 1)
@@ -339,10 +339,10 @@ export function wineConsumption(g: Game) {
 
 /** Maden işçilerinin dakikadaki brüt lüks üretimi (yalnızca adanın kaynağı). */
 export function luxuryProduction(g: Game): LuxuryStock {
-  const out: LuxuryStock = { uzum: 0, mermer: 0, kristal: 0, kukurt: 0 }
+  const out: LuxuryStock = { kahve: 0, mermer: 0, kristal: 0, kukurt: 0 }
   const miners = Math.min(g.mine.miners, mineCapacity(g))
   const boost: Record<Luxury, number> = {
-    uzum: g.buildings.bagci * BUILDING_EFFECTS.bagciWine,
+    kahve: g.buildings.bagci * BUILDING_EFFECTS.bagciWine,
     kukurt: g.buildings.simyahane * BUILDING_EFFECTS.simyaSulfur,
     kristal: g.buildings.camci * BUILDING_EFFECTS.camciCrystal,
     mermer: g.buildings.tasci * BUILDING_EFFECTS.tasciStone,
@@ -352,11 +352,11 @@ export function luxuryProduction(g: Game): LuxuryStock {
   return out
 }
 
-/** Dakikadaki NET lüks değişimi: üretim eksi Kahvehane'nin üzüm ikramı. */
+/** Dakikadaki NET lüks değişimi: üretim eksi Kahvehane'nin kahve ikramı. */
 export function luxuryRates(g: Game): LuxuryStock {
   const out = luxuryProduction(g)
-  if (tavernLevel(g) > 0 && (g.luxury.uzum > 0 || out.uzum > 0)) {
-    out.uzum -= wineConsumption(g)
+  if (tavernLevel(g) > 0 && (g.luxury.kahve > 0 || out.kahve > 0)) {
+    out.kahve -= wineConsumption(g)
   }
   return out
 }
@@ -386,13 +386,13 @@ export function luxuryCost(g: Game, id: BuildingId): Partial<LuxuryStock> {
 /** Ağır birlikler kükürt (barut) ister. */
 /**
  * Birliklerin lüks mal bedeli (Ikariam gibi): barutlu ve ağır birlikler
- * kükürt, aşçı üzüm (şarap), hekim kristal ister. Barut Deneme Alanı ve Top
+ * kükürt, aşçı kahve, hekim kristal ister. Barut Deneme Alanı ve Top
  * Döküm araştırması kükürdü azaltır.
  */
 export const UNIT_LUX: Partial<Record<UnitId, Partial<LuxuryStock>>> = {
   yeniceri: { kukurt: 6 }, azap: { kukurt: 10 }, okcu: { kukurt: 8 }, tufekci: { kukurt: 25 }, mancinik: { kukurt: 30 },
   topcu: { kukurt: 40 }, deli: { kukurt: 45 }, humbaraci: { kukurt: 50 }, hezarfen: { kukurt: 30 }, lagari: { kukurt: 60 },
-  asci: { uzum: 30 }, hekim: { kristal: 30 },
+  asci: { kahve: 30 }, hekim: { kristal: 30 },
   kadirga: { kukurt: 30 }, kalyon: { kukurt: 90 }, ates_gemisi: { kukurt: 45 }, mancinik_gemisi: { kukurt: 60 }, humbara_gemisi: { kukurt: 120 },
   balon_gemisi: { kukurt: 110 }, buharli_koc: { kukurt: 80 }, dalgic_gemisi: { kukurt: 40 },
 }
@@ -440,7 +440,7 @@ export function futureReason(g: Game, branch: ResearchBranch): string | null {
   return null
 }
 export const GOOD_NAMES: Record<Good, string> = {
-  gold: 'Akçe', wood: 'Kereste', stone: 'Taş', knowledge: 'İlim', uzum: 'Üzüm', mermer: 'Mermer', kristal: 'Kristal', kukurt: 'Kükürt',
+  gold: 'Akçe', wood: 'Kereste', stone: 'Taş', knowledge: 'İlim', kahve: 'Kahve', mermer: 'Mermer', kristal: 'Kristal', kukurt: 'Kükürt',
 }
 export function goodAmount(g: Game, good: Good) { return (LUXURY_IDS as readonly string[]).includes(good) ? g.luxury[good as Luxury] : g.resources[good as Resource] }
 export function addGood(g: Game, good: Good, n: number) {

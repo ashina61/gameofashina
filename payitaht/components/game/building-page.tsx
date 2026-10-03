@@ -141,7 +141,7 @@ function CostBreakdown({ game, id }: { game: Game; id: BuildingId }) {
   const rows: Record<string, { title: string; icon: ReactNode; parts: [string, number][] }[]> = {
     marangoz: [{ title: 'Binaların kereste bedeli', icon: <ResIcon id="wood" />, parts: [['Araştırmalar', research], ['Dülgerler loncası', guild], ['Marangozhane', game.buildings.marangoz * E.marangozWood]] }],
     mimar: [{ title: 'Binaların taş ve mermer bedeli', icon: <ResIcon id="stone" />, parts: [['Araştırmalar', research], ['Dülgerler loncası', guild], ['Mimarbaşı', game.buildings.mimar * E.mimarStone]] }],
-    mahzen: [{ title: 'Kahvehanenin üzüm tüketimi', icon: <ResIcon id="uzum" />, parts: [['Şıra Mahzeni', game.buildings.mahzen * E.mahzenWine]] }],
+    mahzen: [{ title: 'Kahvehanenin kahve tüketimi', icon: <ResIcon id="kahve" />, parts: [['Kahve Kileri', game.buildings.mahzen * E.mahzenWine]] }],
     gozlukcu: [{ title: 'Binaların kristal bedeli', icon: <ResIcon id="kristal" />, parts: [['Gözlükçü', game.buildings.gozlukcu * E.gozlukcuCrystal]] }],
     barutane: [
       { title: 'Birliklerin kükürt bedeli', icon: <ResIcon id="kukurt" />, parts: [['Barut Deneme Alanı', game.buildings.barutane * E.barutaneSulfur]] },
@@ -286,9 +286,9 @@ function BuildingView({ game, empire, id, onCommand, onRecruit, onNav, onBuildin
         ['Büyüme', growthRate(game) > 0 ? `+${formatRate(growthRate(game))} kişi/dk` : 'Tavanda']]} />
       <GameButton size="sm" variant="outline" onClick={() => onNav('people')}>Halk paneli<ChevronRight data-icon="inline-end" /></GameButton>
     </Box>
-    case 'kahvehane': return <Box title="Üzüm ikramı">
-      <Table rows={[['İkram seviyesi', `${tavernLevel(game)} / ${game.buildings.kahvehane}`], ['Üzüm tüketimi', `${formatRate(wineConsumption(game))} /dk`],
-        ['Ambardaki üzüm', num(game.luxury.uzum)], ['İkram ediliyor mu', wineServed(game) ? 'Evet' : 'Hayır (üzüm yok)']]} />
+    case 'kahvehane': return <Box title="Kahve ikramı">
+      <Table rows={[['İkram seviyesi', `${tavernLevel(game)} / ${game.buildings.kahvehane}`], ['Kahve tüketimi', `${formatRate(wineConsumption(game))} /dk`],
+        ['Ambardaki kahve', num(game.luxury.kahve)], ['İkram ediliyor mu', wineServed(game) ? 'Evet' : 'Hayır (kahve yok)']]} />
     </Box>
     case 'muze': return <Box title="Kültür">
       <Table rows={[['Müze huzuru', `+${num(game.buildings.muze * BUILDING_EFFECTS.muzeContentment * (game.research.includes('kultur') ? 1.5 : 1))}`],
@@ -305,7 +305,7 @@ function BuildingView({ game, empire, id, onCommand, onRecruit, onNav, onBuildin
     case 'bagci': case 'simyahane': case 'camci': case 'tasci': case 'ormanci': {
       const lux = luxuryProduction(game)
       const out: Record<string, string> = {
-        bagci: `${formatRate(lux.uzum)} üzüm/dk`, simyahane: `${formatRate(lux.kukurt)} kükürt/dk`, camci: `${formatRate(lux.kristal)} kristal/dk`,
+        bagci: `${formatRate(lux.kahve)} kahve/dk`, simyahane: `${formatRate(lux.kukurt)} kükürt/dk`, camci: `${formatRate(lux.kristal)} kristal/dk`,
         tasci: `${num(r.stone)} taş/dk · ${formatRate(lux.mermer)} mermer/dk`, ormanci: `${num(r.wood)} kereste/dk`,
       }
       return <Box title="Üretim"><Table rows={[['Şehrin üretimi', out[id]], ['Maden işçisi', `${game.mine.miners}`]]} />

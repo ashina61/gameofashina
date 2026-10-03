@@ -62,13 +62,18 @@ export function IlimArt(p: P) {
   </Svg>
 }
 
-/** Üzüm (şarap): mor salkım, yaprak ve çubuk. */
-export function UzumArt(p: P) {
-  const grapes: [number, number][] = [[11, 12], [16, 11.5], [21, 12], [13.5, 16.5], [18.5, 16.5], [11, 21], [16, 21], [21, 20.5], [13.5, 25], [18.5, 25], [16, 28.5]]
+/** Kahve: çekirdekler ve fincan (boyalı ikon gelene kadar). */
+export function KahveArt(p: P) {
+  const beans: [number, number, number][] = [[9, 10, -30], [15, 7, 10], [21, 10, 40]]
   return <Svg {...p}>
-    <path d="M16 11 V5 q2 -2 5 -1.5" stroke="#6b4424" strokeWidth="1.6" fill="none" strokeLinecap="round" />
-    <path d="M17 6 q6 -4 11 0 q-4 5 -11 0 Z" fill="#6f9a3e" stroke={INK} strokeWidth="1" />
-    {grapes.map(([x, y], i) => <g key={i}><circle cx={x} cy={y} r="3.3" fill="#7a3b8c" stroke={INK} strokeWidth="0.9" /><circle cx={x - 1} cy={y - 1.1} r="0.9" fill="#d9b4e6" /></g>)}
+    {beans.map(([x, y, r], i) => <g key={i} transform={`rotate(${r} ${x} ${y})`}>
+      <ellipse cx={x} cy={y} rx="3.4" ry="4.6" fill="#6b3a1e" stroke={INK} strokeWidth="0.9" />
+      <path d={`M${x} ${y - 3.6} q-1.4 3.6 0 7.2`} stroke="#d8a26a" strokeWidth="0.9" fill="none" />
+    </g>)}
+    <path d="M6 16 h17 v5.5 q0 6 -8.5 6 q-8.5 0 -8.5 -6 Z" fill="#f4ead2" stroke={INK} strokeWidth="1.1" strokeLinejoin="round" />
+    <path d="M23 18 q4.5 0 4.5 3 q0 3 -4.8 3" stroke={INK} strokeWidth="1.2" fill="none" />
+    <ellipse cx="14.5" cy="16.5" rx="7.6" ry="1.7" fill="#4a2512" stroke={INK} strokeWidth="0.8" />
+    <path d="M9 21 q5.5 2 11 0" stroke="#c9a24e" strokeWidth="1.2" fill="none" />
   </Svg>
 }
 

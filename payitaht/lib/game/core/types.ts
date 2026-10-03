@@ -8,17 +8,17 @@ export const RESOURCE_IDS = ['gold', 'wood', 'stone', 'knowledge'] as const
 export type Resource = typeof RESOURCE_IDS[number]
 export type Resources = Record<Resource, number>
 /**
- * LÜKS KAYNAKLAR (Ikariam'ın şarap/mermer/kristal/kükürdü).
+ * LÜKS KAYNAKLAR (Ikariam'ın şarap/mermer/kristal/kükürdü; şarabın yerine kahve).
  *
  * Her ada TEK bir lüks kaynak yatağına sahiptir; şehir yalnızca kendi
  * adasının kaynağını madenden çıkarır, diğerlerini koloni, nakliye ya da
  * çarşıdaki tüccar yoluyla edinir. Ana kaynaklardan AYRI tutulur: kaynak
  * şeridi ve bütün Resources hesapları değişmeden kalır.
  */
-export const LUXURY_IDS = ['uzum', 'mermer', 'kristal', 'kukurt'] as const
+export const LUXURY_IDS = ['kahve', 'mermer', 'kristal', 'kukurt'] as const
 export type Luxury = typeof LUXURY_IDS[number]
 export type LuxuryStock = Record<Luxury, number>
-export const LUXURY_NAMES: Record<Luxury, string> = { uzum: 'Üzüm', mermer: 'Mermer', kristal: 'Kristal', kukurt: 'Kükürt' }
+export const LUXURY_NAMES: Record<Luxury, string> = { kahve: 'Kahve', mermer: 'Mermer', kristal: 'Kristal', kukurt: 'Kükürt' }
 /** Adanın ortak madeni: seviye, bağışla biriken kereste ve maden işçileri. */
 export type IslandMine = { specialty: Luxury; level: number; wood: number; miners: number }
 /** Ana ya da lüks kaynak (Kara Pazar, nakliye). */

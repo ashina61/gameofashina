@@ -31,6 +31,9 @@ for (const file of files) {
     for (const id of BUILDING_IDS) assert.equal(city.buildings[id], before.buildings[id] ?? 0, id)
     for (const [k, v] of Object.entries(before.resources)) assert.equal(city.resources[k as keyof typeof city.resources], v, k)
     assert.deepEqual(city.queue.map(j => j.id), (before.queue ?? []).map((j: { id: string }) => j.id))
+    // 0.42: üzüm kahveye döndü; eski stok aynen kahve olarak gelir.
+    if (before.luxury?.uzum !== undefined) assert.equal(city.luxury.kahve, before.luxury.uzum)
+    assert.equal(JSON.stringify(empire).includes('"uzum"'), false)
     // Bugünkü motorla bir saat ilerler ve yeniden kaydedilip açılır.
     const later = advanceEmpire(empire, city.updatedAt + 3600_000)
     const again = parseEmpire(JSON.stringify(later))

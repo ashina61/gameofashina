@@ -17,7 +17,7 @@ test('kahvehane pours wine for extra contentment and does not cost akçe', () =>
   const gold = rates(g).gold
   g.buildings.kahvehane = 3
   const dry = contentment(g)
-  g.luxury.uzum = 100
+  g.luxury.kahve = 100
   assert.equal(contentment(g), dry + 3 * BUILDING_EFFECTS.kahvehaneWineBonus)
   assert.equal(rates(g).gold, gold)
 })

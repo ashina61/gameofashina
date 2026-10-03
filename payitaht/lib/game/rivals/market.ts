@@ -8,7 +8,7 @@ import { aiHour, parseAi, PACES } from '../ai'
 import { FACTIONS, HOUR, MAX_DELIVERIES, MAX_FOREIGN_SPIES, MEMO_KINDS, type Offer, RIVALS, type Rival, type RivalStyle, STYLE_NAMES, TREATIES, type World, mail, peek, relate, rivalById, rivalFleet, rivalGarrison, rivalLevel, rivalLoot, rivalWallHp, roll, world } from './core'
 import { considerWar, culturalTreaties, stationTribute } from './diplomacy'
 
-export const FAIR_PRICE: Record<Good, number> = { gold: 1, wood: 2, stone: 3, knowledge: 0, uzum: 5, mermer: 5, kristal: 6, kukurt: 6 }
+export const FAIR_PRICE: Record<Good, number> = { gold: 1, wood: 2, stone: 3, knowledge: 0, kahve: 5, mermer: 5, kristal: 6, kukurt: 6 }
 export const MARKET_GOODS: Good[] = ['wood', 'stone', ...LUXURY_IDS]
 export type MarketOffer = { id: string; rivalId: string; side: 'sell' | 'buy'; good: Good; amount: number; price: number }
 function blockaded(empire: Empire, rivalId: string) { return (empire.missions ?? []).some(m => m.npcId === rivalId && m.kind === 'blockade' && m.stationed) }
@@ -158,7 +158,7 @@ export function fillRate(empire: Empire, o: Offer) {
 const MAIL_LINES = [
   ['Kervan haberi', 'Doğu yolunda kervanlar yeniden işliyor. Pazarımıza uğrayın.'],
   ['Korsan uyarısı', 'Korsanlar son günlerde kıyılarımızı yokluyor. Surlarınızı sağlam tutun.'],
-  ['Hasat', 'Bu yıl bağlar bereketli. Üzüm fazlamızı satmaya hazırız.'],
+  ['Hasat', 'Bu yıl kahve hasadı bereketli. Fazla çekirdeği satmaya hazırız.'],
   ['Elçi daveti', 'Sarayımızın kapısı dostlara açık. Bir anlaşma konuşalım mı?'],
   ['Sınır gerginliği', 'Adalar arasında huzursuzluk var. Tarafını iyi seç.'],
 ]

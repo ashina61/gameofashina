@@ -47,7 +47,7 @@ const Sail = () => <g {...S}><path d="M30 14 V44" /><path d="M31 16 Q46 26 44 40
 const Map = () => <g {...S}><path d="M16 20 L26 17 L38 21 L48 18 V44 L38 47 L26 43 L16 46 Z" fill={PAPER} /><path d="M26 17 V43 M38 21 V47" strokeWidth="0.8" /><path d="M20 38 Q28 26 36 34 T44 24" stroke={RED} strokeDasharray="2 2" fill="none" /></g>
 const Hook = () => <g {...S}><path d="M18 16 H46 M40 16 V26" strokeWidth="2" /><path d="M40 26 Q46 30 40 34 Q36 34 36 31" fill="none" strokeWidth="1.6" /><rect x="24" y="34" width="14" height="12" fill={WOOD} /></g>
 const Hull = () => <g {...S}><path d="M12 32 H52 L46 44 Q32 48 18 44 Z" fill={WOOD} />{[18, 24, 30, 36, 42].map(x => <path key={x} d={`M${x} 32 V44`} strokeWidth="0.8" />)}<path d="M12 32 H52" stroke={GOLD} strokeWidth="2" /></g>
-const Grapes = () => <g {...S}><path d="M32 18 Q34 14 40 14" stroke="#4f7d4a" strokeWidth="2" fill="none" /><path d="M34 16 Q44 16 42 24 Q36 22 34 16 Z" fill="#5f8c3e" />{[[28, 24], [36, 24], [24, 30], [32, 30], [40, 30], [28, 36], [36, 36], [32, 42]].map(([x, y]) => <circle key={x * 100 + y} cx={x} cy={y} r="4" fill="#5b2a5a" />)}</g>
+const CoffeeCup = () => <g {...S}><path d="M18 30 H42 V38 Q42 46 30 46 Q18 46 18 38 Z" fill={PAPER} /><path d="M42 33 Q50 33 49 39 Q48 43 41 42" fill="none" strokeWidth="2" /><ellipse cx="30" cy="30" rx="12" ry="3" fill="#4a2512" /><path d="M24 24 Q22 20 25 16 M31 24 Q29 19 32 14 M38 24 Q36 20 39 16" fill="none" stroke="#8a6a4a" /></g>
 const Alembic = () => <g {...S}><circle cx="26" cy="36" r="9" fill="#7fcf9a" /><path d="M26 27 V20 Q26 16 32 16 L46 24" fill="none" strokeWidth="2" /><path d="M44 22 L48 30" /><circle cx="48" cy="33" r="3" fill="#7fcf9a" /><path d="M22 34 q4 3 8 0" stroke={PAPER} fill="none" /></g>
 const Vase = () => <g {...S}><path d="M28 16 H36 V20 Q46 28 40 44 H24 Q18 28 28 20 Z" fill="#4fa3c7" /><path d="M26 30 Q32 34 38 30" stroke={PAPER} fill="none" /></g>
 const Spectacles = () => <g {...S} fill="none"><circle cx="23" cy="34" r="7" fill="#dff0f5" /><circle cx="41" cy="34" r="7" fill="#dff0f5" /><path d="M30 34 Q32 31 34 34 M16 33 L12 26 M48 33 L52 26" strokeWidth="1.8" /></g>
@@ -109,7 +109,7 @@ const MOTIF: Record<ResearchId, () => ReactNode> = {
   architecture: Architect, alimler: Scholars, kagit: Scroll, murekkep: Ink, mekanik_kalem: PenGear,
   celik: Swords, istihkam: Wall, talim: Target, zirh: Shield, barut: () => <Keg />, askeri_lojistik: Cauldron,
   pusula: Compass, yelken: Sail, haritacilik: Map, yukleme: Hook, gemi_govdesi: Hull,
-  bagcilik: Grapes, simya: Alembic, camcilik: Vase, optik: Spectacles, tip: Mortar,
+  bagcilik: CoffeeCup, simya: Alembic, camcilik: Vase, optik: Spectacles, tip: Mortar,
   muhendislik: Ram, kusatma: Catapult, rum_atesi: FireWave, deniz_topculugu: () => <Cannon ship />,
   koruma: Padlock, zenginlik: Coins, tatil: Lanterns, mutfak: Pot, yardim_eli: Tools, yasama: Seal,
   burokrasi: Tugra, utopya: SunCity, kuyu: Well, casusluk: Eye, devlet: Kavuk, kultur: Rose, anatomi: Bone,
