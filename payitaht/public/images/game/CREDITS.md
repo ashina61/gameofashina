@@ -108,3 +108,18 @@ OpenAI ImageGen, 2026-10-03. Onaylı G0 stil sayfası referansıyla üretim. Tam
 | `icons/ui-harbour.webp` | OpenAI ImageGen, 2026-10-03 |
 | `icons/ui-divan.webp` | OpenAI ImageGen, 2026-10-03 |
 | `icons/ui-offer.webp` | OpenAI ImageGen, 2026-10-03 |
+
+## 6. G2 onay düzeltmeleri, 0.42.0
+
+OpenAI ImageGen, 2026-10-03. Onaylı G0 stil sayfası; `tools/art/prompts/g2-revision.md`. OpenAI kullanım koşulları geçerlidir, başka oyunlardan alınmadı. Şeffaf 256 px, dosya başına ≤12 KB.
+
+| Dosya | Konu |
+|---|---|
+| `icons/res-kahve.webp` | Bakır cezve ve kavrulmuş çekirdekler; res-uzum yerine |
+| `icons/ui-city.webp` | Surlu kapı, kuleler ve çatılar; ui-divan kubbeli kalır |
+| `icons/res-sefer.webp` | Bayraksız, ileri pruvalı kadırga |
+| `icons/res-kukurt.webp` | Toprak kâsede soluk limon kristalleri ve ince duman |
+
+`res-tas.webp` ve `res-uzum.webp` 0.42.0 ile kaldırıldı. Yukarıdaki G2 ilk üretim listesi tarihsel kayıttır; eski şehir/sefer/kükürt üretimleri bu düzeltmelerle değiştirildi.
+
+Diğer sekiz menü ikonu aynı G2 üretim kaynağından daha sıkı alfa sınırıyla 256 px tuvale yeniden sığdırıldı (alfa kalitesi 50, ≤12 KB). Menü/sütun img kutusu 44 px; çizim için 40 px iç alan ve G1 madalyonuyla koyu zeminde kontrast sağlanır.

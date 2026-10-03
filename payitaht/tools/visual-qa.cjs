@@ -211,7 +211,7 @@ async function main() {
       }
     }
     if (width === 390) {
-      for (const expected of ['cami-painted-3.webp', 'saray-painted-3.webp', 'konut-painted-3.webp', 'kisla-painted-3.webp', 'medrese-painted-3.webp', 'carsi-painted-3.webp', 'kereste-painted-3.webp', 'tas-painted-3.webp', 'ambar-painted-3.webp', 'elcilik-painted-3.webp', 'hamam-painted-3.webp', 'kahvehane-painted-3.webp', 'muze-painted-3.webp', 'marangoz-painted-3.webp', 'mimar-painted-3.webp', 'ormanci-painted-3.webp', 'tasci-painted-3.webp', 'bagci-painted-3.webp', 'tophane-painted-3.webp', 'simyahane-painted-3.webp', 'camci-painted-3.webp', 'mahzen-painted-3.webp', 'gozlukcu-painted-3.webp', 'barutane-painted-3.webp']) {
+      for (const expected of ['cami-painted-3.webp', 'saray-painted-3.webp', 'konut-painted-3.webp', 'kisla-painted-3.webp', 'medrese-painted-3.webp', 'carsi-painted-3.webp', 'kereste-painted-3.webp', 'ambar-painted-3.webp', 'elcilik-painted-3.webp', 'hamam-painted-3.webp', 'kahvehane-painted-3.webp', 'muze-painted-3.webp', 'marangoz-painted-3.webp', 'mimar-painted-3.webp', 'ormanci-painted-3.webp', 'tasci-painted-3.webp', 'bagci-painted-3.webp', 'tophane-painted-3.webp', 'simyahane-painted-3.webp', 'camci-painted-3.webp', 'mahzen-painted-3.webp', 'gozlukcu-painted-3.webp', 'barutane-painted-3.webp']) {
         if (!loadedNames.includes(expected)) throw new Error(`${label}: painted stage 3 did not load: ${expected}`)
       }
       const specialists = path.join(out, `city-crafts-upgrade-${label}.png`)
@@ -246,7 +246,7 @@ async function main() {
     await page.getByText('Dünya haritası', { exact: true }).first().waitFor({ timeout: 10_000 })
     const empire = await page.evaluate(() =>
       JSON.parse(localStorage.getItem('payitaht-adalari-v1') || 'null'))
-    if (empire?.version !== 1 || !Array.isArray(empire.cities) || empire.cities.length < 1) {
+    if (typeof empire?.version !== 'number' || empire.version < 1 || !Array.isArray(empire.cities) || empire.cities.length < 1) {
       throw new Error(`${label}: Empire save was not initialized or migrated.`)
     }
     await checkMapZoom(page, '.world-map-scroll', `world-${label}`, out)

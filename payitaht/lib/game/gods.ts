@@ -1,7 +1,7 @@
 /**
  * KADİM TANRILAR — Ikariam'ın tanrılar sisteminin Türk mitolojisi karşılığı.
  *
- * ONGUN MABEDİ dakikada LÜTUF biriktirir; SUNU (akçe, kereste, taş ya da lüks
+ * ONGUN MABEDİ dakikada LÜTUF biriktirir; SUNU (akçe, kereste ya da lüks
  * mal) lütfü hızla artırır. Şehir bir tanrıyı HAMİ seçer:
  *  - Hami tanrının SÜREKLİ LÜTFU mabet seviyesiyle büyür.
  *  - Hami tanrının KUDRETİ lütuf harcanarak çağrılır; sonra tanrı dinlenir.
@@ -50,7 +50,7 @@ export const emptyGods = (): Gods => ({ lutuf: 0, patron: null, changedAt: 0, re
 export const PATRON_CHANGE_MS = 6 * 3600_000
 export const POWER_REST_MS = 4 * 3600_000
 /** Sunu karşılığı: bu kadar mal = 1 lütuf. */
-export const OFFER_RATE = { gold: 40, wood: 60, stone: 50, luxury: 8 } as const
+export const OFFER_RATE = { gold: 40, wood: 60, luxury: 8 } as const
 export function lutufRate(g: Game) {
   return (g.buildings.mabet ?? 0) * 0.3 * (g.research?.includes('ongun_toresi') ? 1.2 : 1) * (1 + (g.future?.mitoloji ?? 0) * 0.05)
 }

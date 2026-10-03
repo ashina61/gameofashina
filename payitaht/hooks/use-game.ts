@@ -7,6 +7,7 @@ import { dispatchPiracy, dispatchRaid, dispatchSpies } from '@/lib/game/expediti
 import {
   activeCity, advanceEmpire, foundColony, initialEmpire,
   shipResources, type Cargo, type Empire, type IslandId,
+  syncShared,
 } from '@/lib/game/empire'
 import {
   SAVE_KEY, exportStoredEmpire, importStoredEmpire, loadStoredEmpire, peekStoredEmpire, saveStoredEmpire,
@@ -127,6 +128,8 @@ export function useGame() {
     const city = activeCity(empire)
     const result = execute(city.game, action, gameNow())
     city.game = result.game
+    // Araştırma, yönetim ve yükseltmeler imparatorluk geneli: hemen öteki şehirlere geçsin.
+    if (!result.error) syncShared(empire, gameNow())
     commit(empire)
     return result.error
   }

@@ -8,8 +8,8 @@ import { aiHour, parseAi, PACES } from '../ai'
 import { FACTIONS, HOUR, MAX_DELIVERIES, MAX_FOREIGN_SPIES, MEMO_KINDS, type Offer, RIVALS, type Rival, type RivalStyle, STYLE_NAMES, TREATIES, type World, mail, peek, relate, rivalById, rivalFleet, rivalGarrison, rivalLevel, rivalLoot, rivalWallHp, roll, world } from './core'
 import { considerWar, culturalTreaties, stationTribute } from './diplomacy'
 
-export const FAIR_PRICE: Record<Good, number> = { gold: 1, wood: 2, stone: 3, knowledge: 0, uzum: 5, mermer: 5, kristal: 6, kukurt: 6 }
-export const MARKET_GOODS: Good[] = ['wood', 'stone', ...LUXURY_IDS]
+export const FAIR_PRICE: Record<Good, number> = { gold: 1, wood: 2, knowledge: 0, kahve: 5, mermer: 5, kristal: 6, kukurt: 6 }
+export const MARKET_GOODS: Good[] = ['wood', ...LUXURY_IDS]
 export type MarketOffer = { id: string; rivalId: string; side: 'sell' | 'buy'; good: Good; amount: number; price: number }
 function blockaded(empire: Empire, rivalId: string) { return (empire.missions ?? []).some(m => m.npcId === rivalId && m.kind === 'blockade' && m.stationed) }
 /** Bu saatin pazar teklifleri (rakipler satar ya da alır). */
@@ -61,7 +61,7 @@ export function mercenaryOffers(empire: Empire, now: number): MercOffer[] {
       const naval = UNITS[unit].branch === 'deniz'
       const count = Math.max(1, Math.round((naval ? 1 + L / 3 : 4 + L * 1.5) * (0.6 + roll(`${key}-c`) * 0.8)))
       const c = UNITS[unit].cost
-      const price = Math.round((c.gold + c.wood * 2 + c.stone * 3) * (1.5 + roll(`${key}-p`) * 0.5) * (peek(empire, r.id).treaties.includes('ticaret') ? 0.9 : 1))
+      const price = Math.round((c.gold + c.wood * 2) * (1.5 + roll(`${key}-p`) * 0.5) * (peek(empire, r.id).treaties.includes('ticaret') ? 0.9 : 1))
       out.push({ id: key, rivalId: r.id, unit, count, price })
     }
   }
@@ -158,7 +158,7 @@ export function fillRate(empire: Empire, o: Offer) {
 const MAIL_LINES = [
   ['Kervan haberi', 'Doğu yolunda kervanlar yeniden işliyor. Pazarımıza uğrayın.'],
   ['Korsan uyarısı', 'Korsanlar son günlerde kıyılarımızı yokluyor. Surlarınızı sağlam tutun.'],
-  ['Hasat', 'Bu yıl bağlar bereketli. Üzüm fazlamızı satmaya hazırız.'],
+  ['Hasat', 'Bu yıl kahve hasadı bereketli. Fazla çekirdeği satmaya hazırız.'],
   ['Elçi daveti', 'Sarayımızın kapısı dostlara açık. Bir anlaşma konuşalım mı?'],
   ['Sınır gerginliği', 'Adalar arasında huzursuzluk var. Tarafını iyi seç.'],
 ]
@@ -270,7 +270,7 @@ export function rivalIntel(empire: Empire, r: Rival, now: number) {
     `${r.ruler} · ${STYLE_NAMES[r.style]} · ${FACTIONS[r.faction].name} · şehir seviyesi ${L}.`,
     `Garnizon: ${troopList(rivalGarrison(L, r.style))}.`,
     `Sur canı ${rivalWallHp(L)}. Donanma: ${troopList(rivalFleet(L, r.style))}.`,
-    `Ambar (korunan hariç): ${loot.gold} akçe, ${loot.wood} kereste, ${loot.stone} taş.`,
+    `Ambar (korunan hariç): ${loot.gold} akçe, ${loot.wood} kereste.`,
     `İlişki: ${peek(empire, r.id).relation}.`,
   ]
 }

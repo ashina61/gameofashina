@@ -6,6 +6,17 @@ export type Release = { version: string; date: string; title: string; notes: str
 
 export const CHANGELOG: Release[] = [
   {
+    version: '0.42.0', date: '3 Ekim 2026', title: 'Kahve, ortak ilim, taşsız şehir',
+    notes: [
+      'Yeni şehir kurunca hiçbir şey baştan başlamaz: araştırmalar, gelecek araştırmaları, yönetim biçimi ve Tophane yükseltmeleri bütün şehirlerinde ortaktır. Bir şehirde biten araştırma hepsinde geçerli; aynı araştırma iki şehirde birden yürütülemez.',
+      'İlim artık gemiyle taşınmaz (kitabı kim nakleder?). Eski kayıtta yolda olan ilim çıktığı şehre geri döner.',
+      'Üzüm yerine kahve: Osmanlı kahvehanesi kahveyle döner. Bağcı Evi → Kahve Fidanlığı, Şıra Mahzeni → Kahve Kileri, Bağcılık → Kahvecilik. Eski üzüm stoğun aynen kahve olarak gelir.',
+      'Taş oyundan çıktı: binalar akçe, kereste ve (ileri seviyede) mermerle yapılır. Taş Ocağı kaldırıldı; seviyesi başına 200 akçe ve 150 kereste iade edilir, eldeki taş 1:1 akçeye çevrilir. Yoldaki taş sevkiyatları ve pazardaki taş teklifleri de akçe olarak döner.',
+      'Taşçı Atölyesi artık adanın mermerini artırır (seviye başına %2), Mimarbaşı mermer bedelini düşürür. Mermer İşçiliği araştırması (eski adıyla Taş İşçiliği) mermer verimini %15 artırır.',
+      'Üst barda bir kaynak eksildi; yağma, ganimet ve haraç akçe ile kereste üzerinden yürür.',
+    ],
+  },
+  {
     version: '0.41.0', date: '3 Ekim 2026', title: 'Rehber yolda bırakmaz',
     notes: [
       'İlk on dakika rehberi artık hiçbir adımda oyuncuyu ortada bırakmıyor: hedef bitince açık sayfanın geri düğmesi parlar, aşağıda kalan "eğit" düğmesine sayfa kendiliğinden kayar, inşaat sürerken ok sabırla bekler.',

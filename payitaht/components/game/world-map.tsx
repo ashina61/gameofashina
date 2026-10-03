@@ -23,7 +23,7 @@ import { travelFactor } from '@/lib/game/engine'
 import { rivalWarLine } from './ai-panels'
 import { t } from '@/lib/i18n/tr'
 
-const LUX_TINT: Record<string, string> = { uzum: '#7b9a5b', mermer: '#c5b99b', kristal: '#8eb0b2', kukurt: '#bca35d' }
+const LUX_TINT: Record<string, string> = { kahve: '#7b9a5b', mermer: '#c5b99b', kristal: '#8eb0b2', kukurt: '#bca35d' }
 const U = 44 // bir koordinat birimi (px, viewBox içinde)
 const clock = (ms: number) => { const m = Math.round(ms / 60_000); return m >= 60 ? `${Math.floor(m / 60)} sa ${m % 60} dk` : `${m} dk` }
 

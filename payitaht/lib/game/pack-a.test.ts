@@ -36,7 +36,7 @@ test('government forms change the city after a short anarchy', () => {
 
 test('island forest takes workers, grows with donations and yields wood', () => {
   let g = advance(initialGame(now), now + MIN)
-  g.workers = { kereste: 0, tas: 0, medrese: 0, carsi: 0 }
+  g.workers = { kereste: 0, medrese: 0, carsi: 0 }
   const base = rates(g).wood
   g = execute(g, { type: 'foresters', value: 999 }, now + MIN).game
   assert.equal(g.forest.workers, forestCapacity(g))
@@ -50,7 +50,7 @@ test('island forest takes workers, grows with donations and yields wood', () => 
 test('tavern serving level trades wine for contentment', () => {
   let g = initialGame(now)
   place(g, 'kahvehane', 3)
-  g.luxury.uzum = 500
+  g.luxury.kahve = 500
   const full = contentment(g)
   const wine = wineConsumption(g)
   g = execute(g, { type: 'tavern', value: 1 }, now).game
@@ -120,7 +120,7 @@ test('troops move between own cities and only as many as fit', () => {
   let e = initialEmpire(now)
   const cap = e.cities[0].game
   place(cap, 'saray', 1); place(cap, 'liman', 1); cap.army.nakliye = 4
-  cap.resources = { gold: 5000, wood: 5000, stone: 5000, knowledge: 0 }
+  cap.resources = { gold: 5000, wood: 5000, knowledge: 0 }
   e = foundColony(e, 'zeytin', now).empire
   e.activeCityId = 'city-1'
   e.cities[0].game.army.yeniceri = 30

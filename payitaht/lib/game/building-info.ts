@@ -57,10 +57,6 @@ export function effectLines(game: Game, id: BuildingId, level: number): EffectLi
       { label: 'Oduncu yeri', value: `${level * WORKERS_PER_LEVEL} kişi` },
       { label: 'Tam kadroda kereste', value: `+${num(level * 120)}/dk` },
     ]
-    case 'tas': return [
-      { label: 'Taşçı yeri', value: `${level * WORKERS_PER_LEVEL} kişi` },
-      { label: 'Tam kadroda taş', value: `+${num(level * 90)}/dk` },
-    ]
     case 'medrese': return [
       { label: 'Âlim yeri', value: `${level * WORKERS_PER_LEVEL} kişi` },
       { label: 'Tam kadroda ilim', value: `+${num(level * 8)}/dk` },
@@ -80,8 +76,8 @@ export function effectLines(game: Game, id: BuildingId, level: number): EffectLi
     ]
     case 'kahvehane': return [
       { label: 'Huzur', value: `+${num(level * E.kahvehaneContentment)}` },
-      { label: 'Üzüm ikramıyla', value: `+${num(level * E.kahvehaneWineBonus)} huzur daha` },
-      { label: 'Üzüm tüketimi', value: `${num(level * E.kahvehaneWine)}/dk` },
+      { label: 'Kahve ikramıyla', value: `+${num(level * E.kahvehaneWineBonus)} huzur daha` },
+      { label: 'Kahve tüketimi', value: `${num(level * E.kahvehaneWine)}/dk` },
     ]
     case 'cami': return [
       { label: 'Huzur', value: `+${num(level * E.camiContentment)}` },
@@ -89,14 +85,14 @@ export function effectLines(game: Game, id: BuildingId, level: number): EffectLi
     ]
     case 'muze': return [{ label: 'Huzur', value: `+${num(level * E.muzeContentment)}` }]
     case 'marangoz': return [{ label: 'Kereste maliyeti', value: `-${pct(level * E.marangozWood)}` }]
-    case 'mimar': return [{ label: 'Taş ve mermer maliyeti', value: `-${pct(level * E.mimarStone)}` }]
+    case 'mimar': return [{ label: 'Mermer maliyeti', value: `-${pct(level * E.mimarMarble)}` }]
     case 'ormanci': return [{ label: 'Kereste üretimi', value: `+${pct(level * E.ormanciWood)}` }]
-    case 'tasci': return [{ label: 'Taş ve mermer üretimi', value: `+${pct(level * E.tasciStone)}` }]
+    case 'tasci': return [{ label: 'Mermer üretimi', value: `+${pct(level * E.tasciMarble)}` }]
     case 'tophane': return [{ label: 'Birlik saldırı ve savunması', value: `+${pct(level * E.tophanePower)}` }]
-    case 'bagci': return [{ label: 'Üzüm üretimi', value: `+${pct(level * E.bagciWine)}` }]
+    case 'bagci': return [{ label: 'Kahve üretimi', value: `+${pct(level * E.bagciWine)}` }]
     case 'simyahane': return [{ label: 'Kükürt üretimi', value: `+${pct(level * E.simyaSulfur)}` }]
     case 'camci': return [{ label: 'Kristal üretimi', value: `+${pct(level * E.camciCrystal)}` }]
-    case 'mahzen': return [{ label: 'Kahvehane üzüm tüketimi', value: `-${pct(Math.min(0.5, level * E.mahzenWine))}` }]
+    case 'mahzen': return [{ label: 'Kahvehane kahve tüketimi', value: `-${pct(Math.min(0.5, level * E.mahzenWine))}` }]
     case 'gozlukcu': return [{ label: 'Kristal maliyeti', value: `-${pct(Math.min(0.5, level * E.gozlukcuCrystal))}` }]
     case 'barutane': return [{ label: 'Birliklerin kükürt maliyeti', value: `-${pct(Math.min(0.5, level * E.barutaneSulfur))}` }]
     case 'depo': return [{ label: 'Ek saklama', value: `+${num(level * E.depoStorage)} (toplam ${num(capacity(g))})` }]

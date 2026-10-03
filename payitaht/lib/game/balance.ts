@@ -2,7 +2,7 @@
  * DENGE RAPORU (V2 Faz 5.9) — birimlerin maliyet başına savaş değeri.
  *
  *   değer   = √(saldırı × can × (1 + savunma / 50))   (vuruş gücü ile dayanıklılığın ortası)
- *   maliyet = akçe + kereste + 1,5 × taş + 4 × lüks mal + 60 × nüfus + 120 × saatlik bakım
+ *   maliyet = akçe + kereste + 4 × lüks mal + 60 × nüfus + 120 × saatlik bakım
  *   verim   = değer / maliyet × 1000
  *
  * Birimler kendi kolunda (kara/deniz) ve rolünde (ön cephe, kanat, menzil,
@@ -25,7 +25,7 @@ export function unitValue(id: UnitId) {
 export function unitCostScore(id: UnitId) {
   const u = UNITS[id]
   const lux = Object.values(UNIT_LUX[id] ?? {}).reduce((s, n) => s + (n ?? 0), 0)
-  return u.cost.gold + u.cost.wood + 1.5 * u.cost.stone + 4 * lux + 60 * u.pop + 120 * u.upkeep
+  return u.cost.gold + u.cost.wood + 4 * lux + 60 * u.pop + 120 * u.upkeep
 }
 
 export function balanceTable(): BalanceRow[] {

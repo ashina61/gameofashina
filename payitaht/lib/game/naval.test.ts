@@ -89,7 +89,7 @@ test('pirates raid cities past beginner protection, with a warning first', () =>
   assert.equal(quiet.threats!.length, 0, 'beginner protection')
   g.buildings.divan = PROTECTION_DIVAN
   g.buildings.surlar = 0
-  g.resources = { gold: 3000, wood: 3000, stone: 3000, knowledge: 0 }
+  g.resources = { gold: 3000, wood: 3000, knowledge: 0 }
   quiet = advanceEmpire(e, now + 1000)
   assert.equal(quiet.threats!.length, 0)
   const warned = advanceEmpire(quiet, now + 2 * HOUR - THREAT_WARNING_MS + 1000)

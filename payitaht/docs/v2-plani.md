@@ -351,6 +351,13 @@ Daha önce "Play Store işlerini atla" dedin. V2'yi yayınlamak için yine de ge
 
 Faz 7 ayrı bir sürüm değildir; dokunulan dosya o sürümde bölünür.
 
+**Plan dışı kural değişikliği (0.42, oyuncu geri bildirimi):** araştırma, gelecek
+araştırmaları, yönetim biçimi ve Tophane yükseltmeleri imparatorluk geneli
+(`syncShared`); ilim nakliye malı değil; üzüm → kahve (`EMPIRE_SCHEMA` 2); taş
+kaynağı ve Taş Ocağı kaldırıldı (`GAME_SCHEMA` 4, `migrateStone` + imparatorluk
+düzeyinde `dropRemovedGoods`). Tempo simülasyonunda gunde3 Divanhane 15/20
+9→8 / 16→13. gün (hedef 7/30): 15 hedefe yaklaştı, 20 biraz daha erken geliyor; geç oyun tempo ayarı ayrıca ele alınacak.
+
 ## Riskler
 
 | Risk | Etki | Önlem |
@@ -368,5 +375,5 @@ Faz 7 ayrı bir sürüm değildir; dokunulan dosya o sürümde bölünür.
 - [x] Yeni oyuncu turu (ilk 10 dakika) otomatik testte geçiyor. (0.41: `tools/first-ten-qa.cjs` gerçek arayüzde yalnız rehberin parlattığına basar; 8 hedef 3,6 oyun dakikasında biter, Mobile Visual QA'da koşar.)
 - [ ] 30 günlük tempo simülasyonu hedef eğride.
 - [ ] Orta segment gerçek Android cihazda 30 dakikalık oyun: çökme yok, ısınma kabul edilebilir.
-- [ ] 0.20'den bu yana kayıt örnekleri 2.0.0'da açılıyor. (0.40'tan beri her derlemede 0.20–0.39 örnekleri açılıyor; 2.0.0'da işaretlenir.)
+- [ ] 0.20'den bu yana kayıt örnekleri 2.0.0'da açılıyor. (0.40'tan beri her derlemede 0.20–0.41 örnekleri açılıyor; 2.0.0'da işaretlenir.)
 - [ ] Bütün CI işleri yeşil, APK yayında.

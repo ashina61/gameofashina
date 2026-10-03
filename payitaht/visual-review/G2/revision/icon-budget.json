@@ -1,0 +1,82 @@
+[
+  {
+    "file": "res-kahve.webp",
+    "bytes": 11390,
+    "quality": 70,
+    "alphaQuality": 50
+  },
+  {
+    "file": "ui-city.webp",
+    "bytes": 10868,
+    "quality": 82,
+    "alphaQuality": 50
+  },
+  {
+    "file": "res-sefer.webp",
+    "bytes": 11750,
+    "quality": 46,
+    "alphaQuality": 50
+  },
+  {
+    "file": "res-kukurt.webp",
+    "bytes": 10882,
+    "quality": 82,
+    "alphaQuality": 50
+  },
+  {
+    "file": "ui-island.webp",
+    "bytes": 10250,
+    "quality": 34,
+    "alphaQuality": 50,
+    "source": "G2 original"
+  },
+  {
+    "file": "ui-map.webp",
+    "bytes": 10744,
+    "quality": 46,
+    "alphaQuality": 50,
+    "source": "G2 original"
+  },
+  {
+    "file": "ui-alliance.webp",
+    "bytes": 10936,
+    "quality": 70,
+    "alphaQuality": 50,
+    "source": "G2 original"
+  },
+  {
+    "file": "ui-objectives.webp",
+    "bytes": 11240,
+    "quality": 82,
+    "alphaQuality": 50,
+    "source": "G2 original"
+  },
+  {
+    "file": "ui-flag.webp",
+    "bytes": 8476,
+    "quality": 82,
+    "alphaQuality": 50,
+    "source": "G2 original"
+  },
+  {
+    "file": "ui-harbour.webp",
+    "bytes": 10218,
+    "quality": 70,
+    "alphaQuality": 50,
+    "source": "G2 original"
+  },
+  {
+    "file": "ui-divan.webp",
+    "bytes": 9928,
+    "quality": 70,
+    "alphaQuality": 50,
+    "source": "G2 original"
+  },
+  {
+    "file": "ui-offer.webp",
+    "bytes": 11882,
+    "quality": 82,
+    "alphaQuality": 50,
+    "source": "G2 original"
+  }
+]

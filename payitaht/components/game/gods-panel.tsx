@@ -44,16 +44,16 @@ export function GodEmblem({ id, size = 56, on = false }: { id: GodId; size?: num
   </svg>
 }
 
-type Good = 'gold' | 'wood' | 'stone' | (typeof LUXURY_IDS)[number]
-const GOOD_NAMES: Record<string, string> = { gold: 'Akçe', wood: 'Kereste', stone: 'Taş', ...LUXURY_NAMES }
+type Good = 'gold' | 'wood' | (typeof LUXURY_IDS)[number]
+const GOOD_NAMES: Record<string, string> = { gold: 'Akçe', wood: 'Kereste', ...LUXURY_NAMES }
 
 export function GodsPanel({ game, now, onCommand }: { game: Game; now: number; onCommand: (c: Command) => void }) {
   const t = game.gods
   const cap = lutufCap(game)
   const [good, setGood] = useState<Good>('gold')
   const [amount, setAmount] = useState(1000)
-  const rate = (LUXURY_IDS as readonly string[]).includes(good) ? OFFER_RATE.luxury : OFFER_RATE[good as 'gold' | 'wood' | 'stone']
-  const have = (LUXURY_IDS as readonly string[]).includes(good) ? game.luxury[good as (typeof LUXURY_IDS)[number]] : game.resources[good as 'gold' | 'wood' | 'stone']
+  const rate = (LUXURY_IDS as readonly string[]).includes(good) ? OFFER_RATE.luxury : OFFER_RATE[good as 'gold' | 'wood']
+  const have = (LUXURY_IDS as readonly string[]).includes(good) ? game.luxury[good as (typeof LUXURY_IDS)[number]] : game.resources[good as 'gold' | 'wood']
   const changeWait = t.patron ? t.changedAt + patronChangeMs(game) - now : 0
   const patron = t.patron
   return <section className="empire-section gods-panel">
@@ -64,7 +64,7 @@ export function GodsPanel({ game, now, onCommand }: { game: Game; now: number; o
     <div className="offering">
       <span className="profile-label"><Flame className="size-3" /> Sunu</span>
       <div className="batch-row" role="group" aria-label="Sunulacak mal">
-        {(['gold', 'wood', 'stone', ...LUXURY_IDS] as Good[]).map(g => <GameButton key={g} size="sm" variant={good === g ? 'default' : 'outline'} onClick={() => setGood(g)}>{GOOD_NAMES[g]}</GameButton>)}
+        {(['gold', 'wood', ...LUXURY_IDS] as Good[]).map(g => <GameButton key={g} size="sm" variant={good === g ? 'default' : 'outline'} onClick={() => setGood(g)}>{GOOD_NAMES[g]}</GameButton>)}
       </div>
       <div className="batch-row">
         {[rate * 10, rate * 50, rate * 200].map(n => <GameButton key={n} size="sm" variant={amount === n ? 'default' : 'outline'} onClick={() => setAmount(n)}>{num(n)}</GameButton>)}

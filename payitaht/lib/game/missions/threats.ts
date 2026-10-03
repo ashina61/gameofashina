@@ -234,9 +234,9 @@ function finishDefense(empire: Empire, t: Threat, at: number): boolean {
   let carry = (Object.entries(res.attackerLeft) as [UnitId, number][]).reduce((s, [id, n]) => s + UNITS[id].pop * n * 30, 0)
   const safe = safeStock(g)
   const taken: string[] = []
-  for (const r of ['gold', 'wood', 'stone'] as const) {
+  for (const r of ['gold', 'wood'] as const) {
     const n = Math.min(carry, Math.max(0, Math.floor(g.resources[r] - safe)) >> 1)
-    if (n > 0) { g.resources[r] -= n; carry -= n; taken.push(`${n} ${r === 'gold' ? 'akçe' : r === 'wood' ? 'kereste' : 'taş'}`) }
+    if (n > 0) { g.resources[r] -= n; carry -= n; taken.push(`${n} ${r === 'gold' ? 'akçe' : 'kereste'}`) }
   }
   for (const r of LUXURY_IDS) {
     const n = Math.min(carry, Math.max(0, Math.floor(g.luxury[r] - safe)) >> 1)
@@ -253,7 +253,7 @@ function startSiege(empire: Empire, t: Threat, kind: Siege['kind'], troops: Troo
   empire.sieges = [...(empire.sieges ?? []).filter(s => !(s.cityId === t.cityId && s.kind === kind)),
     { id: `siege-${t.id}`, rivalId: t.npcId, cityId: t.cityId, kind, level: t.level, since: at, tick: at, troops: left }]
 }
-/** Kuşatmanın saatlik haracı (akçe; işgalde kereste ve taştan da). */
+/** Kuşatmanın saatlik haracı (akçe; işgalde keresteden de). */
 export function siegeTribute(s: Siege) { return s.level * (s.kind === 'occupy' ? 90 : 50) }
 /** advanceEmpire içinden: kuşatma haracı ve süre dolunca çekilme. */
 export function advanceSieges(empire: Empire, now: number) {
@@ -265,7 +265,7 @@ export function advanceSieges(empire: Empire, now: number) {
     for (let h = s.tick + 3600_000; h <= Math.min(now, end); h += 3600_000) {
       const gold = Math.min(Math.max(0, Math.floor(g.resources.gold)), siegeTribute(s))
       g.resources.gold -= gold
-      if (s.kind === 'occupy') for (const r of ['wood', 'stone'] as const) g.resources[r] -= Math.min(Math.max(0, Math.floor(g.resources[r])), s.level * 40)
+      if (s.kind === 'occupy') g.resources.wood -= Math.min(Math.max(0, Math.floor(g.resources.wood)), s.level * 80)
       s.tick = h
       logEvent(g, s.kind === 'occupy' ? `İşgalciler ${gold} akçe haraç topladı.` : `Abluka yüzünden liman ${gold} akçe kaybetti.`, h)
     }

@@ -159,7 +159,7 @@ export function dispatchSupport(source: Empire, rivalId: string, units: Partial<
   const travel = targetTravelMs(t.city, rivalId, 'raid', t.npc.level, clean)
   empire.missions = [...(empire.missions ?? []), {
     id: `support-${t.city.id}-${rivalId}-${now}`, kind: 'support', cityId: t.city.id, npcId: rivalId, units: clean,
-    departAt: now, arriveAt: now + travel, returnAt: now + 2 * travel, resolved: false, loot: { gold: 0, wood: 0, stone: 0 },
+    departAt: now, arriveAt: now + travel, returnAt: now + 2 * travel, resolved: false, loot: { gold: 0, wood: 0 },
   }]
   logEvent(t.city.game, `Destek birlikleri müttefik ${t.npc.name} şehrine yola çıktı.`, now)
   return { empire }
@@ -306,7 +306,7 @@ function resolveSpyTask(empire: Empire, m: Mission) {
   const field = fieldSize(npc.field)
   const d = npc.rival ? null : npcDefense(npc.level, false)
   const lines: string[] = [`Seviye ${npc.level} ${npc.kindName}.`]
-  if (task.type === 'hazine') lines.push(`Hazine: ${npc.loot.gold} akçe, ${npc.loot.wood} kereste, ${npc.loot.stone} taş.`,
+  if (task.type === 'hazine') lines.push(`Hazine: ${npc.loot.gold} akçe ve ${npc.loot.wood} kereste.`,
     npc.rival ? 'Yağmalanan hazine 2 saatte dolar.' : 'Yağmalanan hazine 45 dakikada dolar.')
   if (task.type === 'garnizon') lines.push(`Garnizon: ${unitList(npc.garrison)}.`,
     `Savaş meydanı: ${field.name} (Divanhane ${npc.field} karşılığı · ön cephe ${field.front}, kanat ${field.flank}, menzil ${field.range}, kuşatma ${field.artillery}, hava ${field.air}+${field.fighter} yuva).`)
@@ -420,11 +420,11 @@ function finishMission(empire: Empire, m: Mission, at: number) {
     (m.units.nakliye ?? 0) * UNITS.nakliye.cargo)
   const raw = npc.loot
   const bonus = 1 + g.buildings.korsan_kalesi * BUILDING_EFFECTS.korsanLoot
-  const pool = { gold: Math.floor(raw.gold * bonus), wood: Math.floor(raw.wood * bonus), stone: Math.floor(raw.stone * bonus) }
-  const total = pool.gold + pool.wood + pool.stone
+  const pool = { gold: Math.floor(raw.gold * bonus), wood: Math.floor(raw.wood * bonus) }
+  const total = pool.gold + pool.wood
   const take = total > 0 ? Math.min(1, carry / total) : 0
-  m.loot = { gold: Math.floor(pool.gold * take), wood: Math.floor(pool.wood * take), stone: Math.floor(pool.stone * take) }
-  const more = [`Ganimet (taşıma ${carry}): ${m.loot.gold} akçe, ${m.loot.wood} kereste, ${m.loot.stone} taş.`]
+  m.loot = { gold: Math.floor(pool.gold * take), wood: Math.floor(pool.wood * take) }
+  const more = [`Ganimet (taşıma ${carry}): ${m.loot.gold} akçe, ${m.loot.wood} kereste.`]
   if (npc.rival) {
     onRivalRaided(empire, m.npcId, city, at)
     if (m.kind === 'occupy') {
@@ -478,7 +478,7 @@ export function dispatchDeploy(source: Empire, toCityId: string, units: Partial<
   const travel = 60_000 + seaTravelMs(from.islandId, to.islandId, from.game)
   empire.missions = [...(empire.missions ?? []), {
     id: `deploy-${from.id}-${to.id}-${now}`, kind: 'deploy', cityId: from.id, npcId: to.id, units: clean,
-    departAt: now, arriveAt: now + travel, returnAt: now + 2 * travel, resolved: false, loot: { gold: 0, wood: 0, stone: 0 },
+    departAt: now, arriveAt: now + travel, returnAt: now + 2 * travel, resolved: false, loot: { gold: 0, wood: 0 },
   }]
   logEvent(from.game, `Birlikler ${to.name} şehrine yola çıktı.`, now)
   return { empire }
@@ -526,7 +526,7 @@ function concludePiracy(empire: Empire, m: Mission, city: CityRecord, result: Ba
   if (result.winner === 'attacker') {
     success = true
     const gold = Math.round(target.gold * (1 + g.buildings.korsan_kalesi * BUILDING_EFFECTS.korsanLoot + (g.research.includes('korsanlik') ? 0.2 : 0)))
-    m.loot = { gold, wood: 0, stone: 0 }
+    m.loot = { gold, wood: 0 }
     g.piracy = (g.piracy ?? 0) + target.points
     bump(empire, 'piracy')
     lines.push(`Ganimet: ${gold} akçe (Korsan Kalesi +%${Math.round(g.buildings.korsan_kalesi * BUILDING_EFFECTS.korsanLoot * 100)}).`,
@@ -542,7 +542,7 @@ export function resolveReturn(empire: Empire, m: Mission) {
   if (!city) return
   const g = city.game
   const cap = capacity(g)
-  for (const r of ['gold', 'wood', 'stone'] as const) g.resources[r] = Math.min(cap, g.resources[r] + m.loot[r])
+  for (const r of ['gold', 'wood'] as const) g.resources[r] = Math.min(cap, g.resources[r] + m.loot[r])
   // Savaşa katılıp birliklerini ana orduya devreden takviyenin dönecek kimsesi yoktur.
   if (!hasTroops(m.units) && m.kind !== 'spy') return
   if (m.kind !== 'spy' || (m.units.casus ?? 0) > 0) logEvent(g, m.kind === 'raid' || m.kind === 'occupy' ? 'Ordu şehre döndü.' : m.kind === 'support' ? 'Destek birlikleri şehre döndü.' : m.kind === 'blockade' ? 'Filo limana döndü.' : m.kind === 'piracy' ? 'Filo limana döndü.' : m.kind === 'deploy' ? 'Aktarılamayan birlikler döndü.' : 'Casuslar şehre döndü.', m.returnAt)
@@ -604,7 +604,7 @@ export function parseMissionState(obj: Record<string, unknown>, cityIds: Set<str
         !finite(m.departAt) || !finite(m.arriveAt) || !finite(m.returnAt) || typeof m.resolved !== 'boolean' ||
         !m.units || typeof m.units !== 'object' ||
         !(Object.entries(m.units) as [string, number][]).every(([id, n]) => UNIT_IDS.includes(id as UnitId) && Number.isInteger(n) && n >= 0) ||
-        !m.loot || !finite(m.loot.gold) || !finite(m.loot.wood) || !finite(m.loot.stone) || !liveOk(m.battle) ||
+        !m.loot || !finite(m.loot.gold) || !finite(m.loot.wood) || !liveOk(m.battle) ||
         (m.supportAt !== undefined && !finite(m.supportAt)) ||
         (m.spyTask !== undefined && (!m.spyTask || !SPY_TYPE_IDS.includes(m.spyTask.type) || !finite(m.spyTask.at)))) throw new Error('Sefer kayıtları okunamadı.')
   }

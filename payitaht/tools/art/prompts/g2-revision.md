@@ -1,0 +1,19 @@
+# G2 düzeltmeleri — 0.42.0
+
+Onaylı G0 stil sayfasıyla ayrı üretim. Alfa sınırı >16 kırpımı, 248 px içerik 256 px tuvale ortalanır. WebP ≤12 KB; alfa kalitesi 50, renk kalitesi bütçeye göre.
+
+## res-kahve
+
+Use case: stylized-concept. Original Ottoman–Mediterranean strategy game painted inventory icon. Attached approved Payitaht style sheet is STYLE REFERENCE ONLY, create one NEW asset. Warm light upper left, soft lower-right shadow, restrained dark-brown contour, painterly texture, no flat vector fill. Large very simple silhouette legible at 24px on #2a1a0e and #f3e2b9. Single centered subject occupies 90% of square canvas, generous enough edge margin, genuine transparent background with clean alpha. No text, numbers, logos, labels, watermark, framing or medallion. A rounded hammered copper Ottoman cezve with a distinctive long handle pointing upper right, beside THREE large dark roasted coffee beans with clear center grooves. Copper reddish orange warm highlights, coffee dark mahogany. Not logs, not bag, not pouch, no sacks, no flags. The cezve is the main silhouette, beans secondary. Bold simple readable shapes.
+
+## ui-city
+
+Use case: stylized-concept. Original Ottoman–Mediterranean strategy game painted inventory icon. Attached approved Payitaht style sheet is STYLE REFERENCE ONLY, create one NEW asset. Warm light upper left, soft lower-right shadow, restrained dark-brown contour, painterly texture, no flat vector fill. Large very simple silhouette legible at 24px on #2a1a0e and #f3e2b9. Single centered subject occupies 90% of square canvas, generous enough edge margin, genuine transparent background with clean alpha. No text, numbers, logos, labels, watermark, framing or medallion. A walled Ottoman city gate silhouette: two large cream limestone square towers flank a dark arched entrance, joined by a crenellated wall, THREE terracotta rooftops behind. Compact width, clear gate negative space, blue-gray tower caps. NOT a domed Divanhane, no standalone municipal building. True 2:1 isometric small gate ensemble.
+
+## res-sefer
+
+Use case: stylized-concept. Original Ottoman–Mediterranean strategy game painted inventory icon. Attached approved Payitaht style sheet is STYLE REFERENCE ONLY, create one NEW asset. Warm light upper left, soft lower-right shadow, restrained dark-brown contour, painterly texture, no flat vector fill. Large very simple silhouette legible at 24px on #2a1a0e and #f3e2b9. Single centered subject occupies 90% of square canvas, generous enough edge margin, genuine transparent background with clean alpha. No text, numbers, logos, labels, watermark, framing or medallion. A small Ottoman galley with its pointed raised prow facing right and forward, single cream triangular sail, turquoise hull accents, a few clearly grouped oars. Dominant sweeping boat silhouette. NO FLAG OR BANNER, no red cloth. This means expedition action points, distinct from flag and from anchor.
+
+## res-kukurt
+
+Use case: stylized-concept. Original Ottoman–Mediterranean strategy game painted inventory icon. Attached approved Payitaht style sheet is STYLE REFERENCE ONLY, create one NEW asset. Warm light upper left, soft lower-right shadow, restrained dark-brown contour, painterly texture, no flat vector fill. Large very simple silhouette legible at 24px on #2a1a0e and #f3e2b9. Single centered subject occupies 90% of square canvas, generous enough edge margin, genuine transparent background with clean alpha. No text, numbers, logos, labels, watermark, framing or medallion. A shallow dark terracotta earthen bowl holding pale LEMON YELLOW powdered sulphur crystals, small jagged pale crystal mound, one delicate thin yellowish smoke wisp rising above. Matte pale lemon powder, NOT golden metal, not gold bars or coins or nugget. The bowl is a broad dark silhouette, crystals pale yellow, crystal material clearly matte. Minimal detail readable beside gold coins at 24px.

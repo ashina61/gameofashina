@@ -51,16 +51,16 @@ function shapes(node: IconNode, only?: (tag: string, a: Record<string, string>) 
   return node.filter(([t, a]) => !only || only(t, a)).map(([tag, attrs], i) => createElement(tag, { key: i, ...attrs }))
 }
 
-export type IconProps = SVGProps<SVGSVGElement> & { size?: number | string; strokeWidth?: number | string; absoluteStrokeWidth?: boolean }
+export type IconProps = SVGProps<SVGSVGElement> & { size?: number | string; strokeWidth?: number | string; absoluteStrokeWidth?: boolean; painted?: boolean }
 
 function make(name: IconName) {
   const node = ICON_DATA[name] as IconNode
   const tone = TONES[TONE_OF[name] ?? 'brass']
   const kebab = name.replace(/([a-z0-9])([A-Z])/g, '$1-$2').toLowerCase()
-  function PaintedIcon({ size = 24, strokeWidth: _sw, absoluteStrokeWidth: _abs, color: _color, className, children: _children, ref: _ref, ...rest }: IconProps) {
+  function PaintedIcon({ size = 24, painted: usePainted = false, strokeWidth: _sw, absoluteStrokeWidth: _abs, color: _color, className, children: _children, ref: _ref, ...rest }: IconProps) {
     const painted = PAINTED_ICONS[name]
     const tiny = (typeof size === 'number' && size < 16) || /(?:^|\s)(?:size|w)-[1-3](?:\.5)?(?:\s|$)/.test(className ?? '')
-    if (painted && !tiny) return <img {...rest as unknown as ImgHTMLAttributes<HTMLImageElement>} src={asset(`/images/game/icons/ui-${painted}.webp`)} alt="" aria-hidden="true" width={size} height={size} className={`pi pi-${kebab} painted-icon painted-ui-icon${className ? ` ${className}` : ''}`} />
+    if (usePainted && painted && !tiny) return <img {...rest as unknown as ImgHTMLAttributes<HTMLImageElement>} src={asset(`/images/game/icons/ui-${painted}.webp`)} alt="" aria-hidden="true" width={size} height={size} className={`pi pi-${kebab} painted-icon painted-ui-icon${className ? ` ${className}` : ''}`} />
     return <svg viewBox="-1.5 -1.5 27 27" width={size} height={size} fill="none" strokeLinecap="round" strokeLinejoin="round"
       aria-hidden="true" className={`pi pi-${kebab}${className ? ` ${className}` : ''}`} {...rest}>
       <g transform="translate(0.7 1)" stroke="#2a1608" strokeOpacity="0.32" strokeWidth="4">{shapes(node)}</g>

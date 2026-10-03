@@ -10,7 +10,7 @@ function busyEmpire() {
   const e = advanceEmpire(initialEmpire(now), now)
   const city = e.cities[0]
   city.game = execute(city.game, { type: 'build', id: 'divan' }, now).game
-  e.missions = [{ id: 'raid-x', kind: 'raid', cityId: city.id, npcId: 'sahil-koy', units: { mizrakci: 5 }, departAt: now, arriveAt: now + 60_000, returnAt: now + 120_000, resolved: false, loot: { gold: 0, wood: 0, stone: 0 } }]
+  e.missions = [{ id: 'raid-x', kind: 'raid', cityId: city.id, npcId: 'sahil-koy', units: { mizrakci: 5 }, departAt: now, arriveAt: now + 60_000, returnAt: now + 120_000, resolved: false, loot: { gold: 0, wood: 0 } }]
   e.threats = [{ id: 'th-1', cityId: city.id, npcId: 'r-kemer', level: 3, arriveAt: now + 30 * 60_000, troops: { yeniceri: 10 }, fleet: {} }]
   return e
 }

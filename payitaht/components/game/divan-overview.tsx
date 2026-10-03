@@ -6,8 +6,8 @@
  * altında "Nüfus ve üretim" şeridi (her meslek resmiyle, sayısı ve getirisi)
  * ve şehir nişanı seçimi.
  */
-import { HuzurArt } from './resource-art'
-import { Swords, Anchor, Flag, Sprout, Scale, House } from './ui-art'
+import { HuzurArt, HamleArt } from './resource-art'
+import { Swords, Anchor, Sprout, Scale, House } from './ui-art'
 import {
   actionPoints, contentment, corruption, garrisonLimit, garrisonUsed, growthRate, housing, idleWorkers,
   luxuryProduction, population, rates, scientistUpkeepPerMinute, LUXURY_NAMES, type Game, formatRate,
@@ -46,7 +46,6 @@ export function DivanOverview({ game, empire, run }: { game: Game; empire?: Empi
   const spec = game.mine.specialty
   const jobs: { fig: Figure; label: string; count: number; out: string; neg?: string }[] = [
     { fig: 'oduncu', label: 'Oduncu', count: game.workers.kereste + (game.forest?.workers ?? 0), out: `+${n(r.wood)} kereste` },
-    { fig: 'tasci', label: 'Taşçı', count: game.workers.tas, out: `+${n(r.stone)} taş` },
     { fig: 'madenci', label: 'Madenci', count: game.mine.miners, out: `+${formatRate(lux[spec])} ${LUXURY_NAMES[spec].toLocaleLowerCase('tr')}` },
     { fig: 'alim', label: 'Âlim', count: game.workers.medrese, out: `+${formatRate(r.knowledge)} ilim`, neg: `${formatRate(-scientistUpkeepPerMinute(game))} akçe` },
     { fig: 'esnaf', label: 'Esnaf', count: game.workers.carsi, out: 'çarşı akçesi' },
@@ -64,7 +63,7 @@ export function DivanOverview({ game, empire, run }: { game: Game; empire?: Empi
       <span><House /><small>Boş konut</small><b>{n(free)}<i>/{n(housing(game))}</i></b></span>
       <span><Swords /><small>Kara garnizonu</small><b>{n(garrisonUsed(game, 'kara'))}<i>/{n(garrisonLimit(game, 'kara'))}</i></b></span>
       <span><Anchor /><small>Deniz garnizonu</small><b>{n(garrisonUsed(game, 'deniz'))}<i>/{n(garrisonLimit(game, 'deniz'))}</i></b></span>
-      <span><Flag /><small>Sefer hakkı</small><b>{ap - used}<i>/{ap}</i></b></span>
+      <span><HamleArt /><small>Sefer hakkı</small><b>{ap - used}<i>/{ap}</i></b></span>
       <span><Sprout /><small>Büyüme</small><b className={growthRate(game) > 0 ? 'is-up' : undefined}>{formatRate(growthRate(game) * 60)}<i>/saat</i></b></span>
       <span><Scale /><small>Net akçe</small><b className={r.gold >= 0 ? 'is-up' : 'is-down'}>{n(r.gold * 60)}<i>/saat</i></b></span>
     </div>

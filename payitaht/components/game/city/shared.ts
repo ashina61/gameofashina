@@ -47,7 +47,7 @@ export const ART_GROUND_PX = 118
 export const PAINTED_SOURCE_WIDTH: Partial<Record<BuildingId, number>> = {
   divan: 1466, cami: 1445, saray: 1542, konut: 1633,
   kisla: 1466, medrese: 1448, carsi: 1774,
-  kereste: 1774, tas: 1466, ambar: 1774,
+  kereste: 1774, ambar: 1774,
   elcilik: 1632, hamam: 1632, kahvehane: 1632,
   muze: 1632, marangoz: 1774, mimar: 1632,
   ormanci: 1774, tasci: 1774, bagci: 1774,

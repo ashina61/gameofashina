@@ -67,7 +67,7 @@ export const MAX_PROPOSALS = 5
 export const PROPOSAL_MS = 8 * HOUR
 export const TRUCE_MS = 24 * HOUR
 const MAX_WARS = 2
-const TRADE_GOODS: Good[] = ['wood', 'stone', ...LUXURY_IDS]
+const TRADE_GOODS: Good[] = ['wood', ...LUXURY_IDS]
 
 /* ------------------------------------------------------------ YARDIMCILAR */
 

@@ -29,8 +29,18 @@ for (const file of files) {
     const before = old.cities[0].game, city = empire.cities[0].game
     // Bina seviyeleri, kaynaklar ve süren inşaat aynen korunur.
     for (const id of BUILDING_IDS) assert.equal(city.buildings[id], before.buildings[id] ?? 0, id)
-    for (const [k, v] of Object.entries(before.resources)) assert.equal(city.resources[k as keyof typeof city.resources], v, k)
-    assert.deepEqual(city.queue.map(j => j.id), (before.queue ?? []).map((j: { id: string }) => j.id))
+    // 0.42: taş çıktı; stok 1:1 akçeye, Taş Ocağı seviyesi akçe+kereste iadesine, sıradaki ocak işi akçeye döner.
+    const tasJobs = (before.queue ?? []).filter((j: { id: string }) => j.id === 'tas').length
+    const tas = before.buildings.tas ?? 0
+    assert.equal(city.resources.gold, before.resources.gold + Math.floor(before.resources.stone ?? 0) + tas * 200 + tasJobs * 300, 'gold')
+    assert.equal(city.resources.wood, before.resources.wood + tas * 150, 'wood')
+    assert.equal(city.resources.knowledge, before.resources.knowledge, 'knowledge')
+    assert.equal('stone' in city.resources, false)
+    assert.deepEqual(city.queue.map(j => j.id), (before.queue ?? []).map((j: { id: string }) => j.id).filter((id: string) => id !== 'tas'))
+    // 0.42: üzüm kahveye döndü; eski stok aynen kahve olarak gelir.
+    if (before.luxury?.uzum !== undefined) assert.equal(city.luxury.kahve, before.luxury.uzum)
+    assert.equal(JSON.stringify(empire).includes('"uzum"'), false)
+    assert.doesNotMatch(JSON.stringify(empire), /"stone"|"tas"/)
     // Bugünkü motorla bir saat ilerler ve yeniden kaydedilip açılır.
     const later = advanceEmpire(empire, city.updatedAt + 3600_000)
     const again = parseEmpire(JSON.stringify(later))

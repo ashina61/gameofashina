@@ -15,7 +15,7 @@ function live(pace: 'normal' | 'hareketli', hours: number): Empire {
 function withProposal(p: Omit<Proposal, 'time' | 'until'>): Empire {
   const e = advanceEmpire(initialEmpire(now), now)
   const g = e.cities[0].game
-  g.resources = { gold: 5000, wood: 3000, stone: 3000, knowledge: 0 }
+  g.resources = { gold: 5000, wood: 3000, knowledge: 0 }
   g.buildings.liman = 1; g.buildings.elcilik = 1; g.army.nakliye = 3
   world(e).proposals = [{ ...p, time: now, until: now + 8 * HOUR }]
   return e
@@ -47,15 +47,15 @@ test('wars change rival strength, which shows up in their level', () => {
 })
 
 test('buying from a rival costs gold now and the goods arrive by ship', () => {
-  const e = withProposal({ id: 'p-r-lale-1', rivalId: 'r-lale', kind: 'satis', give: { good: 'uzum', amount: 200 }, want: { good: 'gold', amount: 700 }, text: 'x' })
+  const e = withProposal({ id: 'p-r-lale-1', rivalId: 'r-lale', kind: 'satis', give: { good: 'kahve', amount: 200 }, want: { good: 'gold', amount: 700 }, text: 'x' })
   const done = acceptProposal(e, 'p-r-lale-1', now)
   assert.equal(done.error, undefined)
   assert.equal(done.empire.cities[0].game.resources.gold, 5000 - 700)
   assert.equal(done.empire.world!.proposals, undefined)
   const d = done.empire.world!.deliveries.find(x => x.id === 'd-p-r-lale-1')!
-  assert.equal(d.good, 'uzum')
+  assert.equal(d.good, 'kahve')
   const later = advanceEmpire(done.empire, d.eta + 1)
-  assert.ok(later.cities[0].game.luxury.uzum >= 200)
+  assert.ok(later.cities[0].game.luxury.kahve >= 200)
 })
 
 test('selling goods to a rival needs a port and cargo space', () => {

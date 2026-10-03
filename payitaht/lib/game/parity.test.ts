@@ -27,8 +27,8 @@ test('units cost upkeep every minute', () => {
 test('new buildings and units are locked behind research like Ikariam', () => {
   const g = initialGame(now)
   g.buildings.divan = 10; g.buildings.kisla = 5
-  g.resources = { gold: 1e6, wood: 1e6, stone: 1e6, knowledge: 0 }
-  assert.match(buildReason(g, 'bagci')!, /Bağcılık/)
+  g.resources = { gold: 1e6, wood: 1e6, knowledge: 0 }
+  assert.match(buildReason(g, 'bagci')!, /Kahvecilik/)
   g.research.push('bagcilik')
   assert.equal(buildReason(g, 'bagci'), null)
   assert.match(recruitReason(g, 'kocbasi', 1)!, /Mühendislik/)
@@ -37,7 +37,7 @@ test('new buildings and units are locked behind research like Ikariam', () => {
 test('palace only in the capital, governor residence only in colonies', () => {
   const g = initialGame(now)
   g.buildings.divan = 10
-  g.resources = { gold: 1e6, wood: 1e6, stone: 1e6, knowledge: 0 }
+  g.resources = { gold: 1e6, wood: 1e6, knowledge: 0 }
   assert.match(buildReason(g, 'valilik')!, /kolonilerde/)
   g.empire = { cities: 2, capital: false }
   assert.match(buildReason(g, 'saray')!, /başkentte/)
@@ -54,16 +54,16 @@ test('colonies suffer corruption until the governor residence catches up', () =>
   assert.ok(rates(g).wood > wood)
   // Başkentte yolsuzluk yok; imparatorluk bunu her ilerlemede yazar.
   const e = advanceEmpire(initialEmpire(now), now + 1000)
-  assert.deepEqual(e.cities[0].game.empire, { cities: 1, capital: true })
+  assert.deepEqual(e.cities[0].game.empire, { cities: 1, capital: true, studying: [] })
 })
 
 test('production boosters, cost reducers, dump and trading post', () => {
   const g = initialGame(now)
   g.mine.miners = 12
-  g.mine.specialty = 'uzum'
-  const wine = luxuryProduction(g).uzum
+  g.mine.specialty = 'kahve'
+  const wine = luxuryProduction(g).kahve
   g.buildings.bagci = 5
-  assert.ok(Math.abs(luxuryProduction(g).uzum - wine * 1.1) < 1e-9)
+  assert.ok(Math.abs(luxuryProduction(g).kahve - wine * 1.1) < 1e-9)
   g.buildings.kahvehane = 4
   const drink = wineConsumption(g)
   g.buildings.mahzen = 10

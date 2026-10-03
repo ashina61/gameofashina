@@ -4,25 +4,31 @@ import { type Guilds } from '../guilds'
 import { SLOTS, type Zone } from '../layout'
 import { type Army, BUILDINGS, type UnitId } from './data'
 
-export const RESOURCE_IDS = ['gold', 'wood', 'stone', 'knowledge'] as const
+export const RESOURCE_IDS = ['gold', 'wood', 'knowledge'] as const
 export type Resource = typeof RESOURCE_IDS[number]
 export type Resources = Record<Resource, number>
 /**
- * LÜKS KAYNAKLAR (Ikariam'ın şarap/mermer/kristal/kükürdü).
+ * LÜKS KAYNAKLAR (Ikariam'ın şarap/mermer/kristal/kükürdü; şarabın yerine kahve).
  *
  * Her ada TEK bir lüks kaynak yatağına sahiptir; şehir yalnızca kendi
  * adasının kaynağını madenden çıkarır, diğerlerini koloni, nakliye ya da
  * çarşıdaki tüccar yoluyla edinir. Ana kaynaklardan AYRI tutulur: kaynak
  * şeridi ve bütün Resources hesapları değişmeden kalır.
  */
-export const LUXURY_IDS = ['uzum', 'mermer', 'kristal', 'kukurt'] as const
+export const LUXURY_IDS = ['kahve', 'mermer', 'kristal', 'kukurt'] as const
 export type Luxury = typeof LUXURY_IDS[number]
 export type LuxuryStock = Record<Luxury, number>
-export const LUXURY_NAMES: Record<Luxury, string> = { uzum: 'Üzüm', mermer: 'Mermer', kristal: 'Kristal', kukurt: 'Kükürt' }
+export const LUXURY_NAMES: Record<Luxury, string> = { kahve: 'Kahve', mermer: 'Mermer', kristal: 'Kristal', kukurt: 'Kükürt' }
 /** Adanın ortak madeni: seviye, bağışla biriken kereste ve maden işçileri. */
 export type IslandMine = { specialty: Luxury; level: number; wood: number; miners: number }
 /** Ana ya da lüks kaynak (Kara Pazar, nakliye). */
 export type Good = Resource | Luxury
+/**
+ * Elle tutulabilen mallar: gemiyle taşınır, Kara Pazar'da takas edilir.
+ * İlim bir bilgi birikimidir, mal değildir: taşınmaz, satılmaz.
+ */
+export type TradeGood = Exclude<Good, 'knowledge'>
+export const TRADE_GOODS: readonly TradeGood[] = [...RESOURCE_IDS.filter((r): r is Exclude<Resource, 'knowledge'> => r !== 'knowledge'), ...LUXURY_IDS]
 
 /**
  * HARİKALAR VE MUCİZELER (Ikariam'ın ada harikaları ve tapınağı).
@@ -33,7 +39,7 @@ export const MIRACLE_IDS = ['kalkan', 'bereket', 'ilim', 'savas', 'ruzgar', 'huz
 export type MiracleId = typeof MIRACLE_IDS[number]
 export const MIRACLES: Record<MiracleId, { wonder: string; name: string; effect: (level: number) => string }> = {
   kalkan: { wonder: 'Kız Kulesi', name: 'Kalkan', effect: l => `Şehir savunması +%${10 * l}` },
-  bereket: { wonder: 'Bereket Bahçeleri', name: 'Bereket', effect: l => `Akçe, kereste ve taş üretimi +%${5 * l}` },
+  bereket: { wonder: 'Bereket Bahçeleri', name: 'Bereket', effect: l => `Akçe ve kereste üretimi +%${5 * l}` },
   ilim: { wonder: 'Bilgelik Kütüphanesi', name: 'İlham', effect: l => `İlim üretimi +%${10 * l}` },
   savas: { wonder: 'Ateş Ocağı', name: 'Cenk', effect: l => `Birliklerin saldırısı +%${5 * l}` },
   ruzgar: { wonder: 'Denizciler Mabedi', name: 'Poyraz', effect: l => `Yolculuk süresi -%${8 * l}` },
@@ -89,7 +95,7 @@ export const FOREST_WORKERS_PER_LEVEL = 14
 export function forestCapacity(g: Game) { return Math.floor(g.forest.level * FOREST_WORKERS_PER_LEVEL * (g.research.includes('yardim_eli') ? 1.25 : 1)) }
 export function forestUpgradeCost(level: number) { return Math.round(400 * 1.5 ** (level - 1)) }
 
-export const BUILDING_IDS = ['divan', 'saray', 'elcilik', 'konut', 'hamam', 'carsi', 'ambar', 'kereste', 'tas', 'medrese', 'kisla', 'surlar', 'liman', 'tersane', 'kahvehane', 'cami', 'muze', 'marangoz', 'mimar', 'ormanci', 'tasci', 'tophane',
+export const BUILDING_IDS = ['divan', 'saray', 'elcilik', 'konut', 'hamam', 'carsi', 'ambar', 'kereste', 'medrese', 'kisla', 'surlar', 'liman', 'tersane', 'kahvehane', 'cami', 'muze', 'marangoz', 'mimar', 'ormanci', 'tasci', 'tophane',
   'bagci', 'simyahane', 'camci', 'mahzen', 'gozlukcu', 'barutane', 'depo', 'ticaret_merkezi', 'harita_arsivi', 'valilik', 'korsan_kalesi', 'kara_pazar', 'siginak', 'tekke', 'mabet', 'karagoz'] as const
 export type BuildingId = typeof BUILDING_IDS[number]
 export const COAST_FACING_IDS = ['liman', 'tersane'] as const
@@ -144,7 +150,7 @@ export type Job = { id: BuildingId | ResearchId | UnitId; kind: 'build' | 'resea
 export const PLOTS = SLOTS
 
 /** Halkin calisabilecegi uretim yapilari. */
-export const WORKER_IDS = ['kereste', 'tas', 'medrese', 'carsi'] as const
+export const WORKER_IDS = ['kereste', 'medrese', 'carsi'] as const
 export type WorkerId = typeof WORKER_IDS[number]
 export type Workers = Record<WorkerId, number>
 
@@ -155,7 +161,7 @@ export const WORKERS_PER_LEVEL = 20
 export const QUEUE_LIMIT = 3
 
 export type Game = {
-  version: 3; updatedAt: number; resources: Resources; buildings: Record<BuildingId, number>
+  version: 4; updatedAt: number; resources: Resources; buildings: Record<BuildingId, number>
   /** Hangi yapi hangi arsada; hic kurulmamis yapi icin null. */
   placement: Record<BuildingId, number | null>
   /** Uretim yapilarina dagitilmis isciler. */
@@ -225,7 +231,11 @@ export type Game = {
    * İmparatorluk bilgisi (empire.ts her ilerlemede yazar): toplam şehir
    * sayısı ve bu şehir başkent mi. Tek şehirli oyunda yoktur = başkent.
    */
-  empire?: { cities: number; capital: boolean }
+  empire?: {
+    cities: number; capital: boolean
+    /** Başka şehirlerde süren araştırmalar: aynı araştırma iki şehirde birden yapılmaz. */
+    studying?: ResearchId[]
+  }
   claimed: string[]; log: { text: string; time: number }[]
 }
 
@@ -236,4 +246,4 @@ export function zoneOf(id: BuildingId): Zone { return BUILDINGS[id].zone === 'li
 
 /** Su an calisan insaat; sira bossa null. */
 export function activeJob(g: Game): Job | null { return g.queue[0] ?? null }
-export const RESOURCE_NAMES: Record<Resource, string> = { gold: 'Akçe', wood: 'Kereste', stone: 'Taş', knowledge: 'İlim' }
+export const RESOURCE_NAMES: Record<Resource, string> = { gold: 'Akçe', wood: 'Kereste', knowledge: 'İlim' }

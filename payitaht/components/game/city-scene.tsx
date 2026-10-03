@@ -2,7 +2,7 @@
 import type { BadgeMode } from '@/lib/game/badges'
 
 import { useRef, useState } from 'react'
-import { Sun, Sunset, Moon, Flag, Move, Anchor, Landmark, ScrollText } from './ui-art'
+import { Sun, Sunset, Moon, Flag, Move, Anchor, Landmark, Gift } from './ui-art'
 import { skyTint } from '@/lib/game/sky'
 import type { BannerLook } from '@/lib/game/banner'
 import { BUILDINGS, BUILDING_IDS, type Game, type BuildingId } from '@/lib/game/engine'
@@ -55,13 +55,13 @@ export function CityScene({ game, placing, onBuilding, onPlot, onRoad, moving, m
 
     <div className="map-top-tools">
       <button aria-label={labels ? t.city.labelsHide : t.city.labelsShow}
-        onClick={() => setLabels(v => !v)} aria-pressed={labels}><Flag /></button>
+        onClick={() => setLabels(v => !v)} aria-pressed={labels}><Flag painted /></button>
       <button aria-label={t.city.harbour} title={t.city.harbour}
-        onClick={() => controls.current?.focusHarbour()}><Anchor /></button>
+        onClick={() => controls.current?.focusHarbour()}><Anchor painted /></button>
       <button aria-label={t.city.recenter} title={t.city.recenter}
-        onClick={() => controls.current?.recenter()}><Landmark /></button>
+        onClick={() => controls.current?.recenter()}><Landmark painted /></button>
       {offers > 0 && onOffers && <button className="map-offer" aria-label={t.city.rivalOffers(offers)} title="Elçi mektubu" onClick={onOffers}>
-        <ScrollText />{offerMode === 'dot' ? <b className="is-dot" aria-hidden="true" /> : offerMode && <b>{offers}</b>}</button>}
+        <Gift painted />{offerMode === 'dot' ? <b className="is-dot" aria-hidden="true" /> : offerMode && <b>{offers}</b>}</button>}
     </div>
 
     {/*

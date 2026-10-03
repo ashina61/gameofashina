@@ -15,7 +15,7 @@ function preparedEmpire() {
   capital.buildings.liman = 1
   capital.placement.liman = freePlots(capital, 'liman')[0]
   capital.army.nakliye = 4
-  capital.resources = { gold: 3000, wood: 3000, stone: 2500, knowledge: 700 }
+  capital.resources = { gold: 3000, wood: 3000, knowledge: 700 }
   return e
 }
 
@@ -25,7 +25,7 @@ test('legacy v3 single-city save migrates without losing buildings, placement, a
   legacy.army.nakliye = 2
   legacy.resources.wood = 211
   const e = parseEmpire(JSON.stringify(legacy))
-  assert.equal(e.version, 1)
+  assert.equal(e.version, 2)
   assert.equal(e.cities.length, 1)
   assert.deepEqual(e.cities[0].game, parseSave(JSON.stringify(legacy)))
   assert.deepEqual(parseEmpire(JSON.stringify(e)), e)
@@ -50,7 +50,7 @@ test('colonies are independent playable cities; each island holds at most one ci
   assert.equal(world.cities.length, 2)
   assert.equal(activeCity(world).islandId, 'zeytin')
   assert.equal(world.cities[0].game.resources.wood, 3000 - COLONY_COST.wood)
-  assert.equal(world.cities[1].game.resources.wood, 250)
+  assert.equal(world.cities[1].game.resources.wood, 400)
   assert.notEqual(world.cities[0].game, world.cities[1].game)
   assert.equal(foundColony(world, 'zeytin', now).error, 'Bu adada zaten bir şehrin var.')
   const second = execute(world.cities[1].game, { type:'build', id:'divan' }, now)
@@ -70,7 +70,7 @@ test('one sender cannot use the same ships twice; cargo debits only sender', () 
   assert.equal(result.error, undefined)
   assert.equal(result.empire.cities[0].game.resources.wood, e.cities[0].game.resources.wood - 160)
   assert.equal(result.empire.cities[1].game.resources.wood, before)
-  assert.match(shipResources(result.empire, 'city-2', 'stone', 100, now).error!, /seferde/)
+  assert.match(shipResources(result.empire, 'city-2', 'wood', 100, now).error!, /seferde/)
   assert.equal(shipResources(e, 'city-2', 'wood', 5000, now).error !== undefined, true)
   const arrival = result.empire.shipments[0].eta
   const delivered = advanceEmpire(result.empire, arrival)
@@ -85,18 +85,19 @@ test('full destination stores cargo in the harbour instead of deleting it', () =
   const e = foundColony(preparedEmpire(), 'zeytin', now).empire
   e.activeCityId = 'city-1'
   const destination = e.cities[1].game
-  destination.resources.stone = 4495
+  destination.resources.wood = 4495
   // Disable production for predictable warehouse occupancy.
-  destination.workers.tas = 0
-  const started = shipResources(e, 'city-2', 'stone', 100, now).empire
+  destination.workers.kereste = 0
+  if (destination.forest) destination.forest.workers = 0
+  const started = shipResources(e, 'city-2', 'wood', 100, now).empire
   const arrival = started.shipments[0].eta
   let delivered = advanceEmpire(started, arrival)
-  assert.equal(delivered.cities[1].game.resources.stone, 4500)
+  assert.equal(delivered.cities[1].game.resources.wood, 4500)
   assert.equal(delivered.shipments[0].amount, 95)
-  delivered.cities[1].game.resources.stone -= 95
+  delivered.cities[1].game.resources.wood -= 95
   delivered = advanceEmpire(delivered, arrival + 1000)
   assert.equal(delivered.shipments.length, 0)
-  assert.equal(delivered.cities[1].game.resources.stone, 4500)
+  assert.equal(delivered.cities[1].game.resources.wood, 4500)
 })
 
 test('invalid multi-city payload never replaces the stored city with a guessed one', () => {
@@ -110,18 +111,39 @@ test('a colony mines its own island luxury and can ship it home', () => {
   const founded = foundColony(e, 'zeytin', now)
   assert.equal(founded.error, undefined)
   const colony = activeCity(founded.empire)
-  assert.equal(colony.game.mine.specialty, 'uzum')
+  assert.equal(colony.game.mine.specialty, 'kahve')
   assert.equal(founded.empire.cities[0].game.mine.specialty, 'mermer')
-  // Koloniye üzüm koy, liman + gemi ver ve başkente gönder.
-  colony.game.luxury.uzum = 300
+  // Koloniye kahve koy, liman + gemi ver ve başkente gönder.
+  colony.game.luxury.kahve = 300
   colony.game.buildings.liman = 1
   colony.game.placement.liman = freePlots(colony.game, 'liman')[0]
   colony.game.army.nakliye = 2
-  const shipped = shipResources(founded.empire, 'city-1', 'uzum', 200, now)
+  const shipped = shipResources(founded.empire, 'city-1', 'kahve', 200, now)
   assert.equal(shipped.error, undefined)
-  assert.equal(activeCity(shipped.empire).game.luxury.uzum, 100)
+  assert.equal(activeCity(shipped.empire).game.luxury.kahve, 100)
   const arrived = advanceEmpire(shipped.empire, shipped.empire.shipments[0].eta)
-  assert.equal(arrived.cities[0].game.luxury.uzum, 200)
+  assert.equal(arrived.cities[0].game.luxury.kahve, 200)
   // Kayıt gidiş-dönüşünde maden kaynağı adadan gelir.
-  assert.equal(parseEmpire(JSON.stringify(arrived)).cities[1].game.mine.specialty, 'uzum')
+  assert.equal(parseEmpire(JSON.stringify(arrived)).cities[1].game.mine.specialty, 'kahve')
+})
+
+test('0.42 göçü: yoldaki taş ve ilim sahibine döner, taş takasları düşer', () => {
+  const e = foundColony(preparedEmpire(), 'zeytin', now).empire
+  const raw = JSON.parse(JSON.stringify(e))
+  raw.version = 1
+  const gold = e.cities[0].game.resources.gold, know = e.cities[1].game.resources.knowledge
+  raw.shipments = [
+    { id: 's-1', from: 'city-1', to: 'city-2', resource: 'stone', amount: 300, eta: now + 1000 },
+    { id: 's-2', from: 'city-2', to: 'city-1', resource: 'knowledge', amount: 40, eta: now + 1000 },
+  ]
+  raw.world = { start: now, slot: 0, alliance: null, allianceAt: 0, rivals: {}, messages: [], traded: [],
+    offers: [{ id: 'o-1', cityId: 'city-1', good: 'stone', amount: 500, left: 200, price: 3, since: now, tick: now }],
+    deliveries: [{ id: 'd-1', cityId: 'city-1', good: 'stone', amount: 50, eta: now + 1000, from: 'X' }] }
+  const parsed = parseEmpire(JSON.stringify(raw))
+  assert.equal(parsed.shipments.length, 0)
+  assert.equal(parsed.cities[0].game.resources.gold, gold + 300 + 200 + 50)
+  assert.equal(parsed.cities[1].game.resources.knowledge, know + 40)
+  assert.deepEqual(parsed.world!.offers, [])
+  assert.deepEqual(parsed.world!.deliveries, [])
+  assert.doesNotMatch(JSON.stringify(parsed), /"stone"|"tas"/)
 })

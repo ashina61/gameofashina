@@ -16,7 +16,7 @@ export const GUILDS: Record<GuildId, { name: string; craft: string; per: number;
   demirci: { name: 'Demirciler', craft: 'Kılıç, zırh ve nal döverler.', per: 0.02, effect: l => `Kara birliklerinin saldırısı +%${2 * l}` },
   gemici: { name: 'Gemiciler', craft: 'Kalafat, yelken ve halat işi.', per: 0.02, effect: l => `Gemilerin saldırısı ve zırhı +%${2 * l}` },
   tuccar: { name: 'Tüccarlar', craft: 'Çarşının ve kervanın esnafı.', per: 0.03, effect: l => `Akçe geliri +%${3 * l}` },
-  dulger: { name: 'Dülgerler ve Taşçılar', craft: 'Çatıyı, duvarı ve kemeri kurarlar.', per: 0.02, effect: l => `Binaların kereste ve taş maliyeti −%${2 * l}` },
+  dulger: { name: 'Dülgerler ve Taşçılar', craft: 'Çatıyı, duvarı ve kemeri kurarlar.', per: 0.02, effect: l => `Binaların kereste maliyeti −%${2 * l}` },
   katip: { name: 'Kâtipler ve Sahaflar', craft: 'Kitap yazar, cilt yapar, satarlar.', per: 0.03, effect: l => `İlim üretimi +%${3 * l}` },
   kahveci: { name: 'Kahveciler ve Aşçılar', craft: 'Kahveyi, şerbeti ve sofrayı kurarlar.', per: 6, effect: l => `Huzur +${6 * l}` },
 }

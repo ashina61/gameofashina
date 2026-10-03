@@ -113,7 +113,7 @@ export function TavernPanel({ game, onCommand }: { game: Game; onCommand: (c: Co
     <h3><Coffee className="size-4" /> İkram · {level} / {game.buildings.kahvehane}</h3>
     <input type="range" min={0} max={game.buildings.kahvehane} value={level} aria-label="İkram seviyesi"
       onChange={e => onCommand({ type: 'tavern', value: Number(e.target.value) })} />
-    <p className="fine-print">Her ikram seviyesi dakikada {formatRate(wineConsumption({ ...game, tavern: 1 }))} üzüm harcar ve huzuru artırır. Şu an dakikada {formatRate(wineConsumption(game))} üzüm.</p>
+    <p className="fine-print">Her ikram seviyesi dakikada {formatRate(wineConsumption({ ...game, tavern: 1 }))} kahve harcar ve huzuru artırır. Şu an dakikada {formatRate(wineConsumption(game))} kahve.</p>
   </section>
 }
 

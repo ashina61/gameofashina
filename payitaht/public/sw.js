@@ -6,9 +6,9 @@ const ASSETS = [
   p('/manifest.webmanifest'),
   p('/icon-192.png'),
   p('/icon-512.png'),
-  ...['res-akce', 'res-kereste', 'res-tas', 'res-ilim', 'res-uzum', 'res-mermer', 'res-kristal', 'res-kukurt', 'res-nufus', 'res-sefer', 'res-huzur', 'res-yolsuzluk', 'ui-city', 'ui-island', 'ui-map', 'ui-alliance', 'ui-objectives', 'ui-flag', 'ui-harbour', 'ui-divan', 'ui-offer'].map(name => p(`/images/game/icons/${name}.webp`)),
+  ...['res-akce', 'res-kereste', 'res-ilim', 'res-kahve', 'res-mermer', 'res-kristal', 'res-kukurt', 'res-nufus', 'res-sefer', 'res-huzur', 'res-yolsuzluk', 'ui-city', 'ui-island', 'ui-map', 'ui-alliance', 'ui-objectives', 'ui-flag', 'ui-harbour', 'ui-divan', 'ui-offer'].map(name => p(`/images/game/icons/${name}.webp`)),
   ...['page-frame', 'walnut-plate', 'button-gold', 'button-parch', 'button-red', 'ribbon-red', 'medal-frame'].map(name => p(`/images/game/ui/${name}.webp`)),
-  ...['divan', 'konut', 'kereste', 'tas', 'ambar', 'medrese'].map(name => p(`/images/game/buildings/${name}-painted-1-sm.webp`)),
+  ...['divan', 'konut', 'kereste', 'ambar', 'medrese'].map(name => p(`/images/game/buildings/${name}-painted-1-sm.webp`)),
 ]
 
 self.addEventListener('install', event => {

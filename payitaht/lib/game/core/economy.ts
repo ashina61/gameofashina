@@ -15,14 +15,14 @@ function blankNull<T extends string>(ids: readonly T[]): Record<T, number | null
 }
 
 /** Oyunun basladigi sehir: bes yapi, izgaranin ilk sirasinda. */
-const START_LEVELS: Partial<Record<BuildingId, number>> = { divan: 1, konut: 1, kereste: 1, tas: 1, ambar: 1 }
+const START_LEVELS: Partial<Record<BuildingId, number>> = { divan: 1, konut: 1, kereste: 1, ambar: 1 }
 // Belediye (divan) MERKEZDE, index 0, cakili. Digerleri ilk halkaya dagilir.
-const START_PLOTS: Partial<Record<BuildingId, number>> = { divan: 0, konut: 2, kereste: 4, tas: 6, ambar: 8 }
+const START_PLOTS: Partial<Record<BuildingId, number>> = { divan: 0, konut: 2, kereste: 4, ambar: 8 }
 
 export function initialGame(now: number): Game {
   return {
-    version: 3, updatedAt: now,
-    resources: { gold: 1240, wood: 860, stone: 540, knowledge: 40 },
+    version: 4, updatedAt: now,
+    resources: { gold: 1240, wood: 860, knowledge: 40 },
     buildings: { ...blank(BUILDING_IDS), ...START_LEVELS },
     /*
      * Baslangic sehri. Yalnizca KURULU yapilarin arsasi vardir; gerisini
@@ -30,10 +30,10 @@ export function initialGame(now: number): Game {
      * eklemek burayi degistirmeyi GEREKTIRMEZ.
      */
     placement: { ...blankNull(BUILDING_IDS), ...START_PLOTS },
-    workers: { ...blank(WORKER_IDS), kereste: WORKERS_PER_LEVEL, tas: WORKERS_PER_LEVEL },
+    workers: { ...blank(WORKER_IDS), kereste: WORKERS_PER_LEVEL },
     army: blank(UNIT_IDS),
     roads: [...START_ROADS], flips: [], coastFacing: { liman: 'straight', tersane: 'straight' },
-    luxury: { uzum: 0, mermer: 0, kristal: 0, kukurt: 0 },
+    luxury: { kahve: 0, mermer: 0, kristal: 0, kukurt: 0 },
     // Başkent Sahil Adası'nda: mermer yatağı. Koloniler kendi adasınınkini alır.
     mine: { specialty: 'mermer', level: 1, wood: 0, miners: 0 },
     temple: { priests: 0, faith: 0, wonder: 'kalkan', wonderLevel: 0, wonderWood: 0, active: null, until: 0, cooldownUntil: 0 },
@@ -167,7 +167,7 @@ export function loadingSpeed(g: Game) { return Math.max(1, g.buildings.liman) * 
  */
 export function clampWorkers(g: Game): Workers {
   const limit = Math.max(0, population(g) - soldiers(g))
-  const out: Workers = { kereste: 0, tas: 0, medrese: 0, carsi: 0 }
+  const out: Workers = { kereste: 0, medrese: 0, carsi: 0 }
   let left = limit
   for (const id of WORKER_IDS) {
     const want = Number.isFinite(g.workers?.[id]) ? Math.max(0, Math.floor(g.workers[id])) : 0
@@ -266,8 +266,6 @@ export function rates(g: Game): Resources {
       scientistUpkeepPerMinute(g) - armyUpkeep(g)),
     wood: (g.buildings.kereste * 120 * share('kereste') + forestProduction(g)) * multiplier *
       (g.research.includes('ormancilik') ? 1.15 : 1) * (1 + g.buildings.ormanci * BUILDING_EFFECTS.ormanciWood) * (showOn(g, 'dram') ? 1.1 : 1) * woodMul(g.updatedAt),
-    stone: g.buildings.tas * 90 * share('tas') * multiplier *
-      (g.research.includes('tascilik') ? 1.15 : 1) * (1 + g.buildings.tasci * BUILDING_EFFECTS.tasciStone) * (showOn(g, 'dram') ? 1.1 : 1),
     knowledge: g.buildings.medrese * 8 * share('medrese') * multiplier * (1 + g.buildings.cami * BUILDING_EFFECTS.camiKnowledge) *
       (1 + (g.future?.bilim ?? 0) * 0.03 + miracle(g, 'ilim') * 0.1) / (1 + miracle(g, 'bereket') * 0.05) *
       (g.research.includes('alimler') ? 1.3 : 1) *
@@ -323,15 +321,15 @@ export function mineCapacity(g: Game) { return Math.floor(g.mine.level * MINERS_
 /** Bir sonraki maden seviyesi için gereken toplam kereste bağışı. */
 export function mineUpgradeCost(level: number) { return Math.round(600 * 1.55 ** (level - 1)) }
 
-/** Kahvehane üzüm ikram ediyor mu? (Ambarda üzüm var ya da maden üzüm çıkarıyor.) */
+/** Kahvehane kahve ikram ediyor mu? (Ambarda kahve var ya da maden kahve çıkarıyor.) */
 /** Kahvehane'de ikram edilen seviye (oyuncu kısabilir). */
 export function tavernLevel(g: Game) { return Math.max(0, Math.min(g.buildings.kahvehane, g.tavern ?? g.buildings.kahvehane)) }
 export function wineServed(g: Game) {
   if (tavernLevel(g) <= 0) return false
-  return g.luxury.uzum > 0 || luxuryProduction(g).uzum >= wineConsumption(g)
+  return g.luxury.kahve > 0 || luxuryProduction(g).kahve >= wineConsumption(g)
 }
 
-/** Kahvehane'nin dakikalık üzüm tüketimi (Şıra Mahzeni azaltır). */
+/** Kahvehane'nin dakikalık kahve tüketimi (Kahve Kileri azaltır). */
 export function wineConsumption(g: Game) {
   return tavernLevel(g) * BUILDING_EFFECTS.kahvehaneWine * Math.max(0.5, 1 - g.buildings.mahzen * BUILDING_EFFECTS.mahzenWine) *
     (g.research.includes('mutfak') ? 0.9 : 1)
@@ -339,24 +337,24 @@ export function wineConsumption(g: Game) {
 
 /** Maden işçilerinin dakikadaki brüt lüks üretimi (yalnızca adanın kaynağı). */
 export function luxuryProduction(g: Game): LuxuryStock {
-  const out: LuxuryStock = { uzum: 0, mermer: 0, kristal: 0, kukurt: 0 }
+  const out: LuxuryStock = { kahve: 0, mermer: 0, kristal: 0, kukurt: 0 }
   const miners = Math.min(g.mine.miners, mineCapacity(g))
   const boost: Record<Luxury, number> = {
-    uzum: g.buildings.bagci * BUILDING_EFFECTS.bagciWine,
+    kahve: g.buildings.bagci * BUILDING_EFFECTS.bagciWine,
     kukurt: g.buildings.simyahane * BUILDING_EFFECTS.simyaSulfur,
     kristal: g.buildings.camci * BUILDING_EFFECTS.camciCrystal,
-    mermer: g.buildings.tasci * BUILDING_EFFECTS.tasciStone,
+    mermer: g.buildings.tasci * BUILDING_EFFECTS.tasciMarble + (g.research.includes('tascilik') ? 0.15 : 0),
   }
   out[g.mine.specialty] = miners * 3 * (g.research.includes('tools') ? 1.2 : 1) * (1 + boost[g.mine.specialty]) * (1 - corruption(g)) *
     (1 + miracle(g, 'bolluk') * 0.1) * (g.research.includes('zenginlik') ? 1.1 : 1) * (anarchy(g) ? 0.75 : 1) * (showOn(g, 'komedi') ? 1.1 : 1)
   return out
 }
 
-/** Dakikadaki NET lüks değişimi: üretim eksi Kahvehane'nin üzüm ikramı. */
+/** Dakikadaki NET lüks değişimi: üretim eksi Kahvehane'nin kahve ikramı. */
 export function luxuryRates(g: Game): LuxuryStock {
   const out = luxuryProduction(g)
-  if (tavernLevel(g) > 0 && (g.luxury.uzum > 0 || out.uzum > 0)) {
-    out.uzum -= wineConsumption(g)
+  if (tavernLevel(g) > 0 && (g.luxury.kahve > 0 || out.kahve > 0)) {
+    out.kahve -= wineConsumption(g)
   }
   return out
 }
@@ -369,14 +367,14 @@ export function luxuryRates(g: Game): LuxuryStock {
  * seviye 4'e kadar kristalsiz) - yeni oyuncu tıkanmaz, ilerledikçe ada
  * ticareti gerekli olur. Mimarbaşı mermeri de ucuzlatır.
  */
-const MARBLE_FREE = new Set<BuildingId>(['konut', 'kereste', 'tas'])
+const MARBLE_FREE = new Set<BuildingId>(['konut', 'kereste'])
 const CRYSTAL_NEEDS = new Set<BuildingId>(['medrese', 'muze', 'mimar', 'cami', 'saray', 'elcilik'])
 export function luxuryCost(g: Game, id: BuildingId): Partial<LuxuryStock> {
   const level = g.buildings[id]
   const base = Math.round(BUILDINGS[id].base * BUILDING_GROWTH[id] ** level)
   const out: Partial<LuxuryStock> = {}
   if (level >= 3 && !MARBLE_FREE.has(id)) {
-    const factor = Math.max(0.5, 1 - constructionDiscount(g) - g.buildings.mimar * BUILDING_EFFECTS.mimarStone)
+    const factor = Math.max(0.5, 1 - constructionDiscount(g) - g.buildings.mimar * BUILDING_EFFECTS.mimarMarble)
     out.mermer = Math.round(base * 0.22 * factor)
   }
   if (level >= 4 && CRYSTAL_NEEDS.has(id)) out.kristal = Math.round(base * 0.12 * Math.max(0.5, 1 - g.buildings.gozlukcu * BUILDING_EFFECTS.gozlukcuCrystal))
@@ -386,13 +384,13 @@ export function luxuryCost(g: Game, id: BuildingId): Partial<LuxuryStock> {
 /** Ağır birlikler kükürt (barut) ister. */
 /**
  * Birliklerin lüks mal bedeli (Ikariam gibi): barutlu ve ağır birlikler
- * kükürt, aşçı üzüm (şarap), hekim kristal ister. Barut Deneme Alanı ve Top
+ * kükürt, aşçı kahve, hekim kristal ister. Barut Deneme Alanı ve Top
  * Döküm araştırması kükürdü azaltır.
  */
 export const UNIT_LUX: Partial<Record<UnitId, Partial<LuxuryStock>>> = {
   yeniceri: { kukurt: 6 }, azap: { kukurt: 10 }, okcu: { kukurt: 8 }, tufekci: { kukurt: 25 }, mancinik: { kukurt: 30 },
   topcu: { kukurt: 40 }, deli: { kukurt: 45 }, humbaraci: { kukurt: 50 }, hezarfen: { kukurt: 30 }, lagari: { kukurt: 60 },
-  asci: { uzum: 30 }, hekim: { kristal: 30 },
+  asci: { kahve: 30 }, hekim: { kristal: 30 },
   kadirga: { kukurt: 30 }, kalyon: { kukurt: 90 }, ates_gemisi: { kukurt: 45 }, mancinik_gemisi: { kukurt: 60 }, humbara_gemisi: { kukurt: 120 },
   balon_gemisi: { kukurt: 110 }, buharli_koc: { kukurt: 80 }, dalgic_gemisi: { kukurt: 40 },
 }
@@ -440,7 +438,7 @@ export function futureReason(g: Game, branch: ResearchBranch): string | null {
   return null
 }
 export const GOOD_NAMES: Record<Good, string> = {
-  gold: 'Akçe', wood: 'Kereste', stone: 'Taş', knowledge: 'İlim', uzum: 'Üzüm', mermer: 'Mermer', kristal: 'Kristal', kukurt: 'Kükürt',
+  gold: 'Akçe', wood: 'Kereste', knowledge: 'İlim', kahve: 'Kahve', mermer: 'Mermer', kristal: 'Kristal', kukurt: 'Kükürt',
 }
 export function goodAmount(g: Game, good: Good) { return (LUXURY_IDS as readonly string[]).includes(good) ? g.luxury[good as Luxury] : g.resources[good as Resource] }
 export function addGood(g: Game, good: Good, n: number) {
@@ -509,7 +507,7 @@ export function nearlyFullResources(g: Game): Resource[] {
  */
 export const BUILDING_GROWTH: Record<BuildingId, number> = {
   divan: 1.35, saray: 1.49, elcilik: 1.36, konut: 1.31, hamam: 1.38,
-  carsi: 1.35, ambar: 1.39, kereste: 1.31, tas: 1.31, medrese: 1.40,
+  carsi: 1.35, ambar: 1.39, kereste: 1.31, medrese: 1.40,
   kisla: 1.37, surlar: 1.43, liman: 1.37, tersane: 1.41,
   kahvehane: 1.34, cami: 1.38, muze: 1.40, marangoz: 1.33, mimar: 1.34, ormanci: 1.32, tasci: 1.32, tophane: 1.39,
   bagci: 1.32, simyahane: 1.33, camci: 1.33, mahzen: 1.33, gozlukcu: 1.34, barutane: 1.35, depo: 1.36,
@@ -523,11 +521,9 @@ export function constructionDiscount(g: Game): number {
 export function cost(g: Game, id: BuildingId): Resources {
   const base = Math.round(BUILDINGS[id].base * BUILDING_GROWTH[id] ** g.buildings[id])
   const materialFactor = 1 - constructionDiscount(g) - guildBonus(g, 'dulger') * GUILDS.dulger.per
-  // Ikariam: Marangoz keresteyi, Mimar taşı seviye başına %1 ucuzlatır.
+  // Ikariam: Marangoz keresteyi seviye başına %1 ucuzlatır (Mimarbaşı mermeri: luxuryCost).
   const woodFactor = materialFactor - g.buildings.marangoz * BUILDING_EFFECTS.marangozWood
-  const stoneFactor = materialFactor - g.buildings.mimar * BUILDING_EFFECTS.mimarStone
-  return { gold: base, wood: Math.round(base * 1.2 * Math.max(0.5, woodFactor)),
-    stone: Math.round(base * .75 * Math.max(0.5, stoneFactor)), knowledge: 0 }
+  return { gold: base, wood: Math.round(base * 1.2 * Math.max(0.5, woodFactor)), knowledge: 0 }
 }
 /** 5. seviyeden sonra her seviyenin süre çarpanı. */
 export const LATE_PACE = 1.16

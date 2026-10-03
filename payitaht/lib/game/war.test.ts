@@ -18,7 +18,7 @@ function town(): Empire {
   const g = e.cities[0].game
   place(g, 'divan', 5); place(g, 'konut', 6); place(g, 'kisla', 3); place(g, 'liman', 1)
   g.citizens = undefined
-  g.resources = { gold: 5000, wood: 5000, stone: 5000, knowledge: 0 }
+  g.resources = { gold: 5000, wood: 5000, knowledge: 0 }
   return e
 }
 

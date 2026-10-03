@@ -1,0 +1,66 @@
+{
+  "menuDimensions": [
+    {
+      "src": "/gameofashina/images/game/icons/ui-flag.webp",
+      "width": 44,
+      "height": 44
+    },
+    {
+      "src": "/gameofashina/images/game/icons/ui-harbour.webp",
+      "width": 44,
+      "height": 44
+    },
+    {
+      "src": "/gameofashina/images/game/icons/ui-divan.webp",
+      "width": 44,
+      "height": 44
+    },
+    {
+      "src": "/gameofashina/images/game/icons/ui-offer.webp",
+      "width": 46.866943359375,
+      "height": 46.866943359375
+    },
+    {
+      "src": "/gameofashina/images/game/icons/ui-city.webp",
+      "width": 44,
+      "height": 44
+    },
+    {
+      "src": "/gameofashina/images/game/icons/ui-island.webp",
+      "width": 44,
+      "height": 44
+    },
+    {
+      "src": "/gameofashina/images/game/icons/ui-map.webp",
+      "width": 44,
+      "height": 44
+    },
+    {
+      "src": "/gameofashina/images/game/icons/ui-alliance.webp",
+      "width": 44,
+      "height": 44
+    },
+    {
+      "src": "/gameofashina/images/game/icons/ui-objectives.webp",
+      "width": 44,
+      "height": 44
+    }
+  ],
+  "alliance": {
+    "paintedMenuIcons": 0,
+    "vectorIcons": 6,
+    "resourceIcons": 0
+  },
+  "harbour-page": {
+    "paintedMenuIcons": 0,
+    "vectorIcons": 12,
+    "resourceIcons": 10
+  },
+  "divan-page": {
+    "paintedMenuIcons": 0,
+    "vectorIcons": 22,
+    "resourceIcons": 14
+  },
+  "errors": [],
+  "missing": []
+}

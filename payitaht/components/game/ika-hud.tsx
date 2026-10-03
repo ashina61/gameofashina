@@ -17,7 +17,7 @@ import {
 import { activeCity, islandOf, type Empire } from '@/lib/game/empire'
 import { actionsInUse } from '@/lib/game/expeditions'
 import { luxuryIcons } from './game-widgets'
-import { AkceArt, HamleArt, IlimArt, KeresteArt, NufusArt, TasArt } from './resource-art'
+import { AkceArt, HamleArt, IlimArt, KeresteArt, NufusArt } from './resource-art'
 import { AdvisorPortrait, type AdvisorId } from './advisor-portraits'
 import { RulerCrest } from './profile-panel'
 import { CountUp } from './count-up'
@@ -50,7 +50,7 @@ export function advisorNews(game: Game, empire: Empire | undefined, seen: Adviso
   }
 }
 
-type StockFxKey = 'gold' | 'wood' | 'stone' | 'knowledge'
+type StockFxKey = 'gold' | 'wood' | 'knowledge'
 type StockFx = { value: number; stamp: number }
 
 export function IkaTopBar({ game, empire, news, modes, activeAdvisor, onCity, onEconomy, onAdvisor, onProfile }: {
@@ -79,18 +79,17 @@ export function IkaTopBar({ game, empire, news, modes, activeAdvisor, onCity, on
     const values: Record<StockFxKey, number> = {
       gold: game.resources.gold,
       wood: game.resources.wood,
-      stone: game.resources.stone,
       knowledge: game.resources.knowledge,
     }
     const nowRates: Record<StockFxKey, number> = {
-      gold: r.gold, wood: r.wood, stone: r.stone, knowledge: r.knowledge,
+      gold: r.gold, wood: r.wood, knowledge: r.knowledge,
     }
     const prev = previousStocks.current
     previousStocks.current = { time: game.updatedAt, values, rates: nowRates }
     if (!prev) return
     const dtMin = Math.max(0, Math.min(1, (game.updatedAt - prev.time) / 60_000))
     const next: Partial<Record<StockFxKey, StockFx>> = {}
-    ;(['gold', 'wood', 'stone', 'knowledge'] as StockFxKey[]).forEach(key => {
+    ;(['gold', 'wood', 'knowledge'] as StockFxKey[]).forEach(key => {
       const delta = values[key] - prev.values[key]
       const passive = Math.max(0, prev.rates[key]) * dtMin
       // Eksi her zaman oyuncu aksiyonudur; artıda pasif üretim + küçük yuvarlama payını aş.
@@ -110,7 +109,6 @@ export function IkaTopBar({ game, empire, news, modes, activeAdvisor, onCity, on
   const chips: { key: string; icon: ReactNode; value: string; num?: number; sub?: string; label: string; full?: boolean; cap?: boolean }[] = [
     { key: 'gold', icon: <AkceArt />, value: compact(game.resources.gold), num: game.resources.gold, sub: `${r.gold >= 0 ? '+' : ''}${compact(r.gold)}`, label: full.includes('gold') ? t.hud.storageFull('Akçe') : 'Akçe', full: full.includes('gold') },
     { key: 'wood', icon: <KeresteArt />, value: compact(game.resources.wood), num: game.resources.wood, sub: `+${compact(r.wood)}`, label: full.includes('wood') ? t.hud.storageFull('Kereste') : 'Kereste', full: full.includes('wood') },
-    { key: 'stone', icon: <TasArt />, value: compact(game.resources.stone), num: game.resources.stone, sub: `+${compact(r.stone)}`, label: full.includes('stone') ? t.hud.storageFull('Taş') : 'Taş', full: full.includes('stone') },
     { key: 'knowledge', icon: <IlimArt />, value: compact(game.resources.knowledge), num: game.resources.knowledge, sub: formatRate(r.knowledge, true), label: full.includes('knowledge') ? t.hud.storageFull('İlim') : 'İlim', full: full.includes('knowledge') },
     { key: 'lux', icon: <LuxIcon />, value: compact(game.luxury[lux]), num: game.luxury[lux], label: LUXURY_NAMES[lux] },
     { key: 'pop', icon: <NufusArt />, value: `${compact(population(game))}`, sub: `/${compact(maxPopulation(game))}`, label: population(game) >= maxPopulation(game) ? t.hud.housingFull : t.hud.population, cap: population(game) >= maxPopulation(game) },
@@ -167,10 +165,10 @@ export type IkaNavKey = 'city' | 'island' | 'map' | 'alliance' | 'objectives'
  */
 export function IkaNav({ active, badges, modes, onSelect }: { active: IkaNavKey | null; badges: Partial<Record<IkaNavKey, number>>; modes?: Partial<Record<IkaNavKey, BadgeMode>>; onSelect: (k: IkaNavKey) => void }) {
   const items: { key: IkaNavKey; label: string; icon: ReactNode }[] = [
-    { key: 'city', label: 'Şehir', icon: <Castle /> }, { key: 'island', label: 'Ada', icon: <TreePalm /> },
-    { key: 'map', label: 'Harita', icon: <Compass /> },
-    { key: 'alliance', label: 'İttifak', icon: <Shield /> },
-    { key: 'objectives', label: 'Görevler', icon: <ScrollText /> },
+    { key: 'city', label: 'Şehir', icon: <Castle painted /> }, { key: 'island', label: 'Ada', icon: <TreePalm painted /> },
+    { key: 'map', label: 'Harita', icon: <Compass painted /> },
+    { key: 'alliance', label: 'İttifak', icon: <Shield painted /> },
+    { key: 'objectives', label: 'Görevler', icon: <ScrollText painted /> },
   ]
   return <nav className="ika-nav" aria-label="Oyun menüsü">{items.map(i => <button key={i.key} type="button"
     className={cn('ika-nav-item', i.key === 'map' && 'ika-nav-center', active === i.key && 'ika-nav-active')} aria-current={active === i.key ? 'page' : undefined}

@@ -88,3 +88,14 @@
 .painted-term { display: inline-flex; align-items: center; gap: 6px; }
 /* Keep glossary controls fully tappable beside painted table icons. */
 .bp-table .term-btn { min-height: 44px; }
+/* G2 correction: menus and map tools explicitly opt in to painted art. */
+.game-shell .ika-nav-icon { width: 44px; height: 44px; }
+.game-shell .ika-nav-icon .painted-ui-icon,
+.game-shell .ika-nav-center .ika-nav-icon .painted-ui-icon,
+.map-top-tools .painted-ui-icon {
+  width: 44px; height: 44px; padding: 2px;
+  filter: drop-shadow(0 1px 2px #160d08aa);
+}
+.game-shell .ika-nav-center .ika-nav-icon { width: 56px; height: 56px; }
+.game-shell { --ika-nav: calc(var(--sa-bottom) + 74px); }
+.game-shell .map-top-tools button { width: 52px; height: 52px; }

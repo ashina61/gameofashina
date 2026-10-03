@@ -19,7 +19,8 @@ import { MAX_LEVEL } from './rules'
  *     tam kapasiteyle hesaplanmisti, dolayisiyla uretim ayni kalir.
  */
 const LEGACY_PLOT: Record<BuildingId, number> = {
-  divan: 0, konut: 1, kereste: 2, tas: 3, ambar: 4, medrese: 5, carsi: 6, hamam: 6,
+  // v1'deki Taş Ocağı (3) 0.42'de kalktı; v3→v4 adımı onu iade eder.
+  divan: 0, konut: 1, kereste: 2, ambar: 4, medrese: 5, carsi: 6, hamam: 6,
   // v1'de bunlar yoktu; hicbir eski kayitta seviyeleri sifirdan buyuk olamaz.
   saray: 6, elcilik: 6, kisla: 6, surlar: 6, liman: 6, tersane: 6,
   kahvehane: 6, cami: 6, muze: 6, marangoz: 6, mimar: 6, ormanci: 6, tasci: 6, tophane: 6,
@@ -152,6 +153,39 @@ function migrateQueue(g: Record<string, unknown>): Record<string, unknown> {
   return { ...rest, version: 3, queue: construction ? [construction] : [] }
 }
 
+/**
+ * v3 -> v4 (0.42): TAŞ OYUNDAN KALKTI (Ikariam gibi: kereste + lüks mallar).
+ *   - Ambardaki taş akçeye çevrilir (1:1).
+ *   - Taş Ocağı yıkılır: her seviyesi için 200 akçe + 150 kereste iade, arsası
+ *     boşalır, taşçıları boşta halka döner. Sıradaki Taş Ocağı işi iptal edilip
+ *     300 akçe iade edilir.
+ * Oyuncu emeğinin karşılığını kaybetmesin diye iade cömerttir ve ambar
+ * sınırına takılmaz (sonraki ilerleme fazlayı tutmaz ama silmez de).
+ */
+function migrateStone(g: Record<string, unknown>): Record<string, unknown> {
+  if (g.version !== 3) return g
+  const res = { ...(g.resources as Record<string, number>) }
+  const stone = Math.max(0, Math.floor(res.stone ?? 0))
+  delete res.stone
+  const buildings = { ...(g.buildings as Record<string, number>) }
+  const level = Math.max(0, Math.floor(buildings.tas ?? 0))
+  delete buildings.tas
+  const placement = { ...(g.placement as Record<string, number | null>) }
+  delete placement.tas
+  const workers = { ...(g.workers as Record<string, number>) }
+  delete workers.tas
+  const queue = Array.isArray(g.queue) ? (g.queue as Job[]) : []
+  const cancelled = queue.filter(j => (j.id as string) === 'tas').length
+  res.gold = (res.gold ?? 0) + stone + level * 200 + cancelled * 300
+  res.wood = (res.wood ?? 0) + level * 150
+  const log = Array.isArray(g.log) ? [...(g.log as { text: string; time: number }[])] : []
+  if (stone || level || cancelled) {
+    const when = typeof g.updatedAt === 'number' ? g.updatedAt : 0
+    log.unshift({ text: `Taş artık kullanılmıyor: ${stone} taş akçeye çevrildi${level ? `, Taş Ocağı kaldırıldı (${level * 200} akçe + ${level * 150} kereste iade)` : ''}.`, time: when })
+  }
+  return { ...g, version: 4, resources: res, buildings, placement, workers, queue: queue.filter(j => (j.id as string) !== 'tas'), log: log.slice(0, 60) }
+}
+
 function migrate(g: Record<string, unknown>): Record<string, unknown> {
   if (g.version !== 1) return g
   const buildings = g.buildings as Record<BuildingId, number>
@@ -169,10 +203,11 @@ function migrate(g: Record<string, unknown>): Record<string, unknown> {
  * varsayılanla doldurur. Alanın anlamı ya da biçimi değişirse buraya yeni bir
  * adım eklenir ve GAME_SCHEMA bir artar.
  */
-export const GAME_SCHEMA = 3
+export const GAME_SCHEMA = 4
 export const GAME_MIGRATIONS: Record<number, (g: Record<string, unknown>) => Record<string, unknown>> = {
   1: migrate,
   2: migrateQueue,
+  3: migrateStone,
 }
 export function migrateGame(source: unknown): Record<string, unknown> {
   if (!source || typeof source !== 'object') throw new Error('Kayıt okunamadı.')
@@ -282,7 +317,7 @@ export function parseSave(raw: string): Game {
     && queue.every(job => validJob(job, 'build'))
     && new Set(queue.map(job => job.id)).size === queue.length
     && queue.every((job, i) => i === 0 || job.start >= queue[i - 1].end - 1)
-  if (!g || g.version !== 3 || !queueValid || !finite(g.updatedAt) || !g.resources || !g.buildings || !placementValid || !workersValid || !armyValid || !Array.isArray(g.drills) || (g.drills as Job[]).length > 20 || !(g.drills as Job[]).every(j => validJob(j, 'drill')) || !RESOURCE_IDS.every(r => finite((g.resources as Resources)[r])) || !BUILDING_IDS.every(b => Number.isInteger((g.buildings as Record<BuildingId, number>)[b]) && (g.buildings as Record<BuildingId, number>)[b] >= 0 && (g.buildings as Record<BuildingId, number>)[b] <= MAX_LEVEL[b]) || (g.buildings as Record<BuildingId, number>).divan < 1 || !Array.isArray(g.research) || !(g.research as ResearchId[]).every((id: ResearchId) => RESEARCH_IDS.includes(id)) || new Set(g.research as ResearchId[]).size !== (g.research as ResearchId[]).length || !Array.isArray(g.claimed) || !(g.claimed as string[]).every((id: string) => OBJECTIVES.some(o => o.id === id)) || !validJob(g.study as Job | null, 'research') || !Array.isArray(g.log) || (g.log as unknown[]).length > 60 || !(g.log as { text: unknown; time: unknown }[]).every((l) => typeof l.text === 'string' && l.text.length < 500 && finite(l.time))) throw new Error('Kayıt dosyası okunamadı. Eski kaydın korunuyor; yeni oyun başlatabilirsin.')
+  if (!g || g.version !== GAME_SCHEMA || !queueValid || !finite(g.updatedAt) || !g.resources || !g.buildings || !placementValid || !workersValid || !armyValid || !Array.isArray(g.drills) || (g.drills as Job[]).length > 20 || !(g.drills as Job[]).every(j => validJob(j, 'drill')) || !RESOURCE_IDS.every(r => finite((g.resources as Resources)[r])) || !BUILDING_IDS.every(b => Number.isInteger((g.buildings as Record<BuildingId, number>)[b]) && (g.buildings as Record<BuildingId, number>)[b] >= 0 && (g.buildings as Record<BuildingId, number>)[b] <= MAX_LEVEL[b]) || (g.buildings as Record<BuildingId, number>).divan < 1 || !Array.isArray(g.research) || !(g.research as ResearchId[]).every((id: ResearchId) => RESEARCH_IDS.includes(id)) || new Set(g.research as ResearchId[]).size !== (g.research as ResearchId[]).length || !Array.isArray(g.claimed) || !(g.claimed as string[]).every((id: string) => OBJECTIVES.some(o => o.id === id)) || !validJob(g.study as Job | null, 'research') || !Array.isArray(g.log) || (g.log as unknown[]).length > 60 || !(g.log as { text: unknown; time: unknown }[]).every((l) => typeof l.text === 'string' && l.text.length < 500 && finite(l.time))) throw new Error('Kayıt dosyası okunamadı. Eski kaydın korunuyor; yeni oyun başlatabilirsin.')
   const game = g as unknown as Game
   if (game.queue.some(job => game.buildings[job.id as BuildingId] >= MAX_LEVEL[job.id as BuildingId])) throw new Error('İnşaat kaydı geçersiz.')
   if (game.study && game.research.includes(game.study.id as ResearchId)) throw new Error('Araştırma kaydı geçersiz.')

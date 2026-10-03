@@ -99,7 +99,7 @@ export class CityScene extends Phaser.Scene {
       if (!this.textures.exists(key)) this.load.image(key, buildingImage(id, level, facing, cityArtSize()))
     }
     if (!this.textures.exists('b_site')) this.load.image('b_site', asset('/images/game/buildings/site.webp'))
-    for (const lux of ['uzum', 'mermer', 'kristal', 'kukurt']) {
+    for (const lux of ['kahve', 'mermer', 'kristal', 'kukurt']) {
       if (!this.textures.exists('mine-' + lux)) this.load.image('mine-' + lux, asset(`/images/game/buildings/mine-${lux}.webp`))
     }
     // İnşaat iskelesi (tools/art/buildings.py).

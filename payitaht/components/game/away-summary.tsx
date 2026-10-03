@@ -2,7 +2,7 @@
 
 /** Oyuna dönüşte "yokluğunda olanlar" kartı: kısa, görsel, tek dokunuşla kapanır. */
 import { awayLength, type AwaySummary } from '@/lib/game/away'
-import { AkceArt, IlimArt, KeresteArt, TasArt } from './resource-art'
+import { AkceArt, IlimArt, KeresteArt } from './resource-art'
 
 export function AwaySummaryCard({ summary, onClose, onReports }: { summary: AwaySummary; onClose: () => void; onReports: () => void }) {
   const s = summary
@@ -11,10 +11,9 @@ export function AwaySummaryCard({ summary, onClose, onReports }: { summary: Away
     <section className="away-card" onClick={e => e.stopPropagation()}>
       <span className="eyebrow">HOŞ GELDİN, HÜKÜMDAR</span>
       <h3 id="away-title">{awayLength(s.minutes)} yoktun</h3>
-      {(s.gained.gold + s.gained.wood + s.gained.stone + s.gained.knowledge) > 0 && <div className="away-gains" aria-label="Biriken kaynaklar">
+      {(s.gained.gold + s.gained.wood + s.gained.knowledge) > 0 && <div className="away-gains" aria-label="Biriken kaynaklar">
         <span><AkceArt /><b>+{s.gained.gold.toLocaleString('tr-TR')}</b></span>
         <span><KeresteArt /><b>+{s.gained.wood.toLocaleString('tr-TR')}</b></span>
-        <span><TasArt /><b>+{s.gained.stone.toLocaleString('tr-TR')}</b></span>
         <span><IlimArt /><b>+{s.gained.knowledge.toLocaleString('tr-TR')}</b></span>
       </div>}
       {s.cappedHours && <p className="away-full">Üretim {s.cappedHours} saat sonra durdu: oyun kapalıyken kaynaklar en çok bu kadar birikir. Ambar'ın her seviyesi bir saat ekler (en çok 24).</p>}

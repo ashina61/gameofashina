@@ -61,7 +61,7 @@ export function dispatchSpies(source: Empire, npcId: string, count: number, now:
   empire.missions = [...(empire.missions ?? []), {
     id, kind: 'spy', cityId: t.city.id, npcId, units: { casus: count },
     departAt: now, arriveAt: now + travel, returnAt: now + 2 * travel,
-    resolved: false, loot: { gold: 0, wood: 0, stone: 0 },
+    resolved: false, loot: { gold: 0, wood: 0 },
   }]
   logEvent(t.city.game, `${count} casus ${t.npc.name} yönüne yola çıktı.`, now)
   bump(empire, 'spies')
@@ -93,7 +93,7 @@ export function dispatchRaid(source: Empire, npcId: string, units: Partial<Recor
   empire.missions = [...(empire.missions ?? []), {
     id: `${mode}-${t.city.id}-${npcId}-${now}`, kind: mode, cityId: t.city.id, npcId, units: clean,
     departAt: now, arriveAt: now + travel, returnAt: now + 2 * travel,
-    resolved: false, loot: { gold: 0, wood: 0, stone: 0 },
+    resolved: false, loot: { gold: 0, wood: 0 },
   }]
   if (mode === 'raid') t.city.game.stats.raids = (t.city.game.stats.raids ?? 0) + 1
   logEvent(t.city.game, overseas ? `Ordu ${clean.nakliye} gemiyle ${t.npc.name} üzerine denize açıldı.` : `Ordu ${t.npc.name} üzerine sefere çıktı.`, now)
@@ -121,7 +121,7 @@ export function dispatchPiracy(source: Empire, targetId: string, units: Partial<
   empire.missions = [...(empire.missions ?? []), {
     id: `piracy-${t.city.id}-${targetId}-${now}`, kind: 'piracy', cityId: t.city.id, npcId: targetId, units: clean,
     departAt: now, arriveAt: now + travel, returnAt: now + 2 * travel,
-    resolved: false, loot: { gold: 0, wood: 0, stone: 0 },
+    resolved: false, loot: { gold: 0, wood: 0 },
   }]
   logEvent(g, `Filo ${target.name} peşine düştü.`, now)
   return { empire }
@@ -144,7 +144,7 @@ export function dispatchBlockade(source: Empire, rivalId: string, units: Partial
   const travel = 60_000 + seaTravelMs(t.city.islandId, t.npc.islandId, t.city.game)
   empire.missions = [...(empire.missions ?? []), {
     id: `blockade-${t.city.id}-${rivalId}-${now}`, kind: 'blockade', cityId: t.city.id, npcId: rivalId, units: clean,
-    departAt: now, arriveAt: now + travel, returnAt: now + 2 * travel, resolved: false, loot: { gold: 0, wood: 0, stone: 0 },
+    departAt: now, arriveAt: now + travel, returnAt: now + 2 * travel, resolved: false, loot: { gold: 0, wood: 0 },
   }]
   logEvent(t.city.game, `Filo ${t.npc.name} limanını kapatmaya gidiyor.`, now)
   return { empire }

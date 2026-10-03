@@ -56,7 +56,7 @@ export const piracyTarget = (id: string) => PIRACY_TARGETS.find(t => t.id === id
 export const ESCORT_MUL = { attackMul: 0.8, defenseMul: 0.5 }
 
 export type NpcState = { level: number; raidedAt: number }
-export type Loot = { gold: number; wood: number; stone: number }
+export type Loot = { gold: number; wood: number }
 export type Mission = {
   /** raid: yerleşime sefer · spy: casusluk · piracy: Korsan Kalesi seferi (npcId = hedef). */
   id: string; kind: 'raid' | 'spy' | 'piracy' | 'deploy' | 'occupy' | 'blockade' | 'support'; cityId: string; npcId: string
@@ -80,7 +80,7 @@ export type Mission = {
  */
 export type SpyType = 'hazine' | 'garnizon' | 'sur' | 'donanma' | 'hareket' | 'arastirma'
 export const SPY_TYPES: Record<SpyType, { name: string; description: string; minutes: number; bonus: number }> = {
-  hazine: { name: 'Hazineyi gözetle', description: 'Ambardaki yağmalanabilir akçe, kereste ve taş.', minutes: 1, bonus: 0.15 },
+  hazine: { name: 'Hazineyi gözetle', description: 'Ambardaki yağmalanabilir akçe ve kereste.', minutes: 1, bonus: 0.15 },
   garnizon: { name: 'Garnizonu say', description: 'Şehirdeki birlikler ve savaş meydanı.', minutes: 2, bonus: 0 },
   sur: { name: 'Surları incele', description: 'Sur seviyesi, sur canı ve toplam savunma.', minutes: 1.5, bonus: 0.05 },
   donanma: { name: 'Limanı gözetle', description: 'Limandaki savaş gemileri.', minutes: 2, bonus: 0 },
@@ -232,7 +232,7 @@ export const LOOT_REFILL_MS = 45 * 60_000
 export function lootPool(state: NpcState, now: number): Loot {
   const fill = Math.min(1, Math.max(0, (now - state.raidedAt) / LOOT_REFILL_MS))
   const max = 500 * state.level * lootMul(now)
-  return { gold: Math.floor(max * fill), wood: Math.floor(max * 0.9 * fill), stone: Math.floor(max * 0.6 * fill) }
+  return { gold: Math.floor(max * fill), wood: Math.floor(max * 1.5 * fill) }
 }
 
 /** Seferdeki (ve dönüş yolundaki) birlikler: tekrar gönderilemez. */
