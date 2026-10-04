@@ -1,0 +1,44 @@
+/* Kışla pilotu: referanstaki tek parça avlu ve ceviz / pirinç / parşömen.
+ * Seçiciler yalnız kışlayı kapsar; ekonomi ve diğer bina sayfaları korunur. */
+.bp-of-kisla .bp-scroll { gap: 8px; padding-inline: 10px; }
+.bp-of-kisla .bp-hero.bp-scene { height: clamp(200px, 26vh, 290px); margin-inline: -10px; }
+.bp-of-kisla .bp-hero.is-barracks-scene { background: var(--c-wood-dark); }
+.bp-of-kisla .is-barracks-scene .bp-scene-back { display: none; }
+.bp-of-kisla .bp-hero .barracks-courtyard { position: absolute; inset: 0; width: 100%; height: 100%; max-width: none; object-fit: cover; object-position: 56% 58%; filter: none; }
+.bp-of-kisla .bp-stages { top: 10px; left: 8px; gap: 5px; }
+.bp-of-kisla .bp-stages button { width: 58px; min-height: 54px; background: var(--c-wood-dark); border-color: var(--c-gold); border-radius: 2px; box-shadow: 0 2px 5px #0006; }
+.bp-of-kisla .bp-stages button img { height: 35px; width: 100%; filter: none; }
+.bp-of-kisla .bp-stages button span { color: var(--c-cream); font-size: 11px; }
+.bp-of-kisla .bp-stages button[aria-pressed="true"] { box-shadow: 0 0 0 1px var(--c-cream), 0 0 12px var(--c-gold); }
+.bp-of-kisla .bp-plaque { top: 12px; right: 10px; left: auto; bottom: auto; transform: none; flex-direction: column; }
+.bp-of-kisla .bp-plaque-level { width: 52px; height: 52px; }
+.bp-of-kisla .bp-plaque-text { margin: -4px 0 0; padding: 6px 8px; border-radius: 0 0 4px 4px; text-align: center; }
+.bp-of-kisla .bp-plaque-text b { font-size: 12px; }
+.bp-of-kisla .bp-plaque-text small { display: none; }
+.bp-of-kisla .bp-hero-tools { top: auto; right: 8px; bottom: 12px; flex-direction: row; }
+.bp-of-kisla .bp-hero-tools button { background: var(--c-wood-dark); border-color: var(--c-gold); color: var(--c-cream); }
+.barracks-ribbon { position: relative; z-index: 1; align-self: center; width: 68%; margin-top: -23px; padding: 7px 28px 9px; text-align: center; background: var(--art-ribbon-red) center / 100% 100% no-repeat; color: var(--c-cream); font-family: var(--font-heading), Georgia, serif; font-size: 24px; line-height: 1.1; text-shadow: 0 2px 2px #0007; }
+.bp-of-kisla:not(.show-help) .bp-desc, .bp-of-kisla .bp-desc { display: block; overflow: visible; padding: 0 10px 5px; border: 0; outline: 0; background: none; box-shadow: none; text-align: center; font-size: 13px; line-height: 1.4; }
+.bp-of-kisla .bp-tabs { background: none; border-radius: 0; padding: 0; gap: 8px; box-shadow: none; }
+.bp-of-kisla .bp-tabs button { border-radius: 2px; color: var(--c-cream); background: none; border: 0 solid transparent; border-image: var(--art-walnut-plate) 56 fill / 8px / 0 stretch; font-family: var(--font-heading), Georgia, serif; font-size: 16px; }
+.bp-of-kisla .bp-tabs button[aria-selected="true"] { border-image-source: var(--art-button-red); color: var(--c-cream); box-shadow: 0 0 4px var(--c-gold); }
+.bp-of-kisla .bp-army { border: 0; background: none; border-image: none; box-shadow: none; }
+.bp-of-kisla .bp-army > .bp-box-title { display: none; }
+.bp-of-kisla .bp-army > .bp-box-body { padding: 2px 0 8px; }
+.bp-of-kisla .unit-gallery { gap: 7px; padding: 3px 2px 8px; }
+.bp-of-kisla .unit-gallery > .unit-tile { flex-basis: calc((100% - 14px) / 3); }
+.bp-of-kisla .unit-tile { gap: 6px; border: 0 solid transparent; border-image: var(--art-page-frame) 48 fill / 7px / 0 stretch; border-radius: 0; padding: 8px 6px; }
+.bp-of-kisla .unit-tile > strong { order: -1; font-size: 15px; }
+.bp-of-kisla .unit-tile-art { aspect-ratio: 1 / 1.2; border: 0; border-radius: 0; }
+.bp-of-kisla .unit-tile-art img { inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.bp-of-kisla .unit-tile-stats { flex-wrap: wrap; gap: 3px 6px; font-size: 11px; }
+.bp-of-kisla .unit-tile[aria-selected="true"] { box-shadow: inset 0 0 0 2px var(--c-gold), 0 0 5px var(--c-gold); }
+.bp-of-kisla .unit-tile.is-locked .unit-tile-art img { filter: saturate(.5); opacity: .85; }
+.bp-of-kisla .unit-card { border: 0 solid transparent; border-image: var(--art-page-frame) 48 fill / 9px / 0 stretch; padding: 12px; }
+.bp-of-kisla .bp-dock { border: 0 solid transparent; border-image: var(--art-page-frame) 48 fill / 10px / 0 stretch; padding: 10px 12px; }
+.bp-of-kisla .bp-dock .bp-upgrade-button { border: 0 solid transparent; border-image: var(--art-button-gold) 56 fill / 9px / 0 stretch; background: none; box-shadow: 0 2px 4px #0003; border-radius: 0; }
+@media (max-width: 360px) {
+  .bp-of-kisla .unit-gallery > .unit-tile { flex-basis: calc((100% - 7px) / 2.55); }
+}
+
+.bp-of-kisla:not(.show-help) .bp-hero-tools { display: none; }
