@@ -174,7 +174,7 @@
 .wm-label.is-active { fill: #ffe1a0; font-size: 12px; }
 .wm-compass text { fill: #f3dcaa; font: 700 10px var(--font-heading), Georgia, serif; text-anchor: middle; }
 .wm-island { cursor: pointer; outline: none; }
-.wm-island:focus-visible polygon:nth-child(3) { stroke: #ffe9a8; stroke-width: 3; }
+.wm-island:focus-visible image { filter: drop-shadow(0 0 3px #ffe9a8); }
 .wm-legend { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 11px; color: var(--c-brown-mid); }
 .wm-legend span { display: inline-flex; align-items: center; gap: 5px; }
 .wm-dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; border: 1px solid #f6ecd6; flex: none; }

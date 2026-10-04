@@ -66,7 +66,7 @@ export function IslandView({ empire, islandId, now, onCity, onIsland, onMine, on
       <GameButton size="sm" variant="outline" onClick={onReports}><ScrollText data-icon="inline-start" />Raporlar{unread > 0 ? ` · ${unread}` : ''}</GameButton>
     </div>
     <MapViewport key={island.id} width={layout.size[0]} height={layout.size[1]} fitWidth className="island-map-viewport">
-    <div className="island-map">
+    <div className="island-map" style={{ backgroundImage: `url(${asset('/images/game/terrain/world-sea.webp')})`, backgroundSize: 'cover' }}>
       <img className="island-bg" src={asset(`/images/game/islands/${island.id}.webp`)} alt="" width={layout.size[0]} height={layout.size[1]} />
       {city && <button className="island-spot island-city" style={place('city')} onClick={home ? onCity : undefined} disabled={!home} aria-label={`${city.name} şehri`}>
         <img src={buildingImage('divan', city.game.buildings.divan)} alt="" />

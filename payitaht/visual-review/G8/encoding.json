@@ -1,0 +1,226 @@
+[
+  {
+    "id": "zeytin",
+    "width": 600,
+    "height": 800,
+    "bytes": 98942,
+    "quality": 58
+  },
+  {
+    "id": "map-zeytin",
+    "width": 160,
+    "height": 213,
+    "bytes": 8488,
+    "quality": 46
+  },
+  {
+    "id": "akcam",
+    "width": 600,
+    "height": 800,
+    "bytes": 93994,
+    "quality": 64
+  },
+  {
+    "id": "map-akcam",
+    "width": 160,
+    "height": 213,
+    "bytes": 8772,
+    "quality": 52
+  },
+  {
+    "id": "kizil",
+    "width": 600,
+    "height": 800,
+    "bytes": 93594,
+    "quality": 52
+  },
+  {
+    "id": "map-kizil",
+    "width": 160,
+    "height": 213,
+    "bytes": 8520,
+    "quality": 46
+  },
+  {
+    "id": "akdeniz",
+    "width": 600,
+    "height": 800,
+    "bytes": 99946,
+    "quality": 52
+  },
+  {
+    "id": "map-akdeniz",
+    "width": 160,
+    "height": 213,
+    "bytes": 8818,
+    "quality": 46
+  },
+  {
+    "id": "yalcin",
+    "width": 600,
+    "height": 800,
+    "bytes": 94934,
+    "quality": 58
+  },
+  {
+    "id": "map-yalcin",
+    "width": 160,
+    "height": 213,
+    "bytes": 8742,
+    "quality": 52
+  },
+  {
+    "id": "atessiz",
+    "width": 600,
+    "height": 800,
+    "bytes": 96850,
+    "quality": 64
+  },
+  {
+    "id": "map-atessiz",
+    "width": 160,
+    "height": 213,
+    "bytes": 8618,
+    "quality": 52
+  },
+  {
+    "id": "baglik",
+    "width": 600,
+    "height": 800,
+    "bytes": 95260,
+    "quality": 64
+  },
+  {
+    "id": "map-baglik",
+    "width": 160,
+    "height": 213,
+    "bytes": 8592,
+    "quality": 52
+  },
+  {
+    "id": "mercan",
+    "width": 600,
+    "height": 800,
+    "bytes": 99610,
+    "quality": 64
+  },
+  {
+    "id": "map-mercan",
+    "width": 160,
+    "height": 213,
+    "bytes": 8626,
+    "quality": 52
+  },
+  {
+    "id": "sakiz",
+    "width": 600,
+    "height": 800,
+    "bytes": 95854,
+    "quality": 64
+  },
+  {
+    "id": "map-sakiz",
+    "width": 160,
+    "height": 213,
+    "bytes": 8994,
+    "quality": 58
+  },
+  {
+    "id": "poyraz",
+    "width": 600,
+    "height": 800,
+    "bytes": 94334,
+    "quality": 64
+  },
+  {
+    "id": "map-poyraz",
+    "width": 160,
+    "height": 213,
+    "bytes": 8744,
+    "quality": 58
+  },
+  {
+    "id": "kartal",
+    "width": 600,
+    "height": 800,
+    "bytes": 94348,
+    "quality": 46
+  },
+  {
+    "id": "map-kartal",
+    "width": 160,
+    "height": 213,
+    "bytes": 8654,
+    "quality": 46
+  },
+  {
+    "id": "lodos",
+    "width": 600,
+    "height": 800,
+    "bytes": 93782,
+    "quality": 70
+  },
+  {
+    "id": "map-lodos",
+    "width": 160,
+    "height": 213,
+    "bytes": 8608,
+    "quality": 52
+  },
+  {
+    "id": "fener",
+    "width": 600,
+    "height": 800,
+    "bytes": 95784,
+    "quality": 64
+  },
+  {
+    "id": "map-fener",
+    "width": 160,
+    "height": 213,
+    "bytes": 8942,
+    "quality": 58
+  },
+  {
+    "id": "hisarada",
+    "width": 600,
+    "height": 800,
+    "bytes": 95630,
+    "quality": 64
+  },
+  {
+    "id": "map-hisarada",
+    "width": 160,
+    "height": 213,
+    "bytes": 8756,
+    "quality": 58
+  },
+  {
+    "id": "lalezar",
+    "width": 600,
+    "height": 800,
+    "bytes": 96886,
+    "quality": 64
+  },
+  {
+    "id": "map-lalezar",
+    "width": 160,
+    "height": 213,
+    "bytes": 8892,
+    "quality": 58
+  },
+  {
+    "id": "sahil",
+    "width": 600,
+    "height": 800,
+    "bytes": 97636,
+    "quality": 46
+  },
+  {
+    "id": "map-sahil",
+    "width": 160,
+    "height": 213,
+    "bytes": 8744,
+    "quality": 34
+  }
+]

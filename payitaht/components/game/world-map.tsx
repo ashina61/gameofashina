@@ -70,31 +70,16 @@ export function WorldMap({ empire, now, missing, colonyCost, onSelectCity, onCol
     el.scrollLeft = Math.max(0, (home.x + 0.75) * U - el.clientWidth / 2)
     el.scrollTop = Math.max(0, (home.y + 0.75) * U - el.clientHeight / 2)
   }, [home.x, home.y])
-  return <div className="world-map">
+  return <div className="world-map" style={{ borderStyle: 'solid', borderWidth: 6, borderImage: `url(${asset('/images/game/ui/page-frame.webp')}) 80 / 10px / 0 stretch` }}>
     <MapViewport width={W} height={H} viewportRef={scroller} className="world-map-scroll">
       <svg viewBox={`0 0 ${W} ${H}`} width={W} height={H} role="img" aria-label="Dünya haritası">
         <defs>
-          <radialGradient id="wm-sea" cx="48%" cy="42%" r="78%"><stop offset="0" stopColor="#367686" /><stop offset=".62" stopColor="#245c6b" /><stop offset="1" stopColor="#173e4f" /></radialGradient>
           <filter id="wm-shadow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="2.5" /></filter>
-          {/* V2 Faz 4.6 — boyalı deniz: fırça dokusu (türbülans) ve sığlık ışığı. */}
-          <filter id="wm-paint" x="0" y="0" width="100%" height="100%">
-            <feTurbulence type="fractalNoise" baseFrequency="0.012 0.03" numOctaves="3" seed="7" result="n" />
-            <feColorMatrix in="n" type="matrix" values="0 0 0 0 0.85  0 0 0 0 0.93  0 0 0 0 0.9  0 0 0 0.55 -0.18" />
-          </filter>
-          <radialGradient id="wm-shallow" cx="50%" cy="50%" r="50%"><stop offset=".55" stopColor="#5fa6a8" stopOpacity=".55" /><stop offset="1" stopColor="#5fa6a8" stopOpacity="0" /></radialGradient>
           <marker id="wm-arrow" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0 1 L9 5 L0 9 Z" fill="#f6ecd6" /></marker>
         </defs>
-        <rect width={W} height={H} fill="url(#wm-sea)" />
-        <rect width={W} height={H} filter="url(#wm-paint)" opacity=".5" />
-        {/* Adaların çevresinde sığ su: açık turkuaz hale. */}
-        {ISLANDS.map(i => <ellipse key={`sh-${i.id}`} cx={(i.x + 0.75) * U} cy={(i.y + 0.75) * U + 4} rx="46" ry="44" fill="url(#wm-shallow)" />)}
-        {/* Sparse, irregular sea marks read as water without a tiled wallpaper. */}
-        {Array.from({ length: Math.ceil(W / 39) * Math.ceil(H / 34) }, (_, n) => {
-          const cols = Math.ceil(W / 39), x = (n % cols) * 39 + ((n * 17) % 21), y = Math.floor(n / cols) * 34 + ((n * 13) % 17)
-          return <path key={n} d={`M${x} ${y} q5 -2 10 0 m3 2 q4 -1 8 0`} fill="none" stroke="#9fc2c0" strokeWidth=".7" strokeOpacity={n % 4 === 0 ? '.22' : '.10'} />
-        })}
-        {Array.from({ length: Math.ceil(maxX) }, (_, x) => <g key={`x${x}`}><path d={`M${x * U} 0 V${H}`} stroke="#d8cfad" strokeOpacity="0.09" /><text x={x * U + 3} y={11} className="wm-coord" data-tiny>{x}</text></g>)}
-        {Array.from({ length: Math.ceil(maxY) }, (_, y) => <g key={`y${y}`}><path d={`M0 ${y * U} H${W}`} stroke="#d8cfad" strokeOpacity="0.09" /><text x={3} y={y * U + 11} className="wm-coord" data-tiny>{y}</text></g>)}
+        <image href={asset('/images/game/terrain/world-sea.webp')} width={W} height={H} preserveAspectRatio="none" />
+        {Array.from({ length: Math.ceil(maxX) }, (_, x) => <g key={`x${x}`}><path d={`M${x * U} 0 V${H}`} stroke="#d8cfad" strokeOpacity="0.035" /><text x={x * U + 3} y={11} className="wm-coord" data-tiny>{x}</text></g>)}
+        {Array.from({ length: Math.ceil(maxY) }, (_, y) => <g key={`y${y}`}><path d={`M0 ${y * U} H${W}`} stroke="#d8cfad" strokeOpacity="0.035" /><text x={3} y={y * U + 11} className="wm-coord" data-tiny>{y}</text></g>)}
         <g className="wm-compass" transform={`translate(${W - 38} 36)`} aria-hidden="true"><circle r="18" fill="#102e38" fillOpacity=".45" stroke="#c8b57c" strokeOpacity=".7" /><path d="M0 -13 L3 -3 13 0 3 3 0 13 -3 3 -13 0 -3 -3Z" fill="#d7c58e" /><circle r="2.5" fill="#713b24" /><text y="-22">K</text></g>
         {/* Kendi şehirlerin arasındaki deniz yolları */}
         {routes.map(t => {
@@ -116,7 +101,7 @@ export function WorldMap({ empire, now, missing, colonyCost, onSelectCity, onCol
           </g>)}
         {/* Yoldaki gemiler: rakiplerden gelen mallar ve kendi nakliyelerin. */}
         {ships.map(sh => <g key={sh.id} className="wm-ship" transform={`translate(${sh.x} ${sh.y})`}><title>{sh.title}</title>
-          <path d="M-7 1 H7 L4 6 H-4 Z" fill="#6b4424" stroke="#2e1c0e" strokeWidth="0.8" /><path d="M0 1 V-9 L6 -2 H0" fill="#f6ecd6" stroke="#2e1c0e" strokeWidth="0.6" />
+          <image href={asset('/images/game/ships/ship-a.webp')} x="-10" y="-14" width="20" height="22" />
         </g>)}
         {ISLANDS.map(i => {
           const cx = (i.x + 0.75) * U, cy = (i.y + 0.75) * U
