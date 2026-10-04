@@ -18,7 +18,7 @@ strateji oyununun içindeki ferman, divan, atölye ve harita ekranlarıdır.
 | Öğesi | Bağlayıcı karar |
 |---|---|
 | Resim | Ayrıntılı, boyalı, gerçekçi oyun illüstrasyonu; çizgi film veya düz vektör görünümü yok. |
-| Mekân | Osmanlı–Ege: kireçtaşı, kırmızı kiremit, kurşuni kubbe, servi/zeytin, turkuaz deniz. Her sayfanın işlevini anlatan tek bir ana sahne. |
+| Mekân | Osmanlı–Ege: kireçtaşı, kırmızı kiremit, kurşuni kubbe, servi/zeytin, turkuaz deniz. Her sayfanın işlevini anlatan ana sahne ve eylemlere ait resimli içerikler. |
 | Işık | Sol üstten sıcak doğal ışık, yumuşak gölge; gündüz ve altın saat arasında tutarlılık. |
 | Malzeme | Ceviz ahşap başlık ve sekmeler, eskitilmiş altın/pirinç süs ve çerçeve, dokulu parşömen içerik. Aynı `--c-*` ve `--art-*` malzemeleri. |
 | Vurgu | Kırmızı sancak ana başlık/seçili sekme, altın birincil düğme ve hazır ödül, bronz/parşömen ikincil eylem. |
@@ -40,7 +40,7 @@ Yeni sahneler ImageGen ile, referanslar açıkça stil referansı olarak belirti
 | Sıra | Bölüm | Durum / kabul konusu |
 |---|---|---|
 | 0 | Ortak üst ve alt bar | Canlı, SW v44; kullanıcı referansı temel. |
-| 1 | Görevler | İlk sayfa pilotu: divan görev dairesi, ferman kurdelesi, şehir/günlük/başarım defterleri. SW v45. Yayından sonra kullanıcı değerlendirmesi beklenir. |
+| 1 | Görevler | İlk sayfa pilotu: divan görev dairesi, ferman kurdelesi, şehir/günlük/başarım defterleri. İlk v45 düzeni kullanıcı tarafından yetersiz bulundu. v46: bütün içerik ve etkileşim düzeni yeniden kuruldu; değerlendirme beklenir. |
 | 2 | Şehir günlüğü ve sürüm notları | Yazılı defter ekranları; günlük olayların okunurluğu. |
 | 3 | Ayarlar ve hükümdar profili | Oyun içi idare/sancak görünümü; ayar ve kayıt işlevleri korunur. |
 | 4 | Hazine ve üretim | Kâtip/hazine sahnesi, gelir-gider parşömeni, gerçek üretim sayaçları. |
@@ -58,11 +58,14 @@ ilgili eylemlerin tarayıcı kontrolü, ekran görüntüsü ve canlı varlık do
 Kullanıcı o bölümü değerlendirmeden sıradaki bölüme geçilmez. Yayın işlemi bu
 talepte açıkça yetkilendirilmiştir; her küçük commit için yeniden izin istenmez.
 
-## İlk sayfa pilotu
+## Görevler: kullanıcı düzeltmesinden sonraki tasarım
 
-Görevler: `components/game/objectives-page.tsx`,
-`app/styles/14-mandates.css`, `terrain/mandates-office.webp`.
-Şehir başlangıç hedefi, günlük ödüller, haftalık olay ve büyük hedefler mevcut
-panelleri ve callback'leri kullanır. Üç defter sekmesi yalnız görünümü düzenler;
-hazır ödül, alındı ve sürüyor durumları oyundan gelir. Kolonide kurucu şehir
-eğitimi yeniden başlatılmaz; mevcut kurucu şehre git düğmesi korunur.
+Kullanıcı 4 Ekim son mesajında yalnız bir resim eklenmesini reddetti ve bütün sayfayı yeniden kurgulama yetkisi verdi. Bir hero resmi ekleyip eski uygulama kartlarını bırakmak kabul ölçütünü karşılamaz. Her sayfanın içerik hiyerarşisi, gezinmesi, resim kullanımı ve eylem düzeni işlevine göre yeniden tasarlanır; ortak olan malzeme, ışık, renk ve tipografidir.
+
+Görevler (`components/game/objectives-page.tsx`, `app/styles/14-mandates.css`):
+- Şehir hedefleri: 21 seçilebilir ferman madalyonu, seçilen göreve ait büyük sahne, gerçek açıklama/ödül, o göreve git eylemi ve hazır ödülleri toplama.
+- Günlük: resimli hazine armağanı, yedi günlük ödül dizisi, üç sahneli görev kartı, gerçek ilerleme ve haftalık divan notu.
+- Başarımlar: resimli nişan koleksiyonu, hazır ödül filtresi, gerçek ilerleme/ödül ve alınmış durumları.
+- Altı sahne: başkent, inşaat, âlim, ordu, liman, hazine (`quests/`). Yazılar ve sayılar resimden değil koddan gelir.
+
+Eski ObjectiveCard/DailyPanel/MilestonesPanel bu sayfada kullanılmaz. Ödüller mevcut motor callback'lerinden gelir. Sonraki bölüme kullanıcı bu sonucu değerlendirdikten sonra geçilir.

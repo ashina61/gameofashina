@@ -333,3 +333,6 @@ Yazısız giriş arka planı yerleşik OpenAI imagegen ile yeniden boyandı. Tar
 - `terrain/mandates-office.webp`: OpenAI ImageGen, kullanıcının araştırma ve kışla sayfaları stil referansı. Yalnız divan görev dairesi sahnesi; metin veya oyun verisi içermez.
 - Tarif: `tools/art/prompts/mandates-office.md`; tasarım hafızası: `docs/tasarim-dili.md`.
 - G1 malzemeleri, G6 figürleri ve görev resimleri mevcut özgün kaynaklarıyla korunur. Üçüncü taraf oyun resmi alınmadı.
+
+### Görev dairesi içerik sahneleri (v46)
+`quests/{capital,builders,scholar,army,harbour,treasury}.webp`: OpenAI ImageGen ile, kullanıcının kışla/araştırma referanslarını sanat dili olarak kullanarak üretildi. 3×2 atlasın altı paneli ayrı oyun varlıklarına dönüştürüldü. Arayüz, yazı ve ödül sayıları görsele gömülü değildir. Tarif: `tools/art/prompts/quest-scenes.md`.

@@ -16,16 +16,15 @@ import { BannerContext } from './building-art'
 import { play, wantAmbience, type Sfx } from '@/lib/sfx'
 import { toast } from 'sonner'
 import { Toaster } from '@/components/ui/sonner'
-import { GameButton } from './game-button'
 
 import { CityScene } from './city-scene'
 import { BuildingList, ResearchPanel, JournalPanel, PlotPicker, PeoplePanel, CitiesPanel, ArmyPanel, IslandPanel, colonyBlocker, colonyCostText } from './game-panels'
 import { WorldMap } from './world-map'
-import { ObjectiveCard, EconomyDetails } from './game-widgets'
+import { EconomyDetails } from './game-widgets'
 import { IslandView, NpcPanel } from './island-view'
 import { EmpireOverview } from './overview'
 import { BuildingPage, IkaPage } from './building-page'
-import { CityAdmin, DailyPanel, MilestonesPanel, SeasonCard, DeployPanel, TradeCenter, ExperimentPanel, ForestPanel, MissionList, TavernPanel, WorldPanel, type Op } from './world-panels'
+import { CityAdmin, DeployPanel, TradeCenter, ExperimentPanel, ForestPanel, MissionList, TavernPanel, WorldPanel, type Op } from './world-panels'
 import { THREAT_WARNING_MS, dispatchBlockade, dispatchRaid, targetName } from '@/lib/game/expeditions'
 import { DefenseSummary, ExchangePanel, ForeignSpies, SiegePanel, FuturePanel, GuildPanel, PiracyPanel, TemplePanel, TheatrePanel, ThreatBanner, UpgradePanel } from './ikariam-panels'
 import { badgeBudget } from '@/lib/game/badges'
@@ -250,9 +249,9 @@ export default function GameShell({ onTitle }: { onTitle?: () => void } = {}) {
       if (saveImportRef.current) saveImportRef.current.value = ''
     }
   }
-  function target() {
+  function target(objectiveId?: string) {
     if (!game) return
-    const next = OBJECTIVES.find(o => !game.claimed.includes(o.id))
+    const next = objectiveId ? OBJECTIVES.find(o => o.id === objectiveId) : OBJECTIVES.find(o => !game.claimed.includes(o.id))
     const go = next?.go ?? 'research'
     if (go === 'research' || go === 'people' || go === 'army') openPanel(go)
     // İlk sefer adadaki köyü ister: maden paneli açılırsa köyü örterdi.
@@ -369,11 +368,8 @@ export default function GameShell({ onTitle }: { onTitle?: () => void } = {}) {
       {panel === 'profile' && empire && <ProfilePanel empire={empire} now={game.updatedAt} run={runOp} onCity={visitCity} onSettings={() => openPanel('settings')} onChangelog={() => openPanel('changelog')} />}
       {panel === 'changelog' && <ChangelogPanel />}
       {panel === 'economy' && <EconomyDetails game={game} onMarket={() => openBuilding('carsi')} />}
-      {panel === 'objectives' && <ObjectivesPage
-        city={foundingCity ? <ObjectiveCard game={game} onClaim={id => act({ type: 'claim', id })} onBuild={target} /> : <section className="advisor-panel"><h3>Şehir hedefleri</h3><p>Başlangıç eğitimi kurucu şehirde ilerler. Bu koloniyi dilediğin gibi geliştirebilirsin.</p><GameButton onClick={() => visitCity(empire!.cities[0].id)}>Kurucu şehre git</GameButton></section>}
-        daily={empire && <DailyPanel empire={empire} run={runOp} />}
-        milestones={empire && <MilestonesPanel empire={empire} run={runOp} />}
-        season={<SeasonCard now={game.updatedAt} />} />}
+      {panel === 'objectives' && <ObjectivesPage game={game} empire={empire} foundingCity={foundingCity} cityName={currentCityName}
+        onClaim={id => act({ type: 'claim', id })} onGo={target} onFoundingCity={() => visitCity(empire!.cities[0].id)} run={runOp} />}
       {panel === 'settings' && <SettingsPanel empire={empire} run={runOp} warning={warning} native={native}
         pwa={{ installed, installAvailable, install, offlineReady }} notify={notify}
         onBackup={() => void backupSaveFile()} onRestore={file => void restoreSaveFile(file)}
