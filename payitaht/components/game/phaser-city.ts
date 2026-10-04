@@ -107,7 +107,10 @@ export class CityScene extends Phaser.Scene {
     // İnşaat iskelesi (tools/art/buildings.py).
     if (!this.textures.exists('b_scaffold')) this.load.image('b_scaffold', asset('/images/game/buildings/scaffold.webp'))
     preloadTerrain(this)
-    if (!this.textures.exists('w_tower')) this.load.svg('w_tower', asset('/images/game/walls/tower-round.svg'))
+    for (const tier of [1, 2, 3]) for (const part of ['segment', 'tower', 'gate']) {
+      const key = `w_${part}-${tier}`
+      if (!this.textures.exists(key)) this.load.image(key, asset(`/images/game/walls/${part}-${tier}.webp`))
+    }
   }
   /**
    * Yeni bina kurulduğunda veya seviye 4/8 eşiğinde sanat stage'i değiştiğinde
@@ -309,7 +312,7 @@ export class CityScene extends Phaser.Scene {
   fxSail() { return fxSail(this) }
   fxMarch() { return fxMarch(this) }
   /** Baskın geliyor: ufukta al yelkenli düşman gemileri ve meydanda nöbetçiler. */
-  raid: Phaser.GameObjects.Graphics[] = []
+  raid: Array<Phaser.GameObjects.Graphics | Phaser.GameObjects.Container> = []
   raidWanted = false
   setRaidAlert(on: boolean) { return setRaidAlert(this, on) }
   /** React kontrolü: yakınlaştırmayı çarpanla değiştir. */

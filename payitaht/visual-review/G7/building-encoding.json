@@ -1,0 +1,800 @@
+[
+  {
+    "file": "ambar-painted-1.webp",
+    "width": 887,
+    "height": 444,
+    "quality": 78,
+    "bytes": 81216
+  },
+  {
+    "file": "ambar-painted-2.webp",
+    "width": 887,
+    "height": 444,
+    "quality": 78,
+    "bytes": 83594
+  },
+  {
+    "file": "ambar-painted-3.webp",
+    "width": 887,
+    "height": 444,
+    "quality": 78,
+    "bytes": 92478
+  },
+  {
+    "file": "bagci-painted-1.webp",
+    "width": 887,
+    "height": 444,
+    "quality": 78,
+    "bytes": 99254
+  },
+  {
+    "file": "bagci-painted-2.webp",
+    "width": 887,
+    "height": 444,
+    "quality": 78,
+    "bytes": 102742
+  },
+  {
+    "file": "bagci-painted-3.webp",
+    "width": 887,
+    "height": 444,
+    "quality": 78,
+    "bytes": 118398
+  },
+  {
+    "file": "barutane-painted-1.webp",
+    "width": 887,
+    "height": 444,
+    "quality": 78,
+    "bytes": 89840
+  },
+  {
+    "file": "barutane-painted-2.webp",
+    "width": 887,
+    "height": 444,
+    "quality": 78,
+    "bytes": 105030
+  },
+  {
+    "file": "barutane-painted-3.webp",
+    "width": 887,
+    "height": 444,
+    "quality": 78,
+    "bytes": 126648
+  },
+  {
+    "file": "camci-painted-1.webp",
+    "width": 887,
+    "height": 444,
+    "quality": 78,
+    "bytes": 96106
+  },
+  {
+    "file": "camci-painted-2.webp",
+    "width": 887,
+    "height": 444,
+    "quality": 78,
+    "bytes": 89284
+  },
+  {
+    "file": "camci-painted-3.webp",
+    "width": 887,
+    "height": 444,
+    "quality": 78,
+    "bytes": 90346
+  },
+  {
+    "file": "cami-painted-1.webp",
+    "width": 723,
+    "height": 545,
+    "quality": 78,
+    "bytes": 38178
+  },
+  {
+    "file": "cami-painted-2.webp",
+    "width": 723,
+    "height": 545,
+    "quality": 78,
+    "bytes": 39132
+  },
+  {
+    "file": "cami-painted-3.webp",
+    "width": 723,
+    "height": 545,
+    "quality": 78,
+    "bytes": 46316
+  },
+  {
+    "file": "carsi-painted-1.webp",
+    "width": 887,
+    "height": 444,
+    "quality": 78,
+    "bytes": 52134
+  },
+  {
+    "file": "carsi-painted-2.webp",
+    "width": 887,
+    "height": 444,
+    "quality": 78,
+    "bytes": 62984
+  },
+  {
+    "file": "carsi-painted-3.webp",
+    "width": 887,
+    "height": 444,
+    "quality": 78,
+    "bytes": 73386
+  },
+  {
+    "file": "depo-painted-1.webp",
+    "width": 887,
+    "height": 444,
+    "quality": 78,
+    "bytes": 63476
+  },
+  {
+    "file": "depo-painted-2.webp",
+    "width": 887,
+    "height": 444,
+    "quality": 78,
+    "bytes": 88822
+  },
+  {
+    "file": "depo-painted-3.webp",
+    "width": 887,
+    "height": 444,
+    "quality": 78,
+    "bytes": 103610
+  },
+  {
+    "file": "divan-painted-2.webp",
+    "width": 733,
+    "height": 537,
+    "quality": 78,
+    "bytes": 49770
+  },
+  {
+    "file": "divan-painted-1.webp",
+    "width": 733,
+    "height": 537,
+    "quality": 78,
+    "bytes": 43428
+  },
+  {
+    "file": "elcilik-painted-1.webp",
+    "width": 816,
+    "height": 482,
+    "quality": 78,
+    "bytes": 51940
+  },
+  {
+    "file": "divan-painted-3.webp",
+    "width": 733,
+    "height": 537,
+    "quality": 78,
+    "bytes": 63214
+  },
+  {
+    "file": "elcilik-painted-2.webp",
+    "width": 816,
+    "height": 482,
+    "quality": 78,
+    "bytes": 73672
+  },
+  {
+    "file": "elcilik-painted-3.webp",
+    "width": 816,
+    "height": 482,
+    "quality": 78,
+    "bytes": 105478
+  },
+  {
+    "file": "gozlukcu-painted-1.webp",
+    "width": 816,
+    "height": 482,
+    "quality": 78,
+    "bytes": 64788
+  },
+  {
+    "file": "gozlukcu-painted-2.webp",
+    "width": 816,
+    "height": 482,
+    "quality": 78,
+    "bytes": 91194
+  },
+  {
+    "file": "gozlukcu-painted-3.webp",
+    "width": 816,
+    "height": 482,
+    "quality": 78,
+    "bytes": 101556
+  },
+  {
+    "file": "hamam-painted-1.webp",
+    "width": 816,
+    "height": 482,
+    "quality": 78,
+    "bytes": 44936
+  },
+  {
+    "file": "hamam-painted-2.webp",
+    "width": 816,
+    "height": 482,
+    "quality": 78,
+    "bytes": 66568
+  },
+  {
+    "file": "hamam-painted-3.webp",
+    "width": 816,
+    "height": 482,
+    "quality": 78,
+    "bytes": 70242
+  },
+  {
+    "file": "harita_arsivi-painted-1.webp",
+    "width": 887,
+    "height": 444,
+    "quality": 78,
+    "bytes": 54054
+  },
+  {
+    "file": "harita_arsivi-painted-2.webp",
+    "width": 874,
+    "height": 450,
+    "quality": 78,
+    "bytes": 85514
+  },
+  {
+    "file": "harita_arsivi-painted-3.webp",
+    "width": 874,
+    "height": 450,
+    "quality": 78,
+    "bytes": 98578
+  },
+  {
+    "file": "kahvehane-painted-1.webp",
+    "width": 816,
+    "height": 482,
+    "quality": 78,
+    "bytes": 55982
+  },
+  {
+    "file": "kahvehane-painted-2.webp",
+    "width": 816,
+    "height": 482,
+    "quality": 78,
+    "bytes": 76018
+  },
+  {
+    "file": "kahvehane-painted-3.webp",
+    "width": 816,
+    "height": 482,
+    "quality": 78,
+    "bytes": 91360
+  },
+  {
+    "file": "kara_pazar-painted-1.webp",
+    "width": 887,
+    "height": 444,
+    "quality": 78,
+    "bytes": 72290
+  },
+  {
+    "file": "kara_pazar-painted-2.webp",
+    "width": 887,
+    "height": 444,
+    "quality": 78,
+    "bytes": 83606
+  },
+  {
+    "file": "kara_pazar-painted-3.webp",
+    "width": 887,
+    "height": 444,
+    "quality": 78,
+    "bytes": 89658
+  },
+  {
+    "file": "karagoz-painted-1.webp",
+    "width": 821,
+    "height": 479,
+    "quality": 78,
+    "bytes": 49242
+  },
+  {
+    "file": "karagoz-painted-2.webp",
+    "width": 821,
+    "height": 479,
+    "quality": 78,
+    "bytes": 55624
+  },
+  {
+    "file": "karagoz-painted-3.webp",
+    "width": 821,
+    "height": 479,
+    "quality": 78,
+    "bytes": 61852
+  },
+  {
+    "file": "kereste-painted-1.webp",
+    "width": 887,
+    "height": 444,
+    "quality": 78,
+    "bytes": 86042
+  },
+  {
+    "file": "kereste-painted-2.webp",
+    "width": 887,
+    "height": 444,
+    "quality": 78,
+    "bytes": 100526
+  },
+  {
+    "file": "kereste-painted-3.webp",
+    "width": 887,
+    "height": 444,
+    "quality": 78,
+    "bytes": 106700
+  },
+  {
+    "file": "kisla-painted-1.webp",
+    "width": 733,
+    "height": 537,
+    "quality": 78,
+    "bytes": 62218
+  },
+  {
+    "file": "kisla-painted-3.webp",
+    "width": 733,
+    "height": 537,
+    "quality": 78,
+    "bytes": 71588
+  },
+  {
+    "file": "kisla-painted-2.webp",
+    "width": 733,
+    "height": 537,
+    "quality": 78,
+    "bytes": 70184
+  },
+  {
+    "file": "konut-painted-1.webp",
+    "width": 817,
+    "height": 482,
+    "quality": 78,
+    "bytes": 46702
+  },
+  {
+    "file": "konut-painted-2.webp",
+    "width": 816,
+    "height": 482,
+    "quality": 78,
+    "bytes": 52194
+  },
+  {
+    "file": "konut-painted-3.webp",
+    "width": 816,
+    "height": 482,
+    "quality": 78,
+    "bytes": 55624
+  },
+  {
+    "file": "korsan_kalesi-painted-1.webp",
+    "width": 887,
+    "height": 444,
+    "quality": 78,
+    "bytes": 41072
+  },
+  {
+    "file": "korsan_kalesi-painted-3.webp",
+    "width": 887,
+    "height": 444,
+    "quality": 78,
+    "bytes": 38976
+  },
+  {
+    "file": "korsan_kalesi-painted-2.webp",
+    "width": 887,
+    "height": 444,
+    "quality": 78,
+    "bytes": 40700
+  },
+  {
+    "file": "liman-duz-painted-1.webp",
+    "width": 800,
+    "height": 492,
+    "quality": 78,
+    "bytes": 56220
+  },
+  {
+    "file": "liman-duz-painted-2.webp",
+    "width": 800,
+    "height": 492,
+    "quality": 78,
+    "bytes": 60966
+  },
+  {
+    "file": "liman-duz-painted-3.webp",
+    "width": 800,
+    "height": 492,
+    "quality": 78,
+    "bytes": 67558
+  },
+  {
+    "file": "liman-painted-1.webp",
+    "width": 799,
+    "height": 492,
+    "quality": 78,
+    "bytes": 45228
+  },
+  {
+    "file": "liman-painted-2.webp",
+    "width": 799,
+    "height": 492,
+    "quality": 78,
+    "bytes": 69144
+  },
+  {
+    "file": "liman-painted-3.webp",
+    "width": 799,
+    "height": 492,
+    "quality": 78,
+    "bytes": 67412
+  },
+  {
+    "file": "mabet-painted-1.webp",
+    "width": 887,
+    "height": 444,
+    "quality": 78,
+    "bytes": 31322
+  },
+  {
+    "file": "mabet-painted-2.webp",
+    "width": 887,
+    "height": 444,
+    "quality": 78,
+    "bytes": 44498
+  },
+  {
+    "file": "mabet-painted-3.webp",
+    "width": 887,
+    "height": 444,
+    "quality": 78,
+    "bytes": 42134
+  },
+  {
+    "file": "mahzen-painted-1.webp",
+    "width": 887,
+    "height": 444,
+    "quality": 78,
+    "bytes": 125344
+  },
+  {
+    "file": "mahzen-painted-2.webp",
+    "width": 887,
+    "height": 444,
+    "quality": 78,
+    "bytes": 139636
+  },
+  {
+    "file": "mahzen-painted-3.webp",
+    "width": 887,
+    "height": 444,
+    "quality": 78,
+    "bytes": 137416
+  },
+  {
+    "file": "marangoz-painted-1.webp",
+    "width": 887,
+    "height": 444,
+    "quality": 78,
+    "bytes": 89386
+  },
+  {
+    "file": "marangoz-painted-2.webp",
+    "width": 887,
+    "height": 444,
+    "quality": 78,
+    "bytes": 90952
+  },
+  {
+    "file": "marangoz-painted-3.webp",
+    "width": 887,
+    "height": 444,
+    "quality": 78,
+    "bytes": 92536
+  },
+  {
+    "file": "medrese-painted-1.webp",
+    "width": 724,
+    "height": 543,
+    "quality": 78,
+    "bytes": 58728
+  },
+  {
+    "file": "medrese-painted-2.webp",
+    "width": 724,
+    "height": 543,
+    "quality": 78,
+    "bytes": 69556
+  },
+  {
+    "file": "medrese-painted-3.webp",
+    "width": 724,
+    "height": 543,
+    "quality": 78,
+    "bytes": 72656
+  },
+  {
+    "file": "mimar-painted-1.webp",
+    "width": 816,
+    "height": 482,
+    "quality": 78,
+    "bytes": 61788
+  },
+  {
+    "file": "mimar-painted-2.webp",
+    "width": 816,
+    "height": 482,
+    "quality": 78,
+    "bytes": 73200
+  },
+  {
+    "file": "mimar-painted-3.webp",
+    "width": 816,
+    "height": 482,
+    "quality": 78,
+    "bytes": 90710
+  },
+  {
+    "file": "muze-painted-1.webp",
+    "width": 816,
+    "height": 482,
+    "quality": 78,
+    "bytes": 46250
+  },
+  {
+    "file": "muze-painted-2.webp",
+    "width": 816,
+    "height": 482,
+    "quality": 78,
+    "bytes": 62350
+  },
+  {
+    "file": "muze-painted-3.webp",
+    "width": 816,
+    "height": 482,
+    "quality": 78,
+    "bytes": 75202
+  },
+  {
+    "file": "ormanci-painted-1.webp",
+    "width": 887,
+    "height": 444,
+    "quality": 78,
+    "bytes": 108532
+  },
+  {
+    "file": "ormanci-painted-2.webp",
+    "width": 887,
+    "height": 444,
+    "quality": 78,
+    "bytes": 106866
+  },
+  {
+    "file": "saray-painted-1.webp",
+    "width": 771,
+    "height": 510,
+    "quality": 78,
+    "bytes": 61494
+  },
+  {
+    "file": "ormanci-painted-3.webp",
+    "width": 887,
+    "height": 444,
+    "quality": 78,
+    "bytes": 125782
+  },
+  {
+    "file": "saray-painted-2.webp",
+    "width": 771,
+    "height": 511,
+    "quality": 78,
+    "bytes": 77914
+  },
+  {
+    "file": "saray-painted-3.webp",
+    "width": 770,
+    "height": 511,
+    "quality": 78,
+    "bytes": 94436
+  },
+  {
+    "file": "siginak-painted-2.webp",
+    "width": 887,
+    "height": 444,
+    "quality": 78,
+    "bytes": 123024
+  },
+  {
+    "file": "siginak-painted-1.webp",
+    "width": 887,
+    "height": 444,
+    "quality": 78,
+    "bytes": 102404
+  },
+  {
+    "file": "simyahane-painted-1.webp",
+    "width": 816,
+    "height": 482,
+    "quality": 78,
+    "bytes": 56328
+  },
+  {
+    "file": "siginak-painted-3.webp",
+    "width": 887,
+    "height": 444,
+    "quality": 78,
+    "bytes": 117148
+  },
+  {
+    "file": "simyahane-painted-2.webp",
+    "width": 816,
+    "height": 482,
+    "quality": 78,
+    "bytes": 69778
+  },
+  {
+    "file": "simyahane-painted-3.webp",
+    "width": 816,
+    "height": 482,
+    "quality": 78,
+    "bytes": 103550
+  },
+  {
+    "file": "tasci-painted-1.webp",
+    "width": 887,
+    "height": 444,
+    "quality": 78,
+    "bytes": 97416
+  },
+  {
+    "file": "tasci-painted-2.webp",
+    "width": 887,
+    "height": 444,
+    "quality": 78,
+    "bytes": 98150
+  },
+  {
+    "file": "tasci-painted-3.webp",
+    "width": 887,
+    "height": 444,
+    "quality": 78,
+    "bytes": 96252
+  },
+  {
+    "file": "tekke-painted-1.webp",
+    "width": 887,
+    "height": 444,
+    "quality": 78,
+    "bytes": 58484
+  },
+  {
+    "file": "tekke-painted-2.webp",
+    "width": 887,
+    "height": 444,
+    "quality": 78,
+    "bytes": 64988
+  },
+  {
+    "file": "tekke-painted-3.webp",
+    "width": 887,
+    "height": 444,
+    "quality": 78,
+    "bytes": 78752
+  },
+  {
+    "file": "tersane-duz-painted-1.webp",
+    "width": 887,
+    "height": 444,
+    "quality": 78,
+    "bytes": 53160
+  },
+  {
+    "file": "tersane-duz-painted-2.webp",
+    "width": 887,
+    "height": 444,
+    "quality": 78,
+    "bytes": 82796
+  },
+  {
+    "file": "tersane-duz-painted-3.webp",
+    "width": 887,
+    "height": 444,
+    "quality": 78,
+    "bytes": 81136
+  },
+  {
+    "file": "tersane-painted-1.webp",
+    "width": 887,
+    "height": 444,
+    "quality": 78,
+    "bytes": 54722
+  },
+  {
+    "file": "tersane-painted-2.webp",
+    "width": 887,
+    "height": 444,
+    "quality": 78,
+    "bytes": 71698
+  },
+  {
+    "file": "tersane-painted-3.webp",
+    "width": 887,
+    "height": 444,
+    "quality": 78,
+    "bytes": 76734
+  },
+  {
+    "file": "ticaret_merkezi-painted-1.webp",
+    "width": 887,
+    "height": 444,
+    "quality": 78,
+    "bytes": 81170
+  },
+  {
+    "file": "ticaret_merkezi-painted-2.webp",
+    "width": 842,
+    "height": 468,
+    "quality": 78,
+    "bytes": 95148
+  },
+  {
+    "file": "ticaret_merkezi-painted-3.webp",
+    "width": 887,
+    "height": 444,
+    "quality": 78,
+    "bytes": 79428
+  },
+  {
+    "file": "tophane-painted-1.webp",
+    "width": 887,
+    "height": 444,
+    "quality": 78,
+    "bytes": 100116
+  },
+  {
+    "file": "tophane-painted-2.webp",
+    "width": 887,
+    "height": 444,
+    "quality": 78,
+    "bytes": 95260
+  },
+  {
+    "file": "tophane-painted-3.webp",
+    "width": 887,
+    "height": 444,
+    "quality": 78,
+    "bytes": 96596
+  },
+  {
+    "file": "valilik-painted-1.webp",
+    "width": 874,
+    "height": 450,
+    "quality": 78,
+    "bytes": 69330
+  },
+  {
+    "file": "valilik-painted-3.webp",
+    "width": 887,
+    "height": 444,
+    "quality": 78,
+    "bytes": 76236
+  },
+  {
+    "file": "valilik-painted-2.webp",
+    "width": 874,
+    "height": 450,
+    "quality": 78,
+    "bytes": 78226
+  }
+]

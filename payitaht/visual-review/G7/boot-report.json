@@ -1,0 +1,15 @@
+{
+  "method": "Isolated Chromium, fresh context, 390x844 DPR 1, service workers blocked; start button to cityReady",
+  "normal": [
+    5654,
+    5657,
+    5998
+  ],
+  "lite": [
+    5570,
+    5965,
+    11997
+  ],
+  "normalMedianMs": 5657,
+  "liteMedianMs": 5965
+}
