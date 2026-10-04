@@ -320,3 +320,10 @@ Yazısız giriş arka planı yerleşik OpenAI imagegen ile yeniden boyandı. Tar
 ### H3 ImageGen yeniden boyama — 2026-10-04
 
 `visual-review/H3/city-base-test.webp`: OpenAI ImageGen tabanlı tek-parça H3 denemesi (oyuna alınmadı, yalnız kanıt klasöründe); hafif kırpma/temizlik ve WebP kodlama uygulandı. Görsel oyun slotlarına bağlı değildir. Arsa merkezleri `visual-review/H3/city-base-centers.json` içindedir. Üçüncü taraf oyun görseli kullanılmadı.
+
+## Kışla referans pilotu — 2026-10-04
+- `terrain/barracks-courtyard.webp`: OpenAI ImageGen ile üretildi.
+- Kullanıcının kendisine ait olduğunu belirttiği Imagen kışla tasarımı stil ve
+  mimari referansı olarak kullanıldı. Başka bir oyundan görsel alınmadı.
+- Üretim tarifi: `tools/art/prompts/kisla-reference.md`.
+- Mevcut G6 birlikleri ve G1 arayüz dokuları aynı kaynak haklarıyla korunur.

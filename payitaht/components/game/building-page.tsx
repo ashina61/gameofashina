@@ -400,14 +400,15 @@ export function BuildingPage({ game, empire, id, onClose, onBuild, onFlip, onMov
   const facing = coastId ? game.coastFacing[coastId] : undefined
   const facingLabel = facing === 'left' ? 'Sol' : facing === 'right' ? 'Sağ' : 'Düz'
   const nextFacing = facing === 'straight' ? 'right' : facing === 'right' ? 'left' : 'straight'
+  const barracksScene = id === 'kisla' && (peek === null || peek === stage)
   const showTab = hasWork ? tab : 'gelisim'
   return <IkaPage title={b.name} subtitle={`${city} · ${b.category.toLocaleLowerCase('tr')}`} label={`${b.name} sayfası`} onClose={onClose}
     className={`bp-building bp-of-${id}${help ? ' show-help' : ''}`}
     badge={<button type="button" className="bp-help" aria-pressed={help} onClick={() => setHelp(v => !v)} aria-label={help ? 'Açıklamaları gizle' : 'Nasıl işler? Açıklamaları göster'}><Info /></button>}
     footer={<UpgradeDock game={game} id={id} onBuild={onBuild} />}>
-      <section className={`bp-hero bp-scene${coast ? ' is-coast' : ''}`} style={SCENE_STYLE}>
+      <section className={`bp-hero bp-scene${coast ? ' is-coast' : ''}${barracksScene ? ' is-barracks-scene' : ''}`} style={SCENE_STYLE}>
         <span className="bp-scene-back" aria-hidden="true" />
-        {b.art ? <BuildingArt key={`${shown}-${facing ?? 'default'}`} className="bp-hero-art" id={id} level={shown === 1 ? 1 : shown === 2 ? 4 : 8} facing={facing} alt={`${b.name} görünümü`} /> : <span className="bp-pending"><Hammer /></span>}
+        {barracksScene ? <img className="barracks-courtyard" src={asset('/images/game/terrain/barracks-courtyard.webp')} alt="Ege kıyısındaki kışlanın sancaklı eğitim avlusu" fetchPriority="high" /> : b.art ? <BuildingArt key={`${shown}-${facing ?? 'default'}`} className="bp-hero-art" id={id} level={shown === 1 ? 1 : shown === 2 ? 4 : 8} facing={facing} alt={`${b.name} görünümü`} /> : <span className="bp-pending"><Hammer /></span>}
         {b.art && stages.length > 1 && <div className="bp-stages" role="group" aria-label="Seviyeye göre görünüm">
           {stages.map(([st, from, label]) => <button key={st} type="button" aria-pressed={shown === st} onClick={() => setPeek(st === stage ? null : st)}
             className={st === stage ? 'is-current' : level >= from ? 'is-reached' : 'is-locked'} aria-label={`${label} görünümü${st === stage ? ' (şu anki)' : ''}`}>
@@ -426,10 +427,11 @@ export function BuildingPage({ game, empire, id, onClose, onBuild, onFlip, onMov
           {id !== 'divan' && <button type="button" className="is-danger" aria-pressed={razing} onClick={() => setRazing(v => !v)} aria-label="Yık"><Trash2 /><span>Yık</span></button>}
         </div>}
       </section>
+      {id === 'kisla' && <div className="barracks-ribbon" aria-hidden="true">Kışla</div>}
       {razing && <DemolishConfirm game={game} id={id} onCommand={onCommand} onClose={() => setRazing(false)} />}
       <p className="bp-desc" onClick={() => setHelp(true)}>{b.description}</p>
       {hasWork && <div className="bp-tabs" role="tablist" aria-label={`${b.name} bölümleri`}>
-        <button type="button" role="tab" aria-selected={showTab === 'yapi'} onClick={() => setTab('yapi')}>{b.name}</button>
+        <button type="button" role="tab" aria-selected={showTab === 'yapi'} onClick={() => setTab('yapi')}>{id === 'kisla' ? 'Kara ordusu' : b.name}</button>
         <button type="button" role="tab" aria-selected={showTab === 'gelisim'} onClick={() => setTab('gelisim')}>Gelişim</button>
       </div>}
       <div ref={workRef} className="bp-tabpanel" hidden={showTab !== 'yapi'}>
