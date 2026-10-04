@@ -30,14 +30,17 @@ async function checkHeraldry(page, label, out) {
       if (await choice(group, name).getAttribute('aria-checked') !== 'true') throw new Error(`${label}: choice did not survive reload`)
     }
     // An existing player-led alliance uses the same saved appearance.
-    await page.evaluate(key => {
-      const e = JSON.parse(localStorage.getItem(key))
-      e.world.pact = { name: 'Sancak Birliği', tag: 'SAN', motto: '', founded: Date.now(), members: [], ranks: {}, circulars: [], stance: {} }
-      e.world.alliance = null
-      localStorage.setItem(key, JSON.stringify(e))
-    }, key)
-    const seeded = await page.evaluate(key => localStorage.getItem(key), key)
-    await page.addInitScript(({key, seeded}) => localStorage.setItem(key, seeded), {key, seeded})
+    // Tohum yeni belgede, oyun kaydı okumadan önce uygulanır: eski sayfanın
+    // otomatik kaydı araya girip ittifakı silse de yeniden yüklemede geri gelir.
+    await page.addInitScript(({ key, founded }) => {
+      try {
+        const e = JSON.parse(localStorage.getItem(key))
+        if (!e?.world || e.world.pact) return
+        e.world.pact = { name: 'Sancak Birliği', tag: 'SAN', motto: '', founded, members: [], ranks: {}, circulars: [], stance: {} }
+        e.world.alliance = null
+        localStorage.setItem(key, JSON.stringify(e))
+      } catch { /* kayıt yoksa dokunma */ }
+    }, { key, founded: Date.now() })
     await page.reload()
     await page.getByRole('button', { name: START_BUTTON }).click()
     await page.getByRole('button', { name: 'İttifak', exact: true }).click()
