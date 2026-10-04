@@ -3,10 +3,10 @@ import { KumSaatiArt } from './resource-art'
 
 /**
  * ONGUN MABEDİ PANELİ: lütuf, sunu, hami tanrı ve kudret.
- * Tanrı amblemleri kadim Türk sanatının yalın çizgisiyle: güneş, kuş, yıldız,
- * sarmal, boynuz, kılıç, dalga, rüzgâr.
+ * G9 portreleri aynı boyalı atlas ailesinden gelir.
  */
 import { useState } from 'react'
+import { AtlasArt } from './deep-art'
 import { Flame, Sparkles } from './ui-art'
 import { GameButton } from './game-button'
 import { Hint } from './hint'
@@ -15,33 +15,8 @@ import { GODS, GOD_IDS, OFFER_RATE, blessing, patronChangeMs, godBuff, lutufCap,
 
 const num = (n: number) => Math.floor(n).toLocaleString('tr-TR')
 const clock = (ms: number) => { const s = Math.max(0, Math.ceil(ms / 1000)), h = Math.floor(s / 3600); return h ? `${h} sa ${Math.floor(s / 60) % 60} dk` : `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}` }
-const INK = '#2a1a10', GOLD = '#e2bd78', PAPER = '#f6ecd6'
-const COLORS: Record<GodId, [string, string]> = {
-  tengri: ['#bfe0f2', '#2f6f9a'], umay: ['#f6e3a8', '#b8872e'], ulgen: ['#fbf6e6', '#b9a67e'], kayra: ['#e3d3f0', '#6a4a8a'],
-  erlik: ['#b8a39a', '#2a1a1a'], kizagan: ['#f0c4b4', '#9a2a1e'], su: ['#cfe8ee', '#2f7a92'], yel: ['#e8eef0', '#7d8f99'],
-}
-const S = { stroke: INK, strokeWidth: 1.4, strokeLinejoin: 'round' as const, strokeLinecap: 'round' as const }
-const SIGIL: Record<GodId, () => React.ReactNode> = {
-  tengri: () => <g {...S}><circle cx="32" cy="30" r="9" fill={GOLD} />{Array.from({ length: 8 }, (_, i) => <path key={i} d="M32 16 V12" transform={`rotate(${i * 45} 32 30)`} stroke={GOLD} strokeWidth="2" />)}<path d="M18 46 h4 M26 44 h3 M38 46 h4 M44 43 h3" stroke={PAPER} /></g>,
-  umay: () => <g {...S}><path d="M32 24 Q20 12 12 20 Q20 22 22 28 Q14 28 16 34 Q26 30 32 36 Q38 30 48 34 Q50 28 42 28 Q44 22 52 20 Q44 12 32 24 Z" fill={PAPER} /><circle cx="32" cy="26" r="3" fill={GOLD} /><path d="M28 42 Q32 48 36 42" fill="none" stroke={GOLD} strokeWidth="2" /></g>,
-  ulgen: () => <g {...S}><path d="M32 12 L35 28 L50 32 L35 36 L32 52 L29 36 L14 32 L29 28 Z" fill={GOLD} /><circle cx="32" cy="32" r="4" fill={PAPER} /></g>,
-  kayra: () => <g {...S} fill="none"><path d="M32 32 m0 -3 a3 3 0 1 1 -3 3 a6 6 0 1 1 6 6 a9 9 0 1 1 -9 -9 a12 12 0 1 1 12 12" stroke={PAPER} strokeWidth="2.2" /></g>,
-  erlik: () => <g {...S}><path d="M20 20 Q18 34 28 38 M44 20 Q46 34 36 38" stroke={PAPER} strokeWidth="3" fill="none" /><circle cx="32" cy="40" r="7" fill="#1a1010" stroke={PAPER} /><circle cx="29.5" cy="39" r="1.3" fill="#e0492f" stroke="none" /><circle cx="34.5" cy="39" r="1.3" fill="#e0492f" stroke="none" /></g>,
-  kizagan: () => <g {...S}><path d="M20 46 L42 18 M44 46 L22 18" stroke={PAPER} strokeWidth="3" /><path d="M32 14 Q38 22 32 28 Q26 22 32 14 Z" fill="#f2a53a" /></g>,
-  su: () => <g {...S}><path d="M14 30 q6 -5 12 0 t12 0 t12 0 M14 38 q6 -5 12 0 t12 0 t12 0" stroke={PAPER} strokeWidth="2.2" fill="none" /><path d="M26 22 Q32 16 38 22 Q32 26 26 22 Z M38 22 l4 -3 v6 Z" fill={GOLD} /></g>,
-  yel: () => <g {...S} fill="none" stroke={INK}><path d="M14 26 H38 a5 5 0 1 0 -5 -5 M14 34 H44 a5 5 0 1 1 -5 5 M18 42 H30" strokeWidth="2.2" /></g>,
-}
-
 export function GodEmblem({ id, size = 56, on = false }: { id: GodId; size?: number; on?: boolean }) {
-  const [light, dark] = COLORS[id]
-  const Sigil = SIGIL[id]
-  return <svg viewBox="0 0 64 64" width={size} height={size} role="img" aria-label={GODS[id].name} className={on ? 'god-emblem is-on' : 'god-emblem'}>
-    <defs><radialGradient id={`ge-${id}`} cx="50%" cy="38%" r="65%"><stop offset="0" stopColor={light} /><stop offset="1" stopColor={dark} /></radialGradient></defs>
-    <circle cx="32" cy="32" r="30" fill="#6a4a1a" />
-    <circle cx="32" cy="32" r="27.5" fill={`url(#ge-${id})`} stroke={GOLD} strokeWidth="1.6" />
-    {Array.from({ length: 12 }, (_, i) => <circle key={i} cx={32 + 29 * Math.cos((i * Math.PI) / 6)} cy={32 + 29 * Math.sin((i * Math.PI) / 6)} r="1.2" fill={GOLD} />)}
-    <Sigil />
-  </svg>
+  return <AtlasArt atlas="gods" index={GOD_IDS.indexOf(id)} size={size} label={GODS[id].name} className={on ? 'god-emblem is-on' : 'god-emblem'} />
 }
 
 type Good = 'gold' | 'wood' | (typeof LUXURY_IDS)[number]

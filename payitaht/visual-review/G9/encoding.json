@@ -1,0 +1,98 @@
+[
+  {
+    "key": "research-ekonomi",
+    "file": "research/ekonomi.webp",
+    "cols": 5,
+    "rows": 4,
+    "quality": 28,
+    "bytes": 34040
+  },
+  {
+    "key": "research-bilim",
+    "file": "research/bilim.webp",
+    "cols": 5,
+    "rows": 4,
+    "quality": 34,
+    "bytes": 34462
+  },
+  {
+    "key": "research-askeri",
+    "file": "research/askeri.webp",
+    "cols": 4,
+    "rows": 4,
+    "quality": 76,
+    "bytes": 34598
+  },
+  {
+    "key": "research-denizcilik",
+    "file": "research/denizcilik.webp",
+    "cols": 5,
+    "rows": 4,
+    "quality": 34,
+    "bytes": 33106
+  },
+  {
+    "key": "research-mitoloji-alpha",
+    "file": "research/mitoloji.webp",
+    "cols": 3,
+    "rows": 2,
+    "quality": 76,
+    "bytes": 17724
+  },
+  {
+    "key": "portraits-gods",
+    "file": "portraits/gods.webp",
+    "cols": 4,
+    "rows": 2,
+    "quality": 82,
+    "bytes": 25206
+  },
+  {
+    "key": "portraits-rivals",
+    "file": "portraits/rivals.webp",
+    "cols": 4,
+    "rows": 4,
+    "quality": 82,
+    "bytes": 44260
+  },
+  {
+    "key": "culture-emblems",
+    "file": "culture/emblems.webp",
+    "cols": 4,
+    "rows": 5,
+    "quality": 22,
+    "bytes": 32118
+  },
+  {
+    "key": "wonders",
+    "file": "culture/wonders.webp",
+    "cols": 4,
+    "rows": 2,
+    "quality": 82,
+    "bytes": 24726
+  },
+  {
+    "key": "medals",
+    "file": "medals/achievements.webp",
+    "cols": 6,
+    "rows": 5,
+    "quality": 22,
+    "bytes": 46956
+  },
+  {
+    "key": "battle-land",
+    "file": "terrain/battle-land.webp",
+    "cols": 1,
+    "rows": 1,
+    "quality": 46,
+    "bytes": 33270
+  },
+  {
+    "key": "battle-sea",
+    "file": "terrain/battle-sea.webp",
+    "cols": 1,
+    "rows": 1,
+    "quality": 76,
+    "bytes": 34036
+  }
+]

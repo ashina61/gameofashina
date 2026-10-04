@@ -1,0 +1,3 @@
+$ node tools/css-lint.cjs && node tools/unused-css.cjs --strict
+11 stil dosyası: 503 farklı renk, 666 belirteç kullanımı
+736 sınıf, kullanılmayan 0

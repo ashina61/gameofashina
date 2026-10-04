@@ -288,3 +288,7 @@ OpenAI imagegen ile G0 stil referansından üretilmiş 16 özgün ada arazisi ve
 boyalı açık deniz. Küçük harita simgeleri aynı kaynakların yeniden boyutlanmış
 kopyalarıdır. Tarif: `tools/art/prompts/g8.md`. Başka oyun görseli kullanılmadı;
 proje sahibinin oyununda kullanım için üretilmiştir. Harita çerçevesi G1 setinden.
+
+## G9 — Derin sayfalar (2026-10-04)
+
+Codex yerleşik imagegen ile üretilen özgün raster sprite atlasları: 76 araştırma motifi, 8 kadim tanrı portresi, 14 kurgusal yapay rakip portresi, 8 yönetim, 6 lonca, 4 Karagöz oyunu, 8 harika, 30 başarım ve tunç/gümüş madalya çerçevesi. Altın çerçeve G1 kitinden. Kara/deniz savaş zemini iki ayrı üretim. Tarif: `tools/art/prompts/g9.md`; paketleme: `tools/art/g9-assets.cjs`. Başka oyun görseli kullanılmadı; kullanım ilgili üretim hizmeti koşullarına tabidir. Oyun metni ve dinamik arma SVG'leri koddan gelir.

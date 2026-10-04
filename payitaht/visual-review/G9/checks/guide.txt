@@ -1,0 +1,13 @@
+1.1 dk: first-upgrade
+1.6 dk: first-academy
+1.7 dk: first-worker
+tıklanamadı: Araştır (locator.click: Timeout 3000ms exceeded.)
+tıklanamadı: Geri (locator.click: Timeout 3000ms exceeded.)
+2.5 dk: first-research
+3.1 dk: barracks
+tıklanamadı: Git (locator.click: Timeout 3000ms exceeded.)
+3.6 dk: walls
+4.6 dk: troops
+tıklanamadı: Karaçalı, Barbar Köyü, seviye 1 (locator.click: Timeout 3000ms exceeded.)
+4.8 dk: first-raid
+İlk sekiz hedef 4.8 oyun dakikasında tamam.

@@ -6,6 +6,8 @@
  * Hepsi motorun kendi fonksiyonlarını okur; panel sayı uydurmaz.
  */
 import { Hint } from './hint'
+import { AtlasArt } from './deep-art'
+import { asset } from '@/lib/asset'
 import { useState } from 'react'
 import { Sparkles, Minus, Plus, Swords, ShieldCheck, Skull, Anchor, TriangleAlert, Repeat, Hammer, Castle, Users, Warehouse } from './ui-art'
 import { StatRow } from './stat-kit'
@@ -15,7 +17,7 @@ import { WorkforceSlider } from './workforce'
 import { GameButton } from './game-button'
 import { UnitFigure } from './unit-art'
 import {
-  FAITH_CAP, GOOD_NAMES, MIRACLES, MIRACLE_COOLDOWN_MS, RESEARCH, RESEARCH_BRANCHES, RESEARCH_IDS, TRADE_GOODS, UNITS,
+  FAITH_CAP, GOOD_NAMES, MIRACLES, MIRACLE_IDS, MIRACLE_COOLDOWN_MS, RESEARCH, RESEARCH_BRANCHES, RESEARCH_IDS, TRADE_GOODS, UNITS,
   UNIT_IDS, WONDER_MAX, exchangeLimit, exchangeRate, futureCost, futureReason, goodAmount, idleWorkers, miracleCost, miracleMinutes,
   priestCapacity, upgradeCap, upgradeCost, upgradeReason, wonderCost, travelFactor,
   type Command, type Game, type Good, type UnitId, formatRate,
@@ -74,7 +76,7 @@ export function GuildPanel({ game, now, onCommand }: { game: Game; now: number; 
       const next = level < GUILD_MAX ? devotionFor(level + 1) : null
       const from = devotionFor(level)
       return <article key={id} className={`guild-card${on ? ' is-patron' : ''}`}>
-        <div className="guild-top"><span className="guild-seal" aria-hidden="true">{level}</span>
+        <div className="guild-top"><span className="guild-seal" style={{ background: 'none', border: 0, position: 'relative' }}><AtlasArt atlas="culture" index={8 + GUILD_IDS.indexOf(id)} size={40} /><b style={{ position: 'absolute', bottom: -3, right: -3, background: 'var(--c-parch)', borderRadius: '50%', padding: '0 3px' }}>{level}</b></span>
           <span><strong>{g.name}</strong><small>{g.craft}</small></span>
           {on && <em>Himayede</em>}</div>
         <p className="guild-effect">{level ? g.effect(level) : 'Henüz derecesi yok'}{next ? ` → ${level + 1}. derece: ${g.effect(level + 1)}` : ' · en yüksek derece'}</p>
@@ -100,7 +102,7 @@ export function TemplePanel({ game, now, onCommand }: { game: Game; now: number;
   const resting = !active && now < t.cooldownUntil
   const need = miracleCost(Math.max(1, t.wonderLevel))
   return <section className="empire-section">
-    <h3><Sparkles className="size-4" /> {m.wonder} · Sv. {t.wonderLevel}/{WONDER_MAX}</h3>
+    <h3><AtlasArt atlas="wonders" index={MIRACLE_IDS.indexOf(t.wonder)} size={56} /> {m.wonder} · Sv. {t.wonderLevel}/{WONDER_MAX}</h3>
     <p className="fine-print">{`Adanın harikası. ${m.name} mucizesi: ${t.wonderLevel ? m.effect(t.wonderLevel) : `${m.effect(1)} (1. seviyede)`}, ${miracleMinutes(Math.max(1, t.wonderLevel))} dakika sürer.`}</p>
     {t.wonderLevel < WONDER_MAX && <>
       <div className="people-row-top"><span>Harika bağışı</span><span className="people-count">{num(t.wonderWood)} / {num(wonderCost(t.wonderLevel))} kereste</span></div>
@@ -321,38 +323,11 @@ export function ForeignSpies({ empire, game, now, run }: { empire: Empire; game:
 
 /** KARAGÖZ PERDESİ: ışıklı perde sahnesi ve dört gösteri (Ikariam'daki tiyatro). */
 function ShadowStage({ show }: { show: ShowId | null }) {
-  const ink = '#2a1a10'
-  return <svg viewBox="0 0 320 150" className="shadow-stage" role="img" aria-label="Karagöz perdesi">
-    <defs>
-      <radialGradient id="perde-glow" cx="50%" cy="55%" r="60%"><stop offset="0" stopColor="#fff6d6" /><stop offset="0.7" stopColor="#ffd98a" /><stop offset="1" stopColor="#e8a94a" /></radialGradient>
-    </defs>
-    <rect width="320" height="150" fill="#3a2212" />
-    <path d="M0 0 H320 V22 Q290 34 260 22 Q230 34 200 22 Q160 36 120 22 Q90 34 60 22 Q30 34 0 22 Z" fill="#9a2a1e" />
-    <rect x="40" y="26" width="240" height="104" rx="4" fill="#6b4424" />
-    <rect x="48" y="32" width="224" height="92" fill="url(#perde-glow)" />
-    <g opacity="0.9">
-      {/* Karagöz: yuvarlak sakal, işlik (sivri başlık) */}
-      <g fill="#8a2a1e" stroke={ink} strokeWidth="1">
-        <path d="M112 124 L104 86 Q112 74 124 78 L132 124 Z" />
-        <circle cx="118" cy="66" r="11" />
-        <path d="M108 58 L126 56 L134 36 Z" fill="#6b1f16" />
-        <path d="M110 72 Q118 84 128 72" fill="#2a1a10" />
-        <path d="M128 92 L150 84" strokeWidth="3" />
-      </g>
-      {/* Hacivat: sivri sakal, kavuk */}
-      <g fill="#2f3f78" stroke={ink} strokeWidth="1">
-        <path d="M196 124 L190 84 Q200 74 212 80 L214 124 Z" />
-        <circle cx="202" cy="66" r="10" />
-        <rect x="193" y="42" width="18" height="16" rx="6" fill="#e9dcc0" />
-        <path d="M198 74 L202 88 L206 74 Z" fill="#2a1a10" />
-        <path d="M190 94 L170 86" strokeWidth="3" />
-      </g>
-      {show === 'tanrisal' && <circle cx="160" cy="52" r="8" fill="#f5c85a" stroke={ink} />}
-      {show === 'komedi' && <path d="M150 104 q10 -12 20 0" stroke={ink} strokeWidth="2" fill="none" />}
-    </g>
-    {[60, 260].map(x => <g key={x}><path d={`M${x} 26 V14`} stroke="#e2bd78" /><circle cx={x} cy="30" r="5" fill="#f5c85a" /></g>)}
-  </svg>
+  return <div className="shadow-stage" role="img" aria-label="Karagöz perdesi" style={{ display: 'flex', justifyContent: 'center', background: `url(${asset('/images/game/ui/page-frame.webp')}) center / 100% 100%`, padding: 10 }}>
+    <AtlasArt atlas="culture" index={14 + SHOW_IDS.indexOf(show ?? 'komedi')} size={144} />
+  </div>
 }
+
 export function TheatrePanel({ game, now, onCommand }: { game: Game; now: number; onCommand: (c: Command) => void }) {
   const lv = game.buildings.karagoz
   if (lv < 1) return null
@@ -368,7 +343,7 @@ export function TheatrePanel({ game, now, onCommand }: { game: Game; now: number
       const s = SHOWS[id]
       const blocked = id === 'tanrisal' && game.buildings.mabet < 1
       return <article key={id} className={active?.id === id ? 'show-card is-on' : 'show-card'}>
-        <strong>{s.name}</strong><em>"{s.play}"</em><small>{s.effect(lv)}{id !== 'tanrisal' ? ' · 12 saat' : ''}</small>
+        <AtlasArt atlas="culture" index={14 + SHOW_IDS.indexOf(id)} size={56} /><strong>{s.name}</strong><em>"{s.play}"</em><small>{s.effect(lv)}{id !== 'tanrisal' ? ' · 12 saat' : ''}</small>
         <GameButton size="sm" disabled={!!active || wait > 0 || blocked} onClick={() => onCommand({ type: 'show', show: id })}>{blocked ? 'Mabet gerekli' : 'Gösteriyi sun'}</GameButton>
       </article>
     })}</div>
