@@ -23,7 +23,7 @@ jobs:
           python-version: '3.12'
       - name: Install Pillow
         run: python -m pip install --disable-pip-version-check pillow
-      - name: Build H3 from ImageGen source
+      - name: Build H3 from ImageGen tiles
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
@@ -34,14 +34,24 @@ jobs:
           import json, shutil
 
           root = Path('.')
-          src_path = root / 'h3-imagegen-source.webp'
+          tiles = root / 'h3tiles'
+          src = Image.new('RGB', (384, 355))
+          xs = [0, 128, 256]
+          ys = [0, 119, 237]
+          expected = {(0,0):(128,119),(0,1):(128,119),(0,2):(128,119),
+                      (1,0):(128,118),(1,1):(128,118),(1,2):(128,118),
+                      (2,0):(128,118),(2,1):(128,118),(2,2):(128,118)}
+          for r in range(3):
+              for c in range(3):
+                  tile = Image.open(tiles/f'{r}{c}.webp').convert('RGB')
+                  assert tile.size == expected[(r,c)], (r,c,tile.size)
+                  src.paste(tile, (xs[c], ys[r]))
+
           out_path = root / 'public/images/game/terrain/city-base-test.webp'
           review = root / 'visual-review/H3'
           centers_path = review / 'city-base-centers.json'
           review.mkdir(parents=True, exist_ok=True)
 
-          src = Image.open(src_path).convert('RGB')
-          assert src.size == (768, 710), src.size
           base = src.resize((2336, 2160), Image.Resampling.LANCZOS)
           base = base.filter(ImageFilter.UnsharpMask(radius=1.1, percent=45, threshold=3))
           out_path.parent.mkdir(parents=True, exist_ok=True)
@@ -54,7 +64,6 @@ jobs:
               raise SystemExit('H3 asset budget exceeded')
 
           shutil.copy2(out_path, review / 'city-base-test.webp')
-
           phone = Image.new('RGB', (390, 844), (17, 48, 57))
           thumb = ImageOps.contain(base, (390, 740), Image.Resampling.LANCZOS)
           phone.paste(thumb, ((390-thumb.width)//2, (844-thumb.height)//2))
@@ -90,6 +99,7 @@ jobs:
 
           checks = {
               'generator': 'OpenAI ImageGen + light crop/cleanup; one-piece painted base',
+              'source_stitch_px': [384,355],
               'width': 2336,
               'height': 2160,
               'bytes': out_path.stat().st_size,
@@ -128,9 +138,10 @@ jobs:
         run: |
           git rm -f --ignore-unmatch .github/workflows/h123-assets.yml
           git rm -f --ignore-unmatch payitaht/tools/art/h123_generate.py
-          git rm -f --ignore-unmatch .github/workflows/h3-finalize.yml
           git rm -f --ignore-unmatch payitaht/h3-imagegen-source.webp
-          git add -A payitaht/public/images/game/terrain/city-base-test.webp payitaht/visual-review/H3 payitaht/public/images/game/CREDITS.md
+          git rm -rf --ignore-unmatch payitaht/h3tiles
+          git rm -f --ignore-unmatch .github/workflows/h3-finalize.yml
+          git add -A
           ! git diff --cached --name-only | grep -E 'lib/game/city-map/|building-page\.tsx|battle-view\.tsx|research-|ikariam-panels\.tsx'
           git commit -m 'H3: repaint single-piece ImageGen city base and remove temp generators'
           git push origin HEAD:codex/gorsel
