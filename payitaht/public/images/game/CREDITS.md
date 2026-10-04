@@ -302,3 +302,8 @@ Codex yerleşik imagegen ile üretilen özgün raster sprite atlasları: 76 ara�
 Özgün boyalı kıyı arka planı, yazısız logo plaketi ve uygulama ikonu OpenAI imagegen ile G0 referansından üretildi. Logo metni koddan gelir. Web ve Android ikon/splash platform kopyaları aynı kaynaklardan boyutlandırıldı. Tarif: `tools/art/prompts/g11.md`.
 
 G9–G11 görselleri bu özgün proje için üretildi; başka oyunlardan görsel kullanılmadı. Proje sahibinin oyununda kullanım amacı taşır. G10 düzenlemelerinin temel aldığı mevcut bina setinin kaynak notu bölüm 2’de korunur.
+
+
+## 14. H1–H3 — görsel brif 2
+
+2026-10-04. H1 hedef mockup sahnesinden UI temizleme/yeniden boyama; H2 mevcut özgün ada resimlerinden yeni silüet maskeleri; H3 gerçek city-slots.json geometrisi ve onaylı zemin/dekorlarla üretildi. Tarif: tools/art/prompts/h1-h3.md. Üçüncü taraf oyun görseli kullanılmadı. H3 Phaser’a bağlanmamıştır.
