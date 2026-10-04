@@ -5,8 +5,8 @@ import { PEACEFUL_CITY, type SiegeAppearance } from '@/lib/game/siege-appearance
 import { FlagField } from './city-life'
 
 export function preloadSiegeArt(scene: Phaser.Scene) {
-  if (!scene.textures.exists('siege-warship')) scene.load.svg('siege-warship', asset('/images/game/siege/warship.svg'), { width: 520, height: 400 })
-  if (!scene.textures.exists('siege-checkpoint')) scene.load.svg('siege-checkpoint', asset('/images/game/siege/checkpoint.svg'), { width: 480, height: 320 })
+  if (!scene.textures.exists('siege-warship')) scene.load.image('siege-warship', asset('/images/game/ships/blockade.webp'))
+  if (!scene.textures.exists('siege-checkpoint')) scene.load.image('siege-checkpoint', asset('/images/game/siege/checkpoint.webp'))
 }
 
 /** A bounded, disposable presentation layer. No economy, save or input changes. */

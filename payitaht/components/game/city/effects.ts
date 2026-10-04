@@ -1,4 +1,3 @@
-import * as Phaser from 'phaser'
 import { TILE, COAST_SLOTS, HALL_SLOT_ID, WALL_GATES, PLAZA } from '@/lib/game/city-map'
 import { LIVE_SLOTS, liveSlotByIndex } from '@/lib/game/city-map/live-adapter'
 import { GROUND_TARGET_W } from '@/lib/game/city-map/building-assets'
@@ -10,17 +9,12 @@ import type { CityScene } from '../phaser-city'
 
 /** Yelkenli: tekne, direk, yelken (renk), tepede küçük sancak. */
 export function fxShip(scene: CityScene, sail: number, flag: number, size = 1) {
-  const V = (x: number, y: number) => new Phaser.Math.Vector2(x * size, y * size)
-  const g = scene.add.graphics()
-  g.lineStyle(1.4, 0xd9f0ea, 0.5); g.lineBetween(-34 * size, 6 * size, -60 * size, 14 * size)
-  g.fillStyle(0x1b3a4a, 0.3); g.fillEllipse(2 * size, 5 * size, 70 * size, 12 * size)
-  g.fillStyle(0x6b4424, 1); g.fillPoints([V(-34, -4), V(34, -4), V(24, 7), V(-26, 7)], true)
-  g.fillStyle(0xe2bd78, 1); g.fillRect(-32 * size, -6 * size, 64 * size, 2.5 * size)
-  g.lineStyle(2 * size, 0x3a2a1c, 1); g.lineBetween(0, -4 * size, 0, -58 * size)
-  g.fillStyle(sail, 1); g.fillPoints([V(2, -54), V(30, -14), V(2, -10)], true)
-  g.fillStyle(sail, 0.92); g.fillPoints([V(-2, -50), V(-24, -16), V(-2, -12)], true)
-  g.fillStyle(flag, 1); g.fillPoints([V(0, -58), V(14, -55), V(0, -51)], true)
-  return g
+  const ship = scene.add.container()
+  const image = scene.add.image(0, 0, sail === 0x8a1f14 ? 's_ship-b' : 's_ship-a').setOrigin(0.5, 1).setDisplaySize(72 * size, 64 * size)
+  const pennant = scene.add.graphics()
+  pennant.fillStyle(flag, 1); pennant.fillTriangle(0, -58 * size, 14 * size, -55 * size, 0, -51 * size)
+  ship.add([image, pennant])
+  return ship
 }
 /** Sefer çıktı: limandan (yoksa deniz kapısından) bir yelkenli açığa açılır. */
 export function fxSail(scene: CityScene) {

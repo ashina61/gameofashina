@@ -1,0 +1,292 @@
+[
+  {
+    "id": "walls/segment-1",
+    "source": "g7-walls-segment-1.png",
+    "width": 384,
+    "height": 384,
+    "bytes": 23542,
+    "maxBytes": 24000,
+    "quality": 82,
+    "alphaQuality": 100
+  },
+  {
+    "id": "walls/segment-2",
+    "source": "g7-walls-segment-2.png",
+    "width": 384,
+    "height": 384,
+    "bytes": 23070,
+    "maxBytes": 24000,
+    "quality": 82,
+    "alphaQuality": 100
+  },
+  {
+    "id": "walls/segment-3",
+    "source": "g7-walls-segment-3.png",
+    "width": 384,
+    "height": 384,
+    "bytes": 21872,
+    "maxBytes": 24000,
+    "quality": 82,
+    "alphaQuality": 100
+  },
+  {
+    "id": "walls/tower-1",
+    "source": "g7-walls-tower-1.png",
+    "width": 384,
+    "height": 384,
+    "bytes": 22730,
+    "maxBytes": 24000,
+    "quality": 78,
+    "alphaQuality": 20
+  },
+  {
+    "id": "walls/tower-2",
+    "source": "g7-walls-tower-2.png",
+    "width": 384,
+    "height": 384,
+    "bytes": 20144,
+    "maxBytes": 24000,
+    "quality": 82,
+    "alphaQuality": 60
+  },
+  {
+    "id": "walls/tower-3",
+    "source": "g7-walls-tower-3.png",
+    "width": 384,
+    "height": 384,
+    "bytes": 20504,
+    "maxBytes": 24000,
+    "quality": 82,
+    "alphaQuality": 60
+  },
+  {
+    "id": "walls/gate-1",
+    "source": "g7-walls-gate-1.png",
+    "width": 384,
+    "height": 384,
+    "bytes": 23422,
+    "maxBytes": 24000,
+    "quality": 82,
+    "alphaQuality": 20
+  },
+  {
+    "id": "walls/gate-2",
+    "source": "g7-walls-gate-2.png",
+    "width": 384,
+    "height": 384,
+    "bytes": 23274,
+    "maxBytes": 24000,
+    "quality": 82,
+    "alphaQuality": 60
+  },
+  {
+    "id": "walls/gate-3",
+    "source": "g7-walls-gate-3.png",
+    "width": 384,
+    "height": 384,
+    "bytes": 21208,
+    "maxBytes": 24000,
+    "quality": 78,
+    "alphaQuality": 20
+  },
+  {
+    "id": "buildings/mine-kahve",
+    "source": "g7-buildings-mine-kahve.png",
+    "width": 600,
+    "height": 280,
+    "bytes": 41948,
+    "maxBytes": 60000,
+    "quality": 82,
+    "alphaQuality": 100
+  },
+  {
+    "id": "buildings/mine-mermer",
+    "source": "g7-buildings-mine-mermer.png",
+    "width": 600,
+    "height": 323,
+    "bytes": 55572,
+    "maxBytes": 60000,
+    "quality": 82,
+    "alphaQuality": 100
+  },
+  {
+    "id": "buildings/mine-kristal",
+    "source": "g7-buildings-mine-kristal.png",
+    "width": 600,
+    "height": 316,
+    "bytes": 43486,
+    "maxBytes": 60000,
+    "quality": 82,
+    "alphaQuality": 100
+  },
+  {
+    "id": "buildings/mine-kukurt",
+    "source": "g7-buildings-mine-kukurt.png",
+    "width": 600,
+    "height": 278,
+    "bytes": 38812,
+    "maxBytes": 60000,
+    "quality": 82,
+    "alphaQuality": 100
+  },
+  {
+    "id": "buildings/forest-hero",
+    "source": "g7-buildings-forest-hero.png",
+    "width": 600,
+    "height": 440,
+    "bytes": 54934,
+    "maxBytes": 60000,
+    "quality": 74,
+    "alphaQuality": 20
+  },
+  {
+    "id": "buildings/npc-koy",
+    "source": "g7-buildings-npc-koy.png",
+    "width": 600,
+    "height": 329,
+    "bytes": 55068,
+    "maxBytes": 60000,
+    "quality": 82,
+    "alphaQuality": 60
+  },
+  {
+    "id": "buildings/npc-korsan",
+    "source": "g7-buildings-npc-korsan.png",
+    "width": 600,
+    "height": 425,
+    "bytes": 52998,
+    "maxBytes": 60000,
+    "quality": 82,
+    "alphaQuality": 60
+  },
+  {
+    "id": "buildings/npc-kale",
+    "source": "g7-buildings-npc-kale.png",
+    "width": 600,
+    "height": 356,
+    "bytes": 42630,
+    "maxBytes": 60000,
+    "quality": 82,
+    "alphaQuality": 100
+  },
+  {
+    "id": "buildings/scaffold",
+    "source": "g7-buildings-scaffold.png",
+    "width": 600,
+    "height": 289,
+    "bytes": 36452,
+    "maxBytes": 60000,
+    "quality": 82,
+    "alphaQuality": 100
+  },
+  {
+    "id": "buildings/site",
+    "source": "g7-buildings-site.png",
+    "width": 600,
+    "height": 336,
+    "bytes": 48966,
+    "maxBytes": 60000,
+    "quality": 82,
+    "alphaQuality": 100
+  },
+  {
+    "id": "buildings/pazar",
+    "source": "g7-buildings-pazar.png",
+    "width": 600,
+    "height": 310,
+    "bytes": 43748,
+    "maxBytes": 60000,
+    "quality": 82,
+    "alphaQuality": 100
+  },
+  {
+    "id": "buildings/pier",
+    "source": "g7-buildings-pier.png",
+    "width": 512,
+    "height": 384,
+    "bytes": 40264,
+    "maxBytes": 60000,
+    "quality": 82,
+    "alphaQuality": 100
+  },
+  {
+    "id": "buildings/surlar-1",
+    "source": "g7-buildings-surlar-1.png",
+    "width": 600,
+    "height": 307,
+    "bytes": 35406,
+    "maxBytes": 60000,
+    "quality": 82,
+    "alphaQuality": 100
+  },
+  {
+    "id": "buildings/surlar-2",
+    "source": "g7-buildings-surlar-2.png",
+    "width": 600,
+    "height": 333,
+    "bytes": 38662,
+    "maxBytes": 60000,
+    "quality": 82,
+    "alphaQuality": 100
+  },
+  {
+    "id": "buildings/surlar-3",
+    "source": "g7-buildings-surlar-3.png",
+    "width": 600,
+    "height": 360,
+    "bytes": 40378,
+    "maxBytes": 60000,
+    "quality": 82,
+    "alphaQuality": 100
+  },
+  {
+    "id": "ships/ship-a",
+    "source": "g7-ships-ship-a.png",
+    "width": 512,
+    "height": 384,
+    "bytes": 35762,
+    "maxBytes": 40000,
+    "quality": 82,
+    "alphaQuality": 60
+  },
+  {
+    "id": "ships/ship-b",
+    "source": "g7-ships-ship-b.png",
+    "width": 512,
+    "height": 384,
+    "bytes": 37484,
+    "maxBytes": 40000,
+    "quality": 82,
+    "alphaQuality": 60
+  },
+  {
+    "id": "ships/blockade",
+    "source": "g7-ships-blockade.png",
+    "width": 512,
+    "height": 384,
+    "bytes": 38212,
+    "maxBytes": 40000,
+    "quality": 82,
+    "alphaQuality": 60
+  },
+  {
+    "id": "ships/fishing",
+    "source": "g7-ships-fishing.png",
+    "width": 512,
+    "height": 384,
+    "bytes": 30670,
+    "maxBytes": 40000,
+    "quality": 82,
+    "alphaQuality": 60
+  },
+  {
+    "id": "siege/checkpoint",
+    "source": "g7-siege-checkpoint.png",
+    "width": 480,
+    "height": 320,
+    "bytes": 33158,
+    "maxBytes": 40000,
+    "quality": 82,
+    "alphaQuality": 60
+  }
+]

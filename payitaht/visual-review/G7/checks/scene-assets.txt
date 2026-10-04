@@ -1,0 +1,1 @@
+29 scene alpha/size checks passed

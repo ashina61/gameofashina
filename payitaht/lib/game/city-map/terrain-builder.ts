@@ -60,7 +60,7 @@ export function cemeterySite() {
 /** Kara taban rengi (burunlar dahil her yerde aynı). */
 const LAND_BASE = 0x83a45c
 /** Koyda demirli gemiler (tools/art/gen-procedural-assets.py). */
-export const SHIP_TILES = ['ship-a', 'ship-b'] as const
+export const SHIP_TILES = ['ship-a', 'ship-b', 'fishing'] as const
 
 /** Deterministik tohumlu rastgele (dekor/terrain her açılışta aynı kalsın). */
 export function mulberry32(seed: number) {
@@ -114,8 +114,9 @@ export function preloadTerrain(scene: Phaser.Scene) {
     if (!scene.textures.exists('d_' + d)) scene.load.image('d_' + d, asset(`/images/game/decor/${d}${scene.scale.width <= 600 || liteMode() ? '-sm' : ''}.webp`))
   }
   if (!scene.textures.exists('b_pazar')) scene.load.image('b_pazar', asset('/images/game/buildings/pazar.webp'))
+  if (!scene.textures.exists('b_pier')) scene.load.image('b_pier', asset('/images/game/buildings/pier.webp'))
   for (const sh of SHIP_TILES) {
-    if (!scene.textures.exists('s_' + sh)) scene.load.image('s_' + sh, asset(`/images/game/ships/${sh}.png`))
+    if (!scene.textures.exists('s_' + sh)) scene.load.image('s_' + sh, asset(`/images/game/ships/${sh}.webp`))
   }
 }
 
@@ -547,6 +548,11 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1, occupiedSl
   }
   // Kare/su çerçevesi barındıran eski tile PNG'leri burada basılmaz.
 
+  const pierX = COAST_SLOTS[1].screen.x - TILE.w * 1.15
+  const pier = stamp('b_pier', pierX, shoreY(pierX) + TILE.h * 0.85, TILE.w * 1.25, -694, 0.95)
+  const showPier = (ids: readonly string[]) => pier?.setVisible(COAST_SLOTS.some(slot => ids.includes(slot.id)))
+  showPier(occupiedSlotIds)
+
   // KOYDA DEMİRLİ GEMİLER (Ikariam limanı canlı görünür): rıhtımların önünde
   // ve açıkta birkaç yelkenli; su üstünde yavaşça sallanır. Deniz katmanının
   // üstünde, şehrin altında durur; rıhtımlara/liman binalarına değmez.
@@ -554,7 +560,7 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1, occupiedSl
     // [doku, x ofseti (TILE.w), kıyıdan derinlik (TILE.h), genişlik (TILE.w), ayna]
     ['s_ship-a', -2.9, 5.3, 1.05, false],
     ['s_ship-b', 2.5, 7.0, 1.2, true],
-    ['s_ship-a', 0.0, 8.9, 0.95, true],
+    ['s_fishing', 0.0, 8.9, 0.65, true],
   ]
   const merchantShips: Phaser.GameObjects.Image[] = []
   ships.forEach(([key, ox, oy, w, flip], i) => {
@@ -652,5 +658,5 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1, occupiedSl
     }
   }
   const setBlockaded = (blockaded: boolean) => { for (const ship of merchantShips) ship.setVisible(!blockaded) }
-  return { updateRoads, flags, setDevelopment, setBlockaded, syncAmbientDecor }
+  return { updateRoads, flags, setDevelopment, setBlockaded, syncAmbientDecor: (ids: string[]) => { syncAmbientDecor(ids); showPier(ids) } }
 }

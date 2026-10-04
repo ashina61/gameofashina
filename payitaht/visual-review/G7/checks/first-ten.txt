@@ -1,0 +1,15 @@
+tıklanamadı: Git (locator.click: Timeout 3000ms exceeded.)
+1.1 dk: first-upgrade
+tıklanamadı: İnşa et
+20 sn (locator.click: Timeout 3000ms exceeded.)
+1.7 dk: first-academy
+1.7 dk: first-worker
+tıklanamadı: Araştır (locator.click: Timeout 3000ms exceeded.)
+2.4 dk: first-research
+tıklanamadı: İnşa et
+20 sn (locator.click: Timeout 3000ms exceeded.)
+3.0 dk: barracks
+3.5 dk: walls
+4.4 dk: troops
+4.7 dk: first-raid
+İlk sekiz hedef 4.7 oyun dakikasında tamam.

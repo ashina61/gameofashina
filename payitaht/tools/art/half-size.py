@@ -20,7 +20,7 @@ from pathlib import Path
 
 GAME_ROOT = Path(__file__).resolve().parents[2] / 'public' / 'images' / 'game'
 ROOT = GAME_ROOT / 'buildings'
-QUALITY = 82
+QUALITY = 78
 
 
 def sources():
@@ -62,7 +62,7 @@ def make(src: Path):
 def main():
     check = '--check' in sys.argv
     # Git checkout saatleri korunmaz; dekorun varlığı, boyutu ve çözümlemesi denetlenir.
-    todo = [s for s in sources() if (not valid_small(s) if check else stale(s))]
+    todo = [s for s in sources() if (not valid_small(s) if check else (("--force-buildings" in sys.argv and s.parent.name == "buildings") or stale(s)))]
     if check:
         for s in todo:
             print(f'eksik: {small_of(s).name}')

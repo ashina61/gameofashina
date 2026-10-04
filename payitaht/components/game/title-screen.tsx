@@ -108,7 +108,7 @@ export function TitleScreen({ onStart }: { onStart: () => void }) {
       <BuildingArt id="saray" level={8} className="is-left" />
       <BuildingArt id="divan" level={8} className="is-mid" />
       <BuildingArt id="liman" level={8} className="is-right" />
-      <img src={asset('/images/game/ships/ship-a.png')} alt="" className="is-ship" />
+      <img src={asset('/images/game/ships/ship-a.webp')} alt="" className="is-ship" />
     </div>
 
     <header className="title-head">

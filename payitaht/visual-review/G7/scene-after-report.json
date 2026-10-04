@@ -1,0 +1,17 @@
+{
+  "phase": "after",
+  "errors": [],
+  "missing": [],
+  "screens": [
+    "island-390x844",
+    "mine-390x844",
+    "forest-390x844",
+    "wall-building-390x844",
+    "wall-tier-1-city-390x844",
+    "wall-tier-1-harbour-390x844",
+    "wall-tier-2-city-390x844",
+    "wall-tier-2-harbour-390x844",
+    "wall-tier-3-city-390x844",
+    "wall-tier-3-harbour-390x844"
+  ]
+}

@@ -245,3 +245,39 @@ Replaced: `units/nakliye.webp`, `units/ikmal_gemisi.webp`,
 `units/karamursel.webp`, `units/humbara_gemisi.webp`,
 `units/mancinik_gemisi.webp`, `units/zenberek_gemisi.webp`,
 `units/ates_gemisi.webp`. New: `icons/ui-mail.webp`, `icons/ui-week.webp`.
+
+## G7 — Painted scene assets (2026-10-04)
+
+Original built-in Codex ImageGen artwork, one generation per asset. References: approved G0 style sheet and existing painted Divanhane. Subject/style recovery record: `tools/art/prompts/g7.md`. Project use under image generation service terms; no third-party game assets copied.
+
+- `walls/segment-1.webp`
+- `walls/segment-2.webp`
+- `walls/segment-3.webp`
+- `walls/tower-1.webp`
+- `walls/tower-2.webp`
+- `walls/tower-3.webp`
+- `walls/gate-1.webp`
+- `walls/gate-2.webp`
+- `walls/gate-3.webp`
+- `buildings/mine-kahve.webp`
+- `buildings/mine-mermer.webp`
+- `buildings/mine-kristal.webp`
+- `buildings/mine-kukurt.webp`
+- `buildings/forest-hero.webp`
+- `buildings/npc-koy.webp`
+- `buildings/npc-korsan.webp`
+- `buildings/npc-kale.webp`
+- `buildings/scaffold.webp`
+- `buildings/site.webp`
+- `buildings/pazar.webp`
+- `buildings/pier.webp`
+- `buildings/surlar-1.webp`
+- `buildings/surlar-2.webp`
+- `buildings/surlar-3.webp`
+- `ships/ship-a.webp`
+- `ships/ship-b.webp`
+- `ships/blockade.webp`
+- `ships/fishing.webp`
+- `siege/checkpoint.webp`
+
+Existing phone building derivatives recompressed from their original full sources at WebP quality 78, with dimensions and original credits retained.

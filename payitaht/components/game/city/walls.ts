@@ -138,131 +138,42 @@ export function drawWalls(scene: CityScene, level: number) {
     const f1 = inFront ? { x: p1.x + n.x, y: p1.y + n.y } : p1
     const b0 = inFront ? p0 : { x: p0.x + n.x, y: p0.y + n.y }
     const b1 = inFront ? p1 : { x: p1.x + n.x, y: p1.y + n.y }
-    const g = scene.add.graphics().setDepth(Math.max(f0.y, f1.y) + 1)
-    const dx = f1.x - f0.x, dy = f1.y - f0.y
-    // Işık sol-üstten: "\\" yönlü yüzler aydınlık, "/" yönlüler gölgede.
-    const lit = dx * dy > 0 ? 1 : Math.abs(dy) < Math.abs(dx) * 0.2 ? 0.6 : 0.25
-    const face = tier === 1
-      ? (lit > 0.8 ? 0xc7b796 : lit > 0.5 ? 0xb5a482 : 0x9c8a6a)
-      : (lit > 0.8 ? 0xdcc497 : lit > 0.5 ? 0xcbb083 : 0xb0936a)
-    const top = 0xeadbb6
-    // Zemin gölgesi.
-    g.fillStyle(0x1b2a14, 0.22)
-    g.fillPoints([V(f0.x, f0.y), V(f1.x, f1.y), V(f1.x + TILE.w * 0.2, f1.y + TILE.h * 0.3), V(f0.x + TILE.w * 0.2, f0.y + TILE.h * 0.3)], true)
-    // Kaide (koyu taş şerit) + ön yüz.
-    g.fillStyle(face, 1)
-    g.fillPoints([V(f0.x, f0.y), V(f1.x, f1.y), V(f1.x, f1.y - wallH), V(f0.x, f0.y - wallH)], true)
-    g.fillStyle(0x7d6444, 0.35)
-    g.fillPoints([V(f0.x, f0.y), V(f1.x, f1.y), V(f1.x, f1.y - wallH * 0.14), V(f0.x, f0.y - wallH * 0.14)], true)
-    const len = Math.hypot(dx, dy), ux = dx / (len || 1), uy = dy / (len || 1)
-    // Ashlar courses: staggered joints, chipped light edges and varied stone.
-    // Coordinates seed the patina, so redraws never shuffle the masonry.
-    const stoneW = TILE.w * 0.16, courses = 6
-    const stonePoint = (d: number, h: number) => V(f0.x + ux * d, f0.y + uy * d - h)
-    for (let row = 0; row < courses; row++) {
-      const lo = row * wallH / courses + 1, hi = (row + 1) * wallH / courses - 0.8
-      for (let col = -1; col * stoneW < len; col++) {
-        const start = Math.max(0, (col + (row % 2) * 0.5) * stoneW + 0.7)
-        const end = Math.min(len, (col + 1 + (row % 2) * 0.5) * stoneW - 0.7)
-        if (end <= start) continue
-        const variation = Math.abs(Math.sin(p0.x * 0.13 + p0.y * 0.17 + row * 7.1 + col * 3.7))
-        const c = Phaser.Display.Color.ValueToColor(face)
-        if (variation > 0.5) c.lighten(variation * 7)
-        else c.darken((0.5 - variation) * 12)
-        g.fillStyle(c.color, 1)
-        g.fillPoints([stonePoint(start, lo), stonePoint(end, lo), stonePoint(end, hi), stonePoint(start, hi)], true)
-        g.lineStyle(0.9, 0xffedc9, 0.32)
-        const a = stonePoint(start + 1, hi), b = stonePoint(end, hi)
-        g.lineBetween(a.x, a.y, b.x, b.y)
+    const depth = Math.max(f0.y, f1.y) + 1, no = pieceNo++
+    // Match the painted base edge to the existing foundation endpoints.
+    const [lx, ly, rx, ry, faceHeight] = [[40, 312, 376, 183, 106], [33, 323, 376, 201, 144], [39, 318, 376, 209, 137]][tier - 1]
+    const left = f0.x < f1.x ? f0 : f1, right = f0.x < f1.x ? f1 : f0
+    const flip = right.y > left.y
+    const u0 = (flip ? 384 - rx : lx) / 384, u1 = (flip ? 384 - lx : rx) / 384
+    const v0 = (flip ? ry : ly) / 384, v1 = (flip ? ly : ry) / 384
+    const spanX = right.x - left.x, spanY = right.y - left.y
+    const key = `w_segment-${tier}`, heightScale = wallH * 384 / faceHeight
+    if (scene.game.renderer.type === Phaser.WEBGL) {
+      const vertices: number[] = []
+      for (const [u, v] of [[0, 0], [1, 0], [1, 1], [0, 1]]) {
+        const t = (u - u0) / (u1 - u0)
+        vertices.push(t * spanX, -((v - v0 - (v1 - v0) * t) * heightScale + t * spanY))
       }
+      const mesh = scene.add.mesh(left.x, left.y, key).setDepth(depth)
+      mesh.hideCCW = false
+      mesh.setOrtho(mesh.width, mesh.height)
+      mesh.addVertices(vertices, flip ? [1, 0, 0, 0, 0, 1, 1, 1] : [0, 0, 1, 0, 1, 1, 0, 1], [0, 1, 2, 0, 2, 3])
+      scene.pieces.push(mesh)
+    } else {
+      const w = spanX / (u1 - u0), h = Math.abs(spanY / (v1 - v0))
+      scene.pieces.push(scene.add.image(left.x - u0 * w, left.y - v0 * h, key).setOrigin(0).setDisplaySize(w, h).setFlipX(flip).setDepth(depth))
     }
-    // Rain-darkened foot and a shallow string course under the parapet.
-    g.lineStyle(3, 0x59603b, 0.26)
-    g.lineBetween(f0.x, f0.y - 3, f1.x, f1.y - 3)
-    g.lineStyle(4, 0x735b3d, 0.30)
-    g.lineBetween(f0.x, f0.y - wallH * 0.83, f1.x, f1.y - wallH * 0.83)
-    g.lineStyle(2, 0xf0ddb2, 0.8)
-    g.lineBetween(f0.x, f0.y - wallH * 0.86, f1.x, f1.y - wallH * 0.86)
-    // Recessed arrow slit, painted only: no new interaction or collision.
-    if (len > TILE.w * 0.32) {
-      const p = stonePoint(len * 0.5, wallH * 0.66)
-      g.lineStyle(5, 0xf1dcb3, 0.65); g.lineBetween(p.x + 2, p.y - 6, p.x + 2, p.y + 8)
-      g.lineStyle(3, 0x493e30, 0.9); g.lineBetween(p.x, p.y - 7, p.x, p.y + 7)
-    }
-    // Üst yürüyüş yolu (kalınlık görünür).
-    g.fillStyle(top, 1)
-    g.fillPoints([V(f0.x, f0.y - wallH), V(f1.x, f1.y - wallH), V(b1.x, b1.y - wallH), V(b0.x, b0.y - wallH)], true)
-    g.lineStyle(1.4, 0x8a6c47, 0.45)
-    g.lineBetween(b0.x, b0.y - wallH, b1.x, b1.y - wallH)
-    // Kademe 3: iki sıra kırmızı tuğla kuşağı (Theodosius surları gibi).
-    if (tier === 3) {
-      for (const f of [0.3, 0.58]) {
-        g.lineStyle(4, 0x9a4a32, 0.85); g.lineBetween(f0.x, f0.y - wallH * f, f1.x, f1.y - wallH * f)
-        g.lineStyle(1, 0xd98a64, 0.6); g.lineBetween(f0.x, f0.y - wallH * f - 2, f1.x, f1.y - wallH * f - 2)
-      }
-    }
-    const no = pieceNo++
-    // Dokunma alanı: ön yüz + üst yol + mazgal payı (parmak için biraz geniş).
-    // Çizimden AYRI görünmez bölge: duvar Graphics'i dokuya pişirilince
-    // (BakeAtlas) kendi giriş alanı yok olur, bölge kalır.
-    const wallHit = (o: Phaser.GameObjects.Graphics) => {
-      const up = wallH + TILE.h * 0.3
-      const zone = scene.add.zone(0, 0, 1, 1).setOrigin(0, 0).setDepth(o.depth + 0.01).setInteractive({
-        hitArea: new Phaser.Geom.Polygon([f0.x, f0.y + 6, f1.x, f1.y + 6, f1.x, f1.y - up, b1.x, b1.y - up, b0.x, b0.y - up, f0.x, f0.y - up]),
-        hitAreaCallback: Phaser.Geom.Polygon.Contains, useHandCursor: true,
-      })
-      tapWall(zone)
-      scene.pieces.push(zone)
-    }
-    // Kademe 1: mazgal yerine sivri uçlu ahşap kazık dizisi.
-    if (tier === 1) {
-      if (!rising) {
-        for (let d = TILE.w * 0.04; d <= len - 2; d += TILE.w * 0.07) {
-          const a = { x: f0.x + ux * d, y: f0.y + uy * d - wallH }
-          g.fillStyle(0x7a5532, 1); g.fillRect(a.x - 2.2, a.y - TILE.h * 0.22, 4.4, TILE.h * 0.22)
-          g.fillStyle(0x5c3d22, 1); g.fillTriangle(a.x - 2.2, a.y - TILE.h * 0.22, a.x + 2.2, a.y - TILE.h * 0.22, a.x, a.y - TILE.h * 0.3)
-        }
-        g.lineStyle(2, 0x4e3420, 0.9); g.lineBetween(f0.x, f0.y - wallH - TILE.h * 0.08, f1.x, f1.y - wallH - TILE.h * 0.08)
-      }
-      g.lineStyle(1.6, 0x5e4630, 0.6); g.lineBetween(f0.x, f0.y, f1.x, f1.y)
-      wallHit(g)
-      scene.pieces.push(g)
-      if (building && (rising || (inFront && no % 2 === 0))) scene.scaffoldOn(f0, f1, wallH, Math.max(f0.y, f1.y) + 1.05)
-      return
-    }
-    // Mazgallar (ön kenar boyunca).
-    const step = TILE.w * 0.17, mw = TILE.w * 0.09, mh = TILE.h * 0.2
-    // Kademe 3: öne bakan her üçüncü parçada sancak renginde asılı flama.
-    if (tier === 3 && inFront && no % 3 === 1 && len > TILE.w * 0.3) {
-      const m = { x: f0.x + ux * len * 0.5, y: f0.y + uy * len * 0.5 }
-      const w = TILE.w * 0.11, h = wallH * 0.62, top0 = m.y - wallH * 0.97
-      const dark = Phaser.Display.Color.ValueToColor(bannerColor).darken(22).color
-      g.fillStyle(0x000000, 0.18); g.fillRect(m.x - w / 2 + 3, top0 + 3, w, h)
-      g.fillStyle(bannerColor, 1)
-      g.fillPoints([V(m.x - w / 2, top0), V(m.x + w / 2, top0), V(m.x + w / 2, top0 + h), V(m.x, top0 + h - w * 0.55), V(m.x - w / 2, top0 + h)], true)
-      g.fillStyle(dark, 1); g.fillRect(m.x - w / 2, top0, w, 4)
-      g.fillStyle(0xe2bd78, 1); g.fillRect(m.x - w / 2 - 2, top0 - 2, w + 4, 3)
-      g.fillStyle(0xf6efe0, 1); g.fillCircle(m.x, top0 + h * 0.38, w * 0.22)
-      g.fillStyle(bannerColor, 1); g.fillCircle(m.x + w * 0.08, top0 + h * 0.38, w * 0.17)
-    }
-    for (let d = step * 0.3; d + mw <= len; d += step) {
-      const a = { x: f0.x + ux * d, y: f0.y + uy * d - wallH }
-      const b = { x: a.x + ux * mw, y: a.y + uy * mw }
-      g.fillStyle(face, 1)
-      g.fillPoints([V(a.x, a.y), V(b.x, b.y), V(b.x, b.y - mh), V(a.x, a.y - mh)], true)
-      g.fillStyle(top, 1)
-      g.fillPoints([V(a.x, a.y - mh), V(b.x, b.y - mh), V(b.x + n.x * 0.35 * (inFront ? -1 : 1), b.y - mh + n.y * 0.35 * (inFront ? -1 : 1)), V(a.x + n.x * 0.35 * (inFront ? -1 : 1), a.y - mh + n.y * 0.35 * (inFront ? -1 : 1))], true)
-      const bx = n.x * 0.35 * (inFront ? -1 : 1), by = n.y * 0.35 * (inFront ? -1 : 1)
-      g.fillStyle(0x8e7757, 1)
-      g.fillPoints([V(b.x, b.y), V(b.x + bx, b.y + by), V(b.x + bx, b.y + by - mh), V(b.x, b.y - mh)], true)
-      g.lineStyle(1, 0xffebc6, 0.8); g.lineBetween(a.x, a.y - mh, b.x, b.y - mh)
-    }
-    g.lineStyle(1.6, 0x5e4630, 0.6); g.lineBetween(f0.x, f0.y, f1.x, f1.y)
-    g.lineStyle(1.2, 0x6e5436, 0.5); g.lineBetween(f0.x, f0.y - wallH, f1.x, f1.y - wallH)
-    wallHit(g)
-    scene.pieces.push(g)
-    // Yükseltme sürerken öne bakan parçaların önünde ahşap iskele.
-    if (building && inFront && no % 2 === 0) scene.scaffoldOn(f0, f1, wallH, Math.max(f0.y, f1.y) + 1.05)
+    const up = wallH + TILE.h * 0.3
+    const zone = scene.add.zone(0, 0, 1, 1).setOrigin(0, 0).setDepth(depth + 0.01).setInteractive({
+      hitArea: new Phaser.Geom.Polygon([f0.x, f0.y + 6, f1.x, f1.y + 6, f1.x, f1.y - up, b1.x, b1.y - up, b0.x, b0.y - up, f0.x, f0.y - up]),
+      hitAreaCallback: Phaser.Geom.Polygon.Contains, useHandCursor: true,
+    })
+    tapWall(zone)
+    scene.pieces.push(zone)
+    if (tier === 3 && inFront && no % 3 === 1) scene.flagField?.add({
+      x: (f0.x + f1.x) / 2, y: (f0.y + f1.y) / 2 - wallH * 0.9,
+      w: TILE.w * 0.11, h: wallH * 0.62, color: bannerColor, depth: depth + 0.05,
+    }, 'pieces')
+    if (building && (rising || (inFront && no % 2 === 0))) scene.scaffoldOn(f0, f1, wallH, depth + 0.05)
   }
 
   // Duvar parçaları (kapı açıklıkları atlanır).
@@ -302,13 +213,14 @@ export function drawWalls(scene: CityScene, level: number) {
     base.fillStyle(0x1b2a14, 0.24); base.fillEllipse(x + w * 0.18, y + w * 0.08, w * 1.3, w * 0.5)
     base.fillStyle(0xb3966c, 1); base.fillEllipse(x, y, w * 1.02, w * 0.42)
     scene.pieces.push(base)
-    if (scene.textures.exists('w_tower')) {
-      const img = scene.add.image(x, y - w * 0.04, 'w_tower').setOrigin(0.5, 1).setDepth(y + 2)
-      img.setScale(w / img.width)
+    if (scene.textures.exists(`w_tower-${tier}`)) {
+      const img = scene.add.image(x, y - w * 0.04, `w_tower-${tier}`).setOrigin(0.5, 1).setDepth(y + 2)
+      const paintedWidth = [243, 208, 206][tier - 1]
+      img.setScale(w / paintedWidth)
       img.setInteractive({ useHandCursor: true }); tapWall(img)
       scene.pieces.push(img)
       // Her kulede al sancak (ay-yıldız), rüzgârda dalgalı.
-      const top = y - w * 0.04 - img.height * (w / img.width) + w * 0.06
+      const top = y - w * 0.04 - img.height * (w / paintedWidth) + w * 0.06
       const f = scene.add.graphics().setDepth(y + 2.1)
       f.lineStyle(2.5, 0x4a3a28, 1); f.lineBetween(x, top, x, top - w * 0.62)
       f.fillStyle(0xe2bd78, 1); f.fillCircle(x, top - w * 0.64, 2.6)
@@ -339,49 +251,15 @@ export function drawWalls(scene: CityScene, level: number) {
       // Kapı kulesi: yolun üstüne oturan kemerli taş blok. Kemer, geçidin
       // baktığı yüzde (kuzey kapısında ön yüz, yan kapılarda yan yüz).
       const c = g.center, w = TILE.w * 1.1, h = wallH * 1.7, d = w * 0.34
-      const x0 = c.x - w / 2, x1 = c.x + w / 2, y0 = c.y + TILE.h * 0.3
+      const y0 = c.y + TILE.h * 0.3
       const tgA = pointAt(g.s0), tgB = pointAt(g.s1)
-      const sideGate = Math.abs(tgB.y - tgA.y) > Math.abs(tgB.x - tgA.x) // duvar dikey: geçit doğu-batı
-      lg.fillStyle(0x1b2a14, 0.24); lg.fillEllipse(c.x + w * 0.25, y0 + 6, w * 1.5, w * 0.34)
-      // Yan yüz (sağ), ön yüz, üst.
-      lg.fillStyle(0xb0936a, 1); lg.fillPoints([V(x1, y0), V(x1 + d, y0 - d / 2), V(x1 + d, y0 - d / 2 - h), V(x1, y0 - h)], true)
-      lg.fillStyle(0xdcc497, 1); lg.fillRect(x0, y0 - h, w, h)
-      lg.fillStyle(0xeadbb6, 1); lg.fillPoints([V(x0, y0 - h), V(x1, y0 - h), V(x1 + d, y0 - d / 2 - h), V(x0 + d, y0 - d / 2 - h)], true)
-      // Taş sıraları.
-      lg.lineStyle(1.2, 0x8a6c47, 0.32)
-      for (const f of [0.25, 0.45, 0.65, 0.85]) lg.lineBetween(x0, y0 - h * f, x1, y0 - h * f)
-      lg.fillStyle(0x7d6444, 0.35); lg.fillRect(x0, y0 - h * 0.1, w, h * 0.1)
-      // Kemerli geçit (koyu) ve açık ahşap kanat.
-      const arch = (cx: number, by: number, aw: number, ah: number, skew: number) => {
-        const pts: Phaser.Math.Vector2[] = [V(cx - aw / 2, by - skew * aw / 2)]
-        for (let k = 0; k <= 12; k++) {
-          const t = Math.PI - k / 12 * Math.PI
-          pts.push(V(cx + Math.cos(t) * aw / 2, by - ah - Math.sin(t) * aw * 0.42 + skew * Math.cos(t) * aw / 2))
-        }
-        pts.push(V(cx + aw / 2, by + skew * aw / 2))
-        return pts
-      }
-      lg.fillStyle(0x2e2216, 0.92)
-      if (sideGate) lg.fillPoints(arch(x1 + d / 2, y0 - d / 4, d * 0.78, h * 0.42, -0.5), true)
-      else lg.fillPoints(arch(c.x, y0, w * 0.42, h * 0.42, 0), true)
-      // Mazgallar ve sancak.
-      for (let k = 0; k < 5; k++) {
-        const x = x0 + (k + 0.2) * w / 5
-        lg.fillStyle(0xdcc497, 1); lg.fillRect(x, y0 - h - 14, w / 10, 14)
-        lg.fillStyle(0xeadbb6, 1); lg.fillRect(x, y0 - h - 16, w / 10, 3)
-      }
+      scene.pieces.push(scene.add.image(c.x + d / 2, y0 + 4, `w_gate-${tier}`).setOrigin(0.5, 1)
+        .setDisplaySize(w + d, h + d / 2 + 16).setFlipX((tgB.x - tgA.x) * (tgB.y - tgA.y) > 0).setDepth(y0 + 1.95))
       const mx = c.x + d / 2, my = y0 - h - d / 4
       lg.lineStyle(3, 0x5a4630, 1); lg.lineBetween(mx, my, mx, my - 70)
       lg.fillStyle(0xe2bd78, 1); lg.fillCircle(mx, my - 72, 3.5)
       lg.setDepth(y0 + 2)
       scene.flagField?.add({ x: mx + 2, y: my - 68, w: 44, h: 30, depth: y0 + 2.1 }, 'pieces')
-      // KİTABE: kemerin üstünde mermer levha (süs; seviye madalyonda yazar).
-      const kx = c.x, ky = y0 - h * 0.72, kw = w * 0.42, kh = h * 0.24
-      lg.fillStyle(0x3a2914, 0.35); lg.fillRoundedRect(kx - kw / 2 + 2, ky - kh / 2 + 2, kw, kh, 4)
-      lg.fillStyle(0xf4ead2, 1); lg.fillRoundedRect(kx - kw / 2, ky - kh / 2, kw, kh, 4)
-      lg.lineStyle(2, 0xb08a4e, 1); lg.strokeRoundedRect(kx - kw / 2, ky - kh / 2, kw, kh, 4)
-      lg.lineStyle(1.5, 0x8a6c47, 0.7)
-      for (const f of [0.35, 0.65]) lg.lineBetween(kx - kw * 0.32, ky - kh / 2 + kh * f, kx + kw * 0.32, ky - kh / 2 + kh * f)
       if (!northGate || y0 < northGate.y) northGate = { x: c.x, y: y0 - h - 18, depth: y0 }
       const gateHit = scene.add.rectangle(c.x + d / 2, y0 - h / 2 - 8, w + d, h + 24).setInteractive({ useHandCursor: true })
         .setFillStyle(0xffffff, 0).setDepth(y0 + 2.2)
@@ -452,35 +330,14 @@ export function wallFront(scene: CityScene, ring: Array<{ x: number; y: number }
 }
 /** Duvar yüzünün önünde ahşap iskele: dikmeler, iki kat tahta, çapraz payanda. */
 export function scaffoldOn(scene: CityScene, f0: { x: number; y: number }, f1: { x: number; y: number }, h: number, depth: number) {
-  const g = scene.add.graphics().setDepth(depth)
-  const len = Math.hypot(f1.x - f0.x, f1.y - f0.y), ux = (f1.x - f0.x) / (len || 1), uy = (f1.y - f0.y) / (len || 1)
-  const at = (d: number, z: number) => ({ x: f0.x + ux * d + 2, y: f0.y + uy * d + 4 - z })
-  const posts: number[] = []
-  for (let d = TILE.w * 0.04; d < len; d += TILE.w * 0.2) posts.push(d)
-  g.lineStyle(2.6, 0x6e4a26, 1)
-  for (const d of posts) { const a = at(d, 0), b = at(d, h + 10); g.lineBetween(a.x, a.y, b.x, b.y) }
-  g.lineStyle(3.2, 0xa8773f, 1)
-  for (const z of [h * 0.42, h * 0.84]) { const a = at(0, z), b = at(len, z); g.lineBetween(a.x, a.y, b.x, b.y) }
-  g.lineStyle(1.6, 0x6e4a26, 0.9)
-  for (let i = 1; i < posts.length; i += 2) { const a = at(posts[i - 1], 0), b = at(posts[i], h * 0.42); g.lineBetween(a.x, a.y, b.x, b.y) }
-  // Tahtada kesme taş blokları.
-  const m = at(len * 0.5, h * 0.42)
-  g.fillStyle(0xd9c7a1, 1); g.fillRect(m.x - 6, m.y - 7, 9, 6); g.fillRect(m.x + 4, m.y - 6, 7, 5)
-  scene.pieces.push(g)
+  scene.pieces.push(scene.add.image((f0.x + f1.x) / 2, Math.max(f0.y, f1.y) + 4, 'b_scaffold')
+    .setOrigin(0.5, 1).setDisplaySize(Math.max(Math.abs(f1.x - f0.x), TILE.w * 0.2), h + 10)
+    .setFlipX((f1.x - f0.x) * (f1.y - f0.y) > 0).setDepth(depth))
 }
 export function drawWallSite(scene: CityScene, ring: Array<{ x: number; y: number }>) {
   for (const s of DEFENSE_SLOTS) {
     const { x, y } = s.screen
-    const g = scene.add.graphics().setDepth(y + 1)
-    g.fillStyle(0x1b2a14, 0.2); g.fillEllipse(x + 6, y + 4, TILE.w * 0.7, TILE.h * 0.4)
-    g.fillStyle(0x7a5a36, 1); g.fillEllipse(x, y, TILE.w * 0.62, TILE.h * 0.36)
-    g.fillStyle(0x4e3820, 1); g.fillEllipse(x, y + 2, TILE.w * 0.4, TILE.h * 0.22)
-    // Kesme taş yığını.
-    for (const [dx, dy] of [[-16, -2], [-4, 2], [8, -3], [-10, -10], [2, -9]] as const) {
-      g.fillStyle(0xd9c7a1, 1); g.fillRect(x + dx - TILE.w * 0.28, y + dy - 6, 12, 7)
-      g.fillStyle(0xb8a37c, 1); g.fillRect(x + dx - TILE.w * 0.28, y + dy + 1, 12, 2)
-    }
-    scene.pieces.push(g)
+    scene.pieces.push(scene.add.image(x, y, 'b_site').setOrigin(0.5, 1).setDisplaySize(TILE.w * 0.85, TILE.h * 0.75).setDepth(y + 1))
   }
   // Tabela.
   const front = scene.wallFront(ring)

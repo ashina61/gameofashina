@@ -29,7 +29,7 @@ export function buildingStage(level: number): 1 | 2 | 3 {
  * değiştiğinde bu değeri yükselt; query string hem browser hem SW cache anahtarını
  * değiştirir, binary dosya adlarını ve BUILDING_FLAGS anahtarlarını bozmaz.
  */
-export const BUILDING_ART_REV = '20260929-painted-coast-v1'
+export const BUILDING_ART_REV = '20261004-g7-painted-scene'
 
 /** Tam şeffaf, eski izokit tuvali yerine boyanmış üç aşamalı görseller. */
 export function isPaintedBuilding(id: string) {
