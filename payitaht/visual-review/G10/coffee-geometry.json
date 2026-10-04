@@ -1,0 +1,128 @@
+[
+  {
+    "file": "public/images/game/buildings/bagci-painted-1.webp",
+    "width": 1774,
+    "height": 887,
+    "original": {
+      "left": 121,
+      "right": 1665,
+      "top": 40,
+      "bottom": 870,
+      "area": 739932
+    },
+    "after": {
+      "left": 120,
+      "right": 1669,
+      "top": 38,
+      "bottom": 871,
+      "area": 749925
+    },
+    "areaRatio": 1.0135052950811696,
+    "phoneBytes": 78696
+  },
+  {
+    "file": "public/images/game/buildings/mahzen-painted-1.webp",
+    "width": 1774,
+    "height": 887,
+    "original": {
+      "left": 13,
+      "right": 1761,
+      "top": 5,
+      "bottom": 876,
+      "area": 927884
+    },
+    "after": {
+      "left": 1,
+      "right": 1773,
+      "top": 1,
+      "bottom": 885,
+      "area": 958715
+    },
+    "areaRatio": 1.033227213746546,
+    "phoneBytes": 89812
+  },
+  {
+    "file": "public/images/game/buildings/bagci-painted-2.webp",
+    "width": 1774,
+    "height": 887,
+    "original": {
+      "left": 75,
+      "right": 1715,
+      "top": 28,
+      "bottom": 851,
+      "area": 805382
+    },
+    "after": {
+      "left": 74,
+      "right": 1717,
+      "top": 26,
+      "bottom": 854,
+      "area": 813837
+    },
+    "areaRatio": 1.0104981238716535,
+    "phoneBytes": 86988
+  },
+  {
+    "file": "public/images/game/buildings/bagci-painted-3.webp",
+    "width": 1774,
+    "height": 887,
+    "original": {
+      "left": 34,
+      "right": 1757,
+      "top": 21,
+      "bottom": 860,
+      "area": 889151
+    },
+    "after": {
+      "left": 35,
+      "right": 1757,
+      "top": 19,
+      "bottom": 863,
+      "area": 897952
+    },
+    "areaRatio": 1.0098982062664272,
+    "phoneBytes": 89032
+  },
+  {
+    "file": "public/images/game/buildings/mahzen-painted-2.webp",
+    "width": 1774,
+    "height": 887,
+    "original": {
+      "left": 4,
+      "right": 1764,
+      "top": 3,
+      "bottom": 877,
+      "area": 984824
+    },
+    "after": {
+      "left": 1,
+      "right": 1769,
+      "top": 0,
+      "bottom": 883,
+      "area": 996150
+    },
+    "areaRatio": 1.0115005320747668,
+    "phoneBytes": 87166
+  },
+  {
+    "file": "public/images/game/buildings/mahzen-painted-3.webp",
+    "width": 1774,
+    "height": 887,
+    "original": {
+      "left": 2,
+      "right": 1770,
+      "top": 0,
+      "bottom": 881,
+      "area": 952700
+    },
+    "after": {
+      "left": 3,
+      "right": 1771,
+      "top": 0,
+      "bottom": 885,
+      "area": 965456
+    },
+    "areaRatio": 1.0133893145796158,
+    "phoneBytes": 89188
+  }
+]

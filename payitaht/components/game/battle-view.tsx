@@ -13,6 +13,7 @@ import { FIELD_ROWS, replayBattle, troopList, type FieldRow, type Lineup, type T
 import type { StoredBattle } from '@/lib/game/expeditions'
 import { UNITS } from '@/lib/game/engine'
 import { UnitFigure } from './unit-art'
+import { asset } from '@/lib/asset'
 
 const ROW_NAMES: Record<FieldRow, string> = FIELD_ROW_NAMES
 
@@ -58,7 +59,7 @@ export function BattleView({ stored, live }: { stored: StoredBattle; live?: Live
   const wallMax = stored.d.wall ?? 0
   const joined = (stored.joins ?? []).filter(j => j.round === r.round && Object.values(j.troops).some(n => (n ?? 0) > 0))
   const secs = live ? Math.max(0, Math.ceil((live.nextAt - live.now) / 1000)) : 0
-  return <section className="bf">
+  return <section className="bf" style={{ backgroundImage: `url(${asset(`/images/game/terrain/battle-${stored.d.naval ? 'sea' : 'land'}.webp`)})`, backgroundSize: 'cover', backgroundPosition: 'center' }}>
     <div className="bf-head">
       <span className="eyebrow">{stored.title.toUpperCase()} · {result.field.name.toUpperCase()}{live ? ' · SÜRÜYOR' : ''}</span>
       <div className="bf-nav">

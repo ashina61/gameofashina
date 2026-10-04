@@ -12,6 +12,7 @@ const config: CapacitorConfig = {
   appId: 'com.ashina.payitaht',
   appName: 'Payitaht Adaları',
   webDir: 'out',
+  // G11 ikonları ve yerel splash aynı koyu turkuaz zemini kullanır.
   backgroundColor: '#102b29',
   android: { allowMixedContent: false },
   plugins: {

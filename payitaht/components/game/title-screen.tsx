@@ -103,7 +103,7 @@ export function TitleScreen({ onStart }: { onStart: () => void }) {
 
   const look: BannerLook = profile ? { color: profile.color, shape: profile.banner ?? 'kirlangic', crest: profile.crest } : { color, shape: 'kirlangic', crest }
   return <BannerContext.Provider value={look}><main className="title-screen">
-    <div className="title-sea" aria-hidden="true" style={{ backgroundImage: `url(${asset('/images/game/islands/sahil.webp')})` }} />
+    <div className="title-sea" aria-hidden="true" style={{ backgroundImage: `url(${asset('/images/game/terrain/title-background.webp')})` }} />
     <div className="title-skyline" aria-hidden="true">
       <BuildingArt id="saray" level={8} className="is-left" />
       <BuildingArt id="divan" level={8} className="is-mid" />
@@ -113,7 +113,7 @@ export function TitleScreen({ onStart }: { onStart: () => void }) {
 
     <header className="title-head">
       <p className="title-kicker">Osmanlı esintili ada stratejisi</p>
-      <h1>Payitaht<span>Adaları</span></h1>
+      <h1 style={{ backgroundImage: `url(${asset('/images/game/ui/title-plaque.webp')})` }}>Payitaht<span>Adaları</span></h1>
       <p className="title-motto">Kendi hikâyeni inşa et.</p>
     </header>
 

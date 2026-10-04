@@ -12,6 +12,7 @@ import { Hint } from './hint'
 import { useState } from 'react'
 import { Crown, Trash2, Coffee, TreePine, FlaskConical, CalendarCheck, Gift, Truck, Anchor, Flag, Trophy, Handshake, Store, Mail, Send, ScrollText, Swords, Eye, Check, Pencil, ShieldCheck, Newspaper } from './ui-art'
 import { DailyArt } from './quest-art'
+import { AtlasArt, RivalPortrait } from './deep-art'
 import { NewsPanel, PaceSetting, ProposalsPanel, rivalWarLine } from './ai-panels'
 import { GameButton } from './game-button'
 import {
@@ -80,7 +81,7 @@ export function CityAdmin({ empire, game, now, onCommand, run }: { empire: Empir
       {anarchy(game) && <p className="requirement">Kargaşa sürüyor: üretim -%25, huzur -50 · {clock(gov.anarchyUntil - now)}</p>}
       {locked && <p className="fine-print">Yönetim biçimini değiştirmek için Devlet Nizamı araştırması gerekli.</p>}
       <div className="gov-list">{GOVERNMENT_IDS.map(id => <article key={id} className={`gov-card${gov.id === id ? ' gov-active' : ''}`}>
-        <strong>{GOVERNMENTS[id].name}</strong>
+        <AtlasArt atlas="culture" index={GOVERNMENT_IDS.indexOf(id)} size={52} /><strong>{GOVERNMENTS[id].name}</strong>
         <ul>{GOVERNMENTS[id].effects.map(e => <li key={e}>{e}</li>)}</ul>
         {gov.id === id ? <span className="gov-badge"><Check className="size-3" /> Yürürlükte</span>
           : <GameButton size="sm" variant="outline" disabled={locked || cooling || game.resources.gold < governmentCost(game)}
@@ -267,7 +268,7 @@ export function RivalDiplomacy({ empire, rivalId, now, run }: { empire: Empire; 
   const s = empire.world?.rivals[rivalId] ?? { relation: 0, treaties: [] as TreatyId[] }
   const [gift, setGift] = useState(500)
   return <section className="empire-section">
-    <h3><Handshake className="size-4" /> Diplomasi · ilişki {s.relation}</h3>
+    <h3><RivalPortrait id={rivalId} size={64} /> Diplomasi · ilişki {s.relation}</h3>
     <span className="relation-meter"><span style={{ left: `${(s.relation + 100) / 2}%` }} /></span>
     {(Object.keys(TREATIES) as TreatyId[]).map(t => <article key={t} className="mission-row">
       <span><strong>{TREATIES[t].name}</strong><small>{TREATIES[t].description} {s.treaties.includes(t) ? '' : `Gereken ilişki ~${TREATIES[t].need} · ${num(treatyCost(empire, r, now))} akçe.`}</small></span>

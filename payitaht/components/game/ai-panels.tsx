@@ -15,7 +15,7 @@ import {
 } from '@/lib/game/ai'
 import { STYLE_NAMES, rivalById, rivalLevel } from '@/lib/game/rivals'
 import { luxuryIcons, resourceIcons } from './game-widgets'
-import { RulerCrest } from './profile-panel'
+import { RivalPortrait } from './deep-art'
 import { rivalHeraldry } from '@/lib/game/profile'
 import type { Run } from './world-panels'
 
@@ -62,7 +62,7 @@ function ProposalCard({ p, empire, now, run, onRival }: { p: Proposal; empire: E
   return <article className={`proposal-card is-${p.kind}`} style={{ '--crest': h.color } as CSSProperties}>
     <header className="proposal-head">
       <button type="button" className="proposal-from" onClick={() => onRival(r.id)} aria-label={`${r.city} hükümdarını aç`}>
-        <RulerCrest crest={h.crest} color={h.color} size={52} />
+        <RivalPortrait id={r.id} size={52} />
         <span><strong>{r.city}</strong><small>{r.ruler} · {STYLE_NAMES[r.style]} · Sv. {rivalLevel(empire, r, now)}</small><small className="proposal-ai">yapay rakip</small></span>
       </button>
       <span className="proposal-kind">{KIND_ICON[p.kind]}{PROPOSAL_NAMES[p.kind]}</span>

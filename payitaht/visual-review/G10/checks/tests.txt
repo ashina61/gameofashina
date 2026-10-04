@@ -1,0 +1,1924 @@
+TAP version 13
+# Subtest: an idle city is capped, a touched one is not (lite mode keeps a ceiling)
+ok 1 - an idle city is capped, a touched one is not (lite mode keeps a ceiling)
+  ---
+  duration_ms: 1.465438
+  type: 'test'
+  ...
+# Subtest: changing the cap restarts a running loop and leaves a sleeping one asleep
+ok 2 - changing the cap restarts a running loop and leaves a sleeping one asleep
+  ---
+  duration_ms: 1.098903
+  type: 'test'
+  ...
+# Subtest: research tree has unique well-defined skills, effects and accessible root technologies
+ok 3 - research tree has unique well-defined skills, effects and accessible root technologies
+  ---
+  duration_ms: 2.520777
+  type: 'test'
+  ...
+# Subtest: old first-build costs and first two upgrade timers remain compatible
+ok 4 - old first-build costs and first two upgrade timers remain compatible
+  ---
+  duration_ms: 0.911162
+  type: 'test'
+  ...
+# Subtest: different building upgrade curves and construction researches reduce only future material prices
+ok 5 - different building upgrade curves and construction researches reduce only future material prices
+  ---
+  duration_ms: 0.419525
+  type: 'test'
+  ...
+# Subtest: academy scientist staffing generates knowledge and deducts upkeep without negative gold
+ok 6 - academy scientist staffing generates knowledge and deducts upkeep without negative gold
+  ---
+  duration_ms: 1.742856
+  type: 'test'
+  ...
+# Subtest: late-game warehouse can hold higher building upgrade costs
+ok 7 - late-game warehouse can hold higher building upgrade costs
+  ---
+  duration_ms: 0.310258
+  type: 'test'
+  ...
+# Subtest: researched training bonuses apply to real troop price, speed and combat
+ok 8 - researched training bonuses apply to real troop price, speed and combat
+  ---
+  duration_ms: 0.432425
+  type: 'test'
+  ...
+# Subtest: existing saved building levels and research queue survive new tech catalog
+ok 9 - existing saved building levels and research queue survive new tech catalog
+  ---
+  duration_ms: 2.723871
+  type: 'test'
+  ...
+# Subtest: on the lively pace rivals start wars, send proposals and write news
+ok 10 - on the lively pace rivals start wars, send proposals and write news
+  ---
+  duration_ms: 84.211369
+  type: 'test'
+  ...
+# Subtest: the world is deterministic: the same save produces the same history
+ok 11 - the world is deterministic: the same save produces the same history
+  ---
+  duration_ms: 58.452272
+  type: 'test'
+  ...
+# Subtest: wars change rival strength, which shows up in their level
+ok 12 - wars change rival strength, which shows up in their level
+  ---
+  duration_ms: 1.549832
+  type: 'test'
+  ...
+# Subtest: buying from a rival costs gold now and the goods arrive by ship
+ok 13 - buying from a rival costs gold now and the goods arrive by ship
+  ---
+  duration_ms: 3.564385
+  type: 'test'
+  ...
+# Subtest: selling goods to a rival needs a port and cargo space
+ok 14 - selling goods to a rival needs a port and cargo space
+  ---
+  duration_ms: 2.281156
+  type: 'test'
+  ...
+# Subtest: paying tribute buys a day of peace; refusing it angers the ruler
+ok 15 - paying tribute buys a day of peace; refusing it angers the ruler
+  ---
+  duration_ms: 1.475311
+  type: 'test'
+  ...
+# Subtest: a proposed treaty is signed for free with an embassy
+ok 16 - a proposed treaty is signed for free with an embassy
+  ---
+  duration_ms: 0.920835
+  type: 'test'
+  ...
+# Subtest: rivals at war with each other do not declare war on the player
+ok 17 - rivals at war with each other do not declare war on the player
+  ---
+  duration_ms: 1.44357
+  type: 'test'
+  ...
+# Subtest: expired proposals disappear and the pace setting is validated
+ok 18 - expired proposals disappear and the pace setting is validated
+  ---
+  duration_ms: 3.176412
+  type: 'test'
+  ...
+# Subtest: a save with many incoming armies stays readable (old limit was 8)
+ok 19 - a save with many incoming armies stays readable (old limit was 8)
+  ---
+  duration_ms: 2.921465
+  type: 'test'
+  ...
+# Subtest: a seven-day normal world tells at least three continuing stories
+ok 20 - a seven-day normal world tells at least three continuing stories
+  ---
+  duration_ms: 80.096031
+  type: 'test'
+  ...
+# Subtest: rivals have a friend and an enemy and never pick a friend as a war target
+ok 21 - rivals have a friend and an enemy and never pick a friend as a war target
+  ---
+  duration_ms: 40.650493
+  type: 'test'
+  ...
+# Subtest: letters remember a raid and a helping hand
+ok 22 - letters remember a raid and a helping hand
+  ---
+  duration_ms: 2.423686
+  type: 'test'
+  ...
+# Subtest: accepting a call for help is remembered with gratitude
+ok 23 - accepting a call for help is remembered with gratitude
+  ---
+  duration_ms: 0.710902
+  type: 'test'
+  ...
+# Subtest: a short break gives no summary; a long one lists finished work and gains
+ok 24 - a short break gives no summary; a long one lists finished work and gains
+  ---
+  duration_ms: 14.055639
+  type: 'test'
+  ...
+# Subtest: a 30-day absence: the summary carries world events and says production stopped at the offline cap
+ok 25 - a 30-day absence: the summary carries world events and says production stopped at the offline cap
+  ---
+  duration_ms: 5.573974
+  type: 'test'
+  ...
+# Subtest: badgeBudget shows at most two numbered badges by priority, rest as dots
+ok 26 - badgeBudget shows at most two numbered badges by priority, rest as dots
+  ---
+  duration_ms: 0.865461
+  type: 'test'
+  ...
+# Subtest: badgeBudget leaves quiet keys empty
+ok 27 - badgeBudget leaves quiet keys empty
+  ---
+  duration_ms: 0.172651
+  type: 'test'
+  ...
+# Subtest: no combat unit is more than 30% more cost-efficient than the median of its branch and role
+ok 28 - no combat unit is more than 30% more cost-efficient than the median of its branch and role
+  ---
+  duration_ms: 9.525394
+  type: 'test'
+  ...
+# Subtest: no combat unit is left far behind its role (below ×0.6), so every unit is worth building
+ok 29 - no combat unit is left far behind its role (below ×0.6), so every unit is worth building
+  ---
+  duration_ms: 0.548717
+  type: 'test'
+  ...
+# Subtest: battles are deterministic and report every round
+ok 30 - battles are deterministic and report every round
+  ---
+  duration_ms: 7.723015
+  type: 'test'
+  ...
+# Subtest: siege weapons break walls far faster than infantry
+ok 31 - siege weapons break walls far faster than infantry
+  ---
+  duration_ms: 3.31702
+  type: 'test'
+  ...
+# Subtest: a far stronger army wins; a tiny army is routed
+ok 32 - a far stronger army wins; a tiny army is routed
+  ---
+  duration_ms: 0.972884
+  type: 'test'
+  ...
+# Subtest: doctors bring back part of the fallen; cooks hold morale
+ok 33 - doctors bring back part of the fallen; cooks hold morale
+  ---
+  duration_ms: 1.697856
+  type: 'test'
+  ...
+# Subtest: the battlefield grows with the defender town level
+ok 34 - the battlefield grows with the defender town level
+  ---
+  duration_ms: 6.499577
+  type: 'test'
+  ...
+# Subtest: units beyond the slots wait in reserve and step in as the line thins
+ok 35 - units beyond the slots wait in reserve and step in as the line thins
+  ---
+  duration_ms: 0.99371
+  type: 'test'
+  ...
+# Subtest: flank cavalry dives past the enemy front into its archers
+ok 36 - flank cavalry dives past the enemy front into its archers
+  ---
+  duration_ms: 1.273691
+  type: 'test'
+  ...
+# Subtest: an empty front line is filled from the flank and ranged units
+ok 37 - an empty front line is filled from the flank and ranged units
+  ---
+  duration_ms: 1.772187
+  type: 'test'
+  ...
+# Subtest: while the wall stands, attacking infantry cannot reach the defenders
+ok 38 - while the wall stands, attacking infantry cannot reach the defenders
+  ---
+  duration_ms: 1.240009
+  type: 'test'
+  ...
+# Subtest: bombers fly over the wall and only air defence can shoot them down
+ok 39 - bombers fly over the wall and only air defence can shoot them down
+  ---
+  duration_ms: 1.461712
+  type: 'test'
+  ...
+# Subtest: the battlefield has air and air-defence slots and deploys them
+ok 40 - the battlefield has air and air-defence slots and deploys them
+  ---
+  duration_ms: 0.437159
+  type: 'test'
+  ...
+# Subtest: diving boats are hard to hit
+ok 41 - diving boats are hard to hit
+  ---
+  duration_ms: 1.791218
+  type: 'test'
+  ...
+# Subtest: the sea has its own battlefield without flanks
+ok 42 - the sea has its own battlefield without flanks
+  ---
+  duration_ms: 0.222944
+  type: 'test'
+  ...
+# Subtest: battles run until a side breaks, not to a fixed round count
+ok 43 - battles run until a side breaks, not to a fixed round count
+  ---
+  duration_ms: 4.429235
+  type: 'test'
+  ...
+# Subtest: archers out of arrows fight hand to hand
+ok 44 - archers out of arrows fight hand to hand
+  ---
+  duration_ms: 1.016638
+  type: 'test'
+  ...
+# Subtest: no side ever loses more troops than it brought (several strikes in one round)
+ok 45 - no side ever loses more troops than it brought (several strikes in one round)
+  ---
+  duration_ms: 1.584225
+  type: 'test'
+  ...
+# Subtest: every building shows at least one effect and each upgrade changes something
+ok 46 - every building shows at least one effect and each upgrade changes something
+  ---
+  duration_ms: 28.52157
+  type: 'test'
+  ...
+# Subtest: divan, saray, kışla give real per-level bonuses
+ok 47 - divan, saray, kışla give real per-level bonuses
+  ---
+  duration_ms: 4.969679
+  type: 'test'
+  ...
+# Subtest: harita: 24 normal city slotu + belediye + kıyı + savunma
+ok 48 - harita: 24 normal city slotu + belediye + kıyı + savunma
+  ---
+  duration_ms: 1.420248
+  type: 'test'
+  ...
+# Subtest: bütün normal city slotları BİREBİR aynı footprint ve yön
+ok 49 - bütün normal city slotları BİREBİR aynı footprint ve yön
+  ---
+  duration_ms: 0.952316
+  type: 'test'
+  ...
+# Subtest: placeBuilding / getEmptySlots / buildingAt
+ok 50 - placeBuilding / getEmptySlots / buildingAt
+  ---
+  duration_ms: 0.536176
+  type: 'test'
+  ...
+# Subtest: moveBuilding: boş slota taşır, doluya/uyumsuza taşımaz
+ok 51 - moveBuilding: boş slota taşır, doluya/uyumsuza taşımaz
+  ---
+  duration_ms: 0.303081
+  type: 'test'
+  ...
+# Subtest: swapBuildings: iki binayı yer değiştirir
+ok 52 - swapBuildings: iki binayı yer değiştirir
+  ---
+  duration_ms: 0.330729
+  type: 'test'
+  ...
+# Subtest: removeBuilding
+ok 53 - removeBuilding
+  ---
+  duration_ms: 0.241539
+  type: 'test'
+  ...
+# Subtest: randomize invaryantı: her normal bina her normal slota geçerli oturur
+ok 54 - randomize invaryantı: her normal bina her normal slota geçerli oturur
+  ---
+  duration_ms: 0.377652
+  type: 'test'
+  ...
+# Subtest: Ikariam-benzeri şehir sunumunda bina global render ölçeği kontrollü kalır
+ok 55 - Ikariam-benzeri şehir sunumunda bina global render ölçeği kontrollü kalır
+  ---
+  duration_ms: 0.876869
+  type: 'test'
+  ...
+# Subtest: dere tepeden denize akar ve hiçbir arsanın avlusundan geçmez
+ok 56 - dere tepeden denize akar ve hiçbir arsanın avlusundan geçmez
+  ---
+  duration_ms: 179.87581
+  type: 'test'
+  ...
+# Subtest: tarlalar arsalara ve dereye binmez
+ok 57 - tarlalar arsalara ve dereye binmez
+  ---
+  duration_ms: 50.076108
+  type: 'test'
+  ...
+# Subtest: çeşmeler suyun üstüne düşmez
+ok 58 - çeşmeler suyun üstüne düşmez
+  ---
+  duration_ms: 0.928691
+  type: 'test'
+  ...
+# Subtest: adaptör: sıralı arsa uzayı (belediye + 24 city + 3 coast)
+ok 59 - adaptör: sıralı arsa uzayı (belediye + 24 city + 3 coast)
+  ---
+  duration_ms: 1.078595
+  type: 'test'
+  ...
+# Subtest: adaptör: belediye index 0, city_hall, çakılı, merkez (50,70)
+ok 60 - adaptör: belediye index 0, city_hall, çakılı, merkez (50,70)
+  ---
+  duration_ms: 0.176234
+  type: 'test'
+  ...
+# Subtest: adaptör: index ↔ slotId gidiş-dönüş tutarlı
+ok 61 - adaptör: index ↔ slotId gidiş-dönüş tutarlı
+  ---
+  duration_ms: 0.227448
+  type: 'test'
+  ...
+# Subtest: adaptör: coast slotları liman bölgesi olarak işaretli
+ok 62 - adaptör: coast slotları liman bölgesi olarak işaretli
+  ---
+  duration_ms: 0.169218
+  type: 'test'
+  ...
+# Subtest: adaptör: yüzde konumlar tekil ve (0,100) aralığında
+ok 63 - adaptör: yüzde konumlar tekil ve (0,100) aralığında
+  ---
+  duration_ms: 0.182808
+  type: 'test'
+  ...
+# Subtest: motor arsaları adaptörle aynı bölge ve sıradadır
+ok 64 - motor arsaları adaptörle aynı bölge ve sıradadır
+  ---
+  duration_ms: 0.141699
+  type: 'test'
+  ...
+# Subtest: göç: eski liman indeksleri (23/24) yeni coast slotuna taşınır, kayıp yok
+ok 65 - göç: eski liman indeksleri (23/24) yeni coast slotuna taşınır, kayıp yok
+  ---
+  duration_ms: 2.418887
+  type: 'test'
+  ...
+# Subtest: göç: yeni düzen kaydı olduğu gibi yeniden yüklenir (idempotent)
+ok 66 - göç: yeni düzen kaydı olduğu gibi yeniden yüklenir (idempotent)
+  ---
+  duration_ms: 1.312448
+  type: 'test'
+  ...
+# Subtest: exhaustive placement: her normal bina her 24 slotta geçerli oturur
+ok 67 - exhaustive placement: her normal bina her 24 slotta geçerli oturur
+  ---
+  duration_ms: 1.688142
+  type: 'test'
+  ...
+# Subtest: scale slottan bağımsız (aynı bina, iki slot -> aynı scale)
+ok 68 - scale slottan bağımsız (aynı bina, iki slot -> aynı scale)
+  ---
+  duration_ms: 0.180186
+  type: 'test'
+  ...
+# Subtest: belediye haritanın geometrik merkezinde ve çakılı
+ok 69 - belediye haritanın geometrik merkezinde ve çakılı
+  ---
+  duration_ms: 0.191428
+  type: 'test'
+  ...
+# Subtest: yol grafiği: bağlı ve geçerli düğümlere işaret ediyor
+ok 70 - yol grafiği: bağlı ve geçerli düğümlere işaret ediyor
+  ---
+  duration_ms: 0.456727
+  type: 'test'
+  ...
+# Subtest: sunum küçülürken gerçek 2x2 footprint sabit kalır
+ok 71 - sunum küçülürken gerçek 2x2 footprint sabit kalır
+  ---
+  duration_ms: 1.074037
+  type: 'test'
+  ...
+# Subtest: yan sokak ana arterden belirgin biçimde daha sessizdir
+ok 72 - yan sokak ana arterden belirgin biçimde daha sessizdir
+  ---
+  duration_ms: 0.348516
+  type: 'test'
+  ...
+# Subtest: Divan seviyesine göre yol malzemesi dört kademede değişir
+ok 73 - Divan seviyesine göre yol malzemesi dört kademede değişir
+  ---
+  duration_ms: 1.142349
+  type: 'test'
+  ...
+# Subtest: ana yol yan yoldan geniştir, kıyı her kademede taş kalır
+ok 74 - ana yol yan yoldan geniştir, kıyı her kademede taş kalır
+  ---
+  duration_ms: 0.455149
+  type: 'test'
+  ...
+# Subtest: taş örgü yoğunluğu belediye geliştikçe artar
+ok 75 - taş örgü yoğunluğu belediye geliştikçe artar
+  ---
+  duration_ms: 0.148734
+  type: 'test'
+  ...
+# Subtest: erken dönem toprak yol sert bordür çizmez; taş yol kademeli belirginleşir
+ok 76 - erken dönem toprak yol sert bordür çizmez; taş yol kademeli belirginleşir
+  ---
+  duration_ms: 0.110685
+  type: 'test'
+  ...
+# Subtest: hedef yoksa görsel yol ağı da yoktur
+ok 77 - hedef yoksa görsel yol ağı da yoktur
+  ---
+  duration_ms: 2.067116
+  type: 'test'
+  ...
+# Subtest: tek kurulu slot için yalnızca graph içindeki bağlantı yolu üretilir
+ok 78 - tek kurulu slot için yalnızca graph içindeki bağlantı yolu üretilir
+  ---
+  duration_ms: 0.375117
+  type: 'test'
+  ...
+# Subtest: ikinci hedef eklemek mevcut yol ağacını bozmaz
+ok 79 - ikinci hedef eklemek mevcut yol ağacını bozmaz
+  ---
+  duration_ms: 0.603253
+  type: 'test'
+  ...
+# Subtest: road clearance includes the prop footprint even when its anchor is outside the lane
+ok 80 - road clearance includes the prop footprint even when its anchor is outside the lane
+  ---
+  duration_ms: 1.378735
+  type: 'test'
+  ...
+# Subtest: quay bends and endpoints remain clear, including object radius
+ok 81 - quay bends and endpoints remain clear, including object radius
+  ---
+  duration_ms: 0.756419
+  type: 'test'
+  ...
+# Subtest: plaza rim rejects props outside the centre but overlapping its stone
+ok 82 - plaza rim rejects props outside the centre but overlapping its stone
+  ---
+  duration_ms: 0.562394
+  type: 'test'
+  ...
+# Subtest: normal play follows the wall clock
+ok 83 - normal play follows the wall clock
+  ---
+  duration_ms: 1.297261
+  type: 'test'
+  ...
+# Subtest: clock set back while the game was closed: game resumes from last seen, not earlier
+ok 84 - clock set back while the game was closed: game resumes from last seen, not earlier
+  ---
+  duration_ms: 0.276829
+  type: 'test'
+  ...
+# Subtest: clock set back while playing: only real elapsed time counts, never backwards
+ok 85 - clock set back while playing: only real elapsed time counts, never backwards
+  ---
+  duration_ms: 0.19737
+  type: 'test'
+  ...
+# Subtest: forward jump (or phone sleep) passes through; the offline cap limits its gain
+ok 86 - forward jump (or phone sleep) passes through; the offline cap limits its gain
+  ---
+  duration_ms: 0.233304
+  type: 'test'
+  ...
+# Subtest: legacy v3 single-city save migrates without losing buildings, placement, army or resources
+ok 87 - legacy v3 single-city save migrates without losing buildings, placement, army or resources
+  ---
+  duration_ms: 5.704626
+  type: 'test'
+  ...
+# Subtest: new island requires palace, harbour, ships and actual capital resources
+ok 88 - new island requires palace, harbour, ships and actual capital resources
+  ---
+  duration_ms: 3.399611
+  type: 'test'
+  ...
+# Subtest: colonies are independent playable cities; each island holds at most one city
+ok 89 - colonies are independent playable cities; each island holds at most one city
+  ---
+  duration_ms: 4.530239
+  type: 'test'
+  ...
+# Subtest: one sender cannot use the same ships twice; cargo debits only sender
+ok 90 - one sender cannot use the same ships twice; cargo debits only sender
+  ---
+  duration_ms: 5.233288
+  type: 'test'
+  ...
+# Subtest: full destination stores cargo in the harbour instead of deleting it
+ok 91 - full destination stores cargo in the harbour instead of deleting it
+  ---
+  duration_ms: 1.788653
+  type: 'test'
+  ...
+# Subtest: invalid multi-city payload never replaces the stored city with a guessed one
+ok 92 - invalid multi-city payload never replaces the stored city with a guessed one
+  ---
+  duration_ms: 1.341751
+  type: 'test'
+  ...
+# Subtest: a colony mines its own island luxury and can ship it home
+ok 93 - a colony mines its own island luxury and can ship it home
+  ---
+  duration_ms: 2.194047
+  type: 'test'
+  ...
+# Subtest: 0.42 göçü: yoldaki taş ve ilim sahibine döner, taş takasları düşer
+ok 94 - 0.42 göçü: yoldaki taş ve ilim sahibine döner, taş takasları düşer
+  ---
+  duration_ms: 2.100673
+  type: 'test'
+  ...
+# Subtest: production uses elapsed time and never exceeds storage capacity
+ok 95 - production uses elapsed time and never exceeds storage capacity
+  ---
+  duration_ms: 7.324273
+  type: 'test'
+  ...
+# Subtest: insufficient resources and prerequisites prevent construction
+ok 96 - insufficient resources and prerequisites prevent construction
+  ---
+  duration_ms: 1.846478
+  type: 'test'
+  ...
+# Subtest: double action charges only once and completion applies once
+ok 97 - double action charges only once and completion applies once
+  ---
+  duration_ms: 1.944059
+  type: 'test'
+  ...
+# Subtest: offline upgrade uses old production before completion and new rate after
+ok 98 - offline upgrade uses old production before completion and new rate after
+  ---
+  duration_ms: 0.749644
+  type: 'test'
+  ...
+# Subtest: research requires academy and applies production bonus once
+ok 99 - research requires academy and applies production bonus once
+  ---
+  duration_ms: 0.966176
+  type: 'test'
+  ...
+# Subtest: independent queues process events chronologically
+ok 100 - independent queues process events chronologically
+  ---
+  duration_ms: 1.719032
+  type: 'test'
+  ...
+# Subtest: storage and architecture research change real mechanics
+ok 101 - storage and architecture research change real mechanics
+  ---
+  duration_ms: 0.267663
+  type: 'test'
+  ...
+# Subtest: objective rewards cannot be claimed early or twice
+ok 102 - objective rewards cannot be claimed early or twice
+  ---
+  duration_ms: 0.538857
+  type: 'test'
+  ...
+# Subtest: offline production stops at the offline cap (8 h + 1 h per Ambar level) even for non-full resources
+ok 103 - offline production stops at the offline cap (8 h + 1 h per Ambar level) even for non-full resources
+  ---
+  duration_ms: 0.467838
+  type: 'test'
+  ...
+# Subtest: save validation rejects malformed saves without silently losing data
+ok 104 - save validation rejects malformed saves without silently losing data
+  ---
+  duration_ms: 2.554278
+  type: 'test'
+  ...
+# Subtest: coast facing defaults straight, persists, and migrates legacy coast flips
+ok 105 - coast facing defaults straight, persists, and migrates legacy coast flips
+  ---
+  duration_ms: 0.982057
+  type: 'test'
+  ...
+# Subtest: legacy flip command no longer conflicts with coast facing
+ok 106 - legacy flip command no longer conflicts with coast facing
+  ---
+  duration_ms: 0.283723
+  type: 'test'
+  ...
+# Subtest: uretim isci sayisiyla orantilidir
+ok 107 - uretim isci sayisiyla orantilidir
+  ---
+  duration_ms: 0.224455
+  type: 'test'
+  ...
+# Subtest: isci atamasi kapasite ve nufusla sinirlidir
+ok 108 - isci atamasi kapasite ve nufusla sinirlidir
+  ---
+  duration_ms: 0.524271
+  type: 'test'
+  ...
+# Subtest: nufus dolunca yeni atama bostaki halkla sinirlanir
+ok 109 - nufus dolunca yeni atama bostaki halkla sinirlanir
+  ---
+  duration_ms: 0.228405
+  type: 'test'
+  ...
+# Subtest: yukseltme biten uretim yapisina bosta halk KENDILIGINDEN gider
+ok 110 - yukseltme biten uretim yapisina bosta halk KENDILIGINDEN gider
+  ---
+  duration_ms: 2.005854
+  type: 'test'
+  ...
+# Subtest: yeni yapi BOS bir arsaya oturur, ayni arsaya iki yapi girmez
+ok 111 - yeni yapi BOS bir arsaya oturur, ayni arsaya iki yapi girmez
+  ---
+  duration_ms: 0.965896
+  type: 'test'
+  ...
+# Subtest: arsalar gecerli ve tekil; bolgeler tanimli
+ok 112 - arsalar gecerli ve tekil; bolgeler tanimli
+  ---
+  duration_ms: 0.700605
+  type: 'test'
+  ...
+# Subtest: surlar arsa kaplamaz
+ok 113 - surlar arsa kaplamaz
+  ---
+  duration_ms: 1.169203
+  type: 'test'
+  ...
+# Subtest: yapi kendi bolgesine kurulur
+ok 114 - yapi kendi bolgesine kurulur
+  ---
+  duration_ms: 0.589134
+  type: 'test'
+  ...
+# Subtest: yeni bina eklemek yalnizca katalog satiri ister
+ok 115 - yeni bina eklemek yalnizca katalog satiri ister
+  ---
+  duration_ms: 0.49756
+  type: 'test'
+  ...
+# Subtest: v1 kaydi guncel surume tasinir: yerlesim, isciler ve sira turetilir
+ok 116 - v1 kaydi guncel surume tasinir: yerlesim, isciler ve sira turetilir
+  ---
+  duration_ms: 0.716071
+  type: 'test'
+  ...
+# Subtest: cakisan yerlesim onarilir, sehir silinmez
+ok 117 - cakisan yerlesim onarilir, sehir silinmez
+  ---
+  duration_ms: 0.411446
+  type: 'test'
+  ...
+# Subtest: arsa listesi disina dusen yapi bos bir arsaya tasinir
+ok 118 - arsa listesi disina dusen yapi bos bir arsaya tasinir
+  ---
+  duration_ms: 0.325381
+  type: 'test'
+  ...
+# Subtest: gercekten okunamayan kayit yine reddedilir
+ok 119 - gercekten okunamayan kayit yine reddedilir
+  ---
+  duration_ms: 0.967339
+  type: 'test'
+  ...
+# Subtest: kayittaki asiri isci sayisi budanir
+ok 120 - kayittaki asiri isci sayisi budanir
+  ---
+  duration_ms: 0.428506
+  type: 'test'
+  ...
+# Subtest: carsi akceyi ISCIYLE uretir; iscisizken hazineye katki vermez
+ok 121 - carsi akceyi ISCIYLE uretir; iscisizken hazineye katki vermez
+  ---
+  duration_ms: 0.371543
+  type: 'test'
+  ...
+# Subtest: katalogda YENI yapi olan eski kayit bozulmadan yuklenir
+ok 122 - katalogda YENI yapi olan eski kayit bozulmadan yuklenir
+  ---
+  duration_ms: 0.905666
+  type: 'test'
+  ...
+# Subtest: dolu ambar bildirilir; dolmaya yakin olan ayri sayilir
+ok 123 - dolu ambar bildirilir; dolmaya yakin olan ayri sayilir
+  ---
+  duration_ms: 0.3536
+  type: 'test'
+  ...
+# Subtest: dolu ambarda uretim GERCEKTEN bosa gider - uyarinin sebebi budur
+ok 124 - dolu ambarda uretim GERCEKTEN bosa gider - uyarinin sebebi budur
+  ---
+  duration_ms: 0.278486
+  type: 'test'
+  ...
+# Subtest: sirada bekleyen isin sayaci oncekinin bitisinde baslar
+ok 125 - sirada bekleyen isin sayaci oncekinin bitisinde baslar
+  ---
+  duration_ms: 0.243624
+  type: 'test'
+  ...
+# Subtest: sira sinirlidir ve ayni yapi iki kez giremez
+ok 126 - sira sinirlidir ve ayni yapi iki kez giremez
+  ---
+  duration_ms: 0.448462
+  type: 'test'
+  ...
+# Subtest: sira SIRAYLA tamamlanir; arada kalan is bekler
+ok 127 - sira SIRAYLA tamamlanir; arada kalan is bekler
+  ---
+  duration_ms: 1.474679
+  type: 'test'
+  ...
+# Subtest: v2 kaydindaki devam eden insaat siraya donusur
+ok 128 - v2 kaydindaki devam eden insaat siraya donusur
+  ---
+  duration_ms: 1.119737
+  type: 'test'
+  ...
+# Subtest: oyunun basinda huzur nufusu KISITLAMAZ
+ok 129 - oyunun basinda huzur nufusu KISITLAMAZ
+  ---
+  duration_ms: 0.322695
+  type: 'test'
+  ...
+# Subtest: Konaklar yukselince huzur tavan olur; Hamam tavani kaldirir
+ok 130 - Konaklar yukselince huzur tavan olur; Hamam tavani kaldirir
+  ---
+  duration_ms: 0.144293
+  type: 'test'
+  ...
+# Subtest: isci tavanini belirleyen sey barinma degil HUZURDUR
+ok 131 - isci tavanini belirleyen sey barinma degil HUZURDUR
+  ---
+  duration_ms: 0.38036
+  type: 'test'
+  ...
+# Subtest: INSAAT HALINDEKI yeni yapi kaydi bozmaz
+ok 132 - INSAAT HALINDEKI yeni yapi kaydi bozmaz
+  ---
+  duration_ms: 3.387233
+  type: 'test'
+  ...
+# Subtest: arsasi olan ama ne kurulu ne sirada olan yapi reddedilir
+ok 133 - arsasi olan ama ne kurulu ne sirada olan yapi reddedilir
+  ---
+  duration_ms: 0.500903
+  type: 'test'
+  ...
+# Subtest: asker egitimi kisla ve bosta halk ister
+ok 134 - asker egitimi kisla ve bosta halk ister
+  ---
+  duration_ms: 1.048771
+  type: 'test'
+  ...
+# Subtest: egitim emri vatandasi ANINDA ayirir, bitince ikinci kez ayirmaz
+ok 135 - egitim emri vatandasi ANINDA ayirir, bitince ikinci kez ayirmaz
+  ---
+  duration_ms: 2.921367
+  type: 'test'
+  ...
+# Subtest: asker isci kapasitesini daraltir
+ok 136 - asker isci kapasitesini daraltir
+  ---
+  duration_ms: 0.685574
+  type: 'test'
+  ...
+# Subtest: egitim maliyeti bir kez alinir; ayni yapidaki emirler sirayla yurur
+ok 137 - egitim maliyeti bir kez alinir; ayni yapidaki emirler sirayla yurur
+  ---
+  duration_ms: 2.341176
+  type: 'test'
+  ...
+# Subtest: birlik ve bina on kosullari
+ok 138 - birlik ve bina on kosullari
+  ---
+  duration_ms: 0.929536
+  type: 'test'
+  ...
+# Subtest: savunma surlardan ve kara birliklerinden gelir
+ok 139 - savunma surlardan ve kara birliklerinden gelir
+  ---
+  duration_ms: 0.942887
+  type: 'test'
+  ...
+# Subtest: ordu kaydedilir; ordusuz eski kayit da okunur
+ok 140 - ordu kaydedilir; ordusuz eski kayit da okunur
+  ---
+  duration_ms: 5.979378
+  type: 'test'
+  ...
+# Subtest: nufusun besleyemedigi ordu kaydi reddedilir
+ok 141 - nufusun besleyemedigi ordu kaydi reddedilir
+  ---
+  duration_ms: 1.230754
+  type: 'test'
+  ...
+# Subtest: yuzde -> dunya cevrimi tek yerden ve tutarli
+ok 142 - yuzde -> dunya cevrimi tek yerden ve tutarli
+  ---
+  duration_ms: 0.397231
+  type: 'test'
+  ...
+# Subtest: zemin geometrisi: arsalar dolulugu bilir, sur yalnizca izgarada cizilir
+ok 143 - zemin geometrisi: arsalar dolulugu bilir, sur yalnizca izgarada cizilir
+  ---
+  duration_ms: 1.888979
+  type: 'test'
+  ...
+# Subtest: bina karonun uzerine oturur
+ok 144 - bina karonun uzerine oturur
+  ---
+  duration_ms: 0.534616
+  type: 'test'
+  ...
+# Subtest: gorsel imza yalnizca GORUNEN degisiklikte degisir
+ok 145 - gorsel imza yalnizca GORUNEN degisiklikte degisir
+  ---
+  duration_ms: 0.598363
+  type: 'test'
+  ...
+# Subtest: belediye merkez arsada cakili baslar; yollari oyuncu doser
+ok 146 - belediye merkez arsada cakili baslar; yollari oyuncu doser
+  ---
+  duration_ms: 2.544459
+  type: 'test'
+  ...
+# Subtest: kurulu bina bos arsaya tasinir; dolu arsa reddedilir
+ok 147 - kurulu bina bos arsaya tasinir; dolu arsa reddedilir
+  ---
+  duration_ms: 0.619506
+  type: 'test'
+  ...
+# Subtest: bina yatayda aynalanir (flip); kayitta korunur
+ok 148 - bina yatayda aynalanir (flip); kayitta korunur
+  ---
+  duration_ms: 0.773201
+  type: 'test'
+  ...
+# Subtest: liman ve tersane denizin kenarindaki iskeleye kurulur
+ok 149 - liman ve tersane denizin kenarindaki iskeleye kurulur
+  ---
+  duration_ms: 1.557719
+  type: 'test'
+  ...
+# Subtest: pushError keeps the newest first, folds repeats and caps the list
+ok 150 - pushError keeps the newest first, folds repeats and caps the list
+  ---
+  duration_ms: 1.614929
+  type: 'test'
+  ...
+# Subtest: parseErrors survives broken storage
+ok 151 - parseErrors survives broken storage
+  ---
+  duration_ms: 0.357883
+  type: 'test'
+  ...
+# Subtest: errorReport is plain text with version and entries
+ok 152 - errorReport is plain text with version and entries
+  ---
+  duration_ms: 1.357009
+  type: 'test'
+  ...
+# Subtest: the calendar rotates weekly over a six-week cycle and is quiet before it starts
+ok 153 - the calendar rotates weekly over a six-week cycle and is quiet before it starts
+  ---
+  duration_ms: 1.536798
+  type: 'test'
+  ...
+# Subtest: each event has its effect only in its own week
+ok 154 - each event has its effect only in its own week
+  ---
+  duration_ms: 0.368806
+  type: 'test'
+  ...
+# Subtest: changes between two moments announce starts and ends; long absences keep only recent ones
+ok 155 - changes between two moments announce starts and ends; long absences keep only recent ones
+  ---
+  duration_ms: 1.437253
+  type: 'test'
+  ...
+# Subtest: crossing a week boundary writes the event into the city log and world news
+ok 156 - crossing a week boundary writes the event into the city log and world news
+  ---
+  duration_ms: 138.952894
+  type: 'test'
+  ...
+# Subtest: every island has three independent settlements
+ok 157 - every island has three independent settlements
+  ---
+  duration_ms: 2.155889
+  type: 'test'
+  ...
+# Subtest: spies need an embassy and are capped by its level
+ok 158 - spies need an embassy and are capped by its level
+  ---
+  duration_ms: 2.144649
+  type: 'test'
+  ...
+# Subtest: spies infiltrate, stay, run missions and come home when recalled
+ok 159 - spies infiltrate, stay, run missions and come home when recalled
+  ---
+  duration_ms: 15.153561
+  type: 'test'
+  ...
+# Subtest: a strong army takes the village and brings loot home
+ok 160 - a strong army takes the village and brings loot home
+  ---
+  duration_ms: 10.489827
+  type: 'test'
+  ...
+# Subtest: a weak army is repulsed by a fortress and brings nothing back
+ok 161 - a weak army is repulsed by a fortress and brings nothing back
+  ---
+  duration_ms: 3.788107
+  type: 'test'
+  ...
+# Subtest: targets on another island need a harbour and transports
+ok 162 - targets on another island need a harbour and transports
+  ---
+  duration_ms: 0.450738
+  type: 'test'
+  ...
+# Subtest: spies and an army may head to the same target at once, but not two armies
+ok 163 - spies and an army may head to the same target at once, but not two armies
+  ---
+  duration_ms: 1.775291
+  type: 'test'
+  ...
+# Subtest: action points cap how many missions a city runs at once
+ok 164 - action points cap how many missions a city runs at once
+  ---
+  duration_ms: 1.919712
+  type: 'test'
+  ...
+# Subtest: the guided first ten minutes end with the first expedition on its way
+ok 165 - the guided first ten minutes end with the first expedition on its way
+  ---
+  duration_ms: 27.363697
+  type: 'test'
+  ...
+# Subtest: the guided path covers the wall foundation, first worker, first research and first expedition
+ok 166 - the guided path covers the wall foundation, first worker, first research and first expedition
+  ---
+  duration_ms: 0.361179
+  type: 'test'
+  ...
+# Subtest: ticaret gemisi satın alınır, fiyatı her gemiyle artar, eğitilemez
+ok 167 - ticaret gemisi satın alınır, fiyatı her gemiyle artar, eğitilemez
+  ---
+  duration_ms: 7.12266
+  type: 'test'
+  ...
+# Subtest: filo ortaktır: koloni başkentin gemileriyle nakliye yapar, yükteki gemiler boşta sayılmaz
+ok 168 - filo ortaktır: koloni başkentin gemileriyle nakliye yapar, yükteki gemiler boşta sayılmaz
+  ---
+  duration_ms: 7.44679
+  type: 'test'
+  ...
+# Subtest: başkent taşınır; koloni terk edilir ve gemileri filoda kalır
+ok 169 - başkent taşınır; koloni terk edilir ve gemileri filoda kalır
+  ---
+  duration_ms: 11.372466
+  type: 'test'
+  ...
+# Subtest: şehir nişanı Divanhane seviyesiyle açılır ve kaydedilir
+ok 170 - şehir nişanı Divanhane seviyesiyle açılır ve kaydedilir
+  ---
+  duration_ms: 1.516808
+  type: 'test'
+  ...
+# Subtest: formatRate rounds rates for display in Turkish
+ok 171 - formatRate rounds rates for display in Turkish
+  ---
+  duration_ms: 25.144842
+  type: 'test'
+  ...
+# Subtest: formatShort never exceeds five characters and never rounds up
+ok 172 - formatShort never exceeds five characters and never rounds up
+  ---
+  duration_ms: 1.772403
+  type: 'test'
+  ...
+# Subtest: groupLog folds consecutive repeats for display
+ok 173 - groupLog folds consecutive repeats for display
+  ---
+  duration_ms: 0.912686
+  type: 'test'
+  ...
+# Subtest: every building effect label has an explanation
+ok 174 - every building effect label has an explanation
+  ---
+  duration_ms: 37.431052
+  type: 'test'
+  ...
+# Subtest: battlefield rows, unit roles and treasury rows are explained
+ok 175 - battlefield rows, unit roles and treasury rows are explained
+  ---
+  duration_ms: 0.289845
+  type: 'test'
+  ...
+# Subtest: lookup ignores case and surrounding space
+ok 176 - lookup ignores case and surrounding space
+  ---
+  duration_ms: 0.17341
+  type: 'test'
+  ...
+# Subtest: the temple gathers favour, offerings add more, and the patron god blesses the city
+ok 177 - the temple gathers favour, offerings add more, and the patron god blesses the city
+  ---
+  duration_ms: 10.76688
+  type: 'test'
+  ...
+# Subtest: invoking a power spends favour and rests the god; timed powers buff the army
+ok 178 - invoking a power spends favour and rests the god; timed powers buff the army
+  ---
+  duration_ms: 1.643251
+  type: 'test'
+  ...
+# Subtest: Kayra halves the running construction; Tengri pours an hour of production
+ok 179 - Kayra halves the running construction; Tengri pours an hour of production
+  ---
+  duration_ms: 1.836513
+  type: 'test'
+  ...
+# Subtest: Erlik's dread thins out a raid before it reaches the gates
+ok 180 - Erlik's dread thins out a raid before it reaches the gates
+  ---
+  duration_ms: 10.046753
+  type: 'test'
+  ...
+# Subtest: kahvehane, cami and müze raise contentment per level
+ok 181 - kahvehane, cami and müze raise contentment per level
+  ---
+  duration_ms: 3.06552
+  type: 'test'
+  ...
+# Subtest: kahvehane pours wine for extra contentment and does not cost akçe
+ok 182 - kahvehane pours wine for extra contentment and does not cost akçe
+  ---
+  duration_ms: 1.338364
+  type: 'test'
+  ...
+# Subtest: marangoz and mimar cut wood and marble costs by 1% per level
+ok 183 - marangoz and mimar cut wood and marble costs by 1% per level
+  ---
+  duration_ms: 0.772403
+  type: 'test'
+  ...
+# Subtest: ormancı boosts wood by 2% per level
+ok 184 - ormancı boosts wood by 2% per level
+  ---
+  duration_ms: 0.667046
+  type: 'test'
+  ...
+# Subtest: tophane strengthens every unit
+ok 185 - tophane strengthens every unit
+  ---
+  duration_ms: 0.827518
+  type: 'test'
+  ...
+# Subtest: new buildings have prerequisites and old saves load with them unbuilt
+ok 186 - new buildings have prerequisites and old saves load with them unbuilt
+  ---
+  duration_ms: 2.849716
+  type: 'test'
+  ...
+# Subtest: a siege is fought one round per minute and reported only when it ends
+ok 187 - a siege is fought one round per minute and reported only when it ends
+  ---
+  duration_ms: 21.457176
+  type: 'test'
+  ...
+# Subtest: a second army from the same city joins a running battle as reinforcement
+ok 188 - a second army from the same city joins a running battle as reinforcement
+  ---
+  duration_ms: 3.088085
+  type: 'test'
+  ...
+# Subtest: an army can retreat between rounds and comes home without loot
+ok 189 - an army can retreat between rounds and comes home without loot
+  ---
+  duration_ms: 4.167455
+  type: 'test'
+  ...
+# Subtest: soldiers who finish training during a siege join the defence
+ok 190 - soldiers who finish training during a siege join the defence
+  ---
+  duration_ms: 5.402775
+  type: 'test'
+  ...
+# Subtest: the garrison limit caps land troops by Divanhane and walls, ships by the shipyard
+ok 191 - the garrison limit caps land troops by Divanhane and walls, ships by the shipyard
+  ---
+  duration_ms: 1.192906
+  type: 'test'
+  ...
+# Subtest: troops can be stationed in an allied city and defend it
+ok 192 - troops can be stationed in an allied city and defend it
+  ---
+  duration_ms: 30.671605
+  type: 'test'
+  ...
+# Subtest: barracks and shipyard train side by side
+ok 193 - barracks and shipyard train side by side
+  ---
+  duration_ms: 4.67636
+  type: 'test'
+  ...
+# Subtest: the Ahi lodge gathers himmet; devoted guilds under patronage give their bonus
+ok 194 - the Ahi lodge gathers himmet; devoted guilds under patronage give their bonus
+  ---
+  duration_ms: 7.187535
+  type: 'test'
+  ...
+# Subtest: logKind sorts log lines into icon groups
+ok 195 - logKind sorts log lines into icon groups
+  ---
+  duration_ms: 1.972207
+  type: 'test'
+  ...
+# Subtest: dayGroups splits by calendar day, newest first
+ok 196 - dayGroups splits by calendar day, newest first
+  ---
+  duration_ms: 23.146684
+  type: 'test'
+  ...
+# Subtest: a new city starts on a marble island with an empty luxury store
+ok 197 - a new city starts on a marble island with an empty luxury store
+  ---
+  duration_ms: 2.822319
+  type: 'test'
+  ...
+# Subtest: miners extract only the island specialty and come from idle citizens
+ok 198 - miners extract only the island specialty and come from idle citizens
+  ---
+  duration_ms: 5.408888
+  type: 'test'
+  ...
+# Subtest: wood donations level the mine and raise its worker capacity
+ok 199 - wood donations level the mine and raise its worker capacity
+  ---
+  duration_ms: 0.737533
+  type: 'test'
+  ...
+# Subtest: kahvehane drinks wine; when the store runs dry the bonus disappears
+ok 200 - kahvehane drinks wine; when the store runs dry the bonus disappears
+  ---
+  duration_ms: 1.179662
+  type: 'test'
+  ...
+# Subtest: advanced buildings need marble, science buildings crystal
+ok 201 - advanced buildings need marble, science buildings crystal
+  ---
+  duration_ms: 1.716167
+  type: 'test'
+  ...
+# Subtest: heavy units need sulfur
+ok 202 - heavy units need sulfur
+  ---
+  duration_ms: 1.367281
+  type: 'test'
+  ...
+# Subtest: the bazaar merchant buys and sells luxury goods for akçe
+ok 203 - the bazaar merchant buys and sells luxury goods for akçe
+  ---
+  duration_ms: 1.153831
+  type: 'test'
+  ...
+# Subtest: old saves without luxury load with an empty store and a level 1 marble mine
+ok 204 - old saves without luxury load with an empty store and a level 1 marble mine
+  ---
+  duration_ms: 3.167802
+  type: 'test'
+  ...
+# Subtest: milestones unlock from game state, pay once and survive the save
+ok 205 - milestones unlock from game state, pay once and survive the save
+  ---
+  duration_ms: 9.866152
+  type: 'test'
+  ...
+# Subtest: overseas raids load troops onto transports and sail longer
+ok 206 - overseas raids load troops onto transports and sail longer
+  ---
+  duration_ms: 14.008127
+  type: 'test'
+  ...
+# Subtest: a pirate fleet blocks an unescorted landing; warships clear the coast
+ok 207 - a pirate fleet blocks an unescorted landing; warships clear the coast
+  ---
+  duration_ms: 7.000801
+  type: 'test'
+  ...
+# Subtest: pirate fortress missions capture merchant ships for gold and fame
+ok 208 - pirate fortress missions capture merchant ships for gold and fame
+  ---
+  duration_ms: 7.111601
+  type: 'test'
+  ...
+# Subtest: pirates raid cities past beginner protection, with a warning first
+ok 209 - pirates raid cities past beginner protection, with a warning first
+  ---
+  duration_ms: 5.771944
+  type: 'test'
+  ...
+# Subtest: walls and soldiers repel the raid and earn a bounty
+ok 210 - walls and soldiers repel the raid and earn a bounty
+  ---
+  duration_ms: 4.021292
+  type: 'test'
+  ...
+# Subtest: the plan covers a finished build, a returning army, a raid warning and a full warehouse
+ok 211 - the plan covers a finished build, a returning army, a raid warning and a full warehouse
+  ---
+  duration_ms: 7.423495
+  type: 'test'
+  ...
+# Subtest: each kind can be switched off on its own and ids stay stable
+ok 212 - each kind can be switched off on its own and ids stay stable
+  ---
+  duration_ms: 2.410137
+  type: 'test'
+  ...
+# Subtest: a raid that is already closer than ten minutes is not scheduled (the game warns in-app)
+ok 213 - a raid that is already closer than ten minutes is not scheduled (the game warns in-app)
+  ---
+  duration_ms: 0.893031
+  type: 'test'
+  ...
+# Subtest: the pace bot keeps growing the city: curves never fall and more logins mean faster growth
+ok 214 - the pace bot keeps growing the city: curves never fall and more logins mean faster growth
+  ---
+  duration_ms: 1877.986014
+  type: 'test'
+  ...
+# Subtest: government forms change the city after a short anarchy
+ok 215 - government forms change the city after a short anarchy
+  ---
+  duration_ms: 6.158134
+  type: 'test'
+  ...
+# Subtest: island forest takes workers, grows with donations and yields wood
+ok 216 - island forest takes workers, grows with donations and yields wood
+  ---
+  duration_ms: 1.010572
+  type: 'test'
+  ...
+# Subtest: tavern serving level trades wine for contentment
+ok 217 - tavern serving level trades wine for contentment
+  ---
+  duration_ms: 0.637615
+  type: 'test'
+  ...
+# Subtest: demolishing lowers a level and frees the plot at zero
+ok 218 - demolishing lowers a level and frees the plot at zero
+  ---
+  duration_ms: 0.876378
+  type: 'test'
+  ...
+# Subtest: demolishing completely razes every level at once
+ok 219 - demolishing completely razes every level at once
+  ---
+  duration_ms: 0.367759
+  type: 'test'
+  ...
+# Subtest: new research has real effects
+ok 220 - new research has real effects
+  ---
+  duration_ms: 0.607734
+  type: 'test'
+  ...
+# Subtest: new units need their research
+ok 221 - new units need their research
+  ---
+  duration_ms: 0.45732
+  type: 'test'
+  ...
+# Subtest: ranged units run out of ammunition after three rounds
+ok 222 - ranged units run out of ammunition after three rounds
+  ---
+  duration_ms: 4.428403
+  type: 'test'
+  ...
+# Subtest: troops move between own cities and only as many as fit
+ok 223 - troops move between own cities and only as many as fit
+  ---
+  duration_ms: 11.510985
+  type: 'test'
+  ...
+# Subtest: cities can be renamed
+ok 224 - cities can be renamed
+  ---
+  duration_ms: 1.114415
+  type: 'test'
+  ...
+# Subtest: daily tasks and login streak pay out once
+ok 225 - daily tasks and login streak pay out once
+  ---
+  duration_ms: 20.535277
+  type: 'test'
+  ...
+# Subtest: population grows toward its ceiling over time instead of jumping
+ok 226 - population grows toward its ceiling over time instead of jumping
+  ---
+  duration_ms: 4.307306
+  type: 'test'
+  ...
+# Subtest: old saves without citizens start at the ceiling
+ok 227 - old saves without citizens start at the ceiling
+  ---
+  duration_ms: 1.615384
+  type: 'test'
+  ...
+# Subtest: priests gather faith and call the island wonder miracle
+ok 228 - priests gather faith and call the island wonder miracle
+  ---
+  duration_ms: 3.066009
+  type: 'test'
+  ...
+# Subtest: colonies take their island wonder
+ok 229 - colonies take their island wonder
+  ---
+  duration_ms: 3.153738
+  type: 'test'
+  ...
+# Subtest: Tophane upgrades raise one unit type
+ok 230 - Tophane upgrades raise one unit type
+  ---
+  duration_ms: 0.695233
+  type: 'test'
+  ...
+# Subtest: future research repeats after a branch is complete
+ok 231 - future research repeats after a branch is complete
+  ---
+  duration_ms: 1.147412
+  type: 'test'
+  ...
+# Subtest: black market exchanges any good at a loss
+ok 232 - black market exchanges any good at a loss
+  ---
+  duration_ms: 1.107003
+  type: 'test'
+  ...
+# Subtest: founding needs an embassy and a valid name and tag
+ok 233 - founding needs an embassy and a valid name and tag
+  ---
+  duration_ms: 9.254127
+  type: 'test'
+  ...
+# Subtest: rivals join only with enough goodwill and up to the embassy cap
+ok 234 - rivals join only with enough goodwill and up to the embassy cap
+  ---
+  duration_ms: 3.396889
+  type: 'test'
+  ...
+# Subtest: ranks are unique, the general doubles the defence help
+ok 235 - ranks are unique, the general doubles the defence help
+  ---
+  duration_ms: 2.464996
+  type: 'test'
+  ...
+# Subtest: circulars get replies, have a cooldown and are read
+ok 236 - circulars get replies, have a cooldown and are read
+  ---
+  duration_ms: 3.645763
+  type: 'test'
+  ...
+# Subtest: stances, rankings, kicking and disbanding; the save round-trips
+ok 237 - stances, rankings, kicking and disbanding; the save round-trips
+  ---
+  duration_ms: 32.124396
+  type: 'test'
+  ...
+# Subtest: public page, internal notice and custom rank titles are saved and validated
+ok 238 - public page, internal notice and custom rank titles are saved and validated
+  ---
+  duration_ms: 2.677574
+  type: 'test'
+  ...
+# Subtest: weekly alliance goals: three per week, progress from play, reward once
+ok 239 - weekly alliance goals: three per week, progress from play, reward once
+  ---
+  duration_ms: 2.482081
+  type: 'test'
+  ...
+# Subtest: every unit has a battlefield role, hit points and upkeep
+ok 240 - every unit has a battlefield role, hit points and upkeep
+  ---
+  duration_ms: 0.943548
+  type: 'test'
+  ...
+# Subtest: units cost upkeep every minute
+ok 241 - units cost upkeep every minute
+  ---
+  duration_ms: 1.560392
+  type: 'test'
+  ...
+# Subtest: new buildings and units are locked behind research like Ikariam
+ok 242 - new buildings and units are locked behind research like Ikariam
+  ---
+  duration_ms: 0.928776
+  type: 'test'
+  ...
+# Subtest: palace only in the capital, governor residence only in colonies
+ok 243 - palace only in the capital, governor residence only in colonies
+  ---
+  duration_ms: 0.235175
+  type: 'test'
+  ...
+# Subtest: colonies suffer corruption until the governor residence catches up
+ok 244 - colonies suffer corruption until the governor residence catches up
+  ---
+  duration_ms: 4.032925
+  type: 'test'
+  ...
+# Subtest: production boosters, cost reducers, dump and trading post
+ok 245 - production boosters, cost reducers, dump and trading post
+  ---
+  duration_ms: 0.659177
+  type: 'test'
+  ...
+# Subtest: the ruler can name themselves, pick a crest and a motto; bad input is refused
+ok 246 - the ruler can name themselves, pick a crest and a motto; bad input is refused
+  ---
+  duration_ms: 9.960372
+  type: 'test'
+  ...
+# Subtest: titles rise with score and ranks cover the whole table
+ok 247 - titles rise with score and ranks cover the whole table
+  ---
+  duration_ms: 10.867907
+  type: 'test'
+  ...
+# Subtest: achievements are computed from the save
+ok 248 - achievements are computed from the save
+  ---
+  duration_ms: 1.158168
+  type: 'test'
+  ...
+# Subtest: the changelog runs from 0.1.0 to the current version, newest first
+ok 249 - the changelog runs from 0.1.0 to the current version, newest first
+  ---
+  duration_ms: 0.311258
+  type: 'test'
+  ...
+# Subtest: expanded heraldry survives save reload while old choices remain supported
+ok 250 - expanded heraldry survives save reload while old choices remain supported
+  ---
+  duration_ms: 71.477813
+  type: 'test'
+  ...
+# Subtest: rivalHeraldry is stable, matches style and never repeats a crest+colour pair
+ok 251 - rivalHeraldry is stable, matches style and never repeats a crest+colour pair
+  ---
+  duration_ms: 2.962076
+  type: 'test'
+  ...
+# Subtest: gridToScreen: merkez hucre orijinde, komsu hucreler elmas yonlerde
+ok 252 - gridToScreen: merkez hucre orijinde, komsu hucreler elmas yonlerde
+  ---
+  duration_ms: 1.747032
+  type: 'test'
+  ...
+# Subtest: screenToGrid, gridToScreen tersidir
+ok 253 - screenToGrid, gridToScreen tersidir
+  ---
+  duration_ms: 0.297191
+  type: 'test'
+  ...
+# Subtest: tileDiamond: dort kose, 2:1 elmas
+ok 254 - tileDiamond: dort kose, 2:1 elmas
+  ---
+  duration_ms: 0.47756
+  type: 'test'
+  ...
+# Subtest: gridBounds: 14x14 elmas genis (2:1) ve simetrik
+ok 255 - gridBounds: 14x14 elmas genis (2:1) ve simetrik
+  ---
+  duration_ms: 0.303475
+  type: 'test'
+  ...
+# Subtest: isoDepth: onedeki hucre arkadan buyuk deger alir
+ok 256 - isoDepth: onedeki hucre arkadan buyuk deger alir
+  ---
+  duration_ms: 0.143235
+  type: 'test'
+  ...
+# Subtest: ten AI rulers are ranked with the player
+ok 257 - ten AI rulers are ranked with the player
+  ---
+  duration_ms: 11.679345
+  type: 'test'
+  ...
+# Subtest: raiding a ruler loots, angers them and brings a revenge raid
+ok 258 - raiding a ruler loots, angers them and brings a revenge raid
+  ---
+  duration_ms: 28.416903
+  type: 'test'
+  ...
+# Subtest: peace treaty needs good relations and then forbids attacks
+ok 259 - peace treaty needs good relations and then forbids attacks
+  ---
+  duration_ms: 6.522502
+  type: 'test'
+  ...
+# Subtest: occupation stations the army and collects tribute until recalled
+ok 260 - occupation stations the army and collects tribute until recalled
+  ---
+  duration_ms: 6.095096
+  type: 'test'
+  ...
+# Subtest: a blockade needs warships and closes the ruler market
+ok 261 - a blockade needs warships and closes the ruler market
+  ---
+  duration_ms: 4.683157
+  type: 'test'
+  ...
+# Subtest: market: buy from a ruler, sell through the trading post
+ok 262 - market: buy from a ruler, sell through the trading post
+  ---
+  duration_ms: 14.859412
+  type: 'test'
+  ...
+# Subtest: alliance, letters and saves
+ok 263 - alliance, letters and saves
+  ---
+  duration_ms: 9.932178
+  type: 'test'
+  ...
+# Subtest: 0.20 ve sonrasının bütün kayıt örnekleri mevcut
+ok 264 - 0.20 ve sonrasının bütün kayıt örnekleri mevcut
+  ---
+  duration_ms: 1.814529
+  type: 'test'
+  ...
+# Subtest: 0.20.0 kaydı açılır ve ilerler
+ok 265 - 0.20.0 kaydı açılır ve ilerler
+  ---
+  duration_ms: 12.761437
+  type: 'test'
+  ...
+# Subtest: 0.21.0 kaydı açılır ve ilerler
+ok 266 - 0.21.0 kaydı açılır ve ilerler
+  ---
+  duration_ms: 3.991086
+  type: 'test'
+  ...
+# Subtest: 0.22.0 kaydı açılır ve ilerler
+ok 267 - 0.22.0 kaydı açılır ve ilerler
+  ---
+  duration_ms: 4.24504
+  type: 'test'
+  ...
+# Subtest: 0.23.0 kaydı açılır ve ilerler
+ok 268 - 0.23.0 kaydı açılır ve ilerler
+  ---
+  duration_ms: 4.772163
+  type: 'test'
+  ...
+# Subtest: 0.24.0 kaydı açılır ve ilerler
+ok 269 - 0.24.0 kaydı açılır ve ilerler
+  ---
+  duration_ms: 5.481951
+  type: 'test'
+  ...
+# Subtest: 0.25.0 kaydı açılır ve ilerler
+ok 270 - 0.25.0 kaydı açılır ve ilerler
+  ---
+  duration_ms: 3.310224
+  type: 'test'
+  ...
+# Subtest: 0.26.0 kaydı açılır ve ilerler
+ok 271 - 0.26.0 kaydı açılır ve ilerler
+  ---
+  duration_ms: 2.504723
+  type: 'test'
+  ...
+# Subtest: 0.27.0 kaydı açılır ve ilerler
+ok 272 - 0.27.0 kaydı açılır ve ilerler
+  ---
+  duration_ms: 3.350434
+  type: 'test'
+  ...
+# Subtest: 0.28.0 kaydı açılır ve ilerler
+ok 273 - 0.28.0 kaydı açılır ve ilerler
+  ---
+  duration_ms: 2.717321
+  type: 'test'
+  ...
+# Subtest: 0.29.0 kaydı açılır ve ilerler
+ok 274 - 0.29.0 kaydı açılır ve ilerler
+  ---
+  duration_ms: 2.776865
+  type: 'test'
+  ...
+# Subtest: 0.29.1 kaydı açılır ve ilerler
+ok 275 - 0.29.1 kaydı açılır ve ilerler
+  ---
+  duration_ms: 3.124619
+  type: 'test'
+  ...
+# Subtest: 0.30.0 kaydı açılır ve ilerler
+ok 276 - 0.30.0 kaydı açılır ve ilerler
+  ---
+  duration_ms: 4.487303
+  type: 'test'
+  ...
+# Subtest: 0.31.0 kaydı açılır ve ilerler
+ok 277 - 0.31.0 kaydı açılır ve ilerler
+  ---
+  duration_ms: 3.009552
+  type: 'test'
+  ...
+# Subtest: 0.32.0 kaydı açılır ve ilerler
+ok 278 - 0.32.0 kaydı açılır ve ilerler
+  ---
+  duration_ms: 3.107712
+  type: 'test'
+  ...
+# Subtest: 0.33.0 kaydı açılır ve ilerler
+ok 279 - 0.33.0 kaydı açılır ve ilerler
+  ---
+  duration_ms: 3.045818
+  type: 'test'
+  ...
+# Subtest: 0.34.0 kaydı açılır ve ilerler
+ok 280 - 0.34.0 kaydı açılır ve ilerler
+  ---
+  duration_ms: 2.970709
+  type: 'test'
+  ...
+# Subtest: 0.35.0 kaydı açılır ve ilerler
+ok 281 - 0.35.0 kaydı açılır ve ilerler
+  ---
+  duration_ms: 2.700183
+  type: 'test'
+  ...
+# Subtest: 0.36.0 kaydı açılır ve ilerler
+ok 282 - 0.36.0 kaydı açılır ve ilerler
+  ---
+  duration_ms: 2.787362
+  type: 'test'
+  ...
+# Subtest: 0.37.0 kaydı açılır ve ilerler
+ok 283 - 0.37.0 kaydı açılır ve ilerler
+  ---
+  duration_ms: 4.798819
+  type: 'test'
+  ...
+# Subtest: 0.38.0 kaydı açılır ve ilerler
+ok 284 - 0.38.0 kaydı açılır ve ilerler
+  ---
+  duration_ms: 3.78894
+  type: 'test'
+  ...
+# Subtest: 0.39.0 kaydı açılır ve ilerler
+ok 285 - 0.39.0 kaydı açılır ve ilerler
+  ---
+  duration_ms: 2.493564
+  type: 'test'
+  ...
+# Subtest: 0.40.0 kaydı açılır ve ilerler
+ok 286 - 0.40.0 kaydı açılır ve ilerler
+  ---
+  duration_ms: 2.999217
+  type: 'test'
+  ...
+# Subtest: 0.41.0 kaydı açılır ve ilerler
+ok 287 - 0.41.0 kaydı açılır ve ilerler
+  ---
+  duration_ms: 4.954071
+  type: 'test'
+  ...
+# Subtest: şehir kaydı göç zinciri kesintisiz ve en yeni şemada bitiyor
+ok 288 - şehir kaydı göç zinciri kesintisiz ve en yeni şemada bitiyor
+  ---
+  duration_ms: 0.423971
+  type: 'test'
+  ...
+# Subtest: daha yeni sürümün kaydı anlaşılır bir hatayla reddedilir
+ok 289 - daha yeni sürümün kaydı anlaşılır bir hatayla reddedilir
+  ---
+  duration_ms: 2.056643
+  type: 'test'
+  ...
+# Subtest: yazılan kayıt hangi sürümün yazdığını taşır, okurken yok sayılır
+ok 290 - yazılan kayıt hangi sürümün yazdığını taşır, okurken yok sayılır
+  ---
+  duration_ms: 2.524276
+  type: 'test'
+  ...
+# Subtest: yeni sürümün kaydı yedekle ezilmez
+ok 291 - yeni sürümün kaydı yedekle ezilmez
+  ---
+  duration_ms: 0.865847
+  type: 'test'
+  ...
+# Subtest: first save writes both primary and backup slots
+ok 292 - first save writes both primary and backup slots
+  ---
+  duration_ms: 6.223553
+  type: 'test'
+  ...
+# Subtest: next valid save keeps previous valid generation as rolling backup
+ok 293 - next valid save keeps previous valid generation as rolling backup
+  ---
+  duration_ms: 1.063137
+  type: 'test'
+  ...
+# Subtest: corrupt primary is preserved and valid backup is automatically restored
+ok 294 - corrupt primary is preserved and valid backup is automatically restored
+  ---
+  duration_ms: 1.161165
+  type: 'test'
+  ...
+# Subtest: peek may fall back to backup without mutating corrupt primary
+ok 295 - peek may fall back to backup without mutating corrupt primary
+  ---
+  duration_ms: 0.81858
+  type: 'test'
+  ...
+# Subtest: yeni şehir araştırmayı, Gelecek seviyesini, yönetimi ve yükseltmeleri başkentten alır
+ok 296 - yeni şehir araştırmayı, Gelecek seviyesini, yönetimi ve yükseltmeleri başkentten alır
+  ---
+  duration_ms: 5.103092
+  type: 'test'
+  ...
+# Subtest: bir şehirde biten araştırma ötekinde de bitmiş sayılır
+ok 297 - bir şehirde biten araştırma ötekinde de bitmiş sayılır
+  ---
+  duration_ms: 0.969427
+  type: 'test'
+  ...
+# Subtest: aynı araştırma iki şehirde birden yapılamaz; başka yerde biten iptal edilip iade edilir
+ok 298 - aynı araştırma iki şehirde birden yapılamaz; başka yerde biten iptal edilip iade edilir
+  ---
+  duration_ms: 4.965729
+  type: 'test'
+  ...
+# Subtest: yönetim değişikliği ve Tophane yükseltmesi her şehre geçer
+ok 299 - yönetim değişikliği ve Tophane yükseltmesi her şehre geçer
+  ---
+  duration_ms: 0.622202
+  type: 'test'
+  ...
+# Subtest: ilim nakliye edilemez ve Kara Pazar'da takas edilemez; yoldaki eski ilim yükü geri döner
+ok 300 - ilim nakliye edilemez ve Kara Pazar'da takas edilemez; yoldaki eski ilim yükü geri döner
+  ---
+  duration_ms: 11.174211
+  type: 'test'
+  ...
+# Subtest: siege appearance follows the active colony without leaking into peaceful cities
+ok 301 - siege appearance follows the active colony without leaking into peaceful cities
+  ---
+  duration_ms: 3.308549
+  type: 'test'
+  ...
+# Subtest: land and sea occupiers coexist independently and disappear individually on liberation
+ok 302 - land and sea occupiers coexist independently and disappear individually on liberation
+  ---
+  duration_ms: 0.528091
+  type: 'test'
+  ...
+# Subtest: Karagöz Perdesi: gösteri 12 saat üretimi artırır, sonra perde dinlenir
+ok 303 - Karagöz Perdesi: gösteri 12 saat üretimi artırır, sonra perde dinlenir
+  ---
+  duration_ms: 13.729938
+  type: 'test'
+  ...
+# Subtest: kültür gösterisi huzur, tanrısal gösterim lütuf verir; komedi lüksü artırır
+ok 304 - kültür gösterisi huzur, tanrısal gösterim lütuf verir; komedi lüksü artırır
+  ---
+  duration_ms: 0.860844
+  type: 'test'
+  ...
+# Subtest: Turkish case suffixes follow vowel harmony and consonant assimilation
+ok 305 - Turkish case suffixes follow vowel harmony and consonant assimilation
+  ---
+  duration_ms: 1.557897
+  type: 'test'
+  ...
+# Subtest: savaşçı hükümdar şehri işgal eder: haraç alır, sefer kapanır, kurtarınca kalkar
+ok 306 - savaşçı hükümdar şehri işgal eder: haraç alır, sefer kapanır, kurtarınca kalkar
+  ---
+  duration_ms: 28.681999
+  type: 'test'
+  ...
+# Subtest: denizci hükümdar savaş gemisi olmayan limanı savaşmadan abluka eder; kuşatma 12 saatte biter
+ok 307 - denizci hükümdar savaş gemisi olmayan limanı savaşmadan abluka eder; kuşatma 12 saatte biter
+  ---
+  duration_ms: 26.849961
+  type: 'test'
+  ...
+# Subtest: barış anlaşması kuşatmayı kaldırır
+ok 308 - barış anlaşması kuşatmayı kaldırır
+  ---
+  duration_ms: 4.002409
+  type: 'test'
+  ...
+# Subtest: düşman hükümdar kendiliğinden savaş ilan eder
+ok 309 - düşman hükümdar kendiliğinden savaş ilan eder
+  ---
+  duration_ms: 2.561969
+  type: 'test'
+  ...
+# Subtest: yakalanmayan casus şehirde kalır; Gizli Sığınak kovar
+ok 310 - yakalanmayan casus şehirde kalır; Gizli Sığınak kovar
+  ---
+  duration_ms: 3.755977
+  type: 'test'
+  ...
+# Subtest: abluka altındaki limandan nakliye çıkmaz; araştırma casusluğu her dalı verir
+ok 311 - abluka altındaki limandan nakliye çıkmaz; araştırma casusluğu her dalı verir
+  ---
+  duration_ms: 1.853549
+  type: 'test'
+  ...
+# Subtest: arşivlenen rapor kalır, diğerleri silinir
+ok 312 - arşivlenen rapor kalır, diğerleri silinir
+  ---
+  duration_ms: 6.603294
+  type: 'test'
+  ...
+# Subtest: paralı asker: hükümdarlar birlik satar; halk, garnizon ve akçe ister
+ok 313 - paralı asker: hükümdarlar birlik satar; halk, garnizon ve akçe ister
+  ---
+  duration_ms: 6.954001
+  type: 'test'
+  ...
+# Subtest: Türkçe sözlükte boş metin yok
+ok 314 - Türkçe sözlükte boş metin yok
+  ---
+  duration_ms: 1.39824
+  type: 'test'
+  ...
+# Subtest: ortak düğme metinleri bileşenlerde yeniden yazılmıyor
+ok 315 - ortak düğme metinleri bileşenlerde yeniden yazılmıyor
+  ---
+  duration_ms: 14.037619
+  type: 'test'
+  ...
+# Subtest: tokenCount grows with the amount but stays between 2 and 6
+ok 316 - tokenCount grows with the amount but stays between 2 and 6
+  ---
+  duration_ms: 0.811815
+  type: 'test'
+  ...
+# Subtest: without a browser motion is on and particles are kept
+ok 317 - without a browser motion is on and particles are kept
+  ---
+  duration_ms: 0.548999
+  type: 'test'
+  ...
+# Subtest: service worker Pages base path altında kaydolur
+ok 318 - service worker Pages base path altında kaydolur
+  ---
+  duration_ms: 1.03307
+  type: 'test'
+  ...
+# Subtest: service worker cache sürümü ve asset yenileme stratejisi güncel
+ok 319 - service worker cache sürümü ve asset yenileme stratejisi güncel
+  ---
+  duration_ms: 0.73942
+  type: 'test'
+  ...
+1..319
+# tests 319
+# suites 0
+# pass 319
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 17690.408403

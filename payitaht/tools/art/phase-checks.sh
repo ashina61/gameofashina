@@ -3,7 +3,7 @@ set -euo pipefail
 review_root="${1:?phase review directory required}"
 mkdir -p "$review_root/checks"
 pnpm exec tsc --noEmit > "$review_root/checks/typecheck.txt" 2>&1
-node --import tsx --test $(find lib -name '*.test.ts') > "$review_root/checks/tests.txt" 2>&1
+node --import tsx --test --test-reporter=tap --test-concurrency=1 $(rg --files lib -g '*.test.ts') > "$review_root/checks/tests.txt" 2>&1
 pnpm lint > "$review_root/checks/lint.txt" 2>&1
 node tools/css-lint.cjs > "$review_root/checks/css.txt"
 node tools/unused-css.cjs --strict >> "$review_root/checks/css.txt"

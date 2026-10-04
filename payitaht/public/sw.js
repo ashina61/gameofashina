@@ -1,7 +1,11 @@
-const CACHE = 'payitaht-shell-v37'
+const CACHE = 'payitaht-shell-v40'
 const BASE = new URL(self.registration.scope).pathname.replace(/\/$/, '')
 const p = path => `${BASE}${path.startsWith('/') ? path : `/${path}`}`
 const ASSETS = [
+  p('/images/game/terrain/title-background.webp'),
+  p('/images/game/ui/title-plaque.webp'),
+  p('/apple-icon.png'),
+  ...["research/ekonomi", "research/bilim", "research/askeri", "research/denizcilik", "research/mitoloji", "portraits/gods", "portraits/rivals", "culture/emblems", "culture/wonders", "medals/achievements", "terrain/battle-land", "terrain/battle-sea"].map(id => p(`/images/game/${id}.webp`)),
   ...["sahil", "zeytin", "akcam", "kizil", "akdeniz", "yalcin", "baglik", "atessiz", "mercan", "sakiz", "lodos", "kartal", "poyraz", "fener", "hisarada", "lalezar"].flatMap(id => [p(`/images/game/islands/${id}.webp`), p(`/images/game/islands/map-${id}.webp`)]),
   p('/images/game/terrain/world-sea.webp'),
   ...["walls/segment-1", "walls/segment-2", "walls/segment-3", "walls/tower-1", "walls/tower-2", "walls/tower-3", "walls/gate-1", "walls/gate-2", "walls/gate-3", "buildings/mine-kahve", "buildings/mine-mermer", "buildings/mine-kristal", "buildings/mine-kukurt", "buildings/forest-hero", "buildings/npc-koy", "buildings/npc-korsan", "buildings/npc-kale", "buildings/scaffold", "buildings/site", "buildings/pazar", "buildings/pier", "buildings/surlar-1", "buildings/surlar-2", "buildings/surlar-3", "ships/ship-a", "ships/ship-b", "ships/blockade", "ships/fishing", "siege/checkpoint"].map(id => p(`/images/game/${id}.webp`)),

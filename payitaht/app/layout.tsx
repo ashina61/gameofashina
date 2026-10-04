@@ -12,7 +12,7 @@ export const metadata: Metadata = {
   description: 'Osmanlı esintili özgün ada stratejisi. Sahilhisar şehrini kur, kaynaklarını yönet ve ilimle geliş. Mobil, tek oyunculu ve cihazda kayıtlı prototip.',
   applicationName: 'Payitaht Adaları',
   appleWebApp: { capable: true, statusBarStyle: 'black-translucent', title: 'Payitaht' },
-  icons: { icon: asset('/icon-192.png'), apple: asset('/icon-192.png') },
+  icons: { icon: asset('/icon-192.png'), apple: asset('/apple-icon.png') },
 }
 /*
  * Android paketinde (NEXT_PUBLIC_NATIVE=1) sayfa ekranın kenarlarına taşmaz:

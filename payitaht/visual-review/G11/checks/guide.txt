@@ -1,0 +1,29 @@
+tıklanamadı: Git (locator.click: Timeout 3000ms exceeded.)
+tıklanamadı: Yükselt · Sv. 2
+30 sn (locator.click: Timeout 3000ms exceeded.)
+tıklanamadı: Yükselt · Sv. 2
+30 sn (locator.click: Timeout 3000ms exceeded.)
+tıklanamadı: Yükselt · Sv. 2
+30 sn (locator.click: Timeout 3000ms exceeded.)
+tıklanamadı: Yükselt · Sv. 2
+30 sn (locator.click: Timeout 3000ms exceeded.)
+1.4 dk: first-upgrade
+tıklanamadı: İnşa et
+20 sn (locator.click: Timeout 3000ms exceeded.)
+tıklanamadı: Geri (locator.click: Timeout 3000ms exceeded.)
+2.1 dk: first-academy
+2.1 dk: first-worker
+tıklanamadı: Ödülü al (locator.click: Timeout 3000ms exceeded.)
+tıklanamadı: Ödülü al (locator.click: Timeout 3000ms exceeded.)
+2.9 dk: first-research
+tıklanamadı: İnşa et
+20 sn (locator.click: Timeout 3000ms exceeded.)
+3.5 dk: barracks
+tıklanamadı: İnşa et
+20 sn (locator.click: Timeout 3000ms exceeded.)
+4.1 dk: walls
+tıklanamadı: Git (locator.click: Timeout 3000ms exceeded.)
+5.0 dk: troops
+tıklanamadı: Karaçalı, Barbar Köyü, seviye 1 (locator.click: Timeout 3000ms exceeded.)
+5.3 dk: first-raid
+İlk sekiz hedef 5.3 oyun dakikasında tamam.
