@@ -2,7 +2,7 @@
 import { PersonArt } from './workforce'
 
 import { Hint } from './hint'
-import { useLayoutEffect, useRef, useState, type CSSProperties } from 'react'
+import { useLayoutEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react'
 import { ArrowUp, Hammer, LockKeyhole, Check, BookOpen, ChevronRight, Warehouse, UserRound, House, HeartHandshake, TriangleAlert, Landmark, Swords, Ship, ShieldCheck, Handshake, FlipHorizontal2, Move } from './ui-art'
 import { AkceArt, IlimArt, KumSaatiArt, NufusArt } from './resource-art'
 import { idleMerchants } from '@/lib/game/expeditions'
@@ -25,6 +25,7 @@ import type { Run } from './world-panels'
 import { DRILL_QUEUE_LIMIT, garrisonLimit, garrisonUsed, spyCapacity, growthRate, maxPopulation, PLOTS, zoneOf } from '@/lib/game/engine'
 import { BATTLE_STATS, SLOT_SIZE, fieldSize } from '@/lib/game/battle'
 import { UnitFigure } from './unit-art'
+import { UnitGallery } from './unit-gallery'
 import { BRANCH, ResearchEmblem } from './research-art'
 import { t } from '@/lib/i18n/tr'
 
@@ -164,15 +165,21 @@ export function ResearchPanel({ game, onResearch }: { game: Game; onResearch: (i
     {/* Araştırma yolu: her dal bir sayfa; sayfalar yan yana, tek kaydırma dal değiştirir. Seçili düğüm büyür. */}
     <div className="rs-branches" ref={pager} onScroll={onPage}>{RESEARCH_BRANCHES.map(b => {
       const list = RESEARCH_IDS.filter(id => RESEARCH[id].branch === b.key)
-      return <ol key={b.key} className="rs-list rs-path" aria-label={`${b.title} yolu`} inert={b.key !== branch}>{list.map((id, i) => {
+      // Ön koşul ağacı: aynı daldaki ön koşulun altında girintili dal; kökler parşömenin solunda.
+      const parent = (id: ResearchId) => { const n = RESEARCH[id].needs; return n && RESEARCH[n].branch === b.key ? n : undefined }
+      const node = (id: ResearchId): ReactNode => {
         const st = researchState(game, id), why = st === 'locked' ? researchReason(game, id) : null
         const note = st === 'done' ? 'Keşfedildi' : st === 'active' ? 'Âlimler çalışıyor' : why ?? `${RESEARCH[id].cost.toLocaleString('tr-TR')} ilim · ${RESEARCH[id].duration} sn`
+        const kids = list.filter(k => parent(k) === id)
         return <li key={id} className={`is-${st}`}><button type="button" aria-pressed={id === sel} className={`is-${st}`} onClick={() => setPicked(id)}>
-          <span className="rs-node"><ResearchEmblem id={id} size={40} state={st} /><b className="rs-num" data-tiny>{i + 1}</b></span>
+          <span className="rs-node"><ResearchEmblem id={id} size={44} state={st} /><b className="rs-num" data-tiny>{list.indexOf(id) + 1}</b></span>
           <span className="rs-copy"><span className="rs-name">{RESEARCH[id].name}</span><small>{note}</small></span>
           {st === 'done' ? <Check className="rs-tick" aria-label="tamam" /> : st === 'locked' ? <LockKeyhole className="rs-tick" aria-label="kilitli" /> : null}
-        </button></li>
-      })}</ol>
+        </button>{kids.length > 0 && <ul className="rs-kids">{kids.map(node)}</ul>}</li>
+      }
+      return <div key={b.key} className="rs-scroll" inert={b.key !== branch}>
+        <ul className="rs-list rs-tree" aria-label={`${b.title} araştırma ağacı`}>{list.filter(id => !parent(id)).map(node)}</ul>
+      </div>
     })}</div>
   </div>
 }
@@ -399,14 +406,15 @@ function maxRecruit(game: Game, id: UnitId) {
  * bosta oldugunu gormezse, uretiminin nicin dustugunu anlamaz.
  */
 export function ArmyPanel({ game, onRecruit, onBuild, home }: { game: Game; onRecruit: (id: UnitId, count: number) => void; onBuild: (id: BuildingId) => void; home?: BuildingId }) {
-  const [counts, setCounts] = useState<Partial<Record<UnitId, number>>>({})
+  const [pick, setPick] = useState<UnitId | null>(null)
   const land = power(game, 'kara')
   const sea = power(game, 'deniz')
   const branches: { key: 'kara' | 'deniz'; title: string; home: BuildingId }[] = [
     { key: 'kara', title: 'Kara ordusu', home: 'kisla' },
     { key: 'deniz', title: 'Donanma', home: 'tersane' },
   ]
-  return <div className="advisor-panel">
+  const byRole = (a: UnitId, b: UnitId) => ROLE_ORDER.indexOf(UNITS[a].role) - ROLE_ORDER.indexOf(UNITS[b].role)
+  const overview = <>
     <div className="army-summary">
       <span className="eyebrow">SANCAĞIN ALTINDA</span>
       <div><NufusArt className="size-5" /><span>Asker</span><strong>{soldiers(game)}</strong></div>
@@ -417,62 +425,84 @@ export function ArmyPanel({ game, onRecruit, onBuild, home }: { game: Game; onRe
     <p className="army-note"><AkceArt className="size-4" />Ordunun bakımı dakikada {Math.round(armyUpkeep(game) * 10) / 10} akçe · aynı anda en fazla {actionPoints(game)} sefer (sefer hakkı).</p>
     <p className="army-note"><TriangleAlert className="size-4" />Asker halktan çıkar. Eğitilen her vatandaş üretimden düşer; surlar ise asker istemez, akçe ve kereste ister ({wallDefense(game)} savunma).</p>
     <BattlefieldCard game={game} />
+  </>
+  // Bina sayfası (Kışla, Tersane, Elçilik): önce birliklerin büyük portreleri,
+  // altında seçilen birliğin eğitim kartı; ordu özeti katlanır bölümde.
+  if (home) {
+    const units = UNIT_IDS.filter(id => UNITS[id].home === home).sort(byRole)
+    const chosen = pick && units.includes(pick) ? pick : units[0]
+    return <div className="advisor-panel army-home">
+      <UnitGallery game={game} units={units} chosen={chosen} onPick={setPick} />
+      {chosen && <UnitCard key={chosen} game={game} id={chosen} onRecruit={onRecruit} />}
+      <DrillQueue game={game} home={home} />
+      <details className="army-more">
+        <summary>Ordu durumu ve savaş meydanı</summary>
+        {overview}
+      </details>
+    </div>
+  }
+  return <div className="advisor-panel">
+    {overview}
     <DrillQueue game={game} home={home} />
     {branches.map(branch => {
-      const units = UNIT_IDS.filter(id => UNITS[id].branch === branch.key && (!home || UNITS[id].home === home)).sort((a, b) => ROLE_ORDER.indexOf(UNITS[a].role) - ROLE_ORDER.indexOf(UNITS[b].role))
+      const units = UNIT_IDS.filter(id => UNITS[id].branch === branch.key).sort(byRole)
       if (!units.length) return null
       const ready = units.some(id => game.buildings[UNITS[id].home] > 0)
       return <section className="army-branch" key={branch.key}>
         <div className="army-branch-top"><h3>{branch.title}</h3><span>{branch.key === 'deniz' ? `Deniz gücü ${sea.attack} / ${sea.defense}` : `Savunma ${land.defense}`}</span></div>
         {!ready && <button className="army-locked" onClick={() => onBuild(branch.home)}><LockKeyhole className="size-4" /><span><strong>{BUILDINGS[branch.home].name} gerekli</strong><small>{BUILDINGS[branch.home].description}</small></span><ChevronRight className="size-4" /></button>}
-        {units.map(id => {
-          const unit = UNITS[id]
-          const max = maxRecruit(game, id)
-          const batch = Math.max(1, Math.min(counts[id] ?? 1, Math.max(1, max)))
-          const set = (n: number) => setCounts(c => ({ ...c, [id]: Math.max(1, Math.min(Math.max(1, max), Math.round(n) || 1)) }))
-          const reason = recruitReason(game, id, batch)
-          return <article className="unit-card" key={id}>
-            <div className="unit-top">
-              <span className="unit-portrait"><UnitFigure id={id} size={60} /></span>
-              <span><strong>{unit.name} <em className="unit-role"><Term label={ROLE_NAMES[unit.role]} /></em></strong><small>{unit.description}</small></span>
-              <span className="unit-have">{game.army[id]}<small>elde</small></span>
-            </div>
-            {BATTLE_STATS[id] && ROLE_ROW_SET.has(unit.role) && <div className="unit-battle" aria-label="Savaş değerleri">
-              {(BATTLE_STATS[id]!.melee > 0 || (!BATTLE_STATS[id]!.ranged && !BATTLE_STATS[id]!.air)) && <span title="Yakın dövüş saldırısı">⚔ {BATTLE_STATS[id]!.melee}</span>}
-              {BATTLE_STATS[id]!.ranged > 0 && <span title={`Uzak saldırı · ${BATTLE_STATS[id]!.ammo} tur cephane`}>🏹 {BATTLE_STATS[id]!.ranged} ×{BATTLE_STATS[id]!.ammo}</span>}
-              <span title="Zırh: her vuruştan düşer">🛡 {BATTLE_STATS[id]!.armor}</span>
-              <span title={`Büyüklük: bir yuvaya ${Math.floor(SLOT_SIZE / BATTLE_STATS[id]!.size)} adet sığar`}>▣ {BATTLE_STATS[id]!.size}</span>
-              {BATTLE_STATS[id]!.vsWall && <span title="Sura karşı çarpan">🧱 ×{BATTLE_STATS[id]!.vsWall}</span>}
-              {BATTLE_STATS[id]!.air && <span title="Hava savunması: havadaki birliklere vuruş">🪶 {BATTLE_STATS[id]!.air}</span>}
-              {BATTLE_STATS[id]!.evade && <span title="Vurulması zor: aldığı hasar azalır">🌊 ×{BATTLE_STATS[id]!.evade}</span>}
-            </div>}
-            <div className="unit-stats">
-              <span title="Saldırı"><Swords className="size-3" />{unit.attack}</span>
-              <span title="Savunma"><ShieldCheck className="size-3" />{unit.defense}</span>
-              <span title="Aldığı vatandaş"><NufusArt className="size-3" />{unit.pop}</span>
-              <span title="Can puanı">❤ {unit.hp}</span>
-              <span title="Bakım gideri (akçe/dk)"><AkceArt className="size-3" />{unit.upkeep}/dk</span>
-              {unit.cargo > 0 && <span title="Taşıma"><Warehouse className="size-3" />{unit.cargo}</span>}
-            </div>
-            {max > 1 && <div className="unit-slider">
-              <button type="button" aria-label="Bir" onClick={() => set(1)}><ChevronsLeft /></button>
-              <input type="range" min={1} max={max} value={batch} aria-label={`${unit.name} sayısı`} style={{ ['--fill' as string]: `${((batch - 1) / Math.max(1, max - 1)) * 100}%` }} onChange={e => set(Number(e.target.value))} />
-              <button type="button" aria-label="En fazla" onClick={() => set(max)}><ChevronsRight /></button>
-              <input type="number" inputMode="numeric" min={1} max={max} value={batch} aria-label={`${unit.name} adedi`} onChange={e => set(Number(e.target.value))} />
-              <small>en fazla {max}</small>
-            </div>}
-            <div className="unit-bottom">
-              <CostDisplay value={unitCost(id, batch, game)} lux={unitLuxuryCost(id, batch, game)} />
-              <span><KumSaatiArt className="size-3" /> {unitDuration(game, id, batch)} sn</span>
-              <GameButton size="sm" disabled={!!reason} data-guide={`recruit-${id}`} onClick={() => onRecruit(id, batch)}>{batch} eğit</GameButton>
-            </div>
-            {reason && <p className="fine-print">{reason}</p>}
-          </article>
-        })}
+        {units.map(id => <UnitCard key={id} game={game} id={id} onRecruit={onRecruit} />)}
       </section>
     })}
     <p className="fine-print">Taşıma kapasitesi {cargoCapacity(game)} mal · Ticaret limanı {tradeCapacity(game)} mal. Seferler ve casusluk Ada görünümünden (soldaki Ada danışmanı) adadaki bağımsız yerleşimlere düzenlenir.</p>
   </div>
+}
+
+/** Bir birliğin eğitim kartı: portre, savaş değerleri, adet kaydırıcısı ve Eğit. */
+function UnitCard({ game, id, onRecruit }: { game: Game; id: UnitId; onRecruit: (id: UnitId, count: number) => void }) {
+  const [count, setCount] = useState(1)
+  const unit = UNITS[id]
+  const max = maxRecruit(game, id)
+  const batch = Math.max(1, Math.min(count, Math.max(1, max)))
+  const set = (n: number) => setCount(Math.max(1, Math.min(Math.max(1, max), Math.round(n) || 1)))
+  const reason = recruitReason(game, id, batch)
+  return <article className="unit-card">
+    <div className="unit-top">
+      <span className="unit-portrait"><UnitFigure id={id} size={60} /></span>
+      <span><strong>{unit.name} <em className="unit-role"><Term label={ROLE_NAMES[unit.role]} /></em></strong><small>{unit.description}</small></span>
+      <span className="unit-have">{game.army[id]}<small>elde</small></span>
+    </div>
+    {BATTLE_STATS[id] && ROLE_ROW_SET.has(unit.role) && <div className="unit-battle" aria-label="Savaş değerleri">
+      {(BATTLE_STATS[id]!.melee > 0 || (!BATTLE_STATS[id]!.ranged && !BATTLE_STATS[id]!.air)) && <span title="Yakın dövüş saldırısı">⚔ {BATTLE_STATS[id]!.melee}</span>}
+      {BATTLE_STATS[id]!.ranged > 0 && <span title={`Uzak saldırı · ${BATTLE_STATS[id]!.ammo} tur cephane`}>🏹 {BATTLE_STATS[id]!.ranged} ×{BATTLE_STATS[id]!.ammo}</span>}
+      <span title="Zırh: her vuruştan düşer">🛡 {BATTLE_STATS[id]!.armor}</span>
+      <span title={`Büyüklük: bir yuvaya ${Math.floor(SLOT_SIZE / BATTLE_STATS[id]!.size)} adet sığar`}>▣ {BATTLE_STATS[id]!.size}</span>
+      {BATTLE_STATS[id]!.vsWall && <span title="Sura karşı çarpan">🧱 ×{BATTLE_STATS[id]!.vsWall}</span>}
+      {BATTLE_STATS[id]!.air && <span title="Hava savunması: havadaki birliklere vuruş">🪶 {BATTLE_STATS[id]!.air}</span>}
+      {BATTLE_STATS[id]!.evade && <span title="Vurulması zor: aldığı hasar azalır">🌊 ×{BATTLE_STATS[id]!.evade}</span>}
+    </div>}
+    <div className="unit-stats">
+      <span title="Saldırı"><Swords className="size-3" />{unit.attack}</span>
+      <span title="Savunma"><ShieldCheck className="size-3" />{unit.defense}</span>
+      <span title="Aldığı vatandaş"><NufusArt className="size-3" />{unit.pop}</span>
+      <span title="Can puanı">❤ {unit.hp}</span>
+      <span title="Bakım gideri (akçe/dk)"><AkceArt className="size-3" />{unit.upkeep}/dk</span>
+      {unit.cargo > 0 && <span title="Taşıma"><Warehouse className="size-3" />{unit.cargo}</span>}
+    </div>
+    {max > 1 && <div className="unit-slider">
+      <button type="button" aria-label="Bir" onClick={() => set(1)}><ChevronsLeft /></button>
+      <input type="range" min={1} max={max} value={batch} aria-label={`${unit.name} sayısı`} style={{ ['--fill' as string]: `${((batch - 1) / Math.max(1, max - 1)) * 100}%` }} onChange={e => set(Number(e.target.value))} />
+      <button type="button" aria-label="En fazla" onClick={() => set(max)}><ChevronsRight /></button>
+      <input type="number" inputMode="numeric" min={1} max={max} value={batch} aria-label={`${unit.name} adedi`} onChange={e => set(Number(e.target.value))} />
+      <small>en fazla {max}</small>
+    </div>}
+    <div className="unit-bottom">
+      <CostDisplay value={unitCost(id, batch, game)} lux={unitLuxuryCost(id, batch, game)} />
+      <span><KumSaatiArt className="size-3" /> {unitDuration(game, id, batch)} sn</span>
+      <GameButton size="sm" disabled={!!reason} data-guide={`recruit-${id}`} onClick={() => onRecruit(id, batch)}>{batch} eğit</GameButton>
+    </div>
+    {reason && <p className="fine-print">{reason}</p>}
+  </article>
 }
 
 const ROLE_ROW_SET = new Set<UnitRole>(['front', 'flank', 'range', 'artillery', 'bomber', 'fighter', 'support'])

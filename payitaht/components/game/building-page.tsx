@@ -14,12 +14,12 @@ import { flyGoods } from '@/lib/fx'
  * kahverengi başlık şeritlidir.
  */
 import { Hint } from './hint'
-import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react'
 import { ArrowLeft, ArrowUp, Info, LockKeyhole, FlipHorizontal2, RotateCw, Move, Hammer, ChevronRight, Plus, Trash2, X } from './ui-art'
 import { GameButton } from './game-button'
 import { CostTokens } from './stat-kit'
 import { BottomSheet } from './bottom-sheet'
-import { buildingImage, buildingStage } from '@/lib/asset'
+import { asset, buildingImage, buildingStage } from '@/lib/asset'
 import {
   BUILDINGS, BUILDING_EFFECTS, constructionDiscount, LUXURY_IDS, LUXURY_NAMES, MAX_LEVEL, RESEARCH, RESOURCE_IDS, RESOURCE_NAMES,
   actionPoints, activeJob, armyUpkeep, buildReason, capacity, contentment, corruption, cost, counterSpy, duration,
@@ -45,6 +45,14 @@ import { idleMerchants, merchantShipPrice, shipCargo, totalMerchants } from '@/l
 import { WorkforceSlider, type Figure } from './workforce'
 import { t } from '@/lib/i18n/tr'
 
+/** Bina sahnesinin boyalı katmanları (görsel brif 2): gök, uzak tepeler, çimen ya da sığ su, iki yanda ağaç. */
+const SCENE_STYLE = {
+  '--scene-hills': `url("${asset('/images/game/terrain/hills.webp')}")`,
+  '--scene-grass': `url("${asset('/images/game/terrain/grass.webp')}")`,
+  '--scene-water': `url("${asset('/images/game/terrain/water-shallow.webp')}")`,
+  '--scene-left': `url("${asset('/images/game/decor/cypress-sm.webp')}")`,
+  '--scene-right': `url("${asset('/images/game/decor/olive-tree-sm.webp')}")`,
+} as CSSProperties
 const num = (n: number) => Math.floor(n).toLocaleString('tr-TR')
 const RES_ICON = resourceIcons
 const time = (s: number) => s >= 3600 ? `${Math.floor(s / 3600)} sa ${Math.floor(s / 60) % 60} dk` : s >= 60 ? `${Math.floor(s / 60)} dk ${s % 60} sn` : `${s} sn`
@@ -85,7 +93,10 @@ function UpgradeDock({ game, id, onBuild }: { game: Game; id: BuildingId; onBuil
     ...RESOURCE_IDS.filter(r => c[r] > 0).map(r => [r, c[r]] as [Resource, number]),
     ...LUXURY_IDS.filter(r => (lux[r] ?? 0) > 0).map(r => [r, lux[r]!] as [Luxury, number]),
   ]
-  return <div className="bp-dock" aria-label={level ? `Genişlet · Sv. ${level} → ${level + 1}` : 'İnşa et'}>
+  const art = BUILDINGS[id].art
+  return <div className={`bp-dock${art ? ' has-thumb' : ''}`} aria-label={level ? `Genişlet · Sv. ${level} → ${level + 1}` : 'İnşa et'}>
+    {art && <img className="bp-dock-thumb" src={buildingImage(id, level + 1)} alt="" loading="lazy" decoding="async" />}
+    {art && <span className="bp-dock-label">{level ? 'Yükseltme gereksinimleri' : 'İnşa gereksinimleri'}</span>}
     <CostTokens items={needs.map(([r, n]) => ({ key: r, icon: <ResIcon id={r} />, name: name(r), need: n, have: stock(game, r) }))} />
     {queued > 0 && <p className="bp-note"><KumSaatiArt className="size-4" /> İnşaat sırasında {queued + 1}. sırada.</p>}
     {reason && queued < 0 && <p className="bp-warn"><LockKeyhole className="size-4" /> {reason}</p>}
@@ -394,7 +405,8 @@ export function BuildingPage({ game, empire, id, onClose, onBuild, onFlip, onMov
     className={`bp-building bp-of-${id}${help ? ' show-help' : ''}`}
     badge={<button type="button" className="bp-help" aria-pressed={help} onClick={() => setHelp(v => !v)} aria-label={help ? 'Açıklamaları gizle' : 'Nasıl işler? Açıklamaları göster'}><Info /></button>}
     footer={<UpgradeDock game={game} id={id} onBuild={onBuild} />}>
-      <section className="bp-hero">
+      <section className={`bp-hero bp-scene${coast ? ' is-coast' : ''}`} style={SCENE_STYLE}>
+        <span className="bp-scene-back" aria-hidden="true" />
         {b.art ? <BuildingArt key={`${shown}-${facing ?? 'default'}`} className="bp-hero-art" id={id} level={shown === 1 ? 1 : shown === 2 ? 4 : 8} facing={facing} alt={`${b.name} görünümü`} /> : <span className="bp-pending"><Hammer /></span>}
         {b.art && stages.length > 1 && <div className="bp-stages" role="group" aria-label="Seviyeye göre görünüm">
           {stages.map(([st, from, label]) => <button key={st} type="button" aria-pressed={shown === st} onClick={() => setPeek(st === stage ? null : st)}

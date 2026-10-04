@@ -518,52 +518,30 @@
 
 /* SAVAŞ ÖZETİ — raporun başında figürlü kart. */
 .bs { display: flex; flex-direction: column; gap: 8px; margin: 6px 0; padding: 0 0 10px; border-radius: 12px; overflow: hidden; background: linear-gradient(180deg, #f7edd2, #ead9ae); border: 1px solid #b99a5c; }
-.bs-banner { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; padding: 7px 12px; color: #fff7e2; background: linear-gradient(90deg, #2f6b34, #3f8a45); }
-.bs.is-lost .bs-banner { background: linear-gradient(90deg, #7d2419, #a2382a); }
-.bs-banner strong { font-family: var(--font-heading), serif; font-size: 20px; letter-spacing: .12em; }
-.bs-banner small { font-size: 11px; opacity: .9; text-align: right; }
-.bs-sides { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding: 0 8px; }
-.bs-side { display: flex; flex-direction: column; gap: 5px; min-width: 0; padding: 7px; border-radius: 10px; background: #fff8e6cc; border: 1px solid #d7bf88; }
-.bs-side.is-mine { border-color: #4f7fae; box-shadow: inset 0 0 0 1px #4f7fae55; }
-.bs-side-head { display: flex; flex-direction: column; line-height: 1.15; }
-.bs-side-head strong { font-size: 12.5px; color: var(--c-ink-warm); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.bs-side-head small { font-size: 11px; color: var(--c-ink-muted); font-variant-numeric: tabular-nums; }
-.bs-bar { display: block; height: 6px; border-radius: 6px; background: #cdb9895e; overflow: hidden; }
-.bs-bar i { display: block; height: 100%; background: linear-gradient(90deg, #3f8a45, #7cb85a); }
-.bs-side:not(.is-mine) .bs-bar:not(.is-morale) i { background: linear-gradient(90deg, #a2382a, #d06a4c); }
-.bs-bar.is-morale { display: inline-block; width: 46px; height: 5px; vertical-align: middle; }
-.bs-bar.is-morale i { background: linear-gradient(90deg, #c08a2a, #e6c062); }
-.bs-units { display: flex; flex-wrap: wrap; gap: 3px; }
-.bs-unit { position: relative; display: grid; place-items: center; width: 40px; padding: 2px 0 1px; border-radius: 8px; background: #f3e6c4; border: 1px solid #dcc697; }
-.bs-unit b { font-size: 11px; line-height: 1; color: var(--c-ink-warm); font-variant-numeric: tabular-nums; }
-.bs-unit em { position: absolute; top: -4px; right: -4px; padding: 0 4px; border-radius: 8px; font-style: normal; font-size: 9.5px; font-weight: 800; color: #fff; background: #a2382a; }
-.bs-unit.is-wiped { opacity: .45; filter: grayscale(.8); }
-.bs-more { align-self: center; font-size: 11px; color: var(--c-ink-muted); }
-.bs-morale { display: flex; align-items: center; gap: 5px; font-size: 11px; color: var(--c-ink-muted); font-variant-numeric: tabular-nums; }
-.bs-wall, .bs-reason { margin: 0 12px; font-size: 12px; color: #5a4022; }
+.bs-reason { margin: 0 12px; font-size: 12px; color: #5a4022; }
 .bs-reason { font-style: italic; }
 .report-details { margin-top: 4px; }
 .report-details > summary { cursor: pointer; font-size: 12px; font-weight: 700; color: var(--c-ink-muted); padding: 4px 0; }
 
 /* ARAŞTIRMA YOLU: her konu çizimli bir düğüm; dal boyunca dikey bağ çizgisi. */
-.bp .rs-path { position: relative; gap: 6px; }
-.bp .rs-path li { position: relative; }
-.bp .rs-path li:not(:last-child)::after { content: ''; position: absolute; z-index: 0; left: 31px; top: 44px; bottom: -10px; width: 4px; border-radius: 4px; background: #cdb98a; }
-.bp .rs-path li.is-done:not(:last-child)::after { background: linear-gradient(#c79a3c, #e2bd62); }
-.bp .rs-path li button { position: relative; z-index: 1; grid-template-columns: 46px minmax(0, 1fr) 20px; gap: 8px; padding: 5px 10px 5px 8px; min-height: 54px; text-align: left; }
-.bp .rs-path li button.is-done, .bp .rs-path li button.is-active, .bp .rs-path li button.is-locked { border-left-width: 1px; }
-.bp .rs-path li button.is-locked { opacity: .82; }
+.bp .rs-tree { position: relative; gap: 6px; }
+.bp .rs-tree li { position: relative; }
+
+
+.bp .rs-tree li button { position: relative; z-index: 1; grid-template-columns: 46px minmax(0, 1fr) 20px; gap: 8px; padding: 5px 10px 5px 8px; min-height: 54px; text-align: left; }
+.bp .rs-tree li button.is-done, .bp .rs-tree li button.is-active, .bp .rs-tree li button.is-locked { border-left-width: 1px; }
+.bp .rs-tree li button.is-locked { opacity: .82; }
 .rs-node { position: relative; display: grid; place-items: center; }
 .rs-node .research-emblem.is-locked { filter: grayscale(.9); opacity: .6; }
 .rs-node .rs-num { position: absolute; bottom: -2px; right: -3px; min-width: 17px; height: 17px; padding: 0 3px; border-radius: 9px; display: grid; place-items: center;
   font-size: 9.5px; font-weight: 800; color: #fff6dd; background: #6b4a22; border: 1px solid var(--c-gold); }
 .rs-copy { display: flex; flex-direction: column; min-width: 0; line-height: 1.2; }
 .rs-copy small { font-size: 11px; font-weight: 500; color: var(--c-ink-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.rs-path .is-done .rs-copy small { color: #3f6e2c; }
-.rs-path .is-active .rs-copy small { color: #a26a14; }
+.rs-tree .is-done .rs-copy small { color: #3f6e2c; }
+.rs-tree .is-active .rs-copy small { color: #a26a14; }
 .rs-tick { width: 16px; height: 16px; color: #5b7c44; }
-.rs-path .is-locked .rs-tick { color: #9b8a70; }
-.rs-path .is-active .research-emblem { animation: rs-pulse 1.2s ease-in-out infinite; }
+.rs-tree .is-locked .rs-tick { color: #9b8a70; }
+.rs-tree .is-active .research-emblem { animation: rs-pulse 1.2s ease-in-out infinite; }
 
 /* İLK AÇILIŞ REHBERİ */
 .frg { position: fixed; inset: 0; z-index: 60; }

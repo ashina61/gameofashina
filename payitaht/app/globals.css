@@ -12,6 +12,7 @@
 @import './styles/08-content-panels.css';
 @import './styles/09-v2-kit.css';
 @import './styles/10-painted-kit.css';
+@import './styles/11-mockup.css';
 
 @custom-variant dark (&:is(.dark *));
 @theme inline {

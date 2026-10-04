@@ -10,6 +10,7 @@ import { KumSaatiArt, NufusArt } from './resource-art'
  * Şehir sahnesi arkada açık kalır: ada görünümü onun üstüne biner.
  */
 import { rivalWarLine } from './ai-panels'
+import { RivalPortrait } from './deep-art'
 import { Hint } from './hint'
 import { useState } from 'react'
 import { ArrowLeft, ScrollText, Eye, Swords, ShieldCheck, Minus, Plus, Ship, Anchor, Skull, Flag, Bookmark, BookmarkCheck, Trash2 } from './ui-art'
@@ -305,7 +306,7 @@ export function ReportsPanel({ empire, run }: { empire: Empire; run?: Run }) {
             onClick={() => run((e, t) => keepReport(e, r.id, t))}>{r.kept ? <BookmarkCheck /> : <Bookmark />}</button>
           <button type="button" aria-label="Raporu sil" title="Sil" onClick={() => run((e, t) => deleteReport(e, r.id, t))}><Trash2 /></button>
         </span>}</div>
-      {r.battles?.length ? <>{r.battles.map((b, i) => <BattleSummary key={i} stored={b} us={r.kind === 'defense' || r.kind === 'support' ? 'd' : 'a'} />)}<ReportBattles report={r} /></> : null}
+      {r.battles?.length ? <>{r.battles.map((b, i) => <BattleSummary key={i} stored={b} us={r.kind === 'defense' || r.kind === 'support' ? 'd' : 'a'} foe={rivalById(r.npcId) ? <RivalPortrait id={r.npcId} size={64} /> : undefined} />)}<ReportBattles report={r} /></> : null}
       <ReportLines lines={r.lines} compact={!!r.battles?.length} />
     </article>)}</div>
 }

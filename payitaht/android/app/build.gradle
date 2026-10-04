@@ -4,8 +4,8 @@ def releaseStorePath = System.getenv("PAYITAHT_KEYSTORE_PATH")
 def releaseStorePassword = System.getenv("PAYITAHT_KEYSTORE_PASSWORD")
 def releaseKeyAlias = System.getenv("PAYITAHT_KEY_ALIAS")
 def releaseKeyPassword = System.getenv("PAYITAHT_KEY_PASSWORD")
-def releaseVersionCode = (System.getenv("PAYITAHT_VERSION_CODE") ?: "47") as Integer
-def releaseVersionName = System.getenv("PAYITAHT_VERSION_NAME") ?: "0.46.0"
+def releaseVersionCode = (System.getenv("PAYITAHT_VERSION_CODE") ?: "48") as Integer
+def releaseVersionName = System.getenv("PAYITAHT_VERSION_NAME") ?: "0.47.0"
 def hasReleaseSigning = releaseStorePath && releaseStorePassword && releaseKeyAlias && releaseKeyPassword
 
 android {

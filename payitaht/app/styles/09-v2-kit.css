@@ -379,22 +379,11 @@
  * çubuklar erir, kayıplar sırayla düşer, sonda mühür basılır. Son kare
  * animasyonsuz hâlle aynıdır; .is-done ve azaltılmış hareket onu gösterir.
  * ========================================================================= */
-.bs-banner { position: relative; flex-direction: column; align-items: center; gap: 2px; padding: 10px 56px 18px; background: linear-gradient(180deg, var(--c-brown-warm), var(--c-wood-dark)); border-bottom: 2px solid var(--c-gold-soft); text-align: center; }
-.bs.is-lost .bs-banner { background: linear-gradient(180deg, var(--c-brown-warm), var(--c-wood-dark)); }
-.bs-banner small { text-align: center; }
 .bs-stamp { display: inline-block; padding: 1px 14px 0; border: 3px double currentColor; border-radius: 6px; font-family: var(--font-heading), Georgia, serif; font-size: var(--fs-2xl); letter-spacing: .14em; line-height: 1.15; transform: rotate(-4deg);
   color: #9fe08f; background: #1f3d1f99; text-shadow: 0 1px 2px #0008; }
 .bs.is-lost .bs-stamp { color: #ffb4a3; background: #4a1a1299; }
 .bs-skip { position: absolute; right: 8px; top: 50%; translate: 0 -50%; min-width: 44px; min-height: 44px; padding: 0 10px; border-radius: 999px; border: 1px solid #c9a45a88; background: #2a170899; color: var(--c-cream); font-size: var(--fs-sm); font-weight: 700; }
-.bs-sides { position: relative; }
-.bs-vs { position: absolute; z-index: 1; left: 50%; top: -21px; width: 30px; height: 30px; margin-left: -15px; display: grid; place-items: center; border-radius: 50%; color: var(--c-gold-pale); background: radial-gradient(circle at 40% 30%, var(--c-brown-warm), var(--c-wood-dark)); border: 2px solid var(--c-gold-soft); box-shadow: 0 2px 4px #0006; }
-.bs-vs :is(svg, .painted-icon) { width: 16px; height: 16px; }
 
-.bs:not(.is-done) .bs-side { animation: bs-arrive .5s cubic-bezier(.2,.8,.2,1) both; }
-.bs:not(.is-done) .bs-vs { animation: bs-clash .9s .35s ease-out both; }
-.bs:not(.is-done) .bs-bar:not(.is-morale) i { animation: bs-drain 1.3s .6s ease-in-out both; }
-.bs:not(.is-done) .bs-unit em { animation: bs-fall .35s var(--d, .8s) cubic-bezier(.3,1.6,.5,1) both; }
-.bs:not(.is-done) .bs-unit.is-wiped { animation: bs-wipe .4s calc(var(--d, .8s) + .2s) ease-out both; }
 .bs:not(.is-done) .bs-stamp { animation: bs-stamp .45s 1.9s cubic-bezier(.2,1.4,.4,1) both; }
 @keyframes bs-arrive { from { opacity: 0; translate: var(--from, 0) 0; } }
 @keyframes bs-clash { 0%, 100% { scale: 1; } 30% { scale: 1.45; box-shadow: 0 0 0 6px #f2d37d55; } }
@@ -403,7 +392,7 @@
 @keyframes bs-wipe { from { opacity: 1; filter: none; } }
 @keyframes bs-stamp { from { opacity: 0; transform: rotate(-14deg) scale(2.4); } }
 @media (prefers-reduced-motion: reduce) {
-  .bs .bs-side, .bs .bs-vs, .bs .bs-bar i, .bs .bs-unit em, .bs .bs-unit.is-wiped, .bs .bs-stamp { animation: none !important; }
+  .bs .bs-stamp { animation: none !important; }
   .bs-skip { display: none; }
 }
 
@@ -422,10 +411,10 @@
 .rs-strip [aria-selected="true"] .rs-strip-meter i { background: var(--c-gold-pale); }
 .rs-branches { display: flex; align-items: flex-start; overflow-x: auto; overscroll-behavior-x: contain; scroll-snap-type: x mandatory; scrollbar-width: none; }
 .rs-branches::-webkit-scrollbar { display: none; }
-.rs-branches > .rs-path { flex: 0 0 100%; min-width: 0; scroll-snap-align: start; scroll-snap-stop: always; }
-.rs-path button .rs-node { transition: scale .2s ease; }
-.rs-path button[aria-pressed="true"] .rs-node { scale: 1.18; }
-.bp .rs-path li button[aria-pressed="true"] { min-height: 62px; box-shadow: 0 2px 8px #5a351733; }
+.rs-branches > .rs-scroll { flex: 0 0 100%; min-width: 0; scroll-snap-align: start; scroll-snap-stop: always; }
+.rs-tree button .rs-node { transition: scale .2s ease; }
+.rs-tree button[aria-pressed="true"] .rs-node { scale: 1.18; }
+.bp .rs-tree li button[aria-pressed="true"] { min-height: 62px; box-shadow: 0 2px 8px #5a351733; }
 
 /* =========================================================================
  * V2 Faz 2.7 — İTTİFAK: başta sancak + ad + itibar madalyonu, üyeler armalı

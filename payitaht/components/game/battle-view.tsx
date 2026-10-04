@@ -5,7 +5,7 @@
  * girdilerle deterministik motorda yeniden kurulur; her tur için iki ordunun
  * yuvalardaki dizilişi, sur, moral ve kayıplar gösterilir.
  */
-import { useMemo, useState, type CSSProperties } from 'react'
+import { useMemo, useState, type CSSProperties, type ReactNode } from 'react'
 import { FIELD_ROW_NAMES } from '@/lib/game/glossary'
 import { ChevronLeft, ChevronRight, Swords } from './ui-art'
 import { GameButton } from './game-button'
@@ -86,13 +86,14 @@ export function BattleView({ stored, live }: { stored: StoredBattle; live?: Live
 }
 
 /**
- * SAVAŞ ÖZETİ (raporun başında): iki ordunun birlikleri figürleriyle
- * "getirilen / kaybedilen", son moral ve sur. Tur tur ayrıntı BattleView'da.
- * V2 Faz 2.5: kart açılışta ~2,5 sn canlanır — ordular karşılaşır, kayıplar
- * sırayla düşer, sonda ZAFER / YENİLGİ mührü basılır. "Geç" ya da azaltılmış
- * hareket ayarı doğrudan son hâli gösterir; son hâl animasyonsuz da aynıdır.
+ * SAVAŞ RAPORU KARTI (raporun başında; görsel brif 2, mockup: savas-raporu.webp).
+ * Savaş meydanı resmi üstünde ZAFER / YENİLGİ şeridi, karşı karşıya iki
+ * komutan, iki ordunun güç çubuğu ve birlik birlik "gelen / düşen" satırları.
+ * Tur tur ayrıntı BattleView'da. Açılışta ~2,5 sn canlanır (ordular gelir,
+ * kayıplar düşer, sonda şerit basılır); "Geç" ya da azaltılmış hareket
+ * doğrudan son hâli gösterir.
  */
-export function BattleSummary({ stored, us }: { stored: StoredBattle; us: 'a' | 'd' }) {
+export function BattleSummary({ stored, us, foe }: { stored: StoredBattle; us: 'a' | 'd'; foe?: ReactNode }) {
   const result = useMemo(() => replayBattle(stored.a, stored.d, stored.joins, stored.retreat), [stored])
   const won = (result.winner === 'attacker') === (us === 'a')
   const last = result.rounds[result.rounds.length - 1]
@@ -104,34 +105,54 @@ export function BattleSummary({ stored, us }: { stored: StoredBattle; us: 'a' | 
     const total = units.reduce((s, [, n]) => s + n, 0)
     const dead = Object.values(lost).reduce((s, n) => s + (n ?? 0), 0)
     const morale = last ? (who === 'a' ? last.moraleA : last.moraleD) : 100
-    return { name: who === 'a' ? stored.attacker : stored.defender, units, lost, total, dead, morale, mine: who === us }
+    return { who, name: who === 'a' ? stored.attacker : stored.defender, units, lost, total, dead, morale, mine: who === us }
   }
-  const sides = [side(us), side(us === 'a' ? 'd' : 'a')]
+  const mine = side(us), them = side(us === 'a' ? 'd' : 'a')
   const wallMax = stored.d.wall ?? 0
   const [done, setDone] = useState(false)
-  return <section className={`bs ${won ? 'is-won' : 'is-lost'}${done ? ' is-done' : ''}`} aria-label={`${stored.title} özeti: ${won ? 'zafer' : 'yenilgi'}`}
+  const field = asset(`/images/game/terrain/battle-${stored.d.naval ? 'sea' : 'land'}.webp`)
+  const share = mine.total + them.total ? Math.round(100 * mine.total / (mine.total + them.total)) : 50
+  const commander = (s: typeof mine) => <div className={`bs2-cmd${s.mine ? ' is-mine' : ''}`}>
+    <span className="bs2-flag" aria-hidden="true" />
+    <span className="bs2-face">{s.mine
+      ? <img src={asset('/images/game/portraits/advisor-army.webp')} alt="" />
+      : foe ?? (s.units[0] ? <UnitFigure id={s.units[0][0]} size={64} bare /> : null)}</span>
+    <strong>{s.name}</strong>
+    <small>{s.who === 'a' ? 'Saldıran' : 'Savunan'}</small>
+  </div>
+  const column = (s: typeof mine, k: number) => <ul className={`bs2-col${s.mine ? ' is-mine' : ''}`} aria-label={`${s.name} birlikleri`}>
+    {s.units.map(([id, n], i) => {
+      const lost = Math.min(n, s.lost[id] ?? 0)
+      return <li key={id} className={lost >= n ? 'bs2-row is-wiped' : 'bs2-row'} style={{ '--d': `${700 + i * 120 + k * 60}ms` } as CSSProperties}>
+        <UnitFigure id={id} size={40} bare />
+        <span><b>{UNITS[id].name}</b><small><Swords aria-hidden="true" /> {n}</small></span>
+        {lost > 0 ? <em>−{lost}</em> : <i>0</i>}
+      </li>
+    })}
+  </ul>
+  return <section className={`bs bs2 ${won ? 'is-won' : 'is-lost'}${done ? ' is-done' : ''}`} aria-label={`${stored.title} özeti: ${won ? 'zafer' : 'yenilgi'}`}
     onAnimationEnd={e => { if (e.animationName === 'bs-stamp') setDone(true) }}>
-    <div className="bs-banner">
-      <strong className="bs-stamp">{won ? 'ZAFER' : 'YENİLGİ'}</strong>
-      <small>{stored.title} · {result.rounds.length} tur · {result.field.name}</small>
+    <div className="bs2-hero" style={{ backgroundImage: `url(${field})` }}>
+      <div className="bs2-ribbon"><strong className="bs-stamp">{won ? 'Zafer!' : 'Yenilgi'}</strong></div>
+      <small>{stored.attacker}, {stored.defender} üzerine saldırdı · {result.rounds.length} tur · {result.field.name}</small>
       {!done && <button type="button" className="bs-skip" onClick={() => setDone(true)}>Geç</button>}
     </div>
-    <div className="bs-sides">
-      <span className="bs-vs" aria-hidden="true"><Swords /></span>
-      {sides.map((s, k) => <div key={s.name} className={s.mine ? 'bs-side is-mine' : 'bs-side'} style={{ '--from': k ? '14px' : '-14px' } as CSSProperties}>
-      <div className="bs-side-head"><strong>{s.name}</strong><small>{s.total - s.dead} / {s.total} ayakta</small></div>
-      <span className="bs-bar" title={`${s.total - s.dead} / ${s.total}`}><i style={{ width: `${s.total ? Math.round(100 * (s.total - s.dead) / s.total) : 0}%` }} /></span>
-      <div className="bs-units">{s.units.slice(0, 8).map(([id, n], i) => {
-        const lost = Math.min(n, s.lost[id] ?? 0)
-        return <span key={id} className={lost >= n ? 'bs-unit is-wiped' : 'bs-unit'} title={`${UNITS[id].name}: ${n} geldi, ${lost} düştü`}
-          style={{ '--d': `${700 + i * 140 + k * 70}ms` } as CSSProperties}>
-          <UnitFigure id={id} size={34} bare /><b>{n}</b>{lost > 0 && <em data-tiny>−{lost}</em>}
-        </span>
-      })}{s.units.length > 8 && <span className="bs-more">+{s.units.length - 8}</span>}</div>
-      <small className="bs-morale">Moral <span className="bs-bar is-morale"><i style={{ width: `${s.morale}%` }} /></span> {s.morale}</small>
-    </div>)}
+    <div className="bs2-cmds">
+      {commander(mine)}
+      <span className="bs2-vs" aria-hidden="true"><Swords /></span>
+      {commander(them)}
     </div>
-    {wallMax > 0 && <p className="bs-wall">Sur {result.wallLeft > 0 ? `${result.wallLeft} / ${wallMax} ayakta` : 'yıkıldı'}</p>}
+    <div className="bs2-strength" aria-label={`Güç: ${mine.total} karşı ${them.total}`}>
+      <b>{mine.total.toLocaleString('tr-TR')}</b>
+      <span className="bs2-split"><i style={{ width: `${share}%` }} /></span>
+      <b>{them.total.toLocaleString('tr-TR')}</b>
+    </div>
+    <div className="bs2-cols">{column(mine, 0)}{column(them, 1)}</div>
+    <div className="bs2-morale">
+      <small>Moral {mine.morale}</small>
+      {wallMax > 0 && <small>Sur {result.wallLeft > 0 ? `${result.wallLeft} / ${wallMax}` : 'yıkıldı'}</small>}
+      <small>Moral {them.morale}</small>
+    </div>
     <p className="bs-reason">{result.reason}</p>
   </section>
 }

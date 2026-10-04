@@ -1,0 +1,123 @@
+/* =========================================================================
+ * GÖRSEL BRİF 2 — "mockup modu" (docs/mockups/). Bina sahnesi, birlik
+ * galerisi ve yükseltme doku. Görsel yollar satır içi CSS değişkenleriyle
+ * gelir (taban yolu: asset()).
+ * ========================================================================= */
+
+/* Bina sahnesi: gök, uzak tepeler, çimen (kıyı binasında sığ su), iki yanda ağaç. */
+.bp-building .bp-hero.bp-scene { height: clamp(230px, 31vh, 290px); isolation: isolate;
+  background: linear-gradient(180deg, #9ec8de 0%, #cfe3e6 34%, #f1dfb4 52%, #b9c98a 53%, #8eab5c 100%); }
+.bp-scene-back { position: absolute; inset: 0; z-index: -1; pointer-events: none;
+  background:
+    var(--scene-left) no-repeat 3% 88% / auto 62%,
+    var(--scene-right) no-repeat 97% 92% / auto 58%,
+    radial-gradient(70% 34% at 50% 86%, #5a3a1a33, transparent 72%),
+    var(--scene-hills) no-repeat 50% 44% / 150% auto; }
+.bp-scene-back::after { content: ''; position: absolute; inset: 52% 0 0; z-index: -1;
+  background: var(--scene-grass) repeat 0 0 / 160px 160px;
+  -webkit-mask-image: linear-gradient(180deg, transparent 0, #000 22%); mask-image: linear-gradient(180deg, transparent 0, #000 22%); }
+.bp-scene.is-coast .bp-scene-back::after { background-image: var(--scene-water); background-size: 200px 200px; inset: 60% 0 0; }
+.bp-building .bp-hero.bp-scene .building-art { height: 82%; max-width: 74%; }
+
+/* Yükseltme doku: solda gelecek görünümün küçük resmi. */
+.bp-dock.has-thumb { grid-template-columns: 64px minmax(0, 1fr); column-gap: 10px; }
+.bp-dock.has-thumb > :not(.bp-dock-thumb) { grid-column: 2; }
+.bp-dock.has-thumb > .bp-upgrade-button, .bp-dock.has-thumb > .bp-warn, .bp-dock.has-thumb > .bp-note { grid-column: 1 / -1; }
+.bp-dock-thumb { grid-row: 1 / 3; width: 64px; height: 56px; object-fit: contain; align-self: center; filter: drop-shadow(0 3px 4px #0004); }
+.bp-dock-label { font-size: 11px; font-weight: 800; letter-spacing: .05em; text-transform: uppercase; color: var(--c-ink-soft); }
+.bp-upgrade-button { color: var(--c-ink-deep); text-shadow: 0 1px 0 #fff3c466;
+  background: linear-gradient(180deg, #fbe39a, #e9b955 48%, #c98f2e); border: 1px solid var(--c-brass-dark); box-shadow: 0 2px 0 #6b4511, inset 0 1px 0 #fff6cf; }
+
+/* Birlik galerisi (Kışla/Tersane/Elçilik): büyük boyalı portreler. */
+.unit-gallery { display: flex; gap: 8px; overflow-x: auto; overscroll-behavior-x: contain; scroll-snap-type: x mandatory; padding: 2px 2px 8px; margin: 0 -2px;
+  scrollbar-width: thin; }
+.unit-gallery > .unit-tile { flex: 0 0 calc((100% - 16px) / 3.15); scroll-snap-align: start; }
+.unit-tile { display: flex; flex-direction: column; align-items: stretch; gap: 3px; padding: 4px 4px 6px; border-radius: 8px; text-align: center;
+  background: var(--c-parch-2); border: 1px solid var(--c-parch-edge); box-shadow: 0 1px 3px #5a351722; color: var(--c-ink); }
+.unit-tile[aria-selected="true"] { border-color: var(--c-brown); box-shadow: 0 0 0 2px var(--c-gold), 0 3px 8px #5a351744; background: var(--c-paper); }
+.unit-tile-art { position: relative; display: block; aspect-ratio: 1 / 1.05; border-radius: 6px; overflow: hidden; background-size: cover; background-position: center 60%;
+  border: 1px solid var(--c-tan-border); }
+.unit-tile-art img { position: absolute; inset: 4% 2% 0; width: 96%; height: 96%; object-fit: contain; object-position: bottom; filter: drop-shadow(0 4px 4px #0006); }
+.unit-tile-have { position: absolute; right: 4px; top: 4px; min-width: 24px; padding: 1px 6px; border-radius: 10px; font-size: 12px; font-weight: 800;
+  background: var(--c-brown); color: var(--c-cream); border: 1px solid var(--c-gold); }
+.unit-tile-lock { position: absolute; inset: auto 0 0; display: flex; align-items: center; justify-content: center; gap: 3px; padding: 3px 2px;
+  font-size: 11px; font-weight: 700; color: var(--c-cream); background: #2a1608cc; }
+.unit-tile-lock :is(svg, .painted-icon) { width: 12px; height: 12px; }
+.unit-tile.is-locked .unit-tile-art img { filter: grayscale(.85) brightness(.9); opacity: .75; }
+.unit-tile strong { font-family: var(--font-heading), Georgia, serif; font-size: 14px; line-height: 1.15; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.unit-tile-stats { display: flex; justify-content: center; gap: 6px; font-size: 11.5px; font-weight: 700; font-variant-numeric: tabular-nums; color: var(--c-ink-soft); }
+.unit-tile-stats span { display: inline-flex; align-items: center; gap: 2px; }
+.unit-tile-stats :is(svg, .painted-icon) { width: 12px; height: 12px; }
+.army-home { display: flex; flex-direction: column; gap: 10px; }
+.army-more { border: 1px solid var(--c-parch-edge); border-radius: 6px; background: var(--c-parch-2); }
+.army-more > summary { min-height: 44px; display: flex; align-items: center; padding: 0 12px; font-weight: 800; font-size: 13px; color: var(--c-ink); cursor: pointer; }
+.army-more[open] { display: flex; flex-direction: column; gap: 10px; padding-bottom: 10px; }
+.army-more[open] > :not(summary) { margin-inline: 10px; }
+@media (max-width: 360px) { .unit-gallery > .unit-tile { flex-basis: calc((100% - 8px) / 2.3); } .unit-tile strong { font-size: 13px; } .unit-tile-stats { gap: 4px; font-size: 11px; } }
+
+/* Savaş raporu kartı (mockup: savas-raporu.webp). */
+.bs.bs2 { gap: 10px; padding: 0 0 12px; border-radius: 10px; background: var(--c-parch); border: 1px solid var(--c-parch-edge); box-shadow: 0 3px 10px #3a231033; }
+.bs2-hero { position: relative; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 4px; min-height: 132px; padding: 12px 52px 10px;
+  background-size: cover; background-position: center 55%; color: var(--c-cream); text-align: center; }
+.bs2-hero::before { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, #0000 15%, #1f120880 70%, #1f1208cc); }
+.bs2-hero > * { position: relative; }
+.bs2-hero small { font-size: 11.5px; text-shadow: 0 1px 2px #000; }
+.bs2-ribbon { padding: 4px 34px 7px; background: var(--art-ribbon-red, linear-gradient(180deg, #b53a2a, #7a1d12)) center / 100% 100% no-repeat; }
+.bs2 .bs-stamp { border: 0; padding: 0; background: none; color: var(--c-cream); font-family: var(--font-heading), Georgia, serif; font-size: 28px; letter-spacing: .04em; text-shadow: 0 2px 2px #3a0d06; }
+.bs2.is-lost .bs2-ribbon { filter: saturate(.35) brightness(.8); }
+.bs2.is-lost .bs-stamp { color: var(--c-cream); background: none; }
+.bs2-cmds { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 6px; padding: 0 10px; }
+.bs2-cmd { position: relative; display: flex; flex-direction: column; align-items: center; gap: 2px; min-width: 0; text-align: center;
+  padding: 8px 6px 7px; border-radius: 8px; background: var(--c-parch-2); border: 1px solid var(--c-parch-edge); }
+.bs2-flag { position: absolute; left: 0; right: 0; top: 0; height: 5px; border-radius: 8px 8px 0 0; background: #3e5f93; }
+.bs2-cmd.is-mine .bs2-flag { background: #b53a2a; }
+.bs2-face { width: 56px; height: 56px; border-radius: 50%; overflow: hidden; display: grid; place-items: center; border: 2px solid var(--c-gold);
+  background: radial-gradient(circle at 50% 40%, var(--c-paper), var(--c-parch-edge)); }
+.bs2-face img, .bs2-face > span { width: 100% !important; height: 100% !important; object-fit: cover; }
+.bs2-cmd strong { max-width: 100%; font-family: var(--font-heading), Georgia, serif; font-size: 14.5px; line-height: 1.12; color: var(--c-ink); overflow-wrap: anywhere; }
+.bs2-cmd small { font-size: 11px; color: var(--c-ink-soft); }
+.bs2-vs { width: 30px; height: 30px; display: grid; place-items: center; border-radius: 50%; background: var(--c-brown); color: var(--c-gold-pale); border: 2px solid var(--c-gold); }
+.bs2-vs :is(svg, .painted-icon) { width: 16px; height: 16px; }
+.bs2-strength { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 8px; padding: 0 12px; font-variant-numeric: tabular-nums; }
+.bs2-strength b { font-size: 15px; color: var(--c-ink); }
+.bs2-split { display: block; height: 10px; border-radius: 6px; overflow: hidden; background: linear-gradient(90deg, #6d8fc2, #3e5f93); border: 1px solid var(--c-parch-edge); }
+.bs2-split i { display: block; height: 100%; background: linear-gradient(90deg, #b53a2a, #d4654c); }
+.bs2-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; padding: 0 8px; }
+.bs2-col { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.bs2-row { display: grid; grid-template-columns: 40px minmax(0, 1fr) auto; align-items: center; gap: 5px; padding: 2px 6px 2px 2px; border-radius: 6px;
+  background: var(--c-parch-2); border: 1px solid var(--c-parch-line); }
+.bs2-row span { display: flex; flex-direction: column; min-width: 0; line-height: 1.15; }
+.bs2-row b { font-size: 12.5px; color: var(--c-ink); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.bs2-row small { display: inline-flex; align-items: center; gap: 3px; font-size: 11.5px; color: var(--c-ink-soft); font-variant-numeric: tabular-nums; }
+.bs2-row small :is(svg, .painted-icon) { width: 11px; height: 11px; }
+.bs2-row em { font-style: normal; font-weight: 800; font-size: 13px; color: var(--c-bad); font-variant-numeric: tabular-nums; }
+.bs2-row i { font-style: normal; font-size: 12px; color: var(--c-ink-muted); }
+.bs2-row.is-wiped { opacity: .55; filter: grayscale(.7); }
+.bs2-morale { display: flex; justify-content: space-between; gap: 8px; padding: 0 12px; font-size: 11.5px; color: var(--c-ink-soft); font-variant-numeric: tabular-nums; }
+.bs2:not(.is-done) .bs2-cmd { animation: bs-arrive .5s cubic-bezier(.2,.8,.2,1) both; }
+.bs2:not(.is-done) .bs2-vs { animation: bs-clash .9s .35s ease-out both; }
+.bs2:not(.is-done) .bs2-split i { animation: bs-drain 1.3s .6s ease-in-out both; }
+.bs2:not(.is-done) .bs2-row em { animation: bs-fall .35s var(--d, .8s) cubic-bezier(.3,1.6,.5,1) both; }
+@media (prefers-reduced-motion: reduce) { .bs2 .bs2-cmd, .bs2 .bs2-vs, .bs2 .bs2-split i, .bs2 .bs2-row em { animation: none !important; } }
+
+/* Araştırma ağacı (mockup: arastirma.webp): parşömen tomarı, ön koşul dalları girintili. */
+.rs-scroll { position: relative; padding: 14px 10px 16px; border-radius: 6px; background: var(--c-parch); border: 1px solid var(--c-parch-edge);
+  box-shadow: inset 0 0 0 1px #fff6, inset 0 10px 18px -12px #5a351766, inset 0 -10px 18px -12px #5a351766; }
+.rs-scroll::before, .rs-scroll::after { content: ''; position: absolute; left: -4px; right: -4px; height: 10px; border-radius: 6px;
+  background: linear-gradient(180deg, var(--c-brown-soft), var(--c-brown) 60%, var(--c-brown-deep)); box-shadow: 0 2px 3px #3a231055; }
+.rs-scroll::before { top: -5px; } .rs-scroll::after { bottom: -5px; }
+.rs-tree, .rs-kids { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.rs-kids { position: relative; margin: 6px 0 0 22px; padding-left: 14px; }
+.rs-kids::before { content: ''; position: absolute; left: 0; top: -6px; bottom: 26px; width: 3px; border-radius: 3px; background: var(--c-tan-border); }
+.rs-kids > li { position: relative; }
+.rs-kids > li::before { content: ''; position: absolute; left: -14px; top: 26px; width: 14px; height: 3px; border-radius: 3px; background: var(--c-tan-border); }
+.rs-kids > li.is-done::before, .rs-tree li.is-done > .rs-kids::before { background: var(--c-gold-deep); }
+/* Dal sekmeleri: dal renginde asılı sancaklar. */
+.rs-strip { padding-bottom: 8px; }
+.rs-strip button { min-height: 58px; min-width: 88px; padding: 7px 12px 16px; border-radius: 4px 4px 0 0; border: 1px solid var(--c-gold-deep); color: var(--c-cream);
+  background: linear-gradient(180deg, var(--b-dark), color-mix(in srgb, var(--b-dark) 70%, black)); text-shadow: 0 1px 1px #0008;
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 84%, 0 100%); box-shadow: inset 0 0 0 2px #f2d37d55; }
+.rs-strip button[aria-selected="true"] { color: var(--c-ink-deep); text-shadow: none;
+  background: linear-gradient(180deg, var(--c-gold-pale), var(--c-gold) 55%, var(--c-gold-deep)); border-color: var(--c-brass-dark); }
+.rs-strip button .rs-strip-meter { background: #ffffff40; }
+.rs-strip button[aria-selected="true"] .rs-strip-meter i { background: var(--c-brown); }

@@ -6,6 +6,16 @@ export type Release = { version: string; date: string; title: string; notes: str
 
 export const CHANGELOG: Release[] = [
   {
+    version: '0.47.0', date: '4 Ekim 2026', title: 'Sahne gibi sayfalar: bina, savaş raporu, araştırma ağacı',
+    notes: [
+      'Bina sayfasında yapı artık bir manzarada duruyor: gökyüzü, uzak tepeler, çimen (liman yapılarında deniz) ve iki yanda ağaçlar.',
+      'Kışla, Tersane ve Elçilik açılınca birlikler büyük boyalı portrelerle yana kayan bir şeritte; dokunduğun birliğin eğitim kartı hemen altında açılır. Ordu özeti katlanır bölüme taşındı.',
+      'Yükseltme şeridinde binanın bir sonraki görünümü ve "Yükseltme gereksinimleri" yazısı var; Yükselt düğmesi altın renkte.',
+      'Savaş raporu yeniden tasarlandı: savaş meydanı resmi üstünde Zafer!/Yenilgi şeridi, karşı karşıya iki komutan (yapay rakipte kendi portresi), iki ordunun güç çubuğu ve birlik birlik gelen/düşen satırları.',
+      'Araştırmalar parşömen tomarında bir ağaç olarak dizildi: her araştırma ön koşulunun altında, çizgilerle bağlı. Dal sekmeleri dal renginde sancaklar.',
+    ],
+  },
+  {
     version: '0.46.0', date: '4 Ekim 2026', title: 'Boyalı yüz tamam: derin sayfalar, kahve binaları, yeni giriş',
     notes: [
       'Araştırma amblemleri, kültür ve inanç sayfaları, yapay rakip hükümdar portreleri, başarım madalyaları ve kara/deniz savaş meydanları boyandı.',
