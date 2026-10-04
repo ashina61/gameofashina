@@ -1,0 +1,665 @@
+{
+  "errors": [],
+  "missing": [],
+  "screens": [
+    "zeytin",
+    "akcam",
+    "kizil",
+    "akdeniz",
+    "yalcin",
+    "atessiz",
+    "baglik",
+    "mercan",
+    "sakiz",
+    "poyraz",
+    "kartal",
+    "lodos",
+    "fener",
+    "hisarada",
+    "lalezar",
+    "sahil"
+  ],
+  "worldIslands": 16,
+  "anchors": [
+    {
+      "id": "zeytin",
+      "name": "city",
+      "alpha": 255
+    },
+    {
+      "id": "zeytin",
+      "name": "mine",
+      "alpha": 255
+    },
+    {
+      "id": "zeytin",
+      "name": "forest",
+      "alpha": 255
+    },
+    {
+      "id": "zeytin",
+      "name": "koy",
+      "alpha": 255
+    },
+    {
+      "id": "zeytin",
+      "name": "korsan",
+      "alpha": 255
+    },
+    {
+      "id": "zeytin",
+      "name": "kale",
+      "alpha": 255
+    },
+    {
+      "id": "zeytin",
+      "name": "rakip1",
+      "alpha": 255
+    },
+    {
+      "id": "zeytin",
+      "name": "rakip2",
+      "alpha": 255
+    },
+    {
+      "id": "akcam",
+      "name": "city",
+      "alpha": 255
+    },
+    {
+      "id": "akcam",
+      "name": "mine",
+      "alpha": 255
+    },
+    {
+      "id": "akcam",
+      "name": "forest",
+      "alpha": 255
+    },
+    {
+      "id": "akcam",
+      "name": "koy",
+      "alpha": 255
+    },
+    {
+      "id": "akcam",
+      "name": "korsan",
+      "alpha": 255
+    },
+    {
+      "id": "akcam",
+      "name": "kale",
+      "alpha": 255
+    },
+    {
+      "id": "akcam",
+      "name": "rakip1",
+      "alpha": 255
+    },
+    {
+      "id": "akcam",
+      "name": "rakip2",
+      "alpha": 255
+    },
+    {
+      "id": "kizil",
+      "name": "city",
+      "alpha": 255
+    },
+    {
+      "id": "kizil",
+      "name": "mine",
+      "alpha": 255
+    },
+    {
+      "id": "kizil",
+      "name": "forest",
+      "alpha": 255
+    },
+    {
+      "id": "kizil",
+      "name": "koy",
+      "alpha": 255
+    },
+    {
+      "id": "kizil",
+      "name": "korsan",
+      "alpha": 255
+    },
+    {
+      "id": "kizil",
+      "name": "kale",
+      "alpha": 255
+    },
+    {
+      "id": "kizil",
+      "name": "rakip1",
+      "alpha": 255
+    },
+    {
+      "id": "kizil",
+      "name": "rakip2",
+      "alpha": 255
+    },
+    {
+      "id": "akdeniz",
+      "name": "city",
+      "alpha": 255
+    },
+    {
+      "id": "akdeniz",
+      "name": "mine",
+      "alpha": 255
+    },
+    {
+      "id": "akdeniz",
+      "name": "forest",
+      "alpha": 255
+    },
+    {
+      "id": "akdeniz",
+      "name": "koy",
+      "alpha": 255
+    },
+    {
+      "id": "akdeniz",
+      "name": "korsan",
+      "alpha": 255
+    },
+    {
+      "id": "akdeniz",
+      "name": "kale",
+      "alpha": 255
+    },
+    {
+      "id": "akdeniz",
+      "name": "rakip1",
+      "alpha": 255
+    },
+    {
+      "id": "akdeniz",
+      "name": "rakip2",
+      "alpha": 255
+    },
+    {
+      "id": "yalcin",
+      "name": "city",
+      "alpha": 255
+    },
+    {
+      "id": "yalcin",
+      "name": "mine",
+      "alpha": 255
+    },
+    {
+      "id": "yalcin",
+      "name": "forest",
+      "alpha": 255
+    },
+    {
+      "id": "yalcin",
+      "name": "koy",
+      "alpha": 255
+    },
+    {
+      "id": "yalcin",
+      "name": "korsan",
+      "alpha": 255
+    },
+    {
+      "id": "yalcin",
+      "name": "kale",
+      "alpha": 255
+    },
+    {
+      "id": "yalcin",
+      "name": "rakip1",
+      "alpha": 255
+    },
+    {
+      "id": "yalcin",
+      "name": "rakip2",
+      "alpha": 255
+    },
+    {
+      "id": "atessiz",
+      "name": "city",
+      "alpha": 255
+    },
+    {
+      "id": "atessiz",
+      "name": "mine",
+      "alpha": 255
+    },
+    {
+      "id": "atessiz",
+      "name": "forest",
+      "alpha": 255
+    },
+    {
+      "id": "atessiz",
+      "name": "koy",
+      "alpha": 255
+    },
+    {
+      "id": "atessiz",
+      "name": "korsan",
+      "alpha": 255
+    },
+    {
+      "id": "atessiz",
+      "name": "kale",
+      "alpha": 255
+    },
+    {
+      "id": "atessiz",
+      "name": "rakip1",
+      "alpha": 255
+    },
+    {
+      "id": "atessiz",
+      "name": "rakip2",
+      "alpha": 255
+    },
+    {
+      "id": "baglik",
+      "name": "city",
+      "alpha": 255
+    },
+    {
+      "id": "baglik",
+      "name": "mine",
+      "alpha": 255
+    },
+    {
+      "id": "baglik",
+      "name": "forest",
+      "alpha": 255
+    },
+    {
+      "id": "baglik",
+      "name": "koy",
+      "alpha": 255
+    },
+    {
+      "id": "baglik",
+      "name": "korsan",
+      "alpha": 255
+    },
+    {
+      "id": "baglik",
+      "name": "kale",
+      "alpha": 255
+    },
+    {
+      "id": "baglik",
+      "name": "rakip1",
+      "alpha": 255
+    },
+    {
+      "id": "baglik",
+      "name": "rakip2",
+      "alpha": 255
+    },
+    {
+      "id": "mercan",
+      "name": "city",
+      "alpha": 255
+    },
+    {
+      "id": "mercan",
+      "name": "mine",
+      "alpha": 255
+    },
+    {
+      "id": "mercan",
+      "name": "forest",
+      "alpha": 255
+    },
+    {
+      "id": "mercan",
+      "name": "koy",
+      "alpha": 255
+    },
+    {
+      "id": "mercan",
+      "name": "korsan",
+      "alpha": 255
+    },
+    {
+      "id": "mercan",
+      "name": "kale",
+      "alpha": 255
+    },
+    {
+      "id": "mercan",
+      "name": "rakip1",
+      "alpha": 255
+    },
+    {
+      "id": "mercan",
+      "name": "rakip2",
+      "alpha": 255
+    },
+    {
+      "id": "sakiz",
+      "name": "city",
+      "alpha": 255
+    },
+    {
+      "id": "sakiz",
+      "name": "mine",
+      "alpha": 255
+    },
+    {
+      "id": "sakiz",
+      "name": "forest",
+      "alpha": 255
+    },
+    {
+      "id": "sakiz",
+      "name": "koy",
+      "alpha": 255
+    },
+    {
+      "id": "sakiz",
+      "name": "korsan",
+      "alpha": 255
+    },
+    {
+      "id": "sakiz",
+      "name": "kale",
+      "alpha": 255
+    },
+    {
+      "id": "sakiz",
+      "name": "rakip1",
+      "alpha": 255
+    },
+    {
+      "id": "sakiz",
+      "name": "rakip2",
+      "alpha": 255
+    },
+    {
+      "id": "poyraz",
+      "name": "city",
+      "alpha": 255
+    },
+    {
+      "id": "poyraz",
+      "name": "mine",
+      "alpha": 255
+    },
+    {
+      "id": "poyraz",
+      "name": "forest",
+      "alpha": 255
+    },
+    {
+      "id": "poyraz",
+      "name": "koy",
+      "alpha": 255
+    },
+    {
+      "id": "poyraz",
+      "name": "korsan",
+      "alpha": 255
+    },
+    {
+      "id": "poyraz",
+      "name": "kale",
+      "alpha": 255
+    },
+    {
+      "id": "poyraz",
+      "name": "rakip1",
+      "alpha": 255
+    },
+    {
+      "id": "poyraz",
+      "name": "rakip2",
+      "alpha": 255
+    },
+    {
+      "id": "kartal",
+      "name": "city",
+      "alpha": 255
+    },
+    {
+      "id": "kartal",
+      "name": "mine",
+      "alpha": 255
+    },
+    {
+      "id": "kartal",
+      "name": "forest",
+      "alpha": 255
+    },
+    {
+      "id": "kartal",
+      "name": "koy",
+      "alpha": 255
+    },
+    {
+      "id": "kartal",
+      "name": "korsan",
+      "alpha": 255
+    },
+    {
+      "id": "kartal",
+      "name": "kale",
+      "alpha": 255
+    },
+    {
+      "id": "kartal",
+      "name": "rakip1",
+      "alpha": 255
+    },
+    {
+      "id": "kartal",
+      "name": "rakip2",
+      "alpha": 255
+    },
+    {
+      "id": "lodos",
+      "name": "city",
+      "alpha": 255
+    },
+    {
+      "id": "lodos",
+      "name": "mine",
+      "alpha": 255
+    },
+    {
+      "id": "lodos",
+      "name": "forest",
+      "alpha": 255
+    },
+    {
+      "id": "lodos",
+      "name": "koy",
+      "alpha": 255
+    },
+    {
+      "id": "lodos",
+      "name": "korsan",
+      "alpha": 255
+    },
+    {
+      "id": "lodos",
+      "name": "kale",
+      "alpha": 255
+    },
+    {
+      "id": "lodos",
+      "name": "rakip1",
+      "alpha": 255
+    },
+    {
+      "id": "lodos",
+      "name": "rakip2",
+      "alpha": 255
+    },
+    {
+      "id": "fener",
+      "name": "city",
+      "alpha": 255
+    },
+    {
+      "id": "fener",
+      "name": "mine",
+      "alpha": 255
+    },
+    {
+      "id": "fener",
+      "name": "forest",
+      "alpha": 255
+    },
+    {
+      "id": "fener",
+      "name": "koy",
+      "alpha": 255
+    },
+    {
+      "id": "fener",
+      "name": "korsan",
+      "alpha": 255
+    },
+    {
+      "id": "fener",
+      "name": "kale",
+      "alpha": 255
+    },
+    {
+      "id": "fener",
+      "name": "rakip1",
+      "alpha": 255
+    },
+    {
+      "id": "fener",
+      "name": "rakip2",
+      "alpha": 255
+    },
+    {
+      "id": "hisarada",
+      "name": "city",
+      "alpha": 255
+    },
+    {
+      "id": "hisarada",
+      "name": "mine",
+      "alpha": 255
+    },
+    {
+      "id": "hisarada",
+      "name": "forest",
+      "alpha": 255
+    },
+    {
+      "id": "hisarada",
+      "name": "koy",
+      "alpha": 255
+    },
+    {
+      "id": "hisarada",
+      "name": "korsan",
+      "alpha": 255
+    },
+    {
+      "id": "hisarada",
+      "name": "kale",
+      "alpha": 255
+    },
+    {
+      "id": "hisarada",
+      "name": "rakip1",
+      "alpha": 255
+    },
+    {
+      "id": "hisarada",
+      "name": "rakip2",
+      "alpha": 255
+    },
+    {
+      "id": "lalezar",
+      "name": "city",
+      "alpha": 255
+    },
+    {
+      "id": "lalezar",
+      "name": "mine",
+      "alpha": 255
+    },
+    {
+      "id": "lalezar",
+      "name": "forest",
+      "alpha": 255
+    },
+    {
+      "id": "lalezar",
+      "name": "koy",
+      "alpha": 255
+    },
+    {
+      "id": "lalezar",
+      "name": "korsan",
+      "alpha": 255
+    },
+    {
+      "id": "lalezar",
+      "name": "kale",
+      "alpha": 255
+    },
+    {
+      "id": "lalezar",
+      "name": "rakip1",
+      "alpha": 255
+    },
+    {
+      "id": "lalezar",
+      "name": "rakip2",
+      "alpha": 255
+    },
+    {
+      "id": "sahil",
+      "name": "city",
+      "alpha": 255
+    },
+    {
+      "id": "sahil",
+      "name": "mine",
+      "alpha": 255
+    },
+    {
+      "id": "sahil",
+      "name": "forest",
+      "alpha": 255
+    },
+    {
+      "id": "sahil",
+      "name": "koy",
+      "alpha": 255
+    },
+    {
+      "id": "sahil",
+      "name": "korsan",
+      "alpha": 255
+    },
+    {
+      "id": "sahil",
+      "name": "kale",
+      "alpha": 255
+    },
+    {
+      "id": "sahil",
+      "name": "rakip1",
+      "alpha": 255
+    },
+    {
+      "id": "sahil",
+      "name": "rakip2",
+      "alpha": 255
+    }
+  ]
+}

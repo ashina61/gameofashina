@@ -6,6 +6,14 @@ export type Release = { version: string; date: string; title: string; notes: str
 
 export const CHANGELOG: Release[] = [
   {
+    version: '0.45.0', date: '4 Ekim 2026', title: 'Boyalı adalar ve dünya haritası',
+    notes: [
+      'On altı adanın her biri ayrı boyandı: kızıl kayalıklar, çam ormanları, kumsallar, koylar ve dağ tepeleri.',
+      'Dünya haritasında açık deniz boyalı, adalar kendi küçük resimleriyle görünür; harita boyalı çerçeve içinde.',
+      'Haritadaki nakliye gemileri yeni gemi çizimini kullanır.',
+    ],
+  },
+  {
     version: '0.44.0', date: '4 Ekim 2026', title: 'Boyalı surlar, ada yapıları ve gemiler',
     notes: [
       'Surlar üç kademede boyalı: önce kazıklı moloz duvar, sonra kesme taş, en sonda tuğla kuşaklı taş. Kuleler ve kapılar da seviyeyle büyür; sancaklar senin renginde.',

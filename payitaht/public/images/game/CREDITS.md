@@ -281,3 +281,10 @@ Original built-in Codex ImageGen artwork, one generation per asset. References: 
 - `siege/checkpoint.webp`
 
 Existing phone building derivatives recompressed from their original full sources at WebP quality 78, with dimensions and original credits retained.
+
+## G8 — Boyalı adalar ve dünya haritası (2026-10-04)
+
+OpenAI imagegen ile G0 stil referansından üretilmiş 16 özgün ada arazisi ve
+boyalı açık deniz. Küçük harita simgeleri aynı kaynakların yeniden boyutlanmış
+kopyalarıdır. Tarif: `tools/art/prompts/g8.md`. Başka oyun görseli kullanılmadı;
+proje sahibinin oyununda kullanım için üretilmiştir. Harita çerçevesi G1 setinden.

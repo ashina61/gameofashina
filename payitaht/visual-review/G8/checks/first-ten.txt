@@ -1,0 +1,20 @@
+tıklanamadı: Yükselt · Sv. 2
+30 sn (locator.click: Timeout 3000ms exceeded.)
+tıklanamadı: Yükselt · Sv. 2
+30 sn (locator.click: Timeout 3000ms exceeded.)
+1.2 dk: first-upgrade
+tıklanamadı: İnşa et
+20 sn (locator.click: Timeout 3000ms exceeded.)
+1.8 dk: first-academy
+1.8 dk: first-worker
+tıklanamadı: Araştır (locator.click: Timeout 3000ms exceeded.)
+tıklanamadı: Ödülü al (locator.click: Timeout 3000ms exceeded.)
+2.7 dk: first-research
+tıklanamadı: İnşa et
+20 sn (locator.click: Timeout 3000ms exceeded.)
+3.3 dk: barracks
+3.8 dk: walls
+tıklanamadı: Git (locator.click: Timeout 3000ms exceeded.)
+4.8 dk: troops
+5.1 dk: first-raid
+İlk sekiz hedef 5.1 oyun dakikasında tamam.
