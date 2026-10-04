@@ -6,6 +6,15 @@ export type Release = { version: string; date: string; title: string; notes: str
 
 export const CHANGELOG: Release[] = [
   {
+    version: '0.46.0', date: '4 Ekim 2026', title: 'Boyalı yüz tamam: derin sayfalar, kahve binaları, yeni giriş',
+    notes: [
+      'Araştırma amblemleri, kültür ve inanç sayfaları, yapay rakip hükümdar portreleri, başarım madalyaları ve kara/deniz savaş meydanları boyandı.',
+      'Bina setinin hepsi aynı resim diline göre denetlendi. Kahve Fidanlığı ve Kahve Kileri artık kahve temalı: fidan sıraları, çuvallar, kavurma ocağı.',
+      'Giriş ekranı yenilendi: Payitaht manzarası, boyalı logo plakası.',
+      'Uygulama simgesi ve açılış ekranı yeni: altın çerçeveli cami simgesi (web ve Android).',
+    ],
+  },
+  {
     version: '0.45.0', date: '4 Ekim 2026', title: 'Boyalı adalar ve dünya haritası',
     notes: [
       'On altı adanın her biri ayrı boyandı: kızıl kayalıklar, çam ormanları, kumsallar, koylar ve dağ tepeleri.',
