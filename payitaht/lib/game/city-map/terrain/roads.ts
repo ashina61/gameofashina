@@ -300,11 +300,14 @@ export function buildRoads({ V, divanLevel, occupiedSlotIds, scene, shoreY, stam
     let pairOrdinal = 0
     // Use actual curved road normals, and place complete mirrored pairs.
     for (const [roadIndex, r] of visibleCurves.filter(r => r.kind === 'avenue' || r.kind === 'quay').entries()) {
-      const keys = [roadIndex % 2 ? 'd_terracotta-pots' : 'd_stone-bench']
+      const nearBuiltStreet = (r.from !== HALL_SLOT_ID && active.has(r.from)) || (r.to !== HALL_SLOT_ID && active.has(r.to))
+      const keys: string[] = roadIndex % 2 === 0 ? [roadIndex % 4 ? 'd_terracotta-pots' : 'd_stone-bench'] : []
       if (r.kind === 'avenue' && tier >= 3) keys.push(roadIndex % 2 ? 'd_cypress' : 'd_cypress-b')
       keys.forEach((key, index) => {
         const u = (index + 1) / (keys.length + 1)
         const p = r.curve.getPointAt(u), tangent = r.curve.getTangentAt(u)
+        const nearPlaza = ((p.x - PLAZA.screen.x) / (PLAZA.rx * 1.6)) ** 2 + ((p.y - PLAZA.screen.y) / (PLAZA.ry * 1.6)) ** 2 < 1
+        if (!key.includes('cypress') && !nearBuiltStreet && !nearPlaza) return
         const len = Math.hypot(tangent.x, tangent.y) || 1
         const nx = -tangent.y / len, ny = tangent.x / len
         const src = scene.textures.get(key).getSourceImage() as HTMLImageElement
@@ -316,7 +319,7 @@ export function buildRoads({ V, divanLevel, occupiedSlotIds, scene, shoreY, stam
         const pair = points.map(p => stamp(key, p.x, p.y, width, p.y - 0.2, 0.92, 1))
         if (pair.some(i => !i)) { for (const i of pair) i?.destroy(); return }
         pairOrdinal++
-        for (const image of pair) if (image) { image.setData('roadsidePair', r.from + ':' + r.to + ':' + u).setData('decorPairOrdinal', pairOrdinal).setVisible(!liteMode() || pairOrdinal % 2 === 1); roadTextures.push(image) }
+        for (const image of pair) if (image) { image.setData('roadsidePair', r.from + ':' + r.to + ':' + u).setData('decorPairOrdinal', pairOrdinal).setData('roadsideAllowed', nearBuiltStreet || nearPlaza || key.includes('cypress')).setVisible(!liteMode() || pairOrdinal % 2 === 1); roadTextures.push(image) }
       })
     }
 

@@ -24,11 +24,13 @@ async function main() {
     await page.goto(qaOrigin(),{waitUntil:'domcontentloaded'});await page.getByRole('button',{name:START_BUTTON}).click();await page.waitForFunction(()=>!!document.documentElement.dataset.cityReady);await page.evaluate(()=>window.__payitahtQa.close());await page.waitForTimeout(700)
     const clearance=await page.evaluate(()=>JSON.parse(document.documentElement.dataset.decorClearance||'null'))
     if(phase==='after'&&(!clearance?.checked||clearance.violations.length))throw new Error('Decor on road/plaza/quay: '+JSON.stringify({scenario,clearance}))
+    if(phase==='after'&&clearance?.roadside.some(p=>p.allowed===false))throw new Error('Roadside prop on empty street')
     const pairs={};for(const prop of clearance?.roadside||[]){(pairs[prop.pair]??=[]).push(prop)}
     if(Object.values(pairs).some(p=>p.length!==2))throw new Error('Asymmetric roadside pair')
     report.scenes.push({scenario,...clearance})
     await reviewWebp(await page.screenshot(),path.join(out,scenario==='initial'?'city-center-390x844.webp':scenario==='grown'?'city-grown-390x844.webp':'city-grown-lite-390x844.webp'))
     if(scenario==='grown') {
+      const tools=page.getByRole('button',{name:'Harita araçları',exact:true});if(await tools.count())await tools.click();
       await page.getByRole('button',{name:'Donanma ve limana git',exact:true}).click();await page.waitForTimeout(700)
       await reviewWebp(await page.screenshot(),path.join(out,'harbour-390x844.webp'))
     }

@@ -1,7 +1,7 @@
 'use client'
 
 import { useRef, useState, type ReactNode } from 'react'
-import { Sun, Sunset, Moon, Flag, Move, Anchor, Landmark } from './ui-art'
+import { Sun, Sunset, Moon, Flag, Move, Anchor, Landmark, Settings } from './ui-art'
 import { skyTint } from '@/lib/game/sky'
 import type { BannerLook } from '@/lib/game/banner'
 import { BUILDINGS, BUILDING_IDS, type Game, type BuildingId } from '@/lib/game/engine'
@@ -40,6 +40,7 @@ export function CityScene({ game, placing, onBuilding, onPlot, onRoad, moving, m
   // Ikariam gibi: bina adları varsayılan olarak GİZLİ (göz binaya ve caddeye odaklanır);
   // bayrak düğmesi açar. İnşaat süren binanın sayacı her zaman görünür.
   const [labels, setLabels] = useState(false)
+  const [toolsOpen, setToolsOpen] = useState(false)
   const controls = useRef<CityControls | null>(null)
 
   return <section className={`city-scene${siege.occupation ? ' city-occupied' : ''}${siege.blockade ? ' city-blockaded' : ''}`}
@@ -53,6 +54,8 @@ export function CityScene({ game, placing, onBuilding, onPlot, onRoad, moving, m
     {shortcuts}
 
     <div className="map-top-tools">
+      <button type="button" aria-label="Harita araçları" aria-expanded={toolsOpen} onClick={() => setToolsOpen(v => !v)}><Settings size={28} /></button>
+      {toolsOpen && <>
       <button aria-label={labels ? t.city.labelsHide : t.city.labelsShow}
         onClick={() => setLabels(v => !v)} aria-pressed={labels}><Flag painted /></button>
       <button aria-label={t.city.harbour} title={t.city.harbour}
@@ -60,6 +63,7 @@ export function CityScene({ game, placing, onBuilding, onPlot, onRoad, moving, m
       <button aria-label={t.city.recenter} title={t.city.recenter}
         onClick={() => controls.current?.recenter()}><Landmark painted /></button>
 
+      </>}
     </div>
 
     {/*

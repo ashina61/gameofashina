@@ -23,8 +23,8 @@ async function main(){
   }
   if(!saved)throw Error(`${r.id}: ${maxBytes} byte allowance exceeded`)
  }
- await fs.mkdir('visual-review/G6',{recursive:true})
- await fs.writeFile('visual-review/G6/encoding.json',JSON.stringify(encoding,null,2))
+ await fs.mkdir(process.env.UNIT_REVIEW_ROOT || 'visual-review/G6',{recursive:true})
+ await fs.writeFile(`${process.env.UNIT_REVIEW_ROOT || 'visual-review/G6'}/encoding.json`,JSON.stringify(encoding,null,2))
  console.log(`Normalized ${records.length} units`)
 }
 main().catch(e=>{console.error(e);process.exitCode=1})

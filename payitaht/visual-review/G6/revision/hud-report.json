@@ -1,0 +1,68 @@
+{
+  "chips": [
+    {
+      "kind": "gold",
+      "icon": 18,
+      "buttons": [
+        {
+          "width": 59,
+          "height": 44
+        }
+      ]
+    },
+    {
+      "kind": "wood",
+      "icon": 18,
+      "buttons": [
+        {
+          "width": 59,
+          "height": 44
+        }
+      ]
+    },
+    {
+      "kind": "knowledge",
+      "icon": 18,
+      "buttons": [
+        {
+          "width": 59,
+          "height": 44
+        }
+      ]
+    },
+    {
+      "kind": "lux",
+      "icon": 18,
+      "buttons": [
+        {
+          "width": 59,
+          "height": 44
+        }
+      ]
+    },
+    {
+      "kind": "pop",
+      "icon": 18,
+      "buttons": [
+        {
+          "width": 59,
+          "height": 44
+        }
+      ]
+    },
+    {
+      "kind": "ap",
+      "icon": 18,
+      "buttons": [
+        {
+          "width": 59,
+          "height": 44
+        }
+      ]
+    }
+  ],
+  "shortcuts": 4,
+  "activityCards": 1,
+  "errors": [],
+  "missing": []
+}

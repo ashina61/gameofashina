@@ -235,3 +235,13 @@ G6 reddedilen/ara üretimler (OpenAI ImageGen, 2026-10-03): aşağıdaki çıkt�
 - `exec-c6b77505-284e-4d49-b991-e5b21e18defc.png`
 
 G6 son kodlama: telefon toplamı ondalık 15.000.000 bayt sınırında; kara figürü ≤25.000, deniz figürü ≤40.000 bayt (birlik başına 60 KB üst sınırından daha sıkı). Alfa ve RGB kalite ayarları `visual-review/G6/encoding.json`; poz/ölçek korunur.
+
+## G6 revision — 2026-10-04
+
+Built-in Codex imagegen, original generated artwork with approved G0 style reference.
+Prompt set: `tools/art/prompts/g6-revision.md`. Project use permitted under the
+image generation service terms; no third-party game assets copied.
+Replaced: `units/nakliye.webp`, `units/ikmal_gemisi.webp`,
+`units/karamursel.webp`, `units/humbara_gemisi.webp`,
+`units/mancinik_gemisi.webp`, `units/zenberek_gemisi.webp`,
+`units/ates_gemisi.webp`. New: `icons/ui-mail.webp`, `icons/ui-week.webp`.

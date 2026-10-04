@@ -81,7 +81,7 @@ export function ObjectiveCard({ game, onClaim, onBuild }: { game: Game; onClaim:
     {list}
   </section>
 }
-export function EconomyDetails({ game }: { game: Game }) {
+export function EconomyDetails({ game, onMarket }: { game: Game; onMarket?: () => void }) {
   const production = rates(game)
   const luxRates = luxuryRates(game)
   const limit = capacity(game)
@@ -106,6 +106,7 @@ export function EconomyDetails({ game }: { game: Game }) {
   }
   const spec = game.mine.specialty
   return <div className="treasury">
+    {onMarket && <GameButton onClick={onMarket}>Çarşı ve tüccar</GameButton>}
     {full.length > 0 && <p className="storage-alert" role="status"><TriangleAlert className="size-4" />{full.map(id => RESOURCE_NAMES[id]).join(', ')} ambarı dolu. Üretim boşa gidiyor: Ambar’ı yükselt ya da harca.</p>}
     <section>
       <h4 className="treasury-head"><span>Ana kaynaklar</span><small>Ambar: {formatNumber(limit)}</small></h4>

@@ -1,0 +1,7 @@
+| Ölçüt | Bugün | Hedef |
+|---|---|---|
+| Oyun ekranlarında Lucide çizgi ikon kullanan dosya | 0 ✓ | ≤ 5 |
+| Oyun klasöründe shadcn <Button> | 0 ✓ | ≤ 0 |
+| Oyun ekranlarındaki <table> | 4 ✓ | ≤ 4 |
+| Telefonda indirilen bina görselleri (MB) | 9.6 ✓ | ≤ 15 |
+| En büyük kaynak dosyası (lib/game/engine.test.ts) | 774 ✓ | ≤ 800 |

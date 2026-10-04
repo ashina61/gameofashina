@@ -1,0 +1,58 @@
+[
+  {
+    "id": "nakliye",
+    "source": "exec-619f1b32-4cab-4748-9005-c4ae6664439b.png",
+    "quality": 82,
+    "alphaQuality": 100,
+    "maxBytes": 40000,
+    "bytes": 38432
+  },
+  {
+    "id": "ikmal_gemisi",
+    "source": "exec-1b0355c4-f267-41d3-a2bc-77a348614fa2.png",
+    "quality": 82,
+    "alphaQuality": 80,
+    "maxBytes": 40000,
+    "bytes": 37714
+  },
+  {
+    "id": "karamursel",
+    "source": "exec-110f66e0-4088-453f-980c-dcb347d614f7.png",
+    "quality": 82,
+    "alphaQuality": 60,
+    "maxBytes": 40000,
+    "bytes": 37202
+  },
+  {
+    "id": "humbara_gemisi",
+    "source": "exec-75b7d48d-2e3b-4103-a117-80d83dcf63cf.png",
+    "quality": 82,
+    "alphaQuality": 100,
+    "maxBytes": 40000,
+    "bytes": 36600
+  },
+  {
+    "id": "mancinik_gemisi",
+    "source": "exec-09fbdc72-8902-41d7-ba5d-1979a7ec6c83.png",
+    "quality": 82,
+    "alphaQuality": 100,
+    "maxBytes": 40000,
+    "bytes": 38662
+  },
+  {
+    "id": "zenberek_gemisi",
+    "source": "exec-663e803f-aa30-4ea3-b868-797a270dc1f7.png",
+    "quality": 82,
+    "alphaQuality": 100,
+    "maxBytes": 40000,
+    "bytes": 33224
+  },
+  {
+    "id": "ates_gemisi",
+    "source": "exec-69f7e893-9366-4d18-8b13-343747fa2c10.png",
+    "quality": 82,
+    "alphaQuality": 100,
+    "maxBytes": 40000,
+    "bytes": 34936
+  }
+]

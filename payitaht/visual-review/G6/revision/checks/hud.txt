@@ -1,0 +1,1 @@
+HUD navigation, targets, card images and shortcuts passed

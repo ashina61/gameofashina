@@ -1,0 +1,9 @@
+0.8 dk: first-upgrade
+1.3 dk: first-academy
+1.4 dk: first-worker
+2.1 dk: first-research
+2.6 dk: barracks
+3.0 dk: walls
+3.9 dk: troops
+4.1 dk: first-raid
+İlk sekiz hedef 4.1 oyun dakikasında tamam.

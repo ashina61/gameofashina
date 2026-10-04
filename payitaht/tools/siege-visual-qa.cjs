@@ -59,6 +59,7 @@ module.exports = async function siegeReview(browser, out, origin, seedRaw, diagn
   }
   await importState([occupation]); await shot('occupation')
   await importState([occupation, blockade]); await shot('both')
+  await page.getByRole('button', { name: 'Harita araçları', exact: true }).click()
   await page.getByRole('button', { name: 'Donanma ve limana git' }).click(); await page.waitForTimeout(600); await shot('both-harbour')
   await importState([blockade]); await shot('blockade')
   await importState([]); await shot('liberated-harbour')

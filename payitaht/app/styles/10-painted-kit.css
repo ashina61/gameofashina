@@ -110,26 +110,25 @@
 @media (prefers-reduced-motion: reduce) { .ika-advisor-news .advisor-portrait { animation: none; filter: drop-shadow(0 0 5px var(--c-alert-gold)); } }
 
 /* G5: ruler identity, individually actionable stocks and floating city rails. */
-.game-shell { --ika-top: calc(var(--sa-top) + 160px); }
+.game-shell { --ika-top: calc(var(--sa-top) + 110px); }
 .game-shell .ika-ribbon { min-height: 58px; gap: 5px; }
 .game-shell .ika-crest { flex-shrink: 0; }
 .game-shell .ika-city-name strong { font-size: 15px; }
 .ika-might { display: flex; align-items: center; gap: 3px; color: var(--c-gold-pale); font-size: 11px; font-variant-numeric: tabular-nums; }
-.game-shell .ika-res { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 3px; padding: 4px 6px; overflow: visible; }
+.game-shell .ika-res { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 3px; padding: 4px 6px; overflow: visible; }
 .game-shell .ika-chip { display: flex; flex-direction: row; min-width: 0; min-height: 44px; padding: 0; gap: 0; }
 .ika-stock-open { display: flex; justify-content: center; flex: 1; align-items: center; gap: 2px; min-width: 0; min-height: 44px; padding: 2px; color: inherit; background: none; border: 0; text-align: left; }
-.game-shell .ika-chip i :is(svg, .painted-icon) { width: 24px; height: 24px; flex-shrink: 0; }
-.game-shell .ika-chip b { font-size: 11px; }
-.game-shell .ika-chip small { font-size: 11px; }
+.game-shell .ika-chip i :is(svg, .painted-icon) { width: 18px; height: 18px; flex-shrink: 0; }
+.game-shell .ika-chip b { font-size: .6875rem; }
+.game-shell .ika-chip small { font-size: .6875rem; letter-spacing: -.3px; }
 .game-shell .ika-chip-num { min-width: 0; display: flex; flex-direction: column; gap: 2px; }
-.ika-stock-add { position: relative; flex-shrink: 0; width: 44px; height: 44px; display: grid; place-items: center; border: 0; border-radius: 4px; background: var(--c-wood-dark); color: var(--c-gold-pale); }
 .game-shell .ika-chip-flag { top: -3px; right: 0; }
 .game-shell .map-top-tools { top: auto; right: auto; left: 8px; bottom: calc(var(--ika-nav) + 110px); flex-direction: row; gap: 6px; }
 .game-shell .map-top-tools button, .city-shortcuts button { border-radius: 50%; background: var(--c-wood-dark) var(--art-medal-frame) center / 100% 100%; }
 .city-shortcuts { position: fixed; z-index: 4; top: calc(var(--ika-top) + 35px); right: 8px; display: flex; flex-direction: column; gap: 10px; }
 .city-shortcuts button { position: relative; display: grid; place-items: center; width: 48px; height: 48px; border: 1px solid var(--c-gold); color: var(--c-paper); box-shadow: 0 3px 8px #0007; }
 .city-shortcuts button :is(svg, .painted-icon) { width: 34px; height: 34px; }
-.city-shortcuts small { position: absolute; right: -1px; bottom: -4px; padding: 1px 5px; border-radius: 5px; background: var(--c-wood-dark); color: var(--c-paper); font-size: 11px; }
+.city-shortcuts small { position: absolute; right: 6px; bottom: 3px; padding: 0 3px; border-radius: 5px; background: var(--c-wood-dark); color: var(--c-paper); font-size: 11px; }
 .city-activity { position: fixed; left: 6px; top: calc(var(--ika-top) + 60px); z-index: 4; width: 118px; display: flex; flex-direction: column; gap: 5px; max-height: calc(100dvh - var(--ika-top) - var(--ika-nav) - 155px); overflow-y: auto; }
 .city-activity > button { display: flex; align-items: center; gap: 4px; min-height: 48px; padding: 4px; border: 1px solid var(--c-gold); border-radius: 9px; background: #2a1a0ee8; color: var(--c-paper); text-align: left; }
 .city-activity img { width: 34px; height: 36px; object-fit: contain; flex-shrink: 0; }
@@ -139,3 +138,23 @@
 .city-activity-meter { display: block; height: 3px; margin-top: 3px; background: #503d27; border-radius: 3px; overflow: hidden; }
 .city-activity-meter > i { display: block; height: 100%; background: var(--c-gold); }
 .game-shell .ika-nav-active::before { width: 28px; height: 12px; top: -3px; border-radius: 50%; border-bottom: 3px solid var(--c-gold-pale); background: none; }
+
+/* G6 revision: compact stocks and opt-in rails. */
+.game-shell .ika-res.ika-res-large { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.game-shell:has(.ika-res-large) { --ika-top: calc(var(--sa-top) + 160px); }
+.game-shell .ika-chip-negative small { color: #a12722; }
+.game-shell .ika-chip-full.ika-chip-negative small { color: #fff0cc; }
+.game-shell .city-activity > .city-activity-chip { width: fit-content; min-width: 98px; min-height: 44px; justify-content: center; padding: 6px; }
+.game-shell .map-top-tools { flex-direction: column-reverse; bottom: calc(var(--ika-nav) + 100px); }
+.game-shell .map-top-tools button { width: 44px; height: 44px; }
+.game-shell .map-top-tools .painted-ui-icon { width: 38px; height: 38px; }
+@media (max-width: 370px) {
+  .game-shell .ika-res { padding-inline: 3px; gap: 2px; }
+  .game-shell .ika-chip i :is(svg, .painted-icon) { width: 16px; height: 16px; }
+  .game-shell .ika-chip small { letter-spacing: -.6px; }
+}
+.game-shell .ika-stock-open { display: grid; grid-template-columns: 18px minmax(0, 1fr); grid-template-rows: auto auto; column-gap: 1px; row-gap: 1px; }
+.game-shell .ika-stock-open > i { grid-row: 1; grid-column: 1; }
+.game-shell .ika-chip-num { display: contents; }
+.game-shell .ika-chip-num > b { grid-row: 1; grid-column: 2; }
+.game-shell .ika-chip-num > small { grid-row: 2; grid-column: 1 / -1; text-align: center; }

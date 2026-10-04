@@ -1,0 +1,239 @@
+{
+  "assets": [
+    {
+      "file": "asci.webp",
+      "visibleFraction": 0.3001823425292969,
+      "bytes": 23264,
+      "width": 512,
+      "height": 512,
+      "alpha": true
+    },
+    {
+      "file": "ates_gemisi.webp",
+      "visibleFraction": 0.21337509155273438,
+      "bytes": 34936,
+      "width": 512,
+      "height": 512,
+      "alpha": true
+    },
+    {
+      "file": "azap.webp",
+      "visibleFraction": 0.2619590759277344,
+      "bytes": 23648,
+      "width": 512,
+      "height": 512,
+      "alpha": true
+    },
+    {
+      "file": "balon_gemisi.webp",
+      "visibleFraction": 0.3727226257324219,
+      "bytes": 37880,
+      "width": 512,
+      "height": 512,
+      "alpha": true
+    },
+    {
+      "file": "buharli_koc.webp",
+      "visibleFraction": 0.38153839111328125,
+      "bytes": 39448,
+      "width": 512,
+      "height": 512,
+      "alpha": true
+    },
+    {
+      "file": "casus.webp",
+      "visibleFraction": 0.2977485656738281,
+      "bytes": 23268,
+      "width": 512,
+      "height": 512,
+      "alpha": true
+    },
+    {
+      "file": "dalgic_gemisi.webp",
+      "visibleFraction": 0.25514984130859375,
+      "bytes": 39620,
+      "width": 512,
+      "height": 512,
+      "alpha": true
+    },
+    {
+      "file": "deli.webp",
+      "visibleFraction": 0.23233795166015625,
+      "bytes": 23006,
+      "width": 512,
+      "height": 512,
+      "alpha": true
+    },
+    {
+      "file": "hekim.webp",
+      "visibleFraction": 0.23698806762695312,
+      "bytes": 23306,
+      "width": 512,
+      "height": 512,
+      "alpha": true
+    },
+    {
+      "file": "hezarfen.webp",
+      "visibleFraction": 0.30692291259765625,
+      "bytes": 24640,
+      "width": 512,
+      "height": 512,
+      "alpha": true
+    },
+    {
+      "file": "humbara_gemisi.webp",
+      "visibleFraction": 0.25095367431640625,
+      "bytes": 36600,
+      "width": 512,
+      "height": 512,
+      "alpha": true
+    },
+    {
+      "file": "humbaraci.webp",
+      "visibleFraction": 0.23453903198242188,
+      "bytes": 22432,
+      "width": 512,
+      "height": 512,
+      "alpha": true
+    },
+    {
+      "file": "ikmal_gemisi.webp",
+      "visibleFraction": 0.2928886413574219,
+      "bytes": 37714,
+      "width": 512,
+      "height": 512,
+      "alpha": true
+    },
+    {
+      "file": "kadirga.webp",
+      "visibleFraction": 0.35760498046875,
+      "bytes": 37668,
+      "width": 512,
+      "height": 512,
+      "alpha": true
+    },
+    {
+      "file": "kalyon.webp",
+      "visibleFraction": 0.45204925537109375,
+      "bytes": 37674,
+      "width": 512,
+      "height": 512,
+      "alpha": true
+    },
+    {
+      "file": "karamursel.webp",
+      "visibleFraction": 0.3532218933105469,
+      "bytes": 37202,
+      "width": 512,
+      "height": 512,
+      "alpha": true
+    },
+    {
+      "file": "kocbasi.webp",
+      "visibleFraction": 0.4493598937988281,
+      "bytes": 24062,
+      "width": 512,
+      "height": 512,
+      "alpha": true
+    },
+    {
+      "file": "lagari.webp",
+      "visibleFraction": 0.29961395263671875,
+      "bytes": 24718,
+      "width": 512,
+      "height": 512,
+      "alpha": true
+    },
+    {
+      "file": "mancinik.webp",
+      "visibleFraction": 0.3642539978027344,
+      "bytes": 23528,
+      "width": 512,
+      "height": 512,
+      "alpha": true
+    },
+    {
+      "file": "mancinik_gemisi.webp",
+      "visibleFraction": 0.2056884765625,
+      "bytes": 38662,
+      "width": 512,
+      "height": 512,
+      "alpha": true
+    },
+    {
+      "file": "mizrakci.webp",
+      "visibleFraction": 0.2535667419433594,
+      "bytes": 22924,
+      "width": 512,
+      "height": 512,
+      "alpha": true
+    },
+    {
+      "file": "nakliye.webp",
+      "visibleFraction": 0.26224517822265625,
+      "bytes": 38432,
+      "width": 512,
+      "height": 512,
+      "alpha": true
+    },
+    {
+      "file": "okcu.webp",
+      "visibleFraction": 0.2029571533203125,
+      "bytes": 22726,
+      "width": 512,
+      "height": 512,
+      "alpha": true
+    },
+    {
+      "file": "sapanci.webp",
+      "visibleFraction": 0.246337890625,
+      "bytes": 24978,
+      "width": 512,
+      "height": 512,
+      "alpha": true
+    },
+    {
+      "file": "sipahi.webp",
+      "visibleFraction": 0.2653083801269531,
+      "bytes": 24168,
+      "width": 512,
+      "height": 512,
+      "alpha": true
+    },
+    {
+      "file": "topcu.webp",
+      "visibleFraction": 0.273712158203125,
+      "bytes": 24612,
+      "width": 512,
+      "height": 512,
+      "alpha": true
+    },
+    {
+      "file": "tufekci.webp",
+      "visibleFraction": 0.2550392150878906,
+      "bytes": 22426,
+      "width": 512,
+      "height": 512,
+      "alpha": true
+    },
+    {
+      "file": "yeniceri.webp",
+      "visibleFraction": 0.20978546142578125,
+      "bytes": 23964,
+      "width": 512,
+      "height": 512,
+      "alpha": true
+    },
+    {
+      "file": "zenberek_gemisi.webp",
+      "visibleFraction": 0.18947219848632812,
+      "bytes": 33224,
+      "width": 512,
+      "height": 512,
+      "alpha": true
+    }
+  ],
+  "bytes": 850730,
+  "phoneBytes": 14954852,
+  "budget": 15000000
+}

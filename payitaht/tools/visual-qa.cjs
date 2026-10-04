@@ -233,6 +233,7 @@ async function main() {
       diagnostics.screenshots.push(path.basename(finalBuildings))
     }
 
+    await page.getByRole('button', { name: 'Harita araçları', exact: true }).click()
     const harbour = page.getByRole('button', { name: 'Donanma ve limana git' })
     await harbour.click({ timeout: 10_000 })
     await page.waitForTimeout(1800)
