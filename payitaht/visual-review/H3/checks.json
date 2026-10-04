@@ -1,0 +1,16 @@
+{
+  "generator": "OpenAI ImageGen + light crop/cleanup; one-piece painted base",
+  "source_stitch_px": [
+    384,
+    355
+  ],
+  "width": 2336,
+  "height": 2160,
+  "bytes": 388212,
+  "quality": 82,
+  "visual_centers_json": "visual-review/H3/city-base-centers.json",
+  "visual_plot_count": 28,
+  "slot_coordinates_changed": false,
+  "connected_to_game": false,
+  "phase_stop": "H3"
+}

@@ -1,0 +1,69 @@
+  bas: Git [quest-chip-go guide-glow]
+tıklanamadı: Git (locator.click: Timeout 3000ms exceeded.)
+  bas: Git [quest-chip-go guide-glow]
+  bas: Yükselt · Sv. 2
+30 sn [bp-upgrade-button guide-glow]
+tıklanamadı: Yükselt · Sv. 2
+30 sn (locator.click: Timeout 3000ms exceeded.)
+  bas: Geri [bp-back guide-glow]
+tıklanamadı: Geri (locator.click: Timeout 3000ms exceeded.)
+  bas: Geri [bp-back guide-glow]
+tıklanamadı: Geri (locator.click: Timeout 3000ms exceeded.)
+  bas: Geri [bp-back guide-glow]
+tıklanamadı: Geri (locator.click: Timeout 3000ms exceeded.)
+  bas: Geri [bp-back guide-glow]
+tıklanamadı: Geri (locator.click: Timeout 3000ms exceeded.)
+  bas: Geri [bp-back guide-glow]
+tıklanamadı: Geri (locator.click: Timeout 3000ms exceeded.)
+  bas: Ödülü al [quest-chip-go guide-glow]
+tıklanamadı: Ödülü al (locator.click: Timeout 3000ms exceeded.)
+  bas: Ödülü al [quest-chip-go guide-glow]
+1.5 dk: first-upgrade
+  bas: Git [quest-chip-go guide-glow]
+tıklanamadı: Git (locator.click: Timeout 3000ms exceeded.)
+  bas: Git [quest-chip-go guide-glow]
+tıklanamadı: Git (locator.click: Timeout 3000ms exceeded.)
+  bas: Git [quest-chip-go guide-glow]
+  bas: İnşa et
+20 sn [bp-upgrade-button guide-glow]
+  bas: Geri [bp-back guide-glow]
+  bas: Ödülü al [quest-chip-go guide-glow]
+tıklanamadı: Ödülü al (locator.click: Timeout 3000ms exceeded.)
+  bas: Ödülü al [quest-chip-go guide-glow]
+2.2 dk: first-academy
+  bas: Ödülü al [quest-chip-go guide-glow]
+2.2 dk: first-worker
+  bas: Git [quest-chip-go guide-glow]
+  bas: Araştır [gbtn gbtn-gold gbtn-default guide-glow]
+  bas: Geri [bp-back guide-glow]
+  bas: Ödülü al [quest-chip-go guide-glow]
+3.0 dk: first-research
+  bas: Git [quest-chip-go guide-glow]
+  bas: İnşa et
+20 sn [bp-upgrade-button guide-glow]
+  bas: Geri [bp-back guide-glow]
+  bas: Ödülü al [quest-chip-go guide-glow]
+3.5 dk: barracks
+  bas: Git [quest-chip-go guide-glow]
+  bas: İnşa et
+20 sn [bp-upgrade-button guide-glow]
+  bas: Geri [bp-back guide-glow]
+  bas: Ödülü al [quest-chip-go guide-glow]
+3.9 dk: walls
+  bas: Git [quest-chip-go guide-glow]
+  bas: 1 eğit [gbtn gbtn-gold gbtn-sm guide-glow]
+  bas: 1 eğit [gbtn gbtn-gold gbtn-sm guide-glow]
+  bas: 1 eğit [gbtn gbtn-gold gbtn-sm guide-glow]
+  bas: 1 eğit [gbtn gbtn-gold gbtn-sm guide-glow]
+  bas: 1 eğit [gbtn gbtn-gold gbtn-sm guide-glow]
+  bas: Geri [bp-back guide-glow]
+  bas: Ödülü al [quest-chip-go guide-glow]
+4.8 dk: troops
+  bas: Git [quest-chip-go guide-glow]
+  bas: Karaçalı, Barbar Köyü, seviye 1 [island-spot island-npc guide-glow]
+  bas: Hepsi [gbtn gbtn-ghost gbtn-sm guide-glow]
+  bas: Sefere çık [gbtn gbtn-gold gbtn-sm guide-glow]
+  bas: Şehre dön [gbtn gbtn-parch gbtn-sm guide-glow]
+  bas: Ödülü al [quest-chip-go guide-glow]
+5.0 dk: first-raid
+İlk sekiz hedef 5.0 oyun dakikasında tamam.
