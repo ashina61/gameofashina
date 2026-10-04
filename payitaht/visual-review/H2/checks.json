@@ -1,22 +1,219 @@
 {
+  "tool": "imagegen",
   "count": 16,
   "all_under_12kb": true,
-  "sizes": {
-    "sahil": 8552,
-    "zeytin": 8086,
-    "akcam": 8966,
-    "kizil": 9136,
-    "akdeniz": 7552,
-    "yalcin": 7266,
-    "baglik": 7296,
-    "atessiz": 9362,
-    "mercan": 9664,
-    "sakiz": 7300,
-    "lodos": 7398,
-    "kartal": 9320,
-    "poyraz": 7128,
-    "fener": 9212,
-    "hisarada": 8534,
-    "lalezar": 8256
-  }
+  "canvas_center": [
+    80,
+    90
+  ],
+  "records": [
+    {
+      "id": "sahil",
+      "bytes": 6340,
+      "quality": 82,
+      "width": 160,
+      "height": 180,
+      "land_centroid": [
+        79.68078363583982,
+        89.70152693748199
+      ],
+      "alpha": true,
+      "source": "exec-57630620-f567-4cf2-bbb8-ce849d9c925c.png"
+    },
+    {
+      "id": "zeytin",
+      "bytes": 7996,
+      "quality": 82,
+      "width": 160,
+      "height": 180,
+      "land_centroid": [
+        79.8228614685844,
+        90.31472369417108
+      ],
+      "alpha": true,
+      "source": "exec-9c59d70d-c559-44d3-8224-0671ca6f948e.png"
+    },
+    {
+      "id": "akcam",
+      "bytes": 5816,
+      "quality": 82,
+      "width": 160,
+      "height": 180,
+      "land_centroid": [
+        80.14801738185768,
+        89.99837045084193
+      ],
+      "alpha": true,
+      "source": "exec-1cfe846e-3a34-4ead-950d-0faf17e10dd2.png"
+    },
+    {
+      "id": "kizil",
+      "bytes": 6534,
+      "quality": 82,
+      "width": 160,
+      "height": 180,
+      "land_centroid": [
+        80.45737301409712,
+        89.62944730364735
+      ],
+      "alpha": true,
+      "source": "exec-01ff9781-d14c-482f-b93b-38632950cfe9.png"
+    },
+    {
+      "id": "akdeniz",
+      "bytes": 6020,
+      "quality": 82,
+      "width": 160,
+      "height": 180,
+      "land_centroid": [
+        80.06287170773152,
+        90.04446332483715
+      ],
+      "alpha": true,
+      "source": "exec-f04f4be2-b5dd-4de1-aff4-774a815ddbbe.png"
+    },
+    {
+      "id": "yalcin",
+      "bytes": 5996,
+      "quality": 82,
+      "width": 160,
+      "height": 180,
+      "land_centroid": [
+        80.20185488270594,
+        89.53573376977633
+      ],
+      "alpha": true,
+      "source": "exec-08f8f839-7806-47b0-8b4b-d33a310f83a0.png"
+    },
+    {
+      "id": "baglik",
+      "bytes": 4620,
+      "quality": 82,
+      "width": 160,
+      "height": 180,
+      "land_centroid": [
+        79.39749608763694,
+        89.95409494001044
+      ],
+      "alpha": true,
+      "source": "exec-e85b686c-5083-42fa-9d97-a203fd711391.png"
+    },
+    {
+      "id": "atessiz",
+      "bytes": 6486,
+      "quality": 82,
+      "width": 160,
+      "height": 180,
+      "land_centroid": [
+        80.09031710079275,
+        89.95753114382786
+      ],
+      "alpha": true,
+      "source": "exec-1dde0534-ab2b-4358-8859-446b009f0cb4.png"
+    },
+    {
+      "id": "mercan",
+      "bytes": 7378,
+      "quality": 82,
+      "width": 160,
+      "height": 180,
+      "land_centroid": [
+        79.38132767505304,
+        89.04910578963322
+      ],
+      "alpha": true,
+      "source": "exec-af1befd6-293b-45cb-8d1b-d2d885c0f008.png"
+    },
+    {
+      "id": "sakiz",
+      "bytes": 6162,
+      "quality": 82,
+      "width": 160,
+      "height": 180,
+      "land_centroid": [
+        79.4177256435321,
+        89.7031606386445
+      ],
+      "alpha": true,
+      "source": "exec-e2776aa5-8f7a-4d36-abcc-048bae3d13f1.png"
+    },
+    {
+      "id": "lodos",
+      "bytes": 5602,
+      "quality": 82,
+      "width": 160,
+      "height": 180,
+      "land_centroid": [
+        79.78900071890726,
+        89.43601725377427
+      ],
+      "alpha": true,
+      "source": "exec-85a43b80-bb2c-4c28-a00f-a7b674c3b1cc.png"
+    },
+    {
+      "id": "kartal",
+      "bytes": 5686,
+      "quality": 82,
+      "width": 160,
+      "height": 180,
+      "land_centroid": [
+        79.61103151862464,
+        89.6797994269341
+      ],
+      "alpha": true,
+      "source": "exec-d0b2653a-2c18-41bb-9410-3a7efa5a1a51.png"
+    },
+    {
+      "id": "poyraz",
+      "bytes": 7766,
+      "quality": 82,
+      "width": 160,
+      "height": 180,
+      "land_centroid": [
+        80.58886158886159,
+        90.3943488943489
+      ],
+      "alpha": true,
+      "source": "exec-e02474f6-bbad-4b02-8d2b-4b11209125be.png"
+    },
+    {
+      "id": "fener",
+      "bytes": 7108,
+      "quality": 82,
+      "width": 160,
+      "height": 180,
+      "land_centroid": [
+        80.17016057091882,
+        90.73371989295272
+      ],
+      "alpha": true,
+      "source": "exec-cafecffd-2601-4dd6-97cb-a16f028c07f2.png"
+    },
+    {
+      "id": "hisarada",
+      "bytes": 6274,
+      "quality": 82,
+      "width": 160,
+      "height": 180,
+      "land_centroid": [
+        80.15331094049904,
+        89.67946257197697
+      ],
+      "alpha": true,
+      "source": "exec-b882bfcf-6edb-4263-9eaf-4e5a33174da1.png"
+    },
+    {
+      "id": "lalezar",
+      "bytes": 6992,
+      "quality": 82,
+      "width": 160,
+      "height": 180,
+      "land_centroid": [
+        79.87367752856538,
+        90.27041895895049
+      ],
+      "alpha": true,
+      "source": "exec-a41f552c-dd75-4c83-9e33-46edb2739948.png"
+    }
+  ]
 }

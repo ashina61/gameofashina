@@ -311,3 +311,7 @@ G9–G11 görselleri bu özgün proje için üretildi; başka oyunlardan görsel
 ### H1 düzeltmesi — 2026-10-04
 
 Yazısız giriş arka planı yerleşik OpenAI imagegen ile yeniden boyandı. Tarif: `tools/art/prompts/h1.md`; özgün proje mockupı ve onaylı stil sayfası referans alındı. Üçüncü taraf oyun görseli kullanılmadı. Kullanım: Payitaht projesi; dış kaynak lisansı eklenmedi.
+
+### H2 düzeltmesi — 2026-10-04
+
+16 dünya haritası küçük resmi, her ada için ayrı yerleşik OpenAI imagegen üretimi. Tarif: `tools/art/prompts/h2.md`. Şeffaf kıyı, köpük ve sığ su kaynaktan korunmuştur; isim/sancak içermez. `h2-normalize.py` yalnız boyutlandırır, merkezi hizalar ve WebP kodlar. Özgün proje sanatı; üçüncü taraf oyun görseli kullanılmadı.
