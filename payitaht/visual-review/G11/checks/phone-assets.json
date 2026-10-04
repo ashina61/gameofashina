@@ -1,0 +1,1230 @@
+{
+  "assets": [
+    {
+      "file": "public/apple-icon.png",
+      "bytes": 22333
+    },
+    {
+      "file": "public/icon-192.png",
+      "bytes": 24983
+    },
+    {
+      "file": "public/icon-512.png",
+      "bytes": 143365
+    },
+    {
+      "file": "public/icon-dark-32x32.png",
+      "bytes": 1852
+    },
+    {
+      "file": "public/icon-light-32x32.png",
+      "bytes": 1852
+    },
+    {
+      "file": "public/icon.svg",
+      "bytes": 2600
+    },
+    {
+      "file": "public/images/game/buildings/ambar-painted-1-sm.webp",
+      "bytes": 81216
+    },
+    {
+      "file": "public/images/game/buildings/ambar-painted-2-sm.webp",
+      "bytes": 83594
+    },
+    {
+      "file": "public/images/game/buildings/ambar-painted-3-sm.webp",
+      "bytes": 92478
+    },
+    {
+      "file": "public/images/game/buildings/bagci-painted-1-sm.webp",
+      "bytes": 78696
+    },
+    {
+      "file": "public/images/game/buildings/bagci-painted-2-sm.webp",
+      "bytes": 86988
+    },
+    {
+      "file": "public/images/game/buildings/bagci-painted-3-sm.webp",
+      "bytes": 89032
+    },
+    {
+      "file": "public/images/game/buildings/barutane-painted-1-sm.webp",
+      "bytes": 89840
+    },
+    {
+      "file": "public/images/game/buildings/barutane-painted-2-sm.webp",
+      "bytes": 105030
+    },
+    {
+      "file": "public/images/game/buildings/barutane-painted-3-sm.webp",
+      "bytes": 126648
+    },
+    {
+      "file": "public/images/game/buildings/camci-painted-1-sm.webp",
+      "bytes": 96106
+    },
+    {
+      "file": "public/images/game/buildings/camci-painted-2-sm.webp",
+      "bytes": 89284
+    },
+    {
+      "file": "public/images/game/buildings/camci-painted-3-sm.webp",
+      "bytes": 90346
+    },
+    {
+      "file": "public/images/game/buildings/cami-painted-1-sm.webp",
+      "bytes": 38178
+    },
+    {
+      "file": "public/images/game/buildings/cami-painted-2-sm.webp",
+      "bytes": 39132
+    },
+    {
+      "file": "public/images/game/buildings/cami-painted-3-sm.webp",
+      "bytes": 46316
+    },
+    {
+      "file": "public/images/game/buildings/carsi-painted-1-sm.webp",
+      "bytes": 52134
+    },
+    {
+      "file": "public/images/game/buildings/carsi-painted-2-sm.webp",
+      "bytes": 62984
+    },
+    {
+      "file": "public/images/game/buildings/carsi-painted-3-sm.webp",
+      "bytes": 73386
+    },
+    {
+      "file": "public/images/game/buildings/depo-painted-1-sm.webp",
+      "bytes": 63476
+    },
+    {
+      "file": "public/images/game/buildings/depo-painted-2-sm.webp",
+      "bytes": 88822
+    },
+    {
+      "file": "public/images/game/buildings/depo-painted-3-sm.webp",
+      "bytes": 103610
+    },
+    {
+      "file": "public/images/game/buildings/divan-painted-1-sm.webp",
+      "bytes": 43428
+    },
+    {
+      "file": "public/images/game/buildings/divan-painted-2-sm.webp",
+      "bytes": 49770
+    },
+    {
+      "file": "public/images/game/buildings/divan-painted-3-sm.webp",
+      "bytes": 63214
+    },
+    {
+      "file": "public/images/game/buildings/elcilik-painted-1-sm.webp",
+      "bytes": 51940
+    },
+    {
+      "file": "public/images/game/buildings/elcilik-painted-2-sm.webp",
+      "bytes": 73672
+    },
+    {
+      "file": "public/images/game/buildings/elcilik-painted-3-sm.webp",
+      "bytes": 105478
+    },
+    {
+      "file": "public/images/game/buildings/forest-hero.webp",
+      "bytes": 54934
+    },
+    {
+      "file": "public/images/game/buildings/gozlukcu-painted-1-sm.webp",
+      "bytes": 64788
+    },
+    {
+      "file": "public/images/game/buildings/gozlukcu-painted-2-sm.webp",
+      "bytes": 91194
+    },
+    {
+      "file": "public/images/game/buildings/gozlukcu-painted-3-sm.webp",
+      "bytes": 101556
+    },
+    {
+      "file": "public/images/game/buildings/hamam-painted-1-sm.webp",
+      "bytes": 44936
+    },
+    {
+      "file": "public/images/game/buildings/hamam-painted-2-sm.webp",
+      "bytes": 66568
+    },
+    {
+      "file": "public/images/game/buildings/hamam-painted-3-sm.webp",
+      "bytes": 70242
+    },
+    {
+      "file": "public/images/game/buildings/harita_arsivi-painted-1-sm.webp",
+      "bytes": 54054
+    },
+    {
+      "file": "public/images/game/buildings/harita_arsivi-painted-2-sm.webp",
+      "bytes": 85514
+    },
+    {
+      "file": "public/images/game/buildings/harita_arsivi-painted-3-sm.webp",
+      "bytes": 98578
+    },
+    {
+      "file": "public/images/game/buildings/kahvehane-painted-1-sm.webp",
+      "bytes": 55982
+    },
+    {
+      "file": "public/images/game/buildings/kahvehane-painted-2-sm.webp",
+      "bytes": 76018
+    },
+    {
+      "file": "public/images/game/buildings/kahvehane-painted-3-sm.webp",
+      "bytes": 91360
+    },
+    {
+      "file": "public/images/game/buildings/kara_pazar-painted-1-sm.webp",
+      "bytes": 72290
+    },
+    {
+      "file": "public/images/game/buildings/kara_pazar-painted-2-sm.webp",
+      "bytes": 83606
+    },
+    {
+      "file": "public/images/game/buildings/kara_pazar-painted-3-sm.webp",
+      "bytes": 89658
+    },
+    {
+      "file": "public/images/game/buildings/karagoz-painted-1-sm.webp",
+      "bytes": 49242
+    },
+    {
+      "file": "public/images/game/buildings/karagoz-painted-2-sm.webp",
+      "bytes": 55624
+    },
+    {
+      "file": "public/images/game/buildings/karagoz-painted-3-sm.webp",
+      "bytes": 61852
+    },
+    {
+      "file": "public/images/game/buildings/kereste-painted-1-sm.webp",
+      "bytes": 86042
+    },
+    {
+      "file": "public/images/game/buildings/kereste-painted-2-sm.webp",
+      "bytes": 100526
+    },
+    {
+      "file": "public/images/game/buildings/kereste-painted-3-sm.webp",
+      "bytes": 106700
+    },
+    {
+      "file": "public/images/game/buildings/kisla-painted-1-sm.webp",
+      "bytes": 62218
+    },
+    {
+      "file": "public/images/game/buildings/kisla-painted-2-sm.webp",
+      "bytes": 70184
+    },
+    {
+      "file": "public/images/game/buildings/kisla-painted-3-sm.webp",
+      "bytes": 71588
+    },
+    {
+      "file": "public/images/game/buildings/konut-painted-1-sm.webp",
+      "bytes": 46702
+    },
+    {
+      "file": "public/images/game/buildings/konut-painted-2-sm.webp",
+      "bytes": 52194
+    },
+    {
+      "file": "public/images/game/buildings/konut-painted-3-sm.webp",
+      "bytes": 55624
+    },
+    {
+      "file": "public/images/game/buildings/korsan_kalesi-painted-1-sm.webp",
+      "bytes": 41072
+    },
+    {
+      "file": "public/images/game/buildings/korsan_kalesi-painted-2-sm.webp",
+      "bytes": 40700
+    },
+    {
+      "file": "public/images/game/buildings/korsan_kalesi-painted-3-sm.webp",
+      "bytes": 38976
+    },
+    {
+      "file": "public/images/game/buildings/liman-duz-painted-1-sm.webp",
+      "bytes": 56220
+    },
+    {
+      "file": "public/images/game/buildings/liman-duz-painted-2-sm.webp",
+      "bytes": 60966
+    },
+    {
+      "file": "public/images/game/buildings/liman-duz-painted-3-sm.webp",
+      "bytes": 67558
+    },
+    {
+      "file": "public/images/game/buildings/liman-painted-1-sm.webp",
+      "bytes": 45228
+    },
+    {
+      "file": "public/images/game/buildings/liman-painted-2-sm.webp",
+      "bytes": 69144
+    },
+    {
+      "file": "public/images/game/buildings/liman-painted-3-sm.webp",
+      "bytes": 67412
+    },
+    {
+      "file": "public/images/game/buildings/mabet-painted-1-sm.webp",
+      "bytes": 31322
+    },
+    {
+      "file": "public/images/game/buildings/mabet-painted-2-sm.webp",
+      "bytes": 44498
+    },
+    {
+      "file": "public/images/game/buildings/mabet-painted-3-sm.webp",
+      "bytes": 42134
+    },
+    {
+      "file": "public/images/game/buildings/mahzen-painted-1-sm.webp",
+      "bytes": 89812
+    },
+    {
+      "file": "public/images/game/buildings/mahzen-painted-2-sm.webp",
+      "bytes": 87166
+    },
+    {
+      "file": "public/images/game/buildings/mahzen-painted-3-sm.webp",
+      "bytes": 89188
+    },
+    {
+      "file": "public/images/game/buildings/marangoz-painted-1-sm.webp",
+      "bytes": 89386
+    },
+    {
+      "file": "public/images/game/buildings/marangoz-painted-2-sm.webp",
+      "bytes": 90952
+    },
+    {
+      "file": "public/images/game/buildings/marangoz-painted-3-sm.webp",
+      "bytes": 92536
+    },
+    {
+      "file": "public/images/game/buildings/medrese-painted-1-sm.webp",
+      "bytes": 58728
+    },
+    {
+      "file": "public/images/game/buildings/medrese-painted-2-sm.webp",
+      "bytes": 69556
+    },
+    {
+      "file": "public/images/game/buildings/medrese-painted-3-sm.webp",
+      "bytes": 72656
+    },
+    {
+      "file": "public/images/game/buildings/mimar-painted-1-sm.webp",
+      "bytes": 61788
+    },
+    {
+      "file": "public/images/game/buildings/mimar-painted-2-sm.webp",
+      "bytes": 73200
+    },
+    {
+      "file": "public/images/game/buildings/mimar-painted-3-sm.webp",
+      "bytes": 90710
+    },
+    {
+      "file": "public/images/game/buildings/mine-kahve.webp",
+      "bytes": 41948
+    },
+    {
+      "file": "public/images/game/buildings/mine-kristal.webp",
+      "bytes": 43486
+    },
+    {
+      "file": "public/images/game/buildings/mine-kukurt.webp",
+      "bytes": 38812
+    },
+    {
+      "file": "public/images/game/buildings/mine-mermer.webp",
+      "bytes": 55572
+    },
+    {
+      "file": "public/images/game/buildings/muze-painted-1-sm.webp",
+      "bytes": 46250
+    },
+    {
+      "file": "public/images/game/buildings/muze-painted-2-sm.webp",
+      "bytes": 62350
+    },
+    {
+      "file": "public/images/game/buildings/muze-painted-3-sm.webp",
+      "bytes": 75202
+    },
+    {
+      "file": "public/images/game/buildings/npc-kale.webp",
+      "bytes": 42630
+    },
+    {
+      "file": "public/images/game/buildings/npc-korsan.webp",
+      "bytes": 52998
+    },
+    {
+      "file": "public/images/game/buildings/npc-koy.webp",
+      "bytes": 55068
+    },
+    {
+      "file": "public/images/game/buildings/ormanci-painted-1-sm.webp",
+      "bytes": 108532
+    },
+    {
+      "file": "public/images/game/buildings/ormanci-painted-2-sm.webp",
+      "bytes": 106866
+    },
+    {
+      "file": "public/images/game/buildings/ormanci-painted-3-sm.webp",
+      "bytes": 125782
+    },
+    {
+      "file": "public/images/game/buildings/pazar.webp",
+      "bytes": 43748
+    },
+    {
+      "file": "public/images/game/buildings/pier.webp",
+      "bytes": 40264
+    },
+    {
+      "file": "public/images/game/buildings/saray-painted-1-sm.webp",
+      "bytes": 61494
+    },
+    {
+      "file": "public/images/game/buildings/saray-painted-2-sm.webp",
+      "bytes": 77914
+    },
+    {
+      "file": "public/images/game/buildings/saray-painted-3-sm.webp",
+      "bytes": 94436
+    },
+    {
+      "file": "public/images/game/buildings/scaffold.webp",
+      "bytes": 36452
+    },
+    {
+      "file": "public/images/game/buildings/siginak-painted-1-sm.webp",
+      "bytes": 102404
+    },
+    {
+      "file": "public/images/game/buildings/siginak-painted-2-sm.webp",
+      "bytes": 123024
+    },
+    {
+      "file": "public/images/game/buildings/siginak-painted-3-sm.webp",
+      "bytes": 117148
+    },
+    {
+      "file": "public/images/game/buildings/simyahane-painted-1-sm.webp",
+      "bytes": 56328
+    },
+    {
+      "file": "public/images/game/buildings/simyahane-painted-2-sm.webp",
+      "bytes": 69778
+    },
+    {
+      "file": "public/images/game/buildings/simyahane-painted-3-sm.webp",
+      "bytes": 103550
+    },
+    {
+      "file": "public/images/game/buildings/site.webp",
+      "bytes": 48966
+    },
+    {
+      "file": "public/images/game/buildings/surlar-1.webp",
+      "bytes": 35406
+    },
+    {
+      "file": "public/images/game/buildings/surlar-2.webp",
+      "bytes": 38662
+    },
+    {
+      "file": "public/images/game/buildings/surlar-3.webp",
+      "bytes": 40378
+    },
+    {
+      "file": "public/images/game/buildings/tasci-painted-1-sm.webp",
+      "bytes": 97416
+    },
+    {
+      "file": "public/images/game/buildings/tasci-painted-2-sm.webp",
+      "bytes": 98150
+    },
+    {
+      "file": "public/images/game/buildings/tasci-painted-3-sm.webp",
+      "bytes": 96252
+    },
+    {
+      "file": "public/images/game/buildings/tekke-painted-1-sm.webp",
+      "bytes": 58484
+    },
+    {
+      "file": "public/images/game/buildings/tekke-painted-2-sm.webp",
+      "bytes": 64988
+    },
+    {
+      "file": "public/images/game/buildings/tekke-painted-3-sm.webp",
+      "bytes": 78752
+    },
+    {
+      "file": "public/images/game/buildings/tersane-duz-painted-1-sm.webp",
+      "bytes": 53160
+    },
+    {
+      "file": "public/images/game/buildings/tersane-duz-painted-2-sm.webp",
+      "bytes": 82796
+    },
+    {
+      "file": "public/images/game/buildings/tersane-duz-painted-3-sm.webp",
+      "bytes": 81136
+    },
+    {
+      "file": "public/images/game/buildings/tersane-painted-1-sm.webp",
+      "bytes": 54722
+    },
+    {
+      "file": "public/images/game/buildings/tersane-painted-2-sm.webp",
+      "bytes": 71698
+    },
+    {
+      "file": "public/images/game/buildings/tersane-painted-3-sm.webp",
+      "bytes": 76734
+    },
+    {
+      "file": "public/images/game/buildings/ticaret_merkezi-painted-1-sm.webp",
+      "bytes": 81170
+    },
+    {
+      "file": "public/images/game/buildings/ticaret_merkezi-painted-2-sm.webp",
+      "bytes": 95148
+    },
+    {
+      "file": "public/images/game/buildings/ticaret_merkezi-painted-3-sm.webp",
+      "bytes": 79428
+    },
+    {
+      "file": "public/images/game/buildings/tophane-painted-1-sm.webp",
+      "bytes": 100116
+    },
+    {
+      "file": "public/images/game/buildings/tophane-painted-2-sm.webp",
+      "bytes": 95260
+    },
+    {
+      "file": "public/images/game/buildings/tophane-painted-3-sm.webp",
+      "bytes": 96596
+    },
+    {
+      "file": "public/images/game/buildings/valilik-painted-1-sm.webp",
+      "bytes": 69330
+    },
+    {
+      "file": "public/images/game/buildings/valilik-painted-2-sm.webp",
+      "bytes": 78226
+    },
+    {
+      "file": "public/images/game/buildings/valilik-painted-3-sm.webp",
+      "bytes": 76236
+    },
+    {
+      "file": "public/images/game/culture/emblems.webp",
+      "bytes": 32118
+    },
+    {
+      "file": "public/images/game/culture/wonders.webp",
+      "bytes": 24726
+    },
+    {
+      "file": "public/images/game/decor/beehives-sm.webp",
+      "bytes": 5280
+    },
+    {
+      "file": "public/images/game/decor/bostan-sm.webp",
+      "bytes": 4664
+    },
+    {
+      "file": "public/images/game/decor/bush-sm.webp",
+      "bytes": 5024
+    },
+    {
+      "file": "public/images/game/decor/cesme-sm.webp",
+      "bytes": 5186
+    },
+    {
+      "file": "public/images/game/decor/coffee-garden-sm.webp",
+      "bytes": 6308
+    },
+    {
+      "file": "public/images/game/decor/cypress-b-sm.webp",
+      "bytes": 7034
+    },
+    {
+      "file": "public/images/game/decor/cypress-sm.webp",
+      "bytes": 5086
+    },
+    {
+      "file": "public/images/game/decor/degirmen-sm.webp",
+      "bytes": 6460
+    },
+    {
+      "file": "public/images/game/decor/dry-grass-sm.webp",
+      "bytes": 7470
+    },
+    {
+      "file": "public/images/game/decor/fig-tree-sm.webp",
+      "bytes": 13366
+    },
+    {
+      "file": "public/images/game/decor/flower-sm.webp",
+      "bytes": 6010
+    },
+    {
+      "file": "public/images/game/decor/fruit-tree-sm.webp",
+      "bytes": 14726
+    },
+    {
+      "file": "public/images/game/decor/grain-sacks-sm.webp",
+      "bytes": 5074
+    },
+    {
+      "file": "public/images/game/decor/haystack-sm.webp",
+      "bytes": 5664
+    },
+    {
+      "file": "public/images/game/decor/lavender-sm.webp",
+      "bytes": 6758
+    },
+    {
+      "file": "public/images/game/decor/mezarlik-sm.webp",
+      "bytes": 5554
+    },
+    {
+      "file": "public/images/game/decor/olive-tree-sm.webp",
+      "bytes": 15208
+    },
+    {
+      "file": "public/images/game/decor/orange-tree-sm.webp",
+      "bytes": 14748
+    },
+    {
+      "file": "public/images/game/decor/pine-sm.webp",
+      "bytes": 8794
+    },
+    {
+      "file": "public/images/game/decor/plane-tree-sm.webp",
+      "bytes": 9642
+    },
+    {
+      "file": "public/images/game/decor/pomegranate-tree-sm.webp",
+      "bytes": 15806
+    },
+    {
+      "file": "public/images/game/decor/poplar-sm.webp",
+      "bytes": 6776
+    },
+    {
+      "file": "public/images/game/decor/reed-clump-sm.webp",
+      "bytes": 8342
+    },
+    {
+      "file": "public/images/game/decor/rock-sm.webp",
+      "bytes": 4816
+    },
+    {
+      "file": "public/images/game/decor/stone-bench-sm.webp",
+      "bytes": 3752
+    },
+    {
+      "file": "public/images/game/decor/terracotta-pots-sm.webp",
+      "bytes": 5338
+    },
+    {
+      "file": "public/images/game/decor/tezgah-sm.webp",
+      "bytes": 6348
+    },
+    {
+      "file": "public/images/game/decor/tulip-bed-sm.webp",
+      "bytes": 5866
+    },
+    {
+      "file": "public/images/game/decor/tulip-clump-sm.webp",
+      "bytes": 8514
+    },
+    {
+      "file": "public/images/game/decor/well-sm.webp",
+      "bytes": 6932
+    },
+    {
+      "file": "public/images/game/decor/woodpile-sm.webp",
+      "bytes": 4666
+    },
+    {
+      "file": "public/images/game/icons/res-akce.webp",
+      "bytes": 11604
+    },
+    {
+      "file": "public/images/game/icons/res-huzur.webp",
+      "bytes": 11440
+    },
+    {
+      "file": "public/images/game/icons/res-ilim.webp",
+      "bytes": 11826
+    },
+    {
+      "file": "public/images/game/icons/res-kahve.webp",
+      "bytes": 11390
+    },
+    {
+      "file": "public/images/game/icons/res-kereste.webp",
+      "bytes": 11922
+    },
+    {
+      "file": "public/images/game/icons/res-kristal.webp",
+      "bytes": 11994
+    },
+    {
+      "file": "public/images/game/icons/res-kukurt.webp",
+      "bytes": 10882
+    },
+    {
+      "file": "public/images/game/icons/res-mermer.webp",
+      "bytes": 11952
+    },
+    {
+      "file": "public/images/game/icons/res-nufus.webp",
+      "bytes": 11898
+    },
+    {
+      "file": "public/images/game/icons/res-sefer.webp",
+      "bytes": 11750
+    },
+    {
+      "file": "public/images/game/icons/res-yolsuzluk.webp",
+      "bytes": 11924
+    },
+    {
+      "file": "public/images/game/icons/ui-alliance.webp",
+      "bytes": 10936
+    },
+    {
+      "file": "public/images/game/icons/ui-city.webp",
+      "bytes": 10868
+    },
+    {
+      "file": "public/images/game/icons/ui-divan.webp",
+      "bytes": 9928
+    },
+    {
+      "file": "public/images/game/icons/ui-flag.webp",
+      "bytes": 8476
+    },
+    {
+      "file": "public/images/game/icons/ui-harbour.webp",
+      "bytes": 10218
+    },
+    {
+      "file": "public/images/game/icons/ui-island.webp",
+      "bytes": 10250
+    },
+    {
+      "file": "public/images/game/icons/ui-mail.webp",
+      "bytes": 7774
+    },
+    {
+      "file": "public/images/game/icons/ui-map.webp",
+      "bytes": 10744
+    },
+    {
+      "file": "public/images/game/icons/ui-objectives.webp",
+      "bytes": 11240
+    },
+    {
+      "file": "public/images/game/icons/ui-offer.webp",
+      "bytes": 11882
+    },
+    {
+      "file": "public/images/game/icons/ui-week.webp",
+      "bytes": 10934
+    },
+    {
+      "file": "public/images/game/islands/akcam.webp",
+      "bytes": 93994
+    },
+    {
+      "file": "public/images/game/islands/akdeniz.webp",
+      "bytes": 99946
+    },
+    {
+      "file": "public/images/game/islands/atessiz.webp",
+      "bytes": 96850
+    },
+    {
+      "file": "public/images/game/islands/baglik.webp",
+      "bytes": 95260
+    },
+    {
+      "file": "public/images/game/islands/fener.webp",
+      "bytes": 95784
+    },
+    {
+      "file": "public/images/game/islands/hisarada.webp",
+      "bytes": 95630
+    },
+    {
+      "file": "public/images/game/islands/kartal.webp",
+      "bytes": 94348
+    },
+    {
+      "file": "public/images/game/islands/kizil.webp",
+      "bytes": 93594
+    },
+    {
+      "file": "public/images/game/islands/lalezar.webp",
+      "bytes": 96886
+    },
+    {
+      "file": "public/images/game/islands/lodos.webp",
+      "bytes": 93782
+    },
+    {
+      "file": "public/images/game/islands/map-akcam.webp",
+      "bytes": 8772
+    },
+    {
+      "file": "public/images/game/islands/map-akdeniz.webp",
+      "bytes": 8818
+    },
+    {
+      "file": "public/images/game/islands/map-atessiz.webp",
+      "bytes": 8618
+    },
+    {
+      "file": "public/images/game/islands/map-baglik.webp",
+      "bytes": 8592
+    },
+    {
+      "file": "public/images/game/islands/map-fener.webp",
+      "bytes": 8942
+    },
+    {
+      "file": "public/images/game/islands/map-hisarada.webp",
+      "bytes": 8756
+    },
+    {
+      "file": "public/images/game/islands/map-kartal.webp",
+      "bytes": 8654
+    },
+    {
+      "file": "public/images/game/islands/map-kizil.webp",
+      "bytes": 8520
+    },
+    {
+      "file": "public/images/game/islands/map-lalezar.webp",
+      "bytes": 8892
+    },
+    {
+      "file": "public/images/game/islands/map-lodos.webp",
+      "bytes": 8608
+    },
+    {
+      "file": "public/images/game/islands/map-mercan.webp",
+      "bytes": 8626
+    },
+    {
+      "file": "public/images/game/islands/map-poyraz.webp",
+      "bytes": 8744
+    },
+    {
+      "file": "public/images/game/islands/map-sahil.webp",
+      "bytes": 8744
+    },
+    {
+      "file": "public/images/game/islands/map-sakiz.webp",
+      "bytes": 8994
+    },
+    {
+      "file": "public/images/game/islands/map-yalcin.webp",
+      "bytes": 8742
+    },
+    {
+      "file": "public/images/game/islands/map-zeytin.webp",
+      "bytes": 8488
+    },
+    {
+      "file": "public/images/game/islands/mercan.webp",
+      "bytes": 99610
+    },
+    {
+      "file": "public/images/game/islands/poyraz.webp",
+      "bytes": 94334
+    },
+    {
+      "file": "public/images/game/islands/sahil.webp",
+      "bytes": 97636
+    },
+    {
+      "file": "public/images/game/islands/sakiz.webp",
+      "bytes": 95854
+    },
+    {
+      "file": "public/images/game/islands/yalcin.webp",
+      "bytes": 94934
+    },
+    {
+      "file": "public/images/game/islands/zeytin.webp",
+      "bytes": 98942
+    },
+    {
+      "file": "public/images/game/medals/achievements.webp",
+      "bytes": 46956
+    },
+    {
+      "file": "public/images/game/portraits/advisor-army.webp",
+      "bytes": 44724
+    },
+    {
+      "file": "public/images/game/portraits/advisor-city.webp",
+      "bytes": 51968
+    },
+    {
+      "file": "public/images/game/portraits/advisor-diplo.webp",
+      "bytes": 46476
+    },
+    {
+      "file": "public/images/game/portraits/advisor-research.webp",
+      "bytes": 54824
+    },
+    {
+      "file": "public/images/game/portraits/gods.webp",
+      "bytes": 25206
+    },
+    {
+      "file": "public/images/game/portraits/rivals.webp",
+      "bytes": 44260
+    },
+    {
+      "file": "public/images/game/research/askeri.webp",
+      "bytes": 34598
+    },
+    {
+      "file": "public/images/game/research/bilim.webp",
+      "bytes": 34462
+    },
+    {
+      "file": "public/images/game/research/denizcilik.webp",
+      "bytes": 33106
+    },
+    {
+      "file": "public/images/game/research/ekonomi.webp",
+      "bytes": 34040
+    },
+    {
+      "file": "public/images/game/research/mitoloji.webp",
+      "bytes": 17724
+    },
+    {
+      "file": "public/images/game/ships/blockade.webp",
+      "bytes": 38212
+    },
+    {
+      "file": "public/images/game/ships/fishing.webp",
+      "bytes": 30670
+    },
+    {
+      "file": "public/images/game/ships/ship-a.png",
+      "bytes": 43460
+    },
+    {
+      "file": "public/images/game/ships/ship-a.webp",
+      "bytes": 35762
+    },
+    {
+      "file": "public/images/game/ships/ship-b.png",
+      "bytes": 65307
+    },
+    {
+      "file": "public/images/game/ships/ship-b.webp",
+      "bytes": 37484
+    },
+    {
+      "file": "public/images/game/siege/checkpoint.svg",
+      "bytes": 1883
+    },
+    {
+      "file": "public/images/game/siege/checkpoint.webp",
+      "bytes": 33158
+    },
+    {
+      "file": "public/images/game/siege/warship.svg",
+      "bytes": 3573
+    },
+    {
+      "file": "public/images/game/terrain/battle-land.webp",
+      "bytes": 33270
+    },
+    {
+      "file": "public/images/game/terrain/battle-sea.webp",
+      "bytes": 34036
+    },
+    {
+      "file": "public/images/game/terrain/cobble.webp",
+      "bytes": 93548
+    },
+    {
+      "file": "public/images/game/terrain/dirt.webp",
+      "bytes": 74562
+    },
+    {
+      "file": "public/images/game/terrain/grass-dry.webp",
+      "bytes": 101514
+    },
+    {
+      "file": "public/images/game/terrain/grass-shade.webp",
+      "bytes": 103252
+    },
+    {
+      "file": "public/images/game/terrain/grass.webp",
+      "bytes": 99492
+    },
+    {
+      "file": "public/images/game/terrain/hills.webp",
+      "bytes": 62108
+    },
+    {
+      "file": "public/images/game/terrain/plaza-stone.webp",
+      "bytes": 79904
+    },
+    {
+      "file": "public/images/game/terrain/quay-stone.webp",
+      "bytes": 70188
+    },
+    {
+      "file": "public/images/game/terrain/shore-sand.webp",
+      "bytes": 84180
+    },
+    {
+      "file": "public/images/game/terrain/title-background.webp",
+      "bytes": 90250
+    },
+    {
+      "file": "public/images/game/terrain/water-deep.webp",
+      "bytes": 48586
+    },
+    {
+      "file": "public/images/game/terrain/water-shallow.webp",
+      "bytes": 80212
+    },
+    {
+      "file": "public/images/game/terrain/world-sea.webp",
+      "bytes": 31498
+    },
+    {
+      "file": "public/images/game/ui/button-gold.webp",
+      "bytes": 8616
+    },
+    {
+      "file": "public/images/game/ui/button-parch.webp",
+      "bytes": 8550
+    },
+    {
+      "file": "public/images/game/ui/button-red.webp",
+      "bytes": 9376
+    },
+    {
+      "file": "public/images/game/ui/medal-frame.webp",
+      "bytes": 6234
+    },
+    {
+      "file": "public/images/game/ui/page-frame.webp",
+      "bytes": 25610
+    },
+    {
+      "file": "public/images/game/ui/ribbon-red.webp",
+      "bytes": 10044
+    },
+    {
+      "file": "public/images/game/ui/title-plaque.webp",
+      "bytes": 33286
+    },
+    {
+      "file": "public/images/game/ui/walnut-plate.webp",
+      "bytes": 10118
+    },
+    {
+      "file": "public/images/game/units/asci.webp",
+      "bytes": 23264
+    },
+    {
+      "file": "public/images/game/units/ates_gemisi.webp",
+      "bytes": 34936
+    },
+    {
+      "file": "public/images/game/units/azap.webp",
+      "bytes": 23648
+    },
+    {
+      "file": "public/images/game/units/balon_gemisi.webp",
+      "bytes": 37880
+    },
+    {
+      "file": "public/images/game/units/buharli_koc.webp",
+      "bytes": 39448
+    },
+    {
+      "file": "public/images/game/units/casus.webp",
+      "bytes": 23268
+    },
+    {
+      "file": "public/images/game/units/dalgic_gemisi.webp",
+      "bytes": 39620
+    },
+    {
+      "file": "public/images/game/units/deli.webp",
+      "bytes": 23006
+    },
+    {
+      "file": "public/images/game/units/hekim.webp",
+      "bytes": 23306
+    },
+    {
+      "file": "public/images/game/units/hezarfen.webp",
+      "bytes": 24640
+    },
+    {
+      "file": "public/images/game/units/humbara_gemisi.webp",
+      "bytes": 36600
+    },
+    {
+      "file": "public/images/game/units/humbaraci.webp",
+      "bytes": 22432
+    },
+    {
+      "file": "public/images/game/units/ikmal_gemisi.webp",
+      "bytes": 37714
+    },
+    {
+      "file": "public/images/game/units/kadirga.webp",
+      "bytes": 37668
+    },
+    {
+      "file": "public/images/game/units/kalyon.webp",
+      "bytes": 37674
+    },
+    {
+      "file": "public/images/game/units/karamursel.webp",
+      "bytes": 37202
+    },
+    {
+      "file": "public/images/game/units/kocbasi.webp",
+      "bytes": 24062
+    },
+    {
+      "file": "public/images/game/units/lagari.webp",
+      "bytes": 24718
+    },
+    {
+      "file": "public/images/game/units/mancinik.webp",
+      "bytes": 23528
+    },
+    {
+      "file": "public/images/game/units/mancinik_gemisi.webp",
+      "bytes": 38662
+    },
+    {
+      "file": "public/images/game/units/mizrakci.webp",
+      "bytes": 22924
+    },
+    {
+      "file": "public/images/game/units/nakliye.webp",
+      "bytes": 38432
+    },
+    {
+      "file": "public/images/game/units/okcu.webp",
+      "bytes": 22726
+    },
+    {
+      "file": "public/images/game/units/sapanci.webp",
+      "bytes": 24978
+    },
+    {
+      "file": "public/images/game/units/sipahi.webp",
+      "bytes": 24168
+    },
+    {
+      "file": "public/images/game/units/topcu.webp",
+      "bytes": 24612
+    },
+    {
+      "file": "public/images/game/units/tufekci.webp",
+      "bytes": 22426
+    },
+    {
+      "file": "public/images/game/units/yeniceri.webp",
+      "bytes": 23964
+    },
+    {
+      "file": "public/images/game/units/zenberek_gemisi.webp",
+      "bytes": 33224
+    },
+    {
+      "file": "public/images/game/walls/gate-1.webp",
+      "bytes": 23422
+    },
+    {
+      "file": "public/images/game/walls/gate-2.webp",
+      "bytes": 23274
+    },
+    {
+      "file": "public/images/game/walls/gate-3.webp",
+      "bytes": 21208
+    },
+    {
+      "file": "public/images/game/walls/segment-1.webp",
+      "bytes": 23542
+    },
+    {
+      "file": "public/images/game/walls/segment-2.webp",
+      "bytes": 23070
+    },
+    {
+      "file": "public/images/game/walls/segment-3.webp",
+      "bytes": 21872
+    },
+    {
+      "file": "public/images/game/walls/tower-1.webp",
+      "bytes": 22730
+    },
+    {
+      "file": "public/images/game/walls/tower-2.webp",
+      "bytes": 20144
+    },
+    {
+      "file": "public/images/game/walls/tower-3.webp",
+      "bytes": 20504
+    },
+    {
+      "file": "public/images/game/walls/tower-round.png",
+      "bytes": 70270
+    },
+    {
+      "file": "public/images/game/walls/tower-round.svg",
+      "bytes": 19457
+    }
+  ],
+  "bytes": 14791003,
+  "budget": 15000000
+}

@@ -238,3 +238,15 @@ Ek kurallar:
   sahibi doldurmadan mağazaya çıkılmaz.
 - Başka oyunlardan (Ikariam, Forge of Empires vb.) görsel, kesit ya da birebir
   kompozisyon kopyalanmaz; yalnız kalite ve his referansıdır.
+
+## 9. Son aşamalar — 2026-10-04
+
+G9 derin sayfalar, G10 bina denetimi/kahve teması ve G11 açılış/uygulama
+kimliği tamamlandı. Üretim tarifleri `tools/art/prompts/g9.md`, `g10.md`,
+`g11.md`; öncesi/sonrası ve kontroller `visual-review/G9`, `G10`, `G11`.
+
+- G9: 76 araştırma, 8 tanrı, 14 yapay rakip, 30 başarım, kültür seti, kara/deniz arka planı.
+- G10: 114 bina tuvali denetlendi, altı kahve aşaması düzeltildi; geometri korundu.
+- G11: açılış kıyısı, yazısız plaket, web/native ikon ve splash kimliği.
+- Son telefon görsel bütçesi 14.791.003 bayt / 15 MB; SW v40.
+- Oyun kuralları, kayıt biçimi ve slot geometrisi korundu.

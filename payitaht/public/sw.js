@@ -1,7 +1,10 @@
-const CACHE = 'payitaht-shell-v39'
+const CACHE = 'payitaht-shell-v40'
 const BASE = new URL(self.registration.scope).pathname.replace(/\/$/, '')
 const p = path => `${BASE}${path.startsWith('/') ? path : `/${path}`}`
 const ASSETS = [
+  p('/images/game/terrain/title-background.webp'),
+  p('/images/game/ui/title-plaque.webp'),
+  p('/apple-icon.png'),
   ...["research/ekonomi", "research/bilim", "research/askeri", "research/denizcilik", "research/mitoloji", "portraits/gods", "portraits/rivals", "culture/emblems", "culture/wonders", "medals/achievements", "terrain/battle-land", "terrain/battle-sea"].map(id => p(`/images/game/${id}.webp`)),
   ...["sahil", "zeytin", "akcam", "kizil", "akdeniz", "yalcin", "baglik", "atessiz", "mercan", "sakiz", "lodos", "kartal", "poyraz", "fener", "hisarada", "lalezar"].flatMap(id => [p(`/images/game/islands/${id}.webp`), p(`/images/game/islands/map-${id}.webp`)]),
   p('/images/game/terrain/world-sea.webp'),
