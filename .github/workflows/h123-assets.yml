@@ -35,7 +35,8 @@ jobs:
           python tools/art/h123_generate.py H1
           test $(stat -c%s public/images/game/terrain/title-background.webp) -le 250000
           cd ..
-          git add payitaht/tools/art/h123_generate.py payitaht/public/images/game/terrain/title-background.webp payitaht/visual-review/H1
+          git add payitaht/tools/art/h123_generate.py payitaht/public/images/game/terrain/title-background.webp
+          git add -f payitaht/visual-review/H1
           git commit -m 'H1: rebuild title background from target mockup'
       - name: H2 - unique island silhouettes
         run: |
@@ -48,7 +49,8 @@ jobs:
           assert all(p.stat().st_size<=12000 for p in files), [(p.name,p.stat().st_size) for p in files if p.stat().st_size>12000]
           PY
           cd ..
-          git add payitaht/public/images/game/islands/map-*.webp payitaht/visual-review/H2
+          git add payitaht/public/images/game/islands/map-*.webp
+          git add -f payitaht/visual-review/H2
           git commit -m 'H2: give all world-map islands distinct silhouettes'
       - name: H3 - unbound city base test
         run: |
@@ -86,7 +88,8 @@ jobs:
           grep -q "payitaht-shell-v42" public/sw.js
           grep -q "payitaht-shell-v42" lib/pwa-cache.test.ts
           cd ..
-          git add payitaht/public/images/game/terrain/city-base-test.webp payitaht/visual-review/H3 payitaht/public/sw.js payitaht/lib/pwa-cache.test.ts payitaht/public/images/game/CREDITS.md
+          git add payitaht/public/images/game/terrain/city-base-test.webp payitaht/public/sw.js payitaht/lib/pwa-cache.test.ts payitaht/public/images/game/CREDITS.md
+          git add -f payitaht/visual-review/H3
           git commit -m 'H3: add unbound exact-geometry city base test and bump SW v42'
       - name: Scope guard and push
         run: |
