@@ -327,3 +327,9 @@ Yazısız giriş arka planı yerleşik OpenAI imagegen ile yeniden boyandı. Tar
   mimari referansı olarak kullanıldı. Başka bir oyundan görsel alınmadı.
 - Üretim tarifi: `tools/art/prompts/kisla-reference.md`.
 - Mevcut G6 birlikleri ve G1 arayüz dokuları aynı kaynak haklarıyla korunur.
+
+## Ortak tasarım dili / görev defteri — 2026-10-04
+- `ui/reference-bars/*.webp`: OpenAI ImageGen, kullanıcının şehir ekranı stil referansı. Bar yazıları ve kaynakları koddan gelir.
+- `terrain/mandates-office.webp`: OpenAI ImageGen, kullanıcının araştırma ve kışla sayfaları stil referansı. Yalnız divan görev dairesi sahnesi; metin veya oyun verisi içermez.
+- Tarif: `tools/art/prompts/mandates-office.md`; tasarım hafızası: `docs/tasarim-dili.md`.
+- G1 malzemeleri, G6 figürleri ve görev resimleri mevcut özgün kaynaklarıyla korunur. Üçüncü taraf oyun resmi alınmadı.

@@ -40,6 +40,7 @@ import { BUILDINGS, BUILDING_IDS, GUIDED_STEPS, OBJECTIVES, PLOTS, RESEARCH, obj
 import { cn } from '@/lib/utils'
 import { ProfilePanel, ChangelogPanel } from './profile-panel'
 import { GodsPanel } from './gods-panel'
+import { ObjectivesPage } from './objectives-page'
 
 import { asset, buildingImage } from '@/lib/asset'
 import { activeCity, islandOf, type IslandId } from '@/lib/game/empire'
@@ -64,7 +65,6 @@ export default function GameShell({ onTitle }: { onTitle?: () => void } = {}) {
     const map: Partial<Record<Exclude<Panel, null>, string>> = {
       army: buildingImage('kisla', Math.max(1, game.buildings.kisla)),
       cities: buildingImage('saray', Math.max(1, game.buildings.saray || 3)), people: buildingImage('konut', Math.max(1, game.buildings.konut)),
-      objectives: buildingImage('divan', Math.max(1, game.buildings.divan)),
       island: asset(`/images/game/buildings/mine-${game.mine.specialty}.webp`), forest: asset('/images/game/buildings/forest-hero.webp'), build: buildingImage('mimar', 2),
     }
     return panel ? map[panel] ?? undefined : undefined
@@ -305,7 +305,7 @@ export default function GameShell({ onTitle }: { onTitle?: () => void } = {}) {
     : view === 'island' ? 'island' : !panel && !selected && plot === null && !npc ? 'city' : null
   const activeAdvisor: AdvisorId | null = panel === 'advisor-city' ? 'city' : panel === 'reports' || panel === 'army' ? 'army'
     : panel === 'research' ? 'research' : panel === 'diplomacy' ? 'diplo' : null
-  const titles: Record<Exclude<Panel, null>, string> = { build: 'Şehrini büyüt', research: 'Âlim · Araştırma', journal: 'Şehir günlüğü', settings: 'Oyun ayarları', economy: 'Hazine ve üretim', objectives: 'Bir şehrin doğuşu', people: 'Şehrin halkı', cities: 'Şehirlerin', army: 'Ordu ve donanma', diplomacy: 'Elçi · Diplomasi', alliance: 'İttifak', island: 'Ada madeni', forest: 'Ada ormanı', reports: 'Serasker · Ordu danışmanı', 'advisor-city': 'Vezir · Şehir danışmanı', profile: 'Hükümdar profili', changelog: 'Sürüm notları', map: 'Dünya haritası', overview: 'İmparatorluk özeti' }
+  const titles: Record<Exclude<Panel, null>, string> = { build: 'Şehrini büyüt', research: 'Âlim · Araştırma', journal: 'Şehir günlüğü', settings: 'Oyun ayarları', economy: 'Hazine ve üretim', objectives: 'Görev defteri', people: 'Şehrin halkı', cities: 'Şehirlerin', army: 'Ordu ve donanma', diplomacy: 'Elçi · Diplomasi', alliance: 'İttifak', island: 'Ada madeni', forest: 'Ada ormanı', reports: 'Serasker · Ordu danışmanı', 'advisor-city': 'Vezir · Şehir danışmanı', profile: 'Hükümdar profili', changelog: 'Sürüm notları', map: 'Dünya haritası', overview: 'İmparatorluk özeti' }
   return <BannerContext.Provider value={bannerLook(empire)}><main className={cn('game-shell', view === 'island' && 'game-island')}>
     {/*
       * ÜST ŞERİT (ika-hud.tsx): şehir seçici, dört danışman ve kaynaklar.
@@ -345,7 +345,7 @@ export default function GameShell({ onTitle }: { onTitle?: () => void } = {}) {
     {(panel || plot !== null || npc) && <IkaPage sheet={!!npc && !panel && plot === null && view === 'island'} onClose={() => { setPanel(null); setPlot(null); setNpc(null) }}
       title={npc ? targetName(npc) : plot !== null ? (PLOTS[plot]?.islet ? 'Korsan adası' : PLOTS[plot]?.zone === 'liman' ? 'Deniz arsası' : 'Boş arsa') : panel ? titles[panel] : 'Şehrin'}
       subtitle={npc ? (npc.startsWith('r-') ? 'Yapay rakip hükümdar' : 'Bağımsız yerleşim') : plot !== null ? 'Bu arsaya hangi yapıyı kuracaksın?' : panel === 'build' ? 'Her yapı, yeni bir başlangıç.' : panel === 'research' ? 'İlim, şehrinin en değerli hazinesidir.' : panel === 'people' ? 'Emeği nereye ayıracağına sen karar ver.' : panel === 'army' ? 'Asker halktan çıkar. Bedelini bilerek öde.' : panel === 'cities' ? 'Hükmünün altındaki her şehir.' : panel === 'map' ? 'Adalar, rakipler ve deniz yolları' : panel === 'overview' ? 'Bütün şehirler tek tabloda' : panel === 'diplomacy' ? 'Yapay rakipler: sıralama, anlaşmalar, pazar, mektuplar' : panel === 'island' ? 'Lüks mal yatağı, ada harikası ve tüccar' : panel === 'forest' ? 'Oduncular, kereste ve ormanın büyümesi' : panel === 'alliance' ? (empire?.world?.pact ? `${empire.world.pact.name} [${empire.world.pact.tag}]` : 'Birlikten kuvvet doğar') : currentCityName}
-      hero={panelHero()} className={panel === 'map' && !npc && plot === null ? 'bp-mapview' : undefined}>{game && <>
+      hero={panelHero()} className={!npc && plot === null ? panel === 'map' ? 'bp-mapview' : panel === 'objectives' ? 'bp-objectives' : undefined : undefined}>{game && <>
       {plot !== null && <PlotPicker game={game} plot={plot} onBuild={(id, at) => { act({ type: 'build', id, plot: at }); setPlot(null) }} />}
       {panel === 'people' && <PeoplePanel game={game} onAssign={(id, value) => act({ type: 'workers', id, value })} />}
       {panel === 'cities' && empire && <CitiesPanel run={runOp} game={game} empire={empire} onBuilding={openBuilding} onSelectCity={visitCity} onCargo={dispatchCargo} onMap={() => openPanel('map')} />}
@@ -369,11 +369,11 @@ export default function GameShell({ onTitle }: { onTitle?: () => void } = {}) {
       {panel === 'profile' && empire && <ProfilePanel empire={empire} now={game.updatedAt} run={runOp} onCity={visitCity} onSettings={() => openPanel('settings')} onChangelog={() => openPanel('changelog')} />}
       {panel === 'changelog' && <ChangelogPanel />}
       {panel === 'economy' && <EconomyDetails game={game} onMarket={() => openBuilding('carsi')} />}
-      {panel === 'objectives' && foundingCity && <ObjectiveCard game={game} onClaim={id => act({ type: 'claim', id })} onBuild={target} />}
-      {panel === 'objectives' && !foundingCity && <section className="advisor-panel"><h3>Şehir hedefleri</h3><p>Başlangıç eğitimi kurucu şehirde ilerler. Bu koloniyi dilediğin gibi geliştirebilirsin.</p><GameButton onClick={() => visitCity(empire!.cities[0].id)}>Kurucu şehre git</GameButton></section>}
-      {panel === 'objectives' && game && <SeasonCard now={game.updatedAt} />}
-      {panel === 'objectives' && empire && <DailyPanel empire={empire} run={runOp} />}
-      {panel === 'objectives' && empire && <MilestonesPanel empire={empire} run={runOp} />}
+      {panel === 'objectives' && <ObjectivesPage
+        city={foundingCity ? <ObjectiveCard game={game} onClaim={id => act({ type: 'claim', id })} onBuild={target} /> : <section className="advisor-panel"><h3>Şehir hedefleri</h3><p>Başlangıç eğitimi kurucu şehirde ilerler. Bu koloniyi dilediğin gibi geliştirebilirsin.</p><GameButton onClick={() => visitCity(empire!.cities[0].id)}>Kurucu şehre git</GameButton></section>}
+        daily={empire && <DailyPanel empire={empire} run={runOp} />}
+        milestones={empire && <MilestonesPanel empire={empire} run={runOp} />}
+        season={<SeasonCard now={game.updatedAt} />} />}
       {panel === 'settings' && <SettingsPanel empire={empire} run={runOp} warning={warning} native={native}
         pwa={{ installed, installAvailable, install, offlineReady }} notify={notify}
         onBackup={() => void backupSaveFile()} onRestore={file => void restoreSaveFile(file)}

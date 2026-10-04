@@ -1,0 +1,47 @@
+/* First page pilot for docs/tasarim-dili.md. Scope: the missions screen only. */
+.game-shell .bp-objectives { top: var(--ika-top); }
+.bp-objectives > .bp-bar { padding: 5px 10px; min-height: 54px; }
+.bp-objectives .bp-title h1 { font-size: 21px; }
+.bp-objectives .bp-scroll { padding: 0 8px 24px; gap: 0; }
+.mandates-page { display: flex; flex-direction: column; gap: 12px; }
+.mandates-scene { position: relative; height: clamp(164px, 23vh, 230px); margin: 0 -8px; overflow: hidden; background: var(--c-wood-dark); border-bottom: 2px solid var(--c-gold); }
+.mandates-scene > img { width: 100%; height: 100%; object-fit: cover; object-position: 44% 46%; }
+.mandates-scene-note { position: absolute; right: 12px; bottom: 25px; width: 43%; padding: 10px 12px; color: var(--c-ink); border: 0 solid transparent; border-image: var(--art-page-frame) 48 fill / 6px / 0 stretch; filter: drop-shadow(0 2px 4px #0006); }
+.mandates-scene-note > span { display: block; font: 700 15px var(--font-heading), Georgia, serif; }
+.mandates-scene-note > p { margin: 4px 0 0; font-size: 12px; line-height: 1.4; }
+.mandates-ribbon { z-index: 1; position: relative; margin: -31px auto 0; width: min(86%, 360px); padding: 10px 24px 12px; color: var(--c-cream); text-align: center; font: 700 22px var(--font-heading), Georgia, serif; line-height: 1.15; text-shadow: 0 2px 2px #0008; background: var(--art-ribbon-red) center / 100% 100% no-repeat; }
+.mandates-tabs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 5px; padding: 0 2px; }
+.mandates-tabs > button { min-width: 0; min-height: 56px; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 3px; padding: 8px 4px; border: 0 solid transparent; border-radius: 0; border-image: var(--art-walnut-plate) 56 fill / 7px / 0 stretch; background: var(--c-wood-dark); color: var(--c-cream); font: 700 14px var(--font-heading), Georgia, serif; }
+.mandates-tabs > button > :is(svg, .painted-icon) { width: 22px; height: 22px; filter: drop-shadow(0 1px 2px #0006); }
+.mandates-tabs > button[aria-selected='true'] { border-image-source: var(--art-button-red); box-shadow: 0 0 6px var(--c-gold); color: var(--c-gold-pale); }
+.mandates-tabs > button:focus-visible { outline: 2px solid var(--c-gold-deep); outline-offset: 2px; }
+.mandates-ledger:not([hidden]) { display: flex; flex-direction: column; gap: 12px; }
+.bp-objectives .objective-card, .bp-objectives .empire-section, .bp-objectives .season-card, .bp-objectives .advisor-panel { padding: 14px 12px; border: 0 solid transparent; border-radius: 0; border-image: var(--art-page-frame) 48 fill / 9px / 0 stretch; box-shadow: 0 3px 7px #3a231033; background: var(--c-parch); }
+.bp-objectives .empire-section > h3 { margin: -6px -4px 12px; padding: 12px 18px; text-align: center; font: 700 18px var(--font-heading), Georgia, serif; letter-spacing: 0; text-transform: none; }
+.bp-objectives .objective-card h3 { margin-top: 5px; font-size: 24px; }
+.bp-objectives .objective-card p { margin-top: 5px; font-size: 13px; line-height: 1.45; }
+.bp-objectives .objective-main { align-items: center; margin-top: 8px; grid-template-columns: 72px minmax(0, 1fr); }
+.bp-objectives .objective-main > .quest-art { max-width: 72px; max-height: 80px; }
+.bp-objectives .quest-art { border-radius: 0; border: 0; background: transparent; box-shadow: none; }
+.bp-objectives .quest-art .quest-art-sky { background: none; }
+.bp-objectives .quest-art-hill { display: none; }
+.bp-objectives .objective-list { margin-top: 12px; border-top: 1px solid var(--c-tan-border); }
+.bp-objectives .objective-list summary { min-height: 44px; display: flex; align-items: center; color: var(--c-brown); }
+.bp-objectives .objective-list li { padding-block: 8px; border-bottom: 1px solid var(--c-parch-line); }
+.bp-objectives .goal-card { grid-template-columns: 72px minmax(0, 1fr); border: 0 solid transparent; border-radius: 0; border-image: var(--art-page-frame) 48 fill / 6px / 0 stretch; padding: 12px 10px; background: var(--c-parch); box-shadow: 0 2px 5px #3a231022; }
+.bp-objectives .goal-card .goal-art { width: 72px; height: 82px; background: var(--art-medal-frame) center / 100% 100% no-repeat; padding: 8px; }
+.bp-objectives .goal-body strong { font: 700 17px var(--font-heading), Georgia, serif; line-height: 1.2; }
+.bp-objectives .goal-card.is-ready { box-shadow: inset 0 0 0 1px var(--c-gold), 0 0 7px var(--c-gold); }
+.bp-objectives .goal-card.is-done { opacity: 1; }
+.bp-objectives .goal-card.is-done .goal-art { filter: saturate(.55); }
+.bp-objectives .daily-login { border: 0 solid transparent; border-radius: 0; border-image: var(--art-page-frame) 48 fill / 6px / 0 stretch; padding: 10px 8px; background: var(--c-parch); }
+.bp-objectives .daily-login strong { font: 700 16px var(--font-heading), Georgia, serif; }
+.bp-objectives .daily-login small { font-size: 12px; line-height: 1.35; }
+.bp-objectives .season-card { margin: 0; }
+@media (max-width: 370px) {
+  .mandates-scene-note { right: 8px; width: 46%; padding: 9px; }
+  .mandates-scene-note > span { font-size: 14px; }
+  .mandates-tabs > button { font-size: 13px; }
+  .bp-objectives .goal-card { grid-template-columns: 64px minmax(0, 1fr); padding: 12px 8px; }
+  .bp-objectives .goal-card .goal-art { width: 64px; height: 74px; }
+}
