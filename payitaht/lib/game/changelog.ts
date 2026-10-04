@@ -6,6 +6,13 @@ export type Release = { version: string; date: string; title: string; notes: str
 
 export const CHANGELOG: Release[] = [
   {
+    version: '0.48.0', date: '4 Ekim 2026', title: 'Yeni giriş manzarası ve tek tek boyanmış adalar',
+    notes: [
+      'Giriş ekranının arka planı yeniden boyandı: gün batımında Payitaht, kubbeler, minareler, koyda kalyonlar ve önde çiçekli taş balkon.',
+      'Dünya haritasındaki on altı adanın her biri artık kendine özgü bir biçimde: volkanlı, kızıl kayalı, palmiyeli koylu, çam ormanlı burunlu, iki tepeli, uzun ince adalar.',
+    ],
+  },
+  {
     version: '0.47.0', date: '4 Ekim 2026', title: 'Sahne gibi sayfalar: bina, savaş raporu, araştırma ağacı',
     notes: [
       'Bina sayfasında yapı artık bir manzarada duruyor: gökyüzü, uzak tepeler, çimen (liman yapılarında deniz) ve iki yanda ağaçlar.',

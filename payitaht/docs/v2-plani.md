@@ -375,5 +375,5 @@ düzeyinde `dropRemovedGoods`). Tempo simülasyonunda gunde3 Divanhane 15/20
 - [x] Yeni oyuncu turu (ilk 10 dakika) otomatik testte geçiyor. (0.41: `tools/first-ten-qa.cjs` gerçek arayüzde yalnız rehberin parlattığına basar; 8 hedef 3,6 oyun dakikasında biter, Mobile Visual QA'da koşar.)
 - [ ] 30 günlük tempo simülasyonu hedef eğride.
 - [ ] Orta segment gerçek Android cihazda 30 dakikalık oyun: çökme yok, ısınma kabul edilebilir.
-- [ ] 0.20'den bu yana kayıt örnekleri 2.0.0'da açılıyor. (0.40'tan beri her derlemede 0.20–0.46 örnekleri açılıyor; 2.0.0'da işaretlenir.)
+- [ ] 0.20'den bu yana kayıt örnekleri 2.0.0'da açılıyor. (0.40'tan beri her derlemede 0.20–0.47 örnekleri açılıyor; 2.0.0'da işaretlenir.)
 - [ ] Bütün CI işleri yeşil, APK yayında.
