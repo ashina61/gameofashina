@@ -292,3 +292,7 @@ proje sahibinin oyununda kullanım için üretilmiştir. Harita çerçevesi G1 s
 ## G9 — Derin sayfalar (2026-10-04)
 
 Codex yerleşik imagegen ile üretilen özgün raster sprite atlasları: 76 araştırma motifi, 8 kadim tanrı portresi, 14 kurgusal yapay rakip portresi, 8 yönetim, 6 lonca, 4 Karagöz oyunu, 8 harika, 30 başarım ve tunç/gümüş madalya çerçevesi. Altın çerçeve G1 kitinden. Kara/deniz savaş zemini iki ayrı üretim. Tarif: `tools/art/prompts/g9.md`; paketleme: `tools/art/g9-assets.cjs`. Başka oyun görseli kullanılmadı; kullanım ilgili üretim hizmeti koşullarına tabidir. Oyun metni ve dinamik arma SVG'leri koddan gelir.
+
+## G10 — Kahve bina aşamaları (2026-10-04)
+
+114 tuval denetlendi; Kahve Fidanlığı ve Kahve Kileri altı aşama imagegen ile hedef görseller üzerinde düzenlendi. Diğer bina seti korundu. Tuval, alfa sınırları ve opak alan ölçeği doğrulandı; telefon kopyaları aynı yarı boyda WebP. Tarif: `tools/art/prompts/g10.md`.
