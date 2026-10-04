@@ -133,7 +133,11 @@ export function IkaTopBar({ game, empire, news, modes, activeAdvisor, onCity, on
     { key: 'pop', icon: <NufusArt />, value: `${compact(population(game))}`, sub: `${formatRate(growthRate(game), true)}/dk`, label: population(game) >= maxPopulation(game) ? t.hud.housingFull : t.hud.population, cap: population(game) >= maxPopulation(game) },
     { key: 'ap', icon: <HamleArt />, value: `${empire && city ? actionPoints(game) - actionsInUse(empire, city.id) : actionPoints(game)}`, sub: `/${actionPoints(game)}`, label: 'Sefer hakkı (aynı anda yapılabilecek sefer)' },
   ]
-  return <header className="ika-top">
+  return <header className="ika-top" style={{
+    '--bar-wood': `url("${asset('/images/game/ui/reference-bars/wood.webp')}")`,
+    '--bar-crest': `url("${asset('/images/game/ui/reference-bars/crest.webp')}")`,
+    '--bar-card': `url("${asset('/images/game/ui/reference-bars/card.webp')}")`,
+  } as React.CSSProperties}>
     <div className="ika-ribbon">
       {prof && <button type="button" className="ika-crest" onClick={onProfile} aria-label={`Hükümdar profili: ${prof.ruler}`}>
         <RulerCrest crest={prof.crest} color={prof.color} size={40} />
@@ -149,7 +153,7 @@ export function IkaTopBar({ game, empire, news, modes, activeAdvisor, onCity, on
           className={cn('ika-advisor', news[id] > 0 && 'ika-advisor-news', activeAdvisor === id && 'ika-advisor-active')}
           onClick={() => onAdvisor(id)} aria-pressed={activeAdvisor === id}
           aria-label={`${ADVISORS[id].title} (${ADVISORS[id].name})${news[id] ? `: ${news[id]} haber` : ''}`}>
-          <span className="ika-advisor-ring" aria-hidden="true"><AdvisorPortrait id={id} size={42} /></span>
+          <span className="ika-advisor-ring" aria-hidden="true" style={{ backgroundImage: `url("${asset(`/images/game/ui/reference-bars/${id}.webp`)}")` }} />
           {news[id] > 0 && <Badge n={news[id]} mode={modes?.[id] ?? 'count'} />}
         </button>)}
       </nav>
@@ -189,7 +193,7 @@ export function IkaNav({ active, badges, modes, onSelect }: { active: IkaNavKey 
     { key: 'alliance', label: 'İttifak', icon: <Shield painted /> },
     { key: 'objectives', label: 'Görevler', icon: <ScrollText painted /> },
   ]
-  return <nav className="ika-nav" aria-label="Oyun menüsü">{items.map(i => <button key={i.key} type="button"
+  return <nav className="ika-nav" aria-label="Oyun menüsü" style={{ backgroundImage: `url("${asset('/images/game/ui/reference-bars/nav.webp')}")` }}>{items.map(i => <button key={i.key} type="button"
     className={cn('ika-nav-item', i.key === 'map' && 'ika-nav-center', active === i.key && 'ika-nav-active')} aria-current={active === i.key ? 'page' : undefined}
     aria-label={(badges[i.key] ?? 0) > 0 ? `${i.label}: ${badges[i.key]} yeni` : i.label} onClick={() => onSelect(i.key)}>
     <span className="ika-nav-icon" aria-hidden="true">{i.icon}</span><span className="ika-nav-label">{i.label}</span>

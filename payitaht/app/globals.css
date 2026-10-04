@@ -14,6 +14,7 @@
 @import './styles/10-painted-kit.css';
 @import './styles/11-mockup.css';
 @import './styles/12-barracks.css';
+@import './styles/13-reference-bars.css';
 
 @custom-variant dark (&:is(.dark *));
 @theme inline {

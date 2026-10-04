@@ -1,0 +1,44 @@
+/* Reference walnut/gold bars. Only HUD presentation; live counters and actions stay intact. */
+.game-shell { --ika-top: calc(var(--sa-top) + 116px); --ika-nav: calc(var(--sa-bottom) + clamp(94px, 25vw, 124px)); }
+.game-shell .ika-top { padding-top: var(--sa-top); background: var(--c-wood-dark); }
+.game-shell .ika-ribbon { height: 66px; min-height: 66px; padding: 0 4px 0 0; gap: 3px; background: var(--bar-wood) center / auto 100%; border-bottom: 2px solid var(--c-gold); backdrop-filter: none; }
+.game-shell .ika-crest { position: relative; align-self: stretch; width: 82px; height: auto; min-height: 44px; padding: 0; border: 0; border-radius: 0; background: var(--bar-crest) left center / 100% 100% no-repeat; }
+.game-shell .ika-crest > svg { visibility: hidden; }
+.game-shell .ika-crest-level { position: absolute; top: 23px; right: 6px; width: 20px; height: 24px; display: grid; place-items: center; background: none; border: 0; border-radius: 0; color: var(--c-cream); font: 700 17px var(--font-heading), Georgia, serif; box-shadow: none; text-shadow: 0 1px 2px #000; }
+.game-shell .ika-city { min-height: 44px; padding: 0; gap: 0; }
+.game-shell .ika-city-name { width: 100%; gap: 4px; }
+.game-shell .ika-city-name strong { font-size: 17px; color: var(--c-cream); }
+.game-shell .ika-city-name small { display: block; font: italic 12px var(--font-heading), Georgia, serif; color: var(--c-gold-pale); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.game-shell .ika-city > :is(svg, .painted-icon), .game-shell .ika-might { display: none; }
+.game-shell .ika-advisors { gap: 2px; padding: 0; border: 0; }
+.game-shell .ika-advisor { width: 44px; height: 52px; }
+.game-shell .ika-advisor-ring { inset: 2px 0; border: 0; border-radius: 50%; background-size: 100% 100%; background-position: center; background-repeat: no-repeat; }
+.game-shell .ika-advisor-active .ika-advisor-ring { box-shadow: 0 0 9px var(--c-gold); }
+.game-shell .ika-advisor-news .ika-advisor-ring { filter: brightness(1.12); }
+.game-shell .ika-res { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 0; height: 50px; padding: 0; overflow: visible; background: var(--c-wood-dark); border-bottom: 2px solid var(--c-gold); box-shadow: 0 4px 8px #0006; backdrop-filter: none; }
+.game-shell .ika-chip { display: flex; min-height: 48px; padding: 2px 3px; border: 0; border-radius: 0; background: var(--bar-card) center / 100% 100% no-repeat; box-shadow: none; }
+.game-shell .ika-stock-open { display: grid; grid-template-columns: 18px minmax(0, 1fr); grid-template-rows: 22px 18px; column-gap: 1px; row-gap: 0; padding: 1px 0; min-height: 44px; }
+.game-shell .ika-chip i { grid-column: 1; grid-row: 1; }
+.game-shell .ika-chip i :is(svg, .painted-icon) { width: 18px; height: 20px; filter: drop-shadow(0 1px 1px #3a231044); }
+.game-shell .ika-chip-num { display: contents; }
+.game-shell .ika-chip-num > b { grid-row: 1; grid-column: 2; text-align: right; font-family: var(--font-heading), Georgia, serif; font-size: .75rem; line-height: 1.2; color: var(--c-ink); text-shadow: none; letter-spacing: -.3px; }
+.game-shell .ika-chip-num > small { grid-row: 2; grid-column: 1 / -1; text-align: center; font-size: .6875rem; line-height: 1.2; color: #355028; letter-spacing: -.4px; }
+.game-shell .ika-status[data-k='pop'] small { display: block; }
+.game-shell .ika-chip-full { box-shadow: inset 0 0 0 2px var(--c-bad); }
+.game-shell .ika-chip-full b, .game-shell .ika-chip-cap b, .game-shell .ika-chip-negative small { color: var(--c-bad); }
+.game-shell .ika-nav { left: 0; right: 0; bottom: 0; height: var(--ika-nav); display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 0; padding: 0 0 var(--sa-bottom); border: 0; border-radius: 0; background-color: var(--c-wood-dark); background-size: 100% calc(100% - var(--sa-bottom)); background-position: center top; background-repeat: no-repeat; box-shadow: 0 -4px 12px #0006; }
+.game-shell .ika-nav-item { min-height: 44px; padding: 0 0 11px; gap: 0; justify-content: flex-end; border: 0; border-radius: 0; background: none; box-shadow: none; transform: none; }
+.game-shell .ika-nav-icon, .game-shell .ika-nav-center .ika-nav-icon { visibility: hidden; width: 44px; height: 44px; margin: 0; padding: 0; background: none; box-shadow: none; }
+.game-shell .ika-nav-label, .game-shell .ika-nav-center .ika-nav-label { margin: 0; font: 700 15px var(--font-heading), Georgia, serif; color: var(--c-cream); line-height: 1.15; letter-spacing: 0; text-shadow: 0 2px 2px #000; }
+.game-shell .ika-nav-active { background: none; box-shadow: none; }
+.game-shell .ika-nav-active::before { top: auto; bottom: 4px; width: 24px; height: 2px; background: var(--c-gold-pale); }
+.game-shell .ika-nav-active .ika-nav-label { color: var(--c-gold-pale); }
+.game-shell .ika-nav-item .ika-badge { top: 12px; right: calc(50% - 25px); }
+.game-shell .ika-nav-center .ika-badge { top: 3px; right: calc(50% - 30px); }
+@media (max-width: 370px) {
+  .game-shell .ika-crest { width: 73px; }
+  .game-shell .ika-city-name strong { font-size: 15px; }
+  .game-shell .ika-city-name small { font-size: 11px; }
+  .game-shell .ika-chip-num > b { font-size: .6875rem; }
+  .game-shell .ika-nav-label, .game-shell .ika-nav-center .ika-nav-label { font-size: 14px; }
+}
