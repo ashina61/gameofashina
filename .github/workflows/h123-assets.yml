@@ -1,0 +1,95 @@
+name: Visual brief 2 H1-H3
+
+on:
+  push:
+    branches: [codex/gorsel]
+    paths:
+      - '.github/workflows/h123-assets.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: codex/gorsel
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install Pillow
+        run: python -m pip install --disable-pip-version-check pillow
+      - name: Configure git and validate generator
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          sed -i 's/ImageEnhance$/ImageEnhance,ImageOps/' payitaht/tools/art/h123_generate.py
+          python -m py_compile payitaht/tools/art/h123_generate.py
+      - name: H1 - title background
+        run: |
+          cd payitaht
+          python tools/art/h123_generate.py H1
+          test $(stat -c%s public/images/game/terrain/title-background.webp) -le 250000
+          cd ..
+          git add payitaht/tools/art/h123_generate.py payitaht/public/images/game/terrain/title-background.webp payitaht/visual-review/H1
+          git commit -m 'H1: rebuild title background from target mockup'
+      - name: H2 - unique island silhouettes
+        run: |
+          cd payitaht
+          python tools/art/h123_generate.py H2
+          python - <<'PY'
+          from pathlib import Path
+          files=list(Path('public/images/game/islands').glob('map-*.webp'))
+          assert len(files)>=16
+          assert all(p.stat().st_size<=12000 for p in files), [(p.name,p.stat().st_size) for p in files if p.stat().st_size>12000]
+          PY
+          cd ..
+          git add payitaht/public/images/game/islands/map-*.webp payitaht/visual-review/H2
+          git commit -m 'H2: give all world-map islands distinct silhouettes'
+      - name: H3 - unbound city base test
+        run: |
+          cd payitaht
+          python tools/art/h123_generate.py H3
+          python - <<'PY'
+          from PIL import Image
+          from pathlib import Path
+          import json
+          root=Path('.')
+          base=Image.open(root/'public/images/game/terrain/city-base-test.webp').convert('RGB')
+          template=Image.open(root/'docs/mockups/sehir-taban-sablon.png').convert('RGB').resize(base.size,Image.Resampling.LANCZOS)
+          Image.blend(base,template,.42).save(root/'visual-review/H3/template-overlay.webp','WEBP',quality=78,method=6)
+          data=json.loads((root/'lib/game/city-map/city-slots.json').read_text())
+          city=[s for s in data['slots'] if s['type']=='city']
+          targets=[next(s for s in city if s.get('fixed'))]+[s for s in city if not s.get('fixed')][:4]
+          ids=['divan','konut','kereste','ambar','kisla']; x0,y0,S=-4200,1400,.4
+          preview=base.convert('RGBA')
+          for bid,slot in zip(ids,targets):
+              cand=list((root/'public/images/game/buildings').glob(f'{bid}-painted-1*.webp'))
+              if not cand: continue
+              art=Image.open(cand[0]).convert('RGBA'); f=min(230/art.width,230/art.height); art=art.resize((round(art.width*f),round(art.height*f)),Image.Resampling.LANCZOS)
+              cx=(slot['screen']['x']-x0)*S; cy=(slot['screen']['y']-y0)*S
+              preview.alpha_composite(art,(round(cx-art.width/2),round(cy-art.height*.78)))
+          preview.convert('RGB').save(root/'visual-review/H3/building-preview.webp','WEBP',quality=80,method=6)
+          c=root/'public/images/game/CREDITS.md'; marker='## 14. H1–H3 — görsel brif 2'; text=c.read_text()
+          if marker not in text:
+              text += '\n\n'+marker+'\n\n2026-10-04. H1 hedef mockup sahnesinden UI temizleme/yeniden boyama; H2 mevcut özgün ada resimlerinden yeni silüet maskeleri; H3 gerçek city-slots.json geometrisi ve onaylı zemin/dekorlarla üretildi. Tarif: tools/art/prompts/h1-h3.md. Üçüncü taraf oyun görseli kullanılmadı. H3 Phaser’a bağlanmamıştır.\n'
+              c.write_text(text)
+          readme=root/'visual-review/H3/README.md'
+          readme.write_text(readme.read_text()+'`template-overlay.webp` gerçek şablonun %42 bindirmesidir. `building-preview.webp` mevcut boyalı Divanhane, konut, kereste, ambar ve kışla assetleriyle değerlendirme önizlemesidir.\n')
+          assert base.size==(2336,2160)
+          assert (root/'public/images/game/terrain/city-base-test.webp').stat().st_size<=1200000
+          PY
+          grep -q "payitaht-shell-v42" public/sw.js
+          grep -q "payitaht-shell-v42" lib/pwa-cache.test.ts
+          cd ..
+          git add payitaht/public/images/game/terrain/city-base-test.webp payitaht/visual-review/H3 payitaht/public/sw.js payitaht/lib/pwa-cache.test.ts payitaht/public/images/game/CREDITS.md
+          git commit -m 'H3: add unbound exact-geometry city base test and bump SW v42'
+      - name: Scope guard and push
+        run: |
+          ! git diff --name-only e888c2288262f0e93e52c20156a242629e7e5590..HEAD | grep -E 'building-page\.tsx|battle-view\.tsx|research-|ikariam-panels\.tsx'
+          git diff --name-only e888c2288262f0e93e52c20156a242629e7e5590..HEAD | grep -q 'visual-review/H3'
+          git push origin HEAD:codex/gorsel
