@@ -6,6 +6,18 @@ export type Release = { version: string; date: string; title: string; notes: str
 
 export const CHANGELOG: Release[] = [
   {
+    version: '0.43.0', date: '4 Ekim 2026', title: 'Boyalı yüz: yeni arayüz, ikonlar, danışmanlar, şehir ve ordu',
+    notes: [
+      'Bütün arayüz tek elden boyandı: ceviz ve pirinç plakalar, parşömen düğmeler, kırmızı şerit başlıklar.',
+      'Kaynak ve menü ikonları yeniden çizildi (akçe, kereste, ilim, kahve, mermer, kristal, kükürt, nüfus, sefer hakkı). Alt bar ve harita düğmeleri boyalı madalyonlarda.',
+      'Dört danışman (Vezir, Serasker, Âlim, Elçi) boyalı portre oldu.',
+      'Şehir zemini ve dekoru yeni: taze çim, boyalı deniz ve kumsal, uzak tepeler; incir, nar, portakal, lavanta, kahve bahçesi, çeşme, kovan ve değirmen kümeleri. Yol kenarı servi, bank ve küpler yolun iki yanında.',
+      'Üst bar yenilendi: kaynak kutusuna dokununca üretim defteri açılır, dakikalık üretim kutunun altında görünür. Süren işler tek çipte toplanır, dokununca kartlar açılır. Harita araçları tek madalyonda.',
+      'Yirmi dokuz birlik boyalı figür oldu; yedi destek gemisi küçük boyda da ayırt edilir (sandık, varil, havan, mancınık, arbalet, alevli pruva).',
+      'Telefonda dekor küçük kopyalardan yüklenir; hafif modda dekor yarıya iner.',
+    ],
+  },
+  {
     version: '0.42.0', date: '3 Ekim 2026', title: 'Kahve, ortak ilim, taşsız şehir',
     notes: [
       'Yeni şehir kurunca hiçbir şey baştan başlamaz: araştırmalar, gelecek araştırmaları, yönetim biçimi ve Tophane yükseltmeleri bütün şehirlerinde ortaktır. Bir şehirde biten araştırma hepsinde geçerli; aynı araştırma iki şehirde birden yürütülemez.',
