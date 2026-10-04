@@ -30,6 +30,8 @@ export type Slot = {
   /** Merkez, tuval genisliginin yuzdesi. */
   x: number
   y: number
+  /** Liman agzindaki korsan adasi: yalniz Korsan Kalesi kurulur. */
+  islet?: boolean
 }
 
 /**
@@ -127,7 +129,7 @@ export const QUAY_COUNT = 2
  */
 export const SLOTS: Slot[] = USES_MEASURED
   ? MEASURED.map((m, index) => ({ index, zone: m.zone, x: m.x, y: m.y }))
-  : LIVE_SLOTS.map(s => ({ index: s.index, zone: s.zone, x: s.pct.x, y: s.pct.y }))
+  : LIVE_SLOTS.map(s => ({ index: s.index, zone: s.zone, x: s.pct.x, y: s.pct.y, ...(s.slotId.startsWith('islet_') ? { islet: true } : {}) }))
 
 /** Belediye arsasinin indeksi: her zaman merkez, CAKILI. */
 export const CENTER_PLOT = 0

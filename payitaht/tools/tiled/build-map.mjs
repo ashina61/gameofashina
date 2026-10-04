@@ -130,6 +130,13 @@ DEFENSE_ANCHORS.forEach(({ id, at }) => {
   slots.push(withScreen({ id, type: 'defense', ...toGrid(at[0], at[1]), fw: FOOT, fh: FOOT, fixed: true }))
 })
 
+/*
+ * KORSAN ADASI: deniz kapısının hemen dışında, liman ağzındaki küçük kayalık
+ * ada. Yalnız Korsan Kalesi kurulur; yolu yoktur, sandalla gidilir. Kapının
+ * önündeki geçit açık kalsın diye doğuya kaydırılmıştır.
+ */
+slots.push(withScreen({ id: 'islet_01', type: 'islet', ...toGrid(760, W_B + 440), fw: FOOT, fh: FOOT, fixed: false }))
+
 // --- YOL AĞI --------------------------------------------------------------
 const street = new Map() // id -> {gx, gy}
 const edges = []
@@ -285,6 +292,7 @@ const map = {
     tileLayer('ROADS'),
     objectLayer('BUILDING_SLOTS', slots.filter(s => s.type === 'city').map(slotObject)),
     objectLayer('COAST_SLOTS', slots.filter(s => s.type === 'coast').map(slotObject)),
+    objectLayer('ISLET_SLOTS', slots.filter(s => s.type === 'islet').map(slotObject)),
     objectLayer('DEFENSE_FOUNDATION', [foundationObject, ...slots.filter(s => s.type === 'defense').map(slotObject)]),
     objectLayer('DECORATION', []),
     objectLayer('BUILDINGS', []),
@@ -301,6 +309,6 @@ writeFileSync(join(ROOT, 'maps/payitaht/payitaht_city.tmj'), JSON.stringify(map,
 const n = (t) => slots.filter(s => s.type === t).length
 console.log('Yazıldı: payitaht_city.tmj + city-slots.json')
 console.log(`Harita ${MAP_W}x${MAP_H} @ ${TILE_W}x${TILE_H} iso · footprint ${FOOT}x${FOOT}`)
-console.log(`Slotlar: city ${n('city')} (1 belediye + ${n('city') - 1} normal), coast ${n('coast')}, defense ${n('defense')}`)
+console.log(`Slotlar: city ${n('city')} (1 belediye + ${n('city') - 1} normal), coast ${n('coast')}, ada ${n('islet')}, defense ${n('defense')}`)
 console.log(`Şehir tile kutusu: gx ${cityBounds.minGx}..${cityBounds.maxGx} (${cityBounds.maxGx - cityBounds.minGx}), gy ${cityBounds.minGy}..${cityBounds.maxGy} (${cityBounds.maxGy - cityBounds.minGy})`)
 console.log(`Ekran kutusu: ${cityBounds.maxX - cityBounds.minX} x ${cityBounds.maxY - cityBounds.minY} px · yol kenarı ${roadEdges.length}`)

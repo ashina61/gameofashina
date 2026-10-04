@@ -6,6 +6,13 @@ export type Release = { version: string; date: string; title: string; notes: str
 
 export const CHANGELOG: Release[] = [
   {
+    version: '0.49.0', date: '4 Ekim 2026', title: 'Korsan adası',
+    notes: [
+      'Liman ağzında, deniz kapısının hemen dışında küçük kayalık bir ada var. Korsan Kalesi artık oraya kurulabilir; yeni kurulan Korsan Kalesi önce adaya yerleşir, kıyı iskelesi de hâlâ olur.',
+      'Böylece üç kıyı iskelesi liman ve tersaneye boş kalır. Kıyıdaki Korsan Kalesi yerinde durur; istersen taşıyıp adaya alabilirsin.',
+    ],
+  },
+  {
     version: '0.48.0', date: '4 Ekim 2026', title: 'Yeni giriş manzarası ve tek tek boyanmış adalar',
     notes: [
       'Giriş ekranının arka planı yeniden boyandı: gün batımında Payitaht, kubbeler, minareler, koyda kalyonlar ve önde çiçekli taş balkon.',

@@ -27,6 +27,7 @@ import { drawPlaza } from './terrain/plaza'
 import { drawCityLife } from './terrain/life'
 import { buildRoads } from './terrain/roads'
 import { placeDecor } from './terrain/decor'
+import { drawIslet } from './terrain/islet'
 
 /** G4 boyalı arazi/dekor; üretim tarifleri tools/art/prompts/g4.md. */
 export const TERRAIN_TILES = ['grass', 'dirt', 'grass-shade', 'grass-dry', 'plaza-stone', 'cobble', 'quay-stone', 'shore-sand', 'water-shallow', 'water-deep', 'hills'] as const
@@ -576,6 +577,8 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1, occupiedSl
       duration: 2300 + i * 450, ease: 'Sine.easeInOut', yoyo: true, repeat: -1, delay: i * 380,
     })
   })
+
+  drawIslet({ scene, stamp })
 
   // Yakın plan mikro doku: kuru ot, çakıl, renk kırılması.
   const micro = scene.add.graphics().setDepth(-887)

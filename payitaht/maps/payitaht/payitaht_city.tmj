@@ -9,8 +9,8 @@
  "height": 140,
  "tilewidth": 128,
  "tileheight": 64,
- "nextlayerid": 10,
- "nextobjectid": 101,
+ "nextlayerid": 11,
+ "nextobjectid": 102,
  "tilesets": [],
  "properties": [
   {
@@ -1423,6 +1423,66 @@
   },
   {
    "id": 5,
+   "name": "ISLET_SLOTS",
+   "type": "objectgroup",
+   "visible": true,
+   "opacity": 1,
+   "x": 0,
+   "y": 0,
+   "draworder": "topdown",
+   "objects": [
+    {
+     "id": 96,
+     "name": "islet_01",
+     "type": "islet",
+     "x": 6208,
+     "y": 6720,
+     "width": 128,
+     "height": 128,
+     "visible": true,
+     "rotation": 0,
+     "properties": [
+      {
+       "name": "slotId",
+       "type": "string",
+       "value": "islet_01"
+      },
+      {
+       "name": "slotType",
+       "type": "string",
+       "value": "islet"
+      },
+      {
+       "name": "gx",
+       "type": "int",
+       "value": 98
+      },
+      {
+       "name": "gy",
+       "type": "int",
+       "value": 106
+      },
+      {
+       "name": "fw",
+       "type": "int",
+       "value": 2
+      },
+      {
+       "name": "fh",
+       "type": "int",
+       "value": 2
+      },
+      {
+       "name": "fixed",
+       "type": "bool",
+       "value": false
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": 6,
    "name": "DEFENSE_FOUNDATION",
    "type": "objectgroup",
    "visible": true,
@@ -1598,7 +1658,7 @@
      ]
     },
     {
-     "id": 96,
+     "id": 97,
      "name": "defense_tower_top",
      "type": "defense",
      "x": 960,
@@ -1646,7 +1706,7 @@
      ]
     },
     {
-     "id": 97,
+     "id": 98,
      "name": "defense_tower_left",
      "type": "defense",
      "x": 3840,
@@ -1694,7 +1754,7 @@
      ]
     },
     {
-     "id": 98,
+     "id": 99,
      "name": "defense_tower_right",
      "type": "defense",
      "x": 2880,
@@ -1742,7 +1802,7 @@
      ]
     },
     {
-     "id": 99,
+     "id": 100,
      "name": "defense_tower_bottom",
      "type": "defense",
      "x": 4096,
@@ -1790,7 +1850,7 @@
      ]
     },
     {
-     "id": 100,
+     "id": 101,
      "name": "defense_gate",
      "type": "defense",
      "x": 5632,
@@ -1840,7 +1900,7 @@
    ]
   },
   {
-   "id": 6,
+   "id": 7,
    "name": "DECORATION",
    "type": "objectgroup",
    "visible": true,
@@ -1851,7 +1911,7 @@
    "objects": []
   },
   {
-   "id": 7,
+   "id": 8,
    "name": "BUILDINGS",
    "type": "objectgroup",
    "visible": true,
@@ -1862,7 +1922,7 @@
    "objects": []
   },
   {
-   "id": 8,
+   "id": 9,
    "name": "DEFENSE",
    "type": "objectgroup",
    "visible": true,
@@ -1873,7 +1933,7 @@
    "objects": []
   },
   {
-   "id": 9,
+   "id": 10,
    "name": "DEBUG",
    "type": "objectgroup",
    "visible": true,

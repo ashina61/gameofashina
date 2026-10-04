@@ -22,7 +22,7 @@ import { Term } from './term'
 import { actionPoints, armyUpkeep, merchantBuyPrice, merchantSellPrice, type UnitRole, type Resource } from '@/lib/game/engine'
 import { ChevronsLeft, ChevronsRight, Compass, Crown, Eye, Flag } from './ui-art'
 import type { Run } from './world-panels'
-import { DRILL_QUEUE_LIMIT, garrisonLimit, garrisonUsed, spyCapacity, growthRate, maxPopulation, PLOTS, zoneOf } from '@/lib/game/engine'
+import { DRILL_QUEUE_LIMIT, garrisonLimit, garrisonUsed, spyCapacity, growthRate, maxPopulation, PLOTS, plotFits } from '@/lib/game/engine'
 import { BATTLE_STATS, SLOT_SIZE, fieldSize } from '@/lib/game/battle'
 import { UnitFigure } from './unit-art'
 import { UnitGallery } from './unit-gallery'
@@ -203,9 +203,9 @@ export function PlotPicker({ game, plot, onBuild }: { game: Game; plot: number; 
    */
   // Deniz arsasında yalnızca liman yapıları, karada yalnızca kara yapıları listelenir.
   const zone = PLOTS[plot]?.zone ?? 'sehir'
-  const candidates = BUILDING_IDS.filter(id => takesPlot(id) && game.placement[id] === null && zoneOf(id) === zone)
+  const candidates = BUILDING_IDS.filter(id => takesPlot(id) && game.placement[id] === null && plotFits(plot, id))
   return <div className="building-list">
-    <p className="fine-print">{zone === 'liman' ? 'Deniz arsası: liman, tersane ve korsan kalesi buraya kurulur.' : 'Kara arsası. Kurulduktan sonra binaya dokunup yükseltirsin.'}</p>
+    <p className="fine-print">{PLOTS[plot]?.islet ? 'Korsan adası: liman ağzındaki bu kayalığa yalnız Korsan Kalesi kurulur.' : zone === 'liman' ? 'Deniz arsası: liman, tersane ve korsan kalesi buraya kurulur.' : 'Kara arsası. Kurulduktan sonra binaya dokunup yükseltirsin.'}</p>
     {candidates.length === 0 && <p className="requirement"><LockKeyhole className="size-4" />Kurulabilecek yeni yapı kalmadı. Mevcut yapılarını yükselt.</p>}
     {candidates.map(id => {
       const reason = buildReason(game, id)

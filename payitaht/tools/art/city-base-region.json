@@ -1,0 +1,8 @@
+{
+  "note": "Boyalı şehir taban resminin kapsadığı dünya dikdörtgeni (city-slots.json ekran pikseli) ve ölçeği. Resim pikseli = (dünya - x0/y0) * scale. Şablon (city-base-template.py) ve alt-resim (city-underlay.cjs) bunu okur.",
+  "x0": -3536,
+  "x1": 976,
+  "y0": 1640,
+  "y1": 6900,
+  "scale": 0.5
+}

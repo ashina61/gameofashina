@@ -24,7 +24,7 @@ import { liteMode, onLiteChange } from '@/lib/motion'
 import { buildCityTerrain, preloadTerrain, cityWorldRect, cityContentRect, mineSite } from '@/lib/game/city-map/terrain-builder'
 import { FOOTPRINT_DIAMOND_W, ART_DIAMOND_PX, visualProfile, type BuildingVisualProfile } from '@/lib/game/city-map/building-assets'
 import { visualSignature } from '@/lib/game/city-render'
-import { BUILDINGS, BUILDING_IDS, activeJob, plotOpen, zoneOf, type BuildingId, type Game } from '@/lib/game/engine'
+import { BUILDINGS, BUILDING_IDS, activeJob, plotFits, plotOpen, type BuildingId, type Game } from '@/lib/game/engine'
 import { asset, buildingArtKey, buildingImage } from '@/lib/asset'
 import { PEACEFUL_CITY, siegeAppearanceKey, type SiegeAppearance } from '@/lib/game/siege-appearance'
 import { CitySiegeLayer, preloadSiegeArt } from './city-siege'
@@ -496,9 +496,9 @@ export class CityScene extends Phaser.Scene {
   eligibleMovePlots(): Set<number> {
     const set = new Set<number>()
     if (!this.moving) return set
-    const targetZone = zoneOf(this.moving)
-    const others = new Set(BUILDING_IDS.filter(b => b !== this.moving).map(b => this.state.placement[b]).filter((p): p is number => p !== null))
-    for (const s of LIVE_SLOTS) if (s.zone === targetZone && !others.has(s.index) && plotOpen(this.state, s.index)) set.add(s.index)
+    const moving = this.moving
+    const others = new Set(BUILDING_IDS.filter(b => b !== moving).map(b => this.state.placement[b]).filter((p): p is number => p !== null))
+    for (const s of LIVE_SLOTS) if (plotFits(s.index, moving) && !others.has(s.index) && plotOpen(this.state, s.index)) set.add(s.index)
     return set
   }
   updateMoveTarget(p: Phaser.Input.Pointer) {

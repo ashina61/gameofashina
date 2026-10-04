@@ -11,7 +11,7 @@
  */
 import raw from './city-slots.json'
 
-export type SlotType = 'city' | 'coast' | 'defense'
+export type SlotType = 'city' | 'coast' | 'islet' | 'defense'
 
 export type CitySlot = {
   id: string
@@ -61,6 +61,8 @@ export const TILE = CITY_MAP.tile
 export const SLOTS: CitySlot[] = CITY_MAP.slots
 export const CITY_SLOTS = SLOTS.filter(s => s.type === 'city')
 export const COAST_SLOTS = SLOTS.filter(s => s.type === 'coast')
+/** Liman ağzındaki korsan adası: yalnız Korsan Kalesi kurulur. */
+export const ISLET_SLOTS = SLOTS.filter(s => s.type === 'islet')
 export const DEFENSE_SLOTS = SLOTS.filter(s => s.type === 'defense')
 export const HALL_SLOT_ID = CITY_MAP.hallSlotId
 export const CITY_BOUNDS = CITY_MAP.bounds

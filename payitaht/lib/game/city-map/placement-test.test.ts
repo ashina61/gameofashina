@@ -44,6 +44,7 @@ test('yol grafiği: bağlı ve geçerli düğümlere işaret ediyor', () => {
   }
   const reach = new Set([CITY_MAP.hallSlotId]), queue = [CITY_MAP.hallSlotId]
   while (queue.length) for (const n of adj.get(queue.shift()!) ?? []) if (!reach.has(n)) { reach.add(n); queue.push(n) }
-  for (const s of CITY_MAP.slots.filter(s => s.type !== 'defense')) assert.ok(reach.has(s.id), `${s.id} yol ağına bağlı değil`)
+  // Korsan adasına yol yok: denizden gidilir.
+  for (const s of CITY_MAP.slots.filter(s => s.type !== 'defense' && s.type !== 'islet')) assert.ok(reach.has(s.id), `${s.id} yol ağına bağlı değil`)
   void CITY_SLOTS
 })

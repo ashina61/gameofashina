@@ -24,13 +24,13 @@
   "hallSlotId": "city_hall",
   "bounds": {
     "minGx": 27,
-    "maxGx": 84,
+    "maxGx": 98,
     "minGy": 47,
-    "maxGy": 104,
+    "maxGy": 106,
     "minX": -2624,
     "maxX": 64,
     "minY": 2528,
-    "maxY": 5760
+    "maxY": 6528
   },
   "slots": [
     {
@@ -460,6 +460,19 @@
       "screen": {
         "x": 256,
         "y": 5568
+      }
+    },
+    {
+      "id": "islet_01",
+      "type": "islet",
+      "gx": 98,
+      "gy": 106,
+      "fw": 2,
+      "fh": 2,
+      "fixed": false,
+      "screen": {
+        "x": -512,
+        "y": 6528
       }
     }
   ],

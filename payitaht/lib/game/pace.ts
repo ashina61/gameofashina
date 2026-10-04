@@ -14,8 +14,8 @@
  * Hedef (plan): Divanhane 10 → 2. gün, 15 → 7. gün, 20 → 30. gün (±%20).
  */
 import {
-  BUILDING_IDS, LUXURY_IDS, OBJECTIVES, QUEUE_LIMIT, RESEARCH_IDS, WORKER_IDS, advance, buildReason, execute, freePlots, initialGame,
-  luxuryCost, merchantLimit, objectiveDone, researchReason, takesPlot, workerCapacity, zoneOf, type BuildingId, type Game,
+  BUILDING_IDS, LUXURY_IDS, OBJECTIVES, QUEUE_LIMIT, RESEARCH_IDS, WORKER_IDS, advance, buildReason, execute, freePlotsFor, initialGame,
+  luxuryCost, merchantLimit, objectiveDone, researchReason, takesPlot, workerCapacity, type BuildingId, type Game,
 } from './engine'
 
 export type Profile = 'aktif' | 'gunde3' | 'gunde1'
@@ -67,7 +67,7 @@ export function botTurn(source: Game, now: number): Game {
     let placed = false
     for (const id of order()) {
       if (buildReason(g, id)) continue
-      const plot = g.buildings[id] === 0 && takesPlot(id) ? freePlots(g, zoneOf(id))[0] : undefined
+      const plot = g.buildings[id] === 0 && takesPlot(id) ? freePlotsFor(g, id)[0] : undefined
       if (g.buildings[id] === 0 && takesPlot(id) && plot === undefined) continue
       const r = execute(g, { type: 'build', id, plot }, now)
       if (!r.error) { g = r.game; placed = true; break }

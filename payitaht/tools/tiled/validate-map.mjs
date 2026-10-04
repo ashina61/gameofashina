@@ -56,9 +56,9 @@ for (const o of cityObjs) {
   else if (foot !== refFoot) fail(`slot ${o.name}: footprint ${foot} != ${refFoot} (hepsi aynı olmalı)`)
 }
 
-// Slot tipleri yalnızca city/coast/defense.
-const ALLOWED = new Set(['city', 'coast', 'defense'])
-for (const name of ['BUILDING_SLOTS', 'COAST_SLOTS', 'DEFENSE_FOUNDATION']) {
+// Slot tipleri yalnızca city/coast/islet/defense.
+const ALLOWED = new Set(['city', 'coast', 'islet', 'defense'])
+for (const name of ['BUILDING_SLOTS', 'COAST_SLOTS', 'ISLET_SLOTS', 'DEFENSE_FOUNDATION']) {
   for (const o of layer(name)?.objects ?? []) {
     const t = prop(o, 'slotType')
     if (t !== undefined && !ALLOWED.has(t)) fail(`${name}/${o.name}: geçersiz slotType ${t}`)
@@ -67,7 +67,7 @@ for (const name of ['BUILDING_SLOTS', 'COAST_SLOTS', 'DEFENSE_FOUNDATION']) {
 
 // --- Parity: .tmj slotları == city-slots.json ---
 const tmjSlots = new Map()
-for (const name of ['BUILDING_SLOTS', 'COAST_SLOTS', 'DEFENSE_FOUNDATION']) {
+for (const name of ['BUILDING_SLOTS', 'COAST_SLOTS', 'ISLET_SLOTS', 'DEFENSE_FOUNDATION']) {
   for (const o of layer(name)?.objects ?? []) {
     const id = prop(o, 'slotId')
     if (id) tmjSlots.set(id, { gx: prop(o, 'gx'), gy: prop(o, 'gy'), type: prop(o, 'slotType') })
@@ -125,7 +125,8 @@ else {
   }
   const reach = new Set([json.hallSlotId]), queue = [json.hallSlotId]
   while (queue.length) for (const n of adj.get(queue.shift()) ?? []) if (!reach.has(n)) { reach.add(n); queue.push(n) }
-  for (const s of json.slots.filter(s => s.type !== 'defense')) if (!reach.has(s.id)) fail(`şehir yol ağı bağlı değil: ${s.id} belediyeye ulaşmıyor`)
+  // Korsan adasına yol yok (denizden gidilir).
+  for (const s of json.slots.filter(s => s.type !== 'defense' && s.type !== 'islet')) if (!reach.has(s.id)) fail(`şehir yol ağı bağlı değil: ${s.id} belediyeye ulaşmıyor`)
   void cityIds
 }
 

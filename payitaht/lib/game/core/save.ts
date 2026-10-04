@@ -72,6 +72,7 @@ function fillMissing(g: Record<string, unknown>): Record<string, unknown> {
     const at = out.placement[id]
     if (at === null) continue
     const fits = Number.isInteger(at) && at >= 0 && at < SLOTS.length && SLOTS[at].zone === zoneOf(id as BuildingId)
+      && (!SLOTS[at].islet || id === 'korsan_kalesi')
     if (fits && !used.has(at as number)) { used.add(at as number); continue }
     /*
      * Once KENDI BOLGESINDE bos arsa aranir; yoksa herhangi bir bos arsa.
@@ -81,8 +82,8 @@ function fillMissing(g: Record<string, unknown>): Record<string, unknown> {
      * yoksa, kurulu bir Tersane'yi yok saymak oyuncunun sehrini silmek
      * olurdu - yanlis bolgede durmasi, hic durmamasindan iyidir.
      */
-    const free = SLOTS.find(slot => slot.zone === zoneOf(id as BuildingId) && !used.has(slot.index))
-      ?? SLOTS.find(slot => !used.has(slot.index))
+    const free = SLOTS.find(slot => slot.zone === zoneOf(id as BuildingId) && !slot.islet && !used.has(slot.index))
+      ?? SLOTS.find(slot => !slot.islet && !used.has(slot.index))
     out.placement[id] = free ? free.index : null
     if (free) used.add(free.index)
   }

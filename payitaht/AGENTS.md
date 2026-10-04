@@ -11,7 +11,7 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 # Payitaht Adaları — ajanlar için
 
 - Görsel yenileme işi: `docs/gorsel-brifi.md` (fazlar, sanat kılavuzu, kontroller). Oradaki sırayla ilerle; G0, G2, G4 ve G6'dan sonra onay bekle.
-- Görsel brif 2 (mockup moduna geçiş): `docs/gorsel-brifi-2.md` — H1, H2, H3; H3'ten sonra onay bekle. Hedef mockup'lar `docs/mockups/`.
+- Görsel brif 2 (mockup moduna geçiş): `docs/gorsel-brifi-2.md` — H1, H2 tamam; H3 (5 aşamalı şehir tabanı, alt-resimler `docs/mockups/taban/`) sonrası onay bekle. Hedef mockup'lar `docs/mockups/`.
 - Genel plan ve durum: `docs/v2-plani.md`.
 - Commit öncesi kontroller: `pnpm check` + `node tools/layout-qa.cjs` (yerel sunucu gerekir) + `node tools/v2-criteria.cjs`.
 - Oyun kuralı, ekonomi, kayıt biçimi ve slot koordinatları izinsiz değişmez.

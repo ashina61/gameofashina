@@ -52,6 +52,8 @@ export class SlotDebugScene extends Phaser.Scene {
   // Zemin prototipinde debug katmanları VARSAYILAN KAPALI (arazi net görünsün).
   toggles: Toggles = { footprint: false, ground: false, anchor: false, bbox: false }
   showDebug = true
+  private terrain: ReturnType<typeof buildCityTerrain> | null = null
+  private pads: Phaser.GameObjects.Graphics | null = null
   onSelect?: (text: string) => void
 
   constructor() { super('slot-debug') }
@@ -63,7 +65,7 @@ export class SlotDebugScene extends Phaser.Scene {
 
   create() {
     this.cameras.main.setBackgroundColor('#12333b')
-    buildCityTerrain(this) // SABİT katmanlı zemin — empty/full arasında hiç değişmez
+    this.terrain = buildCityTerrain(this) // SABİT katmanlı zemin — empty/full arasında hiç değişmez
     this.gfx = this.add.graphics().setDepth(-10)
     this.slotSys = new BuildingSlotSystem()
     this.slotSys.placeBuilding(HALL_BUILDING_ID, HALL_SLOT_ID)
@@ -198,6 +200,34 @@ export class SlotDebugScene extends Phaser.Scene {
 
   setToggle(name: keyof Toggles, on: boolean) { this.toggles[name] = on; this.redraw() }
   setDebug(on: boolean) { this.showDebug = on; this.redraw() }
+
+  /**
+   * BOYALI TABAN ALT-RESMİ (görsel brif 2, H3): binasız ve debug çizimsiz
+   * zemin; Divanhane `level` gelişmesi ve bütün arsalara açık yollarla. `rect`
+   * dünya dikdörtgeni kadraja tam oturur (tools/art/city-underlay.cjs).
+   */
+  underlay(level: number, rect: { x: number; y: number; w: number; h: number }) {
+    for (const s of this.sprites.values()) s.img.setVisible(false)
+    this.setDebug(false)
+    this.terrain?.setDevelopment(level)
+    this.terrain?.updateRoads(level, SLOTS.filter(s => s.type !== 'defense').map(s => s.id))
+    // Boş arsa oyunda çizilmez; boyacı için taş kenarlı toprak zemin, kıyıda
+    // rıhtım taşı. Sur temeli açık bir toprak çizgisi (sur koddan gelir).
+    this.pads ??= this.add.graphics().setDepth(-600)
+    const g = this.pads.clear()
+    g.lineStyle(10, 0xc2a877, 0.6)
+    g.strokePoints(DEFENSE_FOUNDATION.map(p => new Phaser.Math.Vector2(p.screen.x, p.screen.y)), true)
+    for (const s of SLOTS) {
+      if (s.type === 'defense' || s.fixed) continue
+      const pts = footprintDiamond(s).map(p => new Phaser.Math.Vector2(s.screen.x + (p.x - s.screen.x) * 1.1, s.screen.y + (p.y - s.screen.y) * 1.1))
+      g.fillStyle(s.type === 'city' ? 0xc9a874 : 0xb9ad94, 0.95); g.fillPoints(pts, true)
+      g.lineStyle(7, 0x8c7b60, 0.95); g.strokePoints(pts, true)
+    }
+    const cam = this.cameras.main
+    cam.removeBounds()
+    cam.setZoom(Math.min(this.scale.width / rect.w, this.scale.height / rect.h))
+    cam.centerOn(rect.x + rect.w / 2, rect.y + rect.h / 2)
+  }
   setActiveBuilding(id: string) { this.active = id; this.onSelect?.(`Seçili bina: ${assetById(id)?.name ?? id}. Bir CITY slota dokun → oraya taşı.`) }
 
   /** Aktif binayı bir city slota taşı (dolusa takas). Belediye sabit; taşınmaz. */

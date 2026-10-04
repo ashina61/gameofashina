@@ -10,6 +10,7 @@
  *   index 0        → belediye (city_hall) · zone 'sehir' · ÇAKILI
  *   index 1..24    → 24 taşınabilir city slotu · zone 'sehir'
  *   index 25..27   → 3 kıyı (coast) slotu · zone 'liman'
+ *   index 28       → korsan adası (islet) · zone 'liman' · yalnız Korsan Kalesi
  * Savunma (defense) slotları MOTOR ARSASI DEĞİLDİR: yalnızca zeminde boş temel
  * olarak görünür (sur/kule/kapı yok). Böylece motor onlara asla bina koymaz.
  *
@@ -18,7 +19,7 @@
  * karşılık gelen yeni city slotuna oturur; liman binaları boş bir coast slotuna
  * taşınır. Bina kaybı/çiftlenmesi olmaz (bkz. engine.fillMissing).
  */
-import { CITY_SLOTS, COAST_SLOTS, HALL_SLOT_ID, TILE, type CitySlot } from './index'
+import { CITY_SLOTS, COAST_SLOTS, HALL_SLOT_ID, ISLET_SLOTS, TILE, type CitySlot } from './index'
 
 /** Motorun bölge tipi (layout.Zone ile birebir). */
 export type LiveZone = 'sehir' | 'liman'
@@ -45,11 +46,12 @@ const HALL = CITY_SLOTS.find(s => s.id === HALL_SLOT_ID)!
 /** 24 taşınabilir city slotu (json sırasında). */
 const MOVABLE_CITY: CitySlot[] = CITY_SLOTS.filter(s => !s.fixed)
 
-/** Sıralı kaynak: belediye, sonra taşınabilir city, sonra coast. */
+/** Sıralı kaynak: belediye, sonra taşınabilir city, sonra coast, en sonda ada. */
 const ORDERED: { slot: CitySlot; zone: LiveZone }[] = [
   { slot: HALL, zone: 'sehir' },
   ...MOVABLE_CITY.map(slot => ({ slot, zone: 'sehir' as const })),
   ...COAST_SLOTS.map(slot => ({ slot, zone: 'liman' as const })),
+  ...ISLET_SLOTS.map(slot => ({ slot, zone: 'liman' as const })),
 ]
 
 /*
@@ -98,7 +100,12 @@ export function liveIndexBySlotId(slotId: string): number | undefined {
   return BY_SLOT_ID.get(slotId)?.index
 }
 
-/** Motor bölgesi 'liman' olan (kıyı) arsa mı? */
+/** Korsan adası arsası mı? Orada yalnız Korsan Kalesi durur. */
+export function isIsletIndex(index: number): boolean {
+  return BY_INDEX.get(index)?.slotId.startsWith('islet_') ?? false
+}
+
+/** Kıyıdaki (iskele) deniz arsası mı? Korsan adası sayılmaz. */
 export function isCoastIndex(index: number): boolean {
-  return BY_INDEX.get(index)?.zone === 'liman'
+  return BY_INDEX.get(index)?.zone === 'liman' && !isIsletIndex(index)
 }

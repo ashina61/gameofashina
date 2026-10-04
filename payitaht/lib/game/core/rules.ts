@@ -110,6 +110,22 @@ export function freePlots(g: Game, zone?: Zone): number[] {
   return PLOTS.filter(slot => !taken.has(slot.index) && plotOpen(g, slot.index) && (zone === undefined || slot.zone === zone)).map(slot => slot.index)
 }
 
+/** Korsan Kalesi'nin kurulabildiği tek özel arsa: liman ağzındaki korsan adası. */
+export const ISLET_BUILDING: BuildingId = 'korsan_kalesi'
+/**
+ * Yapı bu arsaya oturur mu? Bölgesi tutmalı; korsan adasına yalnız Korsan
+ * Kalesi kurulur (kıyı arsalarına da kurulabilir).
+ */
+export function plotFits(index: number, id: BuildingId) {
+  const slot = PLOTS[index]
+  return !!slot && slot.zone === zoneOf(id) && (!slot.islet || id === ISLET_BUILDING)
+}
+/** Yapının kurulabileceği boş arsalar; Korsan Kalesi önce adayı dener. */
+export function freePlotsFor(g: Game, id: BuildingId): number[] {
+  const free = freePlots(g, zoneOf(id)).filter(index => plotFits(index, id))
+  return id === ISLET_BUILDING ? [...free.filter(i => PLOTS[i].islet), ...free.filter(i => !PLOTS[i].islet)] : free
+}
+
 /**
  * ŞEHRİN BÜYÜMESİ (Ikariam): kara arsaları belediyeden dışa doğru, Divanhane
  * seviyesiyle açılır — başta 9, her seviyede 2 arsa daha. Arsa sırası
@@ -171,7 +187,7 @@ export function buildReason(g: Game, id: BuildingId): string | null {
   if (only === 'capital' && !capital) return 'Saray yalnızca başkentte kurulur; kolonide Valilik kur.'
   if (only === 'colony' && capital) return 'Valilik yalnızca kolonilerde kurulur; başkentte Saray var.'
   // Hic kurulmamis yapi once KENDI BOLGESINDE bir arsaya yerlestirilmeli.
-  if (takesPlot(id) && g.placement[id] === null && freePlots(g, zoneOf(id)).length === 0) {
+  if (takesPlot(id) && g.placement[id] === null && freePlotsFor(g, id).length === 0) {
     return zoneOf(id) === 'liman' ? 'Limanda boş iskele kalmadı.'
       : nextPlotDivan(g) ? `Boş arsa kalmadı. Divanhane ${nextPlotDivan(g)}. seviyede şehir büyür, yeni arsalar açılır.` : 'Boş arsa kalmadı.'
   }

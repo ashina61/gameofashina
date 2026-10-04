@@ -2,10 +2,10 @@ import { SHOWS, SHOW_IDS, emptyShows, showLength, showCooldownMs, showFavor, typ
 import { GODS, GOD_IDS, OFFER_RATE, patronChangeMs, powerRestMs, lutufCap, type GodId } from '../gods'
 import { GUILDS, GUILD_IDS, GUILD_MAX, PATRON_COOLDOWN_MS, devotionFor, guildLevel, patronSlots, type GuildId } from '../guilds'
 import { isRoadCell } from '../layout'
-import { ANARCHY_MS, BUILDING_IDS, type BuildingId, COAST_FACING_IDS, type CoastBuildingId, type CoastFacing, FOREST_MAX_LEVEL, GOVERNMENTS, GOVERNMENT_COOLDOWN_MS, GOVERNMENT_IDS, type Game, type Good, type GovernmentId, LUXURY_IDS, LUXURY_NAMES, type Luxury, MIRACLES, MIRACLE_COOLDOWN_MS, RESEARCH_BRANCHES, RESOURCE_IDS, type ResearchBranch, TRADE_GOODS, type ResearchId, WONDER_MAX, WORKER_IDS, type WorkerId, forestUpgradeCost, governmentCost, miracleCost, miracleMinutes, takesPlot, wonderCost, zoneOf } from './types'
+import { ANARCHY_MS, BUILDING_IDS, type BuildingId, COAST_FACING_IDS, type CoastBuildingId, type CoastFacing, FOREST_MAX_LEVEL, GOVERNMENTS, GOVERNMENT_COOLDOWN_MS, GOVERNMENT_IDS, type Game, type Good, type GovernmentId, LUXURY_IDS, LUXURY_NAMES, type Luxury, MIRACLES, PLOTS, MIRACLE_COOLDOWN_MS, RESEARCH_BRANCHES, RESOURCE_IDS, type ResearchBranch, TRADE_GOODS, type ResearchId, WONDER_MAX, WORKER_IDS, type WorkerId, forestUpgradeCost, governmentCost, miracleCost, miracleMinutes, takesPlot, wonderCost, zoneOf } from './types'
 import { BUILDINGS, OBJECTIVES, RESEARCH, UNITS, type UnitId } from './data'
 import { GOOD_NAMES, MINE_MAX_LEVEL, addGood, capacity, clampForest, clampMiners, clampPriests, clampWorkers, cost, drillsAt, duration, exchangeLimit, exchangeRate, futureCost, futureReason, goodAmount, logEvent, luxuryCost, maxPopulation, merchantBuyPrice, merchantLimit, merchantSellPrice, mineUpgradeCost, payLuxury, population, rates, soldiers, unitLuxuryCost, upgradeCost, upgradeReason, workerCapacity } from './economy'
-import { advance, buildReason, freePlots, objectiveDone, recruitReason, researchReason, unitCost, unitDuration } from './rules'
+import { advance, buildReason, freePlotsFor, objectiveDone, recruitReason, researchReason, unitCost, unitDuration } from './rules'
 
 export type Command =
   | { type: 'build'; id: BuildingId; plot?: number }
@@ -70,10 +70,10 @@ export function execute(source: Game, command: Command, now: number): { game: Ga
      * arsa doluysa komut reddedilir - aksi halde iki yapi ust uste cizilirdi.
      */
     if (takesPlot(command.id) && g.placement[command.id] === null) {
-      const free = freePlots(g, zoneOf(command.id))
+      const free = freePlotsFor(g, command.id)
       const plot = command.plot ?? free[0]
       if (plot === undefined || !free.includes(plot)) {
-        return { game: g, error: zoneOf(command.id) === 'liman' ? 'Bu yapı limana kurulur. Boş bir iskele seç.' : 'Bu arsa dolu. Başka bir arsa seç.' }
+        return { game: g, error: plot !== undefined && PLOTS[plot]?.islet ? 'Korsan adasına yalnız Korsan Kalesi kurulur.' : zoneOf(command.id) === 'liman' ? 'Bu yapı limana kurulur. Boş bir iskele seç.' : 'Bu arsa dolu. Başka bir arsa seç.' }
       }
       g.placement[command.id] = plot
     }
@@ -368,7 +368,7 @@ export function execute(source: Game, command: Command, now: number): { game: Ga
      */
     if (g.placement[command.id] === null) return { game: g, error: 'Bu yapı henüz kurulmadı.' }
     if (g.placement[command.id] === command.plot) return { game: g } // ayni yer: sessiz
-    if (!freePlots(g, zoneOf(command.id)).includes(command.plot)) return { game: g, error: 'Bu arsa dolu. Başka bir arsa seç.' }
+    if (!freePlotsFor(g, command.id).includes(command.plot)) return { game: g, error: PLOTS[command.plot]?.islet ? 'Korsan adasına yalnız Korsan Kalesi kurulur.' : 'Bu arsa dolu. Başka bir arsa seç.' }
     g.placement[command.id] = command.plot
     logEvent(g, `${BUILDINGS[command.id].name} yeni arsasına taşındı.`, now)
   } else {

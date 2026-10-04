@@ -9,7 +9,8 @@ değişmeden binalar resimdeki arsalara oturur.
 
     python3 tools/art/city-base-template.py [çıktı.png]
 
-Dünya koordinatından şablona: px = (x - X0) * S, py = (y - Y0) * S.
+Dünya koordinatından şablona: px = (x - X0) * S, py = (y - Y0) * S. Bölge ve
+ölçek tools/art/city-base-region.json'dadır (alt-resim aracıyla ortak).
 """
 import json
 import math
@@ -23,8 +24,8 @@ DATA = json.loads((ROOT / 'lib/game/city-map/city-slots.json').read_text())
 OUT = Path(sys.argv[1]) if len(sys.argv) > 1 else ROOT / 'docs/mockups/sehir-taban-sablon.png'
 
 TILE_W, TILE_H = DATA['tile']['w'], DATA['tile']['h']
-X0, X1, Y0, Y1 = -4200, 1640, 1400, 6800
-S = 0.2
+REGION = json.loads((ROOT / 'tools/art/city-base-region.json').read_text())
+X0, X1, Y0, Y1, S = REGION['x0'], REGION['x1'], REGION['y0'], REGION['y1'], REGION['scale']
 W, H = int((X1 - X0) * S), int((Y1 - Y0) * S)
 P = lambda x, y: ((x - X0) * S, (y - Y0) * S)
 
@@ -58,7 +59,7 @@ def shore_y(x):
 
 img = Image.new('RGB', (W, H), (122, 158, 92))
 try:
-    FONT = ImageFont.truetype('DejaVuSans.ttf', 12)
+    FONT = ImageFont.truetype('DejaVuSans.ttf', 22)
 except OSError:
     FONT = ImageFont.load_default()
 d = ImageDraw.Draw(img)
@@ -66,7 +67,7 @@ d = ImageDraw.Draw(img)
 # Deniz: kıyı çizgisinin altı.
 sea = [P(X0, Y1)] + [P(x, shore_y(x)) for x in range(X0, X1 + 1, 40)] + [P(X1, Y1)]
 d.polygon(sea, fill=(64, 140, 170))
-d.line([P(x, shore_y(x)) for x in range(X0, X1 + 1, 40)], fill=(236, 220, 170), width=6)
+d.line([P(x, shore_y(x)) for x in range(X0, X1 + 1, 40)], fill=(236, 220, 170), width=10)
 
 # Yollar: ikinci dereceden Bezier kenarları.
 nodes = {n['id']: n['screen'] for n in DATA['roadGraph']['nodes']}
@@ -87,11 +88,11 @@ d.ellipse([cx - pl['rx'] * S, cy - pl['ry'] * S, cx + pl['rx'] * S, cy + pl['ry'
 
 # Sur temeli (kapalı halka) ve kapılar.
 wall = [P(p['screen']['x'], p['screen']['y']) for p in DATA['defenseFoundation']]
-d.line(wall + [wall[0]], fill=(120, 72, 40), width=5)
+d.line(wall + [wall[0]], fill=(120, 72, 40), width=8)
 for g in DATA['wallGates']:
     gx, gy = P(g['screen']['x'], g['screen']['y'])
-    d.rectangle([gx - 9, gy - 9, gx + 9, gy + 9], fill=(170, 40, 40))
-    d.text((gx + 12, gy - 6), g['id'], fill=(80, 20, 20), font=FONT)
+    d.rectangle([gx - 14, gy - 14, gx + 14, gy + 14], fill=(170, 40, 40))
+    d.text((gx + 18, gy - 11), g['id'], fill=(80, 20, 20), font=FONT)
 
 
 def diamond(x, y, w, h):
@@ -109,15 +110,20 @@ for s in slots:
         d.polygon(diamond(x, y, TILE_W * 2, TILE_H * 2), fill=(222, 196, 140), outline=(90, 60, 30), width=3)
     elif s['type'] == 'coast':
         d.polygon(diamond(x, y, TILE_W * 2, TILE_H * 2), fill=(180, 200, 210), outline=(30, 60, 90), width=3)
+    elif s['type'] == 'islet':
+        px, py = P(x, y)
+        d.ellipse([px - TILE_W * 1.8 * S, py - TILE_H * 1.1 * S, px + TILE_W * 1.8 * S, py + TILE_H * 1.6 * S], fill=(150, 160, 110), outline=(236, 220, 170), width=4)
+        d.polygon(diamond(x, y, TILE_W * 2, TILE_H * 2), fill=(200, 170, 150), outline=(110, 40, 30), width=3)
     else:  # savunma kulesi/kapı yuvası: surun üstünde, boyalı resimde boş bırakılır
         px, py = P(x, y)
-        d.ellipse([px - 10, py - 10, px + 10, py + 10], outline=(120, 72, 40), width=3)
+        d.ellipse([px - 18, py - 18, px + 18, py + 18], outline=(120, 72, 40), width=4)
     px, py = P(x, y)
     if s['type'] != 'defense':
-        d.text((px - 18, py - 5), s['id'].replace('city_', 'c').replace('coast_', 'k'), fill=(30, 20, 10), font=FONT)
+        d.text((px - 22, py - 11), s['id'].replace('city_', 'c').replace('coast_', 'k').replace('islet_01', 'ada'), fill=(30, 20, 10), font=FONT)
 
-d.text((12, 10), 'Payitaht şehir taban şablonu · ölçek 0.2 · dünya x[%d,%d] y[%d,%d]' % (X0, X1, Y0, Y1), fill=(20, 20, 20), font=FONT)
-d.text((12, 26), 'krem elmas = bina arsası (24) · kırmızı kenar = Divanhane (sabit) · mavi = kıyı arsası (3) · kahve çizgi = sur temeli (halkalar: kule yeri) · kırmızı kare = kapı', fill=(20, 20, 20), font=FONT)
+d.text((16, 12), 'Payitaht şehir taban şablonu · ölçek %s · dünya x[%d,%d] y[%d,%d] · %dx%d' % (S, X0, X1, Y0, Y1, W, H), fill=(20, 20, 20), font=FONT)
+d.text((16, 40), 'krem elmas = bina arsası (24) · kırmızı kenar = Divanhane · mavi = kıyı arsası (3) · ada = korsan adası', fill=(20, 20, 20), font=FONT)
+d.text((16, 68), 'kahve çizgi = sur temeli (halkalar: kule yeri) · kırmızı kare = kapı', fill=(20, 20, 20), font=FONT)
 OUT.parent.mkdir(parents=True, exist_ok=True)
 img.save(OUT)
 print(f'{OUT} {W}x{H}')

@@ -1,19 +1,22 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { LIVE_SLOTS, LIVE_HALL_INDEX, liveSlotByIndex, liveIndexBySlotId, isCoastIndex } from './live-adapter'
+import { LIVE_SLOTS, LIVE_HALL_INDEX, liveSlotByIndex, liveIndexBySlotId, isCoastIndex, isIsletIndex } from './live-adapter'
 import { HALL_SLOT_ID, CITY_MAP } from './index'
-import { initialGame, parseSave, BUILDING_IDS, PLOTS, zoneOf, type BuildingId } from '../engine'
+import { initialGame, parseSave, execute, freePlotsFor, BUILDING_IDS, PLOTS, zoneOf, type BuildingId } from '../engine'
 
 const now = 1_700_000_000_000
 
-test('adaptör: sıralı arsa uzayı (belediye + 24 city + 3 coast)', () => {
+test('adaptör: sıralı arsa uzayı (belediye + 24 city + 3 coast + korsan adası)', () => {
 
-  assert.equal(LIVE_SLOTS.length, 28) // 1 belediye + 24 taşınabilir city + 3 coast
+  assert.equal(LIVE_SLOTS.length, 29) // 1 belediye + 24 taşınabilir city + 3 coast + 1 ada
   assert.ok(LIVE_SLOTS.every((s, i) => s.index === i), 'indeksler ardışık')
   const sehir = LIVE_SLOTS.filter(s => s.zone === 'sehir')
   const liman = LIVE_SLOTS.filter(s => s.zone === 'liman')
   assert.equal(sehir.length, 25, '1 belediye + 24 taşınabilir')
-  assert.equal(liman.length, 3, '3 coast (Ikariam limanı)')
+  assert.equal(liman.length, 4, '3 coast (Ikariam limanı) + korsan adası')
+  // Eski kayıtların indeksleri yerinde: ada en sonda.
+  assert.equal(LIVE_SLOTS[28].slotId, 'islet_01')
+  assert.ok(isIsletIndex(28) && !isIsletIndex(27))
 })
 
 test('adaptör: belediye index 0, city_hall, çakılı, merkez (50,70)', () => {
@@ -36,7 +39,7 @@ test('adaptör: index ↔ slotId gidiş-dönüş tutarlı', () => {
 })
 
 test('adaptör: coast slotları liman bölgesi olarak işaretli', () => {
-  assert.ok(LIVE_SLOTS.filter(s => isCoastIndex(s.index)).length === 3)
+  assert.ok(LIVE_SLOTS.filter(s => isCoastIndex(s.index)).length === 3, 'ada kıyı iskelesi sayılmaz')
   assert.ok(!isCoastIndex(0))
 })
 
@@ -90,4 +93,33 @@ test('göç: yeni düzen kaydı olduğu gibi yeniden yüklenir (idempotent)', ()
   // Kara başlangıç binaları sehir, hiçbiri liman değil.
   const land: BuildingId[] = ['divan', 'konut', 'kereste', 'ambar']
   for (const id of land) assert.equal(PLOTS[g.placement[id]!].zone, zoneOf(id))
+})
+
+/*
+ * KORSAN ADASI: liman ağzındaki kayalık. Yalnız Korsan Kalesi kurulur; Korsan
+ * Kalesi önce adayı dener, kıyı iskelelerine de kurulabilir.
+ */
+test('korsan adası: yalnız Korsan Kalesi, ve Korsan Kalesi önce adaya', () => {
+  const g = initialGame(now)
+  assert.equal(freePlotsFor(g, 'korsan_kalesi')[0], 28)
+  assert.ok(freePlotsFor(g, 'korsan_kalesi').includes(25), 'kıyı iskelesi de olur')
+  assert.ok(!freePlotsFor(g, 'liman').includes(28))
+  assert.ok(!freePlotsFor(g, 'tersane').includes(28))
+  g.buildings.divan = 3
+  g.resources = { ...g.resources, gold: 1e6, wood: 1e6 }
+  const r = execute(g, { type: 'build', id: 'liman', plot: 28 }, now)
+  assert.match(r.error ?? '', /Korsan adasına yalnız Korsan Kalesi/)
+})
+
+test('göç: adaya düşen başka yapı kıyıya taşınır, Korsan Kalesi adada kalır', () => {
+  const g = initialGame(now)
+  g.buildings.liman = 1
+  g.buildings.korsan_kalesi = 1
+  g.placement.liman = 28
+  g.placement.korsan_kalesi = 26
+  const parsed = parseSave(JSON.stringify(g))
+  assert.ok(isCoastIndex(parsed.placement.liman!), 'liman bir kıyı iskelesine taşınır')
+  assert.equal(parsed.placement.korsan_kalesi, 26, 'kıyıdaki korsan kalesi yerinde kalır')
+  const moved = parseSave(JSON.stringify({ ...g, placement: { ...g.placement, liman: 25, korsan_kalesi: 28 } }))
+  assert.equal(moved.placement.korsan_kalesi, 28)
 })

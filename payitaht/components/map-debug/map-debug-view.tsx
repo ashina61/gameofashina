@@ -32,6 +32,8 @@ export function MapDebugView() {
       const scene = new SlotDebugScene()
       scene.onSelect = (t) => setInfo(t)
       sceneRef.current = scene
+      // Alt-resim aracı (tools/art/city-underlay.cjs) sahneye buradan ulaşır.
+      Object.assign(window, { __slotDebug: scene })
       instance = new Phaser.Game({
         type: Phaser.AUTO, parent: holder.current, transparent: false,
         scale: { mode: Phaser.Scale.NONE, width: Math.round(box.width * dpr), height: Math.round(box.height * dpr), zoom: 1 / dpr },
