@@ -22,6 +22,8 @@ const CODE_FILES = [path.join(ROOT, 'public', 'sw.js'), path.join(ROOT, 'next.co
 const ASSET_EXT = /\.(webp|png|jpe?g|svg|gif|mp3|ogg|wav)$/i
 // Tarayıcı ve mağaza simgeleri dosya adıyla değil sözleşmeyle aranır.
 const ALWAYS = new Set(['apple-icon.png', 'icon.svg', 'icon-192.png', 'icon-512.png', 'icon-dark-32x32.png', 'icon-light-32x32.png'])
+// H3 is deliberately unbound; retain the one review candidate until approval.
+const REVIEW_ONLY = new Set(['images/game/terrain/city-base-test.webp'])
 
 const walk = (dir, out = []) => {
   if (!fs.existsSync(dir)) return out
@@ -48,6 +50,7 @@ function quotedNames(code) {
 }
 
 function isUsed(rel, code, names) {
+  if (REVIEW_ONLY.has(rel.split(path.sep).join('/'))) return true
   const base = path.basename(rel)
   if (ALWAYS.has(base)) return true
   const stem = base.replace(ASSET_EXT, '')

@@ -307,3 +307,7 @@ G9–G11 görselleri bu özgün proje için üretildi; başka oyunlardan görsel
 ## 14. H1–H3 — görsel brif 2
 
 2026-10-04. H1 hedef mockup sahnesinden UI temizleme/yeniden boyama; H2 mevcut özgün ada resimlerinden yeni silüet maskeleri; H3 gerçek city-slots.json geometrisi ve onaylı zemin/dekorlarla üretildi. Tarif: tools/art/prompts/h1-h3.md. Üçüncü taraf oyun görseli kullanılmadı. H3 Phaser’a bağlanmamıştır.
+
+### H1 düzeltmesi — 2026-10-04
+
+Yazısız giriş arka planı yerleşik OpenAI imagegen ile yeniden boyandı. Tarif: `tools/art/prompts/h1.md`; özgün proje mockupı ve onaylı stil sayfası referans alındı. Üçüncü taraf oyun görseli kullanılmadı. Kullanım: Payitaht projesi; dış kaynak lisansı eklenmedi.
