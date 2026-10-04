@@ -6,6 +6,15 @@ export type Release = { version: string; date: string; title: string; notes: str
 
 export const CHANGELOG: Release[] = [
   {
+    version: '0.44.0', date: '4 Ekim 2026', title: 'Boyalı surlar, ada yapıları ve gemiler',
+    notes: [
+      'Surlar üç kademede boyalı: önce kazıklı moloz duvar, sonra kesme taş, en sonda tuğla kuşaklı taş. Kuleler ve kapılar da seviyeyle büyür; sancaklar senin renginde.',
+      'Adadaki kahve bahçesi, mermer ocağı, kristal ve kükürt madeni, orman, köy, korsan ini ve kale yeniden çizildi. İnşaat iskelesi, temel, pazar ve iskele de boyalı.',
+      'Ticaret, savaş, ablukacı ve balıkçı gemileri ayrı gövde ve yelkenle görünür; sefer ve saldırı gemileri de boyalı.',
+      'Telefona inen bina kopyaları biraz daha küçültüldü; toplam indirme bütçenin altında kaldı.',
+    ],
+  },
+  {
     version: '0.43.0', date: '4 Ekim 2026', title: 'Boyalı yüz: yeni arayüz, ikonlar, danışmanlar, şehir ve ordu',
     notes: [
       'Bütün arayüz tek elden boyandı: ceviz ve pirinç plakalar, parşömen düğmeler, kırmızı şerit başlıklar.',
