@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 from pathlib import Path
-from PIL import Image,ImageDraw,ImageFilter,ImageChops,ImageEnhance
+from PIL import Image,ImageDraw,ImageFilter,ImageChops,ImageEnhance,ImageOps
 import json,math,random,sys
 R=Path(__file__).resolve().parents[2]; P=R/'public/images/game'; V=R/'visual-review'; M=R/'docs/mockups'
 IDS=[('sahil',4,5),('zeytin',8,3),('akcam',2,2),('kizil',10,7),('akdeniz',6,9),('yalcin',12,2),('baglik',1,8),('atessiz',11,11),('mercan',15,4),('sakiz',16,9),('lodos',3,12),('kartal',8,14),('poyraz',14,14),('fener',18,1),('hisarada',19,12),('lalezar',6,1)]
