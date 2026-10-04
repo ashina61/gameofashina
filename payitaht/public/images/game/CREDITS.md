@@ -306,7 +306,7 @@ G9–G11 görselleri bu özgün proje için üretildi; başka oyunlardan görsel
 
 ## 14. H1–H3 — görsel brif 2
 
-2026-10-04. H1 hedef mockup sahnesinden UI temizleme/yeniden boyama; H2 mevcut özgün ada resimlerinden yeni silüet maskeleri; H3 gerçek city-slots.json geometrisi ve onaylı zemin/dekorlarla üretildi. Tarif: tools/art/prompts/h1-h3.md. Üçüncü taraf oyun görseli kullanılmadı. H3 Phaser’a bağlanmamıştır.
+2026-10-04. H1 hedef mockup sahnesinden UI temizleme/yeniden boyama; H2 mevcut özgün ada resimlerinden yeni silüet maskeleri; H3 OpenAI ImageGen ile tek parça boyandı; şablona zorlanmadığı için görsel arsa merkezleri visual-review/H3/city-base-centers.json içinde ayrıca kaydedildi. Tarif: tools/art/prompts/h1-h3.md. Üçüncü taraf oyun görseli kullanılmadı. H3 Phaser’a bağlanmamıştır.
 
 ### H1 düzeltmesi — 2026-10-04
 
@@ -315,3 +315,8 @@ Yazısız giriş arka planı yerleşik OpenAI imagegen ile yeniden boyandı. Tar
 ### H2 düzeltmesi — 2026-10-04
 
 16 dünya haritası küçük resmi, her ada için ayrı yerleşik OpenAI imagegen üretimi. Tarif: `tools/art/prompts/h2.md`. Şeffaf kıyı, köpük ve sığ su kaynaktan korunmuştur; isim/sancak içermez. `h2-normalize.py` yalnız boyutlandırır, merkezi hizalar ve WebP kodlar. Özgün proje sanatı; üçüncü taraf oyun görseli kullanılmadı.
+
+
+### H3 ImageGen yeniden boyama — 2026-10-04
+
+`terrain/city-base-test.webp`: OpenAI ImageGen tabanlı tek-parça H3 denemesi; hafif kırpma/temizlik ve WebP kodlama uygulandı. Görsel oyun slotlarına bağlı değildir. Arsa merkezleri `visual-review/H3/city-base-centers.json` içindedir. Üçüncü taraf oyun görseli kullanılmadı.
