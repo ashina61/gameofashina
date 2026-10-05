@@ -37,24 +37,8 @@
 .court-vignette h4 { margin: 0 0 6px; font: 700 19px var(--font-heading),Georgia,serif; }
 .court-vignette p { margin: 0; font-size: 12px; line-height: 1.5; }
 .sovereign-motto { margin: 0 0 15px; text-align: center; font: italic 17px var(--font-heading),Georgia,serif; line-height: 1.5; overflow-wrap: anywhere; }
-.sovereign-title-path { display: flex; overflow-x: auto; gap: 5px; padding: 3px 1px 9px; scrollbar-width: thin; }
-.sovereign-title-path > span { flex: 0 0 90px; display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 10px 5px; text-align: center; border: 1px solid var(--c-tan-border); background: #bdab861c; color: var(--c-ink-muted); }
-.sovereign-title-path svg { width: 23px; height: 23px; }
-.sovereign-title-path b { font: 700 15px var(--font-heading),Georgia,serif; }
-.sovereign-title-path small { font-size: 11px; }
-.sovereign-title-path .is-earned { color: var(--c-brown); background: #ba964f33; }
-.sovereign-title-path .is-current { color: var(--c-gold-pale); background: var(--c-wood-dark); border-color: var(--c-gold-deep); box-shadow: inset 0 0 0 2px #b48c4633; }
-.sovereign-ranks > div { display: grid; grid-template-columns: 36px minmax(0,1fr) auto; gap: 10px; align-items: center; padding: 11px 2px; border-bottom: 1px solid var(--c-parch-line); }
-.sovereign-rank-icon { display: grid; place-items: center; width: 36px; height: 40px; background: var(--art-medal-frame) center / 100% 100% no-repeat; }
-.sovereign-rank-icon svg { width: 21px; height: 21px; }
-.sovereign-ranks strong { display: block; font: 700 17px var(--font-heading),Georgia,serif; }
-.sovereign-ranks small { display: block; margin-top: 3px; font-size: 11px; color: var(--c-ink-muted); }
-.sovereign-ranks b { font: 700 20px var(--font-heading),Georgia,serif; }
 .sovereign-cities { display: grid; gap: 12px; }
 .sovereign-city { display: grid; grid-template-columns: 100px minmax(0,1fr); padding: 0; text-align: left; color: var(--c-ink); border: 1px solid var(--c-gold-deep); background: #e8d4aa; }
-.sovereign-city-picture { position: relative; align-self: stretch; min-height: 165px; overflow: hidden; border-right: 1px solid var(--c-gold-deep); }
-.sovereign-city-picture img:first-child { position: absolute; width: 100%; height: 100%; object-fit: cover; opacity: .6; }
-.sovereign-city-picture img:last-child { position: absolute; width: 120px; max-width: none; height: 140px; object-fit: contain; left: -10px; bottom: 3px; filter: drop-shadow(0 4px 3px #32210c88); }
 .sovereign-city-copy { display: flex; flex-direction: column; gap: 6px; padding: 12px 10px; min-width: 0; }
 .sovereign-city-copy small { font-size: 11px; color: var(--c-brown-mid); }
 .sovereign-city-copy strong { font: 700 22px var(--font-heading),Georgia,serif; overflow-wrap: anywhere; }
@@ -68,18 +52,12 @@
 .sovereign-medal-tally > span { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 5px; }
 .sovereign-medal-tally b { font-size: 20px; }
 .sovereign-medal-tally small { font-size: 11px; }
-.sovereign-next-medal { display: flex; align-items: center; gap: 12px; padding: 14px 3px; }
-.sovereign-next-medal > span { min-width: 0; }
-.sovereign-next-medal small { display: block; font-size: 11px; color: var(--c-brown-mid); }
-.sovereign-next-medal b { display: block; margin-top: 4px; font: 700 19px var(--font-heading),Georgia,serif; }
-.sovereign-next-medal p { margin: 5px 0 0; font-size: 12px; line-height: 1.5; }
 .sovereign-medal-filter { display: flex; gap: 5px; margin: 10px 0 16px; }
 .sovereign-medal-filter button { flex: 1; min-height: 46px; padding: 8px 4px; background: #f0e2c4; border: 1px solid var(--c-tan-border); color: var(--c-ink); font-size: 12px; }
 .sovereign-medal-filter button[aria-pressed='true'] { background: var(--c-wood-dark); color: var(--c-gold-pale); border-color: var(--c-gold-deep); }
 .sovereign-medals { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 10px; }
 .sovereign-medal { display: flex; flex-direction: column; min-width: 0; text-align: center; padding: 12px 8px 8px; border: 1px solid var(--c-tan-border); background: #d3c5a833; }
 .sovereign-medal.is-earned { background: #f4e5bd; border-color: var(--c-gold-deep); box-shadow: inset 0 0 0 2px #be98592b; }
-.sovereign-medal-face { display: flex; justify-content: center; margin-bottom: 10px; }
 .sovereign-medal > small { font-size: 11px; line-height: 1.5; }
 .sovereign-medal h4 { margin: 5px 0; font: 700 17px var(--font-heading),Georgia,serif; }
 .sovereign-medal p { margin: 0 0 10px; font-size: 12px; line-height: 1.5; flex: 1; }
@@ -92,19 +70,8 @@
 .court-empty p { font-size: 13px; }
 .court-wardrobe > label { display: block; font: 700 16px var(--font-heading),Georgia,serif; margin: 12px 0 6px; }
 .court-wardrobe > input { display: block; width: 100%; min-height: 46px; padding: 10px; font-size: 15px; background: #fff6df; color: var(--c-ink); border: 1px solid var(--c-tan-border); border-radius: 0; box-shadow: inset 0 2px 4px #55311522; }
-.court-banner-options, .court-crest-options, .court-color-options { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 8px; }
-.court-banner-options > button, .court-crest-options > button, .court-color-options > button { position: relative; display: flex; flex-direction: column; align-items: center; gap: 7px; min-width: 0; padding: 9px 3px; border: 1px solid var(--c-tan-border); background: #dcc79e55; color: var(--c-ink); font-size: 11px; line-height: 1.4; }
-.court-banner-options > button[aria-checked='true'], .court-crest-options > button[aria-checked='true'], .court-color-options > button[aria-checked='true'] { background: #f5e4b7; border: 2px solid var(--c-gold-deep); padding: 8px 2px; }
-.court-banner-options .sancak-art { max-width: 100%; height: auto; }
-.court-banner-options > button > svg:not(.sancak-art), .court-crest-options > button > svg:not(.ruler-crest) { position: absolute; right: 3px; top: 4px; width: 16px; height: 16px; }
-.court-crest-options > button { min-height: 93px; }
-.court-color-options > button { min-height: 80px; }
-.court-color-options > button > span { width: 38px; height: 38px; border: 2px solid var(--c-gold-deep); display: grid; place-items: center; box-shadow: inset 0 2px 4px #0004; }
-.court-color-options svg { width: 22px; height: 22px; color: #fff; filter: drop-shadow(0 1px 2px #000); }
 .court-signature { display: grid; grid-template-columns: minmax(0,2fr) minmax(0,1fr); gap: 7px; padding-top: 16px; }
 .court-signature small { grid-column: 1 / -1; font-size: 12px; color: var(--c-red); }
-.court-footer { display: grid; gap: 7px; margin-top: 15px; }
-.court-footer .gbtn { width: 100%; }
 .admin-stage { position: relative; height: 165px; margin: 0 -8px; background: var(--c-wood-dark); }
 .admin-stage > img { width: 100%; height: 100%; object-fit: cover; object-position: 35% center; }
 .admin-stage > span { position: absolute; top: 18px; right: 9px; width: 46%; padding: 13px 10px; background: var(--c-parch); border: 0 solid transparent; border-image: var(--art-page-frame) 48 fill / 6px / 0 stretch; filter: drop-shadow(0 3px 4px #0006); }
@@ -114,21 +81,6 @@
 .admin-section-heading { display: flex; align-items: center; gap: 9px; margin: 18px 0 5px; padding-bottom: 8px; border-bottom: 1px solid var(--c-tan-border); }
 .admin-section-heading svg { width: 22px; height: 22px; }
 .admin-section-heading h4 { margin: 0; font: 700 20px var(--font-heading),Georgia,serif; }
-.court-admin .toggle-row { min-height: 72px; padding: 11px 2px; gap: 10px; background: transparent; border: 0; border-bottom: 1px solid var(--c-parch-line); border-radius: 0; }
-.court-admin .toggle-row > svg { width: 22px; height: 22px; color: var(--c-brown); }
-.court-admin .toggle-row strong { font: 700 17px var(--font-heading),Georgia,serif; }
-.court-admin .toggle-row small { font-size: 11px; line-height: 1.5; margin-top: 4px; }
-.court-admin .toggle-row input { width: 46px; min-width: 46px; height: 28px; background: #786445; border: 2px solid #a28145; box-shadow: inset 0 2px 4px #0004; }
-.court-admin .toggle-row input:checked { background: #785d27; }
-.court-admin .toggle-row input::before { background: linear-gradient(#f3deac,#b99555); box-shadow: 0 2px 3px #0005; }
-.court-admin .lite-row { flex-wrap: wrap; }
-.court-admin .lite-row .seg { flex-basis: 100%; display: flex; margin: 5px 0 0; }
-.court-admin .seg button { flex: 1; min-height: 44px; padding: 8px 4px; font-size: 12px; }
-.court-admin .pace-setting { margin: 10px 0; }
-.court-admin .pace-tabs { display: flex; gap: 5px; background: transparent; padding: 0; border: 0; }
-.court-admin .pace-tabs > button { flex: 1; min-height: 48px; white-space: normal; padding: 9px 4px; font-size: 12px; background: #ead8b4; border: 1px solid var(--c-tan-border); border-radius: 0; }
-.court-admin .pace-tabs > button[aria-pressed='true'] { background: var(--c-wood-dark); color: var(--c-gold-pale); }
-.court-admin .pace-setting > p { font-size: 12px; line-height: 1.5; }
 .admin-device-status { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 7px; margin: 12px 0; }
 .admin-device-status > span { display: flex; align-items: center; gap: 8px; padding: 11px 8px; border: 1px solid var(--c-tan-border); background: #cdb38622; font-size: 12px; }
 .admin-device-status svg { width: 22px; height: 22px; flex-shrink: 0; }
