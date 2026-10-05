@@ -22,6 +22,7 @@
 @import './styles/18-spacious.css';
 @import './styles/19-civic.css';
 @import './styles/22-reference-profile-settings.css';
+@import './styles/23-reference-profile-polish.css';
 
 @custom-variant dark (&:is(.dark *));
 @theme inline {
