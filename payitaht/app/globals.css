@@ -22,6 +22,7 @@
 @import './styles/18-spacious.css';
 @import './styles/19-civic.css';
 @import './styles/20-profile-settings.css';
+@import './styles/21-profile-settings-mobile-qa.css';
 
 @custom-variant dark (&:is(.dark *));
 @theme inline {
