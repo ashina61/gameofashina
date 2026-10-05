@@ -50,9 +50,6 @@
 .sovereign-ranks strong { display: block; font: 700 17px var(--font-heading),Georgia,serif; }
 .sovereign-ranks small { display: block; margin-top: 3px; font-size: 11px; color: var(--c-ink-muted); }
 .sovereign-ranks b { font: 700 20px var(--font-heading),Georgia,serif; }
-.sovereign-honours { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 14px 5px; margin-bottom: 14px; }
-.sovereign-honours > span { display: flex; flex-direction: column; align-items: center; gap: 7px; text-align: center; }
-.sovereign-honours small { font-size: 11px; }
 .sovereign-cities { display: grid; gap: 12px; }
 .sovereign-city { display: grid; grid-template-columns: 100px minmax(0,1fr); padding: 0; text-align: left; color: var(--c-ink); border: 1px solid var(--c-gold-deep); background: #e8d4aa; }
 .sovereign-city-picture { position: relative; align-self: stretch; min-height: 165px; overflow: hidden; border-right: 1px solid var(--c-gold-deep); }
@@ -76,9 +73,9 @@
 .sovereign-next-medal small { display: block; font-size: 11px; color: var(--c-brown-mid); }
 .sovereign-next-medal b { display: block; margin-top: 4px; font: 700 19px var(--font-heading),Georgia,serif; }
 .sovereign-next-medal p { margin: 5px 0 0; font-size: 12px; line-height: 1.5; }
-.sovereign-medal-filter, .court-choice-tabs { display: flex; gap: 5px; margin: 10px 0 16px; }
-.sovereign-medal-filter button, .court-choice-tabs button { flex: 1; min-height: 46px; padding: 8px 4px; background: #f0e2c4; border: 1px solid var(--c-tan-border); color: var(--c-ink); font-size: 12px; }
-.sovereign-medal-filter button[aria-pressed='true'], .court-choice-tabs button[aria-pressed='true'] { background: var(--c-wood-dark); color: var(--c-gold-pale); border-color: var(--c-gold-deep); }
+.sovereign-medal-filter { display: flex; gap: 5px; margin: 10px 0 16px; }
+.sovereign-medal-filter button { flex: 1; min-height: 46px; padding: 8px 4px; background: #f0e2c4; border: 1px solid var(--c-tan-border); color: var(--c-ink); font-size: 12px; }
+.sovereign-medal-filter button[aria-pressed='true'] { background: var(--c-wood-dark); color: var(--c-gold-pale); border-color: var(--c-gold-deep); }
 .sovereign-medals { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 10px; }
 .sovereign-medal { display: flex; flex-direction: column; min-width: 0; text-align: center; padding: 12px 8px 8px; border: 1px solid var(--c-tan-border); background: #d3c5a833; }
 .sovereign-medal.is-earned { background: #f4e5bd; border-color: var(--c-gold-deep); box-shadow: inset 0 0 0 2px #be98592b; }
@@ -95,8 +92,6 @@
 .court-empty p { font-size: 13px; }
 .court-wardrobe > label { display: block; font: 700 16px var(--font-heading),Georgia,serif; margin: 12px 0 6px; }
 .court-wardrobe > input { display: block; width: 100%; min-height: 46px; padding: 10px; font-size: 15px; background: #fff6df; color: var(--c-ink); border: 1px solid var(--c-tan-border); border-radius: 0; box-shadow: inset 0 2px 4px #55311522; }
-.court-choice-tabs { margin-top: 20px; }
-.court-choice-name { text-align: center; font: 700 18px var(--font-heading),Georgia,serif; }
 .court-banner-options, .court-crest-options, .court-color-options { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 8px; }
 .court-banner-options > button, .court-crest-options > button, .court-color-options > button { position: relative; display: flex; flex-direction: column; align-items: center; gap: 7px; min-width: 0; padding: 9px 3px; border: 1px solid var(--c-tan-border); background: #dcc79e55; color: var(--c-ink); font-size: 11px; line-height: 1.4; }
 .court-banner-options > button[aria-checked='true'], .court-crest-options > button[aria-checked='true'], .court-color-options > button[aria-checked='true'] { background: #f5e4b7; border: 2px solid var(--c-gold-deep); padding: 8px 2px; }
