@@ -26,12 +26,19 @@ async function assertReferenceLayout(page, label, screen) {
   if (!metrics.top || metrics.top.height < 48 || metrics.top.height > 68) throw new Error(`${label}/${screen}: top resource rail height drift`)
   if (!metrics.main || metrics.main.width < metrics.viewport.width * .67) throw new Error(`${label}/${screen}: parchment workspace is too narrow`)
 
-  const tiny = await page.locator('.ref-os-shell button, .ref-os-shell input, .ref-os-shell select').evaluateAll(nodes => nodes.filter(node => {
+  // Range thumbs and visually-hidden native checkbox inputs inherit their effective
+  // touch target from the full row/label. Measure the actual visible/clickable surface.
+  const tiny = await page.locator('.ref-os-shell button, .ref-os-shell select, .ref-identity-edit input, .ref-settings-actions button').evaluateAll(nodes => nodes.filter(node => {
     const r = node.getBoundingClientRect()
     const s = getComputedStyle(node)
-    return s.display !== 'none' && s.visibility !== 'hidden' && r.width > 0 && r.height > 0 && (r.height < 40 || r.width < 28)
+    return s.display !== 'none' && s.visibility !== 'hidden' && Number(s.opacity || 1) > 0 && r.width > 0 && r.height > 0 && (r.height < 40 || r.width < 28)
   }).map(node => ({ text: node.getAttribute('aria-label') || node.textContent.trim().slice(0, 40), rect: node.getBoundingClientRect().toJSON() })).slice(0, 8))
-  if (tiny.length) throw new Error(`${label}/${screen}: undersized interactive controls ${JSON.stringify(tiny)}`)
+  if (tiny.length) throw new Error(`${label}/${screen}: undersized visible controls ${JSON.stringify(tiny)}`)
+  const tinyRows = await page.locator('.ref-switch-row, .ref-slider-row').evaluateAll(nodes => nodes.filter(node => {
+    const r = node.getBoundingClientRect()
+    return r.width > 0 && r.height > 0 && r.height < 38
+  }).map(node => ({ text: node.textContent.trim().slice(0, 40), rect: node.getBoundingClientRect().toJSON() })).slice(0, 8))
+  if (tinyRows.length) throw new Error(`${label}/${screen}: undersized setting rows ${JSON.stringify(tinyRows)}`)
 }
 
 async function checkHeraldry(page, label, out) {
