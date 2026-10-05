@@ -336,3 +336,6 @@ Yazısız giriş arka planı yerleşik OpenAI imagegen ile yeniden boyandı. Tar
 
 ### Görev dairesi içerik sahneleri (v46)
 `quests/{capital,builders,scholar,army,harbour,treasury}.webp`: OpenAI ImageGen ile, kullanıcının kışla/araştırma referanslarını sanat dili olarak kullanarak üretildi. 3×2 atlasın altı paneli ayrı oyun varlıklarına dönüştürüldü. Arayüz, yazı ve ödül sayıları görsele gömülü değildir. Tarif: `tools/art/prompts/quest-scenes.md`.
+
+### Şehir vakayinamesi ve divan neşriyatı (v47)
+`terrain/archive-hall.webp`: OpenAI ImageGen yerleşik aracıyla, kullanıcının araştırma referansı ve oyunun mevcut görev dairesi sanatına bakılarak üretildi. Osmanlı arşiv kâtibi, ceviz kayıt defterleri ve Ege şehri. Yazı, tarih ve rakamlar arayüzde koddan gelir. Tarif: `tools/art/prompts/archive-hall.md`.

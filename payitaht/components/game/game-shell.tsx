@@ -18,7 +18,7 @@ import { toast } from 'sonner'
 import { Toaster } from '@/components/ui/sonner'
 
 import { CityScene } from './city-scene'
-import { BuildingList, ResearchPanel, JournalPanel, PlotPicker, PeoplePanel, CitiesPanel, ArmyPanel, IslandPanel, colonyBlocker, colonyCostText } from './game-panels'
+import { BuildingList, ResearchPanel, PlotPicker, PeoplePanel, CitiesPanel, ArmyPanel, IslandPanel, colonyBlocker, colonyCostText } from './game-panels'
 import { WorldMap } from './world-map'
 import { EconomyDetails } from './game-widgets'
 import { IslandView, NpcPanel } from './island-view'
@@ -37,7 +37,8 @@ import { usePwa } from '@/hooks/use-pwa'
 import { useAlerts, useNotifySetting } from '@/hooks/use-alerts'
 import { BUILDINGS, BUILDING_IDS, GUIDED_STEPS, OBJECTIVES, PLOTS, RESEARCH, objectiveDone, type BuildingId, type Command } from '@/lib/game/engine'
 import { cn } from '@/lib/utils'
-import { ProfilePanel, ChangelogPanel } from './profile-panel'
+import { ProfilePanel } from './profile-panel'
+import { JournalPage, ChangelogPage } from './chronicle-pages'
 import { GodsPanel } from './gods-panel'
 import { ObjectivesPage } from './objectives-page'
 
@@ -344,7 +345,7 @@ export default function GameShell({ onTitle }: { onTitle?: () => void } = {}) {
     {(panel || plot !== null || npc) && <IkaPage sheet={!!npc && !panel && plot === null && view === 'island'} onClose={() => { setPanel(null); setPlot(null); setNpc(null) }}
       title={npc ? targetName(npc) : plot !== null ? (PLOTS[plot]?.islet ? 'Korsan adası' : PLOTS[plot]?.zone === 'liman' ? 'Deniz arsası' : 'Boş arsa') : panel ? titles[panel] : 'Şehrin'}
       subtitle={npc ? (npc.startsWith('r-') ? 'Yapay rakip hükümdar' : 'Bağımsız yerleşim') : plot !== null ? 'Bu arsaya hangi yapıyı kuracaksın?' : panel === 'build' ? 'Her yapı, yeni bir başlangıç.' : panel === 'research' ? 'İlim, şehrinin en değerli hazinesidir.' : panel === 'people' ? 'Emeği nereye ayıracağına sen karar ver.' : panel === 'army' ? 'Asker halktan çıkar. Bedelini bilerek öde.' : panel === 'cities' ? 'Hükmünün altındaki her şehir.' : panel === 'map' ? 'Adalar, rakipler ve deniz yolları' : panel === 'overview' ? 'Bütün şehirler tek tabloda' : panel === 'diplomacy' ? 'Yapay rakipler: sıralama, anlaşmalar, pazar, mektuplar' : panel === 'island' ? 'Lüks mal yatağı, ada harikası ve tüccar' : panel === 'forest' ? 'Oduncular, kereste ve ormanın büyümesi' : panel === 'alliance' ? (empire?.world?.pact ? `${empire.world.pact.name} [${empire.world.pact.tag}]` : 'Birlikten kuvvet doğar') : currentCityName}
-      hero={panelHero()} className={!npc && plot === null ? panel === 'map' ? 'bp-mapview' : panel === 'objectives' ? 'bp-objectives' : undefined : undefined}>{game && <>
+      hero={panelHero()} className={!npc && plot === null ? panel === 'map' ? 'bp-mapview' : panel === 'objectives' ? 'bp-objectives' : panel === 'journal' || panel === 'changelog' ? 'bp-annals' : undefined : undefined}>{game && <>
       {plot !== null && <PlotPicker game={game} plot={plot} onBuild={(id, at) => { act({ type: 'build', id, plot: at }); setPlot(null) }} />}
       {panel === 'people' && <PeoplePanel game={game} onAssign={(id, value) => act({ type: 'workers', id, value })} />}
       {panel === 'cities' && empire && <CitiesPanel run={runOp} game={game} empire={empire} onBuilding={openBuilding} onSelectCity={visitCity} onCargo={dispatchCargo} onMap={() => openPanel('map')} />}
@@ -360,13 +361,13 @@ export default function GameShell({ onTitle }: { onTitle?: () => void } = {}) {
       {panel === 'island' && <TemplePanel game={game} now={game.updatedAt} onCommand={act} />}
       {npc && empire && <NpcPanel empire={empire} npcId={npc} now={game.updatedAt} onSpy={count => { const e = spy(npc, count); if (e) say.no(e); else say.ok('Casuslar yola çıktı.', 'sail') }} onRaid={units => { const e = raid(npc, units); if (e) say.no(e); else { say.ok('Ordu sefere çıktı.', 'sail'); setNpc(null) } }} onOccupy={units => runOp((e, t) => dispatchRaid(e, npc, units, t, 'occupy'), 'Ordu işgale çıktı.')} onBlockade={units => runOp((e, t) => dispatchBlockade(e, npc, units, t), 'Filo ablukaya çıktı.')} run={runOp} />}
       {panel === 'reports' && empire && <ArmyAdvisor empire={empire} game={game} run={runOp} onArmy={() => openPanel('army')} />}
-      {panel === 'advisor-city' && empire && <CityAdvisor empire={empire} game={game} onCity={visitCity} onBuilding={openBuilding} onCities={() => openPanel('cities')} onBuildList={() => openPanel('build')} onOverview={() => openPanel('overview')} />}
+      {panel === 'advisor-city' && empire && <CityAdvisor empire={empire} game={game} onCity={visitCity} onBuilding={openBuilding} onCities={() => openPanel('cities')} onBuildList={() => openPanel('build')} onOverview={() => openPanel('overview')} onJournal={() => openPanel('journal')} />}
       {panel === 'overview' && empire && <EmpireOverview empire={empire} onCity={visitCity} />}
       {panel === 'build' && <BuildingList game={game} onSelect={openBuilding} />}
       {panel === 'research' && <><AdvisorSpeech id="research">{researchAdvice(game)}</AdvisorSpeech><ResearchPanel game={game} onResearch={id => act({ type: 'research', id })} /><FuturePanel game={game} onCommand={act} /></>}
-      {panel === 'journal' && <JournalPanel game={game} />}
+      {panel === 'journal' && <JournalPage game={game} cityName={currentCityName} />}
       {panel === 'profile' && empire && <ProfilePanel empire={empire} now={game.updatedAt} run={runOp} onCity={visitCity} onSettings={() => openPanel('settings')} onChangelog={() => openPanel('changelog')} />}
-      {panel === 'changelog' && <ChangelogPanel />}
+      {panel === 'changelog' && <ChangelogPage />}
       {panel === 'economy' && <EconomyDetails game={game} onMarket={() => openBuilding('carsi')} />}
       {panel === 'objectives' && <ObjectivesPage game={game} empire={empire} foundingCity={foundingCity} cityName={currentCityName}
         onClaim={id => act({ type: 'claim', id })} onGo={target} onFoundingCity={() => visitCity(empire!.cities[0].id)} run={runOp} />}

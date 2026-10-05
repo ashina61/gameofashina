@@ -8,7 +8,7 @@
 import { useId, useState } from 'react'
 import { AtlasArt } from './deep-art'
 import { asset } from '@/lib/asset'
-import { Award, Castle, Pencil, Settings, Swords, Trophy, ScrollText } from './ui-art'
+import { Award, Castle, Pencil, Settings, Swords, Trophy } from './ui-art'
 import { GameButton } from './game-button'
 import { population, soldiers } from '@/lib/game/engine'
 import { capitalId, islandOf, type Empire } from '@/lib/game/empire'
@@ -17,7 +17,7 @@ import {
   type CrestId, type Profile,
 } from '@/lib/game/profile'
 import { BANNER_OUTLINES } from '@/lib/game/banner-shapes'
-import { CHANGELOG, VERSION } from '@/lib/game/changelog'
+import { VERSION } from '@/lib/game/changelog'
 import type { Run } from './world-panels'
 import { t } from '@/lib/i18n/tr'
 
@@ -230,16 +230,5 @@ export function ProfilePanel({ empire, now, run, onCity, onSettings, onChangelog
       <GameButton size="sm" variant="outline" onClick={onSettings}><Settings data-icon="inline-start" />Oyun ayarları</GameButton>
       <button type="button" className="version-link" onClick={onChangelog}>Sürüm {VERSION} · sürüm notları</button>
     </div>
-  </div>
-}
-
-/** Sürüm notları: baştan sona. */
-export function ChangelogPanel() {
-  return <div className="advisor-panel changelog">
-    <p className="fine-print"><ScrollText className="size-3" /> Payitaht Adaları'nın ilk satırından bugüne yapılan her şey. En yeni sürüm en üstte.</p>
-    {CHANGELOG.map((r, i) => <article key={r.version} className="release">
-      <div className="release-head"><span className="release-version">{r.version}</span><strong>{r.title}</strong>{i === 0 && <em>Yeni</em>}<time>{r.date}</time></div>
-      <ul>{r.notes.map(n => <li key={n}>{n}</li>)}</ul>
-    </article>)}
   </div>
 }

@@ -6,7 +6,7 @@ import { rivalById } from '@/lib/game/rivals'
  * Vezir şehirleri ve olayları, Serasker orduyu ve raporları anlatır. Her
  * danışman duruma göre bir öğüt verir.
  */
-import { ChevronRight, Hammer, Swords } from './ui-art'
+import { ChevronRight, Hammer, Swords, ScrollText } from './ui-art'
 import { GameButton } from './game-button'
 import { Meter, StatRow } from './stat-kit'
 import { EventTimeline } from './event-timeline'
@@ -56,12 +56,13 @@ export function diploAdvice(e: Empire) {
   return 'Diplomasi yolunda. Pazardaki tekliflere göz atmayı unutmayın.'
 }
 
-export function CityAdvisor({ empire, game, onCity, onBuilding, onCities, onBuildList, onOverview }: {
-  empire: Empire; game: Game; onCity: (id: string) => void; onBuilding: (id: BuildingId) => void; onCities: () => void; onBuildList: () => void; onOverview: () => void
+export function CityAdvisor({ empire, game, onCity, onBuilding, onCities, onBuildList, onOverview, onJournal }: {
+  empire: Empire; game: Game; onCity: (id: string) => void; onBuilding: (id: BuildingId) => void; onCities: () => void; onBuildList: () => void; onOverview: () => void; onJournal: () => void
 }) {
   const current = activeCity(empire)
   return <>
     <AdvisorSpeech id="city">{cityAdvice(game)}</AdvisorSpeech>
+    <GameButton className="annals-open" variant="outline" onClick={onJournal}><ScrollText painted aria-hidden="true" />Şehir günlüğünü aç<ChevronRight aria-hidden="true" /></GameButton>
     <Box title="Şehirlerin">
       {/* Tablo yerine şehir kartı: Divanhane madalyonu, nüfus çubuğu, ustaların işi. */}
       <div className="cc-list">{empire.cities.map(c => {

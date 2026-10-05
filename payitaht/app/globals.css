@@ -16,6 +16,7 @@
 @import './styles/12-barracks.css';
 @import './styles/13-reference-bars.css';
 @import './styles/14-mandates.css';
+@import './styles/15-annals.css';
 
 @custom-variant dark (&:is(.dark *));
 @theme inline {

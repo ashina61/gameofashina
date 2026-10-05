@@ -10,7 +10,8 @@
  */
 import { useEffect, useState } from 'react'
 import { BookOpen, ChevronLeft, Play, ScrollText, Sparkles, TriangleAlert } from './ui-art'
-import { RulerCrest, ChangelogPanel } from './profile-panel'
+import { RulerCrest } from './profile-panel'
+import { ChangelogPage } from './chronicle-pages'
 import { peekSave, startNewGame } from '@/hooks/use-game'
 import { capitalCity, initialEmpire, renameCity, type Empire } from '@/lib/game/empire'
 import { COLOR_NAMES, CREST_COLORS, CREST_NAMES, CRESTS, profileOf, rulerTitle, setProfile, type CrestId } from '@/lib/game/profile'
@@ -128,7 +129,7 @@ export function TitleScreen({ onStart }: { onStart: () => void }) {
 
       : mode === 'notes' ? <div className="title-notes">
         <h2>Sürüm notları</h2>
-        <div className="title-notes-scroll"><ChangelogPanel /></div>
+        <div className="title-notes-scroll"><ChangelogPage /></div>
         <button type="button" className="title-btn" onClick={() => setMode('menu')}><ChevronLeft />{t.action.back}</button>
       </div>
 

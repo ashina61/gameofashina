@@ -6,6 +6,15 @@ export type Release = { version: string; date: string; title: string; notes: str
 
 export const CHANGELOG: Release[] = [
   {
+    version: '0.50.0', date: '5 Ekim 2026', title: 'Divanın yeni defterleri',
+    notes: [
+      'Şehir günlüğü bir vakayinameye dönüştü: olay türlerine göre gezilir, kayıt içinde arama yapılır; günler, saatler ve tekrar eden olaylar birlikte okunur.',
+      'Sürüm notları divan arşivinde: son yenilikler açık, önceki sürümler ayrı fermanlarda. Sürüm numarası veya sözcükle arama yapılır.',
+      'Görevler yeniden kurgulandı: seçilebilir şehir fermanları, resimli günlük görevler, giriş hediyeleri ve imparatorluk nişanları.',
+      'Ortak ceviz ve altın üst/alt menü, parşömen defterler ve boyalı Osmanlı–Ege sahneleri aynı tasarım dilinde bir araya geldi.',
+    ],
+  },
+  {
     version: '0.49.0', date: '4 Ekim 2026', title: 'Korsan adası ve yeni kışla',
     notes: [
       'Liman ağzında, deniz kapısının hemen dışında küçük kayalık bir ada var. Korsan Kalesi artık oraya kurulabilir; yeni kurulan Korsan Kalesi önce adaya yerleşir, kıyı iskelesi de hâlâ olur.',

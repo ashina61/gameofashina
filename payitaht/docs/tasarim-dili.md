@@ -40,8 +40,8 @@ Yeni sahneler ImageGen ile, referanslar açıkça stil referansı olarak belirti
 | Sıra | Bölüm | Durum / kabul konusu |
 |---|---|---|
 | 0 | Ortak üst ve alt bar | Canlı, SW v44; kullanıcı referansı temel. |
-| 1 | Görevler | İlk sayfa pilotu: divan görev dairesi, ferman kurdelesi, şehir/günlük/başarım defterleri. İlk v45 düzeni kullanıcı tarafından yetersiz bulundu. v46: bütün içerik ve etkileşim düzeni yeniden kuruldu; değerlendirme beklenir. |
-| 2 | Şehir günlüğü ve sürüm notları | Yazılı defter ekranları; günlük olayların okunurluğu. |
+| 1 | Görevler | İlk sayfa pilotu: divan görev dairesi, ferman kurdelesi, şehir/günlük/başarım defterleri. İlk v45 düzeni kullanıcı tarafından yetersiz bulundu. v46: bütün içerik ve etkileşim düzeni yeniden kuruldu. Kullanıcı 5 Ekim «tamam geç sıradakine» diyerek sonraki bölüme geçişi onayladı. |
+| 2 | Şehir günlüğü ve sürüm notları | v47 / 0.50.0: vakayiname ve divan neşriyatı; tarihe ayrılmış kayıt, tür seçimi, arama ve açılabilir sürüm fermanları. Yayın sonrası kullanıcı değerlendirmesi beklenir. |
 | 3 | Ayarlar ve hükümdar profili | Oyun içi idare/sancak görünümü; ayar ve kayıt işlevleri korunur. |
 | 4 | Hazine ve üretim | Kâtip/hazine sahnesi, gelir-gider parşömeni, gerçek üretim sayaçları. |
 | 5 | Halk ve şehir listesi | Meslek sahneleri, bina resimleri, mevcut işçi ve şehir işlemleri. |
@@ -69,3 +69,13 @@ Görevler (`components/game/objectives-page.tsx`, `app/styles/14-mandates.css`):
 - Altı sahne: başkent, inşaat, âlim, ordu, liman, hazine (`quests/`). Yazılar ve sayılar resimden değil koddan gelir.
 
 Eski ObjectiveCard/DailyPanel/MilestonesPanel bu sayfada kullanılmaz. Ödüller mevcut motor callback'lerinden gelir. Sonraki bölüme kullanıcı bu sonucu değerlendirdikten sonra geçilir.
+
+## Şehir günlüğü ve sürüm arşivi
+
+`components/game/chronicle-pages.tsx`, `app/styles/15-annals.css`.
+- Vezir sayfasının başındaki «Şehir günlüğünü aç» düğmesi yeni deftere götürür.
+- Vakayiname: aktif şehrin gerçek olayları; mevcut `groupLog`, `logKind`, `dayGroups` kuralları. Son olay resimli; tür seçimi, Türkçe arama, gün ve saat ayrımı, tekrar sayısı, eski kayıtları açma.
+- Divan neşriyatı: en yeni sürüm açık parşömen ferman, geçmiş sürümler açılabilir mühürlü kayıtlar; sürüm/açıklama içinde arama, toplu aç/kapat. Aynı bileşen girişte de kullanılır.
+- Ortak arşiv kâtibi sahnesi: `terrain/archive-hall.webp`; eski generic günlük ve release kartları yerine sayfaya özel defter yapısı.
+- Kayıt formatı, motor kuralları, ekonomi ve olay metinleri değişmez. `CHANGELOG` ve paket sürümü 0.50.0 olarak bu yayını kaydeder.
+- Sıradaki bölüm ayarlar ve hükümdar profilidir; bu bölümün değerlendirmesi alınmadan başlanmaz.

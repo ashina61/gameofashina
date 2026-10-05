@@ -9,7 +9,6 @@ import { idleMerchants } from '@/lib/game/expeditions'
 import { WorkforceSlider, type Figure } from './workforce'
 import { GameButton } from './game-button'
 import { NowNext } from './stat-kit'
-import { EventTimeline } from './event-timeline'
 import { CostDisplay, JobProgress } from './game-widgets'
 import { BUILDINGS, BUILDING_IDS, MAX_LEVEL, RESEARCH, RESEARCH_IDS, RESEARCH_BRANCHES, RESOURCE_IDS, RESOURCE_NAMES, UNITS, UNIT_IDS, WORKER_IDS, WORKERS_PER_LEVEL, activeJob, cargoCapacity, cityDefense, cost, duration, buildReason, power, rates, recruitReason, researchReason, scientistCount, scientistUpkeepPerMinute, idleWorkers, population, housing, contentment, soldiers, takesPlot, tradeCapacity, unhousedByUnrest, unitCost, unitDuration, wallDefense, workerCapacity, type BuildingId, type ResearchId, type ResearchBranch, type UnitId, type WorkerId, type Game, formatRate } from '@/lib/game/engine'
 import { buildingImage } from '@/lib/asset'
@@ -182,9 +181,6 @@ export function ResearchPanel({ game, onResearch }: { game: Game; onResearch: (i
       </div>
     })}</div>
   </div>
-}
-export function JournalPanel({ game }: { game: Game }) {
-  return <div className="journal-panel"><span className="eyebrow">ŞEHRİNİN HİKÂYESİ</span><EventTimeline log={game.log} now={game.updatedAt} limit={60} /></div>
 }
 
 /**

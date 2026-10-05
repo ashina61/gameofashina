@@ -1,0 +1,104 @@
+/* City chronicle and release archive: the same court, two different books. */
+.annals-open { width: 100%; min-height: 48px; }
+.game-shell .bp-annals { top: var(--ika-top); }
+.bp-annals > .bp-bar { min-height: 54px; padding: 5px 10px; }
+.bp-annals .bp-title h1 { font-size: 21px; }
+.bp-annals .bp-scroll { padding: 0 8px 24px; gap: 0; }
+.annals-page { color: var(--c-ink); padding-bottom: 12px; }
+.annals-scene { position: relative; height: 140px; overflow: hidden; margin: 0 -8px; background: var(--c-wood-dark); border-bottom: 2px solid var(--c-gold); }
+.annals-scene > img { width: 100%; height: 100%; object-fit: cover; object-position: 42% 50%; }
+.annals-scene-note { position: absolute; right: 11px; top: 15px; width: 45%; padding: 11px; border: 0 solid transparent; border-image: var(--art-page-frame) 48 fill / 6px / 0 stretch; filter: drop-shadow(0 2px 4px #0005); }
+.annals-scene-note small { font: 700 13px var(--font-heading),Georgia,serif; }
+.annals-scene-note p { margin: 5px 0 0; font-size: 12px; line-height: 1.35; }
+.annals-ribbon { position: relative; margin: -25px auto 10px; padding: 13px 22px 16px; width: 94%; background: var(--art-ribbon-red) center / 100% 100% no-repeat; color: var(--c-cream); text-align: center; font: 700 23px var(--font-heading),Georgia,serif; line-height: 1.1; text-shadow: 0 2px 2px #0009; }
+.annals-ledger { padding: 13px 12px 16px; background: var(--c-parch); border: 0 solid transparent; border-image: var(--art-page-frame) 48 fill / 10px / 0 stretch; box-shadow: 0 5px 12px #27170855; }
+.annals-ledger-heading { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 8px; margin: 1px 0 14px; text-align: center; }
+.annals-ledger-heading > span { font-size: 20px; color: var(--c-gold-deep); }
+.annals-ledger-heading h3 { margin: 0; font: 700 22px var(--font-heading),Georgia,serif; }
+.annals-ledger-heading p { flex-basis: 100%; margin: -3px 0 0; font-size: 11px; color: var(--c-ink-muted); }
+.annals-latest { display: grid; grid-template-columns: 88px minmax(0,1fr); align-items: stretch; margin-bottom: 14px; border: 1px solid var(--c-tan-border); background: #efdfbb; }
+.annals-latest > img { width: 88px; height: 100%; min-height: 115px; object-fit: cover; border-right: 1px solid var(--c-gold-deep); }
+.annals-latest > div { padding: 10px; min-width: 0; }
+.annals-latest small { display: block; font-size: 11px; color: var(--c-brown-mid); }
+.annals-latest p { margin: 6px 0 8px; font: 700 16px var(--font-heading),Georgia,serif; line-height: 1.35; }
+.annals-latest time { font-size: 11px; color: var(--c-ink-muted); }
+.annals-kind-strip { display: flex; gap: 5px; overflow-x: auto; margin: 0 -2px 12px; padding: 2px 2px 6px; scrollbar-width: thin; }
+.annals-kind-strip > button { position: relative; flex: 0 0 71px; min-height: 64px; padding: 8px 3px 7px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px; border: 0 solid transparent; border-radius: 0; border-image: var(--art-walnut-plate) 56 fill / 5px / 0 stretch; background: var(--c-wood-dark); color: var(--c-cream); font: 700 13px var(--font-heading),Georgia,serif; }
+.annals-kind-strip > button > :is(svg,.painted-icon) { width: 24px; height: 24px; filter: drop-shadow(0 1px 2px #0006); }
+.annals-kind-strip > button > b { position: absolute; top: 4px; right: 5px; min-width: 15px; text-align: center; font-size: 11px; color: var(--c-gold-pale); }
+.annals-kind-strip > button[aria-pressed='true'] { border-image-source: var(--art-button-red); color: var(--c-gold-pale); }
+.annals-search { display: flex; align-items: center; min-width: 0; border: 1px solid var(--c-tan-border); background: #fff7e4; box-shadow: inset 0 1px 3px #55311522; }
+.annals-search > svg { flex: 0 0 20px; width: 20px; height: 20px; margin-left: 10px; }
+.annals-search input { width: 100%; min-width: 0; min-height: 46px; padding: 9px 8px; border: 0; background: transparent; color: var(--c-ink); font-size: 14px; border-radius: 0; }
+.annals-search input::-webkit-search-cancel-button { display: none; }
+.annals-search > button { display: grid; place-items: center; flex: 0 0 44px; min-height: 44px; border: 0; color: var(--c-brown); background: transparent; }
+.annals-search > button > svg { width: 18px; height: 18px; }
+.annals-result { margin: 8px 0 14px; font-size: 11px; color: var(--c-ink-muted); }
+.annals-days { margin-top: 10px; }
+.annals-day { margin-bottom: 17px; }
+.annals-day-title { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 10px 12px; margin: 0; color: var(--c-cream); font: 700 19px var(--font-heading),Georgia,serif; background: var(--c-wood-dark); border: 0 solid transparent; border-image: var(--art-walnut-plate) 56 fill / 5px / 0 stretch; }
+.annals-day-title small { font: 400 11px var(--font-body),sans-serif; color: var(--c-gold-pale); }
+.annals-day ol { list-style: none; padding: 0; margin: 0; }
+.annals-entry { display: grid; grid-template-columns: 40px minmax(0,1fr); gap: 10px; position: relative; padding: 15px 4px 15px 0; border-bottom: 1px solid var(--c-parch-line); }
+.annals-entry::before { content: ''; position: absolute; top: 0; bottom: 0; left: 19px; width: 1px; background: var(--c-tan-border); }
+.annals-entry-seal { position: relative; width: 40px; height: 44px; padding: 9px; background: var(--art-medal-frame) center / 100% 100% no-repeat; filter: drop-shadow(0 2px 2px #3e251044); }
+.annals-entry-seal > :is(svg,.painted-icon) { width: 100%; height: 100%; }
+.annals-entry-meta { display: flex; align-items: baseline; flex-wrap: wrap; justify-content: space-between; gap: 4px 8px; margin: 1px 0 5px; }
+.annals-entry-meta b { font: 700 14px var(--font-heading),Georgia,serif; color: var(--c-brown-mid); }
+.annals-entry-meta time { font-size: 11px; color: var(--c-ink-muted); }
+.annals-entry p { margin: 0; font-size: 13px; line-height: 1.5; overflow-wrap: anywhere; }
+.annals-repeat { display: inline-block; margin-top: 7px; padding: 3px 7px; border: 1px solid var(--c-tan-border); color: var(--c-brown); font-size: 11px; background: #ead7ac; }
+.annals-entry.is-war .annals-entry-meta b { color: #852b22; }
+.annals-entry.is-reward .annals-entry-meta b { color: #8a611b; }
+.annals-entry.is-research .annals-entry-meta b { color: #355b68; }
+.annals-colophon { display: flex; align-items: center; gap: 9px; margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--c-tan-border); }
+.annals-colophon > :is(svg,.painted-icon) { width: 26px; height: 26px; flex-shrink: 0; }
+.annals-colophon > p { margin: 0; font-size: 11px; line-height: 1.45; color: var(--c-ink-muted); }
+.annals-page .annals-more { width: 100%; min-height: 48px; font: 700 15px var(--font-heading),Georgia,serif; }
+.annals-empty { padding: 22px 10px; text-align: center; }
+.annals-empty > :is(svg,.painted-icon) { width: 52px; height: 52px; margin: 0 auto; }
+.annals-empty h3 { margin: 12px 0 8px; font: 700 23px var(--font-heading),Georgia,serif; }
+.annals-empty p { margin: 0 0 13px; font-size: 13px; line-height: 1.5; }
+.annals-empty button { min-height: 48px; width: 100%; }
+.annals-new-edition { position: relative; margin: 16px 0; padding: 15px 12px 8px; border: 0 solid transparent; border-image: var(--art-page-frame) 48 fill / 7px / 0 stretch; background: #f4e5c3; box-shadow: 0 3px 8px #4b301422; }
+.annals-new-edition > header { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px; }
+.annals-version { padding: 6px 9px; background: var(--c-wood-dark); color: var(--c-gold-pale); border: 1px solid var(--c-gold-deep); font: 700 16px var(--font-heading),Georgia,serif; }
+.annals-new-seal { color: var(--c-cream); background: #8b2f24; border: 1px solid var(--c-gold); padding: 4px 7px; font-size: 11px; }
+.annals-new-edition > header time { margin-left: auto; font-size: 11px; color: var(--c-ink-muted); }
+.annals-new-edition > h3 { margin: 14px 0 10px; font: 700 26px var(--font-heading),Georgia,serif; line-height: 1.15; color: var(--c-brown); }
+.annals-release-notes { list-style: none; padding: 0; margin: 0; }
+.annals-release-notes > li { display: grid; grid-template-columns: 20px minmax(0,1fr); gap: 7px; padding: 11px 0; border-top: 1px solid var(--c-parch-line); }
+.annals-release-notes > li > span { align-self: start; color: var(--c-gold-deep); text-align: center; padding-top: 2px; font: 700 15px var(--font-heading),Georgia,serif; }
+.annals-release-notes p { margin: 0; font-size: 13px; line-height: 1.55; overflow-wrap: anywhere; }
+.annals-archive-title { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 4px 8px; margin: 20px 0 8px; }
+.annals-archive-title h3 { margin: 0; font: 700 21px var(--font-heading),Georgia,serif; }
+.annals-archive-title > button { display: flex; align-items: center; justify-content: center; gap: 4px; min-height: 44px; padding: 7px 9px; background: var(--c-wood-dark); color: var(--c-cream); border: 1px solid var(--c-gold-deep); font-size: 12px; }
+.annals-archive-title > button > svg { width: 16px; height: 16px; }
+.annals-release-list { display: grid; gap: 9px; }
+.annals-release { border: 1px solid var(--c-tan-border); background: #f1e2c3; box-shadow: 0 2px 4px #4b301411; }
+.annals-release-toggle { display: grid; grid-template-columns: 38px minmax(0,1fr) 18px; gap: 9px; align-items: center; width: 100%; min-height: 87px; padding: 10px 8px; border: 0; background: transparent; color: var(--c-ink); text-align: left; }
+.annals-release-mark { width: 38px; height: 48px; padding: 8px; background: var(--art-medal-frame) center / 100% 100% no-repeat; }
+.annals-release-mark > .painted-icon { width: 100%; height: 100%; }
+.annals-release-toggle > span:not(.annals-release-mark) { min-width: 0; }
+.annals-release-meta { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 3px 6px; margin-bottom: 5px; font-size: 11px; color: var(--c-brown-mid); }
+.annals-release-meta b { color: var(--c-gold-deep); }
+.annals-release-toggle strong { display: block; font: 700 18px var(--font-heading),Georgia,serif; line-height: 1.2; overflow-wrap: anywhere; }
+.annals-release-toggle small { display: block; margin-top: 5px; font-size: 11px; color: var(--c-ink-muted); }
+.annals-release-toggle > svg { width: 18px; height: 18px; color: var(--c-brown-mid); }
+.annals-release-toggle[aria-expanded='true'] > svg { transform: rotate(180deg); }
+.annals-release-toggle[aria-expanded='true'] { background: #e5cca0; }
+.annals-release-content { padding: 0 12px 10px; }
+.annals-page :is(button,input):focus-visible { outline: 2px solid var(--c-gold-deep); outline-offset: 2px; }
+.title-notes .annals-scene { height: 115px; margin-inline: 0; }
+.title-notes .annals-scene-note { width: 48%; top: 10px; right: 8px; padding: 9px; }
+.title-notes .annals-ribbon { font-size: 21px; color: var(--c-cream); }
+.title-notes .annals-ledger { padding-inline: 10px; }
+@media (max-width: 370px) {
+  .annals-ledger { padding-inline: 10px; }
+  .annals-latest { grid-template-columns: 76px minmax(0,1fr); }
+  .annals-latest > img { width: 76px; }
+  .annals-ledger-heading h3 { font-size: 21px; }
+  .annals-ribbon { font-size: 22px; }
+  .annals-release-toggle { gap: 7px; grid-template-columns: 34px minmax(0,1fr) 16px; }
+  .annals-release-mark { width: 34px; height: 44px; }
+}
