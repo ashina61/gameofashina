@@ -168,11 +168,6 @@
 .research-bottom > button { margin-left: auto; }
 .fine-print { font-size: 11px; color: var(--muted-foreground); line-height: 1.8; display: flex; align-items: center; gap: 5px; }
 
-.settings-panel { display: flex; flex-direction: column; gap: 25px; }
-.settings-panel section { display: flex; flex-direction: column; gap: 12px; }
-.settings-panel h3 { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 500; }
-.settings-panel h3 :is(svg, .painted-icon) { width: 17px; height: 17px; color: var(--gold); }
-.settings-panel p { font-size: 11px; line-height: 1.8; color: var(--muted-foreground); }
 .save-warning { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(var(--sa-bottom) + 92px); z-index: 5; max-width: min(360px, 92vw); padding: 9px 16px; border-radius: 20px; font-size: 11.5px; color: #ffe9dd; background: #7c3a2ef2; border: 1px solid #e0857366; box-shadow: 0 6px 20px #0a1a1866; }
 .storage-warning { color: #eab094 !important; }
 @media (min-width: 1450px) { .city-sidebar { width: 350px; padding: 28px; gap: 28px; }  .city-title { padding: 30px 40px 65px; } }

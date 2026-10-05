@@ -37,7 +37,7 @@ import { usePwa } from '@/hooks/use-pwa'
 import { useAlerts, useNotifySetting } from '@/hooks/use-alerts'
 import { BUILDINGS, BUILDING_IDS, GUIDED_STEPS, OBJECTIVES, PLOTS, RESEARCH, objectiveDone, type BuildingId, type Command } from '@/lib/game/engine'
 import { cn } from '@/lib/utils'
-import { ProfilePanel } from './profile-panel'
+import { SovereignPage } from './sovereign-page'
 import { JournalPage, ChangelogPage } from './chronicle-pages'
 import { GodsPanel } from './gods-panel'
 import { ObjectivesPage } from './objectives-page'
@@ -345,7 +345,7 @@ export default function GameShell({ onTitle }: { onTitle?: () => void } = {}) {
     {(panel || plot !== null || npc) && <IkaPage sheet={!!npc && !panel && plot === null && view === 'island'} onClose={() => { setPanel(null); setPlot(null); setNpc(null) }}
       title={npc ? targetName(npc) : plot !== null ? (PLOTS[plot]?.islet ? 'Korsan adası' : PLOTS[plot]?.zone === 'liman' ? 'Deniz arsası' : 'Boş arsa') : panel ? titles[panel] : 'Şehrin'}
       subtitle={npc ? (npc.startsWith('r-') ? 'Yapay rakip hükümdar' : 'Bağımsız yerleşim') : plot !== null ? 'Bu arsaya hangi yapıyı kuracaksın?' : panel === 'build' ? 'Her yapı, yeni bir başlangıç.' : panel === 'research' ? 'İlim, şehrinin en değerli hazinesidir.' : panel === 'people' ? 'Emeği nereye ayıracağına sen karar ver.' : panel === 'army' ? 'Asker halktan çıkar. Bedelini bilerek öde.' : panel === 'cities' ? 'Hükmünün altındaki her şehir.' : panel === 'map' ? 'Adalar, rakipler ve deniz yolları' : panel === 'overview' ? 'Bütün şehirler tek tabloda' : panel === 'diplomacy' ? 'Yapay rakipler: sıralama, anlaşmalar, pazar, mektuplar' : panel === 'island' ? 'Lüks mal yatağı, ada harikası ve tüccar' : panel === 'forest' ? 'Oduncular, kereste ve ormanın büyümesi' : panel === 'alliance' ? (empire?.world?.pact ? `${empire.world.pact.name} [${empire.world.pact.tag}]` : 'Birlikten kuvvet doğar') : currentCityName}
-      hero={panelHero()} className={!npc && plot === null ? panel === 'map' ? 'bp-mapview' : panel === 'objectives' ? 'bp-objectives' : panel === 'journal' || panel === 'changelog' ? 'bp-annals' : undefined : undefined}>{game && <>
+      hero={panelHero()} className={!npc && plot === null ? panel === 'map' ? 'bp-mapview' : panel === 'objectives' ? 'bp-objectives' : panel === 'journal' || panel === 'changelog' ? 'bp-annals' : panel === 'profile' || panel === 'settings' ? 'bp-court' : undefined : undefined}>{game && <>
       {plot !== null && <PlotPicker game={game} plot={plot} onBuild={(id, at) => { act({ type: 'build', id, plot: at }); setPlot(null) }} />}
       {panel === 'people' && <PeoplePanel game={game} onAssign={(id, value) => act({ type: 'workers', id, value })} />}
       {panel === 'cities' && empire && <CitiesPanel run={runOp} game={game} empire={empire} onBuilding={openBuilding} onSelectCity={visitCity} onCargo={dispatchCargo} onMap={() => openPanel('map')} />}
@@ -366,7 +366,7 @@ export default function GameShell({ onTitle }: { onTitle?: () => void } = {}) {
       {panel === 'build' && <BuildingList game={game} onSelect={openBuilding} />}
       {panel === 'research' && <><AdvisorSpeech id="research">{researchAdvice(game)}</AdvisorSpeech><ResearchPanel game={game} onResearch={id => act({ type: 'research', id })} /><FuturePanel game={game} onCommand={act} /></>}
       {panel === 'journal' && <JournalPage game={game} cityName={currentCityName} />}
-      {panel === 'profile' && empire && <ProfilePanel empire={empire} now={game.updatedAt} run={runOp} onCity={visitCity} onSettings={() => openPanel('settings')} onChangelog={() => openPanel('changelog')} />}
+      {panel === 'profile' && empire && <SovereignPage empire={empire} now={game.updatedAt} run={runOp} onCity={visitCity} onSettings={() => openPanel('settings')} onChangelog={() => openPanel('changelog')} />}
       {panel === 'changelog' && <ChangelogPage />}
       {panel === 'economy' && <EconomyDetails game={game} onMarket={() => openBuilding('carsi')} />}
       {panel === 'objectives' && <ObjectivesPage game={game} empire={empire} foundingCity={foundingCity} cityName={currentCityName}

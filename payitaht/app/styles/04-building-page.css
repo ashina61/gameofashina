@@ -118,7 +118,5 @@
 .bp .building-list-item { border-bottom-color: #d9bf8a; color: var(--ink); }
 .bp .building-list-item > :is(svg, .painted-icon) { color: var(--ink-soft); }
  .bp .unit-have small { color: var(--ink-soft); }
-.bp .settings-panel section { background: var(--parch); border: 1px solid var(--edge); border-radius: 4px; padding: 12px; }
-.bp .settings-panel h3 { color: var(--ink); }
 .bp .job-progress time { color: var(--ink); }
 .bp .advisor-panel, .bp .research-panel, .bp .people-panel, .bp .building-list { color: var(--ink); }

@@ -339,3 +339,6 @@ Yazısız giriş arka planı yerleşik OpenAI imagegen ile yeniden boyandı. Tar
 
 ### Şehir vakayinamesi ve divan neşriyatı (v47)
 `terrain/archive-hall.webp`: OpenAI ImageGen yerleşik aracıyla, kullanıcının araştırma referansı ve oyunun mevcut görev dairesi sanatına bakılarak üretildi. Osmanlı arşiv kâtibi, ceviz kayıt defterleri ve Ege şehri. Yazı, tarih ve rakamlar arayüzde koddan gelir. Tarif: `tools/art/prompts/archive-hall.md`.
+
+### Hükümdarın sarayı ve idare defteri (v48)
+`terrain/royal-court.webp`, `terrain/admin-desk.webp`: yerleşik OpenAI ImageGen ile ayrı sahneler olarak üretildi. Kullanıcının araştırma ekranı ve mevcut arşiv sahnesi sanat referansıdır. Sahnelere UI, isim veya oyun verisi gömülmedi. Tarifler: `tools/art/prompts/royal-court.md`, `tools/art/prompts/admin-desk.md`.

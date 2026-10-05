@@ -1,0 +1,2 @@
+# İdare masası — v48
+Yerleşik ImageGen; aynı araştırma ve arşiv sanat referansları. Panoramik Osmanlı idare masası; sol üçte pirinç mühür, kırmızı balmumu, açık kayıt defteri, parşömen ve ceviz masa. Sağda çalışma anındaki yazı için sakin revak/duvar ve uzakta Ege şehri/deniz. Sol üst sıcak ışık, kireçtaşı, antik altın, muted kiremit ve turkuaz. Gerçekçi boyalı premium strateji sanatı. İnsan, UI, okunur yazı, logo ve modern nesne yok. 960×480 WebP quality82.

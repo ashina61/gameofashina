@@ -6,6 +6,14 @@ export type Release = { version: string; date: string; title: string; notes: str
 
 export const CHANGELOG: Release[] = [
   {
+    version: '0.51.0', date: '5 Ekim 2026', title: 'Hükümdarın sarayı ve idare defteri',
+    notes: [
+      'Hükümdar profili sarayda: canlı sancak, unvan yolu, hükümdarlar defteri, şehirler ve nişan hazinesi ayrı bölümlerde.',
+      'Sancaktar odasında adını, düsturunu, sancak biçimini, armayı ve rengi seç; seçimlerini kaydetmeden önce canlı sancakta gör.',
+      'Ayarlar bir idare defteri oldu: oyun tercihleri, cihaz seçenekleri, kayıt yedeği ve divan bilgileri ayrı sayfalarda.',
+    ],
+  },
+  {
     version: '0.50.0', date: '5 Ekim 2026', title: 'Divanın yeni defterleri',
     notes: [
       'Şehir günlüğü bir vakayinameye dönüştü: olay türlerine göre gezilir, kayıt içinde arama yapılır; günler, saatler ve tekrar eden olaylar birlikte okunur.',

@@ -79,3 +79,14 @@ Eski ObjectiveCard/DailyPanel/MilestonesPanel bu sayfada kullanılmaz. Ödüller
 - Ortak arşiv kâtibi sahnesi: `terrain/archive-hall.webp`; eski generic günlük ve release kartları yerine sayfaya özel defter yapısı.
 - Kayıt formatı, motor kuralları, ekonomi ve olay metinleri değişmez. `CHANGELOG` ve paket sürümü 0.50.0 olarak bu yayını kaydeder.
 - Sıradaki bölüm ayarlar ve hükümdar profilidir; bu bölümün değerlendirmesi alınmadan başlanmaz.
+
+## Hükümdarın sarayı ve idare defteri — v48
+
+Kullanıcı ikinci bölümden sonra «geç; cilalama değil düşün ve tasarla» dedi. Üçüncü bölüm tam içerik/gezinti yeniden kurgulamasıdır.
+- `sovereign-page.tsx`: canlı sancak ve hükümdar kimliği saray sahnesinde. Saltanat beratı/unvan yolu/sıralama, resimli şehir gezintisi ve gerçek sicil, nişan hazinesi ve kazanılmış filtresi, önizlemeli sancaktar odası ayrı bölümler.
+- Düzenlemede biçim/arma/renk ayrı seçimler; isim/düstur gerçek profile kaydedilir, vazgeçme kaydı değiştirmez. Şehir düğmeleri gerçek şehre gider.
+- `settings-panel.tsx`: idare masası, Tercihler/Cihaz/Kayıt/Divan. Ses, tempo, atmosfer, cihaz, yedek, yeniden başlatma ve hata raporu mevcut işlevlere bağlıdır.
+- `court-kit.tsx`, `16-court.css`: ceviz bölüm plakaları, parşömen beratlar, kırmızı kurdele, pirinç anahtarlar. Eski profil/ayar kartları kaldırıldı; ittifakta kullanılan ortak sancak bileşenleri korundu.
+- `terrain/royal-court.webp`, `terrain/admin-desk.webp`: metinsiz saray ve idare sahneleri. Bütün adlar/sayılar/ayarlar çalışma anındaki oyun verisidir.
+- Sürüm 0.51.0. Motor, ekonomi, kayıt biçimi ve yuvalar değişmedi.
+- Bu bölüm canlıya yayımlanıp kullanıcı değerlendirmesinde durulur. Sıradaki bölüm hazine ve üretimdir.

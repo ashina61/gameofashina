@@ -5,23 +5,15 @@
  * Profil: arma, ad, unvan, düstur, puanlar ve sıralama, şehirler,
  * istatistikler, başarımlar. Sürüm numarası sayfanın dibinde, sessizce durur.
  */
-import { useId, useState } from 'react'
+import { useId } from 'react'
 import { AtlasArt } from './deep-art'
 import { asset } from '@/lib/asset'
-import { Award, Castle, Pencil, Settings, Swords, Trophy } from './ui-art'
-import { GameButton } from './game-button'
-import { population, soldiers } from '@/lib/game/engine'
-import { capitalId, islandOf, type Empire } from '@/lib/game/empire'
 import {
-  BANNERS, BANNER_NAMES, COLOR_NAMES, CREST_COLORS, CREST_NAMES, CRESTS, type BannerId, type MedalTier, type Achievement, achievements, allianceName, playerScore, profileOf, profileRanks, profileStats, rulerTitle, setProfile,
+  BANNERS, BANNER_NAMES, COLOR_NAMES, CREST_COLORS, CREST_NAMES, CRESTS, type BannerId, type MedalTier,
   type CrestId, type Profile,
 } from '@/lib/game/profile'
 import { BANNER_OUTLINES } from '@/lib/game/banner-shapes'
-import { VERSION } from '@/lib/game/changelog'
-import type { Run } from './world-panels'
-import { t } from '@/lib/i18n/tr'
 
-const num = (n: number) => Math.floor(n).toLocaleString('tr-TR')
 const GOLD = '#e2bd78', INK = '#2a1a10', PAPER = '#f6ecd6'
 
 function CrestSymbol({ crest }: { crest: CrestId }) {
@@ -108,11 +100,6 @@ export function RulerCrest({ crest, color, size = 72 }: { crest: CrestId; color:
 }
 
 /** Madalya: kurdele ve disk; derece rengi tunç, gümüş ya da altın. */
-const MEDAL: Record<MedalTier, { face: string; rim: string; ribbon: string; name: string }> = {
-  1: { face: '#c98a52', rim: '#7a4a24', ribbon: '#8c2f2a', name: 'Tunç' },
-  2: { face: '#d7dade', rim: '#7d828a', ribbon: '#2f5a8c', name: 'Gümüş' },
-  3: { face: GOLD, rim: '#8a6420', ribbon: '#2f7a4a', name: 'Altın' },
-}
 const MEDAL_IDS = ['ilk-tas', 'kurucu', 'beyler', 'payitaht', 'sur', 'mimar', 'usta', 'koloni', 'adalar', 'kalabalik', 'kalabalik2', 'talebe', 'alim', 'allame', 'talim', 'ordu', 'donanma', 'ilk-zafer', 'zafer', 'zafer2', 'yagma', 'korsan1', 'korsan', 'casus1', 'casus', 'kervan', 'hayir', 'harika', 'ittifak', 'sadakat']
 export function Medal({ tier, earned = true, size = 40, id }: { tier: MedalTier; earned?: boolean; size?: number; id?: string }) {
   const index = Math.max(0, MEDAL_IDS.indexOf(id ?? 'ilk-tas'))
@@ -120,115 +107,4 @@ export function Medal({ tier, earned = true, size = 40, id }: { tier: MedalTier;
     {tier === 3 ? <img src={asset('/images/game/ui/medal-frame.webp')} alt="" width={size} height={size * 1.2} style={{ position: 'absolute', width: '100%', height: '100%', objectFit: 'contain' }} /> : <AtlasArt atlas="culture" index={tier === 1 ? 18 : 19} size={size} />}
     <span style={{ position: 'absolute', bottom: size * .11, left: size * .21 }}><AtlasArt atlas="medals" index={index} size={size * .58} /></span>
   </span>
-}
-
-/** Madalya vitrini: kazanılanlar dereceye göre, yanında sıradaki hedef. */
-function MedalShowcase({ list }: { list: Achievement[] }) {
-  const won = list.filter(a => a.value >= a.goal).sort((x, y) => y.tier - x.tier)
-  const next = list.filter(a => a.value < a.goal).sort((x, y) => y.value / y.goal - x.value / x.goal || x.tier - y.tier)[0]
-  const count = (t: MedalTier) => won.filter(a => a.tier === t).length
-  return <section className="empire-section medal-vitrin" aria-label="Madalya vitrini">
-    <h3><Award className="size-4" /> Madalya vitrini</h3>
-    <div className="medal-tally">{([3, 2, 1] as MedalTier[]).map(t => <span key={t}><Medal tier={t} size={18} />{count(t)} {MEDAL[t].name.toLocaleLowerCase('tr')}</span>)}</div>
-    {won.length > 0
-      ? <ul className="medal-shelf">{won.map(a => <li key={a.id} title={a.description}><Medal id={a.id} tier={a.tier} size={34} /><small>{a.name}</small></li>)}</ul>
-      : <p className="fine-print">Vitrin boş. İlk madalya birkaç yapı kurunca gelir.</p>}
-    {next && <p className="medal-next"><Medal id={next.id} tier={next.tier} earned={false} size={18} /><span>Sıradaki: <strong>{next.name}</strong> — {next.description} <b>{num(next.value)} / {num(next.goal)}</b></span></p>}
-  </section>
-}
-
-export function ProfilePanel({ empire, now, run, onCity, onSettings, onChangelog }: {
-  empire: Empire; now: number; run: Run; onCity: (id: string) => void; onSettings: () => void; onChangelog: () => void
-}) {
-  const p = profileOf(empire)
-  const score = playerScore(empire)
-  const title = rulerTitle(score.total)
-  const ranks = profileRanks(empire, now)
-  const stats = profileStats(empire)
-  const list = achievements(empire)
-  const [edit, setEdit] = useState(false)
-  const banner = p.banner ?? 'kirlangic'
-  const [draft, setDraft] = useState({ ruler: p.ruler, motto: p.motto, crest: p.crest, color: p.color, banner })
-  const days = Math.max(1, Math.ceil((now - p.since) / 86_400_000))
-  const done = list.filter(a => a.value >= a.goal).length
-  const tiles: [string, number, number][] = [['Toplam puan', score.total, ranks.total], ['İnşaatçı', score.builder, ranks.builder],
-    ['Askerî', score.military, ranks.military], ['Saldırı', score.offense, ranks.offense], ['Savunma', score.defense, ranks.defense],
-    ['Bilim', score.science, ranks.science], ['Hazine', score.gold, ranks.gold], ['Ticaret', score.trade, ranks.trade]]
-  const rows: [string, string][] = [
-    ['Şehir', num(stats.cities)], ['Nüfus', num(stats.population)], ['Asker ve tayfa', num(stats.soldiers)], ['Bina seviyesi', num(stats.levels)],
-    ['Araştırma', num(stats.research)], ['Kurulan yapı', num(stats.builds)], ['Eğitilen birlik', num(stats.trained)], ['Bağış (kereste)', num(stats.donated)],
-    ['Kazanılan savaş', num(stats.won)], ['Kaybedilen savaş', num(stats.lost)], ['Sefer yağması', num(stats.raids)], ['Casus görevi', num(stats.spies)],
-    ['Korsan şöhreti', num(stats.fame)], ['Nakliye', num(stats.shipments)],
-  ]
-  return <div className="advisor-panel profile-panel">
-    <section className="profile-sancak" aria-label="Hükümdarın sancağı">
-      <SancakArt crest={edit ? draft.crest : p.crest} color={edit ? draft.color : p.color} banner={edit ? draft.banner : banner} size={300} />
-      <span className="profile-sancak-name"><small>{title.name}</small>{p.ruler}</span>
-    </section>
-    <article className="profile-head">
-      <RulerCrest crest={p.crest} color={p.color} size={92} />
-      <div className="profile-id">
-        <span className="eyebrow">{title.name.toLocaleUpperCase('tr')} · {days}. SALTANAT GÜNÜ</span>
-        <strong>{p.ruler}</strong>
-        {p.motto && <q>{p.motto}</q>}
-        <small>{allianceName(empire) ?? 'İttifaksız'} · {empire.cities.length} şehir</small>
-      </div>
-      <GameButton size="sm" variant="outline" onClick={() => { setDraft({ ruler: p.ruler, motto: p.motto, crest: p.crest, color: p.color, banner }); setEdit(e => !e) }} aria-expanded={edit}>
-        <Pencil data-icon="inline-start" />{edit ? t.action.close : t.action.edit}</GameButton>
-    </article>
-
-    {edit && <section className="empire-section profile-edit">
-      <label htmlFor="profile-name">Hükümdarın adı</label>
-      <input id="profile-name" className="text-input" value={draft.ruler} maxLength={24} onChange={e => setDraft({ ...draft, ruler: e.target.value })} />
-      <label htmlFor="profile-motto">Düstur</label>
-      <input id="profile-motto" className="text-input" value={draft.motto} maxLength={60} placeholder="Devlet-i ebed-müddet" onChange={e => setDraft({ ...draft, motto: e.target.value })} />
-      <SancakPicker value={draft} onChange={value => setDraft({ ...draft, ...value })} />
-      <GameButton size="sm" onClick={() => { run((e, t) => setProfile(e, draft, t), 'Profil kaydedildi.'); setEdit(false) }}>Kaydet</GameButton>
-    </section>}
-
-    <MedalShowcase list={list} />
-
-    <section className="empire-section">
-      <h3><Award className="size-4" /> Unvan</h3>
-      <div className="title-track"><span style={{ width: `${Math.round(title.progress * 100)}%` }} /></div>
-      <p className="fine-print">{title.next ? `${title.next} unvanına ${num(title.need)} puan kaldı.` : 'En yüksek unvana ulaştın.'} Unvanlar: Bey, Sancakbeyi, Beylerbeyi, Vezir, Sadrazam, Sultan.</p>
-    </section>
-
-    <section className="empire-section">
-      <h3><Trophy className="size-4" /> Puanlar ve sıralama</h3>
-      <div className="profile-tiles">{tiles.map(([n, v, r]) => <div key={n}><small>{n}</small><strong>{num(v)}</strong><span>{r}. / {ranks.of}</span></div>)}</div>
-      <p className="fine-print">Sıralamadaki diğer hükümdarlar yapay rakiplerdir, gerçek oyuncu değildir.</p>
-    </section>
-
-    <section className="empire-section">
-      <h3><Castle className="size-4" /> Şehirlerin</h3>
-      {empire.cities.map(c => <button key={c.id} type="button" className="profile-city" onClick={() => onCity(c.id)}>
-        <strong>{c.name}{c.id === capitalId(empire) ? ' · başkent' : ''}</strong>
-        <small>{islandOf(c).name} · Divanhane {c.game.buildings.divan} · nüfus {num(population(c.game))} · asker {num(soldiers(c.game))}</small>
-      </button>)}
-    </section>
-
-    <section className="empire-section">
-      <h3><Swords className="size-4" /> İstatistikler</h3>
-      <dl className="profile-stats">{rows.map(([k, v]) => <div key={k}><dt>{k}</dt><dd>{v}</dd></div>)}</dl>
-    </section>
-
-    <section className="empire-section">
-      <h3><Award className="size-4" /> Başarımlar · {done}/{list.length}</h3>
-      <div className="achievements">{list.map(a => {
-        const ok = a.value >= a.goal
-        return <div key={a.id} className={ok ? 'achievement is-done' : 'achievement'}>
-          <span className="achievement-medal" aria-label={`${MEDAL[a.tier].name} madalya`}><Medal id={a.id} tier={a.tier} earned={ok} size={26} /></span>
-          <span><strong>{a.name}</strong><small>{a.description}</small>
-            <span className="achievement-bar"><i style={{ width: `${Math.min(100, (100 * a.value) / a.goal)}%` }} /></span>
-            <small>{num(Math.min(a.value, a.goal))} / {num(a.goal)}</small></span>
-        </div>
-      })}</div>
-    </section>
-
-    <div className="profile-foot">
-      <GameButton size="sm" variant="outline" onClick={onSettings}><Settings data-icon="inline-start" />Oyun ayarları</GameButton>
-      <button type="button" className="version-link" onClick={onChangelog}>Sürüm {VERSION} · sürüm notları</button>
-    </div>
-  </div>
 }

@@ -17,6 +17,7 @@
 @import './styles/13-reference-bars.css';
 @import './styles/14-mandates.css';
 @import './styles/15-annals.css';
+@import './styles/16-court.css';
 
 @custom-variant dark (&:is(.dark *));
 @theme inline {

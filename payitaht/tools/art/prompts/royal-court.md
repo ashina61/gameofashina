@@ -1,0 +1,2 @@
+# Hükümdar sarayı — v48
+Yerleşik ImageGen; sanat referansları kullanıcının araştırma ekranı ve mevcut archive-hall.webp. Panoramik Osmanlı saray kabul revakı. Sağda ceviz/antik altın oyma taht, al kadife; solda çalışma anındaki sancak için sade koyu ceviz duvar. Kireçtaşı kemerlerden kubbeli Ege şehri, serviler, turkuaz koy ve yelkenliler. Sol üst sıcak ışık, gerçekçi boyalı premium strateji sanatı. İnsan, sancak, metin, sayı, logo, UI ve modern nesne yok. 960×480 WebP quality82.

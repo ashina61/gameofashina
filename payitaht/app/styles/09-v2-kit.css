@@ -38,7 +38,6 @@
 .bp :is(select, input:not([type="range"]):not([type="checkbox"]):not([type="radio"]), .text-input) { min-height: 44px; }
 .proposal-from { min-height: 44px; justify-content: center; }
 .ika-city { min-height: 44px; }
-.version-link { min-height: 44px; }
 .quest-chip-main, .quest-chip-go { min-height: 44px; }
 .island-select { min-height: 44px; }
 /* Metin içi bağlantı: satır yüksekliği değişmez, dokunma alanı görünmez bir

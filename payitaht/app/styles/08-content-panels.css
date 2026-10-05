@@ -8,10 +8,8 @@
 .bp .research-panel,
 .bp .people-panel,
 .bp .building-list,
-.bp .settings-panel,
 .bp .world-panel,
-.bp .alliance-panel,
-.bp .profile-panel {
+.bp .alliance-panel {
   gap: 12px;
 }
 .bp .empire-section,
@@ -408,39 +406,6 @@
   border-radius: 10px;
   border-color: #c8aa70;
 }
-
-/* Ayarlar: bölümleri birbirinden gerçek kartlarla ayır. */
-.bp .settings-panel { gap: 10px; }
-.bp .settings-panel section {
-  position: relative;
-  gap: 9px;
-  padding: 12px 13px 13px;
-  border: 1px solid #c3a064;
-  border-radius: 11px;
-  background: linear-gradient(180deg, var(--c-paper-warm), #f0ddb3);
-  box-shadow: 0 2px 6px #5a351724, inset 0 1px #fff;
-}
-.bp .settings-panel section::before {
-  content: '';
-  position: absolute;
-  left: 12px; right: 12px; top: 38px;
-  height: 1px;
-  background: linear-gradient(90deg, #b5894d, transparent);
-  opacity: .48;
-}
-.bp .settings-panel h3 {
-  min-height: 26px;
-  margin: 0;
-  font-family: var(--font-heading), Georgia, serif;
-  font-size: 16px;
-  font-weight: 700;
-  color: #3b240e;
-}
-.bp .settings-panel h3 :is(svg, .painted-icon) {
-  width: 19px; height: 19px;
-  color: #8b5d22;
-}
-.bp .settings-panel p { color: #6b4c28; line-height: 1.48; }
 
 /* Form alanları ortak yüzey. */
 .bp .text-input,
