@@ -22,6 +22,7 @@
 @import './styles/18-spacious.css';
 @import './styles/19-civic.css';
 @import './styles/24-approved-court.css';
+@import './styles/25-royal-subtabs.css';
 
 @custom-variant dark (&:is(.dark *));
 @theme inline {

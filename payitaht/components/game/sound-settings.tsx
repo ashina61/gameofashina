@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { Bell, Moon, Music, Sparkles, Sprout, Vibrate, Volume2, Waves } from './ui-art'
 import { GameButton } from './game-button'
+import { RoyalToggle } from './royal-kit'
 import { DEFAULT_NOTICE_PREFS, NOTICE_KINDS, NOTICE_NAMES, type NoticePrefs } from '@/lib/game/notices'
 import { ensurePermission, noticePrefs, notificationPermission, onNoticePrefs, setNoticePrefs } from '@/lib/notify'
 import { lowDevice, lowMotionSetting, liteSetting, setLiteSetting, setLowMotion, type LiteSetting } from '@/lib/motion'
@@ -64,12 +65,12 @@ export function LiteModeSetting() {
 }
 
 /** Ayarlar (Android): telefon bildirimleri, tür tür açılıp kapanır (V2 Faz 5.5). */
-export function NoticeSettings() {
+export function NoticeSettings({ royal = false }: { royal?: boolean } = {}) {
   const [p, setP] = useState<NoticePrefs>(DEFAULT_NOTICE_PREFS)
   const [perm, setPerm] = useState<'granted' | 'denied' | 'prompt' | 'none'>('none')
   useEffect(() => { setP(noticePrefs()); void notificationPermission().then(setPerm); return onNoticePrefs(next => { setP(next); void notificationPermission().then(setPerm) }) }, [])
   return <>
-    <div className="sound-settings">{NOTICE_KINDS.map(k => <label key={k} className="toggle-row" htmlFor={`bildirim-${k}`}>
+    <div className="sound-settings">{NOTICE_KINDS.map(k => royal ? <RoyalToggle key={k} name={NOTICE_NAMES[k].name} hint={NOTICE_NAMES[k].hint} art={k === 'insaat' ? 'construction' : k === 'sefer' ? 'military' : k === 'baskin' ? 'bell' : 'laurel'} checked={p[k]} change={value => setNoticePrefs({ [k]: value })} /> : <label key={k} className="toggle-row" htmlFor={`bildirim-${k}`}>
       <Bell aria-hidden="true" />
       <span><strong>{NOTICE_NAMES[k].name}</strong><small>{NOTICE_NAMES[k].hint}</small></span>
       <input id={`bildirim-${k}`} type="checkbox" role="switch" checked={p[k]} onChange={e => setNoticePrefs({ [k]: e.target.checked })} />

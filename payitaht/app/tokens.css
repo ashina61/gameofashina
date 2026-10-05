@@ -5,6 +5,8 @@
  * (.bp { --ink … }) çakışmaz.
  */
 :root {
+  --c-royal-active: #a02113;
+  --c-royal-active-deep: #650d08;
   /* Mürekkep (yazı) */
   --c-ink: #3a2310;
   --c-ink-deep: #2e1807;

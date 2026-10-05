@@ -33,7 +33,7 @@
 .game-shell.has-page .bp.bp-royal .court-tabs { padding: 0; gap: 0; background: var(--royal-wood); border: 2px ridge var(--c-gold); }
 .game-shell.has-page .bp.bp-royal .court-tabs > button { min-height: 44px; padding: 5px 2px; border-image: none; border: 1px solid var(--c-gold-deep); background: transparent; font: 16px Georgia,serif; color: var(--c-cream); }
 .game-shell.has-page .bp.bp-royal .court-tabs > button > :is(svg,.painted-icon) { display: none; }
-.game-shell.has-page .bp.bp-royal .court-tabs > button[aria-selected='true'] { background: linear-gradient(#a02113,#650d08); border: 2px ridge var(--c-gold); color: var(--c-gold-pale); }
+.game-shell.has-page .bp.bp-royal .court-tabs > button[aria-selected='true'] { background: linear-gradient(var(--c-royal-active),var(--c-royal-active-deep)); border: 2px ridge var(--c-gold); color: var(--c-gold-pale); }
 .game-shell.has-page .bp.bp-royal .court-tab-body { display: block; padding: 0 14px; border-inline: 4px ridge var(--c-gold-deep); }
 .royal-section { padding: 7px 0; border-bottom: 1px solid var(--c-gold-deep); }
 .royal-section h3 { display: flex; align-items: center; gap: 6px; margin: 0 0 3px; font: 700 18px/1.2 Georgia,serif; }

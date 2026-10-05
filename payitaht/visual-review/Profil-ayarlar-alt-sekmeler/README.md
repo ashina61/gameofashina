@@ -1,0 +1,3 @@
+# Profil ve Ayarlar alt sekmeleri · 0.55.0
+
+Onaylanan ahşap/pirinç/parşömen dili Şehirler, Nişanlar, Sancak, Cihaz, Kayıt ve Bilgi sekmelerine uygulanır. Görseller 390×844; qa.json ayrıca 360×740 ve %130 yazı boyunu içerir. Alt sekmelerin yerleşim taraması taşma, kesilme, küçük hedef, küçük metin, çakışma ve isimsiz kontrol bakımından temizdir. Sancak adı/arma/renk/biçim gerçek kayda yazıldı ve dosya yedeğinde doğrulandı. 30 nişan, kazanılan filtre, 8 puan ve 14 sicil değeri; ses ve hafif mod kalıcılığı; sıfırlama iptali; dosya yedeği doğrulandı. Genel layout QA bütün sayfa ve binalarda normal/%130 temiz; 328 oyun testi, TypeScript, ESLint ve CSS kontrolleri geçti.
