@@ -344,7 +344,6 @@
 .wm-ship { animation: wm-bob 2.4s ease-in-out infinite; transform-box: fill-box; }
 @keyframes wm-bob { 50% { translate: 0 -2px; } }
 @media (prefers-reduced-motion: reduce) { .wm-ship { animation: none; } }
-.wm-open { width: 100%; justify-content: center; }
 
 /* =========================================================================
  * V2 Faz 2.5 — CANLANAN SAVAŞ ÖZETİ (~2,5 sn): ordular iki yandan gelir,

@@ -23,8 +23,8 @@ strateji oyununun içindeki ferman, divan, atölye ve harita ekranlarıdır.
 | Malzeme | Ceviz ahşap başlık ve sekmeler, eskitilmiş altın/pirinç süs ve çerçeve, dokulu parşömen içerik. Aynı `--c-*` ve `--art-*` malzemeleri. |
 | Vurgu | Kırmızı sancak ana başlık/seçili sekme, altın birincil düğme ve hazır ödül, bronz/parşömen ikincil eylem. |
 | Tipografi | Başlıklar mevcut serif `--font-heading`; metin koyu mürekkep. Bütün yazı, ad, seviye, sayı, tarih ve ödüller koddan gelir. |
-| Hiyerarşi | Ortak üst HUD → ceviz sayfa başlığı → boyalı sahne → kırmızı başlık kurdelesi → parşömen içerik/eylem → ortak alt menü. |
-| Çerçeve | İnce ve ayrıntılı antik süs. Köşeler keskin veya hafif yumuşak; modern büyük yuvarlak kartlar ve cam efektler yok. |
+| Hiyerarşi | Şehirde büyük HUD; sayfa açıkken ceviz başlık → kısa kaynak şeridi → işlevsel boyalı sahne → sekmeler → geniş parşömen içerik/eylem → 64px ortak alt menü. |
+| Çerçeve | İnce ayraçlar; iç içe kalın çerçeve yok. Süsten önce alan ve okunurluk. Köşeler keskin veya hafif yumuşak. |
 | Simgeler | Mevcut boyalı ikonlar ve madalyonlar. Kaynak, birlik ve bina resimleri aynı ışık/palet içinde. |
 | Telefon | 360×740 ve 390×844; en az 44px dokunma, en az 11px okunur yazı, %130 metinde taşma yok. İçerik kaydırılır; alt menü erişilir kalır. |
 | Etkileşim | Eylemler gerçek oyun işlemlerini çağırır. Görsel güncelleme yeni ekonomi, ödül, seviye, araştırma, yerleşim veya kayıt kuralı eklemez. |
@@ -43,8 +43,8 @@ Yeni sahneler ImageGen ile, referanslar açıkça stil referansı olarak belirti
 | 1 | Görevler | İlk sayfa pilotu: divan görev dairesi, ferman kurdelesi, şehir/günlük/başarım defterleri. İlk v45 düzeni kullanıcı tarafından yetersiz bulundu. v46: bütün içerik ve etkileşim düzeni yeniden kuruldu. Kullanıcı 5 Ekim «tamam geç sıradakine» diyerek sonraki bölüme geçişi onayladı. |
 | 2 | Şehir günlüğü ve sürüm notları | v47 / 0.50.0: vakayiname ve divan neşriyatı; tarihe ayrılmış kayıt, tür seçimi, arama ve açılabilir sürüm fermanları. Kullanıcı sonraki bölüme geçişi onayladı. |
 | 3 | Ayarlar ve hükümdar profili | v48 / 0.51.0: saray, sancaktar odası, nişan hazinesi ve idare defteri. Kullanıcı devamı onayladı. |
-| 4 | Hazine ve üretim | v49 / 0.52.0: akçe hesabı, yedi üretim defteri, ambar yoklaması ve gerçek işlemlere bağlantılar. Yayın sonrası kullanıcı değerlendirmesi beklenir. |
-| 5 | Halk ve şehir listesi | Meslek sahneleri, bina resimleri, mevcut işçi ve şehir işlemleri. |
+| 4 | Hazine ve üretim | v49 / 0.52.0: akçe hesabı, yedi üretim defteri, ambar yoklaması ve gerçek işlemlere bağlantılar. Kullanıcı geniş düzen ve sonraki bölüme devam istedi. |
+| 5 | Halk ve şehir listesi | v50 / 0.53.0: geniş ortak sayfa düzeni, yaşayan çarşı, meslek/yaşam, yerleşim/nakliye/idare. Yayın sonrası kullanıcı değerlendirmesinde dur. |
 | 6 | Vezir, Elçi, ittifak | Divan ve diplomasi sahneleri; gerçek mesaj/üyelik içeriği. |
 | 7 | Bina kataloğu ve basit bina sayfaları | Aynı sahne/kurdele/eylem düzeni, bina seviyeleri ve maliyetleri korunur. |
 | 8 | Kışla, ordu ve donanma | Canlı kışla pilotunu ortak dille tamamla; kara/deniz birliklerini ayrı denetle. |
@@ -103,3 +103,9 @@ Kullanıcı 5 Ekim «uzman oyun tasarımcısı gibi düşün; sayfaları istedi�
 - Yaklaşık dolma/tükenme süreleri mevcut sabit net hız varsayımıdır; bu varsayım oyuncuya açıkça gösterilir. Motor, ekonomi, kayıt biçimi ve yuvalar değişmez.
 - `terrain/treasury-room.webp`: ayrı ImageGen hazine sahnesi; mevcut royal-court sanatı stil referansı. Önceki kaliteli görev sahneleri içerikte yeniden kullanılır. Metin ve veriler koddan gelir.
 - Sürüm 0.52.0. Canlı yayın sonrası kullanıcı değerlendirmesinde durulur. Sıradaki bölüm Halk ve Şehirlerdir.
+
+## Geniş düzen — kullanıcının 5 Ekim düzeltmesi
+
+Kullanıcı oyunu dar buldu; eski tema, bütün assetler, UI ve UX değişebilir. Bağlayıcı olan ortak sanat dilidir; eski bar boyutları ve çerçeveler korunmak zorunda değildir. Tam sayfada büyük şehir HUD'u gizlenir, 44px gerçek kaynak şeridi sunulur. Alt menü 64px + güvenli alan; boyalı simge ve okunur etiket. İçerik en fazla 960px, yeni sayfalarda kenardan kenara sahne; kalın iç defter çerçeveleri kaldırılır. Bina, ada ve diğer sayfa etkileşimleri korunur.
+
+Halk (`civic-pages.tsx`): İşgücü/Yaşam; meslek seçimi, motorun gerçek üretim önizlemesi, taslak/onay/geri al; barınma/huzur büyüme ilişkisi ve bina bağlantıları. Şehirler: Yerleşimler/Nakliye/İdare; gerçek şehir seçimi, taşıma kapasitesi ve stok sınırı, denizdeki yükler; başkent ve terk etme işlemleri mevcut kurallarla ve açık onayla. Tek şehirde geçersiz boş nakliye formu yerine kolonileşme yolu.

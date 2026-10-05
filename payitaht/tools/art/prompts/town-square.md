@@ -1,0 +1,5 @@
+# Halk / çarşı meydanı
+
+ImageGen, 5 Ekim 2026. Stil referansı: terrain/treasury-room.webp. Çıktı 960×480 WebP, kalite 82; yazılar ve işlemler koddan gelir.
+
+Use case historical-scene. New text-free panoramic game scene, 1536x768: a living Ottoman–Aegean coastal city market square. Same master painter as supplied treasury reference, warm upper-left daylight, limestone ivory, muted terracotta, lead-blue domes, olive/cypress, turquoise sea, realistic painterly premium strategy art. Foreground LEFT and CENTER: believable Ottoman townspeople interacting: an artisan carrying timber, scholar in white turban with books, merchant weighing goods, women and families near a stone fountain. Scale figures read clearly on mobile. Archways, workshop stalls and warm fabric awnings, cobbled open plaza; RIGHT calmer architectural space overlooking sea. Spacious world, tasteful fine details, not cartoon/toy, no giant fantasy objects. No UI, frame, ribbon, text, numbers, logos, watermark. Reference only for art direction; create new composition.

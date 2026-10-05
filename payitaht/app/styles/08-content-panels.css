@@ -6,7 +6,6 @@
 /* Ortak panel kartları: düz web kartı yerine parşömen + bronz kenar + katman. */
 .bp .advisor-panel,
 .bp .research-panel,
-.bp .people-panel,
 .bp .building-list,
 .bp .world-panel,
 .bp .alliance-panel {
@@ -432,8 +431,7 @@
 .bp .world-tabs button,
 .bp .building-list-item,
 .bp .unit-slider button,
-.bp .rank-table li button,
-.bp .empire-city-button {
+.bp .rank-table li button {
   min-height: 44px;
 }
 @media (max-width: 420px) {

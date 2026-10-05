@@ -1,0 +1,317 @@
+{
+  "checks": [
+    {
+      "label": "halk-isgucu",
+      "zoom": 1,
+      "result": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "label": "meslek-Âlimler",
+      "zoom": 1,
+      "result": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "label": "meslek-Esnaf",
+      "zoom": 1,
+      "result": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "label": "meslek-Oduncular",
+      "zoom": 1,
+      "result": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "label": "isgucu-onay",
+      "zoom": 1,
+      "result": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "label": "halk-yasam",
+      "zoom": 1,
+      "result": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "label": "sehirler",
+      "zoom": 1,
+      "result": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "label": "nakliye",
+      "zoom": 1,
+      "result": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "label": "nakliye-sefer",
+      "zoom": 1,
+      "result": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "label": "sehir-idare",
+      "zoom": 1,
+      "result": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "label": "koloni-idare",
+      "zoom": 1,
+      "result": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "label": "koloni-onay",
+      "zoom": 1,
+      "result": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "label": "baskent-onay",
+      "zoom": 1,
+      "result": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "label": "halk-isgucu",
+      "zoom": 1.3,
+      "result": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "label": "meslek-Âlimler",
+      "zoom": 1.3,
+      "result": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "label": "meslek-Esnaf",
+      "zoom": 1.3,
+      "result": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "label": "meslek-Oduncular",
+      "zoom": 1.3,
+      "result": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "label": "isgucu-onay",
+      "zoom": 1.3,
+      "result": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "label": "halk-yasam",
+      "zoom": 1.3,
+      "result": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "label": "sehirler",
+      "zoom": 1.3,
+      "result": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "label": "nakliye",
+      "zoom": 1.3,
+      "result": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "label": "nakliye-sefer",
+      "zoom": 1.3,
+      "result": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "label": "sehir-idare",
+      "zoom": 1.3,
+      "result": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "label": "koloni-idare",
+      "zoom": 1.3,
+      "result": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "label": "koloni-onay",
+      "zoom": 1.3,
+      "result": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "label": "baskent-onay",
+      "zoom": 1.3,
+      "result": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    }
+  ],
+  "errors": []
+}

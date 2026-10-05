@@ -6,6 +6,14 @@ export type Release = { version: string; date: string; title: string; notes: str
 
 export const CHANGELOG: Release[] = [
   {
+    version: '0.53.0', date: '5 Ekim 2026', title: 'Şehir yaşamı ve açık denizler',
+    notes: [
+      'Sayfalarda büyük üst barın yerine kısa kaynak şeridi, daha küçük alt menü ve geniş içerik alanı. İç içe kalın çerçeveler azaltıldı.',
+      'Halk yeniden tasarlandı: çarşı meydanı, meslek seçimi, gerçek üretim önizlemesiyle görev dağılımı ve şehir yaşamı.',
+      'Şehirler yeniden tasarlandı: ada limanı, yerleşimler, nakliye ve idare. Yük sınırı ve stoklar gerçek değerlere göre gösterilir.',
+    ],
+  },
+  {
     version: '0.52.0', date: '5 Ekim 2026', title: 'Hazinedarın defteri',
     notes: [
       'Hazine ve üretim yeniden kurgulandı: akçe hesabı, her kaynağın üretim defteri ve ambar yoklaması ayrı bölümlerde.',

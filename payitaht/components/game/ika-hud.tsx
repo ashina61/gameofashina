@@ -193,7 +193,7 @@ export function IkaNav({ active, badges, modes, onSelect }: { active: IkaNavKey 
     { key: 'alliance', label: 'İttifak', icon: <Shield painted /> },
     { key: 'objectives', label: 'Görevler', icon: <ScrollText painted /> },
   ]
-  return <nav className="ika-nav" aria-label="Oyun menüsü" style={{ backgroundImage: `url("${asset('/images/game/ui/reference-bars/nav.webp')}")` }}>{items.map(i => <button key={i.key} type="button"
+  return <nav className="ika-nav" aria-label="Oyun menüsü" style={{ backgroundImage: `url("${asset('/images/game/ui/reference-bars/wood.webp')}")` }}>{items.map(i => <button key={i.key} type="button"
     className={cn('ika-nav-item', i.key === 'map' && 'ika-nav-center', active === i.key && 'ika-nav-active')} aria-current={active === i.key ? 'page' : undefined}
     aria-label={(badges[i.key] ?? 0) > 0 ? `${i.label}: ${badges[i.key]} yeni` : i.label} onClick={() => onSelect(i.key)}>
     <span className="ika-nav-icon" aria-hidden="true">{i.icon}</span><span className="ika-nav-label">{i.label}</span>

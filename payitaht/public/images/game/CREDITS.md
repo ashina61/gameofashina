@@ -345,3 +345,7 @@ Yazısız giriş arka planı yerleşik OpenAI imagegen ile yeniden boyandı. Tar
 
 ### Hazinedarın defteri (v49)
 `terrain/treasury-room.webp`: yerleşik OpenAI ImageGen ile üretildi. Mevcut `royal-court.webp` yalnız sanat dili referansıdır; hazinedar, ceviz sayım masası, akçe ve Ege revakı yeni kompozisyondur. Arayüz/metin/oyun verisi görsele gömülmedi. Tam prompt: `tools/art/prompts/treasury-room.md`. İçerikteki görev sahneleri özgün mevcut varlıklardır.
+
+## Halk ve şehirler — 5 Ekim 2026
+
+`terrain/town-square.webp` ve `terrain/island-harbour.webp`: OpenAI ImageGen ile bu oyun için üretildi; önceki `terrain/treasury-room.webp` yalnız sanat dili referansı. Osmanlı–Ege, sıcak ışık, kireçtaşı ve turkuaz deniz. Görselde arayüz veya metin yok; bütün oyun değerleri ve işlemler koddan gelir. 960×480 WebP, kalite 82. Tam tarifler `tools/art/prompts/town-square.md` ve `tools/art/prompts/island-harbour.md`.

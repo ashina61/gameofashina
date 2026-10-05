@@ -18,8 +18,10 @@ import { toast } from 'sonner'
 import { Toaster } from '@/components/ui/sonner'
 
 import { CityScene } from './city-scene'
-import { BuildingList, ResearchPanel, PlotPicker, PeoplePanel, CitiesPanel, ArmyPanel, IslandPanel, colonyBlocker, colonyCostText } from './game-panels'
+import { BuildingList, ResearchPanel, PlotPicker, ArmyPanel, IslandPanel, colonyBlocker, colonyCostText } from './game-panels'
 import { WorldMap } from './world-map'
+import { PeoplePage, SettlementsPage } from './civic-pages'
+import { PageStocks } from './page-stocks'
 import { TreasuryPage } from './treasury-page'
 import { IslandView, NpcPanel } from './island-view'
 import { EmpireOverview } from './overview'
@@ -64,7 +66,6 @@ export default function GameShell({ onTitle }: { onTitle?: () => void } = {}) {
     if (plot !== null) return asset('/images/game/buildings/site.webp')
     const map: Partial<Record<Exclude<Panel, null>, string>> = {
       army: buildingImage('kisla', Math.max(1, game.buildings.kisla)),
-      cities: buildingImage('saray', Math.max(1, game.buildings.saray || 3)), people: buildingImage('konut', Math.max(1, game.buildings.konut)),
       island: asset(`/images/game/buildings/mine-${game.mine.specialty}.webp`), forest: asset('/images/game/buildings/forest-hero.webp'), build: buildingImage('mimar', 2),
     }
     return panel ? map[panel] ?? undefined : undefined
@@ -306,7 +307,7 @@ export default function GameShell({ onTitle }: { onTitle?: () => void } = {}) {
   const activeAdvisor: AdvisorId | null = panel === 'advisor-city' ? 'city' : panel === 'reports' || panel === 'army' ? 'army'
     : panel === 'research' ? 'research' : panel === 'diplomacy' ? 'diplo' : null
   const titles: Record<Exclude<Panel, null>, string> = { build: 'Şehrini büyüt', research: 'Âlim · Araştırma', journal: 'Şehir günlüğü', settings: 'Oyun ayarları', economy: 'Hazine ve üretim', objectives: 'Görev defteri', people: 'Şehrin halkı', cities: 'Şehirlerin', army: 'Ordu ve donanma', diplomacy: 'Elçi · Diplomasi', alliance: 'İttifak', island: 'Ada madeni', forest: 'Ada ormanı', reports: 'Serasker · Ordu danışmanı', 'advisor-city': 'Vezir · Şehir danışmanı', profile: 'Hükümdar profili', changelog: 'Sürüm notları', map: 'Dünya haritası', overview: 'İmparatorluk özeti' }
-  return <BannerContext.Provider value={bannerLook(empire)}><main className={cn('game-shell', view === 'island' && 'game-island')}>
+  return <BannerContext.Provider value={bannerLook(empire)}><main className={cn('game-shell', view === 'island' && 'game-island', (!!selected || !!panel || plot !== null || (!!npc && view !== 'island')) && 'has-page')}>
     {/*
       * ÜST ŞERİT (ika-hud.tsx): şehir seçici, dört danışman ve kaynaklar.
       */}
@@ -338,17 +339,17 @@ export default function GameShell({ onTitle }: { onTitle?: () => void } = {}) {
       else if (key === 'alliance') openPanel('alliance')
       else openPanel(key === 'map' ? 'map' : 'objectives')
     }} />
-    {game && selected && <BuildingPage game={game} empire={empire} id={selected} onClose={() => setSelected(null)}
+    {game && selected && <BuildingPage toolbar={<PageStocks game={game} onOpen={() => openPanel('economy')} />} game={game} empire={empire} id={selected} onClose={() => setSelected(null)}
       onBuild={() => act({ type: 'build', id: selected })} onFlip={() => act({ type: 'flip', id: selected })} onMove={() => startMove(selected)}
       onCommand={act} run={runOp} onRecruit={(id, count) => act({ type: 'recruit', id, count })} onBuildingNav={openBuilding}
       onNav={p => { setSelected(null); if (p === 'island' || p === 'forest') { setView('island'); setPanel(p) } else openPanel(p) }}>{selected === 'divan' && empire && <CityAdmin empire={empire} game={game} now={game.updatedAt} onCommand={act} run={runOp} />}{selected === 'kahvehane' && <TavernPanel game={game} onCommand={act} />}{selected === 'medrese' && <ExperimentPanel game={game} onCommand={act} />}{(selected === 'siginak' || selected === 'elcilik') && empire && <ForeignSpies empire={empire} game={game} now={game.updatedAt} run={runOp} />}{selected === 'ticaret_merkezi' && empire && <TradeCenter empire={empire} now={game.updatedAt} run={runOp} onRival={openRival} />}{selected === 'karagoz' && <TheatrePanel game={game} now={game.updatedAt} onCommand={act} />}{selected === 'tekke' && <GuildPanel game={game} now={game.updatedAt} onCommand={act} />}{selected === 'mabet' && <GodsPanel game={game} now={game.updatedAt} onCommand={act} />}{selected === 'cami' && <TemplePanel game={game} now={game.updatedAt} onCommand={act} />}{selected === 'tophane' && <UpgradePanel game={game} onCommand={act} />}{selected === 'kara_pazar' && <ExchangePanel game={game} onCommand={act} />}{selected === 'korsan_kalesi' && empire && <PiracyPanel empire={empire} now={game.updatedAt} onPiracy={(id, units) => { const e = piracy(id, units); if (e) say.no(e); else say.ok('Filo denize açıldı.', 'sail') }} />}</BuildingPage>}
-    {(panel || plot !== null || npc) && <IkaPage sheet={!!npc && !panel && plot === null && view === 'island'} onClose={() => { setPanel(null); setPlot(null); setNpc(null) }}
+    {(panel || plot !== null || npc) && <IkaPage toolbar={game && <PageStocks game={game} onOpen={() => openPanel('economy')} />} sheet={!!npc && !panel && plot === null && view === 'island'} onClose={() => { setPanel(null); setPlot(null); setNpc(null) }}
       title={npc ? targetName(npc) : plot !== null ? (PLOTS[plot]?.islet ? 'Korsan adası' : PLOTS[plot]?.zone === 'liman' ? 'Deniz arsası' : 'Boş arsa') : panel ? titles[panel] : 'Şehrin'}
       subtitle={npc ? (npc.startsWith('r-') ? 'Yapay rakip hükümdar' : 'Bağımsız yerleşim') : plot !== null ? 'Bu arsaya hangi yapıyı kuracaksın?' : panel === 'build' ? 'Her yapı, yeni bir başlangıç.' : panel === 'research' ? 'İlim, şehrinin en değerli hazinesidir.' : panel === 'people' ? 'Emeği nereye ayıracağına sen karar ver.' : panel === 'army' ? 'Asker halktan çıkar. Bedelini bilerek öde.' : panel === 'cities' ? 'Hükmünün altındaki her şehir.' : panel === 'map' ? 'Adalar, rakipler ve deniz yolları' : panel === 'overview' ? 'Bütün şehirler tek tabloda' : panel === 'diplomacy' ? 'Yapay rakipler: sıralama, anlaşmalar, pazar, mektuplar' : panel === 'island' ? 'Lüks mal yatağı, ada harikası ve tüccar' : panel === 'forest' ? 'Oduncular, kereste ve ormanın büyümesi' : panel === 'alliance' ? (empire?.world?.pact ? `${empire.world.pact.name} [${empire.world.pact.tag}]` : 'Birlikten kuvvet doğar') : currentCityName}
-      hero={panelHero()} className={!npc && plot === null ? panel === 'map' ? 'bp-mapview' : panel === 'objectives' ? 'bp-objectives' : panel === 'journal' || panel === 'changelog' ? 'bp-annals' : panel === 'profile' || panel === 'settings' || panel === 'economy' ? 'bp-court' : undefined : undefined}>{game && <>
+      hero={panelHero()} className={!npc && plot === null ? panel === 'people' || panel === 'cities' ? 'bp-civic' : panel === 'map' ? 'bp-mapview' : panel === 'objectives' ? 'bp-objectives' : panel === 'journal' || panel === 'changelog' ? 'bp-annals' : panel === 'profile' || panel === 'settings' || panel === 'economy' ? 'bp-court' : undefined : undefined}>{game && <>
       {plot !== null && <PlotPicker game={game} plot={plot} onBuild={(id, at) => { act({ type: 'build', id, plot: at }); setPlot(null) }} />}
-      {panel === 'people' && <PeoplePanel game={game} onAssign={(id, value) => act({ type: 'workers', id, value })} />}
-      {panel === 'cities' && empire && <CitiesPanel run={runOp} game={game} empire={empire} onBuilding={openBuilding} onSelectCity={visitCity} onCargo={dispatchCargo} onMap={() => openPanel('map')} />}
+      {panel === 'people' && <PeoplePage game={game} cityName={empire ? activeCity(empire).name : 'Şehir'} onAssign={(id, value) => act({ type: 'workers', id, value })} onBuilding={openBuilding} onForest={() => { setViewIsland(null); setView('island'); setPanel('forest') }} onIsland={() => { setViewIsland(null); setView('island'); setPanel('island') }} />}
+      {panel === 'cities' && empire && <SettlementsPage run={runOp} game={game} empire={empire} onBuilding={openBuilding} onSelectCity={visitCity} onCargo={dispatchCargo} onMap={() => openPanel('map')} />}
       {panel === 'map' && empire && <WorldMap empire={empire} now={game.updatedAt} missing={colonyBlocker(empire)} colonyCost={colonyCostText}
         onSelectCity={visitCity} onColonize={foundIsland} onViewIsland={id => { setViewIsland(id); setPanel(null); setView('island') }} />}
       {panel === 'army' && empire && <SiegePanel empire={empire} now={game.updatedAt} run={runOp} />}

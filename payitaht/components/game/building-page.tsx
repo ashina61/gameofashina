@@ -330,10 +330,11 @@ function BuildingView({ game, empire, id, onCommand, onRecruit, onNav, onBuildin
  * görseli ve parşömen kaydırma alanı. Bina sayfaları ve bütün danışman
  * panelleri (Kışla, Araştırma, Dünya...) bu çerçeveyi kullanır.
  */
-export function IkaPage({ title, subtitle, badge, hero, onClose, children, label, sheet, footer, className }: {
+export function IkaPage({ title, subtitle, badge, hero, onClose, children, label, sheet, footer, className, toolbar }: {
   title: string; subtitle?: string; badge?: ReactNode; hero?: string | null; onClose: () => void; children: ReactNode; label?: string
   /** Sayfanın altında sabit kalan alan (bina sayfasında Yükselt doku). */
   footer?: ReactNode
+  toolbar?: ReactNode
   className?: string
   /** Haritada seçilen şey: tam sayfa yerine alt çekmece (harita arkada görünür). */
   sheet?: boolean
@@ -358,6 +359,7 @@ export function IkaPage({ title, subtitle, badge, hero, onClose, children, label
       {badge}
       <button type="button" className="bp-back bp-close" onClick={onClose} aria-label={t.action.close}><X /></button>
     </header>
+    {toolbar}
     <div className="bp-scroll">
       {hero !== undefined && <section className="bp-hero bp-hero-small">{hero ? <img src={hero} alt="" /> : null}</section>}
       {children}
@@ -366,12 +368,12 @@ export function IkaPage({ title, subtitle, badge, hero, onClose, children, label
   </div>
 }
 
-export function BuildingPage({ game, empire, id, onClose, onBuild, onFlip, onMove, onCommand, onRecruit, onNav, onBuildingNav, run, children }: {
+export function BuildingPage({ game, empire, id, onClose, onBuild, onFlip, onMove, onCommand, onRecruit, onNav, onBuildingNav, run, children, toolbar }: {
   game: Game; empire: Empire | undefined; id: BuildingId; run?: Run
   onClose: () => void; onBuild: () => void; onFlip: () => void; onMove: () => void
   onCommand: (c: Command) => void; onRecruit: (id: UnitId, count: number) => void
   onNav: (panel: 'research' | 'diplomacy' | 'island' | 'forest' | 'people' | 'cities') => void; onBuildingNav: (id: BuildingId) => void
-  children?: ReactNode
+  children?: ReactNode; toolbar?: ReactNode
 }) {
   const b = BUILDINGS[id], level = game.buildings[id], max = MAX_LEVEL[id]
   const forecast = Array.from({ length: Math.min(4, max - level) }, (_, step) => {
@@ -402,7 +404,7 @@ export function BuildingPage({ game, empire, id, onClose, onBuild, onFlip, onMov
   const nextFacing = facing === 'straight' ? 'right' : facing === 'right' ? 'left' : 'straight'
   const barracksScene = id === 'kisla' && (peek === null || peek === stage)
   const showTab = hasWork ? tab : 'gelisim'
-  return <IkaPage title={b.name} subtitle={`${city} · ${b.category.toLocaleLowerCase('tr')}`} label={`${b.name} sayfası`} onClose={onClose}
+  return <IkaPage toolbar={toolbar} title={b.name} subtitle={`${city} · ${b.category.toLocaleLowerCase('tr')}`} label={`${b.name} sayfası`} onClose={onClose}
     className={`bp-building bp-of-${id}${help ? ' show-help' : ''}`}
     badge={<button type="button" className="bp-help" aria-pressed={help} onClick={() => setHelp(v => !v)} aria-label={help ? 'Açıklamaları gizle' : 'Nasıl işler? Açıklamaları göster'}><Info /></button>}
     footer={<UpgradeDock game={game} id={id} onBuild={onBuild} />}>

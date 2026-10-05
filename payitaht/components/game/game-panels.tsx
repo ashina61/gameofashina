@@ -3,30 +3,28 @@ import { PersonArt } from './workforce'
 
 import { Hint } from './hint'
 import { useLayoutEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react'
-import { ArrowUp, Hammer, LockKeyhole, Check, BookOpen, ChevronRight, Warehouse, UserRound, House, HeartHandshake, TriangleAlert, Landmark, Swords, Ship, ShieldCheck, Handshake, FlipHorizontal2, Move } from './ui-art'
+import { ArrowUp, Hammer, LockKeyhole, Check, BookOpen, ChevronRight, Warehouse, UserRound, TriangleAlert, Swords, Ship, ShieldCheck, Handshake, FlipHorizontal2, Move } from './ui-art'
 import { AkceArt, IlimArt, KumSaatiArt, NufusArt } from './resource-art'
 import { idleMerchants } from '@/lib/game/expeditions'
-import { WorkforceSlider, type Figure } from './workforce'
+import { WorkforceSlider } from './workforce'
 import { GameButton } from './game-button'
 import { NowNext } from './stat-kit'
 import { CostDisplay, JobProgress } from './game-widgets'
-import { BUILDINGS, BUILDING_IDS, MAX_LEVEL, RESEARCH, RESEARCH_IDS, RESEARCH_BRANCHES, RESOURCE_IDS, RESOURCE_NAMES, UNITS, UNIT_IDS, WORKER_IDS, WORKERS_PER_LEVEL, activeJob, cargoCapacity, cityDefense, cost, duration, buildReason, power, rates, recruitReason, researchReason, scientistCount, scientistUpkeepPerMinute, idleWorkers, population, housing, contentment, soldiers, takesPlot, tradeCapacity, unhousedByUnrest, unitCost, unitDuration, wallDefense, workerCapacity, type BuildingId, type ResearchId, type ResearchBranch, type UnitId, type WorkerId, type Game, formatRate } from '@/lib/game/engine'
+import { BUILDINGS, BUILDING_IDS, MAX_LEVEL, RESEARCH, RESEARCH_IDS, RESEARCH_BRANCHES, UNITS, UNIT_IDS, activeJob, cargoCapacity, cityDefense, cost, duration, buildReason, power, rates, recruitReason, researchReason, scientistCount, scientistUpkeepPerMinute, idleWorkers, soldiers, takesPlot, tradeCapacity, unitCost, unitDuration, wallDefense, type BuildingId, type ResearchId, type ResearchBranch, type UnitId, type Game, formatRate } from '@/lib/game/engine'
 import { buildingImage } from '@/lib/asset'
-import { abandonCity, activeCity, capitalCity, capitalId, colonyPalaceLevel, MAX_CITIES, moveCapital, CARGO_IDS, CARGO_NAMES, COLONY_COST, ISLANDS, type Cargo, type Empire } from '@/lib/game/empire'
+import { capitalCity, colonyPalaceLevel, COLONY_COST, type Empire } from '@/lib/game/empire'
 import { LUXURY_IDS, LUXURY_NAMES, MINE_MAX_LEVEL, luxuryCost, luxuryProduction, merchantLimit, mineCapacity, mineUpgradeCost, unitLuxuryCost, wineServed, type Luxury } from '@/lib/game/engine'
-import { luxuryIcons, resourceIcons } from './game-widgets'
+import { luxuryIcons } from './game-widgets'
 import { effectLines } from '@/lib/game/building-info'
 import { FIELD_ROW_NAMES, ROLE_NAMES } from '@/lib/game/glossary'
 import { Term } from './term'
-import { actionPoints, armyUpkeep, merchantBuyPrice, merchantSellPrice, type UnitRole, type Resource } from '@/lib/game/engine'
-import { ChevronsLeft, ChevronsRight, Compass, Crown, Eye, Flag } from './ui-art'
-import type { Run } from './world-panels'
-import { DRILL_QUEUE_LIMIT, garrisonLimit, garrisonUsed, spyCapacity, growthRate, maxPopulation, PLOTS, plotFits } from '@/lib/game/engine'
+import { actionPoints, armyUpkeep, merchantBuyPrice, merchantSellPrice, type UnitRole } from '@/lib/game/engine'
+import { ChevronsLeft, ChevronsRight, Eye } from './ui-art'
+import { DRILL_QUEUE_LIMIT, garrisonLimit, garrisonUsed, spyCapacity, PLOTS, plotFits } from '@/lib/game/engine'
 import { BATTLE_STATS, SLOT_SIZE, fieldSize } from '@/lib/game/battle'
 import { UnitFigure } from './unit-art'
 import { UnitGallery } from './unit-gallery'
 import { BRANCH, ResearchEmblem } from './research-art'
-import { t } from '@/lib/i18n/tr'
 
 export function BuildingDetails({ game, id, onBuild, onFlip, onMove }: { game: Game; id: BuildingId; onBuild: (id: BuildingId) => void; onFlip: (id: BuildingId) => void; onMove: (id: BuildingId) => void }) {
   const b = BUILDINGS[id], level = game.buildings[id], reason = buildReason(game, id)
@@ -215,168 +213,6 @@ export function PlotPicker({ game, plot, onBuild }: { game: Game; plot: number; 
         <span className="building-list-next" aria-hidden="true"><ChevronRight className="size-4" /></span>
       </button>
     })}
-  </div>
-}
-
-/**
- * HALK: uretim yapilarina isci dagitimi.
- *
- * Oyunun eksik olan karar katmani buydu - uretim yalnizca bina seviyesinden
- * geliyordu, yani oyuncunun yapacagi bir sey yoktu. Artik her uretim yapisi
- * kapasitesi kadar isci alir ve sehrin nufusu bu kapasitelerin toplamindan
- * KUCUK oldugunda oyuncu secim yapmak zorunda kalir.
- */
-const PEOPLE_WORK: Record<WorkerId, { figure: Figure; res: Resource; unit: string; label: string }> = {
-  kereste: { figure: 'oduncu', res: 'wood', unit: 'kereste', label: 'Oduncu' },
-  medrese: { figure: 'alim', res: 'knowledge', unit: 'ilim', label: 'Âlim' }, carsi: { figure: 'esnaf', res: 'gold', unit: 'akçe', label: 'Esnaf' },
-}
-export function PeoplePanel({ game, onAssign }: { game: Game; onAssign: (id: WorkerId, value: number) => void }) {
-  const idle = idleWorkers(game)
-  const unhoused = unhousedByUnrest(game)
-  return <div className="people-panel">
-    <div className="people-summary">
-      <span className="eyebrow">ŞEHRİN HALKI</span>
-      <div><NufusArt className="size-5" /><span>Nüfus</span><strong>{population(game)}<small className="people-cap"> / {maxPopulation(game)}</small></strong></div>
-      <div><UserRound className="size-5" /><span>Boşta</span><strong className={idle === 0 ? 'people-none' : undefined}>{idle}</strong></div>
-      <div><House className="size-5" /><span>Barınma</span><strong>{housing(game)}</strong></div>
-      <div><HeartHandshake className="size-5" /><span>Huzur</span><strong>{contentment(game)}</strong></div>
-    </div>
-    {/*
-      * Barinma huzurdan buyukse konaklar bos kalir. Bu, oyuncunun kendi
-      * kesfetmesi zor bir tavan: sayilar ayni ekranda dursa bile aradaki
-      * ILISKI soylenmezse "neden nufusum artmiyor" sorusu cevapsiz kalir.
-      */}
-    {growthRate(game) > 0 && <p className="fine-print" role="status"><NufusArt className="size-3" /> Halk büyüyor: dakikada +{formatRate(growthRate(game))} kişi. Huzur fazlası büyümeyi hızlandırır.</p>}
-    {unhoused > 0 && <p className="storage-alert" role="status"><TriangleAlert className="size-4" />Huzursuzluk yüzünden {unhoused} kişilik konak boş duruyor. Hamam kur ya da yükselt.</p>}
-    {WORKER_IDS.map(id => {
-      const capacity = workerCapacity(game, id)
-      const value = game.workers[id]
-      if (capacity === 0) {
-        return <article className="people-row" key={id}>
-          <strong>{BUILDINGS[id].name}</strong>
-          <p className="fine-print">Önce bu yapıyı inşa et.</p>
-        </article>
-      }
-      const w = PEOPLE_WORK[id]
-      const Icon = resourceIcons[w.res]
-      return <article className="people-row" key={id}>
-        <div className="people-row-top"><strong>{BUILDINGS[id].name}</strong></div>
-        <WorkforceSlider label={w.label} figure={w.figure} value={value} cap={capacity} idle={idle}
-          preview={n => { const v = rates({ ...game, workers: { ...game.workers, [id]: n } })[w.res]; return { amount: v, icon: <Icon className="workforce-icon" />, text: <><b>{w.res === 'knowledge' ? formatRate(v) : Math.round(v)}</b> {w.unit}/dk</> } }}
-          onCommit={n => onAssign(id, n)} />
-      </article>
-    })}
-    <Hint>Her yapı seviyesi {WORKERS_PER_LEVEL} işçi alır. Nüfus, barınma ve huzurdan hangisi küçükse o tavana zamanla büyür. Boşta kalan halk üretim yapmaz; akçe ise halkın kendisinden gelir ve işçi istemez.</Hint>
-  </div>
-}
-
-/**
- * ŞEHİRLER danismani.
- *
- * Ikariam'da bu ekran butun sehirlerin listesidir. Bizde sehir henuz tek, ama
- * ekrani simdiden acmak iki ise yariyor: sehrin ozetini tek yerde toplar ve
- * Saray'in NE ISE YARADIGINI - ikinci sehir - bos bir kart olarak gosterir.
- * Kilidi acilmamis bir ozelligi gizlemek yerine gostermek, oyuncuya hedef verir.
- */
-export function CitiesPanel({
-  game, empire, onBuilding, onSelectCity, onCargo, onMap, run,
-}: {
-  run?: Run
-  game: Game
-  empire: Empire
-  onBuilding: (id: BuildingId) => void
-  onSelectCity: (cityId: string) => void
-  onCargo: (cityId: string, resource: Cargo, amount: number) => void
-  /** Dünya haritası artık kendi tam ekran sayfası (V2 Faz 2.4). */
-  onMap?: () => void
-}) {
-  const current = activeCity(empire)
-  const [targetCity, setTargetCity] = useState('')
-  const [cargoResource, setCargoResource] = useState<Cargo>('wood')
-  const [cargoAmount, setCargoAmount] = useState('100')
-  const activeShipment = empire.shipments.find(shipment => shipment.from === current.id)
-  const isCapital = current.id === capitalId(empire)
-  const [confirm, setConfirm] = useState<null | 'move' | 'abandon'>(null)
-  const built = BUILDING_IDS.filter(id => game.buildings[id] > 0)
-  const production = rates(game)
-  const cityCard = <>
-    <article className="city-card">
-      <div className="city-card-top">
-        <span className="city-emblem"><Landmark aria-hidden="true" /></span>
-        <span><span className="eyebrow">{isCapital ? 'BAŞKENT' : 'KOLONİ'}</span>
-          <strong>{current.name}</strong><span>Seviye {game.buildings.divan} · {built.length} yapı · {ISLANDS.find(i => i.id === current.islandId)?.name}</span></span>
-      </div>
-      <div className="city-stats">
-        <div><span>Nüfus</span><strong>{population(game)}</strong></div>
-        <div><span>Boşta</span><strong>{idleWorkers(game)}</strong></div>
-        <div><span>Asker</span><strong>{soldiers(game)}</strong></div>
-        <div><span>Savunma</span><strong>{cityDefense(game)}</strong></div>
-      </div>
-      <div className="city-rates">{RESOURCE_IDS.filter(id => production[id] > 0).map(id =>
-        <span key={id}>{RESOURCE_NAMES[id]} <strong>+{Math.round(production[id])}/dk</strong></span>)}</div>
-      <div className="batch-row">
-        <GameButton size="sm" variant="outline" onClick={() => onBuilding('divan')}>Divanhaneye git<ChevronRight data-icon="inline-end" /></GameButton>
-        {!isCapital && run && <GameButton size="sm" variant="outline" onClick={() => setConfirm(confirm === 'move' ? null : 'move')}><Crown data-icon="inline-start" />Başkenti buraya taşı</GameButton>}
-        {!isCapital && run && <GameButton size="sm" variant="ghost" onClick={() => setConfirm(confirm === 'abandon' ? null : 'abandon')}><Flag data-icon="inline-start" />Şehri terk et</GameButton>}
-      </div>
-      {confirm && run && <section className="demolish-sheet" role="alertdialog">
-        {confirm === 'move'
-          ? <><strong><Crown className="size-4" /> {current.name} başkent olsun mu?</strong>
-            <p>{capitalCity(empire).name} şehrindeki Saray yıkılır; burada Valilik kalkar ve 1. seviye Saray kurulur. Başkent günde bir kez taşınabilir.</p></>
-          : <><strong><Flag className="size-4" /> {current.name} terk edilsin mi?</strong>
-            <p>Şehir, binaları, ambarı ve buradaki ordu kaybolur. Ticaret gemileri ortak filoda kalır. Bu geri alınamaz.</p></>}
-        <div className="batch-row">
-          <GameButton size="sm" variant="destructive" onClick={() => { const c = confirm; setConfirm(null); run(c === 'move' ? (e, t) => moveCapital(e, current.id, t) : (e, t) => abandonCity(e, current.id, t), c === 'move' ? 'Saray taşındı; yeni başkent ilan edildi.' : 'Şehir terk edildi.') }}>{confirm === 'move' ? 'Başkenti taşı' : 'Terk et'}</GameButton>
-          <GameButton size="sm" variant="outline" onClick={() => setConfirm(null)}>{t.action.cancel}</GameButton>
-        </div>
-      </section>}
-    </article>
-  </>
-  const cityList = <>
-    <section className="empire-section">
-      <h3>Şehirlerin · {empire.cities.length}/{MAX_CITIES}</h3>
-      <div className="empire-city-list">
-        {empire.cities.map(city => <button key={city.id} className="empire-city-button"
-          aria-current={city.id === current.id ? 'true' : undefined}
-          onClick={() => onSelectCity(city.id)}>
-          <span><strong>{city.name}</strong><small>{ISLANDS.find(i => i.id === city.islandId)?.name} · Divanhane {city.game.buildings.divan}</small></span>
-          <span>{city.id === current.id ? 'Şu an' : 'Git ›'}</span>
-        </button>)}
-      </div>
-    </section>
-
-  </>
-  const mapLink = onMap && <section className="empire-section">
-    <GameButton variant="outline" className="wm-open" onClick={onMap}><Compass data-icon="inline-start" />Dünya haritasını aç · {ISLANDS.length} ada<ChevronRight data-icon="inline-end" /></GameButton>
-  </section>
-  return <div className="advisor-panel cities-panel">
-    {cityCard}{cityList}{mapLink}
-    <section className="empire-section">
-      <h3>Şehirler arası nakliye</h3>
-      {activeShipment
-        ? <p className="requirement">Gemiler seferde: {empire.cities.find(c => c.id === activeShipment.to)?.name} yönüne {activeShipment.amount} {CARGO_NAMES[activeShipment.resource]}. {Date.now() >= activeShipment.eta ? 'Varış limanında ambarın boşalmasını bekliyor.' : 'Varış bekleniyor.'}</p>
-        : <div className="empire-shipment-form">
-            <label>Hedef şehir
-              <select value={targetCity} onChange={event => setTargetCity(event.target.value)}>
-                <option value="">Şehir seç</option>
-                {empire.cities.filter(city => city.id !== current.id).map(city =>
-                  <option key={city.id} value={city.id}>{city.name}</option>)}
-              </select>
-            </label>
-            <label>Kaynak
-              <select value={cargoResource} onChange={event => setCargoResource(event.target.value as Cargo)}>
-                {CARGO_IDS.map(id => <option value={id} key={id}>{CARGO_NAMES[id]}</option>)}
-              </select>
-            </label>
-            <label>Miktar
-              <input type="number" min={1} step={1} inputMode="numeric" value={cargoAmount}
-                onChange={event => setCargoAmount(event.target.value)} />
-            </label>
-            <GameButton size="sm" disabled={!targetCity || !Number.isSafeInteger(Number(cargoAmount)) || Number(cargoAmount) <= 0}
-              onClick={() => onCargo(targetCity, cargoResource, Number(cargoAmount))}>Gemileri gönder</GameButton>
-          </div>}
-      <Hint>Nakliye için gönderici şehirde Ticaret Limanı ve nakliye gemisi gerekir. Yük yolculuk sırasında çıkar, varışta hedef şehrin ambarına iner; ambar doluysa gemi yükü bekletir.</Hint>
-    </section>
   </div>
 }
 

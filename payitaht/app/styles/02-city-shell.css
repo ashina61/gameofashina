@@ -265,18 +265,8 @@
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; scroll-behavior: auto !important; } }
 
 /* --- HALK: isci dagitim paneli ------------------------------------------- */
-.people-panel { display: flex; flex-direction: column; gap: 14px; }
-.people-summary { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 14px; align-items: center; padding: 14px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--card); }
-.people-summary .eyebrow { grid-column: 1 / -1; }
-.people-summary > div { display: flex; align-items: center; gap: 9px; color: var(--muted-foreground); font-size: 12px; }
-.people-summary :is(svg, .painted-icon) { color: var(--gold); flex-shrink: 0; }
-.people-summary strong { margin-left: auto; font-family: var(--font-heading), Georgia, serif; font-size: 20px; color: var(--foreground); font-variant-numeric: tabular-nums lining-nums; }
 /* Bosta kimse kalmadiginda sayi vurgulanir: karar noktasi burasidir. */
-.people-summary strong.people-none { color: var(--destructive); }
-
-.people-row { display: flex; flex-direction: column; gap: 9px; padding: 14px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--card); }
 .people-row-top { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
-.people-row strong { font-family: var(--font-heading), Georgia, serif; font-size: 17px; font-weight: 600; }
 .people-count { color: var(--gold); font-size: 12px; font-variant-numeric: tabular-nums lining-nums; }
 .people-meter { display: block; height: 5px; border-radius: 3px; background: #ffffff14; overflow: hidden; }
 .people-meter > span { display: block; height: 100%; background: linear-gradient(90deg, #b9964f, var(--gold)); transition: width .18s ease; }
@@ -301,15 +291,10 @@
 .resource-full { border-color: #e0857399; background: #3a201cf0; }
 .resource-full .resource-symbol { color: var(--destructive); }
 .resource-full .resource-rate { color: var(--destructive); font-weight: 600; }
-
-.storage-alert { display: flex; align-items: center; gap: 9px; padding: 11px 13px; border: 1px solid #bd5e5066; border-radius: var(--radius); background: #45211c4d; color: #f0c9c0; font-size: 13px; line-height: 1.4; }
-.storage-alert :is(svg, .painted-icon) { flex-shrink: 0; color: var(--destructive); }
 .storage-meter { display: block; height: 4px; margin-top: 6px; border-radius: 2px; background: #ffffff14; overflow: hidden; }
 .storage-meter > span { display: block; height: 100%; background: linear-gradient(90deg, #7f9a72, var(--green)); transition: width .2s ease; }
 
 /* Halk ozeti dort kutucuga cikti: nufus, bosta, barinma, huzur. */
-.people-summary > div { min-width: 0; }
-.people-summary strong { font-size: 18px; }
 
 /* --- DANISMANLAR ---------------------------------------------------------
  * Ikariam'in dort danisman basi. Kaynak cubugunun altinda, haritanin ustunde
@@ -349,15 +334,6 @@
 .city-stats strong { font-family: var(--font-heading), Georgia, serif; font-size: 17px; font-variant-numeric: tabular-nums lining-nums; }
 .city-rates { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 11px; color: var(--muted-foreground); }
 .city-rates strong { color: var(--green); font-variant-numeric: tabular-nums lining-nums; }
-.bp .cities-panel { width: 100%; min-width: 0; }
-.bp .cities-panel > *, .bp .cities-panel .city-card { min-width: 0; max-width: 100%; width: 100%; }
-.bp .cities-panel .city-card > * { max-width: 100%; }
-.bp .cities-panel .batch-row { display: flex; flex-wrap: wrap; width: 100%; gap: 8px; }
-.bp .cities-panel .batch-row button { max-width: 100%; white-space: normal; text-align: center; }
-.bp .cities-panel .city-rates { width: 100%; }
-@media (max-width: 420px) {
-  .bp .cities-panel .city-card > .batch-row button { flex: 1 1 100%; justify-content: center; }
-}
 
 /* --- ORDU ----------------------------------------------------------------- */
 .army-summary { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px 14px; align-items: center; padding: 14px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--card); }
@@ -407,11 +383,6 @@
 /* Payitaht adaları: city switcher, island atlas and naval shipment controls. */
 .empire-section { display:grid; gap:12px; margin-top:22px; }
 .empire-section > h3 { font-size:1rem; font-weight:700; color:var(--foreground); }
-.empire-city-list { display:grid; gap:8px; }
-.empire-city-button { display:flex; justify-content:space-between; align-items:center; gap:12px; width:100%; border:1px solid #a6906350; border-radius:12px; padding:12px; text-align:left; }
-.empire-city-button[aria-current="true"] { border-color:#aa8645; background:#cdb37b20; }
-.empire-city-button > span:first-child { display:grid; gap:3px; }
-.empire-city-button small{ font-size:0.76rem; opacity:0.78; }
 
 .empire-shipment-form { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; }
 .empire-shipment-form label { display:grid; gap:5px; font-size:0.78rem; }

@@ -1,0 +1,40 @@
+/* Content replaces the large city HUD while a page is open. */
+.game-shell { --ika-nav: calc(var(--sa-bottom) + 64px); }
+.game-shell.has-page { --ika-top: 0px; }
+.game-shell.has-page > .ika-top { display: none; }
+.game-shell.has-page .bp:not(.bp-sheet) { top: 0; }
+.game-shell.has-page .bp:not(.bp-sheet) > .bp-bar { min-height: 54px; padding: calc(var(--sa-top) + 5px) 12px 5px; box-shadow: none; border-bottom-width: 1px; }
+.game-shell.has-page .bp-title h1 { font-size: 21px; }
+.game-shell .bp-scroll { max-width: 960px; }
+.game-shell.has-page :is(.bp-court,.bp-annals,.bp-objectives,.bp-civic) .bp-scroll { padding: 0 0 24px; }
+.game-shell.has-page :is(.sovereign-stage,.sovereign-roll,.admin-stage,.treasury-stage,.annals-scene,.quest-court-scene) { margin-inline: 0; }
+.game-shell.has-page :is(.court-book,.annals-ledger) { border-image-source: none; border: 0; border-top: 1px solid var(--c-tan-border); padding: 18px 16px; box-shadow: none; background: transparent; }
+.game-shell.has-page .court-tabs { padding-block: 8px; }
+.game-shell.has-page .court-tabs > button { min-height: 52px; flex-direction: row; padding: 9px 5px; gap: 5px; border-image-source: none; border: 1px solid #a98b5655; background: transparent; color: var(--c-ink); }
+.game-shell.has-page .court-tabs > button[aria-selected='true'] { color: var(--c-cream); background: var(--c-wood-dark); border-color: var(--c-gold-deep); box-shadow: inset 0 -3px var(--c-red); }
+.game-shell.has-page .court-tabs > button > :is(svg,.painted-icon) { width: 20px; height: 20px; flex-shrink: 0; }
+.page-stocks { flex-shrink: 0; display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); background: #e5d2ad; border-bottom: 1px solid var(--c-tan-border); }
+.page-stocks > button { display: flex; align-items: center; justify-content: center; gap: 5px; min-height: 44px; padding: 6px 3px; border: 0; border-right: 1px solid #99763c44; color: var(--c-ink); background: transparent; font-size: 11px; }
+.page-stocks > button:last-child { border-right: 0; }
+.page-stocks .painted-icon { width: 20px; height: 20px; }
+.page-stocks b { font-size: 13px; }
+.game-shell .ika-nav { height: var(--ika-nav); background-size: auto 100%; border-top: 1px solid var(--c-gold-deep); box-shadow: 0 -2px 7px #0005; }
+.game-shell .ika-nav-item { padding: 5px 2px 6px; gap: 4px; justify-content: center; }
+.game-shell .ika-nav-icon, .game-shell .ika-nav-center .ika-nav-icon { visibility: visible; width: 28px; height: 28px; }
+.game-shell .ika-nav-icon > :is(svg,.painted-icon) { width: 28px; height: 28px; }
+.game-shell .ika-nav-label, .game-shell .ika-nav-center .ika-nav-label { font-size: 12px; }
+.game-shell .ika-nav-active { background: #a77b2924; }
+.game-shell .ika-nav-active::before { bottom: 1px; }
+.game-shell .ika-nav-item .ika-badge, .game-shell .ika-nav-center .ika-badge { top: 3px; right: calc(50% - 26px); }
+@media (min-width: 700px) { .game-shell .page-stocks { padding-inline: max(12px,calc((100vw - 960px)/2)); } }
+
+.game-shell.has-page .bp:not(.bp-sheet) { border-image-source: none; }
+.game-shell .ika-nav-center .ika-nav-icon :is(svg,.painted-icon), .game-shell:has(.bp-dock) .ika-nav-center .ika-nav-icon :is(svg,.painted-icon) { width: 28px; height: 28px; }
+.game-shell:has(.bp-dock) .ika-nav-center .ika-nav-icon { width: 28px; height: 28px; }
+
+.game-shell.has-page :is(.court-tabs,.court-footer,.annals-kind-strip,.annals-search,.annals-result) { margin-inline: 12px; }
+
+.page-stocks > button { display: grid; grid-template-columns: 20px auto; grid-template-rows: auto auto; justify-content: center; gap: 0 5px; padding: 4px 5px; text-align: left; line-height: 1.1; }
+.page-stocks .painted-icon { grid-row: 1 / 3; align-self: center; }
+.page-stocks > button > span { align-self: end; }
+.page-stocks > button > b { align-self: start; }

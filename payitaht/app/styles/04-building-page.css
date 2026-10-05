@@ -102,7 +102,6 @@
 .bp-hero-small img { width: min(60%, 260px); height: 145px; }
 /* Danışman sayfaları da parşömen: sabit renkli eski öğeler. */
 .bp .army-note { background: var(--c-parch-2); border-color: var(--c-parch-edge); color: var(--ink); }
-.bp .storage-alert { background: #f7d9cf; border-color: #c96a55; color: #6e1f12; }
 .bp .requirement { color: #8a4b12 !important; }
 .bp .report-win { color: #2f6b1a; }
 .bp .report-loss { color: var(--c-bad-deep); }
@@ -111,7 +110,7 @@
   background: linear-gradient(180deg, var(--c-gold), var(--tan) 55%, var(--tan-2)); }
 .bp .research-branch-top h3, .bp .army-branch-top h3 { font-family: inherit; font-size: 12px; font-weight: 800; letter-spacing: .07em; text-transform: uppercase; color: var(--c-ink-deep); }
 .bp .research-branch-top span, .bp .army-branch-top span { color: #3a210c; font-weight: 700; }
-.bp .research-card, .bp .unit-card, .bp .city-card, .bp .empire-city-button, .bp .report-card, .bp .objective-card, .bp .people-row, .bp .people-summary, .bp .army-summary {
+.bp .research-card, .bp .unit-card, .bp .city-card, .bp .report-card, .bp .objective-card, .bp .army-summary {
   background: var(--parch); border-color: #c9a46a; box-shadow: 0 1px 3px #5a351722; }
 .bp .research-card h3, .bp .objective-card h3, .bp .unit-top strong, .bp .city-card strong { color: var(--ink); }
 .bp .eyebrow { color: var(--ink-soft); }
@@ -119,4 +118,4 @@
 .bp .building-list-item > :is(svg, .painted-icon) { color: var(--ink-soft); }
  .bp .unit-have small { color: var(--ink-soft); }
 .bp .job-progress time { color: var(--ink); }
-.bp .advisor-panel, .bp .research-panel, .bp .people-panel, .bp .building-list { color: var(--ink); }
+.bp .advisor-panel, .bp .research-panel, .bp .building-list { color: var(--ink); }

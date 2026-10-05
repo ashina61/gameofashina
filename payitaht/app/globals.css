@@ -19,6 +19,8 @@
 @import './styles/15-annals.css';
 @import './styles/16-court.css';
 @import './styles/17-treasury.css';
+@import './styles/18-spacious.css';
+@import './styles/19-civic.css';
 
 @custom-variant dark (&:is(.dark *));
 @theme inline {
