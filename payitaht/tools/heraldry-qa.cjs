@@ -2,84 +2,62 @@ const path = require('node:path')
 const fs = require('node:fs/promises')
 const { START_BUTTON, skipGuide } = require('./lib/qa.cjs')
 
+async function assertReferenceLayout(page, label, screen) {
+  const shell = page.locator('.ref-os-shell')
+  await shell.waitFor({ state: 'visible' })
+  const metrics = await shell.evaluate(el => {
+    const side = el.querySelector('.ref-os-sidebar')
+    const top = el.querySelector('.ref-os-topbar')
+    const main = el.querySelector('.ref-os-main')
+    const scroll = el.querySelector('.ref-os-content-scroll')
+    const box = node => node ? node.getBoundingClientRect() : null
+    return {
+      viewport: { width: window.innerWidth, height: window.innerHeight },
+      shell: box(el), side: box(side), top: box(top), main: box(main),
+      overflowX: document.documentElement.scrollWidth > window.innerWidth + 2,
+      scrollOverflowX: scroll ? scroll.scrollWidth > scroll.clientWidth + 2 : false,
+      visibleNav: getComputedStyle(document.querySelector('.ika-nav')).display,
+      visibleTop: getComputedStyle(document.querySelector('.ika-top')).display,
+    }
+  })
+  if (metrics.overflowX || metrics.scrollOverflowX) throw new Error(`${label}/${screen}: horizontal overflow ${JSON.stringify(metrics)}`)
+  if (metrics.visibleNav !== 'none' || metrics.visibleTop !== 'none') throw new Error(`${label}/${screen}: old HUD is still visible`)
+  if (!metrics.side || metrics.side.width < 72 || metrics.side.width > metrics.viewport.width * .26) throw new Error(`${label}/${screen}: sidebar width drift ${JSON.stringify(metrics.side)}`)
+  if (!metrics.top || metrics.top.height < 48 || metrics.top.height > 68) throw new Error(`${label}/${screen}: top resource rail height drift`)
+  if (!metrics.main || metrics.main.width < metrics.viewport.width * .67) throw new Error(`${label}/${screen}: parchment workspace is too narrow`)
+
+  const tiny = await page.locator('.ref-os-shell button, .ref-os-shell input, .ref-os-shell select').evaluateAll(nodes => nodes.filter(node => {
+    const r = node.getBoundingClientRect()
+    const s = getComputedStyle(node)
+    return s.display !== 'none' && s.visibility !== 'hidden' && r.width > 0 && r.height > 0 && (r.height < 40 || r.width < 28)
+  }).map(node => ({ text: node.getAttribute('aria-label') || node.textContent.trim().slice(0, 40), rect: node.getBoundingClientRect().toJSON() })).slice(0, 8))
+  if (tiny.length) throw new Error(`${label}/${screen}: undersized interactive controls ${JSON.stringify(tiny)}`)
+}
+
 async function checkHeraldry(page, label, out) {
-  const key = 'payitaht-adalari-v1'
-  const saved = await page.evaluate(key => localStorage.getItem(key), key)
-  const openProfile = async () => {
-    await page.getByRole('button', { name: /^Hükümdar profili:/ }).click()
-    await page.getByText('Sancak Düzenle', { exact: true }).waitFor()
-  }
-  const choice = (group, name) => page.getByRole('radiogroup', { name: group, exact: true }).getByRole('radio', { name, exact: true })
-  const profileTab = async group => {
-    const name = group === 'Sancak biçimi' ? 'Biçim' : group === 'Arma' ? 'Arma' : 'Renk'
-    await page.locator('.profile-v2-banner-editor').getByRole('button', { name, exact: true }).click()
-  }
-  const profileChoice = async (group, name) => {
-    await profileTab(group)
-    const radios = page.getByRole('radiogroup', { name: group, exact: true }).getByRole('radio')
-    const exact = page.getByRole('radiogroup', { name: group, exact: true }).getByRole('radio', { name, exact: true })
-    if (await exact.count()) return exact.first()
-    return radios.filter({ hasText: name }).first()
-  }
-  try {
-    await openProfile()
-    for (const [group, count] of [['Sancak biçimi', 10], ['Arma', 12], ['Renk', 12]]) {
-      await profileTab(group)
-      if (await page.getByRole('radiogroup', { name: group, exact: true }).getByRole('radio').count() !== count) throw new Error(`${label}: missing ${group} choices`)
-    }
-    await profileTab('Sancak biçimi')
-    const paths = await page.locator('.profile-v2-banner-editor .court-banner-options .sancak-art').evaluateAll(svgs => svgs.map(svg => svg.querySelector('g > path').getAttribute('d')))
-    if (new Set(paths).size !== 10) throw new Error(`${label}: banner silhouettes are duplicated`)
-    await (await profileChoice('Sancak biçimi', 'Yuvarlak uç')).click()
-    await (await profileChoice('Arma', 'Bozkurt')).click()
-    await (await profileChoice('Renk', 'Mor')).click()
-    await page.screenshot({ path: path.join(out, `heraldry-profile-${label}.png`), animations: 'disabled' })
-    await page.getByRole('button', { name: 'Profili ve sancağı kaydet', exact: true }).click()
-    await page.waitForFunction(key => JSON.parse(localStorage.getItem(key)).profile?.banner === 'yuvarlak', key)
-    await page.reload()
-    await page.getByRole('button', { name: START_BUTTON }).click()
-    await openProfile()
-    for (const [group, name] of [['Sancak biçimi', 'Yuvarlak uç'], ['Arma', 'Bozkurt'], ['Renk', 'Mor']]) {
-      const radio = await profileChoice(group, name)
-      if (await radio.getAttribute('aria-checked') !== 'true') throw new Error(`${label}: choice did not survive reload`)
-    }
-    // An existing player-led alliance uses the same saved appearance.
-    // Tohum yeni belgede, oyun kaydı okumadan önce uygulanır: eski sayfanın
-    // otomatik kaydı araya girip ittifakı silse de yeniden yüklemede geri gelir.
-    await page.addInitScript(({ key, founded }) => {
-      try {
-        const e = JSON.parse(localStorage.getItem(key))
-        if (!e?.world || e.world.pact) return
-        e.world.pact = { name: 'Sancak Birliği', tag: 'SAN', motto: '', founded, members: [], ranks: {}, circulars: [], stance: {} }
-        e.world.alliance = null
-        localStorage.setItem(key, JSON.stringify(e))
-      } catch { /* kayıt yoksa dokunma */ }
-    }, { key, founded: Date.now() })
-    await page.reload()
-    await page.getByRole('button', { name: START_BUTTON }).click()
-    await page.getByRole('button', { name: 'İttifak', exact: true }).click()
-    // Düğme gelmezse CI günlüğüne sayfanın durumunu yaz (kayıt, açık panel, ekrandaki yazı).
-    await page.getByRole('button', { name: 'Sancağı düzenle' }).click().catch(async e => {
-      const state = await page.evaluate(key => {
-        const raw = localStorage.getItem(key); let pact = 'yok'
-        try { pact = JSON.parse(raw).world?.pact?.name ?? 'yok' } catch { pact = 'okunamadı' }
-        return { url: location.href, pact, dialogs: [...document.querySelectorAll('[role="dialog"]')].map(d => d.getAttribute('aria-label')), body: document.body.innerText.slice(0, 500) }
-      }, key).catch(err => ({ evaluate: String(err) }))
-      console.error(`${label}: alliance editor missing`, JSON.stringify(state))
-      throw e
-    })
-    await choice('Sancak biçimi', 'Üç dil').click()
-    await choice('Arma', 'Çınar').click()
-    await choice('Renk', 'Zeytin').click()
-    await page.screenshot({ path: path.join(out, `heraldry-alliance-${label}.png`), animations: 'disabled' })
-    await page.getByRole('button', { name: 'Sancağı kaydet' }).click()
-    await page.waitForFunction(key => { const p = JSON.parse(localStorage.getItem(key)).profile; return p.banner === 'ucdil' && p.crest === 'cinar' && p.color === '#796529' }, key)
-    await page.locator('.alliance-head').getByRole('img', { name: 'Sancak: Üç dil', exact: true }).waitFor()
-    const overflow = await page.locator('.bp').evaluate(el => el.scrollWidth > el.clientWidth + 2)
-    if (overflow) throw new Error(`${label}: heraldry editor overflows the phone screen`)
-  } finally {
-    await page.evaluate(({ key, saved }) => { if (saved) localStorage.setItem(key, saved); else localStorage.removeItem(key) }, { key, saved })
-  }
+  await page.getByRole('button', { name: /^Hükümdar profili:/ }).click()
+  await page.getByRole('heading', { name: 'Profil', exact: true }).waitFor()
+  await page.getByRole('heading', { name: 'Rozetler', exact: true }).waitFor()
+  await page.getByRole('heading', { name: 'Başarılar', exact: true }).waitFor()
+  if (await page.locator('.ref-os-sidebar nav > button').count() !== 10) throw new Error(`${label}: approved sidebar must have 10 entries`)
+  if (await page.locator('.ref-os-resources > span').count() !== 5) throw new Error(`${label}: approved resource rail must have 5 counters`)
+  if (await page.locator('.ref-profile-reference-stats > span').count() !== 4) throw new Error(`${label}: approved profile must have 4 stat columns`)
+  if (await page.locator('.ref-profile-reference-badges > button').count() !== 5) throw new Error(`${label}: approved profile must show 5 badges`)
+  if (await page.locator('.ref-achievement-row').count() !== 3) throw new Error(`${label}: approved profile must show 3 featured achievements`)
+  await assertReferenceLayout(page, label, 'profile')
+  await page.screenshot({ path: path.join(out, `reference-profile-${label}.png`), animations: 'disabled' })
+
+  await page.getByRole('button', { name: 'Ayarlar', exact: true }).click()
+  await page.getByRole('heading', { name: 'Ayarlar', exact: true }).waitFor()
+  const tabs = page.locator('.ref-settings-tabs [role="tab"]')
+  if (await tabs.count() !== 5) throw new Error(`${label}: approved settings must have 5 tabs`)
+  for (const text of ['Dil', 'Ses Ayarları', 'Grafik Ayarları', 'Arayüz']) await page.getByRole('heading', { name: text, exact: true }).waitFor()
+  if (await page.locator('.ref-slider-row').count() !== 3) throw new Error(`${label}: approved settings must have 3 audio sliders`)
+  if (await page.locator('.ref-switch-row').count() !== 5) throw new Error(`${label}: approved settings must have 5 switches`)
+  if (await page.locator('.ref-settings-actions > button').count() !== 2) throw new Error(`${label}: approved settings must have 2 bottom actions`)
+  await assertReferenceLayout(page, label, 'settings')
+  await page.screenshot({ path: path.join(out, `reference-settings-${label}.png`), animations: 'disabled' })
+  console.log(`${label}px: approved profile/settings reference composition passed`)
 }
 
 module.exports = { checkHeraldry }
@@ -89,23 +67,14 @@ if (require.main === module) {
     const out = path.resolve('visual-review'); await fs.mkdir(out, { recursive: true })
     const browser = await chromium.launch({ args: ['--no-sandbox'] })
     try {
-      for (const width of [390, 412, 430]) {
-        const page = await browser.newPage({ viewport: { width, height: 844 }, hasTouch: true, isMobile: true })
-        // Yeni oyunun ilk açılış rehberi QA tıklamalarını örtmesin.
+      for (const [width, height] of [[390, 844], [412, 915], [430, 932]]) {
+        const page = await browser.newPage({ viewport: { width, height }, hasTouch: true, isMobile: true })
         await skipGuide(page)
-        // Route the production export directly, without requiring a listening server.
-        await page.route('http://heraldry.test/**', async route => {
-          const url = new URL(route.request().url())
-          const name = url.pathname.replace(/^\/gameofashina\//, '') || 'index.html'
-          try { await route.fulfill({ path: path.join(process.cwd(), 'out', name) }) }
-          catch { await route.fulfill({ status: 404, body: 'Not found' }) }
-        })
         const errors = []; page.on('pageerror', e => errors.push(e.message))
-        await page.goto('http://heraldry.test/gameofashina/')
+        await page.goto('http://127.0.0.1:4173/gameofashina/')
         await page.getByRole('button', { name: START_BUTTON }).click()
         await checkHeraldry(page, `${width}`, out)
         if (errors.length) throw new Error(errors.join('\n'))
-        console.log(`${width}px: distinct banners, full palette, saved profile and alliance editor passed`)
         await page.close()
       }
     } finally { await browser.close() }
