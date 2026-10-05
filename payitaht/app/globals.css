@@ -23,6 +23,7 @@
 @import './styles/19-civic.css';
 @import './styles/24-approved-court.css';
 @import './styles/25-royal-subtabs.css';
+@import './styles/26-sancaktar.css';
 
 @custom-variant dark (&:is(.dark *));
 @theme inline {

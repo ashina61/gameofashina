@@ -5,6 +5,7 @@
 export type Release = { version: string; date: string; title: string; notes: string[] }
 
 export const CHANGELOG: Release[] = [
+  { version: '0.56.0', date: '5 Ekim 2026', title: 'Sancaktarın ipekleri', notes: ['Sancaktar odası yeniden tasarlandı: 10 ayrı bordürlü ipek sancak ve 12 altın sırma arma gerçek görsellerle seçilir.', 'Büyük canlı sancak önizlemesi, geniş kumaş seçimi, arma vitrini ve renk seçenekleri; profil önizlemesindeki SVG arma da boyalı görselle değiştirildi. Kaydet ve vazgeç işlemleri korunur.'] },
   { version: '0.55.0', date: '5 Ekim 2026', title: 'Sarayın bütün defterleri', notes: ['Profilin Şehirler, Nişanlar ve Sancak sekmeleri aynı resimli saray diliyle yeniden düzenlendi: mülk defteri, nişan vitrini ve canlı kumaş seçimleri.', 'Ayarların Cihaz, Kayıt ve Bilgi sekmeleri boyalı nesneler, pirinç düğmeler ve geniş parşömenle tamamlandı. Bildirim, yedekleme, geri yükleme ve kayıt kontrolü işlemleri korunur.'] },
   { version: '0.54.0', date: '5 Ekim 2026', title: 'Onaylanan hükümdar ve ayarlar tasarımı', notes: ['Profil ve Ayarlar onaylanan resimli tasarımla yeniden kuruldu: kıyı sarayı, kişisel sancak, ahşap sekmeler ve geniş parşömen.', 'Profilin şehir, nişan ve kimlik işlemleri ile gerçek ses, görünüm, tempo ve kayıt ayarları korunur.'] },
   {

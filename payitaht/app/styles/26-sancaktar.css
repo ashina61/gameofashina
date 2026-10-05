@@ -1,0 +1,40 @@
+/* Sancaktar: painted silk + embroidered raster emblems. */
+.royal-standard { clip-path: none; }
+.royal-embroidery { left: 43%; top: 26%; width: 35%; height: 25%; object-fit: contain; mix-blend-mode: normal; }
+.is-sancaktar .royal-profile-scene { height: 240px; aspect-ratio: auto; }
+.is-sancaktar .royal-profile-scene > .royal-standard { left: 4%; top: 0; width: 48%; height: 100%; }
+.is-sancaktar .royal-identity { top: 21%; left: 55%; right: 5%; }
+.sancaktar-workshop { padding: 0 0 10px; }
+.sancaktar-heading { display: flex; align-items: center; gap: 10px; padding: 15px 0 12px; border-bottom: 1px solid var(--c-gold-deep); }
+.sancaktar-heading > .royal-art { width: 45px; height: 48px; }
+.sancaktar-heading h3 { margin: 0; font: 700 24px/1.1 Georgia,serif; color: var(--c-ink); }
+.sancaktar-heading p { margin: 5px 0 0; font: 13px/1.4 Georgia,serif; color: var(--c-ink-muted); }
+.sancaktar-identity { display: grid; gap: 7px; padding: 14px 0; }
+.sancaktar-identity label { margin-top: 4px; font: 700 15px Georgia,serif; }
+.game-shell.has-page .bp.bp-royal .sancaktar-identity input { width: 100%; min-width: 0; min-height: 48px; border: 2px ridge var(--c-gold); background: #fff4; padding: 10px; color: var(--c-ink); font: 17px Georgia,serif; box-shadow: inset 0 2px 5px #42251122; }
+.sancaktar-steps { position: sticky; top: 0; z-index: 3; display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); border: 2px ridge var(--c-gold); background: var(--royal-wood); }
+.sancaktar-steps button { display: flex; align-items: center; justify-content: center; gap: 7px; min-height: 54px; padding: 5px 3px; border: 0; border-right: 1px solid var(--c-gold-deep); background: transparent; color: var(--c-cream); font: 16px Georgia,serif; }
+.sancaktar-steps button:last-child { border-right: 0; }
+.sancaktar-steps button[aria-pressed='true'] { background: linear-gradient(var(--c-royal-active),var(--c-royal-active-deep)); color: var(--c-gold-pale); }
+.sancaktar-steps small { display: grid; place-items: center; width: 23px; height: 23px; border: 1px solid var(--c-gold-deep); border-radius: 50%; font: 12px Georgia,serif; color: var(--c-gold-pale); }
+.sancaktar-selection { margin-top: 17px; scroll-margin-top: 66px; }
+.sancaktar-selection > header { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 13px; }
+.sancaktar-selection h4 { margin: 0; font: 700 21px/1.2 Georgia,serif; }
+.sancaktar-selection p { margin: 5px 0 0; font: 12px/1.4 Georgia,serif; color: var(--c-ink-muted); }
+.sancaktar-selection > header > span { max-width: 35%; border-left: 1px solid var(--c-gold-deep); padding-left: 8px; color: var(--c-red); font: 13px/1.3 Georgia,serif; text-align: right; }
+.sancaktar-cloths { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 12px; }
+.sancaktar-emblems,.sancaktar-colors { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 10px; }
+.sancaktar-selection button[role='radio'] { display: flex; flex-direction: column; align-items: center; min-width: 0; gap: 5px; padding: 9px 5px; border: 0 solid transparent; border-image: var(--royal-page-frame) 20 / 3px / 0 stretch; background: #fff3; color: var(--c-ink); font: 14px/1.3 Georgia,serif; text-align: center; }
+.sancaktar-selection button[aria-checked='true'] { background: var(--royal-wood) center / cover; color: var(--c-gold-pale); }
+.sancaktar-selection button[role='radio'] > span { min-height: 34px; display: grid; align-items: center; }
+.sancaktar-selection button[role='radio'] > small { margin-top: auto; padding-top: 4px; border-top: 1px solid var(--c-gold-deep); width: 90%; color: var(--c-ink-muted); font: 11px/1.3 Georgia,serif; }
+.sancaktar-selection button[aria-checked='true'] > small { color: var(--c-gold-pale); }
+.sancaktar-cloth-art,.sancaktar-color-art { position: relative; height: 180px; width: 100%; pointer-events: none; }
+.sancaktar-cloth-art > .royal-standard,.sancaktar-color-art > .royal-standard { inset: 0; width: 100%; height: 100%; filter: drop-shadow(1px 2px 2px #39220c44); }
+.sancaktar-emblems .royal-embroidery { position: static; width: 100%; height: 75px; padding: 2px; filter: drop-shadow(1px 2px 2px #39220c66); }
+.sancaktar-color-art { height: 115px; }
+.sancaktar-signature { position: sticky; bottom: 0; z-index: 2; margin-top: 17px; padding: 9px 0 5px; border-top: 1px solid var(--c-gold-deep); background: var(--royal-paper) center / 100px 90px; }
+.sancaktar-signature p { margin: 0 0 7px; font: 12px/1.3 Georgia,serif; color: var(--c-ink-muted); text-align: center; }
+.sancaktar-signature > div { display: grid; grid-template-columns: 2fr 1fr; gap: 8px; }
+.game-shell.has-page .bp.bp-royal .sancaktar-signature .gbtn { min-height: 48px; padding-inline: 6px; }
+@media (min-width: 650px) { .sancaktar-cloths { grid-template-columns: repeat(3,minmax(0,1fr)); } .sancaktar-emblems,.sancaktar-colors { grid-template-columns: repeat(4,minmax(0,1fr)); } }

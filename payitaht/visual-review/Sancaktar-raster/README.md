@@ -1,0 +1,3 @@
+# Sancaktar · 0.56.0
+
+Built-in imagegen created the real silk standards and gold-thread emblems; production atlas extraction in docs/SANCAKTAR-ART.md. Screenshots: 390×844 normal and 360×740 at 130% font size. The editor has zero SVG elements. All ten cloth cuts, twelve emblems and twelve colors retain existing game identifiers. Final interactive QA checked all hit targets and layout, loaded images, saved crest/shape/color, and cancellation without persistence. Full mobile layout scan of every page/building: zero overflow, clipping, small targets/text, collisions, unnamed controls and page errors. TypeScript, ESLint, CSS audits, V2 criteria and all 328 engine tests passed.

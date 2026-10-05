@@ -71,22 +71,6 @@
 .game-shell.has-page .bp.bp-royal .gbtn-parch { background: var(--royal-wood); color: var(--c-cream); }
 .game-shell.has-page .bp.bp-royal .gbtn-red { background: linear-gradient(var(--c-royal-active),var(--c-royal-active-deep)); color: var(--c-gold-pale); }
 .game-shell.has-page .bp.bp-royal .gbtn:disabled { opacity: .5; box-shadow: none; cursor: not-allowed; }
-.game-shell.has-page .bp.bp-royal .royal-wardrobe > label { font: 700 16px Georgia,serif; margin-top: 16px; }
-.game-shell.has-page .bp.bp-royal .royal-wardrobe > input { min-height: 48px; font: 17px Georgia,serif; border: 2px ridge var(--c-gold); background: #fff4; box-shadow: inset 0 2px 4px #42251122; }
-.game-shell.has-page .bp.bp-royal .court-choice-tabs { gap: 0; border: 2px ridge var(--c-gold); padding: 0; margin-top: 20px; background: var(--royal-wood); }
-.game-shell.has-page .bp.bp-royal .court-choice-tabs > button { min-height: 44px; margin: 0; border: 1px solid var(--c-gold-deep); color: var(--c-cream); background: transparent; font: 15px Georgia,serif; }
-.game-shell.has-page .bp.bp-royal .court-choice-tabs > button[aria-pressed='true'] { background: linear-gradient(var(--c-royal-active),var(--c-royal-active-deep)); color: var(--c-gold-pale); }
-.game-shell.has-page .bp.bp-royal :is(.court-banner-options,.court-crest-options,.court-color-options) { gap: 9px; }
-.game-shell.has-page .bp.bp-royal :is(.court-banner-options,.court-crest-options,.court-color-options) > button { min-width: 0; padding: 8px 4px; min-height: 112px; background: #fff2; border: 1px solid var(--c-parch-line); font: 12px/1.3 Georgia,serif; }
-.game-shell.has-page .bp.bp-royal :is(.court-banner-options,.court-crest-options,.court-color-options) > button[aria-checked='true'] { border: 2px ridge var(--c-gold); padding: 7px 3px; background: var(--royal-wood); color: var(--c-gold-pale); }
-.royal-standard-option { width: 65px; height: 87px; position: relative; pointer-events: none; }
-.royal-standard-option .royal-standard { inset: 0; width: 100%; height: 100%; filter: none; }
-.game-shell.has-page .bp.bp-royal .court-color-options b { font-weight: 400; }
-.game-shell.has-page .bp.bp-royal .court-crest-options > button { min-height: 100px; }
-.game-shell.has-page .bp.bp-royal .court-crest-options .royal-crest-coin { display: grid; place-items: center; border: 3px ridge var(--c-gold); border-radius: 50%; width: 55px; height: 55px; background: var(--royal-wood); }
-.royal-crest-coin > svg { width: 42px; height: 42px; filter: drop-shadow(0 1px 1px #0007); }
-.royal-crest-coin :is(path,circle) { fill: var(--c-gold-pale); stroke: var(--c-gold-deep); stroke-width: .5; }
-.game-shell.has-page .bp.bp-royal .court-signature { position: sticky; bottom: 0; z-index: 2; padding: 10px 0; margin-top: 10px; border-top: 1px solid var(--c-gold-deep); background: var(--royal-paper) center / 100px 90px; }
 .royal-status-grid, .royal-game-facts { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 7px; }
 .royal-status { display: flex; align-items: center; gap: 5px; min-width: 0; padding: 8px 4px; border-bottom: 1px solid var(--c-parch-line); }
 .royal-status > .royal-art { width: 42px; height: 44px; flex: 0 0 42px; }

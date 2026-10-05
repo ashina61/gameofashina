@@ -37,24 +37,6 @@
 .court-vignette h4 { margin: 0 0 6px; font: 700 19px var(--font-heading),Georgia,serif; }
 .court-vignette p { margin: 0; font-size: 12px; line-height: 1.5; }
 .sovereign-motto { margin: 0 0 15px; text-align: center; font: italic 17px var(--font-heading),Georgia,serif; line-height: 1.5; overflow-wrap: anywhere; }
-.court-choice-tabs { display: flex; gap: 5px; margin: 10px 0 16px; }
-.court-choice-tabs button { flex: 1; min-height: 46px; padding: 8px 4px; background: #f0e2c4; border: 1px solid var(--c-tan-border); color: var(--c-ink); font-size: 12px; }
-.court-choice-tabs button[aria-pressed='true'] { background: var(--c-wood-dark); color: var(--c-gold-pale); border-color: var(--c-gold-deep); }
-.court-wardrobe > label { display: block; font: 700 16px var(--font-heading),Georgia,serif; margin: 12px 0 6px; }
-.court-wardrobe > input { display: block; width: 100%; min-height: 46px; padding: 10px; font-size: 15px; background: #fff6df; color: var(--c-ink); border: 1px solid var(--c-tan-border); border-radius: 0; box-shadow: inset 0 2px 4px #55311522; }
-.court-choice-tabs { margin-top: 20px; }
-.court-choice-name { text-align: center; font: 700 18px var(--font-heading),Georgia,serif; }
-.court-banner-options, .court-crest-options, .court-color-options { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 8px; }
-.court-banner-options > button, .court-crest-options > button, .court-color-options > button { position: relative; display: flex; flex-direction: column; align-items: center; gap: 7px; min-width: 0; padding: 9px 3px; border: 1px solid var(--c-tan-border); background: #dcc79e55; color: var(--c-ink); font-size: 11px; line-height: 1.4; }
-.court-banner-options > button[aria-checked='true'], .court-crest-options > button[aria-checked='true'], .court-color-options > button[aria-checked='true'] { background: #f5e4b7; border: 2px solid var(--c-gold-deep); padding: 8px 2px; }
-.court-banner-options .sancak-art { max-width: 100%; height: auto; }
-.court-banner-options > button > svg:not(.sancak-art), .court-crest-options > button > svg:not(.ruler-crest) { position: absolute; right: 3px; top: 4px; width: 16px; height: 16px; }
-.court-crest-options > button { min-height: 93px; }
-.court-color-options > button { min-height: 80px; }
-.court-color-options > button > span { width: 38px; height: 38px; border: 2px solid var(--c-gold-deep); display: grid; place-items: center; box-shadow: inset 0 2px 4px #0004; }
-.court-color-options svg { width: 22px; height: 22px; color: #fff; filter: drop-shadow(0 1px 2px #000); }
-.court-signature { display: grid; grid-template-columns: minmax(0,2fr) minmax(0,1fr); gap: 7px; padding-top: 16px; }
-.court-signature small { grid-column: 1 / -1; font-size: 12px; color: var(--c-red); }
 .court-footer { display: grid; gap: 7px; margin-top: 15px; }
 .court-footer .gbtn { width: 100%; }
 .admin-stage { position: relative; height: 165px; margin: 0 -8px; background: var(--c-wood-dark); }
