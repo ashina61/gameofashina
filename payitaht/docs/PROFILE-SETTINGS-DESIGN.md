@@ -17,3 +17,7 @@ The user explicitly requested applying this language to all Profile and Settings
 
 ## Sancaktar revision · 0.56.0
 The user rejected SVG motifs and requested a complete image-based wardrobe. royal-wardrobe.tsx replaces the old three-column miniature selector. Ten separately painted silk cuts preserve gold borders along each actual perimeter; twelve gold-thread raster emblems are shared by picker and live profile standard. Cloth-only alpha masks preserve gold poles, trim, tassels and appliques while honoring all saved colors. The editing page removes the redundant summary/edit button, gives a 240px live preview, large two-column cloth choices, three-column emblem/color displays and a sticky explicit save/cancel signature. No SVG exists inside .is-sancaktar. Other page crests are outside this revision's scope. Asset generation uses built-in imagegen; prompt/provenance in docs/SANCAKTAR-ART.md.
+
+
+### 5 Ekim: ortak dili oyunun geneline taşıma
+Kullanıcı genel yenilemeye sırayla başlama yetkisi verdi. İlk bölüm Vezir (0.57.0 / SW54): ayrı resimli divan sahnesi, tam genişlikte ahşap/pirinç başlık ve parşömen, Gündem/Şehirler/Haberler. Öncelikler, üretim, şehir nüfusu ve inşaatlar, haberler gerçek kayıttan gelir. Oyun kuralları ve kayıt biçimi değişmez. Sonraki bölüm Elçi/İttifak; her biten bölüm yayınlanıp gerçek ekranlarla sunulur.

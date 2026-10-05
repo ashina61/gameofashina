@@ -247,20 +247,7 @@
 .sk-grid .sk-label { font-size: 12px; font-weight: 700; color: var(--c-ink-soft); }
 .sk-grid .sk-value { grid-column: 2; font-size: 15px; white-space: normal; }
 
-.cc-list { display: flex; flex-direction: column; gap: 6px; }
-.cc-card { display: grid; grid-template-columns: 44px minmax(0, 1fr); align-items: center; gap: 10px; width: 100%; padding: 8px 10px 8px 8px;
-  text-align: left; border-radius: 12px; border: 1px solid #d3b57c; background: linear-gradient(180deg, var(--c-paper), #f6e7c4); }
-.cc-card.is-here { border-color: var(--c-gold-deep); box-shadow: inset 0 0 0 1px var(--c-gold); }
-.cc-medal { width: 44px; height: 44px; display: grid; place-items: center; border-radius: 50%;
-  background: radial-gradient(circle at 40% 30%, #8a5a2e, var(--c-wood-dark) 70%); border: 2px solid var(--c-gold);
-  font-family: var(--font-heading), Georgia, serif; font-size: 18px; font-weight: 800; color: var(--c-cream); box-shadow: 0 2px 3px #0005; }
-.cc-main { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
-.cc-name { display: flex; align-items: baseline; gap: 6px; }
-.cc-name strong { font-family: var(--font-heading), Georgia, serif; font-size: 17px; color: var(--c-ink); }
-.cc-name small { padding: 0 6px; border-radius: 999px; background: var(--c-gold); color: var(--c-ink-deep); font-size: 11px; font-weight: 800; }
-.cc-job { display: flex; align-items: center; gap: 5px; font-size: 12px; font-weight: 700; color: var(--c-ink-soft); }
-.cc-job :is(svg, .painted-icon) { width: 18px; height: 18px; }
-.cc-job.is-idle { color: var(--c-bad); }
+
 
 .tl { display: flex; flex-direction: column; gap: 10px; }
 .tl-day-head { display: flex; align-items: center; gap: 8px; margin: 0 0 4px; font-size: 12px; font-weight: 800; color: var(--c-ink-soft); letter-spacing: .04em; }

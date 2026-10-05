@@ -1,0 +1,32 @@
+/* Vezir: approved walnut, brass and illustrated parchment language. */
+.vizier-scene { position: relative; height: clamp(180px,51vw,280px); overflow: hidden; border-bottom: 3px ridge var(--c-gold); }
+.vizier-scene > img { width: 100%; height: 100%; display: block; object-fit: cover; object-position: 36% center; }
+.vizier-scene > div { position: absolute; inset: auto 0 0; padding: 23px 14px 10px; background: linear-gradient(transparent,#211106ed); color: var(--c-cream); text-shadow: 0 1px 2px #000; }
+.vizier-scene h2 { margin: 1px 0; font: 700 27px/1.15 Georgia,serif; overflow-wrap: anywhere; }
+.vizier-scene span, .vizier-scene p { margin: 0; font: 13px/1.4 Georgia,serif; }
+.vizier-advice { display: flex; gap: 10px; align-items: center; padding: 5px 0; }
+.vizier-advice > .royal-art { width: 78px; height: 90px; flex-shrink: 0; }
+.vizier-advice h4 { margin: 0 0 5px; font: 700 18px/1.2 Georgia,serif; }
+.vizier-advice p { margin: 0; font: 15px/1.45 Georgia,serif; }
+.game-shell.has-page .bp.bp-royal .vizier-action { width: 100%; min-height: 44px; margin-block: 7px; font: 700 16px/1.3 Georgia,serif; }
+.vizier-work { display: flex; flex-direction: column; gap: 5px; padding: 4px 0; font: 15px/1.4 Georgia,serif; }
+.vizier-production { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 5px; }
+.vizier-production > div { display: flex; flex-direction: column; align-items: center; text-align: center; min-width: 0; font: 14px Georgia,serif; }
+.vizier-production img { width: 60px; height: 60px; object-fit: contain; }
+.vizier-production strong { display: block; margin-top: 3px; font-size: 17px; overflow-wrap: anywhere; color: var(--c-ok-deep); }
+.vizier-production strong[data-tone='down'] { color: var(--c-red); }
+.vizier-production small { font-size: 11px; }
+.vizier-estates { display: grid; gap: 8px; }
+.vizier-estate { display: grid; grid-template-columns: 27% minmax(0,1fr); align-items: center; gap: 8px; width: 100%; padding: 9px 0; border: 0; border-bottom: 1px solid var(--c-gold-deep); background: transparent; text-align: left; color: var(--c-ink); }
+.vizier-estate > .royal-art { width: 100%; height: 110px; }
+.vizier-city-title { display: flex; flex-wrap: wrap; align-items: center; gap: 5px; font: 700 19px Georgia,serif; overflow-wrap: anywhere; }
+.vizier-city-title small { font: 12px Georgia,serif; color: var(--c-red); }
+.vizier-city-level, .vizier-city-work { display: block; margin-block: 5px; font: 13px/1.4 Georgia,serif; }
+.vizier-news-day h4 { margin: 13px 0 5px; font: 700 16px Georgia,serif; color: var(--c-red); }
+.vizier-news-day ol { list-style: none; margin: 0; padding: 0; }
+.vizier-news-day li { display: flex; align-items: center; gap: 8px; padding: 8px 0; border-bottom: 1px solid var(--c-parch-line); }
+.vizier-news-day .royal-art { width: 52px; height: 60px; flex-shrink: 0; }
+.vizier-news-day p { margin: 0 0 5px; font: 15px/1.4 Georgia,serif; overflow-wrap: anywhere; }
+.vizier-news-day time { font: 12px Georgia,serif; color: var(--c-ink-muted); }
+
+.game-shell.has-page .bp.bp-royal .vizier-page .court-tabs { grid-template-columns: repeat(3,minmax(0,1fr)); }

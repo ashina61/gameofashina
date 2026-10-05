@@ -24,6 +24,7 @@
 @import './styles/24-approved-court.css';
 @import './styles/25-royal-subtabs.css';
 @import './styles/26-sancaktar.css';
+@import './styles/27-vizier.css';
 
 @custom-variant dark (&:is(.dark *));
 @theme inline {

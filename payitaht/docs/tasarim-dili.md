@@ -109,3 +109,7 @@ Kullanıcı 5 Ekim «uzman oyun tasarımcısı gibi düşün; sayfaları istedi�
 Kullanıcı oyunu dar buldu; eski tema, bütün assetler, UI ve UX değişebilir. Bağlayıcı olan ortak sanat dilidir; eski bar boyutları ve çerçeveler korunmak zorunda değildir. Tam sayfada büyük şehir HUD'u gizlenir, 44px gerçek kaynak şeridi sunulur. Alt menü 64px + güvenli alan; boyalı simge ve okunur etiket. İçerik en fazla 960px, yeni sayfalarda kenardan kenara sahne; kalın iç defter çerçeveleri kaldırılır. Bina, ada ve diğer sayfa etkileşimleri korunur.
 
 Halk (`civic-pages.tsx`): İşgücü/Yaşam; meslek seçimi, motorun gerçek üretim önizlemesi, taslak/onay/geri al; barınma/huzur büyüme ilişkisi ve bina bağlantıları. Şehirler: Yerleşimler/Nakliye/İdare; gerçek şehir seçimi, taşıma kapasitesi ve stok sınırı, denizdeki yükler; başkent ve terk etme işlemleri mevcut kurallarla ve açık onayla. Tek şehirde geçersiz boş nakliye formu yerine kolonileşme yolu.
+
+
+### 5 Ekim: ortak dili oyunun geneline taşıma
+Kullanıcı genel yenilemeye sırayla başlama yetkisi verdi. İlk bölüm Vezir (0.57.0 / SW54): ayrı resimli divan sahnesi, tam genişlikte ahşap/pirinç başlık ve parşömen, Gündem/Şehirler/Haberler. Öncelikler, üretim, şehir nüfusu ve inşaatlar, haberler gerçek kayıttan gelir. Oyun kuralları ve kayıt biçimi değişmez. Sonraki bölüm Elçi/İttifak; her biten bölüm yayınlanıp gerçek ekranlarla sunulur.

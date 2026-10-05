@@ -1,5 +1,4 @@
 /* City chronicle and release archive: the same court, two different books. */
-.annals-open { width: 100%; min-height: 48px; }
 .game-shell .bp-annals { top: var(--ika-top); }
 .bp-annals > .bp-bar { min-height: 54px; padding: 5px 10px; }
 .bp-annals .bp-title h1 { font-size: 21px; }

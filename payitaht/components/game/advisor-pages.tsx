@@ -6,16 +6,14 @@ import { rivalById } from '@/lib/game/rivals'
  * Vezir şehirleri ve olayları, Serasker orduyu ve raporları anlatır. Her
  * danışman duruma göre bir öğüt verir.
  */
-import { ChevronRight, Hammer, Swords, ScrollText } from './ui-art'
+import { Swords } from './ui-art'
+export { CityAdvisor } from './royal-vizier'
 import { GameButton } from './game-button'
-import { Meter, StatRow } from './stat-kit'
-import { EventTimeline } from './event-timeline'
-import { resourceIcons } from './game-widgets'
 import {
-  BUILDINGS, activeJob, contentment, fullResources, housing, idleWorkers, maxPopulation, population, rates, researchReason, RESEARCH_IDS,
-  timeLeft, type BuildingId, type Game, formatRate,
+  researchReason, RESEARCH_IDS,
+  timeLeft, type Game,
 } from '@/lib/game/engine'
-import { activeCity, type Empire } from '@/lib/game/empire'
+import { type Empire } from '@/lib/game/empire'
 import { AdvisorSpeech } from './ika-hud'
 import { Box } from './building-page'
 import { DefenseSummary } from './ikariam-panels'
@@ -23,13 +21,6 @@ import { MissionList, type Run } from './world-panels'
 import { ReportsPanel } from './island-view'
 
 
-function cityAdvice(g: Game) {
-  if (!activeJob(g)) return 'Ustalar boş oturuyor efendim. İnşa menüsünden yeni bir yapıya başlayalım.'
-  if (fullResources(g).length) return 'Ambarlar ağzına kadar dolu; üretim boşa gidiyor. Ambarı yükseltelim ya da harcayalım.'
-  if (housing(g) > contentment(g)) return 'Halk huzursuz, konaklar boş kalıyor. Hamam, Kahvehane ya da Cami huzuru artırır.'
-  if (idleWorkers(g) > 20) return `${idleWorkers(g)} kişi boşta geziyor. Ocaklara ve medreseye işçi verelim.`
-  return 'Şehir yolunda efendim. İnşaat sürüyor, halk memnun.'
-}
 function armyAdvice(e: Empire, g: Game) {
   const threat = (e.threats ?? []).find(t => t.cityId === e.activeCityId)
   if (threat) return `Düşman yaklaşıyor! ${timeLeft({ id: 'divan', kind: 'build', start: 0, end: threat.arriveAt }, g.updatedAt)} sonra kapıda. Askerleri şehirde tutun, surları güçlendirin.`
@@ -54,48 +45,6 @@ export function diploAdvice(e: Empire) {
   if (war) return `${rivalById(war.a)?.city} ile ${rivalById(war.b)?.city} savaşta. Savaşan hükümdarların ordusu cephede; pazarları ise mala aç. Haberler sekmesinden izleyelim.`
   if (!e.world?.alliance && !e.world?.pact) return 'Bir ittifaka katılmak baskınlarda yardım getirir. Hükümdarlarla ilişkimizi güçlendirelim.'
   return 'Diplomasi yolunda. Pazardaki tekliflere göz atmayı unutmayın.'
-}
-
-export function CityAdvisor({ empire, game, onCity, onBuilding, onCities, onBuildList, onOverview, onJournal }: {
-  empire: Empire; game: Game; onCity: (id: string) => void; onBuilding: (id: BuildingId) => void; onCities: () => void; onBuildList: () => void; onOverview: () => void; onJournal: () => void
-}) {
-  const current = activeCity(empire)
-  return <>
-    <AdvisorSpeech id="city">{cityAdvice(game)}</AdvisorSpeech>
-    <GameButton className="annals-open" variant="outline" onClick={onJournal}><ScrollText painted aria-hidden="true" />Şehir günlüğünü aç<ChevronRight aria-hidden="true" /></GameButton>
-    <Box title="Şehirlerin">
-      {/* Tablo yerine şehir kartı: Divanhane madalyonu, nüfus çubuğu, ustaların işi. */}
-      <div className="cc-list">{empire.cities.map(c => {
-        const job = activeJob(c.game)
-        return <button key={c.id} type="button" className={`cc-card${c.id === current.id ? ' is-here' : ''}`} onClick={() => onCity(c.id)}
-          aria-label={`${c.name}${c.id === current.id ? ' (buradasın)' : ''}: şehre git`}>
-          <span className="cc-medal" aria-hidden="true">{c.game.buildings.divan}</span>
-          <span className="cc-main">
-            <span className="cc-name"><strong>{c.name}</strong>{c.id === current.id && <small>burada</small>}</span>
-            <Meter value={population(c.game)} max={maxPopulation(c.game)} label={`${c.name} nüfusu`} />
-            <span className={`cc-job${job ? '' : ' is-idle'}`}><Hammer aria-hidden="true" />{job ? `${BUILDINGS[job.id as BuildingId].name} · ${timeLeft(job, c.game.updatedAt)}` : 'Ustalar boşta'}</span>
-          </span>
-        </button>
-      })}</div>
-      <div className="batch-row">
-        <GameButton size="sm" variant="outline" onClick={onCities}>Şehirler ve harita<ChevronRight data-icon="inline-end" /></GameButton>
-        <GameButton size="sm" variant="outline" onClick={onBuildList}>Bütün yapılar<ChevronRight data-icon="inline-end" /></GameButton>
-        <GameButton size="sm" variant="outline" onClick={onOverview}>İmparatorluk özeti<ChevronRight data-icon="inline-end" /></GameButton>
-      </div>
-    </Box>
-    <Box title="Üretim">
-      <div className="sk-list">
-        {([['gold', 'Akçe'], ['wood', 'Kereste'], ['knowledge', 'İlim']] as const).map(([k, l]) => {
-          const v = rates(game)[k], Icon = resourceIcons[k]
-          return <StatRow key={k} icon={<Icon />} label={l} value={<>{formatRate(v, true)}<small> /dk</small></>} tone={v > 0 ? 'up' : v < 0 ? 'down' : 'idle'} />
-        })}
-      </div>
-      <GameButton size="sm" variant="outline" onClick={() => onBuilding('divan')}>Divanhane<ChevronRight data-icon="inline-end" /></GameButton>
-    </Box>
-    <Box title="Olaylar">
-      <EventTimeline log={game.log} now={game.updatedAt} />
-    </Box>
-  </>
 }
 
 export function ArmyAdvisor({ empire, game, run, onArmy }: { empire: Empire; game: Game; run: Run; onArmy: () => void }) {
