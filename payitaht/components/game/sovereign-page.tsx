@@ -1,6 +1,5 @@
 'use client'
 import { useId, useState } from 'react'
-import { t } from '@/lib/i18n/tr'
 import { asset, buildingImage } from '@/lib/asset'
 import { population, soldiers } from '@/lib/game/engine'
 import { capitalId, islandOf, type Empire } from '@/lib/game/empire'
