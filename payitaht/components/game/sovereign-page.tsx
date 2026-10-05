@@ -1,6 +1,7 @@
 'use client'
 
 import { useId, useState } from 'react'
+import { t } from '@/lib/i18n/tr'
 import { population, soldiers } from '@/lib/game/engine'
 import { capitalId, islandOf, type Empire } from '@/lib/game/empire'
 import { achievements, allianceName, playerScore, profileOf, profileRanks, profileStats, rulerTitle, setProfile, type MedalTier } from '@/lib/game/profile'
@@ -88,7 +89,7 @@ export function SovereignPage(props: Props) {
         {editIdentity ? <form className="ref-identity-edit" onSubmit={saveIdentity}>
           <label htmlFor={`${id}-name`}>Hükümdarın adı</label><input id={`${id}-name`} value={draft.ruler} maxLength={24} onChange={event => setDraft({ ...draft, ruler: event.target.value })} />
           <label htmlFor={`${id}-motto`}>Düstur</label><textarea id={`${id}-motto`} value={draft.motto} maxLength={60} onChange={event => setDraft({ ...draft, motto: event.target.value })} />
-          <div><button type="submit" disabled={!nameValid}>Kaydet</button><button type="button" onClick={() => setEditIdentity(false)}>Vazgeç</button></div>
+          <div><button type="submit" disabled={!nameValid}>Kaydet</button><button type="button" onClick={() => setEditIdentity(false)}>{t.action.cancel}</button></div>
         </form> : <>
           <h2>{draft.ruler || 'Hükümdar'} <button type="button" aria-label="Profili düzenle" onClick={() => setEditIdentity(true)}><Pencil /></button></h2>
           <small>#{ranks.total}</small>
