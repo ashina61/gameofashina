@@ -1,0 +1,7 @@
+# Hazinedarın odası — v49
+
+Yerleşik ImageGen. Stil referansı: `terrain/royal-court.webp`.
+
+Use case: historical-scene. Asset type: text-free panoramic background for Payitaht Ottoman–Aegean mobile strategy treasury page, 1536x768 landscape composition. Reference image: royal-court.webp provided solely as art direction, match the same painterly-realistic premium mobile game painter, warm upper-left Mediterranean daylight, ivory limestone, antique brass, carved walnut, muted crimson velvet, olive/cypress greens and Aegean turquoise. NEW scene: Ottoman treasury counting room opening onto a coastal city's courtyard. LEFT third: a dignified white-turbaned Ottoman treasurer in petrol/olive embroidered kaftan at a walnut counting table, stacks of gold akçe coins, small brass scales, open blank parchment accounts, restrained carved chest. CENTER: deep walnut shelves with coin sacks and sealed chests, limestone arch. RIGHT third: airy calm stone arcade overlooking domes and cypresses and a glimpse of turquoise harbour, readable uncluttered composition. Practical game header scene with large clearly readable figures/objects at phone size; credible historical elegance, fine texture, soft shadows, not a theatrical fantasy poster. No UI, plaques, buttons, ribbons, readable writing, numbers, symbols, logo, watermark, modern objects. No baked interface or fake controls.
+
+Son varlık: `public/images/game/terrain/treasury-room.webp`, 960×480 WebP quality82.

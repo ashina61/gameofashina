@@ -6,6 +6,14 @@ export type Release = { version: string; date: string; title: string; notes: str
 
 export const CHANGELOG: Release[] = [
   {
+    version: '0.52.0', date: '5 Ekim 2026', title: 'Hazinedarın defteri',
+    notes: [
+      'Hazine ve üretim yeniden kurgulandı: akçe hesabı, her kaynağın üretim defteri ve ambar yoklaması ayrı bölümlerde.',
+      'Net kazanç, ordu ve âlim giderleri, çalışanlar, maden üretimi ve kahve tüketimi gerçek şehir değerleriyle gösterilir. İlgili bina veya işçi ekranına doğrudan geçilir.',
+      'Dolan ambarlar ve azalan kahve için hazinedarın notu; şu anki hıza göre yaklaşık dolma veya tükenme süresi. Oyun kapalıyken üretim sınırı mevcut ambar seviyesine göre okunur.',
+    ],
+  },
+  {
     version: '0.51.0', date: '5 Ekim 2026', title: 'Hükümdarın sarayı ve idare defteri',
     notes: [
       'Hükümdar profili sarayda: canlı sancak, unvan yolu, hükümdarlar defteri, şehirler ve nişan hazinesi ayrı bölümlerde.',

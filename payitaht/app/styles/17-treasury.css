@@ -1,0 +1,89 @@
+/* A counting room, production ledgers and a warehouse inspection. */
+.treasury-stage { position: relative; height: 180px; margin: 0 -8px; background: var(--c-wood-dark); }
+.treasury-stage > img { width: 100%; height: 100%; object-fit: cover; object-position: 35% center; }
+.treasury-stage > span { position: absolute; top: 17px; right: 9px; width: 43%; padding: 12px 10px; background: var(--c-parch); border: 0 solid transparent; border-image: var(--art-page-frame) 48 fill / 6px / 0 stretch; filter: drop-shadow(0 3px 4px #0006); }
+.treasury-stage small { display: block; font-size: 11px; overflow-wrap: anywhere; }
+.treasury-stage b { display: block; margin-top: 6px; font: 700 19px var(--font-heading),Georgia,serif; line-height: 1.4; }
+.treasury-ribbon { position: relative; width: 96%; margin: -23px auto 0; padding: 14px 14px 18px; background: var(--art-ribbon-red) center / 100% 100% no-repeat; color: var(--c-cream); text-align: center; font: 700 24px var(--font-heading),Georgia,serif; text-shadow: 0 2px 2px #0008; }
+.treasury-balance { display: grid; grid-template-columns: 50px minmax(0,1fr) auto; align-items: center; gap: 9px; padding: 14px 12px; background: var(--c-wood-dark); color: var(--c-gold-pale); border: 0 solid transparent; border-image: var(--art-walnut-plate) 56 fill / 6px / 0 stretch; }
+.treasury-coin { width: 50px; height: 50px; display: grid; place-items: center; background: var(--art-medal-frame) center / 100% 100% no-repeat; }
+.treasury-coin .painted-icon { width: 36px; height: 36px; }
+.treasury-balance small { display: block; font-size: 11px; color: var(--c-cream); }
+.treasury-balance strong { display: block; margin-top: 3px; font: 700 27px var(--font-heading),Georgia,serif; overflow-wrap: anywhere; }
+.treasury-balance-rate { text-align: right; padding-left: 9px; border-left: 1px solid #c2a16355; }
+.treasury-balance-rate b { display: block; margin-bottom: 4px; font-size: 17px; }
+.treasury-page > .court-tabs { grid-template-columns: repeat(3,minmax(0,1fr)); }
+.treasury-net { display: flex; flex-direction: column; align-items: center; gap: 9px; padding: 15px 6px; text-align: center; background: #b89b5d22; border: 1px solid var(--c-tan-border); }
+.treasury-net > span { font-size: 12px; }
+.treasury-net strong { display: flex; flex-direction: column; gap: 4px; font: 700 32px var(--font-heading),Georgia,serif; }
+.treasury-net small { font: 400 12px var(--font-body),sans-serif; }
+.treasury-account > div { display: grid; grid-template-columns: 28px minmax(0,1fr) auto; gap: 9px; align-items: center; padding: 14px 0; border-bottom: 1px solid var(--c-parch-line); }
+.treasury-account svg { width: 26px; height: 26px; }
+.treasury-account b { display: block; font: 700 17px var(--font-heading),Georgia,serif; }
+.treasury-account small { display: block; margin-top: 5px; font-size: 11px; font-weight: 400; }
+.treasury-account strong { text-align: right; font-size: 16px; }
+.treasury-income-sources { display: grid; gap: 7px; margin: 14px 0; }
+.treasury-income-sources > button { display: grid; grid-template-columns: 70px minmax(0,1fr) 18px; align-items: center; gap: 9px; min-height: 82px; text-align: left; padding: 6px 7px; background: #e0c99d44; border: 1px solid var(--c-tan-border); color: var(--c-ink); }
+.treasury-income-sources img { width: 70px; height: 70px; object-fit: contain; filter: drop-shadow(0 3px 2px #3d260d44); }
+.treasury-income-sources b { display: block; font: 700 18px var(--font-heading),Georgia,serif; }
+.treasury-income-sources small { display: block; margin-top: 5px; font-size: 12px; }
+.treasury-income-sources svg { width: 18px; height: 18px; }
+.treasury-advice { text-align: center; }
+.treasury-advice > svg { width: 32px; height: 32px; color: var(--c-brown); }
+.treasury-advice h4 { margin: 8px 0; font: 700 22px var(--font-heading),Georgia,serif; }
+.treasury-advice p { text-align: left; font-size: 13px; line-height: 1.6; }
+.treasury-advice.is-warning > svg { color: var(--c-red); }
+.treasury-coffee-note { display: grid; grid-template-columns: 32px minmax(0,1fr) 18px; gap: 9px; align-items: center; width: 100%; margin-top: 15px; padding: 12px 7px; text-align: left; background: #b8732620; border: 1px solid var(--c-tan-border); color: var(--c-ink); }
+.treasury-coffee-note > .painted-icon { width: 32px; height: 32px; }
+.treasury-coffee-note b { font: 700 16px var(--font-heading),Georgia,serif; }
+.treasury-coffee-note small { display: block; margin-top: 5px; font-size: 11px; line-height: 1.5; }
+.treasury-coffee-note > svg { width: 18px; height: 18px; }
+.treasury-corruption { display: flex; align-items: flex-start; gap: 8px; font-size: 12px; line-height: 1.6; padding: 12px 0; }
+.treasury-corruption svg { width: 22px; height: 22px; flex-shrink: 0; }
+.treasury-market-call { display: grid; grid-template-columns: 80px minmax(0,1fr); align-items: center; gap: 10px; margin-bottom: 14px; }
+.treasury-market-call img { width: 80px; height: 110px; object-fit: cover; border: 1px solid var(--c-gold-deep); }
+.treasury-market-call p { font-size: 12px; line-height: 1.6; margin: 0; }
+.treasury-goods { display: flex; gap: 5px; overflow-x: auto; padding: 2px 1px 8px; scrollbar-width: thin; }
+.treasury-goods > button { flex: 0 0 76px; min-height: 78px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 7px; padding: 10px 4px; border: 0 solid transparent; border-image: var(--art-walnut-plate) 56 fill / 5px / 0 stretch; background: var(--c-wood-dark); color: var(--c-cream); font: 700 14px var(--font-heading),Georgia,serif; }
+.treasury-goods > button .painted-icon { width: 30px; height: 30px; }
+.treasury-goods > button[aria-pressed='true'] { border-image-source: var(--art-button-red); color: var(--c-gold-pale); }
+.treasury-production-scene { position: relative; height: 160px; border: 1px solid var(--c-gold-deep); overflow: hidden; }
+.treasury-production-scene > img { width: 100%; height: 100%; object-fit: cover; object-position: center 45%; }
+.treasury-production-scene > span { position: absolute; right: 8px; bottom: 8px; min-width: 95px; display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 8px 10px; background: var(--c-wood-dark); border: 0 solid transparent; border-image: var(--art-walnut-plate) 56 fill / 5px / 0 stretch; color: var(--c-gold-pale); }
+.treasury-production-scene .painted-icon { width: 30px; height: 30px; }
+.treasury-production-scene b { font-size: 20px; }
+.treasury-production-scene small { font-size: 11px; color: var(--c-cream); }
+.treasury-purpose { font-size: 13px; line-height: 1.6; margin: 14px 0; }
+.treasury-stock-line { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 9px; padding: 10px 0; border-top: 1px solid var(--c-parch-line); }
+.treasury-stock-line > span { font-size: 11px; line-height: 1.5; }
+.treasury-stock-line b { display: block; margin-top: 4px; font: 700 23px var(--font-heading),Georgia,serif; }
+.treasury-horizon { margin: 13px 0 6px; font: 700 17px var(--font-heading),Georgia,serif; line-height: 1.5; }
+.treasury-horizon.is-warning { color: var(--c-red); }
+.treasury-estimate-note { font-size: 11px; line-height: 1.5; color: var(--c-ink-muted); }
+.treasury-production-sources { margin-top: 20px; border-top: 1px solid var(--c-gold-deep); padding-top: 15px; }
+.treasury-production-sources h4 { margin: 0 0 10px; font: 700 21px var(--font-heading),Georgia,serif; }
+.treasury-production-sources p { font-size: 13px; line-height: 1.6; }
+.treasury-production-sources dl { margin: 12px 0 16px; }
+.treasury-production-sources dl > div { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 11px 2px; border-bottom: 1px solid var(--c-parch-line); font-size: 12px; }
+.treasury-production-sources dd { margin: 0; font-weight: 700; text-align: right; }
+.treasury-production-sources .gbtn { margin-top: 7px; }
+.treasury-store-ledger { margin-top: 12px; }
+.treasury-store-ledger > button { width: 100%; display: grid; grid-template-columns: 38px minmax(0,1fr) 18px; gap: 10px; align-items: center; padding: 15px 2px; text-align: left; color: var(--c-ink); border: 0; border-bottom: 1px solid var(--c-parch-line); background: transparent; }
+.treasury-store-ledger > button > .painted-icon { width: 38px; height: 38px; }
+.treasury-store-ledger > button > svg { width: 18px; height: 18px; }
+.treasury-store-ledger b { font: 700 18px var(--font-heading),Georgia,serif; }
+.treasury-store-ledger small { display: block; margin-top: 5px; font-size: 11px; line-height: 1.5; }
+.treasury-store-meter { display: block; height: 8px; margin: 7px 0; border: 1px solid var(--c-gold-deep); background: #5d3c2622; box-shadow: inset 0 1px 2px #3e261533; }
+.treasury-store-meter i { display: block; height: 100%; background: linear-gradient(#c9a459,#927034); }
+.treasury-store-ledger .is-full .treasury-store-meter i { background: var(--c-red); }
+.treasury-storage-building { display: flex; align-items: center; gap: 12px; padding: 0 0 12px; }
+.treasury-storage-building img { width: 105px; height: 100px; object-fit: contain; filter: drop-shadow(0 3px 2px #3d260d44); }
+.treasury-storage-building b { display: block; font: 700 19px var(--font-heading),Georgia,serif; }
+.treasury-storage-building small { display: block; margin-top: 7px; font-size: 12px; }
+.treasury-storage-building ~ .gbtn { margin-top: 7px; }
+.treasury-offline { display: flex; align-items: flex-start; gap: 10px; padding: 17px 0; margin-top: 12px; border-top: 1px solid var(--c-parch-line); }
+.treasury-offline > svg { width: 28px; height: 28px; flex-shrink: 0; }
+.treasury-offline b { display: block; font: 700 20px var(--font-heading),Georgia,serif; }
+.treasury-offline small { display: block; margin-top: 6px; font-size: 12px; line-height: 1.6; }
+
+.treasury-page.is-workbook .treasury-stage, .treasury-page.is-workbook .treasury-ribbon { display: none; }

@@ -1,17 +1,15 @@
 'use client'
 import { ObjectiveArt } from './quest-art'
 import { flyGoods } from '@/lib/fx'
-import { Meter } from './stat-kit'
 
-import { Hint } from './hint'
 import { Hammer, Check, ArrowUpRight, Sparkles, TriangleAlert, Landmark, Swords, Handshake, LockKeyhole, Pickaxe } from './ui-art'
 import type { ComponentType, SVGProps } from 'react'
 import { AkceArt, IlimArt, KeresteArt, KristalArt, KukurtArt, MermerArt, KahveArt } from './resource-art'
 import { Progress } from '@/components/ui/progress'
 import { cn } from '@/lib/utils'
 import { GameButton } from './game-button'
-import { LUXURY_IDS, LUXURY_NAMES, luxuryRates, type Luxury, type LuxuryStock } from '@/lib/game/engine'
-import { BUILDINGS, RESEARCH, RESOURCE_IDS, RESOURCE_NAMES, OBJECTIVES, activeJob, rates, capacity, fullResources, nearlyFullResources, formatNumber, formatRate, population, soldiers, timeLeft, objectiveDone, type Game, type Resource, type Job, type BuildingId, type ResearchId } from '@/lib/game/engine'
+import { LUXURY_IDS, LUXURY_NAMES, type Luxury, type LuxuryStock } from '@/lib/game/engine'
+import { BUILDINGS, RESEARCH, RESOURCE_IDS, RESOURCE_NAMES, OBJECTIVES, activeJob, rates, fullResources, nearlyFullResources, formatNumber, population, soldiers, timeLeft, objectiveDone, type Game, type Resource, type Job, type BuildingId, type ResearchId } from '@/lib/game/engine'
 
 type ArtIcon = ComponentType<SVGProps<SVGSVGElement>>
 export const resourceIcons: Record<Resource, ArtIcon> = { gold: AkceArt, wood: KeresteArt, knowledge: IlimArt }
@@ -81,49 +79,6 @@ export function ObjectiveCard({ game, onClaim, onBuild }: { game: Game; onClaim:
     {list}
   </section>
 }
-export function EconomyDetails({ game, onMarket }: { game: Game; onMarket?: () => void }) {
-  const production = rates(game)
-  const luxRates = luxuryRates(game)
-  const limit = capacity(game)
-  const full = fullResources(game)
-  const nearly = nearlyFullResources(game)
-  /*
-   * HAZİNE DEFTERİ: her mal bir satır — madalyon simge, ad, stok / ambar,
-   * kalın doluluk çubuğu ve sağda dakikalık oran rozeti. Oranlar
-   * formatRate ile yuvarlanır (ham ondalık "825.6628..." görünmez).
-   */
-  const row = (key: string, Icon: ArtIcon, name: string, stock: number, rate: number, opts: { full?: boolean; nearly?: boolean; note?: string } = {}) => {
-    return <li className={cn('treasury-row', opts.full && 'is-full', opts.nearly && 'is-nearly')} key={key}>
-      <span className="treasury-icon"><Icon aria-hidden="true" /></span>
-      <span className="treasury-main">
-        <span className="treasury-name"><strong>{name}</strong>{opts.note && <small>{opts.note}</small>}</span>
-        <Meter value={stock} max={limit} label={`${name} ambarı`} tone={opts.full ? 'full' : opts.nearly ? 'warn' : 'ok'} />
-      </span>
-      <span className={cn('treasury-rate', rate < 0 && 'is-down', rate === 0 && 'is-idle')}>
-        {opts.full ? 'Dolu' : rate === 0 ? 'Üretim yok' : <>{formatRate(rate, true)}<small>/dk</small></>}
-      </span>
-    </li>
-  }
-  const spec = game.mine.specialty
-  return <div className="treasury">
-    {onMarket && <GameButton onClick={onMarket}>Çarşı ve tüccar</GameButton>}
-    {full.length > 0 && <p className="storage-alert" role="status"><TriangleAlert className="size-4" />{full.map(id => RESOURCE_NAMES[id]).join(', ')} ambarı dolu. Üretim boşa gidiyor: Ambar’ı yükselt ya da harca.</p>}
-    <section>
-      <h4 className="treasury-head"><span>Ana kaynaklar</span><small>Ambar: {formatNumber(limit)}</small></h4>
-      <ul>{RESOURCE_IDS.map(id => row(id, resourceIcons[id], RESOURCE_NAMES[id], game.resources[id], production[id], {
-        full: full.includes(id), nearly: nearly.includes(id), note: id === 'gold' && production.gold < 0 ? 'Gider gelirden fazla' : undefined,
-      }))}</ul>
-    </section>
-    <section>
-      <h4 className="treasury-head"><span>Lüks mallar</span><small>Adanın yatağı: {LUXURY_NAMES[spec]}</small></h4>
-      <ul>{LUXURY_IDS.map(id => row(id, luxuryIcons[id], LUXURY_NAMES[id], game.luxury[id], Math.round(luxRates[id] * 10) / 10, {
-        note: id === spec ? 'ada yatağı' : luxRates[id] === 0 ? 'ticaretle ya da başka adadan' : undefined,
-      }))}</ul>
-    </section>
-    <Hint>Oyun kapalıyken en fazla 8 saatlik üretim hesaplanır. Dolan ambarda üretim durur.</Hint>
-  </div>
-}
-
 /**
  * DANISMAN CUBUGU.
  *

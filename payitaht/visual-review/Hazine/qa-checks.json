@@ -1,0 +1,257 @@
+{
+  "checks": [
+    {
+      "label": "ledger",
+      "zoom": 1,
+      "result": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "label": "production-Akçe",
+      "zoom": 1,
+      "result": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "label": "production-Kereste",
+      "zoom": 1,
+      "result": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "label": "production-Kereste",
+      "zoom": 1,
+      "result": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "label": "production-İlim",
+      "zoom": 1,
+      "result": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "label": "production-Kahve",
+      "zoom": 1,
+      "result": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "label": "production-Kahve",
+      "zoom": 1,
+      "result": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "label": "production-Mermer",
+      "zoom": 1,
+      "result": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "label": "production-Kristal",
+      "zoom": 1,
+      "result": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "label": "production-Kristal",
+      "zoom": 1,
+      "result": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "label": "production-Kükürt",
+      "zoom": 1,
+      "result": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "label": "stores",
+      "zoom": 1,
+      "result": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "label": "ledger",
+      "zoom": 1.3,
+      "result": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "label": "production-Akçe",
+      "zoom": 1.3,
+      "result": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "label": "production-Kereste",
+      "zoom": 1.3,
+      "result": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "label": "production-İlim",
+      "zoom": 1.3,
+      "result": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "label": "production-Kahve",
+      "zoom": 1.3,
+      "result": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "label": "production-Mermer",
+      "zoom": 1.3,
+      "result": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "label": "production-Kristal",
+      "zoom": 1.3,
+      "result": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "label": "production-Kükürt",
+      "zoom": 1.3,
+      "result": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "label": "stores",
+      "zoom": 1.3,
+      "result": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    }
+  ],
+  "errors": []
+}

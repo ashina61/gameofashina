@@ -41,9 +41,9 @@ Yeni sahneler ImageGen ile, referanslar açıkça stil referansı olarak belirti
 |---|---|---|
 | 0 | Ortak üst ve alt bar | Canlı, SW v44; kullanıcı referansı temel. |
 | 1 | Görevler | İlk sayfa pilotu: divan görev dairesi, ferman kurdelesi, şehir/günlük/başarım defterleri. İlk v45 düzeni kullanıcı tarafından yetersiz bulundu. v46: bütün içerik ve etkileşim düzeni yeniden kuruldu. Kullanıcı 5 Ekim «tamam geç sıradakine» diyerek sonraki bölüme geçişi onayladı. |
-| 2 | Şehir günlüğü ve sürüm notları | v47 / 0.50.0: vakayiname ve divan neşriyatı; tarihe ayrılmış kayıt, tür seçimi, arama ve açılabilir sürüm fermanları. Yayın sonrası kullanıcı değerlendirmesi beklenir. |
-| 3 | Ayarlar ve hükümdar profili | Oyun içi idare/sancak görünümü; ayar ve kayıt işlevleri korunur. |
-| 4 | Hazine ve üretim | Kâtip/hazine sahnesi, gelir-gider parşömeni, gerçek üretim sayaçları. |
+| 2 | Şehir günlüğü ve sürüm notları | v47 / 0.50.0: vakayiname ve divan neşriyatı; tarihe ayrılmış kayıt, tür seçimi, arama ve açılabilir sürüm fermanları. Kullanıcı sonraki bölüme geçişi onayladı. |
+| 3 | Ayarlar ve hükümdar profili | v48 / 0.51.0: saray, sancaktar odası, nişan hazinesi ve idare defteri. Kullanıcı devamı onayladı. |
+| 4 | Hazine ve üretim | v49 / 0.52.0: akçe hesabı, yedi üretim defteri, ambar yoklaması ve gerçek işlemlere bağlantılar. Yayın sonrası kullanıcı değerlendirmesi beklenir. |
 | 5 | Halk ve şehir listesi | Meslek sahneleri, bina resimleri, mevcut işçi ve şehir işlemleri. |
 | 6 | Vezir, Elçi, ittifak | Divan ve diplomasi sahneleri; gerçek mesaj/üyelik içeriği. |
 | 7 | Bina kataloğu ve basit bina sayfaları | Aynı sahne/kurdele/eylem düzeni, bina seviyeleri ve maliyetleri korunur. |
@@ -90,3 +90,16 @@ Kullanıcı ikinci bölümden sonra «geç; cilalama değil düşün ve tasarla�
 - `terrain/royal-court.webp`, `terrain/admin-desk.webp`: metinsiz saray ve idare sahneleri. Bütün adlar/sayılar/ayarlar çalışma anındaki oyun verisidir.
 - Sürüm 0.51.0. Motor, ekonomi, kayıt biçimi ve yuvalar değişmedi.
 - Bu bölüm canlıya yayımlanıp kullanıcı değerlendirmesinde durulur. Sıradaki bölüm hazine ve üretimdir.
+
+## Hazinedarın defteri — v49
+
+Kullanıcı 5 Ekim «uzman oyun tasarımcısı gibi düşün; sayfaları istediğin gibi değiştir, tek kural ortak dil» diyerek üçüncü bölümden sonra devamı onayladı.
+- `components/game/treasury-page.tsx`, `app/styles/17-treasury.css`: hazine odası, kırmızı kurdele, canlı akçe plakası. Hazine / Üretim / Ambar defterleri.
+- Akçe hesabında motorun net kazancı, gerçek ordu ve âlim bakım giderleri ayrı okunur. Giderler ikinci kez netten düşülmez; sıfıra sınırlanan net kazanç negatif bakiye gibi sunulmaz.
+- Hazinedarın notu gerçek dolu/yakın stok, kahve tüketimi ve koloni yolsuzluğuna göre değişir. İlgili işlemlere ulaşır.
+- Yedi kaynak ayrı üretim defterinde: kullanım amacı, mevcut stok, ayrı kaynak kapasitesi, motorun net hızı, çalışan/oduncu/madenci sayısı, kahve üretim-tüketim ayrımı ve gerçek bina/işçi/orman/maden/çarşı bağlantıları.
+- Üretim ve Ambar bölümlerinde giriş sahnesi kapanır; çalışan oyuncu kendi defterine doğrudan odaklanır. Kaynağın boyalı sahnesi içerikte görünür. Hazine girişinde mekân güçlü kalır.
+- Ambar yoklaması: yedi stok, dokununca o kaynağa geçiş, Ambar/Depo bağlantıları. Oyun kapalıyken üretim sınırı `offlineCapHours(game)` ile gerçek seviyeden gösterilir.
+- Yaklaşık dolma/tükenme süreleri mevcut sabit net hız varsayımıdır; bu varsayım oyuncuya açıkça gösterilir. Motor, ekonomi, kayıt biçimi ve yuvalar değişmez.
+- `terrain/treasury-room.webp`: ayrı ImageGen hazine sahnesi; mevcut royal-court sanatı stil referansı. Önceki kaliteli görev sahneleri içerikte yeniden kullanılır. Metin ve veriler koddan gelir.
+- Sürüm 0.52.0. Canlı yayın sonrası kullanıcı değerlendirmesinde durulur. Sıradaki bölüm Halk ve Şehirlerdir.

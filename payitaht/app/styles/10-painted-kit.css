@@ -15,7 +15,7 @@
   border-image: var(--art-page-frame) 48 fill / 12px / 0 stretch;
   box-shadow: 0 3px 8px #0002;
 }
-.bp-box-title, .bp .empire-section > h3, .treasury-head {
+.bp-box-title, .bp .empire-section > h3 {
   background: transparent;
   border: 0 solid transparent;
   border-image: var(--art-ribbon-red) 32 72 fill / 8px 24px / 0 stretch;
@@ -36,7 +36,7 @@
 .gbtn-red { border-image-source: var(--art-button-red); }
 /* Round icon-only controls use a uniformly scaled disk, not nine-slice. */
 .gbtn-icon:is(.gbtn-gold, .gbtn-parch, .gbtn-red),
-.ika-nav-center .ika-nav-icon, .sk-medal, .treasury-icon {
+.ika-nav-center .ika-nav-icon, .sk-medal {
   border-image: none;
   background: var(--art-medal-frame) center / 100% 100% no-repeat;
   border-color: transparent;

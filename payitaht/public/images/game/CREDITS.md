@@ -342,3 +342,6 @@ Yazısız giriş arka planı yerleşik OpenAI imagegen ile yeniden boyandı. Tar
 
 ### Hükümdarın sarayı ve idare defteri (v48)
 `terrain/royal-court.webp`, `terrain/admin-desk.webp`: yerleşik OpenAI ImageGen ile ayrı sahneler olarak üretildi. Kullanıcının araştırma ekranı ve mevcut arşiv sahnesi sanat referansıdır. Sahnelere UI, isim veya oyun verisi gömülmedi. Tarifler: `tools/art/prompts/royal-court.md`, `tools/art/prompts/admin-desk.md`.
+
+### Hazinedarın defteri (v49)
+`terrain/treasury-room.webp`: yerleşik OpenAI ImageGen ile üretildi. Mevcut `royal-court.webp` yalnız sanat dili referansıdır; hazinedar, ceviz sayım masası, akçe ve Ege revakı yeni kompozisyondur. Arayüz/metin/oyun verisi görsele gömülmedi. Tam prompt: `tools/art/prompts/treasury-room.md`. İçerikteki görev sahneleri özgün mevcut varlıklardır.
