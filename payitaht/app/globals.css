@@ -23,6 +23,7 @@
 @import './styles/19-civic.css';
 @import './styles/20-profile-settings.css';
 @import './styles/21-profile-settings-mobile-qa.css';
+@import './styles/22-reference-profile-settings.css';
 
 @custom-variant dark (&:is(.dark *));
 @theme inline {
