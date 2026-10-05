@@ -16,7 +16,7 @@ import { BANNER_OUTLINES } from '@/lib/game/banner-shapes'
 
 const GOLD = '#e2bd78', INK = '#2a1a10', PAPER = '#f6ecd6'
 
-function CrestSymbol({ crest }: { crest: CrestId }) {
+export function CrestSymbol({ crest }: { crest: CrestId }) {
   const s = { stroke: INK, strokeWidth: 1.2, strokeLinejoin: 'round' as const }
   switch (crest) {
     case 'hilal': return <g><path d="M36 20 A13 13 0 1 0 36 44 A10 10 0 1 1 36 20 Z" fill={PAPER} /><path d="M42 29 l1.6 3.4 3.7 0.4 -2.8 2.5 0.8 3.6 -3.3 -1.9 -3.3 1.9 0.8 -3.6 -2.8 -2.5 3.7 -0.4 Z" fill={PAPER} /></g>

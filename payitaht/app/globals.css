@@ -21,8 +21,7 @@
 @import './styles/17-treasury.css';
 @import './styles/18-spacious.css';
 @import './styles/19-civic.css';
-@import './styles/22-reference-profile-settings.css';
-@import './styles/23-reference-profile-polish.css';
+@import './styles/24-approved-court.css';
 
 @custom-variant dark (&:is(.dark *));
 @theme inline {

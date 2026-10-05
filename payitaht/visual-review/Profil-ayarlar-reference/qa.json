@@ -1,0 +1,214 @@
+{
+  "checks": [
+    {
+      "width": 390,
+      "label": "profil",
+      "scrollWidth": 390,
+      "navVisible": "grid",
+      "topVisible": "none",
+      "bodyWidth": 390,
+      "viewport": 390,
+      "scrollHeight": 837,
+      "height": 722
+    },
+    {
+      "width": 390,
+      "label": "profil-Şehirler",
+      "scrollWidth": 390,
+      "navVisible": "grid",
+      "topVisible": "none",
+      "bodyWidth": 390,
+      "viewport": 390,
+      "scrollHeight": 1823,
+      "height": 722
+    },
+    {
+      "width": 390,
+      "label": "profil-Nişanlar",
+      "scrollWidth": 390,
+      "navVisible": "grid",
+      "topVisible": "none",
+      "bodyWidth": 390,
+      "viewport": 390,
+      "scrollHeight": 4320,
+      "height": 722
+    },
+    {
+      "width": 390,
+      "label": "profil-Sancak",
+      "scrollWidth": 390,
+      "navVisible": "grid",
+      "topVisible": "none",
+      "bodyWidth": 390,
+      "viewport": 390,
+      "scrollHeight": 1297,
+      "height": 722
+    },
+    {
+      "width": 390,
+      "label": "ayarlar",
+      "scrollWidth": 390,
+      "navVisible": "grid",
+      "topVisible": "none",
+      "bodyWidth": 390,
+      "viewport": 390,
+      "scrollHeight": 803,
+      "height": 722
+    },
+    {
+      "width": 390,
+      "label": "ayarlar-tempo",
+      "scrollWidth": 390,
+      "navVisible": "grid",
+      "topVisible": "none",
+      "bodyWidth": 390,
+      "viewport": 390,
+      "scrollHeight": 906,
+      "height": 722
+    },
+    {
+      "width": 390,
+      "label": "ayarlar-Cihaz",
+      "scrollWidth": 390,
+      "navVisible": "grid",
+      "topVisible": "none",
+      "bodyWidth": 390,
+      "viewport": 390,
+      "scrollHeight": 822,
+      "height": 722
+    },
+    {
+      "width": 390,
+      "label": "ayarlar-Kayıt",
+      "scrollWidth": 390,
+      "navVisible": "grid",
+      "topVisible": "none",
+      "bodyWidth": 390,
+      "viewport": 390,
+      "scrollHeight": 859,
+      "height": 722
+    },
+    {
+      "width": 390,
+      "label": "ayarlar-Bilgi",
+      "scrollWidth": 390,
+      "navVisible": "grid",
+      "topVisible": "none",
+      "bodyWidth": 390,
+      "viewport": 390,
+      "scrollHeight": 984,
+      "height": 722
+    },
+    {
+      "width": 360,
+      "label": "profil",
+      "scrollWidth": 360,
+      "navVisible": "grid",
+      "topVisible": "none",
+      "bodyWidth": 360,
+      "viewport": 360,
+      "scrollHeight": 864,
+      "height": 618
+    },
+    {
+      "width": 360,
+      "label": "profil-Şehirler",
+      "scrollWidth": 360,
+      "navVisible": "grid",
+      "topVisible": "none",
+      "bodyWidth": 360,
+      "viewport": 360,
+      "scrollHeight": 1820,
+      "height": 618
+    },
+    {
+      "width": 360,
+      "label": "profil-Nişanlar",
+      "scrollWidth": 360,
+      "navVisible": "grid",
+      "topVisible": "none",
+      "bodyWidth": 360,
+      "viewport": 360,
+      "scrollHeight": 4353,
+      "height": 618
+    },
+    {
+      "width": 360,
+      "label": "profil-Sancak",
+      "scrollWidth": 360,
+      "navVisible": "grid",
+      "topVisible": "none",
+      "bodyWidth": 360,
+      "viewport": 360,
+      "scrollHeight": 1267,
+      "height": 618
+    },
+    {
+      "width": 360,
+      "label": "ayarlar",
+      "scrollWidth": 360,
+      "navVisible": "grid",
+      "topVisible": "none",
+      "bodyWidth": 360,
+      "viewport": 360,
+      "scrollHeight": 793,
+      "height": 618
+    },
+    {
+      "width": 360,
+      "label": "ayarlar-tempo",
+      "scrollWidth": 360,
+      "navVisible": "grid",
+      "topVisible": "none",
+      "bodyWidth": 360,
+      "viewport": 360,
+      "scrollHeight": 896,
+      "height": 618
+    },
+    {
+      "width": 360,
+      "label": "ayarlar-Cihaz",
+      "scrollWidth": 360,
+      "navVisible": "grid",
+      "topVisible": "none",
+      "bodyWidth": 360,
+      "viewport": 360,
+      "scrollHeight": 811,
+      "height": 618
+    },
+    {
+      "width": 360,
+      "label": "ayarlar-Kayıt",
+      "scrollWidth": 360,
+      "navVisible": "grid",
+      "topVisible": "none",
+      "bodyWidth": 360,
+      "viewport": 360,
+      "scrollHeight": 867,
+      "height": 618
+    },
+    {
+      "width": 360,
+      "label": "ayarlar-Bilgi",
+      "scrollWidth": 360,
+      "navVisible": "grid",
+      "topVisible": "none",
+      "bodyWidth": 360,
+      "viewport": 360,
+      "scrollHeight": 993,
+      "height": 618
+    },
+    {
+      "width": 360,
+      "label": "ayarlar-buyuk-yazi",
+      "scrollWidth": 360,
+      "navVisible": "grid",
+      "topVisible": "none",
+      "bodyWidth": 360,
+      "viewport": 360,
+      "scrollHeight": 848,
+      "height": 618
+    }
+  ],
+  "errors": []
+}

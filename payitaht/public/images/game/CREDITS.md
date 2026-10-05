@@ -349,3 +349,7 @@ Yazısız giriş arka planı yerleşik OpenAI imagegen ile yeniden boyandı. Tar
 ## Halk ve şehirler — 5 Ekim 2026
 
 `terrain/town-square.webp` ve `terrain/island-harbour.webp`: OpenAI ImageGen ile bu oyun için üretildi; önceki `terrain/treasury-room.webp` yalnız sanat dili referansı. Osmanlı–Ege, sıcak ışık, kireçtaşı ve turkuaz deniz. Görselde arayüz veya metin yok; bütün oyun değerleri ve işlemler koddan gelir. 960×480 WebP, kalite 82. Tam tarifler `tools/art/prompts/town-square.md` ve `tools/art/prompts/island-harbour.md`.
+
+## Approved Profile and Settings (5 October 2026)
+
+`ui/approved-court/`: artwork extracted from the two user-approved generated mockups, plus loggia and neutral standard layers derived with the built-in image generator. See `docs/PROFILE-SETTINGS-DESIGN.md` for provenance, prompts and functional UI rules. No downloaded third-party artwork.

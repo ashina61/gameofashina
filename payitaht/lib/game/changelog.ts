@@ -5,6 +5,7 @@
 export type Release = { version: string; date: string; title: string; notes: string[] }
 
 export const CHANGELOG: Release[] = [
+  { version: '0.54.0', date: '5 Ekim 2026', title: 'Onaylanan hükümdar ve ayarlar tasarımı', notes: ['Profil ve Ayarlar onaylanan resimli tasarımla yeniden kuruldu: kıyı sarayı, kişisel sancak, ahşap sekmeler ve geniş parşömen.', 'Profilin şehir, nişan ve kimlik işlemleri ile gerçek ses, görünüm, tempo ve kayıt ayarları korunur.'] },
   {
     version: '0.53.0', date: '5 Ekim 2026', title: 'Şehir yaşamı ve açık denizler',
     notes: [
