@@ -5,7 +5,7 @@ import type { Empire } from '@/lib/game/empire'
 import { activeCity } from '@/lib/game/empire'
 import { luxuryIcons } from './game-widgets'
 import { AkceArt, IlimArt, KeresteArt, NufusArt } from './resource-art'
-import { Bell, BookOpen, Castle, Coins, Flag, Mail, Settings, Shield, Ship, Swords, TreePalm, Trophy, Users } from './ui-art'
+import { Bell, BookOpen, Castle, Coins, Flag, Mail, Settings, Shield, Swords, TreePalm, Trophy, Users } from './ui-art'
 
 type Active = 'profile' | 'settings'
 
