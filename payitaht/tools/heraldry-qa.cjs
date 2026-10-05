@@ -16,7 +16,10 @@ async function checkHeraldry(page, label, out) {
   }
   const profileChoice = async (group, name) => {
     await profileTab(group)
-    return choice(group, name)
+    const radios = page.getByRole('radiogroup', { name: group, exact: true }).getByRole('radio')
+    const exact = page.getByRole('radiogroup', { name: group, exact: true }).getByRole('radio', { name, exact: true })
+    if (await exact.count()) return exact.first()
+    return radios.filter({ hasText: name }).first()
   }
   try {
     await openProfile()
