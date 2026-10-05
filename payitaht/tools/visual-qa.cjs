@@ -354,8 +354,8 @@ async function main() {
       await back()
 
       await page.getByRole('button', { name: /^Hükümdar profili:/ }).click()
-      await page.getByRole('button', { name: /Oyun ayarları/ }).click()
-      await page.getByRole('dialog', { name: /Oyun ayarları/ }).waitFor({ timeout: 10_000 })
+      await page.getByRole('button', { name: 'Ayarları aç', exact: true }).click()
+      await page.getByRole('dialog', { name: 'Ayarlar', exact: true }).waitFor({ timeout: 10_000 })
       await snapPanel('settings')
       await back()
 

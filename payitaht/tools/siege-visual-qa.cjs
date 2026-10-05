@@ -31,9 +31,10 @@ module.exports = async function siegeReview(browser, out, origin, seedRaw, diagn
   const blockade = force('blockade', 'r-sarp')
   const importState = async sieges => {
     await page.getByRole('button', { name: /^Hükümdar profili:/ }).click()
-    await page.getByRole('button', { name: /Oyun ayarları/ }).click()
+    await page.getByRole('button', { name: 'Ayarları aç', exact: true }).click()
+    await page.getByRole('tab', { name: 'Kayıt', exact: true }).click()
     await page.locator('input[type="file"]').setInputFiles({ name: 'siege-qa.json', mimeType: 'application/json', buffer: Buffer.from(JSON.stringify({ ...seed, sieges })) })
-    await page.getByRole('dialog', { name: /Oyun ayarları/ }).waitFor({ state: 'hidden' })
+    await page.getByRole('dialog', { name: 'Ayarlar', exact: true }).waitFor({ state: 'hidden' })
     // Geri yükleme bildirimi görüldü = içe aktarma bitti. Bildirimin KENDİLİĞİNDEN
     // kapanmasını beklemek, sabit saat (setFixedTime) ve yavaş CI'da zamanlayıcıya
     // bağlı kaldığı için ara sıra 10 sn'yi aşıyordu; kuşatma görünümü durumla beklenir,
