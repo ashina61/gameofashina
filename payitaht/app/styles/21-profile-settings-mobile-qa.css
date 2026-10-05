@@ -21,6 +21,7 @@
 .settings-v2 .toggle-row small,
 .settings-v2 .court-note,
 .settings-v2 .fine-print { font-size: 11px; }
+.settings-v2 .pace-setting > p.fine-print { font-size: 11px !important; }
 
 @media (max-width: 370px) {
   .profile-v2-flag { right: 2px; width: 94px; transform: none; }
