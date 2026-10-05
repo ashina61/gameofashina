@@ -7,27 +7,38 @@ async function checkHeraldry(page, label, out) {
   const saved = await page.evaluate(key => localStorage.getItem(key), key)
   const openProfile = async () => {
     await page.getByRole('button', { name: /^Hükümdar profili:/ }).click()
-    await page.getByRole('button', { name: 'Düzenle', exact: true }).click()
+    await page.getByText('Sancak Düzenle', { exact: true }).waitFor()
   }
   const choice = (group, name) => page.getByRole('radiogroup', { name: group, exact: true }).getByRole('radio', { name, exact: true })
+  const profileTab = async group => {
+    const name = group === 'Sancak biçimi' ? 'Biçim' : group === 'Arma' ? 'Arma' : 'Renk'
+    await page.locator('.profile-v2-banner-editor').getByRole('button', { name, exact: true }).click()
+  }
+  const profileChoice = async (group, name) => {
+    await profileTab(group)
+    return choice(group, name)
+  }
   try {
     await openProfile()
     for (const [group, count] of [['Sancak biçimi', 10], ['Arma', 12], ['Renk', 12]]) {
+      await profileTab(group)
       if (await page.getByRole('radiogroup', { name: group, exact: true }).getByRole('radio').count() !== count) throw new Error(`${label}: missing ${group} choices`)
     }
-    const paths = await page.locator('.banner-picker .sancak-art').evaluateAll(svgs => svgs.map(svg => svg.querySelector('g > path').getAttribute('d')))
+    await profileTab('Sancak biçimi')
+    const paths = await page.locator('.profile-v2-banner-editor .court-banner-options .sancak-art').evaluateAll(svgs => svgs.map(svg => svg.querySelector('g > path').getAttribute('d')))
     if (new Set(paths).size !== 10) throw new Error(`${label}: banner silhouettes are duplicated`)
-    await choice('Sancak biçimi', 'Yuvarlak uç').click()
-    await choice('Arma', 'Bozkurt').click()
-    await choice('Renk', 'Mor').click()
+    await (await profileChoice('Sancak biçimi', 'Yuvarlak uç')).click()
+    await (await profileChoice('Arma', 'Bozkurt')).click()
+    await (await profileChoice('Renk', 'Mor')).click()
     await page.screenshot({ path: path.join(out, `heraldry-profile-${label}.png`), animations: 'disabled' })
-    await page.getByRole('button', { name: 'Kaydet', exact: true }).click()
+    await page.getByRole('button', { name: 'Profili ve sancağı kaydet', exact: true }).click()
     await page.waitForFunction(key => JSON.parse(localStorage.getItem(key)).profile?.banner === 'yuvarlak', key)
     await page.reload()
     await page.getByRole('button', { name: START_BUTTON }).click()
     await openProfile()
     for (const [group, name] of [['Sancak biçimi', 'Yuvarlak uç'], ['Arma', 'Bozkurt'], ['Renk', 'Mor']]) {
-      if (await choice(group, name).getAttribute('aria-checked') !== 'true') throw new Error(`${label}: choice did not survive reload`)
+      const radio = await profileChoice(group, name)
+      if (await radio.getAttribute('aria-checked') !== 'true') throw new Error(`${label}: choice did not survive reload`)
     }
     // An existing player-led alliance uses the same saved appearance.
     // Tohum yeni belgede, oyun kaydı okumadan önce uygulanır: eski sayfanın
