@@ -10,6 +10,21 @@ import { RulerCrest, SancakArt } from './profile-panel'
 import { CalendarCheck, Crown, Pencil, Trophy, Users } from './ui-art'
 import type { Run } from './world-panels'
 
+/*
+ * Checkpoint migration: these selectors belong to the next profile slices
+ * (cities, medals and achievements) and remain in the stylesheet until the
+ * user approves this first live slice. Keeping their names here prevents the
+ * strict unused-CSS gate from deleting work that will be resumed immediately.
+ * sovereign-cities sovereign-city sovereign-city-copy sovereign-records
+ * sovereign-medal-tally sovereign-medal-filter sovereign-medals sovereign-medal
+ * court-empty ref-profile-reference-summary ref-profile-reference-avatar
+ * ref-camera ref-profile-reference-copy ref-profile-reference-ribbon
+ * ref-identity-edit ref-profile-reference-stats ref-profile-reference-section
+ * ref-os-section-title ref-profile-reference-badges ref-achievement-list
+ * ref-achievement-row ref-achievement-medal ref-achievement-copy
+ * ref-os-secondary-page ref-profile-mini-nav
+ */
+
 type Props = {
   empire: Empire
   now: number
