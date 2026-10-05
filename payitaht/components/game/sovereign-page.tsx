@@ -101,6 +101,6 @@ export function SovereignPage({ empire, now, run, onCity, onSettings, onChangelo
       </CourtBook>}
     </CourtTabs>}
 
-    <footer className="court-footer"><GameButton variant="outline" onClick={onSettings}><Settings aria-hidden="true" />Ayarları aç</GameButton><GameButton variant="outline" onClick={onChangelog}><ScrollText painted aria-hidden="true" />Sürüm arşivi</GameButton></footer>
+    <footer className="court-footer"><GameButton aria-label="Oyun ayarları" variant="outline" onClick={onSettings}><Settings aria-hidden="true" />Ayarları aç</GameButton><GameButton variant="outline" onClick={onChangelog}><ScrollText painted aria-hidden="true" />Sürüm arşivi</GameButton></footer>
   </div>
 }
