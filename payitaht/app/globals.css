@@ -21,6 +21,7 @@
 @import './styles/17-treasury.css';
 @import './styles/18-spacious.css';
 @import './styles/19-civic.css';
+@import './styles/20-profile-settings.css';
 
 @custom-variant dark (&:is(.dark *));
 @theme inline {
