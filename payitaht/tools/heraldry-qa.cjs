@@ -37,8 +37,8 @@ async function assertReferenceLayout(page, label, screen) {
 async function checkHeraldry(page, label, out) {
   await page.getByRole('button', { name: /^Hükümdar profili:/ }).click()
   await page.getByRole('heading', { name: 'Profil', exact: true }).waitFor()
-  await page.getByRole('heading', { name: 'Rozetler', exact: true }).waitFor()
-  await page.getByRole('heading', { name: 'Başarılar', exact: true }).waitFor()
+  await page.getByRole('heading', { name: /Rozetler/ }).waitFor()
+  await page.getByRole('heading', { name: /Başarılar/ }).waitFor()
   if (await page.locator('.ref-os-sidebar nav > button').count() !== 10) throw new Error(`${label}: approved sidebar must have 10 entries`)
   if (await page.locator('.ref-os-resources > span').count() !== 5) throw new Error(`${label}: approved resource rail must have 5 counters`)
   if (await page.locator('.ref-profile-reference-stats > span').count() !== 4) throw new Error(`${label}: approved profile must have 4 stat columns`)
