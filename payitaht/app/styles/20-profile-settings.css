@@ -1,0 +1,147 @@
+/* Profile + settings redesign based on the approved phone mockup.
+ * Keeps the existing game systems; only presentation and information hierarchy change.
+ */
+
+/* ---------- Hükümdar profili ---------- */
+.sovereign-profile-v2 { --profile-gold: #d8aa54; --profile-ink: #2d1b0f; }
+.sovereign-profile-v2 .court-tabs { grid-template-columns: repeat(3,minmax(0,1fr)); gap: 0; padding: 0 0 12px; }
+.sovereign-profile-v2 .court-tabs > button { min-height: 58px; border-image: none; border: 1px solid #725027; border-right-width: 0; background: linear-gradient(#3d2819,#26170f); color: #f4dfb4; box-shadow: inset 0 1px 0 #d7aa5844; }
+.sovereign-profile-v2 .court-tabs > button:first-child { border-radius: 4px 0 0 4px; }
+.sovereign-profile-v2 .court-tabs > button:last-child { border-right-width: 1px; border-radius: 0 4px 4px 0; }
+.sovereign-profile-v2 .court-tabs > button[aria-selected='true'] { background: linear-gradient(#9f251a,#6e170f); color: #ffe7aa; box-shadow: inset 0 0 0 2px #d2a14b66, inset 0 1px 0 #ffe5a855; }
+.sovereign-profile-v2 .court-tabs > button > :is(svg,.painted-icon) { width: 23px; height: 23px; }
+.sovereign-profile-v2 .court-tab-body { gap: 12px; }
+
+.profile-v2-hero { position: relative; min-height: 258px; margin: 0 -8px; overflow: hidden; background: #28180f; border-bottom: 2px solid #9a6b2c; }
+.profile-v2-scenery { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 58% 48%; filter: saturate(.92) contrast(1.03); }
+.profile-v2-hero::after { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg,transparent 28%,#160d0766 58%,#160d07db 100%); pointer-events: none; }
+.profile-v2-portrait { position: absolute; z-index: 3; left: 18px; bottom: 44px; width: 118px; height: 118px; display: grid; place-items: center; overflow: hidden; border-radius: 50%; background: #2c1b10; border: 4px solid #c89a45; box-shadow: 0 0 0 3px #4b2d16, 0 7px 15px #0008; }
+.profile-v2-portrait > span { transform: scale(1.14); }
+.profile-v2-flag { position: absolute; z-index: 2; top: 7px; right: -5px; width: 118px; filter: drop-shadow(0 4px 6px #0008); }
+.profile-v2-flag .sancak-art { width: 118px; height: auto; }
+.profile-v2-identity { position: absolute; z-index: 4; left: 118px; right: 12px; bottom: 14px; min-height: 98px; padding: 11px 13px 10px 42px; color: #f9e8c3; background: linear-gradient(90deg,#2b180fef,#3b2417f2 72%,#3c2117d8); border: 1px solid #b17b32; box-shadow: 0 5px 12px #0008, inset 0 1px 0 #f5d58b33; }
+.profile-v2-title { display: inline-flex; align-items: center; gap: 5px; color: #e5b85e; font-size: 11px; }
+.profile-v2-title svg { width: 15px; height: 15px; }
+.profile-v2-identity h2 { margin: 2px 0 0; font: 700 25px var(--font-heading),Georgia,serif; line-height: 1.08; overflow-wrap: anywhere; }
+.profile-v2-identity small { display: block; margin-top: 2px; color: #d9bc82; font-size: 10px; }
+.profile-v2-identity p { margin: 6px 0 0; max-width: 265px; color: #f0dfbf; font-size: 10px; line-height: 1.35; font-style: italic; overflow-wrap: anywhere; }
+
+.profile-v2-stats { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); margin: 0 -8px 9px; padding: 10px 2px; color: #f8e2b4; background: linear-gradient(#422615,#2d190f); border-bottom: 1px solid #9b6a31; box-shadow: inset 0 1px 0 #e1b15933; }
+.profile-v2-stats > :is(span,button) { min-width: 0; min-height: 47px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; padding: 0 5px; border: 0; border-right: 1px solid #a6783d66; background: transparent; color: inherit; text-align: center; }
+.profile-v2-stats > :last-child { border-right: 0; }
+.profile-v2-stats button { cursor: pointer; }
+.profile-v2-stats b { max-width: 100%; font: 700 18px var(--font-heading),Georgia,serif; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.profile-v2-stats small { color: #dbc69d; font-size: 9px; white-space: nowrap; }
+
+.profile-v2-banner-editor { padding: 14px 12px; border: 0 solid transparent; border-image: var(--art-page-frame) 48 fill / 9px / 0 stretch; background: #f3e4c8; box-shadow: 0 4px 9px #28190d44; }
+.profile-v2-section-head { display: flex; gap: 10px; align-items: center; padding-bottom: 10px; margin-bottom: 11px; border-bottom: 1px solid #b9975f66; }
+.profile-v2-section-head > span { width: 42px; height: 42px; flex: 0 0 42px; display: grid; place-items: center; background: var(--art-medal-frame) center/100% 100% no-repeat; }
+.profile-v2-section-head > span :is(svg,.painted-icon) { width: 23px; height: 23px; }
+.profile-v2-section-head h3 { margin: 0; font: 700 21px var(--font-heading),Georgia,serif; }
+.profile-v2-section-head p { margin: 2px 0 0; color: var(--c-ink-muted); font-size: 10px; line-height: 1.4; }
+.profile-v2-banner-layout { display: grid; grid-template-columns: 112px minmax(0,1fr); gap: 12px; align-items: stretch; }
+.profile-v2-banner-preview { min-height: 152px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; padding: 5px; background: linear-gradient(#3a2315,#26160f); border: 1px solid #a97636; box-shadow: inset 0 0 0 2px #d1a25522; }
+.profile-v2-banner-preview .sancak-art { max-width: 108px; height: auto; }
+.profile-v2-banner-preview small { color: #ead5aa; font: 700 11px var(--font-heading),Georgia,serif; }
+.profile-v2-banner-controls { display: grid; grid-template-columns: 1fr; align-content: start; gap: 5px; min-width: 0; }
+.profile-v2-banner-controls label { margin-top: 2px; font: 700 12px var(--font-heading),Georgia,serif; }
+.profile-v2-banner-controls input { width: 100%; min-width: 0; height: 38px; padding: 7px 9px; color: #2d1b0f; background: #fff6df; border: 1px solid #b39055; border-radius: 2px; box-shadow: inset 0 2px 4px #5f3b1d18; font-size: 12px; }
+.profile-v2-banner-editor .court-choice-tabs { margin: 12px 0 8px; gap: 0; }
+.profile-v2-banner-editor .court-choice-tabs button { min-height: 39px; border-right-width: 0; background: #e7d3ad; font-weight: 700; }
+.profile-v2-banner-editor .court-choice-tabs button:last-child { border-right-width: 1px; }
+.profile-v2-banner-editor .court-choice-tabs button[aria-pressed='true'] { background: #3a2315; color: #f5dda9; }
+.profile-v2-banner-editor .court-choice-name { margin: 2px 0 8px; font-size: 14px; }
+.profile-v2-option-grid { grid-template-columns: repeat(4,minmax(76px,1fr)) !important; display: grid !important; overflow-x: auto; gap: 7px !important; padding: 2px 1px 7px; scrollbar-width: thin; }
+.profile-v2-option-grid > button { min-width: 76px; min-height: 76px; padding: 7px 3px !important; background: #eddcba !important; }
+.profile-v2-option-grid > button[aria-checked='true'] { background: #fff0c7 !important; border-color: #a46f27 !important; box-shadow: inset 0 0 0 2px #c69c5050; }
+.profile-v2-option-grid .sancak-art { width: 76px !important; max-height: 62px; object-fit: contain; }
+.profile-v2-option-grid .ruler-crest { width: 42px; height: 42px; }
+.profile-v2-banner-editor .court-color-options > button > span { width: 35px; height: 35px; }
+.profile-v2-save { display: grid; gap: 5px; padding-top: 10px; }
+.profile-v2-save .gbtn { width: 100%; min-height: 46px; }
+.profile-v2-save small { color: var(--c-red); text-align: center; font-size: 10px; }
+
+.profile-v2-honours { grid-template-columns: repeat(4,minmax(0,1fr)); gap: 9px 4px; }
+.profile-v2-honours small { font-size: 9px; line-height: 1.25; }
+.profile-v2-ranks { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); column-gap: 13px; }
+.profile-v2-ranks > div { grid-template-columns: 31px minmax(0,1fr); grid-template-rows: auto auto; gap: 2px 8px; padding: 10px 0; }
+.profile-v2-ranks .sovereign-rank-icon { grid-row: 1 / 3; width: 31px; height: 35px; }
+.profile-v2-ranks .sovereign-rank-icon svg { width: 18px; height: 18px; }
+.profile-v2-ranks strong { font-size: 13px; }
+.profile-v2-ranks small { font-size: 9px; }
+.profile-v2-ranks > div > b { grid-column: 2; font-size: 15px; }
+
+.sovereign-profile-v2 .court-book { padding: 14px 12px; box-shadow: 0 3px 8px #28190d33; }
+.sovereign-profile-v2 .court-book-heading { margin-bottom: 11px; }
+.sovereign-profile-v2 .court-book-heading h3 { font-size: 20px; }
+.sovereign-profile-v2 .sovereign-title-path > span { flex-basis: 84px; padding: 8px 4px; }
+.sovereign-profile-v2 .sovereign-title-path b { font-size: 13px; }
+.sovereign-profile-v2 .sovereign-medals { gap: 8px; }
+.sovereign-profile-v2 .court-footer { grid-template-columns: repeat(2,minmax(0,1fr)); gap: 7px; }
+.sovereign-profile-v2 .court-footer .gbtn { min-height: 45px; font-size: 11px; }
+
+/* ---------- Ayarlar ---------- */
+.settings-v2 { padding-top: 0; }
+.settings-v2-header { margin: 0 -8px; padding: 14px 17px 17px; text-align: center; color: #f7e4b8; background: linear-gradient(180deg,#5b1b14,#8f2318 48%,#5f170f); border-top: 1px solid #bd8b3a; border-bottom: 2px solid #7a4d24; box-shadow: inset 0 1px 0 #e6c36c55, 0 4px 8px #0004; }
+.settings-v2-header > span { display: block; color: #d8ad5e; font-size: 9px; letter-spacing: .12em; }
+.settings-v2-header h2 { margin: 2px 0 1px; font: 700 25px var(--font-heading),Georgia,serif; text-shadow: 0 2px 2px #0007; }
+.settings-v2-header p { margin: 0; color: #e5cfa5; font-size: 10px; }
+.settings-v2 .court-tabs { gap: 0; padding: 0 0 11px; background: #e9d8b7; border: 1px solid #b58d52; border-top: 0; }
+.settings-v2 .court-tabs > button { min-height: 65px; border-image: none; border: 0; border-right: 1px solid #b99b68; background: linear-gradient(#f0e0c0,#dfc79e); color: #422918; font-size: 11px; }
+.settings-v2 .court-tabs > button:last-child { border-right: 0; }
+.settings-v2 .court-tabs > button[aria-selected='true'] { background: linear-gradient(#3f2818,#25160e); color: #f6dda6; box-shadow: inset 0 -3px 0 #c89943, inset 0 1px 0 #dfbd7444; }
+.settings-v2 .court-tabs > button > :is(svg,.painted-icon) { width: 25px; height: 25px; }
+.settings-v2 .court-tab-body { gap: 10px; }
+.settings-v2 .court-book { padding: 13px 12px; box-shadow: 0 3px 8px #26170b30; }
+.settings-v2 .court-book-heading { justify-content: flex-start; text-align: left; gap: 7px; margin-bottom: 8px; padding-bottom: 8px; border-bottom: 1px solid #b9955d55; }
+.settings-v2 .court-book-heading h3 { font-size: 19px; }
+.settings-v2 .court-book-heading > span { font-size: 15px; }
+.settings-v2 .court-book-heading p { margin: 0; padding-left: 22px; font-size: 9px; }
+.settings-v2 .admin-section-heading { margin: 8px 0 3px; border-bottom: 0; padding-bottom: 2px; }
+.settings-v2 .admin-section-heading h4 { font-size: 15px; }
+.settings-v2 .admin-section-heading svg { width: 19px; height: 19px; }
+.settings-v2 .toggle-row { min-height: 56px; padding: 8px 1px; }
+.settings-v2 .toggle-row strong { font-size: 14px; }
+.settings-v2 .toggle-row small { font-size: 9px; margin-top: 2px; }
+.settings-v2 .toggle-row input { width: 44px; min-width: 44px; height: 26px; }
+.settings-v2 .pace-setting { margin: 4px 0 0; }
+.settings-v2 .pace-tabs { gap: 6px; }
+.settings-v2 .pace-tabs > button { min-height: 43px; padding: 7px 4px; background: #e9d6af; border-color: #b58a4c; font-size: 11px; }
+.settings-v2 .pace-tabs > button[aria-pressed='true'] { background: linear-gradient(#c99842,#8a642d); color: #fff4d2; border-color: #7c5425; box-shadow: inset 0 1px 0 #ffe5a966; }
+.settings-v2 .pace-setting > p { margin: 8px 0 0; font-size: 10px; }
+.settings-v2 .sound-settings { margin-top: 2px; }
+.settings-v2 .admin-device-status { margin: 6px 0 10px; gap: 6px; }
+.settings-v2 .admin-device-status > span { min-height: 54px; padding: 8px; background: #dfcba544; }
+.settings-v2 .admin-save-seal { padding: 9px 1px; }
+.settings-v2 .admin-save-seal > svg { width: 29px; height: 29px; }
+.settings-v2 .admin-save-seal b { font-size: 16px; }
+.settings-v2 .admin-save-actions { grid-template-columns: repeat(2,minmax(0,1fr)); gap: 7px; }
+.settings-v2 .admin-save-actions .gbtn { min-height: 44px; font-size: 10px; }
+.settings-v2 .court-note { margin: 7px 0; font-size: 10px; line-height: 1.5; }
+.settings-v2 .admin-reset-confirm { padding: 12px 9px; }
+.settings-v2 .court-wide { min-height: 44px; font-size: 11px; }
+
+@media (max-width: 370px) {
+  .profile-v2-hero { min-height: 238px; }
+  .profile-v2-portrait { left: 12px; width: 106px; height: 106px; }
+  .profile-v2-identity { left: 104px; padding-left: 38px; right: 8px; }
+  .profile-v2-identity h2 { font-size: 22px; }
+  .profile-v2-flag { right: -17px; transform: scale(.9); transform-origin: top right; }
+  .profile-v2-banner-layout { grid-template-columns: 96px minmax(0,1fr); gap: 9px; }
+  .profile-v2-banner-preview .sancak-art { max-width: 92px; }
+  .profile-v2-option-grid { grid-template-columns: repeat(4,minmax(70px,1fr)) !important; }
+  .profile-v2-honours { grid-template-columns: repeat(2,minmax(0,1fr)); }
+  .profile-v2-ranks { grid-template-columns: 1fr; }
+  .settings-v2 .court-tabs > button { font-size: 10px; min-height: 61px; }
+  .settings-v2 .admin-save-actions { grid-template-columns: 1fr; }
+}
+
+@media (min-width: 560px) {
+  .profile-v2-hero { min-height: 290px; }
+  .profile-v2-portrait { left: 28px; bottom: 46px; width: 132px; height: 132px; }
+  .profile-v2-identity { left: 138px; right: 22px; padding-left: 48px; }
+  .profile-v2-banner-layout { grid-template-columns: 150px minmax(0,1fr); }
+  .profile-v2-ranks { grid-template-columns: repeat(2,minmax(0,1fr)); }
+  .settings-v2 .court-tab-body { grid-template-columns: repeat(2,minmax(0,1fr)); align-items: start; }
+  .settings-v2 .court-book:only-child { grid-column: 1 / -1; }
+}
