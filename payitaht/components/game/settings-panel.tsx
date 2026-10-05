@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react'
 import { t } from '@/lib/i18n/tr'
-import { Bell, Bug, Download, HardDrive, Home, Info, Moon, RotateCcw, Settings, Upload, WifiOff, Check, ScrollText, UserRound, Sparkles, Play, Volume2, Eye, ChevronDown } from './ui-art'
+import { Bell, Bug, Download, Home, Moon, RotateCcw, Settings, Upload, WifiOff, Check, ScrollText, UserRound, Sparkles, Play, Volume2, Eye, ChevronDown } from './ui-art'
 import { GameButton } from './game-button'
 import { CourtBook } from './court-kit'
 import type { Empire } from '@/lib/game/empire'
