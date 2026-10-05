@@ -1,0 +1,30 @@
+/* Final phone pass for the profile/settings redesign. Keep every decorative
+ * element inside the scroll viewport and preserve readable/tappable sizing. */
+.profile-v2-hero { margin-left: 0; margin-right: 0; }
+.profile-v2-flag { right: 2px; width: 104px; }
+.profile-v2-flag .sancak-art { width: 104px; max-width: 100%; }
+.profile-v2-stats { margin-left: 0; margin-right: 0; }
+.profile-v2-identity small,
+.profile-v2-identity p,
+.profile-v2-stats small,
+.profile-v2-section-head p,
+.profile-v2-save small,
+.profile-v2-honours small,
+.profile-v2-ranks small { font-size: 11px; }
+.profile-v2-banner-editor .court-choice-tabs button { min-height: 46px; }
+
+.settings-v2-header { margin-left: 0; margin-right: 0; }
+.settings-v2-header > span,
+.settings-v2-header p,
+.settings-v2 .court-tabs > button,
+.settings-v2 .court-book-heading p,
+.settings-v2 .toggle-row small,
+.settings-v2 .court-note,
+.settings-v2 .fine-print { font-size: 11px; }
+
+@media (max-width: 370px) {
+  .profile-v2-flag { right: 2px; width: 94px; transform: none; }
+  .profile-v2-flag .sancak-art { width: 94px; }
+  .profile-v2-stats > :is(span,button) { padding-left: 3px; padding-right: 3px; }
+  .settings-v2 .court-tabs > button { font-size: 11px; min-height: 64px; }
+}
