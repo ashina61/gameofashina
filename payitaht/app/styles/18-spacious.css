@@ -32,7 +32,7 @@
 .game-shell .ika-nav-center .ika-nav-icon :is(svg,.painted-icon), .game-shell:has(.bp-dock) .ika-nav-center .ika-nav-icon :is(svg,.painted-icon) { width: 28px; height: 28px; }
 .game-shell:has(.bp-dock) .ika-nav-center .ika-nav-icon { width: 28px; height: 28px; }
 
-.game-shell.has-page :is(.court-tabs,.court-footer,.annals-kind-strip,.annals-search,.annals-result) { margin-inline: 12px; }
+.game-shell.has-page :is(.court-tabs,.annals-kind-strip,.annals-search,.annals-result) { margin-inline: 12px; }
 
 .page-stocks > button { display: grid; grid-template-columns: 20px auto; grid-template-rows: auto auto; justify-content: center; gap: 0 5px; padding: 4px 5px; text-align: left; line-height: 1.1; }
 .page-stocks .painted-icon { grid-row: 1 / 3; align-self: center; }
