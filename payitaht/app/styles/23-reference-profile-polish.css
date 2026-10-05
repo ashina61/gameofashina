@@ -1,0 +1,8 @@
+/* Final approved-reference polish loaded after the main profile/settings sheet. */
+@media (max-width: 430px) {
+  .ref-camera {
+    width: 44px;
+    height: 44px;
+    transform: none;
+  }
+}
