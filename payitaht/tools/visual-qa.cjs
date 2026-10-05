@@ -383,14 +383,14 @@ async function main() {
       await page.getByRole('button', { name: /Şehir: Yeni Sahil.*Şehirlerini aç/ }).click()
       await page.getByRole('dialog', { name: /Şehirlerin/ }).waitFor()
       const boxes = await page.evaluate(() => {
-        const card = document.querySelector('.cities-panel .city-card')
-        const buttons = [...(card?.querySelectorAll('.batch-row button') || [])]
+        const card = document.querySelector('.civic-settlement[aria-current="true"]')
+        const buttons = [...document.querySelectorAll('.settlements-page .court-tabs button, .settlements-page .civic-settlement')]
         const viewport = window.innerWidth
         return { viewport, scroll: document.documentElement.scrollWidth,
           card: card?.getBoundingClientRect().toJSON(),
           buttons: buttons.map(button => button.getBoundingClientRect().toJSON()) }
       })
-      if (!boxes.card || boxes.buttons.length !== 3 || boxes.scroll > boxes.viewport + 2 ||
+      if (!boxes.card || boxes.buttons.length !== 5 || boxes.scroll > boxes.viewport + 2 ||
           boxes.card.left < -2 || boxes.card.right > boxes.viewport + 2 ||
           boxes.buttons.some(b => b.left < -2 || b.right > boxes.viewport + 2)) {
         throw new Error(`345px colony page overflow: ${JSON.stringify(boxes)}`)
