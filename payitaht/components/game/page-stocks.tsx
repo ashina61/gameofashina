@@ -1,6 +1,22 @@
 'use client'
-import { RESOURCE_IDS, RESOURCE_NAMES, formatShort, type Game } from '@/lib/game/engine'
-import { resourceIcons } from './game-widgets'
+import { LUXURY_NAMES, RESOURCE_IDS, RESOURCE_NAMES, formatShort, population, type Game } from '@/lib/game/engine'
+import { luxuryIcons, resourceIcons } from './game-widgets'
+import { NufusArt } from './resource-art'
+
 export function PageStocks({ game, onOpen }: { game: Game; onOpen: () => void }) {
-  return <div className="page-stocks" role="group" aria-label="Şehrin kaynakları">{RESOURCE_IDS.map(id => { const Icon = resourceIcons[id]; return <button type="button" key={id} onClick={onOpen} aria-label={`${RESOURCE_NAMES[id]}: ${Math.floor(game.resources[id]).toLocaleString('tr-TR')}. Hazineyi aç`}><Icon aria-hidden="true" /><span>{RESOURCE_NAMES[id]}</span><b>{formatShort(game.resources[id])}</b></button> })}</div>
+  const lux = game.mine.specialty
+  const LuxIcon = luxuryIcons[lux]
+  const items = [
+    { key: 'gold', name: RESOURCE_NAMES.gold, value: game.resources.gold, icon: <resourceIcons.gold aria-hidden="true" /> },
+    { key: 'wood', name: RESOURCE_NAMES.wood, value: game.resources.wood, icon: <resourceIcons.wood aria-hidden="true" /> },
+    { key: 'lux', name: LUXURY_NAMES[lux], value: game.luxury[lux], icon: <LuxIcon aria-hidden="true" /> },
+    { key: 'knowledge', name: RESOURCE_NAMES.knowledge, value: game.resources.knowledge, icon: <resourceIcons.knowledge aria-hidden="true" /> },
+    { key: 'population', name: 'Nüfus', value: population(game), icon: <NufusArt aria-hidden="true" /> },
+  ]
+  return <div className="page-stocks" role="group" aria-label="Şehrin kaynakları">
+    {items.map(item => <button type="button" key={item.key} onClick={onOpen} aria-label={`${item.name}: ${Math.floor(item.value).toLocaleString('tr-TR')}. Hazineyi aç`}>
+      {item.icon}<span>{item.name}</span><b>{formatShort(item.value)}</b>
+    </button>)}
+    <button type="button" className="page-stocks-plus" onClick={onOpen} aria-label="Hazineyi aç"><strong aria-hidden="true">+</strong></button>
+  </div>
 }
