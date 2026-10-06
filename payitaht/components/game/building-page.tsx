@@ -22,9 +22,9 @@ import { BottomSheet } from './bottom-sheet'
 import { asset, buildingImage, buildingStage } from '@/lib/asset'
 import {
   BUILDINGS, BUILDING_EFFECTS, constructionDiscount, LUXURY_IDS, LUXURY_NAMES, MAX_LEVEL, RESEARCH, RESOURCE_IDS, RESOURCE_NAMES,
-  actionPoints, activeJob, armyUpkeep, buildReason, capacity, contentment, corruption, cost, counterSpy, duration,
+  actionPoints, activeJob, armyUpkeep, buildReason, capacity, contentment, corruption, cost, duration,
   forestProduction, growthRate, housing, idleWorkers, loadingSpeed, luxuryCost, luxuryProduction, maxPopulation, population, rates,
-  scientistUpkeepPerMinute, soldiers, spyBonus, spyCapacity, takesPlot, tavernLevel, tradeCapacity, travelFactor, wallDefense,
+  scientistUpkeepPerMinute, soldiers, takesPlot, tavernLevel, tradeCapacity, travelFactor, wallDefense,
   wineConsumption, wineServed, workerCapacity, type BuildingId, type Command, type Game, type Luxury, type Resource, type UnitId, type WorkerId, formatRate,
 } from '@/lib/game/engine'
 import { GUILDS, guildBonus } from '@/lib/game/guilds'
@@ -44,6 +44,7 @@ import { buyMerchantShip } from '@/lib/game/empire'
 import { idleMerchants, merchantShipPrice, shipCargo, totalMerchants } from '@/lib/game/expeditions'
 import { WorkforceSlider, type Figure } from './workforce'
 import { t } from '@/lib/i18n/tr'
+import { RoyalManagement } from './royal-management'
 
 /** Bina sahnesinin boyalı katmanları (görsel brif 2): gök, uzak tepeler, çimen ya da sığ su, iki yanda ağaç. */
 const SCENE_STYLE = {
@@ -174,9 +175,10 @@ function CostBreakdown({ game, id }: { game: Game; id: BuildingId }) {
 }
 
 /** Binaya özel kutular. */
-function BuildingView({ game, empire, id, onCommand, onRecruit, onNav, onBuildingNav, run }: {
+function BuildingView({ game, empire, id, onCommand, onRecruit, onNav, onBuildingNav, run, section }: {
+  section?: 'overview' | 'people' | 'treasury'
   game: Game; empire: Empire | undefined; id: BuildingId; onCommand: (c: Command) => void; run?: Run
-  onRecruit: (id: UnitId, count: number) => void; onNav: (panel: 'research' | 'diplomacy' | 'island' | 'forest' | 'people' | 'cities') => void
+  onRecruit: (id: UnitId, count: number) => void; onNav: (panel: 'research' | 'diplomacy' | 'alliance' | 'island' | 'forest' | 'people' | 'cities') => void
   onBuildingNav: (id: BuildingId) => void
 }) {
   const r = rates(game)
@@ -192,7 +194,8 @@ function BuildingView({ game, empire, id, onCommand, onRecruit, onNav, onBuildin
       const other = content - parts.reduce((s, [, n]) => s + n, 0)
       const gross = r.gold + scientistUpkeepPerMinute(game) + armyUpkeep(game)
       return <>
-        <DivanOverview game={game} empire={empire} run={run} />
+        {(!section || section === 'overview') && <DivanOverview game={game} empire={empire} run={run} />}
+        {(!section || section === 'people') && <>
         <Box title="Şehrin halkı">
           <Table rows={[
             ['Nüfus', <strong key="p">{num(population(game))} / {num(maxPopulation(game))}</strong>],
@@ -206,7 +209,8 @@ function BuildingView({ game, empire, id, onCommand, onRecruit, onNav, onBuildin
           <Table rows={[...parts.filter(([, n]) => n).map(([l, n]) => [l, `+${num(n)}`]), ...(other ? [['Araştırma, mucize, yönetim', `${other > 0 ? '+' : ''}${num(other)}`]] : [])]} />
           <p className="bp-note">Nüfus, barınma ile huzurdan küçük olanına doğru büyür.</p>
         </Box>
-        <Box title="Hazine">
+        </>}
+        {(!section || section === 'treasury') && <Box title="Hazine">
           <Table rows={[
             [<Term key="t" label="Vergi ve esnaf" />, `+${num(gross)} akçe/dk`],
             [<Term key="t" label="Âlim maaşları" />, `${formatRate(-scientistUpkeepPerMinute(game))} akçe/dk`],
@@ -215,7 +219,7 @@ function BuildingView({ game, empire, id, onCommand, onRecruit, onNav, onBuildin
             [<span key="t" className="painted-term"><YolsuzlukArt width={20} height={20} /><Term label="Yolsuzluk" /></span>, `%${Math.round(corruption(game) * 100)}`],
             [<Term key="t" label="Sefer hakkı" />, `aynı anda ${actionPoints(game)} sefer`],
           ]} />
-        </Box>
+        </Box>}
       </>
     }
     case 'medrese': {
@@ -268,7 +272,7 @@ function BuildingView({ game, empire, id, onCommand, onRecruit, onNav, onBuildin
         <p className="bp-note">Ambar ve Depo her malın tavanını belirler; dolu ambarda üretim boşa gider. Baskında her malın {num(safe)} birimi korunur.</p>
       </Box>
     }
-    case 'kisla': case 'tersane': case 'liman': case 'elcilik':
+    case 'kisla': case 'tersane': case 'liman':
       return <>
         {id === 'liman' && <Box title="Liman">
           <Table rows={[
@@ -279,15 +283,7 @@ function BuildingView({ game, empire, id, onCommand, onRecruit, onNav, onBuildin
           <GameButton size="sm" variant="outline" onClick={() => onNav('cities')}>Nakliye gönder<ChevronRight data-icon="inline-end" /></GameButton>
         </Box>}
         {id === 'liman' && empire && run && <MerchantFleet empire={empire} game={game} run={run} />}
-        {id === 'elcilik' && <Box title="Casusluk ve diplomasi">
-          <Table rows={[
-            ['Casus', `${game.army.casus} / ${spyCapacity(game)}`],
-            ['Casusluk başarısı', `+%${Math.round(spyBonus(game) * 100)}`],
-            ['Yabancı casus yakalama', `%${Math.round(counterSpy(game) * 100)}`],
-          ]} />
-          <GameButton size="sm" variant="outline" onClick={() => onNav('diplomacy')}>Dünya ve diplomasi<ChevronRight data-icon="inline-end" /></GameButton>
-        </Box>}
-        {id !== 'liman' && <Box title={id === 'tersane' ? 'Gemi yapımı' : id === 'elcilik' ? 'Casus eğitimi' : 'Asker eğitimi'} className="bp-army">
+        {id !== 'liman' && <Box title={id === 'tersane' ? 'Gemi yapımı' : 'Asker eğitimi'} className="bp-army">
           <ArmyPanel game={game} onRecruit={onRecruit} onBuild={onBuildingNav} home={id} />
         </Box>}
       </>
@@ -372,7 +368,7 @@ export function BuildingPage({ game, empire, id, onClose, onBuild, onFlip, onMov
   game: Game; empire: Empire | undefined; id: BuildingId; run?: Run
   onClose: () => void; onBuild: () => void; onFlip: () => void; onMove: () => void
   onCommand: (c: Command) => void; onRecruit: (id: UnitId, count: number) => void
-  onNav: (panel: 'research' | 'diplomacy' | 'island' | 'forest' | 'people' | 'cities') => void; onBuildingNav: (id: BuildingId) => void
+  onNav: (panel: 'research' | 'diplomacy' | 'alliance' | 'island' | 'forest' | 'people' | 'cities') => void; onBuildingNav: (id: BuildingId) => void
   children?: ReactNode; toolbar?: ReactNode
 }) {
   const b = BUILDINGS[id], level = game.buildings[id], max = MAX_LEVEL[id]
@@ -404,6 +400,21 @@ export function BuildingPage({ game, empire, id, onClose, onBuild, onFlip, onMov
   const nextFacing = facing === 'straight' ? 'right' : facing === 'right' ? 'left' : 'straight'
   const barracksScene = id === 'kisla' && (peek === null || peek === stage)
   const showTab = hasWork ? tab : 'gelisim'
+  if (id === 'divan' || id === 'elcilik') return <IkaPage title={b.name} label={`${b.name} sayfası`} onClose={onClose}
+    className={`bp-building bp-of-${id} bp-court bp-royal bp-management${help ? ' show-help' : ''}`}
+    badge={<button type="button" className="bp-help" aria-pressed={help} onClick={() => setHelp(v => !v)} aria-label={help ? 'Açıklamaları gizle' : 'Nasıl işler? Açıklamaları göster'}><Info /></button>}
+    footer={<UpgradeDock game={game} id={id} onBuild={onBuild} />}>
+    <RoyalManagement key={id} game={game} empire={empire} id={id} city={city} help={help} onNav={onNav}
+      overview={<BuildingView game={game} empire={empire} id={id} section="overview" onCommand={onCommand} onRecruit={onRecruit} onNav={onNav} onBuildingNav={onBuildingNav} run={run} />}
+      people={<BuildingView game={game} empire={empire} id={id} section="people" onCommand={onCommand} onRecruit={onRecruit} onNav={onNav} onBuildingNav={onBuildingNav} run={run} />}
+      administration={<><BuildingView game={game} empire={empire} id="divan" section="treasury" onCommand={onCommand} onRecruit={onRecruit} onNav={onNav} onBuildingNav={onBuildingNav} run={run} />{children}</>}
+      spies={<><ArmyPanel game={game} onRecruit={onRecruit} onBuild={onBuildingNav} home="elcilik" />{children}<GameButton variant="outline" onClick={() => onBuildingNav('siginak')}>Gizli Sığınak</GameButton></>}
+      development={<><Box title="Seviye etkisi"><BuildingEffects game={game} id={id} level={level} max={max} /></Box>
+        {forecast.length > 0 && <Box title="Sonraki seviyeler"><Table head={['Sv.', 'Maliyet', 'Süre']} rows={forecast.map(f => [`${f.level}`, <span key="c" className="bp-mini-costs">{RESOURCE_IDS.filter(r => f.price[r] > 0).map(r => <span key={r}><ResIcon id={r} />{num(f.price[r])}</span>)}</span>, time(f.seconds)])} /></Box>}
+        <Box title="Yapının görünümü"><div className="management-stages">{stages.map(([st, from, label]) => <figure key={st}><img src={buildingImage(id, from)} alt={`${b.name}, ${label}`} loading="lazy" /><figcaption>{label}{st === stage ? ' · Şu anki' : ''}</figcaption></figure>)}</div></Box>
+        {level > 0 && <div className="management-tools"><GameButton variant="outline" onClick={onFlip}>Yönünü çevir</GameButton>{id !== 'divan' && <><GameButton variant="outline" onClick={onMove}>Başka arsaya taşı</GameButton><GameButton variant="destructive" onClick={() => setRazing(v => !v)}>Yapıyı yık</GameButton></>}</div>}
+        {razing && <DemolishConfirm game={game} id={id} onCommand={onCommand} onClose={() => setRazing(false)} />}</>} />
+  </IkaPage>
   return <IkaPage toolbar={toolbar} title={b.name} subtitle={`${city} · ${b.category.toLocaleLowerCase('tr')}`} label={`${b.name} sayfası`} onClose={onClose}
     className={`bp-building bp-of-${id}${help ? ' show-help' : ''}`}
     badge={<button type="button" className="bp-help" aria-pressed={help} onClick={() => setHelp(v => !v)} aria-label={help ? 'Açıklamaları gizle' : 'Nasıl işler? Açıklamaları göster'}><Info /></button>}
@@ -425,8 +436,8 @@ export function BuildingPage({ game, empire, id, onClose, onBuild, onFlip, onMov
         {level > 0 && <div className="bp-hero-tools" role="group" aria-label="Yapı araçları">
           {movable && b.art && coast && <button type="button" onClick={() => coastId && onCommand({ type: 'face', id: coastId, facing: nextFacing })} aria-label={`Yön: ${facingLabel}. Dokunarak değiştir`}><RotateCw /><span>Yön: {facingLabel}</span></button>}
           {movable && b.art && !coast && <button type="button" onClick={onFlip} aria-label={game.flips.includes(id) ? 'Yönü geri çevir' : 'Yönünü çevir'}><FlipHorizontal2 /><span>Çevir</span></button>}
-          {movable && id !== 'divan' && <button type="button" onClick={onMove} aria-label="Başka arsaya taşı"><Move /><span>Taşı</span></button>}
-          {id !== 'divan' && <button type="button" className="is-danger" aria-pressed={razing} onClick={() => setRazing(v => !v)} aria-label="Yık"><Trash2 /><span>Yık</span></button>}
+          {movable && <button type="button" onClick={onMove} aria-label="Başka arsaya taşı"><Move /><span>Taşı</span></button>}
+          {<button type="button" className="is-danger" aria-pressed={razing} onClick={() => setRazing(v => !v)} aria-label="Yık"><Trash2 /><span>Yık</span></button>}
         </div>}
       </section>
       {id === 'kisla' && <div className="barracks-ribbon" aria-hidden="true">Kışla</div>}

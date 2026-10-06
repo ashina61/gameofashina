@@ -10,7 +10,7 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 # Payitaht Adaları — ajanlar için
 
-- **Güncel sıra:** Kullanıcının 5 Ekim ‘oyunun geneline sırayla başla’ talebiyle ortak onaylı dil kalan ekranlara uygulanır. İlk bölüm Vezir, 0.57.0 / SW54; Gündem, Şehirler, Haberler. Kullanıcının sonraki ‘devam’ talebiyle Elçi/İttifak 0.58.0 / SW55. Sonraki bölüm bina sayfaları; önce Divanhane/Elçilik gibi yönetim yapıları, sonra üretim ve askerî yapılar. Bir bölüm tamamlanınca yayın ve gerçek ekran görüntüleriyle kullanıcı değerlendirmesinde dur.
+- **Güncel sıra:** Kullanıcının 5 Ekim ‘oyunun geneline sırayla başla’ talebiyle ortak onaylı dil kalan ekranlara uygulanır. İlk bölüm Vezir, 0.57.0 / SW54; Gündem, Şehirler, Haberler. Kullanıcının sonraki ‘devam’ talebiyle Elçi/İttifak 0.58.0 / SW55. Kullanıcının 6 Ekim devam talebiyle Divanhane/Elçilik 0.59.0 / SW56: yönetim ve casusluk ayrı defterler, resimli şehir meydanı. Sonraki bölüm Saray/Valilik, ardından üretim ve askerî yapılar. Bir bölüm tamamlanınca yayın ve gerçek ekran görüntüleriyle kullanıcı değerlendirmesinde dur.
 
 - **En son onaylanan Profil/Ayarlar dili:** `docs/PROFILE-SETTINGS-DESIGN.md`, `docs/mockups/approved-profile.webp` ve `docs/mockups/approved-settings.webp`. Kullanıcının 5 Ekim talebiyle bütün alt sekmeler 0.55.0 / v52 olarak bu dile geçirildi. Kullanıcının SVG temizleme talebiyle Sancaktar odası 0.56.0 / v53: gerçek kumaş ve sırma arma görselleri, docs/SANCAKTAR-ART.md. Bu bölümün yayınından sonra kullanıcı değerlendirmesinde dur.
 

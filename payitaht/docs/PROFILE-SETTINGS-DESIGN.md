@@ -25,3 +25,6 @@ Kullanıcı genel yenilemeye sırayla başlama yetkisi verdi. İlk bölüm Vezir
 
 ### Elçi / İttifak · 0.58.0 / SW55
 Kullanıcının ‘devam’ yetkisiyle Elçi altı defterli hariciye odasına dönüştürüldü. İttifak kuruluş/katılım ve kurulu birliğin beş yönetim defteri aynı tam genişlikte ahşap, pirinç, parşömen ve resimli nesne diliyle yenilendi. İttifak sancağı gerçek kumaş ve sırma arma düzenleyicisine geçti. İşlemler mevcut motoru kullanır; oyun kuralları ve kayıt biçimi değişmedi. Sırada bina sayfaları var.
+
+
+6 Ekim 2026 · 0.59.0 / SW56: Divanhane ve Elçilik onaylı saray diliyle yenilendi. Ayrıntılar `MANAGEMENT-DESIGN.md`. Şehir/Halk/İdare/Gelişim ve Hariciye/Casuslar/Gelişim defterleri; küçük sabit yükseltme alanı ve geniş parşömen. Sonraki bölüm Saray/Valilik.

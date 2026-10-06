@@ -26,6 +26,7 @@
 @import './styles/26-sancaktar.css';
 @import './styles/27-vizier.css';
 @import './styles/28-diplomacy.css';
+@import './styles/29-management.css';
 
 @custom-variant dark (&:is(.dark *));
 @theme inline {
