@@ -1,0 +1,18 @@
+/* City UI safety rails. Keep compact visuals without shrinking interactive targets. */
+@media (max-width: 390px) {
+  .game-world .ika-advisor {
+    width: 44px;
+    min-width: 44px;
+    height: 44px;
+    transform: none;
+  }
+}
+
+@media (max-width: 360px) {
+  .game-world .ika-advisor {
+    width: 44px;
+    min-width: 44px;
+    height: 44px;
+    transform: none;
+  }
+}
