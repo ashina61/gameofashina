@@ -30,6 +30,7 @@
 @import './styles/30-title-screen-premium.css';
 @import './styles/31-city-focus.css';
 @import './styles/32-title-screen-cinematic.css';
+@import './styles/33-city-ui-reframe.css';
 
 @custom-variant dark (&:is(.dark *));
 @theme inline {
