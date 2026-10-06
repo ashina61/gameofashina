@@ -110,11 +110,15 @@
 }
 .game-shell.has-page .research-panel .rs-strip button span { min-width: 0; overflow-wrap: anywhere; }
 
-/* Inline-padded culture scene previously measured as width:100% + padding. */
-.game-shell.has-page .shadow-stage {
+/* The Karagöz panel's parent has its own padding/border. Stretch to the parent's
+ * content box instead of width:100%, which can add that inset twice on 360px. */
+.game-shell.has-page .theatre-panel .shadow-stage {
   box-sizing: border-box;
-  width: 100%;
+  width: auto;
   max-width: 100%;
+  min-width: 0;
+  align-self: stretch;
+  margin-inline: 0;
 }
 
 /* Building inspector/footer geometry must never create horizontal scroll. */
