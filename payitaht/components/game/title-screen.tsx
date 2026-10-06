@@ -100,7 +100,7 @@ export function TitleScreen({ onStart }: { onStart: () => void }) {
     {error && <p role="alert" className="title-error">{error}</p>}
     {confirmWipe && <p role="alert" className="title-warn"><TriangleAlert /> Bu cihazdaki eski şehrin silinecek. Emin misin?</p>}
     <button type="submit" className="title-btn is-primary"><Sparkles />{confirmWipe ? 'Evet, eskisini sil ve başla' : 'Hikâyeye başla'}</button>
-    <button type="button" className="title-btn" onClick={() => { setMode('menu'); setConfirmWipe(false); setError('') }}><ChevronLeft />{t.action.back}</button>
+    <button type="button" className="title-btn" onClick={() => { setMode('menu'); setConfirmWipe(false); setError('') }}><ChevronLeft />{hasSave ? t.action.cancel : t.action.back}</button>
   </form>
 
   const look: BannerLook = profile ? { color: profile.color, shape: profile.banner ?? 'kirlangic', crest: profile.crest } : { color, shape: 'kirlangic', crest }
