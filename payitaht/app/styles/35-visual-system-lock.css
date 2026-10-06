@@ -1,0 +1,554 @@
+/* Payitaht visual system lock — presentation only.
+ * One visual grammar for city inspector, building pages and royal/account screens.
+ * No engine/state/command behavior is changed here. */
+
+.game-shell {
+  --ui-paper: color-mix(in srgb, var(--c-paper) 94%, #fff 6%);
+  --ui-paper-deep: color-mix(in srgb, var(--c-parch-2) 94%, #d8b873 6%);
+  --ui-wood: color-mix(in srgb, var(--c-wood-dark) 94%, #10130f 6%);
+  --ui-gold-line: color-mix(in srgb, var(--c-gold) 48%, transparent);
+  --ui-shadow: 0 12px 34px #150c0780;
+  --ui-radius: 18px;
+}
+
+/* ========================================================================
+ * BUILDING INSPECTOR — one clear decision surface, not a stacked app card.
+ * ======================================================================== */
+.game-shell.has-building-preview .building-inspector {
+  left: 50%;
+  right: auto;
+  width: min(430px, calc(100vw - 12px));
+  transform: translateX(-50%);
+  overflow: hidden;
+  border: 1px solid var(--ui-gold-line);
+  border-radius: 22px 22px 16px 16px;
+  background:
+    linear-gradient(180deg, #fff5 0, transparent 18%),
+    var(--ui-paper);
+  box-shadow: var(--ui-shadow), inset 0 1px 0 #fff8;
+}
+.game-shell.has-building-preview .building-inspector-header {
+  position: relative;
+  min-height: 60px;
+  padding: 8px 56px 8px 16px;
+  border-bottom: 1px solid var(--ui-gold-line);
+  background:
+    linear-gradient(180deg, #ffffff0d, #0000001f),
+    var(--ui-wood);
+}
+.game-shell.has-building-preview .building-inspector-header::after {
+  content: '';
+  position: absolute;
+  left: 16px;
+  right: 16px;
+  bottom: -1px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--c-gold-pale), transparent);
+  opacity: .55;
+}
+.game-shell.has-building-preview .building-inspector-header small {
+  display: block;
+  margin-bottom: 2px;
+  font-size: 11px;
+  line-height: 1.2;
+  letter-spacing: .075em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--c-gold-pale) 86%, white 14%);
+}
+.game-shell.has-building-preview .building-inspector-header h2 {
+  margin: 0;
+  font-family: var(--font-heading), Georgia, serif;
+  font-size: clamp(20px, 5.5vw, 24px);
+  line-height: 1.05;
+  color: var(--c-cream);
+  text-shadow: 0 2px 3px #0008;
+}
+.game-shell.has-building-preview .building-inspector-close {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  border: 1px solid color-mix(in srgb, var(--c-gold) 35%, transparent);
+  border-radius: 50%;
+  background: #0002;
+  color: var(--c-cream);
+}
+.game-shell.has-building-preview .building-inspector-close :is(svg, .painted-icon) { width: 20px; height: 20px; }
+.game-shell.has-building-preview .building-inspector-content {
+  padding: 10px 14px 4px;
+  background:
+    radial-gradient(circle at 50% 0, #fff8, transparent 38%),
+    linear-gradient(180deg, color-mix(in srgb, var(--ui-paper) 96%, white 4%), var(--ui-paper-deep));
+}
+.game-shell.has-building-preview .building-inspector-summary {
+  display: grid;
+  grid-template-columns: 88px minmax(0,1fr);
+  align-items: center;
+  gap: 12px;
+  min-height: 96px;
+}
+.game-shell.has-building-preview .building-inspector-summary > img {
+  width: 88px;
+  height: 88px;
+  padding: 4px;
+  object-fit: contain;
+  border-radius: 16px;
+  background: radial-gradient(circle, #fff9, #d7bd8666 72%, transparent 73%);
+  filter: drop-shadow(0 8px 8px #5a3b2444);
+}
+.game-shell.has-building-preview .building-inspector-summary > p {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.42;
+  color: var(--c-ink);
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.game-shell.has-building-preview .building-inspector-content .sk-nn,
+.game-shell.has-building-preview .building-inspector-content .building-effects {
+  margin-top: 6px;
+}
+.game-shell.has-building-preview .building-inspector-details {
+  min-height: 46px;
+  padding: 0 14px;
+  border: 0;
+  border-top: 1px solid color-mix(in srgb, var(--c-parch-edge) 66%, transparent);
+  border-radius: 0;
+  background: color-mix(in srgb, var(--ui-paper-deep) 86%, white 14%);
+  color: var(--c-brown-dark);
+  font-weight: 800;
+}
+.game-shell.has-building-preview .building-inspector-details :is(svg, .painted-icon) { width: 18px; height: 18px; }
+.game-shell.has-building-preview .building-inspector .bp-dock {
+  padding: 9px 12px 11px;
+  border-top: 1px solid var(--ui-gold-line);
+  background:
+    linear-gradient(180deg, #fff3, transparent 30%),
+    color-mix(in srgb, var(--c-parch-2) 92%, #d3b26e 8%);
+}
+.game-shell.has-building-preview .building-inspector .bp-dock-thumb { width: 44px; height: 44px; }
+.game-shell.has-building-preview .building-inspector .bp-dock-label { font-size: 11px; }
+.game-shell.has-building-preview .building-inspector .bp-upgrade-button {
+  min-height: 50px;
+  border-radius: 13px;
+  box-shadow: 0 5px 12px #462d1d3d, inset 0 1px 0 #fff5;
+}
+
+/* ========================================================================
+ * NORMAL BUILDING PAGES — world art first, controls second.
+ * ======================================================================== */
+.game-shell.has-page .bp-building:not(.bp-royal) {
+  --bp-pad: clamp(10px, 3vw, 16px);
+  background:
+    linear-gradient(180deg, #e5d2a5 0%, #f1e5c7 26%, #e8d7af 100%);
+}
+.game-shell.has-page .bp-building:not(.bp-royal) .bp-bar {
+  min-height: 58px;
+  padding: 4px 6px;
+  gap: 6px;
+  border-bottom: 1px solid var(--ui-gold-line);
+  background:
+    linear-gradient(180deg, #fff1, #0002),
+    var(--ui-wood);
+  box-shadow: 0 5px 16px #0006;
+}
+.game-shell.has-page .bp-building:not(.bp-royal) .bp-title { min-width: 0; }
+.game-shell.has-page .bp-building:not(.bp-royal) .bp-title h1 {
+  margin: 0;
+  font-family: var(--font-heading), Georgia, serif;
+  font-size: clamp(20px, 5.5vw, 25px);
+  line-height: 1.05;
+  color: var(--c-cream);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.game-shell.has-page .bp-building:not(.bp-royal) .bp-title small {
+  display: block;
+  margin-top: 2px;
+  font-size: 11px;
+  line-height: 1;
+  color: var(--c-gold-pale);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.game-shell.has-page .bp-building:not(.bp-royal) .bp-back,
+.game-shell.has-page .bp-building:not(.bp-royal) .bp-help {
+  flex: 0 0 44px;
+  width: 44px;
+  height: 44px;
+  min-height: 44px;
+  display: grid;
+  place-items: center;
+  border: 1px solid color-mix(in srgb, var(--c-gold) 34%, transparent);
+  border-radius: 50%;
+  background: #0002;
+  color: var(--c-cream);
+}
+.game-shell.has-page .bp-building:not(.bp-royal) .bp-scroll {
+  padding: 0 0 calc(var(--ika-nav) + 118px);
+  background:
+    radial-gradient(circle at 50% 12%, #fff7, transparent 34%),
+    linear-gradient(180deg, #ddc89b, #f0e4c5 28%, #e7d6ae);
+}
+.game-shell.has-page .bp-building:not(.bp-royal) .bp-hero.bp-scene {
+  height: clamp(244px, 34dvh, 318px);
+  margin: 0;
+  border: 0;
+  border-bottom: 1px solid color-mix(in srgb, var(--c-gold-deep) 48%, transparent);
+  border-radius: 0;
+  box-shadow: inset 0 -28px 30px #2c210f1f;
+}
+.game-shell.has-page .bp-building:not(.bp-royal) .bp-hero.bp-scene::after {
+  content: '';
+  position: absolute;
+  z-index: 1;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 56px;
+  pointer-events: none;
+  background: linear-gradient(180deg, transparent, #5d42273d);
+}
+.game-shell.has-page .bp-building:not(.bp-royal) .bp-hero-art,
+.game-shell.has-page .bp-building:not(.bp-royal) .bp-hero.bp-scene .building-art {
+  max-width: min(78%, 430px);
+  height: 84%;
+  filter: drop-shadow(0 12px 10px #2d24194b);
+}
+.game-shell.has-page .bp-building:not(.bp-royal) .bp-plaque {
+  z-index: 4;
+  bottom: 10px;
+  filter: drop-shadow(0 5px 8px #0005);
+}
+.game-shell.has-page .bp-building:not(.bp-royal) .bp-hero-tools {
+  z-index: 5;
+  right: 8px;
+  top: 8px;
+  gap: 6px;
+}
+.game-shell.has-page .bp-building:not(.bp-royal) .bp-hero-tools button {
+  min-width: 44px;
+  min-height: 44px;
+  padding: 5px 8px;
+  border: 1px solid color-mix(in srgb, var(--c-gold) 45%, transparent);
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--c-wood-dark) 82%, transparent);
+  color: var(--c-cream);
+  box-shadow: 0 4px 12px #0006;
+  backdrop-filter: blur(7px);
+}
+.game-shell.has-page .bp-building:not(.bp-royal) .bp-hero-tools button span { font-size: 10px; }
+.game-shell.has-page .bp-building:not(.bp-royal) .bp-hero-tools button :is(svg, .painted-icon) { width: 19px; height: 19px; }
+.game-shell.has-page .bp-building:not(.bp-royal) .bp-stages {
+  left: 8px;
+  bottom: 8px;
+  z-index: 5;
+  gap: 5px;
+}
+.game-shell.has-page .bp-building:not(.bp-royal) .bp-stages button {
+  width: 58px;
+  min-height: 48px;
+  padding: 2px;
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--c-paper) 88%, transparent);
+  box-shadow: 0 3px 8px #0004;
+}
+.game-shell.has-page .bp-building:not(.bp-royal) .bp-stages button img { height: 30px; }
+.game-shell.has-page .bp-building:not(.bp-royal) .bp-stages button span { font-size: 9px; }
+.game-shell.has-page .bp-building:not(.bp-royal) .bp-desc {
+  margin: 10px var(--bp-pad) 8px;
+  padding: 0 2px 10px;
+  border-bottom: 1px solid color-mix(in srgb, var(--c-parch-edge) 50%, transparent);
+  font-size: 13px;
+  line-height: 1.48;
+  color: var(--c-ink-muted);
+}
+.game-shell.has-page .bp-building:not(.bp-royal) .bp-tabs {
+  position: sticky;
+  top: 0;
+  z-index: 8;
+  width: calc(100% - (var(--bp-pad) * 2));
+  margin: 0 var(--bp-pad) 10px;
+  padding: 3px;
+  border: 1px solid color-mix(in srgb, var(--c-gold-deep) 32%, transparent);
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--c-paper) 92%, transparent);
+  box-shadow: 0 4px 12px #6a4d2d24;
+  backdrop-filter: blur(8px);
+}
+.game-shell.has-page .bp-building:not(.bp-royal) .bp-tabs button {
+  min-height: 44px;
+  border-radius: 10px;
+  font-size: 12px;
+  font-weight: 800;
+}
+.game-shell.has-page .bp-building:not(.bp-royal) .bp-tabs button[aria-selected='true'] {
+  background: linear-gradient(180deg, #7a4c29, #4b2d1b);
+  color: var(--c-cream);
+  box-shadow: inset 0 0 0 1px #d5b06d66, 0 3px 8px #3a241633;
+}
+.game-shell.has-page .bp-building:not(.bp-royal) .bp-tabpanel {
+  padding: 0 var(--bp-pad);
+}
+.game-shell.has-page .bp-building:not(.bp-royal) .bp-box {
+  margin: 0 0 10px;
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--c-parch-edge) 58%, transparent);
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--ui-paper) 94%, transparent);
+  box-shadow: 0 5px 14px #684c3020, inset 0 1px 0 #fff8;
+}
+.game-shell.has-page .bp-building:not(.bp-royal) .bp-box-title {
+  min-height: 40px;
+  display: flex;
+  align-items: center;
+  margin: 0;
+  padding: 7px 11px;
+  border-bottom: 1px solid color-mix(in srgb, var(--c-gold-deep) 26%, transparent);
+  background: linear-gradient(180deg, #fff5, #ead6a8 65%, #d7bd86);
+  color: var(--c-brown-dark);
+  font: 700 14px/1.2 var(--font-heading), Georgia, serif;
+}
+.game-shell.has-page .bp-building:not(.bp-royal) .bp-box-body { padding: 10px 11px; }
+.game-shell.has-page .bp-building:not(.bp-royal) .bp-table { border-radius: 10px; overflow: hidden; }
+.game-shell.has-page .bp-building:not(.bp-royal) .bp-table :is(th, td) { padding-block: 8px; }
+.game-shell.has-page .bp-building:not(.bp-royal) .bp-dock {
+  left: 50%;
+  right: auto;
+  bottom: calc(var(--sa-bottom) + 7px);
+  width: min(430px, calc(100vw - 12px));
+  transform: translateX(-50%);
+  padding: 8px 10px 10px;
+  border: 1px solid var(--ui-gold-line);
+  border-radius: 18px;
+  background:
+    linear-gradient(180deg, #fff4, transparent 30%),
+    color-mix(in srgb, var(--c-parch-2) 94%, #d3b273 6%);
+  box-shadow: 0 -5px 22px #271a1057, inset 0 1px 0 #fff8;
+  backdrop-filter: blur(10px);
+}
+.game-shell.has-page .bp-building:not(.bp-royal) .bp-upgrade-button {
+  min-height: 52px;
+  border-radius: 13px;
+  font-size: 14px;
+  box-shadow: 0 5px 12px #39241742, inset 0 1px 0 #fff6;
+}
+.game-shell.has-page .bp-building:not(.bp-royal) .bp-up-time { font-size: 11px; }
+.game-shell.has-page .bp-building:not(.bp-royal) .term-btn { min-height: 32px; }
+
+/* Kışla stays a showcase but follows the exact same chrome rules. */
+.game-shell.has-page .bp-of-kisla .barracks-ribbon { margin-inline: var(--bp-pad); }
+
+/* ========================================================================
+ * ROYAL / PROFILE / SETTINGS / SANCAKTAR — same spacing, material and scale.
+ * ======================================================================== */
+.game-shell.has-page .royal-page {
+  width: min(100%, 720px);
+  margin-inline: auto;
+  padding-bottom: calc(var(--sa-bottom) + 16px);
+  background:
+    radial-gradient(circle at 50% 0, #fff6, transparent 24%),
+    linear-gradient(180deg, #e2cfa2, #f3e7c7 25%, #e7d4aa);
+}
+.game-shell.has-page :is(.royal-profile-scene, .royal-settings-scene) {
+  position: relative;
+  overflow: hidden;
+  margin: 0;
+  border-radius: 0;
+  box-shadow: inset 0 -30px 34px #22160b4a;
+}
+.game-shell.has-page .royal-profile-scene { min-height: clamp(210px, 31dvh, 290px); }
+.game-shell.has-page .royal-settings-scene { min-height: clamp(150px, 22dvh, 205px); }
+.game-shell.has-page :is(.royal-profile-scene, .royal-settings-scene) > img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.game-shell.has-page .royal-identity {
+  left: 16px;
+  right: 16px;
+  bottom: 14px;
+  width: auto;
+  max-width: 66%;
+  padding: 9px 12px;
+  border: 1px solid color-mix(in srgb, var(--c-gold) 40%, transparent);
+  border-radius: 13px;
+  background: color-mix(in srgb, var(--c-wood-dark) 76%, transparent);
+  box-shadow: 0 6px 18px #0006;
+  backdrop-filter: blur(8px);
+}
+.game-shell.has-page .royal-identity h2 { font-size: clamp(22px, 6vw, 30px); line-height: 1; }
+.game-shell.has-page .royal-summary {
+  margin: 8px 10px 6px;
+  padding: 7px 4px;
+  gap: 0;
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--c-gold-deep) 28%, transparent);
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--c-paper) 90%, transparent);
+  box-shadow: 0 4px 12px #5d412723;
+}
+.game-shell.has-page .royal-summary > span {
+  min-height: 54px;
+  padding: 4px 7px;
+  border-right: 1px solid color-mix(in srgb, var(--c-parch-edge) 42%, transparent);
+}
+.game-shell.has-page .royal-summary > span:last-child { border-right: 0; }
+.game-shell.has-page .royal-summary b { font-size: 14px; }
+.game-shell.has-page .royal-edit {
+  width: calc(100% - 20px);
+  min-height: 46px;
+  margin: 0 10px 8px;
+  border-radius: 13px;
+}
+.game-shell.has-page .court-tabs {
+  position: sticky;
+  top: 0;
+  z-index: 9;
+  display: grid;
+  grid-template-columns: repeat(var(--court-tab-count, 4), minmax(0,1fr));
+  gap: 3px;
+  margin: 0;
+  padding: 5px 8px;
+  border-block: 1px solid color-mix(in srgb, var(--c-gold-deep) 32%, transparent);
+  background: color-mix(in srgb, var(--c-paper) 94%, transparent);
+  box-shadow: 0 5px 14px #3b281824;
+  backdrop-filter: blur(9px);
+}
+.game-shell.has-page .court-tabs > button {
+  min-height: 46px;
+  min-width: 0;
+  padding: 4px 3px;
+  border-radius: 10px;
+  font-size: 11px;
+}
+.game-shell.has-page .court-tabs > button[aria-selected='true'] {
+  background: linear-gradient(180deg, #7d5030, #4b2f1d);
+  color: var(--c-cream);
+  box-shadow: inset 0 0 0 1px #ddbf7b66;
+}
+.game-shell.has-page .court-tab-body { padding: 10px; }
+.game-shell.has-page .royal-section {
+  margin: 0 0 10px;
+  padding: 12px;
+  border: 1px solid color-mix(in srgb, var(--c-parch-edge) 52%, transparent);
+  border-radius: 15px;
+  background: color-mix(in srgb, var(--ui-paper) 92%, transparent);
+  box-shadow: 0 5px 14px #6549281f, inset 0 1px 0 #fff8;
+}
+.game-shell.has-page .royal-section > h3,
+.game-shell.has-page .royal-heading h3 { font-size: 16px; }
+.game-shell.has-page .court-footer {
+  gap: 7px;
+  padding: 2px 10px calc(var(--sa-bottom) + 8px);
+  background: transparent;
+}
+.game-shell.has-page .court-footer > * { min-height: 46px; }
+
+/* Settings: desk becomes a visual header, controls stay in parchment ledger. */
+.game-shell.has-page .court-admin .royal-settings-scene h2 {
+  position: absolute;
+  left: 16px;
+  bottom: 14px;
+  margin: 0;
+  padding: 7px 11px;
+  border: 1px solid color-mix(in srgb, var(--c-gold) 38%, transparent);
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--c-wood-dark) 77%, transparent);
+  color: var(--c-cream);
+  text-shadow: 0 2px 3px #0008;
+  backdrop-filter: blur(8px);
+}
+.game-shell.has-page .royal-subpage { display: grid; gap: 10px; }
+.game-shell.has-page .royal-action { min-height: 48px; border-radius: 12px; }
+.game-shell.has-page .royal-save-actions { gap: 7px; }
+
+/* Sancaktar — one atelier, not a collection of unrelated cards. */
+.game-shell.has-page .sovereign-page.is-sancaktar .court-tab-body { padding-top: 8px; }
+.game-shell.has-page .sancaktar-workshop {
+  display: grid;
+  gap: 10px;
+  padding: 0;
+}
+.game-shell.has-page .sancaktar-heading,
+.game-shell.has-page .sancaktar-identity,
+.game-shell.has-page .sancaktar-selection,
+.game-shell.has-page .sancaktar-signature {
+  margin: 0;
+  border: 1px solid color-mix(in srgb, var(--c-parch-edge) 54%, transparent);
+  border-radius: 15px;
+  background: color-mix(in srgb, var(--ui-paper) 93%, transparent);
+  box-shadow: 0 5px 14px #674b2f22;
+}
+.game-shell.has-page .sancaktar-heading { padding: 10px 12px; }
+.game-shell.has-page .sancaktar-identity { padding: 11px 12px; }
+.game-shell.has-page .sancaktar-identity input {
+  min-height: 46px;
+  border-radius: 10px;
+  background: #fff9;
+}
+.game-shell.has-page .sancaktar-steps {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 5px;
+  padding: 4px;
+  border: 1px solid color-mix(in srgb, var(--c-gold-deep) 30%, transparent);
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--c-paper) 92%, transparent);
+}
+.game-shell.has-page .sancaktar-steps button { min-height: 48px; border-radius: 10px; }
+.game-shell.has-page .sancaktar-steps button[aria-pressed='true'] {
+  background: linear-gradient(180deg, #805333, #4b301e);
+  color: var(--c-cream);
+}
+.game-shell.has-page .sancaktar-selection { overflow: hidden; padding: 10px; }
+.game-shell.has-page :is(.sancaktar-cloths, .sancaktar-emblems, .sancaktar-colors) {
+  gap: 8px;
+}
+.game-shell.has-page :is(.sancaktar-cloths, .sancaktar-emblems, .sancaktar-colors) > button {
+  min-height: 112px;
+  border-radius: 13px;
+  background: linear-gradient(180deg, #fff7, #ead9b5);
+  box-shadow: 0 4px 10px #5b3f2624;
+}
+.game-shell.has-page :is(.sancaktar-cloths, .sancaktar-emblems, .sancaktar-colors) > button[aria-checked='true'] {
+  border-color: var(--c-gold-deep);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--c-gold) 42%, transparent), 0 5px 14px #5b3f2630;
+}
+.game-shell.has-page .sancaktar-signature { padding: 11px 12px; }
+.game-shell.has-page .sancaktar-signature > div { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; }
+.game-shell.has-page .sancaktar-signature button { min-height: 48px; }
+
+/* ========================================================================
+ * NARROW PHONE SAFETY — keep hierarchy without micro text or tiny controls.
+ * ======================================================================== */
+@media (max-width: 390px) {
+  .game-shell.has-building-preview .building-inspector-summary { grid-template-columns: 78px minmax(0,1fr); }
+  .game-shell.has-building-preview .building-inspector-summary > img { width: 78px; height: 78px; }
+  .game-shell.has-page .bp-building:not(.bp-royal) .bp-hero.bp-scene { height: clamp(226px, 31dvh, 276px); }
+  .game-shell.has-page .bp-building:not(.bp-royal) .bp-stages button { width: 54px; }
+  .game-shell.has-page .royal-profile-scene { min-height: 218px; }
+  .game-shell.has-page .royal-summary > span { padding-inline: 4px; }
+}
+@media (max-width: 360px) {
+  .game-shell.has-building-preview .building-inspector { width: calc(100vw - 8px); }
+  .game-shell.has-page .bp-building:not(.bp-royal) { --bp-pad: 8px; }
+  .game-shell.has-page .bp-building:not(.bp-royal) .bp-title h1 { font-size: 20px; }
+  .game-shell.has-page .bp-building:not(.bp-royal) .bp-hero.bp-scene { height: 222px; }
+  .game-shell.has-page .bp-building:not(.bp-royal) .bp-dock { width: calc(100vw - 8px); }
+  .game-shell.has-page .court-tab-body { padding: 8px; }
+  .game-shell.has-page .royal-section { padding: 10px; }
+  .game-shell.has-page .royal-summary b { font-size: 13px; }
+  .game-shell.has-page .sancaktar-signature > div { grid-template-columns: 1fr; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .game-shell.has-page *,
+  .game-shell.has-building-preview * { scroll-behavior: auto !important; }
+}
