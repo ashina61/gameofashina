@@ -28,6 +28,7 @@
 @import './styles/28-diplomacy.css';
 @import './styles/29-management.css';
 @import './styles/30-title-screen-premium.css';
+@import './styles/31-city-focus.css';
 
 @custom-variant dark (&:is(.dark *));
 @theme inline {

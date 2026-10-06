@@ -1,0 +1,80 @@
+/* City-first pilot. Full management pages retain their existing court layout. */
+.game-shell.game-world { --ika-top: calc(var(--sa-top) + 100px); }
+.game-world .ika-ribbon { height: 52px; min-height: 52px; border-bottom-width: 1px; }
+.game-world .ika-crest { width: 62px; }
+.game-world .ika-crest-level { top: 16px; right: 3px; font-size: 14px; }
+.game-world .ika-city { min-width: 0; flex: 1; padding-inline: 5px; }
+.game-world .ika-city-name { min-width: 0; }
+.game-world .ika-city-name strong { font-size: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.game-world .ika-city-name small { font-size: 11px; }
+.game-world .ika-advisor { width: 44px; height: 48px; }
+.game-world .ika-res { height: 48px; border-bottom-width: 1px; }
+.game-world .ika-chip { min-height: 46px; background-image: none; background-color: var(--c-parch-2); border-right: 1px solid var(--c-parch-edge); }
+.game-world .ika-chip:last-child { border-right: 0; }
+.game-world .ika-stock-open { min-height: 44px; }
+.game-world .ika-chip-num > b { font-size: 12px; }
+.game-world .ika-chip-num > small { letter-spacing: 0; }
+.game-world .ika-res-large { height: auto; min-height: 48px; }
+.game-world .ika-res-large .ika-chip { min-height: 54px; }
+.has-building-preview .city-activity,
+.has-building-preview .city-shortcuts,
+.has-building-preview .map-bottom-tools { visibility: hidden; }
+
+.building-inspector {
+  position: fixed;
+  z-index: 12;
+  left: max(10px, env(safe-area-inset-left, 0px));
+  right: max(10px, env(safe-area-inset-right, 0px));
+  bottom: calc(var(--ika-nav) + 10px);
+  width: auto;
+  max-width: 500px;
+  max-height: min(52dvh, calc(100dvh - var(--ika-top) - var(--ika-nav) - 24px));
+  margin-inline: auto;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  color: var(--c-ink);
+  background: var(--c-parch);
+  background-image: var(--royal-paper);
+  border: 1px solid var(--c-gold-deep);
+  border-radius: 14px 14px 6px 6px;
+  box-shadow: 0 12px 32px #0006;
+  animation: building-inspector-enter 180ms ease-out;
+}
+.building-inspector-header { display: flex; flex-shrink: 0; align-items: center; justify-content: space-between; gap: 8px; padding: 8px 12px; color: var(--c-cream); background: var(--c-wood-dark); background-image: var(--royal-wood); }
+.building-inspector-header small { font-size: 11px; color: var(--c-gold-pale); }
+.building-inspector-header h2 { font: 700 21px/1.2 var(--font-heading), Georgia, serif; }
+.building-inspector-close { display: grid; place-items: center; width: 44px; height: 44px; flex-shrink: 0; border: 1px solid var(--c-gold-deep); border-radius: 50%; background: transparent; color: var(--c-cream); }
+.building-inspector-close > svg { width: 22px; height: 22px; }
+.building-inspector-content { min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding: 10px 14px 4px; }
+.building-inspector-summary { display: flex; align-items: center; gap: 12px; }
+.building-inspector-summary > img { width: 88px; height: 88px; flex-shrink: 0; object-fit: contain; filter: drop-shadow(0 4px 3px #0002); }
+.building-inspector-summary > p { font-size: 13px; line-height: 1.5; color: var(--c-ink-soft); }
+.building-inspector .building-effects { margin-block: 10px 0; border: 0; border-radius: 0; background: transparent; overflow: visible; }
+.building-inspector .sk-nn { border: 0; border-top: 1px solid var(--c-parch-edge); border-radius: 0; background: transparent; padding: 8px 0; }
+.building-inspector .sk-nn-label { font-size: 13px; }
+.building-inspector .building-inspector-details { display: flex; flex-shrink: 0; justify-content: space-between; width: 100%; min-height: 44px; padding-inline: 14px; color: var(--c-ink); }
+.building-inspector-details > svg { width: 18px; height: 18px; }
+.building-inspector .bp-dock { position: static; display: block; flex-shrink: 0; width: auto; min-width: 0; margin: 0; padding: 10px 12px; border: 0; border-top: 1px solid var(--c-parch-edge); border-image-source: none; background: var(--c-parch-2); box-shadow: none; }
+.building-inspector .bp-dock-thumb,
+.building-inspector .bp-dock-label { display: none; }
+.building-inspector .bp-costs { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin: 0 0 8px; }
+.building-inspector .bp-costs > li { min-width: 0; }
+.building-inspector .bp-upgrade-button { width: 100%; min-height: 48px; font-size: 16px; }
+.building-inspector .bp-up-time { font-size: 12px; }
+.building-inspector .bp-warn,
+.building-inspector .bp-note { font-size: 12px; line-height: 1.4; margin: 0 0 8px; }
+.building-inspector .bp-dock .bp-warn { display: block; overflow: visible; }
+.building-inspector :is(button, a):focus-visible { outline: 2px solid var(--c-gold-deep); outline-offset: -3px; }
+@keyframes building-inspector-enter {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@media (max-height: 600px) {
+  .building-inspector { max-height: calc(100dvh - var(--ika-top) - var(--ika-nav) - 12px); bottom: calc(var(--ika-nav) + 4px); }
+  .building-inspector-summary > img { width: 64px; height: 64px; }
+  .building-inspector-header h2 { font-size: 18px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .building-inspector { animation: none; }
+}

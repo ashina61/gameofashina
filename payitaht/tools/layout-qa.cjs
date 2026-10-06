@@ -162,7 +162,14 @@ async function main() {
         await page.waitForTimeout(150)
         // Sayfa giriş animasyonu (alttan kayma) bitmeden ölçme: sonlu bütün
         // animasyonlar dursun (sonsuz döngüler, ör. bayrak, sayılmaz).
-        await page.waitForFunction(() => document.getAnimations().every(a => a.playState !== 'running' || a.effect?.getComputedTiming().iterations === Infinity), null, { timeout: 5000 }).catch(() => {})
+        await page.evaluate(() => {
+          for (const animation of document.getAnimations()) {
+            const target = animation.effect?.target
+            // Giriş hareketinin son düzenini ölç; canlı stok ve şehir animasyonlarını bırak.
+            if (!(target instanceof Element) || !target.matches('.bp, .building-inspector, .title-screen')) continue
+            if (animation.playState === 'running' && animation.effect.getComputedTiming().iterations !== Infinity) animation.finish()
+          }
+        })
         await page.waitForTimeout(100)
         if (vp.zoom) {
           // Sistem yazı boyutu: her öğenin hesaplanan yazısı büyür (önce hepsi okunur, sonra yazılır).
@@ -177,7 +184,7 @@ async function main() {
         if (vp.zoom) found.minik = {}
         // Bina sayfası (V2 2.1): Yükselt doku kaydırmadan görünür ve düğmenin
         // üstüne başka bir şey (ör. alt menü madalyonu) binmez.
-        if (key.startsWith('bina:')) {
+        if (key.startsWith('bina:') || key.startsWith('yapı-paneli:')) {
           const dock = await page.evaluate(() => {
             const d = document.querySelector('.bp-dock')
             if (!d) return 'Yükselt doku yok'
@@ -229,6 +236,7 @@ async function main() {
       for (const p of PANELS) await visit(`sayfa:${p}`, new Function(`window.__payitahtQa.panel(${JSON.stringify(p)})`))
       await visit('ada', () => window.__payitahtQa.island())
       for (const id of ids) await visit(`bina:${id}`, new Function(`window.__payitahtQa.building(${JSON.stringify(id)})`))
+      for (const id of ids) await visit(`yapı-paneli:${id}`, new Function(`window.__payitahtQa.buildingPreview(${JSON.stringify(id)})`))
       await context.close()
     }
   } finally {

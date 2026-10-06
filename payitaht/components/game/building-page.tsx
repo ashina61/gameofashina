@@ -82,7 +82,7 @@ const name = (id: Resource | Luxury) => (LUXURY_IDS as readonly string[]).includ
  * Üstte maliyet jetonları (eksik olan kırmızı) ve süre, altında Yükselt.
  * İnşaat sürüyorsa ilerleme çubuğu; en yüksek seviyede kısa not.
  */
-function UpgradeDock({ game, id, onBuild }: { game: Game; id: BuildingId; onBuild: () => void }) {
+export function UpgradeDock({ game, id, onBuild }: { game: Game; id: BuildingId; onBuild: () => void }) {
   const level = game.buildings[id], max = MAX_LEVEL[id]
   const active = activeJob(game)?.id === id ? activeJob(game) : null
   const queued = game.queue.findIndex(job => job.id === id)
