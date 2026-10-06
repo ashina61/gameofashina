@@ -31,6 +31,7 @@
 @import './styles/31-city-focus.css';
 @import './styles/32-title-screen-cinematic.css';
 @import './styles/33-city-ui-reframe.css';
+@import './styles/34-city-ui-safety.css';
 
 @custom-variant dark (&:is(.dark *));
 @theme inline {
