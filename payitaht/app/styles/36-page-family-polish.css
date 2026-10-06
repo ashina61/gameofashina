@@ -1,0 +1,204 @@
+/* Final page-family polish — presentation only.
+ * Covers research, army, objectives, civic, economy, annals, map overlays and reports.
+ */
+
+/* Generic full-page shell, excluding the dedicated building/royal/map templates. */
+.game-shell.has-page .bp:not(.bp-building):not(.bp-royal):not(.bp-mapview):not(.bp-sheet) {
+  background:
+    radial-gradient(circle at 50% 0, #fff7, transparent 26%),
+    linear-gradient(180deg, #dfcba0, #f1e5c4 24%, #e7d5ac 100%);
+}
+.game-shell.has-page .bp:not(.bp-building):not(.bp-royal):not(.bp-mapview):not(.bp-sheet) > .bp-bar {
+  min-height: 58px;
+  padding: 4px 6px;
+  gap: 6px;
+  border-bottom: 1px solid var(--ui-gold-line);
+  background: linear-gradient(180deg, #fff1, #0002), var(--ui-wood);
+  box-shadow: 0 5px 16px #0006;
+}
+.game-shell.has-page .bp:not(.bp-building):not(.bp-royal):not(.bp-mapview):not(.bp-sheet) > .bp-bar .bp-title h1 {
+  margin: 0;
+  font-family: var(--font-heading), Georgia, serif;
+  font-size: clamp(20px, 5.4vw, 24px);
+  line-height: 1.05;
+  color: var(--c-cream);
+  text-shadow: 0 2px 3px #0008;
+}
+.game-shell.has-page .bp:not(.bp-building):not(.bp-royal):not(.bp-mapview):not(.bp-sheet) > .bp-bar .bp-title small {
+  display: block;
+  margin-top: 2px;
+  font-size: 11px;
+  line-height: 1;
+  color: var(--c-gold-pale);
+}
+.game-shell.has-page .bp:not(.bp-building):not(.bp-royal):not(.bp-mapview):not(.bp-sheet) > .bp-bar .bp-back {
+  width: 44px;
+  height: 44px;
+  min-height: 44px;
+  display: grid;
+  place-items: center;
+  border: 1px solid color-mix(in srgb, var(--c-gold) 35%, transparent);
+  border-radius: 50%;
+  background: #0002;
+  color: var(--c-cream);
+}
+.game-shell.has-page .bp:not(.bp-building):not(.bp-royal):not(.bp-mapview):not(.bp-sheet) > .bp-scroll {
+  gap: 10px;
+  padding: 0 10px calc(var(--sa-bottom) + 24px);
+}
+.game-shell.has-page .bp:not(.bp-building):not(.bp-royal):not(.bp-mapview):not(.bp-sheet) > .bp-scroll > .bp-hero:first-child {
+  width: calc(100% + 20px);
+  margin-left: -10px;
+  margin-right: -10px;
+  border-radius: 0;
+  border-inline: 0;
+}
+
+/* Stock strip on full pages: compact ledger, not a second giant HUD. */
+.game-shell.has-page .page-stocks,
+.game-shell.has-page .bp-stocks {
+  min-height: 46px;
+  padding: 2px 5px;
+  gap: 2px;
+  border-bottom: 1px solid color-mix(in srgb, var(--c-gold) 26%, transparent);
+  background: color-mix(in srgb, var(--c-wood-dark) 88%, transparent);
+  box-shadow: 0 3px 10px #0004;
+}
+.game-shell.has-page :is(.page-stocks, .bp-stocks) button { min-height: 42px; }
+
+/* Common content surfaces: same parchment depth across advisor/research/army lists. */
+.game-shell.has-page :is(.advisor-panel, .research-panel, .building-list, .army-panel, .mission-list, .defense-summary, .deploy-panel) {
+  gap: 10px;
+}
+.game-shell.has-page :is(.research-card, .objective-card, .unit-card, .city-card, .mission-card, .report-card, .advisor-card, .building-list-item) {
+  border-color: color-mix(in srgb, var(--c-parch-edge) 56%, transparent);
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--ui-paper) 93%, transparent);
+  box-shadow: 0 5px 14px #664a2e1f, inset 0 1px 0 #fff7;
+}
+.game-shell.has-page :is(.research-card, .objective-card, .unit-card, .city-card, .mission-card, .report-card, .advisor-card) {
+  padding: 11px;
+}
+.game-shell.has-page .building-list-item {
+  min-height: 68px;
+  margin-bottom: 7px;
+  padding: 8px 10px;
+}
+
+/* Research: compact top stats and one active branch at a time visually. */
+.game-shell.has-page .research-panel.rs { gap: 10px; }
+.game-shell.has-page .rs-stats {
+  margin: 0;
+  padding: 7px 5px;
+  border: 1px solid color-mix(in srgb, var(--c-gold-deep) 28%, transparent);
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--c-paper) 92%, transparent);
+  box-shadow: 0 4px 12px #684a2b20;
+}
+.game-shell.has-page .rs-stats > span { min-height: 48px; }
+.game-shell.has-page .rs-branches,
+.game-shell.has-page .research-branches { gap: 7px; }
+.game-shell.has-page .research-branch-top {
+  margin-top: 0;
+  padding: 7px 2px;
+  border-bottom-color: color-mix(in srgb, var(--c-gold-deep) 25%, transparent);
+}
+.game-shell.has-page .research-branch-top h3 { font-size: 16px; color: var(--c-brown-dark); }
+
+/* Objectives and annals: ledger rhythm, fewer floating card islands. */
+.game-shell.has-page .bp-objectives .bp-scroll,
+.game-shell.has-page .bp-annals .bp-scroll,
+.game-shell.has-page .bp-civic .bp-scroll,
+.game-shell.has-page .bp-court:not(.bp-royal) .bp-scroll {
+  padding-inline: 10px;
+}
+.game-shell.has-page :is(.quest-court-scene, .annals-scene, .treasury-stage) {
+  width: calc(100% + 20px);
+  margin-inline: -10px;
+  border-radius: 0;
+}
+.game-shell.has-page :is(.court-book, .annals-ledger) {
+  margin: 0 0 10px;
+  padding: 12px;
+  border: 1px solid color-mix(in srgb, var(--c-parch-edge) 52%, transparent);
+  border-radius: 15px;
+  background: color-mix(in srgb, var(--ui-paper) 92%, transparent);
+  box-shadow: 0 5px 14px #6549281f, inset 0 1px 0 #fff8;
+}
+
+/* World map: preserve full-screen zoom/pan, simplify chrome over the map. */
+.game-shell.has-page .bp-mapview > .bp-bar {
+  min-height: 56px;
+  padding: 3px 6px;
+  border-bottom: 1px solid var(--ui-gold-line);
+  background: color-mix(in srgb, var(--c-wood-dark) 88%, transparent);
+  box-shadow: 0 5px 16px #0006;
+  backdrop-filter: blur(9px);
+}
+.game-shell.has-page .bp-mapview > .bp-bar .bp-title h1 { font-size: 21px; color: var(--c-cream); }
+.game-shell.has-page .bp-mapview > .bp-bar .bp-title small { font-size: 11px; color: var(--c-gold-pale); }
+.game-shell.has-page .bp-mapview > .bp-bar .bp-back {
+  width: 44px;
+  height: 44px;
+  min-height: 44px;
+  border: 1px solid color-mix(in srgb, var(--c-gold) 35%, transparent);
+  border-radius: 50%;
+  background: #0002;
+  color: var(--c-cream);
+}
+.game-shell.has-page .bp-mapview .wm-legend,
+.game-shell.has-page .bp-mapview .map-top-tools {
+  border: 1px solid color-mix(in srgb, var(--c-gold) 38%, transparent);
+  border-radius: 13px;
+  background: color-mix(in srgb, var(--c-wood-dark) 78%, transparent);
+  color: var(--c-cream);
+  box-shadow: 0 5px 15px #0006;
+  backdrop-filter: blur(8px);
+}
+
+/* Battle/report surfaces: battlefield remains dominant; report reads like parchment over art. */
+.game-shell.has-page .bs.bs2,
+.game-shell.has-page .bf {
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--c-gold-deep) 42%, transparent);
+  border-radius: 16px;
+  box-shadow: 0 9px 24px #3d2b1c38;
+}
+.game-shell.has-page .bs2-hero {
+  min-height: 150px;
+  box-shadow: inset 0 -40px 38px #1d130b66;
+}
+.game-shell.has-page .bs2-ribbon strong {
+  filter: drop-shadow(0 4px 6px #0006);
+}
+.game-shell.has-page .bs2-cmds,
+.game-shell.has-page .bs2-strength,
+.game-shell.has-page .bs2-cols,
+.game-shell.has-page .bs2-morale,
+.game-shell.has-page .bs-reason {
+  background: color-mix(in srgb, var(--ui-paper) 94%, transparent);
+}
+.game-shell.has-page .bf-head {
+  background: color-mix(in srgb, var(--c-wood-dark) 80%, transparent);
+  color: var(--c-cream);
+  backdrop-filter: blur(7px);
+}
+.game-shell.has-page .bf-side {
+  background: color-mix(in srgb, var(--c-paper) 82%, transparent);
+  backdrop-filter: blur(3px);
+}
+
+/* Touch/accessibility guardrails shared by the remaining pages. */
+.game-shell.has-page :is(.research-card, .objective-card, .unit-card, .city-card, .mission-card, .report-card) button,
+.game-shell.has-page :is(.court-book, .annals-ledger) button {
+  min-height: 44px;
+}
+
+@media (max-width: 390px) {
+  .game-shell.has-page .bp:not(.bp-building):not(.bp-royal):not(.bp-mapview):not(.bp-sheet) > .bp-scroll { padding-inline: 8px; }
+  .game-shell.has-page .bp-objectives .bp-scroll,
+  .game-shell.has-page .bp-annals .bp-scroll,
+  .game-shell.has-page .bp-civic .bp-scroll,
+  .game-shell.has-page .bp-court:not(.bp-royal) .bp-scroll { padding-inline: 8px; }
+  .game-shell.has-page :is(.quest-court-scene, .annals-scene, .treasury-stage) { width: calc(100% + 16px); margin-inline: -8px; }
+}
