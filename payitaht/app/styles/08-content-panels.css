@@ -7,7 +7,6 @@
 .bp .advisor-panel,
 .bp .research-panel,
 .bp .building-list,
-.bp .world-panel,
 .bp .alliance-panel {
   gap: 12px;
 }
@@ -554,5 +553,4 @@
 .rank-rights li { display: inline-flex; align-items: center; gap: 3px; }
 .rank-rights :is(svg, .painted-icon) { width: 13px; height: 13px; }
 .rank-who { color: var(--c-ink-muted); font-size: 12px; }
-.alliance-tabs button span { font-size: 12px; }
 .pact-texts textarea, .pact-texts .text-input { box-sizing: border-box; max-width: 100%; }

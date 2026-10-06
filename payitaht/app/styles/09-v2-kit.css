@@ -373,18 +373,10 @@
 .rs-tree button .rs-node { transition: scale .2s ease; }
 .rs-tree button[aria-pressed="true"] .rs-node { scale: 1.18; }
 .bp .rs-tree li button[aria-pressed="true"] { min-height: 62px; box-shadow: 0 2px 8px #5a351733; }
-
-/* =========================================================================
- * V2 Faz 2.7 — İTTİFAK: başta sancak + ad + itibar madalyonu, üyeler armalı
- * portre kartı, görevler ilerleme çubuklu ödül kartı, duyuru rulo parşömen.
- * ========================================================================= */
-/* Madalyon sancağın dibine asılı mühür gibi durur; yazının yerini almaz. */
-.alliance-head { position: relative; }
 .pact-medal { position: absolute; left: 6px; bottom: 6px; width: 58px; height: 58px; display: flex; flex-direction: column; align-items: center; justify-content: center; border-radius: 50%; color: var(--c-ink-deep);
   background: radial-gradient(circle at 38% 30%, var(--c-gold-pale), var(--c-gold-mid) 70%, var(--c-brass-dark)); border: 3px solid var(--c-gold-deep); box-shadow: 0 3px 6px #3b241455, inset 0 2px #ffffff88, inset 0 -3px 4px #3b241444; }
 .pact-medal :is(svg, .painted-icon) { width: 16px; height: 16px; color: var(--c-brass-dark); }
 .pact-medal b { font-size: var(--fs-base); line-height: 1; font-variant-numeric: tabular-nums lining-nums; }
-.alliance-head .pact-medal small { font-size: var(--fs-xs); line-height: 1; color: var(--c-brass-dark); font-weight: 700; }
 .pact-scroll { position: relative; padding: 12px 16px; border-radius: 4px; border: 0; background: linear-gradient(180deg, var(--c-cream), var(--c-parch-2) 60%, var(--c-parch-shade)); box-shadow: 0 2px 5px #5a351733;
   border-left: 8px solid var(--c-wood-edge); border-right: 8px solid var(--c-wood-edge); border-image: none; }
 .pact-scroll::before, .pact-scroll::after { content: ''; position: absolute; top: -3px; bottom: -3px; width: 6px; border-radius: 3px; background: linear-gradient(90deg, var(--c-brass-dark), var(--c-gold-soft), var(--c-brass-dark)); }

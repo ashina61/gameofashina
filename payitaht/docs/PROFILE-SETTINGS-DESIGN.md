@@ -21,3 +21,7 @@ The user rejected SVG motifs and requested a complete image-based wardrobe. roya
 
 ### 5 Ekim: ortak dili oyunun geneline taşıma
 Kullanıcı genel yenilemeye sırayla başlama yetkisi verdi. İlk bölüm Vezir (0.57.0 / SW54): ayrı resimli divan sahnesi, tam genişlikte ahşap/pirinç başlık ve parşömen, Gündem/Şehirler/Haberler. Öncelikler, üretim, şehir nüfusu ve inşaatlar, haberler gerçek kayıttan gelir. Oyun kuralları ve kayıt biçimi değişmez. Sonraki bölüm Elçi/İttifak; her biten bölüm yayınlanıp gerçek ekranlarla sunulur.
+
+
+### Elçi / İttifak · 0.58.0 / SW55
+Kullanıcının ‘devam’ yetkisiyle Elçi altı defterli hariciye odasına dönüştürüldü. İttifak kuruluş/katılım ve kurulu birliğin beş yönetim defteri aynı tam genişlikte ahşap, pirinç, parşömen ve resimli nesne diliyle yenilendi. İttifak sancağı gerçek kumaş ve sırma arma düzenleyicisine geçti. İşlemler mevcut motoru kullanır; oyun kuralları ve kayıt biçimi değişmedi. Sırada bina sayfaları var.

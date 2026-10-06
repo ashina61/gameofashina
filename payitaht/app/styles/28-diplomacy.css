@@ -1,0 +1,108 @@
+/* Shared court language: hariciye defters and alliance council. */
+.diplomatic-scene { position: relative; height: clamp(180px,51vw,280px); overflow: hidden; border-bottom: 3px ridge var(--c-gold); }
+.diplomatic-scene > img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: 35% center; }
+.diplomatic-scene-caption { position: absolute; inset: auto 0 0; padding: 28px 14px 9px; background: linear-gradient(transparent,#211106f2); color: var(--c-cream); text-shadow: 0 1px 2px #000; }
+.diplomatic-scene-caption h2 { margin: 1px 0; font: 700 25px/1.15 Georgia,serif; overflow-wrap: anywhere; }
+.diplomatic-scene-caption p, .diplomatic-scene-caption > span { margin: 0; font: 13px/1.4 Georgia,serif; }
+.diplomatic-scene.is-alliance > .royal-standard { left: 3%; top: 0; width: 37%; height: 100%; }
+.diplomatic-scene.is-alliance .diplomatic-scene-caption { left: 39%; top: 0; display: flex; flex-direction: column; justify-content: center; padding: 10px; background: #241407a8; }
+.game-shell.has-page .bp.bp-royal .diplomatic-page .court-tabs { grid-template-columns: repeat(3,minmax(0,1fr)); }
+.game-shell.has-page .bp.bp-royal .alliance-page > .court-tabs { grid-template-columns: repeat(6,minmax(0,1fr)); }
+.alliance-page > .court-tabs > button { grid-column: span 2; }
+.alliance-page > .court-tabs > button:nth-last-child(-n+2) { grid-column: span 3; }
+.game-shell.has-page .bp.bp-royal .alliance-foundation > .court-tabs { grid-template-columns: repeat(2,minmax(0,1fr)); }
+.diplomatic-counsel, .diplomatic-notice, .diplomatic-requirements { display: flex; align-items: center; gap: 9px; padding: 10px 0; margin: 0; border-bottom: 1px solid var(--c-gold-deep); font: 14px/1.4 Georgia,serif; }
+.diplomatic-counsel > .royal-art, .diplomatic-notice > .royal-art, .diplomatic-requirements > .royal-art { width: 50px; height: 56px; flex-shrink: 0; }
+.diplomatic-counsel p { margin: 0; }
+.diplomatic-notice, .diplomatic-requirements { padding: 10px 14px; }
+.diplomatic-notice b, .diplomatic-requirements small { display: block; }
+.diplomatic-simulation { padding: 8px 0; margin: 0; font: 12px Georgia,serif; text-align: center; color: var(--c-ink-muted); }
+.diplomatic-empty { display: flex; gap: 12px; align-items: center; padding: 20px 0; }
+.diplomatic-empty > .royal-art { width: 85px; height: 100px; }
+.diplomatic-empty h3 { margin: 0 0 6px; font: 700 20px/1.2 Georgia,serif; }
+.diplomatic-empty p { margin: 0; font: 15px/1.5 Georgia,serif; }
+.diplomatic-page .empire-section { padding: 12px 0; margin: 0; border: 0; border-bottom: 1px solid var(--c-gold-deep); background: transparent; box-shadow: none; }
+.diplomatic-page .empire-section h3 { display: flex; align-items: center; gap: 8px; margin: 0 0 12px; font: 700 20px/1.25 Georgia,serif; }
+.diplomatic-page .empire-section h3 > .painted-icon { width: 50px; height: 50px; flex-shrink: 0; }
+.diplomatic-page .fine-print, .diplomatic-page .mail-body { font: 15px/1.5 Georgia,serif; }
+.diplomatic-page :is(.gbtn,.world-tabs > button,.rank-duty-edit) { min-height: 44px; }
+.diplomatic-page .batch-row { display: flex; flex-wrap: wrap; gap: 8px; }
+.diplomatic-page .batch-row > input { flex: 1 1 170px; }
+.diplomatic-page .batch-row > .gbtn { flex: 1 1 110px; }
+.diplomatic-page :is(input.text-input,textarea.text-input,select) { width: 100%; min-width: 0; min-height: 46px; border: 2px ridge var(--c-gold); border-radius: 0; padding: 8px; background: #fff4; color: var(--c-ink); font: 16px/1.4 Georgia,serif; }
+.diplomatic-page .profile-label { display: block; margin: 12px 0 6px; font: 700 15px Georgia,serif; }
+.diplomatic-page :is(.report-card,.proposal-card,.stance-card,.member-card,.rank-duty) { margin: 10px 0; padding: 12px 0; border: 0; border-bottom: 1px solid var(--c-gold-deep); background: transparent; border-radius: 0; box-shadow: none; }
+.diplomatic-page .report-card.unread { border-left: 3px solid var(--c-red); padding-left: 9px; }
+.diplomatic-page .report-head { display: grid; grid-template-columns: 42px minmax(0,1fr); align-items: center; gap: 6px; }
+.diplomatic-page .report-head > .royal-art { width: 42px; height: 48px; grid-row: span 2; }
+.diplomatic-page .report-head > strong { font: 700 19px/1.2 Georgia,serif; }
+.diplomatic-page .report-head > time { grid-column: 2; font: 12px Georgia,serif; }
+.diplomatic-page .mail-from { margin-block: 8px; color: var(--c-red); }
+.diplomatic-page .world-tabs { gap: 0; border: 2px ridge var(--c-gold); background: var(--royal-wood); }
+.diplomatic-page .world-tabs > button { padding: 7px 4px; border: 1px solid var(--c-gold-deep); background: transparent; font: 14px/1.3 Georgia,serif; color: var(--c-cream); }
+.diplomatic-page .world-tabs > button[aria-pressed='true'] { background: linear-gradient(var(--c-royal-active),var(--c-royal-active-deep)); color: var(--c-gold-pale); }
+.diplomatic-page .trade-tabs, .diplomatic-page .circular-topics { grid-template-columns: repeat(2,minmax(0,1fr)); }
+.diplomatic-page .stance-tabs { width: 100%; display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); }
+.diplomatic-page .rank-tabs { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 6px; }
+.diplomatic-page .rank-table { padding: 0; }
+.diplomatic-page .rank-table li { padding: 10px 0; background: transparent; border-bottom: 1px solid var(--c-parch-line); }
+.diplomatic-page .rank-table button { font: 16px Georgia,serif; }
+.diplomatic-crest { position: relative; display: grid; place-items: center; flex-shrink: 0; width: 55px; height: 65px; border: 3px ridge var(--c-gold); border-radius: 45% 45% 48% 48%; }
+.diplomatic-crest > .royal-embroidery { position: static; width: 85%; height: 85%; }
+.diplomatic-page .rank-podium { padding: 15px 0 0; }
+.diplomatic-page .rank-podium button { min-width: 0; gap: 6px; font: 15px Georgia,serif; }
+.diplomatic-page .rank-podium .diplomatic-crest { margin: auto; }
+.diplomatic-page .rival-row { display: grid; grid-template-columns: 70px minmax(0,1fr) 36px; align-items: center; gap: 8px; padding: 14px 0; border: 0; border-bottom: 1px solid var(--c-parch-line); background: transparent; font: 16px Georgia,serif; }
+.diplomatic-page .rival-row > small { grid-column: 2 / -1; }
+.diplomatic-page .rival-row .rival-war { margin: 0; }
+.diplomatic-page :is(.mission-row,.member-row,.trade-row) { display: flex; flex-wrap: wrap; gap: 8px; padding: 14px 0; border-bottom: 1px solid var(--c-parch-line); background: transparent; }
+.diplomatic-page .mission-row > span, .diplomatic-page .member-row > .member-name { flex: 1 1 200px; }
+.diplomatic-page .mission-row > .gbtn, .diplomatic-page .member-row > .gbtn { flex: 1 1 90px; }
+.diplomatic-page :is(.member-name,.mission-row strong,.member-card-name strong,.stance-card strong) { font: 700 18px/1.3 Georgia,serif; }
+.diplomatic-page :is(.mission-row small,.member-name small,.stance-card small) { display: block; margin-top: 5px; font: 13px/1.45 Georgia,serif; }
+.diplomatic-page .member-card { display: flex; flex-wrap: wrap; gap: 8px; }
+.diplomatic-page .member-card-tools { display: grid; grid-template-columns: minmax(0,1fr) 44px; width: 100%; }
+.diplomatic-page .member-card-name { display: flex; align-items: center; gap: 10px; min-width: 0; flex: 1 1 160px; text-align: left; }
+.diplomatic-page .member-card-name strong, .diplomatic-page .member-card-name small { overflow-wrap: anywhere; }
+.diplomatic-page .alliance-perks { display: grid; gap: 12px; padding: 0; list-style: none; font: 15px/1.45 Georgia,serif; }
+.diplomatic-page .alliance-perks li { display: flex; gap: 10px; align-items: center; }
+.diplomatic-page .alliance-perks .painted-icon { width: 50px; height: 50px; flex-shrink: 0; }
+.diplomatic-page .proposal-head { flex-direction: column; align-items: stretch; }
+.diplomatic-page .proposal-from { width: 100%; }
+.diplomatic-page .proposal-kind { flex-direction: row; justify-content: flex-start; gap: 7px; font: 16px Georgia,serif; }
+.diplomatic-page .proposal-kind .painted-icon { width: 45px; height: 45px; }
+.diplomatic-page .proposal-text { margin: 12px 0; font: 17px/1.5 Georgia,serif; }
+.diplomatic-page .proposal-actions { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 8px; }
+.diplomatic-page .trade-row > .gbtn { flex: 1 1 100%; }
+.diplomatic-page .trade-main { min-width: 0; flex: 1 1 150px; }
+.diplomatic-page .trade-price { margin-left: auto; }
+.diplomatic-page .trade-filters { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 8px; }
+.diplomatic-page .trade-filters > .seg { grid-column: 1 / -1; }
+.diplomatic-page .news-list { padding: 0; }
+.diplomatic-page .news-list li { grid-template-columns: 45px minmax(0,1fr) 44px; padding: 12px 0; background: transparent; font: 15px/1.5 Georgia,serif; }
+.diplomatic-page .news-list li > i { width: 42px; height: 48px; }
+.diplomatic-page .news-list button { min-width: 44px; min-height: 44px; }
+.diplomatic-page .news-list time { font: 12px Georgia,serif; }
+.diplomatic-page .goal-card { display: flex; flex-wrap: wrap; border-radius: 0; background: transparent; border: 0; border-bottom: 1px solid var(--c-gold-deep); padding: 12px 0; }
+.diplomatic-page .goal-art { width: 75px; height: 85px; }
+.diplomatic-page .goal-art > .royal-art { width: 100%; height: 100%; }
+.diplomatic-page .goal-body { flex: 1 1 160px; }
+.diplomatic-page .goal-card > .gbtn { width: 100%; }
+.diplomatic-flag-preview { position: relative; height: 230px; }
+.diplomatic-flag-preview > .royal-standard { inset: 0; width: 100%; height: 100%; }
+.diplomatic-signature { display: grid; grid-template-columns: 2fr 1fr; gap: 8px; margin-top: 12px; }
+.diplomatic-faction-body { padding: 0 14px; }
+.diplomatic-page .royal-summary > span > span { min-width: 0; flex: 1; overflow-wrap: anywhere; }
+.diplomatic-page .empire-section { border-image: none; border-radius: 0; overflow: visible; }
+.diplomatic-page .empire-section > h3 { border-image: none; border: 0; padding: 0; background: none; color: var(--c-ink); text-shadow: none; }
+.diplomatic-page .empire-section > :not(h3) { margin-inline: 0; }
+.diplomatic-scene.is-alliance { height: auto; min-height: 220px; padding-left: 39%; }
+.diplomatic-scene.is-alliance > img { position: absolute; inset: 0; }
+.diplomatic-scene.is-alliance .diplomatic-scene-caption { position: relative; inset: auto; min-height: 220px; }
+.diplomatic-page .empire-section h3 > .royal-art { width: 50px; height: 50px; flex-shrink: 0; }
+.diplomatic-page .gbtn > .royal-art { width: 24px; height: 24px; flex-shrink: 0; }
+.diplomatic-page .alliance-perks .royal-art { width: 50px; height: 50px; flex-shrink: 0; }
+.diplomatic-page .rank-rights .royal-art { width: 18px; height: 18px; flex-shrink: 0; }
+.diplomatic-page .proposal-kind > .royal-art { width: 45px; height: 45px; }
+.diplomatic-page .news-list li > i > .royal-art { width: 42px; height: 48px; }
+.diplomatic-page .goal-token > .royal-art { width: 24px; height: 24px; }

@@ -1,4 +1,5 @@
 'use client'
+import { ApprovedArt } from './approved-court-art'
 import { KumSaatiArt } from './resource-art'
 
 /**
@@ -6,7 +7,7 @@ import { KumSaatiArt } from './resource-art'
  * tempo ayarı. Buradaki bütün hükümdarlar yapay rakiptir (gerçek oyuncu değil).
  */
 import type { CSSProperties, ReactNode } from 'react'
-import { Check, Coins, Eye, Gift, Handshake, HeartHandshake, Newspaper, Ship, Swords, TrendingUp, X } from './ui-art'
+import { Check, Eye, X } from './ui-art'
 import { GameButton } from './game-button'
 import { GOOD_NAMES, LUXURY_IDS, type Good, type Luxury, type Resource } from '@/lib/game/engine'
 import type { Empire } from '@/lib/game/empire'
@@ -36,7 +37,7 @@ function DealToken({ label, deal, side }: { label: string; deal: Deal; side: 'gi
   </span>
 }
 const KIND_ICON: Record<ProposalKind, ReactNode> = {
-  satis: <Ship />, alis: <Coins />, anlasma: <Handshake />, harac: <Swords />, yardim: <HeartHandshake />, hediye: <Gift />,
+  satis: <ApprovedArt name="trade" />, alis: <ApprovedArt name="trade" />, anlasma: <ApprovedArt name="seal" />, harac: <ApprovedArt name="military" />, yardim: <ApprovedArt name="kurucu" />, hediye: <ApprovedArt name="trade" />,
 }
 
 /** Rakiplerin sana getirdiği teklifler: kabul ya da ret. */
@@ -78,14 +79,14 @@ function ProposalCard({ p, empire, now, run, onRival }: { p: Proposal; empire: E
       <time><KumSaatiArt className="size-4" />{left(p.until - now)}</time>
     </div>
     <div className="proposal-actions">
-      <GameButton onClick={() => run((e, x) => acceptProposal(e, p.id, x), ok)}><Check data-icon="inline-start" />{accept}</GameButton>
-      <GameButton variant="outline" onClick={() => run((e, x) => declineProposal(e, p.id, x), p.kind === 'harac' ? 'Haraç reddedildi. Surları hazırla!' : 'Teklif geri çevrildi.')}><X data-icon="inline-start" />{p.kind === 'harac' ? 'Reddet' : 'Geri çevir'}</GameButton>
+      <GameButton onClick={() => run((e, x) => acceptProposal(e, p.id, x), ok)}><Check painted data-icon="inline-start" />{accept}</GameButton>
+      <GameButton variant="outline" onClick={() => run((e, x) => declineProposal(e, p.id, x), p.kind === 'harac' ? 'Haraç reddedildi. Surları hazırla!' : 'Teklif geri çevrildi.')}><X painted data-icon="inline-start" />{p.kind === 'harac' ? 'Reddet' : 'Geri çevir'}</GameButton>
     </div>
   </article>
 }
 
 const NEWS_ICON: Record<NewsKind, ReactNode> = {
-  savas: <Swords />, catisma: <Swords />, baris: <Handshake />, ticaret: <Ship />, buyume: <TrendingUp />, anlasma: <Handshake />,
+  savas: <ApprovedArt name="military" />, catisma: <ApprovedArt name="military" />, baris: <ApprovedArt name="seal" />, ticaret: <ApprovedArt name="trade" />, buyume: <ApprovedArt name="city" />, anlasma: <ApprovedArt name="seal" />,
 }
 /** Dünya haberleri ve süren rakip savaşları. */
 export function NewsPanel({ empire, now, onRival }: { empire: Empire; now: number; onRival: (id: string) => void }) {
@@ -93,14 +94,14 @@ export function NewsPanel({ empire, now, onRival }: { empire: Empire; now: numbe
   const news = empire.world?.news ?? []
   return <>
     {wars.length > 0 && <section className="empire-section">
-      <h3><Swords className="size-4" /> Süren savaşlar</h3>
+      <h3><ApprovedArt name="military" /> Süren savaşlar</h3>
       {wars.map(w => {
         const A = rivalById(w.a)!, B = rivalById(w.b)!
         const share = 50 + w.score * 12.5
         return <article key={w.id} className="war-row">
           <div className="war-sides">
             <button type="button" onClick={() => onRival(A.id)}>{A.city}</button>
-            <Swords aria-hidden="true" />
+            <ApprovedArt name="military" />
             <button type="button" onClick={() => onRival(B.id)}>{B.city}</button>
           </div>
           <span className="war-meter" role="img" aria-label={`Savaş durumu: ${w.score > 0 ? A.city : w.score < 0 ? B.city : 'kimse'} önde`}><span style={{ width: `${Math.max(6, Math.min(94, share))}%` }} /></span>
@@ -109,13 +110,13 @@ export function NewsPanel({ empire, now, onRival }: { empire: Empire; now: numbe
       })}
     </section>}
     <section className="empire-section">
-      <h3><Newspaper className="size-4" /> Dünya haberleri</h3>
+      <h3><ApprovedArt name="seal" /> Dünya haberleri</h3>
       {!news.length && <p className="fine-print">Henüz haber yok. Yapay rakipler savaştıkça, ticaret yaptıkça ve büyüdükçe burada yazılır.</p>}
       {news.some(n => n.story) && <p className="fine-print">Etiketli haberler birkaç bölüm süren hikâyelerdir: kan davası, düğün, kıtlık, korsan avı. Sonraki bölüm birkaç saat içinde gelir.</p>}
       <ol className="news-list">{news.map(n => <li key={n.id} className={`news-${n.kind}`}>
         <i aria-hidden="true">{NEWS_ICON[n.kind]}</i>
         <span>{n.story && <em className="news-story">{n.story.title} · {n.story.step}/{n.story.of}</em>}{n.text}<time>{when(n.time)}</time></span>
-        {n.rivals[0] && <button type="button" aria-label={`${rivalById(n.rivals[0])?.city} hükümdarını aç`} onClick={() => onRival(n.rivals[0])}><Eye className="size-4" /></button>}
+        {n.rivals[0] && <button type="button" aria-label={`${rivalById(n.rivals[0])?.city} hükümdarını aç`} onClick={() => onRival(n.rivals[0])}><Eye painted className="size-4" /></button>}
       </li>)}</ol>
     </section>
   </>

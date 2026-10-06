@@ -25,6 +25,7 @@
 @import './styles/25-royal-subtabs.css';
 @import './styles/26-sancaktar.css';
 @import './styles/27-vizier.css';
+@import './styles/28-diplomacy.css';
 
 @custom-variant dark (&:is(.dark *));
 @theme inline {

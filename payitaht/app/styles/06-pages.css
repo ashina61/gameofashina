@@ -180,7 +180,6 @@
 .world-tabs button span { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .world-tabs button[aria-pressed="true"] { background: linear-gradient(var(--c-brown-warm), #5e3a18); color: #f8e7bd; font-weight: 700; }
 .world-tabs button:focus-visible { outline: 2px solid var(--c-bad); outline-offset: -3px; }
-.world-tab-badge { position: absolute; top: 4px; right: calc(50% - 22px); min-width: 17px; height: 17px; padding: 0 4px; border-radius: 9px; background: var(--c-bad); color: #fff; font-size: 10px; line-height: 17px; text-align: center; }
 
 /* Bina sahnesinin köşesinde Ikariam gibi yuvarlak araç düğmeleri (çevir, taşı, yık). */
 .bp-hero-tools { position: absolute; top: 10px; right: 12px; display: flex; flex-direction: column; gap: 8px; z-index: 1; }
@@ -500,10 +499,6 @@
 .wm-ship { filter: drop-shadow(0 1px 1px #0008); }
 .wm-dot.wm-war { background: #c0392b; }
 @media (prefers-reduced-motion: reduce) { .wm-war-line, .wm-war-mark { animation: none; } }
-
-/* ── TEKLİFLER, HABERLER, TEMPO ─────────────────────────────────────────── */
-.world-panel .world-tabs { grid-template-columns: repeat(6, minmax(0, 1fr)); }
-.world-panel .world-tabs button { font-size: 11px; padding-inline: 1px; }
 .pace-tabs { grid-template-columns: repeat(3, minmax(0, 1fr)) !important; margin-bottom: 6px; }
 .pace-tabs button { padding: 10px 4px; font-size: 12.5px; }
 .proposals { display: flex; flex-direction: column; gap: 10px; }
