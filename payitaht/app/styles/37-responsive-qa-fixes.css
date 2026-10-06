@@ -1,0 +1,95 @@
+/* Responsive QA fixes for the unified visual system.
+ * These are geometry guards only; no behavior/state changes. */
+
+/* The approved royal layer predates the unified spacing layer and some of its
+ * descendants use intrinsic widths. Keep every royal surface inside the
+ * portrait viewport even at 390/360px and enlarged text. */
+.game-shell.has-page .bp.bp-royal .bp-scroll,
+.game-shell.has-page .bp.bp-royal .royal-page,
+.game-shell.has-page .bp.bp-royal .royal-page > *,
+.game-shell.has-page .bp.bp-royal .court-tabs,
+.game-shell.has-page .bp.bp-royal .court-tab-body,
+.game-shell.has-page .bp.bp-royal .royal-section,
+.game-shell.has-page .bp.bp-royal .royal-profile-scene,
+.game-shell.has-page .bp.bp-royal .royal-settings-scene,
+.game-shell.has-page .bp.bp-royal .royal-summary,
+.game-shell.has-page .bp.bp-royal .sancaktar-workshop,
+.game-shell.has-page .bp.bp-royal .sancaktar-selection {
+  box-sizing: border-box;
+  min-width: 0;
+  max-width: 100%;
+}
+.game-shell.has-page .bp.bp-royal .bp-scroll {
+  width: 100%;
+  overflow-x: clip;
+}
+.game-shell.has-page .bp.bp-royal .royal-page,
+.game-shell.has-page .bp.bp-royal .court-tabs,
+.game-shell.has-page .bp.bp-royal .court-tab-body,
+.game-shell.has-page .bp.bp-royal .royal-profile-scene,
+.game-shell.has-page .bp.bp-royal .royal-settings-scene {
+  width: 100%;
+}
+.game-shell.has-page .bp.bp-royal .royal-page :is(
+  .royal-title-path,
+  .royal-ledger,
+  .royal-honours,
+  .royal-save-actions,
+  .royal-status-grid,
+  .royal-preference,
+  .royal-inscription,
+  .royal-settlements,
+  .sancaktar-identity,
+  .sancaktar-steps,
+  .sancaktar-cloths,
+  .sancaktar-emblems,
+  .sancaktar-colors,
+  .sancaktar-signature
+) {
+  box-sizing: border-box;
+  min-width: 0;
+  max-width: 100%;
+}
+.game-shell.has-page .bp.bp-royal .royal-page :is(h2,h3,h4,p,strong,small,span,label) {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.game-shell.has-page .bp.bp-royal .royal-summary {
+  width: calc(100% - 20px);
+  margin-inline: 10px;
+}
+.game-shell.has-page .bp.bp-royal .royal-edit {
+  width: calc(100% - 20px);
+  max-width: calc(100% - 20px);
+  margin-inline: 10px;
+  box-sizing: border-box;
+}
+.game-shell.has-page .bp.bp-royal .court-footer {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 100%;
+  margin-inline: 0;
+}
+
+/* Royal artwork is allowed to extend visually, never geometrically. */
+.game-shell.has-page .bp.bp-royal :is(.royal-standard, .royal-art, .royal-embroidery) {
+  max-width: 100%;
+}
+
+/* Building inspector/footer geometry must also never create horizontal scroll. */
+.game-shell.has-building-preview .building-inspector,
+.game-shell.has-page .bp-building:not(.bp-royal) .bp-dock {
+  box-sizing: border-box;
+}
+
+@media (max-width: 390px) {
+  .game-shell.has-page .bp.bp-royal .court-tab-body { padding-inline: 10px; }
+  .game-shell.has-page .bp.bp-royal .royal-summary { width: calc(100% - 16px); margin-inline: 8px; }
+  .game-shell.has-page .bp.bp-royal .royal-edit { width: calc(100% - 16px); max-width: calc(100% - 16px); margin-inline: 8px; }
+}
+
+@media (max-width: 360px) {
+  .game-shell.has-page .bp.bp-royal .court-tab-body { padding-inline: 8px; }
+  .game-shell.has-page .bp.bp-royal .royal-summary { width: calc(100% - 12px); margin-inline: 6px; }
+  .game-shell.has-page .bp.bp-royal .royal-edit { width: calc(100% - 12px); max-width: calc(100% - 12px); margin-inline: 6px; }
+}
