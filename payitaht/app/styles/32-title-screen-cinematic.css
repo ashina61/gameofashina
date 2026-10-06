@@ -67,7 +67,7 @@
 
 .title-save span,
 .title-save small {
-  font-size: 10.5px;
+  font-size: 11.5px;
   color: #efe3c7c4;
 }
 
@@ -118,15 +118,15 @@
 }
 
 .title-links button {
-  min-height: 36px;
-  padding: 6px 8px;
+  min-height: 44px;
+  padding: 8px 10px;
   border: 0;
   border-radius: 8px;
   color: #efe0bdd0;
   background: #0c1317a6;
   box-shadow: none;
   backdrop-filter: blur(4px);
-  font-size: 10.5px;
+  font-size: 11.5px;
 }
 
 .title-links button:hover {
@@ -139,7 +139,7 @@
 }
 
 .title-foot p {
-  font-size: 9.5px;
+  font-size: 11px;
   letter-spacing: .01em;
 }
 
@@ -161,7 +161,7 @@
 @media (max-width: 390px) {
   .title-screen { padding-left: 12px; padding-right: 12px; }
   .title-head h1 { width: min(338px, 91vw); min-height: 146px; padding: 34px 39px 29px; }
-  .title-kicker { font-size: 10.5px; }
+  .title-kicker { font-size: 11.5px; }
   .title-card { width: min(336px, 94vw); }
   .title-btn.is-primary { min-height: 56px; font-size: 18px; }
 }
