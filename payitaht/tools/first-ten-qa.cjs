@@ -12,7 +12,7 @@
 const fs = require('node:fs/promises')
 const path = require('node:path')
 const { chromium } = require('playwright')
-const { START_BUTTON, qaOrigin } = require('./lib/qa.cjs')
+const { START_BUTTON, autoCompleteTitleSetup, qaOrigin } = require('./lib/qa.cjs')
 
 const ORIGIN = qaOrigin('FIRST_TEN_QA_URL')
 const START = new Date('2026-10-05T09:00:00Z').getTime()
@@ -26,6 +26,7 @@ async function main() {
   const page = await (await browser.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 1, isMobile: true, hasTouch: true })).newPage()
   const errors = []
   page.on('pageerror', e => errors.push(e.message))
+  await autoCompleteTitleSetup(page)
   await page.clock.install({ time: START })
   const log = []
   try {
