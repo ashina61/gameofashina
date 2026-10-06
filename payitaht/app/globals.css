@@ -27,6 +27,7 @@
 @import './styles/27-vizier.css';
 @import './styles/28-diplomacy.css';
 @import './styles/29-management.css';
+@import './styles/30-title-screen-premium.css';
 
 @custom-variant dark (&:is(.dark *));
 @theme inline {
