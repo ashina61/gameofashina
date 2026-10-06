@@ -3,8 +3,9 @@
 /**
  * GİRİŞ EKRANI — oyun açılınca önce bu gelir.
  *
- * Kayıt varsa "Devam et" kartı hükümdarı, armayı, başkenti ve son oynanan
- * zamanı gösterir; yoksa (ilk açılış) doğrudan hükümdar adı ve arma seçilir.
+ * Ana menü her durumda sinematik kalır. Kayıt varsa "Devam et" hükümdarı ve
+ * başkenti gösterir; ilk açılışta ise yalnız "Hikâyeye başla" görünür. İsim,
+ * başkent ve arma seçimi ancak oyuncu yeni oyun akışını açınca gösterilir.
  * Her şey çevrimdışıdır: kayıt bu cihazın yerel depolamasında durur. Diğer
  * hükümdarlar yapay rakiptir; gerçek oyuncu yoktur.
  */
@@ -99,7 +100,7 @@ export function TitleScreen({ onStart }: { onStart: () => void }) {
     {error && <p role="alert" className="title-error">{error}</p>}
     {confirmWipe && <p role="alert" className="title-warn"><TriangleAlert /> Bu cihazdaki eski şehrin silinecek. Emin misin?</p>}
     <button type="submit" className="title-btn is-primary"><Sparkles />{confirmWipe ? 'Evet, eskisini sil ve başla' : 'Hikâyeye başla'}</button>
-    {hasSave && <button type="button" className="title-btn" onClick={() => { setMode('menu'); setConfirmWipe(false) }}><ChevronLeft />{t.action.cancel}</button>}
+    <button type="button" className="title-btn" onClick={() => { setMode('menu'); setConfirmWipe(false); setError('') }}><ChevronLeft />{t.action.back}</button>
   </form>
 
   const look: BannerLook = profile ? { color: profile.color, shape: profile.banner ?? 'kirlangic', crest: profile.crest } : { color, shape: 'kirlangic', crest }
@@ -133,10 +134,13 @@ export function TitleScreen({ onStart }: { onStart: () => void }) {
         <button type="button" className="title-btn" onClick={() => setMode('menu')}><ChevronLeft />{t.action.back}</button>
       </div>
 
-      : !hasSave || mode === 'new' ? <>
-        <h2>{hasSave ? 'Yeni oyun' : 'Hoş geldin, hükümdar'}</h2>
-        {!hasSave && <p className="title-note">Adını ve armanı seç; Sahilhisar sahilinde ilk şehrin seni bekliyor.</p>}
+      : mode === 'new' ? <>
+        <h2>Yeni oyun</h2>
         {newGameForm}
+      </>
+
+      : !hasSave ? <>
+        <button type="button" className="title-btn is-primary" onClick={() => setMode('new')}><Sparkles />Hikâyeye başla</button>
       </>
 
       : <>
@@ -152,7 +156,7 @@ export function TitleScreen({ onStart }: { onStart: () => void }) {
         <button type="button" className="title-btn" onClick={() => { setMode('new'); setConfirmWipe(false) }}><Sparkles />Yeni oyun</button>
       </>}
 
-      {save !== null && mode !== 'howto' && mode !== 'notes' && <nav className="title-links">
+      {save !== null && mode !== 'howto' && mode !== 'notes' && mode !== 'new' && <nav className="title-links">
         <button type="button" onClick={() => setMode('howto')}><BookOpen />Nasıl oynanır</button>
         <button type="button" onClick={() => setMode('notes')}><ScrollText />Sürüm notları</button>
       </nav>}
