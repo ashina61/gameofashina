@@ -1,0 +1,324 @@
+/* Payitaht — main city UI reframe.
+ * Presentation-only layer: engine state, commands, save/load and Phaser world stay untouched.
+ * The city world is the hero; HUD elements float above it with less visual weight. */
+
+.game-shell.game-world {
+  --ika-top: calc(var(--sa-top) + 94px);
+  --ika-nav: calc(var(--sa-bottom) + 68px);
+}
+
+/* -------------------------------------------------------------------------
+ * TOP HUD — one compact identity row + one restrained resource row.
+ * ------------------------------------------------------------------------- */
+.game-world .ika-top { pointer-events: none; }
+.game-world .ika-top :is(button, .ika-res) { pointer-events: auto; }
+
+.game-world .ika-ribbon {
+  min-height: 48px;
+  height: 48px;
+  gap: 4px;
+  padding: calc(var(--sa-top) + 2px) 7px 2px;
+  border-bottom: 1px solid color-mix(in srgb, var(--c-gold) 38%, transparent);
+  border-image: none;
+  background:
+    linear-gradient(180deg,
+      color-mix(in srgb, var(--c-wood-dark) 92%, #10251f 8%),
+      color-mix(in srgb, var(--c-wood-dark) 86%, transparent));
+  box-shadow: 0 5px 16px #0008, inset 0 -1px 0 #0005;
+  backdrop-filter: blur(10px) saturate(.9);
+}
+
+.game-world .ika-crest {
+  width: 50px;
+  min-width: 44px;
+  height: 44px;
+  padding: 0;
+}
+.game-world .ika-crest .ika-banner,
+.game-world .ika-crest > svg { transform: scale(.9); transform-origin: center; }
+.game-world .ika-crest-level { top: 14px; right: 1px; font-size: 12px; }
+
+.game-world .ika-city {
+  min-height: 44px;
+  gap: 4px;
+  padding: 1px 4px;
+}
+.game-world .ika-city-name { gap: 1px; }
+.game-world .ika-city-name strong { font-size: 14px; line-height: 1.05; }
+.game-world .ika-city-name small { font-size: 10px; opacity: .84; }
+.game-world .ika-might { font-size: 10px; line-height: 1; }
+
+.game-world .ika-advisors {
+  gap: 0;
+  padding-left: 2px;
+  border-left-color: color-mix(in srgb, var(--c-gold) 22%, transparent);
+}
+.game-world .ika-advisor {
+  width: 44px;
+  height: 44px;
+  filter: drop-shadow(0 2px 3px #0008);
+}
+.game-world .ika-advisor-ring { inset: 3px; }
+.game-world .ika-advisor-active::after { bottom: -1px; height: 2px; }
+
+.game-world .ika-res {
+  height: 46px;
+  min-height: 46px;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 1px;
+  padding: 1px 4px;
+  border-bottom: 1px solid color-mix(in srgb, var(--c-gold) 26%, transparent);
+  background: color-mix(in srgb, var(--c-wood-dark) 84%, transparent);
+  box-shadow: 0 3px 10px #0005;
+  backdrop-filter: blur(9px) saturate(.85);
+}
+.game-world .ika-chip {
+  min-height: 44px;
+  border: 0;
+  border-right: 1px solid color-mix(in srgb, var(--c-gold) 18%, transparent);
+  border-image: none;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+.game-world .ika-chip:last-child { border-right: 0; }
+.game-world .ika-stock-open {
+  min-height: 44px;
+  grid-template-columns: 17px minmax(0, 1fr);
+  column-gap: 2px;
+  padding: 2px 1px;
+}
+.game-world .ika-chip i :is(svg, .painted-icon) { width: 16px; height: 16px; }
+.game-world .ika-chip-num > b { font-size: 11.5px; line-height: 1; color: var(--c-cream); text-shadow: 0 1px 2px #0009; }
+.game-world .ika-chip-num > small { font-size: 10px; line-height: 1; letter-spacing: -.25px; color: color-mix(in srgb, var(--c-gold-pale) 82%, #8fc87e 18%); }
+.game-world .ika-chip-negative .ika-chip-num > small { color: #efaaa0; }
+.game-world .ika-chip-full,
+.game-world .ika-chip-cap { background: color-mix(in srgb, var(--c-bad) 44%, transparent); }
+
+/* 130%+ text: stay readable by becoming two rows instead of crushing six chips. */
+.game-world:has(.ika-res-large) { --ika-top: calc(var(--sa-top) + 144px); }
+.game-world .ika-res.ika-res-large {
+  height: 96px;
+  min-height: 96px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-rows: repeat(2, 46px);
+  gap: 2px;
+}
+.game-world .ika-res-large .ika-chip { min-height: 46px; border: 1px solid color-mix(in srgb, var(--c-gold) 15%, transparent); border-radius: 7px; }
+
+/* -------------------------------------------------------------------------
+ * CITY FLOATING RAILS — useful when needed, quiet when idle.
+ * ------------------------------------------------------------------------- */
+.game-world .city-shortcuts {
+  top: calc(var(--ika-top) + 12px);
+  right: 8px;
+  gap: 6px;
+}
+.game-world .city-shortcuts button {
+  width: 44px;
+  height: 44px;
+  border: 1px solid color-mix(in srgb, var(--c-gold) 48%, transparent);
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--c-wood-dark) 78%, transparent);
+  background-image: none;
+  box-shadow: 0 4px 12px #0007, inset 0 1px 0 #fff1;
+  backdrop-filter: blur(7px);
+}
+.game-world .city-shortcuts button :is(svg, .painted-icon) { width: 28px; height: 28px; }
+.game-world .city-shortcuts small {
+  right: -2px;
+  bottom: -2px;
+  min-width: 20px;
+  padding: 2px 4px;
+  border: 1px solid color-mix(in srgb, var(--c-gold) 48%, transparent);
+  background: var(--c-wood-dark);
+  font-size: 10px;
+  text-align: center;
+}
+
+.game-world .city-activity {
+  top: calc(var(--ika-top) + 12px);
+  left: 8px;
+  width: auto;
+  max-width: min(170px, 48vw);
+  gap: 5px;
+  overflow: visible;
+}
+.game-world .city-activity > .city-activity-chip {
+  width: auto;
+  min-width: 0;
+  min-height: 44px;
+  padding: 6px 10px;
+  border: 1px solid color-mix(in srgb, var(--c-gold) 48%, transparent);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--c-wood-dark) 80%, transparent);
+  box-shadow: 0 4px 12px #0007, inset 0 1px 0 #fff1;
+  backdrop-filter: blur(7px);
+  font-size: 11px;
+}
+.game-world .city-activity > button:not(.city-activity-chip) {
+  min-height: 48px;
+  width: min(168px, 46vw);
+  padding: 5px 7px;
+  border: 1px solid color-mix(in srgb, var(--c-gold) 42%, transparent);
+  border-radius: 11px;
+  background: color-mix(in srgb, var(--c-wood-dark) 90%, transparent);
+  box-shadow: 0 5px 14px #0007;
+  backdrop-filter: blur(8px);
+}
+.game-world .city-activity img { width: 32px; height: 34px; }
+.game-world .city-activity strong { font-size: 11px; }
+.game-world .city-activity time { font-size: 10.5px; }
+
+/* -------------------------------------------------------------------------
+ * QUEST — compact mission strip above the dock, not another full app card.
+ * ------------------------------------------------------------------------- */
+.game-world .quest-chip {
+  left: max(8px, env(safe-area-inset-left, 0px));
+  right: auto;
+  bottom: calc(var(--ika-nav) + 8px);
+  width: min(304px, calc(100vw - 72px));
+  min-height: 48px;
+  border: 1px solid color-mix(in srgb, var(--c-gold) 46%, transparent);
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--c-paper) 91%, transparent);
+  box-shadow: 0 7px 20px #0006;
+  backdrop-filter: blur(7px);
+}
+.game-world .quest-chip-main { min-height: 48px; padding: 5px 7px; gap: 7px; }
+.game-world .quest-chip-icon { width: 28px; height: 28px; box-shadow: 0 0 0 1px var(--c-gold); }
+.game-world .quest-chip-text small { font-size: 10px; }
+.game-world .quest-chip-text strong { font-size: 13px; }
+.game-world .quest-chip-go {
+  min-height: 48px;
+  padding-inline: 10px;
+  border-left: 1px solid color-mix(in srgb, var(--c-gold-deep) 45%, transparent);
+  font-size: 11px;
+}
+
+/* -------------------------------------------------------------------------
+ * BOTTOM NAV — floating command dock. The world remains visible around it.
+ * ------------------------------------------------------------------------- */
+.game-world .ika-nav {
+  left: 50%;
+  right: auto;
+  bottom: calc(var(--sa-bottom) + 6px);
+  width: min(calc(100vw - 16px), 420px);
+  min-height: 58px;
+  padding: 4px 5px;
+  transform: translateX(-50%);
+  border: 1px solid color-mix(in srgb, var(--c-gold) 44%, transparent);
+  border-image: none;
+  border-radius: 18px;
+  background: color-mix(in srgb, var(--c-wood-dark) 91%, transparent) !important;
+  box-shadow: 0 -5px 18px #0008, inset 0 1px 0 #fff1;
+  backdrop-filter: blur(10px) saturate(.9);
+}
+.game-world .ika-nav-item {
+  min-height: 50px;
+  gap: 0;
+  padding: 3px 0 2px;
+  border-radius: 12px;
+  color: color-mix(in srgb, var(--c-cream) 78%, var(--c-gold-pale));
+  font-size: 10px;
+}
+.game-world .ika-nav-icon,
+.game-world .ika-nav-center .ika-nav-icon {
+  width: 36px;
+  height: 34px;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+}
+.game-world .ika-nav-item :is(svg, .painted-icon),
+.game-world .ika-nav-icon .painted-ui-icon,
+.game-world .ika-nav-center .ika-nav-icon .painted-ui-icon {
+  width: 30px;
+  height: 30px;
+  padding: 0;
+}
+.game-world .ika-nav-center { transform: none; }
+.game-world .ika-nav-center .ika-nav-label { margin-top: 0; }
+.game-world .ika-nav-active {
+  color: var(--c-gold-pale);
+  background: linear-gradient(180deg, transparent, color-mix(in srgb, var(--c-gold) 12%, transparent));
+}
+.game-world .ika-nav-active .ika-nav-icon,
+.game-world .ika-nav-center.ika-nav-active .ika-nav-icon {
+  background: radial-gradient(circle, color-mix(in srgb, var(--c-gold) 22%, transparent), transparent 70%);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--c-gold-pale) 38%, transparent);
+}
+.game-world .ika-nav-active::before { display: none; }
+.game-world .ika-nav-item .ika-badge { top: 1px; }
+
+/* -------------------------------------------------------------------------
+ * SELECTED BUILDING — compact inspector; same callbacks and upgrade controls.
+ * ------------------------------------------------------------------------- */
+.game-shell.has-building-preview .building-inspector {
+  bottom: calc(var(--ika-nav) + 8px);
+  max-width: 430px;
+  max-height: min(46dvh, calc(100dvh - var(--ika-top) - var(--ika-nav) - 18px));
+  border-radius: 20px 20px 12px 12px;
+  border-color: color-mix(in srgb, var(--c-gold-deep) 70%, transparent);
+  box-shadow: 0 16px 38px #0008, inset 0 1px 0 #fff5;
+}
+.game-shell.has-building-preview .building-inspector-header {
+  min-height: 50px;
+  padding: 5px 10px 5px 14px;
+  background: color-mix(in srgb, var(--c-wood-dark) 94%, transparent);
+  background-image: none;
+}
+.game-shell.has-building-preview .building-inspector-header h2 { font-size: 19px; }
+.game-shell.has-building-preview .building-inspector-header small { font-size: 10.5px; }
+.game-shell.has-building-preview .building-inspector-content { padding: 9px 13px 3px; }
+.game-shell.has-building-preview .building-inspector-summary { gap: 10px; }
+.game-shell.has-building-preview .building-inspector-summary > img { width: 78px; height: 78px; }
+.game-shell.has-building-preview .building-inspector-summary > p { font-size: 12.5px; line-height: 1.42; }
+.game-shell.has-building-preview .building-inspector .bp-dock { padding: 8px 11px 10px; }
+.game-shell.has-building-preview .building-inspector .bp-costs { margin-bottom: 6px; }
+.game-shell.has-building-preview .building-inspector .bp-upgrade-button { min-height: 48px; }
+
+/* Keep the stage clean while the building inspector owns the player's focus. */
+.has-building-preview .quest-chip,
+.has-building-preview .city-activity,
+.has-building-preview .city-shortcuts { visibility: hidden; pointer-events: none; }
+
+/* -------------------------------------------------------------------------
+ * RESPONSIVE SAFETY.
+ * ------------------------------------------------------------------------- */
+@media (max-width: 390px) {
+  .game-shell.game-world { --ika-top: calc(var(--sa-top) + 92px); }
+  .game-world .ika-ribbon { height: 47px; min-height: 47px; padding-inline: 5px; gap: 2px; }
+  .game-world .ika-crest { width: 46px; }
+  .game-world .ika-city-name strong { font-size: 13px; }
+  .game-world .ika-advisor { width: 42px; min-width: 42px; }
+  .game-world .ika-res { height: 45px; min-height: 45px; padding-inline: 2px; }
+  .game-world .ika-chip { min-height: 44px; }
+  .game-world .ika-chip i :is(svg, .painted-icon) { width: 15px; height: 15px; }
+  .game-world .ika-chip-num > b { font-size: 11px; }
+  .game-world .ika-chip-num > small { font-size: 9.5px; letter-spacing: -.45px; }
+  .game-world .ika-nav { width: calc(100vw - 12px); }
+  .game-world .quest-chip { width: min(286px, calc(100vw - 64px)); }
+}
+
+@media (max-width: 360px) {
+  .game-world .ika-city-name small,
+  .game-world .ika-might { display: none; }
+  .game-world .ika-advisor { width: 40px; min-width: 40px; transform: scale(.95); }
+  .game-world .ika-chip-num > b { font-size: 10.5px; }
+  .game-world .ika-chip-num > small { font-size: 9px; }
+  .game-world .ika-nav-item { font-size: 9.5px; }
+  .game-world .quest-chip { width: min(270px, calc(100vw - 62px)); }
+}
+
+@media (max-height: 700px) {
+  .game-world .quest-chip { bottom: calc(var(--ika-nav) + 4px); }
+  .game-world .city-shortcuts { gap: 4px; }
+  .game-shell.has-building-preview .building-inspector { max-height: min(50dvh, calc(100dvh - var(--ika-top) - var(--ika-nav) - 10px)); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .game-world .ika-nav-item,
+  .game-world .city-shortcuts button,
+  .game-world .city-activity > button { transition: none !important; }
+}
