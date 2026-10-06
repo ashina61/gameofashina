@@ -35,6 +35,7 @@
 @import './styles/35-visual-system-lock.css';
 @import './styles/36-page-family-polish.css';
 @import './styles/37-responsive-qa-fixes.css';
+@import './styles/38-approved-hud-nav.css';
 
 @custom-variant dark (&:is(.dark *));
 @theme inline {
