@@ -32,6 +32,7 @@
 @import './styles/32-title-screen-cinematic.css';
 @import './styles/33-city-ui-reframe.css';
 @import './styles/34-city-ui-safety.css';
+@import './styles/35-visual-system-lock.css';
 
 @custom-variant dark (&:is(.dark *));
 @theme inline {
