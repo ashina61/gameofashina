@@ -1,9 +1,8 @@
 /* Responsive QA fixes for the unified visual system.
- * These are geometry guards only; no behavior/state changes. */
+ * Geometry/readability guards only; no behavior/state changes. */
 
 /* The approved royal layer predates the unified spacing layer and some of its
- * descendants use intrinsic widths. Keep every royal surface inside the
- * portrait viewport even at 390/360px and enlarged text. */
+ * descendants use intrinsic widths. Keep every royal surface inside portrait. */
 .game-shell.has-page .bp.bp-royal .bp-scroll,
 .game-shell.has-page .bp.bp-royal .royal-page,
 .game-shell.has-page .bp.bp-royal .royal-page > *,
@@ -29,6 +28,13 @@
 .game-shell.has-page .bp.bp-royal .royal-profile-scene,
 .game-shell.has-page .bp.bp-royal .royal-settings-scene {
   width: 100%;
+}
+.game-shell.has-page .bp.bp-royal :is(.royal-profile-scene, .royal-settings-scene) > img {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
 }
 .game-shell.has-page .bp.bp-royal .royal-page :is(
   .royal-title-path,
@@ -70,26 +76,72 @@
   max-width: 100%;
   margin-inline: 0;
 }
+.game-shell.has-page .bp.bp-royal :is(.royal-standard, .royal-art, .royal-embroidery) { max-width: 100%; }
 
-/* Royal artwork is allowed to extend visually, never geometrically. */
-.game-shell.has-page .bp.bp-royal :is(.royal-standard, .royal-art, .royal-embroidery) {
+/* Generic page heroes: retain edge-to-edge visual treatment without negative
+ * margins that make the element geometrically leave its scroll container. */
+.game-shell.has-page .bp:not(.bp-building):not(.bp-royal):not(.bp-mapview):not(.bp-sheet) > .bp-scroll > .bp-hero:first-child,
+.game-shell.has-page :is(.quest-court-scene, .annals-scene, .treasury-stage) {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 100%;
+  margin-inline: 0;
+}
+
+/* Research branches are a five-cell command strip on phones, rather than a
+ * web-style horizontal scroller. All branches remain visible in one glance. */
+.game-shell.has-page .research-panel .rs-strip {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  width: 100%;
+  max-width: 100%;
+  margin: 0;
+  padding: 2px 0 8px;
+  gap: 3px;
+  overflow: visible;
+  box-sizing: border-box;
+}
+.game-shell.has-page .research-panel .rs-strip button {
+  width: 100%;
+  min-width: 0;
+  min-height: 52px;
+  padding: 6px 2px 13px;
+  font-size: 11px;
+}
+.game-shell.has-page .research-panel .rs-strip button span { min-width: 0; overflow-wrap: anywhere; }
+
+/* Inline-padded culture scene previously measured as width:100% + padding. */
+.game-shell.has-page .shadow-stage {
+  box-sizing: border-box;
+  width: 100%;
   max-width: 100%;
 }
 
-/* Building inspector/footer geometry must also never create horizontal scroll. */
+/* Building inspector/footer geometry must never create horizontal scroll. */
 .game-shell.has-building-preview .building-inspector,
-.game-shell.has-page .bp-building:not(.bp-royal) .bp-dock {
-  box-sizing: border-box;
+.game-shell.has-page .bp-building:not(.bp-royal) .bp-dock { box-sizing: border-box; }
+
+/* Minimum readable UI text in repeat-heavy HUD/building controls. */
+.game-world .ika-chip-num > small,
+.game-shell.has-page .bp-building:not(.bp-royal) .bp-stages button span,
+.game-shell.has-page .bp-building:not(.bp-royal) .bp-hero-tools button span {
+  font-size: 11px;
 }
 
 @media (max-width: 390px) {
   .game-shell.has-page .bp.bp-royal .court-tab-body { padding-inline: 10px; }
   .game-shell.has-page .bp.bp-royal .royal-summary { width: calc(100% - 16px); margin-inline: 8px; }
   .game-shell.has-page .bp.bp-royal .royal-edit { width: calc(100% - 16px); max-width: calc(100% - 16px); margin-inline: 8px; }
+  .game-shell.has-page .research-panel .rs-strip button { font-size: 10.8px; }
 }
 
 @media (max-width: 360px) {
   .game-shell.has-page .bp.bp-royal .court-tab-body { padding-inline: 8px; }
   .game-shell.has-page .bp.bp-royal .royal-summary { width: calc(100% - 12px); margin-inline: 6px; }
   .game-shell.has-page .bp.bp-royal .royal-edit { width: calc(100% - 12px); max-width: calc(100% - 12px); margin-inline: 6px; }
+  .game-shell.has-page .research-panel .rs-strip { gap: 2px; }
+  .game-shell.has-page .research-panel .rs-strip button { font-size: 11px; padding-inline: 1px; }
+  .game-world .ika-chip-num > small,
+  .game-shell.has-page .bp-building:not(.bp-royal) .bp-stages button span,
+  .game-shell.has-page .bp-building:not(.bp-royal) .bp-hero-tools button span { font-size: 11px; }
 }
