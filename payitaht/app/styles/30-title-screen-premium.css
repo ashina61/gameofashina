@@ -1,0 +1,475 @@
+/* Payitaht Adalari — premium title screen
+   The painted world is the hero. Menu chrome stays quiet until the player asks
+   for a secondary surface (new game, how-to, notes). */
+
+.title-screen {
+  --title-gold: #e5c77a;
+  --title-gold-soft: #f4dfa1;
+  --title-ink: #11171a;
+  --title-ink-2: #192328;
+  --title-paper: #f1dfb8;
+  --title-paper-deep: #dbc18b;
+  --title-emerald: #173f2c;
+  --title-emerald-2: #245c3c;
+  --title-shadow: #05080bcc;
+
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  min-height: 100dvh;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+  padding: calc(var(--sa-top) + 22px) 16px calc(var(--sa-bottom) + 12px);
+  color: #fff7df;
+  background: #0c1b22;
+  isolation: isolate;
+}
+
+.title-screen::before,
+.title-screen::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: -1;
+}
+
+/* Cinematic readability without turning the scene into a dark app backdrop. */
+.title-screen::before {
+  background:
+    linear-gradient(180deg, #07101466 0%, transparent 23%, transparent 56%, #07101466 76%, #071014d9 100%),
+    radial-gradient(ellipse at 50% 34%, transparent 20%, #07101422 72%, #07101466 100%);
+}
+
+.title-screen::after {
+  inset: auto 0 0;
+  height: 36vh;
+  background: linear-gradient(180deg, transparent, #0911148c 42%, #081013ed 100%);
+}
+
+.title-sea {
+  position: fixed;
+  inset: -2%;
+  z-index: -3;
+  background-size: cover;
+  background-position: 50% 50%;
+  filter: saturate(1.04) contrast(1.02);
+  transform: scale(1.025);
+  animation: title-premium-drift 28s ease-in-out infinite alternate;
+}
+
+@keyframes title-premium-drift {
+  from { transform: scale(1.025) translate3d(0, 0, 0); }
+  to { transform: scale(1.055) translate3d(-0.45%, -0.3%, 0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .title-sea { animation: none; transform: scale(1.025); }
+}
+
+/* The old runtime building collage competes with the painted hero art. */
+.title-skyline { display: none !important; }
+
+.title-head {
+  position: relative;
+  width: min(430px, 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 6px;
+  margin-top: clamp(26px, 6.5vh, 72px);
+  z-index: 2;
+  text-shadow: 0 2px 12px #000b;
+}
+
+.title-kicker {
+  order: 2;
+  width: max-content;
+  max-width: 88vw;
+  margin: -13px 0 0;
+  padding: 5px 18px 6px;
+  border: 1px solid #c7a86699;
+  border-radius: 999px;
+  color: #f6e6b8;
+  background: linear-gradient(180deg, #24170bd9, #120d08e8);
+  box-shadow: 0 8px 22px #0008, inset 0 1px 0 #fff2;
+  font-family: var(--font-heading), Georgia, serif;
+  font-size: 12px;
+  font-weight: 650;
+  letter-spacing: .055em;
+}
+
+.title-head h1 {
+  order: 1;
+  width: min(370px, 94vw);
+  min-height: 168px;
+  margin: 0;
+  padding: 40px 48px 34px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
+  color: #f4dda0;
+  font-family: var(--font-heading), Georgia, serif;
+  font-size: clamp(39px, 11vw, 54px);
+  font-weight: 800;
+  line-height: .84;
+  letter-spacing: -.035em;
+  filter: drop-shadow(0 14px 22px #0008);
+}
+
+.title-head h1 span {
+  display: block;
+  margin-top: 8px;
+  font-size: .74em;
+  letter-spacing: .08em;
+}
+
+.title-motto {
+  order: 3;
+  margin: 2px 0 0;
+  color: #fff1c9dd;
+  font-family: var(--font-heading), Georgia, serif;
+  font-size: 14px;
+  letter-spacing: .025em;
+}
+
+/* Home menu: no giant app card. Controls float over the painted scene. */
+.title-card {
+  position: relative;
+  width: min(372px, 100%);
+  margin-top: auto;
+  padding: 10px 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  z-index: 2;
+}
+
+.title-card > h2 {
+  margin: 0 0 4px;
+  color: #3f2c17;
+  font-family: var(--font-heading), Georgia, serif;
+  font-size: clamp(24px, 7vw, 31px);
+  text-align: center;
+}
+
+.title-save {
+  width: 100%;
+  min-height: 74px;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 11px;
+  padding: 9px 13px;
+  color: #fff3d2;
+  background:
+    linear-gradient(145deg, #142025ef, #0b1115f2),
+    radial-gradient(circle at 12% 0%, #a77e3540, transparent 38%);
+  border: 1px solid #d2b46a80;
+  border-radius: 17px;
+  box-shadow: 0 12px 30px #0008, inset 0 1px 0 #fff1;
+  backdrop-filter: blur(8px) saturate(1.08);
+}
+
+.title-save > div:last-child {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.title-save strong {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: #ffe6a3;
+  font-family: var(--font-heading), Georgia, serif;
+  font-size: 17px;
+}
+
+.title-save span,
+.title-save small {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: #f2e5c8cc;
+  font-size: 11.5px;
+}
+
+.title-btn {
+  width: 100%;
+  min-height: 50px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  padding: 11px 16px;
+  border: 1px solid #d6b86f99;
+  border-radius: 12px;
+  color: #f6dfaa;
+  background: linear-gradient(180deg, #21170fef, #100d0bef);
+  box-shadow: 0 8px 20px #0006, inset 0 1px 0 #fff2, inset 0 -1px 0 #0008;
+  font-family: var(--font-heading), Georgia, serif;
+  font-size: 16px;
+  font-weight: 720;
+  letter-spacing: .015em;
+  text-shadow: 0 1px 2px #000b;
+  transition: transform 130ms ease, filter 130ms ease, border-color 130ms ease;
+}
+
+.title-btn svg { width: 19px; height: 19px; flex: none; }
+.title-btn:hover:not(:disabled) { filter: brightness(1.09); border-color: #efd38ccc; }
+.title-btn:active:not(:disabled) { transform: translateY(1px) scale(.995); }
+.title-btn:focus-visible { outline: 2px solid #ffe099; outline-offset: 3px; }
+
+.title-btn.is-primary {
+  min-height: 58px;
+  border-color: #dfc47cbf;
+  color: #fff0bd;
+  background:
+    linear-gradient(180deg, #2b6848, #173f2c 74%),
+    var(--title-emerald);
+  box-shadow: 0 10px 26px #0008, inset 0 1px 0 #fff3, inset 0 -2px 0 #071b11aa;
+  font-size: 19px;
+}
+
+.title-links {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.title-links button {
+  min-height: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 10px;
+  border: 1px solid #cfb87959;
+  border-radius: 999px;
+  color: #f4e6c2d9;
+  background: #10191ddd;
+  box-shadow: 0 6px 16px #0005, inset 0 1px 0 #fff1;
+  backdrop-filter: blur(6px);
+  font: 600 11.5px var(--font-body), system-ui, sans-serif;
+}
+
+.title-links button svg { width: 15px; height: 15px; }
+.title-links button:hover { background: #182328ed; border-color: #d9c08191; }
+.title-links button:focus-visible { outline: 2px solid #ffe099; outline-offset: 2px; }
+
+.title-foot {
+  position: relative;
+  width: min(430px, 100%);
+  margin: 8px 0 0;
+  z-index: 2;
+  text-align: center;
+  color: #e8dcc1a3;
+  text-shadow: 0 1px 3px #000;
+}
+
+.title-foot p { margin: 0; font-size: 9.5px; line-height: 1.35; }
+.title-foot p + p { display: none; }
+
+/* Secondary surfaces become a deliberate parchment sheet instead of making
+   the entire title screen feel like an application form. */
+.title-screen:has(.title-form) .title-card,
+.title-screen:has(.title-howto) .title-card,
+.title-screen:has(.title-notes) .title-card,
+.title-screen:has(> .title-card > .title-note:first-child) .title-card {
+  width: min(404px, 100%);
+  margin-top: clamp(18px, 4vh, 42px);
+  margin-bottom: auto;
+  padding: 18px;
+  color: #332617;
+  background:
+    linear-gradient(180deg, #f6e8c7f5, #e6d0a1f7),
+    var(--title-paper);
+  border: 1px solid #e7d49f;
+  border-radius: 18px;
+  box-shadow: 0 20px 48px #0009, inset 0 0 0 1px #8a64264a, inset 0 1px 0 #fff9;
+  backdrop-filter: blur(10px);
+}
+
+.title-screen:has(.title-form) .title-links,
+.title-screen:has(.title-howto) .title-links,
+.title-screen:has(.title-notes) .title-links { display: none; }
+
+.title-form,
+.title-howto,
+.title-notes {
+  display: flex;
+  flex-direction: column;
+  gap: 11px;
+}
+
+.title-form label,
+.title-crests legend,
+.title-colors legend {
+  color: #6d4b21;
+  font-size: 11px;
+  font-weight: 750;
+  letter-spacing: .02em;
+}
+
+.title-form input {
+  width: 100%;
+  min-height: 41px;
+  margin: 3px 0 7px;
+  padding: 8px 10px;
+  border: 1px solid #a88144;
+  border-radius: 9px;
+  color: #2c2116;
+  background: #fff7e5cc;
+  box-shadow: inset 0 1px 3px #6f4d2224;
+  font: 600 14px var(--font-body), system-ui, sans-serif;
+}
+
+.title-form input:focus { outline: 2px solid #9b6f2b; outline-offset: 1px; }
+
+.title-form-crest {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 13px;
+}
+
+.title-crests,
+.title-colors {
+  margin: 0;
+  padding: 9px 10px 10px;
+  border: 1px solid #b9965b80;
+  border-radius: 11px;
+  background: #fff7e045;
+}
+
+.title-crests { display: flex; flex-wrap: wrap; gap: 5px; }
+.title-crests legend,
+.title-colors legend { padding: 0 5px; }
+
+.title-crests button,
+.title-colors button { transition: transform 120ms ease, box-shadow 120ms ease; }
+.title-crests button:active,
+.title-colors button:active { transform: scale(.96); }
+
+.title-note {
+  margin: 0;
+  color: #665237;
+  font-size: 12px;
+  line-height: 1.45;
+  text-align: center;
+}
+
+.title-warn,
+.title-error {
+  margin: 0;
+  padding: 9px 10px;
+  border-radius: 9px;
+  font-size: 11.5px;
+  line-height: 1.4;
+}
+
+.title-warn { color: #6f341d; background: #f0c9968a; border: 1px solid #a85a2e66; }
+.title-error { color: #7b211c; background: #f0b5aa7a; border: 1px solid #a53b3266; }
+
+.title-howto h2,
+.title-notes h2 { margin: 0; text-align: center; font-family: var(--font-heading), Georgia, serif; font-size: 26px; }
+
+.title-howto ol {
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 7px;
+  list-style: none;
+}
+
+.title-howto li {
+  display: grid;
+  grid-template-columns: 30px minmax(0, 1fr);
+  gap: 2px 9px;
+  padding: 8px 9px;
+  border-bottom: 1px solid #9d7a433d;
+}
+
+.title-howto li::before {
+  content: counter(list-item);
+  grid-row: 1 / 3;
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  color: #f8e5af;
+  background: #273238;
+  border: 1px solid #9d783e;
+  font-family: var(--font-heading), Georgia, serif;
+  font-weight: 800;
+}
+
+.title-howto li strong { color: #4b3419; font-size: 13px; }
+.title-howto li span { color: #665238; font-size: 11px; line-height: 1.35; }
+
+.title-notes-scroll {
+  max-height: min(48vh, 420px);
+  overflow: auto;
+  padding-right: 4px;
+  scrollbar-width: thin;
+}
+
+/* Buttons inside parchment sheets switch to ink/gold, while primary stays green. */
+.title-screen:has(.title-form) .title-btn:not(.is-primary),
+.title-screen:has(.title-howto) .title-btn:not(.is-primary),
+.title-screen:has(.title-notes) .title-btn:not(.is-primary) {
+  color: #f4dda0;
+  background: linear-gradient(180deg, #283338, #172126);
+  border-color: #8c6a38;
+}
+
+@media (max-width: 420px) {
+  .title-screen { padding-left: 13px; padding-right: 13px; }
+  .title-head { margin-top: clamp(18px, 5vh, 46px); }
+  .title-head h1 { width: min(350px, 96vw); min-height: 150px; padding: 34px 42px 30px; }
+}
+
+@media (max-height: 760px) {
+  .title-screen { padding-top: calc(var(--sa-top) + 10px); }
+  .title-head { margin-top: 4px; }
+  .title-head h1 { width: min(320px, 88vw); min-height: 126px; padding: 28px 40px 25px; font-size: clamp(34px, 9vw, 46px); }
+  .title-kicker { margin-top: -11px; padding-block: 4px; font-size: 10.5px; }
+  .title-motto { font-size: 12px; }
+  .title-save { min-height: 64px; padding-block: 7px; }
+  .title-btn { min-height: 45px; }
+  .title-btn.is-primary { min-height: 52px; }
+  .title-links button { min-height: 36px; }
+  .title-foot { margin-top: 5px; }
+
+  .title-screen:has(.title-form) .title-head,
+  .title-screen:has(.title-howto) .title-head,
+  .title-screen:has(.title-notes) .title-head { display: none; }
+
+  .title-screen:has(.title-form) .title-card,
+  .title-screen:has(.title-howto) .title-card,
+  .title-screen:has(.title-notes) .title-card { margin-top: 6px; }
+}
+
+@media (max-height: 650px) {
+  .title-motto { display: none; }
+  .title-foot { display: none; }
+  .title-head h1 { min-height: 112px; width: min(300px, 84vw); }
+}
