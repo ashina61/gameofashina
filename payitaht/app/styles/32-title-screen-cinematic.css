@@ -1,0 +1,186 @@
+/* Payitaht Adalari — cinematic title-screen finishing pass.
+   Visual hierarchy is locked to: painted world -> logo -> continue.
+   Saved-game info and utility links stay deliberately secondary. */
+
+.title-screen {
+  padding-bottom: calc(var(--sa-bottom) + 14px);
+}
+
+.title-sea {
+  background-position: 50% 47%;
+  filter: saturate(1.07) contrast(1.035) brightness(1.015);
+}
+
+.title-head {
+  width: min(420px, 100%);
+  margin-top: clamp(20px, 5.4vh, 56px);
+}
+
+.title-head h1 {
+  width: min(356px, 91vw);
+  min-height: 160px;
+  padding: 38px 44px 31px;
+  text-shadow: 0 2px 0 #4c3218, 0 8px 28px #000c;
+}
+
+.title-kicker {
+  margin-top: -15px;
+  padding: 4px 15px 5px;
+  background: linear-gradient(180deg, #24180dd1, #110c08e6);
+  box-shadow: 0 8px 18px #0007, inset 0 1px 0 #fff2;
+}
+
+.title-motto {
+  margin-top: 4px;
+  color: #fff2ced1;
+  font-size: 13px;
+}
+
+/* Main menu stays narrow and vertical. Only Continue should read as primary. */
+.title-card {
+  width: min(348px, 94vw);
+  gap: 8px;
+  padding-top: 8px;
+}
+
+/* Saved game becomes a subtle ruler strip rather than another large app card. */
+.title-save {
+  min-height: 58px;
+  gap: 9px;
+  padding: 7px 10px;
+  border-radius: 12px;
+  border-color: #d6bd7c66;
+  background: linear-gradient(180deg, #11191dc9, #0b1114e3);
+  box-shadow: 0 8px 22px #0007, inset 0 1px 0 #fff1;
+  backdrop-filter: blur(5px) saturate(1.03);
+}
+
+.title-save .ika-crest {
+  transform: scale(.86);
+  transform-origin: center;
+}
+
+.title-save strong {
+  font-size: 15px;
+  letter-spacing: .01em;
+}
+
+.title-save span,
+.title-save small {
+  font-size: 10.5px;
+  color: #efe3c7c4;
+}
+
+.title-btn {
+  border-radius: 10px;
+}
+
+.title-btn.is-primary {
+  position: relative;
+  min-height: 60px;
+  overflow: hidden;
+  border: 1px solid #f0d38fca;
+  background:
+    radial-gradient(circle at 50% -80%, #5d946f 0%, transparent 52%),
+    linear-gradient(180deg, #2d6948 0%, #17422e 68%, #103421 100%);
+  box-shadow:
+    0 12px 30px #0009,
+    inset 0 1px 0 #fff4,
+    inset 0 0 0 1px #83632966,
+    inset 0 -2px 0 #07190faa;
+  font-size: 20px;
+  letter-spacing: .025em;
+}
+
+.title-btn.is-primary::after {
+  content: '';
+  position: absolute;
+  inset: 4px;
+  border: 1px solid #e8ca7a52;
+  border-radius: 7px;
+  pointer-events: none;
+}
+
+.title-card > .title-btn:not(.is-primary) {
+  min-height: 44px;
+  border-color: #c7aa686e;
+  color: #ead9b2;
+  background: linear-gradient(180deg, #211711d6, #100d0bdc);
+  font-size: 14px;
+}
+
+/* How-to and release notes are utilities, not competing CTA buttons. */
+.title-links {
+  margin-top: 2px;
+  gap: 18px;
+  display: flex;
+  justify-content: center;
+}
+
+.title-links button {
+  min-height: 36px;
+  padding: 6px 8px;
+  border: 0;
+  border-radius: 8px;
+  color: #efe0bdd0;
+  background: #0c1317a6;
+  box-shadow: none;
+  backdrop-filter: blur(4px);
+  font-size: 10.5px;
+}
+
+.title-links button:hover {
+  background: #162126c9;
+}
+
+.title-foot {
+  margin-top: 6px;
+  color: #eadfc498;
+}
+
+.title-foot p {
+  font-size: 9.5px;
+  letter-spacing: .01em;
+}
+
+/* Secondary pages intentionally become the only strong surface on screen. */
+.title-screen:has(.title-form) .title-card,
+.title-screen:has(.title-howto) .title-card,
+.title-screen:has(.title-notes) .title-card {
+  width: min(400px, 96vw);
+  border-radius: 16px;
+  box-shadow: 0 22px 52px #000a, inset 0 0 0 1px #8a64263d, inset 0 1px 0 #fff9;
+}
+
+@media (max-width: 430px) and (min-height: 790px) {
+  .title-head { margin-top: clamp(24px, 5.3vh, 48px); }
+  .title-head h1 { min-height: 154px; }
+  .title-card { margin-bottom: 0; }
+}
+
+@media (max-width: 390px) {
+  .title-screen { padding-left: 12px; padding-right: 12px; }
+  .title-head h1 { width: min(338px, 91vw); min-height: 146px; padding: 34px 39px 29px; }
+  .title-kicker { font-size: 10.5px; }
+  .title-card { width: min(336px, 94vw); }
+  .title-btn.is-primary { min-height: 56px; font-size: 18px; }
+}
+
+@media (max-height: 720px) {
+  .title-head { margin-top: 0; }
+  .title-head h1 { min-height: 116px; width: min(294px, 82vw); padding: 25px 35px 23px; }
+  .title-save { min-height: 52px; }
+  .title-save small { display: none; }
+  .title-links { margin-top: 0; }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .title-head h1 {
+    animation: title-logo-breathe 5.6s ease-in-out infinite;
+  }
+
+  @keyframes title-logo-breathe {
+    0%, 100% { filter: drop-shadow(0 13px 22px #0008) brightness(1); }
+    50% { filter: drop-shadow(0 15px 28px #0009) brightness(1.035); }
+  }
+}
