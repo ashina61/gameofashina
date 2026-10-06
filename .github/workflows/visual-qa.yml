@@ -103,7 +103,7 @@ jobs:
             layout)   node --check tools/layout-qa.cjs && node tools/layout-qa.cjs ;;
             heraldry) node --check tools/heraldry-qa.cjs && node tools/heraldry-qa.cjs ;;
             first-ten) node --check tools/first-ten-qa.cjs && node tools/first-ten-qa.cjs ;;
-            city-390) VISUAL_QA_VIEWPORTS=390x844 node tools/visual-qa.cjs ;;
+            city-390) node tools/visual-qa-current-flow.cjs && VISUAL_QA_VIEWPORTS=390x844 node tools/visual-qa.cjs ;;
             city-412) VISUAL_QA_VIEWPORTS=412x915 node tools/visual-qa.cjs ;;
             city-430) VISUAL_QA_VIEWPORTS=430x932 node tools/visual-qa.cjs ;;
             *) echo "unknown suite $SUITE"; exit 1 ;;
