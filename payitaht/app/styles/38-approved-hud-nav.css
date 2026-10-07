@@ -339,8 +339,6 @@
   background: none;
   box-shadow: none;
 }
-.game-shell .ika-nav-art,
-.game-world .ika-nav-art { width: 42px; height: 34px; overflow: visible; filter: drop-shadow(0 2px 2px #0009); }
 .game-shell .ika-nav-item :is(.painted-ui-icon, .painted-icon, svg),
 .game-world .ika-nav-item :is(.painted-ui-icon, .painted-icon, svg) { max-width: 42px; max-height: 36px; }
 .game-shell .ika-nav-label,
