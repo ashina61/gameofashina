@@ -2,13 +2,14 @@
 import { asset } from '@/lib/asset'
 import type { BannerId, CrestId } from '@/lib/game/profile'
 
-export function ApprovedArt({ name, className }: { name: string; className?: string }) {
-  return <img className={`royal-art${className ? ` ${className}` : ''}`} src={asset(`/images/game/ui/approved-court/${name}.webp`)} alt="" decoding="async" />
+export function ApprovedArt({ name, src, className, alt = '' }: { name?: string; src?: string; className?: string; alt?: string }) {
+  const file = src ? (src.endsWith('.webp') ? src : `${src}.webp`) : `${name}.webp`
+  return <img className={`royal-art${className ? ` ${className}` : ''}`} src={asset(`/images/game/ui/approved-court/${file}`)} alt={alt} decoding="async" />
 }
 
 /** Painted, transparent gold-thread applique, shared by preview and chooser. */
-export function RoyalCrest({ crest }: { crest: CrestId }) {
-  return <img className="royal-embroidery" src={asset(`/images/game/ui/sancaktar/crest-${crest}.webp`)} alt="" decoding="async" width={256} height={256} />
+export function RoyalCrest({ crest, className }: { crest: CrestId; className?: string }) {
+  return <img className={`royal-embroidery${className ? ` ${className}` : ''}`} src={asset(`/images/game/ui/sancaktar/crest-${crest}.webp`)} alt="" decoding="async" width={256} height={256} />
 }
 /** Each silhouette has its own painted cloth and border; tint touches only silver silk. */
 export function RoyalStandard({ crest, color, banner }: { crest: CrestId; color: string; banner: BannerId }) {
