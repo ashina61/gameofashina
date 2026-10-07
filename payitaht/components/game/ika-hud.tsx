@@ -7,7 +7,7 @@
  * altta Şehir, Ada, Harita, İttifak, Görevler ana menüsü.
  */
 import { useEffect, useRef, useState, type ReactNode } from 'react'
-import { Compass, Shield, ScrollText, ChevronDown, Swords, Gift } from './ui-art'
+import { Shield, ChevronDown, Swords, Gift } from './ui-art'
 import { cn } from '@/lib/utils'
 import {
   LUXURY_NAMES, might, BUILDINGS, UNITS, actionPoints, capacity, fullResources, maxPopulation, population, rates, researchReason, RESEARCH_IDS, type Game, formatRate, formatShort, luxuryRates, growthRate,
@@ -17,7 +17,7 @@ import { actionsInUse } from '@/lib/game/expeditions'
 import { luxuryIcons } from './game-widgets'
 import { AkceArt, HamleArt, IlimArt, KeresteArt, NufusArt } from './resource-art'
 import { AdvisorPortrait, type AdvisorId } from './advisor-portraits'
-import { RulerCrest } from './profile-panel'
+import { ApprovedArt, RoyalCrest } from './approved-court-art'
 import { CountUp } from './count-up'
 import { profileOf } from '@/lib/game/profile'
 import type { BadgeMode } from '@/lib/game/badges'
@@ -132,7 +132,7 @@ export function IkaTopBar({ game, empire, news, modes, activeAdvisor, onCity, on
   } as React.CSSProperties}>
     <div className="ika-ribbon">
       {prof && <button type="button" className="ika-crest" onClick={onProfile} aria-label={`Hükümdar profili: ${prof.ruler}`}>
-        <RulerCrest crest={prof.crest} color={prof.color} size={40} />
+        <RoyalCrest crest={prof.crest} className="ika-ruler-crest-art" />
         <span className="ika-crest-level" title="Divanhane seviyesi">{game.buildings.divan}</span>
       </button>}
       <button type="button" className="ika-city" onClick={onCity} aria-label={`Şehir: ${city?.name ?? ''}. Şehirlerini aç`}>
@@ -178,39 +178,19 @@ export function Badge({ n, mode }: { n: number; mode: BadgeMode }) {
 
 export type IkaNavKey = 'city' | 'island' | 'map' | 'alliance' | 'objectives'
 
-function CityNavArt() {
-  return <svg className="ika-nav-art ika-nav-city-art" viewBox="0 0 64 48" role="img" aria-label="Şehir">
-    <path d="M7 41h50v3H7z" fill="currentColor" opacity=".34" />
-    <path d="M14 40V24h8v16m20 0V24h8v16M25 40V20h14v20" fill="currentColor" opacity=".82" />
-    <path d="M24 20c2-8 14-8 16 0H24zM12 24l6-9 6 9H12zm28 0 6-9 6 9H40z" fill="currentColor" />
-    <path d="M31 12h2v8h-2zM17 10h2v8h-2zM45 10h2v8h-2z" fill="currentColor" />
-    <path d="M29 40v-9c0-4 6-4 6 0v9" fill="none" stroke="currentColor" strokeWidth="2" />
-  </svg>
-}
-
-function IslandNavArt() {
-  return <svg className="ika-nav-art ika-nav-island-art" viewBox="0 0 64 48" role="img" aria-label="Ada">
-    <path d="M5 37c8-5 15-5 23-2 9 3 18 2 31-3-5 9-17 13-31 11C17 42 10 41 5 37z" fill="currentColor" opacity=".3" />
-    <path d="M14 34c5-5 9-8 15-12 6-4 12-3 20 4l6 8H14z" fill="currentColor" opacity=".82" />
-    <path d="M29 23c1-8 5-13 12-16-2 6-2 11 1 16h-13z" fill="currentColor" />
-    <path d="M35 20c-5-5-9-6-13-3 4 0 7 2 10 6l3-3zm4-2c4-5 8-6 12-3-4 0-7 2-10 6l-2-3z" fill="currentColor" />
-    <path d="M12 37h43" stroke="currentColor" strokeWidth="2" strokeLinecap="round" opacity=".75" />
-  </svg>
-}
-
-/** ALT MENÜ: Şehir, Ada, Harita, İttifak, Görevler. */
+/** ALT MENÜ: Şehir, Ada, Harita, İttifak, Görevler. Onaylı boyalı oyun sanatı kullanır. */
 export function IkaNav({ active, badges, modes, onSelect }: { active: IkaNavKey | null; badges: Partial<Record<IkaNavKey, number>>; modes?: Partial<Record<IkaNavKey, BadgeMode>>; onSelect: (k: IkaNavKey) => void }) {
-  const items: { key: IkaNavKey; label: string; icon: ReactNode }[] = [
-    { key: 'city', label: 'Şehir', icon: <CityNavArt /> },
-    { key: 'island', label: 'Ada', icon: <IslandNavArt /> },
-    { key: 'map', label: 'Harita', icon: <Compass painted /> },
-    { key: 'alliance', label: 'İttifak', icon: <Shield painted /> },
-    { key: 'objectives', label: 'Görevler', icon: <ScrollText painted /> },
+  const items: { key: IkaNavKey; label: string; art: string }[] = [
+    { key: 'city', label: 'Şehir', art: 'nav-city.webp' },
+    { key: 'island', label: 'Ada', art: 'nav-island.webp' },
+    { key: 'map', label: 'Harita', art: 'nav-map.webp' },
+    { key: 'alliance', label: 'İttifak', art: 'nav-alliance.webp' },
+    { key: 'objectives', label: 'Görevler', art: 'nav-quests.webp' },
   ]
   return <nav className="ika-nav" aria-label="Oyun menüsü" style={{ backgroundImage: `url("${asset('/images/game/ui/reference-bars/wood.webp')}")` }}>{items.map(i => <button key={i.key} type="button"
-    className={cn('ika-nav-item', i.key === 'map' && 'ika-nav-center', active === i.key && 'ika-nav-active')} aria-current={active === i.key ? 'page' : undefined}
+    className={cn('ika-nav-item', i.key === 'map' && 'ika-nav-center', active === i.key && 'ika-nav-active')} data-nav={i.key} aria-current={active === i.key ? 'page' : undefined}
     aria-label={(badges[i.key] ?? 0) > 0 ? `${i.label}: ${badges[i.key]} yeni` : i.label} onClick={() => onSelect(i.key)}>
-    <span className="ika-nav-icon" aria-hidden="true">{i.icon}</span><span className="ika-nav-label">{i.label}</span>
+    <span className="ika-nav-icon" aria-hidden="true"><ApprovedArt src={i.art} alt="" className="ika-nav-approved-art" /></span><span className="ika-nav-label">{i.label}</span>
     {(badges[i.key] ?? 0) > 0 && <Badge n={badges[i.key]!} mode={modes?.[i.key] ?? 'count'} />}
   </button>)}</nav>
 }
