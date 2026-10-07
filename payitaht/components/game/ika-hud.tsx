@@ -17,7 +17,7 @@ import { actionsInUse } from '@/lib/game/expeditions'
 import { luxuryIcons } from './game-widgets'
 import { AkceArt, HamleArt, IlimArt, KeresteArt, NufusArt } from './resource-art'
 import { AdvisorPortrait, type AdvisorId } from './advisor-portraits'
-import { ApprovedArt, RoyalStandard } from './approved-court-art'
+import { ApprovedArt, RoyalCrest } from './approved-court-art'
 import { CountUp } from './count-up'
 import { profileOf } from '@/lib/game/profile'
 import type { BadgeMode } from '@/lib/game/badges'
@@ -135,7 +135,7 @@ export function IkaTopBar({ game, empire, news, modes, activeAdvisor, onCity, on
   } as React.CSSProperties}>
     <div className="ika-ribbon">
       {prof && <button type="button" className="ika-crest" onClick={onProfile} aria-label={`Hükümdar profili: ${prof.ruler}`}>
-        <span className="ika-ruler-crest-art" aria-hidden="true"><RoyalStandard crest={prof.crest} color={prof.color} banner={prof.banner ?? 'kirlangic'} /></span>
+        <span className="ika-ruler-crest-art" aria-hidden="true"><RoyalCrest crest={prof.crest} /></span>
         <span className="ika-crest-level" title="Divanhane seviyesi">{game.buildings.divan}</span>
       </button>}
       <button type="button" className="ika-city" onClick={onCity} aria-label={`Şehir: ${city?.name ?? ''}. Şehirlerini aç`}>

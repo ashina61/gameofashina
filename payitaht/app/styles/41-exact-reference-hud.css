@@ -44,7 +44,7 @@
   position: absolute !important; left: 48.3% !important; right: auto !important;
   top: 35% !important; transform: none !important; width: 8.1%; max-width: none !important;
   height: 43%; display: flex !important; flex-direction: column; padding: 0 !important;
-  background: var(--exact-wood) center / 100% 100%;
+  background: radial-gradient(circle at 35% 30%,#48301b,#1b1009); border: 1px solid #b89650; pointer-events: none; z-index: 1;
   color: #f0e6cc; font: 400 2.2vw/1.25 Georgia,serif !important;
 }
 .game-shell .exact-hud .ika-might svg { display: none; }
@@ -63,7 +63,7 @@
 .game-shell .exact-hud .ika-advisor::after { display: none !important; }
 .game-shell .exact-hud .ika-advisor[data-news='0']:nth-child(odd)::before {
   content: ''; position: absolute; left: 66%; top: -2%; width: 25%; height: 24%;
-  background: var(--exact-wood) center / 100% 100%; border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%,#48301b,#1b1009); border: 1px solid #b89650; pointer-events: none; z-index: 1; border-radius: 50%;
 }
 .game-shell .exact-hud .ika-badge { top: -1%; right: 10%; min-width: 2.1vw; width: 2.1vw; height: 2.1vw; padding: 0; font-size: 1.3vw; border-width: 1px; }
 .game-shell .exact-hud .ika-res {
@@ -80,7 +80,7 @@
 .game-shell .exact-hud .ika-chip-num {
   position: absolute; top: 33%; left: 52%; width: 45%; height: 45%; display: flex !important;
   flex-direction: column; align-items: flex-start; justify-content: center; gap: 0;
-  background: var(--exact-wood) center / 100% 100%;
+  background: radial-gradient(circle at 35% 30%,#48301b,#1b1009); border: 1px solid #b89650; pointer-events: none; z-index: 1;
 }
 .game-shell .exact-hud .ika-chip-num > b {
   text-align: left !important; color: #f3ecd7 !important; text-shadow: 0 1px 1px #000 !important;
@@ -94,12 +94,12 @@
 .game-shell .exact-hud .ika-chip[data-k='ap'] .ika-chip-num > small { color: #f3ecd7 !important; font: 400 2.4vw/1.2 Georgia,serif !important; }
 .game-shell .exact-hud .ika-chip[data-k='lux']:not([data-lux='kahve']) .ika-resource-label {
   visibility: visible !important; position: absolute; left: 52%; top: 11%; width: 45%;
-  background: var(--exact-wood) center / 100% 100%; color: #f3ecd7;
+  background: radial-gradient(circle at 35% 30%,#48301b,#1b1009); border: 1px solid #b89650; pointer-events: none; z-index: 1; color: #f3ecd7;
   font: 400 1.9vw/1.2 Georgia,serif !important;
 }
 .game-shell .exact-hud .ika-chip[data-k='lux']:not([data-lux='kahve']) i {
   visibility: visible !important; position: absolute; left: 12%; top: 19%; width: 38%; height: 58%;
-  background: var(--exact-wood) center / 100% 100%;
+  background: radial-gradient(circle at 35% 30%,#48301b,#1b1009); border: 1px solid #b89650; pointer-events: none; z-index: 1;
 }
 .game-shell .exact-hud .ika-chip i .painted-icon { width: 5.3vw !important; height: 5.3vw !important; }
 .game-shell .exact-hud .ika-chip-negative .ika-chip-num small { color: var(--c-bad) !important; }
@@ -118,9 +118,9 @@
 }
 .game-shell .exact-nav .ika-nav-icon,.game-shell .exact-nav .ika-nav-label { visibility: hidden !important; }
 .game-shell .exact-nav .ika-badge { top: 26%; right: 23%; min-width: 2.6vw; width: 2.6vw; height: 2.6vw; padding: 0; font-size: 1.5vw; }
-.game-shell .exact-nav .ika-nav-item[data-nav='objectives'][data-news='0']::after {
+.game-shell .exact-nav .ika-nav-item[data-nav='objectives']::after {
   content: ''; display: block !important; position: absolute; right: 24%; top: 27%;
-  width: 14%; height: 12%; border-radius: 50%; background: var(--exact-wood) center / 100% 100%;
+  width: 14%; height: 12%; border-radius: 50%; background: radial-gradient(circle at 35% 30%,#48301b,#1b1009); border: 1px solid #b89650; pointer-events: none; z-index: 1;
 }
 .game-shell .exact-nav button:focus-visible { outline: 2px solid #f3d28b !important; outline-offset: -4px; }
 
@@ -166,7 +166,7 @@
   width: 100% !important; height: 100% !important; max-width: none !important; max-height: none !important;
   margin: 0 !important; padding: 0 !important; filter: none !important;
 }
-.game-shell .exact-hud .ika-ruler-crest-art .royal-standard { left: 16%; top: -7%; width: 70%; height: 107%; }
+.game-shell .exact-hud .ika-ruler-crest-art .royal-embroidery { position: absolute; left: 15%; top: 10%; width: 70%; height: 70%; object-fit: contain; }
 .game-shell .exact-hud .ika-chip[data-k='lux'] .ika-resource-label {
   visibility: visible !important; position: absolute; left: 56%; top: 11%; width: 44%;
   color: #f3ecd7; overflow: visible; text-overflow: clip;
@@ -218,3 +218,6 @@
 @media (prefers-reduced-motion: reduce) {
   .game-shell .exact-nav .ika-nav-item:active .ika-nav-paint { transform: none !important; }
 }
+
+/* The painted seal stays neutral until a live unread badge covers it. */
+.game-shell .exact-nav .ika-badge { z-index: 3; }

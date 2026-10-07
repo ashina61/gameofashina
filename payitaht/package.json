@@ -1,6 +1,6 @@
 {
   "name": "payitaht-adalari",
-  "version": "0.60.2",
+  "version": "0.60.3",
   "private": true,
   "packageManager": "pnpm@9.15.9",
   "scripts": {
