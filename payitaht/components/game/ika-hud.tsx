@@ -53,11 +53,27 @@ export function advisorNews(game: Game, empire: Empire | undefined, seen: Adviso
 type StockFxKey = 'gold' | 'wood' | 'knowledge'
 type StockFx = { value: number; stamp: number }
 
-export function IkaTopBar({ game, empire, news, modes, activeAdvisor, onCity, onEconomy, onAdvisor, onProfile }: {
+export function IkaTopBar({ game, empire, news, modes, activeAdvisor, onCity, onSelectCity, onEconomy, onAdvisor, onProfile }: {
   game: Game; empire: Empire | undefined; news: Record<AdvisorId, number>; activeAdvisor?: AdvisorId | null
   modes?: Partial<Record<AdvisorId, BadgeMode>>
-  onCity: () => void; onEconomy: () => void; onAdvisor: (id: AdvisorId) => void; onProfile: () => void
+  onCity: () => void; onSelectCity: (id: string) => void; onEconomy: () => void; onAdvisor: (id: AdvisorId) => void; onProfile: () => void
 }) {
+  const [citiesOpen, setCitiesOpen] = useState(false)
+  const cityToggle = useRef<HTMLButtonElement>(null)
+  const cityMenu = useRef<HTMLDivElement>(null)
+  useEffect(() => {
+    if (!citiesOpen) return
+    cityMenu.current?.querySelector<HTMLButtonElement>('[aria-checked="true"]')?.focus()
+    const outside = (event: PointerEvent) => {
+      if (event.target instanceof Node && !cityMenu.current?.contains(event.target) && !cityToggle.current?.contains(event.target)) setCitiesOpen(false)
+    }
+    const escape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') { setCitiesOpen(false); cityToggle.current?.focus() }
+    }
+    document.addEventListener('pointerdown', outside)
+    document.addEventListener('keydown', escape)
+    return () => { document.removeEventListener('pointerdown', outside); document.removeEventListener('keydown', escape) }
+  }, [citiesOpen])
   const prof = empire ? profileOf(empire) : null
   const city = empire ? activeCity(empire) : null
   const island = city ? islandOf(city) : null
@@ -138,10 +154,24 @@ export function IkaTopBar({ game, empire, news, modes, activeAdvisor, onCity, on
         <span className="ika-ruler-crest-art" aria-hidden="true"><RoyalCrest crest={prof.crest} /></span>
         <span className="ika-crest-level" title="Divanhane seviyesi">{game.buildings.divan}</span>
       </button>}
-      <button type="button" className="ika-city" onClick={onCity} aria-label={`Şehir: ${city?.name ?? ''}. Şehirlerini aç`}>
+      <button ref={cityToggle} type="button" className="ika-city" onClick={() => setCitiesOpen(open => !open)} aria-haspopup="menu" aria-expanded={citiesOpen} aria-controls="hud-city-menu" aria-label={`Şehir: ${city?.name ?? ''}. Şehir seç`}>
         <span className="ika-city-name"><strong>{city?.name ?? 'Sahilhisar'}</strong><small>{island ? `Ada (${island.x}:${island.y})` : ''}</small></span>
         <ChevronDown aria-hidden="true" />
       </button>
+      {citiesOpen && <div ref={cityMenu} id="hud-city-menu" className="ika-city-menu" role="menu" aria-label="Şehir seç" onKeyDown={event => {
+        if (!['ArrowDown', 'ArrowUp', 'Home', 'End'].includes(event.key)) return
+        event.preventDefault()
+        const buttons = [...event.currentTarget.querySelectorAll<HTMLButtonElement>('button')]
+        const index = buttons.indexOf(document.activeElement as HTMLButtonElement)
+        const next = event.key === 'Home' ? 0 : event.key === 'End' ? buttons.length - 1 : (index + (event.key === 'ArrowDown' ? 1 : -1) + buttons.length) % buttons.length
+        buttons[next]?.focus()
+      }}>
+        <p>Şehirlerin</p>
+        {(empire?.cities ?? []).map(item => { const location = islandOf(item); return <button type="button" key={item.id} role="menuitemradio" aria-checked={item.id === city?.id} onClick={() => { setCitiesOpen(false); onSelectCity(item.id); cityToggle.current?.focus() }}>
+          <span><strong>{item.name}</strong><small>Ada ({location.x}:{location.y})</small></span><span aria-hidden="true">{item.id === city?.id ? '✓' : '›'}</span>
+        </button> })}
+        <button type="button" className="ika-city-manage" role="menuitem" onClick={() => { setCitiesOpen(false); onCity() }}>Şehir yönetimi</button>
+      </div>}
       <span className="ika-might"><Swords size={12} /><b>Kudret</b><span>{compact(might(game))}</span></span>
       <nav className="ika-advisors" aria-label="Danışmanlar">
         {(Object.keys(ADVISORS) as AdvisorId[]).map(id => <button key={id} type="button"

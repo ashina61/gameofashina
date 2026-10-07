@@ -5,6 +5,7 @@
 export type Release = { version: string; date: string; title: string; notes: string[] }
 
 export const CHANGELOG: Release[] = [
+  { version: '0.60.5', date: '7 Ekim 2026', title: 'Hızlı şehir seçimi', notes: ['Şehir adının yanındaki ok küçük bir şehir seçme menüsü açar; seçilen şehre doğrudan geçilir.', 'Arma yuvarlak çerçevenin gerçek merkezine göre hizalandı.'] },
   { version: '0.60.4', date: '7 Ekim 2026', title: 'Yuvarlak içinde arma', notes: ['Arma yuvarlak çerçevenin içine küçültülüp ortalandı.', 'Görevler simgesindeki sabit kırmızı nokta ve siyah mühür kaldırıldı; yalnızca yeni bildirimde canlı kırmızı nokta görünür.'] },
   { version: '0.60.3', date: '7 Ekim 2026', title: 'Arma ve bildirim işaretleri', notes: ['Üst çubukta yalnızca seçili sırma arma gösterilir.', 'Rapor işareti yalnızca okunmamış raporla yanar. Alt menü mührü bildirim yokken nötr kalır.'] },
   { version: '0.60.2', date: '7 Ekim 2026', title: 'Sancak ve canlı oyun çerçevesi', notes: ['Üst çubukta seçili kumaş sancak ve tek seviye halkası gösterilir. Danışman rozetleri ile kaynak sayaçlarının arka planları temizlendi.', 'Alt menüde basılma animasyonu, kısa altın ışık ve seçili sekme vurgusu eklendi.'] },
