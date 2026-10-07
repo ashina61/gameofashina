@@ -1,0 +1,79 @@
+/* Narrow-screen safety for the approved HUD/nav layer.
+ * Presentation only: preserve callbacks, counters, resources and navigation behavior.
+ */
+
+@media (max-width: 370px) {
+  .game-shell .ika-ribbon,
+  .game-world .ika-ribbon {
+    gap: 2px;
+    padding-inline: 3px;
+  }
+
+  .game-shell .ika-crest,
+  .game-world .ika-crest {
+    flex-basis: 48px;
+    width: 48px;
+    min-width: 48px;
+    height: 48px;
+    min-height: 48px;
+  }
+
+  .game-shell .ika-city,
+  .game-world .ika-city {
+    min-width: 0;
+    padding-inline: 3px;
+  }
+
+  .game-shell .ika-city-name strong,
+  .game-world .ika-city-name strong {
+    font-size: 12px;
+  }
+
+  .game-shell .ika-city-name small,
+  .game-world .ika-city-name small,
+  .game-shell .ika-might,
+  .game-world .ika-might,
+  .game-shell .ika-might b,
+  .game-world .ika-might b {
+    font-size: 11px;
+  }
+
+  .game-shell .ika-advisors,
+  .game-world .ika-advisors {
+    flex: 0 0 179px;
+    width: 179px;
+    min-width: 179px;
+    grid-template-columns: repeat(4, 44px);
+    gap: 1px;
+  }
+
+  .game-shell .ika-advisor,
+  .game-world .ika-advisor {
+    width: 44px;
+    min-width: 44px;
+    height: 54px;
+    min-height: 54px;
+    flex-shrink: 0;
+  }
+
+  .game-shell .ika-resource-label,
+  .game-world .ika-resource-label {
+    font-size: 10px;
+  }
+
+  .game-shell .ika-chip-num > b,
+  .game-world .ika-chip-num > b {
+    font-size: 11px;
+  }
+
+  .game-shell .ika-chip-num > small,
+  .game-world .ika-chip-num > small {
+    font-size: 11px;
+    letter-spacing: -0.35px;
+  }
+
+  .game-shell .ika-nav-label,
+  .game-world .ika-nav-label {
+    font-size: 12px;
+  }
+}
