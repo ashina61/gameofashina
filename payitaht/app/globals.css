@@ -36,6 +36,7 @@
 @import './styles/36-page-family-polish.css';
 @import './styles/37-responsive-qa-fixes.css';
 @import './styles/38-approved-hud-nav.css';
+@import './styles/39-hud-qa-fixes.css';
 
 @custom-variant dark (&:is(.dark *));
 @theme inline {
