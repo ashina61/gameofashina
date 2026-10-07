@@ -150,3 +150,71 @@
 /* The parchment is one city control, including its painted skyline. */
 .game-shell .exact-hud .ika-city { left: 14.8%; top: 10%; width: 25%; height: 85%; background: none !important; }
 .game-shell .exact-hud .ika-city-name { position: absolute; left: 34.4%; top: 28.2%; width: 59.6%; height: 57.6%; background: var(--exact-paper) center / 100% 100%; }
+
+/* Clean v2 painting has no sample counters, portraits/dots to cover. */
+.game-shell .exact-hud .ika-city-name,.game-shell .exact-hud .ika-might,
+.game-shell .exact-hud .ika-chip-num,.game-shell .exact-hud .ika-resource-label,
+.game-shell .exact-hud .ika-chip i { background: none !important; }
+.game-shell .exact-hud .ika-advisor::before { display: none !important; }
+.game-shell .exact-hud .ika-badge { top: 5%; right: 14%; }
+.game-shell .exact-hud .ika-crest-level {
+  border: 1px solid #d5ae64 !important; box-shadow: 0 0 0 1px #312110, inset 0 0 0 1px #ffdf9144 !important;
+  background: radial-gradient(circle at 40% 30%,#302718,#0d0b08) !important;
+}
+.game-shell .exact-hud .ika-ruler-crest-art {
+  position: absolute; inset: 0; display: block !important; visibility: visible !important;
+  width: 100% !important; height: 100% !important; max-width: none !important; max-height: none !important;
+  margin: 0 !important; padding: 0 !important; filter: none !important;
+}
+.game-shell .exact-hud .ika-ruler-crest-art .royal-standard { left: 16%; top: -7%; width: 70%; height: 107%; }
+.game-shell .exact-hud .ika-chip[data-k='lux'] .ika-resource-label {
+  visibility: visible !important; position: absolute; left: 56%; top: 11%; width: 44%;
+  color: #f3ecd7; overflow: visible; text-overflow: clip;
+  font: 400 1.8vw/1.2 Georgia,serif !important;
+}
+.game-shell .exact-hud .ika-chip[data-k='lux'] i {
+  visibility: visible !important; position: absolute; left: 10%; top: 16%; width: 42%; height: 64%;
+}
+.game-shell .exact-hud .ika-chip[data-k='lux'] i .painted-icon { width: 6vw !important; height: 6vw !important; }
+/* Five independently painted plates: visible press, selected light, repeatable flash. */
+.game-shell .exact-nav { background-image: none !important; }
+.game-shell .exact-nav .ika-nav-paint {
+  position: absolute; inset: 0; background-image: var(--exact-bottom); background-size: 500% 100%;
+  background-repeat: no-repeat; pointer-events: none; transform-origin: 50% 80%;
+  transition: transform .14s ease, filter .18s ease;
+}
+.game-shell .exact-nav .ika-nav-active .ika-nav-paint { filter: brightness(1.18) saturate(1.08) drop-shadow(0 -1px 4px #e4b85599); }
+.game-shell .exact-nav .ika-nav-item:active .ika-nav-paint { transform: translateY(3px) scale(.96); filter: brightness(1.4); }
+.game-shell .exact-nav .ika-nav-item::before {
+  content: ''; display: block !important; position: absolute; z-index: 1; inset: 24% 5% 8%;
+  border-radius: 15%; box-shadow: inset 0 0 0 1px #e6c06a00; pointer-events: none;
+  transition: box-shadow .18s ease;
+}
+.game-shell .exact-nav .ika-nav-active::before { box-shadow: inset 0 0 0 1px #e6c06a99,inset 0 0 16px #d5a24344; }
+.game-shell .exact-nav .ika-nav-tap-flash {
+  position: absolute; z-index: 2; inset: 21% 2% 5%; pointer-events: none; border-radius: 15%;
+  background: radial-gradient(ellipse,#ffe8a466,transparent 70%); animation: command-tap-flash .42s ease-out both;
+}
+@keyframes command-tap-flash { 0% { opacity: 1; transform: scale(.78); } 100% { opacity: 0; transform: scale(1.05); } }
+@media (prefers-reduced-motion: reduce) {
+  .game-shell .exact-nav .ika-nav-paint { transition: none; }
+  .game-shell .exact-nav .ika-nav-item:active .ika-nav-paint { transform: none; filter: brightness(1.4); }
+  .game-shell .exact-nav .ika-nav-tap-flash { animation: none; opacity: 0; }
+}
+.game-shell .exact-hud { clip-path: none; }
+.game-shell .exact-nav .ika-nav-item::before {
+  top: 24% !important; right: 5% !important; bottom: 8% !important; left: 5% !important;
+  width: auto !important; height: auto !important; transform: none !important; background: none !important;
+}
+/* Clip the dot itself, so scaling never leaves a square red badge. */
+.game-shell .exact-hud .ika-badge,.game-shell .exact-nav .ika-badge {
+  border-radius: 9999px !important; clip-path: circle(50%) !important;
+  background: radial-gradient(circle at 35% 30%,#ed4735,#b91412 58%,#690909) !important;
+}
+/* Press is immediate; release eases back into the plate. */
+.game-shell .exact-nav .ika-nav-item:active .ika-nav-paint {
+  transition: none !important; transform: translateY(3px) scale(.96) !important; filter: brightness(1.4) !important;
+}
+@media (prefers-reduced-motion: reduce) {
+  .game-shell .exact-nav .ika-nav-item:active .ika-nav-paint { transform: none !important; }
+}

@@ -1,19 +1,26 @@
-# Exact source HUD — 7 October 2026
+# HUD cleanup and navigation feedback — 7 October 2026
 
-User source: `docs/mockups/exact-hud/reference.png` (1000145232.png).
+## User correction
 
-The upper and lower bar paintings are lossless crops of this source, rather than approximations assembled from the previous icons. The upper crop is (0,38,864,232); lower crop is (0,1298,864,220). Artwork, portraits, gold ornaments, parchment, ship/city/island icons and compass retain the original pixels. CSS clips away exterior background corners and scales each bar uniformly to viewport width. Safe areas remain outside the artwork.
+Two screenshots exposed stacked advisor badges, a duplicated level circle, rectangular counter patches and residual coffee artwork behind Mermer. The ruler portrait must be the player's selected cloth standard. Navigation must visibly respond to a press.
 
-Live city name, coordinates, Divanhane level, might, resources, production and action points cover source example text. Non-coffee islands show their existing luxury icon/name instead of a misleading coffee counter. Advisor and quest notification dots follow actual news. Screen-reader labels retain live quantities. All callbacks are unchanged. The depicted ruler portrait intentionally follows this exact requested reference rather than the old embroidered crest.
+## Implementation
+
+- `top-clean-v2.webp` is an imagegen edit of the original HUD painting. Sample counters, advisor dots, the ruler portrait, the small level ring and all coffee artwork were removed. Existing labels/portraits and the walnut/gold direction are retained. This edited background is not claimed to be pixel-identical to the previous crop.
+- Live counters render on the continuous painting with transparent backgrounds. The luxury icon and complete name are rendered for every specialty, including Kahve. There are no rectangular text patches or steam behind Mermer.
+- The profile button renders `RoyalStandard` from the current crest, cloth colour and silhouette. One runtime level circle replaces the old painted circle; its badge remains in front of the flag.
+- Advisor dots have a single runtime source. A silent advisor has no dot, and a marked advisor has one round dot in the portrait rim position. News quantities remain in accessible button labels.
+- The five lower painted plates respond independently: a 3px/4% press, a 420ms gold flash on every click and a persistent bright/gold selected plate. Reduced-motion uses immediate brightness and selection rather than movement.
+- Navigation callbacks, economy, game rules and save format remain unchanged.
 
 ## Verification
 
-- 328 engine/cache tests pass; typecheck, ESLint, CSS colour/unused-class gates and V2 criteria pass.
-- Browser verified at 360×740, 390×844 and reference-size 864×1536. The 360/390 captures and source reference are archived in `docs/mockups/exact-hud/`.
-- All five navigation actions were clicked in the running application.
-- Resource masks were corrected after finding source/sample figures behind the live action-point text; no example numbers remain visible in the final captures.
-- Layout scan also runs at 130% text size and reports failures; its report is not a clean pass. Its small-text/touch-size findings must not be described as a clean accessibility pass: uniform scaling of this dense original reference yields advisor hit areas narrower than 44px and reference-sized text below 11px on narrow phones.
+328 tests, typecheck, ESLint, CSS gates and V2 criteria were run. Browser checks cover 360/390 and reference-sized 864 viewports; five navigation actions, press transform, repeatable flash, selected-state marker, one level circle, selected cloth source and transparent counter backgrounds. The layout scanner is also run and its existing sub-44px advisor targets/reference-size text findings are retained honestly rather than labelled a clean accessibility pass.
 
-This is source artwork fidelity, not a claim of an identical entire screenshot. City scene, real values, city name, island luxury and news dots differ with the actual game state. Baked decorative labels/icons are the requested painting; dynamic information remains DOM text.
+## Art provenance
 
-Cache revision: v59. Package revision: 0.60.1. No economy, save format, city geometry or game-rule changes.
+Built-in imagegen edit, precise-object-edit. Final asset: `public/images/game/ui/exact-hud/top-clean-v2.webp`.
+
+Prompt: Preserve the two-row walnut/gold HUD direction, outer frame, castle, resource icons and four advisor portraits/labels. Remove the ruler face, sample text/numbers, small level circle and all fixed red notification dots; restore continuous wood/parchment. Remove the coffee cup/saucer/steam and Kahve label for the runtime luxury resource. Keep the exterior transparent. Do not leave ghost numbers, rectangle patches or duplicated circles.
+
+Revision 0.60.2, service-worker cache v60.

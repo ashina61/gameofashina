@@ -17,7 +17,7 @@ import { actionsInUse } from '@/lib/game/expeditions'
 import { luxuryIcons } from './game-widgets'
 import { AkceArt, HamleArt, IlimArt, KeresteArt, NufusArt } from './resource-art'
 import { AdvisorPortrait, type AdvisorId } from './advisor-portraits'
-import { ApprovedArt } from './approved-court-art'
+import { ApprovedArt, RoyalStandard } from './approved-court-art'
 import { CountUp } from './count-up'
 import { profileOf } from '@/lib/game/profile'
 import type { BadgeMode } from '@/lib/game/badges'
@@ -126,7 +126,7 @@ export function IkaTopBar({ game, empire, news, modes, activeAdvisor, onCity, on
     { key: 'ap', icon: <HamleArt />, value: `${empire && city ? actionPoints(game) - actionsInUse(empire, city.id) : actionPoints(game)}`, sub: `/${actionPoints(game)}`, label: 'Sefer hakkı' },
   ]
   return <header className="ika-top exact-hud" style={{
-    '--exact-top': `url("${asset('/images/game/ui/exact-hud/top.webp')}")`,
+    '--exact-top': `url("${asset('/images/game/ui/exact-hud/top-clean-v2.webp')}")`,
     '--exact-wood': `url("${asset('/images/game/ui/exact-hud/wood.webp')}")`,
     '--exact-paper': `url("${asset('/images/game/ui/exact-hud/paper.webp')}")`,
     '--bar-wood': `url("${asset('/images/game/ui/reference-bars/wood.webp')}")`,
@@ -135,7 +135,7 @@ export function IkaTopBar({ game, empire, news, modes, activeAdvisor, onCity, on
   } as React.CSSProperties}>
     <div className="ika-ribbon">
       {prof && <button type="button" className="ika-crest" onClick={onProfile} aria-label={`Hükümdar profili: ${prof.ruler}`}>
-        <span className="ika-ruler-crest-art" aria-hidden="true" />
+        <span className="ika-ruler-crest-art" aria-hidden="true"><RoyalStandard crest={prof.crest} color={prof.color} banner={prof.banner ?? 'kirlangic'} /></span>
         <span className="ika-crest-level" title="Divanhane seviyesi">{game.buildings.divan}</span>
       </button>}
       <button type="button" className="ika-city" onClick={onCity} aria-label={`Şehir: ${city?.name ?? ''}. Şehirlerini aç`}>
@@ -184,6 +184,7 @@ export type IkaNavKey = 'city' | 'island' | 'map' | 'alliance' | 'objectives'
 
 /** ALT MENÜ: Şehir, Ada, Harita, İttifak, Görevler. Onaylı boyalı oyun sanatı kullanır. */
 export function IkaNav({ active, badges, modes, onSelect }: { active: IkaNavKey | null; badges: Partial<Record<IkaNavKey, number>>; modes?: Partial<Record<IkaNavKey, BadgeMode>>; onSelect: (k: IkaNavKey) => void }) {
+  const [tap, setTap] = useState<{ key: IkaNavKey; stamp: number } | null>(null)
   const items: { key: IkaNavKey; label: string; art: string }[] = [
     { key: 'city', label: 'Şehir', art: 'nav-city.webp' },
     { key: 'island', label: 'Ada', art: 'nav-island.webp' },
@@ -191,9 +192,11 @@ export function IkaNav({ active, badges, modes, onSelect }: { active: IkaNavKey 
     { key: 'alliance', label: 'İttifak', art: 'nav-alliance.webp' },
     { key: 'objectives', label: 'Görevler', art: 'nav-quests.webp' },
   ]
-  return <nav className="ika-nav exact-nav" aria-label="Oyun menüsü" style={{ '--exact-bottom': `url("${asset('/images/game/ui/exact-hud/bottom.webp')}")`, '--exact-wood': `url("${asset('/images/game/ui/exact-hud/wood.webp')}")` } as React.CSSProperties}>{items.map(i => <button key={i.key} type="button"
+  return <nav className="ika-nav exact-nav" aria-label="Oyun menüsü" style={{ '--exact-bottom': `url("${asset('/images/game/ui/exact-hud/bottom.webp')}")`, '--exact-wood': `url("${asset('/images/game/ui/exact-hud/wood.webp')}")` } as React.CSSProperties}>{items.map((i, index) => <button key={i.key} type="button"
     className={cn('ika-nav-item', i.key === 'map' && 'ika-nav-center', active === i.key && 'ika-nav-active')} data-nav={i.key} data-news={badges[i.key] ?? 0} aria-current={active === i.key ? 'page' : undefined}
-    aria-label={(badges[i.key] ?? 0) > 0 ? `${i.label}: ${badges[i.key]} yeni` : i.label} onClick={() => onSelect(i.key)}>
+    aria-label={(badges[i.key] ?? 0) > 0 ? `${i.label}: ${badges[i.key]} yeni` : i.label} onClick={() => { setTap(previous => ({ key: i.key, stamp: (previous?.stamp ?? 0) + 1 })); onSelect(i.key) }}>
+    <span className="ika-nav-paint" aria-hidden="true" style={{ backgroundPosition: `${index * 25}% center` }} />
+    {tap?.key === i.key && <span key={tap.stamp} className="ika-nav-tap-flash" aria-hidden="true" />}
     <span className="ika-nav-icon" aria-hidden="true"><ApprovedArt src={i.art} alt="" className="ika-nav-approved-art" /></span><span className="ika-nav-label">{i.label}</span>
     {(badges[i.key] ?? 0) > 0 && <Badge n={badges[i.key]!} mode={modes?.[i.key] ?? 'count'} />}
   </button>)}</nav>
