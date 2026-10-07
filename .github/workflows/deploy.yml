@@ -19,10 +19,10 @@ permissions:
   pages: write
   id-token: write
 
-# Ayni anda tek yayin; yarim kalmis bir yayin birakmamak icin iptal EDILMEZ.
+# Her zaman en son yayini öne al; eski/stuck Pages koşusu yenisini kilitlemesin.
 concurrency:
   group: pages
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 # Oyun payitaht/ alt dizininde; adimlar orada calisir.
 defaults:
