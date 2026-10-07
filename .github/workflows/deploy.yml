@@ -5,6 +5,7 @@
 # KOKUNDE (ashina61.github.io/gameofashina/) yayinlanir.
 #
 # KAPI ONCE, YAYIN SONRA: tip kontrolu ve testler gecmeden derleme yapilmaz.
+# HUD polish push: deploy trigger refreshed.
 name: Deploy
 
 on:
