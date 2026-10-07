@@ -5,9 +5,6 @@
  * (.bp { --ink … }) çakışmaz.
  */
 :root {
-  --c-hud-seal-light: #48301b;
-  --c-hud-seal-deep: #1b1009;
-  --c-hud-seal-gold: #b89650;
   --c-royal-active: #a02113;
   --c-royal-active-deep: #650d08;
   /* Mürekkep (yazı) */

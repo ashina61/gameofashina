@@ -195,7 +195,7 @@ export function IkaNav({ active, badges, modes, onSelect }: { active: IkaNavKey 
   return <nav className="ika-nav exact-nav" aria-label="Oyun menüsü" style={{ '--exact-bottom': `url("${asset('/images/game/ui/exact-hud/bottom.webp')}")`, '--exact-wood': `url("${asset('/images/game/ui/exact-hud/wood.webp')}")` } as React.CSSProperties}>{items.map((i, index) => <button key={i.key} type="button"
     className={cn('ika-nav-item', i.key === 'map' && 'ika-nav-center', active === i.key && 'ika-nav-active')} data-nav={i.key} data-news={badges[i.key] ?? 0} aria-current={active === i.key ? 'page' : undefined}
     aria-label={(badges[i.key] ?? 0) > 0 ? `${i.label}: ${badges[i.key]} yeni` : i.label} onClick={() => { setTap(previous => ({ key: i.key, stamp: (previous?.stamp ?? 0) + 1 })); onSelect(i.key) }}>
-    <span className="ika-nav-paint" aria-hidden="true" style={{ backgroundPosition: `${index * 25}% center` }} />
+    <span className="ika-nav-paint" aria-hidden="true" style={{ backgroundPosition: `${index * 25}% center` }}>{i.key === 'objectives' && <span className="ika-nav-clear-seal" />}</span>
     {tap?.key === i.key && <span key={tap.stamp} className="ika-nav-tap-flash" aria-hidden="true" />}
     <span className="ika-nav-icon" aria-hidden="true"><ApprovedArt src={i.art} alt="" className="ika-nav-approved-art" /></span><span className="ika-nav-label">{i.label}</span>
     {(badges[i.key] ?? 0) > 0 && <Badge n={badges[i.key]!} mode={modes?.[i.key] ?? 'count'} />}

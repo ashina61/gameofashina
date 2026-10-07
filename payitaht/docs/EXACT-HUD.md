@@ -2,15 +2,16 @@
 
 ## User correction
 
-Two screenshots exposed stacked advisor badges, a duplicated level circle, rectangular counter patches and residual coffee artwork behind Mermer. The ruler portrait must be the player's selected cloth standard. Navigation must visibly respond to a press.
+Two screenshots exposed stacked advisor badges, a duplicated level circle, rectangular counter patches and residual coffee artwork behind Mermer. The profile medallion must show only the player's selected gold crest, safely inside its circular frame. Navigation must visibly respond to a press.
 
 ## Implementation
 
 - `top-clean-v2.webp` is an imagegen edit of the original HUD painting. Sample counters, advisor dots, the ruler portrait, the small level ring and all coffee artwork were removed. Existing labels/portraits and the walnut/gold direction are retained. This edited background is not claimed to be pixel-identical to the previous crop.
 - Live counters render on the continuous painting with transparent backgrounds. The luxury icon and complete name are rendered for every specialty, including Kahve. There are no rectangular text patches or steam behind Mermer.
-- The profile button renders `RoyalStandard` from the current crest, cloth colour and silhouette. One runtime level circle replaces the old painted circle; its badge remains in front of the flag.
+- The profile button renders `RoyalCrest` at 58% of the slot, centered inside the circular rim. One runtime level circle remains. No cloth or pole appears.
 - Advisor dots have a single runtime source. A silent advisor has no dot, and a marked advisor has one round dot in the portrait rim position. News quantities remain in accessible button labels.
 - The five lower painted plates respond independently: a 3px/4% press, a 420ms gold flash on every click and a persistent bright/gold selected plate. Reduced-motion uses immediate brightness and selection rather than movement.
+- The baked task notification seal is covered with nearby matching walnut from the same painting, moving with the plate. There is no black/outlined neutral dot. Only the live task notification count creates a red dot.
 - Navigation callbacks, economy, game rules and save format remain unchanged.
 
 ## Verification

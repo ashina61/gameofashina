@@ -5,6 +5,7 @@
 export type Release = { version: string; date: string; title: string; notes: string[] }
 
 export const CHANGELOG: Release[] = [
+  { version: '0.60.4', date: '7 Ekim 2026', title: 'Yuvarlak içinde arma', notes: ['Arma yuvarlak çerçevenin içine küçültülüp ortalandı.', 'Görevler simgesindeki sabit kırmızı nokta ve siyah mühür kaldırıldı; yalnızca yeni bildirimde canlı kırmızı nokta görünür.'] },
   { version: '0.60.3', date: '7 Ekim 2026', title: 'Arma ve bildirim işaretleri', notes: ['Üst çubukta yalnızca seçili sırma arma gösterilir.', 'Rapor işareti yalnızca okunmamış raporla yanar. Alt menü mührü bildirim yokken nötr kalır.'] },
   { version: '0.60.2', date: '7 Ekim 2026', title: 'Sancak ve canlı oyun çerçevesi', notes: ['Üst çubukta seçili kumaş sancak ve tek seviye halkası gösterilir. Danışman rozetleri ile kaynak sayaçlarının arka planları temizlendi.', 'Alt menüde basılma animasyonu, kısa altın ışık ve seçili sekme vurgusu eklendi.'] },
   { version: '0.60.0', date: '6 Ekim 2026', title: 'Şehir üzerinde yapı yönetimi', notes: ['Binaya dokununca şehir görünür ve canlı kalır; kısa yapı panelinde seviye etkileri, maliyetler ve yükseltme eylemi bir arada gösterilir.', 'Yapıyı yönet düğmesi ayrıntılı bina sayfasını açar. Şehirde üst çubuk sadeleştirildi; oyun kuralları, inşaat sırası ve kayıt biçimi korunur.'] },
