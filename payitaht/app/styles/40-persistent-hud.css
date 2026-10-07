@@ -211,3 +211,14 @@
   .game-shell .ika-nav-label,
   .game-world .ika-nav-label { font-size: 12px !important; }
 }
+
+/* Mobile HUD polish */
+.game-shell .ika-crest,.game-world .ika-crest{display:grid!important;place-items:center!important;padding:5px!important}
+.game-shell .ika-crest .ika-ruler-crest-art,.game-world .ika-crest .ika-ruler-crest-art{width:46px!important;height:46px!important;object-fit:contain!important;object-position:center!important}
+.game-shell .ika-city-name,.game-world .ika-city-name{position:relative;padding-right:70px}
+.game-shell .ika-might,.game-world .ika-might{position:absolute!important;right:3px!important;top:50%!important;transform:translateY(-50%);max-width:66px;overflow:hidden;font-size:10px!important}
+.game-shell .ika-nav,.game-world .ika-nav{grid-template-columns:repeat(5,minmax(0,1fr))!important;gap:0!important}
+.game-shell .ika-nav-item,.game-world .ika-nav-item{height:68px!important;min-height:68px!important;justify-content:center!important;gap:3px!important}
+.game-shell .ika-nav-icon,.game-world .ika-nav-icon,.game-shell .ika-nav-center .ika-nav-icon,.game-world .ika-nav-center .ika-nav-icon{width:44px!important;height:40px!important;margin:0 auto!important;border:0!important;border-radius:0!important;background:transparent!important;box-shadow:none!important}
+.game-shell .ika-nav-approved-art,.game-world .ika-nav-approved-art,.game-shell .ika-nav-center .ika-nav-approved-art,.game-world .ika-nav-center .ika-nav-approved-art{width:42px!important;height:38px!important;max-width:42px!important;max-height:38px!important;object-fit:contain!important}
+.game-shell .ika-nav-label,.game-world .ika-nav-label{margin:0!important;font-size:12px!important;line-height:1!important}
