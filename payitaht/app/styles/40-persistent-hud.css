@@ -1,0 +1,213 @@
+/* Payitaht — persistent game chrome.
+ * The same top/resource HUD and five-item command rail stay visible on every
+ * in-game page. Presentation only; navigation/state callbacks remain unchanged.
+ */
+
+/* ---- Persistent shell --------------------------------------------------- */
+.game-shell.has-page {
+  --ika-top: calc(var(--sa-top) + 116px) !important;
+  --ika-nav: calc(var(--sa-bottom) + 82px) !important;
+}
+
+.game-shell.has-page:has(.ika-res-large) {
+  --ika-top: calc(var(--sa-top) + 162px) !important;
+}
+
+/* Older page families deliberately hid the HUD. The shell already owns the
+ * HUD, so keep it visible instead of duplicating bars per page. */
+.game-shell.has-page > .ika-top,
+.game-shell:has(.bp-royal) > .ika-top {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+/* Every full game page lives between the shared top and bottom chrome. */
+.game-shell.has-page .bp:not(.bp-sheet),
+.game-shell.has-page .bp.bp-royal,
+.game-shell:has(.bp-royal) > .bp-royal {
+  top: var(--ika-top) !important;
+  bottom: var(--ika-nav) !important;
+}
+
+/* Page headers no longer need to spend safe-area space because the shared HUD
+ * already owns it. */
+.game-shell.has-page .bp:not(.bp-sheet) > .bp-bar,
+.game-shell.has-page .bp.bp-royal > .bp-bar {
+  padding-top: 5px !important;
+}
+
+/* ---- Painted ruler heraldry -------------------------------------------- */
+.game-shell .ika-crest .ika-ruler-crest-art,
+.game-world .ika-crest .ika-ruler-crest-art {
+  display: block;
+  width: 42px;
+  height: 42px;
+  max-width: 42px;
+  max-height: 42px;
+  object-fit: contain;
+  margin: auto;
+  filter: drop-shadow(0 2px 2px #000b) drop-shadow(0 0 3px #d6ac5a55);
+}
+
+/* The painted embroidery is transparent; give it one restrained medallion,
+ * not the old red/white SVG shield. */
+.game-shell .ika-crest,
+.game-world .ika-crest {
+  overflow: visible;
+  background:
+    radial-gradient(circle at 48% 38%, #5a452c 0 33%, #2b1c12 59%, #120c08 100%) !important;
+  border: 1px solid #b58a43 !important;
+  box-shadow:
+    0 0 0 2px #0b0806,
+    0 0 0 3px #6f522b,
+    inset 0 0 0 1px #e2c07855,
+    0 3px 7px #000a !important;
+}
+
+/* ---- One continuous bottom command rail ------------------------------- */
+.game-shell .ika-nav,
+.game-world .ika-nav {
+  height: var(--ika-nav) !important;
+  min-height: var(--ika-nav) !important;
+  padding: 5px 7px var(--sa-bottom) !important;
+  gap: 3px !important;
+  border: 0 !important;
+  border-top: 1px solid #c49a50 !important;
+  border-radius: 0 !important;
+  background:
+    linear-gradient(180deg, #4b3322 0%, #2d1c14 11%, #1b110d 58%, #100b09 100%) !important;
+  box-shadow:
+    inset 0 1px 0 #f6d99533,
+    inset 0 7px 14px #6f4a2522,
+    0 -5px 16px #000a !important;
+}
+
+.game-shell .ika-nav::before,
+.game-world .ika-nav::before {
+  content: '';
+  position: absolute;
+  inset: 2px 7px auto;
+  height: 1px;
+  pointer-events: none;
+  background: linear-gradient(90deg, transparent, #e2bd72aa 12%, #e2bd72aa 88%, transparent);
+}
+
+.game-shell .ika-nav-item,
+.game-world .ika-nav-item {
+  position: relative;
+  min-width: 0;
+  min-height: 64px !important;
+  padding: 3px 2px 2px !important;
+  border: 0 !important;
+  border-radius: 10px !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  color: #ead7ad;
+  transition: background .15s ease, transform .15s ease, filter .15s ease;
+}
+
+/* Replace the five hard black cells with faint ornamental separators. */
+.game-shell .ika-nav-item:not(:last-child)::after,
+.game-world .ika-nav-item:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  top: 13px;
+  right: -2px;
+  width: 1px;
+  height: 40px;
+  background: linear-gradient(180deg, transparent, #aa7e3d55 25%, #aa7e3d55 75%, transparent);
+  pointer-events: none;
+}
+
+.game-shell .ika-nav-item:active,
+.game-world .ika-nav-item:active {
+  transform: translateY(1px);
+}
+
+.game-shell .ika-nav-active,
+.game-world .ika-nav-active {
+  background:
+    radial-gradient(ellipse at 50% 15%, #c89e4b24 0%, transparent 66%),
+    linear-gradient(180deg, #7b5a3020, #c49a5018) !important;
+  box-shadow: inset 0 0 0 1px #d2aa6044 !important;
+}
+
+.game-shell .ika-nav-icon,
+.game-world .ika-nav-icon {
+  width: 48px !important;
+  height: 42px !important;
+  margin: 0 auto !important;
+  display: grid !important;
+  place-items: center !important;
+  background: none !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  overflow: visible;
+}
+
+.game-shell .ika-nav-approved-art,
+.game-world .ika-nav-approved-art {
+  display: block;
+  width: 46px;
+  height: 40px;
+  max-width: 46px !important;
+  max-height: 40px !important;
+  object-fit: contain;
+  filter: drop-shadow(0 2px 2px #000b);
+}
+
+.game-shell .ika-nav-label,
+.game-world .ika-nav-label {
+  margin-top: -1px !important;
+  color: #f1dfb9 !important;
+  font: 700 13px/1 var(--font-heading), Georgia, serif !important;
+  letter-spacing: .1px;
+  text-shadow: 0 2px 2px #000 !important;
+}
+
+.game-shell .ika-nav-active .ika-nav-label,
+.game-world .ika-nav-active .ika-nav-label {
+  color: #f6d995 !important;
+}
+
+/* Harita stays the visual anchor, but now belongs to the same rail. */
+.game-shell .ika-nav-center .ika-nav-icon,
+.game-world .ika-nav-center .ika-nav-icon {
+  width: 58px !important;
+  height: 54px !important;
+  margin-top: -14px !important;
+  border: 1px solid #bd9149 !important;
+  border-radius: 50% !important;
+  background:
+    radial-gradient(circle at 50% 42%, #395664 0 47%, #18252b 50% 58%, #1a100b 60% 100%) !important;
+  box-shadow:
+    0 0 0 3px #100b08,
+    0 0 0 4px #9b7137,
+    inset 0 0 0 1px #f1d28a55,
+    0 -3px 10px #0009 !important;
+}
+
+.game-shell .ika-nav-center .ika-nav-approved-art,
+.game-world .ika-nav-center .ika-nav-approved-art {
+  width: 49px;
+  height: 47px;
+  max-width: 49px !important;
+  max-height: 47px !important;
+}
+
+/* Narrow phones keep the same chrome rather than hiding it. */
+@media (max-width: 370px) {
+  .game-shell.has-page {
+    --ika-top: calc(var(--sa-top) + 120px) !important;
+  }
+  .game-shell.has-page:has(.ika-res-large) {
+    --ika-top: calc(var(--sa-top) + 166px) !important;
+  }
+  .game-shell .ika-nav,
+  .game-world .ika-nav { padding-inline: 4px !important; gap: 1px !important; }
+  .game-shell .ika-nav-approved-art,
+  .game-world .ika-nav-approved-art { width: 42px; height: 37px; }
+  .game-shell .ika-nav-label,
+  .game-world .ika-nav-label { font-size: 12px !important; }
+}
