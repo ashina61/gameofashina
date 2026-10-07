@@ -1,7 +1,17 @@
-const CACHE = 'payitaht-shell-v63'
+const CACHE = 'payitaht-shell-v64'
 const BASE = new URL(self.registration.scope).pathname.replace(/\/$/, '')
 const p = path => `${BASE}${path.startsWith('/') ? path : `/${path}`}`
 const ASSETS = [
+  p('/images/game/ui/profile-v2/header.webp'),
+  p('/images/game/ui/profile-v2/scene.webp'),
+  p('/images/game/ui/profile-v2/summary.webp'),
+  p('/images/game/ui/profile-v2/edit.webp'),
+  p('/images/game/ui/profile-v2/tabs.webp'),
+  p('/images/game/ui/profile-v2/title.webp'),
+  p('/images/game/ui/profile-v2/ledger.webp'),
+  p('/images/game/ui/profile-v2/honours.webp'),
+  p('/images/game/ui/profile-v2/footer.webp'),
+
   p('/images/game/ui/divan/civic-square.webp'),
   p('/images/game/ui/divan/envoy-scene.webp'),
   p('/images/game/ui/divan/vizier-scene.webp'),

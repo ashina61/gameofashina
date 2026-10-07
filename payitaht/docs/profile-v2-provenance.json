@@ -1,0 +1,17 @@
+{
+  "date": "2026-10-08",
+  "tool": "built-in imagegen",
+  "referenceSHA256": "5935cf52d68c64f88a77d267d29d34579f7a12545dc240a6fba77a6de1cb10c3",
+  "assets": {
+    "edit.webp": "4c029a49b74d6b7d60decf94b1ee1ac9b742bc87c74245e2268b67ca371a1d88",
+    "footer.webp": "7d1bbfcce2ba39d199e85fe111a5e465ce00b70933877493cfee37a89dac625f",
+    "header.webp": "45bd8c435f9d4f9e6ad0c65a07e02963e5673a63282016c6e0c9e3194071f8bd",
+    "honours.webp": "7ca3bcd9b2a108d7a4089bf50f3b9c4865d7dc1805381f0eba4d370fa1db0ccd",
+    "ledger.webp": "37309b89299e1135fa8fa5a447aa38d25484408498f5504d7a34ac62d610668c",
+    "scene.webp": "65b9f94a0af4c7eeea859b86c6e900831003565f093e9f6936da12a3dd4b82f6",
+    "summary.webp": "285561acd82f20d766e16dc158c2c18551f2e6bd810722e5359ec697da7269e9",
+    "tabs.webp": "c2fb755ab9ecfc9c113b6e8f79642db39b732931cd55916248fe8f3d970be628",
+    "title.webp": "7d8dd49794234c719ff4421cd3a1abc1962d44c644a495a4421b2e7fb0852ee9"
+  },
+  "footerEdit": "Built-in imagegen: remove only the compass tip invading the bottom center, retain wood, border, gear, archive, divider and chevron. Extract the returned letterboxed strip; resize to canonical 853x74."
+}

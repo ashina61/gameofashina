@@ -21,3 +21,5 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 - Genel plan ve durum: `docs/v2-plani.md`.
 - Commit öncesi kontroller: `pnpm check` + `node tools/layout-qa.cjs` (yerel sunucu gerekir) + `node tools/v2-criteria.cjs`.
 - Oyun kuralı, ekonomi, kayıt biçimi ve slot koordinatları izinsiz değişmez.
+
+- **8 Ekim profil referansı:** `docs/PROFILE-DESIGN-MEMORY.md`, `docs/mockups/approved-profile-v2.webp` ve `docs/profile-v2-atlas.json`. Sarık/kavuklu tasarım eski profil onayını değiştirir. Üst/alt HUD tamamlandı; `ika-hud.tsx`, `41-exact-reference-hud.css` ve HUD assetlerini değiştirme. Yalnız mevcut profil mekaniğine görsel giydir.

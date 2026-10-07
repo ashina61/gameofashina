@@ -1,0 +1,197 @@
+/* Approved 8 October sarık/kavuk portrait. Every selector belongs to profile.
+   The existing exact HUD has no overrides in this file. Atlas provenance and
+   canonical geometry: docs/PROFILE-DESIGN-MEMORY.md + profile-v2-atlas.json. */
+.game-shell.has-page .bp.bp-profile > .bp-bar {
+  height: max(44px,8.9vw); min-height: max(44px,8.9vw); padding: 0;
+  background: var(--profile-header) center / 100% 100% no-repeat;
+  border: 0; border-image: none; box-shadow: none; gap: 0;
+}
+.game-shell.has-page .bp.bp-profile .bp-title h1 { font: 700 clamp(18px,4.5vw,36px)/1.1 Georgia,serif; }
+.game-shell.has-page .bp.bp-profile .bp-back {
+  width: 12%; height: 100%; min-width: 44px; min-height: 44px;
+  background: none; border: 0; box-shadow: none;
+}
+.game-shell.has-page .bp.bp-profile .bp-back:active { filter: brightness(1.4); background: #ffdf8822; }
+.game-shell.has-page .bp.bp-profile .bp-scroll { padding: 0; gap: 0; background: var(--royal-paper); }
+.game-shell.has-page .bp.bp-profile .sovereign-page {
+  width: 100%; max-width: none; margin: 0; padding: 0; container-type: inline-size;
+  border: 0; border-radius: 0; background: var(--royal-paper); color: var(--c-ink);
+}
+.game-shell.has-page .bp.bp-profile .royal-profile-scene {
+  aspect-ratio: 854 / 472; min-height: 0; max-height: none; height: auto;
+  margin: 0; box-shadow: none;
+}
+.game-shell.has-page .bp.bp-profile .royal-profile-scene > img { object-fit: fill; }
+.game-shell.has-page .bp.bp-profile .royal-profile-scene > .royal-standard {
+  left: 7%; top: -5%; width: 37%; height: 88%; max-width: none;
+}
+.game-shell.has-page .bp.bp-profile .royal-identity {
+  left: 62%; right: 6.5%; top: 15%; bottom: auto; width: auto; max-width: none;
+  padding: 0; border: 0; border-radius: 0; box-shadow: none;
+  background: none; backdrop-filter: none; color: var(--c-ink); text-align: center;
+}
+.game-shell.has-page .bp.bp-profile .royal-identity h2 {
+  font: 700 clamp(22px,5.4cqw,46px)/1.1 Georgia,serif; margin: 0 0 1.6cqw;
+  color: var(--c-ink); text-shadow: none;
+}
+.game-shell.has-page .bp.bp-profile .royal-identity strong {
+  background: none; border: 0; padding: .1cqw 0; margin: 0 -1cqw;
+  font: 400 clamp(13px,3cqw,26px)/1.4 Georgia,serif; color: var(--c-gold-pale);
+}
+.game-shell.has-page .bp.bp-profile .royal-identity p {
+  font: 400 clamp(11px,2.3cqw,20px)/1.25 Georgia,serif; margin: 1.2cqw -1cqw 0;
+}
+.game-shell.has-page .bp.bp-profile .royal-summary {
+  position: relative; width: 100%; max-width: 100%; margin: 0; padding: 0;
+  height: 13.23cqw; min-height: 54px; grid-template-columns: repeat(3,minmax(0,1fr));
+  background: var(--profile-summary) center / 100% 100% no-repeat;
+  border: 0; border-radius: 0; box-shadow: none; overflow: visible;
+}
+.game-shell.has-page .bp.bp-profile .royal-summary > span {
+  min-height: 0; display: block; padding: 2.7cqw 0 0 48%; border: 0;
+  font: 400 clamp(12px,2.9cqw,25px)/1.1 Georgia,serif;
+}
+.game-shell.has-page .bp.bp-profile .royal-summary > span:nth-child(2) { padding-left: 63%; }
+.game-shell.has-page .bp.bp-profile .royal-summary > span:nth-child(3) { padding-left: 49%; }
+.game-shell.has-page .bp.bp-profile .royal-summary .royal-art { display: none; }
+.game-shell.has-page .bp.bp-profile .royal-summary b { font: 700 clamp(16px,4.2cqw,36px)/1.25 Georgia,serif; }
+.game-shell.has-page .bp.bp-profile .royal-edit {
+  width: 100%; max-width: 100%; min-height: 44px; height: 9.37cqw;
+  padding: 0 10% 0 27%; margin: 0; border: 0; border-image: none; border-radius: 0;
+  background: var(--profile-edit) center / 100% 100% no-repeat; box-shadow: none;
+  color: var(--c-ink); font: 700 clamp(14px,3cqw,26px)/1.1 Georgia,serif;
+}
+.game-shell.has-page .bp.bp-profile .court-tabs {
+  position: relative; top: auto; height: 8.67cqw; min-height: 44px;
+  padding: 0; margin: 0; gap: 0; border: 0; border-image: none;
+  background: var(--profile-tabs) center / 100% 100% no-repeat;
+  border-radius: 0; box-shadow: none; backdrop-filter: none;
+}
+.game-shell.has-page .bp.bp-profile .court-tabs > button {
+  padding: 0; min-height: 44px; border: 0; border-radius: 0; border-image: none;
+  background: none; box-shadow: none; font: 400 clamp(14px,3.2cqw,28px)/1 Georgia,serif;
+  color: var(--c-cream);
+}
+.game-shell.has-page .bp.bp-profile .court-tabs > button[aria-selected='true'] {
+  background: var(--royal-tab-frame) center / 100% 100% no-repeat;
+  border: 0; border-image: none; color: var(--c-gold-pale); box-shadow: none;
+}
+.game-shell.has-page .bp.bp-profile .court-tab-body {
+  display: block; padding: 0; border: 0; border-image: none; background: var(--royal-paper);
+}
+.game-shell.has-page .bp.bp-profile .royal-section {
+  position: relative; margin: 0; padding: 0; border: 0; border-radius: 0;
+  box-shadow: none; background-repeat: no-repeat; background-size: 100% 100%;
+}
+.game-shell.has-page .bp.bp-profile .royal-section h3 {
+  position: absolute; left: 10%; top: 1.3cqw; margin: 0;
+  font: 700 clamp(16px,3.5cqw,30px)/1.1 Georgia,serif;
+}
+.game-shell.has-page .bp.bp-profile .royal-section h3::before,
+.game-shell.has-page .bp.bp-profile .royal-section h3::after { display: none; }
+.game-shell.has-page .bp.bp-profile .profile-title { height: 20.96cqw; min-height: 100px; background-image: var(--profile-title); }
+.game-shell.has-page .bp.bp-profile .royal-title-path {
+  position: absolute; inset: 30% 5% 0 35.5%; display: block;
+}
+.game-shell.has-page .bp.bp-profile .profile-kavuk { display: none; }
+.game-shell.has-page .bp.bp-profile .royal-title-path h4 {
+  margin: 0 0 1.1cqw; font: 700 clamp(13px,3cqw,26px)/1.1 Georgia,serif;
+}
+.game-shell.has-page .bp.bp-profile .royal-progress {
+  height: 4.4cqw; min-height: 20px; margin: 0; border: 2px ridge var(--c-gold);
+  border-radius: 2cqw; background: var(--c-wood-dark); overflow: hidden;
+  display: grid; place-items: center; box-shadow: none;
+}
+.game-shell.has-page .bp.bp-profile .royal-progress i { background: linear-gradient(var(--c-royal-active),var(--c-royal-active-deep)); }
+.game-shell.has-page .bp.bp-profile .royal-progress b { font: 700 clamp(12px,2.6cqw,23px)/1 Georgia,serif; }
+.game-shell.has-page .bp.bp-profile .royal-title-path p { margin: 1.2cqw 0 0; text-align: center; font: 400 clamp(11px,2.55cqw,22px)/1.1 Georgia,serif; }
+.game-shell.has-page .bp.bp-profile .profile-ledger { height: 29.74cqw; min-height: 132px; background-image: var(--profile-ledger); }
+.game-shell.has-page .bp.bp-profile .royal-ledger { position: absolute; inset: 18% 0 0; display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); }
+.game-shell.has-page .bp.bp-profile .royal-ledger > div { display: block; padding: 1cqw 0 0 66%; border: 0; }
+.game-shell.has-page .bp.bp-profile .royal-ledger .royal-art { display: none; }
+.game-shell.has-page .bp.bp-profile .royal-ledger span { font: 400 clamp(12px,2.6cqw,23px)/1.1 Georgia,serif; }
+.game-shell.has-page .bp.bp-profile .royal-ledger b { font: 700 clamp(20px,4.5cqw,39px)/1.2 Georgia,serif; }
+.game-shell.has-page .bp.bp-profile .profile-honours { height: 22.95cqw; min-height: 112px; background-image: var(--profile-honours); }
+.game-shell.has-page .bp.bp-profile .royal-heading { position: absolute; inset: 0 5% auto 0; height: 4.5cqw; }
+.game-shell.has-page .bp.bp-profile .royal-heading button { position: absolute; right: 0; top: 0; min-height: 44px; padding: 0; font: 400 clamp(11px,2.3cqw,20px)/1 Georgia,serif; }
+.game-shell.has-page .bp.bp-profile .royal-honours { position: absolute; inset: 18% 6% 0; gap: 5%; }
+.game-shell.has-page .bp.bp-profile .royal-honours button { position: relative; padding: 0; border: 0; box-shadow: none; background: none; }
+.game-shell.has-page .bp.bp-profile .royal-honours .royal-art { display: none; }
+.game-shell.has-page .bp.bp-profile .royal-honours span { position: absolute; bottom: 7%; left: 0; right: 0; font: 700 clamp(10px,2.2cqw,19px)/1.05 Georgia,serif; }
+.game-shell.has-page .bp.bp-profile .royal-honours small { position: absolute; inset: 8% 0 auto; color: var(--c-cream); text-shadow: 0 1px 2px #000; background: #271509bb; font: 11px/1.3 Georgia,serif; }
+.game-shell.has-page .bp.bp-profile .court-footer {
+  display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 0;
+  height: 8.67cqw; min-height: 44px; width: 100%; margin: 0; padding: 0;
+  background: var(--profile-footer) center / 100% 100% no-repeat;
+}
+.game-shell.has-page .bp.bp-profile .court-footer > button,
+.game-shell.has-page .bp.bp-profile .court-footer > button:last-child {
+  display: flex; padding: 0 6% 0 26%; justify-content: flex-start; min-height: 44px;
+  background: none; border: 0; border-image: none; border-radius: 0; box-shadow: none;
+  font: 400 clamp(13px,2.6cqw,23px)/1.1 Georgia,serif; color: var(--c-gold-pale);
+}
+.game-shell.has-page .bp.bp-profile .court-footer svg,
+.game-shell.has-page .bp.bp-profile .court-footer .painted-icon { display: none; }
+.game-shell.has-page .bp.bp-profile .royal-subpage,
+.game-shell.has-page .bp.bp-profile .sancaktar-workshop { padding-inline: 4%; border: 0 solid transparent; border-image: var(--royal-page-frame) 20 / 6px / 0 stretch; }
+.game-shell.has-page .bp.bp-profile .is-sancaktar .royal-profile-scene { height: auto; }
+.game-shell.has-page .bp.bp-profile button:focus-visible { outline: 2px solid var(--c-gold); outline-offset: -3px; }
+.game-shell.has-page .bp.bp-profile button:active { filter: brightness(1.15); }
+.game-shell.has-page .bp.bp-profile .royal-ledger > div:nth-child(even) { padding-left: 59%; }
+.game-shell.has-page .bp.bp-profile .royal-progress { border: 0; }
+.game-shell.has-page .bp.bp-profile .court-tabs > button {
+  background: var(--profile-tabs) 33.333% center / 400% 100% no-repeat;
+}
+.game-shell.has-page .bp.bp-profile .court-tabs > button:nth-child(3) { background-position: 66.666% center; }
+.game-shell.has-page .bp.bp-profile .court-tabs > button:nth-child(4) { background-position: 100% center; }
+.game-shell.has-page .bp.bp-profile .court-tabs > button[aria-selected='true'] {
+  background: var(--profile-tabs) 0 center / 400% 100% no-repeat;
+}
+/* Keep the live fill inside the atlas's original ornate frame. */
+.game-shell.has-page .bp.bp-profile .royal-title-path { inset: 0 5% 0 35.5%; }
+.game-shell.has-page .bp.bp-profile .royal-title-path h4 { position: absolute; top: 32%; left: 0; right: 0; margin: 0; }
+.game-shell.has-page .bp.bp-profile .royal-progress { position: absolute; top: 51%; left: 2%; right: 3%; height: 18%; min-height: 0; background: none; }
+.game-shell.has-page .bp.bp-profile .royal-title-path p { position: absolute; top: 79%; left: 0; right: 0; margin: 0; }
+.game-shell.has-page .bp.bp-profile .royal-ledger { grid-template-rows: repeat(2,minmax(0,1fr)); }
+.game-shell.has-page .bp.bp-profile .royal-ledger > div { position: relative; min-height: 0; padding: 0; }
+.game-shell.has-page .bp.bp-profile .royal-ledger > div:nth-child(even),
+.game-shell.has-page .bp.bp-profile .royal-ledger > div:nth-child(odd) { padding: 0; }
+.game-shell.has-page .bp.bp-profile .royal-ledger span { position: absolute; left: 66%; right: 1%; top: 8%; }
+.game-shell.has-page .bp.bp-profile .royal-ledger > div:nth-child(even) span { left: 59%; }
+.game-shell.has-page .bp.bp-profile .royal-ledger b { white-space: nowrap; font-size: min(4.5cqw,calc(24cqw / var(--score-digits,1))); }
+.game-shell.has-page .bp.bp-profile .royal-honours button.profile-unearned {
+  background: #ead5a866; border-radius: 50% 50% 0 0;
+}
+.game-shell.has-page .bp.bp-profile .royal-honours small { top: 3%; background: #271509dd; }
+/* Wardrobe and the other live ledgers continue the same unboxed parchment. */
+.game-shell.has-page .bp.bp-profile :is(.sancaktar-heading,.sancaktar-identity,.sancaktar-selection,.sancaktar-signature) {
+  border: 0; border-radius: 0; box-shadow: none; background: var(--royal-paper);
+}
+.game-shell.has-page .bp.bp-profile .sancaktar-heading,
+.game-shell.has-page .bp.bp-profile .sancaktar-identity,
+.game-shell.has-page .bp.bp-profile .sancaktar-selection { padding: 12px 0; border-bottom: 1px solid var(--c-parch-line); }
+.game-shell.has-page .bp.bp-profile .sancaktar-identity input { border-radius: 0; background: #fff3; }
+.game-shell.has-page .bp.bp-profile .sancaktar-steps { padding: 0; gap: 0; border-radius: 0; background: var(--royal-wood); }
+.game-shell.has-page .bp.bp-profile .sancaktar-steps button { border-radius: 0; }
+.game-shell.has-page .bp.bp-profile .sancaktar-steps button[aria-pressed='true'] { background: linear-gradient(var(--c-royal-active),var(--c-royal-active-deep)); }
+.game-shell.has-page .bp.bp-profile .sancaktar-selection button[role='radio'] {
+  border-radius: 0; background: transparent; box-shadow: none;
+}
+.game-shell.has-page .bp.bp-profile .sancaktar-selection button[aria-checked='true'] {
+  background: var(--royal-wood); color: var(--c-gold-pale); box-shadow: none;
+}
+.game-shell.has-page .bp.bp-profile .sancaktar-signature { background: var(--royal-paper); border-top: 1px solid var(--c-gold-deep); }
+.game-shell.has-page .bp.bp-profile .royal-subpage { gap: 0; }
+.game-shell.has-page .bp.bp-profile :is(.royal-subsection,.royal-record-groups > section,.royal-medal-card,.royal-settlement) {
+  border-radius: 0; box-shadow: none; background: transparent;
+}
+.game-shell.has-page .bp.bp-profile .royal-identity h2 { font-size: max(13px,min(5.4cqw,calc(70cqw / var(--name-length,4)))); }
+.game-shell.has-page .bp.bp-profile .royal-summary > span:last-child b { font-size: min(4.2cqw,calc(28cqw / var(--total-digits,1))); white-space: nowrap; }
+.game-shell.has-page .bp.bp-profile .royal-honours span { font-size: clamp(11px,2.2cqw,19px); }
+.game-shell.has-page .bp.bp-profile .royal-summary > span > span,
+.game-shell.has-page .bp.bp-profile .royal-summary b { white-space: nowrap; }
+.game-shell.has-page .bp.bp-profile .royal-honours button.profile-unearned { background: none; border-radius: 0; }
+.game-shell.has-page .bp.bp-profile .royal-honours button.profile-unearned::before {
+  content: ''; position: absolute; inset: 0 0 18%; border-radius: 50%;
+  backdrop-filter: grayscale(.9); pointer-events: none;
+}

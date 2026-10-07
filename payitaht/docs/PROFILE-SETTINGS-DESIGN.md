@@ -1,3 +1,5 @@
+> Profil için 8 Ekim 2026 güncel referans: [PROFILE-DESIGN-MEMORY.md](PROFILE-DESIGN-MEMORY.md), `mockups/approved-profile-v2.webp`. Aşağıdaki eski profil mockup'ı geçersizdir; Ayarlar belgesi geçerlidir.
+
 # Approved portrait UI · 5 October 2026
 
 Reference of record: `mockups/approved-profile.webp` and `mockups/approved-settings.webp`. These are the two designs Adem approved. Do not substitute the removed sidebar/resource-rail desktop concept, the portrait avatar checkpoint, invented volume/quality/shadow settings, or the old compact theme.

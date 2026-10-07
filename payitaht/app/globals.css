@@ -39,6 +39,7 @@
 @import './styles/39-hud-qa-fixes.css';
 @import './styles/40-persistent-hud.css';
 @import './styles/41-exact-reference-hud.css';
+@import './styles/42-approved-profile.css';
 
 @custom-variant dark (&:is(.dark *));
 @theme inline {

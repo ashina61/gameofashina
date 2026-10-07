@@ -1,3 +1,5 @@
+> Güncel profil tasarım belleği: [PROFILE-DESIGN-MEMORY.md](PROFILE-DESIGN-MEMORY.md). Sarık/kavuklu 8 Ekim referansını kullan; tamamlanan üst/alt barı koru.
+
 # Payitaht Adaları — kalıcı tasarım dili
 
 Kullanıcının 4 Ekim 2026 tarihli son talebi: bütün sayfalar gönderdiği
