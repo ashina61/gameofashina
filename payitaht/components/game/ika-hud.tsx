@@ -17,7 +17,7 @@ import { actionsInUse } from '@/lib/game/expeditions'
 import { luxuryIcons } from './game-widgets'
 import { AkceArt, HamleArt, IlimArt, KeresteArt, NufusArt } from './resource-art'
 import { AdvisorPortrait, type AdvisorId } from './advisor-portraits'
-import { ApprovedArt, RoyalCrest } from './approved-court-art'
+import { ApprovedArt } from './approved-court-art'
 import { CountUp } from './count-up'
 import { profileOf } from '@/lib/game/profile'
 import type { BadgeMode } from '@/lib/game/badges'
@@ -125,23 +125,27 @@ export function IkaTopBar({ game, empire, news, modes, activeAdvisor, onCity, on
     { key: 'pop', icon: <NufusArt />, value: `${compact(population(game))}`, sub: `${formatRate(growthRate(game), true)}/dk`, label: population(game) >= maxPopulation(game) ? t.hud.housingFull : t.hud.population, cap: population(game) >= maxPopulation(game) },
     { key: 'ap', icon: <HamleArt />, value: `${empire && city ? actionPoints(game) - actionsInUse(empire, city.id) : actionPoints(game)}`, sub: `/${actionPoints(game)}`, label: 'Sefer hakkı' },
   ]
-  return <header className="ika-top" style={{
+  return <header className="ika-top exact-hud" style={{
+    '--exact-top': `url("${asset('/images/game/ui/exact-hud/top.webp')}")`,
+    '--exact-wood': `url("${asset('/images/game/ui/exact-hud/wood.webp')}")`,
+    '--exact-paper': `url("${asset('/images/game/ui/exact-hud/paper.webp')}")`,
     '--bar-wood': `url("${asset('/images/game/ui/reference-bars/wood.webp')}")`,
     '--bar-crest': `url("${asset('/images/game/ui/reference-bars/crest.webp')}")`,
     '--bar-card': `url("${asset('/images/game/ui/reference-bars/card.webp')}")`,
   } as React.CSSProperties}>
     <div className="ika-ribbon">
       {prof && <button type="button" className="ika-crest" onClick={onProfile} aria-label={`Hükümdar profili: ${prof.ruler}`}>
-        <RoyalCrest crest={prof.crest} className="ika-ruler-crest-art" />
+        <span className="ika-ruler-crest-art" aria-hidden="true" />
         <span className="ika-crest-level" title="Divanhane seviyesi">{game.buildings.divan}</span>
       </button>}
       <button type="button" className="ika-city" onClick={onCity} aria-label={`Şehir: ${city?.name ?? ''}. Şehirlerini aç`}>
-        <span className="ika-city-name"><strong>{city?.name ?? 'Sahilhisar'}</strong><small>{island?.name}</small><span className="ika-might"><Swords size={12} /> <b>Kudret</b> {compact(might(game))}</span></span>
+        <span className="ika-city-name"><strong>{city?.name ?? 'Sahilhisar'}</strong><small>{island ? `Ada (${island.x}:${island.y})` : ''}</small></span>
         <ChevronDown aria-hidden="true" />
       </button>
+      <span className="ika-might"><Swords size={12} /><b>Kudret</b><span>{compact(might(game))}</span></span>
       <nav className="ika-advisors" aria-label="Danışmanlar">
         {(Object.keys(ADVISORS) as AdvisorId[]).map(id => <button key={id} type="button"
-          className={cn('ika-advisor', news[id] > 0 && 'ika-advisor-news', activeAdvisor === id && 'ika-advisor-active')}
+          data-advisor={id} data-news={news[id]} className={cn('ika-advisor', news[id] > 0 && 'ika-advisor-news', activeAdvisor === id && 'ika-advisor-active')}
           onClick={() => onAdvisor(id)} aria-pressed={activeAdvisor === id}
           aria-label={`${ADVISORS[id].title} (${ADVISORS[id].name})${news[id] ? `: ${news[id]} haber` : ''}`}>
           <span className="ika-advisor-ring" aria-hidden="true" style={{ backgroundImage: `url("${asset(`/images/game/ui/reference-bars/${id}.webp`)}")` }} />
@@ -153,7 +157,7 @@ export function IkaTopBar({ game, empire, news, modes, activeAdvisor, onCity, on
     <div ref={resourceBar} className={cn('ika-res', largeText && 'ika-res-large')} role="group" aria-label={`Kaynaklar, ambar ${compact(capacity(game))}`}>
       {chips.map((c, index) => {
         const fx = stockFx[c.key as StockFxKey]
-        return <span key={c.key} className={cn('ika-chip', index < 4 ? 'ika-stock' : 'ika-status', c.full && 'ika-chip-full', c.cap && 'ika-chip-cap', c.negative && 'ika-chip-negative')} data-k={c.key} title={c.label}>
+        return <span key={c.key} className={cn('ika-chip', index < 4 ? 'ika-stock' : 'ika-status', c.full && 'ika-chip-full', c.cap && 'ika-chip-cap', c.negative && 'ika-chip-negative')} data-lux={c.key === 'lux' ? lux : undefined} data-k={c.key} title={c.label}>
           <button className="ika-stock-open" type="button" onClick={onEconomy} aria-label={`${c.label}: ${c.value}. Üretim defterini aç`}>
             <i aria-hidden="true">{c.icon}</i>
             <span className="ika-resource-label" aria-hidden="true">{c.label}</span>
@@ -187,8 +191,8 @@ export function IkaNav({ active, badges, modes, onSelect }: { active: IkaNavKey 
     { key: 'alliance', label: 'İttifak', art: 'nav-alliance.webp' },
     { key: 'objectives', label: 'Görevler', art: 'nav-quests.webp' },
   ]
-  return <nav className="ika-nav" aria-label="Oyun menüsü" style={{ backgroundImage: `url("${asset('/images/game/ui/reference-bars/wood.webp')}")` }}>{items.map(i => <button key={i.key} type="button"
-    className={cn('ika-nav-item', i.key === 'map' && 'ika-nav-center', active === i.key && 'ika-nav-active')} data-nav={i.key} aria-current={active === i.key ? 'page' : undefined}
+  return <nav className="ika-nav exact-nav" aria-label="Oyun menüsü" style={{ '--exact-bottom': `url("${asset('/images/game/ui/exact-hud/bottom.webp')}")`, '--exact-wood': `url("${asset('/images/game/ui/exact-hud/wood.webp')}")` } as React.CSSProperties}>{items.map(i => <button key={i.key} type="button"
+    className={cn('ika-nav-item', i.key === 'map' && 'ika-nav-center', active === i.key && 'ika-nav-active')} data-nav={i.key} data-news={badges[i.key] ?? 0} aria-current={active === i.key ? 'page' : undefined}
     aria-label={(badges[i.key] ?? 0) > 0 ? `${i.label}: ${badges[i.key]} yeni` : i.label} onClick={() => onSelect(i.key)}>
     <span className="ika-nav-icon" aria-hidden="true"><ApprovedArt src={i.art} alt="" className="ika-nav-approved-art" /></span><span className="ika-nav-label">{i.label}</span>
     {(badges[i.key] ?? 0) > 0 && <Badge n={badges[i.key]!} mode={modes?.[i.key] ?? 'count'} />}

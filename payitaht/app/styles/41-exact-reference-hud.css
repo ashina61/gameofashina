@@ -1,0 +1,152 @@
+/* Original reference artwork, 864px canvas. Live numbers cover sample numbers.
+   Bar geometry scales uniformly; portrait/nav art is not regenerated. */
+.game-shell,.game-shell.has-page,.game-shell.has-page:has(.ika-res-large) {
+  --ika-top: calc(var(--sa-top) + 26.852vw) !important;
+  --ika-nav: calc(var(--sa-bottom) + 25.463vw) !important;
+}
+.game-shell .exact-hud {
+  top: var(--sa-top) !important; height: 26.852vw !important; padding: 0 !important;
+  background: var(--exact-top) center / 100% 100% no-repeat !important;
+  border: 0 !important; box-shadow: none !important;
+  clip-path: polygon(0 13%,4% 0,7% 6%,46% 6%,50% 2%,54% 6%,93% 6%,96% 0,100% 13%,100% 92%,97% 97%,54% 97%,50% 100%,46% 97%,3% 97%,0 92%);
+}
+.game-shell .exact-hud .ika-ribbon {
+  position: absolute; inset: 0 0 auto; width: 100%; height: 54.31% !important;
+  min-height: 0 !important; padding: 0 !important; background: none !important;
+  border: 0 !important; box-shadow: none !important; display: block !important;
+}
+.game-shell .exact-hud .ika-crest {
+  position: absolute; left: 1.5%; top: 10%; width: 13.5% !important;
+  min-width: 0 !important; height: 85% !important; min-height: 0 !important;
+  padding: 0 !important; border: 0 !important; border-radius: 0 !important;
+  background: none !important; box-shadow: none !important;
+}
+.game-shell .exact-hud .ika-ruler-crest-art { visibility: hidden !important; }
+.game-shell .exact-hud .ika-crest-level {
+  left: 63%; right: auto; top: 70%; width: 28%; height: 26%; padding: 0;
+  border-radius: 50%; background: #17180e !important; color: #edd58a !important;
+  font: 700 2.78vw/1 Georgia,serif !important;
+}
+.game-shell .exact-hud .ika-city {
+  position: absolute; left: 23.4%; top: 34%; width: 14.9%; height: 49%;
+  min-height: 0 !important; padding: 0 !important; display: block !important;
+  background: var(--exact-paper) center / 100% 100% !important;
+}
+.game-shell .exact-hud .ika-city-name { padding: 0 !important; gap: 0 !important; }
+.game-shell .exact-hud .ika-city-name strong {
+  font: 700 2.78vw/1.35 Georgia,serif !important; color: #110c07 !important; text-shadow: none !important;
+}
+.game-shell .exact-hud .ika-city-name small {
+  font: 400 2.05vw/1.4 Georgia,serif !important; color: #24170d !important;
+  display: block !important; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.game-shell .exact-hud .ika-might {
+  position: absolute !important; left: 48.3% !important; right: auto !important;
+  top: 35% !important; transform: none !important; width: 8.1%; max-width: none !important;
+  height: 43%; display: flex !important; flex-direction: column; padding: 0 !important;
+  background: var(--exact-wood) center / 100% 100%;
+  color: #f0e6cc; font: 400 2.2vw/1.25 Georgia,serif !important;
+}
+.game-shell .exact-hud .ika-might svg { display: none; }
+.game-shell .exact-hud .ika-might b { font: inherit !important; }
+.game-shell .exact-hud .ika-might > span { font-size: 2.9vw; }
+.game-shell .exact-hud .ika-advisors {
+  position: absolute; left: 57.4%; top: 21%; width: 38.8% !important; min-width: 0 !important;
+  height: 72%; display: grid !important; grid-template-columns: repeat(4,minmax(0,1fr)) !important;
+  padding: 0 !important; gap: 0 !important; border: 0 !important;
+}
+.game-shell .exact-hud .ika-advisor {
+  width: 100% !important; min-width: 0 !important; height: 100% !important; min-height: 0 !important;
+  border: 0 !important; border-radius: 0 !important; background: none !important; filter: none !important;
+}
+.game-shell .exact-hud .ika-advisor-ring,.game-shell .exact-hud .ika-advisor-name { visibility: hidden !important; }
+.game-shell .exact-hud .ika-advisor::after { display: none !important; }
+.game-shell .exact-hud .ika-advisor[data-news='0']:nth-child(odd)::before {
+  content: ''; position: absolute; left: 66%; top: -2%; width: 25%; height: 24%;
+  background: var(--exact-wood) center / 100% 100%; border-radius: 50%;
+}
+.game-shell .exact-hud .ika-badge { top: -1%; right: 10%; min-width: 2.1vw; width: 2.1vw; height: 2.1vw; padding: 0; font-size: 1.3vw; border-width: 1px; }
+.game-shell .exact-hud .ika-res {
+  position: absolute; left: 0; top: 54.31%; height: 45.69% !important;
+  padding: 0 !important; border: 0 !important; background: none !important; box-shadow: none !important;
+  grid-template-columns: repeat(6,minmax(0,1fr)) !important; backdrop-filter: none !important;
+}
+.game-shell .exact-hud .ika-chip {
+  position: relative; padding: 0 !important; min-height: 0 !important; background: none !important;
+  border: 0 !important; box-shadow: none !important; border-radius: 0 !important;
+}
+.game-shell .exact-hud .ika-stock-open { display: block !important; position: absolute; inset: 0; padding: 0 !important; min-height: 0 !important; }
+.game-shell .exact-hud .ika-chip i,.game-shell .exact-hud .ika-resource-label { visibility: hidden !important; }
+.game-shell .exact-hud .ika-chip-num {
+  position: absolute; top: 33%; left: 52%; width: 45%; height: 45%; display: flex !important;
+  flex-direction: column; align-items: flex-start; justify-content: center; gap: 0;
+  background: var(--exact-wood) center / 100% 100%;
+}
+.game-shell .exact-hud .ika-chip-num > b {
+  text-align: left !important; color: #f3ecd7 !important; text-shadow: 0 1px 1px #000 !important;
+  font: 400 2.4vw/1.2 Georgia,serif !important; letter-spacing: 0 !important;
+}
+.game-shell .exact-hud .ika-chip-num > small {
+  display: block !important; text-align: left !important; color: #73cb83 !important;
+  font: 700 2vw/1.2 Georgia,serif !important; letter-spacing: 0 !important;
+}
+.game-shell .exact-hud .ika-chip[data-k='ap'] .ika-chip-num { flex-direction: row; align-items: center; justify-content: flex-start; gap: 0; }
+.game-shell .exact-hud .ika-chip[data-k='ap'] .ika-chip-num > small { color: #f3ecd7 !important; font: 400 2.4vw/1.2 Georgia,serif !important; }
+.game-shell .exact-hud .ika-chip[data-k='lux']:not([data-lux='kahve']) .ika-resource-label {
+  visibility: visible !important; position: absolute; left: 52%; top: 11%; width: 45%;
+  background: var(--exact-wood) center / 100% 100%; color: #f3ecd7;
+  font: 400 1.9vw/1.2 Georgia,serif !important;
+}
+.game-shell .exact-hud .ika-chip[data-k='lux']:not([data-lux='kahve']) i {
+  visibility: visible !important; position: absolute; left: 12%; top: 19%; width: 38%; height: 58%;
+  background: var(--exact-wood) center / 100% 100%;
+}
+.game-shell .exact-hud .ika-chip i .painted-icon { width: 5.3vw !important; height: 5.3vw !important; }
+.game-shell .exact-hud .ika-chip-negative .ika-chip-num small { color: var(--c-bad) !important; }
+.game-shell .exact-nav {
+  left: 0 !important; right: 0 !important; bottom: var(--sa-bottom) !important;
+  height: 25.463vw !important; min-height: 0 !important; padding: 0 !important;
+  background-image: var(--exact-bottom) !important; background-size: 100% 100% !important; background-color: transparent !important;
+  border: 0 !important; box-shadow: none !important; border-radius: 0 !important; backdrop-filter: none !important;
+  clip-path: polygon(0 28%,4% 18%,38% 18%,43% 8%,50% 0,57% 8%,62% 18%,96% 18%,100% 28%,100% 88%,96% 94%,54% 94%,50% 100%,46% 94%,4% 94%,0 88%);
+}
+.game-shell .exact-nav::before,.game-shell .exact-nav .ika-nav-item::before,.game-shell .exact-nav .ika-nav-item::after { display: none !important; }
+.game-shell .exact-nav .ika-nav-item {
+  height: 100% !important; min-height: 0 !important; padding: 0 !important; margin: 0 !important;
+  border: 0 !important; box-shadow: none !important; border-radius: 0 !important;
+  transform: none !important; background: transparent !important;
+}
+.game-shell .exact-nav .ika-nav-icon,.game-shell .exact-nav .ika-nav-label { visibility: hidden !important; }
+.game-shell .exact-nav .ika-badge { top: 26%; right: 23%; min-width: 2.6vw; width: 2.6vw; height: 2.6vw; padding: 0; font-size: 1.5vw; }
+.game-shell .exact-nav .ika-nav-item[data-nav='objectives'][data-news='0']::after {
+  content: ''; display: block !important; position: absolute; right: 24%; top: 27%;
+  width: 14%; height: 12%; border-radius: 50%; background: var(--exact-wood) center / 100% 100%;
+}
+.game-shell .exact-nav button:focus-visible { outline: 2px solid #f3d28b !important; outline-offset: -4px; }
+
+.game-shell .exact-hud .ika-res { min-height: 0 !important; grid-template-rows: minmax(0,1fr) !important; }
+.game-shell .exact-hud .ika-chip { height: 100% !important; display: block !important; }
+.game-shell .exact-hud .ika-stock-open { height: 100% !important; margin: 0 !important; }
+.game-shell .exact-hud .ika-chip-num { top: 32% !important; height: 47% !important; }
+.game-shell .exact-hud .ika-chip-num > b,.game-shell .exact-hud .ika-chip-num > small { position: static !important; margin: 0 !important; }
+.game-shell .exact-hud .ika-chip-flag { display: none; }
+.game-shell .exact-hud .ika-res { gap: 0 !important; }
+.game-shell .exact-hud .ika-city { border: 0 !important; border-radius: 0 !important; box-shadow: none !important; }
+.game-shell .exact-hud .ika-city-name { display: flex !important; flex-direction: column; align-items: stretch; }
+.game-shell .exact-hud .ika-city > .painted-icon { display: none !important; }
+.game-shell .exact-hud .ika-chip[data-k='gold'] .ika-chip-num { left: 54%; width: 45%; }
+.game-shell .exact-hud .ika-chip[data-k='wood'] .ika-chip-num { left: 55.5%; width: 43%; }
+.game-shell .exact-hud .ika-chip[data-k='knowledge'] .ika-chip-num { left: 51.4%; width: 45%; }
+.game-shell .exact-hud .ika-chip[data-k='lux'] .ika-chip-num { left: 58.3%; width: 41%; }
+.game-shell .exact-hud .ika-chip[data-k='pop'] .ika-chip-num { left: 50%; width: 47%; }
+.game-shell .exact-hud .ika-chip[data-k='ap'] .ika-chip-num { left: 38%; width: 52%; }
+
+.game-shell .exact-hud .ika-city-name strong { font-size: 2.55vw !important; }
+.game-shell .exact-hud .ika-city > svg { display: none !important; }
+.game-shell .exact-hud .ika-badge,.game-shell .exact-nav .ika-badge { font-size: 0 !important; border-radius: 50% !important; background: #b91412 !important; border-color: #eac078 !important; }
+.game-shell .exact-hud .ika-chip[data-k='lux']:not([data-lux='kahve']) .ika-resource-label { left: 58.3%; width: 41%; font-size: 1.8vw !important; }
+/* Keep live production strings inside the original stock column. */
+.game-shell .exact-hud .ika-chip-num > small { font-size: 1.75vw !important; }
+/* The parchment is one city control, including its painted skyline. */
+.game-shell .exact-hud .ika-city { left: 14.8%; top: 10%; width: 25%; height: 85%; background: none !important; }
+.game-shell .exact-hud .ika-city-name { position: absolute; left: 34.4%; top: 28.2%; width: 59.6%; height: 57.6%; background: var(--exact-paper) center / 100% 100%; }
