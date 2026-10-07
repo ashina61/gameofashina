@@ -37,6 +37,7 @@
 @import './styles/37-responsive-qa-fixes.css';
 @import './styles/38-approved-hud-nav.css';
 @import './styles/39-hud-qa-fixes.css';
+@import './styles/40-persistent-hud.css';
 
 @custom-variant dark (&:is(.dark *));
 @theme inline {
