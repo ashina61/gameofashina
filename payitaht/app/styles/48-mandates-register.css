@@ -1,0 +1,75 @@
+/* Three mission books share the approved parchment, walnut and brass. */
+.game-shell.has-page .bp.bp-objectives { background: var(--royal-paper) center / 420px auto; text-size-adjust: 100%; -webkit-text-size-adjust: 100%; }
+.game-shell.has-page:has(.bp-objectives)::after { content: ''; position: fixed; inset: auto 0 0; height: var(--ika-nav); z-index: 59; pointer-events: none; background: var(--royal-paper) center / 420px auto; }
+.game-shell.has-page .bp.bp-objectives .bp-scroll { padding: 0; gap: 0; background: var(--royal-paper) center / 420px auto; }
+.game-shell.has-page .bp.bp-objectives .quest-court { padding: 0; color: var(--c-ink); font: 15px/1.5 Georgia,serif; }
+.game-shell.has-page .bp.bp-objectives .quest-court-scene { width: 100%; margin: 0; height: 170px; border: 0; border-radius: 0; box-shadow: none; }
+.game-shell.has-page .bp.bp-objectives .quest-court-speech { right: 3%; top: 14px; width: 47%; padding: 12px; }
+.game-shell.has-page .bp.bp-objectives .quest-court-speech small { font: 700 18px/1.2 'Payitaht Profile Roman',Georgia,serif; }
+.game-shell.has-page .bp.bp-objectives .quest-court-speech p { margin-top: 8px; font: 14px/1.4 Georgia,serif; }
+.game-shell.has-page .bp.bp-objectives .quest-court-ribbon { width: 100%; margin: 0; min-height: 48px; padding: 12px; border: 0 solid transparent; border-image: var(--royal-page-frame) 20 / 4px / 0 stretch; background: var(--royal-wood) center / cover; font: 700 22px/1.2 'Payitaht Profile Roman',Georgia,serif; }
+.game-shell.has-page .bp.bp-objectives .quest-court-tabs { gap: 0; margin: 0; border: 0 solid transparent; border-image: var(--royal-page-frame) 20 / 4px / 0 stretch; background: var(--royal-wood) center / cover; }
+.game-shell.has-page .bp.bp-objectives .quest-court-tabs > button { min-height: 60px; gap: 4px; padding: 7px 4px; border: 0; border-right: 1px solid var(--c-gold-deep); background: none; box-shadow: none; font: 700 17px/1.2 'Payitaht Profile Roman',Georgia,serif; }
+.game-shell.has-page .bp.bp-objectives .quest-court-tabs > button > :is(.painted-icon,.royal-art) { display: none; }
+.game-shell.has-page .bp.bp-objectives .quest-court-tabs > button[aria-selected='true'] { border: 0 solid transparent; border-image: var(--royal-tab-frame) 14 / 4px / 0 stretch; background: linear-gradient(var(--c-royal-active),var(--c-royal-active-deep)); color: var(--c-gold-pale); }
+.game-shell.has-page .bp.bp-objectives .quest-tab-count { position: static; display: inline-grid; place-items: center; min-width: 24px; min-height: 20px; padding: 1px 5px; font: 700 13px/1.2 'Payitaht Profile Roman',Georgia,serif; }
+.game-shell.has-page .bp.bp-objectives .quest-court-book { padding: 18px 3% 24px; border: 0 solid transparent; border-image: var(--royal-page-frame) 20 / 4px / 0 stretch; border-radius: 0; box-shadow: none; background: none; }
+.game-shell.has-page .bp.bp-objectives .quest-rule-title { gap: 8px; margin: 0 0 18px; }
+.game-shell.has-page .bp.bp-objectives .quest-rule-title h3 { font: 700 24px/1.2 'Payitaht Profile Roman',Georgia,serif; }
+.game-shell.has-page .bp.bp-objectives .quest-rule-title > small { margin-top: 0; font: 13px/1.4 Georgia,serif; }
+.game-shell.has-page .bp.bp-objectives .quest-chapters { gap: 10px; padding: 4px 3px 14px; margin-bottom: 8px; }
+.game-shell.has-page .bp.bp-objectives .quest-chapters > button { flex: 0 0 48px; width: 48px; height: 48px; min-height: 48px; border: 2px solid var(--c-gold-deep); background: var(--royal-wood); color: var(--c-gold-pale); box-shadow: none; font: 700 20px/1.2 'Payitaht Profile Roman',Georgia,serif; }
+.game-shell.has-page .bp.bp-objectives .quest-chapters > button.is-claimed { background: none; color: var(--c-ink-muted); }
+.game-shell.has-page .bp.bp-objectives .quest-chapters > button.is-ready { background: linear-gradient(var(--c-gold-pale),var(--c-gold)); color: var(--c-ink); }
+.game-shell.has-page .bp.bp-objectives .quest-chapters > button[aria-pressed='true'] { background: linear-gradient(var(--c-royal-active),var(--c-royal-active-deep)); color: var(--c-gold-pale); outline: 2px solid var(--c-gold-deep); }
+.game-shell.has-page .bp.bp-objectives :is(.quest-feature,.quest-login,.quest-daily-card,.quest-achievement) { border: 0 solid transparent; border-image: var(--royal-page-frame) 20 / 3px / 0 stretch; border-radius: 0; background: none; box-shadow: none; }
+.game-shell.has-page .bp.bp-objectives .quest-feature-picture { height: auto; min-height: 180px; display: grid; align-content: end; padding: 54px 12px 14px; }
+.game-shell.has-page .bp.bp-objectives .quest-feature-picture > img { position: absolute; inset: 0; }
+.game-shell.has-page .bp.bp-objectives .quest-feature-picture h3 { position: relative; inset: auto; margin: 0; font: 700 25px/1.2 'Payitaht Profile Roman',Georgia,serif; }
+.game-shell.has-page .bp.bp-objectives .quest-feature-body { padding: 18px 12px; }
+.game-shell.has-page .bp.bp-objectives .quest-feature-body > p { font: 15px/1.55 Georgia,serif; }
+.game-shell.has-page .bp.bp-objectives .quest-reward-title { font: 700 17px/1.3 'Payitaht Profile Roman',Georgia,serif; }
+.game-shell.has-page .bp.bp-objectives .quest-prizes { gap: 12px; padding: 12px 0; }
+.game-shell.has-page .bp.bp-objectives .quest-prize b { font: 700 20px/1.2 'Payitaht Profile Roman',Georgia,serif; }
+.game-shell.has-page .bp.bp-objectives .quest-prize small { font: 13px/1.3 Georgia,serif; }
+.game-shell.has-page .bp.bp-objectives .quest-seal { padding: 6px 8px; font: 13px/1.25 Georgia,serif; }
+.game-shell.has-page .bp.bp-objectives .gbtn { min-height: 50px; padding: 12px 10px; border: 0 solid transparent; border-image: var(--royal-gold-button-frame) 12 / 5px / 0 stretch; border-radius: 0; background: linear-gradient(var(--c-gold-pale),var(--c-gold)); color: var(--c-ink); box-shadow: none; font: 700 17px/1.3 'Payitaht Profile Roman',Georgia,serif; }
+.game-shell.has-page .bp.bp-objectives .gbtn-parch { border-image: var(--royal-page-frame) 20 / 4px / 0 stretch; background: var(--royal-wood); color: var(--c-gold-pale); }
+.game-shell.has-page .bp.bp-objectives .quest-action-status { padding: 14px 4px; font: 14px/1.4 Georgia,serif; }
+.game-shell.has-page .bp.bp-objectives .quest-progress { gap: 8px; margin: 18px 0 8px; font: 13px/1.4 Georgia,serif; }
+.game-shell.has-page .bp.bp-objectives .quest-progress-rail { height: 12px; border-radius: 0; box-shadow: none; background: var(--royal-wood); border: 1px solid var(--c-gold-deep); }
+.game-shell.has-page .bp.bp-objectives .quest-progress-rail > i { border-radius: 0; background: linear-gradient(var(--c-royal-active),var(--c-royal-active-deep)); }
+.game-shell.has-page .bp.bp-objectives .quest-treasury-call { padding: 14px 10px; gap: 12px; background: none; border: 1px solid var(--c-gold-deep); }
+.game-shell.has-page .bp.bp-objectives .quest-treasury-call b { font: 700 19px/1.3 'Payitaht Profile Roman',Georgia,serif; }
+.game-shell.has-page .bp.bp-objectives .quest-login { padding: 14px 10px; }
+.game-shell.has-page .bp.bp-objectives .quest-login-head { grid-template-columns: 70px minmax(0,1fr); gap: 12px; }
+.game-shell.has-page .bp.bp-objectives .quest-login-head > img { width: 70px; height: 80px; }
+.game-shell.has-page .bp.bp-objectives .quest-login-head h3 { font: 700 23px/1.2 'Payitaht Profile Roman',Georgia,serif; }
+.game-shell.has-page .bp.bp-objectives .quest-login-head :is(small,p) { font: 13px/1.4 Georgia,serif; }
+.game-shell.has-page .bp.bp-objectives .quest-login-days { grid-template-columns: repeat(4,minmax(0,1fr)); gap: 8px; margin: 16px 0; }
+.game-shell.has-page .bp.bp-objectives .quest-login-days > span { min-height: 86px; padding: 10px 4px; gap: 6px; background: none; border: 1px solid var(--c-gold-deep); }
+.game-shell.has-page .bp.bp-objectives .quest-login-days :is(small,b) { font: 700 14px/1.2 'Payitaht Profile Roman',Georgia,serif; }
+.game-shell.has-page .bp.bp-objectives .quest-login-days .is-current { background: linear-gradient(var(--c-gold-pale),var(--c-gold)); box-shadow: none; }
+.game-shell.has-page .bp.bp-objectives .quest-daily-list { gap: 18px; margin: 22px 0; }
+.game-shell.has-page .bp.bp-objectives .quest-daily-card { padding: 16px 10px; }
+.game-shell.has-page .bp.bp-objectives .quest-daily-intro { grid-template-columns: 78px minmax(0,1fr); gap: 12px; }
+.game-shell.has-page .bp.bp-objectives .quest-daily-intro > img { width: 78px; height: 94px; }
+.game-shell.has-page .bp.bp-objectives .quest-daily-intro h3 { font: 700 21px/1.25 'Payitaht Profile Roman',Georgia,serif; }
+.game-shell.has-page .bp.bp-objectives .quest-season { padding: 16px 12px; border-image: var(--royal-page-frame) 20 / 4px / 0 stretch; background: var(--royal-wood); }
+.game-shell.has-page .bp.bp-objectives .quest-season h3 { font: 700 21px/1.2 'Payitaht Profile Roman',Georgia,serif; }
+.game-shell.has-page .bp.bp-objectives .quest-season :is(small,p) { font: 13px/1.45 Georgia,serif; }
+.game-shell.has-page .bp.bp-objectives .quest-achievement-filter { gap: 0; margin: 0 0 18px; }
+.game-shell.has-page .bp.bp-objectives .quest-achievement-filter > button { min-height: 48px; padding: 10px 6px; border: 0 solid transparent; border-image: var(--royal-page-frame) 20 / 3px / 0 stretch; background: var(--royal-wood); color: var(--c-cream); font: 700 16px/1.3 'Payitaht Profile Roman',Georgia,serif; }
+.game-shell.has-page .bp.bp-objectives .quest-achievement-filter > button[aria-pressed='true'] { background: linear-gradient(var(--c-royal-active),var(--c-royal-active-deep)); color: var(--c-gold-pale); }
+.game-shell.has-page .bp.bp-objectives .quest-achievements { gap: 18px 10px; }
+.game-shell.has-page .bp.bp-objectives .quest-achievement { padding: 0 8px 10px; border: 0; border-bottom: 1px solid var(--c-gold-deep); }
+.game-shell.has-page .bp.bp-objectives .quest-achievement-picture { height: 110px; }
+.game-shell.has-page .bp.bp-objectives .quest-achievement-picture > .quest-seal { left: 0; right: 0; top: 0; margin: 0 auto; }
+.game-shell.has-page .bp.bp-objectives .quest-medal > .royal-art { width: 100%; height: 100%; mix-blend-mode: normal; }
+.game-shell.has-page .bp.bp-objectives .quest-achievement h3 { min-height: 44px; display: grid; place-items: center; margin: 8px 0 10px; padding: 8px 6px; font: 700 19px/1.2 'Payitaht Profile Roman',Georgia,serif; border: 0 solid transparent; border-image: var(--royal-gold-button-frame) 12 / 4px / 0 stretch; background: linear-gradient(var(--c-gold-pale),var(--c-gold)); color: var(--c-ink); }
+.game-shell.has-page .bp.bp-objectives .quest-achievement > p { padding-inline: 3px; font: 14px/1.5 Georgia,serif; }
+.game-shell.has-page .bp.bp-objectives .quest-achievement .quest-progress { grid-template-columns: 1fr; }
+.game-shell.has-page .bp.bp-objectives .quest-achievement .quest-prize b { font-size: 17px; }
+.game-shell.has-page .bp.bp-objectives :is(.quest-colony h3,.quest-empty h3) { font: 700 24px/1.2 'Payitaht Profile Roman',Georgia,serif; }
+.game-shell.has-page .bp.bp-objectives :is(.quest-colony p,.quest-empty p) { font: 15px/1.5 Georgia,serif; }
+@media (min-width: 650px) { .game-shell.has-page .bp.bp-objectives .quest-login-days { grid-template-columns: repeat(7,minmax(0,1fr)); } .game-shell.has-page .bp.bp-objectives .quest-achievements { grid-template-columns: repeat(3,minmax(0,1fr)); } }

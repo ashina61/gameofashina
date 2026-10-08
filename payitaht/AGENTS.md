@@ -27,3 +27,7 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 - **8 Ekim Ayarlar referansı:** `docs/SETTINGS-DESIGN-MEMORY.md` ve `44-settings-chambers.css`. Tercihler, Cihaz, Kayıt ve Bilgi 0.63.0 / SW71 olarak onaylı profil malzemelerine geçirildi. Eski ayar mockup/yuvarlak cam paneller yerine bu bellek ve gerçek ekran kanıtları kullanılır. Ayar mekanikleri ve HUD değişmez.
 
 - **8 Ekim arşiv/ittifak:** `docs/ARCHIVE-ALLIANCE-DESIGN-MEMORY.md`, 0.64.0 / SW72. Sürüm arşivi ile ittifakın bütün durum/alt sekmeleri aynı profil malzemelerindedir. Sonraki görsel işlerde bu bellek geçerlidir; mekanik ve HUD korunur.
+
+## Görev tasarımının güncel belleği (8 Ekim 2026)
+
+Görev sayfası ve saray başlık düğmeleri için `docs/MANDATES-DESIGN-MEMORY.md` ve `docs/MANDATES-VALIDATION.md` okunur. 47 numaralı stil beş saray sayfasında atlasın içine gömülü geri/çarpı yerine ayrı ve oranı korunan düğmeler kullanır. 48 numaralı stil görevlerin üç sekmesine ortak Osmanlı saray dilini uygular. HUD ve oyun mekanikleri değiştirilmez.

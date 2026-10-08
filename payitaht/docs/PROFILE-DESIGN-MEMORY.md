@@ -71,3 +71,7 @@ Aynı malzemelerin dört ayar defterine uygulanması `SETTINGS-DESIGN-MEMORY.md`
 ## Sürüm arşivi ve İttifak — 0.64.0 / SW72
 
 Aynı malzemelerin arşiv ve birlik defterlerine uygulanması `ARCHIVE-ALLIANCE-DESIGN-MEMORY.md` içindedir. Yeni sayfalarda yalnız görsel kaplama ve normal akış kullanılır; HUD ve oyun kuralları korunur.
+
+## Görevler ve başlık oranları — 0.65.0
+
+`MANDATES-DESIGN-MEMORY.md` görevlerin üç sekmesi için güncel devam belgesidir. `47-court-controls.css` beş saray sayfasında geri/çarpıyı başlık atlasından ayırır; eski atlas düğmesi yaklaşımının yerini kare alan içinde oranı korunan ayrı görseller alır.

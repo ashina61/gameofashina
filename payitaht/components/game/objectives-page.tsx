@@ -2,7 +2,8 @@
 
 import { useId, useRef, useState, type ReactNode } from 'react'
 import { asset } from '@/lib/asset'
-import { Castle, Gift, Crown, Check, ScrollText, ChevronRight } from './ui-art'
+import { Castle, Gift, Check, ScrollText, ChevronRight, type IconProps } from './ui-art'
+import { ApprovedArt } from './approved-court-art'
 import { GameButton } from './game-button'
 import { AkceArt, KeresteArt, IlimArt } from './resource-art'
 import { OBJECTIVES, objectiveDone, formatNumber, type Game, type Resource } from '@/lib/game/engine'
@@ -13,10 +14,12 @@ import { seasonWeek, SEASONS } from '@/lib/game/events'
 import { flyGoods } from '@/lib/fx'
 import type { Run } from './world-panels'
 
+function AchievementArt(_props: IconProps) { return <ApprovedArt name="laurel" /> }
+
 const TABS = [
   { id: 'city', label: 'Şehir hedefi', Icon: Castle },
   { id: 'daily', label: 'Günlük', Icon: Gift },
-  { id: 'milestones', label: 'Başarımlar', Icon: Crown },
+  { id: 'milestones', label: 'Başarımlar', Icon: AchievementArt },
 ] as const
 type Tab = typeof TABS[number]['id']
 type State = 'ongoing' | 'ready' | 'claimed'
@@ -137,7 +140,7 @@ export function ObjectivesPage({ game, empire, foundingCity, cityName, onClaim, 
         <div className="quest-achievement-filter"><button type="button" aria-pressed={!readyOnly} onClick={() => setReadyOnly(false)}>Bütün nişanlar</button><button type="button" aria-pressed={readyOnly} onClick={() => setReadyOnly(true)}>Ödül hazır · {milestoneReady}</button></div>
         <div className="quest-achievements">{empire && achievements.map(m => {
           const state: State = empire.milestones?.includes(m.id) ? 'claimed' : milestoneDone(empire, m) ? 'ready' : 'ongoing'
-          return <article key={m.id} className={`quest-achievement is-${state}`}><div className="quest-achievement-picture"><img src={scene(milestoneScene(m.id))} alt="" loading="lazy" /><Seal state={state} /><span className="quest-medal" aria-hidden="true"><Crown painted /></span></div><h3>{m.title}</h3><p>{m.text}</p><Progress value={milestoneProgress(empire, m)} need={m.need} label="Başarım" /><Rewards reward={m.reward} /><Claim state={state} reward={m.reward} onClaim={() => actMilestone(m.id)} /></article>
+          return <article key={m.id} className={`quest-achievement is-${state}`}><div className="quest-achievement-picture"><img src={scene(milestoneScene(m.id))} alt="" loading="lazy" /><Seal state={state} /><span className="quest-medal" aria-hidden="true"><ApprovedArt name="laurel" /></span></div><h3>{m.title}</h3><p>{m.text}</p><Progress value={milestoneProgress(empire, m)} need={m.need} label="Başarım" /><Rewards reward={m.reward} /><Claim state={state} reward={m.reward} onClaim={() => actMilestone(m.id)} /></article>
         })}</div>
         {readyOnly && !achievements.length && <div className="quest-empty"><img src={scene('treasury')} alt="" /><h3>Sıradaki nişan seni bekliyor</h3><p>Henüz alınmayı bekleyen bir başarım ödülü yok.</p><GameButton variant="outline" onClick={() => setReadyOnly(false)}>Bütün nişanları göster</GameButton></div>}
       </>}

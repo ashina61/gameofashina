@@ -44,6 +44,8 @@
 @import './styles/44-settings-chambers.css';
 @import './styles/45-release-register.css';
 @import './styles/46-alliance-register.css';
+@import './styles/47-court-controls.css';
+@import './styles/48-mandates-register.css';
 
 @custom-variant dark (&:is(.dark *));
 @theme inline {
