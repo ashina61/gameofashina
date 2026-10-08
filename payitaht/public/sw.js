@@ -1,8 +1,29 @@
-const CACHE = 'payitaht-shell-v78'
+const CACHE = 'payitaht-shell-v79'
 const BASE = new URL(self.registration.scope).pathname.replace(/\/$/, '')
 const p = path => `${BASE}${path.startsWith('/') ? path : `/${path}`}`
 const ASSETS = [
   p('/images/game/ui/barracks/army-medallion.webp'),
+  p('/images/game/ui/barracks/minus-button.webp'),
+  p('/images/game/ui/barracks/plus-button.webp'),
+  p('/images/game/ui/barracks/slider-thumb.webp'),
+  p('/images/game/ui/barracks/max-frame.webp'),
+  p('/images/game/ui/barracks/development-icon.webp'),
+  p('/images/game/ui/barracks/slider-wood.webp'),
+  p('/images/game/ui/barracks/slider-gold.webp'),
+  p('/images/game/ui/barracks/heading-ornament.webp'),
+  p('/images/game/ui/barracks/portrait-topcu.webp'),
+  p('/images/game/ui/barracks/portrait-mizrakci.webp'),
+  p('/images/game/ui/barracks/portrait-azap.webp'),
+  p('/images/game/ui/barracks/portrait-sapanci.webp'),
+  p('/images/game/ui/barracks/portrait-tufekci.webp'),
+  p('/images/game/ui/barracks/portrait-kocbasi.webp'),
+  p('/images/game/ui/barracks/portrait-mancinik.webp'),
+  p('/images/game/ui/barracks/portrait-asci.webp'),
+  p('/images/game/ui/barracks/portrait-hekim.webp'),
+  p('/images/game/ui/barracks/portrait-deli.webp'),
+  p('/images/game/ui/barracks/portrait-humbaraci.webp'),
+  p('/images/game/ui/barracks/portrait-hezarfen.webp'),
+  p('/images/game/ui/barracks/portrait-lagari.webp'),
   p('/images/game/ui/barracks/paper.webp'),
   p('/images/game/ui/barracks/unit-frame.webp'),
   p('/images/game/ui/barracks/portrait-yeniceri.webp'),

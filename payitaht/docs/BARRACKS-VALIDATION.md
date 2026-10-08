@@ -41,3 +41,11 @@ Güncel gerçek ekranlar `mockups/barracks-approved-live-{360,390,430}.webp`, `m
 ## 0.68.1 — yükseltme önce
 
 Gelişim'in ilk çocuğu UpgradeDock; 390×844 gerçek tarayıcıda DOM sırası ve ilk ekran görüntüsü doğrulandı. Maliyet/süre ve yükseltme düğmesi en üstte; avlu/seviye etkisi/maliyet tablosu aşağıda. Kışla/Gelişim layout taramasının altı kategorisi boş. TypeScript, CSS/unused CSS ve iki PWA önbellek testi geçti. Önceki sürümün mekanikleri ve görsel parçaları aynıdır.
+
+## 0.69.0 — tamamlanan referans parçaları
+
+- 16 portrenin tamamı 360/390/430×844 Chromium'da yüklendi; her asker satırında boyalı atlas resmi ve dört altın köşe var. Açık eğitim bilgisinde eski UnitFigure sayısı sıfır. Kuyruk aynı BarracksPortrait bileşenini kullanır.
+- Referanstan +/−, sürgü madalyonu, ahşap kanal/altın dolgu, Maks. kenarı, Gelişim simgesi; Birlikler ve Üretim kuyruğuna simetrik süsler. Adet barı 1→17; sayıdan 2 Yeniçeri emri sıraya eklendi.
+- Boş/çalışan kuyruk, Gelişim'de ilk yükseltme, açık birlik bilgisi ve üç genişlikte ilk eğitim kontrol edildi. Altı scoped layout kategorisi boş. 328 test, TypeScript, ESLint, CSS/unused CSS, V2 kriterleri ve statik export geçti.
+- Genel layout-qa tekrar çalıştırıldı; önceki HUD küçük hedefleri ve gizli kışla dokunu görünür varsayan eski kontrol nedeniyle exit 1. Kışlada raporlanan dok/canvas çakışması gizli Gelişim dokuna ait; yeni eğitim akışında dok yok. HUD'a ve bu iş dışındaki sayfalara dokunulmadı. Tüm uygulama için yeşil rapor iddia edilmez.
+- Görsel üretim: built-in imagegen, tek 4×4 portre atlası; prompt ve kaynaklar `barracks-controls-atlas.json`. Uygulamadaki kaynaklar `public/images/game/ui/barracks/`, atlas `mockups/barracks-portraits-atlas.webp`. Her portre ayrı WebP olarak kayıtlı. Kuyruktaki referans X'i için mevcut olmayan iptal mekaniği eklenmedi.

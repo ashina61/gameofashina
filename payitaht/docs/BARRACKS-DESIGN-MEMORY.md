@@ -1,3 +1,11 @@
+## Son ayrıntı düzeltmesi — 0.69.0 / SW79
+
+Kullanıcı 0.68.1'de eksik parçaları belirtti: sade sürgü/düğmeler, Gelişim ikonu ve Birlikler süslerinin yokluğu, bazı portrelerin altın köşesiz oluşu, bilgi/kuyrukta eski figürler ve farklı kuyruk düzeni. Bu eksikler artık varsayılan olarak kabul edilmez.
+
+16 kara birliği tek 4×4 yakın plan resim atlasıyla aynı ressamın dilindedir; her hücrede dört işlemeli altın köşe bulunur. `BarracksPortrait` eski UnitFigure'a dönmez. Birlik satırı, açık bilgi ve Üretim kuyruğu aynı resmi kullanır. Raster atlas `mockups/barracks-portraits-atlas.webp`, kaynak/koordinat/prompt kaydı `barracks-controls-atlas.json`.
+
++ / −, sürgü madalyonu, Maks. kenarı ve Gelişim sütun simgesi doğrudan onaylı çizimden alınır. Range gerçek dokunmatik HTML kontrolüdür; ahşap kanal ve altın dolgu aynı boyalı malzemelerdir. Birlikler ve Üretim kuyruğu başlıkları simetrik altın süslüdür. Kuyruk satırı: sol portre, ad/adet, sağda canlı kalan süre ve altta ahşap/altın ilerleme. Boş sıra da görünür. Referanstaki X için yeni iptal mekaniği eklenmez. Yükseltme ilk Gelişim bloğu olarak kalır; üst ve alt HUD korunur.
+
 ## Son yerleşim düzeltmesi — 0.68.1 / SW78
 
 Kullanıcının talebi: Gelişim sekmesinde önce eylem. Yükseltme gereksinimleri, maliyet/süre ve yükseltme düğmesi ilk bloktur. Avlu görünümü, seviye etkisi ve sonraki seviyelerin maliyet tablosu altında gelir. Yükseltme hâlâ yalnız Gelişim sekmesindedir; eğitim ekranına sabit kutu eklenmez.

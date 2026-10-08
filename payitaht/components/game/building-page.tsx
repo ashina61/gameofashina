@@ -451,7 +451,7 @@ export function BuildingPage({ game, empire, id, onClose, onBuild, onFlip, onMov
       <p className="bp-desc" onClick={() => setHelp(true)}>{b.description}</p>
       {hasWork && <div className="bp-tabs" role="tablist" aria-label={`${b.name} bölümleri`}>
         <button type="button" role="tab" aria-selected={showTab === 'yapi'} onClick={() => setTab('yapi')}>{id === 'kisla' && <img className="barracks-tab-emblem" src={asset('/images/game/ui/barracks/army-medallion.webp')} alt="Yeniçeri börkü" width={32} height={32} />}{id === 'kisla' ? 'Kara ordusu' : b.name}</button>
-        <button type="button" role="tab" aria-selected={showTab === 'gelisim'} onClick={() => setTab('gelisim')}>Gelişim</button>
+        <button type="button" role="tab" aria-selected={showTab === 'gelisim'} onClick={() => setTab('gelisim')}>{id === 'kisla' && <img className="barracks-development-icon" src={asset('/images/game/ui/barracks/development-icon.webp')} alt="" width={32} height={32} />}Gelişim</button>
       </div>}
       <div ref={workRef} className="bp-tabpanel" hidden={showTab !== 'yapi'}>
         <BuildingView game={game} empire={empire} id={id} onCommand={onCommand} onRecruit={onRecruit} onNav={onNav} onBuildingNav={onBuildingNav} run={run} />

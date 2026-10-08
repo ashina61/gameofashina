@@ -45,3 +45,7 @@ Kullanıcı 0.66.0 kışla düzenini dar buldu: eğitim ekranında sabit yüksel
 ## Kışlanın görsel düzeltmesi — 0.68.0 / SW77
 
 Kullanıcı 0.67.0 ekranını çizime benzemediği için reddetti. `docs/BARRACKS-DESIGN-MEMORY.md` başındaki 0.68.0 düzeltmesi geçerlidir: gerçek portreler ve atlas çerçeveleri, bütün alt bölümler, mevcut alt HUD. Sadece renk benzerliğine dayanarak tasarıma uygunluk iddia etme.
+
+## Kışlada eksiksiz referans ayrıntıları — 0.69.0 / SW79
+
+`docs/BARRACKS-DESIGN-MEMORY.md` başındaki 0.69.0 kuralları geçerli: 16 portrede ortak işlemeli köşeler, gerçek +/−/Maks./sürgü malzemesi, Gelişim ikonu, süslü başlıklar ve ortak Üretim kuyruğu. Kışlada eski UnitFigure fallback'i kullanma; yükseltme Gelişim'de ilk sırada kalır.

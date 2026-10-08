@@ -1,0 +1,80 @@
+{
+  "source": "docs/mockups/approved-barracks-vertical-slider.webp",
+  "controls": {
+    "minus-button": [
+      107,
+      858,
+      95,
+      96
+    ],
+    "plus-button": [
+      469,
+      858,
+      95,
+      96
+    ],
+    "slider-thumb": [
+      369,
+      784,
+      57,
+      57
+    ],
+    "max-frame": [
+      598,
+      866,
+      196,
+      82
+    ],
+    "development-icon": [
+      548,
+      420,
+      52,
+      52
+    ],
+    "slider-wood": [
+      445,
+      807,
+      280,
+      12
+    ],
+    "slider-gold": [
+      79,
+      807,
+      277,
+      12
+    ]
+  },
+  "portraitAtlas": "mockups/barracks-portraits-atlas.webp",
+  "portraitGrid": [
+    4,
+    4
+  ],
+  "portraitOrder": [
+    "yeniceri",
+    "okcu",
+    "sipahi",
+    "topcu",
+    "mizrakci",
+    "azap",
+    "sapanci",
+    "tufekci",
+    "kocbasi",
+    "mancinik",
+    "asci",
+    "hekim",
+    "deli",
+    "humbaraci",
+    "hezarfen",
+    "lagari"
+  ],
+  "ornament": {
+    "source": "mockups/barracks-clean-skin.webp",
+    "crop": [
+      155,
+      520,
+      181,
+      30
+    ]
+  },
+  "prompt": "One 4x4 Ottoman Aegean close-up portrait atlas with matching aged gold corner frames. Janissary, archer, sipahi, artillery; spear, azap, slinger, musketeer; ram, catapult, cook, physician; Deli, grenadier, Hezarfen, Lagari. No labels. Built-in imagegen with approved mockup as reference."
+}

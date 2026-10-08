@@ -239,8 +239,7 @@ function maxRecruit(game: Game, id: UnitId) {
  * bosta oldugunu gormezse, uretiminin nicin dustugunu anlamaz.
  */
 function BarracksPortrait({ id }: { id: UnitId }) {
-  if (id === 'yeniceri' || id === 'okcu' || id === 'sipahi') return <img className="barracks-painted-portrait" src={asset(`/images/game/ui/barracks/portrait-${id}.webp`)} alt="" width={211} height={156} />
-  return <UnitFigure id={id} size={76} />
+  return <img className="barracks-painted-portrait" src={asset(`/images/game/ui/barracks/portrait-${id}.webp`)} alt="" width={288} height={216} />
 }
 
 export function ArmyPanel({ game, onRecruit, onBuild, home }: { game: Game; onRecruit: (id: UnitId, count: number) => void; onBuild: (id: BuildingId) => void; home?: BuildingId }) {
@@ -324,7 +323,7 @@ function UnitCard({ game, id, onRecruit, compact = false }: { game: Game; id: Un
   const reason = recruitReason(game, id, batch)
   const information = <>
     <div className="unit-top">
-      <span className="unit-portrait"><UnitFigure id={id} size={60} /></span>
+      <span className="unit-portrait">{compact ? <BarracksPortrait id={id} /> : <UnitFigure id={id} size={60} />}</span>
       <span><strong>{unit.name} <em className="unit-role"><Term label={ROLE_NAMES[unit.role]} /></em></strong><small>{unit.description}</small></span>
       <span className="unit-have">{game.army[id]}<small>elde</small></span>
     </div>
@@ -349,7 +348,7 @@ function UnitCard({ game, id, onRecruit, compact = false }: { game: Game; id: Un
   return <article className={`unit-card${compact ? ' barracks-training' : ''}`}>
     {compact ? <details className="barracks-unit-information"><summary>Birlik bilgisi ve savaş değerleri</summary>{information}</details> : information}
     {compact ? <div className="barracks-quantity">
-      <label htmlFor={`barracks-count-${id}`}>Üretim adedi</label>
+      <label htmlFor={`barracks-count-${id}`}>Üretim adedi <output htmlFor={`barracks-count-${id}`}>{batch}</output></label>
       <input type="range" min={1} max={Math.max(1, max)} value={batch} disabled={max < 1}
         aria-label={`${unit.name} sayısı`} style={{ ['--fill' as string]: `${((batch - 1) / Math.max(1, max - 1)) * 100}%` }} onChange={e => set(Number(e.target.value))} />
       <div className="barracks-range-limits"><span>1</span><span>En fazla {max}</span></div>
@@ -382,17 +381,19 @@ const ROLE_ROW_SET = new Set<UnitRole>(['front', 'flank', 'range', 'artillery', 
 /** Eğitim sırası: her yapının emirleri, yürüyenin ilerlemesi ve bekleyenlerin başlama anı. */
 function DrillQueue({ game, home }: { game: Game; home?: BuildingId }) {
   const jobs = game.drills.filter(j => !home || UNITS[j.id as UnitId].home === home)
-  if (!jobs.length) return null
+  if (!jobs.length && home !== 'kisla') return null
   const now = game.updatedAt
-  const clock = (ms: number) => { const t = Math.max(0, Math.ceil(ms / 1000)); return `${Math.floor(t / 60)}:${String(t % 60).padStart(2, '0')}` }
-  return <section className="drill-queue" aria-label="Eğitim sırası">
-    <span className="eyebrow">EĞİTİM SIRASI</span>
+  const clock = (ms: number) => { const t = Math.max(0, Math.ceil(ms / 1000)); return `${String(Math.floor(t / 60)).padStart(2, '0')}:${String(t % 60).padStart(2, '0')}` }
+  return <section className={`drill-queue${home === 'kisla' ? ' barracks-production-queue' : ''}`} aria-label={home === 'kisla' ? 'Üretim kuyruğu' : 'Eğitim sırası'}>
+    {home === 'kisla' ? <h2>Üretim kuyruğu</h2> : <span className="eyebrow">EĞİTİM SIRASI</span>}
+    {!jobs.length && <p className="barracks-queue-empty">Henüz üretim emri yok.</p>}
     {jobs.map((j, i) => {
       const unit = UNITS[j.id as UnitId]
       const running = j.start <= now
       return <div key={`${j.id}-${j.start}-${i}`} className={`drill-job${running ? ' is-running' : ''}`}>
         {home === 'kisla' ? <BarracksPortrait id={j.id as UnitId} /> : <UnitFigure id={j.id as UnitId} size={30} bare />}
-        <span><strong>{j.count} {unit.name}</strong><small>{BUILDINGS[unit.home].name} · {running ? `bitiş ${clock(j.end - now)}` : `sırada · ${clock(j.start - now)} sonra başlar`}</small></span>
+        <span><strong>{j.count} {unit.name}</strong><small>{home === 'kisla' ? (running ? 'Eğitiliyor' : 'Sırada') : `${BUILDINGS[unit.home].name} · ${running ? `bitiş ${clock(j.end - now)}` : `sırada · ${clock(j.start - now)} sonra başlar`}`}</small></span>
+        {home === 'kisla' && <time className="barracks-queue-time" aria-label={running ? 'Kalan süre' : 'Başlamasına kalan süre'}>{clock(running ? j.end - now : j.start - now)}</time>}
         {running && <span className="drill-bar"><i style={{ width: `${Math.min(100, (100 * (now - j.start)) / (j.end - j.start))}%` }} /></span>}
       </div>
     })}
