@@ -458,6 +458,7 @@ export function BuildingPage({ game, empire, id, onClose, onBuild, onFlip, onMov
         {children}
       </div>
       <div className="bp-tabpanel" hidden={showTab !== 'gelisim'}>
+      {id === 'kisla' && <UpgradeDock game={game} id={id} onBuild={onBuild} />}
       {id === 'kisla' && <details className="barracks-appearance">
         <summary className="barracks-ribbon">Avlu ve yapı görünümü <span>{level ? `Seviye ${level}` : 'Kurulmadı'}</span></summary>
         {buildingScene}
@@ -470,7 +471,6 @@ export function BuildingPage({ game, empire, id, onClose, onBuild, onFlip, onMov
           time(f.seconds),
         ])} />
       </Box>}
-      {id === 'kisla' && <UpgradeDock game={game} id={id} onBuild={onBuild} />}
       </div>
   </IkaPage>
 }

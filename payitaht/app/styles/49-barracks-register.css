@@ -110,7 +110,7 @@
 .game-shell.has-page .bp.bp-of-kisla .barracks-appearance > summary > span { float: right; font: 14px/1.6 Georgia,serif; }
 .game-shell.has-page .bp.bp-of-kisla:not(.show-help) .bp-desc { display: none; }
 .game-shell.has-page .bp.bp-of-kisla .bp-tabs { position: sticky; top: 0; z-index: 3; }
-.game-shell.has-page .bp.bp-of-kisla .bp-tabpanel > .bp-dock { margin-top: 18px; }
+.game-shell.has-page .bp.bp-of-kisla .bp-tabpanel > .bp-dock { margin: 0 0 18px; }
 .game-shell.has-page .bp.bp-of-kisla:not(.show-help) .unit-top > span:nth-child(2) > small { display: none; }
 
 /* Approved 8 October vertical roster: the quantity bar alone slides sideways. */

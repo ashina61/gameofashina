@@ -1,3 +1,7 @@
+## Son yerleşim düzeltmesi — 0.68.1 / SW78
+
+Kullanıcının talebi: Gelişim sekmesinde önce eylem. Yükseltme gereksinimleri, maliyet/süre ve yükseltme düğmesi ilk bloktur. Avlu görünümü, seviye etkisi ve sonraki seviyelerin maliyet tablosu altında gelir. Yükseltme hâlâ yalnız Gelişim sekmesindedir; eğitim ekranına sabit kutu eklenmez.
+
 ## Son kullanıcı düzeltmesi — 0.68.0 / SW77
 
 0.67.0 kullanıcı tarafından çizime benzemediği için reddedildi. Renklerin benzemesi yeterli değildir: yakın plan portre, işlemeli çerçeve, temiz açık parşömen ve kırmızı kumaş eylem doğrudan görsel malzemeyle uygulanır. Onaylı çizim hâlâ `mockups/approved-barracks-vertical-slider.webp`.
