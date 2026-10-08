@@ -5,6 +5,7 @@
 export type Release = { version: string; date: string; title: string; notes: string[] }
 
 export const CHANGELOG: Release[] = [
+  { version: '0.62.0', date: '8 Ekim 2026', title: 'Sarayın üç defteri', notes: ['Şehirler, Nişanlar ve Sancak sekmeleri ortak ceviz, altın işleme ve parşömen tasarımına geçirildi.', 'Şehir geçişleri, nişan koşulları ve filtreleri, sancak seçimleri ve kaydet/vazgeç işlemleri korunur. Üst ve alt bar değişmedi.'] },
   { version: '0.61.4', date: '8 Ekim 2026', title: 'Referans yazı genişlikleri', notes: ['Saltanat sicili, şeref rafı başlıkları ve nişan levhası yazıları referansın harf genişliklerine göre son ölçülerine getirildi.'] },
   { version: '0.61.3', date: '8 Ekim 2026', title: 'Profilde sancak ve yazı ölçüleri', notes: ['Sancak arması ve bölüm başlıkları onaylı profil referansına göre yeniden hizalandı.', 'Sicil, şeref rafı ve nişan etiketlerinde aynı gömülü yazı tipi kullanılır; cihazın serif seçimi yerleşimi değiştirmez.'] },
   { version: '0.61.2', date: '8 Ekim 2026', title: 'Profil metin hizaları', notes: ['Saray başlığı, unvan levhası, nişan etiketleri ve alt eylem yazıları resimdeki ayrılmış alanlara sabitlendi.', 'Profilde telefonun otomatik yazı büyütmesi ve tekrarlanan düğme ikonları giderildi; oyun kuralları değişmedi.'] },

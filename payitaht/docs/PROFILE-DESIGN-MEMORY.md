@@ -45,3 +45,13 @@ Profil alanında `text-size-adjust: 100%` ve `-webkit-text-size-adjust: 100%` ko
 Profil sahnesindeki arma kutusunun merkezi, sahne genişliğinin %29'u ve yüksekliğinin %40,25'idir. Sancak kutusu: sol %7, üst -%7, genişlik %39, yükseklik %105. Yalnız profil sahnesindeki nakışa uygulanır; seçicideki sancaklar ve HUD arması ayrı kalır. Kumaş biçimi/rengi/arma seçimi canlı kayıttan alınır.
 
 Sicil/şeref başlıkları: kanonik x=85,4 px (853 px tuvalde yaklaşık 85), bölümün üst çizgisinden y=0 CSS kutusu; font 3,3cqw, Tinos Bold. Nişan levhası yazıları: 2,15cqw Tinos Bold. Sistem Georgia'sının cihazdan cihaza değişmesine bırakma. `public/fonts/` altındaki iki orijinal Latin ve Latin Extended WOFF2, @fontsource/tinos 5.3.0 paketinden gelir; SIL OFL metni `Tinos-OFL.txt`. Türkçe harfler ayrı Latin Extended yüzüyle yüklenir. CSS bunları modül olarak paketler; Pages base path ile üretilen statik font URL'leri kullanılır.
+
+## Şehirler, Nişanlar, Sancak — 0.62.0 / SW69
+
+Alt sekmelerin kaplaması `app/styles/43-profile-chambers.css`. Aynı boyanmış `approved-court` parşömen, ceviz ve pirinç çerçeveler; aynı gömülü Tinos Bold. Tasarım dosyası yalnız profil alt panellerini etkiler. Saltanat atlası ve HUD korunur.
+
+Şehirler: geniş parşömen register, resimli şehir satırı, başkent/koloni levhası, iki kolonlu sekiz sıralama ve on dört canlı sicil değeri. Nişanlar: üç metal özeti, sonraki nişan, ceviz filtre şeridi, iki kolonlu madalya rafı ve altın isim levhaları; 650 px üstünde üç kolon. Sancak: yazı masası, ipek/sırma seçim tezgâhı, seçili üründe ceviz zemin, al aktif adım, sabit kaydet/vazgeç mührü. Biçim/arma/renk seçenekleri gerçek mevcut görselleri kullanır.
+
+Alt panel başlıkları ve nişan metreleri normal akıştadır. Saltanat atlasının mutlak başlık/ilerleme koordinatları alt panellere uygulanmaz. Canlı metinler resim içine gömülmez; sıralama, filtre, seçim, validasyon ve kayıt fonksiyonlarını değiştirme.
+
+Gerçek ekran kanıtları: `mockups/profile-chambers-cities.webp`, `profile-chambers-medals.webp`, `profile-chambers-banner.webp`. 360/390/430 px genişlik, gerçek sekme/filtre, kumaş/arma/renk seçimi ve kaydet/vazgeç kontrolleri yapılmıştır.
