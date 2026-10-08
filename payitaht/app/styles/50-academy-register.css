@@ -14,9 +14,6 @@
 }
 .game-shell.has-page .bp:is(.bp-of-medrese,.bp-research) .bp-scroll { gap: 0; padding: 0 0 16px; border: 0; background: none; }
 .game-shell.has-page .bp-of-medrese > .bp-bar .bp-title { right: calc(var(--court-control-size) * 2 + 20px); }
-.game-shell.has-page .bp-of-medrese .bp-help { display: grid; place-items: center; position: absolute; inset: 50% calc(var(--court-control-size) + 10px) auto auto; transform: translateY(-50%); width: 48px; height: 48px; padding: 12px; border: 3px double var(--c-gold-deep); border-radius: 50%; background: var(--royal-wood); color: var(--c-gold-pale); }
-.game-shell.has-page .bp-of-medrese:not(.show-help) .bp-desc { display: none; }
-.game-shell.has-page .bp-of-medrese .bp-desc { padding: 12px; margin: 0; font: 14px/1.5 Georgia,serif; }
 .game-shell.has-page .bp:is(.bp-of-medrese,.bp-research) .academy-banner { position: relative; margin: 0; height: 80px; flex-shrink: 0; overflow: hidden; }
 .game-shell.has-page .bp:is(.bp-of-medrese,.bp-research) .academy-banner > img { width: 100%; height: 100%; object-fit: cover; object-position: center 40%; }
 .game-shell.has-page .bp-of-medrese .academy-banner > figcaption { position: absolute; bottom: 8px; right: 10px; padding: 4px 10px; border: 1px solid var(--c-gold-deep); background: var(--royal-wood); color: var(--c-gold-pale); font: 13px/1.4 Georgia,serif; }
@@ -40,8 +37,6 @@
 .game-shell.has-page .bp-of-medrese .bp-dock .bp-costs li { padding: 0; border: 0; background: none; }
 .game-shell.has-page .bp-of-medrese .bp-dock-label { padding: 0; margin: 0 0 8px; text-transform: none; letter-spacing: 0; }
 .game-shell.has-page .bp-of-medrese .bp-upgrade-button { width: 100%; }
-.game-shell.has-page .bp-of-medrese .academy-appearance { margin-bottom: 14px; background: var(--royal-wood); color: var(--c-gold-pale); }
-.game-shell.has-page .bp-of-medrese .academy-appearance > summary { min-height: 48px; padding: 12px; cursor: pointer; font: 700 17px/1.4 'Payitaht Profile Roman',Georgia,serif; }
 .game-shell.has-page .bp-of-medrese .academy-ledger > summary { min-height: 44px; padding: 12px 0; cursor: pointer; border-block: 1px solid var(--c-gold-deep); }
 .game-shell.has-page .bp-of-medrese .workforce { padding: 0; border: 0; border-radius: 0; background: none; box-shadow: none; }
 .game-shell.has-page .bp-of-medrese .workforce-stage { display: grid; grid-template-columns: 64px minmax(0,1fr) 64px; gap: 6px; padding: 0; border: 0; border-radius: 0; background: none; }
@@ -74,7 +69,6 @@
 .game-shell.has-page .bp-of-medrese .sk-nn { padding: 10px 0; border: 0; border-bottom: 1px solid var(--c-gold-deep); border-radius: 0; background: none; box-shadow: none; }
 .game-shell.has-page .bp-of-medrese .sk-nn-arrow { border: 0; background: none; color: var(--c-gold-deep); }
 .game-shell.has-page .bp-of-medrese .sk-nn-next b { color: var(--c-ink); }
-.game-shell.has-page .bp:is(.bp-of-medrese,.bp-research) .academy-scholar { object-fit: cover; border: 0 solid transparent; border-image: var(--academy-frame) 40 / 5px / 0 stretch; }
 .game-shell.has-page .bp-research .research-panel { padding: 10px 3%; margin: 0; }
 .game-shell.has-page .bp-research .rs-stats { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 0; padding: 8px 0; margin-bottom: 12px; border: 0; border-block: 1px solid var(--c-gold-deep); background: none; }
 .game-shell.has-page .bp-research .rs-stats > span { padding: 8px; border: 0; background: none; color: var(--c-ink); }
@@ -102,12 +96,10 @@
 .game-shell.has-page .bp:is(.bp-of-medrese,.bp-research) .empire-section > h3 { display: flex; align-items: center; gap: 8px; font: 700 21px/1.3 'Payitaht Profile Roman',Georgia,serif; }
 .game-shell.has-page .bp-research .empire-section { margin: 14px 3%; }
 .game-shell.has-page .bp-research .academy-advice { margin: 8px 3% 0; border-bottom: 1px solid var(--c-gold-deep); }
-.game-shell.has-page .bp-of-medrese .academy-citizen { width: 46px; height: 62px; object-fit: cover; border: 0 solid transparent; border-image: var(--academy-frame) 40 / 5px / 0 stretch; }
 .game-shell.has-page .bp-of-medrese .academy-research-link { margin-bottom: 12px; }
 .game-shell.has-page .bp-of-medrese .academy-research-link > .gbtn { width: 100%; }
 .game-shell.has-page .bp-of-medrese .workforce-side { gap: 2px; }
 .game-shell.has-page .bp-of-medrese .bp-box-title::after { display: block; position: static; width: auto; border: 0; }
-.game-shell.has-page .bp.bp-of-medrese > .bp-bar > .bp-help { display: grid; }
 .game-shell.has-page .bp.bp-of-medrese > .bp-bar .bp-title { right: calc(var(--court-control-size) * 2 + 20px); }
 
 .game-shell.has-page .bp-research .academy-advice > summary { min-height: 44px; padding: 12px 0; cursor: pointer; font: 700 16px/1.3 Georgia,serif; }
@@ -121,7 +113,6 @@
 .game-shell.has-page .bp:is(.bp-of-medrese,.bp-research) .job-progress { min-width: 0; }
 .game-shell.has-page .bp:is(.bp-of-medrese,.bp-research) .job-progress [data-slot='progress-track'] { height: 12px; border: 2px solid var(--c-gold-deep); background: var(--academy-track) center / cover; }
 .game-shell.has-page .bp:is(.bp-of-medrese,.bp-research) .job-progress [data-slot='progress-indicator'] { background: var(--academy-fill) center / cover; }
-.game-shell.has-page .bp-of-medrese .bp-help > .painted-icon { filter: sepia(1); }
 .game-shell.has-page .bp-of-medrese .sk-nn-arrow { border-radius: 0; box-shadow: none; }
 .game-shell.has-page .bp-research .rs-needs > li { border-radius: 0; background: none; color: var(--c-ink); }
 
@@ -130,3 +121,58 @@
 .game-shell.has-page .bp-research .rs-detail .rs-effect { margin-top: 12px; border-top: 1px solid var(--c-gold-deep); border-bottom: 0; }
 .game-shell.has-page .bp-of-medrese .batch-row { flex-wrap: wrap; }
 .game-shell.has-page .bp:is(.bp-of-medrese,.bp-research) .gbtn { min-width: 120px; }
+
+/* 0.71: one citizen/scholar portrait, clear experimentation and aligned actions. */
+.game-shell img.person-portrait { object-fit: cover; border: 0 solid transparent; border-image: url('../../public/images/game/ui/barracks/unit-frame.webp') 40 / 5px / 0 stretch; border-radius: 0; flex-shrink: 0; }
+.game-shell .bp-dock-label { display: block; width: 100%; text-align: center; }
+.game-shell .building-description,
+.game-shell .building-operations { margin: 12px 0; border-block: 1px solid var(--c-gold-deep); }
+.game-shell :is(.building-description,.building-operations) > summary { min-height: 44px; padding: 12px 8px; cursor: pointer; font: 700 16px/1.4 Georgia,serif; }
+.game-shell .building-description > p { padding: 12px; font: 14px/1.5 Georgia,serif; }
+.game-shell .building-operations > div { display: flex; flex-wrap: wrap; gap: 8px; padding: 12px; }
+.game-shell.has-page .bp.bp-of-medrese > .bp-bar .bp-title { right: calc(var(--court-control-size) + 12px); }
+.game-shell.has-page .bp-of-medrese > .bp-bar h1 { display: flex; align-items: center; justify-content: center; gap: 10px; }
+.game-shell.has-page .bp-of-medrese > .bp-bar h1::before,
+.game-shell.has-page .bp-of-medrese > .bp-bar h1::after { content: ''; width: 30px; height: 12px; background: var(--academy-ornament) center / 100% 100% no-repeat; }
+.game-shell.has-page .bp-of-medrese > .bp-bar h1::after { transform: scaleX(-1); }
+.game-shell.has-page .bp-of-medrese .workforce-side .person-portrait { width: 64px; height: 64px; margin-bottom: 4px; }
+.game-shell.has-page .bp-of-medrese .workforce-confirm { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); align-items: stretch; gap: 8px; }
+.game-shell.has-page .bp-of-medrese .workforce-confirm > .gbtn { min-width: 0; width: 100%; min-height: 52px; padding: 13px 30px; text-align: center; justify-content: center; }
+.game-shell.has-page .bp-of-medrese .workforce-confirm > .gbtn[data-variant='outline'] { filter: saturate(.4); }
+.game-shell.has-page .bp:is(.bp-of-medrese,.bp-research) .knowledge-icon { width: 28px; height: 28px; flex-shrink: 0; }
+.game-shell.has-page .bp-of-medrese .workforce-out .knowledge-icon { width: 36px; height: 36px; }
+.game-shell.has-page .bp-of-medrese .bp-tabs .knowledge-icon { width: 32px; height: 32px; }
+.game-shell.has-page .bp:is(.bp-of-medrese,.bp-research) .duration-icon { width: 24px; height: 24px; flex-shrink: 0; }
+.game-shell.has-page .bp-of-medrese .academy-experiments { margin: 14px 0; }
+.game-shell.has-page .bp-of-medrese .academy-experiments > h3 { min-height: 48px; margin-bottom: 12px; justify-content: center; }
+.game-shell.has-page .bp-of-medrese :is(.academy-experiment-copy,.academy-experiment-stock) { margin: 12px 0; font: 14px/1.5 Georgia,serif; }
+.game-shell.has-page .bp-of-medrese .academy-experiment-stock { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; padding-block: 12px; border-block: 1px solid var(--c-gold-deep); }
+.game-shell.has-page .bp-of-medrese .academy-experiment-list { display: grid; gap: 12px; }
+.game-shell.has-page .bp-of-medrese .academy-experiment-list > article { padding: 12px 0; border-bottom: 1px solid var(--c-gold-deep); }
+.game-shell.has-page .bp-of-medrese .academy-experiment-list > article > div { display: grid; gap: 4px; margin-bottom: 8px; }
+.game-shell.has-page .bp-of-medrese .academy-experiment-list span { display: flex; align-items: center; gap: 8px; font: 14px/1.5 Georgia,serif; }
+.game-shell.has-page .bp-of-medrese .academy-experiment-list .gbtn { width: 100%; }
+.game-shell.has-page .bp-research .rs-strip > button { flex-basis: 148px; min-width: 148px; }
+.game-shell.has-page .bp-research .rs-branch-label { display: flex; align-items: center; justify-content: center; gap: 8px; }
+.game-shell.has-page .bp-research .rs-strip .research-emblem { flex-shrink: 0; }
+.game-shell.has-page .bp-research .academy-counsel { display: grid; grid-template-columns: 64px minmax(0,1fr); gap: 12px; padding: 12px 0; align-items: start; }
+.game-shell.has-page .bp-research .academy-counsel p { margin: 0; font: 14px/1.55 Georgia,serif; }
+.game-shell.has-page .bp-research > .bp-bar h1 { display: flex; align-items: center; justify-content: center; gap: 8px; }
+.game-shell.has-page .bp-research > .bp-bar h1::before,
+.game-shell.has-page .bp-research > .bp-bar h1::after { content: ''; width: 24px; height: 12px; background: var(--academy-ornament) center / 100% 100% no-repeat; }
+.game-shell.has-page .bp-research > .bp-bar h1::after { transform: scaleX(-1); }
+/* Wood titles use brass marks rather than a parchment-backed ornament. */
+.game-shell.has-page .bp:is(.bp-of-medrese,.bp-research) > .bp-bar h1::before,
+.game-shell.has-page .bp:is(.bp-of-medrese,.bp-research) > .bp-bar h1::after { content: '✦'; width: 20px; height: 20px; background: none; color: var(--c-gold); font: 20px/20px Georgia,serif; text-shadow: 0 1px 1px #24170b; }
+.game-shell.has-page .bp-of-medrese .academy-experiments > h3 { padding: 0; border: 0; border-image: none; border-radius: 0; background: none; box-shadow: none; color: var(--c-ink); text-shadow: none; text-transform: none; letter-spacing: 0; }
+.game-shell.has-page .bp-of-medrese .academy-experiments > :not(h3) { margin-inline: 0; }
+/* Explicit global scholar/knowledge request: replace images within the fixed HUD. */
+.game-shell .exact-hud .ika-advisor[aria-label^='Araştırma'] .ika-advisor-ring { border: 1px solid var(--c-gold); border-radius: 50%; background-size: cover; background-position: center; }
+.game-shell .exact-hud .ika-chip[data-k='knowledge'] i { visibility: visible !important; position: absolute; left: 10%; top: 19%; width: 40%; height: 58%; background: var(--exact-wood) center / 100% 100%; display: flex; align-items: center; justify-content: center; }
+.game-shell .exact-hud .ika-chip[data-k='knowledge'] i .knowledge-icon { width: 6vw !important; height: 6vw !important; }
+.game-shell .exact-hud .ika-advisor[aria-label^='Araştırma'] .ika-advisor-ring { visibility: visible !important; inset: 0 auto auto 12%; width: 76%; height: auto; aspect-ratio: 1; border-width: 2px; background-size: 150%; background-position: center 18%; box-shadow: 0 0 0 1px #38200c; }
+.game-shell.has-page .bp-of-medrese .bp-dock-label { font: 700 16px/1.3 'Payitaht Profile Roman',Georgia,serif; }
+.game-shell.has-page .bp:is(.bp-of-medrese,.bp-of-kisla) .bp-up-arrow { border: 0; background: none; box-shadow: none; }
+.game-shell.has-page .bp:is(.bp-of-medrese,.bp-of-kisla) .bp-up-arrow > :is(svg,.painted-icon) { filter: sepia(1); }
+.game-shell.has-page .bp-of-medrese .academy-experiments > h3::before,
+.game-shell.has-page .bp-of-medrese .academy-experiments > h3::after { display: block; position: static; width: auto; min-width: 16px; border: 0; border-image: none; }

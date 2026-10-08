@@ -37,7 +37,7 @@ export function BuildingDetails({ game, id, onBuild, onFlip, onMove }: { game: G
     const projected: Game = { ...game, buildings: { ...game.buildings, [id]: at } }
     return { level: at + 1, price: cost(projected, id), seconds: duration(projected, id) }
   })
-  return <div className="building-details"><div className="building-preview"><div className="preview-halo" />{b.art ? <img src={buildingImage(id, level)} alt={`${b.name} mimari görünümü`} width={360} height={360} /> : <span className="preview-pending"><Hammer aria-hidden="true" /><small>Görsel hazırlanıyor</small></span>}<span>{level ? `SEVİYE ${level}` : 'YENİ YAPI'}</span></div><span className="eyebrow">{b.category}</span><p>{b.description}</p><BuildingEffects game={game} id={id} level={level} max={max} /><div className="building-upgrade"><span>{level ? `Seviye ${level}` : 'Boş arsa'}</span><ArrowUp className="size-4" /><strong>{level >= max ? 'En yüksek seviye' : `Seviye ${level + 1}`}</strong></div>{active ? <JobProgress job={active} now={game.updatedAt} /> : level < max && <><div className="upgrade-cost"><span>Gerekli kaynaklar</span><CostDisplay value={cost(game, id)} lux={luxuryCost(game, id)} /></div><div className="duration-row"><KumSaatiArt className="size-4" /> {duration(game, id)} saniye <span>Prototip süresi</span></div></>}{forecast.length > 0 && <section className="building-cost-forecast">
+  return <div className="building-details"><span className="eyebrow">{b.category}</span><p>{b.description}</p><BuildingEffects game={game} id={id} level={level} max={max} /><div className="building-upgrade"><span>{level ? `Seviye ${level}` : 'Boş arsa'}</span><ArrowUp className="size-4" /><strong>{level >= max ? 'En yüksek seviye' : `Seviye ${level + 1}`}</strong></div>{active ? <JobProgress job={active} now={game.updatedAt} /> : level < max && <><div className="upgrade-cost"><span>Gerekli kaynaklar</span><CostDisplay value={cost(game, id)} lux={luxuryCost(game, id)} /></div><div className="duration-row"><KumSaatiArt className="size-4" /> {duration(game, id)} saniye <span>Prototip süresi</span></div></>}{forecast.length > 0 && <section className="building-cost-forecast">
     <strong>Sonraki seviyelerin maliyeti</strong>
     <Hint>Fiyatlar mevcut araştırma indirimlerini içerir. Sonraki yükseltmelerin ücreti, o günkü teknolojine göre yeniden hesaplanır.</Hint>
     {forecast.map(item => <div key={item.level} className="building-forecast-row">
@@ -87,6 +87,7 @@ export function BuildingList({ game, onSelect }: { game: Game; onSelect: (id: Bu
  * masraf, ne zaman yeteceği); altında dalın numaralı listesi ve kandil
  * işaretleri (yanan: tamam, kırmızı: sıradaki, sönük: kilitli).
  */
+const BRANCH_ART: Record<ResearchBranch, ResearchId> = { ekonomi: 'tools', bilim: 'alimler', askeri: 'celik', denizcilik: 'pusula', mitoloji: 'ongun_toresi' }
 const researchState = (game: Game, id: ResearchId) => {
   const reason = researchReason(game, id)
   return game.research.includes(id) ? 'done' : game.study?.id === id ? 'active' : reason && /gerekli|Önce/.test(reason) && !/devam eden/.test(reason) ? 'locked' : 'open'
@@ -138,7 +139,7 @@ export function ResearchPanel({ game, onResearch }: { game: Game; onResearch: (i
         const done = all.filter(id => game.research.includes(id)).length
         return <button type="button" role="tab" key={b.key} aria-selected={branch === b.key} onClick={() => go(k)}
           style={{ '--b-light': BRANCH[b.key][0], '--b-dark': BRANCH[b.key][1] } as CSSProperties}>
-          <span>{b.title}</span>
+          <span className="rs-branch-label"><span aria-hidden="true"><ResearchEmblem id={BRANCH_ART[b.key]} size={28} /></span><span>{b.title}</span></span>
           <span className="rs-strip-meter" aria-label={`${done} / ${all.length} keşfedildi`}><i style={{ width: `${(100 * done) / all.length}%` }} /></span>
         </button>
       })}

@@ -1,0 +1,23 @@
+{
+  "generator": "built-in image_gen",
+  "reference": "docs/mockups/approved-barracks-vertical-slider.webp; portrait style only",
+  "prompt_set": [
+    {
+      "asset": "public/images/game/ui/people/citizens.webp",
+      "brief": "Three ordinary Ottoman townspeople close together: simple brown felt cap and linen vest, cream headscarf, older man behind. Busts, faces large/readable at 46px, blurred ivory courtyard, upper-left warm light, premium realistic-stylized painterly art, no scholar, military uniform, ornate court clothing, frame, text or UI."
+    },
+    {
+      "asset": "public/images/game/ui/people/scholar.webp",
+      "brief": "Elderly Ottoman scholar, grey beard, broad white turban, muted teal-blue robe, cream linen, holding open leather manuscript. Three-quarter bust, large readable face and turban, blurred walnut bookcase, upper-left warm light, premium realistic-stylized painterly art, no frame, text or UI."
+    },
+    {
+      "asset": "public/images/game/icons/res-ilim-v2.webp",
+      "brief": "Open ivory parchment manuscript, walnut-red leather cover, curling pages, brass inkwell and quill. Bold silhouette readable at 24–36px, fills 88% canvas, upper-left warm light, painted ivory/gold/walnut/crimson. No lettering, frame, tiny writing or background; genuine transparent alpha."
+    },
+    {
+      "asset": "public/images/game/icons/res-sure.webp",
+      "brief": "Upright Ottoman hourglass: dark walnut end plates, aged brass columns, clear glass bulbs, flowing golden sand. Strong silhouette readable at 24–32px, fills 88% canvas, upper-left warm light, premium hand-painted resource icon. No frame, lettering, ground plane or background; genuine transparent alpha."
+    }
+  ],
+  "processing": "Portraits 192×192 WebP q92; icons alpha-preserved trim and contain 128×128 WebP q93. Four separate generated images, no SVG substitutes."
+}

@@ -6,7 +6,7 @@
  * üretimin nasıl değişeceği anında görünür; "Onayla" ile uygulanır.
  */
 import { useEffect, useState, type ReactNode } from 'react'
-import { Check, ChevronsLeft, ChevronsRight, Minus, Plus, Undo2 } from './ui-art'
+import { ChevronsLeft, ChevronsRight, Minus, Plus } from './ui-art'
 import { GameButton } from './game-button'
 import { formatRate } from '@/lib/game/engine'
 import { asset } from '@/lib/asset'
@@ -18,7 +18,7 @@ const INK = '#2e1c0e'
 const SKIN = '#e8b98a'
 /** Ayakta duran küçük figür: başlık, cübbe ve elindeki alet mesleği anlatır. */
 export function PersonArt({ kind, size = 64 }: { kind: Figure; size?: number }) {
-  if (kind === 'alim') return <img className="person-art academy-scholar" src={asset('/images/game/ui/medrese/scholar.webp')} alt="" width={size} height={size * 80 / 60} />
+  if (kind === 'alim' || kind === 'halk') return <img className="person-art person-portrait" src={asset(`/images/game/ui/people/${kind === 'alim' ? 'scholar' : 'citizens'}.webp`)} alt="" width={size} height={size} />
   const look: Record<Figure, { robe: string; sash: string; hat: ReactNode; tool: ReactNode }> = {
     halk: { robe: '#4f7fa8', sash: '#e2bd78',
       hat: <path d="M23 13 l1.5 -8 h11 l1.5 8 Z" fill="#b3261e" stroke={INK} strokeWidth="1.2" />, tool: null },
@@ -52,14 +52,14 @@ export function PersonArt({ kind, size = 64 }: { kind: Figure; size?: number }) 
     <circle cx="45.5" cy="54" r="3" fill={SKIN} stroke={INK} strokeWidth="0.8" />
     <path d="M26 30 l4 7 l4 -7" fill="#f6ecd6" stroke={INK} strokeWidth="0.8" />
     <circle cx="30" cy="21" r="8.5" fill={SKIN} stroke={INK} strokeWidth="1.2" />
-    <path d="M24 24 q6 7 12 0 q-2 6 -6 6 q-4 0 -6 -6 Z" fill="#4a2e1a" opacity={kind === 'halk' || kind === 'esnaf' ? 0 : 0.85} />
+    <path d="M24 24 q6 7 12 0 q-2 6 -6 6 q-4 0 -6 -6 Z" fill="#4a2e1a" opacity={kind === 'esnaf' ? 0 : 0.85} />
     <circle cx="27" cy="20" r="0.9" fill={INK} /><circle cx="33" cy="20" r="0.9" fill={INK} />
     {L.hat}
     {L.tool}
   </svg>
 }
 
-export function WorkforceSlider({ label, figure, value, cap, idle, preview, onCommit, note, idleArt }: {
+export function WorkforceSlider({ label, figure, value, cap, idle, preview, onCommit, note }: {
   label: string
   figure: Figure
   value: number
@@ -69,7 +69,6 @@ export function WorkforceSlider({ label, figure, value, cap, idle, preview, onCo
   preview: (n: number) => { amount: number; text: ReactNode; icon?: ReactNode }
   onCommit: (n: number) => void
   note?: ReactNode
-  idleArt?: ReactNode
 }) {
   const [draft, setDraft] = useState(value)
   useEffect(() => setDraft(value), [value])
@@ -83,7 +82,7 @@ export function WorkforceSlider({ label, figure, value, cap, idle, preview, onCo
   return <div className="workforce">
     <div className="workforce-stage">
       <div className="workforce-side">
-        {idleArt ?? <PersonArt kind="halk" size={46} />}
+        <PersonArt kind="halk" size={46} />
         <strong>{freeAfter}</strong><small>Boştaki halk</small>
       </div>
       <div className="workforce-mid">
@@ -106,8 +105,8 @@ export function WorkforceSlider({ label, figure, value, cap, idle, preview, onCo
       </div>
     </div>
     {changed && <div className="workforce-confirm">
-      <GameButton size="sm" onClick={() => onCommit(d)}><Check data-icon="inline-start" />{t.action.confirm}</GameButton>
-      <GameButton size="sm" variant="outline" onClick={() => setDraft(value)}><Undo2 data-icon="inline-start" />Geri al</GameButton>
+      <GameButton size="sm" onClick={() => onCommit(d)}>{t.action.confirm}</GameButton>
+      <GameButton size="sm" variant="outline" onClick={() => setDraft(value)}>Geri al</GameButton>
     </div>}
     {note && <p className="workforce-note">{note}</p>}
   </div>

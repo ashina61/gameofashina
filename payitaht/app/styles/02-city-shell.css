@@ -275,10 +275,6 @@
  * Eksik dosya haritada kirik resim olarak gorunmesin diye: tas bir kaide
  * uzerinde cekic. Yapi kurallariyla oynanabilir, gorseli sonra gelir.
  */
-
-.preview-pending { display: grid; place-items: center; gap: 8px; width: 150px; height: 150px; color: #e9d7a6; border: 1px dashed #d9c18566; border-radius: 10px; }
-.preview-pending :is(svg, .painted-icon) { width: 38px; height: 38px; stroke-width: 1.2; }
-.preview-pending small { font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted-foreground); }
 .list-pending { display: grid; place-items: center; width: 88px; height: 88px; flex-shrink: 0; color: #e9d7a6; background: #ffffff0d; border: 1px dashed #d9c18555; border-radius: 8px; }
 .list-pending :is(svg, .painted-icon) { width: 26px; height: 26px; stroke-width: 1.3; }
 

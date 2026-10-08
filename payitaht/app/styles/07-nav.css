@@ -126,18 +126,7 @@
 .stance-tabs button { padding: 8px 2px; font-size: 12px; }
 
 /* ── BİNA GÖRÜNÜM AŞAMALARI (bina sayfası başı) ────────────────────────── */
-.bp-hero .bp-hero-art { animation: stage-in .25s ease-out; }
 @keyframes stage-in { from { opacity: 0; transform: translateY(4px) scale(.98); } }
-.bp-stages { position: absolute; left: 10px; top: 10px; z-index: 1; display: flex; flex-direction: column; gap: 6px; }
-.bp-stages button { position: relative; display: flex; flex-direction: column; align-items: center; width: 58px; padding: 3px 3px 2px; border-radius: 10px;
-  background: #fbf2d6e6; border: 1.5px solid var(--c-tan-border); box-shadow: 0 2px 5px #3a231044; }
-.bp-stages button img { width: 50px; height: 34px; object-fit: contain; }
-.bp-stages button span { font-size: 11px; font-weight: 800; color: var(--c-brown); line-height: 1.1; white-space: nowrap; }
-.bp-stages button.is-locked img { filter: grayscale(.8) brightness(1.05); opacity: .7; }
-.bp-stages button.is-current { border-color: var(--c-brown); background: var(--c-paper); }
-.bp-stages button.is-current::after { content: 'şu an'; position: absolute; top: -7px; right: -6px; padding: 1px 5px; border-radius: 6px; background: var(--c-brown); color: var(--c-cream); font-size: 11px; font-weight: 800; }
-.bp-stages button[aria-pressed='true'] { box-shadow: 0 0 0 2px var(--c-gold), 0 2px 5px #3a231044; }
-.bp-stage-note { position: absolute; left: 50%; bottom: 8px; transform: translateX(-50%); padding: 3px 10px; border-radius: 10px; background: #3a2310cc; color: var(--c-cream); font-size: 11px; font-weight: 700; white-space: nowrap; }
 .bp-study { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 12px; align-items: center; padding: 6px 0 10px; }
 .bp-study > div { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
 .bp-study strong { font-family: var(--font-heading), Georgia, serif; font-size: 20px; color: var(--c-ink); line-height: 1.1; }

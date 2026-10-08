@@ -33,8 +33,6 @@
   border-bottom: 2px solid var(--edge); box-shadow: inset 0 -20px 30px #5a351722; }
 .bp-hero img { position: relative; width: min(78%, 330px); height: 200px; object-fit: contain; object-position: bottom;
   filter: saturate(.90) contrast(.98) sepia(.035) drop-shadow(0 8px 10px #0005); }
-.bp-pending { width: 90px; height: 90px; display: grid; place-items: center; border-radius: 50%; background: #0002; margin-bottom: 50px; }
-.bp-desc { font-size: 13.5px; line-height: 1.5; color: var(--ink); padding: 10px 12px; background: var(--parch); border: 1px solid var(--edge); border-radius: 4px; box-shadow: 0 1px 0 #fff8 inset; }
 .bp-box { border: 1px solid var(--edge); border-radius: 4px; background: var(--parch); box-shadow: 0 2px 6px #5a351733; overflow: hidden; }
 .bp-box-title { margin: 0; padding: 7px 12px; font-size: 12px; font-weight: 800; letter-spacing: .07em; text-transform: uppercase; color: var(--c-ink-deep);
   background: linear-gradient(180deg, var(--c-gold), var(--tan) 55%, var(--tan-2)); border-bottom: 1px solid var(--edge); text-shadow: 0 1px 0 #f5dca588; }

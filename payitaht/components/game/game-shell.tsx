@@ -31,7 +31,8 @@ import { CityAdmin, DeployPanel, TradeCenter, ExperimentPanel, ForestPanel, Miss
 import { THREAT_WARNING_MS, dispatchBlockade, dispatchRaid, targetName } from '@/lib/game/expeditions'
 import { DefenseSummary, ExchangePanel, ForeignSpies, SiegePanel, FuturePanel, GuildPanel, PiracyPanel, TemplePanel, TheatrePanel, ThreatBanner, UpgradePanel } from './ikariam-panels'
 import { badgeBudget } from '@/lib/game/badges'
-import { IkaNav, IkaTopBar, CityActivity, CityShortcuts, AdvisorSpeech, advisorNews, type AdvisorSeen, type IkaNavKey } from './ika-hud'
+import { IkaNav, IkaTopBar, CityActivity, CityShortcuts, advisorNews, type AdvisorSeen, type IkaNavKey } from './ika-hud'
+import { PersonArt } from './workforce'
 import { ArmyAdvisor, CityAdvisor, researchAdvice } from './advisor-pages'
 import type { AdvisorId } from './advisor-portraits'
 
@@ -371,7 +372,7 @@ export default function GameShell({ onTitle }: { onTitle?: () => void } = {}) {
       {panel === 'advisor-city' && empire && <CityAdvisor empire={empire} game={game} onCity={visitCity} onBuilding={openBuilding} onCities={() => openPanel('cities')} onBuildList={() => openPanel('build')} onOverview={() => openPanel('overview')} onJournal={() => openPanel('journal')} />}
       {panel === 'overview' && empire && <EmpireOverview empire={empire} onCity={visitCity} />}
       {panel === 'build' && <BuildingList game={game} onSelect={openBuilding} />}
-      {panel === 'research' && <><details className="academy-advice"><summary>Âlimin önerisi</summary><AdvisorSpeech id="research">{researchAdvice(game)}</AdvisorSpeech></details><ResearchPanel game={game} onResearch={id => act({ type: 'research', id })} /><FuturePanel game={game} onCommand={act} /></>}
+      {panel === 'research' && <><details className="academy-advice"><summary>Âlimin önerisi</summary><div className="academy-counsel"><PersonArt kind="alim" size={64} /><p>{researchAdvice(game)}</p></div></details><ResearchPanel game={game} onResearch={id => act({ type: 'research', id })} /><FuturePanel game={game} onCommand={act} /></>}
       {panel === 'journal' && <JournalPage game={game} cityName={currentCityName} />}
       {panel === 'profile' && empire && <SovereignPage empire={empire} now={game.updatedAt} run={runOp} onCity={visitCity} onSettings={() => openPanel('settings')} onChangelog={() => openPanel('changelog')} />}
       {panel === 'changelog' && <ChangelogPage />}

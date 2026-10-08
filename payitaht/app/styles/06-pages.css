@@ -182,15 +182,6 @@
 .world-tabs button:focus-visible { outline: 2px solid var(--c-bad); outline-offset: -3px; }
 
 /* Bina sahnesinin köşesinde Ikariam gibi yuvarlak araç düğmeleri (çevir, taşı, yık). */
-.bp-hero-tools { position: absolute; top: 10px; right: 12px; display: flex; flex-direction: column; gap: 8px; z-index: 1; }
-.bp-hero-tools button { display: grid; place-items: center; width: 46px; height: 46px; border-radius: 50%; border: 2px solid var(--c-gold);
-  background: radial-gradient(circle at 40% 35%, #8a5a2e, #4e2f14); color: var(--c-cream); box-shadow: 0 3px 8px #0006; position: relative; }
-.bp-hero-tools button :is(svg, .painted-icon) { width: 18px; height: 18px; }
-.bp-hero-tools button span { position: absolute; bottom: -2px; left: 50%; transform: translateX(-50%); font-size: 11px; font-weight: 700;
-  background: var(--c-ink); color: var(--c-cream); padding: 0 5px; border-radius: 6px; line-height: 13px; }
-.bp-hero-tools button.is-danger { background: radial-gradient(circle at 40% 35%, #c2412f, #7a1d12); }
-.bp-hero-tools button[aria-pressed="true"] { outline: 3px solid var(--c-cream); }
-.bp-hero-tools button:focus-visible { outline: 3px solid #fff; outline-offset: 2px; }
 .demolish-sheet { display: grid; gap: 6px; margin: 10px 0; padding: 12px 14px; border-radius: 12px; border: 2px solid var(--c-bad);
   background: linear-gradient(#fbe6d8, #f3d2bd); color: #4a1a10; }
 .demolish-sheet strong { display: inline-flex; align-items: center; gap: 6px; font-size: 15px; }

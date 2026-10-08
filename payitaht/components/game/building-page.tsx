@@ -14,12 +14,12 @@ import { flyGoods } from '@/lib/fx'
  * kahverengi başlık şeritlidir.
  */
 import { Hint } from './hint'
-import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react'
-import { ArrowLeft, ArrowUp, Info, LockKeyhole, FlipHorizontal2, RotateCw, Move, Hammer, ChevronRight, Plus, Trash2, X } from './ui-art'
+import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from 'react'
+import { ArrowLeft, ArrowUp, LockKeyhole, FlipHorizontal2, RotateCw, Move, ChevronRight, Plus, Trash2, X } from './ui-art'
 import { GameButton } from './game-button'
 import { CostTokens } from './stat-kit'
 import { BottomSheet } from './bottom-sheet'
-import { asset, buildingImage, buildingStage } from '@/lib/asset'
+import { asset, buildingImage } from '@/lib/asset'
 import {
   BUILDINGS, BUILDING_EFFECTS, constructionDiscount, LUXURY_IDS, LUXURY_NAMES, MAX_LEVEL, RESEARCH, RESOURCE_IDS, RESOURCE_NAMES,
   actionPoints, activeJob, armyUpkeep, buildReason, capacity, contentment, corruption, cost, duration,
@@ -33,7 +33,6 @@ import { cityGuards, cityWallHp, safeStock } from '@/lib/game/expeditions'
 import { culturalTreaties } from '@/lib/game/rivals'
 import { luxuryIcons, resourceIcons, JobProgress } from './game-widgets'
 import { ResearchEmblem } from './research-art'
-import { BuildingArt } from './building-art'
 import { PersonArt } from './workforce'
 import type { ResearchId } from '@/lib/game/engine'
 import { ArmyPanel, BuildingEffects } from './game-panels'
@@ -46,14 +45,6 @@ import { WorkforceSlider, type Figure } from './workforce'
 import { t } from '@/lib/i18n/tr'
 import { RoyalManagement } from './royal-management'
 
-/** Bina sahnesinin boyalı katmanları (görsel brif 2): gök, uzak tepeler, çimen ya da sığ su, iki yanda ağaç. */
-const SCENE_STYLE = {
-  '--scene-hills': `url("${asset('/images/game/terrain/hills.webp')}")`,
-  '--scene-grass': `url("${asset('/images/game/terrain/grass.webp')}")`,
-  '--scene-water': `url("${asset('/images/game/terrain/water-shallow.webp')}")`,
-  '--scene-left': `url("${asset('/images/game/decor/cypress-sm.webp')}")`,
-  '--scene-right': `url("${asset('/images/game/decor/olive-tree-sm.webp')}")`,
-} as CSSProperties
 const num = (n: number) => Math.floor(n).toLocaleString('tr-TR')
 const RES_ICON = resourceIcons
 const time = (s: number) => s >= 3600 ? `${Math.floor(s / 3600)} sa ${Math.floor(s / 60) % 60} dk` : s >= 60 ? `${Math.floor(s / 60)} dk ${s % 60} sn` : `${s} sn`
@@ -120,7 +111,7 @@ function Workers({ game, id, unit, perWorker, onCommand }: { game: Game; id: Wor
   const at = (n: number) => rates({ ...game, workers: { ...game.workers, [id]: n } })[w.res]
   return <WorkforceSlider label={unit} figure={w.figure} value={game.workers[id]} cap={workerCapacity(game, id)} idle={idleWorkers(game)}
     preview={n => { const v = at(n); return { amount: v, icon: <Icon className="workforce-icon" />, text: <><b>{w.res === 'knowledge' ? formatRate(v) : num(v)}</b> {w.unit}/dk</> } }}
-    onCommit={n => onCommand({ type: 'workers', id, value: n })} note={perWorker} idleArt={id === 'medrese' ? <img className="academy-citizen" src={asset('/images/game/ui/medrese/student.webp')} alt="" width={46} height={62} /> : undefined} />
+    onCommit={n => onCommand({ type: 'workers', id, value: n })} note={perWorker} />
 }
 
 /** TİCARET FİLOSU (Ikariam gibi): gemiler satın alınır, bütün şehirler ortak kullanır. */
@@ -379,31 +370,24 @@ export function BuildingPage({ game, empire, id, onClose, onBuild, onFlip, onMov
   const city = empire ? activeCity(empire).name : ''
   const [razing, setRazing] = useState(false)
   // ⓘ: açıklamanın tamamı ve "Nasıl işler?" kutuları yalnız istenince görünür.
-  const [help, setHelp] = useState(false)
+  const help = false
   // Sekmeler: binanın kendi işi (Yapı) ve gelişim bilgisi (Gelişim).
   const [tab, setTab] = useState<'yapi' | 'gelisim'>('yapi')
   const workRef = useRef<HTMLDivElement>(null)
   const [hasWork, setHasWork] = useState(true)
   useLayoutEffect(() => { setHasWork(!!workRef.current?.childElementCount) }, [id, level, children])
   // Başka binaya geçince sayfa baştan: binanın kendi işi, açıklama kapalı.
-  useEffect(() => { setTab('yapi'); setHelp(false); setPeek(null); setRazing(false) }, [id])
-  // Görünüm önizlemesi: 1 = Sv. 1-3, 2 = Sv. 4-7, 3 = Sv. 8+ (null = şu anki).
-  const [peek, setPeek] = useState<1 | 2 | 3 | null>(null)
-  const stage = buildingStage(Math.max(1, level))
-  const shown = peek ?? stage
-  const stages = ([[1, 1, 'Sv. 1–3'], [2, 4, 'Sv. 4–7'], [3, 8, 'Sv. 8+']] as const).filter(([, from]) => from <= max)
+  useEffect(() => { setTab('yapi'); setRazing(false) }, [id])
   const movable = level > 0 && takesPlot(id)
   const coastId = id === 'liman' || id === 'tersane' ? id : null
   const coast = coastId !== null
   const facing = coastId ? game.coastFacing[coastId] : undefined
   const facingLabel = facing === 'left' ? 'Sol' : facing === 'right' ? 'Sağ' : 'Düz'
   const nextFacing = facing === 'straight' ? 'right' : facing === 'right' ? 'left' : 'straight'
-  const barracksScene = id === 'kisla' && (peek === null || peek === stage)
   const showTab = hasWork ? tab : 'gelisim'
   const royalWork = id === 'kisla' || id === 'medrese'
   if (id === 'divan' || id === 'elcilik') return <IkaPage title={b.name} label={`${b.name} sayfası`} onClose={onClose}
     className={`bp-building bp-of-${id} bp-court bp-royal bp-management${help ? ' show-help' : ''}`}
-    badge={<button type="button" className="bp-help" aria-pressed={help} onClick={() => setHelp(v => !v)} aria-label={help ? 'Açıklamaları gizle' : 'Nasıl işler? Açıklamaları göster'}><Info /></button>}
     footer={<UpgradeDock game={game} id={id} onBuild={onBuild} />}>
     <RoyalManagement key={id} game={game} empire={empire} id={id} city={city} help={help} onNav={onNav}
       overview={<BuildingView game={game} empire={empire} id={id} section="overview" onCommand={onCommand} onRecruit={onRecruit} onNav={onNav} onBuildingNav={onBuildingNav} run={run} />}
@@ -412,45 +396,19 @@ export function BuildingPage({ game, empire, id, onClose, onBuild, onFlip, onMov
       spies={<><ArmyPanel game={game} onRecruit={onRecruit} onBuild={onBuildingNav} home="elcilik" />{children}<GameButton variant="outline" onClick={() => onBuildingNav('siginak')}>Gizli Sığınak</GameButton></>}
       development={<><Box title="Seviye etkisi"><BuildingEffects game={game} id={id} level={level} max={max} /></Box>
         {forecast.length > 0 && <Box title="Sonraki seviyeler"><Table head={['Sv.', 'Maliyet', 'Süre']} rows={forecast.map(f => [`${f.level}`, <span key="c" className="bp-mini-costs">{RESOURCE_IDS.filter(r => f.price[r] > 0).map(r => <span key={r}><ResIcon id={r} />{num(f.price[r])}</span>)}</span>, time(f.seconds)])} /></Box>}
-        <Box title="Yapının görünümü"><div className="management-stages">{stages.map(([st, from, label]) => <figure key={st}><img src={buildingImage(id, from)} alt={`${b.name}, ${label}`} loading="lazy" /><figcaption>{label}{st === stage ? ' · Şu anki' : ''}</figcaption></figure>)}</div></Box>
         {level > 0 && <div className="management-tools"><GameButton variant="outline" onClick={onFlip}>Yönünü çevir</GameButton>{id !== 'divan' && <><GameButton variant="outline" onClick={onMove}>Başka arsaya taşı</GameButton><GameButton variant="destructive" onClick={() => setRazing(v => !v)}>Yapıyı yık</GameButton></>}</div>}
         {razing && <DemolishConfirm game={game} id={id} onCommand={onCommand} onClose={() => setRazing(false)} />}</>} />
   </IkaPage>
-  const buildingScene = (
-      <section className={`bp-hero bp-scene${coast ? ' is-coast' : ''}${barracksScene ? ' is-barracks-scene' : ''}`} style={SCENE_STYLE}>
-        <span className="bp-scene-back" aria-hidden="true" />
-        {barracksScene ? <img className="barracks-courtyard" src={asset('/images/game/ui/barracks/courtyard.webp')} alt="Ege kıyısındaki kışlanın sancaklı eğitim avlusu" fetchPriority="high" /> : b.art ? <BuildingArt key={`${shown}-${facing ?? 'default'}`} className="bp-hero-art" id={id} level={shown === 1 ? 1 : shown === 2 ? 4 : 8} facing={facing} alt={`${b.name} görünümü`} /> : <span className="bp-pending"><Hammer /></span>}
-        {b.art && stages.length > 1 && <div className="bp-stages" role="group" aria-label="Seviyeye göre görünüm">
-          {stages.map(([st, from, label]) => <button key={st} type="button" aria-pressed={shown === st} onClick={() => setPeek(st === stage ? null : st)}
-            className={st === stage ? 'is-current' : level >= from ? 'is-reached' : 'is-locked'} aria-label={`${label} görünümü${st === stage ? ' (şu anki)' : ''}`}>
-            <img src={buildingImage(id, from, facing)} alt="" loading="lazy" decoding="async" style={facing === 'right' ? { transform: 'scaleX(-1)' } : undefined} /><span>{label}</span>
-          </button>)}
-        </div>}
-        {peek && peek !== stage && <span className="bp-stage-note">{peek > stage ? 'Yükselttikçe böyle görünecek' : 'Eski görünümü'}</span>}
-        {!peek && <div className="bp-plaque" aria-label={`Seviye ${level}, en fazla ${max}`}>
-          <span className="bp-plaque-level" aria-hidden="true">{level}</span>
-          <span className="bp-plaque-text"><b>{level ? `Seviye ${level}` : 'Kurulmadı'}</b><small>en fazla {max}</small></span>
-        </div>}
-        {level > 0 && <div className="bp-hero-tools" role="group" aria-label="Yapı araçları">
-          {movable && b.art && coast && <button type="button" onClick={() => coastId && onCommand({ type: 'face', id: coastId, facing: nextFacing })} aria-label={`Yön: ${facingLabel}. Dokunarak değiştir`}><RotateCw /><span>Yön: {facingLabel}</span></button>}
-          {movable && b.art && !coast && <button type="button" onClick={onFlip} aria-label={game.flips.includes(id) ? 'Yönü geri çevir' : 'Yönünü çevir'}><FlipHorizontal2 /><span>Çevir</span></button>}
-          {movable && <button type="button" onClick={onMove} aria-label="Başka arsaya taşı"><Move /><span>Taşı</span></button>}
-          {<button type="button" className="is-danger" aria-pressed={razing} onClick={() => setRazing(v => !v)} aria-label="Yık"><Trash2 /><span>Yık</span></button>}
-        </div>}
-      </section>
-  )
   return <IkaPage toolbar={royalWork ? undefined : toolbar} title={b.name} subtitle={`${city} · ${b.category.toLocaleLowerCase('tr')}`} label={`${b.name} sayfası`} onClose={onClose}
     className={`bp-building bp-of-${id}${royalWork ? ' bp-royal' : ''}${help ? ' show-help' : ''}`}
-    badge={<button type="button" className="bp-help" aria-pressed={help} onClick={() => setHelp(v => !v)} aria-label={help ? 'Açıklamaları gizle' : 'Nasıl işler? Açıklamaları göster'}><Info /></button>}
     footer={royalWork ? undefined : <UpgradeDock game={game} id={id} onBuild={onBuild} />}>
-      {!royalWork && buildingScene}
       {id === 'kisla' && <figure className="barracks-banner">
         <img src={asset('/images/game/ui/barracks/courtyard.webp')} alt="Osmanlı kışlasının sancaklı eğitim avlusu" />
         <figcaption>Seviye {level}</figcaption>
       </figure>}
       {id === 'medrese' && <figure className="academy-banner"><img src={asset('/images/game/ui/medrese/library.webp')} alt="Osmanlı medresesinde ilim meclisi" /><figcaption>Seviye {level}</figcaption></figure>}
       {razing && <DemolishConfirm game={game} id={id} onCommand={onCommand} onClose={() => setRazing(false)} />}
-      <p className="bp-desc" onClick={() => setHelp(true)}>{b.description}</p>
+
       {hasWork && <div className="bp-tabs" role="tablist" aria-label={`${b.name} bölümleri`}>
         <button type="button" role="tab" aria-selected={showTab === 'yapi'} onClick={() => setTab('yapi')}>{id === 'kisla' && <img className="barracks-tab-emblem" src={asset('/images/game/ui/barracks/army-medallion.webp')} alt="Yeniçeri börkü" width={32} height={32} />}{id === 'medrese' && <IlimArt className="size-6" />}{id === 'kisla' ? 'Kara ordusu' : id === 'medrese' ? 'İlim meclisi' : b.name}</button>
         <button type="button" role="tab" aria-selected={showTab === 'gelisim'} onClick={() => setTab('gelisim')}>{royalWork && <img className="barracks-development-icon" src={asset('/images/game/ui/barracks/development-icon.webp')} alt="" width={32} height={32} />}Gelişim</button>
@@ -461,11 +419,6 @@ export function BuildingPage({ game, empire, id, onClose, onBuild, onFlip, onMov
       </div>
       <div className="bp-tabpanel" hidden={showTab !== 'gelisim'}>
       {royalWork && <UpgradeDock game={game} id={id} onBuild={onBuild} />}
-      {id === 'kisla' && <details className="barracks-appearance">
-        <summary className="barracks-ribbon">Avlu ve yapı görünümü <span>{level ? `Seviye ${level}` : 'Kurulmadı'}</span></summary>
-        {buildingScene}
-      </details>}
-      {id === 'medrese' && <details className="academy-appearance"><summary>Avlu ve yapı görünümü</summary>{buildingScene}</details>}
       <Box title="Seviye etkisi"><BuildingEffects game={game} id={id} level={level} max={max} /></Box>
       {forecast.length > 0 && <Box title="Sonraki seviyeler">
         <Table head={['Sv.', 'Maliyet', 'Süre']} rows={forecast.map(f => [
@@ -474,6 +427,13 @@ export function BuildingPage({ game, empire, id, onClose, onBuild, onFlip, onMov
           time(f.seconds),
         ])} />
       </Box>}
+      <details className="building-description"><summary>{b.name} hakkında</summary><p>{b.description}</p></details>
+      {level > 0 && <details className="building-operations"><summary>Yapı işlemleri</summary><div>
+        {movable && b.art && coast && <GameButton variant="outline" onClick={() => coastId && onCommand({ type: 'face', id: coastId, facing: nextFacing })}><RotateCw />Yön: {facingLabel}</GameButton>}
+        {movable && b.art && !coast && <GameButton variant="outline" onClick={onFlip}><FlipHorizontal2 />Yönünü çevir</GameButton>}
+        {movable && <GameButton variant="outline" onClick={onMove}><Move />Başka arsaya taşı</GameButton>}
+        <GameButton variant="destructive" onClick={() => setRazing(v => !v)}><Trash2 />Yapıyı yık</GameButton>
+      </div></details>}
       </div>
   </IkaPage>
 }

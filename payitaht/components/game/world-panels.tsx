@@ -14,14 +14,16 @@ import { CourtTabs } from './court-kit'
 import { diploAdvice } from './advisor-advice'
 import { Hint } from './hint'
 import { useState } from 'react'
-import { Crown, Trash2, Coffee, TreePine, FlaskConical, CalendarCheck, Gift, Truck, Anchor, Flag, Handshake, Store, Mail, Send, ScrollText, Swords, Eye, Check, Pencil, ShieldCheck } from './ui-art'
+import { Crown, Trash2, Coffee, TreePine, CalendarCheck, Gift, Truck, Anchor, Flag, Handshake, Store, Mail, Send, ScrollText, Swords, Eye, Check, Pencil, ShieldCheck } from './ui-art'
+import { ResearchEmblem } from './research-art'
+import { IlimArt, KristalArt } from './resource-art'
 import { DailyArt } from './quest-art'
 import { AtlasArt, RivalPortrait } from './deep-art'
 import { NewsPanel, PaceSetting, ProposalsPanel, rivalWarLine } from './ai-panels'
 import { GameButton } from './game-button'
 import {
   ANARCHY_MS, BUILDINGS, FOREST_MAX_LEVEL, GOVERNMENTS, GOVERNMENT_COOLDOWN_MS, GOOD_NAMES, GOVERNMENT_IDS, UNITS, UNIT_IDS,
-  anarchy, forestCapacity, forestProduction, forestUpgradeCost, governmentCost, idleWorkers, tavernLevel, wineConsumption,
+  anarchy, capacity, forestCapacity, forestProduction, forestUpgradeCost, governmentCost, idleWorkers, tavernLevel, wineConsumption,
   LUXURY_IDS, type BuildingId, type Command, type Game, type Good, type Luxury, type Resource, type UnitId, formatRate,
 } from '@/lib/game/engine'
 import { activeCity, renameCity, type Empire } from '@/lib/game/empire'
@@ -123,11 +125,15 @@ export function TavernPanel({ game, onCommand }: { game: Game; onCommand: (c: Co
 
 export function ExperimentPanel({ game, onCommand }: { game: Game; onCommand: (c: Command) => void }) {
   if (!game.research.includes('deney')) return null
-  return <section className="empire-section">
-    <h3><FlaskConical className="size-4" /> Deneyler</h3>
-    <p className="fine-print">100 kristal → 150 ilim. Ambarda {num(game.luxury.kristal)} kristal.</p>
-    <div className="batch-row">{[1, 5, 10].map(n => <GameButton key={n} size="sm" variant="outline" disabled={game.luxury.kristal < n * 100}
-      onClick={() => onCommand({ type: 'experiment', batches: n })}>{n * 100} kristal</GameButton>)}</div>
+  return <section className="empire-section academy-experiments">
+    <h3><ResearchEmblem id="deney" size={32} /> Kristal deneyleri</h3>
+    <p className="academy-experiment-copy">Optik deneylerde kristalin ışığı kırması incelenir; kristal harcanır ve ilim hemen kazanılır.</p>
+    <p className="academy-experiment-stock"><KristalArt /> Ambarda <strong>{num(game.luxury.kristal)} kristal</strong></p>
+    <div className="academy-experiment-list">{[1, 5, 10].map(n => { const gain = Math.max(0, Math.min(n * 150, capacity(game) - game.resources.knowledge)); return <article key={n}>
+      <div><span><KristalArt /> {num(n * 100)} kristal harcanır</span><span><IlimArt /> {num(gain)} ilim kazanılır</span></div>
+      <GameButton aria-label={`${n * 100} kristalle deney yap`} disabled={game.luxury.kristal < n * 100 || gain < 1} onClick={() => onCommand({ type: 'experiment', batches: n })}>Deney yap</GameButton>
+    </article> })}</div>
+    <p className="fine-print">{game.resources.knowledge >= capacity(game) ? 'İlim hazinesi dolu. Önce ilminizi araştırmalarda kullanın.' : 'Kazanılacak ilim, hazinenizde kalan yere göre gösterilir. Kristal harcaması geri alınamaz.'}</p>
   </section>
 }
 

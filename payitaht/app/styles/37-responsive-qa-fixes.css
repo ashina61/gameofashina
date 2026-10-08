@@ -126,9 +126,7 @@
 .game-shell.has-page .bp-building:not(.bp-royal) .bp-dock { box-sizing: border-box; }
 
 /* Minimum readable UI text in repeat-heavy HUD/building controls. */
-.game-world .ika-chip-num > small,
-.game-shell.has-page .bp-building:not(.bp-royal) .bp-stages button span,
-.game-shell.has-page .bp-building:not(.bp-royal) .bp-hero-tools button span {
+.game-world .ika-chip-num > small {
   font-size: 11px;
 }
 
@@ -145,7 +143,5 @@
   .game-shell.has-page .bp.bp-royal .royal-edit { width: calc(100% - 12px); max-width: calc(100% - 12px); margin-inline: 6px; }
   .game-shell.has-page .research-panel .rs-strip { gap: 2px; }
   .game-shell.has-page .research-panel .rs-strip button { font-size: 11px; padding-inline: 1px; }
-  .game-world .ika-chip-num > small,
-  .game-shell.has-page .bp-building:not(.bp-royal) .bp-stages button span,
-  .game-shell.has-page .bp-building:not(.bp-royal) .bp-hero-tools button span { font-size: 11px; }
+  .game-world .ika-chip-num > small { font-size: 11px; }
 }

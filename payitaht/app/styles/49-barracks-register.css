@@ -2,21 +2,7 @@
 .game-shell.has-page:has(.bp-of-kisla)::after { content: ''; position: fixed; z-index: 59; inset: auto 0 0; height: var(--ika-nav); background: var(--royal-paper) center / 420px auto; pointer-events: none; }
 .game-shell.has-page .bp.bp-of-kisla { width: 100%; max-width: none; border-radius: 0; color: var(--c-ink); background: var(--royal-paper) center / 420px auto; font-family: Georgia,serif; -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
 .game-shell.has-page .bp.bp-of-kisla > .bp-bar .bp-title { right: calc(var(--court-control-size) * 2 + 20px); }
-.game-shell.has-page .bp.bp-of-kisla .bp-help { display: grid; place-items: center; position: absolute; inset: 50% calc(var(--court-control-size) + 10px) auto auto; transform: translateY(-50%); width: 48px; height: 48px; min-width: 48px; min-height: 48px; padding: 12px; border: 1px solid var(--c-gold-deep); border-radius: 50%; background: var(--royal-wood); color: var(--c-gold-pale); box-shadow: none; }
 .game-shell.has-page .bp.bp-of-kisla .bp-scroll { gap: 0; padding: 0; background: none; border: 0; }
-.game-shell.has-page .bp.bp-of-kisla .bp-hero.bp-scene { display: block; flex-shrink: 0; height: 210px; min-height: 210px; margin: 0; padding: 0; border-radius: 0; border: 0; background: var(--royal-wood); }
-.game-shell.has-page .bp.bp-of-kisla .barracks-courtyard { object-position: center 55%; }
-.game-shell.has-page .bp.bp-of-kisla .bp-stages { flex-direction: row; inset: auto auto 10px 10px; gap: 6px; }
-.game-shell.has-page .bp.bp-of-kisla .bp-stages button { width: 64px; min-height: 60px; padding: 4px; border: 1px solid var(--c-gold-deep); border-radius: 0; background: var(--royal-wood); box-shadow: none; }
-.game-shell.has-page .bp.bp-of-kisla .bp-stages button[aria-pressed='true'] { border-color: var(--c-gold-pale); background: linear-gradient(var(--c-royal-active),var(--c-royal-active-deep)); box-shadow: none; }
-.game-shell.has-page .bp.bp-of-kisla .bp-stages button span { font: 12px/1.3 Georgia,serif; color: var(--c-gold-pale); }
-.game-shell.has-page .bp.bp-of-kisla .bp-plaque { inset: 10px 10px auto auto; gap: 0; }
-.game-shell.has-page .bp.bp-of-kisla .bp-plaque-text { margin: 0; padding: 6px 10px; border-radius: 0; background: var(--royal-wood); color: var(--c-gold-pale); }
-.game-shell.has-page .bp.bp-of-kisla .bp-stage-note { inset: 10px 10px auto; width: fit-content; max-width: calc(100% - 20px); margin-inline: auto; font: 14px/1.4 Georgia,serif; }
-.game-shell.has-page .bp.bp-of-kisla .bp-hero-tools { inset: 10px auto auto 10px; max-width: calc(100% - 92px); gap: 6px; }
-.game-shell.has-page .bp.bp-of-kisla .bp-hero-tools > button { min-height: 48px; padding: 8px; border-radius: 0; border: 1px solid var(--c-gold-deep); background: var(--royal-wood); color: var(--c-gold-pale); }
-.game-shell.has-page .bp.bp-of-kisla .barracks-ribbon { width: 100%; min-height: 48px; margin: 0; padding: 12px; border: 0 solid transparent; border-image: var(--royal-page-frame) 20 / 4px / 0 stretch; background: var(--royal-wood) center / cover; color: var(--c-gold-pale); font: 700 23px/1.2 'Payitaht Profile Roman',Georgia,serif; text-shadow: none; }
-.game-shell.has-page .bp.bp-of-kisla .bp-desc { padding: 14px 5%; margin: 0; font: 14px/1.55 Georgia,serif; text-align: center; }
 .game-shell.has-page .bp.bp-of-kisla .bp-tabs { flex-shrink: 0; display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); width: 100%; gap: 0; margin: 0; padding: 0; border-radius: 0; background: var(--royal-wood); box-shadow: none; }
 .game-shell.has-page .bp.bp-of-kisla .bp-tabs > button { min-height: 52px; padding: 12px 8px; border: 0 solid transparent; border-image: var(--royal-page-frame) 20 / 4px / 0 stretch; border-radius: 0; background: none; color: var(--c-gold-pale); font: 700 20px/1.2 'Payitaht Profile Roman',Georgia,serif; }
 .game-shell.has-page .bp.bp-of-kisla .bp-tabs > button[aria-selected='true'] { border-image: var(--royal-tab-frame) 14 / 4px / 0 stretch; background: linear-gradient(var(--c-royal-active),var(--c-royal-active-deep)); box-shadow: none; }
@@ -70,7 +56,7 @@
 .game-shell.has-page .bp.bp-of-kisla .bp-dock .bp-costs { margin: 0 0 8px; }
 .game-shell.has-page .bp.bp-of-kisla .bp-upgrade-button { min-height: 50px; width: 100%; padding: 10px; border: 0 solid transparent; border-image: var(--royal-gold-button-frame) 12 / 5px / 0 stretch; border-radius: 0; background: linear-gradient(var(--c-gold-pale),var(--c-gold)); color: var(--c-ink); box-shadow: none; font: 700 18px/1.3 'Payitaht Profile Roman',Georgia,serif; }
 .game-shell.has-page .bp.bp-of-kisla .bp-up-time { font: 13px/1.4 Georgia,serif; }
-@media (min-width: 650px) { .game-shell.has-page .bp.bp-of-kisla .bp-hero.bp-scene { height: 260px; min-height: 260px; } .game-shell.has-page .bp.bp-of-kisla .unit-gallery > .unit-tile { flex-basis: 124px; } }
+@media (min-width: 650px) { .game-shell.has-page .bp.bp-of-kisla .unit-gallery > .unit-tile { flex-basis: 124px; } }
 
 .game-shell.has-page .bp.bp-of-kisla .bp-dock .bp-costs { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
 .game-shell.has-page .bp.bp-of-kisla .bp-dock .bp-costs li { padding: 0; border: 0; border-radius: 0; background: none; }
@@ -79,13 +65,11 @@
 .game-shell.has-page .bp.bp-of-kisla .bp-dock-label { text-transform: none; letter-spacing: 0; }
 .game-shell.has-page .bp.bp-of-kisla .unit-battle span { border: 0; border-radius: 0; padding: 0; background: none; }
 .game-shell.has-page .bp.bp-of-kisla .bp-upgrade-button:disabled { filter: none; opacity: .65; }
-.game-shell.has-page .bp.bp-of-kisla > .bp-bar > .bp-help { display: grid; }
 .game-shell.has-page .bp.bp-of-kisla .unit-card::before { display: none; }
 .game-shell.has-page .bp.bp-of-kisla .unit-portrait { width: 64px; height: 72px; border-radius: 0; border-color: var(--c-gold-deep); background: var(--royal-wood); }
 .game-shell.has-page .bp.bp-of-kisla .unit-role { padding: 0; border: 0; border-radius: 0; background: none; }
 .game-shell.has-page .bp.bp-of-kisla .unit-have { min-width: 0; padding: 4px; border: 1px solid var(--c-gold-deep); border-radius: 0; background: none; }
 .game-shell.has-page .bp.bp-of-kisla :is(.unit-stats,.unit-battle) { border-radius: 0; }
-.game-shell.has-page .bp.bp-of-kisla :is(.bp-help,.unit-role) :is(svg,.painted-icon) { filter: sepia(1) saturate(.6); }
 .game-shell.has-page .bp.bp-of-kisla .army-summary > div { display: grid; grid-template-columns: 28px minmax(0,1fr); gap: 4px 8px; padding: 10px 0; border: 0; border-bottom: 1px solid var(--c-gold-deep); border-radius: 0; background: none; color: var(--c-ink); }
 .game-shell.has-page .bp.bp-of-kisla .army-summary > div > :is(svg,.painted-icon) { grid-row: 1/3; align-self: center; }
 .game-shell.has-page .bp.bp-of-kisla .army-summary > div > span { font: 14px/1.4 Georgia,serif; overflow-wrap: normal; }
@@ -105,10 +89,6 @@
 .game-shell.has-page .bp.bp-of-kisla .army-more .term-btn { padding: 4px; border: 0; border-bottom: 1px solid var(--c-gold-deep); border-radius: 0; background: none; color: var(--c-ink); }
 
 /* Space belongs to play: upgrade is in Development, courtyard opens on demand. */
-.game-shell.has-page .bp.bp-of-kisla .barracks-appearance { margin: 0; border: 0; background: var(--royal-wood); color: var(--c-gold-pale); }
-.game-shell.has-page .bp.bp-of-kisla .barracks-appearance > summary { min-height: 48px; padding: 12px 14px; cursor: pointer; font: 700 17px/1.4 'Payitaht Profile Roman',Georgia,serif; border-bottom: 1px solid var(--c-gold-deep); }
-.game-shell.has-page .bp.bp-of-kisla .barracks-appearance > summary > span { float: right; font: 14px/1.6 Georgia,serif; }
-.game-shell.has-page .bp.bp-of-kisla:not(.show-help) .bp-desc { display: none; }
 .game-shell.has-page .bp.bp-of-kisla .bp-tabs { position: sticky; top: 0; z-index: 3; }
 .game-shell.has-page .bp.bp-of-kisla .bp-tabpanel > .bp-dock { margin: 0 0 18px; }
 .game-shell.has-page .bp.bp-of-kisla:not(.show-help) .unit-top > span:nth-child(2) > small { display: none; }

@@ -9,7 +9,6 @@ import { Swords } from './ui-art'
 export { CityAdvisor } from './royal-vizier'
 import { GameButton } from './game-button'
 import {
-  researchReason, RESEARCH_IDS,
   timeLeft, type Game,
 } from '@/lib/game/engine'
 import { type Empire } from '@/lib/game/empire'
@@ -27,12 +26,7 @@ function armyAdvice(e: Empire, g: Game) {
   if (g.buildings.divan >= 4 && g.buildings.surlar < 2) return 'Korsanlar yakında şehre göz dikecek. Surları yükseltmenin vakti.'
   return 'Ordu hazır. Casus gönderip komşuları tartabilir, zayıf olanı yağmalayabiliriz.'
 }
-export function researchAdvice(g: Game) {
-  if (!g.buildings.medrese) return 'Bir Medrese kurulmadan ilim ilerlemez efendim.'
-  if (g.study) return 'Âlimler çalışıyor. Bitince bir sonrakini seçelim.'
-  if (RESEARCH_IDS.some(id => !researchReason(g, id))) return 'Âlimler boşta! Yeni bir araştırma seçmenin vakti geldi.'
-  return 'Yeni araştırma için ilim birikmesini bekliyoruz. Âlim sayısını artırmak hızlandırır.'
-}
+export { researchAdvice } from '@/lib/game/research-advice'
 export { diploAdvice } from './advisor-advice'
 
 export function ArmyAdvisor({ empire, game, run, onArmy }: { empire: Empire; game: Game; run: Run; onArmy: () => void }) {

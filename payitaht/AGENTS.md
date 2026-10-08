@@ -10,6 +10,8 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 # Payitaht Adaları — ajanlar için
 
+**9 Ekim 0.71.0 / SW81 düzeltmesi:** Halk ve âlim ortak `ui/people/` portreleri; ilim/süre ortak yeni WebP. Bina detaylarında yapı/seviye önizlemeleri ve üst bilgi düğmeleri kaldırıldı; yön/taşı/yık Gelişim'de. Yükseltme başlığı ortalı, Onayla/Geri al eşit. Kristal deneyleri gerçek harcama/kazanımı, Âlimin önerisi güncel duruma göre uygun araştırmayı anlatır. `docs/MEDRESE-DESIGN-MEMORY.md` başındaki son kurallar eski avlu tariflerini değiştirir.
+
 **8 Ekim son genel onay:** Kullanıcı kışlanın 0.69.0 son halini oyunun tasarım standardı kabul etti. Yeni sayfalarda önce `docs/MASTER-UI-STANDARD.md`; Medrese/araştırma için `docs/MEDRESE-DESIGN-MEMORY.md` okunur. Mekanik/HUD korunur, Gelişim’de eylem önce gelir.
 
 - **Güncel sıra:** Kullanıcının 5 Ekim ‘oyunun geneline sırayla başla’ talebiyle ortak onaylı dil kalan ekranlara uygulanır. İlk bölüm Vezir, 0.57.0 / SW54; Gündem, Şehirler, Haberler. Kullanıcının sonraki ‘devam’ talebiyle Elçi/İttifak 0.58.0 / SW55. Kullanıcının 6 Ekim devam talebiyle Divanhane/Elçilik 0.59.0 / SW56: yönetim ve casusluk ayrı defterler, resimli şehir meydanı. Sonraki bölüm Saray/Valilik, ardından üretim ve askerî yapılar. Bir bölüm tamamlanınca yayın ve gerçek ekran görüntüleriyle kullanıcı değerlendirmesinde dur.

@@ -1,3 +1,5 @@
+**9 Ekim 0.71.0:** Kullanıcı yapı görünümü/seviye önizleme galerilerini bütün bina detaylarından kaldırdı; kışla da dahildir. Gelişim’de görselsiz yapı işlemleri kalır. Yükseltme gereksinimi başlığı ortalı. Mevcut ordu çizimi, portreler, kontrol atlası ve HUD korunur.
+
 Kullanıcı 8 Ekim 23:21’de 0.69.0 tasarımını oyunun genel standardı kabul etti. `MASTER-UI-STANDARD.md` geçerlidir.
 
 ## Son ayrıntı düzeltmesi — 0.69.0 / SW79

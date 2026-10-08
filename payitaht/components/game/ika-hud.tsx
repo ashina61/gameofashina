@@ -178,7 +178,7 @@ export function IkaTopBar({ game, empire, news, modes, activeAdvisor, onCity, on
           data-advisor={id} data-news={news[id]} className={cn('ika-advisor', news[id] > 0 && 'ika-advisor-news', activeAdvisor === id && 'ika-advisor-active')}
           onClick={() => onAdvisor(id)} aria-pressed={activeAdvisor === id}
           aria-label={`${ADVISORS[id].title} (${ADVISORS[id].name})${news[id] ? `: ${news[id]} haber` : ''}`}>
-          <span className="ika-advisor-ring" aria-hidden="true" style={{ backgroundImage: `url("${asset(`/images/game/ui/reference-bars/${id}.webp`)}")` }} />
+          <span className="ika-advisor-ring" aria-hidden="true" style={{ backgroundImage: `url("${asset(id === 'research' ? '/images/game/ui/people/scholar.webp' : `/images/game/ui/reference-bars/${id}.webp`)}")` }} />
           <small className="ika-advisor-name" aria-hidden="true">{ADVISORS[id].name}</small>
           {news[id] > 0 && <Badge n={news[id]} mode={modes?.[id] ?? 'count'} />}
         </button>)}

@@ -178,8 +178,7 @@
   overflow: hidden;
   text-overflow: ellipsis;
 }
-.game-shell.has-page .bp-building:not(.bp-royal) .bp-back,
-.game-shell.has-page .bp-building:not(.bp-royal) .bp-help {
+.game-shell.has-page .bp-building:not(.bp-royal) .bp-back {
   flex: 0 0 44px;
   width: 44px;
   height: 44px;
@@ -196,79 +195,6 @@
   background:
     radial-gradient(circle at 50% 12%, #fff7, transparent 34%),
     linear-gradient(180deg, #ddc89b, #f0e4c5 28%, #e7d6ae);
-}
-.game-shell.has-page .bp-building:not(.bp-royal) .bp-hero.bp-scene {
-  height: clamp(244px, 34dvh, 318px);
-  margin: 0;
-  border: 0;
-  border-bottom: 1px solid color-mix(in srgb, var(--c-gold-deep) 48%, transparent);
-  border-radius: 0;
-  box-shadow: inset 0 -28px 30px #2c210f1f;
-}
-.game-shell.has-page .bp-building:not(.bp-royal) .bp-hero.bp-scene::after {
-  content: '';
-  position: absolute;
-  z-index: 1;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  height: 56px;
-  pointer-events: none;
-  background: linear-gradient(180deg, transparent, #5d42273d);
-}
-.game-shell.has-page .bp-building:not(.bp-royal) .bp-hero-art,
-.game-shell.has-page .bp-building:not(.bp-royal) .bp-hero.bp-scene .building-art {
-  max-width: min(78%, 430px);
-  height: 84%;
-  filter: drop-shadow(0 12px 10px #2d24194b);
-}
-.game-shell.has-page .bp-building:not(.bp-royal) .bp-plaque {
-  z-index: 4;
-  bottom: 10px;
-  filter: drop-shadow(0 5px 8px #0005);
-}
-.game-shell.has-page .bp-building:not(.bp-royal) .bp-hero-tools {
-  z-index: 5;
-  right: 8px;
-  top: 8px;
-  gap: 6px;
-}
-.game-shell.has-page .bp-building:not(.bp-royal) .bp-hero-tools button {
-  min-width: 44px;
-  min-height: 44px;
-  padding: 5px 8px;
-  border: 1px solid color-mix(in srgb, var(--c-gold) 45%, transparent);
-  border-radius: 12px;
-  background: color-mix(in srgb, var(--c-wood-dark) 82%, transparent);
-  color: var(--c-cream);
-  box-shadow: 0 4px 12px #0006;
-  backdrop-filter: blur(7px);
-}
-.game-shell.has-page .bp-building:not(.bp-royal) .bp-hero-tools button span { font-size: 10px; }
-.game-shell.has-page .bp-building:not(.bp-royal) .bp-hero-tools button :is(svg, .painted-icon) { width: 19px; height: 19px; }
-.game-shell.has-page .bp-building:not(.bp-royal) .bp-stages {
-  left: 8px;
-  bottom: 8px;
-  z-index: 5;
-  gap: 5px;
-}
-.game-shell.has-page .bp-building:not(.bp-royal) .bp-stages button {
-  width: 58px;
-  min-height: 48px;
-  padding: 2px;
-  border-radius: 10px;
-  background: color-mix(in srgb, var(--c-paper) 88%, transparent);
-  box-shadow: 0 3px 8px #0004;
-}
-.game-shell.has-page .bp-building:not(.bp-royal) .bp-stages button img { height: 30px; }
-.game-shell.has-page .bp-building:not(.bp-royal) .bp-stages button span { font-size: 9px; }
-.game-shell.has-page .bp-building:not(.bp-royal) .bp-desc {
-  margin: 10px var(--bp-pad) 8px;
-  padding: 0 2px 10px;
-  border-bottom: 1px solid color-mix(in srgb, var(--c-parch-edge) 50%, transparent);
-  font-size: 13px;
-  line-height: 1.48;
-  color: var(--c-ink-muted);
 }
 .game-shell.has-page .bp-building:not(.bp-royal) .bp-tabs {
   position: sticky;
@@ -344,7 +270,6 @@
 .game-shell.has-page .bp-building:not(.bp-royal) .term-btn { min-height: 32px; }
 
 /* Kışla stays a showcase but follows the exact same chrome rules. */
-.game-shell.has-page .bp-of-kisla .barracks-ribbon { margin-inline: var(--bp-pad); }
 
 /* ========================================================================
  * ROYAL / PROFILE / SETTINGS / SANCAKTAR — same spacing, material and scale.
@@ -532,8 +457,6 @@
 @media (max-width: 390px) {
   .game-shell.has-building-preview .building-inspector-summary { grid-template-columns: 78px minmax(0,1fr); }
   .game-shell.has-building-preview .building-inspector-summary > img { width: 78px; height: 78px; }
-  .game-shell.has-page .bp-building:not(.bp-royal) .bp-hero.bp-scene { height: clamp(226px, 31dvh, 276px); }
-  .game-shell.has-page .bp-building:not(.bp-royal) .bp-stages button { width: 54px; }
   .game-shell.has-page .royal-profile-scene { min-height: 218px; }
   .game-shell.has-page .royal-summary > span { padding-inline: 4px; }
 }
@@ -541,7 +464,6 @@
   .game-shell.has-building-preview .building-inspector { width: calc(100vw - 8px); }
   .game-shell.has-page .bp-building:not(.bp-royal) { --bp-pad: 8px; }
   .game-shell.has-page .bp-building:not(.bp-royal) .bp-title h1 { font-size: 20px; }
-  .game-shell.has-page .bp-building:not(.bp-royal) .bp-hero.bp-scene { height: 222px; }
   .game-shell.has-page .bp-building:not(.bp-royal) .bp-dock { width: calc(100vw - 8px); }
   .game-shell.has-page .court-tab-body { padding: 8px; }
   .game-shell.has-page .royal-section { padding: 10px; }

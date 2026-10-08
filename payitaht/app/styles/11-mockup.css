@@ -5,19 +5,6 @@
  * ========================================================================= */
 
 /* Bina sahnesi: gök, uzak tepeler, çimen (kıyı binasında sığ su), iki yanda ağaç. */
-.bp-building .bp-hero.bp-scene { height: clamp(230px, 31vh, 290px); isolation: isolate;
-  background: linear-gradient(180deg, #9ec8de 0%, #cfe3e6 34%, #f1dfb4 52%, #b9c98a 53%, #8eab5c 100%); }
-.bp-scene-back { position: absolute; inset: 0; z-index: -1; pointer-events: none;
-  background:
-    var(--scene-left) no-repeat 3% 88% / auto 62%,
-    var(--scene-right) no-repeat 97% 92% / auto 58%,
-    radial-gradient(70% 34% at 50% 86%, #5a3a1a33, transparent 72%),
-    var(--scene-hills) no-repeat 50% 44% / 150% auto; }
-.bp-scene-back::after { content: ''; position: absolute; inset: 52% 0 0; z-index: -1;
-  background: var(--scene-grass) repeat 0 0 / 160px 160px;
-  -webkit-mask-image: linear-gradient(180deg, transparent 0, #000 22%); mask-image: linear-gradient(180deg, transparent 0, #000 22%); }
-.bp-scene.is-coast .bp-scene-back::after { background-image: var(--scene-water); background-size: 200px 200px; inset: 60% 0 0; }
-.bp-building .bp-hero.bp-scene .building-art { height: 82%; max-width: 74%; }
 
 /* Yükseltme doku: solda gelecek görünümün küçük resmi. */
 .bp-dock.has-thumb { grid-template-columns: 64px minmax(0, 1fr); column-gap: 10px; }
