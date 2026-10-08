@@ -106,12 +106,7 @@
 .rs-scroll::before, .rs-scroll::after { content: ''; position: absolute; left: -4px; right: -4px; height: 10px; border-radius: 6px;
   background: linear-gradient(180deg, var(--c-brown-soft), var(--c-brown) 60%, var(--c-brown-deep)); box-shadow: 0 2px 3px #3a231055; }
 .rs-scroll::before { top: -5px; } .rs-scroll::after { bottom: -5px; }
-.rs-tree, .rs-kids { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
-.rs-kids { position: relative; margin: 6px 0 0 22px; padding-left: 14px; }
-.rs-kids::before { content: ''; position: absolute; left: 0; top: -6px; bottom: 26px; width: 3px; border-radius: 3px; background: var(--c-tan-border); }
-.rs-kids > li { position: relative; }
-.rs-kids > li::before { content: ''; position: absolute; left: -14px; top: 26px; width: 14px; height: 3px; border-radius: 3px; background: var(--c-tan-border); }
-.rs-kids > li.is-done::before, .rs-tree li.is-done > .rs-kids::before { background: var(--c-gold-deep); }
+.rs-tree { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
 /* Dal sekmeleri: dal renginde asılı sancaklar. */
 .rs-strip { padding-bottom: 8px; }
 .rs-strip button { min-height: 58px; min-width: 88px; padding: 7px 12px 16px; border-radius: 4px 4px 0 0; border: 1px solid var(--c-gold-deep); color: var(--c-cream);

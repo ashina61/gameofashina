@@ -5,6 +5,7 @@
 export type Release = { version: string; date: string; title: string; notes: string[] }
 
 export const CHANGELOG: Release[] = [
+  { version: '0.70.0', date: '8 Ekim 2026', title: 'Medrese ve ilim defteri', notes: ['Onaylı ortak Osmanlı arayüz standardı Medrese, beş araştırma dalı, deneyler ve gelecek araştırmalarına uygulandı.', 'Yeni boyalı kütüphane ve âlim portreleri; aynı işlemeli çerçeve, kırmızı eylem ve madalyonlu âlim atama barı.', 'Yükseltme Gelişim’de ilk sırada; üretim/maaş defteri ve yapı araçları normal akışta. Araştırma şartları, maliyetler ve süreler korunur.'] },
   { version: '0.69.0', date: '8 Ekim 2026', title: 'Kışla referansının son ayrıntıları', notes: ['16 birliğin tamamında aynı yakın plan resim ve altın köşeli çerçeve; bilgi ve kuyrukta eski figüre dönüş yok.', 'Referanstan boyalı +/−, Maks. çerçevesi, sürgü madalyonu, Gelişim simgesi ve süslü bölüm başlıkları.', 'Üretim kuyruğu portre, kalan süre ve ahşap/altın ilerleme çubuğuyla düzenlendi; yükseltme Gelişim başında kalır.'] },
   { version: '0.68.1', date: '8 Ekim 2026', title: 'Kışlada önce yükseltme', notes: ['Gelişim sekmesinde yükseltme gereksinimleri ve düğmesi en üstte; seviye etkisi ve sonraki maliyetler altında okunur.'] },
   { version: '0.68.0', date: '8 Ekim 2026', title: 'Kışlada çizimin gerçek malzemeleri', notes: ['Onaylı çizimden yakın plan asker portreleri, işlemeli pirinç çerçeveler, temiz parşömen ve kırmızı kumaş eğitim düğmesi.', 'Gelişim, eğitim sırası ve ordu bilgileri aynı görsel dilde; dikey birlik listesi ve yatay adet barı korunur.'] },

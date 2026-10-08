@@ -1,3 +1,5 @@
+Kullanıcı 8 Ekim 23:21’de 0.69.0 tasarımını oyunun genel standardı kabul etti. `MASTER-UI-STANDARD.md` geçerlidir.
+
 ## Son ayrıntı düzeltmesi — 0.69.0 / SW79
 
 Kullanıcı 0.68.1'de eksik parçaları belirtti: sade sürgü/düğmeler, Gelişim ikonu ve Birlikler süslerinin yokluğu, bazı portrelerin altın köşesiz oluşu, bilgi/kuyrukta eski figürler ve farklı kuyruk düzeni. Bu eksikler artık varsayılan olarak kabul edilmez.

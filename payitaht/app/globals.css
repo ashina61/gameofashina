@@ -47,6 +47,7 @@
 @import './styles/47-court-controls.css';
 @import './styles/48-mandates-register.css';
 @import './styles/49-barracks-register.css';
+@import './styles/50-academy-register.css';
 
 @custom-variant dark (&:is(.dark *));
 @theme inline {

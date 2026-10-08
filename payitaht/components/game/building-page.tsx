@@ -1,5 +1,5 @@
 'use client'
-import { YolsuzlukArt, KumSaatiArt } from './resource-art'
+import { IlimArt, YolsuzlukArt, KumSaatiArt } from './resource-art'
 import { Term } from './term'
 import { flyGoods } from '@/lib/fx'
 
@@ -120,7 +120,7 @@ function Workers({ game, id, unit, perWorker, onCommand }: { game: Game; id: Wor
   const at = (n: number) => rates({ ...game, workers: { ...game.workers, [id]: n } })[w.res]
   return <WorkforceSlider label={unit} figure={w.figure} value={game.workers[id]} cap={workerCapacity(game, id)} idle={idleWorkers(game)}
     preview={n => { const v = at(n); return { amount: v, icon: <Icon className="workforce-icon" />, text: <><b>{w.res === 'knowledge' ? formatRate(v) : num(v)}</b> {w.unit}/dk</> } }}
-    onCommit={n => onCommand({ type: 'workers', id, value: n })} note={perWorker} />
+    onCommit={n => onCommand({ type: 'workers', id, value: n })} note={perWorker} idleArt={id === 'medrese' ? <img className="academy-citizen" src={asset('/images/game/ui/medrese/student.webp')} alt="" width={46} height={62} /> : undefined} />
 }
 
 /** TİCARET FİLOSU (Ikariam gibi): gemiler satın alınır, bütün şehirler ortak kullanır. */
@@ -226,12 +226,13 @@ function BuildingView({ game, empire, id, onCommand, onRecruit, onNav, onBuildin
       const study = game.study
       return <>
         <Box title="Âlimler">
+          <div className="academy-research-link"><GameButton size="sm" onClick={() => onNav('research')}>Araştırmalara git<ChevronRight data-icon="inline-end" /></GameButton></div>
           <Workers game={game} id="medrese" unit="Âlim" perWorker="Her âlim saatte 9 akçe maaş alır." onCommand={onCommand} />
-          <Table rows={[
+          <details className="academy-ledger"><summary>İlim üretimi ve maaşlar</summary><Table rows={[
             ['İlim üretimi', <strong key="k">{formatRate(r.knowledge)} /dk</strong>],
             ['Âlim maaşı', `${num(scientistUpkeepPerMinute(game) * 60)} akçe/saat`],
             ['Tamamlanan araştırma', `${game.research.length}`],
-          ]} />
+          ]} /></details>
         </Box>
         <Box title="Araştırma">
           {study ? <div className="bp-study">
@@ -240,7 +241,6 @@ function BuildingView({ game, empire, id, onCommand, onRecruit, onNav, onBuildin
               <JobProgress job={study} now={game.updatedAt} /></div>
           </div>
             : <div className="bp-study is-idle"><PersonArt kind="alim" size={52} /><p className="bp-note">Şu an araştırma yok. Âlimler yeni bir konu bekliyor.</p></div>}
-          <GameButton size="sm" onClick={() => onNav('research')}>Araştırmalara git<ChevronRight data-icon="inline-end" /></GameButton>
         </Box>
       </>
     }
@@ -400,6 +400,7 @@ export function BuildingPage({ game, empire, id, onClose, onBuild, onFlip, onMov
   const nextFacing = facing === 'straight' ? 'right' : facing === 'right' ? 'left' : 'straight'
   const barracksScene = id === 'kisla' && (peek === null || peek === stage)
   const showTab = hasWork ? tab : 'gelisim'
+  const royalWork = id === 'kisla' || id === 'medrese'
   if (id === 'divan' || id === 'elcilik') return <IkaPage title={b.name} label={`${b.name} sayfası`} onClose={onClose}
     className={`bp-building bp-of-${id} bp-court bp-royal bp-management${help ? ' show-help' : ''}`}
     badge={<button type="button" className="bp-help" aria-pressed={help} onClick={() => setHelp(v => !v)} aria-label={help ? 'Açıklamaları gizle' : 'Nasıl işler? Açıklamaları göster'}><Info /></button>}
@@ -438,31 +439,33 @@ export function BuildingPage({ game, empire, id, onClose, onBuild, onFlip, onMov
         </div>}
       </section>
   )
-  return <IkaPage toolbar={id === 'kisla' ? undefined : toolbar} title={b.name} subtitle={`${city} · ${b.category.toLocaleLowerCase('tr')}`} label={`${b.name} sayfası`} onClose={onClose}
-    className={`bp-building bp-of-${id}${id === 'kisla' ? ' bp-royal' : ''}${help ? ' show-help' : ''}`}
+  return <IkaPage toolbar={royalWork ? undefined : toolbar} title={b.name} subtitle={`${city} · ${b.category.toLocaleLowerCase('tr')}`} label={`${b.name} sayfası`} onClose={onClose}
+    className={`bp-building bp-of-${id}${royalWork ? ' bp-royal' : ''}${help ? ' show-help' : ''}`}
     badge={<button type="button" className="bp-help" aria-pressed={help} onClick={() => setHelp(v => !v)} aria-label={help ? 'Açıklamaları gizle' : 'Nasıl işler? Açıklamaları göster'}><Info /></button>}
-    footer={id === 'kisla' ? undefined : <UpgradeDock game={game} id={id} onBuild={onBuild} />}>
-      {id !== 'kisla' && buildingScene}
+    footer={royalWork ? undefined : <UpgradeDock game={game} id={id} onBuild={onBuild} />}>
+      {!royalWork && buildingScene}
       {id === 'kisla' && <figure className="barracks-banner">
         <img src={asset('/images/game/ui/barracks/courtyard.webp')} alt="Osmanlı kışlasının sancaklı eğitim avlusu" />
         <figcaption>Seviye {level}</figcaption>
       </figure>}
+      {id === 'medrese' && <figure className="academy-banner"><img src={asset('/images/game/ui/medrese/library.webp')} alt="Osmanlı medresesinde ilim meclisi" /><figcaption>Seviye {level}</figcaption></figure>}
       {razing && <DemolishConfirm game={game} id={id} onCommand={onCommand} onClose={() => setRazing(false)} />}
       <p className="bp-desc" onClick={() => setHelp(true)}>{b.description}</p>
       {hasWork && <div className="bp-tabs" role="tablist" aria-label={`${b.name} bölümleri`}>
-        <button type="button" role="tab" aria-selected={showTab === 'yapi'} onClick={() => setTab('yapi')}>{id === 'kisla' && <img className="barracks-tab-emblem" src={asset('/images/game/ui/barracks/army-medallion.webp')} alt="Yeniçeri börkü" width={32} height={32} />}{id === 'kisla' ? 'Kara ordusu' : b.name}</button>
-        <button type="button" role="tab" aria-selected={showTab === 'gelisim'} onClick={() => setTab('gelisim')}>{id === 'kisla' && <img className="barracks-development-icon" src={asset('/images/game/ui/barracks/development-icon.webp')} alt="" width={32} height={32} />}Gelişim</button>
+        <button type="button" role="tab" aria-selected={showTab === 'yapi'} onClick={() => setTab('yapi')}>{id === 'kisla' && <img className="barracks-tab-emblem" src={asset('/images/game/ui/barracks/army-medallion.webp')} alt="Yeniçeri börkü" width={32} height={32} />}{id === 'medrese' && <IlimArt className="size-6" />}{id === 'kisla' ? 'Kara ordusu' : id === 'medrese' ? 'İlim meclisi' : b.name}</button>
+        <button type="button" role="tab" aria-selected={showTab === 'gelisim'} onClick={() => setTab('gelisim')}>{royalWork && <img className="barracks-development-icon" src={asset('/images/game/ui/barracks/development-icon.webp')} alt="" width={32} height={32} />}Gelişim</button>
       </div>}
       <div ref={workRef} className="bp-tabpanel" hidden={showTab !== 'yapi'}>
         <BuildingView game={game} empire={empire} id={id} onCommand={onCommand} onRecruit={onRecruit} onNav={onNav} onBuildingNav={onBuildingNav} run={run} />
         {children}
       </div>
       <div className="bp-tabpanel" hidden={showTab !== 'gelisim'}>
-      {id === 'kisla' && <UpgradeDock game={game} id={id} onBuild={onBuild} />}
+      {royalWork && <UpgradeDock game={game} id={id} onBuild={onBuild} />}
       {id === 'kisla' && <details className="barracks-appearance">
         <summary className="barracks-ribbon">Avlu ve yapı görünümü <span>{level ? `Seviye ${level}` : 'Kurulmadı'}</span></summary>
         {buildingScene}
       </details>}
+      {id === 'medrese' && <details className="academy-appearance"><summary>Avlu ve yapı görünümü</summary>{buildingScene}</details>}
       <Box title="Seviye etkisi"><BuildingEffects game={game} id={id} level={level} max={max} /></Box>
       {forecast.length > 0 && <Box title="Sonraki seviyeler">
         <Table head={['Sv.', 'Maliyet', 'Süre']} rows={forecast.map(f => [

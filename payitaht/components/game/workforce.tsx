@@ -9,6 +9,7 @@ import { useEffect, useState, type ReactNode } from 'react'
 import { Check, ChevronsLeft, ChevronsRight, Minus, Plus, Undo2 } from './ui-art'
 import { GameButton } from './game-button'
 import { formatRate } from '@/lib/game/engine'
+import { asset } from '@/lib/asset'
 import { t } from '@/lib/i18n/tr'
 
 export type Figure = 'halk' | 'oduncu' | 'tasci' | 'alim' | 'esnaf' | 'madenci' | 'rahip'
@@ -17,6 +18,7 @@ const INK = '#2e1c0e'
 const SKIN = '#e8b98a'
 /** Ayakta duran küçük figür: başlık, cübbe ve elindeki alet mesleği anlatır. */
 export function PersonArt({ kind, size = 64 }: { kind: Figure; size?: number }) {
+  if (kind === 'alim') return <img className="person-art academy-scholar" src={asset('/images/game/ui/medrese/scholar.webp')} alt="" width={size} height={size * 80 / 60} />
   const look: Record<Figure, { robe: string; sash: string; hat: ReactNode; tool: ReactNode }> = {
     halk: { robe: '#4f7fa8', sash: '#e2bd78',
       hat: <path d="M23 13 l1.5 -8 h11 l1.5 8 Z" fill="#b3261e" stroke={INK} strokeWidth="1.2" />, tool: null },
@@ -57,7 +59,7 @@ export function PersonArt({ kind, size = 64 }: { kind: Figure; size?: number }) 
   </svg>
 }
 
-export function WorkforceSlider({ label, figure, value, cap, idle, preview, onCommit, note }: {
+export function WorkforceSlider({ label, figure, value, cap, idle, preview, onCommit, note, idleArt }: {
   label: string
   figure: Figure
   value: number
@@ -67,6 +69,7 @@ export function WorkforceSlider({ label, figure, value, cap, idle, preview, onCo
   preview: (n: number) => { amount: number; text: ReactNode; icon?: ReactNode }
   onCommit: (n: number) => void
   note?: ReactNode
+  idleArt?: ReactNode
 }) {
   const [draft, setDraft] = useState(value)
   useEffect(() => setDraft(value), [value])
@@ -80,7 +83,7 @@ export function WorkforceSlider({ label, figure, value, cap, idle, preview, onCo
   return <div className="workforce">
     <div className="workforce-stage">
       <div className="workforce-side">
-        <PersonArt kind="halk" size={46} />
+        {idleArt ?? <PersonArt kind="halk" size={46} />}
         <strong>{freeAfter}</strong><small>Boştaki halk</small>
       </div>
       <div className="workforce-mid">

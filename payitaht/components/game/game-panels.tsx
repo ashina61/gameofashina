@@ -146,7 +146,6 @@ export function ResearchPanel({ game, onResearch }: { game: Game; onResearch: (i
     <article className={`rs-detail is-${state}`}>
       <div className="rs-detail-top"><ResearchEmblem id={sel} size={72} state={state} />
         <span><span className="eyebrow">{RESEARCH_BRANCHES.find(b => b.key === branch)!.title.toLocaleUpperCase('tr')} · {ids.indexOf(sel) + 1}. ARAŞTIRMA</span><h3>{r.name}</h3></span></div>
-      <p className="rs-effect"><b>Etkisi:</b> {r.description}</p>
       <ul className="rs-needs">
         {r.needs && <li className={game.research.includes(r.needs) ? 'is-ok' : 'is-no'}>{game.research.includes(r.needs) ? <Check className="size-3" /> : <LockKeyhole className="size-3" />}{RESEARCH[r.needs].name}</li>}
         <li className={game.buildings.medrese >= r.required ? 'is-ok' : 'is-no'}>{game.buildings.medrese >= r.required ? <Check className="size-3" /> : <LockKeyhole className="size-3" />}Medrese {r.required}. seviye</li>
@@ -159,24 +158,23 @@ export function ResearchPanel({ game, onResearch }: { game: Game; onResearch: (i
       {state === 'done' ? <p className="report-win"><Check className="size-4" /> Keşfedildi</p>
         : <GameButton disabled={!!reason} data-guide="research" onClick={() => onResearch(sel)}><BookOpen data-icon="inline-start" />{state === 'active' ? 'Sürüyor' : 'Araştır'}</GameButton>}
       {reason && state !== 'done' && state !== 'active' && <p className="fine-print">{reason}</p>}
+      <p className="rs-effect"><b>Etkisi:</b> {r.description}</p>
     </article>
-    {/* Araştırma yolu: her dal bir sayfa; sayfalar yan yana, tek kaydırma dal değiştirir. Seçili düğüm büyür. */}
+    {/* Her dalın araştırmaları dikey defterde; ön koşul ve kilitler mevcut kurallardan gelir. */}
     <div className="rs-branches" ref={pager} onScroll={onPage}>{RESEARCH_BRANCHES.map(b => {
       const list = RESEARCH_IDS.filter(id => RESEARCH[id].branch === b.key)
-      // Ön koşul ağacı: aynı daldaki ön koşulun altında girintili dal; kökler parşömenin solunda.
-      const parent = (id: ResearchId) => { const n = RESEARCH[id].needs; return n && RESEARCH[n].branch === b.key ? n : undefined }
+      // Dikey defter: her satır kendi ön koşulunu ve mevcut kilidini gösterir.
       const node = (id: ResearchId): ReactNode => {
         const st = researchState(game, id), why = st === 'locked' ? researchReason(game, id) : null
         const note = st === 'done' ? 'Keşfedildi' : st === 'active' ? 'Âlimler çalışıyor' : why ?? `${RESEARCH[id].cost.toLocaleString('tr-TR')} ilim · ${RESEARCH[id].duration} sn`
-        const kids = list.filter(k => parent(k) === id)
         return <li key={id} className={`is-${st}`}><button type="button" aria-pressed={id === sel} className={`is-${st}`} onClick={() => setPicked(id)}>
           <span className="rs-node"><ResearchEmblem id={id} size={44} state={st} /><b className="rs-num" data-tiny>{list.indexOf(id) + 1}</b></span>
           <span className="rs-copy"><span className="rs-name">{RESEARCH[id].name}</span><small>{note}</small></span>
           {st === 'done' ? <Check className="rs-tick" aria-label="tamam" /> : st === 'locked' ? <LockKeyhole className="rs-tick" aria-label="kilitli" /> : null}
-        </button>{kids.length > 0 && <ul className="rs-kids">{kids.map(node)}</ul>}</li>
+        </button></li>
       }
       return <div key={b.key} className="rs-scroll" inert={b.key !== branch}>
-        <ul className="rs-list rs-tree" aria-label={`${b.title} araştırma ağacı`}>{list.filter(id => !parent(id)).map(node)}</ul>
+        <ul className="rs-list rs-tree" aria-label={`${b.title} araştırma defteri`}>{list.map(node)}</ul>
       </div>
     })}</div>
   </div>
