@@ -12,7 +12,7 @@ import { GameButton } from './game-button'
 import { NowNext } from './stat-kit'
 import { CostDisplay, JobProgress } from './game-widgets'
 import { BUILDINGS, BUILDING_IDS, MAX_LEVEL, RESEARCH, RESEARCH_IDS, RESEARCH_BRANCHES, UNITS, UNIT_IDS, activeJob, cargoCapacity, cityDefense, cost, duration, buildReason, power, rates, recruitReason, researchReason, scientistCount, scientistUpkeepPerMinute, idleWorkers, soldiers, takesPlot, tradeCapacity, unitCost, unitDuration, wallDefense, type BuildingId, type ResearchId, type ResearchBranch, type UnitId, type Game, formatRate } from '@/lib/game/engine'
-import { buildingImage } from '@/lib/asset'
+import { asset, buildingImage } from '@/lib/asset'
 import { capitalCity, colonyPalaceLevel, COLONY_COST, type Empire } from '@/lib/game/empire'
 import { LUXURY_IDS, LUXURY_NAMES, MINE_MAX_LEVEL, luxuryCost, luxuryProduction, merchantLimit, mineCapacity, mineUpgradeCost, unitLuxuryCost, wineServed, type Luxury } from '@/lib/game/engine'
 import { luxuryIcons } from './game-widgets'
@@ -238,6 +238,11 @@ function maxRecruit(game: Game, id: UnitId) {
  * bedeli akce degil, VATANDAS. Oyuncu bir birligi egitmeden once kac kisinin
  * bosta oldugunu gormezse, uretiminin nicin dustugunu anlamaz.
  */
+function BarracksPortrait({ id }: { id: UnitId }) {
+  if (id === 'yeniceri' || id === 'okcu' || id === 'sipahi') return <img className="barracks-painted-portrait" src={asset(`/images/game/ui/barracks/portrait-${id}.webp`)} alt="" width={211} height={156} />
+  return <UnitFigure id={id} size={76} />
+}
+
 export function ArmyPanel({ game, onRecruit, onBuild, home }: { game: Game; onRecruit: (id: UnitId, count: number) => void; onBuild: (id: BuildingId) => void; home?: BuildingId }) {
   const [pick, setPick] = useState<UnitId | null>(null)
   const land = power(game, 'kara')
@@ -272,7 +277,7 @@ export function ArmyPanel({ game, onRecruit, onBuild, home }: { game: Game; onRe
           return <section key={id} className={`barracks-entry${selected ? ' is-selected' : ''}${lock ? ' is-locked' : ''}`}>
             <button type="button" className="barracks-unit-toggle" aria-expanded={selected}
               aria-controls={`barracks-training-${id}`} onClick={() => setPick(id)}>
-              <UnitFigure id={id} size={52} />
+              <BarracksPortrait id={id} />
               <span><strong>{UNITS[id].name}</strong><small>Mevcut: {game.army[id]}{lock ? ` · Kilitli: ${lock}` : ''}</small></span>
               <span className="barracks-unit-chevron" aria-hidden="true">{selected ? '⌃' : '⌄'}</span>
             </button>
@@ -386,7 +391,7 @@ function DrillQueue({ game, home }: { game: Game; home?: BuildingId }) {
       const unit = UNITS[j.id as UnitId]
       const running = j.start <= now
       return <div key={`${j.id}-${j.start}-${i}`} className={`drill-job${running ? ' is-running' : ''}`}>
-        <UnitFigure id={j.id as UnitId} size={30} bare />
+        {home === 'kisla' ? <BarracksPortrait id={j.id as UnitId} /> : <UnitFigure id={j.id as UnitId} size={30} bare />}
         <span><strong>{j.count} {unit.name}</strong><small>{BUILDINGS[unit.home].name} · {running ? `bitiş ${clock(j.end - now)}` : `sırada · ${clock(j.start - now)} sonra başlar`}</small></span>
         {running && <span className="drill-bar"><i style={{ width: `${Math.min(100, (100 * (now - j.start)) / (j.end - j.start))}%` }} /></span>}
       </div>

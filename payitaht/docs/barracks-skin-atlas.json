@@ -1,0 +1,55 @@
+{
+  "source": "mockups/barracks-clean-skin.webp",
+  "approvedReference": "mockups/approved-barracks-vertical-slider.webp",
+  "note": "Text-free painted skin derived from approved layout; borders use nine-slice without filling portrait/text interiors. HUD excluded.",
+  "crops": {
+    "paper": [
+      300,
+      650,
+      400,
+      200
+    ],
+    "unit-frame": [
+      22,
+      563,
+      810,
+      398
+    ],
+    "portrait-yeniceri": [
+      43,
+      576,
+      211,
+      156
+    ],
+    "portrait-okcu": [
+      42,
+      978,
+      197,
+      110
+    ],
+    "portrait-sipahi": [
+      42,
+      1104,
+      197,
+      110
+    ],
+    "recruit-button": [
+      55,
+      1396,
+      743,
+      112
+    ],
+    "courtyard": [
+      4,
+      126,
+      845,
+      275
+    ],
+    "red-silk": [
+      200,
+      413,
+      190,
+      65
+    ]
+  }
+}

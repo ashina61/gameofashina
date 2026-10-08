@@ -1,3 +1,11 @@
+## Son kullanıcı düzeltmesi — 0.68.0 / SW77
+
+0.67.0 kullanıcı tarafından çizime benzemediği için reddedildi. Renklerin benzemesi yeterli değildir: yakın plan portre, işlemeli çerçeve, temiz açık parşömen ve kırmızı kumaş eylem doğrudan görsel malzemeyle uygulanır. Onaylı çizim hâlâ `mockups/approved-barracks-vertical-slider.webp`.
+
+`mockups/barracks-clean-skin.webp` bunun metinsiz uygulama atlasıdır; koordinatlar `barracks-skin-atlas.json`. Çerçevenin üst/sol kenarları portre içermeyen alt/sağ kenarlardan yansıtılır; içi doldurulmaz. Yeniçeri, okçu ve sipahi yakın plan portreleri ayrı assettir. Diğer birliklerin mevcut figürleri korunur. Tüm yazı, maliyet, süre, limit ve eğitim ilerlemesi gerçek HTML/oyun verisidir.
+
+Birlikler alt alta; sadece üretim adedi barı sağa sola sürüklenir. Gelişim, seviye etkisi/maliyet tablosu, yükseltme, birlik bilgisi, eğitim sırası, ordu durumu ve savaş meydanı aynı malzemeleri kullanır. Ana alt menünün Şehir/ Ada/Harita/İttifak/Görevler sekmeleri korunur; kabul edilmiş HUD dosyaları değiştirilmez. Bu görsel giydirme oyun kurallarını değiştirmez.
+
 # Güncel onay — dikey birlikler ve yatay adet barı, 8 Ekim 2026
 
 **0.67.0 / SW76.** Adem bu görseli onayladı ve uygulamaya geçirme/kalıcı kaydetme talimatı verdi: `mockups/approved-barracks-vertical-slider.webp`. Görseli açmadan sonraki değişikliği yapma. Aşağıdaki eski 0.66.1 galeri ve altın eğitim butonu tarifleri bu onayla değiştirilmiştir.

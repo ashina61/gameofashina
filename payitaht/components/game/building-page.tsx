@@ -418,7 +418,7 @@ export function BuildingPage({ game, empire, id, onClose, onBuild, onFlip, onMov
   const buildingScene = (
       <section className={`bp-hero bp-scene${coast ? ' is-coast' : ''}${barracksScene ? ' is-barracks-scene' : ''}`} style={SCENE_STYLE}>
         <span className="bp-scene-back" aria-hidden="true" />
-        {barracksScene ? <img className="barracks-courtyard" src={asset('/images/game/terrain/barracks-courtyard.webp')} alt="Ege kıyısındaki kışlanın sancaklı eğitim avlusu" fetchPriority="high" /> : b.art ? <BuildingArt key={`${shown}-${facing ?? 'default'}`} className="bp-hero-art" id={id} level={shown === 1 ? 1 : shown === 2 ? 4 : 8} facing={facing} alt={`${b.name} görünümü`} /> : <span className="bp-pending"><Hammer /></span>}
+        {barracksScene ? <img className="barracks-courtyard" src={asset('/images/game/ui/barracks/courtyard.webp')} alt="Ege kıyısındaki kışlanın sancaklı eğitim avlusu" fetchPriority="high" /> : b.art ? <BuildingArt key={`${shown}-${facing ?? 'default'}`} className="bp-hero-art" id={id} level={shown === 1 ? 1 : shown === 2 ? 4 : 8} facing={facing} alt={`${b.name} görünümü`} /> : <span className="bp-pending"><Hammer /></span>}
         {b.art && stages.length > 1 && <div className="bp-stages" role="group" aria-label="Seviyeye göre görünüm">
           {stages.map(([st, from, label]) => <button key={st} type="button" aria-pressed={shown === st} onClick={() => setPeek(st === stage ? null : st)}
             className={st === stage ? 'is-current' : level >= from ? 'is-reached' : 'is-locked'} aria-label={`${label} görünümü${st === stage ? ' (şu anki)' : ''}`}>
@@ -444,7 +444,7 @@ export function BuildingPage({ game, empire, id, onClose, onBuild, onFlip, onMov
     footer={id === 'kisla' ? undefined : <UpgradeDock game={game} id={id} onBuild={onBuild} />}>
       {id !== 'kisla' && buildingScene}
       {id === 'kisla' && <figure className="barracks-banner">
-        <img src={asset('/images/game/terrain/barracks-courtyard.webp')} alt="Osmanlı kışlasının sancaklı eğitim avlusu" />
+        <img src={asset('/images/game/ui/barracks/courtyard.webp')} alt="Osmanlı kışlasının sancaklı eğitim avlusu" />
         <figcaption>Seviye {level}</figcaption>
       </figure>}
       {razing && <DemolishConfirm game={game} id={id} onCommand={onCommand} onClose={() => setRazing(false)} />}

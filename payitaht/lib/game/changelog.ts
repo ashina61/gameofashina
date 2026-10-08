@@ -5,6 +5,7 @@
 export type Release = { version: string; date: string; title: string; notes: string[] }
 
 export const CHANGELOG: Release[] = [
+  { version: '0.68.0', date: '8 Ekim 2026', title: 'Kışlada çizimin gerçek malzemeleri', notes: ['Onaylı çizimden yakın plan asker portreleri, işlemeli pirinç çerçeveler, temiz parşömen ve kırmızı kumaş eğitim düğmesi.', 'Gelişim, eğitim sırası ve ordu bilgileri aynı görsel dilde; dikey birlik listesi ve yatay adet barı korunur.'] },
   { version: '0.67.0', date: '8 Ekim 2026', title: 'Kışlada dikey birlik defteri', notes: ['Birlikler alt alta açılan satırlarda; eğitim adedi sağa sola sürüklenen bar, sayı girişi ve yuvarlak kontrollerle seçilir.', 'Onaylanan Osmanlı çerçeveleri, ceviz–pirinç düğmeler ve kırmızı eğitim eylemi kullanılır. Kara ordusu sekmesinde yeniçeri simgesi vardır; Gelişim, HUD ve oyun hesapları korunur.'] },
   { version: '0.66.1', date: '8 Ekim 2026', title: 'Kışlada eğitim alanına yer açıldı', notes: ['Sabit yükseltme kutusu Gelişim sekmesine taşındı; avlu isteğe bağlı açılır. Kışla doğrudan birlik seçimi ve eğitim alanıyla açılır.', 'Tekrarlanan başlık ve bilgiler kaldırıldı, sekmeler kaydırırken erişilebilir kaldı. Oyun kuralları ve üst/alt bar korunur.'] },
   { version: '0.66.0', date: '8 Ekim 2026', title: 'Kışla eğitim defteri', notes: ['Kışlanın Kara ordusu ve Gelişim bölümleri ortak ceviz, altın ve parşömen diliyle yenilendi.', 'Birlik seçimi, eğitim kartı, sıra, ordu sicili ve yükseltme gereksinimleri daha okunaklı hale getirildi. Eğitim, maliyet, inşaat ve HUD mekanikleri korunur.'] },

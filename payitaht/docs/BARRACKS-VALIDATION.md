@@ -29,3 +29,11 @@ Güncel kanıtlar `docs/mockups/barracks-roomy-*.webp` içinde. 360/390/430/864 
 - Gerçek ekranlar: `mockups/barracks-approved-live-{360,390,430}.webp`, `mockups/barracks-approved-development.webp`. Onaylı tasarım `mockups/approved-barracks-vertical-slider.webp`; aynı tasarımın referansıdır, canlı screenshot olarak sunulmaz.
 - Genel `tools/layout-qa.cjs` de çalıştırıldı fakat tüm uygulama için yeşil değildir: değişmeyen HUD danışmanı/dar yapı önizlemeleri ve eski sabit yükseltme beklentileri hata verir. Kışla için bildirdiği dok hatası, Gelişim sekmesindeki gizli yükseltmenin eğitim ekranında görünmesini bekleyen eski kontroldür. Yeni kışlanın kendi taramasında hata yoktur; genel HUD bu işte değiştirilmedi.
 - Mockup'taki örnek sayılar veya sıra iptal düğmesi eklenmedi. Ekonomi, birlik şartları, eğitim süresi, araştırma/garnizon, kayıt biçimi ve kabul edilmiş HUD kaynakları değişmedi.
+
+## 0.68.0 — çizimin gerçek parçaları
+
+0.67.0 görsel benzerliği kullanıcı tarafından reddedildi. Yeni metinsiz atlas, yakın plan üç portre, temiz parşömen, işlemeli pirinç dokuz parçalı kart çerçevesi ve kırmızı kumaş eğitim düğmesi kullanıldı. Bina ve HUD oyun kuralları korunur; mevcut alt menünün beş sekmesine dokunulmadı.
+
+328 test geçti. TypeScript, ESLint, CSS/unused CSS, V2 kriterleri ve Pages için statik üretim geçti. Sentetik kayıtla 360/390/430×844 ilk eğitim, 390×844 eğitim sırası, açılan ordu durumu/savaş meydanı, Gelişim ve yükseltme kontrolleri: altı layout kategorisi boş. Adet barı 1→17; sayı girişinden 2 Yeniçeri eğitim emri gerçek sıraya eklendi. Kışla kapsamı için kontrol, bütün uygulama için yeni bir yeşil tarama iddiası değildir.
+
+Güncel gerçek ekranlar `mockups/barracks-approved-live-{360,390,430}.webp`, `mockups/barracks-approved-development.webp`, `mockups/barracks-painted-{queue,army,upgrade}.webp`. Referans çizimle aynı veri veya boy oranı iddia edilmez: telefon ekranında gerçek HUD, tarayıcı alanı ve oyun verileri kullanılır. Eski sürümün yalnız renklerle benzerlik iddiası geçersizdir.

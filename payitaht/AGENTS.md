@@ -41,3 +41,7 @@ Kullanıcı 0.66.0 kışla düzenini dar buldu: eğitim ekranında sabit yüksel
 ## Kışla için en son onay (8 Ekim, 0.67.0 / SW76)
 
 `docs/BARRACKS-DESIGN-MEMORY.md` başındaki yeni onay ve `docs/mockups/approved-barracks-vertical-slider.webp` geçerlidir. Birlikler alt alta, seçili satırda eğitim; yalnız adet barı yatay sürüklenir. Yuvarlak ceviz/pirinç kontroller, işlemeli ortak çerçeveler, kırmızı askerî eğitim düğmesi ve yeniçeri/börk sekme simgesi. Eski yatay galeri tarifine dönme. Gelişim ve HUD korunur.
+
+## Kışlanın görsel düzeltmesi — 0.68.0 / SW77
+
+Kullanıcı 0.67.0 ekranını çizime benzemediği için reddetti. `docs/BARRACKS-DESIGN-MEMORY.md` başındaki 0.68.0 düzeltmesi geçerlidir: gerçek portreler ve atlas çerçeveleri, bütün alt bölümler, mevcut alt HUD. Sadece renk benzerliğine dayanarak tasarıma uygunluk iddia etme.
