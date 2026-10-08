@@ -20,3 +20,12 @@ Ana eğitim kaydırıcısı 390×844 ölçüsünde 584 px. Sabit yükseltme kald
 Güncel kanıtlar `docs/mockups/barracks-roomy-*.webp` içinde. 360/390/430/864 px, normal/%130 metin, eğitim adedi/sıra, kilitli birlik, ordu sicili, Gelişim, avlu/yardım, görünüm ve kapatma yeniden kontrol edildi. Kaynakları yeterli ikinci deneme kaydında yükseltme Gelişim'den başlatıldı; Ustalar çalışıyor durumu doğrulandı. TypeScript, ESLint, CSS/unused CSS ve 328 test geçti. HUD dosyaları değişmez.
 
 390×844 ilk açılışta eğitim düğmesinin altı 735,78 px, kaydırıcı altı 744,70 px: düğme tamamıyla görünür. İki eşzamanlı yazılım GPU sayfasındaki otomasyon zaman aşımı, ilk test sayfası kapatılarak giderildi; normal kullanıcı kaydırması sonrası yükseltme tıklaması geçti.
+
+## 0.67.0 — onaylı dikey defter ve adet barı
+
+- 328 oyun/kayıt/arayüz testi, TypeScript, ESLint, CSS renk/unused CSS ve V2 kriterleri geçti. Yerelde tsx IPC kısıtı nedeniyle testler aynı tsx yükleyicisiyle `node --import tsx --test` üzerinden koştu.
+- Gerçek Chromium, temiz sentetik oyun kaydı: 360/390/430 ×844. Kışla ve 390px Gelişim'de altı layout tarama kategorisi boş: taşma, kesik, küçük hedef, minik metin, çakışma, isimsiz kontrol.
+- Adet barına dokunma 1→16 değiştirdi. Sayı girişinde 2 seçildi; 2 Yeniçeri Eğit düğmesiyle eğitim sırasına gerçek emir eklendi. Maliyet/süre mevcut hesaplardan gelir.
+- Gerçek ekranlar: `mockups/barracks-approved-live-{360,390,430}.webp`, `mockups/barracks-approved-development.webp`. Onaylı tasarım `mockups/approved-barracks-vertical-slider.webp`; aynı tasarımın referansıdır, canlı screenshot olarak sunulmaz.
+- Genel `tools/layout-qa.cjs` de çalıştırıldı fakat tüm uygulama için yeşil değildir: değişmeyen HUD danışmanı/dar yapı önizlemeleri ve eski sabit yükseltme beklentileri hata verir. Kışla için bildirdiği dok hatası, Gelişim sekmesindeki gizli yükseltmenin eğitim ekranında görünmesini bekleyen eski kontroldür. Yeni kışlanın kendi taramasında hata yoktur; genel HUD bu işte değiştirilmedi.
+- Mockup'taki örnek sayılar veya sıra iptal düğmesi eklenmedi. Ekonomi, birlik şartları, eğitim süresi, araştırma/garnizon, kayıt biçimi ve kabul edilmiş HUD kaynakları değişmedi.

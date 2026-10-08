@@ -37,3 +37,7 @@ Görev sayfası ve saray başlık düğmeleri için `docs/MANDATES-DESIGN-MEMORY
 0.66.1 / SW75 için `docs/BARRACKS-DESIGN-MEMORY.md` ve `docs/BARRACKS-VALIDATION.md` güncel referanstır. 49 numaralı stil yalnız kışla detayına uygulanır; yuvarlak 47 numaralı başlık kontrolü kışlaya genişletildi. Asker eğitimi, sıra, maliyet, süre, garnizon, bina ve HUD mekanikleri korunur.
 
 Kullanıcı 0.66.0 kışla düzenini dar buldu: eğitim ekranında sabit yükseltme ve otomatik büyük avlu kullanma. Gelişim/yardım altındaki destek bilgileriyle ana oyun eylemine alan aç. HUD korunur.
+
+## Kışla için en son onay (8 Ekim, 0.67.0 / SW76)
+
+`docs/BARRACKS-DESIGN-MEMORY.md` başındaki yeni onay ve `docs/mockups/approved-barracks-vertical-slider.webp` geçerlidir. Birlikler alt alta, seçili satırda eğitim; yalnız adet barı yatay sürüklenir. Yuvarlak ceviz/pirinç kontroller, işlemeli ortak çerçeveler, kırmızı askerî eğitim düğmesi ve yeniçeri/börk sekme simgesi. Eski yatay galeri tarifine dönme. Gelişim ve HUD korunur.

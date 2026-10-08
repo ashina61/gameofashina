@@ -2,6 +2,7 @@
 import { PersonArt } from './workforce'
 
 import { Hint } from './hint'
+import { t } from '@/lib/i18n/tr'
 import { useLayoutEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react'
 import { ArrowUp, Hammer, LockKeyhole, Check, BookOpen, ChevronRight, Warehouse, UserRound, TriangleAlert, Swords, Ship, ShieldCheck, Handshake, FlipHorizontal2, Move } from './ui-art'
 import { AkceArt, IlimArt, KumSaatiArt, NufusArt } from './resource-art'
@@ -23,7 +24,7 @@ import { ChevronsLeft, ChevronsRight, Eye } from './ui-art'
 import { DRILL_QUEUE_LIMIT, garrisonLimit, garrisonUsed, spyCapacity, PLOTS, plotFits } from '@/lib/game/engine'
 import { BATTLE_STATS, SLOT_SIZE, fieldSize } from '@/lib/game/battle'
 import { UnitFigure } from './unit-art'
-import { UnitGallery } from './unit-gallery'
+import { UnitGallery, unitLock } from './unit-gallery'
 import { BRANCH, ResearchEmblem } from './research-art'
 
 export function BuildingDetails({ game, id, onBuild, onFlip, onMove }: { game: Game; id: BuildingId; onBuild: (id: BuildingId) => void; onFlip: (id: BuildingId) => void; onMove: (id: BuildingId) => void }) {
@@ -264,8 +265,26 @@ export function ArmyPanel({ game, onRecruit, onBuild, home }: { game: Game; onRe
     const units = UNIT_IDS.filter(id => UNITS[id].home === home).sort(byRole)
     const chosen = pick && units.includes(pick) ? pick : units[0]
     return <div className="advisor-panel army-home">
-      <UnitGallery game={game} units={units} chosen={chosen} onPick={setPick} />
-      {chosen && <UnitCard key={chosen} game={game} id={chosen} onRecruit={onRecruit} />}
+      {home === 'kisla' ? <section className="barracks-roster" aria-label="Birlikler">
+        <h2>Birlikler</h2>
+        {units.map(id => {
+          const selected = id === chosen, lock = unitLock(game, id)
+          return <section key={id} className={`barracks-entry${selected ? ' is-selected' : ''}${lock ? ' is-locked' : ''}`}>
+            <button type="button" className="barracks-unit-toggle" aria-expanded={selected}
+              aria-controls={`barracks-training-${id}`} onClick={() => setPick(id)}>
+              <UnitFigure id={id} size={52} />
+              <span><strong>{UNITS[id].name}</strong><small>Mevcut: {game.army[id]}{lock ? ` · Kilitli: ${lock}` : ''}</small></span>
+              <span className="barracks-unit-chevron" aria-hidden="true">{selected ? '⌃' : '⌄'}</span>
+            </button>
+            <div id={`barracks-training-${id}`} hidden={!selected}>
+              {selected && <UnitCard game={game} id={id} onRecruit={onRecruit} compact />}
+            </div>
+          </section>
+        })}
+      </section> : <>
+        <UnitGallery game={game} units={units} chosen={chosen} onPick={setPick} />
+        {chosen && <UnitCard key={chosen} game={game} id={chosen} onRecruit={onRecruit} />}
+      </>}
       <DrillQueue game={game} home={home} />
       <details className="army-more">
         <summary>Ordu durumu ve savaş meydanı</summary>
@@ -291,14 +310,14 @@ export function ArmyPanel({ game, onRecruit, onBuild, home }: { game: Game; onRe
 }
 
 /** Bir birliğin eğitim kartı: portre, savaş değerleri, adet kaydırıcısı ve Eğit. */
-function UnitCard({ game, id, onRecruit }: { game: Game; id: UnitId; onRecruit: (id: UnitId, count: number) => void }) {
+function UnitCard({ game, id, onRecruit, compact = false }: { game: Game; id: UnitId; onRecruit: (id: UnitId, count: number) => void; compact?: boolean }) {
   const [count, setCount] = useState(1)
   const unit = UNITS[id]
   const max = maxRecruit(game, id)
   const batch = Math.max(1, Math.min(count, Math.max(1, max)))
   const set = (n: number) => setCount(Math.max(1, Math.min(Math.max(1, max), Math.round(n) || 1)))
   const reason = recruitReason(game, id, batch)
-  return <article className="unit-card">
+  const information = <>
     <div className="unit-top">
       <span className="unit-portrait"><UnitFigure id={id} size={60} /></span>
       <span><strong>{unit.name} <em className="unit-role"><Term label={ROLE_NAMES[unit.role]} /></em></strong><small>{unit.description}</small></span>
@@ -321,6 +340,21 @@ function UnitCard({ game, id, onRecruit }: { game: Game; id: UnitId; onRecruit: 
       <span title="Bakım gideri (akçe/dk)"><AkceArt className="size-3" />{unit.upkeep}/dk</span>
       {unit.cargo > 0 && <span title="Taşıma"><Warehouse className="size-3" />{unit.cargo}</span>}
     </div>
+  </>
+  return <article className={`unit-card${compact ? ' barracks-training' : ''}`}>
+    {compact ? <details className="barracks-unit-information"><summary>Birlik bilgisi ve savaş değerleri</summary>{information}</details> : information}
+    {compact ? <div className="barracks-quantity">
+      <label htmlFor={`barracks-count-${id}`}>Üretim adedi</label>
+      <input type="range" min={1} max={Math.max(1, max)} value={batch} disabled={max < 1}
+        aria-label={`${unit.name} sayısı`} style={{ ['--fill' as string]: `${((batch - 1) / Math.max(1, max - 1)) * 100}%` }} onChange={e => set(Number(e.target.value))} />
+      <div className="barracks-range-limits"><span>1</span><span>En fazla {max}</span></div>
+      <div className="barracks-count-controls">
+        <button type="button" aria-label={t.action.decrease} disabled={batch <= 1} onClick={() => set(batch - 1)}>−</button>
+        <input id={`barracks-count-${id}`} type="number" inputMode="numeric" min={1} max={Math.max(1, max)} value={batch} disabled={max < 1} onChange={e => set(Number(e.target.value))} />
+        <button type="button" aria-label={t.action.increase} disabled={batch >= max} onClick={() => set(batch + 1)}>+</button>
+        <button type="button" disabled={max < 1} onClick={() => set(max)}>Maks.</button>
+      </div>
+    </div> : <>
     {max > 1 && <div className="unit-slider">
       <button type="button" aria-label="Bir" onClick={() => set(1)}><ChevronsLeft /></button>
       <input type="range" min={1} max={max} value={batch} aria-label={`${unit.name} sayısı`} style={{ ['--fill' as string]: `${((batch - 1) / Math.max(1, max - 1)) * 100}%` }} onChange={e => set(Number(e.target.value))} />
@@ -328,10 +362,11 @@ function UnitCard({ game, id, onRecruit }: { game: Game; id: UnitId; onRecruit: 
       <input type="number" inputMode="numeric" min={1} max={max} value={batch} aria-label={`${unit.name} adedi`} onChange={e => set(Number(e.target.value))} />
       <small>en fazla {max}</small>
     </div>}
+    </>}
     <div className="unit-bottom">
       <CostDisplay value={unitCost(id, batch, game)} lux={unitLuxuryCost(id, batch, game)} />
       <span><KumSaatiArt className="size-3" /> {unitDuration(game, id, batch)} sn</span>
-      <GameButton size="sm" disabled={!!reason} data-guide={`recruit-${id}`} onClick={() => onRecruit(id, batch)}>{batch} eğit</GameButton>
+      <GameButton size="sm" disabled={!!reason} data-guide={`recruit-${id}`} onClick={() => onRecruit(id, batch)}>{compact ? `${batch} ${unit.name} Eğit` : `${batch} eğit`}</GameButton>
     </div>
     {reason && <p className="fine-print">{reason}</p>}
   </article>

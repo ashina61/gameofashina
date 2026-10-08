@@ -1,3 +1,20 @@
+# Güncel onay — dikey birlikler ve yatay adet barı, 8 Ekim 2026
+
+**0.67.0 / SW76.** Adem bu görseli onayladı ve uygulamaya geçirme/kalıcı kaydetme talimatı verdi: `mockups/approved-barracks-vertical-slider.webp`. Görseli açmadan sonraki değişikliği yapma. Aşağıdaki eski 0.66.1 galeri ve altın eğitim butonu tarifleri bu onayla değiştirilmiştir.
+
+- Birlikler **alt alta**. Birliğe dokununca eğitim alanı aynı satırın altında açılır. Birlik seçimi için yatay galeri veya yana kayan portreler kullanılmaz.
+- Sağa/sola sürüklenen öğe **üretim adedi barıdır**. Yuvarlak pirinç tutamak, ahşap kanal ve altın dolgu; sayı girişi, yuvarlak −/+ ve Maks. eşlik eder. Mevcut en fazla hesabı/koşullar kullanılır.
+- Kara ordusu/Gelişim korunur. Kara ordusu simgesi yeniçeri/börk; Sparta/Roma miğferi ve Avrupa tacı yok.
+- Aynı saray ailesi: fildişi parşömen, koyu ceviz, eskitilmiş pirinç işlemeli köşeler; ayrı yuvarlak geri/çarpı, yuvarlak adet kontrolleri, kırmızı askerî eğitim eylemi. Başlıklarda paketli Tinos Bold, gövdede Georgia.
+- **Gelişim mevcut işlev ve düzeniyle kalır.** Üst/alt HUD onaylıdır; mockup'ın HUD'u kopyalanmaz veya yeniden çizilmez. Ortak sayfa çerçevesi, parşömen, ahşap ve düğme kenarları mevcut `approved-court` assetlerinden gelir.
+- Ana eğitim ekranında kısa 64px avlu bandı vardır; büyük seviye önizlemesi hâlâ Gelişim'de isteğe bağlıdır. Tekrar eden portre/isim ve savaş değerleri seçili satırda bilgi detayına açılır. Hiçbir özellik kaybolmaz.
+- Bütün birlikler, kilit/araştırma koşulları, maliyet, süre, asker sayısı ve sıra canlı veridir. Görseldeki 120/20/50/1.200 gibi sayılar uygulamada sabitlenmez. Sıra iptali gibi mockup'ta çizilmiş fakat oyunda olmayan mekanik eklenmez.
+- Birlik satırları ve üretim tek dikey sayfa akışındadır. İşlem düğmesi seçili birliğin kendi eğitim alanında kalır; alttaki başka bir birliğin düğmesiymiş gibi görünmez. Uzun birlik listesi normal dikey kaydırılır.
+
+Kalıcı uygulama: `components/game/game-panels.tsx` (yalnız Kışla için roster ve compact eğitim), `components/game/building-page.tsx` (kısa avlu/yeniçeri sekme simgesi), `app/styles/49-barracks-register.css`. Tersane/Elçilik galerileri ve ekonomi/kayıt kuralları korunur.
+
+---
+
 # Kışla detay tasarım belleği — 8 Ekim 2026
 
 Sürüm 0.66.1 / SW75. `PROFILE-DESIGN-MEMORY.md` ana malzemeleri ve `MANDATES-DESIGN-MEMORY.md` yuvarlak saray düğmelerini tanımlar. Bu belge kışlanın aynı dilde devamıdır. Üst/alt HUD, asker ve bina çizimleri, eğitim/araştırma koşulları, maliyetler, süreler, garnizon ve kayıt mekanikleri değiştirilmez.

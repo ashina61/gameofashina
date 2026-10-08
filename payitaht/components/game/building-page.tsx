@@ -443,10 +443,14 @@ export function BuildingPage({ game, empire, id, onClose, onBuild, onFlip, onMov
     badge={<button type="button" className="bp-help" aria-pressed={help} onClick={() => setHelp(v => !v)} aria-label={help ? 'Açıklamaları gizle' : 'Nasıl işler? Açıklamaları göster'}><Info /></button>}
     footer={id === 'kisla' ? undefined : <UpgradeDock game={game} id={id} onBuild={onBuild} />}>
       {id !== 'kisla' && buildingScene}
+      {id === 'kisla' && <figure className="barracks-banner">
+        <img src={asset('/images/game/terrain/barracks-courtyard.webp')} alt="Osmanlı kışlasının sancaklı eğitim avlusu" />
+        <figcaption>Seviye {level}</figcaption>
+      </figure>}
       {razing && <DemolishConfirm game={game} id={id} onCommand={onCommand} onClose={() => setRazing(false)} />}
       <p className="bp-desc" onClick={() => setHelp(true)}>{b.description}</p>
       {hasWork && <div className="bp-tabs" role="tablist" aria-label={`${b.name} bölümleri`}>
-        <button type="button" role="tab" aria-selected={showTab === 'yapi'} onClick={() => setTab('yapi')}>{id === 'kisla' ? 'Kara ordusu' : b.name}</button>
+        <button type="button" role="tab" aria-selected={showTab === 'yapi'} onClick={() => setTab('yapi')}>{id === 'kisla' && <img className="barracks-tab-emblem" src={asset('/images/game/ui/barracks/army-medallion.webp')} alt="Yeniçeri börkü" width={32} height={32} />}{id === 'kisla' ? 'Kara ordusu' : b.name}</button>
         <button type="button" role="tab" aria-selected={showTab === 'gelisim'} onClick={() => setTab('gelisim')}>Gelişim</button>
       </div>}
       <div ref={workRef} className="bp-tabpanel" hidden={showTab !== 'yapi'}>
