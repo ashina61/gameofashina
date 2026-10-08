@@ -75,3 +75,7 @@ Aynı malzemelerin arşiv ve birlik defterlerine uygulanması `ARCHIVE-ALLIANCE-
 ## Görevler ve başlık oranları — 0.65.0
 
 `MANDATES-DESIGN-MEMORY.md` görevlerin üç sekmesi için güncel devam belgesidir. `47-court-controls.css` beş saray sayfasında geri/çarpıyı başlık atlasından ayırır; eski atlas düğmesi yaklaşımının yerini kare alan içinde oranı korunan ayrı görseller alır.
+
+## Kışla detay — 0.66.0
+
+`BARRACKS-DESIGN-MEMORY.md` aynı malzemelerin ilk askeri bina devamıdır. Kışla detayının Kara ordusu/Gelişim sekmeleri, eğitim ve yükseltme alanları yalnız görsel kaplamayla yenilenir; HUD ve mekanik korunur.

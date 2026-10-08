@@ -5,6 +5,7 @@
 export type Release = { version: string; date: string; title: string; notes: string[] }
 
 export const CHANGELOG: Release[] = [
+  { version: '0.66.0', date: '8 Ekim 2026', title: 'Kışla eğitim defteri', notes: ['Kışlanın Kara ordusu ve Gelişim bölümleri ortak ceviz, altın ve parşömen diliyle yenilendi.', 'Birlik seçimi, eğitim kartı, sıra, ordu sicili ve yükseltme gereksinimleri daha okunaklı hale getirildi. Eğitim, maliyet, inşaat ve HUD mekanikleri korunur.'] },
   { version: '0.65.0', date: '8 Ekim 2026', title: 'Ferman defteri ve yuvarlak saray düğmeleri', notes: ['Geri ve kapatma düğmeleri başlık resminden ayrıldı; telefon ve geniş ekranlarda yuvarlak oranlarını korur.', 'Görevlerin Şehir hedefi, Günlük ve Başarımlar sekmeleri ortak ceviz, altın ve parşömen diline geçirildi. Görev koşulları, ödüller ve üst/alt bar korunur.'] },
   { version: '0.64.0', date: '8 Ekim 2026', title: 'Divan arşivi ve birlik defterleri', notes: ['Sürüm arşivi ceviz ferman başlıkları ve geniş parşömen notlarıyla yenilendi; arama ve aç/kapat işlemleri korunur.', 'İttifak kuruluşu ve Birlik, Üyeler, Görevler, Genelge, Diplomasi sekmeleri aynı tasarım diline geçirildi. Sancak, üyelik ve bütün ittifak kuralları ile üst/alt bar korunur.'] },
   { version: '0.63.0', date: '8 Ekim 2026', title: 'Divan nizamnamesi', notes: ['Ayarların Tercihler, Cihaz, Kayıt ve Bilgi sekmeleri ceviz, altın çerçeve ve geniş parşömen düzenine geçirildi.', 'Ses, görünüm, bildirim, yedekleme ve kayıt işlemleri korunur. Okunaklı açıklamalar ve rahat dokunulan kontroller; üst ve alt bar değişmedi.'] },

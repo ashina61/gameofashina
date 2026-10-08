@@ -31,3 +31,7 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 ## Görev tasarımının güncel belleği (8 Ekim 2026)
 
 Görev sayfası ve saray başlık düğmeleri için `docs/MANDATES-DESIGN-MEMORY.md` ve `docs/MANDATES-VALIDATION.md` okunur. 47 numaralı stil beş saray sayfasında atlasın içine gömülü geri/çarpı yerine ayrı ve oranı korunan düğmeler kullanır. 48 numaralı stil görevlerin üç sekmesine ortak Osmanlı saray dilini uygular. HUD ve oyun mekanikleri değiştirilmez.
+
+## Kışla detay (8 Ekim 2026)
+
+0.66.0 / SW74 için `docs/BARRACKS-DESIGN-MEMORY.md` ve `docs/BARRACKS-VALIDATION.md` güncel referanstır. 49 numaralı stil yalnız kışla detayına uygulanır; yuvarlak 47 numaralı başlık kontrolü kışlaya genişletildi. Asker eğitimi, sıra, maliyet, süre, garnizon, bina ve HUD mekanikleri korunur.

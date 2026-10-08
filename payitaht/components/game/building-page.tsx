@@ -415,8 +415,8 @@ export function BuildingPage({ game, empire, id, onClose, onBuild, onFlip, onMov
         {level > 0 && <div className="management-tools"><GameButton variant="outline" onClick={onFlip}>Yönünü çevir</GameButton>{id !== 'divan' && <><GameButton variant="outline" onClick={onMove}>Başka arsaya taşı</GameButton><GameButton variant="destructive" onClick={() => setRazing(v => !v)}>Yapıyı yık</GameButton></>}</div>}
         {razing && <DemolishConfirm game={game} id={id} onCommand={onCommand} onClose={() => setRazing(false)} />}</>} />
   </IkaPage>
-  return <IkaPage toolbar={toolbar} title={b.name} subtitle={`${city} · ${b.category.toLocaleLowerCase('tr')}`} label={`${b.name} sayfası`} onClose={onClose}
-    className={`bp-building bp-of-${id}${help ? ' show-help' : ''}`}
+  return <IkaPage toolbar={id === 'kisla' ? undefined : toolbar} title={b.name} subtitle={`${city} · ${b.category.toLocaleLowerCase('tr')}`} label={`${b.name} sayfası`} onClose={onClose}
+    className={`bp-building bp-of-${id}${id === 'kisla' ? ' bp-royal' : ''}${help ? ' show-help' : ''}`}
     badge={<button type="button" className="bp-help" aria-pressed={help} onClick={() => setHelp(v => !v)} aria-label={help ? 'Açıklamaları gizle' : 'Nasıl işler? Açıklamaları göster'}><Info /></button>}
     footer={<UpgradeDock game={game} id={id} onBuild={onBuild} />}>
       <section className={`bp-hero bp-scene${coast ? ' is-coast' : ''}${barracksScene ? ' is-barracks-scene' : ''}`} style={SCENE_STYLE}>
