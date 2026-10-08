@@ -298,12 +298,12 @@
 /* Reference typography and crest anchoring, 8 October correction. */
 .game-shell.has-page .bp.bp-profile .royal-section h3 {
   top: 0; left: 10%; font-family: 'Payitaht Profile Roman', 'Times New Roman', serif;
-  font-size: 3.5cqw; line-height: 1.1; font-weight: 700; color: var(--c-ink);
+  font-size: 3.3cqw; line-height: 1.1; font-weight: 700; color: var(--c-ink);
 }
 .game-shell.has-page .bp.bp-profile .royal-heading h3 { left: 10.526%; }
 .game-shell.has-page .bp.bp-profile .royal-honours span {
   font-family: 'Payitaht Profile Roman', 'Times New Roman', serif;
-  font-size: 2.25cqw; font-weight: 700; top: 72%; bottom: 0;
+  font-size: 2.15cqw; font-weight: 700; top: 72%; bottom: 0;
 }
 .game-shell.has-page .bp.bp-profile .royal-profile-scene > .royal-standard {
   left: 7%; top: -7%; width: 39%; height: 105%;

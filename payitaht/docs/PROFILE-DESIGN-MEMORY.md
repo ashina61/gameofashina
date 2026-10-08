@@ -40,8 +40,8 @@ Atlas dilimleme Sharp ile yapılır; AI yeniden tasarım için kullanılmaz. Ona
 
 Profil alanında `text-size-adjust: 100%` ve `-webkit-text-size-adjust: 100%` korunur. Masaüstü emülasyonundan geçen normal akış, Android'de aynı sonucu garanti etmez. Kimlik içindeki isim/unvan/motto ayrı, sahneye oranlı mutlak kutulardır; unvanın yeri isim satırının yüksekliğine bağlı değildir. Başlık yazısı atlasın iki süsü arasında kalır. Atlas zaten geri/kapat ve ayar/arşiv ikonlarını içerir: ikinci runtime ikon eklenmez. Nişan etiketleri her levhanın kendi sınırında merkezlenir.
 
-## Arma ve başlık ölçüleri — 0.61.3
+## Arma ve başlık ölçüleri — 0.61.4
 
 Profil sahnesindeki arma kutusunun merkezi, sahne genişliğinin %29'u ve yüksekliğinin %40,25'idir. Sancak kutusu: sol %7, üst -%7, genişlik %39, yükseklik %105. Yalnız profil sahnesindeki nakışa uygulanır; seçicideki sancaklar ve HUD arması ayrı kalır. Kumaş biçimi/rengi/arma seçimi canlı kayıttan alınır.
 
-Sicil/şeref başlıkları: kanonik x=85,4 px (853 px tuvalde yaklaşık 85), bölümün üst çizgisinden y=0 CSS kutusu; font 3,5cqw, Tinos Bold. Nişan levhası yazıları: 2,25cqw Tinos Bold. Sistem Georgia'sının cihazdan cihaza değişmesine bırakma. `public/fonts/` altındaki iki orijinal Latin ve Latin Extended WOFF2, @fontsource/tinos 5.3.0 paketinden gelir; SIL OFL metni `Tinos-OFL.txt`. Türkçe harfler ayrı Latin Extended yüzüyle yüklenir. CSS bunları modül olarak paketler; Pages base path ile üretilen statik font URL'leri kullanılır.
+Sicil/şeref başlıkları: kanonik x=85,4 px (853 px tuvalde yaklaşık 85), bölümün üst çizgisinden y=0 CSS kutusu; font 3,3cqw, Tinos Bold. Nişan levhası yazıları: 2,15cqw Tinos Bold. Sistem Georgia'sının cihazdan cihaza değişmesine bırakma. `public/fonts/` altındaki iki orijinal Latin ve Latin Extended WOFF2, @fontsource/tinos 5.3.0 paketinden gelir; SIL OFL metni `Tinos-OFL.txt`. Türkçe harfler ayrı Latin Extended yüzüyle yüklenir. CSS bunları modül olarak paketler; Pages base path ile üretilen statik font URL'leri kullanılır.

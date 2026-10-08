@@ -1,4 +1,4 @@
-# Profil tasarımı doğrulama — 0.61.3 / SW67
+# Profil tasarımı doğrulama — 0.61.4 / SW68
 
 Onaylı görsel: `mockups/approved-profile-v2.webp`.
 Gerçek uygulama görünümü: `mockups/profile-v2-actual-390.webp`.
@@ -16,3 +16,5 @@ Görsel değerler gerçek kayıttan gelir: örnek mockup'taki 24 gün, üç şeh
 8 Ekim telefon geri bildirimi: Android yazı büyütmesi profil kapsamında sabitlendi. Unvan, isim ve motto bağımsız mutlak kutulara alındı; başlık yalnız ortadaki süssüz alana kondu. Alt eylemlerde atlas zaten ikon içerdiği için ikinci React ikonları kaldırıldı. Üç nişan etiketi ve iki alt eylemin gerçek glyph kutusu taşma denetimi geçti. Bu denetim resimdeki ikonları göremeyen genel tarayıcı denetiminin yerine geçmez; ona ek kontroldür.
 
 0.61.3 düzeltmesi: referans/uygulama başlık ve nişan yazıları yan yana kırpılarak karşılaştırıldı. Profilde iki gömülü font yüzü gerçekten `loaded`; sicil başlıkları ve etiketleri Tinos Bold kullanıyor. Arma kutusu merkezi sahnede x=%29,03, y=%40,25; metin ve levha kutuları taşmıyor. Normal/%130 yazıda profil çakışması yok. Font ve arma düzeltmesi yalnız `.bp-profile` içinde; seçici, HUD ve oyun kuralları aynı.
+
+Son karşılaştırma: bölüm başlıkları 3,3cqw ve nişan levha etiketleri 2,15cqw. 0.61.4 ölçüleriyle normal/%130 profil denetimi yeniden geçti.
