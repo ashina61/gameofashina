@@ -79,3 +79,7 @@ Aynı malzemelerin arşiv ve birlik defterlerine uygulanması `ARCHIVE-ALLIANCE-
 ## Kışla detay — 0.66.0
 
 `BARRACKS-DESIGN-MEMORY.md` aynı malzemelerin ilk askeri bina devamıdır. Kışla detayının Kara ordusu/Gelişim sekmeleri, eğitim ve yükseltme alanları yalnız görsel kaplamayla yenilenir; HUD ve mekanik korunur.
+
+### Kışlada alan düzeltmesi — 0.66.1
+
+Kullanıcı 0.66.0 ekranını dar buldu. Ana eğitim ekranında büyük dekorasyon ve sabit yükseltme kutusu kullanılmaz. Avlu/yükseltme Gelişim içinde, eğitim doğrudan ana sekmededir. Güncel ölçüler ve kurallar `BARRACKS-DESIGN-MEMORY.md` içindedir; sonraki sayfalarda da eyleme ayrılan alan korunur.

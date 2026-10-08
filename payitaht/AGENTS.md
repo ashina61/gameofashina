@@ -34,4 +34,6 @@ Görev sayfası ve saray başlık düğmeleri için `docs/MANDATES-DESIGN-MEMORY
 
 ## Kışla detay (8 Ekim 2026)
 
-0.66.0 / SW74 için `docs/BARRACKS-DESIGN-MEMORY.md` ve `docs/BARRACKS-VALIDATION.md` güncel referanstır. 49 numaralı stil yalnız kışla detayına uygulanır; yuvarlak 47 numaralı başlık kontrolü kışlaya genişletildi. Asker eğitimi, sıra, maliyet, süre, garnizon, bina ve HUD mekanikleri korunur.
+0.66.1 / SW75 için `docs/BARRACKS-DESIGN-MEMORY.md` ve `docs/BARRACKS-VALIDATION.md` güncel referanstır. 49 numaralı stil yalnız kışla detayına uygulanır; yuvarlak 47 numaralı başlık kontrolü kışlaya genişletildi. Asker eğitimi, sıra, maliyet, süre, garnizon, bina ve HUD mekanikleri korunur.
+
+Kullanıcı 0.66.0 kışla düzenini dar buldu: eğitim ekranında sabit yükseltme ve otomatik büyük avlu kullanma. Gelişim/yardım altındaki destek bilgileriyle ana oyun eylemine alan aç. HUD korunur.

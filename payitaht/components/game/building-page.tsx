@@ -415,10 +415,7 @@ export function BuildingPage({ game, empire, id, onClose, onBuild, onFlip, onMov
         {level > 0 && <div className="management-tools"><GameButton variant="outline" onClick={onFlip}>Yönünü çevir</GameButton>{id !== 'divan' && <><GameButton variant="outline" onClick={onMove}>Başka arsaya taşı</GameButton><GameButton variant="destructive" onClick={() => setRazing(v => !v)}>Yapıyı yık</GameButton></>}</div>}
         {razing && <DemolishConfirm game={game} id={id} onCommand={onCommand} onClose={() => setRazing(false)} />}</>} />
   </IkaPage>
-  return <IkaPage toolbar={id === 'kisla' ? undefined : toolbar} title={b.name} subtitle={`${city} · ${b.category.toLocaleLowerCase('tr')}`} label={`${b.name} sayfası`} onClose={onClose}
-    className={`bp-building bp-of-${id}${id === 'kisla' ? ' bp-royal' : ''}${help ? ' show-help' : ''}`}
-    badge={<button type="button" className="bp-help" aria-pressed={help} onClick={() => setHelp(v => !v)} aria-label={help ? 'Açıklamaları gizle' : 'Nasıl işler? Açıklamaları göster'}><Info /></button>}
-    footer={<UpgradeDock game={game} id={id} onBuild={onBuild} />}>
+  const buildingScene = (
       <section className={`bp-hero bp-scene${coast ? ' is-coast' : ''}${barracksScene ? ' is-barracks-scene' : ''}`} style={SCENE_STYLE}>
         <span className="bp-scene-back" aria-hidden="true" />
         {barracksScene ? <img className="barracks-courtyard" src={asset('/images/game/terrain/barracks-courtyard.webp')} alt="Ege kıyısındaki kışlanın sancaklı eğitim avlusu" fetchPriority="high" /> : b.art ? <BuildingArt key={`${shown}-${facing ?? 'default'}`} className="bp-hero-art" id={id} level={shown === 1 ? 1 : shown === 2 ? 4 : 8} facing={facing} alt={`${b.name} görünümü`} /> : <span className="bp-pending"><Hammer /></span>}
@@ -440,7 +437,12 @@ export function BuildingPage({ game, empire, id, onClose, onBuild, onFlip, onMov
           {<button type="button" className="is-danger" aria-pressed={razing} onClick={() => setRazing(v => !v)} aria-label="Yık"><Trash2 /><span>Yık</span></button>}
         </div>}
       </section>
-      {id === 'kisla' && <div className="barracks-ribbon" aria-hidden="true">Kışla</div>}
+  )
+  return <IkaPage toolbar={id === 'kisla' ? undefined : toolbar} title={b.name} subtitle={`${city} · ${b.category.toLocaleLowerCase('tr')}`} label={`${b.name} sayfası`} onClose={onClose}
+    className={`bp-building bp-of-${id}${id === 'kisla' ? ' bp-royal' : ''}${help ? ' show-help' : ''}`}
+    badge={<button type="button" className="bp-help" aria-pressed={help} onClick={() => setHelp(v => !v)} aria-label={help ? 'Açıklamaları gizle' : 'Nasıl işler? Açıklamaları göster'}><Info /></button>}
+    footer={id === 'kisla' ? undefined : <UpgradeDock game={game} id={id} onBuild={onBuild} />}>
+      {id !== 'kisla' && buildingScene}
       {razing && <DemolishConfirm game={game} id={id} onCommand={onCommand} onClose={() => setRazing(false)} />}
       <p className="bp-desc" onClick={() => setHelp(true)}>{b.description}</p>
       {hasWork && <div className="bp-tabs" role="tablist" aria-label={`${b.name} bölümleri`}>
@@ -452,6 +454,10 @@ export function BuildingPage({ game, empire, id, onClose, onBuild, onFlip, onMov
         {children}
       </div>
       <div className="bp-tabpanel" hidden={showTab !== 'gelisim'}>
+      {id === 'kisla' && <details className="barracks-appearance">
+        <summary className="barracks-ribbon">Avlu ve yapı görünümü <span>{level ? `Seviye ${level}` : 'Kurulmadı'}</span></summary>
+        {buildingScene}
+      </details>}
       <Box title="Seviye etkisi"><BuildingEffects game={game} id={id} level={level} max={max} /></Box>
       {forecast.length > 0 && <Box title="Sonraki seviyeler">
         <Table head={['Sv.', 'Maliyet', 'Süre']} rows={forecast.map(f => [
@@ -460,6 +466,7 @@ export function BuildingPage({ game, empire, id, onClose, onBuild, onFlip, onMov
           time(f.seconds),
         ])} />
       </Box>}
+      {id === 'kisla' && <UpgradeDock game={game} id={id} onBuild={onBuild} />}
       </div>
   </IkaPage>
 }
