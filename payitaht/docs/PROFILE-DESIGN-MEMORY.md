@@ -16,7 +16,7 @@ Adem'in onayladığı **sarık/kavuklu** tasarım: `mockups/approved-profile-v2.
 
 ## Görsel dil
 
-Koyu ceviz başlık/sekme/alt eylem şeridi; eskitilmiş pirinç ve altın işlemeli ince kenarlar; sıcak fildişi parşömen; koyu kırmızı ipek aktif durum. Boyanmış gerçekçi oyun nesneleri, sıcak sol üst ışık. Georgia/serif yazı; mürekkep siyahı metin ve altın ahşap başlıklar. Rozetler resimdir; çizgi ikon taklidi değildir.
+Koyu ceviz başlık/sekme/alt eylem şeridi; eskitilmiş pirinç ve altın işlemeli ince kenarlar; sıcak fildişi parşömen; koyu kırmızı ipek aktif durum. Boyanmış gerçekçi oyun nesneleri, sıcak sol üst ışık. Ana metinlerde Georgia/serif; bölüm başlıkları ve nişan etiketlerinde gömülü Tinos Bold; mürekkep siyahı metin ve altın ahşap başlıklar. Rozetler resimdir; çizgi ikon taklidi değildir.
 
 Sıra: Hükümdarın Sarayı başlığı → kıyı sarayı, canlı kişisel sancak ve asılı kimlik parşömeni → üç özet hücresi → altın kimlik düzenleme düğmesi → Saltanat/Şehirler/Nişanlar/Sancak → kavuklu unvan ilerlemesi → ikiye iki saltanat sicili → üç nişanlı şeref rafı → Ayarları aç/Sürüm arşivi.
 
@@ -39,3 +39,9 @@ Atlas dilimleme Sharp ile yapılır; AI yeniden tasarım için kullanılmaz. Ona
 ## Telefonda metin ve ikon yerleşimi
 
 Profil alanında `text-size-adjust: 100%` ve `-webkit-text-size-adjust: 100%` korunur. Masaüstü emülasyonundan geçen normal akış, Android'de aynı sonucu garanti etmez. Kimlik içindeki isim/unvan/motto ayrı, sahneye oranlı mutlak kutulardır; unvanın yeri isim satırının yüksekliğine bağlı değildir. Başlık yazısı atlasın iki süsü arasında kalır. Atlas zaten geri/kapat ve ayar/arşiv ikonlarını içerir: ikinci runtime ikon eklenmez. Nişan etiketleri her levhanın kendi sınırında merkezlenir.
+
+## Arma ve başlık ölçüleri — 0.61.3
+
+Profil sahnesindeki arma kutusunun merkezi, sahne genişliğinin %29'u ve yüksekliğinin %40,25'idir. Sancak kutusu: sol %7, üst -%7, genişlik %39, yükseklik %105. Yalnız profil sahnesindeki nakışa uygulanır; seçicideki sancaklar ve HUD arması ayrı kalır. Kumaş biçimi/rengi/arma seçimi canlı kayıttan alınır.
+
+Sicil/şeref başlıkları: kanonik x=85,4 px (853 px tuvalde yaklaşık 85), bölümün üst çizgisinden y=0 CSS kutusu; font 3,5cqw, Tinos Bold. Nişan levhası yazıları: 2,25cqw Tinos Bold. Sistem Georgia'sının cihazdan cihaza değişmesine bırakma. `public/fonts/` altındaki iki orijinal Latin ve Latin Extended WOFF2, @fontsource/tinos 5.3.0 paketinden gelir; SIL OFL metni `Tinos-OFL.txt`. Türkçe harfler ayrı Latin Extended yüzüyle yüklenir. CSS bunları modül olarak paketler; Pages base path ile üretilen statik font URL'leri kullanılır.
