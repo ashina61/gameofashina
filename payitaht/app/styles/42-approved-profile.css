@@ -195,3 +195,36 @@
   content: ''; position: absolute; inset: 0 0 18%; border-radius: 50%;
   backdrop-filter: grayscale(.9); pointer-events: none;
 }
+/* Match the approved canvas proportions even on small phones. Invisible hit
+   areas preserve 44px interaction without stretching the painted strips. */
+.game-shell.has-page .bp.bp-profile > .bp-bar { height: 8.9vw; min-height: 0; }
+.game-shell.has-page .bp.bp-profile .royal-summary { min-height: 0; }
+.game-shell.has-page .bp.bp-profile .royal-summary > span { font-size: clamp(11px,2.9cqw,25px); }
+.game-shell.has-page .bp.bp-profile .royal-edit,
+.game-shell.has-page .bp.bp-profile .court-tabs,
+.game-shell.has-page .bp.bp-profile .court-tabs > button,
+.game-shell.has-page .bp.bp-profile .court-footer,
+.game-shell.has-page .bp.bp-profile .court-footer > button,
+.game-shell.has-page .bp.bp-profile .court-footer > button:last-child { min-height: 0; }
+.game-shell.has-page .bp.bp-profile .court-tabs > button { font-size: clamp(11px,3.2cqw,28px); }
+.game-shell.has-page .bp.bp-profile .royal-edit { font-size: clamp(11px,3cqw,26px); }
+.game-shell.has-page .bp.bp-profile .profile-title,
+.game-shell.has-page .bp.bp-profile .profile-ledger,
+.game-shell.has-page .bp.bp-profile .profile-honours { min-height: 0; }
+.game-shell.has-page .bp.bp-profile .royal-section h3 { font-size: clamp(13px,3.5cqw,30px); }
+.game-shell.has-page .bp.bp-profile .court-footer > button,
+.game-shell.has-page .bp.bp-profile .court-footer > button:last-child { font-size: clamp(11px,2.6cqw,23px); }
+.game-shell.has-page .bp.bp-profile :is(.royal-edit,.court-tabs > button,.court-footer > button) { position: relative; }
+.game-shell.has-page .bp.bp-profile :is(.royal-edit,.court-tabs > button,.court-footer > button)::after {
+  content: ''; position: absolute; left: 0; right: 0; top: 50%; height: max(44px,100%);
+  transform: translateY(-50%); pointer-events: auto;
+}
+.game-shell.has-page .bp.bp-profile :is(.royal-edit,.court-footer > button) { overflow: visible; }
+.game-shell.has-page .bp.bp-profile .royal-edit { z-index: 10; }
+.game-shell.has-page .bp.bp-profile .royal-honours { top: 24%; }
+@media (max-width: 500px) {
+  .game-shell.has-page .bp.bp-profile .royal-heading button { top: -24px; height: 44px; padding-top: 24px; }
+}
+/* Keep enlarged summary text inside its painted cell without resizing art. */
+.game-shell.has-page .bp.bp-profile .royal-summary > span { padding-top: 2cqw; }
+.game-shell.has-page .bp.bp-profile .royal-summary b { line-height: 1.05; }
