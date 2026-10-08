@@ -42,6 +42,8 @@
 @import './styles/42-approved-profile.css';
 @import './styles/43-profile-chambers.css';
 @import './styles/44-settings-chambers.css';
+@import './styles/45-release-register.css';
+@import './styles/46-alliance-register.css';
 
 @custom-variant dark (&:is(.dark *));
 @theme inline {

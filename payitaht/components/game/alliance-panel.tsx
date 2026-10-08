@@ -80,7 +80,7 @@ function General({ empire, now, run }: { empire: Empire; now: number; run: Run }
       {editBanner && <RoyalFlagEditor value={look} change={setLook} save={() => { run((e, t) => setProfile(e, look, t), 'Sancak kaydedildi.'); setEditBanner(false) }} cancel={() => setEditBanner(false)} />}
     </section>
     <section className="empire-section">
-      <h3><ApprovedArt name="crown" /> İttifak sıralaması</h3>
+      <h3><ApprovedArt name="laurel" /> İttifak sıralaması</h3>
       <Rankings empire={empire} now={now} />
     </section>
     <section className="empire-section">
@@ -179,7 +179,7 @@ function RankDuties({ empire, run }: { empire: Empire; run: Run }) {
   const holders = (k: PactRank | 'lider') => k === 'lider' ? [prof.ruler]
     : p.members.filter(id => (p.ranks[id] ?? 'uye') === k).map(id => rivalById(id)!.ruler)
   return <section className="empire-section">
-    <h3><ApprovedArt name="crown" /> Rütbeler ve görevleri</h3>
+    <h3><ApprovedArt name="laurel" /> Rütbeler ve görevleri</h3>
     <p className="fine-print">Her rütbenin bir görevi ve yetkisi var. Rütbelere ittifakına özgü ad verebilirsin (ör. Serdar, Kethüda).</p>
     {(Object.keys(RANK_DUTIES) as (PactRank | 'lider')[]).map(k => {
       const d = RANK_DUTIES[k], who = holders(k)
@@ -300,6 +300,6 @@ function FactionView({ empire, now, run, onRival, f }: { empire: Empire; now: nu
       </article>)}
       <GameButton size="sm" variant="outline" onClick={() => run((e, x) => leaveAlliance(e, x), 'İttifaktan ayrıldın.')}>İttifaktan ayrıl</GameButton>
     </section>
-    <section className="empire-section"><h3><ApprovedArt name="crown" /> İttifak sıralaması</h3><Rankings empire={empire} now={now} /></section>
+    <section className="empire-section"><h3><ApprovedArt name="laurel" /> İttifak sıralaması</h3><Rankings empire={empire} now={now} /></section>
   </div></div>
 }

@@ -67,3 +67,7 @@ Alt defterlerde yaklaşık %15–20 daha küçük resimler/boşluklar; şehir sa
 ## Ayarlar — 0.63.0 / SW71
 
 Aynı malzemelerin dört ayar defterine uygulanması `SETTINGS-DESIGN-MEMORY.md` içindedir. Eski `approved-settings.webp` ve yuvarlak cam kartlar yeni ayar işi için referans değildir.
+
+## Sürüm arşivi ve İttifak — 0.64.0 / SW72
+
+Aynı malzemelerin arşiv ve birlik defterlerine uygulanması `ARCHIVE-ALLIANCE-DESIGN-MEMORY.md` içindedir. Yeni sayfalarda yalnız görsel kaplama ve normal akış kullanılır; HUD ve oyun kuralları korunur.

@@ -1,6 +1,6 @@
 'use client'
 
-import { useId, useState, type ReactNode } from 'react'
+import { useId, useState, type ReactNode, type CSSProperties } from 'react'
 import { asset } from '@/lib/asset'
 import { groupLog, type Game } from '@/lib/game/engine'
 import { dayGroups, dayLabel, logKind, type LogKind } from '@/lib/game/log-view'
@@ -78,7 +78,7 @@ export function ChangelogPage() {
   const older = releases.filter(release => release.version !== latest.version)
   const allOpen = older.length > 0 && older.every(release => expanded.has(release.version))
   const toggle = (version: string) => setExpanded(current => { const next = new Set(current); if (next.has(version)) next.delete(version); else next.add(version); return next })
-  return <div className="annals-page annals-editions">
+  return <div className="annals-page annals-editions" style={Object.fromEntries(['wood', 'paper', 'page-frame'].map(name => [`--royal-${name}`, `url("${asset(`/images/game/ui/approved-court/${name}.webp`)}")`])) as CSSProperties}>
     <ArchiveHeader title="Divan neşriyatı" label="Payitaht Adaları">Şehrin değişen yüzü, ilk taştan bugüne.</ArchiveHeader>
     <section className="annals-ledger">
       <LedgerHeading title="Yenilikler defteri" detail={`Güncel sürüm ${VERSION} · ${CHANGELOG.length} sürüm kaydı`} />

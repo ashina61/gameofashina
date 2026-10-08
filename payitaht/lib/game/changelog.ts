@@ -5,6 +5,7 @@
 export type Release = { version: string; date: string; title: string; notes: string[] }
 
 export const CHANGELOG: Release[] = [
+  { version: '0.64.0', date: '8 Ekim 2026', title: 'Divan arşivi ve birlik defterleri', notes: ['Sürüm arşivi ceviz ferman başlıkları ve geniş parşömen notlarıyla yenilendi; arama ve aç/kapat işlemleri korunur.', 'İttifak kuruluşu ve Birlik, Üyeler, Görevler, Genelge, Diplomasi sekmeleri aynı tasarım diline geçirildi. Sancak, üyelik ve bütün ittifak kuralları ile üst/alt bar korunur.'] },
   { version: '0.63.0', date: '8 Ekim 2026', title: 'Divan nizamnamesi', notes: ['Ayarların Tercihler, Cihaz, Kayıt ve Bilgi sekmeleri ceviz, altın çerçeve ve geniş parşömen düzenine geçirildi.', 'Ses, görünüm, bildirim, yedekleme ve kayıt işlemleri korunur. Okunaklı açıklamalar ve rahat dokunulan kontroller; üst ve alt bar değişmedi.'] },
   { version: '0.62.1', date: '8 Ekim 2026', title: 'Sancak hizası ve daha sıkı defterler', notes: ['Profil ile alt bar arasından şehir görüntüsünün görünmesi kapatıldı; barın resmi ve ölçüleri korunur.', 'Seçicideki armalar kumaşın gerçek boyutuna hizalandı. Şehirler, Nişanlar ve Sancak içeriğinin resim ve boşlukları küçültüldü; mekanikler değişmedi.'] },
   { version: '0.62.0', date: '8 Ekim 2026', title: 'Sarayın üç defteri', notes: ['Şehirler, Nişanlar ve Sancak sekmeleri ortak ceviz, altın işleme ve parşömen tasarımına geçirildi.', 'Şehir geçişleri, nişan koşulları ve filtreleri, sancak seçimleri ve kaydet/vazgeç işlemleri korunur. Üst ve alt bar değişmedi.'] },

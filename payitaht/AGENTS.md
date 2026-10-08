@@ -25,3 +25,5 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 - **8 Ekim profil referansı:** `docs/PROFILE-DESIGN-MEMORY.md`, `docs/mockups/approved-profile-v2.webp` ve `docs/profile-v2-atlas.json`. Sarık/kavuklu tasarım eski profil onayını değiştirir. Üst/alt HUD tamamlandı; `ika-hud.tsx`, `41-exact-reference-hud.css` ve HUD assetlerini değiştirme. Yalnız mevcut profil mekaniğine görsel giydir.
 
 - **8 Ekim Ayarlar referansı:** `docs/SETTINGS-DESIGN-MEMORY.md` ve `44-settings-chambers.css`. Tercihler, Cihaz, Kayıt ve Bilgi 0.63.0 / SW71 olarak onaylı profil malzemelerine geçirildi. Eski ayar mockup/yuvarlak cam paneller yerine bu bellek ve gerçek ekran kanıtları kullanılır. Ayar mekanikleri ve HUD değişmez.
+
+- **8 Ekim arşiv/ittifak:** `docs/ARCHIVE-ALLIANCE-DESIGN-MEMORY.md`, 0.64.0 / SW72. Sürüm arşivi ile ittifakın bütün durum/alt sekmeleri aynı profil malzemelerindedir. Sonraki görsel işlerde bu bellek geçerlidir; mekanik ve HUD korunur.

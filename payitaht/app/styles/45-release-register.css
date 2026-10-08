@@ -1,0 +1,68 @@
+/* Archive and alliance share the approved profile materials. Only
+   presentation changes: their state, validation and handlers stay untouched. */
+.game-shell.has-page .bp:is(.bp-archive,.bp-alliance) {
+  background: var(--royal-paper) center / 420px auto;
+  text-size-adjust: 100%; -webkit-text-size-adjust: 100%;
+}
+.game-shell.has-page:has(:is(.bp-archive,.bp-alliance))::after {
+  content: ''; position: fixed; inset: auto 0 0; height: var(--ika-nav);
+  z-index: 59; pointer-events: none; background: var(--royal-paper) center / 420px auto;
+}
+.game-shell.has-page .bp:is(.bp-archive,.bp-alliance) > .bp-bar {
+  position: relative; min-height: 48px; height: max(48px,8.9vw); padding: 0;
+  border: 0; border-image: none; gap: 0; box-shadow: none;
+  background: var(--profile-header) center / 100% 100% no-repeat;
+}
+.game-shell.has-page .bp:is(.bp-archive,.bp-alliance) > .bp-bar .bp-title {
+  position: absolute; inset: 0 24%; display: grid; place-items: center; padding: 0;
+}
+.game-shell.has-page .bp:is(.bp-archive,.bp-alliance) > .bp-bar .bp-title h1 {
+  margin: 0; color: var(--c-gold-pale);
+  font: 700 clamp(20px,4.4vw,34px)/1.1 'Payitaht Profile Roman',Georgia,serif;
+}
+.game-shell.has-page .bp:is(.bp-archive,.bp-alliance) > .bp-bar .bp-back {
+  position: absolute; inset: 0 auto 0 0; width: 16%; min-height: 48px;
+  border: 0; background: none; box-shadow: none;
+}
+.game-shell.has-page .bp:is(.bp-archive,.bp-alliance) > .bp-bar .bp-close { left: auto; right: 0; }
+.game-shell.has-page .bp:is(.bp-archive,.bp-alliance) > .bp-bar .bp-back > * { display: none; }
+.game-shell.has-page .bp:is(.bp-archive,.bp-alliance) .bp-scroll {
+  gap: 0; padding: 0; background: var(--royal-paper) center / 420px auto;
+}
+
+/* Release archive: a bound parchment register, with walnut edition headings. */
+.game-shell.has-page .bp.bp-archive .annals-editions { padding: 0; font: 15px/1.5 Georgia,serif; }
+.game-shell.has-page .bp.bp-archive .annals-scene { height: 170px; margin: 0; }
+.game-shell.has-page .bp.bp-archive .annals-scene-note { width: 48%; padding: 12px; }
+.game-shell.has-page .bp.bp-archive .annals-scene-note small { font: 700 17px/1.2 'Payitaht Profile Roman',Georgia,serif; }
+.game-shell.has-page .bp.bp-archive .annals-scene-note p { font: 14px/1.45 Georgia,serif; }
+:is(.game-shell.has-page .bp.bp-archive,.title-notes) .annals-editions .annals-ribbon { width: 100%; margin: 0; min-height: 48px; padding: 12px; background: var(--royal-wood) center / cover; border: 0 solid transparent; border-image: var(--royal-page-frame) 20 / 4px / 0 stretch; font: 700 22px/1.2 'Payitaht Profile Roman',Georgia,serif; }
+:is(.game-shell.has-page .bp.bp-archive,.title-notes) .annals-editions .annals-ledger { padding: 18px 4% 24px; background: none; border: 0 solid transparent; border-image: var(--royal-page-frame) 20 / 4px / 0 stretch; box-shadow: none; }
+:is(.game-shell.has-page .bp.bp-archive,.title-notes) .annals-editions :is(h3,strong,.annals-version,.annals-release-meta b) { font-family: 'Payitaht Profile Roman',Georgia,serif; }
+:is(.game-shell.has-page .bp.bp-archive,.title-notes) .annals-editions .annals-ledger-heading h3 { font-size: 24px; }
+:is(.game-shell.has-page .bp.bp-archive,.title-notes) .annals-editions :is(.annals-ledger-heading p,.annals-result,.annals-colophon > p) { font: 13px/1.45 Georgia,serif; }
+:is(.game-shell.has-page .bp.bp-archive,.title-notes) .annals-editions .annals-search { border: 1px solid var(--c-gold-deep); border-radius: 0; box-shadow: none; }
+:is(.game-shell.has-page .bp.bp-archive,.title-notes) .annals-editions .annals-search input { min-height: 50px; padding: 12px 8px; font: 16px/1.4 Georgia,serif; }
+:is(.game-shell.has-page .bp.bp-archive,.title-notes) .annals-editions .annals-new-edition { padding: 16px 12px 8px; background: none; box-shadow: none; border: 1px solid var(--c-gold-deep); border-image: none; }
+:is(.game-shell.has-page .bp.bp-archive,.title-notes) .annals-editions .annals-new-edition > h3 { font-size: 25px; line-height: 1.2; }
+:is(.game-shell.has-page .bp.bp-archive,.title-notes) .annals-editions :is(.annals-new-edition time,.annals-release-meta,.annals-release-toggle small) { font: 13px/1.3 Georgia,serif; }
+:is(.game-shell.has-page .bp.bp-archive,.title-notes) .annals-editions .annals-release-notes p { font: 15px/1.55 Georgia,serif; }
+:is(.game-shell.has-page .bp.bp-archive,.title-notes) .annals-editions .annals-release-notes > li { grid-template-columns: 24px minmax(0,1fr); gap: 9px; padding: 14px 0; }
+:is(.game-shell.has-page .bp.bp-archive,.title-notes) .annals-editions .annals-archive-title { gap: 12px; margin: 24px 0 12px; }
+:is(.game-shell.has-page .bp.bp-archive,.title-notes) .annals-editions .annals-archive-title h3 { font-size: 22px; }
+:is(.game-shell.has-page .bp.bp-archive,.title-notes) .annals-editions .annals-archive-title > button { min-height: 48px; padding: 10px; font: 700 15px/1.3 'Payitaht Profile Roman',Georgia,serif; }
+:is(.game-shell.has-page .bp.bp-archive,.title-notes) .annals-editions .annals-release-list { gap: 14px; }
+:is(.game-shell.has-page .bp.bp-archive,.title-notes) .annals-editions .annals-release { background: none; box-shadow: none; border: 1px solid var(--c-gold-deep); }
+:is(.game-shell.has-page .bp.bp-archive,.title-notes) .annals-editions .annals-release-toggle { color: var(--c-cream); background: var(--royal-wood) center / cover; border: 0 solid transparent; border-image: var(--royal-page-frame) 20 / 3px / 0 stretch; }
+:is(.game-shell.has-page .bp.bp-archive,.title-notes) .annals-editions .annals-release-toggle :is(small,time,b,svg) { color: var(--c-gold-pale); }
+:is(.game-shell.has-page .bp.bp-archive,.title-notes) .annals-editions .annals-release-toggle { min-height: 102px; padding: 12px 10px; gap: 10px; grid-template-columns: 38px minmax(0,1fr) 18px; }
+:is(.game-shell.has-page .bp.bp-archive,.title-notes) .annals-editions .annals-release-toggle strong { font-size: 20px; line-height: 1.25; }
+:is(.game-shell.has-page .bp.bp-archive,.title-notes) .annals-editions .annals-release-content { padding: 4px 12px 10px; }
+:is(.game-shell.has-page .bp.bp-archive,.title-notes) .annals-editions .annals-colophon { margin-top: 22px; padding-top: 16px; }
+
+.game-shell.has-page .bp.bp-archive .bp-title small { display: none; }
+:is(.game-shell.has-page .bp.bp-archive,.title-notes) .annals-editions .annals-ledger { border-radius: 0; }
+.title-screen:has(.title-notes) .title-card { border-radius: 0; box-shadow: none; }
+
+.title-notes .annals-editions { background: var(--royal-paper) center / 420px auto; color: var(--c-ink); text-size-adjust: 100%; }
+.title-screen:has(.title-notes) .title-btn:not(.is-primary) { min-height: 48px; border: 1px solid var(--c-gold-deep); border-radius: 0; background: var(--c-wood-dark); color: var(--c-gold-pale); box-shadow: none; font: 700 17px/1.25 'Payitaht Profile Roman',Georgia,serif; }

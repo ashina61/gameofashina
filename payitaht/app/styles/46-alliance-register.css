@@ -1,0 +1,96 @@
+/* Alliance council: same painted materials, existing pact mechanics. */
+.game-shell.has-page .bp.bp-alliance .royal-page { width: 100%; max-width: none; margin: 0; padding: 0; border: 0; border-radius: 0; box-shadow: none; background: none; color: var(--c-ink); font: 15px/1.5 Georgia,serif; }
+.game-shell.has-page .bp.bp-alliance .diplomatic-scene.is-alliance { min-height: 210px; padding: 0; display: grid; grid-template-columns: 38% minmax(0,1fr); background: var(--royal-paper); }
+.game-shell.has-page .bp.bp-alliance .diplomatic-scene.is-alliance > img { object-position: center; }
+.game-shell.has-page .bp.bp-alliance .diplomatic-scene.is-alliance > .royal-standard { inset: 0 auto auto 2%; width: auto; height: 210px; aspect-ratio: 3 / 5; }
+.game-shell.has-page .bp.bp-alliance .diplomatic-scene-caption { grid-column: 2; min-height: 210px; padding: 18px 14px; background: var(--royal-paper) center / 420px auto; color: var(--c-ink); text-shadow: none; border: 0 solid transparent; border-image: var(--royal-page-frame) 20 / 5px / 0 stretch; }
+.game-shell.has-page .bp.bp-alliance .diplomatic-scene-caption > span { color: var(--c-brown-mid); font: 13px/1.4 Georgia,serif; }
+.game-shell.has-page .bp.bp-alliance .diplomatic-scene-caption h2 { margin: 10px 0; font: 700 25px/1.15 'Payitaht Profile Roman',Georgia,serif; }
+.game-shell.has-page .bp.bp-alliance .diplomatic-scene-caption p { font: 15px/1.5 Georgia,serif; }
+.game-shell.has-page .bp.bp-alliance .royal-summary { min-height: 76px; padding: 10px; background: var(--royal-paper); }
+.game-shell.has-page .bp.bp-alliance .royal-summary > span { gap: 7px; font: 13px/1.3 Georgia,serif; }
+.game-shell.has-page .bp.bp-alliance .royal-summary b { font: 700 22px/1.2 'Payitaht Profile Roman',Georgia,serif; }
+.game-shell.has-page .bp.bp-alliance .royal-summary .royal-art { width: 32px; height: 44px; }
+.game-shell.has-page .bp.bp-alliance .court-tabs {
+  display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap: 0;
+  margin: 0; padding: 0; border: 0 solid transparent; border-radius: 0;
+  border-image: var(--royal-page-frame) 20 / 4px / 0 stretch;
+  background: var(--royal-wood) center / cover; box-shadow: none;
+}
+.game-shell.has-page .bp.bp-alliance .court-tabs > button {
+  position: relative; display: grid; place-items: center; min-height: 48px; padding: 6px 3px;
+  border: 0; border-right: 1px solid var(--c-gold-deep); border-radius: 0;
+  background: none; color: var(--c-cream); font: 700 17px/1.2 'Payitaht Profile Roman',Georgia,serif;
+}
+.game-shell.has-page .bp.bp-alliance .court-tabs > button[aria-selected='true'] {
+  border: 0 solid transparent; border-image: var(--royal-tab-frame) 14 / 4px / 0 stretch;
+  background: linear-gradient(var(--c-royal-active),var(--c-royal-active-deep)); color: var(--c-gold-pale);
+}
+.game-shell.has-page .bp.bp-alliance .court-tabs > button > span { position: relative; z-index: 1; }
+.game-shell.has-page .bp.bp-alliance .court-tab-body {
+  padding: 16px 3% 24px; margin: 0; border: 0 solid transparent; border-radius: 0;
+  border-image: var(--royal-page-frame) 20 / 4px / 0 stretch;
+  background: none; box-shadow: none; color: var(--c-ink);
+}
+
+.game-shell.has-page .bp.bp-alliance .alliance-page > .court-tabs { grid-template-columns: repeat(6,minmax(0,1fr)); }
+.game-shell.has-page .bp.bp-alliance .alliance-foundation > .court-tabs { grid-template-columns: repeat(2,minmax(0,1fr)); }
+.game-shell.has-page .bp.bp-alliance .diplomatic-flag-editor .court-tabs { grid-template-columns: repeat(3,minmax(0,1fr)); }
+.game-shell.has-page .bp.bp-alliance .diplomatic-faction-body { padding: 14px 3% 24px; }
+.game-shell.has-page .bp.bp-alliance .empire-section { padding: 0 0 20px; margin: 0 0 20px; border: 0; border-bottom: 1px solid var(--c-gold-deep); border-radius: 0; background: none; box-shadow: none; }
+.game-shell.has-page .bp.bp-alliance .empire-section > h3 { display: flex; align-items: center; gap: 10px; min-height: 60px; margin: 0 0 14px; padding: 10px 12px; background: var(--royal-wood) center / cover; color: var(--c-gold-pale); border: 0 solid transparent; border-image: var(--royal-page-frame) 20 / 3px / 0 stretch; font: 700 20px/1.25 'Payitaht Profile Roman',Georgia,serif; }
+.game-shell.has-page .bp.bp-alliance .empire-section h3 > .royal-art { width: 38px; height: 44px; flex: 0 0 38px; mix-blend-mode: normal; }
+.game-shell.has-page .bp.bp-alliance :is(.fine-print,.mail-body,.alliance-perks,.hint) { font: 15px/1.5 Georgia,serif; }
+.game-shell.has-page .bp.bp-alliance :is(.gbtn,.rank-duty-edit) { min-height: 48px; padding: 10px 12px; border-radius: 0; box-shadow: none; font: 700 17px/1.25 'Payitaht Profile Roman',Georgia,serif; }
+.game-shell.has-page .bp.bp-alliance .gbtn { border: 0 solid transparent; border-image: var(--royal-gold-button-frame) 12 / 5px / 0 stretch; background: linear-gradient(var(--c-gold-pale),var(--c-gold)); color: var(--c-ink); }
+.game-shell.has-page .bp.bp-alliance :is(.gbtn-parch,.gbtn-ghost,.rank-duty-edit) { border: 0 solid transparent; border-image: var(--royal-page-frame) 20 / 4px / 0 stretch; background: var(--royal-wood) center / cover; color: var(--c-cream); }
+.game-shell.has-page .bp.bp-alliance .gbtn-red { background: linear-gradient(var(--c-royal-active),var(--c-royal-active-deep)); color: var(--c-gold-pale); }
+.game-shell.has-page .bp.bp-alliance :is(input.text-input,textarea.text-input,select) { min-height: 50px; padding: 12px; border: 1px solid var(--c-gold-deep); border-radius: 0; box-shadow: none; background: none; font: 16px/1.5 Georgia,serif; }
+.game-shell.has-page .bp.bp-alliance textarea.text-input { margin-bottom: 8px; }
+.game-shell.has-page .bp.bp-alliance .profile-label { margin-top: 18px; font: 700 18px/1.3 'Payitaht Profile Roman',Georgia,serif; }
+.game-shell.has-page .bp.bp-alliance .profile-label + .text-input { margin-bottom: 14px; }
+.game-shell.has-page .bp.bp-alliance .batch-row { margin-block: 14px; gap: 10px; }
+.game-shell.has-page .bp.bp-alliance :is(.diplomatic-notice,.diplomatic-requirements) { padding: 14px 3%; gap: 10px; font: 15px/1.45 Georgia,serif; }
+.game-shell.has-page .bp.bp-alliance .diplomatic-requirements small { margin-top: 5px; font-size: 13px; }
+.game-shell.has-page .bp.bp-alliance .rank-table li { display: grid; grid-template-columns: 28px minmax(0,1fr); gap: 6px 10px; padding: 16px 4px; }
+.game-shell.has-page .bp.bp-alliance .rank-table .rank-score { grid-column: 2; font: 700 20px/1.2 'Payitaht Profile Roman',Georgia,serif; }
+.game-shell.has-page .bp.bp-alliance .rank-table button { text-align: left; padding: 0; min-width: 0; opacity: 1; }
+.game-shell.has-page .bp.bp-alliance .rank-table button strong { font: 700 19px/1.3 'Payitaht Profile Roman',Georgia,serif; }
+.game-shell.has-page .bp.bp-alliance .rank-table small { display: block; margin-top: 5px; font: 13px/1.4 Georgia,serif; }
+.game-shell.has-page .bp.bp-alliance .alliance-perks { gap: 16px; }
+.game-shell.has-page .bp.bp-alliance .alliance-perks .royal-art { width: 40px; height: 48px; }
+.game-shell.has-page .bp.bp-alliance :is(.member-card,.member-row,.mission-row,.rank-duty,.stance-card,.report-card) { padding: 16px 4px; margin: 0; border: 0; border-bottom: 1px solid var(--c-parch-line); border-radius: 0; background: none; box-shadow: none; }
+.game-shell.has-page .bp.bp-alliance :is(.member-name,.member-card-name) { min-height: 48px; text-align: left; }
+.game-shell.has-page .bp.bp-alliance :is(.member-name strong,.member-card-name strong,.mission-row strong,.stance-card strong,.rank-duty-head > strong) { font: 700 20px/1.25 'Payitaht Profile Roman',Georgia,serif; }
+.game-shell.has-page .bp.bp-alliance .member-card-tools { grid-template-columns: minmax(0,1fr) 48px; gap: 10px; margin-top: 10px; }
+.game-shell.has-page .bp.bp-alliance .member-card-tools .gbtn { padding: 8px; }
+.game-shell.has-page .bp.bp-alliance .member-rank { padding: 8px 0; font: 700 16px/1.3 'Payitaht Profile Roman',Georgia,serif; }
+.game-shell.has-page .bp.bp-alliance .rank-duty-head { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+.game-shell.has-page .bp.bp-alliance .rank-duty-head > strong { flex: 1 1 140px; }
+.game-shell.has-page .bp.bp-alliance .rank-rights { padding: 0; list-style: none; }
+.game-shell.has-page .bp.bp-alliance .rank-rights li { display: flex; align-items: center; gap: 8px; padding: 7px 0; font: 14px/1.45 Georgia,serif; }
+.game-shell.has-page .bp.bp-alliance .rank-who { display: block; font: 13px/1.45 Georgia,serif; }
+.game-shell.has-page .bp.bp-alliance .world-tabs { margin: 12px 0; gap: 0; border: 0; border-radius: 0; background: var(--royal-wood); }
+.game-shell.has-page .bp.bp-alliance .world-tabs > button { min-height: 48px; padding: 10px 6px; font: 700 16px/1.3 'Payitaht Profile Roman',Georgia,serif; border: 0 solid transparent; border-image: var(--royal-page-frame) 20 / 3px / 0 stretch; }
+.game-shell.has-page .bp.bp-alliance .stance-card { display: block; }
+.game-shell.has-page .bp.bp-alliance .goal-card { padding: 16px 4px; }
+.game-shell.has-page .bp.bp-alliance .goal-art { width: 56px; height: 64px; }
+.game-shell.has-page .bp.bp-alliance .goal-body h4 { font: 700 20px/1.25 'Payitaht Profile Roman',Georgia,serif; }
+.game-shell.has-page .bp.bp-alliance .circular-reply { margin: 12px 0; padding: 10px 0 10px 12px; border-left: 2px solid var(--c-gold-deep); font: 14px/1.5 Georgia,serif; }
+.game-shell.has-page .bp.bp-alliance .diplomatic-signature { padding: 12px 0; margin-top: 12px; gap: 10px; }
+.game-shell.has-page .bp.bp-alliance .diplomatic-flag-preview { height: 180px; }
+.game-shell.has-page .bp.bp-alliance :is(.diplomatic-flag-preview,.sancaktar-cloth-art,.sancaktar-color-art) > .royal-standard { inset: 0 auto auto 50%; width: auto; height: 100%; aspect-ratio: 3 / 5; transform: translateX(-50%); }
+.game-shell.has-page .bp.bp-alliance .royal-standard > .royal-embroidery { left: 42.5%; top: 27.5%; width: 35%; height: 25%; }
+.game-shell.has-page .bp.bp-alliance .royal-standard[data-banner='dar'] > .royal-embroidery { left: 46%; top: 29%; width: 24%; height: 23%; }
+.game-shell.has-page .bp.bp-alliance .sancaktar-selection { padding: 16px 0; background: none; border: 0; }
+.game-shell.has-page .bp.bp-alliance .sancaktar-cloth-art { height: 124px; }
+.game-shell.has-page .bp.bp-alliance .sancaktar-color-art { height: 84px; }
+.game-shell.has-page .bp.bp-alliance .sancaktar-selection button[role='radio'] { padding: 10px 6px; border: 0 solid transparent; border-image: var(--royal-page-frame) 20 / 3px / 0 stretch; border-radius: 0; background: none; box-shadow: none; }
+.game-shell.has-page .bp.bp-alliance .sancaktar-selection button[aria-checked='true'] { background: var(--royal-wood); color: var(--c-gold-pale); }
+.game-shell.has-page .bp.bp-alliance .sancaktar-selection button[role='radio'] > span { min-height: 32px; font: 700 15px/1.2 'Payitaht Profile Roman',Georgia,serif; }
+.game-shell.has-page .bp.bp-alliance .sancaktar-emblems .royal-embroidery { width: 64px; height: 64px; margin: 0 auto; padding: 0; }
+
+.game-shell.has-page .bp.bp-alliance .royal-summary { width: 100%; margin: 0; border: 0 solid transparent; border-image: var(--royal-page-frame) 20 / 4px / 0 stretch; border-radius: 0; box-shadow: none; }
+.game-shell.has-page .bp.bp-alliance .goal-body > strong { font: 700 20px/1.25 'Payitaht Profile Roman',Georgia,serif; }
+.game-shell.has-page .bp.bp-alliance .alliance-faction .member-row { align-items: center; }
+.game-shell.has-page .bp.bp-alliance .alliance-faction .member-row > .royal-art { width: 40px; height: 48px; flex: 0 0 40px; }
