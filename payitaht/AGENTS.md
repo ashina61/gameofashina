@@ -10,6 +10,8 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 # Payitaht Adaları — ajanlar için
 
+**Son kullanıcı düzeltmesi — 0.71.1 / SW82:** Halk ve âlim rol alanlarında portre kullanılmaz. Ortak `citizen-figure.webp` ve `scholar-figure.webp` şeffaf, tam boy insan figürleridir; baştan ayağa görünür, portre çerçevesi yoktur. HUD danışman rozetleri ayrı navigasyon görselleridir, asker portre standardı korunur.
+
 **9 Ekim 0.71.0 / SW81 düzeltmesi:** Halk ve âlim ortak `ui/people/` portreleri; ilim/süre ortak yeni WebP. Bina detaylarında yapı/seviye önizlemeleri ve üst bilgi düğmeleri kaldırıldı; yön/taşı/yık Gelişim'de. Yükseltme başlığı ortalı, Onayla/Geri al eşit. Kristal deneyleri gerçek harcama/kazanımı, Âlimin önerisi güncel duruma göre uygun araştırmayı anlatır. `docs/MEDRESE-DESIGN-MEMORY.md` başındaki son kurallar eski avlu tariflerini değiştirir.
 
 **8 Ekim son genel onay:** Kullanıcı kışlanın 0.69.0 son halini oyunun tasarım standardı kabul etti. Yeni sayfalarda önce `docs/MASTER-UI-STANDARD.md`; Medrese/araştırma için `docs/MEDRESE-DESIGN-MEMORY.md` okunur. Mekanik/HUD korunur, Gelişim’de eylem önce gelir.

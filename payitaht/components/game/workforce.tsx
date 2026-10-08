@@ -18,7 +18,7 @@ const INK = '#2e1c0e'
 const SKIN = '#e8b98a'
 /** Ayakta duran küçük figür: başlık, cübbe ve elindeki alet mesleği anlatır. */
 export function PersonArt({ kind, size = 64 }: { kind: Figure; size?: number }) {
-  if (kind === 'alim' || kind === 'halk') return <img className="person-art person-portrait" src={asset(`/images/game/ui/people/${kind === 'alim' ? 'scholar' : 'citizens'}.webp`)} alt="" width={size} height={size} />
+  if (kind === 'alim' || kind === 'halk') return <img className="person-art person-figure" src={asset(`/images/game/ui/people/${kind === 'alim' ? 'scholar-figure' : 'citizen-figure'}.webp`)} alt="" width={size} height={size * 80 / 60} />
   const look: Record<Figure, { robe: string; sash: string; hat: ReactNode; tool: ReactNode }> = {
     halk: { robe: '#4f7fa8', sash: '#e2bd78',
       hat: <path d="M23 13 l1.5 -8 h11 l1.5 8 Z" fill="#b3261e" stroke={INK} strokeWidth="1.2" />, tool: null },

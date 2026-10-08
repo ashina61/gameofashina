@@ -11,7 +11,7 @@ Adem, 8 Ekim 2026: “bu tasarımı beynine işle tasarım standardımız oturdu
 - Bölüm başlıkları iki yanda simetrik altın süs. Sekmelerde konuya uygun Osmanlı/boyalı simge; Gelişim'de referansın pirinç sütun ikonu.
 - Önce oyun eylemi, sonra destek bilgisi. Yükseltme Gelişim'in ilk bloğudur. Ana eylemi sabit büyük dekorasyonla sıkıştırma. Uzun içerik dikey akar; yatay hareket sadece açıkça belirtilen adet barı veya dal sekmesidir.
 - Sahne aynı Osmanlı–Ege ressamının ışık/malzeme dilinde; yeni bina için aynı sahneyi kopyalamak yerine yeni yazısız resim üret. 9 Ekim düzeltmesi: bina sayfalarındaki yapı görünümü ve seviye önizleme galerileri kaldırılır. Yön/taşıma/yıkım eylemleri Gelişim’de ayrı açılır alanda erişilebilir kalır.
-- Halk/âlim için her yerde ortak `ui/people/citizens.webp` ve `scholar.webp`; sayfaya özel farklı halk veya âlim kullanma. Üst bina bilgi düğmesi kaldırılır, açıklama Gelişim’de okunur. Yükseltme başlığı ortalı; Onayla/Geri al eşit genişlik ve yükseklikte, çerçeve işaretleri metne değmez.
+- Halk/âlim rol alanlarında ortak `ui/people/citizen-figure.webp` ve `scholar-figure.webp`: şeffaf tam boy insan figürü, baş ve ayaklar görünür; portre veya portre çerçevesi kullanma. HUD danışman rozetleri ayrı navigasyon simgeleridir; asker portreleri bu kuralın dışındadır. Üst bina bilgi düğmesi kaldırılır, açıklama Gelişim’de okunur. Yükseltme başlığı ortalı; Onayla/Geri al eşit genişlik ve yükseklikte, çerçeve işaretleri metne değmez.
 - İlim ve süre simgeleri ortak `icons/res-ilim-v2.webp` ve `res-sure.webp`; bağlama göre okunur boyut.
 - Kabul edilmiş üst/alt HUD yerleşimi değişmez. Ekonomi, kaydetme, maliyetler, süreler, ön koşullar ve komutlar değiştirilmez.
 

@@ -123,7 +123,7 @@
 .game-shell.has-page .bp:is(.bp-of-medrese,.bp-research) .gbtn { min-width: 120px; }
 
 /* 0.71: one citizen/scholar portrait, clear experimentation and aligned actions. */
-.game-shell img.person-portrait { object-fit: cover; border: 0 solid transparent; border-image: url('../../public/images/game/ui/barracks/unit-frame.webp') 40 / 5px / 0 stretch; border-radius: 0; flex-shrink: 0; }
+.game-shell img.person-figure { object-fit: contain; border: 0; flex-shrink: 0; }
 .game-shell .bp-dock-label { display: block; width: 100%; text-align: center; }
 .game-shell .building-description,
 .game-shell .building-operations { margin: 12px 0; border-block: 1px solid var(--c-gold-deep); }
@@ -135,7 +135,7 @@
 .game-shell.has-page .bp-of-medrese > .bp-bar h1::before,
 .game-shell.has-page .bp-of-medrese > .bp-bar h1::after { content: ''; width: 30px; height: 12px; background: var(--academy-ornament) center / 100% 100% no-repeat; }
 .game-shell.has-page .bp-of-medrese > .bp-bar h1::after { transform: scaleX(-1); }
-.game-shell.has-page .bp-of-medrese .workforce-side .person-portrait { width: 64px; height: 64px; margin-bottom: 4px; }
+.game-shell.has-page .bp-of-medrese .workforce-side .person-figure { width: 60px; height: 80px; margin-bottom: 4px; }
 .game-shell.has-page .bp-of-medrese .workforce-confirm { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); align-items: stretch; gap: 8px; }
 .game-shell.has-page .bp-of-medrese .workforce-confirm > .gbtn { min-width: 0; width: 100%; min-height: 52px; padding: 13px 30px; text-align: center; justify-content: center; }
 .game-shell.has-page .bp-of-medrese .workforce-confirm > .gbtn[data-variant='outline'] { filter: saturate(.4); }

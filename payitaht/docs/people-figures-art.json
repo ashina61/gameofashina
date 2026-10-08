@@ -1,0 +1,13 @@
+{
+  "mode": "built-in image_gen",
+  "prompts": [
+    "Use case: historical-scene. Asset type: transparent Ottoman strategy game human role figure. Hand-painted polished realistic game illustration, warm natural upper-left lighting, detailed cloth, readable silhouette at small UI size. FULL LENGTH standing head to toe, both feet visible, entire body centered with modest transparent padding. No bust, no portrait crop, no frame, no medallion, no scenery, no text, no ground tile. Genuine transparent background. Subject: one ordinary Ottoman town citizen, adult man, simple cream linen shirt, warm brown waistcoat, fabric waist sash, earthy loose trousers, simple cap and leather shoes, relaxed welcoming stance, empty hands visible. Ordinary civilian, not soldier or noble.",
+    "Use case: historical-scene. Asset type: transparent Ottoman strategy game human role figure. Hand-painted polished realistic game illustration, warm natural upper-left lighting, detailed cloth, readable silhouette at small UI size. FULL LENGTH standing head to toe, both feet visible, entire body centered with modest transparent padding. No bust, no portrait crop, no frame, no medallion, no scenery, no text, no ground tile. Genuine transparent background. Subject: one Ottoman scholar, mature bearded man, white turban, deep teal long robe with subtle antique gold edging, cream undergarment, leather shoes. Standing and holding an open manuscript at waist level with both hands; calm wise expression. Feet visible below robe. Match painterly game figure style."
+  ],
+  "assets": [
+    "public/images/game/ui/people/citizen-figure.webp",
+    "public/images/game/ui/people/scholar-figure.webp"
+  ],
+  "processing": "trim and resize contain to 192x256; original generated alpha preserved",
+  "standard": "Full body, feet visible, transparent, no portrait frame. HUD advisor navigation badges retain separate artwork."
+}

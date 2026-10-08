@@ -1,3 +1,7 @@
+# Son düzeltme — 0.71.1 / SW82
+
+Kullanıcı: «halk ve alim gibi durumlarda insan gibi çiz kanka portre olmasın». Önceki halk/âlim portre tarifini değiştirir. Boştaki halk sade sivil kıyafetli tam boy insan; âlim sarıklı, kitap tutan tam boy insan. Şeffaf boyalı WebP, çerçevesiz, object-fit contain. Ortak PersonArt ile iş gücü/araştırma/öneri alanlarına yayılır; Medrese 60×80, diğer alanlar mevcut 3:4 figür oranını korur. HUD danışman simgeleri ve asker portreleri ayrı kullanım olarak korunur.
+
 # Son düzeltme — 0.71.0 / SW81 (9 Ekim)
 
 Kullanıcı halk ve âlimin her yerde aynı olmasını istedi: `PersonArt` halk için `public/images/game/ui/people/citizens.webp`, âlim için `scholar.webp` döndürür. Halk sıradan Osmanlı şehir sakinleri, âlim beyaz sarık/mavi cübbe/elyazmasıdır. Medreseye özel öğrenci veya eski portre kullanılmaz; öneri kutusu da aynı âlimi kullanır. Medrese portreleri 64×64, diğer kullanımlar kendi bağlam boyutuyla aynı resim/çerçeve.

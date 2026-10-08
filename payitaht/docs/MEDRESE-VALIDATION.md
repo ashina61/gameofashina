@@ -1,3 +1,10 @@
+# Tam boy figür doğrulaması — 0.71.1 / SW82
+
+- Halk ve âlim: ayrı üretilmiş şeffaf PNG, alpha korunarak 192×256 WebP; ortak PersonArt, object-fit contain; portre çerçevesi yok.
+- 360, 390 ve 430×844: Medrese figürleri tam boy, kesilme/taşma/çakışma yok. Onayla ile âlim 10→11; ormanda aynı citizen-figure kullanılır. Öneri ve beş araştırma dalı temiz. Aktif ilerleme taramasındaki tek kesik kayıt Base UI erişilebilirlik için gizlenmiş 1px presentation span, görünür içerik değil.
+- 335 test, TypeScript, ESLint, strict CSS ve V2 ölçütleri geçti. Tam genel layout-qa 360×740 ve %130: exit 1; önceki HUD küçük/minik ve gizli Gelişim dock beklentisi kayıtları sürüyor. Değişen figürlerin odaklı taraması temiz.
+- Kanıtlar: medrese-live-{360,390,430}.webp, medrese-confirmation.webp, medrese-active.webp, research-advice.webp.
+
 # Medrese — 0.70.0 / SW80
 
 8 Ekim 2026. Kullanıcı kışla 0.69.0 dilini genel standart kabul etti; `MASTER-UI-STANDARD.md` ve `MEDRESE-DESIGN-MEMORY.md` kalıcı kaynaklar. Üst/alt HUD, kayıt şeması, ekonomi, maliyet, süre, ön koşul ve komut hesapları değişmedi.
