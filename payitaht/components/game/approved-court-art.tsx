@@ -13,5 +13,5 @@ export function RoyalCrest({ crest, className }: { crest: CrestId; className?: s
 }
 /** Each silhouette has its own painted cloth and border; tint touches only silver silk. */
 export function RoyalStandard({ crest, color, banner }: { crest: CrestId; color: string; banner: BannerId }) {
-  return <div className="royal-standard" style={{ '--standard-color': color, '--royal-cloth-mask': `url("${asset(`/images/game/ui/sancaktar/mask-${banner}.webp`)}")` } as React.CSSProperties} aria-label="Hükümdarın sancağı"><img className="royal-art" src={asset(`/images/game/ui/sancaktar/cloth-${banner}.webp`)} alt="" width={300} height={500} /><div className="royal-standard-tint" /><RoyalCrest crest={crest} /></div>
+  return <div className="royal-standard" data-banner={banner} style={{ '--standard-color': color, '--royal-cloth-mask': `url("${asset(`/images/game/ui/sancaktar/mask-${banner}.webp`)}")` } as React.CSSProperties} aria-label="Hükümdarın sancağı"><img className="royal-art" src={asset(`/images/game/ui/sancaktar/cloth-${banner}.webp`)} alt="" width={300} height={500} /><div className="royal-standard-tint" /><RoyalCrest crest={crest} /></div>
 }

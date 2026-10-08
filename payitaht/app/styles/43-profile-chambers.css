@@ -10,18 +10,18 @@
   position: relative; padding: 14px 0 4px; margin: 0; background: none;
 }
 .game-shell.has-page .bp.bp-profile :is(.royal-section-heading,.sancaktar-heading) {
-  display: flex; align-items: center; gap: 9px; min-height: 72px;
+  display: flex; align-items: center; gap: 8px; min-height: 60px;
   margin: 0 0 12px; padding: 10px 12px; border: 0 solid transparent;
   border-image: var(--royal-page-frame) 20 / 4px / 0 stretch;
   background: var(--royal-wood) center / cover; box-shadow: none;
 }
 .game-shell.has-page .bp.bp-profile :is(.royal-section-heading,.sancaktar-heading) > .royal-art {
-  flex: 0 0 46px; width: 46px; height: 52px; object-fit: contain; mix-blend-mode: normal;
+  flex: 0 0 38px; width: 38px; height: 44px; object-fit: contain; mix-blend-mode: normal;
 }
 .game-shell.has-page .bp.bp-profile :is(.royal-section-heading,.sancaktar-heading) > div { flex: 1; min-width: 0; }
 .game-shell.has-page .bp.bp-profile .royal-subpage .royal-section h3,
 .game-shell.has-page .bp.bp-profile .sancaktar-heading h3 {
-  position: static; margin: 0; font: 700 21px/1.1 'Payitaht Profile Roman','Times New Roman',serif;
+  position: static; margin: 0; font: 700 19px/1.1 'Payitaht Profile Roman','Times New Roman',serif;
   color: var(--c-gold-pale); overflow-wrap: anywhere;
 }
 .game-shell.has-page .bp.bp-profile :is(.royal-section-heading,.sancaktar-heading) p {
@@ -35,16 +35,16 @@
 .game-shell.has-page .bp.bp-profile .royal-settlements { display: grid; gap: 0; }
 .game-shell.has-page .bp.bp-profile .royal-settlement {
   display: grid; grid-template-columns: 32% minmax(0,1fr); gap: 12px;
-  min-height: 152px; padding: 13px 8px; margin: 0; border: 0; border-radius: 0;
+  min-height: 124px; padding: 10px 8px; margin: 0; border: 0; border-radius: 0;
   border-bottom: 1px solid var(--c-gold-deep); background: none; box-shadow: none;
   color: var(--c-ink);
 }
-.game-shell.has-page .bp.bp-profile .royal-settlement-art > .royal-art { height: 92px; width: 100%; }
+.game-shell.has-page .bp.bp-profile .royal-settlement-art > .royal-art { height: 74px; width: 100%; }
 .game-shell.has-page .bp.bp-profile .royal-settlement-art > small {
   background: var(--royal-wood) center / cover; color: var(--c-gold-pale);
   border: 1px solid var(--c-gold); font: 700 11px/1.2 'Payitaht Profile Roman',serif;
 }
-.game-shell.has-page .bp.bp-profile .royal-settlement strong { font-size: 26px; line-height: 1.05; }
+.game-shell.has-page .bp.bp-profile .royal-settlement strong { font-size: 22px; line-height: 1.05; }
 .game-shell.has-page .bp.bp-profile .royal-settlement > span { gap: 5px; }
 .game-shell.has-page .bp.bp-profile .royal-settlement b { font: 700 15px/1.2 'Payitaht Profile Roman',serif; }
 .game-shell.has-page .bp.bp-profile .royal-settlement:active { background: #b17f2422; }
@@ -53,29 +53,29 @@
 }
 .game-shell.has-page .bp.bp-profile .royal-score-register > div {
   grid-template-columns: 28% minmax(0,1fr); gap: 6px; padding: 12px 6px;
-  border-bottom: 1px solid var(--c-parch-line); min-height: 96px;
+  border-bottom: 1px solid var(--c-parch-line); min-height: 80px;
 }
-.game-shell.has-page .bp.bp-profile .royal-score-register .royal-art { height: 58px; }
-.game-shell.has-page .bp.bp-profile .royal-score-register strong { font-size: 21px; line-height: 1.1; }
+.game-shell.has-page .bp.bp-profile .royal-score-register .royal-art { height: 48px; }
+.game-shell.has-page .bp.bp-profile .royal-score-register strong { font-size: 19px; line-height: 1.1; }
 .game-shell.has-page .bp.bp-profile .royal-score-register small { font-size: 12px; }
 .game-shell.has-page .bp.bp-profile .royal-record-groups { gap: 0; }
 .game-shell.has-page .bp.bp-profile .royal-record-groups > section {
   padding: 10px 8px 14px; border: 0; border-bottom: 1px solid var(--c-gold-deep);
   background: none; border-radius: 0;
 }
-.game-shell.has-page .bp.bp-profile .royal-record-groups h4 { font-size: 21px; }
-.game-shell.has-page .bp.bp-profile .royal-record-groups dd { font: 700 24px/1.1 'Payitaht Profile Roman',serif; }
+.game-shell.has-page .bp.bp-profile .royal-record-groups h4 { font-size: 19px; }
+.game-shell.has-page .bp.bp-profile .royal-record-groups dd { font: 700 21px/1.1 'Payitaht Profile Roman',serif; }
 .game-shell.has-page .bp.bp-profile .royal-record-groups dl { gap: 13px 12px; }
 /* Nişan treasury: brass, silver and gold shelves, with real earned states. */
 .game-shell.has-page .bp.bp-profile .royal-tier-summary { margin: 0 0 14px; }
-.game-shell.has-page .bp.bp-profile .royal-tier-summary > div { min-height: 78px; }
-.game-shell.has-page .bp.bp-profile .royal-tier-summary strong { font-size: 27px; }
+.game-shell.has-page .bp.bp-profile .royal-tier-summary > div { min-height: 66px; }
+.game-shell.has-page .bp.bp-profile .royal-tier-summary strong { font-size: 21px; }
 .game-shell.has-page .bp.bp-profile .royal-next-medal {
   grid-template-columns: 30% minmax(0,1fr); gap: 12px; padding: 12px 8px;
   background: none; border: 0; border-block: 1px solid var(--c-gold-deep);
 }
-.game-shell.has-page .bp.bp-profile .royal-next-medal h4 { font-size: 23px; }
-.game-shell.has-page .bp.bp-profile .royal-next-medal .royal-medal-art .royal-art { height: 116px; }
+.game-shell.has-page .bp.bp-profile .royal-next-medal h4 { font-size: 21px; }
+.game-shell.has-page .bp.bp-profile .royal-next-medal .royal-medal-art .royal-art { height: 94px; }
 .game-shell.has-page .bp.bp-profile .royal-filter { gap: 0; margin: 16px 0; }
 .game-shell.has-page .bp.bp-profile .royal-filter button {
   min-height: 48px; border: 0 solid transparent; border-image: var(--royal-page-frame) 20 / 4px / 0 stretch;
@@ -84,13 +84,13 @@
 .game-shell.has-page .bp.bp-profile .royal-filter button[aria-pressed='true'] {
   background: linear-gradient(var(--c-royal-active),var(--c-royal-active-deep)); color: var(--c-gold-pale);
 }
-.game-shell.has-page .bp.bp-profile .royal-medal-gallery { gap: 16px 12px; }
+.game-shell.has-page .bp.bp-profile .royal-medal-gallery { gap: 12px 10px; }
 .game-shell.has-page .bp.bp-profile .royal-medal-card,
 .game-shell.has-page .bp.bp-profile .royal-medal-card.is-earned {
   padding: 6px 0 14px; border: 0; border-bottom: 1px solid var(--c-parch-line);
   background: none; border-radius: 0; box-shadow: none;
 }
-.game-shell.has-page .bp.bp-profile .royal-medal-card .royal-medal-art .royal-art { height: 116px; }
+.game-shell.has-page .bp.bp-profile .royal-medal-card .royal-medal-art .royal-art { height: 94px; }
 .game-shell.has-page .bp.bp-profile .royal-medal-card h4 {
   display: grid; place-items: center; width: 100%; min-height: 44px; margin: 7px 0;
   padding: 8px 7px; font: 700 16px/1.1 'Payitaht Profile Roman',serif;
@@ -124,12 +124,12 @@
   margin: 0; gap: 0; border: 0 solid transparent; border-image: var(--royal-page-frame) 20 / 4px / 0 stretch;
   background: var(--royal-wood) center / cover;
 }
-.game-shell.has-page .bp.bp-profile .sancaktar-steps button { min-height: 52px; font: 700 18px/1.1 'Payitaht Profile Roman',serif; }
+.game-shell.has-page .bp.bp-profile .sancaktar-steps button { position: relative; min-height: 48px; font: 700 18px/1.1 'Payitaht Profile Roman',serif; }
 .game-shell.has-page .bp.bp-profile .sancaktar-steps button[aria-pressed='true'] {
   background: linear-gradient(var(--c-royal-active),var(--c-royal-active-deep));
 }
 .game-shell.has-page .bp.bp-profile .sancaktar-selection { padding: 15px 0 4px; margin: 0; background: none; border: 0; }
-.game-shell.has-page .bp.bp-profile .sancaktar-selection h4 { font-size: 23px; }
+.game-shell.has-page .bp.bp-profile .sancaktar-selection h4 { font-size: 21px; }
 .game-shell.has-page .bp.bp-profile .sancaktar-selection > header { padding: 0 8px; align-items: start; }
 .game-shell.has-page .bp.bp-profile .sancaktar-cloths { gap: 14px 12px; }
 .game-shell.has-page .bp.bp-profile :is(.sancaktar-emblems,.sancaktar-colors) { gap: 12px 8px; }
@@ -141,11 +141,11 @@
   background: var(--royal-wood) center / cover; color: var(--c-gold-pale);
 }
 .game-shell.has-page .bp.bp-profile .sancaktar-selection button[role='radio'] > span {
-  min-height: 40px; font: 700 15px/1.1 'Payitaht Profile Roman',serif;
+  min-height: 32px; font: 700 15px/1.1 'Payitaht Profile Roman',serif;
 }
-.game-shell.has-page .bp.bp-profile .sancaktar-cloth-art { height: 152px; }
-.game-shell.has-page .bp.bp-profile .sancaktar-color-art { height: 96px; }
-.game-shell.has-page .bp.bp-profile .sancaktar-emblems .royal-embroidery { height: 78px; }
+.game-shell.has-page .bp.bp-profile .sancaktar-cloth-art { height: 124px; }
+.game-shell.has-page .bp.bp-profile .sancaktar-color-art { height: 84px; }
+.game-shell.has-page .bp.bp-profile .sancaktar-emblems .royal-embroidery { height: 64px; }
 .game-shell.has-page .bp.bp-profile .sancaktar-signature {
   margin: 14px 0 0; padding: 12px 10px; background: var(--royal-paper) center / 420px auto;
   border: 0 solid transparent; border-image: var(--royal-page-frame) 20 / 4px / 0 stretch;
@@ -154,4 +154,30 @@
 @media (min-width: 650px) {
   .game-shell.has-page .bp.bp-profile .royal-medal-gallery { grid-template-columns: repeat(3,minmax(0,1fr)); }
   .game-shell.has-page .bp.bp-profile .royal-record-groups { grid-template-columns: repeat(2,minmax(0,1fr)); gap: 14px; }
+}
+
+/* Seal the transparent command-rail edge with the page surface, without
+   changing the accepted HUD artwork, geometry or controls. */
+.game-shell.has-page:has(.bp-profile)::after {
+  content: ''; position: fixed; inset: auto 0 0; height: var(--ika-nav);
+  z-index: 59; pointer-events: none; background: var(--royal-paper) center / 420px auto;
+}
+/* Keep embroidery coordinates in the actual 300×500 painted sprite. A wide
+   tray previously letterboxed the cloth but positioned its crest in the tray. */
+.game-shell.has-page .bp.bp-profile :is(.sancaktar-cloth-art,.sancaktar-color-art) > .royal-standard {
+  inset: 0 auto auto 50%; width: auto; height: 100%; aspect-ratio: 3 / 5;
+  transform: translateX(-50%);
+}
+.game-shell.has-page .bp.bp-profile :is(.sancaktar-cloth-art,.sancaktar-color-art) .royal-embroidery {
+  left: 42.5%; top: 27.5%; width: 35%; height: 25%; object-position: center;
+}
+.game-shell.has-page .bp.bp-profile :is(.sancaktar-cloth-art,.sancaktar-color-art) .royal-standard[data-banner='dar'] > .royal-embroidery {
+  left: 46%; top: 29%; width: 24%; height: 23%;
+}
+.game-shell.has-page .bp.bp-profile .sancaktar-emblems .royal-embroidery {
+  width: 64px; height: 64px; padding: 0; margin: 0 auto; object-position: center;
+}
+
+.game-shell.has-page .bp.bp-profile .sancaktar-steps button > :is(small,span) {
+  position: relative; z-index: 1;
 }

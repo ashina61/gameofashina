@@ -55,3 +55,11 @@ Alt sekmelerin kaplaması `app/styles/43-profile-chambers.css`. Aynı boyanmış
 Alt panel başlıkları ve nişan metreleri normal akıştadır. Saltanat atlasının mutlak başlık/ilerleme koordinatları alt panellere uygulanmaz. Canlı metinler resim içine gömülmez; sıralama, filtre, seçim, validasyon ve kayıt fonksiyonlarını değiştirme.
 
 Gerçek ekran kanıtları: `mockups/profile-chambers-cities.webp`, `profile-chambers-medals.webp`, `profile-chambers-banner.webp`. 360/390/430 px genişlik, gerçek sekme/filtre, kumaş/arma/renk seçimi ve kaydet/vazgeç kontrolleri yapılmıştır.
+
+## Mobil sıkılaştırma ve arma kaydı — 0.62.1 / SW70
+
+Profil açıkken shell'in yalnız alt bar arkasındaki bölümü parşömenle örtülür (`::after`, z=59, pointer-events:none). Şeffaf HUD kenarlarından şehir görünmez; HUD z=70, asset ve ölçüler aynı kalır. Sayfa kapandığında örtü kaldırılır.
+
+Kumaş seçici: `.royal-standard` her tezgâhta 3/5 oranında, yatay ortada, %100 yüksekliğe sahip gerçek sprite kutusudur. Kumaş ve renk maskesi aynı kutuyu kullanır. Arma normal kumaşta x=%60, y=%40 merkezlidir; 35% genişlik, 25% yükseklik. Dar flamaya x=%58, y=%40,5; 24% genişlik, 23% yükseklik. `data-banner` sadece görsel silüet ayarıdır; kayıt ve seçim kuralını değiştirmez. Bağımsız arma örnekleri 64×64 ortalanır. Bu seçici ölçülerini Saltanat sahnesine/HUD'a taşımak yasaktır.
+
+Alt defterlerde yaklaşık %15–20 daha küçük resimler/boşluklar; şehir satırı 124 px, şehir resimleri 74 px, nişanlar 94 px, kumaş örneği 124 px, renk örneği 84 px. Giriş ve dokunma hedefleri en az 48 px korunur.

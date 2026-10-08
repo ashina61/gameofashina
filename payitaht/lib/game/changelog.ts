@@ -5,6 +5,7 @@
 export type Release = { version: string; date: string; title: string; notes: string[] }
 
 export const CHANGELOG: Release[] = [
+  { version: '0.62.1', date: '8 Ekim 2026', title: 'Sancak hizası ve daha sıkı defterler', notes: ['Profil ile alt bar arasından şehir görüntüsünün görünmesi kapatıldı; barın resmi ve ölçüleri korunur.', 'Seçicideki armalar kumaşın gerçek boyutuna hizalandı. Şehirler, Nişanlar ve Sancak içeriğinin resim ve boşlukları küçültüldü; mekanikler değişmedi.'] },
   { version: '0.62.0', date: '8 Ekim 2026', title: 'Sarayın üç defteri', notes: ['Şehirler, Nişanlar ve Sancak sekmeleri ortak ceviz, altın işleme ve parşömen tasarımına geçirildi.', 'Şehir geçişleri, nişan koşulları ve filtreleri, sancak seçimleri ve kaydet/vazgeç işlemleri korunur. Üst ve alt bar değişmedi.'] },
   { version: '0.61.4', date: '8 Ekim 2026', title: 'Referans yazı genişlikleri', notes: ['Saltanat sicili, şeref rafı başlıkları ve nişan levhası yazıları referansın harf genişliklerine göre son ölçülerine getirildi.'] },
   { version: '0.61.3', date: '8 Ekim 2026', title: 'Profilde sancak ve yazı ölçüleri', notes: ['Sancak arması ve bölüm başlıkları onaylı profil referansına göre yeniden hizalandı.', 'Sicil, şeref rafı ve nişan etiketlerinde aynı gömülü yazı tipi kullanılır; cihazın serif seçimi yerleşimi değiştirmez.'] },
