@@ -3,7 +3,7 @@ import { useState } from 'react'
 import { asset } from '@/lib/asset'
 import type { Empire } from '@/lib/game/empire'
 import { TITLES, achievements, playerScore, profileOf, profileStats, rulerTitle, setProfile } from '@/lib/game/profile'
-import { Award, Castle, Flag, Settings, ScrollText } from './ui-art'
+import { Award, Castle, Flag } from './ui-art'
 import { GameButton } from './game-button'
 import { CourtTabs } from './court-kit'
 import { ApprovedArt, RoyalStandard } from './approved-court-art'
@@ -35,6 +35,6 @@ export function SovereignPage({ empire, now, run, onCity, onSettings, onChangelo
       {tab === 'medals' && <RoyalMedals empire={empire} />}
       {tab === 'banner' && <RoyalWardrobe value={draft} change={setDraft} cancel={() => setTab('reign')} save={() => { run((e, t) => setProfile(e, draft, t), 'Profil kaydedildi.'); setTab('reign') }} />}
     </CourtTabs>
-    {tab !== 'banner' && <footer className="court-footer"><GameButton variant="outline" onClick={onSettings}><Settings aria-hidden="true" />Ayarları aç</GameButton><GameButton variant="outline" onClick={onChangelog}><ScrollText painted aria-hidden="true" />Sürüm arşivi</GameButton></footer>}
+    {tab !== 'banner' && <footer className="court-footer"><GameButton variant="outline" onClick={onSettings}><span>Ayarları aç</span></GameButton><GameButton variant="outline" onClick={onChangelog}><span>Sürüm arşivi</span></GameButton></footer>}
   </div>
 }

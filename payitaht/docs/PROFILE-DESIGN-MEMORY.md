@@ -35,3 +35,7 @@ Atlas dilimleme Sharp ile yapılır; AI yeniden tasarım için kullanılmaz. Ona
 ## Kabul kontrolü
 
 390, 360 ve 430 px mobil genişliklerde gerçek ekranı aç. Başlık, sahne, kimlik, özet, sekmeler, unvan, sicil ve rafı referansla yan yana kontrol et. Uzun isim/motto ve büyük puan taşmamalı. Üst/alt HUD öncesi/sonrası piksel ve dosya hash karşılaştırması aynı olmalı. Sekmeler, nişan filtresi, şehir rotası, sancak kaydet/vazgeç ve ayar/arşiv eylemlerini dene. Görsel farkı varsa aynı diye raporlama.
+
+## Telefonda metin ve ikon yerleşimi
+
+Profil alanında `text-size-adjust: 100%` ve `-webkit-text-size-adjust: 100%` korunur. Masaüstü emülasyonundan geçen normal akış, Android'de aynı sonucu garanti etmez. Kimlik içindeki isim/unvan/motto ayrı, sahneye oranlı mutlak kutulardır; unvanın yeri isim satırının yüksekliğine bağlı değildir. Başlık yazısı atlasın iki süsü arasında kalır. Atlas zaten geri/kapat ve ayar/arşiv ikonlarını içerir: ikinci runtime ikon eklenmez. Nişan etiketleri her levhanın kendi sınırında merkezlenir.

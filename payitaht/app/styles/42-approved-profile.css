@@ -228,3 +228,59 @@
 /* Keep enlarged summary text inside its painted cell without resizing art. */
 .game-shell.has-page .bp.bp-profile .royal-summary > span { padding-top: 2cqw; }
 .game-shell.has-page .bp.bp-profile .royal-summary b { line-height: 1.05; }
+
+/* Atlas text boxes: reset inherited flow and Android text inflation. The
+   painted ornaments/icons occupy their own space, outside live text boxes. */
+.game-shell.has-page .bp.bp-profile { text-size-adjust: 100%; -webkit-text-size-adjust: 100%; }
+.game-shell.has-page .bp.bp-profile > .bp-bar { position: relative; }
+.game-shell.has-page .bp.bp-profile > .bp-bar .bp-title {
+  position: absolute; left: 29%; right: 29%; top: 0; bottom: 0;
+  display: grid; place-items: center; width: auto; padding: 0; margin: 0;
+}
+.game-shell.has-page .bp.bp-profile > .bp-bar .bp-title h1 {
+  width: 100%; margin: 0; font-size: 3.6vw; line-height: 1;
+  letter-spacing: 0; white-space: nowrap; overflow: visible; text-overflow: clip;
+}
+.game-shell.has-page .bp.bp-profile > .bp-bar .bp-back { position: absolute; left: 0; top: 0; width: 16%; }
+.game-shell.has-page .bp.bp-profile > .bp-bar .bp-close { left: auto; right: 0; }
+.game-shell.has-page .bp.bp-profile > .bp-bar .bp-back > * { display: none; }
+.game-shell.has-page .bp.bp-profile .royal-identity { top: 0; bottom: 0; height: 100%; }
+.game-shell.has-page .bp.bp-profile .royal-identity h2 {
+  position: absolute; left: 0; right: 0; top: 16%; height: 10%;
+  display: grid; place-items: center; margin: 0; line-height: 1; white-space: nowrap;
+}
+.game-shell.has-page .bp.bp-profile .royal-identity strong {
+  position: absolute; left: 0; right: 0; top: 27%; height: 9%;
+  display: grid; place-items: center; margin: 0; padding: 0; line-height: 1;
+  white-space: nowrap; text-shadow: 0 1px 1px var(--c-wood-dark);
+}
+.game-shell.has-page .bp.bp-profile .royal-identity p {
+  position: absolute; left: 0; right: 0; top: 39%; height: 10%;
+  display: grid; place-items: start center; margin: 0; padding: 0;
+  color: var(--c-ink); line-height: 1.15; overflow-wrap: anywhere;
+}
+.game-shell.has-page .bp.bp-profile .royal-progress i { border-right: 0; }
+.game-shell.has-page .bp.bp-profile .royal-honours {
+  inset: 0; display: block;
+}
+.game-shell.has-page .bp.bp-profile .royal-honours button {
+  position: absolute; left: 13.7%; top: 26%; bottom: 3%; width: 20%; display: block;
+}
+.game-shell.has-page .bp.bp-profile .royal-honours button:nth-child(2) { left: 40.5%; }
+.game-shell.has-page .bp.bp-profile .royal-honours button:nth-child(3) { left: 67%; }
+.game-shell.has-page .bp.bp-profile .royal-honours span {
+  top: 73%; bottom: 0; display: grid; place-items: center;
+  font-size: 2.1cqw; line-height: 1; white-space: nowrap; text-shadow: none;
+}
+.game-shell.has-page .bp.bp-profile .royal-honours small {
+  top: 25%; left: 0; right: 0; font-size: 2cqw;
+}
+.game-shell.has-page .bp.bp-profile .court-footer > button,
+.game-shell.has-page .bp.bp-profile .court-footer > button:last-child {
+  position: relative; display: block; padding: 0; margin: 0;
+}
+.game-shell.has-page .bp.bp-profile .court-footer > button > span {
+  position: absolute; left: 36%; right: 7%; top: 0; bottom: 14%;
+  display: grid; place-items: center; white-space: nowrap; line-height: 1;
+}
+.game-shell.has-page .bp.bp-profile .court-footer > button:last-child > span { left: 40%; right: 18%; }
