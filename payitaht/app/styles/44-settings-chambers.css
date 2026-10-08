@@ -1,0 +1,172 @@
+/* The four settings books share the approved profile materials. Only
+   presentation changes: their state, validation and handlers stay untouched. */
+.game-shell.has-page .bp.bp-settings {
+  background: var(--royal-paper) center / 420px auto;
+  text-size-adjust: 100%; -webkit-text-size-adjust: 100%;
+}
+.game-shell.has-page:has(.bp-settings)::after {
+  content: ''; position: fixed; inset: auto 0 0; height: var(--ika-nav);
+  z-index: 59; pointer-events: none; background: var(--royal-paper) center / 420px auto;
+}
+.game-shell.has-page .bp.bp-settings > .bp-bar {
+  position: relative; min-height: 48px; height: max(48px,8.9vw); padding: 0;
+  border: 0; border-image: none; gap: 0; box-shadow: none;
+  background: var(--profile-header) center / 100% 100% no-repeat;
+}
+.game-shell.has-page .bp.bp-settings > .bp-bar .bp-title {
+  position: absolute; inset: 0 24%; display: grid; place-items: center; padding: 0;
+}
+.game-shell.has-page .bp.bp-settings > .bp-bar .bp-title h1 {
+  margin: 0; color: var(--c-gold-pale);
+  font: 700 clamp(20px,4.4vw,34px)/1.1 'Payitaht Profile Roman',Georgia,serif;
+}
+.game-shell.has-page .bp.bp-settings > .bp-bar .bp-back {
+  position: absolute; inset: 0 auto 0 0; width: 16%; min-height: 48px;
+  border: 0; background: none; box-shadow: none;
+}
+.game-shell.has-page .bp.bp-settings > .bp-bar .bp-close { left: auto; right: 0; }
+.game-shell.has-page .bp.bp-settings > .bp-bar .bp-back > * { display: none; }
+.game-shell.has-page .bp.bp-settings .bp-scroll {
+  gap: 0; padding: 0; background: var(--royal-paper) center / 420px auto;
+}
+.game-shell.has-page .bp.bp-settings .court-admin {
+  width: 100%; max-width: none; padding: 0; margin: 0; border: 0; border-image: none;
+  border-radius: 0; box-shadow: none; background: none; font: 15px/1.45 Georgia,serif;
+}
+.game-shell.has-page .bp.bp-settings .royal-settings-scene {
+  aspect-ratio: 852 / 250; height: auto; min-height: 0; max-height: none;
+  margin: 0; padding: 0; border: 0; border-radius: 0; box-shadow: none; overflow: hidden;
+}
+.game-shell.has-page .bp.bp-settings .royal-settings-scene > img {
+  display: block; width: 100%; height: 100%; object-fit: cover;
+}
+.game-shell.has-page .bp.bp-settings .royal-settings-scene h2 {
+  inset: auto 0 0; margin: 0; padding: 7px 12px; border: 0 solid transparent;
+  border-image: var(--royal-page-frame) 20 / 3px / 0 stretch; border-radius: 0;
+  background: var(--royal-wood) center / cover; backdrop-filter: none;
+  font: 700 20px/1.2 'Payitaht Profile Roman',Georgia,serif; color: var(--c-gold-pale);
+}
+.game-shell.has-page .bp.bp-settings .court-tabs {
+  display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap: 0;
+  margin: 0; padding: 0; border: 0 solid transparent; border-radius: 0;
+  border-image: var(--royal-page-frame) 20 / 4px / 0 stretch;
+  background: var(--royal-wood) center / cover; box-shadow: none;
+}
+.game-shell.has-page .bp.bp-settings .court-tabs > button {
+  position: relative; display: grid; place-items: center; min-height: 48px; padding: 6px 3px;
+  border: 0; border-right: 1px solid var(--c-gold-deep); border-radius: 0;
+  background: none; color: var(--c-cream); font: 700 17px/1.2 'Payitaht Profile Roman',Georgia,serif;
+}
+.game-shell.has-page .bp.bp-settings .court-tabs > button[aria-selected='true'] {
+  border: 0 solid transparent; border-image: var(--royal-tab-frame) 14 / 4px / 0 stretch;
+  background: linear-gradient(var(--c-royal-active),var(--c-royal-active-deep)); color: var(--c-gold-pale);
+}
+.game-shell.has-page .bp.bp-settings .court-tabs > button > span { position: relative; z-index: 1; }
+.game-shell.has-page .bp.bp-settings .court-tab-body {
+  padding: 16px 3% 24px; margin: 0; border: 0 solid transparent; border-radius: 0;
+  border-image: var(--royal-page-frame) 20 / 4px / 0 stretch;
+  background: none; box-shadow: none; color: var(--c-ink);
+}
+.game-shell.has-page .bp.bp-settings :is(.royal-subpage,.royal-preferences) {
+  display: grid; width: 100%; padding: 0; gap: 18px; background: none;
+}
+.game-shell.has-page .bp.bp-settings .royal-preferences { gap: 0; }
+.game-shell.has-page .bp.bp-settings .royal-section {
+  padding: 0; margin: 0; border: 0; border-image: none; border-radius: 0;
+  background: none; box-shadow: none;
+}
+.game-shell.has-page .bp.bp-settings :is(.royal-section-heading,.royal-preferences > h3) {
+  display: flex; align-items: center; gap: 10px; min-height: 60px; margin: 0 0 12px;
+  padding: 10px 12px; border: 0 solid transparent; border-radius: 0;
+  border-image: var(--royal-page-frame) 20 / 3px / 0 stretch;
+  background: var(--royal-wood) center / cover; color: var(--c-gold-pale);
+}
+.game-shell.has-page .bp.bp-settings .royal-section-heading > .royal-art {
+  width: 40px; height: 44px; flex: 0 0 40px; object-fit: contain; mix-blend-mode: normal;
+}
+.game-shell.has-page .bp.bp-settings :is(.royal-section-heading h3,.royal-preferences > h3) {
+  font: 700 20px/1.2 'Payitaht Profile Roman',Georgia,serif;
+}
+.game-shell.has-page .bp.bp-settings .royal-section-heading h3 { margin: 0; }
+.game-shell.has-page .bp.bp-settings .royal-section-heading p {
+  margin: 4px 0 0; color: var(--c-cream); font: 13px/1.4 Georgia,serif;
+}
+.game-shell.has-page .bp.bp-settings .royal-preferences > h3 { justify-content: flex-start; min-height: 48px; }
+.game-shell.has-page .bp.bp-settings .royal-preferences > h3:not(:first-child) { margin-top: 20px; }
+.game-shell.has-page .bp.bp-settings .royal-preferences h3::before,
+.game-shell.has-page .bp.bp-settings .royal-preferences h3::after { display: none; }
+.game-shell.has-page .bp.bp-settings .royal-preference {
+  display: grid; grid-template-columns: 44px minmax(0,1fr) 86px; gap: 10px;
+  align-items: center; min-height: 68px; margin: 0; padding: 10px 7px;
+  border: 0; border-bottom: 1px solid var(--c-parch-line); border-radius: 0;
+  background: none; box-shadow: none; color: var(--c-ink);
+}
+.game-shell.has-page .bp.bp-settings .royal-preference > .royal-art {
+  width: 44px; height: 44px; object-fit: contain;
+}
+.game-shell.has-page .bp.bp-settings .royal-preference strong {
+  font: 700 17px/1.25 'Payitaht Profile Roman',Georgia,serif;
+}
+.game-shell.has-page .bp.bp-settings .royal-preference small { margin: 4px 0 0; font: 13px/1.4 Georgia,serif; }
+.game-shell.has-page .bp.bp-settings .royal-switch { width: 86px; height: 44px; }
+.game-shell.has-page .bp.bp-settings .royal-switch input { border: 2px solid var(--c-gold-deep); border-radius: 4px; }
+.game-shell.has-page .bp.bp-settings .royal-switch input::before { width: 28px; height: 28px; left: 3px; top: 6px; }
+.game-shell.has-page .bp.bp-settings .royal-switch > span { left: 36px; top: 14px; font-size: 13px; }
+.game-shell.has-page .bp.bp-settings .royal-lite {
+  grid-template-columns: 44px minmax(0,1fr); row-gap: 12px; padding-block: 14px;
+}
+.game-shell.has-page .bp.bp-settings .royal-lite > [role='radiogroup'] { grid-column: 1 / -1; width: 100%; border: 0; }
+.game-shell.has-page .bp.bp-settings :is(.royal-lite button,.pace-tabs button) {
+  min-height: 48px; padding: 8px 4px; border: 0 solid transparent; border-radius: 0;
+  border-image: var(--royal-page-frame) 20 / 3px / 0 stretch;
+  background: var(--royal-wood) center / cover; color: var(--c-cream);
+  font: 700 16px/1.2 'Payitaht Profile Roman',Georgia,serif;
+}
+.game-shell.has-page .bp.bp-settings :is(.royal-lite button[aria-checked='true'],.pace-tabs button[aria-pressed='true']) {
+  background: linear-gradient(var(--c-royal-active),var(--c-royal-active-deep)); color: var(--c-gold-pale);
+}
+.game-shell.has-page .bp.bp-settings .royal-tempo { grid-template-columns: 44px minmax(0,1fr) 20px; }
+.game-shell.has-page .bp.bp-settings .pace-setting { padding: 12px 7px; background: none; border: 0; }
+.game-shell.has-page .bp.bp-settings :is(.royal-note,.fine-print,.royal-autosave) { font: 14px/1.5 Georgia,serif; }
+.game-shell.has-page .bp.bp-settings .royal-autosave { margin: 16px 0 0; padding: 10px 7px; }
+.game-shell.has-page .bp.bp-settings .royal-inscription { margin: 0 0 14px; padding: 0 6px 14px; }
+.game-shell.has-page .bp.bp-settings .royal-inscription > .royal-art { width: 48px; height: 52px; flex: 0 0 48px; }
+.game-shell.has-page .bp.bp-settings .royal-inscription p { font: 15px/1.5 Georgia,serif; }
+.game-shell.has-page .bp.bp-settings .royal-note { margin: 14px 6px; }
+.game-shell.has-page .bp.bp-settings .royal-action {
+  min-height: 52px; height: auto; padding: 12px; border-radius: 0;
+  border: 0 solid transparent; border-image: var(--royal-gold-button-frame) 12 / 5px / 0 stretch;
+  background: linear-gradient(var(--c-gold-pale),var(--c-gold)); color: var(--c-ink); box-shadow: none;
+  white-space: normal; font: 700 17px/1.3 'Payitaht Profile Roman',Georgia,serif;
+}
+.game-shell.has-page .bp.bp-settings .royal-action.gbtn-parch {
+  border-image: var(--royal-page-frame) 20 / 4px / 0 stretch;
+  background: var(--royal-wood) center / cover; color: var(--c-cream);
+}
+.game-shell.has-page .bp.bp-settings .royal-save-actions { display: grid; gap: 12px; }
+.game-shell.has-page .bp.bp-settings .royal-save-actions .royal-action { min-height: 84px; padding: 12px; }
+.game-shell.has-page .bp.bp-settings .royal-action strong { font: inherit; }
+.game-shell.has-page .bp.bp-settings .royal-action small { font: 13px/1.4 Georgia,serif; }
+.game-shell.has-page .bp.bp-settings .royal-reset-confirm {
+  padding: 16px 10px; margin: 12px 0 0; border: 1px solid var(--c-gold-deep);
+  border-radius: 0; background: none; box-shadow: none;
+}
+.game-shell.has-page .bp.bp-settings .royal-reset-confirm > .royal-art { width: 48px; height: 48px; }
+.game-shell.has-page .bp.bp-settings .royal-reset-confirm h4 { font: 700 21px/1.2 'Payitaht Profile Roman',Georgia,serif; }
+.game-shell.has-page .bp.bp-settings :is(.royal-status-grid,.royal-game-facts) { gap: 0; margin: 12px 0; }
+.game-shell.has-page .bp.bp-settings .royal-status {
+  min-height: 96px; gap: 8px; padding: 12px 6px; border: 0;
+  border-bottom: 1px solid var(--c-parch-line); border-radius: 0; background: none; box-shadow: none;
+}
+.game-shell.has-page .bp.bp-settings .royal-status > .royal-art { width: 38px; height: 44px; flex-basis: 38px; }
+.game-shell.has-page .bp.bp-settings .royal-status small { font: 13px/1.3 Georgia,serif; }
+.game-shell.has-page .bp.bp-settings .royal-status strong { font: 700 16px/1.3 'Payitaht Profile Roman',Georgia,serif; }
+.game-shell.has-page .bp.bp-settings .royal-version-seal { padding: 8px 6px 16px; border: 0; border-bottom: 1px solid var(--c-parch-line); background: none; }
+.game-shell.has-page .bp.bp-settings .royal-version-seal > .royal-art { width: 58px; height: 64px; }
+.game-shell.has-page .bp.bp-settings .royal-version-seal strong { font: 700 22px/1.2 'Payitaht Profile Roman',Georgia,serif; }
+
+.game-shell.has-page .bp.bp-settings .royal-action.gbtn-red {
+  border-image: var(--royal-page-frame) 20 / 4px / 0 stretch;
+  background: linear-gradient(var(--c-royal-active),var(--c-royal-active-deep)); color: var(--c-cream);
+}
+.game-shell.has-page .bp.bp-settings .royal-lite > .royal-art { grid-row: auto; }

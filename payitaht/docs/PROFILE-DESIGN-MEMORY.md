@@ -63,3 +63,7 @@ Profil açıkken shell'in yalnız alt bar arkasındaki bölümü parşömenle ö
 Kumaş seçici: `.royal-standard` her tezgâhta 3/5 oranında, yatay ortada, %100 yüksekliğe sahip gerçek sprite kutusudur. Kumaş ve renk maskesi aynı kutuyu kullanır. Arma normal kumaşta x=%60, y=%40 merkezlidir; 35% genişlik, 25% yükseklik. Dar flamaya x=%58, y=%40,5; 24% genişlik, 23% yükseklik. `data-banner` sadece görsel silüet ayarıdır; kayıt ve seçim kuralını değiştirmez. Bağımsız arma örnekleri 64×64 ortalanır. Bu seçici ölçülerini Saltanat sahnesine/HUD'a taşımak yasaktır.
 
 Alt defterlerde yaklaşık %15–20 daha küçük resimler/boşluklar; şehir satırı 124 px, şehir resimleri 74 px, nişanlar 94 px, kumaş örneği 124 px, renk örneği 84 px. Giriş ve dokunma hedefleri en az 48 px korunur.
+
+## Ayarlar — 0.63.0 / SW71
+
+Aynı malzemelerin dört ayar defterine uygulanması `SETTINGS-DESIGN-MEMORY.md` içindedir. Eski `approved-settings.webp` ve yuvarlak cam kartlar yeni ayar işi için referans değildir.

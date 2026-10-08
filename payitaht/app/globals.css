@@ -41,6 +41,7 @@
 @import './styles/41-exact-reference-hud.css';
 @import './styles/42-approved-profile.css';
 @import './styles/43-profile-chambers.css';
+@import './styles/44-settings-chambers.css';
 
 @custom-variant dark (&:is(.dark *));
 @theme inline {
