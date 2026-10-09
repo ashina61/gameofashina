@@ -1,0 +1,18 @@
+{
+  "version": "0.78.0",
+  "scenePrompt": "Use case: historical-scene. Asset type: textless narrow environment banner for an Ottoman Aegean city-building mobile game, landscape 3:1 composition. Painterly polished strategy-game illustration with warm sunlight, aged walnut, ivory stone, brass tools, red textiles, Mediterranean vegetation. Human scale, period Ottoman clothes and turbans, no modern objects, no text, letters, UI, numbers, border or watermark. Most identifying details in center horizontal band, suitable for cropping into an 80px high panoramic header. Subject: ",
+  "subjects": {
+    "bazaar": "Ottoman Aegean covered bazaar opening to a sunny square, shopkeepers trading textiles, brass scales, coffee sacks, timber carts, walnut stalls and red awnings.",
+    "caravanserai": "Ottoman Aegean trading caravanserai courtyard with ledger clerks, merchants inspecting cargo sacks and sealed chests beside a brass balance, arcaded ivory stone, walnut doors, red textiles, glimpse of harbor."
+  },
+  "figurePrompt": "Use case: historical-scene. Asset type: transparent full-body character for Ottoman Aegean city-building game workforce assignment. One middle-aged Ottoman shopkeeper wearing a cream turban, deep burgundy kaftan, warm walnut waistcoat, woven gold sash and period leather shoes, holding a small brass balance and coin pouch. Warm painterly polished strategy-game illustration, walnut/ivory/brass/red palette. Standing relaxed front three-quarter view. Entire body from turban to shoes visible, feet uncropped, space around silhouette, no pedestal, portrait frame, text, scenery, shadow rectangle or UI. Genuine transparent alpha background.",
+  "scenes": {
+    "width": 960,
+    "height": 320
+  },
+  "figure": {
+    "width": 240,
+    "height": 360,
+    "alpha": true
+  }
+}

@@ -1,0 +1,52 @@
+/* Bazaar and market controls share the approved painted Ottoman register. */
+.game-shell.has-page .bp-commerce > .bp-bar .bp-title { left: calc(var(--court-control-size) + 16px); right: calc(var(--court-control-size) + 16px); }
+.game-shell.has-page .bp-commerce > .bp-bar .bp-title h1 { width: 100%; min-width: 0; max-width: 100%; white-space: normal; font-size: clamp(18px,4.4vw,30px); }
+.commerce-facts { margin: 12px 0; border-top: 1px solid var(--c-gold-deep); }
+.commerce-facts > div { display: flex; justify-content: space-between; align-items: center; gap: 12px; min-height: 48px; padding: 10px 0; border-bottom: 1px solid var(--c-gold-deep); }
+.commerce-facts dt { flex: 1; min-width: 0; font: 14px/1.5 Georgia,serif; }
+.commerce-facts dd { flex: 0 1 45%; margin: 0; text-align: right; font: 700 16px/1.4 Georgia,serif; }
+.commerce-details { margin-top: 16px; border-top: 1px solid var(--c-gold-deep); font: 14px/1.6 Georgia,serif; }
+.commerce-details summary { min-height: 48px; padding: 12px 0; cursor: pointer; font-weight: 700; }
+.commerce-note, .commerce-market-note { margin: 8px 0 16px; font: 14px/1.6 Georgia,serif; }
+.commerce-lots { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 6px; margin: 12px 0; }
+.game-shell.has-page .bp-commerce .commerce-lots .gbtn { min-width: 0; width: 100%; padding: 12px 8px; font-size: 15px; }
+.commerce-goods { display: grid; gap: 16px; }
+.commerce-good { padding: 16px 0 0; border-top: 1px solid var(--c-gold-deep); }
+.commerce-good-head { display: grid; grid-template-columns: 44px minmax(0,1fr); gap: 10px; align-items: center; margin-bottom: 12px; }
+.commerce-good-head h3 { margin: 0; font: 700 22px/1.3 'Payitaht Profile Roman',Georgia,serif; }
+.commerce-good-head small { font: 13px/1.5 Georgia,serif; }
+.commerce-good-actions { display: grid; gap: 8px; }
+.commerce-reason { margin: 8px 0; color: var(--c-red); font: 13px/1.6 Georgia,serif; }
+.game-shell.has-page .bp-commerce .workforce-out span { font: 15px/1.4 Georgia,serif; }
+.game-shell.has-page .bp-commerce .workforce-confirm .gbtn { flex: 1 1 0; min-width: 0; }
+.game-shell.has-page .bp-commerce .trade-tabs { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 6px; margin: 0 0 16px; padding: 0; border: 0; background: none; }
+.game-shell.has-page .bp-commerce .trade-tabs > button { display: flex; align-items: center; justify-content: center; gap: 6px; min-height: 54px; padding: 12px 8px; border: 0 solid transparent; border-image: var(--royal-page-frame) 20 / 4px / 0 stretch; border-radius: 0; background: var(--royal-wood) center / cover; color: var(--c-gold-pale); font: 700 16px/1.3 'Payitaht Profile Roman',Georgia,serif; }
+.game-shell.has-page .bp-commerce .trade-tabs > button[aria-pressed='true'] { background: var(--academy-silk) center / cover; }
+.game-shell.has-page .bp-commerce .trade-filters { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 8px; margin-bottom: 16px; }
+.game-shell.has-page .bp-commerce .trade-filters .seg { grid-column: 1/-1; display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); border: 0; padding: 0; gap: 6px; background: none; }
+.game-shell.has-page .bp-commerce .trade-filters .seg button { min-height: 48px; border: 0 solid transparent; border-image: var(--royal-page-frame) 20 / 4px / 0 stretch; border-radius: 0; background: var(--academy-paper); color: var(--c-ink); font: 700 16px/1.3 Georgia,serif; }
+.game-shell.has-page .bp-commerce .trade-filters .seg button[aria-checked='true'] { border-image: var(--academy-action) 28 48 fill / 13px 24px / 0 stretch; background: none; color: var(--c-gold-pale); }
+.game-shell.has-page .bp-commerce :is(select,input[type='number']) { width: 100%; min-width: 0; min-height: 48px; padding: 10px 12px; border: 0 solid transparent; border-image: var(--royal-page-frame) 20 / 4px / 0 stretch; border-radius: 0; background: var(--academy-paper); color: var(--c-ink); font: 16px/1.4 Georgia,serif; }
+.game-shell.has-page .bp-commerce .trade-table { gap: 0; }
+.game-shell.has-page .bp-commerce :is(.trade-row,.mission-row) { display: grid; grid-template-columns: 72px minmax(0,1fr); gap: 12px; margin: 0; padding: 16px 0; border: 0; border-bottom: 1px solid var(--c-gold-deep); border-radius: 0; background: none; }
+.game-shell.has-page .bp-commerce .trade-row:not(:has(.trade-good)) { grid-template-columns: minmax(0,1fr); }
+.game-shell.has-page .bp-commerce .trade-row .trade-main { min-width: 0; }
+.game-shell.has-page .bp-commerce .trade-main strong { font: 700 20px/1.3 'Payitaht Profile Roman',Georgia,serif; }
+.game-shell.has-page .bp-commerce :is(.trade-main small,.trade-price small,.mission-row small,.fine-print) { font: 14px/1.6 Georgia,serif; }
+.game-shell.has-page .bp-commerce .trade-price { grid-column: 1/-1; display: flex; flex-wrap: wrap; justify-content: center; align-items: baseline; gap: 8px; }
+.game-shell.has-page .bp-commerce .trade-price b { font: 700 22px/1.3 'Payitaht Profile Roman',Georgia,serif; }
+.game-shell.has-page .bp-commerce .trade-row > .gbtn { grid-column: 1/-1; width: 100%; }
+.game-shell.has-page .bp-commerce .trade-icon { width: 48px; height: 48px; }
+.commerce-unit-portrait { width: 72px; height: 54px; object-fit: cover; border: 0 solid transparent; border-image: url('../../public/images/game/ui/barracks/unit-frame.webp') 40 / 8px / 0 stretch; }
+.game-shell.has-page .bp-commerce .empire-shipment-form { display: grid; grid-template-columns: minmax(0,1fr); gap: 12px; }
+.game-shell.has-page .bp-commerce .empire-shipment-form label { display: grid; gap: 6px; font: 14px/1.5 Georgia,serif; }
+.game-shell.has-page .bp-commerce .mission-row { grid-template-columns: minmax(0,1fr); }
+.game-shell.has-page .bp-commerce .treaty-on { font: 14px/1.5 Georgia,serif; }
+.game-shell.has-page .bp-commerce .trade-main small { white-space: normal; overflow: visible; text-overflow: clip; }
+.game-shell.has-page .bp-commerce .trade-price em { font: 13px/1.5 Georgia,serif; }
+.game-shell.has-page .bp-commerce .empire-section > h3 { min-height: 48px; justify-content: center; margin: 0 0 16px; padding: 0; border: 0; border-image: none; border-radius: 0; background: none; box-shadow: none; color: var(--c-ink); text-align: center; text-shadow: none; text-transform: none; letter-spacing: 0; }
+.game-shell.has-page .bp-commerce .empire-section > h3 .royal-art { display: none; }
+.game-shell.has-page .bp-commerce .empire-section > h3::before,
+.game-shell.has-page .bp-commerce .empire-section > h3::after { flex: 0 0 20px; min-width: 16px; }
+
+.game-shell.has-page .bp-commerce .commerce-lots .gbtn[aria-pressed='false'] { border-image: var(--royal-page-frame) 20 / 4px / 0 stretch; background: var(--academy-paper); color: var(--c-ink); }

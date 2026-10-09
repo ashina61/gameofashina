@@ -1,0 +1,1233 @@
+{
+  "version": "0.78.0",
+  "allWidths": {
+    "reports": [
+      {
+        "width": 360,
+        "name": "carsi",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 360,
+        "name": "carsi-development",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 360,
+        "name": "ticaret_merkezi",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 360,
+        "name": "ticaret_merkezi-development",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 360,
+        "name": "carsi-draft",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 360,
+        "name": "carsi-ledger",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 360,
+        "name": "merchant",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 360,
+        "name": "goods-sell",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 360,
+        "name": "goods-filter",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 360,
+        "name": "troops",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 360,
+        "name": "treaties",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 360,
+        "name": "own-empty",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 360,
+        "name": "own-active",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 360,
+        "name": "own-cancelled",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 360,
+        "name": "carsi-active",
+        "found": {
+          "taşma": {},
+          "kesik": {
+            "div.job-progress > div.flex.flex-wrap > span": {
+              "örnek": "x",
+              "adet": 1
+            }
+          },
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 390,
+        "name": "carsi",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 390,
+        "name": "carsi-development",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 390,
+        "name": "ticaret_merkezi",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 390,
+        "name": "ticaret_merkezi-development",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 390,
+        "name": "carsi-draft",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 390,
+        "name": "carsi-ledger",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 390,
+        "name": "merchant",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 390,
+        "name": "goods-sell",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 390,
+        "name": "goods-filter",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 390,
+        "name": "troops",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 390,
+        "name": "treaties",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 390,
+        "name": "own-empty",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 390,
+        "name": "own-active",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 390,
+        "name": "own-cancelled",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 390,
+        "name": "carsi-active",
+        "found": {
+          "taşma": {},
+          "kesik": {
+            "div.job-progress > div.flex.flex-wrap > span": {
+              "örnek": "x",
+              "adet": 1
+            }
+          },
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 430,
+        "name": "carsi",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 430,
+        "name": "carsi-development",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 430,
+        "name": "ticaret_merkezi",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 430,
+        "name": "ticaret_merkezi-development",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 430,
+        "name": "carsi-draft",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 430,
+        "name": "carsi-ledger",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 430,
+        "name": "merchant",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 430,
+        "name": "goods-sell",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 430,
+        "name": "goods-filter",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 430,
+        "name": "troops",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 430,
+        "name": "treaties",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 430,
+        "name": "own-empty",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 430,
+        "name": "own-active",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 430,
+        "name": "own-cancelled",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 430,
+        "name": "carsi-active",
+        "found": {
+          "taşma": {},
+          "kesik": {
+            "div.job-progress > div.flex.flex-wrap > span": {
+              "örnek": "x",
+              "adet": 1
+            }
+          },
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 360,
+        "name": "carsi",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 360,
+        "name": "carsi-development",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 360,
+        "name": "ticaret_merkezi",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 360,
+        "name": "ticaret_merkezi-development",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 360,
+        "name": "carsi-draft",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 360,
+        "name": "carsi-ledger",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 360,
+        "name": "merchant",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 360,
+        "name": "goods-sell",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 360,
+        "name": "goods-filter",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 360,
+        "name": "troops",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 360,
+        "name": "treaties",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 360,
+        "name": "own-empty",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 360,
+        "name": "own-active",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 360,
+        "name": "own-cancelled",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 360,
+        "name": "carsi-active",
+        "found": {
+          "taşma": {},
+          "kesik": {
+            "div.job-progress > div.flex.flex-wrap > span": {
+              "örnek": "x",
+              "adet": 1
+            }
+          },
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      }
+    ],
+    "errors": []
+  },
+  "finalEvidence": {
+    "reports": [
+      {
+        "width": 390,
+        "name": "carsi",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 390,
+        "name": "carsi-development",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 390,
+        "name": "ticaret_merkezi",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 390,
+        "name": "ticaret_merkezi-development",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 390,
+        "name": "carsi-draft",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 390,
+        "name": "carsi-ledger",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 390,
+        "name": "merchant",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 390,
+        "name": "goods-sell",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 390,
+        "name": "goods-filter",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 390,
+        "name": "troops",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 390,
+        "name": "treaties",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 390,
+        "name": "own-empty",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 390,
+        "name": "own-active",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 390,
+        "name": "own-cancelled",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 390,
+        "name": "carsi-active",
+        "found": {
+          "taşma": {},
+          "kesik": {
+            "div.job-progress > div.flex.flex-wrap > span": {
+              "örnek": "x",
+              "adet": 1
+            }
+          },
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 360,
+        "name": "carsi",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 360,
+        "name": "carsi-development",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 360,
+        "name": "ticaret_merkezi",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 360,
+        "name": "ticaret_merkezi-development",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 360,
+        "name": "carsi-draft",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 360,
+        "name": "carsi-ledger",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 360,
+        "name": "merchant",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 360,
+        "name": "goods-sell",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 360,
+        "name": "goods-filter",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 360,
+        "name": "troops",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 360,
+        "name": "treaties",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 360,
+        "name": "own-empty",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 360,
+        "name": "own-active",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 360,
+        "name": "own-cancelled",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 360,
+        "name": "carsi-active",
+        "found": {
+          "taşma": {},
+          "kesik": {
+            "div.job-progress > div.flex.flex-wrap > span": {
+              "örnek": "x",
+              "adet": 1
+            }
+          },
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      }
+    ],
+    "errors": []
+  },
+  "states": {
+    "reports": [
+      {
+        "name": "unbuilt-bazaar",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "name": "unbuilt-center",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "name": "maxed",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "name": "low-gold",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "name": "full-stock",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "name": "gold-cap",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "name": "no-stock",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "name": "deliveries",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      }
+    ],
+    "errors": []
+  },
+  "knownNonvisualWarning": "Base UI hidden 1px x in active upgrade progress",
+  "finalDelivery": {
+    "reports": [
+      {
+        "name": "deliveries",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      }
+    ],
+    "errors": []
+  }
+}

@@ -363,3 +363,8 @@ Yazısız giriş arka planı yerleşik OpenAI imagegen ile yeniden boyandı. Tar
 ## Tasarruf atölyeleri (0.77.0)
 
 ui/cost/ altındaki beş yazısız Osmanlı atölye sahnesi built-in ImageGen ile bu proje için üretildi; 960×320 WebP. Prompt ve konu kaydı docs/cost-art.json. Ortak arayüz atlasları Kışla/Medrese referansından korunur.
+
+
+## Commerce — 0.78.0
+
+ui/commerce/bazaar.webp, caravanserai.webp ve shopkeeper.webp: OpenAI image generation, 9 Ekim 2026. Ayrı metinsiz Osmanlı sahneleri ve şeffaf tam boy esnaf; istem kayıtları docs/commerce-art.json.

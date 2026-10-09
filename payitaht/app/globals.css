@@ -53,6 +53,7 @@
 @import './styles/53-storage-register.css';
 @import './styles/54-production-register.css';
 @import './styles/55-cost-register.css';
+@import './styles/56-commerce-register.css';
 
 @custom-variant dark (&:is(.dark *));
 @theme inline {

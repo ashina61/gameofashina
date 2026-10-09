@@ -18,6 +18,7 @@ const INK = '#2e1c0e'
 const SKIN = '#e8b98a'
 /** Ayakta duran küçük figür: başlık, cübbe ve elindeki alet mesleği anlatır. */
 export function PersonArt({ kind, size = 64 }: { kind: Figure; size?: number }) {
+  if (kind === 'esnaf') return <img className="person-art person-figure" src={asset('/images/game/ui/commerce/shopkeeper.webp')} alt="" width={size} height={size * 80 / 60} />
   if (kind === 'oduncu') return <img className="person-art person-figure" src={asset('/images/game/ui/production/lumberjack.webp')} alt="" width={size} height={size * 80 / 60} />
   if (kind === 'alim' || kind === 'halk') return <img className="person-art person-figure" src={asset(`/images/game/ui/people/${kind === 'alim' ? 'scholar-figure' : 'citizen-figure'}.webp`)} alt="" width={size} height={size * 80 / 60} />
   const look: Record<Figure, { robe: string; sash: string; hat: ReactNode; tool: ReactNode }> = {
@@ -53,7 +54,7 @@ export function PersonArt({ kind, size = 64 }: { kind: Figure; size?: number }) 
     <circle cx="45.5" cy="54" r="3" fill={SKIN} stroke={INK} strokeWidth="0.8" />
     <path d="M26 30 l4 7 l4 -7" fill="#f6ecd6" stroke={INK} strokeWidth="0.8" />
     <circle cx="30" cy="21" r="8.5" fill={SKIN} stroke={INK} strokeWidth="1.2" />
-    <path d="M24 24 q6 7 12 0 q-2 6 -6 6 q-4 0 -6 -6 Z" fill="#4a2e1a" opacity={kind === 'esnaf' ? 0 : 0.85} />
+    <path d="M24 24 q6 7 12 0 q-2 6 -6 6 q-4 0 -6 -6 Z" fill="#4a2e1a" opacity={0.85} />
     <circle cx="27" cy="20" r="0.9" fill={INK} /><circle cx="33" cy="20" r="0.9" fill={INK} />
     {L.hat}
     {L.tool}

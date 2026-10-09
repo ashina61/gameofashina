@@ -39,3 +39,8 @@ Kahvehane 0.74.0: `COFFEEHOUSE-DESIGN-MEMORY.md`. İkram kontrolü aynı sürgü
 ## Maliyet azaltan yapılar — 0.77.0
 
 COST-DESIGN-MEMORY.md geçerlidir. Beş ayrı atölye sahnesi, Tasarruf/Gelişim, aynı gerçek atlaslar. İndirim kaynakları ve gerçek bedel örnekleri ayrıdır. Kahve ve topçu çarpanları sınır sonrası uygulanır. Mekanik ve HUD korunur.
+
+
+## Çarşı ve Ticaret Merkezi — 0.78.0
+
+COMMERCE-DESIGN-MEMORY.md geçerlidir. İki ana sekme ve ortak atlaslar; anlık tüccar ile yolculuklu pazar ayrıdır. Net gelir, gerçek satış akçesi ve teklif stokları doğru açıklanır. Ekonomi ve HUD korunur. Sonraki bölüm Kara Pazar.
