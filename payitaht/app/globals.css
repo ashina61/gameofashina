@@ -83,3 +83,5 @@
   --radius-lg: 10px;
   --radius-xl: 16px;
 }
+
+@import './styles/58-maritime-register.css';

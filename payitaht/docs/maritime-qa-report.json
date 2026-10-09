@@ -1,0 +1,478 @@
+{
+  "reports": [
+    {
+      "width": 360,
+      "zoom": false,
+      "state": "ready",
+      "tag": "harbor",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 360,
+      "zoom": false,
+      "state": "ready",
+      "tag": "harbor-development",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 360,
+      "zoom": false,
+      "state": "ready",
+      "tag": "shipyard-ready",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 360,
+      "zoom": false,
+      "state": "ready",
+      "tag": "queue",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 360,
+      "zoom": false,
+      "state": "ready",
+      "tag": "shipyard-development",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": false,
+      "state": "ready",
+      "tag": "harbor",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": false,
+      "state": "ready",
+      "tag": "loading",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": false,
+      "state": "ready",
+      "tag": "harbor-development",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": false,
+      "state": "ready",
+      "tag": "shipyard-ready",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": false,
+      "state": "ready",
+      "tag": "queue",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": false,
+      "state": "ready",
+      "tag": "shipyard-development",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": false,
+      "state": "ready",
+      "tag": "shipyard-active",
+      "found": {
+        "taşma": {},
+        "kesik": {
+          "div.job-progress > div.flex.flex-wrap > span": {
+            "örnek": "x",
+            "adet": 1
+          }
+        },
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 430,
+      "zoom": false,
+      "state": "ready",
+      "tag": "harbor",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 430,
+      "zoom": false,
+      "state": "ready",
+      "tag": "harbor-development",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 430,
+      "zoom": false,
+      "state": "ready",
+      "tag": "shipyard-ready",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 430,
+      "zoom": false,
+      "state": "ready",
+      "tag": "queue",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 430,
+      "zoom": false,
+      "state": "ready",
+      "tag": "shipyard-development",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 360,
+      "zoom": true,
+      "state": "ready",
+      "tag": "harbor",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 360,
+      "zoom": true,
+      "state": "ready",
+      "tag": "harbor-development",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 360,
+      "zoom": true,
+      "state": "ready",
+      "tag": "shipyard-ready",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 360,
+      "zoom": true,
+      "state": "ready",
+      "tag": "queue",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 360,
+      "zoom": true,
+      "state": "ready",
+      "tag": "shipyard-development",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": false,
+      "state": "unbuilt",
+      "tag": "harbor-unbuilt",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": false,
+      "state": "unbuilt",
+      "tag": "shipyard-unbuilt",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": false,
+      "state": "poor",
+      "tag": "harbor-poor",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": false,
+      "state": "poor",
+      "tag": "shipyard-poor",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": false,
+      "state": "locked",
+      "tag": "shipyard-locked",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": false,
+      "state": "locked",
+      "tag": "locked-selected",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": false,
+      "state": "full-queue",
+      "tag": "shipyard-full-queue",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": false,
+      "state": "regression",
+      "tag": "barracks-regression",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": false,
+      "state": "completed",
+      "tag": "shipyard-completed",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": false,
+      "state": "completed",
+      "tag": "completed-confirmed",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    }
+  ],
+  "errors": [],
+  "checks": {
+    "tests": 345,
+    "widths": [
+      360,
+      390,
+      430
+    ],
+    "textZoom": 1.3,
+    "realMerchantPurchase": true,
+    "allNavalUnits": 11,
+    "realTwoShipRecruitment": true,
+    "completedRealOneShipRecruitment": true,
+    "locked": true,
+    "unbuilt": true,
+    "insufficientGoldWithFrozenClock": true,
+    "fullQueue": true,
+    "barracksRegression": 16,
+    "firstDevelopmentUpgrade": true
+  },
+  "knownWarning": "Active upgrade contains Base UI hidden 1px x label; visible controls pass."
+}

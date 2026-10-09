@@ -373,3 +373,5 @@ ui/commerce/bazaar.webp, caravanserai.webp ve shopkeeper.webp: OpenAI image gene
 ## Kara Pazar — 0.79.0
 
 ui/exchange/market.webp: OpenAI built-in image generation, 9 Ekim 2026. Yazısız Osmanlı–Ege mal takası sahnesi; istem docs/exchange-art.json.
+
+Liman ve Tersane sahneleri: OpenAI Imagegen, 9 Ekim 2026; docs/maritime-art.json.

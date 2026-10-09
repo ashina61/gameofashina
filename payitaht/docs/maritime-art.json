@@ -1,0 +1,11 @@
+{
+  "mode": "builtin",
+  "date": "2026-10-09",
+  "basePrompt": "Use case: historical-scene. Asset type: textless panoramic 3:1 environment header for premium Ottoman Aegean mobile strategy game. Painterly polished realistic-stylized game illustration, warm upper-left Mediterranean daylight, ivory limestone, walnut wood, muted brass, deep red textiles, turquoise water. No UI, letters, text, numbers, watermark, frame, modern machinery, fantasy. Human scale with Ottoman period turbans and clothes. Identifying details in central horizontal band for cropping to an 80px header. Subject: ",
+  "subjects": {
+    "harbor": "Ottoman Aegean commercial harbor quay, dock workers loading timber bundles and coffee sacks into a merchant sailing ship using ropes and a wooden capstan, harbor clerk checking cargo on a walnut desk, ivory arches and red awnings, calm turquoise bay and distant domed town.",
+    "shipyard": "Ottoman Aegean naval shipyard, shipwrights fitting the ribs and hull of a large galley on timber supports at a stone slipway beside turquoise water, wooden tools, ropes, brass fittings, red cloth banners without insignia or writing, turbaned master shipwright, distant finished galley."
+  },
+  "assets": ["public/images/game/ui/maritime/harbor.webp", "public/images/game/ui/maritime/shipyard.webp"],
+  "production": "RGB 960×320 WebP quality 86; unique 80 px environment crops. Existing transparent painted naval units retain their original assets and use the common barracks frame."
+}

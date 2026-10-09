@@ -49,3 +49,8 @@ COMMERCE-DESIGN-MEMORY.md geçerlidir. İki ana sekme ve ortak atlaslar; anlık 
 ## Kara Pazar — 0.79.0
 
 EXCHANGE-DESIGN-MEMORY.md geçerlidir. Ortak atlaslar, ayrı sahne, Mal takası/Gelişim. Gerçek kayıplı miktar ve engeller işlemden önce okunur. Maks. resmini form alanına uygulama. Motor ve HUD korunur. Sonraki bölüm Liman/Tersane.
+
+
+## Liman ve Tersane — 0.80.0
+
+MARITIME-DESIGN-MEMORY.md geçerlidir. Ortak filo ve gerçek yük sınırı, dikey gemiler/inşa kuyruğu; ortak atlaslar ve Gelişim başında yükseltme. Motor ve HUD korunur. Sonraki bölüm Harita Arşivi ve savunma yapıları; yayın sonrası kullanıcı değerlendirmesinde dur.
