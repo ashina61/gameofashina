@@ -1,5 +1,7 @@
 # Payitaht — onaylı arayüz standardı
 
+0.84.0 Müze/Karagöz: CULTURE-DESIGN-MEMORY.md. Ortak defterler, iki ayrı sahne, kültür katkısı/sınırları ve gerçek gösteri takvimi; sonraki inşa menüsü ve arsa seçimi.
+
 0.83.0 Cami/Tekke/Mabet: DEVOTION-DESIGN-MEMORY.md. İbadet, himaye ve kutsama; ayrı sahneler ve tam boy imam, gerçek sunu/adak ve görünür engeller. Sonraki Müze/Karagöz Perdesi.
 
 0.82.0 Tophane/Korsan Kalesi: ARMAMENT-DESIGN-MEMORY.md. Ortak defterler, dikey açılır teçhizat, hedef/filo/sefer ve Gelişim; ana eylem önce. Sonraki Cami/Tekke/Mabet.

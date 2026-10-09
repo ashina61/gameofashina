@@ -1,0 +1,32 @@
+/* Museum and shadow theatre use approved painted court materials. */
+.game-shell.has-page .bp.bp-culture > .bp-bar .bp-title { left: calc(var(--court-control-size) + 12px); right: calc(var(--court-control-size) + 12px); }
+.game-shell.has-page .bp.bp-culture .bp-tabpanel { padding: 12px 3%; }
+.bp.bp-culture .culture-register { display: grid; gap: 16px; }
+.bp.bp-culture :is(.culture-note,.culture-reason,.culture-status) { margin: 12px 0; font: 14px/1.55 Georgia,serif; overflow-wrap: anywhere; }
+.bp.bp-culture .culture-status b { font: 700 18px/1.4 'Payitaht Profile Roman',Georgia,serif; }
+.bp.bp-culture .culture-facts { margin: 12px 0; }
+.bp.bp-culture .culture-facts > div { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); align-items: center; gap: 12px; min-height: 48px; padding: 10px 0; border-bottom: 1px solid var(--c-gold-deep); }
+.bp.bp-culture .culture-facts dt { font: 14px/1.5 Georgia,serif; }
+.bp.bp-culture .culture-facts dd { margin: 0; text-align: right; font: 700 18px/1.4 'Payitaht Profile Roman',Georgia,serif; overflow-wrap: anywhere; }
+.bp.bp-culture .culture-shows { display: grid; gap: 14px; }
+.bp.bp-culture .culture-show { padding: 12px; border: 0 solid transparent; border-image: var(--academy-frame) 40 / 8px / 0 stretch; background: var(--academy-paper) center / cover; color: var(--c-ink); }
+.bp.bp-culture .culture-show > summary { display: flex; align-items: center; gap: 10px; min-height: 80px; cursor: pointer; }
+.bp.bp-culture .culture-show > summary::after { content: '+'; margin-left: auto; font-size: 24px; }
+.bp.bp-culture .culture-show[open] > summary::after { content: '−'; }
+.bp.bp-culture .culture-show summary > span { min-width: 0; }
+.bp.bp-culture .culture-show summary :is(strong,small) { display: block; }
+.bp.bp-culture .culture-show summary strong { font: 700 18px/1.4 'Payitaht Profile Roman',Georgia,serif; }
+.bp.bp-culture .culture-show summary small { margin-top: 4px; font: 13px/1.4 Georgia,serif; }
+.bp.bp-culture .culture-show summary em { margin-left: auto; font: 12px/1.4 Georgia,serif; }
+.game-shell.has-page .bp.bp-culture .gbtn { width: 100%; white-space: normal; }
+.bp.bp-culture .culture-help > summary { min-height: 48px; padding: 12px 0; cursor: pointer; font: 700 18px/1.4 'Payitaht Profile Roman',Georgia,serif; }
+.bp.bp-culture .culture-entry { display: flex; align-items: center; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--c-gold-deep); }
+.bp.bp-culture .culture-entry span { min-width: 0; }
+.bp.bp-culture .culture-entry :is(strong,small) { display: block; font: 14px/1.5 Georgia,serif; }
+.bp.bp-culture .culture-entry strong { font-weight: 700; }
+.game-shell.has-page .bp.bp-culture .bp-table { width: 100%; table-layout: fixed; }
+.game-shell.has-page .bp.bp-culture .bp-table :is(th,td) { white-space: normal; overflow-wrap: anywhere; }
+.game-shell.has-page .bp.bp-culture .bp-table :is(th,td):first-child { width: 12%; }
+.game-shell.has-page .bp.bp-culture .bp-table :is(th,td):last-child { width: 28%; }
+.game-shell.has-page .bp.bp-culture .bp-mini-costs { display: flex; flex-wrap: wrap; gap: 6px; }
+.game-shell.has-page .bp.bp-culture .bp-mini-costs > span { white-space: nowrap; }

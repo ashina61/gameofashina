@@ -1,0 +1,9 @@
+# Müze ve Karagöz Perdesi — 0.84.0 / SW96
+
+Ortak Kışla/Medrese atlasları, ceviz–parşömen–pirinç; iki ayrı yazısız 80 px sahne. Imagegen promptları ve dosyalar culture-art.json içinde. Kültür/Gösteriler ve Gelişim; yükseltme ilk Gelişim bloğunda, yapı işlemleri açılır alanda. HUD, motor, ekonomi, kayıt ve komutlar korunur.
+
+Müze kendi huzur katkısını, bu şehirde sergilenen anlaşma katkısını ve şehrin toplam huzurunu ayrı gösterir. Kültür Alışverişi yalnız bu şehirde araştırılmışsa yapının katkısını %50 artırır. Her sergilenen anlaşma +50 huzur. Şehirde sergilenen sayı motorun game.culture değeridir; motor her şehir için min(Müze seviyesi, imparatorluğun anlaşma sayısı) uygular. Anlaşmalar başka şehirde kullanılarak tükenmez. İmparatorluğun teklif sınırı tüm Müzelerin seviye toplamıdır; anlaşma sayısı ve açık yer ayrı görünür. Elçilik, herhangi bir şehirde Kültür Alışverişi ve toplam teklif sınırı engelleri motorla aynıdır. Görüşme mevcut Elçi ekranına gider; yeni anlaşma komutu veya ekonomi eklenmez. Yürürlükteki ortak anlaşmalar açılır defterde hükümdar/şehir adıyla okunur.
+
+Karagöz’de büyük dekoratif perde yerine kısa sahne ve ana gündem vardır. Dört gösteri dikey açılır defterde; oyun adı, gerçek etki ve süre, tam genişlikte sahnele eylemi. Süre showLength ile 12/18 saat. readyAt başlangıç + showCooldownMs seviyeye bağlıdır; gösteri bittikten sonra eklenen bir süre diye anlatma. Yeni gösteri hem active.until hem readyAt geçince açılır; kalan sayaç ikisinin büyüğünü kullanır. Tanrısal gösterim lütfü yalnız başlangıçta verir; gerçek kazanım Mabet kapasitesine kalan yerle sınırlıdır, 1,25 gibi kesirler korunur. Dolu Mabet’te sıfır lütufla gösteri yine oynanabilir; motor buna izin verir. Yapı/Mabet eksikliği, etkin oyun ve dinlenme görünür.
+
+Sonraki bölüm inşa menüsü ve arsa seçimi; yayın sonrası kullanıcı değerlendirmesinde dur.

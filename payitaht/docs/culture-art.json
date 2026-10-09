@@ -1,0 +1,23 @@
+{
+  "generator": "built-in image_gen",
+  "assets": [
+    {
+      "id": "muze",
+      "prompt": "Use case: historical-scene. Asset type: text-free landscape 3:1 banner for Payitaht Ottoman–Aegean strategy game. Premium hand-painted realistic game art, warm sunlight upper-left, ivory limestone, walnut wood, aged brass, muted terracotta and burgundy textiles, olive and turquoise accents. Main action across middle horizontal band for a narrow 80px UI crop. Natural anatomy, refined period materials, no logos, UI, lettering, watermark or modern objects. Ottoman museum gallery with carved wooden display cabinets, ancient pottery and brass artifacts, a scholar showing an artifact to visitors, airy stone arcade overlooking an Aegean garden. Dignified cultural exhibition, no generic mosque scene.",
+      "asset": "public/images/game/ui/culture/muze.webp",
+      "size": [
+        960,
+        320
+      ]
+    },
+    {
+      "id": "karagoz",
+      "prompt": "Use case: historical-scene. Asset type: text-free landscape 3:1 banner for Payitaht Ottoman–Aegean strategy game. Premium hand-painted realistic game art, warm sunlight upper-left, ivory limestone, walnut wood, aged brass, muted terracotta and burgundy textiles, olive and turquoise accents. Main action across middle horizontal band for a narrow 80px UI crop. Natural anatomy, refined period materials, no logos, UI, lettering, watermark or modern objects. Ottoman Karagöz shadow-puppet theatre in a courtyard at warm evening, illuminated ivory cloth screen with clearly recognizable Karagöz and Hacivat shadow puppets, puppet master beside curtain, seated families, walnut stage and dark red woven textiles. Intimate lively traditional shadow theatre, not a modern cinema.",
+      "asset": "public/images/game/ui/culture/karagoz.webp",
+      "size": [
+        960,
+        320
+      ]
+    }
+  ]
+}

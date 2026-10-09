@@ -384,3 +384,7 @@ Harita Arşivi, Surlar ve Gizli Sığınak sahneleri: OpenAI Imagegen, 9 Ekim 20
 ## İbadet, loncalar ve kutsama — 0.83.0
 
 `ui/devotion/cami.webp`, `tekke.webp`, `mabet.webp`: üç özgün yazısız Osmanlı–Ege sahnesi, yerleşik Imagegen; 960×320 RGB WebP. `ui/devotion/imam.webp`: şeffaf tam boy imam, 320×480 RGBA WebP. Promptlar `docs/devotion-art.json` içinde. Ortak Kışla/Medrese boyalı atlasları ve mevcut kültür/tanrı/harika resimleri korunur.
+
+## Kültür ve Karagöz — 0.84.0
+
+`ui/culture/muze.webp` ve `ui/culture/karagoz.webp`: yerleşik Imagegen ile özgün yazısız Osmanlı–Ege müze galerisi ve gölge oyunu avlusu; RGB 960×320 WebP. Promptlar `docs/culture-art.json` içinde. Ortak Kışla/Medrese çerçeveleri ve mevcut boyalı kültür atlası korunur.

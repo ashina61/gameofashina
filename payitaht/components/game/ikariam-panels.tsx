@@ -7,12 +7,9 @@
  */
 import { Box } from './building-page'
 import { Hint } from './hint'
-import { AtlasArt } from './deep-art'
-import { asset } from '@/lib/asset'
-import { Sparkles, Minus, Plus, Swords, ShieldCheck, Skull, TriangleAlert, Repeat, Castle, Users, Warehouse } from './ui-art'
+import { Minus, Plus, Swords, ShieldCheck, Skull, TriangleAlert, Repeat, Castle, Users, Warehouse } from './ui-art'
 import { StatRow } from './stat-kit'
 import { KumSaatiArt } from './resource-art'
-import { SHOWS, SHOW_IDS, type ShowId } from '@/lib/game/theatre'
 import { GameButton } from './game-button'
 import { UnitFigure } from './unit-art'
 import {
@@ -171,32 +168,4 @@ export function ForeignSpies({ empire, game, now, run, register = false }: { emp
   return register ? <Box title="Şehirdeki yabancı casuslar" className="defense-spies">{content}</Box> : <section className="empire-section"><h3><Skull className="size-4" /> Şehirdeki yabancı casuslar</h3>{content}</section>
 }
 
-/** KARAGÖZ PERDESİ: ışıklı perde sahnesi ve dört gösteri (Ikariam'daki tiyatro). */
-function ShadowStage({ show }: { show: ShowId | null }) {
-  return <div className="shadow-stage" role="img" aria-label="Karagöz perdesi" style={{ display: 'flex', justifyContent: 'center', background: `url(${asset('/images/game/ui/page-frame.webp')}) center / 100% 100%`, padding: 10 }}>
-    <AtlasArt atlas="culture" index={14 + SHOW_IDS.indexOf(show ?? 'komedi')} size={144} />
-  </div>
-}
-
-export function TheatrePanel({ game, now, onCommand }: { game: Game; now: number; onCommand: (c: Command) => void }) {
-  const lv = game.buildings.karagoz
-  if (lv < 1) return null
-  const sh = game.shows
-  const active = sh?.active && now < sh.active.until ? sh.active : null
-  const wait = sh ? sh.readyAt - now : 0
-  return <section className="empire-section theatre-panel">
-    <h3><Sparkles className="size-4" /> Hangi oyunu sahneleyelim?</h3>
-    <ShadowStage show={active?.id ?? null} />
-    {active && <p className="report-win"><Sparkles className="size-4" /> "{SHOWS[active.id].play}" oynanıyor · {SHOWS[active.id].effect(lv)} · {clock(active.until - now)}</p>}
-    {!active && wait > 0 && <p className="fine-print"><KumSaatiArt className="size-3" /> Perde dinleniyor · {clock(wait)}</p>}
-    <div className="show-grid">{SHOW_IDS.map(id => {
-      const s = SHOWS[id]
-      const blocked = id === 'tanrisal' && game.buildings.mabet < 1
-      return <article key={id} className={active?.id === id ? 'show-card is-on' : 'show-card'}>
-        <AtlasArt atlas="culture" index={14 + SHOW_IDS.indexOf(id)} size={56} /><strong>{s.name}</strong><em>"{s.play}"</em><small>{s.effect(lv)}{id !== 'tanrisal' ? ' · 12 saat' : ''}</small>
-        <GameButton size="sm" disabled={!!active || wait > 0 || blocked} onClick={() => onCommand({ type: 'show', show: id })}>{blocked ? 'Mabet gerekli' : 'Gösteriyi sun'}</GameButton>
-      </article>
-    })}</div>
-    <Hint>Aynı anda tek gösteri oynar; bittiğinde perde bir süre dinlenir (seviye yükseldikçe kısalır). Karagöz Perdesi Ikariam'daki tiyatronun Osmanlı karşılığıdır.</Hint>
-  </section>
-}
+export { TheatrePanel } from './culture-panels'

@@ -112,14 +112,7 @@
 
 /* The Karagöz panel's parent has its own padding/border. Stretch to the parent's
  * content box instead of width:100%, which can add that inset twice on 360px. */
-.game-shell.has-page .theatre-panel .shadow-stage {
-  box-sizing: border-box;
-  width: auto;
-  max-width: 100%;
-  min-width: 0;
-  align-self: stretch;
-  margin-inline: 0;
-}
+
 
 /* Building inspector/footer geometry must never create horizontal scroll. */
 .game-shell.has-building-preview .building-inspector,

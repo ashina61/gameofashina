@@ -270,14 +270,6 @@
 .ov-army-city li b { margin-left: auto; font-size: 13px; font-variant-numeric: tabular-nums; }
 .ov-warn { font-style: normal; color: var(--c-bad); font-weight: 700; }
 .threat-banner.is-held + .threat-banner { transform: translateY(62px); }
-/* Karagöz Perdesi */
-.shadow-stage { width: 100%; height: auto; border-radius: 12px; box-shadow: 0 3px 10px #0004; display: block; }
-.show-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
-.show-card { display: grid; gap: 3px; padding: 10px; border-radius: 12px; border: 1px solid #d8bf86; background: linear-gradient(#fdf6e3, #f3e3b8); text-align: center; }
-.show-card strong { font-size: 14px; color: var(--c-ink); }
-.show-card em { font-size: 12px; color: #8a4a22; }
-.show-card small { font-size: 11.5px; color: var(--c-brown-deep); min-height: 30px; }
-.show-card.is-on { border-color: var(--c-gold-deep); background: linear-gradient(#fbe8b4, #f0cf7a); }
 
 /* Araştırma danışmanı (Ikariam düzeni) */
 .rs { display: grid; gap: 10px; }
