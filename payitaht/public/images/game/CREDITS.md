@@ -368,3 +368,8 @@ ui/cost/ altındaki beş yazısız Osmanlı atölye sahnesi built-in ImageGen il
 ## Commerce — 0.78.0
 
 ui/commerce/bazaar.webp, caravanserai.webp ve shopkeeper.webp: OpenAI image generation, 9 Ekim 2026. Ayrı metinsiz Osmanlı sahneleri ve şeffaf tam boy esnaf; istem kayıtları docs/commerce-art.json.
+
+
+## Kara Pazar — 0.79.0
+
+ui/exchange/market.webp: OpenAI built-in image generation, 9 Ekim 2026. Yazısız Osmanlı–Ege mal takası sahnesi; istem docs/exchange-art.json.

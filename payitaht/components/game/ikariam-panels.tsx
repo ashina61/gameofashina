@@ -17,10 +17,10 @@ import { WorkforceSlider } from './workforce'
 import { GameButton } from './game-button'
 import { UnitFigure } from './unit-art'
 import {
-  FAITH_CAP, GOOD_NAMES, MIRACLES, MIRACLE_IDS, MIRACLE_COOLDOWN_MS, RESEARCH, RESEARCH_BRANCHES, RESEARCH_IDS, TRADE_GOODS, UNITS,
-  UNIT_IDS, WONDER_MAX, exchangeLimit, exchangeRate, futureCost, futureReason, goodAmount, idleWorkers, miracleCost, miracleMinutes,
+  FAITH_CAP, MIRACLES, MIRACLE_IDS, MIRACLE_COOLDOWN_MS, RESEARCH, RESEARCH_BRANCHES, RESEARCH_IDS, UNITS,
+  UNIT_IDS, WONDER_MAX, futureCost, futureReason, idleWorkers, miracleCost, miracleMinutes,
   priestCapacity, upgradeCap, upgradeCost, upgradeReason, wonderCost, travelFactor,
-  type Command, type Game, type Good, type UnitId, formatRate,
+  type Command, type Game, type UnitId, formatRate,
 } from '@/lib/game/engine'
 import { activeCity, type Empire } from '@/lib/game/empire'
 import { PIRACY_TARGETS, RAID_UNITS, SIEGE_MAX_MS, THREAT_WARNING_MS, WARSHIPS, availableUnits, cityGuards, cityWallHp, liberateCity, safeStock, siegeTribute, targetName, type Siege } from '@/lib/game/expeditions'
@@ -180,30 +180,7 @@ export function FuturePanel({ game, onCommand }: { game: Game; onCommand: (c: Co
   </section>
 }
 
-/** KARA PAZAR: her malı başka bir mala zararına çevirir. */
-const GOODS: Good[] = [...TRADE_GOODS]
-export function ExchangePanel({ game, onCommand }: { game: Game; onCommand: (c: Command) => void }) {
-  const [from, setFrom] = useState<Good>('wood')
-  const [to, setTo] = useState<Good>('kristal')
-  const [amount, setAmount] = useState('400')
-  const n = Math.floor(Number(amount))
-  const rate = exchangeRate(game)
-  if (game.buildings.kara_pazar < 1) return null
-  return <section className="empire-section">
-    <h3><Repeat className="size-4" /> Takas</h3>
-    <p className="fine-print">Kara Pazar'da {rate} birim ver, 1 birim al. Tek seferde en fazla {num(exchangeLimit(game))} birim. Oran seviyeyle iyileşir (en iyi 2 : 1).</p>
-    <div className="empire-shipment-form">
-      <label>Ver<select value={from} onChange={e => setFrom(e.target.value as Good)}>
-        {GOODS.map(g => <option key={g} value={g}>{GOOD_NAMES[g]} ({num(goodAmount(game, g))})</option>)}</select></label>
-      <label>Al<select value={to} onChange={e => setTo(e.target.value as Good)}>
-        {GOODS.filter(g => g !== from).map(g => <option key={g} value={g}>{GOOD_NAMES[g]}</option>)}</select></label>
-      <label>Miktar<input type="number" min={1} step={1} inputMode="numeric" value={amount} onChange={e => setAmount(e.target.value)} /></label>
-      <GameButton size="sm" disabled={!Number.isSafeInteger(n) || n <= 0 || from === to}
-        onClick={() => onCommand({ type: 'exchange', from, to, amount: n })}>
-        {Number.isSafeInteger(n) && n > 0 ? `${num(n)} → ${num(n / rate)} ${GOOD_NAMES[to]}` : 'Takas et'}</GameButton>
-    </div>
-  </section>
-}
+export { ExchangePanel } from './exchange-panel'
 
 /** KORSAN KALESİ: savaş gemileriyle tüccar gemilerine baskın. */
 export function PiracyPanel({ empire, now, onPiracy }: {

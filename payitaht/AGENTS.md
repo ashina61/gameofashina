@@ -72,3 +72,8 @@ Kullanıcı 0.67.0 ekranını çizime benzemediği için reddetti. `docs/BARRACK
 ## Çarşı ve Ticaret Merkezi — 0.78.0
 
 docs/COMMERCE-DESIGN-MEMORY.md geçerlidir. İki ana sekme ve ortak atlaslar; anlık tüccar ile yolculuklu pazar ayrıdır. Net gelir, gerçek satış akçesi ve teklif stokları doğru açıklanır. Ekonomi ve HUD korunur. Sonraki bölüm Kara Pazar.
+
+
+## Kara Pazar — 0.79.0
+
+docs/EXCHANGE-DESIGN-MEMORY.md geçerlidir. Ortak atlaslar, ayrı sahne, Mal takası/Gelişim. Gerçek kayıplı miktar ve engeller işlemden önce okunur. Maks. resmini form alanına uygulama. Motor ve HUD korunur. Sonraki bölüm Liman/Tersane.

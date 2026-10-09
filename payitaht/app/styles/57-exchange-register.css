@@ -1,0 +1,20 @@
+/* Kara Pazar: live quantities inside the shared painted register. */
+.exchange-intro, .exchange-reason, .exchange-details { font: 14px/1.6 Georgia,serif; }
+.exchange-intro { margin: 8px 0 16px; }
+.exchange-form { display: grid; gap: 14px; }
+.exchange-form label { display: grid; gap: 6px; font: 14px/1.5 Georgia,serif; }
+.game-shell.has-page .bp-exchange :is(select,input[type='number']) { width: 100%; min-width: 0; min-height: 48px; padding: 10px 12px; border: 0 solid transparent; border-image: var(--royal-page-frame) 20 / 4px / 0 stretch; border-radius: 0; background: var(--academy-paper); color: var(--c-ink); font: 16px/1.4 Georgia,serif; }
+.exchange-amounts { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 8px; }
+.game-shell.has-page .bp-exchange .exchange-amounts .gbtn { min-width: 0; width: 100%; padding: 12px 8px; font-size: 15px; border-image: var(--royal-page-frame) 20 / 4px / 0 stretch; background: var(--academy-paper); color: var(--c-ink); }
+.exchange-preview { margin: 16px 0; border-top: 1px solid var(--c-gold-deep); }
+.exchange-preview > div { display: grid; grid-template-columns: 44px minmax(0,1fr); align-items: center; gap: 8px 10px; padding: 14px 0; border-bottom: 1px solid var(--c-gold-deep); }
+.exchange-preview dt { font: 700 18px/1.4 'Payitaht Profile Roman',Georgia,serif; }
+.exchange-preview small { display: block; font: 13px/1.5 Georgia,serif; }
+.exchange-preview dd { grid-column: 2; margin: 0; font: 700 26px/1.3 'Payitaht Profile Roman',Georgia,serif; }
+.game-shell.has-page .bp-exchange .exchange-submit { width: 100%; }
+.exchange-reason { margin: 12px 0; color: var(--c-red); }
+.exchange-details { margin-top: 16px; border-top: 1px solid var(--c-gold-deep); }
+.exchange-details summary { min-height: 48px; padding: 12px 0; cursor: pointer; font-weight: 700; }
+.exchange-facts { margin: 8px 0; }
+.exchange-facts > div { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); align-items: center; gap: 10px; min-height: 48px; padding: 10px 0; border-bottom: 1px solid var(--c-gold-deep); }
+.exchange-facts dd { margin: 0; text-align: right; font-weight: 700; }

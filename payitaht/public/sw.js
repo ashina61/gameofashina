@@ -1,7 +1,8 @@
-const CACHE = 'payitaht-shell-v90'
+const CACHE = 'payitaht-shell-v91'
 const BASE = new URL(self.registration.scope).pathname.replace(/\/$/, '')
 const p = path => `${BASE}${path.startsWith('/') ? path : `/${path}`}`
 const ASSETS = [
+  p('/images/game/ui/exchange/market.webp'),
   p('/images/game/ui/commerce/bazaar.webp'),
   p('/images/game/ui/commerce/caravanserai.webp'),
   p('/images/game/ui/commerce/shopkeeper.webp'),

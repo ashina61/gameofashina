@@ -1,0 +1,8 @@
+{
+  "version": "0.79.0",
+  "prompt": "Use case: historical-scene. Asset type: textless narrow environment banner for an Ottoman Aegean city-building mobile game, landscape 3:1 composition. Subject: a discreet Ottoman commodity exchange in a vaulted side arcade of an Aegean bazaar, two turbaned merchants weighing crystal and sulfur beside coffee sacks and timber bundles, brass balance on walnut counter, red cloth canopy, ivory limestone arches, glimpse of turquoise harbor. Painterly polished strategy-game illustration, warm upper-left Mediterranean afternoon sunlight, aged walnut, ivory stone, muted brass, deep red textiles. Human scale, authentic period Ottoman clothes, refined plausible materials, no modern objects or fantasy. Most identifying details in center horizontal band, suitable for an 80px panoramic header. No text, letters, UI, numbers, border or watermark.",
+  "tool": "built-in imagegen",
+  "asset": "public/images/game/ui/exchange/market.webp",
+  "width": 960,
+  "height": 320
+}

@@ -44,3 +44,8 @@ COST-DESIGN-MEMORY.md geçerlidir. Beş ayrı atölye sahnesi, Tasarruf/Gelişim
 ## Çarşı ve Ticaret Merkezi — 0.78.0
 
 COMMERCE-DESIGN-MEMORY.md geçerlidir. İki ana sekme ve ortak atlaslar; anlık tüccar ile yolculuklu pazar ayrıdır. Net gelir, gerçek satış akçesi ve teklif stokları doğru açıklanır. Ekonomi ve HUD korunur. Sonraki bölüm Kara Pazar.
+
+
+## Kara Pazar — 0.79.0
+
+EXCHANGE-DESIGN-MEMORY.md geçerlidir. Ortak atlaslar, ayrı sahne, Mal takası/Gelişim. Gerçek kayıplı miktar ve engeller işlemden önce okunur. Maks. resmini form alanına uygulama. Motor ve HUD korunur. Sonraki bölüm Liman/Tersane.

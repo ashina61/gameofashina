@@ -1,0 +1,267 @@
+{
+  "reports": [
+    {
+      "width": 430,
+      "zoom": false,
+      "name": "main",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 430,
+      "zoom": false,
+      "name": "preview",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 430,
+      "zoom": false,
+      "name": "exchanged",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 430,
+      "zoom": false,
+      "name": "ledger",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 430,
+      "zoom": false,
+      "name": "development",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 430,
+      "zoom": false,
+      "name": "active",
+      "found": {
+        "taşma": {},
+        "kesik": {
+          "div.job-progress > div.flex.flex-wrap > span": {
+            "örnek": "x",
+            "adet": 1
+          }
+        },
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 360,
+      "zoom": true,
+      "name": "main",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 360,
+      "zoom": true,
+      "name": "preview",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 360,
+      "zoom": true,
+      "name": "exchanged",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 360,
+      "zoom": true,
+      "name": "ledger",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 360,
+      "zoom": true,
+      "name": "development",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 360,
+      "zoom": true,
+      "name": "active",
+      "found": {
+        "taşma": {},
+        "kesik": {
+          "div.job-progress > div.flex.flex-wrap > span": {
+            "örnek": "x",
+            "adet": 1
+          }
+        },
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": false,
+      "name": "unbuilt",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": false,
+      "name": "maxed",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": false,
+      "name": "no-stock",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": false,
+      "name": "full-target",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": false,
+      "name": "zero-output",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": false,
+      "name": "party-limit",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    }
+  ],
+  "errors": [],
+  "priorWidths": [
+    360,
+    390
+  ],
+  "priorChecks": "Real exchange, destination collision, max, ledger and active upgrade passed at 360/390 before browser screenshot timeout at 430.",
+  "version": "0.79.0",
+  "general": {
+    "totals": {
+      "taşma": 0,
+      "kesik": 0,
+      "küçük": 323,
+      "minik": 667,
+      "çakışma": 58,
+      "isimsiz": 0
+    },
+    "errors": []
+  },
+  "knownNonvisualWarning": "Base UI hidden 1px x in active upgrade progress; generic dock check also scans hidden tabs."
+}
