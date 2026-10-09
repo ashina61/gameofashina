@@ -48,6 +48,7 @@
 @import './styles/48-mandates-register.css';
 @import './styles/49-barracks-register.css';
 @import './styles/50-academy-register.css';
+@import './styles/51-housing-register.css';
 
 @custom-variant dark (&:is(.dark *));
 @theme inline {

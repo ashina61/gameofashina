@@ -44,6 +44,8 @@ import { idleMerchants, merchantShipPrice, shipCargo, totalMerchants } from '@/l
 import { WorkforceSlider, type Figure } from './workforce'
 import { t } from '@/lib/i18n/tr'
 import { RoyalManagement } from './royal-management'
+import { HousingPanel } from './housing-panel'
+import { NufusArt } from './resource-art'
 
 const num = (n: number) => Math.floor(n).toLocaleString('tr-TR')
 const RES_ICON = resourceIcons
@@ -278,7 +280,8 @@ function BuildingView({ game, empire, id, onCommand, onRecruit, onNav, onBuildin
           <ArmyPanel game={game} onRecruit={onRecruit} onBuild={onBuildingNav} home={id} />
         </Box>}
       </>
-    case 'konut': case 'hamam': return <Box title="Halk">
+    case 'konut': return <HousingPanel game={game} onPeople={() => onNav('people')} onHamam={() => onBuildingNav('hamam')} />
+    case 'hamam': return <Box title="Halk">
       <Table rows={[['Nüfus', `${num(population(game))} / ${num(maxPopulation(game))}`], ['Barınma', num(housing(game))], ['Huzur', num(contentment(game))],
         ['Büyüme', growthRate(game) > 0 ? `+${formatRate(growthRate(game))} kişi/dk` : 'Tavanda']]} />
       <GameButton size="sm" variant="outline" onClick={() => onNav('people')}>Halk paneli<ChevronRight data-icon="inline-end" /></GameButton>
@@ -385,7 +388,7 @@ export function BuildingPage({ game, empire, id, onClose, onBuild, onFlip, onMov
   const facingLabel = facing === 'left' ? 'Sol' : facing === 'right' ? 'Sağ' : 'Düz'
   const nextFacing = facing === 'straight' ? 'right' : facing === 'right' ? 'left' : 'straight'
   const showTab = hasWork ? tab : 'gelisim'
-  const royalWork = id === 'kisla' || id === 'medrese'
+  const royalWork = id === 'kisla' || id === 'medrese' || id === 'konut'
   if (id === 'divan' || id === 'elcilik') return <IkaPage title={b.name} label={`${b.name} sayfası`} onClose={onClose}
     className={`bp-building bp-of-${id} bp-court bp-royal bp-management${help ? ' show-help' : ''}`}
     footer={<UpgradeDock game={game} id={id} onBuild={onBuild} />}>
@@ -406,11 +409,12 @@ export function BuildingPage({ game, empire, id, onClose, onBuild, onFlip, onMov
         <img src={asset('/images/game/ui/barracks/courtyard.webp')} alt="Osmanlı kışlasının sancaklı eğitim avlusu" />
         <figcaption>Seviye {level}</figcaption>
       </figure>}
+      {id === 'konut' && <figure className="academy-banner"><img src={asset('/images/game/ui/housing/neighborhood.webp')} alt="Osmanlı mahallesinde günlük yaşam" /><figcaption>Seviye {level}</figcaption></figure>}
       {id === 'medrese' && <figure className="academy-banner"><img src={asset('/images/game/ui/medrese/library.webp')} alt="Osmanlı medresesinde ilim meclisi" /><figcaption>Seviye {level}</figcaption></figure>}
       {razing && <DemolishConfirm game={game} id={id} onCommand={onCommand} onClose={() => setRazing(false)} />}
 
       {hasWork && <div className="bp-tabs" role="tablist" aria-label={`${b.name} bölümleri`}>
-        <button type="button" role="tab" aria-selected={showTab === 'yapi'} onClick={() => setTab('yapi')}>{id === 'kisla' && <img className="barracks-tab-emblem" src={asset('/images/game/ui/barracks/army-medallion.webp')} alt="Yeniçeri börkü" width={32} height={32} />}{id === 'medrese' && <IlimArt className="size-6" />}{id === 'kisla' ? 'Kara ordusu' : id === 'medrese' ? 'İlim meclisi' : b.name}</button>
+        <button type="button" role="tab" aria-selected={showTab === 'yapi'} onClick={() => setTab('yapi')}>{id === 'kisla' && <img className="barracks-tab-emblem" src={asset('/images/game/ui/barracks/army-medallion.webp')} alt="Yeniçeri börkü" width={32} height={32} />}{id === 'medrese' && <IlimArt className="size-6" />}{id === 'konut' && <NufusArt width={32} height={32} />}{id === 'kisla' ? 'Kara ordusu' : id === 'medrese' ? 'İlim meclisi' : id === 'konut' ? 'Mahalle' : b.name}</button>
         <button type="button" role="tab" aria-selected={showTab === 'gelisim'} onClick={() => setTab('gelisim')}>{royalWork && <img className="barracks-development-icon" src={asset('/images/game/ui/barracks/development-icon.webp')} alt="" width={32} height={32} />}Gelişim</button>
       </div>}
       <div ref={workRef} className="bp-tabpanel" hidden={showTab !== 'yapi'}>

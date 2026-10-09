@@ -1,0 +1,7 @@
+{
+  "mode": "built-in image_gen",
+  "prompt": "Use case: historical-scene. Asset type: short wide banner for an Ottoman Aegean mobile strategy game's housing page. Painted realistic stylized premium game art, same coherent painter as dark walnut, antique brass and warm ivory parchment Ottoman interface. Quiet lived-in Ottoman residential lane: modest cream limestone houses, wooden bay windows, terracotta roofs, one shaded courtyard, olive greenery, a few ordinary civilian townspeople visibly full body walking, soft Aegean coastal light. Warm sunlight from upper left. Composition very wide horizontal, readable when cropped into 80px high phone banner. Neighborhood at human scale, no grand palace, no soldiers. NO text, letters, UI, frame, labels, logos, watermark. Environment illustration only.",
+  "asset": "public/images/game/ui/housing/neighborhood.webp",
+  "processing": "resize to 960px wide, WebP quality 86",
+  "reference": "Approved MASTER-UI-STANDARD; warm Ottoman-Aegean painterly game art"
+}
