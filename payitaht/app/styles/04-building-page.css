@@ -61,11 +61,6 @@
 .bp-upgrade-button img { width: 28px; height: 28px; }
 .bp-upgrade-button:disabled { filter: grayscale(.85); opacity: .7; }
 
-.bp-good { display: inline-flex; align-items: center; gap: 6px; }
-.bp-good .bp-res-icon { width: 18px; height: 18px; }
-.bp-fill { position: relative; display: block; min-width: 90px; height: 18px; border-radius: 3px; background: #e6d3a2; overflow: hidden; }
-.bp-fill span { position: absolute; inset: 0 auto 0 0; background: linear-gradient(90deg, #c99a52, #a8783a); }
-.bp-fill em { position: relative; display: block; padding: 0 6px; font-style: normal; font-size: 11.5px; line-height: 18px; color: var(--ink); }
 .bp-mini-costs { display: inline-flex; flex-wrap: wrap; justify-content: flex-end; gap: 6px; font-weight: 600; }
 .bp-mini-costs span { display: inline-flex; align-items: center; gap: 3px; }
 .bp-mini-costs .bp-res-icon { width: 16px; height: 16px; }

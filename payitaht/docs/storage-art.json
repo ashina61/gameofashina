@@ -1,0 +1,20 @@
+{
+  "mode": "built-in image_gen",
+  "assets": [
+    {
+      "prompt": "Use case: historical-scene. Asset type: very wide short banner for a premium Ottoman-Aegean mobile strategy game storage building page. Warm painterly-realistic game art matching dark walnut, warm ivory parchment, aged brass interface. Ivory limestone, warm upper-left natural daylight, practical detailed textures, ordinary full-body civilian workers at small scale. No text, labels, UI, frame, logos, watermarks. Landscape composition readable cropped as 80px phone banner. Not a palace, no fantasy. Subject: the city's AMBAR warehouse interior, neat low wooden crates, burlap grain sacks, ceramic jars, brass-bound secure chests, sturdy walnut shelves and a sunny stone loading arch opening toward olive trees. Clearly organized small municipal storehouse, a clerk checking goods without legible writing.",
+      "asset": "public/images/game/ui/storage/warehouse.webp",
+      "processing": "Resize960px wide; WebP quality86"
+    },
+    {
+      "prompt": "Use case: historical-scene. Asset type: very wide short banner for a premium Ottoman-Aegean mobile strategy game storage building page. Warm painterly-realistic game art matching dark walnut, warm ivory parchment, aged brass interface. Ivory limestone, warm upper-left natural daylight, practical detailed textures, ordinary full-body civilian workers at small scale. No text, labels, UI, frame, logos, watermarks. Landscape composition readable cropped as 80px phone banner. Not a palace, no fantasy. Subject: the city's DEPO supply depot loading courtyard, larger covered storage bays with timber crates, bundled building materials, terracotta amphorae and handcarts, a few workers organizing deliveries. Ivory stone arcades, walnut gates, cypress foliage and a glimpse of Aegean harbor. Distinct from an interior grain warehouse, calm orderly logistics yard.",
+      "asset": "public/images/game/ui/storage/depot.webp",
+      "processing": "Resize960px wide; WebP quality86"
+    },
+    {
+      "prompt": "Use case: stylized-concept. Asset type: small transparent painted Ottoman strategy game storage icon. One compact group of a walnut brass-bound chest, one timber crate and one small tied burlap sack. Warm realistic painterly game illustration, upper-left light, antique brass and earthy ivory tones. Centered silhouette readable at 32px, genuine transparent background, entire objects visible, no backdrop, no frame, no circular badge, no text, no logo.",
+      "asset": "public/images/game/ui/storage/storage-icon.webp",
+      "processing": "Preserve alpha; trim alpha bounds; contain 180px in transparent 192px square; WebP quality86"
+    }
+  ]
+}

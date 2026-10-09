@@ -10,6 +10,8 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 # Payitaht Adaları — ajanlar için
 
+**9 Ekim Ambar/Depo — 0.75.0 / SW87:** `docs/STORAGE-DESIGN-MEMORY.md`; ortak Stoklar/Gelişim, yedi mal dikey defterde, her malın ayrı kapasitesi ve koruması. İlim yağmalanmaz. Yükseltme ilk Gelişim bloğu; motor/HUD aynı. Sonraki Kereste ve kaynak üretim yapıları.
+
 **9 Ekim Kahvehane — 0.74.1 / SW86:** `docs/COFFEEHOUSE-DESIGN-MEMORY.md`; İkram/Gelişim aynı ortak atlaslar. İkram barı +/−/Maks. ile mevcut anlık tavern komutunu kullanır. Kahve stoğu/tüketim/huzur birlikte, tam boy ortak halk. Sonraki Ambar/Depo.
 
 **9 Ekim Hamam — 0.73.0 / SW84:** `docs/BATHHOUSE-DESIGN-MEMORY.md`; aynı ortak atlaslar, tam boy halk, Halkın huzuru/Gelişim. Hamam katkısı ile toplam huzur ayrı, barınma sınırı görünür. Yükseltme ilk Gelişim bloğu. Sonraki bina Kahvehane.

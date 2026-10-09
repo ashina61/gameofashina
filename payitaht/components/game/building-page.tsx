@@ -1,5 +1,6 @@
 'use client'
 import { IlimArt, YolsuzlukArt, KumSaatiArt } from './resource-art'
+import { StoragePanel } from './storage-panel'
 import { Term } from './term'
 import { flyGoods } from '@/lib/fx'
 
@@ -22,7 +23,7 @@ import { BottomSheet } from './bottom-sheet'
 import { asset, buildingImage } from '@/lib/asset'
 import {
   BUILDINGS, BUILDING_EFFECTS, constructionDiscount, LUXURY_IDS, LUXURY_NAMES, MAX_LEVEL, RESEARCH, RESOURCE_IDS, RESOURCE_NAMES,
-  actionPoints, activeJob, armyUpkeep, buildReason, capacity, contentment, corruption, cost, duration,
+  actionPoints, activeJob, armyUpkeep, buildReason, contentment, corruption, cost, duration,
   forestProduction, growthRate, housing, idleWorkers, loadingSpeed, luxuryCost, luxuryProduction, maxPopulation, population, rates,
   scientistUpkeepPerMinute, soldiers, takesPlot, tavernLevel, tradeCapacity, travelFactor, wallDefense,
   wineServed, workerCapacity, type BuildingId, type Command, type Game, type Luxury, type Resource, type UnitId, type WorkerId, formatRate,
@@ -254,18 +255,7 @@ function BuildingView({ game, empire, id, onCommand, onRecruit, onNav, onBuildin
       ]} />
       <Hint>Saldırıda önce sur hasar emer: kuşatma birlikleri sura üç kat, diğerleri yarım vurur. Sur yıkılınca savunanın morali sarsılır. Sur her seviyede savunmaya 4 muhafız ekler.</Hint>
     </Box>
-    case 'ambar': case 'depo': {
-      const cap = capacity(game), safe = safeStock(game)
-      const goods: (Resource | Luxury)[] = [...RESOURCE_IDS, ...LUXURY_IDS]
-      return <Box title={`Depolama · kapasite ${num(cap)}`}>
-        <Table head={['Mal', 'Stok', 'Korunan']} rows={goods.map(g => [
-          <span key="n" className="bp-good"><ResIcon id={g} />{name(g)}</span>,
-          <span key="s" className="bp-fill"><span style={{ width: `${Math.min(100, stock(game, g) / cap * 100)}%` }} /><em>{num(stock(game, g))}</em></span>,
-          num(Math.min(safe, stock(game, g))),
-        ])} />
-        <p className="bp-note">Ambar ve Depo her malın tavanını belirler; dolu ambarda üretim boşa gider. Baskında her malın {num(safe)} birimi korunur.</p>
-      </Box>
-    }
+    case 'ambar': case 'depo': return <StoragePanel game={game} />
     case 'kisla': case 'tersane': case 'liman':
       return <>
         {id === 'liman' && <Box title="Liman">
@@ -382,7 +372,7 @@ export function BuildingPage({ game, empire, id, onClose, onBuild, onFlip, onMov
   const facingLabel = facing === 'left' ? 'Sol' : facing === 'right' ? 'Sağ' : 'Düz'
   const nextFacing = facing === 'straight' ? 'right' : facing === 'right' ? 'left' : 'straight'
   const showTab = hasWork ? tab : 'gelisim'
-  const royalWork = id === 'kisla' || id === 'medrese' || id === 'konut' || id === 'hamam' || id === 'kahvehane'
+  const royalWork = id === 'kisla' || id === 'medrese' || id === 'konut' || id === 'hamam' || id === 'kahvehane' || id === 'ambar' || id === 'depo'
   if (id === 'divan' || id === 'elcilik') return <IkaPage title={b.name} label={`${b.name} sayfası`} onClose={onClose}
     className={`bp-building bp-of-${id} bp-court bp-royal bp-management${help ? ' show-help' : ''}`}
     footer={<UpgradeDock game={game} id={id} onBuild={onBuild} />}>
@@ -403,6 +393,7 @@ export function BuildingPage({ game, empire, id, onClose, onBuild, onFlip, onMov
         <img src={asset('/images/game/ui/barracks/courtyard.webp')} alt="Osmanlı kışlasının sancaklı eğitim avlusu" />
         <figcaption>Seviye {level}</figcaption>
       </figure>}
+      {(id === 'ambar' || id === 'depo') && <figure className="academy-banner"><img src={asset(`/images/game/ui/storage/${id === 'ambar' ? 'warehouse' : 'depot'}.webp`)} alt={id === 'ambar' ? 'Osmanlı ambarında sandıklar ve erzak' : 'Osmanlı deposunun yükleme avlusu'} /><figcaption>Seviye {level}</figcaption></figure>}
       {id === 'kahvehane' && <figure className="academy-banner"><img src={asset('/images/game/ui/coffeehouse/terrace.webp')} alt="Osmanlı kahvehanesinin Ege’ye bakan sohbet terası" /><figcaption>Seviye {level}</figcaption></figure>}
       {id === 'hamam' && <figure className="academy-banner"><img src={asset('/images/game/ui/bathhouse/court.webp')} alt="Osmanlı hamamının şadırvanlı dinlenme avlusu" /><figcaption>Seviye {level}</figcaption></figure>}
       {id === 'konut' && <figure className="academy-banner"><img src={asset('/images/game/ui/housing/neighborhood.webp')} alt="Osmanlı mahallesinde günlük yaşam" /><figcaption>Seviye {level}</figcaption></figure>}
@@ -410,7 +401,7 @@ export function BuildingPage({ game, empire, id, onClose, onBuild, onFlip, onMov
       {razing && <DemolishConfirm game={game} id={id} onCommand={onCommand} onClose={() => setRazing(false)} />}
 
       {hasWork && <div className="bp-tabs" role="tablist" aria-label={`${b.name} bölümleri`}>
-        <button type="button" role="tab" aria-selected={showTab === 'yapi'} onClick={() => setTab('yapi')}>{id === 'kisla' && <img className="barracks-tab-emblem" src={asset('/images/game/ui/barracks/army-medallion.webp')} alt="Yeniçeri börkü" width={32} height={32} />}{id === 'medrese' && <IlimArt className="size-6" />}{id === 'konut' && <NufusArt width={32} height={32} />}{id === 'hamam' && <HuzurArt width={32} height={32} />}{id === 'kahvehane' && <KahveArt width={32} height={32} />}{id === 'kisla' ? 'Kara ordusu' : id === 'medrese' ? 'İlim meclisi' : id === 'konut' ? 'Mahalle' : id === 'hamam' ? 'Halkın huzuru' : id === 'kahvehane' ? 'İkram' : b.name}</button>
+        <button type="button" role="tab" aria-selected={showTab === 'yapi'} onClick={() => setTab('yapi')}>{id === 'kisla' && <img className="barracks-tab-emblem" src={asset('/images/game/ui/barracks/army-medallion.webp')} alt="Yeniçeri börkü" width={32} height={32} />}{id === 'medrese' && <IlimArt className="size-6" />}{id === 'konut' && <NufusArt width={32} height={32} />}{id === 'hamam' && <HuzurArt width={32} height={32} />}{id === 'kahvehane' && <KahveArt width={32} height={32} />}{(id === 'ambar' || id === 'depo') && <img src={asset('/images/game/ui/storage/storage-icon.webp')} alt="" width={32} height={32} />}{id === 'ambar' || id === 'depo' ? 'Stoklar' : id === 'kisla' ? 'Kara ordusu' : id === 'medrese' ? 'İlim meclisi' : id === 'konut' ? 'Mahalle' : id === 'hamam' ? 'Halkın huzuru' : id === 'kahvehane' ? 'İkram' : b.name}</button>
         <button type="button" role="tab" aria-selected={showTab === 'gelisim'} onClick={() => setTab('gelisim')}>{royalWork && <img className="barracks-development-icon" src={asset('/images/game/ui/barracks/development-icon.webp')} alt="" width={32} height={32} />}Gelişim</button>
       </div>}
       <div ref={workRef} className="bp-tabpanel" hidden={showTab !== 'yapi'}>

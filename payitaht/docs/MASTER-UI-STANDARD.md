@@ -24,3 +24,8 @@ Medrese: `MEDRESE-DESIGN-MEMORY.md`. 9 Ekim genel devam talebiyle sıradaki Konu
 Hamam 0.73.0: `BATHHOUSE-DESIGN-MEMORY.md`; ortak 50/51 numaralı defter stilleri. Sonraki bina Kahvehane.
 
 Kahvehane 0.74.0: `COFFEEHOUSE-DESIGN-MEMORY.md`. İkram kontrolü aynı sürgü/düğme atlası; eski anlık uygulama korunur. Sonraki bölüm Ambar/Depo.
+
+
+## Ambar ve Depo — 0.75.0
+
+`STORAGE-DESIGN-MEMORY.md` geçerlidir. Aynı ortak atlaslar ve iki sekme; yedi mal alt alta. Toplam stok tek havuz gibi sunulmaz: kapasite her mal için ayrıdır. İlim baskında yağmalanmaz. Gelişim önce yükseltme; HUD ve ekonomi korunur.
