@@ -9,3 +9,5 @@
 Kahve stoğu, etkin/planlanan tüketim, ikramın gerçek huzur katkısı ve toplam huzur aynı defterde. Bina huzuru ile kahve ikramı ayrımı açılır açıklamada. İkram huzuru yalnız wineServed true olduğunda; kahve tüketimi ve araştırma/kiler etkileri mevcut fonksiyonlardan. Kahve bulunmadığında tüketim planlanan olarak etiketlenir. Bina henüz yoksa eski davranış korunur: Gelişim/İnşa ilk ekran.
 
 Gelişim ilk blok yükseltme, ortalı gereksinimler ve mevcut kaynak/süre. Ardından etkiler, sonraki seviyeler, açıklama ve açılır yapı işlemleri. Dört işlemeli köşe, iki yönlü başlık süsü, yuvarlak geri/kapat, aynı Tinos Bold/Georgia ve aynı alt menü.
+
+0.74.1 / SW86: Son Kahvehane güncellemesindeki +/−/Maks. kontrolleri ve terrace.webp korunur. Üretim, üretim eksi seçilen ikram talebi, yapı huzuru, barınma ve nüfus sınırı eklenir. Talep hesabı gerçek harcama diye sunulmaz; kahvesiz durumda açıklanır. Stok ve barınma önerileri canlı engine değerlerinden okunur; 360px/%130 satırlar sarılır.

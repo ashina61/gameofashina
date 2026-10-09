@@ -1,5 +1,11 @@
 # Kahvehane — 0.74.0 / SW85
 
+## 0.74.1 / SW86 ek kontrol
+
+Son dal güncellemesi 2c5619d üzerine uygulandı: mevcut terrace.webp ve +/−/Maks. kontrolleri korunur. Üretim, seçilen ikram talebi farkı, yapı huzuru, barınma ve gerçek nüfus sınırı eklendi. 335 test, TypeScript, ESLint, strict CSS ve V2 ölçütleri yeniden geçti; Pages üretim derlemesi başarılı. 360/390/430×844 ve %130 yazı, açık/kahvesiz/kapalı/son seviye durumlarında iki sekme odaklı tarandı; Home ve klavye adımı mevcut tavern komutuyla doğrulandı. Son taramada altı düzen kategorisinde ihlal yok. Ekran kanıtları coffeehouse-review-{active,empty,off,development}.webp.
+
+Bu ortamın Chromium Canvas renderer koşusunda şehir arka planında negatif arc yarıçapı hatası görüldü; genel çalışma zamanı denetimi tamamen temiz diye sunulmaz. Genel layout-qa önceki HUD/bina küçük-minik ve gizli dock uyarılarıyla exit 1 verdi. Değişiklik Kahvehane defteri ve ona ait stillerle sınırlıdır.
+
 - 335 test, TypeScript, ESLint, strict CSS ve V2 ölçütleri başarılı.
 - Chromium 360/390/430×844: İkram ekranında taşma, kesik, küçük/minik yazı, çakışma ve isimsiz kontrol yok.
 - Native slider klavye adımı, +, −, Maks. ve sıfıra çekme gerçek mevcut tavern komutuyla doğrulandı: 2→3→4→5→4→0→1. Açık/kapalı metni ve gerçek değer güncellenir.
