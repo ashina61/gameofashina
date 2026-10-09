@@ -51,6 +51,7 @@
 @import './styles/51-housing-register.css';
 @import './styles/52-coffeehouse-register.css';
 @import './styles/53-storage-register.css';
+@import './styles/54-production-register.css';
 
 @custom-variant dark (&:is(.dark *));
 @theme inline {

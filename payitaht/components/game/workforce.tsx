@@ -18,6 +18,7 @@ const INK = '#2e1c0e'
 const SKIN = '#e8b98a'
 /** Ayakta duran küçük figür: başlık, cübbe ve elindeki alet mesleği anlatır. */
 export function PersonArt({ kind, size = 64 }: { kind: Figure; size?: number }) {
+  if (kind === 'oduncu') return <img className="person-art person-figure" src={asset('/images/game/ui/production/lumberjack.webp')} alt="" width={size} height={size * 80 / 60} />
   if (kind === 'alim' || kind === 'halk') return <img className="person-art person-figure" src={asset(`/images/game/ui/people/${kind === 'alim' ? 'scholar-figure' : 'citizen-figure'}.webp`)} alt="" width={size} height={size * 80 / 60} />
   const look: Record<Figure, { robe: string; sash: string; hat: ReactNode; tool: ReactNode }> = {
     halk: { robe: '#4f7fa8', sash: '#e2bd78',

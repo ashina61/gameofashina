@@ -1,0 +1,51 @@
+{
+  "date": "2026-10-09",
+  "release": "0.76.0",
+  "generator": "ChatGPT built-in ImageGen",
+  "use_case": "historical-scene",
+  "shared_brief": "Premium Ottoman-Aegean painterly-realistic game art; warm upper-left daylight; ivory limestone, dark walnut, muted terracotta, olive green, turquoise Aegean; very wide landscape scenes readable in central 80px banner crop. No text, labels, UI, borders, logos, watermark, cartoon, modern machines or fantasy. Full-body ordinary artisans.",
+  "assets": [
+    {
+      "file": "public/images/game/ui/production/lumber.webp",
+      "subject": "Ottoman coastal lumber yard in a pine forest, stacked cut timber, small full-body workers, open timber sheds, Aegean glimpse",
+      "transparent_background": false,
+      "output_size": "960x360"
+    },
+    {
+      "file": "public/images/game/ui/production/ormanci.webp",
+      "subject": "Forest keeper nursery among pine and olive trees, saplings, foresters watering seedlings, ivory stone lodge",
+      "transparent_background": false,
+      "output_size": "960x360"
+    },
+    {
+      "file": "public/images/game/ui/production/bagci.webp",
+      "subject": "Ottoman coffee seedling nursery, terracotta pots, shade pergolas, coffee cherries and workers",
+      "transparent_background": false,
+      "output_size": "960x360"
+    },
+    {
+      "file": "public/images/game/ui/production/tasci.webp",
+      "subject": "Ottoman marble quarry workshop, pale cliff, blocks and column blanks, hand tools, stonecutters and wooden carts",
+      "transparent_background": false,
+      "output_size": "960x360"
+    },
+    {
+      "file": "public/images/game/ui/production/camci.webp",
+      "subject": "Ottoman crystal and glass artisan courtyard, crystal pieces, glass vessels, modest furnace and artisans",
+      "transparent_background": false,
+      "output_size": "960x360"
+    },
+    {
+      "file": "public/images/game/ui/production/simyahane.webp",
+      "subject": "Ottoman sulfur refining courtyard, yellow mineral trays, copper distillation apparatus, craftsmen and earthen jars",
+      "transparent_background": false,
+      "output_size": "960x360"
+    },
+    {
+      "file": "public/images/game/ui/production/lumberjack.webp",
+      "subject": "One ordinary standing Ottoman lumberjack, entire body head to boots, brown waistcoat, ivory shirt, olive sash, turban, boots and axe safely down; genuine transparent alpha",
+      "transparent_background": true,
+      "output_size": "240x360"
+    }
+  ]
+}

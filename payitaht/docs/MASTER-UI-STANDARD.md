@@ -29,3 +29,8 @@ Kahvehane 0.74.0: `COFFEEHOUSE-DESIGN-MEMORY.md`. İkram kontrolü aynı sürgü
 ## Ambar ve Depo — 0.75.0
 
 `STORAGE-DESIGN-MEMORY.md` geçerlidir. Aynı ortak atlaslar ve iki sekme; yedi mal alt alta. Toplam stok tek havuz gibi sunulmaz: kapasite her mal için ayrıdır. İlim baskında yağmalanmaz. Gelişim önce yükseltme; HUD ve ekonomi korunur.
+
+
+## Kereste ve kaynak üretim yapıları — 0.76.0
+
+`PRODUCTION-DESIGN-MEMORY.md` geçerlidir. Altı yapıda aynı atlaslar; ayrı kısa üretim sahneleri, Üretim/Gelişim. Oduncu tam boy boyalı figürdür. Yapı katkısı, toplam üretim ve ada kaynağının eşleşmesi ayrı okunur. Oyun ekonomisi ve HUD korunur.

@@ -1,0 +1,797 @@
+{
+  "mobile": {
+    "reports": [
+      {
+        "width": 360,
+        "name": "kereste",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 360,
+        "name": "kereste-development",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 360,
+        "name": "ormanci",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 360,
+        "name": "ormanci-development",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 360,
+        "name": "bagci",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 360,
+        "name": "bagci-development",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 360,
+        "name": "tasci",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 360,
+        "name": "tasci-development",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 360,
+        "name": "camci",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 360,
+        "name": "camci-development",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 360,
+        "name": "simyahane",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 360,
+        "name": "simyahane-development",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 360,
+        "name": "kereste-draft",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 360,
+        "name": "kereste-active",
+        "found": {
+          "taşma": {},
+          "kesik": {
+            "div.job-progress > div.flex.flex-wrap > span": {
+              "örnek": "x",
+              "adet": 1
+            }
+          },
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 390,
+        "name": "kereste",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 390,
+        "name": "kereste-development",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 390,
+        "name": "ormanci",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 390,
+        "name": "ormanci-development",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 390,
+        "name": "bagci",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 390,
+        "name": "bagci-development",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 390,
+        "name": "tasci",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 390,
+        "name": "tasci-development",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 390,
+        "name": "camci",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 390,
+        "name": "camci-development",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 390,
+        "name": "simyahane",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 390,
+        "name": "simyahane-development",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 390,
+        "name": "kereste-draft",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 390,
+        "name": "kereste-active",
+        "found": {
+          "taşma": {},
+          "kesik": {
+            "div.job-progress > div.flex.flex-wrap > span": {
+              "örnek": "x",
+              "adet": 1
+            }
+          },
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 430,
+        "name": "kereste",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 430,
+        "name": "kereste-development",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 430,
+        "name": "ormanci",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 430,
+        "name": "ormanci-development",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 430,
+        "name": "bagci",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 430,
+        "name": "bagci-development",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 430,
+        "name": "tasci",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 430,
+        "name": "tasci-development",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 430,
+        "name": "camci",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 430,
+        "name": "camci-development",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 430,
+        "name": "simyahane",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 430,
+        "name": "simyahane-development",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 430,
+        "name": "kereste-draft",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 430,
+        "name": "kereste-active",
+        "found": {
+          "taşma": {},
+          "kesik": {
+            "div.job-progress > div.flex.flex-wrap > span": {
+              "örnek": "x",
+              "adet": 1
+            }
+          },
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      }
+    ],
+    "errors": []
+  },
+  "text130": {
+    "reports": [
+      {
+        "width": 360,
+        "name": "kereste",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 360,
+        "name": "kereste-development",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 360,
+        "name": "ormanci",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 360,
+        "name": "ormanci-development",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 360,
+        "name": "bagci",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 360,
+        "name": "bagci-development",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 360,
+        "name": "tasci",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 360,
+        "name": "tasci-development",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 360,
+        "name": "camci",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 360,
+        "name": "camci-development",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 360,
+        "name": "simyahane",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 360,
+        "name": "simyahane-development",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 360,
+        "name": "kereste-draft",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 360,
+        "name": "kereste-active",
+        "found": {
+          "taşma": {},
+          "kesik": {
+            "div.job-progress > div.flex.flex-wrap > span": {
+              "örnek": "x",
+              "adet": 1
+            }
+          },
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      }
+    ],
+    "errors": []
+  },
+  "states": {
+    "reports": [
+      {
+        "name": "kahve",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "name": "mermer",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "name": "kristal",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "name": "kukurt",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "name": "zero-workers-maxed",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "name": "unbuilt",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "name": "full-stock",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "name": "coffee-consumption",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      }
+    ],
+    "errors": []
+  }
+}

@@ -353,3 +353,8 @@ Yazısız giriş arka planı yerleşik OpenAI imagegen ile yeniden boyandı. Tar
 ## Approved Profile and Settings (5 October 2026)
 
 `ui/approved-court/`: artwork extracted from the two user-approved generated mockups, plus loggia and neutral standard layers derived with the built-in image generator. See `docs/PROFILE-SETTINGS-DESIGN.md` for provenance, prompts and functional UI rules. No downloaded third-party artwork.
+
+
+### 9 Ekim 2026 — kaynak üretim sayfaları
+
+`ui/production/{lumber,ormanci,bagci,tasci,camci,simyahane}.webp` yeni yazısız Osmanlı–Ege ortam bantlarıdır; `ui/production/lumberjack.webp` şeffaf tam boy oduncudur. ChatGPT yerleşik ImageGen ile bu çalışma için üretildi; brief ve çıktı kayıtları `docs/production-art.json`. Sahne görselleri 960×360, figür en fazla 240×360 WebP’ye küçültüldü. Ortak Kışla atlasları aynen yeniden kullanılır; şehir bina görselleri değiştirilmedi.
