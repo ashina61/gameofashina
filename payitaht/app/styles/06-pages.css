@@ -95,16 +95,6 @@
 .ika-crest { position: relative; }
 .ika-crest-level { position: absolute; right: -4px; bottom: -2px; min-width: 20px; height: 20px; padding: 0 4px; display: grid; place-items: center; border-radius: 10px;
   background: var(--c-brown); border: 2px solid var(--c-gold); font-family: var(--font-heading), Georgia, serif; font-weight: 800; font-size: 12px; color: var(--c-cream); }
-
-/* Ahi Tekkesi: lonca himayesi */
-.guild-list { display: grid; gap: 8px; }
-.guild-card { display: grid; gap: 6px; padding: 10px 12px; border: 1px solid var(--c-parch-line); border-radius: 10px; background: var(--c-parch); }
-.guild-card.is-patron { border-color: #3f8a5a; background: #e6f0dc; box-shadow: inset 3px 0 0 #3f8a5a; }
-.guild-top { display: grid; grid-template-columns: 34px 1fr auto; gap: 8px; align-items: center; }
-.guild-top > span:nth-child(2) { display: flex; flex-direction: column; min-width: 0; }
-.guild-top strong { font-size: 14px; }
-.guild-top small { font-size: 11px; color: var(--c-ink-muted); }
-.guild-top em { font-style: normal; font-size: 11px; font-weight: 700; color: #fff; background: #3f8a5a; padding: 2px 8px; border-radius: 10px; }
 .guild-seal { width: 34px; height: 34px; display: grid; place-items: center; border-radius: 50%; background: radial-gradient(#5aa06f, #2c6a42); border: 2px solid var(--c-gold);
   color: #fff; font-family: var(--font-heading), Georgia, serif; font-weight: 800; font-variant-numeric: tabular-nums lining-nums; }
 .guild-effect { margin: 0; font-size: 12px; color: var(--c-brown-deep); }
@@ -150,27 +140,11 @@
 .god-emblem { flex: none; filter: drop-shadow(0 2px 2px #3a24104d); }
 .god-emblem.is-on { filter: drop-shadow(0 0 6px var(--c-gold)); }
 .offering { display: grid; gap: 6px; padding: 10px; border: 1px dashed var(--c-gold-deep); border-radius: 10px; background: var(--c-parch); }
-.god-patron { display: grid; grid-template-columns: auto 1fr; gap: 10px; align-items: center; padding: 12px; border-radius: 12px; border: 1px solid var(--c-gold-soft);
-  background: linear-gradient(135deg, #f8ebc4, #f1dca0); }
-.god-patron > span { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
-.god-patron strong { font-family: var(--font-heading), Georgia, serif; font-size: 22px; color: var(--c-ink); }
-.god-patron small { font-size: 12px; color: var(--c-brown-mid); display: inline-flex; align-items: center; gap: 4px; }
-.god-patron > button { grid-column: 1 / -1; }
 .god-active { color: #2f6b4c !important; font-weight: 700; }
-.god-list { display: grid; gap: 8px; }
-.god-card { display: grid; grid-template-columns: 52px minmax(0, 1fr) auto; gap: 10px; align-items: center; padding: 8px 10px; border: 1px solid var(--c-parch-line); border-radius: 10px; background: var(--c-parch); }
-.god-card > span { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
-.god-card strong { font-size: 15px; }
-.god-card small { font-size: 11px; color: var(--c-brown-mid); line-height: 1.35; }
-.god-card .god-title { color: var(--c-wood-edge); font-weight: 600; }
-.god-card.is-patron { border-color: var(--c-gold-deep); background: var(--c-parch-gold); }
 .god-card-body { grid-column: 2 / -1; display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 3px 8px; margin: 0; font-size: 12px; line-height: 1.35; }
 .god-card-body dt { font-weight: 700; color: var(--c-wood-edge); }
 .god-card-body dd { margin: 0; color: var(--c-brown-deep); }
 .god-card-body b { white-space: nowrap; color: #6a4a8a; font-weight: 600; }
-.god-card em { font-style: normal; font-size: 11px; font-weight: 700; color: #fff; background: var(--c-gold-deep); padding: 2px 8px; border-radius: 10px; }
-.gods-panel, .gods-panel > *, .guild-panel, .guild-panel > * { min-width: 0; }
-.gods-panel .batch-row, .guild-panel .batch-row { flex-wrap: wrap; }
 .offering .profile-label { display: inline-flex; align-items: center; gap: 4px; }
 
 /* Dünya sekmeleri: dört eşit dilim, ikon üstte (dar ekranda taşmaz). */

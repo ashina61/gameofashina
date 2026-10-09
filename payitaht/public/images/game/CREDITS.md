@@ -380,3 +380,7 @@ Harita Arşivi, Surlar ve Gizli Sığınak sahneleri: OpenAI Imagegen, 9 Ekim 20
 # 9 Ekim 2026 — Tophane ve Korsan Kalesi
 
 `ui/armament/tophane.webp` ve `ui/armament/korsan_kalesi.webp`: yerleşik Imagegen ile üretilen yazısız Osmanlı–Ege sahneleri; özgün promptlar `docs/armament-art.json`. RGB 960×320 WebP. Çerçeve/düğme/portre ve gemiler mevcut ortak atlaslardan.
+
+## İbadet, loncalar ve kutsama — 0.83.0
+
+`ui/devotion/cami.webp`, `tekke.webp`, `mabet.webp`: üç özgün yazısız Osmanlı–Ege sahnesi, yerleşik Imagegen; 960×320 RGB WebP. `ui/devotion/imam.webp`: şeffaf tam boy imam, 320×480 RGBA WebP. Promptlar `docs/devotion-art.json` içinde. Ortak Kışla/Medrese boyalı atlasları ve mevcut kültür/tanrı/harika resimleri korunur.

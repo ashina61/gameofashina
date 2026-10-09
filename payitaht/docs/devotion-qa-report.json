@@ -1,0 +1,1709 @@
+{
+  "reports": [
+    {
+      "width": 360,
+      "zoom": false,
+      "state": "ready",
+      "tag": "cami",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 360,
+      "zoom": false,
+      "state": "ready",
+      "tag": "cami-development",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 360,
+      "zoom": false,
+      "state": "ready",
+      "tag": "tekke",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 360,
+      "zoom": false,
+      "state": "ready",
+      "tag": "tekke-opened",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 360,
+      "zoom": false,
+      "state": "ready",
+      "tag": "tekke-development",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 360,
+      "zoom": false,
+      "state": "ready",
+      "tag": "mabet",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 360,
+      "zoom": false,
+      "state": "ready",
+      "tag": "mabet-opened",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 360,
+      "zoom": false,
+      "state": "ready",
+      "tag": "mabet-development",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": false,
+      "state": "ready",
+      "tag": "cami",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": false,
+      "state": "ready",
+      "tag": "cami-active",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": false,
+      "state": "ready",
+      "tag": "cami-imam",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": false,
+      "state": "ready",
+      "tag": "cami-development",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": false,
+      "state": "ready",
+      "tag": "tekke",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": false,
+      "state": "ready",
+      "tag": "tekke-opened",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": false,
+      "state": "ready",
+      "tag": "tekke-patron",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": false,
+      "state": "ready",
+      "tag": "tekke-development",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": false,
+      "state": "ready",
+      "tag": "mabet",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": false,
+      "state": "ready",
+      "tag": "mabet-opened",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": false,
+      "state": "ready",
+      "tag": "mabet-invoked",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": false,
+      "state": "ready",
+      "tag": "mabet-selected",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": false,
+      "state": "ready",
+      "tag": "mabet-development",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 430,
+      "zoom": false,
+      "state": "ready",
+      "tag": "cami",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 430,
+      "zoom": false,
+      "state": "ready",
+      "tag": "cami-development",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 430,
+      "zoom": false,
+      "state": "ready",
+      "tag": "tekke",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 430,
+      "zoom": false,
+      "state": "ready",
+      "tag": "tekke-opened",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 430,
+      "zoom": false,
+      "state": "ready",
+      "tag": "tekke-development",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 430,
+      "zoom": false,
+      "state": "ready",
+      "tag": "mabet",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 430,
+      "zoom": false,
+      "state": "ready",
+      "tag": "mabet-opened",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 430,
+      "zoom": false,
+      "state": "ready",
+      "tag": "mabet-development",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 360,
+      "zoom": true,
+      "state": "ready",
+      "tag": "cami",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 360,
+      "zoom": true,
+      "state": "ready",
+      "tag": "cami-development",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 360,
+      "zoom": true,
+      "state": "ready",
+      "tag": "tekke",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 360,
+      "zoom": true,
+      "state": "ready",
+      "tag": "tekke-opened",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 360,
+      "zoom": true,
+      "state": "ready",
+      "tag": "tekke-development",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 360,
+      "zoom": true,
+      "state": "ready",
+      "tag": "mabet",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 360,
+      "zoom": true,
+      "state": "ready",
+      "tag": "mabet-opened",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 360,
+      "zoom": true,
+      "state": "ready",
+      "tag": "mabet-development",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": false,
+      "state": "empty",
+      "tag": "cami",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": false,
+      "state": "empty",
+      "tag": "cami-development",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": false,
+      "state": "empty",
+      "tag": "tekke",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": false,
+      "state": "empty",
+      "tag": "tekke-opened",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": false,
+      "state": "empty",
+      "tag": "tekke-development",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": false,
+      "state": "empty",
+      "tag": "mabet",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": false,
+      "state": "empty",
+      "tag": "mabet-opened",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": false,
+      "state": "empty",
+      "tag": "mabet-development",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": false,
+      "state": "maxed",
+      "tag": "cami",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": false,
+      "state": "maxed",
+      "tag": "cami-development",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": false,
+      "state": "maxed",
+      "tag": "tekke",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": false,
+      "state": "maxed",
+      "tag": "tekke-opened",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": false,
+      "state": "maxed",
+      "tag": "tekke-development",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": false,
+      "state": "maxed",
+      "tag": "mabet",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": false,
+      "state": "maxed",
+      "tag": "mabet-opened",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": false,
+      "state": "maxed",
+      "tag": "mabet-development",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": false,
+      "state": "unbuilt",
+      "tag": "cami",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": false,
+      "state": "unbuilt",
+      "tag": "cami-development",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": false,
+      "state": "unbuilt",
+      "tag": "tekke",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": false,
+      "state": "unbuilt",
+      "tag": "tekke-opened",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": false,
+      "state": "unbuilt",
+      "tag": "tekke-development",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": false,
+      "state": "unbuilt",
+      "tag": "mabet",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": false,
+      "state": "unbuilt",
+      "tag": "mabet-opened",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": false,
+      "state": "unbuilt",
+      "tag": "mabet-development",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": false,
+      "state": "cooldown",
+      "tag": "cami",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": false,
+      "state": "cooldown",
+      "tag": "cami-development",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": false,
+      "state": "cooldown",
+      "tag": "tekke",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": false,
+      "state": "cooldown",
+      "tag": "tekke-opened",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": false,
+      "state": "cooldown",
+      "tag": "tekke-development",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": false,
+      "state": "cooldown",
+      "tag": "mabet",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": false,
+      "state": "cooldown",
+      "tag": "mabet-opened",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": false,
+      "state": "cooldown",
+      "tag": "mabet-development",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": false,
+      "state": "ulgen",
+      "tag": "cami",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": false,
+      "state": "ulgen",
+      "tag": "cami-development",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": false,
+      "state": "ulgen",
+      "tag": "tekke",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": false,
+      "state": "ulgen",
+      "tag": "tekke-opened",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": false,
+      "state": "ulgen",
+      "tag": "tekke-development",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": false,
+      "state": "ulgen",
+      "tag": "mabet",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": false,
+      "state": "ulgen",
+      "tag": "mabet-opened",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": false,
+      "state": "ulgen",
+      "tag": "mabet-development",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": false,
+      "state": "kayra",
+      "tag": "cami",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": false,
+      "state": "kayra",
+      "tag": "cami-development",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": false,
+      "state": "kayra",
+      "tag": "tekke",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": false,
+      "state": "kayra",
+      "tag": "tekke-opened",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": false,
+      "state": "kayra",
+      "tag": "tekke-development",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": false,
+      "state": "kayra",
+      "tag": "mabet",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": false,
+      "state": "kayra",
+      "tag": "mabet-opened",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": false,
+      "state": "kayra",
+      "tag": "mabet-development",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": false,
+      "state": "nearcap",
+      "tag": "cami",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": false,
+      "state": "nearcap",
+      "tag": "cami-development",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": false,
+      "state": "nearcap",
+      "tag": "tekke",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": false,
+      "state": "nearcap",
+      "tag": "tekke-opened",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": false,
+      "state": "nearcap",
+      "tag": "tekke-development",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": false,
+      "state": "nearcap",
+      "tag": "mabet",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": false,
+      "state": "nearcap",
+      "tag": "mabet-opened",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": false,
+      "state": "nearcap",
+      "tag": "mabet-development",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    }
+  ],
+  "errors": [],
+  "polishChecks": {
+    "reports": [
+      {
+        "width": 390,
+        "zoom": false,
+        "state": "ready",
+        "tag": "cami",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 390,
+        "zoom": false,
+        "state": "ready",
+        "tag": "cami-active",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 390,
+        "zoom": false,
+        "state": "ready",
+        "tag": "cami-imam",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 390,
+        "zoom": false,
+        "state": "ready",
+        "tag": "cami-development",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 390,
+        "zoom": false,
+        "state": "ready",
+        "tag": "tekke",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 390,
+        "zoom": false,
+        "state": "ready",
+        "tag": "tekke-opened",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 390,
+        "zoom": false,
+        "state": "ready",
+        "tag": "tekke-patron",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 390,
+        "zoom": false,
+        "state": "ready",
+        "tag": "tekke-development",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 390,
+        "zoom": false,
+        "state": "ready",
+        "tag": "mabet",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 390,
+        "zoom": false,
+        "state": "ready",
+        "tag": "mabet-opened",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 390,
+        "zoom": false,
+        "state": "ready",
+        "tag": "mabet-invoked",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 390,
+        "zoom": false,
+        "state": "ready",
+        "tag": "mabet-selected",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 390,
+        "zoom": false,
+        "state": "ready",
+        "tag": "mabet-development",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 360,
+        "zoom": true,
+        "state": "ready",
+        "tag": "cami",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 360,
+        "zoom": true,
+        "state": "ready",
+        "tag": "cami-development",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 360,
+        "zoom": true,
+        "state": "ready",
+        "tag": "tekke",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 360,
+        "zoom": true,
+        "state": "ready",
+        "tag": "tekke-opened",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 360,
+        "zoom": true,
+        "state": "ready",
+        "tag": "tekke-development",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 360,
+        "zoom": true,
+        "state": "ready",
+        "tag": "mabet",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 360,
+        "zoom": true,
+        "state": "ready",
+        "tag": "mabet-opened",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 360,
+        "zoom": true,
+        "state": "ready",
+        "tag": "mabet-development",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      }
+    ],
+    "errors": []
+  },
+  "buffChecks": {
+    "reports": [
+      {
+        "width": 390,
+        "zoom": false,
+        "state": "ready",
+        "tag": "mabet",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 390,
+        "zoom": false,
+        "state": "ready",
+        "tag": "mabet-opened",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 390,
+        "zoom": false,
+        "state": "ready",
+        "tag": "mabet-invoked",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 390,
+        "zoom": false,
+        "state": "ready",
+        "tag": "mabet-selected",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 390,
+        "zoom": false,
+        "state": "ready",
+        "tag": "mabet-development",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 360,
+        "zoom": true,
+        "state": "cooldown",
+        "tag": "mabet",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 360,
+        "zoom": true,
+        "state": "cooldown",
+        "tag": "mabet-opened",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      }
+    ],
+    "errors": []
+  }
+}

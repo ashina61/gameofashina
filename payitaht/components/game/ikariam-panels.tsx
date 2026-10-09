@@ -9,19 +9,16 @@ import { Box } from './building-page'
 import { Hint } from './hint'
 import { AtlasArt } from './deep-art'
 import { asset } from '@/lib/asset'
-import { useState } from 'react'
-import { Sparkles, Minus, Plus, Swords, ShieldCheck, Skull, TriangleAlert, Repeat, Hammer, Castle, Users, Warehouse } from './ui-art'
+import { Sparkles, Minus, Plus, Swords, ShieldCheck, Skull, TriangleAlert, Repeat, Castle, Users, Warehouse } from './ui-art'
 import { StatRow } from './stat-kit'
 import { KumSaatiArt } from './resource-art'
 import { SHOWS, SHOW_IDS, type ShowId } from '@/lib/game/theatre'
-import { WorkforceSlider } from './workforce'
 import { GameButton } from './game-button'
 import { UnitFigure } from './unit-art'
 import {
-  FAITH_CAP, MIRACLES, MIRACLE_IDS, MIRACLE_COOLDOWN_MS, RESEARCH, RESEARCH_BRANCHES, RESEARCH_IDS, UNITS,
-  WONDER_MAX, futureCost, futureReason, idleWorkers, miracleCost, miracleMinutes,
-  priestCapacity, wonderCost,
-  type Command, type Game, type UnitId, formatRate,
+  RESEARCH, RESEARCH_BRANCHES, RESEARCH_IDS, UNITS,
+  futureCost, futureReason,
+  type Command, type Game, type UnitId,
 } from '@/lib/game/engine'
 import { activeCity, type Empire } from '@/lib/game/empire'
 import { RAID_UNITS, SIEGE_MAX_MS, THREAT_WARNING_MS, WARSHIPS, availableUnits, cityGuards, cityWallHp, liberateCity, safeStock, siegeTribute, targetName, type Siege } from '@/lib/game/expeditions'
@@ -29,7 +26,6 @@ import { EXPEL_COOLDOWN_MS, expelSpies, rivalById } from '@/lib/game/rivals'
 import type { Run } from './world-panels'
 import { BattleView } from './battle-view'
 import { ResearchEmblem } from './research-art'
-import { GUILDS, GUILD_IDS, GUILD_MAX, PATRON_COOLDOWN_MS, devotionFor, guildLevel, himmetCap, himmetRate, patronSlots } from '@/lib/game/guilds'
 import { troopList } from '@/lib/game/battle'
 
 const clock = (ms: number) => {
@@ -57,78 +53,7 @@ export function UnitPicker({ ids, free, pick, onPick, step = 1 }: {
   </div>)}</div>
 }
 
-/** AHİ TEKKESİ: himmet, lonca dereceleri ve himaye (Ikariam'daki tanrılar). */
-export function GuildPanel({ game, now, onCommand }: { game: Game; now: number; onCommand: (c: Command) => void }) {
-  const gs = game.guilds
-  const slots = patronSlots(game.buildings.tekke)
-  const cap = himmetCap(game)
-  const cooling = now < gs.changedAt + PATRON_COOLDOWN_MS
-  const [amount, setAmount] = useState(100)
-  return <section className="empire-section guild-panel">
-    <h3><Sparkles className="size-4" /> Lonca himayesi · {gs.patrons.length}/{slots}</h3>
-    <div className="people-row-top"><span>Himmet</span><span className="people-count">{num(gs.himmet)} / {num(cap)} · +{formatRate(himmetRate(game))}/dk</span></div>
-    <span className="people-meter"><span style={{ width: `${Math.min(100, (gs.himmet / cap) * 100)}%` }} /></span>
-    <div className="batch-row"><span>Adak</span>{[100, 500, 2000].map(n => <GameButton key={n} size="sm" variant={amount === n ? 'default' : 'outline'} onClick={() => setAmount(n)}>{num(n)}</GameButton>)}</div>
-    {cooling && <p className="fine-print"><KumSaatiArt className="size-3" /> Loncalar yeni düzene alışıyor · {clock(gs.changedAt + PATRON_COOLDOWN_MS - now)}</p>}
-    <div className="guild-list">{GUILD_IDS.map(id => {
-      const g = GUILDS[id]
-      const level = guildLevel(gs.devotion[id])
-      const on = gs.patrons.includes(id)
-      const next = level < GUILD_MAX ? devotionFor(level + 1) : null
-      const from = devotionFor(level)
-      return <article key={id} className={`guild-card${on ? ' is-patron' : ''}`}>
-        <div className="guild-top"><span className="guild-seal" style={{ background: 'none', border: 0, position: 'relative' }}><AtlasArt atlas="culture" index={8 + GUILD_IDS.indexOf(id)} size={40} /><b style={{ position: 'absolute', bottom: -3, right: -3, background: 'var(--c-parch)', borderRadius: '50%', padding: '0 3px' }}>{level}</b></span>
-          <span><strong>{g.name}</strong><small>{g.craft}</small></span>
-          {on && <em>Himayede</em>}</div>
-        <p className="guild-effect">{level ? g.effect(level) : 'Henüz derecesi yok'}{next ? ` → ${level + 1}. derece: ${g.effect(level + 1)}` : ' · en yüksek derece'}</p>
-        {next && <><span className="people-meter"><span style={{ width: `${Math.min(100, ((gs.devotion[id] - from) / (next - from)) * 100)}%` }} /></span>
-          <small className="guild-need">{num(gs.devotion[id])} / {num(next)} himmet</small></>}
-        <div className="batch-row">
-          <GameButton size="sm" variant="outline" disabled={!next || gs.himmet < 1} onClick={() => onCommand({ type: 'devote', guild: id, amount })}>Adak sun ({num(Math.min(amount, Math.floor(gs.himmet)))})</GameButton>
-          <GameButton size="sm" variant={on ? 'secondary' : 'default'} disabled={cooling || (!on && gs.patrons.length >= slots)} onClick={() => onCommand({ type: 'patron', guild: id })}>{on ? 'Himayeden çıkar' : 'Himaye et'}</GameButton>
-        </div>
-      </article>
-    })}</div>
-    <Hint>Tekke 1. seviyede bir, 5.'de iki, 10.'da üç loncayı himaye eder. Himayede olmayan lonca derecesini korur ama etki etmez. Loncalar yönetim biçimi himmeti %25 artırır. Tanrılar ayrıca Ongun Mabedi'ndedir.</Hint>
-  </section>
-}
-
-/** CAMİ: imamlar inanç biriktirir; inanç adanın harikasının mucizesini çağırır. */
-export function TemplePanel({ game, now, onCommand }: { game: Game; now: number; onCommand: (c: Command) => void }) {
-  const t = game.temple
-  const m = MIRACLES[t.wonder]
-  const [gift, setGift] = useState(500)
-  const cap = priestCapacity(game)
-  const active = t.active && now < t.until
-  const resting = !active && now < t.cooldownUntil
-  const need = miracleCost(Math.max(1, t.wonderLevel))
-  return <section className="empire-section">
-    <h3><AtlasArt atlas="wonders" index={MIRACLE_IDS.indexOf(t.wonder)} size={56} /> {m.wonder} · Sv. {t.wonderLevel}/{WONDER_MAX}</h3>
-    <p className="fine-print">{`Adanın harikası. ${m.name} mucizesi: ${t.wonderLevel ? m.effect(t.wonderLevel) : `${m.effect(1)} (1. seviyede)`}, ${miracleMinutes(Math.max(1, t.wonderLevel))} dakika sürer.`}</p>
-    {t.wonderLevel < WONDER_MAX && <>
-      <div className="people-row-top"><span>Harika bağışı</span><span className="people-count">{num(t.wonderWood)} / {num(wonderCost(t.wonderLevel))} kereste</span></div>
-      <span className="people-meter"><span style={{ width: `${Math.min(100, t.wonderWood / wonderCost(t.wonderLevel) * 100)}%` }} /></span>
-      <div className="batch-row">
-        {[250, 500, 1000, 2500].map(n => <GameButton key={n} size="sm" variant={gift === n ? 'default' : 'outline'} onClick={() => setGift(n)}>{num(n)}</GameButton>)}
-        <GameButton size="sm" disabled={game.resources.wood < gift} onClick={() => onCommand({ type: 'wonder', amount: gift })}>Bağışla</GameButton>
-      </div>
-    </>}
-    {game.buildings.cami < 1
-      ? <p className="requirement"><Hammer className="size-4" />İmamlar ve hocalar Cami'de hizmet eder. Önce Cami kur.</p>
-      : <>
-        <WorkforceSlider label="İmam" figure="rahip" value={t.priests} cap={cap} idle={idleWorkers(game)}
-          preview={n => { const v = Math.min(n, cap) * 0.5; return { amount: v, icon: <Sparkles className="workforce-icon" />, text: <><b>{formatRate(v)}</b> inanç/dk</> } }}
-          onCommit={n => onCommand({ type: 'priests', value: n })} />
-        <div className="people-row-top"><span>İnanç</span><span className="people-count">{num(t.faith)} / {num(FAITH_CAP)} · +{formatRate(Math.min(t.priests, cap) * 0.5)}/dk</span></div>
-        <span className="people-meter"><span style={{ width: `${Math.min(100, t.faith / need * 100)}%` }} /></span>
-        {active && <p className="report-win"><Sparkles className="size-4" /> {m.name} mucizesi etkin · {clock(t.until - now)}</p>}
-        {resting && <p className="fine-print"><KumSaatiArt className="size-3" /> Harika dinleniyor · {clock(t.cooldownUntil - now)}</p>}
-        <GameButton size="sm" disabled={!!active || resting || t.wonderLevel < 1 || t.faith < need} onClick={() => onCommand({ type: 'miracle' })}>
-          <Sparkles data-icon="inline-start" />Mucizeyi çağır ({num(need)} inanç)</GameButton>
-        <p className="fine-print">Her imam dakikada 0,5 inanç toplar ve üretimde çalışmaz. Mucizeden sonra harika {MIRACLE_COOLDOWN_MS / 3600_000} saat dinlenir.</p>
-      </>}
-  </section>
-}
+export { GuildPanel, TemplePanel } from './devotion-panels'
 
 export { UpgradePanel, PiracyPanel } from './armament-panels'
 

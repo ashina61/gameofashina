@@ -1,0 +1,38 @@
+/* Painted devotion registers; approved shared court materials. */
+.game-shell.has-page .bp.bp-devotion>.bp-bar .bp-title { left:calc(var(--court-control-size) + 12px);right:calc(var(--court-control-size) + 12px) }
+.game-shell.has-page .bp.bp-devotion .bp-tabpanel { padding:12px 3% }
+.bp.bp-devotion .devotion-register { gap:16px;display:grid }
+.bp.bp-devotion .devotion-list { gap:14px;display:grid }
+.bp.bp-devotion .devotion-card { border:0 solid #0000;border-image:var(--academy-frame) 40 / 8px / 0 stretch;background:var(--academy-paper) center / cover;color:var(--c-ink);padding:12px }
+.bp.bp-devotion .devotion-card>summary { cursor:pointer;align-items:center;gap:8px;min-height:80px;display:flex }
+.bp.bp-devotion .devotion-card>summary:after { content:"+";margin-left:auto;font-size:24px }
+.bp.bp-devotion .devotion-card[open]>summary:after { content:"−" }
+.bp.bp-devotion .devotion-heading { flex:1;align-items:center;gap:10px;min-width:0;margin:0;display:flex }
+.bp.bp-devotion .devotion-heading>span { min-width:0 }
+.bp.bp-devotion .devotion-heading :is(strong,small) { display:block }
+.bp.bp-devotion .devotion-heading strong { font:700 18px/1.35 Payitaht Profile Roman,Georgia,serif }
+.bp.bp-devotion .devotion-heading small { margin-top:4px;font:13px/1.5 Georgia,serif }
+.bp.bp-devotion .devotion-heading em { margin-left:auto;font:12px/1.4 Georgia,serif }
+.bp.bp-devotion :is(.devotion-note,.devotion-status,.fine-print,.guild-effect,.requirement) { overflow-wrap:anywhere;margin:12px 0;font:14px/1.55 Georgia,serif }
+.bp.bp-devotion .people-row-top { gap:5px;margin:12px 0;font:14px/1.5 Georgia,serif;display:grid }
+.bp.bp-devotion .people-count { font-weight:700 }
+.bp.bp-devotion .batch-row { flex-wrap:wrap;gap:10px;margin:14px 0;display:flex }
+.bp.bp-devotion .batch-row>span { width:100%;font:700 16px/1.4 Georgia,serif }
+.game-shell.has-page .bp.bp-devotion .gbtn { white-space:normal;max-width:100% }
+.game-shell.has-page .bp.bp-devotion .batch-row .gbtn { flex:120px }
+.game-shell.has-page .bp.bp-devotion .gbtn[aria-pressed=false] { border-image:var(--academy-frame) 40 / 8px / 0 stretch;background:var(--academy-paper) center / cover;color:var(--c-ink) }
+.bp.bp-devotion .devotion-patron { grid-template-columns:72px minmax(0,1fr);align-items:center;gap:12px;margin-top:16px;display:grid }
+.bp.bp-devotion .devotion-patron>span :is(strong,small) { margin:6px 0;display:block }
+.bp.bp-devotion .devotion-patron>.gbtn { grid-column:1/-1 }
+.bp.bp-devotion .god-card-body { gap:6px;margin:14px 0;font:14px/1.55 Georgia,serif;display:grid }
+.bp.bp-devotion .god-card-body dt { font-weight:700 }
+.bp.bp-devotion .god-card-body dd { margin:0 0 8px }
+.bp.bp-devotion .devotion-help>summary { cursor:pointer;min-height:48px;padding:12px 0;font:700 18px/1.4 Payitaht Profile Roman,Georgia,serif }
+.game-shell.has-page .bp.bp-devotion .bp-table { table-layout:fixed;width:100% }
+.game-shell.has-page .bp.bp-devotion .bp-table :is(th,td) { white-space:normal;overflow-wrap:anywhere }
+.game-shell.has-page .bp.bp-devotion .bp-table :is(th,td):first-child { width:12% }
+.game-shell.has-page .bp.bp-devotion .bp-table :is(th,td):last-child { width:28% }
+.game-shell.has-page .bp.bp-devotion .bp-mini-costs { flex-wrap:wrap;gap:6px;display:flex }
+.game-shell.has-page .bp.bp-devotion .bp-mini-costs>span { white-space:nowrap }
+.bp.bp-devotion .god-card-body b { color: var(--c-ink); white-space: normal; }
+.game-shell.has-page .bp.bp-devotion .devotion-card > .gbtn { width: 100%; }

@@ -1,0 +1,41 @@
+{
+  "generator": "built-in image_gen",
+  "assets": [
+    {
+      "id": "cami",
+      "asset": "public/images/game/ui/devotion/cami.webp",
+      "prompt": "Use case: historical-scene. Asset type: Payitaht strategy game banner, landscape 3:1. Hand-painted premium realistic Ottoman–Aegean game art, ivory limestone, warm walnut, aged brass, muted red textiles, olive and turquoise accents, sunlight upper left. Detailed natural textures, coherent human anatomy. Main activity across middle horizontal band, survives narrow 80px banner crop. No text, lettering, UI, logos, borders or watermark. Ottoman mosque courtyard beside the Aegean, elegant domes and stone arches, fountain, imam and townsfolk calmly gathering.",
+      "size": [
+        960,
+        320
+      ]
+    },
+    {
+      "id": "tekke",
+      "asset": "public/images/game/ui/devotion/tekke.webp",
+      "prompt": "Use case: historical-scene. Asset type: Payitaht strategy game banner, landscape 3:1. Hand-painted premium realistic Ottoman–Aegean game art, ivory limestone, warm walnut, aged brass, muted red textiles, olive and turquoise accents, sunlight upper left. Detailed natural textures, coherent human anatomy. Main activity across middle horizontal band, survives narrow 80px banner crop. No text, lettering, UI, logos, borders or watermark. Ahi guild courtyard, master artisans of wood and metal meeting beside a walnut donation ledger table, small workshop tools, tiled shaded arcade.",
+      "size": [
+        960,
+        320
+      ]
+    },
+    {
+      "id": "mabet",
+      "asset": "public/images/game/ui/devotion/mabet.webp",
+      "prompt": "Use case: historical-scene. Asset type: Payitaht strategy game banner, landscape 3:1. Hand-painted premium realistic Ottoman–Aegean game art, ivory limestone, warm walnut, aged brass, muted red textiles, olive and turquoise accents, sunlight upper left. Detailed natural textures, coherent human anatomy. Main activity across middle horizontal band, survives narrow 80px banner crop. No text, lettering, UI, logos, borders or watermark. Ancient Turkic sacred shrine integrated into the Ottoman–Aegean city, carved wooden sacred poles, stone sanctuary and brass offering bowl, natural sky and mountains, dignified restrained mythology, no neon magic.",
+      "size": [
+        960,
+        320
+      ]
+    },
+    {
+      "id": "imam",
+      "asset": "public/images/game/ui/devotion/imam.webp",
+      "prompt": "Use case: historical-scene. Asset type: transparent full-body game role figure. One dignified Ottoman imam, ivory turban, cream robe and muted burgundy outer coat, hands gently holding a small closed book. Hand-painted realistic strategy game art, subtle warm sunlight upper left, exquisite cloth textures. Entire person from turban to both shoes visible with generous margins. Standing front three-quarter view. Actual transparent background, no scene, no frame, no text, no watermark.",
+      "size": [
+        320,
+        480
+      ]
+    }
+  ]
+}

@@ -18,6 +18,7 @@ const INK = '#2e1c0e'
 const SKIN = '#e8b98a'
 /** Ayakta duran küçük figür: başlık, cübbe ve elindeki alet mesleği anlatır. */
 export function PersonArt({ kind, size = 64 }: { kind: Figure; size?: number }) {
+  if (kind === 'rahip') return <img className="person-art person-figure" src={asset('/images/game/ui/devotion/imam.webp')} alt="" width={size} height={size * 80 / 60} />
   if (kind === 'esnaf') return <img className="person-art person-figure" src={asset('/images/game/ui/commerce/shopkeeper.webp')} alt="" width={size} height={size * 80 / 60} />
   if (kind === 'oduncu') return <img className="person-art person-figure" src={asset('/images/game/ui/production/lumberjack.webp')} alt="" width={size} height={size * 80 / 60} />
   if (kind === 'alim' || kind === 'halk') return <img className="person-art person-figure" src={asset(`/images/game/ui/people/${kind === 'alim' ? 'scholar-figure' : 'citizen-figure'}.webp`)} alt="" width={size} height={size * 80 / 60} />
