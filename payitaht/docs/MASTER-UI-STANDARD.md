@@ -20,3 +20,5 @@ Adem, 8 Ekim 2026: “bu tasarımı beynine işle tasarım standardımız oturdu
 360/390/430 px gerçek mobil ekran. Bütün alt sekmeler, kilitli/aktif/tamamlanmış durum, boş/dolu kuyruk ve temel eylemler kontrol edilir. Çizimle aynı diye yalnız renklerden sonuç çıkarma. Bölüm bitince test ve yayın; kullanıcının değerlendirmesinde dur.
 
 Medrese: `MEDRESE-DESIGN-MEMORY.md`. 9 Ekim genel devam talebiyle sıradaki Konut: `HOUSING-DESIGN-MEMORY.md`; ardından Hamam, Kahvehane, Ambar/Depo ve üretim yapıları.
+
+Hamam 0.73.0: `BATHHOUSE-DESIGN-MEMORY.md`; ortak 50/51 numaralı defter stilleri. Sonraki bina Kahvehane.

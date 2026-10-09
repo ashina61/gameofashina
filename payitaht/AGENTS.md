@@ -10,6 +10,8 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 # Payitaht Adaları — ajanlar için
 
+**9 Ekim Hamam — 0.73.0 / SW84:** `docs/BATHHOUSE-DESIGN-MEMORY.md`; aynı ortak atlaslar, tam boy halk, Halkın huzuru/Gelişim. Hamam katkısı ile toplam huzur ayrı, barınma sınırı görünür. Yükseltme ilk Gelişim bloğu. Sonraki bina Kahvehane.
+
 **9 Ekim Konut — 0.72.0 / SW83:** `docs/HOUSING-DESIGN-MEMORY.md` geçerlidir; ortak kışla/Medrese atlasları, tam boy halk, Mahalle/Gelişim. Yükseltme önce. Sonraki bölüm Hamam; her bina bitince canlı yayın ve kullanıcı değerlendirmesinde dur.
 
 **Son kullanıcı düzeltmesi — 0.71.1 / SW82:** Halk ve âlim rol alanlarında portre kullanılmaz. Ortak `citizen-figure.webp` ve `scholar-figure.webp` şeffaf, tam boy insan figürleridir; baştan ayağa görünür, portre çerçevesi yoktur. HUD danışman rozetleri ayrı navigasyon görselleridir, asker portre standardı korunur.

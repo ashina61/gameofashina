@@ -1,0 +1,7 @@
+{
+  "mode": "built-in image_gen",
+  "prompt": "Use case: historical-scene. Asset type: short wide banner for an Ottoman-Aegean mobile strategy game bathhouse page. Premium painterly-realistic game art matching warm walnut, ivory parchment and aged brass Ottoman interface. Ottoman public hammam cool reception court, ivory limestone arches, domed roof with tiny skylights, a marble fountain at center, warm wooden benches, copper ewers and folded towels. A few ordinary fully clothed civilian townspeople standing or walking, full body, modest robes and caps. A serene clean gathering place serving the city, cypress and coastal Aegean light beyond an arch. Warm sunlight from upper left. Very wide landscape composition, readable as 80px high phone banner. No text, UI, frame, logo, watermark. No portrait crop, no palace throne, no nudity. Painted game environment, coherent with Ottoman residential neighborhood.",
+  "asset": "public/images/game/ui/bathhouse/court.webp",
+  "processing": "Resize 960px wide, WebP quality 86",
+  "standard": "MASTER-UI-STANDARD; Ottoman-Aegean painterly game art"
+}
