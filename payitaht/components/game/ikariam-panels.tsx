@@ -5,6 +5,7 @@
  * Kara Pazar takası, Korsan Kalesi seferleri ve yaklaşan korsan baskını.
  * Hepsi motorun kendi fonksiyonlarını okur; panel sayı uydurmaz.
  */
+import { Box } from './building-page'
 import { Hint } from './hint'
 import { AtlasArt } from './deep-art'
 import { asset } from '@/lib/asset'
@@ -280,22 +281,23 @@ export function SiegePanel({ empire, now, run }: { empire: Empire; now: number; 
 }
 
 /** GİZLİ SIĞINAK: şehre sızmış yabancı casuslar. */
-export function ForeignSpies({ empire, game, now, run }: { empire: Empire; game: Game; now: number; run: Run }) {
+export function ForeignSpies({ empire, game, now, run, register = false }: { empire: Empire; game: Game; now: number; run: Run; register?: boolean }) {
   const city = activeCity(empire)
   const spies = (empire.world?.spies ?? []).filter(x => x.cityId === city.id)
   const last = empire.world?.expelAt?.[city.id] ?? 0
   const wait = last + EXPEL_COOLDOWN_MS - now
-  return <section className="empire-section">
-    <h3><Skull className="size-4" /> Şehirdeki yabancı casuslar</h3>
+  const content = <>
     {game.buildings.siginak < 1 ? <p className="fine-print">Yabancı casusları bulmak için Gizli Sığınak kur.</p>
-      : !spies.length ? <p className="fine-print">Muhafızlar şehirde yabancı casus bulamadı.</p>
+      : !spies.length ? <p className="fine-print">Bu şehirde bilinen yabancı casus yok.</p>
       : <>
         <ul className="wm-facts">{spies.map(x => <li key={x.id}><Skull className="size-3" />{rivalById(x.rivalId)?.ruler ?? 'Bilinmeyen'} (yapay rakip) · {clock(now - x.since)} önce sızdı</li>)}</ul>
         <p className="fine-print">Casusları olan hükümdar saldırırsa ordusu surlarını iyi tanır (+%15 asker) ve bu şehri seçme olasılığı artar.</p>
-        <GameButton size="sm" disabled={wait > 0} onClick={() => run((e, t) => expelSpies(e, city.id, t), 'Casuslar kovuldu.')}>
+        <GameButton size="sm" disabled={wait > 0} onClick={() => run((e, t) => expelSpies(e, city.id, t), 'Muhafızların araması tamamlandı.')}>
           <ShieldCheck data-icon="inline-start" />{wait > 0 ? `Yeniden arama · ${clock(wait)}` : 'Casusları yakala ve kov'}</GameButton>
       </>}
-  </section>
+    {register && wait > 0 && !spies.length && <p className="fine-print">Yeni aramaya {clock(wait)} kaldı.</p>}
+  </>
+  return register ? <Box title="Şehirdeki yabancı casuslar" className="defense-spies">{content}</Box> : <section className="empire-section"><h3><Skull className="size-4" /> Şehirdeki yabancı casuslar</h3>{content}</section>
 }
 
 /** KARAGÖZ PERDESİ: ışıklı perde sahnesi ve dört gösteri (Ikariam'daki tiyatro). */

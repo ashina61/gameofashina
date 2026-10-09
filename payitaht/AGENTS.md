@@ -82,3 +82,8 @@ docs/EXCHANGE-DESIGN-MEMORY.md geçerlidir. Ortak atlaslar, ayrı sahne, Mal tak
 ## Liman ve Tersane — 0.80.0
 
 docs/MARITIME-DESIGN-MEMORY.md geçerlidir. Ortak filo ve gerçek yük sınırı, dikey gemiler/inşa kuyruğu; ortak atlaslar ve Gelişim başında yükseltme. Motor ve HUD korunur. Sonraki bölüm Harita Arşivi ve savunma yapıları; yayın sonrası kullanıcı değerlendirmesinde dur.
+
+
+## Harita Arşivi ve savunma — 0.81.0
+
+docs/DEFENSE-DESIGN-MEMORY.md geçerlidir. Yol çarpanı ve nakliye araştırması; başlangıç sur canı/şehir savunması ve garnizon; ek casusluk katkısı ile gerçek kovma şansı ayrıdır. Ortak atlaslar, üç sahne, Gelişim önce yükseltme. Motor ve HUD korunur. Sonraki bölüm Tophane/Korsan Kalesi; yayın sonrası kullanıcı değerlendirmesinde dur.

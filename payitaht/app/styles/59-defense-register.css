@@ -1,0 +1,11 @@
+/* Archive, ramparts and intelligence use shared painted register materials. */
+.bp.bp-defense .defense-facts { margin: 0 0 12px; }
+.bp.bp-defense .defense-facts > div { display: grid; grid-template-columns: minmax(0,1fr) auto; align-items: center; gap: 12px; min-height: 48px; padding: 10px 0; border-bottom: 1px solid var(--c-gold-deep); }
+.bp.bp-defense .defense-facts dt { font: 14px/1.5 Georgia,serif; }
+.bp.bp-defense .defense-facts dd { margin: 0; max-width: 150px; text-align: right; font: 700 18px/1.3 'Payitaht Profile Roman',Georgia,serif; }
+.bp.bp-defense :is(.defense-note,.defense-details p) { margin: 12px 0; font: 14px/1.55 Georgia,serif; }
+.bp.bp-defense .defense-actions { display: grid; grid-template-columns: minmax(0,1fr); gap: 10px; }
+.bp.bp-defense .defense-details > summary { min-height: 48px; padding: 12px 0; font: 700 18px/1.4 'Payitaht Profile Roman',Georgia,serif; }
+.bp.bp-defense .defense-spies .wm-facts { display: grid; gap: 10px; padding: 0; margin: 12px 0; list-style: none; }
+.bp.bp-defense .defense-spies .wm-facts > li { min-height: 48px; padding: 10px; background: var(--royal-paper); border-bottom: 1px solid var(--c-gold-deep); font: 14px/1.5 Georgia,serif; }
+.bp.bp-defense .defense-spies .gbtn { width: 100%; white-space: normal; }

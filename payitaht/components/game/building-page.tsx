@@ -1,5 +1,6 @@
 'use client'
 import { IlimArt, YolsuzlukArt, KumSaatiArt } from './resource-art'
+import { DefensePanel, DEFENSE, isDefense } from './defense-panel'
 import { HarborPanel } from './harbor-panel'
 import { StoragePanel } from './storage-panel'
 import { CommercePanel, isCommerce } from './commerce-panel'
@@ -30,11 +31,10 @@ import {
   BUILDINGS, BUILDING_EFFECTS, LUXURY_IDS, LUXURY_NAMES, MAX_LEVEL, RESEARCH, RESOURCE_IDS, RESOURCE_NAMES,
   actionPoints, activeJob, armyUpkeep, buildReason, contentment, corruption, cost, duration,
   growthRate, housing, idleWorkers, luxuryCost, maxPopulation, population, rates,
-  scientistUpkeepPerMinute, soldiers, takesPlot, tavernLevel, wallDefense,
+  scientistUpkeepPerMinute, soldiers, takesPlot, tavernLevel,
   wineServed, workerCapacity, type BuildingId, type Command, type Game, type Luxury, type Resource, type UnitId, type WorkerId, formatRate,
 } from '@/lib/game/engine'
 import { activeCity, type Empire } from '@/lib/game/empire'
-import { cityGuards, cityWallHp, safeStock } from '@/lib/game/expeditions'
 import { culturalTreaties } from '@/lib/game/rivals'
 import { luxuryIcons, resourceIcons, JobProgress } from './game-widgets'
 import { ResearchEmblem } from './research-art'
@@ -126,6 +126,7 @@ function BuildingView({ game, empire, id, onCommand, onRecruit, onNav, onBuildin
   onRecruit: (id: UnitId, count: number) => void; onNav: (panel: 'research' | 'diplomacy' | 'alliance' | 'island' | 'forest' | 'people' | 'cities') => void
   onBuildingNav: (id: BuildingId) => void
 }) {
+  if (isDefense(id)) return <DefensePanel game={game} id={id} onBuilding={onBuildingNav} onCities={() => onNav('cities')} onIsland={() => onNav('island')} />
   if (id === 'carsi') return <CommercePanel game={game} onCommand={onCommand} />
   if (id === 'ticaret_merkezi') return null // TradeCenter children own the live market controls.
   if (isCostWorkshop(id)) return <CostPanel game={game} id={id} onBuilding={onBuildingNav} />
@@ -193,16 +194,6 @@ function BuildingView({ game, empire, id, onCommand, onRecruit, onNav, onBuildin
         </Box>
       </>
     }
-    case 'surlar': return <Box title="Şehir savunması">
-      <Table rows={[
-        ['Sur seviyesi', `${game.buildings.surlar}`],
-        ['Sur canı (savaşta)', <strong key="h">{num(cityWallHp(game))}</strong>],
-        ['Asker gerektirmeyen savunma', num(wallDefense(game))],
-        ['Sur muhafızı', `${cityGuards(game)} mızrakçı`],
-        ['Yağmadan korunan mal', `${num(safeStock(game))} / tür`],
-      ]} />
-      <Hint>Saldırıda önce sur hasar emer: kuşatma birlikleri sura üç kat, diğerleri yarım vurur. Sur yıkılınca savunanın morali sarsılır. Sur her seviyede savunmaya 4 muhafız ekler.</Hint>
-    </Box>
     case 'ambar': case 'depo': return <StoragePanel game={game} />
     case 'kisla': case 'tersane': case 'liman':
       return <>
@@ -302,10 +293,11 @@ export function BuildingPage({ game, empire, id, onClose, onBuild, onFlip, onMov
   const facingLabel = facing === 'left' ? 'Sol' : facing === 'right' ? 'Sağ' : 'Düz'
   const nextFacing = facing === 'straight' ? 'right' : facing === 'right' ? 'left' : 'straight'
   const showTab = hasWork ? tab : 'gelisim'
+  const defense = isDefense(id) ? DEFENSE[id] : null
   const production = isProduction(id) ? PRODUCTION[id] : null
   const workshop = isCostWorkshop(id) ? COST_WORKSHOPS[id] : null
   const commerce = isCommerce(id), exchange = id === 'kara_pazar', maritime = id === 'liman' || id === 'tersane'
-  const royalWork = maritime || exchange || commerce || workshop || production || id === 'kisla' || id === 'medrese' || id === 'konut' || id === 'hamam' || id === 'kahvehane' || id === 'ambar' || id === 'depo'
+  const royalWork = defense || maritime || exchange || commerce || workshop || production || id === 'kisla' || id === 'medrese' || id === 'konut' || id === 'hamam' || id === 'kahvehane' || id === 'ambar' || id === 'depo'
   if (id === 'divan' || id === 'elcilik') return <IkaPage title={b.name} label={`${b.name} sayfası`} onClose={onClose}
     className={`bp-building bp-of-${id} bp-court bp-royal bp-management${help ? ' show-help' : ''}`}
     footer={<UpgradeDock game={game} id={id} onBuild={onBuild} />}>
@@ -320,8 +312,9 @@ export function BuildingPage({ game, empire, id, onClose, onBuild, onFlip, onMov
         {razing && <DemolishConfirm game={game} id={id} onCommand={onCommand} onClose={() => setRazing(false)} />}</>} />
   </IkaPage>
   return <IkaPage toolbar={royalWork ? undefined : toolbar} title={b.name} subtitle={`${city} · ${b.category.toLocaleLowerCase('tr')}`} label={`${b.name} sayfası`} onClose={onClose}
-    className={`bp-building bp-of-${id}${royalWork ? ' bp-royal' : ''}${production ? ' bp-production' : ''}${workshop ? ' bp-cost' : ''}${commerce ? ' bp-commerce' : ''}${exchange ? ' bp-exchange' : ''}${maritime ? ' bp-maritime' : ''}${help ? ' show-help' : ''}`}
+    className={`bp-building bp-of-${id}${royalWork ? ' bp-royal' : ''}${production ? ' bp-production' : ''}${workshop ? ' bp-cost' : ''}${commerce ? ' bp-commerce' : ''}${exchange ? ' bp-exchange' : ''}${maritime ? ' bp-maritime' : ''}${defense ? ' bp-defense' : ''}${help ? ' show-help' : ''}`}
     footer={royalWork ? undefined : <UpgradeDock game={game} id={id} onBuild={onBuild} />}>
+      {defense && <figure className="academy-banner"><img src={asset(`/images/game/ui/defense/${id}.webp`)} alt={defense.alt} /><figcaption>Seviye {level}</figcaption></figure>}
       {maritime && <figure className="academy-banner"><img src={asset(`/images/game/ui/maritime/${id === 'liman' ? 'harbor' : 'shipyard'}.webp`)} alt={id === 'liman' ? 'Osmanlı limanında yükleme' : 'Osmanlı tersanesinde gemi inşası'} /><figcaption>Seviye {level}</figcaption></figure>}
       {exchange && <figure className="academy-banner"><img src={asset('/images/game/ui/exchange/market.webp')} alt="Osmanlı pazarında tartıyla mal takası" /><figcaption>Seviye {level}</figcaption></figure>}
       {commerce && <figure className="academy-banner"><img src={asset(`/images/game/ui/commerce/${id === 'carsi' ? 'bazaar' : 'caravanserai'}.webp`)} alt={id === 'carsi' ? 'Osmanlı çarşısında esnaf ve alışveriş' : 'Osmanlı tüccarhanesinin yük ve defter avlusu'} /><figcaption>Seviye {level}</figcaption></figure>}
@@ -339,7 +332,7 @@ export function BuildingPage({ game, empire, id, onClose, onBuild, onFlip, onMov
       {razing && <DemolishConfirm game={game} id={id} onCommand={onCommand} onClose={() => setRazing(false)} />}
 
       {hasWork && <div className="bp-tabs" role="tablist" aria-label={`${b.name} bölümleri`}>
-        <button type="button" role="tab" aria-selected={showTab === 'yapi'} onClick={() => setTab('yapi')}>{maritime && <img src={asset(`/images/game/units/${id === 'liman' ? 'nakliye' : 'kadirga'}.webp`)} alt="" width={32} height={32} />}{(commerce || exchange) && <img src={asset('/images/game/icons/res-akce.webp')} alt="" width={32} height={32} />}{workshop && <img src={asset(`/images/game/icons/res-${workshop.resource === 'wood' ? 'kereste' : workshop.resource}.webp`)} alt="" width={32} height={32} />}{production && <img src={asset(`/images/game/icons/res-${production.resource === 'wood' ? 'kereste' : production.resource}.webp`)} alt="" width={32} height={32} />}{id === 'kisla' && <img className="barracks-tab-emblem" src={asset('/images/game/ui/barracks/army-medallion.webp')} alt="Yeniçeri börkü" width={32} height={32} />}{id === 'medrese' && <IlimArt className="size-6" />}{id === 'konut' && <NufusArt width={32} height={32} />}{id === 'hamam' && <HuzurArt width={32} height={32} />}{id === 'kahvehane' && <KahveArt width={32} height={32} />}{(id === 'ambar' || id === 'depo') && <img src={asset('/images/game/ui/storage/storage-icon.webp')} alt="" width={32} height={32} />}{maritime ? id === 'liman' ? 'Ticaret filosu' : 'Gemi yapımı' : exchange ? 'Mal takası' : commerce ? id === 'carsi' ? 'Esnaf ve tüccar' : 'Ticaret' : workshop ? 'Tasarruf' : production ? 'Üretim' : id === 'ambar' || id === 'depo' ? 'Stoklar' : id === 'kisla' ? 'Kara ordusu' : id === 'medrese' ? 'İlim meclisi' : id === 'konut' ? 'Mahalle' : id === 'hamam' ? 'Halkın huzuru' : id === 'kahvehane' ? 'İkram' : b.name}</button>
+        <button type="button" role="tab" aria-selected={showTab === 'yapi'} onClick={() => setTab('yapi')}>{defense && <img src={asset(`/images/game/${defense.icon}`)} alt="" width={32} height={32} />}{maritime && <img src={asset(`/images/game/units/${id === 'liman' ? 'nakliye' : 'kadirga'}.webp`)} alt="" width={32} height={32} />}{(commerce || exchange) && <img src={asset('/images/game/icons/res-akce.webp')} alt="" width={32} height={32} />}{workshop && <img src={asset(`/images/game/icons/res-${workshop.resource === 'wood' ? 'kereste' : workshop.resource}.webp`)} alt="" width={32} height={32} />}{production && <img src={asset(`/images/game/icons/res-${production.resource === 'wood' ? 'kereste' : production.resource}.webp`)} alt="" width={32} height={32} />}{id === 'kisla' && <img className="barracks-tab-emblem" src={asset('/images/game/ui/barracks/army-medallion.webp')} alt="Yeniçeri börkü" width={32} height={32} />}{id === 'medrese' && <IlimArt className="size-6" />}{id === 'konut' && <NufusArt width={32} height={32} />}{id === 'hamam' && <HuzurArt width={32} height={32} />}{id === 'kahvehane' && <KahveArt width={32} height={32} />}{(id === 'ambar' || id === 'depo') && <img src={asset('/images/game/ui/storage/storage-icon.webp')} alt="" width={32} height={32} />}{defense ? defense.tab : maritime ? id === 'liman' ? 'Ticaret filosu' : 'Gemi yapımı' : exchange ? 'Mal takası' : commerce ? id === 'carsi' ? 'Esnaf ve tüccar' : 'Ticaret' : workshop ? 'Tasarruf' : production ? 'Üretim' : id === 'ambar' || id === 'depo' ? 'Stoklar' : id === 'kisla' ? 'Kara ordusu' : id === 'medrese' ? 'İlim meclisi' : id === 'konut' ? 'Mahalle' : id === 'hamam' ? 'Halkın huzuru' : id === 'kahvehane' ? 'İkram' : b.name}</button>
         <button type="button" role="tab" aria-selected={showTab === 'gelisim'} onClick={() => setTab('gelisim')}>{royalWork && <img className="barracks-development-icon" src={asset('/images/game/ui/barracks/development-icon.webp')} alt="" width={32} height={32} />}Gelişim</button>
       </div>}
       <div ref={workRef} className="bp-tabpanel" hidden={showTab !== 'yapi'}>

@@ -1,0 +1,16 @@
+{
+  "mode": "builtin",
+  "date": "2026-10-09",
+  "base": "Use case: historical-scene. Asset type: textless panoramic 3:1 environment banner for premium Ottoman Aegean mobile strategy game, cropped to 80px. Painterly polished realistic-stylized game illustration, warm Mediterranean daylight, ivory limestone, walnut wood, muted brass, deep red textiles, turquoise sea. Human-scale Ottoman period turbaned figures. Keep identifying details in central horizontal band. No text, numbers, letters, watermark, UI, frame, modern technology or fantasy. Subject: ",
+  "subjects": {
+    "harita_arsivi": "An Ottoman portolan map archive overlooking an Aegean bay: a turbaned cartographer measures a hand-painted textless coastal chart at a broad walnut table with brass dividers, rolled maps, a compass and red curtain, ivory arches and distant merchant ships.",
+    "surlar": "Ottoman Aegean city ramparts: massive ivory limestone walls with a guarded gate, Ottoman spearmen in period uniforms watching from battlements, walnut gate doors and red cloth banners without writing, turquoise bay and domed town beyond, protective fortified atmosphere.",
+    "siginak": "A discreet Ottoman intelligence chamber beneath an ivory stone city house, a turbaned intelligence officer and a plainly dressed scout exchanging a sealed report by a walnut desk with brass lanterns, scrolls and red textiles, shaded corridor leading to an Aegean courtyard, no weapons pointing at people."
+  },
+  "assets": [
+    "public/images/game/ui/defense/harita_arsivi.webp",
+    "public/images/game/ui/defense/surlar.webp",
+    "public/images/game/ui/defense/siginak.webp"
+  ],
+  "production": "RGB 960×320 WebP quality 86, 80 px banner crop"
+}
