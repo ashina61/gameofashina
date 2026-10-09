@@ -34,3 +34,8 @@ Kahvehane 0.74.0: `COFFEEHOUSE-DESIGN-MEMORY.md`. İkram kontrolü aynı sürgü
 ## Kereste ve kaynak üretim yapıları — 0.76.0
 
 `PRODUCTION-DESIGN-MEMORY.md` geçerlidir. Altı yapıda aynı atlaslar; ayrı kısa üretim sahneleri, Üretim/Gelişim. Oduncu tam boy boyalı figürdür. Yapı katkısı, toplam üretim ve ada kaynağının eşleşmesi ayrı okunur. Oyun ekonomisi ve HUD korunur.
+
+
+## Maliyet azaltan yapılar — 0.77.0
+
+COST-DESIGN-MEMORY.md geçerlidir. Beş ayrı atölye sahnesi, Tasarruf/Gelişim, aynı gerçek atlaslar. İndirim kaynakları ve gerçek bedel örnekleri ayrıdır. Kahve ve topçu çarpanları sınır sonrası uygulanır. Mekanik ve HUD korunur.

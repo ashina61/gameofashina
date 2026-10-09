@@ -1,0 +1,13 @@
+{
+  "generator": "built-in image_gen",
+  "prompt": "Use case: historical-scene. Asset type: textless narrow environment banner for an Ottoman Aegean city-building mobile game, landscape 3:1 composition. Painterly polished strategy-game illustration with warm sunlight, aged walnut, ivory stone, brass tools, red textiles, Mediterranean vegetation. Human scale, period Ottoman clothes and turbans, no modern objects, no text, letters, UI, numbers, border or watermark. Most identifying workshop details in center horizontal band, suitable for cropping into an 80px high panoramic header. Subject: ",
+  "subjects": {
+    "marangoz": "Ottoman carpenter workshop opening to a courtyard, craftsmen planing and measuring timber on wood benches, stacked seasoned planks, chisels and shavings.",
+    "mimar": "Ottoman master architect's marble yard, mason carving a pale stone block, master builder with a compass looking at unlettered parchment, carved columns and Mediterranean arcade.",
+    "mahzen": "Ottoman coffee storage cellar courtyard, sacks of coffee beans and copper measures under a vaulted cool stone portico, a steward carefully measuring beans, no wine or grapes.",
+    "gozlukcu": "Ottoman optical craftsman's workshop, glass lenses on a brass polishing bench, an artisan examining a small lens beside crystal and rounded spectacles, warm courtyard doorway.",
+    "barutane": "Ottoman artillery proving courtyard, a bronze cannon being inspected by a turbaned master and artillery workers, sealed powder barrels, brass scales and stone testing wall, no explosions."
+  },
+  "dimensions": "960x320",
+  "release": "0.77.0"
+}

@@ -1,0 +1,17 @@
+/* Five cost workshops reuse the approved court and academy atlases. */
+.game-shell.has-page .bp-cost > .bp-bar .bp-title { left: calc(var(--court-control-size) + 16px); right: calc(var(--court-control-size) + 16px); }
+.game-shell.has-page .bp-cost > .bp-bar .bp-title h1 { width: 100%; min-width: 0; max-width: 100%; white-space: normal; font-size: clamp(18px,4.4vw,30px); }
+.cost-result { display: grid; grid-template-columns: 56px minmax(0,1fr); gap: 12px; align-items: center; padding: 8px 0 16px; }
+.cost-result small, .cost-result span { display: block; font: 14px/1.5 Georgia,serif; }
+.cost-result strong { display: block; font: 700 30px/1.25 'Payitaht Profile Roman',Georgia,serif; }
+.cost-meter { height: 16px; margin-bottom: 16px; border: 1px solid var(--c-gold-deep); background: var(--academy-track) center / 100% 100%; }
+.cost-meter > span { display: block; height: 100%; background: var(--academy-fill) center / 100% 100%; }
+.cost-facts { margin: 0 0 16px; border-top: 1px solid var(--c-gold-deep); }
+.cost-facts > div { display: flex; justify-content: space-between; align-items: center; gap: 12px; min-height: 48px; padding: 10px 0; border-bottom: 1px solid var(--c-gold-deep); }
+.cost-facts dt { flex: 1; min-width: 0; font: 14px/1.5 Georgia,serif; }
+.cost-facts dd { flex: 0 1 45%; margin: 0; text-align: right; font: 700 16px/1.4 Georgia,serif; }
+.cost-facts dd small { display: block; font: 12px/1.4 Georgia,serif; }
+.cost-note { margin: 12px 0 16px; font: 14px/1.6 Georgia,serif; }
+.cost-explanation { margin: 8px 20px 16px; border-top: 1px solid var(--c-gold-deep); font: 14px/1.6 Georgia,serif; }
+.cost-explanation summary { min-height: 48px; padding: 12px 0; cursor: pointer; font-weight: 700; }
+.cost-scope-icon { display: block; margin: 8px auto; }

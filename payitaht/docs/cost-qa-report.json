@@ -1,0 +1,648 @@
+{
+  "cost-report": {
+    "reports": [
+      {
+        "width": 360,
+        "name": "marangoz",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 360,
+        "name": "marangoz-development",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 360,
+        "name": "mimar",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 360,
+        "name": "mimar-development",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 360,
+        "name": "mahzen",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 360,
+        "name": "mahzen-development",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 360,
+        "name": "gozlukcu",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 360,
+        "name": "gozlukcu-development",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 360,
+        "name": "barutane",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 360,
+        "name": "barutane-development",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 360,
+        "name": "marangoz-active",
+        "found": {
+          "taşma": {},
+          "kesik": {
+            "div.job-progress > div.flex.flex-wrap > span": {
+              "örnek": "x",
+              "adet": 1
+            }
+          },
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 390,
+        "name": "marangoz",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 390,
+        "name": "marangoz-development",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 390,
+        "name": "mimar",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 390,
+        "name": "mimar-development",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 390,
+        "name": "mahzen",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 390,
+        "name": "mahzen-development",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 390,
+        "name": "gozlukcu",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 390,
+        "name": "gozlukcu-development",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 390,
+        "name": "barutane",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 390,
+        "name": "barutane-development",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 390,
+        "name": "marangoz-active",
+        "found": {
+          "taşma": {},
+          "kesik": {
+            "div.job-progress > div.flex.flex-wrap > span": {
+              "örnek": "x",
+              "adet": 1
+            }
+          },
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 430,
+        "name": "marangoz",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 430,
+        "name": "marangoz-development",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 430,
+        "name": "mimar",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 430,
+        "name": "mimar-development",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 430,
+        "name": "mahzen",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 430,
+        "name": "mahzen-development",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 430,
+        "name": "gozlukcu",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 430,
+        "name": "gozlukcu-development",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 430,
+        "name": "barutane",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 430,
+        "name": "barutane-development",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 430,
+        "name": "marangoz-active",
+        "found": {
+          "taşma": {},
+          "kesik": {
+            "div.job-progress > div.flex.flex-wrap > span": {
+              "örnek": "x",
+              "adet": 1
+            }
+          },
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 360,
+        "name": "marangoz",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 360,
+        "name": "marangoz-development",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 360,
+        "name": "mimar",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 360,
+        "name": "mimar-development",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 360,
+        "name": "mahzen",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 360,
+        "name": "mahzen-development",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 360,
+        "name": "gozlukcu",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 360,
+        "name": "gozlukcu-development",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 360,
+        "name": "barutane",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 360,
+        "name": "barutane-development",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "width": 360,
+        "name": "marangoz-active",
+        "found": {
+          "taşma": {},
+          "kesik": {
+            "div.job-progress > div.flex.flex-wrap > span": {
+              "örnek": "x",
+              "adet": 1
+            }
+          },
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      }
+    ],
+    "errors": []
+  },
+  "cost-states-report": {
+    "reports": [
+      {
+        "name": "unbuilt",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "name": "maxed",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "name": "early-crystal",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "name": "no-coffee",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "name": "no-service",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "name": "sulfur-cap",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "name": "no-research",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      },
+      {
+        "name": "marble-research",
+        "found": {
+          "taşma": {},
+          "kesik": {},
+          "küçük": {},
+          "minik": {},
+          "çakışma": {},
+          "isimsiz": {}
+        }
+      }
+    ],
+    "errors": []
+  }
+}

@@ -358,3 +358,8 @@ Yazısız giriş arka planı yerleşik OpenAI imagegen ile yeniden boyandı. Tar
 ### 9 Ekim 2026 — kaynak üretim sayfaları
 
 `ui/production/{lumber,ormanci,bagci,tasci,camci,simyahane}.webp` yeni yazısız Osmanlı–Ege ortam bantlarıdır; `ui/production/lumberjack.webp` şeffaf tam boy oduncudur. ChatGPT yerleşik ImageGen ile bu çalışma için üretildi; brief ve çıktı kayıtları `docs/production-art.json`. Sahne görselleri 960×360, figür en fazla 240×360 WebP’ye küçültüldü. Ortak Kışla atlasları aynen yeniden kullanılır; şehir bina görselleri değiştirilmedi.
+
+
+## Tasarruf atölyeleri (0.77.0)
+
+ui/cost/ altındaki beş yazısız Osmanlı atölye sahnesi built-in ImageGen ile bu proje için üretildi; 960×320 WebP. Prompt ve konu kaydı docs/cost-art.json. Ortak arayüz atlasları Kışla/Medrese referansından korunur.
