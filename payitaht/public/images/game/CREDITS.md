@@ -377,3 +377,6 @@ ui/exchange/market.webp: OpenAI built-in image generation, 9 Ekim 2026. Yazısı
 Liman ve Tersane sahneleri: OpenAI Imagegen, 9 Ekim 2026; docs/maritime-art.json.
 
 Harita Arşivi, Surlar ve Gizli Sığınak sahneleri: OpenAI Imagegen, 9 Ekim 2026; docs/defense-art.json.
+# 9 Ekim 2026 — Tophane ve Korsan Kalesi
+
+`ui/armament/tophane.webp` ve `ui/armament/korsan_kalesi.webp`: yerleşik Imagegen ile üretilen yazısız Osmanlı–Ege sahneleri; özgün promptlar `docs/armament-art.json`. RGB 960×320 WebP. Çerçeve/düğme/portre ve gemiler mevcut ortak atlaslardan.

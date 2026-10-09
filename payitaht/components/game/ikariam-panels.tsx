@@ -10,21 +10,21 @@ import { Hint } from './hint'
 import { AtlasArt } from './deep-art'
 import { asset } from '@/lib/asset'
 import { useState } from 'react'
-import { Sparkles, Minus, Plus, Swords, ShieldCheck, Skull, Anchor, TriangleAlert, Repeat, Hammer, Castle, Users, Warehouse } from './ui-art'
+import { Sparkles, Minus, Plus, Swords, ShieldCheck, Skull, TriangleAlert, Repeat, Hammer, Castle, Users, Warehouse } from './ui-art'
 import { StatRow } from './stat-kit'
-import { AkceArt, KumSaatiArt } from './resource-art'
+import { KumSaatiArt } from './resource-art'
 import { SHOWS, SHOW_IDS, type ShowId } from '@/lib/game/theatre'
 import { WorkforceSlider } from './workforce'
 import { GameButton } from './game-button'
 import { UnitFigure } from './unit-art'
 import {
   FAITH_CAP, MIRACLES, MIRACLE_IDS, MIRACLE_COOLDOWN_MS, RESEARCH, RESEARCH_BRANCHES, RESEARCH_IDS, UNITS,
-  UNIT_IDS, WONDER_MAX, futureCost, futureReason, idleWorkers, miracleCost, miracleMinutes,
-  priestCapacity, upgradeCap, upgradeCost, upgradeReason, wonderCost, travelFactor,
+  WONDER_MAX, futureCost, futureReason, idleWorkers, miracleCost, miracleMinutes,
+  priestCapacity, wonderCost,
   type Command, type Game, type UnitId, formatRate,
 } from '@/lib/game/engine'
 import { activeCity, type Empire } from '@/lib/game/empire'
-import { PIRACY_TARGETS, RAID_UNITS, SIEGE_MAX_MS, THREAT_WARNING_MS, WARSHIPS, availableUnits, cityGuards, cityWallHp, liberateCity, safeStock, siegeTribute, targetName, type Siege } from '@/lib/game/expeditions'
+import { RAID_UNITS, SIEGE_MAX_MS, THREAT_WARNING_MS, WARSHIPS, availableUnits, cityGuards, cityWallHp, liberateCity, safeStock, siegeTribute, targetName, type Siege } from '@/lib/game/expeditions'
 import { EXPEL_COOLDOWN_MS, expelSpies, rivalById } from '@/lib/game/rivals'
 import type { Run } from './world-panels'
 import { BattleView } from './battle-view'
@@ -130,29 +130,7 @@ export function TemplePanel({ game, now, onCommand }: { game: Game; now: number;
   </section>
 }
 
-/** TOPHANE: birlik başına saldırı ve zırh yükseltmesi (+%5/seviye). */
-export function UpgradePanel({ game, onCommand }: { game: Game; onCommand: (c: Command) => void }) {
-  const ids = UNIT_IDS.filter(id => !['spy', 'transport', 'support'].includes(UNITS[id].role))
-  return <section className="empire-section">
-    <h3><Swords className="size-4" /> Birlik yükseltmeleri</h3>
-    <Hint>Her seviye o birliğin saldırısını ya da zırhını %5 artırır. Tophane'nin her iki seviyesi bir yükseltme seviyesi açar (şu an en fazla {upgradeCap(game)}). Bedeli akçe ve kristaldir.</Hint>
-    {game.buildings.tophane < 2 && <p className="requirement"><Hammer className="size-4" />Yükseltmeler Tophane 2. seviyede açılır.</p>}
-    <div className="upgrade-list">{ids.map(id => {
-      const u = game.upgrades[id] ?? { atk: 0, def: 0 }
-      return <div key={id} className="upgrade-row">
-        <strong>{UNITS[id].name}</strong>
-        {(['atk', 'def'] as const).map(stat => {
-          const c = upgradeCost(game, id, stat), reason = upgradeReason(game, id, stat)
-          return <GameButton key={stat} size="sm" variant="outline" disabled={!!reason} title={reason ?? undefined}
-            onClick={() => onCommand({ type: 'upgrade', id, stat })}>
-            {stat === 'atk' ? <Swords data-icon="inline-start" /> : <ShieldCheck data-icon="inline-start" />}
-            {u[stat]} → {u[stat] + 1}<small className="upgrade-cost-hint">{num(c.gold)}a · {c.kristal}k</small>
-          </GameButton>
-        })}
-      </div>
-    })}</div>
-  </section>
-}
+export { UpgradePanel, PiracyPanel } from './armament-panels'
 
 /** GELECEK ARAŞTIRMALARI: bir dalın bütün araştırmaları bitince tekrar tekrar ilerler. */
 const FUTURE_EFFECT: Record<string, (l: number) => string> = {
@@ -182,38 +160,6 @@ export function FuturePanel({ game, onCommand }: { game: Game; onCommand: (c: Co
 }
 
 export { ExchangePanel } from './exchange-panel'
-
-/** KORSAN KALESİ: savaş gemileriyle tüccar gemilerine baskın. */
-export function PiracyPanel({ empire, now, onPiracy }: {
-  empire: Empire; now: number; onPiracy: (targetId: string, units: Partial<Record<UnitId, number>>) => void
-}) {
-  const city = activeCity(empire)
-  const g = city.game
-  const free = availableUnits(empire, city.id)
-  const [target, setTarget] = useState(PIRACY_TARGETS[0].id)
-  const [pick, setPick] = useState<Partial<Record<UnitId, number>>>({})
-  const missions = (empire.missions ?? []).filter(m => m.cityId === city.id && m.kind === 'piracy')
-  if (g.buildings.korsan_kalesi < 1) return null
-  const t = PIRACY_TARGETS.find(p => p.id === target)!
-  return <section className="empire-section">
-    <h3><Skull className="size-4" /> Korsan seferleri · şöhret {g.piracy}</h3>
-    <div className="piracy-targets">{PIRACY_TARGETS.map(p => <button key={p.id} type="button" className="piracy-target"
-      aria-pressed={target === p.id} disabled={g.buildings.korsan_kalesi < p.level} onClick={() => setTarget(p.id)}>
-      <strong>{p.name}</strong><small>{p.description}</small>
-      <small><AkceArt className="size-3" /> {num(p.gold * (1 + g.buildings.korsan_kalesi * 0.1))} · <KumSaatiArt className="size-3" /> {clock(p.minutes * 60_000 * travelFactor(g))}
-        {g.buildings.korsan_kalesi < p.level ? ` · Kale ${p.level}. sv.` : ''}</small>
-      <small>Eskort: {troopList(p.escort)}</small>
-    </button>)}</div>
-    {WARSHIPS.every(id => free[id] <= 0)
-      ? <p className="fine-print">Limanda boşta savaş gemisi yok. Tersane'de kadırga yap.</p>
-      : <UnitPicker ids={WARSHIPS} free={free} pick={pick} onPick={setPick} />}
-    <Hint>Eskort gemileri zayıf zırhlıdır ama batmadan pes etmez: kalabalık bir filo götür. Kayıplar kalıcıdır.</Hint>
-    <GameButton size="sm" disabled={!Object.values(pick).some(n => (n ?? 0) > 0) || missions.some(m => m.npcId === t.id)}
-      onClick={() => { onPiracy(t.id, pick); setPick({}) }}><Anchor data-icon="inline-start" />{t.name} peşine düş</GameButton>
-    {missions.map(m => <p key={m.id} className="requirement"><KumSaatiArt className="size-4" />
-      {PIRACY_TARGETS.find(p => p.id === m.npcId)?.name}: {m.battle ? `savaşta · tur ${m.battle.state.round}` : m.resolved ? `dönüş ${clock(m.returnAt - now)}` : `varış ${clock(m.arriveAt - now)}`}</p>)}
-  </section>
-}
 
 /** Yaklaşan korsan baskını uyarısı (şehir ekranının üstünde). */
 export function ThreatBanner({ empire, now, onOpen }: { empire: Empire; now: number; onOpen: () => void }) {

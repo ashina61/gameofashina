@@ -1,5 +1,7 @@
 # Payitaht — onaylı arayüz standardı
 
+0.82.0 Tophane/Korsan Kalesi: ARMAMENT-DESIGN-MEMORY.md. Ortak defterler, dikey açılır teçhizat, hedef/filo/sefer ve Gelişim; ana eylem önce. Sonraki Cami/Tekke/Mabet.
+
 Adem, 8 Ekim 2026: “bu tasarımı beynine işle tasarım standardımız oturdu”. Yetkili referans kışlanın 0.69.0 son hali ve `mockups/approved-barracks-vertical-slider.webp`; üretim parçaları `public/images/game/ui/barracks/`, atlas kayıtları `barracks-controls-atlas.json` ve `barracks-skin-atlas.json`. Önceki kaba CSS/yalnız renk benzerliği standart değildir.
 
 ## Bütün yeni sayfalarda

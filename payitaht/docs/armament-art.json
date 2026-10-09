@@ -1,0 +1,22 @@
+{
+  "version": "0.82.0",
+  "tool": "built-in image_gen",
+  "assets": [
+    {
+      "path": "public/images/game/ui/armament/tophane.webp",
+      "prompt": "Use case: historical-scene. Asset type: premium mobile Ottoman–Aegean strategy game short building-page banner, wide 3:1 composition. Create a text-free Ottoman coastal artillery workshop scene, warm painterly-realistic game illustration with finely rendered limestone, aged walnut, muted terracotta and brass, soft upper-left daylight. On left and middle Ottoman master gunsmiths in period garments inspecting polished bronze cannon, armour and tools on oak workbench in open stone foundry courtyard, on right glimpses of turquoise Aegean and distant ivory city. Important action all fits within middle horizontal third for narrow 80px banner crop. Tasteful readable detailed shapes, same professional artist as warm Ottoman strategy illustrations. No UI, no frame, no letters, no captions, no logos, no cartoon, no black outlines, no fantasy, no modern weapons. Wide landscape.",
+      "dimensions": [
+        960,
+        320
+      ]
+    },
+    {
+      "path": "public/images/game/ui/armament/korsan_kalesi.webp",
+      "prompt": "Use case: historical-scene. Asset type: premium mobile Ottoman–Aegean strategy game building page banner, wide 3:1 composition. Create one text-free painterly-realistic Ottoman corsair fortress harbour preparing a voyage. Warm upper-left Mediterranean daylight, ivory limestone gate and dark walnut work table on left with period Ottoman corsair captain in red sash and turban examining nautical chart without writing, mariners loading ropes and small brass-bound chests. On right turquoise Aegean harbour with Ottoman galley, red silk crescent pennant, muted terracotta roofs and distant olive hills. Period ships no modern vessels. Carefully framed main people/ship within middle horizontal third to survive narrow 80px crop. Same warm painterly professional art direction as Ottoman city strategy artwork: ivory stone, brass, walnut, olive green, muted red. Elegant detailed, convincing materials. NO UI, NO frames, NO text, NO captions, NO lettering, NO skull-and-crossbones pirate fantasy, NO cartoon, NO thick outlines. Wide landscape.",
+      "dimensions": [
+        960,
+        320
+      ]
+    }
+  ]
+}

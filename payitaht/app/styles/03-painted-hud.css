@@ -43,10 +43,6 @@
 .island-select option { color: #1d1a14; }
 .island-spot:disabled { cursor: default; }
 .picker-heading { display: flex; align-items: center; gap: 6px; margin: 4px 0 0; font-size: 13px; font-weight: 700; }
-.upgrade-list { display: flex; flex-direction: column; gap: 6px; }
-.upgrade-row { display: grid; grid-template-columns: 1fr auto auto; gap: 6px; align-items: center; font-size: 13px; }
-.upgrade-row button { display: inline-flex; gap: 4px; font-variant-numeric: tabular-nums lining-nums; }
-.upgrade-cost-hint { font-size: 11px; color: var(--muted-foreground); }
 .piracy-targets { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 8px; }
 .piracy-target { display: flex; flex-direction: column; gap: 3px; padding: 10px 12px; text-align: left; border: 1px solid var(--border); border-radius: var(--radius); background: var(--card); color: var(--foreground); cursor: pointer; }
 .piracy-target small { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 4px; font-size: 11px; color: var(--muted-foreground); }

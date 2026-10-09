@@ -10,6 +10,8 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 # Payitaht Adaları — ajanlar için
 
+**9 Ekim teçhizat ve korsan seferleri — 0.82.0 / SW94:** docs/ARMAMENT-DESIGN-MEMORY.md geçerlidir. Kara/donanma teçhizatı ve bireysel saldırı/zırh; hedef/filo/sefer defterleri, motorla aynı ganimet ve görünür engeller. Ortak atlaslar ve iki ayrı sahne; yükseltme Gelişim başında. Motor/HUD korunur. Sonraki Cami/Tekke/Mabet; yayın sonrası kullanıcı değerlendirmesinde dur.
+
 **9 Ekim maliyet yapıları — 0.77.0 / SW89:** docs/COST-DESIGN-MEMORY.md; beş atölyede ortak Tasarruf/Gelişim. Örnekler gerçek motor bedelleri, Mimar araştırması ve Mutfak/Top Dökümü çarpanları doğru gösterilir. Sonraki bölüm Çarşı/Ticaret Merkezi; yayın sonrası kullanıcı değerlendirmesinde dur.
 
 **9 Ekim üretim yapıları — 0.76.0 / SW88:** `docs/PRODUCTION-DESIGN-MEMORY.md`; Kereste Ocağı, Ormancı Evi, Kahve Fidanlığı, Taşçı, Camcı ve Simyahane ortak Üretim/Gelişim defterlerinde. Kereste ataması mevcut workers komutuyla; yapı yüzdesi/toplam üretim ayrı, ada kaynağı uyuşmazlığı açık. Sonraki bölüm maliyet azaltma yapıları; bu bölüm yayınından sonra kullanıcı değerlendirmesinde dur.

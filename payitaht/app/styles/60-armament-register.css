@@ -1,0 +1,60 @@
+/* Ordnance and corsair action registers share approved painted court materials. */
+.game-shell.has-page .bp.bp-armament > .bp-bar .bp-title { left: calc(var(--court-control-size) + 12px); right: calc(var(--court-control-size) + 12px); }
+.game-shell.has-page .bp.bp-armament .bp-tabpanel { padding: 12px 3%; }
+.bp.bp-armament :is(.armament-note,.armament-help p,.armament-reason) { margin: 12px 0; font: 14px/1.55 Georgia,serif; }
+.bp.bp-armament .armament-branches { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 10px; }
+.bp.bp-armament .armament-branches .gbtn { white-space: normal; }
+.bp.bp-armament .armament-branches [aria-pressed='true'] { background-image: var(--academy-action); color: var(--c-gold-pale); }
+.bp.bp-armament .armament-units { display: grid; gap: 14px; }
+.bp.bp-armament .armament-unit { padding: 10px; border: 0 solid transparent; border-image: var(--academy-frame) 40 / 8px / 0 stretch; background: var(--academy-paper) center / cover; color: var(--c-ink); }
+.bp.bp-armament .armament-unit > summary { min-height: 80px; display: flex; align-items: center; gap: 12px; cursor: pointer; }
+.bp.bp-armament .armament-unit > summary::after { content: '+'; margin-left: auto; font-size: 24px; }
+.bp.bp-armament .armament-unit[open] > summary::after { content: '−'; }
+.bp.bp-armament .armament-portrait { width: 88px; height: 66px; flex-shrink: 0; object-fit: cover; border: 0 solid transparent; border-image: var(--academy-frame) 40 / 6px / 0 stretch; }
+.bp.bp-armament .armament-ship .armament-portrait { object-fit: contain; background: var(--royal-wood); padding: 6px; }
+.bp.bp-armament .armament-unit summary span { min-width: 0; }
+.bp.bp-armament :is(.armament-unit summary strong,.armament-ship-title strong) { display: block; font: 700 18px/1.3 'Payitaht Profile Roman',Georgia,serif; }
+.bp.bp-armament :is(.armament-unit summary small,.armament-ship-title small) { display: block; margin-top: 5px; font: 13px/1.4 Georgia,serif; }
+.bp.bp-armament .armament-stats { display: grid; grid-template-columns: minmax(0,1fr); gap: 12px; padding-top: 12px; }
+.bp.bp-armament .armament-stat { border-top: 1px solid var(--c-gold-deep); padding-top: 12px; }
+.bp.bp-armament .armament-stat h3 { margin: 0; font: 700 18px/1.3 'Payitaht Profile Roman',Georgia,serif; }
+.bp.bp-armament .armament-stat p { font: 14px/1.5 Georgia,serif; margin: 10px 0; }
+.bp.bp-armament .armament-stat .gbtn { width: 100%; }
+.bp.bp-armament .armament-price { display: flex; flex-wrap: wrap; align-items: center; gap: 7px; }
+.bp.bp-armament .armament-price :is(img,svg) { width: 24px; height: 24px; }
+.bp.bp-armament .armament-reason { overflow-wrap: anywhere; }
+.bp.bp-armament .armament-targets { display: grid; gap: 12px; }
+.bp.bp-armament .armament-target { display: grid; gap: 8px; text-align: left; padding: 16px; min-height: 64px; color: var(--c-ink); background: var(--academy-paper) center / cover; border: 0 solid transparent; border-image: var(--academy-frame) 40 / 8px / 0 stretch; }
+.bp.bp-armament .armament-target[aria-pressed='true'] { background-image: var(--academy-action); color: var(--c-gold-pale); }
+.bp.bp-armament .armament-target strong { font: 700 20px/1.3 'Payitaht Profile Roman',Georgia,serif; }
+.bp.bp-armament .armament-target :is(span,small) { font: 14px/1.45 Georgia,serif; }
+.bp.bp-armament .armament-facts { margin: 12px 0; }
+.bp.bp-armament .armament-facts > div { display: grid; grid-template-columns: minmax(0,1fr) auto; align-items: center; gap: 12px; min-height: 48px; padding: 10px 0; border-bottom: 1px solid var(--c-gold-deep); }
+.bp.bp-armament .armament-facts dt { font: 14px/1.5 Georgia,serif; }
+.bp.bp-armament .armament-facts dd { display: flex; align-items: center; gap: 8px; margin: 0; font: 700 18px/1.3 'Payitaht Profile Roman',Georgia,serif; }
+.bp.bp-armament .armament-facts dd svg { width: 24px; height: 24px; }
+.bp.bp-armament .armament-help > summary { min-height: 48px; padding: 12px 0; font: 700 18px/1.4 'Payitaht Profile Roman',Georgia,serif; }
+.bp.bp-armament .armament-ships { display: grid; gap: 14px; }
+.bp.bp-armament .armament-ship { padding: 12px; background: var(--academy-paper) center / cover; border: 0 solid transparent; border-image: var(--academy-frame) 40 / 8px / 0 stretch; }
+.bp.bp-armament .armament-ship-title { display: flex; gap: 12px; align-items: center; margin-bottom: 12px; }
+.bp.bp-armament .armament-stepper { display: grid; grid-template-columns: 48px minmax(0,1fr) 48px; align-items: end; gap: 8px; }
+.bp.bp-armament .armament-stepper label { font: 13px/1.4 Georgia,serif; min-width: 0; text-align: center; }
+.bp.bp-armament .armament-stepper input { display: block; width: 100%; min-width: 0; height: 48px; margin-top: 5px; color: var(--c-ink); background: var(--academy-paper) center / cover; border: 1px solid var(--c-gold-deep); text-align: center; font: 700 20px/1.3 'Payitaht Profile Roman',Georgia,serif; }
+.bp.bp-armament .armament-stepper .gbtn { min-width: 48px; min-height: 48px; padding: 0; }
+.bp.bp-armament .armament-stepper .gbtn:first-child { background: url('../../public/images/game/ui/barracks/minus-button.webp') center / contain no-repeat; border: 0; color: transparent; }
+.bp.bp-armament .armament-stepper .gbtn:nth-child(3) { background: url('../../public/images/game/ui/barracks/plus-button.webp') center / contain no-repeat; border: 0; color: transparent; }
+.bp.bp-armament .armament-stepper .gbtn:last-child { grid-column: 1 / -1; }
+.bp.bp-armament .armament-dispatch { width: 100%; white-space: normal; }
+.bp.bp-armament .armament-mission { border-bottom: 1px solid var(--c-gold-deep); padding: 12px 0; }
+.bp.bp-armament .armament-mission strong { font: 700 18px/1.3 'Payitaht Profile Roman',Georgia,serif; }
+.bp.bp-armament .armament-mission :is(p,small) { font: 14px/1.5 Georgia,serif; }
+@media (min-width: 600px) { .bp.bp-armament .armament-stats { grid-template-columns: repeat(2,minmax(0,1fr)); } }
+.game-shell.has-page .bp.bp-armament .armament-stepper .gbtn { min-width: 48px; width: 48px; min-height: 48px; padding: 0; }
+.game-shell.has-page .bp.bp-armament .armament-stepper .gbtn:last-child { width: 100%; }
+.game-shell.has-page .bp.bp-armament .bp-table { width: 100%; table-layout: fixed; }
+.game-shell.has-page .bp.bp-armament .bp-table :is(th,td) { white-space: normal; overflow-wrap: anywhere; }
+.game-shell.has-page .bp.bp-armament .bp-table :is(th,td):first-child { width: 12%; }
+.game-shell.has-page .bp.bp-armament .bp-table :is(th,td):last-child { width: 28%; }
+.game-shell.has-page .bp.bp-armament .bp-mini-costs { display: flex; flex-wrap: wrap; gap: 6px; }
+.game-shell.has-page .bp.bp-armament .bp-mini-costs > span { white-space: nowrap; }
+.game-shell.has-page .bp.bp-armament .armament-branches .gbtn[aria-pressed='false'] { border-image: var(--academy-frame) 40 / 8px / 0 stretch; background: var(--academy-paper) center / cover; color: var(--c-ink); }
