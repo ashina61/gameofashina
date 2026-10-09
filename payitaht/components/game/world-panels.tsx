@@ -1,4 +1,5 @@
 'use client'
+import { CoffeehousePanel } from './coffeehouse-panel'
 
 /**
  * DÜNYA VE ŞEHİR YÖNETİMİ PANELLERİ
@@ -14,7 +15,7 @@ import { CourtTabs } from './court-kit'
 import { diploAdvice } from './advisor-advice'
 import { Hint } from './hint'
 import { useState } from 'react'
-import { Crown, Trash2, Coffee, TreePine, CalendarCheck, Gift, Truck, Anchor, Flag, Handshake, Store, Mail, Send, ScrollText, Swords, Eye, Check, Pencil, ShieldCheck } from './ui-art'
+import { Crown, Trash2, TreePine, CalendarCheck, Gift, Truck, Anchor, Flag, Handshake, Store, Mail, Send, ScrollText, Swords, Eye, Check, Pencil, ShieldCheck } from './ui-art'
 import { ResearchEmblem } from './research-art'
 import { IlimArt, KristalArt } from './resource-art'
 import { DailyArt } from './quest-art'
@@ -23,7 +24,7 @@ import { NewsPanel, PaceSetting, ProposalsPanel, rivalWarLine } from './ai-panel
 import { GameButton } from './game-button'
 import {
   ANARCHY_MS, BUILDINGS, FOREST_MAX_LEVEL, GOVERNMENTS, GOVERNMENT_COOLDOWN_MS, GOOD_NAMES, GOVERNMENT_IDS, UNITS, UNIT_IDS,
-  anarchy, capacity, forestCapacity, forestProduction, forestUpgradeCost, governmentCost, idleWorkers, tavernLevel, wineConsumption,
+  anarchy, capacity, forestCapacity, forestProduction, forestUpgradeCost, governmentCost, idleWorkers,
   LUXURY_IDS, type BuildingId, type Command, type Game, type Good, type Luxury, type Resource, type UnitId, formatRate,
 } from '@/lib/game/engine'
 import { activeCity, renameCity, type Empire } from '@/lib/game/empire'
@@ -114,13 +115,7 @@ export function DemolishConfirm({ game, id, onCommand, onClose }: { game: Game; 
 
 export function TavernPanel({ game, onCommand }: { game: Game; onCommand: (c: Command) => void }) {
   if (game.buildings.kahvehane < 1) return null
-  const level = tavernLevel(game)
-  return <section className="empire-section">
-    <h3><Coffee className="size-4" /> İkram · {level} / {game.buildings.kahvehane}</h3>
-    <input type="range" min={0} max={game.buildings.kahvehane} value={level} aria-label="İkram seviyesi"
-      onChange={e => onCommand({ type: 'tavern', value: Number(e.target.value) })} />
-    <p className="fine-print">Her ikram seviyesi dakikada {formatRate(wineConsumption({ ...game, tavern: 1 }))} kahve harcar ve huzuru artırır. Şu an dakikada {formatRate(wineConsumption(game))} kahve.</p>
-  </section>
+  return <CoffeehousePanel game={game} onCommand={onCommand} />
 }
 
 export function ExperimentPanel({ game, onCommand }: { game: Game; onCommand: (c: Command) => void }) {

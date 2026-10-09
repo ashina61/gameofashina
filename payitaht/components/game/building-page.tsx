@@ -25,7 +25,7 @@ import {
   actionPoints, activeJob, armyUpkeep, buildReason, capacity, contentment, corruption, cost, duration,
   forestProduction, growthRate, housing, idleWorkers, loadingSpeed, luxuryCost, luxuryProduction, maxPopulation, population, rates,
   scientistUpkeepPerMinute, soldiers, takesPlot, tavernLevel, tradeCapacity, travelFactor, wallDefense,
-  wineConsumption, wineServed, workerCapacity, type BuildingId, type Command, type Game, type Luxury, type Resource, type UnitId, type WorkerId, formatRate,
+  wineServed, workerCapacity, type BuildingId, type Command, type Game, type Luxury, type Resource, type UnitId, type WorkerId, formatRate,
 } from '@/lib/game/engine'
 import { GUILDS, guildBonus } from '@/lib/game/guilds'
 import { activeCity, type Empire } from '@/lib/game/empire'
@@ -46,7 +46,7 @@ import { t } from '@/lib/i18n/tr'
 import { RoyalManagement } from './royal-management'
 import { HousingPanel } from './housing-panel'
 import { BathhousePanel } from './bathhouse-panel'
-import { HuzurArt, NufusArt } from './resource-art'
+import { HuzurArt, KahveArt, NufusArt } from './resource-art'
 
 const num = (n: number) => Math.floor(n).toLocaleString('tr-TR')
 const RES_ICON = resourceIcons
@@ -283,10 +283,7 @@ function BuildingView({ game, empire, id, onCommand, onRecruit, onNav, onBuildin
       </>
     case 'konut': return <HousingPanel game={game} onPeople={() => onNav('people')} onHamam={() => onBuildingNav('hamam')} />
     case 'hamam': return <BathhousePanel game={game} onPeople={() => onNav('people')} onHousing={() => onBuildingNav('konut')} />
-    case 'kahvehane': return <Box title="Kahve ikramı">
-      <Table rows={[['İkram seviyesi', `${tavernLevel(game)} / ${game.buildings.kahvehane}`], ['Kahve tüketimi', `${formatRate(wineConsumption(game))} /dk`],
-        ['Ambardaki kahve', num(game.luxury.kahve)], ['İkram ediliyor mu', wineServed(game) ? 'Evet' : 'Hayır (kahve yok)']]} />
-    </Box>
+    case 'kahvehane': return null // The live ikram controls arrive through TavernPanel children.
     case 'muze': return <Box title="Kültür">
       <Table rows={[['Müze huzuru', `+${num(game.buildings.muze * BUILDING_EFFECTS.muzeContentment * (game.research.includes('kultur') ? 1.5 : 1))}`],
         ['Kültür anlaşması (bu şehirde)', `${game.culture ?? 0} / ${game.buildings.muze}`], ['İmparatorluktaki anlaşma', `${empire ? culturalTreaties(empire) : 0}`]]} />
@@ -385,7 +382,7 @@ export function BuildingPage({ game, empire, id, onClose, onBuild, onFlip, onMov
   const facingLabel = facing === 'left' ? 'Sol' : facing === 'right' ? 'Sağ' : 'Düz'
   const nextFacing = facing === 'straight' ? 'right' : facing === 'right' ? 'left' : 'straight'
   const showTab = hasWork ? tab : 'gelisim'
-  const royalWork = id === 'kisla' || id === 'medrese' || id === 'konut' || id === 'hamam'
+  const royalWork = id === 'kisla' || id === 'medrese' || id === 'konut' || id === 'hamam' || id === 'kahvehane'
   if (id === 'divan' || id === 'elcilik') return <IkaPage title={b.name} label={`${b.name} sayfası`} onClose={onClose}
     className={`bp-building bp-of-${id} bp-court bp-royal bp-management${help ? ' show-help' : ''}`}
     footer={<UpgradeDock game={game} id={id} onBuild={onBuild} />}>
@@ -406,13 +403,14 @@ export function BuildingPage({ game, empire, id, onClose, onBuild, onFlip, onMov
         <img src={asset('/images/game/ui/barracks/courtyard.webp')} alt="Osmanlı kışlasının sancaklı eğitim avlusu" />
         <figcaption>Seviye {level}</figcaption>
       </figure>}
+      {id === 'kahvehane' && <figure className="academy-banner"><img src={asset('/images/game/ui/coffeehouse/terrace.webp')} alt="Osmanlı kahvehanesinin Ege’ye bakan sohbet terası" /><figcaption>Seviye {level}</figcaption></figure>}
       {id === 'hamam' && <figure className="academy-banner"><img src={asset('/images/game/ui/bathhouse/court.webp')} alt="Osmanlı hamamının şadırvanlı dinlenme avlusu" /><figcaption>Seviye {level}</figcaption></figure>}
       {id === 'konut' && <figure className="academy-banner"><img src={asset('/images/game/ui/housing/neighborhood.webp')} alt="Osmanlı mahallesinde günlük yaşam" /><figcaption>Seviye {level}</figcaption></figure>}
       {id === 'medrese' && <figure className="academy-banner"><img src={asset('/images/game/ui/medrese/library.webp')} alt="Osmanlı medresesinde ilim meclisi" /><figcaption>Seviye {level}</figcaption></figure>}
       {razing && <DemolishConfirm game={game} id={id} onCommand={onCommand} onClose={() => setRazing(false)} />}
 
       {hasWork && <div className="bp-tabs" role="tablist" aria-label={`${b.name} bölümleri`}>
-        <button type="button" role="tab" aria-selected={showTab === 'yapi'} onClick={() => setTab('yapi')}>{id === 'kisla' && <img className="barracks-tab-emblem" src={asset('/images/game/ui/barracks/army-medallion.webp')} alt="Yeniçeri börkü" width={32} height={32} />}{id === 'medrese' && <IlimArt className="size-6" />}{id === 'konut' && <NufusArt width={32} height={32} />}{id === 'hamam' && <HuzurArt width={32} height={32} />}{id === 'kisla' ? 'Kara ordusu' : id === 'medrese' ? 'İlim meclisi' : id === 'konut' ? 'Mahalle' : id === 'hamam' ? 'Halkın huzuru' : b.name}</button>
+        <button type="button" role="tab" aria-selected={showTab === 'yapi'} onClick={() => setTab('yapi')}>{id === 'kisla' && <img className="barracks-tab-emblem" src={asset('/images/game/ui/barracks/army-medallion.webp')} alt="Yeniçeri börkü" width={32} height={32} />}{id === 'medrese' && <IlimArt className="size-6" />}{id === 'konut' && <NufusArt width={32} height={32} />}{id === 'hamam' && <HuzurArt width={32} height={32} />}{id === 'kahvehane' && <KahveArt width={32} height={32} />}{id === 'kisla' ? 'Kara ordusu' : id === 'medrese' ? 'İlim meclisi' : id === 'konut' ? 'Mahalle' : id === 'hamam' ? 'Halkın huzuru' : id === 'kahvehane' ? 'İkram' : b.name}</button>
         <button type="button" role="tab" aria-selected={showTab === 'gelisim'} onClick={() => setTab('gelisim')}>{royalWork && <img className="barracks-development-icon" src={asset('/images/game/ui/barracks/development-icon.webp')} alt="" width={32} height={32} />}Gelişim</button>
       </div>}
       <div ref={workRef} className="bp-tabpanel" hidden={showTab !== 'yapi'}>

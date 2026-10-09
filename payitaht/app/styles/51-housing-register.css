@@ -1,18 +1,18 @@
 /* Housing uses the approved shared register, with a human-scale neighborhood ledger. */
-.game-shell.has-page :is(.bp-of-konut,.bp-of-hamam) > .bp-bar .bp-title { left: calc(var(--court-control-size) + 16px); right: calc(var(--court-control-size) + 16px); }
-.game-shell.has-page :is(.bp-of-konut,.bp-of-hamam) .housing-residents { display: grid; grid-template-columns: 72px minmax(0,1fr); gap: 14px; align-items: center; padding: 8px 0 14px; }
-.game-shell.has-page :is(.bp-of-konut,.bp-of-hamam) .housing-residents strong { display: block; font: 700 30px/1.25 'Payitaht Profile Roman',Georgia,serif; }
-.game-shell.has-page :is(.bp-of-konut,.bp-of-hamam) .housing-residents strong span { font: 17px/1.3 Georgia,serif; }
-.game-shell.has-page :is(.bp-of-konut,.bp-of-hamam) .housing-residents small,
-.game-shell.has-page :is(.bp-of-konut,.bp-of-hamam) .housing-residents p { font: 14px/1.5 Georgia,serif; }
-.game-shell.has-page :is(.bp-of-konut,.bp-of-hamam) .housing-ledger .gbtn { width: 100%; }
-.game-shell.has-page :is(.bp-of-konut,.bp-of-hamam) .housing-facts { margin: 16px 0; border-block: 1px solid var(--c-gold-deep); }
-.game-shell.has-page :is(.bp-of-konut,.bp-of-hamam) .housing-facts > div { display: flex; justify-content: space-between; align-items: center; gap: 10px; min-height: 48px; padding: 8px 0; border-bottom: 1px solid var(--c-gold-deep); }
-.game-shell.has-page :is(.bp-of-konut,.bp-of-hamam) .housing-facts > div:last-child { border-bottom: 0; }
-.game-shell.has-page :is(.bp-of-konut,.bp-of-hamam) .housing-facts dt { display: flex; align-items: center; gap: 8px; }
-.game-shell.has-page :is(.bp-of-konut,.bp-of-hamam) .housing-facts dd { margin: 0; text-align: right; font-weight: 700; }
-.game-shell.has-page :is(.bp-of-konut,.bp-of-hamam) .housing-guidance h3 { margin-bottom: 6px; font: 700 19px/1.3 'Payitaht Profile Roman',Georgia,serif; }
-.game-shell.has-page :is(.bp-of-konut,.bp-of-hamam) .housing-guidance p,
-.game-shell.has-page :is(.bp-of-konut,.bp-of-hamam) .housing-explanation p { margin: 8px 0 12px; font: 14px/1.55 Georgia,serif; }
-.game-shell.has-page :is(.bp-of-konut,.bp-of-hamam) .housing-explanation { margin-top: 14px; border-top: 1px solid var(--c-gold-deep); }
-.game-shell.has-page :is(.bp-of-konut,.bp-of-hamam) .housing-explanation > summary { cursor: pointer; min-height: 48px; padding: 12px 0; font-weight: 700; }
+.game-shell.has-page :is(.bp-of-konut,.bp-of-hamam,.bp-of-kahvehane) > .bp-bar .bp-title { left: calc(var(--court-control-size) + 16px); right: calc(var(--court-control-size) + 16px); }
+.game-shell.has-page :is(.bp-of-konut,.bp-of-hamam,.bp-of-kahvehane) .housing-residents { display: grid; grid-template-columns: 72px minmax(0,1fr); gap: 14px; align-items: center; padding: 8px 0 14px; }
+.game-shell.has-page :is(.bp-of-konut,.bp-of-hamam,.bp-of-kahvehane) .housing-residents strong { display: block; font: 700 30px/1.25 'Payitaht Profile Roman',Georgia,serif; }
+.game-shell.has-page :is(.bp-of-konut,.bp-of-hamam,.bp-of-kahvehane) .housing-residents strong span { font: 17px/1.3 Georgia,serif; }
+.game-shell.has-page :is(.bp-of-konut,.bp-of-hamam,.bp-of-kahvehane) .housing-residents small,
+.game-shell.has-page :is(.bp-of-konut,.bp-of-hamam,.bp-of-kahvehane) .housing-residents p { font: 14px/1.5 Georgia,serif; }
+.game-shell.has-page :is(.bp-of-konut,.bp-of-hamam,.bp-of-kahvehane) .housing-ledger .gbtn { width: 100%; }
+.game-shell.has-page :is(.bp-of-konut,.bp-of-hamam,.bp-of-kahvehane) .housing-facts { margin: 16px 0; border-block: 1px solid var(--c-gold-deep); }
+.game-shell.has-page :is(.bp-of-konut,.bp-of-hamam,.bp-of-kahvehane) .housing-facts > div { display: flex; justify-content: space-between; align-items: center; gap: 10px; min-height: 48px; padding: 8px 0; border-bottom: 1px solid var(--c-gold-deep); }
+.game-shell.has-page :is(.bp-of-konut,.bp-of-hamam,.bp-of-kahvehane) .housing-facts > div:last-child { border-bottom: 0; }
+.game-shell.has-page :is(.bp-of-konut,.bp-of-hamam,.bp-of-kahvehane) .housing-facts dt { display: flex; align-items: center; gap: 8px; }
+.game-shell.has-page :is(.bp-of-konut,.bp-of-hamam,.bp-of-kahvehane) .housing-facts dd { margin: 0; text-align: right; font-weight: 700; }
+.game-shell.has-page :is(.bp-of-konut,.bp-of-hamam,.bp-of-kahvehane) .housing-guidance h3 { margin-bottom: 6px; font: 700 19px/1.3 'Payitaht Profile Roman',Georgia,serif; }
+.game-shell.has-page :is(.bp-of-konut,.bp-of-hamam,.bp-of-kahvehane) .housing-guidance p,
+.game-shell.has-page :is(.bp-of-konut,.bp-of-hamam,.bp-of-kahvehane) .housing-explanation p { margin: 8px 0 12px; font: 14px/1.55 Georgia,serif; }
+.game-shell.has-page :is(.bp-of-konut,.bp-of-hamam,.bp-of-kahvehane) .housing-explanation { margin-top: 14px; border-top: 1px solid var(--c-gold-deep); }
+.game-shell.has-page :is(.bp-of-konut,.bp-of-hamam,.bp-of-kahvehane) .housing-explanation > summary { cursor: pointer; min-height: 48px; padding: 12px 0; font-weight: 700; }

@@ -1,0 +1,7 @@
+{
+  "mode": "built-in image_gen",
+  "prompt": "Use case: historical-scene. Asset type: very wide short header banner for an Ottoman-Aegean mobile strategy game's coffeehouse page. Premium warm painterly-realistic game art, same coherent painter as Ottoman housing lane and bathhouse courtyard. Modest Ottoman coffeehouse terrace: dark walnut carved low tables and benches, antique copper cezve and a few small porcelain coffee cups, ivory limestone arches, muted red cushions, olive/cypress greenery, glimpses of Aegean harbor. Ordinary fully clothed townspeople chatting or serving coffee, small human figures in the scene, no close-up portrait. Warm upper-left natural daylight and soft shadows, detailed practical materials. Wide landscape composition readable cropped as 80px phone banner. No text, UI, labels, border, logos, watermark. Not a palace, no fantasy, no alcohol bottles. Painted historical game environment.",
+  "asset": "public/images/game/ui/coffeehouse/terrace.webp",
+  "processing": "Resize to 960px wide; WebP quality 86",
+  "standard": "MASTER-UI-STANDARD; Ottoman-Aegean warm painterly game environment"
+}

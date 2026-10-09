@@ -1,0 +1,15 @@
+/* Approved barracks quantity materials; native immediate coffee-level control. */
+.game-shell.has-page .bp-of-kahvehane .coffee-quantity { margin: 6px 0 0; }
+.game-shell.has-page .bp-of-kahvehane .coffee-range { appearance: none; -webkit-appearance: none; width: 100%; height: 44px; padding: 0; margin: 0; border: 0; background: none; touch-action: pan-y; }
+.game-shell.has-page .bp-of-kahvehane .coffee-range::-webkit-slider-runnable-track { height: 14px; border: 3px double var(--c-gold-deep); border-radius: 10px; background: var(--academy-fill) left / var(--fill) 100% no-repeat,var(--academy-track) center / cover; }
+.game-shell.has-page .bp-of-kahvehane .coffee-range::-webkit-slider-thumb { appearance: none; -webkit-appearance: none; width: 32px; height: 32px; margin-top: -12px; border: 0; border-radius: 50%; background: var(--academy-thumb) center / cover; box-shadow: 0 2px 3px #0007; }
+.game-shell.has-page .bp-of-kahvehane .coffee-range::-moz-range-track { height: 12px; border: 2px solid var(--c-gold-deep); border-radius: 10px; background: var(--academy-track) center / cover; }
+.game-shell.has-page .bp-of-kahvehane .coffee-range::-moz-range-thumb { width: 32px; height: 32px; border: 0; border-radius: 50%; background: var(--academy-thumb) center / cover; }
+.game-shell.has-page .bp-of-kahvehane .coffee-limits { display: flex; justify-content: space-between; font: 13px/1.4 Georgia,serif; }
+.game-shell.has-page .bp-of-kahvehane .coffee-steps { display: grid; grid-template-columns: 48px minmax(0,1fr) 48px 60px; align-items: center; gap: 8px; margin-top: 8px; }
+.game-shell.has-page .bp-of-kahvehane .coffee-steps > button { width: 48px; min-height: 48px; padding: 0; border: 0; border-radius: 50%; background: url('../../public/images/game/ui/barracks/minus-button.webp') center / cover; }
+.game-shell.has-page .bp-of-kahvehane .coffee-steps > .coffee-plus { background-image: url('../../public/images/game/ui/barracks/plus-button.webp'); }
+.game-shell.has-page .bp-of-kahvehane .coffee-steps > .coffee-max { width: 60px; border: 0 solid transparent; border-image: var(--academy-max) 16 22 / 8px 11px / 0 stretch; border-radius: 0; background: var(--royal-wood); color: var(--c-gold-pale); font: 700 16px/1.3 Georgia,serif; }
+.game-shell.has-page .bp-of-kahvehane .coffee-steps > output { min-height: 48px; display: grid; place-items: center; border: 1px solid var(--c-gold-deep); font: 700 24px/1.3 'Payitaht Profile Roman',Georgia,serif; }
+.game-shell.has-page .bp-of-kahvehane .coffee-steps > button:disabled { opacity: .65; filter: saturate(.4); }
+.game-shell.has-page .bp-of-kahvehane .coffee-live-note { margin: 10px 0; font: 13px/1.5 Georgia,serif; }

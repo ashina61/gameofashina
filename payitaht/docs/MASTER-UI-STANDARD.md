@@ -22,3 +22,5 @@ Adem, 8 Ekim 2026: “bu tasarımı beynine işle tasarım standardımız oturdu
 Medrese: `MEDRESE-DESIGN-MEMORY.md`. 9 Ekim genel devam talebiyle sıradaki Konut: `HOUSING-DESIGN-MEMORY.md`; ardından Hamam, Kahvehane, Ambar/Depo ve üretim yapıları.
 
 Hamam 0.73.0: `BATHHOUSE-DESIGN-MEMORY.md`; ortak 50/51 numaralı defter stilleri. Sonraki bina Kahvehane.
+
+Kahvehane 0.74.0: `COFFEEHOUSE-DESIGN-MEMORY.md`. İkram kontrolü aynı sürgü/düğme atlası; eski anlık uygulama korunur. Sonraki bölüm Ambar/Depo.
