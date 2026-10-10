@@ -1,3 +1,5 @@
+**10 Ekim Hazine — 0.93.0 / SW105:** `docs/TREASURY-DESIGN-MEMORY.md`; Hazine/Üretim/Ambar ortak boyalı defterler, yedi kaynak dikey stok sicili ve iki sütunlu seçim. Ekonomi, kayıt, HUD korunur. Sonraki Halk/Şehirler; yayın sonrası kullanıcı değerlendirmesinde dur.
+
 **10 Ekim Divanhane/Elçilik — 0.92.0 / SW104:** `docs/CIVIC-DESIGN-MEMORY.md`; dikey şehir/meslek/nişan sicili, Halk/İdare ve Hariciye/Casuslar; ortak eğitim atlası. Yükseltme Gelişim başında. Motor, kayıt, HUD ve dört ada açıklığı korunur. Yayın sonrası kullanıcı değerlendirmesinde dur.
 
 **10 Ekim Saray/Valilik — 0.91.0 / SW103:** `docs/PALACE-DESIGN-MEMORY.md`; Koloniler/İdare ve Gelişim, gerçek seviye şartı/yolsuzluk ve dikey şehir sicili, iki ayrı sahne. Motor, kayıt, HUD ve dört ada açıklığı korunur. Yayın sonrası kullanıcı değerlendirmesinde dur.

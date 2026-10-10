@@ -81,7 +81,7 @@
 /* Generic page heroes: retain edge-to-edge visual treatment without negative
  * margins that make the element geometrically leave its scroll container. */
 .game-shell.has-page .bp:not(.bp-building):not(.bp-royal):not(.bp-mapview):not(.bp-sheet) > .bp-scroll > .bp-hero:first-child,
-.game-shell.has-page :is(.quest-court-scene, .annals-scene, .treasury-stage) {
+.game-shell.has-page :is(.quest-court-scene, .annals-scene) {
   box-sizing: border-box;
   width: 100%;
   max-width: 100%;

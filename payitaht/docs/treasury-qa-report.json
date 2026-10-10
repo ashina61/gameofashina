@@ -1,0 +1,2443 @@
+{
+  "scans": [
+    {
+      "width": 360,
+      "state": "normal",
+      "label": "hazine",
+      "zoom": 1,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 360,
+      "state": "normal",
+      "label": "hazine",
+      "zoom": 1.3,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 360,
+      "state": "normal",
+      "label": "Akçe",
+      "zoom": 1,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 360,
+      "state": "normal",
+      "label": "Akçe",
+      "zoom": 1.3,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 360,
+      "state": "normal",
+      "label": "Kereste",
+      "zoom": 1,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 360,
+      "state": "normal",
+      "label": "Kereste",
+      "zoom": 1.3,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 360,
+      "state": "normal",
+      "label": "İlim",
+      "zoom": 1,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 360,
+      "state": "normal",
+      "label": "İlim",
+      "zoom": 1.3,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 360,
+      "state": "normal",
+      "label": "Kahve",
+      "zoom": 1,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 360,
+      "state": "normal",
+      "label": "Kahve",
+      "zoom": 1.3,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 360,
+      "state": "normal",
+      "label": "Mermer",
+      "zoom": 1,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 360,
+      "state": "normal",
+      "label": "Mermer",
+      "zoom": 1.3,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 360,
+      "state": "normal",
+      "label": "Kristal",
+      "zoom": 1,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 360,
+      "state": "normal",
+      "label": "Kristal",
+      "zoom": 1.3,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 360,
+      "state": "normal",
+      "label": "Kükürt",
+      "zoom": 1,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 360,
+      "state": "normal",
+      "label": "Kükürt",
+      "zoom": 1.3,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 360,
+      "state": "normal",
+      "label": "ambar",
+      "zoom": 1,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 360,
+      "state": "normal",
+      "label": "ambar",
+      "zoom": 1.3,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 360,
+      "state": "empty",
+      "label": "hazine",
+      "zoom": 1,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 360,
+      "state": "empty",
+      "label": "hazine",
+      "zoom": 1.3,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 360,
+      "state": "empty",
+      "label": "Akçe",
+      "zoom": 1,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 360,
+      "state": "empty",
+      "label": "Akçe",
+      "zoom": 1.3,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 360,
+      "state": "empty",
+      "label": "Kereste",
+      "zoom": 1,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 360,
+      "state": "empty",
+      "label": "Kereste",
+      "zoom": 1.3,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 360,
+      "state": "empty",
+      "label": "İlim",
+      "zoom": 1,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 360,
+      "state": "empty",
+      "label": "İlim",
+      "zoom": 1.3,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 360,
+      "state": "empty",
+      "label": "Kahve",
+      "zoom": 1,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 360,
+      "state": "empty",
+      "label": "Kahve",
+      "zoom": 1.3,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 360,
+      "state": "empty",
+      "label": "Mermer",
+      "zoom": 1,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 360,
+      "state": "empty",
+      "label": "Mermer",
+      "zoom": 1.3,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 360,
+      "state": "empty",
+      "label": "Kristal",
+      "zoom": 1,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 360,
+      "state": "empty",
+      "label": "Kristal",
+      "zoom": 1.3,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 360,
+      "state": "empty",
+      "label": "Kükürt",
+      "zoom": 1,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 360,
+      "state": "empty",
+      "label": "Kükürt",
+      "zoom": 1.3,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 360,
+      "state": "empty",
+      "label": "ambar",
+      "zoom": 1,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 360,
+      "state": "empty",
+      "label": "ambar",
+      "zoom": 1.3,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 360,
+      "state": "full",
+      "label": "hazine",
+      "zoom": 1,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 360,
+      "state": "full",
+      "label": "hazine",
+      "zoom": 1.3,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 360,
+      "state": "full",
+      "label": "Akçe",
+      "zoom": 1,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 360,
+      "state": "full",
+      "label": "Akçe",
+      "zoom": 1.3,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 360,
+      "state": "full",
+      "label": "Kereste",
+      "zoom": 1,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 360,
+      "state": "full",
+      "label": "Kereste",
+      "zoom": 1.3,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 360,
+      "state": "full",
+      "label": "İlim",
+      "zoom": 1,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 360,
+      "state": "full",
+      "label": "İlim",
+      "zoom": 1.3,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 360,
+      "state": "full",
+      "label": "Kahve",
+      "zoom": 1,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 360,
+      "state": "full",
+      "label": "Kahve",
+      "zoom": 1.3,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 360,
+      "state": "full",
+      "label": "Mermer",
+      "zoom": 1,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 360,
+      "state": "full",
+      "label": "Mermer",
+      "zoom": 1.3,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 360,
+      "state": "full",
+      "label": "Kristal",
+      "zoom": 1,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 360,
+      "state": "full",
+      "label": "Kristal",
+      "zoom": 1.3,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 360,
+      "state": "full",
+      "label": "Kükürt",
+      "zoom": 1,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 360,
+      "state": "full",
+      "label": "Kükürt",
+      "zoom": 1.3,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 360,
+      "state": "full",
+      "label": "ambar",
+      "zoom": 1,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 360,
+      "state": "full",
+      "label": "ambar",
+      "zoom": 1.3,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "state": "normal",
+      "label": "hazine",
+      "zoom": 1,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "state": "normal",
+      "label": "hazine",
+      "zoom": 1.3,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "state": "normal",
+      "label": "Akçe",
+      "zoom": 1,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "state": "normal",
+      "label": "Akçe",
+      "zoom": 1.3,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "state": "normal",
+      "label": "Kereste",
+      "zoom": 1,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "state": "normal",
+      "label": "Kereste",
+      "zoom": 1.3,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "state": "normal",
+      "label": "İlim",
+      "zoom": 1,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "state": "normal",
+      "label": "İlim",
+      "zoom": 1.3,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "state": "normal",
+      "label": "Kahve",
+      "zoom": 1,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "state": "normal",
+      "label": "Kahve",
+      "zoom": 1.3,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "state": "normal",
+      "label": "Mermer",
+      "zoom": 1,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "state": "normal",
+      "label": "Mermer",
+      "zoom": 1.3,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "state": "normal",
+      "label": "Kristal",
+      "zoom": 1,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "state": "normal",
+      "label": "Kristal",
+      "zoom": 1.3,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "state": "normal",
+      "label": "Kükürt",
+      "zoom": 1,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "state": "normal",
+      "label": "Kükürt",
+      "zoom": 1.3,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "state": "normal",
+      "label": "ambar",
+      "zoom": 1,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "state": "normal",
+      "label": "ambar",
+      "zoom": 1.3,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "state": "empty",
+      "label": "hazine",
+      "zoom": 1,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "state": "empty",
+      "label": "hazine",
+      "zoom": 1.3,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "state": "empty",
+      "label": "Akçe",
+      "zoom": 1,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "state": "empty",
+      "label": "Akçe",
+      "zoom": 1.3,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "state": "empty",
+      "label": "Kereste",
+      "zoom": 1,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "state": "empty",
+      "label": "Kereste",
+      "zoom": 1.3,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "state": "empty",
+      "label": "İlim",
+      "zoom": 1,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "state": "empty",
+      "label": "İlim",
+      "zoom": 1.3,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "state": "empty",
+      "label": "Kahve",
+      "zoom": 1,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "state": "empty",
+      "label": "Kahve",
+      "zoom": 1.3,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "state": "empty",
+      "label": "Mermer",
+      "zoom": 1,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "state": "empty",
+      "label": "Mermer",
+      "zoom": 1.3,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "state": "empty",
+      "label": "Kristal",
+      "zoom": 1,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "state": "empty",
+      "label": "Kristal",
+      "zoom": 1.3,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "state": "empty",
+      "label": "Kükürt",
+      "zoom": 1,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "state": "empty",
+      "label": "Kükürt",
+      "zoom": 1.3,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "state": "empty",
+      "label": "ambar",
+      "zoom": 1,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "state": "empty",
+      "label": "ambar",
+      "zoom": 1.3,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "state": "full",
+      "label": "hazine",
+      "zoom": 1,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "state": "full",
+      "label": "hazine",
+      "zoom": 1.3,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "state": "full",
+      "label": "Akçe",
+      "zoom": 1,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "state": "full",
+      "label": "Akçe",
+      "zoom": 1.3,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "state": "full",
+      "label": "Kereste",
+      "zoom": 1,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "state": "full",
+      "label": "Kereste",
+      "zoom": 1.3,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "state": "full",
+      "label": "İlim",
+      "zoom": 1,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "state": "full",
+      "label": "İlim",
+      "zoom": 1.3,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "state": "full",
+      "label": "Kahve",
+      "zoom": 1,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "state": "full",
+      "label": "Kahve",
+      "zoom": 1.3,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "state": "full",
+      "label": "Mermer",
+      "zoom": 1,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "state": "full",
+      "label": "Mermer",
+      "zoom": 1.3,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "state": "full",
+      "label": "Kristal",
+      "zoom": 1,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "state": "full",
+      "label": "Kristal",
+      "zoom": 1.3,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "state": "full",
+      "label": "Kükürt",
+      "zoom": 1,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "state": "full",
+      "label": "Kükürt",
+      "zoom": 1.3,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "state": "full",
+      "label": "ambar",
+      "zoom": 1,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "state": "full",
+      "label": "ambar",
+      "zoom": 1.3,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 430,
+      "state": "normal",
+      "label": "hazine",
+      "zoom": 1,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 430,
+      "state": "normal",
+      "label": "hazine",
+      "zoom": 1.3,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 430,
+      "state": "normal",
+      "label": "Akçe",
+      "zoom": 1,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 430,
+      "state": "normal",
+      "label": "Akçe",
+      "zoom": 1.3,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 430,
+      "state": "normal",
+      "label": "Kereste",
+      "zoom": 1,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 430,
+      "state": "normal",
+      "label": "Kereste",
+      "zoom": 1.3,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 430,
+      "state": "normal",
+      "label": "İlim",
+      "zoom": 1,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 430,
+      "state": "normal",
+      "label": "İlim",
+      "zoom": 1.3,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 430,
+      "state": "normal",
+      "label": "Kahve",
+      "zoom": 1,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 430,
+      "state": "normal",
+      "label": "Kahve",
+      "zoom": 1.3,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 430,
+      "state": "normal",
+      "label": "Mermer",
+      "zoom": 1,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 430,
+      "state": "normal",
+      "label": "Mermer",
+      "zoom": 1.3,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 430,
+      "state": "normal",
+      "label": "Kristal",
+      "zoom": 1,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 430,
+      "state": "normal",
+      "label": "Kristal",
+      "zoom": 1.3,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 430,
+      "state": "normal",
+      "label": "Kükürt",
+      "zoom": 1,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 430,
+      "state": "normal",
+      "label": "Kükürt",
+      "zoom": 1.3,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 430,
+      "state": "normal",
+      "label": "ambar",
+      "zoom": 1,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 430,
+      "state": "normal",
+      "label": "ambar",
+      "zoom": 1.3,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 430,
+      "state": "empty",
+      "label": "hazine",
+      "zoom": 1,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 430,
+      "state": "empty",
+      "label": "hazine",
+      "zoom": 1.3,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 430,
+      "state": "empty",
+      "label": "Akçe",
+      "zoom": 1,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 430,
+      "state": "empty",
+      "label": "Akçe",
+      "zoom": 1.3,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 430,
+      "state": "empty",
+      "label": "Kereste",
+      "zoom": 1,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 430,
+      "state": "empty",
+      "label": "Kereste",
+      "zoom": 1.3,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 430,
+      "state": "empty",
+      "label": "İlim",
+      "zoom": 1,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 430,
+      "state": "empty",
+      "label": "İlim",
+      "zoom": 1.3,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 430,
+      "state": "empty",
+      "label": "Kahve",
+      "zoom": 1,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 430,
+      "state": "empty",
+      "label": "Kahve",
+      "zoom": 1.3,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 430,
+      "state": "empty",
+      "label": "Mermer",
+      "zoom": 1,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 430,
+      "state": "empty",
+      "label": "Mermer",
+      "zoom": 1.3,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 430,
+      "state": "empty",
+      "label": "Kristal",
+      "zoom": 1,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 430,
+      "state": "empty",
+      "label": "Kristal",
+      "zoom": 1.3,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 430,
+      "state": "empty",
+      "label": "Kükürt",
+      "zoom": 1,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 430,
+      "state": "empty",
+      "label": "Kükürt",
+      "zoom": 1.3,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 430,
+      "state": "empty",
+      "label": "ambar",
+      "zoom": 1,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 430,
+      "state": "empty",
+      "label": "ambar",
+      "zoom": 1.3,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 430,
+      "state": "full",
+      "label": "hazine",
+      "zoom": 1,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 430,
+      "state": "full",
+      "label": "hazine",
+      "zoom": 1.3,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 430,
+      "state": "full",
+      "label": "Akçe",
+      "zoom": 1,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 430,
+      "state": "full",
+      "label": "Akçe",
+      "zoom": 1.3,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 430,
+      "state": "full",
+      "label": "Kereste",
+      "zoom": 1,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 430,
+      "state": "full",
+      "label": "Kereste",
+      "zoom": 1.3,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 430,
+      "state": "full",
+      "label": "İlim",
+      "zoom": 1,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 430,
+      "state": "full",
+      "label": "İlim",
+      "zoom": 1.3,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 430,
+      "state": "full",
+      "label": "Kahve",
+      "zoom": 1,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 430,
+      "state": "full",
+      "label": "Kahve",
+      "zoom": 1.3,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 430,
+      "state": "full",
+      "label": "Mermer",
+      "zoom": 1,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 430,
+      "state": "full",
+      "label": "Mermer",
+      "zoom": 1.3,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 430,
+      "state": "full",
+      "label": "Kristal",
+      "zoom": 1,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 430,
+      "state": "full",
+      "label": "Kristal",
+      "zoom": 1.3,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 430,
+      "state": "full",
+      "label": "Kükürt",
+      "zoom": 1,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 430,
+      "state": "full",
+      "label": "Kükürt",
+      "zoom": 1.3,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 430,
+      "state": "full",
+      "label": "ambar",
+      "zoom": 1,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 430,
+      "state": "full",
+      "label": "ambar",
+      "zoom": 1.3,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    }
+  ],
+  "actions": [
+    "Ambar → İlim üretimi",
+    "Üretim → İşgücü",
+    "Ambar → Ambar binası ve detayları",
+    "Kereste üretimi → Ada ormanı"
+  ],
+  "errors": [],
+  "missingArt": [],
+  "clean": true
+}

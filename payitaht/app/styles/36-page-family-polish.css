@@ -105,7 +105,7 @@
 .game-shell.has-page .bp-court:not(.bp-royal) .bp-scroll {
   padding-inline: 10px;
 }
-.game-shell.has-page :is(.quest-court-scene, .annals-scene, .treasury-stage) {
+.game-shell.has-page :is(.quest-court-scene, .annals-scene) {
   width: calc(100% + 20px);
   margin-inline: -10px;
   border-radius: 0;
@@ -193,5 +193,5 @@
   .game-shell.has-page .bp-annals .bp-scroll,
   .game-shell.has-page .bp-civic .bp-scroll,
   .game-shell.has-page .bp-court:not(.bp-royal) .bp-scroll { padding-inline: 8px; }
-  .game-shell.has-page :is(.quest-court-scene, .annals-scene, .treasury-stage) { width: calc(100% + 16px); margin-inline: -8px; }
+  .game-shell.has-page :is(.quest-court-scene, .annals-scene) { width: calc(100% + 16px); margin-inline: -8px; }
 }

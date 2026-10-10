@@ -1,0 +1,84 @@
+/* Treasury uses the same painted ledgers as the approved academy. */
+.game-shell.has-page .bp.bp-treasury .treasury-page { padding: 0; width: 100%; margin: 0; min-width: 0; }
+.game-shell.has-page .bp.bp-treasury > .bp-bar .bp-title { background: none; border: 0; border-image: none; }
+.game-shell.has-page .bp.bp-treasury .court-tabs { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); margin: 0; padding: 0; gap: 0; background: var(--royal-wood); border: 0; }
+.game-shell.has-page .bp.bp-treasury .court-tabs > button { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px; min-width: 0; min-height: 74px; padding: 8px 4px; border: 0 solid transparent; border-image: var(--royal-page-frame) 20 / 4px / 0 stretch; border-radius: 0; background: none; color: var(--c-gold-pale); font: 700 18px/1.3 'Payitaht Profile Roman',Georgia,serif; }
+.game-shell.has-page .bp.bp-treasury .court-tabs > button[aria-selected='true'] { background: var(--academy-silk) center / cover; box-shadow: none; }
+.game-shell.has-page .bp.bp-treasury .court-tab-art { display: block; width: 30px; height: 30px; object-fit: contain; flex-shrink: 0; }
+.game-shell.has-page .bp.bp-treasury .court-tab-body { padding: 12px 3%; }
+.game-shell.has-page .bp.bp-treasury :is(p,small,span,b,strong,dt,dd,h4) { overflow-wrap: anywhere; }
+.game-shell.has-page .bp.bp-treasury :is(p,small,dt,dd) { font: 14px/1.55 Georgia,serif; }
+.game-shell.has-page .bp.bp-treasury :is(b,strong,h4) { font-family: 'Payitaht Profile Roman',Georgia,serif; }
+.game-shell.has-page .bp.bp-treasury :is(.treasury-book-detail,.court-note) { margin: 8px 0 12px; }
+.game-shell.has-page .bp.bp-treasury .gbtn { width: 100%; height: auto; min-width: 0; min-height: 52px; margin: 10px 0 0; white-space: normal; justify-content: center; text-align: center; }
+.game-shell.has-page .bp.bp-treasury .treasury-balance { display: grid; grid-template-columns: 38px minmax(0,1fr); align-items: center; gap: 12px; padding: 10px 0; }
+.game-shell.has-page .bp.bp-treasury .treasury-balance > .painted-icon { width: 38px; height: 38px; }
+.game-shell.has-page .bp.bp-treasury .treasury-balance :is(small,strong,b) { display: block; }
+.game-shell.has-page .bp.bp-treasury .treasury-balance strong { font-size: 32px; line-height: 1.2; font-variant-numeric: tabular-nums; }
+.game-shell.has-page .bp.bp-treasury .treasury-balance-rate { grid-column: 2; }
+.game-shell.has-page .bp.bp-treasury .treasury-balance-rate b { font-size: 22px; }
+.game-shell.has-page .bp.bp-treasury .treasury-net { display: grid; gap: 8px; padding: 12px 0; border-bottom: 1px solid var(--c-gold-deep); }
+.game-shell.has-page .bp.bp-treasury .treasury-net strong { font-size: 28px; }
+.game-shell.has-page .bp.bp-treasury .treasury-net small { display: block; }
+.game-shell.has-page .bp.bp-treasury .treasury-account > div { display: grid; grid-template-columns: 28px minmax(0,1fr); gap: 8px 12px; align-items: center; padding: 14px 0; border-bottom: 1px solid var(--c-gold-deep); }
+.game-shell.has-page .bp.bp-treasury .treasury-account :is(svg,.painted-icon) { width: 28px; height: 28px; }
+.game-shell.has-page .bp.bp-treasury .treasury-account :is(b,small) { display: block; }
+.game-shell.has-page .bp.bp-treasury .treasury-account b { font-size: 19px; }
+.game-shell.has-page .bp.bp-treasury .treasury-account strong { grid-column: 2; font-size: 22px; }
+.game-shell.has-page .bp.bp-treasury .treasury-income-sources { display: grid; margin: 12px 0; }
+.game-shell.has-page .bp.bp-treasury .treasury-income-sources > button { display: grid; grid-template-columns: 64px minmax(0,1fr) 18px; gap: 10px; align-items: center; padding: 12px 0; min-height: 84px; background: none; border: 0; border-bottom: 1px solid var(--c-gold-deep); color: var(--c-ink); text-align: left; }
+.game-shell.has-page .bp.bp-treasury .treasury-income-sources img { width: 64px; height: 64px; object-fit: contain; }
+.game-shell.has-page .bp.bp-treasury .treasury-income-sources b { display: block; font-size: 19px; }
+.game-shell.has-page .bp.bp-treasury .treasury-income-sources small { display: block; margin-top: 5px; }
+.game-shell.has-page .bp.bp-treasury .treasury-income-sources svg { width: 18px; height: 18px; }
+.game-shell.has-page .bp.bp-treasury .treasury-advice > :is(svg,.painted-icon) { width: 32px; height: 32px; }
+.game-shell.has-page .bp.bp-treasury h4 { margin: 8px 0; font-size: 22px; line-height: 1.3; }
+.game-shell.has-page .bp.bp-treasury .treasury-advice.is-warning h4 { color: var(--c-red); }
+.game-shell.has-page .bp.bp-treasury .treasury-coffee-note { display: grid; grid-template-columns: 32px minmax(0,1fr) 18px; gap: 10px; align-items: center; min-height: 64px; padding: 14px 0; margin-top: 12px; width: 100%; background: none; border: 0; border-block: 1px solid var(--c-gold-deep); color: var(--c-ink); text-align: left; }
+.game-shell.has-page .bp.bp-treasury .treasury-coffee-note > .painted-icon { width: 32px; height: 32px; }
+.game-shell.has-page .bp.bp-treasury .treasury-coffee-note small { display: block; margin-top: 5px; }
+.game-shell.has-page .bp.bp-treasury .treasury-coffee-note > svg { width: 18px; height: 18px; }
+.game-shell.has-page .bp.bp-treasury .treasury-corruption { display: flex; align-items: flex-start; gap: 8px; }
+.game-shell.has-page .bp.bp-treasury .treasury-corruption svg { width: 24px; height: 24px; flex-shrink: 0; }
+.game-shell.has-page .bp.bp-treasury .treasury-market-call { display: grid; grid-template-columns: 64px minmax(0,1fr); align-items: center; gap: 12px; }
+.game-shell.has-page .bp.bp-treasury .treasury-market-call img { width: 64px; height: 64px; object-fit: cover; }
+.game-shell.has-page .bp.bp-treasury .treasury-goods { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 8px; margin: 0 0 14px; }
+.game-shell.has-page .bp.bp-treasury .treasury-goods > button { display: flex; align-items: center; justify-content: center; gap: 8px; min-height: 56px; min-width: 0; padding: 10px; border: 0 solid transparent; border-image: var(--royal-page-frame) 20 / 4px / 0 stretch; border-radius: 0; background: var(--royal-wood) center / cover; color: var(--c-gold-pale); font: 700 18px/1.3 'Payitaht Profile Roman',Georgia,serif; }
+.game-shell.has-page .bp.bp-treasury .treasury-goods > button:last-child { grid-column: 1/-1; }
+.game-shell.has-page .bp.bp-treasury .treasury-goods > button[aria-pressed='true'] { background: var(--academy-silk) center / cover; }
+.game-shell.has-page .bp.bp-treasury .treasury-goods .painted-icon { width: 28px; height: 28px; flex-shrink: 0; }
+.game-shell.has-page .bp.bp-treasury .treasury-production-summary { display: flex; align-items: center; gap: 16px; padding: 10px 0; }
+.game-shell.has-page .bp.bp-treasury .treasury-production-summary > .painted-icon { width: 48px; height: 48px; flex-shrink: 0; }
+.game-shell.has-page .bp.bp-treasury .treasury-production-summary b { display: block; font-size: 32px; line-height: 1.3; }
+.game-shell.has-page .bp.bp-treasury .treasury-production-summary small { display: block; }
+.game-shell.has-page .bp.bp-treasury .treasury-stock-line { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 12px; padding: 12px 0; border-block: 1px solid var(--c-gold-deep); }
+.game-shell.has-page .bp.bp-treasury .treasury-stock-line b { display: block; margin-top: 5px; font-size: 23px; }
+.game-shell.has-page .bp.bp-treasury .court-progress { display: grid; grid-template-columns: minmax(0,1fr); gap: 6px; padding: 12px 0; border: 0; }
+.game-shell.has-page .bp.bp-treasury .court-progress > b { font-size: 18px; }
+.game-shell.has-page .bp.bp-treasury .court-progress > [role='progressbar'],
+.game-shell.has-page .bp.bp-treasury .treasury-store-meter { display: block; height: 12px; border: 1px solid var(--c-gold-deep); background: var(--academy-track) center / cover; }
+.game-shell.has-page .bp.bp-treasury .court-progress > [role='progressbar'] > i,
+.game-shell.has-page .bp.bp-treasury .treasury-store-meter > i { display: block; height: 100%; background: var(--academy-fill) center / cover; }
+.game-shell.has-page .bp.bp-treasury .treasury-horizon { font-weight: 700; }
+.game-shell.has-page .bp.bp-treasury .treasury-horizon.is-warning { color: var(--c-red); }
+.game-shell.has-page .bp.bp-treasury .treasury-estimate-note { color: var(--c-ink-muted); }
+.game-shell.has-page .bp.bp-treasury .treasury-production-sources { margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--c-gold-deep); }
+.game-shell.has-page .bp.bp-treasury .treasury-production-sources dl { margin: 12px 0; }
+.game-shell.has-page .bp.bp-treasury .treasury-production-sources dl > div { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); align-items: center; gap: 12px; min-height: 48px; padding: 10px 0; border-bottom: 1px solid var(--c-gold-deep); }
+.game-shell.has-page .bp.bp-treasury .treasury-production-sources dd { margin: 0; text-align: right; font-weight: 700; }
+.game-shell.has-page .bp.bp-treasury .treasury-store-ledger > button { width: 100%; display: grid; grid-template-columns: 38px minmax(0,1fr) 18px; gap: 10px; align-items: center; padding: 14px 0; min-height: 64px; text-align: left; color: var(--c-ink); border: 0; border-bottom: 1px solid var(--c-gold-deep); background: none; }
+.game-shell.has-page .bp.bp-treasury .treasury-store-ledger > button > .painted-icon { width: 38px; height: 38px; }
+.game-shell.has-page .bp.bp-treasury .treasury-store-ledger > button > svg { width: 18px; height: 18px; }
+.game-shell.has-page .bp.bp-treasury .treasury-store-ledger b { font-size: 20px; }
+.game-shell.has-page .bp.bp-treasury .treasury-store-ledger small { display: block; margin-top: 5px; }
+.game-shell.has-page .bp.bp-treasury .treasury-store-meter { margin: 7px 0; }
+.game-shell.has-page .bp.bp-treasury .treasury-store-ledger .is-full .treasury-store-meter i { background: var(--academy-silk) center / cover; }
+.game-shell.has-page .bp.bp-treasury .treasury-storage-building { display: flex; align-items: center; gap: 12px; padding-bottom: 12px; }
+.game-shell.has-page .bp.bp-treasury .treasury-storage-building img { width: 80px; height: 80px; object-fit: contain; flex-shrink: 0; }
+.game-shell.has-page .bp.bp-treasury .treasury-storage-building b { display: block; font-size: 21px; }
+.game-shell.has-page .bp.bp-treasury .treasury-storage-building small { display: block; margin-top: 6px; }
+.game-shell.has-page .bp.bp-treasury .treasury-offline { display: flex; align-items: flex-start; gap: 12px; margin-top: 14px; padding: 14px 0; border-top: 1px solid var(--c-gold-deep); }
+.game-shell.has-page .bp.bp-treasury .treasury-offline > :is(svg,.painted-icon) { width: 28px; height: 28px; flex-shrink: 0; }
+.game-shell.has-page .bp.bp-treasury .treasury-offline b { display: block; font-size: 21px; }
+.game-shell.has-page .bp.bp-treasury .treasury-offline small { display: block; margin-top: 6px; }
+.game-shell.has-page .bp.bp-treasury :is(button,summary):focus-visible { outline: 2px solid var(--c-gold-deep); outline-offset: 3px; }
