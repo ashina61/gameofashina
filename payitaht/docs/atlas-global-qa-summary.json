@@ -1,0 +1,13 @@
+{
+  "totals": {
+    "taşma": 0,
+    "kesik": 0,
+    "küçük": 322,
+    "minik": 669,
+    "çakışma": 70,
+    "isimsiz": 0
+  },
+  "pageErrors": [],
+  "baseline": "0.87.0: overflow 0, clipped 0, small 322, tiny 669, overlap 70, unnamed 0, errors 0",
+  "scopeIssues": {}
+}

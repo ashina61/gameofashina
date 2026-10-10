@@ -70,9 +70,18 @@ export function WorldMap({ empire, now, missing, colonyCost, onSelectCity, onCol
     el.scrollLeft = Math.max(0, (home.x + 0.75) * U - el.clientWidth / 2)
     el.scrollTop = Math.max(0, (home.y + 0.75) * U - el.clientHeight / 2)
   }, [home.x, home.y])
-  return <div className="world-map" style={{ borderStyle: 'solid', borderWidth: 6, borderImage: `url(${asset('/images/game/ui/page-frame.webp')}) 80 / 10px / 0 stretch` }}>
+  const selectIsland = (id: IslandId) => {
+    setSel(id)
+    const el = scroller.current
+    if (!el) return
+    const scale = Number(el.dataset.mapScale ?? 1), point = at(id)
+    el.scrollLeft = Math.max(0, point.x * scale - el.clientWidth / 2)
+    el.scrollTop = Math.max(0, point.y * scale - el.clientHeight / 2)
+  }
+  return <div className="world-map">
+    <div className="atlas-map-tools"><label htmlFor="atlas-island">Ada seç</label><select id="atlas-island" value={sel ?? ''} onChange={e => { if (e.target.value) selectIsland(e.target.value as IslandId) }}><option value="">16 ada · bir ada seç</option>{ISLANDS.map(i => <option key={i.id} value={i.id}>{i.name} [{i.x}:{i.y}]{empire.cities.some(c => c.islandId === i.id) ? ' · Şehrin' : ''}</option>)}</select></div>
     <MapViewport width={W} height={H} viewportRef={scroller} className="world-map-scroll">
-      <svg viewBox={`0 0 ${W} ${H}`} width={W} height={H} role="img" aria-label="Dünya haritası">
+      <svg viewBox={`0 0 ${W} ${H}`} width={W} height={H} role="group" aria-label="Dünya haritası, adalar">
         <defs>
           <filter id="wm-shadow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="2.5" /></filter>
           <marker id="wm-arrow" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0 1 L9 5 L0 9 Z" fill="#f6ecd6" /></marker>
@@ -109,7 +118,8 @@ export function WorldMap({ empire, now, missing, colonyCost, onSelectCity, onCol
           const rv = RIVALS.filter(r => r.islandId === i.id).length
           const active = i.id === sel
           return <g key={i.id} className="wm-island" role="button" tabIndex={0} aria-label={`${i.name} [${i.x}:${i.y}]`} aria-pressed={active}
-            onClick={() => setSel(i.id)} onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') setSel(i.id) }}>
+            onClick={() => setSel(i.id)} onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setSel(i.id) } }}>
+            <rect x={cx - 35} y={cy - 36} width="70" height="80" fill="transparent" />
             {/* Ada, kendi boyalı ada görselinden kırpılmış simgeyle çizilir (tools/art/island-thumbs.py). */}
             <ellipse cx={cx + 3} cy={cy + 7} rx="26" ry="27" fill="#071e29" opacity=".5" filter="url(#wm-shadow)" />
             {/* Kıyı köpüğü: adanın çevresinde kırık beyaz halka, yavaşça döner. */}
@@ -125,7 +135,7 @@ export function WorldMap({ empire, now, missing, colonyCost, onSelectCity, onCol
       </svg>
     </MapViewport>
     <div className="wm-legend" aria-label="Harita işaretleri"><span><i className="wm-dot wm-you" />Şehrin</span><span><i className="wm-dot wm-rival" />Yapay rakip</span>{wars.length > 0 && <span><i className="wm-dot wm-war" />Savaş</span>}</div>
-    {!sel && <p className="wm-tip">Bir adaya dokun</p>}
+    {!sel && <p className="wm-tip">Adaya dokun · haritayı sürükle</p>}
     {sel && <IslandSheet key={sel} empire={empire} now={now} id={sel} missing={missing} colonyCost={colonyCost} onClose={() => setSel(null)}
       onSelectCity={onSelectCity} onColonize={onColonize} onViewIsland={onViewIsland} />}
   </div>
@@ -140,25 +150,26 @@ function IslandSheet({ empire, now, id, missing, colonyCost, onClose, onSelectCi
   const own = empire.cities.find(c => c.islandId === id)
   const rivals = RIVALS.filter(r => r.islandId === id)
   const travel = seaTravelMs(here.islandId, id, here.game)
-  return <BottomSheet label={`${island.name} adası`} onClose={onClose} modeless>
+  return <BottomSheet label={`${island.name} adası`} onClose={onClose} modeless className="bp-atlas bp-royal">
     <header className="bp-bar">
       <div className="bp-title"><h1>{island.name}</h1><small>[{island.x}:{island.y}] · {island.specialty} yatağı · Harika: {MIRACLES[island.wonder].wonder}</small></div>
-      <button type="button" className="bp-back" onClick={onClose} aria-label={t.action.close}><X /></button>
+      <button type="button" className="bp-back bp-close" onClick={onClose} aria-label={t.action.close}><X /></button>
     </header>
     <div className="bp-scroll wm-sheet">
-      <ul className="wm-facts">
-        <li><Crown className="size-4" />{own ? `Şehrin: ${own.name} (Divanhane ${own.game.buildings.divan})` : 'Burada şehrin yok'}</li>
-        {rivals.map(r => <li key={r.id}><span className="wm-dot wm-rival" />{r.city} · {r.ruler} · Sv. {rivalLevel(empire, r, now)} (yapay rakip){rivalWarLine(empire, r.id) ? ` · ⚔ ${rivalWarLine(empire, r.id)!.split(' (')[0]}` : ''}</li>)}
-        <li><Anchor className="size-4" />Üç bağımsız yerleşim: köy, korsan ini, asi kalesi</li>
-        {id !== here.islandId && <li><KumSaatiArt className="size-4" />{here.name} şehrinden deniz yolu ~{clock(travel)}</li>}
-      </ul>
       <div className="batch-row">
         <GameButton variant="outline" onClick={() => onViewIsland(id)}><Eye data-icon="inline-start" />Adayı gör</GameButton>
         {own
           ? <GameButton onClick={() => onSelectCity(own.id)} disabled={own.id === here.id}>{own.id === here.id ? 'Bu şehir' : 'Şehre git'}</GameButton>
           : <GameButton disabled={!!missing} onClick={() => onColonize(id)}>Koloni kur</GameButton>}
       </div>
-      {!own && <p className="fine-print">{missing ?? `Koloni bedeli: ${colonyCost}.`}</p>}
+      {!own && <div className="atlas-colony"><p>Koloni bedeli: {colonyCost}.</p>{missing && <p className="atlas-warning">{missing}</p>}</div>}
+      <div className="atlas-island-heading"><img src={asset(`/images/game/islands/map-${id}.webp`)} alt="" width={64} height={64} /><p><strong>{island.specialty} yatağı</strong><br />Harika: {MIRACLES[island.wonder].wonder}<br />[{island.x}:{island.y}]</p></div>
+      <ul className="wm-facts">
+        <li><Crown className="size-4" />{own ? `Şehrin: ${own.name} (Divanhane ${own.game.buildings.divan})` : 'Burada şehrin yok'}</li>
+        {rivals.map(r => <li key={r.id}><span className="wm-dot wm-rival" />{r.city} · {r.ruler} · Sv. {rivalLevel(empire, r, now)} (yapay rakip){rivalWarLine(empire, r.id) ? ` · ⚔ ${rivalWarLine(empire, r.id)!.split(' (')[0]}` : ''}</li>)}
+        <li><Anchor className="size-4" />Üç bağımsız yerleşim: köy, korsan ini, asi kalesi</li>
+        {id !== here.islandId && <li><KumSaatiArt className="size-4" />{here.name} şehrinden deniz yolu ~{clock(travel)}</li>}
+      </ul>
     </div>
   </BottomSheet>
 }

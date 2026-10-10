@@ -1,0 +1,16 @@
+{
+  "version": "0.88.0",
+  "tool": "OpenAI imagegen built-in",
+  "date": "2026-10-10",
+  "assets": [
+    {
+      "path": "public/images/game/ui/atlas/register.webp",
+      "source": "generated_images/exec-73ce8a96-9cd8-4dab-b9ed-4bb0b988fe0e.png",
+      "width": 960,
+      "height": 320,
+      "prompt": "Use case: historical-scene. Asset type: short horizontal painted header for Payitaht Ottoman Aegean empire register. Primary request: a court cartographer and scribe inspecting parchment sea charts and city ledgers on an aged walnut table, brass compass and rolled maps, a glimpse of teal Aegean harbours through a distant window. Detailed realistic hand-painted historical strategy-game art, warm ivory parchment, aged brass, walnut and restrained red silk. Soft upper-left sunlight. Very wide 3:1 composition, important table, hands, turbaned scholars and compass concentrated in central horizontal band, readable when shown as a short 80px banner. No legible text, numbers, labels, UI, border, icons, logos, watermark or modern objects. This is decorative art only; no geographically exact map.",
+      "bytes": 107258
+    }
+  ],
+  "existingArt": "16 distinct island thumbnails, world-sea painting, approved court and barracks material atlases; no geographic coordinates changed."
+}

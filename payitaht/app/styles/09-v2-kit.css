@@ -15,10 +15,7 @@
 .island-select { min-height: 44px; }
 /* Metin içi bağlantı: satır yüksekliği değişmez, dokunma alanı görünmez bir
  * katmanla büyür. */
-.ika-link { position: relative; }
-.ika-link::before { content: ''; position: absolute; inset: -14px -8px; }
 .report-details summary { min-height: 44px; display: flex; align-items: center; }
-.overview-table th small { font-size: 11px; }
 /* Tarayıcının <small> = %80 kuralı 11 px'in altına düşürmesin (özgüllük 0). */
 :where(.bp, .island-view, .away, .frg) small { font-size: max(11px, 0.8em); }
 /* İşçi kaydırıcısı dar telefonda: figürler üstte iki yana, kaydırıcı ve

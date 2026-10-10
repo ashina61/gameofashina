@@ -1,3 +1,5 @@
+**10 Ekim dünya/özet — 0.88.0 / SW100:** `docs/ATLAS-DESIGN-MEMORY.md`; 16 ada seçimi ve haritaya özel yakınlaştırma; şehir başına Kaynaklar/Binalar/Ordu defterleri. Motor, kayıt, HUD ve dört ada yerleşim açıklığı korunur. Yayın sonrası kullanıcı değerlendirmesinde dur.
+
 **10 Ekim Serasker/hedef — 0.87.0 / SW99:** `docs/CAMPAIGN-DESIGN-MEMORY.md`; hedef sekmeleri, ortak portre/adet atlası; rapor/sefer/savunma defteri ve görünüm filtreleri. Motor, kayıt, HUD ve dört ada açıklığı korunur. Yayın sonrası kullanıcı değerlendirmesinde dur.
 
 # Payitaht — onaylı arayüz standardı

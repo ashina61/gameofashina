@@ -8,7 +8,7 @@
  */
 import { useEffect, useRef, useState, type PointerEvent, type ReactNode } from 'react'
 
-export function BottomSheet({ label, onClose, children, modeless = false }: { label: string; onClose: () => void; children: ReactNode; modeless?: boolean }) {
+export function BottomSheet({ label, onClose, children, modeless = false, className = '' }: { label: string; onClose: () => void; children: ReactNode; modeless?: boolean; className?: string }) {
   const [drag, setDrag] = useState(0)
   const start = useRef<number | null>(null)
   useEffect(() => {
@@ -32,7 +32,7 @@ export function BottomSheet({ label, onClose, children, modeless = false }: { la
   }
   return <>
     {!modeless && <div className="sheet-backdrop" onClick={onClose} aria-hidden="true" />}
-    <div className={modeless ? 'bp bp-sheet is-modeless' : 'bp bp-sheet'} role="dialog" aria-modal={!modeless} aria-label={label}
+    <div className={`bp bp-sheet ${modeless ? 'is-modeless' : ''} ${className}`} role="dialog" aria-modal={!modeless} aria-label={label}
       style={drag ? { transform: `translateY(${drag}px)`, transition: 'none' } : undefined}>
       <div className="sheet-grip" onPointerDown={down} onPointerMove={move} onPointerUp={up} onPointerCancel={up}>
         <span className="sheet-handle" aria-hidden="true" />

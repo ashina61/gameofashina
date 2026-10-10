@@ -401,3 +401,7 @@ Built-in image_gen.imagegen; three original text-free Ottoman–Aegean paintings
 Three further original 960×320 RGB WebP banners: mine-kahve.webp (harvest), mine-kristal.webp (quartz extraction), mine-kukurt.webp (sulfur extraction). Built-in image_gen, prompt record in docs/island-art.json.
 
 0.87.0: `ui/campaign/command.webp` ve `records.webp`, yerleşik image_gen ile özgün Osmanlı–Ege sefer/rapor sahneleri; promptlar `docs/campaign-art.json`.
+
+## Dünya atlası ve imparatorluk defteri — 0.88.0
+
+`ui/atlas/register.webp`: OpenAI imagegen built-in, 10 Ekim 2026. Osmanlı haritacısı ve şehir sicili; özgün yazısız 960×320 sahne. Prompt/source record: `docs/atlas-art.json`.

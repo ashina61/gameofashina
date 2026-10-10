@@ -249,26 +249,7 @@
 .report-actions button :is(svg, .painted-icon) { width: 15px; height: 15px; }
 .report-actions button[aria-pressed="true"] { background: var(--c-gold); color: var(--c-ink); }
 .report-card.is-kept { border-color: var(--c-gold-soft); box-shadow: inset 3px 0 0 var(--c-gold-soft); }
-/* İmparatorluk özeti */
-.overview-scroll { overflow-x: auto; border: 1px solid #d8bf86; border-radius: 10px; background: var(--c-parch-light); -webkit-overflow-scrolling: touch; }
-.overview-table { border-collapse: collapse; font-size: 12px; min-width: 100%; font-variant-numeric: tabular-nums lining-nums; }
-.overview-table th, .overview-table td { padding: 6px 8px; border-bottom: 1px solid #ead9ae; text-align: right; white-space: nowrap; vertical-align: top; }
-.overview-table thead th { position: sticky; top: 0; background: #efdcae; color: var(--c-brown-soft); font-size: 11px; text-align: center; }
-.overview-table th[scope="row"] { text-align: left; position: sticky; left: 0; background: #f6e8c4; z-index: 1; font-weight: 700; color: var(--c-ink); }
-.overview-table td small { display: block; font-size: 11px; color: #3f7a3a; }
-.overview-table td.is-full { color: var(--c-bad); font-weight: 700; }
-.overview-table td.is-up { color: #3f7a3a; font-weight: 700; }
-.overview-table tr.is-sieged th[scope="row"] { box-shadow: inset 3px 0 0 var(--c-bad); }
-.ov-icon { width: 18px; height: 18px; }
-.ov-army { display: grid; gap: 8px; }
-.ov-army-city { padding: 8px 10px; border: 1px solid #ead9ae; border-radius: 10px; background: #f6e8c4; }
-.ov-army-city header { display: flex; align-items: baseline; gap: 4px; margin-bottom: 6px; }
-.ov-army-city header b { margin-left: auto; font-size: 12px; color: var(--c-brown-soft); font-variant-numeric: tabular-nums; }
-.ov-army-city ul { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 6px; margin: 0; padding: 0; list-style: none; }
-.ov-army-city li { display: flex; align-items: center; gap: 6px; min-width: 0; padding: 2px 6px 2px 2px; border-radius: 8px; background: #fffaf0; }
-.ov-army-city li span { min-width: 0; font-size: 12px; overflow-wrap: anywhere; line-height: 1.2; }
-.ov-army-city li b { margin-left: auto; font-size: 13px; font-variant-numeric: tabular-nums; }
-.ov-warn { font-style: normal; color: var(--c-bad); font-weight: 700; }
+
 .threat-banner.is-held + .threat-banner { transform: translateY(62px); }
 
 /* Araştırma danışmanı (Ikariam düzeni) */

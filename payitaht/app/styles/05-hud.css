@@ -113,8 +113,6 @@
 .ika-bubble strong { font-family: var(--font-heading), Georgia, serif; font-size: 16px; color: var(--c-brown); }
 .ika-bubble p { font-size: 13px; line-height: 1.45; color: var(--c-ink); margin-top: 2px; }
 
-.ika-link { background: none; border: 0; padding: 0; color: var(--c-brown); font-weight: 700; text-decoration: underline; text-underline-offset: 2px; }
-.ika-warn-text { color: var(--c-bad-deep); font-weight: 700; }
 /* Bina sayfası: görselsiz rozet ve yükselt oku */
 
 .bp-up-arrow { display: grid; place-items: center; width: 30px; height: 30px; border-radius: 50%; background: #2f6b16; border: 2px solid #d4f5a9; }
