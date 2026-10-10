@@ -1,0 +1,32 @@
+{
+  "injected": false,
+  "reports": [
+    {
+      "width": 360,
+      "issues": [],
+      "count": 4,
+      "map": {
+        "width": 360,
+        "height": 432.296875
+      }
+    },
+    {
+      "width": 390,
+      "issues": [],
+      "count": 4,
+      "map": {
+        "width": 390,
+        "height": 416.59375
+      }
+    },
+    {
+      "width": 430,
+      "issues": [],
+      "count": 4,
+      "map": {
+        "width": 430,
+        "height": 395.671875
+      }
+    }
+  ]
+}

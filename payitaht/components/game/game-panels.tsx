@@ -7,19 +7,17 @@ import { useLayoutEffect, useRef, useState, type CSSProperties, type ReactNode }
 import { ArrowUp, Hammer, LockKeyhole, Check, BookOpen, ChevronRight, Warehouse, UserRound, TriangleAlert, Swords, Ship, ShieldCheck, Handshake, FlipHorizontal2, Move } from './ui-art'
 import { AkceArt, IlimArt, KumSaatiArt, NufusArt } from './resource-art'
 import { idleMerchants } from '@/lib/game/expeditions'
-import { WorkforceSlider } from './workforce'
 import { GameButton } from './game-button'
 import { NowNext } from './stat-kit'
 import { CostDisplay, JobProgress } from './game-widgets'
 import { BUILDINGS, MAX_LEVEL, RESEARCH, RESEARCH_IDS, RESEARCH_BRANCHES, UNITS, UNIT_IDS, activeJob, cargoCapacity, cityDefense, cost, duration, buildReason, power, rates, recruitReason, researchReason, scientistCount, scientistUpkeepPerMinute, idleWorkers, soldiers, takesPlot, tradeCapacity, unitCost, unitDuration, wallDefense, type BuildingId, type ResearchId, type ResearchBranch, type UnitId, type Game, formatRate } from '@/lib/game/engine'
 import { asset } from '@/lib/asset'
 import { capitalCity, colonyPalaceLevel, COLONY_COST, type Empire } from '@/lib/game/empire'
-import { LUXURY_IDS, LUXURY_NAMES, MINE_MAX_LEVEL, luxuryCost, luxuryProduction, merchantLimit, mineCapacity, mineUpgradeCost, unitLuxuryCost, wineServed, type Luxury } from '@/lib/game/engine'
-import { luxuryIcons } from './game-widgets'
+import { luxuryCost, unitLuxuryCost } from '@/lib/game/engine'
 import { effectLines } from '@/lib/game/building-info'
 import { FIELD_ROW_NAMES, ROLE_NAMES } from '@/lib/game/glossary'
 import { Term } from './term'
-import { actionPoints, armyUpkeep, merchantBuyPrice, merchantSellPrice, type UnitRole } from '@/lib/game/engine'
+import { actionPoints, armyUpkeep, type UnitRole } from '@/lib/game/engine'
 import { ChevronsLeft, ChevronsRight, Eye } from './ui-art'
 import { DRILL_QUEUE_LIMIT, garrisonLimit, garrisonUsed, spyCapacity } from '@/lib/game/engine'
 import { BATTLE_STATS, SLOT_SIZE, fieldSize } from '@/lib/game/battle'
@@ -382,71 +380,7 @@ export function DiplomacyPanel({ game, onBuild }: { game: Game; onBuild: (id: Bu
  * yükselir ve daha çok işçi alır. Adada olmayan kaynaklar Çarşı'daki
  * tüccardan (bir NPC; gerçek oyuncu pazarı DEĞİL) alınabilir.
  */
-export function IslandPanel({ game, islandName, onMiners, onDonate, onTrade }: {
-  game: Game; islandName: string
-  onMiners: (value: number) => void
-  onDonate: (amount: number) => void
-  onTrade: (id: Luxury, side: 'buy' | 'sell', amount: number) => void
-}) {
-  const [lot, setLot] = useState(50)
-  const spec = game.mine.specialty
-  const SpecIcon = luxuryIcons[spec]
-  const cap = mineCapacity(game)
-  const perMin = Math.round(luxuryProduction(game)[spec] * 10) / 10
-  const next = mineUpgradeCost(game.mine.level)
-  return <div className="advisor-panel island-panel">
-    <article className="city-card">
-      <div className="city-card-top">
-        <span className="city-emblem"><SpecIcon aria-hidden="true" /></span>
-        <span><span className="eyebrow">{islandName.toLocaleUpperCase('tr')}</span>
-          <strong>{LUXURY_NAMES[spec]} madeni · seviye {game.mine.level}</strong>
-          <span>{game.mine.miners}/{cap} işçi · dakikada {perMin} {LUXURY_NAMES[spec].toLocaleLowerCase('tr')}</span></span>
-      </div>
-      <WorkforceSlider label="Madenci" figure="madenci" value={game.mine.miners} cap={cap} idle={idleWorkers(game)}
-        preview={n => { const v = luxuryProduction({ ...game, mine: { ...game.mine, miners: n } })[spec]; return { amount: v, icon: <SpecIcon className="workforce-icon" />, text: <><b>{formatRate(v)}</b> {LUXURY_NAMES[spec].toLocaleLowerCase('tr')}/dk</> } }}
-        onCommit={onMiners} note={`İşçi başına dakikada 3 ${LUXURY_NAMES[spec].toLocaleLowerCase('tr')}. Üretim yapılarındaki işçiler buraya kendiliğinden geçmez.`} />
-    </article>
-
-    <section className="empire-section">
-      <h3>Madeni genişlet</h3>
-      {game.mine.level >= MINE_MAX_LEVEL
-        ? <p className="fine-print">Maden en yüksek seviyede.</p>
-        : <>
-          <p className="fine-print">Ada halkı kereste bağışıyla madeni büyütür. Seviye {game.mine.level + 1} için {game.mine.wood} / {next} kereste toplandı; her seviye {`+`}12 işçi yeri açar.</p>
-          <span className="storage-meter"><span style={{ width: `${Math.min(100, (game.mine.wood / next) * 100)}%` }} /></span>
-          <div className="batch-row">{[100, 500, 2000].map(n =>
-            <GameButton key={n} size="sm" variant="outline" disabled={game.resources.wood < n} onClick={() => onDonate(n)}>{n} kereste</GameButton>)}</div>
-        </>}
-    </section>
-
-    <section className="empire-section">
-      <h3>Lüks ambarı</h3>
-      <div className="luxury-grid">{LUXURY_IDS.map(id => {
-        const Icon = luxuryIcons[id]
-        return <div key={id} className={id === spec ? 'luxury-cell luxury-home' : 'luxury-cell'}>
-          <Icon aria-hidden="true" /><span>{LUXURY_NAMES[id]}</span><strong>{Math.floor(game.luxury[id])}</strong>
-        </div>
-      })}</div>
-      <p className="fine-print">Kahve Kahvehane'de ikram edilir (huzur{game.buildings.kahvehane > 0 ? (wineServed(game) ? ' · şu an ikram ediliyor' : ' · kahve yok, ikram durdu') : ''}); mermer gelişmiş binalarda, kristal ilim ve kültür yapılarında, kükürt top ve gemilerde kullanılır.</p>
-    </section>
-
-    <section className="empire-section">
-      <h3>Çarşı tüccarı</h3>
-      {game.buildings.carsi < 1
-        ? <p className="fine-print">Tüccar Çarşı kurulunca gelir.</p>
-        : <>
-          <p className="fine-print">Alış {merchantBuyPrice(game)} akçe, satış {merchantSellPrice(game)} akçe (Ticaret Merkezi iyileştirir). Tek seferde en fazla {merchantLimit(game)} birim (Çarşı seviyesiyle artar).</p>
-          <div className="batch-row"><span>Parti</span>{[10, 50, 150].filter(n => n <= merchantLimit(game)).map(n =>
-            <GameButton key={n} size="sm" variant={lot === n ? 'default' : 'outline'} onClick={() => setLot(n)}>{n}</GameButton>)}</div>
-          <div className="merchant-list">{LUXURY_IDS.map(id => <div key={id} className="merchant-row">
-            <span>{LUXURY_NAMES[id]}</span>
-            <GameButton size="sm" variant="outline" disabled={game.resources.gold < Math.ceil(lot * merchantBuyPrice(game))} onClick={() => onTrade(id, 'buy', lot)}>Al · {Math.ceil(lot * merchantBuyPrice(game))}</GameButton>
-            <GameButton size="sm" variant="outline" disabled={game.luxury[id] < lot} onClick={() => onTrade(id, 'sell', lot)}>Sat</GameButton>
-          </div>)}</div>
-        </>}
-    </section>
-  </div>
-}
+export { IslandPanel } from './island-register'
 
 /** Seviye etkisi: şu anki seviye ve bir sonraki seviyede ne değişir. */
 export function BuildingEffects({ game, id, level, max }: { game: Game; id: BuildingId; level: number; max: number }) {

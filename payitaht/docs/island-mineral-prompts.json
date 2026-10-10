@@ -1,0 +1,23 @@
+{
+  "tool": "image_gen.imagegen (built-in)",
+  "prompts": [
+    [
+      "kahve",
+      "Use case: historical-scene. Asset type: wide 3:1 short scene banner for Payitaht island kahve production management. Ottoman island coffee plantation on grassy terraces, harvesting dark red coffee cherries from rows of bushes into woven baskets, a small hand-operated drying rack and wood tools, Ottoman workers in period garments, cypress and olive landscape, turquoise Aegean sea far away. Premium painterly-realistic historical mobile strategy game art. Warm upper-left daylight, natural proportions, ivory limestone, walnut, subdued terracotta, olive greens. Main objects in middle vertical third for short banner crop. No interface, text, logos, watermark, modern machinery, cartoon, neon or oversized magical objects."
+    ],
+    [
+      "kristal",
+      "Use case: historical-scene. Asset type: wide 3:1 short scene banner for Payitaht island kristal production management. pale-rock island crystal extraction site with a restrained cluster of translucent quartz in the rock, Ottoman hand tools, baskets and modest wooden hand hoist, Ottoman workers in period garments, cypress and olive landscape, turquoise Aegean sea far away. Premium painterly-realistic historical mobile strategy game art. Warm upper-left daylight, natural proportions, ivory limestone, walnut, subdued terracotta, olive greens. Main objects in middle vertical third for short banner crop. No interface, text, logos, watermark, modern machinery, cartoon, neon or oversized magical objects."
+    ],
+    [
+      "kukurt",
+      "Use case: historical-scene. Asset type: wide 3:1 short scene banner for Payitaht island kukurt production management. rocky island sulfur extraction site, muted yellow mineral seams in pale limestone, Ottoman hand tools and carrying baskets, modest wooden hand hoist, Ottoman workers in period garments, cypress and olive landscape, turquoise Aegean sea far away. Premium painterly-realistic historical mobile strategy game art. Warm upper-left daylight, natural proportions, ivory limestone, walnut, subdued terracotta, olive greens. Main objects in middle vertical third for short banner crop. No interface, text, logos, watermark, modern machinery, cartoon, neon or oversized magical objects."
+    ]
+  ],
+  "sources": {
+    "kahve": "exec-9f008e3a-8200-4020-9eae-bd158eca52f5.png",
+    "kristal": "exec-864211c9-2706-4853-bcca-607fa57be0c0.png",
+    "kukurt": "exec-641361e5-02c8-4507-8432-c7ec88ec5d30.png"
+  },
+  "conversion": "960x320 RGB WebP, Lanczos quality88"
+}

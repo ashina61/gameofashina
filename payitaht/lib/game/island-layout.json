@@ -1,5 +1,5 @@
 {
-  "comment": "Ada görünümündeki yerler (görsel genişliği/yüksekliği oranı). tools/art/islands.py ve IslandView aynı dosyayı okur.",
+  "comment": "Runtime ada yerleşimi: mevcut hedefler + kullanıcının istediği dört ek boş yerleşim açıklığı. Şehir içi arsa koordinatları ve kayıt değişmez.",
   "size": [
     900,
     1200
@@ -7,35 +7,65 @@
   "spots": {
     "city": [
       0.5,
-      0.56
+      0.43
     ],
     "mine": [
-      0.3,
-      0.37
+      0.25,
+      0.29
     ],
     "forest": [
-      0.7,
-      0.4
+      0.75,
+      0.29
     ],
     "koy": [
-      0.29,
-      0.69
+      0.25,
+      0.59
     ],
     "korsan": [
-      0.7,
-      0.73
+      0.75,
+      0.59
     ],
     "kale": [
-      0.55,
-      0.25
+      0.5,
+      0.16
     ],
     "rakip1": [
-      0.2,
-      0.5
+      0.25,
+      0.44
     ],
     "rakip2": [
-      0.78,
-      0.57
+      0.75,
+      0.44
     ]
-  }
+  },
+  "reserved": [
+    {
+      "id": "yerlesim-1",
+      "at": [
+        0.27,
+        0.71
+      ]
+    },
+    {
+      "id": "yerlesim-2",
+      "at": [
+        0.38,
+        0.85
+      ]
+    },
+    {
+      "id": "yerlesim-3",
+      "at": [
+        0.73,
+        0.71
+      ]
+    },
+    {
+      "id": "yerlesim-4",
+      "at": [
+        0.66,
+        0.85
+      ]
+    }
+  ]
 }

@@ -4,8 +4,8 @@ import { useEffect, useRef, type ReactNode, type RefObject } from 'react'
 import { Minus, Plus, RotateCcw } from './ui-art'
 
 /** Only the map artwork moves; controls and the surrounding game UI stay fixed. */
-export function MapViewport({ children, width, height, fitWidth = false, className = '', viewportRef }: {
-  children: ReactNode; width: number; height: number; fitWidth?: boolean
+export function MapViewport({ children, width, height, fitWidth = false, fitContain = false, className = '', viewportRef }: {
+  children: ReactNode; width: number; height: number; fitWidth?: boolean; fitContain?: boolean
   className?: string; viewportRef?: RefObject<HTMLDivElement | null>
 }) {
   const localRef = useRef<HTMLDivElement>(null)
@@ -39,7 +39,7 @@ export function MapViewport({ children, width, height, fitWidth = false, classNa
     zoom.current = factor => zoomAt(scale * factor, el.clientWidth / 2, el.clientHeight / 2)
     reset.current = () => zoomAt(1, el.clientWidth / 2, el.clientHeight / 2)
     const resize = new ResizeObserver(() => {
-      if (fitWidth) { baseWidth = Math.min(560, el.clientWidth); baseHeight = baseWidth * height / width }
+      if (fitWidth || fitContain) { baseWidth = Math.min(560, el.clientWidth, fitContain ? el.clientHeight * width / height : Infinity); baseHeight = baseWidth * height / width }
       draw()
     })
     resize.observe(el)
@@ -95,7 +95,7 @@ export function MapViewport({ children, width, height, fitWidth = false, classNa
       el.removeEventListener('click', click, true)
       el.removeEventListener('wheel', wheel)
     }
-  }, [width, height, fitWidth, ref])
+  }, [width, height, fitWidth, fitContain, ref])
 
   return <div className={`map-viewport-frame ${className}`}>
     <div className="map-viewport" ref={ref}>

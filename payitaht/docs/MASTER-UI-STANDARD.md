@@ -1,5 +1,7 @@
 # Payitaht — onaylı arayüz standardı
 
+**10 Ekim ada/orman/maden — 0.86.0 / SW98:** `docs/ISLAND-DESIGN-MEMORY.md` (doküman klasöründe ISLAND-DESIGN-MEMORY.md). Kullanıcı dört ek alanı adanın yerleşimi için istedi; ormanda veya şehir içi arsalarda değil. Yeni arazi ve dört boş açıklık, ortak Üretim/Gelişim defterleri. Motor/HUD korunur; yayın sonrası kullanıcı değerlendirmesinde dur.
+
 0.84.0 Müze/Karagöz: CULTURE-DESIGN-MEMORY.md. Ortak defterler, iki ayrı sahne, kültür katkısı/sınırları ve gerçek gösteri takvimi; sonraki inşa menüsü ve arsa seçimi.
 
 0.83.0 Cami/Tekke/Mabet: DEVOTION-DESIGN-MEMORY.md. İbadet, himaye ve kutsama; ayrı sahneler ve tam boy imam, gerçek sunu/adak ve görünür engeller. Sonraki Müze/Karagöz Perdesi.

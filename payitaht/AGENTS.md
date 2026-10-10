@@ -10,6 +10,8 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 # Payitaht Adaları — ajanlar için
 
+**10 Ekim ada/orman/maden — 0.86.0 / SW98:** `docs/ISLAND-DESIGN-MEMORY.md` (doküman klasöründe ISLAND-DESIGN-MEMORY.md). Kullanıcı dört ek alanı adanın yerleşimi için istedi; ormanda veya şehir içi arsalarda değil. Yeni arazi ve dört boş açıklık, ortak Üretim/Gelişim defterleri. Motor/HUD korunur; yayın sonrası kullanıcı değerlendirmesinde dur.
+
 **10 Ekim inşa/arsa — 0.85.0 / SW97:** `docs/CONSTRUCTION-DESIGN-MEMORY.md`; ortak boyalı dikey katalog ve açılır arsa defteri, gerçek bedel/süre/kilit ve sıra. İnşa ayrı düğmede, kara/deniz/korsan kuralları aynı. Sonraki Ada ormanı ve madeni; yayın sonrası kullanıcı değerlendirmesinde dur.
 
 

@@ -15,7 +15,7 @@ import { CourtTabs } from './court-kit'
 import { diploAdvice } from './advisor-advice'
 import { Hint } from './hint'
 import { useState } from 'react'
-import { Crown, Trash2, TreePine, CalendarCheck, Gift, Truck, Anchor, Flag, Handshake, Store, Mail, Send, ScrollText, Swords, Eye, Check, Pencil, ShieldCheck } from './ui-art'
+import { Crown, Trash2, CalendarCheck, Gift, Truck, Anchor, Flag, Handshake, Store, Mail, Send, ScrollText, Swords, Eye, Check, Pencil, ShieldCheck } from './ui-art'
 import { ResearchEmblem } from './research-art'
 import { IlimArt, KristalArt } from './resource-art'
 import { DailyArt } from './quest-art'
@@ -23,8 +23,8 @@ import { AtlasArt, RivalPortrait } from './deep-art'
 import { NewsPanel, PaceSetting, ProposalsPanel, rivalWarLine } from './ai-panels'
 import { GameButton } from './game-button'
 import {
-  ANARCHY_MS, BUILDINGS, FOREST_MAX_LEVEL, GOVERNMENTS, GOVERNMENT_COOLDOWN_MS, GOOD_NAMES, GOVERNMENT_IDS, UNITS, UNIT_IDS,
-  anarchy, capacity, forestCapacity, forestProduction, forestUpgradeCost, governmentCost, idleWorkers,
+  ANARCHY_MS, BUILDINGS, GOVERNMENTS, GOVERNMENT_COOLDOWN_MS, GOOD_NAMES, GOVERNMENT_IDS, UNITS, UNIT_IDS,
+  anarchy, capacity, governmentCost,
   LUXURY_IDS, type BuildingId, type Command, type Game, type Good, type Luxury, type Resource, type UnitId, formatRate, travelFactor, merchantBuyPrice, merchantSellPrice, merchantLimit,
 } from '@/lib/game/engine'
 import { activeCity, renameCity, type Empire } from '@/lib/game/empire'
@@ -43,8 +43,6 @@ import {
 import { luxuryIcons, resourceIcons } from './game-widgets'
 import { UnitFigure } from './unit-art'
 import { UnitPicker } from './ikariam-panels'
-import { WorkforceSlider } from './workforce'
-import { KeresteArt } from './resource-art'
 import { GoalCard, RewardTokens } from './goal-card'
 import { flyGoods } from '@/lib/fx'
 import { asset, buildingImage } from '@/lib/asset'
@@ -132,23 +130,7 @@ export function ExperimentPanel({ game, onCommand }: { game: Game; onCommand: (c
   </section>
 }
 
-export function ForestPanel({ game, onCommand }: { game: Game; onCommand: (c: Command) => void }) {
-  const f = game.forest
-  const cap = forestCapacity(game)
-  const [gift, setGift] = useState(500)
-  return <section className="empire-section">
-    <h3><TreePine className="size-4" /> Ada ormanı · Sv. {f.level}</h3>
-    <WorkforceSlider label="Oduncu" figure="oduncu" value={f.workers} cap={cap} idle={idleWorkers(game)}
-      preview={n => { const v = forestProduction({ ...game, forest: { ...f, workers: n } }); return { amount: v, icon: <KeresteArt className="workforce-icon" />, text: <><b>{num(v)}</b> kereste/dk</> } }}
-      onCommit={n => onCommand({ type: 'foresters', value: n })} note="Her oduncu 4 kereste keser (şehir çarpanlarından önce)." />
-    {f.level < FOREST_MAX_LEVEL && <>
-      <div className="people-row-top"><span>Orman bağışı</span><span className="people-count">{num(f.wood)} / {num(forestUpgradeCost(f.level))}</span></div>
-      <span className="people-meter"><span style={{ width: `${Math.min(100, f.wood / forestUpgradeCost(f.level) * 100)}%` }} /></span>
-      <div className="batch-row">{[250, 500, 1000].map(n => <GameButton key={n} size="sm" variant={gift === n ? 'default' : 'outline'} onClick={() => setGift(n)}>{num(n)}</GameButton>)}
-        <GameButton size="sm" disabled={game.resources.wood < gift} onClick={() => onCommand({ type: 'forestDonate', amount: gift })}>Bağışla</GameButton></div>
-    </>}
-  </section>
-}
+export { ForestPanel } from './island-register'
 
 /* ------------------------------------------------------------ GÜNLÜK */
 

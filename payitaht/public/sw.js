@@ -1,7 +1,11 @@
-const CACHE = 'payitaht-shell-v97'
+const CACHE = 'payitaht-shell-v98'
 const BASE = new URL(self.registration.scope).pathname.replace(/\/$/, '')
 const p = path => `${BASE}${path.startsWith('/') ? path : `/${path}`}`
 const ASSETS = [
+  p('/images/game/islands/settlement-map-v2.webp'),
+  p('/images/game/ui/island/forest.webp'),
+  p('/images/game/ui/island/mine.webp'),
+  ...['kahve','kristal','kukurt'].map(id => p(`/images/game/ui/island/mine-${id}.webp`)),
   p('/images/game/ui/construction/ustalar.webp'),
   p('/images/game/ui/culture/muze.webp'),
   p('/images/game/ui/culture/karagoz.webp'),

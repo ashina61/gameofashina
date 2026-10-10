@@ -28,7 +28,6 @@ import { RivalDiplomacy, RivalSupport, RivalWar, type Run } from './world-panels
 import { FACTIONS, RIVALS, STYLE_NAMES, rivalById, rivalLevel , isAlly } from '@/lib/game/rivals'
 import { clearReports, deleteReport, keepReport, targetInfo, type Report } from '@/lib/game/expeditions'
 import { BattleSummary, BattleView } from './battle-view'
-import { CityEmblem } from './city-emblem'
 import { MapViewport } from './map-viewport'
 import { RETREAT_MORALE, fieldSize } from '@/lib/game/battle'
 import { t } from '@/lib/i18n/tr'
@@ -66,12 +65,12 @@ export function IslandView({ empire, islandId, now, onCity, onIsland, onMine, on
         <small>{LUXURY_NAMES[island.luxury]} yatağı · {MIRACLES[island.wonder].wonder}{home ? '' : ' · deniz aşırı'}</small></label>
       <GameButton size="sm" variant="outline" onClick={onReports}><ScrollText data-icon="inline-start" />Raporlar{unread > 0 ? ` · ${unread}` : ''}</GameButton>
     </div>
-    <MapViewport key={island.id} width={layout.size[0]} height={layout.size[1]} fitWidth className="island-map-viewport">
+    <MapViewport key={island.id} width={layout.size[0]} height={layout.size[1]} fitContain className="island-map-viewport">
     <div className="island-map" style={{ backgroundImage: `url(${asset('/images/game/terrain/world-sea.webp')})`, backgroundSize: 'cover' }}>
-      <img className="island-bg" src={asset(`/images/game/islands/${island.id}.webp`)} alt="" width={layout.size[0]} height={layout.size[1]} />
+      <img className="island-bg" src={asset('/images/game/islands/settlement-map-v2.webp')} alt="" width={layout.size[0]} height={layout.size[1]} />
       {city && <button className="island-spot island-city" style={place('city')} onClick={home ? onCity : undefined} disabled={!home} aria-label={`${city.name} şehri`}>
         <img src={buildingImage('divan', city.game.buildings.divan)} alt="" />
-        <span className="island-label"><strong><CityEmblem id={city.emblem} size={16} /> {city.name}</strong><small>{home ? `Divanhane ${city.game.buildings.divan}` : 'Senin şehrin · Şehirler panelinden geç'}</small></span>
+        <span className="island-label"><strong>{city.name}</strong><small>{home ? `Divanhane ${city.game.buildings.divan}` : 'Senin şehrin · Şehirler panelinden geç'}</small></span>
       </button>}
       <button className="island-spot island-mine" style={place('mine')} onClick={home ? onMine : undefined} disabled={!home} aria-label={`${LUXURY_NAMES[island.luxury]} madeni`}>
         <img src={asset(`/images/game/buildings/mine-${island.luxury}.webp`)} alt="" />
@@ -87,10 +86,11 @@ export function IslandView({ empire, islandId, now, onCity, onIsland, onMine, on
           {active.map(m => <span key={m.id}>{missionTag(m)}</span>)}
         </button>
       })}
-      {home && <button className="island-spot island-forest" style={place('forest')} onClick={onForest} aria-label={`Ada ormanı, seviye ${active.game.forest.level}`}>
+      {<button disabled={!home} className="island-spot island-forest" style={place('forest')} onClick={onForest} aria-label={home ? `Ada ormanı, seviye ${active.game.forest.level}` : 'Ada ormanı; koloni kurulursa işlenir'}>
         <img src={asset('/images/game/buildings/forest-hero.webp')} alt="" width={600} height={440} />
         <span className="island-label"><strong>Ada ormanı</strong><small>Sv. {active.game.forest.level} · {active.game.forest.workers} oduncu</small></span>
       </button>}
+      {layout.reserved.map((site, i) => <div key={site.id} className="island-reserved" style={{ left: `${site.at[0] * 100}%`, top: `${site.at[1] * 100}%` }} aria-label={`Boş yerleşim alanı ${i + 1}`}><Flag aria-hidden="true" /><span>Boş alan {i + 1}</span></div>)}
       {RIVALS.filter(r => r.islandId === island.id).map((r, i) => {
         const level = rivalLevel(empire, r, now)
         const rel = empire.world?.rivals[r.id]?.relation ?? 0
@@ -104,6 +104,7 @@ export function IslandView({ empire, islandId, now, onCity, onIsland, onMine, on
       })}
     </div>
     </MapViewport>
+    <p className="island-map-note">4 ek yerleşim alanı boş bırakıldı.</p>
   </section>
 }
 

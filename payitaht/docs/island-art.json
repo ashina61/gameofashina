@@ -1,0 +1,68 @@
+{
+  "tool": "image_gen.imagegen (built-in)",
+  "version": "0.86.0",
+  "prompts": [
+    [
+      "island",
+      "Use case: historical-scene. Asset type: playable island terrain background for Payitaht Ottoman–Aegean mobile strategy game. Produce a portrait 3:4 image, a complete large Mediterranean island centered in calm turquoise sea, orthographic elevated 2:1 isometric landscape, premium painterly-realistic game artwork. Broad usable grassland terraces with pale limestone winding paths between clearings, olive groves, cypress trees, rugged pale rocky northern hill, sandy coves, shallow turquoise shore. Warm upper-left sunlight and soft lower-right shadows, restrained ivory limestone, muted olive, dusty earth. No buildings, settlements, mines, people, labels, symbols, boxes or UI. Keep central and lower terrain largely open and clean for runtime town placement. Leave generous land clearings around normalized positions x/y .50/.16, .28/.28, .72/.30, .24/.43, .50/.47, .78/.49, .28/.64, .72/.69 and FOUR EXTRA spacious empty grassland terraces .27/.79, .52/.88, .77/.83, .52/.66, linked by natural limestone roads. All those positions must be land. These are natural clearings with no frames, no markings, no artificial grids. Island spans x .08-.92, y .07-.95 with narrow water border, no perspective horizon. Rich handcrafted realistic vegetation and rock texture, clean playable silhouette, detailed yet readable. No toy/cartoon look, no modern objects, no text, no watermark."
+    ],
+    [
+      "forest",
+      "Use case: historical-scene. Asset type: wide 3:1 short scene banner for Payitaht island forest management. Ottoman Aegean olive/cypress/pine woodland with small timber clearing, a few neatly stacked cut logs, simple wooden trestle and period axes; forest workers in Ottoman garments quietly working, sea glimpse in far distance. Premium painterly-realistic historical mobile strategy game art, warm upper-left daylight, limestone and olive greens, muted terracotta and walnut, natural realistic proportions. Landscape wide composition with main objects in middle vertical third so crops remain readable. No interface, lettering, logos, watermark, modern saw machinery, cartoon or saturated fantasy."
+    ],
+    [
+      "mine",
+      "Use case: historical-scene. Asset type: wide 3:1 short scene banner for Payitaht island mineral management. Ottoman–Aegean coastal limestone quarry with terraced pale rock face, wooden hand hoist, a few cut stone blocks and woven carrying baskets, Ottoman workers extracting materials by hand, olive/cypress landscape and turquoise sea far away. Premium painterly-realistic historical mobile strategy game, warm upper-left daylight, soft shadows, ivory limestone, walnut, muted terracotta, olive greens. Main composition in middle vertical third for short crop. No interface, lettering, logos, watermark, modern machinery, cartoon, neon or fantasy."
+    ]
+  ],
+  "assets": [
+    {
+      "path": "public/images/game/islands/settlement-map-v2.webp",
+      "size": [
+        900,
+        1200
+      ],
+      "source": "exec-52095e54-4122-47ee-89d7-50dca268a3dc.png"
+    },
+    {
+      "path": "public/images/game/ui/island/forest.webp",
+      "size": [
+        960,
+        320
+      ],
+      "source": "exec-3d426d5c-11a0-4af0-9ceb-88ceea054d9b.png"
+    },
+    {
+      "path": "public/images/game/ui/island/mine.webp",
+      "size": [
+        960,
+        320
+      ],
+      "source": "exec-f1f09459-ccdc-475d-95cb-ebb1966551df.png"
+    },
+    {
+      "path": "public/images/game/ui/island/mine-kahve.webp",
+      "size": [
+        960,
+        320
+      ]
+    },
+    {
+      "path": "public/images/game/ui/island/mine-kristal.webp",
+      "size": [
+        960,
+        320
+      ]
+    },
+    {
+      "path": "public/images/game/ui/island/mine-kukurt.webp",
+      "size": [
+        960,
+        320
+      ]
+    }
+  ],
+  "conversion": "RGB WebP quality88 Lanczos resize; generated content unchanged",
+  "layout": "Shared playable island terrain; sixteen distinct world-map silhouettes retained. Four reserved clearings are visual only, no new colonization commands.",
+  "additionalPrompts": "island-mineral-prompts.json"
+}
