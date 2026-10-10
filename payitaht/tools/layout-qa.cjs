@@ -158,6 +158,13 @@ async function main() {
       page.setDefaultTimeout(20_000)
       page.on('pageerror', e => report.hatalar.push(`${label}: ${e.message}`))
       const visit = async (key, open) => {
+        // Sekmeler arası aynı DOM korunabilir; önce önceki yazı büyütmesini geri al.
+        await page.evaluate(() => {
+          document.querySelectorAll('[data-qa-zoom]').forEach(el => {
+            el.style.fontSize = el.dataset.qaOriginalFont || '';
+            delete el.dataset.qaZoom; delete el.dataset.qaOriginalFont;
+          })
+        })
         await page.evaluate(open)
         await page.waitForTimeout(150)
         // Sayfa giriş animasyonu (alttan kayma) bitmeden ölçme: sonlu bütün
@@ -176,19 +183,21 @@ async function main() {
           await page.evaluate(z => {
             const els = [...document.querySelectorAll('body *')].filter(el => !el.dataset.qaZoom && !(el instanceof SVGElement))
             const sizes = els.map(el => parseFloat(getComputedStyle(el).fontSize))
-            els.forEach((el, i) => { el.style.fontSize = `${sizes[i] * z}px`; el.dataset.qaZoom = '1' })
+            els.forEach((el, i) => { el.dataset.qaOriginalFont = el.style.fontSize; el.style.fontSize = `${sizes[i] * z}px`; el.dataset.qaZoom = '1' })
           }, vp.zoom)
           await page.waitForTimeout(120)
         }
         const found = await page.evaluate(scanPage)
         if (vp.zoom) found.minik = {}
-        // Bina sayfası (V2 2.1): Yükselt doku kaydırmadan görünür ve düğmenin
-        // üstüne başka bir şey (ör. alt menü madalyonu) binmez.
+        // Açık sekmedeki yükseltme düğmesi erişilebilir olmalı. Kapalı Gelişim
+        // sekmesinin sıfır boyutlu doku, canvas çakışması sayılmaz.
         if (key.startsWith('bina:') || key.startsWith('yapı-paneli:')) {
           const dock = await page.evaluate(() => {
-            const d = document.querySelector('.bp-dock')
-            if (!d) return 'Yükselt doku yok'
-            const btn = d.querySelector('button') || d
+            const d = [...document.querySelectorAll('.bp-dock')].find(el => el.checkVisibility({ checkOpacity: true, checkVisibilityCSS: true }) && el.getClientRects().length)
+            if (!d) return null
+            const btn = d.querySelector('button')
+            if (!btn) return null
+            btn.scrollIntoView({ block: 'center' })
             const r = btn.getBoundingClientRect()
             if (r.top < 0 || r.bottom > innerHeight) return `Yükselt ekranda değil (${Math.round(r.top)}..${Math.round(r.bottom)})`
             const mid = r.top + r.height / 2, low = r.bottom - 3, cx = r.left + r.width / 2

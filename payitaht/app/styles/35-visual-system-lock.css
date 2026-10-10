@@ -474,3 +474,7 @@
   .game-shell.has-page *,
   .game-shell.has-building-preview * { scroll-behavior: auto !important; }
 }
+
+/* Let long content shrink into its scroll area above the upgrade footer. */
+.game-shell.has-page .bp-building > .bp-scroll { min-height: 0; }
+.game-shell.has-page .bp-building:not(.bp-royal) > .bp-scroll { padding-bottom: 24px; }

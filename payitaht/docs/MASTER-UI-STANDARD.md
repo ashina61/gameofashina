@@ -1,3 +1,5 @@
+**10 Ekim dar ekran kontrolü — 0.90.0 / SW102:** `docs/READABILITY-DESIGN-MEMORY.md`; başlık satırları, profil sekme/alt düğme hedefleri, nişan yazıları ve açıklama hedefleri. Onaylı HUD, motor ve kayıt korunur.
+
 **10 Ekim Ordu/Donanma — 0.89.0 / SW101:** `docs/MUSTER-DESIGN-MEMORY.md`; Kara ordusu/Donanma/Seferler, aynı eğitim atlası, kayıtlı ve kullanılabilir sayı ayrı. Motor, kayıt, HUD ve dört ada açıklığı korunur. Yayın sonrası kullanıcı değerlendirmesinde dur.
 
 **10 Ekim dünya/özet — 0.88.0 / SW100:** `docs/ATLAS-DESIGN-MEMORY.md`; 16 ada seçimi ve haritaya özel yakınlaştırma; şehir başına Kaynaklar/Binalar/Ordu defterleri. Motor, kayıt, HUD ve dört ada yerleşim açıklığı korunur. Yayın sonrası kullanıcı değerlendirmesinde dur.

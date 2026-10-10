@@ -311,3 +311,18 @@
 .game-shell.has-page .bp.bp-profile .royal-profile-scene > .royal-standard > .royal-embroidery {
   left: 35%; top: 27%; width: 43%; height: 36%; object-fit: contain;
 }
+
+/* Mobile readability without changing the painted profile assets. */
+.game-shell.has-page .bp.bp-profile .court-tabs,
+.game-shell.has-page .bp.bp-profile .court-tabs > button { min-height: 44px; }
+.game-shell.has-page .bp.bp-profile .royal-honours span {
+  font-size: clamp(11px,2.15cqw,19px); line-height: 1.15; white-space: normal;
+}
+.game-shell.has-page .bp.bp-profile .royal-honours small {
+  font-size: clamp(11px,2cqw,18px); line-height: 1.2;
+}
+
+.game-shell.has-page .bp.bp-profile .profile-honours { min-height: 112px; }
+.game-shell.has-page .bp.bp-profile .court-footer,
+.game-shell.has-page .bp.bp-profile .court-footer > button,
+.game-shell.has-page .bp.bp-profile .court-footer > button:last-child { min-height: 44px; }

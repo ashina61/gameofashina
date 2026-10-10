@@ -461,3 +461,6 @@ html[data-motion="az"] *, html[data-motion="az"] *::before, html[data-motion="az
 .city-list button { width: 100%; min-height: 44px; padding: 6px 10px; border-radius: 8px; text-align: left;
   color: #fff0cc; background: #ffffff10; font-size: 14px; }
 .city-list button:focus-visible { outline: 2px solid var(--c-alert-gold); outline-offset: 1px; }
+
+/* A definition label must have its own touch area beside the value. */
+.sk-nn .term-btn { min-height: 44px; }
