@@ -6,6 +6,8 @@
  * altında "Nüfus ve üretim" şeridi (her meslek resmiyle, sayısı ve getirisi)
  * ve şehir nişanı seçimi.
  */
+import { Box } from './building-page'
+import { AkceArt } from './resource-art'
 import { ApprovedArt } from './approved-court-art'
 import {
   actionPoints, contentment, corruption, garrisonLimit, garrisonUsed, growthRate, housing, idleWorkers,
@@ -52,10 +54,10 @@ export function DivanOverview({ game, empire, run }: { game: Game; empire?: Empi
     { fig: 'halk', label: 'Boştaki halk', count: idleWorkers(game), out: `+${n(r.gold)} akçe net` },
   ]
   const free = Math.max(0, housing(game) - population(game))
-  return <section className="divan-overview">
+  return <section className="divan-overview"><Box title="Şehir yoklaması">
     <div className="dv-head">
       <span className="dv-emblem"><CityEmblem id={city?.emblem} size={46} /></span>
-      <span className="dv-title"><small>{city ? (empire && city.id === capitalId(empire) ? 'BAŞKENT' : 'KOLONİ') : 'ŞEHİR'}</small><strong>Şehir yoklaması</strong></span>
+      <span className="dv-title"><small>{city ? (empire && city.id === capitalId(empire) ? 'BAŞKENT' : 'KOLONİ') : 'ŞEHİR'}</small><strong>{city?.name ?? "Şehir"}</strong></span>
       <span className="dv-mood"><ApprovedArt name="olive" /><small>{moodOf(game).name} · yolsuzluk %{Math.round(corruption(game) * 100)}</small></span>
     </div>
     <div className="dv-stats">
@@ -64,17 +66,17 @@ export function DivanOverview({ game, empire, run }: { game: Game; empire?: Empi
       <span><ApprovedArt name="trade" /><small>Deniz garnizonu</small><b>{n(garrisonUsed(game, 'deniz'))}<i>/{n(garrisonLimit(game, 'deniz'))}</i></b></span>
       <span><ApprovedArt name="motion" /><small>Sefer hakkı</small><b>{ap - used}<i>/{ap}</i></b></span>
       <span><ApprovedArt name="olive" /><small>Büyüme</small><b className={growthRate(game) > 0 ? 'is-up' : undefined}>{formatRate(growthRate(game) * 60)}<i>/saat</i></b></span>
-      <span><ApprovedArt name="crown" /><small>Net akçe</small><b className={r.gold >= 0 ? 'is-up' : 'is-down'}>{n(r.gold * 60)}<i>/saat</i></b></span>
+      <span><AkceArt /><small>Net akçe</small><b className={r.gold >= 0 ? 'is-up' : 'is-down'}>{n(r.gold * 60)}<i>/saat</i></b></span>
     </div>
-    <h3 className="management-heading">Nüfus ve üretim</h3>
+    </Box><Box title="Nüfus ve üretim">
     <div className="dv-strip" aria-label="Nüfus ve üretim">
       {jobs.map(j => <div key={j.label} className={j.count ? 'dv-job' : 'dv-job is-empty'}>
-        <PersonArt kind={j.fig} size={34} />
+        <PersonArt kind={j.fig === 'madenci' ? 'halk' : j.fig} size={72} />
         <b>{n(j.count)}</b><small>{j.label}</small><em>{j.out}</em>{j.neg && <em className="is-down">{j.neg}</em>}
       </div>)}
     </div>
-    {city && run && <div className="dv-emblems">
-      <h3 className="management-heading">Şehir nişanı</h3><small>Nişanın adada şehrini temsil eder.</small>
+    </Box>{city && run && <Box title="Şehir nişanı"><div className="dv-emblems">
+      <p>Nişanın adada şehrini temsil eder.</p>
       <div className="dv-emblem-grid">{EMBLEM_IDS.map(id => {
         const locked = game.buildings.divan < EMBLEMS[id].divan
         return <button key={id} type="button" aria-pressed={(city.emblem ?? 'sancak') === id} disabled={locked}
@@ -83,6 +85,6 @@ export function DivanOverview({ game, empire, run }: { game: Game; empire?: Empi
           <CityEmblem id={id} size={34} locked={locked} /><span>{EMBLEMS[id].name}</span>{locked && <small>Sv. {EMBLEMS[id].divan}</small>}
         </button>
       })}</div>
-    </div>}
+    </div></Box>}
   </section>
 }

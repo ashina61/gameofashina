@@ -295,17 +295,18 @@ export function BuildingPage({ game, empire, id, onClose, onBuild, onFlip, onMov
   const palace = id === 'saray' || id === 'valilik'
   const royalWork = palace || culture || devotion || armament || defense || maritime || exchange || commerce || workshop || production || id === 'kisla' || id === 'medrese' || id === 'konut' || id === 'hamam' || id === 'kahvehane' || id === 'ambar' || id === 'depo'
   if (id === 'divan' || id === 'elcilik') return <IkaPage title={b.name} label={`${b.name} sayfası`} onClose={onClose}
-    className={`bp-building bp-of-${id} bp-court bp-royal bp-management${help ? ' show-help' : ''}`}
-    footer={<UpgradeDock game={game} id={id} onBuild={onBuild} />}>
+    className={`bp-building bp-of-${id} bp-court bp-royal bp-management bp-civic-register${help ? ' show-help' : ''}`}
+    >
     <RoyalManagement key={id} game={game} empire={empire} id={id} city={city} help={help} onNav={onNav}
       overview={<BuildingView game={game} empire={empire} id={id} section="overview" onCommand={onCommand} onRecruit={onRecruit} onNav={onNav} onBuildingNav={onBuildingNav} run={run} />}
       people={<BuildingView game={game} empire={empire} id={id} section="people" onCommand={onCommand} onRecruit={onRecruit} onNav={onNav} onBuildingNav={onBuildingNav} run={run} />}
       administration={<><BuildingView game={game} empire={empire} id="divan" section="treasury" onCommand={onCommand} onRecruit={onRecruit} onNav={onNav} onBuildingNav={onBuildingNav} run={run} />{children}</>}
-      spies={<><ArmyPanel game={game} onRecruit={onRecruit} onBuild={onBuildingNav} home="elcilik" />{children}<GameButton variant="outline" onClick={() => onBuildingNav('siginak')}>Gizli Sığınak</GameButton></>}
-      development={<><Box title="Seviye etkisi"><BuildingEffects game={game} id={id} level={level} max={max} /></Box>
+      spies={<><ArmyPanel game={game} onRecruit={onRecruit} onBuild={onBuildingNav} home="elcilik" register />{children}<GameButton variant="outline" onClick={() => onBuildingNav('siginak')}>Gizli Sığınak</GameButton></>}
+      development={<><UpgradeDock game={game} id={id} onBuild={onBuild} /><Box title="Seviye etkisi"><BuildingEffects game={game} id={id} level={level} max={max} /></Box>
         {forecast.length > 0 && <Box title="Sonraki seviyeler"><Table head={['Sv.', 'Maliyet', 'Süre']} rows={forecast.map(f => [`${f.level}`, <span key="c" className="bp-mini-costs">{RESOURCE_IDS.filter(r => f.price[r] > 0).map(r => <span key={r}><ResIcon id={r} />{num(f.price[r])}</span>)}</span>, time(f.seconds)])} /></Box>}
+        <details className="building-description"><summary>Yapı bilgisi ve düzenleme</summary><p>{b.description}</p>
         {level > 0 && <div className="management-tools"><GameButton variant="outline" onClick={onFlip}>Yönünü çevir</GameButton>{id !== 'divan' && <><GameButton variant="outline" onClick={onMove}>Başka arsaya taşı</GameButton><GameButton variant="destructive" onClick={() => setRazing(v => !v)}>Yapıyı yık</GameButton></>}</div>}
-        {razing && <DemolishConfirm game={game} id={id} onCommand={onCommand} onClose={() => setRazing(false)} />}</>} />
+        {razing && <DemolishConfirm game={game} id={id} onCommand={onCommand} onClose={() => setRazing(false)} />}</details></>} />
   </IkaPage>
   return <IkaPage toolbar={royalWork ? undefined : toolbar} title={b.name} subtitle={`${city} · ${b.category.toLocaleLowerCase('tr')}`} label={`${b.name} sayfası`} onClose={onClose}
     className={`bp-building bp-of-${id}${royalWork ? ' bp-royal' : ''}${production ? ' bp-production' : ''}${workshop ? ' bp-cost' : ''}${commerce ? ' bp-commerce' : ''}${exchange ? ' bp-exchange' : ''}${maritime ? ' bp-maritime' : ''}${defense ? ' bp-defense' : ''}${armament ? ' bp-armament' : ''}${devotion ? ' bp-devotion' : ''}${culture ? ' bp-culture' : ''}${palace ? ' bp-palace' : ''}${help ? ' show-help' : ''}`}

@@ -1,168 +1,168 @@
 /* Ottoman barracks register: scoped skin, existing training and building rules. */
-.game-shell.has-page:has(:is(.bp-of-kisla,.bp-of-tersane,.bp-muster))::after { content: ''; position: fixed; z-index: 59; inset: auto 0 0; height: var(--ika-nav); background: var(--royal-paper) center / 420px auto; pointer-events: none; }
-.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster) { width: 100%; max-width: none; border-radius: 0; color: var(--c-ink); background: var(--royal-paper) center / 420px auto; font-family: Georgia,serif; -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
-.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster) > .bp-bar .bp-title { right: calc(var(--court-control-size) * 2 + 20px); }
-.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster) .bp-scroll { gap: 0; padding: 0; background: none; border: 0; }
-.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster) .bp-tabs { flex-shrink: 0; display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); width: 100%; gap: 0; margin: 0; padding: 0; border-radius: 0; background: var(--royal-wood); box-shadow: none; }
-.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster) .bp-tabs > button { min-height: 52px; padding: 12px 8px; border: 0 solid transparent; border-image: var(--royal-page-frame) 20 / 4px / 0 stretch; border-radius: 0; background: none; color: var(--c-gold-pale); font: 700 20px/1.2 'Payitaht Profile Roman',Georgia,serif; }
-.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster) .bp-tabs > button[aria-selected='true'] { border-image: var(--royal-tab-frame) 14 / 4px / 0 stretch; background: linear-gradient(var(--c-royal-active),var(--c-royal-active-deep)); box-shadow: none; }
-.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster) .bp-tabpanel { padding: 8px 2% 14px; border: 0 solid transparent; border-image: var(--royal-page-frame) 20 / 4px / 0 stretch; }
-.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster) .bp-army { margin: 0; border: 0; border-image: none; background: none; box-shadow: none; }
-.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster) .bp-army > .bp-box-body { padding: 0; }
-.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster) .army-home { gap: 8px; }
-.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster) .unit-gallery { gap: 10px; padding: 4px 0 6px; margin: 0; }
-.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster) .unit-gallery > .unit-tile { flex: 0 0 108px; gap: 6px; padding: 6px; border: 0 solid transparent; border-image: var(--royal-page-frame) 20 / 3px / 0 stretch; border-radius: 0; background: var(--royal-wood); color: var(--c-gold-pale); box-shadow: none; }
-.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster) .unit-tile[aria-selected='true'] { border-image-source: var(--royal-tab-frame); background: linear-gradient(var(--c-royal-active),var(--c-royal-active-deep)); outline: 2px solid var(--c-gold-deep); outline-offset: -2px; }
-.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster) .unit-tile > strong { min-height: 36px; white-space: normal; overflow: visible; display: grid; place-items: center; order: 0; font: 700 17px/1.15 'Payitaht Profile Roman',Georgia,serif; }
-.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster) .unit-tile-art { width: 100%; aspect-ratio: 1.2/1; border: 0; border-radius: 0; }
-.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster) .unit-tile-art > img { object-fit: contain; }
-.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster) .unit-tile-stats { display: none; color: var(--c-gold-pale); flex-wrap: wrap; gap: 5px 8px; font: 12px/1.3 Georgia,serif; }
-.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster) .unit-tile-lock { padding: 6px 4px; font: 12px/1.3 Georgia,serif; }
-.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster) .unit-card { display: grid; gap: 8px; padding: 12px 10px; margin: 0; border: 0 solid transparent; border-image: var(--royal-page-frame) 20 / 4px / 0 stretch; border-radius: 0; background: none; box-shadow: none; }
-.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster) .unit-top { display: grid; grid-template-columns: 64px minmax(0,1fr) 44px; align-items: start; gap: 10px; }
-.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster) .unit-top > span { min-width: 0; }
-.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster) .unit-top strong { display: block; font: 700 23px/1.2 'Payitaht Profile Roman',Georgia,serif; }
-.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster) .unit-role { display: block; margin: 6px 0 0; color: var(--c-ink-muted); font: 13px/1.4 Georgia,serif; }
-.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster) .unit-top small { margin-top: 8px; font: 13px/1.5 Georgia,serif; }
-.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster) .unit-have { margin: 0; text-align: center; font: 700 22px/1.2 'Payitaht Profile Roman',Georgia,serif; }
-.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster) :is(.unit-stats,.unit-battle) { gap: 8px 12px; padding: 6px 0; border: 0; border-block: 1px solid var(--c-gold-deep); background: none; font: 14px/1.4 Georgia,serif; }
-.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster) .unit-slider { grid-template-columns: 48px minmax(0,1fr) 48px 60px; gap: 8px; margin: 0; }
-.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster) .unit-slider > button { width: 48px; height: 48px; background: var(--royal-wood); border-color: var(--c-gold-deep); color: var(--c-gold-pale); }
-.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster) .unit-slider input[type='number'] { width: 60px; min-height: 48px; padding: 8px 4px; border: 1px solid var(--c-gold-deep); border-radius: 0; background: none; font: 18px/1.3 Georgia,serif; color: var(--c-ink); }
-.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster) .unit-slider input[type='range'] { height: 48px; border-radius: 0; border: 0; background: linear-gradient(var(--c-gold-deep),var(--c-gold-deep)) center / 100% 10px no-repeat; }
-.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster) .unit-slider > small { margin: 0; font: 13px/1.4 Georgia,serif; }
-.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster) .unit-bottom { display: grid; grid-template-columns: minmax(0,1fr) auto; gap: 8px; align-items: center; }
-.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster) .unit-bottom > .gbtn { grid-column: 1/-1; width: 100%; }
-.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster) .gbtn { min-height: 50px; padding: 12px 10px; border: 0 solid transparent; border-image: var(--royal-gold-button-frame) 12 / 5px / 0 stretch; border-radius: 0; background: linear-gradient(var(--c-gold-pale),var(--c-gold)); color: var(--c-ink); box-shadow: none; font: 700 18px/1.3 'Payitaht Profile Roman',Georgia,serif; }
-.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster) :is(.fine-print,.bp-note,.bp-warn,.army-note,.hint) { font: 13px/1.55 Georgia,serif; }
-.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster) :is(.army-more,.drill-queue,.bf-card,.bp-tabpanel > .bp-box) { margin: 0; padding: 12px; border: 0 solid transparent; border-image: var(--royal-page-frame) 20 / 4px / 0 stretch; border-radius: 0; background: none; box-shadow: none; }
-.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster) .army-more > summary { min-height: 48px; padding: 10px 0; font: 700 19px/1.4 'Payitaht Profile Roman',Georgia,serif; }
-.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster) .drill-queue { margin-top: 18px; }
-.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster) .drill-job { gap: 10px; padding: 12px 0; border-bottom: 1px solid var(--c-gold-deep); background: none; }
-.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster) .drill-job strong { font: 700 18px/1.3 'Payitaht Profile Roman',Georgia,serif; }
-.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster) .drill-job small { font: 13px/1.4 Georgia,serif; }
-.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster) .army-summary { padding: 12px 0; border: 0; border-radius: 0; background: none; box-shadow: none; }
-.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster) .bf-card-rows { grid-template-columns: repeat(3,minmax(0,1fr)); gap: 12px; }
-.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster) .bp-box-title { margin: -12px -12px 12px; min-height: 48px; padding: 12px; border: 0 solid transparent; border-image: var(--royal-page-frame) 20 / 3px / 0 stretch; background: var(--royal-wood); color: var(--c-gold-pale); font: 700 21px/1.2 'Payitaht Profile Roman',Georgia,serif; }
-.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster) .bp-box-body { padding: 0; font: 14px/1.5 Georgia,serif; }
-.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster) .bp-tabpanel > .bp-box + .bp-box { margin-top: 18px; }
-.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster) .bp-table { font: 14px/1.5 Georgia,serif; }
-.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster) .bp-table :is(th,td) { padding: 12px 8px; background: none; border-color: var(--c-gold-deep); }
-.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster) .bp-table th { color: var(--c-ink); font-weight: 700; }
-.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster) .bp-mini-costs { flex-wrap: wrap; gap: 8px; }
-.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster) .bp-dock { display: block; position: static; inset: auto; flex-shrink: 0; width: 100%; max-height: none; overflow: visible; padding: 10px 12px; margin: 0; border: 0 solid transparent; border-image: var(--royal-page-frame) 20 / 4px / 0 stretch; border-radius: 0; background: var(--royal-paper) center / 420px auto; box-shadow: none; }
-.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster) .bp-dock-thumb { display: none; }
-.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster) .bp-dock-label { margin: 0 0 6px; padding: 0; font: 700 15px/1.3 'Payitaht Profile Roman',Georgia,serif; }
-.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster) .bp-dock .bp-costs { margin: 0 0 8px; }
-.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster) .bp-upgrade-button { min-height: 50px; width: 100%; padding: 10px; border: 0 solid transparent; border-image: var(--royal-gold-button-frame) 12 / 5px / 0 stretch; border-radius: 0; background: linear-gradient(var(--c-gold-pale),var(--c-gold)); color: var(--c-ink); box-shadow: none; font: 700 18px/1.3 'Payitaht Profile Roman',Georgia,serif; }
-.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster) .bp-up-time { font: 13px/1.4 Georgia,serif; }
-@media (min-width: 650px) { .game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster) .unit-gallery > .unit-tile { flex-basis: 124px; } }
+.game-shell.has-page:has(:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik))::after { content: ''; position: fixed; z-index: 59; inset: auto 0 0; height: var(--ika-nav); background: var(--royal-paper) center / 420px auto; pointer-events: none; }
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik) { width: 100%; max-width: none; border-radius: 0; color: var(--c-ink); background: var(--royal-paper) center / 420px auto; font-family: Georgia,serif; -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik) > .bp-bar .bp-title { right: calc(var(--court-control-size) * 2 + 20px); }
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik) .bp-scroll { gap: 0; padding: 0; background: none; border: 0; }
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik) .bp-tabs { flex-shrink: 0; display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); width: 100%; gap: 0; margin: 0; padding: 0; border-radius: 0; background: var(--royal-wood); box-shadow: none; }
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik) .bp-tabs > button { min-height: 52px; padding: 12px 8px; border: 0 solid transparent; border-image: var(--royal-page-frame) 20 / 4px / 0 stretch; border-radius: 0; background: none; color: var(--c-gold-pale); font: 700 20px/1.2 'Payitaht Profile Roman',Georgia,serif; }
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik) .bp-tabs > button[aria-selected='true'] { border-image: var(--royal-tab-frame) 14 / 4px / 0 stretch; background: linear-gradient(var(--c-royal-active),var(--c-royal-active-deep)); box-shadow: none; }
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik) .bp-tabpanel { padding: 8px 2% 14px; border: 0 solid transparent; border-image: var(--royal-page-frame) 20 / 4px / 0 stretch; }
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik) .bp-army { margin: 0; border: 0; border-image: none; background: none; box-shadow: none; }
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik) .bp-army > .bp-box-body { padding: 0; }
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik) .army-home { gap: 8px; }
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik) .unit-gallery { gap: 10px; padding: 4px 0 6px; margin: 0; }
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik) .unit-gallery > .unit-tile { flex: 0 0 108px; gap: 6px; padding: 6px; border: 0 solid transparent; border-image: var(--royal-page-frame) 20 / 3px / 0 stretch; border-radius: 0; background: var(--royal-wood); color: var(--c-gold-pale); box-shadow: none; }
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik) .unit-tile[aria-selected='true'] { border-image-source: var(--royal-tab-frame); background: linear-gradient(var(--c-royal-active),var(--c-royal-active-deep)); outline: 2px solid var(--c-gold-deep); outline-offset: -2px; }
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik) .unit-tile > strong { min-height: 36px; white-space: normal; overflow: visible; display: grid; place-items: center; order: 0; font: 700 17px/1.15 'Payitaht Profile Roman',Georgia,serif; }
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik) .unit-tile-art { width: 100%; aspect-ratio: 1.2/1; border: 0; border-radius: 0; }
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik) .unit-tile-art > img { object-fit: contain; }
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik) .unit-tile-stats { display: none; color: var(--c-gold-pale); flex-wrap: wrap; gap: 5px 8px; font: 12px/1.3 Georgia,serif; }
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik) .unit-tile-lock { padding: 6px 4px; font: 12px/1.3 Georgia,serif; }
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik) .unit-card { display: grid; gap: 8px; padding: 12px 10px; margin: 0; border: 0 solid transparent; border-image: var(--royal-page-frame) 20 / 4px / 0 stretch; border-radius: 0; background: none; box-shadow: none; }
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik) .unit-top { display: grid; grid-template-columns: 64px minmax(0,1fr) 44px; align-items: start; gap: 10px; }
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik) .unit-top > span { min-width: 0; }
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik) .unit-top strong { display: block; font: 700 23px/1.2 'Payitaht Profile Roman',Georgia,serif; }
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik) .unit-role { display: block; margin: 6px 0 0; color: var(--c-ink-muted); font: 13px/1.4 Georgia,serif; }
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik) .unit-top small { margin-top: 8px; font: 13px/1.5 Georgia,serif; }
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik) .unit-have { margin: 0; text-align: center; font: 700 22px/1.2 'Payitaht Profile Roman',Georgia,serif; }
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik) :is(.unit-stats,.unit-battle) { gap: 8px 12px; padding: 6px 0; border: 0; border-block: 1px solid var(--c-gold-deep); background: none; font: 14px/1.4 Georgia,serif; }
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik) .unit-slider { grid-template-columns: 48px minmax(0,1fr) 48px 60px; gap: 8px; margin: 0; }
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik) .unit-slider > button { width: 48px; height: 48px; background: var(--royal-wood); border-color: var(--c-gold-deep); color: var(--c-gold-pale); }
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik) .unit-slider input[type='number'] { width: 60px; min-height: 48px; padding: 8px 4px; border: 1px solid var(--c-gold-deep); border-radius: 0; background: none; font: 18px/1.3 Georgia,serif; color: var(--c-ink); }
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik) .unit-slider input[type='range'] { height: 48px; border-radius: 0; border: 0; background: linear-gradient(var(--c-gold-deep),var(--c-gold-deep)) center / 100% 10px no-repeat; }
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik) .unit-slider > small { margin: 0; font: 13px/1.4 Georgia,serif; }
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik) .unit-bottom { display: grid; grid-template-columns: minmax(0,1fr) auto; gap: 8px; align-items: center; }
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik) .unit-bottom > .gbtn { grid-column: 1/-1; width: 100%; }
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik) .gbtn { min-height: 50px; padding: 12px 10px; border: 0 solid transparent; border-image: var(--royal-gold-button-frame) 12 / 5px / 0 stretch; border-radius: 0; background: linear-gradient(var(--c-gold-pale),var(--c-gold)); color: var(--c-ink); box-shadow: none; font: 700 18px/1.3 'Payitaht Profile Roman',Georgia,serif; }
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik) :is(.fine-print,.bp-note,.bp-warn,.army-note,.hint) { font: 13px/1.55 Georgia,serif; }
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik) :is(.army-more,.drill-queue,.bf-card,.bp-tabpanel > .bp-box) { margin: 0; padding: 12px; border: 0 solid transparent; border-image: var(--royal-page-frame) 20 / 4px / 0 stretch; border-radius: 0; background: none; box-shadow: none; }
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik) .army-more > summary { min-height: 48px; padding: 10px 0; font: 700 19px/1.4 'Payitaht Profile Roman',Georgia,serif; }
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik) .drill-queue { margin-top: 18px; }
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik) .drill-job { gap: 10px; padding: 12px 0; border-bottom: 1px solid var(--c-gold-deep); background: none; }
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik) .drill-job strong { font: 700 18px/1.3 'Payitaht Profile Roman',Georgia,serif; }
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik) .drill-job small { font: 13px/1.4 Georgia,serif; }
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik) .army-summary { padding: 12px 0; border: 0; border-radius: 0; background: none; box-shadow: none; }
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik) .bf-card-rows { grid-template-columns: repeat(3,minmax(0,1fr)); gap: 12px; }
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik) .bp-box-title { margin: -12px -12px 12px; min-height: 48px; padding: 12px; border: 0 solid transparent; border-image: var(--royal-page-frame) 20 / 3px / 0 stretch; background: var(--royal-wood); color: var(--c-gold-pale); font: 700 21px/1.2 'Payitaht Profile Roman',Georgia,serif; }
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik) .bp-box-body { padding: 0; font: 14px/1.5 Georgia,serif; }
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik) .bp-tabpanel > .bp-box + .bp-box { margin-top: 18px; }
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik) .bp-table { font: 14px/1.5 Georgia,serif; }
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik) .bp-table :is(th,td) { padding: 12px 8px; background: none; border-color: var(--c-gold-deep); }
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik) .bp-table th { color: var(--c-ink); font-weight: 700; }
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik) .bp-mini-costs { flex-wrap: wrap; gap: 8px; }
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik) .bp-dock { display: block; position: static; inset: auto; flex-shrink: 0; width: 100%; max-height: none; overflow: visible; padding: 10px 12px; margin: 0; border: 0 solid transparent; border-image: var(--royal-page-frame) 20 / 4px / 0 stretch; border-radius: 0; background: var(--royal-paper) center / 420px auto; box-shadow: none; }
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik) .bp-dock-thumb { display: none; }
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik) .bp-dock-label { margin: 0 0 6px; padding: 0; font: 700 15px/1.3 'Payitaht Profile Roman',Georgia,serif; }
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik) .bp-dock .bp-costs { margin: 0 0 8px; }
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik) .bp-upgrade-button { min-height: 50px; width: 100%; padding: 10px; border: 0 solid transparent; border-image: var(--royal-gold-button-frame) 12 / 5px / 0 stretch; border-radius: 0; background: linear-gradient(var(--c-gold-pale),var(--c-gold)); color: var(--c-ink); box-shadow: none; font: 700 18px/1.3 'Payitaht Profile Roman',Georgia,serif; }
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik) .bp-up-time { font: 13px/1.4 Georgia,serif; }
+@media (min-width: 650px) { .game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik) .unit-gallery > .unit-tile { flex-basis: 124px; } }
 
-.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster) .bp-dock .bp-costs { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
-.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster) .bp-dock .bp-costs li { padding: 0; border: 0; border-radius: 0; background: none; }
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik) .bp-dock .bp-costs { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik) .bp-dock .bp-costs li { padding: 0; border: 0; border-radius: 0; background: none; }
 
-.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster) .bp-dock .bp-warn { display: block; -webkit-line-clamp: unset; overflow: visible; white-space: normal; margin: 6px 0; }
-.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster) .bp-dock-label { text-transform: none; letter-spacing: 0; }
-.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster) .unit-battle span { border: 0; border-radius: 0; padding: 0; background: none; }
-.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster) .bp-upgrade-button:disabled { filter: none; opacity: .65; }
-.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster) .unit-card::before { display: none; }
-.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster) .unit-portrait { width: 64px; height: 72px; border-radius: 0; border-color: var(--c-gold-deep); background: var(--royal-wood); }
-.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster) .unit-role { padding: 0; border: 0; border-radius: 0; background: none; }
-.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster) .unit-have { min-width: 0; padding: 4px; border: 1px solid var(--c-gold-deep); border-radius: 0; background: none; }
-.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster) :is(.unit-stats,.unit-battle) { border-radius: 0; }
-.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster) .army-summary > div { display: grid; grid-template-columns: 28px minmax(0,1fr); gap: 4px 8px; padding: 10px 0; border: 0; border-bottom: 1px solid var(--c-gold-deep); border-radius: 0; background: none; color: var(--c-ink); }
-.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster) .army-summary > div > :is(svg,.painted-icon) { grid-row: 1/3; align-self: center; }
-.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster) .army-summary > div > span { font: 14px/1.4 Georgia,serif; overflow-wrap: normal; }
-.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster) .army-summary strong { grid-column: 2; margin: 0; font: 700 25px/1.2 'Payitaht Profile Roman',Georgia,serif; }
-.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster) .army-note { margin: 0; padding: 14px 0; border: 0; border-bottom: 1px solid var(--c-gold-deep); border-radius: 0; background: none; color: var(--c-ink); }
-.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster) .bf-card-rows > span { gap: 8px; padding: 10px 3px; border: 0; border-bottom: 1px solid var(--c-gold-deep); border-radius: 0; background: none; }
-.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster) .bf-card-rows strong { font: 700 25px/1.2 'Payitaht Profile Roman',Georgia,serif; }
-.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster) .bf-card-rows small { font: 13px/1.4 Georgia,serif; }
-.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster) .bf-garrison > div { grid-template-columns: minmax(0,1fr) auto; padding: 10px 0; font: 14px/1.4 Georgia,serif; }
-.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster) .bf-garrison-bar { grid-row: 2; grid-column: 1/-1; height: 10px; border: 1px solid var(--c-gold-deep); border-radius: 0; background: var(--royal-wood); }
-.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster) .bf-garrison strong { font: 700 15px/1.3 'Payitaht Profile Roman',Georgia,serif; }
-.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster) .hint { border-radius: 0; }
-.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster) .hint summary { min-height: 48px; padding: 10px 6px; border: 0; border-bottom: 1px solid var(--c-gold-deep); border-radius: 0; background: none; font: 14px/1.4 Georgia,serif; }
-.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster) .hint p { padding: 12px 0; border: 0; border-radius: 0; background: none; font: 13px/1.55 Georgia,serif; }
-.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster) .army-more .term-i { filter: sepia(1) saturate(.6); }
-.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster) .bf-card-rows .term { display: inline-flex; padding: 0; border: 0; border-radius: 0; background: none; }
-.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster) .army-more .term-btn { padding: 4px; border: 0; border-bottom: 1px solid var(--c-gold-deep); border-radius: 0; background: none; color: var(--c-ink); }
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik) .bp-dock .bp-warn { display: block; -webkit-line-clamp: unset; overflow: visible; white-space: normal; margin: 6px 0; }
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik) .bp-dock-label { text-transform: none; letter-spacing: 0; }
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik) .unit-battle span { border: 0; border-radius: 0; padding: 0; background: none; }
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik) .bp-upgrade-button:disabled { filter: none; opacity: .65; }
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik) .unit-card::before { display: none; }
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik) .unit-portrait { width: 64px; height: 72px; border-radius: 0; border-color: var(--c-gold-deep); background: var(--royal-wood); }
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik) .unit-role { padding: 0; border: 0; border-radius: 0; background: none; }
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik) .unit-have { min-width: 0; padding: 4px; border: 1px solid var(--c-gold-deep); border-radius: 0; background: none; }
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik) :is(.unit-stats,.unit-battle) { border-radius: 0; }
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik) .army-summary > div { display: grid; grid-template-columns: 28px minmax(0,1fr); gap: 4px 8px; padding: 10px 0; border: 0; border-bottom: 1px solid var(--c-gold-deep); border-radius: 0; background: none; color: var(--c-ink); }
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik) .army-summary > div > :is(svg,.painted-icon) { grid-row: 1/3; align-self: center; }
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik) .army-summary > div > span { font: 14px/1.4 Georgia,serif; overflow-wrap: normal; }
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik) .army-summary strong { grid-column: 2; margin: 0; font: 700 25px/1.2 'Payitaht Profile Roman',Georgia,serif; }
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik) .army-note { margin: 0; padding: 14px 0; border: 0; border-bottom: 1px solid var(--c-gold-deep); border-radius: 0; background: none; color: var(--c-ink); }
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik) .bf-card-rows > span { gap: 8px; padding: 10px 3px; border: 0; border-bottom: 1px solid var(--c-gold-deep); border-radius: 0; background: none; }
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik) .bf-card-rows strong { font: 700 25px/1.2 'Payitaht Profile Roman',Georgia,serif; }
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik) .bf-card-rows small { font: 13px/1.4 Georgia,serif; }
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik) .bf-garrison > div { grid-template-columns: minmax(0,1fr) auto; padding: 10px 0; font: 14px/1.4 Georgia,serif; }
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik) .bf-garrison-bar { grid-row: 2; grid-column: 1/-1; height: 10px; border: 1px solid var(--c-gold-deep); border-radius: 0; background: var(--royal-wood); }
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik) .bf-garrison strong { font: 700 15px/1.3 'Payitaht Profile Roman',Georgia,serif; }
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik) .hint { border-radius: 0; }
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik) .hint summary { min-height: 48px; padding: 10px 6px; border: 0; border-bottom: 1px solid var(--c-gold-deep); border-radius: 0; background: none; font: 14px/1.4 Georgia,serif; }
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik) .hint p { padding: 12px 0; border: 0; border-radius: 0; background: none; font: 13px/1.55 Georgia,serif; }
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik) .army-more .term-i { filter: sepia(1) saturate(.6); }
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik) .bf-card-rows .term { display: inline-flex; padding: 0; border: 0; border-radius: 0; background: none; }
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik) .army-more .term-btn { padding: 4px; border: 0; border-bottom: 1px solid var(--c-gold-deep); border-radius: 0; background: none; color: var(--c-ink); }
 
 /* Space belongs to play: upgrade is in Development, courtyard opens on demand. */
-.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster) .bp-tabs { position: sticky; top: 0; z-index: 3; }
-.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster) .bp-tabpanel > .bp-dock { margin: 0 0 18px; }
-.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster):not(.show-help) .unit-top > span:nth-child(2) > small { display: none; }
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik) .bp-tabs { position: sticky; top: 0; z-index: 3; }
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik) .bp-tabpanel > .bp-dock { margin: 0 0 18px; }
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik):not(.show-help) .unit-top > span:nth-child(2) > small { display: none; }
 
 /* Approved 8 October vertical roster: the quantity bar alone slides sideways. */
-.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster) .barracks-banner { position: relative; margin: 0; height: 64px; flex-shrink: 0; overflow: hidden; border: 0 solid transparent; border-image: var(--royal-page-frame) 20 / 4px / 0 stretch; }
-.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster) .barracks-banner > img { width: 100%; height: 100%; object-fit: cover; object-position: center 54%; }
-.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster) .barracks-banner > figcaption { position: absolute; bottom: 8px; right: 10px; padding: 4px 10px; background: var(--royal-wood) center / cover; border: 1px solid var(--c-gold-deep); color: var(--c-gold-pale); font: 13px/1.4 Georgia,serif; }
-.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster) .bp-tabs > button { display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 18px; }
-.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster) .bp-tabs .barracks-tab-emblem { width: 32px; height: 32px; border-radius: 50%; object-fit: contain; }
-.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster) .barracks-roster { display: grid; gap: 10px; min-width: 0; }
-.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster) .barracks-roster > h2 { margin: 4px 0; text-align: center; font: 700 22px/1.25 'Payitaht Profile Roman',Georgia,serif; }
-.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster) .barracks-entry { min-width: 0; border: 0 solid transparent; border-image: var(--royal-page-frame) 20 / 6px / 0 stretch; background: var(--royal-paper) center / 420px auto; }
-.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster) .barracks-entry.is-selected { border-image-source: var(--royal-tab-frame); }
-.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster) .barracks-unit-toggle { display: grid; grid-template-columns: 52px minmax(0,1fr) 24px; align-items: center; gap: 10px; width: 100%; min-height: 76px; padding: 10px 12px; border: 0; border-radius: 0; background: none; color: var(--c-ink); text-align: left; cursor: pointer; }
-.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster) .barracks-unit-toggle > .unit-figure { width: 52px; height: 56px; border-radius: 0 !important; background: var(--royal-wood) center / cover !important; }
-.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster) .barracks-unit-toggle strong { display: block; font: 700 20px/1.25 'Payitaht Profile Roman',Georgia,serif; }
-.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster) .barracks-unit-toggle small { display: block; margin-top: 4px; font: 13px/1.45 Georgia,serif; color: var(--c-ink-muted); overflow-wrap: anywhere; }
-.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster) .barracks-unit-chevron { color: var(--c-gold-deep); text-align: center; font: 700 26px/1 Georgia,serif; }
-.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster) .barracks-unit-toggle:focus-visible { outline: 2px solid var(--c-gold-deep); outline-offset: -6px; }
-.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster) .barracks-training { padding: 0 12px 14px; border: 0; border-image: none; }
-.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster) .barracks-unit-information { margin: 0; }
-.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster) .barracks-unit-information > summary { padding: 12px 0; min-height: 44px; font: 13px/1.5 Georgia,serif; color: var(--c-ink-muted); cursor: pointer; border-block: 1px solid var(--c-gold-deep); }
-.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster) .barracks-unit-information[open] > summary { margin-bottom: 12px; }
-.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster) .barracks-quantity { display: grid; gap: 4px; min-width: 0; }
-.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster) .barracks-quantity > label { font: 700 18px/1.4 'Payitaht Profile Roman',Georgia,serif; }
-.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster) .barracks-quantity > input[type='range'] { appearance: none; -webkit-appearance: none; width: 100%; height: 44px; margin: 0; padding: 0; cursor: pointer; border: 0; border-radius: 0; background: none; accent-color: var(--c-gold); touch-action: pan-y; }
-.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster) .barracks-quantity > input[type='range']::-webkit-slider-runnable-track { height: 12px; border: 1px solid var(--c-gold-deep); border-radius: 8px; background: linear-gradient(to right,var(--c-gold) var(--fill),transparent var(--fill)),var(--royal-wood) center / cover; }
-.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster) .barracks-quantity > input[type='range']::-webkit-slider-thumb { appearance: none; -webkit-appearance: none; width: 30px; height: 30px; margin-top: -10px; border: 3px double var(--c-gold-deep); border-radius: 50%; background: radial-gradient(circle at 35% 30%,var(--c-gold-pale),var(--c-gold)); box-shadow: 0 2px 3px #0005; }
-.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster) .barracks-quantity > input[type='range']::-moz-range-track { height: 12px; border: 1px solid var(--c-gold-deep); border-radius: 8px; background: linear-gradient(to right,var(--c-gold) var(--fill),transparent var(--fill)),var(--royal-wood) center / cover; }
-.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster) .barracks-quantity > input[type='range']::-moz-range-thumb { width: 26px; height: 26px; border: 3px double var(--c-gold-deep); border-radius: 50%; background: radial-gradient(circle at 35% 30%,var(--c-gold-pale),var(--c-gold)); }
-.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster) .barracks-range-limits { display: flex; justify-content: space-between; margin-top: -6px; font: 12px/1.4 Georgia,serif; color: var(--c-ink-muted); }
-.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster) .barracks-count-controls { display: grid; grid-template-columns: 48px minmax(56px,1fr) 48px 66px; gap: 8px; margin: 6px 0; }
-.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster) .barracks-count-controls > button { width: 48px; height: 48px; padding: 0; border: 3px double var(--c-gold-deep); border-radius: 50%; background: var(--royal-wood) center / cover; color: var(--c-gold-pale); box-shadow: inset 0 1px 2px #fff4,0 2px 3px #0004; font: 700 25px/1 Georgia,serif; cursor: pointer; }
-.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster) .barracks-count-controls > button:last-child { width: 66px; border: 0 solid transparent; border-image: var(--royal-gold-button-frame) 12 / 5px / 0 stretch; border-radius: 0; font-size: 14px; }
-.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster) .barracks-count-controls > input { width: 100%; min-width: 0; height: 48px; padding: 6px; border: 1px solid var(--c-gold-deep); border-radius: 0; background: none; color: var(--c-ink); text-align: center; font: 20px/1.4 Georgia,serif; }
-.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster) .barracks-training .unit-bottom { margin-top: 8px; gap: 12px 8px; }
-.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster) .barracks-training .unit-bottom > .gbtn { background: linear-gradient(var(--c-royal-active),var(--c-royal-active-deep)); color: var(--c-gold-pale); border-image: var(--royal-gold-button-frame) 12 / 6px / 0 stretch; min-height: 52px; }
-.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster) .barracks-training .unit-bottom > span { font: 13px/1.4 Georgia,serif; }
-.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster) .barracks-count-controls > button:disabled { opacity: .5; cursor: default; }
-.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster) .barracks-quantity > input:disabled { opacity: .5; cursor: default; }
-.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster) .barracks-entry.is-locked .barracks-unit-toggle > .unit-figure { filter: saturate(.45); }
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik) .barracks-banner { position: relative; margin: 0; height: 64px; flex-shrink: 0; overflow: hidden; border: 0 solid transparent; border-image: var(--royal-page-frame) 20 / 4px / 0 stretch; }
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik) .barracks-banner > img { width: 100%; height: 100%; object-fit: cover; object-position: center 54%; }
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik) .barracks-banner > figcaption { position: absolute; bottom: 8px; right: 10px; padding: 4px 10px; background: var(--royal-wood) center / cover; border: 1px solid var(--c-gold-deep); color: var(--c-gold-pale); font: 13px/1.4 Georgia,serif; }
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik) .bp-tabs > button { display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 18px; }
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik) .bp-tabs .barracks-tab-emblem { width: 32px; height: 32px; border-radius: 50%; object-fit: contain; }
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik) .barracks-roster { display: grid; gap: 10px; min-width: 0; }
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik) .barracks-roster > h2 { margin: 4px 0; text-align: center; font: 700 22px/1.25 'Payitaht Profile Roman',Georgia,serif; }
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik) .barracks-entry { min-width: 0; border: 0 solid transparent; border-image: var(--royal-page-frame) 20 / 6px / 0 stretch; background: var(--royal-paper) center / 420px auto; }
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik) .barracks-entry.is-selected { border-image-source: var(--royal-tab-frame); }
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik) .barracks-unit-toggle { display: grid; grid-template-columns: 52px minmax(0,1fr) 24px; align-items: center; gap: 10px; width: 100%; min-height: 76px; padding: 10px 12px; border: 0; border-radius: 0; background: none; color: var(--c-ink); text-align: left; cursor: pointer; }
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik) .barracks-unit-toggle > .unit-figure { width: 52px; height: 56px; border-radius: 0 !important; background: var(--royal-wood) center / cover !important; }
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik) .barracks-unit-toggle strong { display: block; font: 700 20px/1.25 'Payitaht Profile Roman',Georgia,serif; }
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik) .barracks-unit-toggle small { display: block; margin-top: 4px; font: 13px/1.45 Georgia,serif; color: var(--c-ink-muted); overflow-wrap: anywhere; }
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik) .barracks-unit-chevron { color: var(--c-gold-deep); text-align: center; font: 700 26px/1 Georgia,serif; }
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik) .barracks-unit-toggle:focus-visible { outline: 2px solid var(--c-gold-deep); outline-offset: -6px; }
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik) .barracks-training { padding: 0 12px 14px; border: 0; border-image: none; }
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik) .barracks-unit-information { margin: 0; }
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik) .barracks-unit-information > summary { padding: 12px 0; min-height: 44px; font: 13px/1.5 Georgia,serif; color: var(--c-ink-muted); cursor: pointer; border-block: 1px solid var(--c-gold-deep); }
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik) .barracks-unit-information[open] > summary { margin-bottom: 12px; }
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik) .barracks-quantity { display: grid; gap: 4px; min-width: 0; }
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik) .barracks-quantity > label { font: 700 18px/1.4 'Payitaht Profile Roman',Georgia,serif; }
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik) .barracks-quantity > input[type='range'] { appearance: none; -webkit-appearance: none; width: 100%; height: 44px; margin: 0; padding: 0; cursor: pointer; border: 0; border-radius: 0; background: none; accent-color: var(--c-gold); touch-action: pan-y; }
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik) .barracks-quantity > input[type='range']::-webkit-slider-runnable-track { height: 12px; border: 1px solid var(--c-gold-deep); border-radius: 8px; background: linear-gradient(to right,var(--c-gold) var(--fill),transparent var(--fill)),var(--royal-wood) center / cover; }
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik) .barracks-quantity > input[type='range']::-webkit-slider-thumb { appearance: none; -webkit-appearance: none; width: 30px; height: 30px; margin-top: -10px; border: 3px double var(--c-gold-deep); border-radius: 50%; background: radial-gradient(circle at 35% 30%,var(--c-gold-pale),var(--c-gold)); box-shadow: 0 2px 3px #0005; }
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik) .barracks-quantity > input[type='range']::-moz-range-track { height: 12px; border: 1px solid var(--c-gold-deep); border-radius: 8px; background: linear-gradient(to right,var(--c-gold) var(--fill),transparent var(--fill)),var(--royal-wood) center / cover; }
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik) .barracks-quantity > input[type='range']::-moz-range-thumb { width: 26px; height: 26px; border: 3px double var(--c-gold-deep); border-radius: 50%; background: radial-gradient(circle at 35% 30%,var(--c-gold-pale),var(--c-gold)); }
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik) .barracks-range-limits { display: flex; justify-content: space-between; margin-top: -6px; font: 12px/1.4 Georgia,serif; color: var(--c-ink-muted); }
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik) .barracks-count-controls { display: grid; grid-template-columns: 48px minmax(56px,1fr) 48px 66px; gap: 8px; margin: 6px 0; }
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik) .barracks-count-controls > button { width: 48px; height: 48px; padding: 0; border: 3px double var(--c-gold-deep); border-radius: 50%; background: var(--royal-wood) center / cover; color: var(--c-gold-pale); box-shadow: inset 0 1px 2px #fff4,0 2px 3px #0004; font: 700 25px/1 Georgia,serif; cursor: pointer; }
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik) .barracks-count-controls > button:last-child { width: 66px; border: 0 solid transparent; border-image: var(--royal-gold-button-frame) 12 / 5px / 0 stretch; border-radius: 0; font-size: 14px; }
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik) .barracks-count-controls > input { width: 100%; min-width: 0; height: 48px; padding: 6px; border: 1px solid var(--c-gold-deep); border-radius: 0; background: none; color: var(--c-ink); text-align: center; font: 20px/1.4 Georgia,serif; }
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik) .barracks-training .unit-bottom { margin-top: 8px; gap: 12px 8px; }
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik) .barracks-training .unit-bottom > .gbtn { background: linear-gradient(var(--c-royal-active),var(--c-royal-active-deep)); color: var(--c-gold-pale); border-image: var(--royal-gold-button-frame) 12 / 6px / 0 stretch; min-height: 52px; }
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik) .barracks-training .unit-bottom > span { font: 13px/1.4 Georgia,serif; }
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik) .barracks-count-controls > button:disabled { opacity: .5; cursor: default; }
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik) .barracks-quantity > input:disabled { opacity: .5; cursor: default; }
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik) .barracks-entry.is-locked .barracks-unit-toggle > .unit-figure { filter: saturate(.45); }
 
 /* Painted skin from the approved mockup: live text and controls remain HTML. */
-.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster) {
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik) {
   --barracks-paper: url('../../public/images/game/ui/barracks/paper.webp');
   --barracks-frame: url('../../public/images/game/ui/barracks/unit-frame.webp');
   --barracks-action: url('../../public/images/game/ui/barracks/recruit-button.webp');
   --barracks-silk: url('../../public/images/game/ui/barracks/red-silk.webp');
   background: var(--barracks-paper) center / 400px 200px;
 }
-.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster) .bp-tabpanel { padding: 8px 3% 18px; background: var(--barracks-paper) center / 400px 200px; }
-.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster) .barracks-banner { height: 96px; }
-.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster) .bp-tabs > button { min-height: 54px; }
-.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster) .bp-tabs > button[aria-selected='true'] { background: var(--barracks-silk) center / cover; }
-.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster) .barracks-roster { gap: 9px; }
-.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster) .barracks-roster > h2 { margin: 3px 0 7px; font-size: 23px; }
-.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster) :is(.barracks-entry,.army-more,.drill-queue,.bf-card,.bp-tabpanel > .bp-box,.bp-dock) {
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik) .bp-tabpanel { padding: 8px 3% 18px; background: var(--barracks-paper) center / 400px 200px; }
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik) .barracks-banner { height: 96px; }
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik) .bp-tabs > button { min-height: 54px; }
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik) .bp-tabs > button[aria-selected='true'] { background: var(--barracks-silk) center / cover; }
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik) .barracks-roster { gap: 9px; }
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik) .barracks-roster > h2 { margin: 3px 0 7px; font-size: 23px; }
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik) :is(.barracks-entry,.army-more,.drill-queue,.bf-card,.bp-tabpanel > .bp-box,.bp-dock) {
   border: 0 solid transparent;
   border-image: var(--barracks-frame) 40 / 16px / 0 stretch;
   background: var(--barracks-paper) center / 400px 200px;
 }
-.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster) .barracks-entry.is-selected { border-image-source: var(--barracks-frame); }
-.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster) .barracks-unit-toggle { grid-template-columns: 96px minmax(0,1fr) 20px; min-height: 85px; gap: 8px; padding: 10px 12px 8px; }
-.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster) .barracks-painted-portrait { display: block; width: 96px; height: 70px; object-fit: fill; border: 0; background: none; }
-.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster) .barracks-unit-toggle > .unit-figure { width: 96px; height: 70px; }
-.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster) .barracks-unit-toggle strong { font-size: 21px; }
-.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster) .barracks-training { gap: 6px; padding: 0 16px 16px; }
-.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster) .barracks-unit-information > summary { padding: 8px 0; }
-.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster) .barracks-count-controls { grid-template-columns: 44px minmax(52px,1fr) 44px 62px; gap: 7px; margin: 3px 0; }
-.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster) .barracks-count-controls > button { width: 44px; height: 44px; }
-.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster) .barracks-count-controls > button:last-child { width: 62px; }
-.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster) .barracks-count-controls > input { height: 44px; }
-.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster) :is(.barracks-training .unit-bottom > .gbtn,.bp-upgrade-button) {
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik) .barracks-entry.is-selected { border-image-source: var(--barracks-frame); }
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik) .barracks-unit-toggle { grid-template-columns: 96px minmax(0,1fr) 20px; min-height: 85px; gap: 8px; padding: 10px 12px 8px; }
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik) .barracks-painted-portrait { display: block; width: 96px; height: 70px; object-fit: fill; border: 0; background: none; }
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik) .barracks-unit-toggle > .unit-figure { width: 96px; height: 70px; }
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik) .barracks-unit-toggle strong { font-size: 21px; }
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik) .barracks-training { gap: 6px; padding: 0 16px 16px; }
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik) .barracks-unit-information > summary { padding: 8px 0; }
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik) .barracks-count-controls { grid-template-columns: 44px minmax(52px,1fr) 44px 62px; gap: 7px; margin: 3px 0; }
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik) .barracks-count-controls > button { width: 44px; height: 44px; }
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik) .barracks-count-controls > button:last-child { width: 62px; }
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik) .barracks-count-controls > input { height: 44px; }
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik) :is(.barracks-training .unit-bottom > .gbtn,.bp-upgrade-button) {
   min-height: 52px;
   padding: 12px 24px;
   border: 0 solid transparent;
@@ -171,24 +171,24 @@
   color: var(--c-gold-pale);
   text-shadow: 0 1px 1px #300;
 }
-.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster) .barracks-training .unit-bottom > .gbtn:disabled { filter: saturate(.65); opacity: .78; }
-.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster) :is(.army-more,.drill-queue,.bf-card,.bp-tabpanel > .bp-box) { padding: 16px; }
-.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster) .bp-box-title { margin: -12px -12px 12px; }
-.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster) .drill-job { grid-template-columns: 76px minmax(0,1fr); gap: 8px; }
-.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster) .drill-job .barracks-painted-portrait { width: 76px; height: 54px; }
-.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster) .drill-bar { grid-column: 1/-1; height: 10px; border: 1px solid var(--c-gold-deep); border-radius: 6px; background: var(--royal-wood) center / cover; overflow: hidden; }
-.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster) .drill-bar > i { background: linear-gradient(#e9c46f,#9d691f); }
-.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster) .bp-tabpanel > .bp-army { padding: 0; border: 0; border-image: none; background: none; }
-.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster) .barracks-banner { height: 80px; }
-.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster) .sk-nn { padding: 10px 0; border: 0; border-bottom: 1px solid var(--c-gold-deep); border-radius: 0; background: none; box-shadow: none; }
-.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster) .sk-nn-values { align-items: center; }
-.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster) .sk-nn-arrow { width: 28px; height: 28px; padding: 0; border: 0; border-radius: 0; background: none; color: var(--c-gold-deep); box-shadow: none; font-size: 24px; }
-.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster) :is(.sk-nn-now b,.sk-nn-next b) { font: 700 20px/1.3 'Payitaht Profile Roman',Georgia,serif; }
-.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster) .sk-nn-next b { color: var(--c-ink); }
-.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster) .sk-nn small { color: var(--c-ink-muted); }
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik) .barracks-training .unit-bottom > .gbtn:disabled { filter: saturate(.65); opacity: .78; }
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik) :is(.army-more,.drill-queue,.bf-card,.bp-tabpanel > .bp-box) { padding: 16px; }
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik) .bp-box-title { margin: -12px -12px 12px; }
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik) .drill-job { grid-template-columns: 76px minmax(0,1fr); gap: 8px; }
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik) .drill-job .barracks-painted-portrait { width: 76px; height: 54px; }
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik) .drill-bar { grid-column: 1/-1; height: 10px; border: 1px solid var(--c-gold-deep); border-radius: 6px; background: var(--royal-wood) center / cover; overflow: hidden; }
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik) .drill-bar > i { background: linear-gradient(#e9c46f,#9d691f); }
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik) .bp-tabpanel > .bp-army { padding: 0; border: 0; border-image: none; background: none; }
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik) .barracks-banner { height: 80px; }
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik) .sk-nn { padding: 10px 0; border: 0; border-bottom: 1px solid var(--c-gold-deep); border-radius: 0; background: none; box-shadow: none; }
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik) .sk-nn-values { align-items: center; }
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik) .sk-nn-arrow { width: 28px; height: 28px; padding: 0; border: 0; border-radius: 0; background: none; color: var(--c-gold-deep); box-shadow: none; font-size: 24px; }
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik) :is(.sk-nn-now b,.sk-nn-next b) { font: 700 20px/1.3 'Payitaht Profile Roman',Georgia,serif; }
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik) .sk-nn-next b { color: var(--c-ink); }
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik) .sk-nn small { color: var(--c-ink-muted); }
 
 /* Final reference details: real painted controls, every portrait, production queue. */
-.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster) {
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik) {
   --barracks-minus: url('../../public/images/game/ui/barracks/minus-button.webp');
   --barracks-plus: url('../../public/images/game/ui/barracks/plus-button.webp');
   --barracks-thumb: url('../../public/images/game/ui/barracks/slider-thumb.webp');
@@ -197,36 +197,36 @@
   --barracks-fill: url('../../public/images/game/ui/barracks/slider-gold.webp');
   --barracks-ornament: url('../../public/images/game/ui/barracks/heading-ornament.webp');
 }
-.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster) .barracks-development-icon { width: 28px; height: 28px; object-fit: contain; }
-.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster) :is(.barracks-roster > h2,.barracks-production-queue > h2) { display: flex; align-items: center; justify-content: center; gap: 10px; color: var(--c-ink); font: 700 22px/1.3 'Payitaht Profile Roman',Georgia,serif; }
-.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster) :is(.barracks-roster > h2,.barracks-production-queue > h2)::before,
-.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster) :is(.barracks-roster > h2,.barracks-production-queue > h2)::after { content: ''; flex: 1 1 32px; max-width: 100px; height: 18px; background: var(--barracks-ornament) center / 100% 100% no-repeat; }
-.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster) :is(.barracks-roster > h2,.barracks-production-queue > h2)::after { transform: scaleX(-1); }
-.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster) .barracks-painted-portrait { height: 72px; object-fit: contain; }
-.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster) .barracks-entry.is-locked .barracks-painted-portrait { filter: saturate(.75); }
-.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster) .barracks-training .unit-portrait { width: 76px; height: 57px; border: 0; background: none; }
-.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster) .barracks-training .unit-portrait .barracks-painted-portrait { width: 76px; height: 57px; }
-.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster) .barracks-training .unit-top { grid-template-columns: 76px minmax(0,1fr) 44px; }
-.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster) .barracks-quantity > label { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
-.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster) .barracks-quantity output { min-width: 66px; padding: 1px 12px; border: 1px solid var(--c-gold-deep); border-radius: 3px; text-align: center; font-size: 18px; }
-.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster) .barracks-quantity > input[type='range']::-webkit-slider-runnable-track { height: 14px; border: 3px double var(--c-gold-deep); border-radius: 10px; background: var(--barracks-fill) left / var(--fill) 100% no-repeat,var(--barracks-track) center / 100% 100%; box-shadow: inset 0 2px 3px #0008,0 1px 1px #fff9; }
-.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster) .barracks-quantity > input[type='range']::-webkit-slider-thumb { width: 32px; height: 32px; margin-top: -12px; border: 0; border-radius: 50%; background: var(--barracks-thumb) center / 100% 100%; box-shadow: 0 2px 3px #0007; }
-.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster) .barracks-quantity > input[type='range']::-moz-range-track { height: 10px; border: 3px double var(--c-gold-deep); border-radius: 10px; background: var(--barracks-fill) left / var(--fill) 100% no-repeat,var(--barracks-track) center / 100% 100%; }
-.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster) .barracks-quantity > input[type='range']::-moz-range-thumb { width: 32px; height: 32px; border: 0; border-radius: 50%; background: var(--barracks-thumb) center / 100% 100%; box-shadow: 0 2px 3px #0007; }
-.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster) .barracks-quantity > input:disabled { opacity: 1; }
-.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster) .barracks-count-controls > button { width: 46px; height: 46px; border: 0; background: var(--barracks-minus) center / 100% 100% no-repeat; color: transparent; box-shadow: none; }
-.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster) .barracks-count-controls > button:nth-child(3) { background-image: var(--barracks-plus); }
-.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster) .barracks-count-controls { grid-template-columns: 46px minmax(50px,1fr) 46px 80px; gap: 7px; }
-.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster) .barracks-count-controls > button:last-child { width: 80px; height: 46px; border: 0 solid transparent; border-image: var(--barracks-max) 16 22 / 8px 11px / 0 stretch; background: var(--royal-wood) center / cover; color: var(--c-gold-pale); }
-.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster) .barracks-count-controls > button:disabled { opacity: .85; filter: saturate(.75); }
-.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster) .drill-queue.barracks-production-queue { border: 0; border-image: none; background: none; padding: 0; margin: 12px 0 0; }
-.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster) .barracks-production-queue > h2 { margin: 0 0 12px; font-size: 21px; }
-.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster) .barracks-production-queue .drill-job { display: grid; grid-template-columns: 76px minmax(0,1fr) 52px; gap: 4px 8px; margin: 0 0 8px; padding: 10px; border: 1px solid var(--c-gold-deep); border-radius: 5px; background: var(--barracks-paper) center / 400px 200px; }
-.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster) .barracks-production-queue .barracks-painted-portrait { grid-row: 1/3; align-self: center; width: 76px; height: 57px; }
-.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster) .barracks-queue-time { align-self: center; text-align: right; color: var(--c-ink); font: 700 16px/1.3 'Payitaht Profile Roman',Georgia,serif; }
-.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster) .barracks-production-queue .drill-bar { grid-column: 2/4; height: 12px; border: 3px double var(--c-gold-deep); border-radius: 8px; background: var(--barracks-track) center / 100% 100%; box-shadow: inset 0 2px 3px #0008; }
-.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster) .barracks-production-queue .drill-bar > i { height: 100%; border-radius: 6px; background: var(--barracks-fill) center / 100% 100%; }
-.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster) .barracks-queue-empty { padding: 16px 12px; margin: 0 0 8px; border: 1px solid var(--c-gold-deep); border-radius: 5px; font: 14px/1.5 Georgia,serif; text-align: center; }
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik) .barracks-development-icon { width: 28px; height: 28px; object-fit: contain; }
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik) :is(.barracks-roster > h2,.barracks-production-queue > h2) { display: flex; align-items: center; justify-content: center; gap: 10px; color: var(--c-ink); font: 700 22px/1.3 'Payitaht Profile Roman',Georgia,serif; }
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik) :is(.barracks-roster > h2,.barracks-production-queue > h2)::before,
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik) :is(.barracks-roster > h2,.barracks-production-queue > h2)::after { content: ''; flex: 1 1 32px; max-width: 100px; height: 18px; background: var(--barracks-ornament) center / 100% 100% no-repeat; }
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik) :is(.barracks-roster > h2,.barracks-production-queue > h2)::after { transform: scaleX(-1); }
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik) .barracks-painted-portrait { height: 72px; object-fit: contain; }
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik) .barracks-entry.is-locked .barracks-painted-portrait { filter: saturate(.75); }
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik) .barracks-training .unit-portrait { width: 76px; height: 57px; border: 0; background: none; }
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik) .barracks-training .unit-portrait .barracks-painted-portrait { width: 76px; height: 57px; }
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik) .barracks-training .unit-top { grid-template-columns: 76px minmax(0,1fr) 44px; }
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik) .barracks-quantity > label { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik) .barracks-quantity output { min-width: 66px; padding: 1px 12px; border: 1px solid var(--c-gold-deep); border-radius: 3px; text-align: center; font-size: 18px; }
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik) .barracks-quantity > input[type='range']::-webkit-slider-runnable-track { height: 14px; border: 3px double var(--c-gold-deep); border-radius: 10px; background: var(--barracks-fill) left / var(--fill) 100% no-repeat,var(--barracks-track) center / 100% 100%; box-shadow: inset 0 2px 3px #0008,0 1px 1px #fff9; }
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik) .barracks-quantity > input[type='range']::-webkit-slider-thumb { width: 32px; height: 32px; margin-top: -12px; border: 0; border-radius: 50%; background: var(--barracks-thumb) center / 100% 100%; box-shadow: 0 2px 3px #0007; }
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik) .barracks-quantity > input[type='range']::-moz-range-track { height: 10px; border: 3px double var(--c-gold-deep); border-radius: 10px; background: var(--barracks-fill) left / var(--fill) 100% no-repeat,var(--barracks-track) center / 100% 100%; }
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik) .barracks-quantity > input[type='range']::-moz-range-thumb { width: 32px; height: 32px; border: 0; border-radius: 50%; background: var(--barracks-thumb) center / 100% 100%; box-shadow: 0 2px 3px #0007; }
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik) .barracks-quantity > input:disabled { opacity: 1; }
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik) .barracks-count-controls > button { width: 46px; height: 46px; border: 0; background: var(--barracks-minus) center / 100% 100% no-repeat; color: transparent; box-shadow: none; }
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik) .barracks-count-controls > button:nth-child(3) { background-image: var(--barracks-plus); }
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik) .barracks-count-controls { grid-template-columns: 46px minmax(50px,1fr) 46px 80px; gap: 7px; }
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik) .barracks-count-controls > button:last-child { width: 80px; height: 46px; border: 0 solid transparent; border-image: var(--barracks-max) 16 22 / 8px 11px / 0 stretch; background: var(--royal-wood) center / cover; color: var(--c-gold-pale); }
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik) .barracks-count-controls > button:disabled { opacity: .85; filter: saturate(.75); }
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik) .drill-queue.barracks-production-queue { border: 0; border-image: none; background: none; padding: 0; margin: 12px 0 0; }
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik) .barracks-production-queue > h2 { margin: 0 0 12px; font-size: 21px; }
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik) .barracks-production-queue .drill-job { display: grid; grid-template-columns: 76px minmax(0,1fr) 52px; gap: 4px 8px; margin: 0 0 8px; padding: 10px; border: 1px solid var(--c-gold-deep); border-radius: 5px; background: var(--barracks-paper) center / 400px 200px; }
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik) .barracks-production-queue .barracks-painted-portrait { grid-row: 1/3; align-self: center; width: 76px; height: 57px; }
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik) .barracks-queue-time { align-self: center; text-align: right; color: var(--c-ink); font: 700 16px/1.3 'Payitaht Profile Roman',Georgia,serif; }
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik) .barracks-production-queue .drill-bar { grid-column: 2/4; height: 12px; border: 3px double var(--c-gold-deep); border-radius: 8px; background: var(--barracks-track) center / 100% 100%; box-shadow: inset 0 2px 3px #0008; }
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik) .barracks-production-queue .drill-bar > i { height: 100%; border-radius: 6px; background: var(--barracks-fill) center / 100% 100%; }
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik) .barracks-queue-empty { padding: 16px 12px; margin: 0 0 8px; border: 1px solid var(--c-gold-deep); border-radius: 5px; font: 14px/1.5 Georgia,serif; text-align: center; }
 
-.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster) .barracks-training .unit-bottom { margin-top: 4px; }
-.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster) .bp-upgrade-button .painted-icon { filter: sepia(1) saturate(.75); }
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik) .barracks-training .unit-bottom { margin-top: 4px; }
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik) .bp-upgrade-button .painted-icon { filter: sepia(1) saturate(.75); }

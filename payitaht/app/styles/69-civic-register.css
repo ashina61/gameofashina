@@ -1,0 +1,49 @@
+/* Civic and embassy books use the approved academy and barracks atlases. */
+.game-shell.has-page .bp.bp-civic-register > .bp-bar .bp-title { left: calc(var(--court-control-size) + 12px); right: calc(var(--court-control-size) + 12px); }
+.game-shell.has-page .bp.bp-civic-register .management-page { padding: 0; min-width: 0; }
+.game-shell.has-page .bp.bp-civic-register .management-scene { border: 0; }
+.game-shell.has-page .bp.bp-civic-register .court-tabs { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 0; margin: 0; padding: 0; background: var(--royal-wood); border: 0; }
+.game-shell.has-page .bp.bp-civic-register .court-tabs > button { display: flex; align-items: center; justify-content: center; gap: 8px; min-height: 54px; padding: 8px; border: 0 solid transparent; border-image: var(--royal-page-frame) 20 / 4px / 0 stretch; border-radius: 0; background: none; color: var(--c-gold-pale); font: 700 18px/1.3 'Payitaht Profile Roman',Georgia,serif; }
+.game-shell.has-page .bp.bp-civic-register .court-tabs > button[aria-selected='true'] { background: var(--academy-silk) center / cover; box-shadow: none; }
+.game-shell.has-page .bp.bp-civic-register .is-embassy .court-tabs > button:last-child { grid-column: 1 / -1; }
+.game-shell.has-page .bp.bp-civic-register .court-tabs :is(.court-tab-art,.painted-icon) { width: 28px; height: 28px; object-fit: contain; flex-shrink: 0; }
+.game-shell.has-page .bp.bp-civic-register .court-tab-body { min-width: 0; padding: 12px 3%; }
+.game-shell.has-page .bp.bp-civic-register .management-page :is(.bp-box,.empire-section) { padding: 16px; margin: 0 0 14px; border: 0 solid transparent; border-image: var(--academy-frame) 40 / 16px / 0 stretch; border-radius: 0; background: var(--academy-paper) center / 400px 200px; box-shadow: none; }
+.game-shell.has-page .bp.bp-civic-register .management-page :is(.bp-box-title,.empire-section > h3) { display: flex; align-items: center; justify-content: center; min-height: 44px; gap: 8px; padding: 0; margin: 0 0 8px; border: 0; border-image: none; background: none; color: var(--c-ink); font: 700 22px/1.25 'Payitaht Profile Roman',Georgia,serif; }
+.game-shell.has-page .bp.bp-civic-register .management-page :is(.bp-box-title,.empire-section > h3)::before,
+.game-shell.has-page .bp.bp-civic-register .management-page :is(.bp-box-title,.empire-section > h3)::after { content: ''; flex: 1 1 20px; max-width: 70px; height: 16px; background: var(--academy-ornament) center / 100% 100% no-repeat; }
+.game-shell.has-page .bp.bp-civic-register .court-tab-body > .gbtn { width: 100%; margin: 0 0 14px; }
+.game-shell.has-page .bp.bp-civic-register .management-city { margin: 0 0 10px; text-align: center; overflow-wrap: anywhere; font: 700 21px/1.3 'Payitaht Profile Roman',Georgia,serif; }
+.game-shell.has-page .bp.bp-civic-register :is(.management-note,.dv-emblems p,.bp-note) { margin: 10px 0; font: 14px/1.55 Georgia,serif; }
+.game-shell.has-page .bp.bp-civic-register .divan-overview { display: block; }
+.game-shell.has-page .bp.bp-civic-register .dv-head { display: grid; grid-template-columns: 52px minmax(0,1fr); gap: 10px; padding: 8px 0 14px; border: 0; }
+.game-shell.has-page .bp.bp-civic-register .dv-title { min-width: 0; }
+.game-shell.has-page .bp.bp-civic-register .dv-title strong { display: block; overflow-wrap: anywhere; font: 700 21px/1.3 'Payitaht Profile Roman',Georgia,serif; }
+.game-shell.has-page .bp.bp-civic-register .dv-title small { font: 14px/1.4 Georgia,serif; }
+.game-shell.has-page .bp.bp-civic-register .dv-mood { grid-column: 1 / -1; display: flex; align-items: center; justify-content: start; gap: 10px; max-width: none; text-align: left; }
+.game-shell.has-page .bp.bp-civic-register .dv-mood small { font: 14px/1.4 Georgia,serif; }
+.game-shell.has-page .bp.bp-civic-register .dv-mood .royal-art { width: 36px; height: 36px; }
+.game-shell.has-page .bp.bp-civic-register .dv-stats { display: grid; grid-template-columns: minmax(0,1fr); gap: 0; padding: 0; border: 0; }
+.game-shell.has-page .bp.bp-civic-register .dv-stats > span { display: grid; grid-template-columns: 40px minmax(0,1fr) minmax(70px,auto); align-items: center; gap: 10px; min-height: 62px; padding: 10px 0; border-bottom: 1px solid var(--c-gold-deep); background: none; }
+.game-shell.has-page .bp.bp-civic-register .dv-stats > span > :first-child { width: 36px; height: 36px; grid-row: auto; }
+.game-shell.has-page .bp.bp-civic-register .dv-stats small { font: 14px/1.4 Georgia,serif; }
+.game-shell.has-page .bp.bp-civic-register .dv-stats b { grid-column: auto; text-align: right; font: 700 21px/1.3 'Payitaht Profile Roman',Georgia,serif; }
+.game-shell.has-page .bp.bp-civic-register .dv-stats b i { font: 14px/1.4 Georgia,serif; }
+.game-shell.has-page .bp.bp-civic-register .dv-strip { display: grid; grid-template-columns: minmax(0,1fr); gap: 0; margin: 0; padding: 0; border: 0; background: none; }
+.game-shell.has-page .bp.bp-civic-register .dv-job { display: grid; grid-template-columns: 76px minmax(0,1fr); gap: 4px 12px; min-height: 112px; padding: 12px 0; }
+.game-shell.has-page .bp.bp-civic-register .dv-job > :first-child { width: 72px; height: 96px; grid-row: span 4; object-fit: contain; }
+.game-shell.has-page .bp.bp-civic-register .dv-job b { font: 700 25px/1.2 'Payitaht Profile Roman',Georgia,serif; }
+.game-shell.has-page .bp.bp-civic-register .dv-job :is(small,em) { font: 14px/1.4 Georgia,serif; }
+.game-shell.has-page .bp.bp-civic-register .dv-emblem-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 10px; }
+.game-shell.has-page .bp.bp-civic-register .dv-emblem-grid button { min-height: 116px; padding: 12px; border: 0 solid transparent; border-image: var(--academy-frame) 40 / 12px / 0 stretch; background: var(--academy-paper) center / 400px 200px; font: 14px/1.4 Georgia,serif; }
+.game-shell.has-page .bp.bp-civic-register .dv-emblem-grid button[aria-pressed='true'] { background: var(--academy-silk) center / cover; color: var(--c-gold-pale); }
+.game-shell.has-page .bp.bp-civic-register .dv-emblem-grid button small { font: 14px/1.4 Georgia,serif; }
+.game-shell.has-page .bp.bp-civic-register .management-facts > div { display: grid; grid-template-columns: minmax(0,1fr) minmax(65px,auto); gap: 12px; align-items: center; font: 14px/1.5 Georgia,serif; }
+.game-shell.has-page .bp.bp-civic-register .management-facts dd { text-align: right; font: 700 21px/1.4 'Payitaht Profile Roman',Georgia,serif; }
+.game-shell.has-page .bp.bp-civic-register .bp-box-body > .gbtn { width: 100%; margin-top: 10px; }
+.game-shell.has-page .bp.bp-civic-register .management-spies { display: grid; gap: 14px; }
+.game-shell.has-page .bp.bp-civic-register .management-page .unit-card { padding: 12px; border: 0 solid transparent; border-image: var(--academy-frame) 40 / 12px / 0 stretch; background: var(--academy-paper) center / 400px 200px; }
+.game-shell.has-page .bp.bp-civic-register .gov-card > strong { font-family: 'Payitaht Profile Roman',Georgia,serif; }
+.game-shell.has-page .bp.bp-civic-register .gov-badge { display: flex; align-items: center; justify-content: center; gap: 8px; font: 14px/1.4 Georgia,serif; }
+
+.game-shell.has-page .bp.bp-civic-register .bp-dock .bp-warn { display: block; -webkit-line-clamp: unset; overflow: visible; white-space: normal; margin: 8px 0; }

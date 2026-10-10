@@ -1,17 +1,6 @@
 /* Divanhane / Embassy: one painted institution, one readable defter at a time. */
 .management-scene { height: clamp(136px,40vw,230px); overflow: hidden; border-bottom: 2px ridge var(--c-gold); }
 .management-scene > img { width: 100%; height: 100%; object-fit: cover; object-position: center; }
-.management-identity { display: flex; justify-content: space-between; align-items: center; gap: 14px; padding: 12px 16px; }
-.management-identity > div { min-width: 0; }
-.management-identity h2 { margin: 4px 0 0; font: 700 24px/1.15 Georgia,serif; overflow-wrap: anywhere; }
-.management-identity small { display: block; font: 12px/1.4 Georgia,serif; color: var(--c-ink-muted); }
-.management-identity > span { flex-shrink: 0; padding: 7px 10px; border: 1px solid var(--c-gold-deep); font: 700 15px/1.3 Georgia,serif; text-align: center; }
-.management-intro, .management-note { margin: 0; font: 15px/1.6 Georgia,serif; }
-.management-intro { padding: 0 16px 12px; }
-.game-shell.has-page .bp.bp-management .court-tabs { grid-template-columns: repeat(4,minmax(0,1fr)); }
-.game-shell.has-page .bp.bp-management .is-embassy .court-tabs { grid-template-columns: repeat(3,minmax(0,1fr)); }
-.game-shell.has-page .bp.bp-management .court-tabs > button { font-size: 15px; padding: 9px 4px; min-height: 48px; }
-.game-shell.has-page .bp.bp-management .court-tab-body { padding: 8px 16px 24px; border: 0; }
 .management-page :is(.bp-box,.empire-section) { margin: 0; padding: 16px 0; border: 0; border-bottom: 1px solid var(--c-gold-deep); border-image: none; border-radius: 0; background: transparent; box-shadow: none; }
 .management-page :is(.bp-box-title,.empire-section > h3) { margin: 0 0 12px; padding: 0; border: 0; border-image: none; background: none; color: var(--c-ink); font: 700 21px/1.25 Georgia,serif; text-shadow: none; }
 .management-page :is(.bp-box-body,.empire-section > :not(h3)) { padding: 0; margin-inline: 0; }
@@ -29,7 +18,6 @@
 .management-page .dv-stats :is(small,b) { white-space: normal; overflow: visible; overflow-wrap: anywhere; font: 13px/1.4 Georgia,serif; }
 .management-page .dv-stats b { font-weight: 700; font-size: 18px; }
 .management-page .dv-stats b i { display: block; font: 12px/1.4 Georgia,serif; }
-.management-heading { margin: 0; font: 700 21px/1.25 Georgia,serif; }
 .management-page .dv-strip { display: grid; grid-auto-flow: row; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 12px; overflow: visible; }
 .management-page .dv-job { grid-template-columns: 40px minmax(0,1fr); justify-items: start; padding: 10px 0; gap: 3px 9px; border: 0; border-bottom: 1px solid var(--c-parch-line); border-radius: 0; background: none; text-align: left; }
 .management-page .dv-job > :first-child { grid-row: span 4; }
@@ -51,23 +39,9 @@
 .management-facts { display: grid; gap: 0; margin: 12px 0; }
 .management-facts > div { display: flex; justify-content: space-between; gap: 14px; padding: 12px 0; border-bottom: 1px solid var(--c-parch-line); font: 15px/1.5 Georgia,serif; }
 .management-facts dd { margin: 0; font-weight: 700; flex-shrink: 0; }
-.management-link { display: flex; align-items: center; justify-content: space-between; width: 100%; min-height: 48px; padding: 10px 0; color: var(--c-red); font: 700 16px/1.4 Georgia,serif; }
-.management-link > span { font-size: 26px; }
-.management-development-heading { display: flex; align-items: center; gap: 14px; padding: 12px 0; }
-.management-development-heading > .royal-art { width: 62px; height: 65px; }
-.management-development-heading h3 { margin: 0; font: 700 22px/1.25 Georgia,serif; }
-.management-development-heading p { margin: 6px 0 0; font: 14px/1.4 Georgia,serif; }
 .management-tools { display: grid; gap: 10px; padding: 16px 0; }
 .management-page :is(.unit-card,.army-more) { border-image: none; border: 0; border-bottom: 1px solid var(--c-gold-deep); border-radius: 0; background: transparent; padding-inline: 0; box-shadow: none; }
 .management-page .unit-bottom { flex-wrap: wrap; gap: 12px; }
 .management-page .unit-bottom > .gbtn { width: 100%; }
-.game-shell.has-page .bp.bp-management .bp-dock { padding: 8px 12px; margin: 0; border: 0; border-top: 2px ridge var(--c-gold); background: var(--royal-paper); box-shadow: 0 -2px 8px #42251122; }
-.bp-management .bp-dock :is(.bp-dock-thumb,.bp-dock-label) { display: none; }
-.bp-management .bp-dock .bp-costs { margin: 0 0 5px; padding: 0; justify-content: center; gap: 14px; }
-.bp-management .bp-dock .bp-costs li { padding: 0; border: 0; background: transparent; }
-.bp-management .bp-dock .sk-token { width: 26px; height: 26px; border: 0; background: none; }
-.game-shell.has-page .bp.bp-management .bp-upgrade-button { min-height: 48px; border: 2px ridge var(--c-gold); border-image: none; background: linear-gradient(#f8dc93,#dba83e); color: var(--c-ink); font: 700 16px/1.25 Georgia,serif; box-shadow: none; }
-.bp-management .bp-up-time { font: 12px/1.3 Georgia,serif; }
-.bp-management .bp-dock .bp-warn { font: 12px/1.4 Georgia,serif; margin: 4px 0; }
 .game-shell.has-page .bp.bp-management .bp-title h1 { font-size: 22px; }
 .game-shell:has(.bp-management) .ika-nav-label { font-size: clamp(12px,3.3vw,15px); }
