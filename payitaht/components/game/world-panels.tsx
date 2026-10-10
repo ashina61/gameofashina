@@ -332,18 +332,17 @@ export function WorldPanel({ empire, now, run, onRival, initial = 'rank' }: { em
   const unread = (empire.world?.messages ?? []).filter(m => !m.read).length
   const offers = (empire.world?.proposals ?? []).filter(p => p.until > now).length
   const badge = (key: Tab) => key === 'mail' ? unread : key === 'offers' ? offers : 0
-  const tabs = ([['mail', 'Mektuplar'], ['offers', 'Teklifler'], ['diplo', 'Hükümdarlar'], ['market', 'Pazar'], ['news', 'Haberler'], ['rank', 'Sıralama']] as const).map(([id, label]) => ({ id, label: `${label}${badge(id) ? ` (${badge(id)})` : ''}`, Icon: ScrollText }))
+  const tabs = ([['mail', 'Mektuplar'], ['offers', 'Teklifler'], ['diplo', 'Hükümdarlar'], ['market', 'Pazar'], ['news', 'Haberler'], ['rank', 'Sıralama']] as const).map(([id, label]) => ({ id, label: `${label}${badge(id) ? ` (${badge(id)})` : ''}`, Icon: ScrollText, art: `/images/game/ui/approved-court/${id === 'mail' ? 'seal' : id === 'offers' || id === 'market' ? 'trade' : id === 'rank' ? 'laurel' : id === 'news' ? 'bell' : 'city'}.webp` }))
   return <div className="royal-page diplomatic-page envoy-page">
     <DiplomaticScene title="Elçinin defterleri" subtitle={`${activeCity(empire).name} · Adalar arası ilişkiler`} />
-    <div className="royal-summary"><span><ApprovedArt name="seal" /><span><b>{unread}</b>Yeni mektup</span></span><span><ApprovedArt name="trade" /><span><b>{offers}</b>Teklif</span></span><span><ApprovedArt name="city" /><span><b>{RIVALS.length}</b>Hükümdar</span></span></div>
-    <CourtTabs items={tabs} value={tab} onChange={key => { setTab(key); if (key === 'mail' && unread) run((e, x) => readMessages(e, x)) }} label="Elçi defterleri" illustrated={false}>
-      <div className="diplomatic-counsel"><ApprovedArt name="seal" /><p>{diploAdvice(empire)}</p></div>
+    <CourtTabs items={tabs} value={tab} onChange={key => { setTab(key); if (key === 'mail' && unread) run((e, x) => readMessages(e, x)) }} label="Elçi defterleri">
       {tab === 'rank' && <Rankings empire={empire} now={now} onRival={onRival} />}
       {tab === 'diplo' && <Diplomacy empire={empire} now={now} run={run} onRival={onRival} />}
       {tab === 'market' && <TradeCenter empire={empire} now={now} run={run} onRival={onRival} />}
       {tab === 'mail' && <Inbox empire={empire} onRival={onRival} />}
       {tab === 'offers' && <ProposalsPanel empire={empire} now={now} run={run} onRival={onRival} />}
       {tab === 'news' && <NewsPanel empire={empire} now={now} onRival={onRival} />}
+      <div className="diplomatic-counsel"><ApprovedArt name="seal" /><p>{diploAdvice(empire)}</p></div>
       <p className="diplomatic-simulation">Bu adaların hükümdarları yapay rakiplerdir.</p>
     </CourtTabs>
   </div>
@@ -365,10 +364,10 @@ function Rankings({ empire, now, onRival }: { empire: Empire; now: number; onRiv
   </section>
 }
 
-/** İlk üç kürsüde: ortada birinci, armalarıyla. */
+/** İlk üç, sıralı dikey sicilde armalarıyla. */
 function RankPodium({ empire, rows, score, onRival }: { empire: Empire; rows: ReturnType<typeof rankings>; score: RankKey; onRival: (id: string) => void }) {
   const me = profileOf(empire)
-  const order = [1, 0, 2].filter(i => rows[i])
+  const order = [0, 1, 2].filter(i => rows[i])
   return <ol className="rank-podium" aria-label="İlk üç">{order.map(i => {
     const s = rows[i]
     const h = s.you ? { crest: me.crest, color: me.color } : rivalHeraldry(s.rivalId ?? '')

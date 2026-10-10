@@ -45,9 +45,8 @@ export function AlliancePanel({ empire, now, run, onRival, onEmbassy }: { empire
   const prof = profileOf(empire)
   return <div className="royal-page diplomatic-page alliance-page">
     <DiplomaticScene alliance title={`${p.name} [${p.tag}]`} subtitle={p.motto || `Lider · ${prof.ruler}`} standard={prof} />
-    <div className="royal-summary"><span><ApprovedArt name="kurucu" /><span><b>{p.members.length + 1}/{pactCap(empire) + 1}</b>Üye</span></span><span><ApprovedArt name="laurel" /><span><b>{num(p.prestige ?? 0)}</b>İtibar</span></span><span><ApprovedArt name="seal" /><span><b>{unread}</b>Yeni genelge</span></span></div>
     {p.notice && <p className="diplomatic-notice"><ApprovedArt name="seal" /><span><b>İç duyuru</b>{p.notice}</span></p>}
-    <CourtTabs items={(['genel', 'uyeler', 'gorevler', 'genelge', 'diplomasi'] as const).map(id => ({ id, label: id === 'genel' ? 'Birlik' : id === 'uyeler' ? 'Üyeler' : id === 'gorevler' ? 'Görevler' : id === 'genelge' ? `Genelge${unread ? ` (${unread})` : ''}` : 'Diplomasi', Icon: Scroll }))} value={tab} onChange={key => { setTab(key); if (key === 'genelge' && unread) run((e, x) => readCirculars(e, x)) }} label="İttifak defterleri" illustrated={false}>
+    <CourtTabs items={(['genel', 'uyeler', 'gorevler', 'genelge', 'diplomasi'] as const).map(id => ({ id, label: id === 'genel' ? 'Birlik' : id === 'uyeler' ? 'Üyeler' : id === 'gorevler' ? 'Görevler' : id === 'genelge' ? `Genelge${unread ? ` (${unread})` : ''}` : 'Diplomasi', Icon: Scroll, art: `/images/game/ui/approved-court/${id === 'genel' ? 'seal' : id === 'uyeler' ? 'kurucu' : id === 'gorevler' ? 'laurel' : id === 'genelge' ? 'bell' : 'military'}.webp` }))} value={tab} onChange={key => { setTab(key); if (key === 'genelge' && unread) run((e, x) => readCirculars(e, x)) }} label="İttifak defterleri">
       {tab === 'genel' && <General empire={empire} now={now} run={run} />}
       {tab === 'uyeler' && <Members empire={empire} now={now} run={run} onRival={onRival} />}
       {tab === 'gorevler' && <Goals empire={empire} now={now} run={run} />}
@@ -70,6 +69,7 @@ function General({ empire, now, run }: { empire: Empire; now: number; run: Run }
   const [motto, setMotto] = useState(p.motto)
   const [confirm, setConfirm] = useState(false)
   const prof = profileOf(empire)
+  const unread = p.circulars.filter(c => !c.read).length
   const [editBanner, setEditBanner] = useState(false)
   const [look, setLook] = useState<SancakChoice>({ crest: prof.crest, color: prof.color, banner: prof.banner ?? 'kirlangic' })
   return <>
@@ -79,6 +79,7 @@ function General({ empire, now, run }: { empire: Empire; now: number; run: Run }
       <GameButton size="sm" variant="outline" aria-expanded={editBanner} onClick={() => { setLook({ crest: prof.crest, color: prof.color, banner: prof.banner ?? 'kirlangic' }); setEditBanner(!editBanner) }}>{editBanner ? t.action.cancel : 'Sancağı düzenle'}</GameButton>
       {editBanner && <RoyalFlagEditor value={look} change={setLook} save={() => { run((e, t) => setProfile(e, look, t), 'Sancak kaydedildi.'); setEditBanner(false) }} cancel={() => setEditBanner(false)} />}
     </section>
+    <section className="empire-section"><h3>Birlik yoklaması</h3><div className="royal-summary"><span><ApprovedArt name="kurucu" /><span><b>{p.members.length + 1}/{pactCap(empire) + 1}</b>Üye</span></span><span><ApprovedArt name="laurel" /><span><b>{num(p.prestige ?? 0)}</b>İtibar</span></span><span><ApprovedArt name="seal" /><span><b>{unread}</b>Yeni genelge</span></span></div></section>
     <section className="empire-section">
       <h3><ApprovedArt name="laurel" /> İttifak sıralaması</h3>
       <Rankings empire={empire} now={now} />
@@ -235,6 +236,7 @@ function Circulars({ empire, run }: { empire: Empire; run: Run }) {
     </section>
     <section className="empire-section">
       <h3><ApprovedArt name="seal" /> Genelgeler</h3>
+      {!p.circulars.length && <p className="fine-print">Genelge defteri henüz boş. Yukarıdan ilk genelgeyi gönderebilirsin.</p>}
       {p.circulars.map(c => <article key={c.id} className={`report-card${c.read ? '' : ' unread'}`}>
         <div className="report-head"><ApprovedArt name="seal" /><strong>{c.subject}</strong><time>{when(c.time)}</time></div>
         <p className="fine-print mail-from">{author(c.from)}</p>
@@ -267,7 +269,7 @@ function NoAlliance({ empire, run, onEmbassy }: { empire: Empire; run: Run; onEm
   const [tag, setTag] = useState('')
   const [tab, setTab] = useState<'found' | 'join'>('found')
   const prof = profileOf(empire), embassy = Math.max(...empire.cities.map(c => c.game.buildings.elcilik))
-  return <div className="royal-page diplomatic-page alliance-foundation"><DiplomaticScene alliance title="Sancağının altında" subtitle="Bir birlik kur, adalarda yoldaş bul" standard={prof} /><div className="diplomatic-requirements"><ApprovedArt name="city" /><span>En yüksek Elçilik · {embassy}<small>Kendi birliğin için Elçilik; katılmak için seviye 3 ve ortalama 5 ilişki.</small></span></div><CourtTabs illustrated={false} label="İttifak seçimi" items={[{id:'found', label:'Birlik kur', Icon: Flag},{id:'join',label:'Birliğe katıl',Icon: Handshake}]} value={tab} onChange={setTab}>
+  return <div className="royal-page diplomatic-page alliance-foundation"><DiplomaticScene alliance title="Sancağının altında" subtitle="Bir birlik kur, adalarda yoldaş bul" standard={prof} /><div className="diplomatic-requirements"><ApprovedArt name="city" /><span>En yüksek Elçilik · {embassy}<small>Kendi birliğin için Elçilik; katılmak için seviye 3 ve ortalama 5 ilişki.</small></span></div><CourtTabs label="İttifak seçimi" items={[{id:'found', label:'Birlik kur', Icon: Flag, art:'/images/game/ui/approved-court/seal.webp'},{id:'join',label:'Birliğe katıl',Icon: Handshake,art:'/images/game/ui/approved-court/kurucu.webp'}]} value={tab} onChange={setTab}>
     {tab === 'found' && <section className="empire-section">
       <h3><ApprovedArt name="seal" /> Kendi ittifakını kur</h3>
       <p className="fine-print">Elçiliği olan her hükümdar ittifak kurabilir. Lider sen olursun; yapay rakipleri davet eder, rütbe dağıtır, genelge yazarsın.</p>

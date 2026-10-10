@@ -1,3 +1,5 @@
+**10 Ekim Elçi/İttifak — 0.96.0 / SW108:** `docs/DIPLOMATIC-DESIGN-MEMORY.md`; Elçinin altı defteri ve ittifakın kuruluş/üyelik/yönetimi ortak eğitim atlaslarında. Kısa sahne, ikonlu sekmeler, dikey sicil ve okunur formlar. Yapay rakip, ticaret, ittifak, kayıt, motor ve HUD korunur. Sonraki Şehir günlüğü; yayın sonrası kullanıcı değerlendirmesinde dur.
+
 **10 Ekim Vezir — 0.95.0 / SW107:** `docs/VIZIER-DESIGN-MEMORY.md`; Gündem/Şehirler/Haberler ortak boyalı defterler, emir önce, dikey üretim ve şehir sicili. Danışman öncelikleri, kayıt, motor ve HUD korunur. Sonraki Elçi/İttifak; yayın sonrası kullanıcı değerlendirmesinde dur.
 
 **10 Ekim Halk/Şehirler — 0.94.0 / SW106:** `docs/POPULATION-DESIGN-MEMORY.md`; İşgücü/Yaşam ve Yerleşimler/Nakliye/İdare ortak boyalı defterler, tam boy halk/âlim ve okunur şehir sicili. Motor, kayıt, HUD korunur. Sonraki Vezir; yayın sonrası kullanıcı değerlendirmesinde dur.
