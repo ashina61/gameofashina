@@ -22,7 +22,6 @@
 @import './styles/24-approved-court.css';
 @import './styles/25-royal-subtabs.css';
 @import './styles/26-sancaktar.css';
-@import './styles/27-vizier.css';
 @import './styles/28-diplomacy.css';
 @import './styles/29-management.css';
 @import './styles/30-title-screen-premium.css';
@@ -109,3 +108,5 @@
 @import './styles/70-treasury-register.css';
 
 @import './styles/71-population-register.css';
+
+@import "./styles/72-vizier-register.css";

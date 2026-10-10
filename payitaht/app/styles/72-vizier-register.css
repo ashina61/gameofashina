@@ -1,0 +1,45 @@
+/* Vezir: shared painted frames, actions first, vertical records. */
+.game-shell.has-page .bp.bp-vizier > .bp-bar .bp-title { background: none; border: 0; border-image: none; }
+.game-shell.has-page .bp.bp-vizier .vizier-page { padding: 0; margin: 0; width: 100%; min-width: 0; border: 0; border-image: none; background: none; box-shadow: none; }
+.game-shell.has-page .bp.bp-vizier .academy-banner figcaption { max-width: calc(100% - 20px); font-size: 14px; overflow-wrap: anywhere; }
+.game-shell.has-page .bp.bp-vizier .court-tabs { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 0; margin: 0; padding: 0; border: 0; background: var(--royal-wood); }
+.game-shell.has-page .bp.bp-vizier .court-tabs > button { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px; min-width: 0; min-height: 74px; padding: 8px 3px; border: 0 solid transparent; border-image: var(--royal-page-frame) 20 / 4px / 0 stretch; border-radius: 0; background: none; color: var(--c-gold-pale); font: 700 18px/1.3 'Payitaht Profile Roman',Georgia,serif; }
+.game-shell.has-page .bp.bp-vizier .court-tabs > button[aria-selected='true'] { background: var(--academy-silk) center / cover; box-shadow: none; }
+.game-shell.has-page .bp.bp-vizier .court-tab-art { width: 30px; height: 30px; object-fit: contain; flex-shrink: 0; }
+.game-shell.has-page .bp.bp-vizier .court-tab-body { padding: 12px 3%; border: 0; border-image: none; background: none; }
+.game-shell.has-page .bp.bp-vizier :is(p,small,span,b,strong,h4,dt,dd,time) { overflow-wrap: anywhere; }
+.game-shell.has-page .bp.bp-vizier :is(p,small,dt,time) { font: 14px/1.55 Georgia,serif; }
+.game-shell.has-page .bp.bp-vizier .vizier-detail { margin: 0 0 12px; color: var(--c-ink-muted); text-align: center; }
+.game-shell.has-page .bp.bp-vizier .vizier-advice { display: grid; grid-template-columns: 56px minmax(0,1fr); gap: 12px; align-items: center; }
+.game-shell.has-page .bp.bp-vizier .vizier-advice > .royal-art { width: 56px; height: 64px; }
+.game-shell.has-page .bp.bp-vizier .vizier-advice h4 { margin: 0 0 8px; font: 700 22px/1.3 'Payitaht Profile Roman',Georgia,serif; }
+.game-shell.has-page .bp.bp-vizier .vizier-advice p { margin: 0; }
+.game-shell.has-page .bp.bp-vizier .vizier-action { width: 100%; height: auto; min-height: 52px; padding: 12px 24px; margin: 12px 0 0; white-space: normal; justify-content: center; text-align: center; }
+.game-shell.has-page .bp.bp-vizier .vizier-work { display: grid; gap: 8px; font: 14px/1.5 Georgia,serif; }
+.game-shell.has-page .bp.bp-vizier .vizier-work strong { font: 700 20px/1.3 'Payitaht Profile Roman',Georgia,serif; }
+.game-shell.has-page .bp.bp-vizier .vizier-production { display: grid; gap: 0; }
+.game-shell.has-page .bp.bp-vizier .vizier-production > div { display: grid; grid-template-columns: 48px minmax(0,1fr); align-items: center; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--c-gold-deep); }
+.game-shell.has-page .bp.bp-vizier .vizier-production img { width: 48px; height: 48px; object-fit: contain; }
+.game-shell.has-page .bp.bp-vizier .vizier-production > div > span { font: 14px/1.5 Georgia,serif; }
+.game-shell.has-page .bp.bp-vizier .vizier-production strong { display: block; font: 700 24px/1.3 'Payitaht Profile Roman',Georgia,serif; color: var(--c-ok-deep); }
+.game-shell.has-page .bp.bp-vizier .vizier-production strong[data-tone='down'] { color: var(--c-red); }
+.game-shell.has-page .bp.bp-vizier .vizier-summary { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 12px; margin: 0; }
+.game-shell.has-page .bp.bp-vizier .vizier-summary > div { padding: 10px 0; border-bottom: 1px solid var(--c-gold-deep); min-width: 0; }
+.game-shell.has-page .bp.bp-vizier .vizier-summary dd { margin: 6px 0 0; font: 700 24px/1.3 'Payitaht Profile Roman',Georgia,serif; }
+.game-shell.has-page .bp.bp-vizier .vizier-estates { display: grid; gap: 0; }
+.game-shell.has-page .bp.bp-vizier .vizier-estate { display: grid; grid-template-columns: 64px minmax(0,1fr); align-items: center; gap: 12px; width: 100%; min-height: 120px; padding: 14px 0; border: 0; border-bottom: 1px solid var(--c-gold-deep); background: none; color: var(--c-ink); text-align: left; }
+.game-shell.has-page .bp.bp-vizier .vizier-estate > .royal-art { width: 64px; height: 72px; }
+.game-shell.has-page .bp.bp-vizier .vizier-estate > span { min-width: 0; }
+.game-shell.has-page .bp.bp-vizier .vizier-city-title { display: grid; gap: 6px; font: 700 22px/1.3 'Payitaht Profile Roman',Georgia,serif; }
+.game-shell.has-page .bp.bp-vizier .vizier-city-title small { color: var(--c-red); }
+.game-shell.has-page .bp.bp-vizier :is(.vizier-city-level,.vizier-city-work) { display: block; margin: 8px 0; font: 14px/1.5 Georgia,serif; }
+.game-shell.has-page .bp.bp-vizier .royal-meter { margin: 10px 0; font: 14px/1.5 Georgia,serif; }
+.game-shell.has-page .bp.bp-vizier .royal-progress { height: 12px; border: 1px solid var(--c-gold-deep); background: var(--academy-track) center / cover; }
+.game-shell.has-page .bp.bp-vizier .royal-progress > i { background: var(--academy-fill) center / cover; }
+.game-shell.has-page .bp.bp-vizier .vizier-news-day h4 { margin: 16px 0 8px; font: 700 20px/1.3 'Payitaht Profile Roman',Georgia,serif; color: var(--c-red); }
+.game-shell.has-page .bp.bp-vizier .vizier-news-day ol { list-style: none; margin: 0; padding: 0; }
+.game-shell.has-page .bp.bp-vizier .vizier-news-day li { display: grid; grid-template-columns: 44px minmax(0,1fr); align-items: start; gap: 12px; padding: 14px 0; border-bottom: 1px solid var(--c-gold-deep); }
+.game-shell.has-page .bp.bp-vizier .vizier-news-day .royal-art { width: 44px; height: 52px; }
+.game-shell.has-page .bp.bp-vizier .vizier-news-day p { margin: 0 0 8px; }
+.game-shell.has-page .bp.bp-vizier .vizier-news-day time { color: var(--c-ink-muted); }
+.game-shell.has-page .bp.bp-vizier button:focus-visible { outline: 2px solid var(--c-gold-deep); outline-offset: 3px; }
