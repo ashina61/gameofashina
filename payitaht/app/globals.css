@@ -19,7 +19,6 @@
 @import './styles/15-annals.css';
 @import './styles/16-court.css';
 @import './styles/18-spacious.css';
-@import './styles/19-civic.css';
 @import './styles/24-approved-court.css';
 @import './styles/25-royal-subtabs.css';
 @import './styles/26-sancaktar.css';
@@ -108,3 +107,5 @@
 @import './styles/69-civic-register.css';
 
 @import './styles/70-treasury-register.css';
+
+@import './styles/71-population-register.css';

@@ -6,7 +6,7 @@
 .game-shell.has-page .bp:not(.bp-sheet) > .bp-bar { min-height: 54px; padding: calc(var(--sa-top) + 5px) 12px 5px; box-shadow: none; border-bottom-width: 1px; }
 .game-shell.has-page .bp-title h1 { font-size: 21px; }
 .game-shell .bp-scroll { max-width: 960px; }
-.game-shell.has-page :is(.bp-court,.bp-annals,.bp-objectives,.bp-civic) .bp-scroll { padding: 0 0 24px; }
+.game-shell.has-page :is(.bp-court,.bp-annals,.bp-objectives) .bp-scroll { padding: 0 0 24px; }
 .game-shell.has-page :is(.sovereign-stage,.sovereign-roll,.admin-stage,.annals-scene,.quest-court-scene) { margin-inline: 0; }
 .game-shell.has-page :is(.court-book,.annals-ledger) { border-image-source: none; border: 0; border-top: 1px solid var(--c-tan-border); padding: 18px 16px; box-shadow: none; background: transparent; }
 .game-shell.has-page .court-tabs { padding-block: 8px; }

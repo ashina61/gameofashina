@@ -101,7 +101,6 @@
 /* Objectives and annals: ledger rhythm, fewer floating card islands. */
 .game-shell.has-page .bp-objectives .bp-scroll,
 .game-shell.has-page .bp-annals .bp-scroll,
-.game-shell.has-page .bp-civic .bp-scroll,
 .game-shell.has-page .bp-court:not(.bp-royal) .bp-scroll {
   padding-inline: 10px;
 }
@@ -191,7 +190,6 @@
   .game-shell.has-page .bp:not(.bp-building):not(.bp-royal):not(.bp-mapview):not(.bp-sheet) > .bp-scroll { padding-inline: 8px; }
   .game-shell.has-page .bp-objectives .bp-scroll,
   .game-shell.has-page .bp-annals .bp-scroll,
-  .game-shell.has-page .bp-civic .bp-scroll,
   .game-shell.has-page .bp-court:not(.bp-royal) .bp-scroll { padding-inline: 8px; }
   .game-shell.has-page :is(.quest-court-scene, .annals-scene) { width: calc(100% + 16px); margin-inline: -8px; }
 }
