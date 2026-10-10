@@ -5,6 +5,7 @@
 export type Release = { version: string; date: string; title: string; notes: string[] }
 
 export const CHANGELOG: Release[] = [
+  { version: '0.98.0', date: '10 Ekim 2026', title: 'Payitahtın boyalı giriş defteri', notes: ['Ana menü, kayıt bilgisi, yeni oyun ve yardım ortak ceviz, parşömen ve kırmızı eylem atlaslarında.', 'Arma seçimi gerçek işlemeli görsellerle; isimler, renkler ve kayıt uyarıları mobilde okunur.', 'Devam etme, yeni oyun, silme onayı, kayıt koruması ve oyun motoru aynı kurallarla çalışır.'] },
   { version: '0.97.0', date: '10 Ekim 2026', title: 'Şehrin boyalı vakayinamesi', notes: ['Şehir günlüğü ortak parşömen, ceviz, altın işlemeli çerçeve ve gerçek eylem atlaslarına geçirildi.', 'Arama önce, sekiz olay filtresi iki sıra; gün, saat ve tekrar kayıtları okunur dikey sicilde.', 'Olay sınıfları, arama, kayıt gruplama, eski kayıtlar, oyun motoru ve HUD korunur.'] },
   { version: '0.96.0', date: '10 Ekim 2026', title: 'Elçi ve ittifakın boyalı defterleri', notes: ['Mektuplar, teklifler, hükümdarlar, pazar, haberler ve sıralama ortak atlaslarda.', 'Birlik kuruluşu, üyeler, görevler, genelgeler, diplomasi ve sancak düzeni aynı boyalı dilde.', 'Yapay rakip, ticaret, ittifak, kayıt ve HUD mekanikleri korunur.'] },
   { version: '0.95.0', date: '2026-10-10', title: 'Vezirin boyalı defterleri', notes: ['Gündem, Şehirler ve Haberler ortak parşömen, ceviz ve eğitim atlaslarında.', 'Öncelikli emir önce; üretim ve şehir sicili dikey, uzun haberler okunur.', 'Danışman öncelikleri, şehir geçişleri, kayıt ve HUD korunur.'] },

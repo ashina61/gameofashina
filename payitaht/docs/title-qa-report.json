@@ -1,0 +1,2625 @@
+{
+  "scans": [
+    {
+      "width": 390,
+      "height": 844,
+      "state": "fresh",
+      "label": "menu",
+      "zoom": 1,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "state": "fresh",
+      "label": "menu",
+      "zoom": 1.3,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "state": "fresh",
+      "label": "howto",
+      "zoom": 1,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "state": "fresh",
+      "label": "howto",
+      "zoom": 1.3,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "state": "fresh",
+      "label": "notes",
+      "zoom": 1,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "state": "fresh",
+      "label": "notes",
+      "zoom": 1.3,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "state": "fresh",
+      "label": "notes-search",
+      "zoom": 1,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "state": "fresh",
+      "label": "notes-search",
+      "zoom": 1.3,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "state": "fresh",
+      "label": "notes-expanded",
+      "zoom": 1,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "state": "fresh",
+      "label": "notes-expanded",
+      "zoom": 1.3,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "state": "fresh",
+      "label": "notes-closed",
+      "zoom": 1,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "state": "fresh",
+      "label": "notes-closed",
+      "zoom": 1.3,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "state": "fresh",
+      "label": "notes-open",
+      "zoom": 1,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "state": "fresh",
+      "label": "notes-open",
+      "zoom": 1.3,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "state": "fresh",
+      "label": "notes-empty",
+      "zoom": 1,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "state": "fresh",
+      "label": "notes-empty",
+      "zoom": 1.3,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "state": "fresh",
+      "label": "notes-reset",
+      "zoom": 1,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "state": "fresh",
+      "label": "notes-reset",
+      "zoom": 1.3,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "state": "fresh",
+      "label": "new",
+      "zoom": 1,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "state": "fresh",
+      "label": "new",
+      "zoom": 1.3,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "state": "fresh",
+      "label": "selected",
+      "zoom": 1,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "state": "fresh",
+      "label": "selected",
+      "zoom": 1.3,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "state": "fresh",
+      "label": "error",
+      "zoom": 1,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "state": "fresh",
+      "label": "error",
+      "zoom": 1.3,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "state": "saved",
+      "label": "menu",
+      "zoom": 1,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "state": "saved",
+      "label": "menu",
+      "zoom": 1.3,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "state": "saved",
+      "label": "new",
+      "zoom": 1,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "state": "saved",
+      "label": "new",
+      "zoom": 1.3,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "state": "saved",
+      "label": "selected",
+      "zoom": 1,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "state": "saved",
+      "label": "selected",
+      "zoom": 1.3,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "state": "saved",
+      "label": "confirm",
+      "zoom": 1,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "state": "saved",
+      "label": "confirm",
+      "zoom": 1.3,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "state": "saved",
+      "label": "cancel",
+      "zoom": 1,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "state": "saved",
+      "label": "cancel",
+      "zoom": 1.3,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "state": "corrupt",
+      "label": "menu",
+      "zoom": 1,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "state": "corrupt",
+      "label": "menu",
+      "zoom": 1.3,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "state": "corrupt",
+      "label": "new",
+      "zoom": 1,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "state": "corrupt",
+      "label": "new",
+      "zoom": 1.3,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "state": "corrupt",
+      "label": "selected",
+      "zoom": 1,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "state": "corrupt",
+      "label": "selected",
+      "zoom": 1.3,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "state": "corrupt",
+      "label": "confirm",
+      "zoom": 1,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "state": "corrupt",
+      "label": "confirm",
+      "zoom": 1.3,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "state": "corrupt",
+      "label": "cancel",
+      "zoom": 1,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "state": "corrupt",
+      "label": "cancel",
+      "zoom": 1.3,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "state": "replace",
+      "label": "menu",
+      "zoom": 1,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "state": "replace",
+      "label": "menu",
+      "zoom": 1.3,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "state": "replace",
+      "label": "new",
+      "zoom": 1,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "state": "replace",
+      "label": "new",
+      "zoom": 1.3,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "state": "replace",
+      "label": "selected",
+      "zoom": 1,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "state": "replace",
+      "label": "selected",
+      "zoom": 1.3,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "state": "replace",
+      "label": "confirm",
+      "zoom": 1,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "state": "replace",
+      "label": "confirm",
+      "zoom": 1.3,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "state": "replace",
+      "label": "cancel",
+      "zoom": 1,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "state": "replace",
+      "label": "cancel",
+      "zoom": 1.3,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 360,
+      "height": 740,
+      "state": "fresh",
+      "label": "menu",
+      "zoom": 1,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 360,
+      "height": 740,
+      "state": "fresh",
+      "label": "menu",
+      "zoom": 1.3,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 360,
+      "height": 740,
+      "state": "fresh",
+      "label": "howto",
+      "zoom": 1,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 360,
+      "height": 740,
+      "state": "fresh",
+      "label": "howto",
+      "zoom": 1.3,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 360,
+      "height": 740,
+      "state": "fresh",
+      "label": "notes",
+      "zoom": 1,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 360,
+      "height": 740,
+      "state": "fresh",
+      "label": "notes",
+      "zoom": 1.3,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 360,
+      "height": 740,
+      "state": "fresh",
+      "label": "notes-search",
+      "zoom": 1,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 360,
+      "height": 740,
+      "state": "fresh",
+      "label": "notes-search",
+      "zoom": 1.3,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 360,
+      "height": 740,
+      "state": "fresh",
+      "label": "notes-expanded",
+      "zoom": 1,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 360,
+      "height": 740,
+      "state": "fresh",
+      "label": "notes-expanded",
+      "zoom": 1.3,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 360,
+      "height": 740,
+      "state": "fresh",
+      "label": "notes-closed",
+      "zoom": 1,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 360,
+      "height": 740,
+      "state": "fresh",
+      "label": "notes-closed",
+      "zoom": 1.3,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 360,
+      "height": 740,
+      "state": "fresh",
+      "label": "notes-open",
+      "zoom": 1,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 360,
+      "height": 740,
+      "state": "fresh",
+      "label": "notes-open",
+      "zoom": 1.3,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 360,
+      "height": 740,
+      "state": "fresh",
+      "label": "notes-empty",
+      "zoom": 1,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 360,
+      "height": 740,
+      "state": "fresh",
+      "label": "notes-empty",
+      "zoom": 1.3,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 360,
+      "height": 740,
+      "state": "fresh",
+      "label": "notes-reset",
+      "zoom": 1,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 360,
+      "height": 740,
+      "state": "fresh",
+      "label": "notes-reset",
+      "zoom": 1.3,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 360,
+      "height": 740,
+      "state": "fresh",
+      "label": "new",
+      "zoom": 1,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 360,
+      "height": 740,
+      "state": "fresh",
+      "label": "new",
+      "zoom": 1.3,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 360,
+      "height": 740,
+      "state": "fresh",
+      "label": "selected",
+      "zoom": 1,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 360,
+      "height": 740,
+      "state": "fresh",
+      "label": "selected",
+      "zoom": 1.3,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 360,
+      "height": 740,
+      "state": "fresh",
+      "label": "error",
+      "zoom": 1,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 360,
+      "height": 740,
+      "state": "fresh",
+      "label": "error",
+      "zoom": 1.3,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 360,
+      "height": 740,
+      "state": "saved",
+      "label": "menu",
+      "zoom": 1,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 360,
+      "height": 740,
+      "state": "saved",
+      "label": "menu",
+      "zoom": 1.3,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 360,
+      "height": 740,
+      "state": "saved",
+      "label": "new",
+      "zoom": 1,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 360,
+      "height": 740,
+      "state": "saved",
+      "label": "new",
+      "zoom": 1.3,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 360,
+      "height": 740,
+      "state": "saved",
+      "label": "selected",
+      "zoom": 1,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 360,
+      "height": 740,
+      "state": "saved",
+      "label": "selected",
+      "zoom": 1.3,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 360,
+      "height": 740,
+      "state": "saved",
+      "label": "confirm",
+      "zoom": 1,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 360,
+      "height": 740,
+      "state": "saved",
+      "label": "confirm",
+      "zoom": 1.3,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 360,
+      "height": 740,
+      "state": "saved",
+      "label": "cancel",
+      "zoom": 1,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 360,
+      "height": 740,
+      "state": "saved",
+      "label": "cancel",
+      "zoom": 1.3,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 360,
+      "height": 740,
+      "state": "corrupt",
+      "label": "menu",
+      "zoom": 1,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 360,
+      "height": 740,
+      "state": "corrupt",
+      "label": "menu",
+      "zoom": 1.3,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 360,
+      "height": 740,
+      "state": "corrupt",
+      "label": "new",
+      "zoom": 1,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 360,
+      "height": 740,
+      "state": "corrupt",
+      "label": "new",
+      "zoom": 1.3,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 360,
+      "height": 740,
+      "state": "corrupt",
+      "label": "selected",
+      "zoom": 1,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 360,
+      "height": 740,
+      "state": "corrupt",
+      "label": "selected",
+      "zoom": 1.3,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 360,
+      "height": 740,
+      "state": "corrupt",
+      "label": "confirm",
+      "zoom": 1,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 360,
+      "height": 740,
+      "state": "corrupt",
+      "label": "confirm",
+      "zoom": 1.3,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 360,
+      "height": 740,
+      "state": "corrupt",
+      "label": "cancel",
+      "zoom": 1,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 360,
+      "height": 740,
+      "state": "corrupt",
+      "label": "cancel",
+      "zoom": 1.3,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 360,
+      "height": 740,
+      "state": "replace",
+      "label": "menu",
+      "zoom": 1,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 360,
+      "height": 740,
+      "state": "replace",
+      "label": "menu",
+      "zoom": 1.3,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 360,
+      "height": 740,
+      "state": "replace",
+      "label": "new",
+      "zoom": 1,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 360,
+      "height": 740,
+      "state": "replace",
+      "label": "new",
+      "zoom": 1.3,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 360,
+      "height": 740,
+      "state": "replace",
+      "label": "selected",
+      "zoom": 1,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 360,
+      "height": 740,
+      "state": "replace",
+      "label": "selected",
+      "zoom": 1.3,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 360,
+      "height": 740,
+      "state": "replace",
+      "label": "confirm",
+      "zoom": 1,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 360,
+      "height": 740,
+      "state": "replace",
+      "label": "confirm",
+      "zoom": 1.3,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 360,
+      "height": 740,
+      "state": "replace",
+      "label": "cancel",
+      "zoom": 1,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 360,
+      "height": 740,
+      "state": "replace",
+      "label": "cancel",
+      "zoom": 1.3,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 430,
+      "height": 932,
+      "state": "fresh",
+      "label": "menu",
+      "zoom": 1,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 430,
+      "height": 932,
+      "state": "fresh",
+      "label": "menu",
+      "zoom": 1.3,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 430,
+      "height": 932,
+      "state": "fresh",
+      "label": "howto",
+      "zoom": 1,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 430,
+      "height": 932,
+      "state": "fresh",
+      "label": "howto",
+      "zoom": 1.3,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 430,
+      "height": 932,
+      "state": "fresh",
+      "label": "notes",
+      "zoom": 1,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 430,
+      "height": 932,
+      "state": "fresh",
+      "label": "notes",
+      "zoom": 1.3,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 430,
+      "height": 932,
+      "state": "fresh",
+      "label": "notes-search",
+      "zoom": 1,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 430,
+      "height": 932,
+      "state": "fresh",
+      "label": "notes-search",
+      "zoom": 1.3,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 430,
+      "height": 932,
+      "state": "fresh",
+      "label": "notes-expanded",
+      "zoom": 1,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 430,
+      "height": 932,
+      "state": "fresh",
+      "label": "notes-expanded",
+      "zoom": 1.3,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 430,
+      "height": 932,
+      "state": "fresh",
+      "label": "notes-closed",
+      "zoom": 1,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 430,
+      "height": 932,
+      "state": "fresh",
+      "label": "notes-closed",
+      "zoom": 1.3,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 430,
+      "height": 932,
+      "state": "fresh",
+      "label": "notes-open",
+      "zoom": 1,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 430,
+      "height": 932,
+      "state": "fresh",
+      "label": "notes-open",
+      "zoom": 1.3,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 430,
+      "height": 932,
+      "state": "fresh",
+      "label": "notes-empty",
+      "zoom": 1,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 430,
+      "height": 932,
+      "state": "fresh",
+      "label": "notes-empty",
+      "zoom": 1.3,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 430,
+      "height": 932,
+      "state": "fresh",
+      "label": "notes-reset",
+      "zoom": 1,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 430,
+      "height": 932,
+      "state": "fresh",
+      "label": "notes-reset",
+      "zoom": 1.3,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 430,
+      "height": 932,
+      "state": "fresh",
+      "label": "new",
+      "zoom": 1,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 430,
+      "height": 932,
+      "state": "fresh",
+      "label": "new",
+      "zoom": 1.3,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 430,
+      "height": 932,
+      "state": "fresh",
+      "label": "selected",
+      "zoom": 1,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 430,
+      "height": 932,
+      "state": "fresh",
+      "label": "selected",
+      "zoom": 1.3,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 430,
+      "height": 932,
+      "state": "fresh",
+      "label": "error",
+      "zoom": 1,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 430,
+      "height": 932,
+      "state": "fresh",
+      "label": "error",
+      "zoom": 1.3,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 430,
+      "height": 932,
+      "state": "saved",
+      "label": "menu",
+      "zoom": 1,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 430,
+      "height": 932,
+      "state": "saved",
+      "label": "menu",
+      "zoom": 1.3,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 430,
+      "height": 932,
+      "state": "saved",
+      "label": "new",
+      "zoom": 1,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 430,
+      "height": 932,
+      "state": "saved",
+      "label": "new",
+      "zoom": 1.3,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 430,
+      "height": 932,
+      "state": "saved",
+      "label": "selected",
+      "zoom": 1,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 430,
+      "height": 932,
+      "state": "saved",
+      "label": "selected",
+      "zoom": 1.3,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 430,
+      "height": 932,
+      "state": "saved",
+      "label": "confirm",
+      "zoom": 1,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 430,
+      "height": 932,
+      "state": "saved",
+      "label": "confirm",
+      "zoom": 1.3,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 430,
+      "height": 932,
+      "state": "saved",
+      "label": "cancel",
+      "zoom": 1,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 430,
+      "height": 932,
+      "state": "saved",
+      "label": "cancel",
+      "zoom": 1.3,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 430,
+      "height": 932,
+      "state": "corrupt",
+      "label": "menu",
+      "zoom": 1,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 430,
+      "height": 932,
+      "state": "corrupt",
+      "label": "menu",
+      "zoom": 1.3,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 430,
+      "height": 932,
+      "state": "corrupt",
+      "label": "new",
+      "zoom": 1,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 430,
+      "height": 932,
+      "state": "corrupt",
+      "label": "new",
+      "zoom": 1.3,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 430,
+      "height": 932,
+      "state": "corrupt",
+      "label": "selected",
+      "zoom": 1,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 430,
+      "height": 932,
+      "state": "corrupt",
+      "label": "selected",
+      "zoom": 1.3,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 430,
+      "height": 932,
+      "state": "corrupt",
+      "label": "confirm",
+      "zoom": 1,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 430,
+      "height": 932,
+      "state": "corrupt",
+      "label": "confirm",
+      "zoom": 1.3,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 430,
+      "height": 932,
+      "state": "corrupt",
+      "label": "cancel",
+      "zoom": 1,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 430,
+      "height": 932,
+      "state": "corrupt",
+      "label": "cancel",
+      "zoom": 1.3,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 430,
+      "height": 932,
+      "state": "replace",
+      "label": "menu",
+      "zoom": 1,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 430,
+      "height": 932,
+      "state": "replace",
+      "label": "menu",
+      "zoom": 1.3,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 430,
+      "height": 932,
+      "state": "replace",
+      "label": "new",
+      "zoom": 1,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 430,
+      "height": 932,
+      "state": "replace",
+      "label": "new",
+      "zoom": 1.3,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 430,
+      "height": 932,
+      "state": "replace",
+      "label": "selected",
+      "zoom": 1,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 430,
+      "height": 932,
+      "state": "replace",
+      "label": "selected",
+      "zoom": 1.3,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 430,
+      "height": 932,
+      "state": "replace",
+      "label": "confirm",
+      "zoom": 1,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 430,
+      "height": 932,
+      "state": "replace",
+      "label": "confirm",
+      "zoom": 1.3,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 430,
+      "height": 932,
+      "state": "replace",
+      "label": "cancel",
+      "zoom": 1,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 430,
+      "height": 932,
+      "state": "replace",
+      "label": "cancel",
+      "zoom": 1.3,
+      "total": 0,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    }
+  ],
+  "actions": [
+    "390: yardım, sürüm arama ve açma/kapama çalıştı",
+    "390/fresh: ad, başkent, gerçek arma ve renk yeni kayda işlendi",
+    "390/saved: silme onayından vazgeçmek kaydı korudu",
+    "390/saved: devam et mevcut kaydı korudu",
+    "390/corrupt: silme onayından vazgeçmek kaydı korudu",
+    "390/corrupt: devam et mevcut kaydı korudu",
+    "390/replace: silme onayından vazgeçmek kaydı korudu",
+    "390/replace: ad, başkent, gerçek arma ve renk yeni kayda işlendi",
+    "360: yardım, sürüm arama ve açma/kapama çalıştı",
+    "360/fresh: ad, başkent, gerçek arma ve renk yeni kayda işlendi",
+    "360/saved: silme onayından vazgeçmek kaydı korudu",
+    "360/saved: devam et mevcut kaydı korudu",
+    "360/corrupt: silme onayından vazgeçmek kaydı korudu",
+    "360/corrupt: devam et mevcut kaydı korudu",
+    "360/replace: silme onayından vazgeçmek kaydı korudu",
+    "360/replace: ad, başkent, gerçek arma ve renk yeni kayda işlendi",
+    "430: yardım, sürüm arama ve açma/kapama çalıştı",
+    "430/fresh: ad, başkent, gerçek arma ve renk yeni kayda işlendi",
+    "430/saved: silme onayından vazgeçmek kaydı korudu",
+    "430/saved: devam et mevcut kaydı korudu",
+    "430/corrupt: silme onayından vazgeçmek kaydı korudu",
+    "430/corrupt: devam et mevcut kaydı korudu",
+    "430/replace: silme onayından vazgeçmek kaydı korudu",
+    "430/replace: ad, başkent, gerçek arma ve renk yeni kayda işlendi"
+  ],
+  "errors": [],
+  "missingArt": [],
+  "clean": true
+}

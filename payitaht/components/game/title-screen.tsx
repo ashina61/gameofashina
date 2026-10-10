@@ -11,7 +11,7 @@
  */
 import { useEffect, useState } from 'react'
 import { BookOpen, ChevronLeft, Play, ScrollText, Sparkles, TriangleAlert } from './ui-art'
-import { RulerCrest } from './profile-panel'
+import { RoyalCrest } from './approved-court-art'
 import { ChangelogPage } from './chronicle-pages'
 import { peekSave, startNewGame } from '@/hooks/use-game'
 import { capitalCity, initialEmpire, renameCity, type Empire } from '@/lib/game/empire'
@@ -22,6 +22,10 @@ import { asset } from '@/lib/asset'
 import { BannerContext, BuildingArt } from './building-art'
 import type { BannerLook } from '@/lib/game/banner'
 import { t } from '@/lib/i18n/tr'
+
+function TitleCrest({ crest, color }: { crest: CrestId; color: string }) {
+  return <span className="title-emblem" role="img" aria-label={`Arma: ${CREST_NAMES[crest]}`} style={{ backgroundColor: color }}><RoyalCrest crest={crest} /></span>
+}
 
 type Mode = 'menu' | 'new' | 'howto' | 'notes'
 
@@ -81,7 +85,7 @@ export function TitleScreen({ onStart }: { onStart: () => void }) {
 
   const newGameForm = <form className="title-form" onSubmit={ev => { ev.preventDefault(); begin() }}>
     <div className="title-form-crest">
-      <RulerCrest crest={crest} color={color} size={78} />
+      <TitleCrest crest={crest} color={color} />
       <div>
         <label htmlFor="title-ruler">Hükümdarın adı</label>
         <input id="title-ruler" value={ruler} maxLength={24} placeholder="Ertuğrul" autoComplete="off" onChange={e => setRuler(e.target.value)} />
@@ -91,20 +95,20 @@ export function TitleScreen({ onStart }: { onStart: () => void }) {
     </div>
     <fieldset className="title-crests">
       <legend>Arma</legend>
-      {CRESTS.map(c => <button key={c} type="button" aria-pressed={crest === c} aria-label={CREST_NAMES[c]} onClick={() => setCrest(c)}><RulerCrest crest={c} color={color} size={40} /></button>)}
+      {CRESTS.map(c => <button key={c} type="button" aria-pressed={crest === c} aria-label={CREST_NAMES[c]} onClick={() => setCrest(c)}><RoyalCrest crest={c} /></button>)}
     </fieldset>
     <fieldset className="title-colors">
       <legend>Renk</legend>
       {CREST_COLORS.map(c => <button key={c} type="button" aria-pressed={color === c} aria-label={`Renk: ${COLOR_NAMES[c]}`} title={COLOR_NAMES[c]} style={{ background: c }} onClick={() => setColor(c)}>{color === c && <span className="swatch-check" aria-hidden="true">✓</span>}</button>)}
     </fieldset>
     {error && <p role="alert" className="title-error">{error}</p>}
-    {confirmWipe && <p role="alert" className="title-warn"><TriangleAlert /> Bu cihazdaki eski şehrin silinecek. Emin misin?</p>}
-    <button type="submit" className="title-btn is-primary"><Sparkles />{confirmWipe ? 'Evet, eskisini sil ve başla' : 'Hikâyeye başla'}</button>
+    {confirmWipe && <p role="alert" className="title-warn"><TriangleAlert painted aria-hidden="true" /> Bu cihazdaki eski şehrin silinecek. Emin misin?</p>}
+    <button type="submit" className="title-btn is-primary"><Sparkles painted aria-hidden="true" />{confirmWipe ? 'Evet, eskisini sil ve başla' : 'Hikâyeye başla'}</button>
     <button type="button" className="title-btn" onClick={() => { setMode('menu'); setConfirmWipe(false); setError('') }}><ChevronLeft />{hasSave ? t.action.cancel : t.action.back}</button>
   </form>
 
   const look: BannerLook = profile ? { color: profile.color, shape: profile.banner ?? 'kirlangic', crest: profile.crest } : { color, shape: 'kirlangic', crest }
-  return <BannerContext.Provider value={look}><main className="title-screen">
+  return <BannerContext.Provider value={look}><main className="title-screen title-painted">
     <div className="title-sea" aria-hidden="true" style={{ backgroundImage: `url(${asset('/images/game/terrain/title-background.webp')})` }} />
     <div className="title-skyline" aria-hidden="true">
       <BuildingArt id="saray" level={8} className="is-left" />
@@ -140,25 +144,25 @@ export function TitleScreen({ onStart }: { onStart: () => void }) {
       </>
 
       : !hasSave ? <>
-        <button type="button" className="title-btn is-primary" onClick={() => setMode('new')}><Sparkles />Hikâyeye başla</button>
+        <button type="button" className="title-btn is-primary" onClick={() => setMode('new')}><Sparkles painted aria-hidden="true" />Hikâyeye başla</button>
       </>
 
       : <>
         {empire && profile && capital ? <div className="title-save">
-          <RulerCrest crest={profile.crest} color={profile.color} size={62} />
+          <TitleCrest crest={profile.crest} color={profile.color} />
           <div>
             <strong>{rulerTitle(playerScore(empire).total).name} {profile.ruler}</strong>
             <span>{capital.name} · Divanhane {capital.game.buildings.divan}. seviye</span>
             <small>{empire.cities.length} şehir · son oynama {ago(Date.now() - lastPlayed)}</small>
           </div>
-        </div> : <p role="alert" className="title-warn"><TriangleAlert /> {save.error} Kayıt korunuyor; devam edersen oyun onu değiştirmez.</p>}
-        <button type="button" className="title-btn is-primary" onClick={onStart}><Play />Devam et</button>
-        <button type="button" className="title-btn" onClick={() => { setMode('new'); setConfirmWipe(false) }}><Sparkles />Yeni oyun</button>
+        </div> : <p role="alert" className="title-warn"><TriangleAlert painted aria-hidden="true" /> {save.error} Kayıt korunuyor; devam edersen oyun onu değiştirmez.</p>}
+        <button type="button" className="title-btn is-primary" onClick={onStart}><Play painted aria-hidden="true" />Devam et</button>
+        <button type="button" className="title-btn" onClick={() => { setMode('new'); setConfirmWipe(false) }}><Sparkles painted aria-hidden="true" />Yeni oyun</button>
       </>}
 
       {save !== null && mode !== 'howto' && mode !== 'notes' && mode !== 'new' && <nav className="title-links">
-        <button type="button" onClick={() => setMode('howto')}><BookOpen />Nasıl oynanır</button>
-        <button type="button" onClick={() => setMode('notes')}><ScrollText />Sürüm notları</button>
+        <button type="button" onClick={() => setMode('howto')}><BookOpen painted aria-hidden="true" />Nasıl oynanır</button>
+        <button type="button" onClick={() => setMode('notes')}><ScrollText painted aria-hidden="true" />Sürüm notları</button>
       </nav>}
     </section>
 

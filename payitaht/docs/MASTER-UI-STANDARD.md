@@ -1,3 +1,5 @@
+**10 Ekim giriş ekranı — 0.98.0 / SW110:** `docs/TITLE-DESIGN-MEMORY.md`; boyalı ana menü, kayıt sicili, yeni oyun, yardım ve açılış sürüm notları. Gerçek işlemeli arma, ortak atlaslar ve okunur mobil formlar. Kayıt/başlama/silme onayı, motor ve HUD korunur. Sonraki bütün sayfalarda son tutarlılık denetimi; yayın sonrası kullanıcı değerlendirmesinde dur.
+
 **10 Ekim Şehir günlüğü — 0.97.0 / SW109:** `docs/JOURNAL-DESIGN-MEMORY.md`; arama önce, sekiz olay filtresi iki sıra, gün/saat/tekrarlarıyla dikey boyalı sicil. Olay türü, arama, gruplama, son 60 kayıt, motor ve HUD korunur. Sonraki giriş ekranı; yayın sonrası kullanıcı değerlendirmesinde dur.
 
 **10 Ekim Elçi/İttifak — 0.96.0 / SW108:** `docs/DIPLOMATIC-DESIGN-MEMORY.md`; Elçinin altı defteri ve ittifakın kuruluş/üyelik/yönetimi ortak eğitim atlaslarında. Kısa sahne, ikonlu sekmeler, dikey sicil ve okunur formlar. Yapay rakip, ticaret, ittifak, kayıt, motor ve HUD korunur. Sonraki Şehir günlüğü; yayın sonrası kullanıcı değerlendirmesinde dur.
