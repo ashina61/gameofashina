@@ -107,8 +107,7 @@
   background: var(--parch); border-color: #c9a46a; box-shadow: 0 1px 3px #5a351722; }
 .bp .research-card h3, .bp .objective-card h3, .bp .unit-top strong, .bp .city-card strong { color: var(--ink); }
 .bp .eyebrow { color: var(--ink-soft); }
-.bp .building-list-item { border-bottom-color: #d9bf8a; color: var(--ink); }
-.bp .building-list-item > :is(svg, .painted-icon) { color: var(--ink-soft); }
  .bp .unit-have small { color: var(--ink-soft); }
 .bp .job-progress time { color: var(--ink); }
-.bp .advisor-panel, .bp .research-panel, .bp .building-list { color: var(--ink); }
+.bp .advisor-panel,
+.bp .research-panel { color: var(--ink); }

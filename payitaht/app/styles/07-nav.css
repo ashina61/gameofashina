@@ -74,7 +74,10 @@
 .toggle-row input:checked::after { transform: translateX(20px); }
 .toggle-row input:focus-visible { outline: 2px solid var(--c-brown); outline-offset: 2px; }
 /* Dokunuşta yumuşak basılma hissi. */
-.game-shell .ika-advisor, .game-shell .ika-crest, .game-shell .map-top-tools button, .game-shell .rival-row, .game-shell .building-list-item { transition: transform .08s; }
+.game-shell .ika-advisor,
+.game-shell .ika-crest,
+.game-shell .map-top-tools button,
+.game-shell .rival-row { transition: transform .08s; }
 .game-shell .ika-advisor:active, .game-shell .ika-crest:active, .game-shell .map-top-tools button:active { transform: scale(.93); }
 /* Hedef şeridi alt solda, olay şeridinin üstünde: başparmağa yakın, haritayı örtmez. */
 .quest-chip { top: auto; bottom: calc(var(--ika-nav) + 76px); max-width: min(82vw, 360px); }

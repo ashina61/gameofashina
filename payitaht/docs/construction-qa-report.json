@@ -1,0 +1,2320 @@
+{
+  "reports": [
+    {
+      "width": 360,
+      "zoom": false,
+      "state": "ready",
+      "tag": "catalog",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 360,
+      "zoom": false,
+      "state": "ready",
+      "tag": "new",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 360,
+      "zoom": false,
+      "state": "ready",
+      "tag": "built",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 360,
+      "zoom": false,
+      "state": "ready",
+      "tag": "search-empty",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 360,
+      "zoom": false,
+      "state": "ready",
+      "tag": "search-turkish",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 360,
+      "zoom": false,
+      "state": "ready",
+      "tag": "catalog-saray",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 360,
+      "zoom": false,
+      "state": "ready",
+      "tag": "land",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 360,
+      "zoom": false,
+      "state": "ready",
+      "tag": "land-saray",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 360,
+      "zoom": false,
+      "state": "ready",
+      "tag": "sea",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 360,
+      "zoom": false,
+      "state": "ready",
+      "tag": "sea-liman",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 360,
+      "zoom": false,
+      "state": "ready",
+      "tag": "sea-tersane",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 360,
+      "zoom": false,
+      "state": "ready",
+      "tag": "sea-korsan_kalesi",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 360,
+      "zoom": false,
+      "state": "ready",
+      "tag": "islet",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 360,
+      "zoom": false,
+      "state": "ready",
+      "tag": "islet-open",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": false,
+      "state": "ready",
+      "tag": "catalog",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": false,
+      "state": "ready",
+      "tag": "new",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": false,
+      "state": "ready",
+      "tag": "built",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": false,
+      "state": "ready",
+      "tag": "search-empty",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": false,
+      "state": "ready",
+      "tag": "search-turkish",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": false,
+      "state": "ready",
+      "tag": "catalog-divan",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": false,
+      "state": "ready",
+      "tag": "catalog-saray",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": false,
+      "state": "ready",
+      "tag": "catalog-valilik",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": false,
+      "state": "ready",
+      "tag": "catalog-tophane",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": false,
+      "state": "ready",
+      "tag": "catalog-karagoz",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": false,
+      "state": "ready",
+      "tag": "catalog-korsan_kalesi",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": false,
+      "state": "ready",
+      "tag": "land",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": false,
+      "state": "ready",
+      "tag": "land-saray",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": false,
+      "state": "ready",
+      "tag": "started",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": false,
+      "state": "ready",
+      "tag": "sea",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": false,
+      "state": "ready",
+      "tag": "sea-liman",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": false,
+      "state": "ready",
+      "tag": "sea-tersane",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": false,
+      "state": "ready",
+      "tag": "sea-korsan_kalesi",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": false,
+      "state": "ready",
+      "tag": "islet",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": false,
+      "state": "ready",
+      "tag": "islet-open",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 430,
+      "zoom": false,
+      "state": "ready",
+      "tag": "catalog",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 430,
+      "zoom": false,
+      "state": "ready",
+      "tag": "new",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 430,
+      "zoom": false,
+      "state": "ready",
+      "tag": "built",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 430,
+      "zoom": false,
+      "state": "ready",
+      "tag": "search-empty",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 430,
+      "zoom": false,
+      "state": "ready",
+      "tag": "search-turkish",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 430,
+      "zoom": false,
+      "state": "ready",
+      "tag": "catalog-saray",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 430,
+      "zoom": false,
+      "state": "ready",
+      "tag": "land",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 430,
+      "zoom": false,
+      "state": "ready",
+      "tag": "land-saray",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 430,
+      "zoom": false,
+      "state": "ready",
+      "tag": "sea",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 430,
+      "zoom": false,
+      "state": "ready",
+      "tag": "sea-liman",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 430,
+      "zoom": false,
+      "state": "ready",
+      "tag": "sea-tersane",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 430,
+      "zoom": false,
+      "state": "ready",
+      "tag": "sea-korsan_kalesi",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 430,
+      "zoom": false,
+      "state": "ready",
+      "tag": "islet",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 430,
+      "zoom": false,
+      "state": "ready",
+      "tag": "islet-open",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 360,
+      "zoom": true,
+      "state": "ready",
+      "tag": "catalog",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 360,
+      "zoom": true,
+      "state": "ready",
+      "tag": "new",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 360,
+      "zoom": true,
+      "state": "ready",
+      "tag": "built",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 360,
+      "zoom": true,
+      "state": "ready",
+      "tag": "search-empty",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 360,
+      "zoom": true,
+      "state": "ready",
+      "tag": "search-turkish",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 360,
+      "zoom": true,
+      "state": "ready",
+      "tag": "catalog-saray",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 360,
+      "zoom": true,
+      "state": "ready",
+      "tag": "land",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 360,
+      "zoom": true,
+      "state": "ready",
+      "tag": "land-saray",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 360,
+      "zoom": true,
+      "state": "ready",
+      "tag": "sea",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 360,
+      "zoom": true,
+      "state": "ready",
+      "tag": "sea-liman",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 360,
+      "zoom": true,
+      "state": "ready",
+      "tag": "sea-tersane",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 360,
+      "zoom": true,
+      "state": "ready",
+      "tag": "sea-korsan_kalesi",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 360,
+      "zoom": true,
+      "state": "ready",
+      "tag": "islet",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 360,
+      "zoom": true,
+      "state": "ready",
+      "tag": "islet-open",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": false,
+      "state": "poor",
+      "tag": "catalog",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": false,
+      "state": "poor",
+      "tag": "catalog-divan",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": false,
+      "state": "poor",
+      "tag": "land",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": false,
+      "state": "poor",
+      "tag": "land-saray",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": false,
+      "state": "poor",
+      "tag": "sea",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": false,
+      "state": "poor",
+      "tag": "sea-liman",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": false,
+      "state": "poor",
+      "tag": "sea-tersane",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": false,
+      "state": "poor",
+      "tag": "sea-korsan_kalesi",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": false,
+      "state": "poor",
+      "tag": "islet",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": false,
+      "state": "poor",
+      "tag": "islet-open",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": false,
+      "state": "locked",
+      "tag": "catalog",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": false,
+      "state": "locked",
+      "tag": "catalog-divan",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": false,
+      "state": "locked",
+      "tag": "land",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": false,
+      "state": "locked",
+      "tag": "land-saray",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": false,
+      "state": "locked",
+      "tag": "sea",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": false,
+      "state": "locked",
+      "tag": "sea-liman",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": false,
+      "state": "locked",
+      "tag": "sea-tersane",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": false,
+      "state": "locked",
+      "tag": "sea-korsan_kalesi",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": false,
+      "state": "locked",
+      "tag": "islet",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": false,
+      "state": "locked",
+      "tag": "islet-open",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": false,
+      "state": "queuefull",
+      "tag": "catalog",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": false,
+      "state": "queuefull",
+      "tag": "catalog-divan",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": false,
+      "state": "queuefull",
+      "tag": "queue",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": false,
+      "state": "queuefull",
+      "tag": "land",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": false,
+      "state": "queuefull",
+      "tag": "land-saray",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": false,
+      "state": "queuefull",
+      "tag": "sea",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": false,
+      "state": "queuefull",
+      "tag": "sea-liman",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": false,
+      "state": "queuefull",
+      "tag": "sea-tersane",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": false,
+      "state": "queuefull",
+      "tag": "sea-korsan_kalesi",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": false,
+      "state": "queuefull",
+      "tag": "islet",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": false,
+      "state": "queuefull",
+      "tag": "islet-open",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": false,
+      "state": "queued",
+      "tag": "catalog",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": false,
+      "state": "queued",
+      "tag": "catalog-divan",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": false,
+      "state": "queued",
+      "tag": "queue",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": false,
+      "state": "queued",
+      "tag": "land",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": false,
+      "state": "queued",
+      "tag": "land-saray",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": false,
+      "state": "queued",
+      "tag": "sea",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": false,
+      "state": "queued",
+      "tag": "sea-liman",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": false,
+      "state": "queued",
+      "tag": "sea-tersane",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": false,
+      "state": "queued",
+      "tag": "sea-korsan_kalesi",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": false,
+      "state": "queued",
+      "tag": "islet",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": false,
+      "state": "queued",
+      "tag": "islet-open",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": false,
+      "state": "max",
+      "tag": "catalog",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": false,
+      "state": "max",
+      "tag": "catalog-divan",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": false,
+      "state": "max",
+      "tag": "land",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": false,
+      "state": "max",
+      "tag": "land-saray",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": false,
+      "state": "max",
+      "tag": "sea",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": false,
+      "state": "max",
+      "tag": "sea-liman",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": false,
+      "state": "max",
+      "tag": "sea-tersane",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": false,
+      "state": "max",
+      "tag": "sea-korsan_kalesi",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": false,
+      "state": "max",
+      "tag": "islet",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": false,
+      "state": "max",
+      "tag": "islet-open",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": false,
+      "state": "fullcity",
+      "tag": "catalog",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": false,
+      "state": "fullcity",
+      "tag": "catalog-divan",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": false,
+      "state": "fullcity",
+      "tag": "occupied",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": false,
+      "state": "fullcity",
+      "tag": "occupied-open",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": false,
+      "state": "colony",
+      "tag": "catalog",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": false,
+      "state": "colony",
+      "tag": "catalog-divan",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": false,
+      "state": "colony",
+      "tag": "land",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": false,
+      "state": "colony",
+      "tag": "land-saray",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": false,
+      "state": "colony",
+      "tag": "sea",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": false,
+      "state": "colony",
+      "tag": "sea-liman",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": false,
+      "state": "colony",
+      "tag": "sea-tersane",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": false,
+      "state": "colony",
+      "tag": "sea-korsan_kalesi",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": false,
+      "state": "colony",
+      "tag": "islet",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": false,
+      "state": "colony",
+      "tag": "islet-open",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    }
+  ],
+  "errors": [],
+  "excludedHiddenSentinels": [
+    {
+      "width": 390,
+      "state": "ready",
+      "tag": "started",
+      "count": 1,
+      "reason": "Base UI Progress role=presentation sentinel x, fixed 1x1px, clip-path inset(50%); intentionally visually hidden."
+    },
+    {
+      "width": 390,
+      "state": "queuefull",
+      "tag": "catalog-divan",
+      "count": 1,
+      "reason": "Base UI Progress role=presentation sentinel x, fixed 1x1px, clip-path inset(50%); intentionally visually hidden."
+    },
+    {
+      "width": 390,
+      "state": "queuefull",
+      "tag": "queue",
+      "count": 4,
+      "reason": "Base UI Progress role=presentation sentinel x, fixed 1x1px, clip-path inset(50%); intentionally visually hidden."
+    },
+    {
+      "width": 390,
+      "state": "queued",
+      "tag": "queue",
+      "count": 1,
+      "reason": "Base UI Progress role=presentation sentinel x, fixed 1x1px, clip-path inset(50%); intentionally visually hidden."
+    }
+  ],
+  "finalChecks": [
+    {
+      "width": 360,
+      "zoom": false,
+      "state": "ready",
+      "tag": "catalog",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 360,
+      "zoom": false,
+      "state": "ready",
+      "tag": "catalog-saray",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 360,
+      "zoom": false,
+      "state": "ready",
+      "tag": "land",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 360,
+      "zoom": false,
+      "state": "ready",
+      "tag": "land-saray",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 360,
+      "zoom": false,
+      "state": "ready",
+      "tag": "sea",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 360,
+      "zoom": false,
+      "state": "ready",
+      "tag": "sea-tersane",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 360,
+      "zoom": false,
+      "state": "ready",
+      "tag": "islet-open",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": false,
+      "state": "ready",
+      "tag": "catalog",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": false,
+      "state": "ready",
+      "tag": "catalog-saray",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": false,
+      "state": "ready",
+      "tag": "land",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": false,
+      "state": "ready",
+      "tag": "land-saray",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": false,
+      "state": "ready",
+      "tag": "sea",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": false,
+      "state": "ready",
+      "tag": "sea-tersane",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": false,
+      "state": "ready",
+      "tag": "islet-open",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 430,
+      "zoom": false,
+      "state": "ready",
+      "tag": "catalog",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 430,
+      "zoom": false,
+      "state": "ready",
+      "tag": "catalog-saray",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 430,
+      "zoom": false,
+      "state": "ready",
+      "tag": "land",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 430,
+      "zoom": false,
+      "state": "ready",
+      "tag": "land-saray",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 430,
+      "zoom": false,
+      "state": "ready",
+      "tag": "sea",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 430,
+      "zoom": false,
+      "state": "ready",
+      "tag": "sea-tersane",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 430,
+      "zoom": false,
+      "state": "ready",
+      "tag": "islet-open",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 360,
+      "zoom": true,
+      "state": "ready",
+      "tag": "catalog",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 360,
+      "zoom": true,
+      "state": "ready",
+      "tag": "catalog-saray",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 360,
+      "zoom": true,
+      "state": "ready",
+      "tag": "land",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 360,
+      "zoom": true,
+      "state": "ready",
+      "tag": "land-saray",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 360,
+      "zoom": true,
+      "state": "ready",
+      "tag": "sea",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 360,
+      "zoom": true,
+      "state": "ready",
+      "tag": "sea-tersane",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 360,
+      "zoom": true,
+      "state": "ready",
+      "tag": "islet-open",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": false,
+      "state": "queuefull",
+      "tag": "catalog",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": false,
+      "state": "queuefull",
+      "tag": "catalog-saray",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": false,
+      "state": "queuefull",
+      "tag": "land",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": false,
+      "state": "queuefull",
+      "tag": "land-saray",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": false,
+      "state": "queuefull",
+      "tag": "sea",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": false,
+      "state": "queuefull",
+      "tag": "sea-tersane",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": false,
+      "state": "queuefull",
+      "tag": "islet-open",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    }
+  ],
+  "finalErrors": []
+}

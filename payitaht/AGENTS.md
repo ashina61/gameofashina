@@ -10,6 +10,9 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 # Payitaht Adaları — ajanlar için
 
+**10 Ekim inşa/arsa — 0.85.0 / SW97:** `docs/CONSTRUCTION-DESIGN-MEMORY.md`; ortak boyalı dikey katalog ve açılır arsa defteri, gerçek bedel/süre/kilit ve sıra. İnşa ayrı düğmede, kara/deniz/korsan kuralları aynı. Sonraki Ada ormanı ve madeni; yayın sonrası kullanıcı değerlendirmesinde dur.
+
+
 **10 Ekim kültür/gölge oyunu — 0.84.0 / SW96:** docs/CULTURE-DESIGN-MEMORY.md geçerlidir. Müze ve Karagöz ortak defter ve iki sahne. Yerel/ortak kültür sınırları, gerçek 12/18 saat gösteri ve başlangıçtan yeniden açılış, kapasiteyle sınırlı lütuf ayrı. Gelişim önce yükseltme; motor/HUD korunur. Sonraki inşa menüsü ve arsa seçimi; yayın sonrası değerlendirmede dur.
 
 **9 Ekim ibadet/himaye/kutsama — 0.83.0 / SW95:** docs/DEVOTION-DESIGN-MEMORY.md geçerlidir. Cami, Ahi Tekkesi, Ongun Mabedi ortak defter ve üç sahne; tam boy imam. Sunu/adak gerçek sınırlı miktar, kudret engelleri ve araştırma kaynaklı bekleme değişimleri görünür. Gelişim önce yükseltme; motor/HUD korunur. Sonraki Müze/Karagöz Perdesi; yayın sonrası kullanıcı değerlendirmesinde dur.

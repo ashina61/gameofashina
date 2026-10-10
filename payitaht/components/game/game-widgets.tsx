@@ -38,9 +38,9 @@ export function ResourceBar({ game, onSelect }: { game: Game; onSelect: () => vo
     <span className="resource-copy"><span className="resource-name">Nüfus</span><strong>{formatNumber(population(game))}</strong><span className="resource-rate">Halk</span></span>
   </button></section>
 }
-export function CostDisplay({ value, lux }: { value: Partial<Record<Resource, number>>; lux?: Partial<LuxuryStock> }) {
-  return <div className="cost-display">{RESOURCE_IDS.filter(id => (value[id] ?? 0) > 0).map(id => { const Icon = resourceIcons[id]; return <span key={id} title={RESOURCE_NAMES[id]}><Icon aria-hidden="true" /><span className="sr-only">{RESOURCE_NAMES[id]}: </span>{formatNumber(value[id] ?? 0)}</span> })}
-    {lux && LUXURY_IDS.filter(id => (lux[id] ?? 0) > 0).map(id => { const Icon = luxuryIcons[id]; return <span key={id} className="cost-luxury" title={LUXURY_NAMES[id]}><Icon aria-hidden="true" /><span className="sr-only">{LUXURY_NAMES[id]}: </span>{formatNumber(lux[id] ?? 0)}</span> })}</div>
+export function CostDisplay({ value, lux, exact = false }: { value: Partial<Record<Resource, number>>; lux?: Partial<LuxuryStock>; exact?: boolean }) {
+  return <div className="cost-display">{RESOURCE_IDS.filter(id => (value[id] ?? 0) > 0).map(id => { const Icon = resourceIcons[id]; return <span key={id} title={RESOURCE_NAMES[id]}><Icon aria-hidden="true" /><span className="sr-only">{RESOURCE_NAMES[id]}: </span>{exact ? (value[id] ?? 0).toLocaleString('tr-TR') : formatNumber(value[id] ?? 0)}</span> })}
+    {lux && LUXURY_IDS.filter(id => (lux[id] ?? 0) > 0).map(id => { const Icon = luxuryIcons[id]; return <span key={id} className="cost-luxury" title={LUXURY_NAMES[id]}><Icon aria-hidden="true" /><span className="sr-only">{LUXURY_NAMES[id]}: </span>{exact ? (lux[id] ?? 0).toLocaleString('tr-TR') : formatNumber(lux[id] ?? 0)}</span> })}</div>
 }
 export function JobProgress({ job, now }: { job: Job; now: number }) {
   return <div className="job-progress"><div><span>{job.kind === 'build' ? 'Ustalar çalışıyor' : job.kind === 'research' ? 'Âlimler çalışıyor' : 'Talim meydanı dolu'}</span><time>{timeLeft(job, now)}</time></div><Progress aria-label="Tamamlanma" value={Math.max(0, Math.min(100, (now - job.start) / (job.end - job.start) * 100))} /></div>

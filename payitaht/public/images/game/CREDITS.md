@@ -388,3 +388,8 @@ Harita Arşivi, Surlar ve Gizli Sığınak sahneleri: OpenAI Imagegen, 9 Ekim 20
 ## Kültür ve Karagöz — 0.84.0
 
 `ui/culture/muze.webp` ve `ui/culture/karagoz.webp`: yerleşik Imagegen ile özgün yazısız Osmanlı–Ege müze galerisi ve gölge oyunu avlusu; RGB 960×320 WebP. Promptlar `docs/culture-art.json` içinde. Ortak Kışla/Medrese çerçeveleri ve mevcut boyalı kültür atlası korunur.
+
+
+## İnşa defteri — 0.85.0
+
+`ui/construction/ustalar.webp`: yerleşik Imagegen ile özgün yazısız Osmanlı–Ege ustalar avlusu; RGB 960×320 WebP. Prompt `docs/construction-art.json` içinde. Ortak Kışla/Medrese boyalı çerçeveleri ve mevcut bina resimleri korunur.

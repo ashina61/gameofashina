@@ -141,16 +141,6 @@
 .job-progress { display: flex; flex-direction: column; gap: 9px; padding: 6px 0; }
 .job-progress > div:first-child { display: flex; justify-content: space-between; color: var(--gold); font-size: 11px; }
 .job-progress time { font-variant-numeric: tabular-nums lining-nums; }
-.building-list { display: flex; flex-direction: column; }
-.building-list-item { display: flex; align-items: center; gap: 15px; min-height: 103px; border: none; border-bottom: 1px solid var(--border); background: none; text-align: left; padding: 8px 0; }
-.building-list-item:last-child { border-bottom: none; }
-.building-list-item > img { width: 78px; height: 78px; object-fit: contain;
-  filter: saturate(.90) contrast(.98) sepia(.035) drop-shadow(0 3px 4px #0003); }
-.building-list-item > span { display: flex; flex: 1; flex-direction: column; gap: 6px; }
-.building-list-item strong { font-family: var(--font-heading), Georgia, serif; font-size: 23px; font-weight: 500; }
-.building-list-item > span > span:last-child { font-size: 11px; color: var(--muted-foreground); }
-.building-list-item .eyebrow { font-size: 11px; }
-.building-list-item > :is(svg, .painted-icon) { color: var(--gold); }
 .research-panel { display: flex; flex-direction: column; gap: 16px; }
 .research-branch { display: flex; flex-direction: column; gap: 10px; }
 .research-branch-top { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; border-bottom: 1px solid var(--border); padding-bottom: 6px; margin-top: 4px; }
@@ -275,8 +265,6 @@
  * Eksik dosya haritada kirik resim olarak gorunmesin diye: tas bir kaide
  * uzerinde cekic. Yapi kurallariyla oynanabilir, gorseli sonra gelir.
  */
-.list-pending { display: grid; place-items: center; width: 88px; height: 88px; flex-shrink: 0; color: #e9d7a6; background: #ffffff0d; border: 1px dashed #d9c18555; border-radius: 8px; }
-.list-pending :is(svg, .painted-icon) { width: 26px; height: 26px; stroke-width: 1.3; }
 
 /* --- Ambar doluluk uyarisi ------------------------------------------------
  * Dolu ambar, uretimin bosa gittigi TEK durumdur. Renk tek basina yeterli

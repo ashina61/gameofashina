@@ -1,0 +1,13 @@
+{
+  "release": "0.85.0",
+  "assets": [
+    {
+      "path": "public/images/game/ui/construction/ustalar.webp",
+      "prompt": "Use case: historical-scene. Asset type: text-free wide 3:1 banner for Payitaht mobile Ottoman–Aegean strategy game's construction register. Scene: master builder in cream robe and muted red sash shows blank architectural parchment to two stone masons in an open Ottoman coastal building yard. Cut ivory limestone blocks, modest timber scaffold, terracotta roof beams; distant elegant Aegean town and turquoise bay. Warm upper-left daylight, soft lower-right shadows. Premium painterly-realistic strategy game art, detailed restrained brushwork, limestone ivory, walnut brown, muted terracotta, brass gold, olive green. Clear readable horizontal composition, people and tools centered vertically for short mobile banner crop. Match cohesive Ottoman historical game illustration, no modern tools. No text, letters, numerals, logos, UI, frame, watermark, cartoon proportions, thick outlines, neon or fantasy.",
+      "tool": "built-in image_gen",
+      "source": "exec-8ba02aa0-df6c-4afd-8985-ddb3270e79fa.png",
+      "width": 960,
+      "height": 320
+    }
+  ]
+}

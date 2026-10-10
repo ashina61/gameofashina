@@ -66,10 +66,10 @@
 .game-shell.has-page .page-stocks button { min-height: 42px; }
 
 /* Common content surfaces: same parchment depth across advisor/research lists. */
-.game-shell.has-page :is(.advisor-panel, .research-panel, .building-list, .deploy-panel) {
+.game-shell.has-page :is(.advisor-panel, .research-panel, .deploy-panel) {
   gap: 10px;
 }
-.game-shell.has-page :is(.research-card, .objective-card, .unit-card, .city-card, .report-card, .advisor-card, .building-list-item) {
+.game-shell.has-page :is(.research-card, .objective-card, .unit-card, .city-card, .report-card, .advisor-card) {
   border-color: color-mix(in srgb, var(--c-parch-edge) 56%, transparent);
   border-radius: 14px;
   background: color-mix(in srgb, var(--ui-paper) 93%, transparent);
@@ -77,11 +77,6 @@
 }
 .game-shell.has-page :is(.research-card, .objective-card, .unit-card, .city-card, .report-card, .advisor-card) {
   padding: 11px;
-}
-.game-shell.has-page .building-list-item {
-  min-height: 68px;
-  margin-bottom: 7px;
-  padding: 8px 10px;
 }
 
 /* Research: compact top stats and one active branch at a time visually. */

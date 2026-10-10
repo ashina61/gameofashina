@@ -65,3 +65,8 @@ MARITIME-DESIGN-MEMORY.md geçerlidir. Ortak filo ve gerçek yük sınırı, dik
 ## Harita Arşivi ve savunma — 0.81.0
 
 DEFENSE-DESIGN-MEMORY.md geçerlidir. Yol çarpanı ve nakliye araştırması; başlangıç sur canı/şehir savunması ve garnizon; ek casusluk katkısı ile gerçek kovma şansı ayrıdır. Ortak atlaslar, üç sahne, Gelişim önce yükseltme. Motor ve HUD korunur. Sonraki bölüm Tophane/Korsan Kalesi; yayın sonrası kullanıcı değerlendirmesinde dur.
+
+
+## İnşa ve arsa seçimi — 0.85.0
+
+CONSTRUCTION-DESIGN-MEMORY.md geçerlidir. Ortak atlaslar, özgün kısa ustalar sahnesi, dikey açılır yapılar; gerçek bedel, süre ve kilitler. İnşa ayrı eylem, Surlar yalnız katalogda. Motor, yerleşim ve HUD korunur. Sonraki Ada ormanı ve madeni.

@@ -11,8 +11,8 @@ import { WorkforceSlider } from './workforce'
 import { GameButton } from './game-button'
 import { NowNext } from './stat-kit'
 import { CostDisplay, JobProgress } from './game-widgets'
-import { BUILDINGS, BUILDING_IDS, MAX_LEVEL, RESEARCH, RESEARCH_IDS, RESEARCH_BRANCHES, UNITS, UNIT_IDS, activeJob, cargoCapacity, cityDefense, cost, duration, buildReason, power, rates, recruitReason, researchReason, scientistCount, scientistUpkeepPerMinute, idleWorkers, soldiers, takesPlot, tradeCapacity, unitCost, unitDuration, wallDefense, type BuildingId, type ResearchId, type ResearchBranch, type UnitId, type Game, formatRate } from '@/lib/game/engine'
-import { asset, buildingImage } from '@/lib/asset'
+import { BUILDINGS, MAX_LEVEL, RESEARCH, RESEARCH_IDS, RESEARCH_BRANCHES, UNITS, UNIT_IDS, activeJob, cargoCapacity, cityDefense, cost, duration, buildReason, power, rates, recruitReason, researchReason, scientistCount, scientistUpkeepPerMinute, idleWorkers, soldiers, takesPlot, tradeCapacity, unitCost, unitDuration, wallDefense, type BuildingId, type ResearchId, type ResearchBranch, type UnitId, type Game, formatRate } from '@/lib/game/engine'
+import { asset } from '@/lib/asset'
 import { capitalCity, colonyPalaceLevel, COLONY_COST, type Empire } from '@/lib/game/empire'
 import { LUXURY_IDS, LUXURY_NAMES, MINE_MAX_LEVEL, luxuryCost, luxuryProduction, merchantLimit, mineCapacity, mineUpgradeCost, unitLuxuryCost, wineServed, type Luxury } from '@/lib/game/engine'
 import { luxuryIcons } from './game-widgets'
@@ -21,7 +21,7 @@ import { FIELD_ROW_NAMES, ROLE_NAMES } from '@/lib/game/glossary'
 import { Term } from './term'
 import { actionPoints, armyUpkeep, merchantBuyPrice, merchantSellPrice, type UnitRole } from '@/lib/game/engine'
 import { ChevronsLeft, ChevronsRight, Eye } from './ui-art'
-import { DRILL_QUEUE_LIMIT, garrisonLimit, garrisonUsed, spyCapacity, PLOTS, plotFits } from '@/lib/game/engine'
+import { DRILL_QUEUE_LIMIT, garrisonLimit, garrisonUsed, spyCapacity } from '@/lib/game/engine'
 import { BATTLE_STATS, SLOT_SIZE, fieldSize } from '@/lib/game/battle'
 import { UnitFigure } from './unit-art'
 import { UnitGallery, unitLock } from './unit-gallery'
@@ -47,40 +47,7 @@ export function BuildingDetails({ game, id, onBuild, onFlip, onMove }: { game: G
     </div>)}
   </section>}{queued > 0 && <p className="requirement"><KumSaatiArt className="size-4" />İnşaat sırasında {queued + 1}. sırada bekliyor.</p>}{reason && !active && queued < 0 && <p className="requirement"><LockKeyhole className="size-4" />{reason}</p>}{level > 0 && takesPlot(id) && <div className="building-tools">{b.art && <GameButton variant="outline" size="sm" onClick={() => onFlip(id)}><FlipHorizontal2 data-icon="inline-start" />{game.flips.includes(id) ? 'Yönü geri çevir' : 'Çevir'}</GameButton>}{id !== 'divan' && <GameButton variant="outline" size="sm" onClick={() => onMove(id)}><Move data-icon="inline-start" />Taşı</GameButton>}</div>}<GameButton size="lg" className="w-full" disabled={!!reason} onClick={() => onBuild(id)}><Hammer data-icon="inline-start" />{active ? 'İnşaat devam ediyor' : level >= max ? 'Tamamen geliştirildi' : level ? 'Binayı yükselt' : 'İnşaata başla'}</GameButton></div>
 }
-export function BuildingList({ game, onSelect }: { game: Game; onSelect: (id: BuildingId) => void }) {
-  const [query, setQuery] = useState('')
-  const [filter, setFilter] = useState<'all' | 'built' | 'new'>('all')
-  const matching = BUILDING_IDS.filter(id => {
-    if (filter === 'built' && !game.buildings[id]) return false
-    if (filter === 'new' && game.buildings[id]) return false
-    const text = `${BUILDINGS[id].name} ${BUILDINGS[id].category}`.toLocaleLowerCase('tr-TR')
-    return text.includes(query.trim().toLocaleLowerCase('tr-TR'))
-  })
-  return <div className="building-list">
-    <div className="building-list-filters">
-      <label htmlFor="building-search">Yapı ara</label>
-      <input id="building-search" type="search" placeholder="Örn. Medrese, liman, üretim…" value={query} onChange={e => setQuery(e.target.value)} />
-      <div role="group" aria-label="Yapı durumu">
-        {([['all', 'Tümü'], ['built', 'Kurulu'], ['new', 'Yeni yapılar']] as const).map(([key, label]) =>
-          <button key={key} type="button" aria-pressed={filter === key} onClick={() => setFilter(key)}>{label}</button>)}
-      </div>
-      <small>{matching.length} yapı gösteriliyor</small>
-    </div>
-    {matching.length === 0 && <p className="building-list-empty">Bu aramada yapı bulunamadı.</p>}
-    {matching.map(id => {
-    const level = game.buildings[id]
-    const complete = level >= MAX_LEVEL[id]
-    return <button key={id} className={`building-list-item${level ? ' is-built' : ' is-new'}${complete ? ' is-max' : ''}`} onClick={() => onSelect(id)}>
-      <span className="building-list-art">{BUILDINGS[id].art ? <img src={buildingImage(id, level)} alt="" width={88} height={88} loading="lazy" decoding="async" /> : <span className="list-pending"><Hammer aria-hidden="true" /></span>}</span>
-      <span className="building-list-copy"><span className="eyebrow">{BUILDINGS[id].category}</span><strong>{BUILDINGS[id].name}</strong>
-        <span className={`building-list-state${complete ? ' is-complete' : level ? ' is-upgrade' : ' is-build'}`}>
-          {level ? `Seviye ${level}${complete ? ' · Tamamlandı' : ' · Geliştirilebilir'}` : 'Yeni yapı'}
-        </span>
-      </span>
-      <span className="building-list-next" aria-hidden="true"><ChevronRight className="size-4" /></span>
-    </button>
-  })}</div>
-}
+export { BuildingList, PlotPicker } from './construction-register'
 /**
  * ARAŞTIRMA DANIŞMANI (Ikariam düzeni): üstte âlim sayısı, ilim ve saatlik
  * birikim; dal sekmeleri; seçili araştırmanın ayrıntısı (etki, gerekenler,
@@ -178,41 +145,6 @@ export function ResearchPanel({ game, onResearch }: { game: Game; onResearch: (i
         <ul className="rs-list rs-tree" aria-label={`${b.title} araştırma defteri`}>{list.map(node)}</ul>
       </div>
     })}</div>
-  </div>
-}
-
-/**
- * Bos bir arsaya kurulabilecek yapilar.
- *
- * Ikariam'da arsa once secilir, yapi sonra. Burada da oyle: oyuncu haritada
- * bos bir arsaya dokunur ve o arsaya ne kuracagini buradan secer.
- */
-export function PlotPicker({ game, plot, onBuild }: { game: Game; plot: number; onBuild: (id: BuildingId, plot: number) => void }) {
-  /*
-   * Arsa kaplamayan yapi (Surlar) burada GORUNMEZ.
-   *
-   * Yerlesimi hep null oldugu icin listeye giriyordu ve oyuncuya "bu arsaya
-   * sur kurabilirsin" diyordu - oysa surlar sehrin cevresine orulur, arsa
-   * tutmaz. Kurmak isteyen Inşa listesinden kurar.
-   */
-  // Deniz arsasında yalnızca liman yapıları, karada yalnızca kara yapıları listelenir.
-  const zone = PLOTS[plot]?.zone ?? 'sehir'
-  const candidates = BUILDING_IDS.filter(id => takesPlot(id) && game.placement[id] === null && plotFits(plot, id))
-  return <div className="building-list">
-    <p className="fine-print">{PLOTS[plot]?.islet ? 'Korsan adası: liman ağzındaki bu kayalığa yalnız Korsan Kalesi kurulur.' : zone === 'liman' ? 'Deniz arsası: liman, tersane ve korsan kalesi buraya kurulur.' : 'Kara arsası. Kurulduktan sonra binaya dokunup yükseltirsin.'}</p>
-    {candidates.length === 0 && <p className="requirement"><LockKeyhole className="size-4" />Kurulabilecek yeni yapı kalmadı. Mevcut yapılarını yükselt.</p>}
-    {candidates.map(id => {
-      const reason = buildReason(game, id)
-      return <button key={id} className="building-list-item" disabled={!!reason} onClick={() => onBuild(id, plot)}>
-        {BUILDINGS[id].art ? <img src={buildingImage(id)} alt="" width={88} height={88} loading="lazy" decoding="async" /> : <span className="list-pending"><Hammer aria-hidden="true" /></span>}
-        <span className="building-list-copy">
-          <span className="eyebrow">{BUILDINGS[id].category}</span>
-          <strong>{BUILDINGS[id].name}</strong>
-          <span className={`building-list-state ${reason ? 'is-locked' : 'is-build'}`}>{reason ?? 'Bu arsaya kurulabilir'}</span>
-        </span>
-        <span className="building-list-next" aria-hidden="true"><ChevronRight className="size-4" /></span>
-      </button>
-    })}
   </div>
 }
 
