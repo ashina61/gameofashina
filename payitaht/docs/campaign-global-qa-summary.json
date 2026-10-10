@@ -1,0 +1,17 @@
+{
+  "tool": "tools/layout-qa.cjs",
+  "viewports": [
+    "360×740",
+    "360×740 font 130%"
+  ],
+  "totals": {
+    "taşma": 0,
+    "kesik": 0,
+    "küçük": 322,
+    "minik": 669,
+    "çakışma": 70,
+    "isimsiz": 0
+  },
+  "errors": [],
+  "note": "Existing HUD and other-screen warnings remain. Clean pages are omitted by the global reporter; focused campaign reports include every capture."
+}

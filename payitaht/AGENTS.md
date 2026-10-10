@@ -1,3 +1,5 @@
+**10 Ekim Serasker/hedef — 0.87.0 / SW99:** `docs/CAMPAIGN-DESIGN-MEMORY.md`; hedef sekmeleri, ortak portre/adet atlası; rapor/sefer/savunma defteri ve görünüm filtreleri. Motor, kayıt, HUD ve dört ada açıklığı korunur. Yayın sonrası kullanıcı değerlendirmesinde dur.
+
 <!-- BEGIN:nextjs-agent-rules -->
 
 # This is NOT the Next.js you know

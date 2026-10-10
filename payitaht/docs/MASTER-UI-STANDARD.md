@@ -1,3 +1,5 @@
+**10 Ekim Serasker/hedef — 0.87.0 / SW99:** `docs/CAMPAIGN-DESIGN-MEMORY.md`; hedef sekmeleri, ortak portre/adet atlası; rapor/sefer/savunma defteri ve görünüm filtreleri. Motor, kayıt, HUD ve dört ada açıklığı korunur. Yayın sonrası kullanıcı değerlendirmesinde dur.
+
 # Payitaht — onaylı arayüz standardı
 
 **10 Ekim ada/orman/maden — 0.86.0 / SW98:** `docs/ISLAND-DESIGN-MEMORY.md` (doküman klasöründe ISLAND-DESIGN-MEMORY.md). Kullanıcı dört ek alanı adanın yerleşimi için istedi; ormanda veya şehir içi arsalarda değil. Yeni arazi ve dört boş açıklık, ortak Üretim/Gelişim defterleri. Motor/HUD korunur; yayın sonrası kullanıcı değerlendirmesinde dur.

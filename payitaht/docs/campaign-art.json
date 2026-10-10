@@ -1,0 +1,23 @@
+{
+  "tool": "built-in image_gen",
+  "assets": [
+    {
+      "path": "public/images/game/ui/campaign/command.webp",
+      "source": "exec-ca0344ab-0987-4f8a-92bc-29398b16691a.png",
+      "prompt": "Use case: historical-scene. Asset type: short panoramic painted scene banner for Ottoman Aegean strategy game, 3:1 landscape. Subject: a 16th century Ottoman commander and two officers in a walnut field command pavilion overlooking a fortified Aegean coastal town; planning a military expedition at a table with rolled blank parchment map, brass compass and red silk pennant. Natural upper-left warm daylight, ivory limestone, walnut wood, aged brass, muted red textiles and teal distant sea. Hand-painted realistic period game art, finely textured oil painting, restrained detail that reads at small size. Central horizontal composition, figures and town within middle band, no fighting. No text, no writing, no labels, no borders, no UI, no modern objects, no cartoon, no watermark.",
+      "size": [
+        960,
+        320
+      ]
+    },
+    {
+      "path": "public/images/game/ui/campaign/records.webp",
+      "source": "exec-88fae14a-bd91-40df-accc-fd6efd488c21.png",
+      "prompt": "Use case: historical-scene. Asset type: panoramic 3:1 short scene banner for an Ottoman Aegean strategy game's military report register. Subject: 16th century Ottoman military clerk in turban seated in a quiet ivory limestone archive beside an officer delivering a sealed folded dispatch; walnut desk covered with blank parchment scrolls, brass inkpot, red silk seal cord, shelves of closed bound registers behind them and an open window onto a harbor. Warm daylight from upper left. Fine realistic painterly oil illustration, period accurate, same restrained walnut, ivory, aged brass, deep red and distant teal palette as Ottoman strategy game art. Horizontal middle-band composition readable small. No readable writing, no text, no labels, no UI frames, no watermark, no modern objects, no cartoon.",
+      "size": [
+        960,
+        320
+      ]
+    }
+  ]
+}

@@ -399,3 +399,5 @@ Harita Arşivi, Surlar ve Gizli Sığınak sahneleri: OpenAI Imagegen, 9 Ekim 20
 Built-in image_gen.imagegen; three original text-free Ottoman–Aegean paintings. Prompt/source record: docs/island-art.json. RGB WebP quality 88: islands/settlement-map-v2.webp (900×1200), ui/island/forest.webp and mine.webp (960×320). Shared playable island terrain; distinct world-map silhouettes retained. Reserved site flags and names are runtime UI; approved barracks and court atlas controls reused.
 
 Three further original 960×320 RGB WebP banners: mine-kahve.webp (harvest), mine-kristal.webp (quartz extraction), mine-kukurt.webp (sulfur extraction). Built-in image_gen, prompt record in docs/island-art.json.
+
+0.87.0: `ui/campaign/command.webp` ve `records.webp`, yerleşik image_gen ile özgün Osmanlı–Ege sefer/rapor sahneleri; promptlar `docs/campaign-art.json`.

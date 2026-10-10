@@ -12,6 +12,7 @@ import { KumSaatiArt, NufusArt } from './resource-art'
 import { rivalWarLine } from './ai-panels'
 import { RivalPortrait } from './deep-art'
 import { Hint } from './hint'
+import { CourtTabs } from './court-kit'
 import { useState } from 'react'
 import { ArrowLeft, ScrollText, Eye, Swords, ShieldCheck, Minus, Plus, Ship, Anchor, Skull, Flag, Bookmark, BookmarkCheck, Trash2 } from './ui-art'
 import { GameButton } from './game-button'
@@ -123,6 +124,7 @@ export function NpcPanel({ empire, npcId, now, onSpy, onRaid, onOccupy, onBlocka
   const g = city.game
   const state = { level: npc.level }
   const free = availableUnits(empire, city.id)
+  const [tab, setTab] = useState<'raid' | 'spy' | 'relations'>('raid')
   const [spies, setSpies] = useState(1)
   const [pick, setPick] = useState<Partial<Record<UnitId, number>>>({})
   const overseas = npc.islandId !== city.islandId
@@ -139,7 +141,8 @@ export function NpcPanel({ empire, npcId, now, onSpy, onRaid, onOccupy, onBlocka
   const field = fieldSize(npc.field)
   const force = Math.round(strikeForce(g, pick))
   const pool = npc.loot
-  return <div className="advisor-panel npc-panel">
+  return <div className="npc-panel">
+    <figure className="academy-banner"><img src={asset('/images/game/ui/campaign/command.webp')} alt="" width={960} height={320} /></figure>
     <article className="city-card">
       <div className="city-card-top">
         <span className="city-emblem npc-emblem"><img src={rival ? buildingImage('divan', Math.min(30, npc.level * 2)) : asset(`/images/game/buildings/npc-${npcById(npcId)!.kind}.webp`)} alt="" /></span>
@@ -152,16 +155,42 @@ export function NpcPanel({ empire, npcId, now, onSpy, onRaid, onOccupy, onBlocka
         : `Bağımsız bir yerleşim (gerçek oyuncu değil). Yağmalanınca toparlanır ve bir seviye güçlenir; hazinesi 45 dakikada dolar${pool.gold > 0 ? '' : ' — şu an boş'}.`}</p>
     </article>
 
+    <CourtTabs items={[{ id: 'raid', label: 'Sefer', Icon: Flag }, { id: 'spy', label: 'Casusluk', Icon: ScrollText }, ...(rival ? [{ id: 'relations' as const, label: 'İlişkiler', Icon: Flag }] : [])]} value={tab} onChange={setTab} label="Hedef defteri">
+      {tab === 'raid' && <>
+
     <section className="empire-section">
-      <h3>Son istihbarat</h3>
-      {intel.length
-        ? intel.map(r => <div key={r.id} className="intel-block">
-          <span className="eyebrow">{r.intel ? SPY_TYPES[r.intel].name.toUpperCase() : 'GENEL RAPOR'} · {new Date(r.time).toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })}</span>
-          <ReportLines lines={r.lines} />
-        </div>)
-        : <Hint>Bu yerleşim hakkında bilgi yok. Casus sızdır, sonra görev ver: garnizonu, suru, limanı ve hazineyi öğrenirsin.</Hint>}
+      <h3><Swords className="size-4" /> Sefere çık</h3>
+      {RAID_UNITS.every(id => free[id] <= 0) && <p className="fine-print">Boşta kara birliği yok. Kışla'da asker yetiştir.</p>}
+      <UnitPicker painted ids={RAID_UNITS} free={free} pick={pick} onPick={setPick} step={5} />
+      {overseas && <>
+        <h4 className="picker-heading"><Anchor className="size-4" /> Eskort gemileri</h4>
+        {WARSHIPS.every(id => free[id] <= 0)
+          ? <p className="fine-print">Boşta savaş gemisi yok. Donanması olan hedefe eskortsuz çıkarma yapılamaz.</p>
+          : <UnitPicker painted ids={WARSHIPS} free={free} pick={pick} onPick={setPick} />}
+        <p className={ships > free.nakliye ? 'requirement' : 'fine-print'}><Ship className="size-4" /> Deniz aşırı sefer: {ships} nakliye gemisi gerekli (her gemi {TROOPS_PER_SHIP} asker taşır) · boşta {free.nakliye}. Önce deniz savaşı, sonra çıkarma.</p>
+      </>}
+      <div className="raid-summary">
+        <span><Swords className="size-4" />Saldırı {force}</span>
+        <span><ShieldCheck className="size-4" />Savunma {intel.flatMap(r => r.lines).find(l => l.includes('Toplam savunma'))?.match(/Toplam savunma (\d+)/)?.[1] ?? '?'}</span>
+        <span title={`Ön cephe ${field.front}, kanat ${field.flank}, menzil ${field.range}, kuşatma ${field.artillery} yuva`}><Flag className="size-4" />{field.name}</span>
+        <span title="Ordu en yavaş birliği kadar hızlıdır"><KumSaatiArt className="size-4" />Yol {clock(targetTravelMs(city, npcId, 'raid', state.level, pick))}</span>
+        <span><NufusArt className="size-4" />Taşıma {overseas ? Math.max(ships * UNITS.nakliye.cargo, RAID_UNITS.reduce((s, id) => s + UNITS[id].pop * (pick[id] ?? 0) * 30, 0))
+          : RAID_UNITS.reduce((s, id) => s + UNITS[id].pop * (pick[id] ?? 0) * 30, 0)}</span>
+      </div>
+
+      {fighting && <p className="requirement"><Swords className="size-4" />Burada savaş sürüyor (tur {fighting.battle!.state.round}). {fighting.cityId === city.id ? 'Göndereceğin ordu takviye olarak katılır.' : 'Yeni ordu savaş bitene kadar önünde bekler.'}</p>}
+      <GameButton size="sm" data-guide="raid" disabled={busy('raid') || !RAID_UNITS.some(id => (pick[id] ?? 0) > 0) || (overseas && ships > free.nakliye)} onClick={() => { onRaid(pick); setPick({}) }}><Swords data-icon="inline-start" />{fighting?.cityId === city.id ? 'Takviye gönder' : 'Sefere çık'}</GameButton>
+      {busy('raid') && <p className="requirement"><KumSaatiArt className="size-4" />Bu hedefe giden bir ordu yolda.</p>}
+      <details className="report-details"><summary>Savaş nasıl ilerler?</summary><Hint>Savaş {field.name.toLocaleLowerCase('tr')}da (Divanhane {npc.field} karşılığı) dakikada bir tur, bir taraf dağılana ya da kaçana kadar sürer; zar yoktur. Ön cephe hasarın çoğunu karşılar, kuşatma birlikleri (koçbaşı, mancınık, topçu) suru yıkar. Morali {RETREAT_MORALE}'in altına düşen taraf çekilir. Turlar arasında aynı şehirden gelen ordu takviye olarak katılır; Seferler panelinden geri çekilebilirsin. Ganimeti hayatta kalanlar taşır.</Hint></details>
     </section>
 
+    {lastRaid && <section className="empire-section">
+      <h3>Son sefer</h3>
+      <p className={lastRaid.success ? 'report-win' : 'report-loss'}>{lastRaid.title}</p>
+      <ReportLines lines={lastRaid.lines} />
+    </section>}
+      </>}
+      {tab === 'spy' && <>
     <section className="empire-section">
       <h3><Eye className="size-4" /> Casus gönder</h3>
       {g.buildings.elcilik < 1
@@ -189,39 +218,23 @@ export function NpcPanel({ empire, npcId, now, onSpy, onRaid, onOccupy, onBlocka
     </section>
 
     <section className="empire-section">
-      <h3><Swords className="size-4" /> Sefere çık</h3>
-      {RAID_UNITS.every(id => free[id] <= 0) && <p className="fine-print">Boşta kara birliği yok. Kışla'da asker yetiştir.</p>}
-      <UnitPicker ids={RAID_UNITS} free={free} pick={pick} onPick={setPick} step={5} />
-      {overseas && <>
-        <h4 className="picker-heading"><Anchor className="size-4" /> Eskort gemileri</h4>
-        {WARSHIPS.every(id => free[id] <= 0)
-          ? <p className="fine-print">Boşta savaş gemisi yok. Donanması olan hedefe eskortsuz çıkarma yapılamaz.</p>
-          : <UnitPicker ids={WARSHIPS} free={free} pick={pick} onPick={setPick} />}
-        <p className={ships > free.nakliye ? 'requirement' : 'fine-print'}><Ship className="size-4" /> Deniz aşırı sefer: {ships} nakliye gemisi gerekli (her gemi {TROOPS_PER_SHIP} asker taşır) · boşta {free.nakliye}. Önce deniz savaşı, sonra çıkarma.</p>
-      </>}
-      <div className="raid-summary">
-        <span><Swords className="size-4" />Saldırı {force}</span>
-        <span><ShieldCheck className="size-4" />Savunma {intel.flatMap(r => r.lines).find(l => l.includes('Toplam savunma'))?.match(/Toplam savunma (\d+)/)?.[1] ?? '?'}</span>
-        <span title={`Ön cephe ${field.front}, kanat ${field.flank}, menzil ${field.range}, kuşatma ${field.artillery} yuva`}><Flag className="size-4" />{field.name}</span>
-        <span title="Ordu en yavaş birliği kadar hızlıdır"><KumSaatiArt className="size-4" />Yol {clock(targetTravelMs(city, npcId, 'raid', state.level, pick))}</span>
-        <span><NufusArt className="size-4" />Taşıma {overseas ? Math.max(ships * UNITS.nakliye.cargo, RAID_UNITS.reduce((s, id) => s + UNITS[id].pop * (pick[id] ?? 0) * 30, 0))
-          : RAID_UNITS.reduce((s, id) => s + UNITS[id].pop * (pick[id] ?? 0) * 30, 0)}</span>
-      </div>
-      <Hint>Savaş {field.name.toLocaleLowerCase('tr')}da (Divanhane {npc.field} karşılığı) dakikada bir tur, bir taraf dağılana ya da kaçana kadar sürer; zar yoktur. Ön cephe hasarın çoğunu karşılar, kuşatma birlikleri (koçbaşı, mancınık, topçu) suru yıkar. Morali {RETREAT_MORALE}'in altına düşen taraf çekilir. Turlar arasında aynı şehirden gelen ordu takviye olarak katılır; Seferler panelinden geri çekilebilirsin. Ganimeti hayatta kalanlar taşır.</Hint>
-      {fighting && <p className="requirement"><Swords className="size-4" />Burada savaş sürüyor (tur {fighting.battle!.state.round}). {fighting.cityId === city.id ? 'Göndereceğin ordu takviye olarak katılır.' : 'Yeni ordu savaş bitene kadar önünde bekler.'}</p>}
-      <GameButton size="sm" data-guide="raid" disabled={busy('raid') || !RAID_UNITS.some(id => (pick[id] ?? 0) > 0) || (overseas && ships > free.nakliye)} onClick={() => { onRaid(pick); setPick({}) }}><Swords data-icon="inline-start" />{fighting?.cityId === city.id ? 'Takviye gönder' : 'Sefere çık'}</GameButton>
-      {busy('raid') && <p className="requirement"><KumSaatiArt className="size-4" />Bu hedefe giden bir ordu yolda.</p>}
+      <h3>Son istihbarat</h3>
+      {intel.length
+        ? intel.map(r => <div key={r.id} className="intel-block">
+          <span className="eyebrow">{r.intel ? SPY_TYPES[r.intel].name.toUpperCase() : 'GENEL RAPOR'} · {new Date(r.time).toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })}</span>
+          <ReportLines lines={r.lines} />
+        </div>)
+        : <Hint>Bu yerleşim hakkında bilgi yok. Casus sızdır, sonra görev ver: garnizonu, suru, limanı ve hazineyi öğrenirsin.</Hint>}
     </section>
+      </>}
+      {tab === 'relations' && <>
 
     {rival && (isAlly(empire, rival.id)
-      ? <RivalSupport empire={empire} rivalId={npcId} now={now} run={run} />
-      : <RivalWar empire={empire} rivalId={npcId} onOccupy={onOccupy} onBlockade={onBlockade} />)}
+      ? <RivalSupport painted empire={empire} rivalId={npcId} now={now} run={run} />
+      : <RivalWar painted empire={empire} rivalId={npcId} onOccupy={onOccupy} onBlockade={onBlockade} />)}
     {rival && <RivalDiplomacy empire={empire} rivalId={npcId} now={now} run={run} />}
-    {lastRaid && <section className="empire-section">
-      <h3>Son sefer</h3>
-      <p className={lastRaid.success ? 'report-win' : 'report-loss'}>{lastRaid.title}</p>
-      <ReportLines lines={lastRaid.lines} />
-    </section>}
+      </>}
+    </CourtTabs>
   </div>
 }
 
@@ -287,9 +300,14 @@ export function ReportsPanel({ empire, run }: { empire: Empire; run?: Run }) {
   const reports = (empire.reports ?? []).filter(r => r.cityId === city.id)
   // Toplu silme geri alınamaz: önce sorar.
   const [confirmClear, setConfirmClear] = useState(false)
-  if (!reports.length) return <p className="fine-print">Henüz rapor yok. Ada görünümünden bir yerleşime casus ya da ordu gönder.</p>
+  const [filter, setFilter] = useState<'all' | 'spy' | 'battle' | 'kept'>('all')
+  const shown = reports.filter(r => filter === 'all' || (filter === 'kept' ? r.kept : filter === 'spy' ? r.kind === 'spy' : r.kind !== 'spy'))
+  if (!reports.length) return <p className="campaign-empty">Henüz rapor yok. Ada görünümünden bir yerleşime casus ya da ordu gönder.</p>
   const loose = reports.filter(r => !r.kept).length
-  return <div className="advisor-panel">
+  return <div className="campaign-reports">
+    <div className="campaign-filters" role="group" aria-label="Rapor türü">{([{ id: 'all', name: 'Tümü' }, { id: 'battle', name: 'Savaş' }, { id: 'spy', name: 'Casusluk' }, { id: 'kept', name: 'Arşiv' }] as const).map(f => <button key={f.id} type="button" aria-pressed={filter === f.id} onClick={() => setFilter(f.id)}>{f.name}</button>)}</div>
+    <p className="fine-print">{shown.length} kayıt gösteriliyor · {reports.length - loose} arşivde. Arşivlenen kayıtlar toplu silmede korunur.</p>
+    {!shown.length && <p className="campaign-empty">Bu bölümde kayıt yok.</p>}
     {run && loose > 1 && <div className="report-tools">
       <span>{reports.length} rapor · {reports.length - loose} arşivde</span>
       {confirmClear
@@ -298,7 +316,7 @@ export function ReportsPanel({ empire, run }: { empire: Empire; run?: Run }) {
           <GameButton size="sm" variant="outline" onClick={() => setConfirmClear(false)}>{t.action.cancel}</GameButton></span>
         : <GameButton size="sm" variant="outline" onClick={() => setConfirmClear(true)}><Trash2 data-icon="inline-start" />Arşivlenmemişleri sil</GameButton>}
     </div>}
-    {reports.map(r => <article key={r.id} className={r.kept ? 'report-card is-kept' : 'report-card'}>
+    {shown.map(r => <article key={r.id} className={r.kept ? 'report-card is-kept' : 'report-card'}>
       <div className="report-head">{r.kind === 'spy' ? <Eye className="size-4" /> : r.kind === 'piracy' ? <Skull className="size-4" /> : r.kind === 'defense' ? <ShieldCheck className="size-4" /> : <Swords className="size-4" />}
         <strong className={r.success ? 'report-win' : 'report-loss'}>{r.title}</strong>
         <time>{new Date(r.time).toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })}</time>

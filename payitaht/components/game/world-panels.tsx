@@ -277,8 +277,8 @@ export function RivalDiplomacy({ empire, rivalId, now, run }: { empire: Empire; 
   </section>
 }
 
-export function RivalWar({ empire, onOccupy, onBlockade }: {
-  empire: Empire; rivalId: string
+export function RivalWar({ empire, onOccupy, onBlockade, painted = false }: {
+  empire: Empire; rivalId: string; painted?: boolean
   onOccupy: (units: Partial<Record<UnitId, number>>) => void; onBlockade: (units: Partial<Record<UnitId, number>>) => void
 }) {
   const city = activeCity(empire)
@@ -291,20 +291,20 @@ export function RivalWar({ empire, onOccupy, onBlockade }: {
     <section className="empire-section">
       <h3><Swords painted className="size-4" /> İşgal et</h3>
       <Hint>Kazanırsan ordu şehirde kalır: her saat haraç toplar, hükümdar sana saldıramaz. Geri çağırınca haraçla döner.</Hint>
-      <UnitPicker ids={land} free={free} pick={troops} onPick={setTroops} step={5} />
+      <UnitPicker painted={painted} ids={land} free={free} pick={troops} onPick={setTroops} step={5} />
       <GameButton size="sm" disabled={!Object.values(troops).some(n => (n ?? 0) > 0)} onClick={() => { onOccupy(troops); setTroops({}) }}>İşgale çık</GameButton>
     </section>
     <section className="empire-section">
       <h3><Anchor className="size-4" /> Abluka</h3>
       <Hint>Savaş gemileri önce donanmasıyla savaşır; kazanırsa liman kapanır: pazarı kapanır, donanması çıkamaz, filo saatlik liman haracı toplar.</Hint>
-      <UnitPicker ids={warships} free={free} pick={ships} onPick={setShips} />
+      <UnitPicker painted={painted} ids={warships} free={free} pick={ships} onPick={setShips} />
       <GameButton size="sm" disabled={!Object.values(ships).some(n => (n ?? 0) > 0)} onClick={() => { onBlockade(ships); setShips({}) }}>Limanı kapat</GameButton>
     </section>
   </>
 }
 
 /** Müttefik hükümdarın şehrine destek birliği (ittifak üyesine saldırılamaz). */
-export function RivalSupport({ empire, rivalId, now, run }: { empire: Empire; rivalId: string; now: number; run: Run }) {
+export function RivalSupport({ empire, rivalId, now, run, painted = false }: { empire: Empire; rivalId: string; now: number; run: Run; painted?: boolean }) {
   const city = activeCity(empire)
   const free = availableUnits(empire, city.id)
   const [pick, setPick] = useState<Partial<Record<UnitId, number>>>({})
@@ -316,8 +316,8 @@ export function RivalSupport({ empire, rivalId, now, run }: { empire: Empire; ri
     <h3><ShieldCheck painted className="size-4" /> Müttefike destek</h3>
     <Hint>{target.name} ittifak üyen. Birliklerin şehrinde konuşlanır ve karşı ittifak saldırırsa müttefikle birlikte savunur; zaferde ödül ve itibar kazanırsın. Bakımları senden düşer; Seferler panelinden geri çağırırsın.</Hint>
     {here.map(m => <p key={m.id} className="requirement"><ShieldCheck painted className="size-4" />{m.stationed ? `Konuşlu: ${troopList(m.units)}` : `Yolda: ${troopList(m.units)}`}</p>)}
-    <UnitPicker ids={RAID_UNITS} free={free} pick={pick} onPick={setPick} step={5} />
-    <UnitPicker ids={WARSHIPS} free={free} pick={pick} onPick={setPick} />
+    <UnitPicker painted={painted} ids={RAID_UNITS} free={free} pick={pick} onPick={setPick} step={5} />
+    <UnitPicker painted={painted} ids={WARSHIPS} free={free} pick={pick} onPick={setPick} />
     {overseas && <p className={ships > free.nakliye ? 'requirement' : 'fine-print'}>Deniz aşırı: {ships} nakliye gemisi gerekli · boşta {free.nakliye}.</p>}
     <GameButton size="sm" disabled={!Object.values(pick).some(n => (n ?? 0) > 0) || ships > free.nakliye}
       onClick={() => { run((e, t) => dispatchSupport(e, rivalId, pick, t), 'Destek birlikleri yola çıktı.'); setPick({}) }}><ShieldCheck painted data-icon="inline-start" />Destek gönder</GameButton>
