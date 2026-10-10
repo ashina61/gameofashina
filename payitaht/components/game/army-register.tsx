@@ -6,12 +6,12 @@ import { armyUpkeep, garrisonLimit, garrisonUsed, idleWorkers, power, type Build
 import { ArmyPanel, BattlefieldCard } from './game-panels'
 import { CourtTabs } from './court-kit'
 import { GameButton } from './game-button'
-import { Swords, Ship, Flag } from './ui-art'
+import { Flag, Anchor, ScrollText } from './ui-art'
 import { DefenseSummary, SiegePanel } from './ikariam-panels'
 import { DeployPanel, MissionList, type Run } from './world-panels'
 
 type Tab = 'land' | 'sea' | 'missions'
-const TABS = [{ id: 'land', label: 'Kara ordusu', Icon: Swords }, { id: 'sea', label: 'Donanma', Icon: Ship }, { id: 'missions', label: 'Seferler', Icon: Flag }] as const
+const TABS = [{ id: 'land', label: 'Kara ordusu', Icon: Flag }, { id: 'sea', label: 'Donanma', Icon: Anchor }, { id: 'missions', label: 'Seferler', Icon: ScrollText }] as const
 const n = (x: number) => x.toLocaleString('tr-TR', { maximumFractionDigits: 1 })
 export function ArmyRegister({ game, empire, run, onRecruit, onBuild, onIsland }: { game: Game; empire: Empire; run: Run; onRecruit: (id: UnitId, count: number) => void; onBuild: (id: BuildingId) => void; onIsland: () => void }) {
   const [tab, setTab] = useState<Tab>('land')
