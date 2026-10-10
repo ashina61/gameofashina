@@ -168,10 +168,10 @@ function maxRecruit(game: Game, id: UnitId) {
  * bosta oldugunu gormezse, uretiminin nicin dustugunu anlamaz.
  */
 function BarracksPortrait({ id }: { id: UnitId }) {
-  return <img className="barracks-painted-portrait" src={asset(UNITS[id].branch === 'deniz' ? `/images/game/units/${id}.webp` : `/images/game/ui/barracks/portrait-${id}.webp`)} alt="" width={288} height={216} />
+  return <img className="barracks-painted-portrait" src={asset(UNITS[id].branch === 'deniz' || id === 'casus' ? `/images/game/units/${id}.webp` : `/images/game/ui/barracks/portrait-${id}.webp`)} alt="" width={288} height={216} />
 }
 
-export function ArmyPanel({ game, onRecruit, onBuild, home }: { game: Game; onRecruit: (id: UnitId, count: number) => void; onBuild: (id: BuildingId) => void; home?: BuildingId }) {
+export function ArmyPanel({ game, onRecruit, onBuild, home, register = false, available }: { game: Game; onRecruit: (id: UnitId, count: number) => void; onBuild: (id: BuildingId) => void; home?: BuildingId; register?: boolean; available?: Partial<Record<UnitId, number>> }) {
   const [pick, setPick] = useState<UnitId | null>(null)
   const land = power(game, 'kara')
   const sea = power(game, 'deniz')
@@ -198,7 +198,7 @@ export function ArmyPanel({ game, onRecruit, onBuild, home }: { game: Game; onRe
     const units = UNIT_IDS.filter(id => UNITS[id].home === home).sort(byRole)
     const chosen = pick && units.includes(pick) ? pick : units[0]
     return <div className="advisor-panel army-home">
-      {home === 'kisla' || home === 'tersane' ? <section className="barracks-roster" aria-label={home === 'tersane' ? 'Gemiler' : 'Birlikler'}>
+      {home === 'kisla' || home === 'tersane' || register ? <section className="barracks-roster" aria-label={home === 'tersane' ? 'Gemiler' : 'Birlikler'}>
         <h2>{home === 'tersane' ? 'Gemiler' : 'Birlikler'}</h2>
         {units.map(id => {
           const selected = id === chosen, lock = unitLock(game, id)
@@ -206,7 +206,7 @@ export function ArmyPanel({ game, onRecruit, onBuild, home }: { game: Game; onRe
             <button type="button" className="barracks-unit-toggle" aria-expanded={selected}
               aria-controls={`barracks-training-${id}`} onClick={() => setPick(id)}>
               <BarracksPortrait id={id} />
-              <span><strong>{UNITS[id].name}</strong><small>{home === 'tersane' ? 'Kayıtlı' : 'Mevcut'}: {game.army[id]}{lock ? ` · Kilitli: ${lock}` : ''}</small></span>
+              <span><strong>{UNITS[id].name}</strong><small>Kayıtlı: {game.army[id]}{available && ` · Kullanılabilir: ${available[id] ?? 0}`}{lock ? ` · Kilitli: ${lock}` : ''}</small></span>
               <span className="barracks-unit-chevron" aria-hidden="true">{selected ? '⌃' : '⌄'}</span>
             </button>
             <div id={`barracks-training-${id}`} hidden={!selected}>
@@ -218,11 +218,11 @@ export function ArmyPanel({ game, onRecruit, onBuild, home }: { game: Game; onRe
         <UnitGallery game={game} units={units} chosen={chosen} onPick={setPick} />
         {chosen && <UnitCard key={chosen} game={game} id={chosen} onRecruit={onRecruit} />}
       </>}
-      <DrillQueue game={game} home={home} />
-      <details className="army-more">
+      <DrillQueue game={game} home={home} register={register || home === 'kisla' || home === 'tersane'} />
+      {!register && <details className="army-more">
         <summary>{home === 'tersane' ? 'Donanma sicili ve kapasite' : 'Ordu durumu ve savaş meydanı'}</summary>
         {home === 'tersane' ? <><p className="army-note">Deniz gücü: {sea.attack} saldırı · {sea.defense} savunma. Garnizon: {garrisonUsed(game, 'deniz')} / {garrisonLimit(game, 'deniz')}.</p><p className="army-note">Kayıtlı sayılar seferdeki gemileri de içerir. Ticaret gemileri Liman’daki ortak filodan satın alınır. Toplam ordu bakımı: {Math.round(armyUpkeep(game) * 10) / 10} akçe/dk.</p></> : overview}
-      </details>
+      </details>}
     </div>
   }
   return <div className="advisor-panel">
@@ -308,9 +308,8 @@ function UnitCard({ game, id, onRecruit, compact = false }: { game: Game; id: Un
 const ROLE_ROW_SET = new Set<UnitRole>(['front', 'flank', 'range', 'artillery', 'bomber', 'fighter', 'support'])
 /** Şehrin savaş meydanı: Divanhane seviyesiyle büyür (Ikariam). */
 /** Eğitim sırası: her yapının emirleri, yürüyenin ilerlemesi ve bekleyenlerin başlama anı. */
-function DrillQueue({ game, home }: { game: Game; home?: BuildingId }) {
+function DrillQueue({ game, home, register = false }: { game: Game; home?: BuildingId; register?: boolean }) {
   const jobs = game.drills.filter(j => !home || UNITS[j.id as UnitId].home === home)
-  const register = home === 'kisla' || home === 'tersane'
   if (!jobs.length && !register) return null
   const now = game.updatedAt
   const clock = (ms: number) => { const t = Math.max(0, Math.ceil(ms / 1000)); return `${String(Math.floor(t / 60)).padStart(2, '0')}:${String(t % 60).padStart(2, '0')}` }
@@ -331,7 +330,7 @@ function DrillQueue({ game, home }: { game: Game; home?: BuildingId }) {
   </section>
 }
 
-function BattlefieldCard({ game }: { game: Game }) {
+export function BattlefieldCard({ game }: { game: Game }) {
   const level = game.buildings.divan
   const f = fieldSize(level)
   const next = level < 5 ? 5 : level < 10 ? 10 : level < 17 ? 17 : null

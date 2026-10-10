@@ -1,0 +1,15 @@
+/* The army desk uses the approved training atlas and campaign registers. */
+.game-shell.has-page .bp.bp-muster .court-tab-body { padding: 12px 3%; }
+.game-shell.has-page .bp-muster .muster-summary { margin: 0 0 12px; padding: 16px; border: 0 solid transparent; border-image: var(--academy-frame) 40 / 16px / 0 stretch; background: var(--academy-paper) center / 400px 200px; }
+.game-shell.has-page .bp-muster .muster-summary > div { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap: 12px; padding: 8px 0; border-bottom: 1px solid var(--c-gold-deep); }
+.game-shell.has-page .bp-muster .muster-summary dt { font: 15px/1.5 Georgia,serif; }
+.game-shell.has-page .bp-muster .muster-summary dd { margin: 0; text-align: right; font: 700 17px/1.4 'Payitaht Profile Roman',Georgia,serif; font-variant-numeric: tabular-nums; }
+.game-shell.has-page .bp-muster .muster-note { margin: 12px 0; font: 14px/1.6 Georgia,serif; }
+.game-shell.has-page .bp-muster .muster-support { margin: 12px 0; padding: 16px; border: 0 solid transparent; border-image: var(--academy-frame) 40 / 16px / 0 stretch; background: var(--academy-paper) center / 400px 200px; }
+.game-shell.has-page .bp-muster .muster-support > summary { min-height: 48px; padding: 12px 0; cursor: pointer; font: 700 18px/1.4 'Payitaht Profile Roman',Georgia,serif; }
+.game-shell.has-page .bp-muster .muster-support > h2 { margin: 0 0 10px; font: 700 20px/1.4 'Payitaht Profile Roman',Georgia,serif; }
+.game-shell.has-page .bp-muster .muster-support > p { font: 14px/1.6 Georgia,serif; }
+.game-shell.has-page .bp-muster .bf-card-rows { grid-template-columns: repeat(2,minmax(0,1fr)); }
+.game-shell.has-page .bp-muster .bf-garrison > div { flex-wrap: wrap; gap: 8px; }
+.game-shell.has-page .bp-muster .bf-card { margin: 12px 0 0; padding: 0; background: none; border: 0; box-shadow: none; }
+.game-shell.has-page .bp-muster .bf-card :is(small,.hint) { font: 14px/1.5 Georgia,serif; }
