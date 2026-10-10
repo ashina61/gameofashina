@@ -15,12 +15,6 @@
 .annals-ledger-heading > span { font-size: 20px; color: var(--c-gold-deep); }
 .annals-ledger-heading h3 { margin: 0; font: 700 22px var(--font-heading),Georgia,serif; }
 .annals-ledger-heading p { flex-basis: 100%; margin: -3px 0 0; font-size: 11px; color: var(--c-ink-muted); }
-.annals-latest { display: grid; grid-template-columns: 88px minmax(0,1fr); align-items: stretch; margin-bottom: 14px; border: 1px solid var(--c-tan-border); background: #efdfbb; }
-.annals-latest > img { width: 88px; height: 100%; min-height: 115px; object-fit: cover; border-right: 1px solid var(--c-gold-deep); }
-.annals-latest > div { padding: 10px; min-width: 0; }
-.annals-latest small { display: block; font-size: 11px; color: var(--c-brown-mid); }
-.annals-latest p { margin: 6px 0 8px; font: 700 16px var(--font-heading),Georgia,serif; line-height: 1.35; }
-.annals-latest time { font-size: 11px; color: var(--c-ink-muted); }
 .annals-kind-strip { display: flex; gap: 5px; overflow-x: auto; margin: 0 -2px 12px; padding: 2px 2px 6px; scrollbar-width: thin; }
 .annals-kind-strip > button { position: relative; flex: 0 0 71px; min-height: 64px; padding: 8px 3px 7px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px; border: 0 solid transparent; border-radius: 0; border-image: var(--art-walnut-plate) 56 fill / 5px / 0 stretch; background: var(--c-wood-dark); color: var(--c-cream); font: 700 13px var(--font-heading),Georgia,serif; }
 .annals-kind-strip > button > :is(svg,.painted-icon) { width: 24px; height: 24px; filter: drop-shadow(0 1px 2px #0006); }
@@ -94,8 +88,6 @@
 .title-notes .annals-ledger { padding-inline: 10px; }
 @media (max-width: 370px) {
   .annals-ledger { padding-inline: 10px; }
-  .annals-latest { grid-template-columns: 76px minmax(0,1fr); }
-  .annals-latest > img { width: 76px; }
   .annals-ledger-heading h3 { font-size: 21px; }
   .annals-ribbon { font-size: 22px; }
   .annals-release-toggle { gap: 7px; grid-template-columns: 34px minmax(0,1fr) 16px; }

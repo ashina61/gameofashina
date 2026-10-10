@@ -3,7 +3,7 @@
 import { useId, useState, type ReactNode, type CSSProperties } from 'react'
 import { asset } from '@/lib/asset'
 import { groupLog, type Game } from '@/lib/game/engine'
-import { dayGroups, dayLabel, logKind, type LogKind } from '@/lib/game/log-view'
+import { dayGroups, logKind, type LogKind } from '@/lib/game/log-view'
 import { CHANGELOG, VERSION, type Release } from '@/lib/game/changelog'
 import { BookOpen, Gift, Hammer, ScrollText, Ship, Sparkles, Swords, Search, X, ChevronDown } from './ui-art'
 import { GameButton } from './game-button'
@@ -19,7 +19,6 @@ const KINDS = [
   { id: 'other', label: 'Diğer', Icon: ScrollText },
 ] as const
 type Filter = typeof KINDS[number]['id']
-const ART: Record<LogKind, string> = { build: 'builders', research: 'scholar', trade: 'harbour', war: 'army', reward: 'treasury', faith: 'capital', other: 'capital' }
 const KIND_NAMES: Record<LogKind, string> = { build: 'İnşaat', research: 'İlim', trade: 'Ticaret', war: 'Sefer ve ordu', reward: 'Mükâfat', faith: 'İnanç', other: 'Divan kaydı' }
 const clock = (time: number) => new Date(time).toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })
 const match = (text: string, query: string) => text.toLocaleLowerCase('tr-TR').includes(query.trim().toLocaleLowerCase('tr-TR'))
@@ -41,25 +40,23 @@ export function JournalPage({ game, cityName }: { game: Game; cityName: string }
   const entries = groupLog(game.log)
   const filtered = entries.filter(entry => (kind === 'all' || logKind(entry.text) === kind) && match(entry.text, query))
   const groups = dayGroups(filtered.slice(0, limit), game.updatedAt)
-  const latest = entries[0]
   const count = filtered.reduce((sum, entry) => sum + entry.count, 0)
   const reset = () => { setKind('all'); setQuery(''); setLimit(20) }
-  return <div className="annals-page">
-    <ArchiveHeader title="Şehrin vakayinamesi" label={`${cityName} · Divan arşivi`}>Her taş, her sefer, her yeni başlangıç bu defterde.</ArchiveHeader>
+  return <div className="annals-page journal-register">
+    <figure className="academy-banner"><img src={asset('/images/game/terrain/archive-hall.webp')} alt="" width={960} height={480} decoding="async" /><figcaption>{cityName} · Divan arşivi</figcaption></figure>
     <section className="annals-ledger">
-      <LedgerHeading title="Şehrinin hikâyesi" detail={`${game.log.length} olay kaydı · en yeni kayıt başta`} />
-      {latest && kind === 'all' && !query && <article className="annals-latest" aria-label="Son olay"><img src={asset(`/images/game/quests/${ART[logKind(latest.text)]}.webp`)} alt="" width={112} height={112} /><div><small>SON KAYIT · {KIND_NAMES[logKind(latest.text)]}</small><p>{latest.text}</p><time dateTime={new Date(latest.time).toISOString()}>{dayLabel(latest.time, game.updatedAt)} · {clock(latest.time)}{latest.count > 1 && ` · ${latest.count} kez`}</time></div></article>}
-      <div className="annals-kind-strip" aria-label="Günlük olay türü" data-hscroll>{KINDS.map(({ id, label, Icon }) => {
+      <LedgerHeading title="Şehrin vakayinamesi" detail={`${game.log.length} olay kaydı · en yeni kayıt başta`} />
+      <ArchiveSearch value={query} onChange={value => { setQuery(value); setLimit(20) }} label="Günlükte ara" />
+      <div className="annals-kind-strip" role="group" aria-label="Günlük olay türü">{KINDS.map(({ id, label, Icon }) => {
         const total = id === 'all' ? game.log.length : game.log.filter(entry => logKind(entry.text) === id).length
         return <button key={id} type="button" aria-pressed={kind === id} aria-label={`${label} · ${total} olay`} onClick={() => { setKind(id); setLimit(20) }}><Icon painted aria-hidden="true" /><span>{label}</span><b>{total}</b></button>
       })}</div>
-      <ArchiveSearch value={query} onChange={value => { setQuery(value); setLimit(20) }} label="Günlükte ara" />
       <p className="annals-result" role="status">{count} olay · {filtered.length} kayıt{kind !== 'all' && ` · ${KINDS.find(item => item.id === kind)!.label}`}</p>
       <div className="annals-days">{groups.map((group, index) => <section className="annals-day" key={`${group.label}-${index}`}><h3 className="annals-day-title"><span>{group.label}</span><small>{group.items.reduce((sum, entry) => sum + entry.count, 0)} olay</small></h3><ol>{group.items.map((entry, i) => {
         const type = logKind(entry.text), Icon = KINDS.find(item => item.id === type)!.Icon
         return <li key={`${entry.time}-${i}`} className={`annals-entry is-${type}`}><span className="annals-entry-seal" aria-hidden="true"><Icon painted /></span><div><div className="annals-entry-meta"><b>{KIND_NAMES[type]}</b><time dateTime={new Date(entry.time).toISOString()}>{entry.count > 1 && entry.first !== entry.time ? `${clock(entry.first)} – ${clock(entry.time)}` : clock(entry.time)}</time></div><p>{entry.text}</p>{entry.count > 1 && <span className="annals-repeat">Bu olay {entry.count} kez tekrarlandı</span>}</div></li>
       })}</ol></section>)}</div>
-      {!filtered.length && <div className="annals-empty"><BookOpen aria-hidden="true" /><h3>{game.log.length ? 'Bu sayfada kayıt bulunamadı' : 'İlk satır seni bekliyor'}</h3><p>{game.log.length ? 'Başka bir olay türü seç veya aradığın sözcüğü değiştir.' : 'Şehrindeki gelişmeler burada tarihe geçecek.'}</p>{game.log.length > 0 && <GameButton variant="outline" onClick={reset}>Bütün kayıtları göster</GameButton>}</div>}
+      {!filtered.length && <div className="annals-empty"><BookOpen painted aria-hidden="true" /><h3>{game.log.length ? 'Bu sayfada kayıt bulunamadı' : 'İlk satır seni bekliyor'}</h3><p>{game.log.length ? 'Başka bir olay türü seç veya aradığın sözcüğü değiştir.' : 'Şehrindeki gelişmeler burada tarihe geçecek.'}</p>{game.log.length > 0 && <GameButton variant="outline" onClick={reset}>Bütün kayıtları göster</GameButton>}</div>}
       {filtered.length > limit && <GameButton className="annals-more" variant="outline" onClick={() => setLimit(value => value + 20)}>Eski kayıtları göster<ChevronDown aria-hidden="true" /></GameButton>}
       <footer className="annals-colophon"><ScrollText painted aria-hidden="true" /><p>Bu şehrin son 60 olayı divan defterinde saklanır.</p></footer>
     </section>

@@ -5,6 +5,7 @@
 export type Release = { version: string; date: string; title: string; notes: string[] }
 
 export const CHANGELOG: Release[] = [
+  { version: '0.97.0', date: '10 Ekim 2026', title: 'Şehrin boyalı vakayinamesi', notes: ['Şehir günlüğü ortak parşömen, ceviz, altın işlemeli çerçeve ve gerçek eylem atlaslarına geçirildi.', 'Arama önce, sekiz olay filtresi iki sıra; gün, saat ve tekrar kayıtları okunur dikey sicilde.', 'Olay sınıfları, arama, kayıt gruplama, eski kayıtlar, oyun motoru ve HUD korunur.'] },
   { version: '0.96.0', date: '10 Ekim 2026', title: 'Elçi ve ittifakın boyalı defterleri', notes: ['Mektuplar, teklifler, hükümdarlar, pazar, haberler ve sıralama ortak atlaslarda.', 'Birlik kuruluşu, üyeler, görevler, genelgeler, diplomasi ve sancak düzeni aynı boyalı dilde.', 'Yapay rakip, ticaret, ittifak, kayıt ve HUD mekanikleri korunur.'] },
   { version: '0.95.0', date: '2026-10-10', title: 'Vezirin boyalı defterleri', notes: ['Gündem, Şehirler ve Haberler ortak parşömen, ceviz ve eğitim atlaslarında.', 'Öncelikli emir önce; üretim ve şehir sicili dikey, uzun haberler okunur.', 'Danışman öncelikleri, şehir geçişleri, kayıt ve HUD korunur.'] },
   { version: '0.94.0', date: '10 Ekim 2026', title: 'Halk ve şehir yönetimi defterleri', notes: ['İşgücü ve yaşam ortak boyalı defterlerde; tam boy meslek figürleri, gerçek atama sürgüsü ve Onayla/Geri al kontrolleri.', 'Yerleşimler, nakliye ve idare dikey şehir sicili ve okunur yük formuyla yenilendi.', 'Nüfus, ekonomi, nakliye, başkent/koloni işlemleri, kayıt, ada yerleşimi ve onaylı HUD korunur.'] },
