@@ -1,0 +1,524 @@
+{
+  "reports": [
+    {
+      "width": 360,
+      "zoom": 1,
+      "state": "ready",
+      "id": "saray",
+      "tab": "ledger",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 360,
+      "zoom": 1,
+      "state": "ready",
+      "id": "saray",
+      "tab": "development",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 360,
+      "zoom": 1,
+      "state": "ready",
+      "id": "valilik",
+      "tab": "ledger",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 360,
+      "zoom": 1,
+      "state": "ready",
+      "id": "valilik",
+      "tab": "development",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 430,
+      "zoom": 1,
+      "state": "ready",
+      "id": "saray",
+      "tab": "ledger",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 430,
+      "zoom": 1,
+      "state": "ready",
+      "id": "saray",
+      "tab": "development",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 430,
+      "zoom": 1,
+      "state": "ready",
+      "id": "valilik",
+      "tab": "ledger",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 430,
+      "zoom": 1,
+      "state": "ready",
+      "id": "valilik",
+      "tab": "development",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 360,
+      "zoom": 1.3,
+      "state": "ready",
+      "id": "saray",
+      "tab": "ledger",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 360,
+      "zoom": 1.3,
+      "state": "ready",
+      "id": "saray",
+      "tab": "development",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 360,
+      "zoom": 1.3,
+      "state": "ready",
+      "id": "valilik",
+      "tab": "ledger",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 360,
+      "zoom": 1.3,
+      "state": "ready",
+      "id": "valilik",
+      "tab": "development",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": 1,
+      "state": "empty",
+      "id": "saray",
+      "tab": "ledger",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": 1,
+      "state": "empty",
+      "id": "saray",
+      "tab": "development",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": 1,
+      "state": "empty",
+      "id": "valilik",
+      "tab": "ledger",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": 1,
+      "state": "empty",
+      "id": "valilik",
+      "tab": "development",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": 1,
+      "state": "max",
+      "id": "saray",
+      "tab": "ledger",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": 1,
+      "state": "max",
+      "id": "saray",
+      "tab": "development",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": 1,
+      "state": "max",
+      "id": "valilik",
+      "tab": "ledger",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": 1,
+      "state": "max",
+      "id": "valilik",
+      "tab": "development",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": 1,
+      "state": "unbuilt",
+      "id": "saray",
+      "tab": "ledger",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": 1,
+      "state": "unbuilt",
+      "id": "saray",
+      "tab": "development",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": 1,
+      "state": "unbuilt",
+      "id": "valilik",
+      "tab": "ledger",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": 1,
+      "state": "unbuilt",
+      "id": "valilik",
+      "tab": "development",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": 1,
+      "state": "ready",
+      "id": "saray",
+      "tab": "ledger",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": 1,
+      "state": "ready",
+      "id": "saray",
+      "tab": "development",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": 1,
+      "state": "ready",
+      "id": "saray",
+      "tab": "building",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": 1,
+      "state": "ready",
+      "id": "valilik",
+      "tab": "ledger",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": 1,
+      "state": "ready",
+      "id": "valilik",
+      "tab": "development",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": 1,
+      "state": "ready",
+      "id": "valilik",
+      "tab": "building",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": 1,
+      "state": "active",
+      "id": "saray",
+      "tab": "ledger",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": 1,
+      "state": "active",
+      "id": "saray",
+      "tab": "development",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": 1,
+      "state": "active",
+      "id": "valilik",
+      "tab": "ledger",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    },
+    {
+      "width": 390,
+      "zoom": 1,
+      "state": "active",
+      "id": "valilik",
+      "tab": "development",
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      }
+    }
+  ],
+  "errors": [],
+  "generalLayoutSummary": {
+    "taşma": 0,
+    "kesik": 0,
+    "küçük": 312,
+    "minik": 665,
+    "çakışma": 0,
+    "isimsiz": 0
+  },
+  "scannerSelfTest": "Bilerek bozuk taşma, küçük hedef/yazı, çakışma ve adsız düğme yakalandı; gizli 1px presentation öğesi kesilme sayılmadı."
+}

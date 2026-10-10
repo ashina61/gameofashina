@@ -36,7 +36,13 @@ function scanPage() {
   const where = el => { const p = []; for (let e = el, i = 0; e && e !== document.body && i < 3; e = e.parentElement, i++) p.unshift(name(e)); return p.join(' > ') }
   const text = el => (el.innerText || el.getAttribute('aria-label') || '').trim().replace(/\s+/g, ' ').slice(0, 40)
   const note = (kind, el, extra) => { const k = where(el); (found[kind][k] ??= { örnek: text(el), adet: 0, ...extra }).adet++ }
-  const skip = el => !!el.closest('[aria-hidden="true"], .sr-only, [data-qa-skip], canvas')
+  const skip = el => {
+    if (el.closest('[aria-hidden="true"], .sr-only, [data-qa-skip], canvas')) return true
+    // Base UI's progress fallback is a visually hidden presentation span.
+    // Its clipped 1px placeholder is not a visible text truncation.
+    const cs = getComputedStyle(el)
+    return el.getAttribute('role') === 'presentation' && cs.clipPath === 'inset(50%)' && cs.width === '1px' && cs.height === '1px'
+  }
   const shown = el => el.checkVisibility({ opacityProperty: true, visibilityProperty: true, contentVisibilityAuto: true })
   // Yatay kaydırılan şeritler (sekme sırası, tablo sarmalayıcı, harita) muaf.
   // Sayfanın DİKEY kaydırıcısı muaf değil: tarayıcı onun overflow-x'ini de

@@ -1,0 +1,21 @@
+/* Palace and governor use the shared painted ledger, with flowing city records. */
+.game-shell.has-page .bp.bp-palace > .bp-bar .bp-title { left: calc(var(--court-control-size) + 12px); right: calc(var(--court-control-size) + 12px); }
+.game-shell.has-page .bp.bp-palace .bp-tabpanel { padding: 12px 3%; }
+.bp.bp-palace .palace-register { display: grid; gap: 16px; }
+.bp.bp-palace .palace-status { display: flex; align-items: center; gap: 14px; padding: 10px 0 16px; }
+.bp.bp-palace .palace-status > img { width: 64px; height: 64px; object-fit: contain; }
+.bp.bp-palace .palace-status > div { flex: 1; min-width: 0; }
+.bp.bp-palace .palace-status small { display: block; font: 14px/1.4 Georgia,serif; }
+.bp.bp-palace .palace-status strong { display: block; font: 700 32px/1.2 'Payitaht Profile Roman',Georgia,serif; }
+.bp.bp-palace .palace-status p,
+.bp.bp-palace .palace-guidance { margin: 8px 0; font: 14px/1.55 Georgia,serif; overflow-wrap: anywhere; }
+.bp.bp-palace .palace-facts { margin: 12px 0; }
+.bp.bp-palace .palace-facts > div { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); align-items: center; gap: 12px; min-height: 48px; padding: 10px 0; border-bottom: 1px solid var(--c-gold-deep); }
+.bp.bp-palace .palace-facts dt { font: 14px/1.5 Georgia,serif; }
+.bp.bp-palace .palace-facts dd { margin: 0; text-align: right; font: 700 18px/1.4 'Payitaht Profile Roman',Georgia,serif; overflow-wrap: anywhere; }
+.bp.bp-palace .palace-city { padding: 12px 0; border-bottom: 2px solid var(--c-gold-deep); }
+.bp.bp-palace .palace-city:last-child { border-bottom: 0; }
+.bp.bp-palace .palace-city > header { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.bp.bp-palace .palace-city h3 { flex: 1; margin: 0; overflow-wrap: anywhere; font: 700 21px/1.3 'Payitaht Profile Roman',Georgia,serif; }
+.bp.bp-palace .palace-city > header > span { font: 14px/1.4 Georgia,serif; }
+.bp.bp-palace .palace-city .palace-facts { margin-bottom: 0; }
