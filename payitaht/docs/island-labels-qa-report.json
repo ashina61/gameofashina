@@ -1,0 +1,161 @@
+{
+  "scans": [
+    {
+      "width": 360,
+      "zoom": 1,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      },
+      "names": [
+        {
+          "name": "Şehre dön",
+          "width": 48,
+          "height": 48
+        },
+        {
+          "name": "Raporlar · 4",
+          "width": 48,
+          "height": 48
+        }
+      ]
+    },
+    {
+      "width": 360,
+      "zoom": 1.3,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      },
+      "names": [
+        {
+          "name": "Şehre dön",
+          "width": 48,
+          "height": 48
+        },
+        {
+          "name": "Raporlar · 4",
+          "width": 48,
+          "height": 48
+        }
+      ]
+    },
+    {
+      "width": 390,
+      "zoom": 1,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      },
+      "names": [
+        {
+          "name": "Şehre dön",
+          "width": 48,
+          "height": 48
+        },
+        {
+          "name": "Raporlar · 4",
+          "width": 48,
+          "height": 48
+        }
+      ]
+    },
+    {
+      "width": 390,
+      "zoom": 1.3,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      },
+      "names": [
+        {
+          "name": "Şehre dön",
+          "width": 48,
+          "height": 48
+        },
+        {
+          "name": "Raporlar · 4",
+          "width": 48,
+          "height": 48
+        }
+      ]
+    },
+    {
+      "width": 430,
+      "zoom": 1,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      },
+      "names": [
+        {
+          "name": "Şehre dön",
+          "width": 48,
+          "height": 48
+        },
+        {
+          "name": "Raporlar · 4",
+          "width": 48,
+          "height": 48
+        }
+      ]
+    },
+    {
+      "width": 430,
+      "zoom": 1.3,
+      "found": {
+        "taşma": {},
+        "kesik": {},
+        "küçük": {},
+        "minik": {},
+        "çakışma": {},
+        "isimsiz": {}
+      },
+      "names": [
+        {
+          "name": "Şehre dön",
+          "width": 48,
+          "height": 48
+        },
+        {
+          "name": "Raporlar · 4",
+          "width": 48,
+          "height": 48
+        }
+      ]
+    }
+  ],
+  "actions": [
+    "360: raporlar açıldı",
+    "360: başka ada seçildi",
+    "360: şehre dönüldü",
+    "390: raporlar açıldı",
+    "390: başka ada seçildi",
+    "390: şehre dönüldü",
+    "430: raporlar açıldı",
+    "430: başka ada seçildi",
+    "430: şehre dönüldü"
+  ],
+  "errors": [],
+  "clean": true
+}

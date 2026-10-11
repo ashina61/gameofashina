@@ -1,3 +1,5 @@
+**11 Ekim 2026 güncel durum:** Görsel geçiş ve son takip için `FINAL-VISUAL-AUDIT.md` geçerlidir. Aşağıdaki eski 0.29/0.41 ölçümleri tarihsel plan verileridir; bugünkü tasarım veya QA sonucu sayılmaz. Gerçek Android cihaz kontrolü, tempo hedefi ve ertelenen mağaza yayını açık kalır.
+
 # Payitaht Adaları — Sürüm 2 düzeltme planı
 
 Başlangıç noktası: **0.29.1** (2 Ekim 2026). Bu plan şu belgelerdeki bütün açık

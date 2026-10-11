@@ -1,3 +1,5 @@
+**11 Ekim son takip — 0.99.1 / SW112:** `docs/FINAL-VISUAL-AUDIT.md`; ada araçlarının ikon adları erişilebilir, görünmez metnin iki yanlış minik yazı uyarısı giderildi. Ana sayfa geçişleri tamam. Onaylı HUD, mekanik, kayıt ve ada koordinatları korunur; gerçek cihaz kontrolü ve ertelenen mağaza işleri açık. Yayın sonrası kullanıcı değerlendirmesinde dur.
+
 **11 Ekim yardımcı defterler — 0.99.0 / SW111:** `docs/SUPPORT-DESIGN-MEMORY.md`; ilk rehber, çevrimdışı dönüş ve bina önizlemesi ortak atlaslarda. Büyük yazıda rehber kaydırması ve HUD altında kalan dönüş düğmeleri giderildi. Motor, kayıt, ada koordinatları ve HUD korunur. Ana sayfa geçişleri tamam; yayın sonrası kullanıcı değerlendirmesinde dur.
 
 **10 Ekim giriş ekranı — 0.98.0 / SW110:** `docs/TITLE-DESIGN-MEMORY.md`; boyalı ana menü, kayıt sicili, yeni oyun, yardım ve açılış sürüm notları. Gerçek işlemeli arma, ortak atlaslar ve okunur mobil formlar. Kayıt/başlama/silme onayı, motor ve HUD korunur. Sonraki bütün sayfalarda son tutarlılık denetimi; yayın sonrası kullanıcı değerlendirmesinde dur.

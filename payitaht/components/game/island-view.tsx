@@ -60,11 +60,11 @@ export function IslandView({ empire, islandId, now, onCity, onIsland, onMine, on
     : <span className="island-mission">{m.kind === 'spy' ? <Eye aria-hidden="true" /> : m.kind === 'support' ? <ShieldCheck aria-hidden="true" /> : m.units.nakliye ? <Ship aria-hidden="true" /> : <Swords aria-hidden="true" />}{clock(m.arriveAt - now)}</span>
   return <section className="island-view" aria-label={`${island.name} ada görünümü`}>
     <div className="island-toolbar">
-      <GameButton size="sm" variant="outline" data-guide="to-city" onClick={onCity}><ArrowLeft data-icon="inline-start" />Şehre dön</GameButton>
+      <GameButton size="sm" variant="outline" data-guide="to-city" onClick={onCity}><ArrowLeft aria-hidden="true" data-icon="inline-start" /><span className="sr-only">Şehre dön</span></GameButton>
       <label className="island-title"><select className="island-select" value={island.id} aria-label="Ada seç" onChange={e => onIsland(e.target.value as IslandId)}>
         {ISLANDS.map(i => <option key={i.id} value={i.id}>{i.name}</option>)}</select>
         <small>{LUXURY_NAMES[island.luxury]} yatağı · {MIRACLES[island.wonder].wonder}{home ? '' : ' · deniz aşırı'}</small></label>
-      <GameButton size="sm" variant="outline" onClick={onReports}><ScrollText data-icon="inline-start" />Raporlar{unread > 0 ? ` · ${unread}` : ''}</GameButton>
+      <GameButton size="sm" variant="outline" onClick={onReports}><ScrollText aria-hidden="true" data-icon="inline-start" /><span className="sr-only">Raporlar{unread > 0 ? ` · ${unread}` : ''}</span></GameButton>
     </div>
     <MapViewport key={island.id} width={layout.size[0]} height={layout.size[1]} fitContain className="island-map-viewport">
     <div className="island-map" style={{ backgroundImage: `url(${asset('/images/game/terrain/world-sea.webp')})`, backgroundSize: 'cover' }}>

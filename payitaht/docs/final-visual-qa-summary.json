@@ -1,0 +1,61 @@
+{
+  "version": "0.99.1",
+  "sw": 112,
+  "unitTests": {
+    "passed": 345,
+    "failed": 0
+  },
+  "islandTools": {
+    "scans": 6,
+    "actions": 9,
+    "widths": [
+      360,
+      390,
+      430
+    ],
+    "fontScales": [
+      1,
+      1.3
+    ],
+    "clean": true
+  },
+  "general": {
+    "scans": 196,
+    "totals": {
+      "taşma": 0,
+      "kesik": 0,
+      "küçük": 312,
+      "minik": 663,
+      "çakışma": 0,
+      "isimsiz": 0
+    },
+    "errors": [],
+    "remaining": "Onaylı HUD danışman hedefleri ve kompakt canlı metinleri",
+    "exitCode": 1,
+    "changeFromPrevious": {
+      "minik": -2,
+      "küçük": 0,
+      "taşma": 0,
+      "kesik": 0,
+      "çakışma": 0,
+      "isimsiz": 0
+    }
+  },
+  "paceSimulation": {
+    "gunde3": {
+      "level10": {
+        "targetDay": 2,
+        "actualDay": 3
+      },
+      "level15": {
+        "targetDay": 7,
+        "actualDay": 8
+      },
+      "level20": {
+        "targetDay": 30,
+        "actualDay": 13
+      }
+    },
+    "engineChanged": false
+  }
+}
