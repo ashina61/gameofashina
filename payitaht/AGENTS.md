@@ -1,3 +1,5 @@
+**11 October reference map review — 0.102.0 / SW116:** `docs/MASTER-MAP-ADAPTATION.md`; new master scene projects stable engine indices onto the supplied painting. Mechanics, Tiled geometry, saves and HUD remain unchanged. Review branch only, no deployment. Required layout QA has unchanged HUD size/font warnings recorded in the document.
+
 **11 Ekim şehir tabanı — 0.101.1 / SW115:** `docs/CITY-FOUNDATION-DESIGN.md`; sıcak çayır/toprak, kurulu binalara avlu, belirgin yol hiyerarşisi ve geniş ortak liman promenadı. Dere kıyıları birleşir. Arsa, bina ölçeği, HUD, motor ve kayıt korunur. Yeni hareket/modelleme sonraki aşama; yayın sonrası kullanıcı değerlendirmesinde dur.
 
 **11 Ekim çizim yaşam döngüsü — 0.100.0 / SW113:** `docs/RENDER-LIFECYCLE-VALIDATION.md`; yükleme sırasında açılan sayfanın güncel durumu ilk çizimden sonra uygulanır. Uyuyan şehir değişiminde eski Phaser oyunu ve global hafif mod dinleyicisi temizlenir. HUD, motor, kayıt ve ada koordinatları korunur. Tarayıcı oturum ölçümü gerçek cihazın ısınma/pil ölçümü yerine geçmez.

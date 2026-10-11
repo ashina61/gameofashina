@@ -75,7 +75,7 @@ export function CityCanvas({ game, showLabels, placing, controls, onBuilding, on
     void (async () => {
       // Phaser'in ESM paketi varsayilan disa aktarim sunmaz; ad alani alinir.
       const [Phaser, { CityScene }] = await Promise.all([
-        import('phaser'), import('./phaser-city'),
+        import('phaser'), import('./phaser-master-city').then(m => ({ CityScene: m.MasterCityScene })),
       ])
       if (disposed || !holder.current) return
 
