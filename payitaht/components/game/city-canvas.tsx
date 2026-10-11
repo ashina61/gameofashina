@@ -53,6 +53,8 @@ export function CityCanvas({ game, showLabels, placing, controls, onBuilding, on
   const holder = useRef<HTMLDivElement>(null)
   const phaser = useRef<import('phaser').Game | null>(null)
   const scene = useRef<CityScene | null>(null)
+  const ready = useRef(false)
+  const idle = useRef(false)
   /*
    * Geri cagrilar ve ilk durum REF'te tutulur. Sahne bir kez kurulur; her
    * yeni React cizimi yuzunden yeniden kurulmasi, oyuncunun kaydirdigi
@@ -62,8 +64,8 @@ export function CityCanvas({ game, showLabels, placing, controls, onBuilding, on
   handlers.current = { onBuilding, onPlot, onRoad, onMovePlot, onMine }
   const firstLook = useRef(toLook(banner))
   // Async Phaser import may finish after a siege starts/ends; use the latest props.
-  const latest = useRef({ game, showLabels, placing, moving, movePlot, siege, raid })
-  latest.current = { game, showLabels, placing, moving, movePlot, siege, raid }
+  const latest = useRef({ game, showLabels, placing, moving, movePlot, siege, raid, paused })
+  latest.current = { game, showLabels, placing, moving, movePlot, siege, raid, paused }
 
   useEffect(() => {
     let disposed = false
@@ -137,9 +139,18 @@ export function CityCanvas({ game, showLabels, placing, controls, onBuilding, on
         look: firstLook.current,
         events: {
           onReady: () => {
+            if (disposed) return
             const p = latest.current
             view.sync(p.game, p.showLabels, p.placing, p.moving, p.movePlot, p.siege)
             view.setRaidAlert(p.raid)
+            if (instance) {
+              instance.events.once(Phaser.Core.Events.POST_RENDER, () => {
+                if (disposed || !instance) return
+                ready.current = true
+                setFrameCap(instance.loop, wantedFps(idle.current, liteMode()))
+                if (latest.current.paused) instance.loop.sleep()
+              })
+            }
           },
           onBuilding: (id: BuildingId) => { play('tap'); handlers.current.onBuilding(id) },
           onPlot: (index: number) => handlers.current.onPlot(index),
@@ -160,11 +171,16 @@ export function CityCanvas({ game, showLabels, placing, controls, onBuilding, on
 
     return () => {
       disposed = true
+      ready.current = false
       phaser.current = null
       scene.current = null
       controls.current = null
       cleanup()
-      instance?.destroy(true)
+      if (instance) {
+        instance.destroy(true)
+        // Phaser destroys on its next frame; a sleeping city needs that frame.
+        if (instance.loop.started && !instance.loop.running) instance.loop.wake(true)
+      }
     }
     // Phaser oyunu yalnız bir kez kurulur; `controls` sabit bir ref nesnesidir.
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -174,12 +190,12 @@ export function CityCanvas({ game, showLabels, placing, controls, onBuilding, on
    * ORTULU SEHIR UYUR (V2 Faz 2.5 ölçümü): bina sayfası, panel ya da ada
    * görünümü şehri tamamen örterken Phaser her kareyi boşuna çiziyordu;
    * yavaş cihazda sayfa animasyonları kare atlıyordu. Uyanınca Phaser
-   * zaman farkını sıfırlar, tween'ler zıplamaz. Kurulum bitmeden uyutulmaz:
-   * ilk kare çizilmeden "şehir hazır" işareti gelmez.
+   * zaman farkını sıfırlar, tween'ler zıplamaz. Kurulum bitmeden uyutulmaz;
+   * sahne hazır olduğunda güncel sayfa durumu onReady'de de uygulanır.
    */
   useEffect(() => {
     const loop = phaser.current?.loop
-    if (!loop || !document.documentElement.dataset.cityReady) return
+    if (!loop || !ready.current) return
     if (paused) loop.sleep()
     else loop.wake()
   }, [paused])
@@ -192,12 +208,12 @@ export function CityCanvas({ game, showLabels, placing, controls, onBuilding, on
   useEffect(() => {
     const el = holder.current
     if (!el) return
-    let timer = 0, idle = false
-    const apply = () => { const loop = phaser.current?.loop; if (loop) setFrameCap(loop, wantedFps(idle, liteMode())) }
+    let timer = 0
+    const apply = () => { const loop = phaser.current?.loop; if (loop) setFrameCap(loop, wantedFps(idle.current, liteMode())) }
     const wake = () => {
       window.clearTimeout(timer)
-      if (idle) { idle = false; apply() }
-      timer = window.setTimeout(() => { idle = true; apply() }, IDLE_AFTER_MS)
+      if (idle.current) { idle.current = false; apply() }
+      timer = window.setTimeout(() => { idle.current = true; apply() }, IDLE_AFTER_MS)
     }
     const onMove = (e: PointerEvent) => { if (e.buttons) wake() }
     el.addEventListener('pointerdown', wake, { passive: true })

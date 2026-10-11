@@ -1,5 +1,7 @@
 # Son görsel denetim ve kalan işler — 11 Ekim 2026
 
+Takip: 0.100.0 / SW113 çizim yaşam döngüsü düzeltmeleri için `RENDER-LIFECYCLE-VALIDATION.md`. Fiziksel Android kontrolü açık kalır.
+
 0.99.1 / SW112. Önceki bölümde ana sayfalar, yapı grupları, giriş ve yardımcı pencerelerin ortak boyalı tasarıma geçişi tamamlandı. Son takipte ada araçlarının iki ikon düğmesinde doğrudan metin `font-size: 0` ile gizleniyordu; genel denetim bunu iki minik yazı olarak sayıyordu. İkonlar dekoratif olarak işaretlenip adlar mevcut `sr-only` sınıfına taşındı. Ekran okuyucu ve otomasyon için şehre dönüş, raporlar ve okunmamış sayı korunur; görünüm ve komutlar aynıdır. Genel denetim kuralları gevşetilmedi.
 
 | Alan | Durum | Kalan iş |

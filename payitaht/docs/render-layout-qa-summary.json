@@ -1,0 +1,18 @@
+{
+  "version": "0.100.0",
+  "sw": 113,
+  "scans": 196,
+  "pageScans": 194,
+  "selfChecks": 2,
+  "totals": {
+    "taşma": 0,
+    "kesik": 0,
+    "küçük": 312,
+    "minik": 663,
+    "çakışma": 0,
+    "isimsiz": 0
+  },
+  "errors": [],
+  "exitCode": 1,
+  "remaining": "Onaylı HUD danışman hedefleri ve kompakt metinleri; kurallar gevşetilmedi."
+}

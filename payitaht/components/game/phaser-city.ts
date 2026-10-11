@@ -145,6 +145,8 @@ export class CityScene extends Phaser.Scene {
       this.markReady()
     })
     this.events.once('shutdown', offDecorLite)
+    // Game destruction emits destroy directly, without a scene shutdown.
+    this.events.once('destroy', offDecorLite)
     this.terrainRoads.setBlockaded(!!this.siege.blockade)
     for (const f of this.terrainRoads.flags) this.flagField.add(f, 'static', f.minLevel)
     this.applyDevelopment()
@@ -170,7 +172,20 @@ export class CityScene extends Phaser.Scene {
     this.setupCamera()
     this.installCamera()
     this.redraw()
-    this.events.once('shutdown', () => { this.siegeLayer?.destroy(); this.siegeLayer = null; delete document.documentElement.dataset.cityReady })
+    const clearScene = () => {
+      this.built = false
+      this.siegeLayer?.destroy()
+      this.siegeLayer = null
+      // generateTexture's shared camera retains its scene and render list.
+      const target = Phaser.GameObjects.Graphics.TargetCamera
+      if (target.scene === this) {
+        target.destroy()
+        Object.assign(Phaser.GameObjects.Graphics, { TargetCamera: new Phaser.Cameras.Scene2D.BaseCamera(0, 0, 0, 0) })
+      }
+      delete document.documentElement.dataset.cityReady
+    }
+    this.events.once('shutdown', clearScene)
+    this.events.once('destroy', clearScene)
     this.events$.onReady?.()
   }
   /* ------------------------------------------------------------------ KAMERA */
