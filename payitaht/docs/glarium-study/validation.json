@@ -1,0 +1,28 @@
+[
+  {
+    "viewport": {
+      "width": 1440,
+      "height": 1000
+    },
+    "errors": [],
+    "overflow": false,
+    "storage": [],
+    "focus": true,
+    "pan": true,
+    "pinchDispatch": true,
+    "resize": true
+  },
+  {
+    "viewport": {
+      "width": 390,
+      "height": 844
+    },
+    "errors": [],
+    "overflow": false,
+    "storage": [],
+    "focus": true,
+    "pan": true,
+    "pinchDispatch": true,
+    "resize": true
+  }
+]

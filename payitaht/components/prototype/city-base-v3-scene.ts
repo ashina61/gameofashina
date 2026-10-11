@@ -237,7 +237,7 @@ export class CityBaseV3Scene extends CityBaseV2Scene {
     // Kıyı anchor'ları yalnız görsel kompozisyon için küçük kargo kümeleriyle
     // çevrelenir; anchor'ın kendisi boş kalır.
     const cargo = this.keep(this.add.graphics().setDepth(705))
-    COAST_VISUAL_ANCHORS.forEach((a, i) => {
+    COAST_VISUAL_ANCHORS.forEach(a => {
       const p = this.anchorPoint(a)
       cargo.fillStyle(0x866849, .38 + phase.harbourActivity * .30)
       const n = 1 + Math.round(phase.harbourActivity * 3)
