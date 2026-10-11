@@ -1,0 +1,64 @@
+name: Prototype City Base V1 Check
+
+on:
+  push:
+    branches: [prototype/city-base-v1]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+defaults:
+  run:
+    working-directory: payitaht
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+          run_install: false
+      - name: Install
+        run: pnpm install --frozen-lockfile
+      - name: Typecheck
+        run: pnpm exec tsc --noEmit
+      - name: Tests
+        run: pnpm exec tsx --test $(find lib -name '*.test.ts')
+      - name: Build prototype branch
+        env:
+          STATIC_EXPORT: '1'
+          NEXT_BASE_PATH: /gameofashina
+          NEXT_PUBLIC_ASSET_BASE: /gameofashina
+        run: pnpm build
+      - name: Install screenshot browser
+        run: pnpm dlx playwright@1.56.1 install --with-deps chromium
+      - name: Serve static prototype
+        shell: bash
+        run: |
+          test -f out/city-base-v1.html
+          ln -sfn out gameofashina
+          python3 -m http.server 4173 >/tmp/city-base-v1-http.log 2>&1 &
+          for i in {1..20}; do
+            if curl -fsS http://127.0.0.1:4173/gameofashina/city-base-v1.html >/dev/null; then exit 0; fi
+            sleep 1
+          done
+          cat /tmp/city-base-v1-http.log
+          exit 1
+      - name: Capture wide base
+        run: pnpm dlx playwright@1.56.1 screenshot --viewport-size="1600,900" --wait-for-timeout=7000 http://127.0.0.1:4173/gameofashina/city-base-v1.html city-base-v1-wide.png
+      - name: Capture phone base
+        run: pnpm dlx playwright@1.56.1 screenshot --device="Pixel 5" --wait-for-timeout=7000 http://127.0.0.1:4173/gameofashina/city-base-v1.html city-base-v1-mobile.png
+      - name: Upload screenshots
+        uses: actions/upload-artifact@v4
+        with:
+          name: city-base-v1-screenshots
+          path: |
+            payitaht/city-base-v1-wide.png
+            payitaht/city-base-v1-mobile.png
+          retention-days: 7
