@@ -10,7 +10,7 @@ const SOURCE_H = 1024
 const HALL_ART_X = 768
 const HALL_ART_Y = 390
 
-type ReadyScene = Phaser.Scene & { markReady?: () => void }
+type ReadyScene = Phaser.Scene & { built?: boolean; markReady?: () => void }
 
 export function preloadPaintedCityBase(scene: Phaser.Scene) {
   if (!scene.textures.exists(PAINTED_CITY_KEY)) scene.load.image(PAINTED_CITY_KEY, PAINTED_CITY_URL)
@@ -35,21 +35,30 @@ function addPaintedCityBase(scene: Phaser.Scene) {
     .setDisplaySize(width, height)
 }
 
+function signalReadyWhenBuilt(scene: Phaser.Scene) {
+  const s = scene as ReadyScene
+  if (!scene.sys.isActive()) return
+  if (!s.built || scene.load.isLoading()) {
+    scene.time.delayedCall(16, () => signalReadyWhenBuilt(scene))
+    return
+  }
+  s.markReady?.()
+}
+
 function mountPaintedCityBase(scene: Phaser.Scene) {
   if (scene.textures.exists(PAINTED_CITY_KEY)) {
     addPaintedCityBase(scene)
     return
   }
 
-  // CityScene preload'una bağımlı kalma: terrain create sırasında texture henüz
-  // yoksa tek dosyayı runtime yükle, bitince masterı aynı dünya katmanına ekle.
-  const finish = () => {
-    addPaintedCityBase(scene)
-    // Visual QA sabit bekleme yerine data-city-ready sayacını izliyor.
-    scene.time.delayedCall(0, () => (scene as ReadyScene).markReady?.())
-  }
+  // Terrain create sırasında texture henüz yoksa tek masterı runtime yükle.
+  // FILE_COMPLETE değil Loader COMPLETE kullanılır: bu anda create() ilerlemiş,
+  // built=true olmuştur ve markReady() loader.isLoading yüzünden yutulmaz.
   scene.load.image(PAINTED_CITY_KEY, PAINTED_CITY_URL)
-  scene.load.once(`filecomplete-image-${PAINTED_CITY_KEY}`, finish)
+  scene.load.once(Phaser.Loader.Events.COMPLETE, () => {
+    addPaintedCityBase(scene)
+    signalReadyWhenBuilt(scene)
+  })
   if (!scene.load.isLoading()) scene.load.start()
 }
 
