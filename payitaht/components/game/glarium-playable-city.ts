@@ -5,6 +5,7 @@ import { visualSignature } from '@/lib/game/city-render'
 import { GLARIUM_GROWTH_STAGES, glariumGrowthForLevel } from '@/lib/game/glarium-city-growth'
 import { fiveStageBuildingArt } from '@/lib/game/building-art-growth'
 import { PAINTED_PLOTS, PAINTED_CITY_SIZE } from '@/lib/game/glarium-playable-layout'
+import { spriteAlphaFrame, type AlphaFrame } from '@/lib/game/sprite-alpha-frame'
 import { PEACEFUL_CITY, siegeAppearanceKey, type SiegeAppearance } from '@/lib/game/siege-appearance'
 import { liteMode } from '@/lib/motion'
 import type { FlagLook } from './city-life'
@@ -30,6 +31,7 @@ export class CityScene extends Phaser.Scene {
   private raid = false
   private pending = new Set<string>()
   private readyCount = 0
+  private frames = new Map<string, AlphaFrame>()
   private minZoom = .1
   private drag: { x: number; y: number; sx: number; sy: number } | null = null
   private pinch: { distance: number; zoom: number; x: number; y: number } | null = null
@@ -52,6 +54,8 @@ export class CityScene extends Phaser.Scene {
     }
     this.load.image('painted-site', asset('/images/game/buildings/site.webp'))
     this.load.image('painted-sea', asset('/images/game/terrain/water-deep.webp'))
+    this.load.image('painted-yard-stone', asset('/images/game/terrain/plaza-stone.webp'))
+    this.load.image('painted-yard-earth', asset('/images/game/terrain/dirt.webp'))
     for (const id of BUILDING_IDS) {
       if (id === 'divan' || id === 'surlar' || !BUILDINGS[id].art || this.state.buildings[id] <= 0) continue
       const art = this.art(id)
@@ -133,19 +137,67 @@ export class CityScene extends Phaser.Scene {
    * A single bilinear WebGL sample across ten source pixels creates shimmer.
    */
   private renderTexture(key: string, width: number) {
-    const renderKey = `city-thumbnail-${key}-${width}`
+    const renderKey = `city-trimmed-${key}-${width}`
     if (this.textures.exists(renderKey)) return renderKey
     const source = this.textures.get(key).getSourceImage() as HTMLImageElement | HTMLCanvasElement
+    let frame = this.frames.get(key)
+    if (!frame) {
+      const probe = document.createElement('canvas')
+      const ratio = Math.min(1, 256 / Math.max(source.width, source.height))
+      probe.width = Math.ceil(source.width * ratio); probe.height = Math.ceil(source.height * ratio)
+      const ctx = probe.getContext('2d', { willReadFrequently: true })!
+      ctx.drawImage(source, 0, 0, probe.width, probe.height)
+      const bounds = spriteAlphaFrame(ctx.getImageData(0, 0, probe.width, probe.height).data, probe.width, probe.height)
+      frame = { left: bounds.left / probe.width * source.width, top: bounds.top / probe.height * source.height, width: bounds.width / probe.width * source.width, height: bounds.height / probe.height * source.height }
+      this.frames.set(key, frame)
+    }
     const w = Math.ceil(width * 2)
-    const h = Math.ceil(source.height / source.width * w)
+    const h = Math.ceil(frame.height / frame.width * w)
     const texture = this.textures.createCanvas(renderKey, w, h)
     if (!texture) return key
     const context = texture.getContext()
     context.imageSmoothingEnabled = true
     context.imageSmoothingQuality = 'high'
-    context.drawImage(source, 0, 0, w, h)
+    context.drawImage(source, frame.left, frame.top, frame.width, frame.height, 0, 0, w, h)
     texture.refresh()
+    texture.setFilter(Phaser.Textures.FilterMode.LINEAR)
     return renderKey
+  }
+  /** Ground remains an arsa layer. It fills the traced polygon even when the
+   * early-stage structure is small, rather than becoming a floating cutout.
+   */
+  private courtyard(plot: Plot) {
+    const stone = this.state.buildings.divan >= 10
+    const key = `painted-parcel-${plot.index}-${stone ? 'stone' : 'earth'}`
+    const minX = Math.min(...plot.outline.map(p => p.x)), minY = Math.min(...plot.outline.map(p => p.y))
+    if (!this.textures.exists(key)) {
+      const texture = this.textures.createCanvas(key, Math.ceil(plot.width * 2), Math.ceil(plot.height * 2))!
+      const ctx = texture.getContext()
+      ctx.scale(2, 2)
+      ctx.beginPath()
+      plot.outline.forEach((p, i) => {
+        const x = plot.x + (p.x - plot.x) * .98 - minX, y = plot.y + (p.y - plot.y) * .98 - minY
+        if (i) ctx.lineTo(x, y); else ctx.moveTo(x, y)
+      })
+      ctx.closePath(); ctx.clip()
+      const source = this.textures.get(stone ? 'painted-yard-stone' : 'painted-yard-earth').getSourceImage() as HTMLImageElement
+      const pattern = ctx.createPattern(source, 'repeat')!
+      if (stone) {
+        const [a, b, , d] = plot.outline
+        pattern.setTransform(new DOMMatrix([(b.x - a.x) / 1024, (b.y - a.y) / 1024, (d.x - a.x) / 1024, (d.y - a.y) / 1024, a.x - minX, a.y - minY]))
+      } else pattern.setTransform(new DOMMatrix().scale(.1))
+      ctx.globalAlpha = .8; ctx.fillStyle = pattern; ctx.fillRect(0, 0, plot.width, plot.height)
+      ctx.globalAlpha = .85; ctx.strokeStyle = stone ? '#ecddb7' : '#d5b778'; ctx.lineWidth = 4
+      ctx.beginPath(); ctx.moveTo(plot.x - minX, plot.y + plot.height * .23 - minY); ctx.lineTo(plot.gate.x - minX, plot.gate.y - minY); ctx.stroke()
+      texture.refresh()
+      texture.setFilter(Phaser.Textures.FilterMode.LINEAR)
+    }
+    this.keep(this.add.image(minX, minY, key).setOrigin(0).setDisplaySize(plot.width, plot.height).setDepth(-900))
+  }
+  private groundHit(plot: Plot, depth: number) {
+    const minX = Math.min(...plot.outline.map(p => p.x)), minY = Math.min(...plot.outline.map(p => p.y))
+    const shape = new Phaser.Geom.Polygon(plot.outline.map(p => ({ x: p.x - minX, y: p.y - minY })))
+    return this.keep(this.add.zone(minX, minY, plot.width, plot.height).setOrigin(0).setDepth(depth).setInteractive({ hitArea: shape, hitAreaCallback: Phaser.Geom.Polygon.Contains, useHandCursor: true }))
   }
   private label(x: number, y: number, text: string) {
     this.keep(this.add.text(x, y, text, { fontFamily: 'Georgia, serif', fontSize: '14px', color: '#fff1cc', backgroundColor: '#392416ee', padding: { x: 5, y: 3 }, align: 'center' }).setOrigin(.5).setDepth(2000))
@@ -160,22 +212,29 @@ export class CityScene extends Phaser.Scene {
   }
   private building(plot: Plot, id: BuildingId) {
     const level = this.state.buildings[id]
+    const land = plot.index > 0 && plot.index <= 24
+    if (land) this.courtyard(plot)
     if (id !== 'divan') {
       const key = level > 0 ? this.requestArt(id) : 'painted-site'
       if (this.textures.exists(key)) {
         const growth = level > 0 ? fiveStageBuildingArt(id, level) : null
-        const contactWidth = plot.index >= 25 ? plot.width * .82 : 68
-        const width = growth ? contactWidth * growth.occupancyScale / growth.contactWidthRatio : contactWidth
-        if (growth) this.keep(this.add.ellipse(plot.x + 1.5, plot.y + plot.height * .12, contactWidth * growth.occupancyScale * .92, plot.height * .4, 0x493b27, .17).setDepth(plot.y - .1))
-        const img = this.keep(this.add.image(plot.x, plot.y + plot.height * .15, this.renderTexture(key, width)).setOrigin(growth?.originX ?? .5, growth?.originY ?? .88).setDepth(plot.y))
+        const contactWidth = plot.index >= 25 ? plot.width * .82 : 60
+        const width = contactWidth * (growth?.occupancyScale ?? 1)
+        const anchorY = plot.y + plot.height * .23
+        this.keep(this.add.ellipse(plot.x + 1, anchorY - 4, width * .86, Math.min(14, plot.height * .25), 0x493b27, .17).setDepth(land ? -850 : plot.y - .1))
+        const img = this.keep(this.add.image(plot.x, anchorY, this.renderTexture(key, width)).setOrigin(.5, 1).setDepth(plot.y))
         img.setDisplaySize(width, img.height / img.width * width)
         img.setFlipX(id === 'liman' || id === 'tersane' ? this.state.coastFacing[id] === 'right' : this.state.flips.includes(id))
         if (id === this.moving) img.setAlpha(.7)
+        if (land) {
+          img.setInteractive({ pixelPerfect: true, alphaTolerance: 24, useHandCursor: true })
+          img.on('pointerup', (p: Phaser.Input.Pointer) => { if (!this.moving && this.canTap(p)) this.events$.onBuilding(id) })
+        }
       }
     }
     this.badge(plot, id)
     const h = id === 'divan' ? 146 : Math.max(55, plot.height)
-    const hit = this.keep(this.add.rectangle(plot.x, plot.y - h * .28, plot.width, h, 0xffffff, 0).setDepth(1500).setInteractive({ useHandCursor: true }))
+    const hit = land ? this.groundHit(plot, plot.y - .05) : this.keep(this.add.rectangle(plot.x, plot.y - h * .28, plot.width, h, 0xffffff, 0).setDepth(1500).setInteractive({ useHandCursor: true }))
     hit.on('pointerup', (p: Phaser.Input.Pointer) => { if (!this.moving && this.canTap(p)) this.events$.onBuilding(id) })
   }
   private canTap(p: Phaser.Input.Pointer) { return !this.pinch && isTap(p) }
@@ -184,8 +243,12 @@ export class CityScene extends Phaser.Scene {
     const eligible = this.eligible(plot.index)
     if (this.moving && !eligible) return
     const selected = this.movePlot === plot.index
-    const pad = this.keep(this.add.ellipse(plot.x, plot.y, plot.width, plot.height, selected ? 0x3fbd86 : 0xf2d39a, this.placing ? .28 : 0).setDepth(1000).setInteractive({ useHandCursor: true }))
-    if (this.placing) pad.setStrokeStyle(2, selected ? 0x9af1bb : 0xe9c274)
+    if (this.placing) {
+      const g = this.keep(this.add.graphics().setDepth(1000))
+      g.fillStyle(selected ? 0x3fbd86 : 0xf2d39a, .28).lineStyle(1.5, selected ? 0x9af1bb : 0xe9c274)
+      g.fillPoints(plot.outline, true); g.strokePoints(plot.outline, true)
+    }
+    const pad = this.groundHit(plot, this.placing ? 1200 : plot.y - .05)
     pad.on('pointerup', (p: Phaser.Input.Pointer) => {
       if (!this.canTap(p)) return
       if (this.moving) this.events$.onMovePlot(plot.index)
@@ -219,7 +282,8 @@ export class CityScene extends Phaser.Scene {
       this.label(730, 699, `${this.siege.blockade.name} · Abluka`)
     }
     if (this.raid) this.label(865, 780, '⚑ Yaklaşan filo')
-    document.documentElement.dataset.paintedCity = JSON.stringify({ stage: stage.level, plots: PAINTED_PLOTS.length, occupied: [...occupied], moving: this.moving, movePlot: this.movePlot })
+    document.documentElement.dataset.paintedCity = JSON.stringify({ stage: stage.level, plots: PAINTED_PLOTS.length, occupied: [...occupied], moving: this.moving, movePlot: this.movePlot,
+      ...(localStorage.getItem('payitaht-qa') === '1' ? { parcels: PAINTED_PLOTS, frames: [...this.frames] } : {}) })
     this.markReady()
   }
   private markReady() {

@@ -1,3 +1,5 @@
+> 11 Ekim sonraki arsa/avlu/hizalama düzeltmesi: `GLARIUM-PARCEL-RUNTIME.md`. Bu belgede anlatılan ilk ikili-merkez yerleşimi artık güncel değildir.
+
 # Onaylı Glarium esintili şehrin oyun entegrasyonu
 
 **Sonraki çalışma:** Kışla’nın beş ayrı görseli ve kendi seviyesinden seçim sistemi tamamlandı; bkz. `GLARIUM-FIVE-STAGE-BUILDINGS.md`. Diğer bina aileleri henüz dönüştürülmedi.

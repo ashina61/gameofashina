@@ -1,5 +1,7 @@
 # Şehirle ortak beş aşamalı bina sanatı — ilk aile: Kışla
 
+> 11 Ekim sonraki kullanıcı değerlendirmesi: aşağıdaki bağımsız avlulu aile çevre/arsa uyumu nedeniyle reddedildi. Tasarım standardı olarak kullanılmaz. Yeni çalışma doğrudan gerçek boş araziye göre yapılır: `GLARIUM-PARCEL-FIT.md`. Aşağıdaki teknik kontroller önceki uygulamaya aittir; görsel uyum onayı değildir.
+
 Dal: `prototype/glarium-ottoman-city`. Ana/canlı dal değiştirilmez. Bu çalışma bütün bina aileleri tamamlandı demek değildir: ilk tamamlanan beşli Kışla'dır; diğer aileler önceki üç aşamalı görselleri kullanır.
 
 Yeni şehir, eski üç aşamalı burçlu/isometrik yapıların kamera ve malzeme diliyle aynı değildir. Kışla ilk ortak dil örneği olarak yeniden çizildi: daha önden yükseltilmiş ortografik kamera, açık kireç taşı, kiremit çatılar, ahşap saçaklar, sıcak sol üst ışık; kale mazgalları ve oyuncak blok görünümü kaldırıldı. Beş ayrı şeffaf bitmap asset vardır; yalnız büyütülmüş aynı resim değildir.

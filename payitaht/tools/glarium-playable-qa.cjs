@@ -34,7 +34,7 @@ const out=path.join(root,'docs/glarium-integration');
     const body=await page.locator('body').innerText();if(!body.includes('Gelişim'))throw Error('municipality tap failed: '+JSON.stringify(point));
     result.interactions.push({municipality:true,point,opened});await page.screenshot({path:out+'/municipality-detail-390.png'});
     await page.getByRole('button',{name:'Şehir',exact:true}).click();
-    const occupied=new Set(data.occupied.map(p=>p[0]));const candidates=[[1,768,388],[2,832,406],[3,528,396],[4,592,414],[5,958,280],[6,1022,298]];const target=candidates.find(p=>!occupied.has(p[0]));if(!target)throw Error('no test plot');
+    const occupied=new Set(data.occupied.map(p=>p[0]));const candidates=data.parcels.filter(p=>p.index>0&&p.index<=24).map(p=>[p.index,p.x,p.y]);const target=candidates.find(p=>!occupied.has(p[0]));if(!target)throw Error('no test plot');
     const project=async(x,y)=>page.evaluate(([x,y])=>{const c=JSON.parse(document.documentElement.dataset.paintedCamera);const box=document.querySelector('canvas').getBoundingClientRect();return {x:box.x+((x-c.centerX)*c.zoom+c.width/2)*box.width/c.width,y:box.y+((y-c.centerY)*c.zoom+c.height/2)*box.height/c.height}},[x,y]);
     const tp=await project(target[1],target[2]);await page.mouse.click(tp.x,tp.y);await page.getByText('Boş arsa',{exact:true}).waitFor();result.interactions.push({emptyPlot:target[0],opened:true});
     await page.getByRole('button',{name:'Şehir',exact:true}).click();

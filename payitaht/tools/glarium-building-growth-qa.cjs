@@ -21,7 +21,7 @@ const out=path.resolve(__dirname,'../docs/glarium-barracks');
   const city=await page.evaluate(()=>JSON.parse(document.documentElement.dataset.paintedCity));if(city.stage!==20)throw Error('city hall art unexpectedly changed');
   const urls=[...new Set(assets)];if(!urls.some(url=>url.includes(`kisla-${String(lv).padStart(2,'0')}-sm.webp`)))throw Error('wrong own building stage '+lv+' '+urls.join());
   await page.screenshot({path:path.join(out,`kisla-${String(lv).padStart(2,'0')}-390.png`)});
-  const point=await page.evaluate(()=>{const c=JSON.parse(document.documentElement.dataset.paintedCamera),box=document.querySelector('canvas').getBoundingClientRect();return {x:box.x+((768-c.centerX)*c.zoom+c.width/2)*box.width/c.width,y:box.y+((370-c.centerY)*c.zoom+c.height/2)*box.height/c.height}});
+  const point=await page.evaluate(()=>{const c=JSON.parse(document.documentElement.dataset.paintedCamera),box=document.querySelector('canvas').getBoundingClientRect(),p=JSON.parse(document.documentElement.dataset.paintedCity).parcels.find(p=>p.index===1);return {x:box.x+((p.x-c.centerX)*c.zoom+c.width/2)*box.width/c.width,y:box.y+((p.y-6-c.centerY)*c.zoom+c.height/2)*box.height/c.height}});
   await page.mouse.click(point.x,point.y);await page.locator('.building-inspector').waitFor();const title=await page.locator('#building-inspector-title').innerText();if(title!=='Kışla')throw Error('wrong hit '+title);
   const previewImage=await page.locator('.building-inspector-summary img').getAttribute('src');if(!previewImage.includes(`kisla-${String(lv).padStart(2,'0')}-sm.webp`))throw Error('inspector differs from city');
   result.stages.push({barracks:lv,cityHall:city.stage,urls,previewImage,tap:true});await page.getByRole('button',{name:'Binayı kapat'}).click();
