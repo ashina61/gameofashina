@@ -2,7 +2,39 @@ import { CITY_SLOTS, DEFENSE_FOUNDATION, HALL_SLOT_ID, slotById, TILE } from '..
 import * as Phaser from 'phaser'
 import { mulberry32 } from '../terrain-builder'
 
+const PAINTED_CITY_KEY = 'city_l1_painted'
+const PAINTED_CITY_URL = '/images/game/terrain/city-l1.webp'
+
+function mountPaintedCityBase(scene: Phaser.Scene) {
+  const mount = () => {
+    if (!scene.sys.isActive() || scene.children.getByName('city-painted-l1')) return
+    const hall = slotById(HALL_SLOT_ID)?.screen
+    if (!hall) return
+    // 1536×1024 concept art is fitted to the 24-plot world, not to the viewport.
+    // Buildings, empty-slot hit areas, wall construction and economy remain runtime layers.
+    const width = TILE.w * 32
+    const height = width * (1024 / 1536)
+    scene.add.image(hall.x, hall.y + TILE.h * 0.8, PAINTED_CITY_KEY)
+      .setName('city-painted-l1')
+      .setDepth(-820)
+      .setDisplaySize(width, height)
+  }
+
+  if (scene.textures.exists(PAINTED_CITY_KEY)) {
+    mount()
+    return
+  }
+
+  scene.load.image(PAINTED_CITY_KEY, PAINTED_CITY_URL)
+  scene.load.once(Phaser.Loader.Events.COMPLETE, mount)
+  if (!scene.load.isLoading()) scene.load.start()
+}
+
 export function drawLand({ V: _V, scene, shoreY, stamp, wr }: { V: (x: number, y: number) => Phaser.Math.Vector2; scene: Phaser.Scene; shoreY: (x: number) => number; stamp: (key: string, wx: number, wy: number, tw: number, depth: number, oy?: number, alpha?: number, tint?: number | undefined) => Phaser.GameObjects.Image | null; wr: { x: number; y: number; w: number; h: number; } }) {
+  // New L1 city art sits above procedural ground but below roads, plot wear and buildings.
+  // This keeps mechanics/runtime objects intact while giving the city the approved Ikariam-like base.
+  mountPaintedCityBase(scene)
+
   // G4: boyalı uzak sırt; sur ve maden bandının arkasında kalır.
   {
     const ringTop = Math.min(...DEFENSE_FOUNDATION.map(p => p.screen.y))
