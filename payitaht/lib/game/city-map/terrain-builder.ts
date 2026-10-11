@@ -18,7 +18,7 @@ import { COAST_SLOTS, DEFENSE_FOUNDATION, ROAD_GRAPH, ROAD_EXITS, HALL_SLOT_ID, 
 import { GROUND_TARGET_W, GROUND_TARGET_D, FOOTPRINT_DIAMOND_W } from './building-assets'
 import { asset } from '@/lib/asset'
 import { liteMode } from '@/lib/motion'
-import { type RoadKind } from './road-style'
+import { QUAY_PROMENADE_WIDTH, type RoadKind } from './road-style'
 import { edgeKey, roadEdgeKeysForTargets } from './road-tree'
 import { shoreYAt } from './city-extras'
 import { BakeAtlas } from './bake'
@@ -268,8 +268,9 @@ export function paintedGroundTexture(scene: Phaser.Scene, sourceKey: string) {
     const ovalT = Phaser.Math.Clamp((1.00 - oval) / 0.42, 0, 1)
     const soft = (t: number) => t * t * (3 - 2 * t)
     if (sourceKey === 't_grass' || sourceKey === 't_grass-shade') {
-      image.data[index - 3] = Math.round(image.data[index - 3] * 0.88)
-      image.data[index - 2] = Math.min(255, Math.round(image.data[index - 2] * 1.16))
+      // Akdeniz çayırı: kaynak boyanın sıcak toprağını koru. Yeşili
+      // yükseltmek bütün mahalleyi aynı parlak çim yüzeyine çeviriyordu.
+      image.data[index - 2] = Math.round(image.data[index - 2] * 0.98)
     }
     image.data[index] = Math.round(image.data[index] * soft(ovalT))
   }
@@ -309,7 +310,8 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1, occupiedSl
 
   const clearanceCurves = displayRoadCurves(roadCurves(V))
   const clearanceQuay = new Phaser.Curves.Spline([...COAST_SLOTS].sort((a, b) => a.screen.x - b.screen.x).map(s => V(s.screen.x, s.screen.y - TILE.h * 0.12)))
-  const clearanceLanes = decorLanes([...clearanceCurves, { kind: 'quay', curve: clearanceQuay }])
+  const clearanceLanes = decorLanes(clearanceCurves)
+  clearanceLanes.push({ kind: 'quay', points: clearanceQuay.getSpacedPoints(80), halfWidth: TILE.w * QUAY_PROMENADE_WIDTH / 2 })
   scene.registry.set('decorClearanceLanes', clearanceLanes)
   let decorOrdinal = 0
   const treeZoom = (scene as Phaser.Scene & { townZoom?: () => number }).townZoom?.() ?? 0.22
@@ -416,7 +418,7 @@ export function buildCityTerrain(scene: Phaser.Scene, divanLevel = 1, occupiedSl
   // Grid'den bağımsız boyalı çim ve seyrek sıkıştırılmış toprak lekeleri.
   const grassSurface = softSurfaceTexture('t_grass')
   const dirtSurface = softSurfaceTexture('t_dirt')
-  const meadowSurfaces = ['t_grass', 't_grass-shade'].map(softSurfaceTexture).filter((key): key is string => !!key)
+  const meadowSurfaces = ['t_grass', 't_grass-shade', 't_grass-dry'].map(softSurfaceTexture).filter((key): key is string => !!key)
   const surfaceRnd = mulberry32(72831)
   // Burunlar kıvrılırken bir lekenin merkezindeki kıyı çizgisi yeterli
   // değildir: görünür genişlik boyunca en içeride kalan kara sınırını al.

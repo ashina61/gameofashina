@@ -4,6 +4,8 @@
  */
 export type RoadKind = 'avenue' | 'street' | 'quay'
 export type RoadTier = 1 | 2 | 3 | 4
+/** Ortak liman promenadı; dekor açıklığı da bu genişliği kullanır. */
+export const QUAY_PROMENADE_WIDTH = 0.78
 
 /** Divan 1-2: toprak; 3-4: taş kenarlı; 5-6: arnavut kaldırımı; 7+: kesme taş. */
 export function roadTierForHallLevel(level: number): RoadTier {
@@ -47,7 +49,7 @@ export function roadStyleFor(kind: RoadKind, level: number): RoadVisualStyle {
   // mahalle sokakları daha ince kalır; kıyı promenadı rıhtımla birleşir.
   // Genişlik farkı aynı zamanda "slot ızgarası" hissini kırıp gerçek sokak
   // hiyerarşisi verir.
-  const scale = avenue ? 1.32 : quay ? 1.08 : 0.96
+  const scale = avenue ? 1.58 : quay ? 1.20 : 1.06
 
   const palette = quay
     ? [

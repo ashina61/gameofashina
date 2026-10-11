@@ -81,11 +81,13 @@ export function drawCityLife({ T, V, plazaDecor, scene, stamp }: { T: { tier: nu
       }
       for (let i = 0; i < st.pts.length; i += 3) { water.fillStyle(color, alpha); water.fillCircle(st.pts[i].x, st.pts[i].y, (st.widths[i] * scaleW + extra) / 2) }
     }
-    pass(18, 0x5f7a3c, 0.55) // nemli çimen kıyı
-    pass(9, 0x8a7a50, 1) // çamur kıyı
-    pass(0, 0x3f8aa6, 1) // su
-    pass(-6, 0x5aa6c0, 1) // açık su
-    pass(-12, 0x8fd0e0, 0.55, 0.5) // parıltı
+    pass(38, 0x536b46, 0.14) // nemli vadi: yumuşak dış geçiş
+    pass(24, 0x6c8051, 0.30)
+    pass(12, 0xa39269, 0.82) // tortulu doğal kıyı
+    pass(5, 0x766f51, 0.86) // ıslak kıyı
+    pass(0, 0x397e83, 1) // koyla aynı su ailesi
+    pass(-6, 0x63a59e, 0.88)
+    pass(-12, 0xb4d6c3, 0.28, 0.5)
     // Ağızda denize açılan yelpaze.
     const m = st.pts[st.pts.length - 1]
     water.fillStyle(0x5aa6c0, 0.6); water.fillEllipse(m.x, m.y + 10, 90, 34)

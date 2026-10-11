@@ -1,9 +1,10 @@
 import { decorGroundRadius, HOUSE_ART_WIDTH, HOUSE_ART_HEIGHT } from './decor-clearance'
 import { CITY_SLOTS, COAST_SLOTS, DEFENSE_SLOTS, DEFENSE_FOUNDATION, PLAZA, HALL_SLOT_ID, slotById, TILE } from '../index'
-import { roadStyleFor, roadTierForHallLevel } from '../road-style'
+import { QUAY_PROMENADE_WIDTH, roadStyleFor, roadTierForHallLevel } from '../road-style'
 import { edgeKey, roadEdgeKeysForTargets } from '../road-tree'
 import { cityFields, cityFountains, nearStreamAt } from '../city-extras'
 import { bakeGraphics } from '../bake'
+import { FOOTPRINT_DIAMOND_W } from '../building-assets'
 import * as Phaser from 'phaser'
 import { liteMode } from '@/lib/motion'
 import { mulberry32, type RoadCurve, roadCurves, displayRoadCurves, nearSlot, paintedGroundTexture } from '../terrain-builder'
@@ -97,16 +98,48 @@ export function buildRoads({ V, divanLevel, occupiedSlotIds, scene, shoreY, stam
     }
     visibleCurves.push(...through)
 
+    // Kurulu yapılar çayıra basılmış sprite gibi durmasın: zemindeki
+    // kullanım izi ve küçük avlu binayla birlikte taşınır/yıkılır. Yalnız
+    // kara arsaları; boş parseller, meydan ve deniz ayrı yüzeylerini korur.
+    const yardMaterial = paintedGroundTexture(scene, 't_dirt')
+    for (const id of active) {
+      if (id === HALL_SLOT_ID) continue
+      const slot = slotById(id)
+      if (!slot || slot.type !== 'city') continue
+      const { x, y } = slot.screen
+      if (yardMaterial) {
+        const wear = scene.add.image(x, y, yardMaterial).setDepth(-801.2)
+          .setDisplaySize(FOOTPRINT_DIAMOND_W * 2.15, FOOTPRINT_DIAMOND_W * 1.075)
+          .setAlpha(0.66)
+        roadTextures.push(wear)
+      }
+      const hw = FOOTPRINT_DIAMOND_W * 0.78, hh = hw / 2
+      const apron = [V(x - hw, y), V(x, y - hh), V(x + hw, y), V(x, y + hh)]
+      roads.fillStyle(tier >= 3 ? 0xb7a789 : 0xa78e62, 0.40)
+      roads.fillPoints(apron, true)
+      // Ön kenarın taş eşiği avluyu giriş yoluna bağlar; arka kenar
+      // çimenle yumuşak birleşir. Çatı/sprite ölçüsünü değiştirmez.
+      if (tier >= 2) {
+        roads.lineStyle(3, 0xd6c7a5, 0.64)
+        roads.strokePoints([V(x - hw, y), V(x, y + hh), V(x + hw, y)], false)
+      }
+    }
+
     // Kıyı promenadı bir slot göstergesi değildir; ilk liman/tersane
     // kurulunca dünyaya doğal biçimde eklenir.
     if (hasHarbour) {
       const quayStyle = roadStyleFor('quay', level)
-      roads.lineStyle(TILE.w * 0.25, 0x5e5548, 0.20)
+      // Liman yapıları ince bir çizgiye değil, yük boşaltılabilecek ortak
+      // taş rıhtıma oturur. Koy ve üç deniz arsasının konumu aynıdır.
+      roads.lineStyle(TILE.w * QUAY_PROMENADE_WIDTH, 0x5e5548, 0.28)
       quaySpine.draw(roads, 60)
-      roads.lineStyle(TILE.w * 0.18, quayStyle.border, 0.40)
+      roads.lineStyle(TILE.w * 0.66, quayStyle.border, 0.78)
       quaySpine.draw(roads, 60)
-      roads.lineStyle(TILE.w * 0.125, quayStyle.fill, 0.58)
+      roads.lineStyle(TILE.w * 0.56, quayStyle.fill, 0.92)
       quaySpine.draw(roads, 60)
+      const quayPoints = quaySpine.getPoints(80)
+      roads.lineStyle(4, 0xe1d5bc, 0.88)
+      roads.strokePoints(quayPoints.map(p => V(p.x, p.y + TILE.w * 0.28)), false)
     }
 
     // Çok geçişli çizim, kavşakların düzgün birleşmesini sağlar.
