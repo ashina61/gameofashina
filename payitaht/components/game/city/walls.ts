@@ -1,9 +1,12 @@
 import * as Phaser from 'phaser'
+import { wallArtTransform } from '@/lib/game/wall-art'
 import { aqueductWallCrossings, cityStream } from '@/lib/game/city-map/city-extras'
 import { TILE, DEFENSE_SLOTS, DEFENSE_FOUNDATION, HALL_SLOT_ID, WALL_GATES, slotById } from '@/lib/game/city-map'
 import { BUILDINGS, activeJob } from '@/lib/game/engine'
 import { isTap } from './shared'
 import type { CityScene } from '../phaser-city'
+
+const WALL_CACHE = new WeakMap<CityScene, { stamp: string; keys: Set<string> }>()
 
 /*
  * SURLAR — şehri ve limanı saran kalın kumtaşı duvar, savunma yuvalarında
@@ -29,6 +32,14 @@ export function drawWalls(scene: CityScene, level: number) {
   const ring = DEFENSE_FOUNDATION.map(p => p.screen)
   const n = ring.length
   const wallH = TILE.h * (rising ? 0.5 : tier === 1 ? 0.95 + level * 0.03 : tier === 2 ? 1.05 + Math.min(level, 10) * 0.06 : 1.5 + Math.min(level - 7, 10) * 0.04)
+  // Invalidate baked art when height changes; redraw already destroyed old pieces.
+  const stamp = `${tier}-${wallH}`
+  let cache = WALL_CACHE.get(scene)
+  if (!cache || cache.stamp !== stamp) {
+    for (const key of cache?.keys ?? []) scene.textures.remove(key)
+    cache = { stamp, keys: new Set() }
+    WALL_CACHE.set(scene, cache)
+  }
   // Asılı flamalar şehrin sancağıyla (işgalde işgalcininkiyle) aynı renkte.
   const bannerColor = scene.sceneBanner().color
   let pieceNo = 0
@@ -139,29 +150,44 @@ export function drawWalls(scene: CityScene, level: number) {
     const b0 = inFront ? p0 : { x: p0.x + n.x, y: p0.y + n.y }
     const b1 = inFront ? p1 : { x: p1.x + n.x, y: p1.y + n.y }
     const depth = Math.max(f0.y, f1.y) + 1, no = pieceNo++
-    // Match the painted base edge to the existing foundation endpoints.
-    const [lx, ly, rx, ry, faceHeight] = [[40, 312, 376, 183, 106], [33, 323, 376, 201, 144], [39, 318, 376, 209, 137]][tier - 1]
+    // Bake one affine transform for BOTH WebGL and Canvas. The previous Canvas
+    // path derived wall height from slope (flat edges disappeared; steep ones
+    // stretched). Texture bounds include the top and thickness of the painting.
     const left = f0.x < f1.x ? f0 : f1, right = f0.x < f1.x ? f1 : f0
-    const flip = right.y > left.y
-    const u0 = (flip ? 384 - rx : lx) / 384, u1 = (flip ? 384 - lx : rx) / 384
-    const v0 = (flip ? ry : ly) / 384, v1 = (flip ? ly : ry) / 384
     const spanX = right.x - left.x, spanY = right.y - left.y
-    const key = `w_segment-${tier}`, heightScale = wallH * 384 / faceHeight
-    if (scene.game.renderer.type === Phaser.WEBGL) {
-      const vertices: number[] = []
-      for (const [u, v] of [[0, 0], [1, 0], [1, 1], [0, 1]]) {
-        const t = (u - u0) / (u1 - u0)
-        vertices.push(t * spanX, -((v - v0 - (v1 - v0) * t) * heightScale + t * spanY))
+    const m = wallArtTransform(tier, spanX, spanY, wallH)
+    const corners = [[0, 0], [384, 0], [384, 384], [0, 384]].map(([x, y]) => ({
+      x: m.a * x + m.tx, y: m.b * x + m.d * y + m.ty,
+    }))
+    const topPoints = [f0, f1, b0, b1].map(p => ({ x: p.x - left.x, y: p.y - left.y - wallH }))
+    corners.push(...topPoints, ...[b0, b1].map(p => ({ x: p.x - left.x, y: p.y - left.y })))
+    const minX = Math.floor(Math.min(...corners.map(p => p.x))) - 1
+    const minY = Math.floor(Math.min(...corners.map(p => p.y))) - 1
+    const width = Math.max(1, Math.ceil(Math.max(...corners.map(p => p.x))) - minX + 1)
+    const height = Math.max(1, Math.ceil(Math.max(...corners.map(p => p.y))) - minY + 1)
+    const key = `wall-baked-${tier}-${spanX.toFixed(4)}-${spanY.toFixed(4)}-${wallH.toFixed(4)}-${(b0.x - f0.x).toFixed(4)}-${(b0.y - f0.y).toFixed(4)}`
+    if (!scene.textures.exists(key)) {
+      const texture = scene.textures.createCanvas(key, width, height)!
+      const ctx = texture.context
+      const source = scene.textures.get(`w_segment-${tier}`).getSourceImage() as HTMLImageElement
+      // An edge-on front face still has physical thickness. Painted masonry
+      // on the end surfaces prevents the vertical ring sides becoming hairlines.
+      const tx = b0.x - f0.x, ty = b0.y - f0.y
+      if (spanX < Math.abs(tx) * 1.4) for (const p of [f0, f1]) {
+        ctx.setTransform(tx, ty, 0, wallH, p.x - left.x - minX, p.y - left.y - wallH - minY)
+        ctx.drawImage(source, 150, 200, 40, 40, 0, 0, 1, 1)
       }
-      const mesh = scene.add.mesh(left.x, left.y, key).setDepth(depth)
-      mesh.hideCCW = false
-      mesh.setOrtho(mesh.width, mesh.height)
-      mesh.addVertices(vertices, flip ? [1, 0, 0, 0, 0, 1, 1, 1] : [0, 0, 1, 0, 1, 1, 0, 1], [0, 1, 2, 0, 2, 3])
-      scene.pieces.push(mesh)
-    } else {
-      const w = spanX / (u1 - u0), h = Math.abs(spanY / (v1 - v0))
-      scene.pieces.push(scene.add.image(left.x - u0 * w, left.y - v0 * h, key).setOrigin(0).setDisplaySize(w, h).setFlipX(flip).setDepth(depth))
+      ctx.setTransform(m.a, m.b, 0, m.d, m.tx - minX, m.ty - minY)
+      if (m.flip) { ctx.translate(384, 0); ctx.scale(-1, 1) }
+      ctx.drawImage(source, 0, 0, 384, 384)
+      // The continuous stone walkway follows the real inward thickness.
+      ctx.setTransform(f1.x - f0.x, f1.y - f0.y, tx, ty, f0.x - left.x - minX, f0.y - left.y - wallH - minY)
+      ctx.drawImage(source, 150, 200, 40, 40, 0, 0, 1, 1)
+      ctx.resetTransform()
+      texture.refresh()
+      cache.keys.add(key)
     }
+    scene.pieces.push(scene.add.image(left.x + minX, left.y + minY, key).setOrigin(0).setDepth(depth))
     const up = wallH + TILE.h * 0.3
     const zone = scene.add.zone(0, 0, 1, 1).setOrigin(0, 0).setDepth(depth + 0.01).setInteractive({
       hitArea: new Phaser.Geom.Polygon([f0.x, f0.y + 6, f1.x, f1.y + 6, f1.x, f1.y - up, b1.x, b1.y - up, b0.x, b0.y - up, f0.x, f0.y - up]),

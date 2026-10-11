@@ -8,7 +8,7 @@
 .game-shell.has-page .bp.bp-royal .bp-title small, .bp-royal .bp-bar > .ruler-crest { display: none; }
 .game-shell.has-page .bp.bp-royal .bp-back { display: grid; place-items: center; min-width: 44px; width: 44px; height: 44px; padding: 0; border: 0; background: var(--royal-back) center / contain no-repeat; box-shadow: none; }
 .game-shell.has-page .bp.bp-royal .bp-close { background-image: var(--royal-close); }
-.game-shell.has-page .bp.bp-royal .bp-back svg { visibility: hidden; }
+.game-shell.has-page .bp.bp-royal .bp-back :is(svg,.painted-icon) { visibility: hidden; }
 .game-shell.has-page .bp.bp-royal .bp-scroll { padding: 0; gap: 0; background: var(--royal-paper) center / 100px 90px; }
 .game-shell.has-page .bp.bp-royal .bp-hero { display: none; }
 .game-shell.has-page .bp.bp-royal .royal-page { padding: 0 0 7px; width: 100%; margin: 0; }

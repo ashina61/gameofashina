@@ -24,7 +24,7 @@
 .quest-chapters > button { position: relative; flex: 0 0 44px; min-height: 44px; border: 1px solid #987645; border-radius: 50%; color: #e9d4a8; background: radial-gradient(circle at 40% 30%,#71472d,#29170e); box-shadow: inset 0 0 0 3px #b18a4b66,0 2px 3px #341a1544; font: 700 18px var(--font-heading),Georgia,serif; }
 .quest-chapters > button.is-ready { background: radial-gradient(circle at 40% 30%,#e4c583,#93632b); color: #40230e; }
 .quest-chapters > button.is-claimed { background: #ece0c5; color: #7c725b; }
-.quest-chapters > button > svg { position: absolute; width: 13px; height: 13px; right: 0; bottom: 0; color: #426244; background: #f8eed8; border-radius: 50%; }
+.quest-chapters > button > :is(svg,.painted-icon) { position: absolute; width: 13px; height: 13px; right: 0; bottom: 0; color: #426244; background: #f8eed8; border-radius: 50%; }
 .quest-chapters > button[aria-pressed='true'] { outline: 2px solid #982c20; outline-offset: 1px; }
 .quest-feature { overflow: hidden; border: 1px solid #ad854b; background: #f5e8ce; box-shadow: 0 3px 6px #4d301e33; }
 .quest-feature-picture { position: relative; height: 180px; background: #5c462c; }
@@ -40,7 +40,7 @@
 .quest-reward-title { display: block; color: #805d30; font: 700 13px var(--font-heading),Georgia,serif; }
 .quest-prizes { display: flex; justify-content: center; flex-wrap: wrap; gap: 8px 14px; padding: 7px 0; }
 .quest-prize { display: inline-flex; align-items: center; gap: 5px; min-width: 0; }
-.quest-prize > svg { width: 32px; height: 32px; flex-shrink: 0; }
+.quest-prize > :is(svg,.painted-icon) { width: 32px; height: 32px; flex-shrink: 0; }
 .quest-prize > span { display: flex; flex-direction: column; text-align: left; }
 .quest-prize b { font: 700 17px var(--font-heading),Georgia,serif; line-height: 1.1; }
 .quest-prize small { font-size: 11px; color: #7f623e; }
@@ -51,7 +51,7 @@
 .quest-seal.is-ready { background: #ffdc88f0; border-color: #b9812e; color: #613509; }
 .quest-seal.is-claimed { color: #365b39; background: #e1e8cef0; border-color: #7a9261; }
 .quest-action-status { display: flex; align-items: center; justify-content: center; gap: 5px; padding: 12px 4px; font-size: 12px; color: #796244; }
-.quest-action-status > svg { width: 16px; height: 16px; }
+.quest-action-status > :is(svg,.painted-icon) { width: 16px; height: 16px; }
 .quest-action-status.is-claimed { color: #44623c; }
 .quest-progress { display: grid; grid-template-columns: 1fr auto; gap: 5px; font-size: 11px; color: #755733; margin: 12px 0 3px; }
 .quest-progress b { font-weight: 700; }
@@ -74,7 +74,7 @@
 .quest-login-days { display: grid; grid-template-columns: repeat(7,minmax(0,1fr)); gap: 3px; margin: 12px 0 5px; }
 .quest-login-days > span { display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 7px 0; border: 1px solid #bda27a; background: #e4d7bb; }
 .quest-login-days small { font-size: 11px; white-space: nowrap; }
-.quest-login-days svg { width: 24px; height: 24px; }
+.quest-login-days :is(svg,.painted-icon) { width: 24px; height: 24px; }
 .quest-login-days b { font: 700 12px var(--font-heading),Georgia,serif; }
 .quest-login-days .is-current { border-color: #a66b21; background: #f8dc96; box-shadow: inset 0 0 0 1px #d4a34c; }
 .quest-login-days .is-past { background: #d6dac3; }
@@ -108,7 +108,7 @@
 .quest-achievement > p { font-size: 12px; line-height: 1.4; text-align: center; margin: 0 0 auto; }
 .quest-achievement .quest-progress { margin-top: 10px; font-size: 11px; }
 .quest-achievement .quest-prizes { gap: 7px; }
-.quest-achievement .quest-prize > svg { width: 25px; height: 25px; }
+.quest-achievement .quest-prize > :is(svg,.painted-icon) { width: 25px; height: 25px; }
 .quest-achievement .quest-prize b { font-size: 14px; }
 .quest-achievement .quest-claim { font-size: 14px; padding-inline: 4px; }
 .quest-achievement .quest-action-status { text-align: center; font-size: 11px; }
@@ -124,5 +124,5 @@
   .quest-court-tabs > button { font-size: 13px; }
   .quest-court-ribbon { font-size: 21px; }
   .quest-achievement h3 { font-size: 17px; }
-  .quest-achievement .quest-prize > svg { width: 22px; height: 22px; }
+  .quest-achievement .quest-prize > :is(svg,.painted-icon) { width: 22px; height: 22px; }
 }

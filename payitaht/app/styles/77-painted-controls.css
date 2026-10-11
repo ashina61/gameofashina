@@ -1,0 +1,6 @@
+/* Painted sprites retain the approved controls and HUD geometry. */
+.game-shell .exact-hud .ika-might .painted-icon { display: none; }
+.game-shell .exact-hud .ika-city > .painted-icon { display: none !important; }
+.sancak-art { position: relative; }
+.sancak-art > .royal-standard { inset: 0; width: 100%; height: 100%; }
+.ruler-crest > .royal-embroidery { inset: 10%; width: 80%; height: 80%; }

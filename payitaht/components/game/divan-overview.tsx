@@ -6,6 +6,7 @@
  * altında "Nüfus ve üretim" şeridi (her meslek resmiyle, sayısı ve getirisi)
  * ve şehir nişanı seçimi.
  */
+import { asset } from '@/lib/asset'
 import { Box } from './building-page'
 import { AkceArt } from './resource-art'
 import { ApprovedArt } from './approved-court-art'
@@ -31,13 +32,7 @@ export function moodOf(g: Game): Mood {
 }
 export function MoodFace({ g, size = 56 }: { g: Game; size?: number }) {
   const m = moodOf(g)
-  return <svg viewBox="0 0 64 64" width={size} height={size} role="img" aria-label={`Halk ${m.name}`}>
-    <circle cx="32" cy="32" r="28" fill={m.fill} stroke="#b8862a" strokeWidth="3" />
-    <circle cx="32" cy="30" r="22" fill="#fff" opacity="0.18" />
-    {m.key === 'ofkeli' ? <path d="M18 22 L28 26 M46 22 L36 26" stroke="#2a1a10" strokeWidth="3" strokeLinecap="round" /> : null}
-    <circle cx="24" cy="28" r="3.2" fill="#2a1a10" /><circle cx="40" cy="28" r="3.2" fill="#2a1a10" />
-    <path d={m.mouth} stroke="#2a1a10" strokeWidth="3" fill={m.key === 'cosku' ? '#7a1f16' : 'none'} strokeLinecap="round" />
-  </svg>
+  return <img src={asset(`/images/game/ui/legacy-replacement/mood-${m.key}.webp`)} width={size} height={size} alt={`Halk ${m.name}`} style={{ objectFit: 'contain' }} />
 }
 
 export function DivanOverview({ game, empire, run }: { game: Game; empire?: Empire; run?: Run }) {
@@ -71,7 +66,7 @@ export function DivanOverview({ game, empire, run }: { game: Game; empire?: Empi
     </Box><Box title="Nüfus ve üretim">
     <div className="dv-strip" aria-label="Nüfus ve üretim">
       {jobs.map(j => <div key={j.label} className={j.count ? 'dv-job' : 'dv-job is-empty'}>
-        <PersonArt kind={j.fig === 'madenci' ? 'halk' : j.fig} size={72} />
+        <PersonArt kind={j.fig} size={72} />
         <b>{n(j.count)}</b><small>{j.label}</small><em>{j.out}</em>{j.neg && <em className="is-down">{j.neg}</em>}
       </div>)}
     </div>

@@ -1,3 +1,5 @@
+**11 Ekim boyalı görseller ve sur — 0.102.0 / SW116:** `docs/PAINTED-ART-REPLACEMENT.md`. Mevcut şehir zemini korunur; ortak 89 simge ve eski nişan/insan SVG'leri boyalı WebP. Surlar iki motorda aynı pişmiş çizim, eğimden bağımsız yükseklik ve dik kenarda kalınlık. Arsa/kapı koordinatları, mekanik/kayıt ve onaylı HUD korunur. İnceleme dalı; kullanıcı açıkça istemeden yeni şehir konseptini veya bu sürümü canlıya taşıma.
+
 **11 Ekim şehir tabanı — 0.101.1 / SW115:** `docs/CITY-FOUNDATION-DESIGN.md`; sıcak çayır/toprak, kurulu binalara avlu, belirgin yol hiyerarşisi ve geniş ortak liman promenadı. Dere kıyıları birleşir. Arsa, bina ölçeği, HUD, motor ve kayıt korunur. Yeni hareket/modelleme sonraki aşama; yayın sonrası kullanıcı değerlendirmesinde dur.
 
 **11 Ekim çizim yaşam döngüsü — 0.100.0 / SW113:** `docs/RENDER-LIFECYCLE-VALIDATION.md`; yükleme sırasında açılan sayfanın güncel durumu ilk çizimden sonra uygulanır. Uyuyan şehir değişiminde eski Phaser oyunu ve global hafif mod dinleyicisi temizlenir. HUD, motor, kayıt ve ada koordinatları korunur. Tarayıcı oturum ölçümü gerçek cihazın ısınma/pil ölçümü yerine geçmez.

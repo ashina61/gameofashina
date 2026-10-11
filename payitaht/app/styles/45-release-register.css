@@ -54,7 +54,7 @@
 :is(.game-shell.has-page .bp.bp-archive,.title-notes) .annals-editions .annals-release-list { gap: 14px; }
 :is(.game-shell.has-page .bp.bp-archive,.title-notes) .annals-editions .annals-release { background: none; box-shadow: none; border: 1px solid var(--c-gold-deep); }
 :is(.game-shell.has-page .bp.bp-archive,.title-notes) .annals-editions .annals-release-toggle { color: var(--c-cream); background: var(--royal-wood) center / cover; border: 0 solid transparent; border-image: var(--royal-page-frame) 20 / 3px / 0 stretch; }
-:is(.game-shell.has-page .bp.bp-archive,.title-notes) .annals-editions .annals-release-toggle :is(small,time,b,svg) { color: var(--c-gold-pale); }
+:is(.game-shell.has-page .bp.bp-archive,.title-notes) .annals-editions .annals-release-toggle :is(small,time,b,:is(svg,.painted-icon)) { color: var(--c-gold-pale); }
 :is(.game-shell.has-page .bp.bp-archive,.title-notes) .annals-editions .annals-release-toggle { min-height: 102px; padding: 12px 10px; gap: 10px; grid-template-columns: 38px minmax(0,1fr) 18px; }
 :is(.game-shell.has-page .bp.bp-archive,.title-notes) .annals-editions .annals-release-toggle strong { font-size: 20px; line-height: 1.25; }
 :is(.game-shell.has-page .bp.bp-archive,.title-notes) .annals-editions .annals-release-content { padding: 4px 12px 10px; }

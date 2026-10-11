@@ -231,7 +231,7 @@
   transition: transform 130ms ease, filter 130ms ease, border-color 130ms ease;
 }
 
-.title-btn svg { width: 19px; height: 19px; flex: none; }
+.title-btn :is(svg,.painted-icon) { width: 19px; height: 19px; flex: none; }
 .title-btn:hover:not(:disabled) { filter: brightness(1.09); border-color: #efd38ccc; }
 .title-btn:active:not(:disabled) { transform: translateY(1px) scale(.995); }
 .title-btn:focus-visible { outline: 2px solid #ffe099; outline-offset: 3px; }
@@ -270,7 +270,7 @@
   font: 600 11.5px var(--font-body), system-ui, sans-serif;
 }
 
-.title-links button svg { width: 15px; height: 15px; }
+.title-links button :is(svg,.painted-icon) { width: 15px; height: 15px; }
 .title-links button:hover { background: #182328ed; border-color: #d9c08191; }
 .title-links button:focus-visible { outline: 2px solid #ffe099; outline-offset: 2px; }
 

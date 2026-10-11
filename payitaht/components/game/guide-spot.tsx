@@ -9,6 +9,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { GUIDED_STEPS, OBJECTIVES, UNITS, UNIT_IDS, objectiveDone, type Game, type UnitId } from '@/lib/game/engine'
 import { t } from '@/lib/i18n/tr'
+import { asset } from '@/lib/asset'
 import { lowMotion } from '@/lib/motion'
 
 const TARGETS: Record<string, string[]> = {
@@ -110,7 +111,7 @@ export function GuideSpot({ game }: { game: Game }) {
   const x = box.width > innerWidth * 0.6 ? box.left + box.width * 0.84 : box.left + box.width / 2
   const style = { left: x, top: above ? box.top - 44 : box.bottom + 4 }
   return <span className={`guide-arrow${above ? '' : ' is-below'}`} style={style} aria-hidden="true">
-    <svg viewBox="0 0 34 40" width="34" height="40"><path d="M11 2 H23 V20 H31 L17 38 L3 20 H11 Z" fill="var(--c-gold)" stroke="var(--c-ink)" strokeWidth="2.5" strokeLinejoin="round" /></svg>
+    <img src={asset('/images/game/ui/legacy-replacement/guide-arrow.webp')} alt="" width={34} height={40} />
   </span>
 }
 /** Kutu değişmediyse aynı nesneyi döndürür (gereksiz çizim olmasın). */

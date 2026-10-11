@@ -140,7 +140,7 @@
   background: none; border: 0; border-image: none; border-radius: 0; box-shadow: none;
   font: 400 clamp(13px,2.6cqw,23px)/1.1 Georgia,serif; color: var(--c-gold-pale);
 }
-.game-shell.has-page .bp.bp-profile .court-footer svg,
+.game-shell.has-page .bp.bp-profile .court-footer :is(svg,.painted-icon),
 .game-shell.has-page .bp.bp-profile .court-footer .painted-icon { display: none; }
 .game-shell.has-page .bp.bp-profile .royal-subpage,
 .game-shell.has-page .bp.bp-profile .sancaktar-workshop { padding-inline: 4%; border: 0 solid transparent; border-image: var(--royal-page-frame) 20 / 6px / 0 stretch; }

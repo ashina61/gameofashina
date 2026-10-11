@@ -8,67 +8,21 @@
  * Lucide bileşenleriyle aynı adları ve aynı arayüzü taşır (className, size,
  * aria-*, data-*): import satırını değiştirmek yeter.
  */
-import { createElement, type SVGProps, type ImgHTMLAttributes } from 'react'
+import { type SVGProps, type ImgHTMLAttributes } from 'react'
 import { asset } from '@/lib/asset'
-import { ICON_DATA, type IconName, type IconNode } from './ui-icon-data'
-
-const PAINTED_ICONS: Partial<Record<IconName, string>> = { Castle: 'city', TreePalm: 'island', Compass: 'map', Shield: 'alliance', ScrollText: 'objectives', Flag: 'flag', Anchor: 'harbour', Landmark: 'divan', Gift: 'offer' }
-
-const INK = '#3a2410'
-
-type Tone = { body: string; light: string; fill: string }
-const TONES = {
-  brass: { body: '#d9a63c', light: '#fff0b5', fill: '#f2d488' },
-  steel: { body: '#a9b4b8', light: '#f4fbff', fill: '#d8e0e2' },
-  wood: { body: '#a86b34', light: '#f0c48c', fill: '#d49a5c' },
-  red: { body: '#c4362a', light: '#ffb3a3', fill: '#e8705e' },
-  green: { body: '#4f9a2a', light: '#d6f5b0', fill: '#86c95a' },
-  sea: { body: '#3f86b4', light: '#c9ecff', fill: '#7cbde2' },
-  parch: { body: '#e3c88e', light: '#fffaf0', fill: '#f5e6bf' },
-  stone: { body: '#c2ae86', light: '#fbf1d9', fill: '#e2d3b0' },
-  skin: { body: '#d8a272', light: '#ffe2c4', fill: '#efc49c' },
-  night: { body: '#4b5fa8', light: '#d4ddff', fill: '#8496d8' },
-} satisfies Record<string, Tone>
-type ToneName = keyof typeof TONES
-
-/** Varsayılan pirinç; amacına göre malzeme. */
-const TONE_OF: Partial<Record<IconName, ToneName>> = {
-  Swords: 'steel', Shield: 'steel', ShieldCheck: 'steel', LockKeyhole: 'steel', Anchor: 'steel', Pickaxe: 'steel', Settings: 'steel', Scale: 'steel',
-  Hammer: 'wood', Truck: 'wood', Store: 'wood', Warehouse: 'wood', Ship: 'wood', Coffee: 'wood', House: 'wood', Home: 'wood',
-  X: 'red', Flame: 'red', TriangleAlert: 'red', Flag: 'red', Megaphone: 'red', Trash2: 'red', Bug: 'red', UserMinus: 'red',
-  Check: 'green', CalendarCheck: 'green', ListChecks: 'green', TreePine: 'green', TreePalm: 'green', Sprout: 'green', TrendingUp: 'green', UserPlus: 'green', BookmarkCheck: 'green',
-  Waves: 'sea', Eye: 'sea', Mail: 'sea', Send: 'sea', Info: 'sea', Download: 'sea', Upload: 'sea', HardDrive: 'sea', WifiOff: 'sea', Music: 'sea', Volume2: 'sea', Vibrate: 'sea', FlaskConical: 'sea',
-  ScrollText: 'parch', Scroll: 'parch', Newspaper: 'parch', BookOpen: 'parch', Bookmark: 'parch', Skull: 'parch',
-  Castle: 'stone', Landmark: 'stone',
-  Users: 'skin', UserRound: 'skin', Handshake: 'skin', HeartHandshake: 'skin',
-  Moon: 'night',
-}
-
-const CLOSED = (tag: string, attrs: Record<string, string>) =>
-  tag === 'circle' || tag === 'rect' || tag === 'ellipse' || tag === 'polygon' || (tag === 'path' && /z\s*$/i.test(attrs.d ?? ''))
-
-function shapes(node: IconNode, only?: (tag: string, a: Record<string, string>) => boolean) {
-  return node.filter(([t, a]) => !only || only(t, a)).map(([tag, attrs], i) => createElement(tag, { key: i, ...attrs }))
-}
+import type { IconName } from './ui-icon-data'
 
 export type IconProps = SVGProps<SVGSVGElement> & { size?: number | string; strokeWidth?: number | string; absoluteStrokeWidth?: boolean; painted?: boolean }
 
+/** One painted sprite per action; retain the existing component names and sizing. */
 function make(name: IconName) {
-  const node = ICON_DATA[name] as IconNode
-  const tone = TONES[TONE_OF[name] ?? 'brass']
   const kebab = name.replace(/([a-z0-9])([A-Z])/g, '$1-$2').toLowerCase()
-  function PaintedIcon({ size = 24, painted: usePainted = false, strokeWidth: _sw, absoluteStrokeWidth: _abs, color: _color, className, children: _children, ref: _ref, ...rest }: IconProps) {
-    const painted = PAINTED_ICONS[name]
-    const tiny = (typeof size === 'number' && size < 16) || /(?:^|\s)(?:size|w)-[1-3](?:\.5)?(?:\s|$)/.test(className ?? '')
-    if (usePainted && painted && !tiny) return <img {...rest as unknown as ImgHTMLAttributes<HTMLImageElement>} src={asset(`/images/game/icons/ui-${painted}.webp`)} alt="" aria-hidden="true" width={size} height={size} className={`pi pi-${kebab} painted-icon painted-ui-icon${className ? ` ${className}` : ''}`} />
-    return <svg viewBox="-1.5 -1.5 27 27" width={size} height={size} fill="none" strokeLinecap="round" strokeLinejoin="round"
-      aria-hidden="true" className={`pi pi-${kebab}${className ? ` ${className}` : ''}`} {...rest}>
-      <g transform="translate(0.7 1)" stroke="#2a1608" strokeOpacity="0.32" strokeWidth="4">{shapes(node)}</g>
-      <g fill={tone.fill} stroke="none">{shapes(node, CLOSED)}</g>
-      <g stroke={INK} strokeWidth="3.6">{shapes(node)}</g>
-      <g stroke={tone.body} strokeWidth="2.1">{shapes(node)}</g>
-      <g transform="translate(-0.35 -0.45)" stroke={tone.light} strokeWidth="0.8" opacity="0.85">{shapes(node)}</g>
-    </svg>
+  function PaintedIcon({ size = 24, painted: _painted, strokeWidth: _sw, absoluteStrokeWidth: _abs, color: _color, className, children: _children, ref: _ref, style, ...rest }: IconProps) {
+    return <img {...rest as unknown as ImgHTMLAttributes<HTMLImageElement>}
+      src={asset(`/images/game/icons/painted/${name}.webp`)} alt="" aria-hidden="true"
+      width={size} height={size} draggable={false}
+      className={`pi pi-${kebab} painted-icon${className ? ` ${className}` : ''}`}
+      style={{ objectFit: 'contain', ...style }} />
   }
   PaintedIcon.displayName = name
   return PaintedIcon

@@ -1,0 +1,12 @@
+{
+  "totals": {
+    "taşma": 0,
+    "kesik": 0,
+    "küçük": 312,
+    "minik": 664,
+    "çakışma": 0,
+    "isimsiz": 0
+  },
+  "pageErrors": [],
+  "limitation": "Onaylı HUD içindeki küçük hedef ve yazı uyarıları nedeniyle genel betik exit 1; taşma, kesik, çakışma ve isimsiz hedef 0."
+}
