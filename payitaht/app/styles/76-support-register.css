@@ -1,0 +1,51 @@
+/* The last auxiliary windows use the same painted materials as management. */
+:is(.frg,.away,.building-inspector) {
+  --support-paper: url('../../public/images/game/ui/barracks/paper.webp');
+  --support-frame: url('../../public/images/game/ui/barracks/unit-frame.webp');
+  --support-action: url('../../public/images/game/ui/barracks/recruit-button.webp');
+  --support-wood: url('../../public/images/game/ui/approved-court/wood.webp');
+  --support-edge: url('../../public/images/game/ui/approved-court/page-frame.webp');
+  color: var(--c-ink); font: 16px/1.5 Georgia,serif;
+}
+:is(.frg-card,.away-card) {
+  min-width: 0; padding: 20px; border: 0 solid transparent;
+  border-image: var(--support-frame) 40 / 16px / 0 stretch;
+  border-radius: 0; background: var(--support-paper); box-shadow: 0 12px 34px #000b;
+  overflow-y: auto; overscroll-behavior: contain; overflow-wrap: anywhere;
+}
+.frg { z-index: 81; }
+.frg-card { left: 12px; right: 12px; max-width: 440px; }
+:is(.frg-card,.away-card) .eyebrow { color: #67431e; font: 14px/1.5 Georgia,serif; letter-spacing: .04em; }
+:is(.frg-card,.away-card) h3 { margin: 4px 0 8px; color: var(--c-ink); font: 700 26px/1.25 'Payitaht Profile Roman',Georgia,serif; }
+.frg-card p { font: 16px/1.5 Georgia,serif; margin-bottom: 16px; }
+.away { z-index: 80; padding: max(12px,var(--sa-top)) 12px max(12px,var(--sa-bottom)); background: #21150dc4; }
+.away-card { max-height: calc(100dvh - var(--sa-top) - var(--sa-bottom) - 24px); gap: 14px; }
+.away-gains { grid-template-columns: repeat(3,minmax(0,1fr)); gap: 8px; }
+.away-gains span { min-width: 0; padding: 12px 4px; border: 0 solid transparent; border-image: var(--support-edge) 20 / 4px / 0 stretch; border-radius: 0; background: var(--support-paper); }
+.away-gains :is(svg,.painted-icon) { width: 32px; height: 32px; }
+.away-gains b { font: 700 16px/1.5 Georgia,serif; font-variant-numeric: tabular-nums; }
+.away-block strong { font: 700 18px/1.3 'Payitaht Profile Roman',Georgia,serif; letter-spacing: 0; text-transform: none; color: var(--c-ink); margin-bottom: 6px; }
+.away-block ul { font: 16px/1.5 Georgia,serif; }
+.away-block .report-win { color: #315a28; }
+.away-block .report-loss { color: #822d22; }
+.away-full { padding: 12px; border-radius: 0; font: 16px/1.5 Georgia,serif; }
+.away-quiet { font-size: 16px; line-height: 1.5; }
+:is(.frg-actions,.away-actions) { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 10px; }
+.away-actions:has(> :only-child) { grid-template-columns: minmax(0,1fr); }
+:is(.frg,.away) .ovl-btn { min-width: 0; min-height: 52px; height: auto; padding: 12px 16px; border: 0 solid transparent; border-radius: 0; background: var(--support-action) center / 100% 100%; box-shadow: none; color: #fff3d6; white-space: normal; font: 700 18px/1.3 'Payitaht Profile Roman',Georgia,serif; }
+:is(.frg,.away) .ovl-btn.is-ghost { border-image: var(--support-edge) 20 / 5px / 0 stretch; background: var(--support-wood); color: #f5deb0; }
+.game-shell.has-building-preview .building-inspector { border: 0 solid transparent; border-image: var(--support-frame) 40 / 12px / 0 stretch; border-radius: 0; background: var(--support-paper); }
+.game-shell.has-building-preview .building-inspector-header { padding: 8px 68px 8px 16px; border: 0 solid transparent; border-image: var(--support-edge) 20 / 4px / 0 stretch; background: var(--support-wood); }
+.game-shell.has-building-preview .building-inspector-header small { font-size: 14px; }
+.game-shell.has-building-preview .building-inspector-header h2 { font: 700 22px/1.25 'Payitaht Profile Roman',Georgia,serif; }
+.game-shell.has-building-preview .building-inspector-close { width: 48px; height: 48px; border: 0; background: url('../../public/images/game/ui/approved-court/close.webp') center / contain no-repeat; }
+.game-shell.has-building-preview .building-inspector-close > .painted-icon { display: none; }
+.game-shell.has-building-preview .building-inspector-summary > p { display: block; -webkit-line-clamp: unset; overflow: visible; font-size: 14px; }
+.game-shell.has-building-preview .building-inspector .sk-nn-label { font-size: 14px; }
+.game-shell.has-building-preview .building-inspector .building-inspector-details { min-height: 48px; font-size: 16px; background: var(--support-wood); color: #f5deb0; border: 0 solid transparent; border-image: var(--support-edge) 20 / 4px / 0 stretch; }
+.game-shell.has-building-preview .building-inspector .bp-dock { background: var(--support-paper); }
+.game-shell.has-building-preview .building-inspector :is(.bp-up-time,.bp-warn,.bp-note) { font-size: 14px; }
+.game-shell.has-building-preview .building-inspector .bp-upgrade-button { border: 0; border-radius: 0; background: var(--support-action) center / 100% 100%; color: #fff3d6; box-shadow: none; }
+
+.game-shell.has-building-preview .building-inspector-content { background: var(--support-paper); }
+.game-shell.has-building-preview .building-inspector-summary > img { border-radius: 0; background: transparent; }

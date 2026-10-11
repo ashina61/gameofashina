@@ -43,9 +43,10 @@ export function FirstRunGuide({ onDone }: { onDone: () => void }) {
   }
   // Kart, vurgulanan öğenin karşı yarısında durur (öğeyi örtmez).
   const below = !box || box.top + box.height / 2 < window.innerHeight / 2
+  const edge = box ? Math.max(12, Math.min(window.innerHeight - 120, below ? box.bottom + 14 : window.innerHeight - box.top + 14)) : 12
   const cardStyle = box
-    ? below ? { top: Math.min(window.innerHeight - 220, box.bottom + 14) } : { bottom: Math.max(12, window.innerHeight - box.top + 14) }
-    : { top: '35%' }
+    ? { ...(below ? { top: edge } : { bottom: edge }), maxHeight: window.innerHeight - edge - 12 }
+    : { top: '35%', maxHeight: 'calc(65dvh - 12px)' }
   return <div className="frg" role="dialog" aria-modal="true" aria-labelledby="frg-title">
     {box && <span className="frg-spot" style={{ left: box.left - 6, top: box.top - 6, width: box.width + 12, height: box.height + 12 }} aria-hidden="true" />}
     <div className="frg-card" style={cardStyle}>

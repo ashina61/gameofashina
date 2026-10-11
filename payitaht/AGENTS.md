@@ -1,3 +1,5 @@
+**11 Ekim yardımcı defterler — 0.99.0 / SW111:** `docs/SUPPORT-DESIGN-MEMORY.md`; ilk rehber, çevrimdışı dönüş ve bina önizlemesi ortak atlaslarda. Büyük yazıda rehber kaydırması ve HUD altında kalan dönüş düğmeleri giderildi. Motor, kayıt, ada koordinatları ve HUD korunur. Ana sayfa geçişleri tamam; yayın sonrası kullanıcı değerlendirmesinde dur.
+
 **10 Ekim giriş ekranı — 0.98.0 / SW110:** `docs/TITLE-DESIGN-MEMORY.md`; boyalı ana menü, kayıt sicili, yeni oyun, yardım ve açılış sürüm notları. Gerçek işlemeli arma, ortak atlaslar ve okunur mobil formlar. Kayıt/başlama/silme onayı, motor ve HUD korunur. Sonraki bütün sayfalarda son tutarlılık denetimi; yayın sonrası kullanıcı değerlendirmesinde dur.
 
 **10 Ekim Şehir günlüğü — 0.97.0 / SW109:** `docs/JOURNAL-DESIGN-MEMORY.md`; arama önce, sekiz olay filtresi iki sıra, gün/saat/tekrarlarıyla dikey boyalı sicil. Olay türü, arama, gruplama, son 60 kayıt, motor ve HUD korunur. Sonraki giriş ekranı; yayın sonrası kullanıcı değerlendirmesinde dur.
