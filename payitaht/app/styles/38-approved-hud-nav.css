@@ -50,8 +50,8 @@
   background: radial-gradient(circle, #49331f 0 52%, #1a120c 72%);
   box-shadow: 0 0 0 2px #0008, inset 0 0 0 1px color-mix(in srgb, var(--c-gold-pale) 44%, transparent);
 }
-.game-shell .ika-crest > svg,
-.game-world .ika-crest > svg {
+.game-shell .ika-crest > :is(svg,.painted-icon),
+.game-world .ika-crest > :is(svg,.painted-icon) {
   visibility: visible;
   width: 42px;
   height: 42px;
@@ -133,8 +133,8 @@
 }
 .game-shell .ika-might b,
 .game-world .ika-might b { color: var(--c-gold-pale); font-weight: 700; }
-.game-shell .ika-city > svg,
-.game-world .ika-city > svg { display: block !important; width: 13px; color: var(--c-gold-pale); }
+.game-shell .ika-city > :is(svg,.painted-icon),
+.game-world .ika-city > :is(svg,.painted-icon) { display: block !important; width: 13px; color: var(--c-gold-pale); }
 
 .game-shell .ika-advisors,
 .game-world .ika-advisors {

@@ -103,10 +103,10 @@ export function WorldMap({ empire, now, missing, colonyCost, onSelectCity, onCol
         })}
         {/* Yapay rakiplerin kendi aralarındaki savaşlar: kızıl, akan kesikli çizgi. */}
         {wars.map(w => w.same
-          ? <g key={w.id} className="wm-war-mark" transform={`translate(${w.x1} ${w.y1 - 26})`}><title>{w.title}</title><circle r="8" fill="#8a1f14" stroke="#f6ecd6" strokeWidth="1.5" /><path d="M-4 -4 L4 4 M4 -4 L-4 4" stroke="#fff4d8" strokeWidth="1.8" strokeLinecap="round" /></g>
+          ? <g key={w.id} className="wm-war-mark" transform={`translate(${w.x1} ${w.y1 - 26})`}><title>{w.title}</title><image href={asset('/images/game/icons/painted/Swords.webp')} x="-10" y="-10" width="20" height="20" /></g>
           : <g key={w.id}><title>{w.title}</title>
             <path d={`M${w.x1} ${w.y1} L${w.x2} ${w.y2}`} className="wm-war-line" />
-            <g className="wm-war-mark" transform={`translate(${(w.x1 + w.x2) / 2} ${(w.y1 + w.y2) / 2})`}><circle r="8" fill="#8a1f14" stroke="#f6ecd6" strokeWidth="1.5" /><path d="M-4 -4 L4 4 M4 -4 L-4 4" stroke="#fff4d8" strokeWidth="1.8" strokeLinecap="round" /></g>
+            <g className="wm-war-mark" transform={`translate(${(w.x1 + w.x2) / 2} ${(w.y1 + w.y2) / 2})`}><image href={asset('/images/game/icons/painted/Swords.webp')} x="-10" y="-10" width="20" height="20" /></g>
           </g>)}
         {/* Yoldaki gemiler: rakiplerden gelen mallar ve kendi nakliyelerin. */}
         {ships.map(sh => <g key={sh.id} className="wm-ship" transform={`translate(${sh.x} ${sh.y})`}><title>{sh.title}</title>

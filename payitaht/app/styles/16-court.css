@@ -46,7 +46,7 @@
 .admin-stage p { margin: 6px 0 0; font: 700 19px var(--font-heading),Georgia,serif; line-height: 1.4; }
 .admin-ribbon { position: relative; width: 96%; margin: -24px auto 0; padding: 14px 15px 18px; text-align: center; background: var(--art-ribbon-red) center / 100% 100% no-repeat; color: var(--c-cream); font: 700 23px var(--font-heading),Georgia,serif; text-shadow: 0 2px 2px #0008; }
 .court-admin .toggle-row { min-height: 72px; padding: 11px 2px; gap: 10px; background: transparent; border: 0; border-bottom: 1px solid var(--c-parch-line); border-radius: 0; }
-.court-admin .toggle-row > svg { width: 22px; height: 22px; color: var(--c-brown); }
+.court-admin .toggle-row > :is(svg,.painted-icon) { width: 22px; height: 22px; color: var(--c-brown); }
 .court-admin .toggle-row strong { font: 700 17px var(--font-heading),Georgia,serif; }
 .court-admin .toggle-row small { font-size: 11px; line-height: 1.5; margin-top: 4px; }
 .court-admin .toggle-row input { width: 46px; min-width: 46px; height: 28px; background: #786445; border: 2px solid #a28145; box-shadow: inset 0 2px 4px #0004; }

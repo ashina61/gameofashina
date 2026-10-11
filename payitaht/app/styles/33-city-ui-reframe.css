@@ -34,7 +34,7 @@
   height: 44px;
   padding: 0;
 }
-.game-world .ika-crest > svg { transform: scale(.9); transform-origin: center; }
+.game-world .ika-crest > :is(svg,.painted-icon) { transform: scale(.9); transform-origin: center; }
 .game-world .ika-crest-level { top: 14px; right: 1px; font-size: 12px; }
 
 .game-world .ika-city {

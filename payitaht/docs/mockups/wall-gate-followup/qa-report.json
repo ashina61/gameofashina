@@ -1,0 +1,11 @@
+{
+  "errors": [],
+  "missing": [],
+  "screens": [
+    "gate-webgl.webp",
+    "ring-webgl.webp",
+    "gate-canvas.webp",
+    "ring-canvas.webp"
+  ],
+  "spriteChecks": []
+}

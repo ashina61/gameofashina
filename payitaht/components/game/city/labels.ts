@@ -43,7 +43,9 @@ export function makeLevelBadge(scene: CityScene, x: number, y: number, level: nu
   g.fillStyle(0x5a3517, 1); g.fillCircle(60, 0, 56)
   g.lineStyle(7, 0xe2bd78, 1); g.strokeCircle(60, 0, 53)
   const t = scene.add.text(60, 2, String(level), { fontFamily: f.heading, fontSize: '58px', color: '#fbe9bb', fontStyle: '800' })
-    .setOrigin(0.5, 0.5).setResolution(2)
+    // Canvas batchSprite uses the frame's pixel size; resolution 2 offsets and
+    // enlarges this number outside its medallion. The scene canvas already has DPR.
+    .setOrigin(0.5, 0.5).setResolution(scene.game.renderer.type === Phaser.CANVAS ? 1 : 2)
   const c = scene.add.container(x, y, [g, t]).setDepth(4e5 + depth / 1e4)
   scene.hudItems.push({ c, width: 120, height: 120, css: 24, max: 4 }) // uzak görünümde de okunur
   scene.fitHudItem(scene.hudItems[scene.hudItems.length - 1])

@@ -1,0 +1,68 @@
+{
+  "errors": [],
+  "missing": [],
+  "screens": [
+    "city-390.webp",
+    "walls-390.webp",
+    "divan-390.webp",
+    "surlar-390.webp",
+    "medrese-390.webp",
+    "city-360.webp",
+    "walls-360.webp",
+    "divan-360.webp",
+    "surlar-360.webp",
+    "medrese-360.webp",
+    "city-430.webp",
+    "walls-430.webp",
+    "divan-430.webp",
+    "surlar-430.webp",
+    "medrese-430.webp"
+  ],
+  "spriteChecks": [
+    {
+      "overflow": false,
+      "svg": 0,
+      "broken": []
+    },
+    {
+      "overflow": false,
+      "svg": 0,
+      "broken": []
+    },
+    {
+      "overflow": false,
+      "svg": 0,
+      "broken": []
+    },
+    {
+      "overflow": false,
+      "svg": 0,
+      "broken": []
+    },
+    {
+      "overflow": false,
+      "svg": 0,
+      "broken": []
+    },
+    {
+      "overflow": false,
+      "svg": 0,
+      "broken": []
+    },
+    {
+      "overflow": false,
+      "svg": 0,
+      "broken": []
+    },
+    {
+      "overflow": false,
+      "svg": 0,
+      "broken": []
+    },
+    {
+      "overflow": false,
+      "svg": 0,
+      "broken": []
+    }
+  ]
+}

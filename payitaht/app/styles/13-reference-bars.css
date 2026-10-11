@@ -3,7 +3,7 @@
 .game-shell .ika-top { padding-top: var(--sa-top); background: var(--c-wood-dark); }
 .game-shell .ika-ribbon { height: 66px; min-height: 66px; padding: 0 4px 0 0; gap: 3px; background: var(--bar-wood) center / auto 100%; border-bottom: 2px solid var(--c-gold); backdrop-filter: none; }
 .game-shell .ika-crest { position: relative; align-self: stretch; width: 82px; height: auto; min-height: 44px; padding: 0; border: 0; border-radius: 0; background: var(--bar-crest) left center / 100% 100% no-repeat; }
-.game-shell .ika-crest > svg { visibility: hidden; }
+.game-shell .ika-crest > :is(svg,.painted-icon) { visibility: hidden; }
 .game-shell .ika-crest-level { position: absolute; top: 23px; right: 6px; width: 20px; height: 24px; display: grid; place-items: center; background: none; border: 0; border-radius: 0; color: var(--c-cream); font: 700 17px var(--font-heading), Georgia, serif; box-shadow: none; text-shadow: 0 1px 2px #000; }
 .game-shell .ika-city { min-height: 44px; padding: 0; gap: 0; }
 .game-shell .ika-city-name { width: 100%; gap: 4px; }

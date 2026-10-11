@@ -107,9 +107,8 @@ export class CityScene extends Phaser.Scene {
     // İnşaat iskelesi (tools/art/buildings.py).
     if (!this.textures.exists('b_scaffold')) this.load.image('b_scaffold', asset('/images/game/buildings/scaffold.webp'))
     preloadTerrain(this)
-    for (const tier of [1, 2, 3]) for (const part of ['segment', 'tower', 'gate']) {
-      const key = `w_${part}-${tier}`
-      if (!this.textures.exists(key)) this.load.image(key, asset(`/images/game/walls/${part}-${tier}.webp`))
+    for (const part of ['stone-material', 'gate-side', 'gate-front', 'tower-round']) {
+      if (!this.textures.exists(`w_${part}`)) this.load.image(`w_${part}`, asset(`/images/game/walls/${part}.webp`))
     }
   }
   /**

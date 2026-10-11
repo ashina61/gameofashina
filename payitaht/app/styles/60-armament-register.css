@@ -21,7 +21,7 @@
 .bp.bp-armament .armament-stat p { font: 14px/1.5 Georgia,serif; margin: 10px 0; }
 .bp.bp-armament .armament-stat .gbtn { width: 100%; }
 .bp.bp-armament .armament-price { display: flex; flex-wrap: wrap; align-items: center; gap: 7px; }
-.bp.bp-armament .armament-price :is(img,svg) { width: 24px; height: 24px; }
+.bp.bp-armament .armament-price :is(img,:is(svg,.painted-icon)) { width: 24px; height: 24px; }
 .bp.bp-armament .armament-reason { overflow-wrap: anywhere; }
 .bp.bp-armament .armament-targets { display: grid; gap: 12px; }
 .bp.bp-armament .armament-target { display: grid; gap: 8px; text-align: left; padding: 16px; min-height: 64px; color: var(--c-ink); background: var(--academy-paper) center / cover; border: 0 solid transparent; border-image: var(--academy-frame) 40 / 8px / 0 stretch; }
@@ -32,7 +32,7 @@
 .bp.bp-armament .armament-facts > div { display: grid; grid-template-columns: minmax(0,1fr) auto; align-items: center; gap: 12px; min-height: 48px; padding: 10px 0; border-bottom: 1px solid var(--c-gold-deep); }
 .bp.bp-armament .armament-facts dt { font: 14px/1.5 Georgia,serif; }
 .bp.bp-armament .armament-facts dd { display: flex; align-items: center; gap: 8px; margin: 0; font: 700 18px/1.3 'Payitaht Profile Roman',Georgia,serif; }
-.bp.bp-armament .armament-facts dd svg { width: 24px; height: 24px; }
+.bp.bp-armament .armament-facts dd :is(svg,.painted-icon) { width: 24px; height: 24px; }
 .bp.bp-armament .armament-help > summary { min-height: 48px; padding: 12px 0; font: 700 18px/1.4 'Payitaht Profile Roman',Georgia,serif; }
 .bp.bp-armament .armament-ships { display: grid; gap: 14px; }
 .bp.bp-armament .armament-ship { padding: 12px; background: var(--academy-paper) center / cover; border: 0 solid transparent; border-image: var(--academy-frame) 40 / 8px / 0 stretch; }
