@@ -76,10 +76,18 @@ export function drawCityLife({ T, V, plazaDecor, scene, stamp }: { T: { tier: nu
     const pass = (extra: number, color: number, alpha: number, scaleW = 1) => {
       for (let i = 0; i + 1 < st.pts.length; i++) {
         const a = st.pts[i], b = st.pts[i + 1]
-        water.lineStyle(st.widths[i] * scaleW + extra, color, alpha)
+        const width = st.widths[i] * scaleW + extra
+        if (width <= 0) continue
+        water.lineStyle(width, color, alpha)
         water.lineBetween(a.x, a.y, b.x, b.y)
       }
-      for (let i = 0; i < st.pts.length; i += 3) { water.fillStyle(color, alpha); water.fillCircle(st.pts[i].x, st.pts[i].y, (st.widths[i] * scaleW + extra) / 2) }
+      for (let i = 0; i < st.pts.length; i += 3) {
+        const radius = (st.widths[i] * scaleW + extra) / 2
+        // The narrow headwater has no inner highlight. Canvas rejects a
+        // negative arc radius and otherwise aborts the entire city drawing.
+        if (radius <= 0) continue
+        water.fillStyle(color, alpha); water.fillCircle(st.pts[i].x, st.pts[i].y, radius)
+      }
     }
     pass(38, 0x536b46, 0.14) // nemli vadi: yumuşak dış geçiş
     pass(24, 0x6c8051, 0.30)

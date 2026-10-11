@@ -21,3 +21,11 @@ Bina/arsa/ada koordinatları, ekonomi, kaydetme biçimi, savunma ve inşa kurall
 Rapor ve gerçek ekran görüntüleri `mockups/painted-replacements/` altında. 346 oyun testi, tip kontrolü, ESLint/CSS, V2 ölçütleri ve üretim derlemesi. Genel düzen taraması mevcut küçük hedef/yazı uyarılarıyla ayrıca raporlanır.
 
 Genel düzen taraması: taşma/kesik/çakışma/isimsiz/sayfa hatası 0. Onaylı HUD dâhil 312 küçük hedef ve 664 minik yazı uyarısı var; genel betik bu nedenle exit 1 verir. Bu uyarıları susturmak için kurallar gevşetilmedi. Üç telefon genişliği (360, 390, 430) ve üç sur kademesi ayrıca gerçek oyun karesiyle kontrol edilir.
+
+## Ekran görüntüsü sonrası kapı denetimi
+
+Kullanıcının 11 Ekim telefon karesinde dik sur tek çizgiye düşüyor, kara kapısına eklenen burçlar kapının kendi iki kulesiyle üst üste biniyordu. Canlı dal hâlâ eski çizimi kullanıyor; PR #77 yayımlanmadı. Taslakta dik yüzeyin kalınlığı korunuyor. Bu takipte kara kapısına ayrıca burç eklenmesi kaldırıldı; kapı siluetine denk gelen savunma yuvası ayrıca çizilmiyor. Yuva, savunma mekaniği, kapı açıklığı ve tıklama koordinatları korunuyor. Deniz zinciri ve su kemeri burçları aynı.
+
+`tools/fixtures/late-game.json` gelişmiş şehir kaydı, sur seviyesi 10, 390×844 telefon görünümü: varsayılan kameradan 10 yakınlaştırma adımı ve sola suru getiren üç yatay sürükleme. WebGL ve zorlanmış Canvas için yakın kapı ile genel sur görüntüleri ve hata raporu `mockups/wall-gate-followup/` altında. Bu kayıt başlangıç kasabasından farklı olarak kurulu şehirde kapı birleşimini doğrular.
+
+Canvas denetimi ayrıca derenin iç parıltısında negatif çizgi kalınlığı/daire yarıçapı buldu: başlangıç genişliği 22, iç geçiş `22 × 0.5 − 12 = −1`. Canvas `arc` bunu reddedip ilk şehir çizimini durduruyordu. Sıfır veya negatif genişlikteki iç parıltı parçaları artık çizilmez; derenin zemin ve kıyı katmanları aynı kalır. Düzeltme sonrası iki motor da şehir açılışı, yakın kapı ve halka görüntüsüyle hatasız denetlendi. 346 test, tip kontrolü, ESLint ve üretim derlemesi geçti.

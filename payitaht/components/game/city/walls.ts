@@ -258,10 +258,13 @@ export function drawWalls(scene: CityScene, level: number) {
   // Açılışta görünen (en kuzeydeki) kara kapısı: seviye madalyonu burada.
   let northGate: { x: number; y: number; depth: number } | null = null
   for (const s of DEFENSE_SLOTS) {
+    // A gate painting already includes its two towers. Keep the defense slot
+    // in the map, but do not paint a second tower into the gate silhouette.
+    if (gateSpans.some(g => g.kind === 'land' && Math.hypot(s.screen.x - g.center.x, s.screen.y - g.center.y) < TILE.w * 1.2)) continue
     tower(s.screen.x, s.screen.y + TILE.h * 0.2, TILE.w * (tier === 1 ? 0.66 : tier === 3 ? 0.86 : 0.78))
     placed.push(s.screen)
   }
-  // KAPILAR. Kara kapısı: iki kule + kemerli kapı kulesi (lento, mazgal,
+  // KAPILAR. Kara kapısı: kendi iki kulesini içeren tek çizim (lento, mazgal,
   // sancak). Deniz kapısı: iki büyük kule arasında gerili liman zinciri.
   for (const g of gateSpans) {
     const land = g.kind === 'land'
@@ -269,7 +272,7 @@ export function drawWalls(scene: CityScene, level: number) {
     const L = pointAt(g.s0 - pad), R = pointAt(g.s1 + pad)
     for (const p of [L, R]) {
       placed.push(p)
-      tower(p.x, p.y + TILE.h * 0.12, TILE.w * (land ? 0.66 : g.kind === 'aq' ? 0.5 : 0.9))
+      if (!land) tower(p.x, p.y + TILE.h * 0.12, TILE.w * (g.kind === 'aq' ? 0.5 : 0.9))
     }
     if (g.kind === 'aq') continue // su kapısı: kemer açıklıktan geçer, iki küçük burç yeter
     const lg = scene.add.graphics().setDepth(Math.max(L.y, R.y) + 1.8)
