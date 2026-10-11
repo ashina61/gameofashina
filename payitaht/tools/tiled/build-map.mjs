@@ -24,8 +24,6 @@ const toGridF = (dx, dy) => {
   return { gx: CENTER.gx + (s + d) / 2, gy: CENTER.gy + (s - d) / 2 }
 }
 
-// Screen-space rows: equal, wide plots with a road gap between every pair.
-// 4 + 5 + 4 + 6 + 5 = 24 movable city plots.
 const ROWS = [
   { y: -960, xs: [-768, -256, 256, 768] },
   { y: -640, xs: [-1024, -512, 0, 512, 1024] },
@@ -108,7 +106,7 @@ const citySlotsJson = {
   wallGates, plaza, ringRoad, roadGraph: { nodes: roadNodes, edges },
 }
 mkdirSync(join(ROOT, 'lib/game/city-map'), { recursive: true })
-writeFileSync(join(ROOT, 'lib/game/city-map/city-slots.json'), JSON.stringify(citySlotsJson, null, 2) + '\n')
+writeFileSync(join(ROOT, 'lib/game/city-map/city-slots.json'), JSON.stringify(citySlotsJson) + '\n')
 
 const emptyLayerData = deflateSync(Buffer.alloc(MAP_W * MAP_H * 4)).toString('base64')
 let layerId = 0, objectId = 0
@@ -134,5 +132,5 @@ const map = { type:'map',version:'1.10',tiledversion:'1.10.2',orientation:'isome
 ] }
 map.nextlayerid=layerId+1; map.nextobjectid=objectId+1
 mkdirSync(join(ROOT,'maps/payitaht'),{recursive:true})
-writeFileSync(join(ROOT,'maps/payitaht/payitaht_city.tmj'),JSON.stringify(map,null,1)+'\n')
+writeFileSync(join(ROOT,'maps/payitaht/payitaht_city.tmj'),JSON.stringify(map)+'\n')
 console.log(`OK city=${slots.filter(s=>s.type==='city').length} coast=${slots.filter(s=>s.type==='coast').length} islet=${slots.filter(s=>s.type==='islet').length}`)
