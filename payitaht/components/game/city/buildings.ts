@@ -3,7 +3,8 @@ import * as Phaser from 'phaser'
 import { BUILDING_FLAGS } from '@/lib/game/banner'
 import { TILE, ROAD_GRAPH, HALL_SLOT_ID } from '@/lib/game/city-map'
 import { type LiveSlot } from '@/lib/game/city-map/live-adapter'
-import { GROUND_TARGET_W } from '@/lib/game/city-map/building-assets'
+import { FOOTPRINT_DIAMOND_W, GROUND_TARGET_W } from '@/lib/game/city-map/building-assets'
+import { paintedGroundTexture } from '@/lib/game/city-map/terrain-builder'
 import { BUILDINGS, activeJob, type BuildingId } from '@/lib/game/engine'
 import { buildingArtKey, buildingStage, isPaintedBuilding } from '@/lib/asset'
 import { liteMode } from '@/lib/motion'
@@ -149,6 +150,19 @@ export function addGardenWall(scene: CityScene, slot: LiveSlot, imgY: number, ar
 /** Bina ailesine göre farklılaşan doğal zemin/işlik/taş avlu izi. */
 export function addOccupiedClearing(scene: CityScene, id: BuildingId, slot: LiveSlot, depth: number) {
   if (slot.zone === 'liman') return
+
+  // Açık fakat boş parseller yol ağına dahildir. Kullanım izi yalnızca
+  // çizilen binanın katmanına bağlıdır; taşımada/yıkımda pieces ile temizlenir.
+  if (id !== 'divan') {
+    const material = paintedGroundTexture(scene, 't_dirt')
+    if (material) {
+      const wear = scene.add.image(slot.screen.x, slot.screen.y, material)
+        .setDepth(-801.2)
+        .setDisplaySize(FOOTPRINT_DIAMOND_W * 2.15, FOOTPRINT_DIAMOND_W * 1.075)
+        .setAlpha(0.66)
+      scene.pieces.push(wear)
+    }
+  }
 
   const profile = scene.buildingVisualProfile(id, slot)
   const rnd = scene.visualRnd(scene.buildingVisualSeed(id, slot))

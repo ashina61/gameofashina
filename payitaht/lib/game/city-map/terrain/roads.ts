@@ -4,7 +4,6 @@ import { QUAY_PROMENADE_WIDTH, roadStyleFor, roadTierForHallLevel } from '../roa
 import { edgeKey, roadEdgeKeysForTargets } from '../road-tree'
 import { cityFields, cityFountains, nearStreamAt } from '../city-extras'
 import { bakeGraphics } from '../bake'
-import { FOOTPRINT_DIAMOND_W } from '../building-assets'
 import * as Phaser from 'phaser'
 import { liteMode } from '@/lib/motion'
 import { mulberry32, type RoadCurve, roadCurves, displayRoadCurves, nearSlot, paintedGroundTexture } from '../terrain-builder'
@@ -98,35 +97,8 @@ export function buildRoads({ V, divanLevel, occupiedSlotIds, scene, shoreY, stam
     }
     visibleCurves.push(...through)
 
-    // Kurulu yapılar çayıra basılmış sprite gibi durmasın: zemindeki
-    // kullanım izi ve küçük avlu binayla birlikte taşınır/yıkılır. Yalnız
-    // kara arsaları; boş parseller, meydan ve deniz ayrı yüzeylerini korur.
-    const yardMaterial = paintedGroundTexture(scene, 't_dirt')
-    for (const id of active) {
-      if (id === HALL_SLOT_ID) continue
-      const slot = slotById(id)
-      if (!slot || slot.type !== 'city') continue
-      const { x, y } = slot.screen
-      if (yardMaterial) {
-        const wear = scene.add.image(x, y, yardMaterial).setDepth(-801.2)
-          .setDisplaySize(FOOTPRINT_DIAMOND_W * 2.15, FOOTPRINT_DIAMOND_W * 1.075)
-          .setAlpha(0.66)
-        roadTextures.push(wear)
-      }
-      const hw = FOOTPRINT_DIAMOND_W * 0.78, hh = hw / 2
-      const apron = [V(x - hw, y), V(x, y - hh), V(x + hw, y), V(x, y + hh)]
-      roads.fillStyle(tier >= 3 ? 0xb7a789 : 0xa78e62, 0.40)
-      roads.fillPoints(apron, true)
-      // Ön kenarın taş eşiği avluyu giriş yoluna bağlar; arka kenar
-      // çimenle yumuşak birleşir. Çatı/sprite ölçüsünü değiştirmez.
-      if (tier >= 2) {
-        roads.lineStyle(3, 0xd6c7a5, 0.64)
-        roads.strokePoints([V(x - hw, y), V(x, y + hh), V(x + hw, y)], false)
-      }
-    }
-
-    // Kıyı promenadı bir slot göstergesi değildir; ilk liman/tersane
-    // kurulunca dünyaya doğal biçimde eklenir.
+    // Kıyı promenadı bir slot göstergesi değildir; liman bölgesi
+    // açılınca dünyaya doğal biçimde eklenir.
     if (hasHarbour) {
       const quayStyle = roadStyleFor('quay', level)
       // Liman yapıları ince bir çizgiye değil, yük boşaltılabilecek ortak

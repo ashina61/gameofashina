@@ -1,4 +1,4 @@
-# Şehir tabanı — 0.101.0 / SW114
+# Şehir tabanı — 0.101.1 / SW115
 
 11 Ekim 2026. Kullanıcı yaşayan bir şehir istiyor; önce arka planın kurulmasını istedi. Önceki tam sahne konsepti arsa/bina taşmaları nedeniyle reddedildi ve üretime alınmadı. Bu sürüm mevcut oyun zemininde ilk düzenlemedir; bina modelleme ve yeni hareket sahneleri sonraki aşamadır.
 
@@ -6,7 +6,7 @@
 
 - Boyalı çim malzemesinin yapay yeşil yükseltmesi kaldırıldı. Kuru ot, gölgeli çayır ve sıcak toprak birlikte kullanılır.
 - Ana cadde, mahalle sokağı ve kıyı yolu ayrı genişlikte okunur. Kurulu kara binalarının altında yumuşak toprak izi ve avlu bulunur; bina taşınır/yıkılırken aynı güncellemeyle yeniden kurulur. Boş parsellere yeni avlu basılmaz.
-- İlk liman kurulunca üç kıyı arsası arasında ortak geniş taş promenat görünür. Dekor açıklığı aynı genişlikten hesaplanır.
+- Liman bölgesi açılınca üç kıyı arsası arasında ortak geniş taş promenat görünür. Dekor açıklığı aynı genişlikten hesaplanır.
 - Dere suyu koyla aynı renk ailesinde; kıyıda nemli yeşil, tortu ve ıslak toprak geçişleri vardır. Dere ve köprü koordinatları aynıdır.
 - Yeni PNG/WebP üretim atlası yok. Mevcut boyalı malzemeler ve pişirilen grafikler kullanılır; kare başına arazi yeniden çizilmez.
 
