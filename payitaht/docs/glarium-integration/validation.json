@@ -1,0 +1,446 @@
+{
+  "errors": [],
+  "missing": [],
+  "stages": [
+    {
+      "width": 390,
+      "lv": 1,
+      "occupied": [
+        [
+          0,
+          "divan"
+        ],
+        [
+          2,
+          "konut"
+        ],
+        [
+          8,
+          "ambar"
+        ],
+        [
+          4,
+          "kereste"
+        ],
+        [
+          9,
+          "medrese"
+        ],
+        [
+          7,
+          "kisla"
+        ],
+        [
+          25,
+          "liman"
+        ],
+        [
+          26,
+          "tersane"
+        ],
+        [
+          28,
+          "korsan_kalesi"
+        ]
+      ]
+    },
+    {
+      "width": 390,
+      "lv": 5,
+      "occupied": [
+        [
+          0,
+          "divan"
+        ],
+        [
+          2,
+          "konut"
+        ],
+        [
+          8,
+          "ambar"
+        ],
+        [
+          4,
+          "kereste"
+        ],
+        [
+          9,
+          "medrese"
+        ],
+        [
+          7,
+          "kisla"
+        ],
+        [
+          25,
+          "liman"
+        ],
+        [
+          26,
+          "tersane"
+        ],
+        [
+          28,
+          "korsan_kalesi"
+        ]
+      ]
+    },
+    {
+      "width": 390,
+      "lv": 10,
+      "occupied": [
+        [
+          0,
+          "divan"
+        ],
+        [
+          2,
+          "konut"
+        ],
+        [
+          8,
+          "ambar"
+        ],
+        [
+          4,
+          "kereste"
+        ],
+        [
+          9,
+          "medrese"
+        ],
+        [
+          7,
+          "kisla"
+        ],
+        [
+          25,
+          "liman"
+        ],
+        [
+          26,
+          "tersane"
+        ],
+        [
+          28,
+          "korsan_kalesi"
+        ]
+      ]
+    },
+    {
+      "width": 390,
+      "lv": 15,
+      "occupied": [
+        [
+          0,
+          "divan"
+        ],
+        [
+          2,
+          "konut"
+        ],
+        [
+          8,
+          "ambar"
+        ],
+        [
+          4,
+          "kereste"
+        ],
+        [
+          9,
+          "medrese"
+        ],
+        [
+          7,
+          "kisla"
+        ],
+        [
+          25,
+          "liman"
+        ],
+        [
+          26,
+          "tersane"
+        ],
+        [
+          28,
+          "korsan_kalesi"
+        ]
+      ]
+    },
+    {
+      "width": 390,
+      "lv": 20,
+      "occupied": [
+        [
+          0,
+          "divan"
+        ],
+        [
+          2,
+          "konut"
+        ],
+        [
+          8,
+          "ambar"
+        ],
+        [
+          4,
+          "kereste"
+        ],
+        [
+          9,
+          "medrese"
+        ],
+        [
+          7,
+          "kisla"
+        ],
+        [
+          25,
+          "liman"
+        ],
+        [
+          26,
+          "tersane"
+        ],
+        [
+          28,
+          "korsan_kalesi"
+        ]
+      ]
+    },
+    {
+      "width": 430,
+      "lv": 1,
+      "occupied": [
+        [
+          0,
+          "divan"
+        ],
+        [
+          2,
+          "konut"
+        ],
+        [
+          8,
+          "ambar"
+        ],
+        [
+          4,
+          "kereste"
+        ],
+        [
+          9,
+          "medrese"
+        ],
+        [
+          7,
+          "kisla"
+        ],
+        [
+          25,
+          "liman"
+        ],
+        [
+          26,
+          "tersane"
+        ],
+        [
+          28,
+          "korsan_kalesi"
+        ]
+      ]
+    },
+    {
+      "width": 430,
+      "lv": 5,
+      "occupied": [
+        [
+          0,
+          "divan"
+        ],
+        [
+          2,
+          "konut"
+        ],
+        [
+          8,
+          "ambar"
+        ],
+        [
+          4,
+          "kereste"
+        ],
+        [
+          9,
+          "medrese"
+        ],
+        [
+          7,
+          "kisla"
+        ],
+        [
+          25,
+          "liman"
+        ],
+        [
+          26,
+          "tersane"
+        ],
+        [
+          28,
+          "korsan_kalesi"
+        ]
+      ]
+    },
+    {
+      "width": 430,
+      "lv": 10,
+      "occupied": [
+        [
+          0,
+          "divan"
+        ],
+        [
+          2,
+          "konut"
+        ],
+        [
+          8,
+          "ambar"
+        ],
+        [
+          4,
+          "kereste"
+        ],
+        [
+          9,
+          "medrese"
+        ],
+        [
+          7,
+          "kisla"
+        ],
+        [
+          25,
+          "liman"
+        ],
+        [
+          26,
+          "tersane"
+        ],
+        [
+          28,
+          "korsan_kalesi"
+        ]
+      ]
+    },
+    {
+      "width": 430,
+      "lv": 15,
+      "occupied": [
+        [
+          0,
+          "divan"
+        ],
+        [
+          2,
+          "konut"
+        ],
+        [
+          8,
+          "ambar"
+        ],
+        [
+          4,
+          "kereste"
+        ],
+        [
+          9,
+          "medrese"
+        ],
+        [
+          7,
+          "kisla"
+        ],
+        [
+          25,
+          "liman"
+        ],
+        [
+          26,
+          "tersane"
+        ],
+        [
+          28,
+          "korsan_kalesi"
+        ]
+      ]
+    },
+    {
+      "width": 430,
+      "lv": 20,
+      "occupied": [
+        [
+          0,
+          "divan"
+        ],
+        [
+          2,
+          "konut"
+        ],
+        [
+          8,
+          "ambar"
+        ],
+        [
+          4,
+          "kereste"
+        ],
+        [
+          9,
+          "medrese"
+        ],
+        [
+          7,
+          "kisla"
+        ],
+        [
+          25,
+          "liman"
+        ],
+        [
+          26,
+          "tersane"
+        ],
+        [
+          28,
+          "korsan_kalesi"
+        ]
+      ]
+    }
+  ],
+  "interactions": [
+    {
+      "municipality": true,
+      "point": {
+        "x": 191.95222222222222,
+        "y": 239.13333333333333
+      },
+      "opened": 1
+    },
+    {
+      "emptyPlot": 1,
+      "opened": true
+    },
+    {
+      "movePreview": 1
+    },
+    {
+      "moveConfirmed": 1
+    }
+  ]
+}

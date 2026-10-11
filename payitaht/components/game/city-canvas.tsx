@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from 'react'
 import { play } from '@/lib/sfx'
-import type { CityScene } from './phaser-city'
+import type { CityScene } from './glarium-playable-city'
 import type { BuildingId, Game } from '@/lib/game/engine'
 import type { BannerLook } from '@/lib/game/banner'
 import type { FlagLook } from './city-life'
@@ -75,7 +75,7 @@ export function CityCanvas({ game, showLabels, placing, controls, onBuilding, on
     void (async () => {
       // Phaser'in ESM paketi varsayilan disa aktarim sunmaz; ad alani alinir.
       const [Phaser, { CityScene }] = await Promise.all([
-        import('phaser'), import('./phaser-city'),
+        import('phaser'), import('./glarium-playable-city'),
       ])
       if (disposed || !holder.current) return
 
