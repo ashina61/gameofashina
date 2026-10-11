@@ -2,7 +2,6 @@
  * PAYİTAHT ŞEHİR HARİTASI ÜRETECİ — Ikariam esintili düz-parsel L1 planı.
  * Mekanik değişmez: 24 taşınabilir city slotu + sabit belediye + 3 coast + 1 islet.
  */
-import { deflateSync } from 'node:zlib'
 import { writeFileSync, mkdirSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import { dirname, join } from 'node:path'
@@ -31,14 +30,14 @@ const ROWS = [
   { y: 320, xs: [-1280, -768, -256, 256, 768, 1280] },
   { y: 640, xs: [-1024, -512, 0, 512, 1024] },
 ]
-const PLOTS = ROWS.flatMap((row, ri) => row.xs.map((x, ci) => ({ x, y: row.y, row: ri, col: ci })))
+const PLOTS = ROWS.flatMap((row) => row.xs.map((x) => ({ x, y: row.y })))
 if (PLOTS.length !== 24) throw new Error(`24 arsa bekleniyordu, ${PLOTS.length}`)
 
 const slots = []
 slots.push(withScreen({ id: 'city_hall', type: 'city', gx: CENTER.gx, gy: CENTER.gy, fw: FOOT, fh: FOOT, fixed: true }))
 PLOTS.forEach((p, i) => {
-  p.id = `city_${String(i + 1).padStart(2, '0')}`
-  slots.push(withScreen({ id: p.id, type: 'city', ...toGrid(p.x, p.y), fw: FOOT, fh: FOOT, fixed: false }))
+  const id = `city_${String(i + 1).padStart(2, '0')}`
+  slots.push(withScreen({ id, type: 'city', ...toGrid(p.x, p.y), fw: FOOT, fh: FOOT, fixed: false }))
 })
 
 const COAST_PX = [[-768, 1152], [0, 1152], [768, 1152]]
@@ -108,27 +107,23 @@ const citySlotsJson = {
 mkdirSync(join(ROOT, 'lib/game/city-map'), { recursive: true })
 writeFileSync(join(ROOT, 'lib/game/city-map/city-slots.json'), JSON.stringify(citySlotsJson) + '\n')
 
-const emptyLayerData = deflateSync(Buffer.alloc(MAP_W * MAP_H * 4)).toString('base64')
 let layerId = 0, objectId = 0
 const nextLayerId = () => ++layerId, nextObjectId = () => ++objectId
 const objUnit = TILE_H
-const tileLayer = (name) => ({ id: nextLayerId(), name, type: 'tilelayer', visible: true, opacity: 1, x: 0, y: 0, width: MAP_W, height: MAP_H, encoding: 'base64', compression: 'zlib', data: emptyLayerData })
 const slotObject = (s) => ({ id: nextObjectId(), name: s.id, type: s.type, x: (s.gx - s.fw / 2) * objUnit, y: (s.gy - s.fh / 2) * objUnit, width: s.fw * objUnit, height: s.fh * objUnit, visible: true, rotation: 0, properties: [
   { name: 'slotId', type: 'string', value: s.id }, { name: 'slotType', type: 'string', value: s.type },
   { name: 'gx', type: 'int', value: s.gx }, { name: 'gy', type: 'int', value: s.gy },
   { name: 'fw', type: 'int', value: s.fw }, { name: 'fh', type: 'int', value: s.fh }, { name: 'fixed', type: 'bool', value: !!s.fixed },
 ] })
-const objectLayer = (name, objects) => ({ id: nextLayerId(), name, type: 'objectgroup', visible: true, opacity: 1, x: 0, y: 0, draworder: 'topdown', objects })
-const foundationObject = { id: nextObjectId(), name: 'defense_foundation', type: 'foundation', x: 0, y: 0, visible: true, rotation: 0, polygon: foundationPts.map(p => ({ x: p.gx * objUnit, y: p.gy * objUnit })), properties: [{ name: 'note', type: 'string', value: 'Top-only empty defense trench; walls appear only after construction.' }] }
-const nodeById = new Map(roadNodes.map(n => [n.id, n]))
-const roadObjects = edges.map(e => { const A=nodeById.get(e.from),B=nodeById.get(e.to); return { id: nextObjectId(), name:`road_${e.from}_${e.to}`, type:'road', x:0,y:0,visible:true,rotation:0, polyline:[{x:A.gx*objUnit,y:A.gy*objUnit},{x:B.gx*objUnit,y:B.gy*objUnit}], properties:[{name:'from',type:'string',value:e.from},{name:'to',type:'string',value:e.to}] } })
+const objectLayer = (name, objects = []) => ({ id: nextLayerId(), name, type: 'objectgroup', visible: true, opacity: 1, x: 0, y: 0, draworder: 'topdown', objects })
+const foundationObject = { id: nextObjectId(), name: 'defense_foundation', type: 'foundation', x: 0, y: 0, visible: true, rotation: 0, polygon: foundationPts.map(p => ({ x: p.gx * objUnit, y: p.gy * objUnit })) }
 const map = { type:'map',version:'1.10',tiledversion:'1.10.2',orientation:'isometric',renderorder:'right-down',infinite:false,width:MAP_W,height:MAP_H,tilewidth:TILE_W,tileheight:TILE_H,nextlayerid:0,nextobjectid:0,tilesets:[],properties:[{name:'city',type:'string',value:'payitaht'},{name:'footprint',type:'string',value:`${FOOT}x${FOOT}`}],layers:[
-  tileLayer('GROUND'),tileLayer('ROADS'),
+  objectLayer('GROUND'), objectLayer('ROADS'),
   objectLayer('BUILDING_SLOTS',slots.filter(s=>s.type==='city').map(slotObject)),
   objectLayer('COAST_SLOTS',slots.filter(s=>s.type==='coast').map(slotObject)),
   objectLayer('ISLET_SLOTS',slots.filter(s=>s.type==='islet').map(slotObject)),
   objectLayer('DEFENSE_FOUNDATION',[foundationObject,...slots.filter(s=>s.type==='defense').map(slotObject)]),
-  objectLayer('DECORATION',[]),objectLayer('BUILDINGS',[]),objectLayer('DEFENSE',[]),objectLayer('DEBUG',roadObjects),
+  objectLayer('DECORATION'), objectLayer('BUILDINGS'), objectLayer('DEFENSE'), objectLayer('DEBUG'),
 ] }
 map.nextlayerid=layerId+1; map.nextobjectid=objectId+1
 mkdirSync(join(ROOT,'maps/payitaht'),{recursive:true})
