@@ -50,15 +50,21 @@ jobs:
           done
           cat /tmp/city-base-v1-http.log
           exit 1
-      - name: Capture wide base
-        run: pnpm dlx playwright@1.56.1 screenshot --viewport-size="1600,900" --wait-for-timeout=7000 http://127.0.0.1:4173/gameofashina/city-base-v1.html city-base-v1-wide.png
-      - name: Capture phone base
-        run: pnpm dlx playwright@1.56.1 screenshot --device="Pixel 5" --wait-for-timeout=7000 http://127.0.0.1:4173/gameofashina/city-base-v1.html city-base-v1-mobile.png
+      - name: Capture hall 1
+        run: pnpm dlx playwright@1.56.1 screenshot --viewport-size="1600,900" --wait-for-timeout=7000 "http://127.0.0.1:4173/gameofashina/city-base-v1.html?hall=1" city-base-hall-01.png
+      - name: Capture hall 10
+        run: pnpm dlx playwright@1.56.1 screenshot --viewport-size="1600,900" --wait-for-timeout=7000 "http://127.0.0.1:4173/gameofashina/city-base-v1.html?hall=10" city-base-hall-10.png
+      - name: Capture hall 20
+        run: pnpm dlx playwright@1.56.1 screenshot --viewport-size="1600,900" --wait-for-timeout=7000 "http://127.0.0.1:4173/gameofashina/city-base-v1.html?hall=20" city-base-hall-20.png
+      - name: Capture hall 20 phone
+        run: pnpm dlx playwright@1.56.1 screenshot --device="Pixel 5" --wait-for-timeout=7000 "http://127.0.0.1:4173/gameofashina/city-base-v1.html?hall=20" city-base-hall-20-mobile.png
       - name: Upload screenshots
         uses: actions/upload-artifact@v4
         with:
-          name: city-base-v1-screenshots
+          name: city-base-growth-screenshots
           path: |
-            payitaht/city-base-v1-wide.png
-            payitaht/city-base-v1-mobile.png
+            payitaht/city-base-hall-01.png
+            payitaht/city-base-hall-10.png
+            payitaht/city-base-hall-20.png
+            payitaht/city-base-hall-20-mobile.png
           retention-days: 7
