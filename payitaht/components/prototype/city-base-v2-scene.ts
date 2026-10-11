@@ -45,7 +45,7 @@ export class CityBaseV2Scene extends Phaser.Scene {
   private dragStart: { x: number; y: number; sx: number; sy: number } | null = null
   private pinch: { dist: number; zoom: number } | null = null
 
-  constructor() { super('city-base-v2') }
+  constructor(key = 'city-base-v2') { super(key) }
 
   preload() { preloadTerrain(this) }
 
@@ -74,8 +74,6 @@ export class CityBaseV2Scene extends Phaser.Scene {
   private drawAtmosphere() {
     const far = this.add.graphics().setDepth(-1500).setScrollFactor(.72)
     far.fillStyle(0x173f4b, 1).fillRect(-4300, -2600, 8600, 5200)
-
-    // Uzak dağ katmanları: farklı scroll factor ile gerçek parallax hissi.
     const layers = [
       { y: -1120, c: 0x34595a, a: .95, sf: .58 },
       { y: -980, c: 0x43685d, a: .95, sf: .68 },
@@ -105,17 +103,13 @@ export class CityBaseV2Scene extends Phaser.Scene {
     const top = this.polygon(LAND, 0)
     const drop1 = top.map(p => new Phaser.Math.Vector2(p.x + 20, p.y + 125))
     const drop2 = top.map(p => new Phaser.Math.Vector2(p.x + 8, p.y + 68))
-
     const shadow = this.add.graphics().setDepth(-1190)
     shadow.fillStyle(0x0c2930, .36).fillPoints(top.map(p => new Phaser.Math.Vector2(p.x + 80, p.y + 175)), true)
-
     const land = this.add.graphics().setDepth(-1180)
     land.fillStyle(0x514a3a, 1).fillPoints(drop1, true)
     land.fillStyle(0x82745a, 1).fillPoints(drop2, true)
     land.fillStyle(0x789b58, 1).fillPoints(top, true)
     land.lineStyle(12, 0xd6c395, .65).strokePoints(top, true)
-
-    // Güney/güneydoğu görünür uçurum yüzlerinde düşey çizgiler.
     const cliff = this.add.graphics().setDepth(-1170)
     cliff.lineStyle(5, 0x493f33, .25)
     for (let i = 0; i < top.length; i++) {
@@ -141,14 +135,11 @@ export class CityBaseV2Scene extends Phaser.Scene {
   }
 
   private drawRaisedTerrain() {
-    // Merkezi şehir platosu gerçek yükselti gibi üst yüzeyi yukarı taşır.
     this.raisedPatch([
       { u: -820, v: -500 }, { u: -180, v: -860 }, { u: 620, v: -690 },
       { u: 1010, v: -120 }, { u: 760, v: 500 }, { u: 100, v: 760 },
       { u: -620, v: 540 }, { u: -980, v: 30 },
     ], 72, 0x88a45e, 0x6a7450, -1110)
-
-    // Kuzeybatı dağ/orman terasları.
     this.raisedPatch([
       { u: -1490, v: -690 }, { u: -1180, v: -1080 }, { u: -700, v: -1110 },
       { u: -430, v: -760 }, { u: -700, v: -420 }, { u: -1180, v: -360 },
@@ -157,8 +148,6 @@ export class CityBaseV2Scene extends Phaser.Scene {
       { u: -1330, v: -760 }, { u: -1080, v: -990 }, { u: -770, v: -960 },
       { u: -640, v: -730 }, { u: -900, v: -560 },
     ], 235, 0x536a45, 0x414f3c, -1080)
-
-    // Doğu yamaçları.
     this.raisedPatch([
       { u: 780, v: -820 }, { u: 1210, v: -690 }, { u: 1470, v: -300 },
       { u: 1290, v: 80 }, { u: 930, v: 40 }, { u: 650, v: -300 },
@@ -189,12 +178,9 @@ export class CityBaseV2Scene extends Phaser.Scene {
     g.lineStyle(82, 0x397d86, 1); this.riverPath.draw(g, 100)
     g.lineStyle(62, 0x55a1a1, .94); this.riverPath.draw(g, 100)
     g.lineStyle(14, 0xa4d2c6, .22); this.riverPath.draw(g, 100)
-
     const mouth = project({ u: 760, v: 960 })
     g.fillStyle(0x5ba5a2, .78).fillEllipse(mouth.x, mouth.y, 480, 150)
     g.fillStyle(0x83c2b6, .18).fillEllipse(mouth.x + 20, mouth.y + 24, 760, 220)
-
-    // Kemerli taş köprü: nehir yatağının üstünde gölge + üst tabliye.
     const b = project({ u: -410, v: 100, h: 16 })
     const bridge = this.add.graphics().setDepth(-720)
     bridge.fillStyle(0x4f463a, .35).fillRoundedRect(b.x - 150, b.y + 24, 310, 74, 20)
@@ -212,7 +198,6 @@ export class CityBaseV2Scene extends Phaser.Scene {
   }
 
   private drawRoads() {
-    // Organik yollar: grid değil, topoğrafyayı takip eden üç ana omurga.
     this.roadCurve([
       { u: -1210, v: 230 }, { u: -820, v: 120 }, { u: -380, v: -20 }, { u: 70, v: -80 },
       { u: 480, v: 20 }, { u: 860, v: 220 }, { u: 1180, v: 510 },
@@ -225,7 +210,6 @@ export class CityBaseV2Scene extends Phaser.Scene {
       { u: 360, v: -720 }, { u: 480, v: -430 }, { u: 430, v: -140 }, { u: 560, v: 120 },
       { u: 820, v: 330 }, { u: 1080, v: 520 },
     ], 30, -797)
-
     const p = project({ u: 0, v: 0, h: 78 })
     const plaza = this.add.graphics().setDepth(-790)
     plaza.fillStyle(0xb9a37b, .95).fillEllipse(p.x, p.y, 560, 250)
@@ -241,7 +225,6 @@ export class CityBaseV2Scene extends Phaser.Scene {
       { u: -1160, v: 520, ru: 300, rv: 260, h: 0, n: 35 },
       { u: 1190, v: 520, ru: 300, rv: 240, h: 0, n: 34 },
     ]
-
     for (const c of clusters) for (let i = 0; i < c.n; i++) {
       const a = rnd.realInRange(0, Math.PI * 2)
       const r = Math.sqrt(rnd.frac())
@@ -331,7 +314,6 @@ export class CityBaseV2Scene extends Phaser.Scene {
     this.input.addPointer(1)
     const gap = () => Phaser.Math.Distance.Between(this.input.pointer1.x, this.input.pointer1.y, this.input.pointer2.x, this.input.pointer2.y)
     const clamp = (z: number) => Phaser.Math.Clamp(z, this.minZoom, this.maxZoom)
-
     this.input.on('pointerdown', (p: Phaser.Input.Pointer) => {
       if (this.input.pointer1.isDown && this.input.pointer2.isDown) {
         this.pinch = { dist: Math.max(1, gap()), zoom: this.cameras.main.zoom }
