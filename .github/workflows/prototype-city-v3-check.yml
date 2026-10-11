@@ -36,3 +36,31 @@ jobs:
           NEXT_BASE_PATH: /gameofashina
           NEXT_PUBLIC_ASSET_BASE: /gameofashina
         run: pnpm build
+
+      # SADECE prototip kanıtı: GitHub Pages'e deploy etmez.
+      - name: Install screenshot browser
+        run: pnpm dlx playwright@1.56.1 install --with-deps chromium
+      - name: Serve static prototype
+        shell: bash
+        run: |
+          ln -sfn out gameofashina
+          python3 -m http.server 4173 >/tmp/city-v3-http.log 2>&1 &
+          echo $! >/tmp/city-v3-http.pid
+          for i in {1..20}; do
+            if curl -fsS http://127.0.0.1:4173/gameofashina/city-v3-prototype/ >/dev/null; then exit 0; fi
+            sleep 1
+          done
+          cat /tmp/city-v3-http.log
+          exit 1
+      - name: Capture wide prototype
+        run: pnpm dlx playwright@1.56.1 screenshot --viewport-size="1600,900" --wait-for-timeout=6000 http://127.0.0.1:4173/gameofashina/city-v3-prototype/ city-v3-wide.png
+      - name: Capture phone prototype
+        run: pnpm dlx playwright@1.56.1 screenshot --device="Pixel 5" --wait-for-timeout=6000 http://127.0.0.1:4173/gameofashina/city-v3-prototype/ city-v3-mobile.png
+      - name: Upload prototype screenshots
+        uses: actions/upload-artifact@v4
+        with:
+          name: city-v3-prototype-screenshots
+          path: |
+            payitaht/city-v3-wide.png
+            payitaht/city-v3-mobile.png
+          retention-days: 7
