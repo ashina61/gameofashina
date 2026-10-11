@@ -2,11 +2,13 @@
 
 import { useEffect, useRef, useState } from 'react'
 import type { GlariumCityScene } from './glarium-city-scene'
+import { GLARIUM_GROWTH_STAGES, glariumGrowthForLevel } from '@/lib/game/glarium-city-growth'
 
 export function GlariumCityPreview() {
   const holder = useRef<HTMLDivElement>(null)
   const sceneRef = useRef<GlariumCityScene | null>(null)
   const [status, setStatus] = useState('Şehir hazırlanıyor…')
+  const [hallLevel, setHallLevel] = useState(1)
 
   useEffect(() => {
     let disposed = false
@@ -17,7 +19,12 @@ export function GlariumCityPreview() {
         const [Phaser, mod] = await Promise.all([import('phaser'), import('./glarium-city-scene')])
         if (disposed || !holder.current) return
         const scene = new mod.GlariumCityScene()
+        const queryHall = Number(new URLSearchParams(window.location.search).get('hall'))
+        scene.initialHallLevel = Number.isFinite(queryHall) && queryHall > 0 ? Math.floor(queryHall) : 1
         scene.onReady = () => { if (!disposed) setStatus('Sürükle · İki parmakla yakınlaştır') }
+        scene.onStageChanged = (level, name) => {
+          if (!disposed) { setHallLevel(level); setStatus(`Belediye ${level} · ${name} · Sürükle / yakınlaştır`) }
+        }
         scene.onError = () => { if (!disposed) setStatus('Şehir görseli yüklenemedi. Sayfayı yeniden aç.') }
         sceneRef.current = scene
         const box = holder.current.getBoundingClientRect()
@@ -43,12 +50,19 @@ export function GlariumCityPreview() {
     <div style={{ position: 'absolute', top: 10, left: 10, right: 10, pointerEvents: 'none' }}>
       <strong style={{ display: 'inline-block', background: '#302419ed', border: '1px solid #ba985b', borderRadius: 8, padding: '8px 12px' }}>PAYİTAHT · ŞEHİR TASARIMI</strong>
     </div>
-    <nav aria-label="Şehir kamerası" style={{ position: 'absolute', left: 10, bottom: 56, display: 'flex', flexWrap: 'wrap', gap: 6, right: 10 }}>
+    <nav aria-label="Şehir kamerası" style={{ position: 'absolute', left: 10, bottom: 110, display: 'flex', flexWrap: 'wrap', gap: 6, right: 10 }}>
       <button style={button} onClick={() => sceneRef.current?.overview()}>Genel</button>
       <button style={button} onClick={() => sceneRef.current?.focus('city')}>Şehir</button>
       <button style={button} onClick={() => sceneRef.current?.focus('harbour')}>Liman</button>
       <button style={button} aria-label="Yakınlaştır" onClick={() => sceneRef.current?.zoomBy(1.25)}>+</button>
       <button style={button} aria-label="Uzaklaştır" onClick={() => sceneRef.current?.zoomBy(.8)}>−</button>
+    </nav>
+    <nav aria-label="Belediye gelişim aşamaları" style={{ position: 'absolute', left: 10, right: 10, bottom: 56, display: 'flex', gap: 6 }}>
+      {GLARIUM_GROWTH_STAGES.map(stage => <button key={stage.level}
+        aria-label={`Belediye ${stage.level}`} aria-pressed={glariumGrowthForLevel(hallLevel).level === stage.level}
+        title={stage.description}
+        style={{ ...button, background: glariumGrowthForLevel(hallLevel).level === stage.level ? '#8f5c32' : '#34281fee', flex: 1, maxWidth: 64 }}
+        onClick={() => sceneRef.current?.setHallLevel(stage.level)}>{stage.level}</button>)}
     </nav>
     <p role="status" style={{ position: 'absolute', left: 10, right: 10, bottom: 10, margin: 0, fontSize: 11, padding: 8, background: '#211b17e8', borderRadius: 6 }}>{status} · Görsel taslak</p>
   </main>

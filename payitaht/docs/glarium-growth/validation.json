@@ -1,0 +1,38 @@
+[
+  {
+    "viewport": {
+      "width": 1440,
+      "height": 1000
+    },
+    "stages": [
+      1,
+      5,
+      10,
+      15,
+      20
+    ],
+    "distinctPixels": true,
+    "errors": [],
+    "overflow": false,
+    "storageUnchanged": true,
+    "panWheelPinchDispatched": true
+  },
+  {
+    "viewport": {
+      "width": 390,
+      "height": 844
+    },
+    "stages": [
+      1,
+      5,
+      10,
+      15,
+      20
+    ],
+    "distinctPixels": true,
+    "errors": [],
+    "overflow": false,
+    "storageUnchanged": true,
+    "panWheelPinchDispatched": true
+  }
+]

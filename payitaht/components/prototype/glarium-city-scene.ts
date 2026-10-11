@@ -1,10 +1,14 @@
 import * as Phaser from 'phaser'
 import { asset } from '@/lib/asset'
+import { GLARIUM_GROWTH_STAGES, glariumGrowthForLevel } from '@/lib/game/glarium-city-growth'
 
 /** Original visual study. No engine, save, construction or production imports. */
 export class GlariumCityScene extends Phaser.Scene {
   onReady?: () => void
   onError?: () => void
+  onStageChanged?: (level: number, name: string) => void
+  initialHallLevel = 1
+  private mapImage?: Phaser.GameObjects.Image
   private mapWidth = 2460
   private mapHeight = 1794
   private fit = 1
@@ -14,13 +18,17 @@ export class GlariumCityScene extends Phaser.Scene {
   constructor() { super('glarium-ottoman-study') }
 
   preload() {
-    this.load.image('ottoman-study', asset('/images/prototype/glarium-ottoman-city.webp'))
+    for (const stage of GLARIUM_GROWTH_STAGES) {
+      this.load.image(stage.texture, asset(`/images/prototype/glarium-growth/hall-${String(stage.level).padStart(2, '0')}.webp`))
+    }
     this.load.once('loaderror', () => this.onError?.())
   }
 
   create() {
-    if (!this.textures.exists('ottoman-study')) return
-    const image = this.add.image(0, 0, 'ottoman-study').setOrigin(0)
+    const stage = glariumGrowthForLevel(this.initialHallLevel)
+    if (!this.textures.exists(stage.texture)) return
+    const image = this.add.image(0, 0, stage.texture).setOrigin(0)
+    this.mapImage = image
     this.mapWidth = image.width
     this.mapHeight = image.height
     this.cameras.main.setBackgroundColor('#173e41')
@@ -58,6 +66,18 @@ export class GlariumCityScene extends Phaser.Scene {
     this.scale.on('resize', this.overview, this)
     this.events.once('shutdown', () => this.scale.off('resize', this.overview, this))
     this.onReady?.()
+    this.setHallLevel(this.initialHallLevel)
+  }
+
+  setHallLevel(level: number) {
+    const safe = Number.isFinite(level) ? Math.max(1, Math.floor(level)) : 1
+    this.initialHallLevel = safe
+    if (!this.mapImage) return
+    const stage = glariumGrowthForLevel(safe)
+    if (!this.textures.exists(stage.texture)) { this.onError?.(); return }
+    // Preserve camera and frame dimensions when comparing development stages.
+    this.mapImage.setTexture(stage.texture).setDisplaySize(this.mapWidth, this.mapHeight)
+    this.onStageChanged?.(safe, stage.name)
   }
 
   overview() {
