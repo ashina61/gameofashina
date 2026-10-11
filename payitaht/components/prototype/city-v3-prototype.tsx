@@ -27,10 +27,10 @@ export function CityV3Prototype() {
       const scene = new sceneMod.CityV3Scene()
       scene.onInfo = text => setInfo(text)
       sceneRef.current = scene
-      scene.events.once(Phaser.Scenes.Events.CREATE, () => {
-        scene.setActiveBuilding(selected)
-        scene.setLifeEnabled(life)
-      })
+      // Sahne Phaser.Game'e eklenmeden `scene.events` henüz enjekte edilmemiş olabilir.
+      // Salt veri ayarlarını boot öncesi doğrudan ver; create() sahneyi kurunca bunları kullanır.
+      scene.setActiveBuilding(selected)
+      scene.setLifeEnabled(life)
 
       const dpr = Math.min(2, window.devicePixelRatio || 1)
       const box = holder.current.getBoundingClientRect()
