@@ -1,0 +1,13 @@
+{
+  "errors": [],
+  "missing": [],
+  "screens": [
+    "north-webgl.webp",
+    "gate-webgl.webp",
+    "ring-webgl.webp",
+    "north-canvas.webp",
+    "gate-canvas.webp",
+    "ring-canvas.webp"
+  ],
+  "spriteChecks": []
+}

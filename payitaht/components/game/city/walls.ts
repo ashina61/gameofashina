@@ -1,5 +1,5 @@
 import * as Phaser from 'phaser'
-import { wallArtTransform } from '@/lib/game/wall-art'
+import { wallMerlons } from '@/lib/game/wall-art'
 import { aqueductWallCrossings, cityStream } from '@/lib/game/city-map/city-extras'
 import { TILE, DEFENSE_SLOTS, DEFENSE_FOUNDATION, HALL_SLOT_ID, WALL_GATES, slotById } from '@/lib/game/city-map'
 import { BUILDINGS, activeJob } from '@/lib/game/engine'
@@ -24,9 +24,9 @@ export function drawWalls(scene: CityScene, level: number) {
   const trench = level <= 0 && !building
   /*
    * SEVİYE KADEMESİ (Ikariam gibi sur büyüdükçe görünüşü değişir):
-   *  1 (sv. 1-3): alçak moloz taş, mazgal yerine sivri ahşap kazık dizisi.
+   *  1 (sv. 1-3): alçak taş gövde ve küçük mazgallar.
    *  2 (sv. 4-7): kesme taş, mazgallı.
-   *  3 (sv. 8+):  yüksek, tuğla kuşaklı; sancak renginde asılı flamalar.
+   *  3 (sv. 8+): yüksek gövde, büyük mazgallar ve yuvarlak burçlar.
    */
   const tier = rising || level <= 3 ? 1 : level <= 7 ? 2 : 3
   const ring = DEFENSE_FOUNDATION.map(p => p.screen)
@@ -40,8 +40,6 @@ export function drawWalls(scene: CityScene, level: number) {
     cache = { stamp, keys: new Set() }
     WALL_CACHE.set(scene, cache)
   }
-  // Asılı flamalar şehrin sancağıyla (işgalde işgalcininkiyle) aynı renkte.
-  const bannerColor = scene.sceneBanner().color
   let pieceNo = 0
   // KAPILAR haritadan gelir (kara kapıları + limanın deniz kapısı). Açıklık
   // halka boyunca yay uzunluğuyla açılır; köşeye düşse de tam genişlikte olur.
@@ -140,7 +138,7 @@ export function drawWalls(scene: CityScene, level: number) {
     hit.on('pointerup', (ptr: Phaser.Input.Pointer) => { if (isTap(ptr) && !scene.moving) scene.events$.onBuilding('surlar') })
     scene.pieces.push(hit)
   }
-  const piece = (p0: { x: number; y: number }, p1: { x: number; y: number }) => {
+  const piece = (p0: { x: number; y: number }, p1: { x: number; y: number }, arc: number) => {
     if (trench) return ditch(p0, p1)
     const n = thick(p0, p1)
     // Ön yüz: izleyiciye (ekranda aşağıya) bakan kenar.
@@ -150,44 +148,53 @@ export function drawWalls(scene: CityScene, level: number) {
     const b0 = inFront ? p0 : { x: p0.x + n.x, y: p0.y + n.y }
     const b1 = inFront ? p1 : { x: p1.x + n.x, y: p1.y + n.y }
     const depth = Math.max(f0.y, f1.y) + 1, no = pieceNo++
-    // Bake one affine transform for BOTH WebGL and Canvas. The previous Canvas
-    // path derived wall height from slope (flat edges disappeared; steep ones
-    // stretched). Texture bounds include the top and thickness of the painting.
-    const left = f0.x < f1.x ? f0 : f1, right = f0.x < f1.x ? f1 : f0
-    const spanX = right.x - left.x, spanY = right.y - left.y
-    const m = wallArtTransform(tier, spanX, spanY, wallH)
-    const corners = [[0, 0], [384, 0], [384, 384], [0, 384]].map(([x, y]) => ({
-      x: m.a * x + m.tx, y: m.b * x + m.d * y + m.ty,
-    }))
-    const topPoints = [f0, f1, b0, b1].map(p => ({ x: p.x - left.x, y: p.y - left.y - wallH }))
-    corners.push(...topPoints, ...[b0, b1].map(p => ({ x: p.x - left.x, y: p.y - left.y })))
-    const minX = Math.floor(Math.min(...corners.map(p => p.x))) - 1
-    const minY = Math.floor(Math.min(...corners.map(p => p.y))) - 1
-    const width = Math.max(1, Math.ceil(Math.max(...corners.map(p => p.x))) - minX + 1)
-    const height = Math.max(1, Math.ceil(Math.max(...corners.map(p => p.y))) - minY + 1)
-    const key = `wall-baked-${tier}-${spanX.toFixed(4)}-${spanY.toFixed(4)}-${wallH.toFixed(4)}-${(b0.x - f0.x).toFixed(4)}-${(b0.y - f0.y).toFixed(4)}`
+    // Real wall planes, with one continuous painted material. Internal joins
+    // have NO end caps: repeating those was the source of the ladder silhouette.
+    const len = Math.hypot(f1.x - f0.x, f1.y - f0.y)
+    const ux = (f1.x - f0.x) / len, uy = (f1.y - f0.y) / len
+    const tx = b0.x - f0.x, ty = b0.y - f0.y, thickness = Math.hypot(tx, ty)
+    const merlonH = tier === 1 ? 11 : tier === 2 ? 15 : 19
+    const points = [f0, f1, b0, b1, { x: b0.x + tx * 0.65 + 9, y: b0.y + 18 }, { x: b1.x + tx * 0.65 + 9, y: b1.y + 18 }]
+    const minX = Math.floor(Math.min(...points.map(p => p.x))) - 2
+    const minY = Math.floor(Math.min(...points.map(p => p.y)) - wallH - merlonH) - 2
+    const width = Math.ceil(Math.max(...points.map(p => p.x))) - minX + 2
+    const height = Math.ceil(Math.max(...points.map(p => p.y))) - minY + 2
+    const key = `wall-surface-${tier}-${arc.toFixed(3)}-${len.toFixed(3)}-${wallH}`
     if (!scene.textures.exists(key)) {
       const texture = scene.textures.createCanvas(key, width, height)!
       const ctx = texture.context
-      const source = scene.textures.get(`w_segment-${tier}`).getSourceImage() as HTMLImageElement
-      // An edge-on front face still has physical thickness. Painted masonry
-      // on the end surfaces prevents the vertical ring sides becoming hairlines.
-      const tx = b0.x - f0.x, ty = b0.y - f0.y
-      if (spanX < Math.abs(tx) * 1.4) for (const p of [f0, f1]) {
-        ctx.setTransform(tx, ty, 0, wallH, p.x - left.x - minX, p.y - left.y - wallH - minY)
-        ctx.drawImage(source, 150, 200, 40, 40, 0, 0, 1, 1)
+      const source = scene.textures.get('w_stone-material').getSourceImage() as HTMLImageElement
+      const stone = ctx.createPattern(source, 'repeat')!
+      const plane = (x: number, y: number, ax: number, ay: number, bx: number, by: number, w: number, h: number, phase: number, shade = 0) => {
+        ctx.setTransform(ax, ay, bx, by, x - minX, y - minY)
+        ctx.translate(-phase, 0)
+        ctx.fillStyle = stone; ctx.fillRect(phase, 0, w, h)
+        if (shade) { ctx.fillStyle = `rgba(62,51,37,${shade})`; ctx.fillRect(phase, 0, w, h) }
       }
-      ctx.setTransform(m.a, m.b, 0, m.d, m.tx - minX, m.ty - minY)
-      if (m.flip) { ctx.translate(384, 0); ctx.scale(-1, 1) }
-      ctx.drawImage(source, 0, 0, 384, 384)
-      // The continuous stone walkway follows the real inward thickness.
-      ctx.setTransform(f1.x - f0.x, f1.y - f0.y, tx, ty, f0.x - left.x - minX, f0.y - left.y - wallH - minY)
-      ctx.drawImage(source, 150, 200, 40, 40, 0, 0, 1, 1)
+      ctx.setTransform(1, 0, 0, 1, -minX, -minY)
+      ctx.beginPath(); ctx.moveTo(f0.x, f0.y); ctx.lineTo(f1.x, f1.y)
+      ctx.lineTo(b1.x + tx * 0.65 + 9, b1.y + 18); ctx.lineTo(b0.x + tx * 0.65 + 9, b0.y + 18)
+      ctx.closePath(); ctx.fillStyle = 'rgba(45,40,26,0.16)'; ctx.fill()
+      // A battered stone base makes even an edge-on wall read as raised masonry.
+      const batter = 0.42
+      const topX = f0.x + tx * batter, topY = f0.y - wallH + ty * batter
+      plane(f0.x, f0.y, ux, uy, tx * batter / wallH, -1 + ty * batter / wallH, len, wallH, arc, 0.24)
+      plane(topX, topY, ux, uy, tx / thickness, ty / thickness, len, thickness * (1 - batter), arc)
+      // Narrow coping along the parapet, rather than a transverse beam at every join.
+      plane(topX, topY + 3, ux, uy, 0, -1, len, 3, arc, 0.22)
+      for (const [lo, hi] of wallMerlons(arc, len)) {
+        const x = topX + ux * lo, y = topY + uy * lo
+        const w = hi - lo, d = 0.2
+        plane(x, y, ux, uy, 0, -1, w, merlonH, arc + lo, 0.1)
+        plane(x, y - merlonH, ux, uy, tx / thickness, ty / thickness, w, thickness * d, arc + lo)
+        // Only the exposed end of a crenellation has a short side face.
+        if (hi < len - 0.001) plane(x + ux * w, y + uy * w, tx / thickness, ty / thickness, 0, -1, thickness * d, merlonH, 0, 0.24)
+      }
       ctx.resetTransform()
       texture.refresh()
       cache.keys.add(key)
     }
-    scene.pieces.push(scene.add.image(left.x + minX, left.y + minY, key).setOrigin(0).setDepth(depth))
+    scene.pieces.push(scene.add.image(minX, minY, key).setOrigin(0).setDepth(depth))
     const up = wallH + TILE.h * 0.3
     const zone = scene.add.zone(0, 0, 1, 1).setOrigin(0, 0).setDepth(depth + 0.01).setInteractive({
       hitArea: new Phaser.Geom.Polygon([f0.x, f0.y + 6, f1.x, f1.y + 6, f1.x, f1.y - up, b1.x, b1.y - up, b0.x, b0.y - up, f0.x, f0.y - up]),
@@ -195,10 +202,6 @@ export function drawWalls(scene: CityScene, level: number) {
     })
     tapWall(zone)
     scene.pieces.push(zone)
-    if (tier === 3 && inFront && no % 3 === 1) scene.flagField?.add({
-      x: (f0.x + f1.x) / 2, y: (f0.y + f1.y) / 2 - wallH * 0.9,
-      w: TILE.w * 0.11, h: wallH * 0.62, color: bannerColor, depth: depth + 0.05,
-    }, 'pieces')
     if (building && (rising || (inFront && no % 2 === 0))) scene.scaffoldOn(f0, f1, wallH, depth + 0.05)
   }
 
@@ -213,12 +216,12 @@ export function drawWalls(scene: CityScene, level: number) {
       for (const [h0, h1] of holes) {
         if (t1 <= h0 || t0 >= h1) continue
         if (t0 < h0 && t1 > h1) { // parça açıklığı ortalıyor: iki yana böl
-          piece({ x: A.x + (B.x - A.x) * t0, y: A.y + (B.y - A.y) * t0 }, { x: A.x + (B.x - A.x) * h0, y: A.y + (B.y - A.y) * h0 })
+          piece({ x: A.x + (B.x - A.x) * t0, y: A.y + (B.y - A.y) * t0 }, { x: A.x + (B.x - A.x) * h0, y: A.y + (B.y - A.y) * h0 }, segStart[i] + len * t0)
           t0 = h1
         } else if (t0 < h0) t1 = h0
         else t0 = h1
       }
-      if (t1 - t0 > 0.002) piece({ x: A.x + (B.x - A.x) * t0, y: A.y + (B.y - A.y) * t0 }, { x: A.x + (B.x - A.x) * t1, y: A.y + (B.y - A.y) * t1 })
+      if (t1 - t0 > 0.002) piece({ x: A.x + (B.x - A.x) * t0, y: A.y + (B.y - A.y) * t0 }, { x: A.x + (B.x - A.x) * t1, y: A.y + (B.y - A.y) * t1 }, segStart[i] + len * t0)
     }
   }
 
@@ -237,16 +240,15 @@ export function drawWalls(scene: CityScene, level: number) {
   const tower = (x: number, y: number, w: number) => {
     const base = scene.add.graphics().setDepth(y + 1.5)
     base.fillStyle(0x1b2a14, 0.24); base.fillEllipse(x + w * 0.18, y + w * 0.08, w * 1.3, w * 0.5)
-    base.fillStyle(0xb3966c, 1); base.fillEllipse(x, y, w * 1.02, w * 0.42)
     scene.pieces.push(base)
-    if (scene.textures.exists(`w_tower-${tier}`)) {
-      const img = scene.add.image(x, y - w * 0.04, `w_tower-${tier}`).setOrigin(0.5, 1).setDepth(y + 2)
-      const paintedWidth = [243, 208, 206][tier - 1]
+    if (scene.textures.exists('w_tower-round')) {
+      const img = scene.add.image(x, y, 'w_tower-round').setOrigin(0.5, 1).setDepth(y + 2)
+      const paintedWidth = img.width
       img.setScale(w / paintedWidth)
       img.setInteractive({ useHandCursor: true }); tapWall(img)
       scene.pieces.push(img)
       // Her kulede al sancak (ay-yıldız), rüzgârda dalgalı.
-      const top = y - w * 0.04 - img.height * (w / paintedWidth) + w * 0.06
+      const top = y - img.displayHeight + w * 0.1
       const f = scene.add.graphics().setDepth(y + 2.1)
       f.lineStyle(2.5, 0x4a3a28, 1); f.lineBetween(x, top, x, top - w * 0.62)
       f.fillStyle(0xe2bd78, 1); f.fillCircle(x, top - w * 0.64, 2.6)
@@ -277,23 +279,21 @@ export function drawWalls(scene: CityScene, level: number) {
     if (g.kind === 'aq') continue // su kapısı: kemer açıklıktan geçer, iki küçük burç yeter
     const lg = scene.add.graphics().setDepth(Math.max(L.y, R.y) + 1.8)
     if (land) {
-      // Kapı kulesi: yolun üstüne oturan kemerli taş blok. Kemer, geçidin
-      // baktığı yüzde (kuzey kapısında ön yüz, yan kapılarda yan yüz).
-      const c = g.center, w = TILE.w * 1.1, h = wallH * 1.7, d = w * 0.34
-      const y0 = c.y + TILE.h * 0.3
+      const c = g.center
       const tgA = pointAt(g.s0), tgB = pointAt(g.s1)
-      scene.pieces.push(scene.add.image(c.x + d / 2, y0 + 4, `w_gate-${tier}`).setOrigin(0.5, 1)
-        .setDisplaySize(w + d, h + d / 2 + 16).setFlipX((tgB.x - tgA.x) * (tgB.y - tgA.y) > 0).setDepth(y0 + 1.95))
-      const mx = c.x + d / 2, my = y0 - h - d / 4
-      lg.lineStyle(3, 0x5a4630, 1); lg.lineBetween(mx, my, mx, my - 70)
-      lg.fillStyle(0xe2bd78, 1); lg.fillCircle(mx, my - 72, 3.5)
-      lg.setDepth(y0 + 2)
-      scene.flagField?.add({ x: mx + 2, y: my - 68, w: 44, h: 30, depth: y0 + 2.1 }, 'pieces')
-      if (!northGate || y0 < northGate.y) northGate = { x: c.x, y: y0 - h - 18, depth: y0 }
-      const gateHit = scene.add.rectangle(c.x + d / 2, y0 - h / 2 - 8, w + d, h + 24).setInteractive({ useHandCursor: true })
-        .setFillStyle(0xffffff, 0).setDepth(y0 + 2.2)
-      tapWall(gateHit)
-      scene.pieces.push(gateHit)
+      const side = Math.abs(tgB.y - tgA.y) > Math.abs(tgB.x - tgA.x) * 1.4
+      // Separate painted views. Never squeeze a frontal facade into a side gate.
+      const img = scene.add.image(c.x, c.y, side ? 'w_gate-side' : 'w_gate-front')
+        .setOrigin(0.5, side ? 0.55 : 0.87).setFlipX(side ? c.x > hall.x : (tgB.x - tgA.x) * (tgB.y - tgA.y) > 0)
+      const gateW = TILE.w * (side ? 0.8 : 1.8) * (tier === 1 ? 0.84 : tier === 2 ? 0.92 : 1)
+      img.setScale(gateW / img.width)
+      const baseY = c.y + img.displayHeight * (side ? 0.45 : 0.13)
+      // The gateway spans both sides of the opening. Its lower towers must
+      // cover the adjacent curtain wall's raised plane, not sink behind it.
+      img.setDepth(baseY + wallH + 2).setInteractive({ useHandCursor: true }); tapWall(img)
+      scene.pieces.push(img)
+      const topY = c.y - img.displayHeight * (side ? 0.55 : 0.87)
+      if (!northGate || c.y < northGate.depth) northGate = { x: c.x, y: topY - 18, depth: c.y }
     } else {
       // Liman zinciri: kulelerden sarkan halkalı zincir + şamandıralar.
       const pts: Phaser.Math.Vector2[] = []

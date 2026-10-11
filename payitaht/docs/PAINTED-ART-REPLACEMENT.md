@@ -1,5 +1,7 @@
 # Boyalı görseller ve sur düzeltmesi — 0.102.0 / SW116
 
+Sur denemesi daha sonra kullanıcı tarafından görsel olarak reddedildi. Güncel sur, kapı ve burç uygulaması `WALL-REDESIGN.md` içinde; bu belgedeki eski sur dönüşümü ve `wall-gate-followup` görüntüleri tarihçedir.
+
 11 Ekim 2026. Kullanıcı mevcut tasarımı koruyup kalan eski SVG çizimleri boyalı görsellerle değiştirmeyi ve sur sorununu düzeltmeyi istedi. Yeni master şehir önerisi uygulanmadı.
 
 89 ortak arayüz ikonunun her biri şeffaf WebP çizim kullanır. Sekiz şehir nişanı, beş halk ifadesi, taşçı, madenci ve rehber oku da boyalıdır. Sancak ve arma önizlemeleri mevcut onaylı ipek/sırma görsellerini kullanır. Eski taç simgesi kavukla değiştirildi. SVG yalnız dünya haritasının dinamik koordinat, rota, metin ve seçim katmanı olarak kalır; savaş işaretleri boyalıdır.
