@@ -1,15 +1,18 @@
+import { asset } from '@/lib/asset'
 import { CITY_SLOTS, DEFENSE_FOUNDATION, HALL_SLOT_ID, slotById, TILE } from '../index'
 import * as Phaser from 'phaser'
 import { mulberry32 } from '../terrain-builder'
 
 const PAINTED_CITY_KEY = 'city_l1_painted'
-const PAINTED_CITY_URL = '/images/game/terrain/city-l1.webp'
+const PAINTED_CITY_URL = asset('/images/game/terrain/city-l1.webp')
+
+type ReadyScene = Phaser.Scene & { markReady?: () => void }
 
 function mountPaintedCityBase(scene: Phaser.Scene) {
   const mount = () => {
     if (!scene.sys.isActive() || scene.children.getByName('city-painted-l1')) return
     const hall = slotById(HALL_SLOT_ID)?.screen
-    if (!hall) return
+    if (!hall || !scene.textures.exists(PAINTED_CITY_KEY)) return
     // 1536×1024 concept art is fitted to the 24-plot world, not to the viewport.
     // Buildings, empty-slot hit areas, wall construction and economy remain runtime layers.
     const width = TILE.w * 32
@@ -20,13 +23,21 @@ function mountPaintedCityBase(scene: Phaser.Scene) {
       .setDisplaySize(width, height)
   }
 
+  const markReadyAfterLoad = () => {
+    mount()
+    // drawLand runs during create(), so the city redraw may have tried to emit
+    // its ready signal while this late texture was still loading. Once the
+    // loader has genuinely finished, re-arm the normal POST_RENDER ready signal.
+    scene.time.delayedCall(0, () => (scene as ReadyScene).markReady?.())
+  }
+
   if (scene.textures.exists(PAINTED_CITY_KEY)) {
     mount()
     return
   }
 
   scene.load.image(PAINTED_CITY_KEY, PAINTED_CITY_URL)
-  scene.load.once(Phaser.Loader.Events.COMPLETE, mount)
+  scene.load.once(Phaser.Loader.Events.COMPLETE, markReadyAfterLoad)
   if (!scene.load.isLoading()) scene.load.start()
 }
 
