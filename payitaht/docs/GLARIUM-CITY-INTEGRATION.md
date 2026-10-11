@@ -1,5 +1,7 @@
 # Onaylı Glarium esintili şehrin oyun entegrasyonu
 
+**Sonraki çalışma:** Kışla’nın beş ayrı görseli ve kendi seviyesinden seçim sistemi tamamlandı; bkz. `GLARIUM-FIVE-STAGE-BUILDINGS.md`. Diğer bina aileleri henüz dönüştürülmedi.
+
 Çalışma dalı: `prototype/glarium-ottoman-city`. Ana/canlı dal değiştirilmedi.
 
 Onaylanan beş şehir resmi artık yalnız `/glarium-city` sunumu değildir. Ana oyun sayfasındaki `CityCanvas`, gerçek şehir `Game` verisini `glarium-playable-city.ts` sahnesine verir. Belediye seviyesi 1–4 / 5–9 / 10–14 / 15–19 / 20+ aralıklarında ilgili resmi seçer. Görünüm değişimi kamerayı sıfırlamaz. Koloni değişiminde mevcut kabuk sahneyi yeniden kurar.

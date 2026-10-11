@@ -1,0 +1,51 @@
+{
+  "errors": [],
+  "missing": [],
+  "stages": [
+    {
+      "barracks": 1,
+      "cityHall": 20,
+      "urls": [
+        "http://127.0.0.1:3000/images/game/buildings/glarium/kisla-01-sm.webp?art=20261011-ottoman-barracks-v1"
+      ],
+      "previewImage": "/images/game/buildings/glarium/kisla-01-sm.webp?art=20261011-ottoman-barracks-v1",
+      "tap": true
+    },
+    {
+      "barracks": 5,
+      "cityHall": 20,
+      "urls": [
+        "http://127.0.0.1:3000/images/game/buildings/glarium/kisla-05-sm.webp?art=20261011-ottoman-barracks-v1"
+      ],
+      "previewImage": "/images/game/buildings/glarium/kisla-05-sm.webp?art=20261011-ottoman-barracks-v1",
+      "tap": true
+    },
+    {
+      "barracks": 10,
+      "cityHall": 20,
+      "urls": [
+        "http://127.0.0.1:3000/images/game/buildings/glarium/kisla-10-sm.webp?art=20261011-ottoman-barracks-v1"
+      ],
+      "previewImage": "/images/game/buildings/glarium/kisla-10-sm.webp?art=20261011-ottoman-barracks-v1",
+      "tap": true
+    },
+    {
+      "barracks": 15,
+      "cityHall": 20,
+      "urls": [
+        "http://127.0.0.1:3000/images/game/buildings/glarium/kisla-15-sm.webp?art=20261011-ottoman-barracks-v1"
+      ],
+      "previewImage": "/images/game/buildings/glarium/kisla-15-sm.webp?art=20261011-ottoman-barracks-v1",
+      "tap": true
+    },
+    {
+      "barracks": 20,
+      "cityHall": 20,
+      "urls": [
+        "http://127.0.0.1:3000/images/game/buildings/glarium/kisla-20-sm.webp?art=20261011-ottoman-barracks-v1"
+      ],
+      "previewImage": "/images/game/buildings/glarium/kisla-20-sm.webp?art=20261011-ottoman-barracks-v1",
+      "tap": true
+    }
+  ]
+}

@@ -1,0 +1,72 @@
+{
+  "1": {
+    "originX": 0.4960127591706539,
+    "originY": 0.8181818181818182,
+    "contactWidthRatio": 0.8022328548644339,
+    "visibleHeightRatio": 0.39314194577352474,
+    "source": "exec-c37eea19-6998-4b2e-b9ba-3f8de85272a4.png",
+    "bounds": {
+      "minX": 119,
+      "maxX": 1124,
+      "minY": 533,
+      "maxY": 1025
+    },
+    "transparentRatio": 0.7251341162824416
+  },
+  "5": {
+    "originX": 0.5,
+    "originY": 0.8006379585326954,
+    "contactWidthRatio": 0.9266347687400319,
+    "visibleHeightRatio": 0.42503987240829344,
+    "source": "exec-41d4c6de-e391-4cb2-8926-45a84796f17c.png",
+    "bounds": {
+      "minX": 46,
+      "maxX": 1207,
+      "minY": 471,
+      "maxY": 1003
+    },
+    "transparentRatio": 0.6868705946394186
+  },
+  "10": {
+    "originX": 0.5,
+    "originY": 0.8110047846889952,
+    "contactWidthRatio": 0.9234449760765551,
+    "visibleHeightRatio": 0.569377990430622,
+    "source": "exec-17c4d655-43f5-4568-b804-1b42d3f7887f.png",
+    "bounds": {
+      "minX": 48,
+      "maxX": 1205,
+      "minY": 303,
+      "maxY": 1016
+    },
+    "transparentRatio": 0.6142563891241806
+  },
+  "15": {
+    "originX": 0.5,
+    "originY": 0.8708133971291866,
+    "contactWidthRatio": 0.9744816586921851,
+    "visibleHeightRatio": 0.7384370015948963,
+    "source": "exec-46d318ca-cc0c-48f7-accd-c29f0266a4ce.png",
+    "bounds": {
+      "minX": 16,
+      "maxX": 1237,
+      "minY": 166,
+      "maxY": 1091
+    },
+    "transparentRatio": 0.4787887690808869
+  },
+  "20": {
+    "originX": 0.5,
+    "originY": 0.8716108452950558,
+    "contactWidthRatio": 0.9728867623604466,
+    "visibleHeightRatio": 0.773524720893142,
+    "source": "exec-38619f15-b7c8-4bc0-ac73-755c5c887181.png",
+    "bounds": {
+      "minX": 17,
+      "maxX": 1236,
+      "minY": 123,
+      "maxY": 1092
+    },
+    "transparentRatio": 0.428959069414874
+  }
+}

@@ -3,6 +3,7 @@ import { asset, buildingArtKey, buildingImage } from '@/lib/asset'
 import { BUILDINGS, BUILDING_IDS, plotFits, plotOpen, type BuildingId, type Game } from '@/lib/game/engine'
 import { visualSignature } from '@/lib/game/city-render'
 import { GLARIUM_GROWTH_STAGES, glariumGrowthForLevel } from '@/lib/game/glarium-city-growth'
+import { fiveStageBuildingArt } from '@/lib/game/building-art-growth'
 import { PAINTED_PLOTS, PAINTED_CITY_SIZE } from '@/lib/game/glarium-playable-layout'
 import { PEACEFUL_CITY, siegeAppearanceKey, type SiegeAppearance } from '@/lib/game/siege-appearance'
 import { liteMode } from '@/lib/motion'
@@ -162,8 +163,11 @@ export class CityScene extends Phaser.Scene {
     if (id !== 'divan') {
       const key = level > 0 ? this.requestArt(id) : 'painted-site'
       if (this.textures.exists(key)) {
-        const width = plot.index >= 25 ? plot.width * .82 : 68
-        const img = this.keep(this.add.image(plot.x, plot.y + plot.height * .15, this.renderTexture(key, width)).setOrigin(.5, .88).setDepth(plot.y))
+        const growth = level > 0 ? fiveStageBuildingArt(id, level) : null
+        const contactWidth = plot.index >= 25 ? plot.width * .82 : 68
+        const width = growth ? contactWidth * growth.occupancyScale / growth.contactWidthRatio : contactWidth
+        if (growth) this.keep(this.add.ellipse(plot.x + 1.5, plot.y + plot.height * .12, contactWidth * growth.occupancyScale * .92, plot.height * .4, 0x493b27, .17).setDepth(plot.y - .1))
+        const img = this.keep(this.add.image(plot.x, plot.y + plot.height * .15, this.renderTexture(key, width)).setOrigin(growth?.originX ?? .5, growth?.originY ?? .88).setDepth(plot.y))
         img.setDisplaySize(width, img.height / img.width * width)
         img.setFlipX(id === 'liman' || id === 'tersane' ? this.state.coastFacing[id] === 'right' : this.state.flips.includes(id))
         if (id === this.moving) img.setAlpha(.7)

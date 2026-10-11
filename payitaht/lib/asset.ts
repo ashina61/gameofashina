@@ -1,3 +1,5 @@
+import { fiveStageBuildingArt, FIVE_STAGE_ART_REV } from './game/building-art-growth'
+
 /**
  * Genel (public/) varliklarin yolunu uretir.
  *
@@ -54,6 +56,8 @@ export type CoastFacing = 'left' | 'straight' | 'right'
  * sprite'ın aynalanmış iki yönüdür. Kara binalarında dosya adı değişmez.
  */
 export function buildingArtKey(id: string, level = 1, facing?: CoastFacing) {
+  const growth = fiveStageBuildingArt(id, level)
+  if (growth) return growth.key
   const straight = (id === 'liman' || id === 'tersane') && facing === 'straight'
   return `${id}${straight ? '-duz' : ''}-${buildingStage(level)}`
 }
@@ -68,6 +72,8 @@ export function buildingArtKey(id: string, level = 1, facing?: CoastFacing) {
 export type ArtSize = 'full' | 'sm'
 export function buildingImage(id: string, level = 1, facing?: CoastFacing, size: ArtSize = 'sm') {
   const sm = size === 'sm' ? '-sm' : ''
+  const growth = fiveStageBuildingArt(id, level)
+  if (growth) return `${asset(`${growth.path}${sm}.webp`)}?art=${FIVE_STAGE_ART_REV}`
   if (id === 'liman' || id === 'tersane') {
     const variant = facing === 'straight' ? `${id}-duz` : id
     return `${asset(`/images/game/buildings/${variant}-painted-${buildingStage(level)}${sm}.webp`)}?art=${BUILDING_ART_REV}`
