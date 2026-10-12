@@ -3,6 +3,12 @@ import { LIVE_SLOTS } from './live-adapter'
 
 /** Image pixels, independent of the engine's stable plot indices and tile geometry. */
 export const MASTER_MAP = { width: 1536, height: 1024, scale: 3, key: 'city-master-20261011' }
+/** Four 2x-detail textures retain the existing painting's world coordinates. */
+export const MASTER_TERRAIN_TILES = [
+  { id: 'nw', x: 0, y: 0 }, { id: 'ne', x: 768, y: 0 },
+  { id: 'sw', x: 0, y: 512 }, { id: 'se', x: 768, y: 512 },
+].map(tile => ({ ...tile, key: `master-detail-${tile.id}`, width: 768, height: 512,
+  path: `/images/game/terrain/master-detail-v1/${tile.id}.webp` }))
 export const MASTER_PLOTS = measured.map(p => ({
   ...p,
   slot: LIVE_SLOTS[p.index],

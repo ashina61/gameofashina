@@ -1,3 +1,5 @@
+**12 Ekim zemin ayrıntısı — 0.104.0 / SW118:** `docs/CITY-DETAIL-0.104.md` güncel takip. Dört 2x doku toplam 3072×2048 zemin; yedinci master modülü kahvehane. Eski katalog henüz bütünüyle uyarlanmadı. Yol/parsel projeksiyonu, mekanik, kayıt ve HUD korunur. Gerçek zoom/taşma kontrolü `tools/master-release-qa.cjs`; kanıtlar `docs/mockups/master-detail/`.
+
 **12 Ekim yayın izni — 0.103.0 / SW117:** Kullanıcı arka planı ve yapılan binaları canlıya alma yetkisi verdi. `docs/CITY-RELEASE-0.103.md` ve `docs/BUILDING-PLACEMENT-RULES.md` geçerlidir. Altı yeni modül master-v3 altında; eski üç prototip aktif değildir. Tüm görsel arsa içinde, yollar açık; gerçek belediye/19. arsa projeksiyonu düzeltildi. Mekanik/kayıt/HUD korunur.
 
 **12 Ekim kesin bina kuralları:** `docs/BUILDING-PLACEMENT-RULES.md` bütün eski prototip tariflerinin önündedir. Yollar kapanmaz; bina arsayı doldurur; çatı, avlu, dekor ve gölge dahil hiçbir öğe dışarı taşmaz. İlk bağımsız üç prototip reddedildi; arsa üzerinde tasarım ve ayırt edici mimari geçerlidir. Konseptler sınır doğrulaması olmadan oyuna hazır kabul edilmez.

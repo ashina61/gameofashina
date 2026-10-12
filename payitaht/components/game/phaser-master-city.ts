@@ -1,6 +1,6 @@
 import * as Phaser from 'phaser'
 import { CityScene } from './phaser-city'
-import { MASTER_MAP, MASTER_PLOTS, masterPlot, masterArtFrame, type MasterPlot } from '@/lib/game/city-map/master-projection'
+import { MASTER_MAP, MASTER_TERRAIN_TILES, MASTER_PLOTS, masterPlot, masterArtFrame, type MasterPlot } from '@/lib/game/city-map/master-projection'
 import { BUILDINGS, BUILDING_IDS, activeJob, plotOpen, type BuildingId, type Game } from '@/lib/game/engine'
 import { asset, buildingArtKey } from '@/lib/asset'
 import { MASTER_BUILDING_ART, masterBuildingImage } from '@/lib/game/city-map/master-building-art'
@@ -16,6 +16,7 @@ export class MasterCityScene extends CityScene {
   masterShips: Phaser.GameObjects.Image[] = []
   preload() {
     this.load.image(MASTER_MAP.key, asset('/images/game/terrain/city-master-20261011.webp'))
+    for (const tile of MASTER_TERRAIN_TILES) this.load.image(tile.key, asset(tile.path))
     for (const id of BUILDING_IDS) {
       const level = this.state.buildings[id]
       if (!BUILDINGS[id].art || level <= 0 || id === 'surlar') continue
@@ -57,7 +58,7 @@ export class MasterCityScene extends CityScene {
     // Continue clean water/woodland strips from this same painting into the
     // portrait viewport instead of flat colored margins.
     const source = mapTexture.getSourceImage() as HTMLImageElement
-    const extend = (key: string, x: number, y: number, width: number, height: number) => {
+    const extend = (key: string, sourceImage: HTMLImageElement, x: number, y: number, width: number, height: number) => {
       const tex = this.textures.createCanvas(key, width * 2, height * 2)!
       const ctx = tex.context
       if (key === 'master-forest-extension') ctx.filter = 'blur(12px)'
@@ -65,18 +66,27 @@ export class MasterCityScene extends CityScene {
         ctx.save()
         ctx.translate(mx ? width * 2 : 0, my ? height * 2 : 0)
         ctx.scale(mx ? -1 : 1, my ? -1 : 1)
-        ctx.drawImage(source, x, y, width, height, 0, 0, width, height)
+        ctx.drawImage(sourceImage, x, y, width, height, 0, 0, width, height)
         ctx.restore()
       }
       tex.refresh()
     }
-    extend('master-water-extension', 500, 936, 600, 88)
-    extend('master-forest-extension', 20, 0, 160, 90)
+    const waterDetail = this.textures.exists('master-detail-se')
+    const forestDetail = this.textures.exists('master-detail-nw')
+    extend('master-water-extension', waterDetail ? this.textures.get('master-detail-se').getSourceImage() as HTMLImageElement : source,
+      waterDetail ? 100 : 500, waterDetail ? 848 : 936, waterDetail ? 900 : 600, waterDetail ? 176 : 88)
+    extend('master-forest-extension', forestDetail ? this.textures.get('master-detail-nw').getSourceImage() as HTMLImageElement : source,
+      forestDetail ? 40 : 20, 0, forestDetail ? 320 : 160, forestDetail ? 180 : 90)
     this.add.tileSprite(0, MASTER_MAP.height * s, wr.w, wr.h, 'master-water-extension')
-      .setOrigin(0).setTileScale(s).setDepth(-1000)
+      .setOrigin(0).setTileScale(waterDetail ? s / 2 : s).setDepth(-1000)
     this.add.tileSprite(0, -1600, wr.w, 1600, 'master-forest-extension')
-      .setOrigin(0).setTileScale(s).setDepth(-1000)
+      .setOrigin(0).setTileScale(forestDetail ? s / 2 : s).setDepth(-1000)
     this.add.image(0, 0, MASTER_MAP.key, '__BASE').setOrigin(0).setDisplaySize(MASTER_MAP.width * s, MASTER_MAP.height * s).setDepth(-1000)
+    for (const tile of MASTER_TERRAIN_TILES) {
+      if (!this.textures.exists(tile.key)) continue
+      this.add.image(tile.x * s, tile.y * s, tile.key).setOrigin(0)
+        .setDisplaySize(tile.width * s, tile.height * s).setDepth(-999)
+    }
     this.flagField = new FlagField(this)
     this.flagField.setLook(this.sceneBanner())
     this.smoke = new SmokeField(this)

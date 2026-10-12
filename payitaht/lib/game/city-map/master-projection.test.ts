@@ -1,7 +1,19 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { MASTER_MAP, MASTER_PLOTS, masterPlot, masterArtFrame } from './master-projection'
+import { MASTER_MAP, MASTER_TERRAIN_TILES, MASTER_PLOTS, masterPlot, masterArtFrame } from './master-projection'
 import { LIVE_SLOTS } from './live-adapter'
+
+test('detail terrain covers the existing map once without gaps or overlapping tiles', () => {
+  let area = 0
+  for (const a of MASTER_TERRAIN_TILES) {
+    assert.ok(a.x >= 0 && a.y >= 0 && a.x + a.width <= MASTER_MAP.width && a.y + a.height <= MASTER_MAP.height)
+    area += a.width * a.height
+    for (const b of MASTER_TERRAIN_TILES) if (a !== b) {
+      assert.ok(a.x + a.width <= b.x || b.x + b.width <= a.x || a.y + a.height <= b.y || b.y + b.height <= a.y)
+    }
+  }
+  assert.equal(area, MASTER_MAP.width * MASTER_MAP.height)
+})
 
 test('master painting preserves every saved plot index, zone and fixed hall', () => {
   assert.equal(MASTER_PLOTS.length, LIVE_SLOTS.length)

@@ -1,0 +1,430 @@
+{
+  "errors": [],
+  "missing": [],
+  "cases": [
+    {
+      "name": "new game",
+      "measured": 9,
+      "violations": 0,
+      "art": [
+        {
+          "index": 0,
+          "role": "art",
+          "id": "divan",
+          "outside": false,
+          "x": 2223,
+          "y": 1170,
+          "width": 486.72,
+          "height": 233.27999999999997,
+          "plotWidth": 507,
+          "plotHeight": 243
+        },
+        {
+          "index": 2,
+          "role": "art",
+          "id": "konut",
+          "outside": false,
+          "x": 1581,
+          "y": 1509,
+          "width": 391.9565975103733,
+          "height": 231.24,
+          "plotWidth": 510,
+          "plotHeight": 246
+        },
+        {
+          "index": 4,
+          "role": "art",
+          "id": "kereste",
+          "outside": false,
+          "x": 2814,
+          "y": 837,
+          "width": 445.55999999999995,
+          "height": 223.0311612175874,
+          "plotWidth": 474,
+          "plotHeight": 249
+        },
+        {
+          "index": 8,
+          "role": "art",
+          "id": "ambar",
+          "outside": false,
+          "x": 3351,
+          "y": 534,
+          "width": 443.52,
+          "height": 207.35999999999996,
+          "plotWidth": 462,
+          "plotHeight": 216
+        }
+      ]
+    },
+    {
+      "name": "all seven / 360",
+      "measured": 16,
+      "violations": 0,
+      "art": [
+        {
+          "index": 0,
+          "role": "art",
+          "id": "divan",
+          "outside": false,
+          "x": 2223,
+          "y": 1170,
+          "width": 496.8599999999999,
+          "height": 238.1400000000001,
+          "plotWidth": 507,
+          "plotHeight": 243
+        },
+        {
+          "index": 1,
+          "role": "art",
+          "id": "kisla",
+          "outside": false,
+          "x": 2835,
+          "y": 1170,
+          "width": 475.1999999999998,
+          "height": 233.27999999999997,
+          "plotWidth": 495,
+          "plotHeight": 243
+        },
+        {
+          "index": 2,
+          "role": "art",
+          "id": "ambar",
+          "outside": false,
+          "x": 1581,
+          "y": 1509,
+          "width": 489.5999999999999,
+          "height": 236.16000000000008,
+          "plotWidth": 510,
+          "plotHeight": 246
+        },
+        {
+          "index": 3,
+          "role": "art",
+          "id": "medrese",
+          "outside": false,
+          "x": 1617,
+          "y": 1170,
+          "width": 460.79999999999995,
+          "height": 233.27999999999997,
+          "plotWidth": 480,
+          "plotHeight": 243
+        },
+        {
+          "index": 7,
+          "role": "art",
+          "id": "kahvehane",
+          "outside": false,
+          "x": 1632,
+          "y": 837,
+          "width": 460.79999999999995,
+          "height": 239.03999999999996,
+          "plotWidth": 480,
+          "plotHeight": 249
+        },
+        {
+          "index": 19,
+          "role": "art",
+          "id": "hamam",
+          "outside": false,
+          "x": 2220,
+          "y": 1509,
+          "width": 486.72,
+          "height": 236.16000000000008,
+          "plotWidth": 507,
+          "plotHeight": 246
+        },
+        {
+          "index": 20,
+          "role": "art",
+          "id": "carsi",
+          "outside": false,
+          "x": 2847,
+          "y": 1509,
+          "width": 509.7600000000002,
+          "height": 239.03999999999996,
+          "plotWidth": 531,
+          "plotHeight": 249
+        }
+      ]
+    },
+    {
+      "name": "all seven / 390",
+      "measured": 17,
+      "violations": 0,
+      "art": [
+        {
+          "index": 0,
+          "role": "art",
+          "id": "divan",
+          "outside": false,
+          "x": 2223,
+          "y": 1170,
+          "width": 496.8599999999999,
+          "height": 238.1400000000001,
+          "plotWidth": 507,
+          "plotHeight": 243
+        },
+        {
+          "index": 5,
+          "role": "art",
+          "id": "kisla",
+          "outside": false,
+          "x": 2223,
+          "y": 807,
+          "width": 449.2800000000002,
+          "height": 190.08000000000004,
+          "plotWidth": 468,
+          "plotHeight": 198
+        },
+        {
+          "index": 8,
+          "role": "art",
+          "id": "medrese",
+          "outside": false,
+          "x": 3351,
+          "y": 534,
+          "width": 443.52,
+          "height": 207.35999999999996,
+          "plotWidth": 462,
+          "plotHeight": 216
+        },
+        {
+          "index": 9,
+          "role": "art",
+          "id": "ambar",
+          "outside": false,
+          "x": 3387,
+          "y": 837,
+          "width": 472.32000000000016,
+          "height": 239.03999999999996,
+          "plotWidth": 492,
+          "plotHeight": 249
+        },
+        {
+          "index": 10,
+          "role": "art",
+          "id": "kahvehane",
+          "outside": false,
+          "x": 984,
+          "y": 837,
+          "width": 512.6400000000001,
+          "height": 239.03999999999996,
+          "plotWidth": 534,
+          "plotHeight": 249
+        },
+        {
+          "index": 23,
+          "role": "art",
+          "id": "hamam",
+          "outside": false,
+          "x": 1596,
+          "y": 534,
+          "width": 489.5999999999999,
+          "height": 207.35999999999996,
+          "plotWidth": 510,
+          "plotHeight": 216
+        },
+        {
+          "index": 24,
+          "role": "art",
+          "id": "carsi",
+          "outside": false,
+          "x": 2796,
+          "y": 534,
+          "width": 472.32000000000016,
+          "height": 207.35999999999996,
+          "plotWidth": 492,
+          "plotHeight": 216
+        }
+      ]
+    },
+    {
+      "name": "all seven / 430",
+      "measured": 16,
+      "violations": 0,
+      "art": [
+        {
+          "index": 0,
+          "role": "art",
+          "id": "divan",
+          "outside": false,
+          "x": 2223,
+          "y": 1170,
+          "width": 496.8599999999999,
+          "height": 238.1400000000001,
+          "plotWidth": 507,
+          "plotHeight": 243
+        },
+        {
+          "index": 13,
+          "role": "art",
+          "id": "kahvehane",
+          "outside": false,
+          "x": 927,
+          "y": 1509,
+          "width": 570.3599999999999,
+          "height": 241.07999999999993,
+          "plotWidth": 582,
+          "plotHeight": 246
+        },
+        {
+          "index": 15,
+          "role": "art",
+          "id": "ambar",
+          "outside": false,
+          "x": 891,
+          "y": 1845,
+          "width": 579.1800000000001,
+          "height": 246.96000000000004,
+          "plotWidth": 591,
+          "plotHeight": 252
+        },
+        {
+          "index": 17,
+          "role": "art",
+          "id": "medrese",
+          "outside": false,
+          "x": 1560,
+          "y": 1845,
+          "width": 540.96,
+          "height": 246.96000000000004,
+          "plotWidth": 552,
+          "plotHeight": 252
+        },
+        {
+          "index": 18,
+          "role": "art",
+          "id": "kisla",
+          "outside": false,
+          "x": 3534,
+          "y": 1845,
+          "width": 611.52,
+          "height": 246.96000000000004,
+          "plotWidth": 624,
+          "plotHeight": 252
+        },
+        {
+          "index": 21,
+          "role": "art",
+          "id": "hamam",
+          "outside": false,
+          "x": 2223,
+          "y": 1845,
+          "width": 526.2600000000002,
+          "height": 246.96000000000004,
+          "plotWidth": 537,
+          "plotHeight": 252
+        },
+        {
+          "index": 22,
+          "role": "art",
+          "id": "carsi",
+          "outside": false,
+          "x": 2865,
+          "y": 1845,
+          "width": 540.96,
+          "height": 246.96000000000004,
+          "plotWidth": 552,
+          "plotHeight": 252
+        }
+      ]
+    },
+    {
+      "name": "new construction scaffold",
+      "measured": 17,
+      "violations": 0,
+      "art": [
+        {
+          "index": 0,
+          "role": "art",
+          "id": "divan",
+          "outside": false,
+          "x": 2223,
+          "y": 1170,
+          "width": 496.8599999999999,
+          "height": 238.1400000000001,
+          "plotWidth": 507,
+          "plotHeight": 243
+        },
+        {
+          "index": 1,
+          "role": "art",
+          "id": "kisla",
+          "outside": false,
+          "x": 2835,
+          "y": 1170,
+          "width": 407.89285714285734,
+          "height": 228.42000000000007,
+          "plotWidth": 495,
+          "plotHeight": 243
+        },
+        {
+          "index": 2,
+          "role": "art",
+          "id": "ambar",
+          "outside": false,
+          "x": 1581,
+          "y": 1509,
+          "width": 489.5999999999999,
+          "height": 236.16000000000008,
+          "plotWidth": 510,
+          "plotHeight": 246
+        },
+        {
+          "index": 3,
+          "role": "art",
+          "id": "medrese",
+          "outside": false,
+          "x": 1617,
+          "y": 1170,
+          "width": 460.79999999999995,
+          "height": 233.27999999999997,
+          "plotWidth": 480,
+          "plotHeight": 243
+        },
+        {
+          "index": 7,
+          "role": "art",
+          "id": "kahvehane",
+          "outside": false,
+          "x": 1632,
+          "y": 837,
+          "width": 460.79999999999995,
+          "height": 239.03999999999996,
+          "plotWidth": 480,
+          "plotHeight": 249
+        },
+        {
+          "index": 19,
+          "role": "art",
+          "id": "hamam",
+          "outside": false,
+          "x": 2220,
+          "y": 1509,
+          "width": 486.72,
+          "height": 236.16000000000008,
+          "plotWidth": 507,
+          "plotHeight": 246
+        },
+        {
+          "index": 20,
+          "role": "art",
+          "id": "carsi",
+          "outside": false,
+          "x": 2847,
+          "y": 1509,
+          "width": 509.7600000000002,
+          "height": 239.03999999999996,
+          "plotWidth": 531,
+          "plotHeight": 249
+        }
+      ]
+    }
+  ],
+  "actions": [
+    "360: wheel zoom, pan, city controls and municipal building tap",
+    "390: wheel zoom, pan, city controls and municipal building tap",
+    "430: wheel zoom, pan, city controls and municipal building tap"
+  ]
+}

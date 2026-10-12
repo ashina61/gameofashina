@@ -11,18 +11,31 @@ const report={errors:[],missing:[],cases:[],actions:[]};let browser;
 (async()=>{
 await new Promise(r=>server.listen(4189,'127.0.0.1',r));
 browser=await chromium.launch({executablePath:process.env.QA_CHROME_PATH,headless:true,args:['--no-sandbox','--use-gl=angle','--use-angle=swiftshader','--enable-unsafe-swiftshader']});
-const out=root+'/docs/mockups/master-release';fs.mkdirSync(out,{recursive:true});
+const out=root+'/docs/mockups/master-detail';fs.mkdirSync(out,{recursive:true});
 const context=async(width,height,seed)=>{const c=await browser.newContext({viewport:{width,height},deviceScaleFactor:2,isMobile:true,hasTouch:true,serviceWorkers:'block'});await skipGuide(c);await c.addInitScript(()=>localStorage.setItem('payitaht-qa','1'));if(seed)await seedSave(c,seed);return c;};
 const enter=async(c)=>{const p=await c.newPage();p.on('pageerror',e=>report.errors.push(e.message));p.on('response',r=>{if(r.status()>=400)report.missing.push(r.status()+' '+r.url())});await p.goto('http://127.0.0.1:4189/gameofashina/');await p.getByRole('button',{name:START_BUTTON}).click();await p.waitForFunction(()=>document.documentElement.dataset.masterContainment,{timeout:60000});return p;};
 const inspect=async(p,name)=>{const data=await p.evaluate(()=>JSON.parse(document.documentElement.dataset.masterContainment));if(data.violations.length)throw Error(name+' overflow '+JSON.stringify(data.violations));report.cases.push({name,measured:data.measured.length,violations:0,art:data.measured.filter(x=>x.role==='art')});};
 let c=await context(390,844);let p=await enter(c);await inspect(p,'new game');await p.screenshot({path:out+'/initial-390.png'});
 const empire=await p.evaluate(()=>JSON.parse(localStorage.getItem('payitaht-adalari-v1')));await c.close();
 const seed=(level,placement,queue=false)=>{const e=structuredClone(empire),g=e.cities.find(c=>c.id===e.activeCityId).game;for(const id of Object.keys(g.buildings)){g.buildings[id]=0;g.placement[id]=null}g.buildings.divan=20;g.placement.divan=0;for(const [id,at] of Object.entries(placement)){g.buildings[id]=level;g.placement[id]=at;}g.queue=queue?[{id:'kisla',kind:'build',start:Date.now()-10000,end:Date.now()+3600000}]:[];g.updatedAt=Date.now();return e;};
-const placements=[{kisla:1,medrese:3,ambar:2,carsi:20,hamam:19},{kisla:5,medrese:8,ambar:9,carsi:24,hamam:23},{kisla:18,medrese:17,ambar:15,carsi:22,hamam:21}];
+const placements=[{kisla:1,medrese:3,ambar:2,carsi:20,hamam:19,kahvehane:7},{kisla:5,medrese:8,ambar:9,carsi:24,hamam:23,kahvehane:10},{kisla:18,medrese:17,ambar:15,carsi:22,hamam:21,kahvehane:13}];
 for(const [i,width] of [360,390,430].entries()){
- c=await context(width,844,seed([1,8,20][i],placements[i],i===1));p=await enter(c);await inspect(p,'all six / '+width);
- for(let n=0;n<6;n++)await p.mouse.wheel(0,-120);await p.mouse.move(width/2,420);await p.mouse.down();await p.mouse.move(width/2,560,{steps:10});await p.mouse.move(width/2,560);await p.mouse.up();await p.waitForTimeout(300);
+ c=await context(width,844,seed([1,8,20][i],placements[i],i===1));p=await enter(c);await inspect(p,'all seven / '+width);
+ const before=await p.evaluate(()=>JSON.parse(document.documentElement.dataset.masterCamera).zoom);
+ await p.mouse.move(width/2,420);for(let n=0;n<20;n++){await p.mouse.wheel(0,-120);await p.waitForTimeout(50);}
+ const after=await p.evaluate(()=>JSON.parse(document.documentElement.dataset.masterCamera).zoom);if(after<=before)throw Error('Wheel did not zoom the actual canvas');
+ await p.mouse.down();await p.mouse.move(width/2,560,{steps:10});await p.mouse.up();await p.waitForTimeout(300);
  await p.screenshot({path:out+'/six-'+width+'.png'});
+ if(i===0){
+  for(let n=0;n<18;n++){
+   const delta=await p.evaluate(width=>{const cam=JSON.parse(document.documentElement.dataset.masterCamera),v=JSON.parse(document.documentElement.dataset.masterContainment).measured.find(x=>x.id==='kahvehane'),cv=document.querySelector('canvas'),r=cv.getBoundingClientRect();return {x:width/2-(r.left+(v.x-cam.viewX)*cam.zoom*r.width/cv.width),y:310-(r.top+(v.y-cam.viewY)*cam.zoom*r.height/cv.height)};},width);
+   if(Math.abs(delta.x)<15&&Math.abs(delta.y)<15)break;
+   await p.mouse.move(width/2,450);await p.mouse.down();await p.mouse.move(width/2+Math.max(-100,Math.min(100,delta.x)),450+Math.max(-120,Math.min(120,delta.y)),{steps:12});await p.mouse.up();await p.waitForTimeout(100);
+  }
+  await p.evaluate(()=>window.__payitahtQa.close());await p.waitForTimeout(100);
+  await p.screenshot({path:out+'/coffee-street-360.png'});
+ }
+ await p.evaluate(()=>window.__payitahtQa.close());await p.waitForTimeout(100);
  await p.getByRole('button',{name:'Harita araçları'}).click();await p.getByRole('button',{name:'Belediyeye dön'}).click();
  // Bina tıklaması: kamera tam görünümündeki belediye tuvalden seçilir.
  await p.waitForTimeout(250);const point=await p.evaluate(()=>{const cam=JSON.parse(document.documentElement.dataset.masterCamera),v=JSON.parse(document.documentElement.dataset.masterContainment).measured.find(x=>x.id==='divan'),cv=document.querySelector('canvas'),r=cv.getBoundingClientRect();return {x:r.left+(v.x-cam.viewX)*cam.zoom*r.width/cv.width,y:r.top+(v.y-cam.viewY)*cam.zoom*r.height/cv.height};});await p.mouse.click(point.x,point.y);await p.waitForTimeout(150);
@@ -31,6 +44,7 @@ for(const [i,width] of [360,390,430].entries()){
 }
 const construction=seed(8,placements[0]);const g=construction.cities.find(c=>c.id===construction.activeCityId).game;g.buildings.kisla=0;g.queue=[{id:'kisla',kind:'build',start:Date.now()-1000,end:Date.now()+3600000}];c=await context(390,844,construction);p=await enter(c);await inspect(p,'new construction scaffold');await c.close();
 if(report.errors.length||report.missing.length)throw Error('Runtime/assets '+JSON.stringify(report));
+for(const f of fs.readdirSync(out).filter(f=>f.endsWith('.png'))){await require('sharp')(out+'/'+f).webp({quality:90}).toFile(out+'/'+f.replace('.png','.webp'));fs.unlinkSync(out+'/'+f);}
 fs.writeFileSync(out+'/qa.json',JSON.stringify(report,null,2));console.log(JSON.stringify(report));await browser.close();browser=null;
 if(process.env.RUN_LAYOUT==='1')await new Promise(resolve=>cp.execFile(process.execPath,[root+'/tools/layout-qa.cjs'],{cwd:root,env:{...process.env,QA_URL:'http://127.0.0.1:4189/gameofashina/'},maxBuffer:5000000},(err,stdout,stderr)=>{fs.writeFileSync(out+'/layout.log',stdout+'\n'+stderr);console.log(stdout.match(/TOPLAM[^\n]*/)?.[0]||'layout output recorded');console.log('layout exit',err?.code||0);resolve()}));
 server.close();

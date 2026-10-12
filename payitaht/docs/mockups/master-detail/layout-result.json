@@ -1,0 +1,4 @@
+{
+  "exitCode": 1,
+  "output": "360x740 başlık                   taşma 0 · kesik 0 · küçük 0 · minik 0 · çakışma 0 · isimsiz 0\n360x740 başlık:yeni-oyun         taşma 0 · kesik 0 · küçük 0 · minik 0 · çakışma 0 · isimsiz 0\n360x740 şehir                    taşma 0 · kesik 0 · küçük 4 · minik 2 · çakışma 0 · isimsiz 0\n\nError: Öz-denetim başarısız, kurallar bozuk öğeyi görmedi: {\"taşma\":1,\"kesik\":0,\"küçük\":1,\"minik\":0,\"çakışma\":0,\"isimsiz\":1}\n    at main (/workspace/scratch/8f42bc6461c9/gameofashina/payitaht/tools/layout-qa.cjs:249:94)\n"
+}
