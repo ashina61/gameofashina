@@ -2,7 +2,8 @@ import * as Phaser from 'phaser'
 import { CityScene } from './phaser-city'
 import { MASTER_MAP, MASTER_PLOTS, masterPlot, masterSpriteWidth, type MasterPlot } from '@/lib/game/city-map/master-projection'
 import { BUILDINGS, BUILDING_IDS, activeJob, plotOpen, type BuildingId, type Game } from '@/lib/game/engine'
-import { asset, buildingArtKey, buildingImage } from '@/lib/asset'
+import { asset, buildingArtKey } from '@/lib/asset'
+import { MASTER_BUILDING_ART, masterBuildingImage } from '@/lib/game/city-map/master-building-art'
 import { visualSignature } from '@/lib/game/city-render'
 import { PEACEFUL_CITY, siegeAppearanceKey, type SiegeAppearance } from '@/lib/game/siege-appearance'
 import { FlagField, SmokeField } from './city-life'
@@ -19,7 +20,7 @@ export class MasterCityScene extends CityScene {
       const level = this.state.buildings[id]
       if (!BUILDINGS[id].art || level <= 0 || id === 'surlar') continue
       const facing = id === 'liman' || id === 'tersane' ? this.state.coastFacing[id] : undefined
-      this.load.image(buildingArtKey(id, level, facing), buildingImage(id, level, facing, cityArtSize()))
+      this.load.image(buildingArtKey(id, level, facing), masterBuildingImage(id, level, facing, cityArtSize()))
     }
     this.load.image('b_site', asset('/images/game/buildings/site.webp'))
     this.load.image('b_scaffold', asset('/images/game/buildings/scaffold.webp'))
@@ -28,6 +29,21 @@ export class MasterCityScene extends CityScene {
     for (const tier of [1, 2, 3]) for (const part of ['segment', 'tower', 'gate']) {
       this.load.image(`w_${part}-${tier}`, asset(`/images/game/walls/${part}-${tier}.webp`))
     }
+  }
+  ensureBuildingTexture(id: BuildingId, level: number) {
+    if (!BUILDINGS[id].art || level <= 0 || id === 'surlar') return
+    const facing = id === 'liman' || id === 'tersane' ? this.state.coastFacing[id] : undefined
+    const key = buildingArtKey(id, level, facing)
+    if (this.textures.exists(key) || this.loadingBuildingTextures.has(key)) return
+    this.loadingBuildingTextures.add(key)
+    this.load.image(key, masterBuildingImage(id, level, facing, cityArtSize()))
+    this.load.once(`filecomplete-image-${key}`, () => {
+      this.loadingBuildingTextures.delete(key)
+      if (!this.built) return
+      this.signature = ''
+      this.redraw()
+    })
+    if (!this.load.isLoading()) this.load.start()
   }
   create() {
     this.cameras.main.setBackgroundColor('#086183')
@@ -184,7 +200,8 @@ export class MasterCityScene extends CityScene {
     const scale = width / image.width
     // Painted source images are cropped transparent sprites. Their ground
     // center is 19.7% of a source width above the bottom point.
-    const y = p.center.y + width * 0.197
+    const origin = level > 0 ? MASTER_BUILDING_ART[id]?.groundOriginY : undefined
+    const y = p.center.y + (origin === undefined ? width * 0.197 : (1 - origin) * image.height * scale)
     image.setPosition(p.center.x, y).setScale(scale).setDepth(p.center.y + 1)
     image.setFlipX(facing ? facing === 'right' : this.state.flips.includes(id))
     this.pieces.push(image)
