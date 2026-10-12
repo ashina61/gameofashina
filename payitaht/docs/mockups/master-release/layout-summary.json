@@ -1,0 +1,12 @@
+{
+  "counts": {
+    "taşma": 0,
+    "kesik": 0,
+    "küçük": 312,
+    "minik": 663,
+    "çakışma": 0,
+    "isimsiz": 0
+  },
+  "runtimeErrors": [],
+  "status": "existing HUD size/font warnings; no overflow or overlap"
+}
