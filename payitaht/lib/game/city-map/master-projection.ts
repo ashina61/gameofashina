@@ -3,6 +3,14 @@ import { LIVE_SLOTS } from './live-adapter'
 
 /** Image pixels, independent of the engine's stable plot indices and tile geometry. */
 export const MASTER_MAP = { width: 1536, height: 1024, scale: 3, key: 'city-master-20261011' }
+export const MASTER_WORLD = { x: 0, y: 0, w: MASTER_MAP.width * MASTER_MAP.scale, h: 12000 }
+/** Only the portion covered by the top HUD may extend north of the actual painting. */
+export function masterCameraBounds(coveredTop: number, zoom: number) {
+  // Phaser rounds worldView coordinates down; one world pixel keeps that
+  // rounding from exposing a fraction of the unpainted northern margin.
+  const coveredNorth = Math.max(0, coveredTop / zoom - 1)
+  return { x: MASTER_WORLD.x, y: -coveredNorth, w: MASTER_WORLD.w, h: MASTER_WORLD.h + coveredNorth }
+}
 /** Four 2x-detail textures retain the existing painting's world coordinates. */
 export const MASTER_TERRAIN_TILES = [
   { id: 'nw', x: 0, y: 0 }, { id: 'ne', x: 768, y: 0 },

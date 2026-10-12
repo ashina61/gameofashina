@@ -1,3 +1,5 @@
+**12 Ekim deniz/kuzey düzeltmesi — 0.104.1 / SW119:** `docs/CITY-EDGES-0.104.1.md`. Aynalı su/iskele ve bulanık orman uzantıları kaldırıldı; deniz tek görüntü, kuzey kamera sınırı gerçek HUD ölçüsünden hesaplanır. Mekanik, arsa, kayıt ve HUD korunur. `tools/master-edge-qa.cjs` üç telefon genişliğinde uzak zoom ve iki yönde sınır kaydırmasını denetler.
+
 **12 Ekim zemin ayrıntısı — 0.104.0 / SW118:** `docs/CITY-DETAIL-0.104.md` güncel takip. Dört 2x doku toplam 3072×2048 zemin; yedinci master modülü kahvehane. Eski katalog henüz bütünüyle uyarlanmadı. Yol/parsel projeksiyonu, mekanik, kayıt ve HUD korunur. Gerçek zoom/taşma kontrolü `tools/master-release-qa.cjs`; kanıtlar `docs/mockups/master-detail/`.
 
 **12 Ekim yayın izni — 0.103.0 / SW117:** Kullanıcı arka planı ve yapılan binaları canlıya alma yetkisi verdi. `docs/CITY-RELEASE-0.103.md` ve `docs/BUILDING-PLACEMENT-RULES.md` geçerlidir. Altı yeni modül master-v3 altında; eski üç prototip aktif değildir. Tüm görsel arsa içinde, yollar açık; gerçek belediye/19. arsa projeksiyonu düzeltildi. Mekanik/kayıt/HUD korunur.

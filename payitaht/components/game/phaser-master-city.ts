@@ -1,6 +1,6 @@
 import * as Phaser from 'phaser'
 import { CityScene } from './phaser-city'
-import { MASTER_MAP, MASTER_TERRAIN_TILES, MASTER_PLOTS, masterPlot, masterArtFrame, type MasterPlot } from '@/lib/game/city-map/master-projection'
+import { MASTER_MAP, MASTER_WORLD, masterCameraBounds, MASTER_TERRAIN_TILES, MASTER_PLOTS, masterPlot, masterArtFrame, type MasterPlot } from '@/lib/game/city-map/master-projection'
 import { BUILDINGS, BUILDING_IDS, activeJob, plotOpen, type BuildingId, type Game } from '@/lib/game/engine'
 import { asset, buildingArtKey } from '@/lib/asset'
 import { MASTER_BUILDING_ART, masterBuildingImage } from '@/lib/game/city-map/master-building-art'
@@ -14,8 +14,14 @@ import { cityArtSize, isTap, stageGrowth, FLAG_POLE_BUILDINGS } from './city/sha
 export class MasterCityScene extends CityScene {
   masterWalkers: Array<{ image: Phaser.GameObjects.Image; points: Phaser.Math.Vector2[]; progress: number; speed: number }> = []
   masterShips: Phaser.GameObjects.Image[] = []
+  masterSea: Phaser.GameObjects.Image | null = null
+  masterBoundsZoom = 0
+  masterBoundsHeight = 0
+  masterBoundsWidth = 0
+  masterHudInset = 0
   preload() {
     this.load.image(MASTER_MAP.key, asset('/images/game/terrain/city-master-20261011.webp'))
+    this.load.image('master-open-sea', asset('/images/game/terrain/master-open-sea-v1.webp'))
     for (const tile of MASTER_TERRAIN_TILES) this.load.image(tile.key, asset(tile.path))
     for (const id of BUILDING_IDS) {
       const level = this.state.buildings[id]
@@ -49,38 +55,25 @@ export class MasterCityScene extends CityScene {
   create() {
     this.cameras.main.setBackgroundColor('#086183')
     const s = MASTER_MAP.scale
-    // The image is kept at its own aspect ratio. Outside it, sea and woodland
-    // continue vertically so a portrait camera can show the whole broad town.
+    // Keep the painting's aspect ratio and continue only the open sea southward.
     const wr = this.worldRect()
     this.add.rectangle(wr.x + wr.w / 2, wr.y + wr.h / 2, wr.w, wr.h, 0x086183).setDepth(-1002)
-    this.add.rectangle(wr.w / 2, -800, wr.w, 1600, 0x344929).setDepth(-1001)
-    const mapTexture = this.textures.get(MASTER_MAP.key)
-    // Continue clean water/woodland strips from this same painting into the
-    // portrait viewport instead of flat colored margins.
-    const source = mapTexture.getSourceImage() as HTMLImageElement
-    const extend = (key: string, sourceImage: HTMLImageElement, x: number, y: number, width: number, height: number) => {
-      const tex = this.textures.createCanvas(key, width * 2, height * 2)!
-      const ctx = tex.context
-      if (key === 'master-forest-extension') ctx.filter = 'blur(12px)'
-      for (const mx of [0, 1]) for (const my of [0, 1]) {
-        ctx.save()
-        ctx.translate(mx ? width * 2 : 0, my ? height * 2 : 0)
-        ctx.scale(mx ? -1 : 1, my ? -1 : 1)
-        ctx.drawImage(sourceImage, x, y, width, height, 0, 0, width, height)
-        ctx.restore()
-      }
-      tex.refresh()
-    }
-    const waterDetail = this.textures.exists('master-detail-se')
-    const forestDetail = this.textures.exists('master-detail-nw')
-    extend('master-water-extension', waterDetail ? this.textures.get('master-detail-se').getSourceImage() as HTMLImageElement : source,
-      waterDetail ? 100 : 500, waterDetail ? 848 : 936, waterDetail ? 900 : 600, waterDetail ? 176 : 88)
-    extend('master-forest-extension', forestDetail ? this.textures.get('master-detail-nw').getSourceImage() as HTMLImageElement : source,
-      forestDetail ? 40 : 20, 0, forestDetail ? 320 : 160, forestDetail ? 180 : 90)
-    this.add.tileSprite(0, MASTER_MAP.height * s, wr.w, wr.h, 'master-water-extension')
-      .setOrigin(0).setTileScale(waterDetail ? s / 2 : s).setDepth(-1000)
-    this.add.tileSprite(0, -1600, wr.w, 1600, 'master-forest-extension')
-      .setOrigin(0).setTileScale(forestDetail ? s / 2 : s).setDepth(-1000)
+    // One open-water painting: no strips, mirrored structures or repeated wave tiles.
+    // Blend only the last 32 source pixels of open water, below all land/plots.
+    const overlap = 96
+    const seaHeight = wr.h - MASTER_MAP.height * s + overlap
+    const water = this.textures.get('master-open-sea').getSourceImage() as HTMLImageElement
+    const sea = this.textures.createCanvas('master-open-sea-blended', water.width, water.height)!
+    sea.context.drawImage(water, 0, 0)
+    sea.context.globalCompositeOperation = 'destination-in'
+    const fade = sea.context.createLinearGradient(0, 0, 0, overlap / seaHeight * water.height)
+    fade.addColorStop(0, 'rgba(255,255,255,0)')
+    fade.addColorStop(1, 'rgba(255,255,255,1)')
+    sea.context.fillStyle = fade
+    sea.context.fillRect(0, 0, water.width, water.height)
+    sea.refresh()
+    this.masterSea = this.add.image(0, MASTER_MAP.height * s - overlap, 'master-open-sea-blended')
+      .setOrigin(0).setDisplaySize(wr.w, seaHeight).setTint(0x409ebb).setDepth(-998)
     this.add.image(0, 0, MASTER_MAP.key, '__BASE').setOrigin(0).setDisplaySize(MASTER_MAP.width * s, MASTER_MAP.height * s).setDepth(-1000)
     for (const tile of MASTER_TERRAIN_TILES) {
       if (!this.textures.exists(tile.key)) continue
@@ -111,9 +104,9 @@ export class MasterCityScene extends CityScene {
     this.events.once('destroy', cleanup)
     this.events$.onReady?.()
   }
-  worldRect() { return { x: 0, y: -1600, w: MASTER_MAP.width * MASTER_MAP.scale, h: 7800 } }
+  worldRect() { return MASTER_WORLD }
   townRect() { return { x: 600, y: 320, w: 3630, h: 1850 } }
-  coverZoom() { return this.scale.width / this.worldRect().w }
+  coverZoom() { return super.coverZoom() }
   townZoom() { return this.scale.width / (this.townRect().w * 1.05) }
   setCityView() {
     const hall = MASTER_PLOTS[0].center
@@ -327,6 +320,22 @@ export class MasterCityScene extends CityScene {
     }
   }
   update(_time: number, delta: number) {
+    const cam = this.cameras.main
+    if (this.masterBoundsWidth !== this.scale.width || this.masterBoundsHeight !== this.scale.height) {
+      const canvas = this.game.canvas.getBoundingClientRect()
+      const hud = document.querySelector('.ika-top')?.getBoundingClientRect()
+      // The HUD is clipped around its lower ornament. Keep the map behind
+      // the solid 90% of its height, rather than exposing a blue margin below it.
+      const coveredBottom = hud ? hud.top + hud.height * 0.9 : canvas.top
+      this.masterHudInset = Math.max(0, Math.min(1, (coveredBottom - canvas.top) / Math.max(1, canvas.height))) * this.scale.height
+    }
+    if (this.masterBoundsZoom !== cam.zoom || this.masterBoundsHeight !== this.scale.height || this.masterBoundsWidth !== this.scale.width) {
+      const bounds = masterCameraBounds(this.masterHudInset, cam.zoom)
+      cam.setBounds(bounds.x, bounds.y, bounds.w, bounds.h)
+      this.masterBoundsZoom = cam.zoom
+      this.masterBoundsHeight = this.scale.height
+      this.masterBoundsWidth = this.scale.width
+    }
     super.update(_time, delta)
     const dt = Math.min(delta, 100) / 1000
     for (const walker of this.masterWalkers) {
@@ -338,7 +347,11 @@ export class MasterCityScene extends CityScene {
     }
     if (localStorage.getItem('payitaht-qa') === '1') {
       const camera = this.cameras.main
-      document.documentElement.dataset.masterCamera = JSON.stringify({ viewX: camera.worldView.x, viewY: camera.worldView.y, zoom: camera.zoom })
+      document.documentElement.dataset.masterCamera = JSON.stringify({ viewX: camera.worldView.x, viewY: camera.worldView.y, zoom: camera.zoom,
+        visibleTop: camera.worldView.y + this.masterHudInset / camera.zoom,
+        seaTexture: this.masterSea?.texture.key,
+        seaTiled: this.children.list.some(p => p instanceof Phaser.GameObjects.TileSprite && p.texture.key.startsWith('master-water')),
+        forestExtension: this.textures.exists('master-forest-extension') })
     }
   }
   markReady() {

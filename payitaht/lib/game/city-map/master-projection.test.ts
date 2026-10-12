@@ -1,7 +1,16 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { MASTER_MAP, MASTER_TERRAIN_TILES, MASTER_PLOTS, masterPlot, masterArtFrame } from './master-projection'
+import { MASTER_MAP, MASTER_WORLD, masterCameraBounds, MASTER_TERRAIN_TILES, MASTER_PLOTS, masterPlot, masterArtFrame } from './master-projection'
 import { LIVE_SLOTS } from './live-adapter'
+
+test('north camera limit exposes no painted-map margin below the HUD at any zoom', () => {
+  for (const coveredTop of [0, 87, 104, 210]) for (const zoom of [0.078, 0.15, 0.5, 1.5]) {
+    const b = masterCameraBounds(coveredTop, zoom)
+    assert.ok(b.y + coveredTop / zoom >= 0)
+    assert.ok(b.y + coveredTop / zoom <= 1.00001)
+    assert.equal(b.y + b.h, MASTER_WORLD.h)
+  }
+})
 
 test('detail terrain covers the existing map once without gaps or overlapping tiles', () => {
   let area = 0

@@ -11,7 +11,7 @@ const report={errors:[],missing:[],cases:[],actions:[]};let browser;
 (async()=>{
 await new Promise(r=>server.listen(4189,'127.0.0.1',r));
 browser=await chromium.launch({executablePath:process.env.QA_CHROME_PATH,headless:true,args:['--no-sandbox','--use-gl=angle','--use-angle=swiftshader','--enable-unsafe-swiftshader']});
-const out=root+'/docs/mockups/master-detail';fs.mkdirSync(out,{recursive:true});
+const out=process.env.MASTER_QA_OUT||root+'/docs/mockups/master-detail';fs.mkdirSync(out,{recursive:true});
 const context=async(width,height,seed)=>{const c=await browser.newContext({viewport:{width,height},deviceScaleFactor:2,isMobile:true,hasTouch:true,serviceWorkers:'block'});await skipGuide(c);await c.addInitScript(()=>localStorage.setItem('payitaht-qa','1'));if(seed)await seedSave(c,seed);return c;};
 const enter=async(c)=>{const p=await c.newPage();p.on('pageerror',e=>report.errors.push(e.message));p.on('response',r=>{if(r.status()>=400)report.missing.push(r.status()+' '+r.url())});await p.goto('http://127.0.0.1:4189/gameofashina/');await p.getByRole('button',{name:START_BUTTON}).click();await p.waitForFunction(()=>document.documentElement.dataset.masterContainment,{timeout:60000});return p;};
 const inspect=async(p,name)=>{const data=await p.evaluate(()=>JSON.parse(document.documentElement.dataset.masterContainment));if(data.violations.length)throw Error(name+' overflow '+JSON.stringify(data.violations));report.cases.push({name,measured:data.measured.length,violations:0,art:data.measured.filter(x=>x.role==='art')});};
