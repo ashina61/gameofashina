@@ -1,8 +1,8 @@
-const CACHE = 'payitaht-shell-v116'
+const CACHE = 'payitaht-shell-v117'
 const BASE = new URL(self.registration.scope).pathname.replace(/\/$/, '')
 const p = path => `${BASE}${path.startsWith('/') ? path : `/${path}`}`
 const ASSETS = [
-  ...['divan', 'kisla', 'medrese'].flatMap(id => ['','-sm'].map(size => p(`/images/game/buildings/master-v2/${id}-prototype${size}.webp`))),
+  ...['divan', 'kisla', 'medrese', 'ambar', 'carsi', 'hamam'].flatMap(id => ['','-sm'].map(size => p(`/images/game/buildings/master-v3/${id}${size}.webp`))),
   p('/images/game/terrain/city-master-20261011.webp'),
   p('/images/game/ui/atlas/register.webp'),
   p('/images/game/ui/campaign/command.webp'),

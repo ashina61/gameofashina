@@ -1,6 +1,6 @@
 import * as Phaser from 'phaser'
 import { CityScene } from './phaser-city'
-import { MASTER_MAP, MASTER_PLOTS, masterPlot, masterSpriteWidth, type MasterPlot } from '@/lib/game/city-map/master-projection'
+import { MASTER_MAP, MASTER_PLOTS, masterPlot, masterArtFrame, type MasterPlot } from '@/lib/game/city-map/master-projection'
 import { BUILDINGS, BUILDING_IDS, activeJob, plotOpen, type BuildingId, type Game } from '@/lib/game/engine'
 import { asset, buildingArtKey } from '@/lib/asset'
 import { MASTER_BUILDING_ART, masterBuildingImage } from '@/lib/game/city-map/master-building-art'
@@ -195,31 +195,33 @@ export class MasterCityScene extends CityScene {
     const key = level > 0 ? buildingArtKey(id, level, facing) : 'b_site'
     if (level > 0 && !this.textures.exists(key)) { this.ensureBuildingTexture(id, level); return }
     if (!this.textures.exists(key)) return
-    const image = this.add.image(p.center.x, p.center.y, key).setOrigin(0.5, 1)
-    const width = masterSpriteWidth(p, id === 'divan') * stageGrowth(level)
-    const scale = width / image.width
-    // Painted source images are cropped transparent sprites. Their ground
-    // center is 19.7% of a source width above the bottom point.
-    const origin = level > 0 ? MASTER_BUILDING_ART[id]?.groundOriginY : undefined
-    const y = p.center.y + (origin === undefined ? width * 0.197 : (1 - origin) * image.height * scale)
-    image.setPosition(p.center.x, y).setScale(scale).setDepth(p.center.y + 1)
+    const image = this.add.image(p.center.x, p.center.y, key).setOrigin(0.5)
+    const frame = masterArtFrame(p, image.width, image.height, level > 0 && MASTER_BUILDING_ART.has(id), stageGrowth(level))
+    const { width, height, bottom: y } = frame
+    image.setDisplaySize(width, height).setDepth(p.center.y + 1)
+    image.setData('masterPlot', p.index).setData('masterArt', id).setData('masterRole', 'art')
     image.setFlipX(facing ? facing === 'right' : this.state.flips.includes(id))
     this.pieces.push(image)
-    const shadow = this.add.ellipse(p.center.x + width * 0.035, p.center.y + width * 0.10, width * 0.7, width * 0.18, 0x352716, 0.16).setDepth(p.center.y - 1)
+    const shadow = this.add.ellipse(p.center.x + p.width * 0.025, p.center.y + p.height * 0.12, width * 0.7, p.height * 0.18, 0x352716, 0.12).setDepth(p.center.y - 1)
+    shadow.setData('masterPlot', p.index).setData('masterRole', 'shadow')
     this.pieces.push(shadow)
-    const hit = this.add.rectangle(p.center.x, y - image.displayHeight * 0.45, width * 0.94, image.displayHeight * 0.9, 0xffffff, 0)
+    const hit = this.add.rectangle(p.center.x, p.center.y, p.width * 0.98, p.height * 0.98, 0xffffff, 0)
       .setDepth(p.center.y + 2).setInteractive({ useHandCursor: true })
     hit.on('pointerup', (pointer: Phaser.Input.Pointer) => {
       if (!isTap(pointer) || this.moving || this.pinchStart) return
-      this.tweens.add({ targets: image, scaleX: scale * 1.035, scaleY: scale * 1.035, duration: 95, yoyo: true })
+      // Shrink and restore: a tap never enlarges art over the parcel boundary.
+      this.tweens.killTweensOf(image)
+      image.setDisplaySize(width, height)
+      this.tweens.add({ targets: image, scaleX: image.scaleX * 0.985, scaleY: image.scaleY * 0.985, duration: 95, yoyo: true })
       this.events$.onBuilding(id)
     })
     this.pieces.push(hit)
     if (FLAG_POLE_BUILDINGS.has(id)) {
-      const x = p.center.x - width * 0.37, fy = p.center.y - width * 0.34
-      const pole = this.add.rectangle(x, fy + width * 0.13, 4, width * 0.26, 0x815c34).setDepth(p.center.y + 3)
+      const x = p.center.x - p.width * 0.35, fy = p.center.y - p.height * 0.30
+      const pole = this.add.rectangle(x, fy + p.height * 0.14, 4, p.height * 0.28, 0x815c34).setDepth(p.center.y + 3)
+      pole.setData('masterPlot', p.index).setData('masterRole', 'pole')
       this.pieces.push(pole)
-      this.flagField?.add({ x, y: fy, w: width * 0.15, h: width * 0.10, depth: p.center.y + 4, dir: 1 }, 'pieces')
+      this.flagField?.add({ x, y: fy, w: p.width * 0.11, h: p.height * 0.15, depth: p.center.y + 4, dir: 1 }, 'pieces')
     }
     if (this.showLabels || active) {
       const label = this.makePaintedLabel(p.center.x, y + 18, level, BUILDINGS[id].name, 1e6 + p.center.y)
@@ -229,8 +231,10 @@ export class MasterCityScene extends CityScene {
     if (p.slot.zone === 'sehir') this.sky?.addLight(p.center.x, y - image.displayHeight * 0.28, 'pieces')
     const job = activeJob(this.state)
     if (active && job) {
-      const sc = this.add.image(p.center.x, y, 'b_scaffold').setOrigin(0.5, 1).setDepth(p.center.y + 5)
-      sc.setScale(width / sc.width)
+      const sc = this.add.image(p.center.x, p.center.y, 'b_scaffold').setOrigin(0.5).setDepth(p.center.y + 5)
+      const scaffold = masterArtFrame(p, sc.width, sc.height, false)
+      sc.setDisplaySize(scaffold.width, scaffold.height)
+      sc.setData('masterPlot', p.index).setData('masterRole', 'scaffold')
       this.pieces.push(sc, this.makeTimer(p.center.x, y + 75, job.start, job.end, 1e6 + p.center.y + 1))
     }
   }
@@ -322,12 +326,30 @@ export class MasterCityScene extends CityScene {
       walker.image.setPosition(a.x + (b.x - a.x) * t, a.y + (b.y - a.y) * t).setDepth(walker.image.y)
       walker.image.setFlipX(walker.progress > 1)
     }
+    if (localStorage.getItem('payitaht-qa') === '1') {
+      const camera = this.cameras.main
+      document.documentElement.dataset.masterCamera = JSON.stringify({ viewX: camera.worldView.x, viewY: camera.worldView.y, zoom: camera.zoom })
+    }
   }
   markReady() {
     if (!this.built || this.load.isLoading() || this.loadingBuildingTextures.size) return
     this.game.events.once(Phaser.Core.Events.POST_RENDER, () => {
       document.documentElement.dataset.cityReady = String(++this.readyCount)
       document.documentElement.dataset.masterMap = '20261011'
+      if (localStorage.getItem('payitaht-qa') === '1') {
+        const measured = this.pieces.flatMap(part => {
+          if (!(part instanceof Phaser.GameObjects.Image || part instanceof Phaser.GameObjects.Rectangle || part instanceof Phaser.GameObjects.Ellipse)) return []
+          const index = part.getData('masterPlot') as number | undefined
+          const p = masterPlot(index)
+          if (!p) return []
+          const b = part.getBounds()
+          const outside = b.left < p.center.x - p.width / 2 - 0.01 || b.right > p.center.x + p.width / 2 + 0.01
+            || b.top < p.center.y - p.height / 2 - 0.01 || b.bottom > p.center.y + p.height / 2 + 0.01
+          return [{ index, role: part.getData('masterRole'), id: part.getData('masterArt'), outside,
+            x: part.x, y: part.y, width: b.width, height: b.height, plotWidth: p.width, plotHeight: p.height }]
+        })
+        document.documentElement.dataset.masterContainment = JSON.stringify({ measured, violations: measured.filter(p => p.outside) })
+      }
     })
   }
 }

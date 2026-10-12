@@ -1,7 +1,8 @@
 'use client'
 
 import { useState } from 'react'
-import { asset, buildingImage } from '@/lib/asset'
+import { asset } from '@/lib/asset'
+import { masterBuildingImage } from '@/lib/game/city-map/master-building-art'
 import { BUILDINGS, BUILDING_IDS, MAX_LEVEL, PLOTS, QUEUE_LIMIT, buildReason, cost, duration, freePlots, luxuryCost, nextPlotDivan, plotFits, plotOpen, takesPlot, type BuildingId, type Game } from '@/lib/game/engine'
 import { GameButton } from './game-button'
 import { CostDisplay, JobProgress } from './game-widgets'
@@ -30,7 +31,7 @@ function ConstructionEntry({ game, id, plot, onSelect, onBuild }: { game: Game; 
   const reason = slotReason ?? buildReason(game, id)
   const state = job ? 'İnşaat sırasında' : complete ? 'En yüksek seviye' : reason ?? (level ? 'Yükseltmeye hazır' : 'İnşaya hazır')
   return <details className="construction-entry" data-building={id}>
-    <summary><span className="construction-art">{b.art ? <img src={buildingImage(id, level)} alt="" width={88} height={88} loading="lazy" decoding="async" /> : <Hammer aria-hidden="true" />}</span><span className="construction-copy"><small>{b.category} · {level ? `${level}. seviye` : 'Yeni yapı'}</small><strong>{b.name}</strong><span className={reason ? 'construction-locked' : 'construction-ready'}>{state}</span></span><ChevronRight aria-hidden="true" /></summary>
+    <summary><span className="construction-art">{b.art ? <img src={masterBuildingImage(id, level)} alt="" width={88} height={88} loading="lazy" decoding="async" /> : <Hammer aria-hidden="true" />}</span><span className="construction-copy"><small>{b.category} · {level ? `${level}. seviye` : 'Yeni yapı'}</small><strong>{b.name}</strong><span className={reason ? 'construction-locked' : 'construction-ready'}>{state}</span></span><ChevronRight aria-hidden="true" /></summary>
     <div className="construction-detail"><p>{b.description}</p>
       {!complete && !job && <><h3>{level ? `${level + 1}. seviyenin bedeli` : 'İlk inşanın bedeli'}</h3><CostDisplay exact value={cost(game, id)} lux={luxuryCost(game, id)} /><p className="construction-duration"><KumSaatiArt aria-hidden="true" />{duration(game, id).toLocaleString('tr-TR')} saniye</p></>}
       {job && <JobProgress job={job} now={game.updatedAt} />}

@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from 'react'
 import { BUILDINGS, MAX_LEVEL, type BuildingId, type Game } from '@/lib/game/engine'
-import { buildingImage } from '@/lib/asset'
+import { masterBuildingImage } from '@/lib/game/city-map/master-building-art'
 import { UpgradeDock } from './building-page'
 import { BuildingEffects } from './game-panels'
 import { GameButton } from './game-button'
@@ -46,7 +46,7 @@ export function BuildingPreview({ game, id, onClose, onDetails, onBuild }: {
     </header>
     <div className="building-inspector-content">
       <div className="building-inspector-summary">
-        {building.art && <img src={buildingImage(id, Math.max(1, level), facing)} alt="" width={112} height={112} decoding="async" />}
+        {building.art && <img src={masterBuildingImage(id, Math.max(1, level), facing)} alt="" width={112} height={112} decoding="async" />}
         <p>{building.description}</p>
       </div>
       <BuildingEffects game={game} id={id} level={level} max={MAX_LEVEL[id]} />
