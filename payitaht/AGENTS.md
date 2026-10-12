@@ -1,3 +1,5 @@
+**12 Ekim kesin bina kuralları:** `docs/BUILDING-PLACEMENT-RULES.md` bütün eski prototip tariflerinin önündedir. Yollar kapanmaz; bina arsayı doldurur; çatı, avlu, dekor ve gölge dahil hiçbir öğe dışarı taşmaz. İlk bağımsız üç prototip reddedildi; arsa üzerinde tasarım ve ayırt edici mimari geçerlidir. Konseptler sınır doğrulaması olmadan oyuna hazır kabul edilmez.
+
 **11 October reference map review — 0.102.0 / SW116:** `docs/MASTER-MAP-ADAPTATION.md`; new master scene projects stable engine indices onto the supplied painting. Mechanics, Tiled geometry, saves and HUD remain unchanged. Review branch only, no deployment. Required layout QA has unchanged HUD size/font warnings recorded in the document.
 
 **11 Ekim şehir tabanı — 0.101.1 / SW115:** `docs/CITY-FOUNDATION-DESIGN.md`; sıcak çayır/toprak, kurulu binalara avlu, belirgin yol hiyerarşisi ve geniş ortak liman promenadı. Dere kıyıları birleşir. Arsa, bina ölçeği, HUD, motor ve kayıt korunur. Yeni hareket/modelleme sonraki aşama; yayın sonrası kullanıcı değerlendirmesinde dur.
