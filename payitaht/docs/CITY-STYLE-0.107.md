@@ -25,3 +25,5 @@ Built-in imagegen ile master zemin yeniden işlendi; ayrıntı dokuları bu mast
 Son doğrulama: 36 türü kapsayan 25 gerçek Phaser senaryosu (360/390/430 ve 1536 px, pan/zoom, savunma), 0 parsel taşması, 0 eksik görsel, 0 sayfa hatası; 24 sur parçasında 0 parsel çakışması. Gündüz karma şehir ve yakın görünüm incelendi; 2x cihaz piksel oranı başlangıç kontrolü geçti.
 
 Genel ekran taraması 78 senaryoda tamamlandı. Sonuç {"taşma": 0, "kesik": 0, "küçük": 312, "minik": 663, "çakışma": 0, "isimsiz": 0}. Eski HUD küçük düğme/yazı uyarıları nedeniyle betik çıkış kodu 1; bu alanlar değişmedi. Sayfa hatası 0. Teknik testler sanat kalitesinin mutlak kanıtı olarak kullanılmaz.
+
+Yayın derlemesi: ilk GitHub koşusu Next 16.3.3 Turbopack Google-font import sorgusu çözümlemesinde başarısız oldu. Aynı yazı tipleri ve uygulama koduyla desteklenen `next build --webpack` yolu statik derlemeyi tamamladı. 2x piksel oranında gerçek oyun başlangıç kontrolü bu derleme üzerinde tekrar geçti; eksik dosya ve sayfa hatası yok. Font aileleri, font ayarları ve HUD değiştirilmedi.
