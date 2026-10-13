@@ -1,11 +1,9 @@
-const CACHE = 'payitaht-shell-v119'
+const CACHE = 'payitaht-shell-v120'
 const BASE = new URL(self.registration.scope).pathname.replace(/\/$/, '')
 const p = path => `${BASE}${path.startsWith('/') ? path : `/${path}`}`
 const ASSETS = [
-  ...['divan', 'kisla', 'medrese', 'ambar', 'carsi', 'hamam', 'kahvehane'].flatMap(id => ['','-sm'].map(size => p(`/images/game/buildings/master-v3/${id}${size}.webp`))),
-  ...['nw', 'ne', 'sw', 'se'].map(id => p(`/images/game/terrain/master-detail-v1/${id}.webp`)),
-  p('/images/game/terrain/city-master-20261011.webp'),
-  p('/images/game/terrain/master-open-sea-v1.webp'),
+  ...["divan", "kisla", "medrese", "ambar", "carsi", "hamam", "saray", "elcilik", "konut", "kereste", "liman", "tersane", "kahvehane", "cami", "muze", "marangoz", "mimar", "ormanci", "tasci", "tophane", "bagci", "simyahane", "camci", "mahzen", "gozlukcu", "barutane", "depo", "ticaret_merkezi", "harita_arsivi", "valilik", "korsan_kalesi", "kara_pazar", "siginak", "tekke", "mabet", "karagoz"].flatMap(id => ['', '-sm'].map(size => p(`/images/game/buildings/master-v4/${id}${size}.webp`))),
+  p('/images/game/terrain/city-master-20261013.webp'),
   p('/images/game/ui/atlas/register.webp'),
   p('/images/game/ui/campaign/command.webp'),
   p('/images/game/ui/campaign/records.webp'),

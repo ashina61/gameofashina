@@ -1,6 +1,6 @@
 import * as Phaser from 'phaser'
 import { CityScene } from './phaser-city'
-import { MASTER_MAP, MASTER_WORLD, masterCameraBounds, MASTER_TERRAIN_TILES, MASTER_PLOTS, masterPlot, masterArtFrame, type MasterPlot } from '@/lib/game/city-map/master-projection'
+import { MASTER_MAP, MASTER_WORLD, MASTER_DEFENSE_PATH, MASTER_TOWER_SIZE, masterCameraBounds, MASTER_TERRAIN_TILES, MASTER_PLOTS, masterPlot, masterArtFrame, type MasterPlot } from '@/lib/game/city-map/master-projection'
 import { BUILDINGS, BUILDING_IDS, activeJob, plotOpen, type BuildingId, type Game } from '@/lib/game/engine'
 import { asset, buildingArtKey } from '@/lib/asset'
 import { MASTER_BUILDING_ART, masterBuildingImage } from '@/lib/game/city-map/master-building-art'
@@ -20,7 +20,7 @@ export class MasterCityScene extends CityScene {
   masterBoundsWidth = 0
   masterHudInset = 0
   preload() {
-    this.load.image(MASTER_MAP.key, asset('/images/game/terrain/city-master-20261011.webp'))
+    this.load.image(MASTER_MAP.key, asset(MASTER_MAP.path))
     this.load.image('master-open-sea', asset('/images/game/terrain/master-open-sea-v1.webp'))
     for (const tile of MASTER_TERRAIN_TILES) this.load.image(tile.key, asset(tile.path))
     for (const id of BUILDING_IDS) {
@@ -202,7 +202,7 @@ export class MasterCityScene extends CityScene {
     const frame = masterArtFrame(p, image.width, image.height, level > 0 && MASTER_BUILDING_ART.has(id), stageGrowth(level))
     const { width, height, bottom: y } = frame
     image.setDisplaySize(width, height).setDepth(p.center.y + 1)
-    image.setData('masterPlot', p.index).setData('masterArt', id).setData('masterRole', 'art')
+    image.setData('masterPlot', p.index).setData('masterArt', id).setData('masterRole', 'art').setData('masterComplete', level > 0 && MASTER_BUILDING_ART.has(id))
     image.setFlipX(facing ? facing === 'right' : this.state.flips.includes(id))
     this.pieces.push(image)
     const shadow = this.add.ellipse(p.center.x + p.width * 0.025, p.center.y + p.height * 0.12, width * 0.7, p.height * 0.18, 0x352716, 0.12).setDepth(p.center.y - 1)
@@ -212,10 +212,11 @@ export class MasterCityScene extends CityScene {
       .setDepth(p.center.y + 2).setInteractive({ useHandCursor: true })
     hit.on('pointerup', (pointer: Phaser.Input.Pointer) => {
       if (!isTap(pointer) || this.moving || this.pinchStart) return
-      // Shrink and restore: a tap never enlarges art over the parcel boundary.
+      // Keep the whole parcel covered during tap feedback.
       this.tweens.killTweensOf(image)
       image.setDisplaySize(width, height)
-      this.tweens.add({ targets: image, scaleX: image.scaleX * 0.985, scaleY: image.scaleY * 0.985, duration: 95, yoyo: true })
+      image.setTint(0xffedce)
+      this.time.delayedCall(110, () => { if (image.active) image.clearTint() })
       this.events$.onBuilding(id)
     })
     this.pieces.push(hit)
@@ -246,7 +247,7 @@ export class MasterCityScene extends CityScene {
     // site. Wall art follows that embankment, never the old Tiled octagon.
     const level = this.state.buildings.surlar
     const s = MASTER_MAP.scale
-    const points = [[244,147], [392,87], [544,52], [725,48], [899,49], [1074,76], [1225,128], [1283,165]]
+    const points = MASTER_DEFENSE_PATH
     if (level > 0) {
       const tier = level >= 8 ? 3 : level >= 4 ? 2 : 1
       for (let i = 0; i < points.length - 1; i++) {
@@ -259,12 +260,14 @@ export class MasterCityScene extends CityScene {
           wall.setScale(span / wall.width)
           // The painted segment's baseline already slopes upward by 17°.
           wall.setAngle(17 + Phaser.Math.RadToDeg(Math.atan2(by - ay, bx - ax)))
+          wall.setData('masterRole', 'defense')
           this.pieces.push(wall)
         }
       }
       for (const i of [0, 2, 5, 7]) {
         const tower = this.add.image(points[i][0] * s, points[i][1] * s, `w_tower-${tier}`).setOrigin(0.5, 1).setDepth(51)
-        tower.setScale(70 * s / tower.width)
+        tower.setScale(MASTER_TOWER_SIZE * s / tower.width)
+        tower.setData('masterRole', 'defense')
         this.pieces.push(tower)
       }
     }
@@ -294,7 +297,7 @@ export class MasterCityScene extends CityScene {
     }
     // These paths follow the measured horizontal streets and the harbor
     // promenade. No citizen crosses an empty plot or the central hall.
-    const paths = [[[260,329], [1205,329]], [[230,557], [1232,557]], [[238,680], [1210,680]], [[835,118], [835,677]]]
+    const paths = [[[270,296], [1240,296]], [[240,518], [1260,518]], [[235,768], [1260,768]], [[738,296], [738,768]]]
     for (let i = 0; i < 10; i++) {
       const points = paths[i % paths.length].map(([x, y]) => new Phaser.Math.Vector2(x * 3, y * 3))
       const image = this.add.image(0, 0, 'master-citizen').setOrigin(0.5, 1).setDisplaySize(12, 29)
@@ -358,8 +361,16 @@ export class MasterCityScene extends CityScene {
     if (!this.built || this.load.isLoading() || this.loadingBuildingTextures.size) return
     this.game.events.once(Phaser.Core.Events.POST_RENDER, () => {
       document.documentElement.dataset.cityReady = String(++this.readyCount)
-      document.documentElement.dataset.masterMap = '20261011'
+      document.documentElement.dataset.masterMap = '20261013'
       if (localStorage.getItem('payitaht-qa') === '1') {
+        const defense = this.pieces.filter(part => part instanceof Phaser.GameObjects.Image && part.getData('masterRole') === 'defense')
+          .map(part => {
+            const b = (part as Phaser.GameObjects.Image).getBounds()
+            return { outside: b.left < 0 || b.top < 0 || b.right > MASTER_WORLD.w || b.bottom > MASTER_WORLD.h,
+              overlaps: MASTER_PLOTS.filter(p => b.left < p.center.x + p.width / 2 && b.right > p.center.x - p.width / 2
+                && b.top < p.center.y + p.height / 2 && b.bottom > p.center.y - p.height / 2).map(p => p.index) }
+          })
+        document.documentElement.dataset.masterDefense = JSON.stringify(defense)
         const measured = this.pieces.flatMap(part => {
           if (!(part instanceof Phaser.GameObjects.Image || part instanceof Phaser.GameObjects.Rectangle || part instanceof Phaser.GameObjects.Ellipse)) return []
           const index = part.getData('masterPlot') as number | undefined
@@ -369,6 +380,7 @@ export class MasterCityScene extends CityScene {
           const outside = b.left < p.center.x - p.width / 2 - 0.01 || b.right > p.center.x + p.width / 2 + 0.01
             || b.top < p.center.y - p.height / 2 - 0.01 || b.bottom > p.center.y + p.height / 2 + 0.01
           return [{ index, role: part.getData('masterRole'), id: part.getData('masterArt'), outside,
+            complete: !!part.getData('masterComplete'), fullyCovers: Math.abs(b.width - p.width) < 0.01 && Math.abs(b.height - p.height) < 0.01,
             x: part.x, y: part.y, width: b.width, height: b.height, plotWidth: p.width, plotHeight: p.height }]
         })
         document.documentElement.dataset.masterContainment = JSON.stringify({ measured, violations: measured.filter(p => p.outside) })

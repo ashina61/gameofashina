@@ -144,7 +144,7 @@ async function main() {
   const out = path.resolve('visual-review')
   await fs.mkdir(out, { recursive: true })
   const fixture = JSON.parse(await fs.readFile(path.join(__dirname, 'fixtures', 'late-game.json'), 'utf8'))
-  const browser = await chromium.launch({ headless: true, args: ['--no-sandbox'] })
+  const browser = await chromium.launch({ executablePath: process.env.QA_CHROME_PATH, headless: true, args: ['--no-sandbox', '--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader'] })
   const report = { sayfalar: {}, toplam: { taşma: 0, kesik: 0, küçük: 0, minik: 0, çakışma: 0, isimsiz: 0 }, hatalar: [] }
   try {
     for (const vp of VIEWPORTS) {
@@ -237,8 +237,10 @@ async function main() {
       })
       await page.waitForTimeout(350)
       const self = await page.evaluate(scan => {
-        const host = document.querySelector('.bp .bp-scroll') || document.querySelector('.bp')
+        const host = document.body
         const bad = document.createElement('div')
+        bad.setAttribute('role', 'dialog')
+        bad.style.cssText = 'position:fixed;left:0;top:260px;width:360px;height:200px;z-index:2147483647;overflow:visible;background:white'
         bad.innerHTML = '<div style="width:520px;height:10px">geniş</div><button style="width:20px;height:20px">x</button><span style="font-size:9px">minik</span>' +
           '<div><div style="position:relative;height:50px"><button style="width:80px;height:44px">düğme</button><span style="position:absolute;left:10px;top:12px">üstte yazı</span></div></div><button style="width:48px;height:48px"></button>'
         host.prepend(bad)

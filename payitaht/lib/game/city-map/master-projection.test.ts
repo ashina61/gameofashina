@@ -21,7 +21,9 @@ test('detail terrain covers the existing map once without gaps or overlapping ti
       assert.ok(a.x + a.width <= b.x || b.x + b.width <= a.x || a.y + a.height <= b.y || b.y + b.height <= a.y)
     }
   }
-  assert.equal(area, MASTER_MAP.width * MASTER_MAP.height)
+  assert.equal(area, 0)
+  assert.ok(MASTER_MAP.path.endsWith('.webp'))
+  assert.equal(MASTER_WORLD.h, MASTER_MAP.height * MASTER_MAP.scale)
 })
 
 test('master painting preserves every saved plot index, zone and fixed hall', () => {
@@ -36,7 +38,7 @@ test('measured clearings and maximum sprite widths stay inside the master image'
   for (const p of MASTER_PLOTS) {
     assert.ok(p.x - p.w / 2 > 0 && p.x + p.w / 2 < MASTER_MAP.width)
     assert.ok(p.y - p.h / 2 > 0 && p.y + p.h / 2 < MASTER_MAP.height)
-    assert.ok(masterArtFrame(p, 1536, 768, true).width < p.width)
+    assert.ok(masterArtFrame(p, 1536, 768, true).width === p.width)
   }
   for (let i = 0; i < MASTER_PLOTS.length; i++) for (let j = i + 1; j < MASTER_PLOTS.length; j++) {
     const a = MASTER_PLOTS[i], b = MASTER_PLOTS[j]
@@ -61,7 +63,7 @@ test('complete art, including tall legacy sprites and approved modules, stays in
 })
 
 test('all land modules leave the painted horizontal street corridors open', () => {
-  const streets = [224, 330, 441, 554, 670]
+  const streets = [193, 296, 408, 518, 639, 767]
   for (const p of MASTER_PLOTS.filter(p => p.slot.zone === 'sehir')) {
     const art = masterArtFrame(p, 1774, 887, true)
     for (const y of streets) {

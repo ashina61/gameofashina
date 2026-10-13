@@ -1,6 +1,6 @@
 {
   "name": "payitaht-adalari",
-  "version": "0.104.1",
+  "version": "0.105.0",
   "private": true,
   "packageManager": "pnpm@9.15.9",
   "scripts": {
@@ -8,7 +8,7 @@
     "build": "next build",
     "start": "next start",
     "typecheck": "tsc --noEmit",
-    "test": "tsx --test $(find lib -name '*.test.ts')",
+    "test": "node --import tsx --test $(find lib -name '*.test.ts')",
     "check": "pnpm typecheck && pnpm test && pnpm lint && pnpm lint:css",
     "lint": "eslint --max-warnings 0 .",
     "lint:css": "node tools/css-lint.cjs && node tools/unused-css.cjs --strict",

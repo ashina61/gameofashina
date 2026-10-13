@@ -1,0 +1,199 @@
+{
+  "errors": [],
+  "missing": [],
+  "cases": [
+    {
+      "name": "360-0-initial",
+      "buildings": 28,
+      "uncovered": 0,
+      "outside": 0
+    },
+    {
+      "name": "360-0-north",
+      "buildings": 28,
+      "uncovered": 0,
+      "outside": 0
+    },
+    {
+      "name": "360-0-south",
+      "buildings": 28,
+      "uncovered": 0,
+      "outside": 0
+    },
+    {
+      "name": "360-1-initial",
+      "buildings": 12,
+      "uncovered": 0,
+      "outside": 0
+    },
+    {
+      "name": "360-1-north",
+      "buildings": 12,
+      "uncovered": 0,
+      "outside": 0
+    },
+    {
+      "name": "360-1-south",
+      "buildings": 12,
+      "uncovered": 0,
+      "outside": 0
+    },
+    {
+      "name": "390-0-initial",
+      "buildings": 28,
+      "uncovered": 0,
+      "outside": 0
+    },
+    {
+      "name": "390-0-north",
+      "buildings": 28,
+      "uncovered": 0,
+      "outside": 0
+    },
+    {
+      "name": "390-0-south",
+      "buildings": 28,
+      "uncovered": 0,
+      "outside": 0
+    },
+    {
+      "name": "390-1-initial",
+      "buildings": 12,
+      "uncovered": 0,
+      "outside": 0
+    },
+    {
+      "name": "390-1-north",
+      "buildings": 12,
+      "uncovered": 0,
+      "outside": 0
+    },
+    {
+      "name": "390-1-south",
+      "buildings": 12,
+      "uncovered": 0,
+      "outside": 0
+    },
+    {
+      "name": "430-0-initial",
+      "buildings": 28,
+      "uncovered": 0,
+      "outside": 0
+    },
+    {
+      "name": "430-0-north",
+      "buildings": 28,
+      "uncovered": 0,
+      "outside": 0
+    },
+    {
+      "name": "430-0-south",
+      "buildings": 28,
+      "uncovered": 0,
+      "outside": 0
+    },
+    {
+      "name": "430-1-initial",
+      "buildings": 12,
+      "uncovered": 0,
+      "outside": 0
+    },
+    {
+      "name": "430-1-north",
+      "buildings": 12,
+      "uncovered": 0,
+      "outside": 0
+    },
+    {
+      "name": "430-1-south",
+      "buildings": 12,
+      "uncovered": 0,
+      "outside": 0
+    },
+    {
+      "name": "1536-0-initial",
+      "buildings": 28,
+      "uncovered": 0,
+      "outside": 0
+    },
+    {
+      "name": "1536-0-north",
+      "buildings": 28,
+      "uncovered": 0,
+      "outside": 0
+    },
+    {
+      "name": "1536-0-south",
+      "buildings": 28,
+      "uncovered": 0,
+      "outside": 0
+    },
+    {
+      "name": "1536-1-initial",
+      "buildings": 12,
+      "uncovered": 0,
+      "outside": 0
+    },
+    {
+      "name": "1536-1-north",
+      "buildings": 12,
+      "uncovered": 0,
+      "outside": 0
+    },
+    {
+      "name": "1536-1-south",
+      "buildings": 12,
+      "uncovered": 0,
+      "outside": 0
+    },
+    {
+      "name": "defense-390",
+      "buildings": 28,
+      "uncovered": 0,
+      "outside": 0
+    }
+  ],
+  "ids": [
+    "ambar",
+    "bagci",
+    "barutane",
+    "camci",
+    "cami",
+    "carsi",
+    "depo",
+    "divan",
+    "elcilik",
+    "gozlukcu",
+    "hamam",
+    "harita_arsivi",
+    "kahvehane",
+    "kara_pazar",
+    "karagoz",
+    "kereste",
+    "kisla",
+    "konut",
+    "korsan_kalesi",
+    "liman",
+    "mabet",
+    "mahzen",
+    "marangoz",
+    "medrese",
+    "mimar",
+    "muze",
+    "ormanci",
+    "saray",
+    "siginak",
+    "simyahane",
+    "tasci",
+    "tekke",
+    "tersane",
+    "ticaret_merkezi",
+    "tophane",
+    "valilik"
+  ],
+  "defense": {
+    "pieces": 24,
+    "outside": 0,
+    "overlaps": 0
+  }
+}

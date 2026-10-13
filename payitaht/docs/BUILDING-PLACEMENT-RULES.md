@@ -1,3 +1,5 @@
+13 Ekim güncel onay: kullanıcı son harita/belediye tasarımını kabul etti; bütün binalar belediye ölçeğinde, arsayı bütünüyle kaplayacak ve şehirle uyumlu olacak. Doğrudan canlı yayın açıkça yetkilendirildi. Aşağıdaki eski yayın yasağı bu yeni izinle kaldırılmıştır.
+
 # Bina yerleşimi — kesin kullanıcı kuralları
 
 12 Ekim 2026, 13:29 (İstanbul). Bu kurallar önceki prototip tariflerinin ve yaklaşık doluluk hedeflerinin önündedir.
@@ -18,4 +20,4 @@ Onaylanan yön: binayı tek başına üretip boş arsanın ortasına küçültme
 
 Önce gerçek zemin üzerinde gösterilir. Arsa sınırının içinde bütün görünen öğeleriyle kaldığı, yolların açık olduğu ve komşu alanı işgal etmediği kontrol edilir. Sonraki binalara geçerken de aynı kontrol uygulanır. Önceki konsept çizimleri, bu sınırlar ayrıca doğrulanmadan oyuna hazır varlık kabul edilmez.
 
-Bu kayıt yalnız görsel tasarım kuralıdır. Mevcut ekonomi, kayıt biçimi, arsa açılma koşulları ve HUD değişmez. Kullanıcının mevcut canlıya göndermeme talimatı sürer.
+Bu kayıt yalnız görsel tasarım kuralıdır. Mevcut ekonomi, kayıt biçimi, arsa açılma koşulları ve HUD değişmez. 13 Ekim tarihli açık kullanıcı izniyle doğrulanan sürüm doğrudan yayınlanır.
