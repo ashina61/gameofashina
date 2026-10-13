@@ -1,3 +1,5 @@
+**13 Ekim ekran düzeltmesi — 0.106.0 / SW121:** `docs/CITY-FIT-0.106.md` son referanstır. Dört köşeli görsel arsa projeksiyonu, 2x ayrıntılı zemin ve sekiz ayırt edici yeni mimari. Görsel uyum yalnız dikdörtgen/alpha testiyle onaylanmaz; gerçek oyun ekranı ve projeksiyon uygulanmış köşeler ölçülür. Belediye, yol, motor, kayıt ve HUD korunur. Doğrudan yayın yetkisi geçerlidir.
+
 **13 Ekim son kullanıcı onayı — 0.105.0:** Onaylı Topkapı belediye modülü, geniş merkez ve güneye genişleyen yerleşim. Bütün kurulu binalar kendi arsasını tam kapatır; mekanik/kayıt/HUD korunur. Kullanıcı doğrudan yayına izin verdi. `docs/CITY-APPROVED-0.105.md` ve bina yerleşim kuralları geçerlidir.
 
 **12 Ekim deniz/kuzey düzeltmesi — 0.104.1 / SW119:** `docs/CITY-EDGES-0.104.1.md`. Aynalı su/iskele ve bulanık orman uzantıları kaldırıldı; deniz tek görüntü, kuzey kamera sınırı gerçek HUD ölçüsünden hesaplanır. Mekanik, arsa, kayıt ve HUD korunur. `tools/master-edge-qa.cjs` üç telefon genişliğinde uzak zoom ve iki yönde sınır kaydırmasını denetler.

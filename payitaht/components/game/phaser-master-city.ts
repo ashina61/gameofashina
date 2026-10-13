@@ -77,8 +77,38 @@ export class MasterCityScene extends CityScene {
     this.add.image(0, 0, MASTER_MAP.key, '__BASE').setOrigin(0).setDisplaySize(MASTER_MAP.width * s, MASTER_MAP.height * s).setDepth(-1000)
     for (const tile of MASTER_TERRAIN_TILES) {
       if (!this.textures.exists(tile.key)) continue
-      this.add.image(tile.x * s, tile.y * s, tile.key).setOrigin(0)
+      const detail = this.add.image(tile.x * s, tile.y * s, tile.key).setOrigin(0)
         .setDisplaySize(tile.width * s, tile.height * s).setDepth(-999)
+      // Feather only internal texture joins over the unchanged master painting.
+      // Parcel geometry and building textures are never masked or cropped.
+      const maskKey = `${tile.key}-join-mask`
+      const mask = this.textures.createCanvas(maskKey, tile.width * 2, tile.height * 2)!
+      const ctx = mask.context, w = mask.width, h = mask.height, feather = 32
+      ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, w, h)
+      ctx.globalCompositeOperation = 'destination-in'
+      for (const [startX,startY,endX,endY] of [
+        ...(tile.x > 0 ? [[0,0,feather,0]] : []),
+        ...(tile.x + tile.width < MASTER_MAP.width ? [[w,0,w-feather,0]] : []),
+        ...(tile.y > 0 ? [[0,0,0,feather]] : []),
+        ...(tile.y + tile.height < MASTER_MAP.height ? [[0,h,0,h-feather]] : []),
+      ]) {
+        const fade = ctx.createLinearGradient(startX,startY,endX,endY)
+        fade.addColorStop(0,'rgba(255,255,255,0)'); fade.addColorStop(1,'rgba(255,255,255,1)')
+        ctx.fillStyle = fade; ctx.fillRect(0,0,w,h)
+      }
+      mask.refresh()
+      const maskImage = this.make.image({x: tile.x*s, y: tile.y*s, key: maskKey, add: false})
+        .setOrigin(0).setDisplaySize(tile.width*s,tile.height*s)
+      if (this.game.renderer.type === Phaser.WEBGL) detail.setMask(maskImage.createBitmapMask())
+      else {
+        const blended = this.textures.createCanvas(`${tile.key}-blended`,w,h)!
+        blended.context.drawImage(this.textures.get(tile.key).getSourceImage() as HTMLImageElement,0,0,w,h)
+        blended.context.globalCompositeOperation='destination-in'
+        blended.context.drawImage(mask.canvas,0,0)
+        blended.refresh();detail.setTexture(blended.key)
+        this.events.once(Phaser.Scenes.Events.SHUTDOWN,()=>this.textures.remove(blended.key))
+      }
+      this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => { detail.clearMask(true); maskImage.destroy(); this.textures.remove(maskKey) })
     }
     this.flagField = new FlagField(this)
     this.flagField.setLook(this.sceneBanner())
@@ -198,12 +228,26 @@ export class MasterCityScene extends CityScene {
     const key = level > 0 ? buildingArtKey(id, level, facing) : 'b_site'
     if (level > 0 && !this.textures.exists(key)) { this.ensureBuildingTexture(id, level); return }
     if (!this.textures.exists(key)) return
-    const image = this.add.image(p.center.x, p.center.y, key).setOrigin(0.5)
-    const frame = masterArtFrame(p, image.width, image.height, level > 0 && MASTER_BUILDING_ART.has(id), stageGrowth(level))
+    const complete = level > 0 && MASTER_BUILDING_ART.has(id)
+    const source = this.textures.get(key).getSourceImage() as HTMLImageElement
+    const frame = masterArtFrame(p, source.width, source.height, complete, stageGrowth(level))
     const { width, height, bottom: y } = frame
-    image.setDisplaySize(width, height).setDepth(p.center.y + 1)
-    image.setData('masterPlot', p.index).setData('masterArt', id).setData('masterRole', 'art').setData('masterComplete', level > 0 && MASTER_BUILDING_ART.has(id))
-    image.setFlipX(facing ? facing === 'right' : this.state.flips.includes(id))
+    const flip = facing ? facing === 'right' : this.state.flips.includes(id)
+    let image: Phaser.GameObjects.Image | Phaser.GameObjects.Mesh
+    if (complete && this.game.renderer.type === Phaser.WEBGL) {
+      const vertices = p.polygon.flatMap(q => [q.x - p.center.x, p.center.y - q.y])
+      const uv = flip ? [1,0, 0,0, 0,1, 1,1] : [0,0, 1,0, 1,1, 0,1]
+      const mesh = this.add.mesh(p.center.x, p.center.y, key, undefined, vertices, uv, [0,1,2, 0,2,3])
+      mesh.setSize(width, height).setOrtho(width, height)
+      mesh.hideCCW = false
+      image = mesh
+    } else if (complete) {
+      image = this.canvasParcel(p, key, flip)
+    } else {
+      image = this.add.image(p.center.x, p.center.y, key).setDisplaySize(width, height).setFlipX(flip)
+    }
+    image.setDepth(p.center.y + 1)
+    image.setData('masterPlot', p.index).setData('masterArt', id).setData('masterRole', 'art').setData('masterComplete', complete)
     this.pieces.push(image)
     const shadow = this.add.ellipse(p.center.x + p.width * 0.025, p.center.y + p.height * 0.12, width * 0.7, p.height * 0.18, 0x352716, 0.12).setDepth(p.center.y - 1)
     shadow.setData('masterPlot', p.index).setData('masterRole', 'shadow')
@@ -214,7 +258,7 @@ export class MasterCityScene extends CityScene {
       if (!isTap(pointer) || this.moving || this.pinchStart) return
       // Keep the whole parcel covered during tap feedback.
       this.tweens.killTweensOf(image)
-      image.setDisplaySize(width, height)
+      if (image instanceof Phaser.GameObjects.Image) image.setDisplaySize(width, height)
       image.setTint(0xffedce)
       this.time.delayedCall(110, () => { if (image.active) image.clearTint() })
       this.events$.onBuilding(id)
@@ -232,7 +276,7 @@ export class MasterCityScene extends CityScene {
       this.labelOf.set(id, label)
       this.pieces.push(label)
     }
-    if (p.slot.zone === 'sehir') this.sky?.addLight(p.center.x, y - image.displayHeight * 0.28, 'pieces')
+    if (p.slot.zone === 'sehir') this.sky?.addLight(p.center.x, y - height * 0.28, 'pieces')
     const job = activeJob(this.state)
     if (active && job) {
       const sc = this.add.image(p.center.x, p.center.y, 'b_scaffold').setOrigin(0.5).setDepth(p.center.y + 5)
@@ -241,6 +285,31 @@ export class MasterCityScene extends CityScene {
       sc.setData('masterPlot', p.index).setData('masterRole', 'scaffold')
       this.pieces.push(sc, this.makeTimer(p.center.x, y + 75, job.start, job.end, 1e6 + p.center.y + 1))
     }
+  }
+  /** Canvas fallback maps the same whole texture; it never cuts a roof to fit. */
+  canvasParcel(p: MasterPlot, key: string, flip: boolean) {
+    const textureKey = `${key}-parcel-${p.index}-${Number(flip)}`
+    if (!this.textures.exists(textureKey)) {
+      const source = this.textures.get(key).getSourceImage() as HTMLImageElement
+      const canvas = this.textures.createCanvas(textureKey, Math.ceil(p.width * 2), Math.ceil(p.height * 2))!
+      const ctx = canvas.context
+      const target = p.polygon.map(q => ({x: (q.x-p.center.x+p.width/2)*2, y: (q.y-p.center.y+p.height/2)*2}))
+      const uv = [[0,0],[1,0],[1,1],[0,1]].map(([u,v]) => ({x: (flip ? 1-u : u)*source.width, y: v*source.height}))
+      for (const indices of [[0,1,2],[0,2,3]]) {
+        const [a,b,c]=indices.map(i=>uv[i]),[d,e,f]=indices.map(i=>target[i])
+        const den=(b.x-a.x)*(c.y-a.y)-(c.x-a.x)*(b.y-a.y)
+        const ax=((e.x-d.x)*(c.y-a.y)-(f.x-d.x)*(b.y-a.y))/den
+        const bx=((f.x-d.x)*(b.x-a.x)-(e.x-d.x)*(c.x-a.x))/den
+        const ay=((e.y-d.y)*(c.y-a.y)-(f.y-d.y)*(b.y-a.y))/den
+        const by=((f.y-d.y)*(b.x-a.x)-(e.y-d.y)*(c.x-a.x))/den
+        ctx.save();ctx.beginPath();ctx.moveTo(d.x,d.y);ctx.lineTo(e.x,e.y);ctx.lineTo(f.x,f.y);ctx.closePath();ctx.clip()
+        ctx.setTransform(ax,ay,bx,by,d.x-ax*a.x-bx*a.y,d.y-ay*a.x-by*a.y)
+        ctx.drawImage(source,0,0);ctx.restore()
+      }
+      canvas.refresh()
+      this.events.once(Phaser.Scenes.Events.SHUTDOWN,()=>this.textures.remove(textureKey))
+    }
+    return this.add.image(p.center.x,p.center.y,textureKey).setDisplaySize(p.width,p.height).setData('masterPolygon',p.polygon)
   }
   drawMasterDefense() {
     // The upper earthen embankment in the supplied painting is the defense
@@ -372,15 +441,19 @@ export class MasterCityScene extends CityScene {
           })
         document.documentElement.dataset.masterDefense = JSON.stringify(defense)
         const measured = this.pieces.flatMap(part => {
-          if (!(part instanceof Phaser.GameObjects.Image || part instanceof Phaser.GameObjects.Rectangle || part instanceof Phaser.GameObjects.Ellipse)) return []
+          if (!(part instanceof Phaser.GameObjects.Image || part instanceof Phaser.GameObjects.Mesh || part instanceof Phaser.GameObjects.Rectangle || part instanceof Phaser.GameObjects.Ellipse)) return []
           const index = part.getData('masterPlot') as number | undefined
           const p = masterPlot(index)
           if (!p) return []
-          const b = part.getBounds()
+          const polygon = part instanceof Phaser.GameObjects.Mesh
+            ? [...new Map(part.vertices.map(v => [`${v.vx},${v.vy}`, {x: part.x + v.vx, y: part.y + v.vy}])).values()] : (part.getData('masterPolygon') as Array<{x:number;y:number}> | undefined) || []
+          const b = part instanceof Phaser.GameObjects.Mesh
+            ? new Phaser.Geom.Rectangle(Math.min(...polygon.map(q=>q.x)), Math.min(...polygon.map(q=>q.y)), Math.max(...polygon.map(q=>q.x))-Math.min(...polygon.map(q=>q.x)), Math.max(...polygon.map(q=>q.y))-Math.min(...polygon.map(q=>q.y)))
+            : part.getBounds()
           const outside = b.left < p.center.x - p.width / 2 - 0.01 || b.right > p.center.x + p.width / 2 + 0.01
             || b.top < p.center.y - p.height / 2 - 0.01 || b.bottom > p.center.y + p.height / 2 + 0.01
           return [{ index, role: part.getData('masterRole'), id: part.getData('masterArt'), outside,
-            complete: !!part.getData('masterComplete'), fullyCovers: Math.abs(b.width - p.width) < 0.01 && Math.abs(b.height - p.height) < 0.01,
+            complete: !!part.getData('masterComplete'), polygon, plotPolygon: p.polygon, fullyCovers: polygon.length === 4 && p.polygon.every(q => polygon.some(v => Math.hypot(v.x-q.x, v.y-q.y) < 0.1)),
             x: part.x, y: part.y, width: b.width, height: b.height, plotWidth: p.width, plotHeight: p.height }]
         })
         document.documentElement.dataset.masterContainment = JSON.stringify({ measured, violations: measured.filter(p => p.outside) })

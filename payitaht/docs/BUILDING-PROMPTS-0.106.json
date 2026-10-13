@@ -1,0 +1,33 @@
+{
+  "method": "built-in imagegen",
+  "reference": "public/images/game/buildings/master-v4/divan.webp",
+  "common": "Use case: stylized-concept. ONE production city-building parcel asset, landscape 2.3:1, high bird-eye FRONT orthographic camera. Municipality reference is lighting/material/framing only; replace architecture entirely. Warm upper-left sunlight, ivory limestone, terracotta, lead grey, olive/cypress green, restrained realistic painterly texture. Fill all four image edges with real building and integral functional paved courtyard; no margin, white border, transparency, empty soil, surrounding roads/city, text/UI or reused twin-tower gate. Whole roof, walls, courtyard and shadows remain inside canvas. Distinct mobile-readable silhouette. Runtime maps the entire texture into measured trapezoid plot corners.",
+  "subjects": {
+    "hamam": "Low bathhouse domes with star skylights, cooling pools, no minarets or palace towers.",
+    "medrese": "Madrasa with large rooftop brass telescope, books, astronomical instruments, no mosque dome or minarets.",
+    "muze": "Long archaeology exhibition facade, gable roof, sculptures, columns and amphorae.",
+    "kahvehane": "Low timber/stone coffee pavilion, copper vents, striped terrace canopy and brewing station.",
+    "saray": "Three-storey marble imperial residence, hipped roofs, balconies, terraces and formal fountain garden, no mosque domes.",
+    "tekke": "Green-roof octagonal timber semahane, humble lodging wings, whirling dervishes.",
+    "gozlukcu": "Open-front lens grinding workshop, brass spectacles icon sign, magnifiers and optical benches.",
+    "ticaret_merkezi": "Two-storey merchant hall, projecting timber windows, goods, large brass weighing scale and market tower, no domes."
+  },
+  "outputs": [
+    "public/images/game/buildings/master-v5/hamam.webp",
+    "public/images/game/buildings/master-v5/hamam-sm.webp",
+    "public/images/game/buildings/master-v5/medrese.webp",
+    "public/images/game/buildings/master-v5/medrese-sm.webp",
+    "public/images/game/buildings/master-v5/muze.webp",
+    "public/images/game/buildings/master-v5/muze-sm.webp",
+    "public/images/game/buildings/master-v5/kahvehane.webp",
+    "public/images/game/buildings/master-v5/kahvehane-sm.webp",
+    "public/images/game/buildings/master-v5/saray.webp",
+    "public/images/game/buildings/master-v5/saray-sm.webp",
+    "public/images/game/buildings/master-v5/tekke.webp",
+    "public/images/game/buildings/master-v5/tekke-sm.webp",
+    "public/images/game/buildings/master-v5/gozlukcu.webp",
+    "public/images/game/buildings/master-v5/gozlukcu-sm.webp",
+    "public/images/game/buildings/master-v5/ticaret_merkezi.webp",
+    "public/images/game/buildings/master-v5/ticaret_merkezi-sm.webp"
+  ]
+}

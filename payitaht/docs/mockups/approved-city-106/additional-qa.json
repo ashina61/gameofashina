@@ -1,0 +1,22 @@
+{
+  "canvas_start": {
+    "missing": 0,
+    "page_errors": 0,
+    "complete_parcel_corners": "pass"
+  },
+  "dpr2_start": {
+    "missing": 0,
+    "page_errors": 0,
+    "complete_parcel_corners": "pass"
+  },
+  "layout": {
+    "taşma": 0,
+    "kesik": 0,
+    "küçük": 312,
+    "minik": 663,
+    "çakışma": 0,
+    "isimsiz": 0
+  },
+  "layout_pages": 78,
+  "layout_page_errors": []
+}

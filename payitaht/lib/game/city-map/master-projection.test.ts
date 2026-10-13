@@ -21,7 +21,7 @@ test('detail terrain covers the existing map once without gaps or overlapping ti
       assert.ok(a.x + a.width <= b.x || b.x + b.width <= a.x || a.y + a.height <= b.y || b.y + b.height <= a.y)
     }
   }
-  assert.equal(area, 0)
+  assert.equal(area, MASTER_MAP.width * MASTER_MAP.height)
   assert.ok(MASTER_MAP.path.endsWith('.webp'))
   assert.equal(MASTER_WORLD.h, MASTER_MAP.height * MASTER_MAP.scale)
 })

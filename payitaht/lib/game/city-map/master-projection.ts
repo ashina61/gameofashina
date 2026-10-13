@@ -12,12 +12,13 @@ export function masterCameraBounds(coveredTop: number, zoom: number) {
   return { x: MASTER_WORLD.x, y: -coveredNorth, w: MASTER_WORLD.w, h: MASTER_WORLD.h + coveredNorth }
 }
 /** Single approved painting; roads and parcels share one camera and light. */
-export const MASTER_TERRAIN_TILES: Array<{ id: string; x: number; y: number; key: string; width: number; height: number; path: string }> = []
+export const MASTER_TERRAIN_TILES: Array<{ id: string; x: number; y: number; key: string; width: number; height: number; path: string }> = [['nw',0,0],['ne',768,0],['sw',0,512],['se',768,512]].map(([id,x,y]) => ({id: String(id), x: Number(x), y: Number(y), key: `master-detail-v2-${id}`, width: 768, height: 512, path: `/images/game/terrain/master-detail-v2/${id}.webp`}))
 export const MASTER_DEFENSE_PATH = [[244,147],[392,70],[544,65],[725,65],[899,65],[1074,65],[1225,65],[1283,165]]
 export const MASTER_TOWER_SIZE = 60
 export const MASTER_PLOTS = measured.map(p => ({
   ...p,
   slot: LIVE_SLOTS[p.index],
+  polygon: p.corners.map(([x,y]) => ({ x: x * MASTER_MAP.scale, y: y * MASTER_MAP.scale })),
   center: { x: p.x * MASTER_MAP.scale, y: p.y * MASTER_MAP.scale },
   width: p.w * MASTER_MAP.scale,
   height: p.h * MASTER_MAP.scale,

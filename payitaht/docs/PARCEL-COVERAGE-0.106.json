@@ -1,0 +1,58 @@
+{
+  "hamam": {
+    "width": 1902,
+    "height": 827,
+    "uncovered": 0,
+    "generation_file": "exec-14ae3980-e3b2-4dee-b492-53132f94ca28.png",
+    "asset": "public/images/game/buildings/master-v5/hamam.webp"
+  },
+  "medrese": {
+    "width": 1904,
+    "height": 826,
+    "uncovered": 0,
+    "generation_file": "exec-93542797-93d6-44bd-acbe-2f08fd0d20c8.png",
+    "asset": "public/images/game/buildings/master-v5/medrese.webp"
+  },
+  "muze": {
+    "width": 1903,
+    "height": 826,
+    "uncovered": 0,
+    "generation_file": "exec-b003925a-a05d-4014-bf4a-2a1151dd701e.png",
+    "asset": "public/images/game/buildings/master-v5/muze.webp"
+  },
+  "kahvehane": {
+    "width": 1912,
+    "height": 823,
+    "uncovered": 0,
+    "generation_file": "exec-2c76da1d-951b-4e63-afd6-118af6f70316.png",
+    "asset": "public/images/game/buildings/master-v5/kahvehane.webp"
+  },
+  "saray": {
+    "width": 1902,
+    "height": 827,
+    "uncovered": 0,
+    "generation_file": "exec-5ae5969f-4646-4824-b2de-f489bff79cba.png",
+    "asset": "public/images/game/buildings/master-v5/saray.webp"
+  },
+  "tekke": {
+    "width": 1902,
+    "height": 827,
+    "uncovered": 0,
+    "generation_file": "exec-85c0a18c-0340-429d-a8a2-7ad8509b6e10.png",
+    "asset": "public/images/game/buildings/master-v5/tekke.webp"
+  },
+  "gozlukcu": {
+    "width": 1902,
+    "height": 827,
+    "uncovered": 0,
+    "generation_file": "exec-e6061ee3-257b-4006-ae70-002d192f27c5.png",
+    "asset": "public/images/game/buildings/master-v5/gozlukcu.webp"
+  },
+  "ticaret_merkezi": {
+    "width": 1902,
+    "height": 827,
+    "uncovered": 0,
+    "generation_file": "exec-e56ec92f-e209-4906-b155-eccc6147a8a5.png",
+    "asset": "public/images/game/buildings/master-v5/ticaret_merkezi.webp"
+  }
+}
