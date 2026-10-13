@@ -1,0 +1,146 @@
+{
+  "method": "Built-in imagegen; one asset per type; municipality is style/camera reference",
+  "common": "Use case: stylized-concept. Produce ONE complete Ottoman-Aegean city-builder BUILDING PARCEL texture, landscape about 2.3:1 ratio. Input image is camera/material/framing reference only: replace ALL municipal architecture with the requested building. Orthographic high bird-eye FRONT-facing view; horizontal front/back edges, axis-aligned full rectangular footprint, NO diamond and NO floating model. The asset fills 100% of the image right up to ALL FOUR EDGES with real architecture, boundary walls and integral functional paved courtyard. No margin, no white background, no transparent pixels, no soil or empty land. Stone boundary integrated to edges, entire roof/body/courtyard/shadow stays inside rectangle. Full front building elevation compressed naturally by high camera. Large readily recognizable main building mass occupies most parcel, courtyard and covered wings fill the remainder. Same warm upper-left daylight, ivory limestone, muted terracotta, lead-gray roofing, fine realistic-stylized hand-painted texture as reference. Do NOT reuse palace twin towers or ornamental palace gate except when requested. No surrounding city, roads, other plots, UI, labels, captions, modern elements. Subject: ",
+  "subjects": [
+    [
+      "kisla",
+      "Janissary barracks, long stone dormitory wings, central drill yard with uniformed tiny soldiers in rows, weapons racks, red banners and guardhouse, robust military architecture."
+    ],
+    [
+      "medrese",
+      "Ottoman scholarly madrasa with arcaded classroom wings, blue-gray small domes, central fountain court, a prominent brass telescope on a rooftop observation terrace, books and scholars."
+    ],
+    [
+      "ambar",
+      "massive grain storehouse complex, tall terracotta pitched roofs with storage ventilators, grain sacks and filled barrels in integral cobbled loading court, all bounded by warehouse wings."
+    ],
+    [
+      "carsi",
+      "dense Ottoman covered bazaar, rows of vaulted stalls, red ochre tile roofs, striped canvas shop awnings, colorful textiles, pottery and tiny merchants filling a paved market courtyard."
+    ],
+    [
+      "hamam",
+      "Ottoman bathhouse, large low lead-gray domes with tiny star skylights, ivory stone arched entrance, marble cooling court with a small pool, compact ancillary wings."
+    ],
+    [
+      "saray",
+      "governor royal palace distinct from municipal Topkapi gate: elegant large lead-blue central dome, limestone colonnade and terracotta side halls around a marble fountain courtyard, restrained luxurious ornament."
+    ],
+    [
+      "elcilik",
+      "Ottoman embassy, diplomatic limestone mansion with red-tile wings, formal arched reception entry and walled paved envoy court, heraldic red fabric banners and tiny carriages."
+    ],
+    [
+      "konut",
+      "dense Ottoman residential compound: several tall timber bay-window houses with terracotta roofs around a paved shared domestic court, laundry lines, balconies and small planted pots."
+    ],
+    [
+      "kereste",
+      "lumber storage and sawmill workshop, large roofed timber sheds, neatly stacked long planks/logs in stone-paved working court, sawhorses and timber roof trusses."
+    ],
+    [
+      "liman",
+      "trading port building parcel completely occupying a rectangular stone pier, compact limestone customs warehouse and tiled trading hall, stacked cargo/crates and dockside crane in integral working court. Keep entire image paved pier, no water outside parcel."
+    ],
+    [
+      "tersane",
+      "naval shipyard building parcel completely occupying rectangular stone pier, roofed boatbuilding workshop, large recognizable wooden hull under construction and gantry crane, shipwright tools and planks; no water or empty surround."
+    ],
+    [
+      "kahvehane",
+      "Ottoman coffeehouse, long low terracotta-roofed arcaded hall, shaded covered terrace and integral FULLY PAVED courtyard with copper coffee pots, low tables and seated patrons. No white or beige blank surround; entire rectangle filled by coffeehouse and courtyard."
+    ],
+    [
+      "cami",
+      "Ottoman mosque complex, large blue lead dome, one slender minaret within rectangular footprint, cream-stone arcaded ablution court with fountain and compact side wings."
+    ],
+    [
+      "muze",
+      "Ottoman antiquities museum, formal limestone exhibition halls with red tiled roofs, integral arcaded archaeological courtyard displaying statues, amphorae and carved stone."
+    ],
+    [
+      "marangoz",
+      "carpenter workshop compound, red tiled timber-framed workshop with open work bays, benches, finished wooden furniture and stacked planks in fully paved court."
+    ],
+    [
+      "mimar",
+      "architect guild compound, refined limestone drafting hall with terracotta roof, loggia with drawing tables, stone models and geometric architectural samples in enclosed paved court."
+    ],
+    [
+      "ormanci",
+      "forestry workers guild compound, rustic stone/wood lodges with tiled roofs, roofed log racks, axe and timber processing yard fully paved, tiny workmen. No forest surrounding asset."
+    ],
+    [
+      "tasci",
+      "stonemason workshop, sturdy red-tiled stone halls with open stonecutting bays, carved limestone blocks, mallets and chisels filling integral work court."
+    ],
+    [
+      "tophane",
+      "Ottoman cannon foundry, brick and limestone red-tile foundry sheds, broad arched furnace bays, brass cannons and casting molds in enclosed paved artillery yard."
+    ],
+    [
+      "bagci",
+      "vineyard guild winery compound, stone winepress hall and red-tiled vaulted cellars, huge wooden press, grape baskets, barrels filling paved working court. No vineyard or bare soil beyond asset."
+    ],
+    [
+      "simyahane",
+      "alchemical workshop, lead-gray domed laboratory and terracotta side wings with chimney, copper retorts, glass vials and herb preparation benches in enclosed paved court."
+    ],
+    [
+      "camci",
+      "glassmakers guild, low tiled kiln workshops with arched furnace bays and distinctive glass vessels of turquoise/amber colors in enclosed paved blowing court."
+    ],
+    [
+      "mahzen",
+      "vaulted cellar complex, low stone tiled-roof structures around walled paved loading court, broad stair entrance to underground vaults, large jars and sealed barrel stacks."
+    ],
+    [
+      "gozlukcu",
+      "optician workshop, small domed stone guild hall and red-tiled workshop wings, prominent brass optical instruments, lenses and lens-grinding benches in paved courtyard."
+    ],
+    [
+      "barutane",
+      "secure Ottoman powder arsenal, thick walled pale stone storage halls, low tiled roofs, narrow windows, many sealed powder barrels in fully paved guarded court; no open fire."
+    ],
+    [
+      "depo",
+      "large merchant warehouse with long red-tiled roofs, several wide arched storage doors, stacked labeled-free crates/barrels, handcarts in stone-paved enclosed loading yard."
+    ],
+    [
+      "ticaret_merkezi",
+      "grand Ottoman merchants exchange, symmetrical arcaded limestone halls, tiled roof galleries, central octagonal lead dome, scales, goods and merchants in full paved trading court."
+    ],
+    [
+      "harita_arsivi",
+      "cartographic archive, cream-stone red-tiled library hall with a compact rooftop astronomical dome, map tables, scroll cabinets and brass globe in enclosed paved scholar court."
+    ],
+    [
+      "valilik",
+      "provincial administration mansion, imposing terracotta-roofed limestone governor hall with large shaded balcony and red banners, stone administrative court and low arcaded wings."
+    ],
+    [
+      "korsan_kalesi",
+      "pirate fortress compact complex, crenellated stone perimeter filling rectangular parcel, two squat watchtowers, red-dark roof captain hall, cannons and cargo in enclosed paved fort court; NO sea border or surrounding rocks."
+    ],
+    [
+      "kara_pazar",
+      "clandestine covered Ottoman market, irregular dark terracotta-roofed stalls, shaded deep arches, covered awnings and sealed chests with traders in full paved enclosed court."
+    ],
+    [
+      "siginak",
+      "defensive refuge, thick limestone walls with squat guard towers and low vaulted roofed shelters, protected fully paved court with provisions and water cistern."
+    ],
+    [
+      "tekke",
+      "Ottoman dervish lodge, modest lead-dome prayer hall and red-tiled arcaded lodging wings, elegant central fountain paved court with tiny dervishes and cypress pots."
+    ],
+    [
+      "mabet",
+      "solemn Ottoman-era stone sanctuary, tall octagonal lead-gray domed chamber with carved arch entry, low stone arcaded wings and fully paved sacred courtyard."
+    ],
+    [
+      "karagoz",
+      "Ottoman shadow-theater guild, terracotta-roofed public performance hall with broad red-curtain stage loggia, puppet screen, benches and tiny audience in fully paved enclosed courtyard."
+    ]
+  ]
+}

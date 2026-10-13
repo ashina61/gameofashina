@@ -1,0 +1,110 @@
+{
+  "kisla": {
+    "source": "/workspace/scratch/8f42bc6461c9/generated_images/exec-753c2563-0ea8-492a-9ea1-2954a20c9ad4.png",
+    "width": 1896,
+    "height": 830,
+    "uncovered": 0
+  },
+  "medrese": {
+    "source": "/workspace/scratch/8f42bc6461c9/generated_images/exec-fae41274-44b0-45b6-b773-d6fc6e400b3d.png",
+    "width": 1903,
+    "height": 826,
+    "uncovered": 0
+  },
+  "ambar": {
+    "source": "/workspace/scratch/8f42bc6461c9/generated_images/exec-4b84867d-0825-4cfd-9d06-6b775d8b7a33.png",
+    "width": 1903,
+    "height": 826,
+    "uncovered": 0
+  },
+  "divan": {
+    "source": "/workspace/scratch/8f42bc6461c9/recovery/divan-reference.webp",
+    "width": 640,
+    "height": 278,
+    "uncovered": 0
+  },
+  "carsi": {
+    "source": "/workspace/scratch/8f42bc6461c9/generated_images/exec-2fb79828-facf-4c96-858b-56a8fd7fc77e.png",
+    "width": 1904,
+    "height": 826,
+    "uncovered": 0
+  },
+  "hamam": {
+    "source": "/workspace/scratch/8f42bc6461c9/generated_images/exec-aee47400-0fd4-41c9-9e73-bf3d7e9d961b.png",
+    "width": 1902,
+    "height": 827,
+    "uncovered": 0
+  },
+  "elcilik": {
+    "source": "/workspace/scratch/8f42bc6461c9/generated_images/exec-89e121d9-068b-49eb-93c9-271ce39c0eea.png",
+    "width": 1896,
+    "height": 830,
+    "uncovered": 0
+  },
+  "saray": {
+    "source": "/workspace/scratch/8f42bc6461c9/generated_images/exec-361e59d3-ec02-47bf-8d29-3ec2469ed001.png",
+    "width": 1903,
+    "height": 826,
+    "uncovered": 0
+  },
+  "konut": {
+    "source": "/workspace/scratch/8f42bc6461c9/generated_images/exec-879d8013-11c5-4173-ae3b-22c048f276c7.png",
+    "width": 1902,
+    "height": 827,
+    "uncovered": 0
+  },
+  "kereste": {
+    "source": "/workspace/scratch/8f42bc6461c9/generated_images/exec-af41e767-5fd4-4821-b44e-3ab58fd80f6d.png",
+    "width": 1903,
+    "height": 826,
+    "uncovered": 0
+  },
+  "liman": {
+    "source": "/workspace/scratch/8f42bc6461c9/generated_images/exec-f4a1a2d2-ac0e-4d38-aeff-14f50d2bc01f.png",
+    "width": 1903,
+    "height": 826,
+    "uncovered": 0
+  },
+  "tersane": {
+    "source": "/workspace/scratch/8f42bc6461c9/generated_images/exec-439ea4cc-7ce8-42ec-a511-8d8ece6c41ed.png",
+    "width": 1903,
+    "height": 826,
+    "uncovered": 0
+  },
+  "kahvehane": {
+    "source": "/workspace/scratch/8f42bc6461c9/generated_images/exec-ac6f96b2-edae-45a6-8acf-ceabae468387.png",
+    "width": 1902,
+    "height": 827,
+    "uncovered": 0
+  },
+  "cami": {
+    "source": "/workspace/scratch/8f42bc6461c9/generated_images/exec-549b01a1-5a8b-4661-b5e1-5d187461ce53.png",
+    "width": 1903,
+    "height": 826,
+    "uncovered": 0
+  },
+  "muze": {
+    "source": "/workspace/scratch/8f42bc6461c9/generated_images/exec-35d74207-a257-4de9-a974-1963915ac278.png",
+    "width": 1896,
+    "height": 830,
+    "uncovered": 0
+  },
+  "marangoz": {
+    "source": "/workspace/scratch/8f42bc6461c9/generated_images/exec-8a004620-4848-4cf6-8b78-a8aef9c82e38.png",
+    "width": 1900,
+    "height": 828,
+    "uncovered": 0
+  },
+  "mimar": {
+    "source": "/workspace/scratch/8f42bc6461c9/generated_images/exec-92467043-ab5a-4081-a132-9b4c23922bdf.png",
+    "width": 1903,
+    "height": 826,
+    "uncovered": 0
+  },
+  "ormanci": {
+    "source": "/workspace/scratch/8f42bc6461c9/generated_images/exec-baa2c515-d570-41f5-9fb4-331174ef9c6a.png",
+    "width": 1903,
+    "height": 826,
+    "uncovered": 0
+  }
+}

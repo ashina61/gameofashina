@@ -1,3 +1,5 @@
+13 Ekim güncel onay: kullanıcı son harita/belediye tasarımını kabul etti; bütün binalar belediye ölçeğinde, arsayı bütünüyle kaplayacak ve şehirle uyumlu olacak. Doğrudan canlı yayın açıkça yetkilendirildi. Aşağıdaki eski yayın yasağı bu yeni izinle kaldırılmıştır.
+
 # Bina yerleşimi — kesin kullanıcı kuralları
 
 12 Ekim 2026, 13:29 (İstanbul). Bu kurallar önceki prototip tariflerinin ve yaklaşık doluluk hedeflerinin önündedir.

@@ -28,7 +28,7 @@ const game = walk('components/game').filter(f => /\.tsx?$/.test(f))
 const source = ['app', 'components', 'hooks', 'lib'].flatMap(d => walk(d)).filter(f => /\.(tsx?|css)$/.test(f) && !f.includes('fixtures'))
 const lines = f => read(f).split('\n').length
 const largest = source.map(f => [f, lines(f)]).sort((a, b) => b[1] - a[1])[0]
-const smBytes = walk('public').filter(f => /-painted-\d+-sm\.webp$/.test(f)).reduce((s, f) => s + fs.statSync(path.join(ROOT, f)).size, 0)
+const smBytes = walk('public').filter(f => (/-painted-\d+-sm\.webp$/.test(f) || /buildings\/master-v4\/[^/]+-sm\.webp$/.test(f))).reduce((s, f) => s + fs.statSync(path.join(ROOT, f)).size, 0)
 
 const rows = [
   ['Oyun ekranlarında Lucide çizgi ikon kullanan dosya', game.filter(f => read(f).includes("from 'lucide-react'")).length, 5],
