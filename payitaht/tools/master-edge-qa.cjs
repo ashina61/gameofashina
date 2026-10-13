@@ -2,7 +2,7 @@
 const fs=require('node:fs'),http=require('node:http'),path=require('node:path'),assert=require('node:assert/strict')
 const {chromium}=require('playwright'),sharp=require('sharp')
 const {skipGuide,START_BUTTON,seedSave}=require('./lib/qa.cjs')
-const root=path.resolve(__dirname,'..'),out=root+'/docs/mockups/approved-city-108/edges'
+const root=path.resolve(__dirname,'..'),out=root+'/docs/mockups/approved-city-109/edges'
 const mime={'.html':'text/html','.js':'application/javascript','.css':'text/css','.webp':'image/webp','.json':'application/json','.woff2':'font/woff2'}
 const server=http.createServer((req,res)=>{const url=new URL(req.url,'http://localhost').pathname.replace(/^\/gameofashina(?=\/|$)/,'');let p=path.join(root,'out',url==='/'?'index.html':url);if(!fs.existsSync(p)&&fs.existsSync(p+'.html'))p+='.html';try{res.setHeader('Content-Type',mime[path.extname(p)]||'application/octet-stream');res.end(fs.readFileSync(p))}catch{res.statusCode=404;res.end('missing')}})
 let browser;const report={errors:[],missing:[],cases:[]}
@@ -17,7 +17,7 @@ let browser;const report={errors:[],missing:[],cases:[]}
   await p.goto('http://127.0.0.1:4189/gameofashina/');await p.getByRole('button',{name:START_BUTTON}).click();await p.waitForFunction(()=>document.documentElement.dataset.masterCamera,{timeout:60000})
   const state=()=>p.evaluate(()=>JSON.parse(document.documentElement.dataset.masterCamera))
   const screenshot=async(name)=>sharp(await p.screenshot()).webp({quality:90}).toFile(out+'/'+name+'-'+width+'.webp')
-  const inspect=async(name)=>{const camera=await state();assert.ok(camera.visibleTop>=-0.01,JSON.stringify(camera));assert.equal(camera.seaTexture,'master-open-sea-v2');assert.equal(camera.seaTiled,false);assert.equal(camera.forestExtension,false);assert.equal(camera.forestGroves.length,6);assert.ok(camera.forestGroves.every(p=>p.y>=0&&p.y+p.height<195));assert.equal(camera.worldBottom,3612);report.cases.push({width,name,camera})}
+  const inspect=async(name)=>{const camera=await state();assert.ok(camera.visibleTop>=camera.worldTop-0.01,JSON.stringify(camera));assert.equal(camera.seaTexture,'master-open-sea-v2');assert.equal(camera.seaTiled,false);assert.equal(camera.forestExtension,true);assert.equal(camera.forestGroves.length,0);assert.ok(camera.forestGroves.every(p=>p.y>=0&&p.y+p.height<195));assert.equal(camera.worldBottom,3612);assert.equal(camera.worldTop,-360);report.cases.push({width,name,camera})}
   await p.mouse.move(width/2,500);for(let n=0;n<24;n++){await p.mouse.wheel(0,120);await p.waitForTimeout(25)}await p.waitForTimeout(150)
   await inspect('minimum zoom');await screenshot('overview')
   for(let n=0;n<22;n++){await p.mouse.wheel(0,-120);await p.waitForTimeout(25)}

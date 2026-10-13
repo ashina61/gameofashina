@@ -61,9 +61,9 @@ export class SkyLayer {
     this.shade.setSize(span, span).setPosition(cam.width / 2 - span / 2, cam.height / 2 - span / 2)
   }
 
-  addLight(x: number, y: number, group: string) {
+  addLight(x: number, y: number, group: string, size = 2) {
     // Işık gece örtüsünün de üstünde: karanlıkta parlar.
-    const img = this.scene.add.image(x, y, 'sky-glow').setDepth(3e5 + 1).setBlendMode(Phaser.BlendModes.ADD).setAlpha(0).setScale(2)
+    const img = this.scene.add.image(x, y, 'sky-glow').setDepth(3e5 + 1).setBlendMode(Phaser.BlendModes.ADD).setAlpha(0).setScale(size)
     this.lights.push({ img, group, ph: Math.random() * 10 })
   }
 

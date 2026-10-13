@@ -1,6 +1,6 @@
 import * as Phaser from 'phaser'
 import { CityScene } from './phaser-city'
-import { MASTER_MAP, MASTER_WORLD, MASTER_SEA_EXTENSION, masterBuildingPlot, parcelContains, MASTER_DEFENSE_PATH, MASTER_TOWER_SIZE, masterCameraBounds, MASTER_TERRAIN_TILES, MASTER_PLOTS, masterPlot, masterArtFrame, type MasterPlot } from '@/lib/game/city-map/master-projection'
+import { MASTER_MAP, MASTER_WORLD, MASTER_SEA_EXTENSION, MASTER_FOREST_EXTENSION, masterWallSpans, masterBuildingPlot, parcelContains, MASTER_DEFENSE_PATH, masterCameraBounds, MASTER_TERRAIN_TILES, MASTER_PLOTS, masterPlot, masterArtFrame, type MasterPlot } from '@/lib/game/city-map/master-projection'
 import { BUILDINGS, BUILDING_IDS, activeJob, plotOpen, type BuildingId, type Game } from '@/lib/game/engine'
 import { asset, buildingArtKey } from '@/lib/asset'
 import { MASTER_BUILDING_ART, masterBuildingImage } from '@/lib/game/city-map/master-building-art'
@@ -20,7 +20,10 @@ export class MasterCityScene extends CityScene {
   masterBoundsWidth = 0
   masterHudInset = 0
   preload() {
-    this.load.image('master-north-grove', asset('/images/game/terrain/north-grove-v1.webp'))
+    this.load.image('master-forest-extension', asset('/images/game/terrain/north-forest-v2.webp'))
+    this.load.image('master-wall-span', asset('/images/game/walls/master-span-v2.webp'))
+    this.load.image('master-wall-gate', asset('/images/game/walls/master-gate-v2.webp'))
+    this.load.image('master-watchtower', asset('/images/game/walls/master-tower-v2.webp'))
     this.load.image('master-open-sea-v2', asset('/images/game/terrain/open-sea-v2.webp'))
     this.load.image(MASTER_MAP.key, asset(MASTER_MAP.path))
     for (const tile of MASTER_TERRAIN_TILES) this.load.image(tile.key, asset(tile.path))
@@ -59,6 +62,17 @@ export class MasterCityScene extends CityScene {
     // Keep the painting's aspect ratio and continue only the open sea southward.
     const wr = this.worldRect()
     this.add.rectangle(wr.x + wr.w / 2, wr.y + wr.h / 2, wr.w, wr.h, 0x086183).setDepth(-1002)
+    const forestSource = this.textures.get('master-forest-extension').getSourceImage() as HTMLImageElement
+    const joined = this.textures.createCanvas('master-forest-joined', forestSource.width, forestSource.height)!
+    joined.context.drawImage(forestSource, 0, 0)
+    joined.context.globalCompositeOperation = 'destination-in'
+    const fade = joined.context.createLinearGradient(0, joined.height - 48, 0, joined.height)
+    fade.addColorStop(0, '#fff'); fade.addColorStop(1, 'rgba(255,255,255,0)')
+    joined.context.fillStyle = fade; joined.context.fillRect(0, 0, joined.width, joined.height)
+    joined.refresh()
+    this.add.image(0, MASTER_WORLD.y, joined.key).setOrigin(0)
+      .setDisplaySize(MASTER_MAP.width * s, (MASTER_FOREST_EXTENSION + 24) * s).setDepth(-998)
+    this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => this.textures.remove(joined.key))
     // One open-water painting, never a mirrored island or repeated pier.
     this.textures.get('master-open-sea-v2').add('south-strip', 0, 0, 512 - MASTER_SEA_EXTENSION, MASTER_MAP.width, MASTER_SEA_EXTENSION)
     this.masterSea = this.add.image(0, MASTER_MAP.height * s, 'master-open-sea-v2', 'south-strip').setOrigin(0)
@@ -99,11 +113,6 @@ export class MasterCityScene extends CityScene {
       }
       this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => { detail.clearMask(true); maskImage.destroy(); this.textures.remove(maskKey) })
     }
-    // Additional groves stay above the defence ridge, away from every parcel.
-    for (const [x, y, width] of [[124, 55, 76], [318, 45, 65], [545, 45, 64], [752, 45, 64], [982, 45, 64], [1188, 54, 72]]) {
-      this.add.image(x * s, y * s, 'master-north-grove').setOrigin(0.5, 1)
-        .setDisplaySize(width * s, width * s * 2 / 3).setDepth(-998)
-    }
     this.flagField = new FlagField(this)
     this.flagField.setLook(this.sceneBanner())
     this.smoke = new SmokeField(this)
@@ -114,6 +123,9 @@ export class MasterCityScene extends CityScene {
     this.installCamera()
     this.addMasterLife()
     this.redraw()
+    const recordCamera = () => this.recordMasterCamera()
+    this.game.events.on(Phaser.Core.Events.POST_RENDER, recordCamera)
+    this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => this.game.events.off(Phaser.Core.Events.POST_RENDER, recordCamera))
     const cleanup = () => {
       this.built = false
       const target = Phaser.GameObjects.Graphics.TargetCamera
@@ -140,7 +152,7 @@ export class MasterCityScene extends CityScene {
   }
   setOverview() {
     this.cameras.main.setZoom(this.minZoom)
-    this.centerInBand(MASTER_WORLD.w / 2, MASTER_WORLD.h / 2)
+    this.centerInBand(MASTER_WORLD.w / 2, MASTER_WORLD.y + MASTER_WORLD.h / 2)
   }
   focusHarbour() {
     if (!this.built) return
@@ -229,18 +241,8 @@ export class MasterCityScene extends CityScene {
     const { width, height, bottom: y } = frame
     const flip = facing ? facing === 'right' : this.state.flips.includes(id)
     let image: Phaser.GameObjects.Image | Phaser.GameObjects.Mesh
-    if (complete && this.game.renderer.type === Phaser.WEBGL) {
-      const vertices = renderPlot.polygon.flatMap(q => [q.x - renderPlot.center.x, renderPlot.center.y - q.y])
-      const uv = flip ? [1,0, 0,0, 0,1, 1,1] : [0,0, 1,0, 1,1, 0,1]
-      const mesh = this.add.mesh(renderPlot.center.x, renderPlot.center.y, key, undefined, vertices, uv, [0,1,2, 0,2,3])
-      mesh.setSize(width, height).setOrtho(width, height)
-      mesh.hideCCW = false
-      image = mesh
-    } else if (complete) {
-      image = this.canvasParcel(renderPlot, key, flip)
-    } else {
-      image = this.add.image(renderPlot.center.x, renderPlot.center.y, key).setDisplaySize(width, height).setFlipX(flip)
-    }
+    if (complete) image = this.parcelArtwork(renderPlot, key, flip)
+    else image = this.add.image(renderPlot.center.x, renderPlot.center.y, key).setDisplaySize(width, height).setFlipX(flip)
     image.setDepth(p.center.y + 1)
     image.setData('masterPlot', p.index).setData('masterArt', id).setData('masterRole', 'art').setData('masterComplete', complete)
     this.pieces.push(image)
@@ -272,7 +274,7 @@ export class MasterCityScene extends CityScene {
       this.labelOf.set(id, label)
       this.pieces.push(label)
     }
-    if (p.slot.zone === 'sehir') this.sky?.addLight(p.center.x, y - height * 0.28, 'pieces')
+    if (p.slot.zone === 'sehir') this.sky?.addLight(p.center.x, y - height * 0.28, 'pieces', 0.7)
     const job = activeJob(this.state)
     if (active && job) {
       const sc = this.add.image(p.center.x, p.center.y, 'b_scaffold').setOrigin(0.5).setDepth(p.center.y + 5)
@@ -281,6 +283,15 @@ export class MasterCityScene extends CityScene {
       sc.setData('masterPlot', p.index).setData('masterRole', 'scaffold')
       this.pieces.push(sc, this.makeTimer(p.center.x, y + 75, job.start, job.end, 1e6 + p.center.y + 1))
     }
+  }
+  parcelArtwork(p: MasterPlot, key: string, flip: boolean) {
+    if (this.game.renderer.type !== Phaser.WEBGL) return this.canvasParcel(p, key, flip)
+    const vertices = p.polygon.flatMap(q => [q.x - p.center.x, p.center.y - q.y])
+    const uv = flip ? [1,0, 0,0, 0,1, 1,1] : [0,0, 1,0, 1,1, 0,1]
+    const mesh = this.add.mesh(p.center.x, p.center.y, key, undefined, vertices, uv, [0,1,2, 0,2,3])
+    mesh.setSize(p.width, p.height).setOrtho(p.width, p.height)
+    mesh.hideCCW = false
+    return mesh
   }
   /** Roads beside the trapezoid must not activate a neighbouring building. */
   parcelHit(p: MasterPlot) {
@@ -292,7 +303,7 @@ export class MasterCityScene extends CityScene {
   }
   /** Canvas fallback maps the same whole texture; it never cuts a roof to fit. */
   canvasParcel(p: MasterPlot, key: string, flip: boolean) {
-    const textureKey = `${key}-parcel-${p.index}-${Number(flip)}`
+    const textureKey = `${key}-parcel-${p.index}-${p.center.x}-${p.center.y}-${Number(flip)}`
     if (!this.textures.exists(textureKey)) {
       const source = this.textures.get(key).getSourceImage() as HTMLImageElement
       const canvas = this.textures.createCanvas(textureKey, Math.ceil(p.width * 2), Math.ceil(p.height * 2))!
@@ -322,27 +333,22 @@ export class MasterCityScene extends CityScene {
     const s = MASTER_MAP.scale
     const points = MASTER_DEFENSE_PATH
     if (level > 0) {
-      const tier = level >= 8 ? 3 : level >= 4 ? 2 : 1
-      for (let i = 0; i < points.length - 1; i++) {
-        const [ax, ay] = points[i], [bx, by] = points[i + 1]
-        const count = Math.ceil(Math.hypot(bx - ax, by - ay) / 64)
-        for (let j = 0; j < count; j++) {
-          const t = (j + 0.5) / count
-          const wall = this.add.image((ax + (bx - ax) * t) * s, (ay + (by - ay) * t) * s, `w_segment-${tier}`).setOrigin(0.5, 0.73).setDepth(50)
-          const span = Math.hypot(bx - ax, by - ay) * s / count * 1.18
-          wall.setScale(span / wall.width)
-          // The painted segment's baseline already slopes upward by 17°.
-          wall.setAngle(17 + Phaser.Math.RadToDeg(Math.atan2(by - ay, bx - ax)))
-          wall.setData('masterRole', 'defense')
-          this.pieces.push(wall)
-        }
+      for (const span of masterWallSpans(level)) {
+        const p = { ...MASTER_PLOTS[0], ...span }
+        const wall = this.parcelArtwork(p, 'master-wall-span', false).setDepth(50)
+        wall.setData('masterRole', 'defense').setData('masterPolygon', span.polygon)
+        this.pieces.push(wall)
       }
-      for (const i of [0, 2, 5, 7]) {
-        const tower = this.add.image(points[i][0] * s, points[i][1] * s, `w_tower-${tier}`).setOrigin(0.5, 1).setDepth(51)
-        tower.setScale(MASTER_TOWER_SIZE * s / tower.width)
+      for (const i of [0, 1, 2, 5, 6, 7]) {
+        const tower = this.add.image(points[i][0] * s, points[i][1] * s, 'master-watchtower').setOrigin(0.5, 1).setDepth(51)
+        tower.setScale((level >= 8 ? 42 : level >= 4 ? 38 : 34) * s / tower.width)
         tower.setData('masterRole', 'defense')
         this.pieces.push(tower)
       }
+      const gate = this.add.image(648 * s, 69 * s, 'master-wall-gate').setOrigin(0.5, 1).setDepth(52)
+      gate.setScale(37 * s / gate.width)
+      gate.setData('masterRole', 'defense')
+      this.pieces.push(gate)
     }
     const hit = this.add.rectangle(760 * s, 54 * s, 730 * s, 60 * s, 0xffffff, 0).setDepth(55).setInteractive({ useHandCursor: true })
     hit.on('pointerup', (p: Phaser.Input.Pointer) => { if (isTap(p) && !this.moving) this.events$.onBuilding('surlar') })
@@ -421,10 +427,13 @@ export class MasterCityScene extends CityScene {
       walker.image.setPosition(a.x + (b.x - a.x) * t, a.y + (b.y - a.y) * t).setDepth(walker.image.y)
       walker.image.setFlipX(walker.progress > 1)
     }
-    if (localStorage.getItem('payitaht-qa') === '1') {
+  }
+  /** worldView is refreshed during rendering; update() still has last frame's rectangle. */
+  recordMasterCamera() {
+    if (localStorage.getItem('payitaht-qa') === '1' && this.built) {
       const camera = this.cameras.main
       document.documentElement.dataset.masterCamera = JSON.stringify({ viewX: camera.worldView.x, viewY: camera.worldView.y, zoom: camera.zoom,
-        worldBottom: MASTER_WORLD.h,
+        worldTop: MASTER_WORLD.y, worldBottom: MASTER_WORLD.y + MASTER_WORLD.h,
         forestGroves: this.children.list.filter(p => p instanceof Phaser.GameObjects.Image && p.texture.key === 'master-north-grove')
           .map(p => (p as Phaser.GameObjects.Image).getBounds()),
         visibleTop: camera.worldView.y + this.masterHudInset / camera.zoom,
@@ -439,10 +448,11 @@ export class MasterCityScene extends CityScene {
       document.documentElement.dataset.cityReady = String(++this.readyCount)
       document.documentElement.dataset.masterMap = '20261013'
       if (localStorage.getItem('payitaht-qa') === '1') {
-        const defense = this.pieces.filter(part => part instanceof Phaser.GameObjects.Image && part.getData('masterRole') === 'defense')
+        const defense = this.pieces.filter(part => (part instanceof Phaser.GameObjects.Image || part instanceof Phaser.GameObjects.Mesh) && part.getData('masterRole') === 'defense')
           .map(part => {
-            const b = (part as Phaser.GameObjects.Image).getBounds()
-            return { outside: b.left < 0 || b.top < 0 || b.right > MASTER_WORLD.w || b.bottom > MASTER_WORLD.h,
+            const poly = part instanceof Phaser.GameObjects.Mesh ? [...new Map(part.vertices.map(v=>[`${v.vx},${v.vy}`,{x:part.x+v.vx,y:part.y+v.vy}])).values()] : part.getData('masterPolygon') as Array<{x:number;y:number}> | undefined
+            const b = poly ? new Phaser.Geom.Rectangle(Math.min(...poly.map(q=>q.x)),Math.min(...poly.map(q=>q.y)),Math.max(...poly.map(q=>q.x))-Math.min(...poly.map(q=>q.x)),Math.max(...poly.map(q=>q.y))-Math.min(...poly.map(q=>q.y))) : (part as Phaser.GameObjects.Image).getBounds()
+            return { outside: b.left < 0 || b.top < MASTER_WORLD.y || b.right > MASTER_WORLD.w || b.bottom > MASTER_WORLD.y + MASTER_WORLD.h,
               overlaps: MASTER_PLOTS.filter(p => b.left < p.center.x + p.width / 2 && b.right > p.center.x - p.width / 2
                 && b.top < p.center.y + p.height / 2 && b.bottom > p.center.y - p.height / 2).map(p => p.index) }
           })

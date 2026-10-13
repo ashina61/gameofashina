@@ -1,0 +1,150 @@
+{
+  "errors": [],
+  "missing": [],
+  "cases": [
+    {
+      "width": 360,
+      "name": "minimum zoom",
+      "camera": {
+        "viewX": 1372,
+        "viewY": -360,
+        "zoom": 0.21248741188318226,
+        "worldTop": -360,
+        "worldBottom": 3612,
+        "forestGroves": [],
+        "visibleTop": 49.39189869668252,
+        "seaTexture": "master-open-sea-v2",
+        "seaTiled": false,
+        "forestExtension": true
+      }
+    },
+    {
+      "width": 360,
+      "name": "north boundary after repeated pan",
+      "camera": {
+        "viewX": 2099,
+        "viewY": -417,
+        "zoom": 1.5,
+        "worldTop": -360,
+        "worldBottom": 3612,
+        "forestGroves": [],
+        "visibleTop": -359.00625,
+        "seaTexture": "master-open-sea-v2",
+        "seaTiled": false,
+        "forestExtension": true
+      }
+    },
+    {
+      "width": 360,
+      "name": "south sea after repeated pan",
+      "camera": {
+        "viewX": 2099,
+        "viewY": 3049,
+        "zoom": 1.5,
+        "worldTop": -360,
+        "worldBottom": 3612,
+        "forestGroves": [],
+        "visibleTop": 3106.99375,
+        "seaTexture": "master-open-sea-v2",
+        "seaTiled": false,
+        "forestExtension": true
+      }
+    },
+    {
+      "width": 390,
+      "name": "minimum zoom",
+      "camera": {
+        "viewX": 1301,
+        "viewY": -360,
+        "zoom": 0.21248741188318226,
+        "worldTop": -360,
+        "worldBottom": 3612,
+        "forestGroves": [],
+        "visibleTop": 83.54098045023699,
+        "seaTexture": "master-open-sea-v2",
+        "seaTiled": false,
+        "forestExtension": true
+      }
+    },
+    {
+      "width": 390,
+      "name": "north boundary after repeated pan",
+      "camera": {
+        "viewX": 2089,
+        "viewY": -422,
+        "zoom": 1.5,
+        "worldTop": -360,
+        "worldBottom": 3612,
+        "forestGroves": [],
+        "visibleTop": -359.16875,
+        "seaTexture": "master-open-sea-v2",
+        "seaTiled": false,
+        "forestExtension": true
+      }
+    },
+    {
+      "width": 390,
+      "name": "south sea after repeated pan",
+      "camera": {
+        "viewX": 2089,
+        "viewY": 3049,
+        "zoom": 1.5,
+        "worldTop": -360,
+        "worldBottom": 3612,
+        "forestGroves": [],
+        "visibleTop": 3111.83125,
+        "seaTexture": "master-open-sea-v2",
+        "seaTiled": false,
+        "forestExtension": true
+      }
+    },
+    {
+      "width": 430,
+      "name": "minimum zoom",
+      "camera": {
+        "viewX": 1207,
+        "viewY": -360,
+        "zoom": 0.21248741188318226,
+        "worldTop": -360,
+        "worldBottom": 3612,
+        "forestGroves": [],
+        "visibleTop": 129.00690906398108,
+        "seaTexture": "master-open-sea-v2",
+        "seaTiled": false,
+        "forestExtension": true
+      }
+    },
+    {
+      "width": 430,
+      "name": "north boundary after repeated pan",
+      "camera": {
+        "viewX": 2075,
+        "viewY": -428,
+        "zoom": 1.5,
+        "worldTop": -360,
+        "worldBottom": 3612,
+        "forestGroves": [],
+        "visibleTop": -358.728125,
+        "seaTexture": "master-open-sea-v2",
+        "seaTiled": false,
+        "forestExtension": true
+      }
+    },
+    {
+      "width": 430,
+      "name": "south sea after repeated pan",
+      "camera": {
+        "viewX": 2075,
+        "viewY": 3049,
+        "zoom": 1.5,
+        "worldTop": -360,
+        "worldBottom": 3612,
+        "forestGroves": [],
+        "visibleTop": 3118.271875,
+        "seaTexture": "master-open-sea-v2",
+        "seaTiled": false,
+        "forestExtension": true
+      }
+    }
+  ]
+}

@@ -1,14 +1,14 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { MASTER_MAP, MASTER_WORLD, MASTER_SEA_EXTENSION, masterCameraBounds, MASTER_TERRAIN_TILES, MASTER_PLOTS, masterPlot, masterArtFrame, masterBuildingPlot, parcelContains } from './master-projection'
+import { MASTER_MAP, MASTER_WORLD, MASTER_SEA_EXTENSION, MASTER_FOREST_EXTENSION, masterCameraBounds, MASTER_TERRAIN_TILES, MASTER_PLOTS, masterPlot, masterArtFrame, masterBuildingPlot, parcelContains } from './master-projection'
 import { LIVE_SLOTS } from './live-adapter'
 
 test('north camera limit exposes no painted-map margin below the HUD at any zoom', () => {
   for (const coveredTop of [0, 87, 104, 210]) for (const zoom of [0.078, 0.15, 0.5, 1.5]) {
     const b = masterCameraBounds(coveredTop, zoom)
-    assert.ok(b.y + coveredTop / zoom >= 0)
-    assert.ok(b.y + coveredTop / zoom <= 1.00001)
-    assert.ok(Math.abs(b.y + b.h - MASTER_WORLD.h) < 0.000001)
+    assert.ok(b.y + coveredTop / zoom >= MASTER_WORLD.y)
+    assert.ok(b.y + coveredTop / zoom <= MASTER_WORLD.y + 1.00001)
+    assert.ok(Math.abs(b.y + b.h - (MASTER_WORLD.y + MASTER_WORLD.h)) < 0.000001)
   }
 })
 
@@ -23,7 +23,7 @@ test('detail terrain covers the existing map once without gaps or overlapping ti
   }
   assert.equal(area, MASTER_MAP.width * MASTER_MAP.height)
   assert.ok(MASTER_MAP.path.endsWith('.webp'))
-  assert.equal(MASTER_WORLD.h, (MASTER_MAP.height + MASTER_SEA_EXTENSION) * MASTER_MAP.scale)
+  assert.equal(MASTER_WORLD.h, (MASTER_MAP.height + MASTER_SEA_EXTENSION + MASTER_FOREST_EXTENSION) * MASTER_MAP.scale)
 })
 
 test('a bounding-box corner in the road is rejected by the actual sloping parcel edge', () => {

@@ -5,18 +5,36 @@ import { LIVE_SLOTS } from './live-adapter'
  * city-unified-v3 thumbnail. Engine plot indices and tile geometry are unchanged. */
 export const MASTER_MAP = { width: 1536, height: 1024, scale: 3, key: 'city-unified-v3', path: '/images/game/terrain/city-unified-v3.webp' }
 export const MASTER_SEA_EXTENSION = 180
-export const MASTER_WORLD = { x: 0, y: 0, w: MASTER_MAP.width * MASTER_MAP.scale, h: (MASTER_MAP.height + MASTER_SEA_EXTENSION) * MASTER_MAP.scale }
+export const MASTER_FOREST_EXTENSION = 120
+export const MASTER_WORLD = { x: 0, y: -MASTER_FOREST_EXTENSION * MASTER_MAP.scale, w: MASTER_MAP.width * MASTER_MAP.scale, h: (MASTER_MAP.height + MASTER_SEA_EXTENSION + MASTER_FOREST_EXTENSION) * MASTER_MAP.scale }
 /** Only the portion covered by the top HUD may extend north of the actual painting. */
 export function masterCameraBounds(coveredTop: number, zoom: number) {
   // Phaser rounds worldView coordinates down; one world pixel keeps that
   // rounding from exposing a fraction of the unpainted northern margin.
   const coveredNorth = Math.max(0, coveredTop / zoom - 1)
-  return { x: MASTER_WORLD.x, y: -coveredNorth, w: MASTER_WORLD.w, h: MASTER_WORLD.h + coveredNorth }
+  return { x: MASTER_WORLD.x, y: MASTER_WORLD.y - coveredNorth, w: MASTER_WORLD.w, h: MASTER_WORLD.h + coveredNorth }
 }
 /** Single approved painting; roads and parcels share one camera and light. */
 export const MASTER_TERRAIN_TILES: Array<{ id: string; x: number; y: number; key: string; width: number; height: number; path: string }> = [['nw',0,0],['ne',768,0],['sw',0,512],['se',768,512]].map(([id,x,y]) => ({id: String(id), x: Number(x), y: Number(y), key: `unified-detail-v3-${id}`, width: 768, height: 512, path: `/images/game/terrain/unified-detail-v3/${id}.webp`}))
 export const MASTER_DEFENSE_PATH = [[244,147],[392,70],[544,65],[725,65],[899,65],[1074,65],[1225,65],[1283,165]]
 export const MASTER_TOWER_SIZE = 60
+/** Vertical faces remain upright while their baselines follow the ridge. */
+export function masterWallSpans(level: number) {
+  const height = level >= 8 ? 19 : level >= 4 ? 16 : 12
+  return MASTER_DEFENSE_PATH.slice(0, -1).flatMap(([ax, ay], i) => {
+    const [bx, by] = MASTER_DEFENSE_PATH[i + 1], count = Math.ceil(Math.hypot(bx - ax, by - ay) / 240)
+    return Array.from({ length: count }, (_, j) => {
+      const x0 = ax + (bx - ax) * j / count, y0 = ay + (by - ay) * j / count
+      const x1 = ax + (bx - ax) * (j + 1) / count, y1 = ay + (by - ay) * (j + 1) / count
+      const polygon = [[x0, y0 - height], [x1, y1 - height], [x1, y1], [x0, y0]]
+        .map(([x, y]) => ({ x: x * MASTER_MAP.scale, y: y * MASTER_MAP.scale }))
+      const left = x0 * MASTER_MAP.scale, right = x1 * MASTER_MAP.scale
+      const top = Math.min(y0, y1) * MASTER_MAP.scale - height * MASTER_MAP.scale
+      const bottom = Math.max(y0, y1) * MASTER_MAP.scale
+      return { polygon, center: { x: (left + right) / 2, y: (top + bottom) / 2 }, width: right - left, height: bottom - top }
+    })
+  })
+}
 export const MASTER_PLOTS = measured.map(p => ({
   ...p,
   slot: LIVE_SLOTS[p.index],
