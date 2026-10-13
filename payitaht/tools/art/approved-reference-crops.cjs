@@ -1,0 +1,3 @@
+const fs=require('fs'),path=require('path'),sharp=require('sharp');
+const root=path.resolve(__dirname,'../..'),dir=path.join(__dirname,'approved-sources');
+(async()=>{fs.mkdirSync(dir,{recursive:true});const source=root+'/public/images/game/terrain/city-master-20261013.webp';const m=await sharp(source).metadata();if(m.width!==1536||m.height!==1024)throw Error('Unexpected terrain frame');for(const [id,left,top] of [['nw',0,0],['ne',768,0],['sw',0,512],['se',768,512]])await sharp(source).extract({left,top,width:768,height:512}).png().toFile(dir+'/reference-'+id+'.png');})().catch(e=>{console.error(e);process.exitCode=1});
