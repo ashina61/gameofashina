@@ -1,3 +1,5 @@
+**13 Ekim ortak şehir dili — 0.107.0 / SW122:** `docs/CITY-STYLE-0.107.md` son takip. Kullanıcı 0.106.0 uyumunu reddetti; belediye referanslı nötr doğal zemin ve daha küçük sokak dekorları yeniden çizildi. Eski detaylar yeni master üzerine bindirilmez. Salt teknik testlerle görsel uyum tamamlandı iddiası yapılmaz; gerçek birleşik şehir incelenir. Mekanik/kayıt/arsa kimlikleri/HUD korunur. Önceki canlı yayın yetkisi geçerlidir.
+
 **13 Ekim ekran düzeltmesi — 0.106.0 / SW121:** `docs/CITY-FIT-0.106.md` son referanstır. Dört köşeli görsel arsa projeksiyonu, 2x ayrıntılı zemin ve sekiz ayırt edici yeni mimari. Görsel uyum yalnız dikdörtgen/alpha testiyle onaylanmaz; gerçek oyun ekranı ve projeksiyon uygulanmış köşeler ölçülür. Belediye, yol, motor, kayıt ve HUD korunur. Doğrudan yayın yetkisi geçerlidir.
 
 **13 Ekim son kullanıcı onayı — 0.105.0:** Onaylı Topkapı belediye modülü, geniş merkez ve güneye genişleyen yerleşim. Bütün kurulu binalar kendi arsasını tam kapatır; mekanik/kayıt/HUD korunur. Kullanıcı doğrudan yayına izin verdi. `docs/CITY-APPROVED-0.105.md` ve bina yerleşim kuralları geçerlidir.

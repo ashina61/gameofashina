@@ -21,7 +21,6 @@ export class MasterCityScene extends CityScene {
   masterHudInset = 0
   preload() {
     this.load.image(MASTER_MAP.key, asset(MASTER_MAP.path))
-    this.load.image('master-open-sea', asset('/images/game/terrain/master-open-sea-v1.webp'))
     for (const tile of MASTER_TERRAIN_TILES) this.load.image(tile.key, asset(tile.path))
     for (const id of BUILDING_IDS) {
       const level = this.state.buildings[id]
@@ -58,22 +57,6 @@ export class MasterCityScene extends CityScene {
     // Keep the painting's aspect ratio and continue only the open sea southward.
     const wr = this.worldRect()
     this.add.rectangle(wr.x + wr.w / 2, wr.y + wr.h / 2, wr.w, wr.h, 0x086183).setDepth(-1002)
-    // One open-water painting: no strips, mirrored structures or repeated wave tiles.
-    // Blend only the last 32 source pixels of open water, below all land/plots.
-    const overlap = 96
-    const seaHeight = wr.h - MASTER_MAP.height * s + overlap
-    const water = this.textures.get('master-open-sea').getSourceImage() as HTMLImageElement
-    const sea = this.textures.createCanvas('master-open-sea-blended', water.width, water.height)!
-    sea.context.drawImage(water, 0, 0)
-    sea.context.globalCompositeOperation = 'destination-in'
-    const fade = sea.context.createLinearGradient(0, 0, 0, overlap / seaHeight * water.height)
-    fade.addColorStop(0, 'rgba(255,255,255,0)')
-    fade.addColorStop(1, 'rgba(255,255,255,1)')
-    sea.context.fillStyle = fade
-    sea.context.fillRect(0, 0, water.width, water.height)
-    sea.refresh()
-    this.masterSea = this.add.image(0, MASTER_MAP.height * s - overlap, 'master-open-sea-blended')
-      .setOrigin(0).setDisplaySize(wr.w, seaHeight).setTint(0x409ebb).setDepth(-998)
     this.add.image(0, 0, MASTER_MAP.key, '__BASE').setOrigin(0).setDisplaySize(MASTER_MAP.width * s, MASTER_MAP.height * s).setDepth(-1000)
     for (const tile of MASTER_TERRAIN_TILES) {
       if (!this.textures.exists(tile.key)) continue

@@ -2,7 +2,7 @@ import measured from './master-projection.json'
 import { LIVE_SLOTS } from './live-adapter'
 
 /** Image pixels, independent of the engine's stable plot indices and tile geometry. */
-export const MASTER_MAP = { width: 1536, height: 1024, scale: 3, key: 'city-master-20261013', path: '/images/game/terrain/city-master-20261013.webp' }
+export const MASTER_MAP = { width: 1536, height: 1024, scale: 3, key: 'city-unified-v3', path: '/images/game/terrain/city-unified-v3.webp' }
 export const MASTER_WORLD = { x: 0, y: 0, w: MASTER_MAP.width * MASTER_MAP.scale, h: MASTER_MAP.height * MASTER_MAP.scale }
 /** Only the portion covered by the top HUD may extend north of the actual painting. */
 export function masterCameraBounds(coveredTop: number, zoom: number) {
@@ -12,7 +12,7 @@ export function masterCameraBounds(coveredTop: number, zoom: number) {
   return { x: MASTER_WORLD.x, y: -coveredNorth, w: MASTER_WORLD.w, h: MASTER_WORLD.h + coveredNorth }
 }
 /** Single approved painting; roads and parcels share one camera and light. */
-export const MASTER_TERRAIN_TILES: Array<{ id: string; x: number; y: number; key: string; width: number; height: number; path: string }> = [['nw',0,0],['ne',768,0],['sw',0,512],['se',768,512]].map(([id,x,y]) => ({id: String(id), x: Number(x), y: Number(y), key: `master-detail-v2-${id}`, width: 768, height: 512, path: `/images/game/terrain/master-detail-v2/${id}.webp`}))
+export const MASTER_TERRAIN_TILES: Array<{ id: string; x: number; y: number; key: string; width: number; height: number; path: string }> = [['nw',0,0],['ne',768,0],['sw',0,512],['se',768,512]].map(([id,x,y]) => ({id: String(id), x: Number(x), y: Number(y), key: `unified-detail-v3-${id}`, width: 768, height: 512, path: `/images/game/terrain/unified-detail-v3/${id}.webp`}))
 export const MASTER_DEFENSE_PATH = [[244,147],[392,70],[544,65],[725,65],[899,65],[1074,65],[1225,65],[1283,165]]
 export const MASTER_TOWER_SIZE = 60
 export const MASTER_PLOTS = measured.map(p => ({

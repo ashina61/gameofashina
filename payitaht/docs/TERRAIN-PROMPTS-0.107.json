@@ -1,0 +1,22 @@
+{
+  "method": "built-in imagegen",
+  "geometry_reference": "public/images/game/terrain/city-master-20261013.webp",
+  "style_reference": "public/images/game/buildings/master-v4/divan.webp",
+  "master_prompt": "Production city background in municipal asset style: neutral pale limestone, restrained realistic olive/cypress foliage, fine natural masonry and gentle upper-left daylight. Geometry reference supplies exact empty plots, roads, promenade/fountain, cliffs, coast and three piers; municipality supplies final material, camera, scale and light. Keep all plots empty and stable. Replace orange/cartoon surfaces and strong grass frames; street cypresses approximately 30–35 map pixels tall, columns approximately 12–18 pixels tall, preserve root positions; peripheral forest may remain taller. No labels/UI, borders, new architecture, redesigned roads or parcel arrangement.",
+  "detail_prompt": "Exact 2x enhancement of each 768x512 selected master quadrant to 1536x1024. Preserve roads, lot corners, curb, shoreline, planter roots, colors/light distribution, object scale, crop and all four edges. Add only fine stone joints, natural cracks, foliage, wood grain and restrained water texture. No new objects, layout shifts, strong saturation, glossy plastic, cartoon rocks, borders or text.",
+  "master_native_size": [
+    1536,
+    1024
+  ],
+  "detail_native_size_each": [
+    1536,
+    1024
+  ],
+  "outputs": [
+    "public/images/game/terrain/city-unified-v3.webp",
+    "public/images/game/terrain/unified-detail-v3/nw.webp",
+    "public/images/game/terrain/unified-detail-v3/ne.webp",
+    "public/images/game/terrain/unified-detail-v3/sw.webp",
+    "public/images/game/terrain/unified-detail-v3/se.webp"
+  ]
+}
