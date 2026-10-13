@@ -63,12 +63,14 @@ test('complete art, including tall legacy sprites and approved modules, stays in
 })
 
 test('all land modules leave the painted horizontal street corridors open', () => {
-  const streets = [193, 296, 408, 518, 639, 767]
+  // Visible road bands in unified-detail-v3; the previous master had
+  // different kerb positions, especially below the fifth row.
+  const streets = [[190,199], [290,302], [399,414], [518,532], [643,653], [760,783]]
   for (const p of MASTER_PLOTS.filter(p => p.slot.zone === 'sehir')) {
     const art = masterArtFrame(p, 1774, 887, true)
-    for (const y of streets) {
-      const top = (y - 6) * MASTER_MAP.scale, bottom = (y + 6) * MASTER_MAP.scale
-      assert.ok(art.bottom <= top || art.top >= bottom, `plot ${p.index} crosses street ${y}`)
+    for (const [start, end] of streets) {
+      const top = start * MASTER_MAP.scale, bottom = end * MASTER_MAP.scale
+      assert.ok(art.bottom <= top || art.top >= bottom, `plot ${p.index} crosses street ${start}-${end}`)
     }
   }
 })

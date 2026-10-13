@@ -1,7 +1,8 @@
 import measured from './master-projection.json'
 import { LIVE_SLOTS } from './live-adapter'
 
-/** Image pixels, independent of the engine's stable plot indices and tile geometry. */
+/** Image pixels measured against unified-detail-v3 (0.107.1), not the older
+ * city-unified-v3 thumbnail. Engine plot indices and tile geometry are unchanged. */
 export const MASTER_MAP = { width: 1536, height: 1024, scale: 3, key: 'city-unified-v3', path: '/images/game/terrain/city-unified-v3.webp' }
 export const MASTER_WORLD = { x: 0, y: 0, w: MASTER_MAP.width * MASTER_MAP.scale, h: MASTER_MAP.height * MASTER_MAP.scale }
 /** Only the portion covered by the top HUD may extend north of the actual painting. */

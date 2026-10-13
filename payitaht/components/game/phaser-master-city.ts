@@ -193,13 +193,13 @@ export class MasterCityScene extends CityScene {
   }
   plotFrame(p: MasterPlot, color: number) {
     const g = this.add.graphics().setDepth(1e5)
-    g.fillStyle(color, 0.12).fillRoundedRect(p.center.x - p.width / 2, p.center.y - p.height / 2, p.width, p.height, 12)
-    g.lineStyle(4, color, 0.9).strokeRoundedRect(p.center.x - p.width / 2, p.center.y - p.height / 2, p.width, p.height, 12)
+    g.fillStyle(color, 0.12).fillPoints(p.polygon, true)
+    g.lineStyle(4, color, 0.9).strokePoints(p.polygon, true)
     this.pieces.push(g)
   }
   drawMasterPlot(p: MasterPlot) {
     if (this.placing) this.plotFrame(p, 0xe8ce93)
-    const hit = this.add.rectangle(p.center.x, p.center.y, p.width, p.height, 0xffffff, 0).setDepth(p.center.y).setInteractive({ useHandCursor: true })
+    const hit = this.parcelHit(p).setDepth(p.center.y)
     hit.on('pointerup', (pointer: Phaser.Input.Pointer) => {
       if (isTap(pointer) && !this.moving && !this.pinchStart) this.events$.onPlot(p.index)
     })
@@ -235,8 +235,7 @@ export class MasterCityScene extends CityScene {
     const shadow = this.add.ellipse(p.center.x + p.width * 0.025, p.center.y + p.height * 0.12, width * 0.7, p.height * 0.18, 0x352716, 0.12).setDepth(p.center.y - 1)
     shadow.setData('masterPlot', p.index).setData('masterRole', 'shadow')
     this.pieces.push(shadow)
-    const hit = this.add.rectangle(p.center.x, p.center.y, p.width * 0.98, p.height * 0.98, 0xffffff, 0)
-      .setDepth(p.center.y + 2).setInteractive({ useHandCursor: true })
+    const hit = this.parcelHit(p).setDepth(p.center.y + 2)
     hit.on('pointerup', (pointer: Phaser.Input.Pointer) => {
       if (!isTap(pointer) || this.moving || this.pinchStart) return
       // Keep the whole parcel covered during tap feedback.
@@ -268,6 +267,14 @@ export class MasterCityScene extends CityScene {
       sc.setData('masterPlot', p.index).setData('masterRole', 'scaffold')
       this.pieces.push(sc, this.makeTimer(p.center.x, y + 75, job.start, job.end, 1e6 + p.center.y + 1))
     }
+  }
+  /** Roads beside the trapezoid must not activate a neighbouring building. */
+  parcelHit(p: MasterPlot) {
+    const polygon = new Phaser.Geom.Polygon(p.polygon.map(q => ({
+      x: q.x - p.center.x + p.width / 2, y: q.y - p.center.y + p.height / 2,
+    })))
+    return this.add.rectangle(p.center.x, p.center.y, p.width, p.height, 0xffffff, 0)
+      .setInteractive({ hitArea: polygon, hitAreaCallback: Phaser.Geom.Polygon.Contains, useHandCursor: true })
   }
   /** Canvas fallback maps the same whole texture; it never cuts a roof to fit. */
   canvasParcel(p: MasterPlot, key: string, flip: boolean) {
