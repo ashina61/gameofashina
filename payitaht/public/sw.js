@@ -1,7 +1,9 @@
-const CACHE = 'payitaht-shell-v123'
+const CACHE = 'payitaht-shell-v124'
 const BASE = new URL(self.registration.scope).pathname.replace(/\/$/, '')
 const p = path => `${BASE}${path.startsWith('/') ? path : `/${path}`}`
 const ASSETS = [
+  p('/images/game/terrain/north-grove-v1.webp'),
+  p('/images/game/terrain/open-sea-v2.webp'),
   ...["divan", "kisla", "medrese", "ambar", "carsi", "hamam", "saray", "elcilik", "konut", "kereste", "liman", "tersane", "kahvehane", "cami", "muze", "marangoz", "mimar", "ormanci", "tasci", "tophane", "bagci", "simyahane", "camci", "mahzen", "gozlukcu", "barutane", "depo", "ticaret_merkezi", "harita_arsivi", "valilik", "korsan_kalesi", "kara_pazar", "siginak", "tekke", "mabet", "karagoz"].flatMap(id => ['', '-sm'].map(size => p(`/images/game/buildings/${['hamam','medrese','muze','kahvehane','saray','tekke','gozlukcu','ticaret_merkezi'].includes(id) ? 'master-v5' : 'master-v4'}/${id}${size}.webp`))),
   p('/images/game/terrain/city-unified-v3.webp'),
   ...['nw','ne','sw','se'].map(id => p(`/images/game/terrain/unified-detail-v3/${id}.webp`)),

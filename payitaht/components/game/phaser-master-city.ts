@@ -1,6 +1,6 @@
 import * as Phaser from 'phaser'
 import { CityScene } from './phaser-city'
-import { MASTER_MAP, MASTER_WORLD, MASTER_DEFENSE_PATH, MASTER_TOWER_SIZE, masterCameraBounds, MASTER_TERRAIN_TILES, MASTER_PLOTS, masterPlot, masterArtFrame, type MasterPlot } from '@/lib/game/city-map/master-projection'
+import { MASTER_MAP, MASTER_WORLD, MASTER_SEA_EXTENSION, masterBuildingPlot, parcelContains, MASTER_DEFENSE_PATH, MASTER_TOWER_SIZE, masterCameraBounds, MASTER_TERRAIN_TILES, MASTER_PLOTS, masterPlot, masterArtFrame, type MasterPlot } from '@/lib/game/city-map/master-projection'
 import { BUILDINGS, BUILDING_IDS, activeJob, plotOpen, type BuildingId, type Game } from '@/lib/game/engine'
 import { asset, buildingArtKey } from '@/lib/asset'
 import { MASTER_BUILDING_ART, masterBuildingImage } from '@/lib/game/city-map/master-building-art'
@@ -20,6 +20,8 @@ export class MasterCityScene extends CityScene {
   masterBoundsWidth = 0
   masterHudInset = 0
   preload() {
+    this.load.image('master-north-grove', asset('/images/game/terrain/north-grove-v1.webp'))
+    this.load.image('master-open-sea-v2', asset('/images/game/terrain/open-sea-v2.webp'))
     this.load.image(MASTER_MAP.key, asset(MASTER_MAP.path))
     for (const tile of MASTER_TERRAIN_TILES) this.load.image(tile.key, asset(tile.path))
     for (const id of BUILDING_IDS) {
@@ -57,6 +59,10 @@ export class MasterCityScene extends CityScene {
     // Keep the painting's aspect ratio and continue only the open sea southward.
     const wr = this.worldRect()
     this.add.rectangle(wr.x + wr.w / 2, wr.y + wr.h / 2, wr.w, wr.h, 0x086183).setDepth(-1002)
+    // One open-water painting, never a mirrored island or repeated pier.
+    this.textures.get('master-open-sea-v2').add('south-strip', 0, 0, 512 - MASTER_SEA_EXTENSION, MASTER_MAP.width, MASTER_SEA_EXTENSION)
+    this.masterSea = this.add.image(0, MASTER_MAP.height * s, 'master-open-sea-v2', 'south-strip').setOrigin(0)
+      .setDisplaySize(MASTER_MAP.width * s, MASTER_SEA_EXTENSION * s).setTint(0x80cfcf).setDepth(-1001)
     this.add.image(0, 0, MASTER_MAP.key, '__BASE').setOrigin(0).setDisplaySize(MASTER_MAP.width * s, MASTER_MAP.height * s).setDepth(-1000)
     for (const tile of MASTER_TERRAIN_TILES) {
       if (!this.textures.exists(tile.key)) continue
@@ -92,6 +98,11 @@ export class MasterCityScene extends CityScene {
         this.events.once(Phaser.Scenes.Events.SHUTDOWN,()=>this.textures.remove(blended.key))
       }
       this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => { detail.clearMask(true); maskImage.destroy(); this.textures.remove(maskKey) })
+    }
+    // Additional groves stay above the defence ridge, away from every parcel.
+    for (const [x, y, width] of [[124, 55, 76], [318, 45, 65], [545, 45, 64], [752, 45, 64], [982, 45, 64], [1188, 54, 72]]) {
+      this.add.image(x * s, y * s, 'master-north-grove').setOrigin(0.5, 1)
+        .setDisplaySize(width * s, width * s * 2 / 3).setDepth(-998)
     }
     this.flagField = new FlagField(this)
     this.flagField.setLook(this.sceneBanner())
@@ -129,7 +140,7 @@ export class MasterCityScene extends CityScene {
   }
   setOverview() {
     this.cameras.main.setZoom(this.minZoom)
-    this.centerInBand(MASTER_MAP.width * 1.5, MASTER_MAP.height * 1.5)
+    this.centerInBand(MASTER_WORLD.w / 2, MASTER_WORLD.h / 2)
   }
   focusHarbour() {
     if (!this.built) return
@@ -212,29 +223,32 @@ export class MasterCityScene extends CityScene {
     if (level > 0 && !this.textures.exists(key)) { this.ensureBuildingTexture(id, level); return }
     if (!this.textures.exists(key)) return
     const complete = level > 0 && MASTER_BUILDING_ART.has(id)
+    const renderPlot = masterBuildingPlot(p)
     const source = this.textures.get(key).getSourceImage() as HTMLImageElement
-    const frame = masterArtFrame(p, source.width, source.height, complete, stageGrowth(level))
+    const frame = masterArtFrame(renderPlot, source.width, source.height, complete, stageGrowth(level))
     const { width, height, bottom: y } = frame
     const flip = facing ? facing === 'right' : this.state.flips.includes(id)
     let image: Phaser.GameObjects.Image | Phaser.GameObjects.Mesh
     if (complete && this.game.renderer.type === Phaser.WEBGL) {
-      const vertices = p.polygon.flatMap(q => [q.x - p.center.x, p.center.y - q.y])
+      const vertices = renderPlot.polygon.flatMap(q => [q.x - renderPlot.center.x, renderPlot.center.y - q.y])
       const uv = flip ? [1,0, 0,0, 0,1, 1,1] : [0,0, 1,0, 1,1, 0,1]
-      const mesh = this.add.mesh(p.center.x, p.center.y, key, undefined, vertices, uv, [0,1,2, 0,2,3])
+      const mesh = this.add.mesh(renderPlot.center.x, renderPlot.center.y, key, undefined, vertices, uv, [0,1,2, 0,2,3])
       mesh.setSize(width, height).setOrtho(width, height)
       mesh.hideCCW = false
       image = mesh
     } else if (complete) {
-      image = this.canvasParcel(p, key, flip)
+      image = this.canvasParcel(renderPlot, key, flip)
     } else {
-      image = this.add.image(p.center.x, p.center.y, key).setDisplaySize(width, height).setFlipX(flip)
+      image = this.add.image(renderPlot.center.x, renderPlot.center.y, key).setDisplaySize(width, height).setFlipX(flip)
     }
     image.setDepth(p.center.y + 1)
     image.setData('masterPlot', p.index).setData('masterArt', id).setData('masterRole', 'art').setData('masterComplete', complete)
     this.pieces.push(image)
-    const shadow = this.add.ellipse(p.center.x + p.width * 0.025, p.center.y + p.height * 0.12, width * 0.7, p.height * 0.18, 0x352716, 0.12).setDepth(p.center.y - 1)
-    shadow.setData('masterPlot', p.index).setData('masterRole', 'shadow')
-    this.pieces.push(shadow)
+    if (!complete) {
+      const shadow = this.add.ellipse(p.center.x + p.width * 0.025, p.center.y + p.height * 0.12, width * 0.7, p.height * 0.18, 0x352716, 0.12).setDepth(p.center.y - 1)
+      shadow.setData('masterPlot', p.index).setData('masterRole', 'shadow')
+      this.pieces.push(shadow)
+    }
     const hit = this.parcelHit(p).setDepth(p.center.y + 2)
     hit.on('pointerup', (pointer: Phaser.Input.Pointer) => {
       if (!isTap(pointer) || this.moving || this.pinchStart) return
@@ -262,7 +276,7 @@ export class MasterCityScene extends CityScene {
     const job = activeJob(this.state)
     if (active && job) {
       const sc = this.add.image(p.center.x, p.center.y, 'b_scaffold').setOrigin(0.5).setDepth(p.center.y + 5)
-      const scaffold = masterArtFrame(p, sc.width, sc.height, false)
+      const scaffold = masterArtFrame(renderPlot, sc.width, sc.height, false)
       sc.setDisplaySize(scaffold.width, scaffold.height)
       sc.setData('masterPlot', p.index).setData('masterRole', 'scaffold')
       this.pieces.push(sc, this.makeTimer(p.center.x, y + 75, job.start, job.end, 1e6 + p.center.y + 1))
@@ -410,6 +424,9 @@ export class MasterCityScene extends CityScene {
     if (localStorage.getItem('payitaht-qa') === '1') {
       const camera = this.cameras.main
       document.documentElement.dataset.masterCamera = JSON.stringify({ viewX: camera.worldView.x, viewY: camera.worldView.y, zoom: camera.zoom,
+        worldBottom: MASTER_WORLD.h,
+        forestGroves: this.children.list.filter(p => p instanceof Phaser.GameObjects.Image && p.texture.key === 'master-north-grove')
+          .map(p => (p as Phaser.GameObjects.Image).getBounds()),
         visibleTop: camera.worldView.y + this.masterHudInset / camera.zoom,
         seaTexture: this.masterSea?.texture.key,
         seaTiled: this.children.list.some(p => p instanceof Phaser.GameObjects.TileSprite && p.texture.key.startsWith('master-water')),
@@ -440,10 +457,12 @@ export class MasterCityScene extends CityScene {
           const b = part instanceof Phaser.GameObjects.Mesh
             ? new Phaser.Geom.Rectangle(Math.min(...polygon.map(q=>q.x)), Math.min(...polygon.map(q=>q.y)), Math.max(...polygon.map(q=>q.x))-Math.min(...polygon.map(q=>q.x)), Math.max(...polygon.map(q=>q.y))-Math.min(...polygon.map(q=>q.y)))
             : part.getBounds()
-          const outside = b.left < p.center.x - p.width / 2 - 0.01 || b.right > p.center.x + p.width / 2 + 0.01
+          const visualPolygon = polygon.length ? polygon : [{x:b.left,y:b.top},{x:b.right,y:b.top},{x:b.right,y:b.bottom},{x:b.left,y:b.bottom}]
+          const outsidePolygon = part.getData('masterRole') !== undefined && visualPolygon.some(q => !parcelContains(p.polygon, q))
+          const outside = outsidePolygon || b.left < p.center.x - p.width / 2 - 0.01 || b.right > p.center.x + p.width / 2 + 0.01
             || b.top < p.center.y - p.height / 2 - 0.01 || b.bottom > p.center.y + p.height / 2 + 0.01
           return [{ index, role: part.getData('masterRole'), id: part.getData('masterArt'), outside,
-            complete: !!part.getData('masterComplete'), polygon, plotPolygon: p.polygon, fullyCovers: polygon.length === 4 && p.polygon.every(q => polygon.some(v => Math.hypot(v.x-q.x, v.y-q.y) < 0.1)),
+            complete: !!part.getData('masterComplete'), polygon, plotPolygon: masterBuildingPlot(p).polygon, kerbPolygon: p.polygon, fullyCovers: polygon.length === 4 && masterBuildingPlot(p).polygon.every(q => polygon.some(v => Math.hypot(v.x-q.x, v.y-q.y) < 0.1)),
             x: part.x, y: part.y, width: b.width, height: b.height, plotWidth: p.width, plotHeight: p.height }]
         })
         document.documentElement.dataset.masterContainment = JSON.stringify({ measured, violations: measured.filter(p => p.outside) })

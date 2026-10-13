@@ -1,6 +1,6 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { MASTER_MAP, MASTER_WORLD, masterCameraBounds, MASTER_TERRAIN_TILES, MASTER_PLOTS, masterPlot, masterArtFrame } from './master-projection'
+import { MASTER_MAP, MASTER_WORLD, MASTER_SEA_EXTENSION, masterCameraBounds, MASTER_TERRAIN_TILES, MASTER_PLOTS, masterPlot, masterArtFrame, masterBuildingPlot, parcelContains } from './master-projection'
 import { LIVE_SLOTS } from './live-adapter'
 
 test('north camera limit exposes no painted-map margin below the HUD at any zoom', () => {
@@ -8,7 +8,7 @@ test('north camera limit exposes no painted-map margin below the HUD at any zoom
     const b = masterCameraBounds(coveredTop, zoom)
     assert.ok(b.y + coveredTop / zoom >= 0)
     assert.ok(b.y + coveredTop / zoom <= 1.00001)
-    assert.equal(b.y + b.h, MASTER_WORLD.h)
+    assert.ok(Math.abs(b.y + b.h - MASTER_WORLD.h) < 0.000001)
   }
 })
 
@@ -23,7 +23,28 @@ test('detail terrain covers the existing map once without gaps or overlapping ti
   }
   assert.equal(area, MASTER_MAP.width * MASTER_MAP.height)
   assert.ok(MASTER_MAP.path.endsWith('.webp'))
-  assert.equal(MASTER_WORLD.h, MASTER_MAP.height * MASTER_MAP.scale)
+  assert.equal(MASTER_WORLD.h, (MASTER_MAP.height + MASTER_SEA_EXTENSION) * MASTER_MAP.scale)
+})
+
+test('a bounding-box corner in the road is rejected by the actual sloping parcel edge', () => {
+  const polygon = [{x:20,y:0},{x:80,y:0},{x:100,y:100},{x:0,y:100}]
+  assert.equal(parcelContains(polygon, {x:0,y:0}), false)
+  assert.equal(parcelContains(polygon, {x:50,y:50}), true)
+  assert.equal(parcelContains(polygon, {x:20,y:0}, 1), false)
+})
+
+test('whole building drawings preserve six image pixels of kerb on every edge', () => {
+  for (const p of MASTER_PLOTS) {
+    const inner = masterBuildingPlot(p)
+    assert.ok(inner.width > 0 && inner.height > 0)
+    for (const q of inner.polygon) assert.ok(parcelContains(p.polygon, q, 6 * MASTER_MAP.scale))
+    for (const [w,h] of [[600,1800],[1800,600],[512,512]]) {
+      const frame = masterArtFrame(inner,w,h,false)
+      for (const x of [frame.left,frame.right]) for (const y of [frame.top,frame.bottom]) {
+        assert.ok(parcelContains(inner.polygon,{x,y}), `scaffold/site outside plot ${p.index}`)
+      }
+    }
+  }
 })
 
 test('master painting preserves every saved plot index, zone and fixed hall', () => {
