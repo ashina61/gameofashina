@@ -4,6 +4,7 @@ import { MASTER_MAP, MASTER_WORLD, MASTER_SEA_EXTENSION, MASTER_FOREST_EXTENSION
 import { BUILDINGS, BUILDING_IDS, activeJob, plotOpen, type BuildingId, type Game } from '@/lib/game/engine'
 import { asset, buildingArtKey } from '@/lib/asset'
 import { MASTER_BUILDING_ART, MASTER_BUILDING_CUTOUTS, masterBuildingImage } from '@/lib/game/city-map/master-building-art'
+import { masterCutoutFrame, masterCutoutOutline } from '@/lib/game/city-map/master-cutout'
 import { visualSignature } from '@/lib/game/city-render'
 import { PEACEFUL_CITY, siegeAppearanceKey, type SiegeAppearance } from '@/lib/game/siege-appearance'
 import { FlagField, SmokeField } from './city-life'
@@ -238,12 +239,18 @@ export class MasterCityScene extends CityScene {
     const parcelModule = complete && !MASTER_BUILDING_CUTOUTS.has(id)
     const renderPlot = masterBuildingPlot(p)
     const source = this.textures.get(key).getSourceImage() as HTMLImageElement
-    const frame = masterArtFrame(renderPlot, source.width, source.height, parcelModule, stageGrowth(level))
-    const { width, height, bottom: y } = frame
     const flip = facing ? facing === 'right' : this.state.flips.includes(id)
+    const outline = complete && !parcelModule ? masterCutoutOutline(id, source.width, source.height) : undefined
+    const cutout = outline ? masterCutoutFrame(renderPlot, source.width, source.height, outline, flip) : undefined
+    const frame = cutout || masterArtFrame(renderPlot, source.width, source.height, parcelModule, stageGrowth(level))
+    const { width, height, bottom: y } = frame
     let image: Phaser.GameObjects.Image | Phaser.GameObjects.Mesh
     if (parcelModule) image = this.parcelArtwork(renderPlot, key, flip)
-    else image = this.add.image(renderPlot.center.x, renderPlot.center.y, key).setDisplaySize(width, height).setFlipX(flip)
+    else image = this.add.image(frame.x, frame.y, key).setDisplaySize(width, height).setFlipX(flip)
+    if (cutout) {
+      image.setData('masterPolygon', cutout.polygon)
+      this.drawMasterApproach(p)
+    }
     image.setDepth(p.center.y + 1)
     image.setData('masterPlot', p.index).setData('masterArt', id).setData('masterRole', 'art').setData('masterComplete', complete)
     this.pieces.push(image)
@@ -284,6 +291,31 @@ export class MasterCityScene extends CityScene {
       sc.setData('masterPlot', p.index).setData('masterRole', 'scaffold')
       this.pieces.push(sc, this.makeTimer(p.center.x, y + 75, job.start, job.end, 1e6 + p.center.y + 1))
     }
+  }
+  /** Replace the painted entrance bollard with paving from the same street.
+   * This is a ground layer inside the parcel, never a crop of the architecture. */
+  drawMasterApproach(p: MasterPlot) {
+    const s = MASTER_MAP.scale
+    const front = p.polygon.slice(2)
+    const x = (front[0].x + front[1].x) / 2, bottom = Math.max(...front.map(q => q.y)) - s
+    const tile = MASTER_TERRAIN_TILES.find(t => x / s + 30 >= t.x && x / s + 30 < t.x + t.width
+      && bottom / s + 5 >= t.y && bottom / s + 5 < t.y + t.height)
+    if (!tile || !this.textures.exists(tile.key)) return
+    const key = `master-approach-${p.index}`
+    if (!this.textures.exists(key)) {
+      const source = this.textures.get(tile.key).getSourceImage() as HTMLImageElement
+      const density = source.width / tile.width
+      const canvas = this.textures.createCanvas(key, 40, 44)!
+      for (let y = 0; y < 44; y += 16) canvas.context.drawImage(source,
+        (x / s + 20 - tile.x) * density, (bottom / s + 5 - tile.y) * density,
+        20 * density, 8 * density, 0, y, 40, 16)
+      canvas.refresh()
+      this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => this.textures.remove(key))
+    }
+    const width = 20 * s, height = 22 * s
+    const approach = this.add.image(x, bottom, key).setOrigin(0.5, 1).setDisplaySize(width, height).setDepth(p.center.y)
+    approach.setData('masterPlot', p.index).setData('masterRole', 'approach')
+    this.pieces.push(approach)
   }
   parcelArtwork(p: MasterPlot, key: string, flip: boolean) {
     if (this.game.renderer.type !== Phaser.WEBGL) return this.canvasParcel(p, key, flip)
@@ -465,9 +497,9 @@ export class MasterCityScene extends CityScene {
           if (!p) return []
           const polygon = part instanceof Phaser.GameObjects.Mesh
             ? [...new Map(part.vertices.map(v => [`${v.vx},${v.vy}`, {x: part.x + v.vx, y: part.y + v.vy}])).values()] : (part.getData('masterPolygon') as Array<{x:number;y:number}> | undefined) || []
-          const b = part instanceof Phaser.GameObjects.Mesh
+          const b = polygon.length
             ? new Phaser.Geom.Rectangle(Math.min(...polygon.map(q=>q.x)), Math.min(...polygon.map(q=>q.y)), Math.max(...polygon.map(q=>q.x))-Math.min(...polygon.map(q=>q.x)), Math.max(...polygon.map(q=>q.y))-Math.min(...polygon.map(q=>q.y)))
-            : part.getBounds()
+            : (part as Phaser.GameObjects.Image).getBounds()
           const visualPolygon = polygon.length ? polygon : [{x:b.left,y:b.top},{x:b.right,y:b.top},{x:b.right,y:b.bottom},{x:b.left,y:b.bottom}]
           const outsidePolygon = part.getData('masterRole') !== undefined && visualPolygon.some(q => !parcelContains(p.polygon, q))
           const outside = outsidePolygon || b.left < p.center.x - p.width / 2 - 0.01 || b.right > p.center.x + p.width / 2 + 0.01
