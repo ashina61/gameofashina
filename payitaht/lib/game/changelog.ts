@@ -5,6 +5,7 @@
 export type Release = { version: string; date: string; title: string; notes: string[] }
 
 export const CHANGELOG: Release[] = [
+  { version: '0.110.0', date: '15 Ekim 2026', title: 'Yeni şehir temelinin ilk bölümü', notes: ['Ayrı önizlemede ortak izometrik kamera, 25 eş arsa, katmanlı yollar ve üç yeni yapı.', 'Belediye, kışla ve medrese seçilebilir; kışla ve medrese boş arsalara taşınabilir.', 'Mevcut oyun kaydı ve canlı şehir görünümü korunur.'] },
   { version: '0.109.3', date: '15 Ekim 2026', title: 'Kışlanın gerçek karo yerleşimi', notes: ['Kışla şehir kamerasına göre alçak kuleler ve üstten görünen askerî girişle yeniden çizildi.', 'Yerleşim şeffaf tuval yerine görünen mimariyi ölçer; giriş ön kaldırıma hizalanır ve bina oranları korunur.'] },
   { version: '0.109.2', date: '15 Ekim 2026', title: 'Kışla zemini ve bina oranları', notes: ['Kışlanın ayrı toprak plakası kaldırıldı; avluda mevcut şehir zemini görünür.', 'Kışla çizimi en-boy oranı korunarak karo içine yerleşir.'] },
   { version: '0.109.1', date: '15 Ekim 2026', title: 'Ayırt edici askerî kışla', notes: ['Kışla, dört bodur kule ve kalkan–kılıç armasıyla yeni askerî çizime kavuştu.', 'Tam ve telefon dokuları mevcut karo içi projeksiyonla kullanılır.'] },
