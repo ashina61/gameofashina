@@ -5,6 +5,7 @@
 export type Release = { version: string; date: string; title: string; notes: string[] }
 
 export const CHANGELOG: Release[] = [
+  { version: '0.109.2', date: '15 Ekim 2026', title: 'Kışla zemini ve bina oranları', notes: ['Kışlanın ayrı toprak plakası kaldırıldı; avluda mevcut şehir zemini görünür.', 'Kışla çizimi en-boy oranı korunarak karo içine yerleşir.'] },
   { version: '0.109.1', date: '15 Ekim 2026', title: 'Ayırt edici askerî kışla', notes: ['Kışla, dört bodur kule ve kalkan–kılıç armasıyla yeni askerî çizime kavuştu.', 'Tam ve telefon dokuları mevcut karo içi projeksiyonla kullanılır.'] },
   { version: '0.109.0', date: '13 Ekim 2026', title: 'Üstten bakış bina seti ve kuzey tahkimatı', notes: ['36 bina türünün tamamı üstten bakış çizim setine bağlandı; önceki çizimler aktif şehirde kullanılmaz.', 'Kuzeye yeni orman alanı eklendi; sur yüzleri sırt çizgisini izlerken dikey kalır, kuleler yeniden çizildi.', 'Karo sınırı, kayıtlı yerleşim, bina seviyeleri, ekonomi, yollar ve HUD korunur.'] },
   { version: '0.108.0', date: '13 Ekim 2026', title: 'Karo içi yerleşim, kuzey ormanı ve açık deniz', notes: ['Bina çizimleri kaldırımın iç sınırına eşlenir; inşaat iskeleleri de eğimli karo kenarlarının içinde kalır.', 'Şehrin kuzeyine yeni boyalı ağaç kümeleri eklendi; güneydeki açık su alanı genişletildi.', 'Bina, arsa ve kayıt kimlikleri, mevcut şehir zemini, yollar, ekonomi ve HUD korunur.'] },

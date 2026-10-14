@@ -3,7 +3,7 @@ import { CityScene } from './phaser-city'
 import { MASTER_MAP, MASTER_WORLD, MASTER_SEA_EXTENSION, MASTER_FOREST_EXTENSION, masterWallSpans, masterBuildingPlot, parcelContains, MASTER_DEFENSE_PATH, masterCameraBounds, MASTER_TERRAIN_TILES, MASTER_PLOTS, masterPlot, masterArtFrame, type MasterPlot } from '@/lib/game/city-map/master-projection'
 import { BUILDINGS, BUILDING_IDS, activeJob, plotOpen, type BuildingId, type Game } from '@/lib/game/engine'
 import { asset, buildingArtKey } from '@/lib/asset'
-import { MASTER_BUILDING_ART, masterBuildingImage } from '@/lib/game/city-map/master-building-art'
+import { MASTER_BUILDING_ART, MASTER_BUILDING_CUTOUTS, masterBuildingImage } from '@/lib/game/city-map/master-building-art'
 import { visualSignature } from '@/lib/game/city-render'
 import { PEACEFUL_CITY, siegeAppearanceKey, type SiegeAppearance } from '@/lib/game/siege-appearance'
 import { FlagField, SmokeField } from './city-life'
@@ -235,13 +235,14 @@ export class MasterCityScene extends CityScene {
     if (level > 0 && !this.textures.exists(key)) { this.ensureBuildingTexture(id, level); return }
     if (!this.textures.exists(key)) return
     const complete = level > 0 && MASTER_BUILDING_ART.has(id)
+    const parcelModule = complete && !MASTER_BUILDING_CUTOUTS.has(id)
     const renderPlot = masterBuildingPlot(p)
     const source = this.textures.get(key).getSourceImage() as HTMLImageElement
-    const frame = masterArtFrame(renderPlot, source.width, source.height, complete, stageGrowth(level))
+    const frame = masterArtFrame(renderPlot, source.width, source.height, parcelModule, stageGrowth(level))
     const { width, height, bottom: y } = frame
     const flip = facing ? facing === 'right' : this.state.flips.includes(id)
     let image: Phaser.GameObjects.Image | Phaser.GameObjects.Mesh
-    if (complete) image = this.parcelArtwork(renderPlot, key, flip)
+    if (parcelModule) image = this.parcelArtwork(renderPlot, key, flip)
     else image = this.add.image(renderPlot.center.x, renderPlot.center.y, key).setDisplaySize(width, height).setFlipX(flip)
     image.setDepth(p.center.y + 1)
     image.setData('masterPlot', p.index).setData('masterArt', id).setData('masterRole', 'art').setData('masterComplete', complete)
