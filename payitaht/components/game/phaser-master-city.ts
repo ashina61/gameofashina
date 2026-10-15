@@ -249,7 +249,6 @@ export class MasterCityScene extends CityScene {
     else image = this.add.image(frame.x, frame.y, key).setDisplaySize(width, height).setFlipX(flip)
     if (cutout) {
       image.setData('masterPolygon', cutout.polygon)
-      this.drawMasterApproach(p)
     }
     image.setDepth(p.center.y + 1)
     image.setData('masterPlot', p.index).setData('masterArt', id).setData('masterRole', 'art').setData('masterComplete', complete)
@@ -270,7 +269,7 @@ export class MasterCityScene extends CityScene {
       this.events$.onBuilding(id)
     })
     this.pieces.push(hit)
-    if (FLAG_POLE_BUILDINGS.has(id)) {
+    if (FLAG_POLE_BUILDINGS.has(id) && !MASTER_BUILDING_CUTOUTS.has(id)) {
       const x = p.center.x - p.width * 0.35, fy = p.center.y - p.height * 0.30
       const pole = this.add.rectangle(x, fy + p.height * 0.14, 4, p.height * 0.28, 0x815c34).setDepth(p.center.y + 3)
       pole.setData('masterPlot', p.index).setData('masterRole', 'pole')
@@ -291,31 +290,6 @@ export class MasterCityScene extends CityScene {
       sc.setData('masterPlot', p.index).setData('masterRole', 'scaffold')
       this.pieces.push(sc, this.makeTimer(p.center.x, y + 75, job.start, job.end, 1e6 + p.center.y + 1))
     }
-  }
-  /** Replace the painted entrance bollard with paving from the same street.
-   * This is a ground layer inside the parcel, never a crop of the architecture. */
-  drawMasterApproach(p: MasterPlot) {
-    const s = MASTER_MAP.scale
-    const front = p.polygon.slice(2)
-    const x = (front[0].x + front[1].x) / 2, bottom = Math.max(...front.map(q => q.y)) - s
-    const tile = MASTER_TERRAIN_TILES.find(t => x / s + 30 >= t.x && x / s + 30 < t.x + t.width
-      && bottom / s + 5 >= t.y && bottom / s + 5 < t.y + t.height)
-    if (!tile || !this.textures.exists(tile.key)) return
-    const key = `master-approach-${p.index}`
-    if (!this.textures.exists(key)) {
-      const source = this.textures.get(tile.key).getSourceImage() as HTMLImageElement
-      const density = source.width / tile.width
-      const canvas = this.textures.createCanvas(key, 40, 44)!
-      for (let y = 0; y < 44; y += 16) canvas.context.drawImage(source,
-        (x / s + 20 - tile.x) * density, (bottom / s + 5 - tile.y) * density,
-        20 * density, 8 * density, 0, y, 40, 16)
-      canvas.refresh()
-      this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => this.textures.remove(key))
-    }
-    const width = 20 * s, height = 22 * s
-    const approach = this.add.image(x, bottom, key).setOrigin(0.5, 1).setDisplaySize(width, height).setDepth(p.center.y)
-    approach.setData('masterPlot', p.index).setData('masterRole', 'approach')
-    this.pieces.push(approach)
   }
   parcelArtwork(p: MasterPlot, key: string, flip: boolean) {
     if (this.game.renderer.type !== Phaser.WEBGL) return this.canvasParcel(p, key, flip)

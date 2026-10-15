@@ -1,7 +1,8 @@
-const CACHE = 'payitaht-shell-v129'
+const CACHE = 'payitaht-shell-v130'
 const BASE = new URL(self.registration.scope).pathname.replace(/\/$/, '')
 const p = path => `${BASE}${path.startsWith('/') ? path : `/${path}`}`
 const ASSETS = [
+  ...['', '-sm'].map(size => p(`/images/game/buildings/master-v7/kisla${size}.webp`)),
   p('/images/game/terrain/north-forest-v2.webp'),
   p('/images/game/walls/master-span-v2.webp'),
   p('/images/game/walls/master-tower-v2.webp'),

@@ -1,3 +1,5 @@
+**15 Ekim ana şehir kışlası — 0.110.1 / SW130:** `docs/BARRACKS-MAIN-0.110.1.md`. Yeni gerçek alfa kışla master-v7 ile ana sahnenin görsel seçicisine bağlıdır. Ayrı demo sonucu ana oyun onayı sayılmaz. Yol örnekleme yaması ve ikinci bayrak kaldırıldı. Diğer bina türleri bu sürümde yenilenmedi.
+
 **15 Ekim v4 yol taşması düzeltmesi:** `docs/SINGLE-BUILDING-FIT.md` son bölüm. V3 gösterilen sınırdan büyük zemin/bina/yaklaşım çiziyordu. V4 tek değişmeyen poligona bağlıdır; büyük bağlam yaması ve dış yaklaşım kaldırıldı, mimari tek uniform ölçekte bütün olarak sığar. `tools/building-fit-canvas-qa.cjs` eski V3'ü 60.892 dış piksel ile reddeder, 27 gerçek çizim durumu parsel dışında 0 piksel ister. Bu native Canvas kontrolüdür, browser UI testi değildir. Tek deneme; ana oyun aynı kalır.
 
 **15 Ekim gerçek boş arsa v3 düzeltmesi:** `docs/SINGLE-BUILDING-FIT.md` son bölüm. Kullanıcı boş arsa çiziminin kendisini yamuk buldu. `/building-fit.html` tek arsada yeni düz zemin+dikdörtgen taş kenar ve ayrı alfa kışla kullanır; sadece çizgiyi değiştirme yaklaşımına dönülmez. İlk açılışta çizgi kapalıdır, Eski çizim karşılaştırması vardır. Bu deneme ana oyuna aktarılmış sayılmaz.
