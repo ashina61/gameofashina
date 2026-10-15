@@ -1,0 +1,131 @@
+{
+  "renderer": "native Canvas / production ground mapper; not browser",
+  "edgeTolerancePixels": 1,
+  "cases": [
+    {
+      "plot": 0,
+      "holes": 0,
+      "outside": 0
+    },
+    {
+      "plot": 1,
+      "holes": 0,
+      "outside": 0
+    },
+    {
+      "plot": 2,
+      "holes": 0,
+      "outside": 0
+    },
+    {
+      "plot": 3,
+      "holes": 0,
+      "outside": 0
+    },
+    {
+      "plot": 4,
+      "holes": 0,
+      "outside": 0
+    },
+    {
+      "plot": 5,
+      "holes": 0,
+      "outside": 0
+    },
+    {
+      "plot": 6,
+      "holes": 0,
+      "outside": 0
+    },
+    {
+      "plot": 7,
+      "holes": 0,
+      "outside": 0
+    },
+    {
+      "plot": 8,
+      "holes": 0,
+      "outside": 0
+    },
+    {
+      "plot": 9,
+      "holes": 0,
+      "outside": 0
+    },
+    {
+      "plot": 10,
+      "holes": 0,
+      "outside": 0
+    },
+    {
+      "plot": 11,
+      "holes": 0,
+      "outside": 0
+    },
+    {
+      "plot": 12,
+      "holes": 0,
+      "outside": 0
+    },
+    {
+      "plot": 13,
+      "holes": 0,
+      "outside": 0
+    },
+    {
+      "plot": 14,
+      "holes": 0,
+      "outside": 0
+    },
+    {
+      "plot": 15,
+      "holes": 0,
+      "outside": 0
+    },
+    {
+      "plot": 16,
+      "holes": 0,
+      "outside": 0
+    },
+    {
+      "plot": 17,
+      "holes": 0,
+      "outside": 0
+    },
+    {
+      "plot": 18,
+      "holes": 0,
+      "outside": 0
+    },
+    {
+      "plot": 19,
+      "holes": 0,
+      "outside": 0
+    },
+    {
+      "plot": 20,
+      "holes": 0,
+      "outside": 0
+    },
+    {
+      "plot": 21,
+      "holes": 0,
+      "outside": 0
+    },
+    {
+      "plot": 22,
+      "holes": 0,
+      "outside": 0
+    },
+    {
+      "plot": 23,
+      "holes": 0,
+      "outside": 0
+    },
+    {
+      "plot": 24,
+      "holes": 0,
+      "outside": 0
+    }
+  ]
+}
