@@ -2,9 +2,14 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import sharp from 'sharp'
 import { BUILDING_IDS } from '../engine'
-import { MASTER_BUILDING_ART, MASTER_BUILDING_CUTOUTS, masterBuildingImage } from './master-building-art'
+import { MASTER_BUILDING_ART, MASTER_BUILDING_CUTOUTS, MASTER_COURTYARD, masterBuildingImage } from './master-building-art'
 import { MASTER_PLOTS, masterArtFrame, masterBuildingPlot, parcelContains } from './master-projection'
 import { masterCutoutFrame, masterCutoutOutline } from './master-cutout'
+
+test('shared courtyard has no transparent holes that expose the empty parcel', async () => {
+  const { data, info } = await sharp(`public${MASTER_COURTYARD.path}`).ensureAlpha().raw().toBuffer({ resolveWithObject: true })
+  for (let i = 3; i < data.length; i += info.channels) assert.equal(data[i], 255)
+})
 
 test('parcel modules cover their ground; architecture cutouts preserve proportions and stay inside every parcel', async () => {
   const ids=BUILDING_IDS.filter(id=>id!=='surlar')
