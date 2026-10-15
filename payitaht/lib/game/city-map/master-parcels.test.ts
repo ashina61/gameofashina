@@ -2,9 +2,14 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import sharp from 'sharp'
 import { BUILDING_IDS } from '../engine'
-import { MASTER_BUILDING_ART, MASTER_BUILDING_CUTOUTS, masterBuildingImage } from './master-building-art'
-import { MASTER_PLOTS, masterArtFrame, masterBuildingPlot, parcelContains } from './master-projection'
+import { MASTER_BUILDING_ART, MASTER_BUILDING_CUTOUTS, MASTER_PARCEL_GROUND, masterBuildingImage } from './master-building-art'
+import { MASTER_PLOTS, masterArtFrame, parcelContains } from './master-projection'
 import { masterCutoutFrame, masterCutoutOutline } from './master-cutout'
+
+test('shared city earth fills the plot without transparent empty-plot holes', async () => {
+  const { data, info } = await sharp(`public${MASTER_PARCEL_GROUND.path}`).ensureAlpha().raw().toBuffer({ resolveWithObject: true })
+  for (let i = 3; i < data.length; i += info.channels) assert.equal(data[i], 255)
+})
 
 test('parcel modules cover their ground; architecture cutouts preserve proportions and stay inside every parcel', async () => {
   const ids=BUILDING_IDS.filter(id=>id!=='surlar')
@@ -27,7 +32,7 @@ test('parcel modules cover their ground; architecture cutouts preserve proportio
           if(right>=0)for(const x of [left,right+1])for(const edgeY of [y,y+1])rows.push({x:x/info.width,y:edgeY/info.height})
         }
         for(const plot of MASTER_PLOTS)for(const flip of [false,true]){
-          const p=masterBuildingPlot(plot), art=masterCutoutFrame(p,info.width,info.height,outline,flip)
+          const p=plot, art=masterCutoutFrame(p,info.width,info.height,outline,flip)
           assert.ok(Math.abs(art.width/art.height-info.width/info.height)<1e-8, `${id}: distorted architecture`)
           for(const q of rows)assert.ok(parcelContains(p.polygon,{x:art.left+(flip?1-q.x:q.x)*art.width,y:art.top+q.y*art.height}), `${id}: visible pixel outside parcel ${plot.index}`)
           assert.ok(Math.abs(Math.max(...art.polygon.map(q=>q.y))-(Math.max(...p.polygon.map(q=>q.y))-1.5))<1e-7, `${id}: entrance detached from front kerb`)

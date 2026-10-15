@@ -5,6 +5,7 @@
 export type Release = { version: string; date: string; title: string; notes: string[] }
 
 export const CHANGELOG: Release[] = [
+  { version: '0.111.0', date: '16 Ekim 2026', title: 'Beş yapıya ayrı silüet', notes: ['Kışla, medrese, depo, çarşı ve hamam farklı mimari silüetlerle yenilendi: askerî kuleler, derslik avlusu, yük ambarı, açık tenteler ve alçak kubbeler.', 'Binalar oranları korunarak arsalara yerleşir; avlu dolgusu şehrin kendi toprak dokusuyla dört köşeyi tamamlar.'] },
   { version: '0.110.1', date: '15 Ekim 2026', title: 'Ana şehirde yeni kışla', notes: ['Kışlanın yeni şeffaf çizimi ana şehir sahnesine bağlandı; avluda mevcut şehir zemini görünür.', 'Mimari tek ölçekte gerçek arsa poligonuna sığar. Girişteki yapay yol yaması ve çizime eklenen ikinci bayrak kaldırıldı.'] },
   { version: '0.110.0', date: '15 Ekim 2026', title: 'Yeni şehir temelinin ilk bölümü', notes: ['Ayrı önizlemede ortak izometrik kamera, 25 eş arsa, katmanlı yollar ve üç yeni yapı.', 'Belediye, kışla ve medrese seçilebilir; kışla ve medrese boş arsalara taşınabilir.', 'Mevcut oyun kaydı ve canlı şehir görünümü korunur.'] },
   { version: '0.109.3', date: '15 Ekim 2026', title: 'Kışlanın gerçek karo yerleşimi', notes: ['Kışla şehir kamerasına göre alçak kuleler ve üstten görünen askerî girişle yeniden çizildi.', 'Yerleşim şeffaf tuval yerine görünen mimariyi ölçer; giriş ön kaldırıma hizalanır ve bina oranları korunur.'] },

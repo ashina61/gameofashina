@@ -3,7 +3,7 @@ import { CityScene } from './phaser-city'
 import { MASTER_MAP, MASTER_WORLD, MASTER_SEA_EXTENSION, MASTER_FOREST_EXTENSION, masterWallSpans, masterBuildingPlot, parcelContains, MASTER_DEFENSE_PATH, masterCameraBounds, MASTER_TERRAIN_TILES, MASTER_PLOTS, masterPlot, masterArtFrame, type MasterPlot } from '@/lib/game/city-map/master-projection'
 import { BUILDINGS, BUILDING_IDS, activeJob, plotOpen, type BuildingId, type Game } from '@/lib/game/engine'
 import { asset, buildingArtKey } from '@/lib/asset'
-import { MASTER_BUILDING_ART, MASTER_BUILDING_CUTOUTS, masterBuildingImage } from '@/lib/game/city-map/master-building-art'
+import { MASTER_BUILDING_ART, MASTER_BUILDING_CUTOUTS, MASTER_PARCEL_GROUND, masterBuildingImage } from '@/lib/game/city-map/master-building-art'
 import { masterCutoutFrame, masterCutoutOutline } from '@/lib/game/city-map/master-cutout'
 import { visualSignature } from '@/lib/game/city-render'
 import { PEACEFUL_CITY, siegeAppearanceKey, type SiegeAppearance } from '@/lib/game/siege-appearance'
@@ -21,6 +21,7 @@ export class MasterCityScene extends CityScene {
   masterBoundsWidth = 0
   masterHudInset = 0
   preload() {
+    this.load.image(MASTER_PARCEL_GROUND.key, asset(MASTER_PARCEL_GROUND.path))
     this.load.image('master-forest-extension', asset('/images/game/terrain/north-forest-v2.webp'))
     this.load.image('master-wall-span', asset('/images/game/walls/master-span-v2.webp'))
     this.load.image('master-wall-gate', asset('/images/game/walls/master-gate-v2.webp'))
@@ -51,6 +52,10 @@ export class MasterCityScene extends CityScene {
     this.load.image(key, masterBuildingImage(id, level, facing, cityArtSize()))
     this.load.once(`filecomplete-image-${key}`, () => {
       this.loadingBuildingTextures.delete(key)
+    })
+    // filecomplete fires while the loader is still busy. Publish the final
+    // scene only after COMPLETE, so markReady sees the newly built artwork.
+    this.load.once(Phaser.Loader.Events.COMPLETE, () => {
       if (!this.built) return
       this.signature = ''
       this.redraw()
@@ -237,13 +242,22 @@ export class MasterCityScene extends CityScene {
     if (!this.textures.exists(key)) return
     const complete = level > 0 && MASTER_BUILDING_ART.has(id)
     const parcelModule = complete && !MASTER_BUILDING_CUTOUTS.has(id)
-    const renderPlot = masterBuildingPlot(p)
+    const renderPlot = complete && !parcelModule ? p : masterBuildingPlot(p)
     const source = this.textures.get(key).getSourceImage() as HTMLImageElement
     const flip = facing ? facing === 'right' : this.state.flips.includes(id)
     const outline = complete && !parcelModule ? masterCutoutOutline(id, source.width, source.height) : undefined
     const cutout = outline ? masterCutoutFrame(renderPlot, source.width, source.height, outline, flip) : undefined
     const frame = cutout || masterArtFrame(renderPlot, source.width, source.height, parcelModule, stageGrowth(level))
     const { width, height, bottom: y } = frame
+    if (complete && !parcelModule) {
+      // Complete the exact outer plot with the city's own earth texture.
+      // Only this flat plane follows the four corners; architecture never warps.
+      const ground = this.parcelArtwork(p, MASTER_PARCEL_GROUND.key, false)
+      ground.setDepth(p.center.y)
+      ground.setData('masterPlot', p.index).setData('masterArt', id)
+        .setData('masterRole', 'courtyard').setData('masterComplete', true)
+      this.pieces.push(ground)
+    }
     let image: Phaser.GameObjects.Image | Phaser.GameObjects.Mesh
     if (parcelModule) image = this.parcelArtwork(renderPlot, key, flip)
     else image = this.add.image(frame.x, frame.y, key).setDisplaySize(width, height).setFlipX(flip)
@@ -316,6 +330,13 @@ export class MasterCityScene extends CityScene {
       const canvas = this.textures.createCanvas(textureKey, Math.ceil(p.width * 2), Math.ceil(p.height * 2))!
       const ctx = canvas.context
       const target = p.polygon.map(q => ({x: (q.x-p.center.x+p.width/2)*2, y: (q.y-p.center.y+p.height/2)*2}))
+      if (key === MASTER_PARCEL_GROUND.key) {
+        // Opaque undercoat prevents the two antialiased triangle edges from
+        // revealing the old empty plot through their shared diagonal.
+        ctx.beginPath()
+        target.forEach((q, i) => i ? ctx.lineTo(q.x, q.y) : ctx.moveTo(q.x, q.y))
+        ctx.closePath(); ctx.fillStyle = '#c5a678'; ctx.fill()
+      }
       const uv = [[0,0],[1,0],[1,1],[0,1]].map(([u,v]) => ({x: (flip ? 1-u : u)*source.width, y: v*source.height}))
       for (const indices of [[0,1,2],[0,2,3]]) {
         const [a,b,c]=indices.map(i=>uv[i]),[d,e,f]=indices.map(i=>target[i])
@@ -479,7 +500,7 @@ export class MasterCityScene extends CityScene {
           const outside = outsidePolygon || b.left < p.center.x - p.width / 2 - 0.01 || b.right > p.center.x + p.width / 2 + 0.01
             || b.top < p.center.y - p.height / 2 - 0.01 || b.bottom > p.center.y + p.height / 2 + 0.01
           return [{ index, role: part.getData('masterRole'), id: part.getData('masterArt'), outside,
-            complete: !!part.getData('masterComplete'), polygon, plotPolygon: masterBuildingPlot(p).polygon, kerbPolygon: p.polygon, fullyCovers: polygon.length === 4 && masterBuildingPlot(p).polygon.every(q => polygon.some(v => Math.hypot(v.x-q.x, v.y-q.y) < 0.1)),
+            complete: !!part.getData('masterComplete'), polygon, plotPolygon: masterBuildingPlot(p).polygon, kerbPolygon: p.polygon, fullyCovers: polygon.length === 4 && (part.getData('masterRole') === 'courtyard' ? p : masterBuildingPlot(p)).polygon.every(q => polygon.some(v => Math.hypot(v.x-q.x, v.y-q.y) < 0.1)),
             x: part.x, y: part.y, width: b.width, height: b.height, plotWidth: p.width, plotHeight: p.height }]
         })
         document.documentElement.dataset.masterContainment = JSON.stringify({ measured, violations: measured.filter(p => p.outside) })
