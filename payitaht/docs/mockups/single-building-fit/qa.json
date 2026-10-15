@@ -1,0 +1,29 @@
+[
+  {
+    "width": 360,
+    "oneBuilding": true,
+    "changedPixels": 84818,
+    "outsideParcelPixels": 0,
+    "beforeAfter": true,
+    "zoom": true,
+    "noErrors": true
+  },
+  {
+    "width": 390,
+    "oneBuilding": true,
+    "changedPixels": 99146,
+    "outsideParcelPixels": 0,
+    "beforeAfter": true,
+    "zoom": true,
+    "noErrors": true
+  },
+  {
+    "width": 430,
+    "oneBuilding": true,
+    "changedPixels": 120325,
+    "outsideParcelPixels": 0,
+    "beforeAfter": true,
+    "zoom": true,
+    "noErrors": true
+  }
+]
