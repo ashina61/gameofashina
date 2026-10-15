@@ -1,0 +1,130 @@
+{
+  "renderer": "production Canvas fallback in native Canvas; not browser",
+  "cases": [
+    {
+      "plot": 0,
+      "uncoveredPixels": 0,
+      "outsidePixels": 0
+    },
+    {
+      "plot": 1,
+      "uncoveredPixels": 0,
+      "outsidePixels": 0
+    },
+    {
+      "plot": 2,
+      "uncoveredPixels": 0,
+      "outsidePixels": 0
+    },
+    {
+      "plot": 3,
+      "uncoveredPixels": 0,
+      "outsidePixels": 0
+    },
+    {
+      "plot": 4,
+      "uncoveredPixels": 0,
+      "outsidePixels": 0
+    },
+    {
+      "plot": 5,
+      "uncoveredPixels": 0,
+      "outsidePixels": 0
+    },
+    {
+      "plot": 6,
+      "uncoveredPixels": 0,
+      "outsidePixels": 0
+    },
+    {
+      "plot": 7,
+      "uncoveredPixels": 0,
+      "outsidePixels": 0
+    },
+    {
+      "plot": 8,
+      "uncoveredPixels": 0,
+      "outsidePixels": 0
+    },
+    {
+      "plot": 9,
+      "uncoveredPixels": 0,
+      "outsidePixels": 0
+    },
+    {
+      "plot": 10,
+      "uncoveredPixels": 0,
+      "outsidePixels": 0
+    },
+    {
+      "plot": 11,
+      "uncoveredPixels": 0,
+      "outsidePixels": 0
+    },
+    {
+      "plot": 12,
+      "uncoveredPixels": 0,
+      "outsidePixels": 0
+    },
+    {
+      "plot": 13,
+      "uncoveredPixels": 0,
+      "outsidePixels": 0
+    },
+    {
+      "plot": 14,
+      "uncoveredPixels": 0,
+      "outsidePixels": 0
+    },
+    {
+      "plot": 15,
+      "uncoveredPixels": 0,
+      "outsidePixels": 0
+    },
+    {
+      "plot": 16,
+      "uncoveredPixels": 0,
+      "outsidePixels": 0
+    },
+    {
+      "plot": 17,
+      "uncoveredPixels": 0,
+      "outsidePixels": 0
+    },
+    {
+      "plot": 18,
+      "uncoveredPixels": 0,
+      "outsidePixels": 0
+    },
+    {
+      "plot": 19,
+      "uncoveredPixels": 0,
+      "outsidePixels": 0
+    },
+    {
+      "plot": 20,
+      "uncoveredPixels": 0,
+      "outsidePixels": 0
+    },
+    {
+      "plot": 21,
+      "uncoveredPixels": 0,
+      "outsidePixels": 0
+    },
+    {
+      "plot": 22,
+      "uncoveredPixels": 0,
+      "outsidePixels": 0
+    },
+    {
+      "plot": 23,
+      "uncoveredPixels": 0,
+      "outsidePixels": 0
+    },
+    {
+      "plot": 24,
+      "uncoveredPixels": 0,
+      "outsidePixels": 0
+    }
+  ]
+}

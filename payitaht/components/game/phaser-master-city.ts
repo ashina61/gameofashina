@@ -3,7 +3,7 @@ import { CityScene } from './phaser-city'
 import { MASTER_MAP, MASTER_WORLD, MASTER_SEA_EXTENSION, MASTER_FOREST_EXTENSION, masterWallSpans, masterBuildingPlot, parcelContains, MASTER_DEFENSE_PATH, masterCameraBounds, MASTER_TERRAIN_TILES, MASTER_PLOTS, masterPlot, masterArtFrame, type MasterPlot } from '@/lib/game/city-map/master-projection'
 import { BUILDINGS, BUILDING_IDS, activeJob, plotOpen, type BuildingId, type Game } from '@/lib/game/engine'
 import { asset, buildingArtKey } from '@/lib/asset'
-import { MASTER_BUILDING_ART, MASTER_BUILDING_CUTOUTS, masterBuildingImage } from '@/lib/game/city-map/master-building-art'
+import { MASTER_BUILDING_ART, MASTER_BUILDING_CUTOUTS, MASTER_COURTYARD, masterBuildingImage } from '@/lib/game/city-map/master-building-art'
 import { masterCutoutFrame, masterCutoutOutline } from '@/lib/game/city-map/master-cutout'
 import { visualSignature } from '@/lib/game/city-render'
 import { PEACEFUL_CITY, siegeAppearanceKey, type SiegeAppearance } from '@/lib/game/siege-appearance'
@@ -21,6 +21,7 @@ export class MasterCityScene extends CityScene {
   masterBoundsWidth = 0
   masterHudInset = 0
   preload() {
+    this.load.image(MASTER_COURTYARD.key, asset(MASTER_COURTYARD.path))
     this.load.image('master-forest-extension', asset('/images/game/terrain/north-forest-v2.webp'))
     this.load.image('master-wall-span', asset('/images/game/walls/master-span-v2.webp'))
     this.load.image('master-wall-gate', asset('/images/game/walls/master-gate-v2.webp'))
@@ -244,6 +245,15 @@ export class MasterCityScene extends CityScene {
     const cutout = outline ? masterCutoutFrame(renderPlot, source.width, source.height, outline, flip) : undefined
     const frame = cutout || masterArtFrame(renderPlot, source.width, source.height, parcelModule, stageGrowth(level))
     const { width, height, bottom: y } = frame
+    if (complete && !parcelModule) {
+      // Fill every plot corner even when the architecture silhouette changes.
+      // Project only the flat ground; never stretch or crop the building.
+      const ground = this.parcelArtwork(p, MASTER_COURTYARD.key, false)
+      ground.setDepth(p.center.y)
+      ground.setData('masterPlot', p.index).setData('masterArt', id)
+        .setData('masterRole', 'courtyard').setData('masterComplete', true)
+      this.pieces.push(ground)
+    }
     let image: Phaser.GameObjects.Image | Phaser.GameObjects.Mesh
     if (parcelModule) image = this.parcelArtwork(renderPlot, key, flip)
     else image = this.add.image(frame.x, frame.y, key).setDisplaySize(width, height).setFlipX(flip)
@@ -316,6 +326,13 @@ export class MasterCityScene extends CityScene {
       const canvas = this.textures.createCanvas(textureKey, Math.ceil(p.width * 2), Math.ceil(p.height * 2))!
       const ctx = canvas.context
       const target = p.polygon.map(q => ({x: (q.x-p.center.x+p.width/2)*2, y: (q.y-p.center.y+p.height/2)*2}))
+      if (key === MASTER_COURTYARD.key) {
+        // Canvas antialiases both triangle edges independently. An opaque
+        // undercoat on this same ground polygon prevents a translucent seam.
+        ctx.beginPath()
+        target.forEach((q, i) => i ? ctx.lineTo(q.x, q.y) : ctx.moveTo(q.x, q.y))
+        ctx.closePath(); ctx.fillStyle = '#d6b78a'; ctx.fill()
+      }
       const uv = [[0,0],[1,0],[1,1],[0,1]].map(([u,v]) => ({x: (flip ? 1-u : u)*source.width, y: v*source.height}))
       for (const indices of [[0,1,2],[0,2,3]]) {
         const [a,b,c]=indices.map(i=>uv[i]),[d,e,f]=indices.map(i=>target[i])
