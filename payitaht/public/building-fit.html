@@ -1,55 +1,43 @@
 <!doctype html>
 <html lang="tr"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1"><title>Payitaht · Tek bina denemesi</title>
 <style>*{box-sizing:border-box}body{margin:0;background:#211c14;color:#f0dfbb;font:16px system-ui;height:100dvh;display:flex;flex-direction:column}header{padding:12px 16px;background:#332619;border-bottom:1px solid #9a7945}h1{font-size:18px;margin:0 0 4px}p{font-size:13px;margin:0;color:#d0bd98}main{position:relative;flex:1;min-height:0;overflow:hidden}canvas{display:block;width:100%;height:100%;touch-action:none}nav{display:flex;flex-wrap:wrap;justify-content:center;gap:6px;padding:10px;background:#332619}button{min-width:44px;min-height:44px;border:1px solid #a1804d;border-radius:8px;background:#493523;color:#f9e7c0;font:inherit;padding:8px 12px}button[aria-pressed=true]{background:#8a6735;color:white}#status{position:absolute;top:10px;left:10px;max-width:calc(100% - 20px);background:#211c14df;padding:7px 10px;border-radius:6px;font-size:12px;pointer-events:none}</style>
-<header><h1>Kışla · Tek arsa denemesi</h1><p>Önce arsa çizimi düzeltildi; bina aynı düz zeminde deneniyor.</p></header>
+<header><h1>Kışla · Tek arsa denemesi</h1><p>Tek arsa sınırı: zemin, taş kenar ve binanın tamamı aynı alanın içinde.</p></header>
 <main><canvas aria-label="Mevcut şehir üzerinde tek kışla yerleşimi"></canvas><div id="status">Yükleniyor…</div></main>
 <nav aria-label="Görünüm"><button id="original" aria-pressed="false">Eski çizim</button><button id="before" aria-pressed="true">Boş arsa</button><button id="after" aria-pressed="false">Kışla</button><button id="outline" aria-pressed="false">Karo sınırı</button><button id="home">Arsaya dön</button><button id="all">Şehrin tamamı</button><button id="minus" aria-label="Uzaklaştır">−</button><button id="plus" aria-label="Yakınlaştır">+</button></nav>
 <script>
 const canvas=document.querySelector('canvas'),ctx=canvas.getContext('2d'),status=document.querySelector('#status');
-// The drawing and debug outline now use a regular rectangle, not the old painted trapezoid.
+// One buildable rectangle governs the ground, complete sprite and visible outline.
 const polygon=[[867,316],[1021,316],[1021,383],[867,383]];
-const tile=[[850,303],[1037,303],[1037,396],[850,396]];
-const artwork={x:867,y:303,width:154,height:80};
+const tile=polygon;
+const artwork={x:polygon[0][0]+2,y:polygon[0][1]+2,width:polygon[1][0]-polygon[0][0]-4,height:polygon[2][1]-polygon[1][1]-4};
 const view={x:943,y:349,scale:1},images=[],state={building:false,outline:false,corrected:true,ready:false};
-function triangle(im,src,dst){
-  const [s0,s1,s2]=src,[d0,d1,d2]=dst;
-  const ux=s1[0]-s0[0],uy=s1[1]-s0[1],vx=s2[0]-s0[0],vy=s2[1]-s0[1],den=ux*vy-uy*vx;
-  const Ux=d1[0]-d0[0],Uy=d1[1]-d0[1],Vx=d2[0]-d0[0],Vy=d2[1]-d0[1];
-  const a=(Ux*vy-Vx*uy)/den,c=(Vx*ux-Ux*vx)/den,b=(Uy*vy-Vy*uy)/den,d=(Vy*ux-Uy*vx)/den;
-  ctx.save();path(dst);ctx.clip();ctx.transform(a,b,c,d,d0[0]-a*s0[0]-c*s0[1],d0[1]-b*s0[0]-d*s0[1]);ctx.drawImage(im,0,0);ctx.restore();
-}
-let groundPatch;
-function prepareGroundPatch(im){
-  const patch=document.createElement('canvas');patch.width=856;patch.height=436;
-  const c=patch.getContext('2d');
-  c.drawImage(im,55/325*im.naturalWidth,26/165*im.naturalHeight,214/325*im.naturalWidth,109/165*im.naturalHeight,0,0,856,436);
-  c.globalCompositeOperation='destination-in';
-  for(const horizontal of [true,false]){
-    const gradient=c.createLinearGradient(0,0,horizontal?856:0,horizontal?0:436);
-    gradient.addColorStop(0,'transparent');gradient.addColorStop(.04,'black');gradient.addColorStop(.96,'black');gradient.addColorStop(1,'transparent');
-    c.fillStyle=gradient;c.fillRect(0,0,856,436);
-  }
-  return patch;
-}
 function drawGround(){
-  const im=images[4];
-  // Replace the actual painted neighborhood, then straighten its ground kerb only.
-  ctx.drawImage(groundPatch,835,296,214,109);
-  const quad=[[375,180],[1350,180],[1395,685],[370,685]].map(([x,y])=>[x/1760*im.naturalWidth,y/894*im.naturalHeight]);
-  for(const ids of [[0,1,2],[0,2,3]])triangle(im,ids.map(i=>quad[i]),ids.map(i=>tile[i]));
+  const im=images[4],x=polygon[0][0],y=polygon[0][1],w=polygon[1][0]-x,h=polygon[2][1]-y;
+  ctx.save();path(polygon);ctx.clip();
+  // Use bare earth only: the reference crop's streets and surroundings are excluded.
+  ctx.drawImage(im,500/1760*im.naturalWidth,275/894*im.naturalHeight,750/1760*im.naturalWidth,300/894*im.naturalHeight,x,y,w,h);
+  // Flat stone edging lies wholly inside the same rectangle; no raised terrain plate.
+  ctx.globalAlpha=.55;
+  for(const fy of [y,y+h-1.5])ctx.drawImage(im,800/1760*im.naturalWidth,670/894*im.naturalHeight,300/1760*im.naturalWidth,12/894*im.naturalHeight,x,fy,w,1.5);
+  for(const fx of [x,x+w-1.5])ctx.drawImage(im,385/1760*im.naturalWidth,250/894*im.naturalHeight,20/1760*im.naturalWidth,300/894*im.naturalHeight,fx,y,1.5,h);
+  ctx.restore();
+}
+function buildingFrame(){
+  const im=images[5],scale=Math.min(artwork.width/im.naturalWidth,artwork.height/im.naturalHeight);
+  const width=im.naturalWidth*scale,height=im.naturalHeight*scale;
+  return {x:artwork.x+(artwork.width-width)/2,y:artwork.y+artwork.height-height,width,height};
 }
 function drawBuilding(){
-  const im=images[5],scale=Math.min(artwork.width/im.naturalWidth,artwork.height/im.naturalHeight);
-  const w=im.naturalWidth*scale,h=im.naturalHeight*scale;
-  ctx.drawImage(im,artwork.x+(artwork.width-w)/2,artwork.y+artwork.height-h,w,h);
+  const f=buildingFrame();
+  // Uniform fit of the entire transparent canvas: architecture is never warped or cropped.
+  ctx.drawImage(images[5],f.x,f.y,f.width,f.height);
 }
 function path(points){ctx.beginPath();points.forEach(([x,y],i)=>i?ctx.lineTo(x,y):ctx.moveTo(x,y));ctx.closePath()}
-function render(){if(!state.ready)return;const r=canvas.getBoundingClientRect(),dpr=Math.min(devicePixelRatio||1,2);canvas.width=Math.round(r.width*dpr);canvas.height=Math.round(r.height*dpr);ctx.setTransform(dpr,0,0,dpr,0,0);ctx.fillStyle='#30291d';ctx.fillRect(0,0,r.width,r.height);ctx.translate(r.width/2,r.height/2);ctx.scale(view.scale,view.scale);ctx.translate(-view.x,-view.y);images.slice(0,4).forEach((im,i)=>ctx.drawImage(im,(i%2)*768,Math.floor(i/2)*512,768,512));if(state.corrected)drawGround();if(state.building&&state.corrected){
-  const ground=images[4];ctx.drawImage(ground,960/1760*ground.naturalWidth,440/894*ground.naturalHeight,64/1760*ground.naturalWidth,48/894*ground.naturalHeight,939,382,10,16);
-  drawBuilding();
-}if(state.outline){path(polygon);ctx.strokeStyle='#f9d868';ctx.lineWidth=2/view.scale;ctx.stroke()}status.textContent=(state.corrected?(state.building?'Düzeltilmiş zeminde kışla':'Yeniden çizilmiş düz arsa'):'Eski yamuk arsa')+' · '+Math.round(view.scale*100)+'%';window.__buildingFit={ready:true,polygon,tile,artwork,corrected:state.corrected,view:{...view},building:state.building,outline:state.outline,buildings:state.building?1:0}}
+function render(){if(!state.ready)return;const r=canvas.getBoundingClientRect(),dpr=Math.min(devicePixelRatio||1,2);canvas.width=Math.round(r.width*dpr);canvas.height=Math.round(r.height*dpr);ctx.setTransform(dpr,0,0,dpr,0,0);ctx.fillStyle='#30291d';ctx.fillRect(0,0,r.width,r.height);ctx.translate(r.width/2,r.height/2);ctx.scale(view.scale,view.scale);ctx.translate(-view.x,-view.y);images.slice(0,4).forEach((im,i)=>ctx.drawImage(im,(i%2)*768,Math.floor(i/2)*512,768,512));if(state.corrected)drawGround();if(state.building&&state.corrected)drawBuilding();
+if(state.outline&&state.corrected){ctx.save();path(polygon);ctx.clip();ctx.strokeStyle='#f9d868';ctx.lineWidth=2/view.scale;ctx.stroke();ctx.restore();}
+status.textContent=(state.corrected?(state.building?'Düzeltilmiş zeminde kışla':'Yeniden çizilmiş düz arsa'):'Eski yamuk arsa')+' · '+Math.round(view.scale*100)+'%';window.__buildingFit={ready:true,polygon,tile,artwork,buildingFrame:buildingFrame(),corrected:state.corrected,view:{...view},building:state.building,outline:state.outline,buildings:state.building?1:0}}
 function focus(){view.x=943;view.y=349;view.scale=Math.min(canvas.clientWidth/330,canvas.clientHeight/230);render()}
 function pressed(){document.querySelector('#original').setAttribute('aria-pressed',String(!state.corrected));document.querySelector('#before').setAttribute('aria-pressed',String(state.corrected&&!state.building));document.querySelector('#after').setAttribute('aria-pressed',String(state.corrected&&state.building));document.querySelector('#outline').setAttribute('aria-pressed',String(state.outline));render()}
 document.querySelector('#original').onclick=()=>{state.corrected=false;state.building=false;pressed()};document.querySelector('#before').onclick=()=>{state.corrected=true;state.building=false;pressed()};document.querySelector('#after').onclick=()=>{state.corrected=true;state.building=true;pressed()};document.querySelector('#outline').onclick=()=>{state.outline=!state.outline;pressed()};document.querySelector('#home').onclick=focus;document.querySelector('#all').onclick=()=>{view.x=768;view.y=512;view.scale=Math.min(canvas.clientWidth/1536,canvas.clientHeight/1024);render()};function zoom(f){view.scale=Math.max(.15,Math.min(5,view.scale*f));render()}document.querySelector('#plus').onclick=()=>zoom(1.25);document.querySelector('#minus').onclick=()=>zoom(.8);canvas.onwheel=e=>{e.preventDefault();zoom(e.deltaY<0?1.1:1/1.1)};const pointers=new Map();let pinchDistance=0;canvas.onpointerdown=e=>{canvas.setPointerCapture(e.pointerId);pointers.set(e.pointerId,[e.clientX,e.clientY]);pinchDistance=0};canvas.onpointermove=e=>{if(!pointers.has(e.pointerId))return;const old=pointers.get(e.pointerId);pointers.set(e.pointerId,[e.clientX,e.clientY]);if(pointers.size===1){view.x-=(e.clientX-old[0])/view.scale;view.y-=(e.clientY-old[1])/view.scale;render()}else{const [a,b]=[...pointers.values()],distance=Math.hypot(a[0]-b[0],a[1]-b[1]);if(pinchDistance)zoom(distance/pinchDistance);pinchDistance=distance}};canvas.onpointerup=canvas.onpointercancel=e=>{pointers.delete(e.pointerId);pinchDistance=0};window.addEventListener('resize',render);
-Promise.all(['nw','ne','sw','se'].map(id=>'images/game/terrain/unified-detail-v3/'+id+'.webp').concat('images/game/building-fit/v3/empty-ground.webp','images/game/building-fit/v3/kisla-cutout.webp').map(src=>new Promise((resolve,reject)=>{const im=new Image();im.onload=()=>resolve(im);im.onerror=()=>reject(new Error(src));im.src=src}))).then(result=>{images.push(...result);groundPatch=prepareGroundPatch(images[4]);state.ready=true;focus()}).catch(e=>{status.textContent='Görsel yüklenemedi. Sayfayı yenileyin.';console.error(e)});
+Promise.all(['nw','ne','sw','se'].map(id=>'images/game/terrain/unified-detail-v3/'+id+'.webp').concat('images/game/building-fit/v3/empty-ground.webp','images/game/building-fit/v4/kisla-low.webp').map(src=>new Promise((resolve,reject)=>{const im=new Image();im.onload=()=>resolve(im);im.onerror=()=>reject(new Error(src));im.src=src}))).then(result=>{images.push(...result);state.ready=true;focus()}).catch(e=>{status.textContent='Görsel yüklenemedi. Sayfayı yenileyin.';console.error(e)});
 </script></html>

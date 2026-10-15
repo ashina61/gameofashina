@@ -1,0 +1,218 @@
+[
+  {
+    "width": 360,
+    "zoom": "near",
+    "mode": "soil",
+    "changedPixels": 49530,
+    "outsidePlotPixels": 0,
+    "wholeSpriteInside": true
+  },
+  {
+    "width": 360,
+    "zoom": "near",
+    "mode": "building",
+    "changedPixels": 49532,
+    "outsidePlotPixels": 0,
+    "wholeSpriteInside": true
+  },
+  {
+    "width": 360,
+    "zoom": "near",
+    "mode": "outline",
+    "changedPixels": 49537,
+    "outsidePlotPixels": 0,
+    "wholeSpriteInside": true
+  },
+  {
+    "width": 360,
+    "zoom": "closer",
+    "mode": "soil",
+    "changedPixels": 77042,
+    "outsidePlotPixels": 0,
+    "wholeSpriteInside": true
+  },
+  {
+    "width": 360,
+    "zoom": "closer",
+    "mode": "building",
+    "changedPixels": 77041,
+    "outsidePlotPixels": 0,
+    "wholeSpriteInside": true
+  },
+  {
+    "width": 360,
+    "zoom": "closer",
+    "mode": "outline",
+    "changedPixels": 77041,
+    "outsidePlotPixels": 0,
+    "wholeSpriteInside": true
+  },
+  {
+    "width": 360,
+    "zoom": "overview",
+    "mode": "soil",
+    "changedPixels": 2335,
+    "outsidePlotPixels": 0,
+    "wholeSpriteInside": true
+  },
+  {
+    "width": 360,
+    "zoom": "overview",
+    "mode": "building",
+    "changedPixels": 2335,
+    "outsidePlotPixels": 0,
+    "wholeSpriteInside": true
+  },
+  {
+    "width": 360,
+    "zoom": "overview",
+    "mode": "outline",
+    "changedPixels": 2336,
+    "outsidePlotPixels": 0,
+    "wholeSpriteInside": true
+  },
+  {
+    "width": 390,
+    "zoom": "near",
+    "mode": "soil",
+    "changedPixels": 58032,
+    "outsidePlotPixels": 0,
+    "wholeSpriteInside": true
+  },
+  {
+    "width": 390,
+    "zoom": "near",
+    "mode": "building",
+    "changedPixels": 58033,
+    "outsidePlotPixels": 0,
+    "wholeSpriteInside": true
+  },
+  {
+    "width": 390,
+    "zoom": "near",
+    "mode": "outline",
+    "changedPixels": 58033,
+    "outsidePlotPixels": 0,
+    "wholeSpriteInside": true
+  },
+  {
+    "width": 390,
+    "zoom": "closer",
+    "mode": "soil",
+    "changedPixels": 90740,
+    "outsidePlotPixels": 0,
+    "wholeSpriteInside": true
+  },
+  {
+    "width": 390,
+    "zoom": "closer",
+    "mode": "building",
+    "changedPixels": 90742,
+    "outsidePlotPixels": 0,
+    "wholeSpriteInside": true
+  },
+  {
+    "width": 390,
+    "zoom": "closer",
+    "mode": "outline",
+    "changedPixels": 90743,
+    "outsidePlotPixels": 0,
+    "wholeSpriteInside": true
+  },
+  {
+    "width": 390,
+    "zoom": "overview",
+    "mode": "soil",
+    "changedPixels": 2765,
+    "outsidePlotPixels": 0,
+    "wholeSpriteInside": true
+  },
+  {
+    "width": 390,
+    "zoom": "overview",
+    "mode": "building",
+    "changedPixels": 2765,
+    "outsidePlotPixels": 0,
+    "wholeSpriteInside": true
+  },
+  {
+    "width": 390,
+    "zoom": "overview",
+    "mode": "outline",
+    "changedPixels": 2765,
+    "outsidePlotPixels": 0,
+    "wholeSpriteInside": true
+  },
+  {
+    "width": 430,
+    "zoom": "near",
+    "mode": "soil",
+    "changedPixels": 70516,
+    "outsidePlotPixels": 0,
+    "wholeSpriteInside": true
+  },
+  {
+    "width": 430,
+    "zoom": "near",
+    "mode": "building",
+    "changedPixels": 70518,
+    "outsidePlotPixels": 0,
+    "wholeSpriteInside": true
+  },
+  {
+    "width": 430,
+    "zoom": "near",
+    "mode": "outline",
+    "changedPixels": 70524,
+    "outsidePlotPixels": 0,
+    "wholeSpriteInside": true
+  },
+  {
+    "width": 430,
+    "zoom": "closer",
+    "mode": "soil",
+    "changedPixels": 110125,
+    "outsidePlotPixels": 0,
+    "wholeSpriteInside": true
+  },
+  {
+    "width": 430,
+    "zoom": "closer",
+    "mode": "building",
+    "changedPixels": 110127,
+    "outsidePlotPixels": 0,
+    "wholeSpriteInside": true
+  },
+  {
+    "width": 430,
+    "zoom": "closer",
+    "mode": "outline",
+    "changedPixels": 110154,
+    "outsidePlotPixels": 0,
+    "wholeSpriteInside": true
+  },
+  {
+    "width": 430,
+    "zoom": "overview",
+    "mode": "soil",
+    "changedPixels": 3306,
+    "outsidePlotPixels": 0,
+    "wholeSpriteInside": true
+  },
+  {
+    "width": 430,
+    "zoom": "overview",
+    "mode": "building",
+    "changedPixels": 3306,
+    "outsidePlotPixels": 0,
+    "wholeSpriteInside": true
+  },
+  {
+    "width": 430,
+    "zoom": "overview",
+    "mode": "outline",
+    "changedPixels": 3306,
+    "outsidePlotPixels": 0,
+    "wholeSpriteInside": true
+  }
+]

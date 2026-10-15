@@ -29,3 +29,15 @@ Yeni `public/images/game/building-fit/v3/empty-ground.webp` gerçek arka plan cr
 Üretim tarifleri: (1) mevcut arsa crop'unun ortasındaki boş toprağı dört dik açılı, düz ve düzenli kenarlı gerçek bir arsa olarak yeniden çiz; yol kesişimlerini, sıcak Akdeniz malzemelerini ve sol üst ışığı koru, çizgi/ızgara/bina ekleme. (2) mevcut kışladan yalnız mimariyi gerçek alfa olarak ayır; dış yollar, bahçe ve avlu döşemesi şeffaf olsun, cephe ve çatı yönünü koru. Built-in image generation kullanıldı; son dosyalar yukarıdaki proje yollarındadır.
 
 Doğrulama: gerçek HTML JavaScript'i ve gerçek raster varlıklar @napi-rs/canvas ile 360/390/430 genişliklerinde çalıştırıldı. Çizgi kapalıyken eski/yeni zemin piksel çıktısı farklı, boş/kışla/zoom geçişleri çalışıyor, zemin ve toprak dört köşesi dikdörtgen. Bu native canvas çizim kontrolüdür; tarayıcı UI testi yerine geçirilmez. Kanıtlar `ground-v3-*.webp`, `ground-v3-qa.json`.
+
+## 15 Ekim v4 — tek görünür sınır, yol piksellerine taşma yok
+
+Kullanıcı v3 çiziminin yine sınırı ve yolları aştığını bildirdi. Hata gerçekti: gösterilen sınır 154×67, zemin yaması 214×109, yeniden eşlenen karo 187×93, bina kutusu 154×80 ve yaklaşım yolu ayrıca 10×16 idi. Bunların aynı sınıra bağlı olmaması v3 kontrolünde atlandı. Önceki v3'ün taşmasız veya oturmuş olduğu iddiasına dönülmez.
+
+V4'te arsa sınırı değişmedi: (867,316)-(1021,383). Zemin, içerideki düz taş kenar, tam alfa sprite kutusu ve debug çizgisi aynı dikdörtgene bağlıdır. Çevreyi boyayan büyük yama, zemin üçgen eşlemesi ve sınır dışında kalan yaklaşım kaldırıldı. Yeni toprak yalnız referansın çıplak toprak bölümünden alınır; referans yollara/dekora ait pikselleri zemin katmanına taşımaz. Zemin ve iç taş kenarı ortak sınırda kesilir. Binanın bütün alfa tuvali2 piksel içeride uniform ölçekle sığar; mimari kırpılmaz/esnetilmez. Çizgi de içeri çizilir.
+
+Kışla aynı Osmanlı malzeme ve askeri işaretleriyle daha alçak/geniş olarak built-in imagegen ile yeniden üretildi: `public/images/game/building-fit/v4/kisla-low.webp`. Son tarif: alçak nöbet platformları ve sur, yatay arka kiremit koğuş, bordo sancak, kalkan/kılıç kapı, şeffaf avlu; dış zemin ve yol yok. İkinci geçişte avlu derinliği artırıldı; yapı yüksekliği artırılmadı. Kamera ve mimari en-boy oranı runtime'da değiştirilmez.
+
+Kalıcı kontrol: `NODE_PATH="$CODEX_PRIMARY_RUNTIME_NODE_MODULES" node tools/building-fit-canvas-qa.cjs`. Araç gerçek HTML JavaScript'ini ve gerçek varlıkları native Canvas ile yürütür.360/390/430 × yakın/daha yakın/genel × boş/kışla/çizgi = 27 piksel karşılaştırması yapar. Eski zemin ile yeni render aynı kamerada kıyaslanır; sınırın kesirli kenarlarının raster kapsaması dışındaki değişen piksel sayısı0 olmalıdır. Tam sprite kutusu da içeride kalmalı ve kaynak oranını korumalıdır. Bu, tarayıcı UI doğrulaması değildir.
+
+Negatif regresyon: V3 kaynak sayfası aynı kontrolle çalıştırıldığında360 / yakın / boş durumunda arsa dışında 60.892 değişen piksel bulup başarısız olur. V4: 27 durum, 0 dış piksel. Kanıtlar `boundary-v4-*` dosyalarıdır. Tek arsa denemesidir; ana oyun veya tüm şehir taşmasız ilan edilmez.
