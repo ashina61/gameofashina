@@ -11,3 +11,9 @@ Kaynak crop: master resim koordinatları x780,y270,w325,h165. Yeni kompozit x780
 Tarif: mevcut parsel crop'u üzerinde tek alçak Osmanlı kışlası; yatay cephe, dört alçak burç, bordo sancaklar, arkada kiremit koğuş, açık talim avlusu, ön ortada kalkan-kılıç armalı giriş. Aynı sıcak krem taş, sol üst ışık, bütün dış yollar korunur; arka kulelerin üstü çatı hizasına indirilir. Built-in image generation kullanıldı.
 
 Doğrulama: `pnpm check` 357 test, tip, ESLint ve CSS ile geçti; statik dışa aktarım başarılı. Üç telefon genişliğinde gerçek canvas önce/sonra piksel farkı ölçüldü: parsel dışı değişen piksel 0. `v2-criteria` hedefleri geçti. Ana oyun `layout-qa` mevcut tabanını korudu: taşma/kesik/çakışma/isimsiz/sayfa hatası 0; önceki küçük312/minik663 uyarıları sürüyor. Yeni deneme ana oyunun HUD düzeltmesi değildir.
+
+## 15 Ekim sınır düzeltmesi
+
+Kullanıcı çizginin boş araziyle eş ölçüde olmadığını bildirdi. Önceki poligon bahçe/bordür dış kenarını da içeriyordu. Tek deneme parselinde çıplak toprağın köşeleri detaylı gerçek zeminden yeniden ölçüldü: (868,314), (1016,314), (1026,385), (859,385). Boş/kışla/zoom durumları aynı poligonu kullanır. Kompozit tek uniform ölçekle x812.6,y289.8,w260,h132 alanına alındı. İlk açılış boş arazi+sınırdır. Ana oyunun 29 parsel koordinatı bu tek arsa denemesinde değiştirilmedi.
+
+Bu düzeltmede gerçek sayfa JavaScript'i Node VM içinde boş/kışla/zoom durumlarında çalıştırıldı; poligon değişmezliği ve oran kontrol edildi. Aynı koordinatlarla zemin/çizim birleşimi ayrıca render edilerek görsel olarak incelendi. Yerel Chromium başlatılırken SIGSEGV verdi; bu revizyonda yeni telefon tarayıcı ekranı alındığı iddia edilmez. İlk denemenin önceki 360/390/430 tarayıcı kanıtları önceki revizyona aittir. Yeni kalibrasyon kanıtları `soil-boundary-v2.webp` ve `building-boundary-v2.webp` dosyalarıdır.
