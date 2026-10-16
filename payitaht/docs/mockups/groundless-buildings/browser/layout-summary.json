@@ -1,0 +1,13 @@
+{
+  "toplam": {
+    "taşma": 0,
+    "kesik": 0,
+    "küçük": 312,
+    "minik": 663,
+    "çakışma": 0,
+    "isimsiz": 0
+  },
+  "hatalar": [],
+  "exit": 1,
+  "unchangedFromPreviousRelease": true
+}
