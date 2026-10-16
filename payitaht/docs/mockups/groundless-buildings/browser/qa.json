@@ -1,0 +1,49 @@
+{
+  "errors": [],
+  "missing": [],
+  "cases": [
+    {
+      "name": "phone 360",
+      "violations": 0,
+      "buildings": [
+        "kisla",
+        "medrese",
+        "depo",
+        "carsi",
+        "hamam"
+      ],
+      "groundOverlays": 0,
+      "barracksTap": true
+    },
+    {
+      "name": "phone 390 / flipped",
+      "violations": 0,
+      "buildings": [
+        "kisla",
+        "medrese",
+        "depo",
+        "carsi",
+        "hamam"
+      ],
+      "groundOverlays": 0,
+      "barracksTap": true
+    },
+    {
+      "name": "phone 430",
+      "violations": 0,
+      "buildings": [
+        "kisla",
+        "medrese",
+        "depo",
+        "carsi",
+        "hamam"
+      ],
+      "groundOverlays": 0,
+      "barracksTap": true
+    },
+    {
+      "name": "construction completion",
+      "newTextureLoaded": true
+    }
+  ]
+}

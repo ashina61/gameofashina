@@ -1,5 +1,5 @@
 /** Package generated transparent sprites and measure their FINAL WebP alpha.
- * Usage: node tools/art/prepare-master-v8.cjs /absolute/path/manifest.json
+ * Usage: node tools/art/prepare-master-v8.cjs /absolute/path/manifest.json [master-vN]
  * Manifest: [{id, path}], one entry for each approved building. */
 const fs = require('node:fs'), path = require('node:path'), sharp = require('sharp')
 const root = path.resolve(__dirname, '../..')
@@ -18,7 +18,9 @@ function hull(points) {
   const input = JSON.parse(fs.readFileSync(process.argv[2], 'utf8'))
   const recordsPath = path.join(root, 'lib/game/city-map/master-cutout-bounds.json')
   const records = JSON.parse(fs.readFileSync(recordsPath, 'utf8'))
-  const dir = path.join(root, 'public/images/game/buildings/master-v8')
+  const version = process.argv[3] || 'master-v8'
+  if (!/^master-v\d+$/.test(version)) throw Error('Invalid asset version')
+  const dir = path.join(root, 'public/images/game/buildings', version)
   fs.mkdirSync(dir, { recursive: true })
   for (const {id, path: source} of input) {
     if (!ids.has(id)) throw Error('Unexpected building: ' + id)

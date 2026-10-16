@@ -2,13 +2,21 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import sharp from 'sharp'
 import { BUILDING_IDS } from '../engine'
-import { MASTER_BUILDING_ART, MASTER_BUILDING_CUTOUTS, MASTER_PARCEL_GROUND, masterBuildingImage } from './master-building-art'
+import { MASTER_BUILDING_ART, MASTER_BUILDING_CUTOUTS, masterBuildingImage } from './master-building-art'
 import { MASTER_PLOTS, masterArtFrame, parcelContains } from './master-projection'
 import { masterCutoutFrame, masterCutoutOutline } from './master-cutout'
 
-test('shared city earth fills the plot without transparent empty-plot holes', async () => {
-  const { data, info } = await sharp(`public${MASTER_PARCEL_GROUND.path}`).ensureAlpha().raw().toBuffer({ resolveWithObject: true })
-  for (let i = 3; i < data.length; i += info.channels) assert.equal(data[i], 255)
+test('open courtyards and prop gaps contain no baked-in floor in either resolution', async () => {
+  // Reviewed open-ground points: training yard, reading courtyard, loading
+  // yard, market aisle, and the gap between the bathhouse's front props.
+  const probes: Array<[string, number, number]> = [['kisla', .55, .52], ['medrese', .60, .73], ['depo', .45, .84], ['carsi', .50, .77], ['hamam', .48, .90]]
+  for (const [id, x, y] of probes) for (const size of ['full', 'sm'] as const) {
+    const { data, info } = await sharp(`public${masterBuildingImage(id, 1, undefined, size)}`).ensureAlpha().raw().toBuffer({ resolveWithObject: true })
+    for (const dx of [-1, 0, 1]) for (const dy of [-1, 0, 1]) {
+      const at = ((Math.floor(y * info.height) + dy) * info.width + Math.floor(x * info.width) + dx) * info.channels + 3
+      assert.equal(data[at], 0, `${id}/${size}: ground must be transparent`)
+    }
+  }
 })
 
 test('parcel modules cover their ground; architecture cutouts preserve proportions and stay inside every parcel', async () => {
