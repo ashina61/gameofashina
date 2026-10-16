@@ -1,3 +1,5 @@
+16 Ekim son düzeltme: **Binaların kendi zemini olmayacak.** Bina görselinde avlu toprağı, düz zemin döşemesi veya dış zemin plakası bulunmaz. Açık avlu ve eşya araları gerçek alfa ile şehrin mevcut zeminini gösterir. Runtime'da ikinci bir arsa dolgusu çizilmez. Arsa doluluğu ayrı bir zemin ekleyerek sağlanmaz; bu kural önceki ortak avlu dolgusu tarifinin önündedir.
+
 13 Ekim güncel onay: kullanıcı son harita/belediye tasarımını kabul etti; bütün binalar belediye ölçeğinde, arsayı bütünüyle kaplayacak ve şehirle uyumlu olacak. Doğrudan canlı yayın açıkça yetkilendirildi. Aşağıdaki eski yayın yasağı bu yeni izinle kaldırılmıştır.
 
 # Bina yerleşimi — kesin kullanıcı kuralları

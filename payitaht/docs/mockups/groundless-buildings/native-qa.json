@@ -1,0 +1,35 @@
+{
+  "renderer": "native Canvas; architecture only, original map underneath",
+  "cases": [
+    {
+      "id": "medrese",
+      "interiorAlphaSamples": 15776,
+      "groundThroughSamples": 2973,
+      "changedMapPixels": 0
+    },
+    {
+      "id": "depo",
+      "interiorAlphaSamples": 9475,
+      "groundThroughSamples": 2340,
+      "changedMapPixels": 0
+    },
+    {
+      "id": "carsi",
+      "interiorAlphaSamples": 11752,
+      "groundThroughSamples": 3946,
+      "changedMapPixels": 0
+    },
+    {
+      "id": "hamam",
+      "interiorAlphaSamples": 7267,
+      "groundThroughSamples": 2166,
+      "changedMapPixels": 0
+    },
+    {
+      "id": "kisla",
+      "interiorAlphaSamples": 16885,
+      "groundThroughSamples": 6265,
+      "changedMapPixels": 0
+    }
+  ]
+}
