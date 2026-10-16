@@ -17,3 +17,9 @@ Paketleme: `tools/art/prepare-master-v8.cjs` ile 1024/512 genişlik, gerçek alf
 `tools/barracks-camera-proof.cjs`, gerçek `masterCutoutFrame` yerleşimini kullanır. `docs/mockups/barracks-camera/empty.webp`, `master-v9.webp`, `master-v10.webp` aynı arsa ve aynı kamera kesitidir. Bu dosyalar native Canvas render'ıdır, tarayıcı ekranı değildir. Taşma testi iki çözünürlükte bütün ölçülü arsalar ve aynalama için çalışır; kendi başına estetik onay sayılmaz.
 
 Kontroller: `pnpm check` 358/358 test, TypeScript, ESLint ve CSS kontrolleri geçti. Pages taban yoluyla statik üretim derlemesi başarılı. `v2-criteria`, telefon boyu asset kontrolü ve `git diff --check` geçti. Native karşılaştırmada hem eski hem yeni çizim için arsa dışında değişen piksel sıfır. Genel mobil layout kontrolü bu tur yeniden çalıştırılmadı; önceki küçük hedef/yazı uyarılarının çözüldüğü iddia edilmez.
+
+## Canlı ana oyun doğrulaması
+
+Deploy 38859059443 başarılı. Canlı giriş ekranında 0.111.2 görüldü. Normal UI ile kurulmuş 1. seviye kışla aynı kayıtla güncellemeden sonra açıldı; yeni üstten bakış master-v10 çizimi göründü. Haritadaki binaya dokununca Kışla paneli açıldı ve kapatıldı. Eski/yeni gerçek oyun ekranları `mockups/barracks-camera/main-before.jpg` ve `main-after.jpg`; yeni gerçek ekranın yolları içeren yakın kesiti `main-detail.jpg`. Gerçek ekranlar farklı pan konumlarındadır; sabit koordinat karşılaştırması native üç dosyadadır.
+
+Bu turdaki canlı manuel kontrol 1363×936 masaüstü tarayıcıdadır; telefon donanımı veya bütün katalog için görsel onay değildir. 0.111.1'de eklenen diğer dört zeminsiz yapı korunur.
