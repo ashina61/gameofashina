@@ -5,6 +5,7 @@ import { BUILDINGS, BUILDING_IDS, activeJob, plotOpen, type BuildingId, type Gam
 import { asset, buildingArtKey } from '@/lib/asset'
 import { MASTER_BUILDING_ART, MASTER_BUILDING_CUTOUTS, masterBuildingImage } from '@/lib/game/city-map/master-building-art'
 import { masterCutoutFrame, masterCutoutOutline } from '@/lib/game/city-map/master-cutout'
+import { masterCutoutQuad, cutoutQuadMesh, cutoutTriangleMatrix } from '@/lib/game/city-map/master-cutout-quad'
 import { visualSignature } from '@/lib/game/city-render'
 import { PEACEFUL_CITY, siegeAppearanceKey, type SiegeAppearance } from '@/lib/game/siege-appearance'
 import { FlagField, SmokeField } from './city-life'
@@ -245,12 +246,15 @@ export class MasterCityScene extends CityScene {
     const source = this.textures.get(key).getSourceImage() as HTMLImageElement
     const flip = facing ? facing === 'right' : this.state.flips.includes(id)
     const outline = complete && !parcelModule ? masterCutoutOutline(id, source.width, source.height) : undefined
-    const cutout = outline ? masterCutoutFrame(renderPlot, source.width, source.height, outline, flip) : undefined
+    const quad = id === 'kisla' && outline ? masterCutoutQuad(renderPlot, outline, flip) : undefined
+    const cutout = outline && !quad ? masterCutoutFrame(renderPlot, source.width, source.height, outline, flip) : undefined
     const frame = cutout || masterArtFrame(renderPlot, source.width, source.height, parcelModule, stageGrowth(level))
     const { width, height, bottom: y } = frame
     let image: Phaser.GameObjects.Image | Phaser.GameObjects.Mesh
-    if (parcelModule) image = this.parcelArtwork(renderPlot, key, flip)
+    if (quad) image = this.parcelArtwork(renderPlot, key, false, quad.uv)
+    else if (parcelModule) image = this.parcelArtwork(renderPlot, key, flip)
     else image = this.add.image(frame.x, frame.y, key).setDisplaySize(width, height).setFlipX(flip)
+    if (quad) image.setData('masterPolygon', quad.target)
     if (cutout) {
       image.setData('masterPolygon', cutout.polygon)
     }
@@ -295,11 +299,12 @@ export class MasterCityScene extends CityScene {
       this.pieces.push(sc, this.makeTimer(p.center.x, y + 75, job.start, job.end, 1e6 + p.center.y + 1))
     }
   }
-  parcelArtwork(p: MasterPlot, key: string, flip: boolean) {
-    if (this.game.renderer.type !== Phaser.WEBGL) return this.canvasParcel(p, key, flip)
-    const vertices = p.polygon.flatMap(q => [q.x - p.center.x, p.center.y - q.y])
-    const uv = flip ? [1,0, 0,0, 0,1, 1,1] : [0,0, 1,0, 1,1, 0,1]
-    const mesh = this.add.mesh(p.center.x, p.center.y, key, undefined, vertices, uv, [0,1,2, 0,2,3])
+  parcelArtwork(p: MasterPlot, key: string, flip: boolean, sourceQuad?: Array<{x: number; y: number}>) {
+    if (this.game.renderer.type !== Phaser.WEBGL) return this.canvasParcel(p, key, flip, sourceQuad)
+    const projected = sourceQuad ? cutoutQuadMesh(sourceQuad,p.polygon) : undefined
+    const vertices = (projected?.vertices || p.polygon).flatMap(q => [q.x - p.center.x, p.center.y - q.y])
+    const uv = projected ? projected.uv.flatMap(q => [q.x,q.y]) : flip ? [1,0, 0,0, 0,1, 1,1] : [0,0, 1,0, 1,1, 0,1]
+    const mesh = this.add.mesh(p.center.x, p.center.y, key, undefined, vertices, uv, projected?.indices || [0,1,2, 0,2,3])
     mesh.setSize(p.width, p.height).setOrtho(p.width, p.height)
     mesh.hideCCW = false
     return mesh
@@ -313,23 +318,19 @@ export class MasterCityScene extends CityScene {
       .setInteractive({ hitArea: polygon, hitAreaCallback: Phaser.Geom.Polygon.Contains, useHandCursor: true })
   }
   /** Canvas fallback maps the same whole texture; it never cuts a roof to fit. */
-  canvasParcel(p: MasterPlot, key: string, flip: boolean) {
-    const textureKey = `${key}-parcel-${p.index}-${p.center.x}-${p.center.y}-${Number(flip)}`
+  canvasParcel(p: MasterPlot, key: string, flip: boolean, sourceQuad?: Array<{x: number; y: number}>) {
+    const textureKey = `${key}-parcel-${p.index}-${p.center.x}-${p.center.y}-${Number(flip)}-${sourceQuad?.map(q=>`${q.x},${q.y}`).join(";") || "rect"}`
     if (!this.textures.exists(textureKey)) {
       const source = this.textures.get(key).getSourceImage() as HTMLImageElement
       const canvas = this.textures.createCanvas(textureKey, Math.ceil(p.width * 2), Math.ceil(p.height * 2))!
       const ctx = canvas.context
-      const target = p.polygon.map(q => ({x: (q.x-p.center.x+p.width/2)*2, y: (q.y-p.center.y+p.height/2)*2}))
-      const uv = [[0,0],[1,0],[1,1],[0,1]].map(([u,v]) => ({x: (flip ? 1-u : u)*source.width, y: v*source.height}))
-      for (const indices of [[0,1,2],[0,2,3]]) {
-        const [a,b,c]=indices.map(i=>uv[i]),[d,e,f]=indices.map(i=>target[i])
-        const den=(b.x-a.x)*(c.y-a.y)-(c.x-a.x)*(b.y-a.y)
-        const ax=((e.x-d.x)*(c.y-a.y)-(f.x-d.x)*(b.y-a.y))/den
-        const bx=((f.x-d.x)*(b.x-a.x)-(e.x-d.x)*(c.x-a.x))/den
-        const ay=((e.y-d.y)*(c.y-a.y)-(f.y-d.y)*(b.y-a.y))/den
-        const by=((f.y-d.y)*(b.x-a.x)-(e.y-d.y)*(c.x-a.x))/den
+      const mesh = cutoutQuadMesh(sourceQuad || [{x:0,y:0},{x:1,y:0},{x:1,y:1},{x:0,y:1}],p.polygon,sourceQuad ? 8 : 1)
+      const target = mesh.vertices.map(q => ({x:(q.x-p.center.x+p.width/2)*2,y:(q.y-p.center.y+p.height/2)*2}))
+      const uv = mesh.uv.map(q => ({x:(flip ? 1-q.x : q.x)*source.width,y:q.y*source.height}))
+      for (let i=0;i<mesh.indices.length;i+=3) {
+        const indices=mesh.indices.slice(i,i+3),[d,e,f]=indices.map(j=>target[j])
         ctx.save();ctx.beginPath();ctx.moveTo(d.x,d.y);ctx.lineTo(e.x,e.y);ctx.lineTo(f.x,f.y);ctx.closePath();ctx.clip()
-        ctx.setTransform(ax,ay,bx,by,d.x-ax*a.x-bx*a.y,d.y-ay*a.x-by*a.y)
+        ctx.setTransform(...cutoutTriangleMatrix(uv,target,indices))
         ctx.drawImage(source,0,0);ctx.restore()
       }
       canvas.refresh()

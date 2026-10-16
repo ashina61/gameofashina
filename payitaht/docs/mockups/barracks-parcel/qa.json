@@ -1,0 +1,14 @@
+{
+  "renderer": "native Canvas",
+  "plot": 1,
+  "cases": [
+    {
+      "variant": "before",
+      "roadChanges": 0
+    },
+    {
+      "variant": "after",
+      "roadChanges": 0
+    }
+  ]
+}

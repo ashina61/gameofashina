@@ -5,6 +5,7 @@ import { BUILDING_IDS } from '../engine'
 import { MASTER_BUILDING_ART, MASTER_BUILDING_CUTOUTS, masterBuildingImage } from './master-building-art'
 import { MASTER_PLOTS, masterArtFrame, parcelContains } from './master-projection'
 import { masterCutoutFrame, masterCutoutOutline } from './master-cutout'
+import { masterCutoutQuad, mapCutoutPoint } from './master-cutout-quad'
 
 test('open courtyards and prop gaps contain no baked-in floor in either resolution', async () => {
   // Reviewed open-ground points: training yard, reading courtyard, loading
@@ -19,7 +20,7 @@ test('open courtyards and prop gaps contain no baked-in floor in either resoluti
   }
 })
 
-test('parcel modules cover their ground; architecture cutouts preserve proportions and stay inside every parcel', async () => {
+test('parcel modules and groundless cutouts use their production placement inside every parcel', async () => {
   const ids=BUILDING_IDS.filter(id=>id!=='surlar')
   assert.equal(ids.length,36)
   for(const id of ids){
@@ -40,7 +41,20 @@ test('parcel modules cover their ground; architecture cutouts preserve proportio
           if(right>=0)for(const x of [left,right+1])for(const edgeY of [y,y+1])rows.push({x:x/info.width,y:edgeY/info.height})
         }
         for(const plot of MASTER_PLOTS)for(const flip of [false,true]){
-          const p=plot, art=masterCutoutFrame(p,info.width,info.height,outline,flip)
+          const p=plot
+          if(id==='kisla'){
+            const quad=masterCutoutQuad(p,outline,flip)
+            for(const q of rows){
+              assert.ok(parcelContains(quad.source,{x:flip?1-q.x:q.x,y:q.y}), `kisla: visible architecture cropped at source`)
+              assert.ok(parcelContains(p.polygon,mapCutoutPoint(quad.uv,quad.target,q)), `kisla: pixel outside parcel ${plot.index}`)
+            }
+            quad.uv.forEach((q,i)=>{
+              const mapped=mapCutoutPoint(quad.uv,quad.target,q)
+              assert.ok(Math.hypot(mapped.x-p.polygon[i].x,mapped.y-p.polygon[i].y)<1e-7, 'kisla: parcel edge detached')
+            })
+            continue
+          }
+          const art=masterCutoutFrame(p,info.width,info.height,outline,flip)
           assert.ok(Math.abs(art.width/art.height-info.width/info.height)<1e-8, `${id}: distorted architecture`)
           for(const q of rows)assert.ok(parcelContains(p.polygon,{x:art.left+(flip?1-q.x:q.x)*art.width,y:art.top+q.y*art.height}), `${id}: visible pixel outside parcel ${plot.index}`)
           assert.ok(Math.abs(Math.max(...art.polygon.map(q=>q.y))-(Math.max(...p.polygon.map(q=>q.y))-1.5))<1e-7, `${id}: entrance detached from front kerb`)

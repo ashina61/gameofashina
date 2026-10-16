@@ -18,6 +18,7 @@ const root = path.resolve(__dirname, '..'), out = path.join(root, 'docs/mockups/
       const file = path.join(root, `public/images/game/buildings/${version}/kisla.webp`)
       const a = await loadImage(file), m = await sharp(file).metadata()
       let outline = masterCutoutOutline('kisla',m.width,m.height)
+      if (version === 'master-v10') outline = JSON.parse(fs.readFileSync(path.join(root, 'docs/barracks-v10-outline.json')))[`${m.width}x${m.height}`].map(([x,y])=>({x,y}))
       if (version === 'master-v9') {
         // Keep the old measured contour beside its old pixels for comparison.
         outline = JSON.parse(fs.readFileSync(path.join(root, 'docs/barracks-v9-outline.json')))[`${m.width}x${m.height}`].map(([x,y])=>({x,y}))
