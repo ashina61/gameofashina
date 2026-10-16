@@ -7,6 +7,7 @@ export const MASTER_BUILDING_ART = new Set<string>(BUILDING_IDS.filter(id => id 
 export const MASTER_BUILDING_CUTOUTS = new Set<string>(['kisla', 'medrese', 'depo', 'carsi', 'hamam'])
 export function masterBuildingImage(id: string, level: number, facing?: CoastFacing, size: ArtSize = 'sm') {
   if (!MASTER_BUILDING_ART.has(id)) return buildingImage(id, level, facing, size)
+  if (id === 'kisla') return asset(`/images/game/buildings/master-v10/kisla${size === 'sm' ? '-sm' : ''}.webp`)
   if (MASTER_BUILDING_CUTOUTS.has(id)) return asset(`/images/game/buildings/master-v9/${id}${size === 'sm' ? '-sm' : ''}.webp`)
   return asset(`/images/game/buildings/master-v6/${id}${size === 'sm' ? '-sm' : ''}.webp`)
 }

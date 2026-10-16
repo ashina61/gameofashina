@@ -5,6 +5,7 @@
 export type Release = { version: string; date: string; title: string; notes: string[] }
 
 export const CHANGELOG: Release[] = [
+  { version: '0.111.2', date: '16 Ekim 2026', title: 'Kışlada şehir zeminine göre üstten bakış', notes: ['Kışla daha yukarıdan görünen çatılar, alçak ön duvar ve açık eğitim avlusuyla yeniden çizildi.', 'Avlu ve dış alan şeffaf kalır; şehrin mevcut toprağı ve yolları kullanılır. Diğer dört zeminsiz yapı korunur.'] },
   { version: '0.111.1', date: '16 Ekim 2026', title: 'Binalar şehrin kendi zemininde', notes: ['Kışla, medrese, depo, çarşı ve hamam görsellerinin içindeki avlu toprağı ve döşeme kaldırıldı; açık alanlar gerçek şeffaflıkla mevcut şehir zeminini gösterir.', 'Binaların altına eklenen ayrı arsa dolgusu kaldırıldı.'] },
   { version: '0.111.0', date: '16 Ekim 2026', title: 'Beş yapıya ayrı silüet', notes: ['Kışla, medrese, depo, çarşı ve hamam farklı mimari silüetlerle yenilendi: askerî kuleler, derslik avlusu, yük ambarı, açık tenteler ve alçak kubbeler.', 'Binalar oranları korunarak arsalara yerleşir; avlu dolgusu şehrin kendi toprak dokusuyla dört köşeyi tamamlar.'] },
   { version: '0.110.1', date: '15 Ekim 2026', title: 'Ana şehirde yeni kışla', notes: ['Kışlanın yeni şeffaf çizimi ana şehir sahnesine bağlandı; avluda mevcut şehir zemini görünür.', 'Mimari tek ölçekte gerçek arsa poligonuna sığar. Girişteki yapay yol yaması ve çizime eklenen ikinci bayrak kaldırıldı.'] },
