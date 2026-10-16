@@ -1,3 +1,5 @@
+> **16 Ekim takip:** Kullanıcı bu sonucu reddetti. Aşağıdaki sınır ve alfa testleri görsel uyum veya kullanıcı onayı değildir. Projektif esnetme onaylı çözüm sayılmaz. Yeni araştırma ve prototip: `IKARIAM-STUDY-PROTOTYPE.md`.
+
 # Zeminsiz bina, doğrudan karo yerleşimi — 0.111.3 / SW134
 
 16 Ekim 2026. Kullanıcı 1000147564.jpg ekranında iki şartı tekrar etti: bina kendi zeminini taşımayacak, karoya tam oturacak.

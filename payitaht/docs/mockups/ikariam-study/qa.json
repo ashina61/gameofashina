@@ -1,0 +1,71 @@
+{
+  "renderer": "Native Canvas; not browser UI",
+  "faces": 1048,
+  "vertices": 4213,
+  "qa": [
+    {
+      "width": 360,
+      "height": 380,
+      "grass": true,
+      "changed": 20222,
+      "outsideChanges": 0,
+      "unchangedGroundSamples": 36
+    },
+    {
+      "width": 360,
+      "height": 380,
+      "grass": false,
+      "changed": 20211,
+      "outsideChanges": 0,
+      "unchangedGroundSamples": 36
+    },
+    {
+      "width": 390,
+      "height": 380,
+      "grass": true,
+      "changed": 23662,
+      "outsideChanges": 0,
+      "unchangedGroundSamples": 36
+    },
+    {
+      "width": 390,
+      "height": 380,
+      "grass": false,
+      "changed": 23671,
+      "outsideChanges": 0,
+      "unchangedGroundSamples": 36
+    },
+    {
+      "width": 430,
+      "height": 380,
+      "grass": true,
+      "changed": 28549,
+      "outsideChanges": 0,
+      "unchangedGroundSamples": 36
+    },
+    {
+      "width": 430,
+      "height": 380,
+      "grass": false,
+      "changed": 28579,
+      "outsideChanges": 0,
+      "unchangedGroundSamples": 36
+    },
+    {
+      "width": 1100,
+      "height": 650,
+      "grass": true,
+      "changed": 123434,
+      "outsideChanges": 0,
+      "unchangedGroundSamples": 36
+    },
+    {
+      "width": 1100,
+      "height": 650,
+      "grass": false,
+      "changed": 123452,
+      "outsideChanges": 0,
+      "unchangedGroundSamples": 36
+    }
+  ]
+}
