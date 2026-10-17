@@ -1,5 +1,6 @@
 /** Geometry prototype. Roads, plots and architecture use this ONE camera.
  * World units remain 3D until projection; no image fitting, warp or ground plate. */
+import {ART_FRAME} from './art.mjs'
 export const CAMERA = Object.freeze({ x: [28, 14], y: [-28, 14], z: [0, -28] })
 export const LOT = 12
 export const project = ([x, y, z = 0]) => [(x-y)*28, (x+y)*14-z*28]
@@ -132,7 +133,7 @@ function tree(ctx,x,y,s=1){
  for(let i=0;i<12;i++){const px=(hash(i,x)-.5)*29,py=-16-hash(i,y)*24;ctx.fillStyle=['#5f7139','#788445','#8c9450','#687b3c'][i%4];ctx.beginPath();ctx.ellipse(px,py,10,9,0,0,Math.PI*2);ctx.fill()}
  ctx.restore()
 }
-export function scene(ctx,{width=1100,height=760,building=true,guides=false,grass=true,detail=true}={}){
+export function scene(ctx,{width=1100,height=760,building=true,guides=false,grass=true,detail=true,artwork=null}={}){
  const ratio=Math.min(width/(detail?610:1550),height/(detail?440:940))
  const center=detail?[0,183]:[0,260]
  ctx.clearRect(0,0,width,height);ctx.fillStyle=grass?'#969b60':'#c9b17e';ctx.fillRect(0,0,width,height)
@@ -147,7 +148,10 @@ export function scene(ctx,{width=1100,height=760,building=true,guides=false,gras
   if(i===0||!detail){for(const p of plotPolygon(x+.35,y+.35).map((p,j)=>[p[0]-(j===1||j===2?.7:0),p[1]-(j>1?.7:0)])){const q=project(p);ctx.fillStyle='#98825b';ctx.fillRect(q[0]-1,q[1]-4,2,4)}emptyFlag(ctx,x+6,y+6)}
  }
  for(const [x,y,s] of [[-3,3,1.1],[3,-3,1],[14,11,.9],[11,14,1.05],[-3,10,.8],[10,-3,.85],[-6,-5,1.4],[-9,-4,1.3],[17,-3,1.1]])tree(ctx,x,y,s)
- if(building){
+ if(building&&artwork){
+  // The courtyard is real alpha: the continuous terrain below stays visible.
+  ctx.drawImage(artwork,ART_FRAME.left,ART_FRAME.top,ART_FRAME.width,ART_FRAME.height)
+ }else if(building){
   // Contact shadows are geometry on the shared land, never a filled plot.
   for(const [x,y,w,d] of [[3,3,7.7,2.05],[3,5.05,1.85,4.75],[9.3,9,1.35,1.35]]){
    polygon(ctx,[[x+.12,y+.18],[x+w+.21,y+.18],[x+w+.21,y+d+.28],[x+.12,y+d+.28]].map(barracksPoint),'#373e2c25')
@@ -160,5 +164,5 @@ export function scene(ctx,{width=1100,height=760,building=true,guides=false,gras
   for(let i=1;i<LOT;i++){for(const line of [[[i,0],[i,LOT]],[[0,i],[LOT,i]]]){ctx.beginPath();ctx.moveTo(...project(line[0]));ctx.lineTo(...project(line[1]));ctx.stroke()}}
  }
  ctx.restore()
- return {ratio,camera:CAMERA,plot:plotPolygon(),buildingFaces:building?barracks().length:0}
+ return {ratio,camera:CAMERA,plot:plotPolygon(),buildingFaces:building&&!artwork?barracks().length:0,artFrame:artwork?ART_FRAME:null}
 }
