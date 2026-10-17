@@ -62,3 +62,9 @@ Ana oyun, sürüm numarası, servis çalışanı, HUD, ekonomi, kayıtlar ve ars
 Bu kontroller geometri ve katman davranışını ölçer; estetik kabul anlamına gelmez. Mobil ölçekte native görüntü ayrıca incelendi. Canlı tarayıcı etkileşim kontrolü bu teslimde yapılmadı. Yönetilen ortamda control-browser becerisi bulunmadığı için önizleme sunucusu veya alternatif otomasyon başlatılmadı; genel layout-qa da yeniden çalıştırılmadı. Ana oyunun daha önce kaydedilmiş düzen sonuçları bu prototipe ait sayılmadı.
 
 `pnpm check` geçti: tip kontrolü, 360 test, ESLint ve CSS kontrolleri. V2 ölçütleri ve iki JavaScript sözdizimi kontrolü geçti. Genel layout-qa yukarıda belirtilen nedenle yeniden çalıştırılmadı. Yayın GitHub Pages Deploy işinin başarılı sonucuyla doğrulanır.
+
+## 17 Ekim — arsa doluluğunu artırma
+
+Kullanıcı “biraz daha genişlet arsayı iyice kaplasın yeterli” dedi. Prototipin kışlası bütün dünya koordinatlarında (x,y,z) aynı 1.13 katsayısıyla büyütüldü ve arsanın merkezine alındı. Böylece mimarinin ekrandaki alanı yaklaşık %28 arttı; çatı ve duvar oranları korundu. Kamera/arsa ölçüsü aynı. Temas gölgeleri aynı dönüşümü kullanıyor; zemin yüzeyi eklenmedi. Görünen mimari zarfı arsanın ters izdüşümünde 0.193 ile 11.807 arasında; sınırlar 0 ile 12. Önceki görüntü `mockups/ikariam-study/barracks-before.webp` dosyasında tutuldu.
+
+Native kontrol sekiz durumda yeniden geçti: arsa dışında değişen piksel 0, her durumda 36 açık avlu örneği ortak araziyle aynı. Telefon görüntüsü ve karo kılavuzlu görüntü incelendi. `pnpm check` (360 test, tip, ESLint ve CSS) ve V2 ölçütleri yeniden geçti. Tarayıcı etkileşim kontrolü ve genel layout-qa önceki bölümde belirtilen ortam kısıtı nedeniyle tekrarlanmadı.

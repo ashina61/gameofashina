@@ -7,7 +7,7 @@
       "width": 360,
       "height": 380,
       "grass": true,
-      "changed": 20222,
+      "changed": 25573,
       "outsideChanges": 0,
       "unchangedGroundSamples": 36
     },
@@ -15,7 +15,7 @@
       "width": 360,
       "height": 380,
       "grass": false,
-      "changed": 20211,
+      "changed": 25581,
       "outsideChanges": 0,
       "unchangedGroundSamples": 36
     },
@@ -23,7 +23,7 @@
       "width": 390,
       "height": 380,
       "grass": true,
-      "changed": 23662,
+      "changed": 30112,
       "outsideChanges": 0,
       "unchangedGroundSamples": 36
     },
@@ -31,7 +31,7 @@
       "width": 390,
       "height": 380,
       "grass": false,
-      "changed": 23671,
+      "changed": 30110,
       "outsideChanges": 0,
       "unchangedGroundSamples": 36
     },
@@ -39,7 +39,7 @@
       "width": 430,
       "height": 380,
       "grass": true,
-      "changed": 28549,
+      "changed": 36301,
       "outsideChanges": 0,
       "unchangedGroundSamples": 36
     },
@@ -47,7 +47,7 @@
       "width": 430,
       "height": 380,
       "grass": false,
-      "changed": 28579,
+      "changed": 36426,
       "outsideChanges": 0,
       "unchangedGroundSamples": 36
     },
@@ -55,7 +55,7 @@
       "width": 1100,
       "height": 650,
       "grass": true,
-      "changed": 123434,
+      "changed": 157285,
       "outsideChanges": 0,
       "unchangedGroundSamples": 36
     },
@@ -63,7 +63,7 @@
       "width": 1100,
       "height": 650,
       "grass": false,
-      "changed": 123452,
+      "changed": 157266,
       "outsideChanges": 0,
       "unchangedGroundSamples": 36
     }

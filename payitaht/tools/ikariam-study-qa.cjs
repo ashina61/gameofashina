@@ -5,7 +5,7 @@ const {createCanvas}=require('@napi-rs/canvas')
 const sharp=require('sharp')
 const root=path.resolve(__dirname,'..'),out=path.join(root,'docs/mockups/ikariam-study')
 ;(async()=>{
- const {scene,barracks,project}=await import(pathToFileURL(path.join(root,'public/prototypes/ikariam-study-v1/renderer.mjs')))
+ const {scene,barracks,project,barracksPoint}=await import(pathToFileURL(path.join(root,'public/prototypes/ikariam-study-v1/renderer.mjs')))
  fs.mkdirSync(out,{recursive:true})
  const faces=barracks(),points=faces.flatMap(f=>f.points)
  // Inverse of the camera applied to elevated geometry: z consumes real room.
@@ -26,7 +26,7 @@ const root=path.resolve(__dirname,'..'),out=path.join(root,'docs/mockups/ikariam
   assert.ok(changed>1000);assert.equal(outsideChanges,0,'Architecture or shadow changed surrounding roads')
   let groundSamples=0
   for(const [wx,wy] of [[6.4,7.5],[6.4,8],[6.9,8],[6.9,8.5]]){
-   const [px,py]=project([wx,wy]),x=Math.round(width/2+px*b.layout.ratio),y=Math.round(height/2+(py-183)*b.layout.ratio)
+   const [px,py]=project(barracksPoint([wx,wy])),x=Math.round(width/2+px*b.layout.ratio),y=Math.round(height/2+(py-183)*b.layout.ratio)
    for(let dy=-1;dy<=1;dy++)for(let dx=-1;dx<=1;dx++){
     const i=((y+dy)*width+x+dx)*4
     assert.deepEqual([...a.data.slice(i,i+4)],[...b.data.slice(i,i+4)],'Courtyard painted over shared land');groundSamples++

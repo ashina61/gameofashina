@@ -11,7 +11,7 @@
 <div class="notes"><article><span>01</span><b>Tek kamera</b><p>Yol, karo, duvar ve çatı aynı koordinatlardan çizilir. Bina sonradan esnetilmez.</p></article><article><span>02</span><b>Ortak arazi</b><p>Binanın zemin plakası yok. Zemini değiştir; açık avlunun da birlikte değiştiğini gör.</p></article><article><span>03</span><b>Okunur silüet</b><p>L koğuşu, askerî sancak, nöbet kulesi ve talim hedefleri kışlanın işlevini gösterir.</p></article></div>
 <footer>Bu, yeni kamera ve yerleşim için geometrik bir taslak; son boyalı oyun çizimi değildir. Ana oyun sahnesi ve kayıtlar bu prototipten etkilenmez. <a href="https://gameforge.com/en-GB/play/ikariam" target="_blank" rel="noopener">İncelenen Ikariam görselleri ↗</a></footer></main>
 <script type="module">
-import {scene} from './prototypes/ikariam-study-v1/renderer.mjs';
+import {scene} from './prototypes/ikariam-study-v1/renderer.mjs?v=2';
 const canvas=document.querySelector('canvas'),ctx=canvas.getContext('2d');
 const state={building:true,guides:false,grass:true,detail:true};
 function render(){const r=canvas.getBoundingClientRect(),dpr=Math.min(devicePixelRatio||1,2);canvas.width=Math.round(r.width*dpr);canvas.height=Math.round(r.height*dpr);ctx.setTransform(dpr,0,0,dpr,0,0);scene(ctx,{...state,width:r.width,height:r.height});for(const [id,value] of [['empty',!state.building],['built',state.building],['guides',state.guides],['earth',!state.grass],['wide',!state.detail]])document.getElementById(id).setAttribute('aria-pressed',String(value));document.getElementById('caption').textContent=state.building?'Kışlanın avlusunda şehrin kendi '+(state.grass?'çayır':'toprak')+' zemini görünüyor.':'Aynı arsa ve aynı zemin; yalnız mimari kaldırıldı.'}

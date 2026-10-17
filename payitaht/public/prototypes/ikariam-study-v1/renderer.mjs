@@ -3,6 +3,9 @@
 export const CAMERA = Object.freeze({ x: [28, 14], y: [-28, 14], z: [0, -28] })
 export const LOT = 12
 export const project = ([x, y, z = 0]) => [(x-y)*28, (x+y)*14-z*28]
+// Enlarge the complete 3D model uniformly; keep the plot and camera unchanged.
+export const BARRACKS_SCALE = 1.13
+export const barracksPoint = ([x,y,z=0]) => [6+(x-5.794)*BARRACKS_SCALE,6+(y-5.794)*BARRACKS_SCALE,z*BARRACKS_SCALE]
 const palette={stone:['#e5d1a3','#dbc397','#d5bc8d','#cfb689','#e0c99d'],roof:['#aa4c31','#b95636','#c1643e','#b75032','#bd5a39']}
 const hash=(x,y)=>{const a=Math.sin(x*127.1+y*311.7)*43758.5453;return a-Math.floor(a)}
 const tone=(c,f)=>'#'+c.slice(1).match(/../g).map(h=>Math.max(0,Math.min(255,Math.round(parseInt(h,16)*f))).toString(16).padStart(2,'0')).join('')
@@ -96,7 +99,7 @@ export function barracks(){
  banner(7.0,5.06,1.27,.48,.86)
  // Explicit painter layers for these non-intersecting building masses.
  // Whole roof surfaces follow their walls, avoiding centroid-sort artifacts.
- return faces.sort((a,b)=>a.layer-b.layer||a.order-b.order)
+ return faces.sort((a,b)=>a.layer-b.layer||a.order-b.order).map(f=>({...f,points:f.points.map(barracksPoint)}))
 }
 
 function polygon(ctx,points,color,stroke){ctx.beginPath();points.forEach((p,i)=>{const q=project(p);i?ctx.lineTo(...q):ctx.moveTo(...q)});ctx.closePath();ctx.fillStyle=color;ctx.fill();if(stroke){ctx.strokeStyle=stroke;ctx.lineWidth=.5;ctx.stroke()}}
@@ -147,7 +150,7 @@ export function scene(ctx,{width=1100,height=760,building=true,guides=false,gras
  if(building){
   // Contact shadows are geometry on the shared land, never a filled plot.
   for(const [x,y,w,d] of [[3,3,7.7,2.05],[3,5.05,1.85,4.75],[9.3,9,1.35,1.35]]){
-   polygon(ctx,[[x+.12,y+.18],[x+w+.21,y+.18],[x+w+.21,y+d+.28],[x+.12,y+d+.28]],'#373e2c25')
+   polygon(ctx,[[x+.12,y+.18],[x+w+.21,y+.18],[x+w+.21,y+d+.28],[x+.12,y+d+.28]].map(barracksPoint),'#373e2c25')
   }
   drawArchitecture(ctx)
  }
