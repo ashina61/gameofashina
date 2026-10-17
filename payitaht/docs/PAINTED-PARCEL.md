@@ -47,3 +47,7 @@ Boş arsa/Kışla, Toprak zemin, Karo çizgileri, Çevreyi gör ve İlk görün�
 `mockups/painted-parcel/live-*.jpg` gerçek canlı sayfa ekran görüntüleridir; ImageGen kompozisyonu veya native render değildir. `live-qa.json` DOM ölçümlerini ve denenen kontrolleri saklar.
 
 ![Gerçek canlı sahne](mockups/painted-parcel/live-final.jpg)
+
+## Kullanıcı genel standart onayı — 17 Ekim 16:37
+
+Kullanıcı: “mantık böyle çalışacak her bina ayırt edici şekilde böyle çizilecek”. Bu çalışan kışla; ortak kamera, arsa uyumu, zeminsiz alfa katmanı ve işlevden tanınan mimari için genel referans kabul edildi. Bütün türlere aynı plan ve silüet kopyalanmaz. Güncel kesin kurallar `BUILDING-PLACEMENT-RULES.md` başındadır. Diğer bina türleri veya ana şehir aktarımı bu onayla yapılmış sayılmaz.
