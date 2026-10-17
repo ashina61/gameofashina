@@ -37,3 +37,13 @@ Native görüntüler `docs/mockups/painted-parcel/` altında bulunur. Bunlar tar
 ![Çalışan renderer'ın boyalı kışlası](mockups/painted-parcel/barracks.webp)
 
 ![Aynı bina ve ortak toprak zemini](mockups/painted-parcel/earth.webp)
+
+## Canlı doğrulama
+
+GitHub Pages Deploy **39036734821** başarılı; uygulama commit'i `27ec91fbd7bab5458424baa2830afcf15062e601`. Canlı URL `https://ashina61.github.io/gameofashina/ikariam-study.html` tarayıcıda açıldı; `parcel-v1` varlığı yüklenmiş olarak doğrulandı.
+
+Boş arsa/Kışla, Toprak zemin, Karo çizgileri, Çevreyi gör ve İlk görünüme dön gerçek UI üzerinden tıklandı. Ortak zemin avludan görünür; bina kaldırılınca aynı arsa kalır. Son durum kışla + çayır + yakın görünüm. DOM ölçümünde yatay taşma yok, altı düğmenin tamamı en az 44×44 CSS piksel, uygulama kaynaklı konsol hatası yok. Tarayıcı uzantısının kendi metadata hataları uygulama hatası sayılmadı. Bu kontrol ana oyunun bütün ekranlarının layout taraması değildir.
+
+`mockups/painted-parcel/live-*.jpg` gerçek canlı sayfa ekran görüntüleridir; ImageGen kompozisyonu veya native render değildir. `live-qa.json` DOM ölçümlerini ve denenen kontrolleri saklar.
+
+![Gerçek canlı sahne](mockups/painted-parcel/live-final.jpg)

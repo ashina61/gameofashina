@@ -1,0 +1,62 @@
+{
+  "url": "https://ashina61.github.io/gameofashina/ikariam-study.html",
+  "art": "parcel-v1",
+  "buttons": [
+    {
+      "disabled": false,
+      "height": 44,
+      "label": "Boş arsa",
+      "pressed": "false",
+      "width": 92.125
+    },
+    {
+      "disabled": false,
+      "height": 44,
+      "label": "Kışla",
+      "pressed": "true",
+      "width": 64.640625
+    },
+    {
+      "disabled": false,
+      "height": 44,
+      "label": "Karo çizgileri",
+      "pressed": "false",
+      "width": 122.1875
+    },
+    {
+      "disabled": false,
+      "height": 44,
+      "label": "Toprak zemin",
+      "pressed": "false",
+      "width": 126.5
+    },
+    {
+      "disabled": false,
+      "height": 44,
+      "label": "Çevreyi gör",
+      "pressed": "false",
+      "width": 111.234375
+    },
+    {
+      "disabled": false,
+      "height": 44,
+      "label": "İlk görünüme dön",
+      "pressed": null,
+      "width": 159.140625
+    }
+  ],
+  "overflow": false,
+  "viewport": {
+    "height": 936,
+    "width": 1348
+  },
+  "applicationErrors": [],
+  "verifiedControls": [
+    "Boş arsa",
+    "Kışla",
+    "Toprak zemin",
+    "Karo çizgileri",
+    "Çevreyi gör",
+    "İlk görünüme dön"
+  ]
+}
