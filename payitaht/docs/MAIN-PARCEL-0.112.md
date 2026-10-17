@@ -19,3 +19,11 @@ Seçim, inşaat ve süre, taşıma, yön, kuşatma görünümü, liman odağı, 
 - Tam kontrol ve canlı tarayıcı sonuçları yayın doğrulamasından sonra aşağıya yazılır. `layout-qa.cjs` doğrudan Playwright kullandığından bu oturumdaki yalnız CUA tarayıcı kuralıyla çalıştırılamaz; mevcut HUD ve gerçek ana sahne CUA ile denetlenir.
 
 Yayın öncesi: `pnpm check` geçti (363/363, tip, ESLint, CSS). `v2-criteria.cjs`, yarım boy varlık kontrolü ve Pages static export derlemesi geçti.
+
+## Canlı ana oyun doğrulaması
+
+Deploy workflow `39043936319`: build ve deploy başarılı. Yayın commit'i `16ab1f4aece5d08e72555e18be0110fbd1dccd74`. Gerçek ana URL https://ashina61.github.io/gameofashina/ ; başlık sürümü 0.112.0, ana sahne DOM işareti `parcel-v1`.
+
+CUA ile eski 0.111.3 sürümünde normal oyundan Divanhane 2 ve Kışla 1 kuruldu. Yayın sonrası aynı kayıttan devam edildi; bu seviyeler ve mevcut diğer dört yapı korundu. Görünen kışlanın avlusuna dokunmak Kışla detayını açtı. Yapıyı yönet → Gelişim → Yapı işlemleri → Başka arsaya taşı ile boş kara arsası seçildi, önizlemede bina aynı açı/ölçekle yeni poligona geçti. Onayla sonrası “Bina yeni yerine taşındı.” görüldü. Yenile → Devam et sonrasında bina yeni arsasında kaldı. Kamera sürükleme ve Belediyeye dön denendi. Oturum 1363×936 ve 500×862 dar görünümde incelendi; bunlar gerçek cihaz performans testi değildir.
+
+Son gerçek ana oyun görüntüsü: `docs/mockups/main-parcel/live-main-0.112.jpg`. Bu native kompozisyon veya prototip sayfası değildir. Diğer türlerin çizim/zeminleri henüz yeni standarda dönüştürülmedi. Liman/kuşatma görünümü bu sürümde kod ve geometri düzeyinde bağlandı; bütün savaş durumları canlı UI'de tekrar oynanmadı.
