@@ -113,7 +113,7 @@ function ground(ctx,grass){
  // One continuous land texture underneath roads and architecture.
  for(let x=-27;x<40;x+=.31)for(let y=-27;y<38;y+=.4){const h=hash(x,y);if(h<.58)continue;const q=project([x,y]);ctx.fillStyle=grass?(h>.9?'#c0bb7d72':'#626f3930'):(h>.9?'#ead5a479':'#a28c5924');ctx.fillRect(q[0],q[1],1+h*3,.6+h)}
 }
-function road(ctx,x,y,w,d){
+export function road(ctx,x,y,w,d){
  polygon(ctx,[[x-.1,y-.1],[x+w+.1,y-.1],[x+w+.1,y+d+.1],[x-.1,y+d+.1]],'#a49d7e')
  polygon(ctx,[[x,y],[x+w,y],[x+w,y+d],[x,y+d]],'#d4cbb0')
  for(let row=0;row<d/.45;row++)for(let col=0;col<w/.75;col++){
@@ -126,7 +126,7 @@ function emptyFlag(ctx,x,y){
  ctx.strokeStyle='#655a36';ctx.lineWidth=1.7;ctx.beginPath();ctx.moveTo(0,0);ctx.lineTo(0,-27);ctx.stroke()
  ctx.fillStyle='#9c3a34';ctx.beginPath();ctx.moveTo(1,-27);ctx.lineTo(18,-23);ctx.lineTo(1,-17);ctx.fill();ctx.restore()
 }
-function tree(ctx,x,y,s=1){
+export function tree(ctx,x,y,s=1){
  const [a,b]=project([x,y]);ctx.save();ctx.translate(a,b);ctx.scale(s,s)
  ctx.fillStyle='#41512b30';ctx.beginPath();ctx.ellipse(9,3,20,7,-.2,0,Math.PI*2);ctx.fill()
  ctx.fillStyle='#756044';ctx.fillRect(-2,-26,4,28)

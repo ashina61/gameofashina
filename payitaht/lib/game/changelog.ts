@@ -5,6 +5,7 @@
 export type Release = { version: string; date: string; title: string; notes: string[] }
 
 export const CHANGELOG: Release[] = [
+  { version: '0.112.0', date: '17 Ekim 2026', title: 'Ortak kamera ve zeminsiz kışla ana şehirde', notes: ['Onaylı çapraz arsa sistemi ana oyuna aktarıldı; yollar, boş arsalar ve bina yerleşimi aynı 2:1 kamerayı kullanır.', 'Yeni kışla gerçek saydam avlusuyla doğrudan şehir zeminine oturur; esnetme ve ayrı zemin plakası kullanılmaz.', 'Kayıtlı bina ve arsa kimlikleri korunur. Diğer yapı türleri mevcut izometrik çizimleriyle yer alır; yeni tasarımları sırayla hazırlanacak.'] },
   { version: '0.111.3', date: '16 Ekim 2026', title: 'Zeminsiz kışla, dört kenardan karo hizası', notes: ['Kışlanın dış taş kaidesi ve yatay döşeme parçaları kaldırıldı; avlu şehrin mevcut zeminini gösterir.', 'Kışla artık küçültülüp ortalanmak yerine kaynak çizimin dört kenarıyla doğrudan karonun dört kenarına eşlenir.'] },
   { version: '0.111.2', date: '16 Ekim 2026', title: 'Kışlada şehir zeminine göre üstten bakış', notes: ['Kışla daha yukarıdan görünen çatılar, alçak ön duvar ve açık eğitim avlusuyla yeniden çizildi.', 'Avlu ve dış alan şeffaf kalır; şehrin mevcut toprağı ve yolları kullanılır. Diğer dört zeminsiz yapı korunur.'] },
   { version: '0.111.1', date: '16 Ekim 2026', title: 'Binalar şehrin kendi zemininde', notes: ['Kışla, medrese, depo, çarşı ve hamam görsellerinin içindeki avlu toprağı ve döşeme kaldırıldı; açık alanlar gerçek şeffaflıkla mevcut şehir zeminini gösterir.', 'Binaların altına eklenen ayrı arsa dolgusu kaldırıldı.'] },
