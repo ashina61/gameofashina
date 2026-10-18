@@ -11,13 +11,12 @@ test('main parcel projection preserves all saved IDs, zones and fixed hall',()=>
   for(const p of PARCEL_PLOTS){
     assert.equal(p.slot,LIVE_SLOTS[p.index]);assert.equal(p.slot.fixed,p.index===0)
     assert.ok(p.polygon.every(q=>q.x>=0&&q.y>=0&&q.x<=PARCEL_WORLD.w&&q.y<=PARCEL_WORLD.h))
-    if(p.slot.zone==='sehir'){
-      const c=parcelInverse(p.center);assert.deepEqual(parcelProject(c.u,c.v),p.center)
-      for(const q of p.polygon){const {u,v}=parcelInverse(q);for(const road of [0,6,12,18,24,30])assert.ok(Math.abs(u-road)>.65&&Math.abs(v-road)>.65)}
-    }
+    const c=parcelInverse(p.center);assert.deepEqual(parcelProject(c.u,c.v),p.center)
+    assert.equal(p.width,p.index===0?448:256);assert.equal(p.height,p.width/2)
+    for(const q of PARCEL_PLOTS)if(q.index!==p.index)assert.ok(Math.abs(q.center.x-p.center.x)+2*Math.abs(q.center.y-p.center.y)>=(p.width+q.width)/2,`${p.index}/${q.index} overlap`)
   }
-  assert.equal(PARCEL_PLOTS[0].row,2);assert.equal(PARCEL_PLOTS[0].col,2)
-  assert.ok(Math.hypot(PARCEL_PLOTS[1].center.x-PARCEL_PLOTS[0].center.x,PARCEL_PLOTS[1].center.y-PARCEL_PLOTS[0].center.y)<450)
+  assert.deepEqual(PARCEL_PLOTS[0].center,{x:1622,y:768})
+  assert.ok(Math.hypot(PARCEL_PLOTS[1].center.x-PARCEL_PLOTS[0].center.x,PARCEL_PLOTS[1].center.y-PARCEL_PLOTS[0].center.y)<550)
 })
 
 test('all existing building stages and both directions fit every matching parcel without image warp',async()=>{
