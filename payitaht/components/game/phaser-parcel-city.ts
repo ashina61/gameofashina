@@ -54,7 +54,7 @@ export class ParcelCityScene extends CityScene {
   }
   worldRect(){return PARCEL_WORLD}
   townRect(){return {x:300,y:250,w:2600,h:1350}}
-  townZoom(){return this.scale.width/1050}
+  townZoom(){return this.scale.width/1800}
   centerInBand(x:number,y:number){
     const canvas=this.game.canvas.getBoundingClientRect(),top=document.querySelector('.ika-top')?.getBoundingClientRect(),nav=document.querySelector('.ika-nav')?.getBoundingClientRect()
     const scale=this.scale.height/Math.max(1,canvas.height)
@@ -65,7 +65,10 @@ export class ParcelCityScene extends CityScene {
   }
   setCityView(){
     this.cameras.main.setZoom(Phaser.Math.Clamp(this.cityZoom,this.minZoom,this.maxZoom))
-    this.centerInBand(PARCEL_PLOTS[0].center.x,PARCEL_PLOTS[0].center.y+10);this.velocity={x:0,y:0}
+    const p=PARCEL_PLOTS[0],key=buildingArtKey('divan',this.state.buildings.divan),source=this.textures.get(key).getSourceImage() as HTMLImageElement
+    const outline=cityArtOutline('divan',this.state.buildings.divan,cityArtSize())
+    const frame=outline?parcelArtFrame(p,source.width,source.height,outline):null
+    this.centerInBand(frame?.x??p.center.x,frame?.y??p.center.y);this.velocity={x:0,y:0}
   }
   setOverview(){this.cameras.main.setZoom(this.minZoom);this.centerInBand(PARCEL_WORLD.w/2,PARCEL_WORLD.h/2);this.velocity={x:0,y:0}}
   focusHarbour(){

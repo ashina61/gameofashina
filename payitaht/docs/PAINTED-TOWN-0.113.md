@@ -1,4 +1,4 @@
-# Doğal kıyı şehri — 0.113.0 / SW137
+# Doğal kıyı şehri — 0.113.0 / SW138
 
 Son onaylı doğal şehir resmi ana `ParcelCityScene` arka planıdır. Önceki düzenli 5×5 yol ağı kaldırıldı. 1586×992 resim tek ölçekte 3172×1984 dünyaya açılır; 24 normal kara arsası resimden ölçülmüş merkezlerde 256×128 eşit geometri kullanır. Sabit belediye merkezdeki kamusal açıklıkta 448×224 alandadır. İki ana kumsal liman noktası, kayalık kıyıda mevcut üçüncü motor noktası ve ayrı korsan adası korunur. 29 kimlik/bölge ve kayıt formatı değişmez.
 
