@@ -55,9 +55,17 @@ export class ParcelCityScene extends CityScene {
   worldRect(){return PARCEL_WORLD}
   townRect(){return {x:300,y:250,w:2600,h:1350}}
   townZoom(){return this.scale.width/1050}
+  centerInBand(x:number,y:number){
+    const canvas=this.game.canvas.getBoundingClientRect(),top=document.querySelector('.ika-top')?.getBoundingClientRect(),nav=document.querySelector('.ika-nav')?.getBoundingClientRect()
+    const scale=this.scale.height/Math.max(1,canvas.height)
+    const start=Math.max(0,(top?top.bottom-canvas.top:canvas.height*.13)*scale)
+    const end=Math.min(this.scale.height,(nav?nav.top-canvas.top:canvas.height*.85)*scale)
+    const mid=end>start?(start+end)/2:this.scale.height/2
+    this.cameras.main.centerOn(x,y-(mid-this.scale.height/2)/this.cameras.main.zoom)
+  }
   setCityView(){
     this.cameras.main.setZoom(Phaser.Math.Clamp(this.cityZoom,this.minZoom,this.maxZoom))
-    this.centerInBand(PARCEL_PLOTS[0].center.x,PARCEL_PLOTS[0].center.y+180);this.velocity={x:0,y:0}
+    this.centerInBand(PARCEL_PLOTS[0].center.x,PARCEL_PLOTS[0].center.y+10);this.velocity={x:0,y:0}
   }
   setOverview(){this.cameras.main.setZoom(this.minZoom);this.centerInBand(PARCEL_WORLD.w/2,PARCEL_WORLD.h/2);this.velocity={x:0,y:0}}
   focusHarbour(){
