@@ -222,7 +222,7 @@ export class ParcelCityScene extends CityScene {
       if(!this.built)return
       document.documentElement.dataset.cityReady=String(++this.readyCount)
       document.documentElement.dataset.cityLayer='painted-town-v1'
-      if(localStorage.getItem('payitaht-qa')==='1')document.documentElement.dataset.parcelReview=JSON.stringify(this.pieces.filter(p=>p.getData('parcelBuilding')).map(p=>({id:p.getData('parcelBuilding'),index:p.getData('parcelIndex'),outline:p.getData('parcelOutline')})))
+      if(localStorage.getItem('payitaht-qa')==='1')document.documentElement.dataset.parcelReview=JSON.stringify(this.pieces.filter(p=>p.getData('parcelBuilding')).map(p=>({id:p.getData('parcelBuilding'),index:p.getData('parcelIndex'),outline:p.getData('parcelOutline'),boundary:PARCEL_PLOTS[p.getData('parcelIndex')].polygon})))
     })
   }
 }

@@ -12,8 +12,16 @@ test('main parcel projection preserves all saved IDs, zones and fixed hall',()=>
     assert.equal(p.slot,LIVE_SLOTS[p.index]);assert.equal(p.slot.fixed,p.index===0)
     assert.ok(p.polygon.every(q=>q.x>=0&&q.y>=0&&q.x<=PARCEL_WORLD.w&&q.y<=PARCEL_WORLD.h))
     const c=parcelInverse(p.center);assert.deepEqual(parcelProject(c.u,c.v),p.center)
-    assert.equal(p.width,p.index===0?448:256);assert.equal(p.height,p.width/2)
-    for(const q of PARCEL_PLOTS)if(q.index!==p.index)assert.ok(Math.abs(q.center.x-p.center.x)+2*Math.abs(q.center.y-p.center.y)>=(p.width+q.width)/2,`${p.index}/${q.index} overlap`)
+    assert.equal(p.width,p.index===0?448:p.index<25?320:256);assert.equal(p.height,p.width/2)
+    for(const q of PARCEL_PLOTS)if(q.index!==p.index){
+      // Separating-axis test checks actual polygons, including diamond/oval pairs.
+      const separated=[p,q].some(shape=>shape.polygon.some((a,i)=>{
+        const b=shape.polygon[(i+1)%shape.polygon.length],nx=b.y-a.y,ny=a.x-b.x
+        const pa=p.polygon.map(v=>v.x*nx+v.y*ny),qa=q.polygon.map(v=>v.x*nx+v.y*ny)
+        return Math.max(...pa)<=Math.min(...qa)||Math.max(...qa)<=Math.min(...pa)
+      }))
+      assert.ok(separated,`${p.index}/${q.index} overlap`)
+    }
   }
   assert.deepEqual(PARCEL_PLOTS[0].center,{x:1622,y:768})
   assert.ok(Math.hypot(PARCEL_PLOTS[1].center.x-PARCEL_PLOTS[0].center.x,PARCEL_PLOTS[1].center.y-PARCEL_PLOTS[0].center.y)<550)
@@ -78,4 +86,24 @@ test('every new groundless building has real alpha and fits matching parcels in 
       assert.ok(edge.every(q=>parcelContainsPoint(p,{x:f.left+(flip?1-q.x:q.x)*f.width,y:f.top+q.y*f.height})),`${id}/${facing}/${size}/${p.index}/${flip}: alpha outside parcel`)
     }
   }
+})
+
+// Painted road/bridge centres measured independently from the walker routes.
+// A 12-world-pixel clear radius must remain outside both art and tap boundaries.
+test('road and bridge approaches stay outside expanded land parcels',()=>{
+  const road=[[955,351],[685,340],[736,535],[1153,425],[465,516],[1124,536],[520,649],[1383,439],[1265,708]]
+  for(const [x,y] of road)for(const p of PARCEL_PLOTS.slice(1,25)){
+    assert.ok(!parcelContainsPoint(p,{x:x*2,y:y*2},-12),`${p.index}: road ${x}/${y}`)
+  }
+})
+
+test('empty clearing hit boundary includes its shoulders and excludes rectangular corners',()=>{
+  const p=PARCEL_PLOTS[1]
+  assert.ok(parcelContainsPoint(p,{x:p.center.x+130,y:p.center.y+20}))
+  assert.ok(!parcelContainsPoint(p,{x:p.center.x+145,y:p.center.y+70}))
+  const outline=cityArtOutline('medrese',1,'sm')!
+  const f=parcelArtFrame(p,480,300,outline)
+  const xs=f.polygon.map(q=>q.x),ys=f.polygon.map(q=>q.y)
+  assert.ok(Math.abs((Math.min(...xs)+Math.max(...xs))/2-p.center.x)<1e-8)
+  assert.ok(Math.abs((Math.min(...ys)+Math.max(...ys))/2-p.center.y)<1e-8)
 })

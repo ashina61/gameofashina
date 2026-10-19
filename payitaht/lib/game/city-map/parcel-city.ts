@@ -11,9 +11,15 @@ export function parcelInverse(p:ParcelPoint){const x=(p.x-1622)/64,y=(p.y-768)/3
 const clearings=[[583,175],[811,175],[1027,175],[359,245],[1251,245],[685,287],[955,302],[242,363],[500,352],[1166,373],[1383,390],[465,464],[278,519],[653,525],[955,546],[1160,487],[1380,546],[260,631],[465,600],[575,686],[788,625],[1003,646],[1227,646],[1381,692]]
 // Keep engine identity/order; put early unlocks closest to the fixed civic centre.
 const ordered=clearings.toSorted((a,b)=>Math.hypot(a[0]-811,(a[1]-384)*1.5)-Math.hypot(b[0]-811,(b[1]-384)*1.5))
+// Small visual corrections measured on the painted clearings, after saved slot ordering.
+const clearingOffsets:Record<number,ParcelPoint>={1:{x:0,y:-4},2:{x:0,y:-4},7:{x:0,y:-6},17:{x:0,y:8},20:{x:0,y:-6},21:{x:12,y:0}}
 function plot(index:number,source:number[]){
- const center={x:source[0]*2,y:source[1]*2},width=index===0?448:256,height=width/2
- const polygon=[{x:center.x,y:center.y-height/2},{x:center.x+width/2,y:center.y},{x:center.x,y:center.y+height/2},{x:center.x-width/2,y:center.y}]
+ const land=index>0&&index<25,offset=clearingOffsets[index]??{x:0,y:0}
+ const center={x:source[0]*2+offset.x,y:source[1]*2+offset.y},width=index===0?448:land?320:256,height=width/2
+ // The painting has rounded 2:1 clearings, rather than tiny inscribed diamonds.
+ // One convex boundary is used for architecture, empty flags, selection and taps.
+ const polygon=land?Array.from({length:8},(_,i)=>({x:center.x+Math.sin(i*Math.PI/4)*width/2,y:center.y-Math.cos(i*Math.PI/4)*height/2})):
+  [{x:center.x,y:center.y-height/2},{x:center.x+width/2,y:center.y},{x:center.x,y:center.y+height/2},{x:center.x-width/2,y:center.y}]
  return {index,slot:LIVE_SLOTS[index],center,width,height,polygon}
 }
 export const PARCEL_PLOTS=[[811,384],...ordered,[475,775],[1206,775],[730,745],[1425,898]].map((p,i)=>plot(i,p))
@@ -26,7 +32,12 @@ export const CITY_ROADS=[
 ].map(line=>line.map(([x,y])=>({x:x*2,y:y*2})))
 export type CityParcel=typeof PARCEL_PLOTS[number]
 export const parcelPlot=(index:number|null|undefined)=>index==null?undefined:PARCEL_PLOTS[index]
-export function parcelContainsPoint(p:CityParcel,q:ParcelPoint,margin=0){return Math.abs(q.x-p.center.x)+2*Math.abs(q.y-p.center.y)<=p.width/2-margin+1e-6}
+export function parcelContainsPoint(p:CityParcel,q:ParcelPoint,margin=0){
+ return p.polygon.every((a,i)=>{
+  const b=p.polygon[(i+1)%p.polygon.length],dx=b.x-a.x,dy=b.y-a.y
+  return dx*(q.y-a.y)-dy*(q.x-a.x)>=margin*Math.hypot(dx,dy)-1e-6
+ })
+}
 /** Reviewed groundless architecture; no terrain patch is drawn beneath it. */
 export const PARCEL_REPAINTED_BUILDINGS = ['saray','elcilik','konut','hamam','carsi','ambar','kereste','medrese','liman','tersane','kahvehane','cami','muze','marangoz','mimar','ormanci','tasci','tophane','bagci','simyahane','camci','mahzen','gozlukcu','barutane','depo','ticaret_merkezi','harita_arsivi','valilik','korsan_kalesi','kara_pazar','siginak','tekke','mabet','karagoz'] as const
 const repainted=new Set<string>(PARCEL_REPAINTED_BUILDINGS)
@@ -46,6 +57,21 @@ export function cityArtOutline(id:string,level:number,size:ArtSize){
 /** One scale and translation in the fixed camera. No warp, crop or ground. */
 export function parcelArtFrame(p:CityParcel,width:number,height:number,outline:ParcelPoint[],flip=false){
  const points=outline.map(q=>({x:(flip?1-q.x:q.x)*width,y:q.y*height}))
+ if(p.polygon.length===8){
+  // Centre the visible alpha, not its transparent canvas. Edge support gives the
+  // largest uniform scale at that centre, keeping roofs and shadows inside.
+  const cx=(Math.min(...points.map(q=>q.x))+Math.max(...points.map(q=>q.x)))/2
+  const cy=(Math.min(...points.map(q=>q.y))+Math.max(...points.map(q=>q.y)))/2
+  const inset=3.2
+  const scale=Math.min(...p.polygon.map((a,i)=>{
+   const b=p.polygon[(i+1)%p.polygon.length],nx=b.y-a.y,ny=a.x-b.x
+   const support=Math.max(...points.map(q=>nx*(q.x-cx)+ny*(q.y-cy)))
+   return (nx*(a.x-p.center.x)+ny*(a.y-p.center.y)-inset*Math.hypot(nx,ny))/support
+  }))
+  const left=p.center.x-cx*scale,top=p.center.y-cy*scale
+  return {left,top,x:left+width*scale/2,y:top+height*scale/2,width:width*scale,height:height*scale,
+   polygon:points.map(q=>({x:left+q.x*scale,y:top+q.y*scale}))}
+ }
  const m=points.map(q=>q.x+2*q.y),n=points.map(q=>2*q.y-q.x)
  const m0=Math.min(...m),n0=Math.min(...n),inset=p.width*.01
  const scale=(p.width-2*inset)/Math.max(Math.max(...m)-m0,Math.max(...n)-n0)

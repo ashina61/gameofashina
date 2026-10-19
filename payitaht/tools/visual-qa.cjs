@@ -31,6 +31,7 @@ async function main() {
     })
     // Yeni oyunun ilk açılış rehberi QA tıklamalarını örtmesin.
     await skipGuide(context)
+    await context.addInitScript(() => localStorage.setItem('payitaht-qa', '1'))
     const page = await context.newPage()
     const buildingStageLoads = new Set()
     page.on('pageerror', error => diagnostics.pageErrors.push(`${label}: ${error.message}`))
@@ -198,6 +199,22 @@ async function main() {
     if (seeded.liman !== coastLevel || seeded.tersane !== coastLevel || seeded.pLiman !== 25 || seeded.pTersane !== 26 || seeded.limanFacing !== coastFacing || seeded.tersaneFacing !== coastFacing) {
       throw new Error(`${label}: coast QA seed did not survive reload: ${JSON.stringify(seeded)}`)
     }
+
+    // Check the actual renderer's placed alpha against its shared empty/tap parcel.
+    const parcelFit = await page.evaluate(() => {
+      const placed = JSON.parse(document.documentElement.dataset.parcelReview || '[]')
+      const failures = []
+      for (const p of placed) {
+        if (!p.boundary?.length || !p.outline?.length) { failures.push(p.id + ': missing contour'); continue }
+        for (const q of p.outline) if (!p.boundary.every((a, i) => {
+          const b = p.boundary[(i + 1) % p.boundary.length]
+          return (b.x - a.x) * (q.y - a.y) - (b.y - a.y) * (q.x - a.x) >= -0.001
+        })) { failures.push(p.id + ': outside parcel'); break }
+      }
+      return { count: placed.length, failures }
+    })
+    diagnostics.metrics[label].parcelFit = parcelFit
+    if (parcelFit.count < 20 || parcelFit.failures.length) throw new Error(`${label}: rendered parcel fit ${JSON.stringify(parcelFit)}`)
 
     // Coast regression guard: seeded buildings must actually request their current
     // groundless art after reload. Saved levels are checked separately above. This catches stale asset revisions / wrong generator output
