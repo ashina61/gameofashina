@@ -40,7 +40,7 @@ async function main() {
         diagnostics.missingGameAssets.push(`${label}: ${response.status()} ${url}`)
       }
       // Telefon boyu kopya (-sm, V2 Faz 6.1) aynı aşama sayılır.
-      if (/\/images\/game\/buildings\/[a-z0-9_-]+-[123](?:-sm)?\.webp(?:\?|$)/.test(url)) {
+      if (/\/images\/game\/buildings\/[a-z0-9_-]+-[123](?:-sm)?\.webp(?:\?|$)/.test(url) || /\/images\/game\/buildings\/(?:parcel-v[12]|painted-town-v1)\/[a-z0-9_-]+(?:-sm)?\.webp(?:\?|$)/.test(url)) {
         buildingStageLoads.add(url.split('?')[0].replace(/-sm\.webp$/, '.webp'))
       }
     })
@@ -154,7 +154,7 @@ async function main() {
           game.buildings[id] = 0
           game.placement[id] = null
         }
-        for (const [id, slot] of [['valilik', 1], ['kara_pazar', 3], ['siginak', 5], ['tekke', 13], ['mabet', 14], ['karagoz', 15], ['korsan_kalesi', 27]]) {
+        for (const [id, slot] of [['valilik', 1], ['kara_pazar', 3], ['siginak', 5], ['tekke', 13], ['mabet', 14], ['karagoz', 15], ['korsan_kalesi', 28]]) {
           game.buildings[id] = 8
           game.placement[id] = slot
         }
@@ -199,34 +199,33 @@ async function main() {
       throw new Error(`${label}: coast QA seed did not survive reload: ${JSON.stringify(seeded)}`)
     }
 
-    // Coast regression guard: seeded buildings must actually request their staged
-    // art after reload. This catches stale asset revisions / wrong generator output
+    // Coast regression guard: seeded buildings must actually request their current
+    // groundless art after reload. Saved levels are checked separately above. This catches stale asset revisions / wrong generator output
     // even if the save shape itself is valid.
     const loadedNames = [...buildingStageLoads].map(url => url.split('/').pop())
     const coastVariant = coastFacing === 'straight' ? '-duz' : ''
-    const coastStage = width === 430 ? 3 : width === 412 ? 2 : 1
-    for (const expected of [`liman${coastVariant}-painted-${coastStage}.webp`, `tersane${coastVariant}-painted-${coastStage}.webp`]) {
+    for (const expected of [`liman${coastVariant}.webp`, `tersane${coastVariant}.webp`]) {
       if (!loadedNames.includes(expected)) {
         throw new Error(`${label}: expected coast texture was not loaded: ${expected}; loaded=${loadedNames.join(',')}`)
       }
     }
     if (width === 390) {
-      for (const expected of ['cami-painted-3.webp', 'saray-painted-3.webp', 'konut-painted-3.webp', 'kisla-painted-3.webp', 'medrese-painted-3.webp', 'carsi-painted-3.webp', 'kereste-painted-3.webp', 'ambar-painted-3.webp', 'elcilik-painted-3.webp', 'hamam-painted-3.webp', 'kahvehane-painted-3.webp', 'muze-painted-3.webp', 'marangoz-painted-3.webp', 'mimar-painted-3.webp', 'ormanci-painted-3.webp', 'tasci-painted-3.webp', 'bagci-painted-3.webp', 'tophane-painted-3.webp', 'simyahane-painted-3.webp', 'camci-painted-3.webp', 'mahzen-painted-3.webp', 'gozlukcu-painted-3.webp', 'barutane-painted-3.webp']) {
-        if (!loadedNames.includes(expected)) throw new Error(`${label}: painted stage 3 did not load: ${expected}`)
+      for (const expected of ['cami.webp', 'saray.webp', 'konut.webp', 'kisla.webp', 'medrese.webp', 'carsi.webp', 'kereste.webp', 'ambar.webp', 'elcilik.webp', 'hamam.webp', 'kahvehane.webp', 'muze.webp', 'marangoz.webp', 'mimar.webp', 'ormanci.webp', 'tasci.webp', 'bagci.webp', 'tophane.webp', 'simyahane.webp', 'camci.webp', 'mahzen.webp', 'gozlukcu.webp', 'barutane.webp']) {
+        if (!loadedNames.includes(expected)) throw new Error(`${label}: groundless architecture did not load: ${expected}`)
       }
       const specialists = path.join(out, `city-crafts-upgrade-${label}.png`)
       await page.screenshot({ path: specialists, animations: 'disabled' })
       diagnostics.screenshots.push(path.basename(specialists))
     } else if (width === 412) {
-      for (const expected of ['depo-painted-3.webp', 'ticaret_merkezi-painted-3.webp', 'harita_arsivi-painted-3.webp']) {
-        if (!loadedNames.includes(expected)) throw new Error(`${label}: merchant stage 3 did not load: ${expected}`)
+      for (const expected of ['depo.webp', 'ticaret_merkezi.webp', 'harita_arsivi.webp']) {
+        if (!loadedNames.includes(expected)) throw new Error(`${label}: merchant architecture did not load: ${expected}`)
       }
       const merchants = path.join(out, `city-merchants-upgrade-${label}.png`)
       await page.screenshot({ path: merchants, animations: 'disabled' })
       diagnostics.screenshots.push(path.basename(merchants))
     } else {
-      for (const expected of ['valilik-painted-3.webp', 'kara_pazar-painted-3.webp', 'siginak-painted-3.webp', 'tekke-painted-3.webp', 'mabet-painted-3.webp', 'karagoz-painted-3.webp', 'korsan_kalesi-painted-3.webp']) {
-        if (!loadedNames.includes(expected)) throw new Error(`${label}: final painted stage 3 did not load: ${expected}`)
+      for (const expected of ['valilik.webp', 'kara_pazar.webp', 'siginak.webp', 'tekke.webp', 'mabet.webp', 'karagoz.webp', 'korsan_kalesi.webp']) {
+        if (!loadedNames.includes(expected)) throw new Error(`${label}: final groundless architecture did not load: ${expected}`)
       }
       const finalBuildings = path.join(out, `city-final-buildings-${label}.png`)
       await page.screenshot({ path: finalBuildings, animations: 'disabled' })

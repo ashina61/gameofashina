@@ -25,5 +25,7 @@ Yeni katalogda tür başına bir mimari çizim vardır; bu iş üç/beş farklı
 - GitHub Pages taban yoluyla statik `pnpm build` geçti.
 - `node tools/v2-criteria.cjs` ve `python tools/art/half-size.py --check` geçti.
 - 72 WebP: tam boy toplam 3.42 MB, telefon toplam 1.10 MB; en büyük dosya 146,806 bayt. Ortak telefon görsel bütçesi yeni klasörleri de sayar: 12.3 / 15 MiB.
-- Yayın sonrası Actions sonucu ve HTTP içerik kontrolü ayrıca izlenir.
-- CUA test tarayıcısı yerel sunucuya bağlanamadı; bu nedenle `layout-qa.cjs` ve canlı etkileşim kontrolleri geçmiş gibi gösterilmez.
+- İlk Deploy koşusu başarılı: `39200741506`, commit `96750550ddd31510dc83cc804b16bccfdd3be87c`.
+- CI gerçek `city-ci-390.webp` ekranını üretti; belediye görünür HUD bandının ortasında, komşu yapılar ve boş arsa bayrakları görünür.
+- İlk şehir QA koşuları eski `*-painted-N.webp` dosya adlarını zorladığı için durdu. Test yeni `parcel-v2`, `parcel-v1` ve `painted-town-v1` isteklerini izler; kayıtlı seviyeler/yönler ayrıca denetlenir. Seviye/yerleşim veya taşma kontrolleri kaldırılmaz.
+- CUA yerel sunucuya bağlanamadı; yerel `layout-qa.cjs` çalıştırılmadı. Ayrı CI tarayıcı sonuçları yukarıda kendi kaynaklarıyla ayrılır; tamamlanmamış etkileşimler geçmiş sayılmaz.
