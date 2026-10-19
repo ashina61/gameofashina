@@ -46,3 +46,36 @@ test('actual approved barracks alpha, including open yard, fits all 25 land parc
     }
   }
 })
+
+test('every new groundless building has real alpha and fits matching parcels in both sizes and coast orientations',async()=>{
+  const { PARCEL_REPAINTED_BUILDINGS }=await import('./parcel-city')
+  assert.equal(new Set(PARCEL_REPAINTED_BUILDINGS).size,BUILDING_IDS.filter(id=>!['divan','kisla','surlar'].includes(id)).length)
+  const seen=new Set<string>()
+  for(const id of PARCEL_REPAINTED_BUILDINGS)for(const facing of id==='liman'||id==='tersane'?[undefined,'straight'] as const:[undefined])for(const size of ['full','sm'] as const){
+    const file=cityBuildingImage(id,1,facing,size)
+    assert.match(file,/\/parcel-v2\//)
+    assert.ok(!seen.has(file),`${id}: reused another type's sprite`);seen.add(file)
+    const {data,info}=await sharp('public'+file).ensureAlpha().raw().toBuffer({resolveWithObject:true})
+    let transparent=0,opaque=0
+    const edge:Array<{x:number;y:number}>=[]
+    for(let y=0;y<info.height;y++){
+      let left=-1,right=-1
+      for(let x=0;x<info.width;x++){
+        const a=data[(y*info.width+x)*4+3]
+        if(a===0)transparent++;if(a>230)opaque++
+        if(a>=8){if(left<0)left=x;right=x}
+      }
+      if(left>=0)edge.push({x:left/info.width,y:y/info.height},{x:right/info.width,y:y/info.height})
+    }
+    const total=info.width*info.height
+    assert.ok(transparent/total>.25,`${id}: no real alpha/open space`)
+    assert.ok(opaque/total>.10,`${id}: missing architecture`)
+    for(const [x,y] of [[0,0],[info.width-1,0],[0,info.height-1],[info.width-1,info.height-1]])assert.ok(data[(y*info.width+x)*4+3]<8,`${id}: opaque backdrop`)
+    const name=facing==='straight'?id+'-duz':id
+    const outline=cityArtOutline(name,1,size);assert.ok(outline,`${id}: missing contour`)
+    for(const p of PARCEL_PLOTS.filter(p=>p.slot.zone===(id==='liman'||id==='tersane'||id==='korsan_kalesi'?'liman':'sehir')))for(const flip of [false,true]){
+      const f=parcelArtFrame(p,info.width,info.height,outline,flip)
+      assert.ok(edge.every(q=>parcelContainsPoint(p,{x:f.left+(flip?1-q.x:q.x)*f.width,y:f.top+q.y*f.height})),`${id}/${facing}/${size}/${p.index}/${flip}: alpha outside parcel`)
+    }
+  }
+})

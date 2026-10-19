@@ -8,6 +8,7 @@ import { visualSignature } from '@/lib/game/city-render'
 import { PEACEFUL_CITY, siegeAppearanceKey, type SiegeAppearance } from '@/lib/game/siege-appearance'
 import { PARCEL_PLOTS, PARCEL_WORLD, parcelPlot, CITY_ROADS, parcelArtFrame, cityArtOutline, cityBuildingImage, type CityParcel } from '@/lib/game/city-map/parcel-city'
 import { cityArtSize, isTap } from './city/shared'
+import { parcelCameraViewport, parcelCityZoom } from '@/lib/game/city-map/parcel-camera'
 
 /** Main game renderer. Engine plot IDs and saved placements never change. */
 export class ParcelCityScene extends CityScene {
@@ -54,21 +55,42 @@ export class ParcelCityScene extends CityScene {
   }
   worldRect(){return PARCEL_WORLD}
   townRect(){return {x:300,y:250,w:2600,h:1350}}
-  townZoom(){return this.scale.width/1800}
-  centerInBand(x:number,y:number){
+  townZoom(){
+    const cam=this.cameras.main
+    return parcelCityZoom(cam.width,cam.height,PARCEL_WORLD,PARCEL_PLOTS[0].center.y)
+  }
+  coverZoom(){
+    const cam=this.cameras.main
+    return Math.max(cam.width/PARCEL_WORLD.w,cam.height/PARCEL_WORLD.h)
+  }
+  cityViewport(){
     const canvas=this.game.canvas.getBoundingClientRect(),top=document.querySelector('.ika-top')?.getBoundingClientRect(),nav=document.querySelector('.ika-nav')?.getBoundingClientRect()
     const scale=this.scale.height/Math.max(1,canvas.height)
-    const start=Math.max(0,(top?top.bottom-canvas.top:canvas.height*.13)*scale)
-    const end=Math.min(this.scale.height,(nav?nav.top-canvas.top:canvas.height*.85)*scale)
-    const mid=end>start?(start+end)/2:this.scale.height/2
-    this.cameras.main.centerOn(x,y-(mid-this.scale.height/2)/this.cameras.main.zoom)
+    return parcelCameraViewport(this.scale.width,this.scale.height,
+      top?(top.bottom-canvas.top)*scale:undefined,nav?(nav.top-canvas.top)*scale:undefined)
   }
+  setupCamera(){
+    const cam=this.cameras.main
+    const layout=()=>{
+      const v=this.cityViewport()
+      cam.setViewport(v.x,v.y,v.width,v.height)
+      cam.setBounds(0,0,PARCEL_WORLD.w,PARCEL_WORLD.h)
+      this.minZoom=this.coverZoom();this.cityZoom=this.townZoom()
+      this.setCityView()
+    }
+    layout()
+    // Measure after React/HUD fonts settle as well as after orientation changes.
+    this.time.delayedCall(0,layout)
+    const observer=new ResizeObserver(()=>{if(this.built)layout()})
+    for(const node of document.querySelectorAll('.ika-top,.ika-nav'))observer.observe(node)
+    this.scale.on('resize',layout)
+    this.events.once('shutdown',()=>{observer.disconnect();this.scale.off('resize',layout)})
+  }
+  centerInBand(x:number,y:number){this.cameras.main.centerOn(x,y)}
   setCityView(){
     this.cameras.main.setZoom(Phaser.Math.Clamp(this.cityZoom,this.minZoom,this.maxZoom))
-    const p=PARCEL_PLOTS[0],key=buildingArtKey('divan',this.state.buildings.divan),source=this.textures.get(key).getSourceImage() as HTMLImageElement
-    const outline=cityArtOutline('divan',this.state.buildings.divan,cityArtSize())
-    const frame=outline?parcelArtFrame(p,source.width,source.height,outline):null
-    this.centerInBand(frame?.x??p.center.x,frame?.y??p.center.y);this.velocity={x:0,y:0}
+    const p=PARCEL_PLOTS[0]
+    this.centerInBand(p.center.x,p.center.y);this.velocity={x:0,y:0}
   }
   setOverview(){this.cameras.main.setZoom(this.minZoom);this.centerInBand(PARCEL_WORLD.w/2,PARCEL_WORLD.h/2);this.velocity={x:0,y:0}}
   focusHarbour(){

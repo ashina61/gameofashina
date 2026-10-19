@@ -1,0 +1,12 @@
+{
+  "mode": "Built-in imagegen, transparent_background=true, no reference image",
+  "sharedSpec": "High orthographic 2:1 isometric Ottoman Aegean city builder. Warm upper-left sunlight; ivory stone, muted terracotta and walnut. Low broad horizontal diamond silhouette. Genuine alpha, no terrain, paving, external floor slab, platform, glow, humans, text or watermark. Absolutely no L/U plan, wings enclosing square, or barracks tower. Landscape 3:2 with 5% transparent margin. Each subject defines distinct architectural massing.",
+  "subjects": {
+    "marangoz": "ONE SINGLE RECTANGULAR walnut timber carpenter's barn with one broad terracotta gambrel roof, a large open garage frontage displaying chair frames and a workbench. Independent plank stacks to one side. Silhouette must be a single broad shed, not wings.",
+    "mimar": "ONE LOW OCTAGONAL ivory limestone architect's studio with a broad shallow olive-blue metal polygon roof and a large glazed skylight. Front has ONE detached drafting table with cream plans and small stone arch model, a short open pergola to one side. Round/octagonal silhouette.",
+    "ormanci": "ONE RUSTIC A-FRAME forester cabin, dark weathered timber with steep dark olive gable roof, small stone chimney, broad compact chalet form. A detached triangular log rack on one side and three potted saplings and an axe stump in front. NOT a courtyard or masonry arcade.",
+    "tasci": "OPEN STONEMASON WORKSITE: one large timber A-frame gantry crane suspending a pale stone block, TWO detached low rectangular stone-cutting workbenches, piles of dressed limestone blocks, two column drums. A tiny single-pitched ochre canvas shade on two posts at rear. No building walls or halls, no enclosing courtyard.",
+    "camci": "GLASSWORKS: THREE broad low round RED BRICK BOTTLE-SHAPED kiln ovens with short wide chimneys arranged diagonally, connected to ONE tiny single-pitched dark wooden lean-to glassblowing station, an independent timber display shelf of blue green glass vases. No terracotta roof wings. Rounded industrial silhouettes.",
+    "ticaret_merkezi": "ONE SOLID broad rectangular Ottoman BEDESTEN trade exchange hall with a dark lead-blue HIP ROOF carrying three low square skylights and a very wide central arched trading entrance, two small projecting oak merchant booths under striped olive awnings, one big brass weighing scale. Compact covered commercial hall, no courtyard or turrets."
+  }
+}

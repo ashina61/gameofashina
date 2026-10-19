@@ -27,8 +27,17 @@ export const CITY_ROADS=[
 export type CityParcel=typeof PARCEL_PLOTS[number]
 export const parcelPlot=(index:number|null|undefined)=>index==null?undefined:PARCEL_PLOTS[index]
 export function parcelContainsPoint(p:CityParcel,q:ParcelPoint,margin=0){return Math.abs(q.x-p.center.x)+2*Math.abs(q.y-p.center.y)<=p.width/2-margin+1e-6}
+/** Reviewed groundless architecture; no terrain patch is drawn beneath it. */
+export const PARCEL_REPAINTED_BUILDINGS = ['saray','elcilik','konut','hamam','carsi','ambar','kereste','medrese','liman','tersane','kahvehane','cami','muze','marangoz','mimar','ormanci','tasci','tophane','bagci','simyahane','camci','mahzen','gozlukcu','barutane','depo','ticaret_merkezi','harita_arsivi','valilik','korsan_kalesi','kara_pazar','siginak','tekke','mabet','karagoz'] as const
+const repainted=new Set<string>(PARCEL_REPAINTED_BUILDINGS)
 export function cityBuildingImage(id:string,level=1,facing?:CoastFacing,size:ArtSize='sm'){
- return id==='divan'?asset(`/images/game/buildings/painted-town-v1/divan${size==='sm'?'-sm':''}.webp`):id==='kisla'?asset(`/images/game/buildings/parcel-v1/kisla${size==='sm'?'-sm':''}.webp`):buildingImage(id,level,facing,size)
+ if(id==='divan')return asset(`/images/game/buildings/painted-town-v1/divan${size==='sm'?'-sm':''}.webp`)
+ if(id==='kisla')return asset(`/images/game/buildings/parcel-v1/kisla${size==='sm'?'-sm':''}.webp`)
+ if(repainted.has(id)){
+  const variant=(id==='liman'||id==='tersane')&&facing==='straight'?id+'-duz':id
+  return asset(`/images/game/buildings/parcel-v2/${variant}${size==='sm'?'-sm':''}.webp`)
+ }
+ return buildingImage(id,level,facing,size)
 }
 export function cityArtOutline(id:string,level:number,size:ArtSize){
  const key=id==='kisla'?'kisla':id.startsWith('__')?id:`${id}-${buildingStage(level)}`

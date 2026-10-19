@@ -1,0 +1,218 @@
+{
+  "medrese": {
+    "generator": "built-in imagegen",
+    "sha256": "f02d062b27f520dcbee9149b1a3427c50f209b158571125fabc538f51a5bc9f6",
+    "full": "medrese.webp",
+    "small": "medrese-sm.webp"
+  },
+  "hamam": {
+    "generator": "built-in imagegen",
+    "sha256": "c99e084b59ffa0eab3b5878ba690745078376d2bd8d308cbb33ec977f102e77c",
+    "full": "hamam.webp",
+    "small": "hamam-sm.webp"
+  },
+  "depo": {
+    "generator": "built-in imagegen",
+    "sha256": "7b3d17236658b8f6754c7aca822f97e0088ecf4a1b57de52db8b78de969b966b",
+    "full": "depo.webp",
+    "small": "depo-sm.webp"
+  },
+  "carsi": {
+    "generator": "built-in imagegen",
+    "sha256": "6df6c1e83d6ce475c8d52dfb9f66efcb6eb407fb6deb84779c4ed02459f61927",
+    "full": "carsi.webp",
+    "small": "carsi-sm.webp"
+  },
+  "ambar": {
+    "generator": "built-in imagegen",
+    "sha256": "e73cfef90324c06fafeb7f226120939d368637aaf31601d4afd02b694c02c11c",
+    "full": "ambar.webp",
+    "small": "ambar-sm.webp"
+  },
+  "kereste": {
+    "generator": "built-in imagegen",
+    "sha256": "39d7f8c592b00fad2871ea999f36af92b6bca42db5bb5a52a7647533e541da0d",
+    "full": "kereste.webp",
+    "small": "kereste-sm.webp"
+  },
+  "konut": {
+    "generator": "built-in imagegen",
+    "sha256": "9b138a053c776d94edc98e3a402da7d36a209fc8d2daec01a372d5153d30069c",
+    "full": "konut.webp",
+    "small": "konut-sm.webp"
+  },
+  "kahvehane": {
+    "generator": "built-in imagegen",
+    "sha256": "2e76614418bd6b70dd8961da8699a104def7157048759c235d81b164d357e234",
+    "full": "kahvehane.webp",
+    "small": "kahvehane-sm.webp"
+  },
+  "cami": {
+    "generator": "built-in imagegen",
+    "sha256": "616a095d0076102dc00a06d56ad6e2195b55ac7e3a0817648d185abac8617540",
+    "full": "cami.webp",
+    "small": "cami-sm.webp"
+  },
+  "muze": {
+    "generator": "built-in imagegen",
+    "sha256": "f508e2db4a0d6a77255cf68b78408f8ba0f61a7cc4076ef9317762bc4bed6417",
+    "full": "muze.webp",
+    "small": "muze-sm.webp"
+  },
+  "saray": {
+    "generator": "built-in imagegen",
+    "sha256": "99fc80baf0bf6a3669b08b4ed7ae9712f50542a2db481c8ded4664985da0fe98",
+    "full": "saray.webp",
+    "small": "saray-sm.webp"
+  },
+  "elcilik": {
+    "generator": "built-in imagegen",
+    "sha256": "554f3c9af630d712ffcfa2265b7c99110f7aaffbe6f292676f4a785a31caacde",
+    "full": "elcilik.webp",
+    "small": "elcilik-sm.webp"
+  },
+  "marangoz": {
+    "generator": "built-in imagegen",
+    "sha256": "ba85ce978ead18db6559474a9de3ec268d97b0362784b5e1eb0b96573382fe36",
+    "full": "marangoz.webp",
+    "small": "marangoz-sm.webp"
+  },
+  "ormanci": {
+    "generator": "built-in imagegen",
+    "sha256": "77c13ef544bab8e3579e8eee36e334e01269b7a5326d0ba1cb00c3014f5f606f",
+    "full": "ormanci.webp",
+    "small": "ormanci-sm.webp"
+  },
+  "tophane": {
+    "generator": "built-in imagegen",
+    "sha256": "5a90bc5b5a10d64b023f254edc334abfeeb7ce65c738a8d1b267528b3cc8428d",
+    "full": "tophane.webp",
+    "small": "tophane-sm.webp"
+  },
+  "mimar": {
+    "generator": "built-in imagegen",
+    "sha256": "2341b4f853c614de2904ba12f5699c0c57c9494e681414f1a7c9dd0167f3daaa",
+    "full": "mimar.webp",
+    "small": "mimar-sm.webp"
+  },
+  "tasci": {
+    "generator": "built-in imagegen",
+    "sha256": "982befc71413bc8374dd45270323c5095e1a179abd63df295797d394464a97ef",
+    "full": "tasci.webp",
+    "small": "tasci-sm.webp"
+  },
+  "bagci": {
+    "generator": "built-in imagegen",
+    "sha256": "a6a9f9a98318fa5d0821d634235d486208423c81d81fd94af3e30060eab11a76",
+    "full": "bagci.webp",
+    "small": "bagci-sm.webp"
+  },
+  "simyahane": {
+    "generator": "built-in imagegen",
+    "sha256": "6658f5ce78a9c05907c03df7c307c5b7c10aa6c31d902d9fd4ce62bdb7e78d15",
+    "full": "simyahane.webp",
+    "small": "simyahane-sm.webp"
+  },
+  "mahzen": {
+    "generator": "built-in imagegen",
+    "sha256": "d56cbdffc54d273e8370bade1c082c9dd2e51064cb309740dd02e59e737a806d",
+    "full": "mahzen.webp",
+    "small": "mahzen-sm.webp"
+  },
+  "camci": {
+    "generator": "built-in imagegen",
+    "sha256": "08919054c63c6ecc1b936028e0c3d9cbc0b09ba5302fef0577d3db3d8d71e81f",
+    "full": "camci.webp",
+    "small": "camci-sm.webp"
+  },
+  "barutane": {
+    "generator": "built-in imagegen",
+    "sha256": "6072f51fcdf1eff0dfaa6f245f367b9f9c63391cee93462508a6a45d83b90fae",
+    "full": "barutane.webp",
+    "small": "barutane-sm.webp"
+  },
+  "gozlukcu": {
+    "generator": "built-in imagegen",
+    "sha256": "37233a2bb2ed086a6f7f8bd1c1be353b779074ec787409a0025e6c72d3fcf62e",
+    "full": "gozlukcu.webp",
+    "small": "gozlukcu-sm.webp"
+  },
+  "harita_arsivi": {
+    "generator": "built-in imagegen",
+    "sha256": "f56ac016a38b1ad353b95812fcd8e88dc7ec733949f48d78a602ba458ced29c1",
+    "full": "harita_arsivi.webp",
+    "small": "harita_arsivi-sm.webp"
+  },
+  "ticaret_merkezi": {
+    "generator": "built-in imagegen",
+    "sha256": "f0f29ba156fe039be642f4384ea7ef122e558334ca42b7ae9b89cda35859103d",
+    "full": "ticaret_merkezi.webp",
+    "small": "ticaret_merkezi-sm.webp"
+  },
+  "kara_pazar": {
+    "generator": "built-in imagegen",
+    "sha256": "52ceacd67ce5a09ea8257bacded72b7e5b5ec1d90b038ca2f7de43dbe157c958",
+    "full": "kara_pazar.webp",
+    "small": "kara_pazar-sm.webp"
+  },
+  "valilik": {
+    "generator": "built-in imagegen",
+    "sha256": "96cfdc45d148e44c927cbc22816978b403eb203d5ab19e55e15d55015a86e07e",
+    "full": "valilik.webp",
+    "small": "valilik-sm.webp"
+  },
+  "siginak": {
+    "generator": "built-in imagegen",
+    "sha256": "3c1eace1cd1d2fef12130f967768960668789b736664f25ca5e887289e046d9b",
+    "full": "siginak.webp",
+    "small": "siginak-sm.webp"
+  },
+  "tekke": {
+    "generator": "built-in imagegen",
+    "sha256": "04e35a5e6bd7b498af3d3b1457ea898b5a0d954fcab467675b16949305f72b06",
+    "full": "tekke.webp",
+    "small": "tekke-sm.webp"
+  },
+  "mabet": {
+    "generator": "built-in imagegen",
+    "sha256": "d3907de10d0df8a968ebaa15b1a2def831cea9d19d6786261c26bc1bb74c46c0",
+    "full": "mabet.webp",
+    "small": "mabet-sm.webp"
+  },
+  "karagoz": {
+    "generator": "built-in imagegen",
+    "sha256": "ed827d5f54410ac4f7b90276bfa2c5d533606dfa13641e5137c5b82592437e1b",
+    "full": "karagoz.webp",
+    "small": "karagoz-sm.webp"
+  },
+  "liman": {
+    "generator": "built-in imagegen",
+    "sha256": "9ab2fa57ecd710d7e5510c60a0b5faeeaedc7101a714e7ce95684c21958b2b8f",
+    "full": "liman.webp",
+    "small": "liman-sm.webp"
+  },
+  "liman-duz": {
+    "generator": "built-in imagegen",
+    "sha256": "bc0faaf0e73b57ca2493ecc69e700d74911ad06173a3d0f72e8d600c3dc0e005",
+    "full": "liman-duz.webp",
+    "small": "liman-duz-sm.webp"
+  },
+  "korsan_kalesi": {
+    "generator": "built-in imagegen",
+    "sha256": "f98377cb2fb21e0c3a9e3bfd8c77fb552e50d8601b173dd82d1ef61f53028e78",
+    "full": "korsan_kalesi.webp",
+    "small": "korsan_kalesi-sm.webp"
+  },
+  "tersane": {
+    "generator": "built-in imagegen",
+    "sha256": "94d087d27fc1959602369170f977048e7d3b866e66219fe1efeebab1e53a6c67",
+    "full": "tersane.webp",
+    "small": "tersane-sm.webp"
+  },
+  "tersane-duz": {
+    "generator": "built-in imagegen",
+    "sha256": "df68b4b290680c65fae81876d6ba864238d292aeb7a180c65ad4501f20f70706",
+    "full": "tersane-duz.webp",
+    "small": "tersane-duz-sm.webp"
+  }
+}
