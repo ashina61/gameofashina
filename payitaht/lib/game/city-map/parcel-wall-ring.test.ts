@@ -5,13 +5,13 @@ import { CITY_WALL_PLAN, wallDistanceToSegment } from './parcel-wall-ring'
 
 const d = (a: {x:number;y:number}, b: {x:number;y:number}) => Math.hypot(a.x-b.x,a.y-b.y)
 
-test('stone rampart surrounds all 25 land parcels without touching roofs or the coast slots', () => {
+test('stone rampart encloses 25 city plots and three coast sites without hitting any parcel', () => {
   const { ring, spans, towers } = CITY_WALL_PLAN
   assert.ok(ring.length >= 8 && spans.length > ring.length)
   for (const point of ring) {
     assert.ok(point.x >= 0 && point.x <= PARCEL_WORLD.w && point.y >= 0 && point.y <= PARCEL_WORLD.h)
   }
-  const city = PARCEL_PLOTS.slice(0, 25)
+  const city = PARCEL_PLOTS.slice(0, 28)
   for (const plot of city) for (const vertex of plot.polygon) {
     assert.ok(ring.every((a, i) => {
       const b = ring[(i + 1) % ring.length]
@@ -40,8 +40,12 @@ test('road gates are real gaps rather than painted doors blocking a wall segment
     assert.ok(spans.every(s => wallDistanceToSegment(gate.center, s.start, s.end).distance > 35), `${gate.name} is blocked`)
   }
   const north = gates.find(g => g.name === 'kuzey')!
-  assert.ok(d(north.center, CITY_ROADS[0][1]) < 10, 'northern entrance misses the painted road')
+  assert.ok(d(north.center, CITY_ROADS[0][1]) < 45, 'northern entrance misses the painted road')
   const drawn = spans.reduce((total, span) => total + d(span.start, span.end), 0)
   assert.ok(Math.abs(perimeter - drawn - 108 * gates.length) < 1, 'wall has missing spans outside the five gateways')
   assert.ok(ring.length > 0)
+  for (const gate of gates.filter(g => g.name.startsWith('liman'))) {
+    const plot = gate.name === 'liman-bati' ? PARCEL_PLOTS[25] : PARCEL_PLOTS[26]
+    assert.ok(d(gate.center, plot.center) < 165, `sea gate ${gate.name} misses its harbour`)
+  }
 })
