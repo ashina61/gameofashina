@@ -1,52 +1,69 @@
-import { CITY_SLOTS, DEFENSE_FOUNDATION, HALL_SLOT_ID, slotById, TILE } from '../index'
+import { asset } from '@/lib/asset'
+import { HALL_SLOT_ID, slotById, TILE } from '../index'
 import * as Phaser from 'phaser'
-import { mulberry32 } from '../terrain-builder'
 
-export function drawLand({ V: _V, scene, shoreY, stamp, wr }: { V: (x: number, y: number) => Phaser.Math.Vector2; scene: Phaser.Scene; shoreY: (x: number) => number; stamp: (key: string, wx: number, wy: number, tw: number, depth: number, oy?: number, alpha?: number, tint?: number | undefined) => Phaser.GameObjects.Image | null; wr: { x: number; y: number; w: number; h: number; } }) {
-  // G4: boyalı uzak sırt; sur ve maden bandının arkasında kalır.
-  {
-    const ringTop = Math.min(...DEFENSE_FOUNDATION.map(p => p.screen.y))
-    const backdrop = scene.add.graphics().setDepth(-871)
-    backdrop.fillStyle(0xa9b594, 1)
-    backdrop.fillRect(wr.x, wr.y, wr.w, Math.max(0, ringTop - TILE.h * 12 - wr.y))
-    stamp('t_hills', wr.x + wr.w / 2, ringTop - TILE.h * 2.8, wr.w * 1.04, -870, 1, 0.96)
+export const PAINTED_CITY_KEY = 'city_l1_painted'
+export const PAINTED_CITY_URL = asset('/images/game/terrain/city-l1.webp')
+const SOURCE_W = 1536
+const SOURCE_H = 1024
+// Onaylı master görselde belediye/Topkapı tabanının merkezi.
+const HALL_ART_X = 768
+const HALL_ART_Y = 390
+
+type ReadyScene = Phaser.Scene & { built?: boolean; markReady?: () => void }
+
+export function preloadPaintedCityBase(scene: Phaser.Scene) {
+  if (!scene.textures.exists(PAINTED_CITY_KEY)) scene.load.image(PAINTED_CITY_KEY, PAINTED_CITY_URL)
+}
+
+function addPaintedCityBase(scene: Phaser.Scene) {
+  if (!scene.sys.isActive() || scene.children.getByName('city-painted-l1')) return
+  const hall = slotById(HALL_SLOT_ID)?.screen
+  if (!hall || !scene.textures.exists(PAINTED_CITY_KEY)) return
+
+  // Master resmi viewport'a değil dünya koordinatlarına bağlarız. Origin'i
+  // görseldeki belediye merkezine koyduğumuz için slot koordinatlarıyla aynı
+  // referans noktasını kullanır; pan/zoom sırasında kayma olmaz.
+  const width = TILE.w * 30
+  const height = width * (SOURCE_H / SOURCE_W)
+  scene.add.image(hall.x, hall.y, PAINTED_CITY_KEY)
+    .setName('city-painted-l1')
+    .setOrigin(HALL_ART_X / SOURCE_W, HALL_ART_Y / SOURCE_H)
+    // Procedural arazi/road/dekor negatif derinliktedir. Canlı kara binaları
+    // yeni master geometride y≈3264 ve üstünde başlar; 2500 masterı tam araya koyar.
+    .setDepth(2500)
+    .setDisplaySize(width, height)
+}
+
+function signalReadyWhenBuilt(scene: Phaser.Scene) {
+  const s = scene as ReadyScene
+  if (!scene.sys.isActive()) return
+  if (!s.built || scene.load.isLoading()) {
+    scene.time.delayedCall(16, () => signalReadyWhenBuilt(scene))
+    return
+  }
+  s.markReady?.()
+}
+
+function mountPaintedCityBase(scene: Phaser.Scene) {
+  if (scene.textures.exists(PAINTED_CITY_KEY)) {
+    addPaintedCityBase(scene)
+    return
   }
 
-  // 2c) ŞEHİR DÜZLÜĞÜ: şehir hafifçe daha açık ve güneşli oval bir yaylada.
-  {
-    const tg = scene.add.graphics().setDepth(-860)
-    const xs = CITY_SLOTS.map(c => c.screen.x), ys = CITY_SLOTS.map(c => c.screen.y)
-    const cx = (Math.min(...xs) + Math.max(...xs)) / 2
-    const cy = (Math.min(...ys) + Math.max(...ys)) / 2
-    const rx = (Math.max(...xs) - Math.min(...xs)) / 2 + TILE.w * 1.7
-    const ry = (Math.max(...ys) - Math.min(...ys)) / 2 + TILE.h * 3.2
-    tg.fillStyle(0xc9d18a, 0.16); tg.fillEllipse(cx, cy, rx * 2, ry * 2)
-    tg.fillStyle(0xd6d894, 0.10); tg.fillEllipse(cx - rx * 0.1, cy - ry * 0.12, rx * 1.5, ry * 1.4)
-  }
+  // Terrain create sırasında texture henüz yoksa tek masterı runtime yükle.
+  // FILE_COMPLETE değil Loader COMPLETE kullanılır: bu anda create() ilerlemiş,
+  // built=true olmuştur ve markReady() loader.isLoading yüzünden yutulmaz.
+  scene.load.image(PAINTED_CITY_KEY, PAINTED_CITY_URL)
+  scene.load.once(Phaser.Loader.Events.COMPLETE, () => {
+    addPaintedCityBase(scene)
+    signalReadyWhenBuilt(scene)
+  })
+  if (!scene.load.isLoading()) scene.load.start()
+}
 
-  // 2d) BOYALI ZEMİN: izometrik yönde binlerce kısa fırça darbesi + güneşin
-  // sol üstten vurduğu sıcak ışık. Düz yeşil yüzey resim gibi görünür.
-  {
-    const brush = scene.add.graphics().setDepth(-885)
-    const br = mulberry32(24680)
-    const greens = [0x5d8a3f, 0x7ea453, 0x98b562, 0x6f9448, 0xa9bd6a, 0x4f7a37, 0xc4c57a]
-    for (let i = 0; i < 900; i++) {
-      const x = wr.x + br() * wr.w
-      const y = wr.y + br() * Math.max(0, shoreY(x) - wr.y - TILE.h * 0.5)
-      const len = TILE.w * (0.08 + br() * 0.22)
-      const dir = br() < 0.5 ? 1 : -1
-      brush.lineStyle(2 + br() * 5, greens[Math.floor(br() * greens.length)], 0.05 + br() * 0.09)
-      brush.lineBetween(x, y, x + len, y + dir * len * 0.5)
-    }
-    const light = scene.add.graphics().setDepth(-884)
-    const hall = slotById(HALL_SLOT_ID)!.screen
-    for (let k = 0; k < 4; k++) {
-      light.fillStyle(0xffe6a0, 0.035)
-      light.fillEllipse(hall.x - TILE.w * 3, hall.y - TILE.h * 10, TILE.w * (8 + k * 4), TILE.h * (10 + k * 5))
-    }
-    // Kenarlarda hafif karartma: göz şehrin ortasına çekilir.
-    light.fillStyle(0x1e2c14, 0.10); light.fillRect(wr.x, wr.y, TILE.w * 2.5, wr.h)
-    light.fillRect(wr.x + wr.w - TILE.w * 2.5, wr.y, TILE.w * 2.5, wr.h)
-  }
-
+export function drawLand({ scene }: { V: (x: number, y: number) => Phaser.Math.Vector2; scene: Phaser.Scene; shoreY: (x: number) => number; stamp: (key: string, wx: number, wy: number, tw: number, depth: number, oy?: number, alpha?: number, tint?: number | undefined) => Phaser.GameObjects.Image | null; wr: { x: number, y: number, w: number, h: number } }) {
+  // L1'in görünür arazi/yol/parsel dili artık tek onaylı master görseldir.
+  // Ekonomi, hitbox, bina sprite'ları, liman/korsan/sur inşası runtime kalır.
+  mountPaintedCityBase(scene)
 }
