@@ -1,11 +1,11 @@
 {
   "name": "payitaht-adalari",
-  "version": "0.116.0",
+  "version": "0.117.0",
   "private": true,
   "packageManager": "pnpm@9.15.9",
   "scripts": {
-    "dev": "next dev",
-    "build": "next build --webpack",
+    "dev": "node tools/art/enhance-city-terrain.mjs && next dev",
+    "build": "node tools/art/enhance-city-terrain.mjs && next build --webpack",
     "start": "next start",
     "typecheck": "tsc --noEmit",
     "test": "node --import tsx --test $(find lib -name '*.test.ts')",
