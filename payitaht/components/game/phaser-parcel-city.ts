@@ -9,6 +9,7 @@ import { PEACEFUL_CITY, siegeAppearanceKey, type SiegeAppearance } from '@/lib/g
 import { PARCEL_PLOTS, PARCEL_WORLD, parcelPlot, CITY_ROADS, parcelArtFrame, cityArtOutline, cityBuildingImage, type CityParcel } from '@/lib/game/city-map/parcel-city'
 import { cityArtSize, isTap } from './city/shared'
 import { parcelCameraViewport, parcelCityZoom } from '@/lib/game/city-map/parcel-camera'
+import { CITY_WALL_PLAN, type WallSpan } from '@/lib/game/city-map/parcel-wall-ring'
 
 /** Main game renderer. Engine plot IDs and saved placements never change. */
 export class ParcelCityScene extends CityScene {
@@ -16,7 +17,6 @@ export class ParcelCityScene extends CityScene {
   ships:Phaser.GameObjects.Image[]=[]
   preload(){
     this.load.image('parcel-terrain',asset('/images/game/terrain/painted-town-v1/city.webp'))
-    this.load.image('parcel-wall',asset('/images/game/walls/painted-town-v1/wall.webp'))
     this.load.image('parcel-citizen',asset('/images/game/ui/people/citizen-figure.webp'))
     for(const key of ['ship-a','ship-b','fishing'])this.load.image(`parcel-${key}`,asset(`/images/game/ships/${key}.webp`))
     this.load.image('b_site',asset('/images/game/buildings/site.webp'))
@@ -172,16 +172,104 @@ export class ParcelCityScene extends CityScene {
       this.pieces.push(this.add.image(sf.x,sf.y,'b_scaffold').setDisplaySize(sf.width,sf.height).setDepth(p.center.y+5),this.makeTimer(p.center.x,p.center.y+p.height/2+65,job.start,job.end,1e6+p.center.y+1))
     }
   }
+  drawParcelWallSpan(span:WallSpan,height:number,tier:number){
+    const {start:a,end:b}=span,dx=b.x-a.x,dy=b.y-a.y,length=Math.hypot(dx,dy)||1
+    const nx=dy/length*12,ny=-dx/length*12
+    const depth=(a.y+b.y)/2+1
+    const g=this.add.graphics().setDepth(depth)
+    // Continuous masonry faces: every segment shares its surveyed endpoints.
+    // The rear lip is above the terrain; no ground plate covers painted roads.
+    g.fillStyle(0x4d4232,.26).fillPoints([
+      {x:a.x+9,y:a.y+5},{x:b.x+9,y:b.y+5},{x:b.x+nx,y:b.y+ny+4},{x:a.x+nx,y:a.y+ny+4},
+    ],true)
+    g.fillStyle(tier===3?0xb8a68a:tier===2?0xc3ae8b:0xc7b99b,1).fillPoints([
+      {x:a.x,y:a.y},{x:b.x,y:b.y},{x:b.x,y:b.y-height},{x:a.x,y:a.y-height},
+    ],true)
+    g.lineStyle(3,0x6b5944,.92).lineBetween(a.x,a.y,b.x,b.y)
+    g.lineStyle(2,0xe9dec1,.86).lineBetween(a.x,a.y-height+5,b.x,b.y-height+5)
+    // Walkway cap: angled with the ring's real world line, never a scaled tower sprite.
+    g.fillStyle(0xe1d3b4,1).fillPoints([
+      {x:a.x,y:a.y-height},{x:b.x,y:b.y-height},
+      {x:b.x+nx,y:b.y+ny-height-5},{x:a.x+nx,y:a.y+ny-height-5},
+    ],true)
+    for(let d=23;d<length-8;d+=34){
+      const t=d/length,p={x:a.x+dx*t,y:a.y+dy*t},u={x:dx/length,y:dy/length}
+      g.lineStyle(1.4,0x806e54,.52).lineBetween(p.x,p.y-7,p.x,p.y-height+8)
+      // Alternating merlons follow the sloping wall top rather than a horizontal strip.
+      if(Math.floor(d/34)%2===0){
+        g.fillStyle(0xf0e3c7,1).fillPoints([
+          {x:p.x,y:p.y-height-3},{x:p.x+u.x*19,y:p.y+u.y*19-height-3},
+          {x:p.x+u.x*19,y:p.y+u.y*19-height-15},{x:p.x,y:p.y-height-15},
+        ],true)
+      }
+    }
+    this.pieces.push(g)
+    const hit=this.add.zone(0,0,1,1).setDepth(depth+1).setInteractive({
+      hitArea:new Phaser.Geom.Polygon([
+        {x:a.x-7,y:a.y+7},{x:b.x+7,y:b.y+7},
+        {x:b.x+7,y:b.y-height-18},{x:a.x-7,y:a.y-height-18},
+      ]),
+      hitAreaCallback:Phaser.Geom.Polygon.Contains,useHandCursor:true,
+    })
+    hit.on('pointerup',(pointer:Phaser.Input.Pointer)=>{
+      if(isTap(pointer)&&!this.moving)this.events$.onBuilding('surlar')
+    })
+    this.pieces.push(hit)
+  }
+  drawParcelWallTower(x:number,y:number,height:number,tier:number){
+    const radius=tier===3?26:tier===2?24:21
+    const h=height*1.45
+    const g=this.add.graphics().setDepth(y+4)
+    g.fillStyle(0x4c4031,.25).fillEllipse(x+7,y+3,radius*2.5,radius*.85)
+    g.fillStyle(0x80684c,1).fillRoundedRect(x-radius,y-h,radius*2,h+3,4)
+    g.fillStyle(tier===3?0xb8a082:0xd0ba95,1).fillRoundedRect(x-radius+4,y-h+5,radius*2-8,h-7,3)
+    g.lineStyle(3,0x69523f,.95).strokeRoundedRect(x-radius,y-h,radius*2,h+3,4)
+    g.fillStyle(0xeee0bd,1).fillEllipse(x,y-h+3,radius*2.2,radius*.8)
+    for(let i=-2;i<=2;i++){
+      const bx=x+i*radius*.44
+      g.fillStyle(0xe3cfaa,1).fillRect(bx-4,y-h-15,8,17)
+      g.lineStyle(1.2,0x786348,.88).strokeRect(bx-4,y-h-15,8,17)
+    }
+    // Vertical arrow slit distinguishes defensive towers from civilian houses.
+    g.fillStyle(0x453e34,1).fillRoundedRect(x-3,y-h*.58,6,22,2)
+    g.fillStyle(0xf2dfb6,.5).fillRect(x-6,y-h*.71,12,3)
+    this.pieces.push(g)
+  }
   drawParcelWalls(){
     const level=this.state.buildings.surlar
+    const {spans,gates,towers}=CITY_WALL_PLAN,north=gates[0]
+    const tier=level>=12?3:level>=5?2:1,height=38+tier*11+Math.min(level,20)
     if(level>0){
-      const wall=this.add.image(570,50,'parcel-wall').setDisplaySize(760,475).setFlipX(true).setDepth(250)
-      this.pieces.push(wall)
-      if(this.showLabels)this.pieces.push(this.makePaintedLabel(600,250,level,BUILDINGS.surlar.name,1e6))
+      for(const span of spans)this.drawParcelWallSpan(span,height,tier)
+      for(const point of towers)this.drawParcelWallTower(point.x,point.y,height,tier)
+      for(const gate of gates){
+        this.drawParcelWallTower(gate.left.x,gate.left.y,height,tier)
+        this.drawParcelWallTower(gate.right.x,gate.right.y,height,tier)
+        // The arch is overhead: the road-level opening remains fully clear.
+        const arch=this.add.graphics().setDepth(gate.center.y+5)
+        arch.lineStyle(8,0x765d44,1).lineBetween(gate.left.x,gate.left.y-height*.82,gate.right.x,gate.right.y-height*.82)
+        arch.lineStyle(4,0xe8d4ad,1).lineBetween(gate.left.x,gate.left.y-height*.82-5,gate.right.x,gate.right.y-height*.82-5)
+        this.pieces.push(arch)
+      }
+      if(this.showLabels)this.pieces.push(this.makePaintedLabel(north.center.x,north.center.y-height-48,level,BUILDINGS.surlar.name,1e6))
+    }else{
+      // Before construction, only the northern foundation is marked; no ghost wall.
+      const site=this.add.graphics().setDepth(north.center.y)
+      site.fillStyle(0x765538,.72).fillEllipse(north.center.x,north.center.y+3,95,20)
+      site.fillStyle(0xc1ad84,1).fillRect(north.center.x-26,north.center.y-18,23,19)
+      site.fillStyle(0xe0cfac,1).fillRect(north.center.x+8,north.center.y-23,27,24)
+      this.pieces.push(site)
     }
-    // The northern gate remains inspectable before construction, without a baked wall.
-    const hit=this.add.rectangle(600,160,260,130,0xffffff,0).setInteractive({useHandCursor:true}).setDepth(300)
-    hit.on('pointerup',(pointer:Phaser.Input.Pointer)=>{if(isTap(pointer)&&!this.moving)this.events$.onBuilding('surlar')});this.pieces.push(hit)
+    for(const gate of gates){
+      const hit=this.add.rectangle(gate.center.x,gate.center.y-height*.55,132,height+80,0xffffff,0)
+        .setInteractive({useHandCursor:true}).setDepth(gate.center.y+8)
+      hit.on('pointerup',(pointer:Phaser.Input.Pointer)=>{
+        if(isTap(pointer)&&!this.moving)this.events$.onBuilding('surlar')
+      })
+      this.pieces.push(hit)
+    }
+    const job=activeJob(this.state)
+    if(job?.id==='surlar')this.pieces.push(this.makeTimer(north.center.x,north.center.y+55,job.start,job.end,1e6+north.center.y))
   }
   drawParcelSiege(){
     if(this.siege.occupation){
