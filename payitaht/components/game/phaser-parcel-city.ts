@@ -16,7 +16,7 @@ export class ParcelCityScene extends CityScene {
   people:Array<{image:Phaser.GameObjects.Image;points:Array<{x:number;y:number}>;t:number}>=[]
   ships:Phaser.GameObjects.Image[]=[]
   preload(){
-    this.load.image('parcel-terrain',asset('/images/game/terrain/painted-town-v1/city.webp'))
+    this.load.image('parcel-terrain',asset('/images/game/terrain/painted-town-v1/city-crisp.webp'))
     this.load.image('parcel-citizen',asset('/images/game/ui/people/citizen-figure.webp'))
     for(const key of ['ship-a','ship-b','fishing'])this.load.image(`parcel-${key}`,asset(`/images/game/ships/${key}.webp`))
     this.load.image('b_site',asset('/images/game/buildings/site.webp'))

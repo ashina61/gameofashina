@@ -16,6 +16,8 @@ export type WallPlan = {
   spans: WallSpan[]
   towers: ParcelPoint[]
   perimeter: number
+  /** Unfortified seaside edges: the harbour is not within the ramparts. */
+  waterfront: WallSpan[]
 }
 
 const distance = (a: ParcelPoint, b: ParcelPoint) => Math.hypot(a.x - b.x, a.y - b.y)
@@ -67,9 +69,20 @@ export function createCityWallPlan(
     return { x: p.x + (p.x - centre.x) * outset / length, y: p.y + (p.y - centre.y) * outset / length }
   })
   const edges = ring.map((start, i) => ({ start, end: ring[(i + 1) % ring.length] }))
-  const perimeter = edges.reduce((sum, e) => sum + distance(e.start, e.end), 0)
+  // Leave the wide southern quay entirely unfortified. A ring around the harbour
+  // formerly put masonry directly across three coastal construction plots.
+  // Using land-only geometry + coastal open edges also prevents any fake gates
+  // or arch beams above shipyard and dock roofs.
+  const seaside = (edge: WallSpan) => {
+    const dx = edge.end.x - edge.start.x, dy = edge.end.y - edge.start.y
+    return (edge.start.y + edge.end.y) / 2 > centre.y + 350
+      && Math.abs(dx) > 200 && Math.abs(dy) < Math.abs(dx) * .5
+  }
+  const waterfront = edges.filter(seaside)
+  const fortifiedEdges = edges.filter(e => !seaside(e))
+  const perimeter = fortifiedEdges.reduce((sum, e) => sum + distance(e.start, e.end), 0)
   const gates: WallGate[] = entrances.map(({ name, road }) => {
-    const projections = edges.map((e, edge) => ({ ...wallDistanceToSegment(road, e.start, e.end), edge }))
+    const projections = edges.flatMap((e, edge) => seaside(e) ? [] : [{ ...wallDistanceToSegment(road, e.start, e.end), edge }])
     const nearest = projections.reduce((best, item) => item.distance < best.distance ? item : best)
     const { start, end } = edges[nearest.edge]
     const halfWidth = 54
@@ -82,6 +95,7 @@ export function createCityWallPlan(
   })
   const spans: WallSpan[] = []
   for (const [index, edge] of edges.entries()) {
+    if (seaside(edge)) continue
     const length = distance(edge.start, edge.end)
     const gaps = gates.filter(g => g.edge === index)
       .map(g => [Math.max(0, g.t - g.halfWidth / length), Math.min(1, g.t + g.halfWidth / length)] as const)
@@ -95,9 +109,9 @@ export function createCityWallPlan(
   }
   // Towers at corners and at regular intervals on the long straight fronts.
   // Gate flanks are drawn separately, so avoid overlapping those towers.
-  const candidates = edges.flatMap(({ start, end }) => {
+  const candidates = fortifiedEdges.flatMap(({ start, end }) => {
     const length = distance(start, end)
-    return [start, ...Array.from({ length: Math.max(0, Math.floor(length / 280) - 1) }, (_, i) =>
+    return [start, end, ...Array.from({ length: Math.max(0, Math.floor(length / 280) - 1) }, (_, i) =>
       lerp(start, end, (i + 1) * 280 / length))]
   })
   const towers: ParcelPoint[] = []
@@ -106,19 +120,17 @@ export function createCityWallPlan(
     if (towers.some(other => distance(point, other) < 150)) continue
     towers.push(point)
   }
-  return { ring, gates, spans, towers, perimeter }
+  return { ring, gates, spans, towers, perimeter, waterfront }
 }
 
 // The first road crosses the northern rim near its second survey point.
-// Include three shore building parcels in the fortification; the pirate island stays outside.
-// Sea gates face the two beach-side harbour construction plots.
+// Only the city land is walled: coast slots and pirate island stay in open sea.
+// The southern rampart is interrupted throughout the harbour-facing frontage.
 export const CITY_WALL_PLAN = createCityWallPlan(
-  PARCEL_PLOTS.slice(0, 28).map(p => p.polygon),
+  PARCEL_PLOTS.slice(0, 25).map(p => p.polygon),
   [
     { name: 'kuzey', road: CITY_ROADS[0][1] },
     { name: 'dogu-kuzey', road: CITY_ROADS[1][CITY_ROADS[1].length - 1] },
     { name: 'bati', road: CITY_ROADS[3][0] },
-    { name: 'liman-bati', road: PARCEL_PLOTS[25].center },
-    { name: 'liman-dogu', road: PARCEL_PLOTS[26].center },
   ],
 )

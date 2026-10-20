@@ -48,3 +48,6 @@ android/app/payitaht-release.keystore
 !/visual-review/G10/
 
 !/visual-review/G11/
+
+# Generated from the approved master background before dev/build.
+/public/images/game/terrain/painted-town-v1/city-crisp.webp
