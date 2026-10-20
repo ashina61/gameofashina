@@ -7,9 +7,9 @@
  * korunur, cunku headers() bir sunucu ister ve statik disa aktarimda
  * calismaz (bkz. next/dist/docs/01-app/02-guides/static-exports.md).
  *
- * assetPrefix './' varliklari GORECELI yola baglar; kok-goreli '/_next/...'
- * yollari, uygulamanin alt bir dizinden servis edildigi onizlemelerde 404
- * verirdi.
+ * Next 16 next/font relative assetPrefix ('./') kabul etmez. Web/Android
+ * kok yayinda normal '/_next/...' yolu, Pages alt yayinda ise NEXT_BASE_PATH
+ * kullanilir. Alt dizin onizlemeleri de acik base path ile derlenmelidir.
  */
 const staticExport = process.env.STATIC_EXPORT === '1'
 /*
@@ -29,13 +29,16 @@ const nextConfig = {
         output: 'export',
         trailingSlash: false,
         /*
-         * basePath verildiyse: /_next otomatik olarak '<base>/_next' olur
-         * (assetPrefix'e gerek yok). Verilmediyse eski goreli davranis: './'
-         * (alt cizgi sorunu olan barindiricilar icin NEXT_ASSET_PREFIX).
+         * basePath varsa Next '<base>/_next' yolunu kendisi ayarlar.
+         * Yoksa assetPrefix tanimlamamak kok '/_next' adresini kullanir;
+         * Android Capacitor WebView localhost kokunde bunu cozer.
+         * Yalnizca acik mutlak NEXT_ASSET_PREFIX degerine izin verilir.
          */
         ...(basePath
           ? { basePath }
-          : { assetPrefix: process.env.NEXT_ASSET_PREFIX ?? './' }),
+          : process.env.NEXT_ASSET_PREFIX
+            ? { assetPrefix: process.env.NEXT_ASSET_PREFIX }
+            : {}),
       }
     : {}),
   /*
