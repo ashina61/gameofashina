@@ -6,7 +6,7 @@ yeni bir temsili şehir fotoğrafı sahneye konmaz.
 
 ## Üretim işlemi
 - 1586×992 onaylı orijinalden Phaser dünya boyutuna **tek adımda 3172×1984 Lanczos**.
-- Çok sınırlı CLAHE yerel kontrast (96×96, maxSlope 1.25): yol–taş–orman
+- Çok sınırlı CLAHE yerel kontrast (96×96, maxSlope 1): yol–taş–orman
   ayrışması; yeni bina, yol, duvar veya arsa çizilmez.
 - Hafif kontur keskinleştirme; WebP kalite 96 (önce 91) ile kenar sıkıştırma
   gürültüsünü sınırlama.
