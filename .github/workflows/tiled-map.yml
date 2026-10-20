@@ -79,4 +79,4 @@ jobs:
       - name: Tip kontrolü
         run: pnpm exec tsc --noEmit
       - name: Testler
-        run: pnpm exec tsx --test lib/game/engine.test.ts lib/game/render/iso-metrics.test.ts lib/game/building-slot-system.test.ts
+        run: pnpm exec tsx --test lib/game/engine.test.ts lib/game/render/iso-metrics.test.ts lib/game/building-slot-system.test.ts lib/game/city-map/parcel-wall-ring.test.ts lib/native-export-config.test.ts
