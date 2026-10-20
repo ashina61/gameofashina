@@ -6,7 +6,7 @@
 
 Ana `ParcelCityScene` içinde `(570,50)` konumuna yerleştirilmiş, `760×475` boyuta zorlanan bağımsız `parcel-wall` görseli çıkarıldı. Bu görüntü şehrin çevresini hiçbir zaman sarmıyordu.
 
-`lib/game/city-map/parcel-wall-ring.ts` 25 kara parseli ve 3 kıyı inşa alanının gerçek boyalı sınırlarından dışbükey çevreyi çıkarır ve 120 dünya pikseli dışarı taşır. 17 kırılma civarındaki gerçek parsel çevresi ile sur bandı arasında en az 48 dünya pikseli açıklık bulunur; hiçbir bina, boş arsa veya belediye merkezi değiştirilmez. Duvar panelleri ortak uç noktaları ve aynı harita koordinatlarını kullanır.
+`lib/game/city-map/parcel-wall-ring.ts` 25 kara parseli ve 3 kıyı inşa alanının gerçek boyalı sınırlarından dışbükey çevreyi çıkarır ve 120 dünya pikseli dışarı taşır; liman cephesinde yüksek burçların kıyı parsellerinin çatısını örtmemesi için dış açıklığa 70 piksel daha eklenir. 17 kırılma civarındaki gerçek parsel çevresi ile sur bandı arasında en az 48 dünya pikseli açıklık bulunur; hiçbir bina, boş arsa veya belediye merkezi değiştirilmez. Duvar panelleri ortak uç noktaları ve aynı harita koordinatlarını kullanır.
 
 Gerçek boyalı yol ölçümlerinden beş kapı projekte edilir: kuzey ana yol, kuzeydoğu yokuşu, batı girişi ve iki liman inişi. Her kapıda 108 dünya piksellik fiziksel çizim boşluğu, iki ayrı burç ve yalnız üst seviyede kemer kirişi vardır; zemindeki yol kapanmaz. Uzun cephelerde burç tekrarı, üst yürüyüş yolu, taş derzleri, seviyeye bağlı sur yüksekliği vardır. Surlar inşa edilmemişse hayalet halka yerine yalnız kuzeyde inşaat izi gösterilir. Sur/kule/kapıya basılınca Surlar ekranı açılır; inşa sayacı korunur.
 
