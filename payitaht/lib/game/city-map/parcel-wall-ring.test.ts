@@ -20,6 +20,12 @@ test('stone rampart encloses 25 city plots and three coast sites without hitting
     const clearance = Math.min(...ring.map((a, i) => wallDistanceToSegment(vertex, a, ring[(i+1)%ring.length]).distance))
     assert.ok(clearance >= 48, `plot ${plot.index} only ${clearance.toFixed(1)} px from wall`)
   }
+  // Front-facing turrets are taller than the wall; harbour plots need
+  // additional screen-space clearance to keep their roofs visible.
+  for (const plot of PARCEL_PLOTS.slice(25, 28)) for (const vertex of plot.polygon) {
+    const clearance = Math.min(...ring.map((a, i) => wallDistanceToSegment(vertex, a, ring[(i+1)%ring.length]).distance))
+    assert.ok(clearance >= 115, `harbour plot ${plot.index} too close to high wall tower`)
+  }
   assert.ok(towers.length > 10, 'long wall fronts need interval towers')
   for (const span of spans) {
     assert.ok(d(span.start, span.end) >= 1, 'wall is never a zero-length sprite')
