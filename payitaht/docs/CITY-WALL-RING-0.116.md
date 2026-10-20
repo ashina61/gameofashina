@@ -24,3 +24,10 @@ Sistem Phaser vektör çizimidir, yeni WebP çizimi **değildir**. Yeni kütle v
 `parcel-wall-ring.test.ts` arsa-poligon açıklığı, harita sınırı, kapı genişliği, kuzey yolunun kapıya denk gelişi ve surun yalnız kapılarda kesildiği durumları doğrular.
 
 Kod GitHub dalında tutulur. Gerçek tarayıcı ekranı, mobil dokunma ve görsel kalite kontrolleri CI raporu alınıncaya kadar **onaylanmış sayılmaz**. Arka planın daha yüksek kaynak çözünürlüğü ve ayrı yeni sur illüstrasyonu bu düzenlemede üretilmedi; olduğundan farklı sunulmaz.
+
+## 20 Ekim CI ara sonucu
+
+- PR #83 güncel başında Empire Engine Checks: **başarılı**.
+- Tiled Map işleri: **başarılı**; eklenen `parcel-wall-ring.test.ts` ve `native-export-config.test.ts` bu akışta fiilen çalıştırılmıştır.
+- Android Release Check ve Mobile Visual QA: bu kayıt sırasında sonuç henüz kesinleşmemiştir.
+- Önceki mobil QA koşusunda ada ormanı görseli küçük bulundu; `island-forest` genişliği %22'den %34'e çıkarıldı, sonuç yeniden sınanmaktadır.
