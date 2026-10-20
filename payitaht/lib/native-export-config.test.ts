@@ -3,7 +3,7 @@ import { execFileSync } from 'node:child_process'
 import test from 'node:test'
 
 function readExportConfig(vars: Record<string, string>) {
-  const env = { ...process.env, STATIC_EXPORT: '1', NEXT_PUBLIC_NATIVE: '1' }
+  const env: NodeJS.ProcessEnv = { ...process.env, STATIC_EXPORT: '1', NEXT_PUBLIC_NATIVE: '1' }
   delete env.NEXT_BASE_PATH
   delete env.NEXT_ASSET_PREFIX
   Object.assign(env, vars)
