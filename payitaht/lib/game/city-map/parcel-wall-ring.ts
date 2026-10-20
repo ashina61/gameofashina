@@ -106,15 +106,16 @@ export function createCityWallPlan(
   return { ring, gates, spans, towers, perimeter }
 }
 
-// The first road actually crosses the northern rim at its second survey point.
-// Others are the western approach, northern hill road and two harbour roads.
+// The first road crosses the northern rim near its second survey point.
+// Include three shore building parcels in the fortification; the pirate island stays outside.
+// Sea gates face the two beach-side harbour construction plots.
 export const CITY_WALL_PLAN = createCityWallPlan(
-  PARCEL_PLOTS.slice(0, 25).map(p => p.polygon),
+  PARCEL_PLOTS.slice(0, 28).map(p => p.polygon),
   [
     { name: 'kuzey', road: CITY_ROADS[0][1] },
     { name: 'dogu-kuzey', road: CITY_ROADS[1][CITY_ROADS[1].length - 1] },
     { name: 'bati', road: CITY_ROADS[3][0] },
-    { name: 'liman-bati', road: CITY_ROADS[1][0] },
-    { name: 'liman-dogu', road: CITY_ROADS[2][0] },
+    { name: 'liman-bati', road: PARCEL_PLOTS[25].center },
+    { name: 'liman-dogu', road: PARCEL_PLOTS[26].center },
   ],
 )
