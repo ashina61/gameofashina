@@ -61,7 +61,10 @@ export function createCityWallPlan(
   }
   const ring = wallHull(all).map(p => {
     const length = distance(centre, p) || 1
-    return { x: p.x + (p.x - centre.x) * padding / length, y: p.y + (p.y - centre.y) * padding / length }
+    // Sea-facing wall stays below dock roofs; tall level-3 towers must not sit
+    // on top of port plots. The northern road gates retain their 120px offset.
+    const outset = padding + (p.y > 1500 ? 70 : 0)
+    return { x: p.x + (p.x - centre.x) * outset / length, y: p.y + (p.y - centre.y) * outset / length }
   })
   const edges = ring.map((start, i) => ({ start, end: ring[(i + 1) % ring.length] }))
   const perimeter = edges.reduce((sum, e) => sum + distance(e.start, e.end), 0)
