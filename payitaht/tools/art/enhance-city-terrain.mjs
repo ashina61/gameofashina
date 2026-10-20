@@ -33,7 +33,7 @@ const result = await sharp(source)
   .resize(WORLD_WIDTH, WORLD_HEIGHT, { kernel: sharp.kernel.lanczos3, fit: 'fill' })
   // Gentle tile-limited histogram equalisation opens hazy forest, city stone
   // and harbour midtones locally. A low maxSlope limits noisy grain and halos.
-  .clahe({ width: 96, height: 96, maxSlope: 1.25 })
+  .clahe({ width: 96, height: 96, maxSlope: 1 })
   .sharpen({ sigma: 1.1, m1: 2.1, m2: 2.3, x1: 2, y2: 10, y3: 20 })
   .linear(1.012, -1)
   .modulate({ saturation: 1.015 })
