@@ -52,6 +52,7 @@ test('road gates are real gaps rather than painted doors blocking a wall segment
   assert.ok(ring.length > 0)
   for (const gate of gates.filter(g => g.name.startsWith('liman'))) {
     const plot = gate.name === 'liman-bati' ? PARCEL_PLOTS[25] : PARCEL_PLOTS[26]
-    assert.ok(d(gate.center, plot.center) < 165, `sea gate ${gate.name} misses its harbour`)
+    assert.ok(d(gate.center, plot.center) < 215, `sea gate ${gate.name} misses its harbour`)
+    assert.ok(Math.abs(gate.center.x - plot.center.x) < 32, `sea gate ${gate.name} does not align with its dock`)
   }
 })
