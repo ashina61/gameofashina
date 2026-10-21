@@ -43,9 +43,15 @@ test('all existing building stages and both directions fit every matching parcel
 test('actual approved barracks alpha, including open yard, fits all 25 land parcels',async()=>{
   for(const size of ['full','sm'] as const){
     const {data,info}=await sharp('public'+cityBuildingImage('kisla',1,undefined,size)).ensureAlpha().raw().toBuffer({resolveWithObject:true})
-    for(const [x,y] of [[.48,.55],[.47,.59],[.60,.52],[.40,.62],[.58,.60]])assert.equal(data[(Math.round(y*info.height)*info.width+Math.round(x*info.width))*4+3],0)
+    // Probe the new courtyard between props; old sprite coordinates now hit arches/walls.
+    for(const [x,y] of [[.48,.55],[.25,.60],[.40,.54],[.58,.60],[.70,.69]])assert.ok(data[(Math.round(y*info.height)*info.width+Math.round(x*info.width))*4+3]<8,`courtyard ${x}/${y} must reveal shared terrain`)
     for(const p of PARCEL_PLOTS.slice(0,25))for(const flip of [false,true]){
       const f=parcelArtFrame(p,info.width,info.height,cityArtOutline('kisla',1,size)!,flip)
+      if(p.index>0){ // Plot zero is the fixed civic hall, with its separate diamond fit.
+        const xs=f.polygon.map(q=>q.x),ys=f.polygon.map(q=>q.y)
+        assert.ok(Math.abs((Math.min(...xs)+Math.max(...xs))/2-p.center.x)<1e-6,'visible barracks centre x')
+        assert.ok(Math.abs((Math.min(...ys)+Math.max(...ys))/2-p.center.y)<1e-6,'visible barracks centre y')
+      }
       for(let y=0;y<info.height;y++){
         let left=-1,right=-1
         for(let x=0;x<info.width;x++)if(data[(y*info.width+x)*4+3]>=8){if(left<0)left=x;right=x}

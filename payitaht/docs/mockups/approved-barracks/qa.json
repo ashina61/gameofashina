@@ -1,0 +1,62 @@
+{
+  "errors": [],
+  "missing": [],
+  "cases": [
+    {
+      "width": 360,
+      "height": 844,
+      "level": 1,
+      "flipped": false,
+      "outside": 0,
+      "loaded": [
+        "/images/game/buildings/parcel-v3/kisla-sm.webp",
+        "/images/game/buildings/parcel-v3/kisla-sm.webp"
+      ],
+      "tapOpenedBarracks": true
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "level": 8,
+      "flipped": true,
+      "outside": 0,
+      "loaded": [
+        "/images/game/buildings/parcel-v3/kisla-sm.webp",
+        "/images/game/buildings/parcel-v3/kisla-sm.webp"
+      ],
+      "tapOpenedBarracks": true
+    },
+    {
+      "width": 430,
+      "height": 844,
+      "level": 20,
+      "flipped": false,
+      "outside": 0,
+      "loaded": [
+        "/images/game/buildings/parcel-v3/kisla-sm.webp",
+        "/images/game/buildings/parcel-v3/kisla-sm.webp"
+      ],
+      "tapOpenedBarracks": true
+    },
+    {
+      "width": 1536,
+      "height": 960,
+      "level": 1,
+      "flipped": false,
+      "outside": 0,
+      "loaded": [
+        "/images/game/buildings/parcel-v3/kisla-sm.webp"
+      ],
+      "tapOpenedBarracks": null
+    }
+  ],
+  "native": {
+    "parcel": 1,
+    "artWidth": 293.87725629190436,
+    "artHeight": 146.93862814595218,
+    "parcelWidth": 320,
+    "parcelHeight": 160,
+    "method": "Existing uniform scale and visible-alpha centering. Not a separate ground-footprint survey."
+  },
+  "layoutExit": 1
+}

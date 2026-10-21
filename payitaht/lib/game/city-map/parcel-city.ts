@@ -43,7 +43,7 @@ export const PARCEL_REPAINTED_BUILDINGS = ['saray','elcilik','konut','hamam','ca
 const repainted=new Set<string>(PARCEL_REPAINTED_BUILDINGS)
 export function cityBuildingImage(id:string,level=1,facing?:CoastFacing,size:ArtSize='sm'){
  if(id==='divan')return asset(`/images/game/buildings/painted-town-v1/divan${size==='sm'?'-sm':''}.webp`)
- if(id==='kisla')return asset(`/images/game/buildings/parcel-v1/kisla${size==='sm'?'-sm':''}.webp`)
+ if(id==='kisla')return asset(`/images/game/buildings/parcel-v3/kisla${size==='sm'?'-sm':''}.webp`)
  if(repainted.has(id)){
   const variant=(id==='liman'||id==='tersane')&&facing==='straight'?id+'-duz':id
   return asset(`/images/game/buildings/parcel-v2/${variant}${size==='sm'?'-sm':''}.webp`)
