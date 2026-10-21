@@ -1,6 +1,7 @@
 import { LIVE_SLOTS } from './live-adapter'
 import { asset, buildingImage, buildingStage, type ArtSize, type CoastFacing } from '@/lib/asset'
 import bounds from './parcel-art-bounds.json'
+import ottomanArt from './ottoman-art.json'
 
 export type ParcelPoint = {x:number;y:number}
 // Source painting is 1586×992. All measurements below use the same 2× world scale.
@@ -41,7 +42,12 @@ export function parcelContainsPoint(p:CityParcel,q:ParcelPoint,margin=0){
 /** Reviewed groundless architecture; no terrain patch is drawn beneath it. */
 export const PARCEL_REPAINTED_BUILDINGS = ['saray','elcilik','konut','hamam','carsi','ambar','kereste','medrese','liman','tersane','kahvehane','cami','muze','marangoz','mimar','ormanci','tasci','tophane','bagci','simyahane','camci','mahzen','gozlukcu','barutane','depo','ticaret_merkezi','harita_arsivi','valilik','korsan_kalesi','kara_pazar','siginak','tekke','mabet','karagoz'] as const
 const repainted=new Set<string>(PARCEL_REPAINTED_BUILDINGS)
+export function cityArtAnchor(id:string):ParcelPoint|undefined{
+ return (ottomanArt as Record<string,{groundCenter:ParcelPoint}>)[id]?.groundCenter
+}
 export function cityBuildingImage(id:string,level=1,facing?:CoastFacing,size:ArtSize='sm'){
+ const variant=(id==='liman'||id==='tersane')&&facing==='straight'?id+'-duz':id
+ if(cityArtAnchor(variant))return asset(`/images/game/buildings/ottoman-v3/${variant}${size==='sm'?'-sm':''}.webp`)
  if(id==='divan')return asset(`/images/game/buildings/painted-town-v1/divan${size==='sm'?'-sm':''}.webp`)
  if(id==='kisla')return asset(`/images/game/buildings/parcel-v1/kisla${size==='sm'?'-sm':''}.webp`)
  if(repainted.has(id)){
@@ -55,29 +61,23 @@ export function cityArtOutline(id:string,level:number,size:ArtSize){
  return (bounds as Record<string,Record<string,number[][]>>)[key]?.[size]?.map(([x,y])=>({x,y}))
 }
 /** One scale and translation in the fixed camera. No warp, crop or ground. */
-export function parcelArtFrame(p:CityParcel,width:number,height:number,outline:ParcelPoint[],flip=false){
+export function parcelArtFrame(p:CityParcel,width:number,height:number,outline:ParcelPoint[],flip=false,groundCenter?:ParcelPoint){
  const points=outline.map(q=>({x:(flip?1-q.x:q.x)*width,y:q.y*height}))
- if(p.polygon.length===8){
-  // Centre the visible alpha, not its transparent canvas. Edge support gives the
-  // largest uniform scale at that centre, keeping roofs and shadows inside.
-  const cx=(Math.min(...points.map(q=>q.x))+Math.max(...points.map(q=>q.x)))/2
-  const cy=(Math.min(...points.map(q=>q.y))+Math.max(...points.map(q=>q.y)))/2
-  const inset=3.2
-  const scale=Math.min(...p.polygon.map((a,i)=>{
-   const b=p.polygon[(i+1)%p.polygon.length],nx=b.y-a.y,ny=a.x-b.x
-   const support=Math.max(...points.map(q=>nx*(q.x-cx)+ny*(q.y-cy)))
-   return (nx*(a.x-p.center.x)+ny*(a.y-p.center.y)-inset*Math.hypot(nx,ny))/support
-  }))
-  const left=p.center.x-cx*scale,top=p.center.y-cy*scale
-  return {left,top,x:left+width*scale/2,y:top+height*scale/2,width:width*scale,height:height*scale,
-   polygon:points.map(q=>({x:left+q.x*scale,y:top+q.y*scale}))}
- }
- const m=points.map(q=>q.x+2*q.y),n=points.map(q=>2*q.y-q.x)
- const m0=Math.min(...m),n0=Math.min(...n),inset=p.width*.01
- const scale=(p.width-2*inset)/Math.max(Math.max(...m)-m0,Math.max(...n)-n0)
- const a=p.center.x+2*p.center.y-p.width/2+inset-m0*scale
- const b=2*p.center.y-p.center.x-p.width/2+inset-n0*scale
- const left=(a-b)/2,top=(a+b)/4
+ // The art's explicit contact centre belongs to the ground footprint, not the roof.
+ // Mirror that anchor together with the image, so rotating a building never
+ // moves its foundation away from the parcel centre.
+ const cx=groundCenter?(flip?1-groundCenter.x:groundCenter.x)*width:
+  (Math.min(...points.map(q=>q.x))+Math.max(...points.map(q=>q.x)))/2
+ const cy=groundCenter?groundCenter.y*height:
+  (Math.min(...points.map(q=>q.y))+Math.max(...points.map(q=>q.y)))/2
+ const inset=3.2
+ const scale=Math.min(...p.polygon.map((a,i)=>{
+  const b=p.polygon[(i+1)%p.polygon.length],nx=b.y-a.y,ny=a.x-b.x
+  const support=Math.max(...points.map(q=>nx*(q.x-cx)+ny*(q.y-cy)))
+  return support>0?(nx*(a.x-p.center.x)+ny*(a.y-p.center.y)-inset*Math.hypot(nx,ny))/support:Infinity
+ }))
+ const left=p.center.x-cx*scale,top=p.center.y-cy*scale
  return {left,top,x:left+width*scale/2,y:top+height*scale/2,width:width*scale,height:height*scale,
+  groundCenter:{x:left+cx*scale,y:top+cy*scale},
   polygon:points.map(q=>({x:left+q.x*scale,y:top+q.y*scale}))}
 }

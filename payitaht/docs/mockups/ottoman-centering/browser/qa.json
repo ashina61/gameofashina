@@ -1,0 +1,100 @@
+{
+  "cases": [
+    {
+      "width": 360,
+      "batch": 0,
+      "buildings": 28,
+      "maxGroundCenterError": 0,
+      "outside": 0
+    },
+    {
+      "width": 360,
+      "batch": 1,
+      "buildings": 12,
+      "maxGroundCenterError": 0,
+      "outside": 0
+    },
+    {
+      "width": 390,
+      "batch": 0,
+      "buildings": 28,
+      "maxGroundCenterError": 0,
+      "outside": 0
+    },
+    {
+      "width": 390,
+      "batch": 1,
+      "buildings": 12,
+      "maxGroundCenterError": 0,
+      "outside": 0
+    },
+    {
+      "width": 430,
+      "batch": 0,
+      "buildings": 28,
+      "maxGroundCenterError": 0,
+      "outside": 0
+    },
+    {
+      "width": 430,
+      "batch": 1,
+      "buildings": 12,
+      "maxGroundCenterError": 0,
+      "outside": 0
+    },
+    {
+      "width": 1536,
+      "batch": 0,
+      "buildings": 28,
+      "maxGroundCenterError": 0,
+      "outside": 0
+    },
+    {
+      "width": 1536,
+      "batch": 1,
+      "buildings": 12,
+      "maxGroundCenterError": 0,
+      "outside": 0
+    }
+  ],
+  "errors": [],
+  "missing": [],
+  "ids": [
+    "ambar",
+    "bagci",
+    "barutane",
+    "camci",
+    "cami",
+    "carsi",
+    "depo",
+    "divan",
+    "elcilik",
+    "gozlukcu",
+    "hamam",
+    "harita_arsivi",
+    "kahvehane",
+    "kara_pazar",
+    "karagoz",
+    "kereste",
+    "kisla",
+    "konut",
+    "korsan_kalesi",
+    "liman",
+    "mabet",
+    "mahzen",
+    "marangoz",
+    "medrese",
+    "mimar",
+    "muze",
+    "ormanci",
+    "saray",
+    "siginak",
+    "simyahane",
+    "tasci",
+    "tekke",
+    "tersane",
+    "ticaret_merkezi",
+    "tophane",
+    "valilik"
+  ]
+}

@@ -1,0 +1,230 @@
+{
+  "kisla": {
+    "groundCenter": {
+      "x": 0.5,
+      "y": 0.6
+    }
+  },
+  "divan": {
+    "groundCenter": {
+      "x": 0.5,
+      "y": 0.55
+    }
+  },
+  "medrese": {
+    "groundCenter": {
+      "x": 0.5,
+      "y": 0.6
+    }
+  },
+  "hamam": {
+    "groundCenter": {
+      "x": 0.5,
+      "y": 0.62
+    }
+  },
+  "carsi": {
+    "groundCenter": {
+      "x": 0.5,
+      "y": 0.6
+    }
+  },
+  "depo": {
+    "groundCenter": {
+      "x": 0.5,
+      "y": 0.6
+    }
+  },
+  "saray": {
+    "groundCenter": {
+      "x": 0.5,
+      "y": 0.6
+    }
+  },
+  "liman": {
+    "groundCenter": {
+      "x": 0.5,
+      "y": 0.6
+    }
+  },
+  "elcilik": {
+    "groundCenter": {
+      "x": 0.5,
+      "y": 0.6
+    }
+  },
+  "tersane": {
+    "groundCenter": {
+      "x": 0.5,
+      "y": 0.6
+    }
+  },
+  "kereste": {
+    "groundCenter": {
+      "x": 0.5,
+      "y": 0.6
+    }
+  },
+  "kahvehane": {
+    "groundCenter": {
+      "x": 0.5,
+      "y": 0.6
+    }
+  },
+  "cami": {
+    "groundCenter": {
+      "x": 0.5,
+      "y": 0.6
+    }
+  },
+  "ambar": {
+    "groundCenter": {
+      "x": 0.5,
+      "y": 0.6
+    }
+  },
+  "muze": {
+    "groundCenter": {
+      "x": 0.5,
+      "y": 0.6
+    }
+  },
+  "mimar": {
+    "groundCenter": {
+      "x": 0.5,
+      "y": 0.6
+    }
+  },
+  "konut": {
+    "groundCenter": {
+      "x": 0.5,
+      "y": 0.6
+    }
+  },
+  "marangoz": {
+    "groundCenter": {
+      "x": 0.5,
+      "y": 0.6
+    }
+  },
+  "ormanci": {
+    "groundCenter": {
+      "x": 0.5,
+      "y": 0.6
+    }
+  },
+  "simyahane": {
+    "groundCenter": {
+      "x": 0.5,
+      "y": 0.6
+    }
+  },
+  "tasci": {
+    "groundCenter": {
+      "x": 0.5,
+      "y": 0.6
+    }
+  },
+  "camci": {
+    "groundCenter": {
+      "x": 0.5,
+      "y": 0.6
+    }
+  },
+  "mahzen": {
+    "groundCenter": {
+      "x": 0.5,
+      "y": 0.6
+    }
+  },
+  "gozlukcu": {
+    "groundCenter": {
+      "x": 0.5,
+      "y": 0.6
+    }
+  },
+  "tophane": {
+    "groundCenter": {
+      "x": 0.5,
+      "y": 0.6
+    }
+  },
+  "barutane": {
+    "groundCenter": {
+      "x": 0.5,
+      "y": 0.6
+    }
+  },
+  "harita_arsivi": {
+    "groundCenter": {
+      "x": 0.5,
+      "y": 0.6
+    }
+  },
+  "bagci": {
+    "groundCenter": {
+      "x": 0.5,
+      "y": 0.6
+    }
+  },
+  "ticaret_merkezi": {
+    "groundCenter": {
+      "x": 0.5,
+      "y": 0.6
+    }
+  },
+  "valilik": {
+    "groundCenter": {
+      "x": 0.5,
+      "y": 0.6
+    }
+  },
+  "korsan_kalesi": {
+    "groundCenter": {
+      "x": 0.5,
+      "y": 0.6
+    }
+  },
+  "tekke": {
+    "groundCenter": {
+      "x": 0.5,
+      "y": 0.6
+    }
+  },
+  "kara_pazar": {
+    "groundCenter": {
+      "x": 0.5,
+      "y": 0.6
+    }
+  },
+  "mabet": {
+    "groundCenter": {
+      "x": 0.5,
+      "y": 0.6
+    }
+  },
+  "liman-duz": {
+    "groundCenter": {
+      "x": 0.5,
+      "y": 0.6
+    }
+  },
+  "tersane-duz": {
+    "groundCenter": {
+      "x": 0.5,
+      "y": 0.6
+    }
+  },
+  "siginak": {
+    "groundCenter": {
+      "x": 0.5,
+      "y": 0.6
+    }
+  },
+  "karagoz": {
+    "groundCenter": {
+      "x": 0.5,
+      "y": 0.6
+    }
+  }
+}

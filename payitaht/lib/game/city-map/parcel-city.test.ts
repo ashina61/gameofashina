@@ -1,9 +1,11 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import sharp from 'sharp'
+import { stat } from 'node:fs/promises'
+import ottomanArt from './ottoman-art.json'
 import { BUILDING_IDS } from '../engine'
 import { LIVE_SLOTS } from './live-adapter'
-import { PARCEL_PLOTS, PARCEL_WORLD, parcelProject, parcelInverse, parcelContainsPoint, parcelArtFrame, cityArtOutline, cityBuildingImage } from './parcel-city'
+import { PARCEL_PLOTS, PARCEL_WORLD, parcelProject, parcelInverse, parcelContainsPoint, parcelArtFrame, cityArtOutline, cityArtAnchor, cityBuildingImage } from './parcel-city'
 
 test('main parcel projection preserves all saved IDs, zones and fixed hall',()=>{
   assert.equal(PARCEL_PLOTS.length,LIVE_SLOTS.length)
@@ -33,7 +35,7 @@ test('all existing building stages and both directions fit every matching parcel
     const {width,height}=await sharp('public'+file).metadata();assert.ok(width&&height)
     const outline=cityArtOutline(id,level,size);assert.ok(outline&&outline.length>=3,`${id}/${level}/${size}`)
     for(const p of PARCEL_PLOTS.filter(p=>p.slot.zone===(id==='liman'||id==='tersane'||id==='korsan_kalesi'?'liman':'sehir')))for(const flip of [false,true]){
-      const f=parcelArtFrame(p,width,height,outline,flip)
+      const f=parcelArtFrame(p,width,height,outline,flip,cityArtAnchor(id))
       assert.ok(Math.abs(f.width/f.height-width/height)<1e-8)
       assert.ok(f.polygon.every(q=>parcelContainsPoint(p,q)),`${id}/${p.index}/${flip}`)
     }
@@ -45,7 +47,7 @@ test('actual approved barracks alpha, including open yard, fits all 25 land parc
     const {data,info}=await sharp('public'+cityBuildingImage('kisla',1,undefined,size)).ensureAlpha().raw().toBuffer({resolveWithObject:true})
     for(const [x,y] of [[.48,.55],[.47,.59],[.60,.52],[.40,.62],[.58,.60]])assert.equal(data[(Math.round(y*info.height)*info.width+Math.round(x*info.width))*4+3],0)
     for(const p of PARCEL_PLOTS.slice(0,25))for(const flip of [false,true]){
-      const f=parcelArtFrame(p,info.width,info.height,cityArtOutline('kisla',1,size)!,flip)
+      const f=parcelArtFrame(p,info.width,info.height,cityArtOutline('kisla',1,size)!,flip,cityArtAnchor('kisla'))
       for(let y=0;y<info.height;y++){
         let left=-1,right=-1
         for(let x=0;x<info.width;x++)if(data[(y*info.width+x)*4+3]>=8){if(left<0)left=x;right=x}
@@ -61,7 +63,7 @@ test('every new groundless building has real alpha and fits matching parcels in 
   const seen=new Set<string>()
   for(const id of PARCEL_REPAINTED_BUILDINGS)for(const facing of id==='liman'||id==='tersane'?[undefined,'straight'] as const:[undefined])for(const size of ['full','sm'] as const){
     const file=cityBuildingImage(id,1,facing,size)
-    assert.match(file,/\/parcel-v2\//)
+    assert.match(file,/\/(parcel-v2|ottoman-v3)\//)
     assert.ok(!seen.has(file),`${id}: reused another type's sprite`);seen.add(file)
     const {data,info}=await sharp('public'+file).ensureAlpha().raw().toBuffer({resolveWithObject:true})
     let transparent=0,opaque=0
@@ -82,7 +84,7 @@ test('every new groundless building has real alpha and fits matching parcels in 
     const name=facing==='straight'?id+'-duz':id
     const outline=cityArtOutline(name,1,size);assert.ok(outline,`${id}: missing contour`)
     for(const p of PARCEL_PLOTS.filter(p=>p.slot.zone===(id==='liman'||id==='tersane'||id==='korsan_kalesi'?'liman':'sehir')))for(const flip of [false,true]){
-      const f=parcelArtFrame(p,info.width,info.height,outline,flip)
+      const f=parcelArtFrame(p,info.width,info.height,outline,flip,cityArtAnchor(name))
       assert.ok(edge.every(q=>parcelContainsPoint(p,{x:f.left+(flip?1-q.x:q.x)*f.width,y:f.top+q.y*f.height})),`${id}/${facing}/${size}/${p.index}/${flip}: alpha outside parcel`)
     }
   }
@@ -106,4 +108,42 @@ test('empty clearing hit boundary includes its shoulders and excludes rectangula
   const xs=f.polygon.map(q=>q.x),ys=f.polygon.map(q=>q.y)
   assert.ok(Math.abs((Math.min(...xs)+Math.max(...xs))/2-p.center.x)<1e-8)
   assert.ok(Math.abs((Math.min(...ys)+Math.max(...ys))/2-p.center.y)<1e-8)
+})
+
+test('asymmetric art stays centred on civic and coast diamonds as well as land clearings',()=>{
+  const outline=[{x:.06,y:.35},{x:.5,y:.1},{x:.88,y:.25},{x:.76,y:.85},{x:.26,y:.94}]
+  for(const p of PARCEL_PLOTS)for(const flip of [false,true]){
+    const f=parcelArtFrame(p,900,500,outline,flip)
+    const xs=f.polygon.map(q=>q.x),ys=f.polygon.map(q=>q.y)
+    assert.ok(Math.abs((Math.min(...xs)+Math.max(...xs))/2-p.center.x)<1e-8)
+    assert.ok(Math.abs((Math.min(...ys)+Math.max(...ys))/2-p.center.y)<1e-8)
+    assert.ok(f.polygon.every(q=>parcelContainsPoint(p,q,3.19)))
+  }
+})
+
+test('ground footprint centre remains fixed when transparent canvas padding or facing changes',()=>{
+  const outline=[{x:.1,y:.35},{x:.4,y:.1},{x:.85,y:.4},{x:.7,y:.86},{x:.2,y:.78}]
+  const anchor={x:.46,y:.59}
+  for(const p of PARCEL_PLOTS)for(const flip of [false,true]){
+    const f=parcelArtFrame(p,1000,600,outline,flip,anchor)
+    assert.ok(Math.abs(f.left+(flip?1-anchor.x:anchor.x)*f.width-p.center.x)<1e-8)
+    assert.ok(Math.abs(f.top+anchor.y*f.height-p.center.y)<1e-8)
+    assert.ok(f.polygon.every(q=>parcelContainsPoint(p,q,3.19)))
+    const padded=parcelArtFrame(p,1200,800,outline.map(q=>({x:(q.x*1000+50)/1200,y:(q.y*600+120)/800})),flip,{x:(anchor.x*1000+50)/1200,y:(anchor.y*600+120)/800})
+    f.polygon.forEach((q,i)=>assert.ok(Math.hypot(q.x-padded.polygon[i].x,q.y-padded.polygon[i].y)<1e-8))
+  }
+})
+
+test('the Ottoman catalogue covers every city type and coast direction within the mobile art budget',async()=>{
+  assert.deepEqual(Object.keys(ottomanArt).filter(id=>!id.endsWith('-duz')).sort(),BUILDING_IDS.filter(id=>id!=='surlar').toSorted())
+  assert.equal(Object.keys(ottomanArt).length,38)
+  let phoneBytes=0
+  for(const [id,{groundCenter}]of Object.entries(ottomanArt)){
+    assert.ok(groundCenter.x>0&&groundCenter.x<1&&groundCenter.y>0&&groundCenter.y<1)
+    const base='public/images/game/buildings/ottoman-v3/'+id
+    assert.ok((await stat(base+'.webp')).size<=200*1024,`${id}: full asset too large`)
+    phoneBytes+=(await stat(base+'-sm.webp')).size
+    assert.ok(cityArtOutline(id,1,'full')&&cityArtOutline(id,1,'sm'))
+  }
+  assert.ok(phoneBytes<=2*1024*1024,'mobile catalogue exceeds 2 MiB')
 })

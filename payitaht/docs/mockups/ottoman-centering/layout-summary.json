@@ -1,0 +1,13 @@
+{
+  "status": "existing HUD findings; not a clean general layout pass",
+  "total": {
+    "taşma": 0,
+    "kesik": 0,
+    "küçük": 312,
+    "minik": 663,
+    "çakışma": 0,
+    "isimsiz": 0
+  },
+  "pageErrors": [],
+  "baseline": "docs/FINAL-VISUAL-AUDIT.md: 312 small targets / 663 small text findings"
+}
