@@ -1,0 +1,11 @@
+{
+  "generator": "built-in imagegen",
+  "terrainSha256": "3240d9fdbeb919aa42c81c14409265e9169cf4d4d1591959f6191799af3602bd",
+  "barracksSha256": "811bb44fb06b199dc7cd8f02811e4b3d9a0a88fd0be121f7f2ada7bc92882ef7",
+  "terrainDimensions": [
+    1586,
+    992
+  ],
+  "scope": "Accepted full-map repaint and two-storey barracks only. Other building art and all saved slots unchanged.",
+  "acceptedWideSha256": "4378be9fa0b3d644e85cb18bf04e7bd126f555f283ef36abcf03b349e78b10ed"
+}

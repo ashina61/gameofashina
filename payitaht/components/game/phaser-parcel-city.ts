@@ -6,7 +6,7 @@ import { asset, buildingArtKey, type ArtSize } from '@/lib/asset'
 import { BUILDINGS, BUILDING_IDS, activeJob, plotOpen, type BuildingId, type Game } from '@/lib/game/engine'
 import { visualSignature } from '@/lib/game/city-render'
 import { PEACEFUL_CITY, siegeAppearanceKey, type SiegeAppearance } from '@/lib/game/siege-appearance'
-import { PARCEL_PLOTS, PARCEL_WORLD, parcelPlot, CITY_ROADS, parcelArtFrame, cityArtOutline, cityBuildingImage, type CityParcel } from '@/lib/game/city-map/parcel-city'
+import { PARCEL_PLOTS, PARCEL_WORLD, parcelPlot, CITY_ROADS, parcelArtFrame, cityBuildingArtFrame, cityArtOutline, cityBuildingImage, type CityParcel } from '@/lib/game/city-map/parcel-city'
 import { cityArtSize, isTap } from './city/shared'
 import { parcelCameraViewport, parcelCityZoom } from '@/lib/game/city-map/parcel-camera'
 import { CITY_WALL_PLAN, type WallSpan } from '@/lib/game/city-map/parcel-wall-ring'
@@ -153,9 +153,9 @@ export class ParcelCityScene extends CityScene {
     const source=this.textures.get(key).getSourceImage() as HTMLImageElement,size:ArtSize=level>0?cityArtSize():'full'
     const name=level>0?(facing==='straight'?id+'-duz':id):'__site',flip=facing?facing==='right':this.state.flips.includes(id)
     const outline=cityArtOutline(name,level,size)||[{x:0,y:0},{x:1,y:0},{x:1,y:1},{x:0,y:1}]
-    const f=parcelArtFrame(p,source.width,source.height,outline,flip)
+    const f=cityBuildingArtFrame(name,p,source.width,source.height,outline,flip)
     const image=this.add.image(f.x,f.y,key).setDisplaySize(f.width,f.height).setFlipX(flip).setDepth(p.center.y+1)
-    image.setData('parcelIndex',p.index).setData('parcelBuilding',id).setData('parcelOutline',f.polygon)
+    image.setData('parcelIndex',p.index).setData('parcelBuilding',id).setData('parcelOutline',f.polygon).setData('parcelGround',f.groundPolygon)
     this.pieces.push(image)
     const hit=this.parcelHit(p).setDepth(p.center.y+2)
     hit.on('pointerup',(pointer:Phaser.Input.Pointer)=>{
@@ -310,7 +310,7 @@ export class ParcelCityScene extends CityScene {
       if(!this.built)return
       document.documentElement.dataset.cityReady=String(++this.readyCount)
       document.documentElement.dataset.cityLayer='painted-town-v1'
-      if(localStorage.getItem('payitaht-qa')==='1')document.documentElement.dataset.parcelReview=JSON.stringify(this.pieces.filter(p=>p.getData('parcelBuilding')).map(p=>({id:p.getData('parcelBuilding'),index:p.getData('parcelIndex'),outline:p.getData('parcelOutline'),boundary:PARCEL_PLOTS[p.getData('parcelIndex')].polygon})))
+      if(localStorage.getItem('payitaht-qa')==='1')document.documentElement.dataset.parcelReview=JSON.stringify(this.pieces.filter(p=>p.getData('parcelBuilding')).map(p=>({id:p.getData('parcelBuilding'),index:p.getData('parcelIndex'),outline:p.getData('parcelOutline'),ground:p.getData('parcelGround'),boundary:PARCEL_PLOTS[p.getData('parcelIndex')].polygon})))
     })
   }
 }
