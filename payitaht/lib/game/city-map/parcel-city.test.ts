@@ -3,7 +3,7 @@ import assert from 'node:assert/strict'
 import sharp from 'sharp'
 import { BUILDING_IDS } from '../engine'
 import { LIVE_SLOTS } from './live-adapter'
-import { PARCEL_PLOTS, PARCEL_WORLD, parcelProject, parcelInverse, parcelContainsPoint, parcelArtFrame, cityArtOutline, cityBuildingImage } from './parcel-city'
+import { PARCEL_PLOTS, PARCEL_WORLD, parcelProject, parcelInverse, parcelContainsPoint, parcelArtFrame, cityBuildingArtFrame, barracksRoadClear, cityArtOutline, cityBuildingImage } from './parcel-city'
 
 test('main parcel projection preserves all saved IDs, zones and fixed hall',()=>{
   assert.equal(PARCEL_PLOTS.length,LIVE_SLOTS.length)
@@ -33,19 +33,29 @@ test('all existing building stages and both directions fit every matching parcel
     const {width,height}=await sharp('public'+file).metadata();assert.ok(width&&height)
     const outline=cityArtOutline(id,level,size);assert.ok(outline&&outline.length>=3,`${id}/${level}/${size}`)
     for(const p of PARCEL_PLOTS.filter(p=>p.slot.zone===(id==='liman'||id==='tersane'||id==='korsan_kalesi'?'liman':'sehir')))for(const flip of [false,true]){
-      const f=parcelArtFrame(p,width,height,outline,flip)
+      const f=cityBuildingArtFrame(id,p,width,height,outline,flip)
       assert.ok(Math.abs(f.width/f.height-width/height)<1e-8)
-      assert.ok(f.polygon.every(q=>parcelContainsPoint(p,q)),`${id}/${p.index}/${flip}`)
+      const ground=f.groundPolygon
+      assert.ok(ground.every(q=>parcelContainsPoint(p,q)),`${id}/${p.index}/${flip}`)
+      if(id==='kisla'&&p.index>0)assert.ok(barracksRoadClear(f.polygon),`${id}/${p.index}/${flip}: road covered`)
     }
   }
 })
 
-test('actual approved barracks alpha, including open yard, fits all 25 land parcels',async()=>{
+test('two-storey barracks has an open yard, centred ground contacts and road-clear full alpha',async()=>{
   for(const size of ['full','sm'] as const){
     const {data,info}=await sharp('public'+cityBuildingImage('kisla',1,undefined,size)).ensureAlpha().raw().toBuffer({resolveWithObject:true})
-    for(const [x,y] of [[.48,.55],[.47,.59],[.60,.52],[.40,.62],[.58,.60]])assert.equal(data[(Math.round(y*info.height)*info.width+Math.round(x*info.width))*4+3],0)
+    for(const [x,y] of [[.48,.55],[.40,.54],[.58,.60],[.70,.69],[.43,.53]])assert.ok(data[(Math.round(y*info.height)*info.width+Math.round(x*info.width))*4+3]<8,'courtyard must reveal shared terrain')
     for(const p of PARCEL_PLOTS.slice(0,25))for(const flip of [false,true]){
-      const f=parcelArtFrame(p,info.width,info.height,cityArtOutline('kisla',1,size)!,flip)
+      const f=cityBuildingArtFrame('kisla',p,info.width,info.height,cityArtOutline('kisla',1,size)!,flip)
+      if(p.index>0){
+        const xs=f.groundPolygon.map(q=>q.x),ys=f.groundPolygon.map(q=>q.y)
+        assert.ok(Math.abs((Math.min(...xs)+Math.max(...xs))/2-p.center.x)<1e-6)
+        assert.ok(Math.abs((Math.min(...ys)+Math.max(...ys))/2-p.center.y)<1e-6)
+        assert.ok(f.groundPolygon.every(q=>parcelContainsPoint(p,q)))
+        assert.ok(barracksRoadClear(f.polygon))
+        continue
+      }
       for(let y=0;y<info.height;y++){
         let left=-1,right=-1
         for(let x=0;x<info.width;x++)if(data[(y*info.width+x)*4+3]>=8){if(left<0)left=x;right=x}

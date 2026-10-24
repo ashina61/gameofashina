@@ -1,4 +1,4 @@
-const CACHE = 'payitaht-shell-v144'
+const CACHE = 'payitaht-shell-v145'
 const BASE = new URL(self.registration.scope).pathname.replace(/\/$/, '')
 const p = path => `${BASE}${path.startsWith('/') ? path : `/${path}`}`
 const ASSETS = [

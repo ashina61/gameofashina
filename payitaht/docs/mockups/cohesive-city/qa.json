@@ -1,0 +1,66 @@
+{
+  "errors": [],
+  "missing": [],
+  "cases": [
+    {
+      "width": 360,
+      "height": 844,
+      "level": 1,
+      "flipped": false,
+      "loaded": [
+        "/gameofashina/images/game/buildings/parcel-v4/kisla-sm.webp",
+        "/gameofashina/images/game/buildings/parcel-v4/kisla-sm.webp"
+      ],
+      "tapOpenedBarracks": true,
+      "groundOutside": 0,
+      "roadClear": true
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "level": 8,
+      "flipped": true,
+      "loaded": [
+        "/gameofashina/images/game/buildings/parcel-v4/kisla-sm.webp",
+        "/gameofashina/images/game/buildings/parcel-v4/kisla-sm.webp"
+      ],
+      "tapOpenedBarracks": true,
+      "groundOutside": 0,
+      "roadClear": true
+    },
+    {
+      "width": 430,
+      "height": 844,
+      "level": 20,
+      "flipped": false,
+      "loaded": [
+        "/gameofashina/images/game/buildings/parcel-v4/kisla-sm.webp",
+        "/gameofashina/images/game/buildings/parcel-v4/kisla-sm.webp"
+      ],
+      "tapOpenedBarracks": true,
+      "groundOutside": 0,
+      "roadClear": true
+    },
+    {
+      "width": 1536,
+      "height": 960,
+      "level": 1,
+      "flipped": false,
+      "loaded": [
+        "/gameofashina/images/game/buildings/parcel-v4/kisla-sm.webp"
+      ],
+      "tapOpenedBarracks": null,
+      "groundOutside": 0,
+      "roadClear": true
+    }
+  ],
+  "native": {
+    "parcel": 1,
+    "artWidth": 307.0137819287325,
+    "artHeight": 204.67585461915502,
+    "parcelWidth": 320,
+    "parcelHeight": 160,
+    "method": "Measured ground contacts centred in the fixed parcel; full two-storey silhouette guarded against road occlusion."
+  },
+  "layoutExit": 1
+}

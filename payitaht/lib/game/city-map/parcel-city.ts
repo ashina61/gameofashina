@@ -1,6 +1,7 @@
 import { LIVE_SLOTS } from './live-adapter'
 import { asset, buildingImage, buildingStage, type ArtSize, type CoastFacing } from '@/lib/asset'
 import bounds from './parcel-art-bounds.json'
+import contact from './barracks-contact.json'
 
 export type ParcelPoint = {x:number;y:number}
 // Source painting is 1586×992. All measurements below use the same 2× world scale.
@@ -43,7 +44,7 @@ export const PARCEL_REPAINTED_BUILDINGS = ['saray','elcilik','konut','hamam','ca
 const repainted=new Set<string>(PARCEL_REPAINTED_BUILDINGS)
 export function cityBuildingImage(id:string,level=1,facing?:CoastFacing,size:ArtSize='sm'){
  if(id==='divan')return asset(`/images/game/buildings/painted-town-v1/divan${size==='sm'?'-sm':''}.webp`)
- if(id==='kisla')return asset(`/images/game/buildings/parcel-v1/kisla${size==='sm'?'-sm':''}.webp`)
+ if(id==='kisla')return asset(`/images/game/buildings/parcel-v4/kisla${size==='sm'?'-sm':''}.webp`)
  if(repainted.has(id)){
   const variant=(id==='liman'||id==='tersane')&&facing==='straight'?id+'-duz':id
   return asset(`/images/game/buildings/parcel-v2/${variant}${size==='sm'?'-sm':''}.webp`)
@@ -80,4 +81,41 @@ export function parcelArtFrame(p:CityParcel,width:number,height:number,outline:P
  const left=(a-b)/2,top=(a+b)/4
  return {left,top,x:left+width*scale/2,y:top+height*scale/2,width:width*scale,height:height*scale,
   polygon:points.map(q=>({x:left+q.x*scale,y:top+q.y*scale}))}
+}
+
+// A two-storey building's ground contacts, rather than its roof, locate it on
+// the parcel. Its vertical silhouette may rise behind the clearing, as in the
+// accepted wide view. Keep the entire silhouette clear of the actual roads.
+const roadSamples=CITY_ROADS.flatMap(line=>line.slice(1).flatMap((b,i)=>{
+ const a=line[i],steps=Math.ceil(Math.hypot(b.x-a.x,b.y-a.y)/8)
+ return Array.from({length:steps+1},(_,j)=>({x:a.x+(b.x-a.x)*j/steps,y:a.y+(b.y-a.y)*j/steps}))
+}))
+function segmentDistance(q:ParcelPoint,a:ParcelPoint,b:ParcelPoint){
+ const dx=b.x-a.x,dy=b.y-a.y,t=Math.max(0,Math.min(1,((q.x-a.x)*dx+(q.y-a.y)*dy)/(dx*dx+dy*dy||1)))
+ return Math.hypot(q.x-a.x-t*dx,q.y-a.y-t*dy)
+}
+export function barracksRoadClear(polygon:ParcelPoint[]){
+ if(!polygon.every(q=>q.x>=4&&q.y>=4&&q.x<=PARCEL_WORLD.w-4&&q.y<=PARCEL_WORLD.h-4))return false
+ const xs=polygon.map(q=>q.x),ys=polygon.map(q=>q.y),r=contact.roadClearance
+ const minX=Math.min(...xs)-r,maxX=Math.max(...xs)+r,minY=Math.min(...ys)-r,maxY=Math.max(...ys)+r
+ return roadSamples.every(q=>{
+  if(q.x<minX||q.x>maxX||q.y<minY||q.y>maxY)return true
+  const crosses=polygon.map((a,i)=>{const b=polygon[(i+1)%polygon.length];return (b.x-a.x)*(q.y-a.y)-(b.y-a.y)*(q.x-a.x)})
+  if(crosses.every(x=>x>=0)||crosses.every(x=>x<=0))return false
+  return polygon.every((a,i)=>segmentDistance(q,a,polygon[(i+1)%polygon.length])>=r)
+ })
+}
+export function cityBuildingArtFrame(id:string,p:CityParcel,width:number,height:number,outline:ParcelPoint[],flip=false):ReturnType<typeof parcelArtFrame>&{groundPolygon:ParcelPoint[]}{
+ if(id!=='kisla'||p.index===0){const f=parcelArtFrame(p,width,height,outline,flip);return {...f,groundPolygon:f.polygon}}
+ const footprint=contact.footprint.map(([x,y])=>({x,y})),base=parcelArtFrame(p,width,height,footprint,flip)
+ const frame=(factor:number)=>{
+  const left=p.center.x+(base.left-p.center.x)*factor,top=p.center.y+(base.top-p.center.y)*factor
+  const w=base.width*factor,h=base.height*factor
+  const project=(q:ParcelPoint)=>({x:left+(flip?1-q.x:q.x)*w,y:top+q.y*h})
+  return {left,top,x:left+w/2,y:top+h/2,width:w,height:h,polygon:outline.map(project),groundPolygon:footprint.map(project)}
+ }
+ if(barracksRoadClear(frame(1).polygon))return frame(1)
+ let lo=0,hi=1
+ for(let i=0;i<16;i++){const mid=(lo+hi)/2;if(barracksRoadClear(frame(mid).polygon))lo=mid;else hi=mid}
+ return frame(lo)
 }
