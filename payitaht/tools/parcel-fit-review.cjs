@@ -1,7 +1,7 @@
 /** Native asset/geometry comparison, not a browser or gameplay screenshot. */
 const fs=require('node:fs'),path=require('node:path'),sharp=require('sharp')
 require('tsx/cjs')
-const {PARCEL_PLOTS,PARCEL_WORLD,PARCEL_REPAINTED_BUILDINGS,cityBuildingImage,cityArtOutline,parcelArtFrame}=require('../lib/game/city-map/parcel-city.ts')
+const {PARCEL_PLOTS,PARCEL_WORLD,PARCEL_REPAINTED_BUILDINGS,cityBuildingImage,cityArtOutline,cityBuildingArtFrame}=require('../lib/game/city-map/parcel-city.ts')
 const root=path.resolve(__dirname,'..'),dest=path.join(root,'docs/mockups/parcel-fit')
 // Reproduce SW139's small diamond fit for an honest same-position comparison.
 function before(p,width,height,outline){
@@ -16,13 +16,19 @@ async function main(){
  const ids=['kisla',...PARCEL_REPAINTED_BUILDINGS.filter(id=>!['liman','tersane','korsan_kalesi'].includes(id))]
  async function sprite(id,p,old=false){
   const file=path.join(root,'public',cityBuildingImage(id,1,undefined,'full')),m=await sharp(file).metadata(),outline=cityArtOutline(id,1,'full')
-  const f=old?before(p,m.width,m.height,outline):parcelArtFrame(p,m.width,m.height,outline)
+  const f=old?before(p,m.width,m.height,outline):cityBuildingArtFrame(id,p,m.width,m.height,outline)
   return {input:await sharp(file).resize(Math.round(f.width),Math.round(f.height)).png().toBuffer(),left:Math.round(f.left),top:Math.round(f.top)}
  }
  async function card(id,index,mode){
   const p=PARCEL_PLOTS[index],cut={left:Math.round(p.center.x-210),top:Math.round(p.center.y-140),width:420,height:280}
-  let canvas=await sharp(terrain).extract(cut).png().toBuffer()
-  if(mode!=='empty'){const s=await sprite(id,p,mode==='before');canvas=await sharp(canvas).composite([{...s,left:s.left-cut.left,top:s.top-cut.top}]).png().toBuffer()}
+  let world=terrain
+  if(mode!=='empty'){
+   const s=await sprite(id,p,mode==='before')
+   // Two-storey roof silhouette can legitimately extend beyond the crop.
+   // Compose in WORLD coordinates first, then crop, just like the game camera.
+   world=await sharp(terrain).composite([s]).png().toBuffer()
+  }
+  const canvas=await sharp(world).extract(cut).png().toBuffer()
   const tile=await sharp(canvas).resize(300,200).png().toBuffer()
   const label=`${index} · ${id} · ${mode==='empty'?'Boş arsa':mode==='before'?'Önce':'Yeni ölçü'}`
   const bg=Buffer.from(`<svg width="300" height="226"><rect width="300" height="226" fill="#e5d4b2"/><text x="8" y="218" font-family="sans-serif" font-size="14" fill="#49311e">${label}</text></svg>`)
