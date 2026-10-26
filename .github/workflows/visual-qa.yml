@@ -67,6 +67,9 @@ jobs:
           run_install: false
       - name: Install game dependencies
         run: pnpm install --frozen-lockfile
+      - name: Audit ground-contact candidates (native art only)
+        if: matrix.suite == 'city-390'
+        run: node tools/parcel-art-coverage.cjs
       - name: Export same site as GitHub Pages
         env:
           STATIC_EXPORT: '1'
