@@ -36,6 +36,7 @@ test('all existing building stages and both directions fit every matching parcel
       const f=cityBuildingArtFrame(id,p,width,height,outline,flip)
       assert.ok(Math.abs(f.width/f.height-width/height)<1e-8)
       const ground=f.groundPolygon
+      assert.equal(f.contactMeasured,id==='kisla'&&p.index>0,`${id}/${p.index}/${flip}: surveyed vs legacy fit`)
       assert.ok(ground.every(q=>parcelContainsPoint(p,q)),`${id}/${p.index}/${flip}`)
       if(id==='kisla'&&p.index>0)assert.ok(barracksRoadClear(f.polygon),`${id}/${p.index}/${flip}: road covered`)
     }

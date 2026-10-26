@@ -155,7 +155,7 @@ export class ParcelCityScene extends CityScene {
     const outline=cityArtOutline(name,level,size)||[{x:0,y:0},{x:1,y:0},{x:1,y:1},{x:0,y:1}]
     const f=cityBuildingArtFrame(name,p,source.width,source.height,outline,flip)
     const image=this.add.image(f.x,f.y,key).setDisplaySize(f.width,f.height).setFlipX(flip).setDepth(p.center.y+1)
-    image.setData('parcelIndex',p.index).setData('parcelBuilding',id).setData('parcelOutline',f.polygon).setData('parcelGround',f.groundPolygon)
+    image.setData('parcelIndex',p.index).setData('parcelBuilding',id).setData('parcelOutline',f.polygon).setData('parcelGround',f.groundPolygon).setData('parcelContactMeasured',f.contactMeasured)
     this.pieces.push(image)
     const hit=this.parcelHit(p).setDepth(p.center.y+2)
     hit.on('pointerup',(pointer:Phaser.Input.Pointer)=>{
@@ -310,7 +310,7 @@ export class ParcelCityScene extends CityScene {
       if(!this.built)return
       document.documentElement.dataset.cityReady=String(++this.readyCount)
       document.documentElement.dataset.cityLayer='painted-town-v1'
-      if(localStorage.getItem('payitaht-qa')==='1')document.documentElement.dataset.parcelReview=JSON.stringify(this.pieces.filter(p=>p.getData('parcelBuilding')).map(p=>({id:p.getData('parcelBuilding'),index:p.getData('parcelIndex'),outline:p.getData('parcelOutline'),ground:p.getData('parcelGround'),boundary:PARCEL_PLOTS[p.getData('parcelIndex')].polygon})))
+      if(localStorage.getItem('payitaht-qa')==='1')document.documentElement.dataset.parcelReview=JSON.stringify(this.pieces.filter(p=>p.getData('parcelBuilding')).map(p=>({id:p.getData('parcelBuilding'),index:p.getData('parcelIndex'),outline:p.getData('parcelOutline'),ground:p.getData('parcelGround'),contactMeasured:p.getData('parcelContactMeasured'),boundary:PARCEL_PLOTS[p.getData('parcelIndex')].polygon})))
     })
   }
 }

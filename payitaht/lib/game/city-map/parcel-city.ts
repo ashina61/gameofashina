@@ -83,9 +83,16 @@ export function parcelArtFrame(p:CityParcel,width:number,height:number,outline:P
   polygon:points.map(q=>({x:left+q.x*scale,y:top+q.y*scale}))}
 }
 
-// A two-storey building's ground contacts, rather than its roof, locate it on
-// the parcel. Its vertical silhouette may rise behind the clearing, as in the
-// accepted wide view. Keep the entire silhouette clear of the actual roads.
+// Approved buildings are placed by manually measured ground contacts, not by
+// their full roof silhouette. Extend this registry ONLY after a new groundless
+// sprite's contact points have been measured and reviewed; guessing footprints
+// here makes buildings overlap roads or leave visible gaps in the painted plot.
+const measuredContacts:Record<string,{footprint:number[][];roadClearance:number}>={
+ kisla:contact,
+}
+// The accepted two-storey barracks is the first calibrated architecture.
+// Its roof may rise behind the clearing, but no opaque silhouette may cover
+// the actual roads. Legacy sprites keep their old conservative alpha fit.
 const roadSamples=CITY_ROADS.flatMap(line=>line.slice(1).flatMap((b,i)=>{
  const a=line[i],steps=Math.ceil(Math.hypot(b.x-a.x,b.y-a.y)/8)
  return Array.from({length:steps+1},(_,j)=>({x:a.x+(b.x-a.x)*j/steps,y:a.y+(b.y-a.y)*j/steps}))
@@ -94,9 +101,9 @@ function segmentDistance(q:ParcelPoint,a:ParcelPoint,b:ParcelPoint){
  const dx=b.x-a.x,dy=b.y-a.y,t=Math.max(0,Math.min(1,((q.x-a.x)*dx+(q.y-a.y)*dy)/(dx*dx+dy*dy||1)))
  return Math.hypot(q.x-a.x-t*dx,q.y-a.y-t*dy)
 }
-export function barracksRoadClear(polygon:ParcelPoint[]){
+export function buildingRoadClear(polygon:ParcelPoint[],clearance:number){
  if(!polygon.every(q=>q.x>=4&&q.y>=4&&q.x<=PARCEL_WORLD.w-4&&q.y<=PARCEL_WORLD.h-4))return false
- const xs=polygon.map(q=>q.x),ys=polygon.map(q=>q.y),r=contact.roadClearance
+ const xs=polygon.map(q=>q.x),ys=polygon.map(q=>q.y),r=clearance
  const minX=Math.min(...xs)-r,maxX=Math.max(...xs)+r,minY=Math.min(...ys)-r,maxY=Math.max(...ys)+r
  return roadSamples.every(q=>{
   if(q.x<minX||q.x>maxX||q.y<minY||q.y>maxY)return true
@@ -105,17 +112,19 @@ export function barracksRoadClear(polygon:ParcelPoint[]){
   return polygon.every((a,i)=>segmentDistance(q,a,polygon[(i+1)%polygon.length])>=r)
  })
 }
-export function cityBuildingArtFrame(id:string,p:CityParcel,width:number,height:number,outline:ParcelPoint[],flip=false):ReturnType<typeof parcelArtFrame>&{groundPolygon:ParcelPoint[]}{
- if(id!=='kisla'||p.index===0){const f=parcelArtFrame(p,width,height,outline,flip);return {...f,groundPolygon:f.polygon}}
- const footprint=contact.footprint.map(([x,y])=>({x,y})),base=parcelArtFrame(p,width,height,footprint,flip)
+export const barracksRoadClear=(polygon:ParcelPoint[])=>buildingRoadClear(polygon,contact.roadClearance)
+export function cityBuildingArtFrame(id:string,p:CityParcel,width:number,height:number,outline:ParcelPoint[],flip=false):ReturnType<typeof parcelArtFrame>&{groundPolygon:ParcelPoint[];contactMeasured:boolean}{
+ const spec=measuredContacts[id]
+ if(!spec||p.index===0){const f=parcelArtFrame(p,width,height,outline,flip);return {...f,groundPolygon:f.polygon,contactMeasured:false}}
+ const footprint=spec.footprint.map(([x,y])=>({x,y})),base=parcelArtFrame(p,width,height,footprint,flip)
  const frame=(factor:number)=>{
   const left=p.center.x+(base.left-p.center.x)*factor,top=p.center.y+(base.top-p.center.y)*factor
   const w=base.width*factor,h=base.height*factor
   const project=(q:ParcelPoint)=>({x:left+(flip?1-q.x:q.x)*w,y:top+q.y*h})
-  return {left,top,x:left+w/2,y:top+h/2,width:w,height:h,polygon:outline.map(project),groundPolygon:footprint.map(project)}
+  return {left,top,x:left+w/2,y:top+h/2,width:w,height:h,polygon:outline.map(project),groundPolygon:footprint.map(project),contactMeasured:true}
  }
- if(barracksRoadClear(frame(1).polygon))return frame(1)
+ if(buildingRoadClear(frame(1).polygon,spec.roadClearance))return frame(1)
  let lo=0,hi=1
- for(let i=0;i<16;i++){const mid=(lo+hi)/2;if(barracksRoadClear(frame(mid).polygon))lo=mid;else hi=mid}
+ for(let i=0;i<16;i++){const mid=(lo+hi)/2;if(buildingRoadClear(frame(mid).polygon,spec.roadClearance))lo=mid;else hi=mid}
  return frame(lo)
 }
