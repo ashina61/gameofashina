@@ -1,0 +1,26 @@
+{
+  "divan": {
+    "generator": "built-in imagegen",
+    "sha256": "627219553760d1d80ef2d5ad7f7215c2bf4189f6b3b97841f938517147b3ff33"
+  },
+  "depo": {
+    "generator": "built-in imagegen",
+    "sha256": "4825b808677b55d368efce0211f71b8f5ca51f9afdf487112ae1084f0e2cc9bb"
+  },
+  "medrese": {
+    "generator": "built-in imagegen",
+    "sha256": "dce594d5e53166b75ac5d55cede11d000349234990355e937de2c64a6275cba1"
+  },
+  "carsi": {
+    "generator": "built-in imagegen",
+    "sha256": "528c73452b8330e8a8ba26d92b34f0a188a4535e60937c90a33b65dc86ac1986"
+  },
+  "bagci": {
+    "generator": "built-in imagegen",
+    "sha256": "5b8b37ed5fdf21f5091293c672c4c46900d82bb29cc8356ce7c3fa6ab8e87b16"
+  },
+  "elcilik": {
+    "generator": "built-in imagegen",
+    "sha256": "9e9f5e6933a1948a7d1f6a80824ce42ca1685a9d1b04040b799ebef3c141ab1b"
+  }
+}

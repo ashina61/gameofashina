@@ -1,0 +1,13 @@
+Generator: built-in imagegen, transparent_background=true. Six individual assets.
+References: painted-town-v1/city.webp (terrain style/camera) and parcel-v4/kisla.webp (accepted architecture style only). Elçilik and fidanlık use the barracks reference alone.
+
+Shared production brief: isolated Ottoman Mediterranean mobile city-builder architecture; orthographic 2:1 isometric camera; handpainted cream limestone, terracotta and dark wood; light upper left. Low wide mass spanning a roughly 2:1 rhombus footprint. Same camera, material scale and rendering as the shared terrain. Fully visible silhouette with transparent margins. No people, text, logos, watermark, terrain, paving, ground disk, slab or backdrop. Open courts and spaces between props must reveal the shared terrain. No copied barracks layout.
+
+divan: compact Topkapı civic hall; twin round gate towers with pointed lead roofs, monumental arched entrance, long council wing with lead domes, square justice tower, transparent open court. No Greek columns or western cathedral.
+medrese: broad academy of many small lead-grey domed study cells, larger lecture hall, bookshelves in arches and large open books on lecterns; no minaret or fortress towers.
+carsi: two staggered rows of open shopfronts, burgundy and olive striped awnings, fruit baskets and fabric rolls, compact covered market hall; transparent aisles, no palace centerpiece.
+depo: broad rectangular stone-and-timber warehouse under one long gable roof, three large open loading bays, cargo crates and barrels grouped at foreground corners; no silo or dome.
+bagci: coffee plant nursery with potting shed, rows of lush coffee plants bearing red berries in terracotta pots, jute coffee sacks and copper coffee pot; plants dominate, no market awnings.
+elcilik: two-storey diplomatic mansion, bay windows, dark hipped roof, paired pennants at ornate entry and terrestrial globe under a side portico; no barracks enclosure.
+
+Each asset then received a background-extraction edit: preserve architecture, furniture, camera, colors, scale and framing. Remove ground/paving and exterior glow/shadow haze; make background, courtyard and ground between all props completely transparent. Keep only architecture and functional objects, clean alpha silhouette, same landscape canvas.

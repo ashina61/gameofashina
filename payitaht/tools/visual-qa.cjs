@@ -4,6 +4,8 @@ const path = require('node:path')
 const { chromium } = require('playwright')
 const { checkMapZoom } = require('./map-zoom-qa.cjs')
 const { START_BUTTON, qaOrigin, skipGuide } = require('./lib/qa.cjs')
+require('tsx/cjs')
+const { buildingRoadClear } = require('../lib/game/city-map/parcel-city.ts')
 
 async function main() {
   const out = path.resolve('visual-review')
@@ -41,7 +43,7 @@ async function main() {
         diagnostics.missingGameAssets.push(`${label}: ${response.status()} ${url}`)
       }
       // Telefon boyu kopya (-sm, V2 Faz 6.1) aynı aşama sayılır.
-      if (/\/images\/game\/buildings\/[a-z0-9_-]+-[123](?:-sm)?\.webp(?:\?|$)/.test(url) || /\/images\/game\/buildings\/(?:parcel-v[12]|painted-town-v1)\/[a-z0-9_-]+(?:-sm)?\.webp(?:\?|$)/.test(url)) {
+      if (/\/images\/game\/buildings\/[a-z0-9_-]+-[123](?:-sm)?\.webp(?:\?|$)/.test(url) || /\/images\/game\/buildings\/(?:parcel-v[0-9]+|painted-town-v1)\/[a-z0-9_-]+(?:-sm)?\.webp(?:\?|$)/.test(url)) {
         buildingStageLoads.add(url.split('?')[0].replace(/-sm\.webp$/, '.webp'))
       }
     })
@@ -200,19 +202,21 @@ async function main() {
       throw new Error(`${label}: coast QA seed did not survive reload: ${JSON.stringify(seeded)}`)
     }
 
-    // Check the actual renderer's placed alpha against its shared empty/tap parcel.
+    // Ground contacts occupy the parcel. Roofs may rise above the footprint;
+    // check their complete rendered alpha separately against the road corridor.
     const parcelFit = await page.evaluate(() => {
       const placed = JSON.parse(document.documentElement.dataset.parcelReview || '[]')
       const failures = []
       for (const p of placed) {
-        if (!p.boundary?.length || !p.outline?.length) { failures.push(p.id + ': missing contour'); continue }
-        for (const q of p.outline) if (!p.boundary.every((a, i) => {
+        if (!p.boundary?.length || !p.outline?.length || !p.ground?.length) { failures.push(p.id + ': missing contour'); continue }
+        for (const q of p.ground) if (!p.boundary.every((a, i) => {
           const b = p.boundary[(i + 1) % p.boundary.length]
           return (b.x - a.x) * (q.y - a.y) - (b.y - a.y) * (q.x - a.x) >= -0.001
-        })) { failures.push(p.id + ': outside parcel'); break }
+        })) { failures.push(p.id + ': ground outside parcel'); break }
       }
-      return { count: placed.length, failures }
+      return { count: placed.length, failures, landSilhouettes: placed.filter(p => p.index < 25).map(p => ({ id: p.id, outline: p.outline })) }
     })
+    for (const p of parcelFit.landSilhouettes) if (!buildingRoadClear(p.outline)) parcelFit.failures.push(p.id + ': full silhouette covers road')
     diagnostics.metrics[label].parcelFit = parcelFit
     if (parcelFit.count < 20 || parcelFit.failures.length) throw new Error(`${label}: rendered parcel fit ${JSON.stringify(parcelFit)}`)
 

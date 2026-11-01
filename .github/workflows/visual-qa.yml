@@ -48,7 +48,8 @@ defaults:
 jobs:
   qa:
     name: ${{ matrix.suite }}
-    runs-on: ubuntu-latest
+    # Playwright 1.55 supports Ubuntu 24.04; ubuntu-latest now selects 26.04.
+    runs-on: ubuntu-24.04
     # Yazılımla (GPU'suz) çizilen Phaser ekranı yavaş; her takım ayrı işte
     # koşar, en uzunu ~10 dk. Sınır pay bırakır.
     timeout-minutes: 20
