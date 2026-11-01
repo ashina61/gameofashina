@@ -1,0 +1,9374 @@
+[
+  {
+    "id": "divan",
+    "index": 0,
+    "flip": false,
+    "widthRatio": 0.5950917898603413
+  },
+  {
+    "id": "divan",
+    "index": 0,
+    "flip": true,
+    "widthRatio": 0.6350729135659837
+  },
+  {
+    "id": "kisla",
+    "index": 1,
+    "flip": false,
+    "widthRatio": 0.9210413457861982
+  },
+  {
+    "id": "kisla",
+    "index": 1,
+    "flip": true,
+    "widthRatio": 0.9210413457861982
+  },
+  {
+    "id": "kisla",
+    "index": 2,
+    "flip": false,
+    "widthRatio": 0.9210413457861975
+  },
+  {
+    "id": "kisla",
+    "index": 2,
+    "flip": true,
+    "widthRatio": 0.9210413457861975
+  },
+  {
+    "id": "kisla",
+    "index": 3,
+    "flip": false,
+    "widthRatio": 0.705397143977369
+  },
+  {
+    "id": "kisla",
+    "index": 3,
+    "flip": true,
+    "widthRatio": 0.7305256523737569
+  },
+  {
+    "id": "kisla",
+    "index": 4,
+    "flip": false,
+    "widthRatio": 0.8638697729917297
+  },
+  {
+    "id": "kisla",
+    "index": 4,
+    "flip": true,
+    "widthRatio": 0.8714027039204012
+  },
+  {
+    "id": "kisla",
+    "index": 5,
+    "flip": false,
+    "widthRatio": 0.9210413457861975
+  },
+  {
+    "id": "kisla",
+    "index": 5,
+    "flip": true,
+    "widthRatio": 0.9210413457861975
+  },
+  {
+    "id": "kisla",
+    "index": 6,
+    "flip": false,
+    "widthRatio": 0.8871431566071767
+  },
+  {
+    "id": "kisla",
+    "index": 6,
+    "flip": true,
+    "widthRatio": 0.8995106551467866
+  },
+  {
+    "id": "kisla",
+    "index": 7,
+    "flip": false,
+    "widthRatio": 0.9210413457861975
+  },
+  {
+    "id": "kisla",
+    "index": 7,
+    "flip": true,
+    "widthRatio": 0.8995106551467871
+  },
+  {
+    "id": "kisla",
+    "index": 8,
+    "flip": false,
+    "widthRatio": 0.8995106551467863
+  },
+  {
+    "id": "kisla",
+    "index": 8,
+    "flip": true,
+    "widthRatio": 0.8595411485028663
+  },
+  {
+    "id": "kisla",
+    "index": 9,
+    "flip": false,
+    "widthRatio": 0.9210413457861975
+  },
+  {
+    "id": "kisla",
+    "index": 9,
+    "flip": true,
+    "widthRatio": 0.9210413457861975
+  },
+  {
+    "id": "kisla",
+    "index": 10,
+    "flip": false,
+    "widthRatio": 0.9210413457861982
+  },
+  {
+    "id": "kisla",
+    "index": 10,
+    "flip": true,
+    "widthRatio": 0.9210413457861982
+  },
+  {
+    "id": "kisla",
+    "index": 11,
+    "flip": false,
+    "widthRatio": 0.7552044335505229
+  },
+  {
+    "id": "kisla",
+    "index": 11,
+    "flip": true,
+    "widthRatio": 0.6915118160715352
+  },
+  {
+    "id": "kisla",
+    "index": 12,
+    "flip": false,
+    "widthRatio": 0.9210413457861975
+  },
+  {
+    "id": "kisla",
+    "index": 12,
+    "flip": true,
+    "widthRatio": 0.9210413457861975
+  },
+  {
+    "id": "kisla",
+    "index": 13,
+    "flip": false,
+    "widthRatio": 0.9099668130030011
+  },
+  {
+    "id": "kisla",
+    "index": 13,
+    "flip": true,
+    "widthRatio": 0.9210413457861982
+  },
+  {
+    "id": "kisla",
+    "index": 14,
+    "flip": false,
+    "widthRatio": 0.8995106551467866
+  },
+  {
+    "id": "kisla",
+    "index": 14,
+    "flip": true,
+    "widthRatio": 0.8995106551467866
+  },
+  {
+    "id": "kisla",
+    "index": 15,
+    "flip": false,
+    "widthRatio": 0.9210413457861975
+  },
+  {
+    "id": "kisla",
+    "index": 15,
+    "flip": true,
+    "widthRatio": 0.9210413457861975
+  },
+  {
+    "id": "kisla",
+    "index": 16,
+    "flip": false,
+    "widthRatio": 0.8995106551467863
+  },
+  {
+    "id": "kisla",
+    "index": 16,
+    "flip": true,
+    "widthRatio": 0.9210413457861975
+  },
+  {
+    "id": "kisla",
+    "index": 17,
+    "flip": false,
+    "widthRatio": 0.7580152286731625
+  },
+  {
+    "id": "kisla",
+    "index": 17,
+    "flip": true,
+    "widthRatio": 0.7993901328784012
+  },
+  {
+    "id": "kisla",
+    "index": 18,
+    "flip": false,
+    "widthRatio": 0.9210413457861975
+  },
+  {
+    "id": "kisla",
+    "index": 18,
+    "flip": true,
+    "widthRatio": 0.9210413457861973
+  },
+  {
+    "id": "kisla",
+    "index": 19,
+    "flip": false,
+    "widthRatio": 0.7305256523737571
+  },
+  {
+    "id": "kisla",
+    "index": 19,
+    "flip": true,
+    "widthRatio": 0.7184392333464112
+  },
+  {
+    "id": "kisla",
+    "index": 20,
+    "flip": false,
+    "widthRatio": 0.9210413457861975
+  },
+  {
+    "id": "kisla",
+    "index": 20,
+    "flip": true,
+    "widthRatio": 0.9210413457861975
+  },
+  {
+    "id": "kisla",
+    "index": 21,
+    "flip": false,
+    "widthRatio": 0.7305256523737569
+  },
+  {
+    "id": "kisla",
+    "index": 21,
+    "flip": true,
+    "widthRatio": 0.6720048979204222
+  },
+  {
+    "id": "kisla",
+    "index": 22,
+    "flip": false,
+    "widthRatio": 0.9210413457861975
+  },
+  {
+    "id": "kisla",
+    "index": 22,
+    "flip": true,
+    "widthRatio": 0.9210413457861975
+  },
+  {
+    "id": "kisla",
+    "index": 23,
+    "flip": false,
+    "widthRatio": 0.9210413457861975
+  },
+  {
+    "id": "kisla",
+    "index": 23,
+    "flip": true,
+    "widthRatio": 0.9210413457861973
+  },
+  {
+    "id": "kisla",
+    "index": 24,
+    "flip": false,
+    "widthRatio": 0.9210413457861975
+  },
+  {
+    "id": "kisla",
+    "index": 24,
+    "flip": true,
+    "widthRatio": 0.9210413457861975
+  },
+  {
+    "id": "saray",
+    "index": 1,
+    "flip": false,
+    "widthRatio": 0.9463741504690433
+  },
+  {
+    "id": "saray",
+    "index": 1,
+    "flip": true,
+    "widthRatio": 0.9463741504690433
+  },
+  {
+    "id": "saray",
+    "index": 2,
+    "flip": false,
+    "widthRatio": 0.9463741504690433
+  },
+  {
+    "id": "saray",
+    "index": 2,
+    "flip": true,
+    "widthRatio": 0.9463741504690433
+  },
+  {
+    "id": "saray",
+    "index": 3,
+    "flip": false,
+    "widthRatio": 0.8626191139590261
+  },
+  {
+    "id": "saray",
+    "index": 3,
+    "flip": true,
+    "widthRatio": 0.8681642749969306
+  },
+  {
+    "id": "saray",
+    "index": 4,
+    "flip": false,
+    "widthRatio": 0.9463741504690433
+  },
+  {
+    "id": "saray",
+    "index": 4,
+    "flip": true,
+    "widthRatio": 0.9463741504690433
+  },
+  {
+    "id": "saray",
+    "index": 5,
+    "flip": false,
+    "widthRatio": 0.9463741504690433
+  },
+  {
+    "id": "saray",
+    "index": 5,
+    "flip": true,
+    "widthRatio": 0.9463741504690433
+  },
+  {
+    "id": "saray",
+    "index": 6,
+    "flip": false,
+    "widthRatio": 0.9463741504690428
+  },
+  {
+    "id": "saray",
+    "index": 6,
+    "flip": true,
+    "widthRatio": 0.9463741504690428
+  },
+  {
+    "id": "saray",
+    "index": 7,
+    "flip": false,
+    "widthRatio": 0.9463741504690418
+  },
+  {
+    "id": "saray",
+    "index": 7,
+    "flip": true,
+    "widthRatio": 0.9463741504690418
+  },
+  {
+    "id": "saray",
+    "index": 8,
+    "flip": false,
+    "widthRatio": 0.9463741504690433
+  },
+  {
+    "id": "saray",
+    "index": 8,
+    "flip": true,
+    "widthRatio": 0.9463741504690433
+  },
+  {
+    "id": "saray",
+    "index": 9,
+    "flip": false,
+    "widthRatio": 0.9463741504690428
+  },
+  {
+    "id": "saray",
+    "index": 9,
+    "flip": true,
+    "widthRatio": 0.9463741504690428
+  },
+  {
+    "id": "saray",
+    "index": 10,
+    "flip": false,
+    "widthRatio": 0.9463741504690433
+  },
+  {
+    "id": "saray",
+    "index": 10,
+    "flip": true,
+    "widthRatio": 0.9463741504690433
+  },
+  {
+    "id": "saray",
+    "index": 11,
+    "flip": false,
+    "widthRatio": 0.8681642749969299
+  },
+  {
+    "id": "saray",
+    "index": 11,
+    "flip": true,
+    "widthRatio": 0.8681642749969314
+  },
+  {
+    "id": "saray",
+    "index": 12,
+    "flip": false,
+    "widthRatio": 0.9463741504690428
+  },
+  {
+    "id": "saray",
+    "index": 12,
+    "flip": true,
+    "widthRatio": 0.9463741504690428
+  },
+  {
+    "id": "saray",
+    "index": 13,
+    "flip": false,
+    "widthRatio": 0.9463741504690433
+  },
+  {
+    "id": "saray",
+    "index": 13,
+    "flip": true,
+    "widthRatio": 0.9463741504690433
+  },
+  {
+    "id": "saray",
+    "index": 14,
+    "flip": false,
+    "widthRatio": 0.9463741504690428
+  },
+  {
+    "id": "saray",
+    "index": 14,
+    "flip": true,
+    "widthRatio": 0.9463741504690428
+  },
+  {
+    "id": "saray",
+    "index": 15,
+    "flip": false,
+    "widthRatio": 0.9463741504690418
+  },
+  {
+    "id": "saray",
+    "index": 15,
+    "flip": true,
+    "widthRatio": 0.9463741504690418
+  },
+  {
+    "id": "saray",
+    "index": 16,
+    "flip": false,
+    "widthRatio": 0.9463741504690428
+  },
+  {
+    "id": "saray",
+    "index": 16,
+    "flip": true,
+    "widthRatio": 0.9463741504690428
+  },
+  {
+    "id": "saray",
+    "index": 17,
+    "flip": false,
+    "widthRatio": 0.9274859456836804
+  },
+  {
+    "id": "saray",
+    "index": 17,
+    "flip": true,
+    "widthRatio": 0.9463741504690428
+  },
+  {
+    "id": "saray",
+    "index": 18,
+    "flip": false,
+    "widthRatio": 0.9463741504690428
+  },
+  {
+    "id": "saray",
+    "index": 18,
+    "flip": true,
+    "widthRatio": 0.946374150469043
+  },
+  {
+    "id": "saray",
+    "index": 19,
+    "flip": false,
+    "widthRatio": 0.9080778820510144
+  },
+  {
+    "id": "saray",
+    "index": 19,
+    "flip": true,
+    "widthRatio": 0.8681642749969309
+  },
+  {
+    "id": "saray",
+    "index": 20,
+    "flip": false,
+    "widthRatio": 0.9463741504690418
+  },
+  {
+    "id": "saray",
+    "index": 20,
+    "flip": true,
+    "widthRatio": 0.9463741504690418
+  },
+  {
+    "id": "saray",
+    "index": 21,
+    "flip": false,
+    "widthRatio": 0.8537237514607213
+  },
+  {
+    "id": "saray",
+    "index": 21,
+    "flip": true,
+    "widthRatio": 0.8655072186662679
+  },
+  {
+    "id": "saray",
+    "index": 22,
+    "flip": false,
+    "widthRatio": 0.9463741504690418
+  },
+  {
+    "id": "saray",
+    "index": 22,
+    "flip": true,
+    "widthRatio": 0.9463741504690418
+  },
+  {
+    "id": "saray",
+    "index": 23,
+    "flip": false,
+    "widthRatio": 0.9463741504690428
+  },
+  {
+    "id": "saray",
+    "index": 23,
+    "flip": true,
+    "widthRatio": 0.946374150469043
+  },
+  {
+    "id": "saray",
+    "index": 24,
+    "flip": false,
+    "widthRatio": 0.9463741504690418
+  },
+  {
+    "id": "saray",
+    "index": 24,
+    "flip": true,
+    "widthRatio": 0.9463741504690418
+  },
+  {
+    "id": "elcilik",
+    "index": 1,
+    "flip": false,
+    "widthRatio": 0.9243574433990688
+  },
+  {
+    "id": "elcilik",
+    "index": 1,
+    "flip": true,
+    "widthRatio": 0.9243574433990688
+  },
+  {
+    "id": "elcilik",
+    "index": 2,
+    "flip": false,
+    "widthRatio": 0.9243574433990688
+  },
+  {
+    "id": "elcilik",
+    "index": 2,
+    "flip": true,
+    "widthRatio": 0.9243574433990688
+  },
+  {
+    "id": "elcilik",
+    "index": 3,
+    "flip": false,
+    "widthRatio": 0.8009142008357657
+  },
+  {
+    "id": "elcilik",
+    "index": 3,
+    "flip": true,
+    "widthRatio": 0.8105053120038462
+  },
+  {
+    "id": "elcilik",
+    "index": 4,
+    "flip": false,
+    "widthRatio": 0.9243574433990688
+  },
+  {
+    "id": "elcilik",
+    "index": 4,
+    "flip": true,
+    "widthRatio": 0.9243574433990688
+  },
+  {
+    "id": "elcilik",
+    "index": 5,
+    "flip": false,
+    "widthRatio": 0.9243574433990688
+  },
+  {
+    "id": "elcilik",
+    "index": 5,
+    "flip": true,
+    "widthRatio": 0.9243574433990688
+  },
+  {
+    "id": "elcilik",
+    "index": 6,
+    "flip": false,
+    "widthRatio": 0.9243574433990688
+  },
+  {
+    "id": "elcilik",
+    "index": 6,
+    "flip": true,
+    "widthRatio": 0.9243574433990684
+  },
+  {
+    "id": "elcilik",
+    "index": 7,
+    "flip": false,
+    "widthRatio": 0.9243574433990688
+  },
+  {
+    "id": "elcilik",
+    "index": 7,
+    "flip": true,
+    "widthRatio": 0.9243574433990688
+  },
+  {
+    "id": "elcilik",
+    "index": 8,
+    "flip": false,
+    "widthRatio": 0.9243574433990688
+  },
+  {
+    "id": "elcilik",
+    "index": 8,
+    "flip": true,
+    "widthRatio": 0.9243574433990688
+  },
+  {
+    "id": "elcilik",
+    "index": 9,
+    "flip": false,
+    "widthRatio": 0.9243574433990688
+  },
+  {
+    "id": "elcilik",
+    "index": 9,
+    "flip": true,
+    "widthRatio": 0.9243574433990684
+  },
+  {
+    "id": "elcilik",
+    "index": 10,
+    "flip": false,
+    "widthRatio": 0.9243574433990688
+  },
+  {
+    "id": "elcilik",
+    "index": 10,
+    "flip": true,
+    "widthRatio": 0.9243574433990688
+  },
+  {
+    "id": "elcilik",
+    "index": 11,
+    "flip": false,
+    "widthRatio": 0.8009142008357643
+  },
+  {
+    "id": "elcilik",
+    "index": 11,
+    "flip": true,
+    "widthRatio": 0.8009142008357657
+  },
+  {
+    "id": "elcilik",
+    "index": 12,
+    "flip": false,
+    "widthRatio": 0.9243574433990688
+  },
+  {
+    "id": "elcilik",
+    "index": 12,
+    "flip": true,
+    "widthRatio": 0.9243574433990684
+  },
+  {
+    "id": "elcilik",
+    "index": 13,
+    "flip": false,
+    "widthRatio": 0.9243574433990688
+  },
+  {
+    "id": "elcilik",
+    "index": 13,
+    "flip": true,
+    "widthRatio": 0.9243574433990688
+  },
+  {
+    "id": "elcilik",
+    "index": 14,
+    "flip": false,
+    "widthRatio": 0.9243010250980799
+  },
+  {
+    "id": "elcilik",
+    "index": 14,
+    "flip": true,
+    "widthRatio": 0.9243010250980799
+  },
+  {
+    "id": "elcilik",
+    "index": 15,
+    "flip": false,
+    "widthRatio": 0.9243574433990688
+  },
+  {
+    "id": "elcilik",
+    "index": 15,
+    "flip": true,
+    "widthRatio": 0.9243574433990688
+  },
+  {
+    "id": "elcilik",
+    "index": 16,
+    "flip": false,
+    "widthRatio": 0.9243574433990688
+  },
+  {
+    "id": "elcilik",
+    "index": 16,
+    "flip": true,
+    "widthRatio": 0.9243574433990684
+  },
+  {
+    "id": "elcilik",
+    "index": 17,
+    "flip": false,
+    "widthRatio": 0.8632564234282935
+  },
+  {
+    "id": "elcilik",
+    "index": 17,
+    "flip": true,
+    "widthRatio": 0.8913527373206719
+  },
+  {
+    "id": "elcilik",
+    "index": 18,
+    "flip": false,
+    "widthRatio": 0.9243574433990688
+  },
+  {
+    "id": "elcilik",
+    "index": 18,
+    "flip": true,
+    "widthRatio": 0.9243574433990686
+  },
+  {
+    "id": "elcilik",
+    "index": 19,
+    "flip": false,
+    "widthRatio": 0.8318878480785686
+  },
+  {
+    "id": "elcilik",
+    "index": 19,
+    "flip": true,
+    "widthRatio": 0.8318878480785689
+  },
+  {
+    "id": "elcilik",
+    "index": 20,
+    "flip": false,
+    "widthRatio": 0.9243574433990688
+  },
+  {
+    "id": "elcilik",
+    "index": 20,
+    "flip": true,
+    "widthRatio": 0.9243574433990688
+  },
+  {
+    "id": "elcilik",
+    "index": 21,
+    "flip": false,
+    "widthRatio": 0.7775570242264379
+  },
+  {
+    "id": "elcilik",
+    "index": 21,
+    "flip": true,
+    "widthRatio": 0.8009142008357657
+  },
+  {
+    "id": "elcilik",
+    "index": 22,
+    "flip": false,
+    "widthRatio": 0.9243574433990688
+  },
+  {
+    "id": "elcilik",
+    "index": 22,
+    "flip": true,
+    "widthRatio": 0.9243574433990688
+  },
+  {
+    "id": "elcilik",
+    "index": 23,
+    "flip": false,
+    "widthRatio": 0.9243574433990688
+  },
+  {
+    "id": "elcilik",
+    "index": 23,
+    "flip": true,
+    "widthRatio": 0.9243574433990686
+  },
+  {
+    "id": "elcilik",
+    "index": 24,
+    "flip": false,
+    "widthRatio": 0.9243574433990688
+  },
+  {
+    "id": "elcilik",
+    "index": 24,
+    "flip": true,
+    "widthRatio": 0.9243574433990688
+  },
+  {
+    "id": "konut",
+    "index": 1,
+    "flip": false,
+    "widthRatio": 0.9345428974219339
+  },
+  {
+    "id": "konut",
+    "index": 1,
+    "flip": true,
+    "widthRatio": 0.9345428974219339
+  },
+  {
+    "id": "konut",
+    "index": 2,
+    "flip": false,
+    "widthRatio": 0.9345428974219339
+  },
+  {
+    "id": "konut",
+    "index": 2,
+    "flip": true,
+    "widthRatio": 0.9345428974219339
+  },
+  {
+    "id": "konut",
+    "index": 3,
+    "flip": false,
+    "widthRatio": 0.8322702280446436
+  },
+  {
+    "id": "konut",
+    "index": 3,
+    "flip": true,
+    "widthRatio": 0.7723212177180777
+  },
+  {
+    "id": "konut",
+    "index": 4,
+    "flip": false,
+    "widthRatio": 0.9226785832945069
+  },
+  {
+    "id": "konut",
+    "index": 4,
+    "flip": true,
+    "widthRatio": 0.9345428974219339
+  },
+  {
+    "id": "konut",
+    "index": 5,
+    "flip": false,
+    "widthRatio": 0.9345428974219339
+  },
+  {
+    "id": "konut",
+    "index": 5,
+    "flip": true,
+    "widthRatio": 0.9345428974219339
+  },
+  {
+    "id": "konut",
+    "index": 6,
+    "flip": false,
+    "widthRatio": 0.9226785832945066
+  },
+  {
+    "id": "konut",
+    "index": 6,
+    "flip": true,
+    "widthRatio": 0.9345428974219339
+  },
+  {
+    "id": "konut",
+    "index": 7,
+    "flip": false,
+    "widthRatio": 0.9345428974219331
+  },
+  {
+    "id": "konut",
+    "index": 7,
+    "flip": true,
+    "widthRatio": 0.9226785832945069
+  },
+  {
+    "id": "konut",
+    "index": 8,
+    "flip": false,
+    "widthRatio": 0.9345428974219339
+  },
+  {
+    "id": "konut",
+    "index": 8,
+    "flip": true,
+    "widthRatio": 0.9226785832945069
+  },
+  {
+    "id": "konut",
+    "index": 9,
+    "flip": false,
+    "widthRatio": 0.9345428974219342
+  },
+  {
+    "id": "konut",
+    "index": 9,
+    "flip": true,
+    "widthRatio": 0.9345428974219339
+  },
+  {
+    "id": "konut",
+    "index": 10,
+    "flip": false,
+    "widthRatio": 0.9345428974219339
+  },
+  {
+    "id": "konut",
+    "index": 10,
+    "flip": true,
+    "widthRatio": 0.9345428974219339
+  },
+  {
+    "id": "konut",
+    "index": 11,
+    "flip": false,
+    "widthRatio": 0.8019820030366447
+  },
+  {
+    "id": "konut",
+    "index": 11,
+    "flip": true,
+    "widthRatio": 0.8322702280446436
+  },
+  {
+    "id": "konut",
+    "index": 12,
+    "flip": false,
+    "widthRatio": 0.9345428974219342
+  },
+  {
+    "id": "konut",
+    "index": 12,
+    "flip": true,
+    "widthRatio": 0.9345428974219339
+  },
+  {
+    "id": "konut",
+    "index": 13,
+    "flip": false,
+    "widthRatio": 0.9345428974219339
+  },
+  {
+    "id": "konut",
+    "index": 13,
+    "flip": true,
+    "widthRatio": 0.9345428974219339
+  },
+  {
+    "id": "konut",
+    "index": 14,
+    "flip": false,
+    "widthRatio": 0.933402097986604
+  },
+  {
+    "id": "konut",
+    "index": 14,
+    "flip": true,
+    "widthRatio": 0.9345428974219339
+  },
+  {
+    "id": "konut",
+    "index": 15,
+    "flip": false,
+    "widthRatio": 0.9345428974219331
+  },
+  {
+    "id": "konut",
+    "index": 15,
+    "flip": true,
+    "widthRatio": 0.9345428974219331
+  },
+  {
+    "id": "konut",
+    "index": 16,
+    "flip": false,
+    "widthRatio": 0.9318620187489095
+  },
+  {
+    "id": "konut",
+    "index": 16,
+    "flip": true,
+    "widthRatio": 0.9345428974219339
+  },
+  {
+    "id": "konut",
+    "index": 17,
+    "flip": false,
+    "widthRatio": 0.9226785832945066
+  },
+  {
+    "id": "konut",
+    "index": 17,
+    "flip": true,
+    "widthRatio": 0.8443056620873698
+  },
+  {
+    "id": "konut",
+    "index": 18,
+    "flip": false,
+    "widthRatio": 0.9345428974219336
+  },
+  {
+    "id": "konut",
+    "index": 18,
+    "flip": true,
+    "widthRatio": 0.9345428974219336
+  },
+  {
+    "id": "konut",
+    "index": 19,
+    "flip": false,
+    "widthRatio": 0.7866952906032291
+  },
+  {
+    "id": "konut",
+    "index": 19,
+    "flip": true,
+    "widthRatio": 0.8444197420309024
+  },
+  {
+    "id": "konut",
+    "index": 20,
+    "flip": false,
+    "widthRatio": 0.9345428974219331
+  },
+  {
+    "id": "konut",
+    "index": 20,
+    "flip": true,
+    "widthRatio": 0.9345428974219331
+  },
+  {
+    "id": "konut",
+    "index": 21,
+    "flip": false,
+    "widthRatio": 0.7723212177180769
+  },
+  {
+    "id": "konut",
+    "index": 21,
+    "flip": true,
+    "widthRatio": 0.8140174370793716
+  },
+  {
+    "id": "konut",
+    "index": 22,
+    "flip": false,
+    "widthRatio": 0.9345428974219331
+  },
+  {
+    "id": "konut",
+    "index": 22,
+    "flip": true,
+    "widthRatio": 0.9345428974219331
+  },
+  {
+    "id": "konut",
+    "index": 23,
+    "flip": false,
+    "widthRatio": 0.9345428974219336
+  },
+  {
+    "id": "konut",
+    "index": 23,
+    "flip": true,
+    "widthRatio": 0.9345428974219336
+  },
+  {
+    "id": "konut",
+    "index": 24,
+    "flip": false,
+    "widthRatio": 0.9345428974219331
+  },
+  {
+    "id": "konut",
+    "index": 24,
+    "flip": true,
+    "widthRatio": 0.9345428974219331
+  },
+  {
+    "id": "hamam",
+    "index": 1,
+    "flip": false,
+    "widthRatio": 0.9191493869876212
+  },
+  {
+    "id": "hamam",
+    "index": 1,
+    "flip": true,
+    "widthRatio": 0.9191493869876212
+  },
+  {
+    "id": "hamam",
+    "index": 2,
+    "flip": false,
+    "widthRatio": 0.9191493869876218
+  },
+  {
+    "id": "hamam",
+    "index": 2,
+    "flip": true,
+    "widthRatio": 0.9191493869876218
+  },
+  {
+    "id": "hamam",
+    "index": 3,
+    "flip": false,
+    "widthRatio": 0.9190932865611693
+  },
+  {
+    "id": "hamam",
+    "index": 3,
+    "flip": true,
+    "widthRatio": 0.85468999699441
+  },
+  {
+    "id": "hamam",
+    "index": 4,
+    "flip": false,
+    "widthRatio": 0.9191493869876212
+  },
+  {
+    "id": "hamam",
+    "index": 4,
+    "flip": true,
+    "widthRatio": 0.9191493869876212
+  },
+  {
+    "id": "hamam",
+    "index": 5,
+    "flip": false,
+    "widthRatio": 0.9191493869876218
+  },
+  {
+    "id": "hamam",
+    "index": 5,
+    "flip": true,
+    "widthRatio": 0.9191493869876218
+  },
+  {
+    "id": "hamam",
+    "index": 6,
+    "flip": false,
+    "widthRatio": 0.9191493869876212
+  },
+  {
+    "id": "hamam",
+    "index": 6,
+    "flip": true,
+    "widthRatio": 0.9191493869876212
+  },
+  {
+    "id": "hamam",
+    "index": 7,
+    "flip": false,
+    "widthRatio": 0.9191493869876212
+  },
+  {
+    "id": "hamam",
+    "index": 7,
+    "flip": true,
+    "widthRatio": 0.9191493869876212
+  },
+  {
+    "id": "hamam",
+    "index": 8,
+    "flip": false,
+    "widthRatio": 0.9191493869876218
+  },
+  {
+    "id": "hamam",
+    "index": 8,
+    "flip": true,
+    "widthRatio": 0.9191493869876218
+  },
+  {
+    "id": "hamam",
+    "index": 9,
+    "flip": false,
+    "widthRatio": 0.9191493869876212
+  },
+  {
+    "id": "hamam",
+    "index": 9,
+    "flip": true,
+    "widthRatio": 0.9191493869876212
+  },
+  {
+    "id": "hamam",
+    "index": 10,
+    "flip": false,
+    "widthRatio": 0.9191493869876212
+  },
+  {
+    "id": "hamam",
+    "index": 10,
+    "flip": true,
+    "widthRatio": 0.9191493869876212
+  },
+  {
+    "id": "hamam",
+    "index": 11,
+    "flip": false,
+    "widthRatio": 0.8670881912402763
+  },
+  {
+    "id": "hamam",
+    "index": 11,
+    "flip": true,
+    "widthRatio": 0.91909328656117
+  },
+  {
+    "id": "hamam",
+    "index": 12,
+    "flip": false,
+    "widthRatio": 0.9191493869876212
+  },
+  {
+    "id": "hamam",
+    "index": 12,
+    "flip": true,
+    "widthRatio": 0.9191493869876212
+  },
+  {
+    "id": "hamam",
+    "index": 13,
+    "flip": false,
+    "widthRatio": 0.9191493869876212
+  },
+  {
+    "id": "hamam",
+    "index": 13,
+    "flip": true,
+    "widthRatio": 0.9191493869876212
+  },
+  {
+    "id": "hamam",
+    "index": 14,
+    "flip": false,
+    "widthRatio": 0.9191493869876212
+  },
+  {
+    "id": "hamam",
+    "index": 14,
+    "flip": true,
+    "widthRatio": 0.9191493869876212
+  },
+  {
+    "id": "hamam",
+    "index": 15,
+    "flip": false,
+    "widthRatio": 0.9191493869876212
+  },
+  {
+    "id": "hamam",
+    "index": 15,
+    "flip": true,
+    "widthRatio": 0.9191493869876212
+  },
+  {
+    "id": "hamam",
+    "index": 16,
+    "flip": false,
+    "widthRatio": 0.9191493869876212
+  },
+  {
+    "id": "hamam",
+    "index": 16,
+    "flip": true,
+    "widthRatio": 0.9191493869876212
+  },
+  {
+    "id": "hamam",
+    "index": 17,
+    "flip": false,
+    "widthRatio": 0.9191493869876212
+  },
+  {
+    "id": "hamam",
+    "index": 17,
+    "flip": true,
+    "widthRatio": 0.9190932865611696
+  },
+  {
+    "id": "hamam",
+    "index": 18,
+    "flip": false,
+    "widthRatio": 0.9191493869876213
+  },
+  {
+    "id": "hamam",
+    "index": 18,
+    "flip": true,
+    "widthRatio": 0.9191493869876213
+  },
+  {
+    "id": "hamam",
+    "index": 19,
+    "flip": false,
+    "widthRatio": 0.9006923466849525
+  },
+  {
+    "id": "hamam",
+    "index": 19,
+    "flip": true,
+    "widthRatio": 0.9190932865611696
+  },
+  {
+    "id": "hamam",
+    "index": 20,
+    "flip": false,
+    "widthRatio": 0.9191493869876212
+  },
+  {
+    "id": "hamam",
+    "index": 20,
+    "flip": true,
+    "widthRatio": 0.9191493869876212
+  },
+  {
+    "id": "hamam",
+    "index": 21,
+    "flip": false,
+    "widthRatio": 0.8546899969944093
+  },
+  {
+    "id": "hamam",
+    "index": 21,
+    "flip": true,
+    "widthRatio": 0.91909328656117
+  },
+  {
+    "id": "hamam",
+    "index": 22,
+    "flip": false,
+    "widthRatio": 0.9191493869876212
+  },
+  {
+    "id": "hamam",
+    "index": 22,
+    "flip": true,
+    "widthRatio": 0.9191493869876212
+  },
+  {
+    "id": "hamam",
+    "index": 23,
+    "flip": false,
+    "widthRatio": 0.9191493869876213
+  },
+  {
+    "id": "hamam",
+    "index": 23,
+    "flip": true,
+    "widthRatio": 0.9191493869876213
+  },
+  {
+    "id": "hamam",
+    "index": 24,
+    "flip": false,
+    "widthRatio": 0.9191493869876212
+  },
+  {
+    "id": "hamam",
+    "index": 24,
+    "flip": true,
+    "widthRatio": 0.9191493869876212
+  },
+  {
+    "id": "carsi",
+    "index": 1,
+    "flip": false,
+    "widthRatio": 0.8762148999299321
+  },
+  {
+    "id": "carsi",
+    "index": 1,
+    "flip": true,
+    "widthRatio": 0.8762148999299321
+  },
+  {
+    "id": "carsi",
+    "index": 2,
+    "flip": false,
+    "widthRatio": 0.8762148999299321
+  },
+  {
+    "id": "carsi",
+    "index": 2,
+    "flip": true,
+    "widthRatio": 0.8762148999299321
+  },
+  {
+    "id": "carsi",
+    "index": 3,
+    "flip": false,
+    "widthRatio": 0.8416133960081382
+  },
+  {
+    "id": "carsi",
+    "index": 3,
+    "flip": true,
+    "widthRatio": 0.8661071963113549
+  },
+  {
+    "id": "carsi",
+    "index": 4,
+    "flip": false,
+    "widthRatio": 0.8762148999299321
+  },
+  {
+    "id": "carsi",
+    "index": 4,
+    "flip": true,
+    "widthRatio": 0.8762148999299321
+  },
+  {
+    "id": "carsi",
+    "index": 5,
+    "flip": false,
+    "widthRatio": 0.8762148999299321
+  },
+  {
+    "id": "carsi",
+    "index": 5,
+    "flip": true,
+    "widthRatio": 0.8762148999299321
+  },
+  {
+    "id": "carsi",
+    "index": 6,
+    "flip": false,
+    "widthRatio": 0.8762148999299317
+  },
+  {
+    "id": "carsi",
+    "index": 6,
+    "flip": true,
+    "widthRatio": 0.8762148999299313
+  },
+  {
+    "id": "carsi",
+    "index": 7,
+    "flip": false,
+    "widthRatio": 0.8762148999299313
+  },
+  {
+    "id": "carsi",
+    "index": 7,
+    "flip": true,
+    "widthRatio": 0.8762148999299313
+  },
+  {
+    "id": "carsi",
+    "index": 8,
+    "flip": false,
+    "widthRatio": 0.8762148999299321
+  },
+  {
+    "id": "carsi",
+    "index": 8,
+    "flip": true,
+    "widthRatio": 0.8762148999299321
+  },
+  {
+    "id": "carsi",
+    "index": 9,
+    "flip": false,
+    "widthRatio": 0.8762148999299317
+  },
+  {
+    "id": "carsi",
+    "index": 9,
+    "flip": true,
+    "widthRatio": 0.8762148999299313
+  },
+  {
+    "id": "carsi",
+    "index": 10,
+    "flip": false,
+    "widthRatio": 0.8762148999299321
+  },
+  {
+    "id": "carsi",
+    "index": 10,
+    "flip": true,
+    "widthRatio": 0.8762148999299321
+  },
+  {
+    "id": "carsi",
+    "index": 11,
+    "flip": false,
+    "widthRatio": 0.8661071963113557
+  },
+  {
+    "id": "carsi",
+    "index": 11,
+    "flip": true,
+    "widthRatio": 0.8416133960081382
+  },
+  {
+    "id": "carsi",
+    "index": 12,
+    "flip": false,
+    "widthRatio": 0.8762148999299321
+  },
+  {
+    "id": "carsi",
+    "index": 12,
+    "flip": true,
+    "widthRatio": 0.8762148999299313
+  },
+  {
+    "id": "carsi",
+    "index": 13,
+    "flip": false,
+    "widthRatio": 0.8762148999299321
+  },
+  {
+    "id": "carsi",
+    "index": 13,
+    "flip": true,
+    "widthRatio": 0.8762148999299321
+  },
+  {
+    "id": "carsi",
+    "index": 14,
+    "flip": false,
+    "widthRatio": 0.8762148999299317
+  },
+  {
+    "id": "carsi",
+    "index": 14,
+    "flip": true,
+    "widthRatio": 0.8762148999299313
+  },
+  {
+    "id": "carsi",
+    "index": 15,
+    "flip": false,
+    "widthRatio": 0.8762148999299313
+  },
+  {
+    "id": "carsi",
+    "index": 15,
+    "flip": true,
+    "widthRatio": 0.8762148999299313
+  },
+  {
+    "id": "carsi",
+    "index": 16,
+    "flip": false,
+    "widthRatio": 0.8762148999299317
+  },
+  {
+    "id": "carsi",
+    "index": 16,
+    "flip": true,
+    "widthRatio": 0.8762148999299317
+  },
+  {
+    "id": "carsi",
+    "index": 17,
+    "flip": false,
+    "widthRatio": 0.8761614200166061
+  },
+  {
+    "id": "carsi",
+    "index": 17,
+    "flip": true,
+    "widthRatio": 0.8761614200166058
+  },
+  {
+    "id": "carsi",
+    "index": 18,
+    "flip": false,
+    "widthRatio": 0.8762148999299318
+  },
+  {
+    "id": "carsi",
+    "index": 18,
+    "flip": true,
+    "widthRatio": 0.8762148999299318
+  },
+  {
+    "id": "carsi",
+    "index": 19,
+    "flip": false,
+    "widthRatio": 0.8661071963113551
+  },
+  {
+    "id": "carsi",
+    "index": 19,
+    "flip": true,
+    "widthRatio": 0.8416133960081382
+  },
+  {
+    "id": "carsi",
+    "index": 20,
+    "flip": false,
+    "widthRatio": 0.8762148999299313
+  },
+  {
+    "id": "carsi",
+    "index": 20,
+    "flip": true,
+    "widthRatio": 0.8762148999299313
+  },
+  {
+    "id": "carsi",
+    "index": 21,
+    "flip": false,
+    "widthRatio": 0.8331635697026613
+  },
+  {
+    "id": "carsi",
+    "index": 21,
+    "flip": true,
+    "widthRatio": 0.8212910289443343
+  },
+  {
+    "id": "carsi",
+    "index": 22,
+    "flip": false,
+    "widthRatio": 0.8762148999299313
+  },
+  {
+    "id": "carsi",
+    "index": 22,
+    "flip": true,
+    "widthRatio": 0.8762148999299313
+  },
+  {
+    "id": "carsi",
+    "index": 23,
+    "flip": false,
+    "widthRatio": 0.8762148999299318
+  },
+  {
+    "id": "carsi",
+    "index": 23,
+    "flip": true,
+    "widthRatio": 0.8762148999299318
+  },
+  {
+    "id": "carsi",
+    "index": 24,
+    "flip": false,
+    "widthRatio": 0.8762148999299313
+  },
+  {
+    "id": "carsi",
+    "index": 24,
+    "flip": true,
+    "widthRatio": 0.8762148999299313
+  },
+  {
+    "id": "ambar",
+    "index": 1,
+    "flip": false,
+    "widthRatio": 0.8947518866644544
+  },
+  {
+    "id": "ambar",
+    "index": 1,
+    "flip": true,
+    "widthRatio": 0.8947518866644536
+  },
+  {
+    "id": "ambar",
+    "index": 2,
+    "flip": false,
+    "widthRatio": 0.8947518866644536
+  },
+  {
+    "id": "ambar",
+    "index": 2,
+    "flip": true,
+    "widthRatio": 0.8947518866644536
+  },
+  {
+    "id": "ambar",
+    "index": 3,
+    "flip": false,
+    "widthRatio": 0.6828053490579628
+  },
+  {
+    "id": "ambar",
+    "index": 3,
+    "flip": true,
+    "widthRatio": 0.8947518866644536
+  },
+  {
+    "id": "ambar",
+    "index": 4,
+    "flip": false,
+    "widthRatio": 0.8947518866644544
+  },
+  {
+    "id": "ambar",
+    "index": 4,
+    "flip": true,
+    "widthRatio": 0.8769485959507932
+  },
+  {
+    "id": "ambar",
+    "index": 5,
+    "flip": false,
+    "widthRatio": 0.8947518866644536
+  },
+  {
+    "id": "ambar",
+    "index": 5,
+    "flip": true,
+    "widthRatio": 0.8947518866644536
+  },
+  {
+    "id": "ambar",
+    "index": 6,
+    "flip": false,
+    "widthRatio": 0.8947518866644533
+  },
+  {
+    "id": "ambar",
+    "index": 6,
+    "flip": true,
+    "widthRatio": 0.8769485959507929
+  },
+  {
+    "id": "ambar",
+    "index": 7,
+    "flip": false,
+    "widthRatio": 0.8890176979376605
+  },
+  {
+    "id": "ambar",
+    "index": 7,
+    "flip": true,
+    "widthRatio": 0.8947518866644544
+  },
+  {
+    "id": "ambar",
+    "index": 8,
+    "flip": false,
+    "widthRatio": 0.8769485959507932
+  },
+  {
+    "id": "ambar",
+    "index": 8,
+    "flip": true,
+    "widthRatio": 0.8947518866644536
+  },
+  {
+    "id": "ambar",
+    "index": 9,
+    "flip": false,
+    "widthRatio": 0.8947518866644533
+  },
+  {
+    "id": "ambar",
+    "index": 9,
+    "flip": true,
+    "widthRatio": 0.8947518866644539
+  },
+  {
+    "id": "ambar",
+    "index": 10,
+    "flip": false,
+    "widthRatio": 0.8947518866644544
+  },
+  {
+    "id": "ambar",
+    "index": 10,
+    "flip": true,
+    "widthRatio": 0.8947518866644536
+  },
+  {
+    "id": "ambar",
+    "index": 11,
+    "flip": false,
+    "widthRatio": 0.8769485959507932
+  },
+  {
+    "id": "ambar",
+    "index": 11,
+    "flip": true,
+    "widthRatio": 0.729334194726792
+  },
+  {
+    "id": "ambar",
+    "index": 12,
+    "flip": false,
+    "widthRatio": 0.8947518866644533
+  },
+  {
+    "id": "ambar",
+    "index": 12,
+    "flip": true,
+    "widthRatio": 0.8947518866644539
+  },
+  {
+    "id": "ambar",
+    "index": 13,
+    "flip": false,
+    "widthRatio": 0.8947518866644544
+  },
+  {
+    "id": "ambar",
+    "index": 13,
+    "flip": true,
+    "widthRatio": 0.8947518866644536
+  },
+  {
+    "id": "ambar",
+    "index": 14,
+    "flip": false,
+    "widthRatio": 0.8947518866644533
+  },
+  {
+    "id": "ambar",
+    "index": 14,
+    "flip": true,
+    "widthRatio": 0.8947518866644539
+  },
+  {
+    "id": "ambar",
+    "index": 15,
+    "flip": false,
+    "widthRatio": 0.8947518866644529
+  },
+  {
+    "id": "ambar",
+    "index": 15,
+    "flip": true,
+    "widthRatio": 0.8947518866644544
+  },
+  {
+    "id": "ambar",
+    "index": 16,
+    "flip": false,
+    "widthRatio": 0.8947518866644533
+  },
+  {
+    "id": "ambar",
+    "index": 16,
+    "flip": true,
+    "widthRatio": 0.8947518866644536
+  },
+  {
+    "id": "ambar",
+    "index": 17,
+    "flip": false,
+    "widthRatio": 0.7742793120806042
+  },
+  {
+    "id": "ambar",
+    "index": 17,
+    "flip": true,
+    "widthRatio": 0.8947518866644539
+  },
+  {
+    "id": "ambar",
+    "index": 18,
+    "flip": false,
+    "widthRatio": 0.8947518866644533
+  },
+  {
+    "id": "ambar",
+    "index": 18,
+    "flip": true,
+    "widthRatio": 0.8947518866644535
+  },
+  {
+    "id": "ambar",
+    "index": 19,
+    "flip": false,
+    "widthRatio": 0.8947518866644533
+  },
+  {
+    "id": "ambar",
+    "index": 19,
+    "flip": true,
+    "widthRatio": 0.736324443841359
+  },
+  {
+    "id": "ambar",
+    "index": 20,
+    "flip": false,
+    "widthRatio": 0.8947518866644529
+  },
+  {
+    "id": "ambar",
+    "index": 20,
+    "flip": true,
+    "widthRatio": 0.8947518866644544
+  },
+  {
+    "id": "ambar",
+    "index": 21,
+    "flip": false,
+    "widthRatio": 0.8769485959507932
+  },
+  {
+    "id": "ambar",
+    "index": 21,
+    "flip": true,
+    "widthRatio": 0.7121862398676242
+  },
+  {
+    "id": "ambar",
+    "index": 22,
+    "flip": false,
+    "widthRatio": 0.8947518866644529
+  },
+  {
+    "id": "ambar",
+    "index": 22,
+    "flip": true,
+    "widthRatio": 0.8947518866644544
+  },
+  {
+    "id": "ambar",
+    "index": 23,
+    "flip": false,
+    "widthRatio": 0.8947518866644533
+  },
+  {
+    "id": "ambar",
+    "index": 23,
+    "flip": true,
+    "widthRatio": 0.8947518866644535
+  },
+  {
+    "id": "ambar",
+    "index": 24,
+    "flip": false,
+    "widthRatio": 0.8947518866644529
+  },
+  {
+    "id": "ambar",
+    "index": 24,
+    "flip": true,
+    "widthRatio": 0.8947518866644544
+  },
+  {
+    "id": "kereste",
+    "index": 1,
+    "flip": false,
+    "widthRatio": 0.9626561297523665
+  },
+  {
+    "id": "kereste",
+    "index": 1,
+    "flip": true,
+    "widthRatio": 0.9626561297523665
+  },
+  {
+    "id": "kereste",
+    "index": 2,
+    "flip": false,
+    "widthRatio": 0.9626561297523665
+  },
+  {
+    "id": "kereste",
+    "index": 2,
+    "flip": true,
+    "widthRatio": 0.9626561297523665
+  },
+  {
+    "id": "kereste",
+    "index": 3,
+    "flip": false,
+    "widthRatio": 0.9064267647515727
+  },
+  {
+    "id": "kereste",
+    "index": 3,
+    "flip": true,
+    "widthRatio": 0.906426764751572
+  },
+  {
+    "id": "kereste",
+    "index": 4,
+    "flip": false,
+    "widthRatio": 0.9626561297523665
+  },
+  {
+    "id": "kereste",
+    "index": 4,
+    "flip": true,
+    "widthRatio": 0.9626561297523665
+  },
+  {
+    "id": "kereste",
+    "index": 5,
+    "flip": false,
+    "widthRatio": 0.9626561297523665
+  },
+  {
+    "id": "kereste",
+    "index": 5,
+    "flip": true,
+    "widthRatio": 0.9626561297523665
+  },
+  {
+    "id": "kereste",
+    "index": 6,
+    "flip": false,
+    "widthRatio": 0.9626561297523661
+  },
+  {
+    "id": "kereste",
+    "index": 6,
+    "flip": true,
+    "widthRatio": 0.9626561297523665
+  },
+  {
+    "id": "kereste",
+    "index": 7,
+    "flip": false,
+    "widthRatio": 0.9626561297523665
+  },
+  {
+    "id": "kereste",
+    "index": 7,
+    "flip": true,
+    "widthRatio": 0.9626561297523665
+  },
+  {
+    "id": "kereste",
+    "index": 8,
+    "flip": false,
+    "widthRatio": 0.9626561297523665
+  },
+  {
+    "id": "kereste",
+    "index": 8,
+    "flip": true,
+    "widthRatio": 0.9626561297523665
+  },
+  {
+    "id": "kereste",
+    "index": 9,
+    "flip": false,
+    "widthRatio": 0.9626561297523661
+  },
+  {
+    "id": "kereste",
+    "index": 9,
+    "flip": true,
+    "widthRatio": 0.9626561297523665
+  },
+  {
+    "id": "kereste",
+    "index": 10,
+    "flip": false,
+    "widthRatio": 0.9626561297523665
+  },
+  {
+    "id": "kereste",
+    "index": 10,
+    "flip": true,
+    "widthRatio": 0.9626561297523665
+  },
+  {
+    "id": "kereste",
+    "index": 11,
+    "flip": false,
+    "widthRatio": 0.8884474693594683
+  },
+  {
+    "id": "kereste",
+    "index": 11,
+    "flip": true,
+    "widthRatio": 0.8863910140041625
+  },
+  {
+    "id": "kereste",
+    "index": 12,
+    "flip": false,
+    "widthRatio": 0.9626561297523661
+  },
+  {
+    "id": "kereste",
+    "index": 12,
+    "flip": true,
+    "widthRatio": 0.9626561297523665
+  },
+  {
+    "id": "kereste",
+    "index": 13,
+    "flip": false,
+    "widthRatio": 0.9626561297523665
+  },
+  {
+    "id": "kereste",
+    "index": 13,
+    "flip": true,
+    "widthRatio": 0.9626561297523665
+  },
+  {
+    "id": "kereste",
+    "index": 14,
+    "flip": false,
+    "widthRatio": 0.9626561297523661
+  },
+  {
+    "id": "kereste",
+    "index": 14,
+    "flip": true,
+    "widthRatio": 0.9626561297523665
+  },
+  {
+    "id": "kereste",
+    "index": 15,
+    "flip": false,
+    "widthRatio": 0.9626561297523665
+  },
+  {
+    "id": "kereste",
+    "index": 15,
+    "flip": true,
+    "widthRatio": 0.9626561297523665
+  },
+  {
+    "id": "kereste",
+    "index": 16,
+    "flip": false,
+    "widthRatio": 0.9626561297523661
+  },
+  {
+    "id": "kereste",
+    "index": 16,
+    "flip": true,
+    "widthRatio": 0.9626561297523665
+  },
+  {
+    "id": "kereste",
+    "index": 17,
+    "flip": false,
+    "widthRatio": 0.9626561297523661
+  },
+  {
+    "id": "kereste",
+    "index": 17,
+    "flip": true,
+    "widthRatio": 0.9626561297523665
+  },
+  {
+    "id": "kereste",
+    "index": 18,
+    "flip": false,
+    "widthRatio": 0.9626561297523665
+  },
+  {
+    "id": "kereste",
+    "index": 18,
+    "flip": true,
+    "widthRatio": 0.9626561297523664
+  },
+  {
+    "id": "kereste",
+    "index": 19,
+    "flip": false,
+    "widthRatio": 0.906426764751572
+  },
+  {
+    "id": "kereste",
+    "index": 19,
+    "flip": true,
+    "widthRatio": 0.906426764751572
+  },
+  {
+    "id": "kereste",
+    "index": 20,
+    "flip": false,
+    "widthRatio": 0.9626561297523665
+  },
+  {
+    "id": "kereste",
+    "index": 20,
+    "flip": true,
+    "widthRatio": 0.9626561297523665
+  },
+  {
+    "id": "kereste",
+    "index": 21,
+    "flip": false,
+    "widthRatio": 0.8305141842071351
+  },
+  {
+    "id": "kereste",
+    "index": 21,
+    "flip": true,
+    "widthRatio": 0.8260487382927565
+  },
+  {
+    "id": "kereste",
+    "index": 22,
+    "flip": false,
+    "widthRatio": 0.9626561297523665
+  },
+  {
+    "id": "kereste",
+    "index": 22,
+    "flip": true,
+    "widthRatio": 0.9626561297523665
+  },
+  {
+    "id": "kereste",
+    "index": 23,
+    "flip": false,
+    "widthRatio": 0.9626561297523665
+  },
+  {
+    "id": "kereste",
+    "index": 23,
+    "flip": true,
+    "widthRatio": 0.9626561297523664
+  },
+  {
+    "id": "kereste",
+    "index": 24,
+    "flip": false,
+    "widthRatio": 0.9626561297523665
+  },
+  {
+    "id": "kereste",
+    "index": 24,
+    "flip": true,
+    "widthRatio": 0.9626561297523665
+  },
+  {
+    "id": "medrese",
+    "index": 1,
+    "flip": false,
+    "widthRatio": 0.9411984651790632
+  },
+  {
+    "id": "medrese",
+    "index": 1,
+    "flip": true,
+    "widthRatio": 0.9411984651790626
+  },
+  {
+    "id": "medrese",
+    "index": 2,
+    "flip": false,
+    "widthRatio": 0.9411984651790632
+  },
+  {
+    "id": "medrese",
+    "index": 2,
+    "flip": true,
+    "widthRatio": 0.9411984651790626
+  },
+  {
+    "id": "medrese",
+    "index": 3,
+    "flip": false,
+    "widthRatio": 0.8441143949793186
+  },
+  {
+    "id": "medrese",
+    "index": 3,
+    "flip": true,
+    "widthRatio": 0.8441143949793186
+  },
+  {
+    "id": "medrese",
+    "index": 4,
+    "flip": false,
+    "widthRatio": 0.9411984651790632
+  },
+  {
+    "id": "medrese",
+    "index": 4,
+    "flip": true,
+    "widthRatio": 0.9411984651790626
+  },
+  {
+    "id": "medrese",
+    "index": 5,
+    "flip": false,
+    "widthRatio": 0.9411984651790632
+  },
+  {
+    "id": "medrese",
+    "index": 5,
+    "flip": true,
+    "widthRatio": 0.9411984651790626
+  },
+  {
+    "id": "medrese",
+    "index": 6,
+    "flip": false,
+    "widthRatio": 0.9411984651790632
+  },
+  {
+    "id": "medrese",
+    "index": 6,
+    "flip": true,
+    "widthRatio": 0.9411984651790629
+  },
+  {
+    "id": "medrese",
+    "index": 7,
+    "flip": false,
+    "widthRatio": 0.9411984651790632
+  },
+  {
+    "id": "medrese",
+    "index": 7,
+    "flip": true,
+    "widthRatio": 0.9411984651790632
+  },
+  {
+    "id": "medrese",
+    "index": 8,
+    "flip": false,
+    "widthRatio": 0.9411984651790632
+  },
+  {
+    "id": "medrese",
+    "index": 8,
+    "flip": true,
+    "widthRatio": 0.9411984651790626
+  },
+  {
+    "id": "medrese",
+    "index": 9,
+    "flip": false,
+    "widthRatio": 0.9411984651790632
+  },
+  {
+    "id": "medrese",
+    "index": 9,
+    "flip": true,
+    "widthRatio": 0.9411984651790629
+  },
+  {
+    "id": "medrese",
+    "index": 10,
+    "flip": false,
+    "widthRatio": 0.9411984651790632
+  },
+  {
+    "id": "medrese",
+    "index": 10,
+    "flip": true,
+    "widthRatio": 0.9411984651790626
+  },
+  {
+    "id": "medrese",
+    "index": 11,
+    "flip": false,
+    "widthRatio": 0.8441143949793173
+  },
+  {
+    "id": "medrese",
+    "index": 11,
+    "flip": true,
+    "widthRatio": 0.8441143949793186
+  },
+  {
+    "id": "medrese",
+    "index": 12,
+    "flip": false,
+    "widthRatio": 0.9411984651790632
+  },
+  {
+    "id": "medrese",
+    "index": 12,
+    "flip": true,
+    "widthRatio": 0.9411984651790629
+  },
+  {
+    "id": "medrese",
+    "index": 13,
+    "flip": false,
+    "widthRatio": 0.9411984651790632
+  },
+  {
+    "id": "medrese",
+    "index": 13,
+    "flip": true,
+    "widthRatio": 0.9411984651790626
+  },
+  {
+    "id": "medrese",
+    "index": 14,
+    "flip": false,
+    "widthRatio": 0.9279283940452523
+  },
+  {
+    "id": "medrese",
+    "index": 14,
+    "flip": true,
+    "widthRatio": 0.9279283940452523
+  },
+  {
+    "id": "medrese",
+    "index": 15,
+    "flip": false,
+    "widthRatio": 0.9411984651790632
+  },
+  {
+    "id": "medrese",
+    "index": 15,
+    "flip": true,
+    "widthRatio": 0.9411984651790632
+  },
+  {
+    "id": "medrese",
+    "index": 16,
+    "flip": false,
+    "widthRatio": 0.9411984651790632
+  },
+  {
+    "id": "medrese",
+    "index": 16,
+    "flip": true,
+    "widthRatio": 0.9411984651790629
+  },
+  {
+    "id": "medrese",
+    "index": 17,
+    "flip": false,
+    "widthRatio": 0.9279283940452523
+  },
+  {
+    "id": "medrese",
+    "index": 17,
+    "flip": true,
+    "widthRatio": 0.9069605327299225
+  },
+  {
+    "id": "medrese",
+    "index": 18,
+    "flip": false,
+    "widthRatio": 0.941198465179063
+  },
+  {
+    "id": "medrese",
+    "index": 18,
+    "flip": true,
+    "widthRatio": 0.941198465179063
+  },
+  {
+    "id": "medrese",
+    "index": 19,
+    "flip": false,
+    "widthRatio": 0.8441143949793185
+  },
+  {
+    "id": "medrese",
+    "index": 19,
+    "flip": true,
+    "widthRatio": 0.8441143949793185
+  },
+  {
+    "id": "medrese",
+    "index": 20,
+    "flip": false,
+    "widthRatio": 0.9411984651790632
+  },
+  {
+    "id": "medrese",
+    "index": 20,
+    "flip": true,
+    "widthRatio": 0.9411984651790632
+  },
+  {
+    "id": "medrese",
+    "index": 21,
+    "flip": false,
+    "widthRatio": 0.7974106381317497
+  },
+  {
+    "id": "medrese",
+    "index": 21,
+    "flip": true,
+    "widthRatio": 0.8441143949793186
+  },
+  {
+    "id": "medrese",
+    "index": 22,
+    "flip": false,
+    "widthRatio": 0.9411984651790632
+  },
+  {
+    "id": "medrese",
+    "index": 22,
+    "flip": true,
+    "widthRatio": 0.9411984651790632
+  },
+  {
+    "id": "medrese",
+    "index": 23,
+    "flip": false,
+    "widthRatio": 0.941198465179063
+  },
+  {
+    "id": "medrese",
+    "index": 23,
+    "flip": true,
+    "widthRatio": 0.941198465179063
+  },
+  {
+    "id": "medrese",
+    "index": 24,
+    "flip": false,
+    "widthRatio": 0.9411984651790632
+  },
+  {
+    "id": "medrese",
+    "index": 24,
+    "flip": true,
+    "widthRatio": 0.9411984651790632
+  },
+  {
+    "id": "liman",
+    "index": 25,
+    "flip": false,
+    "widthRatio": 0.938297872340426
+  },
+  {
+    "id": "liman",
+    "index": 25,
+    "flip": true,
+    "widthRatio": 0.938297872340426
+  },
+  {
+    "id": "liman",
+    "index": 26,
+    "flip": false,
+    "widthRatio": 0.9382978723404243
+  },
+  {
+    "id": "liman",
+    "index": 26,
+    "flip": true,
+    "widthRatio": 0.938297872340426
+  },
+  {
+    "id": "liman",
+    "index": 27,
+    "flip": false,
+    "widthRatio": 0.9382978723404252
+  },
+  {
+    "id": "liman",
+    "index": 27,
+    "flip": true,
+    "widthRatio": 0.938297872340426
+  },
+  {
+    "id": "liman",
+    "index": 28,
+    "flip": false,
+    "widthRatio": 0.9382978723404243
+  },
+  {
+    "id": "liman",
+    "index": 28,
+    "flip": true,
+    "widthRatio": 0.938297872340426
+  },
+  {
+    "id": "tersane",
+    "index": 25,
+    "flip": false,
+    "widthRatio": 0.98
+  },
+  {
+    "id": "tersane",
+    "index": 25,
+    "flip": true,
+    "widthRatio": 0.9800000000000004
+  },
+  {
+    "id": "tersane",
+    "index": 26,
+    "flip": false,
+    "widthRatio": 0.9800000000000004
+  },
+  {
+    "id": "tersane",
+    "index": 26,
+    "flip": true,
+    "widthRatio": 0.9800000000000004
+  },
+  {
+    "id": "tersane",
+    "index": 27,
+    "flip": false,
+    "widthRatio": 0.9799999999999995
+  },
+  {
+    "id": "tersane",
+    "index": 27,
+    "flip": true,
+    "widthRatio": 0.9800000000000004
+  },
+  {
+    "id": "tersane",
+    "index": 28,
+    "flip": false,
+    "widthRatio": 0.9800000000000004
+  },
+  {
+    "id": "tersane",
+    "index": 28,
+    "flip": true,
+    "widthRatio": 0.9800000000000004
+  },
+  {
+    "id": "kahvehane",
+    "index": 1,
+    "flip": false,
+    "widthRatio": 0.9243574433990688
+  },
+  {
+    "id": "kahvehane",
+    "index": 1,
+    "flip": true,
+    "widthRatio": 0.9243574433990688
+  },
+  {
+    "id": "kahvehane",
+    "index": 2,
+    "flip": false,
+    "widthRatio": 0.9243574433990688
+  },
+  {
+    "id": "kahvehane",
+    "index": 2,
+    "flip": true,
+    "widthRatio": 0.9243574433990688
+  },
+  {
+    "id": "kahvehane",
+    "index": 3,
+    "flip": false,
+    "widthRatio": 0.8491518481811149
+  },
+  {
+    "id": "kahvehane",
+    "index": 3,
+    "flip": true,
+    "widthRatio": 0.8491518481811141
+  },
+  {
+    "id": "kahvehane",
+    "index": 4,
+    "flip": false,
+    "widthRatio": 0.9243574433990688
+  },
+  {
+    "id": "kahvehane",
+    "index": 4,
+    "flip": true,
+    "widthRatio": 0.9243574433990688
+  },
+  {
+    "id": "kahvehane",
+    "index": 5,
+    "flip": false,
+    "widthRatio": 0.9243574433990688
+  },
+  {
+    "id": "kahvehane",
+    "index": 5,
+    "flip": true,
+    "widthRatio": 0.9243574433990688
+  },
+  {
+    "id": "kahvehane",
+    "index": 6,
+    "flip": false,
+    "widthRatio": 0.9243574433990684
+  },
+  {
+    "id": "kahvehane",
+    "index": 6,
+    "flip": true,
+    "widthRatio": 0.9243574433990688
+  },
+  {
+    "id": "kahvehane",
+    "index": 7,
+    "flip": false,
+    "widthRatio": 0.9243574433990688
+  },
+  {
+    "id": "kahvehane",
+    "index": 7,
+    "flip": true,
+    "widthRatio": 0.9243574433990688
+  },
+  {
+    "id": "kahvehane",
+    "index": 8,
+    "flip": false,
+    "widthRatio": 0.9243574433990688
+  },
+  {
+    "id": "kahvehane",
+    "index": 8,
+    "flip": true,
+    "widthRatio": 0.9243574433990688
+  },
+  {
+    "id": "kahvehane",
+    "index": 9,
+    "flip": false,
+    "widthRatio": 0.9243574433990684
+  },
+  {
+    "id": "kahvehane",
+    "index": 9,
+    "flip": true,
+    "widthRatio": 0.9243574433990688
+  },
+  {
+    "id": "kahvehane",
+    "index": 10,
+    "flip": false,
+    "widthRatio": 0.9243574433990688
+  },
+  {
+    "id": "kahvehane",
+    "index": 10,
+    "flip": true,
+    "widthRatio": 0.9243574433990688
+  },
+  {
+    "id": "kahvehane",
+    "index": 11,
+    "flip": false,
+    "widthRatio": 0.8491518481811141
+  },
+  {
+    "id": "kahvehane",
+    "index": 11,
+    "flip": true,
+    "widthRatio": 0.8491518481811156
+  },
+  {
+    "id": "kahvehane",
+    "index": 12,
+    "flip": false,
+    "widthRatio": 0.9243574433990684
+  },
+  {
+    "id": "kahvehane",
+    "index": 12,
+    "flip": true,
+    "widthRatio": 0.9243574433990688
+  },
+  {
+    "id": "kahvehane",
+    "index": 13,
+    "flip": false,
+    "widthRatio": 0.9243574433990688
+  },
+  {
+    "id": "kahvehane",
+    "index": 13,
+    "flip": true,
+    "widthRatio": 0.9243574433990688
+  },
+  {
+    "id": "kahvehane",
+    "index": 14,
+    "flip": false,
+    "widthRatio": 0.9243010250980799
+  },
+  {
+    "id": "kahvehane",
+    "index": 14,
+    "flip": true,
+    "widthRatio": 0.9243010250980799
+  },
+  {
+    "id": "kahvehane",
+    "index": 15,
+    "flip": false,
+    "widthRatio": 0.9243574433990688
+  },
+  {
+    "id": "kahvehane",
+    "index": 15,
+    "flip": true,
+    "widthRatio": 0.9243574433990688
+  },
+  {
+    "id": "kahvehane",
+    "index": 16,
+    "flip": false,
+    "widthRatio": 0.9243574433990684
+  },
+  {
+    "id": "kahvehane",
+    "index": 16,
+    "flip": true,
+    "widthRatio": 0.9243574433990688
+  },
+  {
+    "id": "kahvehane",
+    "index": 17,
+    "flip": false,
+    "widthRatio": 0.9243010250980799
+  },
+  {
+    "id": "kahvehane",
+    "index": 17,
+    "flip": true,
+    "widthRatio": 0.9243010250980799
+  },
+  {
+    "id": "kahvehane",
+    "index": 18,
+    "flip": false,
+    "widthRatio": 0.9243574433990686
+  },
+  {
+    "id": "kahvehane",
+    "index": 18,
+    "flip": true,
+    "widthRatio": 0.9243574433990688
+  },
+  {
+    "id": "kahvehane",
+    "index": 19,
+    "flip": false,
+    "widthRatio": 0.8874598745524505
+  },
+  {
+    "id": "kahvehane",
+    "index": 19,
+    "flip": true,
+    "widthRatio": 0.8491518481811147
+  },
+  {
+    "id": "kahvehane",
+    "index": 20,
+    "flip": false,
+    "widthRatio": 0.9243574433990688
+  },
+  {
+    "id": "kahvehane",
+    "index": 20,
+    "flip": true,
+    "widthRatio": 0.9243574433990688
+  },
+  {
+    "id": "kahvehane",
+    "index": 21,
+    "flip": false,
+    "widthRatio": 0.8405762664308298
+  },
+  {
+    "id": "kahvehane",
+    "index": 21,
+    "flip": true,
+    "widthRatio": 0.8441306193931197
+  },
+  {
+    "id": "kahvehane",
+    "index": 22,
+    "flip": false,
+    "widthRatio": 0.9243574433990688
+  },
+  {
+    "id": "kahvehane",
+    "index": 22,
+    "flip": true,
+    "widthRatio": 0.9243574433990688
+  },
+  {
+    "id": "kahvehane",
+    "index": 23,
+    "flip": false,
+    "widthRatio": 0.9243574433990686
+  },
+  {
+    "id": "kahvehane",
+    "index": 23,
+    "flip": true,
+    "widthRatio": 0.9243574433990688
+  },
+  {
+    "id": "kahvehane",
+    "index": 24,
+    "flip": false,
+    "widthRatio": 0.9243574433990688
+  },
+  {
+    "id": "kahvehane",
+    "index": 24,
+    "flip": true,
+    "widthRatio": 0.9243574433990688
+  },
+  {
+    "id": "cami",
+    "index": 1,
+    "flip": false,
+    "widthRatio": 0.9454940112451737
+  },
+  {
+    "id": "cami",
+    "index": 1,
+    "flip": true,
+    "widthRatio": 0.9454940112451737
+  },
+  {
+    "id": "cami",
+    "index": 2,
+    "flip": false,
+    "widthRatio": 0.9454940112451737
+  },
+  {
+    "id": "cami",
+    "index": 2,
+    "flip": true,
+    "widthRatio": 0.9454940112451737
+  },
+  {
+    "id": "cami",
+    "index": 3,
+    "flip": false,
+    "widthRatio": 0.8427153958870406
+  },
+  {
+    "id": "cami",
+    "index": 3,
+    "flip": true,
+    "widthRatio": 0.7015607113468981
+  },
+  {
+    "id": "cami",
+    "index": 4,
+    "flip": false,
+    "widthRatio": 0.8614706176677217
+  },
+  {
+    "id": "cami",
+    "index": 4,
+    "flip": true,
+    "widthRatio": 0.9454940112451737
+  },
+  {
+    "id": "cami",
+    "index": 5,
+    "flip": false,
+    "widthRatio": 0.9454940112451737
+  },
+  {
+    "id": "cami",
+    "index": 5,
+    "flip": true,
+    "widthRatio": 0.9454940112451737
+  },
+  {
+    "id": "cami",
+    "index": 6,
+    "flip": false,
+    "widthRatio": 0.886689177415899
+  },
+  {
+    "id": "cami",
+    "index": 6,
+    "flip": true,
+    "widthRatio": 0.9454940112451737
+  },
+  {
+    "id": "cami",
+    "index": 7,
+    "flip": false,
+    "widthRatio": 0.9454940112451737
+  },
+  {
+    "id": "cami",
+    "index": 7,
+    "flip": true,
+    "widthRatio": 0.92725816483688
+  },
+  {
+    "id": "cami",
+    "index": 8,
+    "flip": false,
+    "widthRatio": 0.9454940112451737
+  },
+  {
+    "id": "cami",
+    "index": 8,
+    "flip": true,
+    "widthRatio": 0.8648177034008896
+  },
+  {
+    "id": "cami",
+    "index": 9,
+    "flip": false,
+    "widthRatio": 0.9454940112451737
+  },
+  {
+    "id": "cami",
+    "index": 9,
+    "flip": true,
+    "widthRatio": 0.9454940112451737
+  },
+  {
+    "id": "cami",
+    "index": 10,
+    "flip": false,
+    "widthRatio": 0.9454940112451737
+  },
+  {
+    "id": "cami",
+    "index": 10,
+    "flip": true,
+    "widthRatio": 0.9454940112451737
+  },
+  {
+    "id": "cami",
+    "index": 11,
+    "flip": false,
+    "widthRatio": 0.8194589208789964
+  },
+  {
+    "id": "cami",
+    "index": 11,
+    "flip": true,
+    "widthRatio": 0.819458920878995
+  },
+  {
+    "id": "cami",
+    "index": 12,
+    "flip": false,
+    "widthRatio": 0.9454940112451737
+  },
+  {
+    "id": "cami",
+    "index": 12,
+    "flip": true,
+    "widthRatio": 0.9454940112451737
+  },
+  {
+    "id": "cami",
+    "index": 13,
+    "flip": false,
+    "widthRatio": 0.9454940112451737
+  },
+  {
+    "id": "cami",
+    "index": 13,
+    "flip": true,
+    "widthRatio": 0.9454940112451737
+  },
+  {
+    "id": "cami",
+    "index": 14,
+    "flip": false,
+    "widthRatio": 0.9183133667568629
+  },
+  {
+    "id": "cami",
+    "index": 14,
+    "flip": true,
+    "widthRatio": 0.9182556583821533
+  },
+  {
+    "id": "cami",
+    "index": 15,
+    "flip": false,
+    "widthRatio": 0.9454940112451737
+  },
+  {
+    "id": "cami",
+    "index": 15,
+    "flip": true,
+    "widthRatio": 0.9454940112451723
+  },
+  {
+    "id": "cami",
+    "index": 16,
+    "flip": false,
+    "widthRatio": 0.9076950258102621
+  },
+  {
+    "id": "cami",
+    "index": 16,
+    "flip": true,
+    "widthRatio": 0.9454940112451737
+  },
+  {
+    "id": "cami",
+    "index": 17,
+    "flip": false,
+    "widthRatio": 0.9008277292197974
+  },
+  {
+    "id": "cami",
+    "index": 17,
+    "flip": true,
+    "widthRatio": 0.8194589208789953
+  },
+  {
+    "id": "cami",
+    "index": 18,
+    "flip": false,
+    "widthRatio": 0.9454940112451737
+  },
+  {
+    "id": "cami",
+    "index": 18,
+    "flip": true,
+    "widthRatio": 0.9454940112451735
+  },
+  {
+    "id": "cami",
+    "index": 19,
+    "flip": false,
+    "widthRatio": 0.7267792710950755
+  },
+  {
+    "id": "cami",
+    "index": 19,
+    "flip": true,
+    "widthRatio": 0.8838037586804095
+  },
+  {
+    "id": "cami",
+    "index": 20,
+    "flip": false,
+    "widthRatio": 0.9454940112451737
+  },
+  {
+    "id": "cami",
+    "index": 20,
+    "flip": true,
+    "widthRatio": 0.9454940112451723
+  },
+  {
+    "id": "cami",
+    "index": 21,
+    "flip": false,
+    "widthRatio": 0.7542484574569344
+  },
+  {
+    "id": "cami",
+    "index": 21,
+    "flip": true,
+    "widthRatio": 0.819458920878995
+  },
+  {
+    "id": "cami",
+    "index": 22,
+    "flip": false,
+    "widthRatio": 0.9454940112451737
+  },
+  {
+    "id": "cami",
+    "index": 22,
+    "flip": true,
+    "widthRatio": 0.9454940112451723
+  },
+  {
+    "id": "cami",
+    "index": 23,
+    "flip": false,
+    "widthRatio": 0.9454940112451737
+  },
+  {
+    "id": "cami",
+    "index": 23,
+    "flip": true,
+    "widthRatio": 0.9454940112451735
+  },
+  {
+    "id": "cami",
+    "index": 24,
+    "flip": false,
+    "widthRatio": 0.9454940112451737
+  },
+  {
+    "id": "cami",
+    "index": 24,
+    "flip": true,
+    "widthRatio": 0.9073487755620036
+  },
+  {
+    "id": "muze",
+    "index": 1,
+    "flip": false,
+    "widthRatio": 0.9296248555933821
+  },
+  {
+    "id": "muze",
+    "index": 1,
+    "flip": true,
+    "widthRatio": 0.9296248555933821
+  },
+  {
+    "id": "muze",
+    "index": 2,
+    "flip": false,
+    "widthRatio": 0.9296248555933821
+  },
+  {
+    "id": "muze",
+    "index": 2,
+    "flip": true,
+    "widthRatio": 0.9296248555933815
+  },
+  {
+    "id": "muze",
+    "index": 3,
+    "flip": false,
+    "widthRatio": 0.760767215807865
+  },
+  {
+    "id": "muze",
+    "index": 3,
+    "flip": true,
+    "widthRatio": 0.8753248686059016
+  },
+  {
+    "id": "muze",
+    "index": 4,
+    "flip": false,
+    "widthRatio": 0.9296248555933821
+  },
+  {
+    "id": "muze",
+    "index": 4,
+    "flip": true,
+    "widthRatio": 0.91538316621631
+  },
+  {
+    "id": "muze",
+    "index": 5,
+    "flip": false,
+    "widthRatio": 0.9296248555933821
+  },
+  {
+    "id": "muze",
+    "index": 5,
+    "flip": true,
+    "widthRatio": 0.9296248555933815
+  },
+  {
+    "id": "muze",
+    "index": 6,
+    "flip": false,
+    "widthRatio": 0.9296248555933818
+  },
+  {
+    "id": "muze",
+    "index": 6,
+    "flip": true,
+    "widthRatio": 0.9296248555933815
+  },
+  {
+    "id": "muze",
+    "index": 7,
+    "flip": false,
+    "widthRatio": 0.9296248555933815
+  },
+  {
+    "id": "muze",
+    "index": 7,
+    "flip": true,
+    "widthRatio": 0.9296248555933815
+  },
+  {
+    "id": "muze",
+    "index": 8,
+    "flip": false,
+    "widthRatio": 0.9296248555933821
+  },
+  {
+    "id": "muze",
+    "index": 8,
+    "flip": true,
+    "widthRatio": 0.9296248555933815
+  },
+  {
+    "id": "muze",
+    "index": 9,
+    "flip": false,
+    "widthRatio": 0.9296248555933818
+  },
+  {
+    "id": "muze",
+    "index": 9,
+    "flip": true,
+    "widthRatio": 0.9296248555933815
+  },
+  {
+    "id": "muze",
+    "index": 10,
+    "flip": false,
+    "widthRatio": 0.9296248555933821
+  },
+  {
+    "id": "muze",
+    "index": 10,
+    "flip": true,
+    "widthRatio": 0.9296248555933821
+  },
+  {
+    "id": "muze",
+    "index": 11,
+    "flip": false,
+    "widthRatio": 0.8753248686059024
+  },
+  {
+    "id": "muze",
+    "index": 11,
+    "flip": true,
+    "widthRatio": 0.8275499584246504
+  },
+  {
+    "id": "muze",
+    "index": 12,
+    "flip": false,
+    "widthRatio": 0.9296248555933818
+  },
+  {
+    "id": "muze",
+    "index": 12,
+    "flip": true,
+    "widthRatio": 0.9296248555933815
+  },
+  {
+    "id": "muze",
+    "index": 13,
+    "flip": false,
+    "widthRatio": 0.9296248555933821
+  },
+  {
+    "id": "muze",
+    "index": 13,
+    "flip": true,
+    "widthRatio": 0.9296248555933821
+  },
+  {
+    "id": "muze",
+    "index": 14,
+    "flip": false,
+    "widthRatio": 0.9296248555933818
+  },
+  {
+    "id": "muze",
+    "index": 14,
+    "flip": true,
+    "widthRatio": 0.9296248555933815
+  },
+  {
+    "id": "muze",
+    "index": 15,
+    "flip": false,
+    "widthRatio": 0.9296248555933815
+  },
+  {
+    "id": "muze",
+    "index": 15,
+    "flip": true,
+    "widthRatio": 0.9296248555933815
+  },
+  {
+    "id": "muze",
+    "index": 16,
+    "flip": false,
+    "widthRatio": 0.9296248555933818
+  },
+  {
+    "id": "muze",
+    "index": 16,
+    "flip": true,
+    "widthRatio": 0.921170625644443
+  },
+  {
+    "id": "muze",
+    "index": 17,
+    "flip": false,
+    "widthRatio": 0.8753248686059016
+  },
+  {
+    "id": "muze",
+    "index": 17,
+    "flip": true,
+    "widthRatio": 0.9296248555933815
+  },
+  {
+    "id": "muze",
+    "index": 18,
+    "flip": false,
+    "widthRatio": 0.9296248555933817
+  },
+  {
+    "id": "muze",
+    "index": 18,
+    "flip": true,
+    "widthRatio": 0.9296248555933815
+  },
+  {
+    "id": "muze",
+    "index": 19,
+    "flip": false,
+    "widthRatio": 0.9296248555933817
+  },
+  {
+    "id": "muze",
+    "index": 19,
+    "flip": true,
+    "widthRatio": 0.7745549867984165
+  },
+  {
+    "id": "muze",
+    "index": 20,
+    "flip": false,
+    "widthRatio": 0.9296248555933815
+  },
+  {
+    "id": "muze",
+    "index": 20,
+    "flip": true,
+    "widthRatio": 0.9296248555933815
+  },
+  {
+    "id": "muze",
+    "index": 21,
+    "flip": false,
+    "widthRatio": 0.8753248686059024
+  },
+  {
+    "id": "muze",
+    "index": 21,
+    "flip": true,
+    "widthRatio": 0.7784700328821529
+  },
+  {
+    "id": "muze",
+    "index": 22,
+    "flip": false,
+    "widthRatio": 0.9296248555933815
+  },
+  {
+    "id": "muze",
+    "index": 22,
+    "flip": true,
+    "widthRatio": 0.9296248555933815
+  },
+  {
+    "id": "muze",
+    "index": 23,
+    "flip": false,
+    "widthRatio": 0.9296248555933817
+  },
+  {
+    "id": "muze",
+    "index": 23,
+    "flip": true,
+    "widthRatio": 0.9296248555933815
+  },
+  {
+    "id": "muze",
+    "index": 24,
+    "flip": false,
+    "widthRatio": 0.9296248555933815
+  },
+  {
+    "id": "muze",
+    "index": 24,
+    "flip": true,
+    "widthRatio": 0.9296248555933815
+  },
+  {
+    "id": "marangoz",
+    "index": 1,
+    "flip": false,
+    "widthRatio": 0.8813165966571219
+  },
+  {
+    "id": "marangoz",
+    "index": 1,
+    "flip": true,
+    "widthRatio": 0.8813165966571226
+  },
+  {
+    "id": "marangoz",
+    "index": 2,
+    "flip": false,
+    "widthRatio": 0.8813165966571226
+  },
+  {
+    "id": "marangoz",
+    "index": 2,
+    "flip": true,
+    "widthRatio": 0.8813165966571226
+  },
+  {
+    "id": "marangoz",
+    "index": 3,
+    "flip": false,
+    "widthRatio": 0.7547456767392632
+  },
+  {
+    "id": "marangoz",
+    "index": 3,
+    "flip": true,
+    "widthRatio": 0.8598538694802308
+  },
+  {
+    "id": "marangoz",
+    "index": 4,
+    "flip": false,
+    "widthRatio": 0.8813165966571219
+  },
+  {
+    "id": "marangoz",
+    "index": 4,
+    "flip": true,
+    "widthRatio": 0.8702355896434888
+  },
+  {
+    "id": "marangoz",
+    "index": 5,
+    "flip": false,
+    "widthRatio": 0.8813165966571226
+  },
+  {
+    "id": "marangoz",
+    "index": 5,
+    "flip": true,
+    "widthRatio": 0.8813165966571226
+  },
+  {
+    "id": "marangoz",
+    "index": 6,
+    "flip": false,
+    "widthRatio": 0.881316596657123
+  },
+  {
+    "id": "marangoz",
+    "index": 6,
+    "flip": true,
+    "widthRatio": 0.8813165966571226
+  },
+  {
+    "id": "marangoz",
+    "index": 7,
+    "flip": false,
+    "widthRatio": 0.8813165966571219
+  },
+  {
+    "id": "marangoz",
+    "index": 7,
+    "flip": true,
+    "widthRatio": 0.8813165966571234
+  },
+  {
+    "id": "marangoz",
+    "index": 8,
+    "flip": false,
+    "widthRatio": 0.880563518510565
+  },
+  {
+    "id": "marangoz",
+    "index": 8,
+    "flip": true,
+    "widthRatio": 0.8813165966571226
+  },
+  {
+    "id": "marangoz",
+    "index": 9,
+    "flip": false,
+    "widthRatio": 0.881316596657123
+  },
+  {
+    "id": "marangoz",
+    "index": 9,
+    "flip": true,
+    "widthRatio": 0.8813165966571226
+  },
+  {
+    "id": "marangoz",
+    "index": 10,
+    "flip": false,
+    "widthRatio": 0.8813165966571219
+  },
+  {
+    "id": "marangoz",
+    "index": 10,
+    "flip": true,
+    "widthRatio": 0.8813165966571226
+  },
+  {
+    "id": "marangoz",
+    "index": 11,
+    "flip": false,
+    "widthRatio": 0.8398972985964533
+  },
+  {
+    "id": "marangoz",
+    "index": 11,
+    "flip": true,
+    "widthRatio": 0.7548532593316282
+  },
+  {
+    "id": "marangoz",
+    "index": 12,
+    "flip": false,
+    "widthRatio": 0.8813165966571226
+  },
+  {
+    "id": "marangoz",
+    "index": 12,
+    "flip": true,
+    "widthRatio": 0.8813165966571226
+  },
+  {
+    "id": "marangoz",
+    "index": 13,
+    "flip": false,
+    "widthRatio": 0.8813165966571219
+  },
+  {
+    "id": "marangoz",
+    "index": 13,
+    "flip": true,
+    "widthRatio": 0.8813165966571226
+  },
+  {
+    "id": "marangoz",
+    "index": 14,
+    "flip": false,
+    "widthRatio": 0.881316596657123
+  },
+  {
+    "id": "marangoz",
+    "index": 14,
+    "flip": true,
+    "widthRatio": 0.8813165966571226
+  },
+  {
+    "id": "marangoz",
+    "index": 15,
+    "flip": false,
+    "widthRatio": 0.8813165966571219
+  },
+  {
+    "id": "marangoz",
+    "index": 15,
+    "flip": true,
+    "widthRatio": 0.8813165966571234
+  },
+  {
+    "id": "marangoz",
+    "index": 16,
+    "flip": false,
+    "widthRatio": 0.8813165966571226
+  },
+  {
+    "id": "marangoz",
+    "index": 16,
+    "flip": true,
+    "widthRatio": 0.8813165966571226
+  },
+  {
+    "id": "marangoz",
+    "index": 17,
+    "flip": false,
+    "widthRatio": 0.8057936168166322
+  },
+  {
+    "id": "marangoz",
+    "index": 17,
+    "flip": true,
+    "widthRatio": 0.8813165966571226
+  },
+  {
+    "id": "marangoz",
+    "index": 18,
+    "flip": false,
+    "widthRatio": 0.8813165966571226
+  },
+  {
+    "id": "marangoz",
+    "index": 18,
+    "flip": true,
+    "widthRatio": 0.8813165966571225
+  },
+  {
+    "id": "marangoz",
+    "index": 19,
+    "flip": false,
+    "widthRatio": 0.8674922335381721
+  },
+  {
+    "id": "marangoz",
+    "index": 19,
+    "flip": true,
+    "widthRatio": 0.7548532593316285
+  },
+  {
+    "id": "marangoz",
+    "index": 20,
+    "flip": false,
+    "widthRatio": 0.8813165966571219
+  },
+  {
+    "id": "marangoz",
+    "index": 20,
+    "flip": true,
+    "widthRatio": 0.8813165966571234
+  },
+  {
+    "id": "marangoz",
+    "index": 21,
+    "flip": false,
+    "widthRatio": 0.8544209485657802
+  },
+  {
+    "id": "marangoz",
+    "index": 21,
+    "flip": true,
+    "widthRatio": 0.7548532593316282
+  },
+  {
+    "id": "marangoz",
+    "index": 22,
+    "flip": false,
+    "widthRatio": 0.8813165966571219
+  },
+  {
+    "id": "marangoz",
+    "index": 22,
+    "flip": true,
+    "widthRatio": 0.8813165966571234
+  },
+  {
+    "id": "marangoz",
+    "index": 23,
+    "flip": false,
+    "widthRatio": 0.8813165966571226
+  },
+  {
+    "id": "marangoz",
+    "index": 23,
+    "flip": true,
+    "widthRatio": 0.8813165966571225
+  },
+  {
+    "id": "marangoz",
+    "index": 24,
+    "flip": false,
+    "widthRatio": 0.8813165966571219
+  },
+  {
+    "id": "marangoz",
+    "index": 24,
+    "flip": true,
+    "widthRatio": 0.8813165966571234
+  },
+  {
+    "id": "mimar",
+    "index": 1,
+    "flip": false,
+    "widthRatio": 0.9510663804830422
+  },
+  {
+    "id": "mimar",
+    "index": 1,
+    "flip": true,
+    "widthRatio": 0.9510663804830422
+  },
+  {
+    "id": "mimar",
+    "index": 2,
+    "flip": false,
+    "widthRatio": 0.9510663804830429
+  },
+  {
+    "id": "mimar",
+    "index": 2,
+    "flip": true,
+    "widthRatio": 0.9510663804830429
+  },
+  {
+    "id": "mimar",
+    "index": 3,
+    "flip": false,
+    "widthRatio": 0.8168582828465205
+  },
+  {
+    "id": "mimar",
+    "index": 3,
+    "flip": true,
+    "widthRatio": 0.75329519162161
+  },
+  {
+    "id": "mimar",
+    "index": 4,
+    "flip": false,
+    "widthRatio": 0.9283113743093765
+  },
+  {
+    "id": "mimar",
+    "index": 4,
+    "flip": true,
+    "widthRatio": 0.9510663804830422
+  },
+  {
+    "id": "mimar",
+    "index": 5,
+    "flip": false,
+    "widthRatio": 0.9510663804830429
+  },
+  {
+    "id": "mimar",
+    "index": 5,
+    "flip": true,
+    "widthRatio": 0.9510663804830429
+  },
+  {
+    "id": "mimar",
+    "index": 6,
+    "flip": false,
+    "widthRatio": 0.9283113743093765
+  },
+  {
+    "id": "mimar",
+    "index": 6,
+    "flip": true,
+    "widthRatio": 0.9510663804830433
+  },
+  {
+    "id": "mimar",
+    "index": 7,
+    "flip": false,
+    "widthRatio": 0.9510663804830429
+  },
+  {
+    "id": "mimar",
+    "index": 7,
+    "flip": true,
+    "widthRatio": 0.9371347440501865
+  },
+  {
+    "id": "mimar",
+    "index": 8,
+    "flip": false,
+    "widthRatio": 0.9510663804830429
+  },
+  {
+    "id": "mimar",
+    "index": 8,
+    "flip": true,
+    "widthRatio": 0.9283113743093765
+  },
+  {
+    "id": "mimar",
+    "index": 9,
+    "flip": false,
+    "widthRatio": 0.9510663804830433
+  },
+  {
+    "id": "mimar",
+    "index": 9,
+    "flip": true,
+    "widthRatio": 0.9510663804830433
+  },
+  {
+    "id": "mimar",
+    "index": 10,
+    "flip": false,
+    "widthRatio": 0.9510663804830422
+  },
+  {
+    "id": "mimar",
+    "index": 10,
+    "flip": true,
+    "widthRatio": 0.9510663804830422
+  },
+  {
+    "id": "mimar",
+    "index": 11,
+    "flip": false,
+    "widthRatio": 0.7532951916216092
+  },
+  {
+    "id": "mimar",
+    "index": 11,
+    "flip": true,
+    "widthRatio": 0.8141880525302213
+  },
+  {
+    "id": "mimar",
+    "index": 12,
+    "flip": false,
+    "widthRatio": 0.9510663804830433
+  },
+  {
+    "id": "mimar",
+    "index": 12,
+    "flip": true,
+    "widthRatio": 0.9510663804830433
+  },
+  {
+    "id": "mimar",
+    "index": 13,
+    "flip": false,
+    "widthRatio": 0.9510663804830422
+  },
+  {
+    "id": "mimar",
+    "index": 13,
+    "flip": true,
+    "widthRatio": 0.9510663804830422
+  },
+  {
+    "id": "mimar",
+    "index": 14,
+    "flip": false,
+    "widthRatio": 0.9283113743093765
+  },
+  {
+    "id": "mimar",
+    "index": 14,
+    "flip": true,
+    "widthRatio": 0.9283113743093765
+  },
+  {
+    "id": "mimar",
+    "index": 15,
+    "flip": false,
+    "widthRatio": 0.9510663804830429
+  },
+  {
+    "id": "mimar",
+    "index": 15,
+    "flip": true,
+    "widthRatio": 0.9510663804830429
+  },
+  {
+    "id": "mimar",
+    "index": 16,
+    "flip": false,
+    "widthRatio": 0.9510663804830433
+  },
+  {
+    "id": "mimar",
+    "index": 16,
+    "flip": true,
+    "widthRatio": 0.9510663804830433
+  },
+  {
+    "id": "mimar",
+    "index": 17,
+    "flip": false,
+    "widthRatio": 0.9283113743093765
+  },
+  {
+    "id": "mimar",
+    "index": 17,
+    "flip": true,
+    "widthRatio": 0.8068739434029724
+  },
+  {
+    "id": "mimar",
+    "index": 18,
+    "flip": false,
+    "widthRatio": 0.951066380483043
+  },
+  {
+    "id": "mimar",
+    "index": 18,
+    "flip": true,
+    "widthRatio": 0.9510663804830429
+  },
+  {
+    "id": "mimar",
+    "index": 19,
+    "flip": false,
+    "widthRatio": 0.7747731311222642
+  },
+  {
+    "id": "mimar",
+    "index": 19,
+    "flip": true,
+    "widthRatio": 0.8450698466230552
+  },
+  {
+    "id": "mimar",
+    "index": 20,
+    "flip": false,
+    "widthRatio": 0.9510663804830429
+  },
+  {
+    "id": "mimar",
+    "index": 20,
+    "flip": true,
+    "widthRatio": 0.9510663804830429
+  },
+  {
+    "id": "mimar",
+    "index": 21,
+    "flip": false,
+    "widthRatio": 0.7532951916216092
+  },
+  {
+    "id": "mimar",
+    "index": 21,
+    "flip": true,
+    "widthRatio": 0.7752375190033604
+  },
+  {
+    "id": "mimar",
+    "index": 22,
+    "flip": false,
+    "widthRatio": 0.9510663804830429
+  },
+  {
+    "id": "mimar",
+    "index": 22,
+    "flip": true,
+    "widthRatio": 0.9510663804830429
+  },
+  {
+    "id": "mimar",
+    "index": 23,
+    "flip": false,
+    "widthRatio": 0.951066380483043
+  },
+  {
+    "id": "mimar",
+    "index": 23,
+    "flip": true,
+    "widthRatio": 0.9510663804830429
+  },
+  {
+    "id": "mimar",
+    "index": 24,
+    "flip": false,
+    "widthRatio": 0.9510663804830429
+  },
+  {
+    "id": "mimar",
+    "index": 24,
+    "flip": true,
+    "widthRatio": 0.9510663804830429
+  },
+  {
+    "id": "ormanci",
+    "index": 1,
+    "flip": false,
+    "widthRatio": 0.9457935504522738
+  },
+  {
+    "id": "ormanci",
+    "index": 1,
+    "flip": true,
+    "widthRatio": 0.9457935504522738
+  },
+  {
+    "id": "ormanci",
+    "index": 2,
+    "flip": false,
+    "widthRatio": 0.945793550452273
+  },
+  {
+    "id": "ormanci",
+    "index": 2,
+    "flip": true,
+    "widthRatio": 0.9457935504522738
+  },
+  {
+    "id": "ormanci",
+    "index": 3,
+    "flip": false,
+    "widthRatio": 0.8893368797770826
+  },
+  {
+    "id": "ormanci",
+    "index": 3,
+    "flip": true,
+    "widthRatio": 0.7464056767180111
+  },
+  {
+    "id": "ormanci",
+    "index": 4,
+    "flip": false,
+    "widthRatio": 0.8905491395768571
+  },
+  {
+    "id": "ormanci",
+    "index": 4,
+    "flip": true,
+    "widthRatio": 0.9457935504522738
+  },
+  {
+    "id": "ormanci",
+    "index": 5,
+    "flip": false,
+    "widthRatio": 0.945793550452273
+  },
+  {
+    "id": "ormanci",
+    "index": 5,
+    "flip": true,
+    "widthRatio": 0.9457935504522738
+  },
+  {
+    "id": "ormanci",
+    "index": 6,
+    "flip": false,
+    "widthRatio": 0.9218947143995851
+  },
+  {
+    "id": "ormanci",
+    "index": 6,
+    "flip": true,
+    "widthRatio": 0.9457935504522738
+  },
+  {
+    "id": "ormanci",
+    "index": 7,
+    "flip": false,
+    "widthRatio": 0.9457935504522738
+  },
+  {
+    "id": "ormanci",
+    "index": 7,
+    "flip": true,
+    "widthRatio": 0.9457935504522738
+  },
+  {
+    "id": "ormanci",
+    "index": 8,
+    "flip": false,
+    "widthRatio": 0.945793550452273
+  },
+  {
+    "id": "ormanci",
+    "index": 8,
+    "flip": true,
+    "widthRatio": 0.9457935504522738
+  },
+  {
+    "id": "ormanci",
+    "index": 9,
+    "flip": false,
+    "widthRatio": 0.9457935504522734
+  },
+  {
+    "id": "ormanci",
+    "index": 9,
+    "flip": true,
+    "widthRatio": 0.9457935504522738
+  },
+  {
+    "id": "ormanci",
+    "index": 10,
+    "flip": false,
+    "widthRatio": 0.9457935504522738
+  },
+  {
+    "id": "ormanci",
+    "index": 10,
+    "flip": true,
+    "widthRatio": 0.9457935504522738
+  },
+  {
+    "id": "ormanci",
+    "index": 11,
+    "flip": false,
+    "widthRatio": 0.764878207000281
+  },
+  {
+    "id": "ormanci",
+    "index": 11,
+    "flip": true,
+    "widthRatio": 0.8100781795347132
+  },
+  {
+    "id": "ormanci",
+    "index": 12,
+    "flip": false,
+    "widthRatio": 0.9457935504522734
+  },
+  {
+    "id": "ormanci",
+    "index": 12,
+    "flip": true,
+    "widthRatio": 0.9457935504522738
+  },
+  {
+    "id": "ormanci",
+    "index": 13,
+    "flip": false,
+    "widthRatio": 0.9457935504522738
+  },
+  {
+    "id": "ormanci",
+    "index": 13,
+    "flip": true,
+    "widthRatio": 0.9457935504522738
+  },
+  {
+    "id": "ormanci",
+    "index": 14,
+    "flip": false,
+    "widthRatio": 0.8905491395768564
+  },
+  {
+    "id": "ormanci",
+    "index": 14,
+    "flip": true,
+    "widthRatio": 0.8905491395768568
+  },
+  {
+    "id": "ormanci",
+    "index": 15,
+    "flip": false,
+    "widthRatio": 0.9457935504522738
+  },
+  {
+    "id": "ormanci",
+    "index": 15,
+    "flip": true,
+    "widthRatio": 0.9457935504522738
+  },
+  {
+    "id": "ormanci",
+    "index": 16,
+    "flip": false,
+    "widthRatio": 0.9457935504522734
+  },
+  {
+    "id": "ormanci",
+    "index": 16,
+    "flip": true,
+    "widthRatio": 0.9457935504522734
+  },
+  {
+    "id": "ormanci",
+    "index": 17,
+    "flip": false,
+    "widthRatio": 0.9162952286577717
+  },
+  {
+    "id": "ormanci",
+    "index": 17,
+    "flip": true,
+    "widthRatio": 0.8100781795347138
+  },
+  {
+    "id": "ormanci",
+    "index": 18,
+    "flip": false,
+    "widthRatio": 0.9457935504522735
+  },
+  {
+    "id": "ormanci",
+    "index": 18,
+    "flip": true,
+    "widthRatio": 0.9457935504522735
+  },
+  {
+    "id": "ormanci",
+    "index": 19,
+    "flip": false,
+    "widthRatio": 0.7971474083371242
+  },
+  {
+    "id": "ormanci",
+    "index": 19,
+    "flip": true,
+    "widthRatio": 0.8905491395768566
+  },
+  {
+    "id": "ormanci",
+    "index": 20,
+    "flip": false,
+    "widthRatio": 0.9457935504522738
+  },
+  {
+    "id": "ormanci",
+    "index": 20,
+    "flip": true,
+    "widthRatio": 0.9457935504522738
+  },
+  {
+    "id": "ormanci",
+    "index": 21,
+    "flip": false,
+    "widthRatio": 0.7209482209227559
+  },
+  {
+    "id": "ormanci",
+    "index": 21,
+    "flip": true,
+    "widthRatio": 0.8100781795347132
+  },
+  {
+    "id": "ormanci",
+    "index": 22,
+    "flip": false,
+    "widthRatio": 0.9457935504522738
+  },
+  {
+    "id": "ormanci",
+    "index": 22,
+    "flip": true,
+    "widthRatio": 0.9457935504522738
+  },
+  {
+    "id": "ormanci",
+    "index": 23,
+    "flip": false,
+    "widthRatio": 0.9457935504522735
+  },
+  {
+    "id": "ormanci",
+    "index": 23,
+    "flip": true,
+    "widthRatio": 0.9457935504522735
+  },
+  {
+    "id": "ormanci",
+    "index": 24,
+    "flip": false,
+    "widthRatio": 0.9457935504522738
+  },
+  {
+    "id": "ormanci",
+    "index": 24,
+    "flip": true,
+    "widthRatio": 0.9457935504522738
+  },
+  {
+    "id": "tasci",
+    "index": 1,
+    "flip": false,
+    "widthRatio": 0.9194278967799591
+  },
+  {
+    "id": "tasci",
+    "index": 1,
+    "flip": true,
+    "widthRatio": 0.9194278967799591
+  },
+  {
+    "id": "tasci",
+    "index": 2,
+    "flip": false,
+    "widthRatio": 0.9194278967799591
+  },
+  {
+    "id": "tasci",
+    "index": 2,
+    "flip": true,
+    "widthRatio": 0.9194278967799591
+  },
+  {
+    "id": "tasci",
+    "index": 3,
+    "flip": false,
+    "widthRatio": 0.7211089156263718
+  },
+  {
+    "id": "tasci",
+    "index": 3,
+    "flip": true,
+    "widthRatio": 0.8474853574933441
+  },
+  {
+    "id": "tasci",
+    "index": 4,
+    "flip": false,
+    "widthRatio": 0.9194278967799591
+  },
+  {
+    "id": "tasci",
+    "index": 4,
+    "flip": true,
+    "widthRatio": 0.8755440701636303
+  },
+  {
+    "id": "tasci",
+    "index": 5,
+    "flip": false,
+    "widthRatio": 0.9194278967799591
+  },
+  {
+    "id": "tasci",
+    "index": 5,
+    "flip": true,
+    "widthRatio": 0.9194278967799591
+  },
+  {
+    "id": "tasci",
+    "index": 6,
+    "flip": false,
+    "widthRatio": 0.9194278967799591
+  },
+  {
+    "id": "tasci",
+    "index": 6,
+    "flip": true,
+    "widthRatio": 0.8873848469104921
+  },
+  {
+    "id": "tasci",
+    "index": 7,
+    "flip": false,
+    "widthRatio": 0.9194278967799605
+  },
+  {
+    "id": "tasci",
+    "index": 7,
+    "flip": true,
+    "widthRatio": 0.9194278967799605
+  },
+  {
+    "id": "tasci",
+    "index": 8,
+    "flip": false,
+    "widthRatio": 0.9151629724540754
+  },
+  {
+    "id": "tasci",
+    "index": 8,
+    "flip": true,
+    "widthRatio": 0.9194278967799591
+  },
+  {
+    "id": "tasci",
+    "index": 9,
+    "flip": false,
+    "widthRatio": 0.9194278967799591
+  },
+  {
+    "id": "tasci",
+    "index": 9,
+    "flip": true,
+    "widthRatio": 0.9194278967799591
+  },
+  {
+    "id": "tasci",
+    "index": 10,
+    "flip": false,
+    "widthRatio": 0.9194278967799591
+  },
+  {
+    "id": "tasci",
+    "index": 10,
+    "flip": true,
+    "widthRatio": 0.9194278967799591
+  },
+  {
+    "id": "tasci",
+    "index": 11,
+    "flip": false,
+    "widthRatio": 0.791087345026068
+  },
+  {
+    "id": "tasci",
+    "index": 11,
+    "flip": true,
+    "widthRatio": 0.7481575146405277
+  },
+  {
+    "id": "tasci",
+    "index": 12,
+    "flip": false,
+    "widthRatio": 0.9194278967799591
+  },
+  {
+    "id": "tasci",
+    "index": 12,
+    "flip": true,
+    "widthRatio": 0.9194278967799591
+  },
+  {
+    "id": "tasci",
+    "index": 13,
+    "flip": false,
+    "widthRatio": 0.9194278967799591
+  },
+  {
+    "id": "tasci",
+    "index": 13,
+    "flip": true,
+    "widthRatio": 0.9194278967799591
+  },
+  {
+    "id": "tasci",
+    "index": 14,
+    "flip": false,
+    "widthRatio": 0.8755440701636303
+  },
+  {
+    "id": "tasci",
+    "index": 14,
+    "flip": true,
+    "widthRatio": 0.8755440701636307
+  },
+  {
+    "id": "tasci",
+    "index": 15,
+    "flip": false,
+    "widthRatio": 0.9194278967799605
+  },
+  {
+    "id": "tasci",
+    "index": 15,
+    "flip": true,
+    "widthRatio": 0.9194278967799605
+  },
+  {
+    "id": "tasci",
+    "index": 16,
+    "flip": false,
+    "widthRatio": 0.9194278967799591
+  },
+  {
+    "id": "tasci",
+    "index": 16,
+    "flip": true,
+    "widthRatio": 0.9194278967799591
+  },
+  {
+    "id": "tasci",
+    "index": 17,
+    "flip": false,
+    "widthRatio": 0.7874397123789294
+  },
+  {
+    "id": "tasci",
+    "index": 17,
+    "flip": true,
+    "widthRatio": 0.8755440701636307
+  },
+  {
+    "id": "tasci",
+    "index": 18,
+    "flip": false,
+    "widthRatio": 0.9194278967799591
+  },
+  {
+    "id": "tasci",
+    "index": 18,
+    "flip": true,
+    "widthRatio": 0.9194278967799592
+  },
+  {
+    "id": "tasci",
+    "index": 19,
+    "flip": false,
+    "widthRatio": 0.8755440701636305
+  },
+  {
+    "id": "tasci",
+    "index": 19,
+    "flip": true,
+    "widthRatio": 0.7707728370527794
+  },
+  {
+    "id": "tasci",
+    "index": 20,
+    "flip": false,
+    "widthRatio": 0.9194278967799605
+  },
+  {
+    "id": "tasci",
+    "index": 20,
+    "flip": true,
+    "widthRatio": 0.9194278967799605
+  },
+  {
+    "id": "tasci",
+    "index": 21,
+    "flip": false,
+    "widthRatio": 0.7970357921121675
+  },
+  {
+    "id": "tasci",
+    "index": 21,
+    "flip": true,
+    "widthRatio": 0.7033196917934091
+  },
+  {
+    "id": "tasci",
+    "index": 22,
+    "flip": false,
+    "widthRatio": 0.9194278967799605
+  },
+  {
+    "id": "tasci",
+    "index": 22,
+    "flip": true,
+    "widthRatio": 0.9194278967799605
+  },
+  {
+    "id": "tasci",
+    "index": 23,
+    "flip": false,
+    "widthRatio": 0.9194278967799591
+  },
+  {
+    "id": "tasci",
+    "index": 23,
+    "flip": true,
+    "widthRatio": 0.9194278967799592
+  },
+  {
+    "id": "tasci",
+    "index": 24,
+    "flip": false,
+    "widthRatio": 0.9194278967799605
+  },
+  {
+    "id": "tasci",
+    "index": 24,
+    "flip": true,
+    "widthRatio": 0.9194278967799605
+  },
+  {
+    "id": "tophane",
+    "index": 1,
+    "flip": false,
+    "widthRatio": 0.9740285425821703
+  },
+  {
+    "id": "tophane",
+    "index": 1,
+    "flip": true,
+    "widthRatio": 0.9740285425821718
+  },
+  {
+    "id": "tophane",
+    "index": 2,
+    "flip": false,
+    "widthRatio": 0.9740285425821711
+  },
+  {
+    "id": "tophane",
+    "index": 2,
+    "flip": true,
+    "widthRatio": 0.9740285425821711
+  },
+  {
+    "id": "tophane",
+    "index": 3,
+    "flip": false,
+    "widthRatio": 0.9171349076181123
+  },
+  {
+    "id": "tophane",
+    "index": 3,
+    "flip": true,
+    "widthRatio": 0.7971053893397062
+  },
+  {
+    "id": "tophane",
+    "index": 4,
+    "flip": false,
+    "widthRatio": 0.9740285425821703
+  },
+  {
+    "id": "tophane",
+    "index": 4,
+    "flip": true,
+    "widthRatio": 0.9740285425821718
+  },
+  {
+    "id": "tophane",
+    "index": 5,
+    "flip": false,
+    "widthRatio": 0.9740285425821711
+  },
+  {
+    "id": "tophane",
+    "index": 5,
+    "flip": true,
+    "widthRatio": 0.9740285425821711
+  },
+  {
+    "id": "tophane",
+    "index": 6,
+    "flip": false,
+    "widthRatio": 0.9740285425821711
+  },
+  {
+    "id": "tophane",
+    "index": 6,
+    "flip": true,
+    "widthRatio": 0.9740285425821711
+  },
+  {
+    "id": "tophane",
+    "index": 7,
+    "flip": false,
+    "widthRatio": 0.9740285425821711
+  },
+  {
+    "id": "tophane",
+    "index": 7,
+    "flip": true,
+    "widthRatio": 0.9740285425821711
+  },
+  {
+    "id": "tophane",
+    "index": 8,
+    "flip": false,
+    "widthRatio": 0.9740285425821711
+  },
+  {
+    "id": "tophane",
+    "index": 8,
+    "flip": true,
+    "widthRatio": 0.9740285425821711
+  },
+  {
+    "id": "tophane",
+    "index": 9,
+    "flip": false,
+    "widthRatio": 0.9740285425821711
+  },
+  {
+    "id": "tophane",
+    "index": 9,
+    "flip": true,
+    "widthRatio": 0.9740285425821711
+  },
+  {
+    "id": "tophane",
+    "index": 10,
+    "flip": false,
+    "widthRatio": 0.9740285425821703
+  },
+  {
+    "id": "tophane",
+    "index": 10,
+    "flip": true,
+    "widthRatio": 0.9740285425821718
+  },
+  {
+    "id": "tophane",
+    "index": 11,
+    "flip": false,
+    "widthRatio": 0.8213609829293986
+  },
+  {
+    "id": "tophane",
+    "index": 11,
+    "flip": true,
+    "widthRatio": 0.8792652676263615
+  },
+  {
+    "id": "tophane",
+    "index": 12,
+    "flip": false,
+    "widthRatio": 0.9740285425821711
+  },
+  {
+    "id": "tophane",
+    "index": 12,
+    "flip": true,
+    "widthRatio": 0.9740285425821711
+  },
+  {
+    "id": "tophane",
+    "index": 13,
+    "flip": false,
+    "widthRatio": 0.9740285425821703
+  },
+  {
+    "id": "tophane",
+    "index": 13,
+    "flip": true,
+    "widthRatio": 0.9740285425821718
+  },
+  {
+    "id": "tophane",
+    "index": 14,
+    "flip": false,
+    "widthRatio": 0.9740285425821711
+  },
+  {
+    "id": "tophane",
+    "index": 14,
+    "flip": true,
+    "widthRatio": 0.9740285425821711
+  },
+  {
+    "id": "tophane",
+    "index": 15,
+    "flip": false,
+    "widthRatio": 0.9740285425821711
+  },
+  {
+    "id": "tophane",
+    "index": 15,
+    "flip": true,
+    "widthRatio": 0.9740285425821711
+  },
+  {
+    "id": "tophane",
+    "index": 16,
+    "flip": false,
+    "widthRatio": 0.9740285425821711
+  },
+  {
+    "id": "tophane",
+    "index": 16,
+    "flip": true,
+    "widthRatio": 0.9740285425821711
+  },
+  {
+    "id": "tophane",
+    "index": 17,
+    "flip": false,
+    "widthRatio": 0.9740285425821711
+  },
+  {
+    "id": "tophane",
+    "index": 17,
+    "flip": true,
+    "widthRatio": 0.9171349076181119
+  },
+  {
+    "id": "tophane",
+    "index": 18,
+    "flip": false,
+    "widthRatio": 0.9740285425821711
+  },
+  {
+    "id": "tophane",
+    "index": 18,
+    "flip": true,
+    "widthRatio": 0.9740285425821711
+  },
+  {
+    "id": "tophane",
+    "index": 19,
+    "flip": false,
+    "widthRatio": 0.8460921763933996
+  },
+  {
+    "id": "tophane",
+    "index": 19,
+    "flip": true,
+    "widthRatio": 0.9171349076181121
+  },
+  {
+    "id": "tophane",
+    "index": 20,
+    "flip": false,
+    "widthRatio": 0.9740285425821711
+  },
+  {
+    "id": "tophane",
+    "index": 20,
+    "flip": true,
+    "widthRatio": 0.9740285425821711
+  },
+  {
+    "id": "tophane",
+    "index": 21,
+    "flip": false,
+    "widthRatio": 0.797105389339707
+  },
+  {
+    "id": "tophane",
+    "index": 21,
+    "flip": true,
+    "widthRatio": 0.8456165765190917
+  },
+  {
+    "id": "tophane",
+    "index": 22,
+    "flip": false,
+    "widthRatio": 0.9740285425821711
+  },
+  {
+    "id": "tophane",
+    "index": 22,
+    "flip": true,
+    "widthRatio": 0.9740285425821711
+  },
+  {
+    "id": "tophane",
+    "index": 23,
+    "flip": false,
+    "widthRatio": 0.9740285425821711
+  },
+  {
+    "id": "tophane",
+    "index": 23,
+    "flip": true,
+    "widthRatio": 0.9740285425821711
+  },
+  {
+    "id": "tophane",
+    "index": 24,
+    "flip": false,
+    "widthRatio": 0.9740285425821711
+  },
+  {
+    "id": "tophane",
+    "index": 24,
+    "flip": true,
+    "widthRatio": 0.9740285425821711
+  },
+  {
+    "id": "bagci",
+    "index": 1,
+    "flip": false,
+    "widthRatio": 0.8604695510662517
+  },
+  {
+    "id": "bagci",
+    "index": 1,
+    "flip": true,
+    "widthRatio": 0.8959032234792496
+  },
+  {
+    "id": "bagci",
+    "index": 2,
+    "flip": false,
+    "widthRatio": 0.8959032234792496
+  },
+  {
+    "id": "bagci",
+    "index": 2,
+    "flip": true,
+    "widthRatio": 0.8701481930679507
+  },
+  {
+    "id": "bagci",
+    "index": 3,
+    "flip": false,
+    "widthRatio": 0.7336629363660329
+  },
+  {
+    "id": "bagci",
+    "index": 3,
+    "flip": true,
+    "widthRatio": 0.855001391743258
+  },
+  {
+    "id": "bagci",
+    "index": 4,
+    "flip": false,
+    "widthRatio": 0.8959032234792496
+  },
+  {
+    "id": "bagci",
+    "index": 4,
+    "flip": true,
+    "widthRatio": 0.891309969647935
+  },
+  {
+    "id": "bagci",
+    "index": 5,
+    "flip": false,
+    "widthRatio": 0.8959032234792496
+  },
+  {
+    "id": "bagci",
+    "index": 5,
+    "flip": true,
+    "widthRatio": 0.8959032234792496
+  },
+  {
+    "id": "bagci",
+    "index": 6,
+    "flip": false,
+    "widthRatio": 0.8959032234792488
+  },
+  {
+    "id": "bagci",
+    "index": 6,
+    "flip": true,
+    "widthRatio": 0.8959032234792488
+  },
+  {
+    "id": "bagci",
+    "index": 7,
+    "flip": false,
+    "widthRatio": 0.8959032234792488
+  },
+  {
+    "id": "bagci",
+    "index": 7,
+    "flip": true,
+    "widthRatio": 0.8959032234792488
+  },
+  {
+    "id": "bagci",
+    "index": 8,
+    "flip": false,
+    "widthRatio": 0.8959032234792496
+  },
+  {
+    "id": "bagci",
+    "index": 8,
+    "flip": true,
+    "widthRatio": 0.8959032234792496
+  },
+  {
+    "id": "bagci",
+    "index": 9,
+    "flip": false,
+    "widthRatio": 0.8959032234792488
+  },
+  {
+    "id": "bagci",
+    "index": 9,
+    "flip": true,
+    "widthRatio": 0.8959032234792488
+  },
+  {
+    "id": "bagci",
+    "index": 10,
+    "flip": false,
+    "widthRatio": 0.8959032234792496
+  },
+  {
+    "id": "bagci",
+    "index": 10,
+    "flip": true,
+    "widthRatio": 0.8959032234792496
+  },
+  {
+    "id": "bagci",
+    "index": 11,
+    "flip": false,
+    "widthRatio": 0.855001391743258
+  },
+  {
+    "id": "bagci",
+    "index": 11,
+    "flip": true,
+    "widthRatio": 0.7549887577257082
+  },
+  {
+    "id": "bagci",
+    "index": 12,
+    "flip": false,
+    "widthRatio": 0.8959032234792488
+  },
+  {
+    "id": "bagci",
+    "index": 12,
+    "flip": true,
+    "widthRatio": 0.8959032234792488
+  },
+  {
+    "id": "bagci",
+    "index": 13,
+    "flip": false,
+    "widthRatio": 0.8959032234792496
+  },
+  {
+    "id": "bagci",
+    "index": 13,
+    "flip": true,
+    "widthRatio": 0.8959032234792496
+  },
+  {
+    "id": "bagci",
+    "index": 14,
+    "flip": false,
+    "widthRatio": 0.8959032234792488
+  },
+  {
+    "id": "bagci",
+    "index": 14,
+    "flip": true,
+    "widthRatio": 0.8959032234792488
+  },
+  {
+    "id": "bagci",
+    "index": 15,
+    "flip": false,
+    "widthRatio": 0.8959032234792488
+  },
+  {
+    "id": "bagci",
+    "index": 15,
+    "flip": true,
+    "widthRatio": 0.8959032234792488
+  },
+  {
+    "id": "bagci",
+    "index": 16,
+    "flip": false,
+    "widthRatio": 0.8959032234792492
+  },
+  {
+    "id": "bagci",
+    "index": 16,
+    "flip": true,
+    "widthRatio": 0.8959032234792492
+  },
+  {
+    "id": "bagci",
+    "index": 17,
+    "flip": false,
+    "widthRatio": 0.8050224155310982
+  },
+  {
+    "id": "bagci",
+    "index": 17,
+    "flip": true,
+    "widthRatio": 0.8959032234792488
+  },
+  {
+    "id": "bagci",
+    "index": 18,
+    "flip": false,
+    "widthRatio": 0.8959032234792493
+  },
+  {
+    "id": "bagci",
+    "index": 18,
+    "flip": true,
+    "widthRatio": 0.8959032234792493
+  },
+  {
+    "id": "bagci",
+    "index": 19,
+    "flip": false,
+    "widthRatio": 0.8550013917432582
+  },
+  {
+    "id": "bagci",
+    "index": 19,
+    "flip": true,
+    "widthRatio": 0.7549887577257076
+  },
+  {
+    "id": "bagci",
+    "index": 20,
+    "flip": false,
+    "widthRatio": 0.8959032234792488
+  },
+  {
+    "id": "bagci",
+    "index": 20,
+    "flip": true,
+    "widthRatio": 0.8959032234792488
+  },
+  {
+    "id": "bagci",
+    "index": 21,
+    "flip": false,
+    "widthRatio": 0.855001391743258
+  },
+  {
+    "id": "bagci",
+    "index": 21,
+    "flip": true,
+    "widthRatio": 0.7319131253826754
+  },
+  {
+    "id": "bagci",
+    "index": 22,
+    "flip": false,
+    "widthRatio": 0.8959032234792488
+  },
+  {
+    "id": "bagci",
+    "index": 22,
+    "flip": true,
+    "widthRatio": 0.8959032234792488
+  },
+  {
+    "id": "bagci",
+    "index": 23,
+    "flip": false,
+    "widthRatio": 0.8959032234792493
+  },
+  {
+    "id": "bagci",
+    "index": 23,
+    "flip": true,
+    "widthRatio": 0.8959032234792493
+  },
+  {
+    "id": "bagci",
+    "index": 24,
+    "flip": false,
+    "widthRatio": 0.8959032234792488
+  },
+  {
+    "id": "bagci",
+    "index": 24,
+    "flip": true,
+    "widthRatio": 0.8959032234792488
+  },
+  {
+    "id": "simyahane",
+    "index": 1,
+    "flip": false,
+    "widthRatio": 0.9570689305538785
+  },
+  {
+    "id": "simyahane",
+    "index": 1,
+    "flip": true,
+    "widthRatio": 0.9570689305538785
+  },
+  {
+    "id": "simyahane",
+    "index": 2,
+    "flip": false,
+    "widthRatio": 0.9570689305538785
+  },
+  {
+    "id": "simyahane",
+    "index": 2,
+    "flip": true,
+    "widthRatio": 0.9570689305538785
+  },
+  {
+    "id": "simyahane",
+    "index": 3,
+    "flip": false,
+    "widthRatio": 0.9117974204721377
+  },
+  {
+    "id": "simyahane",
+    "index": 3,
+    "flip": true,
+    "widthRatio": 0.783226331839991
+  },
+  {
+    "id": "simyahane",
+    "index": 4,
+    "flip": false,
+    "widthRatio": 0.9570689305538785
+  },
+  {
+    "id": "simyahane",
+    "index": 4,
+    "flip": true,
+    "widthRatio": 0.9570689305538785
+  },
+  {
+    "id": "simyahane",
+    "index": 5,
+    "flip": false,
+    "widthRatio": 0.9570689305538785
+  },
+  {
+    "id": "simyahane",
+    "index": 5,
+    "flip": true,
+    "widthRatio": 0.9570689305538785
+  },
+  {
+    "id": "simyahane",
+    "index": 6,
+    "flip": false,
+    "widthRatio": 0.9570689305538792
+  },
+  {
+    "id": "simyahane",
+    "index": 6,
+    "flip": true,
+    "widthRatio": 0.9570689305538792
+  },
+  {
+    "id": "simyahane",
+    "index": 7,
+    "flip": false,
+    "widthRatio": 0.9570689305538792
+  },
+  {
+    "id": "simyahane",
+    "index": 7,
+    "flip": true,
+    "widthRatio": 0.9570689305538792
+  },
+  {
+    "id": "simyahane",
+    "index": 8,
+    "flip": false,
+    "widthRatio": 0.9570689305538785
+  },
+  {
+    "id": "simyahane",
+    "index": 8,
+    "flip": true,
+    "widthRatio": 0.9570689305538785
+  },
+  {
+    "id": "simyahane",
+    "index": 9,
+    "flip": false,
+    "widthRatio": 0.9570689305538792
+  },
+  {
+    "id": "simyahane",
+    "index": 9,
+    "flip": true,
+    "widthRatio": 0.9570689305538792
+  },
+  {
+    "id": "simyahane",
+    "index": 10,
+    "flip": false,
+    "widthRatio": 0.9570689305538785
+  },
+  {
+    "id": "simyahane",
+    "index": 10,
+    "flip": true,
+    "widthRatio": 0.9570689305538785
+  },
+  {
+    "id": "simyahane",
+    "index": 11,
+    "flip": false,
+    "widthRatio": 0.8152960854333798
+  },
+  {
+    "id": "simyahane",
+    "index": 11,
+    "flip": true,
+    "widthRatio": 0.901165917459393
+  },
+  {
+    "id": "simyahane",
+    "index": 12,
+    "flip": false,
+    "widthRatio": 0.9570689305538792
+  },
+  {
+    "id": "simyahane",
+    "index": 12,
+    "flip": true,
+    "widthRatio": 0.9570689305538792
+  },
+  {
+    "id": "simyahane",
+    "index": 13,
+    "flip": false,
+    "widthRatio": 0.9570689305538785
+  },
+  {
+    "id": "simyahane",
+    "index": 13,
+    "flip": true,
+    "widthRatio": 0.9570689305538785
+  },
+  {
+    "id": "simyahane",
+    "index": 14,
+    "flip": false,
+    "widthRatio": 0.9570689305538792
+  },
+  {
+    "id": "simyahane",
+    "index": 14,
+    "flip": true,
+    "widthRatio": 0.9570689305538792
+  },
+  {
+    "id": "simyahane",
+    "index": 15,
+    "flip": false,
+    "widthRatio": 0.9570689305538792
+  },
+  {
+    "id": "simyahane",
+    "index": 15,
+    "flip": true,
+    "widthRatio": 0.9570689305538792
+  },
+  {
+    "id": "simyahane",
+    "index": 16,
+    "flip": false,
+    "widthRatio": 0.9570689305538792
+  },
+  {
+    "id": "simyahane",
+    "index": 16,
+    "flip": true,
+    "widthRatio": 0.9570689305538789
+  },
+  {
+    "id": "simyahane",
+    "index": 17,
+    "flip": false,
+    "widthRatio": 0.9570689305538792
+  },
+  {
+    "id": "simyahane",
+    "index": 17,
+    "flip": true,
+    "widthRatio": 0.901165917459393
+  },
+  {
+    "id": "simyahane",
+    "index": 18,
+    "flip": false,
+    "widthRatio": 0.9570689305538792
+  },
+  {
+    "id": "simyahane",
+    "index": 18,
+    "flip": true,
+    "widthRatio": 0.9570689305538789
+  },
+  {
+    "id": "simyahane",
+    "index": 19,
+    "flip": false,
+    "widthRatio": 0.7968369922903726
+  },
+  {
+    "id": "simyahane",
+    "index": 19,
+    "flip": true,
+    "widthRatio": 0.9570689305538789
+  },
+  {
+    "id": "simyahane",
+    "index": 20,
+    "flip": false,
+    "widthRatio": 0.9570689305538792
+  },
+  {
+    "id": "simyahane",
+    "index": 20,
+    "flip": true,
+    "widthRatio": 0.9570689305538792
+  },
+  {
+    "id": "simyahane",
+    "index": 21,
+    "flip": false,
+    "widthRatio": 0.7832263318399896
+  },
+  {
+    "id": "simyahane",
+    "index": 21,
+    "flip": true,
+    "widthRatio": 0.901165917459393
+  },
+  {
+    "id": "simyahane",
+    "index": 22,
+    "flip": false,
+    "widthRatio": 0.9570689305538792
+  },
+  {
+    "id": "simyahane",
+    "index": 22,
+    "flip": true,
+    "widthRatio": 0.9570689305538792
+  },
+  {
+    "id": "simyahane",
+    "index": 23,
+    "flip": false,
+    "widthRatio": 0.9570689305538792
+  },
+  {
+    "id": "simyahane",
+    "index": 23,
+    "flip": true,
+    "widthRatio": 0.9570689305538789
+  },
+  {
+    "id": "simyahane",
+    "index": 24,
+    "flip": false,
+    "widthRatio": 0.9570689305538792
+  },
+  {
+    "id": "simyahane",
+    "index": 24,
+    "flip": true,
+    "widthRatio": 0.9570689305538792
+  },
+  {
+    "id": "camci",
+    "index": 1,
+    "flip": false,
+    "widthRatio": 0.9031605291435255
+  },
+  {
+    "id": "camci",
+    "index": 1,
+    "flip": true,
+    "widthRatio": 0.9031605291435255
+  },
+  {
+    "id": "camci",
+    "index": 2,
+    "flip": false,
+    "widthRatio": 0.9031054045995113
+  },
+  {
+    "id": "camci",
+    "index": 2,
+    "flip": true,
+    "widthRatio": 0.9031605291435255
+  },
+  {
+    "id": "camci",
+    "index": 3,
+    "flip": false,
+    "widthRatio": 0.8642977256128752
+  },
+  {
+    "id": "camci",
+    "index": 3,
+    "flip": true,
+    "widthRatio": 0.643799549552444
+  },
+  {
+    "id": "camci",
+    "index": 4,
+    "flip": false,
+    "widthRatio": 0.8179931086401844
+  },
+  {
+    "id": "camci",
+    "index": 4,
+    "flip": true,
+    "widthRatio": 0.9031605291435255
+  },
+  {
+    "id": "camci",
+    "index": 5,
+    "flip": false,
+    "widthRatio": 0.9031605291435263
+  },
+  {
+    "id": "camci",
+    "index": 5,
+    "flip": true,
+    "widthRatio": 0.9031605291435255
+  },
+  {
+    "id": "camci",
+    "index": 6,
+    "flip": false,
+    "widthRatio": 0.8429645270790285
+  },
+  {
+    "id": "camci",
+    "index": 6,
+    "flip": true,
+    "widthRatio": 0.9031605291435255
+  },
+  {
+    "id": "camci",
+    "index": 7,
+    "flip": false,
+    "widthRatio": 0.903160529143527
+  },
+  {
+    "id": "camci",
+    "index": 7,
+    "flip": true,
+    "widthRatio": 0.9005696755748162
+  },
+  {
+    "id": "camci",
+    "index": 8,
+    "flip": false,
+    "widthRatio": 0.9031605291435263
+  },
+  {
+    "id": "camci",
+    "index": 8,
+    "flip": true,
+    "widthRatio": 0.8400980507902425
+  },
+  {
+    "id": "camci",
+    "index": 9,
+    "flip": false,
+    "widthRatio": 0.9031605291435263
+  },
+  {
+    "id": "camci",
+    "index": 9,
+    "flip": true,
+    "widthRatio": 0.9031605291435255
+  },
+  {
+    "id": "camci",
+    "index": 10,
+    "flip": false,
+    "widthRatio": 0.9031605291435255
+  },
+  {
+    "id": "camci",
+    "index": 10,
+    "flip": true,
+    "widthRatio": 0.9031605291435255
+  },
+  {
+    "id": "camci",
+    "index": 11,
+    "flip": false,
+    "widthRatio": 0.7015700716802769
+  },
+  {
+    "id": "camci",
+    "index": 11,
+    "flip": true,
+    "widthRatio": 0.8141343905591271
+  },
+  {
+    "id": "camci",
+    "index": 12,
+    "flip": false,
+    "widthRatio": 0.9031605291435263
+  },
+  {
+    "id": "camci",
+    "index": 12,
+    "flip": true,
+    "widthRatio": 0.9031605291435255
+  },
+  {
+    "id": "camci",
+    "index": 13,
+    "flip": false,
+    "widthRatio": 0.9031605291435255
+  },
+  {
+    "id": "camci",
+    "index": 13,
+    "flip": true,
+    "widthRatio": 0.9031605291435255
+  },
+  {
+    "id": "camci",
+    "index": 14,
+    "flip": false,
+    "widthRatio": 0.8979236974620907
+  },
+  {
+    "id": "camci",
+    "index": 14,
+    "flip": true,
+    "widthRatio": 0.8777481143525616
+  },
+  {
+    "id": "camci",
+    "index": 15,
+    "flip": false,
+    "widthRatio": 0.903160529143527
+  },
+  {
+    "id": "camci",
+    "index": 15,
+    "flip": true,
+    "widthRatio": 0.903160529143527
+  },
+  {
+    "id": "camci",
+    "index": 16,
+    "flip": false,
+    "widthRatio": 0.9031605291435263
+  },
+  {
+    "id": "camci",
+    "index": 16,
+    "flip": true,
+    "widthRatio": 0.9031605291435258
+  },
+  {
+    "id": "camci",
+    "index": 17,
+    "flip": false,
+    "widthRatio": 0.9031605291435263
+  },
+  {
+    "id": "camci",
+    "index": 17,
+    "flip": true,
+    "widthRatio": 0.7303450836561638
+  },
+  {
+    "id": "camci",
+    "index": 18,
+    "flip": false,
+    "widthRatio": 0.9031605291435263
+  },
+  {
+    "id": "camci",
+    "index": 18,
+    "flip": true,
+    "widthRatio": 0.9031605291435258
+  },
+  {
+    "id": "camci",
+    "index": 19,
+    "flip": false,
+    "widthRatio": 0.6662903635106078
+  },
+  {
+    "id": "camci",
+    "index": 19,
+    "flip": true,
+    "widthRatio": 0.864297725612875
+  },
+  {
+    "id": "camci",
+    "index": 20,
+    "flip": false,
+    "widthRatio": 0.903160529143527
+  },
+  {
+    "id": "camci",
+    "index": 20,
+    "flip": true,
+    "widthRatio": 0.903160529143527
+  },
+  {
+    "id": "camci",
+    "index": 21,
+    "flip": false,
+    "widthRatio": 0.6662903635106077
+  },
+  {
+    "id": "camci",
+    "index": 21,
+    "flip": true,
+    "widthRatio": 0.8460515015438744
+  },
+  {
+    "id": "camci",
+    "index": 22,
+    "flip": false,
+    "widthRatio": 0.903160529143527
+  },
+  {
+    "id": "camci",
+    "index": 22,
+    "flip": true,
+    "widthRatio": 0.903160529143527
+  },
+  {
+    "id": "camci",
+    "index": 23,
+    "flip": false,
+    "widthRatio": 0.9031605291435263
+  },
+  {
+    "id": "camci",
+    "index": 23,
+    "flip": true,
+    "widthRatio": 0.9031605291435258
+  },
+  {
+    "id": "camci",
+    "index": 24,
+    "flip": false,
+    "widthRatio": 0.903160529143527
+  },
+  {
+    "id": "camci",
+    "index": 24,
+    "flip": true,
+    "widthRatio": 0.8549816776743213
+  },
+  {
+    "id": "mahzen",
+    "index": 1,
+    "flip": false,
+    "widthRatio": 0.9570689305538785
+  },
+  {
+    "id": "mahzen",
+    "index": 1,
+    "flip": true,
+    "widthRatio": 0.9570689305538785
+  },
+  {
+    "id": "mahzen",
+    "index": 2,
+    "flip": false,
+    "widthRatio": 0.9570689305538785
+  },
+  {
+    "id": "mahzen",
+    "index": 2,
+    "flip": true,
+    "widthRatio": 0.9570689305538785
+  },
+  {
+    "id": "mahzen",
+    "index": 3,
+    "flip": false,
+    "widthRatio": 0.901165917459393
+  },
+  {
+    "id": "mahzen",
+    "index": 3,
+    "flip": true,
+    "widthRatio": 0.8706733648624002
+  },
+  {
+    "id": "mahzen",
+    "index": 4,
+    "flip": false,
+    "widthRatio": 0.9570689305538785
+  },
+  {
+    "id": "mahzen",
+    "index": 4,
+    "flip": true,
+    "widthRatio": 0.9570689305538785
+  },
+  {
+    "id": "mahzen",
+    "index": 5,
+    "flip": false,
+    "widthRatio": 0.9570689305538785
+  },
+  {
+    "id": "mahzen",
+    "index": 5,
+    "flip": true,
+    "widthRatio": 0.9570689305538785
+  },
+  {
+    "id": "mahzen",
+    "index": 6,
+    "flip": false,
+    "widthRatio": 0.9570689305538792
+  },
+  {
+    "id": "mahzen",
+    "index": 6,
+    "flip": true,
+    "widthRatio": 0.9570689305538789
+  },
+  {
+    "id": "mahzen",
+    "index": 7,
+    "flip": false,
+    "widthRatio": 0.9570689305538792
+  },
+  {
+    "id": "mahzen",
+    "index": 7,
+    "flip": true,
+    "widthRatio": 0.9570689305538792
+  },
+  {
+    "id": "mahzen",
+    "index": 8,
+    "flip": false,
+    "widthRatio": 0.9570689305538785
+  },
+  {
+    "id": "mahzen",
+    "index": 8,
+    "flip": true,
+    "widthRatio": 0.9570689305538785
+  },
+  {
+    "id": "mahzen",
+    "index": 9,
+    "flip": false,
+    "widthRatio": 0.9570689305538792
+  },
+  {
+    "id": "mahzen",
+    "index": 9,
+    "flip": true,
+    "widthRatio": 0.9570689305538789
+  },
+  {
+    "id": "mahzen",
+    "index": 10,
+    "flip": false,
+    "widthRatio": 0.9570689305538785
+  },
+  {
+    "id": "mahzen",
+    "index": 10,
+    "flip": true,
+    "widthRatio": 0.9570689305538785
+  },
+  {
+    "id": "mahzen",
+    "index": 11,
+    "flip": false,
+    "widthRatio": 0.890768073853522
+  },
+  {
+    "id": "mahzen",
+    "index": 11,
+    "flip": true,
+    "widthRatio": 0.901165917459393
+  },
+  {
+    "id": "mahzen",
+    "index": 12,
+    "flip": false,
+    "widthRatio": 0.9570689305538792
+  },
+  {
+    "id": "mahzen",
+    "index": 12,
+    "flip": true,
+    "widthRatio": 0.9570689305538789
+  },
+  {
+    "id": "mahzen",
+    "index": 13,
+    "flip": false,
+    "widthRatio": 0.9570689305538785
+  },
+  {
+    "id": "mahzen",
+    "index": 13,
+    "flip": true,
+    "widthRatio": 0.9570689305538785
+  },
+  {
+    "id": "mahzen",
+    "index": 14,
+    "flip": false,
+    "widthRatio": 0.9570689305538792
+  },
+  {
+    "id": "mahzen",
+    "index": 14,
+    "flip": true,
+    "widthRatio": 0.9570689305538789
+  },
+  {
+    "id": "mahzen",
+    "index": 15,
+    "flip": false,
+    "widthRatio": 0.9570689305538792
+  },
+  {
+    "id": "mahzen",
+    "index": 15,
+    "flip": true,
+    "widthRatio": 0.9570689305538792
+  },
+  {
+    "id": "mahzen",
+    "index": 16,
+    "flip": false,
+    "widthRatio": 0.9570689305538792
+  },
+  {
+    "id": "mahzen",
+    "index": 16,
+    "flip": true,
+    "widthRatio": 0.9570689305538789
+  },
+  {
+    "id": "mahzen",
+    "index": 17,
+    "flip": false,
+    "widthRatio": 0.9570689305538792
+  },
+  {
+    "id": "mahzen",
+    "index": 17,
+    "flip": true,
+    "widthRatio": 0.9224289234848811
+  },
+  {
+    "id": "mahzen",
+    "index": 18,
+    "flip": false,
+    "widthRatio": 0.9570689305538792
+  },
+  {
+    "id": "mahzen",
+    "index": 18,
+    "flip": true,
+    "widthRatio": 0.9570689305538791
+  },
+  {
+    "id": "mahzen",
+    "index": 19,
+    "flip": false,
+    "widthRatio": 0.9011659174593929
+  },
+  {
+    "id": "mahzen",
+    "index": 19,
+    "flip": true,
+    "widthRatio": 0.9011659174593925
+  },
+  {
+    "id": "mahzen",
+    "index": 20,
+    "flip": false,
+    "widthRatio": 0.9570689305538792
+  },
+  {
+    "id": "mahzen",
+    "index": 20,
+    "flip": true,
+    "widthRatio": 0.9570689305538792
+  },
+  {
+    "id": "mahzen",
+    "index": 21,
+    "flip": false,
+    "widthRatio": 0.8296077241043804
+  },
+  {
+    "id": "mahzen",
+    "index": 21,
+    "flip": true,
+    "widthRatio": 0.901165917459393
+  },
+  {
+    "id": "mahzen",
+    "index": 22,
+    "flip": false,
+    "widthRatio": 0.9570689305538792
+  },
+  {
+    "id": "mahzen",
+    "index": 22,
+    "flip": true,
+    "widthRatio": 0.9570689305538792
+  },
+  {
+    "id": "mahzen",
+    "index": 23,
+    "flip": false,
+    "widthRatio": 0.9570689305538792
+  },
+  {
+    "id": "mahzen",
+    "index": 23,
+    "flip": true,
+    "widthRatio": 0.9570689305538791
+  },
+  {
+    "id": "mahzen",
+    "index": 24,
+    "flip": false,
+    "widthRatio": 0.9570689305538792
+  },
+  {
+    "id": "mahzen",
+    "index": 24,
+    "flip": true,
+    "widthRatio": 0.9570689305538792
+  },
+  {
+    "id": "gozlukcu",
+    "index": 1,
+    "flip": false,
+    "widthRatio": 0.9682474796946309
+  },
+  {
+    "id": "gozlukcu",
+    "index": 1,
+    "flip": true,
+    "widthRatio": 0.9682474796946309
+  },
+  {
+    "id": "gozlukcu",
+    "index": 2,
+    "flip": false,
+    "widthRatio": 0.9682474796946309
+  },
+  {
+    "id": "gozlukcu",
+    "index": 2,
+    "flip": true,
+    "widthRatio": 0.9682474796946317
+  },
+  {
+    "id": "gozlukcu",
+    "index": 3,
+    "flip": false,
+    "widthRatio": 0.7883557970658195
+  },
+  {
+    "id": "gozlukcu",
+    "index": 3,
+    "flip": true,
+    "widthRatio": 0.9226244905390985
+  },
+  {
+    "id": "gozlukcu",
+    "index": 4,
+    "flip": false,
+    "widthRatio": 0.9682474796946309
+  },
+  {
+    "id": "gozlukcu",
+    "index": 4,
+    "flip": true,
+    "widthRatio": 0.9226244905390985
+  },
+  {
+    "id": "gozlukcu",
+    "index": 5,
+    "flip": false,
+    "widthRatio": 0.9682474796946309
+  },
+  {
+    "id": "gozlukcu",
+    "index": 5,
+    "flip": true,
+    "widthRatio": 0.9682474796946317
+  },
+  {
+    "id": "gozlukcu",
+    "index": 6,
+    "flip": false,
+    "widthRatio": 0.9682474796946309
+  },
+  {
+    "id": "gozlukcu",
+    "index": 6,
+    "flip": true,
+    "widthRatio": 0.9518775729639544
+  },
+  {
+    "id": "gozlukcu",
+    "index": 7,
+    "flip": false,
+    "widthRatio": 0.9682474796946323
+  },
+  {
+    "id": "gozlukcu",
+    "index": 7,
+    "flip": true,
+    "widthRatio": 0.9682474796946309
+  },
+  {
+    "id": "gozlukcu",
+    "index": 8,
+    "flip": false,
+    "widthRatio": 0.9540050698675799
+  },
+  {
+    "id": "gozlukcu",
+    "index": 8,
+    "flip": true,
+    "widthRatio": 0.9682474796946317
+  },
+  {
+    "id": "gozlukcu",
+    "index": 9,
+    "flip": false,
+    "widthRatio": 0.9682474796946309
+  },
+  {
+    "id": "gozlukcu",
+    "index": 9,
+    "flip": true,
+    "widthRatio": 0.9682474796946312
+  },
+  {
+    "id": "gozlukcu",
+    "index": 10,
+    "flip": false,
+    "widthRatio": 0.9682474796946309
+  },
+  {
+    "id": "gozlukcu",
+    "index": 10,
+    "flip": true,
+    "widthRatio": 0.9682474796946309
+  },
+  {
+    "id": "gozlukcu",
+    "index": 11,
+    "flip": false,
+    "widthRatio": 0.922624490539097
+  },
+  {
+    "id": "gozlukcu",
+    "index": 11,
+    "flip": true,
+    "widthRatio": 0.839297528480418
+  },
+  {
+    "id": "gozlukcu",
+    "index": 12,
+    "flip": false,
+    "widthRatio": 0.9682474796946309
+  },
+  {
+    "id": "gozlukcu",
+    "index": 12,
+    "flip": true,
+    "widthRatio": 0.9682474796946312
+  },
+  {
+    "id": "gozlukcu",
+    "index": 13,
+    "flip": false,
+    "widthRatio": 0.9682474796946309
+  },
+  {
+    "id": "gozlukcu",
+    "index": 13,
+    "flip": true,
+    "widthRatio": 0.9682474796946309
+  },
+  {
+    "id": "gozlukcu",
+    "index": 14,
+    "flip": false,
+    "widthRatio": 0.9682474796946309
+  },
+  {
+    "id": "gozlukcu",
+    "index": 14,
+    "flip": true,
+    "widthRatio": 0.9682474796946312
+  },
+  {
+    "id": "gozlukcu",
+    "index": 15,
+    "flip": false,
+    "widthRatio": 0.9682474796946323
+  },
+  {
+    "id": "gozlukcu",
+    "index": 15,
+    "flip": true,
+    "widthRatio": 0.9682474796946309
+  },
+  {
+    "id": "gozlukcu",
+    "index": 16,
+    "flip": false,
+    "widthRatio": 0.9682474796946309
+  },
+  {
+    "id": "gozlukcu",
+    "index": 16,
+    "flip": true,
+    "widthRatio": 0.9682474796946312
+  },
+  {
+    "id": "gozlukcu",
+    "index": 17,
+    "flip": false,
+    "widthRatio": 0.8395930141614766
+  },
+  {
+    "id": "gozlukcu",
+    "index": 17,
+    "flip": true,
+    "widthRatio": 0.9682474796946312
+  },
+  {
+    "id": "gozlukcu",
+    "index": 18,
+    "flip": false,
+    "widthRatio": 0.9682474796946311
+  },
+  {
+    "id": "gozlukcu",
+    "index": 18,
+    "flip": true,
+    "widthRatio": 0.9682474796946311
+  },
+  {
+    "id": "gozlukcu",
+    "index": 19,
+    "flip": false,
+    "widthRatio": 0.9356849576419128
+  },
+  {
+    "id": "gozlukcu",
+    "index": 19,
+    "flip": true,
+    "widthRatio": 0.8392975284804169
+  },
+  {
+    "id": "gozlukcu",
+    "index": 20,
+    "flip": false,
+    "widthRatio": 0.9682474796946323
+  },
+  {
+    "id": "gozlukcu",
+    "index": 20,
+    "flip": true,
+    "widthRatio": 0.9682474796946309
+  },
+  {
+    "id": "gozlukcu",
+    "index": 21,
+    "flip": false,
+    "widthRatio": 0.922624490539097
+  },
+  {
+    "id": "gozlukcu",
+    "index": 21,
+    "flip": true,
+    "widthRatio": 0.7980477274045583
+  },
+  {
+    "id": "gozlukcu",
+    "index": 22,
+    "flip": false,
+    "widthRatio": 0.9682474796946323
+  },
+  {
+    "id": "gozlukcu",
+    "index": 22,
+    "flip": true,
+    "widthRatio": 0.9682474796946309
+  },
+  {
+    "id": "gozlukcu",
+    "index": 23,
+    "flip": false,
+    "widthRatio": 0.9682474796946311
+  },
+  {
+    "id": "gozlukcu",
+    "index": 23,
+    "flip": true,
+    "widthRatio": 0.9682474796946311
+  },
+  {
+    "id": "gozlukcu",
+    "index": 24,
+    "flip": false,
+    "widthRatio": 0.9682474796946323
+  },
+  {
+    "id": "gozlukcu",
+    "index": 24,
+    "flip": true,
+    "widthRatio": 0.9682474796946309
+  },
+  {
+    "id": "barutane",
+    "index": 1,
+    "flip": false,
+    "widthRatio": 0.9515462126566312
+  },
+  {
+    "id": "barutane",
+    "index": 1,
+    "flip": true,
+    "widthRatio": 0.9515462126566312
+  },
+  {
+    "id": "barutane",
+    "index": 2,
+    "flip": false,
+    "widthRatio": 0.9515462126566312
+  },
+  {
+    "id": "barutane",
+    "index": 2,
+    "flip": true,
+    "widthRatio": 0.9515462126566312
+  },
+  {
+    "id": "barutane",
+    "index": 3,
+    "flip": false,
+    "widthRatio": 0.8442184904282705
+  },
+  {
+    "id": "barutane",
+    "index": 3,
+    "flip": true,
+    "widthRatio": 0.8487485566262208
+  },
+  {
+    "id": "barutane",
+    "index": 4,
+    "flip": false,
+    "widthRatio": 0.9515462126566312
+  },
+  {
+    "id": "barutane",
+    "index": 4,
+    "flip": true,
+    "widthRatio": 0.9393498805852261
+  },
+  {
+    "id": "barutane",
+    "index": 5,
+    "flip": false,
+    "widthRatio": 0.9515462126566312
+  },
+  {
+    "id": "barutane",
+    "index": 5,
+    "flip": true,
+    "widthRatio": 0.9515462126566312
+  },
+  {
+    "id": "barutane",
+    "index": 6,
+    "flip": false,
+    "widthRatio": 0.9515462126566305
+  },
+  {
+    "id": "barutane",
+    "index": 6,
+    "flip": true,
+    "widthRatio": 0.9515462126566312
+  },
+  {
+    "id": "barutane",
+    "index": 7,
+    "flip": false,
+    "widthRatio": 0.9515462126566305
+  },
+  {
+    "id": "barutane",
+    "index": 7,
+    "flip": true,
+    "widthRatio": 0.9515462126566305
+  },
+  {
+    "id": "barutane",
+    "index": 8,
+    "flip": false,
+    "widthRatio": 0.9414406803688955
+  },
+  {
+    "id": "barutane",
+    "index": 8,
+    "flip": true,
+    "widthRatio": 0.9515462126566312
+  },
+  {
+    "id": "barutane",
+    "index": 9,
+    "flip": false,
+    "widthRatio": 0.9515462126566305
+  },
+  {
+    "id": "barutane",
+    "index": 9,
+    "flip": true,
+    "widthRatio": 0.9515462126566312
+  },
+  {
+    "id": "barutane",
+    "index": 10,
+    "flip": false,
+    "widthRatio": 0.9515462126566312
+  },
+  {
+    "id": "barutane",
+    "index": 10,
+    "flip": true,
+    "widthRatio": 0.9515462126566312
+  },
+  {
+    "id": "barutane",
+    "index": 11,
+    "flip": false,
+    "widthRatio": 0.8487485566262208
+  },
+  {
+    "id": "barutane",
+    "index": 11,
+    "flip": true,
+    "widthRatio": 0.8487485566262208
+  },
+  {
+    "id": "barutane",
+    "index": 12,
+    "flip": false,
+    "widthRatio": 0.9515462126566305
+  },
+  {
+    "id": "barutane",
+    "index": 12,
+    "flip": true,
+    "widthRatio": 0.9515462126566312
+  },
+  {
+    "id": "barutane",
+    "index": 13,
+    "flip": false,
+    "widthRatio": 0.9515462126566312
+  },
+  {
+    "id": "barutane",
+    "index": 13,
+    "flip": true,
+    "widthRatio": 0.9515462126566312
+  },
+  {
+    "id": "barutane",
+    "index": 14,
+    "flip": false,
+    "widthRatio": 0.9515462126566305
+  },
+  {
+    "id": "barutane",
+    "index": 14,
+    "flip": true,
+    "widthRatio": 0.9515462126566312
+  },
+  {
+    "id": "barutane",
+    "index": 15,
+    "flip": false,
+    "widthRatio": 0.9515462126566305
+  },
+  {
+    "id": "barutane",
+    "index": 15,
+    "flip": true,
+    "widthRatio": 0.9515462126566305
+  },
+  {
+    "id": "barutane",
+    "index": 16,
+    "flip": false,
+    "widthRatio": 0.9515462126566305
+  },
+  {
+    "id": "barutane",
+    "index": 16,
+    "flip": true,
+    "widthRatio": 0.9393498805852261
+  },
+  {
+    "id": "barutane",
+    "index": 17,
+    "flip": false,
+    "widthRatio": 0.901831640022715
+  },
+  {
+    "id": "barutane",
+    "index": 17,
+    "flip": true,
+    "widthRatio": 0.9063617062206653
+  },
+  {
+    "id": "barutane",
+    "index": 18,
+    "flip": false,
+    "widthRatio": 0.9515462126566308
+  },
+  {
+    "id": "barutane",
+    "index": 18,
+    "flip": true,
+    "widthRatio": 0.9515462126566305
+  },
+  {
+    "id": "barutane",
+    "index": 19,
+    "flip": false,
+    "widthRatio": 0.848748556626221
+  },
+  {
+    "id": "barutane",
+    "index": 19,
+    "flip": true,
+    "widthRatio": 0.848748556626221
+  },
+  {
+    "id": "barutane",
+    "index": 20,
+    "flip": false,
+    "widthRatio": 0.9515462126566305
+  },
+  {
+    "id": "barutane",
+    "index": 20,
+    "flip": true,
+    "widthRatio": 0.9515462126566305
+  },
+  {
+    "id": "barutane",
+    "index": 21,
+    "flip": false,
+    "widthRatio": 0.8487485566262208
+  },
+  {
+    "id": "barutane",
+    "index": 21,
+    "flip": true,
+    "widthRatio": 0.8487485566262208
+  },
+  {
+    "id": "barutane",
+    "index": 22,
+    "flip": false,
+    "widthRatio": 0.9515462126566305
+  },
+  {
+    "id": "barutane",
+    "index": 22,
+    "flip": true,
+    "widthRatio": 0.9515462126566305
+  },
+  {
+    "id": "barutane",
+    "index": 23,
+    "flip": false,
+    "widthRatio": 0.9515462126566308
+  },
+  {
+    "id": "barutane",
+    "index": 23,
+    "flip": true,
+    "widthRatio": 0.9515462126566305
+  },
+  {
+    "id": "barutane",
+    "index": 24,
+    "flip": false,
+    "widthRatio": 0.9515462126566305
+  },
+  {
+    "id": "barutane",
+    "index": 24,
+    "flip": true,
+    "widthRatio": 0.9515462126566305
+  },
+  {
+    "id": "depo",
+    "index": 1,
+    "flip": false,
+    "widthRatio": 0.8798915039058528
+  },
+  {
+    "id": "depo",
+    "index": 1,
+    "flip": true,
+    "widthRatio": 0.8798915039058535
+  },
+  {
+    "id": "depo",
+    "index": 2,
+    "flip": false,
+    "widthRatio": 0.8798915039058528
+  },
+  {
+    "id": "depo",
+    "index": 2,
+    "flip": true,
+    "widthRatio": 0.8798915039058535
+  },
+  {
+    "id": "depo",
+    "index": 3,
+    "flip": false,
+    "widthRatio": 0.7439658815678577
+  },
+  {
+    "id": "depo",
+    "index": 3,
+    "flip": true,
+    "widthRatio": 0.8697413882907277
+  },
+  {
+    "id": "depo",
+    "index": 4,
+    "flip": false,
+    "widthRatio": 0.8798915039058528
+  },
+  {
+    "id": "depo",
+    "index": 4,
+    "flip": true,
+    "widthRatio": 0.8798915039058535
+  },
+  {
+    "id": "depo",
+    "index": 5,
+    "flip": false,
+    "widthRatio": 0.8798915039058528
+  },
+  {
+    "id": "depo",
+    "index": 5,
+    "flip": true,
+    "widthRatio": 0.8798915039058535
+  },
+  {
+    "id": "depo",
+    "index": 6,
+    "flip": false,
+    "widthRatio": 0.8798915039058531
+  },
+  {
+    "id": "depo",
+    "index": 6,
+    "flip": true,
+    "widthRatio": 0.8798915039058528
+  },
+  {
+    "id": "depo",
+    "index": 7,
+    "flip": false,
+    "widthRatio": 0.8798915039058542
+  },
+  {
+    "id": "depo",
+    "index": 7,
+    "flip": true,
+    "widthRatio": 0.8798915039058528
+  },
+  {
+    "id": "depo",
+    "index": 8,
+    "flip": false,
+    "widthRatio": 0.8798915039058528
+  },
+  {
+    "id": "depo",
+    "index": 8,
+    "flip": true,
+    "widthRatio": 0.8798915039058535
+  },
+  {
+    "id": "depo",
+    "index": 9,
+    "flip": false,
+    "widthRatio": 0.8798915039058531
+  },
+  {
+    "id": "depo",
+    "index": 9,
+    "flip": true,
+    "widthRatio": 0.8798915039058528
+  },
+  {
+    "id": "depo",
+    "index": 10,
+    "flip": false,
+    "widthRatio": 0.8798915039058528
+  },
+  {
+    "id": "depo",
+    "index": 10,
+    "flip": true,
+    "widthRatio": 0.8798915039058535
+  },
+  {
+    "id": "depo",
+    "index": 11,
+    "flip": false,
+    "widthRatio": 0.8697413882907284
+  },
+  {
+    "id": "depo",
+    "index": 11,
+    "flip": true,
+    "widthRatio": 0.7474029577549899
+  },
+  {
+    "id": "depo",
+    "index": 12,
+    "flip": false,
+    "widthRatio": 0.8798915039058528
+  },
+  {
+    "id": "depo",
+    "index": 12,
+    "flip": true,
+    "widthRatio": 0.8798915039058528
+  },
+  {
+    "id": "depo",
+    "index": 13,
+    "flip": false,
+    "widthRatio": 0.8798915039058528
+  },
+  {
+    "id": "depo",
+    "index": 13,
+    "flip": true,
+    "widthRatio": 0.8798915039058535
+  },
+  {
+    "id": "depo",
+    "index": 14,
+    "flip": false,
+    "widthRatio": 0.8798915039058531
+  },
+  {
+    "id": "depo",
+    "index": 14,
+    "flip": true,
+    "widthRatio": 0.8798915039058528
+  },
+  {
+    "id": "depo",
+    "index": 15,
+    "flip": false,
+    "widthRatio": 0.8798915039058542
+  },
+  {
+    "id": "depo",
+    "index": 15,
+    "flip": true,
+    "widthRatio": 0.8798915039058528
+  },
+  {
+    "id": "depo",
+    "index": 16,
+    "flip": false,
+    "widthRatio": 0.8798915039058531
+  },
+  {
+    "id": "depo",
+    "index": 16,
+    "flip": true,
+    "widthRatio": 0.8798915039058528
+  },
+  {
+    "id": "depo",
+    "index": 17,
+    "flip": false,
+    "widthRatio": 0.8301076035078598
+  },
+  {
+    "id": "depo",
+    "index": 17,
+    "flip": true,
+    "widthRatio": 0.8798915039058528
+  },
+  {
+    "id": "depo",
+    "index": 18,
+    "flip": false,
+    "widthRatio": 0.879891503905853
+  },
+  {
+    "id": "depo",
+    "index": 18,
+    "flip": true,
+    "widthRatio": 0.8798915039058528
+  },
+  {
+    "id": "depo",
+    "index": 19,
+    "flip": false,
+    "widthRatio": 0.8697413882907281
+  },
+  {
+    "id": "depo",
+    "index": 19,
+    "flip": true,
+    "widthRatio": 0.7474029577549901
+  },
+  {
+    "id": "depo",
+    "index": 20,
+    "flip": false,
+    "widthRatio": 0.8798915039058542
+  },
+  {
+    "id": "depo",
+    "index": 20,
+    "flip": true,
+    "widthRatio": 0.8798915039058528
+  },
+  {
+    "id": "depo",
+    "index": 21,
+    "flip": false,
+    "widthRatio": 0.8697413882907284
+  },
+  {
+    "id": "depo",
+    "index": 21,
+    "flip": true,
+    "widthRatio": 0.7320435235437429
+  },
+  {
+    "id": "depo",
+    "index": 22,
+    "flip": false,
+    "widthRatio": 0.8798915039058542
+  },
+  {
+    "id": "depo",
+    "index": 22,
+    "flip": true,
+    "widthRatio": 0.8798915039058528
+  },
+  {
+    "id": "depo",
+    "index": 23,
+    "flip": false,
+    "widthRatio": 0.879891503905853
+  },
+  {
+    "id": "depo",
+    "index": 23,
+    "flip": true,
+    "widthRatio": 0.8798915039058528
+  },
+  {
+    "id": "depo",
+    "index": 24,
+    "flip": false,
+    "widthRatio": 0.8798915039058542
+  },
+  {
+    "id": "depo",
+    "index": 24,
+    "flip": true,
+    "widthRatio": 0.8798915039058528
+  },
+  {
+    "id": "ticaret_merkezi",
+    "index": 1,
+    "flip": false,
+    "widthRatio": 0.9171349076181116
+  },
+  {
+    "id": "ticaret_merkezi",
+    "index": 1,
+    "flip": true,
+    "widthRatio": 0.9740285425821718
+  },
+  {
+    "id": "ticaret_merkezi",
+    "index": 2,
+    "flip": false,
+    "widthRatio": 0.9367534024333054
+  },
+  {
+    "id": "ticaret_merkezi",
+    "index": 2,
+    "flip": true,
+    "widthRatio": 0.9171349076181123
+  },
+  {
+    "id": "ticaret_merkezi",
+    "index": 3,
+    "flip": false,
+    "widthRatio": 0.7500210017832444
+  },
+  {
+    "id": "ticaret_merkezi",
+    "index": 3,
+    "flip": true,
+    "widthRatio": 0.8975164128029199
+  },
+  {
+    "id": "ticaret_merkezi",
+    "index": 4,
+    "flip": false,
+    "widthRatio": 0.9740285425821703
+  },
+  {
+    "id": "ticaret_merkezi",
+    "index": 4,
+    "flip": true,
+    "widthRatio": 0.9171349076181116
+  },
+  {
+    "id": "ticaret_merkezi",
+    "index": 5,
+    "flip": false,
+    "widthRatio": 0.9740285425821711
+  },
+  {
+    "id": "ticaret_merkezi",
+    "index": 5,
+    "flip": true,
+    "widthRatio": 0.9740285425821711
+  },
+  {
+    "id": "ticaret_merkezi",
+    "index": 6,
+    "flip": false,
+    "widthRatio": 0.9740285425821711
+  },
+  {
+    "id": "ticaret_merkezi",
+    "index": 6,
+    "flip": true,
+    "widthRatio": 0.9171349076181119
+  },
+  {
+    "id": "ticaret_merkezi",
+    "index": 7,
+    "flip": false,
+    "widthRatio": 0.9195129069896509
+  },
+  {
+    "id": "ticaret_merkezi",
+    "index": 7,
+    "flip": true,
+    "widthRatio": 0.9740285425821711
+  },
+  {
+    "id": "ticaret_merkezi",
+    "index": 8,
+    "flip": false,
+    "widthRatio": 0.9171349076181123
+  },
+  {
+    "id": "ticaret_merkezi",
+    "index": 8,
+    "flip": true,
+    "widthRatio": 0.9740285425821711
+  },
+  {
+    "id": "ticaret_merkezi",
+    "index": 9,
+    "flip": false,
+    "widthRatio": 0.9740285425821711
+  },
+  {
+    "id": "ticaret_merkezi",
+    "index": 9,
+    "flip": true,
+    "widthRatio": 0.9740285425821711
+  },
+  {
+    "id": "ticaret_merkezi",
+    "index": 10,
+    "flip": false,
+    "widthRatio": 0.9740285425821703
+  },
+  {
+    "id": "ticaret_merkezi",
+    "index": 10,
+    "flip": true,
+    "widthRatio": 0.9740285425821718
+  },
+  {
+    "id": "ticaret_merkezi",
+    "index": 11,
+    "flip": false,
+    "widthRatio": 0.9014401117659574
+  },
+  {
+    "id": "ticaret_merkezi",
+    "index": 11,
+    "flip": true,
+    "widthRatio": 0.7683315969440898
+  },
+  {
+    "id": "ticaret_merkezi",
+    "index": 12,
+    "flip": false,
+    "widthRatio": 0.9740285425821711
+  },
+  {
+    "id": "ticaret_merkezi",
+    "index": 12,
+    "flip": true,
+    "widthRatio": 0.9740285425821711
+  },
+  {
+    "id": "ticaret_merkezi",
+    "index": 13,
+    "flip": false,
+    "widthRatio": 0.9740285425821703
+  },
+  {
+    "id": "ticaret_merkezi",
+    "index": 13,
+    "flip": true,
+    "widthRatio": 0.9740285425821718
+  },
+  {
+    "id": "ticaret_merkezi",
+    "index": 14,
+    "flip": false,
+    "widthRatio": 0.9709371433991716
+  },
+  {
+    "id": "ticaret_merkezi",
+    "index": 14,
+    "flip": true,
+    "widthRatio": 0.9740285425821711
+  },
+  {
+    "id": "ticaret_merkezi",
+    "index": 15,
+    "flip": false,
+    "widthRatio": 0.9740285425821711
+  },
+  {
+    "id": "ticaret_merkezi",
+    "index": 15,
+    "flip": true,
+    "widthRatio": 0.9740285425821711
+  },
+  {
+    "id": "ticaret_merkezi",
+    "index": 16,
+    "flip": false,
+    "widthRatio": 0.9740285425821711
+  },
+  {
+    "id": "ticaret_merkezi",
+    "index": 16,
+    "flip": true,
+    "widthRatio": 0.9280737047271892
+  },
+  {
+    "id": "ticaret_merkezi",
+    "index": 17,
+    "flip": false,
+    "widthRatio": 0.8179723338249569
+  },
+  {
+    "id": "ticaret_merkezi",
+    "index": 17,
+    "flip": true,
+    "widthRatio": 0.9702831935719981
+  },
+  {
+    "id": "ticaret_merkezi",
+    "index": 18,
+    "flip": false,
+    "widthRatio": 0.9740285425821711
+  },
+  {
+    "id": "ticaret_merkezi",
+    "index": 18,
+    "flip": true,
+    "widthRatio": 0.9740285425821711
+  },
+  {
+    "id": "ticaret_merkezi",
+    "index": 19,
+    "flip": false,
+    "widthRatio": 0.9095253096291891
+  },
+  {
+    "id": "ticaret_merkezi",
+    "index": 19,
+    "flip": true,
+    "widthRatio": 0.8066173868258606
+  },
+  {
+    "id": "ticaret_merkezi",
+    "index": 20,
+    "flip": false,
+    "widthRatio": 0.9740285425821711
+  },
+  {
+    "id": "ticaret_merkezi",
+    "index": 20,
+    "flip": true,
+    "widthRatio": 0.9740285425821711
+  },
+  {
+    "id": "ticaret_merkezi",
+    "index": 21,
+    "flip": false,
+    "widthRatio": 0.906552810414766
+  },
+  {
+    "id": "ticaret_merkezi",
+    "index": 21,
+    "flip": true,
+    "widthRatio": 0.7625649484681091
+  },
+  {
+    "id": "ticaret_merkezi",
+    "index": 22,
+    "flip": false,
+    "widthRatio": 0.9740285425821711
+  },
+  {
+    "id": "ticaret_merkezi",
+    "index": 22,
+    "flip": true,
+    "widthRatio": 0.9740285425821711
+  },
+  {
+    "id": "ticaret_merkezi",
+    "index": 23,
+    "flip": false,
+    "widthRatio": 0.9740285425821711
+  },
+  {
+    "id": "ticaret_merkezi",
+    "index": 23,
+    "flip": true,
+    "widthRatio": 0.9740285425821711
+  },
+  {
+    "id": "ticaret_merkezi",
+    "index": 24,
+    "flip": false,
+    "widthRatio": 0.9703426435562861
+  },
+  {
+    "id": "ticaret_merkezi",
+    "index": 24,
+    "flip": true,
+    "widthRatio": 0.9740285425821711
+  },
+  {
+    "id": "harita_arsivi",
+    "index": 1,
+    "flip": false,
+    "widthRatio": 0.9683089461747159
+  },
+  {
+    "id": "harita_arsivi",
+    "index": 1,
+    "flip": true,
+    "widthRatio": 0.9683089461747159
+  },
+  {
+    "id": "harita_arsivi",
+    "index": 2,
+    "flip": false,
+    "widthRatio": 0.9683089461747159
+  },
+  {
+    "id": "harita_arsivi",
+    "index": 2,
+    "flip": true,
+    "widthRatio": 0.9683089461747159
+  },
+  {
+    "id": "harita_arsivi",
+    "index": 3,
+    "flip": false,
+    "widthRatio": 0.8392326071582623
+  },
+  {
+    "id": "harita_arsivi",
+    "index": 3,
+    "flip": true,
+    "widthRatio": 0.8392326071582623
+  },
+  {
+    "id": "harita_arsivi",
+    "index": 4,
+    "flip": false,
+    "widthRatio": 0.9683089461747159
+  },
+  {
+    "id": "harita_arsivi",
+    "index": 4,
+    "flip": true,
+    "widthRatio": 0.9683089461747159
+  },
+  {
+    "id": "harita_arsivi",
+    "index": 5,
+    "flip": false,
+    "widthRatio": 0.9683089461747159
+  },
+  {
+    "id": "harita_arsivi",
+    "index": 5,
+    "flip": true,
+    "widthRatio": 0.9683089461747159
+  },
+  {
+    "id": "harita_arsivi",
+    "index": 6,
+    "flip": false,
+    "widthRatio": 0.9683089461747159
+  },
+  {
+    "id": "harita_arsivi",
+    "index": 6,
+    "flip": true,
+    "widthRatio": 0.9683089461747162
+  },
+  {
+    "id": "harita_arsivi",
+    "index": 7,
+    "flip": false,
+    "widthRatio": 0.9683089461747173
+  },
+  {
+    "id": "harita_arsivi",
+    "index": 7,
+    "flip": true,
+    "widthRatio": 0.9683089461747159
+  },
+  {
+    "id": "harita_arsivi",
+    "index": 8,
+    "flip": false,
+    "widthRatio": 0.9683089461747159
+  },
+  {
+    "id": "harita_arsivi",
+    "index": 8,
+    "flip": true,
+    "widthRatio": 0.9683089461747159
+  },
+  {
+    "id": "harita_arsivi",
+    "index": 9,
+    "flip": false,
+    "widthRatio": 0.9683089461747159
+  },
+  {
+    "id": "harita_arsivi",
+    "index": 9,
+    "flip": true,
+    "widthRatio": 0.9683089461747162
+  },
+  {
+    "id": "harita_arsivi",
+    "index": 10,
+    "flip": false,
+    "widthRatio": 0.9683089461747159
+  },
+  {
+    "id": "harita_arsivi",
+    "index": 10,
+    "flip": true,
+    "widthRatio": 0.9683089461747159
+  },
+  {
+    "id": "harita_arsivi",
+    "index": 11,
+    "flip": false,
+    "widthRatio": 0.8569037726188483
+  },
+  {
+    "id": "harita_arsivi",
+    "index": 11,
+    "flip": true,
+    "widthRatio": 0.8392326071582616
+  },
+  {
+    "id": "harita_arsivi",
+    "index": 12,
+    "flip": false,
+    "widthRatio": 0.9683089461747159
+  },
+  {
+    "id": "harita_arsivi",
+    "index": 12,
+    "flip": true,
+    "widthRatio": 0.9683089461747162
+  },
+  {
+    "id": "harita_arsivi",
+    "index": 13,
+    "flip": false,
+    "widthRatio": 0.9683089461747159
+  },
+  {
+    "id": "harita_arsivi",
+    "index": 13,
+    "flip": true,
+    "widthRatio": 0.9683089461747159
+  },
+  {
+    "id": "harita_arsivi",
+    "index": 14,
+    "flip": false,
+    "widthRatio": 0.9683089461747159
+  },
+  {
+    "id": "harita_arsivi",
+    "index": 14,
+    "flip": true,
+    "widthRatio": 0.9511105878167541
+  },
+  {
+    "id": "harita_arsivi",
+    "index": 15,
+    "flip": false,
+    "widthRatio": 0.9683089461747173
+  },
+  {
+    "id": "harita_arsivi",
+    "index": 15,
+    "flip": true,
+    "widthRatio": 0.9683089461747159
+  },
+  {
+    "id": "harita_arsivi",
+    "index": 16,
+    "flip": false,
+    "widthRatio": 0.9683089461747162
+  },
+  {
+    "id": "harita_arsivi",
+    "index": 16,
+    "flip": true,
+    "widthRatio": 0.9683089461747162
+  },
+  {
+    "id": "harita_arsivi",
+    "index": 17,
+    "flip": false,
+    "widthRatio": 0.9225648589958084
+  },
+  {
+    "id": "harita_arsivi",
+    "index": 17,
+    "flip": true,
+    "widthRatio": 0.922564858995808
+  },
+  {
+    "id": "harita_arsivi",
+    "index": 18,
+    "flip": false,
+    "widthRatio": 0.9683089461747161
+  },
+  {
+    "id": "harita_arsivi",
+    "index": 18,
+    "flip": true,
+    "widthRatio": 0.9683089461747161
+  },
+  {
+    "id": "harita_arsivi",
+    "index": 19,
+    "flip": false,
+    "widthRatio": 0.8472112270150488
+  },
+  {
+    "id": "harita_arsivi",
+    "index": 19,
+    "flip": true,
+    "widthRatio": 0.8408283311296195
+  },
+  {
+    "id": "harita_arsivi",
+    "index": 20,
+    "flip": false,
+    "widthRatio": 0.9683089461747173
+  },
+  {
+    "id": "harita_arsivi",
+    "index": 20,
+    "flip": true,
+    "widthRatio": 0.9683089461747159
+  },
+  {
+    "id": "harita_arsivi",
+    "index": 21,
+    "flip": false,
+    "widthRatio": 0.8392326071582616
+  },
+  {
+    "id": "harita_arsivi",
+    "index": 21,
+    "flip": true,
+    "widthRatio": 0.8312539873014757
+  },
+  {
+    "id": "harita_arsivi",
+    "index": 22,
+    "flip": false,
+    "widthRatio": 0.9683089461747173
+  },
+  {
+    "id": "harita_arsivi",
+    "index": 22,
+    "flip": true,
+    "widthRatio": 0.9683089461747159
+  },
+  {
+    "id": "harita_arsivi",
+    "index": 23,
+    "flip": false,
+    "widthRatio": 0.9683089461747161
+  },
+  {
+    "id": "harita_arsivi",
+    "index": 23,
+    "flip": true,
+    "widthRatio": 0.9683089461747161
+  },
+  {
+    "id": "harita_arsivi",
+    "index": 24,
+    "flip": false,
+    "widthRatio": 0.9683089461747173
+  },
+  {
+    "id": "harita_arsivi",
+    "index": 24,
+    "flip": true,
+    "widthRatio": 0.9683089461747159
+  },
+  {
+    "id": "valilik",
+    "index": 1,
+    "flip": false,
+    "widthRatio": 0.9683089461747159
+  },
+  {
+    "id": "valilik",
+    "index": 1,
+    "flip": true,
+    "widthRatio": 0.9683089461747159
+  },
+  {
+    "id": "valilik",
+    "index": 2,
+    "flip": false,
+    "widthRatio": 0.9683089461747159
+  },
+  {
+    "id": "valilik",
+    "index": 2,
+    "flip": true,
+    "widthRatio": 0.9683089461747159
+  },
+  {
+    "id": "valilik",
+    "index": 3,
+    "flip": false,
+    "widthRatio": 0.8218569461368169
+  },
+  {
+    "id": "valilik",
+    "index": 3,
+    "flip": true,
+    "widthRatio": 0.8218569461368161
+  },
+  {
+    "id": "valilik",
+    "index": 4,
+    "flip": false,
+    "widthRatio": 0.9683089461747159
+  },
+  {
+    "id": "valilik",
+    "index": 4,
+    "flip": true,
+    "widthRatio": 0.9683089461747159
+  },
+  {
+    "id": "valilik",
+    "index": 5,
+    "flip": false,
+    "widthRatio": 0.9683089461747159
+  },
+  {
+    "id": "valilik",
+    "index": 5,
+    "flip": true,
+    "widthRatio": 0.9683089461747159
+  },
+  {
+    "id": "valilik",
+    "index": 6,
+    "flip": false,
+    "widthRatio": 0.9683089461747159
+  },
+  {
+    "id": "valilik",
+    "index": 6,
+    "flip": true,
+    "widthRatio": 0.9683089461747162
+  },
+  {
+    "id": "valilik",
+    "index": 7,
+    "flip": false,
+    "widthRatio": 0.9683089461747173
+  },
+  {
+    "id": "valilik",
+    "index": 7,
+    "flip": true,
+    "widthRatio": 0.9683089461747159
+  },
+  {
+    "id": "valilik",
+    "index": 8,
+    "flip": false,
+    "widthRatio": 0.9683089461747159
+  },
+  {
+    "id": "valilik",
+    "index": 8,
+    "flip": true,
+    "widthRatio": 0.9683089461747159
+  },
+  {
+    "id": "valilik",
+    "index": 9,
+    "flip": false,
+    "widthRatio": 0.9683089461747159
+  },
+  {
+    "id": "valilik",
+    "index": 9,
+    "flip": true,
+    "widthRatio": 0.9683089461747162
+  },
+  {
+    "id": "valilik",
+    "index": 10,
+    "flip": false,
+    "widthRatio": 0.9683089461747159
+  },
+  {
+    "id": "valilik",
+    "index": 10,
+    "flip": true,
+    "widthRatio": 0.9683089461747159
+  },
+  {
+    "id": "valilik",
+    "index": 11,
+    "flip": false,
+    "widthRatio": 0.8218569461368161
+  },
+  {
+    "id": "valilik",
+    "index": 11,
+    "flip": true,
+    "widthRatio": 0.8218569461368176
+  },
+  {
+    "id": "valilik",
+    "index": 12,
+    "flip": false,
+    "widthRatio": 0.9683089461747159
+  },
+  {
+    "id": "valilik",
+    "index": 12,
+    "flip": true,
+    "widthRatio": 0.9683089461747162
+  },
+  {
+    "id": "valilik",
+    "index": 13,
+    "flip": false,
+    "widthRatio": 0.9683089461747159
+  },
+  {
+    "id": "valilik",
+    "index": 13,
+    "flip": true,
+    "widthRatio": 0.9683089461747159
+  },
+  {
+    "id": "valilik",
+    "index": 14,
+    "flip": false,
+    "widthRatio": 0.9525290091246283
+  },
+  {
+    "id": "valilik",
+    "index": 14,
+    "flip": true,
+    "widthRatio": 0.9541838339838126
+  },
+  {
+    "id": "valilik",
+    "index": 15,
+    "flip": false,
+    "widthRatio": 0.9683089461747173
+  },
+  {
+    "id": "valilik",
+    "index": 15,
+    "flip": true,
+    "widthRatio": 0.9683089461747159
+  },
+  {
+    "id": "valilik",
+    "index": 16,
+    "flip": false,
+    "widthRatio": 0.9683089461747162
+  },
+  {
+    "id": "valilik",
+    "index": 16,
+    "flip": true,
+    "widthRatio": 0.9683089461747162
+  },
+  {
+    "id": "valilik",
+    "index": 17,
+    "flip": false,
+    "widthRatio": 0.9225648589958084
+  },
+  {
+    "id": "valilik",
+    "index": 17,
+    "flip": true,
+    "widthRatio": 0.922564858995808
+  },
+  {
+    "id": "valilik",
+    "index": 18,
+    "flip": false,
+    "widthRatio": 0.9683089461747161
+  },
+  {
+    "id": "valilik",
+    "index": 18,
+    "flip": true,
+    "widthRatio": 0.9683089461747161
+  },
+  {
+    "id": "valilik",
+    "index": 19,
+    "flip": false,
+    "widthRatio": 0.864350484485182
+  },
+  {
+    "id": "valilik",
+    "index": 19,
+    "flip": true,
+    "widthRatio": 0.8269987233778566
+  },
+  {
+    "id": "valilik",
+    "index": 20,
+    "flip": false,
+    "widthRatio": 0.9683089461747173
+  },
+  {
+    "id": "valilik",
+    "index": 20,
+    "flip": true,
+    "widthRatio": 0.9683089461747159
+  },
+  {
+    "id": "valilik",
+    "index": 21,
+    "flip": false,
+    "widthRatio": 0.8218569461368161
+  },
+  {
+    "id": "valilik",
+    "index": 21,
+    "flip": true,
+    "widthRatio": 0.8218569461368176
+  },
+  {
+    "id": "valilik",
+    "index": 22,
+    "flip": false,
+    "widthRatio": 0.9683089461747173
+  },
+  {
+    "id": "valilik",
+    "index": 22,
+    "flip": true,
+    "widthRatio": 0.9683089461747159
+  },
+  {
+    "id": "valilik",
+    "index": 23,
+    "flip": false,
+    "widthRatio": 0.9683089461747161
+  },
+  {
+    "id": "valilik",
+    "index": 23,
+    "flip": true,
+    "widthRatio": 0.9683089461747161
+  },
+  {
+    "id": "valilik",
+    "index": 24,
+    "flip": false,
+    "widthRatio": 0.9683089461747173
+  },
+  {
+    "id": "valilik",
+    "index": 24,
+    "flip": true,
+    "widthRatio": 0.9683089461747159
+  },
+  {
+    "id": "korsan_kalesi",
+    "index": 25,
+    "flip": false,
+    "widthRatio": 0.9710583941605839
+  },
+  {
+    "id": "korsan_kalesi",
+    "index": 25,
+    "flip": true,
+    "widthRatio": 0.9710583941605844
+  },
+  {
+    "id": "korsan_kalesi",
+    "index": 26,
+    "flip": false,
+    "widthRatio": 0.9710583941605844
+  },
+  {
+    "id": "korsan_kalesi",
+    "index": 26,
+    "flip": true,
+    "widthRatio": 0.9710583941605844
+  },
+  {
+    "id": "korsan_kalesi",
+    "index": 27,
+    "flip": false,
+    "widthRatio": 0.9710583941605835
+  },
+  {
+    "id": "korsan_kalesi",
+    "index": 27,
+    "flip": true,
+    "widthRatio": 0.9710583941605844
+  },
+  {
+    "id": "korsan_kalesi",
+    "index": 28,
+    "flip": false,
+    "widthRatio": 0.9710583941605844
+  },
+  {
+    "id": "korsan_kalesi",
+    "index": 28,
+    "flip": true,
+    "widthRatio": 0.9710583941605844
+  },
+  {
+    "id": "kara_pazar",
+    "index": 1,
+    "flip": false,
+    "widthRatio": 0.9740285425821703
+  },
+  {
+    "id": "kara_pazar",
+    "index": 1,
+    "flip": true,
+    "widthRatio": 0.9740285425821718
+  },
+  {
+    "id": "kara_pazar",
+    "index": 2,
+    "flip": false,
+    "widthRatio": 0.9740285425821711
+  },
+  {
+    "id": "kara_pazar",
+    "index": 2,
+    "flip": true,
+    "widthRatio": 0.9740285425821711
+  },
+  {
+    "id": "kara_pazar",
+    "index": 3,
+    "flip": false,
+    "widthRatio": 0.8279599311854184
+  },
+  {
+    "id": "kara_pazar",
+    "index": 3,
+    "flip": true,
+    "widthRatio": 0.8279599311854184
+  },
+  {
+    "id": "kara_pazar",
+    "index": 4,
+    "flip": false,
+    "widthRatio": 0.9740285425821703
+  },
+  {
+    "id": "kara_pazar",
+    "index": 4,
+    "flip": true,
+    "widthRatio": 0.9740285425821718
+  },
+  {
+    "id": "kara_pazar",
+    "index": 5,
+    "flip": false,
+    "widthRatio": 0.9740285425821711
+  },
+  {
+    "id": "kara_pazar",
+    "index": 5,
+    "flip": true,
+    "widthRatio": 0.9740285425821711
+  },
+  {
+    "id": "kara_pazar",
+    "index": 6,
+    "flip": false,
+    "widthRatio": 0.9740285425821711
+  },
+  {
+    "id": "kara_pazar",
+    "index": 6,
+    "flip": true,
+    "widthRatio": 0.9740285425821711
+  },
+  {
+    "id": "kara_pazar",
+    "index": 7,
+    "flip": false,
+    "widthRatio": 0.9740285425821711
+  },
+  {
+    "id": "kara_pazar",
+    "index": 7,
+    "flip": true,
+    "widthRatio": 0.9740285425821711
+  },
+  {
+    "id": "kara_pazar",
+    "index": 8,
+    "flip": false,
+    "widthRatio": 0.9740285425821711
+  },
+  {
+    "id": "kara_pazar",
+    "index": 8,
+    "flip": true,
+    "widthRatio": 0.9740285425821711
+  },
+  {
+    "id": "kara_pazar",
+    "index": 9,
+    "flip": false,
+    "widthRatio": 0.9740285425821711
+  },
+  {
+    "id": "kara_pazar",
+    "index": 9,
+    "flip": true,
+    "widthRatio": 0.9740285425821711
+  },
+  {
+    "id": "kara_pazar",
+    "index": 10,
+    "flip": false,
+    "widthRatio": 0.9740285425821703
+  },
+  {
+    "id": "kara_pazar",
+    "index": 10,
+    "flip": true,
+    "widthRatio": 0.9740285425821718
+  },
+  {
+    "id": "kara_pazar",
+    "index": 11,
+    "flip": false,
+    "widthRatio": 0.8314080302741502
+  },
+  {
+    "id": "kara_pazar",
+    "index": 11,
+    "flip": true,
+    "widthRatio": 0.8962679631328626
+  },
+  {
+    "id": "kara_pazar",
+    "index": 12,
+    "flip": false,
+    "widthRatio": 0.9740285425821711
+  },
+  {
+    "id": "kara_pazar",
+    "index": 12,
+    "flip": true,
+    "widthRatio": 0.9740285425821711
+  },
+  {
+    "id": "kara_pazar",
+    "index": 13,
+    "flip": false,
+    "widthRatio": 0.9740285425821703
+  },
+  {
+    "id": "kara_pazar",
+    "index": 13,
+    "flip": true,
+    "widthRatio": 0.9740285425821718
+  },
+  {
+    "id": "kara_pazar",
+    "index": 14,
+    "flip": false,
+    "widthRatio": 0.9740285425821711
+  },
+  {
+    "id": "kara_pazar",
+    "index": 14,
+    "flip": true,
+    "widthRatio": 0.9740285425821711
+  },
+  {
+    "id": "kara_pazar",
+    "index": 15,
+    "flip": false,
+    "widthRatio": 0.9740285425821711
+  },
+  {
+    "id": "kara_pazar",
+    "index": 15,
+    "flip": true,
+    "widthRatio": 0.9740285425821711
+  },
+  {
+    "id": "kara_pazar",
+    "index": 16,
+    "flip": false,
+    "widthRatio": 0.9740285425821711
+  },
+  {
+    "id": "kara_pazar",
+    "index": 16,
+    "flip": true,
+    "widthRatio": 0.9740285425821711
+  },
+  {
+    "id": "kara_pazar",
+    "index": 17,
+    "flip": false,
+    "widthRatio": 0.9171349076181127
+  },
+  {
+    "id": "kara_pazar",
+    "index": 17,
+    "flip": true,
+    "widthRatio": 0.9171349076181119
+  },
+  {
+    "id": "kara_pazar",
+    "index": 18,
+    "flip": false,
+    "widthRatio": 0.9740285425821711
+  },
+  {
+    "id": "kara_pazar",
+    "index": 18,
+    "flip": true,
+    "widthRatio": 0.9740285425821711
+  },
+  {
+    "id": "kara_pazar",
+    "index": 19,
+    "flip": false,
+    "widthRatio": 0.8536423243980344
+  },
+  {
+    "id": "kara_pazar",
+    "index": 19,
+    "flip": true,
+    "widthRatio": 0.8567337235810346
+  },
+  {
+    "id": "kara_pazar",
+    "index": 20,
+    "flip": false,
+    "widthRatio": 0.9740285425821711
+  },
+  {
+    "id": "kara_pazar",
+    "index": 20,
+    "flip": true,
+    "widthRatio": 0.9740285425821711
+  },
+  {
+    "id": "kara_pazar",
+    "index": 21,
+    "flip": false,
+    "widthRatio": 0.8279599311854184
+  },
+  {
+    "id": "kara_pazar",
+    "index": 21,
+    "flip": true,
+    "widthRatio": 0.8435952770532836
+  },
+  {
+    "id": "kara_pazar",
+    "index": 22,
+    "flip": false,
+    "widthRatio": 0.9740285425821711
+  },
+  {
+    "id": "kara_pazar",
+    "index": 22,
+    "flip": true,
+    "widthRatio": 0.9740285425821711
+  },
+  {
+    "id": "kara_pazar",
+    "index": 23,
+    "flip": false,
+    "widthRatio": 0.9740285425821711
+  },
+  {
+    "id": "kara_pazar",
+    "index": 23,
+    "flip": true,
+    "widthRatio": 0.9740285425821711
+  },
+  {
+    "id": "kara_pazar",
+    "index": 24,
+    "flip": false,
+    "widthRatio": 0.9740285425821711
+  },
+  {
+    "id": "kara_pazar",
+    "index": 24,
+    "flip": true,
+    "widthRatio": 0.9740285425821711
+  },
+  {
+    "id": "siginak",
+    "index": 1,
+    "flip": false,
+    "widthRatio": 0.9740285425821703
+  },
+  {
+    "id": "siginak",
+    "index": 1,
+    "flip": true,
+    "widthRatio": 0.9740285425821718
+  },
+  {
+    "id": "siginak",
+    "index": 2,
+    "flip": false,
+    "widthRatio": 0.9740285425821711
+  },
+  {
+    "id": "siginak",
+    "index": 2,
+    "flip": true,
+    "widthRatio": 0.9740285425821711
+  },
+  {
+    "id": "siginak",
+    "index": 3,
+    "flip": false,
+    "widthRatio": 0.8342616295199953
+  },
+  {
+    "id": "siginak",
+    "index": 3,
+    "flip": true,
+    "widthRatio": 0.9171349076181123
+  },
+  {
+    "id": "siginak",
+    "index": 4,
+    "flip": false,
+    "widthRatio": 0.9740285425821703
+  },
+  {
+    "id": "siginak",
+    "index": 4,
+    "flip": true,
+    "widthRatio": 0.9740285425821718
+  },
+  {
+    "id": "siginak",
+    "index": 5,
+    "flip": false,
+    "widthRatio": 0.9740285425821711
+  },
+  {
+    "id": "siginak",
+    "index": 5,
+    "flip": true,
+    "widthRatio": 0.9740285425821711
+  },
+  {
+    "id": "siginak",
+    "index": 6,
+    "flip": false,
+    "widthRatio": 0.9740285425821711
+  },
+  {
+    "id": "siginak",
+    "index": 6,
+    "flip": true,
+    "widthRatio": 0.9740285425821711
+  },
+  {
+    "id": "siginak",
+    "index": 7,
+    "flip": false,
+    "widthRatio": 0.9740285425821711
+  },
+  {
+    "id": "siginak",
+    "index": 7,
+    "flip": true,
+    "widthRatio": 0.9740285425821711
+  },
+  {
+    "id": "siginak",
+    "index": 8,
+    "flip": false,
+    "widthRatio": 0.9740285425821711
+  },
+  {
+    "id": "siginak",
+    "index": 8,
+    "flip": true,
+    "widthRatio": 0.9740285425821711
+  },
+  {
+    "id": "siginak",
+    "index": 9,
+    "flip": false,
+    "widthRatio": 0.9740285425821711
+  },
+  {
+    "id": "siginak",
+    "index": 9,
+    "flip": true,
+    "widthRatio": 0.9740285425821711
+  },
+  {
+    "id": "siginak",
+    "index": 10,
+    "flip": false,
+    "widthRatio": 0.9740285425821703
+  },
+  {
+    "id": "siginak",
+    "index": 10,
+    "flip": true,
+    "widthRatio": 0.9740285425821718
+  },
+  {
+    "id": "siginak",
+    "index": 11,
+    "flip": false,
+    "widthRatio": 0.8881233152853426
+  },
+  {
+    "id": "siginak",
+    "index": 11,
+    "flip": true,
+    "widthRatio": 0.834261629519996
+  },
+  {
+    "id": "siginak",
+    "index": 12,
+    "flip": false,
+    "widthRatio": 0.9740285425821711
+  },
+  {
+    "id": "siginak",
+    "index": 12,
+    "flip": true,
+    "widthRatio": 0.9740285425821711
+  },
+  {
+    "id": "siginak",
+    "index": 13,
+    "flip": false,
+    "widthRatio": 0.9740285425821703
+  },
+  {
+    "id": "siginak",
+    "index": 13,
+    "flip": true,
+    "widthRatio": 0.9740285425821718
+  },
+  {
+    "id": "siginak",
+    "index": 14,
+    "flip": false,
+    "widthRatio": 0.9740285425821711
+  },
+  {
+    "id": "siginak",
+    "index": 14,
+    "flip": true,
+    "widthRatio": 0.9740285425821711
+  },
+  {
+    "id": "siginak",
+    "index": 15,
+    "flip": false,
+    "widthRatio": 0.9740285425821711
+  },
+  {
+    "id": "siginak",
+    "index": 15,
+    "flip": true,
+    "widthRatio": 0.9740285425821711
+  },
+  {
+    "id": "siginak",
+    "index": 16,
+    "flip": false,
+    "widthRatio": 0.9740285425821711
+  },
+  {
+    "id": "siginak",
+    "index": 16,
+    "flip": true,
+    "widthRatio": 0.9740285425821711
+  },
+  {
+    "id": "siginak",
+    "index": 17,
+    "flip": false,
+    "widthRatio": 0.9171349076181127
+  },
+  {
+    "id": "siginak",
+    "index": 17,
+    "flip": true,
+    "widthRatio": 0.9740285425821711
+  },
+  {
+    "id": "siginak",
+    "index": 18,
+    "flip": false,
+    "widthRatio": 0.9740285425821711
+  },
+  {
+    "id": "siginak",
+    "index": 18,
+    "flip": true,
+    "widthRatio": 0.9740285425821711
+  },
+  {
+    "id": "siginak",
+    "index": 19,
+    "flip": false,
+    "widthRatio": 0.9171349076181127
+  },
+  {
+    "id": "siginak",
+    "index": 19,
+    "flip": true,
+    "widthRatio": 0.8689804203444575
+  },
+  {
+    "id": "siginak",
+    "index": 20,
+    "flip": false,
+    "widthRatio": 0.9740285425821711
+  },
+  {
+    "id": "siginak",
+    "index": 20,
+    "flip": true,
+    "widthRatio": 0.9740285425821711
+  },
+  {
+    "id": "siginak",
+    "index": 21,
+    "flip": false,
+    "widthRatio": 0.8558419738167075
+  },
+  {
+    "id": "siginak",
+    "index": 21,
+    "flip": true,
+    "widthRatio": 0.834261629519996
+  },
+  {
+    "id": "siginak",
+    "index": 22,
+    "flip": false,
+    "widthRatio": 0.9740285425821711
+  },
+  {
+    "id": "siginak",
+    "index": 22,
+    "flip": true,
+    "widthRatio": 0.9740285425821711
+  },
+  {
+    "id": "siginak",
+    "index": 23,
+    "flip": false,
+    "widthRatio": 0.9740285425821711
+  },
+  {
+    "id": "siginak",
+    "index": 23,
+    "flip": true,
+    "widthRatio": 0.9740285425821711
+  },
+  {
+    "id": "siginak",
+    "index": 24,
+    "flip": false,
+    "widthRatio": 0.9740285425821711
+  },
+  {
+    "id": "siginak",
+    "index": 24,
+    "flip": true,
+    "widthRatio": 0.9740285425821711
+  },
+  {
+    "id": "tekke",
+    "index": 1,
+    "flip": false,
+    "widthRatio": 0.9740285425821703
+  },
+  {
+    "id": "tekke",
+    "index": 1,
+    "flip": true,
+    "widthRatio": 0.9740285425821718
+  },
+  {
+    "id": "tekke",
+    "index": 2,
+    "flip": false,
+    "widthRatio": 0.9740285425821711
+  },
+  {
+    "id": "tekke",
+    "index": 2,
+    "flip": true,
+    "widthRatio": 0.9740285425821711
+  },
+  {
+    "id": "tekke",
+    "index": 3,
+    "flip": false,
+    "widthRatio": 0.8342616295199953
+  },
+  {
+    "id": "tekke",
+    "index": 3,
+    "flip": true,
+    "widthRatio": 0.8342616295199953
+  },
+  {
+    "id": "tekke",
+    "index": 4,
+    "flip": false,
+    "widthRatio": 0.9740285425821703
+  },
+  {
+    "id": "tekke",
+    "index": 4,
+    "flip": true,
+    "widthRatio": 0.9740285425821718
+  },
+  {
+    "id": "tekke",
+    "index": 5,
+    "flip": false,
+    "widthRatio": 0.9740285425821711
+  },
+  {
+    "id": "tekke",
+    "index": 5,
+    "flip": true,
+    "widthRatio": 0.9740285425821711
+  },
+  {
+    "id": "tekke",
+    "index": 6,
+    "flip": false,
+    "widthRatio": 0.9740285425821711
+  },
+  {
+    "id": "tekke",
+    "index": 6,
+    "flip": true,
+    "widthRatio": 0.9740285425821711
+  },
+  {
+    "id": "tekke",
+    "index": 7,
+    "flip": false,
+    "widthRatio": 0.9740285425821711
+  },
+  {
+    "id": "tekke",
+    "index": 7,
+    "flip": true,
+    "widthRatio": 0.9740285425821711
+  },
+  {
+    "id": "tekke",
+    "index": 8,
+    "flip": false,
+    "widthRatio": 0.9740285425821711
+  },
+  {
+    "id": "tekke",
+    "index": 8,
+    "flip": true,
+    "widthRatio": 0.9740285425821711
+  },
+  {
+    "id": "tekke",
+    "index": 9,
+    "flip": false,
+    "widthRatio": 0.9740285425821711
+  },
+  {
+    "id": "tekke",
+    "index": 9,
+    "flip": true,
+    "widthRatio": 0.9740285425821711
+  },
+  {
+    "id": "tekke",
+    "index": 10,
+    "flip": false,
+    "widthRatio": 0.9740285425821703
+  },
+  {
+    "id": "tekke",
+    "index": 10,
+    "flip": true,
+    "widthRatio": 0.9740285425821718
+  },
+  {
+    "id": "tekke",
+    "index": 11,
+    "flip": false,
+    "widthRatio": 0.834261629519996
+  },
+  {
+    "id": "tekke",
+    "index": 11,
+    "flip": true,
+    "widthRatio": 0.834261629519996
+  },
+  {
+    "id": "tekke",
+    "index": 12,
+    "flip": false,
+    "widthRatio": 0.9740285425821711
+  },
+  {
+    "id": "tekke",
+    "index": 12,
+    "flip": true,
+    "widthRatio": 0.9740285425821711
+  },
+  {
+    "id": "tekke",
+    "index": 13,
+    "flip": false,
+    "widthRatio": 0.9740285425821703
+  },
+  {
+    "id": "tekke",
+    "index": 13,
+    "flip": true,
+    "widthRatio": 0.9740285425821718
+  },
+  {
+    "id": "tekke",
+    "index": 14,
+    "flip": false,
+    "widthRatio": 0.9380613020876517
+  },
+  {
+    "id": "tekke",
+    "index": 14,
+    "flip": true,
+    "widthRatio": 0.9219503563454772
+  },
+  {
+    "id": "tekke",
+    "index": 15,
+    "flip": false,
+    "widthRatio": 0.9740285425821711
+  },
+  {
+    "id": "tekke",
+    "index": 15,
+    "flip": true,
+    "widthRatio": 0.9740285425821711
+  },
+  {
+    "id": "tekke",
+    "index": 16,
+    "flip": false,
+    "widthRatio": 0.9740285425821711
+  },
+  {
+    "id": "tekke",
+    "index": 16,
+    "flip": true,
+    "widthRatio": 0.9740285425821711
+  },
+  {
+    "id": "tekke",
+    "index": 17,
+    "flip": false,
+    "widthRatio": 0.912260008906458
+  },
+  {
+    "id": "tekke",
+    "index": 17,
+    "flip": true,
+    "widthRatio": 0.9171349076181119
+  },
+  {
+    "id": "tekke",
+    "index": 18,
+    "flip": false,
+    "widthRatio": 0.9740285425821711
+  },
+  {
+    "id": "tekke",
+    "index": 18,
+    "flip": true,
+    "widthRatio": 0.9740285425821711
+  },
+  {
+    "id": "tekke",
+    "index": 19,
+    "flip": false,
+    "widthRatio": 0.8362829289858034
+  },
+  {
+    "id": "tekke",
+    "index": 19,
+    "flip": true,
+    "widthRatio": 0.8342616295199953
+  },
+  {
+    "id": "tekke",
+    "index": 20,
+    "flip": false,
+    "widthRatio": 0.9740285425821711
+  },
+  {
+    "id": "tekke",
+    "index": 20,
+    "flip": true,
+    "widthRatio": 0.9740285425821711
+  },
+  {
+    "id": "tekke",
+    "index": 21,
+    "flip": false,
+    "widthRatio": 0.834261629519996
+  },
+  {
+    "id": "tekke",
+    "index": 21,
+    "flip": true,
+    "widthRatio": 0.8123840353018409
+  },
+  {
+    "id": "tekke",
+    "index": 22,
+    "flip": false,
+    "widthRatio": 0.9740285425821711
+  },
+  {
+    "id": "tekke",
+    "index": 22,
+    "flip": true,
+    "widthRatio": 0.9740285425821711
+  },
+  {
+    "id": "tekke",
+    "index": 23,
+    "flip": false,
+    "widthRatio": 0.9740285425821711
+  },
+  {
+    "id": "tekke",
+    "index": 23,
+    "flip": true,
+    "widthRatio": 0.9740285425821711
+  },
+  {
+    "id": "tekke",
+    "index": 24,
+    "flip": false,
+    "widthRatio": 0.9740285425821711
+  },
+  {
+    "id": "tekke",
+    "index": 24,
+    "flip": true,
+    "widthRatio": 0.9740285425821711
+  },
+  {
+    "id": "mabet",
+    "index": 1,
+    "flip": false,
+    "widthRatio": 0.9454940112451737
+  },
+  {
+    "id": "mabet",
+    "index": 1,
+    "flip": true,
+    "widthRatio": 0.9454940112451737
+  },
+  {
+    "id": "mabet",
+    "index": 2,
+    "flip": false,
+    "widthRatio": 0.9454940112451737
+  },
+  {
+    "id": "mabet",
+    "index": 2,
+    "flip": true,
+    "widthRatio": 0.9454940112451737
+  },
+  {
+    "id": "mabet",
+    "index": 3,
+    "flip": false,
+    "widthRatio": 0.8319816381910201
+  },
+  {
+    "id": "mabet",
+    "index": 3,
+    "flip": true,
+    "widthRatio": 0.838906643156195
+  },
+  {
+    "id": "mabet",
+    "index": 4,
+    "flip": false,
+    "widthRatio": 0.9454940112451737
+  },
+  {
+    "id": "mabet",
+    "index": 4,
+    "flip": true,
+    "widthRatio": 0.9454940112451737
+  },
+  {
+    "id": "mabet",
+    "index": 5,
+    "flip": false,
+    "widthRatio": 0.9454940112451737
+  },
+  {
+    "id": "mabet",
+    "index": 5,
+    "flip": true,
+    "widthRatio": 0.9454940112451737
+  },
+  {
+    "id": "mabet",
+    "index": 6,
+    "flip": false,
+    "widthRatio": 0.9454940112451737
+  },
+  {
+    "id": "mabet",
+    "index": 6,
+    "flip": true,
+    "widthRatio": 0.9454940112451737
+  },
+  {
+    "id": "mabet",
+    "index": 7,
+    "flip": false,
+    "widthRatio": 0.9454940112451737
+  },
+  {
+    "id": "mabet",
+    "index": 7,
+    "flip": true,
+    "widthRatio": 0.9454940112451723
+  },
+  {
+    "id": "mabet",
+    "index": 8,
+    "flip": false,
+    "widthRatio": 0.9454940112451737
+  },
+  {
+    "id": "mabet",
+    "index": 8,
+    "flip": true,
+    "widthRatio": 0.9454940112451737
+  },
+  {
+    "id": "mabet",
+    "index": 9,
+    "flip": false,
+    "widthRatio": 0.9454940112451737
+  },
+  {
+    "id": "mabet",
+    "index": 9,
+    "flip": true,
+    "widthRatio": 0.9454940112451737
+  },
+  {
+    "id": "mabet",
+    "index": 10,
+    "flip": false,
+    "widthRatio": 0.9454940112451737
+  },
+  {
+    "id": "mabet",
+    "index": 10,
+    "flip": true,
+    "widthRatio": 0.9454940112451737
+  },
+  {
+    "id": "mabet",
+    "index": 11,
+    "flip": false,
+    "widthRatio": 0.8902670966479065
+  },
+  {
+    "id": "mabet",
+    "index": 11,
+    "flip": true,
+    "widthRatio": 0.8902670966479065
+  },
+  {
+    "id": "mabet",
+    "index": 12,
+    "flip": false,
+    "widthRatio": 0.9454940112451737
+  },
+  {
+    "id": "mabet",
+    "index": 12,
+    "flip": true,
+    "widthRatio": 0.9454940112451737
+  },
+  {
+    "id": "mabet",
+    "index": 13,
+    "flip": false,
+    "widthRatio": 0.9454940112451737
+  },
+  {
+    "id": "mabet",
+    "index": 13,
+    "flip": true,
+    "widthRatio": 0.9454940112451737
+  },
+  {
+    "id": "mabet",
+    "index": 14,
+    "flip": false,
+    "widthRatio": 0.9454940112451737
+  },
+  {
+    "id": "mabet",
+    "index": 14,
+    "flip": true,
+    "widthRatio": 0.9454940112451737
+  },
+  {
+    "id": "mabet",
+    "index": 15,
+    "flip": false,
+    "widthRatio": 0.9454940112451737
+  },
+  {
+    "id": "mabet",
+    "index": 15,
+    "flip": true,
+    "widthRatio": 0.9454940112451723
+  },
+  {
+    "id": "mabet",
+    "index": 16,
+    "flip": false,
+    "widthRatio": 0.9454940112451734
+  },
+  {
+    "id": "mabet",
+    "index": 16,
+    "flip": true,
+    "widthRatio": 0.9454940112451737
+  },
+  {
+    "id": "mabet",
+    "index": 17,
+    "flip": false,
+    "widthRatio": 0.8977114769854694
+  },
+  {
+    "id": "mabet",
+    "index": 17,
+    "flip": true,
+    "widthRatio": 0.9040016898288357
+  },
+  {
+    "id": "mabet",
+    "index": 18,
+    "flip": false,
+    "widthRatio": 0.9454940112451737
+  },
+  {
+    "id": "mabet",
+    "index": 18,
+    "flip": true,
+    "widthRatio": 0.9454940112451735
+  },
+  {
+    "id": "mabet",
+    "index": 19,
+    "flip": false,
+    "widthRatio": 0.8647022866514698
+  },
+  {
+    "id": "mabet",
+    "index": 19,
+    "flip": true,
+    "widthRatio": 0.8576618649368756
+  },
+  {
+    "id": "mabet",
+    "index": 20,
+    "flip": false,
+    "widthRatio": 0.9454940112451737
+  },
+  {
+    "id": "mabet",
+    "index": 20,
+    "flip": true,
+    "widthRatio": 0.9454940112451723
+  },
+  {
+    "id": "mabet",
+    "index": 21,
+    "flip": false,
+    "widthRatio": 0.8301926785750169
+  },
+  {
+    "id": "mabet",
+    "index": 21,
+    "flip": true,
+    "widthRatio": 0.8266724677177194
+  },
+  {
+    "id": "mabet",
+    "index": 22,
+    "flip": false,
+    "widthRatio": 0.9454940112451737
+  },
+  {
+    "id": "mabet",
+    "index": 22,
+    "flip": true,
+    "widthRatio": 0.9454940112451723
+  },
+  {
+    "id": "mabet",
+    "index": 23,
+    "flip": false,
+    "widthRatio": 0.9454940112451737
+  },
+  {
+    "id": "mabet",
+    "index": 23,
+    "flip": true,
+    "widthRatio": 0.9454940112451735
+  },
+  {
+    "id": "mabet",
+    "index": 24,
+    "flip": false,
+    "widthRatio": 0.9454940112451737
+  },
+  {
+    "id": "mabet",
+    "index": 24,
+    "flip": true,
+    "widthRatio": 0.9454940112451723
+  },
+  {
+    "id": "karagoz",
+    "index": 1,
+    "flip": false,
+    "widthRatio": 0.9740285425821703
+  },
+  {
+    "id": "karagoz",
+    "index": 1,
+    "flip": true,
+    "widthRatio": 0.960355046195825
+  },
+  {
+    "id": "karagoz",
+    "index": 2,
+    "flip": false,
+    "widthRatio": 0.9740285425821711
+  },
+  {
+    "id": "karagoz",
+    "index": 2,
+    "flip": true,
+    "widthRatio": 0.9740285425821711
+  },
+  {
+    "id": "karagoz",
+    "index": 3,
+    "flip": false,
+    "widthRatio": 0.844724826754765
+  },
+  {
+    "id": "karagoz",
+    "index": 3,
+    "flip": true,
+    "widthRatio": 0.8342616295199953
+  },
+  {
+    "id": "karagoz",
+    "index": 4,
+    "flip": false,
+    "widthRatio": 0.9740285425821703
+  },
+  {
+    "id": "karagoz",
+    "index": 4,
+    "flip": true,
+    "widthRatio": 0.9740285425821718
+  },
+  {
+    "id": "karagoz",
+    "index": 5,
+    "flip": false,
+    "widthRatio": 0.9740285425821711
+  },
+  {
+    "id": "karagoz",
+    "index": 5,
+    "flip": true,
+    "widthRatio": 0.9740285425821711
+  },
+  {
+    "id": "karagoz",
+    "index": 6,
+    "flip": false,
+    "widthRatio": 0.9740285425821711
+  },
+  {
+    "id": "karagoz",
+    "index": 6,
+    "flip": true,
+    "widthRatio": 0.9740285425821711
+  },
+  {
+    "id": "karagoz",
+    "index": 7,
+    "flip": false,
+    "widthRatio": 0.9740285425821711
+  },
+  {
+    "id": "karagoz",
+    "index": 7,
+    "flip": true,
+    "widthRatio": 0.9740285425821711
+  },
+  {
+    "id": "karagoz",
+    "index": 8,
+    "flip": false,
+    "widthRatio": 0.9740285425821711
+  },
+  {
+    "id": "karagoz",
+    "index": 8,
+    "flip": true,
+    "widthRatio": 0.9740285425821711
+  },
+  {
+    "id": "karagoz",
+    "index": 9,
+    "flip": false,
+    "widthRatio": 0.9740285425821711
+  },
+  {
+    "id": "karagoz",
+    "index": 9,
+    "flip": true,
+    "widthRatio": 0.9740285425821711
+  },
+  {
+    "id": "karagoz",
+    "index": 10,
+    "flip": false,
+    "widthRatio": 0.9740285425821703
+  },
+  {
+    "id": "karagoz",
+    "index": 10,
+    "flip": true,
+    "widthRatio": 0.9740285425821718
+  },
+  {
+    "id": "karagoz",
+    "index": 11,
+    "flip": false,
+    "widthRatio": 0.834261629519996
+  },
+  {
+    "id": "karagoz",
+    "index": 11,
+    "flip": true,
+    "widthRatio": 0.83913652823165
+  },
+  {
+    "id": "karagoz",
+    "index": 12,
+    "flip": false,
+    "widthRatio": 0.9740285425821711
+  },
+  {
+    "id": "karagoz",
+    "index": 12,
+    "flip": true,
+    "widthRatio": 0.9740285425821711
+  },
+  {
+    "id": "karagoz",
+    "index": 13,
+    "flip": false,
+    "widthRatio": 0.9740285425821703
+  },
+  {
+    "id": "karagoz",
+    "index": 13,
+    "flip": true,
+    "widthRatio": 0.9740285425821718
+  },
+  {
+    "id": "karagoz",
+    "index": 14,
+    "flip": false,
+    "widthRatio": 0.956312447264209
+  },
+  {
+    "id": "karagoz",
+    "index": 14,
+    "flip": true,
+    "widthRatio": 0.967370144341863
+  },
+  {
+    "id": "karagoz",
+    "index": 15,
+    "flip": false,
+    "widthRatio": 0.9740285425821711
+  },
+  {
+    "id": "karagoz",
+    "index": 15,
+    "flip": true,
+    "widthRatio": 0.9740285425821711
+  },
+  {
+    "id": "karagoz",
+    "index": 16,
+    "flip": false,
+    "widthRatio": 0.9740285425821711
+  },
+  {
+    "id": "karagoz",
+    "index": 16,
+    "flip": true,
+    "widthRatio": 0.9740285425821711
+  },
+  {
+    "id": "karagoz",
+    "index": 17,
+    "flip": false,
+    "widthRatio": 0.9171349076181127
+  },
+  {
+    "id": "karagoz",
+    "index": 17,
+    "flip": true,
+    "widthRatio": 0.9171349076181119
+  },
+  {
+    "id": "karagoz",
+    "index": 18,
+    "flip": false,
+    "widthRatio": 0.9740285425821711
+  },
+  {
+    "id": "karagoz",
+    "index": 18,
+    "flip": true,
+    "widthRatio": 0.9740285425821711
+  },
+  {
+    "id": "karagoz",
+    "index": 19,
+    "flip": false,
+    "widthRatio": 0.8342616295199958
+  },
+  {
+    "id": "karagoz",
+    "index": 19,
+    "flip": true,
+    "widthRatio": 0.9013212117973813
+  },
+  {
+    "id": "karagoz",
+    "index": 20,
+    "flip": false,
+    "widthRatio": 0.9740285425821711
+  },
+  {
+    "id": "karagoz",
+    "index": 20,
+    "flip": true,
+    "widthRatio": 0.9740285425821711
+  },
+  {
+    "id": "karagoz",
+    "index": 21,
+    "flip": false,
+    "widthRatio": 0.834261629519996
+  },
+  {
+    "id": "karagoz",
+    "index": 21,
+    "flip": true,
+    "widthRatio": 0.834261629519996
+  },
+  {
+    "id": "karagoz",
+    "index": 22,
+    "flip": false,
+    "widthRatio": 0.9740285425821711
+  },
+  {
+    "id": "karagoz",
+    "index": 22,
+    "flip": true,
+    "widthRatio": 0.9740285425821711
+  },
+  {
+    "id": "karagoz",
+    "index": 23,
+    "flip": false,
+    "widthRatio": 0.9740285425821711
+  },
+  {
+    "id": "karagoz",
+    "index": 23,
+    "flip": true,
+    "widthRatio": 0.9740285425821711
+  },
+  {
+    "id": "karagoz",
+    "index": 24,
+    "flip": false,
+    "widthRatio": 0.9740285425821711
+  },
+  {
+    "id": "karagoz",
+    "index": 24,
+    "flip": true,
+    "widthRatio": 0.9740285425821711
+  }
+]

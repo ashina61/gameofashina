@@ -3,7 +3,7 @@ import assert from 'node:assert/strict'
 import sharp from 'sharp'
 import { BUILDING_IDS } from '../engine'
 import { LIVE_SLOTS } from './live-adapter'
-import { PARCEL_PLOTS, PARCEL_WORLD, parcelProject, parcelInverse, parcelContainsPoint, parcelArtFrame, cityBuildingArtFrame, barracksRoadClear, cityArtOutline, cityBuildingImage } from './parcel-city'
+import { PARCEL_PLOTS, PARCEL_WORLD, parcelProject, parcelInverse, parcelContainsPoint, parcelArtFrame, cityBuildingArtFrame, buildingRoadClear, barracksRoadClear, cityArtOutline, cityBuildingImage } from './parcel-city'
 
 test('main parcel projection preserves all saved IDs, zones and fixed hall',()=>{
   assert.equal(PARCEL_PLOTS.length,LIVE_SLOTS.length)
@@ -37,12 +37,12 @@ test('all existing building stages and both directions fit every matching parcel
       assert.ok(Math.abs(f.width/f.height-width/height)<1e-8)
       const ground=f.groundPolygon
       assert.ok(ground.every(q=>parcelContainsPoint(p,q)),`${id}/${p.index}/${flip}`)
-      if(id==='kisla'&&p.index>0)assert.ok(barracksRoadClear(f.polygon),`${id}/${p.index}/${flip}: road covered`)
+      if((p.index>0&&p.index<25)||id==='divan')assert.ok(buildingRoadClear(f.polygon),`${id}/${p.index}/${flip}: road covered`)
     }
   }
 })
 
-test('two-storey barracks has an open yard, centred ground contacts and road-clear full alpha',async()=>{
+test('two-storey barracks keeps its open yard, ground contacts inside the clearing and road-clear full alpha',async()=>{
   for(const size of ['full','sm'] as const){
     const {data,info}=await sharp('public'+cityBuildingImage('kisla',1,undefined,size)).ensureAlpha().raw().toBuffer({resolveWithObject:true})
     for(const [x,y] of [[.48,.55],[.40,.54],[.58,.60],[.70,.69],[.43,.53]])assert.ok(data[(Math.round(y*info.height)*info.width+Math.round(x*info.width))*4+3]<8,'courtyard must reveal shared terrain')
@@ -50,8 +50,8 @@ test('two-storey barracks has an open yard, centred ground contacts and road-cle
       const f=cityBuildingArtFrame('kisla',p,info.width,info.height,cityArtOutline('kisla',1,size)!,flip)
       if(p.index>0){
         const xs=f.groundPolygon.map(q=>q.x),ys=f.groundPolygon.map(q=>q.y)
-        assert.ok(Math.abs((Math.min(...xs)+Math.max(...xs))/2-p.center.x)<1e-6)
-        assert.ok(Math.abs((Math.min(...ys)+Math.max(...ys))/2-p.center.y)<1e-6)
+        assert.ok(Math.abs((Math.min(...xs)+Math.max(...xs))/2-p.center.x)<=p.width*.181)
+        assert.ok(Math.abs((Math.min(...ys)+Math.max(...ys))/2-p.center.y)<=p.height*.301)
         assert.ok(f.groundPolygon.every(q=>parcelContainsPoint(p,q)))
         assert.ok(barracksRoadClear(f.polygon))
         continue
@@ -65,13 +65,24 @@ test('two-storey barracks has an open yard, centred ground contacts and road-cle
   }
 })
 
+test('embassy keeps a readable footprint on the formerly crossed third clearing',async()=>{
+  for(const size of ['full','sm'] as const){
+    const m=await sharp('public'+cityBuildingImage('elcilik',1,undefined,size)).metadata()
+    for(const flip of [false,true]){
+      const p=PARCEL_PLOTS[3],f=cityBuildingArtFrame('elcilik',p,m.width!,m.height!,cityArtOutline('elcilik',1,size)!,flip)
+      const xs=f.groundPolygon.map(q=>q.x)
+      assert.ok((Math.max(...xs)-Math.min(...xs))/p.width>.7,'phantom road made a miniature embassy')
+    }
+  }
+})
+
 test('every new groundless building has real alpha and fits matching parcels in both sizes and coast orientations',async()=>{
   const { PARCEL_REPAINTED_BUILDINGS }=await import('./parcel-city')
   assert.equal(new Set(PARCEL_REPAINTED_BUILDINGS).size,BUILDING_IDS.filter(id=>!['divan','kisla','surlar'].includes(id)).length)
   const seen=new Set<string>()
   for(const id of PARCEL_REPAINTED_BUILDINGS)for(const facing of id==='liman'||id==='tersane'?[undefined,'straight'] as const:[undefined])for(const size of ['full','sm'] as const){
     const file=cityBuildingImage(id,1,facing,size)
-    assert.match(file,/\/parcel-v2\//)
+    assert.match(file,/\/parcel-v[25]\//)
     assert.ok(!seen.has(file),`${id}: reused another type's sprite`);seen.add(file)
     const {data,info}=await sharp('public'+file).ensureAlpha().raw().toBuffer({resolveWithObject:true})
     let transparent=0,opaque=0
@@ -104,6 +115,17 @@ test('road and bridge approaches stay outside expanded land parcels',()=>{
   const road=[[955,351],[685,340],[736,535],[1153,425],[465,516],[1124,536],[520,649],[1383,439],[1265,708]]
   for(const [x,y] of road)for(const p of PARCEL_PLOTS.slice(1,25)){
     assert.ok(!parcelContainsPoint(p,{x:x*2,y:y*2},-12),`${p.index}: road ${x}/${y}`)
+  }
+})
+
+test('walker and road-clearance paths never cross an empty land clearing',async()=>{
+  const {CITY_ROADS}=await import('./parcel-city')
+  for(const line of CITY_ROADS)for(let i=1;i<line.length;i++){
+    const a=line[i-1],b=line[i],steps=Math.ceil(Math.hypot(b.x-a.x,b.y-a.y)/4)
+    for(let j=0;j<=steps;j++){
+      const q={x:a.x+(b.x-a.x)*j/steps,y:a.y+(b.y-a.y)*j/steps}
+      for(const p of PARCEL_PLOTS.slice(1,25))assert.ok(!parcelContainsPoint(p,q),`false road through parcel ${p.index}`)
+    }
   }
 })
 

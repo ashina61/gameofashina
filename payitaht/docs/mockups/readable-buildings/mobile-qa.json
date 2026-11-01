@@ -1,0 +1,27 @@
+{
+  "cases": [
+    {
+      "horizontalOverflow": false,
+      "outside": 0,
+      "ready": "1",
+      "rendered": 28,
+      "width": 360
+    },
+    {
+      "horizontalOverflow": false,
+      "outside": 0,
+      "ready": "1",
+      "rendered": 28,
+      "width": 390
+    },
+    {
+      "horizontalOverflow": false,
+      "outside": 0,
+      "ready": "1",
+      "rendered": 28,
+      "width": 430
+    }
+  ],
+  "actualCanvasTap": "Divanhane opened at 390px",
+  "generalLayoutScript": "not run: managed browser uses CUA only"
+}
