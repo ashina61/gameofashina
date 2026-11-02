@@ -24,6 +24,12 @@ const target = path.resolve('public/images/game/terrain/painted-town-v1/city-cri
 const WORLD_WIDTH = 3172
 const WORLD_HEIGHT = 1984
 const tiles = JSON.parse(await readFile('lib/game/city-map/terrain-tiles.json', 'utf8'))
+// Current production art is already detailed and packaged. Keep this legacy
+// entry point safe for older automation; never overwrite it with an upscale.
+if (tiles.every(tile => tile.file)) {
+  await import('./verify-native-terrain.mjs')
+  process.exit(0)
+}
 const metadata = await sharp(source).metadata()
 if (metadata.width !== WORLD_WIDTH / 2 || metadata.height !== WORLD_HEIGHT / 2) {
   throw new Error(`Terrain geometry changed (${metadata.width}x${metadata.height}); recalibrate parcel plots first`)

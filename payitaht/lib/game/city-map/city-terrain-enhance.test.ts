@@ -3,79 +3,61 @@ import { spawnSync } from 'node:child_process'
 import test from 'node:test'
 import sharp from 'sharp'
 import { PARCEL_WORLD } from './parcel-city'
-import terrainTiles from './terrain-tiles.json'
+import tiles from './terrain-tiles.json'
 
-const source = 'public/images/game/terrain/painted-town-v1/city.webp'
-const output = 'public/images/game/terrain/painted-town-v1/city-crisp.webp'
-
-// Assess sampled colour-channel edge contrast at exactly equal dimensions.
-// This detects accidental 2304px intermediate backgrounds being magnified
-// in Phaser, or a no-op script that only changes JPEG/WebP quality.
 function edgeEnergy(data: Buffer, width: number, height: number, channels: number) {
   let energy = 0
-  const rgb = (at: number) => data[at] + data[at + 1] + data[at + 2]
-  for (let y = 13; y < height - 13; y += 17) {
-    for (let x = 13; x < width - 13; x += 17) {
-      const at = (y * width + x) * channels
-      energy += Math.abs(rgb(at) - rgb(at + channels))
-      energy += Math.abs(rgb(at) - rgb(at + width * channels))
-    }
+  const light = (at: number) => data[at] * .2126 + data[at + 1] * .7152 + data[at + 2] * .0722
+  for (let y = 19; y < height - 19; y += 11) for (let x = 19; x < width - 19; x += 11) {
+    const at = (y * width + x) * channels
+    energy += Math.abs(light(at) - light(at + channels)) + Math.abs(light(at) - light(at + width * channels))
   }
   return energy
 }
 
-test('the city master is sharpened at native Phaser world resolution without changing parcel geometry', async () => {
-  const original = await sharp(source).metadata()
-  assert.equal(original.width * 2, PARCEL_WORLD.w)
-  assert.equal(original.height * 2, PARCEL_WORLD.h)
+test('the real terrain has native fine detail at close zoom, not a magnified low-resolution master', async () => {
+  const built = spawnSync(process.execPath, ['tools/art/verify-native-terrain.mjs'], { encoding: 'utf8', timeout: 120_000 })
+  assert.equal(built.status, 0, built.stderr || built.stdout)
+  assert.equal(tiles.length, 9)
+  assert.equal(Math.max(...tiles.map(t => t.left + t.width)), PARCEL_WORLD.w)
+  assert.equal(Math.max(...tiles.map(t => t.top + t.height)), PARCEL_WORLD.h)
+  const old = await sharp('public/images/game/terrain/painted-town-v1/city.webp').resize(4758, 2976).png().toBuffer()
+  let bytes = 0
+  for (const tile of tiles) {
+    const file = `public${tile.file}`, meta = await sharp(file).metadata()
+    assert.equal(meta.width, tile.nativeWidth)
+    assert.equal(meta.height, tile.nativeHeight)
+    assert.equal(meta.width / tile.width, 1.5)
+    assert.equal(meta.height / tile.height, 1.5)
+    assert.ok(meta.width <= 2048 && meta.height <= 2048)
+    bytes += meta.size ?? 0
+    if (tile.top >= 1000) continue // Water has deliberately smooth areas.
+    const [before, after] = await Promise.all([
+      sharp(old).extract({ left: tile.left * 1.5, top: tile.top * 1.5, width: meta.width, height: meta.height }).raw().toBuffer({ resolveWithObject: true }),
+      sharp(file).raw().toBuffer({ resolveWithObject: true }),
+    ])
+    const baseline = edgeEnergy(before.data, before.info.width, before.info.height, before.info.channels)
+    const detailed = edgeEnergy(after.data, after.info.width, after.info.height, after.info.channels)
+    assert.ok(detailed > baseline * 1.6, `${tile.id} regressed to enlarged soft art: ${detailed / baseline}`)
+  }
+  assert.ok(bytes < 12_000_000, 'terrain exceeds mobile transfer budget')
+})
 
-  const built = spawnSync(process.execPath, ['tools/art/enhance-city-terrain.mjs'], {
-    encoding: 'utf8', timeout: 120_000,
-  })
-  assert.equal(built.status, 0, `City art generator: ${built.stderr || built.stdout}`)
-
-  const outputMeta = await sharp(output).metadata()
-  assert.equal(outputMeta.width, PARCEL_WORLD.w)
-  assert.equal(outputMeta.height, PARCEL_WORLD.h)
-  assert.equal(outputMeta.format, 'webp')
-  assert.ok((outputMeta.size ?? 0) < 8_000_000, 'high fidelity must remain practical on mobile')
-
-  const [normal, treated] = await Promise.all([
-    sharp(source).resize(PARCEL_WORLD.w, PARCEL_WORLD.h, { kernel: sharp.kernel.lanczos3 }).raw().toBuffer({ resolveWithObject: true }),
-    sharp(output).raw().toBuffer({ resolveWithObject: true }),
-  ])
-  // The sharpening pass should not recolour the calibrated landscape or
-  // erase roads/clearings: limit mean per-channel drift on a broad sample.
-  let drift = 0, sampled = 0
-  for (let y = 29; y < normal.info.height - 29; y += 61) for (let x = 29; x < normal.info.width - 29; x += 53) {
-    const a = (y * normal.info.width + x) * normal.info.channels
-    const b = (y * treated.info.width + x) * treated.info.channels
-    for (let channel = 0; channel < 3; channel++) {
-      drift += Math.abs(normal.data[a + channel] - treated.data[b + channel]); sampled++
+test('neighbouring detailed terrain textures agree in their shared world-space gutters', async () => {
+  for (let row = 0; row < 3; row++) for (let col = 0; col < 3; col++) {
+    const tile = tiles[row * 3 + col]
+    for (const vertical of [false, true]) {
+      if (vertical ? row === 2 : col === 2) continue
+      const other = tiles[(row + (vertical ? 1 : 0)) * 3 + col + (vertical ? 0 : 1)]
+      const a = vertical ? { left: 0, top: 990, width: 1590, height: 6 } : { left: 1584, top: 0, width: 6, height: 996 }
+      const b = { ...a, left: 0, top: 0 }
+      const [first, second] = await Promise.all([
+        sharp(`public${tile.file}`).extract(a).raw().toBuffer(),
+        sharp(`public${other.file}`).extract(b).raw().toBuffer(),
+      ])
+      let drift = 0
+      for (let i = 0; i < first.length; i++) drift += Math.abs(first[i] - second[i])
+      assert.ok(drift / first.length < 5, `Visible texture seam ${tile.id}/${other.id}: ${drift / first.length}`)
     }
   }
-  assert.ok(drift / sampled < 45, `City colours shifted too far: mean drift ${drift / sampled}`)
-  const originalEnergy = edgeEnergy(normal.data, normal.info.width, normal.info.height, normal.info.channels)
-  const enhancedEnergy = edgeEnergy(treated.data, treated.info.width, treated.info.height, treated.info.channels)
-  assert.ok(enhancedEnergy > originalEnergy * 1.01,
-    `Painted outline clarity regressed: untreated=${originalEnergy}, enhanced=${enhancedEnergy}`)
-
-  // Separate compressed crops can produce visible seams or shift a whole
-  // half-map. Every tile, including its shared two-pixel gutter, must decode
-  // to exactly the same world pixels used by the calibrated master.
-  let tileBytes = 0
-  for (const { id, left, top, width, height } of terrainTiles) {
-    const file = `public/images/game/terrain/painted-town-v1/city-${id}.webp`
-    const meta = await sharp(file).metadata()
-    assert.equal(meta.width, width)
-    assert.equal(meta.height, height)
-    assert.ok(width <= 2048 && height <= 2048, 'terrain texture exceeds mobile GPU budget')
-    const [expected, actual] = await Promise.all([
-      sharp(output).extract({ left, top, width, height }).raw().toBuffer(),
-      sharp(file).raw().toBuffer(),
-    ])
-    assert.ok(actual.equals(expected), `${id} tile changed calibrated terrain pixels`)
-    tileBytes += meta.size ?? 0
-  }
-  assert.ok(tileBytes < 12_000_000, 'terrain tiles exceed mobile transfer budget')
 })
