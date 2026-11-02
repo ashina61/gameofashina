@@ -51,3 +51,7 @@ android/app/payitaht-release.keystore
 
 # Generated from the approved master background before dev/build.
 /public/images/game/terrain/painted-town-v1/city-crisp.webp
+/public/images/game/terrain/painted-town-v1/city-nw.webp
+/public/images/game/terrain/painted-town-v1/city-ne.webp
+/public/images/game/terrain/painted-town-v1/city-sw.webp
+/public/images/game/terrain/painted-town-v1/city-se.webp

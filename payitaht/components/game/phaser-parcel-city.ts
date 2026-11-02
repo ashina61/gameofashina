@@ -10,13 +10,17 @@ import { PARCEL_PLOTS, PARCEL_WORLD, parcelPlot, CITY_ROADS, parcelArtFrame, cit
 import { cityArtSize, isTap } from './city/shared'
 import { parcelCameraViewport, parcelCityZoom } from '@/lib/game/city-map/parcel-camera'
 import { CITY_WALL_PLAN, type WallSpan } from '@/lib/game/city-map/parcel-wall-ring'
+import terrainTiles from '@/lib/game/city-map/terrain-tiles.json'
 
 /** Main game renderer. Engine plot IDs and saved placements never change. */
 export class ParcelCityScene extends CityScene {
   people:Array<{image:Phaser.GameObjects.Image;points:Array<{x:number;y:number}>;t:number}>=[]
   ships:Phaser.GameObjects.Image[]=[]
+  wallTextureKeys:string[]=[]
   preload(){
-    this.load.image('parcel-terrain',asset('/images/game/terrain/painted-town-v1/city-crisp.webp'))
+    for(const tile of terrainTiles)this.load.image(`parcel-terrain-${tile.id}`,asset(`/images/game/terrain/painted-town-v1/city-${tile.id}.webp`))
+    this.load.image('parcel-wall-masonry',asset('/images/game/walls/master-span-v2.webp'))
+    this.load.image('parcel-wall-tower',asset('/images/game/walls/master-tower-v2.webp'))
     this.load.image('parcel-citizen',asset('/images/game/ui/people/citizen-figure.webp'))
     for(const key of ['ship-a','ship-b','fishing'])this.load.image(`parcel-${key}`,asset(`/images/game/ships/${key}.webp`))
     this.load.image('b_site',asset('/images/game/buildings/site.webp'))
@@ -40,12 +44,13 @@ export class ParcelCityScene extends CityScene {
   }
   create(){
     this.cameras.main.setBackgroundColor('#969b60')
-    this.add.image(0,0,'parcel-terrain').setOrigin(0).setDisplaySize(PARCEL_WORLD.w,PARCEL_WORLD.h).setDepth(-1000)
+    for(const tile of terrainTiles)this.add.image(tile.left,tile.top,`parcel-terrain-${tile.id}`).setOrigin(0).setDepth(-1000)
     this.flagField=new FlagField(this);this.flagField.setLook(this.sceneBanner())
     this.smoke=new SmokeField(this);this.sky=new SkyLayer(this,PARCEL_WORLD)
     this.built=true;this.maxZoom=2.2;this.setupCamera();this.installCamera();this.addParcelLife();this.redraw()
     const cleanup=()=>{
       this.built=false
+      this.clearWallTextures()
       const target=Phaser.GameObjects.Graphics.TargetCamera
       if(target.scene===this){target.destroy();Object.assign(Phaser.GameObjects.Graphics,{TargetCamera:new Phaser.Cameras.Scene2D.BaseCamera(0,0,0,0)})}
       delete document.documentElement.dataset.cityReady;delete document.documentElement.dataset.cityLayer
@@ -113,6 +118,7 @@ export class ParcelCityScene extends CityScene {
   redraw(){
     this.signature=`${visualSignature(this.state)}|${this.showLabels}|${this.placing}|${this.moving}|${this.movePlot}|${siegeAppearanceKey(this.siege)}`
     for(const piece of this.pieces)piece.destroy()
+    this.clearWallTextures()
     this.pieces=[];this.labelOf.clear();this.flagField?.removeGroup('pieces');this.smoke?.removeGroup('pieces');this.sky?.removeGroup('pieces')
     this.flagField?.setLook(this.sceneBanner());this.flagField?.setLevel(this.state.buildings.divan)
     const occupied=new Map<number,BuildingId>()
@@ -182,24 +188,42 @@ export class ParcelCityScene extends CityScene {
     g.fillStyle(0x4d4232,.26).fillPoints([
       {x:a.x+9,y:a.y+5},{x:b.x+9,y:b.y+5},{x:b.x+nx,y:b.y+ny+4},{x:a.x+nx,y:a.y+ny+4},
     ],true)
-    g.fillStyle(tier===3?0xb8a68a:tier===2?0xc3ae8b:0xc7b99b,1).fillPoints([
-      {x:a.x,y:a.y},{x:b.x,y:b.y},{x:b.x,y:b.y-height},{x:a.x,y:a.y-height},
-    ],true)
-    g.lineStyle(3,0x6b5944,.92).lineBetween(a.x,a.y,b.x,b.y)
-    g.lineStyle(2,0xe9dec1,.86).lineBetween(a.x,a.y-height+5,b.x,b.y-height+5)
+    // Shear the painted masonry along the surveyed base. Rotating a strip
+    // would lean its vertical joints and detach it from towers on slopes.
+    const left=Math.floor(Math.min(a.x,b.x))-2,top=Math.floor(Math.min(a.y,b.y)-height)-2
+    const width=Math.ceil(Math.abs(dx))+4,canvasHeight=Math.ceil(Math.abs(dy)+height)+4
+    const key=`parcel-wall-face-${this.sys.settings.key}-${this.wallTextureKeys.length}`
+    const texture=this.textures.createCanvas(key,width*2,canvasHeight*2)
+    if(texture){
+      this.wallTextureKeys.push(key)
+      const ctx=texture.context,source=this.textures.get('parcel-wall-masonry').getSourceImage() as HTMLImageElement
+      ctx.scale(2,2);ctx.translate(a.x-left,a.y-height-top)
+      ctx.transform(dx/length,dy/length,0,1,0,0)
+      // Only the continuous stone face is tiled; small crenels are separate.
+      const repeat=256
+      for(let x=0;x<length;x+=repeat){
+        const take=Math.min(repeat,length-x)
+        ctx.drawImage(source,0,54,source.width*take/repeat,source.height-54,x,0,take,height)
+      }
+      texture.refresh()
+      const face=this.add.image(left,top,key).setOrigin(0).setDisplaySize(width,canvasHeight).setDepth(depth)
+      face.setTint(dx>0?0xf2ecdc:0xd8d2bf)
+      this.pieces.push(face)
+    }
+    g.setDepth(depth+.02)
+    g.lineStyle(1,0x6b5944,.42).lineBetween(a.x,a.y,b.x,b.y)
     // Walkway cap: angled with the ring's real world line, never a scaled tower sprite.
-    g.fillStyle(0xe1d3b4,1).fillPoints([
+    g.fillStyle(0xcabd9c,1).fillPoints([
       {x:a.x,y:a.y-height},{x:b.x,y:b.y-height},
       {x:b.x+nx,y:b.y+ny-height-5},{x:a.x+nx,y:a.y+ny-height-5},
     ],true)
-    for(let d=23;d<length-8;d+=34){
+    for(let d=18;d<length-12;d+=28){
       const t=d/length,p={x:a.x+dx*t,y:a.y+dy*t},u={x:dx/length,y:dy/length}
-      g.lineStyle(1.4,0x806e54,.52).lineBetween(p.x,p.y-7,p.x,p.y-height+8)
       // Alternating merlons follow the sloping wall top rather than a horizontal strip.
-      if(Math.floor(d/34)%2===0){
-        g.fillStyle(0xf0e3c7,1).fillPoints([
-          {x:p.x,y:p.y-height-3},{x:p.x+u.x*19,y:p.y+u.y*19-height-3},
-          {x:p.x+u.x*19,y:p.y+u.y*19-height-15},{x:p.x,y:p.y-height-15},
+      if(tier>0){
+        g.fillStyle(0xcbbc9d,1).fillPoints([
+          {x:p.x,y:p.y-height-2},{x:p.x+u.x*11,y:p.y+u.y*11-height-2},
+          {x:p.x+u.x*11,y:p.y+u.y*11-height-9},{x:p.x,y:p.y-height-9},
         ],true)
       }
     }
@@ -217,23 +241,19 @@ export class ParcelCityScene extends CityScene {
     this.pieces.push(hit)
   }
   drawParcelWallTower(x:number,y:number,height:number,tier:number){
-    const radius=tier===3?26:tier===2?24:21
-    const h=height*1.45
-    const g=this.add.graphics().setDepth(y+4)
-    g.fillStyle(0x4c4031,.25).fillEllipse(x+7,y+3,radius*2.5,radius*.85)
-    g.fillStyle(0x80684c,1).fillRoundedRect(x-radius,y-h,radius*2,h+3,4)
-    g.fillStyle(tier===3?0xb8a082:0xd0ba95,1).fillRoundedRect(x-radius+4,y-h+5,radius*2-8,h-7,3)
-    g.lineStyle(3,0x69523f,.95).strokeRoundedRect(x-radius,y-h,radius*2,h+3,4)
-    g.fillStyle(0xeee0bd,1).fillEllipse(x,y-h+3,radius*2.2,radius*.8)
-    for(let i=-2;i<=2;i++){
-      const bx=x+i*radius*.44
-      g.fillStyle(0xe3cfaa,1).fillRect(bx-4,y-h-15,8,17)
-      g.lineStyle(1.2,0x786348,.88).strokeRect(bx-4,y-h-15,8,17)
-    }
-    // Vertical arrow slit distinguishes defensive towers from civilian houses.
-    g.fillStyle(0x453e34,1).fillRoundedRect(x-3,y-h*.58,6,22,2)
-    g.fillStyle(0xf2dfb6,.5).fillRect(x-6,y-h*.71,12,3)
-    this.pieces.push(g)
+    const source=this.textures.get('parcel-wall-tower').getSourceImage() as HTMLImageElement
+    const h=height*1.65
+    const image=this.add.image(x,y+5,'parcel-wall-tower').setOrigin(.5,1).setDisplaySize(h*source.width/source.height,h).setDepth(y+4)
+    if(tier===3)image.setTint(0xeee5d3)
+    image.setInteractive({pixelPerfect:true,alphaTolerance:32,useHandCursor:true})
+    image.on('pointerup',(pointer:Phaser.Input.Pointer)=>{
+      if(isTap(pointer)&&!this.moving&&!this.pinchStart)this.events$.onBuilding('surlar')
+    })
+    this.pieces.push(image)
+  }
+  clearWallTextures(){
+    for(const key of this.wallTextureKeys)this.textures.remove(key)
+    this.wallTextureKeys=[]
   }
   drawParcelWalls(){
     const level=this.state.buildings.surlar
