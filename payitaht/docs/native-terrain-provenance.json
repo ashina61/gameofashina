@@ -1,0 +1,231 @@
+{
+  "generator": "built-in imagegen",
+  "nativeAtlas": {
+    "width": 4758,
+    "height": 2976
+  },
+  "world": {
+    "width": 3172,
+    "height": 1984
+  },
+  "sources": [
+    {
+      "id": "0-0",
+      "sha256": "43d3864dbbd4befda05c49300289607c96431c6f52f6c8486e5e840a96905f3d",
+      "width": 1565,
+      "height": 1005,
+      "region": {
+        "id": "0-0",
+        "left": 0,
+        "top": 0,
+        "width": 553,
+        "height": 355,
+        "core": {
+          "left": 0,
+          "top": 0,
+          "width": 529,
+          "height": 331
+        }
+      }
+    },
+    {
+      "id": "0-1",
+      "sha256": "7866d13a099041ee311641cd7ea54b30c89f696c90c8d5f438c87a3fb4770494",
+      "width": 1597,
+      "height": 985,
+      "region": {
+        "id": "0-1",
+        "left": 505,
+        "top": 0,
+        "width": 576,
+        "height": 355,
+        "core": {
+          "left": 529,
+          "top": 0,
+          "width": 528,
+          "height": 331
+        }
+      }
+    },
+    {
+      "id": "0-2",
+      "sha256": "b96460d7785e8f414acd1ce1177c506e53a8154057d57ff630c44fb6f8452bc7",
+      "width": 1565,
+      "height": 1005,
+      "region": {
+        "id": "0-2",
+        "left": 1033,
+        "top": 0,
+        "width": 553,
+        "height": 355,
+        "core": {
+          "left": 1057,
+          "top": 0,
+          "width": 529,
+          "height": 331
+        }
+      }
+    },
+    {
+      "id": "1-0",
+      "sha256": "cc80ee49d07dbd5da243788bfa2815e3641369a73743ef31378a594f4de26a7e",
+      "width": 1516,
+      "height": 1037,
+      "region": {
+        "id": "1-0",
+        "left": 0,
+        "top": 307,
+        "width": 553,
+        "height": 378,
+        "core": {
+          "left": 0,
+          "top": 331,
+          "width": 529,
+          "height": 330
+        }
+      }
+    },
+    {
+      "id": "1-1",
+      "sha256": "d56e127370c7e6a75012b881c85255382e003ee4d1a983aee9dfc6040016a1bb",
+      "width": 1548,
+      "height": 1016,
+      "region": {
+        "id": "1-1",
+        "left": 505,
+        "top": 307,
+        "width": 576,
+        "height": 378,
+        "core": {
+          "left": 529,
+          "top": 331,
+          "width": 528,
+          "height": 330
+        }
+      }
+    },
+    {
+      "id": "1-2",
+      "sha256": "5799754dc9810965eca934c80a6991d1397aa4b10bee23afa7c54160b5285ae3",
+      "width": 1516,
+      "height": 1037,
+      "region": {
+        "id": "1-2",
+        "left": 1033,
+        "top": 307,
+        "width": 553,
+        "height": 378,
+        "core": {
+          "left": 1057,
+          "top": 331,
+          "width": 529,
+          "height": 330
+        }
+      }
+    },
+    {
+      "id": "2-0",
+      "sha256": "a46f3997d231806f314787899de6b797ad1f0b31b88c58131a657d3c6923c91d",
+      "width": 1565,
+      "height": 1005,
+      "region": {
+        "id": "2-0",
+        "left": 0,
+        "top": 637,
+        "width": 553,
+        "height": 355,
+        "core": {
+          "left": 0,
+          "top": 661,
+          "width": 529,
+          "height": 331
+        }
+      }
+    },
+    {
+      "id": "2-1",
+      "sha256": "a5b13b61fb0fdcd552537e3efb025ca2b13522ec8a11518b6aee259c71454e92",
+      "width": 1597,
+      "height": 985,
+      "region": {
+        "id": "2-1",
+        "left": 505,
+        "top": 637,
+        "width": 576,
+        "height": 355,
+        "core": {
+          "left": 529,
+          "top": 661,
+          "width": 528,
+          "height": 331
+        }
+      }
+    },
+    {
+      "id": "2-2",
+      "sha256": "c908becaa0670f9dfd4864862042d1cc9cbc205aa25c590355418ea9af2bbd79",
+      "width": 1565,
+      "height": 1005,
+      "region": {
+        "id": "2-2",
+        "left": 1033,
+        "top": 637,
+        "width": 553,
+        "height": 355,
+        "core": {
+          "left": 1057,
+          "top": 661,
+          "width": 529,
+          "height": 331
+        }
+      }
+    }
+  ],
+  "assets": [
+    {
+      "file": "public/images/game/terrain/painted-town-v2/0-0.webp",
+      "sha256": "d8fee7618d4414b2e57dc48ac490bbbaa864684ca2ecae0b6d3aa1926fbb59ce",
+      "bytes": 948090
+    },
+    {
+      "file": "public/images/game/terrain/painted-town-v2/0-1.webp",
+      "sha256": "2d5979daadd1ae7bfcc375240013f5db73d10627f1c7ac61d25843ecf276a36a",
+      "bytes": 875092
+    },
+    {
+      "file": "public/images/game/terrain/painted-town-v2/0-2.webp",
+      "sha256": "92de331e69319234b065e817d2e5dda3d6927d74f3d2f62c542da3672c0a07c1",
+      "bytes": 932100
+    },
+    {
+      "file": "public/images/game/terrain/painted-town-v2/1-0.webp",
+      "sha256": "60d22b412327da58cbd7c5d3ddd9b922dc53e123c67e93df22b5332267fc5ac6",
+      "bytes": 886620
+    },
+    {
+      "file": "public/images/game/terrain/painted-town-v2/1-1.webp",
+      "sha256": "19d2ecf28eccec840a55147639ee89e9ff4e4614f4d6c73a56c0feca0d906e07",
+      "bytes": 915022
+    },
+    {
+      "file": "public/images/game/terrain/painted-town-v2/1-2.webp",
+      "sha256": "2e180c710c505a831de68f3b4b3fcf5f6b8ec751d2a3f0560fc8f46478154848",
+      "bytes": 886632
+    },
+    {
+      "file": "public/images/game/terrain/painted-town-v2/2-0.webp",
+      "sha256": "06078d848e1abe0978893f206028270ae43500497ce8472d316a18ea31804fe4",
+      "bytes": 750658
+    },
+    {
+      "file": "public/images/game/terrain/painted-town-v2/2-1.webp",
+      "sha256": "359d0d838aec1e32e3c43eed1c1bc17a09528fdebdd22be982b841652d0dd106",
+      "bytes": 640690
+    },
+    {
+      "file": "public/images/game/terrain/painted-town-v2/2-2.webp",
+      "sha256": "b18f969b0412c61ef4840d41bc469cfcc8b5659465da1a82ed9d3f1cfd6976d4",
+      "bytes": 788472
+    }
+  ]
+}

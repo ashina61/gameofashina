@@ -18,7 +18,7 @@ export class ParcelCityScene extends CityScene {
   ships:Phaser.GameObjects.Image[]=[]
   wallTextureKeys:string[]=[]
   preload(){
-    for(const tile of terrainTiles)this.load.image(`parcel-terrain-${tile.id}`,asset(`/images/game/terrain/painted-town-v1/city-${tile.id}.webp`))
+    for(const tile of terrainTiles)this.load.image(`parcel-terrain-${tile.id}`,asset(tile.file))
     this.load.image('parcel-wall-masonry',asset('/images/game/walls/master-span-v2.webp'))
     this.load.image('parcel-wall-tower',asset('/images/game/walls/master-tower-v2.webp'))
     this.load.image('parcel-citizen',asset('/images/game/ui/people/citizen-figure.webp'))
@@ -44,10 +44,22 @@ export class ParcelCityScene extends CityScene {
   }
   create(){
     this.cameras.main.setBackgroundColor('#969b60')
-    for(const tile of terrainTiles)this.add.image(tile.left,tile.top,`parcel-terrain-${tile.id}`).setOrigin(0).setDepth(-1000)
+    for(const tile of terrainTiles)this.add.image(tile.left,tile.top,`parcel-terrain-${tile.id}`).setOrigin(0).setDisplaySize(tile.width,tile.height).setDepth(-1000)
     this.flagField=new FlagField(this);this.flagField.setLook(this.sceneBanner())
     this.smoke=new SmokeField(this);this.sky=new SkyLayer(this,PARCEL_WORLD)
     this.built=true;this.maxZoom=2.2;this.setupCamera();this.installCamera();this.addParcelLife();this.redraw()
+    // Fixture-only control makes maximum-zoom regressions reviewable in the
+    // real scene without exposing extra controls to players.
+    if(localStorage.getItem('payitaht-qa')==='1'){
+      const reviewCamera=(event:Event)=>{
+        const {x,y,zoom}=(event as CustomEvent<{x:number;y:number;zoom:number}>).detail
+        if(![x,y,zoom].every(Number.isFinite))return
+        this.cameras.main.setZoom(Phaser.Math.Clamp(zoom,this.minZoom,this.maxZoom))
+        this.centerInBand(x,y);this.velocity={x:0,y:0};this.markReady()
+      }
+      document.addEventListener('payitaht-qa-camera',reviewCamera)
+      this.events.once('shutdown',()=>document.removeEventListener('payitaht-qa-camera',reviewCamera))
+    }
     const cleanup=()=>{
       this.built=false
       this.clearWallTextures()
@@ -329,7 +341,7 @@ export class ParcelCityScene extends CityScene {
     this.game.events.once(Phaser.Core.Events.POST_RENDER,()=>{
       if(!this.built)return
       document.documentElement.dataset.cityReady=String(++this.readyCount)
-      document.documentElement.dataset.cityLayer='painted-town-v1'
+      document.documentElement.dataset.cityLayer='painted-town-v2'
       if(localStorage.getItem('payitaht-qa')==='1')document.documentElement.dataset.parcelReview=JSON.stringify(this.pieces.filter(p=>p.getData('parcelBuilding')).map(p=>({id:p.getData('parcelBuilding'),index:p.getData('parcelIndex'),outline:p.getData('parcelOutline'),ground:p.getData('parcelGround'),boundary:PARCEL_PLOTS[p.getData('parcelIndex')].polygon})))
     })
   }
