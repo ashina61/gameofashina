@@ -1,0 +1,6 @@
+[
+  { "id": "nw", "left": 0, "top": 0, "width": 1587, "height": 993 },
+  { "id": "ne", "left": 1585, "top": 0, "width": 1587, "height": 993 },
+  { "id": "sw", "left": 0, "top": 991, "width": 1587, "height": 993 },
+  { "id": "se", "left": 1585, "top": 991, "width": 1587, "height": 993 }
+]

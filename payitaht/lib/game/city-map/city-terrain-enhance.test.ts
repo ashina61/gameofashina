@@ -3,6 +3,7 @@ import { spawnSync } from 'node:child_process'
 import test from 'node:test'
 import sharp from 'sharp'
 import { PARCEL_WORLD } from './parcel-city'
+import terrainTiles from './terrain-tiles.json'
 
 const source = 'public/images/game/terrain/painted-town-v1/city.webp'
 const output = 'public/images/game/terrain/painted-town-v1/city-crisp.webp'
@@ -58,4 +59,23 @@ test('the city master is sharpened at native Phaser world resolution without cha
   const enhancedEnergy = edgeEnergy(treated.data, treated.info.width, treated.info.height, treated.info.channels)
   assert.ok(enhancedEnergy > originalEnergy * 1.01,
     `Painted outline clarity regressed: untreated=${originalEnergy}, enhanced=${enhancedEnergy}`)
+
+  // Separate compressed crops can produce visible seams or shift a whole
+  // half-map. Every tile, including its shared two-pixel gutter, must decode
+  // to exactly the same world pixels used by the calibrated master.
+  let tileBytes = 0
+  for (const { id, left, top, width, height } of terrainTiles) {
+    const file = `public/images/game/terrain/painted-town-v1/city-${id}.webp`
+    const meta = await sharp(file).metadata()
+    assert.equal(meta.width, width)
+    assert.equal(meta.height, height)
+    assert.ok(width <= 2048 && height <= 2048, 'terrain texture exceeds mobile GPU budget')
+    const [expected, actual] = await Promise.all([
+      sharp(output).extract({ left, top, width, height }).raw().toBuffer(),
+      sharp(file).raw().toBuffer(),
+    ])
+    assert.ok(actual.equals(expected), `${id} tile changed calibrated terrain pixels`)
+    tileBytes += meta.size ?? 0
+  }
+  assert.ok(tileBytes < 12_000_000, 'terrain tiles exceed mobile transfer budget')
 })

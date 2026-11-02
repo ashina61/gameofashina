@@ -1,10 +1,10 @@
-const CACHE = 'payitaht-shell-v146'
+const CACHE = 'payitaht-shell-v147'
 const BASE = new URL(self.registration.scope).pathname.replace(/\/$/, '')
 const p = path => `${BASE}${path.startsWith('/') ? path : `/${path}`}`
 const ASSETS = [
   ...['divan','medrese','carsi','depo','bagci','elcilik'].flatMap(id => ['', '-sm'].map(size => p(`/images/game/buildings/parcel-v5/${id}${size}.webp`))),
   ...['', '-sm'].map(size => p(`/images/game/buildings/parcel-v4/kisla${size}.webp`)),
-  p('/images/game/terrain/painted-town-v1/city-crisp.webp'),
+  ...['nw','ne','sw','se'].map(id => p(`/images/game/terrain/painted-town-v1/city-${id}.webp`)),
   ...['', '-sm'].map(size => p(`/images/game/buildings/painted-town-v1/divan${size}.webp`)),
   ...["saray", "elcilik", "konut", "hamam", "carsi", "ambar", "kereste", "medrese", "liman", "liman-duz", "tersane", "tersane-duz", "kahvehane", "cami", "muze", "marangoz", "mimar", "ormanci", "tasci", "tophane", "bagci", "simyahane", "camci", "mahzen", "gozlukcu", "barutane", "depo", "ticaret_merkezi", "harita_arsivi", "valilik", "korsan_kalesi", "kara_pazar", "siginak", "tekke", "mabet", "karagoz"].flatMap(id => ['', '-sm'].map(size => p(`/images/game/buildings/parcel-v2/${id}${size}.webp`))),
   p('/images/game/terrain/parcel-v1/city.webp'),
