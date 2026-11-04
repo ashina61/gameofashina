@@ -13,7 +13,7 @@ function hull(points){
 }
 ;(async()=>{
  const records={}
- const jobs=BUILDING_IDS.filter(id=>id!=='surlar').flatMap(id=>(id==='kisla'?[1]:[1,4,8]).flatMap(level=>['full','sm'].flatMap(size=>{
+ const jobs=[...BUILDING_IDS.filter(id=>id!=='surlar'),'korsan_kalesi-iskele'].flatMap(id=>(id==='kisla'?[1]:[1,4,8]).flatMap(level=>['full','sm'].flatMap(size=>{
   const base={key:id==='kisla'?'kisla':`${id}-${level>=8?3:level>=4?2:1}`,size,file:cityBuildingImage(id,level,undefined,size).split('?')[0]}
   return id==='liman'||id==='tersane'?[base,{...base,key:base.key.replace(id,id+'-duz'),file:cityBuildingImage(id,level,'straight',size).split('?')[0]}]:[base]
  })))

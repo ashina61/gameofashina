@@ -2,7 +2,6 @@ import { LIVE_SLOTS } from './live-adapter'
 import { asset, buildingImage, buildingStage, type ArtSize, type CoastFacing } from '@/lib/asset'
 import bounds from './parcel-art-bounds.json'
 import contact from './barracks-contact.json'
-import contacts from './building-contacts.json'
 
 export type ParcelPoint = {x:number;y:number}
 // Source painting is 1586×992. All measurements below use the same 2× world scale.
@@ -16,15 +15,23 @@ const ordered=clearings.toSorted((a,b)=>Math.hypot(a[0]-811,(a[1]-384)*1.5)-Math
 // Small visual corrections measured on the painted clearings, after saved slot ordering.
 const clearingOffsets:Record<number,ParcelPoint>={1:{x:0,y:-4},2:{x:0,y:-4},7:{x:0,y:-6},17:{x:0,y:8},20:{x:0,y:-6},21:{x:12,y:0}}
 function plot(index:number,source:number[]){
- const land=index>0&&index<25,offset=clearingOffsets[index]??{x:0,y:0}
- const center={x:source[0]*2+offset.x,y:source[1]*2+offset.y},width=index===0?448:land?320:256,height=width/2
+ const land=index>0&&index<25, dock=index>=25&&index<=27, offset=clearingOffsets[index]??{x:0,y:0}
+ const center={x:source[0]*2+offset.x,y:source[1]*2+offset.y},width=index===0?448:land?320:256,height=dock?244:width/2
  // The painting has rounded 2:1 clearings, rather than tiny inscribed diamonds.
  // One convex boundary is used for architecture, empty flags, selection and taps.
- const polygon=land?Array.from({length:8},(_,i)=>({x:center.x+Math.sin(i*Math.PI/4)*width/2,y:center.y-Math.cos(i*Math.PI/4)*height/2})):
+ const polygon=dock?[
+  {x:center.x-102,y:center.y-122},{x:center.x+102,y:center.y-122},
+  {x:center.x+128,y:center.y-86},{x:center.x+128,y:center.y+90},
+  {x:center.x+96,y:center.y+122},{x:center.x-96,y:center.y+122},
+  {x:center.x-128,y:center.y+90},{x:center.x-128,y:center.y-86},
+ ]:land?Array.from({length:8},(_,i)=>({x:center.x+Math.sin(i*Math.PI/4)*width/2,y:center.y-Math.cos(i*Math.PI/4)*height/2})):
   [{x:center.x,y:center.y-height/2},{x:center.x+width/2,y:center.y},{x:center.x,y:center.y+height/2},{x:center.x-width/2,y:center.y}]
  return {index,slot:LIVE_SLOTS[index],center,width,height,polygon}
 }
-export const PARCEL_PLOTS=[[811,384],...ordered,[475,775],[1206,775],[730,745],[1425,898]].map((p,i)=>plot(i,p))
+// Surveyed on the v2 painting. Slot centres lie in water, with the back
+// of each buildable shape extending just far enough to meet dry ground.
+const coastShoreY = [1609,1588,1523]
+export const PARCEL_PLOTS=[[811,384],...ordered,[475,842],[1206,832],[625,804],[1425,898]].map((p,i)=>plot(i,p))
 /** Measured road centre lines, including the actual bridges. Ambient walkers follow these. */
 export const CITY_ROADS=[
  [[300,85],[405,151],[458,224],[570,298],[688,336],[700,370],[700,427],[810,466],[927,431],[1038,503],[1107,532],[1240,592],[1280,600],[1330,620]],
@@ -43,14 +50,17 @@ export function parcelContainsPoint(p:CityParcel,q:ParcelPoint,margin=0){
 /** Reviewed groundless architecture; no terrain patch is drawn beneath it. */
 export const PARCEL_REPAINTED_BUILDINGS = ['saray','elcilik','konut','hamam','carsi','ambar','kereste','medrese','liman','tersane','kahvehane','cami','muze','marangoz','mimar','ormanci','tasci','tophane','bagci','simyahane','camci','mahzen','gozlukcu','barutane','depo','ticaret_merkezi','harita_arsivi','valilik','korsan_kalesi','kara_pazar','siginak','tekke','mabet','karagoz'] as const
 const repainted=new Set<string>(PARCEL_REPAINTED_BUILDINGS)
+const waterfrontArt = new Set(['liman','liman-duz','tersane','tersane-duz','korsan_kalesi-iskele','kereste','barutane','harita_arsivi'])
+export function parcelBuildingName(id:string,index:number|null|undefined){
+ return id==='korsan_kalesi'&&index!=null&&index>=25&&index<=27?'korsan_kalesi-iskele':id
+}
 export function cityBuildingImage(id:string,level=1,facing?:CoastFacing,size:ArtSize='sm'){
+ const name=(id==='liman'||id==='tersane')&&facing==='straight'?id+'-duz':id
+ if(waterfrontArt.has(name))return asset(`/images/game/buildings/parcel-v6/${name}${size==='sm'?'-sm':''}.webp`)
  if(['divan','medrese','carsi','depo','bagci','elcilik'].includes(id))return asset(`/images/game/buildings/parcel-v5/${id}${size==='sm'?'-sm':''}.webp`)
  if(id==='divan')return asset(`/images/game/buildings/painted-town-v1/divan${size==='sm'?'-sm':''}.webp`)
  if(id==='kisla')return asset(`/images/game/buildings/parcel-v4/kisla${size==='sm'?'-sm':''}.webp`)
- if(repainted.has(id)){
-  const variant=(id==='liman'||id==='tersane')&&facing==='straight'?id+'-duz':id
-  return asset(`/images/game/buildings/parcel-v2/${variant}${size==='sm'?'-sm':''}.webp`)
- }
+ if(repainted.has(id))return asset(`/images/game/buildings/parcel-v2/${name}${size==='sm'?'-sm':''}.webp`)
  return buildingImage(id,level,facing,size)
 }
 export function cityArtOutline(id:string,level:number,size:ArtSize){
@@ -60,33 +70,22 @@ export function cityArtOutline(id:string,level:number,size:ArtSize){
 /** One scale and translation in the fixed camera. No warp, crop or ground. */
 export function parcelArtFrame(p:CityParcel,width:number,height:number,outline:ParcelPoint[],flip=false){
  const points=outline.map(q=>({x:(flip?1-q.x:q.x)*width,y:q.y*height}))
- if(p.polygon.length===8){
-  // Centre the visible alpha, not its transparent canvas. Edge support gives the
-  // largest uniform scale at that centre, keeping roofs and shadows inside.
-  const cx=(Math.min(...points.map(q=>q.x))+Math.max(...points.map(q=>q.x)))/2
-  const cy=(Math.min(...points.map(q=>q.y))+Math.max(...points.map(q=>q.y)))/2
-  const inset=3.2
-  const scale=Math.min(...p.polygon.map((a,i)=>{
-   const b=p.polygon[(i+1)%p.polygon.length],nx=b.y-a.y,ny=a.x-b.x
-   const support=Math.max(...points.map(q=>nx*(q.x-cx)+ny*(q.y-cy)))
-   return (nx*(a.x-p.center.x)+ny*(a.y-p.center.y)-inset*Math.hypot(nx,ny))/support
-  }))
-  const left=p.center.x-cx*scale,top=p.center.y-cy*scale
-  return {left,top,x:left+width*scale/2,y:top+height*scale/2,width:width*scale,height:height*scale,
-   polygon:points.map(q=>({x:left+q.x*scale,y:top+q.y*scale}))}
- }
- const m=points.map(q=>q.x+2*q.y),n=points.map(q=>2*q.y-q.x)
- const m0=Math.min(...m),n0=Math.min(...n),inset=p.width*.01
- const scale=(p.width-2*inset)/Math.max(Math.max(...m)-m0,Math.max(...n)-n0)
- const a=p.center.x+2*p.center.y-p.width/2+inset-m0*scale
- const b=2*p.center.y-p.center.x-p.width/2+inset-n0*scale
- const left=(a-b)/2,top=(a+b)/4
+ // Centre the visible alpha, not its transparent canvas. Edge support gives the
+ // largest uniform scale at that centre, keeping roofs and shadows inside.
+ const cx=(Math.min(...points.map(q=>q.x))+Math.max(...points.map(q=>q.x)))/2
+ const cy=(Math.min(...points.map(q=>q.y))+Math.max(...points.map(q=>q.y)))/2
+ const inset=3.2
+ const scale=Math.min(...p.polygon.map((a,i)=>{
+  const b=p.polygon[(i+1)%p.polygon.length],nx=b.y-a.y,ny=a.x-b.x
+  const support=Math.max(...points.map(q=>nx*(q.x-cx)+ny*(q.y-cy)))
+  return (nx*(a.x-p.center.x)+ny*(a.y-p.center.y)-inset*Math.hypot(nx,ny))/support
+ }))
+ const left=p.center.x-cx*scale,top=p.center.y-cy*scale
  return {left,top,x:left+width*scale/2,y:top+height*scale/2,width:width*scale,height:height*scale,
   polygon:points.map(q=>({x:left+q.x*scale,y:top+q.y*scale}))}
 }
 
-// Ground-contact envelopes are surveyed on the source sprites. Roofs rise
-// above that footprint, while the complete alpha hull must leave roads clear.
+// Sample the painted roads independently of the buildable boundaries.
 const roadSamples=CITY_ROADS.flatMap(line=>line.slice(1).flatMap((b,i)=>{
  const a=line[i],steps=Math.ceil(Math.hypot(b.x-a.x,b.y-a.y)/8)
  return Array.from({length:steps+1},(_,j)=>({x:a.x+(b.x-a.x)*j/steps,y:a.y+(b.y-a.y)*j/steps}))
@@ -107,31 +106,59 @@ export function buildingRoadClear(polygon:ParcelPoint[],clearance=contact.roadCl
  })
 }
 export const barracksRoadClear=buildingRoadClear
-const artFrames=new Map<string,ReturnType<typeof parcelArtFrame>&{groundPolygon:ParcelPoint[]}>()
-export function cityBuildingArtFrame(id:string,p:CityParcel,width:number,height:number,outline:ParcelPoint[],flip=false):ReturnType<typeof parcelArtFrame>&{groundPolygon:ParcelPoint[]}{
- const measured=(contacts as Record<string,number[][]>)[id]
- if(!measured||(p.index===0&&id!=='divan')){const f=parcelArtFrame(p,width,height,outline,flip);return {...f,groundPolygon:f.polygon}}
- const key=JSON.stringify([id,p.index,width,height,flip,outline])
- const cached=artFrames.get(key);if(cached)return cached
- const footprint=measured.map(([x,y])=>({x,y})),base=parcelArtFrame(p,width,height,footprint,flip)
- const frame=(factor:number,dx=0,dy=0)=>{
-  const left=p.center.x+(base.left-p.center.x)*factor+dx,top=p.center.y+(base.top-p.center.y)*factor+dy
-  const w=base.width*factor,h=base.height*factor
-  const project=(q:ParcelPoint)=>({x:left+(flip?1-q.x:q.x)*w,y:top+q.y*h})
-  return {left,top,x:left+w/2,y:top+h/2,width:w,height:h,polygon:outline.map(project),groundPolygon:footprint.map(project)}
+// Visible size limits keep houses and workshops subordinate to the civic hall.
+const workshopWidth: Record<string, number> = {
+ kereste: 218, barutane: 218, harita_arsivi: 228, camci: 220, simyahane: 214,
+ gozlukcu: 212, marangoz: 230, ambar: 232, konut: 252, hamam: 252, mabet: 238,
+}
+const artFrames = new Map<string, ReturnType<typeof parcelArtFrame> & {groundPolygon:ParcelPoint[]}>()
+export function cityBuildingArtFrame(id:string,p:CityParcel,width:number,height:number,outline:ParcelPoint[],flip=false){
+ const key = JSON.stringify([id,p.index,width,height,flip,outline])
+ const cached = artFrames.get(key)
+ if(cached)return cached
+
+ const base = parcelArtFrame(p,width,height,outline,flip)
+ const xs = base.polygon.map(q=>q.x), ys = base.polygon.map(q=>q.y)
+ const visibleWidth = Math.max(...xs)-Math.min(...xs), visibleHeight = Math.max(...ys)-Math.min(...ys)
+ const dock = p.index>=25&&p.index<=27
+ const widthLimit = p.index===0?380:dock?222:p.index===28?202:workshopWidth[id]??272
+ const heightLimit = p.index===0?204:dock?220:p.index===28?106:152
+ const limit = Math.min(1,widthLimit/visibleWidth,heightLimit/visibleHeight)
+ const frame = (factor:number,dx=0,dy=0)=>{
+  const left = p.center.x+(base.left-p.center.x)*factor+dx
+  const top = p.center.y+(base.top-p.center.y)*factor+dy
+  const w = base.width*factor, h = base.height*factor
+  const polygon = base.polygon.map(q=>({x:p.center.x+(q.x-p.center.x)*factor+dx,y:p.center.y+(q.y-p.center.y)*factor+dy}))
+  return {left,top,x:left+w/2,y:top+h/2,width:w,height:h,polygon,groundPolygon:polygon}
  }
- // Piers meet their approach at the parcel edge; land-road clearance must not
- // shrink the whole dock to keep it away from that intended connection.
- if(p.index>=25){const f=frame(1);artFrames.set(key,f);return f}
- const valid=(f:ReturnType<typeof frame>)=>f.groundPolygon.every(q=>parcelContainsPoint(p,q))&&buildingRoadClear(f.polygon)
- let best=frame(1)
+ const valid = (f:ReturnType<typeof frame>) =>
+  f.polygon.every(q=>parcelContainsPoint(p,q,2)) && (p.index>=25||buildingRoadClear(f.polygon))
+
+ // Anchor the shore end of the sprite and let the platform extend seaward.
+ // Surveyed shoreline coordinates apply to all facing choices and saved slots.
+ if(dock&&!id.startsWith('__')){
+  const shoreFrame = (factor:number)=>frame(factor,0,coastShoreY[p.index-25]-12-p.center.y+visibleHeight*factor/2)
+  let lo=0,hi=limit
+  for(let i=0;i<12;i++){
+   const mid=(lo+hi)/2
+   if(valid(shoreFrame(mid)))lo=mid
+   else hi=mid
+  }
+  const result=shoreFrame(lo)
+  artFrames.set(key,result)
+  return result
+ }
+ let best = frame(limit)
  if(!valid(best)){
-  let bestScale=0
-  // A road behind the clearing must not make a tall structure a tiny icon.
-  // Try modest shifts INSIDE the same parcel before reducing the whole sprite.
-  for(const dy of [0,p.height*.1,p.height*.2,p.height*.3,-p.height*.1])for(const dx of [0,-p.width*.06,p.width*.06,-p.width*.12,p.width*.12,-p.width*.18,p.width*.18]){
-   let lo=0,hi=1
-   for(let i=0;i<14;i++){const mid=(lo+hi)/2;if(valid(frame(mid,dx,dy)))lo=mid;else hi=mid}
+  let bestScale = 0
+  best = frame(0)
+  for(const dy of [0,8,-8,16,-16])for(const dx of [0,12,-12,24,-24]){
+   let lo=0,hi=limit
+   for(let i=0;i<12;i++){
+    const mid=(lo+hi)/2
+    if(valid(frame(mid,dx,dy)))lo=mid
+    else hi=mid
+   }
    if(lo>bestScale){bestScale=lo;best=frame(lo,dx,dy)}
   }
  }
