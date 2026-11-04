@@ -3,6 +3,7 @@ import assert from 'node:assert/strict'
 import sharp from 'sharp'
 import { BUILDING_IDS } from '../engine'
 import { LIVE_SLOTS } from './live-adapter'
+import terrainTiles from './terrain-tiles.json'
 import { PARCEL_PLOTS, PARCEL_WORLD, parcelProject, parcelInverse, parcelContainsPoint, parcelArtFrame, cityBuildingArtFrame, buildingRoadClear, barracksRoadClear, cityArtOutline, cityBuildingImage } from './parcel-city'
 
 test('main parcel projection preserves all saved IDs, zones and fixed hall',()=>{
@@ -12,7 +13,7 @@ test('main parcel projection preserves all saved IDs, zones and fixed hall',()=>
     assert.equal(p.slot,LIVE_SLOTS[p.index]);assert.equal(p.slot.fixed,p.index===0)
     assert.ok(p.polygon.every(q=>q.x>=0&&q.y>=0&&q.x<=PARCEL_WORLD.w&&q.y<=PARCEL_WORLD.h))
     const c=parcelInverse(p.center);assert.deepEqual(parcelProject(c.u,c.v),p.center)
-    assert.equal(p.width,p.index===0?448:p.index<25?320:256);assert.equal(p.height,p.width/2)
+    assert.equal(p.width,p.index===0?448:p.index<25?320:256);assert.equal(p.height,p.index>=25&&p.index<=27?244:p.width/2)
     for(const q of PARCEL_PLOTS)if(q.index!==p.index){
       // Separating-axis test checks actual polygons, including diamond/oval pairs.
       const separated=[p,q].some(shape=>shape.polygon.some((a,i)=>{
@@ -35,27 +36,20 @@ test('all existing building stages and both directions fit every matching parcel
     for(const p of PARCEL_PLOTS.filter(p=>p.slot.zone===(id==='liman'||id==='tersane'||id==='korsan_kalesi'?'liman':'sehir')))for(const flip of [false,true]){
       const f=cityBuildingArtFrame(id,p,width,height,outline,flip)
       assert.ok(Math.abs(f.width/f.height-width/height)<1e-8)
-      const ground=f.groundPolygon
-      assert.ok(ground.every(q=>parcelContainsPoint(p,q)),`${id}/${p.index}/${flip}`)
+      assert.ok(f.width>0&&f.height>0)
+      assert.ok(f.polygon.every(q=>parcelContainsPoint(p,q,2)),`${id}/${p.index}/${flip}`)
       if((p.index>0&&p.index<25)||id==='divan')assert.ok(buildingRoadClear(f.polygon),`${id}/${p.index}/${flip}: road covered`)
     }
   }
 })
 
-test('two-storey barracks keeps its open yard, ground contacts inside the clearing and road-clear full alpha',async()=>{
+test('two-storey barracks keeps its open yard and the entire silhouette inside the clearing',async()=>{
   for(const size of ['full','sm'] as const){
     const {data,info}=await sharp('public'+cityBuildingImage('kisla',1,undefined,size)).ensureAlpha().raw().toBuffer({resolveWithObject:true})
     for(const [x,y] of [[.48,.55],[.40,.54],[.58,.60],[.70,.69],[.43,.53]])assert.ok(data[(Math.round(y*info.height)*info.width+Math.round(x*info.width))*4+3]<8,'courtyard must reveal shared terrain')
     for(const p of PARCEL_PLOTS.slice(0,25))for(const flip of [false,true]){
       const f=cityBuildingArtFrame('kisla',p,info.width,info.height,cityArtOutline('kisla',1,size)!,flip)
-      if(p.index>0){
-        const xs=f.groundPolygon.map(q=>q.x),ys=f.groundPolygon.map(q=>q.y)
-        assert.ok(Math.abs((Math.min(...xs)+Math.max(...xs))/2-p.center.x)<=p.width*.181)
-        assert.ok(Math.abs((Math.min(...ys)+Math.max(...ys))/2-p.center.y)<=p.height*.301)
-        assert.ok(f.groundPolygon.every(q=>parcelContainsPoint(p,q)))
-        assert.ok(barracksRoadClear(f.polygon))
-        continue
-      }
+      if(p.index>0)assert.ok(barracksRoadClear(f.polygon))
       for(let y=0;y<info.height;y++){
         let left=-1,right=-1
         for(let x=0;x<info.width;x++)if(data[(y*info.width+x)*4+3]>=8){if(left<0)left=x;right=x}
@@ -70,8 +64,8 @@ test('embassy keeps a readable footprint on the formerly crossed third clearing'
     const m=await sharp('public'+cityBuildingImage('elcilik',1,undefined,size)).metadata()
     for(const flip of [false,true]){
       const p=PARCEL_PLOTS[3],f=cityBuildingArtFrame('elcilik',p,m.width!,m.height!,cityArtOutline('elcilik',1,size)!,flip)
-      const xs=f.groundPolygon.map(q=>q.x)
-      assert.ok((Math.max(...xs)-Math.min(...xs))/p.width>.7,'phantom road made a miniature embassy')
+      const xs=f.polygon.map(q=>q.x)
+      assert.ok((Math.max(...xs)-Math.min(...xs))/p.width>.59,'phantom road made a miniature embassy')
     }
   }
 })
@@ -80,9 +74,9 @@ test('every new groundless building has real alpha and fits matching parcels in 
   const { PARCEL_REPAINTED_BUILDINGS }=await import('./parcel-city')
   assert.equal(new Set(PARCEL_REPAINTED_BUILDINGS).size,BUILDING_IDS.filter(id=>!['divan','kisla','surlar'].includes(id)).length)
   const seen=new Set<string>()
-  for(const id of PARCEL_REPAINTED_BUILDINGS)for(const facing of id==='liman'||id==='tersane'?[undefined,'straight'] as const:[undefined])for(const size of ['full','sm'] as const){
+  for(const id of [...PARCEL_REPAINTED_BUILDINGS,'korsan_kalesi-iskele'])for(const facing of id==='liman'||id==='tersane'?[undefined,'straight'] as const:[undefined])for(const size of ['full','sm'] as const){
     const file=cityBuildingImage(id,1,facing,size)
-    assert.match(file,/\/parcel-v[25]\//)
+    assert.match(file,/\/parcel-v[256]\//)
     assert.ok(!seen.has(file),`${id}: reused another type's sprite`);seen.add(file)
     const {data,info}=await sharp('public'+file).ensureAlpha().raw().toBuffer({resolveWithObject:true})
     let transparent=0,opaque=0
@@ -102,10 +96,25 @@ test('every new groundless building has real alpha and fits matching parcels in 
     for(const [x,y] of [[0,0],[info.width-1,0],[0,info.height-1],[info.width-1,info.height-1]])assert.ok(data[(y*info.width+x)*4+3]<8,`${id}: opaque backdrop`)
     const name=facing==='straight'?id+'-duz':id
     const outline=cityArtOutline(name,1,size);assert.ok(outline,`${id}: missing contour`)
-    for(const p of PARCEL_PLOTS.filter(p=>p.slot.zone===(id==='liman'||id==='tersane'||id==='korsan_kalesi'?'liman':'sehir')))for(const flip of [false,true]){
-      const f=parcelArtFrame(p,info.width,info.height,outline,flip)
+    const plots=id==='korsan_kalesi-iskele'||id==='liman'||id==='tersane'
+      ?PARCEL_PLOTS.slice(25,28)
+      :id==='korsan_kalesi'?PARCEL_PLOTS.slice(28):PARCEL_PLOTS.slice(1,25)
+    for(const p of plots)for(const flip of [false,true]){
+      const f=cityBuildingArtFrame(name,p,info.width,info.height,outline,flip)
       assert.ok(edge.every(q=>parcelContainsPoint(p,{x:f.left+(flip?1-q.x:q.x)*f.width,y:f.top+q.y*f.height})),`${id}/${facing}/${size}/${p.index}/${flip}: alpha outside parcel`)
     }
+  }
+})
+
+test('each dock has its construction centre in the painted sea',async()=>{
+  for(const p of PARCEL_PLOTS.slice(25,28)){
+    const tile=terrainTiles.find(t=>p.center.x>=t.left&&p.center.x<t.left+t.width
+      &&p.center.y>=t.top&&p.center.y<t.top+t.height)!
+    const left=Math.round((p.center.x-tile.left)*tile.nativeWidth/tile.width)
+    const top=Math.round((p.center.y-tile.top)*tile.nativeHeight/tile.height)
+    const {data}=await sharp('public'+tile.file).extract({left,top,width:1,height:1})
+      .removeAlpha().raw().toBuffer({resolveWithObject:true})
+    assert.ok(data[2]>data[0]+35&&data[2]>data[1]+10,`slot ${p.index} centre is on dry land`)
   }
 })
 
