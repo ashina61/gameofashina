@@ -2,6 +2,7 @@ import { LIVE_SLOTS } from './live-adapter'
 import { asset, buildingImage, buildingStage, type ArtSize, type CoastFacing } from '@/lib/asset'
 import bounds from './parcel-art-bounds.json'
 import contact from './barracks-contact.json'
+import buildingContacts from './building-contacts.json'
 
 export type ParcelPoint = {x:number;y:number}
 // Source painting is 1586×992. All measurements below use the same 2× world scale.
@@ -13,7 +14,11 @@ const clearings=[[583,175],[811,175],[1027,175],[359,245],[1251,245],[685,287],[
 // Keep engine identity/order; put early unlocks closest to the fixed civic centre.
 const ordered=clearings.toSorted((a,b)=>Math.hypot(a[0]-811,(a[1]-384)*1.5)-Math.hypot(b[0]-811,(b[1]-384)*1.5))
 // Small visual corrections measured on the painted clearings, after saved slot ordering.
-const clearingOffsets:Record<number,ParcelPoint>={1:{x:0,y:-4},2:{x:0,y:-4},7:{x:0,y:-6},17:{x:0,y:8},20:{x:0,y:-6},21:{x:12,y:0}}
+const clearingOffsets:Record<number,ParcelPoint>={
+ 1:{x:-6,y:-84},2:{x:6,y:-6},5:{x:-4,y:-6},6:{x:8,y:-4},7:{x:4,y:-10},
+ 10:{x:-2,y:-6},11:{x:-4,y:-2},12:{x:8,y:-2},13:{x:-6,y:0},
+ 17:{x:-2,y:6},20:{x:0,y:-6},21:{x:8,y:-2},23:{x:6,y:0},
+}
 function plot(index:number,source:number[]){
  const land=index>0&&index<25, dock=index>=25&&index<=27, offset=clearingOffsets[index]??{x:0,y:0}
  const center={x:source[0]*2+offset.x,y:source[1]*2+offset.y},width=index===0?448:land?320:256,height=dock?244:width/2
@@ -24,7 +29,7 @@ function plot(index:number,source:number[]){
   {x:center.x+128,y:center.y-86},{x:center.x+128,y:center.y+90},
   {x:center.x+96,y:center.y+122},{x:center.x-96,y:center.y+122},
   {x:center.x-128,y:center.y+90},{x:center.x-128,y:center.y-86},
- ]:land?Array.from({length:8},(_,i)=>({x:center.x+Math.sin(i*Math.PI/4)*width/2,y:center.y-Math.cos(i*Math.PI/4)*height/2})):
+ ]:(land||index===0)?Array.from({length:8},(_,i)=>({x:center.x+Math.sin(i*Math.PI/4)*width/2,y:center.y-Math.cos(i*Math.PI/4)*height/2})):
   [{x:center.x,y:center.y-height/2},{x:center.x+width/2,y:center.y},{x:center.x,y:center.y+height/2},{x:center.x-width/2,y:center.y}]
  return {index,slot:LIVE_SLOTS[index],center,width,height,polygon}
 }
@@ -50,12 +55,14 @@ export function parcelContainsPoint(p:CityParcel,q:ParcelPoint,margin=0){
 /** Reviewed groundless architecture; no terrain patch is drawn beneath it. */
 export const PARCEL_REPAINTED_BUILDINGS = ['saray','elcilik','konut','hamam','carsi','ambar','kereste','medrese','liman','tersane','kahvehane','cami','muze','marangoz','mimar','ormanci','tasci','tophane','bagci','simyahane','camci','mahzen','gozlukcu','barutane','depo','ticaret_merkezi','harita_arsivi','valilik','korsan_kalesi','kara_pazar','siginak','tekke','mabet','karagoz'] as const
 const repainted=new Set<string>(PARCEL_REPAINTED_BUILDINGS)
+const cityGroundedArt = new Set(['ormanci','mimar','gozlukcu','hamam','konut'])
 const waterfrontArt = new Set(['liman','liman-duz','tersane','tersane-duz','korsan_kalesi-iskele','kereste','barutane','harita_arsivi'])
 export function parcelBuildingName(id:string,index:number|null|undefined){
  return id==='korsan_kalesi'&&index!=null&&index>=25&&index<=27?'korsan_kalesi-iskele':id
 }
 export function cityBuildingImage(id:string,level=1,facing?:CoastFacing,size:ArtSize='sm'){
  const name=(id==='liman'||id==='tersane')&&facing==='straight'?id+'-duz':id
+ if(cityGroundedArt.has(name))return asset(`/images/game/buildings/parcel-v7/${name}${size==='sm'?'-sm':''}.webp`)
  if(waterfrontArt.has(name))return asset(`/images/game/buildings/parcel-v6/${name}${size==='sm'?'-sm':''}.webp`)
  if(['divan','medrese','carsi','depo','bagci','elcilik'].includes(id))return asset(`/images/game/buildings/parcel-v5/${id}${size==='sm'?'-sm':''}.webp`)
  if(id==='divan')return asset(`/images/game/buildings/painted-town-v1/divan${size==='sm'?'-sm':''}.webp`)
@@ -111,56 +118,69 @@ const workshopWidth: Record<string, number> = {
  kereste: 218, barutane: 218, harita_arsivi: 228, camci: 220, simyahane: 214,
  gozlukcu: 212, marangoz: 230, ambar: 232, konut: 252, hamam: 252, mabet: 238,
 }
+// Contact points are in normalized source-image coordinates. The floor of
+// a building is below the centre of its whole cutout, especially with towers.
+const groundSurveys: Record<string, number[][]> = buildingContacts
 const artFrames = new Map<string, ReturnType<typeof parcelArtFrame> & {groundPolygon:ParcelPoint[]}>()
+
 export function cityBuildingArtFrame(id:string,p:CityParcel,width:number,height:number,outline:ParcelPoint[],flip=false){
  const key = JSON.stringify([id,p.index,width,height,flip,outline])
  const cached = artFrames.get(key)
  if(cached)return cached
 
- const base = parcelArtFrame(p,width,height,outline,flip)
- const xs = base.polygon.map(q=>q.x), ys = base.polygon.map(q=>q.y)
- const visibleWidth = Math.max(...xs)-Math.min(...xs), visibleHeight = Math.max(...ys)-Math.min(...ys)
- const dock = p.index>=25&&p.index<=27
- const widthLimit = p.index===0?380:dock?222:p.index===28?202:workshopWidth[id]??272
- const heightLimit = p.index===0?204:dock?220:p.index===28?106:152
- const limit = Math.min(1,widthLimit/visibleWidth,heightLimit/visibleHeight)
- const frame = (factor:number,dx=0,dy=0)=>{
-  const left = p.center.x+(base.left-p.center.x)*factor+dx
-  const top = p.center.y+(base.top-p.center.y)*factor+dy
-  const w = base.width*factor, h = base.height*factor
-  const polygon = base.polygon.map(q=>({x:p.center.x+(q.x-p.center.x)*factor+dx,y:p.center.y+(q.y-p.center.y)*factor+dy}))
-  return {left,top,x:left+w/2,y:top+h/2,width:w,height:h,polygon,groundPolygon:polygon}
- }
- const valid = (f:ReturnType<typeof frame>) =>
-  f.polygon.every(q=>parcelContainsPoint(p,q,2)) && (p.index>=25||buildingRoadClear(f.polygon))
+ const projectSource = (q:ParcelPoint)=>({x:(flip?1-q.x:q.x)*width,y:q.y*height})
+ const points = outline.map(projectSource)
+ const xs = points.map(q=>q.x), ys = points.map(q=>q.y)
+ const minX=Math.min(...xs), maxX=Math.max(...xs), minY=Math.min(...ys), maxY=Math.max(...ys)
+ const visibleWidth=maxX-minX, visibleHeight=maxY-minY
+ const dock=p.index>=25&&p.index<=27
+ const isLand=p.index<25
+ const measured=isLand?groundSurveys[id]:undefined
+ const ground=measured?.map(([x,y])=>projectSource({x,y}))??points
+ const groundX=ground.map(q=>q.x), groundY=ground.map(q=>q.y)
+ const anchorX=(Math.min(...groundX)+Math.max(...groundX))/2
+ const anchorY=dock&&!id.startsWith('__')?minY:(Math.min(...groundY)+Math.max(...groundY))/2
+ const targetY=dock&&!id.startsWith('__')?coastShoreY[p.index-25]-12:p.center.y
 
- // Anchor the shore end of the sprite and let the platform extend seaward.
- // Surveyed shoreline coordinates apply to all facing choices and saved slots.
- if(dock&&!id.startsWith('__')){
-  const shoreFrame = (factor:number)=>frame(factor,0,coastShoreY[p.index-25]-12-p.center.y+visibleHeight*factor/2)
-  let lo=0,hi=limit
-  for(let i=0;i<12;i++){
-   const mid=(lo+hi)/2
-   if(valid(shoreFrame(mid)))lo=mid
-   else hi=mid
-  }
-  const result=shoreFrame(lo)
-  artFrames.set(key,result)
-  return result
+ const widthLimit=p.index===0?380:dock?222:p.index===28?202:workshopWidth[id]??272
+ const heightLimit=p.index===0?204:dock?220:p.index===28?106:152
+ const limit=Math.min(widthLimit/visibleWidth,heightLimit/visibleHeight)
+ const edges=p.polygon.map((a,i)=>{
+  const b=p.polygon[(i+1)%p.polygon.length],nx=b.y-a.y,ny=a.x-b.x
+  const support=Math.max(...[...points,...ground].map(q=>nx*(q.x-anchorX)+ny*(q.y-anchorY)))
+  return {a,nx,ny,support,margin:3.2*Math.hypot(nx,ny)}
+ })
+ const frame=(scale:number,x:number,y:number)=>{
+  const left=x-anchorX*scale,top=y-anchorY*scale
+  const w=width*scale,h=height*scale
+  const project=(q:ParcelPoint)=>({x:left+q.x*scale,y:top+q.y*scale})
+  return {left,top,x:left+w/2,y:top+h/2,width:w,height:h,polygon:points.map(project),groundPolygon:ground.map(project)}
  }
- let best = frame(limit)
- if(!valid(best)){
-  let bestScale = 0
-  best = frame(0)
-  for(const dy of [0,8,-8,16,-16])for(const dx of [0,12,-12,24,-24]){
-   let lo=0,hi=limit
+
+ let best=frame(0,p.center.x,targetY),bestScore=0
+ // Prefer the surveyed centre of the bare ground. A small change in the
+ // anchor can make an asymmetric roof fit without shrinking the whole house.
+ const shifts=isLand?[[0,0],[0,8],[0,16],[-8,0],[8,0],[-8,8],[8,8],[0,-8],[0,24]]:[[0,0]]
+ for(const [dx,dy] of shifts){
+  const x=p.center.x+dx,y=targetY+dy
+  let scale=limit
+  for(const {a,nx,ny,support,margin} of edges){
+   const room=nx*(a.x-x)+ny*(a.y-y)-margin
+   if(room<0){scale=0;break}
+   if(support>0)scale=Math.min(scale,room/support)
+  }
+  let candidate=frame(scale,x,y)
+  if(isLand&&!buildingRoadClear(candidate.polygon)){
+   let lo=0,hi=scale
    for(let i=0;i<12;i++){
     const mid=(lo+hi)/2
-    if(valid(frame(mid,dx,dy)))lo=mid
+    if(buildingRoadClear(frame(mid,x,y).polygon))lo=mid
     else hi=mid
    }
-   if(lo>bestScale){bestScale=lo;best=frame(lo,dx,dy)}
+   scale=lo;candidate=frame(scale,x,y)
   }
+  const score=scale/(1+Math.hypot(dx,dy)/160)
+  if(score>bestScore){best=candidate;bestScore=score}
  }
  artFrames.set(key,best)
  return best

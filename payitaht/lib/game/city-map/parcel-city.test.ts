@@ -76,7 +76,7 @@ test('every new groundless building has real alpha and fits matching parcels in 
   const seen=new Set<string>()
   for(const id of [...PARCEL_REPAINTED_BUILDINGS,'korsan_kalesi-iskele'])for(const facing of id==='liman'||id==='tersane'?[undefined,'straight'] as const:[undefined])for(const size of ['full','sm'] as const){
     const file=cityBuildingImage(id,1,facing,size)
-    assert.match(file,/\/parcel-v[256]\//)
+    assert.match(file,/\/parcel-v[2567]\//)
     assert.ok(!seen.has(file),`${id}: reused another type's sprite`);seen.add(file)
     const {data,info}=await sharp('public'+file).ensureAlpha().raw().toBuffer({resolveWithObject:true})
     let transparent=0,opaque=0
@@ -103,6 +103,20 @@ test('every new groundless building has real alpha and fits matching parcels in 
       const f=cityBuildingArtFrame(name,p,info.width,info.height,outline,flip)
       assert.ok(edge.every(q=>parcelContainsPoint(p,{x:f.left+(flip?1-q.x:q.x)*f.width,y:f.top+q.y*f.height})),`${id}/${facing}/${size}/${p.index}/${flip}: alpha outside parcel`)
     }
+  }
+})
+
+test('the actual floor of a tall building is centred on the clearing',async()=>{
+  const plot=PARCEL_PLOTS[3]
+  for(const id of ['konut','hamam','kisla','elcilik']){
+    const m=await sharp('public'+cityBuildingImage(id,1,undefined,'sm')).metadata()
+    const f=cityBuildingArtFrame(id,plot,m.width!,m.height!,cityArtOutline(id,1,'sm')!)
+    const groundY=f.groundPolygon.map(q=>q.y),visibleY=f.polygon.map(q=>q.y)
+    const groundCentre=(Math.min(...groundY)+Math.max(...groundY))/2
+    const visibleCentre=(Math.min(...visibleY)+Math.max(...visibleY))/2
+    assert.ok(Math.abs(groundCentre-plot.center.y)<=24,`${id}: floor misses clearing`)
+    assert.ok(groundCentre>visibleCentre+8,`${id}: used the roof as a ground anchor`)
+    assert.ok(f.groundPolygon.every(q=>parcelContainsPoint(plot,q,2)))
   }
 })
 
@@ -141,6 +155,8 @@ test('walker and road-clearance paths never cross an empty land clearing',async(
 test('empty clearing hit boundary includes its shoulders and excludes rectangular corners',()=>{
   const p=PARCEL_PLOTS[1]
   assert.ok(parcelContainsPoint(p,{x:p.center.x+130,y:p.center.y+20}))
+  assert.ok(parcelContainsPoint(p,{x:1900,y:510}),'north-east site misses the painted sand')
+  assert.ok(!parcelContainsPoint(p,{x:1910,y:638}),'north-east site spills onto grass below the clearing')
   assert.ok(!parcelContainsPoint(p,{x:p.center.x+145,y:p.center.y+70}))
   const outline=cityArtOutline('medrese',1,'sm')!
   const f=parcelArtFrame(p,480,300,outline)

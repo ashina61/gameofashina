@@ -1,7 +1,9 @@
-const CACHE = 'payitaht-shell-v149'
+const CACHE = 'payitaht-shell-v150'
 const BASE = new URL(self.registration.scope).pathname.replace(/\/$/, '')
 const p = path => `${BASE}${path.startsWith('/') ? path : `/${path}`}`
 const ASSETS = [
+  ...['ormanci','mimar','gozlukcu','hamam','konut'].flatMap(id => ['', '-sm'].map(size => p(`/images/game/buildings/parcel-v7/${id}${size}.webp`))),
+  ...['gate','bastion','stone'].map(id => p(`/images/game/walls/hillside-${id}.webp`)),
   ...['liman','liman-duz','tersane','tersane-duz','korsan_kalesi-iskele','kereste','barutane','harita_arsivi'].flatMap(id => ['', '-sm'].map(size => p(`/images/game/buildings/parcel-v6/${id}${size}.webp`))),
   p('/images/game/walls/aegean-bastion.webp'),
   p('/images/game/walls/aegean-open-gate.webp'),
