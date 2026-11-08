@@ -9,7 +9,7 @@ import { PEACEFUL_CITY, siegeAppearanceKey, type SiegeAppearance } from '@/lib/g
 import { PARCEL_PLOTS, PARCEL_WORLD, parcelPlot, CITY_ROADS, parcelContainsPoint, buildingRoadClear, parcelArtFrame, cityBuildingArtFrame, cityArtOutline, cityBuildingImage, parcelBuildingName, type CityParcel, type ParcelPoint } from '@/lib/game/city-map/parcel-city'
 import { cityArtSize, isTap } from './city/shared'
 import { parcelCameraViewport, parcelCityZoom } from '@/lib/game/city-map/parcel-camera'
-import { CITY_WALL_PLAN, type WallSpan } from '@/lib/game/city-map/parcel-wall-ring'
+import { CITY_WALL_PLAN, wallSpanDepth, wallTowerDepth, type WallSpan } from '@/lib/game/city-map/parcel-wall-ring'
 import terrainTiles from '@/lib/game/city-map/terrain-tiles.json'
 
 /** Main game renderer. Engine plot IDs and saved placements never change. */
@@ -188,13 +188,14 @@ export class ParcelCityScene extends CityScene {
       image.setTint(0xffedce);this.time.delayedCall(110,()=>{if(image.active)image.clearTint()});this.events$.onBuilding(id)
     })
     this.pieces.push(hit)
-    if(this.showLabels||active){const label=this.makePaintedLabel(p.center.x,p.center.y+p.height/2+12,level,BUILDINGS[id].name,1e6+p.center.y);this.labelOf.set(id,label);this.pieces.push(label)}
+    const labelY=p.index>=25&&p.index<=27?Math.max(...f.polygon.map(q=>q.y))+12:p.center.y+p.height/2+12
+    if(this.showLabels||active){const label=this.makePaintedLabel(p.center.x,labelY,level,BUILDINGS[id].name,1e6+p.center.y);this.labelOf.set(id,label);this.pieces.push(label)}
     if(p.slot.zone==='sehir')this.sky?.addLight(p.center.x,p.center.y,'pieces',.55)
     const job=activeJob(this.state)
     if(active&&job){
       const sc=this.textures.get('b_scaffold').getSourceImage() as HTMLImageElement
       const sf=parcelArtFrame(p,sc.width,sc.height,cityArtOutline('__scaffold',1,'full')!)
-      this.pieces.push(this.add.image(sf.x,sf.y,'b_scaffold').setDisplaySize(sf.width,sf.height).setDepth(p.center.y+5),this.makeTimer(p.center.x,p.center.y+p.height/2+65,job.start,job.end,1e6+p.center.y+1))
+      this.pieces.push(this.add.image(sf.x,sf.y,'b_scaffold').setDisplaySize(sf.width,sf.height).setDepth(p.center.y+5),this.makeTimer(p.center.x,labelY+53,job.start,job.end,1e6+p.center.y+1))
     }
   }
   makeContactTexture(){
@@ -257,7 +258,6 @@ export class ParcelCityScene extends CityScene {
       ctx.closePath()
       if(fill){ctx.fillStyle=fill;ctx.fill()}
     }
-    const base=(a.y+b.y)/2
     ctx.save()
     ctx.translate(a.x,a.y)
     ctx.transform(dx/length,dy/length,0,1,0,0)
@@ -299,19 +299,26 @@ export class ParcelCityScene extends CityScene {
       const u=x/length,v=(x+12)/length
       const nearA=at(u,0,0),nearB=at(v,0,0),farB=at(v,.52,0)
       const topA=lift(nearA,toothHeight),topB=lift(nearB,toothHeight),topFar=lift(farB,toothHeight)
-      shape([nearA,nearB,topB,topA],innerFace?'#a18c65':'#b39d75')
+      const face=[nearA,nearB,topB,topA]
+      shape(face,innerFace?'#a18c65':'#b39d75')
+      // The parapet uses the same stone as the wall, not flat beige blocks.
+      ctx.save();shape(face);ctx.clip()
+      const faceTop=Math.min(topA.y,topB.y)
+      ctx.drawImage(stone,stone.width*.25,stone.height*.12,stone.width*.18,stone.height*.24,
+        nearA.x,faceTop,nearB.x-nearA.x,Math.max(nearA.y,nearB.y)-faceTop)
+      ctx.restore()
       shape([nearB,farB,topFar,topB],'#796649')
       shape([topA,topB,topFar,at(u,.52,toothHeight)],'#ccba92')
     }
     texture.refresh()
-    this.wallTap(this.add.image(left,top,key).setOrigin(0).setDisplaySize(width,canvasHeight).setDepth(base+1))
+    this.wallTap(this.add.image(left,top,key).setOrigin(0).setDisplaySize(width,canvasHeight).setDepth(wallSpanDepth(span)))
   }
   drawParcelWallTower(x:number,y:number,height:number){
     const source=this.textures.get('parcel-wall-tower').getSourceImage() as HTMLImageElement
-    const h=height*1.26
+    const h=height*1.65
     this.pieces.push(this.add.image(x+5,y+4,'parcel-contact-shade').setDisplaySize(h*1.42,h*.58).setDepth(y-1))
-    this.wallTap(this.add.image(x,y+10,'parcel-wall-tower').setOrigin(.5,.96)
-      .setDisplaySize(h*source.width/source.height,h).setDepth(y+5))
+    this.wallTap(this.add.image(x,y+4,'parcel-wall-tower').setOrigin(.5,.96)
+      .setDisplaySize(h*source.width/source.height,h).setDepth(wallTowerDepth({x,y},CITY_WALL_PLAN.spans)))
   }
   clearWallTextures(){
     for(const key of this.wallTextureKeys)this.textures.remove(key)

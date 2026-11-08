@@ -21,14 +21,20 @@ const clearingOffsets:Record<number,ParcelPoint>={
 }
 function plot(index:number,source:number[]){
  const land=index>0&&index<25, dock=index>=25&&index<=27, offset=clearingOffsets[index]??{x:0,y:0}
- const center={x:source[0]*2+offset.x,y:source[1]*2+offset.y},width=index===0?448:land?320:256,height=dock?244:width/2
+ const center={x:source[0]*2+offset.x,y:source[1]*2+offset.y},width=index===0?448:land?320:256,height=dock?400:width/2
  // The painting has rounded 2:1 clearings, rather than tiny inscribed diamonds.
  // One convex boundary is used for architecture, empty flags, selection and taps.
- const polygon=dock?[
-  {x:center.x-102,y:center.y-122},{x:center.x+102,y:center.y-122},
-  {x:center.x+128,y:center.y-86},{x:center.x+128,y:center.y+90},
+ // The eastern end of the western beach is diagonal. Its landward edge
+ // follows the shoulder of plot 17 instead of forcing a tiny square dock.
+ const polygon=index===27?[
+  {x:center.x-128,y:center.y-140},{x:center.x+128,y:center.y-193},
+  {x:center.x+128,y:center.y+90},{x:center.x+96,y:center.y+122},
+  {x:center.x-96,y:center.y+122},{x:center.x-128,y:center.y+90},
+ ]:dock?[
+  {x:center.x-102,y:center.y-200},{x:center.x+102,y:center.y-200},
+  {x:center.x+128,y:center.y-164},{x:center.x+128,y:center.y+90},
   {x:center.x+96,y:center.y+122},{x:center.x-96,y:center.y+122},
-  {x:center.x-128,y:center.y+90},{x:center.x-128,y:center.y-86},
+  {x:center.x-128,y:center.y+90},{x:center.x-128,y:center.y-164},
  ]:(land||index===0)?Array.from({length:8},(_,i)=>({x:center.x+Math.sin(i*Math.PI/4)*width/2,y:center.y-Math.cos(i*Math.PI/4)*height/2})):
   [{x:center.x,y:center.y-height/2},{x:center.x+width/2,y:center.y},{x:center.x,y:center.y+height/2},{x:center.x-width/2,y:center.y}]
  return {index,slot:LIVE_SLOTS[index],center,width,height,polygon}
@@ -36,6 +42,15 @@ function plot(index:number,source:number[]){
 // Surveyed on the v2 painting. Slot centres lie in water, with the back
 // of each buildable shape extending just far enough to meet dry ground.
 const coastShoreY = [1609,1588,1523]
+// Front edge of the masonry / start of the seaward pier in the source art.
+// Roofs and rear gangways are above this point: aligning minY to the shore
+// leaves the entire building floating offshore. Mirroring moves the pin too.
+export const COAST_CONTACTS:Record<string,ParcelPoint>={
+ liman:{x:.50,y:.46},'liman-duz':{x:.50,y:.57},
+ tersane:{x:.50,y:.50},'tersane-duz':{x:.50,y:.52},
+ 'korsan_kalesi-iskele':{x:.50,y:.60},
+}
+export const coastContactTarget=(p:CityParcel)=>({x:p.center.x,y:coastShoreY[p.index-25]-18})
 export const PARCEL_PLOTS=[[811,384],...ordered,[475,842],[1206,832],[625,804],[1425,898]].map((p,i)=>plot(i,p))
 /** Measured road centre lines, including the actual bridges. Ambient walkers follow these. */
 export const CITY_ROADS=[
@@ -135,12 +150,14 @@ export function cityBuildingArtFrame(id:string,p:CityParcel,width:number,height:
  const visibleWidth=maxX-minX, visibleHeight=maxY-minY
  const dock=p.index>=25&&p.index<=27
  const isLand=p.index<25
- const measured=isLand?groundSurveys[id]:undefined
+ const shoreContact=dock?COAST_CONTACTS[id]:undefined
+ const measured=(isLand||shoreContact)?groundSurveys[id]:undefined
  const ground=measured?.map(([x,y])=>projectSource({x,y}))??points
  const groundX=ground.map(q=>q.x), groundY=ground.map(q=>q.y)
- const anchorX=(Math.min(...groundX)+Math.max(...groundX))/2
- const anchorY=dock&&!id.startsWith('__')?minY:(Math.min(...groundY)+Math.max(...groundY))/2
- const targetY=dock&&!id.startsWith('__')?coastShoreY[p.index-25]-12:p.center.y
+ const shorePin=shoreContact?projectSource(shoreContact):undefined
+ const anchorX=shorePin?.x??(Math.min(...groundX)+Math.max(...groundX))/2
+ const anchorY=shorePin?.y??(Math.min(...groundY)+Math.max(...groundY))/2
+ const targetY=shorePin?coastContactTarget(p).y:p.center.y
 
  const widthLimit=p.index===0?380:dock?222:p.index===28?202:workshopWidth[id]??272
  const heightLimit=p.index===0?204:dock?220:p.index===28?106:152
@@ -160,7 +177,7 @@ export function cityBuildingArtFrame(id:string,p:CityParcel,width:number,height:
  let best=frame(0,p.center.x,targetY),bestScore=0
  // Prefer the surveyed centre of the bare ground. A small change in the
  // anchor can make an asymmetric roof fit without shrinking the whole house.
- const shifts=isLand?[[0,0],[0,8],[0,16],[-8,0],[8,0],[-8,8],[8,8],[0,-8],[0,24]]:[[0,0]]
+ const shifts=isLand?[-8,0,8,16,24].flatMap(dy=>[-16,-8,0,8,16].map(dx=>[dx,dy])):[[0,0]]
  for(const [dx,dy] of shifts){
   const x=p.center.x+dx,y=targetY+dy
   let scale=limit
@@ -179,7 +196,9 @@ export function cityBuildingArtFrame(id:string,p:CityParcel,width:number,height:
    }
    scale=lo;candidate=frame(scale,x,y)
   }
-  const score=scale/(1+Math.hypot(dx,dy)/160)
+  // Keep the floor within 24px of its surveyed centre, but do not sacrifice
+  // a substantial part of the architecture just to save an 8px translation.
+  const score=scale/(1+Math.hypot(dx,dy)/1000)
   if(score>bestScore){best=candidate;bestScore=score}
  }
  artFrames.set(key,best)

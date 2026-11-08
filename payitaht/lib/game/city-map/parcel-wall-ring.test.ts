@@ -1,9 +1,19 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import { CITY_ROADS, PARCEL_PLOTS, PARCEL_WORLD, parcelContainsPoint } from './parcel-city'
-import { CITY_WALL_PLAN, wallDistanceToSegment } from './parcel-wall-ring'
+import { CITY_WALL_PLAN, wallDistanceToSegment, wallSpanDepth, wallTowerDepth } from './parcel-wall-ring'
 
 const distance=(a:{x:number;y:number},b:{x:number;y:number})=>Math.hypot(a.x-b.x,a.y-b.y)
+
+test('bastions at concave bends stay in front of both incident curtain walls',()=>{
+  for(const point of CITY_WALL_PLAN.towers){
+    const adjacent=CITY_WALL_PLAN.spans.filter(s=>wallDistanceToSegment(point,s.start,s.end).distance<1)
+    assert.ok(adjacent.length>0)
+    for(const span of adjacent)assert.ok(wallTowerDepth(point,CITY_WALL_PLAN.spans)>wallSpanDepth(span))
+  }
+  const bend={x:1398,y:202}
+  assert.ok(wallTowerDepth(bend,CITY_WALL_PLAN.spans)>bend.y+5,'old y+5 depth hid the northern bastion')
+})
 
 test('surveyed wall and its thickness clear all land plots and the waterfront',()=>{
   const {spans,towers,waterfront}=CITY_WALL_PLAN

@@ -7,6 +7,17 @@ export type WallSpan = {
   backEnd: ParcelPoint
 }
 
+export const wallSpanDepth=(span:WallSpan)=>Math.max(
+  (span.start.y+span.end.y)/2,(span.backStart.y+span.backEnd.y)/2,
+)+1
+
+/** A bend's two curtain faces must never paint over its bastion. */
+export function wallTowerDepth(point:ParcelPoint,spans:WallSpan[]){
+  return Math.max(point.y+5,...spans
+    .filter(span=>wallDistanceToSegment(point,span.start,span.end).distance<1)
+    .map(span=>wallSpanDepth(span)+2))
+}
+
 const worldPoint = ([x,y]: readonly [number,number]):ParcelPoint => ({x:x*2,y:y*2})
 const distance = (a:ParcelPoint,b:ParcelPoint) => Math.hypot(b.x-a.x,b.y-a.y)
 const midpoint = (a:ParcelPoint,b:ParcelPoint) => ({x:(a.x+b.x)/2,y:(a.y+b.y)/2})

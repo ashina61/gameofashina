@@ -4,7 +4,7 @@ import sharp from 'sharp'
 import { BUILDING_IDS } from '../engine'
 import { LIVE_SLOTS } from './live-adapter'
 import terrainTiles from './terrain-tiles.json'
-import { PARCEL_PLOTS, PARCEL_WORLD, parcelProject, parcelInverse, parcelContainsPoint, parcelArtFrame, cityBuildingArtFrame, buildingRoadClear, barracksRoadClear, cityArtOutline, cityBuildingImage } from './parcel-city'
+import { PARCEL_PLOTS, PARCEL_WORLD, COAST_CONTACTS, coastContactTarget, parcelProject, parcelInverse, parcelContainsPoint, parcelArtFrame, cityBuildingArtFrame, buildingRoadClear, barracksRoadClear, cityArtOutline, cityBuildingImage } from './parcel-city'
 
 test('main parcel projection preserves all saved IDs, zones and fixed hall',()=>{
   assert.equal(PARCEL_PLOTS.length,LIVE_SLOTS.length)
@@ -13,7 +13,7 @@ test('main parcel projection preserves all saved IDs, zones and fixed hall',()=>
     assert.equal(p.slot,LIVE_SLOTS[p.index]);assert.equal(p.slot.fixed,p.index===0)
     assert.ok(p.polygon.every(q=>q.x>=0&&q.y>=0&&q.x<=PARCEL_WORLD.w&&q.y<=PARCEL_WORLD.h))
     const c=parcelInverse(p.center);assert.deepEqual(parcelProject(c.u,c.v),p.center)
-    assert.equal(p.width,p.index===0?448:p.index<25?320:256);assert.equal(p.height,p.index>=25&&p.index<=27?244:p.width/2)
+    assert.equal(p.width,p.index===0?448:p.index<25?320:256);assert.equal(p.height,p.index>=25&&p.index<=27?400:p.width/2)
     for(const q of PARCEL_PLOTS)if(q.index!==p.index){
       // Separating-axis test checks actual polygons, including diamond/oval pairs.
       const separated=[p,q].some(shape=>shape.polygon.some((a,i)=>{
@@ -129,6 +129,32 @@ test('each dock has its construction centre in the painted sea',async()=>{
     const {data}=await sharp('public'+tile.file).extract({left,top,width:1,height:1})
       .removeAlpha().raw().toBuffer({resolveWithObject:true})
     assert.ok(data[2]>data[0]+35&&data[2]>data[1]+10,`slot ${p.index} centre is on dry land`)
+  }
+})
+
+test('waterfront buildings attach at their masonry contact, not the roof or rear gangway',async()=>{
+  // Validate the destination independently against the shipped terrain pixels.
+  for(const p of PARCEL_PLOTS.slice(25,28))for(const offset of [0,85]){
+    const pin=coastContactTarget(p),q={x:pin.x,y:pin.y+offset}
+    const tile=terrainTiles.find(t=>q.x>=t.left&&q.x<t.left+t.width&&q.y>=t.top&&q.y<t.top+t.height)!
+    const {data}=await sharp('public'+tile.file).extract({
+      left:Math.round((q.x-tile.left)*tile.nativeWidth/tile.width),
+      top:Math.round((q.y-tile.top)*tile.nativeHeight/tile.height),width:1,height:1,
+    }).removeAlpha().raw().toBuffer({resolveWithObject:true})
+    assert.ok(offset===0?data[0]>data[2]+30:data[2]>data[0]+35,`slot ${p.index}: ${offset===0?'contact is not on land':'seaward axis misses water'}`)
+  }
+  for(const [name,pin] of Object.entries(COAST_CONTACTS))for(const size of ['full','sm'] as const){
+    const straight=name.endsWith('-duz'),id=straight?name.slice(0,-4):name
+    const m=await sharp('public'+cityBuildingImage(id,1,straight?'straight':undefined,size)).metadata()
+    for(const p of PARCEL_PLOTS.slice(25,28))for(const flip of [false,true]){
+      const f=cityBuildingArtFrame(name,p,m.width!,m.height!,cityArtOutline(name,1,size)!,flip)
+      const foot={x:f.left+(flip?1-pin.x:pin.x)*f.width,y:f.top+pin.y*f.height}
+      const target=coastContactTarget(p)
+      assert.ok(Math.hypot(foot.x-target.x,foot.y-target.y)<.01,`${name}/${p.index}: detached from shore`)
+      assert.ok(Math.min(...f.polygon.map(q=>q.y))<target.y-25,`${name}: roof lies over water`)
+      assert.ok(Math.max(...f.polygon.map(q=>q.y))>target.y+25,`${name}: pier does not reach water`)
+      assert.ok(f.polygon.every(q=>parcelContainsPoint(p,q,2)),`${name}: coast silhouette escapes its boundary`)
+    }
   }
 })
 
