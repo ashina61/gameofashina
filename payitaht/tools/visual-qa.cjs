@@ -444,7 +444,7 @@ async function main() {
     const compact = viewports.some(v => v.width === 390)
     if (compact) {
       await require('./siege-visual-qa.cjs')(browser, out, origin, siegeSeedRaw, diagnostics)
-      const requiredPanelShots = ['ui-research-390x844.png', 'ui-buildings-390x844.png', 'ui-medrese-stage-1-390x844.png', 'ui-medrese-stage-2-390x844.png', 'ui-medrese-stage-3-390x844.png', 'ui-army-390x844.png', 'ui-settings-390x844.png', 'ui-colony-345x768.png']
+      const requiredPanelShots = ['ui-research-390x844.png', 'ui-buildings-390x844.png', 'ui-medrese-inspector-390x844.png', 'ui-medrese-production-390x844.png', 'ui-medrese-development-390x844.png', 'ui-army-390x844.png', 'ui-settings-390x844.png', 'ui-colony-345x768.png']
       for (const shot of requiredPanelShots) {
         if (!diagnostics.screenshots.includes(shot)) throw new Error(`Missing content UI QA screenshot: ${shot}`)
       }
