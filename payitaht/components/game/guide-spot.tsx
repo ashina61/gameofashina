@@ -12,25 +12,25 @@ import { t } from '@/lib/i18n/tr'
 import { lowMotion } from '@/lib/motion'
 
 const TARGETS: Record<string, string[]> = {
-  'first-upgrade': ['.bp-of-divan .bp-upgrade-button'],
-  'first-academy': ['.bp-of-medrese .bp-upgrade-button'],
-  'first-worker': ['.bp-of-medrese .workforce-confirm button', `.bp-of-medrese [aria-label="${t.action.increase}"]`],
+  'first-upgrade': ['.building-inspector[data-building="divan"] .bp-upgrade-button', '.bp-of-divan .bp-upgrade-button'],
+  'first-academy': ['.building-inspector[data-building="medrese"] .bp-upgrade-button', '.bp-of-medrese .bp-upgrade-button'],
+  'first-worker': ['.bp-of-medrese .workforce-confirm button', `.bp-of-medrese [aria-label="${t.action.increase}"]`, '.building-inspector[data-building="medrese"] .building-inspector-details'],
   'first-research': ['[data-guide="research"]'],
-  barracks: ['.bp-of-kisla .bp-upgrade-button'],
-  walls: ['.bp-of-surlar .bp-upgrade-button'],
+  barracks: ['.building-inspector[data-building="kisla"] .bp-upgrade-button', '.bp-of-kisla .bp-upgrade-button'],
+  walls: ['.building-inspector[data-building="surlar"] .bp-upgrade-button', '.bp-of-surlar .bp-upgrade-button'],
   troops: ['[data-guide="recruit-mizrakci"]', '[data-guide="recruit-yeniceri"]'],
   'first-raid': ['[data-guide="raid"]', '[data-guide="all-mizrakci"]', '[data-guide="all-yeniceri"]', '[data-guide="npc-koy"]'],
 }
 /** Adımın sayfası: açıksa (inşaat sürerken düğme yerine çubuk olsa da) oyuncu bekler. */
 const PAGE: Record<string, string> = {
-  'first-upgrade': '.bp-of-divan', 'first-academy': '.bp-of-medrese', 'first-worker': '.bp-of-medrese',
-  barracks: '.bp-of-kisla', walls: '.bp-of-surlar',
+  'first-upgrade': '.bp-of-divan, .building-inspector[data-building="divan"]', 'first-academy': '.bp-of-medrese, .building-inspector[data-building="medrese"]', 'first-worker': '.bp-of-medrese',
+  barracks: '.bp-of-kisla, .building-inspector[data-building="kisla"]', walls: '.bp-of-surlar, .building-inspector[data-building="surlar"]',
 }
 const CHIP = '.quest-chip-go'
 /** Rehberin bir kez görünür yere kaydırdığı düğmeler. */
 const scrolled = new WeakSet<Element>()
 /** Görev şeridi açık bir sayfanın altında kalırsa oyuncu önce sayfayı kapatmalı. */
-const LEAVE = ['.bp-back', `[aria-label="${t.action.close}"]`, `[aria-label="${t.action.back}"]`, '[data-guide="to-city"]']
+const LEAVE = ['.bp-back', '.building-inspector-close', `[aria-label="${t.action.close}"]`, `[aria-label="${t.action.back}"]`, '[data-guide="to-city"]']
 
 /** Görünür, basılabilir ve üstü örtülü olmayan öğe mi? */
 function usable(el: Element): el is HTMLElement {

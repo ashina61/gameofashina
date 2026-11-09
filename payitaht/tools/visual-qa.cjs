@@ -293,7 +293,7 @@ async function main() {
     diagnostics.screenshots.push(path.basename(islandForest))
     await forest.click()
     await page.getByRole('dialog', { name: /Ada ormanı/ }).waitFor()
-    await page.getByRole('heading', { name: /Ada ormanı · Sv\./ }).waitFor()
+    await page.getByRole('heading', { name: /Ada ormanı · Seviye \d+/ }).waitFor()
     await page.getByRole('button', { name: 'Geri' }).first().click()
     await page.getByRole('button', { name: 'Şehre dön', exact: true }).click()
 

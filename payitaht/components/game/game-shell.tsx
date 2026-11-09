@@ -326,7 +326,7 @@ export default function GameShell({ onTitle }: { onTitle?: () => void } = {}) {
       {away && !guide && <AwaySummaryCard summary={away} onClose={() => setAway(null)} onReports={() => { setAway(null); openPanel('reports') }} />}
       {view === 'city' && !selected && foundingCity && !(empire?.threats ?? []).some(t => t.cityId === empire?.activeCityId) && !(empire?.sieges ?? []).length && <QuestChip game={game} onOpen={() => openPanel('objectives')} onGo={target} onClaim={id => act({ type: 'claim', id })} />}
       {/* Rehber yeni oyuncu içindir: Divanhane 5'e varmış eski kayıtta, sonradan eklenen rehber hedefleri ok çıkarmaz. */}
-      {!selected && foundingCity && game.buildings.divan < 5 && OBJECTIVES.slice(0, GUIDED_STEPS).some(o => !game.claimed.includes(o.id)) && <GuideSpot game={game} />}</> : <div className="game-loading"><img src={buildingImage('divan', 8)} alt="" width={150} height={150} /><h1>Şehrin uyanıyor…</h1><p>Sahilhisar kapılarını açıyor.</p></div>}
+      {foundingCity && game.buildings.divan < 5 && OBJECTIVES.slice(0, GUIDED_STEPS).some(o => !game.claimed.includes(o.id)) && <GuideSpot game={game} />}</> : <div className="game-loading"><img src={buildingImage('divan', 8)} alt="" width={150} height={150} /><h1>Şehrin uyanıyor…</h1><p>Sahilhisar kapılarını açıyor.</p></div>}
     {game && selected && !buildingDetails && <BuildingPreview key={`${cityId}-${selected}`} game={game} id={selected}
       onClose={() => setSelected(null)} onDetails={() => setBuildingDetails(true)}
       onBuild={() => act({ type: 'build', id: selected })} />}
