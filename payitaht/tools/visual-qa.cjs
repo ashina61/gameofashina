@@ -369,6 +369,7 @@ async function main() {
       await back()
 
       await page.getByRole('button', { name: /^Ordu danışmanı/ }).click()
+      await page.getByRole('tab', { name: 'Savunma', exact: true }).click()
       await page.getByRole('button', { name: /Orduya git/ }).click()
       await page.getByRole('dialog', { name: /Ordu ve donanma/ }).waitFor({ timeout: 10_000 })
       await snapPanel('army')

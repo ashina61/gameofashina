@@ -63,9 +63,11 @@ export function pickGuideTarget(game: Game): HTMLElement | null {
   // Düğme sayfada ama ekranın dışında: bir kez görünür yere kaydır (oyuncu
   // sonra kendisi kaydırırsa onu geri çekiştirmeyiz).
   for (const sel of targets) for (const el of document.querySelectorAll(sel)) {
-    if (el instanceof HTMLElement && !(el as HTMLButtonElement).disabled && !scrolled.has(el)) {
+    if (el instanceof HTMLElement && !(el as HTMLButtonElement).disabled && !scrolled.has(el) && el.checkVisibility?.({ opacityProperty: true, visibilityProperty: true })) {
       const r = el.getBoundingClientRect()
-      if (r.width >= 4 && (r.bottom < 0 || r.top > innerHeight)) { scrolled.add(el); el.scrollIntoView({ block: 'center', behavior: lowMotion() ? 'auto' : 'smooth' }); return null }
+      // A fixed HUD/nav can cover an element that is still inside innerHeight.
+      // No target was usable above: center an existing visible control once.
+      if (r.width >= 4 && r.height >= 4) { scrolled.add(el); el.scrollIntoView({ block: 'center', behavior: lowMotion() ? 'auto' : 'smooth' }); return null }
     }
   }
   // Doğru sayfadayız ama düğme henüz basılamıyor (kaynak bekleniyor): hiçbir şey parlamaz.

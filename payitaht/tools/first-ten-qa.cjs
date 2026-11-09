@@ -55,7 +55,10 @@ async function main() {
         await page.clock.runFor(700)
         continue
       }
-      await page.clock.runFor(5000)
+      // Waiting for resources needs elapsed game time, not 300 Phaser frames.
+      // Keep a short normal interval so React and the 250ms guide tick settle.
+      await page.clock.fastForward(5000)
+      await page.clock.runFor(300)
     }
     await page.screenshot({ path: path.join(OUT, 'first-ten-390x844.png') })
     const missing = GUIDED.filter(id => reached[id] === undefined || reached[id] > LIMIT_MS)
