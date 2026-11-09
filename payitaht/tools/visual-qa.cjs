@@ -348,23 +348,24 @@ async function main() {
       await page.getByRole('dialog', { name: /Şehrini büyüt/ }).waitFor({ timeout: 10_000 })
       await snapPanel('buildings')
       await page.getByRole('searchbox', { name: 'Yapı ara' }).fill('Medrese')
-      await page.locator('.building-list-item').filter({ hasText: 'Medrese' }).click()
-      await page.getByRole('dialog', { name: 'Medrese sayfası' }).waitFor({ timeout: 10_000 })
-      for (const [stage, button] of [[3, null], [1, 'Sv. 1–3 görünümü'], [2, 'Sv. 4–7 görünümü']]) {
-        if (button) await page.getByRole('button', { name: button }).click()
-        const art = page.getByRole('img', { name: 'Medrese görünümü' })
-        await art.evaluate(img => new Promise((resolve, reject) => {
-          if (img.complete && img.naturalWidth > 0) return resolve()
-          img.addEventListener('load', resolve, { once: true })
-          img.addEventListener('error', reject, { once: true })
-        }))
-        const src = await art.getAttribute('src')
-        // Arayüz telefon boyu kopyayı kullanır (V2 Faz 6.1).
-        if (!src?.includes(`medrese-painted-${stage}-sm.webp?art=20260930-observatory-v1`)) {
-          throw new Error(`Medrese stage ${stage} loaded unexpected art: ${src}`)
-        }
-        await snapPanel(`medrese-stage-${stage}`)
-      }
+      const entry = page.locator('.construction-entry[data-building="medrese"]')
+      await entry.locator('summary').click()
+      await entry.getByRole('button', { name: 'Binaya git', exact: true }).click()
+      const inspector = page.getByRole('dialog', { name: 'Medrese', exact: true })
+      await inspector.waitFor()
+      const previewArt = inspector.locator('img').first()
+      await previewArt.evaluate(img => img.decode())
+      if (!(await previewArt.getAttribute('src')).includes('medrese')) throw new Error(`${label}: wrong Medrese inspector art`)
+      await snapPanel('medrese-inspector')
+      await inspector.getByRole('button', { name: 'Yapıyı yönet', exact: true }).click()
+      await page.getByRole('dialog', { name: 'Medrese sayfası', exact: true }).waitFor()
+      const library = page.getByRole('img', { name: 'Osmanlı medresesinde ilim meclisi', exact: true })
+      await library.evaluate(img => img.decode())
+      await page.locator('.bp-of-medrese .workforce').waitFor()
+      await snapPanel('medrese-production')
+      await page.getByRole('tab', { name: 'Gelişim', exact: true }).click()
+      await page.locator('.bp-of-medrese .bp-upgrade-button').waitFor()
+      await snapPanel('medrese-development')
       await back()
 
       await page.getByRole('button', { name: /^Ordu danışmanı/ }).click()
