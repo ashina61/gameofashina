@@ -65,6 +65,18 @@ async function main() {
     console.log(log.join('\n'))
     if (errors.length) console.log(`Sayfa hatası: ${errors.slice(0, 3).join(' | ')}`)
     if (missing.length || errors.length) {
+      const state = await page.evaluate(() => {
+        const empire = JSON.parse(localStorage.getItem('payitaht-adalari-v1'))
+        const game = empire.cities[0].game
+        return {
+          panel: document.querySelector('.bp')?.getAttribute('aria-label'),
+          inspector: document.querySelector('.building-inspector')?.getAttribute('data-building'),
+          glow: document.querySelector('.guide-glow')?.textContent?.trim(),
+          selectedUnit: document.querySelector('.barracks-unit-toggle[aria-expanded="true"]')?.getAttribute('aria-controls'),
+          army: game.army, drills: game.drills,
+        }
+      })
+      console.log(`Rehber durumu: ${JSON.stringify(state)}`)
       console.log(`İLK 10 DAKİKA BAŞARISIZ: ${missing.join(', ') || 'sayfa hatası'}`)
       process.exitCode = 1
     } else {

@@ -18,7 +18,7 @@ const TARGETS: Record<string, string[]> = {
   'first-research': ['[data-guide="research"]'],
   barracks: ['.building-inspector[data-building="kisla"] .bp-upgrade-button', '.bp-of-kisla .bp-upgrade-button'],
   walls: ['.building-inspector[data-building="surlar"] .bp-upgrade-button', '.bp-of-surlar .bp-upgrade-button'],
-  troops: ['[data-guide="recruit-mizrakci"]', '[data-guide="recruit-yeniceri"]'],
+  troops: ['[data-guide="recruit-mizrakci"]', '.barracks-entry:not(.is-locked) > [aria-controls="barracks-training-mizrakci"][aria-expanded="false"]', '[data-guide="recruit-yeniceri"]'],
   'first-raid': ['[data-guide="raid"]', '[data-guide="all-mizrakci"]', '[data-guide="all-yeniceri"]', '[data-guide="npc-koy"]'],
 }
 /** Adımın sayfası: açıksa (inşaat sürerken düğme yerine çubuk olsa da) oyuncu bekler. */

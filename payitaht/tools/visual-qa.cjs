@@ -402,7 +402,8 @@ async function main() {
       await page.setViewportSize({ width: 345, height: 768 })
       await page.reload({ waitUntil: 'domcontentloaded' })
       await page.getByRole('button', { name: START_BUTTON }).click()
-      await page.getByRole('button', { name: /Şehir: Yeni Sahil.*Şehirlerini aç/ }).click()
+      await page.getByRole('button', { name: /^Şehir: Yeni Sahil\. Şehir seç$/ }).click()
+      await page.getByRole('menuitem', { name: 'Şehir yönetimi', exact: true }).click()
       await page.getByRole('dialog', { name: /Şehirlerin/ }).waitFor()
       const boxes = await page.evaluate(() => {
         const card = document.querySelector('.civic-settlement[aria-current="true"]')
