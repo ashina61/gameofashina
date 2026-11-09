@@ -22,7 +22,7 @@ defaults:
 
 jobs:
   release-check:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 35
     steps:
       - uses: actions/checkout@v4
@@ -35,11 +35,42 @@ jobs:
           run_install: false
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
+      - name: Check types, regressions and CSS
+        run: pnpm check
+      - name: Check V2 budgets
+        run: node tools/v2-criteria.cjs
       - name: Build native static export
         env:
           STATIC_EXPORT: '1'
           NEXT_PUBLIC_NATIVE: '1'
         run: pnpm build:android
+      - name: Install Android UI test browser
+        run: |
+          npm install --no-audit --no-fund --prefix "${RUNNER_TEMP}/android-qa" playwright@1.55.0
+          "${RUNNER_TEMP}/android-qa/node_modules/.bin/playwright" install --with-deps chromium
+      - name: Check compiled Android UI at phone sizes
+        env:
+          NODE_PATH: ${{ runner.temp }}/android-qa/node_modules
+          ANDROID_QA_URL: http://127.0.0.1:4180/
+          LAYOUT_QA_URL: http://127.0.0.1:4180/
+        run: |
+          python3 -m http.server 4180 --bind 127.0.0.1 --directory out >"${RUNNER_TEMP}/android-qa-server.log" 2>&1 &
+          for attempt in $(seq 1 30); do
+            if curl -fsS http://127.0.0.1:4180/ -o /dev/null; then break; fi
+            sleep 1
+          done
+          node tools/android-qa.cjs
+          node tools/layout-qa.cjs
+      - name: Upload Android UI evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-ui-evidence
+          path: |
+            payitaht/visual-review/android/
+            payitaht/visual-review/layout-report.json
+          if-no-files-found: ignore
+          retention-days: 7
       - name: Sync Capacitor
         run: pnpm exec cap sync android
       - uses: actions/setup-java@v4
@@ -58,3 +89,15 @@ jobs:
           ./gradlew bundleRelease --no-daemon --stacktrace
       - name: Verify release bundle exists
         run: test -s android/app/build/outputs/bundle/release/app-release.aab
+      - name: Build installable device-test APK
+        working-directory: payitaht/android
+        run: ./gradlew assembleDebug --no-daemon --stacktrace
+      - name: Upload Android test builds
+        uses: actions/upload-artifact@v4
+        with:
+          name: payitaht-android-0.127.0-test
+          path: |
+            payitaht/android/app/build/outputs/apk/debug/app-debug.apk
+            payitaht/android/app/build/outputs/bundle/release/app-release.aab
+          if-no-files-found: error
+          retention-days: 14
