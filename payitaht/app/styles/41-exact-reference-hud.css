@@ -48,3 +48,81 @@
 .game-shell .exact-hud .ika-res.ika-res-large { height: 134px !important; grid-template-rows: repeat(2,67px) !important; }
 .game-shell .exact-hud .ika-res-large .ika-chip { height: 67px !important; }
 .game-shell .exact-hud .ika-res-large .ika-stock-open { grid-template-rows: 18px minmax(0,1fr); }
+
+/* Keep the live city picker above the resource row. */
+.game-shell .exact-hud .ika-ribbon { z-index: 2; }
+.game-shell .exact-hud .ika-res { z-index: 1; }
+/* Five independently painted plates: visible press, selected light, repeatable flash. */
+.game-shell .exact-nav,.game-shell:has(.bp-royal) .exact-nav { background-image: none !important; }
+.game-shell .exact-nav .ika-nav-paint {
+  position: absolute; inset: 0; background-image: var(--exact-bottom); background-size: 500% 100%;
+  background-repeat: no-repeat; pointer-events: none; transform-origin: 50% 80%;
+  transition: transform .14s ease, filter .18s ease;
+}
+.game-shell .exact-nav .ika-nav-active .ika-nav-paint { filter: brightness(1.18) saturate(1.08) drop-shadow(0 -1px 4px #e4b85599); }
+.game-shell .exact-nav .ika-nav-item:active .ika-nav-paint { transform: translateY(3px) scale(.96); filter: brightness(1.4); }
+.game-shell .exact-nav .ika-nav-item::before {
+  content: ''; display: block !important; position: absolute; z-index: 1; inset: 24% 5% 8%;
+  border-radius: 15%; box-shadow: inset 0 0 0 1px #e6c06a00; pointer-events: none;
+  transition: box-shadow .18s ease;
+}
+.game-shell .exact-nav .ika-nav-active::before { box-shadow: inset 0 0 0 1px #e6c06a99,inset 0 0 16px #d5a24344; }
+.game-shell .exact-nav .ika-nav-tap-flash {
+  position: absolute; z-index: 2; inset: 21% 2% 5%; pointer-events: none; border-radius: 15%;
+  background: radial-gradient(ellipse,#ffe8a466,transparent 70%); animation: command-tap-flash .42s ease-out both;
+}
+@keyframes command-tap-flash { 0% { opacity: 1; transform: scale(.78); } 100% { opacity: 0; transform: scale(1.05); } }
+@media (prefers-reduced-motion: reduce) {
+  .game-shell .exact-nav .ika-nav-paint { transition: none; }
+  .game-shell .exact-nav .ika-nav-item:active .ika-nav-paint { transform: none; filter: brightness(1.4); }
+  .game-shell .exact-nav .ika-nav-tap-flash { animation: none; opacity: 0; }
+}
+.game-shell .exact-hud { clip-path: none; }
+.game-shell .exact-nav .ika-nav-item::before {
+  top: 24% !important; right: 5% !important; bottom: 8% !important; left: 5% !important;
+  width: auto !important; height: auto !important; transform: none !important; background: none !important;
+}
+/* Clip the dot itself, so scaling never leaves a square red badge. */
+.game-shell .exact-hud .ika-badge,.game-shell .exact-nav .ika-badge {
+  border-radius: 9999px !important; clip-path: circle(50%) !important;
+  background: radial-gradient(circle at 35% 30%,#ed4735,#b91412 58%,#690909) !important;
+}
+/* Press is immediate; release eases back into the plate. */
+.game-shell .exact-nav .ika-nav-item:active .ika-nav-paint {
+  transition: none !important; transform: translateY(3px) scale(.96) !important; filter: brightness(1.4) !important;
+}
+@media (prefers-reduced-motion: reduce) {
+  .game-shell .exact-nav .ika-nav-item:active .ika-nav-paint { transform: none !important; }
+}
+
+/* The painted seal stays neutral until a live unread badge covers it. */
+.game-shell .exact-nav .ika-badge { z-index: 3; }
+
+/* Copy nearby unmarked walnut over the seal baked into the reference painting.
+   This belongs to the painted plate and moves with its press animation. */
+.game-shell .exact-nav .ika-nav-clear-seal {
+  position: absolute; left: 58.5%; top: 26%; width: 20%; height: 16%;
+  background: var(--exact-bottom) -94.3287vw calc(clamp(84px,25.463vw,104px) * -.468167) / 100vw clamp(84px,25.463vw,104px) no-repeat;
+  mask-image: radial-gradient(ellipse,#000 78%,transparent 99%); pointer-events: none;
+}
+.game-shell .exact-nav .ika-nav-item[data-nav='objectives'] .ika-badge { top: 28%; right: 25.5%; }
+
+/* Compact city switcher anchored below the city plaque. */
+.game-shell .exact-hud .ika-city-menu {
+  position: absolute; z-index: 20; left: 54px; right: 8px; top: 52px; width: auto; max-width: 280px;
+  max-height: 45dvh; overflow-y: auto; pointer-events: auto; padding: 7px;
+  background: var(--c-wood-dark); border: 2px solid var(--c-gold); border-radius: 8px;
+  box-shadow: 0 5px 18px #0009; color: var(--c-cream); font: 14px/1.3 Georgia,serif;
+}
+.game-shell .exact-hud .ika-city-menu p { margin: 2px 6px 7px; font-weight: 700; }
+.game-shell .exact-hud .ika-city-menu button {
+  width: 100%; min-height: 44px; display: flex; align-items: center; justify-content: space-between;
+  gap: 8px; padding: 7px 9px; border: 0; border-radius: 4px; background: transparent;
+  color: var(--c-cream); font: inherit; text-align: left;
+}
+.game-shell .exact-hud .ika-city-menu button[aria-checked='true'],
+.game-shell .exact-hud .ika-city-menu button:hover { background: #ffffff14; }
+.game-shell .exact-hud .ika-city-menu button:focus-visible { outline: 2px solid var(--c-gold); outline-offset: -2px; }
+.game-shell .exact-hud .ika-city-menu strong,.game-shell .exact-hud .ika-city-menu small { display: block; }
+.game-shell .exact-hud .ika-city-menu small { font-size: 12px; opacity: .8; }
+.game-shell .exact-hud .ika-city-menu .ika-city-manage { border-top: 1px solid var(--c-gold); margin-top: 4px; border-radius: 0; }

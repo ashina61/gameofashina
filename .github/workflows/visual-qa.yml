@@ -73,7 +73,20 @@ jobs:
           STATIC_EXPORT: '1'
           NEXT_BASE_PATH: /gameofashina
           NEXT_PUBLIC_ASSET_BASE: /gameofashina
-        run: pnpm build
+        run: |
+          for attempt in 1 2 3; do
+            if pnpm build 2>&1 | tee "${RUNNER_TEMP}/visual-build.log"; then
+              exit 0
+            fi
+            if ! grep -Fq 'next/font' "${RUNNER_TEMP}/visual-build.log"; then
+              exit 1
+            fi
+            if [ "${attempt}" -lt 3 ]; then
+              echo "::warning::Font loader failed; retrying the export (${attempt}/3)"
+              sleep 5
+            fi
+          done
+          exit 1
       - name: Install isolated browser for visual QA
         # apt aynası zaman zaman takılıyor (0.30.0'da bir iş 12 dk asılı kaldı):
         # her deneme 5 dk ile sınırlı, üç deneme.
