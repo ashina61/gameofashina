@@ -7,7 +7,10 @@ import { paintedUiStyle } from '@/lib/painted-ui'
 const serif = Cormorant_Garamond({ subsets: ['latin', 'latin-ext'], weight: ['400', '500', '600', '700'], variable: '--font-heading', display: 'swap' })
 const sans = Manrope({ subsets: ['latin', 'latin-ext'], variable: '--font-body', display: 'swap' })
 
+const native = process.env.NEXT_PUBLIC_NATIVE === '1'
+
 export const metadata: Metadata = {
+  other: { 'payitaht-platform': native ? 'android' : 'web' },
   title: 'Payitaht Adaları — Kendi hikâyeni inşa et',
   description: 'Osmanlı esintili özgün ada stratejisi. Sahilhisar şehrini kur, kaynaklarını yönet ve ilimle geliş. Mobil, tek oyunculu ve cihazda kayıtlı prototip.',
   applicationName: 'Payitaht Adaları',
@@ -20,7 +23,6 @@ export const metadata: Metadata = {
  * ve gezinme çubuğunun üstünden başlatır. Böylece hiçbir WebView sürümünde
  * başlıklar ve bildirimler saatin altına girmez.
  */
-const native = process.env.NEXT_PUBLIC_NATIVE === '1'
 export const viewport: Viewport = { width: 'device-width', initialScale: 1, ...(native ? {} : { viewportFit: 'cover' as const }), themeColor: '#3a2413', colorScheme: 'light' }
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return <html lang="tr" className={`${sans.variable} ${serif.variable}`}><body style={paintedUiStyle}>{children}</body></html>

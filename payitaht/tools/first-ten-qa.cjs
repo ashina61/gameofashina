@@ -55,13 +55,28 @@ async function main() {
         await page.clock.runFor(700)
         continue
       }
-      await page.clock.runFor(5000)
+      // Waiting for resources needs elapsed game time, not 300 Phaser frames.
+      // Keep a short normal interval so React and the 250ms guide tick settle.
+      await page.clock.fastForward(5000)
+      await page.clock.runFor(300)
     }
     await page.screenshot({ path: path.join(OUT, 'first-ten-390x844.png') })
     const missing = GUIDED.filter(id => reached[id] === undefined || reached[id] > LIMIT_MS)
     console.log(log.join('\n'))
     if (errors.length) console.log(`Sayfa hatası: ${errors.slice(0, 3).join(' | ')}`)
     if (missing.length || errors.length) {
+      const state = await page.evaluate(() => {
+        const empire = JSON.parse(localStorage.getItem('payitaht-adalari-v1'))
+        const game = empire.cities[0].game
+        return {
+          panel: document.querySelector('.bp')?.getAttribute('aria-label'),
+          inspector: document.querySelector('.building-inspector')?.getAttribute('data-building'),
+          glow: document.querySelector('.guide-glow')?.textContent?.trim(),
+          selectedUnit: document.querySelector('.barracks-unit-toggle[aria-expanded="true"]')?.getAttribute('aria-controls'),
+          army: game.army, drills: game.drills,
+        }
+      })
+      console.log(`Rehber durumu: ${JSON.stringify(state)}`)
       console.log(`İLK 10 DAKİKA BAŞARISIZ: ${missing.join(', ') || 'sayfa hatası'}`)
       process.exitCode = 1
     } else {

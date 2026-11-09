@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState, type CSSProperties } from 'react'
 import { X, Check } from './ui-art'
 
+import { saveBackupFile } from '@/lib/backup-file'
 import { SettingsPanel } from './settings-panel'
 import { QuestChip } from './quest-chip'
 import { GuideSpot } from './guide-spot'
@@ -169,7 +170,7 @@ export default function GameShell({ onTitle }: { onTitle?: () => void } = {}) {
   useEffect(() => {
     if (layered && !pushed.current) { history.pushState({ payitaht: 1 }, ''); pushed.current = true }
     else if (!layered && pushed.current) { pushed.current = false; skipPop.current = true; history.back() }
-  }, [layered])
+  }, [layered, panel, selected, plot, npc, moving, view])
   useEffect(() => {
     const onPop = () => {
       if (skipPop.current) { skipPop.current = false; return }
@@ -225,19 +226,7 @@ export default function GameShell({ onTitle }: { onTitle?: () => void } = {}) {
   }
   async function backupSaveFile() {
     try {
-      const raw = exportSave()
-      const stamp = new Date().toISOString().slice(0, 10)
-      const file = new File([raw], `payitaht-yedek-${stamp}.json`, { type: 'application/json' })
-      const shareData = { files: [file], title: 'Payitaht Adaları kayıt yedeği' }
-      if (navigator.share && navigator.canShare?.(shareData)) {
-        await navigator.share(shareData)
-      } else {
-        const url = URL.createObjectURL(file)
-        const a = document.createElement('a')
-        a.href = url; a.download = file.name; a.click()
-        setTimeout(() => URL.revokeObjectURL(url), 1000)
-      }
-      say.ok('Kayıt yedeği hazır.')
+      if (await saveBackupFile(exportSave())) say.ok('Kayıt yedeği kaydedildi.')
     } catch {
       say.no('Kayıt yedeği dışarı aktarılamadı.')
     }
@@ -337,7 +326,7 @@ export default function GameShell({ onTitle }: { onTitle?: () => void } = {}) {
       {away && !guide && <AwaySummaryCard summary={away} onClose={() => setAway(null)} onReports={() => { setAway(null); openPanel('reports') }} />}
       {view === 'city' && !selected && foundingCity && !(empire?.threats ?? []).some(t => t.cityId === empire?.activeCityId) && !(empire?.sieges ?? []).length && <QuestChip game={game} onOpen={() => openPanel('objectives')} onGo={target} onClaim={id => act({ type: 'claim', id })} />}
       {/* Rehber yeni oyuncu içindir: Divanhane 5'e varmış eski kayıtta, sonradan eklenen rehber hedefleri ok çıkarmaz. */}
-      {!selected && foundingCity && game.buildings.divan < 5 && OBJECTIVES.slice(0, GUIDED_STEPS).some(o => !game.claimed.includes(o.id)) && <GuideSpot game={game} />}</> : <div className="game-loading"><img src={buildingImage('divan', 8)} alt="" width={150} height={150} /><h1>Şehrin uyanıyor…</h1><p>Sahilhisar kapılarını açıyor.</p></div>}
+      {foundingCity && game.buildings.divan < 5 && OBJECTIVES.slice(0, GUIDED_STEPS).some(o => !game.claimed.includes(o.id)) && <GuideSpot game={game} />}</> : <div className="game-loading"><img src={buildingImage('divan', 8)} alt="" width={150} height={150} /><h1>Şehrin uyanıyor…</h1><p>Sahilhisar kapılarını açıyor.</p></div>}
     {game && selected && !buildingDetails && <BuildingPreview key={`${cityId}-${selected}`} game={game} id={selected}
       onClose={() => setSelected(null)} onDetails={() => setBuildingDetails(true)}
       onBuild={() => act({ type: 'build', id: selected })} />}

@@ -1,6 +1,6 @@
 {
   "name": "payitaht-adalari",
-  "version": "0.126.0",
+  "version": "0.127.0",
   "private": true,
   "packageManager": "pnpm@9.15.9",
   "scripts": {
@@ -13,7 +13,8 @@
     "lint": "eslint --max-warnings 0 .",
     "lint:css": "node tools/css-lint.cjs && node tools/unused-css.cjs --strict",
     "qa:layout": "node tools/layout-qa.cjs",
-    "qa:city": "node tools/visual-qa.cjs"
+    "qa:city": "node tools/visual-qa.cjs",
+    "build:android": "STATIC_EXPORT=1 NEXT_PUBLIC_NATIVE=1 pnpm build && node tools/prepare-android.cjs"
   },
   "dependencies": {
     "@base-ui/react": "^1.5.0",
