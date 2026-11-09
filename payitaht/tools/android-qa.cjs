@@ -46,7 +46,7 @@ async function main() {
           await page.evaluate(zoom => {
             const elements = [...document.querySelectorAll('body *')].filter(el => !el.dataset.androidQaText && !(el instanceof SVGElement))
             const sizes = elements.map(el => parseFloat(getComputedStyle(el).fontSize))
-            elements.forEach((el, index) => { el.style.fontSize = `${sizes[index] * zoom}px`; el.dataset.androidQaText = '1' })
+            elements.forEach((el, index) => { el.style.setProperty('font-size', `${sizes[index] * zoom}px`, 'important'); el.dataset.androidQaText = '1' })
           }, scale)
         }
         await page.waitForTimeout(150)
@@ -63,11 +63,16 @@ async function main() {
       const hud = await page.evaluate(() => ({
         quantities: [...document.querySelectorAll('.ika-chip-num > b')].map(el => parseFloat(getComputedStyle(el).fontSize)),
         rates: [...document.querySelectorAll('.ika-chip-num > small')].map(el => parseFloat(getComputedStyle(el).fontSize)),
+        clipped: [...document.querySelectorAll('.ika-resource-label, .ika-chip-num > b, .ika-chip-num > small')].filter(el => {
+          const box = el.getBoundingClientRect(), cell = el.closest('button').getBoundingClientRect()
+          return box.top < cell.top - 1 || box.bottom > cell.bottom + 1 || box.left < cell.left - 1 || box.right > cell.right + 1
+        }).map(el => el.textContent),
         targets: [...document.querySelectorAll('.ika-advisor, .ika-stock-open')].map(el => { const r = el.getBoundingClientRect(); return [r.width, r.height] }),
       }))
-      assert.ok(hud.quantities.length > 0 && hud.quantities.every(px => px >= 14), `${label}: resource text`)
-      assert.ok(hud.rates.length > 0 && hud.rates.every(px => px >= 11), `${label}: rate text`)
+      assert.ok(hud.quantities.length > 0 && hud.quantities.every(px => px >= 14 * scale), `${label}: resource text`)
+      assert.ok(hud.rates.length > 0 && hud.rates.every(px => px >= 11 * scale - 0.01), `${label}: rate text`)
       assert.ok(hud.targets.length >= 10 && hud.targets.every(([w, h]) => w >= 44 && h >= 44), `${label}: touch targets`)
+      assert.deepEqual(hud.clipped, [], `${label}: resource text must fit its cell`)
       await page.screenshot({ path: path.join(out, `city-${label}.png`) })
       for (const panel of ['forest', 'island']) {
         await page.evaluate(value => window.__payitahtQa.panel(value), panel)
