@@ -61,3 +61,8 @@
 .island-map-viewport .map-zoom-controls button:last-child > :is(svg,.painted-icon) { visibility: hidden; }
 
 .island-map-viewport .map-zoom-controls { top: 8px; bottom: auto; }
+
+/* Preserve the covered map camera without exposing it during register loading. */
+.game-shell.has-page .island-view { visibility: hidden; pointer-events: none; }
+.game-shell.has-page > .bp[role='dialog'] { background-color: var(--c-parch); }
+.game-shell.has-page > .bp[role='dialog'] > .bp-scroll { background-color: var(--c-parch); }

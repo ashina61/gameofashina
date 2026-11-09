@@ -38,7 +38,7 @@ jobs:
         env:
           STATIC_EXPORT: '1'
           NEXT_PUBLIC_NATIVE: '1'
-        run: pnpm build
+        run: pnpm build:android
       - name: Sync Capacitor
         run: pnpm exec cap sync android
       - uses: actions/setup-java@v4

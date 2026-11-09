@@ -4,8 +4,14 @@ def releaseStorePath = System.getenv("PAYITAHT_KEYSTORE_PATH")
 def releaseStorePassword = System.getenv("PAYITAHT_KEYSTORE_PASSWORD")
 def releaseKeyAlias = System.getenv("PAYITAHT_KEY_ALIAS")
 def releaseKeyPassword = System.getenv("PAYITAHT_KEY_PASSWORD")
-def releaseVersionCode = (System.getenv("PAYITAHT_VERSION_CODE") ?: "50") as Integer
-def releaseVersionName = System.getenv("PAYITAHT_VERSION_NAME") ?: "0.49.0"
+// Shared version for web, debug APK and production AAB. Play code may be overridden.
+def sourceVersion = new groovy.json.JsonSlurper().parse(file("../../package.json")).version
+def versionParts = sourceVersion.tokenize('.').collect { it as Integer }
+def defaultVersionCode = versionParts[0] * 1000000 + versionParts[1] * 1000 + versionParts[2]
+def releaseVersionCode = (System.getenv("PAYITAHT_VERSION_CODE") ?: defaultVersionCode.toString()) as Integer
+def releaseVersionName = System.getenv("PAYITAHT_VERSION_NAME") ?: sourceVersion
+if (releaseVersionName != sourceVersion) throw new GradleException("versionName must match package.json (${sourceVersion})")
+if (releaseVersionCode < 1 || releaseVersionCode > 2100000000) throw new GradleException("Invalid Play versionCode")
 def hasReleaseSigning = releaseStorePath && releaseStorePassword && releaseKeyAlias && releaseKeyPassword
 
 android {

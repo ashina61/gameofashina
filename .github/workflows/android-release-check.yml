@@ -39,7 +39,7 @@ jobs:
         env:
           STATIC_EXPORT: '1'
           NEXT_PUBLIC_NATIVE: '1'
-        run: pnpm build
+        run: pnpm build:android
       - name: Sync Capacitor
         run: pnpm exec cap sync android
       - uses: actions/setup-java@v4
@@ -53,7 +53,6 @@ jobs:
         working-directory: payitaht/android
         env:
           PAYITAHT_VERSION_CODE: '999999'
-          PAYITAHT_VERSION_NAME: '0.0.0-ci'
         run: |
           chmod +x gradlew
           ./gradlew bundleRelease --no-daemon --stacktrace
