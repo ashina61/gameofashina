@@ -92,7 +92,10 @@ function findBackup() {
 async function main() {
   await fs.mkdir(OUT, { recursive: true })
   assert.ok(APK, 'Pass the debug APK path')
+  shell('wm', 'size', '720x1560')
+  shell('wm', 'density', '320')
   adb('install', APK)
+  console.log('Installed device-test APK')
   report.androidApi = Number(shell('getprop', 'ro.build.version.sdk'))
   shell('cmd', 'connectivity', 'airplane-mode', 'enable')
   shell('svc', 'wifi', 'disable')
@@ -107,6 +110,7 @@ async function main() {
   const watch = page => page.on('pageerror', error => errors.push(error.message))
   try {
     let page = await start(device)
+    console.log('Attached to Android WebView at ' + page.url())
     watch(page)
     // Airplane mode and both radio settings are set before launch. WebView's
     // navigator.onLine can still be true for the emulator's virtual interface.
@@ -165,6 +169,7 @@ async function main() {
     await screenshot('03-restored-city')
     record('Exported JSON restores the game through the WebView import control')
     assert.deepEqual(errors, [])
+    report.passed = true
   } catch (error) {
     await screenshot('failure').catch(() => {})
     throw error
@@ -172,8 +177,20 @@ async function main() {
     await device.close().catch(() => {})
   }
 }
+// Keep Node alive if the emulator disconnects while a WebView request is pending.
+const deadline = setTimeout(() => {
+  console.error('Android emulator did not complete the expected game flow')
+  process.exit(1)
+}, 240_000)
+
 main().catch(error => {
   report.error = error.message
   console.error(error)
   process.exitCode = 1
-}).finally(() => fs.writeFile(path.join(OUT, 'report.json'), JSON.stringify(report, null, 2) + '\n'))
+}).finally(async () => {
+  try {
+    await fs.writeFile(path.join(OUT, 'report.json'), JSON.stringify(report, null, 2) + '\n')
+  } finally {
+    clearTimeout(deadline)
+  }
+})

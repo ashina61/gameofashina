@@ -137,9 +137,13 @@ jobs:
           target: google_apis
           arch: x86_64
           profile: pixel_6
-          emulator-options: -no-window -no-snapshot -gpu swiftshader_indirect -noaudio -no-boot-anim
+          ram-size: 2048M
+          emulator-options: -no-window -no-snapshot -gpu swiftshader -feature -Vulkan -noaudio -no-boot-anim -no-metrics
           disable-animations: true
           script: node payitaht/tools/android-device-qa.cjs "$RUNNER_TEMP/payitaht-apk/app-debug.apk"
+      - name: Verify the Android end-to-end report
+        run: |
+          node -e "const r = require('./visual-review/android-device/report.json'); require('node:assert/strict').equal(r.passed, true)"
       - name: Upload Android device test evidence
         if: always()
         uses: actions/upload-artifact@v4
