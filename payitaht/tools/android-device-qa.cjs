@@ -33,7 +33,7 @@ async function until(label, read, timeout = 30_000) {
   throw new Error('Timed out waiting for ' + label)
 }
 
-function screenshot(name) {
+async function screenshot(name) {
   return fs.writeFile(path.join(OUT, name + '.png'), adb('exec-out', 'screencap', '-p'))
 }
 
@@ -108,7 +108,10 @@ async function main() {
   try {
     let page = await start(device)
     watch(page)
-    await page.waitForFunction(() => !navigator.onLine)
+    // Airplane mode and both radio settings are set before launch. WebView's
+    // navigator.onLine can still be true for the emulator's virtual interface.
+    await page.getByRole('button', { name: 'Hikâyeye başla', exact: true }).waitFor()
+    record('Installed WebView reaches the bundled title screen in airplane mode')
     await page.getByRole('button', { name: 'Hikâyeye başla', exact: true }).click()
     await page.getByLabel('Hükümdarın adı').fill(RULER)
     await page.locator('#title-city').fill(CITY)
@@ -162,13 +165,15 @@ async function main() {
     await screenshot('03-restored-city')
     record('Exported JSON restores the game through the WebView import control')
     assert.deepEqual(errors, [])
+  } catch (error) {
+    await screenshot('failure').catch(() => {})
+    throw error
   } finally {
     await device.close().catch(() => {})
   }
 }
-main().catch(async error => {
+main().catch(error => {
   report.error = error.message
   console.error(error)
-  await screenshot('failure').catch(() => {})
   process.exitCode = 1
 }).finally(() => fs.writeFile(path.join(OUT, 'report.json'), JSON.stringify(report, null, 2) + '\n'))
