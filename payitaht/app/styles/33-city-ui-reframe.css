@@ -186,7 +186,7 @@
 }
 .game-world .quest-chip-main { min-height: 48px; padding: 5px 7px; gap: 7px; }
 .game-world .quest-chip-icon { width: 28px; height: 28px; box-shadow: 0 0 0 1px var(--c-gold); }
-.game-world .quest-chip-text small { font-size: 10px; }
+.game-world .quest-chip-text small { font-size: 11px; }
 .game-world .quest-chip-text strong { font-size: 13px; }
 .game-world .quest-chip-go {
   min-height: 48px;
