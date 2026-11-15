@@ -5,7 +5,7 @@ const { execFileSync } = require('node:child_process')
 const fs = require('node:fs/promises')
 const path = require('node:path')
 const { setTimeout: delay } = require('node:timers/promises')
-const { chromium } = require('playwright')
+const { _android } = require('playwright')
 
 const APP = 'com.ashina.payitaht'
 const CITY = 'Android QA Sahili'
@@ -37,25 +37,14 @@ function screenshot(name) {
   return fs.writeFile(path.join(OUT, name + '.png'), adb('exec-out', 'screencap', '-p'))
 }
 
-async function start() {
+async function start(device) {
   shell('am', 'start', '-W', '-n', APP + '/.MainActivity')
-  const pid = await until('app process', () => shell('pidof', APP, '||', 'true').split(/\s+/)[0])
-  const socket = 'webview_devtools_remote_' + pid
-  const port = adb('forward', 'tcp:0', 'localabstract:' + socket).toString().trim()
-  const endpoint = 'http://127.0.0.1:' + port
-  await until('app WebView target', async () => {
-    try {
-      const targets = await (await fetch(endpoint + '/json/list')).json()
-      return targets.some(target => target.type === 'page' && target.url.startsWith('https://localhost'))
-    } catch {
-      return false
-    }
-  })
-  const browser = await chromium.connectOverCDP(endpoint)
-  const page = browser.contexts()[0].pages().find(candidate => candidate.url().startsWith('https://localhost'))
-  assert.ok(page, 'Local Capacitor WebView not found')
+  const view = await device.webView({ pkg: APP }, { timeout: 45_000 })
+  const page = await view.page()
+  assert.ok(page, 'Capacitor WebView not found')
+  await page.waitForURL('https://localhost/**', { timeout: 45_000 })
   page.setDefaultTimeout(35_000)
-  return { browser, page }
+  return page
 }
 
 function savedCity(page) {
@@ -65,7 +54,7 @@ function savedCity(page) {
   })
 }
 
-async function record(check) {
+function record(check) {
   report.checks.push(check)
   console.log('Android emulator passed: ' + check)
 }
@@ -111,12 +100,14 @@ async function main() {
   assert.equal(shell('settings', 'get', 'global', 'airplane_mode_on'), '1')
   shell('input', 'keyevent', 'KEYCODE_WAKEUP')
   shell('wm', 'dismiss-keyguard')
-  let app = await start()
-  let errors = []
+  const devices = await _android.devices()
+  assert.equal(devices.length, 1, 'Expected a single Android emulator')
+  const [device] = devices
+  const errors = []
   const watch = page => page.on('pageerror', error => errors.push(error.message))
-  watch(app.page)
   try {
-    const { page } = app
+    let page = await start(device)
+    watch(page)
     await page.waitForFunction(() => !navigator.onLine)
     await page.getByRole('button', { name: 'Hikâyeye başla', exact: true }).click()
     await page.getByLabel('Hükümdarın adı').fill(RULER)
@@ -126,26 +117,27 @@ async function main() {
     await page.waitForFunction(() => Number(document.documentElement.dataset.cityReady) > 0)
     await until('initial city saved', async () => await savedCity(page) === CITY)
     await screenshot('01-offline-city')
-    await record('Fresh install boots offline and saves a newly named city')
+    record('Fresh install boots offline and saves a newly named city')
 
-    await app.browser.close()
+    const closed = page.waitForEvent('close')
     shell('am', 'force-stop', APP)
-    app = await start()
-    watch(app.page)
-    await app.page.getByRole('button', { name: 'Devam et', exact: true }).click()
-    await app.page.getByRole('button', { name: new RegExp('^Şehir: ' + CITY) }).waitFor()
-    assert.equal(await savedCity(app.page), CITY)
-    await record('City persists after process stop and restart')
+    await closed
+    page = await start(device)
+    watch(page)
+    await page.getByRole('button', { name: 'Devam et', exact: true }).click()
+    await page.getByRole('button', { name: new RegExp('^Şehir: ' + CITY) }).waitFor()
+    assert.equal(await savedCity(page), CITY)
+    record('City persists after process stop and restart')
 
-    await settings(app.page)
-    const exportButton = app.page.getByRole('button', { name: /^Yedeği dışarı aktar/ })
+    await settings(page)
+    const exportButton = page.getByRole('button', { name: /^Yedeği dışarı aktar/ })
     await exportButton.click()
     await until('Android create-document picker', pickerIsOpen)
     shell('input', 'keyevent', 'KEYCODE_BACK')
     await until('picker closes after cancel', () => !pickerIsOpen())
     assert.equal(findBackup(), undefined)
-    assert.equal(await savedCity(app.page), CITY)
-    await record('Cancelling the Android document picker keeps the current save')
+    assert.equal(await savedCity(page), CITY)
+    record('Cancelling the Android document picker keeps the current save')
 
     await exportButton.click()
     await until('Android create-document picker', pickerIsOpen)
@@ -157,21 +149,21 @@ async function main() {
     const backup = JSON.parse(raw.toString())
     assert.equal(backup.cities.find(city => city.id === backup.activeCityId)?.name, CITY)
     assert.equal(backup.profile?.ruler, RULER)
-    await record('Actual Android document picker writes a valid game JSON')
+    record('Actual Android document picker writes a valid game JSON')
 
-    await app.page.getByRole('button', { name: 'Yeni oyun başlat', exact: true }).click()
-    await app.page.getByRole('button', { name: 'Evet, şehrimi sıfırla', exact: true }).click()
-    await until('test reset saved', async () => (await savedCity(app.page)) !== CITY)
-    await app.page.locator('.royal-save-page input[type="file"]').setInputFiles({
+    await page.getByRole('button', { name: 'Yeni oyun başlat', exact: true }).click()
+    await page.getByRole('button', { name: 'Evet, şehrimi sıfırla', exact: true }).click()
+    await until('test reset saved', async () => (await savedCity(page)) !== CITY)
+    await page.locator('.royal-save-page input[type="file"]').setInputFiles({
       name: 'payitaht-ci-backup.json', mimeType: 'application/json', buffer: raw,
     })
-    await until('exported city restored', async () => await savedCity(app.page) === CITY)
-    await app.page.getByRole('button', { name: new RegExp('^Şehir: ' + CITY) }).waitFor()
+    await until('exported city restored', async () => await savedCity(page) === CITY)
+    await page.getByRole('button', { name: new RegExp('^Şehir: ' + CITY) }).waitFor()
     await screenshot('03-restored-city')
-    await record('Exported JSON restores the game through the WebView import control')
+    record('Exported JSON restores the game through the WebView import control')
     assert.deepEqual(errors, [])
   } finally {
-    await app.browser.close().catch(() => {})
+    await device.close().catch(() => {})
   }
 }
 main().catch(async error => {
