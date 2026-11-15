@@ -92,12 +92,59 @@ jobs:
       - name: Build installable device-test APK
         working-directory: payitaht/android
         run: ./gradlew assembleDebug --no-daemon --stacktrace
-      - name: Upload Android test builds
+      - name: Upload device-test APK
         uses: actions/upload-artifact@v4
         with:
-          name: payitaht-android-0.127.0-test
-          path: |
-            payitaht/android/app/build/outputs/apk/debug/app-debug.apk
-            payitaht/android/app/build/outputs/bundle/release/app-release.aab
+          name: payitaht-device-test-apk
+          path: payitaht/android/app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
+          retention-days: 14
+      - name: Upload unsigned AAB
+        uses: actions/upload-artifact@v4
+        with:
+          name: payitaht-unsigned-aab
+          path: payitaht/android/app/build/outputs/bundle/release/app-release.aab
+          if-no-files-found: error
+          retention-days: 14
+
+  android-device:
+    needs: release-check
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/download-artifact@v4
+        with:
+          name: payitaht-device-test-apk
+          path: ${{ runner.temp }}/payitaht-apk
+      - name: Install WebView test client
+        run: npm install --no-audit --no-fund --prefix "${RUNNER_TEMP}/android-device" playwright@1.55.0
+      - name: Enable Android emulator acceleration
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - name: Test the compiled APK on Android
+        uses: reactivecircus/android-emulator-runner@a421e43855164a8197daf9d8d40fe71c6996bb0d # v2.38.0
+        env:
+          NODE_PATH: ${{ runner.temp }}/android-device/node_modules
+          ANDROID_DEVICE_EVIDENCE: ${{ github.workspace }}/payitaht/visual-review/android-device
+        with:
+          api-level: 36
+          target: google_apis
+          arch: x86_64
+          profile: pixel_6
+          emulator-options: -no-window -no-snapshot -gpu swiftshader_indirect -noaudio -no-boot-anim
+          disable-animations: true
+          script: node payitaht/tools/android-device-qa.cjs "$RUNNER_TEMP/payitaht-apk/app-debug.apk"
+      - name: Upload Android device test evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-device-evidence
+          path: payitaht/visual-review/android-device/
+          if-no-files-found: ignore
           retention-days: 14
