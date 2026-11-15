@@ -36,7 +36,7 @@ export function BuildingPreview({ game, id, onClose, onDetails, onBuild }: {
     return () => window.removeEventListener('keydown', close)
   }, [onClose])
   const facing = id === 'liman' || id === 'tersane' ? game.coastFacing[id] : undefined
-  return <section className="building-inspector" role="dialog" aria-modal="false" aria-labelledby="building-inspector-title">
+  return <section className="building-inspector" data-building={id} role="dialog" aria-modal="false" aria-labelledby="building-inspector-title">
     <header className="building-inspector-header">
       <div>
         <small>{building.category} · {level ? `Seviye ${level}` : 'Kurulmadı'}</small>

@@ -5,6 +5,7 @@
  * Tarayıcıda (PWA) hiçbir şey yapmaz. Tür başına açık/kapalı tercihi
  * cihazda saklanır.
  */
+import { Capacitor } from '@capacitor/core'
 import { DEFAULT_NOTICE_PREFS, NOTICE_KINDS, planNotices, type NoticePrefs } from './game/notices'
 import type { Empire } from './game/empire'
 
@@ -31,12 +32,13 @@ export function setNoticePrefs(patch: Partial<NoticePrefs>) {
 export function onNoticePrefs(l: Listener) { listeners.add(l); return () => { listeners.delete(l) } }
 
 async function plugin() {
-  if (!native) return null
-  try { return (await import('@capacitor/local-notifications')).LocalNotifications } catch { return null }
+  if (!native || !Capacitor.isNativePlatform()) return null
+  // Return the module: a Capacitor plugin proxy synthesizes a `then` method.
+  try { return await import('@capacitor/local-notifications') } catch { return null }
 }
 /** Bildirim izni: verilmişse true; sorulmadıysa bir kez sorar. */
 export async function ensurePermission(): Promise<boolean> {
-  const ln = await plugin()
+  const ln = (await plugin())?.LocalNotifications
   if (!ln) return false
   try {
     const s = await ln.checkPermissions()
@@ -46,14 +48,14 @@ export async function ensurePermission(): Promise<boolean> {
   } catch { return false }
 }
 export async function notificationPermission(): Promise<'granted' | 'denied' | 'prompt' | 'none'> {
-  const ln = await plugin()
+  const ln = (await plugin())?.LocalNotifications
   if (!ln) return 'none'
   try { const s = (await ln.checkPermissions()).display; return s === 'granted' || s === 'denied' ? s : 'prompt' } catch { return 'none' }
 }
 
 /** Bekleyen bütün oyun bildirimlerini siler. */
 export async function clearNotices() {
-  const ln = await plugin()
+  const ln = (await plugin())?.LocalNotifications
   if (!ln) return
   try {
     const pending = await ln.getPending()
@@ -66,7 +68,7 @@ export async function clearNotices() {
  * geri alındıysa plan cihaz saatine çevrilir.
  */
 export async function scheduleNotices(empire: Empire, gameNow: number) {
-  const ln = await plugin()
+  const ln = (await plugin())?.LocalNotifications
   if (!ln) return
   const prefs = noticePrefs()
   if (!Object.values(prefs).some(Boolean)) return clearNotices()

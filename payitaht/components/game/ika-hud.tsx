@@ -86,7 +86,7 @@ export function IkaTopBar({ game, empire, news, modes, activeAdvisor, onCity, on
     if (!bar) return
     const update = () => {
       const stock = bar.querySelector('.ika-chip b')
-      setLargeText(!!stock && parseFloat(getComputedStyle(stock).fontSize) >= 14)
+      setLargeText(!!stock && parseFloat(getComputedStyle(stock).fontSize) >= 18)
     }
     const resize = new ResizeObserver(update)
     resize.observe(bar)
@@ -190,7 +190,7 @@ export function IkaTopBar({ game, empire, news, modes, activeAdvisor, onCity, on
         return <span key={c.key} className={cn('ika-chip', index < 4 ? 'ika-stock' : 'ika-status', c.full && 'ika-chip-full', c.cap && 'ika-chip-cap', c.negative && 'ika-chip-negative')} data-lux={c.key === 'lux' ? lux : undefined} data-k={c.key} title={c.label}>
           <button className="ika-stock-open" type="button" onClick={onEconomy} aria-label={`${c.label}: ${c.value}. Üretim defterini aç`}>
             <i aria-hidden="true">{c.icon}</i>
-            <span className="ika-resource-label" aria-hidden="true">{c.label}</span>
+            <span className="ika-resource-label" aria-hidden="true">{c.key === 'pop' ? 'Nüfus' : c.label.split(' (')[0]}</span>
             <span className="ika-chip-num">{c.num !== undefined ? <CountUp value={Math.floor(c.num)} format={compact} /> : <b>{c.value}</b>}{c.sub && <small>{c.sub}</small>}</span>
           </button>
           {fx && <em key={fx.stamp} className={cn('ika-chip-delta', fx.value > 0 ? 'is-plus' : 'is-minus')} aria-hidden="true">
