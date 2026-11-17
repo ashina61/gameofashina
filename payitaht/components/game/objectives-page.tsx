@@ -59,7 +59,7 @@ function RuleTitle({ children, count }: { children: ReactNode; count?: string })
 /** A bespoke game screen; the engine remains responsible for every condition and payout. */
 export function ObjectivesPage({ game, empire, foundingCity, cityName, onClaim, onGo, onFoundingCity, run }: {
   game: Game; empire: Empire | undefined; foundingCity: boolean; cityName: string
-  onClaim: (id: string) => void; onGo: (id?: string) => void; onFoundingCity: () => void; run: Run
+  onClaim: (id: string) => void; onGo: (id: string) => void; onFoundingCity: () => void; run: Run
 }) {
   const [tab, setTab] = useState<Tab>('city')
   const [selectedId, setSelectedId] = useState<string | null>(null)

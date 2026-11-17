@@ -1,26 +1,45 @@
 'use client'
 
-import { ChevronRight, Gift, ScrollText } from './ui-art'
+import { ChevronRight, Gift, Hammer, ScrollText } from './ui-art'
 import { flyGoods } from '@/lib/fx'
-import { OBJECTIVES, objectiveDone, type Game } from '@/lib/game/engine'
+import { BUILDINGS, GUIDED_STEPS, OBJECTIVES, timeLeft, type BuildingId, type Game } from '@/lib/game/engine'
+import { firstSessionStep } from '@/lib/game/first-session'
+import { t } from '@/lib/i18n/tr'
 
-/**
- * SIRADAKİ HEDEF ŞERİDİ — şehir ekranında yeni oyuncuya yol gösterir.
- * Hedef bitince altın renge döner ve "Ödülü al" der; bütün hedefler
- * tamamlanınca kaybolur. Metne dokunmak Görevler sayfasını açar.
- */
-export function QuestChip({ game, onOpen, onGo, onClaim }: { game: Game; onOpen: () => void; onGo: () => void; onClaim: (id: string) => void }) {
-  const next = OBJECTIVES.find(o => !game.claimed.includes(o.id))
+export function QuestChip({ game, onOpen, onGo, onClaim, placement, onCancelPlacement }: {
+  game: Game
+  onOpen: () => void
+  onGo: (id: string) => void
+  onClaim: (id: string) => void
+  placement: BuildingId | null
+  onCancelPlacement: () => void
+}) {
+  const next = OBJECTIVES.find(objective => !game.claimed.includes(objective.id))
   if (!next) return null
-  const done = objectiveDone(game, next.id)
-  const step = OBJECTIVES.indexOf(next) + 1
-  return <div className={`quest-chip${done ? ' is-done' : ''}`}>
-    <button type="button" className="quest-chip-main" onClick={onOpen} aria-label={`Sıradaki hedef ${step}/${OBJECTIVES.length}: ${next.description}. Görevleri aç`}>
-      <span className="quest-chip-icon" aria-hidden="true">{done ? <Gift /> : <ScrollText />}</span>
-      <span className="quest-chip-text"><small>Hedef {step}/{OBJECTIVES.length}{done ? ' · tamam!' : ` · ${next.title}`}</small><strong>{next.description}</strong></span>
+  const guided = firstSessionStep(game)
+  const done = next.done(game)
+  const index = OBJECTIVES.indexOf(next)
+  const title = placement ? `${BUILDINGS[placement].name} için arsa seç` : guided?.title ?? next.description
+  const caption = placement ? 'Haritadaki işaretli arsalardan birine dokun.'
+    : done ? `Tamamlandı · +${next.reward} akçe`
+    : guided?.status ?? (guided ? `İlk adımlar · ${index + 1}/${GUIDED_STEPS}` : next.title)
+  const action = placement ? t.action.cancel : done ? 'Ödülü al' : guided?.job ? 'İncele' : guided?.action ?? 'Göreve git'
+  const Icon = placement ? Hammer : done ? Gift : ScrollText
+
+  return <aside className={`quest-chip${guided ? ' is-guided' : ''}${done ? ' is-done' : ''}${placement ? ' is-placing' : ''}`} aria-label="Sıradaki hedef">
+    <button type="button" className="quest-chip-main" onClick={onOpen} aria-label={`${title}. Görev defterini aç`}>
+      <span className="quest-chip-icon" aria-hidden="true"><Icon /></span>
+      <span className="quest-chip-text">
+        <strong>{title}</strong>
+        <small>{caption}{guided?.job && <> · <time>{timeLeft(guided.job, game.updatedAt)}</time></>}</small>
+      </span>
     </button>
-    <button type="button" className="quest-chip-go" onClick={e => { if (done) { flyGoods(e.currentTarget, { gold: next.reward }); onClaim(next.id) } else onGo() }}>
-      {done ? 'Ödülü al' : 'Git'}{!done && <ChevronRight aria-hidden="true" />}
+    <button type="button" className="quest-chip-go" onClick={event => {
+      if (placement) onCancelPlacement()
+      else if (done) { flyGoods(event.currentTarget, { gold: next.reward }); onClaim(next.id) }
+      else onGo(next.id)
+    }}>
+      {action}{!placement && !done && <ChevronRight aria-hidden="true" />}
     </button>
-  </div>
+  </aside>
 }

@@ -7,7 +7,7 @@
  * zaten söyler. Hedefler `data-guide` işaretleriyle bulunur.
  */
 import { useEffect, useRef, useState } from 'react'
-import { GUIDED_STEPS, OBJECTIVES, UNITS, UNIT_IDS, objectiveDone, type Game, type UnitId } from '@/lib/game/engine'
+import type { firstSessionStep } from '@/lib/game/first-session'
 import { t } from '@/lib/i18n/tr'
 import { lowMotion } from '@/lib/motion'
 
@@ -23,8 +23,11 @@ const TARGETS: Record<string, string[]> = {
 }
 /** Adımın sayfası: açıksa (inşaat sürerken düğme yerine çubuk olsa da) oyuncu bekler. */
 const PAGE: Record<string, string> = {
-  'first-upgrade': '.bp-of-divan, .building-inspector[data-building="divan"]', 'first-academy': '.bp-of-medrese, .building-inspector[data-building="medrese"]', 'first-worker': '.bp-of-medrese',
-  barracks: '.bp-of-kisla, .building-inspector[data-building="kisla"]', walls: '.bp-of-surlar, .building-inspector[data-building="surlar"]',
+  'first-upgrade': '.bp-of-divan, .building-inspector[data-building="divan"]',
+  'first-academy': '.bp-of-medrese, .building-inspector[data-building="medrese"]',
+  'first-worker': '.bp-of-medrese',
+  barracks: '.bp-of-kisla, .building-inspector[data-building="kisla"]',
+  walls: '.bp-of-surlar, .building-inspector[data-building="surlar"]',
 }
 const CHIP = '.quest-chip-go'
 /** Rehberin bir kez görünür yere kaydırdığı düğmeler. */
@@ -41,52 +44,46 @@ function usable(el: Element): el is HTMLElement {
   return !hit || el.contains(hit) || hit.contains(el)
 }
 
-const isLandSoldier = (id: UnitId) => UNITS[id]?.branch === 'kara' && UNITS[id].role !== 'spy'
-const landSoldiers = (game: Game) => UNIT_IDS.reduce((n, id) => n + (isLandSoldier(id) ? game.army[id] : 0), 0)
+type GuidedStep = NonNullable<ReturnType<typeof firstSessionStep>>
 
-export function pickGuideTarget(game: Game): HTMLElement | null {
-  const step = OBJECTIVES.slice(0, GUIDED_STEPS).find(o => !game.claimed.includes(o.id))
-  if (!step || document.querySelector('.frg')) return null
+function pickGuideTarget(step: GuidedStep, choosingPlot: boolean): HTMLElement | null {
+  if (choosingPlot || step.job) return null
+  const id = step.objective.id
   const first = (sels: string[]) => {
     for (const sel of sels) for (const el of document.querySelectorAll(sel)) if (usable(el)) return el
     return null
   }
   // Hedef bittiyse ödül görev şeridinde alınır; şerit bir sayfanın altında
   // kalmışsa sayfanın geri/kapat düğmesi parlar (yoksa oyuncu ne yapacağını bilmez).
-  if (objectiveDone(game, step.id)) return first([CHIP, ...LEAVE])
-  // İlk bölük: eğitimde olanlarla beş kişi tamamsa eğitim bitene kadar bekle
-  // (yoksa ok "1 eğit"i parlatmayı sürdürür ve oyuncu gereğinden çok asker basar).
-  if (step.id === 'troops' && landSoldiers(game) + game.drills.reduce((n, j) => n + (isLandSoldier(j.id as UnitId) ? j.count ?? 0 : 0), 0) >= 5) return null
-  const targets = TARGETS[step.id] ?? []
+  if (step.done) return first([CHIP, ...LEAVE])
+  const targets = TARGETS[id] ?? []
   const hit = first(targets)
   if (hit) return hit
   // Düğme sayfada ama ekranın dışında: bir kez görünür yere kaydır (oyuncu
   // sonra kendisi kaydırırsa onu geri çekiştirmeyiz).
   for (const sel of targets) for (const el of document.querySelectorAll(sel)) {
-    if (el instanceof HTMLElement && !(el as HTMLButtonElement).disabled && !scrolled.has(el) && el.checkVisibility?.({ opacityProperty: true, visibilityProperty: true })) {
+    if (el instanceof HTMLElement && !(el as HTMLButtonElement).disabled && !scrolled.has(el) && el.checkVisibility({ opacityProperty: true, visibilityProperty: true })) {
       const r = el.getBoundingClientRect()
-      // A fixed HUD/nav can cover an element that is still inside innerHeight.
-      // No target was usable above: center an existing visible control once.
       if (r.width >= 4 && r.height >= 4) { scrolled.add(el); el.scrollIntoView({ block: 'center', behavior: lowMotion() ? 'auto' : 'smooth' }); return null }
     }
   }
   // Doğru sayfadayız ama düğme henüz basılamıyor (kaynak bekleniyor): hiçbir şey parlamaz.
-  if (targets.some(sel => document.querySelector(sel)) || (PAGE[step.id] && document.querySelector(PAGE[step.id]))) return null
+  if (targets.some(sel => document.querySelector(sel)) || (PAGE[id] && document.querySelector(PAGE[id]))) return null
   // Yanlış sayfa açıksa önce görev şeridi, o da örtülüyse geri/kapat.
   return first([CHIP, ...LEAVE])
 }
 
-export function GuideSpot({ game }: { game: Game }) {
+export function GuideSpot({ step, choosingPlot }: { step: GuidedStep; choosingPlot: boolean }) {
   const [box, setBox] = useState<DOMRect | null>(null)
   const current = useRef<HTMLElement | null>(null)
-  const gameRef = useRef(game)
-  gameRef.current = game
+  const guideRef = useRef({ step, choosingPlot })
+  guideRef.current = { step, choosingPlot }
   useEffect(() => {
     // Kare başına değil, saniyede dört kez bakar: her karede düzen okumak
     // zayıf telefonda ana iş parçacığını tıkar. Kaydırmada da hemen yenilenir.
     const tick = () => {
       if (document.visibilityState === 'hidden') return
-      const next = pickGuideTarget(gameRef.current)
+      const next = pickGuideTarget(guideRef.current.step, guideRef.current.choosingPlot)
       if (next !== current.current) {
         current.current?.classList.remove('guide-glow')
         next?.classList.add('guide-glow')

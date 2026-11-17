@@ -3,7 +3,7 @@ import { CityScene } from './phaser-city'
 import { FlagField, SmokeField } from './city-life'
 import { SkyLayer } from './city-sky'
 import { asset, buildingArtKey, type ArtSize } from '@/lib/asset'
-import { BUILDINGS, BUILDING_IDS, activeJob, plotOpen, type BuildingId, type Game } from '@/lib/game/engine'
+import { BUILDINGS, BUILDING_IDS, activeJob, freePlotsFor, plotOpen, type BuildingId, type Game } from '@/lib/game/engine'
 import { visualSignature } from '@/lib/game/city-render'
 import { PEACEFUL_CITY, siegeAppearanceKey, type SiegeAppearance } from '@/lib/game/siege-appearance'
 import { PARCEL_PLOTS, PARCEL_WORLD, parcelPlot, CITY_ROADS, parcelContainsPoint, buildingRoadClear, parcelArtFrame, cityBuildingArtFrame, cityArtOutline, cityBuildingImage, parcelBuildingName, type CityParcel, type ParcelPoint } from '@/lib/game/city-map/parcel-city'
@@ -17,6 +17,8 @@ export class ParcelCityScene extends CityScene {
   people:Array<{image:Phaser.GameObjects.Image;points:Array<{x:number;y:number}>;t:number}>=[]
   ships:Phaser.GameObjects.Image[]=[]
   wallTextureKeys:string[]=[]
+  private buildTarget:BuildingId|null=null
+  private chosenPlot:number|null=null
   preload(){
     for(const tile of terrainTiles)this.load.image(`parcel-terrain-${tile.id}`,asset(tile.file))
     this.load.image('parcel-wall-masonry',asset('/images/game/walls/hillside-stone.webp'))
@@ -120,10 +122,12 @@ export class ParcelCityScene extends CityScene {
     this.cameras.main.setZoom(Math.max(this.minZoom,Math.min(this.maxZoom,this.scale.width/(Math.max(...xs)-Math.min(...xs)+660))))
     this.centerInBand((Math.min(...xs)+Math.max(...xs))/2,1570);this.velocity={x:0,y:0}
   }
-  sync(game:Game,showLabels:boolean,placing:boolean,moving:BuildingId|null=null,movePlot:number|null=null,siege:SiegeAppearance=PEACEFUL_CITY){
+  sync(game:Game,showLabels:boolean,placing:boolean,moving:BuildingId|null=null,movePlot:number|null=null,siege:SiegeAppearance=PEACEFUL_CITY,buildTarget:BuildingId|null=null,chosenPlot:number|null=null){
     this.state=game;this.showLabels=showLabels;this.placing=placing;this.moving=moving;this.movePlot=movePlot;this.siege=siege
+    if(this.built&&buildTarget&&!this.buildTarget)this.setCityView()
+    this.buildTarget=buildTarget;this.chosenPlot=chosenPlot
     if(!this.built)return
-    const next=`${visualSignature(game)}|${showLabels}|${placing}|${moving}|${movePlot}|${siegeAppearanceKey(siege)}`
+    const next=`${visualSignature(game)}|${showLabels}|${placing}|${moving}|${movePlot}|${siegeAppearanceKey(siege)}|${buildTarget}|${chosenPlot}`
     if(next!==this.signature)this.redraw()
   }
   updateMoveTarget(pointer:Phaser.Input.Pointer){
@@ -132,7 +136,7 @@ export class ParcelCityScene extends CityScene {
     if(p&&p.index!==this.movePlot){this.movePlot=p.index;this.redraw();this.events$.onMovePlot(p.index)}
   }
   redraw(){
-    this.signature=`${visualSignature(this.state)}|${this.showLabels}|${this.placing}|${this.moving}|${this.movePlot}|${siegeAppearanceKey(this.siege)}`
+    this.signature=`${visualSignature(this.state)}|${this.showLabels}|${this.placing}|${this.moving}|${this.movePlot}|${siegeAppearanceKey(this.siege)}|${this.buildTarget}|${this.chosenPlot}`
     for(const piece of this.pieces)piece.destroy()
     this.clearWallTextures()
     this.pieces=[];this.labelOf.clear();this.flagField?.removeGroup('pieces');this.smoke?.removeGroup('pieces');this.sky?.removeGroup('pieces')
@@ -140,10 +144,11 @@ export class ParcelCityScene extends CityScene {
     const occupied=new Map<number,BuildingId>()
     for(const id of BUILDING_IDS){const at=id===this.moving&&this.movePlot!==null?this.movePlot:this.state.placement[id];if(at!=null&&id!=='surlar')occupied.set(at,id)}
     const running=activeJob(this.state)?.id,eligible=this.eligibleMovePlots()
+    const buildPlots=this.buildTarget?new Set(freePlotsFor(this.state,this.buildTarget)):null
     for(const p of PARCEL_PLOTS){
       const id=occupied.get(p.index)
       if(id)this.drawParcelBuilding(id,p,running===id)
-      else if(plotOpen(this.state,p.index))this.drawParcelEmpty(p)
+      else if(buildPlots?buildPlots.has(p.index):plotOpen(this.state,p.index))this.drawParcelEmpty(p)
       if(this.moving&&eligible.has(p.index))this.parcelFrame(p,p.index===this.movePlot?0x85c46f:0xe8ce93)
     }
     this.drawParcelWalls();this.drawParcelSiege()
@@ -160,10 +165,18 @@ export class ParcelCityScene extends CityScene {
   }
   drawParcelEmpty(p:CityParcel){
     const g=this.add.graphics().setDepth(p.center.y)
-    g.lineStyle(3,0x766043).lineBetween(p.center.x,p.center.y,p.center.x,p.center.y-58)
-    g.fillStyle(p.index===28?0x302f28:p.slot.zone==='liman'?0x387b9c:0xa03431).fillTriangle(p.center.x+2,p.center.y-58,p.center.x+35,p.center.y-49,p.center.x+2,p.center.y-38)
+    const active=this.buildTarget!==null
+    const selected=p.index===this.chosenPlot
+    const water=p.slot.zone==='liman'
+    const radius=active?27:18
+    const {x,y}=p.center
+    g.fillStyle(water?0x234858:0x493921,active ? .94 : .72).fillCircle(x,y,radius)
+    g.lineStyle(active?4:2,selected?0xa9d77c:0xecd49d,active ? 1 : .84).strokeCircle(x,y,radius)
+    const arm=active?11:7
+    g.lineStyle(active?4:3,0xffedc0,active ? 1 : .88)
+      .lineBetween(x-arm,y,x+arm,y).lineBetween(x,y-arm,x,y+arm)
     this.pieces.push(g)
-    if(this.placing)this.parcelFrame(p,0xe8ce93)
+    if(active||this.placing)this.parcelFrame(p,selected?0xa9d77c:0xe8ce93)
     const hit=this.parcelHit(p).setDepth(p.center.y+2)
     hit.on('pointerup',(pointer:Phaser.Input.Pointer)=>{if(isTap(pointer)&&!this.moving&&!this.pinchStart)this.events$.onPlot(p.index)})
     this.pieces.push(hit)
@@ -184,7 +197,7 @@ export class ParcelCityScene extends CityScene {
     this.pieces.push(image)
     const hit=this.parcelHit(p).setDepth(p.center.y+2)
     hit.on('pointerup',(pointer:Phaser.Input.Pointer)=>{
-      if(!isTap(pointer)||this.moving||this.pinchStart)return
+      if(!isTap(pointer)||this.moving||this.buildTarget||this.pinchStart)return
       image.setTint(0xffedce);this.time.delayedCall(110,()=>{if(image.active)image.clearTint()});this.events$.onBuilding(id)
     })
     this.pieces.push(hit)
@@ -228,7 +241,7 @@ export class ParcelCityScene extends CityScene {
   wallTap(image:Phaser.GameObjects.Image){
     image.setInteractive({pixelPerfect:true,alphaTolerance:88,useHandCursor:true})
     image.on('pointerup',(pointer:Phaser.Input.Pointer)=>{
-      if(isTap(pointer)&&!this.moving&&!this.pinchStart)this.events$.onBuilding('surlar')
+      if(isTap(pointer)&&!this.moving&&!this.buildTarget&&!this.pinchStart)this.events$.onBuilding('surlar')
     })
     this.pieces.push(image)
   }
@@ -356,7 +369,7 @@ export class ParcelCityScene extends CityScene {
       const hit=this.add.rectangle(gate.center.x,gate.center.y-height*.55,132,height+80,0xffffff,0)
         .setInteractive({useHandCursor:true}).setDepth(gate.center.y+8)
       hit.on('pointerup',(pointer:Phaser.Input.Pointer)=>{
-        if(isTap(pointer)&&!this.moving)this.events$.onBuilding('surlar')
+        if(isTap(pointer)&&!this.moving&&!this.buildTarget)this.events$.onBuilding('surlar')
       })
       this.pieces.push(hit)
     }
