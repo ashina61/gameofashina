@@ -52,6 +52,17 @@ export const COAST_CONTACTS:Record<string,ParcelPoint>={
  'korsan_kalesi-iskele':{x:.50,y:.60},
 }
 export const coastContactTarget=(p:CityParcel)=>({x:p.center.x,y:coastShoreY[p.index-25]-18})
+export const HARBOUR_SHIP_WIDTH=96
+/** Depart from the saved harbour's seaward edge, clear of its piers. */
+export function harbourSailingRoute(p:CityParcel,outline:ParcelPoint[]=[],shipHeight=72){
+ if(p.index<25||p.index>27)return null
+ const tipY=Math.max(...outline.map(q=>q.y))
+ const tip=outline.filter(q=>q.y>=tipY-10)
+ const tipX=tip.length?tip.reduce((sum,q)=>sum+q.x,0)/tip.length:p.center.x
+ const start={x:tipX,y:Math.max(coastShoreY[p.index-25]+100,tipY+shipHeight/2+12)}
+ // The eastern harbour must pass west of the pirate island's rocky shelf.
+ return {start,via:p.index===26?{x:2230,y:start.y+20}:null,end:{x:p.index===26?2050:start.x,y:PARCEL_WORLD.h+shipHeight}}
+}
 export const PARCEL_PLOTS=[[811,384],...ordered,[475,842],[1206,832],[625,804],[1425,898]].map((p,i)=>plot(i,p))
 /** Measured road centre lines, including the actual bridges. Ambient walkers follow these. */
 export const CITY_ROADS=[
@@ -85,6 +96,7 @@ export function cityBuildingTextureKey(id:string,level=1,facing?:CoastFacing){
 export function cityBuildingImage(id:string,level=1,facing?:CoastFacing,size:ArtSize='sm'){
  if(id==='divan'&&divanStage(level)<20)return asset(`/images/game/buildings/parcel-growth/divan-${divanStage(level)}${size==='sm'?'-sm':''}.webp`)
  const name=(id==='liman'||id==='tersane')&&facing==='straight'?id+'-duz':id
+ if(name==='ambar'||name==='kereste')return asset(`/images/game/buildings/parcel-v8/${name}${size==='sm'?'-sm':''}.webp`)
  if(cityGroundedArt.has(name))return asset(`/images/game/buildings/parcel-v7/${name}${size==='sm'?'-sm':''}.webp`)
  if(waterfrontArt.has(name))return asset(`/images/game/buildings/parcel-v6/${name}${size==='sm'?'-sm':''}.webp`)
  if(['divan','medrese','carsi','depo','bagci','elcilik'].includes(id))return asset(`/images/game/buildings/parcel-v5/${id}${size==='sm'?'-sm':''}.webp`)

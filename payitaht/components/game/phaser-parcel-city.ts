@@ -6,10 +6,10 @@ import { asset, type ArtSize } from '@/lib/asset'
 import { BUILDINGS, BUILDING_IDS, activeJob, freePlotsFor, plotOpen, type BuildingId, type Game } from '@/lib/game/engine'
 import { visualSignature } from '@/lib/game/city-render'
 import { PEACEFUL_CITY, siegeAppearanceKey, type SiegeAppearance } from '@/lib/game/siege-appearance'
-import { PARCEL_PLOTS, PARCEL_WORLD, parcelPlot, CITY_ROADS, parcelContainsPoint, buildingRoadClear, parcelArtFrame, cityBuildingArtFrame, cityArtOutline, cityBuildingImage, parcelBuildingName, cityBuildingTextureKey, type CityParcel, type ParcelPoint } from '@/lib/game/city-map/parcel-city'
+import { PARCEL_PLOTS, PARCEL_WORLD, parcelPlot, CITY_ROADS, parcelContainsPoint, buildingRoadClear, parcelArtFrame, cityBuildingArtFrame, cityArtOutline, cityBuildingImage, parcelBuildingName, cityBuildingTextureKey, harbourSailingRoute, HARBOUR_SHIP_WIDTH, type CityParcel, type ParcelPoint } from '@/lib/game/city-map/parcel-city'
 import { cityArtSize, isTap } from './city/shared'
 import { parcelCameraViewport, parcelCityZoom } from '@/lib/game/city-map/parcel-camera'
-import { CITY_WALL_PLAN, wallSpanDepth, wallTowerDepth, type WallSpan } from '@/lib/game/city-map/parcel-wall-ring'
+import { CITY_WALL_PLAN, WALL_MASONRY, wallMasonrySlices, wallSpanDepth, wallTowerDepth, type WallSpan } from '@/lib/game/city-map/parcel-wall-ring'
 import terrainTiles from '@/lib/game/city-map/terrain-tiles.json'
 
 /** Main game renderer. Engine plot IDs and saved placements never change. */
@@ -279,11 +279,15 @@ export class ParcelCityScene extends CityScene {
     shadow.addColorStop(1,'rgba(49,38,19,0)')
     ctx.fillStyle=shadow
     ctx.fillRect(0,0,length,11)
-    const repeat=height*3.6
-    for(let x=0;x<length;x+=repeat){
-      const take=Math.min(repeat,length-x)
-      ctx.drawImage(stone,0,0,stone.width*take/repeat,stone.height,x,-height,take,height)
+    ctx.save()
+    ctx.beginPath();ctx.rect(0,-height,length,height);ctx.clip()
+    for(const slice of wallMasonrySlices(length,span.masonryOffset)){
+      for(let y=-WALL_MASONRY.height;y>-height-WALL_MASONRY.height;y-=WALL_MASONRY.height){
+        ctx.drawImage(stone,stone.width*slice.sourceX,0,stone.width*slice.sourceWidth,stone.height,
+          slice.x,y,slice.width,WALL_MASONRY.height)
+      }
     }
+    ctx.restore()
     const shade=ctx.createLinearGradient(0,-height,0,0)
     shade.addColorStop(0,innerFace?'rgba(60,44,22,.10)':'rgba(123,91,38,.02)')
     shade.addColorStop(.68,'rgba(68,51,20,.04)')
@@ -396,7 +400,22 @@ export class ParcelCityScene extends CityScene {
     }
   }
   setRaidAlert(on:boolean){if(this.raidWanted===on)return;this.raidWanted=on;if(this.built)this.redraw()}
-  fxSail(){if(!this.built)return;const ship=this.add.image(1000,1660,'parcel-ship-a').setDepth(1800);ship.setScale(140/ship.width);this.tweens.add({targets:ship,y:1970,alpha:0,duration:3200,onComplete:()=>ship.destroy()})}
+  fxSail(){
+    if(!this.built)return
+    const port=this.state.buildings.liman>0?parcelPlot(this.state.placement.liman):undefined
+    const outline=port?this.pieces.find(piece=>piece.getData('parcelBuilding')==='liman')?.getData('parcelOutline'):undefined
+    const source=this.textures.get('parcel-ship-a').getSourceImage() as HTMLImageElement
+    const width=HARBOUR_SHIP_WIDTH
+    const route=harbourSailingRoute(port??PARCEL_PLOTS[25],outline,width*source.height/source.width)
+    if(!route)return
+    const ship=this.add.image(route.start.x,route.start.y,'parcel-ship-a').setDepth(route.start.y)
+    ship.setScale(width/ship.width).setFlipX(route.end.x<route.start.x)
+    this.tweens.chain({targets:ship,tweens:[
+      ...(route.via?[{x:route.via.x,y:route.via.y,duration:900}]:[]),
+      {x:route.end.x,y:route.end.y,alpha:0,duration:route.via?2300:3200}],
+      onUpdate:()=>ship.setDepth(ship.y),onComplete:()=>ship.destroy()})
+    if(localStorage.getItem('payitaht-qa')==='1')document.documentElement.dataset.parcelDeparture=JSON.stringify(route)
+  }
   fxMarch(){if(!this.built)return;const road=CITY_ROADS[1];for(let i=0;i<5;i++){
     const figure=this.add.image(road[5].x-i*6,road[5].y,'parcel-citizen').setOrigin(.5,1).setDisplaySize(10,25).setDepth(road[5].y)
     this.tweens.chain({targets:figure,tweens:road.slice(0,5).reverse().map(p=>({x:p.x,y:p.y,duration:700+i*20})),onComplete:()=>figure.destroy()})
