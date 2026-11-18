@@ -10,6 +10,7 @@ import type { ReactNode } from 'react'
 import { BUILDINGS, type BuildingId, type Game, type ObjectiveGo } from '@/lib/game/engine'
 import type { DailyTask } from '@/lib/game/daily'
 import { asset, buildingImage } from '@/lib/asset'
+import { cityBuildingImage } from '@/lib/game/city-map/parcel-city'
 import { PersonArt } from './workforce'
 import { BuildingArt } from './building-art'
 import { UnitFigure } from './unit-art'
@@ -49,7 +50,7 @@ export function DailyArt({ task, size = 52 }: { task: DailyTask['key'] | 'login'
     raids: <UnitFigure id="sipahi" size={size * 0.62} bare />,
     spies: <UnitFigure id="casus" size={size * 0.6} bare />,
     piracy: <Img src={buildingImage('korsan_kalesi', 4)} />,
-    shipments: <Img src={buildingImage('liman', 4)} />,
+    shipments: <Img src={cityBuildingImage('liman', 4)} />,
   }
   return <Stage size={size} tone={task === 'login' ? 'gold' : 'day'}>{art[task] ?? <AkceArt />}</Stage>
 }

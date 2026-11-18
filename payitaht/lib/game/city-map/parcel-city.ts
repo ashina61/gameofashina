@@ -47,8 +47,8 @@ const coastShoreY = [1609,1588,1523]
 // Roofs and rear gangways are above this point: aligning minY to the shore
 // leaves the entire building floating offshore. Mirroring moves the pin too.
 export const COAST_CONTACTS:Record<string,ParcelPoint>={
- liman:{x:.50,y:.46},'liman-duz':{x:.50,y:.57},
- tersane:{x:.50,y:.50},'tersane-duz':{x:.50,y:.52},
+ liman:{x:.50,y:.53},'liman-duz':{x:.50,y:.50},
+ tersane:{x:.50,y:.58},'tersane-duz':{x:.50,y:.56},
  'korsan_kalesi-iskele':{x:.50,y:.60},
 }
 export const coastContactTarget=(p:CityParcel)=>({x:p.center.x,y:coastShoreY[p.index-25]-18})
@@ -96,6 +96,7 @@ export function cityBuildingTextureKey(id:string,level=1,facing?:CoastFacing){
 export function cityBuildingImage(id:string,level=1,facing?:CoastFacing,size:ArtSize='sm'){
  if(id==='divan'&&divanStage(level)<20)return asset(`/images/game/buildings/parcel-growth/divan-${divanStage(level)}${size==='sm'?'-sm':''}.webp`)
  const name=(id==='liman'||id==='tersane')&&facing==='straight'?id+'-duz':id
+ if(id==='liman'||id==='tersane')return asset(`/images/game/buildings/parcel-v9/${name}${size==='sm'?'-sm':''}.webp`)
  if(name==='ambar'||name==='kereste')return asset(`/images/game/buildings/parcel-v8/${name}${size==='sm'?'-sm':''}.webp`)
  if(cityGroundedArt.has(name))return asset(`/images/game/buildings/parcel-v7/${name}${size==='sm'?'-sm':''}.webp`)
  if(waterfrontArt.has(name))return asset(`/images/game/buildings/parcel-v6/${name}${size==='sm'?'-sm':''}.webp`)

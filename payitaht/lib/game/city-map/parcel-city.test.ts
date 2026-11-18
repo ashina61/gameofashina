@@ -76,7 +76,7 @@ test('every new groundless building has real alpha and fits matching parcels in 
   const seen=new Set<string>()
   for(const id of [...PARCEL_REPAINTED_BUILDINGS,'korsan_kalesi-iskele'])for(const facing of id==='liman'||id==='tersane'?[undefined,'straight'] as const:[undefined])for(const size of ['full','sm'] as const){
     const file=cityBuildingImage(id,1,facing,size)
-    assert.match(file,/\/parcel-v[25678]\//)
+    assert.match(file,/\/parcel-v[256789]\//)
     assert.ok(!seen.has(file),`${id}: reused another type's sprite`);seen.add(file)
     const {data,info}=await sharp('public'+file).ensureAlpha().raw().toBuffer({resolveWithObject:true})
     let transparent=0,opaque=0
