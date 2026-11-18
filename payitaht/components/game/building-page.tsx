@@ -25,7 +25,8 @@ import { ArrowLeft, ArrowUp, LockKeyhole, FlipHorizontal2, RotateCw, Move, Chevr
 import { GameButton } from './game-button'
 import { CostTokens } from './stat-kit'
 import { BottomSheet } from './bottom-sheet'
-import { asset, buildingImage } from '@/lib/asset'
+import { asset } from '@/lib/asset'
+import { cityBuildingImage } from '@/lib/game/city-map/parcel-city'
 import {
   BUILDINGS, BUILDING_EFFECTS, LUXURY_IDS, LUXURY_NAMES, MAX_LEVEL, RESEARCH, RESOURCE_IDS, RESOURCE_NAMES,
   actionPoints, activeJob, armyUpkeep, buildReason, contentment, corruption, cost, duration,
@@ -92,7 +93,7 @@ export function UpgradeDock({ game, id, onBuild }: { game: Game; id: BuildingId;
   ]
   const art = BUILDINGS[id].art
   return <div className={`bp-dock${art ? ' has-thumb' : ''}`} aria-label={level ? `Genişlet · Sv. ${level} → ${level + 1}` : 'İnşa et'}>
-    {art && <img className="bp-dock-thumb" src={buildingImage(id, level + 1)} alt="" loading="lazy" decoding="async" />}
+    {art && <img className="bp-dock-thumb" src={cityBuildingImage(id, level + 1)} alt="" loading="lazy" decoding="async" />}
     {art && <span className="bp-dock-label">{level ? 'Yükseltme gereksinimleri' : 'İnşa gereksinimleri'}</span>}
     <CostTokens items={needs.map(([r, n]) => ({ key: r, icon: <ResIcon id={r} />, name: name(r), need: n, have: stock(game, r) }))} />
     {queued > 0 && <p className="bp-note"><KumSaatiArt className="size-4" /> İnşaat sırasında {queued + 1}. sırada.</p>}
@@ -113,9 +114,9 @@ const WORK: Record<WorkerId, { figure: Figure; res: Resource; unit: string }> = 
 function Workers({ game, id, unit, perWorker, onCommand }: { game: Game; id: WorkerId; unit: string; perWorker: string; onCommand: (c: Command) => void }) {
   const w = WORK[id]
   const Icon = RES_ICON[w.res]
-  const at = (n: number) => rates({ ...game, workers: { ...game.workers, [id]: n } })[w.res]
+  const at = (n: number) => rates({ ...game, workers: { ...game.workers, [id]: n } })
   return <WorkforceSlider label={unit} figure={w.figure} value={game.workers[id]} cap={workerCapacity(game, id)} idle={idleWorkers(game)}
-    preview={n => { const v = at(n); return { amount: v, icon: <Icon className="workforce-icon" />, text: <><b>{w.res === 'knowledge' ? formatRate(v) : num(v)}</b> {w.unit}/dk</> } }}
+    preview={n => { const projected = at(n), v = projected[w.res]; return { amount: v, gold: w.res === 'gold' ? undefined : projected.gold, icon: <Icon className="workforce-icon" />, text: <><b>{w.res === 'knowledge' ? formatRate(v) : num(v)}</b> {w.unit}/dk</> } }}
     onCommit={n => onCommand({ type: 'workers', id, value: n })} note={perWorker} />
 }
 

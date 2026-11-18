@@ -2,11 +2,11 @@ import * as Phaser from 'phaser'
 import { CityScene } from './phaser-city'
 import { FlagField, SmokeField } from './city-life'
 import { SkyLayer } from './city-sky'
-import { asset, buildingArtKey, type ArtSize } from '@/lib/asset'
+import { asset, type ArtSize } from '@/lib/asset'
 import { BUILDINGS, BUILDING_IDS, activeJob, freePlotsFor, plotOpen, type BuildingId, type Game } from '@/lib/game/engine'
 import { visualSignature } from '@/lib/game/city-render'
 import { PEACEFUL_CITY, siegeAppearanceKey, type SiegeAppearance } from '@/lib/game/siege-appearance'
-import { PARCEL_PLOTS, PARCEL_WORLD, parcelPlot, CITY_ROADS, parcelContainsPoint, buildingRoadClear, parcelArtFrame, cityBuildingArtFrame, cityArtOutline, cityBuildingImage, parcelBuildingName, type CityParcel, type ParcelPoint } from '@/lib/game/city-map/parcel-city'
+import { PARCEL_PLOTS, PARCEL_WORLD, parcelPlot, CITY_ROADS, parcelContainsPoint, buildingRoadClear, parcelArtFrame, cityBuildingArtFrame, cityArtOutline, cityBuildingImage, parcelBuildingName, cityBuildingTextureKey, type CityParcel, type ParcelPoint } from '@/lib/game/city-map/parcel-city'
 import { cityArtSize, isTap } from './city/shared'
 import { parcelCameraViewport, parcelCityZoom } from '@/lib/game/city-map/parcel-camera'
 import { CITY_WALL_PLAN, wallSpanDepth, wallTowerDepth, type WallSpan } from '@/lib/game/city-map/parcel-wall-ring'
@@ -33,13 +33,13 @@ export class ParcelCityScene extends CityScene {
       if(level<=0||id==='surlar')continue
       const facing=id==='liman'||id==='tersane'?this.state.coastFacing[id]:undefined
       const name=parcelBuildingName(id,this.state.placement[id])
-      this.load.image(buildingArtKey(name,level,facing),cityBuildingImage(name,level,facing,cityArtSize()))
+      this.load.image(cityBuildingTextureKey(name,level,facing),cityBuildingImage(name,level,facing,cityArtSize()))
     }
   }
   ensureBuildingTexture(id:BuildingId,level:number){
     if(level<=0||id==='surlar')return
     const name=parcelBuildingName(id,this.state.placement[id])
-    const facing=id==='liman'||id==='tersane'?this.state.coastFacing[id]:undefined,key=buildingArtKey(name,level,facing)
+    const facing=id==='liman'||id==='tersane'?this.state.coastFacing[id]:undefined,key=cityBuildingTextureKey(name,level,facing)
     if(this.textures.exists(key)||this.loadingBuildingTextures.has(key))return
     this.loadingBuildingTextures.add(key)
     this.load.image(key,cityBuildingImage(name,level,facing,cityArtSize()))
@@ -184,7 +184,7 @@ export class ParcelCityScene extends CityScene {
   drawParcelBuilding(id:BuildingId,p:CityParcel,active:boolean){
     const level=this.state.buildings[id],facing=id==='liman'||id==='tersane'?this.state.coastFacing[id]:undefined
     const variant=parcelBuildingName(id,p.index)
-    const key=level>0?buildingArtKey(variant,level,facing):'b_site'
+    const key=level>0?cityBuildingTextureKey(variant,level,facing):'b_site'
     if(!this.textures.exists(key)){if(level>0)this.ensureBuildingTexture(id,level);return}
     const source=this.textures.get(key).getSourceImage() as HTMLImageElement,size:ArtSize=level>0?cityArtSize():'full'
     const name=level>0?(facing==='straight'?variant+'-duz':variant):'__site',flip=facing?facing==='right':this.state.flips.includes(id)

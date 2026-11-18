@@ -1,6 +1,7 @@
 import { LIVE_SLOTS } from './live-adapter'
-import { asset, buildingImage, buildingStage, type ArtSize, type CoastFacing } from '@/lib/asset'
+import { asset, buildingArtKey, buildingImage, buildingStage, type ArtSize, type CoastFacing } from '@/lib/asset'
 import bounds from './parcel-art-bounds.json'
+import growthBounds from './divan-growth-bounds.json'
 import contact from './barracks-contact.json'
 import buildingContacts from './building-contacts.json'
 
@@ -75,17 +76,27 @@ const waterfrontArt = new Set(['liman','liman-duz','tersane','tersane-duz','kors
 export function parcelBuildingName(id:string,index:number|null|undefined){
  return id==='korsan_kalesi'&&index!=null&&index>=25&&index<=27?'korsan_kalesi-iskele':id
 }
+export function divanStage(level:number):1|5|10|15|20 {
+ return level>=20?20:level>=15?15:level>=10?10:level>=5?5:1
+}
+export function cityBuildingTextureKey(id:string,level=1,facing?:CoastFacing){
+ return id==='divan'?`divan-growth-${divanStage(level)}`:buildingArtKey(id,level,facing)
+}
 export function cityBuildingImage(id:string,level=1,facing?:CoastFacing,size:ArtSize='sm'){
+ if(id==='divan'&&divanStage(level)<20)return asset(`/images/game/buildings/parcel-growth/divan-${divanStage(level)}${size==='sm'?'-sm':''}.webp`)
  const name=(id==='liman'||id==='tersane')&&facing==='straight'?id+'-duz':id
  if(cityGroundedArt.has(name))return asset(`/images/game/buildings/parcel-v7/${name}${size==='sm'?'-sm':''}.webp`)
  if(waterfrontArt.has(name))return asset(`/images/game/buildings/parcel-v6/${name}${size==='sm'?'-sm':''}.webp`)
  if(['divan','medrese','carsi','depo','bagci','elcilik'].includes(id))return asset(`/images/game/buildings/parcel-v5/${id}${size==='sm'?'-sm':''}.webp`)
- if(id==='divan')return asset(`/images/game/buildings/painted-town-v1/divan${size==='sm'?'-sm':''}.webp`)
  if(id==='kisla')return asset(`/images/game/buildings/parcel-v4/kisla${size==='sm'?'-sm':''}.webp`)
  if(repainted.has(id))return asset(`/images/game/buildings/parcel-v2/${name}${size==='sm'?'-sm':''}.webp`)
  return buildingImage(id,level,facing,size)
 }
 export function cityArtOutline(id:string,level:number,size:ArtSize){
+ if(id==='divan'&&divanStage(level)<20){
+  const record=growthBounds as Record<string,Record<ArtSize,number[][]>>
+  return record[divanStage(level)][size].map(([x,y])=>({x,y}))
+ }
  const key=id==='kisla'?'kisla':id.startsWith('__')?id:`${id}-${buildingStage(level)}`
  return (bounds as Record<string,Record<string,number[][]>>)[key]?.[size]?.map(([x,y])=>({x,y}))
 }

@@ -2,6 +2,8 @@
 
 import { useId, useRef, useState, type ReactNode } from 'react'
 import { asset } from '@/lib/asset'
+import { ExpansionPlan } from './expansion-plan'
+import { expansionPlan, type ExpansionTarget } from '@/lib/game/expansion-plan'
 import { Castle, Gift, Check, ScrollText, ChevronRight, type IconProps } from './ui-art'
 import { ApprovedArt } from './approved-court-art'
 import { GameButton } from './game-button'
@@ -57,14 +59,16 @@ function RuleTitle({ children, count }: { children: ReactNode; count?: string })
 }
 
 /** A bespoke game screen; the engine remains responsible for every condition and payout. */
-export function ObjectivesPage({ game, empire, foundingCity, cityName, onClaim, onGo, onFoundingCity, run }: {
+export function ObjectivesPage({ game, empire, foundingCity, cityName, onClaim, onGo, onExpansion, onFoundingCity, run }: {
   game: Game; empire: Empire | undefined; foundingCity: boolean; cityName: string
+  onExpansion: (target: ExpansionTarget) => void
   onClaim: (id: string) => void; onGo: (id: string) => void; onFoundingCity: () => void; run: Run
 }) {
   const [tab, setTab] = useState<Tab>('city')
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [readyOnly, setReadyOnly] = useState(false)
   const id = useId(), tabs = useRef<(HTMLButtonElement | null)[]>([])
+  const expansion = empire ? expansionPlan(empire) : []
   const first = OBJECTIVES.find(o => !game.claimed.includes(o.id))
   const objective = OBJECTIVES.find(o => o.id === selectedId) ?? first ?? OBJECTIVES[OBJECTIVES.length - 1]
   const objectiveState: State = game.claimed.includes(objective.id) ? 'claimed' : objectiveDone(game, objective.id) ? 'ready' : 'ongoing'
@@ -90,11 +94,11 @@ export function ObjectivesPage({ game, empire, foundingCity, cityName, onClaim, 
   }).filter(m => !readyOnly || (empire && !empire.milestones?.includes(m.id) && milestoneDone(empire, m)))
 
   return <div className="quest-court">
-    <section className="quest-court-scene" aria-label="Divan görev dairesi">
+    {!(tab === 'city' && expansion.length > 0) && <><section className="quest-court-scene" aria-label="Divan görev dairesi">
       <img src={asset('/images/game/terrain/mandates-office.webp')} alt="" width={960} height={480} decoding="async" />
       <div className="quest-court-speech"><small>{cityName} Divanı</small><p>{totalReady ? 'Emeklerinin karşılığı seni bekliyor.' : 'Bir şehrin kaderi, tamamlanan her fermanla yazılır.'}</p></div>
     </section>
-    <h2 className="quest-court-ribbon">Fermanlar ve görevler</h2>
+    <h2 className="quest-court-ribbon">Fermanlar ve görevler</h2></>}
     <div className="quest-court-tabs" role="tablist" aria-label="Görev defteri">{TABS.map(({ id: key, label, Icon }, index) => <button type="button" key={key}
       ref={el => { tabs.current[index] = el }} id={`${id}-${key}-tab`} role="tab" aria-selected={tab === key} aria-controls={`${id}-${key}-page`} tabIndex={tab === key ? 0 : -1}
       onClick={() => setTab(key)} onKeyDown={event => {
@@ -108,6 +112,7 @@ export function ObjectivesPage({ game, empire, foundingCity, cityName, onClaim, 
       }}><Icon painted aria-hidden="true" /><span>{label}</span>{counts[key] > 0 && <b className="quest-tab-count" aria-label={`${counts[key]} ödül hazır`}>{counts[key]}</b>}</button>)}</div>
     <section className="quest-court-book" role="tabpanel" id={`${id}-${tab}-page`} aria-labelledby={`${id}-${tab}-tab`}>
       {tab === 'city' && <>
+        <ExpansionPlan steps={expansion} onGo={onExpansion} />
         <RuleTitle count={`${cityDone} / ${OBJECTIVES.length} tamamlandı`}>Şehrin yükselişi</RuleTitle>
         {!foundingCity ? <article className="quest-colony"><img src={scene('harbour')} alt="" /><h3>Yeni bir ufuk</h3><p>Bu koloni kendi yolunu çizecek. Başlangıç fermanların kurucu şehrinde seni bekliyor.</p><GameButton onClick={onFoundingCity}>Kurucu şehre git<ChevronRight aria-hidden="true" /></GameButton></article> : <>
           <div className="quest-chapters" aria-label="Şehir fermanları">{OBJECTIVES.map((o, index) => <button key={o.id} type="button" aria-label={`Ferman ${index + 1}: ${o.title}`} aria-pressed={objective.id === o.id}
