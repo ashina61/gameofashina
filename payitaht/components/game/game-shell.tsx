@@ -44,7 +44,7 @@ import type { AdvisorId } from './advisor-portraits'
 import { takeAwaySummary, useGame } from '@/hooks/use-game'
 import { usePwa } from '@/hooks/use-pwa'
 import { useAlerts, useNotifySetting } from '@/hooks/use-alerts'
-import { BUILDINGS, BUILDING_IDS, OBJECTIVES, PLOTS, RESEARCH, freePlotsFor, objectiveDone, type BuildingId, type Command } from '@/lib/game/engine'
+import { BUILDINGS, BUILDING_IDS, OBJECTIVES, PLOTS, RESEARCH, freePlotsFor, objectiveDone, takesPlot, type BuildingId, type Command } from '@/lib/game/engine'
 import { firstSessionStep } from '@/lib/game/first-session'
 import { cn } from '@/lib/utils'
 import { SovereignPage } from './sovereign-page'
@@ -184,6 +184,11 @@ export default function GameShell({ onTitle }: { onTitle?: () => void } = {}) {
   }, [])
   function openPanel(value: Panel) { setResourcesOpen(false); setAgendaOpen(false); setPlacement(null); if (value === 'island' && view === 'city') { setView('island'); return } setNpc(null); setSelected(null); setPlot(null); setMoving(null); setPanel(value) }
   function openBuilding(id: BuildingId) { setResourcesOpen(false); setAgendaOpen(false); setPlacement(null); setNpc(null); setPanel(null); setPlot(null); setMoving(null); setView('city'); setBuildingDetails(false); setSelected(id) }
+  function chooseConstruction(id: BuildingId) {
+    if (!game || game.buildings[id] > 0 || game.placement[id] !== null || !takesPlot(id)) { openBuilding(id); return }
+    setResourcesOpen(false); setAgendaOpen(false); setPanel(null); setSelected(null); setPlot(null); setNpc(null); setMoving(null); setViewIsland(null); setView('city')
+    setPlacement({ id, plot: null })
+  }
   function openPlot(index: number) {
     if (game && placement) {
       if (!freePlotsFor(game, placement.id).includes(index)) return
@@ -364,11 +369,14 @@ export default function GameShell({ onTitle }: { onTitle?: () => void } = {}) {
         */}
       {/* ALT LOG ŞERİDİ — referanstaki sohbet gibi, en son şehir günlüğü satırı. */}
       {away && <AwaySummaryCard summary={away} onClose={() => setAway(null)} onReports={() => { setAway(null); openPanel('reports') }} />}
-      {view === 'city' && !panel && !selected && !moving && plot === null && !(empire?.threats ?? []).some(t => t.cityId === empire?.activeCityId) && !(empire?.sieges ?? []).length && (expanding
+      {view === 'city' && !panel && !selected && !moving && plot === null && !(empire?.threats ?? []).some(t => t.cityId === empire?.activeCityId) && !(empire?.sieges ?? []).length && (placement ? <aside className="quest-chip is-guided construction-placement" aria-label="İnşa için arsa seçimi">
+        <div className="quest-chip-main"><span className="quest-chip-text"><strong>{BUILDINGS[placement.id].name} için arsa seç</strong><small>{freePlotsFor(game, placement.id).length} uygun arsa · Şehirde işaretli bir arsaya dokun.</small></span></div>
+        <button type="button" className="quest-chip-go" onClick={() => setPlacement(null)}>{t.action.cancel}</button>
+      </aside> : expanding
         ? <ExpansionChip steps={expansion} onOpen={() => openPanel('objectives')} onGo={goExpansion} />
-        : foundingCity && <QuestChip game={game} placement={placement?.id ?? null} onCancelPlacement={() => setPlacement(null)}
+        : foundingCity && <QuestChip game={game} placement={null} onCancelPlacement={() => setPlacement(null)}
           onOpen={() => openPanel('objectives')} onGo={target} onClaim={id => act({ type: 'claim', id })} />)}
-      {guided && !away && !moving && <GuideSpot step={guided} choosingPlot={!!placement && !selected} />}</> : <div className="game-loading"><img src={buildingImage('divan', 8)} alt="" width={150} height={150} /><h1>Şehrin uyanıyor…</h1><p>Sahilhisar kapılarını açıyor.</p></div>}
+      {guided && !away && !moving && (!placement || placement.id === guided.building) && <GuideSpot step={guided} choosingPlot={!!placement && !selected} />}</> : <div className="game-loading"><img src={buildingImage('divan', 8)} alt="" width={150} height={150} /><h1>Şehrin uyanıyor…</h1><p>Sahilhisar kapılarını açıyor.</p></div>}
     {game && selected && !buildingDetails && <BuildingPreview key={`${cityId}-${selected}`} game={game} id={selected}
       plot={placement?.plot ?? undefined} onClose={() => {
         setSelected(null)
@@ -410,7 +418,7 @@ export default function GameShell({ onTitle }: { onTitle?: () => void } = {}) {
       {panel === 'reports' && empire && <ArmyAdvisor empire={empire} game={game} run={runOp} onArmy={() => openPanel('army')} />}
       {panel === 'advisor-city' && empire && <CityAdvisor empire={empire} game={game} onCity={visitCity} onBuilding={openBuilding} onCities={() => openPanel('cities')} onBuildList={() => openPanel('build')} onOverview={() => openPanel('overview')} onJournal={() => openPanel('journal')} />}
       {panel === 'overview' && empire && <EmpireOverview empire={empire} onCity={visitCity} />}
-      {panel === 'build' && <BuildingList game={game} onSelect={openBuilding} />}
+      {panel === 'build' && <BuildingList game={game} onSelect={chooseConstruction} />}
       {panel === 'research' && <><details className="academy-advice"><summary>Âlimin önerisi</summary><div className="academy-counsel"><PersonArt kind="alim" size={64} /><p>{researchAdvice(game)}</p></div></details><ResearchPanel game={game} onResearch={id => act({ type: 'research', id })} /><FuturePanel game={game} onCommand={act} /></>}
       {panel === 'journal' && <JournalPage game={game} cityName={currentCityName} />}
       {panel === 'profile' && empire && <SovereignPage empire={empire} now={game.updatedAt} run={runOp} onCity={visitCity} onSettings={() => openPanel('settings')} onChangelog={() => openPanel('changelog')} />}
