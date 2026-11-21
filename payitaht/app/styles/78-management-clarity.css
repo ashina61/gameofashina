@@ -1,0 +1,19 @@
+/* Work controls first; existing painted context and accounting remain available. */
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-medrese,.bp-production,.bp-research) { background-color: var(--c-parch) !important; }
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-medrese,.bp-production,.bp-research) > .bp-scroll { background-color: var(--c-parch); }
+.training-queue-disclosure { margin-bottom: 12px; border-bottom: 1px solid var(--c-gold-deep); }
+.training-queue-disclosure > summary,.research-account > summary,.production-account > summary { min-height: 48px; padding: 12px 4px; cursor: pointer; font: 700 15px/1.5 Georgia,serif; color: var(--c-ink); }
+.research-balance { display: flex; align-items: center; gap: 12px; min-height: 48px; margin: 8px 0 12px; padding: 4px; color: var(--c-ink); }
+.research-balance > .painted-icon { width: 32px; height: 32px; }
+.research-balance > span { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 14px; }
+.research-balance b { font: 700 20px/1.4 'Payitaht Profile Roman',Georgia,serif; }
+.research-balance small { font: 14px/1.5 Georgia,serif; }
+.research-account { margin: 12px 0 16px; border-block: 1px solid var(--c-gold-deep); }
+.game-shell.has-page .bp-research .rs-detail .rs-effect { margin: 12px 0; font: 14px/1.5 Georgia,serif; }
+.production-status { margin: 0 0 12px; font: 14px/1.5 Georgia,serif; }
+.production-status > span { display: block; margin-top: 4px; }
+.production-account { margin-top: 12px; border-top: 1px solid var(--c-gold-deep); }
+.game-shell.has-page .bp-production .production-account .production-facts { border-top: 0; }
+.game-shell.has-page .bp:is(.bp-of-kisla,.bp-of-tersane,.bp-muster,.bp-of-elcilik) .training-queue-disclosure .drill-queue { margin-top: 0; }
+
+.game-shell.has-page .bp-research .rs-detail { scroll-margin-top: 80px; }

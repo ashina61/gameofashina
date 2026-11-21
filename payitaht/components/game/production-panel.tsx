@@ -41,6 +41,10 @@ export function ProductionPanel({ game, id, onCommand, onForest, onIsland, onSto
     <Box title={`${label} üretimi`} className="production-ledger">
       <div className="production-output"><Icon width={56} height={56} aria-hidden="true" /><div><small>Şehrin toplam üretimi</small><strong>{formatRate(gross)} <span>/dk</span></strong></div></div>
       {!matchingIsland && <p className="production-alert">Bu ada {LUXURY_NAMES[game.mine.specialty].toLocaleLowerCase('tr')} üretir. {label} üretim katkısı yalnız {label.toLocaleLowerCase('tr')} adasında işler; burada bu malın üretimi yoktur.</p>}
+      <p className="production-status">Stok: <strong>{num(amount)} / {num(cap)}</strong>{id !== 'kereste' && <span>Yapı katkısı: +%{formatRate(boost * 100)}</span>}{resource === 'kahve' && <span>Stok değişimi: {net > 0 ? '+' : ''}{formatRate(net)} /dk</span>}</p>
+      {amount >= cap && net > 0 && <p className="production-alert">Stok dolu; yeni {label.toLocaleLowerCase('tr')} üretimi depolanamıyor. Ambar veya Depo’yu yükseltin.</p>}
+      <div className="production-actions"><GameButton onClick={wood ? onForest : onIsland}>{wood ? 'Ada ormanını yönet' : 'Ada kaynağını yönet'}</GameButton><GameButton variant="outline" onClick={onStorage}>Ambarı aç</GameButton>{resource === 'kahve' && <GameButton variant="outline" onClick={onCoffeehouse}>Kahve ikramını düzenle</GameButton>}</div>
+      <details className="production-account"><summary>Üretim hesabı ve çalışanlar</summary>
       <dl className="production-facts">
         {id !== 'kereste' && <div><dt>Bu yapının katkısı</dt><dd>+%{formatRate(boost * 100)}{!matchingIsland && <small>Bu adada uygulanmaz</small>}</dd></div>}
         {wood ? <>
@@ -52,8 +56,7 @@ export function ProductionPanel({ game, id, onCommand, onForest, onIsland, onSto
         <div><dt>Mevcut stok</dt><dd>{num(amount)} / {num(cap)}</dd></div>
         <div><dt>Boş yer</dt><dd>{num(Math.max(0, cap - amount))}{amount >= cap && <small>Stok dolu</small>}</dd></div>
       </dl>
-      {amount >= cap && net > 0 && <p className="production-alert">Stok dolu; yeni {label.toLocaleLowerCase('tr')} üretimi depolanamıyor. Ambar veya Depo’yu yükseltin.</p>}
-      <div className="production-actions"><GameButton onClick={wood ? onForest : onIsland}>{wood ? 'Ada ormanını yönet' : 'Ada kaynağını yönet'}</GameButton><GameButton variant="outline" onClick={onStorage}>Ambarı aç</GameButton>{resource === 'kahve' && <GameButton variant="outline" onClick={onCoffeehouse}>Kahve ikramını düzenle</GameButton>}</div>
+      </details>
       <details className="production-explanation"><summary>Üretim nasıl işler?</summary><p>{wood ? 'Kereste Ocağı’nın oduncuları ile ada ormanı birlikte kereste üretir. Ormancı Evi bu toplamı artırır. Ormanın temel katkısı yukarıda çarpanlar uygulanmadan gösterilir; toplam hızda araştırmalar, yönetim ve diğer etkin katkılar hesaplanmıştır.' : 'Bu yapı işçi atama yeri değildir; adanın ilgili kaynağında çalışan işçilerin üretimini artırır. İşçileri ada ekranından yönetebilirsiniz. Yapının yüzdesi ile şehrin toplam üretimi ayrı gösterilir.'}</p><p>{resource === 'kahve' ? 'Üretim brüt hızdır. Kahvehanenin gerçek tüketimi çıkarılınca stok değişimi bulunur; eksi değer stoktaki kahvenin azaldığını gösterir.' : 'Gösterilen hız üretim potansiyelidir. Stok kapasitesine ulaşıldığında yeni mal depolanamaz.'}</p></details>
     </Box>
   </>

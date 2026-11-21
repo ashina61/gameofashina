@@ -53,26 +53,28 @@ export function advisorNews(game: Game, empire: Empire | undefined, seen: Adviso
 type StockFxKey = 'gold' | 'wood' | 'knowledge'
 type StockFx = { value: number; stamp: number }
 
-export function IkaTopBar({ game, empire, news, modes, activeAdvisor, onCity, onSelectCity, onEconomy, onAdvisor, onProfile }: {
+export function IkaTopBar({ game, empire, news, modes, activeAdvisor, resourcesOpen, onResourcesOpen, onCity, onSelectCity, onEconomy, onAdvisor, onProfile }: {
   game: Game; empire: Empire | undefined; news: Record<AdvisorId, number>; activeAdvisor?: AdvisorId | null
+  resourcesOpen: boolean; onResourcesOpen: (open: boolean) => void
   modes?: Partial<Record<AdvisorId, BadgeMode>>
   onCity: () => void; onSelectCity: (id: string) => void; onEconomy: () => void; onAdvisor: (id: AdvisorId) => void; onProfile: () => void
 }) {
   const [citiesOpen, setCitiesOpen] = useState(false)
+  const setResourcesOpen = onResourcesOpen
   const cityToggle = useRef<HTMLButtonElement>(null)
   const cityMenu = useRef<HTMLDivElement>(null)
   useEffect(() => {
     if (!citiesOpen) return
     cityMenu.current?.querySelector<HTMLButtonElement>('[aria-checked="true"]')?.focus()
-    const outside = (event: PointerEvent) => {
+    const outside = (event: MouseEvent) => {
       if (event.target instanceof Node && !cityMenu.current?.contains(event.target) && !cityToggle.current?.contains(event.target)) setCitiesOpen(false)
     }
     const escape = (event: KeyboardEvent) => {
       if (event.key === 'Escape') { setCitiesOpen(false); cityToggle.current?.focus() }
     }
-    document.addEventListener('pointerdown', outside)
+    document.addEventListener('click', outside)
     document.addEventListener('keydown', escape)
-    return () => { document.removeEventListener('pointerdown', outside); document.removeEventListener('keydown', escape) }
+    return () => { document.removeEventListener('click', outside); document.removeEventListener('keydown', escape) }
   }, [citiesOpen])
   const prof = empire ? profileOf(empire) : null
   const city = empire ? activeCity(empire) : null
@@ -95,6 +97,14 @@ export function IkaTopBar({ game, empire, news, modes, activeAdvisor, onCity, on
     update()
     return () => { resize.disconnect(); mutation.disconnect() }
   }, [])
+  useEffect(() => {
+    if (!resourcesOpen) return
+    const outside = (event: MouseEvent) => { if (event.target instanceof Element && !event.target.closest('.exact-hud')) setResourcesOpen(false) }
+    const escape = (event: KeyboardEvent) => { if (event.key === 'Escape') { event.stopPropagation(); setResourcesOpen(false); resourceBar.current?.querySelector<HTMLButtonElement>('.resource-disclosure')?.focus() } }
+    document.addEventListener('click', outside)
+    document.addEventListener('keydown', escape, true)
+    return () => { document.removeEventListener('click', outside); document.removeEventListener('keydown', escape, true) }
+  }, [resourcesOpen, setResourcesOpen])
   const full = fullResources(game)
 
   const [stockFx, setStockFx] = useState<Partial<Record<StockFxKey, StockFx>>>({})
@@ -141,7 +151,7 @@ export function IkaTopBar({ game, empire, news, modes, activeAdvisor, onCity, on
     { key: 'pop', icon: <NufusArt />, value: `${compact(population(game))}`, sub: `${formatRate(growthRate(game), true)}/dk`, label: population(game) >= maxPopulation(game) ? t.hud.housingFull : t.hud.population, cap: population(game) >= maxPopulation(game) },
     { key: 'ap', icon: <HamleArt />, value: `${empire && city ? actionPoints(game) - actionsInUse(empire, city.id) : actionPoints(game)}`, sub: `/${actionPoints(game)}`, label: 'Sefer hakkı' },
   ]
-  return <header className="ika-top exact-hud" style={{
+  return <header className={cn("ika-top exact-hud", resourcesOpen && "resources-expanded")} style={{
     '--exact-top': `url("${asset('/images/game/ui/exact-hud/top-clean-v2.webp')}")`,
     '--exact-wood': `url("${asset('/images/game/ui/exact-hud/wood.webp')}")`,
     '--exact-paper': `url("${asset('/images/game/ui/exact-hud/paper.webp')}")`,
@@ -150,11 +160,11 @@ export function IkaTopBar({ game, empire, news, modes, activeAdvisor, onCity, on
     '--bar-card': `url("${asset('/images/game/ui/reference-bars/card.webp')}")`,
   } as React.CSSProperties}>
     <div className="ika-ribbon">
-      {prof && <button type="button" className="ika-crest" onClick={onProfile} aria-label={`Hükümdar profili: ${prof.ruler}`}>
+      {prof && <button type="button" className="ika-crest" onClick={() => { setResourcesOpen(false); onProfile() }} aria-label={`Hükümdar profili: ${prof.ruler}`}>
         <span className="ika-ruler-crest-art" aria-hidden="true"><RoyalCrest crest={prof.crest} /></span>
         <span className="ika-crest-level" title="Divanhane seviyesi">{game.buildings.divan}</span>
       </button>}
-      <button ref={cityToggle} type="button" className="ika-city" onClick={() => setCitiesOpen(open => !open)} aria-haspopup="menu" aria-expanded={citiesOpen} aria-controls="hud-city-menu" aria-label={`Şehir: ${city?.name ?? ''}. Şehir seç`}>
+      <button ref={cityToggle} type="button" className="ika-city" onClick={() => { setResourcesOpen(false); setCitiesOpen(open => !open) }} aria-haspopup="menu" aria-expanded={citiesOpen} aria-controls="hud-city-menu" aria-label={`Şehir: ${city?.name ?? ''}. Şehir seç`}>
         <span className="ika-city-name"><strong>{city?.name ?? 'Sahilhisar'}</strong><small>{island ? `Ada (${island.x}:${island.y})` : ''}</small></span>
         <ChevronDown aria-hidden="true" />
       </button>
@@ -176,7 +186,7 @@ export function IkaTopBar({ game, empire, news, modes, activeAdvisor, onCity, on
       <nav className="ika-advisors" aria-label="Danışmanlar">
         {(Object.keys(ADVISORS) as AdvisorId[]).map(id => <button key={id} type="button"
           data-advisor={id} data-news={news[id]} className={cn('ika-advisor', news[id] > 0 && 'ika-advisor-news', activeAdvisor === id && 'ika-advisor-active')}
-          onClick={() => onAdvisor(id)} aria-pressed={activeAdvisor === id}
+          onClick={() => { setResourcesOpen(false); onAdvisor(id) }} aria-pressed={activeAdvisor === id}
           aria-label={`${ADVISORS[id].title} (${ADVISORS[id].name})${news[id] ? `: ${news[id]} haber` : ''}`}>
           <span className="ika-advisor-ring" aria-hidden="true" style={{ backgroundImage: `url("${asset(id === 'research' ? '/images/game/ui/people/scholar.webp' : `/images/game/ui/reference-bars/${id}.webp`)}")` }} />
           <small className="ika-advisor-name" aria-hidden="true">{ADVISORS[id].name}</small>
@@ -184,11 +194,11 @@ export function IkaTopBar({ game, empire, news, modes, activeAdvisor, onCity, on
         </button>)}
       </nav>
     </div>
-    <div ref={resourceBar} className={cn('ika-res', largeText && 'ika-res-large')} role="group" aria-label={`Kaynaklar, ambar ${compact(capacity(game))}`}>
+    <div id="hud-resources" ref={resourceBar} className={cn('ika-res', largeText && 'ika-res-large')} role="group" aria-label={`Kaynaklar, ambar ${compact(capacity(game))}`}>
       {chips.map((c, index) => {
         const fx = stockFx[c.key as StockFxKey]
-        return <span key={c.key} className={cn('ika-chip', index < 4 ? 'ika-stock' : 'ika-status', c.full && 'ika-chip-full', c.cap && 'ika-chip-cap', c.negative && 'ika-chip-negative')} data-lux={c.key === 'lux' ? lux : undefined} data-k={c.key} title={c.label}>
-          <button className="ika-stock-open" type="button" onClick={onEconomy} aria-label={`${c.label}: ${c.value}. Üretim defterini aç`}>
+        return <span key={c.key} className={cn('ika-chip', index < 4 ? 'ika-stock' : 'ika-status', c.full && 'ika-chip-full', c.cap && 'ika-chip-cap', c.negative && 'ika-chip-negative')} hidden={!resourcesOpen && index >= 4} data-lux={c.key === 'lux' ? lux : undefined} data-k={c.key} title={c.label}>
+          <button className="ika-stock-open" type="button" onClick={() => { setResourcesOpen(false); onEconomy() }} aria-label={`${c.label}: ${c.value}${c.sub ? `, ${c.sub}` : ''}. Üretim defterini aç`}>
             <i aria-hidden="true">{c.icon}</i>
             <span className="ika-resource-label" aria-hidden="true">{c.key === 'pop' ? 'Nüfus' : c.label.split(' (')[0]}</span>
             <span className="ika-chip-num">{c.num !== undefined ? <CountUp value={Math.floor(c.num)} format={compact} /> : <b>{c.value}</b>}{c.sub && <small>{c.sub}</small>}</span>
@@ -200,6 +210,7 @@ export function IkaTopBar({ game, empire, news, modes, activeAdvisor, onCity, on
           <span className="sr-only ika-resource-name">{c.label}</span>
         </span>
       })}
+      <button type="button" className="resource-disclosure" aria-label={resourcesOpen ? 'Kaynak ayrıntılarını kapat' : 'Kaynak ayrıntılarını aç'} aria-expanded={resourcesOpen} aria-controls="hud-resources" onClick={() => setResourcesOpen(!resourcesOpen)}><span aria-hidden="true">{resourcesOpen ? 'Daha az' : '···'}</span></button>
     </div>
   </header>
 }
@@ -242,15 +253,6 @@ export function AdvisorSpeech({ id, children }: { id: AdvisorId; children: React
 
 /** Read-only city activity and shortcuts; commands stay in the existing pages. */
 export function CityActivity({ game, empire, onBuilding, onArmy, onResearch }: { game: Game; empire?: Empire; onBuilding: (id: keyof typeof BUILDINGS) => void; onArmy: () => void; onResearch: () => void }) {
-  const [expanded, setExpanded] = useState(false)
-  useEffect(() => {
-    const close = (event: PointerEvent) => {
-      const target = event.target as Element | null
-      if (target?.closest('.city-scene') && !target.closest('.city-activity')) setExpanded(false)
-    }
-    document.addEventListener('pointerdown', close)
-    return () => document.removeEventListener('pointerdown', close)
-  }, [])
   const builds = game.queue.filter(j => j.kind === 'build')
   const drill = game.drills[0]
   const cityId = empire?.activeCityId
@@ -260,16 +262,13 @@ export function CityActivity({ game, empire, onBuilding, onArmy, onResearch }: {
   if (game.study) rows.push({ id: 'study', label: 'Araştırma', start: game.study.start, end: game.study.end, image: buildingImage('medrese', game.buildings.medrese || 1), click: onResearch })
   if (mission) rows.push({ id: 'mission', label: mission.resolved ? 'Sefer · Dönüş' : 'Süren sefer', start: mission.departAt, end: mission.resolved ? mission.returnAt : mission.arriveAt, image: buildingImage('liman', game.buildings.liman || 1), click: onArmy })
   if (!rows.length) return null
-  const nearest = Math.max(0, Math.ceil((Math.min(...rows.map(row => row.end)) - game.updatedAt) / 1000))
-  const summaryTime = `${Math.floor(nearest / 60)}:${String(nearest % 60).padStart(2, '0')}`
-  return <aside className="city-activity" aria-label="Şehirde süren işler">
-    <button type="button" className="city-activity-chip" aria-expanded={expanded} aria-label={`${rows.length} faaliyet, en yakın ${summaryTime}. Faaliyetleri ${expanded ? 'kapat' : 'aç'}`} onClick={() => setExpanded(v => !v)}><span aria-hidden="true">⚒ {rows.length} · {summaryTime}</span></button>
-    {expanded && rows.slice(0, 4).map(row => {
+  return <section className="city-activity" aria-label="Şehirde süren işler"><h3>Süren işler</h3>
+    {rows.map(row => {
       const remaining = Math.max(0, Math.ceil((row.end - game.updatedAt) / 1000))
       const progress = Math.max(0, Math.min(100, (game.updatedAt - row.start) / Math.max(1, row.end - row.start) * 100))
       const time = remaining < 3600 ? `${Math.floor(remaining / 60)}:${String(remaining % 60).padStart(2, '0')}` : `${Math.floor(remaining / 3600)} sa`
       return <button type="button" key={row.id} onClick={row.click} aria-label={`${row.label}: ${time} kaldı`}><img src={row.image} alt="" /><span><strong>{row.label}</strong><time>{time}</time><i className="city-activity-meter" aria-hidden="true"><i style={{ width: `${progress}%` }} /></i></span></button>
-    })}</aside>
+    })}</section>
 }
 
 export function CityShortcuts({ now, offers, reports, daily, onObjectives, onOffers, onReports }: { now: number; offers: number; reports: number; daily: number; onObjectives: () => void; onOffers: () => void; onReports: () => void }) {
@@ -281,5 +280,5 @@ export function CityShortcuts({ now, offers, reports, daily, onObjectives, onOff
     { key: 'mail', label: `Elçi mektubu: ${offers} yapay rakip teklifi`, icon: <img className="painted-icon" src={asset('/images/game/icons/ui-mail.webp')} alt="" />, click: onOffers, badge: offers > 0 },
     { key: 'reports', label: `Raporlar: ${reports} haber`, icon: <Shield painted />, click: onReports, badge: reports > 0 },
   ]
-  return <aside className="city-shortcuts" aria-label="Şehir kısayolları">{items.map(item => <button type="button" key={item.key} onClick={item.click} aria-label={item.label} title={item.label}>{item.icon}{item.badge && <span className="ika-badge is-dot" aria-hidden="true" />}{item.text && <small aria-hidden="true">{item.text}</small>}</button>)}</aside>
+  return <aside className="city-shortcuts" aria-label="Şehir kısayolları">{items.map(item => <button type="button" key={item.key} onClick={item.click} aria-label={item.label} title={item.label}>{item.icon}<span className="city-shortcut-label">{item.label}</span>{item.badge && <span className="ika-badge is-dot" aria-hidden="true" />}{item.text && <small aria-hidden="true">{item.text}</small>}</button>)}</aside>
 }

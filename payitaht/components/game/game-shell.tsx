@@ -21,6 +21,7 @@ import { toast } from 'sonner'
 import { Toaster } from '@/components/ui/sonner'
 
 import { CityScene } from './city-scene'
+import { CityAgenda } from './city-agenda'
 import { BuildingList, ResearchPanel, PlotPicker, IslandPanel, colonyBlocker, colonyCostText } from './game-panels'
 import { ArmyRegister } from './army-register'
 import { WorldMap } from './world-map'
@@ -89,6 +90,8 @@ export default function GameShell({ onTitle }: { onTitle?: () => void } = {}) {
   useAlerts(empire)
   const notify = useNotifySetting()
   const [panel, setPanel] = useState<Panel>(null)
+  const [resourcesOpen, setResourcesOpen] = useState(false)
+  const [agendaOpen, setAgendaOpen] = useState(false)
   // Dönüşte "yokluğunda olanlar" özeti (kayıt ilk yüklendiğinde bir kez).
   const [away, setAway] = useState<AwaySummary | null>(null)
   const [selected, setSelected] = useState<BuildingId | null>(null)
@@ -150,12 +153,15 @@ export default function GameShell({ onTitle }: { onTitle?: () => void } = {}) {
    * yerine en üstteki katmanı kapatır. Katman arayüzden kapanırsa eklenen
    * adım da geri alınır. Şehir ekranında geri tuşu uygulamadan çıkar.
    */
-  const layered = !!(panel || selected || plot !== null || npc || moving || placement || view === 'island')
+  const layered = !!(resourcesOpen || agendaOpen || panel || selected || plot !== null || npc || moving || placement || view === 'island')
   const pushed = useRef(false), skipPop = useRef(false)
   const closeTop = useRef<() => void>(() => {})
   closeTop.current = () => {
-    if (moving) cancelMove()
+    if (resourcesOpen) setResourcesOpen(false)
+    else if (agendaOpen) setAgendaOpen(false)
+    else if (moving) cancelMove()
     else if (npc || plot !== null || panel) { setNpc(null); setPlot(null); setPanel(null) }
+    else if (selected && buildingDetails) setBuildingDetails(false)
     else if (selected) {
       setSelected(null)
       if (placement) setPlacement({ id: placement.id, plot: null })
@@ -166,7 +172,7 @@ export default function GameShell({ onTitle }: { onTitle?: () => void } = {}) {
   useEffect(() => {
     if (layered && !pushed.current) { history.pushState({ payitaht: 1 }, ''); pushed.current = true }
     else if (!layered && pushed.current) { pushed.current = false; skipPop.current = true; history.back() }
-  }, [layered, panel, selected, plot, npc, moving, placement, view])
+  }, [layered, resourcesOpen, agendaOpen, panel, selected, buildingDetails, plot, npc, moving, placement, view])
   useEffect(() => {
     const onPop = () => {
       if (skipPop.current) { skipPop.current = false; return }
@@ -176,8 +182,8 @@ export default function GameShell({ onTitle }: { onTitle?: () => void } = {}) {
     window.addEventListener('popstate', onPop)
     return () => window.removeEventListener('popstate', onPop)
   }, [])
-  function openPanel(value: Panel) { setPlacement(null); if (value === 'island' && view === 'city') { setView('island'); return } setNpc(null); setSelected(null); setPlot(null); setMoving(null); setPanel(value) }
-  function openBuilding(id: BuildingId) { setPlacement(null); setNpc(null); setPanel(null); setPlot(null); setMoving(null); setView('city'); setBuildingDetails(false); setSelected(id) }
+  function openPanel(value: Panel) { setResourcesOpen(false); setAgendaOpen(false); setPlacement(null); if (value === 'island' && view === 'city') { setView('island'); return } setNpc(null); setSelected(null); setPlot(null); setMoving(null); setPanel(value) }
+  function openBuilding(id: BuildingId) { setResourcesOpen(false); setAgendaOpen(false); setPlacement(null); setNpc(null); setPanel(null); setPlot(null); setMoving(null); setView('city'); setBuildingDetails(false); setSelected(id) }
   function openPlot(index: number) {
     if (game && placement) {
       if (!freePlotsFor(game, placement.id).includes(index)) return
@@ -327,6 +333,7 @@ export default function GameShell({ onTitle }: { onTitle?: () => void } = {}) {
   const expansion = empire ? expansionPlan(empire) : []
   const expanding = expansion.some(step => !step.done)
   const claimable = game && foundingCity ? OBJECTIVES.filter(o => !game.claimed.includes(o.id) && objectiveDone(game, o.id)).length : 0
+  const activityCount = game ? game.queue.length + game.drills.length + (game.study ? 1 : 0) + ((empire?.missions ?? []).some(m => m.cityId === cityId && !m.stationed) ? 1 : 0) : 0
   const offerCount = game ? (empire?.world?.proposals ?? []).filter(p => p.until > game.updatedAt).length : 0
   const unreadCirculars = (empire?.world?.pact?.circulars ?? []).filter(c => !c.read).length
   // V2 2.10: aynı anda en çok iki sayılı rozet; kalanlar nokta.
@@ -340,8 +347,8 @@ export default function GameShell({ onTitle }: { onTitle?: () => void } = {}) {
     {/*
       * ÜST ŞERİT (ika-hud.tsx): şehir seçici, dört danışman ve kaynaklar.
       */}
-    {game && <IkaTopBar game={game} empire={empire} news={news} modes={{ army: badges.army, diplo: badges.diplo, city: badges.city, research: badges.research }} activeAdvisor={activeAdvisor} onProfile={() => openPanel('profile')} onCity={() => openPanel('cities')} onSelectCity={id => { visitCity(id); setView('city'); setViewIsland(null) }} onEconomy={() => openPanel('economy')} onAdvisor={openAdvisor} />}
-{game ? <>{empire && <ThreatBanner empire={empire} now={game.updatedAt} onOpen={() => openPanel('army')} />}<div className="game-body"><div className="city-column"><CityScene fleet={cityLifeFleet(empire)} key={empire?.activeCityId} raid={(empire?.threats ?? []).some(t => t.cityId === empire?.activeCityId && (t.intent || t.arriveAt - game.updatedAt <= THREAT_WARNING_MS))} paused={view === 'island' || (!!selected && buildingDetails) || (!!panel && !moving)} siege={citySiegeAppearance(empire)} banner={bannerLook(empire)} activity={<CityActivity game={game} empire={empire} onBuilding={openBuilding} onArmy={() => openPanel('army')} onResearch={() => openPanel('research')} />} shortcuts={!guided && <CityShortcuts now={game.updatedAt} offers={offerCount} reports={(empire?.reports ?? []).filter(r => r.cityId === cityId && r.time > seen.army).length} daily={claimable + (empire?.daily && empire.daily.loginDay !== empire.daily.day ? 1 : 0)} onObjectives={() => openPanel('objectives')} onOffers={() => openAdvisor('diplo')} onReports={() => openAdvisor('army')} />} game={game} placing={plot !== null || moving !== null} buildTarget={placement?.id ?? null} chosenPlot={placement?.plot ?? null} onBuilding={openBuilding} onPlot={openPlot} onRoad={cell => act({ type: 'road', cell })} moving={moving} movePlot={movePlot} onMine={() => { setSelected(null); setPlot(null); setPanel('island') }} onMovePlot={setMovePlot} />{view === 'island' && empire && <IslandView empire={empire} islandId={viewIsland ?? activeCity(empire).islandId} onIsland={setViewIsland} now={game.updatedAt} onCity={() => { setView('city'); setViewIsland(null) }} onMine={() => { setNpc(null); setPanel('island') }} onForest={() => { setNpc(null); setPanel('forest') }} onNpc={id => { setPanel(null); setSelected(null); setPlot(null); setNpc(id) }} onReports={() => openAdvisor('army')} />}</div></div>
+    {game && <IkaTopBar resourcesOpen={resourcesOpen} onResourcesOpen={setResourcesOpen} game={game} empire={empire} news={news} modes={{ army: badges.army, diplo: badges.diplo, city: badges.city, research: badges.research }} activeAdvisor={activeAdvisor} onProfile={() => openPanel('profile')} onCity={() => openPanel('cities')} onSelectCity={id => { visitCity(id); setView('city'); setViewIsland(null) }} onEconomy={() => openPanel('economy')} onAdvisor={openAdvisor} />}
+{game ? <>{empire && <ThreatBanner empire={empire} now={game.updatedAt} onOpen={() => openPanel('army')} />}<div className="game-body"><div className="city-column"><CityScene fleet={cityLifeFleet(empire)} key={empire?.activeCityId} raid={(empire?.threats ?? []).some(t => t.cityId === empire?.activeCityId && (t.intent || t.arriveAt - game.updatedAt <= THREAT_WARNING_MS))} paused={view === 'island' || (!!selected && buildingDetails) || (!!panel && !moving)} siege={citySiegeAppearance(empire)} banner={bannerLook(empire)} shortcuts={(!guided || activityCount > 0) && <CityAgenda open={agendaOpen} onOpenChange={setAgendaOpen} count={offerCount + claimable + activityCount + (empire?.reports ?? []).filter(r => r.cityId === cityId && r.time > seen.army).length}><CityActivity game={game} empire={empire} onBuilding={openBuilding} onArmy={() => openPanel('army')} onResearch={() => openPanel('research')} />{!guided && <CityShortcuts now={game.updatedAt} offers={offerCount} reports={(empire?.reports ?? []).filter(r => r.cityId === cityId && r.time > seen.army).length} daily={claimable + (empire?.daily && empire.daily.loginDay !== empire.daily.day ? 1 : 0)} onObjectives={() => openPanel('objectives')} onOffers={() => openAdvisor('diplo')} onReports={() => openAdvisor('army')} />}</CityAgenda>} game={game} placing={plot !== null || moving !== null} buildTarget={placement?.id ?? null} chosenPlot={placement?.plot ?? null} onBuilding={openBuilding} onPlot={openPlot} onRoad={cell => act({ type: 'road', cell })} moving={moving} movePlot={movePlot} onMine={() => { setSelected(null); setPlot(null); setPanel('island') }} onMovePlot={setMovePlot} />{view === 'island' && empire && <IslandView empire={empire} islandId={viewIsland ?? activeCity(empire).islandId} onIsland={setViewIsland} now={game.updatedAt} onCity={() => { setView('city'); setViewIsland(null) }} onMine={() => { setNpc(null); setPanel('island') }} onForest={() => { setNpc(null); setPanel('forest') }} onNpc={id => { setPanel(null); setSelected(null); setPlot(null); setNpc(id) }} onReports={() => openAdvisor('army')} />}</div></div>
       {/* TAŞIMA ONAY ŞERİDİ — referanstaki yeşil ✓/✗. */}
       {moving && <div className="move-confirm">
         <span className="move-confirm-title">{BUILDINGS[moving].name} taşınıyor</span>
@@ -374,6 +381,7 @@ export default function GameShell({ onTitle }: { onTitle?: () => void } = {}) {
         }
       }} />}
     <IkaNav active={navActive} badges={{ objectives: claimable, alliance: unreadCirculars }} modes={{ objectives: badges.objectives, alliance: badges.alliance }} onSelect={key => {
+      setResourcesOpen(false); setAgendaOpen(false)
       setPlacement(null); setSelected(null); setPlot(null); setNpc(null)
       if (key === 'city') { setPanel(null); setMoving(null); setView('city'); setViewIsland(null) }
       else if (key === 'island') { setPanel(null); setView('island') }

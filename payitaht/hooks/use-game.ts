@@ -50,6 +50,14 @@ let away: AwaySummary | null = null
 export function takeAwaySummary(): AwaySummary | null { const a = away; away = null; return a }
 const PASSIVE_PERSIST_MS = 5_000
 
+/** A replacement save owns its clock; the previous session must not advance it. */
+function rebaseClock(empire: Empire) {
+  clock = null
+  warning = ''
+  away = null
+  gameNow(lastSeenOf(empire))
+}
+
 function save(empire: Empire, force = false) {
   memory = empire
   if (corrupt) return
@@ -95,7 +103,7 @@ export function peekSave(): { empire?: Empire; error?: string } {
 export function startNewGame(empire: Empire) {
   corrupt = false
   hydrated = true
-  warning = ''
+  rebaseClock(empire)
   save(empire, true)
   void mutateCache(SAVE_KEY, empire, { revalidate: false })
 }
@@ -171,9 +179,10 @@ export function useGame() {
     commit(result.empire)
   }
   function reset() {
+    const empire = initialEmpire(Date.now())
     corrupt = false
-    warning = ''
-    commit(initialEmpire(gameNow()))
+    rebaseClock(empire)
+    commit(empire)
   }
   function exportSave() {
     return exportStoredEmpire(load())
@@ -184,7 +193,8 @@ export function useGame() {
       memory = empire
       corrupt = false
       hydrated = true
-      warning = ''
+      rebaseClock(empire)
+      lastPersistedAt = Date.now()
       void mutate(empire, { revalidate: false })
     } catch (error) {
       return error instanceof Error ? error.message : 'Yedek dosyası okunamadı.'
