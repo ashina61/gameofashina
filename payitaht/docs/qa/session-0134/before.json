@@ -1,0 +1,42 @@
+{
+  "baseline": true,
+  "cases": [
+    {
+      "name": "future backup advances from its own timestamp",
+      "width": 390,
+      "passed": false,
+      "error": "timestamp 1795348800000 is frozen at future backup 1795348800000"
+    },
+    {
+      "name": "older backup does not inherit previous session future",
+      "width": 390,
+      "passed": false,
+      "error": "timestamp 1795348810014 inherited future session 1795348800000"
+    },
+    {
+      "name": "new game starts at current device time",
+      "width": 390,
+      "passed": false,
+      "error": "new game inherited 1795348801515"
+    },
+    {
+      "name": "invalid import preserves current progress and clock",
+      "width": 390,
+      "passed": true,
+      "timestamp": 1795262410317
+    },
+    {
+      "name": "Back returns detail to preview, then city",
+      "width": 390,
+      "passed": false,
+      "error": "Back skipped building preview\n\nfalse !== true\n"
+    },
+    {
+      "name": "development tab returns upgrade to view after deep scroll",
+      "width": 390,
+      "passed": false,
+      "error": "Development retained scrollTop=671\n\n671 !== 0\n"
+    }
+  ],
+  "errors": []
+}

@@ -161,6 +161,7 @@ export default function GameShell({ onTitle }: { onTitle?: () => void } = {}) {
     else if (agendaOpen) setAgendaOpen(false)
     else if (moving) cancelMove()
     else if (npc || plot !== null || panel) { setNpc(null); setPlot(null); setPanel(null) }
+    else if (selected && buildingDetails) setBuildingDetails(false)
     else if (selected) {
       setSelected(null)
       if (placement) setPlacement({ id: placement.id, plot: null })
@@ -171,7 +172,7 @@ export default function GameShell({ onTitle }: { onTitle?: () => void } = {}) {
   useEffect(() => {
     if (layered && !pushed.current) { history.pushState({ payitaht: 1 }, ''); pushed.current = true }
     else if (!layered && pushed.current) { pushed.current = false; skipPop.current = true; history.back() }
-  }, [layered, resourcesOpen, agendaOpen, panel, selected, plot, npc, moving, placement, view])
+  }, [layered, resourcesOpen, agendaOpen, panel, selected, buildingDetails, plot, npc, moving, placement, view])
   useEffect(() => {
     const onPop = () => {
       if (skipPop.current) { skipPop.current = false; return }

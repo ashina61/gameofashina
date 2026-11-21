@@ -279,6 +279,9 @@ export function BuildingPage({ game, empire, id, onClose, onBuild, onFlip, onMov
   useLayoutEffect(() => { setHasWork(!!workRef.current?.childElementCount) }, [id, level, children])
   // Başka binaya geçince sayfa baştan: binanın kendi işi, açıklama kapalı.
   useEffect(() => { setTab('yapi'); setRazing(false) }, [id])
+  useLayoutEffect(() => {
+    workRef.current?.closest<HTMLElement>('.bp-scroll')?.scrollTo({ top: 0, behavior: 'instant' })
+  }, [id, tab])
   const movable = level > 0 && takesPlot(id)
   const coastId = id === 'liman' || id === 'tersane' ? id : null
   const coast = coastId !== null
