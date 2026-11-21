@@ -1,3 +1,5 @@
+**21 Kasım 0.133 içerik sırası:** `MANAGEMENT-CLARITY-0.133.md` geçerlidir. Kullanıcının sıkışıklığı giderme talebiyle ortam bandı ana işten Gelişim’e taşındı; yükseltme ilk işlem kalır. Mevcut boyalı malzemeler ve oyun kuralları korunur. Eğitim sırası/araştırma muhasebesi/üretim hesabı yeni açılır düzende erişilebilirdir.
+
 # Son düzeltme — 0.71.1 / SW82
 
 Kullanıcı: «halk ve alim gibi durumlarda insan gibi çiz kanka portre olmasın». Önceki halk/âlim portre tarifini değiştirir. Boştaki halk sade sivil kıyafetli tam boy insan; âlim sarıklı, kitap tutan tam boy insan. Şeffaf boyalı WebP, çerçevesiz, object-fit contain. Ortak PersonArt ile iş gücü/araştırma/öneri alanlarına yayılır; Medrese 60×80, diğer alanlar mevcut 3:4 figür oranını korur. HUD danışman simgeleri ve asker portreleri ayrı kullanım olarak korunur.

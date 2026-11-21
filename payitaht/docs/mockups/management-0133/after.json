@@ -1,0 +1,189 @@
+{
+  "baseline": false,
+  "cases": [
+    {
+      "id": "kisla",
+      "width": 360,
+      "pageHeight": 590.34375,
+      "scrollHeight": 2199,
+      "primaryY": 651.90625,
+      "primaryBottom": 703.90625,
+      "visible": true,
+      "overflow": false
+    },
+    {
+      "width": 360,
+      "command": "training adds a real queued order and keeps limit"
+    },
+    {
+      "id": "medrese",
+      "width": 360,
+      "pageHeight": 590.34375,
+      "scrollHeight": 756,
+      "primaryY": 431.984375,
+      "primaryBottom": 475.984375,
+      "visible": true,
+      "overflow": false
+    },
+    {
+      "width": 360,
+      "command": "medrese draft, reset, commit and Development order"
+    },
+    {
+      "id": "kereste",
+      "width": 360,
+      "pageHeight": 590.34375,
+      "scrollHeight": 964,
+      "primaryY": 431.984375,
+      "primaryBottom": 475.984375,
+      "visible": true,
+      "overflow": false
+    },
+    {
+      "width": 360,
+      "command": "kereste draft, reset, commit and Development order"
+    },
+    {
+      "id": "research",
+      "width": 360,
+      "pageHeight": 590.34375,
+      "scrollHeight": 3609,
+      "primaryY": 683.484375,
+      "primaryBottom": 731.484375,
+      "visible": true,
+      "overflow": false
+    },
+    {
+      "width": 360,
+      "command": "research consumes knowledge, starts study and preserves locks"
+    },
+    {
+      "id": "kisla",
+      "width": 390,
+      "pageHeight": 582.703125,
+      "scrollHeight": 2199,
+      "primaryY": 651.90625,
+      "primaryBottom": 703.90625,
+      "visible": true,
+      "overflow": false
+    },
+    {
+      "width": 390,
+      "command": "training adds a real queued order and keeps limit"
+    },
+    {
+      "id": "medrese",
+      "width": 390,
+      "pageHeight": 582.703125,
+      "scrollHeight": 756,
+      "primaryY": 431.984375,
+      "primaryBottom": 475.984375,
+      "visible": true,
+      "overflow": false
+    },
+    {
+      "width": 390,
+      "command": "medrese draft, reset, commit and Development order"
+    },
+    {
+      "id": "kereste",
+      "width": 390,
+      "pageHeight": 582.703125,
+      "scrollHeight": 964,
+      "primaryY": 431.984375,
+      "primaryBottom": 475.984375,
+      "visible": true,
+      "overflow": false
+    },
+    {
+      "width": 390,
+      "command": "kereste draft, reset, commit and Development order"
+    },
+    {
+      "id": "research",
+      "width": 390,
+      "pageHeight": 582.703125,
+      "scrollHeight": 3609,
+      "primaryY": 683.484375,
+      "primaryBottom": 731.484375,
+      "visible": true,
+      "overflow": false
+    },
+    {
+      "width": 390,
+      "command": "research consumes knowledge, starts study and preserves locks"
+    },
+    {
+      "id": "kisla",
+      "width": 430,
+      "pageHeight": 578,
+      "scrollHeight": 2199,
+      "primaryY": 651.90625,
+      "primaryBottom": 703.90625,
+      "visible": true,
+      "overflow": false
+    },
+    {
+      "width": 430,
+      "command": "training adds a real queued order and keeps limit"
+    },
+    {
+      "id": "medrese",
+      "width": 430,
+      "pageHeight": 578,
+      "scrollHeight": 756,
+      "primaryY": 431.984375,
+      "primaryBottom": 475.984375,
+      "visible": true,
+      "overflow": false
+    },
+    {
+      "width": 430,
+      "command": "medrese draft, reset, commit and Development order"
+    },
+    {
+      "id": "kereste",
+      "width": 430,
+      "pageHeight": 578,
+      "scrollHeight": 964,
+      "primaryY": 431.984375,
+      "primaryBottom": 475.984375,
+      "visible": true,
+      "overflow": false
+    },
+    {
+      "width": 430,
+      "command": "kereste draft, reset, commit and Development order"
+    },
+    {
+      "id": "research",
+      "width": 430,
+      "pageHeight": 578,
+      "scrollHeight": 3588,
+      "primaryY": 662.484375,
+      "primaryBottom": 710.484375,
+      "visible": true,
+      "overflow": false
+    },
+    {
+      "width": 430,
+      "command": "research consumes knowledge, starts study and preserves locks"
+    },
+    {
+      "largeText": "kisla",
+      "reachable": true
+    },
+    {
+      "largeText": "research",
+      "reachable": true
+    },
+    {
+      "largeText": "kereste",
+      "reachable": true
+    },
+    "full warehouse warning remains outside accounting",
+    "wrong island warning remains outside accounting"
+  ],
+  "errors": [],
+  "missing": []
+}

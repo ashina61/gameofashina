@@ -178,7 +178,6 @@ function BuildingView({ game, empire, id, onCommand, onRecruit, onNav, onBuildin
       const study = game.study
       return <>
         <Box title="Âlimler">
-          <div className="academy-research-link"><GameButton size="sm" onClick={() => onNav('research')}>Araştırmalara git<ChevronRight data-icon="inline-end" /></GameButton></div>
           <Workers game={game} id="medrese" unit="Âlim" perWorker="Her âlim saatte 9 akçe maaş alır." onCommand={onCommand} />
           <details className="academy-ledger"><summary>İlim üretimi ve maaşlar</summary><Table rows={[
             ['İlim üretimi', <strong key="k">{formatRate(r.knowledge)} /dk</strong>],
@@ -187,6 +186,7 @@ function BuildingView({ game, empire, id, onCommand, onRecruit, onNav, onBuildin
           ]} /></details>
         </Box>
         <Box title="Araştırma">
+          <div className="academy-research-link"><GameButton size="sm" onClick={() => onNav('research')}>Araştırmalara git<ChevronRight data-icon="inline-end" /></GameButton></div>
           {study ? <div className="bp-study">
             <ResearchEmblem id={study.id as ResearchId} size={76} state="active" />
             <div><span className="eyebrow">ŞU AN ARAŞTIRILIYOR</span><strong>{RESEARCH[study.id as ResearchId].name}</strong>
@@ -321,16 +321,10 @@ export function BuildingPage({ game, empire, id, onClose, onBuild, onFlip, onMov
       {exchange && <figure className="academy-banner"><img src={asset('/images/game/ui/exchange/market.webp')} alt="Osmanlı pazarında tartıyla mal takası" /><figcaption>Seviye {level}</figcaption></figure>}
       {commerce && <figure className="academy-banner"><img src={asset(`/images/game/ui/commerce/${id === 'carsi' ? 'bazaar' : 'caravanserai'}.webp`)} alt={id === 'carsi' ? 'Osmanlı çarşısında esnaf ve alışveriş' : 'Osmanlı tüccarhanesinin yük ve defter avlusu'} /><figcaption>Seviye {level}</figcaption></figure>}
       {workshop && <figure className="academy-banner"><img src={asset(`/images/game/ui/cost/${id}.webp`)} alt={workshop.alt} /><figcaption>Seviye {level}</figcaption></figure>}
-      {isProduction(id) && <figure className="academy-banner"><img src={asset(`/images/game/ui/production/${PRODUCTION[id].scene}.webp`)} alt={PRODUCTION[id].alt} /><figcaption>Seviye {level}</figcaption></figure>}
-      {id === 'kisla' && <figure className="barracks-banner">
-        <img src={asset('/images/game/ui/barracks/courtyard.webp')} alt="Osmanlı kışlasının sancaklı eğitim avlusu" />
-        <figcaption>Seviye {level}</figcaption>
-      </figure>}
       {(id === 'ambar' || id === 'depo') && <figure className="academy-banner"><img src={asset(`/images/game/ui/storage/${id === 'ambar' ? 'warehouse' : 'depot'}.webp`)} alt={id === 'ambar' ? 'Osmanlı ambarında sandıklar ve erzak' : 'Osmanlı deposunun yükleme avlusu'} /><figcaption>Seviye {level}</figcaption></figure>}
       {id === 'kahvehane' && <figure className="academy-banner"><img src={asset('/images/game/ui/coffeehouse/terrace.webp')} alt="Osmanlı kahvehanesinin Ege’ye bakan sohbet terası" /><figcaption>Seviye {level}</figcaption></figure>}
       {id === 'hamam' && <figure className="academy-banner"><img src={asset('/images/game/ui/bathhouse/court.webp')} alt="Osmanlı hamamının şadırvanlı dinlenme avlusu" /><figcaption>Seviye {level}</figcaption></figure>}
       {id === 'konut' && <figure className="academy-banner"><img src={asset('/images/game/ui/housing/neighborhood.webp')} alt="Osmanlı mahallesinde günlük yaşam" /><figcaption>Seviye {level}</figcaption></figure>}
-      {id === 'medrese' && <figure className="academy-banner"><img src={asset('/images/game/ui/medrese/library.webp')} alt="Osmanlı medresesinde ilim meclisi" /><figcaption>Seviye {level}</figcaption></figure>}
       {razing && <DemolishConfirm game={game} id={id} onCommand={onCommand} onClose={() => setRazing(false)} />}
 
       {hasWork && <div className="bp-tabs" role="tablist" aria-label={`${b.name} bölümleri`}>
@@ -351,6 +345,12 @@ export function BuildingPage({ game, empire, id, onClose, onBuild, onFlip, onMov
           time(f.seconds),
         ])} />
       </Box>}
+      {isProduction(id) && <figure className="academy-banner"><img src={asset(`/images/game/ui/production/${PRODUCTION[id].scene}.webp`)} alt={PRODUCTION[id].alt} /><figcaption>Seviye {level}</figcaption></figure>}
+      {id === 'kisla' && <figure className="barracks-banner">
+        <img src={asset('/images/game/ui/barracks/courtyard.webp')} alt="Osmanlı kışlasının sancaklı eğitim avlusu" />
+        <figcaption>Seviye {level}</figcaption>
+      </figure>}
+      {id === 'medrese' && <figure className="academy-banner"><img src={asset('/images/game/ui/medrese/library.webp')} alt="Osmanlı medresesinde ilim meclisi" /><figcaption>Seviye {level}</figcaption></figure>}
       <details className="building-description"><summary>{b.name} hakkında</summary><p>{b.description}</p></details>
       {level > 0 && <details className="building-operations"><summary>Yapı işlemleri</summary><div>
         {movable && b.art && coast && <GameButton variant="outline" onClick={() => coastId && onCommand({ type: 'face', id: coastId, facing: nextFacing })}><RotateCw />Yön: {facingLabel}</GameButton>}
