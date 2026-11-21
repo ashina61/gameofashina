@@ -6,12 +6,15 @@ import { X, Check } from './ui-art'
 import { saveBackupFile } from '@/lib/backup-file'
 import { SettingsPanel } from './settings-panel'
 import { QuestChip } from './quest-chip'
+import { ExpansionChip } from './expansion-plan'
+import { expansionPlan, type ExpansionTarget } from '@/lib/game/expansion-plan'
 import { GuideSpot } from './guide-spot'
 import { AwaySummaryCard } from './away-summary'
 import type { AwaySummary } from '@/lib/game/away'
 import { AlliancePanel } from './alliance-panel'
 import { bannerLook } from '@/lib/game/banner'
 import { citySiegeAppearance } from '@/lib/game/siege-appearance'
+import { cityLifeFleet } from '@/lib/game/city-life-plan'
 import { BannerContext } from './building-art'
 import { play, wantAmbience, type Sfx } from '@/lib/sfx'
 import { toast } from 'sonner'
@@ -247,6 +250,19 @@ export default function GameShell({ onTitle }: { onTitle?: () => void } = {}) {
       if (saveImportRef.current) saveImportRef.current.value = ''
     }
   }
+  function goExpansion(target: ExpansionTarget) {
+    if (target.cityId !== empire?.activeCityId) {
+      const error = selectCity(target.cityId)
+      if (error) { say.no(error); return }
+    }
+    setPlacement(null); setMoving(null); setNpc(null); setPlot(null); setViewIsland(null); setView('city')
+    if (target.building) {
+      openBuilding(target.building)
+      setBuildingDetails(!!target.manage)
+    } else if (target.panel === 'island') {
+      setSelected(null); setView('island'); setPanel('island')
+    } else openPanel(target.panel ?? 'objectives')
+  }
   function target(objectiveId: string) {
     if (!game) return
     const next = OBJECTIVES.find(objective => objective.id === objectiveId)
@@ -308,6 +324,8 @@ export default function GameShell({ onTitle }: { onTitle?: () => void } = {}) {
   })
   const foundingCity = !empire || empire.activeCityId === empire.cities[0]?.id
   const guided = game && foundingCity ? firstSessionStep(game) : null
+  const expansion = empire ? expansionPlan(empire) : []
+  const expanding = expansion.some(step => !step.done)
   const claimable = game && foundingCity ? OBJECTIVES.filter(o => !game.claimed.includes(o.id) && objectiveDone(game, o.id)).length : 0
   const offerCount = game ? (empire?.world?.proposals ?? []).filter(p => p.until > game.updatedAt).length : 0
   const unreadCirculars = (empire?.world?.pact?.circulars ?? []).filter(c => !c.read).length
@@ -323,7 +341,7 @@ export default function GameShell({ onTitle }: { onTitle?: () => void } = {}) {
       * ÜST ŞERİT (ika-hud.tsx): şehir seçici, dört danışman ve kaynaklar.
       */}
     {game && <IkaTopBar game={game} empire={empire} news={news} modes={{ army: badges.army, diplo: badges.diplo, city: badges.city, research: badges.research }} activeAdvisor={activeAdvisor} onProfile={() => openPanel('profile')} onCity={() => openPanel('cities')} onSelectCity={id => { visitCity(id); setView('city'); setViewIsland(null) }} onEconomy={() => openPanel('economy')} onAdvisor={openAdvisor} />}
-    {game ? <>{empire && <ThreatBanner empire={empire} now={game.updatedAt} onOpen={() => openPanel('army')} />}<div className="game-body"><div className="city-column"><CityScene key={empire?.activeCityId} raid={(empire?.threats ?? []).some(t => t.cityId === empire?.activeCityId && (t.intent || t.arriveAt - game.updatedAt <= THREAT_WARNING_MS))} paused={view === 'island' || (!!selected && buildingDetails) || (!!panel && !moving)} siege={citySiegeAppearance(empire)} banner={bannerLook(empire)} activity={<CityActivity game={game} empire={empire} onBuilding={openBuilding} onArmy={() => openPanel('army')} onResearch={() => openPanel('research')} />} shortcuts={!guided && <CityShortcuts now={game.updatedAt} offers={offerCount} reports={(empire?.reports ?? []).filter(r => r.cityId === cityId && r.time > seen.army).length} daily={claimable + (empire?.daily && empire.daily.loginDay !== empire.daily.day ? 1 : 0)} onObjectives={() => openPanel('objectives')} onOffers={() => openAdvisor('diplo')} onReports={() => openAdvisor('army')} />} game={game} placing={plot !== null || moving !== null} buildTarget={placement?.id ?? null} chosenPlot={placement?.plot ?? null} onBuilding={openBuilding} onPlot={openPlot} onRoad={cell => act({ type: 'road', cell })} moving={moving} movePlot={movePlot} onMine={() => { setSelected(null); setPlot(null); setPanel('island') }} onMovePlot={setMovePlot} />{view === 'island' && empire && <IslandView empire={empire} islandId={viewIsland ?? activeCity(empire).islandId} onIsland={setViewIsland} now={game.updatedAt} onCity={() => { setView('city'); setViewIsland(null) }} onMine={() => { setNpc(null); setPanel('island') }} onForest={() => { setNpc(null); setPanel('forest') }} onNpc={id => { setPanel(null); setSelected(null); setPlot(null); setNpc(id) }} onReports={() => openAdvisor('army')} />}</div></div>
+{game ? <>{empire && <ThreatBanner empire={empire} now={game.updatedAt} onOpen={() => openPanel('army')} />}<div className="game-body"><div className="city-column"><CityScene fleet={cityLifeFleet(empire)} key={empire?.activeCityId} raid={(empire?.threats ?? []).some(t => t.cityId === empire?.activeCityId && (t.intent || t.arriveAt - game.updatedAt <= THREAT_WARNING_MS))} paused={view === 'island' || (!!selected && buildingDetails) || (!!panel && !moving)} siege={citySiegeAppearance(empire)} banner={bannerLook(empire)} activity={<CityActivity game={game} empire={empire} onBuilding={openBuilding} onArmy={() => openPanel('army')} onResearch={() => openPanel('research')} />} shortcuts={!guided && <CityShortcuts now={game.updatedAt} offers={offerCount} reports={(empire?.reports ?? []).filter(r => r.cityId === cityId && r.time > seen.army).length} daily={claimable + (empire?.daily && empire.daily.loginDay !== empire.daily.day ? 1 : 0)} onObjectives={() => openPanel('objectives')} onOffers={() => openAdvisor('diplo')} onReports={() => openAdvisor('army')} />} game={game} placing={plot !== null || moving !== null} buildTarget={placement?.id ?? null} chosenPlot={placement?.plot ?? null} onBuilding={openBuilding} onPlot={openPlot} onRoad={cell => act({ type: 'road', cell })} moving={moving} movePlot={movePlot} onMine={() => { setSelected(null); setPlot(null); setPanel('island') }} onMovePlot={setMovePlot} />{view === 'island' && empire && <IslandView empire={empire} islandId={viewIsland ?? activeCity(empire).islandId} onIsland={setViewIsland} now={game.updatedAt} onCity={() => { setView('city'); setViewIsland(null) }} onMine={() => { setNpc(null); setPanel('island') }} onForest={() => { setNpc(null); setPanel('forest') }} onNpc={id => { setPanel(null); setSelected(null); setPlot(null); setNpc(id) }} onReports={() => openAdvisor('army')} />}</div></div>
       {/* TAŞIMA ONAY ŞERİDİ — referanstaki yeşil ✓/✗. */}
       {moving && <div className="move-confirm">
         <span className="move-confirm-title">{BUILDINGS[moving].name} taşınıyor</span>
@@ -339,9 +357,10 @@ export default function GameShell({ onTitle }: { onTitle?: () => void } = {}) {
         */}
       {/* ALT LOG ŞERİDİ — referanstaki sohbet gibi, en son şehir günlüğü satırı. */}
       {away && <AwaySummaryCard summary={away} onClose={() => setAway(null)} onReports={() => { setAway(null); openPanel('reports') }} />}
-      {view === 'city' && !panel && !selected && !moving && plot === null && foundingCity && !(empire?.threats ?? []).some(t => t.cityId === empire?.activeCityId) && !(empire?.sieges ?? []).length && <QuestChip game={game}
-        placement={placement?.id ?? null} onCancelPlacement={() => setPlacement(null)}
-        onOpen={() => openPanel('objectives')} onGo={target} onClaim={id => act({ type: 'claim', id })} />}
+      {view === 'city' && !panel && !selected && !moving && plot === null && !(empire?.threats ?? []).some(t => t.cityId === empire?.activeCityId) && !(empire?.sieges ?? []).length && (expanding
+        ? <ExpansionChip steps={expansion} onOpen={() => openPanel('objectives')} onGo={goExpansion} />
+        : foundingCity && <QuestChip game={game} placement={placement?.id ?? null} onCancelPlacement={() => setPlacement(null)}
+          onOpen={() => openPanel('objectives')} onGo={target} onClaim={id => act({ type: 'claim', id })} />)}
       {guided && !away && !moving && <GuideSpot step={guided} choosingPlot={!!placement && !selected} />}</> : <div className="game-loading"><img src={buildingImage('divan', 8)} alt="" width={150} height={150} /><h1>Şehrin uyanıyor…</h1><p>Sahilhisar kapılarını açıyor.</p></div>}
     {game && selected && !buildingDetails && <BuildingPreview key={`${cityId}-${selected}`} game={game} id={selected}
       plot={placement?.plot ?? undefined} onClose={() => {
@@ -390,7 +409,7 @@ export default function GameShell({ onTitle }: { onTitle?: () => void } = {}) {
       {panel === 'changelog' && <ChangelogPage />}
       {panel === 'economy' && <TreasuryPage game={game} cityName={currentCityName} onBuilding={id => { setView('city'); setViewIsland(null); openBuilding(id) }} onPeople={() => { setView('city'); openPanel('people') }} onForest={() => { setViewIsland(null); setView('island'); setPanel('forest') }} onIsland={() => { setViewIsland(null); setView('island'); setPanel('island') }} />}
       {panel === 'objectives' && <ObjectivesPage game={game} empire={empire} foundingCity={foundingCity} cityName={currentCityName}
-        onClaim={id => act({ type: 'claim', id })} onGo={target} onFoundingCity={() => visitCity(empire!.cities[0].id)} run={runOp} />}
+        onExpansion={goExpansion} onClaim={id => act({ type: 'claim', id })} onGo={target} onFoundingCity={() => visitCity(empire!.cities[0].id)} run={runOp} />}
       {panel === 'settings' && <SettingsPanel empire={empire} run={runOp} warning={warning} native={native}
         pwa={{ installed, installAvailable, install, offlineReady }} notify={notify}
         onBackup={() => void backupSaveFile()} onRestore={file => void restoreSaveFile(file)}

@@ -2,20 +2,23 @@ import * as Phaser from 'phaser'
 import { CityScene } from './phaser-city'
 import { FlagField, SmokeField } from './city-life'
 import { SkyLayer } from './city-sky'
-import { asset, buildingArtKey, type ArtSize } from '@/lib/asset'
+import { asset, type ArtSize } from '@/lib/asset'
 import { BUILDINGS, BUILDING_IDS, activeJob, freePlotsFor, plotOpen, type BuildingId, type Game } from '@/lib/game/engine'
 import { visualSignature } from '@/lib/game/city-render'
 import { PEACEFUL_CITY, siegeAppearanceKey, type SiegeAppearance } from '@/lib/game/siege-appearance'
-import { PARCEL_PLOTS, PARCEL_WORLD, parcelPlot, CITY_ROADS, parcelContainsPoint, buildingRoadClear, parcelArtFrame, cityBuildingArtFrame, cityArtOutline, cityBuildingImage, parcelBuildingName, type CityParcel, type ParcelPoint } from '@/lib/game/city-map/parcel-city'
+import { PARCEL_PLOTS, PARCEL_WORLD, parcelPlot, CITY_ROADS, parcelContainsPoint, buildingRoadClear, parcelArtFrame, cityBuildingArtFrame, cityArtOutline, cityBuildingImage, parcelBuildingName, cityBuildingTextureKey, harbourSailingRoute, HARBOUR_SHIP_WIDTH, type CityParcel, type ParcelPoint } from '@/lib/game/city-map/parcel-city'
 import { cityArtSize, isTap } from './city/shared'
 import { parcelCameraViewport, parcelCityZoom } from '@/lib/game/city-map/parcel-camera'
-import { CITY_WALL_PLAN, wallSpanDepth, wallTowerDepth, type WallSpan } from '@/lib/game/city-map/parcel-wall-ring'
+import { CITY_WALL_PLAN, WALL_MASONRY, wallMasonrySlices, wallSpanDepth, wallTowerDepth, type WallSpan } from '@/lib/game/city-map/parcel-wall-ring'
 import terrainTiles from '@/lib/game/city-map/terrain-tiles.json'
+import { ParcelLifeLayer, type LifeFrame } from './parcel-life'
+import { EMPTY_LIFE_FLEET, type CityLifeFleet } from '@/lib/game/city-life-plan'
+import { lowMotion } from '@/lib/motion'
 
 /** Main game renderer. Engine plot IDs and saved placements never change. */
 export class ParcelCityScene extends CityScene {
-  people:Array<{image:Phaser.GameObjects.Image;points:Array<{x:number;y:number}>;t:number}>=[]
-  ships:Phaser.GameObjects.Image[]=[]
+  private life?:ParcelLifeLayer
+  private lifeFleet:CityLifeFleet=EMPTY_LIFE_FLEET
   wallTextureKeys:string[]=[]
   private buildTarget:BuildingId|null=null
   private chosenPlot:number|null=null
@@ -25,7 +28,13 @@ export class ParcelCityScene extends CityScene {
     this.load.image('parcel-wall-gate',asset('/images/game/walls/hillside-gate.webp'))
     this.load.image('parcel-wall-tower',asset('/images/game/walls/hillside-bastion.webp'))
     this.load.image('parcel-citizen',asset('/images/game/ui/people/citizen-figure.webp'))
-    for(const key of ['ship-a','ship-b','fishing'])this.load.image(`parcel-${key}`,asset(`/images/game/ships/${key}.webp`))
+    this.load.image('parcel-logger',asset('/images/game/ui/production/lumberjack.webp'))
+    this.load.image('parcel-trader',asset('/images/game/ui/commerce/shopkeeper.webp'))
+    this.load.image('parcel-scholar',asset('/images/game/ui/people/scholar-figure.webp'))
+    this.load.image('parcel-soldier',asset('/images/game/units/mizrakci.webp'))
+    this.load.image('parcel-wood',asset('/images/game/icons/res-kereste.webp'))
+    this.load.image('parcel-coins',asset('/images/game/icons/res-akce.webp'))
+    for(const key of ['ship-a','ship-b'])this.load.image(`parcel-${key}`,asset(`/images/game/ships/${key}.webp`))
     this.load.image('b_site',asset('/images/game/buildings/site.webp'))
     this.load.image('b_scaffold',asset('/images/game/buildings/scaffold.webp'))
     for(const id of BUILDING_IDS){
@@ -33,13 +42,13 @@ export class ParcelCityScene extends CityScene {
       if(level<=0||id==='surlar')continue
       const facing=id==='liman'||id==='tersane'?this.state.coastFacing[id]:undefined
       const name=parcelBuildingName(id,this.state.placement[id])
-      this.load.image(buildingArtKey(name,level,facing),cityBuildingImage(name,level,facing,cityArtSize()))
+      this.load.image(cityBuildingTextureKey(name,level,facing),cityBuildingImage(name,level,facing,cityArtSize()))
     }
   }
   ensureBuildingTexture(id:BuildingId,level:number){
     if(level<=0||id==='surlar')return
     const name=parcelBuildingName(id,this.state.placement[id])
-    const facing=id==='liman'||id==='tersane'?this.state.coastFacing[id]:undefined,key=buildingArtKey(name,level,facing)
+    const facing=id==='liman'||id==='tersane'?this.state.coastFacing[id]:undefined,key=cityBuildingTextureKey(name,level,facing)
     if(this.textures.exists(key)||this.loadingBuildingTextures.has(key))return
     this.loadingBuildingTextures.add(key)
     this.load.image(key,cityBuildingImage(name,level,facing,cityArtSize()))
@@ -53,7 +62,8 @@ export class ParcelCityScene extends CityScene {
     this.flagField=new FlagField(this);this.flagField.setLook(this.sceneBanner())
     this.smoke=new SmokeField(this);this.sky=new SkyLayer(this,PARCEL_WORLD)
     this.makeContactTexture()
-    this.built=true;this.maxZoom=2.2;this.setupCamera();this.installCamera();this.addParcelLife();this.redraw()
+    this.life=new ParcelLifeLayer(this,id=>this.lifeFrame(id))
+    this.built=true;this.maxZoom=2.2;this.setupCamera();this.installCamera();this.redraw()
     // Fixture-only control makes maximum-zoom regressions reviewable in the
     // real scene without exposing extra controls to players.
     if(localStorage.getItem('payitaht-qa')==='1'){
@@ -68,6 +78,7 @@ export class ParcelCityScene extends CityScene {
     }
     const cleanup=()=>{
       this.built=false
+      this.life?.destroy()
       this.clearWallTextures()
       const target=Phaser.GameObjects.Graphics.TargetCamera
       if(target.scene===this){target.destroy();Object.assign(Phaser.GameObjects.Graphics,{TargetCamera:new Phaser.Cameras.Scene2D.BaseCamera(0,0,0,0)})}
@@ -129,6 +140,13 @@ export class ParcelCityScene extends CityScene {
     if(!this.built)return
     const next=`${visualSignature(game)}|${showLabels}|${placing}|${moving}|${movePlot}|${siegeAppearanceKey(siege)}|${buildTarget}|${chosenPlot}`
     if(next!==this.signature)this.redraw()
+    this.life?.sync(game,siege,this.lifeFleet)
+  }
+  setLifeFleet(fleet:CityLifeFleet){this.lifeFleet=fleet}
+  private lifeFrame(id:BuildingId):LifeFrame|undefined{
+    const image=this.pieces.find(piece=>piece.getData('parcelBuilding')===id) as Phaser.GameObjects.Image|undefined
+    const f=image?.getData('parcelFrame')
+    return f?{...f,flip:image!.flipX,depth:image!.depth,outline:image!.getData('parcelOutline')}:undefined
   }
   updateMoveTarget(pointer:Phaser.Input.Pointer){
     const eligible=this.eligibleMovePlots(),point=this.cameras.main.getWorldPoint(pointer.x,pointer.y)
@@ -152,7 +170,7 @@ export class ParcelCityScene extends CityScene {
       if(this.moving&&eligible.has(p.index))this.parcelFrame(p,p.index===this.movePlot?0x85c46f:0xe8ce93)
     }
     this.drawParcelWalls();this.drawParcelSiege()
-    for(const ship of this.ships)ship.setVisible(!this.siege.blockade)
+    this.life?.sync(this.state,this.siege,this.lifeFleet)
     this.markReady()
   }
   parcelFrame(p:CityParcel,color:number){
@@ -184,7 +202,7 @@ export class ParcelCityScene extends CityScene {
   drawParcelBuilding(id:BuildingId,p:CityParcel,active:boolean){
     const level=this.state.buildings[id],facing=id==='liman'||id==='tersane'?this.state.coastFacing[id]:undefined
     const variant=parcelBuildingName(id,p.index)
-    const key=level>0?buildingArtKey(variant,level,facing):'b_site'
+    const key=level>0?cityBuildingTextureKey(variant,level,facing):'b_site'
     if(!this.textures.exists(key)){if(level>0)this.ensureBuildingTexture(id,level);return}
     const source=this.textures.get(key).getSourceImage() as HTMLImageElement,size:ArtSize=level>0?cityArtSize():'full'
     const name=level>0?(facing==='straight'?variant+'-duz':variant):'__site',flip=facing?facing==='right':this.state.flips.includes(id)
@@ -193,7 +211,7 @@ export class ParcelCityScene extends CityScene {
     if(f.width<=0||f.height<=0)return
     if(p.index<25)this.drawContactShade(p,f.groundPolygon)
     const image=this.add.image(f.x,f.y,key).setDisplaySize(f.width,f.height).setFlipX(flip).setDepth(p.center.y+1)
-    image.setData('parcelIndex',p.index).setData('parcelBuilding',id).setData('parcelOutline',f.polygon).setData('parcelGround',f.groundPolygon)
+    image.setData('parcelIndex',p.index).setData('parcelBuilding',id).setData('parcelOutline',f.polygon).setData('parcelGround',f.groundPolygon).setData('parcelFrame',f)
     this.pieces.push(image)
     const hit=this.parcelHit(p).setDepth(p.center.y+2)
     hit.on('pointerup',(pointer:Phaser.Input.Pointer)=>{
@@ -279,11 +297,15 @@ export class ParcelCityScene extends CityScene {
     shadow.addColorStop(1,'rgba(49,38,19,0)')
     ctx.fillStyle=shadow
     ctx.fillRect(0,0,length,11)
-    const repeat=height*3.6
-    for(let x=0;x<length;x+=repeat){
-      const take=Math.min(repeat,length-x)
-      ctx.drawImage(stone,0,0,stone.width*take/repeat,stone.height,x,-height,take,height)
+    ctx.save()
+    ctx.beginPath();ctx.rect(0,-height,length,height);ctx.clip()
+    for(const slice of wallMasonrySlices(length,span.masonryOffset)){
+      for(let y=-WALL_MASONRY.height;y>-height-WALL_MASONRY.height;y-=WALL_MASONRY.height){
+        ctx.drawImage(stone,stone.width*slice.sourceX,0,stone.width*slice.sourceWidth,stone.height,
+          slice.x,y,slice.width,WALL_MASONRY.height)
+      }
     }
+    ctx.restore()
     const shade=ctx.createLinearGradient(0,-height,0,0)
     shade.addColorStop(0,innerFace?'rgba(60,44,22,.10)':'rgba(123,91,38,.02)')
     shade.addColorStop(.68,'rgba(68,51,20,.04)')
@@ -385,29 +407,30 @@ export class ParcelCityScene extends CityScene {
       const ship=this.add.image(x,1780,'parcel-ship-b').setDepth(1780).setTint(0xcc9990);ship.setScale(160/ship.width);this.pieces.push(ship)
     }
   }
-  addParcelLife(){
-    for(const [i,x] of [1460,1780,2100].entries()){
-      const ship=this.add.image(x,1770+i*20,i===2?'parcel-fishing':'parcel-ship-a').setDepth(1800);ship.setScale((i===2?90:140)/ship.width)
-      this.tweens.add({targets:ship,y:ship.y+5,angle:1.2,duration:2600+i*300,yoyo:true,repeat:-1});this.ships.push(ship)
-    }
-    for(let i=0;i<8;i++){
-      const image=this.add.image(0,0,'parcel-citizen').setOrigin(.5,1).setDisplaySize(9,23)
-      this.people.push({image,points:CITY_ROADS[i%CITY_ROADS.length],t:i/8})
-    }
-  }
   setRaidAlert(on:boolean){if(this.raidWanted===on)return;this.raidWanted=on;if(this.built)this.redraw()}
-  fxSail(){if(!this.built)return;const ship=this.add.image(1000,1660,'parcel-ship-a').setDepth(1800);ship.setScale(140/ship.width);this.tweens.add({targets:ship,y:1970,alpha:0,duration:3200,onComplete:()=>ship.destroy()})}
-  fxMarch(){if(!this.built)return;const road=CITY_ROADS[1];for(let i=0;i<5;i++){
+  fxSail(){
+    if(!this.built||lowMotion())return
+    const port=this.state.buildings.liman>0?parcelPlot(this.state.placement.liman):undefined
+    const outline=port?this.pieces.find(piece=>piece.getData('parcelBuilding')==='liman')?.getData('parcelOutline'):undefined
+    const source=this.textures.get('parcel-ship-a').getSourceImage() as HTMLImageElement
+    const width=HARBOUR_SHIP_WIDTH
+    const route=harbourSailingRoute(port??PARCEL_PLOTS[25],outline,width*source.height/source.width)
+    if(!route)return
+    const ship=this.add.image(route.start.x,route.start.y,'parcel-ship-a').setDepth(route.start.y)
+    ship.setScale(width/ship.width).setFlipX(route.end.x<route.start.x)
+    this.tweens.chain({targets:ship,tweens:[
+      ...(route.via?[{x:route.via.x,y:route.via.y,duration:900}]:[]),
+      {x:route.end.x,y:route.end.y,alpha:0,duration:route.via?2300:3200}],
+      onUpdate:()=>ship.setDepth(ship.y),onComplete:()=>ship.destroy()})
+    if(localStorage.getItem('payitaht-qa')==='1')document.documentElement.dataset.parcelDeparture=JSON.stringify(route)
+  }
+  fxMarch(){if(!this.built||lowMotion())return;const road=CITY_ROADS[1];for(let i=0;i<5;i++){
     const figure=this.add.image(road[5].x-i*6,road[5].y,'parcel-citizen').setOrigin(.5,1).setDisplaySize(10,25).setDepth(road[5].y)
     this.tweens.chain({targets:figure,tweens:road.slice(0,5).reverse().map(p=>({x:p.x,y:p.y,duration:700+i*20})),onComplete:()=>figure.destroy()})
   }}
   update(time:number,delta:number){
     super.update(time,delta)
-    for(const p of this.people){
-      p.t=(p.t+Math.min(delta,100)/1000*.012)%2
-      const t=(p.t<=1?p.t:2-p.t)*(p.points.length-1),i=Math.min(p.points.length-2,Math.floor(t)),a=p.points[i],b=p.points[i+1]
-      p.image.setPosition(a.x+(b.x-a.x)*(t-i),a.y+(b.y-a.y)*(t-i)).setDepth(p.image.y).setFlipX(p.t>1)
-    }
+    this.life?.update(Math.min(delta,100)/1000)
   }
   markReady(){
     if(!this.built||this.load.isLoading()||this.loadingBuildingTextures.size)return

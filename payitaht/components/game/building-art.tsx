@@ -9,6 +9,7 @@ import { createContext, useContext } from 'react'
 import { BUILDING_FLAGS, DEFAULT_LOOK, type BannerLook } from '@/lib/game/banner'
 import type { BuildingId } from '@/lib/game/engine'
 import { buildingArtKey, buildingImage, isPaintedBuilding, type CoastFacing } from '@/lib/asset'
+import { cityBuildingImage } from '@/lib/game/city-map/parcel-city'
 
 export const BannerContext = createContext<BannerLook>(DEFAULT_LOOK)
 export const useBanner = () => useContext(BannerContext)
@@ -43,7 +44,7 @@ export function BuildingArt({ id, level, className, alt = '', facing }: { id: Bu
   const look = useBanner()
   const key = buildingArtKey(id, Math.max(1, level), facing)
   const m = isPaintedBuilding(id) ? undefined : BUILDING_FLAGS[key]
-  const src = buildingImage(id, level, facing)
+  const src = id === 'liman' || id === 'tersane' ? cityBuildingImage(id, level, facing) : buildingImage(id, level, facing)
   const mirror = (id === 'liman' || id === 'tersane') && facing === 'right'
   if (!m) return <img className={className} src={src} alt={alt} draggable={false} decoding="async" style={mirror ? { transform: 'scaleX(-1)' } : undefined} />
   const [W, H, list] = m

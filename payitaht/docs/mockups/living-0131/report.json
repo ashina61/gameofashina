@@ -1,0 +1,35 @@
+{
+  "cases": [
+    {
+      "width": 360,
+      "actors": 21,
+      "boats": 2,
+      "movement": true,
+      "reducedMotion": true,
+      "noRebuild": true
+    },
+    "live lite and motion preferences",
+    {
+      "width": 390,
+      "actors": 21,
+      "boats": 2,
+      "movement": true,
+      "reducedMotion": true,
+      "noRebuild": true
+    },
+    {
+      "width": 430,
+      "actors": 21,
+      "boats": 2,
+      "movement": true,
+      "reducedMotion": true,
+      "noRebuild": true
+    },
+    "actual workforce assignment and removal",
+    "completed training removes courtyard soldiers",
+    "no free fleet means no decorative boats",
+    "mission return restores free fleet in live scene"
+  ],
+  "errors": [],
+  "missing": []
+}

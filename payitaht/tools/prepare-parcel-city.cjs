@@ -12,8 +12,9 @@ function hull(points){
  return lo.slice(0,-1).concat(hi.slice(0,-1))
 }
 ;(async()=>{
- const records={}
- const jobs=[...BUILDING_IDS.filter(id=>id!=='surlar'),'korsan_kalesi-iskele'].flatMap(id=>(id==='kisla'?[1]:[1,4,8]).flatMap(level=>['full','sm'].flatMap(size=>{
+ const current=JSON.parse(fs.readFileSync(path.join(root,'lib/game/city-map/parcel-art-bounds.json'),'utf8'))
+ const records=Object.fromEntries(Object.entries(current).filter(([id])=>id.startsWith('divan-')))
+ const jobs=[...BUILDING_IDS.filter(id=>id!=='surlar'),'korsan_kalesi-iskele'].filter(id=>id!=='divan').flatMap(id=>(id==='kisla'?[1]:[1,4,8]).flatMap(level=>['full','sm'].flatMap(size=>{
   const base={key:id==='kisla'?'kisla':`${id}-${level>=8?3:level>=4?2:1}`,size,file:cityBuildingImage(id,level,undefined,size).split('?')[0]}
   return id==='liman'||id==='tersane'?[base,{...base,key:base.key.replace(id,id+'-duz'),file:cityBuildingImage(id,level,'straight',size).split('?')[0]}]:[base]
  })))

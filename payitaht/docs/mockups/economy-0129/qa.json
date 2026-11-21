@@ -1,0 +1,185 @@
+{
+  "baseline": false,
+  "cases": [
+    {
+      "width": 360,
+      "city": true,
+      "economySprites": true,
+      "taps": true
+    },
+    {
+      "width": 390,
+      "city": true,
+      "economySprites": true,
+      "taps": true
+    },
+    {
+      "width": 430,
+      "city": true,
+      "economySprites": true,
+      "taps": true
+    },
+    {
+      "wallLevel": 1,
+      "rendered": true
+    },
+    {
+      "wallLevel": 5,
+      "rendered": true
+    },
+    {
+      "wallLevel": 12,
+      "rendered": true
+    },
+    {
+      "wallLevel": 20,
+      "rendered": true
+    },
+    {
+      "port": 25,
+      "facing": "left",
+      "departure": {
+        "start": {
+          "x": 903.0343101606398,
+          "y": 1757.907844795121
+        },
+        "via": null,
+        "end": {
+          "x": 903.0343101606398,
+          "y": 2056
+        }
+      }
+    },
+    {
+      "port": 25,
+      "facing": "right",
+      "departure": {
+        "start": {
+          "x": 996.9656898393602,
+          "y": 1757.907844795121
+        },
+        "via": null,
+        "end": {
+          "x": 996.9656898393602,
+          "y": 2056
+        }
+      }
+    },
+    {
+      "port": 25,
+      "facing": "straight",
+      "departure": {
+        "start": {
+          "x": 943.1727921536136,
+          "y": 1715.3502158682545
+        },
+        "via": null,
+        "end": {
+          "x": 943.1727921536136,
+          "y": 2056
+        }
+      }
+    },
+    {
+      "port": 26,
+      "facing": "left",
+      "departure": {
+        "start": {
+          "x": 2365.0343101606404,
+          "y": 1736.907844795121
+        },
+        "via": {
+          "x": 2230,
+          "y": 1756.907844795121
+        },
+        "end": {
+          "x": 2050,
+          "y": 2056
+        }
+      }
+    },
+    {
+      "port": 26,
+      "facing": "right",
+      "departure": {
+        "start": {
+          "x": 2458.9656898393596,
+          "y": 1736.907844795121
+        },
+        "via": {
+          "x": 2230,
+          "y": 1756.907844795121
+        },
+        "end": {
+          "x": 2050,
+          "y": 2056
+        }
+      }
+    },
+    {
+      "port": 26,
+      "facing": "straight",
+      "departure": {
+        "start": {
+          "x": 2405.2385648688964,
+          "y": 1693.6146646556506
+        },
+        "via": {
+          "x": 2230,
+          "y": 1713.6146646556506
+        },
+        "end": {
+          "x": 2050,
+          "y": 2056
+        }
+      }
+    },
+    {
+      "port": 27,
+      "facing": "left",
+      "departure": {
+        "start": {
+          "x": 1220.7240150548782,
+          "y": 1627.1210080376895
+        },
+        "via": null,
+        "end": {
+          "x": 1220.7240150548782,
+          "y": 2056
+        }
+      }
+    },
+    {
+      "port": 27,
+      "facing": "right",
+      "departure": {
+        "start": {
+          "x": 1276.0237829171006,
+          "y": 1623
+        },
+        "via": null,
+        "end": {
+          "x": 1276.0237829171006,
+          "y": 2056
+        }
+      }
+    },
+    {
+      "port": 27,
+      "facing": "straight",
+      "departure": {
+        "start": {
+          "x": 1246.2320173811434,
+          "y": 1623
+        },
+        "via": null,
+        "end": {
+          "x": 1246.2320173811434,
+          "y": 2056
+        }
+      }
+    }
+  ],
+  "errors": [],
+  "missing": []
+}

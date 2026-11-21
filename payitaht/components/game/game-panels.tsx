@@ -250,6 +250,7 @@ function UnitCard({ game, id, onRecruit, compact = false }: { game: Game; id: Un
   const batch = Math.max(1, Math.min(count, Math.max(1, max)))
   const set = (n: number) => setCount(Math.max(1, Math.min(Math.max(1, max), Math.round(n) || 1)))
   const reason = recruitReason(game, id, batch)
+  const afterTraining = { ...game, army: { ...game.army, [id]: game.army[id] + batch } }
   const information = <>
     <div className="unit-top">
       <span className="unit-portrait">{compact ? <BarracksPortrait id={id} /> : <UnitFigure id={id} size={60} />}</span>
@@ -296,6 +297,9 @@ function UnitCard({ game, id, onRecruit, compact = false }: { game: Game; id: Un
       <small>en fazla {max}</small>
     </div>}
     </>}
+    <p className="fine-print" aria-label="Eğitimin ekonomiye etkisi">
+      {batch * unit.pop} kişi ayrılır · Ordu bakımı {formatRate(armyUpkeep(game))} → {formatRate(armyUpkeep(afterTraining))} akçe/dk
+    </p>
     <div className="unit-bottom">
       <CostDisplay value={unitCost(id, batch, game)} lux={unitLuxuryCost(id, batch, game)} />
       <span><KumSaatiArt className="size-3" /> {unitDuration(game, id, batch)} sn</span>

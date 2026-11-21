@@ -6,6 +6,7 @@ import { skyTint } from '@/lib/game/sky'
 import type { BannerLook } from '@/lib/game/banner'
 import { BUILDINGS, BUILDING_IDS, freePlotsFor, type Game, type BuildingId } from '@/lib/game/engine'
 import { PEACEFUL_CITY, type SiegeAppearance } from '@/lib/game/siege-appearance'
+import type { CityLifeFleet } from '@/lib/game/city-life-plan'
 import { CityCanvas, type CityControls } from './city-canvas'
 import { t } from '@/lib/i18n/tr'
 
@@ -19,7 +20,7 @@ import { t } from '@/lib/i18n/tr'
  * yapmiyordu. Tuval dunyayi ekrandan buyuk tutar; gezinme bu yuzden gercek.
  */
 
-export function CityScene({ game, placing, buildTarget, chosenPlot, onBuilding, onPlot, onRoad, moving, movePlot, onMovePlot, onMine, activity, shortcuts, banner, siege = PEACEFUL_CITY, paused = false, raid = false }: {
+export function CityScene({ game, placing, buildTarget, chosenPlot, onBuilding, onPlot, onRoad, moving, movePlot, onMovePlot, onMine, activity, shortcuts, banner, fleet, siege = PEACEFUL_CITY, paused = false, raid = false }: {
   game: Game
   placing: boolean
   buildTarget: BuildingId | null
@@ -34,6 +35,7 @@ export function CityScene({ game, placing, buildTarget, chosenPlot, onBuilding, 
   activity?: ReactNode
   shortcuts?: ReactNode
   banner?: BannerLook
+  fleet?: CityLifeFleet
   siege?: SiegeAppearance
   /** Şehri tamamen örten bir sayfa açık. */
   paused?: boolean
@@ -47,7 +49,7 @@ export function CityScene({ game, placing, buildTarget, chosenPlot, onBuilding, 
 
   return <section className={`city-scene${siege.occupation ? ' city-occupied' : ''}${siege.blockade ? ' city-blockaded' : ''}`}
     aria-label={`${t.city.map}${siege.occupation ? ` · ${t.city.occupied}` : ''}${siege.blockade ? ` · ${t.city.blockaded}` : ''}`}>
-    <CityCanvas game={game} showLabels={labels} placing={placing} buildTarget={buildTarget} chosenPlot={chosenPlot} controls={controls} onBuilding={onBuilding} onPlot={onPlot} onRoad={onRoad} moving={moving} movePlot={movePlot} onMovePlot={onMovePlot} onMine={onMine} banner={banner} siege={siege} paused={paused} raid={raid} />
+    <CityCanvas game={game} fleet={fleet} showLabels={labels} placing={placing} buildTarget={buildTarget} chosenPlot={chosenPlot} controls={controls} onBuilding={onBuilding} onPlot={onPlot} onRoad={onRoad} moving={moving} movePlot={movePlot} onMovePlot={onMovePlot} onMine={onMine} banner={banner} siege={siege} paused={paused} raid={raid} />
     {(siege.occupation || siege.blockade) && <div className="siege-atmosphere" aria-hidden="true" />}
     {buildTarget ? <nav className="sr-only city-list" aria-label="Uygun arsalar">
       <ul>{freePlotsFor(game, buildTarget).map(index => <li key={index}>

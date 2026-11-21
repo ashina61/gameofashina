@@ -5,7 +5,7 @@
  * sayaçlarla bugünkü sayaçların farkıdır. Giriş ödülü art arda gelinen gün
  * sayısıyla büyür (en fazla 7 gün).
  */
-import { capacity, logEvent, type Resource } from './engine'
+import { RESEARCH, RESEARCH_IDS, UNITS, UNIT_IDS, capacity, logEvent, type Resource } from './engine'
 import { activeCity, type Empire } from './empire'
 
 export type Counters = {
@@ -40,19 +40,54 @@ export function counters(empire: Empire): Counters {
   out.raids = e.raids; out.spies = e.spies; out.piracy = e.piracy; out.shipments = e.shipments
   return out
 }
-function pick(day: string) {
+export function dailyTaskAvailable(empire: Empire, task: DailyTask) {
+  const games = empire.cities.map(city => city.game)
+  const canTrain = (branch: 'kara' | 'deniz') => games.some(game => UNIT_IDS.some(id => {
+    const unit = UNITS[id]
+    return unit.branch === branch && unit.role !== 'spy' && unit.role !== 'transport'
+      && game.buildings[unit.home] >= unit.level && (!unit.tech || game.research.includes(unit.tech))
+  }))
+  switch (task.key) {
+    case 'trained': return canTrain('kara') || canTrain('deniz')
+    case 'researched': return games.some(game => RESEARCH_IDS.some(id => {
+      const research = RESEARCH[id]
+      return !game.research.includes(id) && game.buildings.medrese >= research.required
+        && (!research.needs || game.research.includes(research.needs))
+    }))
+    case 'raids': return canTrain('kara')
+    case 'spies': return games.some(game => game.buildings.elcilik >= 1)
+    case 'piracy': return games.some(game => game.buildings.korsan_kalesi >= 1) && canTrain('deniz')
+    case 'shipments': return empire.cities.length >= 2
+    default: return true
+  }
+}
+
+function pick(day: string, pool: DailyTask[], count = 3) {
   let h = 0
   for (const ch of day) h = (h * 31 + ch.charCodeAt(0)) >>> 0
-  const pool = [...DAILY_TASKS]
+  pool = [...pool]
   const out: string[] = []
-  while (out.length < 3) { h = (h * 1103515245 + 12345) >>> 0; out.push(pool.splice(h % pool.length, 1)[0].id) }
+  while (out.length < count && pool.length) { h = (h * 1103515245 + 12345) >>> 0; out.push(pool.splice(h % pool.length, 1)[0].id) }
   return out
 }
 /** Gün değiştiyse yeni görevleri kurar (advanceEmpire çağırır). */
 export function ensureDaily(empire: Empire, now: number) {
   const day = dayKey(now)
-  if (empire.daily?.day === day) return
-  empire.daily = { day, base: counters(empire), tasks: pick(day), claimed: [], streak: empire.daily?.streak ?? 0, loginDay: empire.daily?.loginDay ?? '' }
+  const available = DAILY_TASKS.filter(task => dailyTaskAvailable(empire, task))
+  if (empire.daily?.day === day) {
+    // Repair inaccessible tasks in older saves while retaining earned rewards
+    // and the original counter baseline. Never reroll a claimed task.
+    const daily = empire.daily
+    const keep = daily.tasks.filter(id => {
+      const task = DAILY_TASKS.find(task => task.id === id)!
+      return daily.claimed.includes(id) || taskProgress(empire, id) >= task.need
+        || available.some(candidate => candidate.id === id)
+    })
+    const replacements = pick(day, available.filter(task => !keep.includes(task.id) && !daily.claimed.includes(task.id)), 3 - keep.length)
+    daily.tasks = [...keep, ...replacements]
+    return
+  }
+  empire.daily = { day, base: counters(empire), tasks: pick(day, available), claimed: [], streak: empire.daily?.streak ?? 0, loginDay: empire.daily?.loginDay ?? '' }
 }
 export function taskProgress(empire: Empire, id: string) {
   const t = DAILY_TASKS.find(x => x.id === id)!

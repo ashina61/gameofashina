@@ -1,0 +1,92 @@
+{
+  "baseline": false,
+  "cases": [
+    {
+      "width": 390,
+      "port": 25,
+      "shipyard": 26,
+      "facing": "left",
+      "taps": true
+    },
+    {
+      "width": 390,
+      "port": 25,
+      "shipyard": 26,
+      "facing": "right",
+      "taps": true
+    },
+    {
+      "width": 390,
+      "port": 25,
+      "shipyard": 26,
+      "facing": "straight",
+      "taps": true
+    },
+    {
+      "width": 390,
+      "port": 26,
+      "shipyard": 27,
+      "facing": "left",
+      "taps": true
+    },
+    {
+      "width": 390,
+      "port": 26,
+      "shipyard": 27,
+      "facing": "right",
+      "taps": true
+    },
+    {
+      "width": 390,
+      "port": 26,
+      "shipyard": 27,
+      "facing": "straight",
+      "taps": true
+    },
+    {
+      "width": 390,
+      "port": 27,
+      "shipyard": 25,
+      "facing": "left",
+      "taps": true
+    },
+    {
+      "width": 390,
+      "port": 27,
+      "shipyard": 25,
+      "facing": "right",
+      "taps": true
+    },
+    {
+      "width": 390,
+      "port": 27,
+      "shipyard": 25,
+      "facing": "straight",
+      "taps": true
+    },
+    {
+      "width": 360,
+      "port": 27,
+      "shipyard": 25,
+      "facing": "right",
+      "taps": true
+    },
+    {
+      "width": 430,
+      "port": 25,
+      "shipyard": 26,
+      "facing": "straight",
+      "taps": true
+    },
+    {
+      "liveFacing": "liman",
+      "cycle": "left -> straight -> right -> left"
+    },
+    {
+      "liveFacing": "tersane",
+      "cycle": "left -> straight -> right -> left"
+    }
+  ],
+  "errors": [],
+  "missing": []
+}
