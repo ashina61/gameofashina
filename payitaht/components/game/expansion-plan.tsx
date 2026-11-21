@@ -11,7 +11,7 @@ export function ExpansionChip({ steps, onOpen, onGo }: {
 }) {
   const next = steps.find(step => !step.done)
   if (!next) return null
-  return <aside className="quest-chip is-guided" aria-label="Denize açılma hedefi">
+  return <aside className="quest-chip is-guided is-expansion" aria-label="Denize açılma hedefi">
     <button type="button" className="quest-chip-main" onClick={onOpen} aria-label={`${next.title}. Gelişim planını aç`}>
       <span className="quest-chip-icon" aria-hidden="true"><Anchor /></span>
       <span className="quest-chip-text"><strong>{next.title}</strong><small>Denize açılma · {steps.filter(step => step.done).length}/{steps.length} tamamlandı</small></span>

@@ -82,7 +82,7 @@ export class ParcelCityScene extends CityScene {
       this.clearWallTextures()
       const target=Phaser.GameObjects.Graphics.TargetCamera
       if(target.scene===this){target.destroy();Object.assign(Phaser.GameObjects.Graphics,{TargetCamera:new Phaser.Cameras.Scene2D.BaseCamera(0,0,0,0)})}
-      delete document.documentElement.dataset.cityReady;delete document.documentElement.dataset.cityLayer
+      delete document.documentElement.dataset.cityReady;delete document.documentElement.dataset.cityLayer;delete document.documentElement.dataset.parcelCamera
     }
     this.events.once('shutdown',cleanup);this.events.once('destroy',cleanup)
     this.events$.onReady?.()
@@ -105,12 +105,18 @@ export class ParcelCityScene extends CityScene {
   }
   setupCamera(){
     const cam=this.cameras.main
+    let measured=false
     const layout=()=>{
+      const focus=measured?{x:cam.scrollX+cam.width/2,y:cam.scrollY+cam.height/2,zoom:cam.zoom}:null
       const v=this.cityViewport()
       cam.setViewport(v.x,v.y,v.width,v.height)
       cam.setBounds(0,0,PARCEL_WORLD.w,PARCEL_WORLD.h)
       this.minZoom=this.coverZoom();this.cityZoom=this.townZoom()
-      this.setCityView()
+      if(focus){
+        cam.setZoom(Phaser.Math.Clamp(focus.zoom,this.minZoom,this.maxZoom))
+        this.centerInBand(focus.x,focus.y);this.velocity={x:0,y:0}
+      }else this.setCityView()
+      measured=true;this.markReady()
     }
     layout()
     // Measure after React/HUD fonts settle as well as after orientation changes.
@@ -438,6 +444,7 @@ export class ParcelCityScene extends CityScene {
       if(!this.built)return
       document.documentElement.dataset.cityReady=String(++this.readyCount)
       document.documentElement.dataset.cityLayer='painted-town-v2'
+      if(localStorage.getItem('payitaht-qa')==='1'){const cam=this.cameras.main;document.documentElement.dataset.parcelCamera=JSON.stringify({x:cam.midPoint.x,y:cam.midPoint.y,zoom:cam.zoom})}
       if(localStorage.getItem('payitaht-qa')==='1')document.documentElement.dataset.parcelReview=JSON.stringify(this.pieces.filter(p=>p.getData('parcelBuilding')).map(p=>({id:p.getData('parcelBuilding'),index:p.getData('parcelIndex'),outline:p.getData('parcelOutline'),ground:p.getData('parcelGround'),boundary:PARCEL_PLOTS[p.getData('parcelIndex')].polygon})))
     })
   }
