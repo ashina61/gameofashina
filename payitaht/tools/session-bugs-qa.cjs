@@ -4,7 +4,7 @@ const {execFileSync}=require('node:child_process'),{chromium}=require('playwrigh
 const {skipGuide,seedSave,enterGame,qaOrigin,SAVE_KEY}=require('./lib/qa.cjs')
 async function main(){
  const baseline=process.env.QA_BUG_BASELINE==='1',now=Date.UTC(2026,10,21,12),future=now+86400000,cases=[],errors=[]
- const dir=path.resolve('docs/qa/session-0134');await fs.mkdir(dir,{recursive:true})
+ const dir=path.resolve(process.env.QA_SESSION_REPORT_DIR||'docs/qa/session-0134');await fs.mkdir(dir,{recursive:true})
  const fixture=time=>JSON.parse(execFileSync(process.execPath,['--import','tsx','-e',`
  const {initialEmpire}=require('./lib/game/empire.ts'),{OBJECTIVES,freePlotsFor}=require('./lib/game/engine.ts');const e=initialEmpire(${time}),g=e.cities[0].game;
  for(const [id,level] of [['divan',10],['konut',10],['hamam',8],['medrese',3],['kisla',3],['kereste',3],['ambar',10]]){if(g.placement[id]==null)g.placement[id]=freePlotsFor(g,id)[0];g.buildings[id]=level}

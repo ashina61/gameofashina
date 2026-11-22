@@ -1,0 +1,14 @@
+{
+  "baseline": true,
+  "cases": [
+    {
+      "name": "catalogue first choice",
+      "width": 390,
+      "firstY": 692.578125,
+      "viewportBottom": 744.703125,
+      "firstVisible": false
+    }
+  ],
+  "errors": [],
+  "missing": []
+}

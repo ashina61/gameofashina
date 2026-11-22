@@ -49,7 +49,10 @@ export function BuildingPreview({ game, id, plot, onClose, onDetails, onBuild }:
         {building.art && <img src={cityBuildingImage(id, Math.max(1, level), facing)} alt="" width={112} height={112} decoding="async" />}
         <p>{building.description}</p>
       </div>
-      <BuildingEffects game={game} id={id} level={level} max={MAX_LEVEL[id]} />
+      {level ? <BuildingEffects game={game} id={id} level={level} max={MAX_LEVEL[id]} /> : <details className="building-inspector-effects">
+        <summary>Yapının katkısını incele</summary>
+        <BuildingEffects game={game} id={id} level={level} max={MAX_LEVEL[id]} />
+      </details>}
     </div>
     {plot === undefined && <GameButton variant="ghost" className="building-inspector-details" onClick={onDetails}>
       Yapıyı yönet <ChevronRight aria-hidden="true" />

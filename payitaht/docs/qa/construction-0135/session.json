@@ -1,0 +1,77 @@
+{
+  "baseline": false,
+  "cases": [
+    {
+      "name": "future backup advances from its own timestamp",
+      "width": 390,
+      "passed": true,
+      "timestamp": 1795348810213,
+      "constructionCompleted": true,
+      "trainingCompleted": true
+    },
+    {
+      "name": "older backup does not inherit previous session future",
+      "width": 390,
+      "passed": true,
+      "timestamp": 1795262412343
+    },
+    {
+      "name": "new game starts at current device time",
+      "width": 390,
+      "passed": true,
+      "timestamp": 1795262401996
+    },
+    {
+      "name": "title new game also replaces the previous session clock",
+      "width": 390,
+      "passed": true,
+      "timestamp": 1795262402129
+    },
+    {
+      "name": "invalid import preserves current progress and clock",
+      "width": 390,
+      "passed": true,
+      "timestamp": 1795262410352
+    },
+    {
+      "name": "Back returns detail to preview, then city",
+      "width": 360,
+      "passed": true,
+      "url": "http://127.0.0.1:4195/"
+    },
+    {
+      "name": "development tab returns upgrade to view after deep scroll",
+      "width": 360,
+      "passed": true,
+      "fromScrollTop": 1635,
+      "toScrollTop": 0
+    },
+    {
+      "name": "Back returns detail to preview, then city",
+      "width": 390,
+      "passed": true,
+      "url": "http://127.0.0.1:4195/"
+    },
+    {
+      "name": "development tab returns upgrade to view after deep scroll",
+      "width": 390,
+      "passed": true,
+      "fromScrollTop": 1642,
+      "toScrollTop": 0
+    },
+    {
+      "name": "Back returns detail to preview, then city",
+      "width": 430,
+      "passed": true,
+      "url": "http://127.0.0.1:4195/"
+    },
+    {
+      "name": "development tab returns upgrade to view after deep scroll",
+      "width": 430,
+      "passed": true,
+      "fromScrollTop": 1647,
+      "toScrollTop": 0
+    }
+  ],
+  "errors": []
+}
