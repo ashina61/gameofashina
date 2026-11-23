@@ -62,7 +62,7 @@ export function PersonArt({ kind, size = 64 }: { kind: Figure; size?: number }) 
   </svg>
 }
 
-export function WorkforceSlider({ label, figure, value, cap, idle, preview, onCommit, note }: {
+export function WorkforceSlider({ label, figure, value, cap, idle, preview, onCommit, note, compact = false }: {
   label: string
   figure: Figure
   value: number
@@ -72,6 +72,7 @@ export function WorkforceSlider({ label, figure, value, cap, idle, preview, onCo
   preview: (n: number) => { amount: number; text: ReactNode; icon?: ReactNode; gold?: number }
   onCommit: (n: number) => void
   note?: ReactNode
+  compact?: boolean
 }) {
   const [draft, setDraft] = useState(value)
   useEffect(() => setDraft(value), [value])
@@ -82,7 +83,7 @@ export function WorkforceSlider({ label, figure, value, cap, idle, preview, onCo
   const delta = next.amount - now.amount
   const changed = d !== value
   const set = (n: number) => setDraft(Math.max(0, Math.min(max, n)))
-  return <div className="workforce">
+  return <div className={`workforce${compact ? ' is-compact' : ''}`}>
     <div className="workforce-stage">
       <div className="workforce-side">
         <PersonArt kind="halk" size={46} />

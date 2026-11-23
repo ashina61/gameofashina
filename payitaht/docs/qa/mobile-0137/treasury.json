@@ -1,0 +1,117 @@
+{
+  "baseline": false,
+  "cases": [
+    {
+      "name": "default overview",
+      "tab": "Hazine",
+      "width": 360,
+      "scroll": 0,
+      "height": 490,
+      "horizontal": false
+    },
+    {
+      "name": "default overview",
+      "tab": "Üretim",
+      "width": 360,
+      "scroll": 0,
+      "height": 490,
+      "horizontal": false
+    },
+    {
+      "name": "default overview",
+      "tab": "Ambar",
+      "width": 360,
+      "scroll": 0,
+      "height": 490,
+      "horizontal": false
+    },
+    {
+      "name": "seven resources and warehouse links remain read only",
+      "width": 360
+    },
+    {
+      "name": "support detail still opens the real building",
+      "width": 360
+    },
+    {
+      "name": "default overview",
+      "tab": "Hazine",
+      "width": 390,
+      "scroll": 0,
+      "height": 483,
+      "horizontal": false
+    },
+    {
+      "name": "default overview",
+      "tab": "Üretim",
+      "width": 390,
+      "scroll": 0,
+      "height": 483,
+      "horizontal": false
+    },
+    {
+      "name": "default overview",
+      "tab": "Ambar",
+      "width": 390,
+      "scroll": 0,
+      "height": 483,
+      "horizontal": false
+    },
+    {
+      "name": "seven resources and warehouse links remain read only",
+      "width": 390
+    },
+    {
+      "name": "support detail still opens the real building",
+      "width": 390
+    },
+    {
+      "name": "default overview",
+      "tab": "Hazine",
+      "width": 430,
+      "scroll": 0,
+      "height": 478,
+      "horizontal": false
+    },
+    {
+      "name": "default overview",
+      "tab": "Üretim",
+      "width": 430,
+      "scroll": 2,
+      "height": 478,
+      "horizontal": false
+    },
+    {
+      "name": "default overview",
+      "tab": "Ambar",
+      "width": 430,
+      "scroll": 0,
+      "height": 478,
+      "horizontal": false
+    },
+    {
+      "name": "seven resources and warehouse links remain read only",
+      "width": 430
+    },
+    {
+      "name": "support detail still opens the real building",
+      "width": 430
+    },
+    {
+      "name": "empty and full summaries remain visible",
+      "state": "empty"
+    },
+    {
+      "name": "empty and full summaries remain visible",
+      "state": "full"
+    },
+    {
+      "name": "oversized imported balance reflows without truncation"
+    },
+    {
+      "name": "large text remains readable without horizontal overflow"
+    }
+  ],
+  "errors": [],
+  "missing": []
+}

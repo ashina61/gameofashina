@@ -1,0 +1,375 @@
+{
+  "phase": "before",
+  "pages": [
+    {
+      "panel": "economy",
+      "scroll": 0,
+      "viewport": 483,
+      "tabs": [
+        "Hazine",
+        "Üretim",
+        "Ambar"
+      ],
+      "visibleActions": [
+        "Hazine",
+        "Üretim",
+        "Ambar",
+        "Üretim detayı",
+        "Çalışanlar",
+        "Yapılar, ticaret ve açıklamalar"
+      ],
+      "firstActionY": 158
+    },
+    {
+      "panel": "people",
+      "scroll": 857,
+      "viewport": 479,
+      "tabs": [
+        "İşgücü",
+        "Yaşam"
+      ],
+      "visibleActions": [
+        "İşgücü",
+        "Yaşam",
+        "Oduncular20 kişi",
+        "Âlimler20 kişi",
+        "Esnaf10 kişi"
+      ],
+      "firstActionY": 242
+    },
+    {
+      "panel": "people",
+      "tab": "Yaşam",
+      "scroll": 567
+    },
+    {
+      "panel": "cities",
+      "scroll": 265,
+      "viewport": 479,
+      "tabs": [
+        "Yerleşimler",
+        "Nakliye",
+        "İdare"
+      ],
+      "visibleActions": [
+        "Yerleşimler",
+        "Nakliye",
+        "İdare",
+        "BAŞKENT · Sahil AdasıSahilhisar420 halk · 82 askerŞu an bu şehirdesin"
+      ],
+      "firstActionY": 242
+    },
+    {
+      "panel": "cities",
+      "tab": "Nakliye",
+      "scroll": 145
+    },
+    {
+      "panel": "cities",
+      "tab": "İdare",
+      "scroll": 0
+    },
+    {
+      "panel": "advisor-city",
+      "scroll": 945,
+      "viewport": 479,
+      "tabs": [
+        "Gündem",
+        "Şehirler",
+        "Haberler"
+      ],
+      "visibleActions": [
+        "Gündem",
+        "Şehirler",
+        "Haberler",
+        "İnşa emri ver"
+      ],
+      "firstActionY": 242
+    },
+    {
+      "panel": "research",
+      "scroll": 3130,
+      "viewport": 479,
+      "tabs": [
+        "Ekonomi",
+        "Bilim",
+        "Askerî",
+        "Denizcilik",
+        "Mitoloji"
+      ],
+      "visibleActions": [
+        "Âlimin önerisi",
+        "Ekonomi",
+        "Bilim",
+        "Askerî",
+        "Denizcilik",
+        "Mitoloji"
+      ],
+      "firstActionY": 170
+    },
+    {
+      "panel": "army",
+      "scroll": 2007,
+      "viewport": 479,
+      "tabs": [
+        "Kara ordusu",
+        "Donanma",
+        "Seferler"
+      ],
+      "visibleActions": [
+        "Kara ordusu",
+        "Donanma",
+        "Seferler",
+        "Garnizon, güç ve bakım hesabı",
+        "Üretim kuyruğu · Boş",
+        "YeniçeriKayıtlı: 0 · Kullanılabilir: 0⌃"
+      ],
+      "firstActionY": 164
+    },
+    {
+      "panel": "army",
+      "tab": "Donanma",
+      "scroll": 1606
+    },
+    {
+      "panel": "army",
+      "tab": "Seferler",
+      "scroll": 91
+    },
+    {
+      "panel": "reports",
+      "scroll": 0,
+      "viewport": 479,
+      "tabs": [
+        "Raporlar",
+        "Seferler",
+        "Savunma"
+      ],
+      "visibleActions": [
+        "Raporlar",
+        "Seferler",
+        "Savunma"
+      ],
+      "firstActionY": 244
+    },
+    {
+      "panel": "objectives",
+      "scroll": 541,
+      "viewport": 479,
+      "tabs": [
+        "Şehir hedefi",
+        "Günlük1",
+        "Başarımlar1"
+      ],
+      "visibleActions": [
+        "Şehir hedefi",
+        "Günlük1",
+        "Başarımlar1",
+        "Sarayı aç",
+        "Hazırlık adımları · 4/9"
+      ],
+      "firstActionY": 162
+    },
+    {
+      "panel": "objectives",
+      "tab": "Günlük1",
+      "scroll": 1506
+    },
+    {
+      "panel": "objectives",
+      "tab": "Başarımlar1",
+      "scroll": 2802
+    },
+    {
+      "panel": "build",
+      "scroll": 1475,
+      "viewport": 479,
+      "tabs": [],
+      "visibleActions": [
+        "Arsalar ve iş sırası · 0/3",
+        "",
+        "Yeni",
+        "Kurulu",
+        "Tümü",
+        "YÖNETİM · Yeni yapıSarayİnşaya hazır"
+      ],
+      "firstActionY": 201
+    },
+    {
+      "panel": "diplomacy",
+      "scroll": 3325,
+      "viewport": 479,
+      "tabs": [
+        "Mektuplar",
+        "Teklifler",
+        "Hükümdarlar",
+        "Pazar",
+        "Haberler",
+        "Sıralama"
+      ],
+      "visibleActions": [
+        "Mektuplar",
+        "Teklifler",
+        "Hükümdarlar",
+        "Pazar",
+        "Haberler",
+        "Sıralama"
+      ],
+      "firstActionY": 279
+    },
+    {
+      "panel": "alliance",
+      "scroll": 351,
+      "viewport": 479,
+      "tabs": [
+        "Birlik kur",
+        "Birliğe katıl"
+      ],
+      "visibleActions": [
+        "Birlik kur",
+        "Birliğe katıl"
+      ],
+      "firstActionY": 370.96875
+    },
+    {
+      "panel": "journal",
+      "scroll": 260,
+      "viewport": 479,
+      "tabs": [],
+      "visibleActions": [
+        "",
+        "Tümü · 1 olay",
+        "İnşa · 1 olay",
+        "İlim · 0 olay",
+        "Ticaret · 0 olay",
+        "Sefer · 0 olay"
+      ],
+      "firstActionY": 340.59375
+    },
+    {
+      "panel": "profile",
+      "scroll": 222,
+      "viewport": 479,
+      "tabs": [
+        "Saltanat",
+        "Şehirler",
+        "Nişanlar",
+        "Sancak"
+      ],
+      "visibleActions": [
+        "Sancağı ve adı düzenle",
+        "Saltanat",
+        "Şehirler",
+        "Nişanlar",
+        "Sancak"
+      ],
+      "firstActionY": 429.140625
+    },
+    {
+      "panel": "settings",
+      "scroll": 544,
+      "viewport": 479,
+      "tabs": [
+        "Tercihler",
+        "Cihaz",
+        "Kayıt",
+        "Bilgi"
+      ],
+      "visibleActions": [
+        "Tercihler",
+        "Cihaz",
+        "Kayıt",
+        "Bilgi",
+        "Müzik",
+        "Efekt sesleri"
+      ],
+      "firstActionY": 276.421875
+    },
+    {
+      "panel": "settings",
+      "tab": "Cihaz",
+      "scroll": 199
+    },
+    {
+      "panel": "settings",
+      "tab": "Kayıt",
+      "scroll": 384
+    },
+    {
+      "panel": "settings",
+      "tab": "Bilgi",
+      "scroll": 756
+    },
+    {
+      "panel": "changelog",
+      "scroll": 20365,
+      "viewport": 479,
+      "tabs": [],
+      "visibleActions": [
+        ""
+      ],
+      "firstActionY": 470.234375
+    },
+    {
+      "panel": "overview",
+      "scroll": 508,
+      "viewport": 479,
+      "tabs": [
+        "Kaynaklar",
+        "Binalar",
+        "Ordu"
+      ],
+      "visibleActions": [
+        "Kaynaklar",
+        "Binalar",
+        "Ordu",
+        "SahilhisarBaşkent · Sahil Adası [4:5]",
+        "Şehre git"
+      ],
+      "firstActionY": 244
+    },
+    {
+      "panel": "map",
+      "scroll": 0,
+      "viewport": 479,
+      "tabs": [],
+      "visibleActions": [
+        "16 ada · bir ada seçSahil Adası [4:5] · ŞehrinZeytin Adası [8:3]Akçam Adası [2:2]Kızılburun [10:7]Akdeniz Adası [6:9]Yalçın Ada [12:2]Bağlık Ada [1:8]Ateşli Ada [11:11]Mercan Adası [15:4]Sakız Adası [16:9]Lodos Adası [3:12]Kartal Kayası [8:14]Poyraz Adası [14:14]Fener Adası [18:1]Hisar Adası [19:12]Lale Adası [6:1]",
+        "Haritayı uzaklaştır",
+        "Harita yakınlaştırmasını sıfırla",
+        "Haritayı yakınlaştır"
+      ],
+      "firstActionY": 172
+    },
+    {
+      "panel": "forest",
+      "scroll": 208,
+      "viewport": 479,
+      "tabs": [
+        "Üretim",
+        "Gelişim"
+      ],
+      "visibleActions": [
+        "Üretim",
+        "Gelişim"
+      ],
+      "firstActionY": 244
+    },
+    {
+      "panel": "island",
+      "scroll": 482,
+      "viewport": 479,
+      "tabs": [
+        "Üretim",
+        "Gelişim"
+      ],
+      "visibleActions": [
+        "Üretim",
+        "Gelişim"
+      ],
+      "firstActionY": 244
+    }
+  ],
+  "errors": [],
+  "missing": []
+}

@@ -5,6 +5,7 @@ import { asset } from '@/lib/asset'
 import { Bell, HardDrive, Info, Settings } from './ui-art'
 import { GameButton } from './game-button'
 import { CourtTabs } from './court-kit'
+import { PageDetails } from './mobile-page'
 import type { Empire } from '@/lib/game/empire'
 import { VERSION } from '@/lib/game/changelog'
 import { clearErrors, errorReport, readErrors, type ErrorEntry } from '@/lib/game/error-log'
@@ -29,7 +30,6 @@ export function SettingsPanel({ empire, run, warning, native, pwa, notify, onBac
   const saveImportRef = useRef<HTMLInputElement>(null)
   const { installed, installAvailable, install, offlineReady } = pwa
   return <div className="court-page court-admin royal-page">
-    <div className="royal-settings-scene"><img src={asset('/images/game/ui/approved-court/desk.webp')} alt="" width={852} height={223} /><h2>Divan nizamnamesi</h2></div>
     <CourtTabs items={TABS} value={tab} onChange={next => { setTab(next); setConfirmReset(false) }} label="İdare defteri" illustrated={false}>
       {tab === 'play' && <RoyalPreferences empire={empire} run={run} />}
       {tab === 'device' && <div className="royal-subpage royal-device-page">
@@ -53,6 +53,7 @@ export function SettingsPanel({ empire, run, warning, native, pwa, notify, onBac
         <ErrorReport />
       </div>}
     </CourtTabs>
+    <PageDetails title="Divan nizamnamesi"><div className="royal-settings-scene"><img src={asset('/images/game/ui/approved-court/desk.webp')} alt="" width={852} height={223} /><h2>Divan nizamnamesi</h2></div></PageDetails>
   </div>
 }
 function ErrorReport() {
