@@ -388,6 +388,19 @@ function RankPodium({ empire, rows, score, onRival }: { empire: Empire; rows: Re
 function Diplomacy({ empire, now, run, onRival }: { empire: Empire; now: number; run: Run; onRival: (id: string) => void }) {
   const alliance = empire.world?.alliance ?? null
   return <>
+
+    <section className="empire-section">
+      <h3><ApprovedArt name="trade" /> Hükümdarlar</h3>
+      {RIVALS.map(r => {
+        const s = empire.world?.rivals[r.id]
+        return <button key={r.id} type="button" className="rival-row" onClick={() => onRival(r.id)}>
+          <RivalPortrait id={r.id} size={48} /><span className="envoy-rival-name"><strong>{r.city}</strong><small>{r.ruler} · Sv. {rivalLevel(empire, r, now)}</small><small>{STYLE_NAMES[r.style]} · {FACTIONS[r.faction].name}</small></span>
+          <span className={(s?.relation ?? 0) >= 0 ? 'report-win' : 'report-loss'}><small>İlişki</small>{s?.relation ?? 0}</span>
+          {!!s?.treaties.length && <small className="envoy-treaties">{s.treaties.map(t => TREATIES[t].name.split(' ')[0]).join(' · ')}</small>}
+          {rivalWarLine(empire, r.id) && <small className="rival-war"><Swords painted className="size-3" />{rivalWarLine(empire, r.id)}</small>}
+        </button>
+      })}
+    </section>
     <PageDetails title="İttifak üyeliği"><section className="empire-section">
       <h3><ApprovedArt name="kurucu" /> İttifak {alliance ? `· ${FACTIONS[alliance].name}` : ''}</h3>
       {(Object.keys(FACTIONS) as FactionId[]).map(f => <article key={f} className="mission-row">
@@ -397,18 +410,6 @@ function Diplomacy({ empire, now, run, onRival }: { empire: Empire; now: number;
       </article>)}
       <Hint>Üyelik için Elçilik 3. seviye ve ittifakla ortalama 5 ilişki gerekir. Üyeler sana saldırmaz, baskında yardım gönderir; öbür ittifak soğur.</Hint>
     </section></PageDetails>
-    <section className="empire-section">
-      <h3><ApprovedArt name="trade" /> Hükümdarlar</h3>
-      {RIVALS.map(r => {
-        const s = empire.world?.rivals[r.id]
-        return <button key={r.id} type="button" className="rival-row" onClick={() => onRival(r.id)}>
-          <RivalPortrait id={r.id} size={68} /><span><strong>{r.city}</strong><small>{r.ruler} · {STYLE_NAMES[r.style]} · {FACTIONS[r.faction].name} · Sv. {rivalLevel(empire, r, now)}</small></span>
-          <span className={(s?.relation ?? 0) >= 0 ? 'report-win' : 'report-loss'}>{s?.relation ?? 0}</span>
-          <small>{(s?.treaties ?? []).map(t => TREATIES[t].name.split(' ')[0]).join(' · ') || '—'}</small>
-          {rivalWarLine(empire, r.id) && <small className="rival-war"><Swords painted className="size-3" />{rivalWarLine(empire, r.id)}</small>}
-        </button>
-      })}
-    </section>
     <section className="empire-section">
       <h3><ApprovedArt name="military" /> Yapay rakip temposu</h3>
       <PaceSetting empire={empire} run={run} />

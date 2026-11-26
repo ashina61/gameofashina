@@ -53,7 +53,7 @@ async function main() {
       for (const [id, plot] of placed) assert.equal(game.placement[id], plot)
       for (const id of done) if (GUIDED.includes(id) && reached[id] === undefined) { reached[id] = t; log.push(`${(t / 60_000).toFixed(1)} dk: ${id}`) }
       if (GUIDED.every(id => done.includes(id)) || t > LIMIT_MS + 60_000) break
-      const placement = page.locator('.quest-chip.is-placing')
+      const placement = page.locator('.construction-placement, .quest-chip.is-placing')
       if (await placement.isVisible()) {
         if (!checkedCancel) {
           await placement.getByRole('button', { name: 'Vazgeç', exact: true }).click()

@@ -419,7 +419,7 @@ export default function GameShell({ onTitle }: { onTitle?: () => void } = {}) {
       {panel === 'advisor-city' && empire && <CityAdvisor empire={empire} game={game} onCity={visitCity} onBuilding={openBuilding} onCities={() => openPanel('cities')} onBuildList={() => openPanel('build')} onOverview={() => openPanel('overview')} onJournal={() => openPanel('journal')} />}
       {panel === 'overview' && empire && <EmpireOverview empire={empire} onCity={visitCity} />}
       {panel === 'build' && <BuildingList game={game} onSelect={chooseConstruction} />}
-      {panel === 'research' && <><details className="academy-advice"><summary>Âlimin önerisi</summary><div className="academy-counsel"><PersonArt kind="alim" size={64} /><p>{researchAdvice(game)}</p></div></details><ResearchPanel game={game} onResearch={id => act({ type: 'research', id })} /><FuturePanel game={game} onCommand={act} /></>}
+      {panel === 'research' && <><ResearchPanel game={game} onResearch={id => act({ type: 'research', id })} /><details className="academy-advice"><summary>Âlimin önerisi</summary><div className="academy-counsel"><PersonArt kind="alim" size={64} /><p>{researchAdvice(game)}</p></div></details><details className="academy-advice"><summary>Gelecek araştırmaları</summary><FuturePanel game={game} onCommand={act} /></details></>}
       {panel === 'journal' && <JournalPage game={game} cityName={currentCityName} />}
       {panel === 'profile' && empire && <SovereignPage empire={empire} now={game.updatedAt} run={runOp} onCity={visitCity} onSettings={() => openPanel('settings')} onChangelog={() => openPanel('changelog')} />}
       {panel === 'changelog' && <ChangelogPage />}

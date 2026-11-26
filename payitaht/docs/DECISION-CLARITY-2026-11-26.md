@@ -1,6 +1,6 @@
 # Mobil karar ekranları — 26 Kasım 2026
 
-Bu çalışma 0.137 üzerine hazırlanmış, henüz yayımlanmamış taslak değişikliktir. Sürüm ve servis çalışanı önbelleği yayın kabulünden önce artırılmalıdır.
+0.138.0 / SW163 yayın adayı. Yayın durumu PR #101 ve Deploy çalıştırması üzerinden izlenir.
 
 ## Uygulanan değişiklikler
 
@@ -10,18 +10,22 @@ Bu çalışma 0.137 üzerine hazırlanmış, henüz yayımlanmamış taslak değ
 - Elçi sayfasında defterler dekoratif sahneden önce gelir. Sahne ve hükümdarlar altındaki ittifak üyelik listesi açılır ayrıntıya taşındı.
 - Play yayın belgesinin eski sabit sürüm örneği kaldırıldı.
 
-## Doğrulama ve kabul kapısı
+## Doğrulama
 
-399 birim testi geçti (iki yeni rehber testi dahil). TypeScript, ESLint, CSS ve V2 kontrolleri ile statik derleme uygulanır. Son sonuçlar PR açıklamasına kaydedilir.
+0.138.0 / SW163. Eksik Chromium, npm üzerinden kurulan izole test tarayıcısıyla çözüldü; oyun bağımlılıklarına eklenmedi. Fontconfig sistem yazı tiplerine bağlandı. Her ekran boyutu ayrı tarayıcı süreciyle sınanır.
 
-Bu ortamda telefon tarayıcı denetimi tamamlanamadı: `/usr/bin/chromium` hedefi `/opt/codex/browsers/chromium` bulunmuyor. Playwright'ın resmi Chromium indirmesi HTTP 403 ile engellendi. Dolayısıyla yeni ekran görüntüsü, kaydırma azalması yüzdesi veya fiziksel Android kabulü iddia edilmez. Bu yüzden değişiklik yayın için hazır sayılmaz.
+- 399 birim testi geçti. TypeScript, ESLint, CSS lint/unused strict ve V2 ölçütleri geçti.
+- 360/390/430 × 740 ekranlarda araştırma ve eğitim düğmeleri ilk görünümde, en az 44px hedefle doğrulandı.
+- Kilitli araştırma/birlik seçimi, karta odak, dal değişiminde başa dönüş, gerçek asker eğitimi ve kuyruk oluşumu, Donanma sekmesi ve hükümdar açma geçti.
+- 360×740 normal ve %130 yazıyla sayfa/bina/önizleme düzen taraması uygulanır. Nihai rapor `docs/qa/mobile-0138/layout-report.json` içinde.
+- 29 durumluk mobil taramada HTTP kaynak hatası ve JavaScript sayfa hatası yok. Sabit görsel yollarında eksik dosya yok. Dinamik kaynaklar açılan ekranlarda tarandı; bu bütün oyun durumlarında tüm görsellerin kabulü anlamına gelmez.
+- Gerçek ekran kanıtları `docs/qa/mobile-0138/`; yeni çizim veya model değildir.
 
-Yayın öncesi gerekli kabul:
+## Son düzen düzeltmeleri
 
-1. `node tools/layout-qa.cjs`: küçük telefon ve büyük yazı durumlarında taşma/dokunma hedefleri.
-2. `DESIGN_PHASE=decision-pass node tools/mobile-design-audit.cjs`: Araştırma, Kışla, Tersane ve Elçi gerçek ekranları.
-3. Araştırmada kilitli/tamamlanmış konu açma, dal değiştirme; orduda kilitli birlik seçimi ve açık birliğe dönüş; Elçi sekmelerinde ana eylemlerin erişilebilirliği.
-4. Kayıtlı oyunda ve yeni oyunda rehber; gerçek Android geri tuşu ve ekran altı güvenli alan.
+Araştırma önerisi kartın altına, gelecek araştırmaları açılır bölüme taşındı. Boş eğitim kuyruğu ve tekrar eden Birlikler başlığı ana eğitim kararından önce yer kaplamaz. Garnizon özeti korunur, ayrıntılı hesap eğitimden sonra gelir. Elçide hükümdar satırları portre, şehir/hükümdar ve adı açık ilişki puanı olarak hizalanır; boş anlaşma satırı kalkar.
+
+Yayın dalı 32 geliştirme commit'i geride bulundu; PR #101 biriken 0.127–0.138 değişikliklerini yayın dalına taşımak üzere hedeflendi. Yerel testler fiziksel Xiaomi/Android GPU ve mağaza kabulü yerine geçmez.
 
 ## Sonraki kapsam
 

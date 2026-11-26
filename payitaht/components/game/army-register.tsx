@@ -24,6 +24,9 @@ export function ArmyRegister({ game, empire, run, onRecruit, onBuild, onIsland }
     <CourtTabs items={TABS} value={tab} onChange={setTab} label="Ordu ve donanma">
       {tab !== 'missions' ? <>
         <p className="muster-note">Boşta halk: <strong>{n(idleWorkers(game))}</strong> · Garnizon: <strong>{n(garrisonUsed(game, branch))} / {n(garrisonLimit(game, branch))}</strong></p>
+
+        {!game.buildings[home] && <GameButton onClick={() => onBuild(home)}>{tab === 'sea' ? 'Tersane' : 'Kışla'} inşa et</GameButton>}
+        <ArmyPanel key={tab} game={game} home={home} onRecruit={onRecruit} onBuild={onBuild} register available={free} />
         <details className="muster-support"><summary>Garnizon, güç ve bakım hesabı</summary><dl className="muster-summary">
           <div><dt>Boşta halk</dt><dd>{n(idleWorkers(game))}</dd></div>
           <div><dt>{tab === 'sea' ? 'Deniz' : 'Kara'} garnizonu</dt><dd>{n(garrisonUsed(game, branch))} / {n(garrisonLimit(game, branch))}</dd></div>
@@ -31,8 +34,6 @@ export function ArmyRegister({ game, empire, run, onRecruit, onBuild, onIsland }
           <div><dt>Toplam ordu bakımı</dt><dd>{n(armyUpkeep(game))} akçe/dk</dd></div>
         </dl>
         <p className="muster-note">Kayıtlı birlikler seferdekileri de içerir. Kullanılabilir sayı, şu an yeni bir emre ayrılabilen birlikleri gösterir. Eğitim halktan yer ayırır.</p></details>
-        {!game.buildings[home] && <GameButton onClick={() => onBuild(home)}>{tab === 'sea' ? 'Tersane' : 'Kışla'} inşa et</GameButton>}
-        <ArmyPanel key={tab} game={game} home={home} onRecruit={onRecruit} onBuild={onBuild} register available={free} />
         {tab === 'land' && <details className="muster-support"><summary>Casus yetiştir</summary><ArmyPanel game={game} home="elcilik" onRecruit={onRecruit} onBuild={onBuild} register available={free} /></details>}
         {tab === 'sea' && <section className="muster-support"><h2>Ticaret filosu</h2><p>{n(totalMerchants(empire))} ortak gemi · {n(idleMerchants(empire))} boş gemi. Ticaret gemileri Liman’dan satın alınır.</p><GameButton onClick={() => onBuild('liman')}>Limanı aç</GameButton></section>}
         <details className="muster-support"><summary>Savaş meydanı ve kapasite</summary><BattlefieldCard game={game} /></details>

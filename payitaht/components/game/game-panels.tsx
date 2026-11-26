@@ -214,9 +214,9 @@ export function ArmyPanel({ game, onRecruit, onBuild, home, register = false, av
       })
     }
     return <div className="advisor-panel army-home">
-      <details className="training-queue-disclosure"><summary>Üretim kuyruğu · {queued.length ? `${queued.length} emir` : 'Boş'}</summary><DrillQueue game={game} home={home} register={register || home === 'kisla' || home === 'tersane'} /></details>
+      {queued.length > 0 && <details className="training-queue-disclosure"><summary>Üretim kuyruğu · {queued.length} emir</summary><DrillQueue game={game} home={home} register={register || home === 'kisla' || home === 'tersane'} /></details>}
       {home === 'kisla' || home === 'tersane' || register ? <section className="barracks-roster" aria-label={home === 'tersane' ? 'Gemiler' : 'Birlikler'}>
-        <h2>{home === 'tersane' ? 'Gemiler' : 'Birlikler'}</h2>
+        {!register && <h2>{home === 'tersane' ? 'Gemiler' : 'Birlikler'}</h2>}
         {units.filter(id => !unitLock(game, id) || id === chosen).map(id => {
           const selected = id === chosen, lock = unitLock(game, id)
           return <section key={id} className={`barracks-entry${selected ? ' is-selected' : ''}${lock ? ' is-locked' : ''}`}>
