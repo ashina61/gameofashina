@@ -1,0 +1,135 @@
+{
+  "pageErrors": [],
+  "missingGameAssets": [],
+  "screenshots": [
+    "title-390x844.png",
+    "city-center-390x844.png",
+    "city-crafts-upgrade-390x844.png",
+    "harbour-390x844.png",
+    "island-atlas-390x844.png",
+    "island-forest-390x844.png",
+    "ui-research-390x844.png",
+    "ui-buildings-390x844.png",
+    "ui-medrese-inspector-390x844.png",
+    "ui-medrese-production-390x844.png",
+    "ui-medrese-development-390x844.png",
+    "ui-army-390x844.png",
+    "ui-settings-390x844.png",
+    "ui-colony-345x768.png",
+    "title-412x915.png",
+    "city-center-412x915.png",
+    "city-merchants-upgrade-412x915.png",
+    "harbour-412x915.png",
+    "island-atlas-412x915.png",
+    "island-forest-412x915.png",
+    "title-430x932.png",
+    "city-center-430x932.png",
+    "city-final-buildings-430x932.png",
+    "harbour-430x932.png",
+    "island-atlas-430x932.png",
+    "island-forest-430x932.png",
+    "siege-occupation-390x844.png",
+    "siege-both-390x844.png",
+    "siege-both-harbour-390x844.png",
+    "siege-blockade-390x844.png",
+    "siege-liberated-harbour-390x844.png",
+    "siege-liberated-390x844.png"
+  ],
+  "viewports": [
+    "390x844",
+    "412x915",
+    "430x932"
+  ],
+  "siegeTransitions": [
+    "peace→occupation",
+    "occupation→both",
+    "both→blockade",
+    "blockade→peace"
+  ],
+  "colonyLayout": {
+    "viewport": 345,
+    "scroll": 345,
+    "card": {
+      "x": 22,
+      "y": 416.859375,
+      "width": 301,
+      "height": 118.46875,
+      "top": 416.859375,
+      "right": 323,
+      "bottom": 535.328125,
+      "left": 22
+    },
+    "buttons": [
+      {
+        "x": 0,
+        "y": 176,
+        "width": 115,
+        "height": 44,
+        "top": 176,
+        "right": 115,
+        "bottom": 220,
+        "left": 0
+      },
+      {
+        "x": 115,
+        "y": 176,
+        "width": 115,
+        "height": 44,
+        "top": 176,
+        "right": 230,
+        "bottom": 220,
+        "left": 115
+      },
+      {
+        "x": 230,
+        "y": 176,
+        "width": 115,
+        "height": 44,
+        "top": 176,
+        "right": 345,
+        "bottom": 220,
+        "left": 230
+      },
+      {
+        "x": 22,
+        "y": 299.390625,
+        "width": 301,
+        "height": 117.46875,
+        "top": 299.390625,
+        "right": 323,
+        "bottom": 416.859375,
+        "left": 22
+      },
+      {
+        "x": 22,
+        "y": 416.859375,
+        "width": 301,
+        "height": 118.46875,
+        "top": 416.859375,
+        "right": 323,
+        "bottom": 535.328125,
+        "left": 22
+      }
+    ]
+  },
+  "metrics": {
+    "390x844": {
+      "bootMs": 1699,
+      "heapMB": 25,
+      "placedBuildings": 26,
+      "parcelFitFailures": []
+    },
+    "412x915": {
+      "bootMs": 1475,
+      "heapMB": 22,
+      "placedBuildings": 26,
+      "parcelFitFailures": []
+    },
+    "430x932": {
+      "bootMs": 1495,
+      "heapMB": 25,
+      "placedBuildings": 27,
+      "parcelFitFailures": []
+    }
+  }
+}

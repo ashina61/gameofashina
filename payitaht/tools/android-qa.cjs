@@ -9,10 +9,11 @@ async function main() {
   const out = path.resolve('visual-review/android')
   await fs.mkdir(out, { recursive: true })
   const fixture = JSON.parse(await fs.readFile(path.join(__dirname, 'fixtures/late-game.json'), 'utf8'))
-  const browser = await chromium.launch({ executablePath: process.env.QA_CHROME_PATH, args: ['--no-sandbox', '--enable-unsafe-swiftshader'] })
+  let browser
   const results = []
   try {
     for (const [width, height, scale] of [[360, 740, 1], [390, 844, 1], [430, 932, 1], [390, 844, 1.3]]) {
+      browser = await chromium.launch({ executablePath: process.env.QA_CHROME_PATH, args: ['--no-sandbox', '--enable-unsafe-swiftshader'] })
       const label = `${width}-${Math.round(scale * 100)}`
       const context = await browser.newContext({ viewport: { width, height }, deviceScaleFactor: 1, isMobile: true, hasTouch: true })
       await skipGuide(context)
@@ -60,19 +61,29 @@ async function main() {
       await enterGame(page)
       await page.waitForFunction(() => !!window.__payitahtQa)
       await settle()
-      const hud = await page.evaluate(() => ({
-        quantities: [...document.querySelectorAll('.ika-chip-num > b')].map(el => parseFloat(getComputedStyle(el).fontSize)),
-        rates: [...document.querySelectorAll('.ika-chip-num > small')].map(el => parseFloat(getComputedStyle(el).fontSize)),
-        clipped: [...document.querySelectorAll('.ika-resource-label, .ika-chip-num > b, .ika-chip-num > small')].filter(el => {
+      const readHud = () => page.evaluate(() => ({
+        quantities: [...document.querySelectorAll('.ika-chip-num > b')].filter(el => el.checkVisibility()).map(el => parseFloat(getComputedStyle(el).fontSize)),
+        rates: [...document.querySelectorAll('.ika-chip-num > small')].filter(el => el.checkVisibility()).map(el => parseFloat(getComputedStyle(el).fontSize)),
+        clipped: [...document.querySelectorAll('.ika-resource-label, .ika-chip-num > b, .ika-chip-num > small')].filter(el => el.checkVisibility()).filter(el => {
           const box = el.getBoundingClientRect(), cell = el.closest('button').getBoundingClientRect()
           return box.top < cell.top - 1 || box.bottom > cell.bottom + 1 || box.left < cell.left - 1 || box.right > cell.right + 1
         }).map(el => el.textContent),
-        targets: [...document.querySelectorAll('.ika-advisor, .ika-stock-open')].map(el => { const r = el.getBoundingClientRect(); return [r.width, r.height] }),
+        targets: [...document.querySelectorAll('.ika-advisor, .ika-stock-open, .resource-disclosure')].filter(el => el.checkVisibility()).map(el => { const r = el.getBoundingClientRect(); return [r.width, r.height] }),
       }))
+      const compactHud = await readHud()
+      assert.equal(compactHud.quantities.length, 4, `${label}: four main stocks stay visible`)
+      assert.ok(compactHud.targets.length >= 9 && compactHud.targets.every(([w,h]) => w >= 44 && h >= 44), `${label}: compact touch targets ${JSON.stringify(compactHud.targets)}`)
+      assert.deepEqual(compactHud.clipped, [], `${label}: compact resource text fits`)
+      await page.getByRole('button', { name: 'Kaynak ayrıntılarını aç', exact: true }).click()
+      await settle()
+      const hud = await readHud()
       assert.ok(hud.quantities.length > 0 && hud.quantities.every(px => px >= 14 * scale), `${label}: resource text`)
       assert.ok(hud.rates.length > 0 && hud.rates.every(px => px >= 11 * scale - 0.01), `${label}: rate text`)
-      assert.ok(hud.targets.length >= 10 && hud.targets.every(([w, h]) => w >= 44 && h >= 44), `${label}: touch targets`)
+      assert.ok(hud.targets.length >= 11 && hud.targets.every(([w, h]) => w >= 44 && h >= 44), `${label}: touch targets`)
       assert.deepEqual(hud.clipped, [], `${label}: resource text must fit its cell`)
+      await page.screenshot({ path: path.join(out, `city-expanded-${label}.png`) })
+      await page.getByRole('button', { name: 'Kaynak ayrıntılarını kapat', exact: true }).click()
+      await settle()
       await page.screenshot({ path: path.join(out, `city-${label}.png`) })
       for (const panel of ['forest', 'island']) {
         await page.evaluate(value => window.__payitahtQa.panel(value), panel)
@@ -133,8 +144,9 @@ async function main() {
       results.push({ width, height, textScale: scale, paperFailure: width === 360, hud, savedWorkers: await readWorkers(), errors, missing })
       console.log(`Android QA passed: ${width}×${height}, text ${Math.round(scale * 100)}%`)
       await context.close()
+      await browser.close()
     }
-  } finally { await browser.close() }
+  } finally { await browser?.close() }
   await fs.writeFile(path.join(out, 'report.json'), JSON.stringify(results, null, 2))
   console.log(`Android QA: ${results.length} phone/text configurations passed.`)
 }

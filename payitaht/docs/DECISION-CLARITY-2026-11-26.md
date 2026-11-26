@@ -21,6 +21,10 @@
 - 29 durumluk mobil taramada HTTP kaynak hatası ve JavaScript sayfa hatası yok. Sabit görsel yollarında eksik dosya yok. Dinamik kaynaklar açılan ekranlarda tarandı; bu bütün oyun durumlarında tüm görsellerin kabulü anlamına gelmez.
 - Gerçek ekran kanıtları `docs/qa/mobile-0138/`; yeni çizim veya model değildir.
 
+## Yayın regresyonları
+
+Başlangıç rehberinin sekiz hedefi 3,5 oyun dakikasında tamamlandı. Android arayüz denetimi, açılır kaynak şeridinin kapalı/açık hallerini ayrı ölçer; dört telefon/yazı senaryosu, işçi kayıtları, geri akışı ve gizlilik bağlantısı geçti. Eski şehir taraması güncel orman başlığı, Kurulu yapı filtresi ve Medrese Gelişim görseline uyarlandı. Şehir taraması 390/412/430 genişlikte, 345px koloni ekranı ve canlı kuşatma geçişleriyle geçti; yüklenmeyen oyun görseli ve JavaScript hatası yok.
+
 ## Son düzen düzeltmeleri
 
 Araştırma önerisi kartın altına, gelecek araştırmaları açılır bölüme taşındı. Boş eğitim kuyruğu ve tekrar eden Birlikler başlığı ana eğitim kararından önce yer kaplamaz. Garnizon özeti korunur, ayrıntılı hesap eğitimden sonra gelir. Elçide hükümdar satırları portre, şehir/hükümdar ve adı açık ilişki puanı olarak hizalanır; boş anlaşma satırı kalkar.
