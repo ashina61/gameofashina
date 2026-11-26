@@ -17,7 +17,7 @@ const isSoldier = (id: UnitId) => UNITS[id]?.branch === 'kara' && UNITS[id].role
 
 export function firstSessionStep(game: Game) {
   const index = OBJECTIVES.findIndex(objective => !game.claimed.includes(objective.id))
-  if (index < 0 || index >= GUIDED_STEPS || game.buildings.divan >= 5) return null
+  if (index < 0 || index >= GUIDED_STEPS) return null
 
   const objective = OBJECTIVES[index]
   const step = STEPS[objective.id]

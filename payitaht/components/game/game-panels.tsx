@@ -1,6 +1,7 @@
 'use client'
 import { PersonArt } from './workforce'
 
+import { PageDetails } from './mobile-page'
 import { Hint } from './hint'
 import { t } from '@/lib/i18n/tr'
 import { useLayoutEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react'
@@ -74,7 +75,7 @@ export function ResearchPanel({ game, onResearch }: { game: Game; onResearch: (i
   const settle = useRef<number | undefined>(undefined)
   const go = (k: number) => {
     const el = pager.current
-    setBranch(RESEARCH_BRANCHES[k].key); setPicked(null)
+    setBranch(RESEARCH_BRANCHES[k].key); setPicked(null); detail.current?.closest<HTMLElement>('.bp-scroll')?.scrollTo({ top: 0, behavior: 'instant' })
     el?.scrollTo({ left: k * el.clientWidth, behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' })
   }
   const onPage = () => {
@@ -145,7 +146,7 @@ export function ResearchPanel({ game, onResearch }: { game: Game; onResearch: (i
         </button></li>
       }
       return <div key={b.key} className="rs-scroll" inert={b.key !== branch}>
-        <ul className="rs-list rs-tree" aria-label={`${b.title} araştırma defteri`}>{list.map(node)}</ul>
+        <ul className="rs-list rs-tree" aria-label={`${b.title} araştırma defteri`}>{list.filter(id => !['done', 'locked'].includes(researchState(game, id))).map(node)}</ul><PageDetails title="Sonraki teknolojiler ve keşfedilenler"><ul className="rs-list rs-tree">{list.filter(id => ['done', 'locked'].includes(researchState(game, id))).map(node)}</ul></PageDetails>
       </div>
     })}</div>
   </div>
@@ -201,13 +202,22 @@ export function ArmyPanel({ game, onRecruit, onBuild, home, register = false, av
   // altında seçilen birliğin eğitim kartı; ordu özeti katlanır bölümde.
   if (home) {
     const units = UNIT_IDS.filter(id => UNITS[id].home === home).sort(byRole)
-    const chosen = pick && units.includes(pick) ? pick : units[0]
+    const chosen = pick && units.includes(pick) ? pick : units.find(id => !unitLock(game, id)) ?? units[0]
     const queued = game.drills.filter(job => UNITS[job.id as UnitId].home === home)
+    const locked = units.filter(id => unitLock(game, id) && id !== chosen)
+    const inspectLocked = (id: UnitId) => {
+      setPick(id)
+      requestAnimationFrame(() => {
+        const card = document.getElementById(`barracks-training-${id}`)
+        card?.scrollIntoView({ block: 'start', behavior: 'instant' })
+        card?.focus({ preventScroll: true })
+      })
+    }
     return <div className="advisor-panel army-home">
       <details className="training-queue-disclosure"><summary>Üretim kuyruğu · {queued.length ? `${queued.length} emir` : 'Boş'}</summary><DrillQueue game={game} home={home} register={register || home === 'kisla' || home === 'tersane'} /></details>
       {home === 'kisla' || home === 'tersane' || register ? <section className="barracks-roster" aria-label={home === 'tersane' ? 'Gemiler' : 'Birlikler'}>
         <h2>{home === 'tersane' ? 'Gemiler' : 'Birlikler'}</h2>
-        {units.map(id => {
+        {units.filter(id => !unitLock(game, id) || id === chosen).map(id => {
           const selected = id === chosen, lock = unitLock(game, id)
           return <section key={id} className={`barracks-entry${selected ? ' is-selected' : ''}${lock ? ' is-locked' : ''}`}>
             <button type="button" className="barracks-unit-toggle" aria-expanded={selected}
@@ -216,11 +226,12 @@ export function ArmyPanel({ game, onRecruit, onBuild, home, register = false, av
               <span><strong>{UNITS[id].name}</strong><small>Kayıtlı: {game.army[id]}{available && ` · Kullanılabilir: ${available[id] ?? 0}`}{lock ? ` · Kilitli: ${lock}` : ''}</small></span>
               <span className="barracks-unit-chevron" aria-hidden="true">{selected ? '⌃' : '⌄'}</span>
             </button>
-            <div id={`barracks-training-${id}`} hidden={!selected}>
+            <div id={`barracks-training-${id}`} tabIndex={-1} hidden={!selected}>
               {selected && <UnitCard game={game} id={id} onRecruit={onRecruit} compact />}
             </div>
           </section>
         })}
+        {locked.length > 0 && <PageDetails title="Kilitli birlikler ve açılma koşulları">{locked.map(id => <button key={id} type="button" className="barracks-unit-toggle" onClick={() => inspectLocked(id)}><BarracksPortrait id={id} /><span><strong>{UNITS[id].name}</strong><small>{unitLock(game, id)}</small></span></button>)}</PageDetails>}
       </section> : <>
         <UnitGallery game={game} units={units} chosen={chosen} onPick={setPick} />
         {chosen && <UnitCard key={chosen} game={game} id={chosen} onRecruit={onRecruit} />}

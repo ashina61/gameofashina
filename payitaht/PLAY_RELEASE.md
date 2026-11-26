@@ -6,7 +6,7 @@ The production upload is a signed AAB. A debug APK is for device testing.
 
 Run `pnpm build:android` from payitaht. It builds a native static export and validates every phone sprite counterpart before pruning only full-size painted building images from out/. Source assets and parcel sprites are retained. APK and AAB workflows use the same preparation.
 
-package.json is the versionName source (currently 0.127.0). PAYITAHT_VERSION_NAME must match it. Default versionCode is major × 1000000 + minor × 1000 + patch. For Play, explicitly choose PAYITAHT_VERSION_CODE above every previously uploaded code; the CI-only 999999 code must not be treated as the production release code.
+package.json is the versionName source. PAYITAHT_VERSION_NAME must match it. Default versionCode is major × 1000000 + minor × 1000 + patch. For Play, explicitly choose PAYITAHT_VERSION_CODE above every previously uploaded code; the CI-only 999999 code must not be treated as the production release code.
 
 ## Signing secrets
 
@@ -23,7 +23,7 @@ The keystore is materialized only on the runner and is not committed. Keep the e
 
 Run Actions → Android Production AAB → Run workflow:
 
-- version_name: exactly the package.json version, e.g. 0.127.0
+- version_name: exactly the package.json version, read it from package.json
 - version_code: integer higher than all codes already uploaded to Play
 
 The workflow installs the frozen lockfile, builds/prepares the Android export, syncs Capacitor, injects signing credentials, runs bundleRelease with R8/resource shrinking, verifies the signature and uploads the signed AAB as an artifact. Upload only this signed AAB to the chosen Play Console track.

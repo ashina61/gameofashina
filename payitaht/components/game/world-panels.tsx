@@ -1,4 +1,5 @@
 'use client'
+import { PageDetails } from './mobile-page'
 import { CoffeehousePanel } from './coffeehouse-panel'
 
 /**
@@ -334,7 +335,6 @@ export function WorldPanel({ empire, now, run, onRival, initial = 'rank' }: { em
   const badge = (key: Tab) => key === 'mail' ? unread : key === 'offers' ? offers : 0
   const tabs = ([['mail', 'Mektuplar'], ['offers', 'Teklifler'], ['diplo', 'Hükümdarlar'], ['market', 'Pazar'], ['news', 'Haberler'], ['rank', 'Sıralama']] as const).map(([id, label]) => ({ id, label: `${label}${badge(id) ? ` (${badge(id)})` : ''}`, Icon: ScrollText, art: `/images/game/ui/approved-court/${id === 'mail' ? 'seal' : id === 'offers' || id === 'market' ? 'trade' : id === 'rank' ? 'laurel' : id === 'news' ? 'bell' : 'city'}.webp` }))
   return <div className="royal-page diplomatic-page envoy-page">
-    <DiplomaticScene title="Elçinin defterleri" subtitle={`${activeCity(empire).name} · Adalar arası ilişkiler`} />
     <CourtTabs items={tabs} value={tab} onChange={key => { setTab(key); if (key === 'mail' && unread) run((e, x) => readMessages(e, x)) }} label="Elçi defterleri">
       {tab === 'rank' && <Rankings empire={empire} now={now} onRival={onRival} />}
       {tab === 'diplo' && <Diplomacy empire={empire} now={now} run={run} onRival={onRival} />}
@@ -344,6 +344,8 @@ export function WorldPanel({ empire, now, run, onRival, initial = 'rank' }: { em
       {tab === 'news' && <NewsPanel empire={empire} now={now} onRival={onRival} />}
       <div className="diplomatic-counsel"><ApprovedArt name="seal" /><p>{diploAdvice(empire)}</p></div>
       <p className="diplomatic-simulation">Bu adaların hükümdarları yapay rakiplerdir.</p>
+    <PageDetails title="Elçinin dairesi"><DiplomaticScene title="Elçinin defterleri" subtitle={`${activeCity(empire).name} · Adalar arası ilişkiler`} /></PageDetails>
+
     </CourtTabs>
   </div>
 }
@@ -386,7 +388,7 @@ function RankPodium({ empire, rows, score, onRival }: { empire: Empire; rows: Re
 function Diplomacy({ empire, now, run, onRival }: { empire: Empire; now: number; run: Run; onRival: (id: string) => void }) {
   const alliance = empire.world?.alliance ?? null
   return <>
-    <section className="empire-section">
+    <PageDetails title="İttifak üyeliği"><section className="empire-section">
       <h3><ApprovedArt name="kurucu" /> İttifak {alliance ? `· ${FACTIONS[alliance].name}` : ''}</h3>
       {(Object.keys(FACTIONS) as FactionId[]).map(f => <article key={f} className="mission-row">
         <span><strong>{FACTIONS[f].name}</strong><small>“{FACTIONS[f].motto}” · {factionMembers(f).map(r => r.city).join(', ')} · ortalama ilişki {factionStanding(empire, f)}</small></span>
@@ -394,7 +396,7 @@ function Diplomacy({ empire, now, run, onRival }: { empire: Empire; now: number;
           : <GameButton size="sm" disabled={!!alliance || !!empire.world?.pact} onClick={() => run((e, x) => joinAlliance(e, f, x), 'İttifaka katıldın.')}>Katıl</GameButton>}
       </article>)}
       <Hint>Üyelik için Elçilik 3. seviye ve ittifakla ortalama 5 ilişki gerekir. Üyeler sana saldırmaz, baskında yardım gönderir; öbür ittifak soğur.</Hint>
-    </section>
+    </section></PageDetails>
     <section className="empire-section">
       <h3><ApprovedArt name="trade" /> Hükümdarlar</h3>
       {RIVALS.map(r => {
