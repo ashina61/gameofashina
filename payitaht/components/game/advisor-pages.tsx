@@ -21,6 +21,7 @@ import { useState } from 'react'
 import { CourtTabs } from './court-kit'
 import { Flag, ScrollText, Shield } from './ui-art'
 import { asset } from '@/lib/asset'
+import { PageDetails } from './mobile-page'
 
 
 function armyAdvice(e: Empire, g: Game) {
@@ -37,11 +38,11 @@ export function ArmyAdvisor({ empire, game, run, onArmy }: { empire: Empire; gam
   const [tab, setTab] = useState<'reports' | 'missions' | 'defense'>('reports')
   const missions = (empire.missions ?? []).filter(m => m.cityId === empire.activeCityId)
   return <div className="campaign-advisor">
-    <figure className="academy-banner"><img src={asset('/images/game/ui/campaign/records.webp')} alt="" width={960} height={320} /></figure>
     <CourtTabs items={[{ id: 'reports', label: 'Raporlar', Icon: ScrollText }, { id: 'missions', label: 'Seferler', Icon: Flag }, { id: 'defense', label: 'Savunma', Icon: Shield }]} value={tab} onChange={setTab} label="Serasker defteri">
       {tab === 'reports' && <Box title="Savaş ve casus raporları"><ReportsPanel empire={empire} run={run} /></Box>}
       {tab === 'missions' && <>{missions.length ? <MissionList empire={empire} now={game.updatedAt} run={run} /> : <Box title="Seferler"><p className="campaign-empty">Yolda veya konuşlu birlik yok. Ada görünümünden bir hedef seçebilirsin.</p></Box>}</>}
       {tab === 'defense' && <><AdvisorSpeech id="army">{armyAdvice(empire, game)}</AdvisorSpeech><Box title="Kışla ve tersane"><p className="bp-note">Asker ve gemi eğitimi, birlik aktarma.</p><GameButton size="sm" onClick={onArmy}><Swords data-icon="inline-start" />Orduya git</GameButton></Box><DefenseSummary empire={empire} /></>}
     </CourtTabs>
+    <PageDetails title="Serasker kayıt dairesi"><figure className="academy-banner"><img src={asset('/images/game/ui/campaign/records.webp')} alt="" width={960} height={320} /></figure></PageDetails>
   </div>
 }

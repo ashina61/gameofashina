@@ -1,0 +1,31 @@
+{
+  "baseline": true,
+  "cases": [
+    {
+      "name": "default overview",
+      "tab": "Hazine",
+      "width": 390,
+      "scroll": 1692,
+      "height": 479,
+      "horizontal": false
+    },
+    {
+      "name": "default overview",
+      "tab": "Üretim",
+      "width": 390,
+      "scroll": 1051,
+      "height": 479,
+      "horizontal": false
+    },
+    {
+      "name": "default overview",
+      "tab": "Ambar",
+      "width": 390,
+      "scroll": 1485,
+      "height": 479,
+      "horizontal": false
+    }
+  ],
+  "errors": [],
+  "missing": []
+}
