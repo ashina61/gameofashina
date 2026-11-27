@@ -138,9 +138,16 @@ jobs:
           arch: x86_64
           profile: pixel_6
           ram-size: 2048M
-          emulator-options: -no-window -no-snapshot -gpu swiftshader -feature -Vulkan -noaudio -no-boot-anim -no-metrics
+          emulator-options: -no-window -no-snapshot -gpu swangle -feature -Vulkan -noaudio -no-boot-anim -no-metrics
           disable-animations: true
           script: node payitaht/tools/android-device-qa.cjs "$RUNNER_TEMP/payitaht-apk/app-debug.apk"
+      - name: Capture emulator host diagnostics
+        if: always()
+        run: |
+          mkdir -p visual-review/android-device
+          sudo dmesg -T > visual-review/android-device/host-kernel.txt
+          free -h > visual-review/android-device/host-memory.txt
+          ps aux --sort=-rss | head -30 > visual-review/android-device/host-processes.txt
       - name: Verify the Android end-to-end report
         run: |
           node -e "const r = require('./visual-review/android-device/report.json'); require('node:assert/strict').equal(r.passed, true)"

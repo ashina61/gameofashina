@@ -34,3 +34,7 @@ Yayın dalı 32 geliştirme commit'i geride bulundu; PR #101 biriken 0.127–0.1
 ## Sonraki kapsam
 
 Bütün oyunun sanat yenilemesi bu değişiklik değildir. Şehir/bina uyumu, savaş sonucu açıklaması, ilk 15 dakika hedefleri ve uzun vadeli ekonomi ayrı kabul gerektirir. Ana ekranı yalnız küçültmek yerine her ekran için özet, ana karar ve isteğe bağlı ayrıntı sırası kullanılmalıdır.
+
+### 27 Kasım — yayın kontrolü
+
+PR #101 üzerindeki web/mobil, motor ve APK/AAB derleme kontrolleri geçti. Android API 36 emülatörü iki koşuda WebView açıldıktan sonra bağlantısını kaybetti; bu yüzden cihaz akışı henüz başarılı sayılmıyor. SwiftShader yerine ANGLE/SwiftShader (`swangle`) deneniyor. Test artık açılış ekranı/HTML, sürekli logcat, ana makine çekirdek ve bellek kanıtlarını saklıyor. Android çevrimdışı açılış, süreç yeniden başlatma ve gerçek belge seçiciyle yedekleme koşulları aynen korunuyor.

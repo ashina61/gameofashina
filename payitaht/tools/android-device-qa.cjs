@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 /* Run on a fresh Android emulator with the repository's debug APK. */
 const assert = require('node:assert/strict')
-const { execFileSync } = require('node:child_process')
+const { execFileSync, spawn } = require('node:child_process')
+const { createWriteStream } = require('node:fs')
 const fs = require('node:fs/promises')
 const path = require('node:path')
 const { setTimeout: delay } = require('node:timers/promises')
@@ -103,6 +104,12 @@ async function main() {
   assert.equal(shell('settings', 'get', 'global', 'airplane_mode_on'), '1')
   shell('input', 'keyevent', 'KEYCODE_WAKEUP')
   shell('wm', 'dismiss-keyguard')
+  // Stream before launching: a dead emulator cannot provide logcat afterwards.
+  const log = createWriteStream(path.join(OUT, 'logcat.txt'))
+  const logcat = spawn('adb', ['logcat', '-v', 'threadtime'], { stdio: ['ignore', 'pipe', 'pipe'] })
+  logcat.on('error', error => { report.logcatError = error.message })
+  logcat.stdout.pipe(log, { end: false })
+  logcat.stderr.pipe(log, { end: false })
   const devices = await _android.devices()
   assert.equal(devices.length, 1, 'Expected a single Android emulator')
   const [device] = devices
@@ -112,6 +119,8 @@ async function main() {
     let page = await start(device)
     console.log('Attached to Android WebView at ' + page.url())
     watch(page)
+    await screenshot('00-title-launch')
+    await fs.writeFile(path.join(OUT, 'launch.html'), await page.content())
     // Airplane mode and both radio settings are set before launch. WebView's
     // navigator.onLine can still be true for the emulator's virtual interface.
     await page.getByRole('button', { name: 'Hikâyeye başla', exact: true }).waitFor()
@@ -174,6 +183,9 @@ async function main() {
     await screenshot('failure').catch(() => {})
     throw error
   } finally {
+    logcat.kill()
+    log.end()
+    report.webViewErrors = errors
     await device.close().catch(() => {})
   }
 }
