@@ -129,7 +129,7 @@ async function main() {
     await page.getByLabel('Hükümdarın adı').fill(RULER)
     await page.locator('#title-city').fill(CITY)
     await page.locator('.title-form button[type="submit"]').click()
-    await page.getByRole('button', { name: 'Atla', exact: true }).click()
+    // New-game setup enters the city directly; the inline guide stays available.
     await page.waitForFunction(() => Number(document.documentElement.dataset.cityReady) > 0)
     await until('initial city saved', async () => await savedCity(page) === CITY)
     await screenshot('01-offline-city')

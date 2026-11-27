@@ -38,3 +38,5 @@ Bütün oyunun sanat yenilemesi bu değişiklik değildir. Şehir/bina uyumu, sa
 ### 27 Kasım — yayın kontrolü
 
 PR #101 üzerindeki web/mobil, motor ve APK/AAB derleme kontrolleri geçti. Android API 36 emülatörü iki koşuda WebView açıldıktan sonra bağlantısını kaybetti; bu yüzden cihaz akışı henüz başarılı sayılmıyor. SwiftShader yerine ANGLE/SwiftShader (`swangle`) deneniyor. Test artık açılış ekranı/HTML, sürekli logcat, ana makine çekirdek ve bellek kanıtlarını saklıyor. Android çevrimdışı açılış, süreç yeniden başlatma ve gerçek belge seçiciyle yedekleme koşulları aynen korunuyor.
+
+ANGLE koşusunda emülatör kararlı kaldı; API 36 üzerinde uçak modunda açılış, isimli şehir ve başlangıç rehberi ekran görüntüsüyle doğrulandı. Sonraki hata, kaldırılmış `Atla` düğmesini arayan eski test adımıydı; şehir hazırlığı ve kayıt doğrulaması korunarak bu adım kaldırıldı.
