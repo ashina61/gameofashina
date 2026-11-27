@@ -62,16 +62,17 @@ export function PersonArt({ kind, size = 64 }: { kind: Figure; size?: number }) 
   </svg>
 }
 
-export function WorkforceSlider({ label, figure, value, cap, idle, preview, onCommit, note }: {
+export function WorkforceSlider({ label, figure, value, cap, idle, preview, onCommit, note, compact = false }: {
   label: string
   figure: Figure
   value: number
   cap: number
   idle: number
   /** Verilen işçi sayısında üretim (ör. <b>120 kereste/dk</b>) ve karşılaştırma için sayı. */
-  preview: (n: number) => { amount: number; text: ReactNode; icon?: ReactNode }
+  preview: (n: number) => { amount: number; text: ReactNode; icon?: ReactNode; gold?: number }
   onCommit: (n: number) => void
   note?: ReactNode
+  compact?: boolean
 }) {
   const [draft, setDraft] = useState(value)
   useEffect(() => setDraft(value), [value])
@@ -82,7 +83,7 @@ export function WorkforceSlider({ label, figure, value, cap, idle, preview, onCo
   const delta = next.amount - now.amount
   const changed = d !== value
   const set = (n: number) => setDraft(Math.max(0, Math.min(max, n)))
-  return <div className="workforce">
+  return <div className={`workforce${compact ? ' is-compact' : ''}`}>
     <div className="workforce-stage">
       <div className="workforce-side">
         <PersonArt kind="halk" size={46} />
@@ -107,6 +108,9 @@ export function WorkforceSlider({ label, figure, value, cap, idle, preview, onCo
         <strong>{d}</strong><small>{label}</small>
       </div>
     </div>
+    {changed && next.gold !== undefined && <p className="workforce-note" aria-label="Şehir geliri önizlemesi">
+      Şehir net geliri {formatRate(now.gold ?? 0)} → {formatRate(next.gold)} akçe/dk
+    </p>}
     {changed && <div className="workforce-confirm">
       <GameButton size="sm" onClick={() => onCommit(d)}>{t.action.confirm}</GameButton>
       <GameButton size="sm" variant="outline" onClick={() => setDraft(value)}>Geri al</GameButton>

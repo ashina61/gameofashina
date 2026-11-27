@@ -1,0 +1,25 @@
+/* Construction decisions before support accounts; preserve the painted atlas. */
+.game-shell.has-page .bp-construction :is(.construction-overview,.construction-filters,.construction-entry,.construction-empty) { background: var(--c-parch) var(--construction-paper) center / 400px 200px; }
+.game-shell.has-page .bp-construction .construction-overview { padding: 10px 16px; margin-block: 8px; }
+.game-shell.has-page .bp-construction .construction-overview > p { margin: 0; }
+.game-shell.has-page .bp-construction .construction-status > summary { min-height: 44px; display: flex; align-items: center; cursor: pointer; color: var(--c-ink); font: 700 14px/1.4 Georgia,serif; }
+.game-shell.has-page .bp-construction .construction-status > summary::before { content: '▸'; margin-right: 8px; }
+.game-shell.has-page .bp-construction .construction-status[open] > summary::before { content: '▾'; }
+.game-shell.has-page .bp-construction .construction-status .construction-banner { margin-top: 12px; }
+.game-shell.has-page .bp-construction .construction-filters { padding-block: 12px; margin-block: 8px; gap: 6px; }
+.game-shell.has-page .bp-construction .construction-group-title { margin: 16px 5% 8px; font-size: 18px; }
+.game-shell.has-page .bp-construction .construction-entry { margin-block: 8px; padding: 12px 16px; }
+.game-shell.has-page .bp-construction .construction-detail > p:last-child { margin-top: 16px; padding-top: 12px; border-top: 1px solid var(--c-gold-deep); }
+.game-shell.has-page .bp-construction .construction-blocked > summary { min-height: 56px; margin: 12px 3%; padding: 12px 16px; border: 0 solid transparent; border-image: var(--construction-frame) 40 / 16px / 0 stretch; background: var(--c-parch) var(--construction-paper) center / 400px 200px; color: var(--c-ink); font: 700 16px/1.4 Georgia,serif; cursor: pointer; }
+.game-shell .construction-placement .quest-chip-main { cursor: default; }
+.game-shell .construction-placement .quest-chip-text :is(strong,small) { white-space: normal; overflow: visible; text-overflow: clip; }
+/* The original Y-only animation overwrote the preview's translateX(-50%). */
+.game-shell.has-building-preview .building-inspector { animation-name: building-inspector-centered-enter; background: var(--c-parch) var(--support-paper); }
+@keyframes building-inspector-centered-enter {
+  from { opacity: 0; transform: translate(-50%,16px); }
+  to { opacity: 1; transform: translate(-50%,0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .game-shell.has-building-preview .building-inspector { animation: none; }
+}
+.game-shell.has-building-preview .building-inspector-effects > summary { min-height: 44px; padding-block: 12px; font: 700 14px/1.4 Georgia,serif; cursor: pointer; }

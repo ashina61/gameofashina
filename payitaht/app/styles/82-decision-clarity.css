@@ -1,0 +1,20 @@
+/* Keep the research effect, requirements, price and action together on phones. */
+.game-shell.has-page .bp-research .research-balance { min-height: 36px; margin: 4px 0 8px; }
+.game-shell.has-page .bp-research .rs-detail { gap: 4px; padding: 12px; scroll-margin-top: 8px; }
+.game-shell.has-page .bp-research .rs-detail .rs-effect { margin: 0; padding: 8px 0; }
+.game-shell.has-page .bp-research .rs-needs { padding: 4px 0; }
+.game-shell.has-page .bp-research .rs-cost { padding: 6px 0; }
+.game-shell.has-page .bp-research .rs-detail > .gbtn { margin-top: 4px; }
+.game-shell.has-page .bp-research .rs-branches > .rs-scroll[inert] { height: 0; overflow: hidden; }
+.game-shell.has-page .bp-muster .muster-note { margin: 4px 0 8px; }
+.game-shell.has-page .bp-muster .barracks-roster { margin-top: 0; }
+/* A ruler is one readable contact row; diplomacy details open on selection. */
+.game-shell.has-page .bp.bp-diplomatic .rival-row { display: grid; grid-template-columns: 48px minmax(0,1fr) 42px; gap: 6px 10px; align-items: center; min-height: 88px; padding: 10px 0; margin: 0; border: 0; border-bottom: 1px solid var(--c-gold-deep); border-radius: 0; background: none; text-align: left; }
+.game-shell.has-page .bp.bp-diplomatic .envoy-rival-name > :is(strong,small) { display: block; }
+.game-shell.has-page .bp.bp-diplomatic .envoy-rival-name strong { font: 700 18px/1.3 Georgia,serif; }
+.game-shell.has-page .bp.bp-diplomatic .rival-row small { font: 12px/1.45 Georgia,serif; }
+.game-shell.has-page .bp.bp-diplomatic .rival-row > span:is(.report-win,.report-loss) { grid-column: 3; grid-row: 1; margin: 0; text-align: center; }
+.game-shell.has-page .bp.bp-diplomatic .rival-row > span:is(.report-win,.report-loss) small { display: block; }
+.game-shell.has-page .bp.bp-diplomatic .rival-row > :is(.envoy-treaties,.rival-war) { grid-column: 2 / -1; }
+
+.game-shell.has-page .bp.bp-diplomatic .rival-row > .envoy-rival-name { grid-column: 2; grid-row: 1; min-width: 0; }

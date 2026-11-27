@@ -5,6 +5,7 @@ import { asset } from '@/lib/asset'
 import { FOREST_MAX_LEVEL, MINE_MAX_LEVEL, LUXURY_IDS, LUXURY_NAMES, forestCapacity, forestProduction, forestUpgradeCost, mineCapacity, mineUpgradeCost, luxuryProduction, idleWorkers, capacity, formatRate, merchantBuyPrice, merchantSellPrice, merchantLimit, type Game, type Command, type Luxury } from '@/lib/game/engine'
 import { Box } from './building-page'
 import { CourtTabs } from './court-kit'
+import { PageDetails, PageSheet } from './mobile-page'
 import { WorkforceSlider } from './workforce'
 import { GameButton } from './game-button'
 import { KeresteArt } from './resource-art'
@@ -43,13 +44,13 @@ function SiteRegister({ game, forest, onWorkers, onDonate, children }: { game: G
   const good = forest ? game.resources.wood : game.luxury[game.mine.specialty]
   const amount = (n: number) => forest ? forestProduction({ ...game, forest: { ...game.forest, workers: n } }) : luxuryProduction({ ...game, mine: { ...game.mine, miners: n } })[game.mine.specialty]
   const Icon = forest ? KeresteArt : luxuryIcons[game.mine.specialty]
-  return <div className="island-register"><figure className="academy-banner"><img src={asset(`/images/game/ui/island/${forest ? 'forest' : game.mine.specialty === 'mermer' ? 'mine' : `mine-${game.mine.specialty}`}.webp`)} alt="" width={960} height={320} /></figure>
+  return <div className="island-register">
     <CourtTabs items={[{ id: 'production', label: 'Üretim', Icon: forest ? TreePine : Pickaxe }, { id: 'development', label: 'Gelişim', Icon: Hammer }]} value={tab} onChange={setTab} label={`${name} defteri`}>
-      {tab === 'production' ? <><Box title={`${name} · Seviye ${site.level}`}>
-        <dl className="island-facts"><div><dt>Görevli / kapasite</dt><dd>{workers} / {cap}</dd></div><div><dt>Şehre gelen üretim</dt><dd>{formatRate(amount(workers))} / dk</dd></div><div><dt>Ambar stoğu</dt><dd>{num(good)} / {num(capacity(game))}</dd></div></dl>
+      {tab === 'production' ? <><PageSheet title={name} detail={`Seviye ${site.level} · ${workers}/${cap} görevli`}>
+
         {good >= capacity(game) && <p className="requirement">Ambar dolu. Kaynağı kullan veya depolama kapasitesini artır.</p>}
-        <WorkforceSlider label={label} figure={forest ? 'oduncu' : 'madenci'} value={workers} cap={cap} idle={idleWorkers(game)} preview={n => ({ amount: amount(n), icon: <Icon className="workforce-icon" />, text: <><b>{formatRate(amount(n))}</b> {forest ? 'kereste' : LUXURY_NAMES[game.mine.specialty].toLocaleLowerCase('tr')}/dk</> })} onCommit={onWorkers} note={forest ? 'Her oduncu şehir çarpanlarından önce dakikada 4 kereste keser. Atamayı Onayla ile uygula.' : 'Her madenci çarpanlardan önce dakikada 3 birim üretir. Şehirdeki üretim işçileri buraya kendiliğinden geçmez.'} />
-      </Box>{!forest && children}</> : <><Donation game={game} forest={forest} onDonate={onDonate} /><Box title="Ada emeği"><p>Şehirdeki boş halkı bu kaynağa ayırabilirsin. Kapasite ve boş halk, atayabileceğin işçi sayısını sınırlar.</p><p>{game.research.includes('yardim_eli') ? 'Yardım Eli araştırması kapasiteyi %25 artırıyor.' : 'Yardım Eli araştırması kapasiteyi %25 artırır.'}</p><p>Üretim önizlemesi mevcut şehir çarpanlarını içerir. Bağış yalnız bu şehrin kaynak işletmesini geliştirir.</p></Box></>}
+        <WorkforceSlider compact label={label} figure={forest ? 'oduncu' : 'madenci'} value={workers} cap={cap} idle={idleWorkers(game)} preview={n => ({ amount: amount(n), icon: <Icon className="workforce-icon" />, text: <><b>{formatRate(amount(n))}</b> {forest ? 'kereste' : LUXURY_NAMES[game.mine.specialty].toLocaleLowerCase('tr')}/dk</> })} onCommit={onWorkers} />
+      </PageSheet><PageDetails title="Üretim hesabı ve işletme"><dl className="island-facts"><div><dt>Görevli / kapasite</dt><dd>{workers} / {cap}</dd></div><div><dt>Şehre gelen üretim</dt><dd>{formatRate(amount(workers))} / dk</dd></div><div><dt>Ambar stoğu</dt><dd>{num(good)} / {num(capacity(game))}</dd></div></dl><p>{forest ? 'Her oduncu şehir çarpanlarından önce dakikada 4 kereste keser.' : 'Her madenci çarpanlardan önce dakikada 3 birim üretir.'} Atamayı Onayla ile uygula.</p><figure className="academy-banner"><img src={asset(`/images/game/ui/island/${forest ? 'forest' : game.mine.specialty === 'mermer' ? 'mine' : `mine-${game.mine.specialty}`}.webp`)} alt="" width={960} height={320} /></figure></PageDetails>{!forest && children}</> : <><Donation game={game} forest={forest} onDonate={onDonate} /><Box title="Ada emeği"><p>Şehirdeki boş halkı bu kaynağa ayırabilirsin. Kapasite ve boş halk, atayabileceğin işçi sayısını sınırlar.</p><p>{game.research.includes('yardim_eli') ? 'Yardım Eli araştırması kapasiteyi %25 artırıyor.' : 'Yardım Eli araştırması kapasiteyi %25 artırır.'}</p><p>Üretim önizlemesi mevcut şehir çarpanlarını içerir. Bağış yalnız bu şehrin kaynak işletmesini geliştirir.</p></Box></>}
     </CourtTabs>
   </div>
 }

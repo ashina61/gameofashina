@@ -4,7 +4,7 @@ import sharp from 'sharp'
 import { BUILDING_IDS } from '../engine'
 import { LIVE_SLOTS } from './live-adapter'
 import terrainTiles from './terrain-tiles.json'
-import { PARCEL_PLOTS, PARCEL_WORLD, COAST_CONTACTS, coastContactTarget, parcelProject, parcelInverse, parcelContainsPoint, parcelArtFrame, cityBuildingArtFrame, buildingRoadClear, barracksRoadClear, cityArtOutline, cityBuildingImage } from './parcel-city'
+import { PARCEL_PLOTS, PARCEL_WORLD, COAST_CONTACTS, coastContactTarget, harbourSailingRoute, HARBOUR_SHIP_WIDTH, parcelProject, parcelInverse, parcelContainsPoint, parcelArtFrame, cityBuildingArtFrame, buildingRoadClear, barracksRoadClear, cityArtOutline, cityBuildingImage } from './parcel-city'
 
 test('main parcel projection preserves all saved IDs, zones and fixed hall',()=>{
   assert.equal(PARCEL_PLOTS.length,LIVE_SLOTS.length)
@@ -76,7 +76,7 @@ test('every new groundless building has real alpha and fits matching parcels in 
   const seen=new Set<string>()
   for(const id of [...PARCEL_REPAINTED_BUILDINGS,'korsan_kalesi-iskele'])for(const facing of id==='liman'||id==='tersane'?[undefined,'straight'] as const:[undefined])for(const size of ['full','sm'] as const){
     const file=cityBuildingImage(id,1,facing,size)
-    assert.match(file,/\/parcel-v[2567]\//)
+    assert.match(file,/\/parcel-v[256789]\//)
     assert.ok(!seen.has(file),`${id}: reused another type's sprite`);seen.add(file)
     const {data,info}=await sharp('public'+file).ensureAlpha().raw().toBuffer({resolveWithObject:true})
     let transparent=0,opaque=0
@@ -156,6 +156,45 @@ test('waterfront buildings attach at their masonry contact, not the roof or rear
       assert.ok(f.polygon.every(q=>parcelContainsPoint(p,q,2)),`${name}: coast silhouette escapes its boundary`)
     }
   }
+})
+
+test('departing ships follow every saved harbour position beyond its pier and into open sea',async()=>{
+ const tiles=await Promise.all(terrainTiles.map(async tile=>({...tile,...await sharp('public'+tile.file).removeAlpha().raw().toBuffer({resolveWithObject:true})})))
+ const sprite=await sharp('public/images/game/ships/ship-a.webp').ensureAlpha().raw().toBuffer({resolveWithObject:true})
+ const hull=[]
+ for(let y=Math.ceil(sprite.info.height*.58);y<sprite.info.height;y+=12)for(let x=0;x<sprite.info.width;x+=12){
+  if(sprite.data[(y*sprite.info.width+x)*4+3]>220)hull.push({x:(x/sprite.info.width-.5)*HARBOUR_SHIP_WIDTH,y:(y-sprite.info.height/2)*HARBOUR_SHIP_WIDTH/sprite.info.width})
+ }
+ for(const facing of [undefined,'straight'] as const)for(const flip of [false,true]){
+  const name=facing==='straight'?'liman-duz':'liman'
+  const meta=await sharp('public'+cityBuildingImage('liman',1,facing,'sm')).metadata()
+  for(const p of PARCEL_PLOTS.slice(25,28)){
+   const f=cityBuildingArtFrame(name,p,meta.width!,meta.height!,cityArtOutline(name,1,'sm')!,flip)
+   const route=harbourSailingRoute(p,f.polygon)!
+   const tipY=Math.max(...f.polygon.map(q=>q.y))
+   const tip=f.polygon.filter(q=>q.y>=tipY-10)
+   assert.ok(Math.abs(route.start.x-tip.reduce((sum,q)=>sum+q.x,0)/tip.length)<.01)
+   assert.ok(route.start.y>=tipY+48)
+   assert.ok(route.end.y>PARCEL_WORLD.h)
+   // Check the actual lower hull, including bow/stern, against shipped sea pixels.
+   const points=[route.start,...(route.via?[route.via]:[]),route.end]
+   for(let i=1;i<points.length;i++)for(let step=0;step<=20;step++){
+    const a=points[i-1],b=points[i],t=step/20
+    for(const q of hull){
+     const x=a.x+(b.x-a.x)*t+(route.end.x<route.start.x?-q.x:q.x),y=a.y+(b.y-a.y)*t+q.y
+     if(y>=PARCEL_WORLD.h)continue
+     const tile=tiles.find(tile=>x>=tile.left&&x<tile.left+tile.width&&y>=tile.top&&y<tile.top+tile.height)!
+     const pixelX=Math.min(tile.info.width-1,Math.round((x-tile.left)*tile.nativeWidth/tile.width))
+     const pixelY=Math.min(tile.info.height-1,Math.round((y-tile.top)*tile.nativeHeight/tile.height))
+     const offset=(pixelY*tile.info.width+pixelX)*tile.info.channels
+     const [red,green,blue]=tile.data.subarray(offset,offset+3)
+     const water=(blue>red+15&&blue>=green-3)||(red>210&&green>225&&blue>235)
+     assert.ok(water,`harbour ${p.index}/${facing}/${flip} hull crosses land at ${x}/${y}: ${red},${green},${blue}`)
+    }
+   }
+  }
+ }
+ assert.equal(harbourSailingRoute(PARCEL_PLOTS[0]),null)
 })
 
 // Painted road/bridge centres measured independently from the walker routes.

@@ -1,6 +1,7 @@
 'use client'
 import { PersonArt } from './workforce'
 
+import { PageDetails } from './mobile-page'
 import { Hint } from './hint'
 import { t } from '@/lib/i18n/tr'
 import { useLayoutEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react'
@@ -54,7 +55,8 @@ export { BuildingList, PlotPicker } from './construction-register'
  */
 const BRANCH_ART: Record<ResearchBranch, ResearchId> = { ekonomi: 'tools', bilim: 'alimler', askeri: 'celik', denizcilik: 'pusula', mitoloji: 'ongun_toresi' }
 const researchState = (game: Game, id: ResearchId) => {
-  const reason = researchReason(game, id)
+  // A busy academy must not make unmet prerequisites look unlocked.
+  const reason = researchReason({ ...game, study: null }, id)
   return game.research.includes(id) ? 'done' : game.study?.id === id ? 'active' : reason && /gerekli|Önce/.test(reason) && !/devam eden/.test(reason) ? 'locked' : 'open'
 }
 const clockMin = (m: number) => { const h = Math.floor(m / 60), d = Math.floor(h / 24); return d ? `${d} g ${h % 24} sa` : h ? `${h} sa ${Math.round(m % 60)} dk` : `${Math.max(1, Math.round(m))} dk` }
@@ -62,6 +64,7 @@ export function ResearchPanel({ game, onResearch }: { game: Game; onResearch: (i
   const firstOpen = (b: ResearchBranch) => RESEARCH_IDS.find(id => RESEARCH[id].branch === b && !game.research.includes(id))
   const [branch, setBranch] = useState<ResearchBranch>(() => RESEARCH_BRANCHES.find(b => firstOpen(b.key))?.key ?? 'ekonomi')
   const [picked, setPicked] = useState<ResearchId | null>(null)
+  const detail = useRef<HTMLElement>(null)
   const ids = RESEARCH_IDS.filter(id => RESEARCH[id].branch === branch)
   const sel = picked && RESEARCH[picked].branch === branch ? picked : firstOpen(branch) ?? ids[0]
   const rate = rates(game).knowledge
@@ -72,7 +75,7 @@ export function ResearchPanel({ game, onResearch }: { game: Game; onResearch: (i
   const settle = useRef<number | undefined>(undefined)
   const go = (k: number) => {
     const el = pager.current
-    setBranch(RESEARCH_BRANCHES[k].key); setPicked(null)
+    setBranch(RESEARCH_BRANCHES[k].key); setPicked(null); detail.current?.closest<HTMLElement>('.bp-scroll')?.scrollTo({ top: 0, behavior: 'instant' })
     el?.scrollTo({ left: k * el.clientWidth, behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' })
   }
   const onPage = () => {
@@ -90,12 +93,7 @@ export function ResearchPanel({ game, onResearch }: { game: Game; onResearch: (i
     if (el) el.scrollLeft = RESEARCH_BRANCHES.findIndex(b => b.key === branch) * el.clientWidth
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
   return <div className="research-panel rs">
-    <div className="rs-stats">
-      <span><PersonArt kind="alim" size={26} /><b>{scientistCount(game)}</b><small>âlim</small></span>
-      <span><IlimArt className="rs-lamp" /><b>{Math.floor(game.resources.knowledge).toLocaleString('tr-TR')}</b><small>ilim</small></span>
-      <span><KumSaatiArt className="size-4" /><b>{formatRate(rate * 60, true)}</b><small>ilim/saat</small></span>
-      <span><AkceArt className="rs-lamp" /><b>{formatRate(-scientistUpkeepPerMinute(game) * 60)}</b><small>akçe/saat</small></span>
-    </div>
+    <p className="research-balance"><IlimArt aria-hidden="true" /><span><b>{Math.floor(game.resources.knowledge).toLocaleString('tr-TR')} ilim</b><small>{formatRate(rate, true)} ilim / dk</small></span></p>
     {game.study && <JobProgress job={game.study} now={game.updatedAt} />}
     {/* V2 Faz 2.6: sekme ızgarası yerine dal adlarıyla şerit; dallar yan yana kaydırılır. */}
     <div className="rs-strip" role="tablist" aria-label="Araştırma dalları">
@@ -109,9 +107,10 @@ export function ResearchPanel({ game, onResearch }: { game: Game; onResearch: (i
         </button>
       })}
     </div>
-    <article className={`rs-detail is-${state}`}>
-      <div className="rs-detail-top"><ResearchEmblem id={sel} size={72} state={state} />
+    <article ref={detail} tabIndex={-1} aria-label={`${r.name} araştırması`} className={`rs-detail is-${state}`}>
+      <div className="rs-detail-top"><ResearchEmblem id={sel} size={48} state={state} />
         <span><span className="eyebrow">{RESEARCH_BRANCHES.find(b => b.key === branch)!.title.toLocaleUpperCase('tr')} · {ids.indexOf(sel) + 1}. ARAŞTIRMA</span><h3>{r.name}</h3></span></div>
+      <p className="rs-effect"><b>Etkisi:</b> {r.description}</p>
       <ul className="rs-needs">
         {r.needs && <li className={game.research.includes(r.needs) ? 'is-ok' : 'is-no'}>{game.research.includes(r.needs) ? <Check className="size-3" /> : <LockKeyhole className="size-3" />}{RESEARCH[r.needs].name}</li>}
         <li className={game.buildings.medrese >= r.required ? 'is-ok' : 'is-no'}>{game.buildings.medrese >= r.required ? <Check className="size-3" /> : <LockKeyhole className="size-3" />}Medrese {r.required}. seviye</li>
@@ -124,23 +123,30 @@ export function ResearchPanel({ game, onResearch }: { game: Game; onResearch: (i
       {state === 'done' ? <p className="report-win"><Check className="size-4" /> Keşfedildi</p>
         : <GameButton disabled={!!reason} data-guide="research" onClick={() => onResearch(sel)}><BookOpen data-icon="inline-start" />{state === 'active' ? 'Sürüyor' : 'Araştır'}</GameButton>}
       {reason && state !== 'done' && state !== 'active' && <p className="fine-print">{reason}</p>}
-      <p className="rs-effect"><b>Etkisi:</b> {r.description}</p>
     </article>
+    <details className="research-account"><summary>Âlimler ve maaşlar</summary>
+    <div className="rs-stats">
+      <span><PersonArt kind="alim" size={26} /><b>{scientistCount(game)}</b><small>âlim</small></span>
+      <span><IlimArt className="rs-lamp" /><b>{Math.floor(game.resources.knowledge).toLocaleString('tr-TR')}</b><small>ilim</small></span>
+      <span><KumSaatiArt className="size-4" /><b>{formatRate(rate * 60, true)}</b><small>ilim/saat</small></span>
+      <span><AkceArt className="rs-lamp" /><b>{formatRate(-scientistUpkeepPerMinute(game) * 60)}</b><small>akçe/saat</small></span>
+    </div>
+    </details>
     {/* Her dalın araştırmaları dikey defterde; ön koşul ve kilitler mevcut kurallardan gelir. */}
     <div className="rs-branches" ref={pager} onScroll={onPage}>{RESEARCH_BRANCHES.map(b => {
       const list = RESEARCH_IDS.filter(id => RESEARCH[id].branch === b.key)
       // Dikey defter: her satır kendi ön koşulunu ve mevcut kilidini gösterir.
       const node = (id: ResearchId): ReactNode => {
-        const st = researchState(game, id), why = st === 'locked' ? researchReason(game, id) : null
+        const st = researchState(game, id), why = st === 'locked' ? researchReason({ ...game, study: null }, id) : null
         const note = st === 'done' ? 'Keşfedildi' : st === 'active' ? 'Âlimler çalışıyor' : why ?? `${RESEARCH[id].cost.toLocaleString('tr-TR')} ilim · ${RESEARCH[id].duration} sn`
-        return <li key={id} className={`is-${st}`}><button type="button" aria-pressed={id === sel} className={`is-${st}`} onClick={() => setPicked(id)}>
+        return <li key={id} className={`is-${st}`}><button type="button" aria-pressed={id === sel} className={`is-${st}`} onClick={() => { setPicked(id); requestAnimationFrame(() => { const card = detail.current; card?.scrollIntoView({ block: 'start', behavior: 'instant' }); card?.focus({ preventScroll: true }) }) }}>
           <span className="rs-node"><ResearchEmblem id={id} size={44} state={st} /><b className="rs-num" data-tiny>{list.indexOf(id) + 1}</b></span>
           <span className="rs-copy"><span className="rs-name">{RESEARCH[id].name}</span><small>{note}</small></span>
           {st === 'done' ? <Check className="rs-tick" aria-label="tamam" /> : st === 'locked' ? <LockKeyhole className="rs-tick" aria-label="kilitli" /> : null}
         </button></li>
       }
       return <div key={b.key} className="rs-scroll" inert={b.key !== branch}>
-        <ul className="rs-list rs-tree" aria-label={`${b.title} araştırma defteri`}>{list.map(node)}</ul>
+        <ul className="rs-list rs-tree" aria-label={`${b.title} araştırma defteri`}>{list.filter(id => !['done', 'locked'].includes(researchState(game, id))).map(node)}</ul><PageDetails title="Sonraki teknolojiler ve keşfedilenler"><ul className="rs-list rs-tree">{list.filter(id => ['done', 'locked'].includes(researchState(game, id))).map(node)}</ul></PageDetails>
       </div>
     })}</div>
   </div>
@@ -196,11 +202,22 @@ export function ArmyPanel({ game, onRecruit, onBuild, home, register = false, av
   // altında seçilen birliğin eğitim kartı; ordu özeti katlanır bölümde.
   if (home) {
     const units = UNIT_IDS.filter(id => UNITS[id].home === home).sort(byRole)
-    const chosen = pick && units.includes(pick) ? pick : units[0]
+    const chosen = pick && units.includes(pick) ? pick : units.find(id => !unitLock(game, id)) ?? units[0]
+    const queued = game.drills.filter(job => UNITS[job.id as UnitId].home === home)
+    const locked = units.filter(id => unitLock(game, id) && id !== chosen)
+    const inspectLocked = (id: UnitId) => {
+      setPick(id)
+      requestAnimationFrame(() => {
+        const card = document.getElementById(`barracks-training-${id}`)
+        card?.scrollIntoView({ block: 'start', behavior: 'instant' })
+        card?.focus({ preventScroll: true })
+      })
+    }
     return <div className="advisor-panel army-home">
+      {queued.length > 0 && <details className="training-queue-disclosure"><summary>Üretim kuyruğu · {queued.length} emir</summary><DrillQueue game={game} home={home} register={register || home === 'kisla' || home === 'tersane'} /></details>}
       {home === 'kisla' || home === 'tersane' || register ? <section className="barracks-roster" aria-label={home === 'tersane' ? 'Gemiler' : 'Birlikler'}>
-        <h2>{home === 'tersane' ? 'Gemiler' : 'Birlikler'}</h2>
-        {units.map(id => {
+        {!register && <h2>{home === 'tersane' ? 'Gemiler' : 'Birlikler'}</h2>}
+        {units.filter(id => !unitLock(game, id) || id === chosen).map(id => {
           const selected = id === chosen, lock = unitLock(game, id)
           return <section key={id} className={`barracks-entry${selected ? ' is-selected' : ''}${lock ? ' is-locked' : ''}`}>
             <button type="button" className="barracks-unit-toggle" aria-expanded={selected}
@@ -209,16 +226,16 @@ export function ArmyPanel({ game, onRecruit, onBuild, home, register = false, av
               <span><strong>{UNITS[id].name}</strong><small>Kayıtlı: {game.army[id]}{available && ` · Kullanılabilir: ${available[id] ?? 0}`}{lock ? ` · Kilitli: ${lock}` : ''}</small></span>
               <span className="barracks-unit-chevron" aria-hidden="true">{selected ? '⌃' : '⌄'}</span>
             </button>
-            <div id={`barracks-training-${id}`} hidden={!selected}>
+            <div id={`barracks-training-${id}`} tabIndex={-1} hidden={!selected}>
               {selected && <UnitCard game={game} id={id} onRecruit={onRecruit} compact />}
             </div>
           </section>
         })}
+        {locked.length > 0 && <PageDetails title="Kilitli birlikler ve açılma koşulları">{locked.map(id => <button key={id} type="button" className="barracks-unit-toggle" onClick={() => inspectLocked(id)}><BarracksPortrait id={id} /><span><strong>{UNITS[id].name}</strong><small>{unitLock(game, id)}</small></span></button>)}</PageDetails>}
       </section> : <>
         <UnitGallery game={game} units={units} chosen={chosen} onPick={setPick} />
         {chosen && <UnitCard key={chosen} game={game} id={chosen} onRecruit={onRecruit} />}
       </>}
-      <DrillQueue game={game} home={home} register={register || home === 'kisla' || home === 'tersane'} />
       {!register && <details className="army-more">
         <summary>{home === 'tersane' ? 'Donanma sicili ve kapasite' : 'Ordu durumu ve savaş meydanı'}</summary>
         {home === 'tersane' ? <><p className="army-note">Deniz gücü: {sea.attack} saldırı · {sea.defense} savunma. Garnizon: {garrisonUsed(game, 'deniz')} / {garrisonLimit(game, 'deniz')}.</p><p className="army-note">Kayıtlı sayılar seferdeki gemileri de içerir. Ticaret gemileri Liman’daki ortak filodan satın alınır. Toplam ordu bakımı: {Math.round(armyUpkeep(game) * 10) / 10} akçe/dk.</p></> : overview}
@@ -250,6 +267,7 @@ function UnitCard({ game, id, onRecruit, compact = false }: { game: Game; id: Un
   const batch = Math.max(1, Math.min(count, Math.max(1, max)))
   const set = (n: number) => setCount(Math.max(1, Math.min(Math.max(1, max), Math.round(n) || 1)))
   const reason = recruitReason(game, id, batch)
+  const afterTraining = { ...game, army: { ...game.army, [id]: game.army[id] + batch } }
   const information = <>
     <div className="unit-top">
       <span className="unit-portrait">{compact ? <BarracksPortrait id={id} /> : <UnitFigure id={id} size={60} />}</span>
@@ -275,9 +293,9 @@ function UnitCard({ game, id, onRecruit, compact = false }: { game: Game; id: Un
     </div>
   </>
   return <article className={`unit-card${compact ? ' barracks-training' : ''}`}>
-    {compact ? <details className="barracks-unit-information"><summary>{unit.branch === 'deniz' ? 'Gemi bilgisi ve savaş değerleri' : 'Birlik bilgisi ve savaş değerleri'}</summary>{information}</details> : information}
+    {!compact && information}
     {compact ? <div className="barracks-quantity">
-      <label htmlFor={`barracks-count-${id}`}>Üretim adedi <output htmlFor={`barracks-count-${id}`}>{batch}</output></label>
+      <label htmlFor={`barracks-count-${id}`}>Üretim adedi</label>
       <input type="range" min={1} max={Math.max(1, max)} value={batch} disabled={max < 1}
         aria-label={`${unit.name} sayısı`} style={{ ['--fill' as string]: `${((batch - 1) / Math.max(1, max - 1)) * 100}%` }} onChange={e => set(Number(e.target.value))} />
       <div className="barracks-range-limits"><span>1</span><span>En fazla {max}</span></div>
@@ -296,12 +314,16 @@ function UnitCard({ game, id, onRecruit, compact = false }: { game: Game; id: Un
       <small>en fazla {max}</small>
     </div>}
     </>}
+    <p className="fine-print" aria-label="Eğitimin ekonomiye etkisi">
+      {batch * unit.pop} kişi ayrılır · Ordu bakımı {formatRate(armyUpkeep(game))} → {formatRate(armyUpkeep(afterTraining))} akçe/dk
+    </p>
     <div className="unit-bottom">
       <CostDisplay value={unitCost(id, batch, game)} lux={unitLuxuryCost(id, batch, game)} />
       <span><KumSaatiArt className="size-3" /> {unitDuration(game, id, batch)} sn</span>
       <GameButton size="sm" disabled={!!reason} data-guide={`recruit-${id}`} onClick={() => onRecruit(id, batch)}>{unit.branch === 'deniz' ? `İnşa et · ${batch} gemi` : compact ? `${batch} ${unit.name} Eğit` : `${batch} eğit`}</GameButton>
     </div>
     {reason && <p className="fine-print">{reason}</p>}
+    {compact && <details className="barracks-unit-information"><summary>{unit.branch === 'deniz' ? 'Gemi bilgisi ve savaş değerleri' : 'Birlik bilgisi ve savaş değerleri'}</summary>{information}</details>}
   </article>
 }
 

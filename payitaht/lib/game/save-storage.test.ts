@@ -1,6 +1,7 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { initialEmpire } from './empire'
+import { EMPIRE_SCHEMA, initialEmpire } from './empire'
+import { NEWER_SAVE } from './engine'
 import {
   SAVE_BACKUP_KEY, SAVE_CORRUPT_KEY, SAVE_KEY,
   loadStoredEmpire, peekStoredEmpire, saveStoredEmpire,
@@ -57,4 +58,14 @@ test('peek may fall back to backup without mutating corrupt primary', () => {
   assert.deepEqual(result.empire, good)
   assert.equal(s.getItem(SAVE_KEY), broken)
   assert.equal(s.getItem(SAVE_CORRUPT_KEY), null)
+})
+
+test('title peek rejects a newer primary instead of offering an older backup', () => {
+  const s = new MemoryStore()
+  saveStoredEmpire(s, initialEmpire(1_000))
+  const newer = JSON.stringify({ ...initialEmpire(2_000), version: EMPIRE_SCHEMA + 1 })
+  s.setItem(SAVE_KEY, newer)
+  const before = [...s.map]
+  assert.deepEqual(peekStoredEmpire(s), { error: NEWER_SAVE })
+  assert.deepEqual([...s.map], before)
 })

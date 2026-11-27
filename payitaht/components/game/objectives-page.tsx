@@ -1,10 +1,13 @@
 'use client'
 
-import { useId, useRef, useState, type ReactNode } from 'react'
+import { useId, useLayoutEffect, useRef, useState, type ReactNode } from 'react'
 import { asset } from '@/lib/asset'
+import { ExpansionPlan } from './expansion-plan'
+import { expansionPlan, type ExpansionTarget } from '@/lib/game/expansion-plan'
 import { Castle, Gift, Check, ScrollText, ChevronRight, type IconProps } from './ui-art'
 import { ApprovedArt } from './approved-court-art'
 import { GameButton } from './game-button'
+import { PageDetails } from './mobile-page'
 import { AkceArt, KeresteArt, IlimArt } from './resource-art'
 import { OBJECTIVES, objectiveDone, formatNumber, type Game, type Resource } from '@/lib/game/engine'
 import { advanceEmpire, type Empire } from '@/lib/game/empire'
@@ -57,14 +60,24 @@ function RuleTitle({ children, count }: { children: ReactNode; count?: string })
 }
 
 /** A bespoke game screen; the engine remains responsible for every condition and payout. */
-export function ObjectivesPage({ game, empire, foundingCity, cityName, onClaim, onGo, onFoundingCity, run }: {
+export function ObjectivesPage({ game, empire, foundingCity, cityName, onClaim, onGo, onExpansion, onFoundingCity, run }: {
   game: Game; empire: Empire | undefined; foundingCity: boolean; cityName: string
-  onClaim: (id: string) => void; onGo: (id?: string) => void; onFoundingCity: () => void; run: Run
+  onExpansion: (target: ExpansionTarget) => void
+  onClaim: (id: string) => void; onGo: (id: string) => void; onFoundingCity: () => void; run: Run
 }) {
   const [tab, setTab] = useState<Tab>('city')
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [readyOnly, setReadyOnly] = useState(false)
   const id = useId(), tabs = useRef<(HTMLButtonElement | null)[]>([])
+  const pageRef = useRef<HTMLDivElement>(null), featureRef = useRef<HTMLElement>(null)
+  useLayoutEffect(() => { pageRef.current?.closest<HTMLElement>('.bp-scroll')?.scrollTo({ top: 0, behavior: 'instant' }) }, [tab])
+  useLayoutEffect(() => {
+    if (!selectedId || tab !== 'city' || !featureRef.current) return
+    const scroll = featureRef.current.closest<HTMLElement>('.bp-scroll')
+    if (scroll) scroll.scrollBy({ top: featureRef.current.getBoundingClientRect().top - scroll.getBoundingClientRect().top, behavior: 'instant' })
+    featureRef.current.focus({ preventScroll: true })
+  }, [selectedId, tab])
+  const expansion = empire ? expansionPlan(empire) : []
   const first = OBJECTIVES.find(o => !game.claimed.includes(o.id))
   const objective = OBJECTIVES.find(o => o.id === selectedId) ?? first ?? OBJECTIVES[OBJECTIVES.length - 1]
   const objectiveState: State = game.claimed.includes(objective.id) ? 'claimed' : objectiveDone(game, objective.id) ? 'ready' : 'ongoing'
@@ -72,6 +85,10 @@ export function ObjectivesPage({ game, empire, foundingCity, cityName, onClaim, 
   const cityDone = OBJECTIVES.filter(o => game.claimed.includes(o.id) || objectiveDone(game, o.id)).length
   const daily = empire?.daily
   const tasks = daily?.tasks.map(key => DAILY_TASKS.find(t => t.id === key)!).filter(Boolean) ?? []
+  const rankedTasks = [...tasks].sort((a, b) => {
+    const rank = (task: typeof a) => daily?.claimed.includes(task.id) ? 2 : empire && taskProgress(empire, task.id) >= task.need ? 0 : 1
+    return rank(a) - rank(b)
+  })
   const dailyReady = empire ? tasks.filter(t => !daily?.claimed.includes(t.id) && taskProgress(empire, t.id) >= t.need).length : 0
   const milestoneReady = empire ? MILESTONES.filter(m => !empire.milestones?.includes(m.id) && milestoneDone(empire, m)).length : 0
   const counts = { city: cityReady.length, daily: dailyReady + (daily && daily.loginDay !== daily.day ? 1 : 0), milestones: milestoneReady }
@@ -89,12 +106,23 @@ export function ObjectivesPage({ game, empire, foundingCity, cityName, onClaim, 
     return rank(a) - rank(b) || milestoneProgress(empire, b) / b.need - milestoneProgress(empire, a) / a.need
   }).filter(m => !readyOnly || (empire && !empire.milestones?.includes(m.id) && milestoneDone(empire, m)))
 
-  return <div className="quest-court">
-    <section className="quest-court-scene" aria-label="Divan görev dairesi">
-      <img src={asset('/images/game/terrain/mandates-office.webp')} alt="" width={960} height={480} decoding="async" />
-      <div className="quest-court-speech"><small>{cityName} Divanı</small><p>{totalReady ? 'Emeklerinin karşılığı seni bekliyor.' : 'Bir şehrin kaderi, tamamlanan her fermanla yazılır.'}</p></div>
-    </section>
-    <h2 className="quest-court-ribbon">Fermanlar ve görevler</h2>
+  const foundation = <>
+        <RuleTitle count={`${cityDone} / ${OBJECTIVES.length} tamamlandı`}>Şehrin yükselişi</RuleTitle>
+        {!foundingCity ? <article className="quest-colony"><img src={scene('harbour')} alt="" /><h3>Yeni bir ufuk</h3><p>Bu koloni kendi yolunu çizecek. Başlangıç fermanların kurucu şehrinde seni bekliyor.</p><GameButton onClick={onFoundingCity}>Kurucu şehre git<ChevronRight aria-hidden="true" /></GameButton></article> : <>
+          <article ref={featureRef} tabIndex={-1} className={`quest-feature is-${objectiveState}`}>
+            <div className="quest-feature-picture"><img src={scene(objectiveScene(objective.go))} alt="" /><span className="quest-chapter-plaque">Ferman {OBJECTIVES.indexOf(objective) + 1}</span><Seal state={objectiveState} /><h3>{objective.title}</h3></div>
+            <div className="quest-feature-body"><p>{objective.description}</p><div className="quest-ornament" aria-hidden="true">✧</div><span className="quest-reward-title">Fermanın mükâfatı</span><Rewards reward={{ gold: objective.reward }} />
+              {objectiveState === 'ongoing' ? <GameButton className="quest-claim" onClick={() => onGo(objective.id)}><ScrollText painted aria-hidden="true" />Fermanı yerine getir<ChevronRight aria-hidden="true" /></GameButton> : <Claim state={objectiveState} reward={{ gold: objective.reward }} onClaim={() => onClaim(objective.id)} />}
+            </div>
+          </article>
+          <PageDetails title="Diğer şehir fermanları">          <div className="quest-chapters" aria-label="Şehir fermanları">{OBJECTIVES.map((o, index) => <button key={o.id} type="button" aria-label={`Ferman ${index + 1}: ${o.title}`} aria-pressed={objective.id === o.id}
+            className={game.claimed.includes(o.id) ? 'is-claimed' : objectiveDone(game, o.id) ? 'is-ready' : ''} onClick={() => setSelectedId(o.id)}><span>{index + 1}</span>{game.claimed.includes(o.id) && <Check aria-hidden="true" />}</button>)}</div>
+</PageDetails>
+          {cityReady.length > 1 && <div className="quest-treasury-call"><img src={scene('treasury')} alt="" /><span><b>{cityReady.length} ferman tamamlandı</b><small>{formatNumber(cityReady.reduce((sum, o) => sum + o.reward, 0))} akçe seni bekliyor</small></span><GameButton onClick={event => { flyGoods(event.currentTarget, { gold: cityReady.reduce((sum, o) => sum + o.reward, 0) }); cityReady.forEach(o => onClaim(o.id)) }}>Hepsini al</GameButton></div>}
+          <Progress value={game.claimed.length} need={OBJECTIVES.length} label="Şehir fermanları · ödülü alınan" />
+        </>}
+  </>
+  return <div ref={pageRef} className="quest-court">
     <div className="quest-court-tabs" role="tablist" aria-label="Görev defteri">{TABS.map(({ id: key, label, Icon }, index) => <button type="button" key={key}
       ref={el => { tabs.current[index] = el }} id={`${id}-${key}-tab`} role="tab" aria-selected={tab === key} aria-controls={`${id}-${key}-page`} tabIndex={tab === key ? 0 : -1}
       onClick={() => setTab(key)} onKeyDown={event => {
@@ -108,28 +136,20 @@ export function ObjectivesPage({ game, empire, foundingCity, cityName, onClaim, 
       }}><Icon painted aria-hidden="true" /><span>{label}</span>{counts[key] > 0 && <b className="quest-tab-count" aria-label={`${counts[key]} ödül hazır`}>{counts[key]}</b>}</button>)}</div>
     <section className="quest-court-book" role="tabpanel" id={`${id}-${tab}-page`} aria-labelledby={`${id}-${tab}-tab`}>
       {tab === 'city' && <>
-        <RuleTitle count={`${cityDone} / ${OBJECTIVES.length} tamamlandı`}>Şehrin yükselişi</RuleTitle>
-        {!foundingCity ? <article className="quest-colony"><img src={scene('harbour')} alt="" /><h3>Yeni bir ufuk</h3><p>Bu koloni kendi yolunu çizecek. Başlangıç fermanların kurucu şehrinde seni bekliyor.</p><GameButton onClick={onFoundingCity}>Kurucu şehre git<ChevronRight aria-hidden="true" /></GameButton></article> : <>
-          <div className="quest-chapters" aria-label="Şehir fermanları">{OBJECTIVES.map((o, index) => <button key={o.id} type="button" aria-label={`Ferman ${index + 1}: ${o.title}`} aria-pressed={objective.id === o.id}
-            className={game.claimed.includes(o.id) ? 'is-claimed' : objectiveDone(game, o.id) ? 'is-ready' : ''} onClick={() => setSelectedId(o.id)}><span>{index + 1}</span>{game.claimed.includes(o.id) && <Check aria-hidden="true" />}</button>)}</div>
-          <article className={`quest-feature is-${objectiveState}`}>
-            <div className="quest-feature-picture"><img src={scene(objectiveScene(objective.go))} alt="" /><span className="quest-chapter-plaque">Ferman {OBJECTIVES.indexOf(objective) + 1}</span><Seal state={objectiveState} /><h3>{objective.title}</h3></div>
-            <div className="quest-feature-body"><p>{objective.description}</p><div className="quest-ornament" aria-hidden="true">✧</div><span className="quest-reward-title">Fermanın mükâfatı</span><Rewards reward={{ gold: objective.reward }} />
-              {objectiveState === 'ongoing' ? <GameButton className="quest-claim" onClick={() => onGo(objective.id)}><ScrollText painted aria-hidden="true" />Fermanı yerine getir<ChevronRight aria-hidden="true" /></GameButton> : <Claim state={objectiveState} reward={{ gold: objective.reward }} onClaim={() => onClaim(objective.id)} />}
-            </div>
-          </article>
-          {cityReady.length > 1 && <div className="quest-treasury-call"><img src={scene('treasury')} alt="" /><span><b>{cityReady.length} ferman tamamlandı</b><small>{formatNumber(cityReady.reduce((sum, o) => sum + o.reward, 0))} akçe seni bekliyor</small></span><GameButton onClick={event => { flyGoods(event.currentTarget, { gold: cityReady.reduce((sum, o) => sum + o.reward, 0) }); cityReady.forEach(o => onClaim(o.id)) }}>Hepsini al</GameButton></div>}
-          <Progress value={game.claimed.length} need={OBJECTIVES.length} label="Şehir fermanları · ödülü alınan" />
+        {foundingCity && first ? <>{foundation}{expansion.length > 0 && <PageDetails title="Koloni yolculuğu"><ExpansionPlan steps={expansion} onGo={onExpansion} /></PageDetails>}</> : <>
+          <ExpansionPlan steps={expansion} onGo={onExpansion} />
+          {expansion.length ? <PageDetails title="Kurucu şehrin fermanları">{foundation}</PageDetails> : foundation}
         </>}
       </>}
       {tab === 'daily' && <>
         <RuleTitle count={`${daily?.claimed.length ?? 0} / ${tasks.length} görev ödülü alındı`}>Bugünün fermanları</RuleTitle>
         {daily && <section className="quest-login">
           <div className="quest-login-head"><img src={scene('treasury')} alt="" /><span><small>DIVANIN ARMAĞANI</small><h3>{streak}. gün hediyesi</h3><p>Her dönüşün, hazinene bereket.</p></span><Seal state={loginDone ? 'claimed' : 'ready'} /></div>
-          <div className="quest-login-days" aria-label="Yedi günlük giriş ödülü">{Array.from({ length: 7 }, (_, index) => <span key={index} className={index + 1 === loginDay ? 'is-current' : index + 1 < loginDay ? 'is-past' : ''}><small>{index + 1}. gün</small><AkceArt aria-hidden="true" /><b>{formatNumber(loginReward(index + 1).gold)}</b></span>)}</div>
+
           <div className="quest-login-foot"><Rewards reward={loginReward(streak)} /><GameButton disabled={loginDone} aria-label={loginDone ? 'Günlük giriş ödülü alındı' : 'Günlük giriş ödülünü al'} onClick={event => { flyGoods(event.currentTarget, loginReward(streak)); actDaily() }}>{loginDone ? 'Alındı' : 'Hediyeni al'}</GameButton></div>
+          <PageDetails title="Yedi günlük hediye takvimi">          <div className="quest-login-days" aria-label="Yedi günlük giriş ödülü">{Array.from({ length: 7 }, (_, index) => <span key={index} className={index + 1 === loginDay ? 'is-current' : index + 1 < loginDay ? 'is-past' : ''}><small>{index + 1}. gün</small><AkceArt aria-hidden="true" /><b>{formatNumber(loginReward(index + 1).gold)}</b></span>)}</div></PageDetails>
         </section>}
-        <div className="quest-daily-list">{empire && tasks.map(t => {
+        <div className="quest-daily-list">{empire && rankedTasks.map(t => {
           const value = taskProgress(empire, t.id), state: State = daily?.claimed.includes(t.id) ? 'claimed' : value >= t.need ? 'ready' : 'ongoing'
           return <article key={t.id} className={`quest-daily-card is-${state}`}><div className="quest-daily-intro"><img src={scene(taskScene[t.key] ?? 'capital')} alt="" /><span><Seal state={state} /><h3>{t.text}</h3></span></div><Progress value={value} need={t.need} label="Görev ilerlemesi" /><footer><Rewards reward={t.reward} /><Claim state={state} reward={t.reward} onClaim={() => actDaily(t.id)} /></footer></article>
         })}</div>
@@ -140,10 +160,16 @@ export function ObjectivesPage({ game, empire, foundingCity, cityName, onClaim, 
         <div className="quest-achievement-filter"><button type="button" aria-pressed={!readyOnly} onClick={() => setReadyOnly(false)}>Bütün nişanlar</button><button type="button" aria-pressed={readyOnly} onClick={() => setReadyOnly(true)}>Ödül hazır · {milestoneReady}</button></div>
         <div className="quest-achievements">{empire && achievements.map(m => {
           const state: State = empire.milestones?.includes(m.id) ? 'claimed' : milestoneDone(empire, m) ? 'ready' : 'ongoing'
-          return <article key={m.id} className={`quest-achievement is-${state}`}><div className="quest-achievement-picture"><img src={scene(milestoneScene(m.id))} alt="" loading="lazy" /><Seal state={state} /><span className="quest-medal" aria-hidden="true"><ApprovedArt name="laurel" /></span></div><h3>{m.title}</h3><p>{m.text}</p><Progress value={milestoneProgress(empire, m)} need={m.need} label="Başarım" /><Rewards reward={m.reward} /><Claim state={state} reward={m.reward} onClaim={() => actMilestone(m.id)} /></article>
+          return <details key={m.id} className={`quest-achievement is-${state}`} open={state === 'ready'}><summary><span className="quest-achievement-picture"><img src={scene(milestoneScene(m.id))} alt="" loading="lazy" /><span className="quest-medal" aria-hidden="true"><ApprovedArt name="laurel" /></span></span><span><h3>{m.title}</h3><Seal state={state} /></span></summary><div className="quest-achievement-body"><p>{m.text}</p><Progress value={milestoneProgress(empire, m)} need={m.need} label="Başarım" /><Rewards reward={m.reward} /><Claim state={state} reward={m.reward} onClaim={() => actMilestone(m.id)} /></div></details>
         })}</div>
         {readyOnly && !achievements.length && <div className="quest-empty"><img src={scene('treasury')} alt="" /><h3>Sıradaki nişan seni bekliyor</h3><p>Henüz alınmayı bekleyen bir başarım ödülü yok.</p><GameButton variant="outline" onClick={() => setReadyOnly(false)}>Bütün nişanları göster</GameButton></div>}
       </>}
     </section>
+    <PageDetails title="Ferman dairesi"><section className="quest-court-scene" aria-label="Divan görev dairesi">
+      <img src={asset('/images/game/terrain/mandates-office.webp')} alt="" width={960} height={480} decoding="async" />
+      <div className="quest-court-speech"><small>{cityName} Divanı</small><p>{totalReady ? 'Emeklerinin karşılığı seni bekliyor.' : 'Bir şehrin kaderi, tamamlanan her fermanla yazılır.'}</p></div>
+    </section>
+    <h2 className="quest-court-ribbon">Fermanlar ve görevler</h2>
+</PageDetails>
   </div>
 }

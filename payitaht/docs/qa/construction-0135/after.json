@@ -1,0 +1,70 @@
+{
+  "baseline": false,
+  "cases": [
+    {
+      "name": "catalogue first choice",
+      "width": 360,
+      "firstY": 483.78125,
+      "viewportBottom": 752.34375,
+      "firstVisible": true
+    },
+    {
+      "name": "chosen plot and cost committed only on confirmation",
+      "width": 360,
+      "plot": 9
+    },
+    {
+      "name": "queued building is findable and Turkish search reaches locked detail",
+      "width": 360
+    },
+    {
+      "name": "catalogue first choice",
+      "width": 390,
+      "firstY": 483.78125,
+      "viewportBottom": 744.703125,
+      "firstVisible": true
+    },
+    {
+      "name": "chosen plot and cost committed only on confirmation",
+      "width": 390,
+      "plot": 9
+    },
+    {
+      "name": "queued building is findable and Turkish search reaches locked detail",
+      "width": 390
+    },
+    {
+      "name": "catalogue first choice",
+      "width": 430,
+      "firstY": 483.78125,
+      "viewportBottom": 740,
+      "firstVisible": true
+    },
+    {
+      "name": "chosen plot and cost committed only on confirmation",
+      "width": 430,
+      "plot": 9
+    },
+    {
+      "name": "queued building is findable and Turkish search reaches locked detail",
+      "width": 430
+    },
+    {
+      "name": "sea plot only lists compatible buildings and commits selected shore"
+    },
+    {
+      "name": "pirate islet excludes land and ordinary harbour buildings"
+    },
+    {
+      "name": "exhausted islet explains the next step without nonexistent filters"
+    },
+    {
+      "name": "full queue exposes reason without accepting another order"
+    },
+    {
+      "name": "large text preserves action size and avoids horizontal overflow"
+    }
+  ],
+  "errors": [],
+  "missing": []
+}

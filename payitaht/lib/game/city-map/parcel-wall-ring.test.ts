@@ -1,9 +1,33 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import { CITY_ROADS, PARCEL_PLOTS, PARCEL_WORLD, parcelContainsPoint } from './parcel-city'
-import { CITY_WALL_PLAN, wallDistanceToSegment, wallSpanDepth, wallTowerDepth } from './parcel-wall-ring'
+import { CITY_WALL_PLAN, WALL_MASONRY, wallMasonrySlices, wallDistanceToSegment, wallSpanDepth, wallTowerDepth, wallFaceLength } from './parcel-wall-ring'
 
 const distance=(a:{x:number;y:number},b:{x:number;y:number})=>Math.hypot(a.x-b.x,a.y-b.y)
+
+test('masonry continues across bends with fixed stone scale and no uncovered slices',()=>{
+  for(const [i,span] of CITY_WALL_PLAN.spans.entries()){
+    const length=wallFaceLength(span)
+    const slices=wallMasonrySlices(length,span.masonryOffset)
+    let covered=0
+    for(const slice of slices){
+      assert.ok(Math.abs(slice.x-covered)<1e-7)
+      assert.ok(slice.width>0&&slice.sourceWidth>0)
+      assert.ok(slice.sourceX>=0&&slice.sourceX+slice.sourceWidth<=1+1e-8)
+      assert.ok(Math.abs(slice.width/slice.sourceWidth-WALL_MASONRY.width)<1e-7)
+      covered+=slice.width
+    }
+    assert.ok(Math.abs(covered-length)<1e-7)
+    const next=CITY_WALL_PLAN.spans[i+1]
+    if(next&&distance(span.end,next.start)<.01){
+      assert.ok(Math.abs(next.masonryOffset-span.masonryOffset-length)<1e-7)
+    }else if(next)assert.equal(next.masonryOffset,0)
+  }
+  const edge=wallMasonrySlices(31,WALL_MASONRY.width-1)
+  assert.equal(edge[0].width,1)
+  assert.equal(edge[1].sourceX,0)
+  assert.equal(edge[1].width,30)
+})
 
 test('bastions at concave bends stay in front of both incident curtain walls',()=>{
   for(const point of CITY_WALL_PLAN.towers){

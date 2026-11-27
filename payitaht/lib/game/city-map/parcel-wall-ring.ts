@@ -5,11 +5,32 @@ export type WallSpan = {
   end: ParcelPoint
   backStart: ParcelPoint
   backEnd: ParcelPoint
+  /** Distance along this unbroken curtain, including previous bends. */
+  masonryOffset: number
+}
+
+// The same physical stone courses are used at every wall level. Raising a
+// wall reveals more courses instead of stretching three rows into boulders.
+export const WALL_MASONRY = { width: 72, height: 24 }
+
+export function wallMasonrySlices(length:number,offset:number){
+  const slices:Array<{x:number;width:number;sourceX:number;sourceWidth:number}>=[]
+  for(let x=0;x<length-1e-8;){
+    const phase=((offset+x)%WALL_MASONRY.width+WALL_MASONRY.width)%WALL_MASONRY.width
+    const width=Math.min(length-x,WALL_MASONRY.width-phase)
+    slices.push({x,width,sourceX:phase/WALL_MASONRY.width,sourceWidth:width/WALL_MASONRY.width})
+    x+=width
+  }
+  return slices
 }
 
 export const wallSpanDepth=(span:WallSpan)=>Math.max(
   (span.start.y+span.end.y)/2,(span.backStart.y+span.backEnd.y)/2,
 )+1
+
+export const wallFaceLength=(span:WallSpan)=>span.start.y+span.end.y>=span.backStart.y+span.backEnd.y
+  ? Math.hypot(span.end.x-span.start.x,span.end.y-span.start.y)
+  : Math.hypot(span.backEnd.x-span.backStart.x,span.backEnd.y-span.backStart.y)
 
 /** A bend's two curtain faces must never paint over its bastion. */
 export function wallTowerDepth(point:ParcelPoint,spans:WallSpan[]){
@@ -63,7 +84,12 @@ function toSpans(line:ParcelPoint[]):WallSpan[]{
     const offset=midpoint(before,after)
     return {x:point.x+offset.x,y:point.y+offset.y}
   })
-  return line.slice(1).map((end,i)=>({start:line[i],end,backStart:back[i],backEnd:back[i+1]}))
+  let masonryOffset=0
+  return line.slice(1).map((end,i)=>{
+    const span={start:line[i],end,backStart:back[i],backEnd:back[i+1],masonryOffset}
+    masonryOffset+=wallFaceLength(span)
+    return span
+  })
 }
 
 const spans=runs.flatMap(toSpans)

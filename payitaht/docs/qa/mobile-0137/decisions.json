@@ -1,0 +1,159 @@
+{
+  "cases": [
+    {
+      "name": "workforce preview, revert and commit",
+      "role": "Oduncular",
+      "width": 360,
+      "confirmBottom": 601
+    },
+    {
+      "name": "workforce preview, revert and commit",
+      "role": "Âlimler",
+      "width": 360,
+      "confirmBottom": 601
+    },
+    {
+      "name": "workforce preview, revert and commit",
+      "role": "Esnaf",
+      "width": 360,
+      "confirmBottom": 569
+    },
+    {
+      "name": "shared tabs reset deep explanation scroll",
+      "width": 360
+    },
+    {
+      "name": "island worker preview, revert and commit",
+      "site": "forest",
+      "width": 360
+    },
+    {
+      "name": "island worker preview, revert and commit",
+      "site": "island",
+      "width": 360
+    },
+    {
+      "name": "Vizier priority and production visible, construction link works",
+      "width": 360
+    },
+    {
+      "name": "daily gift visible before calendar, paid once",
+      "width": 360
+    },
+    {
+      "name": "ready milestone visible and one-time claim retained",
+      "width": 360
+    },
+    {
+      "name": "workforce preview, revert and commit",
+      "role": "Oduncular",
+      "width": 390,
+      "confirmBottom": 601
+    },
+    {
+      "name": "workforce preview, revert and commit",
+      "role": "Âlimler",
+      "width": 390,
+      "confirmBottom": 601
+    },
+    {
+      "name": "workforce preview, revert and commit",
+      "role": "Esnaf",
+      "width": 390,
+      "confirmBottom": 569
+    },
+    {
+      "name": "shared tabs reset deep explanation scroll",
+      "width": 390
+    },
+    {
+      "name": "island worker preview, revert and commit",
+      "site": "forest",
+      "width": 390
+    },
+    {
+      "name": "island worker preview, revert and commit",
+      "site": "island",
+      "width": 390
+    },
+    {
+      "name": "Vizier priority and production visible, construction link works",
+      "width": 390
+    },
+    {
+      "name": "daily gift visible before calendar, paid once",
+      "width": 390
+    },
+    {
+      "name": "ready milestone visible and one-time claim retained",
+      "width": 390
+    },
+    {
+      "name": "workforce preview, revert and commit",
+      "role": "Oduncular",
+      "width": 430,
+      "confirmBottom": 601
+    },
+    {
+      "name": "workforce preview, revert and commit",
+      "role": "Âlimler",
+      "width": 430,
+      "confirmBottom": 601
+    },
+    {
+      "name": "workforce preview, revert and commit",
+      "role": "Esnaf",
+      "width": 430,
+      "confirmBottom": 569
+    },
+    {
+      "name": "shared tabs reset deep explanation scroll",
+      "width": 430
+    },
+    {
+      "name": "island worker preview, revert and commit",
+      "site": "forest",
+      "width": 430
+    },
+    {
+      "name": "island worker preview, revert and commit",
+      "site": "island",
+      "width": 430
+    },
+    {
+      "name": "Vizier priority and production visible, construction link works",
+      "width": 430
+    },
+    {
+      "name": "daily gift visible before calendar, paid once",
+      "width": 430
+    },
+    {
+      "name": "ready milestone visible and one-time claim retained",
+      "width": 430
+    },
+    {
+      "name": "cargo form still ships the requested stock once"
+    },
+    {
+      "name": "leaving administration clears destructive confirmation without deleting city"
+    },
+    {
+      "name": "unbuilt workplace explains lock instead of enabling workers"
+    },
+    {
+      "name": "ready daily task ranks first, payment persists, claimed task moves last"
+    },
+    {
+      "name": "new player goal stays visible, chapter selection focuses its actual detail"
+    },
+    {
+      "name": "unfinished founding reward stays primary even after expansion unlocks"
+    },
+    {
+      "name": "large text reflows and workforce action remains reachable"
+    }
+  ],
+  "errors": [],
+  "missing": []
+}

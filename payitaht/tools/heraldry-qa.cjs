@@ -11,12 +11,15 @@ async function assertReferenceLayout(page, label) {
     contentWidth: el.clientWidth, viewport: innerWidth,
     brokenArt: [...el.querySelectorAll('img')].filter(img => img.complete && !img.naturalWidth).map(img => img.src),
   }))
-  if (metrics.overflow || metrics.documentOverflow || metrics.nav === 'none' || metrics.hud !== 'none' || metrics.contentWidth < metrics.viewport - 4 || metrics.brokenArt.length) throw new Error(`${label}: approved portrait composition failed ${JSON.stringify(metrics)}`)
+  if (metrics.overflow || metrics.documentOverflow || metrics.nav === 'none' || metrics.hud === 'none' || metrics.contentWidth < metrics.viewport - 4 || metrics.brokenArt.length) throw new Error(`${label}: approved portrait composition failed ${JSON.stringify(metrics)}`)
 }
 
 async function checkHeraldry(page, label, out) {
   await page.getByRole('button', { name: /^Hükümdar profili:/ }).click()
-  await page.getByRole('heading', { name: 'Hükümdar', exact: true }).waitFor()
+  const identity = page.locator('.royal-identity h2')
+  await identity.waitFor()
+  const ruler = await page.evaluate(() => JSON.parse(localStorage.getItem('payitaht-adalari-v1'))?.profile?.ruler)
+  if (!(await identity.innerText()).trim() || (ruler && await identity.innerText() !== ruler)) throw new Error(`${label}: profile does not show the saved ruler`)
   await page.getByRole('heading', { name: /Unvan yolu/ }).waitFor()
   if (await page.locator('.royal-summary > span').count() !== 3) throw new Error(`${label}: missing real profile summaries`)
   if (await page.locator('.royal-ledger > div').count() !== 4) throw new Error(`${label}: missing illustrated score ledger`)

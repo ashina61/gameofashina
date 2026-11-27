@@ -9,8 +9,8 @@ import { GameButton } from './game-button'
 import { ChevronRight, X } from './ui-art'
 
 /** Modeless building inspector: the city remains animated and touchable. */
-export function BuildingPreview({ game, id, onClose, onDetails, onBuild }: {
-  game: Game; id: BuildingId
+export function BuildingPreview({ game, id, plot, onClose, onDetails, onBuild }: {
+  game: Game; id: BuildingId; plot?: number
   onClose: () => void; onDetails: () => void; onBuild: () => void
 }) {
   const building = BUILDINGS[id]
@@ -36,10 +36,10 @@ export function BuildingPreview({ game, id, onClose, onDetails, onBuild }: {
     return () => window.removeEventListener('keydown', close)
   }, [onClose])
   const facing = id === 'liman' || id === 'tersane' ? game.coastFacing[id] : undefined
-  return <section className="building-inspector" role="dialog" aria-modal="false" aria-labelledby="building-inspector-title">
+  return <section className="building-inspector" data-building={id} role="dialog" aria-modal="false" aria-labelledby="building-inspector-title">
     <header className="building-inspector-header">
       <div>
-        <small>{building.category} · {level ? `Seviye ${level}` : 'Kurulmadı'}</small>
+        <small>{building.category} · {plot !== undefined ? `Arsa ${plot}` : level ? `Seviye ${level}` : 'Kurulmadı'}</small>
         <h2 id="building-inspector-title">{building.name}</h2>
       </div>
       <button ref={closeButton} type="button" className="building-inspector-close" onClick={onClose} aria-label="Binayı kapat"><X /></button>
@@ -49,11 +49,14 @@ export function BuildingPreview({ game, id, onClose, onDetails, onBuild }: {
         {building.art && <img src={cityBuildingImage(id, Math.max(1, level), facing)} alt="" width={112} height={112} decoding="async" />}
         <p>{building.description}</p>
       </div>
-      <BuildingEffects game={game} id={id} level={level} max={MAX_LEVEL[id]} />
+      {level ? <BuildingEffects game={game} id={id} level={level} max={MAX_LEVEL[id]} /> : <details className="building-inspector-effects">
+        <summary>Yapının katkısını incele</summary>
+        <BuildingEffects game={game} id={id} level={level} max={MAX_LEVEL[id]} />
+      </details>}
     </div>
-    <GameButton variant="ghost" className="building-inspector-details" onClick={onDetails}>
+    {plot === undefined && <GameButton variant="ghost" className="building-inspector-details" onClick={onDetails}>
       Yapıyı yönet <ChevronRight aria-hidden="true" />
-    </GameButton>
+    </GameButton>}
     <UpgradeDock game={game} id={id} onBuild={onBuild} />
   </section>
 }

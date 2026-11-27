@@ -86,6 +86,7 @@ export function peekStoredEmpire(store: SaveStore): StoredSave {
     const backup = parse(store.getItem(SAVE_BACKUP_KEY))
     return backup ? { empire: backup, recovered: true } : {}
   } catch (primaryError) {
+    if (primaryError instanceof Error && primaryError.message === NEWER_SAVE) return { error: NEWER_SAVE }
     try {
       const backup = parse(store.getItem(SAVE_BACKUP_KEY))
       if (backup) return {

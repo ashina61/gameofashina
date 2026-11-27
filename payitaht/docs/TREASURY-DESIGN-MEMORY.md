@@ -1,3 +1,5 @@
+**22 Kasım — 0.136.0:** Kullanıcının tek bakışta özet isteği önceki büyük kart düzenini değiştirir. Güncel yerleşim, ana/detay ayrımı ve denetim `TREASURY-OVERVIEW-0.136.md` içindedir. Aynı sanat ve bütün motor bağlantıları korunur; yeni araç `tools/treasury-overview-qa.cjs`.
+
 # Hazinedarın defterleri — 0.93.0 / SW105
 
 10 Ekim 2026. MASTER-UI-STANDARD.md günceldir.

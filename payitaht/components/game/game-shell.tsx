@@ -3,21 +3,25 @@
 import { useEffect, useRef, useState, type CSSProperties } from 'react'
 import { X, Check } from './ui-art'
 
+import { saveBackupFile } from '@/lib/backup-file'
 import { SettingsPanel } from './settings-panel'
 import { QuestChip } from './quest-chip'
+import { ExpansionChip } from './expansion-plan'
+import { expansionPlan, type ExpansionTarget } from '@/lib/game/expansion-plan'
 import { GuideSpot } from './guide-spot'
-import { FirstRunGuide, shouldShowGuide } from './first-run-guide'
 import { AwaySummaryCard } from './away-summary'
 import type { AwaySummary } from '@/lib/game/away'
 import { AlliancePanel } from './alliance-panel'
 import { bannerLook } from '@/lib/game/banner'
 import { citySiegeAppearance } from '@/lib/game/siege-appearance'
+import { cityLifeFleet } from '@/lib/game/city-life-plan'
 import { BannerContext } from './building-art'
 import { play, wantAmbience, type Sfx } from '@/lib/sfx'
 import { toast } from 'sonner'
 import { Toaster } from '@/components/ui/sonner'
 
 import { CityScene } from './city-scene'
+import { CityAgenda } from './city-agenda'
 import { BuildingList, ResearchPanel, PlotPicker, IslandPanel, colonyBlocker, colonyCostText } from './game-panels'
 import { ArmyRegister } from './army-register'
 import { WorldMap } from './world-map'
@@ -40,7 +44,8 @@ import type { AdvisorId } from './advisor-portraits'
 import { takeAwaySummary, useGame } from '@/hooks/use-game'
 import { usePwa } from '@/hooks/use-pwa'
 import { useAlerts, useNotifySetting } from '@/hooks/use-alerts'
-import { BUILDINGS, BUILDING_IDS, GUIDED_STEPS, OBJECTIVES, PLOTS, RESEARCH, objectiveDone, type BuildingId, type Command } from '@/lib/game/engine'
+import { BUILDINGS, BUILDING_IDS, OBJECTIVES, PLOTS, RESEARCH, freePlotsFor, objectiveDone, takesPlot, type BuildingId, type Command } from '@/lib/game/engine'
+import { firstSessionStep } from '@/lib/game/first-session'
 import { cn } from '@/lib/utils'
 import { SovereignPage } from './sovereign-page'
 import { JournalPage, ChangelogPage } from './chronicle-pages'
@@ -85,12 +90,13 @@ export default function GameShell({ onTitle }: { onTitle?: () => void } = {}) {
   useAlerts(empire)
   const notify = useNotifySetting()
   const [panel, setPanel] = useState<Panel>(null)
-  // Yeni oyuncu: ilk açılışta ekranı tanıtan kısa rehber (bir kez).
-  const [guide, setGuide] = useState(false)
+  const [resourcesOpen, setResourcesOpen] = useState(false)
+  const [agendaOpen, setAgendaOpen] = useState(false)
   // Dönüşte "yokluğunda olanlar" özeti (kayıt ilk yüklendiğinde bir kez).
   const [away, setAway] = useState<AwaySummary | null>(null)
   const [selected, setSelected] = useState<BuildingId | null>(null)
   const [buildingDetails, setBuildingDetails] = useState(false)
+  const [placement, setPlacement] = useState<{ id: BuildingId; plot: number | null } | null>(null)
   /** Oyuncunun haritada dokundugu BOS arsa; yapi secimi buradan yapilir. */
   const [plot, setPlot] = useState<number | null>(null)
   const saveImportRef = useRef<HTMLInputElement>(null)
@@ -132,21 +138,11 @@ export default function GameShell({ onTitle }: { onTitle?: () => void } = {}) {
     if (missionCount < prev) play('march')
     window.dispatchEvent(new CustomEvent('payitaht-city-fx', { detail: missionCount > prev ? 'sail' : 'march' }))
   }, [missionCount])
-  /*
-   * İNŞA KİPİ.
-   *
-   * "İnşa" artik once bir liste acmiyor, HARITAYI insa kipine sokuyor: bos
-   * arsalar beliriyor, oyuncu yerini secip yapisini oradan kuruyor. Liste
-   * kaybolmadi - ipucu cubugundaki "Listeden seç" onu aciyor - ama varsayilan
-   * akis artik haritanin uzerinde geciyor.
-   */
   /** TAŞIMA kipi: hangi bina taşınıyor + o an hedeflenen arsa (✓ ile onaylanır). */
   const [moving, setMoving] = useState<BuildingId | null>(null)
   const [movePlot, setMovePlot] = useState<number | null>(null)
   /* SES: şehirde (isteğe bağlı) ortam sesi; yeni bir düşman ordusu yola çıkınca savaş davulu. */
   useEffect(() => { wantAmbience(true); return () => wantAmbience(false) }, [])
-  const freshCity = !!game && game.claimed.length === 0 && game.buildings.divan <= 1
-  useEffect(() => { if (freshCity && shouldShowGuide()) setGuide(true) }, [freshCity])
   useEffect(() => { if (game) { const a = takeAwaySummary(); if (a) setAway(a) } }, [!!game]) // eslint-disable-line react-hooks/exhaustive-deps
   const threatCount = (empire?.threats ?? []).length
   const seenThreats = useRef(threatCount)
@@ -157,19 +153,26 @@ export default function GameShell({ onTitle }: { onTitle?: () => void } = {}) {
    * yerine en üstteki katmanı kapatır. Katman arayüzden kapanırsa eklenen
    * adım da geri alınır. Şehir ekranında geri tuşu uygulamadan çıkar.
    */
-  const layered = !!(panel || selected || plot !== null || npc || moving || view === 'island')
+  const layered = !!(resourcesOpen || agendaOpen || panel || selected || plot !== null || npc || moving || placement || view === 'island')
   const pushed = useRef(false), skipPop = useRef(false)
   const closeTop = useRef<() => void>(() => {})
   closeTop.current = () => {
-    if (moving) cancelMove()
+    if (resourcesOpen) setResourcesOpen(false)
+    else if (agendaOpen) setAgendaOpen(false)
+    else if (moving) cancelMove()
     else if (npc || plot !== null || panel) { setNpc(null); setPlot(null); setPanel(null) }
-    else if (selected) setSelected(null)
+    else if (selected && buildingDetails) setBuildingDetails(false)
+    else if (selected) {
+      setSelected(null)
+      if (placement) setPlacement({ id: placement.id, plot: null })
+    }
+    else if (placement) setPlacement(null)
     else if (view === 'island') { setView('city'); setViewIsland(null) }
   }
   useEffect(() => {
     if (layered && !pushed.current) { history.pushState({ payitaht: 1 }, ''); pushed.current = true }
     else if (!layered && pushed.current) { pushed.current = false; skipPop.current = true; history.back() }
-  }, [layered])
+  }, [layered, resourcesOpen, agendaOpen, panel, selected, buildingDetails, plot, npc, moving, placement, view])
   useEffect(() => {
     const onPop = () => {
       if (skipPop.current) { skipPop.current = false; return }
@@ -179,21 +182,35 @@ export default function GameShell({ onTitle }: { onTitle?: () => void } = {}) {
     window.addEventListener('popstate', onPop)
     return () => window.removeEventListener('popstate', onPop)
   }, [])
-  function openPanel(value: Panel) { if (value === 'island' && view === 'city') { setView('island'); return } setNpc(null); setSelected(null); setPlot(null); setMoving(null); setPanel(value) }
-  function openBuilding(id: BuildingId) { setPanel(null); setPlot(null); setMoving(null); setView('city'); setBuildingDetails(false); setSelected(id) }
-  function openPlot(index: number) { setPanel(null); setSelected(null); setMoving(null); setPlot(index) }
-  function startMove(id: BuildingId) { if (!game) return; setPanel(null); setSelected(null); setPlot(null); setMoving(id); setMovePlot(game.placement[id]) }
+  function openPanel(value: Panel) { setResourcesOpen(false); setAgendaOpen(false); setPlacement(null); if (value === 'island' && view === 'city') { setView('island'); return } setNpc(null); setSelected(null); setPlot(null); setMoving(null); setPanel(value) }
+  function openBuilding(id: BuildingId) { setResourcesOpen(false); setAgendaOpen(false); setPlacement(null); setNpc(null); setPanel(null); setPlot(null); setMoving(null); setView('city'); setBuildingDetails(false); setSelected(id) }
+  function chooseConstruction(id: BuildingId) {
+    if (!game || game.buildings[id] > 0 || game.placement[id] !== null || !takesPlot(id)) { openBuilding(id); return }
+    setResourcesOpen(false); setAgendaOpen(false); setPanel(null); setSelected(null); setPlot(null); setNpc(null); setMoving(null); setViewIsland(null); setView('city')
+    setPlacement({ id, plot: null })
+  }
+  function openPlot(index: number) {
+    if (game && placement) {
+      if (!freePlotsFor(game, placement.id).includes(index)) return
+      setPlacement({ id: placement.id, plot: index })
+      setBuildingDetails(false)
+      setSelected(placement.id)
+      return
+    }
+    setPanel(null); setSelected(null); setMoving(null); setPlot(index)
+  }
+  function startMove(id: BuildingId) { if (!game) return; setPlacement(null); setPanel(null); setSelected(null); setPlot(null); setMoving(id); setMovePlot(game.placement[id]) }
   function confirmMove() { if (moving !== null && movePlot !== null) act({ type: 'move', id: moving, plot: movePlot }); setMoving(null); setMovePlot(null) }
   function cancelMove() { setMoving(null); setMovePlot(null) }
-    function act(action: Command) {
+  function act(action: Command) {
     const error = command(action)
-    if (error) { say.no(error); return }
+    if (error) { say.no(error); return false }
     /*
      * Isci atamasi SESSIZ yapilir: kaydirma cubugunu her oynatista bildirim
      * cikmasi kullanilamaz hale getirirdi.
      */
     // Isci, yol ve aynalama SESSIZ: her dokunusta bildirim cikmasi kullanilamaz.
-    if (action.type === 'workers' || action.type === 'miners' || action.type === 'road' || action.type === 'flip' || action.type === 'face' || action.type === 'priests') return
+    if (action.type === 'workers' || action.type === 'miners' || action.type === 'road' || action.type === 'flip' || action.type === 'face' || action.type === 'priests') return true
     const quick: Partial<Record<Command['type'], string>> = {
       wonder: 'Kereste harikaya ulaştı.', miracle: 'Mucize başladı!', upgrade: 'Tophane ustaları işini bitirdi.',
       future: 'Gelecek araştırması ilerledi.', exchange: 'Kara Pazar\'da takas yapıldı.',
@@ -201,16 +218,17 @@ export default function GameShell({ onTitle }: { onTitle?: () => void } = {}) {
       invoke: 'Tanrının kudreti çağrıldı!', devote: 'Himmet loncaya adandı.', patron: 'Lonca himayesi değişti.', foresters: 'Oduncular ormanda.',
       tavern: 'İkram ayarlandı.', claim: 'Hedef tamamlandı: ödül hazinede.', government: 'Yeni yönetim ilan edildi.', experiment: 'Deney yapıldı.',
     }
-    if (quick[action.type]) { say.ok(quick[action.type]!, action.type === 'claim' ? 'coin' : 'ok'); return }
-    if (action.type === 'donate') { say.ok('Bağış madene ulaştı.'); return }
-    if (action.type === 'trade') { say.ok(action.side === 'buy' ? 'Tüccarla anlaşıldı. Mal ambarda.' : 'Mal satıldı.'); return }
-    if (action.type === 'move') { say.ok('Bina yeni yerine taşındı.'); return }
+    if (quick[action.type]) { say.ok(quick[action.type]!, action.type === 'claim' ? 'coin' : 'ok'); return true }
+    if (action.type === 'donate') { say.ok('Bağış madene ulaştı.'); return true }
+    if (action.type === 'trade') { say.ok(action.side === 'buy' ? 'Tüccarla anlaşıldı. Mal ambarda.' : 'Mal satıldı.'); return true }
+    if (action.type === 'move') { say.ok('Bina yeni yerine taşındı.'); return true }
     say.ok(action.type === 'build' ? 'Ustalar iş başında. İnşaat başladı!' : action.type === 'research' ? 'Yeni bir keşfe doğru. Araştırma başladı!' : action.type === 'recruit' ? 'Talim meydanı açıldı. Eğitim başladı!' : 'Ödül hazinene eklendi.', action.type === 'build' ? 'build' : action.type === 'recruit' ? 'march' : 'ok')
+    return true
   }
   function visitCity(id: string) {
     const error = selectCity(id)
     if (error) { say.no(error); return }
-    setPanel(null); setSelected(null); setPlot(null); setMoving(null); setMovePlot(null)
+    setPlacement(null); setPanel(null); setSelected(null); setPlot(null); setMoving(null); setMovePlot(null)
   }
   function foundIsland(islandId: IslandId) {
     const error = colonize(islandId)
@@ -225,19 +243,7 @@ export default function GameShell({ onTitle }: { onTitle?: () => void } = {}) {
   }
   async function backupSaveFile() {
     try {
-      const raw = exportSave()
-      const stamp = new Date().toISOString().slice(0, 10)
-      const file = new File([raw], `payitaht-yedek-${stamp}.json`, { type: 'application/json' })
-      const shareData = { files: [file], title: 'Payitaht Adaları kayıt yedeği' }
-      if (navigator.share && navigator.canShare?.(shareData)) {
-        await navigator.share(shareData)
-      } else {
-        const url = URL.createObjectURL(file)
-        const a = document.createElement('a')
-        a.href = url; a.download = file.name; a.click()
-        setTimeout(() => URL.revokeObjectURL(url), 1000)
-      }
-      say.ok('Kayıt yedeği hazır.')
+      if (await saveBackupFile(exportSave())) say.ok('Kayıt yedeği kaydedildi.')
     } catch {
       say.no('Kayıt yedeği dışarı aktarılamadı.')
     }
@@ -248,21 +254,46 @@ export default function GameShell({ onTitle }: { onTitle?: () => void } = {}) {
       const error = importSave(await file.text())
       if (error) { say.no(error); return }
       say.ok('Kayıt yedeği geri yüklendi.')
-      setPanel(null); setSelected(null); setPlot(null); setMoving(null); setMovePlot(null)
+      setPlacement(null); setPanel(null); setSelected(null); setPlot(null); setMoving(null); setMovePlot(null)
     } catch {
       say.no('Yedek dosyası okunamadı.')
     } finally {
       if (saveImportRef.current) saveImportRef.current.value = ''
     }
   }
-  function target(objectiveId?: string) {
+  function goExpansion(target: ExpansionTarget) {
+    if (target.cityId !== empire?.activeCityId) {
+      const error = selectCity(target.cityId)
+      if (error) { say.no(error); return }
+    }
+    setPlacement(null); setMoving(null); setNpc(null); setPlot(null); setViewIsland(null); setView('city')
+    if (target.building) {
+      openBuilding(target.building)
+      setBuildingDetails(!!target.manage)
+    } else if (target.panel === 'island') {
+      setSelected(null); setView('island'); setPanel('island')
+    } else openPanel(target.panel ?? 'objectives')
+  }
+  function target(objectiveId: string) {
     if (!game) return
-    const next = objectiveId ? OBJECTIVES.find(o => o.id === objectiveId) : OBJECTIVES.find(o => !game.claimed.includes(o.id))
-    const go = next?.go ?? 'research'
+    const next = OBJECTIVES.find(objective => objective.id === objectiveId)
+    if (!next) return
+    const guided = firstSessionStep(game)
+    if (guided?.objective.id === next.id && guided.choosePlot && !guided.done && !guided.job
+      && guided.building && freePlotsFor(game, guided.building).length > 0) {
+      setView('city'); setPanel(null); setSelected(null); setPlot(null); setNpc(null); setMoving(null)
+      setPlacement({ id: guided.building, plot: null })
+      return
+    }
+    const go = next.go
     if (go === 'research' || go === 'people' || go === 'army') openPanel(go)
-    // İlk sefer adadaki köyü ister: maden paneli açılırsa köyü örterdi.
-    else if (go === 'island') { setView('island'); setPanel(next?.id === 'first-raid' ? null : 'island') }
-    else openBuilding(go)
+    else if (go === 'island') {
+      setPlacement(null); setSelected(null); setPlot(null); setNpc(null); setViewIsland(null); setMoving(null)
+      setView('island'); setPanel(next.id === 'first-raid' ? null : 'island')
+    } else {
+      openBuilding(go)
+      if (next.id === 'first-worker') setBuildingDetails(true)
+    }
   }
   /** Danışmanların son bakılma zamanı (haber rozetleri için, cihazda hatırlanır). */
   const [seenByCity, setSeenByCity] = useState<Record<string, AdvisorSeen>>(() => {
@@ -281,7 +312,7 @@ export default function GameShell({ onTitle }: { onTitle?: () => void } = {}) {
     const byCity = { ...seenByCity, [cityId]: next }
     setSeenByCity(byCity)
     try { localStorage.setItem('payitaht-advisors-seen-by-city', JSON.stringify(byCity)) } catch { /* yalnızca bu oturum */ }
-    setSelected(null); setPlot(null); setNpc(null); setMoving(null)
+    setPlacement(null); setSelected(null); setPlot(null); setNpc(null); setMoving(null)
     setPanel(id === 'city' ? 'advisor-city' : id === 'army' ? 'reports' : id === 'research' ? 'research' : 'diplomacy')
   }
   const news = game ? advisorNews(game, empire, seen) : { city: 0, army: 0, research: 0, diplo: 0 }
@@ -303,7 +334,11 @@ export default function GameShell({ onTitle }: { onTitle?: () => void } = {}) {
     }
   })
   const foundingCity = !empire || empire.activeCityId === empire.cities[0]?.id
+  const guided = game && foundingCity ? firstSessionStep(game) : null
+  const expansion = empire ? expansionPlan(empire) : []
+  const expanding = expansion.some(step => !step.done)
   const claimable = game && foundingCity ? OBJECTIVES.filter(o => !game.claimed.includes(o.id) && objectiveDone(game, o.id)).length : 0
+  const activityCount = game ? game.queue.length + game.drills.length + (game.study ? 1 : 0) + ((empire?.missions ?? []).some(m => m.cityId === cityId && !m.stationed) ? 1 : 0) : 0
   const offerCount = game ? (empire?.world?.proposals ?? []).filter(p => p.until > game.updatedAt).length : 0
   const unreadCirculars = (empire?.world?.pact?.circulars ?? []).filter(c => !c.read).length
   // V2 2.10: aynı anda en çok iki sayılı rozet; kalanlar nokta.
@@ -317,8 +352,8 @@ export default function GameShell({ onTitle }: { onTitle?: () => void } = {}) {
     {/*
       * ÜST ŞERİT (ika-hud.tsx): şehir seçici, dört danışman ve kaynaklar.
       */}
-    {game && <IkaTopBar game={game} empire={empire} news={news} modes={{ army: badges.army, diplo: badges.diplo, city: badges.city, research: badges.research }} activeAdvisor={activeAdvisor} onProfile={() => openPanel('profile')} onCity={() => openPanel('cities')} onSelectCity={id => { visitCity(id); setView('city'); setViewIsland(null) }} onEconomy={() => openPanel('economy')} onAdvisor={openAdvisor} />}
-    {game ? <>{empire && <ThreatBanner empire={empire} now={game.updatedAt} onOpen={() => openPanel('army')} />}<div className="game-body"><div className="city-column"><CityScene key={empire?.activeCityId} raid={(empire?.threats ?? []).some(t => t.cityId === empire?.activeCityId && (t.intent || t.arriveAt - game.updatedAt <= THREAT_WARNING_MS))} paused={view === 'island' || (!!selected && buildingDetails) || (!!panel && !moving)} siege={citySiegeAppearance(empire)} banner={bannerLook(empire)} activity={<CityActivity game={game} empire={empire} onBuilding={openBuilding} onArmy={() => openPanel('army')} onResearch={() => openPanel('research')} />} shortcuts={<CityShortcuts now={game.updatedAt} offers={offerCount} reports={(empire?.reports ?? []).filter(r => r.cityId === cityId && r.time > seen.army).length} daily={claimable + (empire?.daily && empire.daily.loginDay !== empire.daily.day ? 1 : 0)} onObjectives={() => openPanel('objectives')} onOffers={() => openAdvisor('diplo')} onReports={() => openAdvisor('army')} />} game={game} placing={plot !== null || moving !== null} onBuilding={openBuilding} onPlot={openPlot} onRoad={cell => act({ type: 'road', cell })} moving={moving} movePlot={movePlot} onMine={() => { setSelected(null); setPlot(null); setPanel('island') }} onMovePlot={setMovePlot} />{view === 'island' && empire && <IslandView empire={empire} islandId={viewIsland ?? activeCity(empire).islandId} onIsland={setViewIsland} now={game.updatedAt} onCity={() => { setView('city'); setViewIsland(null) }} onMine={() => { setNpc(null); setPanel('island') }} onForest={() => { setNpc(null); setPanel('forest') }} onNpc={id => { setPanel(null); setSelected(null); setPlot(null); setNpc(id) }} onReports={() => openAdvisor('army')} />}</div></div>
+    {game && <IkaTopBar resourcesOpen={resourcesOpen} onResourcesOpen={setResourcesOpen} game={game} empire={empire} news={news} modes={{ army: badges.army, diplo: badges.diplo, city: badges.city, research: badges.research }} activeAdvisor={activeAdvisor} onProfile={() => openPanel('profile')} onCity={() => openPanel('cities')} onSelectCity={id => { visitCity(id); setView('city'); setViewIsland(null) }} onEconomy={() => openPanel('economy')} onAdvisor={openAdvisor} />}
+{game ? <>{empire && <ThreatBanner empire={empire} now={game.updatedAt} onOpen={() => openPanel('army')} />}<div className="game-body"><div className="city-column"><CityScene fleet={cityLifeFleet(empire)} key={empire?.activeCityId} raid={(empire?.threats ?? []).some(t => t.cityId === empire?.activeCityId && (t.intent || t.arriveAt - game.updatedAt <= THREAT_WARNING_MS))} paused={view === 'island' || (!!selected && buildingDetails) || (!!panel && !moving)} siege={citySiegeAppearance(empire)} banner={bannerLook(empire)} shortcuts={(!guided || activityCount > 0) && <CityAgenda open={agendaOpen} onOpenChange={setAgendaOpen} count={offerCount + claimable + activityCount + (empire?.reports ?? []).filter(r => r.cityId === cityId && r.time > seen.army).length}><CityActivity game={game} empire={empire} onBuilding={openBuilding} onArmy={() => openPanel('army')} onResearch={() => openPanel('research')} />{!guided && <CityShortcuts now={game.updatedAt} offers={offerCount} reports={(empire?.reports ?? []).filter(r => r.cityId === cityId && r.time > seen.army).length} daily={claimable + (empire?.daily && empire.daily.loginDay !== empire.daily.day ? 1 : 0)} onObjectives={() => openPanel('objectives')} onOffers={() => openAdvisor('diplo')} onReports={() => openAdvisor('army')} />}</CityAgenda>} game={game} placing={plot !== null || moving !== null} buildTarget={placement?.id ?? null} chosenPlot={placement?.plot ?? null} onBuilding={openBuilding} onPlot={openPlot} onRoad={cell => act({ type: 'road', cell })} moving={moving} movePlot={movePlot} onMine={() => { setSelected(null); setPlot(null); setPanel('island') }} onMovePlot={setMovePlot} />{view === 'island' && empire && <IslandView empire={empire} islandId={viewIsland ?? activeCity(empire).islandId} onIsland={setViewIsland} now={game.updatedAt} onCity={() => { setView('city'); setViewIsland(null) }} onMine={() => { setNpc(null); setPanel('island') }} onForest={() => { setNpc(null); setPanel('forest') }} onNpc={id => { setPanel(null); setSelected(null); setPlot(null); setNpc(id) }} onReports={() => openAdvisor('army')} />}</div></div>
       {/* TAŞIMA ONAY ŞERİDİ — referanstaki yeşil ✓/✗. */}
       {moving && <div className="move-confirm">
         <span className="move-confirm-title">{BUILDINGS[moving].name} taşınıyor</span>
@@ -333,16 +368,29 @@ export default function GameShell({ onTitle }: { onTitle?: () => void } = {}) {
         * dugmeler: ust'te tehdit/ordu, altta insa cekici.
         */}
       {/* ALT LOG ŞERİDİ — referanstaki sohbet gibi, en son şehir günlüğü satırı. */}
-      {guide && view === 'city' && !panel && !selected && <FirstRunGuide onDone={() => setGuide(false)} />}
-      {away && !guide && <AwaySummaryCard summary={away} onClose={() => setAway(null)} onReports={() => { setAway(null); openPanel('reports') }} />}
-      {view === 'city' && !selected && foundingCity && !(empire?.threats ?? []).some(t => t.cityId === empire?.activeCityId) && !(empire?.sieges ?? []).length && <QuestChip game={game} onOpen={() => openPanel('objectives')} onGo={target} onClaim={id => act({ type: 'claim', id })} />}
-      {/* Rehber yeni oyuncu içindir: Divanhane 5'e varmış eski kayıtta, sonradan eklenen rehber hedefleri ok çıkarmaz. */}
-      {!selected && foundingCity && game.buildings.divan < 5 && OBJECTIVES.slice(0, GUIDED_STEPS).some(o => !game.claimed.includes(o.id)) && <GuideSpot game={game} />}</> : <div className="game-loading"><img src={buildingImage('divan', 8)} alt="" width={150} height={150} /><h1>Şehrin uyanıyor…</h1><p>Sahilhisar kapılarını açıyor.</p></div>}
+      {away && <AwaySummaryCard summary={away} onClose={() => setAway(null)} onReports={() => { setAway(null); openPanel('reports') }} />}
+      {view === 'city' && !panel && !selected && !moving && plot === null && !(empire?.threats ?? []).some(t => t.cityId === empire?.activeCityId) && !(empire?.sieges ?? []).length && (placement ? <aside className="quest-chip is-guided construction-placement" aria-label="İnşa için arsa seçimi">
+        <div className="quest-chip-main"><span className="quest-chip-text"><strong>{BUILDINGS[placement.id].name} için arsa seç</strong><small>{freePlotsFor(game, placement.id).length} uygun arsa · Şehirde işaretli bir arsaya dokun.</small></span></div>
+        <button type="button" className="quest-chip-go" onClick={() => setPlacement(null)}>{t.action.cancel}</button>
+      </aside> : expanding
+        ? <ExpansionChip steps={expansion} onOpen={() => openPanel('objectives')} onGo={goExpansion} />
+        : foundingCity && <QuestChip game={game} placement={null} onCancelPlacement={() => setPlacement(null)}
+          onOpen={() => openPanel('objectives')} onGo={target} onClaim={id => act({ type: 'claim', id })} />)}
+      {guided && !away && !moving && (!placement || placement.id === guided.building) && <GuideSpot step={guided} choosingPlot={!!placement && !selected} />}</> : <div className="game-loading"><img src={buildingImage('divan', 8)} alt="" width={150} height={150} /><h1>Şehrin uyanıyor…</h1><p>Sahilhisar kapılarını açıyor.</p></div>}
     {game && selected && !buildingDetails && <BuildingPreview key={`${cityId}-${selected}`} game={game} id={selected}
-      onClose={() => setSelected(null)} onDetails={() => setBuildingDetails(true)}
-      onBuild={() => act({ type: 'build', id: selected })} />}
+      plot={placement?.plot ?? undefined} onClose={() => {
+        setSelected(null)
+        if (placement) setPlacement({ id: placement.id, plot: null })
+      }} onDetails={() => setBuildingDetails(true)}
+      onBuild={() => {
+        const at = placement?.plot ?? undefined
+        if (act({ type: 'build', id: selected, plot: at }) && (placement || guided?.building === selected)) {
+          setPlacement(null); setSelected(null)
+        }
+      }} />}
     <IkaNav active={navActive} badges={{ objectives: claimable, alliance: unreadCirculars }} modes={{ objectives: badges.objectives, alliance: badges.alliance }} onSelect={key => {
-      setSelected(null); setPlot(null); setNpc(null)
+      setResourcesOpen(false); setAgendaOpen(false)
+      setPlacement(null); setSelected(null); setPlot(null); setNpc(null)
       if (key === 'city') { setPanel(null); setMoving(null); setView('city'); setViewIsland(null) }
       else if (key === 'island') { setPanel(null); setView('island') }
       else if (key === 'alliance') openPanel('alliance')
@@ -356,7 +404,7 @@ export default function GameShell({ onTitle }: { onTitle?: () => void } = {}) {
       title={npc ? targetName(npc) : plot !== null ? (PLOTS[plot]?.islet ? 'Korsan adası' : PLOTS[plot]?.zone === 'liman' ? 'Deniz arsası' : 'Boş arsa') : panel ? titles[panel] : 'Şehrin'}
       subtitle={npc ? (npc.startsWith('r-') ? 'Yapay rakip hükümdar' : 'Bağımsız yerleşim') : plot !== null ? 'Bu arsaya hangi yapıyı kuracaksın?' : panel === 'build' ? 'Her yapı, yeni bir başlangıç.' : panel === 'research' ? 'İlim, şehrinin en değerli hazinesidir.' : panel === 'people' ? 'Emeği nereye ayıracağına sen karar ver.' : panel === 'army' ? 'Asker halktan çıkar. Bedelini bilerek öde.' : panel === 'cities' ? 'Hükmünün altındaki her şehir.' : panel === 'map' ? 'Adalar, rakipler ve deniz yolları' : panel === 'overview' ? 'Şehirlerin kaynak, yapı ve ordu defterleri' : panel === 'diplomacy' ? 'Yapay rakipler: sıralama, anlaşmalar, pazar, mektuplar' : panel === 'island' ? 'Lüks mal yatağı, ada harikası ve tüccar' : panel === 'forest' ? 'Oduncular, kereste ve ormanın büyümesi' : panel === 'alliance' ? (empire?.world?.pact ? `${empire.world.pact.name} [${empire.world.pact.tag}]` : 'Birlikten kuvvet doğar') : currentCityName}
       hero={npc || panel === 'army' || panel === 'map' || panel === 'overview' || panel === 'reports' || panel === 'forest' || panel === 'island' || panel === 'research' || panel === 'build' || plot !== null ? undefined : panelHero()} className={panel === 'army' ? 'bp-muster bp-atlas bp-campaign bp-royal' : npc || panel === 'reports' ? 'bp-campaign bp-royal' : panel === 'forest' || panel === 'island' ? 'bp-island-register bp-royal' : plot !== null || panel === 'build' ? 'bp-construction bp-royal' : !npc && plot === null ? panel === 'people' || panel === 'cities' ? 'bp-population bp-royal' : panel === 'map' ? 'bp-mapview bp-atlas bp-royal' : panel === 'overview' ? 'bp-atlas bp-royal' : panel === 'objectives' ? 'bp-objectives bp-royal' : panel === 'changelog' ? 'bp-annals bp-royal bp-archive' : panel === 'journal' ? 'bp-annals bp-journal bp-royal' : panel === 'profile' ? 'bp-court bp-royal bp-profile' : panel === 'settings' ? 'bp-court bp-royal bp-settings' : panel === 'alliance' ? 'bp-diplomatic bp-royal bp-alliance' : panel === 'advisor-city' ? 'bp-vizier bp-royal' : panel === 'diplomacy' ? 'bp-diplomatic bp-royal' : panel === 'economy' ? 'bp-treasury bp-royal' : panel === 'research' ? 'bp-research bp-royal' : undefined : undefined}>{game && <>
-      {plot !== null && <PlotPicker game={game} plot={plot} onBuild={(id, at) => { act({ type: 'build', id, plot: at }); setPlot(null) }} />}
+      {plot !== null && <PlotPicker game={game} plot={plot} onBuild={(id, at) => { if (act({ type: 'build', id, plot: at })) setPlot(null) }} />}
       {panel === 'people' && <PeoplePage game={game} cityName={empire ? activeCity(empire).name : 'Şehir'} onAssign={(id, value) => act({ type: 'workers', id, value })} onBuilding={openBuilding} onForest={() => { setViewIsland(null); setView('island'); setPanel('forest') }} onIsland={() => { setViewIsland(null); setView('island'); setPanel('island') }} />}
       {panel === 'cities' && empire && <SettlementsPage run={runOp} game={game} empire={empire} onBuilding={openBuilding} onSelectCity={visitCity} onCargo={dispatchCargo} onMap={() => openPanel('map')} />}
       {panel === 'map' && empire && <WorldMap empire={empire} now={game.updatedAt} missing={colonyBlocker(empire)} colonyCost={colonyCostText}
@@ -370,14 +418,14 @@ export default function GameShell({ onTitle }: { onTitle?: () => void } = {}) {
       {panel === 'reports' && empire && <ArmyAdvisor empire={empire} game={game} run={runOp} onArmy={() => openPanel('army')} />}
       {panel === 'advisor-city' && empire && <CityAdvisor empire={empire} game={game} onCity={visitCity} onBuilding={openBuilding} onCities={() => openPanel('cities')} onBuildList={() => openPanel('build')} onOverview={() => openPanel('overview')} onJournal={() => openPanel('journal')} />}
       {panel === 'overview' && empire && <EmpireOverview empire={empire} onCity={visitCity} />}
-      {panel === 'build' && <BuildingList game={game} onSelect={openBuilding} />}
-      {panel === 'research' && <><details className="academy-advice"><summary>Âlimin önerisi</summary><div className="academy-counsel"><PersonArt kind="alim" size={64} /><p>{researchAdvice(game)}</p></div></details><ResearchPanel game={game} onResearch={id => act({ type: 'research', id })} /><FuturePanel game={game} onCommand={act} /></>}
+      {panel === 'build' && <BuildingList game={game} onSelect={chooseConstruction} />}
+      {panel === 'research' && <><ResearchPanel game={game} onResearch={id => act({ type: 'research', id })} /><details className="academy-advice"><summary>Âlimin önerisi</summary><div className="academy-counsel"><PersonArt kind="alim" size={64} /><p>{researchAdvice(game)}</p></div></details><details className="academy-advice"><summary>Gelecek araştırmaları</summary><FuturePanel game={game} onCommand={act} /></details></>}
       {panel === 'journal' && <JournalPage game={game} cityName={currentCityName} />}
       {panel === 'profile' && empire && <SovereignPage empire={empire} now={game.updatedAt} run={runOp} onCity={visitCity} onSettings={() => openPanel('settings')} onChangelog={() => openPanel('changelog')} />}
       {panel === 'changelog' && <ChangelogPage />}
       {panel === 'economy' && <TreasuryPage game={game} cityName={currentCityName} onBuilding={id => { setView('city'); setViewIsland(null); openBuilding(id) }} onPeople={() => { setView('city'); openPanel('people') }} onForest={() => { setViewIsland(null); setView('island'); setPanel('forest') }} onIsland={() => { setViewIsland(null); setView('island'); setPanel('island') }} />}
       {panel === 'objectives' && <ObjectivesPage game={game} empire={empire} foundingCity={foundingCity} cityName={currentCityName}
-        onClaim={id => act({ type: 'claim', id })} onGo={target} onFoundingCity={() => visitCity(empire!.cities[0].id)} run={runOp} />}
+        onExpansion={goExpansion} onClaim={id => act({ type: 'claim', id })} onGo={target} onFoundingCity={() => visitCity(empire!.cities[0].id)} run={runOp} />}
       {panel === 'settings' && <SettingsPanel empire={empire} run={runOp} warning={warning} native={native}
         pwa={{ installed, installAvailable, install, offlineReady }} notify={notify}
         onBackup={() => void backupSaveFile()} onRestore={file => void restoreSaveFile(file)}

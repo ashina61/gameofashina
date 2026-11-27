@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from 'react'
 import { play } from '@/lib/sfx'
-import type { CityScene } from './phaser-city'
+import type { ParcelCityScene } from './phaser-parcel-city'
 import type { BuildingId, Game } from '@/lib/game/engine'
 import type { BannerLook } from '@/lib/game/banner'
 import type { FlagLook } from './city-life'
@@ -10,6 +10,7 @@ import { canvasDpr } from '@/lib/render-dpr'
 import { IDLE_AFTER_MS, setFrameCap, wantedFps } from '@/lib/frame-cap'
 import { liteMode, onLiteChange } from '@/lib/motion'
 import { PEACEFUL_CITY, type SiegeAppearance } from '@/lib/game/siege-appearance'
+import { EMPTY_LIFE_FLEET, type CityLifeFleet } from '@/lib/game/city-life-plan'
 
 /*
  * TUVAL KÖPRÜSÜ.
@@ -24,9 +25,12 @@ export type CityControls = { recenter: () => void; zoomBy: (factor: number) => v
 
 type Props = {
   game: Game
+  fleet?: CityLifeFleet
   showLabels: boolean
   /** İnsa kipi: bos arsalar yalnizca bu acikken haritada isaretlenir. */
   placing: boolean
+  buildTarget: BuildingId | null
+  chosenPlot: number | null
   /** Sahne hazir oldugunda doldurulur; arayuz kamerayi buradan surer. */
   controls: { current: CityControls | null }
   onBuilding: (id: BuildingId) => void
@@ -49,10 +53,10 @@ type Props = {
 }
 const toLook = (b?: BannerLook): FlagLook | undefined => b && { color: parseInt(b.color.slice(1), 16), shape: b.shape, crest: b.crest }
 
-export function CityCanvas({ game, showLabels, placing, controls, onBuilding, onPlot, onRoad, moving, movePlot, onMovePlot, onMine, banner, siege = PEACEFUL_CITY, paused = false, raid = false }: Props) {
+export function CityCanvas({ game, fleet=EMPTY_LIFE_FLEET, showLabels, placing, buildTarget, chosenPlot, controls, onBuilding, onPlot, onRoad, moving, movePlot, onMovePlot, onMine, banner, siege = PEACEFUL_CITY, paused = false, raid = false }: Props) {
   const holder = useRef<HTMLDivElement>(null)
   const phaser = useRef<import('phaser').Game | null>(null)
-  const scene = useRef<CityScene | null>(null)
+  const scene = useRef<ParcelCityScene | null>(null)
   const ready = useRef(false)
   const idle = useRef(false)
   /*
@@ -64,8 +68,8 @@ export function CityCanvas({ game, showLabels, placing, controls, onBuilding, on
   handlers.current = { onBuilding, onPlot, onRoad, onMovePlot, onMine }
   const firstLook = useRef(toLook(banner))
   // Async Phaser import may finish after a siege starts/ends; use the latest props.
-  const latest = useRef({ game, showLabels, placing, moving, movePlot, siege, raid, paused })
-  latest.current = { game, showLabels, placing, moving, movePlot, siege, raid, paused }
+  const latest = useRef({ game, fleet, showLabels, placing, moving, movePlot, siege, raid, paused, buildTarget, chosenPlot })
+  latest.current = { game, fleet, showLabels, placing, moving, movePlot, siege, raid, paused, buildTarget, chosenPlot }
 
   useEffect(() => {
     let disposed = false
@@ -141,7 +145,8 @@ export function CityCanvas({ game, showLabels, placing, controls, onBuilding, on
           onReady: () => {
             if (disposed) return
             const p = latest.current
-            view.sync(p.game, p.showLabels, p.placing, p.moving, p.movePlot, p.siege)
+            view.setLifeFleet(p.fleet)
+            view.sync(p.game, p.showLabels, p.placing, p.moving, p.movePlot, p.siege, p.buildTarget, p.chosenPlot)
             view.setRaidAlert(p.raid)
             if (instance) {
               instance.events.once(Phaser.Core.Events.POST_RENDER, () => {
@@ -246,7 +251,10 @@ export function CityCanvas({ game, showLabels, placing, controls, onBuilding, on
 
   // Durum degistiginde sahneye haber ver; sahne gorunen bir sey degismediyse
   // hicbir sey cizmez.
-  useEffect(() => { scene.current?.sync(game, showLabels, placing, moving, movePlot, siege) }, [game, showLabels, placing, moving, movePlot, siege])
+  useEffect(() => {
+    scene.current?.setLifeFleet(fleet)
+    scene.current?.sync(game, showLabels, placing, moving, movePlot, siege, buildTarget, chosenPlot)
+  }, [game, showLabels, placing, moving, movePlot, siege, buildTarget, chosenPlot, fleet])
 
   const lookKey = banner ? `${banner.color}-${banner.shape}-${banner.crest}` : ''
   useEffect(() => { const l = toLook(banner); if (l) { firstLook.current = l; scene.current?.setBanner(l) } }, [lookKey]) // eslint-disable-line react-hooks/exhaustive-deps

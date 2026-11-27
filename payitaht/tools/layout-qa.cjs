@@ -144,10 +144,12 @@ async function main() {
   const out = path.resolve('visual-review')
   await fs.mkdir(out, { recursive: true })
   const fixture = JSON.parse(await fs.readFile(path.join(__dirname, 'fixtures', 'late-game.json'), 'utf8'))
-  const browser = await chromium.launch({ executablePath: process.env.QA_CHROME_PATH, headless: true, args: ['--no-sandbox', '--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader'] })
+  let browser
   const report = { sayfalar: {}, toplam: { taşma: 0, kesik: 0, küçük: 0, minik: 0, çakışma: 0, isimsiz: 0 }, hatalar: [] }
   try {
     for (const vp of VIEWPORTS) {
+      // Each viewport gets a fresh process, including single-process mobile runners.
+      browser = await chromium.launch({ executablePath: process.env.QA_CHROME_PATH, headless: true, args: ['--no-sandbox', '--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader'] })
       const label = `${vp.width}x${vp.height}${vp.zoom ? `@${Math.round(vp.zoom * 100)}%` : ''}`
       const context = await browser.newContext({ viewport: { width: vp.width, height: vp.height }, deviceScaleFactor: 1, isMobile: true, hasTouch: true })
       await context.addInitScript(raw => {
@@ -255,9 +257,10 @@ async function main() {
       for (const id of ids) await visit(`bina:${id}`, new Function(`window.__payitahtQa.building(${JSON.stringify(id)})`))
       for (const id of ids) await visit(`yapı-paneli:${id}`, new Function(`window.__payitahtQa.buildingPreview(${JSON.stringify(id)})`))
       await context.close()
+      await browser.close()
     }
   } finally {
-    await browser.close()
+    await browser?.close()
   }
   await fs.writeFile(path.join(out, 'layout-report.json'), JSON.stringify(report, null, 2))
   const t = report.toplam

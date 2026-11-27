@@ -5,6 +5,7 @@ import { asset } from '@/lib/asset'
 import { Bell, HardDrive, Info, Settings } from './ui-art'
 import { GameButton } from './game-button'
 import { CourtTabs } from './court-kit'
+import { PageDetails } from './mobile-page'
 import type { Empire } from '@/lib/game/empire'
 import { VERSION } from '@/lib/game/changelog'
 import { clearErrors, errorReport, readErrors, type ErrorEntry } from '@/lib/game/error-log'
@@ -29,7 +30,6 @@ export function SettingsPanel({ empire, run, warning, native, pwa, notify, onBac
   const saveImportRef = useRef<HTMLInputElement>(null)
   const { installed, installAvailable, install, offlineReady } = pwa
   return <div className="court-page court-admin royal-page">
-    <div className="royal-settings-scene"><img src={asset('/images/game/ui/approved-court/desk.webp')} alt="" width={852} height={223} /><h2>Divan nizamnamesi</h2></div>
     <CourtTabs items={TABS} value={tab} onChange={next => { setTab(next); setConfirmReset(false) }} label="İdare defteri" illustrated={false}>
       {tab === 'play' && <RoyalPreferences empire={empire} run={run} />}
       {tab === 'device' && <div className="royal-subpage royal-device-page">
@@ -48,11 +48,12 @@ export function SettingsPanel({ empire, run, warning, native, pwa, notify, onBac
         <RoyalSection title="Yeni bir saltanat" detail="Yeni bir hikâyenin ilk taşı." art="hourglass"><p className="royal-note">Şehirlerin, kaynakların ve araştırmaların sıfırlanır. Bu işlem geri alınamaz.</p>{confirmReset ? <div className="royal-reset-confirm" role="group" aria-label="Yeni oyun onayı"><ApprovedArt name="seal" /><h4>Bu hikâyeyi kapatacak mısın?</h4><p>Devam etmeden önce oyununu dışarı aktarabilirsin.</p><GameButton className="royal-action" variant="outline" onClick={onBackup}>Önce yedeğimi al</GameButton><GameButton className="royal-action" variant="destructive" onClick={() => { onReset(); setConfirmReset(false) }}>Evet, şehrimi sıfırla</GameButton><GameButton className="royal-action" variant="outline" onClick={() => setConfirmReset(false)}>{t.action.cancel}</GameButton></div> : <GameButton className="royal-action" variant="outline" onClick={() => setConfirmReset(true)}><ApprovedArt name="hourglass" />Yeni oyun başlat</GameButton>}</RoyalSection>
       </div>}
       {tab === 'divan' && <div className="royal-subpage royal-info-page">
-        <RoyalSection title="Payitaht Adaları" detail="Bir imparatorluğun hikâyesi" art="city"><div className="royal-version-seal"><ApprovedArt name="seal" /><span>Osmanlı esintili ada stratejisi<strong>Sürüm {VERSION}</strong></span></div><div className="royal-game-facts"><RoyalStatus art="city" title="Tek oyunculu">Yapay rakipler</RoyalStatus><RoyalStatus art="seal" title="Çevrimdışı">Cihazda kayıt</RoyalStatus><RoyalStatus art="oud" title="Müzik ve ses">Cihazda üretilir</RoyalStatus><RoyalStatus art="laurel" title="Reklamsız">Satın alma yok</RoyalStatus></div><p className="royal-note">Hesap açılmaz; kişisel veri toplanmaz. Oyun kaydı bu cihazda saklanır.</p><GameButton className="royal-action" variant="outline" onClick={onChangelog}><ApprovedArt name="tempo" />Sürüm arşivini aç</GameButton></RoyalSection>
+        <RoyalSection title="Payitaht Adaları" detail="Bir imparatorluğun hikâyesi" art="city"><div className="royal-version-seal"><ApprovedArt name="seal" /><span>Osmanlı esintili ada stratejisi<strong>Sürüm {VERSION}</strong></span></div><div className="royal-game-facts"><RoyalStatus art="city" title="Tek oyunculu">Yapay rakipler</RoyalStatus><RoyalStatus art="seal" title="Çevrimdışı">Cihazda kayıt</RoyalStatus><RoyalStatus art="oud" title="Müzik ve ses">Cihazda üretilir</RoyalStatus><RoyalStatus art="laurel" title="Reklamsız">Satın alma yok</RoyalStatus></div><p className="royal-note">Hesap açılmaz; kişisel veri toplanmaz. Oyun kaydı bu cihazda saklanır.</p><p className="royal-note"><a href={asset('/privacy.html')} target={native ? '_self' : '_blank'} rel="noopener noreferrer">Gizlilik politikası ve verilerinin silinmesi</a></p><GameButton className="royal-action" variant="outline" onClick={onChangelog}><ApprovedArt name="tempo" />Sürüm arşivini aç</GameButton></RoyalSection>
         {onTitle && <RoyalSection title="Saray kapısı" detail="Hikâyene dilediğin zaman dön." art="city"><p className="royal-note">Otomatik kaydın korunur; giriş ekranından devam edebilirsin.</p><GameButton className="royal-action" variant="outline" onClick={onTitle}>Giriş ekranına dön</GameButton></RoyalSection>}
         <ErrorReport />
       </div>}
     </CourtTabs>
+    <PageDetails title="Divan nizamnamesi"><div className="royal-settings-scene"><img src={asset('/images/game/ui/approved-court/desk.webp')} alt="" width={852} height={223} /><h2>Divan nizamnamesi</h2></div></PageDetails>
   </div>
 }
 function ErrorReport() {

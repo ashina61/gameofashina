@@ -1,3 +1,5 @@
+**21 Kasım 0.133 içerik sırası:** `MANAGEMENT-CLARITY-0.133.md` geçerlidir. Kullanıcının sıkışıklığı giderme talebiyle ortam bandı ana işten Gelişim’e taşındı; yükseltme ilk işlem kalır. Mevcut boyalı malzemeler ve oyun kuralları korunur. Eğitim sırası/araştırma muhasebesi/üretim hesabı yeni açılır düzende erişilebilirdir.
+
 # Kereste ve kaynak üretim yapıları — 0.76.0 / SW88
 
 Geçerli standart `MASTER-UI-STANDARD.md`: onaylı Kışla/Medrese atlaslarının gerçek işlemeli çerçeveleri, ceviz başlık, altın süsler, sıcak parşömen ve kırmızı ipek aktif sekme. HUD ve şehirdeki bina resimleri korunur.

@@ -10,7 +10,8 @@ const { buildingRoadClear } = require('../lib/game/city-map/parcel-city.ts')
 async function main() {
   const out = path.resolve('visual-review')
   await fs.mkdir(out, { recursive: true })
-  const browser = await chromium.launch({ headless: true, args: ['--no-sandbox'] })
+  let browser
+  const launch = () => chromium.launch({ executablePath: process.env.QA_CHROME_PATH, headless: true, args: ['--no-sandbox', '--enable-unsafe-swiftshader'] })
   const diagnostics = { pageErrors: [], missingGameAssets: [], screenshots: [], viewports: [], buildingStageLoads: {}, coastSeed: {} }
   const origin = qaOrigin('VISUAL_QA_URL')
   let siegeSeedRaw
@@ -293,7 +294,7 @@ async function main() {
     diagnostics.screenshots.push(path.basename(islandForest))
     await forest.click()
     await page.getByRole('dialog', { name: /Ada ormanı/ }).waitFor()
-    await page.getByRole('heading', { name: /Ada ormanı · Sv\./ }).waitFor()
+    await page.getByRole('heading', { name: 'Ada ormanı', exact: true }).last().waitFor()
     await page.getByRole('button', { name: 'Geri' }).first().click()
     await page.getByRole('button', { name: 'Şehre dön', exact: true }).click()
 
@@ -344,30 +345,33 @@ async function main() {
       await back()
 
       await page.getByRole('button', { name: /^Şehir danışmanı/ }).click()
-      await page.getByRole('button', { name: /Bütün yapılar/ }).click()
+      await page.getByRole('button', { name: /Bütün yapılar|İnşa emri ver/ }).click()
       await page.getByRole('dialog', { name: /Şehrini büyüt/ }).waitFor({ timeout: 10_000 })
       await snapPanel('buildings')
+      await page.getByRole('button', { name: 'Kurulu', exact: true }).click()
       await page.getByRole('searchbox', { name: 'Yapı ara' }).fill('Medrese')
-      await page.locator('.building-list-item').filter({ hasText: 'Medrese' }).click()
-      await page.getByRole('dialog', { name: 'Medrese sayfası' }).waitFor({ timeout: 10_000 })
-      for (const [stage, button] of [[3, null], [1, 'Sv. 1–3 görünümü'], [2, 'Sv. 4–7 görünümü']]) {
-        if (button) await page.getByRole('button', { name: button }).click()
-        const art = page.getByRole('img', { name: 'Medrese görünümü' })
-        await art.evaluate(img => new Promise((resolve, reject) => {
-          if (img.complete && img.naturalWidth > 0) return resolve()
-          img.addEventListener('load', resolve, { once: true })
-          img.addEventListener('error', reject, { once: true })
-        }))
-        const src = await art.getAttribute('src')
-        // Arayüz telefon boyu kopyayı kullanır (V2 Faz 6.1).
-        if (!src?.includes(`medrese-painted-${stage}-sm.webp?art=20260930-observatory-v1`)) {
-          throw new Error(`Medrese stage ${stage} loaded unexpected art: ${src}`)
-        }
-        await snapPanel(`medrese-stage-${stage}`)
-      }
+      const entry = page.locator('.construction-entry[data-building="medrese"]')
+      await entry.locator('summary').click()
+      await entry.getByRole('button', { name: 'Binaya git', exact: true }).click()
+      const inspector = page.getByRole('dialog', { name: 'Medrese', exact: true })
+      await inspector.waitFor()
+      const previewArt = inspector.locator('img').first()
+      await previewArt.evaluate(img => img.decode())
+      if (!(await previewArt.getAttribute('src')).includes('medrese')) throw new Error(`${label}: wrong Medrese inspector art`)
+      await snapPanel('medrese-inspector')
+      await inspector.getByRole('button', { name: 'Yapıyı yönet', exact: true }).click()
+      await page.getByRole('dialog', { name: 'Medrese sayfası', exact: true }).waitFor()
+      await page.locator('.bp-of-medrese .workforce').waitFor()
+      await snapPanel('medrese-production')
+      await page.getByRole('tab', { name: 'Gelişim', exact: true }).click()
+      await page.locator('.bp-of-medrese .bp-upgrade-button').waitFor()
+      const library = page.getByRole('img', { name: 'Osmanlı medresesinde ilim meclisi', exact: true })
+      await library.evaluate(img => img.decode())
+      await snapPanel('medrese-development')
       await back()
 
       await page.getByRole('button', { name: /^Ordu danışmanı/ }).click()
+      await page.getByRole('tab', { name: 'Savunma', exact: true }).click()
       await page.getByRole('button', { name: /Orduya git/ }).click()
       await page.getByRole('dialog', { name: /Ordu ve donanma/ }).waitFor({ timeout: 10_000 })
       await snapPanel('army')
@@ -400,7 +404,8 @@ async function main() {
       await page.setViewportSize({ width: 345, height: 768 })
       await page.reload({ waitUntil: 'domcontentloaded' })
       await page.getByRole('button', { name: START_BUTTON }).click()
-      await page.getByRole('button', { name: /Şehir: Yeni Sahil.*Şehirlerini aç/ }).click()
+      await page.getByRole('button', { name: /^Şehir: Yeni Sahil\. Şehir seç$/ }).click()
+      await page.getByRole('menuitem', { name: 'Şehir yönetimi', exact: true }).click()
       await page.getByRole('dialog', { name: /Şehirlerin/ }).waitFor()
       const boxes = await page.evaluate(() => {
         const card = document.querySelector('.civic-settlement[aria-current="true"]')
@@ -434,14 +439,17 @@ async function main() {
     const viewports = wanted.length ? all.filter(v => wanted.includes(`${v.width}x${v.height}`)) : all
     if (!viewports.length) throw new Error(`VISUAL_QA_VIEWPORTS matched nothing: ${process.env.VISUAL_QA_VIEWPORTS}`)
     for (const viewport of viewports) {
+      browser = await launch()
       const started = Date.now()
       await runViewport(viewport)
+      await browser.close()
       console.log(`${viewport.width}x${viewport.height}: ${Math.round((Date.now() - started) / 1000)} sn`)
     }
     const compact = viewports.some(v => v.width === 390)
     if (compact) {
+      browser = await launch()
       await require('./siege-visual-qa.cjs')(browser, out, origin, siegeSeedRaw, diagnostics)
-      const requiredPanelShots = ['ui-research-390x844.png', 'ui-buildings-390x844.png', 'ui-medrese-stage-1-390x844.png', 'ui-medrese-stage-2-390x844.png', 'ui-medrese-stage-3-390x844.png', 'ui-army-390x844.png', 'ui-settings-390x844.png', 'ui-colony-345x768.png']
+      const requiredPanelShots = ['ui-research-390x844.png', 'ui-buildings-390x844.png', 'ui-medrese-inspector-390x844.png', 'ui-medrese-production-390x844.png', 'ui-medrese-development-390x844.png', 'ui-army-390x844.png', 'ui-settings-390x844.png', 'ui-colony-345x768.png']
       for (const shot of requiredPanelShots) {
         if (!diagnostics.screenshots.includes(shot)) throw new Error(`Missing content UI QA screenshot: ${shot}`)
       }
@@ -458,7 +466,7 @@ async function main() {
       throw new Error('Mobile city rendered with JavaScript errors or missing game assets; check visual-review/diagnostics.json')
     }
   } finally {
-    await browser.close()
+    await browser?.close()
   }
 }
 

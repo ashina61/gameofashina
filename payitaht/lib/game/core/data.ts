@@ -291,7 +291,7 @@ export type ObjectiveGo = BuildingId | 'research' | 'people' | 'island' | 'army'
 export const OBJECTIVES: { id: string; title: string; description: string; reward: number; go: ObjectiveGo; done: (g: Game) => boolean }[] = [
   { id: 'first-upgrade', title: 'Şehrinin temellerini güçlendir', description: 'Divanhaneyi 2. seviyeye yükselt.', reward: 150, go: 'divan', done: g => g.buildings.divan >= 2 },
   { id: 'first-academy', title: 'Bilginin kapılarını aç', description: 'Boş arsaya bir Medrese inşa et.', reward: 200, go: 'medrese', done: g => g.buildings.medrese >= 1 },
-  { id: 'first-worker', title: 'İlk işçi', description: 'Medresede bir âlimi işe koş: âlimler ilim üretir.', reward: 150, go: 'medrese', done: g => g.workers.medrese >= 1 },
+  { id: 'first-worker', title: 'İlk işçi', description: 'Medresede en az bir âlim çalışsın. Âlimler ilim üretir.', reward: 150, go: 'medrese', done: g => g.workers.medrese >= 1 },
   { id: 'first-research', title: 'Yeni bir çağın başlangıcı', description: 'İlk araştırmanı tamamla.', reward: 300, go: 'research', done: g => g.research.length > 0 },
   { id: 'barracks', title: 'Sancağı kaldır', description: 'Bir Kışla kur.', reward: 350, go: 'kisla', done: g => g.buildings.kisla >= 1 },
   { id: 'walls', title: 'Sur temeli', description: 'Surların temelini at (1. seviye): şehir taş kalkanını alır.', reward: 400, go: 'surlar', done: g => g.buildings.surlar >= 1 },

@@ -1,0 +1,30 @@
+{
+  "baseline": false,
+  "cases": [
+    {
+      "width": 360,
+      "height": 740,
+      "header": 106,
+      "cityBand": 542.34375,
+      "overflow": false
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "header": 106,
+      "cityBand": 638.703125,
+      "overflow": false
+    },
+    {
+      "width": 430,
+      "height": 932,
+      "header": 106,
+      "cityBand": 722,
+      "overflow": false
+    },
+    "first-player guide remains visible",
+    "danger retains priority"
+  ],
+  "errors": [],
+  "missing": []
+}

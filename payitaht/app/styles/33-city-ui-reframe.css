@@ -186,7 +186,7 @@
 }
 .game-world .quest-chip-main { min-height: 48px; padding: 5px 7px; gap: 7px; }
 .game-world .quest-chip-icon { width: 28px; height: 28px; box-shadow: 0 0 0 1px var(--c-gold); }
-.game-world .quest-chip-text small { font-size: 10px; }
+.game-world .quest-chip-text small { font-size: 11px; }
 .game-world .quest-chip-text strong { font-size: 13px; }
 .game-world .quest-chip-go {
   min-height: 48px;
@@ -321,3 +321,42 @@
   .game-world .city-shortcuts button,
   .game-world .city-activity > button { transition: none !important; }
 }
+.game-world .quest-chip.is-guided {
+  right: max(8px, env(safe-area-inset-right, 0px));
+  width: auto;
+  max-width: 410px;
+  min-height: 58px;
+  border-radius: 12px;
+  background: #f3e5c7;
+  backdrop-filter: none;
+}
+.game-world .quest-chip.is-guided .quest-chip-main {
+  flex: 1;
+  padding: 8px 9px;
+  gap: 8px;
+}
+.game-world .quest-chip.is-guided .quest-chip-text strong,
+.game-world .quest-chip.is-guided .quest-chip-text small {
+  white-space: normal;
+  overflow-wrap: anywhere;
+  text-overflow: clip;
+}
+.game-world .quest-chip.is-guided .quest-chip-text strong { font-size: 16px; line-height: 1.15; }
+.game-world .quest-chip.is-guided .quest-chip-text small {
+  margin-top: 3px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: normal;
+  text-transform: none;
+}
+.game-world .quest-chip.is-guided .quest-chip-go {
+  justify-content: center;
+  min-width: 82px;
+  max-width: 42%;
+  padding: 8px 9px;
+  font-size: 13px;
+  line-height: 1.2;
+}
+.game-world .quest-chip.is-guided .quest-chip-go :is(svg,.painted-icon) { flex: 0 0 14px; }
+.game-world .quest-chip.is-guided.is-done .quest-chip-go { background: #365331; }
+.game-world .quest-chip.is-guided.is-placing .quest-chip-go { background: #63503b; }
