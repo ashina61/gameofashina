@@ -145,6 +145,9 @@ async function main() {
     const closed = page.waitForEvent('close')
     shell('am', 'force-stop', APP)
     await closed
+    // CDP closes before Playwright's WebView inventory refreshes. Do not
+    // reconnect to the cached page from the stopped Android process.
+    await until('stopped WebView removed', () => !device.webViews().some(view => view.pkg() === APP))
     page = await start(device)
     watch(page)
     await page.getByRole('button', { name: 'Devam et', exact: true }).click()

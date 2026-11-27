@@ -1,0 +1,77 @@
+# Recheck a compiled APK without rebuilding unchanged game code.
+# The one-off push branch uses the 0.138.1 APK from b01b43d073a279eb959ac967a14a2bc2ee208c87.
+# Manual runs require an explicit source run so evidence is tied to its APK.
+name: Android Device Recheck
+
+on:
+  push:
+    branches: [codex/android-device-recheck-20261127]
+  workflow_dispatch:
+    inputs:
+      apk_run_id:
+        description: 'Run containing payitaht-device-test-apk'
+        required: true
+        type: string
+
+permissions:
+  contents: read
+  actions: read
+
+defaults:
+  run:
+    working-directory: payitaht
+
+jobs:
+  android-device:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/download-artifact@v4
+        with:
+          name: payitaht-device-test-apk
+          run-id: ${{ inputs.apk_run_id || '45989606124' }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: ${{ runner.temp }}/payitaht-apk
+      - name: Install WebView test client
+        run: npm install --no-audit --no-fund --prefix "${RUNNER_TEMP}/android-device" playwright@1.55.0
+      - name: Enable Android emulator acceleration
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - name: Test the compiled APK on Android
+        uses: reactivecircus/android-emulator-runner@a421e43855164a8197daf9d8d40fe71c6996bb0d # v2.38.0
+        env:
+          NODE_PATH: ${{ runner.temp }}/android-device/node_modules
+          ANDROID_DEVICE_EVIDENCE: ${{ github.workspace }}/payitaht/visual-review/android-device
+        with:
+          api-level: 36
+          target: google_apis
+          arch: x86_64
+          profile: pixel_6
+          ram-size: 2048M
+          emulator-options: -no-window -no-snapshot -gpu swangle -feature -Vulkan -noaudio -no-boot-anim -no-metrics
+          disable-animations: true
+          script: node payitaht/tools/android-device-qa.cjs "$RUNNER_TEMP/payitaht-apk/app-debug.apk"
+      - name: Capture emulator host diagnostics
+        if: always()
+        run: |
+          mkdir -p visual-review/android-device
+          sudo dmesg -T > visual-review/android-device/host-kernel.txt
+          free -h > visual-review/android-device/host-memory.txt
+          ps aux --sort=-rss | head -30 > visual-review/android-device/host-processes.txt
+      - name: Verify the Android end-to-end report
+        run: |
+          node -e "const r = require('./visual-review/android-device/report.json'); require('node:assert/strict').equal(r.passed, true)"
+      - name: Upload Android device test evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-device-evidence
+          path: payitaht/visual-review/android-device/
+          if-no-files-found: ignore
+          retention-days: 14
