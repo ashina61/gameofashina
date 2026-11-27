@@ -115,8 +115,9 @@ async function main() {
   const [device] = devices
   const errors = []
   const watch = page => page.on('pageerror', error => errors.push(error.message))
+  let page
   try {
-    let page = await start(device)
+    page = await start(device)
     console.log('Attached to Android WebView at ' + page.url())
     watch(page)
     await screenshot('00-title-launch')
@@ -130,7 +131,13 @@ async function main() {
     await page.locator('#title-city').fill(CITY)
     await page.locator('.title-form button[type="submit"]').click()
     // New-game setup enters the city directly; the inline guide stays available.
-    await page.waitForFunction(() => Number(document.documentElement.dataset.cityReady) > 0)
+    const cityStarted = Date.now()
+    // Cold API 36 software rendering competes with first-boot system setup.
+    // Keep requiring a rendered city; record its duration instead of treating
+    // this emulator as a physical-device performance benchmark.
+    await page.waitForFunction(() => Number(document.documentElement.dataset.cityReady) > 0, undefined, { timeout: 120_000 })
+    report.cityReadyMs = Date.now() - cityStarted
+    await page.locator('.city-boot').waitFor({ state: 'hidden' })
     await until('initial city saved', async () => await savedCity(page) === CITY)
     await screenshot('01-offline-city')
     record('Fresh install boots offline and saves a newly named city')
@@ -180,6 +187,9 @@ async function main() {
     assert.deepEqual(errors, [])
     report.passed = true
   } catch (error) {
+    if (page && !page.isClosed()) {
+      await fs.writeFile(path.join(OUT, 'failure.html'), await page.content().catch(() => '')).catch(() => {})
+    }
     await screenshot('failure').catch(() => {})
     throw error
   } finally {
@@ -193,7 +203,7 @@ async function main() {
 const deadline = setTimeout(() => {
   console.error('Android emulator did not complete the expected game flow')
   process.exit(1)
-}, 240_000)
+}, 480_000)
 
 main().catch(error => {
   report.error = error.message

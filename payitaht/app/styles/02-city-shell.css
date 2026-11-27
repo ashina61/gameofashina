@@ -477,3 +477,9 @@
 .raid-summary :is(svg, .painted-icon) { color: var(--gold); }
  .game-island .map-top-tools, .game-island .weather { display: none; }
 .npc-panel h3 { display: flex; align-items: center; gap: 8px; }
+
+/* Visible until the first rendered city frame, including slow offline WebViews. */
+.city-scene > .city-boot { position: fixed; inset: 0; z-index: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 24px; background: var(--c-parch); color: var(--c-ink); text-align: center; pointer-events: none; }
+.city-boot strong { font-size: 20px; }
+.city-boot p { font-size: 16px; margin: 8px 0 16px; }
+.city-boot button { min-height: 44px; padding: 10px 20px; background: var(--c-ink); color: var(--c-parch); border-radius: 8px; pointer-events: auto; }
