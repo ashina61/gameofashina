@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { play } from '@/lib/sfx'
 import type { ParcelCityScene } from './phaser-parcel-city'
 import type { BuildingId, Game } from '@/lib/game/engine'
@@ -54,6 +54,7 @@ type Props = {
 const toLook = (b?: BannerLook): FlagLook | undefined => b && { color: parseInt(b.color.slice(1), 16), shape: b.shape, crest: b.crest }
 
 export function CityCanvas({ game, fleet=EMPTY_LIFE_FLEET, showLabels, placing, buildTarget, chosenPlot, controls, onBuilding, onPlot, onRoad, moving, movePlot, onMovePlot, onMine, banner, siege = PEACEFUL_CITY, paused = false, raid = false }: Props) {
+  const [bootState, setBootState] = useState<'loading' | 'ready' | 'error'>('loading')
   const holder = useRef<HTMLDivElement>(null)
   const phaser = useRef<import('phaser').Game | null>(null)
   const scene = useRef<ParcelCityScene | null>(null)
@@ -152,6 +153,7 @@ export function CityCanvas({ game, fleet=EMPTY_LIFE_FLEET, showLabels, placing, 
               instance.events.once(Phaser.Core.Events.POST_RENDER, () => {
                 if (disposed || !instance) return
                 ready.current = true
+                setBootState('ready')
                 setFrameCap(instance.loop, wantedFps(idle.current, liteMode()))
                 if (latest.current.paused) instance.loop.sleep()
               })
@@ -172,7 +174,7 @@ export function CityCanvas({ game, fleet=EMPTY_LIFE_FLEET, showLabels, placing, 
       })
       observer.observe(holder.current)
       cleanup = () => observer.disconnect()
-    })()
+    })().catch(() => { if (!disposed) setBootState('error') })
 
     return () => {
       disposed = true
@@ -258,5 +260,12 @@ export function CityCanvas({ game, fleet=EMPTY_LIFE_FLEET, showLabels, placing, 
 
   const lookKey = banner ? `${banner.color}-${banner.shape}-${banner.crest}` : ''
   useEffect(() => { const l = toLook(banner); if (l) { firstLook.current = l; scene.current?.setBanner(l) } }, [lookKey]) // eslint-disable-line react-hooks/exhaustive-deps
-  return <div ref={holder} className="city-canvas" aria-hidden="true" />
+  return <>
+    <div ref={holder} className="city-canvas" aria-hidden="true" />
+    {bootState !== 'ready' && <div className="city-boot" role="status" aria-live="polite">
+      <strong>{bootState === 'error' ? 'Şehir açılamadı' : 'Şehrin hazırlanıyor'}</strong>
+      <p>{bootState === 'error' ? 'Sayfayı yeniden açarak tekrar deneyebilirsin.' : 'Binalar ve yollar yükleniyor…'}</p>
+      {bootState === 'error' && <button type="button" onClick={() => window.location.reload()}>Yeniden dene</button>}
+    </div>}
+  </>
 }
