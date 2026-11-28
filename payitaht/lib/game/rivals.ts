@@ -20,5 +20,5 @@ export { STYLE_NAMES, FACTIONS, RIVALS, rivalById, TREATIES, BONDS, friendOf, en
 export type { RivalStyle, FactionId, Rival, TreatyId, MemoKind, Memo, RivalState, Message, Offer, Delivery, World, ForeignSpy, Score, RankKey } from './rivals/core'
 export { embassyLevel, treatyCost, culturalTreaties, proposeTreaty, cancelTreaty, sendGift, writeLetter, factionMembers, factionStanding, joinAlliance, leaveAlliance, allyHelp, pacified, onRivalRaided, declareWar, expelSpies, stationTribute } from './rivals/diplomacy'
 export type { Letter } from './rivals/diplomacy'
-export { FAIR_PRICE, MARKET_GOODS, marketOffers, addGood, stockOf, mercenaryOffers, buyMercenaries, seaMinutes, acceptOffer, offerSlots, postOffer, cancelOffer, fillRate, advanceWorld, parseWorld, rivalIntel, rivalAttackMul, readMessages } from './rivals/market'
+export { FAIR_PRICE, MARKET_GOODS, marketOffers, addGood, stockOf, mercenaryOffers, buyMercenaries, seaMinutes, acceptOffer, offerReason, compareOfferPrices, offerSlots, postOffer, cancelOffer, fillRate, advanceWorld, parseWorld, rivalIntel, rivalAttackMul, readMessages } from './rivals/market'
 export type { MarketOffer, MercOffer } from './rivals/market'

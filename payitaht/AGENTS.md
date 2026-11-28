@@ -1,3 +1,5 @@
+**28 Kasım — 0.139.0 / SW165:** Kullanıcı Android işlerini durdurdu; öncelik sitedeki gözlem ve web oyun hataları. Ticaret Merkezi ilk teklif/bedel/eylemi öne alır; sahne Gelişim’de, açıklamalar tekliflerden sonra. Alış ucuzdan, satış pahalıdan; önizleme ve komut ortak offerReason kullanır. Ekonomi oranları/kayıt biçimi korunur. docs/WEB-MARKET-0.139.md kapsam ve kanıt kaydıdır.
+
 **27 Kasım — 0.138.1 / SW164:** Şehir ilk POST_RENDER karesine kadar erişilebilir hazırlık durumu gösterir; async açılış hatasında yeniden deneme sunar. Android API 36 soğuk emülatör açılışı ayrı 120sn sınırıyla ve gerçek cityReady koşuluyla denetlenir; fiziksel cihaz performans ölçümü değildir. docs/ANDROID-BOOT-0.138.1.md kapsam kaydıdır.
 
 **26 Kasım — 0.138.0 / SW163:** Araştırma/eğitim kararları ilk telefon görünümünde; kilitli konular/birlikler ve gelecek araştırmaları ayrı açılır. Kilitli seçime odak taşınır. Elçi hükümdar satırları kısa, ilişki puanı adlandırılmış. Divanhane 5 rehberi erken bitirmez. 360/390/430 işlem testleri ve layout aracı güncellendi. docs/DECISION-CLARITY-2026-11-26.md kanıt/kapsam; fiziksel Android ve genel sanat kabulü açık.

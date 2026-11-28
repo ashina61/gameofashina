@@ -91,27 +91,38 @@ export function seaMinutes(a: IslandId, b: IslandId) {
   const A = ISLANDS.find(i => i.id === a)!, B = ISLANDS.find(i => i.id === b)!
   return 2 + Math.hypot(A.x - B.x, A.y - B.y) / 3
 }
+/** Read-only preview shared by the market and its command validation. */
+export function offerReason(empire: Empire, offer: MarketOffer): string | undefined {
+  const g = activeCity(empire).game
+  if ((empire.world?.deliveries.length ?? 0) >= MAX_DELIVERIES) return 'Limanlarda bekleyen yük çok; önce ambarlarda yer aç.'
+  const total = Math.round(offer.amount * offer.price)
+  if (offer.side === 'sell') return g.resources.gold < total ? `${total} akçe gerekli.` : undefined
+  if (g.buildings.liman < 1) return 'Satış için Ticaret Limanı gerekli.'
+  const fleetCap = idleMerchants(empire) * shipCargo(g)
+  if (fleetCap < offer.amount) return `Limandaki boş ticaret gemileri ${fleetCap} mal taşır; bu satış ${offer.amount} ister.`
+  if (stockOf(g, offer.good) < offer.amount) return 'Bu kadar malın yok.'
+}
+/** Buy cheapest first; sell to the highest bidder. Distance breaks ties in UI. */
+export function compareOfferPrices(a: MarketOffer, b: MarketOffer) {
+  return a.side === 'sell' ? a.price - b.price : b.price - a.price
+}
 export function acceptOffer(source: Empire, offerId: string, now: number): { empire: Empire; error?: string } {
   const empire = advanceEmpire(source, now)
   const offer = marketOffers(empire, now).find(o => o.id === offerId)
   if (!offer) return { empire, error: 'Bu teklif artık geçerli değil.' }
+  const error = offerReason(empire, offer)
+  if (error) return { empire, error }
   const r = rivalById(offer.rivalId)!
   const city = activeCity(empire)
   const g = city.game
   const total = Math.round(offer.amount * offer.price)
   const eta = now + Math.round(seaMinutes(r.islandId, city.islandId) * 60_000 * travelFactor(g))
   const w = world(empire)
-  if (w.deliveries.length >= MAX_DELIVERIES) return { empire, error: 'Limanlarda bekleyen yük çok; önce ambarlarda yer aç.' }
   if (offer.side === 'sell') {
-    if (g.resources.gold < total) return { empire, error: `${total} akçe gerekli.` }
     g.resources.gold -= total
     w.deliveries = [...w.deliveries, { id: `d-${offer.id}`, cityId: city.id, good: offer.good, amount: offer.amount, eta, from: r.city }]
     logEvent(g, `${r.city} pazarından ${offer.amount} ${offer.good} alındı; gemileri yolda.`, now)
   } else {
-    if (g.buildings.liman < 1) return { empire, error: 'Satış için Ticaret Limanı gerekli.' }
-    const fleetCap = idleMerchants(empire) * shipCargo(g)
-    if (fleetCap < offer.amount) return { empire, error: `Limandaki boş ticaret gemileri ${fleetCap} mal taşır; bu satış ${offer.amount} ister.` }
-    if (stockOf(g, offer.good) < offer.amount) return { empire, error: 'Bu kadar malın yok.' }
     addGood(g, offer.good, -offer.amount)
     w.deliveries = [...w.deliveries, { id: `d-${offer.id}`, cityId: city.id, good: 'gold', amount: total, eta, from: r.city }]
     logEvent(g, `${offer.amount} ${offer.good} ${r.city} pazarına satıldı; bedeli dönüşte gelir.`, now)
