@@ -40,9 +40,9 @@ export function ArmyRegister({ game, empire, run, onRecruit, onBuild, onIsland }
       </> : <>
         <GameButton onClick={onIsland}>Adadan sefer hedefi seç</GameButton>
         <MissionList empire={empire} now={game.updatedAt} run={run} />
-        {!missions.length && <p className="muster-note">Bu şehre ait yolda veya konuşlu sefer yok. Hedefi Ada görünümünden seçebilirsin.</p>}
-        <DefenseSummary empire={empire} />
         {empire.cities.length > 1 ? <DeployPanel empire={empire} run={run} /> : <p className="muster-note">Birlik aktarımı, ikinci şehrini kurduğunda açılır.</p>}
+        {!missions.length && <p className="muster-note">Bu şehre ait yolda veya konuşlu sefer yok. Hedefi Ada görünümünden seçebilirsin.</p>}
+        {(empire.threats ?? []).some(t => t.cityId === city.id) ? <DefenseSummary empire={empire} /> : <details className="muster-support"><summary>Şehir savunması ve korunan mal</summary><DefenseSummary empire={empire} /></details>}
       </>}
     </CourtTabs>
   </div>

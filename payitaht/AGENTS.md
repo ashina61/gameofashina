@@ -1,3 +1,5 @@
+**28 Kasım — 0.141.0 / SW167:** Web birlik seçicide tam sayı girişi, 44px dokunma alanı ve ortak deployPreview engel önizlemesi. Saldırı yokken savunma hesabı açılır ayrıntıda; tehdit açık kalır. Kayıt ve sefer kuralları korunur.
+
 **28 Kasım — 0.140.0 / SW166:** Web nakliye önizlemesi ve gönderim ortak shipmentReason kullanır; kuşatma/sefer hakkı/hedef/miktar engelleri gönderimden önce açıklanır. Geçerli yükte gemi sayısı ve ortak shipmentDuration süresi görünür. Liman açıklamaları açılır ayrıntıda. Kayıt ve ekonomi kuralları korunur.
 
 **28 Kasım — 0.139.0 / SW165:** Kullanıcı Android işlerini durdurdu; öncelik sitedeki gözlem ve web oyun hataları. Ticaret Merkezi ilk teklif/bedel/eylemi öne alır; sahne Gelişim’de, açıklamalar tekliflerden sonra. Alış ucuzdan, satış pahalıdan; önizleme ve komut ortak offerReason kullanır. Ekonomi oranları/kayıt biçimi korunur. docs/WEB-MARKET-0.139.md kapsam ve kanıt kaydıdır.

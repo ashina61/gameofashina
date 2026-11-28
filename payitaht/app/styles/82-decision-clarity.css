@@ -36,3 +36,12 @@
 .game-shell.has-page .bp.bp-commerce .trade-center > .empire-section > h3 { min-height: 28px; margin: 0 0 8px; padding: 0; font-size: 20px; }
 .game-shell.has-page .bp.bp-commerce .trade-filters { margin-bottom: 8px; }
 .game-shell.has-page .bp.bp-commerce .trade-order-note { margin: 8px 0; }
+
+/* Exact troop counts remain editable beside large touch controls. */
+.game-shell .raid-unit { grid-template-columns: 44px minmax(0,1fr) 44px 54px; }
+.game-shell .raid-unit > span { grid-column: 2 / -1; }
+.game-shell .raid-unit > .gbtn:first-of-type { grid-column: 1; grid-row: 2; }
+.game-shell .raid-unit > .stepper-value { grid-column: 2; grid-row: 2; }
+.game-shell .raid-unit > .gbtn:nth-of-type(2) { grid-column: 3; grid-row: 2; }
+.game-shell .raid-unit > .gbtn:last-of-type { grid-column: 4; grid-row: 2; padding-inline: 4px; }
+.game-shell .raid-unit > .unit-quantity { width: 100%; min-width: 44px; min-height: 44px; padding: 6px; border: 1px solid var(--c-gold-deep); border-radius: 0; background: var(--c-parch); color: var(--c-ink); font: 700 18px/1.3 Georgia,serif; }

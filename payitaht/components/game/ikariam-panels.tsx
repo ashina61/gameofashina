@@ -38,16 +38,16 @@ export function UnitPicker({ ids, free, pick, onPick, step = 1, painted = false 
   ids: UnitId[]; free: Record<UnitId, number>; pick: Partial<Record<UnitId, number>>
   onPick: (next: Partial<Record<UnitId, number>>) => void; step?: number; painted?: boolean
 }) {
-  const set = (id: UnitId, n: number) => onPick({ ...pick, [id]: Math.max(0, Math.min(free[id], n)) })
+  const set = (id: UnitId, n: number) => onPick({ ...pick, [id]: Math.max(0, Math.min(free[id], Number.isFinite(n) ? Math.floor(n) : 0)) })
   const shown = ids.filter(id => free[id] > 0 || (pick[id] ?? 0) > 0)
   if (!shown.length) return null
   return <div className="raid-units">{shown.map(id => <div key={id} className="raid-unit">
     {painted ? <img className="campaign-unit-portrait" src={asset(UNITS[id].branch === 'deniz' ? `/images/game/units/${id}.webp` : `/images/game/ui/barracks/portrait-${id}.webp`)} alt="" width={80} height={60} /> : <UnitFigure id={id} size={36} />}
     <span><strong>{UNITS[id].name}</strong><small>{free[id]} boşta · saldırı {UNITS[id].attack}</small></span>
     <GameButton size="sm" variant="outline" disabled={!(pick[id] ?? 0)} onClick={() => set(id, (pick[id] ?? 0) - step)} aria-label={`${UNITS[id].name} azalt`}><Minus /></GameButton>
-    <strong className="stepper-value">{pick[id] ?? 0}</strong>
+    <input className="stepper-value unit-quantity" type="number" inputMode="numeric" min={0} max={free[id]} step={1} aria-label={`${UNITS[id].name} sayısı`} value={pick[id] ?? 0} onChange={e => set(id, e.target.valueAsNumber)} />
     <GameButton size="sm" variant="outline" disabled={(pick[id] ?? 0) >= free[id]} onClick={() => set(id, (pick[id] ?? 0) + step)} aria-label={`${UNITS[id].name} artır`}><Plus /></GameButton>
-    <GameButton size="sm" variant="ghost" data-guide={`all-${id}`} disabled={!free[id] || (pick[id] ?? 0) >= free[id]} onClick={() => set(id, free[id])}>Hepsi</GameButton>
+    <GameButton size="sm" variant="ghost" data-guide={`all-${id}`} aria-label={`${UNITS[id].name} hepsini seç`} disabled={!free[id] || (pick[id] ?? 0) >= free[id]} onClick={() => set(id, free[id])}>Hepsi</GameButton>
   </div>)}</div>
 }
 

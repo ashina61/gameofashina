@@ -32,7 +32,7 @@ import { activeCity, renameCity, type Empire } from '@/lib/game/empire'
 import { DAILY_TASKS, claimLogin, claimTask, loginReward, taskProgress } from '@/lib/game/daily'
 import { MILESTONES, claimMilestone, milestoneDone, milestoneProgress } from '@/lib/game/milestones'
 import { advanceEmpire } from '@/lib/game/empire'
-import { dispatchDeploy, dispatchSupport, recallMission, retreatMission, targetName, transportsNeeded, availableUnits, RAID_UNITS, WARSHIPS, targetInfo, type Mission } from '@/lib/game/expeditions'
+import { deployPreview, dispatchDeploy, dispatchSupport, recallMission, retreatMission, targetName, transportsNeeded, availableUnits, RAID_UNITS, WARSHIPS, targetInfo, type Mission } from '@/lib/game/expeditions'
 import { BattleView } from './battle-view'
 import { troopList } from '@/lib/game/battle'
 import {
@@ -205,6 +205,7 @@ export function DeployPanel({ empire, run }: { empire: Empire; run: Run }) {
   if (!others.length) return null
   const free = availableUnits(empire, city.id)
   const target = empire.cities.find(c => c.id === to)
+  const reason = deployPreview(empire, to, pick).error
   const ships = target && target.islandId !== city.islandId ? transportsNeeded(pick) : 0
   return <section className="empire-section">
     <h3><Truck className="size-4" /> Birlik aktar</h3>
@@ -212,7 +213,8 @@ export function DeployPanel({ empire, run }: { empire: Empire; run: Run }) {
       {others.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}</select></label>
     <UnitPicker ids={UNIT_IDS.filter(id => id !== 'nakliye')} free={free} pick={pick} onPick={setPick} />
     {ships > 0 && <p className="fine-print">{ships} nakliye gemisi gerekli · boşta {free.nakliye}.</p>}
-    <GameButton size="sm" disabled={!to || !Object.values(pick).some(n => (n ?? 0) > 0)}
+    {reason && <p id="deploy-reason" className="requirement" role="status">{reason}</p>}
+    <GameButton size="sm" aria-describedby={reason ? "deploy-reason" : undefined} disabled={!!reason}
       onClick={() => { run((e, now) => dispatchDeploy(e, to, pick, now), 'Birlikler yola çıktı.'); setPick({}) }}>{t.action.send}</GameButton>
     <p className="fine-print">Birlikler hedef şehrin halkından yer ister; sığmayanlar geri döner.</p>
   </section>

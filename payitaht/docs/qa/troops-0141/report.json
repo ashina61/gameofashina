@@ -1,0 +1,17 @@
+[
+  {
+    "width": 360,
+    "passed": true,
+    "countControlFits": true
+  },
+  {
+    "width": 390,
+    "passed": true,
+    "countControlFits": true
+  },
+  {
+    "width": 430,
+    "passed": true,
+    "countControlFits": true
+  }
+]
