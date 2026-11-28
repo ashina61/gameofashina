@@ -440,35 +440,46 @@ export function abandonCity(source: Empire, cityId: string, now: number): { empi
   return { empire }
 }
 
-export function shipResources(source: Empire, to: string, resource: Cargo, amount: number, now: number):
-  { empire: Empire; error?: string } {
-  const empire = advanceEmpire(source, now)
+export function shipmentReason(empire: Empire, to: string, resource: Cargo, amount: number): string | undefined {
   const from = activeCity(empire)
   const destination = empire.cities.find(city => city.id === to)
-  if (!destination || from.id === to) return { empire, error: 'Geçerli bir hedef şehir seç.' }
+  if (!destination || from.id === to) return 'Geçerli bir hedef şehir seç.'
   if (!CARGO_IDS.includes(resource) ||
-      !Number.isSafeInteger(amount) || amount <= 0) return { empire, error: 'Geçersiz kaynak miktarı.' }
-  if (from.game.buildings.liman < 1) return { empire, error: 'Önce bu şehirde Ticaret Limanı kur.' }
+      !Number.isSafeInteger(amount) || amount <= 0) return 'Geçersiz kaynak miktarı.'
+  if (from.game.buildings.liman < 1) return 'Önce bu şehirde Ticaret Limanı kur.'
   const blocked = siegeBlock(empire, from.id, true) ?? siegeBlock(empire, to, true)
-  if (blocked) return { empire, error: blocked }
-  if (empire.shipments.some(s => s.from === from.id)) return { empire, error: 'Bu şehrin nakliye gemileri seferde.' }
+  if (blocked) return blocked
+  if (empire.shipments.some(s => s.from === from.id)) return 'Bu şehrin nakliye gemileri seferde.'
   if ((empire.missions ?? []).filter(m => m.cityId === from.id).length + 1 > actionPoints(from.game)) {
-    return { empire, error: `Sefer hakkın doldu (${actionPoints(from.game)}). Bir görevin dönmesini bekle.` }
+    return `Sefer hakkın doldu (${actionPoints(from.game)}). Bir görevin dönmesini bekle.`
   }
   // Ortak ticaret filosunun limanda boş bekleyen gemileri yükü taşır.
   const idle = idleMerchants(empire), per = Math.max(1, shipCargo(from.game))
   const limit = Math.min(idle * per, tradeCapacity(from.game))
-  if (limit <= 0) return { empire, error: 'Limanda boş ticaret gemisi yok. Ticaret Limanı\'ndan gemi satın al.' }
-  if (amount > limit) return { empire, error: `Tek seferde en fazla ${limit} kaynak taşınabilir.` }
-  if (amount > stock(from.game, resource)) return { empire, error: 'Bu kadar kaynak bulunmuyor.' }
+  if (limit <= 0) return 'Limanda boş ticaret gemisi yok. Ticaret Limanı\'ndan gemi satın al.'
+  if (amount > limit) return `Tek seferde en fazla ${limit} kaynak taşınabilir.`
+  if (amount > stock(from.game, resource)) return 'Bu kadar kaynak bulunmuyor.'
+}
+
+export function shipmentDuration(empire: Empire, to: string, amount: number): number {
+  const from = activeCity(empire), destination = empire.cities.find(city => city.id === to)
+  if (!destination) return 0
   const a = islandOf(from), b = islandOf(destination)
-  // Yol + limanda yükleme süresi (Ticaret Limanı seviyesiyle hızlanır).
   const minutes = 1 + Math.ceil(Math.hypot(a.x - b.x, a.y - b.y) / 4) + amount / loadingSpeed(from.game)
+  return Math.round(minutes * 60_000 * (from.game.research.includes('haritacilik') ? .85 : 1) * travelFactor(from.game))
+}
+
+export function shipResources(source: Empire, to: string, resource: Cargo, amount: number, now: number):
+  { empire: Empire; error?: string } {
+  const empire = advanceEmpire(source, now)
+  const error = shipmentReason(empire, to, resource, amount)
+  if (error) return { empire, error }
+  const from = activeCity(empire), per = Math.max(1, shipCargo(from.game))
   addStock(from.game, resource, -amount)
   bump(empire, 'shipments')
   empire.shipments.push({
     id: `shipment-${from.id}-${now}`, from: from.id, to, resource, amount, ships: Math.ceil(amount / per),
-    eta: now + Math.round(minutes * 60_000 * (from.game.research.includes('haritacilik') ? .85 : 1) * travelFactor(from.game)),
+    eta: now + shipmentDuration(empire, to, amount),
   })
   return { empire }
 }
