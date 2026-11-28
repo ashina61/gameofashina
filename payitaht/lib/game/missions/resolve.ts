@@ -444,37 +444,44 @@ function finishMission(empire: Empire, m: Mission, at: number) {
  * BİRLİK AKTARMA: kendi şehirlerin arasında asker ve gemi taşı. Kara birlikleri
  * nakliyeyle geçer. Varışta hedefte yeterli boş halk yoksa sığmayanlar geri döner.
  */
-export function dispatchDeploy(source: Empire, toCityId: string, units: Partial<Record<UnitId, number>>, now: number): { empire: Empire; error?: string } {
-  const empire = advanceEmpire(source, now)
+export function deployPreview(empire: Empire, toCityId: string, units: Partial<Record<UnitId, number>>): { error?: string; clean?: Partial<Record<UnitId, number>> } {
   const from = activeCity(empire)
   const to = empire.cities.find(c => c.id === toCityId)
-  if (!to || to.id === from.id) return { empire, error: 'Geçerli bir hedef şehir seç.' }
-  if (actionsInUse(empire, from.id) >= actionPoints(from.game)) return { empire, error: `Sefer hakkın doldu (${actionPoints(from.game)}).` }
-  if (underSiege(empire, from.id)) return { empire, error: 'Şehrin önünde savaş sürüyor: birlikler surlardan ayrılamaz.' }
+  if (!to || to.id === from.id) return { error: 'Geçerli bir hedef şehir seç.' }
+  if (actionsInUse(empire, from.id) >= actionPoints(from.game)) return { error: `Sefer hakkın doldu (${actionPoints(from.game)}).` }
+  if (underSiege(empire, from.id)) return { error: 'Şehrin önünde savaş sürüyor: birlikler surlardan ayrılamaz.' }
   const blocked = siegeBlock(empire, from.id, true)
-  if (blocked) return { empire, error: blocked }
+  if (blocked) return { error: blocked }
   const free = availableUnits(empire, from.id)
   const clean: Partial<Record<UnitId, number>> = {}
   for (const [id, n] of Object.entries(units) as [UnitId, number][]) {
-    if (!UNIT_IDS.includes(id) || id === 'nakliye' || !Number.isInteger(n) || n < 0) return { empire, error: 'Geçersiz birlik seçimi.' }
-    if (n > free[id]) return { empire, error: `Bu kadar boşta ${UNITS[id].name} yok.` }
+    if (!UNIT_IDS.includes(id) || id === 'nakliye' || !Number.isInteger(n) || n < 0) return { error: 'Geçersiz birlik seçimi.' }
+    if (n > free[id]) return { error: `Bu kadar boşta ${UNITS[id].name} yok.` }
     if (n > 0) clean[id] = n
   }
-  if (!hasTroops(clean)) return { empire, error: 'En az bir birlik seç.' }
+  if (!hasTroops(clean)) return { error: 'En az bir birlik seç.' }
   const overseas = from.islandId !== to.islandId
   if (overseas) {
-    if (from.game.buildings.liman < 1) return { empire, error: 'Başka adaya aktarma için Ticaret Limanı gerekli.' }
+    if (from.game.buildings.liman < 1) return { error: 'Başka adaya aktarma için Ticaret Limanı gerekli.' }
     const ships = transportsNeeded(clean)
-    if (ships > free.nakliye) return { empire, error: `${ships} nakliye gemisi gerekli (boşta ${free.nakliye}).` }
+    if (ships > free.nakliye) return { error: `${ships} nakliye gemisi gerekli (boşta ${free.nakliye}).` }
     if (ships) clean.nakliye = ships
   }
   const need = (Object.entries(clean) as [UnitId, number][]).filter(([id]) => id !== 'nakliye').reduce((s, [id, n]) => s + UNITS[id].pop * n, 0)
-  if (idleWorkers(to.game) < need) return { empire, error: `${to.name} bu birlikleri barındıramaz: ${need} boş vatandaş yeri gerekli (şu an ${idleWorkers(to.game)}).` }
+  if (idleWorkers(to.game) < need) return { error: `${to.name} bu birlikleri barındıramaz: ${need} boş vatandaş yeri gerekli (şu an ${idleWorkers(to.game)}).` }
   for (const branch of ['kara', 'deniz'] as const) {
     const add = (Object.entries(clean) as [UnitId, number][]).filter(([id]) => UNITS[id].branch === branch && inGarrison(id)).reduce((s, [id, n]) => s + UNITS[id].pop * n, 0)
     const room = garrisonLimit(to.game, branch) - garrisonUsed(to.game, branch)
-    if (add > room) return { empire, error: `${to.name} garnizonu dolu: ${branch === 'kara' ? 'kara' : 'deniz'} birlikleri için ${Math.max(0, room)} yer var, ${add} gerekli.` }
+    if (add > room) return { error: `${to.name} garnizonu dolu: ${branch === 'kara' ? 'kara' : 'deniz'} birlikleri için ${Math.max(0, room)} yer var, ${add} gerekli.` }
   }
+  return { clean }
+}
+
+export function dispatchDeploy(source: Empire, toCityId: string, units: Partial<Record<UnitId, number>>, now: number): { empire: Empire; error?: string } {
+  const empire = advanceEmpire(source, now)
+  const preview = deployPreview(empire, toCityId, units)
+  if (preview.error || !preview.clean) return { empire, error: preview.error }
+  const clean = preview.clean, from = activeCity(empire), to = empire.cities.find(c => c.id === toCityId)!
   const travel = 60_000 + seaTravelMs(from.islandId, to.islandId, from.game)
   empire.missions = [...(empire.missions ?? []), {
     id: `deploy-${from.id}-${to.id}-${now}`, kind: 'deploy', cityId: from.id, npcId: to.id, units: clean,
