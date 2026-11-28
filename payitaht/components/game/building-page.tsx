@@ -322,7 +322,7 @@ export function BuildingPage({ game, empire, id, onClose, onBuild, onFlip, onMov
       {defense && <figure className="academy-banner"><img src={asset(`/images/game/ui/defense/${id}.webp`)} alt={defense.alt} /><figcaption>Seviye {level}</figcaption></figure>}
       {maritime && <figure className="academy-banner"><img src={asset(`/images/game/ui/maritime/${id === 'liman' ? 'harbor' : 'shipyard'}.webp`)} alt={id === 'liman' ? 'Osmanlı limanında yükleme' : 'Osmanlı tersanesinde gemi inşası'} /><figcaption>Seviye {level}</figcaption></figure>}
       {exchange && <figure className="academy-banner"><img src={asset('/images/game/ui/exchange/market.webp')} alt="Osmanlı pazarında tartıyla mal takası" /><figcaption>Seviye {level}</figcaption></figure>}
-      {commerce && <figure className="academy-banner"><img src={asset(`/images/game/ui/commerce/${id === 'carsi' ? 'bazaar' : 'caravanserai'}.webp`)} alt={id === 'carsi' ? 'Osmanlı çarşısında esnaf ve alışveriş' : 'Osmanlı tüccarhanesinin yük ve defter avlusu'} /><figcaption>Seviye {level}</figcaption></figure>}
+      {commerce && id !== 'ticaret_merkezi' && <figure className="academy-banner"><img src={asset(`/images/game/ui/commerce/${id === 'carsi' ? 'bazaar' : 'caravanserai'}.webp`)} alt={id === 'carsi' ? 'Osmanlı çarşısında esnaf ve alışveriş' : 'Osmanlı tüccarhanesinin yük ve defter avlusu'} /><figcaption>Seviye {level}</figcaption></figure>}
       {workshop && <figure className="academy-banner"><img src={asset(`/images/game/ui/cost/${id}.webp`)} alt={workshop.alt} /><figcaption>Seviye {level}</figcaption></figure>}
       {(id === 'ambar' || id === 'depo') && <figure className="academy-banner"><img src={asset(`/images/game/ui/storage/${id === 'ambar' ? 'warehouse' : 'depot'}.webp`)} alt={id === 'ambar' ? 'Osmanlı ambarında sandıklar ve erzak' : 'Osmanlı deposunun yükleme avlusu'} /><figcaption>Seviye {level}</figcaption></figure>}
       {id === 'kahvehane' && <figure className="academy-banner"><img src={asset('/images/game/ui/coffeehouse/terrace.webp')} alt="Osmanlı kahvehanesinin Ege’ye bakan sohbet terası" /><figcaption>Seviye {level}</figcaption></figure>}
@@ -340,6 +340,7 @@ export function BuildingPage({ game, empire, id, onClose, onBuild, onFlip, onMov
       </div>
       <div className="bp-tabpanel" hidden={showTab !== 'gelisim'}>
       {royalWork && <UpgradeDock game={game} id={id} onBuild={onBuild} />}
+      {id === 'ticaret_merkezi' && <figure className="academy-banner"><img src={asset(`/images/game/ui/commerce/caravanserai.webp`)} alt="Osmanlı tüccarhanesinin yük ve defter avlusu" /><figcaption>Seviye {level}</figcaption></figure>}
       <Box title="Seviye etkisi"><BuildingEffects game={game} id={id} level={level} max={max} /></Box>
       {forecast.length > 0 && <Box title="Sonraki seviyeler">
         <Table head={['Sv.', 'Maliyet', 'Süre']} rows={forecast.map(f => [

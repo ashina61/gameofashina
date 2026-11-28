@@ -56,7 +56,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        suite: [layout, decisions, heraldry, first-ten, city-390, city-412, city-430]
+        suite: [layout, market, decisions, heraldry, first-ten, city-390, city-412, city-430]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -116,6 +116,7 @@ jobs:
         run: |
           case "$SUITE" in
             layout)   node --check tools/layout-qa.cjs && node tools/layout-qa.cjs ;;
+            market) node tools/market-qa.cjs ;;
             decisions) node tools/decision-clarity-qa.cjs && DESIGN_PHASE=release node tools/mobile-design-audit.cjs ;;
             heraldry) node --check tools/heraldry-qa.cjs && node tools/heraldry-qa.cjs ;;
             first-ten) node --check tools/first-ten-qa.cjs && node tools/first-ten-qa.cjs ;;
