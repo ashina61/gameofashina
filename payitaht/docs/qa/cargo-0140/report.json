@@ -1,0 +1,17 @@
+[
+  {
+    "width": 360,
+    "passed": true,
+    "firstActionVisible": true
+  },
+  {
+    "width": 390,
+    "passed": true,
+    "firstActionVisible": true
+  },
+  {
+    "width": 430,
+    "passed": true,
+    "firstActionVisible": true
+  }
+]
